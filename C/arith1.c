@@ -326,7 +326,7 @@ msb(Int inp USES_REGS)	/* calculate the most significant bit for an integer */
   Int out = 0;
 
   if (inp < 0) {
-    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+    Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	      "msb/1 received %d", inp);
   }
 
@@ -363,7 +363,7 @@ lsb(Int inp USES_REGS)	/* calculate the least significant bit for an integer */
   Int out = 0;
 
   if (inp < 0) {
-    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+    Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	      "msb/1 received %d", inp);
   }
   if (inp==0)
@@ -387,7 +387,7 @@ popcount(Int inp USES_REGS)	/* calculate the least significant bit for an intege
   Int c = 0, j = 0, m = ((CELL)1);
 
   if (inp < 0) {
-    return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
+     Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
 	      "popcount/1 received %d", inp);
   }
   if (inp==0)
@@ -434,7 +434,7 @@ eval1(Int fi, Term t USES_REGS) {
     case long_int_e:
       RINT(~IntegerOfTerm(t));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(%f)", FloatOfTerm(t));
+       Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_unot_big(t);
@@ -450,7 +450,7 @@ eval1(Int fi, Term t USES_REGS) {
       if (dbl >= 0) {
 	RFLOAT(log(dbl));
       } else {
-	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log(%f)", dbl);
+	 Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "log(%f)", dbl);
       }
     }
   case op_log10:
@@ -459,7 +459,7 @@ eval1(Int fi, Term t USES_REGS) {
       if (dbl >= 0) {
 	RFLOAT(log10(dbl));
       } else {
-	return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "log10(%f)", dbl);
+	Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "log10(%f)", dbl);
       }
     }
   case op_sqrt:
@@ -468,7 +468,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = sqrt(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "sqrt(%f)", dbl);
+	 Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "sqrt(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -517,7 +517,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = asin(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
+	Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -530,7 +530,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = acos(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
+	Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -543,7 +543,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = atan(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atan(%f)", dbl);
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atan(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -556,7 +556,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = asinh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "asinh(%f)", dbl);
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "asinh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -569,7 +569,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = acosh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
+	 Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "acosh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -582,7 +582,7 @@ eval1(Int fi, Term t USES_REGS) {
       out = atanh(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	 Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -645,12 +645,12 @@ eval1(Int fi, Term t USES_REGS) {
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
+	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
       }
 #endif
@@ -674,12 +674,12 @@ eval1(Int fi, Term t USES_REGS) {
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	 Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
+	 Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
       }
 #endif
@@ -704,12 +704,12 @@ eval1(Int fi, Term t USES_REGS) {
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
+	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
       }
 #endif
@@ -734,12 +734,12 @@ eval1(Int fi, Term t USES_REGS) {
       }
 #if HAVE_ISNAN
       if (isnan(dbl)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+	Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
 #if HAVE_ISINF
       if (isinf(dbl)) {
-	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
+	Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer (%f)",dbl);
       }
 #endif
       if (dbl < 0.0)
@@ -804,7 +804,7 @@ eval1(Int fi, Term t USES_REGS) {
     case long_int_e:
       RINT(msb(IntegerOfTerm(t) PASS_REGS));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
+      Yap_ArithError(TYPE_ERROR_INTEGER, t, "msb(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_msb(t);
@@ -817,7 +817,7 @@ eval1(Int fi, Term t USES_REGS) {
     case long_int_e:
       RINT(lsb(IntegerOfTerm(t) PASS_REGS));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "lsb(%f)", FloatOfTerm(t));
+      Yap_ArithError(TYPE_ERROR_INTEGER, t, "lsb(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_lsb(t);
@@ -830,7 +830,7 @@ eval1(Int fi, Term t USES_REGS) {
     case long_int_e:
       RINT(popcount(IntegerOfTerm(t) PASS_REGS));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount(%f)", FloatOfTerm(t));
+      Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_popcount(t);
@@ -842,7 +842,7 @@ eval1(Int fi, Term t USES_REGS) {
     switch (ETypeOfTerm(t)) {
     case long_int_e:
       if (isoLanguageFlag()) { /* iso */
-	return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
+	Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_fractional_part(%f)", IntegerOfTerm(t));
       } else {
 	RFLOAT(0.0);
       }
@@ -863,7 +863,7 @@ eval1(Int fi, Term t USES_REGS) {
   case op_fintp:
     switch (ETypeOfTerm(t)) {
     case long_int_e:
-      return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
+      Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is float_integer_part(%f)", IntegerOfTerm(t));
     case double_e:
       RFLOAT(rint(FloatOfTerm(t)));
       break;
@@ -901,7 +901,7 @@ eval1(Int fi, Term t USES_REGS) {
     case long_int_e:
       RINT(Yap_random()*IntegerOfTerm(t));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
+      Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_mul_float_big(Yap_random(), t);

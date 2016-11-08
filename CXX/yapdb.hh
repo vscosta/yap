@@ -97,7 +97,7 @@ public:
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromWideString
   inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
-    f = Yap_MkFunctor(Yap_LookupWideAtom(s), arity);
+    CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
   }
   ~YAPFunctor(){};
   /// Getter: extract name of functor as an atom

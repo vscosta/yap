@@ -565,9 +565,12 @@ static void write_string(const unsigned char *s,
     qt = '"';
   wrputc(qt, stream);
   do {
-    ptr += get_utf8(ptr, -1, &chr);
+      int delta;
+    ptr += (delta = get_utf8(ptr, -1, &chr) );
+      
     if (chr == '\0')
       break;
+      if (delta == 0) {chr = *ptr++; }
     write_quoted(chr, qt, stream);
   } while (TRUE);
   wrputc(qt, stream);

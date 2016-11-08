@@ -39,12 +39,12 @@ public:
   }
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
+  /// YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  YAPTerm(double num) { mk(MkFloatTerm(num)); }
+  /// YAPTerm(double num) { mk(MkFloatTerm(num)); }
   /// parse string s and construct a term.
-  YAPTerm(YAPFunctor f, YAPTerm ts[]);
+  /// YAPTerm(YAPFunctor f, YAPTerm ts[]);
   /// extract the tag of a term, after dereferencing.
   YAP_tag_t tag();
   /// copy the term ( term copy )
@@ -322,8 +322,6 @@ class YAPAtomTerm : public YAPTerm {
   // Constructor: receives a C-atom;
   YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
-  // Getter for Prolog atom
-  Term getTerm() { return t; }
 
 public:
   // Constructor: receives an atom;

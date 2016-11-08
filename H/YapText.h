@@ -40,7 +40,9 @@ extern void  Free(void *buf USES_REGS);
 extern int push_text_stack( USES_REGS1 );
 extern int pop_text_stack( int lvl USES_REGS );
 
+#ifndef min
 #define min(x,y) (x<y ? x : y)
+#endif
 
 #define MBYTE (1024*1024)
 
@@ -154,12 +156,18 @@ INLINE_ONLY EXTERN inline char_kind_t chtype(Int ch) {
 #define __android_log_print(...)
 #endif
 
-inline static utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr, size_t n,
+INLINE_ONLY inline EXTERN utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr, size_t n,
+                                                    utf8proc_int32_t *valp);
+
+INLINE_ONLY inline EXTERN utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr, size_t n,
                                         utf8proc_int32_t *valp) {
   return utf8proc_iterate(ptr, n, valp);
 }
 
-inline static utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
+INLINE_ONLY inline EXTERN  utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
+                                                     utf8proc_int32_t val);
+
+INLINE_ONLY inline EXTERN  utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
 utf8proc_int32_t val) {
   return utf8proc_encode_char(val, ptr);
 }
@@ -286,7 +294,8 @@ inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
 #define SURROGATE_OFFSET                                                       \
   ((uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00)
 
-const char *Yap_tokRep(void*tokptr, encoding_t enc);
+extern const char *Yap_tokText(void*tokptr);
+extern Term Yap_tokRep(void*tokptr);
 
 // standard strings
 
@@ -668,6 +677,17 @@ static inline Term Yap_AtomicToTDQ(Term t0, Term mod USES_REGS) {
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return out.val.t;
+}
+
+static inline wchar_t *Yap_AtomToWide(Atom at USES_REGS) {
+  seq_tv_t inp, out;
+  inp.val.a = at;
+  inp.type = YAP_STRING_ATOM;
+  out.val.uc = NULL;
+  out.type = YAP_STRING_WCHARS;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return NIL;
+  return out.val.w;
 }
 
 static inline Term Yap_AtomicToTBQ(Term t0, Term mod USES_REGS) {
@@ -1361,6 +1381,19 @@ static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
 static inline Term Yap_UTF8ToString(const char *s USES_REGS) {
   return MkStringTerm(s);
 }
+
+static inline Atom UTF32ToAtom(const wchar_t *s USES_REGS) {
+    seq_tv_t inp, out;
+    
+    inp.val.w0 = s;
+    inp.type = YAP_STRING_WCHARS ;
+    out.type = YAP_STRING_ATOM;
+    out.max = -1;
+    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+        return 0L;
+    return out.val.a;
+}
+
 
 static inline Term Yap_WCharsToListOfCodes(const wchar_t *s USES_REGS) {
   seq_tv_t inp, out;

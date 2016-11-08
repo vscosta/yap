@@ -379,7 +379,6 @@ inline static Int compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       if (IsExtensionFunctor(f))
         return 1;
       else {
-        int out;
         if (f != FunctorDot)
           return strcmp(".", RepAtom(NameOfFunctor(f))->StrOfAE);
         else {
@@ -596,10 +595,10 @@ inline static Int flt_cmp(Float dif) {
 
 static Int a_cmp(Term t1, Term t2 USES_REGS) {
   if (IsVarTerm(t1)) {
-      Yap_ThrowError( INSTANTIATION_ERROR, t1, "while doing arithmetic comparison" );
+      Yap_ThrowError( INSTANTIATION_ERROR, t1, 4, "while doing arithmetic comparison" );
   }
   if (IsVarTerm(t2)) {
-      Yap_ThrowError( INSTANTIATION_ERROR, t1, "while doing arithmetic comparison" );
+      Yap_ThrowError( INSTANTIATION_ERROR, t1, 4, "while doing arithmetic comparison" );
   }
   if (IsFloatTerm(t1) && IsFloatTerm(t2)) {
     return flt_cmp(FloatOfTerm(t1) - FloatOfTerm(t2));
@@ -622,7 +621,7 @@ static Int a_cmp(Term t1, Term t2 USES_REGS) {
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
-        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
+        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, 4, "trying to evaluate nan" );
       }
 #endif
       return flt_cmp(i1 - f2);
@@ -637,7 +636,7 @@ static Int a_cmp(Term t1, Term t2 USES_REGS) {
     Float f1 = FloatOfTerm(t1);
 #if HAVE_ISNAN
     if (isnan(f1)) {
-        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t1, "trying to evaluate nan" );
+        Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t1, 4, "trying to evaluate nan" );
     }
 #endif
     t2 = Yap_Eval(t2);
@@ -653,7 +652,7 @@ static Int a_cmp(Term t1, Term t2 USES_REGS) {
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
-          Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
+          Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2,  4, "trying to evaluate nan" );
      }
 #endif
       return flt_cmp(f1 - f2);
@@ -675,7 +674,7 @@ static Int a_cmp(Term t1, Term t2 USES_REGS) {
         Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
         if (isnan(f2)) {
-            Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, "trying to evaluate nan" );
+            Yap_ThrowError( EVALUATION_ERROR_UNDEFINED, t2, 4, "trying to evaluate nan" );
         }
 #endif
         return Yap_gmp_cmp_big_float(t1, f2);

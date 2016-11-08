@@ -1453,6 +1453,8 @@ static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
   ti[1] = MkIntegerTerm(Arity);
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
+    LOCAL_ErrorMessage = Malloc( 256 );
+
   if (in_use) {
     if (Arity == 0)
       sprintf(LOCAL_ErrorMessage, "static predicate %s is in use", ap->StrOfAE);

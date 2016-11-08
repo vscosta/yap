@@ -196,6 +196,7 @@ A	Id			N	"id"
 A	Ignore			N	"ignore"
 A	Inf			N	"inf"
 A	Infinity		N	"infinity"
+A	Info    		N	"info"
 A	InitGoal		F	"$init_goal"
 A	InitProlog		F	"$init_prolog"
 A	InStackExpansion	N	"in stack expansion"
@@ -495,6 +496,7 @@ F	Dot6			Dot		6
 F	Dot7			Dot		7
 F	Dot8			Dot		8
 F	Dot9			Dot		9
+F	DoubleArrow			DoubleArrow		2
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
 F	Eq			Eq		2
@@ -523,6 +525,10 @@ F	HandleThrow		HandleThrow	3
 F	Hat			Hat		2
 F	I			I		2
 F	Id			Id		1
+F   Info1       Info   1
+F   Info2       Info   2
+F   Info3       Info  3
+F   Info4       Info   4
 F	Is			Is		2
 F	J			J		2
 F	LastExecuteWithin	LastExecuteWithin	1

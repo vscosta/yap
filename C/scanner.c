@@ -457,6 +457,7 @@ static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
 char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     EF,
     /* nul soh stx etx eot enq ack bel  bs  ht  nl  vt  np  cr  so  si
+
            */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
@@ -628,18 +629,6 @@ static char *AllocScannerMemory(unsigned int size) {
   }
   LOCAL_ScannerStack = AuxSpScan + size;
   return AuxSpScan;
-}
-
-static void PopScannerMemory(char *block, unsigned int size) {
-  CACHE_REGS
-  if (block == LOCAL_ScannerStack - size) {
-    LOCAL_ScannerStack -= size;
-  } else if (block == (char *)(LOCAL_ScannerExtraBlocks + 1)) {
-    struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
-
-    LOCAL_ScannerExtraBlocks = ptr->next;
-    free(ptr);
-  }
 }
 
 char *Yap_AllocScannerMemory(unsigned int size) {
@@ -1111,13 +1100,12 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *inp_stream, int sign) {
 
 /* given a function getchr scan until we  either find the number
    or end of file */
-Term Yap_scan_num(StreamDesc *inp) {
+Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   CACHE_REGS
   Term out;
   int sign = 1;
   int ch, cherr;
-  char *ptr, *mp;
-  int kind;
+  char *ptr;
   void *old_tr = TR;
 
   InitScannerMemory();
@@ -1127,8 +1115,8 @@ Term Yap_scan_num(StreamDesc *inp) {
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
     return 0;
   }
-#if HAVE_ISWBLANK
-  while (iswblank(ch = getchr(inp)))
+#if HAVE_ISWSPACE
+  while (iswspace(ch = getchr(inp)))
     ;
 #else
   while (isspace(ch = getchr(inp)))
@@ -1151,64 +1139,22 @@ Term Yap_scan_num(StreamDesc *inp) {
       return 0;
     }
     out = get_num(&ch, &cherr, inp, sign); /*  */
-  }
-  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
-    CACHE_REGS
-    char *s = ptr;
-    int sign = 1;
-
+  } else {
     out = 0;
-    if (s[0] == '+') {
-      s++;
-    }
-    if (s[0] == '-') {
-      s++;
-      sign = -1;
-    }
-    if (strcmp(s, "inf") == 0) {
-      if (sign > 0) {
-        out = MkFloatTerm(INFINITY);
-      } else {
-        out = MkFloatTerm(-INFINITY);
-      }
-    }
-    if (strcmp(s, "nan") == 0) {
-      if (sign > 0) {
-        out = MkFloatTerm(NAN);
-      } else {
-        out = MkFloatTerm(-NAN);
-      }
-    }
-    if (out == 0) {
-      TokEntry *e, *ef;
-      size_t len = strlen(ptr);
-      mp = AllocScannerMemory(len + 1);
-      tokptr->Tok = Ord(kind = String_tok);
-      tokptr->TokInfo = MkStringTerm(mp);
-      e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
-      ef = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
-      tokptr->TokNext = e;
-      e->Tok = Error_tok;
-      if (!LOCAL_ErrorMessage) {
-        LOCAL_ErrorMessage =
-            "syntax error while converting from a string to a number";
-      }
-      e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-      e->TokPos = GetCurInpPos(inp);
-      e->TokNext = ef;
-      ef->Tok = Ord(kind = eot_tok);
-      ef->TokInfo = TermSyntaxError;
-      ef->TokPos = GetCurInpPos(inp);
-      ef->TokNext = NULL;
-      LOCAL_tokptr = tokptr;
-      LOCAL_toktide = e;
-      Yap_JumpToEnv(
-                   Yap_syntax_error(e, inp - GLOBAL_Stream) );
-      LOCAL_Error_TYPE = SYNTAX_ERROR;
-    }
   }
-  PopScannerMemory(ptr, 4096);
-  Yap_clean_tokenizer(old_tr, NULL, NULL);
+#if HAVE_ISWSPACE
+    while (iswspace(ch = getchr(inp)))
+        ;
+#else
+    while (isspace(ch = getchr(inp)))
+        ;
+#endif
+  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
+      Yap_clean_tokenizer(old_tr, NULL, NULL);
+      if (error_on)
+      Yap_Error(SYNTAX_ERROR, ARG2, "converting number");
+      return 0;
+  }
   return out;
 }
 
@@ -1225,34 +1171,85 @@ Term Yap_scan_num(StreamDesc *inp) {
     return l;                                                                  \
   }
 
-const char *Yap_tokRep(void *tokptre, encoding_t encoding) {
-  CACHE_REGS
-  TokEntry *tokptr = tokptre;
-  Term info = tokptr->TokInfo;
-  size_t length;
-  UInt flags = 0;
-
-  switch (tokptr->Tok) {
-  case Name_tok:
-  case Number_tok:
-  case Ponctuation_tok:
-  case String_tok:
-  case BQString_tok:
-    return Yap_TermToString(info, &length, encoding, flags);
-    case Var_tok:
-      {
-    VarEntry *varinfo = (VarEntry *)info;
-    varinfo->VarAdr = TermNil;
-    return RepAtom(varinfo->VarRep)->StrOfAE;
-  }
-  case Error_tok:
-    return "<ERR>";
-  case eot_tok:
-    return "<EOT>";
-  case QuasiQuotes_tok:
-    return "<QQ>";
-  }
+Term Yap_tokRep(void *tokptre) {
+    CACHE_REGS
+    TokEntry *tokptr = tokptre;
+    Term info = tokptr->TokInfo;
+    
+    switch (tokptr->Tok) {
+        case Name_tok:
+            if (!info) {
+                info = TermNil;
+            }
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+        case QuasiQuotes_tok:
+            info = MkAtomTerm(Yap_LookupAtom("<QQ>"));
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+        case Number_tok:
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+            break;
+        case Var_tok: {
+            Term t[2];
+            VarEntry *varinfo = (VarEntry *)info;
+            if ((t[0]= varinfo->VarAdr) == TermNil) {
+                t[0] = varinfo->VarAdr = MkVarTerm();
+            }
+            t[1] = MkAtomTerm((Atom)(varinfo->VarRep));
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
+        }
+        case String_tok:
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
+        case BQString_tok:
+            return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
+        case Error_tok:
+            return MkAtomTerm(AtomError);
+        case eot_tok:
+            return MkAtomTerm(Yap_LookupAtom("EOT"));
+        case Ponctuation_tok:
+            return info;
+    }
+    return TermDot;
 }
+
+
+const char * Yap_tokText(void *tokptre) {
+    CACHE_REGS
+    TokEntry *tokptr = tokptre;
+    Term info = tokptr->TokInfo;
+    
+    switch (tokptr->Tok) {
+        case eot_tok:
+            return "EOT";
+        case Ponctuation_tok:
+        case Error_tok:
+        case BQString_tok:
+        case String_tok:
+       case Name_tok:
+            return AtomOfTerm(info)->StrOfAE;
+        case QuasiQuotes_tok:
+            return "<QQ>";
+        case Number_tok:
+                    if (IsIntegerTerm(info)) {
+                         char *s = Malloc(36);
+                       snprintf(s, 35, Int_FORMAT, IntegerOfTerm(info));
+                        return s;
+                    }else if (IsFloatTerm(info)) {
+                        char *s = Malloc( 64);
+                        snprintf(s, 63, "%6g", FloatOfTerm(info));
+                        return s;
+                    } else {
+                        size_t len = Yap_gmp_to_size(info,10);
+                        char *s = Malloc(len+2);
+                        return Yap_gmp_to_string(info,s, len+1,10);
+                    }
+                    break;
+         case Var_tok:
+            if (info == 0) return "[]";
+            return ((Atom)info)->StrOfAE;
+    }
+    return ".";
+}
+
 
 static void open_comment(int ch, StreamDesc *inp_stream USES_REGS) {
   CELL *h0 = HR;
@@ -1314,6 +1311,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
   int solo_flag = TRUE;
   int32_t ch, och;
   struct qq_struct_t *cur_qq = NULL;
+    int sign = 1;
 
   InitScannerMemory();
   LOCAL_VarTable = NULL;
@@ -1331,7 +1329,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
   do {
     int quote, isvar;
     unsigned char *charp, *mp;
-    unsigned int len;
+    size_t len;
     unsigned char *TokImage = NULL;
 
     t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
@@ -1396,8 +1394,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       int32_t och = ch;
       ch = getchr(inp_stream);
       size_t sz = 512;
-    scan_name:
       TokImage = Malloc(sz PASS_REGS);
+    scan_name:
       charp = (unsigned char *)TokImage;
       isvar = (chtype(och) != LC);
       add_ch_to_buff(och);
@@ -1446,13 +1444,16 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 
     } break;
 
-    case NU: {
+        case NU: {
       int cherr;
-      int cha = ch;
+      int cha;
+            sign = 1;
 
-      cherr = 0;
+        scan_number:
+        cha = ch;
+   cherr  = 0;
       CHECK_SPACE();
-      if ((t->TokInfo = get_num(&cha, &cherr, inp_stream, 1)) == 0L) {
+      if ((t->TokInfo = get_num(&cha, &cherr, inp_stream, sign)) == 0L) {
         if (p) {
           p->Tok = eot_tok;
           t->TokInfo = TermError;
@@ -1479,7 +1480,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         case 'e':
         case 'E':
           och = cherr;
-          goto scan_name;
+      TokImage = Malloc(1024 PASS_REGS);
+      goto scan_name;
           break;
         case '=':
         case '_':
@@ -1511,6 +1513,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           {
             TokEntry *e2;
 
+              if (chtype(ch) == NU) {
+                  if (och == '-')
+                      sign = -1;
+                  else
+                      sign = 1;
+                  goto scan_number;
+              }
             t->Tok = Name_tok;
             if (ch == '(')
               solo_flag = FALSE;
@@ -1558,7 +1567,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
         }
-
+          if (ch == EOFCHAR) {
+              break;
+          }
         if (ch == quote) {
           ch = getchrq(inp_stream);
           if (ch != quote)
@@ -1627,23 +1638,16 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       break;
     case SY: {
       int pch;
-      if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
-          (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
-        t->Tok = Ord(kind = eot_tok);
-        // consume...
-        if (pch == '%') {
-          t->TokInfo = TermNewLine;
-          return l;
+        if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
+            (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
+            t->Tok = Ord(kind = eot_tok);
+            // consume...
+            if (pch == '%') {
+                t->TokInfo = TermNewLine;
+                return l;
+            }
+            return l;
         }
-        ch = getchr(inp_stream);
-        if (chtype(ch) == EF) {
-          mark_eof(inp_stream);
-          t->TokInfo = TermEof;
-        } else {
-          t->TokInfo = TermNewLine;
-        }
-        return l;
-      }
       if (ch == '`')
         goto quoted_string;
       och = ch;
@@ -1664,7 +1668,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           return l;
         }
       }
-      if (och == '/' && ch == '*') {
+     if (och == '/' && ch == '*') {
         if (store_comments) {
           CHECK_SPACE();
           open_comment('/', inp_stream PASS_REGS);
@@ -1721,7 +1725,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         return l;
       } else {
         Atom ae;
-        size_t sz = 1024;
+        sz = 1024;
         TokImage = Malloc(sz);
         charp = TokImage;
         add_ch_to_buff(och);
@@ -1949,13 +1953,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
     }
-#if DEBUG
-    if (GLOBAL_Option[2]) {
-      static int n;
-      fprintf(stderr, "[Token %d %s %d]", Ord(kind),
-              Yap_tokRep(t, inp_stream->encoding), n++);
-    }
-#endif
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));

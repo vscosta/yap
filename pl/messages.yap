@@ -65,6 +65,34 @@ messages that do not produce output but that can be intercepted by hooks.
 The next table shows the main predicates and hooks associated to message
 handling in YAP:
 
+
+An error record comsists of An ISO compatible descriptor of the format
+
+error(errror_kind(Culprit,..), Info)
+
+In YAP, the infoo field describes:
+
+- what() more detauls on the event
+
+- input_stream, may be ine of;
+
+	- loop_sream
+	- file()
+	- none
+	
+	- prolog_source(_) a record containing file, line, predicate, and clause
+ that activated the goal, or a list therof. YAP tries to search for the user
+ code generatinng the error.
+
+ - c_source(0), a record containing the line of C-code thhat caused the event. This
+ is reported under systm debugging mode, or if  this is user code.
+
+ - stream_source() - a record containg data on the the I/O stream datum causisng the evwnt.
+
+ - user_message () - ttext on the event.
+
+
+
 @{
 
 */
@@ -210,11 +238,11 @@ compose_message(Term, Level) -->
 	main_message( Term, Level, LC),
 	[nl,nl].
 
-location(error(syntax_error(syntax_error(_,between(_,LN,_),FileName,_)),_), _ , _) -->
-	!,
-	[ '~a:~d:0 ' - [FileName,LN] ] .
+location(error(syntax_error(_),info(between(_,LN,_), FileName, _)), _ , _) -->
+		!,
+	[ '~a:~d:~d ' - [FileName,LN,0] ] .
+
 location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
-	%	  { stream_position_data( line_count, LN) },
 	!,
 	[ '~a:~d:0 ' - [FileName,LN] ] .
 location( error(_,Term), Level, LC ) -->
@@ -231,7 +259,7 @@ location( error(_,Term), Level, LC ) -->
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,Info), _, _) --> {var(Info)}, !,
 	[  ' error: uninstantiated message ~w~n.' - [Msg], nl ].
-main_message( error(syntax_error(syntax_error(Msg,between(L0,LM,LF),_Stream,Term)),_), Level, LC ) -->
+main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream,Term)), Level, LC ) -->
 	!,
 	  [' ~a: syntax error ~s' - [Level,Msg]],
 	  [nl],
@@ -602,7 +630,7 @@ list_of_preds([P|L]) -->
 	list_of_preds(L).
 
 syntax_error_term(between(_I,_J,_L),LTaL,LC) -->
-	['error found at line ~d to line ~d' - [_I,_L], nl ],
+	['term between lines ~d and ~d' - [_I,_L], nl ],
 	syntax_error_tokens(LTaL, LC).
 
 syntax_error_tokens([], _LC) --> [].
@@ -615,7 +643,7 @@ syntax_error_token(atom(A), _LC) --> !,
 syntax_error_token(number(N), _LC) --> !,
 	[ '~w' - [N] ].
 syntax_error_token(var(_,S), _LC)  --> !,
-	[ '~s'  - [S] ].
+	[ '~a'  - [S] ].
 syntax_error_token(string(S), _LC) --> !,
 	[ '`~s`' - [S] ].
 syntax_error_token(error, _LC) --> !,

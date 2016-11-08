@@ -292,7 +292,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
       Term t2 = ArgOfTerm(2, t);
       if (IsVarTerm(t2))
         return CallMetaCall(t, mod PASS_REGS);
-      if (!CommaCall(t2, mod))
+      if (1 || !CommaCall(t2, mod))
         return CallMetaCall(t, mod PASS_REGS);
       Term t1 = ArgOfTerm(1, t);
 
@@ -315,6 +315,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
+      if  (pen->PredFlags & MetaPredFlag) {
+          return CallMetaCall(t, mod PASS_REGS);
+      }
     pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; i++) {
 #if YAPOR_SBA
@@ -1441,19 +1444,23 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_PrologMode = UserMode;
       P = (yamop *)FAILCODE;
     } break;
-    case 2: {
-      /* arithmetic exception */
-      /* must be done here, otherwise siglongjmp will clobber all the
-       * registers
-       */
-      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
-      /* reset the registers so that we don't have trash in abstract
-       * machine */
-      Yap_set_fpu_exceptions(
-          getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
-      P = (yamop *)FAILCODE;
-      LOCAL_PrologMode = UserMode;
-    } break;
+        case 2: {
+            /* arithmetic exception */
+            /* must be done here, otherwise siglongjmp will clobber all the
+             * registers
+             */
+            Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
+            /* reset the registers so that we don't have trash in abstract
+             * machine */
+            Yap_set_fpu_exceptions(
+                                   getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
+            P = (yamop *)FAILCODE;
+            LOCAL_PrologMode = UserMode;
+        } break;
+        case 4: {
+             P = (yamop *)FAILCODE;
+            LOCAL_PrologMode = UserMode;
+        } break;
     case 3: { /* saved state */
       LOCAL_CBorder = OldBorder;
       return false;
@@ -2074,16 +2081,15 @@ static Int jump_env(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
     return false;
   } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Term t2;
+    Term t2, te;
 
     Yap_find_prolog_culprit(PASS_REGS1);
-    LOCAL_Error_TYPE = ERROR_EVENT;
-    t = ArgOfTerm(1, t);
-    if (IsApplTerm(t) && IsAtomTerm((t2 = ArgOfTerm(1, t)))) {
+    te = ArgOfTerm(1, t);
+    if (IsApplTerm(te) && IsAtomTerm((t2 = ArgOfTerm(1, te)))) {
       LOCAL_ActiveError->errorAsText = AtomOfTerm(t2);
-      LOCAL_ActiveError->classAsText = NameOfFunctor(FunctorOfTerm(t));
-    } else if (IsAtomTerm(t)) {
-      LOCAL_ActiveError->errorAsText = AtomOfTerm(t);
+      LOCAL_ActiveError->classAsText = NameOfFunctor(FunctorOfTerm(te));
+    } else if (IsAtomTerm(te)) {
+      LOCAL_ActiveError->errorAsText = AtomOfTerm(te);
       LOCAL_ActiveError->classAsText = NULL;
     }
   } else {

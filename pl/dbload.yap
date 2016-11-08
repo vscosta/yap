@@ -29,10 +29,7 @@
 
 dbload_from_stream(R, M0, rdf, term ) :-
     '$lines_in_file'(R, Lines),
-	'$input_lines'(R, Type, Lines),
-	dbload_from_stream(R, M0, Type, Storage ) :-
-	    '$lines_in_file'(R, Lines),
-		'$input_lines'(R, Type, Lines),
+	'$input_lines'(R, Type, Lines).
 
 '$input_lines'(R, csv, yeLines ) :-
     '$process_lines'(R, Lines, Type ),

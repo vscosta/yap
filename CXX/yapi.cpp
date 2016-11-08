@@ -412,31 +412,6 @@ YAPTerm YAPListTerm::car() {
   }
 }
 
-YAPTerm::YAPTerm(YAPFunctor f, YAPTerm ts[]) {
-  CACHE_REGS
-  BACKUP_H();
-  Functor fun = f.f;
-  arity_t arity = ArityOfFunctor(fun);
-  while (HR + arity > ASP - 1024) {
-    RECOVER_H();
-    if (!Yap_dogc(0, NULL PASS_REGS)) {
-      t = TermNil;
-    }
-    BACKUP_H();
-  }
-  if (fun == FunctorDot) {
-    t = AbsPair(HR);
-    HR[0] = ts[0].term();
-    HR[1] = ts[1].term();
-  } else {
-    t = AbsAppl(HR);
-    *HR++ = (CELL)fun;
-    for (arity_t i = 0; i < arity; i++) {
-      HR[i] = ts[i].term();
-    }
-    RECOVER_H();
-  }
-}
 
 YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n) {
   CACHE_REGS
@@ -519,12 +494,8 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
     }
     return false;
   }
-  // don't forget, on success these l);
-if (!result) {
+  // don't forget, on success these bindings will still be there);
     YAP_LeaveGoal(false, &q);
-  } else {
-    YAP_LeaveGoal(FALSE, &q);
-  }
   RECOVER_MACHINE_REGS();
   return result;
 }
@@ -595,7 +566,7 @@ Term YAPEngine::fun(Term t) {
   BACKUP_MACHINE_REGS();
   Term tmod = CurrentModule, *ts = nullptr;
   PredEntry *ap ;
-  arity_t arity = arity;
+  arity_t arity;
   Functor f;
   jmp_buf q_env;
   Atom name;
@@ -612,9 +583,11 @@ Term YAPEngine::fun(Term t) {
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
     f = nullptr;
+    arity = 0;
   } else if (IsPairTerm(t)) {
     XREGS[1] = ts[0];
     XREGS[2] = ts[1];
+    arity = 2;
     name = AtomDot;
     f = FunctorDot;
   } else {
@@ -653,12 +626,11 @@ Term YAPEngine::fun(Term t) {
   }
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
-  Term result;
   t = Yap_GetFromSlot(q.CurSlot);
   Yap_CloseHandles(q.CurSlot);
   if (!t) {
     YAP_LeaveGoal(false, &q);
-    result = 0;
+    t = 0;
   }
   RECOVER_MACHINE_REGS();
   return t;
@@ -668,7 +640,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     : YAPPredicate(f, mod) {
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  goal = YAPTerm(f, ts);
+  goal = YAPApplTerm(f, ts);
   vnames = YAPListTerm();
   openQuery();
   RECOVER_MACHINE_REGS();
@@ -677,7 +649,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
  /* ignore flags for now */
   BACKUP_MACHINE_REGS();
-  goal = YAPTerm(f, ts);
+  goal = YAPApplTerm(f, ts);
   vnames = YAPListTerm();
   openQuery();
   RECOVER_MACHINE_REGS();
@@ -685,7 +657,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
   BACKUP_MACHINE_REGS();
-  goal = YAPTerm(YAPFunctor(ap->FunctorOfPred), ts);
+  goal = YAPApplTerm(YAPFunctor(ap->FunctorOfPred), ts);
   vnames = YAPListTerm();
   openQuery();
   RECOVER_MACHINE_REGS();

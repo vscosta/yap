@@ -191,6 +191,7 @@ EXTERNAL Atom AtomId; EXTERNAL Term TermId;
 EXTERNAL Atom AtomIgnore; EXTERNAL Term TermIgnore;
 EXTERNAL Atom AtomInf; EXTERNAL Term TermInf;
 EXTERNAL Atom AtomInfinity; EXTERNAL Term TermInfinity;
+EXTERNAL Atom AtomInfo; EXTERNAL Term TermInfo;
 EXTERNAL Atom AtomInitGoal; EXTERNAL Term TermInitGoal;
 EXTERNAL Atom AtomInitProlog; EXTERNAL Term TermInitProlog;
 EXTERNAL Atom AtomInStackExpansion; EXTERNAL Term TermInStackExpansion;
@@ -544,6 +545,8 @@ EXTERNAL  Functor FunctorDot8;
 
 EXTERNAL  Functor FunctorDot9;
 
+EXTERNAL  Functor FunctorDoubleArrow;
+
 EXTERNAL  Functor FunctorDoubleSlash;
 
 EXTERNAL  Functor FunctorEmptySquareBrackets;
@@ -599,6 +602,14 @@ EXTERNAL  Functor FunctorHat;
 EXTERNAL  Functor FunctorI;
 
 EXTERNAL  Functor FunctorId;
+
+EXTERNAL  Functor FunctorInfo1;
+
+EXTERNAL  Functor FunctorInfo2;
+
+EXTERNAL  Functor FunctorInfo3;
+
+EXTERNAL  Functor FunctorInfo4;
 
 EXTERNAL  Functor FunctorIs;
 

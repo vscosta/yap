@@ -191,6 +191,7 @@
   AtomIgnore = AtomAdjust(AtomIgnore); TermIgnore = MkAtomTerm(AtomIgnore);
   AtomInf = AtomAdjust(AtomInf); TermInf = MkAtomTerm(AtomInf);
   AtomInfinity = AtomAdjust(AtomInfinity); TermInfinity = MkAtomTerm(AtomInfinity);
+  AtomInfo = AtomAdjust(AtomInfo); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = AtomAdjust(AtomInitGoal); TermInitGoal = MkAtomTerm(AtomInitGoal);
   AtomInitProlog = AtomAdjust(AtomInitProlog); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = AtomAdjust(AtomInStackExpansion); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
@@ -490,6 +491,7 @@
   FunctorDot7 = FuncAdjust(FunctorDot7);
   FunctorDot8 = FuncAdjust(FunctorDot8);
   FunctorDot9 = FuncAdjust(FunctorDot9);
+  FunctorDoubleArrow = FuncAdjust(FunctorDoubleArrow);
   FunctorDoubleSlash = FuncAdjust(FunctorDoubleSlash);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
   FunctorEq = FuncAdjust(FunctorEq);
@@ -518,6 +520,10 @@
   FunctorHat = FuncAdjust(FunctorHat);
   FunctorI = FuncAdjust(FunctorI);
   FunctorId = FuncAdjust(FunctorId);
+  FunctorInfo1 = FuncAdjust(FunctorInfo1);
+  FunctorInfo2 = FuncAdjust(FunctorInfo2);
+  FunctorInfo3 = FuncAdjust(FunctorInfo3);
+  FunctorInfo4 = FuncAdjust(FunctorInfo4);
   FunctorIs = FuncAdjust(FunctorIs);
   FunctorJ = FuncAdjust(FunctorJ);
   FunctorLastExecuteWithin = FuncAdjust(FunctorLastExecuteWithin);

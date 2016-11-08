@@ -138,6 +138,8 @@ system_error(Type,Goal,Culprit) :-
 	throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(error(Msg, Where), _) :-
     print_message(error,error(Msg, Where)), !.
+'$process_error'(error(Msg, Where), _) :-
+    print_message(error,error(Msg, [g|Where])), !.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 

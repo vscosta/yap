@@ -224,7 +224,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
       flags |= AttVar_Dots_f;
     } else if (ctl != TermIgnore) {
       Yap_Error(
-          DOMAIN_ERROR_OUT_OF_RANGE, ctl,
+          DOMAIN_ERROR_WRITE_OPTION, ctl,
           "write attributes should be one of {dots,ignore,portray,write}");
       rc = false;
       goto end;

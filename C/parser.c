@@ -168,7 +168,8 @@ static Term ParseArgs(Atom, Term, JMPBUFF *, Term, encoding_t, Term CACHE_TYPE);
 static Term ParseList(JMPBUFF *, encoding_t, Term CACHE_TYPE);
 static Term ParseTerm(int, JMPBUFF *, encoding_t, Term CACHE_TYPE);
 
-const char *Yap_tokRep(void *tokptr, encoding_t enc);
+extern   Term Yap_tokRep(void* tokptr);
+extern  const char * Yap_tokText(void *tokptr);
 
 static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
@@ -366,6 +367,7 @@ static Term Variables(VarEntry *p, Term l USES_REGS) {
 
 Term Yap_Variables(VarEntry *p, Term l) {
   CACHE_REGS
+    l = Variables(LOCAL_AnonVarTable, l PASS_REGS);
   return Variables(p, l PASS_REGS);
 }
 
@@ -466,7 +468,7 @@ inline static void checkfor(Term c, JMPBUFF *FailBuff,
                             encoding_t enc USES_REGS) {
   if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok) || LOCAL_tokptr->TokInfo != c) {
     char s[1024];
-    strncpy(s, Yap_tokRep(LOCAL_tokptr, enc), 1023);
+    strncpy(s, Yap_tokText(LOCAL_tokptr), 1023);
     syntax_msg("line %d: expected to find "
                "\'%c....................................\', found %s",
                LOCAL_tokptr->TokPos, c, s);
@@ -654,7 +656,7 @@ loop:
     }
   } else {
     syntax_msg("line %d: looking for symbol ',','|' got symbol '%s'",
-               LOCAL_tokptr->TokPos, Yap_tokRep(LOCAL_tokptr, enc));
+               LOCAL_tokptr->TokPos, Yap_tokText(LOCAL_tokptr));
     FAIL;
   }
   return (o);
@@ -675,7 +677,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     NextToken;
     /* special rules apply for +1, -2.3, etc... */
     if (LOCAL_tokptr->Tok == Number_tok) {
-      if ((Atom)t == AtomMinus) {
+      if (t == TermMinus) {
         t = LOCAL_tokptr->TokInfo;
         if (IsIntTerm(t))
           t = MkIntTerm(-IntOfTerm(t));
@@ -698,7 +700,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       if (LOCAL_tokptr->Tok == Name_tok) {
         Atom at = AtomOfTerm(LOCAL_tokptr->TokInfo);
 #ifndef _MSC_VER
-        if ((Atom)t == AtomPlus) {
+        if (t == TermPlus) {
           if (at == AtomInf) {
             t = MkFloatTerm(INFINITY);
             NextToken;
@@ -708,7 +710,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
             NextToken;
             break;
           }
-        } else if ((Atom)t == AtomMinus) {
+        } else if (t == TermMinus) {
           if (at == AtomInf) {
             t = MkFloatTerm(-INFINITY);
             NextToken;
@@ -764,7 +766,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
 
   case Error_tok:
     syntax_msg("line %d: found ill-formed \"%s\"", LOCAL_tokptr->TokPos,
-               Yap_tokRep(LOCAL_tokptr, enc));
+               Yap_tokText(LOCAL_tokptr));
     FAIL;
 
   case Ponctuation_tok:
@@ -806,7 +808,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       break;
     default:
       syntax_msg("line %d: unexpected ponctuation signal %s",
-                 LOCAL_tokptr->TokPos, Yap_tokRep(LOCAL_tokptr, enc));
+                 LOCAL_tokptr->TokPos, Yap_tokRep(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -851,12 +853,12 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     t = ParseTerm(GLOBAL_MaxPriority, FailBuff, enc, cmod PASS_REGS);
     if (LOCAL_tokptr->Tok != QuasiQuotes_tok) {
       syntax_msg("expected to find quasi quotes, got \"%s\"", ,
-                 Yap_tokRep(LOCAL_tokptr, enc));
+                 Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
     if (!(is_quasi_quotation_syntax(t, &at))) {
       syntax_msg("bad quasi quotation syntax, at \"%s\"",
-                 Yap_tokRep(LOCAL_tokptr, enc));
+                 Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
     /* Arg 2: the content */
@@ -866,7 +868,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     if (!get_quasi_quotation(Yap_InitSlot(ArgOfTerm(2, tn)), &qq->text,
                              qq->text + strlen((const char *)qq->text))) {
       syntax_msg("could not get quasi quotation, at \"%s\"",
-                 Yap_tokRep(LOCAL_tokptr, enc));
+                 Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
     if (positions) {
@@ -878,7 +880,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
                          qq->mid.charno + 2,    /* end of | token */
                          PL_INTPTR, qqend - 2)) /* end minus "|}" */
         syntax_msg("failed to unify quasi quotation, at \"%s\"",
-                   Yap_tokRep(LOCAL_tokptr, enc));
+                   Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
 
@@ -898,7 +900,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     break;
   default:
     syntax_msg("line %d: expected operator, got \'%s\'", LOCAL_tokptr->TokPos,
-               Yap_tokRep(LOCAL_tokptr, enc));
+               Yap_tokText(LOCAL_tokptr));
     FAIL;
   }
 
@@ -1013,7 +1015,7 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
     }
     if (LOCAL_tokptr->Tok <= Ord(String_tok)) {
       syntax_msg("line %d: expected operator, got \'%s\'", LOCAL_tokptr->TokPos,
-                 Yap_tokRep(LOCAL_tokptr, enc));
+                 Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -1046,7 +1048,11 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   }
   if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
       LOCAL_Error_TYPE = SYNTAX_ERROR;
+      if (LOCAL_tokptr->TokNext) {
+          LOCAL_ErrorMessage = "operator misssing . ";
+      } else {
     LOCAL_ErrorMessage = "term does not end on . ";
+          }
     t = 0;
   }
   if (t != 0 && LOCAL_Error_TYPE == SYNTAX_ERROR) {

@@ -57,8 +57,10 @@ class YAPAtom {
   /// construct new YAPAtom from Atom
   YAPAtom( Atom at ) { a = at; }
 public:
-  /// construct new YAPAtom from UTF-8 string
-  YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
+    /// construct new YAPAtom from UTF-8 string
+    YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
+    /// construct new YAPAtom from UTF-8 string
+    YAPAtom( const wchar_t * s) { CACHE_REGS a = UTF32ToAtom( s PASS_REGS ); }
   /// construct new YAPAtom from wide string
   //YAPAtom( const wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
   /// construct new YAPAtom from max-length string

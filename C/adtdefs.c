@@ -55,9 +55,8 @@ uint64_t HashFunction(const unsigned char *CHP) {
 static Prop
 GetFunctorProp(AtomEntry *ae,
                arity_t arity) { /* look property list of atom a for kind */
-  FunctorEntry *pp;
 
-  PropEntry *p = RepFunctorProp(ae->PropsOfAE);
+  PropEntry *p = ae->PropsOfAE;
   while (p != NIL) {
     if (p->KindOfPE == FunctorProperty &&
         RepFunctorProp(p)->ArityOfFE == arity) {

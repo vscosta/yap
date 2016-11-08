@@ -191,6 +191,7 @@
   AtomIgnore = Yap_LookupAtom("ignore"); TermIgnore = MkAtomTerm(AtomIgnore);
   AtomInf = Yap_LookupAtom("inf"); TermInf = MkAtomTerm(AtomInf);
   AtomInfinity = Yap_LookupAtom("infinity"); TermInfinity = MkAtomTerm(AtomInfinity);
+  AtomInfo = Yap_LookupAtom("info"); TermInfo = MkAtomTerm(AtomInfo);
   AtomInitGoal = Yap_FullLookupAtom("$init_goal"); TermInitGoal = MkAtomTerm(AtomInitGoal);
   AtomInitProlog = Yap_FullLookupAtom("$init_prolog"); TermInitProlog = MkAtomTerm(AtomInitProlog);
   AtomInStackExpansion = Yap_LookupAtom("in stack expansion"); TermInStackExpansion = MkAtomTerm(AtomInStackExpansion);
@@ -490,6 +491,7 @@
   FunctorDot7 = Yap_MkFunctor(AtomDot,7);
   FunctorDot8 = Yap_MkFunctor(AtomDot,8);
   FunctorDot9 = Yap_MkFunctor(AtomDot,9);
+  FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
   FunctorDoubleSlash = Yap_MkFunctor(AtomDoubleSlash,2);
   FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
@@ -518,6 +520,10 @@
   FunctorHat = Yap_MkFunctor(AtomHat,2);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
+  FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);
+  FunctorInfo2 = Yap_MkFunctor(AtomInfo,2);
+  FunctorInfo3 = Yap_MkFunctor(AtomInfo,3);
+  FunctorInfo4 = Yap_MkFunctor(AtomInfo,4);
   FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorJ = Yap_MkFunctor(AtomJ,2);
   FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,1);

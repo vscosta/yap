@@ -8,11 +8,15 @@
 
 project( YAP )
 
+if (ANDROID)
+  set(YAP_APP_DIR "$CMAKE_SOURCE_DIR/../..")
+   cmake_policy(VERSION 3.4)
+else ()
 cmake_minimum_required(VERSION 2.8)
 include(CMakeToolsHelpers OPTIONAL)
 
-# cmake_policy(VERSION 3.4)
 
+endif()
 
 set(
         CMAKE_MODULE_PATH
@@ -43,6 +47,7 @@ include(Model NO_POLICY_SCOPE)
 
 include_directories ( utf8proc packages/myddas packages/myddas/sqlite3 )
 if (ANDROID)
+
   include_directories (  packages/myddas/sqlite3/Android/jni/sqlite/nativehelper packages/myddas/sqlite3/Android/jni/sqlite )
 endif (ANDROID)
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
@@ -69,18 +74,12 @@ if (ANDROID)
   #
 
   #
-set (SWIG_SOURCES ${CMAKE_SOURCE_DIR}/packages/swig/yap.i)
-set (SWIG_CXX ${CMAKE_BINARY_DIR}/yap_swig.cpp)
-find_host_package (SWIG)
-macro_log_feature (SWIG_FOUND "Swig"
-  "Use SWIG Language Interface "
-"http://www.swig.org" ON)
 
 
-    add_custom_command (OUTPUT ${SWIG_CXX}
-        COMMAND ${SWIG_EXECUTABLE} -c++ -java  -package pt.up.yap.lib -outdir ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../../../src/generated/java  -I${CMAKE_SOURCE_DIR}/CXX  -o ${SWIG_CXX}
- ${SWIG_SOURCES}
-      )
+set (SWIG_CXX ${CMAKE_BINARY_DIR}/packages/swig/android/yap_swig.cpp)
+
+
+add_subdirectory("packages/swig")
 
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
@@ -132,7 +131,7 @@ endif (USE_READLINE)
 
 
 if (ANDROID)
-    add_dependencies(libYap plmyddas)
+    add_dependencies(libYap plmyddas swig)
 
     target_link_libraries(libYap android log)
 

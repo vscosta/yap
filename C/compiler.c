@@ -1103,16 +1103,14 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Int i2;
 
         if (!IsIntegerTerm(t2)) {
-          char s[32];
-          Yap_ThrowError( TYPE_ERROR_INTEGER, t2, "compiling functor/3");
+          Yap_Error( TYPE_ERROR_INTEGER, t2,  "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
-          char s[32];
 
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO , t2, "compiling functor/3");
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO , t2,4, "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }

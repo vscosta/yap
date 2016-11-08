@@ -586,8 +586,7 @@ static Int c_sqlite3_row(USES_REGS1) {
 
   } else if (res == SQLITE_ROW) {
     list = arg_list_args;
-    Term tf;
-
+    Term tf = 0;
     for (i = 0; i < arity; i++) {
       /* convert data types here */
       head = HeadOfTerm(list);

@@ -165,8 +165,6 @@ current_atom(A) :-				% check
 	atom(A), !.
 current_atom(A) :-				% generate
 	'$current_atom'(A).
-current_atom(A) :-				% generate
-	'$current_wide_atom'(A).
 
 string_concat(Xs,At) :-
 	( var(At) ->

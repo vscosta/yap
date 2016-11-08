@@ -79,7 +79,7 @@ static char SccsId[] = "%W% %G%";
 
 static Int p_change_type_of_char(USES_REGS1);
 
-Term Yap_StringToNumberTerm(const char *s, encoding_t *encp) {
+Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   Term t;
@@ -95,7 +95,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp) {
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
 #endif
-  t = Yap_scan_num(GLOBAL_Stream + sno);
+  t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
   if (LOCAL_Error_TYPE == SYNTAX_ERROR)
     LOCAL_Error_TYPE = YAP_NO_ERROR;
   Yap_CloseStream(sno);

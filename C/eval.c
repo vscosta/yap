@@ -93,7 +93,7 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
 static Term Eval(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    return Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
+    Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;
   } else if (IsAtomTerm(t)) {
@@ -101,7 +101,7 @@ static Term Eval(Term t USES_REGS) {
     Atom name = AtomOfTerm(t);
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 0)))) {
-      return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
                             "atom %s in arithmetic expression",
                             RepAtom(name)->StrOfAE);
     }
@@ -112,10 +112,10 @@ static Term Eval(Term t USES_REGS) {
       const char *s = (const char *)StringOfTerm(t);
       if (s[1] == '\0')
         return MkIntegerTerm(s[0]);
-      return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
                             "string in arithmetic expression");
     } else if ((Atom)fun == AtomFoundVar) {
-      return Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, TermNil,
                             "cyclic term in arithmetic expression");
     } else {
       Int n = ArityOfFunctor(fun);
@@ -124,7 +124,7 @@ static Term Eval(Term t USES_REGS) {
       Term t1, t2;
 
       if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, n)))) {
-        return Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
+        Yap_ArithError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
                               "functor %s/%d for arithmetic expression",
                               RepAtom(name)->StrOfAE, n);
       }
@@ -153,7 +153,7 @@ static Term Eval(Term t USES_REGS) {
   } /* else if (IsPairTerm(t)) */
   {
     if (TailOfTerm(t) != TermNil) {
-      return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
                             "string must contain a single character to be "
                             "evaluated as an arithmetic expression");
     }
@@ -367,32 +367,6 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
     Float fi = exp(f1 - f2);
     return Yap_unify(ARG3, MkFloatTerm(f2 + log(1 + fi)));
   }
-}
-
-Int Yap_ArithError__(const char *file, const char *function, int lineno,
-                     yap_error_number type, Term where, ...) {
-  CACHE_REGS
-  va_list ap;
-  char *format;
-  char buf[MAX_ERROR_MSG_SIZE];
-
-  LOCAL_Error_TYPE = type;
-  LOCAL_Error_File = file;
-  LOCAL_Error_Function = function;
-  LOCAL_Error_Lineno = lineno;
-  va_start(ap, where);
-  format = va_arg(ap, char *);
-  if (format != NULL) {
-#if HAVE_VSNPRINTF
-    (void)vsnprintf(buf, MAX_ERROR_MSG_SIZE, format, ap);
-#else
-    (void)vsprintf(buf, format, ap);
-#endif
-  } else {
-    buf[0] = '\0';
-  }
-  va_end(ap);
-  return 0L;
 }
 
 yamop *Yap_EvalError__(const char *file, const char *function, int lineno,

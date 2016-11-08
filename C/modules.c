@@ -370,16 +370,57 @@ static Int new_system_module(USES_REGS1) {
 }
 
 static Int strip_module(USES_REGS1) {
-  Term t1 = Deref(ARG1), tmod = CurrentModule;
-  if (tmod == PROLOG_MODULE) {
-    tmod = TermProlog;
-  }
-  t1 = Yap_StripModule(t1, &tmod);
-  if (!t1) {
+    Term t1 = Deref(ARG1), tmod = CurrentModule;
+    if (tmod == PROLOG_MODULE) {
+        tmod = TermProlog;
+    }
+    t1 = Yap_StripModule(t1, &tmod);
+    if (!t1) {
+        Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+        return FALSE;
+    }
+    return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
+}
+
+static Int yap_strip_clause(USES_REGS1) {
+    Functor f;
+    Term t1 = Deref(ARG1), tmod = LOCAL_SourceModule;
+    if (tmod == PROLOG_MODULE) {
+        tmod = TermProlog;
+    }
+    t1 = Yap_StripModule(t1, &tmod);
+    if (IsVarTerm(t1)) {
+        Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
+        return false;
+    } else  if (IsVarTerm(tmod)) {
+        Yap_Error(INSTANTIATION_ERROR, tmod, "trying to obtain module");
+        return false;
+    } else if (IsIntTerm(t1) || (IsApplTerm(t1) && IsExtensionFunctor((f = FunctorOfTerm(t1))))) {
     Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
-    return FALSE;
-  }
-  return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
+    return false;
+    } else if (!IsAtomTerm(tmod)) {
+        Yap_Error(TYPE_ERROR_ATOM, tmod, "trying to obtain module");
+        return false;
+    }
+        if (f == FunctorAssert || f == FunctorDoubleArrow) {
+            Term thmod = tmod;
+            Term th = ArgOfTerm(1, t1);
+            th = Yap_StripModule(th, &thmod);
+            if (IsVarTerm(th)) {
+                Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
+                return false;
+            } else if (IsVarTerm(thmod)) {
+                    Yap_Error(INSTANTIATION_ERROR, thmod, "trying to obtain module");
+                    return false;
+            } else if (IsIntTerm(th) ||  (IsApplTerm(th) && IsExtensionFunctor(FunctorOfTerm(t1)))) {
+                    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+                    return false;
+            }else if (!IsAtomTerm(thmod)) {
+                Yap_Error(TYPE_ERROR_ATOM, thmod, "trying to obtain module");
+                return false;
+            }
+       }
+    return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
 }
 
 Term Yap_YapStripModule(Term t, Term *modp) {
@@ -564,13 +605,14 @@ void Yap_InitModulesC(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$change_module", 1, change_module,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("strip_module", 3, strip_module, SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("strip_module", 3, strip_module, SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("$yap_strip_module", 3, yap_strip_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("source_module", 1, source_module, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("current_source_module", 2, current_source_module,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$yap_strip_module", 3, yap_strip_module,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("context_module", 1, context_module, 0);
+    Yap_InitCPred("$yap_strip_clause", 3, yap_strip_clause,
+                  SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("context_module", 1, context_module, 0);
   Yap_InitCPred("$is_system_module", 1, is_system_module, SafePredFlag);
   Yap_InitCPred("$copy_operators", 2, copy_operators, 0);
   Yap_InitCPred("new_system_module", 1, new_system_module, SafePredFlag);

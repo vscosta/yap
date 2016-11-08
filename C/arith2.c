@@ -150,7 +150,7 @@ p_mod(Term t1, Term t2 USES_REGS) {
 	Int mod;
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " mod 0", i1);
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " mod 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 	  return MkIntTerm(0);
 	}
@@ -160,7 +160,7 @@ p_mod(Term t1, Term t2 USES_REGS) {
 	RINT(mod);
       }
     case (CELL)double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case (CELL)big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_mod_int_big(IntegerOfTerm(t1), t2);
@@ -170,7 +170,7 @@ p_mod(Term t1, Term t2 USES_REGS) {
       break;
     }
   case (CELL)double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -180,14 +180,14 @@ p_mod(Term t1, Term t2 USES_REGS) {
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... mod 0");
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... mod 0");
 	return Yap_gmp_mod_big_int(t1, i2);
       }
     case (CELL)big_int_e:
       /* two bignums */
       return Yap_gmp_mod_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     default:
       RERROR();
     }
@@ -210,12 +210,12 @@ p_div2(Term t1, Term t2 USES_REGS) {
 	Int res, mod;
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " div 0", i1);
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " div 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
 #else
-	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
+	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "// /2 with %d and %d", i1, i2);
 #endif
 	}
@@ -226,7 +226,7 @@ p_div2(Term t1, Term t2 USES_REGS) {
 	RINT(res);
       }
     case (CELL)double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
     case (CELL)big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_div_int_big(IntegerOfTerm(t1), t2);
@@ -236,7 +236,7 @@ p_div2(Term t1, Term t2 USES_REGS) {
       break;
     }
   case (CELL)double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -246,14 +246,14 @@ p_div2(Term t1, Term t2 USES_REGS) {
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... div 0");
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... div 0");
 	return Yap_gmp_div2_big_int(t1, i2);
       }
     case (CELL)big_int_e:
       /* two bignums */
       return Yap_gmp_div2_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
     default:
       RERROR();
     }
@@ -275,14 +275,14 @@ p_rem(Term t1, Term t2 USES_REGS) {
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rem 0", i1);
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rem 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 	  return MkIntTerm(0);
 	}
 	RINT(i1%i2);
       }
     case (CELL)double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rem/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rem/2");
     case (CELL)big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_rem_int_big(IntegerOfTerm(t1), t2);
@@ -292,19 +292,19 @@ p_rem(Term t1, Term t2 USES_REGS) {
     }
     break;
   case (CELL)double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "rem/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "rem/2");
   case (CELL)big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       if (IntegerOfTerm(t2) == 0)
-	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rem 0");
+	Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rem 0");
       return Yap_gmp_rem_big_int(t1, IntegerOfTerm(t2));
     case (CELL)big_int_e:
       /* two bignums */
       return Yap_gmp_rem_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rem/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rem/2");
     default:
       RERROR();
     }
@@ -320,7 +320,7 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
 #ifdef USE_GMP
   switch (ETypeOfTerm(t1)) {
   case (CELL)double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
   case (CELL)long_int_e:
     switch (ETypeOfTerm(t2)) {
     case (CELL)long_int_e:
@@ -330,7 +330,7 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0)
-	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rdiv 0", i1);
+	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rdiv 0", i1);
 	return Yap_gmq_rdiv_int_int(i1, i2);
       }
     case (CELL)big_int_e:
@@ -344,13 +344,13 @@ p_rdiv(Term t1, Term t2 USES_REGS) {
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       if (IntegerOfTerm(t2) == 0)
-	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
+	Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
       /* I know the term is much larger, so: */
       return Yap_gmq_rdiv_big_int(t1, IntegerOfTerm(t2));
     case (CELL)big_int_e:
       return Yap_gmq_rdiv_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
     default:
       RERROR();
     }
@@ -449,7 +449,7 @@ p_xor(Term t1, Term t2 USES_REGS)
       /* two integers */
       RINT(IntegerOfTerm(t1) ^ IntegerOfTerm(t2));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_xor_int_big(IntegerOfTerm(t1), t2);
@@ -459,7 +459,7 @@ p_xor(Term t1, Term t2 USES_REGS)
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "#/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "#/2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -468,7 +468,7 @@ p_xor(Term t1, Term t2 USES_REGS)
     case big_int_e:
       return Yap_gmp_xor_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
     default:
       RERROR();
     }
@@ -690,7 +690,7 @@ p_exp(Term t1, Term t2 USES_REGS)
 	Int pow;
 
 	if (i2 < 0) {
-	  return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
+	  Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
 		    "%d ^ %d", i1, i2);
 	}
     pow = ipow(i1,i2);
@@ -836,7 +836,7 @@ p_gcd(Term t1, Term t2 USES_REGS)
 	RINT(gcd(i1,i2 PASS_REGS));
       }
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_gcd_int_big(IntegerOfTerm(t1), t2);
@@ -846,7 +846,7 @@ p_gcd(Term t1, Term t2 USES_REGS)
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "gcd/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "gcd/2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -855,7 +855,7 @@ p_gcd(Term t1, Term t2 USES_REGS)
     case big_int_e:
       return Yap_gmp_gcd_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
     default:
       RERROR();
     }

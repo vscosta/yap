@@ -586,6 +586,11 @@ function. */
 #cmakedefine HAVE_ISWBLANK ${HAVE_ISWBLANK}
 #endif
 
+/* Define to 1 if you have the `iswspace' function. */
+#ifndef HAVE_ISWSPACE
+#cmakedefine HAVE_ISWSPACE ${HAVE_ISWSPACE}
+#endif
+
 /* Define to 1 if you have the <Judy.h> header file. */
 #ifndef HAVE_JUDY_H
 #cmakedefine HAVE_JUDY_H ${HAVE_JUDY_H}

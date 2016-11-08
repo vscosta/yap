@@ -33,13 +33,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -67,7 +67,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -101,13 +101,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -138,7 +138,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -169,13 +169,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -203,7 +203,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -237,13 +237,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -274,7 +274,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -304,13 +304,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -338,7 +338,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -372,13 +372,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -409,7 +409,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -430,7 +430,7 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d1);
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
       } else {
@@ -444,13 +444,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -478,7 +478,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -494,7 +494,7 @@
       if (IsIntTerm(d0)) {
         Int div = IntOfTerm(d0);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d0);
           FAIL();
         }
         d0 = MkIntegerTerm(d1 / div);
@@ -509,7 +509,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -530,7 +530,7 @@
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
         Int div = IntOfTerm(d1);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR, d0);
           FAIL();
         }
         d0 = MkIntTerm(IntOfTerm(d0) / div);
@@ -548,13 +548,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -585,7 +585,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -601,7 +601,7 @@
       if (IsIntTerm(d0)) {
         Int div = IntOfTerm(d0);
         if (div == 0) {
-          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR);
+          Yap_AsmError(EVALUATION_ERROR_ZERO_DIVISOR,d0);
           FAIL();
         }
         d0 = MkIntegerTerm(d1 / div);
@@ -651,13 +651,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -719,13 +719,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -787,13 +787,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -854,13 +854,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -926,13 +926,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -960,7 +960,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -991,7 +991,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1029,13 +1029,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1066,7 +1066,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1100,7 +1100,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1135,13 +1135,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1169,7 +1169,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1200,7 +1200,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1238,13 +1238,13 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
 
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       FAIL();
       ENDP(pt0);
       ENDD(d1);
@@ -1275,7 +1275,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -1300,7 +1300,7 @@
       }
     }
       if (d0 == 0L) {
-        Yap_AsmError(LOCAL_Error_TYPE);
+        Yap_AsmError(LOCAL_Error_TYPE,d0);
         FAIL();
       }
       BEGP(pt0);
@@ -1312,7 +1312,7 @@
 
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       FAIL();
       ENDP(pt0);
       ENDD(d0);
@@ -1968,7 +1968,7 @@
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
-        Yap_AsmError(TYPE_ERROR_INTEGER);
+        Yap_AsmError(TYPE_ERROR_INTEGER, d0);
         FAIL();
       }
 
@@ -1984,7 +1984,7 @@
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND);
+          Yap_AsmError(TYPE_ERROR_COMPOUND, AbsAppl(pt0));
           FAIL();
         }
         if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
@@ -2007,7 +2007,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         pt0 = RepPair(d1);
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+              Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d0)                                                                                                                 );
           }
           FAIL();
         }
@@ -2016,14 +2016,14 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND);
+        Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_unk, arg_arg2_nvar);
       saveregs();
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ;
       setregs();
       ENDP(pt0);
@@ -2033,7 +2033,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       BEGP(pt0);
       deref_body(d0, pt0, arg_arg1_unk, arg_arg1_nvar);
       saveregs();
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ;
       setregs();
       ENDP(pt0);
@@ -2068,7 +2068,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND);
+          Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.xxn.xi));
           FAIL();
         }
         if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
@@ -2092,7 +2092,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, XREG(PREG->y_u.xxn.xi));
           }
           FAIL();
         }
@@ -2101,13 +2101,13 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND);
+        Yap_AsmError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.xxn.xi));
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_arg2_vc_unk, arg_arg2_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR, XREG(PREG->y_u.xxn.xi));
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2138,7 +2138,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else {
         if (IsBigIntTerm(d0))
           FAIL();
-        Yap_AsmError(TYPE_ERROR_INTEGER);
+        Yap_AsmError(TYPE_ERROR_INTEGER, XREG(PREG->y_u.yxx.x1));
         FAIL();
       }
 
@@ -2154,7 +2154,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND);
+          Yap_AsmError(TYPE_ERROR_COMPOUND,XREG(PREG->y_u.yxx.x2));
           FAIL();
         }
         if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
@@ -2181,7 +2181,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxx.y]);
           }
           FAIL();
         }
@@ -2193,20 +2193,20 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         ENDP(pt1);
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND);
+          Yap_AsmError(TYPE_ERROR_COMPOUND, d1);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_unk, arg_y_arg2_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
 
       BEGP(pt0);
       deref_body(d0, pt0, arg_y_arg1_unk, arg_y_arg1_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt0);
       FAIL();
       ENDD(d0);
@@ -2240,7 +2240,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         pt0 = RepAppl(d1);
         d1 = *pt0;
         if (IsExtensionFunctor((Functor)d1)) {
-          Yap_AsmError(TYPE_ERROR_COMPOUND);
+          Yap_AsmError(TYPE_ERROR_COMPOUND, XREG(PREG->y_u.yxn.xi));
           FAIL();
         }
         if ((Int)d0 <= 0 || (Int)d0 > ArityOfFunctor((Functor)d1)) {
@@ -2264,7 +2264,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (d0 != 1 && d0 != 2) {
           if ((Int)d0 < 0) {
             saveregs();
-            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+            Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, YREG[PREG->y_u.yxn.y]);
           }
           FAIL();
         }
@@ -2276,13 +2276,13 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
         ENDP(pt0);
       } else {
-        Yap_AsmError(TYPE_ERROR_COMPOUND);
+        Yap_AsmError(TYPE_ERROR_COMPOUND,YREG[PREG->y_u.yxn.y]);
         FAIL();
       }
 
       BEGP(pt0);
       deref_body(d1, pt0, arg_y_arg2_vc_unk, arg_y_arg2_vc_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt0);
       FAIL();
       ENDD(d1);
@@ -2320,15 +2320,15 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(RESOURCE_ERROR_STACK,d1);
         } else {
             setregs();
-          Yap_AsmError(TYPE_ERROR_INTEGER);
+          Yap_AsmError(TYPE_ERROR_INTEGER,d1);
         }
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM, d0);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2346,7 +2346,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM);
+          Yap_AsmError(TYPE_ERROR_ATOM, d0);
           FAIL();
         }
         BEGP(pt1);
@@ -2363,7 +2363,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                        NEXTOP(NEXTOP(PREG, xxx), Osbpp))) {
                            setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK);
+            Yap_AsmError(RESOURCE_ERROR_STACK,   d1                                                                                                                                                                                                                                                                       );
             JMPNext();
           } else {
             setregs();
@@ -2387,12 +2387,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxx), Osbpp), l);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2, func2s_nvar2);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2400,7 +2400,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk, func2s_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2435,10 +2435,10 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
         } else {
             setregs();
-          Yap_AsmError(TYPE_ERROR_INTEGER);
+          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
         }
         FAIL();
       }
@@ -2457,7 +2457,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM);
+          Yap_AsmError(TYPE_ERROR_ATOM, d0);
           FAIL();
         }
         BEGP(pt1);
@@ -2474,7 +2474,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                        NEXTOP(NEXTOP(PREG, xxc), Osbpp))) {
                            setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK);
+            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
           } else {
             setregs();
@@ -2498,12 +2498,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xxc), Osbpp), l);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,d1);
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_unk2_cv, func2s_nvar2_cv);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2537,7 +2537,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       BEGD(d1);
       d1 = PREG->y_u.xxn.c;
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2560,7 +2560,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM, d0);
         FAIL();
       }
       BEGP(pt1);
@@ -2576,7 +2576,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         saveregs();
         if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(INSTANTIATION_ERROR,d1);
           JMPNext();
         } else {
           setregs();
@@ -2599,7 +2599,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_unk_vc, func2s_nvar_vc);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2636,15 +2636,15 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         saveregs();
         if (IsBigIntTerm(d1)) {
             setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
         } else {
             setregs();
-          Yap_AsmError(TYPE_ERROR_INTEGER);
+          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
         }
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM, d0);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2663,7 +2663,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM);
+          Yap_AsmError(TYPE_ERROR_ATOM, d0);
           FAIL();
         }
         BEGP(pt1);
@@ -2680,7 +2680,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                        NEXTOP(NEXTOP(PREG, yxx), Osbpp))) {
             setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK);
+            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
           } else {
             setregs();
@@ -2710,12 +2710,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         ENDP(pt1);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk2, func2s_y_nvar2);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2723,7 +2723,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk, func2s_y_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2756,9 +2756,9 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         d1 = IntegerOfTerm(d1);
       } else {
         if (IsBigIntTerm(d1)) {
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
         } else {
-          Yap_AsmError(TYPE_ERROR_INTEGER);
+          Yap_AsmError(TYPE_ERROR_INTEGER, d1);
         }
         FAIL();
       }
@@ -2780,7 +2780,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM);
+          Yap_AsmError(TYPE_ERROR_ATOM,d0);
           FAIL();
         }
         if (!IsAtomTerm(d0)) {
@@ -2797,7 +2797,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                        NEXTOP(NEXTOP(PREG, yxc), Osbpp))) {
             setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK);
+            Yap_AsmError(RESOURCE_ERROR_STACK, d1);
             JMPNext();
           } else {
             setregs();
@@ -2827,12 +2827,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         ENDP(pt1);
         GONext();
       } else {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
       }
 
       BEGP(pt1);
       deref_body(d1, pt1, func2s_y_unk_cv, func2s_y_nvar_cv);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -2866,7 +2866,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       BEGD(d1);
       d1 = PREG->y_u.yxn.c;
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
       /* We made it!!!!! we got in d0 the name, in d1 the arity and
@@ -2894,12 +2894,12 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         GONext();
       }
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
       /* now let's build a compound term */
       if (!IsAtomTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       }
       BEGP(pt1);
@@ -2916,7 +2916,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         if (!Yap_gcl((1 + d1) * sizeof(CELL), 0, YREG,
                      NEXTOP(NEXTOP(PREG, yxn), Osbpp))) {
                          setregs();
-          Yap_AsmError(RESOURCE_ERROR_STACK);
+          Yap_AsmError(RESOURCE_ERROR_STACK, d1);
           JMPNext();
         } else {
           setregs();
@@ -2942,7 +2942,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2s_y_unk_vc, func2s_y_nvar_vc);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -2990,7 +2990,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xx_unk, func2f_xx_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3041,7 +3041,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_xy_unk, func2f_xy_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3092,7 +3092,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yx_unk, func2f_yx_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3146,7 +3146,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func2f_yy_unk, func2f_yy_nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();
@@ -3250,11 +3250,11 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (IsIntTerm(d1))
         d1 = IntOfTerm(d1);
       else {
-        Yap_AsmError(TYPE_ERROR_INTEGER);
+        Yap_AsmError(TYPE_ERROR_INTEGER, d1);
         FAIL();
       }
       if (!IsAtomicTerm(d0)) {
-        Yap_AsmError(TYPE_ERROR_ATOM);
+        Yap_AsmError(TYPE_ERROR_ATOM,d0);
         FAIL();
       } /* We made it!!!!! we got in d0 the name, in d1 the arity and
          * in pt0 the variable to bind it to. */
@@ -3266,7 +3266,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       } else if ((Int)d1 > 0) {
         /* now let's build a compound term */
         if (!IsAtomTerm(d0)) {
-          Yap_AsmError(TYPE_ERROR_ATOM);
+          Yap_AsmError(TYPE_ERROR_ATOM,d0);
           FAIL();
         }
         BEGP(pt1);
@@ -3283,7 +3283,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
           if (!Yap_gcl((1 + d1) * sizeof(CELL), 3, YREG,
                        NEXTOP(NEXTOP(PREG, e), Osbmp))) {
                            setregs();
-            Yap_AsmError(RESOURCE_ERROR_STACK);
+            Yap_AsmError(INSTANTIATION_ERROR,d1);
           } else {
             setregs();
           }
@@ -3297,7 +3297,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
         HR = pt1;
         ENDP(pt1);
       } else if ((Int)d1 < 0) {
-        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO);
+        Yap_AsmError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(d1));
         FAIL();
       }
       /* else if arity is 0 just pass d0 through */
@@ -3308,7 +3308,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d1, pt1, func_var_3unk, func_var_3nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d1);
       ENDP(pt1);
       /* Oops, third argument was unbound */
       FAIL();
@@ -3316,7 +3316,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
 
       BEGP(pt1);
       deref_body(d0, pt1, func_var_2unk, func_var_2nvar);
-      Yap_AsmError(INSTANTIATION_ERROR);
+      Yap_AsmError(INSTANTIATION_ERROR,d0);
       ENDP(pt1);
       /* Oops, second argument was unbound too */
       FAIL();

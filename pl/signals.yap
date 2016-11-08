@@ -192,7 +192,7 @@ order of dispatch.
 	'$hacks':'$stack_dump',
 	'$execute0'(G,M).
 '$do_signal'(sig_fpe,G) :-
-    '$signal_handler'(sig_fpe, G)
+    '$signal_handler'(sig_fpe, G).
 '$do_signal'(sig_alarm, G) :-
 	'$signal_handler'(sig_alarm, G).
 '$do_signal'(sig_vtalarm, G) :-

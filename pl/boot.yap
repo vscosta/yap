@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -174,7 +175,7 @@ list, since backtracking could not "pass through" the cut.
 system_module(_Mod, _SysExps, _Decls).
 %    new_system_module(Mod).
 
-use_system_module(Module, _SysExps).
+use_system_module(_Module, _SysExps).
 
 private(_).
 
@@ -291,8 +292,9 @@ private(_).
 '$bootstrap_predicate'(print_message(Context, Msg), _M, _) :- !,
     '$early_print_message'(Context, Msg).
 '$bootstrap_predicate'(print_message(Context, Msg), _M, _) :- !,
-    '$early_print_message'(Context, Msg).
-'$bootstrap_predicate'(prolog_file_type(A,B), _, prolog_file_type(A,B)) :- !, B  = prolog.
+        '$early_print_message'(Context, Msg).
+'$bootstrap_predicate'(prolog_file_type(A,prolog), _, _) :- !,
+        ( A = yap  ; A = pl ; A = prolog ).
 '$bootstrap_predicate'(file_search_path(_A,_B), _, _ ) :- !, fail.
 '$bootstrap_predicate'(meta_predicate(G), M, _) :- !,
     strip_module(M:G, M1, G1),
@@ -445,7 +447,6 @@ live :-
 	thread_create('$c_worker',_,[detached(true)]),
 	W1 is W-1,
 	'$start_orp_threads'(W1).
-
 
 % Start file for yap
 
@@ -1428,7 +1429,7 @@ Command = (H --> B) ->
 
 '$check_head_and_body'(MH, M, H, true, P) :-
     '$yap_strip_module'(MH,M,H),
-    error:is_callable(M:H,P).
+    is_callable(M:H,P).
                                 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
@@ -1453,8 +1454,8 @@ Command = (H --> B) ->
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-  source_module(SM),
-    '$yap_strip_module'(SM:InputCl, M, ICl),
+    source_module(SM),
+    '$yap_strip_clause'(SM:InputCl, M, ICl),
     '$expand_a_clause'( M:ICl, SM, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
