@@ -467,7 +467,7 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 	  (
 	  (*curslot < (CELL)LOCAL_GlobalBase &&
 	   *curslot > (CELL)HR))) {
-	*curslot++ = TermNil;
+	*curslot++ = TermFreeTerm;
       }
 	TrailTerm(TR++) = (CELL)curslot++;
       }

@@ -22,7 +22,10 @@ protected:
   void mk(Term t0); /// internal method to convert from term to handle
   Term gt();        /// get handle and obtain term
 public:
-  virtual ~YAPTerm(){};
+  virtual ~YAPTerm(){ LOCAL_HandleBase[t] = TermFreeTerm;
+    while (  LOCAL_HandleBase[LOCAL_CurSlot-1] == TermFreeTerm)
+      LOCAL_CurSlot--;
+   }
   YAPTerm(Term tn) {
     mk(tn);
   } /// private method to convert from Term (internal YAP representation) to
