@@ -480,8 +480,9 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   YAP_dogoalinfo q;
   Term terr;
   jmp_buf q_env;
+
   for (arity_t i = 0; i < arity; i++)
-    Yap_XREGS[i + 1] = ts[i].term();
+    XREGS[i + 1] = ts[i].term();
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
@@ -624,7 +625,7 @@ Term YAPEngine::fun(Term t) {
       Yap_CloseHandles(q.CurSlot);
     throw YAPError();
   }
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %ld", o);
 
   t = Yap_GetFromSlot(q.CurSlot);
   Yap_CloseHandles(q.CurSlot);
@@ -665,14 +666,14 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
 
 YAPListTerm YAPQuery::namedVars() {
   CACHE_REGS
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d",
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %ld",
                       vnames.text(), LOCAL_CurSlot);
   return vnames; // should be o
 }
 
 YAPListTerm YAPQuery::namedVarsCopy() {
   CACHE_REGS
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %d",
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames %s %ld",
                       vnames.text(), LOCAL_CurSlot);
   return YAPListTerm(YAP_CopyTerm(vnames.term())); // should be o
 }
@@ -703,7 +704,7 @@ bool YAPQuery::next() {
     result = (bool)YAP_RetryGoal(&q_h);
   }
   if (result) {
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %ld",
                         q_state, vnames.text(), LOCAL_CurSlot);
   } else {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");

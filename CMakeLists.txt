@@ -9,8 +9,9 @@
 project( YAP )
 
 if (ANDROID)
-  set(YAP_APP_DIR "$CMAKE_SOURCE_DIR/../..")
+  set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
    cmake_policy(VERSION 3.4)
+
 else ()
 cmake_minimum_required(VERSION 2.8)
 include(CMakeToolsHelpers OPTIONAL)
@@ -38,6 +39,19 @@ include (GNUInstallDirs)
 # You can define multiple libraries, and CMake builds it for you.
 # Gradle automatically packages shared libraries with your APK.
 
+#cross-compilation support
+# Search packages for host system instead of packages for target system
+# in case of cross compilation these macro should be defined by toolchain file
+if(NOT COMMAND find_host_package)
+    macro(find_host_package)
+        find_package(${ARGN})
+    endmacro()
+endif()
+if(NOT COMMAND find_host_program)
+    macro(find_host_program)
+        find_program(${ARGN})
+    endmacro()
+endif()
 
 include(Prelims NO_POLICY_SCOPE)
 
@@ -45,11 +59,10 @@ include(Sources NO_POLICY_SCOPE)
 
 include(Model NO_POLICY_SCOPE)
 
-include_directories ( utf8proc packages/myddas packages/myddas/sqlite3 )
-if (ANDROID)
-
-  include_directories (  packages/myddas/sqlite3/Android/jni/sqlite/nativehelper packages/myddas/sqlite3/Android/jni/sqlite )
-endif (ANDROID)
+include_directories ( utf8proc packages/myddas packages/myddas/sqlite3
+ packages/myddas/sqlite3/Android/jni/sqlite
+  packages/myddas/sqlite3/Android/jni/sqlite/nativehelper
+ )
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)
@@ -65,21 +78,6 @@ if (MYSQL_POSTGRES)
   endif()
 
 if (ANDROID)
-
-  #
-  #   SWIG_FOUND - set to true if SWIG is found
-  #   SWIG_DIR - t      he directory where swig is installed
-  #   SWIG_EXECUTABLE - the path to the swig executable
-  #   SWIG_VERSION   - the version number of the swig executable
-  #
-
-  #
-
-
-set (SWIG_CXX ${CMAKE_BINARY_DIR}/packages/swig/android/yap_swig.cpp)
-
-
-add_subdirectory("packages/swig")
 
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
@@ -114,7 +112,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         ${ENGINE_SOURCES}
-        ${SWIG_CXX}
+        ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp
         ${C_INTERFACE_SOURCES}
         ${STATIC_SOURCES}
         ${ALL_SOURCES}
@@ -131,7 +129,7 @@ endif (USE_READLINE)
 
 
 if (ANDROID)
-    add_dependencies(libYap plmyddas swig)
+    add_dependencies(libYap  plmyddas )
 
     target_link_libraries(libYap android log)
 

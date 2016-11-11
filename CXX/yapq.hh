@@ -54,7 +54,7 @@ public:
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, names) {
     BACKUP_H();
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
     if (!ap)
       return;

@@ -1,3 +1,4 @@
+message( "   * Sqlite3 Data-Base (http://www.sqlite3ql.org), distributed with MYDDAS" )
 
 set( YAPSQLITE3_SOURCES
   myddas_sqlite3.c
@@ -5,8 +6,30 @@ set( YAPSQLITE3_SOURCES
   sqlite3.h
  )
 
+#sqlite3 is now in the system
+
+set (SQLITE3_FOUND ON CACHE PRIVATE "")
+
+include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
+add_definitions(-DSQLITE_ENABLE_COLUMN_METADATA=1 )
+
+add_definitions(-DSQLITE_ENABLE_JSON1=1 )
+
+add_definitions(-DSQLITE_ENABLE_RBU=1 )
+
+add_definitions(-DSQLITE_ENABLE_RTREE=1 )
+
+add_definitions(-DSQLITE_ENABLE_FTS5=1 )
+
+
 if (ANDROID)
-set( YAPSQLITE3_ANDROID_SOURCES
+
+       include_directories(  ${CMAKE_CURRENT_SOURCE_DIR}/.. Android/jni/sqlite Android/jni/sqlite/nativehelper )
+
+
+set(YAPSQLITE3_SOURCES
+ ${YAPSQLITE3_SOURCES}
 Android/jni/sqlite/JNIHelp.cpp
 Android/jni/sqlite/JniConstants.cpp
 Android/jni/sqlite/android_database_SQLiteCommon.cpp
@@ -14,39 +37,13 @@ Android/jni/sqlite/android_database_SQLiteCommon.h
 Android/jni/sqlite/android_database_SQLiteConnection.cpp
 Android/jni/sqlite/android_database_SQLiteDebug.cpp
 Android/jni/sqlite/android_database_SQLiteGlobal.cpp
+Android/jni/sqlite/nativehelper/jni.h
+Android/jni/sqlite/nativehelper/jniConstants.h
+Android/jni/sqlite/nativehelper/JNIHelp.h
+Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 )
-set( YAPSQLITE3_ANDROID_DIRS
-  Android/jni/sqlite
-  Android/jni/sqlite/nativehelper
-  )
+
+add_component( sqlite3
+    ${YAPSQLITE3_SOURCES} )
 endif (ANDROID)
-
-#sqlite3 is now in the system
-
-set (SQLITE3_FOUND ON CACHE PRIVATE "")
-  message (
-      "   * Sqlite3 Data-Base (http://www.sqlite3ql.org) is distributed with
-      MYDDAS" )
-
- list (APPEND MYDDAS_FLAGS -DMYDDAS_SQLITE3=1)
-set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
-set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
-        -DMYDDAS_SQLITE3=1)
-
-       include_directories (  ${CMAKE_CURRENT_SOURCE_DIR}/.. ${CMAKE_CURRENT_SOURCE_DIR} ${YAPSQLITE3_ANDROID_DIRS})
-
-
-  add_component (Yapsqlite3   ${YAPSQLITE3_SOURCES}  ${YAPSQLITE3_ANDROID_SOURCES})
-  if (NOT ANDROID)
-  #target_link_libraries(Yapsqlite3 libYap)
-  set_target_properties (Yapsqlite3 PROPERTIES
-        POSITION_INDEPENDENT_CODE ON
-  PREFIX ""
-  )
-
-   # install(TARGETS  Yapsqlite3
-   #  LIBRARY DESTINATION ${dlls}
-   #  ARCHIVE DESTINATION ${dlls}
-   #  )
- endif()
 

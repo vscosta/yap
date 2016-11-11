@@ -95,7 +95,7 @@ struct threads_dependency_frame {
 
 #ifdef USE_PAGES_MALLOC
 typedef struct page_header {
-  volatile int structs_in_use;
+  volatile size_t structs_in_use;
   void *allocated_area;
   void *first_free_struct;
   struct page_header *previous;
@@ -125,7 +125,7 @@ struct global_page_entry {
   int structs_per_page;
   volatile long pages_in_use;
 #endif /* USE_PAGES_MALLOC */
-  volatile long structs_in_use;
+  volatile size_t structs_in_use;
 };
 
 struct local_page_entry {
@@ -133,9 +133,10 @@ struct local_page_entry {
   struct page_header *first_page;
   struct page_header *last_page;
   int structs_per_page;
-  long pages_in_use;
+
+  size_t pages_in_use;
 #endif /* USE_PAGES_MALLOC */
-  long structs_in_use;
+  size_t structs_in_use;
 };
 
 #define PgEnt_lock(X)           ((X).lock)

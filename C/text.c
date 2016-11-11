@@ -917,7 +917,7 @@ static unsigned char *concat(int n, void *sv[] USES_REGS) {
   buf = Malloc(room + 1);
   buf0 = buf;
   for (i = 0; i < n; i++) {
-#if _WIN32
+#if _WIN32 || defined( __ANDROID__ )
     strcpy(buf, sv[i]);
     buf = (char*)buf + strlen(buf);
 #else

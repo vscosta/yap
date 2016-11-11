@@ -11,11 +11,11 @@
     ${CMAKE_SOURCE_DIR}/CXX
        )
 
-     add_custom_target ( swig ALL
-      DEPENDS ${SWIG_CXX}
+      add_custom_command (OUTPUT  yap_swig.cpp
+        COMMAND ${SWIG} -java -outdir ${CMAKE_SWIG_OUTDIR} -outcurrentdir -addextern  -I${CMAKE_SOURCE_DIR}/CXX   ${SWIG_SOURCES} -o yap_swig.cpp
       )
 
-    add_custom_command (OUTPUT   ${SWIG_CXX}
-        COMMAND ${SWIG} -java -outdir ${CMAKE_SWIG_OUTDIR} -c++ -addextern  -I${CMAKE_SOURCE_DIR}/CXX   -o ${SWIG_CXX}${SWIG_SOURCES}
+   add_custom_target ( swig ALL
+      DEPENDS yap_swig.cpp
       )
 

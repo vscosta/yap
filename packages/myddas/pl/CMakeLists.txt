@@ -9,9 +9,9 @@ set(MYDDAS_YPP
         myddas_prolog2sql_optimizer.ypp)
 
 set(MYDDAS_DRIVERS
-        myddas_driver.ypp
+        "myddas_driver.ypp"
         )
-
+message("libpl ${libpl}")
 if (ANDROID)
     set (PREFIX ${libpl} )
 else()
@@ -30,7 +30,7 @@ function(cpp_compile output filename)
                 OUTPUT ${outfile}
                 COMMAND ${CMAKE_C_COMPILER} ${MYDDAS_FLAGS} /EP /P ${outfile} ${CMAKE_CURRENT_SOURCE_DIR}/${filename}
                 DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/${filename}")
-    else ()
+    ELSE (MSVC)
         add_custom_command(
                 OUTPUT ${outfile}
                 COMMAND ${CMAKE_C_COMPILER} ${MYDDAS_FLAGS} -x c -E -P -w ${CMAKE_CURRENT_SOURCE_DIR}/${filename} -o ${outfile}
@@ -40,7 +40,11 @@ function(cpp_compile output filename)
 endfunction()
 
 function(cpp_driver output dbms filename)
+    if (ANDROID)
+  set(outfile ${libpl}/myddas_${dbms}.yap)
+    else()
   set(outfile ${CMAKE_CURRENT_BINARY_DIR}/myddas_${dbms}.yap)
+  endif()
     set(${output} ${${output}} ${outfile} PARENT_SCOPE)
                    IF (MSVC)
 		    add_custom_command(

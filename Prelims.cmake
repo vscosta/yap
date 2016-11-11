@@ -105,20 +105,6 @@ else()
 endif()
 
 
-#cross-compilation support
-# Search packages for host system instead of packages for target system
-# in case of cross compilation these macro should be defined by toolchain file
-if(NOT COMMAND find_host_package)
-    macro(find_host_package)
-        find_package(${ARGN})
-    endmacro()
-endif()
-if(NOT COMMAND find_host_program)
-    macro(find_host_program)
-        find_program(${ARGN})
-    endmacro()
-endif()
-
 # where we have most scripts
 # set path to additional CMake modules
 
@@ -142,10 +128,10 @@ endif(POLICY CMP0043)
 
 
 if (ANDROID)
-    set ( prefix ${YAP_APP_DIR}/app/build/generated )
-    set ( datarootdir ${YAP_APP_DIR}/app/build/generated/assets )
+    set ( prefix ${YAP_APP_DIR}/app/src/generated )
+    set ( datarootdir ${YAP_APP_DIR}/app/src/generated/assets )
 set ( includedir "${prefix}/assets/include")
-    set ( libpl  ${YAP_APP_DIR}/app/build/generated/assets/Yap)
+    set ( libpl  ${YAP_APP_DIR}/app/src/generated/assets/Yap)
 else()
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
 set ( datarootdir "${prefix}/share")

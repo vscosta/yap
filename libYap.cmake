@@ -60,7 +60,7 @@ include_directories (H
 include_directories (BEFORE ${CMAKE_BINARY_DIR})
 
 if (ANDROID)
-include_directories (CXX)
+include_directories (CXX ${CMAKE_SOURCE_DIR}/../generated/src/jni)
 endif()
 
 find_package (GMP)
