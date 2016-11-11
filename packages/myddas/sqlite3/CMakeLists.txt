@@ -43,7 +43,8 @@ Android/jni/sqlite/nativehelper/JNIHelp.h
 Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 )
 
-add_component( sqlite3
-    ${YAPSQLITE3_SOURCES} )
 endif (ANDROID)
+
+add_component(  Yapsqlite3                                           
+    ${YAPSQLITE3_SOURCES} )
 

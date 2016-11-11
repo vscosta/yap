@@ -59,10 +59,15 @@ include(Sources NO_POLICY_SCOPE)
 
 include(Model NO_POLICY_SCOPE)
 
-include_directories ( utf8proc packages/myddas packages/myddas/sqlite3
+include_directories ( utf8proc packages/myddas packages/myddas/sqlite3)
+
+if (ANDROID)
+    include_directories (
  packages/myddas/sqlite3/Android/jni/sqlite
   packages/myddas/sqlite3/Android/jni/sqlite/nativehelper
  )
+ endif (ANDROID)
+
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)
@@ -86,6 +91,8 @@ if (ANDROID)
     ADD_SUBDIRECTORY(library/system)
     ADD_SUBDIRECTORY(utf8proc)
     ADD_SUBDIRECTORY(CXX)
+
+set (SWIG_FILES    ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp )
 
 else ()
     set(YLIBS
@@ -112,7 +119,7 @@ add_library( # Sets the name of the library.
         SHARED
 
         ${ENGINE_SOURCES}
-        ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp
+        ${SWIG_FILES}
         ${C_INTERFACE_SOURCES}
         ${STATIC_SOURCES}
         ${ALL_SOURCES}
