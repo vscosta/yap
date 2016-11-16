@@ -17,13 +17,13 @@
 
 :- module(attributes, [op(1150, fx, attribute)]).
 
-%% @{
-
 /**
   @addtogroup attributes
 
 
-SICStus style attribute declarations are activated through loading the
+%% @{
+
+                                                SICStus style attribute declarations are activated through loading the
 library <tt>atts</tt>. The command
 
 ~~~~~

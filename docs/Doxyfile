@@ -785,9 +785,8 @@ INPUT                  =                        /Users/vsc/git/yap-6.3/pl \
                        /Users/vsc/git/yap-6.3/library \
                        /Users/vsc/git/yap-6.3/packages \
                        /Users/vsc/git/yap-6.3/swi/library \
-                       /Users/vsc/git/yap-6.3/docs/yap.md \
-                       /Users/vsc/git/yap-6.3/docs/chr.md \
-                       /Users/vsc/git/yap-6.3/docs/clpqr.md \
+                       /Users/vsc/git/yap-6.3/docs/*.md \
+                       /Users/vsc/git/yap-6.3/*.md \
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -937,7 +936,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = 
+USE_MDFILE_AS_MAINPAGE =
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing

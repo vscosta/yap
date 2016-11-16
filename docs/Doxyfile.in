@@ -785,9 +785,8 @@ INPUT                  =                        @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/library \
                        @PROJECT_SOURCE_DIR@/packages \
                        @PROJECT_SOURCE_DIR@/swi/library \
-                       @PROJECT_SOURCE_DIR@/docs/yap.md \
-                       @PROJECT_SOURCE_DIR@/docs/chr.md \
-                       @PROJECT_SOURCE_DIR@/docs/clpqr.md \
+                       @PROJECT_SOURCE_DIR@/docs/*.md \
+		@PROJECT_SOURCE_DIR@/*.md 
 
 
 # This tag can be used to specify the character encoding of the source files

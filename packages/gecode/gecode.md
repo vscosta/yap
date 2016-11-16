@@ -1,16 +1,24 @@
-USING THE GECODE MODULE
+USING THE GECODE MODULE             (#Gecode)
 =======================
+
+There are two ways to use the gecode interface from YAP. The original approach,
+designed by Denys Duchier, requires loading the library:
 
 :- use_module(library(gecode)).
 
+A second approach is closer to CLP(FD), and is described in:
+
+ - \ref Gecode_and_ClPbBFDbC
+
+In what follows, we refer the reader to the~\cite{gecode} manual for the necessary background.
 
 CREATING A SPACE
-================
+----------------
 
     Space := space
 
 CREATING VARIABLES
-==================
+-----------------
 
 Unlike in Gecode, variable objects are not bound to a specific Space.  Each one
 actually contains an index with which it is possible to access a Space-bound
@@ -49,7 +57,7 @@ kept.  Thus marking variables as "kept" is purely an optimization.
 
 
 CONSTRAINTS AND BRANCHINGS
-==========================
+---------------------------
 
 all constraint and branching posting functions are available just like in
 Gecode.  Wherever a XXXArgs or YYYSharedArray is expected, simply use a list.
@@ -68,7 +76,7 @@ represented by atoms with the same name as the Gecode constant
 (e.g. 'INT_VAR_SIZE_MIN').
 
 SEARCHING FOR SOLUTIONS
-=======================
+--------------------
 
     SolSpace := search(Space)
 
@@ -90,7 +98,7 @@ a_d=N
     to set the adaptive distance for recomputation
 
 EXTRACTING INFO FROM A SOLUTION
-===============================
+------------------------------
 
 An advantage of non Space-bound variables, is that you can use them both to
 post constraints in the original space AND to consult their values in
@@ -126,7 +134,7 @@ variables, and returns resp. either a value, or a list of values:
     Val := unknown_values(Space,V)
 
 DISJUNCTORS
-===========
+-----------
 
 Disjunctors provide support for disjunctions of clauses, where each clause is a
 conjunction of constraints:

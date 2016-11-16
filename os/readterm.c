@@ -219,15 +219,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
   CACHE_REGS
   Term startline, errline, endline;
   Term tf[3];
-    Term tm;
+  Term tm;
   Term *tailp = tf + 2;
   CELL *Hi = HR;
   TokEntry *tok = LOCAL_tokptr;
   Int cline = tok->TokPos;
 
   startline = MkIntegerTerm(cline);
-    endline = MkIntegerTerm(cline);
- if (errtok != LOCAL_toktide) {
+  endline = MkIntegerTerm(cline);
+  if (errtok != LOCAL_toktide) {
     errtok = LOCAL_toktide;
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -254,7 +254,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
       *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
       tailp = RepPair(*tailp) + 1;
     }
-      Term rep = Yap_tokRep(tok );
+    Term rep = Yap_tokRep(tok);
     if (tok->TokNext) {
       tok = tok->TokNext;
     } else {
@@ -262,7 +262,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
       tok = NULL;
       break;
     }
-    *tailp = MkPairTerm(rep , TermNil);
+    *tailp = MkPairTerm(rep, TermNil);
     tailp = RepPair(*tailp) + 1;
   }
   {
@@ -280,8 +280,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
   clean_vars(LOCAL_AnonVarTable);
   Term terr = Yap_MkApplTerm(FunctorInfo3, 3, tf);
   Term tn[2];
-    tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &tm);
-    tn[1] = terr;
+  tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &tm);
+  tn[1] = terr;
   terr = Yap_MkApplTerm(FunctorError, 2, tn);
 #if DEBUG
   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
@@ -643,7 +643,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream);
 static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
   CACHE_REGS
   // bool store_comments = false;
- TokEntry *tokstart = LOCAL_tokptr;
+  TokEntry *tokstart = LOCAL_tokptr;
   // check for an user abort
   if (tokstart != NULL && tokstart->Tok != Ord(eot_tok)) {
     /* we got the end of file from an abort */
@@ -730,24 +730,23 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
     TokEntry *t = LOCAL_tokptr;
     int n = 0;
     while (t) {
-        fprintf(stderr, "[Token %d %s %d]",
-              Ord(t->Tok),Yap_tokText(t), n++);
+      fprintf(stderr, "[Token %d %s %d]", Ord(t->Tok), Yap_tokText(t), n++);
       t = t->TokNext;
     }
     fprintf(stderr, "\n");
   }
 #endif
-if (LOCAL_ErrorMessage)
-  return YAP_SCANNING_ERROR;
-if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
-  // next step
-  return YAP_PARSING;
-}
-if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
-  LOCAL_Error_TYPE = SYNTAX_ERROR;
-  return YAP_PARSING_ERROR;
-}
-return scanEOF(fe, inp_stream);
+  if (LOCAL_ErrorMessage)
+    return YAP_SCANNING_ERROR;
+  if (LOCAL_tokptr->Tok != Ord(eot_tok)) {
+    // next step
+    return YAP_PARSING;
+  }
+  if (LOCAL_tokptr->Tok == eot_tok && LOCAL_tokptr->TokInfo == TermNl) {
+    LOCAL_Error_TYPE = SYNTAX_ERROR;
+    return YAP_PARSING_ERROR;
+  }
+  return scanEOF(fe, inp_stream);
 }
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
@@ -807,7 +806,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   } else {
     Term t = syntax_error(fe->toklast, inp_stream, fe->cmod);
     if (ParserErrorStyle == TermError) {
-      LOCAL_ActiveError->errorTerm = Yap_StoreTermInDB( t, 4);
+      LOCAL_ActiveError->errorTerm = Yap_StoreTermInDB(t, 4);
       LOCAL_Error_TYPE = SYNTAX_ERROR;
       // dec-10
     } else if (Yap_PrintWarning(t)) {
@@ -1082,6 +1081,47 @@ static Int read_clause(
 }
 
 /**
+ * start input for a meta-clause. Should obtain:
+ *   - predicate name
+ *   - predicate arity
+ *   - address for 256 cluses.
+ *
+ * @param  ARG1 input stream
+ * @param  ARG2 Adress of predicate.
+ * @param  ARG3 Term read.
+ * @return            [description]
+ */
+#if 0
+static Int start_mega(USES_REGS1) {
+  int inp_stream;
+  Term out;
+  Term t3 = Deref(ARG3);
+  yhandle_t h = Yap_InitSlot(ARG2);
+  TokENtry *tok;
+  arity_t srity = 0;
+  /* needs to change LOCAL_output_stream for write */
+  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read_exo/3");
+  if (inp_stream < 0)
+    return false;
+  /* preserve   value of H after scanning: otherwise we may lose strings
+     and floats */
+  LOCAL_tokptr = LOCAL_toktide =
+      x Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
+  if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
+      next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket) {
+          bool start = true;
+          while((tokptr = next->TokNext)) {
+
+            if (IsAtomOrIntTerm(t=*tp)) {
+                ip->opc = Yap_opcode(get_atom);
+                ip->y_u.x_c.c = t.
+            ip->y_u.x_c.x = tp++; /() c */
+                } else if (IsAtomOrIntTerm(t=*tp)) {
+                     (IsAtom(tok->Tokt)||IsIntTerm(XREGS+(i+1)))extra[arity]
+                    ]
+}
+#endif
+/**
  * @pred source_location( - _File_ , _Line_ )
  *
  * unify  _File_ and  _Line_ wuth the position of the last term read, if the
@@ -1093,6 +1133,8 @@ static Int read_clause(
  *
  * @param - _File_
  * @param - _Line_
+ *
+ *
  *
  * @note SWI-Prolog built-in.
  */
@@ -1215,15 +1257,15 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
   CACHE_REGS
   Term bvar = MkVarTerm(), ctl;
   yhandle_t sl;
-    int lvl = push_text_stack();
+  int lvl = push_text_stack();
 
   if (len == 0) {
     Term rval = TermEof;
     if (rval && bindings) {
       *bindings = TermNil;
     }
-      pop_text_stack(lvl);
-      return rval;
+    pop_text_stack(lvl);
+    return rval;
   }
   if (bindings) {
     ctl = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &bvar);
@@ -1242,7 +1284,7 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
   if (rval && bindings) {
     *bindings = Yap_PopHandle(sl);
   }
-    pop_text_stack(lvl);
+  pop_text_stack(lvl);
   return rval;
 }
 

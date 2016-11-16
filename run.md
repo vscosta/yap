@@ -1,9 +1,11 @@
-Running YAP  {#run}
-===========
+Running YAP       					(#run)
+==============
+
 
 We next describe how to invoke YAP in Unix systems.
 
-@section Running_YAP_Interactively Running YAP Interactively
+Running YAP Interactively			(#interactive_run)
+-------------------------
 
 Most often you will want to use YAP in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -93,8 +95,8 @@ YAP always tries to find saved states from the current directory
 YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 
-
-@section Running_Prolog_Files Running Prolog Files
+Prolog Scripts
+--------------
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget
@@ -188,3 +190,4 @@ they must be sent directly to the argv built-in. Hence, running
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 will write `test` on the standard output.
+@}

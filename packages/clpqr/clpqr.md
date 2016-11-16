@@ -1,7 +1,5 @@
-Constraint Logic Programming over Rationals and Reals  {#clpqr}
+ Constraint Logic Programming over Rationals and Reals  {#clpqr}
 =====================================================
-
-@ingroup paackages
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,
 K.U. Leuven as part of a thesis with supervisor Bart Demoen and daily
@@ -119,4 +117,3 @@ X = sin(Y)	    when X is ground or			// 1 = sin(Y)
 X = cos(Y)	         Y is ground			// X = sin(1.5707)
 X = tan(Y)
 ~~~~~
-

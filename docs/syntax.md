@@ -1,6 +1,5 @@
-
-
-@file syntax.md
+YAP Syntax                                  (#YAPSyntax)
+============
 
 @defgroup YAPSyntax YAP Syntax
 @ingroup mainpage
@@ -198,11 +197,11 @@ YAP supports four different textual elements:
  data-base. They are stored either in ISO-LATIN-1 (first 256 code points), or as UTF-32.
 
  + Strings are atomic representations of text. The back-quote character is used to identify these objects in the program. Strings exist as stack objects, in the same way as other Prolog terms. As Prolog unification cannot be used to manipulate strings, YAP includes built-ins such as string_arg/3, sub_string/5, or string_concat to manipulate them efficiently. Strings are stored as opaque objects containing a
- 
+
  + Lists of codes represent text as a list of numbers, where each number is a character code. A string of _N_ bytes requires _N_ pairs, that is _2N_ cells, leading to a total of 16 bytes per character on 64 byte machines. Thus, they are a very expensive, but very flexible representation, as one can use unification to construct and access string elements.
- 
+
  + Lists of atoms represent text as a list of atoms, where each number has a single character code. A string of _N_ bytes also requires _2N_ pairs. They have similar properties to lists of codes.
- 
+
  The flags `double_quotes` and `backquoted_string` change the interpretation of text strings, they can take the
  values `atom`, `string`, `codes`, and `chars`.
 
@@ -213,7 +212,7 @@ Examples:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The first string is an empty string, the last string shows the use of
-double-quoting. 
+double-quoting.
 
 Escape sequences can be used to include the non-printable characters
 `a` (alert), `b` (backspace), `r` (carriage return),
@@ -346,7 +345,7 @@ atoms. If the text fits in ISO Latin-1, it is represented as an array
 of 8-bit characters.  Otherwise the text is represented as an array of
 wide chars, which may take 16 or 32 bits.  This representational issue
 is completely transparent to the Prolog user.  Users of the foreign
-language interface sometimes need to be aware of these issues though. Notice that this will likely 
+language interface sometimes need to be aware of these issues though. Notice that this will likely
 change in the future, we probably will use an UTF-8 based representation.
 
 Character coding comes into view when characters of strings need to be
@@ -359,7 +358,7 @@ as well as I/O through network sockets.
 @ingroup WideChars
 
 The UCS standard describes all possible characters (or code points, as they include
-ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows 
+ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows
 code points up to 0x10FFFF, and thus allows for 1,114,112 code points. See [Unicode Charts](http://unicode.org/charts/) for the supported languages.
 
 Notice that most symbols are rarely used. Encodings represent the Unicode characters in a way
@@ -367,23 +366,23 @@ that is more suited for communication. The most popular encoding, especially in 
 UTF-8. UTF-8 is compact and as it uses bytes, does not have different endianesses.
 Bytes 0...127 represent simply the corresponding US-ASCII
 character, while bytes 128...255 are used for multi-byte
-encoding of characters placed higher in the UCS space. 
+encoding of characters placed higher in the UCS space.
 
 Especially on
 MS-Windows and Java the 16-bit Unicode standard, represented by pairs of bytes is
-also popular. Originally, Microsoft supported a UCS-2 with 16 bits that 
+also popular. Originally, Microsoft supported a UCS-2 with 16 bits that
  could represent only up to 64k characters. This was later extended to support the full
  Unicode, we will call the latter version UTF-16. The extension uses a hole in the first 64K code points. Characters above 0xFFFF are divided into two 2-byte words, each one in that hole. There are two versions of UTF-16: big and low
  endian. By default, UTF-16 is big endian, in practice most often it is used on Intel
  hardware that is naturally little endian.
- 
- UTF-32, often called UCS-4, provides a natural interface where a code point is coded as 
+
+ UTF-32, often called UCS-4, provides a natural interface where a code point is coded as
  four octets. Unfortunately, it is also more expensive, so it is not as widely used.
- 
+
  Last, other encodings are also commonly used. One such legacy encoding is ISO-LATIN-1, that
  supported latin based languages in western europe. YAP currently uses either ISO-LATIN-1 or UTF-32
  internally.
- 
+
 Prolog supports the default encoding used by the Operating System,
 Namely, YAP checks the variables LANG, LC_ALL and LC_TYPE. Say, if at boot YAP detects that the
 environment variable `LANG` ends in "UTF-8", this encoding is
@@ -419,7 +418,7 @@ but generates errors and warnings on encountering values above
 8-bit encoding supporting many western languages.  This causes
 the stream to be read and written fully untranslated.
 
-  + `text` 
+  + `text`
 C-library default locale encoding for text files.  Files are read and
 written using the C-library functions `mbrtowc()` and
 `wcrtomb()`.  This may be the same as one of the other locales,
@@ -484,7 +483,7 @@ writing, writing a BOM can be requested using the option
 `bom(true)` with `open/4`. YAP will parse an UTF-8 file for a BOM only if explicitly required to do so. Do notice that YAP will write a BOM by default on UTF-16 (including UCS-2) and
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
- 
+
 = @addgroup Operators Summary of YAP Predefined Operators
 @ingroup YapSyntax
 
