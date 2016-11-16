@@ -87,8 +87,6 @@ if (ANDROID)
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
     ADD_SUBDIRECTORY(packages/myddas)
-    ADD_SUBDIRECTORY(library/random)
-    ADD_SUBDIRECTORY(library/system)
     ADD_SUBDIRECTORY(utf8proc)
     ADD_SUBDIRECTORY(CXX)
 

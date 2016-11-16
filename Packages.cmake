@@ -50,7 +50,9 @@ add_subDIRECTORY (packages/swig)
 option (WITH_DOCS
      "generate YAP docs" OFF)
 
- # add_subDIRECTORY (docs)
+     IF (WITH_DOCS)
+  add_subDIRECTORY (docs)
+ ENDIF (WITH_DOCS)
 
 # add_subDIRECTORY (packages/cuda)
 
