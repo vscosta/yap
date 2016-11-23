@@ -53,6 +53,8 @@ if(NOT COMMAND find_host_program)
     endmacro()
 endif()
 
+option(BUILD_SHARED_LIBS "Build shared library" ON)
+
 include(Prelims NO_POLICY_SCOPE)
 
 include(Sources NO_POLICY_SCOPE)

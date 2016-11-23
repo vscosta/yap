@@ -32,10 +32,6 @@ IF (CUDD_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  configure_file ("${PROJECT_SOURCE_DIR}/cudd_config.h.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )
-
-
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
@@ -66,4 +62,3 @@ IF (CUDD_FOUND)
   INSTALL(FILES trie_sp.yap DESTINATION ${libpl})
 
 ENDIF (CUDD_FOUND)
-

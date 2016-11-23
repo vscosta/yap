@@ -1,4 +1,4 @@
- 
+
 # Be sure to also update these in Makefile!
 set(SO_MAJOR 1)
 set(SO_MINOR 0)
@@ -63,7 +63,7 @@ IF (CUDD_FOUND)
     slipcover/revise_sl.pl
     slipcover/slipcover.pl
     )
-  
+
   set (CPLINT_TEST_PROGRAMS
     testcpl.pl
     testlpad.pl
@@ -151,7 +151,7 @@ IF (CUDD_FOUND)
       ARCHIVE DESTINATION ${dlls}
   )
 
-  
+
   add_library (cplint SHARED
     ${CPLINT_SOURCES}
    )
@@ -162,7 +162,7 @@ IF (CUDD_FOUND)
    )
 
  TARGET_LINK_LIBRARIES(cplint
-      ${CUDD_LIBRARIES} 
+      ${CUDD_LIBRARIES}
       libYap
       )
 

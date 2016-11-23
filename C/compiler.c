@@ -1093,7 +1093,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         char s[32];
 
         Yap_bip_name(Op, s);
-        Yap_ThrowError(INSTANTIATION_ERROR , t2, "compiling %s/3", s); 
+        Yap_ThrowError(INSTANTIATION_ERROR , t2, "compiling %s/3", s);
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1110,9 +1110,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
 
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO , t2,4, "compiling functor/3");
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO , t2, "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
+
         }
         if (IsNumTerm(t1)) {
           /* we will always fail */

@@ -15,13 +15,15 @@ include(TestBigEndian)
 include(GetGitRevisionDescription)
 
 # modern systems do this.
+
 set(MALLOC_T "void *")
 OPTION(WITH_SYSTEM_MALLOC
         "use malloc to allocate memory" ON)
 OPTION(WITH_DL_MALLOC
         "use malloc to allocate memory" OFF)
 OPTION(WITH_YAP_MALLOC
-        "use malloc to allocate memory" OFF)
+        "use malloc to allocate mem
+        ory" OFF)
 
 if (WITH_SYSTEM_MALLOC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_SYSTEM_MALLOC=1)
@@ -144,6 +146,7 @@ endif (HAVE_LIBDL)
 if (WIN32)
     check_library_exists(comdlg32 FindText "" HAVE_LIBCOMDLG32)
     if (HAVE_LIBCOMDLG32)
+
         set(EXTRALIBS ${EXTRALIBS} comdlg32)
     endif (HAVE_LIBCOMDLG32)
     check_library_exists(msvcrt strtok "" HAVE_LIBMSCRT)
@@ -215,6 +218,7 @@ if (HAVE_LIBPTHREAD)
   endif (HAVE_LIBPTHREAD)
 
 
+
 check_library_exists(unicode main "" HAVE_LIBUNICODE)
 if (HAVE_LIBUNICODE)
     set(EXTRALIBS ${EXTRALIBS} unicode)
@@ -261,10 +265,8 @@ check_symbol_exists(flsll <string.h> HAVE_FLSLL)
 check_function_exists(fmemopen HAVE_FMEMOPEN)
 check_function_exists(fpclass HAVE_FPCLASS)
 check_function_exists(ftime HAVE_FTIME)
-check_function_exists(ftruncate HAVE_FTRUNCATE)
-check_function_exists(funopen HAVE_FUNOPEN)
-check_function_exists(gcc HAVE_GCC)
-check_function_exists(getcwd HAVE_GETCWD)
+check_function_exists(ftru
+wd HAVE_GETCWD)
 check_function_exists(getenv HAVE_GETENV)
 check_function_exists(getexecname HAVE_GETEXECNAME)
 check_function_exists(gethostbyname HAVE_GETHOSTBYNAME)
@@ -321,7 +323,8 @@ check_function_exists(setlocale HAVE_SETLOCALE)
 check_function_exists(setsid HAVE_SETSID)
 check_function_exists(shmat HAVE_SHMAT)
 check_function_exists(sigaction HAVE_SIGACTION)
-check_symbol_exists(SIGFPE signal.h HAVE_SIGFPE)
+check_symbol_exists(SI
+GFPE signal.h HAVE_SIGFPE)
 check_function_exists(siggetmask HAVE_SIGGETMASK)
 check_symbol_exists(SIGINFO signal.h HAVE_SIGINFO)
 check_function_exists(siginterrupt HAVE_SIGINTERRUPT)
@@ -396,5 +399,13 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/../YapTermConfig.h.cmake
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
         ${CMAKE_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../GitSHA1.c.in GitSHA1.c @ONLY)
-
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/os/YapIOConfig.h)
+
+check_include_files( "stdio.h;cudd.h" HAVE_CTYPE_HUDD_H )
+
+check_include_files( "stdio.h;cuddI.h"  HAVE_CUDD_H )
+check_include_files( "cudd.h;cuddInt.h"  HAVE_CUDDINT_H )
+check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
+check_include_files( "stdio.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+configure_file (cmake/cudd_config.h.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )

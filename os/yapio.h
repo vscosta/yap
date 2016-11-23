@@ -105,8 +105,7 @@ typedef enum mem_buf_source {
 
 extern char *Yap_MemStreamBuf(int sno);
 
-extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
-                                   int prio, Term *bindings_p);
+extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,int prio, Term bindings);
 extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,

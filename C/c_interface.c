@@ -452,7 +452,7 @@ X_API Atom YAP_LookupAtom(const char *c) {
 X_API Atom YAP_LookupWideAtom(const wchar_t *c) {
   CACHE_REGS
   Atom a;
-    
+
 
   while (TRUE) {
       a = Yap_NWCharsToAtom(c, -1 USES_REGS);
@@ -1187,10 +1187,10 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
   Yap_CloseSlots(CurSlot);
   PP = NULL;
   //    B = LCL0-(CELL*)oB;
-  if (false && Yap_RaiseException()) {
+  if (!val && Yap_RaiseException()) {
     return false;
   } else { /* TRUE */
-    return true;
+    return val;
   }
 }
 
@@ -1373,12 +1373,13 @@ X_API Term YAP_NWideBufferToString(const wchar_t *s, size_t len) {
 /* copy a string to a buffer */
 X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   CACHE_REGS
-  Term t;
+  Term tv, t;
   BACKUP_H();
 
+  if (*tp) tv = *tp; else tv = 0;
   LOCAL_ErrorMessage = NULL;
   while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding,
-                                GLOBAL_MaxPriority, tp))) {
+                                GLOBAL_MaxPriority,tv))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2306,7 +2307,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-    GLOBAL_argv = yap_init->Argv;  
+    GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {

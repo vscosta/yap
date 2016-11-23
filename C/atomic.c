@@ -885,7 +885,6 @@ static Int string_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Term tf = 0;
   bool g1, g2, g3;
-  Atom at;
   int l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
@@ -909,7 +908,6 @@ restart_aux:
     return cont_string_concat3(PASS_REGS1);
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    at = NULL;
   }
   if (tf) {
     if (Yap_unify(ot, tf)) {
@@ -1880,14 +1878,13 @@ static Int cont_sub_atomic(USES_REGS1) {
     size_t minv, len, after, sz;
     wchar_t *wp = NULL;
     const unsigned char *p = NULL, *p5 = NULL;
-    bool sub_atom = TRUE;
-    
+
     mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));
     minv = IntegerOfTerm(EXTRA_CBACK_ARG(5, 2));
     len = IntegerOfTerm(EXTRA_CBACK_ARG(5, 3));
     after = IntegerOfTerm(EXTRA_CBACK_ARG(5, 4));
     sz = IntegerOfTerm(EXTRA_CBACK_ARG(5, 5));
-    
+
     if (!IsVarTerm(tat1)) {
         if (IsAtomTerm(tat1)) {
             p = AtomOfTerm(tat1)->UStrOfAE;
@@ -1907,7 +1904,7 @@ static Int cont_sub_atomic(USES_REGS1) {
         bool found = false;
         {
             const unsigned char *p1 = p;
-            
+
             while (!found) {
                 p = skip_utf8(p1, minv);
                 if (cmpn_utf8(p, p5, len) == 0) {
@@ -2219,6 +2216,73 @@ static Int cont_sub_atomic(USES_REGS1) {
       return sub_atomic(false, true PASS_REGS);
     }
 
+
+    static Int atomic_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1), rc;
+      const char *s;
+      size_t len;
+      if (IsVarTerm(t1)) {
+        Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+        return (FALSE);
+      } else if (!IsAtomicTerm(t1)) {
+        Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
+        return (FALSE);
+      } else {
+        Term t = Yap_AtomicToString(t1 PASS_REGS);
+        s = (const char *)UStringOfTerm(t);
+        len = strlen_utf8((unsigned char *)s);
+      }
+      encoding_t enc = ENC_ISO_UTF8;
+      rc = Yap_StringToTerm(s, len, &enc, 1200, ARG3);
+      if (!rc)
+        return false;
+      return Yap_unify(rc, ARG2);
+    }
+
+    static Int atom_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1), rc;
+      const char *s;
+      size_t len;
+      if (IsVarTerm(t1)) {
+        Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+        return (FALSE);
+      } else if (!IsAtomTerm(t1)) {
+        Yap_Error(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
+        return (FALSE);
+      } else {
+        Term t = Yap_AtomicToString(t1 PASS_REGS);
+        s = StringOfTerm(t);
+        len = strlen_utf8((const unsigned char *)s);
+      }
+      encoding_t enc = ENC_ISO_UTF8;
+      rc = Yap_StringToTerm(s, len, &enc, 1200, ARG3);
+      if (!rc)
+        return false;
+      return Yap_unify(rc, ARG2);
+    }
+
+
+    static Int string_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1), rc;
+      const char *s;
+      size_t len;
+      if (IsVarTerm(t1)) {
+        Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+        return (FALSE);
+      } else if (!IsStringTerm(t1)) {
+        Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+        return (FALSE);
+      } else {
+        s = StringOfTerm(t1);
+        len = strlen_utf8((const unsigned char *)s);
+      }
+      encoding_t enc = ENC_ISO_UTF8;
+      rc = Yap_StringToTerm(s, len, &enc, 1200, ARG3);
+      if (!rc)
+        return false;
+      return Yap_unify(rc, ARG2);
+    }
+
     static Int cont_current_atom(USES_REGS1) {
       Atom catom;
       Int i = IntOfTerm(EXTRA_CBACK_ARG(1, 2));
@@ -2357,6 +2421,11 @@ static Int cont_sub_atomic(USES_REGS1) {
 
 
       */
+
+      Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
+      Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
+      Yap_InitCPred("string_to_term", 3, string_to_term, 0);
+
       Yap_InitCPred("atom_chars", 2, atom_chars, 0);
       /** @pred  atom_chars(? _A_,? _L_) is iso
 

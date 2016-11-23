@@ -42,7 +42,7 @@ struct yami *Yap_Error__(const char *file, const char *function, int lineno,
                          yap_error_number err, YAP_Term wheret, ...);
 
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
-                 yap_error_number err, YAP_Term wheret, int code, ...) __attribute__ ((noreturn));
+                 yap_error_number err, YAP_Term wheret, ...) __attribute__ ((noreturn));
 
 
 #define Yap_NilError(id, ...)                                                  \
@@ -51,8 +51,8 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
 #define Yap_Error(id, inp, ...)                                                \
 Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-#define Yap_ThrowError(id, inp, code, ...)                                                \
-Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, code, __VA_ARGS__)
+#define Yap_ThrowError(id, inp,  ...)                                                \
+Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
 #ifdef YAP_TERM_H
 /**

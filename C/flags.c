@@ -182,7 +182,7 @@ static Term stream(Term inp) {
 
 }
 
-static bool 
+static bool
 set_error_stream( Term inp ) {
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_error_stream ) );
@@ -191,7 +191,7 @@ set_error_stream( Term inp ) {
  return true;
 }
 
-static bool 
+static bool
 set_input_stream( Term inp ) {
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_input_stream ) );
@@ -199,7 +199,7 @@ set_input_stream( Term inp ) {
   return true;
 }
 
-static bool 
+static bool
 set_output_stream( Term inp ) {
   if( IsVarTerm(inp) )
     return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_output_stream ) );
@@ -870,7 +870,7 @@ static Int cont_prolog_flag(USES_REGS1) {
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(++i);
     flag = getYapFlag(f);
-    if (!Yap_unify(f, ARG2))
+    if (!Yap_unify(flag, ARG2))
       return false;
     return setYapFlag(f, Deref(ARG3));
   }
@@ -1175,7 +1175,7 @@ static Int source_mode(USES_REGS1) {
   if (!current && !Yap_unify_constant(ARG1, TermFalse))
     return false;
   targ = Deref(ARG2);
-  setYapFlag(TermSource, ARG2);
+  setYapFlag(TermSource, targ);
   return true;
 }
 
@@ -1319,7 +1319,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     CACHE_REGS
     encoding_t encoding = ENC_ISO_UTF8;
     t0 =
-        Yap_StringToTerm(s, strlen(s) + 1, &encoding, GLOBAL_MaxPriority, NULL);
+        Yap_StringToTerm(s, strlen(s) + 1, &encoding, GLOBAL_MaxPriority, 0L);
     if (!t0)
       return false;
     if (IsAtomTerm(t0) || IsIntTerm(t0)) {
@@ -1434,7 +1434,7 @@ do_prolog_flag_property(Term tflag,
     }
   }
   // UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
-  free(args);      
+  free(args);
   return rc;
 }
 
@@ -1540,7 +1540,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
   if (fv) {
     if (args[PROLOG_FLAG_PROPERTY_KEEP].used &&
         args[PROLOG_FLAG_PROPERTY_KEEP].tvalue == TermTrue) {
-      free(args);      
+      free(args);
       return true;
     }
   } else {
@@ -1633,7 +1633,7 @@ void Yap_InitFlags(bool bootstrap) {
   if (GLOBAL_Stream[StdInStream].status & Readline_Stream_f) {
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   }
-    
+
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);

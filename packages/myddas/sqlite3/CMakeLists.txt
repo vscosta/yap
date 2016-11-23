@@ -45,6 +45,12 @@ Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 
 endif (ANDROID)
 
-add_component(  Yapsqlite3                                           
+add_component(  Yapsqlite3
     ${YAPSQLITE3_SOURCES} )
 
+    MY_set_target_properties(Yapsqlite3
+      PROPERTIES
+      #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
+      #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
+      POSITION_INDEPENDENT_CODE TRUE
+      )
