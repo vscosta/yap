@@ -1,5 +1,5 @@
-WWW Reader/Writers for YAP.       (#YAPRaptor)
-###########################
+WWW Reader/Writers for YAP.       {#YAPRaptor}
+=========================
 
 This provides YAP a rdf reader using
 [raptor](http://librdf.org/raptor/). The library is available for

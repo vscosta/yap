@@ -315,9 +315,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-      if  (pen->PredFlags & MetaPredFlag) {
-          return CallMetaCall(t, mod PASS_REGS);
-      }
+    if (pen->PredFlags & MetaPredFlag) {
+      return CallMetaCall(t, mod PASS_REGS);
+    }
     pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; i++) {
 #if YAPOR_SBA
@@ -1444,27 +1444,31 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_PrologMode = UserMode;
       P = (yamop *)FAILCODE;
     } break;
-        case 2: {
-            /* arithmetic exception */
-            /* must be done here, otherwise siglongjmp will clobber all the
-             * registers
-             */
-            Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
-            /* reset the registers so that we don't have trash in abstract
-             * machine */
-            Yap_set_fpu_exceptions(
-                                   getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
-            P = (yamop *)FAILCODE;
-            LOCAL_PrologMode = UserMode;
-        } break;
-        case 4: {
-             P = (yamop *)FAILCODE;
-            LOCAL_PrologMode = UserMode;
-        } break;
+    case 2: {
+      /* arithmetic exception */
+      /* must be done here, otherwise siglongjmp will clobber all the
+       * registers
+       */
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
+      /* reset the registers so that we don't have trash in abstract
+       * machine */
+      Yap_set_fpu_exceptions(
+          getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
+      P = (yamop *)FAILCODE;
+      LOCAL_PrologMode = UserMode;
+    } break;
     case 3: { /* saved state */
       LOCAL_CBorder = OldBorder;
       return false;
     }
+    case 4: {
+      /* abort */
+      /* can be called from anywgerre, must reset registers,
+       */
+      Yap_JumpToEnv(TermDAbort);
+      P = (yamop *)FAILCODE;
+      LOCAL_PrologMode = UserMode;
+    } break;
     default:
       /* do nothing */
       LOCAL_PrologMode = UserMode;

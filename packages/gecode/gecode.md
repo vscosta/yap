@@ -1,4 +1,4 @@
-USING THE GECODE MODULE             (#Gecode)
+USING THE GECODE MODULE             {#gecode}
 =======================
 
 There are two ways to use the gecode interface from YAP. The original approach,

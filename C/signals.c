@@ -25,18 +25,18 @@ static char SccsId[] = "%W% %G%";
 #include <unistd.h>
 #endif
 #if _WIN32
-#include <stdio.h>
 #include <io.h>
+#include <stdio.h>
 #endif
-#include "Yatom.h"
 #include "YapHeap.h"
+#include "Yatom.h"
 #include "eval.h"
 #include "yapio.h"
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -63,7 +63,11 @@ static yap_signals InteractSIGINT(int ch) {
 #endif
   switch (ch) {
   case 'a':
-    /* abort computation */
+/* abort computation */
+#if PUSH_REGS
+// restore_absmi_regs(&Yap_standard_regs);
+#endif
+    siglongjmp(LOCAL_RestartEnv, 4);
     return YAP_ABORT_SIGNAL;
   case 'b':
     /* continue */
@@ -183,35 +187,32 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
 #endif
 }
 
-bool Yap_DisableInterrupts(int wid)
-{
+bool Yap_DisableInterrupts(int wid) {
   LOCAL_InterruptsDisabled = true;
   YAPEnterCriticalSection();
   return true;
 }
 
-bool Yap_EnableInterrupts(int wid)
-{
+bool Yap_EnableInterrupts(int wid) {
   LOCAL_InterruptsDisabled = false;
   YAPLeaveCriticalSection();
   return true;
 }
 
-
 /**
   Function called to handle delayed interrupts.
  */
-int Yap_HandleInterrupts(void) {
+bool Yap_HandleSIGINT(void) {
   CACHE_REGS
   yap_signals sig;
 
-  if (get_signal(YAP_INT_SIGNAL PASS_REGS)) {
+  do {
     if ((sig = ProcessSIGINT()) != YAP_NO_SIGNAL)
       do_signal(worker_id, sig PASS_REGS);
     LOCAL_PrologMode &= ~InterruptMode;
-    return 1;
-  }
-  return 0;
+    return true;
+  } while (get_signal(YAP_INT_SIGNAL PASS_REGS));
+  return false;
 }
 
 static Int p_creep(USES_REGS1) {

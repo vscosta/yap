@@ -1,7 +1,5 @@
-#  The YAP Module system
-
-  The YAP Module system     (#YAPModules)
-  -
+The YAP Module system     {#YAPModules}
+======================
 
 
   The YAP module system is based on the Quintus/SISCtus module

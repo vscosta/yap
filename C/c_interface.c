@@ -399,11 +399,11 @@ X_API Term YAP_MkAtomTerm(Atom n) {
 X_API Atom YAP_AtomOfTerm(Term t) { return (AtomOfTerm(t)); }
 
 X_API bool YAP_IsWideAtom(Atom a) {
-    const unsigned char *s = RepAtom(a)->UStrOfAE;
-int32_t v;
+  const unsigned char *s = RepAtom(a)->UStrOfAE;
+  int32_t v;
   while (*s) {
-    size_t n = get_utf8(s,1,&v);
-    if (n>1)
+    size_t n = get_utf8(s, 1, &v);
+    if (n > 1)
       return true;
   }
   return false;
@@ -419,15 +419,15 @@ X_API const char *YAP_AtomName(Atom a) {
 X_API const wchar_t *YAP_WideAtomName(Atom a) {
   int32_t v;
   const unsigned char *s = RepAtom(a)->UStrOfAE;
-  size_t n = strlen_utf8( s );
-  wchar_t *dest = Malloc( (n+1)* sizeof(wchar_t)), *o = dest;
+  size_t n = strlen_utf8(s);
+  wchar_t *dest = Malloc((n + 1) * sizeof(wchar_t)), *o = dest;
   while (*s) {
-    size_t n = get_utf8(s,1,&v);
-      if (n==0)
-          return NULL;
+    size_t n = get_utf8(s, 1, &v);
+    if (n == 0)
+      return NULL;
     *o++ = v;
   }
-    o[0] = '\0';
+  o[0] = '\0';
   return dest;
 }
 
@@ -452,10 +452,9 @@ X_API Atom YAP_LookupAtom(const char *c) {
 X_API Atom YAP_LookupWideAtom(const wchar_t *c) {
   CACHE_REGS
   Atom a;
-    
 
   while (TRUE) {
-      a = Yap_NWCharsToAtom(c, -1 USES_REGS);
+    a = Yap_NWCharsToAtom(c, -1 USES_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
@@ -490,10 +489,9 @@ X_API size_t YAP_AtomNameLength(Atom at) {
   if (IsBlob(at)) {
     return RepAtom(at)->rep.blob->length;
   }
-    unsigned char *c = RepAtom(at)->UStrOfAE;
+  unsigned char *c = RepAtom(at)->UStrOfAE;
 
-    return strlen_utf8(c);
-
+  return strlen_utf8(c);
 }
 
 X_API Term YAP_MkVarTerm(void) {
@@ -2303,10 +2301,11 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
+  GLOBAL_PrologShouldHandleInterrupts =
+      !yap_init->PrologCannotHandleInterrupts && !Yap_embedded;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-    GLOBAL_argv = yap_init->Argv;  
+  GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
@@ -2367,10 +2366,10 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-    if (Yap_embedded)
-      if (yap_init->QuietMode) {
-	setVerbosity(TermSilent);
-      }
+  if (Yap_embedded)
+    if (yap_init->QuietMode) {
+      setVerbosity(TermSilent);
+    }
   {
     if (yap_init->YapPrologRCFile != NULL) {
       /*
@@ -3208,10 +3207,10 @@ size_t YAP_UTF8_TextLength(Term t) {
       Term hd = HeadOfTerm(t);
       if (IsAtomTerm(hd)) {
         Atom at = AtomOfTerm(hd);
-          unsigned char *s = RepAtom(at)->UStrOfAE;
-          int32_t ch;
-          get_utf8(s, 1, &ch);
-          c = ch;
+        unsigned char *s = RepAtom(at)->UStrOfAE;
+        int32_t ch;
+        get_utf8(s, 1, &ch);
+        c = ch;
       } else if (IsIntegerTerm(hd)) {
         c = IntegerOfTerm(hd);
       } else {
@@ -3222,8 +3221,8 @@ size_t YAP_UTF8_TextLength(Term t) {
     }
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-      sz = strlen(RepAtom(at)->StrOfAE);
-   } else if (IsStringTerm(t)) {
+    sz = strlen(RepAtom(at)->StrOfAE);
+  } else if (IsStringTerm(t)) {
     sz = strlen(StringOfTerm(t));
   }
   return sz;

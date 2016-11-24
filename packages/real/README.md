@@ -1,4 +1,4 @@
-The R Prolog Progrmming Interface (#real)
+The R Prolog Progrmming Interface      {#real}
 ===================================
 
 @file real.pl

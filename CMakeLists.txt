@@ -59,12 +59,12 @@ include(Sources NO_POLICY_SCOPE)
 
 include(Model NO_POLICY_SCOPE)
 
-include_directories ( utf8proc packages/myddas packages/myddas/sqlite3)
+include_directories ( utf8proc packages/myddas packages/myddas/sqlite3/src)
 
 if (ANDROID)
     include_directories (
- packages/myddas/sqlite3/Android/jni/sqlite
-  packages/myddas/sqlite3/Android/jni/sqlite/nativehelper
+ packages/myddas/sqlite3/src/Android/jni/sqlite
+  packages/myddas/sqlite3/src/Android/jni/sqlite/nativehelper
  )
  endif (ANDROID)
 

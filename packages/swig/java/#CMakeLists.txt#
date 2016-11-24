@@ -3,7 +3,7 @@
 macro_optional_find_package(Java ON)
 
  find_package(Java COMPONENTS Runtime Development)
- #find_package(Java COMPONENTS Runtime)
+ #find_                                                                                                                                                                                                                                                                                                                                                                                         mmmk]\']package(Java COMPONENTS Runtime)
 
 macro_log_feature (Java_Development_FOUND "Java"
     "Use Java System"

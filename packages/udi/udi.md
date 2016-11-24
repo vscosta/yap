@@ -1,4 +1,4 @@
-User-Defined Indexing 			(#yap-udi-indexers)
+User-Defined Indexing 			{#yap-udi-indexers}
 =====================
 
 YAP UDI indexers.

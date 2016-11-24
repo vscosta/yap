@@ -1,16 +1,12 @@
  Attributed Variables and Co-Routining   {#AttributedVariables}
 =======================================
 
-  @defgroup AttributedVariables Attributed Variables and Co-Routining
-  @ingroup extensions
-
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
   arbitrary term is a property for a variable. These properties can be
 updated during forward execution. Moreover, the unification algorithm is
 aware of attributed variables and will call user defined handlers when
   trying to unify these variables.
-
 
 Attributed variables provide an elegant abstraction over which one can
 extend Prolog systems. Their main application so far has been in

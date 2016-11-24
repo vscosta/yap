@@ -12,7 +12,7 @@ set(MYDDAS_DRIVERS
         "myddas_driver.ypp"
         )
 message("libpl ${libpl}")
-if (ANDROID)
+if (0)
     set (PREFIX ${libpl} )
 else()
     set (PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
@@ -40,7 +40,7 @@ function(cpp_compile output filename)
 endfunction()
 
 function(cpp_driver output dbms filename)
-    if (ANDROID)
+    if (0)
   set(outfile ${libpl}/myddas_${dbms}.yap)
     else()
   set(outfile ${CMAKE_CURRENT_BINARY_DIR}/myddas_${dbms}.yap)
@@ -69,10 +69,8 @@ foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)
 endforeach ()
 
-add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP}
+add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
 
-         )
-
-MY_install(FILES ${MYDDAS_YAP}
+    install(FILES ${MYDDAS_YAP}
      DESTINATION ${libpl}
         )

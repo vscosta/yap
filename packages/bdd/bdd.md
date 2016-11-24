@@ -1,4 +1,4 @@
-Boolean Decision Making in YAP 			(#BDDs)
+Boolean Decision Making in YAP 			{#BDDs}
 ==============================
 
 This is an experimental interface to BDD libraries. It is not as
