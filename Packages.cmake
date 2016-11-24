@@ -68,6 +68,8 @@ add_subDIRECTORY (packages/ProbLog)
 
 add_subDIRECTORY (packages/swi-minisat2)
 
+add_subDIRECTORY (packages/clpqr)
+
 
 #todo: use cmake target builds
 # option (USE_MAXPERFORMANCE
