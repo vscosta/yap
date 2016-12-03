@@ -1253,26 +1253,20 @@ static Int style_checker(USES_REGS1) {
 }
 
 X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
-                            int prio, Term *bindings) {
+                            int prio, Term *bindingsp) {
   CACHE_REGS
-  Term bvar = MkVarTerm(), ctl;
-  yhandle_t sl;
+  Term ctl;
   int lvl = push_text_stack();
 
   if (len == 0) {
     Term rval = TermEof;
-    if (rval && bindings) {
-      *bindings = TermNil;
-    }
-    pop_text_stack(lvl);
+     pop_text_stack(lvl);
     return rval;
   }
-  if (bindings) {
-    ctl = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &bvar);
-    sl = Yap_PushHandle(bvar);
+  if (bindingsp) {
+    ctl = Yap_MkNewApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1);
   } else {
     ctl = TermNil;
-    sl = 0;
   }
 
   Term rval;
@@ -1281,8 +1275,8 @@ X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,
   rval = Yap_read_term(stream, ctl, 3);
   Yap_CloseStream(stream);
   UNLOCK(GLOBAL_Stream[stream].streamlock);
-  if (rval && bindings) {
-    *bindings = Yap_PopHandle(sl);
+  if (rval && bindingsp) {
+     *bindingsp = ArgOfTerm(1,ctl);
   }
   pop_text_stack(lvl);
   return rval;
