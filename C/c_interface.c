@@ -2104,7 +2104,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   RECOVER_MACHINE_REGS();
 }
 
-X_API Term YAP_CopyTerm(Term t) {
+X_API YAP_Term YAP_CopyTerm(Term t) {
   Term tn;
   BACKUP_MACHINE_REGS();
 
@@ -2112,7 +2112,7 @@ X_API Term YAP_CopyTerm(Term t) {
 
   RECOVER_MACHINE_REGS();
 
-  return tn;
+  return (tn);
 }
 
 X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
