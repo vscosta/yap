@@ -94,6 +94,7 @@ set (SWIG_FILES    ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp )
 
 else ()
     set(YLIBS
+            $<TARGET_OBJECTS:core>
             $<TARGET_OBJECTS:libYAPOs>
             $<TARGET_OBJECTS:libOPTYap>
             $<TARGET_OBJECTS:myddas>
@@ -106,21 +107,25 @@ else ()
 endif ()
 
 if (WIN32)
-  list (APPEND YLIBS    $<TARGET_OBJECTS:Yap++>)
+  list (APPEND YLIBS    $<TARGET_OBJECTS:YapC++>)
 
   endif()
+
+  add_component (core 
+          ${ENGINE_SOURCES}
+        ${SWIG_FILES}
+        ${C_INTERFACE_SOURCES}
+        ${STATIC_SOURCES}
+        ${ALL_SOURCES}
+                                                                                                                                         )
+
 
 add_library( # Sets the name of the library.
         libYap
 
         # Sets the library as a shared library.
         SHARED
-
-        ${ENGINE_SOURCES}
-        ${SWIG_FILES}
-        ${C_INTERFACE_SOURCES}
-        ${STATIC_SOURCES}
-        ${ALL_SOURCES}
+        C/embedded.c
         ${YLIBS}
         ${WINDLLS}
         )
