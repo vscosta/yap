@@ -1379,8 +1379,9 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   else
     tv = 0;
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding,
-                                GLOBAL_MaxPriority, tv))) {
+  const unsigned char *us = (const unsigned char *)s;
+  while (!(t = Yap_BufferToTermWithPrioBindings(
+               us, strlen(s) + 1, TermNil, GLOBAL_MaxPriority, tv))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {

@@ -716,7 +716,9 @@ static Int term_to_atom(USES_REGS1) {
     at = AtomOfTerm(t2);
   }
   ctl = TermNil;
-  return (rc = Yap_AtomToTerm(at, ctl)) && Yap_unify(rc, ARG1);
+  return (rc = Yap_BufferToTerm(RepAtom(at)->UStrOfAE,
+                                strlen(RepAtom(at)->StrOfAE), ctl)) &&
+         Yap_unify(rc, ARG1);
 }
 
 void Yap_InitWriteTPreds(void) {

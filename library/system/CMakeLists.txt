@@ -10,9 +10,9 @@ set (TARGET sys)
 endif()
 
 
-if (NOT ANDROID)
+if (NOT ANDROID AND WITH_OPENSSL)
 #
-# this will support getting better cryptographic support,
+# this will evolve to getting better cryptographic support,
 # but right now Open SSL is not supported enough.
 #
 find_package (OpenSSL)
