@@ -1447,11 +1447,7 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
 
 static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
   CACHE_REGS
-  Term t, ti[2];
 
-  ti[0] = MkAtomTerm(AbsAtom(ap));
-  ti[1] = MkIntegerTerm(Arity);
-  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
     LOCAL_ErrorMessage = Malloc( 256 );
 

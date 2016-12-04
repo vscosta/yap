@@ -885,7 +885,6 @@ static Int string_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Term tf = 0;
   bool g1, g2, g3;
-  Atom at;
   int l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
@@ -909,7 +908,6 @@ restart_aux:
     return cont_string_concat3(PASS_REGS1);
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    at = NULL;
   }
   if (tf) {
     if (Yap_unify(ot, tf)) {

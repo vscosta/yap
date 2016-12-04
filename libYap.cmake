@@ -57,7 +57,7 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 include_directories (H
     H/generated
     include os OPTYap utf8proc JIT/HPP)
-include_directories (BEFORE ${CMAKE_BINARY_DIR})
+include_directories (BEFORE ${CMAKE_BINARY_DIR} ${CMAKE_TOP_BINARY_DIR})
 
 if (ANDROID)
 include_directories (CXX ${CMAKE_SOURCE_DIR}/../generated/src/jni)

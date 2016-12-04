@@ -1111,7 +1111,7 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
 
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, 4,
+          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
                          "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);

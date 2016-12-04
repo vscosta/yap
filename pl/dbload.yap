@@ -25,11 +25,11 @@
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
-:- dynamic dbloading/6, dbprocess/2.
-
-dbload_from_stream(R, M0, rdf, term ) :-
-    '$lines_in_file'(R, Lines),
-	'$input_lines'(R, Type, Lines).
+load_mega_clause( Stream ) :-
+    	line_spec( Stream, Line),
+			repeat,
+			( fact( Stream ), fail ;
+			  stream_property(Stream, at_end_of_file( on )).
 
 '$input_lines'(R, csv, yeLines ) :-
     '$process_lines'(R, Lines, Type ),

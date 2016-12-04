@@ -1023,7 +1023,6 @@ static Int protect_stack(USES_REGS1) {
 
 static Int setup_call_catcher_cleanup(USES_REGS1) {
   Term Setup = Deref(ARG1);
-  Term cmod = CurrentModule;
   Int oENV = LCL0 - ENV;
   choiceptr B0 = B;
   Term t3, t4;
@@ -1051,8 +1050,6 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
     prune_inner_computation(B0);
   }
   // at this point starts actual goal execution....
-  cmod = CurrentModule;
-
   rc = Yap_RunTopGoal(Yap_GetFromSlot(h2), false);
   complete_inner_computation(B);
   t4 = Yap_GetFromSlot(h4);
@@ -2014,7 +2011,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
 }
 
 static Int JumpToEnv() {
-  choiceptr handler = B, oh = NULL;
+  choiceptr handler = B;
   /* just keep the throwm object away, we don't need to care about it
    */
   /* careful, previous step may have caused a stack shift,
@@ -2032,7 +2029,6 @@ static Int JumpToEnv() {
          handler->cp_b == NULL)) {
       break;
     }
-    oh = handler;
     handler = handler->cp_b;
   }
   if (LOCAL_PrologMode & AsyncIntMode) {

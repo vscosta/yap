@@ -731,7 +731,7 @@ static Term write_number(unsigned char *s, seq_tv_t *out, int size, bool error_o
 static Term string_to_term(void *s, seq_tv_t *out, size_t leng USES_REGS) {
   Term o;
   o = out->val.t =
-      Yap_StringToTerm(s, strlen(s) + 1, &out->enc, GLOBAL_MaxPriority, NULL);
+      Yap_StringToTerm(s, strlen(s) + 1, &out->enc, GLOBAL_MaxPriority, 0L);
   return o;
 }
 
@@ -740,7 +740,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
   if (out->type == 0) {
     return true;
   }
-    
+
   if (out->type & YAP_STRING_TERM) {
     if ((out->val.t = string_to_term(inp, out, leng PASS_REGS)) != 0L)
       return out->val.t != 0;
@@ -948,7 +948,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   int i;
   size_t leng;
-  
+
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
     return NULL;
