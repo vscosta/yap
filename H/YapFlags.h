@@ -204,7 +204,7 @@ typedef struct x_el {
 } xarg;
 
 typedef struct struct_param {
-  char *name;
+  const char *name;
   flag_func type;
   int id;
 } param_t;

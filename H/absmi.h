@@ -2452,10 +2452,10 @@ extern yamop *headoftrace;
   ENDD(d0);
 #endif
 
-#define Yap_AsmError(e, d)                                                        \
+#define Yap_AsmError(e, d)                                                     \
   {                                                                            \
     saveregs();                                                                \
-    Yap_ThrowError(e, d, 4, "");                                                       \
+    Yap_ThrowError(e, d, "while exwcuting inlined built-in");                  \
     setregs();                                                                 \
   }
 

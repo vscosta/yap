@@ -289,6 +289,7 @@ EXTERNAL Atom AtomPastEndOfStream; EXTERNAL Term TermPastEndOfStream;
 EXTERNAL Atom AtomPermissionError; EXTERNAL Term TermPermissionError;
 EXTERNAL Atom AtomPi; EXTERNAL Term TermPi;
 EXTERNAL Atom AtomPipe; EXTERNAL Term TermPipe;
+EXTERNAL Atom AtomPriority; EXTERNAL Term TermPriority;
 EXTERNAL Atom AtomPlus; EXTERNAL Term TermPlus;
 EXTERNAL Atom AtomPointer; EXTERNAL Term TermPointer;
 EXTERNAL Atom AtomPortray; EXTERNAL Term TermPortray;
@@ -645,6 +646,8 @@ EXTERNAL  Functor FunctorObj;
 
 EXTERNAL  Functor FunctorOr;
 
+EXTERNAL  Functor FunctorOutput;
+
 EXTERNAL  Functor FunctorPermissionError;
 
 EXTERNAL  Functor FunctorPlus;
@@ -654,6 +657,8 @@ EXTERNAL  Functor FunctorPortray;
 EXTERNAL  Functor FunctorPrintMessage;
 
 EXTERNAL  Functor FunctorProcedure;
+
+EXTERNAL  Functor FunctorPriority;
 
 EXTERNAL  Functor FunctorPrologConstraint;
 

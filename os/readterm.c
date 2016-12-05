@@ -211,19 +211,31 @@ static const param_t read_defs[] = {READ_DEFS()};
 static Term add_output(Term t, Term tail) {
   Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomOutput, 1), 1);
   Yap_unify(t, ArgOfTerm(1, topt));
-  return MkPairTerm(topt, tail);
+  if (IsPairTerm(tail) || tail == TermNil) {
+    return MkPairTerm(topt, tail);
+  } else {
+    return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+  }
 }
 
 static Term add_names(Term t, Term tail) {
   Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1);
   Yap_unify(t, ArgOfTerm(1, topt));
-  return MkPairTerm(topt, tail);
+  if (IsPairTerm(tail) || tail == TermNil) {
+    return MkPairTerm(topt, tail);
+  } else {
+    return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+  }
 }
 
 static Term add_priority(Term t, Term tail) {
   Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomPriority, 1), 1);
   Yap_unify(t, ArgOfTerm(1, topt));
-  return MkPairTerm(topt, tail);
+  if (IsPairTerm(tail) || tail == TermNil) {
+    return MkPairTerm(topt, tail);
+  } else {
+    return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+  }
 }
 
 /**
@@ -366,13 +378,14 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   } else {
     fe->t0 = 0;
   }
-    if (args[READ_MODULE].used) {
-        fe->cmod = args[READ_MODULE].tvalue;
-    } else {
-        fe->cmod = CurrentModule;
-        if (fe->cmod == TermProlog)
-            fe->cmod = PROLOG_MODULE;
-    }  if (args[READ_BACKQUOTED_STRING].used) {
+  if (args[READ_MODULE].used) {
+    fe->cmod = args[READ_MODULE].tvalue;
+  } else {
+    fe->cmod = CurrentModule;
+    if (fe->cmod == TermProlog)
+      fe->cmod = PROLOG_MODULE;
+  }
+  if (args[READ_BACKQUOTED_STRING].used) {
     if (!setBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue)) {
       return false;
     }
@@ -586,7 +599,7 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v1, v2, v3, vc, tp;
 
-  if (fe->t0 && !(Yap_unify(fe->t, fe->t0)))
+  if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
 
   if (fe->t && fe->vp)
@@ -625,7 +638,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v_vp, v_vnames, v_comments, v_pos;
 
-  if (fe->t0 && !Yap_unify(fe->t, fe->t0))
+  if (fe->t0 & fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
   if (fe->t && fe->vp)
     v_vp = get_variables(fe, tokstart);
@@ -682,6 +695,8 @@ static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
       return YAP_PARSING_FINISHED;
     }
     // a :- <eof>
+    if (GLOBAL_Stream[inp_stream].status & Past_Eof_Stream_f)
+      return YAP_PARSING_ERROR;
     /* we need to force the next read to also give end of file.*/
     GLOBAL_Stream[inp_stream].status |= Push_Eof_Stream_f;
     LOCAL_ErrorMessage = "end of file found before end of term";
@@ -818,14 +833,11 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
 static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
   fe->t = 0;
-  if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL ||
-      LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK ||
-      LOCAL_Error_TYPE == RESOURCE_ERROR_HEAP ||
-      LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+  if (LOCAL_Error_TYPE != SYNTAX_ERROR && LOCAL_Error_TYPE != YAP_NO_ERROR) {
     return YAP_SCANNING_ERROR;
   }
   Term ParserErrorStyle = re->sy;
-  if (ParserErrorStyle == TermQuiet) {
+  if (ParserErrorStyle == TermQuiet || LOCAL_Error_TYPE == YAP_NO_ERROR) {
     /* just fail */
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     return YAP_PARSING_FINISHED;
@@ -948,7 +960,7 @@ static Int read_term(
   if (inp_stream == -1) {
     return (FALSE);
   }
-  out = Yap_read_term(inp_stream, add_output(ARG1, ARG2), false);
+  out = Yap_read_term(inp_stream, add_output(ARG2, ARG3), false);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   return out != 0L;
 }
@@ -1404,16 +1416,73 @@ static Int read_term_from_string(USES_REGS1) {
   return Yap_unify(rc, ARG2);
 }
 
+static Int atomic_to_term(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  size_t len;
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  } else if (!IsAtomicTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
+    return (FALSE);
+  } else {
+    Term t = Yap_AtomicToString(t1 PASS_REGS);
+    const unsigned char *us = UStringOfTerm(t);
+    len = strlen_utf8(us);
+    return Yap_BufferToTerm(us, len,
+                            add_output(ARG2, add_names(ARG3, TermNil)));
+  }
+}
+
+static Int atom_to_term(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  size_t len;
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  } else if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
+    return (FALSE);
+  } else {
+    Term t = Yap_AtomicToString(t1 PASS_REGS);
+    const unsigned char *us = UStringOfTerm(t);
+    len = strlen_utf8(us);
+    return Yap_BufferToTerm(us, len,
+                            add_output(ARG2, add_names(ARG3, TermNil)));
+  }
+}
+
+static Int string_to_term(USES_REGS1) {
+  Term t1 = Deref(ARG1);
+  size_t len;
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+    return (FALSE);
+  } else if (!IsStringTerm(t1)) {
+    Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+    return (FALSE);
+  } else {
+    const unsigned char *us = UStringOfTerm(t1);
+    len = strlen_utf8(us);
+    return Yap_BufferToTerm(us, len,
+                            add_output(ARG2, add_names(ARG3, TermNil)));
+  }
+}
+
 void Yap_InitReadTPreds(void) {
-  Yap_InitCPred("read", 1, read1, SyncPredFlag);
-  Yap_InitCPred("read", 2, read2, SyncPredFlag);
   Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
   Yap_InitCPred("read_term", 3, read_term, SyncPredFlag);
+
+  Yap_InitCPred("read", 1, read1, SyncPredFlag);
+  Yap_InitCPred("read", 2, read2, SyncPredFlag);
   Yap_InitCPred("read_clause", 2, read_clause2, SyncPredFlag);
   Yap_InitCPred("read_clause", 3, read_clause, 0);
   Yap_InitCPred("read_term_from_atom", 3, read_term_from_atom, 0);
   Yap_InitCPred("read_term_from_atomic", 3, read_term_from_atomic, 0);
   Yap_InitCPred("read_term_from_string", 3, read_term_from_string, 0);
+  Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
+  Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
+  Yap_InitCPred("string_to_term", 3, string_to_term, 0);
 
   Yap_InitCPred("fileerrors", 0, fileerrors, SyncPredFlag);
   Yap_InitCPred("nofileeleerrors", 0, nofileerrors, SyncPredFlag);

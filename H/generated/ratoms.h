@@ -289,6 +289,7 @@
   AtomPermissionError = AtomAdjust(AtomPermissionError); TermPermissionError = MkAtomTerm(AtomPermissionError);
   AtomPi = AtomAdjust(AtomPi); TermPi = MkAtomTerm(AtomPi);
   AtomPipe = AtomAdjust(AtomPipe); TermPipe = MkAtomTerm(AtomPipe);
+  AtomPriority = AtomAdjust(AtomPriority); TermPriority = MkAtomTerm(AtomPriority);
   AtomPlus = AtomAdjust(AtomPlus); TermPlus = MkAtomTerm(AtomPlus);
   AtomPointer = AtomAdjust(AtomPointer); TermPointer = MkAtomTerm(AtomPointer);
   AtomPortray = AtomAdjust(AtomPortray); TermPortray = MkAtomTerm(AtomPortray);
@@ -541,11 +542,13 @@
   FunctorNot = FuncAdjust(FunctorNot);
   FunctorObj = FuncAdjust(FunctorObj);
   FunctorOr = FuncAdjust(FunctorOr);
+  FunctorOutput = FuncAdjust(FunctorOutput);
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
   FunctorPlus = FuncAdjust(FunctorPlus);
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
   FunctorProcedure = FuncAdjust(FunctorProcedure);
+  FunctorPriority = FuncAdjust(FunctorPriority);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorProtectStack = FuncAdjust(FunctorProtectStack);
   FunctorQuery = FuncAdjust(FunctorQuery);

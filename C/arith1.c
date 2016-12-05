@@ -20,9 +20,9 @@ static char     SccsId[] = "%W% %G%";
 
 /**
    @file arith1.c
-   
+
    @addtogroup arithmetic_operators
-   
+
   - <b>exp( _X_) [ISO]</b><p> @anchor exp_1
 
     Natural exponential.
@@ -109,7 +109,7 @@ static char     SccsId[] = "%W% %G%";
 
   - <b>integer( _X_)</b><p> @anchor integer_1_op
 
-    If  _X_ evaluates to a float, the integer between the value of  _X_ and 0 closest to the value of  _X_, else if  _X_ evaluates to an 
+    If  _X_ evaluates to a float, the integer between the value of  _X_ and 0 closest to the value of  _X_, else if  _X_ evaluates to an
     integer, the value of  _X_.
 
   - <b>float( _X_) [ISO]</b><p> @anchor float_1_op
@@ -178,7 +178,7 @@ A = 3602879701896397 rdiv 36028797018963968
     Convert the expression _X_ to a rational number or integer. The function is
     similar to [rational/1](@ref rational_1), but the result is only accurate within the
     rounding error of floating point numbers, generally producing a much
-    smaller denominator. 
+    smaller denominator.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
 ?- A is rationalize(0.25).
@@ -298,24 +298,24 @@ get_float(Term t) {
 #else
 static
 double my_rint(double x)
-{ 
-  double y, z; 
-  Int n; 
-  
-  if (x >= 0) { 
-    y = x + 0.5; 
-    z = floor(y); 
-    n = (Int) z; 
+{
+  double y, z;
+  Int n;
+
+  if (x >= 0) {
+    y = x + 0.5;
+    z = floor(y);
+    n = (Int) z;
     if (y == z && n % 2)
-      return(z-1); 
-  } else { 
-    y = x - 0.5; 
-    z = ceil(y); 
-    n = (Int) z; 
+      return(z-1);
+  } else {
+    y = x - 0.5;
+    z = ceil(y);
+    n = (Int) z;
     if (y == z && n % 2)
-      return(z+1); 
+      return(z+1);
   }
-  return(z); 
+  return(z);
 }
 #endif
 
@@ -412,7 +412,7 @@ eval1(Int fi, Term t USES_REGS) {
       {
 #ifdef USE_GMP
 	Int i = IntegerOfTerm(t);
-      
+
 	if (i == Int_MIN) {
 	  return Yap_gmp_neg_int(i);
 	}
@@ -745,7 +745,7 @@ eval1(Int fi, Term t USES_REGS) {
       if (dbl < 0.0)
 	RBIG_FL(ceil(dbl));
       else
-	RBIG_FL(floor(dbl));      
+	RBIG_FL(floor(dbl));
     }
   case op_float:
     switch (ETypeOfTerm(t)) {
@@ -967,7 +967,7 @@ Yap_NameOfUnaryOp(int i)
   return Yap_LookupAtom(InitUnTab[i].OpName);
 }
 
-static Int 
+static Int
 p_unary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
@@ -1017,7 +1017,7 @@ p_unary_is( USES_REGS1 )
   return(FALSE);
 }
 
-static Int 
+static Int
 p_unary_op_as_integer( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG1);
@@ -1075,4 +1075,3 @@ Yap_ReInitUnaryExps(void)
 {
   return TRUE;
 }
-

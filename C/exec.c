@@ -1446,7 +1446,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* must be done here, otherwise siglongjmp will clobber all the
        * registers
        */
-      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
       /* reset the registers so that we don't have trash in abstract
        * machine */
       Yap_set_fpu_exceptions(

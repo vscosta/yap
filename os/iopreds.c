@@ -1,19 +1,19 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		iopreds.c *
- * Last rev:	5/2/88							 *
- * mods: *
- * comments:	Input/Output C implemented predicates			 *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		iopreds.c *
+* Last rev:	5/2/88							 *
+* mods: *
+* comments:	Input/Output C implemented predicates			 *
+*									 *
+*************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -545,12 +545,14 @@ static int NullPutc(int sno, int ch) {
 }
 
 int ResetEOF(StreamDesc *s) {
-  s->status &= ~Push_Eof_Stream_f;
   if (s->status & Eof_Error_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(s->name),
+    Atom name = s->name;
+    // Yap_CloseStream(s - GLOBAL_Stream);
+    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
               "GetC");
     return FALSE;
   } else if (s->status & Reset_Eof_Stream_f) {
+    s->status &= ~Push_Eof_Stream_f;
     /* reset the eof indicator on file */
     if (feof(s->file))
       clearerr(s->file);
@@ -654,9 +656,9 @@ int post_process_weof(StreamDesc *s) {
  *
  * @return EOF
  */
-int EOFPeek(int sno) { return EOFGetc(sno); }
+int EOFPeek(int sno) { return EOFCHAR; }
 
-int EOFWPeek(int sno) { return EOFWGetc(sno); }
+int EOFWPeek(int sno) { return EOFCHAR; }
 
 /* standard routine, it should read from anything pointed by a FILE *.
  It could be made more efficient by doing our own buffering and avoiding

@@ -1143,17 +1143,17 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
     out = 0;
   }
 #if HAVE_ISWSPACE
-    while (iswspace(ch = getchr(inp)))
-        ;
+  while (iswspace(ch = getchr(inp)))
+    ;
 #else
-    while (isspace(ch = getchr(inp)))
-        ;
+  while (isspace(ch = getchr(inp)))
+    ;
 #endif
   if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
-      Yap_clean_tokenizer(old_tr, NULL, NULL);
-      if (error_on)
+    Yap_clean_tokenizer(old_tr, NULL, NULL);
+    if (error_on)
       Yap_Error(SYNTAX_ERROR, ARG2, "converting number");
-      return 0;
+    return 0;
   }
   return out;
 }
@@ -1172,84 +1172,83 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   }
 
 Term Yap_tokRep(void *tokptre) {
-    CACHE_REGS
-    TokEntry *tokptr = tokptre;
-    Term info = tokptr->TokInfo;
-    
-    switch (tokptr->Tok) {
-        case Name_tok:
-            if (!info) {
-                info = TermNil;
-            }
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
-        case QuasiQuotes_tok:
-            info = MkAtomTerm(Yap_LookupAtom("<QQ>"));
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
-        case Number_tok:
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
-            break;
-        case Var_tok: {
-            Term t[2];
-            VarEntry *varinfo = (VarEntry *)info;
-            if ((t[0]= varinfo->VarAdr) == TermNil) {
-                t[0] = varinfo->VarAdr = MkVarTerm();
-            }
-            t[1] = MkAtomTerm((Atom)(varinfo->VarRep));
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
-        }
-        case String_tok:
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
-        case BQString_tok:
-            return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
-        case Error_tok:
-            return MkAtomTerm(AtomError);
-        case eot_tok:
-            return MkAtomTerm(Yap_LookupAtom("EOT"));
-        case Ponctuation_tok:
-            return info;
+  CACHE_REGS
+  TokEntry *tokptr = tokptre;
+  Term info = tokptr->TokInfo;
+
+  switch (tokptr->Tok) {
+  case Name_tok:
+    if (!info) {
+      info = TermNil;
     }
-    return TermDot;
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+  case QuasiQuotes_tok:
+    info = MkAtomTerm(Yap_LookupAtom("<QQ>"));
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+  case Number_tok:
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+    break;
+  case Var_tok: {
+    Term t[2];
+    VarEntry *varinfo = (VarEntry *)info;
+    if ((t[0] = varinfo->VarAdr) == TermNil) {
+      t[0] = varinfo->VarAdr = MkVarTerm();
+    }
+    t[1] = MkAtomTerm((Atom)(varinfo->VarRep));
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomGVar, 2), 2, t);
+  }
+  case String_tok:
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
+  case BQString_tok:
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomString, 1), 1, &info);
+  case Error_tok:
+    return MkAtomTerm(AtomError);
+  case eot_tok:
+    return MkAtomTerm(Yap_LookupAtom("EOT"));
+  case Ponctuation_tok:
+    return info;
+  }
+  return TermDot;
 }
 
+const char *Yap_tokText(void *tokptre) {
+  CACHE_REGS
+  TokEntry *tokptr = tokptre;
+  Term info = tokptr->TokInfo;
 
-const char * Yap_tokText(void *tokptre) {
-    CACHE_REGS
-    TokEntry *tokptr = tokptre;
-    Term info = tokptr->TokInfo;
-    
-    switch (tokptr->Tok) {
-        case eot_tok:
-            return "EOT";
-        case Ponctuation_tok:
-        case Error_tok:
-        case BQString_tok:
-        case String_tok:
-       case Name_tok:
-            return AtomOfTerm(info)->StrOfAE;
-        case QuasiQuotes_tok:
-            return "<QQ>";
-        case Number_tok:
-                    if (IsIntegerTerm(info)) {
-                         char *s = Malloc(36);
-                       snprintf(s, 35, Int_FORMAT, IntegerOfTerm(info));
-                        return s;
-                    }else if (IsFloatTerm(info)) {
-                        char *s = Malloc( 64);
-                        snprintf(s, 63, "%6g", FloatOfTerm(info));
-                        return s;
-                    } else {
-                        size_t len = Yap_gmp_to_size(info,10);
-                        char *s = Malloc(len+2);
-                        return Yap_gmp_to_string(info,s, len+1,10);
-                    }
-                    break;
-         case Var_tok:
-            if (info == 0) return "[]";
-            return ((Atom)info)->StrOfAE;
+  switch (tokptr->Tok) {
+  case eot_tok:
+    return "EOT";
+  case Ponctuation_tok:
+  case Error_tok:
+  case BQString_tok:
+  case String_tok:
+  case Name_tok:
+    return AtomOfTerm(info)->StrOfAE;
+  case QuasiQuotes_tok:
+    return "<QQ>";
+  case Number_tok:
+    if (IsIntegerTerm(info)) {
+      char *s = Malloc(36);
+      snprintf(s, 35, Int_FORMAT, IntegerOfTerm(info));
+      return s;
+    } else if (IsFloatTerm(info)) {
+      char *s = Malloc(64);
+      snprintf(s, 63, "%6g", FloatOfTerm(info));
+      return s;
+    } else {
+      size_t len = Yap_gmp_to_size(info, 10);
+      char *s = Malloc(len + 2);
+      return Yap_gmp_to_string(info, s, len + 1, 10);
     }
-    return ".";
+    break;
+  case Var_tok:
+    if (info == 0)
+      return "[]";
+    return ((Atom)info)->StrOfAE;
+  }
+  return ".";
 }
-
 
 static void open_comment(int ch, StreamDesc *inp_stream USES_REGS) {
   CELL *h0 = HR;
@@ -1311,7 +1310,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
   int solo_flag = TRUE;
   int32_t ch, och;
   struct qq_struct_t *cur_qq = NULL;
-    int sign = 1;
+  int sign = 1;
 
   InitScannerMemory();
   LOCAL_VarTable = NULL;
@@ -1424,7 +1423,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         Atom ae;
         /* don't do this in iso */
         ae = Yap_ULookupAtom(TokImage);
-          Free(TokImage);
+        Free(TokImage);
         if (ae == NIL) {
           return CodeSpaceError(t, p, l);
         }
@@ -1434,7 +1433,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         t->Tok = Ord(kind = Name_tok);
       } else {
         VarEntry *ve = Yap_LookupVar((const char *)TokImage);
-          Free(TokImage);
+        Free(TokImage);
         t->TokInfo = Unsigned(ve);
         if (cur_qq) {
           ve->refs++;
@@ -1444,14 +1443,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 
     } break;
 
-        case NU: {
+    case NU: {
       int cherr;
       int cha;
-            sign = 1;
+      sign = 1;
 
-        scan_number:
-        cha = ch;
-   cherr  = 0;
+    scan_number:
+      cha = ch;
+      cherr = 0;
       CHECK_SPACE();
       if ((t->TokInfo = get_num(&cha, &cherr, inp_stream, sign)) == 0L) {
         if (p) {
@@ -1480,8 +1479,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         case 'e':
         case 'E':
           och = cherr;
-      TokImage = Malloc(1024 PASS_REGS);
-      goto scan_name;
+          TokImage = Malloc(1024 PASS_REGS);
+          goto scan_name;
           break;
         case '=':
         case '_':
@@ -1513,13 +1512,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           {
             TokEntry *e2;
 
-              if (chtype(ch) == NU) {
-                  if (och == '-')
-                      sign = -1;
-                  else
-                      sign = 1;
-                  goto scan_number;
-              }
+            if (chtype(ch) == NU) {
+              if (och == '-')
+                sign = -1;
+              else
+                sign = 1;
+              goto scan_number;
+            }
             t->Tok = Name_tok;
             if (ch == '(')
               solo_flag = FALSE;
@@ -1567,9 +1566,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
         }
-          if (ch == EOFCHAR) {
-              break;
-          }
+        if (ch == EOFCHAR) {
+          break;
+        }
         if (ch == quote) {
           ch = getchrq(inp_stream);
           if (ch != quote)
@@ -1638,16 +1637,16 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       break;
     case SY: {
       int pch;
-        if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
-            (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
-            t->Tok = Ord(kind = eot_tok);
-            // consume...
-            if (pch == '%') {
-                t->TokInfo = TermNewLine;
-                return l;
-            }
-            return l;
+      if (ch == '.' && (pch = Yap_peek(inp_stream - GLOBAL_Stream)) &&
+          (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
+        t->Tok = Ord(kind = eot_tok);
+        // consume...
+        if (pch == '%') {
+          t->TokInfo = TermNewLine;
+          return l;
         }
+        return l;
+      }
       if (ch == '`')
         goto quoted_string;
       och = ch;
@@ -1668,7 +1667,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           return l;
         }
       }
-     if (och == '/' && ch == '*') {
+      if (och == '/' && ch == '*') {
         if (store_comments) {
           CHECK_SPACE();
           open_comment('/', inp_stream PASS_REGS);
@@ -1925,7 +1924,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
           qq->end.byteno = fseek(inp_stream->file, 0, 0);
         } else {
           qq->end.byteno = inp_stream->charcount - 1;
-      }
+        }
         qq->end.lineno = inp_stream->linecount;
         qq->end.linepos = inp_stream->linepos - 1;
         qq->end.charno = inp_stream->charcount - 1;
@@ -1971,7 +1970,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 
   return (l);
 }
-
 
 void Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable,
                          VarEntry *anonvartable) {
