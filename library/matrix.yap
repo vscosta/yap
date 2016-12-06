@@ -18,17 +18,16 @@
  * @file   matrix.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 22:53:40 2015
- * 
+ *
  * @brief  Vector, Array and Matrix  library
- * 
- * 
+ *
+ *
 */
 
-
 :- module( matrix,
-	   [(<==)/2, op(800, xfx, '<=='),
-	    (+=)/2, op(800, xfx, '+='),	
-	    (-=)/2, op(800, xfx, '-='),
+	   [(<==)/2, op(800, xfx, <==),
+	    (+=)/2, op(800, xfx, +=),
+	    (-=)/2, op(800, xfx, -=),
 	    op(700, xfx, in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
@@ -322,7 +321,7 @@ all elements of a matrix or list
 
 
 
-Add  _Operand_ to the element of  _Matrix_ at position
+	Add  _Operand_ to the element of  _Matrix_ at position
  _Position_.
 
 
