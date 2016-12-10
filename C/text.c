@@ -70,6 +70,33 @@ int pop_text_stack(int i) {
   return lvl;
 }
 
+void *protected_pop_text_stack(int i, void *protected, bool tmp,
+                               size_t sz USES_REGS) {
+  void *out = protected;
+  int lvl = LOCAL_TextBuffer->lvl;
+  while (lvl > i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      if (p + 1 == protected) {
+        if (tmp)
+          out = LOCAL_FileNameBuf;
+        else
+          out = p;
+        memcpy(out, protected, sz);
+      } else {
+        free(p);
+      }
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  return out;
+}
+
 //	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }
 
 void *Malloc(size_t sz USES_REGS) {

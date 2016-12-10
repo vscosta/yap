@@ -203,6 +203,7 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   CACHE_REGS
   seq_tv_t inp, out;
 
+  int lvl = push_text_stack();
   inp.val.t = Yap_GetFromSlot(l);
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_CHARS;
@@ -220,8 +221,14 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
     out.type |= YAP_STRING_NCHARS;
     out.max = *lengthp;
   }
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  const char *buf;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
+    pop_text_stack(lvl);
     return false;
+  }
+  out.val.c = protected_pop_text_stack(lvl, out.val.c,
+                                       flags & (BUF_RING | BUF_DISCARDABLE),
+                                       strlen(out.val.c) + 1 PASS_REGS);
   *s = out.val.c;
   return true;
 }
