@@ -3,11 +3,20 @@
 
 INCLUDE(${SWIG_USE_FILE})
 
+ GET_PROPERTY(OBJECTS TARGET core PROPERTY SOURCES)
+GET_PROPERTY(OBJECTS TARGET libYAPOs PROPERTY SOURCES)
+GET_PROPERTY(OBJECTS TARGET  libOPTYap PROPERTY SOURCES)
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET myddas PROPERTY SOURCES))
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET Yapsqlite3 PROPERTY SOURCES))
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET libswi PROPERTY SOURCES))
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET myddas PROPERTY SOURCES))
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET utf8proc PROPERTY SOURCES))
+#  list( APPEND OBJECTS GET_PROPERTY(sourcefiles TARGET Yap++   PROPERTY SOURCES))
 
 if (PYTHONLIBS_FOUND)
 
-  include(FindPythonModule)  
-  
+  include(FindPythonModule)
+
   INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
   INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/CXX)
@@ -16,45 +25,46 @@ if (PYTHONLIBS_FOUND)
 
   SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES CPLUSPLUS ON)
   SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES SWIG_FLAGS "-includeall")
-  SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTY SWIG_MODULE_NAME libPy2YAP )
+  SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTIES SWIG_FLAGS "-py3")
+  SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTY SWIG_MODULE_NAME yap )
+  SET_SOURCE_FILES_PROPERTIES(../yap.i PROPERTY OUTPUT_NAME yap )
 
-  configure_file ("setup.py.cmake"  "setup.py" )
-  configure_file ("../yap.i"  "yap.i" )
-
-
-  #SET( CMAKE_SWIG_OUTDIR "yap" )
-
-
-#  SWIG_ADD_MODULE(Py2YAP python ../yap.i )
-#  SWIG_LINK_LIBRARIES(Py2YAP ${PYTHON_LIBRARIES} Yap++ libYap YAPPython)
-#  set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME} PROPERTIES
-#  NO_SONAME ON )
+  #configure_file ("setup.py.cmake"  "setup.py" )
+  #configure_file ("../yap.i"  "yap.i" )
 
 
-  # execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "from distutils import sysconfig; print( sysconfig.get_python_lib( plat_specific=True, prefix='${CMAKE_INSTALL_PREFIX}' ) )"
-  #                   OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-  #                   OUTPUT_STRIP_TRAILING_WHITESPACE )
-  # get_filename_component ( _ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE )
-  # file ( RELATIVE_PATH _REL_PYTHON_MOULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH} )
+  SET( CMAKE_SWIG_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/yap" )
 
-#    set ( PYTHON_MODULE_PATH
-#      ${_REL_PYTHON_MODULE_PATH}
-#      )
 
-    set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+ SWIG_ADD_MODULE(Py2YAP python ../yap.i )
+ SWIG_LINK_LIBRARIES(Py2YAP ${PYTHON_LIBRARIES}  Yap++  YAPPython libYap)
+ set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME} PROPERTIES
+NO_SONAME ON OUTPUT_NAME _yap LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/yap"  )
 
-    add_custom_target ( py2yap ALL
-      COMMAND ${PYTHON_EXECUTABLE} setup.py bdist
-      DEPENDS ../yap.i YAPPython  )
 
-    
-    install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install 
-   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+  execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'platlib' ) )"
+                    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
+                    OUTPUT_STRIP_TRAILING_WHITESPACE )
+  get_filename_component ( ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE )
+  file ( RELATIVE_PATH _REL_PYTHON_MOULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH} )
 
-#     INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/_yap.so DESTINATION ${PYTHON_MODULE_PATH} )
-#       INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/yap.py DESTINATION ${PYTHON_MODULE_PATH} )
-#       INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/yap/yapex.py DESTINATION ${PYTHON_MODULE_PATH} )
+   set ( PYTHON_MODULE_PATH
+     ${_ABS_PYTHON_MODULE_PATH}
+     )
 
+  #   set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+
+  #   add_custom_target ( py2yap ALL
+  #     COMMAND ${PYTHON_EXECUTABLE} setup.py bdist
+  #     DEPENDS ../yap.i YAPPython  )
+
+
+  #   install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install
+  #  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+
+    INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/_yap.so DESTINATION ${PYTHON_MODULE_PATH} )
+       INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap/yap.py DESTINATION ${PYTHON_MODULE_PATH} )
+   
 
     if ( DOCUMENTATION AND DOXYGEN_FOUND )
 
@@ -81,7 +91,7 @@ if (PYTHONLIBS_FOUND)
     endif ()
 
 
-  install(TARGETS ${SWIG_MODULE_Py2YAP_REAL_NAME} 
+  install(TARGETS ${SWIG_MODULE_Py2YAP_REAL_NAME}
     LIBRARY DESTINATION ${dlls}
      ARCHIVE DESTINATION ${dlls}
    )

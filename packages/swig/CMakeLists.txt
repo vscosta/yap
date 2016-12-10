@@ -1,4 +1,9 @@
 #CHECK: SWIG
+option (WITH_SWiG
+     "Allow Python->YAP  and Java->YAP" ON)
+
+IF (WITH_SWiG)
+
 find_host_package (SWIG)
 macro_log_feature (SWIG_FOUND "Swig"
   "Use SWIG Documentation System "
@@ -20,7 +25,10 @@ if (ANDROID)
 add_subdirectory(android)
 else(ANDROID)
 add_subdirectory(python)
-add_subdirectory(java)
+# add_subdirectory(java)
 endif(ANDROID)
 
 endif (SWIG_FOUND)
+
+ENDIF (WITH_SWiG)
+

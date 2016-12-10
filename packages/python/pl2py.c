@@ -3,7 +3,7 @@
 #include "python.h"
 
 PyObject *yap_to_python(YAP_Term t, bool eval) {
-  term_t yt = PL_new_term_ref();
+  term_t yt = YAP_InitSlot(t);
   PyObject *o = term_to_python(yt, eval);
   PL_reset_term_refs(yt);
   return o;
@@ -18,23 +18,14 @@ PyObject *yap_to_python(YAP_Term t, bool eval) {
 * @return a Python object descriptor or NULL if failed
 */
 PyObject *term_to_python(term_t t, bool eval) {
-  // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
+  // Yap_DebugPlWritep(YAP_GetFromSlot(t));        fprintf(stderr, " here I
   YAP_Term yt = YAP_GetFromSlot(t);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
-    PyObject *o = NULL, *pArgs;
-    if (eval)
-      return NULL;
-    if (PyObject_HasAttrString(py_Main, "V"))
-      o = PyObject_GetAttrString(py_Main, "V");
-    if (!o && PyObject_HasAttrString(py_Yapex, "V"))
-      o = PyObject_GetAttrString(py_Yapex, "V");
-    if (!o || !PyCallable_Check(o)) {
-      return NULL;
-    }
-    pArgs = PyTuple_New(1);
-    PyTuple_SET_ITEM(pArgs, 0, PyLong_FromLong(t));
-    return PyObject_CallObject(o, pArgs);
+    YAP_Term i = YAP_MkIntTerm(t);
+    return term_to_nametuple(
+        "H", 1, YAP_InitSlot(YAP_MkApplTerm(
+                    YAP_MkFunctor(YAP_LookupAtom("H"), 1), 1, &i)));
   };
   case PL_ATOM: {
     YAP_Atom at = YAP_AtomOfTerm(yt);
@@ -54,8 +45,8 @@ PyObject *term_to_python(term_t t, bool eval) {
     else if (strcmp(s, "{}") == 0)
       o = PyDict_New();
     /* return __main__,s */
-    else if ((o = PyRun_String(s, Py_single_input,
-			       PyEval_GetGlobals(), PyEval_GetLocals()))) {
+    else if ((o = PyRun_String(s, Py_single_input, PyEval_GetGlobals(),
+                               PyEval_GetLocals()))) {
       Py_IncRef(o);
       return o;
     } else if (PyObject_HasAttrString(py_Main, s)) {
@@ -83,8 +74,7 @@ PyObject *term_to_python(term_t t, bool eval) {
   } break;
   case PL_STRING: {
     char *s = NULL;
-    if (!PL_get_chars(t, &s,
-                      REP_UTF8 | CVT_ATOM | CVT_STRING | BUF_MALLOC)) {
+    if (!PL_get_chars(t, &s, REP_UTF8 | CVT_ATOM | CVT_STRING | BUF_MALLOC)) {
       return NULL;
     }
 #if PY_MAJOR_VERSION < 3
@@ -97,7 +87,7 @@ PyObject *term_to_python(term_t t, bool eval) {
       // fprintf(stderr, "%s\n", s);
       free(s);
       if (pobj) {
-	Py_IncRef(pobj);
+        Py_IncRef(pobj);
       }
       return pobj;
     }
@@ -160,7 +150,7 @@ PyObject *deref_term_to_python(term_t t) {
   if (YAP_IsVarTerm(yt)) {
     char s[32];
     char *o = YAP_WriteBuffer(yt, s, 31, 0);
-        return PyUnicode_FromString(o);
+    return PyUnicode_FromString(o);
   }
- return term_to_python(t, false);
+  return term_to_python(t, false);
 }

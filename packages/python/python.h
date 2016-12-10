@@ -93,6 +93,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
   }
 }
 
+extern PyObject *term_to_nametuple(const char *s, int arity, term_t t);
+
 extern PyObject *compound_to_pyeval(term_t t, functor_t fun);
 extern PyObject *compound_to_pytree(term_t t, functor_t fun);
 

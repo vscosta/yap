@@ -5,13 +5,11 @@ if (PYTHONLIBS_FOUND)
 
 include(FindPythonModule)  
 
-set (PYTHON_SOURCES
-  python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c )
+
+ include("${CMAKE_SOURCE_DIR}/packages/python/Sources.cmake")
 
 add_library (YAPPython SHARED ${PYTHON_SOURCES})
 
-set (PYTHON_HEADERS
-  python.h)
 
   target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES})
 

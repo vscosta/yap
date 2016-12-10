@@ -7,19 +7,22 @@ if platform.system() == 'Darwin':
     my_extra_link_args = ['-Wl,-rpath','-Wl,${dlls}']
 else:
     my_extra_link_args = []
-                           
+ 
+python_sources = ['yap.i'] # ,'../../CXX/yapi.cpp'] + ${PYTHON_SOURCES}
+
+set objects = split('${OBJECTS}',';')
+
 setup(
     name = "yap",
     version = "0.1",
-    ext_modules=[Extension('_yap', ['yap.i'],    			 
+ext_modules=[Extension('_yap', python_sources,
                              define_macros = [('MAJOR_VERSION', '1'),
                                               ('MINOR_VERSION', '0'),
                             ('_YAP_NOT_INSTALLED_', '1'),
                             ('YAP_PYTHON', '1')],
                             runtime_library_dirs=['${dlls}'],
 			    swig_opts=['-modern','-outcurrentdir', '-c++', '-py3','-I${CMAKE_SOURCE_DIR}/CXX'],
-                             library_dirs=['../../..','../../../CXX',
-					'../../python',
+                             library_dirs=['../../.o.',
 					'.'],
 					extra_link_args=my_extra_link_args,
 					libraries=['Yap++','Yap','YAPPython'],
