@@ -78,8 +78,7 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   BootMode = YAP_parse_yap_arguments(argc, argv, iap);
 
   /* init memory */
-  iap->boot_file_type =
-    BootMode = YAP_Init(iap);
+  iap->boot_file_type = BootMode = YAP_Init(iap);
   if (iap->ErrorNo) {
     /* boot failed */
     YAP_Error(iap->ErrorNo, 0L, iap->ErrorCause);
