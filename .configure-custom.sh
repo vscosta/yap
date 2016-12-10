@@ -2,7 +2,7 @@ ENABLE_VARS="clpbn|yes|WITH_CLPBN \
   cplint|yes|WITH_CPLINT \
   horus|yes|WITH_HORUS \
   clpr|yes|WITH_CLPR \
-  problog|yes|WITH_PROBLOG
+  problog|yes|WITH_PROBLOG \
    jit|no|WITH_JIT \
    chr|no|WITH_CHR \
    threads|no|WITH_THREADS"

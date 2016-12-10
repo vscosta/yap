@@ -1,12 +1,12 @@
 #source from http://code.google.com/p/cpfloat-gecode/source/browse/trunk/cmake-support/FindGecode.cmake?r=9
-
+#
 #Works under the assumption than when gecode is installed at least the kernel component exists
 # Look for the header file
-find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh PATHS ${CMAKE_INSTALL_PREFIX}/include)
-find_file(GECODE_CONFIG gecode/support/config.hpp PATHS ${CMAKE_INSTALL_PREFIX}/include)
+find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh PATHS ${GECODE_ROOT_DIR}/include ${CMAKE_INSTALL_PREFIX}/include  /usr/local/include /opt/local/include /usr}/include)
+find_file(GECODE_CONFIG gecode/support/config.hpp PATHS  ${GECODE_ROOT_DIR}/include ${CMAKE_INSTALL_PREFIX}/include  /usr/local/include /opt/local/include /usr}/include)
 # Look for the library
-find_library(GECODE_LIBRARY NAMES gecodekernel PATHS ${CMAKE_INSTALL_PREFIX}/lib)
-find_library(GECODE_SUPPORT_LIBRARY NAMES gecodesupportl PATHS ${CMAKE_INSTALL_PREFIX}/lib)
+find_library(GECODE_LIBRARY NAMES gecodekernel PATHS  ${GECODE_ROOT_DIR}/lib ${CMAKE_INSTALL_PREFIX}/lib  /usr/local/lib /opt/local/lib /usr}/lib)
+find_library(GECODE_SUPPORT_LIBRARY NAMES gecodesupport PATHS ${GECODE_ROOT_DIR}/lib ${CMAKE_INSTALL_PREFIX}/lib  /usr/local/lib /opt/local/lib /usr}/include)
 
 if(GECODE_CONFIG)
   file(STRINGS ${GECODE_CONFIG} GECODE_LINE_VERSION REGEX "^#define GECODE_VERSION .*")
