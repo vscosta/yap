@@ -34,6 +34,7 @@ include(MacroOptionalFindPackage)
 include(MacroLogFeature)
 include(FindPackageHandleStandardArgs)
 include (GNUInstallDirs)
+
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds it for you.
@@ -92,6 +93,7 @@ if (ANDROID)
     ADD_SUBDIRECTORY(utf8proc)
     ADD_SUBDIRECTORY(CXX)
 
+
 set (SWIG_FILES    ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp )
 
 else ()
@@ -113,7 +115,7 @@ if (WIN32)
 
   endif()
 
-  add_component (core 
+  add_component (core
           ${ENGINE_SOURCES}
         ${SWIG_FILES}
         ${C_INTERFACE_SOURCES}
