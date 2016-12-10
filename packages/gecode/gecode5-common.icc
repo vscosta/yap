@@ -82,7 +82,7 @@ namespace generic_gecode
 
   struct GenericRestartDFS: GenericEngine
   {
-    RBS<GenericSpace,DFS> engine;
+    RBS<DFS,GenericSpace> engine;
     GenericRestartDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
     virtual GenericSpace* next(void) { return engine.next(); }
   };
@@ -96,7 +96,7 @@ namespace generic_gecode
 
   struct GenericRestartBAB: GenericEngine
   {
-    RBS<GenericSpace,BAB> engine;
+    RBS<BAB,GenericSpace> engine;
     GenericRestartBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
     virtual GenericSpace* next(void) { return engine.next(); }
   };

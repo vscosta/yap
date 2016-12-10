@@ -49,8 +49,9 @@ if (GECODE_FOUND)
     ARCHIVE DESTINATION ${dlls}
     )
 
-  install(FILES gecode.yap
+  install(FILES gecode${GECODE_MAJOR}.yap
     DESTINATION ${libpl}
+    RENAME gecode.yap
     )
 
   install(FILES clpfd.yap
