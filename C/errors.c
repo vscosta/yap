@@ -311,24 +311,24 @@ yap_error_descriptor_t *Yap_popErrorContext(void) {
 }
 
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
-                   yap_error_number type, Term where, ...) {
-    va_list ap;
-    char tmpbuf[MAXPATHLEN];
+                      yap_error_number type, Term where, ...) {
+  va_list ap;
+  char tmpbuf[MAXPATHLEN];
 
-    va_start(ap, where);
-    char *format = va_arg(ap, char *);
-    if (format != NULL) {
+  va_start(ap, where);
+  char *format = va_arg(ap, char *);
+  if (format != NULL) {
 #if HAVE_VSNPRINTF
-        (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
+    (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
 #else
-        (void)vsprintf(tnpbuf, format, ap);
+    (void)vsprintf(tnpbuf, format, ap);
 #endif
-        // fprintf(stderr, "warning: ");
-Yap_Error__(file, function, lineno, type, where, tmpbuf);
-    } else {
-        Yap_Error__(file, function, lineno, type, where);
-    }
-    siglongjmp(LOCAL_RestartEnv, 4);
+    // fprintf(stderr, "warning: ");
+    Yap_Error__(file, function, lineno, type, where, tmpbuf);
+  } else {
+    Yap_Error__(file, function, lineno, type, where);
+  }
+  siglongjmp(LOCAL_RestartEnv, 4);
 }
 
 /**
