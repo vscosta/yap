@@ -161,21 +161,24 @@ class YAPInteractiveShell:
             # print('{0}'.format(f.getvalue()))
             # Execute the user code
             if run:
-                myvs = self.q.namedVarsCopy()
-                if myvs:
-                    i = 0
-                    for peq in myvs:
-                        name = peq[0]
-                        bind = peq[1]
-                        if bind.isVar():
-                            var = yap.YAPAtom('$VAR')
-                            f = yap.YAPFunctor(var, 1)
-                            bind.unify(yap.YAPApplTerm(f, (name)))
-                        else:
-                            i = bind.numberVars(i, True)
-                            print(name.text() + " = " + bind.text())
-                else:
-                    print("yes")
+                # this new vs should contain bindings to vars
+                vs=  self.q.namedVars()
+                #numbervars
+                i=0
+                # iteraw
+                for eq in vs:
+                    name = eq[0]
+                    # this is tricky, we're going to bind the variables in the term so thay we can
+                    # output X=Y. The Python way is to use dictionares.
+                    #Instead, we use the T function to tranform the Python term back to Prolog
+                    binding = yap.T(eq[1])
+                    if binding.isVar():
+                        binding.unify(name)
+                    else:
+                        i = binding.numberVars(i, True)
+                        print(name + " = " + binding.text())
+                    #ok, that was Prolog code
+                        print("yes")
                 if self.q.deterministic():
                     self.closeq()
             else:
