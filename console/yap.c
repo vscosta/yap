@@ -76,7 +76,7 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   YAP_file_type_t BootMode;
 
   BootMode = YAP_parse_yap_arguments(argc, argv, iap);
-
+  iap->Embedded = false;
   /* init memory */
   iap->boot_file_type =
     BootMode = YAP_Init(iap);
