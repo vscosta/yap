@@ -675,6 +675,8 @@ syntax_error_token(':', _LC) --> !,
 	[ ':' - [] ].
 syntax_error_token('|', _LC) --> !,
 	[ '|' - [] ].
+syntax_error_token('l', _LC) --> !,
+	[ '|' - [] ].
 syntax_error_token(nl, LC) --> !,
 	[  '~*|     ' -[LC], nl ].
 syntax_error_token(B, _LC) --> !,
