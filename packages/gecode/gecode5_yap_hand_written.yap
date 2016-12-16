@@ -16,6 +16,10 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
+:- module(gecode, [(:=)/2, op(500, xfx, ':='),
+		   (+=)/2, op(500, xfx, '+=')]).
+
+
 /** @defgroup Gecode Gecode Interface
 
 @ingroup packages
