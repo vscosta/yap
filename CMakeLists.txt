@@ -1,5 +1,3 @@
-# Sets the minimum version of CMake required to build the native
-# library. You should either keep the default value or only pass a
 # value of 3.4.0 or lower.
 
 # Sets the minimum version of CMake required to build the native
@@ -129,7 +127,6 @@ add_library( # Sets the name of the library.
 
         # Sets the library as a shared library.
         SHARED
-        C/embedded.c
         ${YLIBS}
         ${WINDLLS}
         )
