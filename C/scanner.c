@@ -1206,7 +1206,10 @@ Term Yap_tokRep(void *tokptre) {
   case eot_tok:
     return MkAtomTerm(Yap_LookupAtom("EOT"));
   case Ponctuation_tok:
-    return info;
+    if (info == Terml)
+      return TermBeginBracket;
+    else
+      return info;
   }
   return TermDot;
 }
@@ -1220,6 +1223,8 @@ const char *Yap_tokText(void *tokptre) {
   case eot_tok:
     return "EOT";
   case Ponctuation_tok:
+   if (info == Terml)
+     return "(";
   case Error_tok:
   case BQString_tok:
   case String_tok:
