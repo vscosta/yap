@@ -1,4 +1,5 @@
 
+#define CSTACK_DEFNS
 #include "rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
 #include <SWI-Prolog.h>
@@ -455,7 +456,7 @@ REAL_term_type( term_t t , int context)
 
 static int
 merge_dots( term_t t )
-{ char so[1025], *ns;
+{ char so[1025], *ns = so;
   int loop=TRUE, first = TRUE, arity;
   term_t tmp = PL_new_term_ref();
   atom_t name;
@@ -472,7 +473,7 @@ merge_dots( term_t t )
     }
 
     if ( PL_get_chars(tmp, &ns, CVT_ATOM|CVT_STRING|BUF_DISCARDABLE|REP_UTF8) ) {
-      strncat( so, ns, 1024-strlen(so)-1);
+      ns += strlen(ns);
       if (!loop) {
 	atom_t at = PL_new_atom( so );
 	return PL_put_atom(t, at);
@@ -2038,6 +2039,7 @@ init_R(void)
   R_SignalHandlers=0;
 #endif
   Rf_initEmbeddedR(argc, argv);
+  R_CStackLimit = -1;
   return TRUE;
 }
 
