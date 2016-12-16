@@ -346,7 +346,8 @@ static void InitStdStreams(void) {
 #if USE_READLINE
   if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
       GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&
-      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f) {
+      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f &&
+      ! Yap_embedded) {
     Yap_InitReadline(TermTrue);
   }
 #endif

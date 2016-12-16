@@ -2261,7 +2261,7 @@ static void start_modules(void) {
 }
 
 /// whether Yap is under control of some other system
-bool Yap_embedded;
+bool Yap_embedded = true;
 
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
@@ -2285,7 +2285,8 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
+  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts &&
+    !yap_init->Embedded;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
     GLOBAL_argv = yap_init->Argv;  

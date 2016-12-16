@@ -283,6 +283,8 @@ static int prolog_complete(int ignore, int key) {
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
+  if (Yap_embedded)
+    return false;
   if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
       getenv("INSIDE_EMACS") || enable != TermTrue) {
     if (GLOBAL_Flags)
