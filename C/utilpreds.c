@@ -799,22 +799,12 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   ptr = (char *)AdjustSize((CELL*)ptr, buf);
   
   p0 = ptr;
-  if (IsWideAtom(at)) {
-    wchar_t *wptr = (wchar_t *)ptr;
-    *wptr++ = -1;
-    sz = wcslen(RepAtom(at)->WStrOfAE);
-    if (sizeof(wchar_t)*(sz+1) >= len)
-      return (Atom)NULL;
-    wcsncpy(wptr, RepAtom(at)->WStrOfAE, len);
-    *hpp = (char *)(wptr+(sz+1));
-  } else {
-    *ptr++ = 0;
+   *ptr++ = 0;
     sz = strlen(RepAtom(at)->StrOfAE);
-    if (sz + 1 + sizeof(wchar_t) >= len)
+    if (sz + 1  >= len)
       return (Atom)NULL;
     strcpy(ptr, RepAtom(at)->StrOfAE);
     *hpp = ptr+(sz+1);
-  }
   return (Atom)(p0-buf);
 }
 
@@ -1179,10 +1169,8 @@ addAtom(Atom t, char *buf)
 
   if (!*s) {
     return Yap_LookupAtom(s+1);
-  } else {
-    wchar_t *w = (wchar_t *)s;
-    return Yap_LookupWideAtom(w+1);
   }
+    return NULL;
 }
 
 static UInt
@@ -3386,19 +3374,6 @@ addAtomToHash(CELL *st, Atom at)
 {
   unsigned int len;
 
-  if (IsWideAtom(at)) {
-    wchar_t *c = RepAtom(at)->WStrOfAE;
-    int ulen = wcslen(c);
-    len = ulen*sizeof(wchar_t);
-    if (len % CellSize == 0) {
-      len /= CellSize;
-    } else {
-      len /= CellSize;
-      len++;
-    }
-    st[len-1] = 0L;
-    wcsncpy((wchar_t *)st, c, ulen);
-  } else {
     char *c = RepAtom(at)->StrOfAE;
     int ulen = strlen(c);
     /* fix hashing over empty atom */
@@ -3413,7 +3388,6 @@ addAtomToHash(CELL *st, Atom at)
     }
     st[len-1] = 0L;
     strncpy((char *)st, c, ulen);
-  }
   return st+len;
 }
 

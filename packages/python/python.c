@@ -4,7 +4,7 @@
 int assign_python(PyObject *root, term_t t, PyObject *e);
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-  ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
+    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
 
 functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -12,8 +12,7 @@ functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
     FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
     FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
-    FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
-    FUNCTOR_dot2;
+    FUNCTOR_colon2, FUNCTOR_equal2, FUNCTOR_sqbrackets2, FUNCTOR_dot2;
 
 PyObject *py_Main;
 PyObject *py_Builtin;
@@ -103,7 +102,7 @@ X_API bool init_python(void) {
       Py_SetProgramName(argv[0]);
 #else
       wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
-    Py_SetProgramName(buf);
+      Py_SetProgramName(buf);
 #endif
     }
     Py_Initialize();
@@ -112,6 +111,6 @@ X_API bool init_python(void) {
   PL_reset_term_refs(t);
   install_pypreds();
   install_pl2pl();
-  //PyGILState_Release(gstate);
+  // PyGILState_Release(gstate);
   return !python_in_python;
 }

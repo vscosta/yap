@@ -502,197 +502,197 @@ static long get_len_of_range(long lo, long hi, long step) {
 }
 
 #if PY_MAJOR_VERSION >= 3
- static PyStructSequence_Field pnull[] = {
-        {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},
-        {"A5", NULL},  {"A6", NULL},  {"A7", NULL},  {"A8", NULL},
-        {"A9", NULL},  {"A9", NULL},  {"A10", NULL}, {"A11", NULL},
-        {"A12", NULL}, {"A13", NULL}, {"A14", NULL}, {"A15", NULL},
-        {"A16", NULL}, {"A17", NULL}, {"A18", NULL}, {"A19", NULL},
-        {"A19", NULL}, {"A20", NULL}, {"A21", NULL}, {"A22", NULL},
-        {"A23", NULL}, {"A24", NULL}, {"A25", NULL}, {"A26", NULL},
-        {"A27", NULL}, {"A28", NULL}, {"A29", NULL}, {"A29", NULL},
-        {"A30", NULL}, {"A31", NULL}, {"A32", NULL}, {0}};
+static PyStructSequence_Field pnull[] = {
+    {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},
+    {"A5", NULL},  {"A6", NULL},  {"A7", NULL},  {"A8", NULL},
+    {"A9", NULL},  {"A9", NULL},  {"A10", NULL}, {"A11", NULL},
+    {"A12", NULL}, {"A13", NULL}, {"A14", NULL}, {"A15", NULL},
+    {"A16", NULL}, {"A17", NULL}, {"A18", NULL}, {"A19", NULL},
+    {"A19", NULL}, {"A20", NULL}, {"A21", NULL}, {"A22", NULL},
+    {"A23", NULL}, {"A24", NULL}, {"A25", NULL}, {"A26", NULL},
+    {"A27", NULL}, {"A28", NULL}, {"A29", NULL}, {"A29", NULL},
+    {"A30", NULL}, {"A31", NULL}, {"A32", NULL}, {0}};
 
-static PyObject *
-structseq_str(PyObject *iobj)
-{
+static PyObject *structseq_str(PyObject *iobj) {
 
-    /* buffer and type size were chosen well considered. */
+/* buffer and type size were chosen well considered. */
 #define REPR_BUFFER_SIZE 512
 #define TYPE_MAXSIZE 100
 
-    PyStructSequence *obj = (PyStructSequence *)iobj;
-    PyTypeObject *typ = Py_TYPE(obj);
-    bool removelast = false;
-    Py_ssize_t len, i;
-    char buf[REPR_BUFFER_SIZE];
-    char *endofbuf, *pbuf = buf;
-    /* pointer to end of writeable buffer; safes space for "...)\0" */
-    endofbuf= &buf[REPR_BUFFER_SIZE-5];
+  PyStructSequence *obj = (PyStructSequence *)iobj;
+  PyTypeObject *typ = Py_TYPE(obj);
+  bool removelast = false;
+  Py_ssize_t len, i;
+  char buf[REPR_BUFFER_SIZE];
+  char *endofbuf, *pbuf = buf;
+  /* pointer to end of writeable buffer; safes space for "...)\0" */
+  endofbuf = &buf[REPR_BUFFER_SIZE - 5];
 
-    /* "typename(", limited to  TYPE_MAXSIZE */
-    len = strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE :
-          strlen(typ->tp_name);
-    strncpy(pbuf, typ->tp_name, len);
-    pbuf += len;
-    *pbuf++ = '(';
+  /* "typename(", limited to  TYPE_MAXSIZE */
+  len =
+      strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE : strlen(typ->tp_name);
+  strncpy(pbuf, typ->tp_name, len);
+  pbuf += len;
+  *pbuf++ = '(';
 
-    for (i=0; i < ((PyStructSequence *)obj)->ob_base.ob_size; i++) {
-        PyObject *val, *repr;
-        char *crepr;
+  for (i = 0; i < ((PyStructSequence *)obj)->ob_base.ob_size; i++) {
+    PyObject *val, *repr;
+    char *crepr;
 
-        val = PyStructSequence_GET_ITEM(obj, i);
-        repr = PyObject_Str(val);
-        if (repr == NULL)
-            return NULL;
-        crepr = PyUnicode_AsUTF8(repr);
-        if (crepr == NULL) {
-            Py_DECREF(repr);
-            return NULL;
-        }
-
-        /* + 3: keep space for ", " */
-        len = strlen(crepr) + 2;
-        if ((pbuf+len) <= endofbuf) {
-            strcpy(pbuf, crepr);
-            pbuf += strlen(crepr);
-            *pbuf++ = ',';
-            *pbuf++ = ' ';
-            removelast = 1;
-            Py_DECREF(repr);
-        }
-        else {
-            strcpy(pbuf, "...");
-            pbuf += 3;
-            removelast = 0;
-            Py_DECREF(repr);
-            break;
-        }
+    val = PyStructSequence_GET_ITEM(obj, i);
+    repr = PyObject_Str(val);
+    if (repr == NULL)
+      return NULL;
+    crepr = PyUnicode_AsUTF8(repr);
+    if (crepr == NULL) {
+      Py_DECREF(repr);
+      return NULL;
     }
-    if (removelast) {
-        /* overwrite last ", " */
-        pbuf-=2;
-    }
-    *pbuf++ = ')';
-    *pbuf = '\0';
 
-    return PyUnicode_FromString(buf);
+    /* + 3: keep space for ", " */
+    len = strlen(crepr) + 2;
+    if ((pbuf + len) <= endofbuf) {
+      strcpy(pbuf, crepr);
+      pbuf += strlen(crepr);
+      *pbuf++ = ',';
+      *pbuf++ = ' ';
+      removelast = 1;
+      Py_DECREF(repr);
+    } else {
+      strcpy(pbuf, "...");
+      pbuf += 3;
+      removelast = 0;
+      Py_DECREF(repr);
+      break;
+    }
+  }
+  if (removelast) {
+    /* overwrite last ", " */
+    pbuf -= 2;
+  }
+  *pbuf++ = ')';
+  *pbuf = '\0';
+
+  return PyUnicode_FromString(buf);
 }
 
+static PyObject *structseq_repr(PyObject *iobj) {
 
-static PyObject *
-structseq_repr(PyObject *iobj)
-{
-
-    /* buffer and type size were chosen well considered. */
+/* buffer and type size were chosen well considered. */
 #define REPR_BUFFER_SIZE 512
 #define TYPE_MAXSIZE 100
 
-    PyStructSequence *obj = (PyStructSequence *)iobj;
-    PyTypeObject *typ = Py_TYPE(obj);
-    bool removelast = false;
-    Py_ssize_t len, i;
-    char buf[REPR_BUFFER_SIZE];
-    char *endofbuf, *pbuf = buf;
-    /* pointer to end of writeable buffer; safes space for "...)\0" */
-    endofbuf= &buf[REPR_BUFFER_SIZE-5];
+  PyStructSequence *obj = (PyStructSequence *)iobj;
+  PyTypeObject *typ = Py_TYPE(obj);
+  bool removelast = false;
+  Py_ssize_t len, i;
+  char buf[REPR_BUFFER_SIZE];
+  char *endofbuf, *pbuf = buf;
+  /* pointer to end of writeable buffer; safes space for "...)\0" */
+  endofbuf = &buf[REPR_BUFFER_SIZE - 5];
 
-    /* "typename(", limited to  TYPE_MAXSIZE */
-    len = strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE :
-          strlen(typ->tp_name);
-    strncpy(pbuf, typ->tp_name, len);
-    pbuf += len;
-    *pbuf++ = '(';
+  /* "typename(", limited to  TYPE_MAXSIZE */
+  len =
+      strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE : strlen(typ->tp_name);
+  strncpy(pbuf, typ->tp_name, len);
+  pbuf += len;
+  *pbuf++ = '(';
 
-    for (i=0; i < ((PyStructSequence *)obj)->ob_base.ob_size; i++) {
-        PyObject *val, *repr;
-        char *crepr;
+  for (i = 0; i < ((PyStructSequence *)obj)->ob_base.ob_size; i++) {
+    PyObject *val, *repr;
+    char *crepr;
 
-        val = PyStructSequence_GET_ITEM(obj, i);
-        repr = PyObject_Repr(val);
-        if (repr == NULL)
-            return NULL;
-        crepr = PyUnicode_AsUTF8(repr);
-        if (crepr == NULL) {
-            Py_DECREF(repr);
-            return NULL;
-        }
-
-        /* + 3: keep space for ", " */
-        len = strlen(crepr) + 2;
-        if ((pbuf+len) <= endofbuf) {
-            strcpy(pbuf, crepr);
-            pbuf += strlen(crepr);
-            *pbuf++ = ',';
-            *pbuf++ = ' ';
-            removelast = 1;
-            Py_DECREF(repr);
-        }
-        else {
-            strcpy(pbuf, "...");
-            pbuf += 3;
-            removelast = 0;
-            Py_DECREF(repr);
-            break;
-        }
+    val = PyStructSequence_GET_ITEM(obj, i);
+    repr = PyObject_Repr(val);
+    if (repr == NULL)
+      return NULL;
+    crepr = PyUnicode_AsUTF8(repr);
+    if (crepr == NULL) {
+      Py_DECREF(repr);
+      return NULL;
     }
-    if (removelast) {
-        /* overwrite last ", " */
-        pbuf-=2;
-    }
-    *pbuf++ = ')';
-    *pbuf = '\0';
 
-    return PyUnicode_FromString(buf);
+    /* + 3: keep space for ", " */
+    len = strlen(crepr) + 2;
+    if ((pbuf + len) <= endofbuf) {
+      strcpy(pbuf, crepr);
+      pbuf += strlen(crepr);
+      *pbuf++ = ',';
+      *pbuf++ = ' ';
+      removelast = 1;
+      Py_DECREF(repr);
+    } else {
+      strcpy(pbuf, "...");
+      pbuf += 3;
+      removelast = 0;
+      Py_DECREF(repr);
+      break;
+    }
+  }
+  if (removelast) {
+    /* overwrite last ", " */
+    pbuf -= 2;
+  }
+  *pbuf++ = ')';
+  *pbuf = '\0';
+
+  return PyUnicode_FromString(buf);
 }
+#endif
 
-static PyObject *
-term_to_nametuple( const char *s, int arity, term_t t) {
+PyObject *term_to_nametuple(const char *s, int arity, term_t t) {
+#if PY_MAJOR_VERSION >= 3
   PyTypeObject *typp;
-    PyObject *o;
-PyObject *key = PyUnicode_FromString(s);
- if (py_F2P && PyDict_Contains(py_F2P, key)) {
-  typp = (PyTypeObject*)PyDict_GetItem(py_F2P, key);
-} else {
+  PyObject *o;
+  PyObject *key = PyUnicode_FromString(s);
+  if (py_F2P && PyDict_Contains(py_F2P, key)) {
+    typp = (PyTypeObject *)PyDict_GetItem(py_F2P, key);
+  } else {
 
-  typp = PyMem_Malloc(sizeof(PyTypeObject));
-  PyStructSequence_Desc *desc = PyMem_Malloc(sizeof(PyStructSequence_Desc));
+    typp = PyMem_Malloc(sizeof(PyTypeObject));
+    PyStructSequence_Desc *desc = PyMem_Malloc(sizeof(PyStructSequence_Desc));
 
-  desc->name = PyUnicode_AsUTF8(key);
-  desc->doc = "YAPTerm";
-  desc->fields = pnull;
-  desc->n_in_sequence = 32;
-  if (PyStructSequence_InitType2(typp, desc) < 0)
+    desc->name = PyUnicode_AsUTF8(key);
+    desc->doc = "YAPTerm";
+    desc->fields = pnull;
+    desc->n_in_sequence = 32;
+    if (PyStructSequence_InitType2(typp, desc) < 0)
       return NULL;
     typp->tp_str = structseq_str;
     typp->tp_repr = structseq_repr;
-  //     typp = PyStructSequence_NewType(desc);
-  Py_INCREF(typp);
-  //	typp->tp_flags |= Py_TPFLAGS_HEAPTYPE;
-  PyModule_AddObject(py_Yapex, s, (PyObject *)typp);
-  if (py_F2P)
-    PyDict_SetItem(py_F2P, key, (PyObject *)typp);
-}
-o = PyStructSequence_New(typp);
-term_t tleft = PL_new_term_ref();
- int i;
-
-    for (i = 0; i < arity; i++) {
-  PyObject *pArg;
-  if (!PL_get_arg(i + 1, t, tleft))
-    return NULL;
-  pArg = term_to_python(tleft, false);
-  if (pArg == NULL)
-    return NULL;
-  /* pArg reference stolen here: */
-  PyStructSequence_SET_ITEM(o, i, pArg);
+    //     typp = PyStructSequence_NewType(desc);
+    Py_INCREF(typp);
+    //	typp->tp_flags |= Py_TPFLAGS_HEAPTYPE;
+    PyModule_AddObject(py_Yapex, s, (PyObject *)typp);
+    if (py_F2P)
+      PyDict_SetItem(py_F2P, key, (PyObject *)typp);
   }
-    ((PyStructSequence *)o)->ob_base.ob_size = arity;
+  o = PyStructSequence_New(typp);
+  term_t tleft = PL_new_term_ref();
+  int i;
 
-    return o;
-}
+  for (i = 0; i < arity; i++) {
+    PyObject *pArg;
+    if (!PL_get_arg(i + 1, t, tleft))
+      return NULL;
+    pArg = term_to_python(tleft, false);
+    if (pArg == NULL)
+      return NULL;
+    /* pArg reference stolen here: */
+    PyStructSequence_SET_ITEM(o, i, pArg);
+  }
+  ((PyStructSequence *)o)->ob_base.ob_size = arity;
 
+  return o;
+#else
+  if (PyObject_HasAttrString(py_Yapex, "T"))
+    c = PyObject_GetAttrString(py_Yapex, "T");
+  o1 = PyTuple_New(2);
+  PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
+  PyTuple_SET_ITEM(o1, 1, o);
+  return o1;
 #endif
+}
 
 static PyObject *bip_range(term_t t) {
   long ilow = 0, ihigh = 0, istep = 1;
@@ -814,8 +814,8 @@ static int copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
 }
 
 PyObject *compound_to_pytree(term_t t, functor_t fun) {
-    PyObject *o;
-    o = py_Main;
+  PyObject *o;
+  o = py_Main;
   atom_t name = PL_functor_name(fun);
   int arity = PL_functor_arity(fun);
 
@@ -845,7 +845,7 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
   } else if (fun == FUNCTOR_complex2) {
     term_t targ = PL_new_term_ref();
     PyObject *lhs, *rhs;
-    double d1 =0.0, d2=0.0;
+    double d1 = 0.0, d2 = 0.0;
 
     if (!PL_get_arg(1, t, targ))
       return NULL;
@@ -853,8 +853,8 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
     if (!PL_get_arg(2, t, targ))
       return NULL;
     rhs = term_to_python(targ, false);
-      if (lhs == NULL || rhs == NULL)
-          return NULL;
+    if (lhs == NULL || rhs == NULL)
+      return NULL;
     if (PyFloat_Check(lhs)) {
       d1 = PyFloat_AsDouble(lhs);
     } else if (PyLong_Check(lhs)) {
@@ -935,7 +935,7 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
     term_t tleft = PL_new_term_ref();
     PyObject *o = py_Main;
     while (fun == FUNCTOR_dot2) {
-                      if (!PL_get_arg(1, t, tleft))
+      if (!PL_get_arg(1, t, tleft))
         return FALSE;
       o = find_obj(o, tleft);
       if (!o)
@@ -949,20 +949,17 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
   if (!arity) {
     char *s;
 
-    if (!PL_get_atom_chars(t, &s) )
+    if (!PL_get_atom_chars(t, &s))
       return NULL;
-      // this should never happen
-      return term_to_python( t, false);
+    // this should never happen
+    return term_to_python(t, false);
   } else {
     const char *s;
-      if (!(s = PL_atom_chars(name)))
-          return NULL;
-#if PY_MAJOR_VERSION >= 3
-      return term_to_nametuple(s, arity, t);
-#else
-      term_t tleft;
-      int i;
-      PyObject *c, *o1;
+    if (!(s = PL_atom_chars(name)))
+      return NULL;
+    term_t tleft;
+    int i;
+    PyObject *o1;
     o = PyTuple_New(arity);
     tleft = PL_new_term_ref();
     for (i = 0; i < arity; i++) {
@@ -975,13 +972,7 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
       /* pArg reference stolen here: */
       PyTuple_SET_ITEM(o, i, pArg);
     }
-    if (PyObject_HasAttrString(py_Yapex, "T"))
-      c = PyObject_GetAttrString(py_Yapex, "T");
-    o1 = PyTuple_New(2);
-    PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
-    PyTuple_SET_ITEM(o1, 1, o);
-    return o1;
-#endif
+    return term_to_nametuple(s, arity, t);
   }
 }
 

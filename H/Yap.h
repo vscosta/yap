@@ -462,6 +462,7 @@ extern ADDR Yap_HeapBase;
 /* This is ok for Linux, should be ok for everyone */
 #define YAP_FILENAME_MAX 1024
 
+
 /*************************************************************************************************
                                     Debugging Support
 *************************************************************************************************/
@@ -853,3 +854,5 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 extern bool  Yap_embedded, Yap_Server;
 
 #endif /* YAP_H */
+
+#include "YapText.h"

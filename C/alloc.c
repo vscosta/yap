@@ -1,4 +1,4 @@
-/*************************************************************************
+  /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -90,7 +90,7 @@ void *my_realloc(void *ptr, size_t sz) {
 
   p = realloc(ptr, sz);
   if (Yap_do_low_level_trace)
-    fprintf(stderr, "+ %p -> %p : %lu\n", ptr, p, sz);
+    //  fprintf(stderr, "+ %p -> %p : %lu\n", ptr, p, sz);
   //    Yap_DebugPuts(stderr,"gof\n");
   if (sz > 500 && write_malloc++ > 0)
     __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p", write_malloc,
@@ -671,7 +671,7 @@ static char *AllocHeap(size_t size) {
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 24 + 1) {
-      n = (BlockHeader *)(((YAP_SEG_SIZE *)b) + size + 1);
+      n = (BlockHeader *)(((YAP_SEG_SIZE *)b) + size + 1)v;
       n->b_size = b->b_size - size - 1;
       b->b_size = size;
       AddToFreeList(n);

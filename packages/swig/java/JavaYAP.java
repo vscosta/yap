@@ -1,7 +1,7 @@
-//package pt.up.fc.dcc.yap;
-
+//package pt.up.yap;
+//
 import java.io.* ;
-//import YAP.* ;
+import pt.up.yap.* ;
 class JavaYAP {
 
   YAPQuery q;
@@ -34,10 +34,10 @@ class JavaYAP {
           q.close();
           return false;
         }
-        YAPListTerm vs = q.namedVars();
+        YAPTerm vs = YAPTerm( q.namedVars() );
 	System.out.println("Another one "+vs);
         while(!vs.nil()){
-          YAPTerm eq = vs.car();
+           eq = YAPTerm( vs.car() );
           //outputText.append(Integer.toString(i) + ": " + eq.text() );
           System.out.println(":\t" + eq.getArg(1).text() + " = " + eq.getArg(2).text() +"\n" );
           vs = vs.cdr();
@@ -89,7 +89,7 @@ class JavaYAP {
     }
 
   }
-    
+
   public static void main(String args[])
   {
     System.loadLibrary("Native");

@@ -1654,7 +1654,8 @@ static Int p_nb_queue_close(USES_REGS1) {
       return Yap_unify(ARG3, ARG2);
     }
     out = Yap_unify(ARG3, qp[QUEUE_TAIL]) && Yap_unify(ARG2, qp[QUEUE_HEAD]);
-    qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = RESET_VARIABLE(qp + QUEUE_TAIL);
+    RESET_VARIABLE(qp + QUEUE_TAIL);
+    qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = (CELL)(qp + QUEUE_TAIL);
     qp[QUEUE_SIZE] = MkIntTerm(0);
     return out;
   }

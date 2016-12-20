@@ -69,7 +69,6 @@ static void InitWorker(int wid) {
   REMOTE_GlobalArenaOverflows(wid) = 0L;
   REMOTE_ArenaOverflows(wid) = 0L;
   REMOTE_DepthArenas(wid) = 0;
-  REMOTE_ArithError(wid) = FALSE;
   REMOTE_LastAssertedPred(wid) = NULL;
   REMOTE_TmpPred(wid) = NULL;
   REMOTE_ScannerStack(wid) = NULL;
@@ -165,11 +164,8 @@ static void InitWorker(int wid) {
 
 
 
+  REMOTE_ActiveError(wid) = calloc(sizeof(yap_error_descriptor_t),1);
 
-
-
-
-  REMOTE_BallTerm(wid) = NULL;
 
 
 
@@ -201,10 +197,8 @@ static void InitWorker(int wid) {
 
 
 
-  REMOTE_matherror(wid) = YAP_NO_ERROR;
 
   REMOTE_mathstring(wid) = NULL;
-  REMOTE_CurrentError(wid) = YAP_NO_ERROR;
 
   REMOTE_heap_overflows(wid) = 0;
   REMOTE_total_heap_overflow_time(wid) = 0;

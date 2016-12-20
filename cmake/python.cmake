@@ -1,4 +1,8 @@
 
+option (WITH_PYTHON
+     "Allow Python->YAP  and YAP->Python" ON)
+
+IF (WITH_PYTHON)
 
 #BREW install for Python3
 
@@ -31,3 +35,6 @@ find_package(PythonLibs)
 
 set( CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIRS}  ${CMAKE_REQUIRED_INCLUDES}	)
 check_include_file(Python.h HAVE_PYTHON_H)
+
+endif(WITH_PYTHON)
+

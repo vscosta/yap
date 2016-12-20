@@ -15,13 +15,15 @@ include(TestBigEndian)
 include(GetGitRevisionDescription)
 
 # modern systems do this.
+
 set(MALLOC_T "void *")
 OPTION(WITH_SYSTEM_MALLOC
         "use malloc to allocate memory" ON)
 OPTION(WITH_DL_MALLOC
         "use malloc to allocate memory" OFF)
 OPTION(WITH_YAP_MALLOC
-        "use malloc to allocate memory" OFF)
+        "use malloc to allocate mem
+        ory" OFF)
 
 if (WITH_SYSTEM_MALLOC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS USE_SYSTEM_MALLOC=1)
@@ -144,6 +146,7 @@ endif (HAVE_LIBDL)
 if (WIN32)
     check_library_exists(comdlg32 FindText "" HAVE_LIBCOMDLG32)
     if (HAVE_LIBCOMDLG32)
+
         set(EXTRALIBS ${EXTRALIBS} comdlg32)
     endif (HAVE_LIBCOMDLG32)
     check_library_exists(msvcrt strtok "" HAVE_LIBMSCRT)
@@ -215,6 +218,7 @@ if (HAVE_LIBPTHREAD)
   endif (HAVE_LIBPTHREAD)
 
 
+
 check_library_exists(unicode main "" HAVE_LIBUNICODE)
 if (HAVE_LIBUNICODE)
     set(EXTRALIBS ${EXTRALIBS} unicode)
@@ -255,6 +259,7 @@ check_function_exists(__builtin_ffsll HAVE___BUILTIN_FFSLL)
 check_function_exists(fgetpos HAVE_FGETPOS)
 check_function_exists(finite HAVE_FINITE)
 check_function_exists(iswblank HAVE_ISWBLANK)
+check_function_exists(iswspace HAVE_ISWSPACE)
 check_symbol_exists(flsl <string.h> HAVE_FLSL)
 check_symbol_exists(flsll <string.h> HAVE_FLSLL)
 check_function_exists(fmemopen HAVE_FMEMOPEN)
@@ -262,7 +267,7 @@ check_function_exists(fpclass HAVE_FPCLASS)
 check_function_exists(ftime HAVE_FTIME)
 check_function_exists(ftruncate HAVE_FTRUNCATE)
 check_function_exists(funopen HAVE_FUNOPEN)
-check_function_exists(gcc HAVE_GCC)
+#check_function_exists(gcc HAVE_GCC)
 check_function_exists(getcwd HAVE_GETCWD)
 check_function_exists(getenv HAVE_GETENV)
 check_function_exists(getexecname HAVE_GETEXECNAME)
@@ -336,10 +341,14 @@ check_function_exists(socklen_t HAVE_SOCKLEN_T)
 check_function_exists(sqllen HAVE_SQLLEN)
 check_function_exists(sqlulen HAVE_SQLULEN)
 check_function_exists(srand HAVE_SRAND)
-check_function_exists(srand HAVE_SRAND48)
+check_function_exists(srand48 HAVE_SRAND48)
 check_function_exists(srandom HAVE_SRANDOM)
+check_function_exists(stpcpy HAVE_STPCPY)
+check_function_exists(stpncpy HAVE_STPNCPY)
 check_function_exists(ssize_t HAVE_SSIZE_T)
 check_function_exists(stat HAVE_STAT)
+check_function_exists(strcat HAVE_STRCAT)
+check_function_exists(strncat HAVE_STRNCAT)
 check_function_exists(strcasecmp HAVE_STRCASECMP)
 check_function_exists(strcasestr HAVE_STRCASESTR)
 check_function_exists(strchr HAVE_STRCHR)
@@ -395,5 +404,13 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/../YapTermConfig.h.cmake
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
         ${CMAKE_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../GitSHA1.c.in GitSHA1.c @ONLY)
-
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/os/YapIOConfig.h)
+
+check_include_files( "stdio.h;cudd.h" HAVE_CTYPE_HUDD_H )
+
+check_include_files( "stdio.h;cuddI.h"  HAVE_CUDD_H )
+check_include_files( "cudd.h;cuddInt.h"  HAVE_CUDDINT_H )
+check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
+check_include_files( "stdio.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
+configure_file (cmake/cudd_config.h.cmake
+  "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )

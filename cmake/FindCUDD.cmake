@@ -13,6 +13,7 @@
 SET( CUDD_FOUND "NO" )
 
 set (CUDD_INCLUDE_SEARCH_PATH 
+    ${CUDD_ROOT_DIR}/include
     ${CMAKE_INSTALL_PREFIX}/include
     /usr/local/yap/include
     /usr/local/Yap/include
@@ -32,6 +33,7 @@ set (CUDD_INCLUDE_SEARCH_PATH
 
 
 set (CUDD_LIB_SEARCH_PATH 
+    ${CUDD_ROOT_DIR}/lib
     ${CMAKE_INSTALL_PREFIX}/lib
     /usr/lib
     /usr/local/lib/cudd

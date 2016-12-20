@@ -375,6 +375,7 @@ Functor EvalArg(Term);
     eval_flt = (F);                                                            \
     return (FFloat);                                                           \
   }
+
 #define REvalError()                                                           \
   { return (FError); }
 
@@ -406,9 +407,13 @@ yamop *Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
                        ...);
 
 #define Yap_ArithError(id, t, ...)                                             \
-  Yap_ArithError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-Int Yap_ArithError__(const char *, const char *, int, yap_error_number, Term,
-                     ...);
+  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+#define Yap_BinError(id)                                                       \
+  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+#define Yap_AbsmiError(id)                                                     \
+  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+extern Int Yap_ArithError__(const char *, const char *, int, yap_error_number,
+                            Term, ...);
 
 #include "inline-only.h"
 
@@ -429,7 +434,7 @@ INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS) {
 #if HAVE_FECLEAREXCEPT
 inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
 #else
-inline static void Yap_ClearExs(void) {  }
+inline static void Yap_ClearExs(void) {}
 #endif
 
 inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
@@ -463,7 +468,11 @@ Atom Yap_NameOfBinaryOp(int i);
 #define RINT(v) return (MkIntegerTerm(v))
 #define RFLOAT(v) return (MkFloatTerm(v))
 #define RBIG(v) return (Yap_MkBigIntTerm(v))
-#define RERROR() return (0L)
+#define RERROR()                                                               \
+  {                                                                            \
+    Yap_BinError(LOCAL_Error_TYPE);                                            \
+    return (0L);                                                               \
+  }
 
 static inline blob_type ETypeOfTerm(Term t) {
   if (IsIntTerm(t))

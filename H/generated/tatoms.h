@@ -24,9 +24,14 @@ EXTERNAL Atom AtomArrow; EXTERNAL Term TermArrow;
 EXTERNAL Atom AtomAttributedModule; EXTERNAL Term TermAttributedModule;
 EXTERNAL Atom AtomDoubleArrow; EXTERNAL Term TermDoubleArrow;
 EXTERNAL Atom AtomAssert; EXTERNAL Term TermAssert;
+EXTERNAL Atom AtomBeginBracket; EXTERNAL Term TermBeginBracket;
+EXTERNAL Atom AtomEndBracket; EXTERNAL Term TermEndBracket;
+EXTERNAL Atom AtomBeginSquareBracket; EXTERNAL Term TermBeginSquareBracket;
+EXTERNAL Atom AtomEndSquareBracket; EXTERNAL Term TermEndSquareBracket;
+EXTERNAL Atom AtomBeginCurlyBracket; EXTERNAL Term TermBeginCurlyBracket;
+EXTERNAL Atom AtomEndCurlyBracket; EXTERNAL Term TermEndCurlyBracket;
 EXTERNAL Atom AtomEmptyBrackets; EXTERNAL Term TermEmptyBrackets;
 EXTERNAL Atom AtomEmptySquareBrackets; EXTERNAL Term TermEmptySquareBrackets;
-EXTERNAL Atom AtomEmptyCurlyBrackets; EXTERNAL Term TermEmptyCurlyBrackets;
 EXTERNAL Atom AtomAsserta; EXTERNAL Term TermAsserta;
 EXTERNAL Atom AtomAssertaStatic; EXTERNAL Term TermAssertaStatic;
 EXTERNAL Atom AtomAssertz; EXTERNAL Term TermAssertz;
@@ -63,6 +68,7 @@ EXTERNAL Atom AtomChars; EXTERNAL Term TermChars;
 EXTERNAL Atom AtomCharset; EXTERNAL Term TermCharset;
 EXTERNAL Atom AtomChType; EXTERNAL Term TermChType;
 EXTERNAL Atom AtomCleanCall; EXTERNAL Term TermCleanCall;
+EXTERNAL Atom AtomClose; EXTERNAL Term TermClose;
 EXTERNAL Atom AtomColon; EXTERNAL Term TermColon;
 EXTERNAL Atom AtomCodeSpace; EXTERNAL Term TermCodeSpace;
 EXTERNAL Atom AtomCodes; EXTERNAL Term TermCodes;
@@ -185,6 +191,7 @@ EXTERNAL Atom AtomId; EXTERNAL Term TermId;
 EXTERNAL Atom AtomIgnore; EXTERNAL Term TermIgnore;
 EXTERNAL Atom AtomInf; EXTERNAL Term TermInf;
 EXTERNAL Atom AtomInfinity; EXTERNAL Term TermInfinity;
+EXTERNAL Atom AtomInfo; EXTERNAL Term TermInfo;
 EXTERNAL Atom AtomInitGoal; EXTERNAL Term TermInitGoal;
 EXTERNAL Atom AtomInitProlog; EXTERNAL Term TermInitProlog;
 EXTERNAL Atom AtomInStackExpansion; EXTERNAL Term TermInStackExpansion;
@@ -196,6 +203,7 @@ EXTERNAL Atom AtomInteger; EXTERNAL Term TermInteger;
 EXTERNAL Atom AtomInternalCompilerError; EXTERNAL Term TermInternalCompilerError;
 EXTERNAL Atom AtomIs; EXTERNAL Term TermIs;
 EXTERNAL Atom AtomJ; EXTERNAL Term TermJ;
+EXTERNAL Atom Atoml; EXTERNAL Term Terml;
 EXTERNAL Atom AtomKey; EXTERNAL Term TermKey;
 EXTERNAL Atom AtomLDLibraryPath; EXTERNAL Term TermLDLibraryPath;
 EXTERNAL Atom AtomLONGINT; EXTERNAL Term TermLONGINT;
@@ -281,6 +289,7 @@ EXTERNAL Atom AtomPastEndOfStream; EXTERNAL Term TermPastEndOfStream;
 EXTERNAL Atom AtomPermissionError; EXTERNAL Term TermPermissionError;
 EXTERNAL Atom AtomPi; EXTERNAL Term TermPi;
 EXTERNAL Atom AtomPipe; EXTERNAL Term TermPipe;
+EXTERNAL Atom AtomPriority; EXTERNAL Term TermPriority;
 EXTERNAL Atom AtomPlus; EXTERNAL Term TermPlus;
 EXTERNAL Atom AtomPointer; EXTERNAL Term TermPointer;
 EXTERNAL Atom AtomPortray; EXTERNAL Term TermPortray;
@@ -537,11 +546,11 @@ EXTERNAL  Functor FunctorDot8;
 
 EXTERNAL  Functor FunctorDot9;
 
+EXTERNAL  Functor FunctorDoubleArrow;
+
 EXTERNAL  Functor FunctorDoubleSlash;
 
 EXTERNAL  Functor FunctorEmptySquareBrackets;
-
-EXTERNAL  Functor FunctorEmptyCurlyBrackets;
 
 EXTERNAL  Functor FunctorEq;
 
@@ -595,6 +604,14 @@ EXTERNAL  Functor FunctorI;
 
 EXTERNAL  Functor FunctorId;
 
+EXTERNAL  Functor FunctorInfo1;
+
+EXTERNAL  Functor FunctorInfo2;
+
+EXTERNAL  Functor FunctorInfo3;
+
+EXTERNAL  Functor FunctorInfo4;
+
 EXTERNAL  Functor FunctorIs;
 
 EXTERNAL  Functor FunctorJ;
@@ -629,6 +646,8 @@ EXTERNAL  Functor FunctorObj;
 
 EXTERNAL  Functor FunctorOr;
 
+EXTERNAL  Functor FunctorOutput;
+
 EXTERNAL  Functor FunctorPermissionError;
 
 EXTERNAL  Functor FunctorPlus;
@@ -638,6 +657,8 @@ EXTERNAL  Functor FunctorPortray;
 EXTERNAL  Functor FunctorPrintMessage;
 
 EXTERNAL  Functor FunctorProcedure;
+
+EXTERNAL  Functor FunctorPriority;
 
 EXTERNAL  Functor FunctorPrologConstraint;
 

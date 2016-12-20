@@ -45,10 +45,10 @@ Yap_LoadForeignFile(char *file, int flags)
  void *ptr= (void *)LoadLibrary(file);
  if (!ptr) {
    CACHE_REGS
-   LOCAL_ErrorSay[0]='\0';
+   LOCAL_ErrorMessage = NULL;
    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		 NULL, GetLastError(), 
-		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorSay, 256,
+		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorMessage, 256,
 		 NULL);
  }
  return ptr;
@@ -86,13 +86,13 @@ LoadForeign(StringList ofiles, StringList libs,
     if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true) &&
 	(handle=LoadLibrary(LOCAL_FileNameBuf)) != 0)
       {
-	LOCAL_ErrorSay[0]=~'\0';
+       LOCAL_ErrorMessage = NULL;
 	if (*init_proc == NULL)
 	  *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
       } else {
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		      NULL, GetLastError(), 
-		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorSay, 256,
+		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorMessage, 256,
 		      NULL);
 	//fprintf(stderr,"WinError: %s\n", LOCAL_ErrorSay);
       }
@@ -124,7 +124,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(*init_proc == NULL) {
-    strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
+    LOCAL_ErrorMessage = "Could not locate initialization routine";
     return LOAD_FAILLED;
   }
 

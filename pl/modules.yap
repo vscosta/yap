@@ -338,8 +338,8 @@ system_module(Mod) :-
 	'$pred_exists'(Pred, Mod),
     !.
 '$continue_imported'(FM,Mod,FPred,Pred) :-
-	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_), !,
-	'$continue_imported'(FM, IM, FPred, IPred).
+	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_), 
+	'$continue_imported'(FM, IM, FPred, IPred), !.
 '$continue_imported'(FM,Mod,FPred,Pred) :-
 	prolog:'$parent_module'(Mod,IM),
 	'$continue_imported'(FM, IM, FPred, Pred).

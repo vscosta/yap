@@ -38,7 +38,10 @@
     the GNU General Public License.
 */
 
-
+/** @defgroup clpr_implementation  CLP(QR) Predicates 
+  @ingroup clpqr
+  
+  */
 
 /** @pred bb_inf(+ _Ints_,+ _Expression_,- _Inf_)
 The same as bb_inf/5 but without returning the values of the integers

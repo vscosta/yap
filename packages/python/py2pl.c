@@ -186,7 +186,25 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     functor_t f;
     const char *s;
     if ((s = (Py_TYPE(pVal)->tp_name))) {
-      f =  PL_new_functor(PL_new_atom(s), sz);
+      if (!strcmp(s, "H")) {
+        pVal = PyTuple_GetItem(pVal, 0);
+        if (PyLong_Check(pVal)) {
+          return PyLong_AsLong(pVal);
+#if PY_MAJOR_VERSION < 3
+        } else if (PyInt_Check(pVal)) {
+          return PyInt_AsLong(pVal);
+#endif
+        }
+      }
+      if (s[0] == '$') {
+        char *ns = malloc(strlen(s) + 5);
+        strcpy(ns, "__");
+        strcat(ns, s + 1);
+        strcat(ns, "__");
+        f = PL_new_functor(PL_new_atom(ns), sz);
+      } else {
+        f = PL_new_functor(PL_new_atom(s), sz);
+      }
     } else
       f = PL_new_functor(ATOM_t, sz);
     if (!PL_unify_functor(t, f))

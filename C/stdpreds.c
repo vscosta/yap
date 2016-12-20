@@ -1099,24 +1099,25 @@ void Yap_show_statistics(void) {
 #endif
   frag = (100.0 * (heap_space_taken - HeapUsed)) / heap_space_taken;
 
-  fprintf(stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, "
+  fprintf(stderr, "Code Space:  " UInt_FORMAT " (" UInt_FORMAT
+                  " bytes needed, " UInt_FORMAT " bytes used, "
                   "fragmentation %.3f%%).\n",
-          (unsigned long int)(Unsigned(H0) - Unsigned(Yap_HeapBase)),
-          (unsigned long int)(Unsigned(HeapTop) - Unsigned(Yap_HeapBase)),
-          (unsigned long int)(HeapUsed), frag);
-  fprintf(stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n",
-          (unsigned long int)(sizeof(CELL) * (LCL0 - H0)),
-          (unsigned long int)(sizeof(CELL) * (HR - H0)),
-          (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)));
-  fprintf(stderr, "Trail Space: %ld (%ld used).\n",
-          (unsigned long int)(sizeof(tr_fr_ptr) * (Unsigned(LOCAL_TrailTop) -
-                                                   Unsigned(LOCAL_TrailBase))),
-          (unsigned long int)(sizeof(tr_fr_ptr) *
-                              (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
-  fprintf(stderr, "Runtime: %lds.\n", (unsigned long int)(runtime(PASS_REGS1)));
-  fprintf(stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime()));
+          Unsigned(H0) - Unsigned(Yap_HeapBase),
+          Unsigned(HeapTop) - Unsigned(Yap_HeapBase), Unsigned(HeapUsed), frag);
+  fprintf(stderr, "Stack Space: " UInt_FORMAT " (" UInt_FORMAT
+                  " for Global, " UInt_FORMAT " for local).\n",
+          Unsigned(sizeof(CELL) * (LCL0 - H0)),
+          Unsigned(sizeof(CELL) * (HR - H0)),
+          Unsigned(sizeof(CELL) * (LCL0 - ASP)));
+  fprintf(
+      stderr, "Trail Space: " UInt_FORMAT " (" UInt_FORMAT " used).\n",
+      Unsigned(sizeof(tr_fr_ptr) *
+               (Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase))),
+      Unsigned(sizeof(tr_fr_ptr) * (Unsigned(TR) - Unsigned(LOCAL_TrailBase))));
+  fprintf(stderr, "Runtime: " UInt_FORMAT "\n", runtime(PASS_REGS1));
+  fprintf(stderr, "Cputime:  " UInt_FORMAT "\n", Yap_cputime());
 
-  fprintf(stderr, "Walltime: " UInt_F ".\n", (UInt)(Yap_walltime() / 1000));
+  fprintf(stderr, "Walltime: %" PRIu64 ".\n", Yap_walltime() / (UInt)1000);
 }
 
 static Int p_statistics_heap_max(USES_REGS1) {

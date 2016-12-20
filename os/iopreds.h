@@ -24,7 +24,8 @@
 
 #include "YapStreams.h"
 
-static inline bool IsStreamTerm(Term t) {
+INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
+INLINE_ONLY EXTERN inline bool IsStreamTerm(Term t) {
   return !IsVarTerm(t) &&
          (IsAtomTerm(t) ||
           (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
@@ -34,7 +35,6 @@ extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
                            encoding_t encoding, stream_flags_t flags,
                            Atom open_mode);
 
-#
 #define Yap_CheckStream(arg, kind, msg)                                        \
   Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
@@ -79,7 +79,7 @@ Int Yap_CloseSocket(int, socket_info, socket_domain);
 
 #endif /* USE_SOCKET */
 
-extern Term Yap_read_term(int inp_stream, Term opts, int nargs);
+extern Term Yap_read_term(int inp_stream, Term opts, bool clauatse);
 extern Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 
 extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
@@ -97,18 +97,19 @@ static inline Int GetCurInpPos(StreamDesc *inp_stream) {
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
-extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term, ...);
+extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term,
+                       ...);
 
 extern int GetFreeStreamD(void);
-extern  Term Yap_MkStream(int n);
+extern Term Yap_MkStream(int n);
 
 extern bool Yap_PrintWarning(Term twarning);
 
 extern void Yap_plwrite(Term, struct stream_desc *, int, int, int);
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
-extern bool Yap_WriteTerm( int output_stream, Term t, Term opts USES_REGS);
+extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
 
-extern Term Yap_scan_num(struct stream_desc *);
+extern Term Yap_scan_num(struct stream_desc *, bool);
 
 extern void Yap_DefaultStreamOps(StreamDesc *st);
 extern void Yap_PipeOps(StreamDesc *st);
@@ -121,28 +122,28 @@ extern bool Yap_ReadlineOps(StreamDesc *st);
 extern int Yap_OpenBufWriteStream(USES_REGS1);
 extern void Yap_ConsoleOps(StreamDesc *s);
 
-void Yap_InitRandomPreds(void);
-void Yap_InitSignalPreds(void);
-void Yap_InitTimePreds(void);
+extern void Yap_InitRandomPreds(void);
+extern void Yap_InitSignalPreds(void);
+extern void Yap_InitTimePreds(void);
 
-void Yap_init_socks(char *host, long interface_port);
-void Yap_InitPipes(void);
-void Yap_InitMem(void);
-void Yap_InitSockets(void);
-void Yap_InitSocketLayer(void);
-void Yap_InitMems(void);
-void Yap_InitConsole(void);
-void Yap_InitReadlinePreds(void);
+extern void Yap_init_socks(char *host, long interface_port);
+extern void Yap_InitPipes(void);
+extern void Yap_InitMem(void);
+extern void Yap_InitSockets(void);
+extern void Yap_InitSocketLayer(void);
+extern void Yap_InitMems(void);
+extern void Yap_InitConsole(void);
+extern void Yap_InitReadlinePreds(void);
 bool Yap_InitReadline(Term);
-void Yap_InitChtypes(void);
-void Yap_InitCharsio(void);
-void Yap_InitFormat(void);
-void Yap_InitFiles(void);
-void Yap_InitIOStreams(void);
-void Yap_InitWriteTPreds(void);
-void Yap_InitReadTPreds(void);
-void Yap_socketStream(StreamDesc *s);
-void Yap_ReadlineFlush(int sno);
+extern void Yap_InitChtypes(void);
+extern void Yap_InitCharsio(void);
+extern void Yap_InitFormat(void);
+extern void Yap_InitFiles(void);
+extern void Yap_InitIOStreams(void);
+extern void Yap_InitWriteTPreds(void);
+extern void Yap_InitReadTPreds(void);
+extern void Yap_socketStream(StreamDesc *s);
+extern void Yap_ReadlineFlush(int sno);
 Int Yap_ReadlinePeekChar(int sno);
 int Yap_ReadlineForSIGINT(void);
 bool Yap_DoPrompt(StreamDesc *s);
@@ -173,15 +174,15 @@ int ResetEOF(StreamDesc *s);
 int EOFPeek(int sno);
 int EOFWPeek(int sno);
 
-void Yap_SetAlias(Atom arg, int sno);
+extern void Yap_SetAlias(Atom arg, int sno);
 bool Yap_AddAlias(Atom arg, int sno);
 int Yap_CheckAlias(Atom arg);
 int Yap_RemoveAlias(Atom arg, int snoinline);
-void Yap_SetAlias(Atom arg, int sno);
+extern void Yap_SetAlias(Atom arg, int sno);
 void Yap_InitAliases(void);
 void Yap_DeleteAliases(int sno);
-bool Yap_FindStreamForAlias(Atom al);
-bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
+extern bool Yap_FindStreamForAlias(Atom al);
+extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 
 INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
 
@@ -270,11 +271,12 @@ extern FILE *Yap_stderr;
 
 char *Yap_MemExportStreamPtr(int sno);
 
-bool Yap_Exists(const char *f);
+extern bool Yap_Exists(const char *f);
 
 static inline void freeBuffer(const void *ptr) {
   CACHE_REGS
-  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 || ptr == AuxBase)
+  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 ||
+      ptr == AuxBase)
     return;
   free((void *)ptr);
 }

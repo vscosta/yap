@@ -4,6 +4,12 @@
 :- use_module(library(matrix)).
 :- use_module(library(maplist)).
 
+:- initialization( main ).
+
+main :-
+	forall( 	between(1, 13,I),
+		( writeln(t:xsI), atomic_concat(t,I,G),	call(G) ) ).
+
 t1 :-
 	X <== matrix([1,2,3,4,5,6],[dim=[3,2]]),
 	writeln(X).
@@ -94,15 +100,15 @@ t8 :-
 
 t9 :-
 	N1 = 1,
-	X = array[0..N1,0..N1] of [1,2,3,4],
-	Z = array[0..N1,0..N1] of _,
+	X <== array[0..N1,0..N1] of [1,2,3,4],
+	Z <== array[0..N1,0..N1] of _,
 	foreach([I in 0..N1, J in I..N1], Z[I,J] <== X[I,J] - X[J,I]),
 	O <== list(Z),
 	writeln(O).
 
 t10 :-
 	N1 = 1,
-	X = array[0..N1,0..N1] of 1:4,
+	X <== array[0..N1,0..N1] of 1:4,
 	O <== list(X-2),
 	writeln(O),
 	O1 <== list(X)+2,
@@ -112,7 +118,7 @@ t10 :-
 
 t11 :-
 	N = 3,
-	X = array[1..N,1..N] of 1:9,
+	X <== array[1..N,1..N] of 1:9,
 	O <== X[1,1],
 	writeln(O),
 	O1 <== X[2,_],
@@ -123,7 +129,7 @@ t11 :-
 t12 :-
 	N = 8,
 	N2 is N*N,
-	X = array[N,N] of 1:N2,
+	X <== array[N,N] of 1:N2,
 	N1 is N-1,
 	foreach([I in 0..N1, J in 0..N1], plus(X[I,J]), 0, AccF),
 	writeln(sum=AccF).
@@ -131,9 +137,12 @@ t12 :-
  t13 :-
 	N = 2,
 	N2 is N*N,
-	X = array[1..N,1..N] of 1:N2,
-	Y = array[1..N,1..N] of _,
+	X  <== array[1..N,1..N] of 1:N2,
+	Y  <== array[1..N,1..N] of _,
 	Y[1,_] <== X[_,1],
-	L <== list(Y),
-	writeln(out=L).
-	 
+	LX <== list(X),
+	LY <== list(Y),
+	writeln('x'=LX),
+	writeln('y'=LY),
+	fail.
+t13.

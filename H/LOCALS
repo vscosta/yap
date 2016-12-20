@@ -79,7 +79,6 @@ UInt				GlobalArenaOverflows			=0L
 Int				ArenaOverflows				=0L
 Int				DepthArenas				=0
 
-int				ArithError				=FALSE
 struct    pred_entry*		LastAssertedPred			=NULL
 struct    pred_entry*		TmpPred					=NULL
 char*			ScannerStack				=NULL
@@ -194,13 +193,10 @@ ADDR				LocalBase				void
 ADDR				GlobalBase				void
 ADDR				TrailBase				void
 ADDR				TrailTop				void
-char*				ErrorMessage				void
-Term				Error_Term				void
 
-/** error handling info, designed to be easy to pass to the foreign world */
-struct yap_error_descriptor	ActiveError		void
+/* error handling info, designed to be easy to pass to the foreign world */
+yap_error_descriptor_t*		ActiveError			=calloc(sizeof(yap_error_descriptor_t),1)
 /// pointer to an exception term, from throw
-struct DB_TERM*			BallTerm				=NULL
 
 jmp_buf 			IOBotch					void
 TokEntry*			tokptr					void
@@ -217,7 +213,7 @@ sigjmp_buf         		RestartEnv				void
 char     			FileNameBuf[YAP_FILENAME_MAX+1]		void
 char        			FileNameBuf2[YAP_FILENAME_MAX+1]	void
 
-struct TextBuffer_manager*	TextBuffer      =Yap_InitTextAllocator()
+struct TextBuffer_manager*  TextBuffer      =Yap_InitTextAllocator()
 
 // Prolog State
 UInt				BreakLevel				=0
@@ -239,10 +235,8 @@ YAP_ULONG_LONG 			2opcount[_std_top+1][_std_top+1] 	void
 struct db_globs*		s_dbg					void
 
 //eval.c
-yap_error_number 		matherror 				=YAP_NO_ERROR
 Term		 		mathtt		 			void
 char*		 		mathstring				=NULL
-yap_error_number 		CurrentError 				=YAP_NO_ERROR
 
 //grow.c
 int 				heap_overflows 				=0

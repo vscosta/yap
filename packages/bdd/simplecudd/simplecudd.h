@@ -193,7 +193,7 @@
 #include <math.h>
 #include <time.h>
 #include "config.h"
-#include "../cudd_config.h"
+#include "cudd_config.h"
 
 #if HAVE_CUDD_UTIL_H
 #include <cudd/util.h>
@@ -352,4 +352,3 @@ void ExpandNodes(hisqueue *Nodes, int index, int nodenum);
 
 int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename);
 int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename);
-

@@ -1,25 +1,21 @@
 
   # This is a CMake example for Python and Java
 
-  INCLUDE(UseJava)
 
+  set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/app/src/main/java/pt/up/yap/lib )
 
-
-  #  set(ANDROID_SO_OUTDIR  ${libdir})
-  #  set(CMAKE_SWIG_OUTDIR  ${CMAKE_SOURCE_DIR}/android/yaplib/build/generated/source/pt/up/yap/lib)
-  #set(CMAKE_SWIG_OUTDIR  ${CMAKE_CURRENT_BINARY_DIR}/derived)
-
-
+    set ( SWIG_SOURCES ../yap.i )
     SET_SOURCE_FILES_PROPERTIES(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
 
   include_directories (
     ${CMAKE_SOURCE_DIR}/CXX
-    ${JAVA_INCLUDE_DIRS}
-    ${JNI_INCLUDE_DIRS}
+       )
+
+      add_custom_command (OUTPUT  yap_swig.cpp
+        COMMAND ${SWIG} -java -outdir ${CMAKE_SWIG_OUTDIR} -outcurrentdir -addextern  -I${CMAKE_SOURCE_DIR}/CXX   ${SWIG_SOURCES} -o yap_swig.cpp
       )
 
-
-    add_custom_command (OUTPUT ${SWIG_CXX}
-        COMMAND ${SWIG} -java -outdir ${CMAKE_CURRENT_BINARY_DIR} -c++ -addextern  -I${CMAKE_SOURCE_DIR}/CXX  ${SWIG_SOURCES}  -o ${SWIG_CXX}
- ${SWIG_SOURCES}
+   add_custom_target ( swig ALL
+      DEPENDS yap_swig.cpp
       )
+

@@ -22,10 +22,9 @@ class YAPQuery : public YAPPredicate {
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
-  YAPListTerm vnames;
-  YAPTerm goal;
+  Term names;
+  Term goal;
   // temporaries
-  Term tgoal, names;
 
   void openQuery();
 
@@ -46,21 +45,19 @@ public:
   ///
   /// It is given a functor, and an array of terms that must have at least
   /// the same arity as the functor. Works within the current module.
-  YAPQuery(YAPFunctor f, YAPTerm t[]);
+  //YAPQuery(YAPFunctor f, YAPTerm t[]);
   /// string constructor without varnames
   ///
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, names) {
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names) {
     BACKUP_H();
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
     if (!ap)
       return;
-    goal = YAPTerm(tgoal);
-    vnames = YAPListTerm(names);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
     openQuery();
     RECOVER_H();
   };
@@ -69,8 +66,8 @@ public:
   /// It is given an atom, and a Prolog term that should be a callable
   /// goal, say `main`, `init`, `live`.
   inline YAPQuery(YAPAtom g) : YAPPredicate(g) {
-    goal = YAPAtomTerm(g);
-    vnames = YAPListTerm();
+    goal = YAPAtomTerm(g).gt();
+    names = TermNil;
     openQuery();
   };
 
@@ -96,9 +93,9 @@ public:
   /// finish the current query: undo all bindings.
   void close();
   /// query variables.
-  YAPListTerm namedVars();
+  Term namedVars();
   /// query variables, but copied out
-  YAPListTerm namedVarsCopy();
+  Term namedVarsCopy();
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;

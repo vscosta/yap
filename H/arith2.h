@@ -301,12 +301,12 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
         Int i1 = IntegerOfTerm(t1), i2 = IntegerOfTerm(t2);
 
         if (i2 == 0) {
-          return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
+          Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "// /2");
         } else if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
           return Yap_gmp_add_ints(Int_MAX, 1);
 #else
-          return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
+          Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
                                 "rem/2 with %d and %d", i1, i2);
 #endif
         } else {
@@ -314,7 +314,7 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
         }
       }
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
     case big_int_e:
 #ifdef USE_GMP
       /* dividing a bignum by an integer */
@@ -325,7 +325,7 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "// /2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "// /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -336,7 +336,7 @@ static Term p_div(Term t1, Term t2 USES_REGS) {
       /* two bignums */
       return Yap_gmp_div_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
     default:
       RERROR();
     }
@@ -355,7 +355,7 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
       /* two integers */
       RINT(IntegerOfTerm(t1) & IntegerOfTerm(t2));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_and_int_big(IntegerOfTerm(t1), t2);
@@ -365,7 +365,7 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\ /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -376,7 +376,7 @@ static Term p_and(Term t1, Term t2 USES_REGS) {
       /* two bignums */
       return Yap_gmp_and_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
     default:
       RERROR();
     }
@@ -395,7 +395,7 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
       /* two integers */
       RINT(IntegerOfTerm(t1) | IntegerOfTerm(t2));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     case big_int_e:
 #ifdef USE_GMP
       return Yap_gmp_ior_int_big(IntegerOfTerm(t1), t2);
@@ -405,7 +405,7 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
@@ -416,7 +416,7 @@ static Term p_or(Term t1, Term t2 USES_REGS) {
       /* two bignums */
       return Yap_gmp_ior_big_big(t1, t2);
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
     default:
       RERROR();
     }
@@ -438,33 +438,33 @@ static Term p_sll(Term t1, Term t2 USES_REGS) {
 
         if (i2 <= 0) {
           if (i2 == Int_MIN) {
-            return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+            Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
           }
           RINT(SLR(IntegerOfTerm(t1), -i2));
         }
         return do_sll(IntegerOfTerm(t1), i2 PASS_REGS);
       }
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     case big_int_e:
 #ifdef USE_GMP
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
+      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
 #endif
     default:
       RERROR();
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "<< /2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, "<< /2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_sll_big_int(t1, IntegerOfTerm(t2));
     case big_int_e:
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     default:
       RERROR();
     }
@@ -486,33 +486,33 @@ static Term p_slr(Term t1, Term t2 USES_REGS) {
 
         if (i2 < 0) {
           if (i2 == Int_MIN) {
-            return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+            Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
           }
           return do_sll(IntegerOfTerm(t1), -i2 PASS_REGS);
         }
         RINT(SLR(IntegerOfTerm(t1), i2));
       }
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     case big_int_e:
 #ifdef USE_GMP
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 #endif
     default:
       RERROR();
     }
     break;
   case double_e:
-    return Yap_ArithError(TYPE_ERROR_INTEGER, t1, ">>/2");
+    Yap_ArithError(TYPE_ERROR_INTEGER, t1, ">>/2");
   case big_int_e:
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       return Yap_gmp_sll_big_int(t1, -IntegerOfTerm(t2));
     case big_int_e:
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+      Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
+      Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     default:
       RERROR();
     }

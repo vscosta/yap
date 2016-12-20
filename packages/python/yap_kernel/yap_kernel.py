@@ -138,9 +138,9 @@ class YAPKernel(KernelBase):
     implementation = 'YAP'
     implementation_version = release.version
     language_info = {
-        'name': 'python',
+        'name': 'prolog',
         'version': sys.version.split()[0],
-        'mimetype': 'text/x-python',
+        'mimetype': 'text/x-prolog',
         'codemirror_mode': {
             'name': 'prolog',
             'version': sys.version_info[0]
@@ -333,7 +333,7 @@ class YAPKernel(KernelBase):
 
         elif hist_access_type == 'range':
             hist = self.shell.history_manager.get_range(session, start, stop,
-                                                        raw=raw, output=output)
+            raw=raw, output=output)
 
         elif hist_access_type == 'search':
             hist = self.shell.history_manager.search(

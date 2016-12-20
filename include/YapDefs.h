@@ -276,8 +276,9 @@ typedef struct yap_boot_params {
   /* if NON-0, say how long to keep nodes (default = 3) */
   unsigned long int DelayedReleaseLoad;
   /* end of YAPOR fields */
-  /* whether Prolog should handle interrupts */
-  int PrologShouldHandleInterrupts;
+  /* whether Prolog should handle interrupts. Note that
+    interrupts will always be disabled in embedded mode. */
+  bool PrologCannotHandleInterrupts;
   /* flag for JIT mode */
   int ExecutionMode;
   /* number of arguments that Prolog will see */

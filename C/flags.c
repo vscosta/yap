@@ -51,9 +51,9 @@ static Term stream(Term inp);
 static bool getenc(Term inp);
 static bool typein(Term inp);
 static bool dqf(Term t2);
-static bool set_error_stream( Term inp );
-static bool set_input_stream( Term inp );
-static bool set_output_stream( Term inp );
+static bool set_error_stream(Term inp);
+static bool set_input_stream(Term inp);
+static bool set_output_stream(Term inp);
 
 static void newFlag(Term fl, Term val);
 static Int current_prolog_flag(USES_REGS1);
@@ -173,41 +173,38 @@ static Term isaccess(Term inp) {
 }
 
 static Term stream(Term inp) {
-  if ( IsVarTerm(inp) )
+  if (IsVarTerm(inp))
     return inp;
-  if (Yap_CheckStream( inp, Input_Stream_f | Output_Stream_f |
-		       Append_Stream_f | Socket_Stream_f, "yap_flag/3" ) >= 0)
+  if (Yap_CheckStream(inp, Input_Stream_f | Output_Stream_f | Append_Stream_f |
+                               Socket_Stream_f,
+                      "yap_flag/3") >= 0)
     return inp;
   return 0;
-
 }
 
-static bool 
-set_error_stream( Term inp ) {
-  if( IsVarTerm(inp) )
-    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_error_stream ) );
-  LOCAL_c_error_stream = Yap_CheckStream( inp, Output_Stream_f |
-			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
- return true;
-}
-
-static bool 
-set_input_stream( Term inp ) {
-  if( IsVarTerm(inp) )
-    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_input_stream ) );
-  LOCAL_c_input_stream = Yap_CheckStream( inp, Input_Stream_f | Socket_Stream_f, "yap_flag/3" );
+static bool set_error_stream(Term inp) {
+  if (IsVarTerm(inp))
+    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_error_stream));
+  LOCAL_c_error_stream = Yap_CheckStream(
+      inp, Output_Stream_f | Append_Stream_f | Socket_Stream_f, "yap_flag/3");
   return true;
 }
 
-static bool 
-set_output_stream( Term inp ) {
-  if( IsVarTerm(inp) )
-    return Yap_unify( inp, Yap_StreamUserName(  LOCAL_c_output_stream ) );
-  LOCAL_c_output_stream = Yap_CheckStream( inp, Output_Stream_f |
-			  Append_Stream_f | Socket_Stream_f, "yap_flag/3" );
+static bool set_input_stream(Term inp) {
+  if (IsVarTerm(inp))
+    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_input_stream));
+  LOCAL_c_input_stream =
+      Yap_CheckStream(inp, Input_Stream_f | Socket_Stream_f, "yap_flag/3");
   return true;
 }
 
+static bool set_output_stream(Term inp) {
+  if (IsVarTerm(inp))
+    return Yap_unify(inp, Yap_StreamUserName(LOCAL_c_output_stream));
+  LOCAL_c_output_stream = Yap_CheckStream(
+      inp, Output_Stream_f | Append_Stream_f | Socket_Stream_f, "yap_flag/3");
+  return true;
+}
 
 static Term isground(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
@@ -870,7 +867,7 @@ static Int cont_prolog_flag(USES_REGS1) {
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(++i);
     flag = getYapFlag(f);
-    if (!Yap_unify(f, ARG2))
+    if (!Yap_unify(flag, ARG2))
       return false;
     return setYapFlag(f, Deref(ARG3));
   }
@@ -1175,31 +1172,33 @@ static Int source_mode(USES_REGS1) {
   if (!current && !Yap_unify_constant(ARG1, TermFalse))
     return false;
   targ = Deref(ARG2);
-  setYapFlag(TermSource, ARG2);
+  setYapFlag(TermSource, targ);
   return true;
 }
 
 static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
                             flag_term *tarr) {
   errno = 0;
+  const char *ss = (const char *)s;
 
   if (f == booleanFlag) {
     if (!bootstrap) {
       return 0;
     }
-    if (!strcmp(s, "true")) {
+    const char *ss = (const char *)s;
+    if (!strcmp(ss, "true")) {
       tarr->at = TermTrue;
       return true;
     }
-    if (!strcmp(s, "false")) {
+    if (!strcmp(ss, "false")) {
       tarr->at = TermFalse;
       return true;
     }
-    if (!strcmp(s, "on")) {
+    if (!strcmp(ss, "on")) {
       tarr->at = TermTrue;
       return true;
     }
-    if (!strcmp(s, "off")) {
+    if (!strcmp(ss, "off")) {
       tarr->at = TermFalse;
       return true;
     }
@@ -1210,7 +1209,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     if (!bootstrap) {
       return 0;
     }
-    UInt r = strtoul(s, NULL, 10);
+    UInt r = strtoul(ss, NULL, 10);
     Term t;
     if (errno) {
       Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
@@ -1229,27 +1228,27 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     if (!bootstrap) {
       return false;
     }
-    if (!strcmp(s, "INT_MAX")) {
+    if (!strcmp(ss, "INT_MAX")) {
       tarr->at = MkIntTerm(Int_MAX);
       return true;
     }
-    if (!strcmp(s, "MAX_THREADS")) {
+    if (!strcmp(ss, "MAX_THREADS")) {
       tarr->at = MkIntTerm(MAX_THREADS);
       return true;
     }
-    if (!strcmp(s, "MAX_WORKERS")) {
+    if (!strcmp(ss, "MAX_WORKERS")) {
       tarr->at = MkIntTerm(MAX_WORKERS);
       return true;
     }
-    if (!strcmp(s, "INT_MIN")) {
+    if (!strcmp(ss, "INT_MIN")) {
       tarr->at = MkIntTerm(Int_MIN);
       return true;
     }
-    if (!strcmp(s, "YAP_NUMERIC_VERSION")) {
+    if (!strcmp(ss, "YAP_NUMERIC_VERSION")) {
       tarr->at = MkIntTerm(atol(YAP_NUMERIC_VERSION));
       return true;
     }
-    if (!strcmp(s, "YAP_NUMERIC_VERSION")) {
+    if (!strcmp(ss, "YAP_NUMERIC_VERSION")) {
       tarr->at = MkIntTerm(atol(YAP_NUMERIC_VERSION));
       return true;
     }
@@ -1297,7 +1296,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
         return true;
       }
     }
-  } else if (strcmp(s, "@boot") == 0) {
+  } else if (strcmp(ss, "@boot") == 0) {
     if (bootstrap) {
       return true;
     }
@@ -1317,9 +1316,9 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
       return false;
     }
     CACHE_REGS
-    encoding_t encoding = ENC_ISO_UTF8;
-    t0 =
-        Yap_StringToTerm(s, strlen(s) + 1, &encoding, GLOBAL_MaxPriority, NULL);
+    const unsigned char *us = (const unsigned char *)s;
+    t0 = Yap_BufferToTermWithPrioBindings(us, strlen(s) + 1, TermNil,
+                                          GLOBAL_MaxPriority, 0L);
     if (!t0)
       return false;
     if (IsAtomTerm(t0) || IsIntTerm(t0)) {
@@ -1369,7 +1368,7 @@ do_prolog_flag_property(Term tflag,
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   if (!IsAtomTerm(tflag)) {
@@ -1434,7 +1433,7 @@ do_prolog_flag_property(Term tflag,
     }
   }
   // UNLOCK(GLOBAL_Prolog_Flag[sno].prolog_flaglock);
-  free(args);      
+  free(args);
   return rc;
 }
 
@@ -1533,14 +1532,14 @@ static Int do_create_prolog_flag(USES_REGS1) {
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                               PROLOG_FLAG_PROPERTY_END);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (fv) {
     if (args[PROLOG_FLAG_PROPERTY_KEEP].used &&
         args[PROLOG_FLAG_PROPERTY_KEEP].tvalue == TermTrue) {
-      free(args);      
+      free(args);
       return true;
     }
   } else {
@@ -1570,7 +1569,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
           fv->type = isground;
       } break;
       case PROLOG_FLAG_PROPERTY_SCOPE:
-	free(args);
+        free(args);
         return false;
       case PROLOG_FLAG_PROPERTY_END:
         break;
@@ -1621,8 +1620,9 @@ void Yap_InitFlags(bool bootstrap) {
   while (f->name != NULL) {
     bool itf = setInitialValue(bootstrap, f->def, f->init,
                                LOCAL_Flags + LOCAL_flagCount);
-    //    Term itf = Yap_StringToTerm(f->init, strlen(f->init)+1,
-    //    EBC_ISO_UTF8, GLOBAL_MaxPriority, &tp);
+    //    Term itf = Yap_BufferToTermWithPrioBindings(f->init,
+    //    strlen(f->init)+1,
+    //    LOBAL_MaxPriority, &tp);
     if (itf) {
       initFlag(f, LOCAL_flagCount, false);
     }
@@ -1633,7 +1633,7 @@ void Yap_InitFlags(bool bootstrap) {
   if (GLOBAL_Stream[StdInStream].status & Readline_Stream_f) {
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   }
-    
+
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);

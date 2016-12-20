@@ -749,9 +749,7 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep USES_REGS)
       break;
     case Var_tok:
       case String_tok:
-      case WString_tok:
       case BQString_tok:
-      case WBQString_tok:
     if (IsOldTrail(tks->TokInfo))
 	       tks->TokInfo = TrailAdjust(tks->TokInfo);
       break;
@@ -834,7 +832,7 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
     fprintf( stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf( stderr, "%% Database Overflow %d\n", LOCAL_heap_overflows);
-    fprintf( stderr, "%%   growing the heap %ld bytes\n", size);
+    fprintf( stderr, "%%   growing the heap " Int_FORMAT " bytes\n", size);
   }
   /* CreepFlag is set to force heap expansion */
   if ( Yap_only_has_signal( YAP_CDOVF_SIGNAL) ) {
@@ -978,7 +976,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
-    fprintf(stderr, "%% %cO   growing the stacks %ld bytes\n", vb_msg1, size);
+    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, size);
   }
   ASP -= 256;
   YAPEnterCriticalSection();
@@ -1796,7 +1794,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
     fprintf(stderr, "%%  Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
 #endif
-    fprintf(stderr, "%% growing the trail %ld bytes\n", size);
+    fprintf(stderr, "%% growing the trail " UInt_FORMAT " bytes\n", size);
   }
   LOCAL_ErrorMessage = NULL;
   if (!GLOBAL_AllowTrailExpansion) {

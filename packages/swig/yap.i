@@ -1,66 +1,51 @@
 /* example.i */
 %module(directors = "1") yap
 
+
+
 // Language independent exception handler
 %include exception.i
 %include stdint.i
 
-%ignore *::operator[];
 
-class YAPPredicate;
-class YAPEngine;
+%{
+/* Put header files here or function declarations like below */
 
-#define arity_t uintptr_t
+#define YAP_CPP_INTERFACE 1
+
+#include "yapi.hh"
+
+        extern "C" {
+
+#if THREADS
+#define Yap_regp regcache
+#endif
+
+            // we cannot consult YapInterface.h, that conflicts with what we
+            // declare, though
+            // it shouldn't
+        }
+
+%}
 
 #ifdef SWIGPYTHON
 
-%typemap(typecheck) Term*  {
-  $1 = PySequence_Check($input);
-}
+//include python/python.i
 
-// Map a Python sequence into any sized C double array
-%typemap(in) Term*  {
-  int i;
-  if (!PySequence_Check($input)) {
-      PyErr_SetString(PyExc_TypeError,"Expecting a sequence");
-      $1 = nullptr;
-  } else {
-  int sz = PyObject_Length($input);
-  std::vector<Term> v(sz);
-  for (i =0; i < sz; i++) {
-      PyObject *o = PySequence_GetItem($input,i);
-      v[i] = Term(pythonToYAP(o));
-      Py_DECREF(o);
-  }		
-  $1 = &v[0];
-}
-}
 
-%typemap(typecheck) YPTerm  {
- $1 = true;
-}
+
+%inline %{
+ YAPTerm T(PyObject *input ) {  return *new  YAPTerm( pythonToYAP(input) ); }
+ %}
+
+%typemap(in) YAPTerm { $1 = *new YAPTerm( pythonToYAP($input) ); }
+
 
 %typemap(in) Term { $1 = pythonToYAP($input); }
 
 
+%typemap(out) YAPTerm { return $result = yap_to_python($1.term(), false);}
 %typemap(out) Term { return $result = yap_to_python($1, false);}
-
- 
-%extend(out) Term{Term & __getitem__(size_t i){Term t0 = $self;
-
-if (IsApplTerm(t0)) {
-  Functor f = FunctorOfTerm(t0);
-  if (!IsExtensionFunctor(f))
-   return (ArgOfTerm(i + 1, t0);
-} else if (IsPairTerm(t0)) {
-  if (i == 0)
-    return HeadOfTerm(t0);
-  else if (i == 1)
-    return TailOfTerm(t0);
-	}
-   }
-}
-
 
 
 // Language independent exception handler
@@ -290,26 +275,6 @@ LOCAL_Error_TYPE = YAP_NO_ERROR;
 }
 
 #endif
-
-%{
-/* Put header files here or function declarations like below */
-
-#define YAP_CPP_INTERFACE 1
-
-#include "yapi.hh"
-
-        extern "C" {
-
-#if THREADS
-#define Yap_regp regcache
-#endif
-
-            // we cannot consult YapInterface.h, that conflicts with what we
-            // declare, though
-            // it shouldn't
-        }
-
-%}
 
     /* turn on director wrapping Callback */
 %feature("director") YAPCallback;

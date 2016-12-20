@@ -369,8 +369,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
             p++;
           }
         } else {
-            YAP_SetOutputMessage();
-
+          YAP_SetOutputMessage();
         }
         break;
 #endif
@@ -446,13 +445,13 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         break;
       case 'n':
         if (!strcmp("nosignals", p)) {
-          iap->PrologShouldHandleInterrupts = FALSE;
+          iap->PrologCannotHandleInterrupts = true;
           break;
         }
         break;
       case '-':
         if (!strcmp("-nosignals", p)) {
-          iap->PrologShouldHandleInterrupts = FALSE;
+          iap->PrologCannotHandleInterrupts = true;
           break;
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           GLOBAL_Home = p + strlen("-home=");

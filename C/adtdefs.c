@@ -51,28 +51,20 @@ uint64_t HashFunction(const unsigned char *CHP) {
   */
 }
 
-uint64_t WideHashFunction(wchar_t *CHP) {
-  UInt hash = 5381;
-
-  UInt c;
-
-  while ((c = *CHP++) != '\0') {
-    hash = hash * 33 ^ c;
-  }
-  return hash;
-}
-
 /* this routine must be run at least having a read lock on ae */
 static Prop
 GetFunctorProp(AtomEntry *ae,
                arity_t arity) { /* look property list of atom a for kind */
-  FunctorEntry *pp;
 
-  pp = RepFunctorProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp) &&
-         (!IsFunctorProperty(pp->KindOfPE) || pp->ArityOfFE != arity))
-    pp = RepFunctorProp(pp->NextOfPE);
-  return (AbsFunctorProp(pp));
+  PropEntry *p = ae->PropsOfAE;
+  while (p != NIL) {
+    if (p->KindOfPE == FunctorProperty &&
+        RepFunctorProp(p)->ArityOfFE == arity) {
+      return p;
+    }
+    p = p->NextOfPE;
+  }
+  return NIL;
 }
 
 /* vsc: We must guarantee that IsVarTerm(functor) returns true! */
@@ -153,19 +145,6 @@ static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   return (NIL);
 }
 
-static inline Atom SearchWideAtom(const wchar_t *p, Atom a) {
-  AtomEntry *ae;
-
-  /* search atom in chain */
-  while (a != NIL) {
-    ae = RepAtom(a);
-    if (wcscmp((wchar_t *)ae->StrOfAE, p) == 0) {
-      return a;
-    }
-    a = ae->NextOfAE;
-  }
-  return (NIL);
-}
 
 static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
@@ -180,7 +159,6 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
 
   hash = HashFunction(p);
   hash = hash % sz;
-
   /* we'll start by holding a read lock in order to avoid contention */
   READ_LOCK(HashChain[hash].AERWLock);
   a = HashChain[hash].Entry;
@@ -224,143 +202,8 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   if (NOfAtoms > 2 * AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
+
   return na;
-}
-
-static Atom
-LookupWideAtom(const wchar_t *atom) { /* lookup atom in atom table            */
-  CELL hash;
-  wchar_t *p;
-  Atom a, na;
-  AtomEntry *ae;
-  UInt sz;
-  WideAtomEntry *wae;
-
-  /* compute hash */
-  p = (wchar_t *)atom;
-  hash = WideHashFunction(p) % WideAtomHashTableSize;
-  /* we'll start by holding a read lock in order to avoid contention */
-  READ_LOCK(WideHashChain[hash].AERWLock);
-  a = WideHashChain[hash].Entry;
-  /* search atom in chain */
-  na = SearchWideAtom(atom, a);
-  if (na != NIL) {
-    READ_UNLOCK(WideHashChain[hash].AERWLock);
-    return (na);
-  }
-  READ_UNLOCK(WideHashChain[hash].AERWLock);
-  /* we need a write lock */
-  WRITE_LOCK(WideHashChain[hash].AERWLock);
-/* concurrent version of Yap, need to take care */
-#if defined(YAPOR) || defined(THREADS)
-  if (a != WideHashChain[hash].Entry) {
-    a = WideHashChain[hash].Entry;
-    na = SearchWideAtom(atom, a);
-    if (na != NIL) {
-      WRITE_UNLOCK(WideHashChain[hash].AERWLock);
-      return na;
-    }
-  }
-#endif
-  /* add new atom to start of chain */
-  sz = wcslen(atom);
-  ae = (AtomEntry *)Yap_AllocAtomSpace((size_t)(((AtomEntry *)NULL) + 1) +
-                                       sizeof(wchar_t) * (sz + 1));
-  if (ae == NULL) {
-    WRITE_UNLOCK(WideHashChain[hash].AERWLock);
-    return NIL;
-  }
-  wae = (WideAtomEntry *)Yap_AllocAtomSpace(sizeof(WideAtomEntry));
-  if (wae == NULL) {
-    WRITE_UNLOCK(WideHashChain[hash].AERWLock);
-    return NIL;
-  }
-  na = AbsAtom(ae);
-  ae->PropsOfAE = AbsWideAtomProp(wae);
-  wae->NextOfPE = NIL;
-  wae->KindOfPE = WideAtomProperty;
-  wae->SizeOfAtom = sz;
-  if (ae->WStrOfAE != atom)
-    wcscpy(ae->WStrOfAE, atom);
-  NOfAtoms++;
-  ae->NextOfAE = a;
-  WideHashChain[hash].Entry = na;
-  INIT_RWLOCK(ae->ARWLock);
-  WRITE_UNLOCK(WideHashChain[hash].AERWLock);
-
-  if (NOfWideAtoms > 2 * WideAtomHashTableSize) {
-    Yap_signal(YAP_CDOVF_SIGNAL);
-  }
-  return na;
-}
-
-Atom Yap_LookupMaybeWideAtom(
-    const wchar_t *atom) { /* lookup atom in atom table            */
-  wchar_t *p = (wchar_t *)atom, c;
-  size_t len = 0;
-  unsigned char *ptr, *ptr0;
-  Atom at;
-
-  while ((c = *p++)) {
-    if (c > 255)
-      return LookupWideAtom(atom);
-    len++;
-  }
-  /* not really a wide atom */
-  p = (wchar_t *)atom;
-  ptr0 = ptr = Yap_AllocCodeSpace(len + 1);
-  if (!ptr)
-    return NIL;
-  while ((*ptr++ = *p++))
-    ;
-  at = LookupAtom(ptr0);
-  Yap_FreeCodeSpace(ptr0);
-  return at;
-}
-
-Atom Yap_LookupMaybeWideAtomWithLength(
-    const wchar_t *atom, size_t len0) { /* lookup atom in atom table */
-  Atom at;
-  int wide = FALSE;
-  size_t i = 0;
-
-  while (i < len0) {
-    // primary support for atoms with null chars
-    wchar_t c = atom[i];
-    if (c >= 255) {
-      wide = true;
-      break;
-    }
-    if (c == '\0') {
-      wide = true;
-      break;
-    }
-    i++;
-  }
-  if (wide) {
-    wchar_t *ptr0;
-
-    ptr0 = (wchar_t *)Yap_AllocCodeSpace(sizeof(wchar_t) * (len0 + 2));
-    if (!ptr0)
-      return NIL;
-    memcpy(ptr0, atom, (len0 + 1) * sizeof(wchar_t));
-    ptr0[len0] = '\0';
-    at = LookupWideAtom(ptr0);
-    Yap_FreeCodeSpace((char *)ptr0);
-    return at;
-  } else {
-    unsigned char *ptr0;
-
-    ptr0 = Yap_AllocCodeSpace((len0 + 2));
-    if (!ptr0)
-      return NIL;
-    for (i = 0; i < len0; i++)
-      ptr0[i] = atom[i];
-    ptr0[len0] = '\0';
-    at = LookupAtom(ptr0);
-    Yap_FreeCodeSpace(ptr0);
-    return at;
-  }
 }
 
 Atom Yap_LookupAtomWithLength(const char *atom,
@@ -388,9 +231,6 @@ Atom Yap_ULookupAtom(
   return LookupAtom(atom);
 }
 
-Atom Yap_LookupWideAtom(const wchar_t *atom) { /* lookup atom in atom table */
-  return LookupWideAtom(atom);
-}
 
 Atom Yap_FullLookupAtom(const char *atom) { /* lookup atom in atom table */
   Atom t;
@@ -809,8 +649,8 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->TimeStampOfPred = 0L;
   p->LastCallOfPred = LUCALL_ASSERT;
-   p->MetaEntryOfPred = NULL;
- if (cur_mod == TermProlog)
+  p->MetaEntryOfPred = NULL;
+  if (cur_mod == TermProlog)
     p->ModuleOfPred = 0L;
   else
     p->ModuleOfPred = cur_mod;
@@ -947,8 +787,8 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
-   p->MetaEntryOfPred = NULL;
- if (cur_mod == TermProlog)
+  p->MetaEntryOfPred = NULL;
+  if (cur_mod == TermProlog)
     p->ModuleOfPred = 0;
   else
     p->ModuleOfPred = cur_mod;

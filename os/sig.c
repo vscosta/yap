@@ -1,7 +1,6 @@
 
 #include "sysbits.h"
 
-
 #if HAVE_SIGINFO_H
 #include <siginfo.h>
 #endif
@@ -13,107 +12,105 @@
 #include <fpu_control.h>
 #endif
 
-#define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
+#define SIG_PROLOG_OFFSET 32 /* Start of Prolog signals */
 
-
-#define SIG_EXCEPTION	  (SIG_PROLOG_OFFSET+0)
+#define SIG_EXCEPTION (SIG_PROLOG_OFFSET + 0)
 #ifdef O_ATOMGC
-#define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
+#define SIG_ATOM_GC (SIG_PROLOG_OFFSET + 1)
 #endif
-#define SIG_GC		  (SIG_PROLOG_OFFSET+2)
+#define SIG_GC (SIG_PROLOG_OFFSET + 2)
 #ifdef O_PLMT
-#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET + 3)
 #endif
-#define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
-#define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
+#define SIG_FREECLAUSES (SIG_PROLOG_OFFSET + 4)
+#define SIG_PLABORT (SIG_PROLOG_OFFSET + 5)
 
-static struct signame
-{ int 	      sig;
+static struct signame {
+  int sig;
   const char *name;
-  int	      flags;
-} signames[] =
-{
+  int flags;
+} signames[] = {
 #ifdef SIGHUP
-  { SIGHUP,	"hup",    0},
+    {SIGHUP, "hup", 0},
 #endif
-  { SIGINT,	"int",    0},
+    {SIGINT, "int", 0},
 #ifdef SIGQUIT
-  { SIGQUIT,	"quit",   0},
+    {SIGQUIT, "quit", 0},
 #endif
-  { SIGILL,	"ill",    0},
-  { SIGABRT,	"abrt",   0},
-  { SIGFPE,	"fpe",    0},
+    {SIGILL, "ill", 0},
+    {SIGABRT, "abrt", 0},
+    {SIGFPE, "fpe", 0},
 #ifdef SIGKILL
-  { SIGKILL,	"kill",   0},
+    {SIGKILL, "kill", 0},
 #endif
-  { SIGSEGV,	"segv",   0},
+    {SIGSEGV, "segv", 0},
 #ifdef SIGPIPE
-  { SIGPIPE,	"pipe",   0},
+    {SIGPIPE, "pipe", 0},
 #endif
 #ifdef SIGALRM
-  { SIGALRM,	"alrm",   0},
+    {SIGALRM, "alrm", 0},
 #endif
-  { SIGTERM,	"term",   0},
+    {SIGTERM, "term", 0},
 #ifdef SIGUSR1
-  { SIGUSR1,	"usr1",   0},
+    {SIGUSR1, "usr1", 0},
 #endif
 #ifdef SIGUSR2
-  { SIGUSR2,	"usr2",   0},
+    {SIGUSR2, "usr2", 0},
 #endif
 #ifdef SIGCHLD
-  { SIGCHLD,	"chld",   0},
+    {SIGCHLD, "chld", 0},
 #endif
 #ifdef SIGCONT
-  { SIGCONT,	"cont",   0},
+    {SIGCONT, "cont", 0},
 #endif
 #ifdef SIGSTOP
-  { SIGSTOP,	"stop",   0},
+    {SIGSTOP, "stop", 0},
 #endif
 #ifdef SIGTSTP
-  { SIGTSTP,	"tstp",   0},
+    {SIGTSTP, "tstp", 0},
 #endif
 #ifdef SIGTTIN
-  { SIGTTIN,	"ttin",   0},
+    {SIGTTIN, "ttin", 0},
 #endif
 #ifdef SIGTTOU
-  { SIGTTOU,	"ttou",   0},
+    {SIGTTOU, "ttou", 0},
 #endif
 #ifdef SIGTRAP
-  { SIGTRAP,	"trap",   0},
+    {SIGTRAP, "trap", 0},
 #endif
 #ifdef SIGBUS
-  { SIGBUS,	"bus",    0},
+    {SIGBUS, "bus", 0},
 #endif
 #ifdef SIGSTKFLT
-  { SIGSTKFLT,	"stkflt", 0},
+    {SIGSTKFLT, "stkflt", 0},
 #endif
 #ifdef SIGURG
-  { SIGURG,	"urg",    0},
+    {SIGURG, "urg", 0},
 #endif
 #ifdef SIGIO
-  { SIGIO,	"io",     0},
+    {SIGIO, "io", 0},
 #endif
 #ifdef SIGPOLL
-  { SIGPOLL,	"poll",   0},
+    {SIGPOLL, "poll", 0},
 #endif
 #ifdef SIGXCPU
-  { SIGXCPU,	"xcpu",   0},
+    {SIGXCPU, "xcpu", 0},
 #endif
 #ifdef SIGXFSZ
-  { SIGXFSZ,	"xfsz",   0},
+    {SIGXFSZ, "xfsz", 0},
 #endif
 #ifdef SIGVTALRM
-  { SIGVTALRM,	"vtalrm", 0},
+    {SIGVTALRM, "vtalrm", 0},
 #endif
 #ifdef SIGPROF
-  { SIGPROF,	"prof",   0},
+    {SIGPROF, "prof", 0},
 #endif
 #ifdef SIGPWR
-  { SIGPWR,	"pwr",    0},
+    {SIGPWR, "pwr", 0},
 #endif
-  { SIG_EXCEPTION,     "prolog:exception",     0 },
+    {SIG_EXCEPTION, "prolog:exception", 0},
 #ifdef SIG_ATOM_GC
-  { SIG_ATOM_GC,   "prolog:atom_gc",       0 },
+    {SIG_ATOM_GC, "prolog:atom_gc", 0},
 #endif
     {SIG_GC, "prolog:gc", 0},
 #ifdef SIG_THREAD_SIGNAL
@@ -121,7 +118,6 @@ static struct signame
 #endif
 
     {-1, NULL, 0}};
-
 
 #if HAVE_SIGACTION
 static void my_signal_info(int sig, void *handler) {
@@ -146,13 +142,13 @@ static void my_signal(int sig, void *handler) {
 #else
 
 static void my_signal(int sig, void *handler) {
-  #if HAVE_SIGNAL
+#if HAVE_SIGNAL
   signal(sig, handler);
 #endif
 }
 
 static void my_signal_info(int sig, void *handler) {
-  #if HAVE_SIGNAL
+#if HAVE_SIGNAL
   if (signal(sig, (void *)handler) == SIG_ERR)
     exit(1);
 #endif
@@ -160,14 +156,12 @@ static void my_signal_info(int sig, void *handler) {
 
 #endif
 
-
 static void HandleMatherr(int sig, void *sipv, void *uapv) {
   CACHE_REGS
-  LOCAL_matherror = Yap_MathException();
+  LOCAL_Error_TYPE = Yap_MathException();
   /* reset the registers so that we don't have trash in abstract machine */
   Yap_external_signal(worker_id, YAP_FPE_SIGNAL);
 }
-
 
 /* SWI emulation */
 int Yap_signal_index(const char *name) {
@@ -318,18 +312,17 @@ static bool set_fpu_exceptions(Term flag) {
   return true;
 }
 
-
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
-
 
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
+  printf("11ooo\n");
   my_signal(s, ReceiveSignal);
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console
-    Yap_external_signal(0, YAP_INT_SIGNAL);
+    Yap_HandleSIGINT();
     break;
   case SIGALRM:
     Yap_external_signal(worker_id, YAP_ALARM_SIGNAL);
@@ -411,7 +404,6 @@ static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {
   }
 }
 #endif
-
 
 /* wrapper for alarm system call */
 #if _MSC_VER || defined(__MINGW32__)
@@ -671,7 +663,6 @@ VaxFixFrame(dummy) {
 
 #if defined(_WIN32)
 
-
 int WINAPI win_yap(HANDLE, DWORD, LPVOID);
 
 int WINAPI win_yap(HANDLE hinst, DWORD reason, LPVOID reserved) {
@@ -821,22 +812,11 @@ yap_error_number Yap_MathException__(USES_REGS1) {
   set_fpu_exceptions(0);
 #endif
 
-  return LOCAL_matherror;
-}
-
-static Int fpe_error(USES_REGS1) {
-  Yap_Error(LOCAL_matherror, LOCAL_mathtt, LOCAL_mathstring);
-  LOCAL_matherror = YAP_NO_ERROR;
-  LOCAL_mathtt = TermNil;
-  LOCAL_mathstring = NULL;
-  return FALSE;
+  return LOCAL_Error_TYPE;
 }
 
 /* SIGINT can cause problems, if caught before full initialization */
 void Yap_InitOSSignals(int wid) {
-  if (Yap_embedded) {
-    return;
-  }
   if (GLOBAL_PrologShouldHandleInterrupts) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
     my_signal(SIGQUIT, ReceiveSignal);
@@ -868,18 +848,11 @@ void Yap_InitOSSignals(int wid) {
   }
 }
 
-
-bool Yap_set_fpu_exceptions(Term flag) {
-  return set_fpu_exceptions(flag);
-}
-
-
+bool Yap_set_fpu_exceptions(Term flag) { return set_fpu_exceptions(flag); }
 
 void Yap_InitSignalPreds(void) {
   CACHE_REGS
   Term cm = CurrentModule;
-
-  Yap_InitCPred("$fpe_error", 0, fpe_error, 0);
   Yap_InitCPred("$alarm", 4, alarm4, SafePredFlag | SyncPredFlag);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);

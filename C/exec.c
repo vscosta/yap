@@ -292,7 +292,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
       Term t2 = ArgOfTerm(2, t);
       if (IsVarTerm(t2))
         return CallMetaCall(t, mod PASS_REGS);
-      if (!CommaCall(t2, mod))
+      if (1 || !CommaCall(t2, mod))
         return CallMetaCall(t, mod PASS_REGS);
       Term t1 = ArgOfTerm(1, t);
 
@@ -315,6 +315,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
+    if (pen->PredFlags & MetaPredFlag) {
+      return CallMetaCall(t, mod PASS_REGS);
+    }
     pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; i++) {
 #if YAPOR_SBA
@@ -1020,7 +1023,6 @@ static Int protect_stack(USES_REGS1) {
 
 static Int setup_call_catcher_cleanup(USES_REGS1) {
   Term Setup = Deref(ARG1);
-  Term cmod = CurrentModule;
   Int oENV = LCL0 - ENV;
   choiceptr B0 = B;
   Term t3, t4;
@@ -1048,8 +1050,6 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
     prune_inner_computation(B0);
   }
   // at this point starts actual goal execution....
-  cmod = CurrentModule;
-
   rc = Yap_RunTopGoal(Yap_GetFromSlot(h2), false);
   complete_inner_computation(B);
   t4 = Yap_GetFromSlot(h4);
@@ -1446,7 +1446,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* must be done here, otherwise siglongjmp will clobber all the
        * registers
        */
-      Yap_Error(LOCAL_matherror, TermNil, NULL);
       /* reset the registers so that we don't have trash in abstract
        * machine */
       Yap_set_fpu_exceptions(
@@ -1458,6 +1457,14 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_CBorder = OldBorder;
       return false;
     }
+    case 4: {
+      /* abort */
+      /* can be called from anywgerre, must reset registers,
+       */
+      Yap_JumpToEnv(TermDAbort);
+      P = (yamop *)FAILCODE;
+      LOCAL_PrologMode = UserMode;
+    } break;
     default:
       /* do nothing */
       LOCAL_PrologMode = UserMode;
@@ -2003,7 +2010,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
 }
 
 static Int JumpToEnv() {
-  choiceptr handler = B, oh = NULL;
+  choiceptr handler = B;
   /* just keep the throwm object away, we don't need to care about it
    */
   /* careful, previous step may have caused a stack shift,
@@ -2021,7 +2028,6 @@ static Int JumpToEnv() {
          handler->cp_b == NULL)) {
       break;
     }
-    oh = handler;
     handler = handler->cp_b;
   }
   if (LOCAL_PrologMode & AsyncIntMode) {
@@ -2074,7 +2080,7 @@ static Int jump_env(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
     return false;
   } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Term t2;
+    Term t2, te;
 
     Yap_find_prolog_culprit(PASS_REGS1);
     //    LOCAL_Error_TYPE = ERROR_EVENT;
@@ -2089,7 +2095,7 @@ static Int jump_env(USES_REGS1) {
   } else {
     //LOCAL_Error_TYPE = THROW_EVENT;
   }
-  LOCAL_ActiveError.prologPredName = NULL;
+  LOCAL_ActiveError->prologPredName = NULL;
   Yap_PutException(t);
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
@@ -2225,10 +2231,11 @@ bool Yap_PutException(Term t) {
 }
 
 bool Yap_ResetException(int wid) {
-  if (REMOTE_BallTerm(wid)) {
-    Yap_PopTermFromDB(REMOTE_BallTerm(wid));
+  if (REMOTE_ActiveError(wid)->errorTerm) {
+    Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
   }
-  REMOTE_BallTerm(wid) = NULL;
+  REMOTE_ActiveError(wid)->errorTerm = NULL;
+  REMOTE_ActiveError(wid)->errorTerm = NULL;
   return true;
 }
 

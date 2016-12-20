@@ -3,13 +3,10 @@ typedef enum TokenKinds {
   Number_tok,
   Var_tok,
   String_tok,
-  WString_tok,
   BQString_tok,
-  WBQString_tok,
   Ponctuation_tok,
   Error_tok,
   QuasiQuotes_tok,
-  WQuasiQuotes_tok,
   eot_tok
 } tkinds;
 
@@ -29,5 +26,5 @@ typedef struct VARSTRUCT {
   CELL hv;
   UInt refs;
   struct VARSTRUCT *VarLeft, *VarRight;
-  char VarRep[1];
+  Atom VarRep;
 } VarEntry;

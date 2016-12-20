@@ -476,7 +476,7 @@ qsave_module(Mod, OF) :-
 	fail.
 qsave_module(_, _).
 
-/** @pred qsave_module(+ _Module_)
+/** @pred qsave_module(+ Module x)
 
 Saves an image of all the information compiled by the systemm on
 module _F_ to a file _State.qly_ in the current directory.

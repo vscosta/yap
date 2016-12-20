@@ -8160,12 +8160,7 @@
 	  saveregs();
 	  d0 = p_plus(Yap_Eval(d0), Yap_Eval(d1) PASS_REGS);
 	  setregs();
-	  if (d0 == 0L) {
-	    saveregs();
-	    Yap_PreProcessedError(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
-	    setregs();
-	    FAIL();
-	  }
+
 	}
 	XREG(PREG->y_u.xxx.x) = d0;
 	PREG = NEXTOP(PREG, xxx);

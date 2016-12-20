@@ -21,7 +21,7 @@
 typedef YAP_Arity arity_t;
 
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-  ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self;
+    ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self;
 
 extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -38,6 +38,8 @@ extern PyObject *py_Yapex;
 extern PyObject *py_F2P;
 
 extern bool python_in_python;
+
+#define PythonReturn PyGILState_Release(gstate) && return
 
 static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
   if (o == NULL)
@@ -91,9 +93,10 @@ static inline PyObject *atom_to_python_string(term_t t) {
   }
 }
 
+extern PyObject *term_to_nametuple(const char *s, int arity, term_t t);
+
 extern PyObject *compound_to_pyeval(term_t t, functor_t fun);
 extern PyObject *compound_to_pytree(term_t t, functor_t fun);
-
 
 extern PyObject *yap_to_python(YAP_Term t, bool eval);
 extern PyObject *term_to_python(term_t t, bool eval);

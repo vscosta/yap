@@ -88,7 +88,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
@@ -100,7 +99,7 @@ static Term readFromBuffer(const char *s, Term opts) {
   Yap_CloseStream(sno);
   return rval;
 }
- 
+
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
@@ -225,7 +224,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
       flags |= AttVar_Dots_f;
     } else if (ctl != TermIgnore) {
       Yap_Error(
-          DOMAIN_ERROR_OUT_OF_RANGE, ctl,
+          DOMAIN_ERROR_WRITE_OPTION, ctl,
           "write attributes should be one of {dots,ignore,portray,write}");
       rc = false;
       goto end;
@@ -291,21 +290,20 @@ end:
 /**
  *
  */
-bool Yap_WriteTerm( int output_stream, Term t, Term opts USES_REGS)
-{
- xarg *args = Yap_ArgListToVector( opts, write_defs, WRITE_END);
+bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
+  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );        
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -316,16 +314,16 @@ static Int write_term2(USES_REGS1) {
   /* '$write'(+Flags,?Term) */
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
- return Yap_WriteTerm( LOCAL_c_output_stream, ARG1, ARG2 PASS_REGS);
+  return Yap_WriteTerm(LOCAL_c_output_stream, ARG1, ARG2 PASS_REGS);
 }
 
 static Int write_term3(USES_REGS1) {
 
-   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
+  int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
     return false;
   }
-   return Yap_WriteTerm( output_stream, ARG2, ARG3 PASS_REGS);
+  return Yap_WriteTerm(output_stream, ARG2, ARG3 PASS_REGS);
 }
 
 static Int write2(USES_REGS1) {
@@ -343,7 +341,7 @@ static Int write2(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   mySlots = Yap_StartSlots();
@@ -351,7 +349,7 @@ static Int write2(USES_REGS1) {
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );        
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -369,7 +367,7 @@ static Int write1(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -378,7 +376,7 @@ static Int write1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -396,7 +394,7 @@ static Int write_canonical1(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -407,7 +405,7 @@ static Int write_canonical1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -422,12 +420,12 @@ static Int write_canonical(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
-    free( args );    
+    free(args);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -437,7 +435,7 @@ static Int write_canonical(USES_REGS1) {
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -452,13 +450,13 @@ static Int writeq1(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) {
-    free( args );
+    free(args);
     output_stream = 1;
   }
   args[WRITE_NUMBERVARS].used = true;
@@ -467,7 +465,7 @@ static Int writeq1(USES_REGS1) {
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -482,12 +480,12 @@ static Int writeq(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
-    free( args );    
+    free(args);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -497,7 +495,7 @@ static Int writeq(USES_REGS1) {
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -512,13 +510,13 @@ static Int print1(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1) {
-    free( args );    
+    free(args);
     output_stream = 1;
   }
   args[WRITE_PORTRAY].used = true;
@@ -528,7 +526,7 @@ static Int print1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -543,12 +541,12 @@ static Int print(USES_REGS1) {
     if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
       LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0) {
-    free( args );    
+    free(args);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -558,7 +556,7 @@ static Int print(USES_REGS1) {
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -574,7 +572,7 @@ static Int writeln1(USES_REGS1) {
   xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
@@ -585,7 +583,7 @@ static Int writeln1(USES_REGS1) {
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -598,13 +596,13 @@ static Int writeln(USES_REGS1) {
   xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
   if (output_stream < 0) {
-    free( args );    
-return false;
+    free(args);
+    return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_NL].used = true;
@@ -613,7 +611,7 @@ return false;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-  free( args );    
+  free(args);
   Yap_CloseSlots(mySlots);
   Yap_RaiseException();
   return (TRUE);
@@ -676,7 +674,6 @@ static Int dollar_var(USES_REGS1) {
   return Yap_unify(tv, ARG2);
 }
 
-
 static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
@@ -703,9 +700,9 @@ static Int term_to_atom(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   Atom at;
   if (IsVarTerm(t2)) {
-     size_t length;
-    const  char *s = Yap_TermToString(Deref(ARG1), &length, LOCAL_encoding,
-                               Quote_illegal_f | Handle_vars_f);
+    size_t length;
+    const char *s = Yap_TermToString(Deref(ARG1), &length, LOCAL_encoding,
+                                     Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s))) {
       Yap_Error(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
@@ -719,7 +716,9 @@ static Int term_to_atom(USES_REGS1) {
     at = AtomOfTerm(t2);
   }
   ctl = TermNil;
-  return (rc = Yap_AtomToTerm(at, ctl)) && Yap_unify(rc, ARG1);
+  return (rc = Yap_BufferToTerm(RepAtom(at)->UStrOfAE,
+                                strlen(RepAtom(at)->StrOfAE), ctl)) &&
+         Yap_unify(rc, ARG1);
 }
 
 void Yap_InitWriteTPreds(void) {
@@ -737,9 +736,9 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("print", 2, print, SyncPredFlag);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   ;
-  
-  Yap_InitCPred("term_to_string", 3, term_to_string,  0);
-  Yap_InitCPred("term_to_atom", 3, term_to_atom,  0);
+
+  Yap_InitCPred("term_to_string", 3, term_to_string, 0);
+  Yap_InitCPred("term_to_atom", 3, term_to_atom, 0);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   ;
   Yap_InitCPred("$VAR", 2, dollar_var, SafePredFlag);

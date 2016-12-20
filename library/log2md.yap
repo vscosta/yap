@@ -131,7 +131,7 @@ open_log(F) :-
    * @pred log_goal( +Tag , :Goal )
    *
    * @param [in] evaluate goal _Goal_ with output  before,
-   * during and after the goal has been evaluted.
+   * during and after the goal has been evaluated.
    *
    */
    A <-* Goal :-
@@ -147,9 +147,9 @@ open_log(F) :-
     ).
 
   /**
-   * @pred <--( +Tag , :Goal )
+   * @pred `<--`( +Tag , :Goal )
    *
-   * @param [in] output goal _Goal_ before and after being evaluted.but onlu
+   * @param [in] output goal _Goal_ before and after being evaluated, but only
    * taking the first solution. The _Tag_ must be an atom or a string.
    *
    */

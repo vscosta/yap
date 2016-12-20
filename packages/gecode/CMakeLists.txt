@@ -49,7 +49,7 @@ if (GECODE_FOUND)
     ARCHIVE DESTINATION ${dlls}
     )
 
-  install(FILES gecode.yap
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/gecode.yap
     DESTINATION ${libpl}
     )
 

@@ -165,9 +165,11 @@ static Int
 do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg)
 {
   CACHE_REGS
+    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE+1);
 #if HAVE_SNPRINTF
 #if HAVE_STRERROR
-    snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), LOCAL_FileNameBuf);
+    snprintf(LOCAL_ErrorMessage,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg,
+             strerror(errno), LOCAL_FileNameBuf);
 #else
   snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
@@ -178,7 +180,6 @@ do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg)
   sprintf(LOCAL_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
 #endif
-  LOCAL_ErrorMessage = LOCAL_ErrorSay;
   LOCAL_Error_TYPE = etype;
   return -1;
 }
@@ -685,8 +686,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     }
   }
   if (strcmp(pp, msg) != 0) {
-    LOCAL_ErrorMessage = LOCAL_ErrorSay;
-    strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
+    strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE-1);
     strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE-1);
     strncat(LOCAL_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE-1);
     LOCAL_Error_TYPE = SYSTEM_ERROR_SAVED_STATE;

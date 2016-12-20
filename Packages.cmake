@@ -38,7 +38,10 @@ ENDIF(WITH_CPLINT)
 
 
 #must be last
+OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
+IF (WITH_SWIG)
 add_subDIRECTORY (packages/swig)
+ENDIF (WITH_SWIG)
 
 
 # please install doxygen for prolog first
@@ -50,11 +53,17 @@ add_subDIRECTORY (packages/swig)
 option (WITH_DOCS
      "generate YAP docs" OFF)
 
- # add_subDIRECTORY (docs)
+     IF (WITH_DOCS)
+  add_subDIRECTORY (docs)
+ ENDIF (WITH_DOCS)
 
 # add_subDIRECTORY (packages/cuda)
 
+option (WITH_GECODE
+"interface gecode constraint solver" ON)
+if (WITH_GECODE)
 add_subDIRECTORY (packages/gecode)
+endif()
 
 add_subDIRECTORY (packages/real)
 
@@ -67,6 +76,8 @@ add_subDIRECTORY (packages/bdd)
 add_subDIRECTORY (packages/ProbLog)
 
 add_subDIRECTORY (packages/swi-minisat2)
+
+add_subDIRECTORY (packages/clpqr)
 
 
 #todo: use cmake target builds

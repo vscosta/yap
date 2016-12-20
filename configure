@@ -22,7 +22,7 @@
 # details, see <https://creativecommons.org/publicdomain/zero/1.0/>
 
 TOP_SRCDIR="$(dirname $0)"
-CMAKE_CMD="cmake ${TOP_SRCDIR}"
+CMAKE=cmake
 
 BUILD_TYPE="Debug"
 PREFIX=/usr/local
@@ -39,15 +39,19 @@ quote() {
 
 extract_var_string() {
     VAR_NAME=$1
-    VAR_NAME=$(echo $1 | sed -e 's/[ \t]*$//')
-    if [ "x$2" != "x" ]; then
-        VAR_VALUE=$2
-    else
-        VAR_VALUE=yes
+    VAR_NAME=$(echo $1 | sed -e 's/[\\b]*$//')
+
+    if [ "x$VAR_VALUE" = "x" ]; then
+        if [ "x$2" != "x" ]; then
+            VAR_VALUE=$2
+        else
+            VAR_VALUE=yes
+        fi
     fi
 
     if [ "x$3" != "x" ]; then
         VAR_UC_NAME=$3
+        VAR_UC=$(echo "$1" | tr '[:lower:]' '[:upper:]' | tr -c '[:alnum:]' '_' | sed 's/_$//g')
     else
         VAR_UC_NAME=$(echo "$1" | tr '[:lower:]' '[:upper:]' | tr -c '[:alnum:]' '_' | sed 's/_$//g')
     fi
@@ -55,35 +59,73 @@ extract_var_string() {
 
 set_config_var() {
     is_with=n
+    found=y
+    arg=$(echo "${2}" | tr '[:upper:]' '[:lower:]' )
     case "$1" in
         "--enable-"*)
             name="${1#--enable-}"
             cfg="${ENABLE_VARS}"
+            case "x$arg" in
+                "xy"|"xyes"|"xtrue")
+                VAR_VALUE=yes
+                ;;
+                "xn"|"xno"|"xfalse")
+                found=y
+                VAR_VALUE=no
+                 ;;
+                **)
+                VAR_VALUE=""
+                ;;
+            esac
             ;;
         "--disable-"*)
             name="${1#--disable-}";
-            cfg="${DISABLE_VARS}";
+            cfg="${ENABLE_VARS}"
+            case "x$arg" in
+                "xy"|"xyes"|"xtrue")
+                VAR_VALUE=no
+                ;;
+                "xn"|"xno"|"xfalse")
+                VAR_VALUE=yes
+                 ;;
+                **)
+                VAR_VALUE=""
+                ;;
+            esac
             ;;
         "--with-"*)
             # IFS="=" read -ra WITHARGS <<< "${1}"
             name="${1#--with-}"
             cfg="${WITH_VARS}"
-            is_with=y
+            case "x$arg" in
+                "x"|"xy"|"xyes"|"xtrue")
+                is_with=n
+                VAR_VALUE=yes
+                ``;;
+                "xn"|"xno"|"xfalse")
+                is_with=n
+                VAR_VALUE=no
+                ;;
+                **)
+                is_with=y
+                VAR_VALUE=""
+            ;;
+            esac
+
             ;;
     esac
 
-    found=n
-    for varstring in $cfg; do
-        extract_var_string $(echo "${varstring}" | tr '|' ' ')
-        if [ "x$VAR_NAME" = "x$name" ]; then
-            found=y
-            break;
-        fi
-    done
+        for varstring in $cfg; do
+            extract_var_string $(echo "${varstring}" | tr '|' ' ')
+            if [ "x$VAR_NAME" = "x$name" ]; then
+                found=y
+                break;
+            fi
+        done
 
     if [ "$found" = "y" ]; then
         if [ "x$is_with" = "xy" ]; then
-            CMAKE_ARGS="$CMAKE_ARGS -D${VAR_UC_NAME}=$(quote "$2")"
+            CMAKE_ARGS="$CMAKE_ARGS -D${VAR_UC_NAME}=$(quote "$VAR_VALUE") -D${VAR_UC}_ROOT_DIR=$(quote "$2")"
         else
             CMAKE_ARGS="$CMAKE_ARGS -D${VAR_UC_NAME}=$(quote "${VAR_VALUE}")"
         fi
@@ -100,6 +142,7 @@ prefix_to_offset() {
 print_help() {
     cat <<EOF >&2
   -h, --help              display this help and exit
+  --cmake=CMAKE           use a specific cmake, not the default
   --disable-debug         disable debugging mode
   --pass-thru             pass remaining arguments through to CMake
 
@@ -154,7 +197,6 @@ EOF
         fi
     done
 
-    first=y
     for varstring in ${WITH_VARS}; do
         if [ $first = 'y' ]; then
             echo ""
@@ -164,6 +206,7 @@ EOF
         var_doc_name="WITH_${VAR_UC_NAME}_DOC"
         eval "docstring=\$$var_doc_name"
         paraminfo="${VAR_NAME}=${VAR_VALUE}"
+
         if [ "x${docstring}" = "x" ]; then
             printf "  --with-%-16s enable %s support\n" "$paraminfo" "$(echo -n "${VAR_NAME}" | tr '-' ' ')"
         else
@@ -176,6 +219,10 @@ EOF
 
 while [ $# != 0 ]; do
     case "$1" in
+        "--cmake="*)
+            CMAKE="${1#*=}";;
+        "--cmake")
+            CMAKE="${2}"; shift;;
         "--prefix="*)
             PREFIX="${1#*=}";;
         "--prefix")
@@ -274,11 +321,13 @@ while [ $# != 0 ]; do
             done;;
 
         "--enable-"*)
-            set_config_var "$1"
+            name=$(echo "${1#--enable-}" | awk '{split($1,v,"="); print v[1]}')
+            set_config_var "--with-${name}" "${1#--enable-${name}=}"
             ;;
 
         "--disable-"*)
-            set_config_var "$1"
+            name=$(echo "${1#--disable-}" | awk '{split($1,v,"="); print v[1]}')
+            set_config_var "--with-${name}" "${1#--disable-${name}=}"
             ;;
 
         "--with-"*)
@@ -312,4 +361,5 @@ if [ "x${LDFLAGS}" != "x" ]; then
     done
 fi
 
-eval "cmake ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}"
+CMAKE_CMD="${CMAKE} ${TOP_SRCDIR}"
+${CMAKE_CMD} ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}

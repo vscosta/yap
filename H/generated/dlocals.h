@@ -121,8 +121,6 @@
 #define REMOTE_ArenaOverflows(wid) REMOTE(wid)->ArenaOverflows_
 #define LOCAL_DepthArenas LOCAL->DepthArenas_
 #define REMOTE_DepthArenas(wid) REMOTE(wid)->DepthArenas_
-#define LOCAL_ArithError LOCAL->ArithError_
-#define REMOTE_ArithError(wid) REMOTE(wid)->ArithError_
 #define LOCAL_LastAssertedPred LOCAL->LastAssertedPred_
 #define REMOTE_LastAssertedPred(wid) REMOTE(wid)->LastAssertedPred_
 #define LOCAL_TmpPred LOCAL->TmpPred_
@@ -288,16 +286,10 @@
 #define REMOTE_TrailBase(wid) REMOTE(wid)->TrailBase_
 #define LOCAL_TrailTop LOCAL->TrailTop_
 #define REMOTE_TrailTop(wid) REMOTE(wid)->TrailTop_
-#define LOCAL_ErrorMessage LOCAL->ErrorMessage_
-#define REMOTE_ErrorMessage(wid) REMOTE(wid)->ErrorMessage_
-#define LOCAL_Error_Term LOCAL->Error_Term_
-#define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
 
 #define LOCAL_ActiveError LOCAL->ActiveError_
 #define REMOTE_ActiveError(wid) REMOTE(wid)->ActiveError_
 
-#define LOCAL_BallTerm LOCAL->BallTerm_
-#define REMOTE_BallTerm(wid) REMOTE(wid)->BallTerm_
 #define LOCAL_IOBotch LOCAL->IOBotch_
 #define REMOTE_IOBotch(wid) REMOTE(wid)->IOBotch_
 #define LOCAL_tokptr LOCAL->tokptr_
@@ -352,14 +344,10 @@
 #define LOCAL_s_dbg LOCAL->s_dbg_
 #define REMOTE_s_dbg(wid) REMOTE(wid)->s_dbg_
 
-#define LOCAL_matherror LOCAL->matherror_
-#define REMOTE_matherror(wid) REMOTE(wid)->matherror_
 #define LOCAL_mathtt LOCAL->mathtt_
 #define REMOTE_mathtt(wid) REMOTE(wid)->mathtt_
 #define LOCAL_mathstring LOCAL->mathstring_
 #define REMOTE_mathstring(wid) REMOTE(wid)->mathstring_
-#define LOCAL_CurrentError LOCAL->CurrentError_
-#define REMOTE_CurrentError(wid) REMOTE(wid)->CurrentError_
 
 #define LOCAL_heap_overflows LOCAL->heap_overflows_
 #define REMOTE_heap_overflows(wid) REMOTE(wid)->heap_overflows_

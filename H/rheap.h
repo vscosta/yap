@@ -1460,9 +1460,6 @@ static void RestoreEntries(PropEntry *pp, int int_key USES_REGS) {
     case ExpProperty:
       pp->NextOfPE = PropAdjust(pp->NextOfPE);
       break;
-    case WideAtomProperty:
-      pp->NextOfPE = PropAdjust(pp->NextOfPE);
-      break;
     case BlobProperty:
       pp->NextOfPE = PropAdjust(pp->NextOfPE);
       {

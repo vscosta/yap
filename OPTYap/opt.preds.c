@@ -120,7 +120,7 @@ struct page_statistics {
 #ifdef USE_PAGES_MALLOC
   long pages_in_use;   /* same as struct pages (opt.structs.h) */
 #endif                 /* USE_PAGES_MALLOC */
-  long structs_in_use; /* same as struct pages (opt.structs.h) */
+  size_t structs_in_use; /* same as struct pages (opt.structs.h) */
   long bytes_in_use;
 };
 

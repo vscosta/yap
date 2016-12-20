@@ -3,12 +3,12 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-README for YAP6  
+User Manual for YAP6                (#main)
 ====================
 
-NOTE: this version of YAP is stil experimental, documentation may be out of date.
+NOTE: this version of YAP is still experimental, documentation may be out of date.
 
-## Introduction 
+## Introduction
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
@@ -94,22 +94,3 @@ DTAI group of KULeuven.
 
 + The [R](http://stoics.org.uk/~nicos/sware/packs/real/) interface package developed by 	Nicos Angelopoulos,
 Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
-
-
-Downloading YAP           {#download}
-==============
-
-The latest development version of Yap-6 is yap-6.3.4 and can be
-obtained from the repositories
-
-<http://sourceforge.net/p/yap/yap-6.3>
-
-and
-
-<https://github.com/vscosta/yap-6.3>
-
-YAP-6.3.4 does not use modules. Please just use `git clone` to obtain the distribution.
-
-Most of these repositories are basically copies of the original
-repositories at the SWI-Prolog site. YAP-6 will work either with or
-without these packages.

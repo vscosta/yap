@@ -2,9 +2,23 @@
 #ifndef YAPT_HH
 #define YAPT_HH 1
 
-extern "C" Term YAP_ReadBuffer(const char *s, Term *tp);
+#include "config.h"
+
+extern "C" {
+Term YAP_ReadBuffer(const char *s, Term *tp);
+#if defined(SWIGPYTHON) && 0
+#include <Python.h>
+extern Term pythonToYAP(PyObject *inp);
+#define YAPTerm _YAPTERM
+#elifndef HAVE_PYTHON_H
+typdef struct { int no_python; } PyObject;
+#else
+#include <Python.h>                                                                                
+#endif
+};
 
 class YAPError;
+
 /**
  * @brief Generic Prolog Term
  */
@@ -18,20 +32,41 @@ class YAPTerm {
   friend class YAPListTerm;
 
 protected:
-  yhandle_t t;      /// handle to term, equivalent to term_t
-  void mk(Term t0); /// internal method to convert from term to handle
-  Term gt();        /// get handle and obtain term
+  yhandle_t t; /// handle to term, equivalent to term_t
 public:
-  virtual ~YAPTerm(){ LOCAL_HandleBase[t] = TermFreeTerm;
-    while (  LOCAL_HandleBase[LOCAL_CurSlot-1] == TermFreeTerm)
-      LOCAL_CurSlot--;
-   }
-  YAPTerm(Term tn) {
-    mk(tn);
-  } /// private method to convert from Term (internal YAP representation) to
+  virtual ~YAPTerm() {
+    //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
+    //  Yap_DebugPlWriteln(LOCAL_HandleBase[t]); }
+    //    LOCAL_HandleBase[t] = TermFreeTerm;
+    // while (  LOCAL_HandleBase[LOCAL_CurSlot-1] == TermFreeTerm)
+    LOCAL_CurSlot--;
+  };
+
+  Term gt() {
+    CACHE_REGS
+    // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
+    // Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
+    return Yap_GetFromSlot(t);
+  };
+
+  void mk(Term t0) {
+    CACHE_REGS t = Yap_InitSlot(t0);
+    // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
+  };
+
+  YAPTerm(Term tn) { mk(tn); };
+  YAPTerm(PyObject *inp) {
+#ifdef SWIGPYTHON
+    Term tinp = pythonToYAP(inp);
+    t = Yap_InitSlot(tinp);
+#else
+    t = 0;
+#endif
+  }
+  /// private method to convert from Term (internal YAP representation) to
   /// YAPTerm
   // do nothing constructor
-  YAPTerm() { mk(MkVarTerm()); }
+  YAPTerm() { mk(MkVarTerm()); };
   // YAPTerm(yhandle_t i) { t = i; };
   /// pointer to term
   YAPTerm(void *ptr);
@@ -42,32 +77,73 @@ public:
   }
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
+  /// YAPTerm(long int num) { mk(MkIntegerTerm(num)); }
   /// construct a term out of an integer (if you know object type use
   /// YAPIntegerTerm)
-  YAPTerm(double num) { mk(MkFloatTerm(num)); }
+  /// YAPTerm(double num) { mk(MkFloatTerm(num)); }
   /// parse string s and construct a term.
-  YAPTerm(YAPFunctor f, YAPTerm ts[]);
+  /// YAPTerm(YAPFunctor f, YAPTerm ts[]);
   /// extract the tag of a term, after dereferencing.
   YAP_tag_t tag();
   /// copy the term ( term copy )
-  YAPTerm deepCopy();
+  Term deepCopy();
   /// numbervars ( int start, bool process=false )
   intptr_t numberVars(intptr_t start, bool skip_singletons = false);
   inline Term term() {
     return gt();
   } /// from YAPTerm to Term (internal YAP representation)
+  inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
+  inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
+  /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
-  YAPTerm &operator[](size_t n);
+  Term &operator[](size_t n);
   // const YAPTerm *vars();
   /// this term is == to t1
-  virtual bool exactlyEqual(YAPTerm t1);
-  virtual bool unify(YAPTerm t1);     /// t = t1
-  virtual bool unifiable(YAPTerm t1); /// we can unify t and t1
-  virtual bool variant(
-      YAPTerm t1); /// t =@= t1, the two terms are equal up to variable renaming
-  virtual intptr_t hashTerm(size_t sz, size_t depth,
-                            bool variant);           /// term hash,
+  virtual bool exactlyEqual(YAPTerm t1) {
+    bool out;
+    BACKUP_MACHINE_REGS();
+    out = Yap_eq(gt(), t1.term());
+    RECOVER_MACHINE_REGS();
+    return out;
+  };
+
+  /// t = t1
+  virtual bool unify(YAPTerm t1) {
+    intptr_t out;
+    BACKUP_MACHINE_REGS();
+    out = Yap_unify(gt(), t1.term());
+    RECOVER_MACHINE_REGS();
+    return out;
+  };
+
+  /// we can unify t and t1
+  virtual bool unifiable(YAPTerm t1) {
+    bool out;
+    BACKUP_MACHINE_REGS();
+    out = Yap_eq(gt(), t1.term());
+    RECOVER_MACHINE_REGS();
+    return out;
+  };
+
+  /// t =@= t1, the two terms are equal up to variable renamingvirtual bool
+  /// variant(
+  inline virtual YAP_Term variant(YAPTerm t1) {
+    intptr_t out;
+    BACKUP_MACHINE_REGS();
+    out = Yap_Variant(gt(), t1.term());
+    RECOVER_MACHINE_REGS();
+    return out;
+  };
+
+  virtual intptr_t hashTerm(size_t sz, size_t depth, bool variant) {
+    intptr_t out;
+
+    BACKUP_MACHINE_REGS();
+    out = Yap_TermHash(gt(), sz, depth, variant);
+    RECOVER_MACHINE_REGS();
+    return out;
+  };
+  /// term hash,
   virtual bool isVar() { return IsVarTerm(gt()); }   /// type check for unound
   virtual bool isAtom() { return IsAtomTerm(gt()); } ///  type check for atom
   virtual bool isInteger() {
@@ -88,19 +164,19 @@ public:
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
   /// extract the argument i of the term, where i in 1...arity
-  virtual YAPTerm getArg(arity_t i) {
+  virtual Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
+    Term tf = 0;
     Term t0 = gt();
-    YAPTerm tf;
     if (IsApplTerm(t0))
-      tf = YAPTerm(ArgOfTerm(i, t0));
+      tf = (ArgOfTerm(i, t0));
     else if (IsPairTerm(t0)) {
       if (i == 1)
-        tf = YAPTerm(HeadOfTerm(t0));
+        tf = (HeadOfTerm(t0));
       else if (i == 2)
-        tf = YAPTerm(TailOfTerm(t0));
+        tf = (TailOfTerm(t0));
     } else {
-      tf = YAPTerm((Term)0);
+      tf = ((Term)0);
     }
     RECOVER_MACHINE_REGS();
     return tf;
@@ -123,7 +199,24 @@ public:
   }
 
   /// return a string with a textual representation of the term
-  virtual const char *text();
+  virtual const char *text(){
+  CACHE_REGS
+ size_t length = 0;
+ encoding_t enc = LOCAL_encoding;
+ char *os;
+
+ BACKUP_MACHINE_REGS();
+ if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc,
+                             Handle_vars_f))) {
+   RECOVER_MACHINE_REGS();
+   return 0;
+ }
+ RECOVER_MACHINE_REGS();
+ length = strlen(os) + 1;
+ char *sm = (char *)malloc(length + 1);
+ strcpy(sm, os);
+ return sm;
+};
 
   /// return a handle to the term
   inline yhandle_t handle() { return t; };
@@ -170,15 +263,15 @@ class YAPApplTerm : public YAPTerm {
 
 public:
   ~YAPApplTerm() {}
-  YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-  YAPApplTerm(const char *s, std::vector<YAPTerm> ts);
-  YAPApplTerm(YAPFunctor f);
+   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
+  //YAPApplTerm(const char *s, std::vector<YAPTerm> ts);
+  //YAPApplTerm(YAPFunctor f);
   YAPFunctor getFunctor();
-  YAPTerm getArg(arity_t i) {
+  Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
-    YAPTerm tf;
-    tf = YAPTerm(ArgOfTerm(i, t0));
+    Term tf;
+    tf = ArgOfTerm(i, t0);
     RECOVER_MACHINE_REGS();
     return tf;
   };
@@ -209,8 +302,8 @@ class YAPPairTerm : public YAPTerm {
 public:
   YAPPairTerm(YAPTerm hd, YAPTerm tl);
   YAPPairTerm();
-  YAPTerm getHead() { return YAPTerm(HeadOfTerm(gt())); }
-  YAPTerm getTail() { return YAPTerm(TailOfTerm(gt())); }
+  Term getHead() { return (HeadOfTerm(gt())); }
+  Term getTail() { return (TailOfTerm(gt())); }
 };
 
 /**
@@ -267,20 +360,20 @@ public:
     return Yap_SkipList(&t1, &tailp);
   }
   /// Extract the nth element.
-  YAPTerm &operator[](size_t n);
+  Term &operator[](size_t n);
   /// Extract the first element of a list.
   ///
   /// @param[in] the list
-  YAPTerm car();
+  Term car();
   /// Extract the tail elements of a list.
   ///
   /// @param[in] the list
-  YAPListTerm cdr() {
+  Term cdr() {
     Term to = gt();
     if (IsPairTerm(to))
-      return YAPListTerm(TailOfTerm(to));
+      return (TailOfTerm(to));
     else if (to == TermNil)
-      return YAPListTerm();
+      return TermNil;
     /* error */
     Yap_Error(TYPE_ERROR_LIST, t, 0);
     throw YAPError();
@@ -288,7 +381,7 @@ public:
   /// copy a list.
   ///
   /// @param[in] the list
-  YAPListTerm dup();
+  Term dup();
 
   /// Check if the list is empty.
   ///
@@ -325,8 +418,6 @@ class YAPAtomTerm : public YAPTerm {
   // Constructor: receives a C-atom;
   YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
-  // Getter for Prolog atom
-  Term getTerm() { return t; }
 
 public:
   // Constructor: receives an atom;

@@ -11,6 +11,7 @@ IF (MYSQL_INCLUDE_DIR)
 ENDIF (MYSQL_INCLUDE_DIR)
 
 FIND_PATH(MYSQL_INCLUDE_DIR mysql.h
+  ${MYSQL_ROOT_DIR}/include
   /usr/local/include/mysql
   /usr/include/mysql
   /usr/include/mariadb
@@ -18,7 +19,8 @@ FIND_PATH(MYSQL_INCLUDE_DIR mysql.h
 
 SET(MYSQL_NAMES mysqlclient mysqlclient_r mariadb )
 FIND_LIBRARY(MYSQL_LIBRARY
-  NAMES ${MYSQL_NAMES}
+  NAMES ${MYSQL_ROOT_DIR}/lib
+   ${MYSQL_NAMES}
   PATHS /usr/lib /usr/local/lib
   PATH_SUFFIXES mysql mariadb
 )

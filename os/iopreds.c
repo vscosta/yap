@@ -1,19 +1,19 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		iopreds.c *
- * Last rev:	5/2/88							 *
- * mods: *
- * comments:	Input/Output C implemented predicates			 *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		iopreds.c *
+* Last rev:	5/2/88							 *
+* mods: *
+* comments:	Input/Output C implemented predicates			 *
+*									 *
+*************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -455,16 +455,16 @@ int Yap_DebugPuts(FILE *s, const char *sch) {
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 
 void Yap_DebugPlWrite(Term t) {
-  if (t==0)
-    fprintf(stderr,"NULL");
-    Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
+  if (t == 0)
+    fprintf(stderr, "NULL");
+  Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
 }
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
-  if (t==0)
-    fprintf(stderr,"NULL");
-    Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
+  if (t == 0)
+    fprintf(stderr, "NULL");
+  Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
@@ -546,12 +546,14 @@ static int NullPutc(int sno, int ch) {
 }
 
 int ResetEOF(StreamDesc *s) {
-  s->status &= ~Push_Eof_Stream_f;
   if (s->status & Eof_Error_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(s->name),
+    Atom name = s->name;
+    // Yap_CloseStream(s - GLOBAL_Stream);
+    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
               "GetC");
     return FALSE;
   } else if (s->status & Reset_Eof_Stream_f) {
+    s->status &= ~Push_Eof_Stream_f;
     /* reset the eof indicator on file */
     if (feof(s->file))
       clearerr(s->file);
@@ -617,12 +619,12 @@ int post_process_read_wchar(int ch, size_t n, StreamDesc *s) {
   if (ch == EOF) {
     return post_process_weof(s);
   }
-  #if DEBUG
+#if DEBUG
   if (GLOBAL_Option[1]) {
     static int v;
-      fprintf(stderr, "%d %C\n", v, ch);
-      v++;
-    }
+    fprintf(stderr, "%d %C\n", v, ch);
+    v++;
+  }
 #endif
   s->charcount += n;
   s->linepos += n;
@@ -655,9 +657,9 @@ int post_process_weof(StreamDesc *s) {
  *
  * @return EOF
  */
-int EOFPeek(int sno) { return EOFGetc(sno); }
+int EOFPeek(int sno) { return EOFCHAR; }
 
-int EOFWPeek(int sno) { return EOFWGetc(sno); }
+int EOFWPeek(int sno) { return EOFCHAR; }
 
 /* standard routine, it should read from anything pointed by a FILE *.
  It could be made more efficient by doing our own buffering and avoiding
@@ -1194,8 +1196,7 @@ do_open(Term file_name, Term t2,
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term,
-                "option handling in open/3");
+      Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
     }
     return false;
   }
@@ -1701,7 +1702,7 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
     return FALSE;
@@ -1763,7 +1764,7 @@ static Int abs_file_parameters(USES_REGS1) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
         LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, NULL);
+      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
   }
@@ -1871,7 +1872,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitReadTPreds();
   Yap_InitFormat();
   Yap_InitRandomPreds();
- #if USE_READLINE
+#if USE_READLINE
   Yap_InitReadlinePreds();
 #endif
   Yap_InitSockets();

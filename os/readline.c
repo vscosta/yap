@@ -264,7 +264,7 @@ bool Yap_ReadlineOps(StreamDesc *s) {
 
 static int prolog_complete(int ignore, int key) {
   if (rl_point > 0 && rl_line_buffer[rl_point - 1] != ' ') {
-#if HAVE_DECL_RL_CATCH_SIGNALS_ /* actually version >= 1.2, or true readline   \
+#if HAVE_DECL_RL_CATCH_SIGNALS   /* actually version >= 1.2, or true readline   \
                                    */
     rl_begin_undo_group();
     rl_complete(ignore, key);

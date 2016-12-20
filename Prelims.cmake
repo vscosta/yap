@@ -105,20 +105,6 @@ else()
 endif()
 
 
-#cross-compilation support
-# Search packages for host system instead of packages for target system
-# in case of cross compilation these macro should be defined by toolchain file
-if(NOT COMMAND find_host_package)
-    macro(find_host_package)
-        find_package(${ARGN})
-    endmacro()
-endif()
-if(NOT COMMAND find_host_program)
-    macro(find_host_program)
-        find_program(${ARGN})
-    endmacro()
-endif()
-
 # where we have most scripts
 # set path to additional CMake modules
 
@@ -141,22 +127,22 @@ if(POLICY CMP0043)
 endif(POLICY CMP0043)
 
 
+if (ANDROID)
+    set ( prefix ${YAP_APP_DIR}/build )
+    set ( datarootdir ${prefix}/assets )
+else()
 set ( prefix "${CMAKE_INSTALL_PREFIX}")
+    set ( datarootdir ${prefix}/share )
+endif()
+    set ( libpl  ${datarootdir}/Yap)
+set ( includedir "${prefix}/include")
 set ( exec_prefix "${prefix}")
 set ( libdir "${exec_prefix}/lib")
 set ( dlls "${exec_prefix}/lib/Yap")
-set ( includedir "${prefix}/include")
-set ( datarootdir "${prefix}/share")
-if (ANDROID)
-    set ( libpl  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../../../build/generated/assets/Yap")
-else()
-    set ( libpl  "${datarootdir}/Yap")
-
-endif()
 set ( datadir "${datarootdir}")
 set ( mandir "${datarootdir}/man")
 set ( bindir "${exec_prefix}/bin")
-set ( docdir "${exec_prefix}/doc/Yap")
+set ( docdir "${datarootdir}/doc/Yap")
 
 set(YAP_ROOTDIR ${prefix})
 

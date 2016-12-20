@@ -110,11 +110,10 @@ static char SccsId[] = "%W% %G%";
 
 bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
   FILE *f;
-  stream_flags_t flags;
 
   // like any file stream.
   st->file = f = fmemopen((void *)buf, nchars, "r");
-  flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
+  st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   Yap_DefaultStreamOps(st);
   return true;
 }

@@ -398,7 +398,16 @@ X_API Term YAP_MkAtomTerm(Atom n) {
 
 X_API Atom YAP_AtomOfTerm(Term t) { return (AtomOfTerm(t)); }
 
-X_API bool YAP_IsWideAtom(Atom a) { return IsWideAtom(a); }
+X_API bool YAP_IsWideAtom(Atom a) {
+  const unsigned char *s = RepAtom(a)->UStrOfAE;
+  int32_t v;
+  while (*s) {
+    size_t n = get_utf8(s, 1, &v);
+    if (n > 1)
+      return true;
+  }
+  return false;
+}
 
 X_API const char *YAP_AtomName(Atom a) {
   const char *o;
@@ -407,7 +416,20 @@ X_API const char *YAP_AtomName(Atom a) {
   return (o);
 }
 
-X_API const wchar_t *YAP_WideAtomName(Atom a) { return RepAtom(a)->WStrOfAE; }
+X_API const wchar_t *YAP_WideAtomName(Atom a) {
+  int32_t v;
+  const unsigned char *s = RepAtom(a)->UStrOfAE;
+  size_t n = strlen_utf8(s);
+  wchar_t *dest = Malloc((n + 1) * sizeof(wchar_t)), *o = dest;
+  while (*s) {
+    size_t n = get_utf8(s, 1, &v);
+    if (n == 0)
+      return NULL;
+    *o++ = v;
+  }
+  o[0] = '\0';
+  return dest;
+}
 
 X_API Atom YAP_LookupAtom(const char *c) {
   CACHE_REGS
@@ -432,7 +454,7 @@ X_API Atom YAP_LookupWideAtom(const wchar_t *c) {
   Atom a;
 
   while (TRUE) {
-    a = Yap_LookupWideAtom((wchar_t *)c);
+    a = Yap_NWCharsToAtom(c, -1 USES_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
@@ -467,15 +489,9 @@ X_API size_t YAP_AtomNameLength(Atom at) {
   if (IsBlob(at)) {
     return RepAtom(at)->rep.blob->length;
   }
-  if (IsWideAtom(at)) {
-    wchar_t *c = RepAtom(at)->WStrOfAE;
+  unsigned char *c = RepAtom(at)->UStrOfAE;
 
-    return wcslen(c);
-  } else {
-    unsigned char *c = RepAtom(at)->UStrOfAE;
-
-    return strlen((char *)c);
-  }
+  return strlen_utf8(c);
 }
 
 X_API Term YAP_MkVarTerm(void) {
@@ -1169,10 +1185,10 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
   Yap_CloseSlots(CurSlot);
   PP = NULL;
   //    B = LCL0-(CELL*)oB;
-  if (false && Yap_RaiseException()) {
+  if (!val && Yap_RaiseException()) {
     return false;
   } else { /* TRUE */
-    return true;
+    return val;
   }
 }
 
@@ -1355,12 +1371,17 @@ X_API Term YAP_NWideBufferToString(const wchar_t *s, size_t len) {
 /* copy a string to a buffer */
 X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   CACHE_REGS
-  Term t;
+  Term tv, t;
   BACKUP_H();
 
+  if (*tp)
+    tv = *tp;
+  else
+    tv = 0;
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding,
-                                GLOBAL_MaxPriority, tp))) {
+  const unsigned char *us = (const unsigned char *)s;
+  while (!(t = Yap_BufferToTermWithPrioBindings(
+               us, strlen(s) + 1, TermNil, GLOBAL_MaxPriority, tv))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2088,7 +2109,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   RECOVER_MACHINE_REGS();
 }
 
-X_API Term YAP_CopyTerm(Term t) {
+X_API YAP_Term YAP_CopyTerm(Term t) {
   Term tn;
   BACKUP_MACHINE_REGS();
 
@@ -2096,7 +2117,7 @@ X_API Term YAP_CopyTerm(Term t) {
 
   RECOVER_MACHINE_REGS();
 
-  return tn;
+  return (tn);
 }
 
 X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
@@ -2289,7 +2310,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     !yap_init->Embedded;
   Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-    GLOBAL_argv = yap_init->Argv;  
+  GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
@@ -2350,10 +2371,10 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-    if (Yap_embedded)
-      if (yap_init->QuietMode) {
-	setVerbosity(TermSilent);
-      }
+  if (Yap_embedded)
+    if (yap_init->QuietMode) {
+      setVerbosity(TermSilent);
+    }
   {
     if (yap_init->YapPrologRCFile != NULL) {
       /*
@@ -3191,10 +3212,10 @@ size_t YAP_UTF8_TextLength(Term t) {
       Term hd = HeadOfTerm(t);
       if (IsAtomTerm(hd)) {
         Atom at = AtomOfTerm(hd);
-        if (IsWideAtom(at))
-          c = RepAtom(at)->WStrOfAE[0];
-        else
-          c = RepAtom(at)->StrOfAE[0];
+        unsigned char *s = RepAtom(at)->UStrOfAE;
+        int32_t ch;
+        get_utf8(s, 1, &ch);
+        c = ch;
       } else if (IsIntegerTerm(hd)) {
         c = IntegerOfTerm(hd);
       } else {
@@ -3205,20 +3226,7 @@ size_t YAP_UTF8_TextLength(Term t) {
     }
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    if (IsWideAtom(at)) {
-      const wchar_t *s = RepAtom(at)->WStrOfAE;
-      int c;
-      while ((c = *s++)) {
-        sz += utf8proc_encode_char(c, dst);
-      }
-    } else {
-      const unsigned char *s = (const unsigned char *)RepAtom(at)->StrOfAE;
-      int c;
-
-      while ((c = *s++)) {
-        sz += utf8proc_encode_char(c, dst);
-      }
-    }
+    sz = strlen(RepAtom(at)->StrOfAE);
   } else if (IsStringTerm(t)) {
     sz = strlen(StringOfTerm(t));
   }

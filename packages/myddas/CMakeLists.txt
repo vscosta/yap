@@ -11,7 +11,6 @@ set(MYDDAS_SOURCES
         myddas_shared.c
         myddas_statistics.c
         myddas_top_level.c
-
         )
 
 include_directories(. sqlite3)

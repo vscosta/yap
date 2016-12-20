@@ -203,3 +203,5 @@ packages/python/yap_kernel/x/__init__.py
 packages/python/yap_kernel/x/__main__.py
 
 *.gch
+mxe
+build

@@ -97,7 +97,7 @@ public:
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromWideString
   inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
-    f = Yap_MkFunctor(Yap_LookupWideAtom(s), arity);
+    CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
   }
   ~YAPFunctor(){};
   /// Getter: extract name of functor as an atom
@@ -137,8 +137,10 @@ protected:
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *modp = NULL;
-
-    out = Yap_StringToTerm(s0, strlen(s0) + 1, &LOCAL_encoding, 1200, &names);
+names = MkVarTerm ();
+    const unsigned char *us = (const unsigned char *)s0;
+    out =
+        Yap_BufferToTermWithPrioBindings(us, strlen(s0), TermNil, 1200, names);
     // extern char *s0;
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
@@ -217,13 +219,15 @@ public:
   /// char */module constructor for predicates.
   ///
   inline YAPPredicate(const char *at, uintptr_t arity) {
-    ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), CurrentModule));
+    ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
+                                    CurrentModule));
   };
 
   /// char */module constructor for predicates.
   ///
   inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
-    ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
+    ap = RepPredProp(
+        PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
   };
 
   /// char */module constructor for predicates.
@@ -266,8 +270,8 @@ public:
  */
 class YAPPrologPredicate : public YAPPredicate {
 public:
-  YAPPrologPredicate(YAPTerm t) : YAPPredicate(t)  {};
-  YAPPrologPredicate(const char *s, arity_t arity): YAPPredicate(s, arity) {};
+  YAPPrologPredicate(YAPTerm t) : YAPPredicate(t){};
+  YAPPrologPredicate(const char *s, arity_t arity) : YAPPredicate(s, arity){};
   /// add a new clause
   void *assertClause(YAPTerm clause, bool last = true,
                      YAPTerm source = YAPTerm());

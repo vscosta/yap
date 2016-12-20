@@ -1790,15 +1790,13 @@ static Int p_log_event(USES_REGS1) {
     return FALSE;
   at = AtomOfTerm(in);
 #if DEBUG
-  if (IsWideAtom(at))
-    fprintf(stderr, "LOG %S\n", RepAtom(at)->WStrOfAE);
-  else if (IsBlob(at))
+  if (IsBlob(at))
     return FALSE;
   else
     fprintf(stderr, "LOG %s\n", RepAtom(at)->StrOfAE);
 #endif
-  if (IsWideAtom(at) || IsBlob(at))
-    return FALSE;
+  if (IsBlob(at))
+    return false;
   LOG(" %s ", RepAtom(at)->StrOfAE);
   return TRUE;
 }
@@ -1928,34 +1926,8 @@ static HKEY reg_open_key(const wchar_t *which, int create) {
 
 #define MAXREGSTRLEN 1024
 
-static void recover_space(wchar_t *k, Atom At) {
-  if (At->WStrOfAE != k)
-    Yap_FreeCodeSpace((char *)k);
-}
-
 static wchar_t *WideStringFromAtom(Atom KeyAt USES_REGS) {
-  if (IsWideAtom(KeyAt)) {
-    return KeyAt->WStrOfAE;
-  } else {
-    int len = strlen(KeyAt->StrOfAE);
-    int sz = sizeof(wchar_t) * (len + 1);
-    char *chp = KeyAt->StrOfAE;
-    wchar_t *kptr, *k;
-
-    k = (wchar_t *)Yap_AllocCodeSpace(sz);
-    while (k == NULL) {
-      if (!Yap_growheap(false, sz, NULL)) {
-        Yap_Error(RESOURCE_ERROR_HEAP, MkIntegerTerm(sz),
-                  "generating key in win_registry_get_value/3");
-        return false;
-      }
-      k = (wchar_t *)Yap_AllocCodeSpace(sz);
-    }
-    kptr = k;
-    while ((*kptr++ = *chp++))
-      ;
-    return k;
-  }
+    return Yap_AtomToWide( KeyAt );
 }
 
 static Int p_win_registry_get_value(USES_REGS1) {
@@ -1967,24 +1939,29 @@ static Int p_win_registry_get_value(USES_REGS1) {
   Term Key = Deref(ARG1);
   Term Name = Deref(ARG2);
   Atom KeyAt, NameAt;
+  int l = push_text_stack();
 
   if (IsVarTerm(Key)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
-    return FALSE;
+ pop_text_stack(l);
+   return FALSE;
   }
   if (!IsAtomTerm(Key)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
-    return FALSE;
+ pop_text_stack(l);
+   return FALSE;
   }
   KeyAt = AtomOfTerm(Key);
   if (IsVarTerm(Name)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
-    return FALSE;
+ pop_text_stack(l);
+   return FALSE;
   }
   if (!IsAtomTerm(Name)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
+pop_text_stack(l);
     return FALSE;
   }
   NameAt = AtomOfTerm(Name);
@@ -1992,7 +1969,7 @@ static Int p_win_registry_get_value(USES_REGS1) {
   k = WideStringFromAtom(KeyAt PASS_REGS);
   if (!(key = reg_open_key(k, FALSE))) {
     Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
-    recover_space(k, KeyAt);
+pop_text_stack(l);
     return FALSE;
   }
   name = WideStringFromAtom(NameAt PASS_REGS);
@@ -2001,26 +1978,22 @@ static Int p_win_registry_get_value(USES_REGS1) {
     RegCloseKey(key);
     switch (type) {
     case REG_SZ:
-      recover_space(k, KeyAt);
-      recover_space(name, NameAt);
       ((wchar_t *)data)[len] = '\0';
-      return Yap_unify(MkAtomTerm(Yap_LookupMaybeWideAtom((wchar_t *)data)),
-                       ARG3);
+      Atom at = Yap_NWCharsToAtom((wchar_t *)data, len PASS_REGS);
+      pop_text_stack(l);
+      return Yap_unify(MkAtomTerm(at),ARG3);
     case REG_DWORD:
-      recover_space(k, KeyAt);
-      recover_space(name, NameAt);
-      {
+       {
         DWORD *d = (DWORD *)data;
+pop_text_stack(l);
         return Yap_unify(MkIntegerTerm((Int)d[0]), ARG3);
       }
     default:
-      recover_space(k, KeyAt);
-      recover_space(name, NameAt);
-      return FALSE;
+ pop_text_stack(l);
+       return FALSE;
     }
   }
-  recover_space(k, KeyAt);
-  recover_space(name, NameAt);
+pop_text_stack(l);
   return FALSE;
 }
 
