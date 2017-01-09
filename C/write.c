@@ -385,15 +385,16 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding,
                                   0);
   if (sno < 0)
-    return FALSE;
+    return false;
   wglb.lw = separator;
   wglb.stream = GLOBAL_Stream + sno;
   wrputf(f, &wglb);
   wrputc('\0', wglb.stream);
   so = Yap_MemExportStreamPtr(sno);
+  *s = Malloc( strlen(so) )+1;
+  strcpy(*s, so );
   Yap_CloseStream(sno);
-  *s = so;
-  return TRUE;
+  return true;
 }
 
 /* writes a data base reference */
@@ -568,9 +569,10 @@ static void write_string(const unsigned char *s,
       int delta;
     ptr += (delta = get_utf8(ptr, -1, &chr) );
       
-    if (chr == '\0')
+    if (chr == '\0') {
       break;
-      if (delta == 0) {chr = *ptr++; }
+    }
+    if (delta == 0) {chr = *ptr++; }
     write_quoted(chr, qt, stream);
   } while (TRUE);
   wrputc(qt, stream);

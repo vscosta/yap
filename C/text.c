@@ -443,51 +443,35 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     // ASCII, so both LATIN1 and UTF-8
     // Yap_DebugPlWriteln(inp->val.t);
     char *s;
-    if (s0)
-      s = (char *)s0;
-    else
-      s = Malloc(0);
+    s = Malloc(0);
     if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
     }
-    *lengp = strlen(s);
+    if (lengp)
+      *lengp = strlen(s);
     return (unsigned char *)s;
   }
   if (inp->type & YAP_STRING_FLOAT && IsFloatTerm(inp->val.t)) {
     char *s;
-    size_t sz = 1024;
     // Yap_DebugPlWriteln(inp->val.t);
-    if (s0) {
-      s = (char *)s0;
-      sz = strlen(s);
-    } else
-      s = Malloc(sz);
-    if (!s)
-      AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
-    while (!Yap_FormatFloat(FloatOfTerm(inp->val.t), &s, sz - 1)) {
-      if (s0) {
-        s = Malloc(sz = 1024);
-        s0 = NULL;
-      } else
-        s = Realloc(s, sz + 1024);
+    if (!Yap_FormatFloat(FloatOfTerm(inp->val.t), &s, 1024)) {
+      return NULL;
     }
-    *lengp = strlen(s);
-    return inp->val.uc = (unsigned char *)s;
+    if (lengp)
+      *lengp = strlen(s);
+    return (unsigned char *)s;
   }
 #if USE_GMP
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
     char *s;
-    if (s0)
-      s = 0;
-    else
       s = Malloc(0);
     if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), s, MaxTmp() - 1, 10)) {
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     }
-    *lengp = strlen(s);
-    Malloc(*lengp);
+    if (lengp)
+      *lengp = strlen(s);
     return inp->val.uc = (unsigned char *)s;
   }
 #endif
