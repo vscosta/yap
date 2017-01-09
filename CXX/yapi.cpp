@@ -194,16 +194,18 @@ Term &YAPTerm::operator[](arity_t i) {
     // Functor f = FunctorOfTerm(t0);
     // if (IsExtensionFunctor(f))
     //  return 0;
-    RECOVER_MACHINE_REGS();
-    return RepAppl(t0)[(i + 1)];
+    tf = RepAppl(t0)[(i + 1)];
   } else if (IsPairTerm(t0)) {
     if (i == 0)
       tf = HeadOfTerm(t0);
     else if (i == 1)
       tf = TailOfTerm(t0);
     RECOVER_MACHINE_REGS();
-    return RepPair(tf)[i];
+    tf = RepPair(tf)[i];
   }
+  RECOVER_MACHINE_REGS();
+    Yap_Error(TYPE_ERROR_COMPOUND, tf, "");
+    throw YAPError();
 }
 
 Term &YAPListTerm::operator[](arity_t i) {
@@ -397,6 +399,8 @@ void YAPQuery::openQuery() {
 
 bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   CACHE_REGS
+    if (ap.ap == NULL)
+      return false;
   BACKUP_MACHINE_REGS();
   arity_t arity = ap.getArity();
   bool result;
@@ -426,11 +430,13 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
 bool YAPEngine::goalt(YAPTerm Yt) { return Yt.term(); }
 
-bool YAPEngine::goal(Term t) {
+bool YAPEngine::mgoal(Term t, Term tmod) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Term terr, tmod = CurrentModule, *ts = nullptr;
+  Term terr, *ts = nullptr;
   PredEntry *ap = Yap_get_pred(t, tmod, "C++");
+  if (ap == nullptr)
+    return false;
   arity_t arity = ap->ArityOfPE;
   bool result;
   jmp_buf q_env;
@@ -755,7 +761,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode) {
   Yap_AndroidSz = 0;
 #endif
   yerror = YAPError();
-
+  
   YAPQuery initq = YAPQuery(YAPAtom("$init_system"));
   if (initq.next()) {
     initq.cut();

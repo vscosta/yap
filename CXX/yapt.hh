@@ -6,16 +6,7 @@
 
 extern "C" {
 Term YAP_ReadBuffer(const char *s, Term *tp);
-#if defined(SWIGPYTHON) && 0
-#include <Python.h>
-extern Term pythonToYAP(PyObject *inp);
-#define YAPTerm _YAPTERM
-#elifndef HAVE_PYTHON_H
-typdef struct { int no_python; } PyObject;
-#else
-#include <Python.h>                                                                                
-#endif
-};
+}
 
 class YAPError;
 
@@ -55,14 +46,12 @@ public:
   };
 
   YAPTerm(Term tn) { mk(tn); };
-  YAPTerm(PyObject *inp) {
 #ifdef SWIGPYTHON
+  YAPTerm(PyObject *inp) {
     Term tinp = pythonToYAP(inp);
     t = Yap_InitSlot(tinp);
-#else
-    t = 0;
-#endif
   }
+#endif
   /// private method to convert from Term (internal YAP representation) to
   /// YAPTerm
   // do nothing constructor
@@ -96,7 +85,7 @@ public:
   inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
-  Term &operator[](size_t n);
+  Term &operator[](arity_t n);
   // const YAPTerm *vars();
   /// this term is == to t1
   virtual bool exactlyEqual(YAPTerm t1) {

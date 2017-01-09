@@ -641,9 +641,9 @@ static PyObject *structseq_repr(PyObject *iobj) {
 #endif
 
 PyObject *term_to_nametuple(const char *s, int arity, term_t t) {
+  PyObject *o;
 #if PY_MAJOR_VERSION >= 3
   PyTypeObject *typp;
-  PyObject *o;
   PyObject *key = PyUnicode_FromString(s);
   if (py_F2P && PyDict_Contains(py_F2P, key)) {
     typp = (PyTypeObject *)PyDict_GetItem(py_F2P, key);
@@ -667,7 +667,10 @@ PyObject *term_to_nametuple(const char *s, int arity, term_t t) {
     if (py_F2P)
       PyDict_SetItem(py_F2P, key, (PyObject *)typp);
   }
-  o = PyStructSequence_New(typp);
+  o = PyTuple_New(typp);
+#else
+  o = PyTuple_New(arity);
+#endif
   term_t tleft = PL_new_term_ref();
   int i;
 
@@ -678,15 +681,17 @@ PyObject *term_to_nametuple(const char *s, int arity, term_t t) {
     pArg = term_to_python(tleft, false);
     if (pArg == NULL)
       return NULL;
+#if PY_MAJOR_VERSION >= 3
     /* pArg reference stolen here: */
     PyStructSequence_SET_ITEM(o, i, pArg);
   }
   ((PyStructSequence *)o)->ob_base.ob_size = arity;
-
   return o;
 #else
-  if (PyObject_HasAttrString(py_Yapex, "T"))
-    c = PyObject_GetAttrString(py_Yapex, "T");
+    /* pArg reference stolen here: */
+    PyTuple_SET_ITEM(o, i, pArg);
+  }
+  PyObject *o1;
   o1 = PyTuple_New(2);
   PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
   PyTuple_SET_ITEM(o1, 1, o);
@@ -959,7 +964,6 @@ PyObject *compound_to_pytree(term_t t, functor_t fun) {
       return NULL;
     term_t tleft;
     int i;
-    PyObject *o1;
     o = PyTuple_New(arity);
     tleft = PL_new_term_ref();
     for (i = 0; i < arity; i++) {

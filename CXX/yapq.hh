@@ -180,7 +180,12 @@ public:
   /// current directory for the engine
   bool goalt(YAPTerm t);
   /// current directory for the engine
-  bool goal(Term t);
+  bool mgoal(Term t, Term tmod);
+  /// current directory for the engine
+
+bool goal(Term t) {
+  return mgoal(t, CurrentModule);
+}
   /// reset Prolog state
   void reSet();
   /// release: assune that there are no stack pointers, just release memory
