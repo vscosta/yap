@@ -112,10 +112,6 @@ if (WIN32)
   list (APPEND YLIBS    $<TARGET_OBJECTS:YapC++>)
 endif()
 
-<<<<<<< HEAD
-	
-=======
->>>>>>> 6aaa32363c7e98297e48a79ea03ae55de59fbdb3
 
 add_component (core
   ${ENGINE_SOURCES}
