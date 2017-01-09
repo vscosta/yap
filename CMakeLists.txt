@@ -53,6 +53,8 @@ if(NOT COMMAND find_host_program)
 endif()
 
 option(BUILD_SHARED_LIBS "Build shared library" ON)
+set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+
 
 include(Prelims NO_POLICY_SCOPE)
 
@@ -106,12 +108,13 @@ else ()
             )
 
 
-endif ()
+	endif ()
 
 if (WIN32)
   list (APPEND YLIBS    $<TARGET_OBJECTS:YapC++>)
+endif()
 
-  endif()
+	
 
   add_component (core
           ${ENGINE_SOURCES}

@@ -67,7 +67,10 @@ endif()
 
 add_subDIRECTORY (packages/real)
 
+if (WiTHPYTHON)
 add_subDIRECTORY (packages/python)
+include_directories(${PYTHON_INCLUDE_PATH})
+endif()
 
 add_subDIRECTORY (packages/jpl)
 
