@@ -13,14 +13,13 @@ if (ANDROID)
 else ()
 cmake_minimum_required(VERSION 2.8)
 include(CMakeToolsHelpers OPTIONAL)
-
-
 endif()
 
 set(
-        CMAKE_MODULE_PATH
-        "${CMAKE_SOURCE_DIR}"
-        "${CMAKE_SOURCE_DIR}/cmake")
+  CMAKE_MODULE_PATH
+  "${CMAKE_SOURCE_DIR}"
+  "${CMAKE_SOURCE_DIR}/cmake"
+  )
 
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
@@ -54,8 +53,6 @@ endif()
 
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
-
-
 include(Prelims NO_POLICY_SCOPE)
 
 include(Sources NO_POLICY_SCOPE)
@@ -85,7 +82,8 @@ if (MYSQL_POSTGRES)
   add_definitions(= -DMYDDAS_POSTGRES=1)
   endif()
 
-if (ANDROID)
+
+  if (ANDROID)
 
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
@@ -114,15 +112,18 @@ if (WIN32)
   list (APPEND YLIBS    $<TARGET_OBJECTS:YapC++>)
 endif()
 
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 6aaa32363c7e98297e48a79ea03ae55de59fbdb3
 
-  add_component (core
-          ${ENGINE_SOURCES}
-        ${SWIG_FILES}
-        ${C_INTERFACE_SOURCES}
-        ${STATIC_SOURCES}
-        ${ALL_SOURCES}
-                                                                                                                                         )
+add_component (core
+  ${ENGINE_SOURCES}
+  ${SWIG_FILES}
+  ${C_INTERFACE_SOURCES}
+  ${STATIC_SOURCES}
+  ${ALL_SOURCES}
+  )
 
 
 add_library( # Sets the name of the library.
