@@ -36,10 +36,10 @@ The following predicates are used to manipulate atoms:
  */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
 #include "yapio.h"
 #ifdef TABLING
 #include "tab.macros.h"
@@ -1715,22 +1715,24 @@ static Int atom_split(USES_REGS1) {
     ReleaseAndReturn((FALSE));
   }
   at = AtomOfTerm(t1);
-  unsigned char *s, *s1, *s10;
-  s = RepAtom(at)->UStrOfAE;
-  if (len > (Int)strlen_utf8(s))
+  char *s;
+  unsigned char *s1, *s10, *s0;
+  s = RepAtom(at)->StrOfAE;
+  if (len > strlen(s))
     ReleaseAndReturn((FALSE));
   s1 = s10 = Malloc(len);
+  s0 = RepAtom(at)->UStrOfAE;
   if (s1 + len > (unsigned char *)ASP - 1024)
     Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
   size_t j;
   for (j = 0; j < len; j++) {
     int32_t val;
-    s += get_utf8(s, 1, &val);
-    s1 += put_utf8(s, val);
+    s0 += get_utf8(s0, 1, &val);
+    s1 += put_utf8(s1, val);
   }
   s1[0] = '\0';
   to1 = MkAtomTerm(Yap_ULookupAtom(s10));
-  to2 = MkAtomTerm(Yap_ULookupAtom(s));
+  to2 = MkAtomTerm(Yap_LookupAtom(s));
   ReleaseAndReturn(
       (Yap_unify_constant(ARG3, to1) && Yap_unify_constant(ARG4, to2)));
 }
@@ -1790,8 +1792,8 @@ restart_aux:
 #define SUB_ATOM_HAS_ATOM 16
 #define SUB_ATOM_HAS_UTF8 32
 
-static Term build_new_atomic(int mask, wchar_t *wp, const unsigned char *p,
-                             size_t minv, size_t len USES_REGS) {
+static Term build_new_atomic(int mask, const unsigned char *p, size_t minv,
+                             size_t len USES_REGS) {
   int n;
   seq_tv_t outv[5], inp;
   size_t cuts[3];
@@ -1876,7 +1878,6 @@ static Int cont_sub_atomic(USES_REGS1) {
   Term tat5 = Deref(ARG5);
   int mask;
   size_t minv, len, after, sz;
-  wchar_t *wp = NULL;
   const unsigned char *p = NULL, *p5 = NULL;
 
   mask = IntegerOfTerm(EXTRA_CBACK_ARG(5, 1));
@@ -1936,7 +1937,7 @@ static Int cont_sub_atomic(USES_REGS1) {
       cut_fail();
     }
   } else if (mask & SUB_ATOM_HAS_SIZE) {
-    Term nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
@@ -1945,7 +1946,7 @@ static Int cont_sub_atomic(USES_REGS1) {
       cut_succeed();
   } else if (mask & SUB_ATOM_HAS_MIN) {
     after = sz - (minv + len);
-    Term nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
@@ -1954,7 +1955,7 @@ static Int cont_sub_atomic(USES_REGS1) {
       cut_succeed();
   } else if (mask & SUB_ATOM_HAS_AFTER) {
     len = sz - (minv + after);
-    Term nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG5, nat);
@@ -1962,7 +1963,7 @@ static Int cont_sub_atomic(USES_REGS1) {
     if (len-- == 0)
       cut_succeed();
   } else {
-    Term nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+    Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
@@ -1988,7 +1989,6 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   Term tat1, tbef, tsize, tafter, tout;
   int mask = SUB_ATOM_HAS_UTF8;
   size_t minv, len, after, sz;
-  wchar_t *wp = NULL;
   const unsigned char *p = NULL;
   int bnds = 0;
   Term nat = 0L;
@@ -2100,7 +2100,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         release_cut_fail();
       if ((Int)(after = (sz - (minv + len))) < 0)
         release_cut_fail();
-      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+      nat = build_new_atomic(mask, p, minv, len PASS_REGS);
       if (!nat)
         release_cut_fail();
       out = Yap_unify(ARG4, MkIntegerTerm(after)) && Yap_unify(ARG5, nat);
@@ -2109,7 +2109,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       if (sz < minv + after)
         release_cut_fail();
       len = sz - (minv + after);
-      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+      nat = build_new_atomic(mask, p, minv, len PASS_REGS);
       if (!nat)
         release_cut_fail();
       out = Yap_unify(ARG3, MkIntegerTerm(len)) && Yap_unify(ARG5, nat);
@@ -2118,7 +2118,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       if (len + after > sz)
         release_cut_fail();
       minv = sz - (len + after);
-      nat = build_new_atomic(mask, wp, p, minv, len PASS_REGS);
+      nat = build_new_atomic(mask, p, minv, len PASS_REGS);
       if (!nat)
         release_cut_fail();
       out = Yap_unify(ARG2, MkIntegerTerm(minv)) && Yap_unify(ARG5, nat);
@@ -2141,7 +2141,7 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         if (!out)
           release_cut_fail();
       } else {
-        out = (strlen_utf8(RepAtom(AtomOfTerm(tout))->UStrOfAE) == len);
+        out = (strlen(RepAtom(AtomOfTerm(tout))->StrOfAE) == len);
         if (!out)
           release_cut_fail();
       }
