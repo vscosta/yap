@@ -5,8 +5,10 @@
 
 #include <gmpxx.h>
 #include <vector>
+#include <string>
+#include <iostream>
 
-//! @{
+        //! @{
 /**
  *
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
@@ -66,38 +68,6 @@ extern "C" {
 
 // taken from yap_structs.h
 #include "iopreds.h"
-
-#ifdef SWIGPYTHON
-extern PyObject *yap_to_pythond(YAP_Term t, bool eval);
-extern PyObject *term_to_python(yhandle_t t, bool eval);
-extern PyObject *deref_term_to_python(yhandle_t t);
-X_API bool init_python(void);
-extern Term pythonToYAP(PyObject *p);
-
-extern PyObject *py_Main;
-
-extern inline PyObject *AtomToPy(const char *s) {
-  if (strcmp(s, "true") == 0)
-    return Py_True;
-  if (strcmp(s, "false") == 0)
-    return Py_False;
-  if (strcmp(s, "none") == 0)
-    return Py_None;
-  if (strcmp(s, "[]") == 0)
-    return PyList_New(0);
-  else if (strcmp(s, "{}") == 0)
-    return PyDict_New();
-  /* return __main__,s */
-  else if (PyObject_HasAttrString(py_Main, s)) {
-    return PyObject_GetAttrString(py_Main, s);
-  }
-  // no way to translate
-  return NULL;
-}
-
-X_API extern  PyObject *yap_to_python(YAP_Term t, bool eval);
-
-#endif
 
 X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 

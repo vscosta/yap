@@ -13,12 +13,13 @@ class YAPPredicate;
  * interface to a YAP Query;
  * uses an SWI-like status info internally.
  */
-class YAPQuery : public YAPPredicate {
+class YAPQuery : public YAPPredicate
+{
   bool q_open;
   int q_state;
   yhandle_t q_g, q_handles;
   struct yami *q_p, *q_cp;
-  jmp_buf q_env;
+  sigjmp_buf q_env;
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
@@ -51,13 +52,14 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names) {
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names)
+  {
     BACKUP_H();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
     if (!ap)
       return;
-     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
     openQuery();
     RECOVER_H();
   };
@@ -65,7 +67,8 @@ public:
   ///
   /// It is given an atom, and a Prolog term that should be a callable
   /// goal, say `main`, `init`, `live`.
-  inline YAPQuery(YAPAtom g) : YAPPredicate(g) {
+  inline YAPQuery(YAPAtom g) : YAPPredicate(g)
+  {
     goal = YAPAtomTerm(g).gt();
     names = TermNil;
     openQuery();
@@ -89,10 +92,10 @@ public:
   const char *text();
   /// remove alternatives in the current search space, and finish the current
   /// query
-  void cut();
   /// finish the current query: undo all bindings.
   void close();
   /// query variables.
+  void cut();
   Term namedVars();
   /// query variables, but copied out
   Term namedVarsCopy();
@@ -101,7 +104,8 @@ public:
   /// simple YAP Query;
   /// just calls YAP and reports success or failure, Useful when we just
   /// want things done, eg YAPCommand("load_files(library(lists), )")
-  inline bool command() {
+  inline bool command()
+  {
     bool rc = next();
     close();
     return rc;
@@ -113,7 +117,8 @@ public:
 /// This class implements a callback Prolog-side. It will be inherited by the
 /// Java or Python
 /// class that actually implements the callback.
-class YAPCallback {
+class YAPCallback
+{
 public:
   virtual ~YAPCallback() {}
   virtual void run() { LOG("callback"); }
@@ -126,7 +131,8 @@ public:
  *
  *
  */
-class YAPEngine {
+class YAPEngine
+{
 private:
   YAPCallback *_callback;
   YAP_init_args init_args;
@@ -153,14 +159,16 @@ public:
   /// remove current callback
   void delYAPCallback() { _callback = 0; }
   /// set a new callback
-  void setYAPCallback(YAPCallback *cb) {
+  void setYAPCallback(YAPCallback *cb)
+  {
     delYAPCallback();
     _callback = cb;
   }
   /// execute the callback.
   ////void run() { if (_callback) _callback->run(); }
   /// execute the callback with a text argument.
-  void run(char *s) {
+  void run(char *s)
+  {
     if (_callback)
       _callback->run(s);
   }
@@ -178,22 +186,30 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goalt(YAPTerm t);
+  bool goalt(YAPTerm Yt) { return Yt.term(); };
   /// current directory for the engine
-  bool goal(Term t);
+  bool mgoal(Term t, Term tmod);
+  /// current directory for the engine
+
+  bool goal(Term t)
+  {
+    return mgoal(t, CurrentModule);
+  }
   /// reset Prolog state
   void reSet();
   /// release: assune that there are no stack pointers, just release memory
   // for last execution
   void release();
 
-  const char *currentDir() {
+  const char *currentDir()
+  {
     char dir[1024];
     std::string s = Yap_getcwd(dir, 1024 - 1);
     return s.c_str();
   };
   /// report YAP version as a string
-  const char *version() {
+  const char *version()
+  {
     std::string s = Yap_version();
     return s.c_str();
   };

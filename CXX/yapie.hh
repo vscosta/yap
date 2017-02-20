@@ -7,12 +7,17 @@ class YAPTerm;
 
 /// take information on a Prolog error:
 class YAPError {
-  std::string name, errorClass, info;
+  yap_error_number ID;
+  std::string goal, info;
   int swigcode;
-
+  
 public:
-  /// error handling when receiving the error term
-  YAPError(){};
+  YAPError(){
+    //ID = LOCAL_ActiveError->errorNo;
+  }
+  /// error handler object with initial data when receiving the error term
+  YAPError(yap_error_number id, YAPTerm culprit, std::string txt);
+  
   /// we just know the error number
   /// exact error ID
   yap_error_number getID() { return LOCAL_ActiveError->errorNo; };
@@ -27,7 +32,7 @@ public:
   /// the term that caused the bug
   // YAPTerm getCulprit(LOCAL_ActiveError->errorFile){};
   /// text describing the Error
-  const char *text();
+  std::string text();
 };
 
 #endif
