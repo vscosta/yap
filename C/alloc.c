@@ -78,7 +78,7 @@ void *my_malloc(size_t sz) {
   p = malloc(sz);
   //    Yap_DebugPuts(stderr,"gof\n");
   if (Yap_do_low_level_trace)
-    fprintf(stderr, "+ %p : %lu\n", p, sz);
+    fprintf(stderr, "+ %p: %" Sizet_F "\n", p, sz);
   if (sz > 500 && write_malloc++ > 0)
     __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,
                         p);
@@ -90,7 +90,7 @@ void *my_realloc(void *ptr, size_t sz) {
 
   p = realloc(ptr, sz);
   if (Yap_do_low_level_trace)
-    //  fprintf(stderr, "+ %p -> %p : %lu\n", ptr, p, sz);
+    //  fprintf(stderr, "+ %p -> %p : " Sizet_F "\n", ptr, p, sz);
   //    Yap_DebugPuts(stderr,"gof\n");
   if (sz > 500 && write_malloc++ > 0)
     __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p", write_malloc,
