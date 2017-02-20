@@ -68,22 +68,6 @@ static Int hide_atom(USES_REGS1);
 static Int hidden_atom(USES_REGS1);
 static Int unhide_atom(USES_REGS1);
 
-#define ReleaseAndReturn(r)                                                    \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    return r;                                                                  \
-  }
-#define release_cut_fail()                                                     \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    cut_fail();                                                                \
-  }
-#define release_cut_succeed()                                                  \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    cut_succeed();                                                             \
-  }
-
 static int AlreadyHidden(unsigned char *name) {
   AtomEntry *chain;
 
@@ -2014,11 +1998,18 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
         p = UStringOfTerm(tat1);
         sz = strlen_utf8(p);
       } else {
-        Yap_Error(TYPE_ERROR_STRING, tat1, "sub_atom/5");
+        Yap_Error(TYPE_ERROR_STRING, tat1, "sub_string/5");
         ReleaseAndReturn(false);
+      }
+    } else {
+      if ((p = Yap_TextToUTF8Buffer(tat1 PASS_REGS))) {
+        sz = strlen_utf8(p);
+      } else {
+        ReleaseAndReturn(false)
       }
     }
   } else {
+
     Yap_Error(INSTANTIATION_ERROR, tat1, "sub_atom/5: first variable\n");
     ReleaseAndReturn(false);
   }
