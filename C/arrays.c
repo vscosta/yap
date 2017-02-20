@@ -102,7 +102,7 @@ The following predicates manipulate arrays:
 #include "Yap.h"
 #include "Yatom.h"
 #include "clause.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "heapgc.h"
 #if HAVE_ERRNO_H
 #include <errno.h>

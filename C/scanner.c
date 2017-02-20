@@ -407,7 +407,7 @@ writing, writing a BOM can be requested using the option
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "alloc.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"

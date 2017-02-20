@@ -141,7 +141,7 @@ dot with single quotes.
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 /* stuff we want to use in standard YAP code */
 #include "iopreds.h"

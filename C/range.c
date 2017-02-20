@@ -21,7 +21,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 
 static Int
 p_in_range( USES_REGS1 ) {

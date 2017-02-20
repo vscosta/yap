@@ -228,7 +228,7 @@ X is Y*10+C-48.
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 
 static Term
 float_to_int(Float v USES_REGS)

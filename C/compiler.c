@@ -174,7 +174,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "alloc.h"
 #include "clause.h"
-#include "compile.h"
+#include "YapCompile.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>

@@ -16,10 +16,10 @@
 *************************************************************************/
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
 #include "yapio.h"
 
 #include <YapText.h>

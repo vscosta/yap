@@ -127,7 +127,7 @@ These are the binary numeric operators currently supported by YAP.
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 
 #include "arith2.h"
 

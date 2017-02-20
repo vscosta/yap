@@ -60,7 +60,7 @@ static Int current_prolog_flag(USES_REGS1);
 static Int set_prolog_flag(USES_REGS1);
 
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 
 #define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)                        \

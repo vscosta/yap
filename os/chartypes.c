@@ -74,7 +74,7 @@ static char SccsId[] = "%W% %G%";
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
 #endif
 #endif
-#include "eval.h"
+#include "YapEval.h"
 #include "iopreds.h"
 
 static Int p_change_type_of_char(USES_REGS1);

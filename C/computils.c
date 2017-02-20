@@ -54,13 +54,13 @@ static char SccsId[] = "%W% %G%";
 
 /*
  * This file includes a set of utilities, useful to the several compilation
- * modules 
+ * modules
  */
 
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "compile.h"
+#include "YapCompile.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
@@ -69,7 +69,7 @@ static char SccsId[] = "%W% %G%";
 
 /*
  * The compiler creates an instruction chain which will be assembled after
- * afterwards 
+ * afterwards
  */
 
 
@@ -146,7 +146,7 @@ AllocCMem (UInt size, struct intermediates *cip)
     LOCAL_Error_Size = 256+((char *)cip->freep - (char *)HR);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
-  } 
+  }
   p = cip->freep;
   cip->freep += size;
   return p;
@@ -216,7 +216,7 @@ is_a_test(Term arg, Term mod)
 	  return TRUE;
 	}
 	return FALSE;
-      }      
+      }
       return pe->PredFlags & (TestPredFlag|BinaryPredFlag);
     }
   }
@@ -315,7 +315,7 @@ Yap_emit_6ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, CELL r5, CE
   p->rnd1 = r1;
   p->rnd2 = r2;
   p->rnd3 = r3;
-  p->rnd4 = r4; 
+  p->rnd4 = r4;
   p->rnd5 = r5;
   p->rnd6 = r6;
   p->nextInst = NIL;
@@ -337,7 +337,7 @@ Yap_emit_7ops (compiler_vm_op o, CELL r1, CELL r2, CELL r3, CELL r4, CELL r5, CE
   p->rnd1 = r1;
   p->rnd2 = r2;
   p->rnd3 = r3;
-  p->rnd4 = r4; 
+  p->rnd4 = r4;
   p->rnd5 = r5;
   p->rnd6 = r6;
   p->rnd7 = r7;
@@ -520,7 +520,7 @@ write_special_label(special_label_op arg, special_label_id rn, UInt lab)
       Yap_DebugErrorPuts("fail");
       break;
     }
-  }    
+  }
 }
 
 static void
@@ -616,7 +616,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 		Yap_DebugPlWrite(MkIntegerTerm((Int)(*ptr++)));
 	      }
 	    }
-	    break;		
+	    break;
 	  case 'l':
 	    write_address (arg);
 	    break;
@@ -645,7 +645,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
             Yap_DebugPlWrite (MkIntTerm ((v->NoOfVE) & MaskVarAdrs));
           }
 	    }
-	    break;	
+	    break;
 	  case 'N':
 	    {
 	      Ventry *v;
@@ -795,4 +795,3 @@ Yap_ShowCode (struct intermediates *cint)
 }
 
 #endif /* DEBUG */
-

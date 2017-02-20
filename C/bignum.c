@@ -30,7 +30,7 @@ static char     SccsId[] = "%W% %G%";
 
 #ifdef USE_GMP
 
-#include "eval.h"
+#include "YapEval.h"
 #include "alloc.h"
 
 Term

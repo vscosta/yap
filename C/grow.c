@@ -20,7 +20,7 @@
 #include "yapio.h"
 #include "alloc.h"
 #include "sshift.h"
-#include "compile.h"
+#include "YapCompile.h"
 #include "attvar.h"
 #include "cut_c.h"
 #if HAVE_STRING_H
