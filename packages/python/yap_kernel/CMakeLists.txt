@@ -8,8 +8,10 @@ add_custom_target ( YAPKernel ALL
         DEPENDS yap_kernel.py
        )
 
+ set(   PYTHON_INSTALL install)
 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
+
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} ${PYTHON_INSTALL} -f
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
    install(FILES jupyter.yap

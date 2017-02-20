@@ -1,7 +1,8 @@
 
 import yap
 import sys
-import collections
+# debugging support.
+import pdb
 
 def query_prolog(engine, s):
 
@@ -12,13 +13,14 @@ def query_prolog(engine, s):
             print(e.args[1])
             return False
 
+    #
     #construct a query from a one-line string
     # q is opaque to Python
     q = engine.query(s)
     # vs is the list of variables
     # you can print it out, the left-side is the variable name,
     # the right side wraps a handle to a variable
-    vs=  q.namedVars()
+    vs = q.namedVars()
     # atom match either symbols, or if no symbol exists, sttrings, In this case
     # variable names should match strings
     for eq in vs:
@@ -56,7 +58,10 @@ def query_prolog(engine, s):
             if s.startswith(';') or s.startswith('y'):
                 continue
             elif s.startswith('#'):
-                exec(s.lstrip('#'))
+                try:
+                    exec(s.lstrip('#'))
+                except:
+                    raise
             elif s.startswith('*') or s.startswith('a'):
                 ask = False
                 continue
@@ -70,6 +75,7 @@ def query_prolog(engine, s):
 def live():
     engine = yap.YAPEngine()
     loop = True
+    pdb.set_trace()
     while loop:
         try:
             s = input("?- ")
@@ -92,4 +98,4 @@ def live():
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
-live()
+#live()

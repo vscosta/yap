@@ -80,14 +80,10 @@ GitSHA1.c
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
-
-GitSHA1.c
-
+clang
+cmake-build-debug
 os/YapIOConfig.h
-
-os/YapIOConfig.h
-
-os/YapIOConfig.h
+CodeBlocks
 
 os/readterm.c.cpp
 

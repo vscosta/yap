@@ -1,10 +1,8 @@
 
 #include "python.h"
 
-int assign_python(PyObject *root, term_t t, PyObject *e);
-
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
+  ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
 
 functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -12,21 +10,16 @@ functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
     FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
     FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
-    FUNCTOR_colon2, FUNCTOR_equal2, FUNCTOR_sqbrackets2, FUNCTOR_dot2;
+    FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
+  FUNCTOR_dot2, FUNCTOR_brackets1;
 
-PyObject *py_Main;
-PyObject *py_Builtin;
-PyObject *py_Yapex;
-PyObject *term_to_python(term_t t, bool eval);
-foreign_t python_to_ptr(PyObject *pVal, term_t t);
+X_API PyObject *py_Builtin;
+X_API PyObject *py_Yapex;
+X_API PyObject *py_Sys;
+PyObject *py_Context;
+PyObject *py_ModDict;
 
-PyObject *py_F2P;
-PyObject *term_to_python(term_t t, bool eval);
-
-int assign_python(PyObject *root, term_t t, PyObject *e);
-
-PyObject *ActiveModules[32];
-int active_modules = 0;
+X_API PyObject *py_F2P;
 
 bool python_in_python;
 
@@ -54,6 +47,7 @@ static void install_py_constants(void) {
   FUNCTOR_long1 = PL_new_functor(PL_new_atom("long"), 1);
   FUNCTOR_float1 = PL_new_functor(PL_new_atom("float"), 1);
   FUNCTOR_curly1 = PL_new_functor(PL_new_atom("{}"), 1);
+  FUNCTOR_brackets1 = PL_new_functor(PL_new_atom("()"), 1);
   FUNCTOR_dollar1 = PL_new_functor(PL_new_atom("$"), 1);
   FUNCTOR_pointer1 = PL_new_functor(PL_new_atom("__obj__"), 1);
   FUNCTOR_dir1 = PL_new_functor(PL_new_atom("dir"), 1);
@@ -74,43 +68,68 @@ static void install_py_constants(void) {
   FUNCTOR_comma2 = PL_new_functor(PL_new_atom(","), 2);
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   FUNCTOR_sqbrackets2 = PL_new_functor(PL_new_atom("[]"), 2);
+  //  if (python_in_python) {
   py_Main = PyImport_AddModule("__main__");
+  Py_INCREF(py_Main);
+  py_Sys = PyImport_AddModule("sys");
+  Py_INCREF(py_Sys);
   py_Builtin = PyImport_AddModule("__builtin__");
-  py_Yapex = PyImport_AddModule("yapex");
+  Py_INCREF(py_Builtin);
+  py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
+  py_Yapex = PyImport_ImportModule("yapex");
+  PyObject *py_Yap = PyImport_ImportModule("yap");
+  Py_INCREF(py_Yapex);
+  //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
+  py_F2P = NULL;
 }
 
 foreign_t end_python(void) {
   Py_Finalize();
 
-  return TRUE;
+  return true;
 }
 
-X_API bool init_python(void) {
-  char **argv;
-  python_in_python = false;
-  if (YAP_DelayInit(init_python, "python")) {
-    // wait for YAP_Init
-    return false;
-  }
+static bool libpython_initialized = 0;
+
+bool do_init_python(void) {
+  //  char **argv;
+
+  if (libpython_initialized)
+    return true;
+  libpython_initialized = true;
   //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
-  if (!Py_IsInitialized()) {
-    python_in_python = true;
-    YAP_Argv(&argv);
-    if (argv) {
-#if PY_MAJOR_VERSION < 3
-      Py_SetProgramName(argv[0]);
-#else
-      wchar_t *buf = Py_DecodeLocale(argv[0], NULL);
-      Py_SetProgramName(buf);
-#endif
-    }
-    Py_Initialize();
-  }
+  Py_Initialize();
   install_py_constants();
   PL_reset_term_refs(t);
   install_pypreds();
   install_pl2pl();
   // PyGILState_Release(gstate);
   return !python_in_python;
+
 }
+X_API bool init_python(void) {
+
+    return do_init_python();
+}
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_python(HANDLE, DWORD, LPVOID);
+
+int WINAPI win_python(HANDLE hinst, DWORD reason, LPVOID reserved) {
+  switch (reason) {
+  case DLL_PROCESS_ATTACH:
+    break;
+  case DLL_PROCESS_DETACH:
+    break;
+  case DLL_THREAD_ATTACH:
+    break;
+  case DLL_THREAD_DETACH:
+    break;
+  }
+  return 1;
+}
+#endif
