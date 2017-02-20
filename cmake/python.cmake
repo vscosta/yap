@@ -36,7 +36,7 @@ get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABS
             execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'stdlib' ) )"
            OUTPUT_VARIABLE _ABS_PYTHON_SYSLIB_PATH
            OUTPUT_STRIP_TRAILING_WHITESPACE )
-    
+
   set( _ABS_PYTHON_SYSLIB_PATH
   ${_ABS_PYTHON_SYSLIB_PATH}/../${CMAKE_SHARED_LIBRARY_PREFIX}python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m${CMAKE_SHARED_LIBRARY_SUFFIX} )
   message("${_ABS_PYTHON_SYSLIB_PATH}")

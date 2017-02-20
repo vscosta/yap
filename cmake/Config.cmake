@@ -406,11 +406,3 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../GitSHA1.c.in GitSHA1.c @ONLY)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/os/YapIOConfig.h)
 
-check_include_files( "stdio.h;cudd.h" HAVE_CTYPE_HUDD_H )
-
-check_include_files( "stdio.h;cuddI.h"  HAVE_CUDD_H )
-check_include_files( "cudd.h;cuddInt.h"  HAVE_CUDDINT_H )
-check_include_files( "stdio.h;cudd/cudd.h" HAVE_CUDD_CUDD_H )
-check_include_files( "stdio.h;cudd/cuddInt.h" HAVE_CUDD_CUDDINT_H )
-configure_file (cmake/cudd_config.h.cmake
-  "${CMAKE_CURRENT_BINARY_DIR}/cudd_config.h" )

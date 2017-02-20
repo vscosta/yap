@@ -8,6 +8,14 @@ set (CXX_SOURCES
     yapi.cpp
 )
 
+set (CXX_HEADERS
+    yapa.hh
+    yapdb.hh
+    yapi.h
+    yapie.hh
+    yapq.hh
+-   yapt.hh
+-)
 
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 

@@ -116,7 +116,7 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
 PyObject *find_obj(PyObject *ob, term_t l, bool eval) {
   YAP_Term hd, yt;
   bool may_be_package = true;
-  
+
 
   py_Context = NULL;
   yt = YAP_GetFromSlot(l);
@@ -128,7 +128,7 @@ PyObject *find_obj(PyObject *ob, term_t l, bool eval) {
       return NULL;
     }
     yt = YAP_TailOfTerm(yt);
-    
+
    }
   YAP_PutInSlot(l, yt);
   return ob;
@@ -1050,7 +1050,7 @@ PyObject *compound_to_data(term_t t, PyObject *o, functor_t fun, bool exec) {
       AOK( copy_to_dictionary(dict, targ, taux, true), NULL);
       AOK( PL_get_arg(2, t, t) , NULL );
      }
-    
+
     if (PL_is_functor(t, FUNCTOR_colon2)) {
       AOK ( copy_to_dictionary(dict, t, taux, true), NULL);
     }
@@ -1069,7 +1069,7 @@ PyObject *compound_to_pytree(term_t t, PyObject *context) {
   AOK( PL_get_name_arity(t, &name, &arity), NULL );
   if (arity == 0)
     return term_to_python(t, false, o);
-  AOK( PL_get_functor(t, &fun), NULL);                                     
+  AOK( PL_get_functor(t, &fun), NULL);
   if ((no = compound_to_data(t, o, fun, false)) != o && no) {
     return no;
   }

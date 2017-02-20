@@ -255,7 +255,7 @@ public:
 class YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
   YAPApplTerm(Term t0) { mk(t0); }
-  
+
 public:
   YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
@@ -417,7 +417,7 @@ class YAPAtomTerm : public YAPTerm {
   // Constructor: receives a C-atom;
   YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
-  
+
 public:
   // Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }

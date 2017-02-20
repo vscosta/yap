@@ -68,11 +68,11 @@ set_config_var() {
             cfg="${ENABLE_VARS}"
             case "x$arg" in
                 "xy"|"xyes"|"xtrue")
-                VAR_VALUE=yes
+                VAR_VALUE=YES
                 ;;
                 "xn"|"xno"|"xfalse")
                 found=y
-                VAR_VALUE=no
+                VAR_VALUE=NO
                  ;;
                 **)
                 VAR_VALUE=""
@@ -84,10 +84,10 @@ set_config_var() {
             cfg="${ENABLE_VARS}"
             case "x$arg" in
                 "xy"|"xyes"|"xtrue")
-                VAR_VALUE=no
+                VAR_VALUE=NO
                 ;;
                 "xn"|"xno"|"xfalse")
-                VAR_VALUE=yes
+                VAR_VALUE=YES
                  ;;
                 **)
                 VAR_VALUE=""
@@ -99,13 +99,13 @@ set_config_var() {
             name="${1#--with-}"
             cfg="${WITH_VARS}"
             case "x$arg" in
-                "x"|"xy"|"xyes"|"xtrue")
+                "x"|"xy"|"xyes"|"xtrue"|"xon")
                 is_with=n
-                VAR_VALUE=yes
+                VAR_VALUE=YES
                 ``;;
-                "xn"|"xno"|"xfalse")
+                "xn"|"xno"|"xfalse"|"xoff")
                 is_with=n
-                VAR_VALUE=no
+                VAR_VALUE=NO
                 ;;
                 **)
                 is_with=y

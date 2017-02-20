@@ -72,6 +72,8 @@ extern void *protected_pop_text_stack(int lvl, void *safe, bool tmp,
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
 
+#define Yap_strlen(s) strlen((void *)(s))
+
 typedef enum {
   BG = 0,  /* initial state */
   UC = 1,  /* Upper case */
