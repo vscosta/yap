@@ -136,6 +136,7 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
   if (LOCAL_TextBuffer->last[lvl] == old) {
     LOCAL_TextBuffer->last[lvl] = o;
   }
+
   return o + 1;
 }
 
@@ -381,10 +382,16 @@ static yap_error_number gen_type_error(int flags) {
 }
 #endif
 
+// static int cnt;
+
 unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
   unsigned char *s0 = NULL;
   bool wide;
 
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+    fprintf(stderr, "Sourious error %u\n", LOCAL_Error_TYPE);
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
+  }
   /* we know what the term is */
   if (!(inp->type & (YAP_STRING_CHARS | YAP_STRING_WCHARS))) {
     if (!(inp->type & YAP_STRING_TERM)) {
@@ -412,14 +419,14 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     // Yap_DebugPlWriteln(inp->val.t);
     Atom at = AtomOfTerm(inp->val.t);
     if (lengp)
-      *lengp = strlen_utf8(at->UStrOfAE);
+      *lengp = strlen(at->StrOfAE);
     return at->UStrOfAE;
   }
   if (IsStringTerm(inp->val.t) && inp->type & YAP_STRING_STRING) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
     if (lengp)
-      *lengp = strlen_utf8(UStringOfTerm(inp->val.t));
+      *lengp = strlen(StringOfTerm(inp->val.t));
     return (unsigned char *)UStringOfTerm(inp->val.t);
   }
   if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
@@ -451,7 +458,8 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
                  IntegerOfTerm(inp->val.t)) < 0) {
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
     }
-    *lengp = strlen(s);
+    if (lengp)
+      *lengp = strlen(s);
     return (unsigned char *)s;
   }
   if (inp->type & YAP_STRING_FLOAT && IsFloatTerm(inp->val.t)) {
@@ -472,8 +480,9 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
       } else
         s = Realloc(s, sz + 1024);
     }
-    *lengp = strlen(s);
-    return inp->val.uc = (unsigned char *)s;
+    if (lengp)
+      *lengp = strlen(s);
+    return (unsigned char *)s;
   }
 #if USE_GMP
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
@@ -486,8 +495,8 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), s, MaxTmp() - 1, 10)) {
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     }
-    *lengp = strlen(s);
-    Malloc(*lengp);
+    if (lengp)
+      *lengp = strlen(s);
     return inp->val.uc = (unsigned char *)s;
   }
 #endif
@@ -497,18 +506,17 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     return inp->val.uc = (unsigned char *)s;
   }
   if (inp->type & YAP_STRING_CHARS) {
-    // printf("%s\n",inp->val.c);
-    if (inp->enc == ENC_ISO_UTF8) {
-      if (lengp)
-        *lengp = strlen_utf8(inp->val.uc);
-      return inp->val.uc;
-    } else if (inp->enc == ENC_ISO_LATIN1) {
+     if (inp->enc == ENC_ISO_LATIN1) {
       return latin2utf8(inp, lengp);
     } else if (inp->enc == ENC_ISO_ASCII) {
       if (lengp)
         *lengp = strlen(inp->val.c);
       return inp->val.uc;
-    }
+    }else { //if (inp->enc == ENC_ISO_UTF8) {
+      if (lengp)
+        *lengp = strlen(inp->val.c);
+      return inp->val.uc;
+    } 
   }
   if (inp->type & YAP_STRING_WCHARS) {
     // printf("%S\n",inp->val.w);
@@ -677,7 +685,7 @@ size_t write_buffer(unsigned char *s0, seq_tv_t *out, size_t leng USES_REGS) {
   size_t min = 0, max = leng, room_end;
   if (out->enc == ENC_ISO_UTF8) {
     room_end = strlen((char *)s0) + 1;
-    if (out->val.uc == NULL) {
+    if (out->val.uc == NULL) { // this should always be the case
       out->val.uc = malloc(room_end < 16 ? 16 : room_end);
     }
     if (out->val.uc != s0) {
@@ -773,7 +781,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out, size_t leng USES_REGS) {
   }
   if (out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
     if ((out->val.t = write_number(
-             inp, out, leng, !(out->type & YAP_STRING_ATOM)PASS_REGS)) != 0L) {
+             inp, out, leng, !(out->type & YAP_STRING_ATOM) PASS_REGS)) != 0L) {
       // Yap_DebugPlWriteln(out->val.t);
 
       return true;
@@ -872,10 +880,11 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
               .w);
   else  fprintf(stderr,"s %s\n", inp->val.c);
 */
+  //  cnt++;
   buf = Yap_readText(inp, &leng PASS_REGS);
   if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
     if (out->max < leng) {
-      const unsigned char *ptr = skip_utf8(buf, leng);
+      const unsigned char *ptr = skip_utf8(buf, out->max);
       size_t diff = (ptr - buf);
       char *nbuf = Malloc(diff + 1);
       memcpy(nbuf, buf, diff);
@@ -885,10 +894,10 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     // else if (out->type & YAP_STRING_NCHARS &&
     // const unsigned char *ptr = skip_utf8(buf, leng)
   }
-
   if (!buf) {
     return 0L;
   }
+
   if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
     if (out->type & YAP_STRING_UPCASE) {
       if (!upcase(buf, out)) {
@@ -945,7 +954,7 @@ static unsigned char *concat(int n, void *sv[] USES_REGS) {
   buf0 = buf;
   for (i = 0; i < n; i++) {
 #if _WIN32 || defined(__ANDROID__)
-    strcpy(buf, sv[i]);
+    strcpy(buf, sv[lvl]);
     buf = (char *)buf + strlen(buf);
 #else
     buf = stpcpy(buf, sv[i]);
