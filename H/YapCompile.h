@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		compile.h						 *
+* File:		YapCompile.h						 *
 * Last rev:								 *
 * mods:									 *
 * comments:	compiler data structures and routines			 *

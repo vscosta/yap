@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 //=== includes ===============================================================
-#ifdef          _YAP_NOT_INSTALLED_
+#ifdef          YAP_KERNEL
 #include	"config.h"
 
 #ifdef __cplusplus
@@ -26,8 +26,12 @@ extern "C" {
 #endif
 
 
-#if USE_GMP && !defined(__cplusplus)
+#if USE_GMP
+#if defined(__cplusplus)
+#include <gmpxx.h>
+#else
 #include <gmp.h>
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -36,11 +40,13 @@ extern "C" {
 
 #include	"YapInterface.h"
 #else
-#include	<Yap/src/config.h>
-#if USE_GMP
-#include <gmp.h>
-#endif
+#if _YAP_NOT_INSTALLED_
+#include	<config.h>
+#include	<YapInterface.h>
+#else
+#include	<Yap/pl/config.h>
 #include	<Yap/YapInterface.h>
+#endif
 #endif
 #include	<stdarg.h>
 #include        <stddef.h>
@@ -85,35 +91,9 @@ See SWI-Prolog.h, containing the same code   for  an explanation on this
 stuff.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifndef _PL_EXPORT_DONE
-#define _PL_EXPORT_DONE
-
-#if (defined(__WINDOWS__) || defined(__CYGWIN__) || defined(__MINGW32__)) && !defined(__LCC__)
-#define HAVE_DECLSPEC
-#endif
-
-#ifdef HAVE_DECLSPEC
-# ifdef _YAP_NOT_INSTALLED_
-#define PL_EXPORT(type)		__declspec(dllexport) type
-#define PL_EXPORT_DATA(type)	__declspec(dllexport) type
-#define install_t	 	void
-# else
-#  ifdef __BORLANDC__
-#define PL_EXPORT(type)	 	type _stdcall
-#define PL_EXPORT_DATA(type)	extern type
-#  else
-#define PL_EXPORT(type)	 	extern type
-#define PL_EXPORT_DATA(type)	__declspec(dllimport) type
-#  endif
-#define install_t	 	__declspec(dllexport) void
-# endif
-#else /*HAVE_DECLSPEC*/
-#define PL_EXPORT(type)	 	extern type
-#define PL_EXPORT_DATA(type)	extern type
-#define install_t	 	void
-#endif /*HAVE_DECLSPEC*/
-#endif /*_PL_EXPORT_DONE*/
-
+#define PL_EXPORT(type)		extern X_API type
+#define PL_EXPORT_DATA(type)    extern X_API type
+#define install_t               O_API void
 
                  /*******************************
                  *        GCC ATTRIBUTES        *
@@ -403,102 +383,101 @@ PL_EXPORT(int) PL_chars_to_term(const char *chars,
 #define PL_fail		return FALSE	/* fail */
 #define PL_succeed	return TRUE	/* success */
 
-extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
-extern X_API char* PL_atom_chars(atom_t);
-extern X_API char* PL_atom_nchars(atom_t, size_t *);
-extern X_API term_t PL_copy_term_ref(term_t);
-extern X_API term_t PL_new_term_ref(void);
-extern X_API term_t PL_new_term_refs(int);
-extern X_API void PL_reset_term_refs(term_t);
+  PL_EXPORT( PL_agc_hook_t ) PL_agc_hook(PL_agc_hook_t);
+  PL_EXPORT( char* ) PL_atom_chars(atom_t);
+  PL_EXPORT( char* ) PL_atom_nchars(atom_t, size_t *);
+  PL_EXPORT( term_t ) PL_copy_term_ref(term_t);
+  PL_EXPORT( term_t ) PL_new_term_ref(void);
+  PL_EXPORT( term_t ) PL_new_term_refs(int);
+  PL_EXPORT( void ) PL_reset_term_refs(term_t);
 /* begin PL_get_* functions =============================*/
-extern X_API int PL_get_arg(int, term_t, term_t);
-extern X_API int _PL_get_arg(int, term_t, term_t);
-extern X_API int PL_get_atom(term_t, atom_t *);
-extern X_API int PL_get_atom_chars(term_t, char **);
-extern X_API int PL_get_atom_nchars(term_t, size_t *, char **);
-extern X_API int PL_get_bool(term_t, int *);
-extern X_API int PL_get_chars(term_t, char **, unsigned);
-extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
-extern X_API int PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
-extern X_API int PL_get_functor(term_t, functor_t *);
-extern X_API int PL_get_compound_name_arity(term_t t, atom_t *ap, int *ip);
-extern X_API int PL_get_float(term_t, double *);
-extern X_API int PL_get_head(term_t, term_t);
-extern X_API int PL_get_int64(term_t, int64_t *);
-extern X_API int PL_get_integer(term_t, int *);
-extern X_API int PL_get_list(term_t, term_t, term_t);
-extern X_API int PL_get_long(term_t, long *);
-extern X_API int PL_get_list_chars(term_t, char **, unsigned);
-extern X_API int PL_get_list_nchars(term_t, size_t *, char **, unsigned);
-extern X_API int PL_get_module(term_t, module_t *);
-extern X_API module_t PL_context(void);
-extern X_API int PL_strip_module(term_t, module_t *, term_t);
-extern X_API atom_t PL_module_name(module_t);
-extern X_API module_t PL_new_module(atom_t);
-extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
-extern X_API int PL_get_nil(term_t);
-extern X_API int PL_get_pointer(term_t, void **);
-extern X_API int PL_get_intptr(term_t, intptr_t *);
-extern X_API int PL_get_uintptr(term_t, uintptr_t *);
-extern X_API int PL_get_tail(term_t, term_t);
+  PL_EXPORT( int ) PL_get_arg(int, term_t, term_t);
+  PL_EXPORT( int ) PL_get_atom(term_t, atom_t *);
+  PL_EXPORT( int ) PL_get_atom_chars(term_t, char **);
+  PL_EXPORT( int ) PL_get_atom_nchars(term_t, size_t *, char **);
+  PL_EXPORT( int ) PL_get_bool(term_t, int *);
+  PL_EXPORT( int ) PL_get_chars(term_t, char **, unsigned);
+  PL_EXPORT( int ) PL_get_nchars(term_t, size_t *, char **, unsigned);
+  PL_EXPORT( int ) PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
+  PL_EXPORT( int ) PL_get_functor(term_t, functor_t *);
+  PL_EXPORT( int ) PL_get_compound_name_arity(term_t t, atom_t *ap, int *ip);
+  PL_EXPORT( int ) PL_get_float(term_t, double *);
+  PL_EXPORT( int ) PL_get_head(term_t, term_t);
+  PL_EXPORT( int ) PL_get_int64(term_t, int64_t *);
+  PL_EXPORT( int ) PL_get_integer(term_t, int *);
+  PL_EXPORT( int ) PL_get_list(term_t, term_t, term_t);
+  PL_EXPORT( int ) PL_get_long(term_t, long *);
+  PL_EXPORT( int ) PL_get_list_chars(term_t, char **, unsigned);
+  PL_EXPORT( int ) PL_get_list_nchars(term_t, size_t *, char **, unsigned);
+  PL_EXPORT( int ) PL_get_module(term_t, module_t *);
+  PL_EXPORT( module_t ) PL_context(void);
+  PL_EXPORT( int ) PL_strip_module(term_t, module_t *, term_t);
+  PL_EXPORT( atom_t ) PL_module_name(module_t);
+  PL_EXPORT( module_t ) PL_new_module(atom_t);
+  PL_EXPORT( int ) PL_get_name_arity(term_t, atom_t *, int *);
+  PL_EXPORT( int ) PL_get_nil(term_t);
+  PL_EXPORT( int ) PL_get_pointer(term_t, void **);
+  PL_EXPORT( int ) PL_get_intptr(term_t, intptr_t *);
+  PL_EXPORT( int ) PL_get_uintptr(term_t, uintptr_t *);
+  PL_EXPORT( int ) PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/
 /* begin PL_new_* functions =============================*/
-extern X_API atom_t PL_new_atom(const char *);
-extern X_API atom_t PL_new_atom_nchars(size_t, const char *);
-extern X_API atom_t PL_new_atom_wchars(size_t, const pl_wchar_t *);
-extern X_API char *PL_atom_nchars(atom_t, size_t *);
-extern X_API pl_wchar_t *PL_atom_wchars(atom_t, size_t *);
-extern X_API functor_t PL_new_functor(atom_t, int);
-extern X_API atom_t PL_functor_name(functor_t);
-extern X_API int PL_functor_arity(functor_t);
+  PL_EXPORT( atom_t ) PL_new_atom(const char *);
+  PL_EXPORT( atom_t ) PL_new_atom_nchars(size_t, const char *);
+  PL_EXPORT( atom_t ) PL_new_atom_wchars(size_t, const pl_wchar_t *);
+  PL_EXPORT( char *) PL_atom_nchars(atom_t, size_t *);
+  PL_EXPORT( pl_wchar_t *) PL_atom_wchars(atom_t, size_t *);
+  PL_EXPORT( functor_t ) PL_new_functor(atom_t, int);
+  PL_EXPORT( atom_t ) PL_functor_name(functor_t);
+  PL_EXPORT( int ) PL_functor_arity(functor_t);
 /* end PL_new_* functions =============================*/
 /* begin PL_put_* functions =============================*/
-extern X_API int PL_cons_functor(term_t, functor_t,...);
-extern X_API int PL_cons_functor_v(term_t, functor_t,term_t);
-extern X_API int PL_cons_list(term_t, term_t, term_t);
-extern X_API int PL_put_atom(term_t, atom_t);
-extern X_API int PL_put_atom_chars(term_t, const char *);
-extern X_API int PL_put_atom_nchars(term_t, size_t ,const char *);
-extern X_API int PL_put_boolean(term_t, uintptr_t);
-extern X_API int PL_put_float(term_t, double);
-extern X_API int PL_put_functor(term_t, functor_t t);
-extern X_API int PL_put_int64(term_t, int64_t);
-extern X_API int PL_put_integer(term_t, long);
-extern X_API int PL_put_list(term_t);
-extern X_API int PL_put_list_chars(term_t, const char *);
-extern X_API void PL_put_nil(term_t);
-extern X_API int PL_put_pointer(term_t, void *);
-extern X_API int PL_put_string_chars(term_t, const char *);
-extern X_API int PL_put_string_nchars(term_t, size_t, const char *);
-extern X_API int PL_put_term(term_t, term_t);
-extern X_API int PL_put_variable(term_t);
-extern X_API int PL_put_intptr(term_t t, intptr_t n);
-extern X_API int PL_put_uintptr(term_t t, uintptr_t n);
-extern X_API  int PL_compare(term_t, term_t);
+  PL_EXPORT( int ) PL_cons_functor(term_t, functor_t,...);
+  PL_EXPORT( int ) PL_cons_functor_v(term_t, functor_t,term_t);
+  PL_EXPORT( int ) PL_cons_list(term_t, term_t, term_t);
+  PL_EXPORT( int ) PL_put_atom(term_t, atom_t);
+  PL_EXPORT( int ) PL_put_atom_chars(term_t, const char *);
+  PL_EXPORT( int ) PL_put_atom_nchars(term_t, size_t ,const char *);
+  PL_EXPORT( int ) PL_put_boolean(term_t, uintptr_t);
+  PL_EXPORT( int ) PL_put_float(term_t, double);
+  PL_EXPORT( int ) PL_put_functor(term_t, functor_t t);
+  PL_EXPORT( int ) PL_put_int64(term_t, int64_t);
+  PL_EXPORT( int ) PL_put_integer(term_t, long);
+  PL_EXPORT( int ) PL_put_list(term_t);
+  PL_EXPORT( int ) PL_put_list_chars(term_t, const char *);
+  PL_EXPORT( void ) PL_put_nil(term_t);
+  PL_EXPORT( int ) PL_put_pointer(term_t, void *);
+  PL_EXPORT( int ) PL_put_string_chars(term_t, const char *);
+  PL_EXPORT( int ) PL_put_string_nchars(term_t, size_t, const char *);
+  PL_EXPORT( int ) PL_put_term(term_t, term_t);
+  PL_EXPORT( int ) PL_put_variable(term_t);
+  PL_EXPORT( int ) PL_put_intptr(term_t t, intptr_t n);
+  PL_EXPORT( int ) PL_put_uintptr(term_t t, uintptr_t n);
+  PL_EXPORT(  int ) PL_compare(term_t, term_t);
 /* end PL_put_* functions =============================*/
 /* begin PL_unify_* functions =============================*/
-extern X_API  int PL_unify(term_t, term_t);
-extern X_API  int PL_unify_atom(term_t, atom_t);
-extern X_API  int PL_unify_arg(int, term_t, term_t);
-extern X_API  int PL_unify_atom_chars(term_t, const char *);
-extern X_API  int PL_unify_atom_nchars(term_t, size_t len, const char *);
-extern X_API  int PL_unify_float(term_t, double);
-extern X_API  int PL_unify_functor(term_t, functor_t);
-extern X_API  int PL_unify_int64(term_t, int64_t);
-extern X_API  int PL_unify_intptr(term_t, intptr_t);
-extern X_API  int PL_unify_uintptr(term_t, uintptr_t);
-extern X_API  int PL_unify_integer(term_t, long);
-extern X_API  int PL_unify_list(term_t, term_t, term_t);
-extern X_API  int PL_unify_list_chars(term_t, const char *);
-extern X_API  int PL_unify_list_ncodes(term_t, size_t, const char *);
-extern X_API  int PL_unify_nil(term_t);
-extern X_API  int PL_unify_pointer(term_t, void *);
-extern X_API  int PL_unify_bool(term_t, int);
-extern X_API  int PL_unify_string_chars(term_t, const char *);
-extern X_API  int PL_unify_string_nchars(term_t, size_t, const char *);
-extern X_API  int PL_unify_term(term_t,...);
-extern X_API  int PL_unify_chars(term_t, int, size_t, const char *);
-extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
+  PL_EXPORT(  int ) PL_unify(term_t, term_t);
+  PL_EXPORT(  int ) PL_unify_atom(term_t, atom_t);
+  PL_EXPORT(  int ) PL_unify_arg(int, term_t, term_t);
+  PL_EXPORT(  int ) PL_unify_atom_chars(term_t, const char *);
+  PL_EXPORT(  int ) PL_unify_atom_nchars(term_t, size_t len, const char *);
+  PL_EXPORT(  int ) PL_unify_float(term_t, double);
+  PL_EXPORT(  int ) PL_unify_functor(term_t, functor_t);
+  PL_EXPORT(  int ) PL_unify_int64(term_t, int64_t);
+  PL_EXPORT(  int ) PL_unify_intptr(term_t, intptr_t);
+  PL_EXPORT(  int ) PL_unify_uintptr(term_t, uintptr_t);
+  PL_EXPORT(  int ) PL_unify_integer(term_t, long);
+  PL_EXPORT(  int ) PL_unify_list(term_t, term_t, term_t);
+  PL_EXPORT(  int ) PL_unify_list_chars(term_t, const char *);
+  PL_EXPORT(  int ) PL_unify_list_ncodes(term_t, size_t, const char *);
+  PL_EXPORT(  int ) PL_unify_nil(term_t);
+  PL_EXPORT(  int ) PL_unify_pointer(term_t, void *);
+  PL_EXPORT(  int ) PL_unify_bool(term_t, int);
+  PL_EXPORT(  int ) PL_unify_string_chars(term_t, const char *);
+  PL_EXPORT(  int ) PL_unify_string_nchars(term_t, size_t, const char *);
+  PL_EXPORT(  int ) PL_unify_term(term_t,...);
+  PL_EXPORT(  int ) PL_unify_chars(term_t, int, size_t, const char *);
+  PL_EXPORT(  int ) PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
 		 /*******************************
 		 *	       LISTS		*
 		 *******************************/
@@ -506,92 +485,92 @@ extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *)
 PL_EXPORT(int)		PL_skip_list(term_t list, term_t tail, size_t *len);
 
 
-extern X_API  int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
-extern X_API  int PL_unify_wchars_diff(term_t, term_t, int, size_t, const pl_wchar_t *);
-extern X_API  int PL_chars_to_term(const char *,term_t);
+  PL_EXPORT(  int ) PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
+  PL_EXPORT(  int ) PL_unify_wchars_diff(term_t, term_t, int, size_t, const pl_wchar_t *);
+  PL_EXPORT(  int ) PL_chars_to_term(const char *,term_t);
 /* begin PL_is_* functions =============================*/
-extern X_API  int PL_is_atom(term_t);
-extern X_API  int PL_is_atomic(term_t);
-extern X_API  int PL_is_compound(term_t);
-extern X_API  int PL_is_float(term_t);
-extern X_API  int PL_is_functor(term_t, functor_t);
-extern X_API  int PL_is_ground(term_t);
-extern X_API  int PL_is_callable(term_t);
-extern X_API  int PL_is_integer(term_t);
-extern X_API  int PL_is_pair(term_t);
-extern X_API  int PL_is_list(term_t);
-extern X_API  int PL_is_pair(term_t);
-extern X_API  int PL_is_number(term_t);
-extern X_API  int PL_is_string(term_t);
-extern X_API  int PL_is_variable(term_t);
-extern X_API  int PL_term_type(term_t);
-extern X_API  int PL_is_inf(term_t);
-extern X_API  int PL_is_acyclic(term_t t);
+  PL_EXPORT(  int ) PL_is_atom(term_t);
+  PL_EXPORT(  int ) PL_is_atomic(term_t);
+  PL_EXPORT(  int ) PL_is_compound(term_t);
+  PL_EXPORT(  int ) PL_is_float(term_t);
+  PL_EXPORT(  int ) PL_is_functor(term_t, functor_t);
+  PL_EXPORT(  int ) PL_is_ground(term_t);
+  PL_EXPORT(  int ) PL_is_callable(term_t);
+  PL_EXPORT(  int ) PL_is_integer(term_t);
+  PL_EXPORT(  int ) PL_is_pair(term_t);
+  PL_EXPORT(  int ) PL_is_list(term_t);
+  PL_EXPORT(  int ) PL_is_pair(term_t);
+  PL_EXPORT(  int ) PL_is_number(term_t);
+  PL_EXPORT(  int ) PL_is_string(term_t);
+  PL_EXPORT(  int ) PL_is_variable(term_t);
+  PL_EXPORT(  int ) PL_term_type(term_t);
+  PL_EXPORT(  int ) PL_is_inf(term_t);
+  PL_EXPORT(  int ) PL_is_acyclic(term_t t);
 /* end PL_is_* functions =============================*/
-extern X_API void PL_halt(int);
-extern X_API  int  PL_initialise(int, char **);
-extern X_API  int  PL_is_initialised(int *, char ***);
-extern X_API void PL_close_foreign_frame(fid_t);
-extern X_API void PL_discard_foreign_frame(fid_t);
-extern X_API void PL_rewind_foreign_frame(fid_t);
-extern X_API fid_t PL_open_foreign_frame(void);
-extern X_API int PL_raise_exception(term_t);
-extern X_API int PL_throw(term_t);
-extern X_API void PL_clear_exception(void);
-extern X_API void PL_register_atom(atom_t);
-extern X_API void PL_unregister_atom(atom_t);
-extern X_API predicate_t PL_pred(functor_t, module_t);
-extern X_API predicate_t PL_predicate(const char *, int, const char *);
+  PL_EXPORT( void ) PL_halt(int);
+  PL_EXPORT(  int  ) PL_initialise(int, char **);
+  PL_EXPORT(  int  ) PL_is_initialised(int *, char ***);
+  PL_EXPORT( void ) PL_close_foreign_frame(fid_t);
+  PL_EXPORT( void ) PL_discard_foreign_frame(fid_t);
+  PL_EXPORT( void ) PL_rewind_foreign_frame(fid_t);
+  PL_EXPORT( fid_t ) PL_open_foreign_frame(void);
+  PL_EXPORT( int ) PL_raise_exception(term_t);
+  PL_EXPORT( int ) PL_throw(term_t);
+  PL_EXPORT( void ) PL_clear_exception(void);
+  PL_EXPORT( void ) PL_register_atom(atom_t);
+  PL_EXPORT( void ) PL_unregister_atom(atom_t);
+  PL_EXPORT( predicate_t ) PL_pred(functor_t, module_t);
+  PL_EXPORT( predicate_t ) PL_predicate(const char *, int, const char *);
 #define GP_NAMEARITY	0x100		/* or'ed mask */
-extern X_API int PL_unify_predicate(term_t head, predicate_t pred, int how);
-extern X_API void PL_predicate_info(predicate_t, atom_t *, int *, module_t *);
-extern X_API qid_t PL_open_query(module_t, int, predicate_t, term_t);
-extern X_API int PL_next_solution(qid_t);
-extern X_API void PL_cut_query(qid_t);
-extern X_API void PL_close_query(qid_t);
-extern X_API int PL_toplevel(void);
-extern X_API term_t PL_exception(qid_t);
-extern X_API term_t PL_exception(qid_t);
-extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
-extern X_API int PL_call(term_t, module_t);
-extern X_API void PL_register_foreign(const char *, int, pl_function_t, int);
-extern X_API void PL_register_foreign_in_module(const char *, const char *, int, pl_function_t, int);
-extern X_API void PL_register_extensions(const PL_extension *);
-extern X_API void PL_register_extensions_in_module(const char *module, const PL_extension *);
-extern X_API void PL_load_extensions(const PL_extension *);
-extern X_API int PL_handle_signals(void);
-extern X_API int  PL_thread_self(void);
-extern X_API int  PL_unify_thread_id(term_t, int);
-extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
-extern X_API int PL_thread_destroy_engine(void);
-extern X_API int PL_thread_at_exit(void (*)(void *), void *, int);
-extern X_API int PL_thread_raise(int tid, int sig);
-extern X_API PL_engine_t PL_create_engine(const PL_thread_attr_t *);
-extern X_API int PL_destroy_engine(PL_engine_t);
-extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
-extern X_API int PL_get_string(term_t, char **, size_t *);
-extern X_API int PL_get_string_chars(term_t, char **, size_t *);
-extern X_API record_t PL_record(term_t);
-extern X_API int PL_recorded(record_t, term_t);
-extern X_API record_t PL_duplicate_record(record_t);
-extern X_API void PL_erase(record_t);
+  PL_EXPORT( int ) PL_unify_predicate(term_t head, predicate_t pred, int how);
+  PL_EXPORT( void ) PL_predicate_info(predicate_t, atom_t *, int *, module_t *);
+  PL_EXPORT( qid_t ) PL_open_query(module_t, int, predicate_t, term_t);
+  PL_EXPORT( int ) PL_next_solution(qid_t);
+  PL_EXPORT( void ) PL_cut_query(qid_t);
+  PL_EXPORT( void ) PL_close_query(qid_t);
+  PL_EXPORT( int ) PL_toplevel(void);
+  PL_EXPORT( term_t ) PL_exception(qid_t);
+  PL_EXPORT( term_t ) PL_exception(qid_t);
+  PL_EXPORT( int ) PL_call_predicate(module_t, int, predicate_t, term_t);
+  PL_EXPORT( int ) PL_call(term_t, module_t);
+  PL_EXPORT( void ) PL_register_foreign(const char *, int, pl_function_t, int);
+  PL_EXPORT( void ) PL_register_foreign_in_module(const char *, const char *, int, pl_function_t, int);
+  PL_EXPORT( void ) PL_register_extensions(const PL_extension *);
+  PL_EXPORT( void ) PL_register_extensions_in_module(const char *module, const PL_extension *);
+  PL_EXPORT( void ) PL_load_extensions(const PL_extension *);
+  PL_EXPORT( int ) PL_handle_signals(void);
+  PL_EXPORT( int  ) PL_thread_self(void);
+  PL_EXPORT( int  ) PL_unify_thread_id(term_t, int);
+  PL_EXPORT( int ) PL_thread_attach_engine(const PL_thread_attr_t *);
+  PL_EXPORT( int ) PL_thread_destroy_engine(void);
+  PL_EXPORT( int ) PL_thread_at_exit(void (*)(void *), void *, int);
+  PL_EXPORT( int ) PL_thread_raise(int tid, int sig);
+  PL_EXPORT( PL_engine_t ) PL_create_engine(const PL_thread_attr_t *);
+  PL_EXPORT( int ) PL_destroy_engine(PL_engine_t);
+  PL_EXPORT( int ) PL_set_engine(PL_engine_t,PL_engine_t *);
+  PL_EXPORT( int ) PL_get_string(term_t, char **, size_t *);
+  PL_EXPORT( int ) PL_get_string_chars(term_t, char **, size_t *);
+  PL_EXPORT( record_t ) PL_record(term_t);
+  PL_EXPORT( int ) PL_recorded(record_t, term_t);
+  PL_EXPORT( record_t ) PL_duplicate_record(record_t);
+  PL_EXPORT( void ) PL_erase(record_t);
 /* only partial implementation, does not guarantee export between different architectures and versions of YAP */
-extern X_API char *PL_record_external(term_t, size_t *);
-extern X_API int PL_recorded_external(const char *, term_t);
-extern X_API int PL_erase_external(char *);
-extern X_API int PL_action(int,...);
-extern X_API void PL_on_halt(int (*)(int, void *), void *);
-extern X_API void *PL_malloc(size_t);
-extern X_API void *PL_malloc_uncollectable(size_t s);
-extern X_API void *PL_realloc(void*,size_t);
-extern X_API void PL_free(void *);
-extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
-extern X_API void  PL_cleanup_fork(void);
-extern X_API int PL_get_signum_ex(term_t sig, int *n);
+  PL_EXPORT( char *) PL_record_external(term_t, size_t *);
+  PL_EXPORT( int ) PL_recorded_external(const char *, term_t);
+  PL_EXPORT( int ) PL_erase_external(char *);
+  PL_EXPORT( int ) PL_action(int,...);
+  PL_EXPORT( void ) PL_on_halt(int (*)(int, void *), void *);
+  PL_EXPORT( void *) PL_malloc(size_t);
+  PL_EXPORT( void *) PL_malloc_uncollectable(size_t s);
+  PL_EXPORT( void *) PL_realloc(void*,size_t);
+  PL_EXPORT( void ) PL_free(void *);
+  PL_EXPORT( int  ) PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
+  PL_EXPORT( void  ) PL_cleanup_fork(void);
+  PL_EXPORT( int ) PL_get_signum_ex(term_t sig, int *n);
 
-extern X_API size_t PL_utf8_strlen(const char *s, size_t len);
+  PL_EXPORT( size_t ) PL_utf8_strlen(const char *s, size_t len);
 
-extern X_API int PL_unify_list_codes(term_t l, const char *chars);
+  PL_EXPORT( int ) PL_unify_list_codes(term_t l, const char *chas);
 
 
 
@@ -606,8 +585,6 @@ extern X_API void  PL_fatal_error(const char *msg);
 
 extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);
-
-extern X_API char *PL_prompt_string(int fd);
 
                  /*******************************
                  *        FILENAME SUPPORT      *

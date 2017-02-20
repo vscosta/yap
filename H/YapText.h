@@ -31,6 +31,23 @@
 #include "../utf8proc/utf8proc.h"
 #include "Yap.h"
 
+#define ReleaseAndReturn(r)                                                    \
+  {                                                                            \
+    pop_text_stack(l);                                                         \
+    return r;                                                                  \
+  }
+#define release_cut_fail()                                                     \
+  {                                                                            \
+    pop_text_stack(l);                                                         \
+    cut_fail();                                                                \
+  }
+#define release_cut_succeed()                                                  \
+  {                                                                            \
+    pop_text_stack(l);                                                         \
+    cut_succeed();                                                             \
+  }
+
+
 /// allocate a temporary text block
 ///
 extern void *Malloc(size_t sz USES_REGS);

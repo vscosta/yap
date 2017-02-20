@@ -250,6 +250,8 @@
 
 #define LOCAL_nperm LOCAL->nperm_
 #define REMOTE_nperm(wid) REMOTE(wid)->nperm_
+#define LOCAL_jMP LOCAL->jMP_
+#define REMOTE_jMP(wid) REMOTE(wid)->jMP_
 
 #define LOCAL_LabelFirstArray LOCAL->LabelFirstArray_
 #define REMOTE_LabelFirstArray(wid) REMOTE(wid)->LabelFirstArray_

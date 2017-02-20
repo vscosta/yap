@@ -167,13 +167,13 @@ HEADERS = \
 	H/attvar.h \
     H/blobs.h \
 	H/clause.h \
-	H/compile.h \
+	H/YapCöompile.h \
 	H/corout.h \
 	H/dlmalloc.h \
 	H/dglobals.h \
 	H/dlocals.h \
 	H/dhstruct.h \
-	H/eval.h \
+	H/YapEval.h \
 	H/heapgc.h   \
 	H/hglobals.h \
 	H/hlocals.h \

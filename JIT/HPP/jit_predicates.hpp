@@ -1,7 +1,7 @@
 #include "Yap.h"
 #include "amijit.h"
 #include "clause.h"
-#include "eval.h"
+#include "YapEval.h"
 #if HAVE_ERRNO_H
 #include <errno.h>
 #else

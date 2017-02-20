@@ -12,8 +12,8 @@
 #ifdef BEAM
 
 #include "Yap.h"
-#include "compile.h"
-#include "clause.h" 
+#include "YapCompile.h"
+#include "clause.h"
 #include "eam.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -40,13 +40,13 @@ int exists_on_table(Cell a,struct HASH_TABLE **table, int i)
 struct HASH_TABLE *t;
 
    t=table[i];
-   
+
    while(t) {
      if (t->value==a) return(1);
- 
+
      t=t->next;
    }
-   
+
 return(0);
 }
 
@@ -61,20 +61,20 @@ Cell *gera_codigo_try(struct Predicates *predi) /* gerar os try's para o  predic
 
   emit_new(prepare_tries,predi->nr_alt,predi->arity);
   if (predi->nr_alt==1) {
-      emit_new(only_1_clause_op,0,(unsigned long) c);    
-  } else if (predi->nr_alt>1) { 
+      emit_new(only_1_clause_op,0,(unsigned long) c);
+  } else if (predi->nr_alt>1) {
     while(c!=NULL) {
-      if (nr+1==predi->nr_alt) emit_new(trust_me_op,nr,(unsigned long) c); 
+      if (nr+1==predi->nr_alt) emit_new(trust_me_op,nr,(unsigned long) c);
       else if (nr==0) emit_new(try_me_op,predi->nr_alt,(unsigned long) c);
            else emit_new(retry_me_op,nr,(unsigned long) c);
 
       c=c->next;
       nr++;
     }
-  } else {  
+  } else {
       emit_new(fail_op,0,0);
   }
-  
+
   return(eam_assemble(StartCode));
 }
 
@@ -91,7 +91,7 @@ Cell *gera_codigo_try_list(struct Predicates *predi) /* gerar os try's para o  p
   c=predi->first;
 
   emit_new(prepare_tries,nr_preds,predi->arity);
-  if (nr_preds>=1) { 
+  if (nr_preds>=1) {
     while(c!=NULL) {
       if (c->predi==predi && (c->idx==Lista || c->idx==Variavel)) {
  	 if (nr_preds==1) {
@@ -108,20 +108,20 @@ Cell *gera_codigo_try_list(struct Predicates *predi) /* gerar os try's para o  p
   } else {
       emit_new(fail_op,0,0);
   }
-  
+
   return(eam_assemble(StartCode));
 }
 
 
 
-struct HASH_TABLE **gera_codigo_try_atom(struct Predicates *predi) 
+struct HASH_TABLE **gera_codigo_try_atom(struct Predicates *predi)
 {
 int j,nr_preds,nr_atoms;
 struct HASH_TABLE **table;
 struct HASH_TABLE *t;
 struct Clauses *cla;
 
-  nr_atoms=predi->idx_atom; 
+  nr_atoms=predi->idx_atom;
   nr_preds=nr_atoms+predi->idx_var;
   table=malloc(sizeof(struct HASH_TABLE *)*(nr_atoms+1));
   for (j=0;j<=nr_atoms;j++) table[j]=NULL;
@@ -132,7 +132,7 @@ struct Clauses *cla;
      Cell a;
      unsigned int index;
      int nr;
- 
+
      a=cla->val;
      if (a && nr_atoms) {
        index=index_of_hash_table_atom(a,nr_atoms);
@@ -187,18 +187,18 @@ struct HASH_TABLE **table;
 struct HASH_TABLE *t;
 struct Clauses *cla;
 
-  nr_appls=predi->idx_functor; 
+  nr_appls=predi->idx_functor;
   nr_preds=nr_appls+predi->idx_var;
   table=malloc(sizeof(struct HASH_TABLE *)*(nr_appls+1));
   for (j=0;j<=nr_appls;j++) table[j]=NULL;
-  
+
   cla=predi->first;
   while(cla) {
    if (cla->idx==Estrutura) {
     Cell a;
      long int index;
      int nr;
- 
+
      a=cla->val;
      if (a && nr_appls) {
        index=index_of_hash_table_appl(a,nr_appls);
@@ -257,7 +257,7 @@ Cell *gera_codigo_try_only_vars(struct Predicates *predi) /* gerar os try's de V
   c=predi->first;
 
   emit_new(prepare_tries,nr_preds,predi->arity);
-  if (nr_preds>=1) { 
+  if (nr_preds>=1) {
     while(c!=NULL) {
       if (c->predi==predi && c->idx==Variavel) {
  	 if (nr_preds==1) {
@@ -274,7 +274,7 @@ Cell *gera_codigo_try_only_vars(struct Predicates *predi) /* gerar os try's de V
   } else {
       emit_new(fail_op,0,0);
   }
- 
+
   return(eam_assemble(StartCode));
 }
 
@@ -292,7 +292,7 @@ void do_eam_indexing(struct Predicates *p)
 	   p->idx=1;
    }
 
-   if((Print_Code & 4) && (Print_Code & 8)) { 
+   if((Print_Code & 4) && (Print_Code & 8)) {
 	   printf("General Case :\n");
 	   eam_showcode(p->code);
    }
@@ -309,10 +309,10 @@ void ver_predicados(struct Predicates *p)
 
    c=p->first;
    while(c!=NULL) {
-     printf("Clausula %d do tipo %d (%d locals %d args) (val=0x%X)\n",++i,c->idx,c->nr_vars,c->predi->arity, (unsigned )c->val);     
+     printf("Clausula %d do tipo %d (%d locals %d args) (val=0x%X)\n",++i,c->idx,c->nr_vars,c->predi->arity, (unsigned )c->val);
      c=c->next;
    }
-  
+
 
 }
 

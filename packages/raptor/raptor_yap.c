@@ -28,7 +28,7 @@
 #include "raptor2.h"
 #endif
 
-void raptor_yap_init(void);
+X_API void raptor_yap_init(void);
 
 raptor_world *world;
 
@@ -58,7 +58,7 @@ static YAP_Atom term_load(const raptor_term *term) {
   case RAPTOR_TERM_TYPE_UNKNOWN:
   default:
 
-    raptor_log_error_formatted(term->world, RAPTOR_LOG_LEVEL_ERROR, NULL,
+      raptor_log_error_formatted(term->world, RAPTOR_LOG_LEVEL_ERROR, NULL,
                                "Triple has unsupported term type %d",
                                term->type);
     break;
@@ -159,7 +159,7 @@ static inline void raptor_yap_halt(int exit, void *world) {
   raptor_free_world((raptor_world *)world);
 }
 
-void raptor_yap_init(void) {
+X_API void raptor_yap_init(void) {
   world = raptor_new_world();
   YAP_HaltRegisterHook(raptor_yap_halt, (void *)world);
 

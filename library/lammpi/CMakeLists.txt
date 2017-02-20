@@ -82,6 +82,7 @@ if (MPI_C_FOUND)
 
   install(TARGETS  yap_mpi
     LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
     )
 

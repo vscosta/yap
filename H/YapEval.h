@@ -1,6 +1,6 @@
 /*************************************************************************
 *									 *
-*	 YAP Prolog 	@(#)eval.h	1.2
+*	 YAP Prolog 	@(#)YapEval.h	1.2
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		eval.h							 *
+* File:		YapEval.h							 *
 * Last rev:								 *
 * mods:									 *
 * comments:	arithmetical functions info				 *
@@ -17,7 +17,7 @@
 
 /**
 
-@file eval.h
+@file YapEval.h
 
     @defgroup arithmetic Arithmetic in YAP
 

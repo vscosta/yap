@@ -48,7 +48,7 @@ static choiceptr cp_from_integer(Term cpt USES_REGS) {
  */
 Term Yap_cp_as_integer(choiceptr cp) {
   CACHE_REGS
-  return cp_as_integer(cp PASS_REGS);
+    return cp_as_integer(cp PASS_REGS);
 }
 
 /**
@@ -128,7 +128,7 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
  */
 Term Yap_ExecuteCallMetaCall(Term mod) {
   CACHE_REGS
-  Term ts[4];
+    Term ts[4];
   ts[0] = ARG1;
   ts[1] = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
   ts[2] = ARG1;
@@ -141,8 +141,8 @@ Term Yap_ExecuteCallMetaCall(Term mod) {
 
 Term Yap_PredicateIndicator(Term t, Term mod) {
   CACHE_REGS
-  // generate predicate indicator in this case
-  Term ti[2];
+    // generate predicate indicator in this case
+    Term ti[2];
   t = Yap_YapStripModule(t, &mod);
   if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) {
     ti[0] = MkAtomTerm(NameOfFunctor(FunctorOfTerm(t)));
@@ -210,12 +210,12 @@ static Int save_env_b(USES_REGS1) {
 }
 
 /** Look for a predicate with same functor as t,
-     create a new one of it cannot find it.
- */
+    create a new one of it cannot find it.
+*/
 static PredEntry *new_pred(Term t, Term tmod, char *pname) {
   Term t0 = t;
 
-restart:
+ restart:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t0, pname);
     return NULL;
@@ -273,7 +273,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
   Term t0 = t;
   t = Yap_YapStripModule(t, &mod);
   /* first do predicate expansion, even before you process signals.
-    This way you don't get to spy goal_expansion(). */
+     This way you don't get to spy goal_expansion(). */
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled &&
       !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode))) {
     return EnterCreepMode(t, mod PASS_REGS);
@@ -393,7 +393,7 @@ inline static bool do_execute_n(Term t, Term mod, unsigned int n USES_REGS) {
   int j = -n;
   Term t0 = t;
 
-restart_exec:
+ restart_exec:
   if (IsVarTerm(t)) {
     return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
   } else if (IsAtomTerm(t)) {
@@ -432,8 +432,8 @@ restart_exec:
   }
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(
-        copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS),
-        mod PASS_REGS);
+			  copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS),
+			  mod PASS_REGS);
   }
   if (arity > MaxTemps) {
     return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
@@ -650,7 +650,7 @@ static Int execute_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
   yamop *code;
   Term clt = Deref(ARG3);
 
-restart_exec:
+ restart_exec:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
     return FALSE;
@@ -746,7 +746,7 @@ static void prune_inner_computation(choiceptr parent) {
   cut_pt = B;
   while (cut_pt < parent) {
     /* make sure we
-    e C-choicepoints */
+       e C-choicepoints */
     if (POP_CHOICE_POINT(cut_pt->cp_b)) {
       POP_EXECUTE();
     }
@@ -791,7 +791,7 @@ static void complete_inner_computation(choiceptr old_B) {
 
 static inline Term *GetTermAddress(CELL a) {
   Term *b = NULL;
-restart:
+ restart:
   if (!IsVarTerm(a)) {
     return (b);
   } else if (a == (CELL)b) {
@@ -845,8 +845,8 @@ static bool exit_set_call(execution_port exec_result, choiceptr B0, yamop *oCP,
   Term rc;
 
   switch (exec_result) {
-  // we failed
-  // Exception: we'll pass it through
+    // we failed
+    // Exception: we'll pass it through
   case CALLED_FROM_EXCEPTION:
     // internal exception
     {
@@ -905,8 +905,8 @@ static bool exit_set_call(execution_port exec_result, choiceptr B0, yamop *oCP,
     choiceptr saved_b = B;
     CELL *pt = ASP;
     CUT_C_PUSH(
-        NEXTOP(NEXTOP(PredProtectStack->cs.p_code.FirstClause, OtapFs), OtapFs),
-        pt); // this is where things get complicated, we need to
+	       NEXTOP(NEXTOP(PredProtectStack->cs.p_code.FirstClause, OtapFs), OtapFs),
+	       pt); // this is where things get complicated, we need to
     // protect the stack and be able to backtrack
     pt -= 4;
     pt[3] = t4;
@@ -955,7 +955,7 @@ static Int protect_stack_from_cut(USES_REGS1) {
  * @param  USES_REGS1                 [env for threaded execution]
  * @return                       c
  [next answer]
- */
+*/
 static Int protect_stack_from_retry(USES_REGS1) {
   // called after backtracking..
   //
@@ -1091,9 +1091,9 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
 
 static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
   CACHE_REGS
-  if (creeping) {
-    Yap_signal(YAP_CREEP_SIGNAL);
-  }
+    if (creeping) {
+      Yap_signal(YAP_CREEP_SIGNAL);
+    }
   CurrentModule = omod;
   Yap_CloseSlots(sl);
   if (out) {
@@ -1123,7 +1123,7 @@ static Int _user_expand_goal(USES_REGS1) {
   ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
+			Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1133,7 +1133,7 @@ static Int _user_expand_goal(USES_REGS1) {
   ARG3 = Yap_GetFromSlot(h2);
   /* user:goal_expansion(A,CurMod,B) */
   if ((pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
+			Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL PASS_REGS, false)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1145,7 +1145,7 @@ static Int _user_expand_goal(USES_REGS1) {
   /* user:goal_expansion(A,B) */
   if (cmod != USER_MODULE && /* we have tried this before */
       (pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
+			Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL PASS_REGS, false)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1165,7 +1165,7 @@ static Int do_term_expansion(USES_REGS1) {
 
   ARG1 = g;
   if ((pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
+			Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1184,7 +1184,7 @@ static Int do_term_expansion(USES_REGS1) {
   ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
   ARG2 = Yap_GetFromSlot(h2);
   if ((pe = RepPredProp(
-           Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&
+			Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
@@ -1202,7 +1202,7 @@ static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
     return EnterCreepMode(t, mod PASS_REGS);
   }
   t = Yap_YapStripModule(t, &mod);
-restart_exec:
+ restart_exec:
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
     return false;
@@ -1421,7 +1421,10 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval, out;
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - (CELL *)B;
-  if (top && (lval = sigsetjmp(LOCAL_RestartEnv, 1)) != 0) {
+  sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  LOCAL_RestartEnv = &signew;
+  
+  if (top && (lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
       /* otherwise, SetDBForThrow will fail entering critical mode */
@@ -1449,25 +1452,27 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* reset the registers so that we don't have trash in abstract
        * machine */
       Yap_set_fpu_exceptions(
-          getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
+			     getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *)FAILCODE;
       LOCAL_PrologMode = UserMode;
     } break;
     case 3: { /* saved state */
       LOCAL_CBorder = OldBorder;
+      LOCAL_RestartEnv = sighold;
       return false;
     }
     case 4: {
       /* abort */
       /* can be called from anywgerre, must reset registers,
        */
+      LOCAL_RestartEnv = sighold;
       Yap_JumpToEnv(TermDAbort);
       P = (yamop *)FAILCODE;
       LOCAL_PrologMode = UserMode;
     } break;
     default:
-      /* do nothing */
-      LOCAL_PrologMode = UserMode;
+    /* do nothing */
+	LOCAL_PrologMode = UserMode;
     }
   } else {
     LOCAL_PrologMode = UserMode;
@@ -1480,6 +1485,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   if (!Yap_has_a_signal())
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
+  LOCAL_RestartEnv = sighold;
   return out;
 }
 
@@ -1530,13 +1536,13 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
   bool out;
-
+  
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
-
+  
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
   if (top)
     Yap_flush();
@@ -1550,7 +1556,7 @@ static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
 
 bool Yap_exec_absmi(bool top, yap_reset_t has_reset) {
   CACHE_REGS
-  return exec_absmi(top, has_reset PASS_REGS);
+    return exec_absmi(top, has_reset PASS_REGS);
 }
 
 /**
@@ -1560,7 +1566,7 @@ bool Yap_exec_absmi(bool top, yap_reset_t has_reset) {
  */
 void Yap_fail_all(choiceptr bb USES_REGS) {
   yamop *saved_p, *saved_cp;
-
+  
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
@@ -1579,7 +1585,7 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
   YENV = ENV = B->cp_env;
-/* recover local stack */
+  /* recover local stack */
 #ifdef DEPTH_LIMIT
   DEPTH = ENV[E_DEPTH];
 #endif
@@ -1606,16 +1612,16 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
-
+  
   saved_p = P;
   saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
-
+  
   PELOCK(81, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
   out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
-
+  
   if (out) {
     choiceptr cut_B;
     /* we succeeded, let's prune */
@@ -1691,21 +1697,21 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
 
 bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
   CACHE_REGS
-  Prop pe;
+    Prop pe;
   PredEntry *ppe;
   CELL *pt;
   /* preserve the current restart environment */
   /* visualc*/
   /* just keep the difference because of possible garbage collections
    */
-
+  
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
     pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
-
+    
     if (IsBlobFunctor(f)) {
       Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
       return false;
@@ -1728,7 +1734,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
 
 void Yap_trust_last(void) {
   CACHE_REGS
-  ASP = B->cp_env;
+    ASP = B->cp_env;
   CP = B->cp_cp;
   HR = B->cp_h;
 #ifdef DEPTH_LIMIT
@@ -1746,7 +1752,7 @@ void Yap_trust_last(void) {
 
 Term Yap_RunTopGoal(Term t, bool handle_errors) {
   CACHE_REGS
-  yamop *CodeAdr;
+    yamop *CodeAdr;
   Prop pe;
   PredEntry *ppe;
   CELL *pt;
@@ -1754,7 +1760,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   Term tmod = CurrentModule;
   Term goal_out = 0;
   LOCAL_PrologMode |= TopGoalMode;
-
+  
   t = Yap_YapStripModule(t, &tmod);
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "call/1");
@@ -1767,7 +1773,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     arity = 0;
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
-
+    
     if (IsBlobFunctor(f)) {
       Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
       LOCAL_PrologMode &= ~TopGoalMode;
@@ -1799,7 +1805,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     ts[0] = tmod;
     ts[1] = t;
     Functor f = Yap_MkFunctor(Yap_LookupAtom("call"), 1);
-
+    
     pt = &t;
     t = Yap_MkApplTerm(FunctorModule, 2, ts);
     pe = Yap_GetPredPropByFunc(f, tmod);
@@ -1809,7 +1815,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   PELOCK(82, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-
+  
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048) {
     Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
@@ -1825,7 +1831,7 @@ static void do_restore_regs(Term t, int restore_all USES_REGS) {
     Int i;
     Int max = ArityOfFunctor(FunctorOfTerm(t)) - 4;
     CELL *ptr = RepAppl(t) + 5;
-
+    
     P = (yamop *)IntegerOfTerm(ptr[-4]);
     CP = (yamop *)IntegerOfTerm(ptr[-3]);
     ENV = (CELL *)(LCL0 - IntegerOfTerm(ptr[-2]));
@@ -1855,11 +1861,11 @@ static Int restore_regs(USES_REGS1) {
  * a
  * call */
 static Int restore_regs2(USES_REGS1) {
-
+  
   Term t = Deref(ARG1), d0;
   choiceptr pt0;
   Int d;
-
+  
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
@@ -1969,7 +1975,7 @@ static Int cut_up_to_next_disjunction(USES_REGS1) {
 
 bool Yap_Reset(yap_reset_t mode) {
   CACHE_REGS
-  int res = TRUE;
+    int res = TRUE;
 
   Yap_ResetException(worker_id);
   /* first, backtrack to the root */
@@ -2018,14 +2024,17 @@ static Int JumpToEnv() {
   /* find the first choicepoint that may be a catch */
   // DBTerm *dbt = Yap_RefToException();
   while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch) {
+    //printf("--handler=%p, max=%p\n", handler, LCL0-LOCAL_CBorder);
     while (POP_CHOICE_POINT(handler)) {
       POP_FAIL_EXECUTE(handler);
     }
+    if (handler == (choiceptr)(LCL0-LOCAL_CBorder)) {
+      break;
+    }
     /* we are already doing a catch */
     /* make sure we prune C-choicepoints */
-    if (handler->cp_ap == NOCODE &&
-        (handler >= (choiceptr)(LCL0 - LOCAL_CBorder) ||
-         handler->cp_b == NULL)) {
+    if ((handler->cp_ap == NOCODE && handler->cp_b == NULL) ||
+        (handler->cp_b >= (choiceptr)(LCL0 - LOCAL_CBorder))) {
       break;
     }
     handler = handler->cp_b;
@@ -2065,7 +2074,7 @@ static Int JumpToEnv() {
 
 bool Yap_JumpToEnv(Term t) {
   CACHE_REGS
-  LOCAL_BallTerm = Yap_StoreTermInDB(t, 0);
+    LOCAL_BallTerm = Yap_StoreTermInDB(t, 0);
   if (!LOCAL_BallTerm)
     return false;
   if (LOCAL_PrologMode & TopGoalMode)
@@ -2080,20 +2089,20 @@ static Int jump_env(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
     return false;
   } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
-    Term t2, te;
-
+    Term t2;
+    
     Yap_find_prolog_culprit(PASS_REGS1);
     //    LOCAL_Error_TYPE = ERROR_EVENT;
     t = ArgOfTerm(1, t);
     if (IsApplTerm(t) && IsAtomTerm((t2 = ArgOfTerm(1, t)))) {
-      LOCAL_ActiveError.errorAsText = AtomOfTerm(t2);
-      LOCAL_ActiveError.classAsText = NameOfFunctor(FunctorOfTerm(t));
+      LOCAL_ActiveError->errorAsText = AtomOfTerm(t2);
+      LOCAL_ActiveError->classAsText = NameOfFunctor(FunctorOfTerm(t));
     } else if (IsAtomTerm(t)) {
-      LOCAL_ActiveError.errorAsText = AtomOfTerm(t);
-      LOCAL_ActiveError.classAsText = NULL;
+      LOCAL_ActiveError->errorAsText = AtomOfTerm(t);
+      LOCAL_ActiveError->classAsText = NULL;
     }
   } else {
-    //LOCAL_Error_TYPE = THROW_EVENT;
+    // LOCAL_Error_TYPE = THROW_EVENT;
   }
   LOCAL_ActiveError->prologPredName = NULL;
   Yap_PutException(t);
@@ -2115,27 +2124,27 @@ static Int generate_pred_info(USES_REGS1) {
 
 void Yap_InitYaamRegs(int myworker_id) {
   Term h0var;
-//  getchar();
+  //  getchar();
 #if PUSH_REGS
-/* Guarantee that after a longjmp we go back to the original abstract
-   machine registers */
+  /* Guarantee that after a longjmp we go back to the original abstract
+     machine registers */
 #ifdef THREADS
   if (myworker_id) {
     REGSTORE *rs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
     pthread_setspecific(Yap_yaamregs_key, (const void *)rs);
     REMOTE_ThreadHandle(myworker_id).current_yaam_regs = rs;
   }
-/* may be run by worker_id on behalf on myworker_id */
+  /* may be run by worker_id on behalf on myworker_id */
 #else
   Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
   CACHE_REGS
-  Yap_ResetException(worker_id);
+    Yap_ResetException(worker_id);
   Yap_PutValue(AtomBreak, MkIntTerm(0));
   TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
   HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) +
-            1; // +1: hack to ensure the gc does not try to mark mistakenly
+    1; // +1: hack to ensure the gc does not try to mark mistakenly
   LCL0 = ASP = (CELL *)REMOTE_LocalBase(myworker_id);
   CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id) - MinTrailGap);
   /* notice that an initial choice-point and environment
@@ -2159,12 +2168,12 @@ void Yap_InitYaamRegs(int myworker_id) {
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+    BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
   CalculateStackGap(PASS_REGS1);
-/* the first real choice-point will also have AP=FAIL */
-/* always have an empty slots for people to use */
+  /* the first real choice-point will also have AP=FAIL */
+  /* always have an empty slots for people to use */
 #if defined(YAPOR) || defined(THREADS)
   LOCAL = REMOTE(myworker_id);
   worker_id = myworker_id;
@@ -2179,7 +2188,7 @@ void Yap_InitYaamRegs(int myworker_id) {
   REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
   REMOTE_GcCurrentPhase(myworker_id) = 0L;
   REMOTE_GcPhase(myworker_id) =
-      Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
+    Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
   PREG_ADDR = NULL;
@@ -2192,7 +2201,7 @@ void Yap_InitYaamRegs(int myworker_id) {
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-      BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
+    BBREG = B_FZ = (choiceptr)REMOTE_LocalBase(myworker_id);
   TR = TR_FZ = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
 #endif /* FROZEN_STACKS */
   CalculateStackGap(PASS_REGS1);
@@ -2205,7 +2214,7 @@ void Yap_InitYaamRegs(int myworker_id) {
 
 Term Yap_GetException(void) {
   CACHE_REGS
-  Term t = 0;
+    Term t = 0;
 
   if (LOCAL_BallTerm) {
     t = Yap_PopTermFromDB(LOCAL_BallTerm);
@@ -2224,8 +2233,8 @@ bool Yap_RaiseException(void) {
 
 bool Yap_PutException(Term t) {
   CACHE_REGS
-  if ((LOCAL_BallTerm = Yap_StoreTermInDB(t, 0)) != NULL)
-    return true;
+    if ((LOCAL_BallTerm = Yap_StoreTermInDB(t, 0)) != NULL)
+      return true;
 
   return false;
 }
@@ -2234,7 +2243,6 @@ bool Yap_ResetException(int wid) {
   if (REMOTE_ActiveError(wid)->errorTerm) {
     Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
   }
-  REMOTE_ActiveError(wid)->errorTerm = NULL;
   REMOTE_ActiveError(wid)->errorTerm = NULL;
   return true;
 }
@@ -2274,7 +2282,7 @@ int Yap_dogc(int extra_args, Term *tp USES_REGS) {
 
 void Yap_InitExecFs(void) {
   CACHE_REGS
-  Term cm = CurrentModule;
+    Term cm = CurrentModule;
   Yap_InitComma();
   Yap_InitCPred("$execute", 1, execute, 0);
   Yap_InitCPred("$execute", 2, execute2, 0);

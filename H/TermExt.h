@@ -302,6 +302,8 @@ INLINE_ONLY inline EXTERN Term __MkStringTerm(const char *s USES_REGS) {
   return t;
 }
 
+#define MkUStringTerm(i) __MkUStringTerm((i)PASS_REGS)
+
 INLINE_ONLY inline EXTERN Term
 __MkUStringTerm(const unsigned char *s USES_REGS);
 

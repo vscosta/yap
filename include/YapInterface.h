@@ -72,50 +72,9 @@ __BEGIN_DECLS
  *
  * @return
  */
-#if defined(_WIN32)
-#if YAP_H
-#define X_API __declspec(dllexport)
-#else
-#define X_API __declspec(dllimport)
-#endif
-#else
-#define X_API
-#endif
 
-#ifndef Int_FORMAT
+#include "YapFormat.h"
 
-#ifdef PRIdPTR
-#define Int_FORMAT "%" PRIdPTR
-#elif _WIN64
-#define Int_FORMAT "%I64d"
-#elif _WIN32
-#define Int_FORMAT "%I32d"
-#else
-#define Int_FORMAT "%ld"
-#endif
-
-#ifdef PRIiPTR
-#define Int_ANYFORMAT "%" PRIiPTR
-#elif _WIN64
-#define Int_ANYFORMAT "%I64i"
-#elif _WIN32
-#define Int_ANYFORMAT "%I32i"
-#else
-#define Int_ANYFORMAT "%li"
-#endif
-
-#ifdef PRIuPTR
-#define UInt_FORMAT "%" PRIuPTR
-#elif _WIN64
-#define UInt_FORMAT "%I64ud"
-#elif _WIN32
-#define UInt_FORMAT "%I32ud"
-#else
-#define UInt_FORMAT "%lu"
-#endif
-
-/* portable form of formatted output for Prolog terms */
-#endif
 
 /* Primitive Functions */
 
@@ -173,6 +132,9 @@ extern X_API YAP_Bool YAP_IsDbRefTerm(YAP_Term);
 /*  YAP_Bool IsAtomTerm(YAP_Term)  */
 extern X_API YAP_Bool YAP_IsAtomTerm(YAP_Term);
 
+/*  YAP_Bool IsAtomTerm(YAP_Term)  */
+extern X_API YAP_Bool YAP_IsStringTerm(YAP_Term);
+
 /*  YAP_Bool IsPairTerm(YAP_Term)  */
 extern X_API YAP_Bool YAP_IsPairTerm(YAP_Term);
 
@@ -185,11 +147,23 @@ extern X_API YAP_Bool YAP_IsCompoundTerm(YAP_Term);
 /*    Term MkIntTerm(YAP_Int)  */
 extern X_API YAP_Term YAP_MkIntTerm(YAP_Int);
 
+/*    Term MkIntTerm(YAP_Int)  */
+extern X_API YAP_Term YAP_MkStringTerm(const char *);
+
+/*    Term MkIntTerm(YAP_Int)  */
+extern X_API YAP_Term YAP_MkUnsignedStringTerm(const unsigned char *);
+
 /*    Term MkBigNumTerm(void *)  */
 extern X_API YAP_Term YAP_MkBigNumTerm(void *);
 
 /*    Term MkRationalTerm(void *)  */
 extern X_API YAP_Term YAP_MkRationalTerm(void *);
+
+/*    YAP_Int  IntOfTerm(Term) */
+extern X_API const unsigned char *YAP_UnsignedStringOfTerm(YAP_Term);
+
+/*    YAP_Int  StribgOfTerm(Term) */
+extern X_API const char *YAP_StringOfTerm(YAP_Term);
 
 /*    YAP_Int  IntOfTerm(Term) */
 extern X_API YAP_Int YAP_IntOfTerm(YAP_Term);

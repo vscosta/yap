@@ -142,18 +142,23 @@ void Yap_systime_interval(Int *now, Int *interval) {
 
 #include <time.h>
 
-static FILETIME StartOfTimes, last_time;
+typedef union {
+  FILETIME f;
+  __int64 t;
+}  win64_time_t;
 
-static FILETIME StartOfTimes_sys, last_time_sys;
+static win64_time_t StartOfTimes, last_time;
+
+static win64_time_t StartOfTimes_sys, last_time_sys;
 
 static clock_t TimesStartOfTimes, Times_last_time;
 
 /* store user time in this variable */
 void Yap_InitTime(int wid) {
   HANDLE hProcess = GetCurrentProcess();
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime,
-                       &UserTime)) {
+  win64_time_t CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime.f, &ExitTime.f, &KernelTime.f,
+                       &UserTime.f)) {
     /* WIN98 */
     clock_t t;
     t = clock();
@@ -161,125 +166,89 @@ void Yap_InitTime(int wid) {
   } else {
 #if THREADS
     REMOTE_ThreadHandle(wid).start_of_timesp =
-        (struct _FILETIME *)malloc(sizeof(FILETIME));
+        (struct _win64_time_t *)malloc(sizeof(win64_time_t));
     REMOTE_ThreadHandle(wid).last_timep =
-        (struct _FILETIME *)malloc(sizeof(FILETIME));
+        (struct _win64_time_t *)malloc(sizeof(win64_time_t));
     REMOTE_ThreadHandle(wid).start_of_times_sysp =
-        (struct _FILETIME *)malloc(sizeof(FILETIME));
+        (struct _win64_time_t *)malloc(sizeof(win64_time_t));
     REMOTE_ThreadHandle(wid).last_time_sysp =
-        (struct _FILETIME *)malloc(sizeof(FILETIME));
-    (*REMOTE_ThreadHandle(wid).last_timep).dwLowDateTime =
+        (struct _win64_time_t *)malloc(sizeof(win64_time_t));
+    (*REMOTE_ThreadHandle(wid).last_timep).f.dwLowDateTime =
         UserTime.dwLowDateTime;
     (*REMOTE_ThreadHandle(wid).last_timep).dwHighDateTime =
         UserTime.dwHighDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_timesp).dwLowDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_timesp).f.dwLowDateTime =
         UserTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_timesp).dwHighDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_timesp).f.dwHighDateTime =
         UserTime.dwHighDateTime;
-    (*REMOTE_ThreadHandle(wid).last_time_sysp).dwLowDateTime =
+    (*REMOTE_ThreadHandle(wid).last_time_sysp).f.dwLowDateTime =
         KernelTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).last_time_sysp).dwHighDateTime =
+    (*REMOTE_ThreadHandle(wid).last_time_sysp).f.dwHighDateTime =
         KernelTime.dwHighDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwLowDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).f.dwLowDateTime =
         KernelTime.dwLowDateTime;
-    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).dwHighDateTime =
+    (*REMOTE_ThreadHandle(wid).start_of_times_sysp).f.dwHighDateTime =
         KernelTime.dwHighDateTime;
 #else
-    last_time.dwLowDateTime = UserTime.dwLowDateTime;
-    last_time.dwHighDateTime = UserTime.dwHighDateTime;
-    StartOfTimes.dwLowDateTime = UserTime.dwLowDateTime;
-    StartOfTimes.dwHighDateTime = UserTime.dwHighDateTime;
-    last_time_sys.dwLowDateTime = KernelTime.dwLowDateTime;
-    last_time_sys.dwHighDateTime = KernelTime.dwHighDateTime;
-    StartOfTimes_sys.dwLowDateTime = KernelTime.dwLowDateTime;
-    StartOfTimes_sys.dwHighDateTime = KernelTime.dwHighDateTime;
+    last_time.f.dwLowDateTime = UserTime.f.dwLowDateTime;
+    last_time.f.dwHighDateTime = UserTime.f.dwHighDateTime;
+    StartOfTimes.f.dwLowDateTime = UserTime.f.dwLowDateTime;
+    StartOfTimes.f.dwHighDateTime = UserTime.f.dwHighDateTime;
+    last_time_sys.f.dwLowDateTime = KernelTime.f.dwLowDateTime;
+    last_time_sys.f.dwHighDateTime = KernelTime.f.dwHighDateTime;
+    StartOfTimes_sys.f.dwLowDateTime = KernelTime.f.dwLowDateTime;
+    StartOfTimes_sys.f.dwHighDateTime = KernelTime.f.dwHighDateTime;
 #endif
   }
 }
 
-#ifdef __GNUC__
-static unsigned long long int sub_utime(FILETIME t1, FILETIME t2) {
-  ULARGE_INTEGER u[2];
-  memcpy((void *)u, (void *)&t1, sizeof(FILETIME));
-  memcpy((void *)(u + 1), (void *)&t2, sizeof(FILETIME));
-  return u[0].QuadPart - u[1].QuadPart;
-}
-#endif
-
 UInt Yap_cputime(void) {
   HANDLE hProcess = GetCurrentProcess();
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime,
-                       &UserTime)) {
+  win64_time_t CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime.f, & ExitTime.f, &KernelTime.f,
+                       &UserTime.f)) {
     clock_t t;
     t = clock();
     return (((t - TimesStartOfTimes) * 1000) / CLOCKS_PER_SEC);
   } else {
-#ifdef __GNUC__
-    unsigned long long int t = sub_utime(UserTime, StartOfTimes);
-    do_div(t, 10000);
-    return ((Int)t);
-#endif
-#ifdef _MSC_VER
-    __int64 t = *(__int64 *)&UserTime - *(__int64 *)&StartOfTimes;
+    __int64 t = UserTime.t - StartOfTimes.t;
     return ((Int)(t / 10000));
-#endif
   }
 }
 
 void Yap_cputime_interval(Int *now, Int *interval) {
   HANDLE hProcess = GetCurrentProcess();
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime,
-                       &UserTime)) {
+  win64_time_t CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime.f, & ExitTime.f, &KernelTime.f,
+                       &UserTime.f)) {
     clock_t t;
     t = clock();
     *now = ((t - TimesStartOfTimes) * 1000) / CLOCKS_PER_SEC;
     *interval = (t - Times_last_time) * 1000 / CLOCKS_PER_SEC;
     Times_last_time = t;
   } else {
-#ifdef __GNUC__
-    unsigned long long int t1 = sub_utime(UserTime, StartOfTimes);
-    unsigned long long int t2 = sub_utime(UserTime, last_time);
-    do_div(t1, 10000);
-    *now = (Int)t1;
-    do_div(t2, 10000);
-    *interval = (Int)t2;
-#endif
-#ifdef _MSC_VER
-    __int64 t1 = *(__int64 *)&UserTime - *(__int64 *)&StartOfTimes;
-    __int64 t2 = *(__int64 *)&UserTime - *(__int64 *)&last_time;
+    __int64 t1 = UserTime.t - StartOfTimes.t;
+    __int64 t2 = UserTime.t - last_time.t;
     *now = (Int)(t1 / 10000);
     *interval = (Int)(t2 / 10000);
-#endif
-    last_time.dwLowDateTime = UserTime.dwLowDateTime;
-    last_time.dwHighDateTime = UserTime.dwHighDateTime;
+    last_time.f.dwLowDateTime = UserTime.f.dwLowDateTime;
+    last_time.f.dwHighDateTime = UserTime.f.dwHighDateTime;
   }
 }
 
 void Yap_systime_interval(Int *now, Int *interval) {
   HANDLE hProcess = GetCurrentProcess();
-  FILETIME CreationTime, ExitTime, KernelTime, UserTime;
-  if (!GetProcessTimes(hProcess, &CreationTime, &ExitTime, &KernelTime,
-                       &UserTime)) {
+  win64_time_t CreationTime, ExitTime, KernelTime, UserTime;
+  if (!GetProcessTimes(hProcess, &CreationTime.f, &ExitTime.f, &KernelTime.f,
+                       &UserTime.f)) {
     *now = *interval = 0; /* not available */
   } else {
-#ifdef __GNUC__
-    unsigned long long int t1 = sub_utime(KernelTime, StartOfTimes_sys);
-    unsigned long long int t2 = sub_utime(KernelTime, last_time_sys);
-    do_div(t1, 10000);
-    *now = (Int)t1;
-    do_div(t2, 10000);
-    *interval = (Int)t2;
-#endif
-#ifdef _MSC_VER
-    __int64 t1 = *(__int64 *)&KernelTime - *(__int64 *)&StartOfTimes_sys;
-    __int64 t2 = *(__int64 *)&KernelTime - *(__int64 *)&last_time_sys;
+    __int64 t1 = KernelTime.t - StartOfTimes_sys.t;
+    __int64 t2 = KernelTime.t - last_time_sys.t;
     *now = (Int)(t1 / 10000);
     *interval = (Int)(t2 / 10000);
-#endif
-    last_time_sys.dwLowDateTime = KernelTime.dwLowDateTime;
-    last_time_sys.dwHighDateTime = KernelTime.dwHighDateTime;
+    last_time_sys.f.dwLowDateTime = KernelTime.f.dwLowDateTime;
+    last_time_sys.f.dwHighDateTime = KernelTime.f.dwHighDateTime;
   }
 }
 
@@ -376,9 +345,9 @@ static void InitTime(int wid) {
   struct timeval tp;
 
   gettimeofday(&tp, NULL);
-  (*REMOTE_ThreadHandle(wid).last_timep).tv_sec =
+  (*REMOTE_ThreadHandle(wid).last_timep).f.tv_sec =
       (*REMOTE_ThreadHandle.start_of_timesp(wid)).tv_sec = tp.tv_sec;
-  (*REMOTE_ThreadHandle(wid).last_timep).tv_usec =
+  (*REMOTE_ThreadHandle(wid).last_timep).f.tv_usec =
       (*REMOTE_ThreadHandle.start_of_timesp(wid)).tv_usec = tp.tv_usec;
 }
 

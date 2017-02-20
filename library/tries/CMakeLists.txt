@@ -1,3 +1,4 @@
+set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 set ( TRIES_SOURCES
   core_tries.c
@@ -12,7 +13,8 @@ target_link_libraries(tries libYap)
 set_target_properties (tries PROPERTIES PREFIX "")
 
 install(TARGETS  tries
-  LIBRARY DESTINATION ${dlls} 
+        LIBRARY DESTINATION ${dlls}
+        RUNTIME DESTINATION ${dlls}
   ARCHIVE DESTINATION ${dlls})
 
 
@@ -22,6 +24,9 @@ set ( ITRIES_SOURCES
   itries.c
   )
 
+if (ANDROID OR WIN32)
+   add_component ( otries ${TRIES_SOURCES} )
+endif()
 add_library (itries SHARED ${ITRIES_SOURCES})
 
 target_link_libraries(itries libYap)
@@ -29,6 +34,7 @@ target_link_libraries(itries libYap)
 set_target_properties (itries PROPERTIES PREFIX "")
 
 install(TARGETS  itries
-  LIBRARY DESTINATION ${dlls}
+        LIBRARY DESTINATION ${dlls}
+  RUNTIME DESTINATION ${dlls}
   ARCHIVE DESTINATION ${dlls} )
 

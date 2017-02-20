@@ -30,7 +30,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
@@ -500,33 +500,40 @@ static void reset_regs(TokEntry *tokstart, FEnv *fe) {
 static Term get_variables(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
+  jmp_buf j;
+            LOCAL_IOBotch = &j;
   if (fe->vp) {
     while (true) {
       fe->old_H = HR;
 
-      if (setjmp(LOCAL_IOBotch) == 0) {
+      if (setjmp(j) == 0) {
         if ((v = Yap_Variables(LOCAL_VarTable, TermNil))) {
           fe->old_H = HR;
-          return v;
+                     LOCAL_IOBotch = NULL;
+ return v;
         }
       } else {
         reset_regs(tokstart, fe);
       }
     }
   }
+            LOCAL_IOBotch = NULL;
   return 0;
 }
 
 static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
+  jmp_buf j;
+  LOCAL_IOBotch = &j;
   if (fe->np) {
     while (true) {
       fe->old_H = HR;
 
-      if (setjmp(LOCAL_IOBotch) == 0) {
+      if (setjmp(j) == 0) {
         if ((v = Yap_VarNames(LOCAL_VarTable, TermNil))) {
           fe->old_H = HR;
+          LOCAL_IOBotch = NULL;
           return v;
         }
       } else {
@@ -534,24 +541,30 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
       }
     }
   }
+            LOCAL_IOBotch = NULL;
   return 0;
 }
 
 static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
+  jmp_buf j;
+              LOCAL_IOBotch = &j;
   if (fe->sp) {
     while (TRUE) {
       fe->old_H = HR;
 
-      if (setjmp(LOCAL_IOBotch) == 0) {
-        if ((v = Yap_Singletons(LOCAL_VarTable, TermNil)))
-          return v;
+      if (setjmp(j) == 0) {
+        if ((v = Yap_Singletons(LOCAL_VarTable, TermNil))) {
+                      LOCAL_IOBotch = NULL;
+  return v;
+      }
       } else {
         reset_regs(tokstart, fe);
       }
     }
   }
+              LOCAL_IOBotch = NULL;
   return 0;
 }
 
@@ -580,19 +593,24 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v;
+  jmp_buf j;
+  LOCAL_IOBotch = &j;
   if (fe->tp) {
     while (true) {
       fe->old_H = HR;
 
-      if (setjmp(LOCAL_IOBotch) == 0) {
-        if ((v = CurrentPositionToTerm()))
+      if (setjmp(j) == 0) {
+        if ((v = CurrentPositionToTerm())) {
+            LOCAL_IOBotch = NULL;
           return v;
+        }
       } else {
         reset_regs(tokstart, fe);
       }
     }
   }
-  return 0;
+             LOCAL_IOBotch = NULL;
+ return 0;
 }
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {

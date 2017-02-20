@@ -207,7 +207,7 @@ void Yap_RestartYap(int flag) {
 #if PUSH_REGS
   restore_absmi_regs(&Yap_standard_regs);
 #endif
-  siglongjmp(LOCAL_RestartEnv, 1);
+  siglongjmp(*LOCAL_RestartEnv, 1);
 }
 
 static void error_exit_yap(int value) {
@@ -328,7 +328,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(file, function, lineno, type, where);
   }
-  siglongjmp(LOCAL_RestartEnv, 4);
+  siglongjmp(*LOCAL_RestartEnv, 4);
 }
 
 /**

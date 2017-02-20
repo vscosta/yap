@@ -17,7 +17,6 @@ string(TIMESTAMP YAP_TIMESTAMP)
 
 string( SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT )
 
-
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # rpath stuff, hopefully it works

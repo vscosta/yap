@@ -770,15 +770,8 @@ jni_tag_to_iref(
 	}
 
 
-#if SIZEOF_LONG == SIZEOF_VOIDP
-#define IREF_FMT "J#%020lu"
-#define IREF_INTTYPE unsigned long
-#elif SIZEOF_LONG_LONG == SIZEOF_VOIDP
-#define IREF_FMT "J#%020llu"
-#define IREF_INTTYPE unsigned long long
-#else
-#error "Cannot determine format for irefs"
-#endif
+#define IREF_FMT "J#%020%" UXInt_F
+#define IREF_INTTYPE uintptr_t
 
 static bool
 jni_iref_to_tag(
@@ -4556,7 +4549,7 @@ JNIEXPORT jobject JNICALL
     term_t	term;
 	jobject		term_t;		/* return value */
 
-	JPL_DEBUG(1, Sdprintf( ">exception(jqid=%lu)\n", (long)jqid));
+	JPL_DEBUG(1, Sdprintf( ">exception(jqid=%p)\n", jqid));
 	return	(	jpl_ensure_pvm_init(env)
 			&&	( JPL_DEBUG(1, Sdprintf( "	ok: jpl_ensure_pvm_init(env)\n")), TRUE )
 		 /* &&	jqid != NULL	// redundant */
@@ -4570,7 +4563,7 @@ JNIEXPORT jobject JNICALL
 			&&	setTermTValue(env,term_t,term)
 			&&	( JPL_DEBUG(1, Sdprintf( "	ok: setTermTValue(env,term_t,term)\n")), TRUE )
 			?	(
-					JPL_DEBUG(1, Sdprintf("  =%lu\n",(long)term_t)),
+					JPL_DEBUG(1, Sdprintf("  =%p\n",term_t)),
 					term_t
 				)
 			:	NULL													/* oughta diagnose failure? */
@@ -4878,7 +4871,7 @@ JNIEXPORT jobject JNICALL
 	jobject		rval;
 	term_t		trefs;
 
-	JPL_DEBUG(1, Sdprintf( ">new_term_refs(env=%lu,jProlog=%lu,jn=%lu)...\n", (long)env, (long)jProlog, (long)jn));
+	JPL_DEBUG(1, Sdprintf( ">new_term_refs(env=%p,jProlog=%p,jn=%p)...\n", env, jProlog, (long)jn));
 
 	return	(	jpl_ensure_pvm_init(env)
 			&&	jn >= 0										/* I hope PL_new_term_refs(0) is defined [ISSUE] */
@@ -5265,7 +5258,7 @@ JNIEXPORT void JNICALL
     {
 	atom_t		atom;
 
-	JPL_DEBUG(1, Sdprintf( "unregister_atom(env=%lu,jProlog=%lu,jatom=%lu)...\n", (long)env, (long)jProlog, (long)jatom));
+	JPL_DEBUG(1, Sdprintf( "unregister_atom(env=%p,jProlog=%p,jatom=%p)...\n", env, jProlog, jatom));
 
 	if	(	jpl_ensure_pvm_init(env)
 		&&	getAtomTValue(env,jatom,&atom)							/* checks that jatom isn't null */

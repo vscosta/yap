@@ -36,14 +36,12 @@ if (JNI_FOUND)
     SWIG_ADD_MODULE(Native java ${SWIG_SOURCES}
 	   )
 
-	add_dependencies(Native Yap++ )
-
-    SWIG_LINK_LIBRARIES (Native Yap++ )
 
 
-   set(CMAKE_JNI_TARGET 1)
+   set(CMAKE_JNI_TARGET 1
+           )
     ADD_JAR( NativeJar
-      SOURCES "${CMAKE_SOURCES_DIR}/docs/icons/yap_16x16x32.png"
+      SOURCES "../../../docs/icons/yap_16x16x32.png"
       DEPENDS Native
       PROPERTIES OUTPUT_NAME Native
       )

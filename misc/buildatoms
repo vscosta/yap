@@ -12,7 +12,7 @@
 :- yap_flag(write_strings,on).
 
 main :-
-	warning(Warning),
+     warning(Warning),
 	file_filter_with_init('H/ATOMS','H/generated/tatoms.h',gen_fields, Warning, ['tatoms.h']),
 	file_filter_with_init('H/ATOMS','H/generated/iatoms.h',gen_decl, Warning, ['iatoms.h']),
 	file_filter_with_init('H/ATOMS','H/generated/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
@@ -23,13 +23,13 @@ gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["A",Atom,_,_]), !,
     ( Atom = [C|_], code_type(C, alpha), Atom \= "Trail"
     ->
-        append(["EXTERNAL Atom Atom",Atom,"; EXTERNAL Term Term",Atom,";"], Out)
+        append(["X_API EXTERNAL Atom Atom",Atom,"; X_API EXTERNAL Term Term",Atom,";"], Out)
     ;
-    	append(["EXTERNAL Atom Atom",Atom,";"], Out)
+    	append(["X_API EXTERNAL Atom Atom",Atom,";"], Out)
     ).
 gen_fields(Inp,Out) :-
 	split_unquoted(Inp," 	",["F",Name,_,_]), !,
-	append(["EXTERNAL  Functor Functor",Name,";\n"],Out).
+	append(["X_API EXTERNAL  Functor Functor",Name,";\n"],Out).
 
 gen_rcov(Inp,Out) :-
 	split_unquoted(Inp,"	 ",["A",Atom,_,_]), !,

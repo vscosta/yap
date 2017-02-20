@@ -396,7 +396,7 @@ PL_get_atom_ex = _lib.PL_get_atom_ex
 PL_get_atom_ex.argtypes = [term_t, POINTER(atom_t)]
 
 #PL_EXPORT(int)		PL_get_atom_chars(term_t t, char **a);
-PL_get_atom_chars = _lib.PL_get_atom_chars
+PL_get_atom_chars = _lib.
 PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
 
 PL_get_atom_nchars = _lib.PL_get_atom_nchars

@@ -41,7 +41,8 @@ set_target_properties (sys PROPERTIES  PREFIX "")
 endif()
 
 MY_install(TARGETS  sys
-  LIBRARY DESTINATION ${dlls}
-  ARCHIVE DESTINATION ${dlls} )
+        LIBRARY DESTINATION ${dlls}
+        RUNTIME DESTINATION ${dlls}
+        ARCHIVE DESTINATION ${dlls} )
 
 configure_file ("sys_config.h.cmake" "sys_config.h" )

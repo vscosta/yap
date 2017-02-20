@@ -212,8 +212,7 @@ start_r :-
      !,
 	swipl_wins_warn,
 	init_r_env,
-	use_foreign_library(foreign(real)),
-	init_R,
+	load_foreign_files([libreal], [], init_R),
 	set_prolog_flag(double_quotes, string ),
 	set_prolog_flag( real, started ).
 start_r.

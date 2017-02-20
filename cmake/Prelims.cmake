@@ -138,11 +138,11 @@ endif()
 set ( includedir "${prefix}/include")
 set ( exec_prefix "${prefix}")
 set ( libdir "${exec_prefix}/lib")
-set ( dlls "${exec_prefix}/lib/Yap")
 set ( datadir "${datarootdir}")
 set ( mandir "${datarootdir}/man")
 set ( bindir "${exec_prefix}/bin")
 set ( docdir "${datarootdir}/doc/Yap")
+set ( dlls "${exec_prefix}/lib/Yap")
 
 set(YAP_ROOTDIR ${prefix})
 
@@ -164,4 +164,3 @@ set(YAP_ROOTDIR "${prefix}")
 include (cudd NO-POLICY-SCOPE)
 include (python NO-POLICY-SCOPE)
 include (java NO-POLICY-SCOPE)
-

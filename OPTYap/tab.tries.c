@@ -19,7 +19,7 @@
 #ifdef TABLING
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "tab.macros.h"
 
 static inline sg_node_ptr

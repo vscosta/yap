@@ -8,9 +8,7 @@ if platform.system() == 'Darwin':
 else:
     my_extra_link_args = []
  
-python_sources = ['yap.i'] # ,'../../CXX/yapi.cpp'] + ${PYTHON_SOURCES}
-
-set objects = split('${OBJECTS}',';')
+python_sources = ['${CMAKE_CURRENT_SOURCE_DIR}/../yap.i']
 
 setup(
     name = "yap",
@@ -20,12 +18,12 @@ ext_modules=[Extension('_yap', python_sources,
                                               ('MINOR_VERSION', '0'),
                             ('_YAP_NOT_INSTALLED_', '1'),
                             ('YAP_PYTHON', '1')],
-                            runtime_library_dirs=['${dlls}'],
+                            runtime_library_dirs=[,'$(bindir)'],
 			    swig_opts=['-modern','-outcurrentdir', '-c++', '-py3','-I${CMAKE_SOURCE_DIR}/CXX'],
-                             library_dirs=['../../.o.',
+                             library_dirs=["${dlls}","${bindir}",
 					'.'],
 					extra_link_args=my_extra_link_args,
-					libraries=['Yap++','Yap','YAPPython'],
+					libraries=['Yap','{GMP_LIBRARIES}'],
                              include_dirs=['../../..',
                                          '${GMP_INCLUDE_DIRS}',
                                          '${CMAKE_SOURCE_DIR}/H',
@@ -35,6 +33,6 @@ ext_modules=[Extension('_yap', python_sources,
                                          '${CMAKE_SOURCE_DIR}/include',
                                          '${CMAKE_SOURCE_DIR}/CXX', '.']
     )],
-py_modules = ['yap']
+py_modules = ['yap', '${CMAKE_SOURCE_DIR}/packages/python/yapex']
 )
-\
+

@@ -33,7 +33,7 @@ typedef void *Atom;
   (((CELL)(X) + (sizeof(TYPE) - 1)) & ~(sizeof(TYPE) - 1))
 
 #ifndef EXTERN
-#ifdef _MSC_VER
+#ifdef MSC_VER
 #define EXTERN
 #else
 #define EXTERN extern
@@ -44,51 +44,30 @@ typedef void *Atom;
 ** and integer types Short and UShort with half the size of a ptr */
 
 #if defined(PRIdPTR)
-#define Int_FORMAT "%" PRIdPTR
-#define Int_ANYFORMAT "%" PRIuPTR
-#define UInt_FORMAT "%" PRIuPTR
-#define Int_F PRIdPTR
-#define Int_ANYF PRIuPTR
-#define UInt_F PRIuPTR
 
 typedef intptr_t Int;
 typedef uintptr_t UInt;
 
 #elif defined(_WIN64)
 
+
 typedef int64_t Int;
 typedef uint64_t UInt;
-#define Int_FORMAT "%I64d"
-#define UInt_FORMAT "%I64u"
-#define Int_F "I64d"
-#define UInt_F "I64u"
 
 #elif defined(_WIN32)
 
 typedef int32_t Int;
 typedef uint32_t UInt;
-#define Int_FORMAT "%I32d"
-#define UInt_FORMAT "%I32u"
-#define Int_F "I32d"
-#define UInt_F "I32u"
 
 #elif SIZEOF_LONG_INT == SIZEOF_INT_P
 
 typedef long int Int;
 typedef unsigned long int UInt;
-#define Int_FORMAT "%ld"
-#define UInt_FORMAT "%uld"
-#define Int_F "ld"
-#define UInt_F "uld"
 
 #elif SIZEOF_INT == SIZEOF_INT_P
 
 typedef int Int;
 typedef unsigned int UInt;
-#define Int_FORMAT "%l"
-#define UInt_FORMAT "%ul"
-#define Int_F "l"
-#define UInt_F "ul"
 
 #else
 #error Yap require integer types of the same size as a pointer
@@ -106,6 +85,8 @@ typedef uint32_t BITS32;
 #define WordSize sizeof(BITS16)
 #define CellSize sizeof(CELL)
 #define SmallSize sizeof(SMALLUNSGN)
+
+#include "YapFormat.h"
 
 /*************************************************************************************************
                                         type casting macros

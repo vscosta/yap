@@ -1,7 +1,7 @@
 # value of 3.4.0 or lower.
 
-# Sets the minimum version of CMake required to build the native
-# library. You should either keep the default value or only pass a
+# Sets the version of CMake required to build the native
+# library. You should either keep the default value or  pass a
 # value of 3.4.0 or lower.
 
 project( YAP )
@@ -33,13 +33,13 @@ include(FindPackageHandleStandardArgs)
 include (GNUInstallDirs)
 
 # Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds it for you.
+# or SHARED, and provides the relative paths to its source code.z
+# You can define  libraries, and CMake builds it for you.
 # Gradle automatically packages shared libraries with your APK.
 
 #cross-compilation support
 # Search packages for host system instead of packages for target system
-# in case of cross compilation these macro should be defined by toolchain file
+# in case of cross compilation define these macro by toolchain file
 if(NOT COMMAND find_host_package)
     macro(find_host_package)
         find_package(${ARGN})
@@ -53,6 +53,7 @@ endif()
 
 option(BUILD_SHARED_LIBS "Build shared library" ON)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
 include(Prelims NO_POLICY_SCOPE)
 
@@ -69,6 +70,8 @@ if (ANDROID)
  )
  endif (ANDROID)
 
+  set_property( SOURCE ${LIBYAP_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
+
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)
@@ -82,6 +85,9 @@ if (ODBC_FOUND)
 if (MYSQL_POSTGRES)
   add_definitions(= -DMYDDAS_POSTGRES=1)
   endif()
+  if (MYSQL_POSTGRES)
+    set(SWIG_SOURCES packages/swig/python/yap_PYTHONwrapper.cxx )
+    endif()
 
 
   if (ANDROID)
@@ -93,34 +99,17 @@ if (MYSQL_POSTGRES)
     ADD_SUBDIRECTORY(CXX)
 
 
-set (SWIG_FILES    ${CMAKE_SOURCE_DIR}/../generated/jni/yap_wrap.cpp )
+else()
 
-else ()
-    set(YLIBS
-            $<TARGET_OBJECTS:core>
-            $<TARGET_OBJECTS:libYAPOs>
-            $<TARGET_OBJECTS:libOPTYap>
-            $<TARGET_OBJECTS:myddas>
-            $<TARGET_OBJECTS:Yapsqlite3>
-            $<TARGET_OBJECTS:libswi>
-            $<TARGET_OBJECTS:utf8proc>
-            )
-
-
-endif ()
-
+  List (APPEND YLIBS    $<TARGET_OBJECTS:libOPTYap> )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:libYAPOs> )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:utf8proc> )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:myddas> )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:libswi> )
 if (WIN32)
-  list (APPEND YLIBS    $<TARGET_OBJECTS:YapC++>)
-endif()
-
-
-add_component (core
-  ${ENGINE_SOURCES}
-  ${SWIG_FILES}
-  ${C_INTERFACE_SOURCES}
-  ${STATIC_SOURCES}
-  ${ALL_SOURCES}
-  )
+  List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
+  endif()
 
 
 add_library( # Sets the name of the library.
@@ -128,17 +117,25 @@ add_library( # Sets the name of the library.
 
         # Sets the library as a shared library.
         SHARED
+
+        ${ENGINE_SOURCES}
+        ${C_INTERFACE_SOURCES}
+        //${STATIC_SOURCES}
+        # cmake object libraries
         ${YLIBS}
-        ${WINDLLS}
         )
+
+if (WIN32)
+    target_link_libraries(libYap ${WINDLLS})
+endif (WIN32)
 
 include(libYap NO_POLICY_SCOPE)
 
+endif()
 
 if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
-
 
 if (ANDROID)
     add_dependencies(libYap  plmyddas )
@@ -148,9 +145,8 @@ if (ANDROID)
 endif ()
 
 set_target_properties(libYap
-        PROPERTIES OUTPUT_NAME Yap
-        )
-
+      PROPERTIES OUTPUT_NAME Yap
+  )
 
 MY_include(Packages NO_POLICY_SCOPE)
-    include(Config NO_POLICY_SCOPE)
+include(Config NO_POLICY_SCOPE)

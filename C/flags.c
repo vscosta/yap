@@ -666,12 +666,19 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     flag_term *tarr = GLOBAL_Flags;
     if (!(fv->type(t2)))
       return false;
+    
     if (fv->helper && !(fv->helper(t2)))
       return false;
     Term tout = tarr[fv->FlagOfVE].at;
-    if (IsVarTerm(tout))
-      Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT);
-    if (IsAtomOrIntTerm(t2))
+    if (IsVarTerm(tout)) {
+      Term t;
+      while ((t = Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
+	if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+	  return false;
+	}
+      }
+    } else if (IsAtomOrIntTerm(t2))
       tarr[fv->FlagOfVE].at = t2;
     else {
       tarr[fv->FlagOfVE].DBT = Yap_StoreTermInDB(t2, 2);

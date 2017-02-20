@@ -29,7 +29,7 @@
 #ifdef __YAP_PROLOG__
 #include "Yatom.h"
 #include "pl-ctype.h"
-#include "eval.h"
+#include "YapEval.h"
 #else
 #include "os/pl-ctype.h"
 #endif

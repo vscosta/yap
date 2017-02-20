@@ -109,7 +109,7 @@
 #include "Yatom.h"
 #include "YapText.h"
 #include "cut_c.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "myddas.h"
 #ifdef MYDDAS_STATS
 #include "myddas_structs.h"

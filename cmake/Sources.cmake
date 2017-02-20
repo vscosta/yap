@@ -124,13 +124,13 @@ list(APPEND LIBYAP_SOURCES ${C_INTERFACE_SOURCES} ${ENGINE_SOURCES})
   	H/attvar.h
       H/blobs.h
   	H/clause.h
-  	H/compile.h
+  	H/YapCompile.h
   	H/corout.h
   	H/dlmalloc.h
   	H/generated/dglobals.h
   	H/generated/dlocals.h
   	H/generated/dhstruct.h
-  	H/eval.h
+  	H/YapEval.h
   	H/heapgc.h
   	H/generated/hglobals.h
   	H/generated/hlocals.h

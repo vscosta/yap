@@ -28,13 +28,14 @@ BUILD_TYPE="Debug"
 PREFIX=/usr/local
 LIBDIR=
 CMAKE_ARGS=
+GENERATOR=""
 
 if [ -e "${TOP_SRCDIR}/.configure-custom.sh" ]; then
     . "${TOP_SRCDIR}/.configure-custom.sh"
 fi
 
 quote() {
-    echo "$1" | sed -e "s|'|'\\\\''|g; 1s/^/'/; \$s/\$/'/"
+    echo "$*" | sed -e "s|'|'\\\\''|g; 1s/^/'/; \$s/\$/'/"
 }
 
 extract_var_string() {
@@ -163,6 +164,8 @@ print_help() {
   --localedir=DIR         locale-dependent data [DATAROOTDIR/locale]
   --mandir=DIR            man documentation [DATAROOTDIR/man]
   --docdir=DIR            documentation root [DATAROOTDIR/doc/PROJECT_NAME]
+
+  --generato=Generator	  Specify the tool used to send callss
 EOF
 
     first=y
@@ -288,6 +291,13 @@ while [ $# != 0 ]; do
         "--docdir")
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_INSTALL_DOCDIR=$(quote "$2")"; shift;;
 
+        "--generator="*)
+            GENERATOR="$CMAKE_ARGS -G $(1#*=)";;
+
+        "-G"|"--generator")
+            GENERATOR="$CMAKE_ARGS -G$(quote "$2")";
+	    shift;;
+
         "CC="*)
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_C_COMPILER=$(quote "${1#*=}")";;
         "CXX="*)
@@ -295,7 +305,7 @@ while [ $# != 0 ]; do
         "CFLAGS="*)
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_C_FLAGS=$(quote "${1#*=}")";;
         "CXXFLAGS="*)
-            CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_FLAGS=$(quote "${1#*=}")";;
+           CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_CXX_FLAGS=$(quote "${1#*=}")";;
         "LDFLAGS="*)
             LDFLAGS="$LDFLAGS ${1#*=}";;
 
@@ -362,4 +372,5 @@ if [ "x${LDFLAGS}" != "x" ]; then
 fi
 
 CMAKE_CMD="${CMAKE} ${TOP_SRCDIR}"
-${CMAKE_CMD} ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}
+
+${CMAKE_CMD} "${GENERATOR}" ${TOP_SRCDIR} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${PREFIX} -DCMAKE_INSTALL_LIBDIR=${LIBDIR} ${CMAKE_ARGS}

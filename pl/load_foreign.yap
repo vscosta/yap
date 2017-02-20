@@ -57,12 +57,13 @@ YAP supports the SWI-Prolog interface to loading foreign code, the shlib package
 load_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
     '$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
-    '$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
-    '$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
+'$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
+'$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
     (
 	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
 	->
-	'$load_foreign_files'(NewObjs,NewLibs,Entry),
+
+'$load_foreign_files'(NewObjs,NewLibs,Entry),
         (
 	    prolog_load_context(file, F)
 	->

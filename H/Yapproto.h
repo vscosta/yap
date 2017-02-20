@@ -13,12 +13,6 @@
 * version:      $Id: Yapproto.h,v 1.90 2008-08-07 20:51:23 vsc Exp $	 *
 *************************************************************************/
 
-#if defined(_WIN32)
-#define X_API __declspec(dllexport)
-#else
-#define X_API
-#endif
-
 /* prototype file for Yap */
 
 /* absmi.c */
@@ -309,6 +303,7 @@ extern struct vfs *Yap_InitAssetManager(void);
 
 /* load_foreign.c */
 extern void Yap_InitLoadForeign(void);
+extern bool Yap_LateInit(const char s[]);
 
 /* mavar.c */
 extern void Yap_InitMaVarCPreds(void);
