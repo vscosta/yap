@@ -1,34 +1,27 @@
 
-#CHECK: PythonLibs
+#CHECK: PythonLibs, changed to work in WIN32
 
 if (PYTHONLIBS_FOUND)
 
-include(FindPythonModule)  
+include(FindPythonModule)
 
 set (PYTHON_SOURCES
-  python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c )
-
-add_library (YAPPython SHARED ${PYTHON_SOURCES})
+  python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c)
 
 set (PYTHON_HEADERS
   python.h)
 
-  target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES})
+set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+add_library (YAPPython SHARED ${PYTHON_SOURCES})
 
-add_custom_target ( YAPex ALL
-        COMMAND ${PYTHON_EXECUTABLE} setup.py build -f
-        DEPENDS yapex.py  )
+  target_link_libraries(YAPPython libYap ${PYTHON_LIBRARY}
+  ${WINDLLS}
+${GMP_LIBRARIES})
 
-#  set_target_properties (YAPPython PROPERTIES PREFIX "")
 
-  include_directories (${PYTHON_INCLUDE_DIRS})
+set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
 
-  install(TARGETS  YAPPython
-    LIBRARY DESTINATION ${dlls}
-     ARCHIVE DESTINATION ${dlls}
-   )
 
   install(FILES python.pl
     DESTINATION ${libpl}
@@ -36,8 +29,10 @@ add_custom_target ( YAPex ALL
 
 configure_file ("setup.py.cmake"  "setup.py" )
 
-install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install -f
-   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+
+#set_target_properties (YAPPython PROPERTIES PREFIX "")
+
 
 find_python_module( jupyter )
 
@@ -45,6 +40,11 @@ if (PY_JUPYTER)
 
 add_subdirectory(yap_kernel)
 
-endif()
+ENDIF()
+
+install(TARGETS  YAPPython
+        LIBRARY DESTINATION ${dlls}
+        RUNTIME DESTINATION ${dlls}
+        ARCHIVE DESTINATION ${dlls} )
 
 endif (PYTHONLIBS_FOUND)

@@ -145,7 +145,7 @@ ADDR				db_vec0					=NULL
 struct RB_red_blk_node*		db_root					=NULL
 struct RB_red_blk_node*		db_nil					=NULL
 
-sigjmp_buf			gc_restore				void
+sigjmp_buf*			gc_restore				void
 CELL*				extra_gc_cells				void
 CELL*				extra_gc_cells_base			void
 CELL*				extra_gc_cells_top			void
@@ -160,8 +160,8 @@ struct mem_blk*			CMemFirstBlock				=NULL
 UInt				CMemFirstBlockSz			=0L
 
 // Variable used by the compiler to store number of permanent vars in a clause
-int				nperm					=0L
-
+int				nperm					=0
+int       jMP           =0
 // Thread Local Area for Labels
 Int*				LabelFirstArray				=NULL
 UInt				LabelFirstArraySz			=0L
@@ -198,7 +198,7 @@ ADDR				TrailTop				void
 yap_error_descriptor_t*		ActiveError			=calloc(sizeof(yap_error_descriptor_t),1)
 /// pointer to an exception term, from throw
 
-jmp_buf 			IOBotch					void
+jmp_buf* 			IOBotch					void
 TokEntry*			tokptr					void
 TokEntry*			toktide					void
 VarEntry*			VarTable 				void
@@ -209,7 +209,7 @@ CELL*				CommentsNextChar			void
 wchar_t*			CommentsBuff				void
 size_t				CommentsBuffPos				void
 size_t				CommentsBuffLim				void
-sigjmp_buf         		RestartEnv				void
+sigjmp_buf*         	RestartEnv				void
 char     			FileNameBuf[YAP_FILENAME_MAX+1]		void
 char        			FileNameBuf2[YAP_FILENAME_MAX+1]	void
 

@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-void init_random( void );
+X_API void init_random( void );
 
 static short a1 = 27314, b1 = 9213, c1 = 17773;
 
@@ -59,7 +59,7 @@ p_getrand(void)
 	 YAP_Unify(YAP_ARG3,YAP_MkIntTerm(c1)));
 }
 
-void
+X_API void
 init_random(void)
 {
   YAP_UserCPredicate("random", p_random, 1);

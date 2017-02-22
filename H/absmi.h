@@ -139,7 +139,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 
 #include "Yap.h"
 #include "clause.h"
-#include "eval.h"
+#include "YapEval.h"
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
@@ -2327,6 +2327,8 @@ static inline void prune(choiceptr cp USES_REGS) {
       if (POP_CHOICE_POINT(B->cp_b)) {
         POP_EXECUTE();
       }
+      if (B->cp_b == NULL)
+        break;
       B = B->cp_b;
     }
     if (POP_CHOICE_POINT(B->cp_b)) {
@@ -2452,10 +2454,10 @@ extern yamop *headoftrace;
   ENDD(d0);
 #endif
 
-#define Yap_AsmError(e, d)                                                        \
+#define Yap_AsmError(e, d)                                                     \
   {                                                                            \
     saveregs();                                                                \
-    Yap_ThrowError(e, d, 4, "");                                                       \
+    Yap_ThrowError(e, d, "while exwcuting inlined built-in");                  \
     setregs();                                                                 \
   }
 

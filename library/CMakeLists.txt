@@ -72,11 +72,10 @@ MY_add_subdirectory(rltree)
 MY_add_subdirectory(system)
 MY_add_subdirectory(tries)
 MY_add_subdirectory(ytest)
-    if (ANDROID)
-    	file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
-else()
 
-install(FILES ${LIBRARY_PL}
-  DESTINATION ${libpl}
-  )
-  endif()
+
+if (0)
+    	file(COPY ${LIBRARY_PL}  DESTINATION ${libpl})
+else()
+    install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+endif()

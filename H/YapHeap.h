@@ -154,7 +154,7 @@ typedef struct thandle {
 /*******************
   this is the data base: everything here should be possible to restore
 ********************/
-#if __INIT_C__
+#if __INIT_C__ || defined(MSC_VER)
 #define EXTERNAL
 #else
 #define EXTERNAL extern

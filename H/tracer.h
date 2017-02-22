@@ -38,8 +38,8 @@ typedef enum {
 #define low_level_trace(Port, pred, args) low_level_trace__(Port, pred, args)
 #endif
 
-void low_level_trace__(yap_low_level_port, PredEntry *, CELL *);
-void Yap_InitLowLevelTrace(void);
-void toggle_low_level_trace(void);
+extern bool low_level_trace__(yap_low_level_port, PredEntry *, CELL *);
+extern void Yap_InitLowLevelTrace(void);
+extern void toggle_low_level_trace(void);
 
 #endif

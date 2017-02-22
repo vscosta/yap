@@ -37,7 +37,7 @@ static char SccsId[] = "%W% %G%";
 #include "Foreign.h"
 #include "YapHeap.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 #ifdef TABLING
 #include "tab.macros.h"
@@ -58,6 +58,9 @@ static char SccsId[] = "%W% %G%";
 #include <fcntl.h>
 #include <wchar.h>
 
+extern int init_tries(void);
+
+
 static Int p_setval(USES_REGS1);
 static Int p_value(USES_REGS1);
 static Int p_values(USES_REGS1);
@@ -74,7 +77,7 @@ static Int p_halt(USES_REGS1);
 #endif
 static Int current_predicate(USES_REGS1);
 static Int cont_current_predicate(USES_REGS1);
-static OpEntry *NextOp(OpEntry *CACHE_TYPE);
+static OpEntry *NextOp(Prop CACHE_TYPE);
 static Int init_current_op(USES_REGS1);
 static Int cont_current_op(USES_REGS1);
 static Int init_current_atom_op(USES_REGS1);
@@ -943,22 +946,24 @@ static Int current_predicate(USES_REGS1) {
   return cont_current_predicate(PASS_REGS1);
 }
 
-static OpEntry *NextOp(OpEntry *pp USES_REGS) {
+static OpEntry *NextOp(Prop pp USES_REGS) {
+
   while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
-         (pp->OpModule != PROLOG_MODULE || pp->OpModule != CurrentModule))
-    pp = RepOpProp(pp->NextOfPE);
-  return (pp);
+         (RepOpProp(pp)->OpModule != PROLOG_MODULE
+	  || RepOpProp(pp)->OpModule != CurrentModule) )
+	 pp = pp->NextOfPE;
+  return RepOpProp(pp);
 }
 
 int Yap_IsOp(Atom at) {
   CACHE_REGS
-  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
+  OpEntry *op = NextOp(RepAtom(at)->PropsOfAE PASS_REGS);
   return (!EndOfPAEntr(op));
 }
 
 int Yap_IsOpMaxPrio(Atom at) {
   CACHE_REGS
-  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
+    OpEntry *op = NextOp(RepAtom(at)->PropsOfAE PASS_REGS);
   int max;
 
   if (EndOfPAEntr(op))
@@ -1020,7 +1025,7 @@ static Int cont_current_atom_op(USES_REGS1) {
   OpEntry *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5, 1)), *next;
 
   READ_LOCK(op->OpRWLock);
-  next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
+  next = NextOp(op->NextOfPE PASS_REGS);
   if (unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
@@ -1053,7 +1058,7 @@ static Int init_current_atom_op(
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));
-  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE) PASS_REGS)))) {
+  if (EndOfPAEntr((ope = NextOp(ae->PropsOfAE PASS_REGS)))) {
     cut_fail();
   }
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
@@ -1074,7 +1079,7 @@ static Int
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));
-  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE) PASS_REGS)))) {
+  if (EndOfPAEntr((ope = NextOp(ae->PropsOfAE PASS_REGS)))) {
     cut_fail();
   }
   EXTRA_CBACK_ARG(5, 1) = (CELL)MkIntegerTerm((Int)ope);
@@ -1629,7 +1634,6 @@ void Yap_InitCPreds(void) {
 #if SUPPORT_CONDOR
   init_sys();
   init_random();
-  //  init_tries();
   init_regexp();
 #endif
 }

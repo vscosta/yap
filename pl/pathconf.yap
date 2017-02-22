@@ -87,11 +87,9 @@ foreign_directory( Path ):-
     A \== yap.
   prolog_file_type(A, executable) :-
     current_prolog_flag(shared_object_extension, A).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+  prolog_file_type(pyd, executable).
+~~~~~~~~~~~~~~~~~~~~~
 */
-
-:- multifile prolog_file_type/2.
 
 :- dynamic prolog_file_type/2.
 
@@ -106,7 +104,8 @@ prolog_file_type(A, prolog) :-
 prolog_file_type(qly, qly).
 prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
-
+  	prolog_file_type(pyd, executable).
+  
 /**
   @pred file_search_path(+Name:atom, -Directory:atom) is nondet
 

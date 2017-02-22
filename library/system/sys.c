@@ -85,7 +85,7 @@
 #include <android/log.h>
 #endif
 
-void init_sys(void);
+X_API void init_sys(void);
 
 #if defined(__MINGW32__) || _MSC_VER
 static YAP_Term WinError(void) {
@@ -1034,7 +1034,7 @@ static YAP_Bool error_message(void) {
   return YAP_Unify(YAP_ARG2, YAP_ARG1);
 #endif
 }
-void init_sys(void) {
+X_API void init_sys(void) {
 #if HAVE_MKTIME
   tzset();
 #endif

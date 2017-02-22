@@ -27,7 +27,7 @@ static foreign_t array_to_python_list(term_t addr, term_t type, term_t szt,
     }
   }
   if (PL_is_variable(py)) {
-    return python_to_ptr(list, py);
+    return address_to_term(list, py);
   }
   return assign_to_symbol(py, list);
 }
@@ -71,7 +71,7 @@ static foreign_t array_to_python_tuple(term_t addr, term_t type, term_t szt,
     }
   }
   if (PL_is_variable(py)) {
-    return python_to_ptr(list, py);
+    return address_to_term(list, py);
   }
   return assign_to_symbol(py, list);
 }
@@ -107,13 +107,44 @@ static foreign_t array_to_python_view(term_t addr, term_t type, term_t szt,
     return false;
   }
   if (PL_is_variable(py)) {
-    return python_to_ptr(o, py);
+    return address_to_term(o, py);
   }
   return assign_to_symbol(py, o);
+}
+
+static foreign_t prolog_list_to_python_list(term_t plist, term_t pyt, term_t tlen) {
+  size_t sz, i;
+   PyErr_Clear();
+   PyObject *pyl = term_to_python(pyt, true, NULL);
+  term_t targ = PL_new_term_ref();
+
+  if (PL_skip_list(plist, targ, &sz) <0 || ! PL_get_nil(targ)) {
+    pyErrorAndReturn( false, false);
+}
+  if (!PyList_Check(pyl))
+    {
+      pyErrorAndReturn( false, false);
+    }
+  if (sz > PyList_GET_SIZE(pyl))
+    pyErrorAndReturn( false, false);
+  for  (i=0; i < sz; i++) {
+    if (!PL_get_list(plist, targ, plist)) {
+      pyErrorAndReturn( false, false);
+    }
+    PyObject *t = term_to_python(targ, true, NULL);
+    PyList_SET_ITEM(pyl, i, t);
+  }
+  if (PL_is_variable(tlen)) {
+  PL_unify_int64(tlen, sz);
+} else {
+python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
+}
+  pyErrorAndReturn( true, false);
 }
 
 install_t install_pl2pl(void) {
   PL_register_foreign("array_to_python_list", 4, array_to_python_list, 0);
   PL_register_foreign("array_to_python_tuple", 4, array_to_python_tuple, 0);
   PL_register_foreign("array_to_python_view", 5, array_to_python_view, 0);
+  PL_register_foreign("prolog_list_to_python_list", 3, prolog_list_to_python_list, 0);
 }

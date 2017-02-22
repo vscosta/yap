@@ -30,7 +30,7 @@
 
 #include "Yap.h"
 #include "clause.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "iopreds.h"
 #include "tracer.h"
 #include "yapio.h"

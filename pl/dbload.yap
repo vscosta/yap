@@ -26,13 +26,13 @@
         put_module_atts/2]).
 
 load_mega_clause( Stream ) :-
-    	line_spec( Stream, Line),
+%    	line_spec( Stream, Line),
 			repeat,
 			( fact( Stream ), fail ;
-			  stream_property(Stream, at_end_of_file( on )).
+			  stream_property(Stream, at_end_of_file( on )) ).
 
-'$input_lines'(R, csv, yeLines ) :-
-    '$process_lines'(R, Lines, Type ),
+'$input_lines'(R, csv, Lines ) :-
+    '$process_lines'(R, Lines, _Type ),
 	close(R).
 
 prolog:load_db(Fs) :-

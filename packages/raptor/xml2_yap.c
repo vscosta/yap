@@ -28,7 +28,7 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-void libxml2_yap_init (void);
+X_API void libxml2_yap_init (void);
 
 struct exo_aux {
   YAP_Functor functor;
@@ -159,7 +159,7 @@ load_xml ( void )
 
 extern Int YAP_UserCPredicate(const char *, Int f(void), int arity);
  
-void libxml2_yap_init (void)
+X_API void libxml2_yap_init (void)
 {
    YAP_UserCPredicate("load_xml", load_xml, 2);
    YAP_UserCPredicate("load_xml2", load_xml, 2);

@@ -134,7 +134,7 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0 USES_REGS)
 #endif
     /* could not find more trail */
     save_machine_regs();
-    siglongjmp(LOCAL_gc_restore, 2);
+    siglongjmp(*LOCAL_gc_restore, 2);
   }
 }
 
@@ -397,7 +397,7 @@ check_pr_trail( tr_fr_ptr rc USES_REGS)
     if (!Yap_locked_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
-      siglongjmp(LOCAL_gc_restore, 2);
+      siglongjmp(*LOCAL_gc_restore, 2);
     }
     rc = TR-n;
   }
@@ -525,7 +525,7 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
 	/* error: we don't have enough room */
 	/* could not find more trail */
 	save_machine_regs();
-	siglongjmp(LOCAL_gc_restore, 4);
+	siglongjmp(*LOCAL_gc_restore, 4);
       }     
     }
   }
@@ -1450,7 +1450,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	      /* error: we don't have enough room */
 	      /* could not find more trail */
 	      save_machine_regs();
-	      siglongjmp(LOCAL_gc_restore, 3);
+	      siglongjmp(*LOCAL_gc_restore, 3);
 	    } else if (n > 0) {
 	      CELL *ptr = LOCAL_extra_gc_cells;
 
@@ -3934,6 +3934,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   UInt		gc_phase;
   UInt		alloc_sz;
   int jmp_res;
+  sigjmp_buf jmp;
+  
+  LOCAL_gc_restore = &jmp;
 
   heap_cells = HR-H0;
   gc_verbose = is_gc_verbose();
@@ -3989,7 +3992,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   }
 #endif
   time_start = Yap_cputime();
-  jmp_res = sigsetjmp(LOCAL_gc_restore, 0);
+  jmp_res = sigsetjmp(jmp, 0);
   if (jmp_res == 2) {
     UInt sz;
 

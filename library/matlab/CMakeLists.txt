@@ -17,7 +17,7 @@ if (MATLAB_FOUND)
   target_link_libraries(matlab libYap $(MATLAB_LIBRARIES) )
 
   install(TARGETS  matlab
-    LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls} )
 
 endif (MATLAB_FOUND)

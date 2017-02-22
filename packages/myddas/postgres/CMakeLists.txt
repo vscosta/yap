@@ -32,7 +32,8 @@ set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
         -DMYDDAS_POSTGRES=1)
 
 install(TARGETS  Yappostgres
-    LIBRARY DESTINATION ${dlls}
+    LIBRARY DESTINATION ${libdir}
+    RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
     )
 endif (PostgreSQL_FOUND)

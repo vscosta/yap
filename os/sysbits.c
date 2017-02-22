@@ -65,7 +65,7 @@ void Yap_WinError(char *yap_error) {
   /* Error, we could not read time */
   FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                msg, 256, NULL);
+                msg, 255, NULL);
   Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s at %s", msg, yap_error);
 }
 #endif /* __WINDOWS__ */
@@ -81,7 +81,7 @@ static bool is_directory(const char *FileName) {
   if ((vfs = vfs_owner(FileName))) {
     return vfs->isdir(vfs, FileName);
   }
-#ifdef __WINDOWS__
+#ifdef _WIN32
   DWORD dwAtts = GetFileAttributes(FileName);
   if (dwAtts == INVALID_FILE_ATTRIBUTES)
     return false;
@@ -952,15 +952,15 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
   {
     char *dir;
     if ((dir = Yap_RegistryGetString("library")) && is_directory(dir)) {
+      dir_done = true;
       if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(dir))))
         return FALSE;
     }
-    dir_done = true;
     if ((dir = Yap_RegistryGetString("prolog_commons")) && is_directory(dir)) {
       if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(dir))))
         return FALSE;
+      commons_done = true;
     }
-    commons_done = true;
   }
   if (dir_done && commons_done)
     return TRUE;
@@ -1199,9 +1199,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
         source = (isource ? isource : idef);
       }
       if (source) {
-        if (source[0] == '/') {
-          abspath = true;
-        }
+          abspath = Yap_IsAbsolutePath(source);
       }
       if (!abspath && !root && ftype == YAP_BOOT_PL) {
         root = YAP_PL_SRCDIR;
@@ -1251,7 +1249,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
       break;
 
     case 4: // WIN stuff: registry
-#if __WINDOWS__
+#if __WINDOWS
       if (in_lib) {
         source = (ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup");
         source = Yap_RegistryGetString(source);

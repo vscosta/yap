@@ -11,7 +11,7 @@
 #ifndef BLOBS_H
 #define BLOBS_H
 
-#ifndef X_API
+#if !defined(X_API) && !defined(SWIGYAP) 
 #if (defined(_MSC_VER) || defined(__MINGW32__)) && defined(PL_KERNEL)
 #define X_API __declspec(dllexport)
 #else

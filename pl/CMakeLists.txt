@@ -59,12 +59,9 @@ yapor.yap
 yio.yap
   )
 
-if (ANDROID)
-	file(INSTALL ${PL_SOURCES}  DESTINATION ${libpl}/pl)
-
-else()
 add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
+if ( NOT CMAKE_CROSSCOMPILING )
 # Create a startup.yss on the top directory.
 add_custom_command (TARGET ${YAP_STARTUP}
   COMMAND yap-bin -B
@@ -72,14 +69,13 @@ add_custom_command (TARGET ${YAP_STARTUP}
   WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
   DEPENDS yap-bin  ${PL_SOURCES}
   )
+  endif ( NOT CMAKE_CROSSCOMPILING )
 
 
 install (FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
   DESTINATION ${dlls}
   )
 
-
-endif (ANDROID)
 
 
 install (FILES ${PL_SOURCES}

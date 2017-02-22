@@ -6,6 +6,7 @@
 --regex-Prolog=/^([a-z][A-Za-z0-9_]*:)?\'(.*)\'\(.*\)\.[ \t]*.*/\2/p,predicate,predicate definition/
 --regex-Prolog=/^:-[ \t]+(discontiguous|dynamic|multifile|table|thread_local)[ \t]+([a-z][_a-zA-Z0-9]*:)?([a-z0-9_][_a-zA-Z0-9]*)/\1/p,predicate,predicate metadata/
 --regex-Prolog=/^[ \t]*Yap_InitCPred[ \t]*\"(\$?[A-Za-z0-9_]*)\"([ \t]*).*/\1/p,predicate,predicate definition/
+--langmap=C:+.(h.cmake).(h.config)
 --exclude=\._*
 --exclude=*\.bak
 --exclude=\.svn
@@ -22,3 +23,8 @@
 --exclude=\#.*
 --exclude=(.)\#*
 --exclude=*.dylib
+--exclude=docs
+--exclude=build
+--exclude=cmake-build-debug
+--exclude=clang
+

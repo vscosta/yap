@@ -634,7 +634,7 @@ type_of_verb(rest,passive).
  */
 
 #include "absmi.h"
-#include "compile.h"
+#include "YapCompile.h"
 #if DEBUG
 #include "yapio.h"
 #endif

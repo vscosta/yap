@@ -36,7 +36,9 @@ static char SccsId[] = "%W% %G%";
 #define ALIASES_BLOCK_SIZE 8
 
 #if _WIN32
+#ifndef USE_SOCKET
 #define USE_SOCKET 1
+#endif
 #define HAVE_SOCKET 1
 #endif
 

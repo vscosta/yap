@@ -52,7 +52,7 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
 
 #ifndef HAVE_REGEXEC
 
-#include "c_interface.h"
+#include "YapInterface.h"
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -68,8 +68,8 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
 #include <limits.h>
 #endif
 
-#include "regex2.h"
 #include "utils.h"
+#include "regex2.h"
 #include "yapregex.h"
 
 #if used

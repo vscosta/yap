@@ -18,7 +18,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif

@@ -1,150 +1,47 @@
-# - Try to find the CUDD BDD package
-# Once done this will define
+# Try to find CUDD headers and libraries.
 #
-#  CUDD_FOUND       - system has CUDD 
-#  CUDD_LIBRARIES   - Link these to use CUDD
-#  CUDD_INCLUDE_DIR - Include directory for using CUDD
+# Usage of this module as follows:
 #
-# Based on FindFontconfig Copyright (c) 2006,2007 Laurent Montel, <montel@kde.org>
+# find_package(CUDD)
 #
-# Redistribution and use is allowed according to the terms of the BSD license.
-# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+# Variables used by this module, they can change the default behaviour and need
+# to be set before calling find_package:
+#
+# CUDD_ROOT Set this variable to the root installation of
+# libcudd if the module has problems finding the
+# proper installation path.
+#
+# Variables defined by this module:
+#
+# CUDD_FOUND System has CUDD libraries and headers
+# CUDD_LIBRARIES The CUDD library
+# CUDD_INCLUDE_DIR The location of CUDD headers
 
-SET( CUDD_FOUND "NO" )
-
-set (CUDD_INCLUDE_SEARCH_PATH 
-    ${CMAKE_INSTALL_PREFIX}/include
-    /usr/local/yap/include
-    /usr/local/Yap/include
-    /usr/local/cudd/include
-    /usr/lib/cudd/include
-    ~/Library/Frameworks
-    /Library/Frameworks
-    /usr/local/include
-    /usr/include/
-    /sw/include        # Fink
-    /opt/local/include # MacPorts
-    /opt/csw/include   # Blastwave
-    /opt/include
-    /usr/freeware/include
- )
-
-
-
-set (CUDD_LIB_SEARCH_PATH 
-    ${CMAKE_INSTALL_PREFIX}/lib
-    /usr/lib
-    /usr/local/lib/cudd
-    /usr/local/cudd/lib
-    /usr/lib/cudd
-    /usr/lib/cudd/lib
-    /usr/freeware/lib )
-
-if ($ENV{CUDD_ROOT}) 
-  list (APPEND CUDD_LIB_SEARCH_PATH 
-    $ENV{CUDD_ROOT}/lib
-    $ENV{CUDD_ROOT}/lib-dbg
-    $ENV{CUDD_ROOT} )
-
-  list (APPEND CUDD_INCLUDE_SEARCH_PATH 
-    $ENV{CUDD_ROOT}/include )
+# Get hint from environment variable (if any)
+if(NOT CUDD_ROOT AND DEFINED ENV{CUDD_ROOT})
+  set(CUDD_ROOT "$ENV{CUDD_ROOT}" CACHE PATH "CUDD base directory location (optional, used for nonstandard installation paths)")
+  mark_as_advanced(CUDD_ROOT)
 endif()
 
-if (${CUDD_ROOT}) 
-  list (APPEND CUDD_LIB_SEARCH_PATH 
-    ${CUDD_ROOT}/lib
-    ${CUDD_ROOT}/lib-dbg
-    ${CUDD_ROOT} )
-  list (APPEND CUDD_INCLUDE_SEARCH_PATH 
-    ${CUDD_ROOT}/include )
+# Search path for nonstandard locations
+if(CUDD_ROOT)
+  set(CUDD_INCLUDE_PATH PATHS "${CUDD_ROOT}/include" NO_DEFAULT_PATH)
+  set(CUDD_LIBRARY_PATH PATHS "${CUDD_ROOT}/lib" NO_DEFAULT_PATH)
 endif()
 
-# Check if we have cached results in case the last round was successful.
-
-  find_package(PkgConfig)
-  
-  find_path(CUDD_INCLUDE_DIR
-    NAMES cudd.h cudd/cudd.h
-    ${CUDD_INCLUDE_SEARCH_PATH}
-    )
-  
- mark_as_advanced(CUDD_INCLUDE_DIR)
-
-if (CUDD_INCLUDE_DIR)
-
-  find_library(CUDD_LIBRARIES
-    NAMES cudd
-    PATHS
-    ${CUDD_LIB_SEARCH_PATH}
-    )
-
-    if (CUDD_LIBRARIES)
-    
-    SET( CUDD_FOUND "YES" )
- 
-find_library(CUDD_DDDMP_LIBRARY
-    NAMES dddmp
-    PATHS
-    ${CUDD_LIB_SEARCH_PATH}
-    )
-
-if (CUDD_DDMP_LIBRARY)
-   list( APPEND CUDD_LIBRARIES ${CUDD_DDMP_LIBRARY} )
+# Search path for nonstandard locations
+if(CUDD_ROOT_DIR)
+  set(CUDD_INCLUDE_PATH PATHS "${CUDD_ROOT_DIR}/include" NO_DEFAULT_PATH)
+  set(CUDD_LIBRARY_PATH PATHS "${CUDD_ROOT_DIR}/lib" NO_DEFAULT_PATH)
 endif()
 
-find_library(CUDD_EPD_LIBRARY
-    NAMES  epd
-    PATHS
-     ${CUDD_LIB_SEARCH_PATH}
-    )
-
-if (CUDD_EPD_LIBRARY)
-   list( APPEND CUDD_LIBRARIES ${CUDD_EPD_LIBRARY} )
-endif()
-
-  find_library(CUDD_ST_LIBRARY
-    NAMES cuddst 
-    PATHS
-     ${CUDD_LIB_SEARCH_PATH}
-   )
-
-if (CUDD_ST_LIBRARY)
-   list( APPEND CUDD_LIBRARIES ${CUDD_ST_LIBRARY} )
-endif()
+find_path(CUDD_INCLUDE_DIR NAMES cudd.h cudd/cudd.h HINTS ${CUDD_INCLUDE_PATH})
+find_library(CUDD_LIBRARIES NAMES cudd CUDDVC-2.5.0 HINTS ${CUDD_LIBRARY_PATH})
 
 
-  
-  find_library(CUDD_UTIL_LIBRARY
-    NAMES cuddutil  
-    
-    PATHS
-     ${CUDD_LIB_SEARCH_PATH}
-    )
- 
-if (CUDD_UTIL_LIBRARY)
-   list( APPEND CUDD_LIBRARIES ${CUDD_ST_LIBRARY} )
-endif()
+include(FindPackageHandleStandardArgs)
 
-  find_library(CUDD_MTR_LIBRARY
-    NAMES  mtr
-    PATHS
-      ${CUDD_LIB_SEARCH_PATH}
-    )
+find_package_handle_standard_args(CUDD DEFAULT_MSG CUDD_LIBRARIES CUDD_INCLUDE_DIR)
 
-if (CUDD_MTR_LIBRARY)
-   list( APPEND CUDD_LIBRARIES ${CUDD_MTR_LIBRARY} )
-endif()
-
-endif()
-
-endif()
-
- mark_as_advanced(CUDD_LIBRARIES)
-
-
-
-mark_as_advanced (CUDD_FOUND)
-
-
-find_package_handle_standard_args(CUDD DEFAULT_MSG CUDD_LIBRARIES CUDD_INCLUDE_DIR )
+mark_as_advanced(CUDD_ROOT CUDD_LIBRARIES CUDD_INCLUDE_DIR)
 

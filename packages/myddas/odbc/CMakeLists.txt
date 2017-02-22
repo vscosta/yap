@@ -33,7 +33,8 @@ set_target_properties (Yapodbc PROPERTIES
 
 
   install(TARGETS  Yapodbc
-    LIBRARY DESTINATION ${dlls}
+          LIBRARY DESTINATION ${dlls}
+          RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
     )
 

@@ -29,8 +29,9 @@
 	    add_library(Yapmysql SHARED ${MYSQL_SOURCES})
 	    target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
      install(TARGETS Yapmysql
-              LIBRARY DESTINATION ${dlls}
-              ARCHIVE DESTINATION ${dlls}
+              RUNTIME DESTINATION ${dlls}
+             ARCHIVE DESTINATION ${dlls}
+             LIBRARY DESTINATION ${libdir}
               )
 	    endif()
       include_directories(${MYSQL_INCLUDE_DIR} ..)

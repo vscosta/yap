@@ -1,0 +1,13 @@
+
+# etags
+
+/bin/rm -f TAGS
+find . -name '*.c' | xargs etags -a -Q
+find . -name '*.h' | xargs etags -a -Q
+find . -name '*.pl' | xargs etags -a -Q -lprolog
+find . -name '*.yap' | xargs etags -a -Q -lprolog
+find . -name '*.cxx' | xargs etags -a -Q
+find . -name '*.hh' | xargs etags -a -Q
+find . -name '*.py' | xargs etags -a -Q
+
+

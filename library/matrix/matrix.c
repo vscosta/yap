@@ -3244,9 +3244,9 @@ is_matrix(void)
   return TRUE;
 }
 
-void init_matrix( void );
+X_API void init_matrix( void );
 
-void
+X_API void
 init_matrix(void)
 {
   AtomC = YAP_LookupAtom("c");

@@ -139,7 +139,8 @@ static void InitWorker(int wid) {
   REMOTE_CMemFirstBlock(wid) = NULL;
   REMOTE_CMemFirstBlockSz(wid) = 0L;
 
-  REMOTE_nperm(wid) = 0L;
+  REMOTE_nperm(wid) = 0;
+  REMOTE_jMP(wid) = 0;
 
   REMOTE_LabelFirstArray(wid) = NULL;
   REMOTE_LabelFirstArraySz(wid) = 0L;

@@ -46,7 +46,7 @@ p_load_foreign( USES_REGS1 )
   YapInitProc InitProc = NULL;
   Term t, t1;
   StringList new;
-  Int returncode = FALSE;
+  bool returncode = FALSE;
   yhandle_t CurSlot = Yap_StartSlots();
 
   //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
@@ -80,13 +80,17 @@ p_load_foreign( USES_REGS1 )
   /* get the initialization function name */
   t1 = Deref(ARG3);
   InitProcName = (char *)RepAtom(AtomOfTerm(t1))->StrOfAE;
-  
+
+  // verify if it was waiting for initialization
+  if (Yap_LateInit( InitProcName )  ){
+  returncode = true;
+  } else 
   /* call the OS specific function for dynamic loading */
   if(Yap_LoadForeign(ofiles,libs,InitProcName,&InitProc)==LOAD_SUCCEEDED) {
     Yap_StartSlots( );
     (*InitProc)();
     Yap_CloseSlots(CurSlot);
-    returncode = TRUE;
+    returncode = true;
   }
   
   /* I should recover space if load foreign fails */

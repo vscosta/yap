@@ -51,7 +51,8 @@ IF (CUDD_FOUND)
   set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
   install(TARGETS  cudd
-    LIBRARY DESTINATION ${dlls}
+          LIBRARY DESTINATION ${dlls}
+          RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
 
     )

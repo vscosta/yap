@@ -13,6 +13,8 @@ MY_set_target_properties(libswi
   POSITION_INDEPENDENT_CODE ON
   )
 
+SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
+
 include_directories (../../../H ../.../../include ../os ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
 
 set (YAP_SWILIB $<TARGET_FILE_NAME:libswi> )

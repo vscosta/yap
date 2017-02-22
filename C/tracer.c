@@ -28,53 +28,88 @@
 #include "tracer.h"
 #include "yapio.h"
 
-static char *send_tracer_message(char *start, char *name, Int arity,
-                                 char *mname, CELL *args, char *s, char *top) {
-  if (name == NULL) {
-#ifdef YAPOR
-    s += snprintf(s, top - s, "(%d)%s", worker_id, start);
-#else
-    s += snprintf(s, top - s, "%s", start);
-#endif
-  } else {
-    int i;
+static char *send_tracer_message(char *start, char *name, arity_t arity,
+                                 char *mname, CELL *args, char **s0, char *s,
+                                 char **top) {
+  bool expand = false;
+  size_t max = *top - (s + 1);
+  int d, min = 1024;
+  char *s1 = s;
+  do {
+    if (expand || max < 32) {
+      Int cbeg = s1 - *s0;
+      max = *top - *s0;
+      max += min;
+      *s0 = Realloc(*s0, max);
 
-    if (arity) {
-      if (args)
-        s += snprintf(s, top - s, "%s %s:%s(", start, mname, name);
-      else
-        s += snprintf(s, top - s, "%s %s:%s/%lu", start, mname, name,
-                      (unsigned long int)arity);
-    } else {
-      s += snprintf(s, top - s, "%s %s:%s", start, mname, name);
+      *top = *s0 + max;
+      max--;
+      s1 = *s0 + cbeg;
+      s = s1;
+      expand = false;
     }
+  min = 1024;
+    if (name == NULL) {
+#ifdef YAPOR
+      d = snprintf(s, max, "(%d)%s", worker_id, start);
+#else
+      d = snprintf(s, max, "%s", start);
+#endif
+    } else {
+
+      if (arity) {
+        if (args)
+          d = snprintf(s, max, "%s %s:%s(", start, mname, name);
+        else
+          d = snprintf(s, max, "%s %s:%s/%lu", start, mname, name,
+                       (unsigned long int)arity);
+      } else {
+        d = snprintf(s, max, "%s %s:%s", start, mname, name);
+      }
+    }
+    if (d >= max) {
+      expand = true;
+      min = d + 1024;
+      continue;
+    }
+    max -= d;
+    s += d;
     if (args) {
+      int i;
       for (i = 0; i < arity; i++) {
-        size_t length = top - (s + 4);
-	if ((ssize_t)length < 16) {
-	  s[0] = '\0';
-	  return s;
-	}
-       if (i > 0) {
-	  *s++ = ',';
+        if (i > 0) {
+          if (max > 16) {
+            *s++ = ',';
+            *s++ = ' ';
+            max-=2;
+          } else {
+            expand = true;
+            continue;
+          }
         }
-         const char *sn = Yap_TermToString(args[i], NULL, LOCAL_encoding,
+        const char *sn = Yap_TermToString(args[i], NULL, LOCAL_encoding,
                                           Quote_illegal_f | Handle_vars_f);
         size_t sz;
-	if (sn != s) {
-          if (sn == NULL) {
-	    sn = "<* error *>";
-	  }
-	  strlcpy(s, sn, top - (s + 3));
+        if (sn == NULL) {
+          sn = "<* error *>";
         }
-	sz = strlen(s);
+        sz = strlen(sn);
+        if (max <= sz) {
+	  min = sz + 1024;
+          expand = true;
+          continue;
+        }
+        strcpy(s, sn);
         s += sz;
+	max -= sz;
       }
       if (arity) {
+        *s++ = ' ';
         *s++ = ')';
+	max -= 2;
       }
     }
-  }
+  } while (expand);
   s[0] = '\0';
   return s;
 }
@@ -154,22 +189,22 @@ check_area(void)
     jmp_deb(i);
 }
 */
-
 // PredEntry *old_p[10000];
 // Term old_x1[10000], old_x2[10000], old_x3[10000];
 
 // static CELL oldv = 0;
 
-void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
+bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   CACHE_REGS
   char *s;
   char *mname;
   Int arity;
+  int l = push_text_stack();
   /*  extern int gc_calls; */
   vsc_count++;
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
-  char buf[512], *top = buf + 511, *b = buf;
+  char *buf = Malloc(512), *top = buf + 511, *b = buf;
 
   // if (!worker_id) return;
   LOCK(Yap_low_level_trace_lock);
@@ -308,12 +343,10 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     while (env_ptr) {
       PredEntry *pe = EnvPreg(env_ptr[E_CP]);
 
-      printf("%p->", env_ptr, pe);
-      if (vsc_count == 52LL)
-        printf("\n");
       if (p == pe) {
         UNLOCK(Yap_heap_regs->low_level_trace_lock);
-        return;
+        pop_text_stack(l);
+        ReleaseAndReturn(true);
       }
       if (env_ptr != NULL)
         env_ptr = (CELL *)(env_ptr[E_E]);
@@ -329,12 +362,13 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   /* check_trail_consistency(); */
   if (pred == NULL) {
     UNLOCK(Yap_low_level_trace_lock);
-    return;
+    pop_text_stack(l);
+    ReleaseAndReturn(true);
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
       UNLOCK(Yap_low_level_trace_lock);
-      return;
+      ReleaseAndReturn(true);
     }
     mname = "prolog";
   } else {
@@ -350,42 +384,45 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     }
     /*    if ((pred->ModuleOfPred == 0) && (s[0] == '$'))
           return;       */
-    b = send_tracer_message("CALL: ", s, arity, mname, args, b, top);
+    b = send_tracer_message("CALL: ", s, arity, mname, args, &buf, b, &top);
     break;
   case try_or:
-    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
     break;
   case retry_or:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, b, top);
-    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
+    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
     break;
   case retry_table_generator:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0)
       s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
     else
       s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-    b = send_tracer_message("RETRY GENERATOR: ", s, arity, mname, args, b, top);
+    b = send_tracer_message("RETRY GENERATOR: ", s, arity, mname, args, &buf, b,
+                            &top);
     break;
   case retry_table_consumer:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
     arity = pred->ArityOfPE;
     if (arity == 0) {
       s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
-      b = send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL, b, top);
+      b = send_tracer_message("RETRY CONSUMER: ", s, 0, mname, NULL, &buf, b,
+                              &top);
     } else {
       s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       b = send_tracer_message("RETRY CONSUMER: ", s, pred->ArityOfPE, mname,
-                              NULL, b, top);
+                              NULL, &buf, b, &top);
     }
     break;
   case retry_table_loader:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     if (pred == UndefCode) {
-      b = send_tracer_message("RETRY LOADER ", NULL, 0, NULL, NULL, b, top);
+      b = send_tracer_message("RETRY LOADER ", NULL, 0, NULL, NULL, &buf, b,
+                              &top);
     } else {
       mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
@@ -393,11 +430,12 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
         s = (char *)RepAtom((Atom)pred->FunctorOfPred)->StrOfAE;
       else
         s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
-      b = send_tracer_message("RETRY LOADER: ", s, 0, mname, NULL, b, top);
+      b = send_tracer_message("RETRY LOADER: ", s, 0, mname, NULL, &buf, b,
+                              &top);
     }
     break;
   case retry_pred:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, b, top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
     if (pred != NULL) {
       mname = (char *)RepAtom(AtomOfTerm(Yap_Module_Name(pred)))->StrOfAE;
       arity = pred->ArityOfPE;
@@ -409,7 +447,7 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       } else {
         s = (char *)RepAtom(NameOfFunctor((pred->FunctorOfPred)))->StrOfAE;
       }
-      b = send_tracer_message("RETRY: ", s, arity, mname, args, b, top);
+      b = send_tracer_message("RETRY: ", s, arity, mname, args, &buf, b, &top);
     }
     break;
   }
@@ -418,9 +456,11 @@ void low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s\n", buf);
 #else
   *b++ = '\n';
-  *b++ = '\0';
+  *b = '\0';
   fputs(buf, stderr);
 #endif
+  pop_text_stack(l);
+  ReleaseAndReturn(true);
 }
 
 void toggle_low_level_trace(void) {
@@ -442,7 +482,7 @@ static Int reset_total_choicepoints(USES_REGS1) {
 }
 
 static Int show_low_level_trace(USES_REGS1) {
-  fprintf(stderr, "Call counter=%lld\n", vsc_count);
+  fprintf(stderr, "Call counter=%llu\n", vsc_count);
   return (TRUE);
 }
 

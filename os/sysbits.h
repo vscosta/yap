@@ -25,7 +25,7 @@
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 
 // Win32 InputOutput Support

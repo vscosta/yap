@@ -1,0 +1,84 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+CXX=@CXX@
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os -I @GECODE_INCLUDES@ 
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=gecode_yap.o
+SOBJS=gecode_yap.@SO@
+
+GECODE_VERSION = @GECODE_VERSION@
+DISJUNCTOR = -DDISJUNCTOR
+GECODE_LIBS = @GECODE_EXTRALIBS@ 
+GECODE_MAJOR = @GECODE_MAJOR@
+all: $(SOBJS) gecode.yap
+
+gecode_yap.o: \
+	$(srcdir)/gecode$(GECODE_MAJOR)_yap.cc \
+	$(srcdir)/gecode$(GECODE_MAJOR)-common.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_impl_auto_generated.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_init_auto_generated.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_forward_auto_generated.icc \
+	$(srcdir)/disjunctor.icc \
+	$(srcdir)/disjunctor.hh
+	$(CXX) -c -I$(srcdir)/$(GECODE_VERSION) $(CXXFLAGS) $(DISJUNCTOR) -o $@ $<
+
+@DO_SECOND_LD@gecode_yap.@SO@: gecode_yap.o
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) $(GECODE_LIBS) @EXTRA_LIBS_FOR_DLLS@
+
+gecode.yap: $(srcdir)/gecode$(GECODE_MAJOR)_yap_hand_written.yap $(srcdir)/$(GECODE_VERSION)/gecode_yap_auto_generated.yap
+	cat $^ > $@
+
+.PHONY: all clean install
+
+clean:
+	-rm -f *.o $(SOBJS) *~ gecode.yap
+
+distclean:
+	-rm -f $(SOBJS) Makefile 
+
+install: all install-examples
+	mkdir -p $(DESTDIR)$(YAPLIBDIR)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/gecode
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL) gecode.yap $(DESTDIR)$(SHAREDIR)/Yap
+	$(INSTALL) $(srcdir)/clpfd.yap $(DESTDIR)$(SHAREDIR)/Yap/gecode
+
+install-examples:
+

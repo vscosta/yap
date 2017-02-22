@@ -31,7 +31,7 @@ typedef struct {
 /*         Procedures         */
 /* -------------------------- */
 
-void init_tries(void);
+O_API void init_tries(void);
 static YAP_Bool p_trie_open(void);
 static YAP_Bool p_trie_close(void);
 static YAP_Bool p_trie_close_all(void);
@@ -87,7 +87,7 @@ static YAP_Bool p_print_trie(void);
 /*    Module Init Procedure   */     
 /* -------------------------- */
 
-void init_tries(void) {
+O_API void init_tries(void) {
   trie_init_module();
 
   YAP_UserCPredicate("trie_open", p_trie_open, 1);
@@ -955,3 +955,27 @@ static YAP_Bool p_trie_db_opt_min_prefix(void) {
   return FALSE;
 }
 #undef min_prefix
+
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+int WINAPI win_tries(HANDLE, DWORD, LPVOID);
+
+int WINAPI win_tries(HANDLE hinst, DWORD reason, LPVOID reserved)
+{
+  switch (reason) 
+    {
+    case DLL_PROCESS_ATTACH:
+      break;
+    case DLL_PROCESS_DETACH:
+      break;
+    case DLL_THREAD_ATTACH:
+      break;
+    case DLL_THREAD_DETACH:
+      break;
+    }
+  return 1;
+}
+#endif

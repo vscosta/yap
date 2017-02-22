@@ -8,18 +8,29 @@ set (CXX_SOURCES
     yapi.cpp
 )
 
+set (CXX_HEADERS
+    yapa.hh
+    yapdb.hh
+    yapi.h
+    yapie.hh
+    yapq.hh
+-   yapt.hh
+-)
 
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
-if (ANDROID OR WIN32)
-   add_component (Yap++ ${CXX_SOURCES} )
-else()
-   add_external (Yap++ ${CXX_SOURCES} )
-   MY_target_link_libraries(Yap++ ${CMAKE_DL_LIBS} libYap)
+if ( WIN32)
+   add_component (YAP++ ${CXX_SOURCES} )
 
-   MY_install(TARGETS  Yap++
-     LIBRARY DESTINATION ${libdir}
-     ARCHIVE DESTINATION ${libdir}
+  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
+else()
+   add_external (YAP++ ${CXX_SOURCES} )
+   MY_target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
+
+   MY_install(TARGETS  YAP++
+     LIBRARY DESTINATION ${dlls}
+           RUNTIME DESTINATION ${dlls}
+           ARCHIVE DESTINATION ${dlls}
    )
 endif()
 

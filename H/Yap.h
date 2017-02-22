@@ -129,37 +129,6 @@
 #endif
 #endif /* defined(HAVE_NULLPTR) */
 
-/* Microsoft's Visual C++ Compiler */
-#ifdef _MSC_VER /* adjust a config.h from mingw32 to work with vc++ */
-#ifdef HAVE_GCC
-#undef HAVE_GCC
-#endif /* HAVE_GCC */
-#ifdef USE_THREADED_CODE
-#undef USE_THREADED_CODE
-#endif /* USE_THREADED_CODE */
-#define inline __inline
-#define YAP_VERSION "YAP-6.3.4"
-#define BIN_DIR "c:\\Yap\\bin"
-#define LIB_DIR "c:\\Yap\\lib\\Yap"
-#define SHARE_DIR "c:\\Yap\\share\\Yap"
-#ifdef HOST_ALIAS
-#undef HOST_ALIAS
-#endif /* HOST_ALIAS */
-#define HOST_ALIAS "i386-pc-win32"
-#ifdef HAVE_IEEEFP_H
-#undef HAVE_IEEEFP_H
-#endif /* HAVE_IEEEFP_H */
-#ifdef HAVE_UNISTD_H
-#undef HAVE_UNISTD_H
-#endif /* HAVE_UNISTD_H */
-#ifdef HAVE_SYS_TIME_H
-#undef HAVE_SYS_TIME_H
-#endif /* HAVE_SYS_TIME_H */
-#endif /* _MSC_VER */
-
-#if HAVE_TIME_H
-#include <time.h>
-#endif
 
 #ifdef __MINGW32__
 #ifndef _WIN32
@@ -727,10 +696,10 @@ typedef struct thandle {
   struct timeval *start_of_times_sysp;
   struct timeval *last_time_sysp;
 #elif _WIN32
-  struct _FILETIME *start_of_timesp;
-  struct _FILETIME *last_timep;
-  struct _FILETIME *start_of_times_sysp;
-  struct _FILETIME *last_time_sysp;
+  win64_time_t *start_of_timesp;
+  win64_time_t *last_timep;
+  win64_time_t *start_of_times_sysp;
+  win64_time_t *last_time_sysp;
 #endif
 } yap_thandle;
 #endif /* THREADS */

@@ -48,7 +48,7 @@ deterministic computations.
 
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 
 static Int p_setarg( USES_REGS1 );
 static Int p_create_mutable( USES_REGS1 );

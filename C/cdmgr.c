@@ -20,7 +20,7 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 
 #include "Yap.h"
 #include "clause.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "tracer.h"
 #include "yapio.h"
 #ifdef YAPOR

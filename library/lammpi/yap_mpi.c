@@ -78,7 +78,7 @@ extern int GLOBAL_argc;
 static hashtable requests=NULL;
 static hashtable broadcasts=NULL;
 
-void init_mpi(void);
+X_API void init_mpi(void);
 
 /********************************************************************
  * Time accounting
@@ -1003,7 +1003,7 @@ mpi_default_buffer_size(void)
 /********************************************************************
  * Init
  *******************************************************************/
-void 
+X_API void 
 init_mpi(void) {
 
   requests=new_hashtable(HASHSIZE);

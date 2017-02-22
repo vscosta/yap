@@ -105,15 +105,18 @@ typedef enum mem_buf_source {
 
 extern char *Yap_MemStreamBuf(int sno);
 
-extern X_API Term Yap_StringToTerm(const char *s, size_t len, encoding_t *encp,int prio, Term bindings);
-extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on);
+extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
+                                   bool error_on);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
 extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf,
                                   size_t nchars);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
-extern Term Yap_AtomToTerm(Atom a, Term opts);
+extern Term Yap_BufferToTerm(const unsigned char *s, size_t sz, Term opts);
+extern X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s,
+                                                   size_t sz, Term opts,
+                                                   int prio, Term bindings);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
 extern char *Yap_guessFileName(FILE *f, int sno, char *nameb, size_t max);
@@ -139,7 +142,7 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
   unsigned char cs[10];
   if (c < 0)
     return TermEof;
-  size_t n = put_utf8( cs, c );
+  size_t n = put_utf8(cs, c);
   cs[n] = '\0';
   return MkAtomTerm(Yap_ULookupAtom(cs));
 }
@@ -147,4 +150,5 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
 /// UT when yap started
 extern uint64_t Yap_StartOfWTimes;
 
+extern bool Yap_HandleSIGINT(void);
 #endif

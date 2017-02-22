@@ -10,9 +10,9 @@ set (TARGET sys)
 endif()
 
 
-if (NOT ANDROID)
+if (NOT ANDROID AND WITH_OPENSSL)
 #
-# this will support getting better cryptographic support,
+# this will evolve to getting better cryptographic support,
 # but right now Open SSL is not supported enough.
 #
 find_package (OpenSSL)
@@ -41,7 +41,8 @@ set_target_properties (sys PROPERTIES  PREFIX "")
 endif()
 
 MY_install(TARGETS  sys
-  LIBRARY DESTINATION ${dlls}
-  ARCHIVE DESTINATION ${dlls} )
+        LIBRARY DESTINATION ${dlls}
+        RUNTIME DESTINATION ${dlls}
+        ARCHIVE DESTINATION ${dlls} )
 
 configure_file ("sys_config.h.cmake" "sys_config.h" )

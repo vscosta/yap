@@ -2,8 +2,9 @@ message( "   * Sqlite3 Data-Base (http://www.sqlite3ql.org), distributed with MY
 
 set( YAPSQLITE3_SOURCES
   myddas_sqlite3.c
-  sqlite3.c
-  sqlite3.h
+  src/sqlite3.c
+  src/sqlite3.h
+  src/sqlite3ext.h
  )
 
 #sqlite3 is now in the system
@@ -22,25 +23,26 @@ add_definitions(-DSQLITE_ENABLE_RTREE=1 )
 
 add_definitions(-DSQLITE_ENABLE_FTS5=1 )
 
+SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
 if (ANDROID)
 
-       include_directories(  ${CMAKE_CURRENT_SOURCE_DIR}/.. Android/jni/sqlite Android/jni/sqlite/nativehelper )
+       include_directories( .. src/Android/jni/sqlite src/Android/jni/sqlite/nativehelper )
 
 
 set(YAPSQLITE3_SOURCES
- ${YAPSQLITE3_SOURCES}
-Android/jni/sqlite/JNIHelp.cpp
-Android/jni/sqlite/JniConstants.cpp
-Android/jni/sqlite/android_database_SQLiteCommon.cpp
-Android/jni/sqlite/android_database_SQLiteCommon.h
-Android/jni/sqlite/android_database_SQLiteConnection.cpp
-Android/jni/sqlite/android_database_SQLiteDebug.cpp
-Android/jni/sqlite/android_database_SQLiteGlobal.cpp
-Android/jni/sqlite/nativehelper/jni.h
-Android/jni/sqlite/nativehelper/jniConstants.h
-Android/jni/sqlite/nativehelper/JNIHelp.h
-Android/jni/sqlite/nativehelper/ScopedLocalRef.h
+${YAPSQLITE3_SOURCES}
+src/Android/jni/sqlite/JNIHelp.cpp
+src/Android/jni/sqlite/JniConstants.cpp
+src/Android/jni/sqlite/android_database_SQLiteCommon.cpp
+src/Android/jni/sqlite/android_database_SQLiteCommon.h
+src/Android/jni/sqlite/android_database_SQLiteConnection.cpp
+src/Android/jni/sqlite/android_database_SQLiteDebug.cpp
+src/Android/jni/sqlite/android_database_SQLiteGlobal.cpp
+src/Android/jni/sqlite/nativehelper/jni.h
+src/Android/jni/sqlite/nativehelper/jniConstants.h
+src/Android/jni/sqlite/nativehelper/JNIHelp.h
+src/Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 )
 
 endif (ANDROID)

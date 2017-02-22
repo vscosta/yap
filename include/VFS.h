@@ -23,8 +23,12 @@
 
 #ifdef _WIN32
 #include <stdint.h>
-typedef uintptr_t uid_t;
-typedef uintptr_t gid_t;
+#ifndef uid_t
+#define uid_t int
+#endif
+#ifndef gid_t
+#define gid_t int
+#endif
 #endif
 
 typedef struct {

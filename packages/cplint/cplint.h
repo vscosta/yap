@@ -10,10 +10,12 @@ for the relative license.
 #include <stdio.h>
 #include "config.h"
 #include "cudd_config.h"
-#if HAVE_CUDD_CUDDINT_H
-#include "cudd/cuddInt.h"
-#elif HAVE_CUDDINT_H
-#include "cuddInt.h"
+#if HAVE_CUDD_CUDD_H
+#include "cudd/cudd.h"
+#include "cudd/mtr.h"
+#elif HAVE_CUDD_H
+#include "cudd.h"
+#include "mtr.h"
 #endif
 #include "YapInterface.h"
  

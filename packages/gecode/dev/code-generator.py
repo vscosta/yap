@@ -6,12 +6,12 @@
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
 # details.
-# 
+#
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #==============================================================================
@@ -26,12 +26,12 @@ NOTICE_CC = """// -*- c++ -*-
 // under the terms of the GNU Lesser General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //=============================================================================
@@ -45,12 +45,12 @@ NOTICE_PROLOG="""%% -*- prolog -*-
 %% under the terms of the GNU Lesser General Public License as published by the
 %% Free Software Foundation, either version 3 of the License, or (at your
 %% option) any later version.
-%% 
+%%
 %% This program is distributed in the hope that it will be useful, but WITHOUT
 %% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 %% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 %% more details.
-%% 
+%%
 %% You should have received a copy of the GNU Lesser General Public License
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
@@ -120,7 +120,7 @@ class Type(object):
 
     def clone(self):
         return type(self)(self)
-        
+
 
 class Constraint(object):
 
@@ -165,7 +165,7 @@ class Constraint(object):
 
     def clone(self):
         return type(self)(self)
-    
+
 
 COMMENT = re.compile("""^\\s*//.*$""")
 
@@ -598,7 +598,7 @@ class YAPEnumProlog(object):
         print
 
 class YAPEnumPrologGenerator(object):
-    
+
     def generate(self):
         for c in enum_classes():
             class C(c,YAPEnumProlog): pass
@@ -677,7 +677,7 @@ def gecode_version():
         os.remove(file_hh)
         os.remove(file_txt)
     else:
-        version = "4.4.0" 
+        version = "5.0.0" 
     GECODE_VERSION = version
     return version
 

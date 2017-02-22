@@ -127,8 +127,7 @@ X_API yhandle_t YAP_CurrentSlot(void);
 
 /// @brief allocate n empty new slots
 ///
-/// Return a handle to the system's default slot.
-X_API yhandle_t YAP_NewSlots(int NumberOfSlots);
+/// Return a handle to the system's default slo   t.                                                                                                                          iX_API yhandle_t YAP_NewSlots(int NumberOfSlots);
 
 /// @brief allocate n empty new slots
 ///
@@ -246,6 +245,8 @@ X_API YAP_Bool YAP_IsRationalTerm(YAP_Term t) {
 #endif
 }
 
+X_API YAP_Bool YAP_IsStringTerm(YAP_Term t) { return (IsStringTerm(t)); }
+
 X_API YAP_Bool YAP_IsVarTerm(YAP_Term t) { return (IsVarTerm(t)); }
 
 X_API YAP_Bool YAP_IsNonVarTerm(YAP_Term t) { return (IsNonVarTerm(t)); }
@@ -275,6 +276,32 @@ X_API Term YAP_MkIntTerm(Int n) {
   I = MkIntegerTerm(n);
   RECOVER_H();
   return I;
+}
+
+X_API Term YAP_MkStringTerm(const char *n) {
+  CACHE_REGS
+  Term I;
+  BACKUP_H();
+
+  I = MkStringTerm(n);
+  RECOVER_H();
+  return I;
+}
+
+X_API Term YAP_MkUnsignedStringTerm(const unsigned char *n) {
+  CACHE_REGS
+  Term I;
+  BACKUP_H();
+
+  I = MkUStringTerm(n);
+  RECOVER_H();
+  return I;
+}
+
+X_API const char *YAP_StringOfTerm(Term t) { return StringOfTerm(t); }
+
+X_API const unsigned char *YAP_UnsignedStringOfTerm(Term t) {
+  return UStringOfTerm(t);
 }
 
 X_API Int YAP_IntOfTerm(Term t) {
@@ -399,11 +426,11 @@ X_API Term YAP_MkAtomTerm(Atom n) {
 X_API Atom YAP_AtomOfTerm(Term t) { return (AtomOfTerm(t)); }
 
 X_API bool YAP_IsWideAtom(Atom a) {
-    const unsigned char *s = RepAtom(a)->UStrOfAE;
-int32_t v;
+  const unsigned char *s = RepAtom(a)->UStrOfAE;
+  int32_t v;
   while (*s) {
-    size_t n = get_utf8(s,1,&v);
-    if (n>1)
+    size_t n = get_utf8(s, 1, &v);
+    if (n > 1)
       return true;
   }
   return false;
@@ -419,15 +446,15 @@ X_API const char *YAP_AtomName(Atom a) {
 X_API const wchar_t *YAP_WideAtomName(Atom a) {
   int32_t v;
   const unsigned char *s = RepAtom(a)->UStrOfAE;
-  size_t n = strlen_utf8( s );
-  wchar_t *dest = Malloc( (n+1)* sizeof(wchar_t)), *o = dest;
+  size_t n = strlen_utf8(s);
+  wchar_t *dest = Malloc((n + 1) * sizeof(wchar_t)), *o = dest;
   while (*s) {
-    size_t n = get_utf8(s,1,&v);
-      if (n==0)
-          return NULL;
+    size_t n = get_utf8(s, 1, &v);
+    if (n == 0)
+      return NULL;
     *o++ = v;
   }
-    o[0] = '\0';
+  o[0] = '\0';
   return dest;
 }
 
@@ -453,9 +480,8 @@ X_API Atom YAP_LookupWideAtom(const wchar_t *c) {
   CACHE_REGS
   Atom a;
 
-
   while (TRUE) {
-      a = Yap_NWCharsToAtom(c, -1 USES_REGS);
+    a = Yap_NWCharsToAtom(c, -1 USES_REGS);
     if (a == NIL || Yap_get_signal(YAP_CDOVF_SIGNAL)) {
       if (!Yap_locked_growheap(FALSE, 0, NULL)) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
@@ -490,10 +516,9 @@ X_API size_t YAP_AtomNameLength(Atom at) {
   if (IsBlob(at)) {
     return RepAtom(at)->rep.blob->length;
   }
-    unsigned char *c = RepAtom(at)->UStrOfAE;
+  unsigned char *c = RepAtom(at)->UStrOfAE;
 
-    return strlen_utf8(c);
-
+  return strlen_utf8(c);
 }
 
 X_API Term YAP_MkVarTerm(void) {
@@ -1376,10 +1401,14 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   Term tv, t;
   BACKUP_H();
 
-  if (*tp) tv = *tp; else tv = 0;
+  if (*tp)
+    tv = *tp;
+  else
+    tv = 0;
   LOCAL_ErrorMessage = NULL;
-  while (!(t = Yap_StringToTerm(s, strlen(s) + 1, &LOCAL_encoding,
-                                GLOBAL_MaxPriority,tv))) {
+  const unsigned char *us = (const unsigned char *)s;
+  while (!(t = Yap_BufferToTermWithPrioBindings(us, strlen(s) + 1, TermNil,
+                                                GLOBAL_MaxPriority, tv))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -1636,7 +1665,6 @@ X_API PredEntry *YAP_AtomToPredInModule(Atom at, Term mod) {
 static int run_emulator(USES_REGS1) {
   int out;
 
-  LOCAL_PrologMode &= ~(UserCCallMode | CCallMode);
   out = Yap_absmi(0);
   LOCAL_PrologMode |= UserCCallMode;
   return out;
@@ -1659,7 +1687,7 @@ X_API bool YAP_EnterGoal(PredEntry *pe, CELL *ptr, YAP_dogoalinfo *dgi) {
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
   dgi->b = LCL0 - (CELL *)B;
-  out = run_emulator(PASS_REGS1);
+  out = Yap_exec_absmi(true, false);
   RECOVER_MACHINE_REGS();
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
@@ -2107,7 +2135,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   RECOVER_MACHINE_REGS();
 }
 
-X_API Term YAP_CopyTerm(Term t) {
+X_API YAP_Term YAP_CopyTerm(Term t) {
   Term tn;
   BACKUP_MACHINE_REGS();
 
@@ -2115,21 +2143,25 @@ X_API Term YAP_CopyTerm(Term t) {
 
   RECOVER_MACHINE_REGS();
 
-  return tn;
+  return (tn);
 }
 
 X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   CACHE_REGS
-  size_t length;
+  seq_tv_t inp, out;
+  size_t length = sze;
   char *b;
 
   BACKUP_MACHINE_REGS();
-  if ((b = Yap_TermToString(t, &length, LOCAL_encoding, flags)) != buf) {
-    RECOVER_MACHINE_REGS();
-    return b;
-  }
+  inp.val.t = t;
+  inp.type = YAP_STRING_TERM;
+  out.type = YAP_STRING_CHARS;
+  out.val.c = buf;
+  out.enc = LOCAL_encoding;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return NULL;
   RECOVER_MACHINE_REGS();
-  return buf;
+  return out.val.c;
 }
 
 /// write a a term to n user-provided buffer: make sure not tp
@@ -2251,13 +2283,11 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
     the module.
     */
 
-static bool initialized = false;
+X_API bool YAP_initialized = false;
 static int n_mdelays = 0;
 static YAP_delaymodule_t *m_delays;
 
 X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]) {
-  if (initialized)
-    return false;
   if (m_delays) {
     m_delays = realloc(m_delays, (n_mdelays + 1) * sizeof(YAP_delaymodule_t));
   } else {
@@ -2267,6 +2297,17 @@ X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]) {
   m_delays[n_mdelays].s = s;
   n_mdelays++;
   return true;
+}
+
+bool Yap_LateInit(const char s[]) {
+  int i;
+  for (i = 0; i < n_mdelays; i++) {
+    if (!strcmp(m_delays[i].s, s)) {
+      m_delays[i].f();
+      return true;
+    }
+  }
+  return false;
 }
 
 static void start_modules(void) {
@@ -2280,7 +2321,7 @@ static void start_modules(void) {
 }
 
 /// whether Yap is under control of some other system
-bool Yap_embedded;
+bool Yap_embedded = true;
 
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
@@ -2294,9 +2335,8 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   const char *yroot;
 
   /* ignore repeated calls to YAP_Init */
-  if (initialized)
+  if (YAP_initialized)
     return YAP_FOUND_BOOT_ERROR;
-  initialized = true;
 
   Yap_embedded = yap_init->Embedded;
   Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
@@ -2304,10 +2344,12 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
-  Yap_InitSysbits(0); /* init signal handling and time, required by later
+  //  GLOBAL_PrologShouldHandleInterrupts =
+  //  yap_init->PrologShouldHandleInterrupts &&
+  if (!yap_init->Embedded)
+    Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
-    GLOBAL_argv = yap_init->Argv;
+  GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
   if (0 && ((YAP_QLY && yap_init->SavedState) ||
             (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
@@ -2368,10 +2410,10 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-    if (Yap_embedded)
-      if (yap_init->QuietMode) {
-	setVerbosity(TermSilent);
-      }
+  if (Yap_embedded)
+    if (yap_init->QuietMode) {
+      setVerbosity(TermSilent);
+    }
   {
     if (yap_init->YapPrologRCFile != NULL) {
       /*
@@ -2489,6 +2531,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   }
   start_modules();
+  YAP_initialized = true;
   return rc;
 }
 
@@ -3209,10 +3252,10 @@ size_t YAP_UTF8_TextLength(Term t) {
       Term hd = HeadOfTerm(t);
       if (IsAtomTerm(hd)) {
         Atom at = AtomOfTerm(hd);
-          unsigned char *s = RepAtom(at)->UStrOfAE;
-          int32_t ch;
-          get_utf8(s, 1, &ch);
-          c = ch;
+        unsigned char *s = RepAtom(at)->UStrOfAE;
+        int32_t ch;
+        get_utf8(s, 1, &ch);
+        c = ch;
       } else if (IsIntegerTerm(hd)) {
         c = IntegerOfTerm(hd);
       } else {
@@ -3223,8 +3266,8 @@ size_t YAP_UTF8_TextLength(Term t) {
     }
   } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-      sz = strlen(RepAtom(at)->StrOfAE);
-   } else if (IsStringTerm(t)) {
+    sz = strlen(RepAtom(at)->StrOfAE);
+  } else if (IsStringTerm(t)) {
     sz = strlen(StringOfTerm(t));
   }
   return sz;

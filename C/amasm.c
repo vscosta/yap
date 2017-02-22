@@ -188,7 +188,7 @@ static char SccsId[] = "@(#)amasm.c	1.3 3/15/90";
 
 #include "Yap.h"
 #include "clause.h"
-#include "compile.h"
+#include "YapCompile.h"
 #include "yapio.h"
 
 #ifdef BEAM

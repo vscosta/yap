@@ -141,7 +141,7 @@ dot with single quotes.
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 /* stuff we want to use in standard YAP code */
 #include "iopreds.h"
@@ -302,7 +302,7 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
                                  VarNames(p->VarLeft, l PASS_REGS) PASS_REGS));
       if (HR > ASP - 4096) {
         save_machine_regs();
-        siglongjmp(LOCAL_IOBotch, 1);
+        longjmp(*LOCAL_IOBotch, 1);
       }
       return (o);
     } else {
@@ -332,7 +332,7 @@ static Term Singletons(VarEntry *p, Term l USES_REGS) {
                                 Singletons(p->VarLeft, l PASS_REGS) PASS_REGS));
       if (HR > ASP - 4096) {
         save_machine_regs();
-        siglongjmp(LOCAL_IOBotch, 1);
+        longjmp(*LOCAL_IOBotch, 1);
       }
       return (o);
     } else {
@@ -357,7 +357,7 @@ static Term Variables(VarEntry *p, Term l USES_REGS) {
         Variables(p->VarRight, Variables(p->VarLeft, l PASS_REGS) PASS_REGS));
     if (HR > ASP - 4096) {
       save_machine_regs();
-      siglongjmp(LOCAL_IOBotch, 1);
+      siglongjmp(*LOCAL_IOBotch, 1);
     }
     return (o);
   } else {

@@ -263,7 +263,7 @@ output is directed to the stream used by format/2.
 #endif
 #endif
 
-#include "eval.h"
+#include "YapEval.h"
 #include "iopreds.h"
 #include "format.h"
 

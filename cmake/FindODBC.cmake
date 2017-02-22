@@ -19,6 +19,7 @@
 set(ODBC_FOUND FALSE)
 
 find_path(ODBC_INCLUDE_DIRECTORIES sql.h
+  ${ODBC_ROOT_DIR}/include
   /usr/include
   /usr/include/odbc
   /usr/local/include
@@ -34,6 +35,7 @@ find_path(ODBC_INCLUDE_DIRECTORIES sql.h
 find_library(ODBC_LIBRARY 
   NAMES iodbc odbc odbcinst odbc32
   PATHS
+  ${ODBC_ROOT_DIR}/lib
   /usr/lib
   /usr/lib/odbc
   /usr/local/lib

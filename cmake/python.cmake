@@ -1,33 +1,73 @@
 
+option (WITH_PYTHON
+"Allow Python->YAP  and YAP->Python" ON)
 
-#BREW install for Python3
+
+#   PYTHONLIBS_FOUND           - have the Python libs been found
+#   PYTHON_LIBRARIES           - path to the python library
+#   PYTHON_INCLUDE_PATH        - path to where Python.h is found (deprecated)
+#   PYTHON_INCLUDE_DIRS        - path to where Python.h is found
+#   PYTHON_DEBUG_LIBRARIES     - path to the debug library (deprecated)
+#   PYTHONLIBS_VERSION_STRING  - version of the Python libs found (since CMake 2.8.8)
+#
+#
+IF (WITH_PYTHON)
+    set (Python_ADDITIONAL_VERSIONS 3.5 3.6 3.4 3.3)
+
+    find_package(PythonInterp)
+   # find_package(PythonLibs)
 
 
-if (APPLE)
-foreach (i 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
-  set (PYTHON_INCLUDE_DIRS /usr/local/Frameworks/Python.framework/Versions/${i}/Headers)
-  message("Trying Python ${i}")
-  if (EXISTS ${PYTHON_INCLUDE_DIRS})
-      set (PYTHON_EXECUTABLE /usr/local/bin/python${i} CACHE FILEPATH  "Path to a program" FORCE )
-    set (PYTHON_INCLUDE_DIR /usr/local/Frameworks/Python.framework/Versions/${i}/include/python${i}m
-    CACHE PATH "Path to a file." FORCE   )
-    set (PYTHON_LIBRARY /usr/local/Frameworks/Python.framework/Versions/${i}/lib/libpython${i}.dylib
-    CACHE FILEPATH  "Path to a library" FORCE )
-    break()
-  endif()
-endforeach()
-else()
-set (Python_ADDITIONAL_VERSIONS 3.6 3.5 3.4 3.3 3.2 3.1 3.0 2.8 2.6 2.5)
+ execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'include' ) )"
+OUTPUT_VARIABLE _ABS_PYTHON_INCLUDE_PATH
+OUTPUT_STRIP_TRAILING_WHITESPACE )
+get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABSOLUTE )
+
+    set ( PYTHON_INCLUDE_DIR
+            ${ABS_PYTHON_INCLUDE_PATH}
+            CACHE "PATH" "Directory with Python.h "
+            )
+
+    set ( PYTHON_INCLUDE_DIRS
+            ${ABS_PYTHON_INCLUDE_PATH}
+            CACHE "PATH" "Python.h Dir  (Deprecated)"
+            )
+
+            execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'stdlib' ) )"
+           OUTPUT_VARIABLE _ABS_PYTHON_SYSLIB_PATH
+           OUTPUT_STRIP_TRAILING_WHITESPACE )
+
+  find_library(ABS_PYTHON_SYSLIB_PATH
+  NAMES python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m
+                PATHS _ABS_PYTHON_SYSLIB_PATH
+       )
+
+    set ( PYTHON_LIBRARY
+            ${ABS_PYTHON_SYSLIB_PATH}
+            CACHE "FILEPATH" "Python Library"
+            )
+    set ( PYTHON_LIBRARIES
+            ${PYTHON_LIBRARY}
+            CACHE "FILEPATH" "Python Library (Deprecated)"
+            )
+        if ( (EXISTS ${PYTHON_LIBRARY}) AND ( EXISTS ${PYTHON_INCLUDE_DIR}) )
+    set ( PYTHONLIBS_FOUND ON )
+#    else()
+
+#find_package(PythonLibs)
 endif()
 
-find_package(PythonInterp)
-find_package(PythonLibs)
+    macro_log_feature (PYTHONLIBS_FOUND "Python"
+    "Use Python System"
+  "http://www.python.org" FALSE )
 
- macro_log_feature (PYTHONLIBS_FOUND "Python"
-   "Use Python System"
-	   "http://www.python.org" FALSE)
 
-#include_directories( ${PYTHON_INCLUDE_DIRS} )
+  include_directories( BEFORE ${PYTHON_INCLUDE_DIR} )
 
-set( CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIRS}  ${CMAKE_REQUIRED_INCLUDES}	)
-check_include_file(Python.h HAVE_PYTHON_H)
+  LIST( APPEND
+   CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIR}  ${CMAKE_REQUIRED_INCLUDES})
+
+  check_include_file(Python.h HAVE_PYTHON_H)
+
+
+endif(WITH_PYTHON)

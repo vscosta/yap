@@ -317,11 +317,12 @@ static bool set_fpu_exceptions(Term flag) {
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
+  printf("11ooo\n");
   my_signal(s, ReceiveSignal);
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console
-    Yap_external_signal(0, YAP_INT_SIGNAL);
+    Yap_HandleSIGINT();
     break;
   case SIGALRM:
     Yap_external_signal(worker_id, YAP_ALARM_SIGNAL);
@@ -816,9 +817,6 @@ yap_error_number Yap_MathException__(USES_REGS1) {
 
 /* SIGINT can cause problems, if caught before full initialization */
 void Yap_InitOSSignals(int wid) {
-  if (Yap_embedded) {
-    return;
-  }
   if (GLOBAL_PrologShouldHandleInterrupts) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
     my_signal(SIGQUIT, ReceiveSignal);

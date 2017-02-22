@@ -95,7 +95,7 @@ A	Csult			F	"$csult"
 A	CurrentModule		F	"$current_module"
 A	Cut			N	"!"
 A	CutBy			F	"$cut_by"
-A	DAbort			F	"$abort"
+A	DAbort			N	"abort"
 A	DBLoad			F	"$db_load"
 A	DBREF			N	"DBRef"
 A	DBReference		N	"db_reference"
@@ -294,6 +294,7 @@ A	PastEndOfStream		N	"past_end_of_stream"
 A	PermissionError		N	"permission_error"
 A	Pi			N	"pi"
 A	Pipe			N	"pipe"
+A   Priority		N   "priority"
 A	Plus			N	"+"
 A	Pointer			N	"pointer"
 A	Portray			F	"portray"
@@ -546,11 +547,13 @@ F	NBQueue			Queue		4
 F	Not			Not		1
 F	Obj			Obj		1
 F	Or			Semic		2
+F   Output      Output      1
 F	PermissionError		PermissionError	3
 F	Plus			Plus		2
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
+F   Priority		Priority      1
 F	PrologConstraint	Prolog		2
 F	ProtectStack	ProtectStack    4
 F	Query			Query		1

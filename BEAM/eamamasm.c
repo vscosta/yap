@@ -12,8 +12,8 @@
 #ifdef BEAM
 
 #include "Yap.h"
-#include "compile.h"
-#include "clause.h"  
+#include "YapCompile.h"
+#include "clause.h"
 #include "eam.h"
 #include "eamamasm.h"
 #include <stdio.h>
@@ -85,7 +85,7 @@ int X_Var(Ventry *ve)
 int var;
 
 if (ve->KindOfVE == PermVar || ve->KindOfVE == VoidVar ) {
-    printf("Erro no tipo de variavel X ->eamamas.c \n"); 
+    printf("Erro no tipo de variavel X ->eamamas.c \n");
     exit(1);
 }
 	var = ((ve->NoOfVE) & MaskVarAdrs);
@@ -99,7 +99,7 @@ int Y_Var(Ventry *ve)
 {
 int var;
 if (ve->KindOfVE != PermVar) {
-    printf("Erro no tipo de variavel Y ->eamamas.c \n"); 
+    printf("Erro no tipo de variavel Y ->eamamas.c \n");
     exit(1);
 }
         var = ((ve->NoOfVE) & MaskVarAdrs);
@@ -119,7 +119,7 @@ void eam_pass(CInstr *ppc)
 {
   int alloc_found=0;
   int body=0;
-  
+
 	while (ppc) {
 		switch ((int) ppc->op) {
 
@@ -184,7 +184,7 @@ void eam_pass(CInstr *ppc)
 			   } else {
 			          emit_inst(_unify_val_Y_op);
 			          emit_par(Y_Var((Ventry *) ppc->new4));
-				  
+
 			   }
 		        } else { emit_inst(_unify_void_op); }
 			break;
@@ -268,7 +268,7 @@ void eam_pass(CInstr *ppc)
 		case put_atom_op:
 		        emit_inst(_put_atom_op);
 			emit_par(ppc->new1);
-			emit_par(ppc->new4);			
+			emit_par(ppc->new4);
 			break;
 		case put_list_op:
 		        emit_inst(_put_list_op);
@@ -349,7 +349,7 @@ void eam_pass(CInstr *ppc)
 
 		case cut_op:
 		        emit_inst(_cut_op);
-			break;  
+			break;
 		case commit_op:
 		        emit_inst(_commit_op);
 			break;
@@ -402,7 +402,7 @@ void eam_pass(CInstr *ppc)
 			}
 			emit_par(ppc->new4);
 			break;
-			
+
 		case direct_safe_call_op:
 		        if (ppc->new1==1) {
   		           emit_inst(_direct_safe_call_unary_op);
@@ -434,8 +434,8 @@ void eam_pass(CInstr *ppc)
 			  if (a==NULL) a=Yap_LookupAtom("\n");
 		          emit_inst(_put_atom_op);
 			  emit_par(1);
-			  emit_par((Cell) MkAtomTerm(a));			
-			} 
+			  emit_par((Cell) MkAtomTerm(a));
+			}
  		        emit_inst(_write_call);
 			break;
 		case is_op:
@@ -468,50 +468,50 @@ void eam_pass(CInstr *ppc)
 		case remove_box_op:
 		case remove_last_box_op:
 			break;
-		  
+
 		case jump_op:
 		        emit_inst(_jump_op);
 			emit_upar((Cell) Code_Start+ (Cell) labels[ppc->new4]);
 			break;
 		case label_op:
-		        if (pass==0) labels[ppc->new4] = get_addr(); 
+		        if (pass==0) labels[ppc->new4] = get_addr();
 			break;
 
 		case run_op:
 /* se ficar vazio, retirar no eam_am.c o +5 das linhas pc=clause->code+5 no only_1_clause e no call */
 		        emit_inst(_try_me_op);
 			emit_par(0);
-			emit_par(0); 
 			emit_par(0);
-			emit_par(0); 
+			emit_par(0);
+			emit_par(0);
 		        break;
 
 		case only_1_clause_op:
 		        emit_inst(_only_1_clause_op);
 		        emit_par(ppc->new4);
 			emit_par(((struct Clauses *)ppc->new4)->predi->arity);
-		        emit_par(((struct Clauses *)ppc->new4)->nr_vars); 
+		        emit_par(((struct Clauses *)ppc->new4)->nr_vars);
 			emit_par(0); /* Nr da alternativa */
 			break;
 		case try_me_op:
 		        emit_inst(_try_me_op);
-			emit_par(ppc->new4); 
+			emit_par(ppc->new4);
 			emit_par(((struct Clauses *)ppc->new4)->predi->arity);
-		        emit_par(((struct Clauses *)ppc->new4)->nr_vars); 
+		        emit_par(((struct Clauses *)ppc->new4)->nr_vars);
 			emit_par(0); /* Nr da alternativa */
 		        break;
 		case retry_me_op:
 		        emit_inst(_retry_me_op);
 			emit_par(ppc->new4);
 			emit_par(((struct Clauses *)ppc->new4)->predi->arity);
-		        emit_par(((struct Clauses *)ppc->new4)->nr_vars); 
+		        emit_par(((struct Clauses *)ppc->new4)->nr_vars);
 			emit_par(ppc->new1);
 		        break;
 		case trust_me_op:
 		        emit_inst(_trust_me_op);
 			emit_par(ppc->new4);
 			emit_par(((struct Clauses *)ppc->new4)->predi->arity);
-		        emit_par(((struct Clauses *)ppc->new4)->nr_vars); 
+		        emit_par(((struct Clauses *)ppc->new4)->nr_vars);
 			emit_par(ppc->new1);
 		        break;
 
@@ -529,11 +529,11 @@ void eam_pass(CInstr *ppc)
 			}
 			body=1;
 			break;
-		
+
 		case prepare_tries:
 		        emit_inst(_prepare_tries);
-			emit_par(ppc->new1); 
-			emit_par(ppc->new4); 
+			emit_par(ppc->new1);
+			emit_par(ppc->new4);
 			break;
 
 		case exit_op:
@@ -559,7 +559,7 @@ void eam_pass(CInstr *ppc)
 			printf("[ please note that beam still does not support a lot of builtins          ]\n");
 		  }
 		        emit_inst(_fail_op);
-			
+
 		}
 		ppc = ppc->nextInst;
 	}

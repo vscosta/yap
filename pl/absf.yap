@@ -419,15 +419,17 @@ absolute_file_name(File0,File) :-
 	user:library_directory( Dir ).
 %	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(foreign, Dir) :-
-	foreign_directory( Dir ).
+    foreign_directory( Dir ).
 % compatibility with old versions
-% search the current directory first.
+%
+% search the current directory  first.
 '$system_library_directories'(commons, Dir) :-
 	commons_directory( Dir ).
 
 
 % enumerate all paths separated by a path_separator.
 '$paths'(Cs, C) :-
+    
     atom(Cs),
     (	current_prolog_flag(windows, true) -> Sep = ';' ; Sep = ':' ),
     sub_atom(Cs, N0, 1, N, Sep),

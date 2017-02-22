@@ -79,7 +79,7 @@ In YAP, the infoo field describes:
 	- loop_sream
 	- file()
 	- none
-	
+
 	- prolog_source(_) a record containing file, line, predicate, and clause
  that activated the goal, or a list therof. YAP tries to search for the user
  code generatinng the error.
@@ -290,9 +290,12 @@ main_message(error(consistency_error(Who)), Level, _LC) -->
 main_message(error(domain_error(Who , Type), _Where), Level, _LC) -->
     !,
     	[ ' ~a:  ~q does not belong to domain ~a,' - [Level,Type,Who], nl ].
-main_message(error(evaluation_error(What, Who), _Where), Level, _LC) -->
-        !,
-        [ ' ~a: ~w caused ~a during evaluation of arithmetic expressions,' - [Level,Who,What], nl ].
+	main_message(error(evaluation_error(What), _Where), Level, _LC) -->
+	        !,
+	        [ ' ~a: ~w during evaluation of arithmetic expressions,' - [Level,What], nl ].
+		main_message(error(evaluation_error(What, Who), _Where), Level, _LC) -->
+		        !,
+		        [ ' ~a: ~w caused ~a during evaluation of arithmetic expressions,' - [Level,Who,What], nl ].
 main_message(error(existence_error(Type , Who), _Where), Level, _LC) -->
     !,
 	[  ' ~a:  ~q ~q could not be found,' - [Level,Type, Who], nl ].
@@ -671,6 +674,8 @@ syntax_error_token(';', _LC) --> !,
 syntax_error_token(':', _LC) --> !,
 	[ ':' - [] ].
 syntax_error_token('|', _LC) --> !,
+	[ '|' - [] ].
+syntax_error_token('l', _LC) --> !,
 	[ '|' - [] ].
 syntax_error_token(nl, LC) --> !,
 	[  '~*|     ' -[LC], nl ].

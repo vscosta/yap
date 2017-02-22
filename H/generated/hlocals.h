@@ -126,7 +126,7 @@ typedef struct worker_local {
   ADDR  db_vec0_;
   struct RB_red_blk_node*  db_root_;
   struct RB_red_blk_node*  db_nil_;
-  sigjmp_buf  gc_restore_;
+  sigjmp_buf*  gc_restore_;
   CELL*  extra_gc_cells_;
   CELL*  extra_gc_cells_base_;
   CELL*  extra_gc_cells_top_;
@@ -140,6 +140,7 @@ typedef struct worker_local {
   UInt  CMemFirstBlockSz_;
 // Variable used by the compiler to store number of permanent vars in a clause
   int  nperm_;
+  int  jMP_;
 // Thread Local Area for Labels
   Int*  LabelFirstArray_;
   UInt  LabelFirstArraySz_;
@@ -166,7 +167,7 @@ typedef struct worker_local {
 /* error handling info, designed to be easy to pass to the foreign world */
   yap_error_descriptor_t*  ActiveError_;
 /// pointer to an exception term, from throw
-  jmp_buf  IOBotch_;
+  jmp_buf*  IOBotch_;
   TokEntry*  tokptr_;
   TokEntry*  toktide_;
   VarEntry*  VarTable_;
@@ -177,7 +178,7 @@ typedef struct worker_local {
   wchar_t*  CommentsBuff_;
   size_t  CommentsBuffPos_;
   size_t  CommentsBuffLim_;
-  sigjmp_buf  RestartEnv_;
+  sigjmp_buf*  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX+1];
   char  FileNameBuf2_[YAP_FILENAME_MAX+1];
   struct TextBuffer_manager*  TextBuffer_;

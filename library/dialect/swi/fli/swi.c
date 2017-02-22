@@ -29,8 +29,8 @@ Moyle.  All rights reserved.
 #include <wchar.h>
 
 #include <Yap.h>
+#include <YapEval.h>
 #include <Yatom.h>
-#include <eval.h>
 
 #include "swi.h"
 #include <YapHeap.h>
@@ -203,6 +203,7 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   CACHE_REGS
   seq_tv_t inp, out;
 
+  int lvl = push_text_stack();
   inp.val.t = Yap_GetFromSlot(l);
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_CHARS;
@@ -215,13 +216,19 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
 
   if (flags & BUF_MALLOC) {
     out.type |= YAP_STRING_MALLOC;
+    out.val.c = NULL;
   }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;
     out.max = *lengthp;
   }
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
+    pop_text_stack(lvl);
     return false;
+  }
+  out.val.c = protected_pop_text_stack(lvl, out.val.c,
+                                       flags & (BUF_RING | BUF_DISCARDABLE),
+                                       strlen(out.val.c) + 1 PASS_REGS);
   *s = out.val.c;
   return true;
 }
@@ -239,6 +246,7 @@ int PL_get_wchars(term_t l, size_t *lengthp, wchar_t **s, unsigned flags) {
   out.type = YAP_STRING_WCHARS;
   if (flags & BUF_MALLOC) {
     out.type |= YAP_STRING_MALLOC;
+    out.val.c = NULL;
   }
   if (lengthp) {
     out.type |= YAP_STRING_NCHARS;
@@ -272,9 +280,7 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
   } else if (flags & PL_CHAR_LIST) {
     out.type = YAP_STRING_ATOMS;
   }
-  if (length != (size_t)-1) {
     out.max = length;
-  }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return Yap_unify(Yap_GetFromSlot(l), out.val.t);
@@ -339,8 +345,7 @@ X_API term_t PL_new_term_refs(int n) {
 */
 X_API void PL_reset_term_refs(term_t after) {
   CACHE_REGS
-  term_t new = Yap_NewSlots(1);
-  Yap_RecoverSlots(after - new, new);
+  LOCAL_CurSlot = after;
 }
 
 /** @}
@@ -623,9 +628,17 @@ X_API int PL_get_atom_chars(term_t ts, char **a) /* SAM check type */
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
-  if (!IsAtomTerm(t))
+  char *src;
+  if (!IsAtomTerm(t)) {
     return 0;
-  *a = RepAtom(AtomOfTerm(t))->StrOfAE;
+  }
+  src = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
+  if (!a)
+    return 0;
+  if (*a && *a != src)
+    strcpy(*a, src);
+  else
+    *a = src;
   return 1;
 }
 
@@ -638,10 +651,14 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len,
 {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
-  if (!IsAtomTerm(t))
+  if (!IsAtomTerm(t)) {
     return 0;
-  *s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  }
+    if (s)
+  *s = (char*)RepAtom(AtomOfTerm(t))->StrOfAE;
+  if (len) {
   *len = strlen(*s);
+}
   return 1;
 }
 
@@ -794,7 +811,7 @@ X_API int PL_unify_bool(term_t t, int a) {
 #if USE_GMP
 
 /*******************************
-*	       GMP		*
+ *	       GMP		*
 *******************************/
 
 X_API int PL_get_mpz(term_t t, mpz_t mpz) {

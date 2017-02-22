@@ -26,7 +26,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "yapio.h"
 #include "blobs.h"
 #include <stdio.h>

@@ -1,24 +1,8 @@
 
 import yap
 import sys
-
-# this class is not being used
-# we rely on namedtuples instead.
-
-
-class T(tuple):
-
-    """Represents a non-interned Prolog atom"""
-    def __new__(self, s, tple):
-        self.tuple.__new__(self, tple)
-        self.name = s
-
-    def __repr__(self):
-        return "yapex.T(" + self.name + " , " + tuple.__repr__(self) + ")"
-
-    def __str__(self):
-        return str(self.name) + str(self.tuple)
-
+# debugging support.
+import pdb
 
 def query_prolog(engine, s):
 
@@ -29,44 +13,69 @@ def query_prolog(engine, s):
             print(e.args[1])
             return False
 
+    #
+    #construct a query from a one-line string
+    # q is opaque to Python
     q = engine.query(s)
+    # vs is the list of variables
+    # you can print it out, the left-side is the variable name,
+    # the right side wraps a handle to a variable
+    vs = q.namedVars()
+    # atom match either symbols, or if no symbol exists, sttrings, In this case
+    # variable names should match strings
+    for eq in vs:
+        if not isinstance(eq[0],str):
+            print( "Error: Variable Name matches a Python Symbol")
+            return
     ask = True
+    # launch the query
     while answer(q):
-        vs = q.namedVarsCopy()
-        if vs:
-            i = 0
-            for eq in vs:
-                name = eq[0]
-                bind = eq[1]
-                if bind.isVar():
-                    var = yap.YAPAtom('$VAR')
-                    f = yap.YAPFunctor(var, 1)
-                    bind.unify(yap.YAPApplTerm(f, (name)))
-                else:
-                    i = bind.numberVars(i, True)
-                    print(name.text() + " = " + bind.text())
+        # this new vs should contain bindings to vars
+        vs=  q.namedVars()
+        #numbervars
+        i=0
+        # iteratw
+        for eq in vs:
+            name = eq[0]
+            # this is tricky, we're going to bind the variables in the term so thay we can
+            # output X=Y. The Python way is to use dictionares.
+            #Instead, we use the T function to tranform the Python term back to Prolog
+            binding = yap.T(eq[1])
+            if binding.isVar():
+                binding.unify(name)
+            else:
+                i = binding.numberVars(i, True)
+                print(name + " = " + binding.text())
+            #ok, that was Prolog code
         print("yes")
+        # deterministic = one solution
         if q.deterministic():
+            # done
             q.close()
             return
         if ask:
-            s = input("more(;/y),  all(!/a), no ?").lstrip()
+            s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
             if s.startswith(';') or s.startswith('y'):
                 continue
             elif s.startswith('#'):
-                exec(s.lstrip('#'))
-            elif s.startswith('a'):
+                try:
+                    exec(s.lstrip('#'))
+                except:
+                    raise
+            elif s.startswith('*') or s.startswith('a'):
                 ask = False
+                continue
             else:
                 break
-        print("No (more) answers")
-        q.close()
+    print("No (more) answers")
+    q.close()
     return
 
 
 def live():
     engine = yap.YAPEngine()
     loop = True
+    pdb.set_trace()
     while loop:
         try:
             s = input("?- ")
@@ -89,4 +98,4 @@ def live():
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
-live()
+#live()

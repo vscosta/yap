@@ -115,7 +115,7 @@ threads that are created <em>after</em> the registration.
 #include "YapHeap.h"
 #include "yapio.h"
 #include "iopreds.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "attvar.h"
 #include <math.h>
 

@@ -58,13 +58,13 @@ class YAPAtom {
   YAPAtom( Atom at ) { a = at; }
 public:
     /// construct new YAPAtom from UTF-8 string
-    YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
+     YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
     /// construct new YAPAtom from UTF-8 string
-    YAPAtom( const wchar_t * s) { CACHE_REGS a = UTF32ToAtom( s PASS_REGS ); }
+     YAPAtom( const wchar_t * s) { CACHE_REGS a = UTF32ToAtom( s PASS_REGS ); }
   /// construct new YAPAtom from wide string
   //YAPAtom( const wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
   /// construct new YAPAtom from max-length string
-YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
+ YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
   /// get name of atom
   const char *getName(void);
   ///  get name of  (other way)
@@ -89,10 +89,11 @@ class YAPProp {
   PropTag tag( Prop p )  { return (PropTag)(p->KindOfPE); }
 public:
   /// get name of property
-  virtual YAPAtom name() = 0;
+  //    virtual YAPAtom name();
 virtual ~YAPProp() {};
   
 };
 
 
 #endif /* YAPA_HH */
+                                                                                                              

@@ -80,15 +80,11 @@ GitSHA1.c
 CMakeLists.txt.*
 FindPackageLog.txt
 GitSHA1.c
-
-GitSHA1.c
-
+clang
+cmake-build-debug
 os/YapIOConfig.h
-
-os/YapIOConfig.h
-
-os/YapIOConfig.h
-
+CodeBlocks
+x
 os/readterm.c.cpp
 
 os/readterm.c.cpp
@@ -203,3 +199,5 @@ packages/python/yap_kernel/x/__init__.py
 packages/python/yap_kernel/x/__main__.py
 
 *.gch
+mxe
+build

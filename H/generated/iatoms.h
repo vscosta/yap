@@ -90,7 +90,7 @@
   AtomCurrentModule = Yap_FullLookupAtom("$current_module"); TermCurrentModule = MkAtomTerm(AtomCurrentModule);
   AtomCut = Yap_LookupAtom("!"); TermCut = MkAtomTerm(AtomCut);
   AtomCutBy = Yap_FullLookupAtom("$cut_by"); TermCutBy = MkAtomTerm(AtomCutBy);
-  AtomDAbort = Yap_FullLookupAtom("$abort"); TermDAbort = MkAtomTerm(AtomDAbort);
+  AtomDAbort = Yap_LookupAtom("abort"); TermDAbort = MkAtomTerm(AtomDAbort);
   AtomDBLoad = Yap_FullLookupAtom("$db_load"); TermDBLoad = MkAtomTerm(AtomDBLoad);
   AtomDBREF = Yap_LookupAtom("DBRef"); TermDBREF = MkAtomTerm(AtomDBREF);
   AtomDBReference = Yap_LookupAtom("db_reference"); TermDBReference = MkAtomTerm(AtomDBReference);
@@ -289,6 +289,7 @@
   AtomPermissionError = Yap_LookupAtom("permission_error"); TermPermissionError = MkAtomTerm(AtomPermissionError);
   AtomPi = Yap_LookupAtom("pi"); TermPi = MkAtomTerm(AtomPi);
   AtomPipe = Yap_LookupAtom("pipe"); TermPipe = MkAtomTerm(AtomPipe);
+  AtomPriority = Yap_LookupAtom("priority"); TermPriority = MkAtomTerm(AtomPriority);
   AtomPlus = Yap_LookupAtom("+"); TermPlus = MkAtomTerm(AtomPlus);
   AtomPointer = Yap_LookupAtom("pointer"); TermPointer = MkAtomTerm(AtomPointer);
   AtomPortray = Yap_FullLookupAtom("portray"); TermPortray = MkAtomTerm(AtomPortray);
@@ -541,11 +542,13 @@
   FunctorNot = Yap_MkFunctor(AtomNot,1);
   FunctorObj = Yap_MkFunctor(AtomObj,1);
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
+  FunctorOutput = Yap_MkFunctor(AtomOutput,1);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
+  FunctorPriority = Yap_MkFunctor(AtomPriority,1);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorProtectStack = Yap_MkFunctor(AtomProtectStack,4);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);

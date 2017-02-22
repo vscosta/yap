@@ -31,7 +31,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "YapHeap.h"
 #include "Yatom.h"
-#include "eval.h"
+#include "YapEval.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif

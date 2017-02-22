@@ -20,7 +20,7 @@
 #include "Yap.h"
 #include "clause.h"
 #include "yapio.h"
-#include "eval.h"
+#include "YapEval.h"
 #include "tracer.h"
 #include "attvar.h"
 #ifdef YAPOR

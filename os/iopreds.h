@@ -35,7 +35,6 @@ extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
                            encoding_t encoding, stream_flags_t flags,
                            Atom open_mode);
 
-#
 #define Yap_CheckStream(arg, kind, msg)                                        \
   Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 extern int Yap_CheckStream__(const char *, const char *, int, Term, int,
@@ -80,7 +79,7 @@ Int Yap_CloseSocket(int, socket_info, socket_domain);
 
 #endif /* USE_SOCKET */
 
-extern Term Yap_read_term(int inp_stream, Term opts, int nargs);
+extern Term Yap_read_term(int inp_stream, Term opts, bool clauatse);
 extern Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 
 extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
@@ -98,16 +97,17 @@ static inline Int GetCurInpPos(StreamDesc *inp_stream) {
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
-extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term, ...);
+extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term,
+                       ...);
 
 extern int GetFreeStreamD(void);
-extern  Term Yap_MkStream(int n);
+extern Term Yap_MkStream(int n);
 
 extern bool Yap_PrintWarning(Term twarning);
 
 extern void Yap_plwrite(Term, struct stream_desc *, int, int, int);
 extern void Yap_WriteAtom(struct stream_desc *s, Atom atom);
-extern bool Yap_WriteTerm( int output_stream, Term t, Term opts USES_REGS);
+extern bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS);
 
 extern Term Yap_scan_num(struct stream_desc *, bool);
 
@@ -275,7 +275,8 @@ extern bool Yap_Exists(const char *f);
 
 static inline void freeBuffer(const void *ptr) {
   CACHE_REGS
-  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 || ptr == AuxBase)
+  if (ptr == NULL || ptr == LOCAL_FileNameBuf || ptr == LOCAL_FileNameBuf2 ||
+      ptr == AuxBase)
     return;
   free((void *)ptr);
 }

@@ -170,7 +170,7 @@ struct page_statistics {
 #define INCREMENT_AUX_STATS(STATS, BYTES, PAGES)                               \
   BYTES += PgEnt_bytes_in_use(STATS)
 #define SHOW_PAGE_STATS_MSG(STR_NAME)                                          \
-  "  %s %10" Int_F "s bytes (%ld structs in use)\n", STR_NAME
+  "  %s %10" Int_F "s bytes (%" Sizet_F " ; structs in use)\n", STR_NAME
 #define SHOW_PAGE_STATS_ARGS(STATS, STR_TYPE)                                  \
   PgEnt_strs_in_use(STATS) * sizeof(STR_TYPE), PgEnt_strs_in_use(STATS)
 #endif /* USE_PAGES_MALLOC */

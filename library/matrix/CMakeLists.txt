@@ -6,7 +6,8 @@ target_link_libraries(matrix libYap)
 set_target_properties (matrix PROPERTIES PREFIX "")
 
 install(TARGETS  matrix
-  LIBRARY DESTINATION ${dlls}
+  RUNTIME DESTINATION ${dlls}
   ARCHIVE DESTINATION ${dlls}
+        LIBRARY DESTINATION ${dlls}
   )
 
