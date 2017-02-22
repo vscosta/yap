@@ -15,7 +15,7 @@ set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 add_library (YAPPython SHARED ${PYTHON_SOURCES})
 
-  target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES}
+  target_link_libraries(YAPPython libYap ${PYTHON_LIBRARY}
   ${WINDLLS}
 ${GMP_LIBRARIES})
 

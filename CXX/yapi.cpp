@@ -495,16 +495,21 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     bool result;
     sigjmp_buf q_env;
 
-    if (IsApplTerm(t))
-    {
-      ts = RepAppl(t) + 1;
+
+    if (arity) {
+      if (IsApplTerm(t))
+	{
+	  ts = RepAppl(t) + 1;
+	}
+      else
+	{
+	  ts = RepPair(t);
+	}
+	for (arity_t i = 0; i < arity; i++)
+	  XREGS[i + 1] = ts[i];
+    } else if ( IsAtomTerm(t)) {
+      ts = nullptr;
     }
-    else
-    {
-      ts = RepPair(t);
-    }
-    for (arity_t i = 0; i < arity; i++)
-      XREGS[i + 1] = ts[i];
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
@@ -729,7 +734,7 @@ bool YAPQuery::next()
   {
     q_open = false;
     Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    bzero(LOCAL_ActiveError, sizeof(*LOCAL_ActiveError));
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     YAP_LeaveGoal(false, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;

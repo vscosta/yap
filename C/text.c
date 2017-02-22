@@ -936,7 +936,7 @@ static unsigned char *concat(int n, void *sv[] USES_REGS) {
   buf0 = buf;
   for (i = 0; i < n; i++) {
 #if _WIN32 || defined(__ANDROID__)
-    strcpy(buf, sv[lvl]);
+    strcpy(buf, sv[i]);
     buf = (char *)buf + strlen(buf);
 #else
     buf = stpcpy(buf, sv[i]);

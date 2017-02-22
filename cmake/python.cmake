@@ -37,11 +37,10 @@ get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABS
            OUTPUT_VARIABLE _ABS_PYTHON_SYSLIB_PATH
            OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-  set( _ABS_PYTHON_SYSLIB_PATH
-  ${_ABS_PYTHON_SYSLIB_PATH}/../${CMAKE_SHARED_LIBRARY_PREFIX}python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m${CMAKE_SHARED_LIBRARY_SUFFIX} )
-  message("${_ABS_PYTHON_SYSLIB_PATH}")
-  get_filename_component ( ABS_PYTHON_SYSLIB_PATH ${_ABS_PYTHON_SYSLIB_PATH} ABSOLUTE )
-
+  find_library(ABS_PYTHON_SYSLIB_PATH
+  NAMES python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m
+                PATHS _ABS_PYTHON_SYSLIB_PATH
+       )
 
     set ( PYTHON_LIBRARY
             ${ABS_PYTHON_SYSLIB_PATH}
@@ -51,21 +50,22 @@ get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABS
             ${PYTHON_LIBRARY}
             CACHE "FILEPATH" "Python Library (Deprecated)"
             )
-        if ( (EXISTS PYTHON_LIBRARY) AND ( EXISTS ${PYTHON_INCLUDE_DIR}) )
-    set ( PYTHONLIBS_FOUND ON)
-else()
-find_package(PythonLibs)
+        if ( (EXISTS ${PYTHON_LIBRARY}) AND ( EXISTS ${PYTHON_INCLUDE_DIR}) )
+    set ( PYTHONLIBS_FOUND ON )
+#    else()
+
+#find_package(PythonLibs)
 endif()
 
     macro_log_feature (PYTHONLIBS_FOUND "Python"
     "Use Python System"
-  "http://www.python.org" FALSE)
+  "http://www.python.org" FALSE )
 
 
   include_directories( BEFORE ${PYTHON_INCLUDE_DIR} )
 
   LIST( APPEND
-   CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIR}  ${CMAKE_REQUIRED_INCLUDES} )
+   CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIR}  ${CMAKE_REQUIRED_INCLUDES})
 
   check_include_file(Python.h HAVE_PYTHON_H)
 
