@@ -43,11 +43,10 @@ void *
 Yap_LoadForeignFile(char *file, int flags)
 {
   char *buf = malloc(1024);
-  printf("file=%s\n" , file );
   void *ptr= (void *)LoadLibrary(file);
  if (!ptr) {
    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		 NULL, GetLastError(), 
+		 NULL, GetLastError(),
 		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, 1023,
 		 NULL);
 		 }
@@ -76,11 +75,19 @@ Yap_CloseForeignFile(void *handle)
 */
 static Int
 LoadForeign(StringList ofiles, StringList libs,
-	       char *proc_name,	YapInitProc *init_proc)
+	       const char *proc_name,	YapInitProc *init_proc)
 {
   CACHE_REGS
   while (ofiles) {
     HINSTANCE handle;
+
+    if (*init_proc == NULL &&
+      (*init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name)))
+       {
+         YapInitProc f = *init_proc;
+        f();
+        return true;
+      }
 
     const char *file = AtomName(ofiles->name);
     if (Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true) &&
@@ -90,9 +97,9 @@ LoadForeign(StringList ofiles, StringList libs,
 	if (*init_proc == NULL)
 	  *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
       } else {
-      char *buf = malloc(1024); 
+      char *buf = malloc(1024);
    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		 NULL, GetLastError(), 
+		 NULL, GetLastError(),
 		 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), buf, 1023,
 		 NULL);
 	//fprintf(stderr,"WinError: %s\n", LOCAL_ErrorSay);
@@ -139,7 +146,7 @@ Yap_LoadForeign(StringList ofiles, StringList libs,
   return LoadForeign(ofiles, libs, proc_name, init_proc);
 }
 
-void 
+void
 Yap_ShutdownLoadForeign(void)
 {
 }
@@ -152,4 +159,3 @@ Yap_ReLoadForeign(StringList ofiles, StringList libs,
 }
 
 #endif
-

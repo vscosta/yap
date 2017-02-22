@@ -93,6 +93,8 @@ typedef struct {
 #define	REG_LARGE	01000	/* force large representation */
 #define	REG_BACKR	02000	/* force use of backref code */
 
+#include "YapInterface.h"
+
 int	yap_regcomp(regex_t *, const char *, int);
 size_t	yap_regerror(int, const regex_t *, char *, size_t);
 int	yap_regexec(const regex_t *, const char *, size_t, regmatch_t [], int);

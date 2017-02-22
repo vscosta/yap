@@ -23,4 +23,3 @@ class LiftedKc : public LiftedSolver {
 }  // namespace Horus
 
 #endif  // YAP_PACKAGES_CLPBN_HORUS_LIFTEDKC_H_
-

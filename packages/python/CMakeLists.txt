@@ -42,9 +42,18 @@ add_subdirectory(yap_kernel)
 
 ENDIF()
 
+
+
+IF(WIN32)
 install(TARGETS  YAPPython
         LIBRARY DESTINATION ${dlls}
-        RUNTIME DESTINATION ${dlls}
+        RUNTIME DESTINATION ${bindir}
+      ARCHIVE DESTINATION ${dlls} )
+else()
+  install(TARGETS  YAPPython
+          LIBRARY DESTINATION ${dlls}
+          RUNTIME DESTINATION ${dlls}
         ARCHIVE DESTINATION ${dlls} )
+endif()
 
 endif (PYTHONLIBS_FOUND)

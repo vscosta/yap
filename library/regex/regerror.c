@@ -46,7 +46,7 @@ static char sccsid[] = "@(#)regerror.c	8.4 (Berkeley) 3/20/94";
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
-#include "c_interface.h"
+#include "YapInterface.h"
 #include "yapregex.h"
 
 #include "utils.h"
