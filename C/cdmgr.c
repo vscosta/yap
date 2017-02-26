@@ -118,6 +118,9 @@ restart:
     return RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
   } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
     return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsPairTerm(t)) {
+    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
+    goto restart;
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
