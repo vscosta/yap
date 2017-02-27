@@ -201,3 +201,6 @@ packages/python/yap_kernel/x/__main__.py
 *.gch
 mxe
 build
+
+library/system/#CMakeLists.txt#
+*.txt#
