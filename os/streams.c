@@ -68,6 +68,9 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_SIGNAL_H
 #include <signal.h>
 #endif
+#if HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 #ifdef _WIN32
 #if HAVE_IO_H
 /* Windows */
@@ -145,6 +148,36 @@ int GetFreeStreamD(void) {
 }
 
 int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
+
+/**
+ *
+ */
+ static bool clearInput(int sno)
+ {
+#if HAVE_READLINE
+  return rl_clear_pending_input ();
+#endif
+#if ISATTY||_WIN32
+  int i = fileno(GLOBAL_Stream[sno].file);
+  if (!isatty(i))
+    return true;
+#endif
+#if HAVE_TCFLUSH
+  return tcflush(i, TCIOFLUSH) == 0;
+#elif MSC_VER
+  return fflush(GLOBAL_Stream[sno].file) == 0;
+#endif
+  return false;
+ }
+
+static Int clear_input( USES_REGS1 )
+{
+  int sno = Yap_CheckStream(ARG1, Input_Stream_f  | Socket_Stream_f,
+                            "clear_input/1");
+  if (sno != -1)
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+  return clearInput(sno);
+}
 
 static Term lineCount(int sno) {
   Term tout;
@@ -1017,6 +1050,8 @@ static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
   return true;
 }
 
+
+
 static Int p_user_file_name(USES_REGS1) {
   Term tout;
   int sno =
@@ -1436,6 +1471,8 @@ void Yap_InitIOStreams(void) {
   Yap_InitCPred("set_input", 1, set_input, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
+  Yap_InitCPred("$clear_input", 1, clear_input, SafePredFlag | TestPredFlag);
+  
 #if HAVE_SELECT
   Yap_InitCPred("stream_select", 3, p_stream_select,
                 SafePredFlag | SyncPredFlag);

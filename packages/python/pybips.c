@@ -115,8 +115,6 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
 
 PyObject *find_obj(PyObject *ob, term_t l, bool eval) {
   YAP_Term hd, yt;
-  bool may_be_package = true;
-
 
   py_Context = NULL;
   yt = YAP_GetFromSlot(l);
@@ -582,7 +580,7 @@ static long get_len_of_range(long lo, long hi, long step) {
   return n;
 }
 
-#if PY_MAJOR_VERSION >= 3
+#if PY_MAJOR_VERSION >= 3 && defined(USE_NAMEDTUPLES)
 static PyStructSequence_Field pnull[] = {
     {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},
     {"A5", NULL},  {"A6", NULL},  {"A7", NULL},  {"A8", NULL},

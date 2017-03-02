@@ -6,17 +6,17 @@
 // under the terms of the GNU Lesser General Public License as published by the
 // Free Software Foundation, either version 3 of the License, or (at your
 // option) any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful, but WITHOUT
 // ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 // FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 // more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //=============================================================================
 
-#include "gecode4-common.icc"
+#include "gecode5-common.icc"
 #include <iostream>
 using namespace std;
 using namespace generic_gecode;
@@ -25,7 +25,7 @@ using namespace Gecode;
 extern "C"
 {
 void gecode_init(void);
-    
+
 #include "config.h"
 }
 
@@ -327,7 +327,7 @@ extern "C"
   static YAP_Term gecode_FLOAT_VAR_SIZE_MAX;
   static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MIN;
   static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MAX;
-  
+
   static inline FloatVarBranch
   gecode_FloatVarBranch_from_term(YAP_Term t)
   {
@@ -495,7 +495,7 @@ extern "C"
       YAP_Term t_a;
       if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
 	  YAP_IsIntTerm(t_a = YAP_ArgOfTerm(1,t))) {
-	unsigned long int a = YAP_IntOfTerm(t_a); 
+	unsigned long int a = YAP_IntOfTerm(t_a);
 	cutoff = Search::Cutoff::constant(a);
       } else {
 	cerr << "bad parameter for constant" << endl; exit(1);
@@ -505,8 +505,8 @@ extern "C"
       if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 2 &&
 	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t)) &&
 	  YAP_IsIntTerm(t_b = YAP_ArgOfTerm(2,t))) {
-	unsigned long int s = YAP_IntOfTerm(t_s); 
-	unsigned long int b = YAP_IntOfTerm(t_b); 
+	unsigned long int s = YAP_IntOfTerm(t_s);
+	unsigned long int b = YAP_IntOfTerm(t_b);
 	cutoff = Search::Cutoff::geometric(s,b);
       } else {
 	cerr << "bad parameter for geometric" << endl; exit(1);
@@ -515,7 +515,7 @@ extern "C"
     case RM_LUBY:
       if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
 	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t))) {
-	unsigned long int s = YAP_IntOfTerm(t_s); 
+	unsigned long int s = YAP_IntOfTerm(t_s);
 	cutoff = Search::Cutoff::luby(s);
       } else {
 	cerr << "bad parameter for luby" << endl; exit(1);
@@ -524,7 +524,7 @@ extern "C"
     case RM_LINEAR:
       if (YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)) == 1 &&
 	  YAP_IsIntTerm(t_s = YAP_ArgOfTerm(1,t))) {
-	unsigned long int s = YAP_IntOfTerm(t_s); 
+	unsigned long int s = YAP_IntOfTerm(t_s);
 	cutoff = Search::Cutoff::linear(s);
       } else {
 	cerr << "bad parameter for linear" << endl; exit(1);

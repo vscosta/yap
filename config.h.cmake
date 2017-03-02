@@ -1365,6 +1365,11 @@ signal. */
 #cmakedefine HAVE_STRTOD ${HAVE_STRTOD}
 #endif
 
+/* Define to 1 if you have the `tcflush' function. */
+#ifndef HAVE_TCFLUSH
+#cmakedefine HAVE_TCFLUSH ${HAVE_TCFLUSH}
+#endif
+
 /* Define is struct tm has tm_gmtoff */
 #ifndef HAVE_STRUCT_TIME_TM_GMTOFF
 #cmakedefine HAVE_STRUCT_TIME_TM_GMTOFF ${HAVE_STRUCT_TIME_TM_GMTOFF}
@@ -1440,6 +1445,11 @@ signal. */
 /* Define to 1 if you have the <sys/syscall.h> header file. */
 #ifndef HAVE_SYS_SYSCALL_H
 #cmakedefine HAVE_SYS_SYSCALL_H ${HAVE_SYS_SYSCALL_H}
+#endif
+
+/* Define to 1 if you have the <termios.h> header file. */
+#ifndef HAVE_TERMIOS_H
+#cmakedefine HAVE_TERMIOS_H ${HAVE_TERMIOS_H}
 #endif
 
 /* Define to 1 if you have the <sys/times.h> header file. */

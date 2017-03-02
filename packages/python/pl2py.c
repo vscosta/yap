@@ -53,7 +53,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
       */
     } else
       {
-	PyObject *o = PythonLookupSpecial(s);
+	o = PythonLookupSpecial(s);
       }
   	if (o) {
 	  Py_INCREF( o );
