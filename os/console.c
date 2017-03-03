@@ -45,14 +45,12 @@ static int ConsolePutc(int, int);
 bool Yap_DoPrompt(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
     if (GLOBAL_Stream[0].status & Tty_Stream_f &&
-        s->name == GLOBAL_Stream[0].name)
-      return true;
-    if (GLOBAL_Stream[1].status & Tty_Stream_f &&
-        s->name == GLOBAL_Stream[1].name)
-      return true;
-    if (GLOBAL_Stream[2].status & Tty_Stream_f &&
-        s->name == GLOBAL_Stream[2].name)
-      return true;
+        s->name == GLOBAL_Stream[0].name &&
+        ((GLOBAL_Stream[1].status & Tty_Stream_f ||
+          s->name == GLOBAL_Stream[1].name) ||
+         (GLOBAL_Stream[2].status & Tty_Stream_f &&
+          s->name == GLOBAL_Stream[2].name)))
+      return LOCAL_newline;
   }
   return false;
 }
@@ -62,7 +60,11 @@ bool Yap_DoPrompt(StreamDesc *s) {
 int console_post_process_read_char(int ch, StreamDesc *s) {
   /* the character is also going to be output by the console handler */
   console_count_output_char(ch, GLOBAL_Stream + StdErrStream);
-  if (ch == '\n') {
+  if (ch == '\r') {
+    s->linepos = 0;
+    LOCAL_newline = true;
+} else
+ if (ch == '\n') {
     CACHE_REGS
     ++s->linecount;
     ++s->charcount;

@@ -154,16 +154,14 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
  */
  static bool clearInput(int sno)
  {
-#if HAVE_READLINE
-  return rl_clear_pending_input ();
-#endif
-#if ISATTY||_WIN32
-  int i = fileno(GLOBAL_Stream[sno].file);
-  if (!isatty(i))
-    return true;
+     if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
+     return true;
+#if USE_READLINE
+ if (GLOBAL_Stream[sno].status & Readline_Stream_f)
+  return Yap_readline_clear_pending_input (GLOBAL_Stream+sno);
 #endif
 #if HAVE_TCFLUSH
-  return tcflush(i, TCIOFLUSH) == 0;
+  return tcflush(fileno(GLOBAL_Stream[sno].file), TCIOFLUSH) == 0;
 #elif MSC_VER
   return fflush(GLOBAL_Stream[sno].file) == 0;
 #endif
@@ -1472,7 +1470,7 @@ void Yap_InitIOStreams(void) {
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$clear_input", 1, clear_input, SafePredFlag | TestPredFlag);
-  
+
 #if HAVE_SELECT
   Yap_InitCPred("stream_select", 3, p_stream_select,
                 SafePredFlag | SyncPredFlag);

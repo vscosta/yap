@@ -251,6 +251,15 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
+bool Yap_readline_clear_pending_input(StreamDesc *s) { 
+  rl_clear_pending_input();
+  if (s->u.irl.buf) {
+    free( ( void *)s->u.irl.buf ); 
+}
+    s->u.irl.ptr = s->u.irl.buf = NULL;
+    return true;
+}
+
 bool Yap_ReadlineOps(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&

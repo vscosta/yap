@@ -2149,14 +2149,13 @@ X_API YAP_Term YAP_CopyTerm(Term t) {
 X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   CACHE_REGS
   seq_tv_t inp, out;
-  size_t length = sze;
-  char *b;
 
   BACKUP_MACHINE_REGS();
   inp.val.t = t;
   inp.type = YAP_STRING_TERM;
   out.type = YAP_STRING_CHARS;
   out.val.c = buf;
+  out.max = sze-1;
   out.enc = LOCAL_encoding;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return NULL;
