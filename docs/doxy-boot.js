@@ -14,7 +14,7 @@ $( document ).ready(function() {
     $('li > a[href="functions_func.html"] > span').before("<i class='fa fa-list'></i> ");
     $('li > a[href="functions_vars.html"] > span').before("<i class='fa fa-list'></i> ");
     $('li > a[href="functions_enum.html"] > span').before("<i class='fa fa-list'></i> ");
-    $('li > a[href="functions_eval.html"] > span').before("<i class='fa fa-list'></i> ");
+    $('li > a[href="functions_YapEval.html"] > span').before("<i class='fa fa-list'></i> ");
     $('img[src="ftv2ns.png"]').replaceWith('<span class="label label-danger">N</span> ');
     $('img[src="ftv2cl.png"]').replaceWith('<span class="label label-danger">C</span> ');
 

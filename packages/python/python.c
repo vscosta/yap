@@ -77,7 +77,8 @@ static void install_py_constants(void) {
   Py_INCREF(py_Builtin);
   py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
   py_Yapex = PyImport_ImportModule("yapex");
-  PyObject *py_Yap = PyImport_ImportModule("yap");
+  // PyObject *py_Yap =
+    PyImport_ImportModule("yap");
   Py_INCREF(py_Yapex);
   //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
   py_F2P = NULL;

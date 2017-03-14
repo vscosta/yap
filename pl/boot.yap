@@ -847,12 +847,14 @@ number of steps.
 	format(user_error,'.~n', []).
 
 '$another' :-
+	'$clear_input'(user_input),
 	format(user_error,' ? ',[]),
-	get0(user_input,C),
+	get_code(user_input,C),
 	'$do_another'(C).
 
 '$do_another'(C) :-
-	(   C== 0'; ->  skip(user_input,10), %'
+	(   C=:= ";" ->
+         skip(user_input,10), %
 	%    '$add_nl_outside_console',
 	    fail
 	;
@@ -1390,8 +1392,9 @@ Command = (H --> B) ->
 
 
 '$enter_command'(Stream, Mod, Status) :-
+    '$clear_input'(Stream),
     prompt1(': '), prompt(_,'     '),
-    Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
+	Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     (
       Status == top
     ->
