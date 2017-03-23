@@ -1,6 +1,7 @@
-The YAP Module system     {#YAPModules}
+The YAP Module system                  
 ======================
 
+[TOC]
 
   The YAP module system is based on the Quintus/SISCtus module
 system ˜\cite quintus . In this design, modules are named collections of predicates,
@@ -39,7 +40,7 @@ the module/2 declaration.This declaration sets the source module when
   it starts consulting a file, and resets it at the end.  One can set
 the type-in module permanently by using the built-in `module/1`.
 
-\subsection Explicit Naming
+#### Explicit Naming                                    {#ExplicitNaming}
 
 The module system allows one to _explicitly_ specify the source mode for
 a clause by prefixing a clause with its module, say:
@@ -168,7 +169,7 @@ YAP will execute as follows:
   % consulting .../b.pl...
   % consulted .../b.pl in module b, 0 msec 0 bytes
  % consulted .../a.pl in module a, 1 msec 0 bytes
-true.
+true.   
  ?- a(X).
 X = 1 ? ;
 X = 1.
@@ -226,6 +227,8 @@ X = 2 ? ;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The state of  the module system after this error is undefined.
+
+### BuiltIn predicates                                     {#ModuleBuiltins)
 
 @\pred module(+ M:atom,+ L:list ) is directive
   the current file defines module _M_ with exports _L_. The list may include
