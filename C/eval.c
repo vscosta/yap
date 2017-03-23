@@ -369,7 +369,7 @@ static Int p_logsum(USES_REGS1) { /* X is Y        */
   }
 }
 
-yamop *Yap_EvalError__(const char *file, const char *function, int lineno,
+void Yap_EvalError__(const char *file, const char *function, int lineno,
                        yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
@@ -387,7 +387,7 @@ yamop *Yap_EvalError__(const char *file, const char *function, int lineno,
     buf[0] = '\0';
   }
   va_end(ap);
-  return Yap_Error__(file, function, lineno, type, where, buf);
+  Yap_ThrowError__(file, function, lineno, type, where, buf);
 }
 
 /**

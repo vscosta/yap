@@ -1461,15 +1461,28 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_RestartEnv = sighold;
       return false;
     }
-    case 4: {
+    case 4:
       /* abort */
-      /* can be called from anywgerre, must reset registers,
+      /* can be called from anywhere, must reset registers,
        */
-      LOCAL_RestartEnv = sighold;
       Yap_JumpToEnv(TermDAbort);
       P = (yamop *)FAILCODE;
+      if (OldBorder == 0)
+	break;
+      LOCAL_CBorder = OldBorder;
       LOCAL_PrologMode = UserMode;
-    } break;
+      LOCAL_RestartEnv = sighold;
+      return false;      
+    case 5:
+      // going up, unless there is no up to go to. or someone
+      // but we should inform the caller on what happened.
+      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0-LOCAL_CBorder)) {
+	  break;
+      }
+      LOCAL_RestartEnv = sighold;
+         LOCAL_PrologMode = UserMode;
+   LOCAL_CBorder = OldBorder;
+      return false;
     default:
     /* do nothing */
 	LOCAL_PrologMode = UserMode;

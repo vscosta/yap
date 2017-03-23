@@ -843,48 +843,37 @@ static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
   PyObject *lhs, *rhs;
   term_t tleft = PL_new_term_ref(), tright = PL_new_term_ref();
 
-  while (true) {
     functor_t fun;
 
     AOK (PL_get_functor(targ, &fun), false);
-    if (fun == FUNCTOR_comma2) {
-      if (!PL_get_arg(1, targ, taux)) {
-        return false;
-      }
-      AOK( PL_get_arg(1, taux, tleft), false);
-      lhs = term_to_python(tleft, eval, NULL);
-      AOK ( PL_get_arg(2, taux, tright), false);
-      rhs = term_to_python(tright, eval, NULL);
-      if (PyDict_SetItem(dict, lhs, rhs) < 0) {
-        return FALSE;
-      }
-      // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
-      // Py_DECREF(lhs);
-      // Py_DECREF(rhs);
-
-      AOK(PL_get_arg(1, targ, targ), false);
-      AOK(PL_get_arg(1, targ, tleft), false);
-      lhs = atom_to_python_string(tleft);
-      if (lhs == NULL) {
-        return FALSE;
-      }
-      AOK(PL_get_arg(2, targ, tright), false);
-      rhs = term_to_python(tright, eval, NULL);
-      if (rhs == NULL) {
-        PyErr_Print();
-        return FALSE;
-      }
-      if (PyDict_SetItem(dict, lhs, rhs) < 0) {
-        return FALSE;
-      }
-      // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
-      // Py_DECREF(lhs);
-      // Py_DECREF(rhs);
-      break;
+    while (fun == FUNCTOR_comma2) {
+      AOK( PL_get_arg(1, targ, tleft), false);
+      if (! copy_to_dictionary(dict, tleft, taux, eval) )
+	return false;
+      AOK ( PL_get_arg(2, targ, targ), false);
+      return copy_to_dictionary(dict, tright, taux, eval);
     }
+    // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
+    // Py_DECREF(lhs);
+    // Py_DECREF(rhs);
+
+    AOK(PL_get_arg(1, targ, tleft), false);
+    lhs = atom_to_python_string(tleft);
+    if (lhs == NULL) {
+      return FALSE;
+    }
+    AOK(PL_get_arg(2, targ, tright), false);
+    rhs = term_to_python(tright, eval, NULL);
+    if (rhs == NULL) {
+      PyErr_Print();
+      return false;
+    }
+    return PyDict_SetItem(dict, lhs, rhs) >= 0;
+    // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
+    // Py_DECREF(lhs);
+    // Py_DECREF(rhs);
   }
-  return TRUE;
-}
+
 
 PyObject *compound_to_data(term_t t, PyObject *o, functor_t fun, bool exec) {
   atom_t name;

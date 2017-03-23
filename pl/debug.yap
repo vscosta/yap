@@ -272,6 +272,7 @@ be lost.
 	current_prolog_flag(debug, false), !,
 	'$execute_nonstop'(G,Mod).
 '$spy'([Mod|G]) :-
+	'$stop_creeping'(_),
 	CP is '$last_choice_pt',
 	'$debugger_input',
 	'$do_spy'(G, Mod, CP, spy).

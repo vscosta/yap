@@ -328,7 +328,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(file, function, lineno, type, where);
   }
-  siglongjmp(*LOCAL_RestartEnv, 4);
+  siglongjmp(*LOCAL_RestartEnv, 5);
 }
 
 /**

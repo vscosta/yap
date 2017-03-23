@@ -403,7 +403,7 @@ Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_EvalError(id, t, ...)                                              \
   Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-yamop *Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
+void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
                        ...);
 
 #define Yap_ArithError(id, t, ...)                                             \
@@ -412,8 +412,7 @@ yamop *Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
   Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)                                                     \
   Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
-extern Int Yap_ArithError__(const char *, const char *, int, yap_error_number,
-                            Term, ...);
+
 
 #include "inline-only.h"
 
@@ -470,7 +469,6 @@ Atom Yap_NameOfBinaryOp(int i);
 #define RBIG(v) return (Yap_MkBigIntTerm(v))
 #define RERROR()                                                               \
   {                                                                            \
-    Yap_BinError(LOCAL_Error_TYPE);                                            \
     return (0L);                                                               \
   }
 

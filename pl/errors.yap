@@ -107,39 +107,42 @@ system_error(Type,Goal,Culprit) :-
 	fail.
 '$LoopError'(_, _) :-
 	flush_output,
-    '$close_error',
+	'$close_error',
 	fail.
 
 '$process_error'('$forward'(Msg), _) :-
-  !,
-  throw( '$forward'(Msg) ).
+	!,
+	throw( '$forward'(Msg) ).
 '$process_error'(abort, Level) :-
-  !,
-  (
-   Level \== top
-   ->
-   throw( abort )
-  ;
-   current_prolog_flag(break_level, 0)
-  ->
-  print_message(informational,abort(user)),
-  fail
-  ;
-  current_prolog_flag(break_level, I0),
-  I is I0-1,
-  current_prolog_flag(break_level, I),
-  throw(abort)
-  ).
-'$process_error'(error(thread_cancel(_Id), _G),top) :- !.
-'$process_error'(error(thread_cancel(Id), G), _) :- !,
-	throw(error(thread_cancel(Id), G)).
+	!,
+	(
+	 Level \== top
+	->
+	 throw( abort )
+	;
+	 current_prolog_flag(break_level, 0)
+	->
+	 print_message(informational,abort(user)),
+	 fail
+	;
+	 current_prolog_flag(break_level, I0),
+	 I is I0-1,
+	 current_prolog_flag(break_level, I),
+	 throw(abort)
+	).
+'$process_error'(error(thread_cancel(_Id), _G),top) :-
+	!.
+'$process_error'(error(thread_cancel(Id), G), _) :-
+	!,
+        throw(error(thread_cancel(Id), G)).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
-	Level \= top, !,
-	throw(error(permission_error(module,redefined,A),B)).
-'$process_error'(error(Msg, Where), _) :-
-    print_message(error,error(Msg, Where)), !.
-'$process_error'(error(Msg, Where), _) :-
-    print_message(error,error(Msg, [g|Where])), !.
+        Level \= top, !,
+        throw(error(permission_error(module,redefined,A),B)).
+'$process_error'(Error, _Level) :-
+	functor(Error, Severity, _),
+	print_message(Severity, Error), !.
+%'$process_error'(error(Msg, Where), _) :-
+%    print_message(error,error(Msg, [g|Where])), !.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 

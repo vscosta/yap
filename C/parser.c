@@ -1025,7 +1025,9 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
 
 Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   CACHE_REGS
-  Volatile Term t;
+    // ensure that if we throw an exception
+    // t will be 0.
+  Volatile Term t = 0;
   JMPBUFF FailBuff;
   yhandle_t sls = Yap_StartSlots();
   LOCAL_toktide = LOCAL_tokptr;
