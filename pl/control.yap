@@ -257,9 +257,8 @@ call(X,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10,A11) :- '$execute'(X,A1,A2,A3,A4,A5,A6,A7,
 
 /** @pred call_cleanup(: _Goal_, : _CleanUpGoal_)
 
-This is similar to <tt>call_cleanup/1</tt> with an additional
+This is similar to call_cleanup/1 but with an additional
  _CleanUpGoal_ which gets called after  _Goal_ is finished.
-
 
 */
 call_cleanup(Goal, Cleanup) :-
@@ -271,14 +270,15 @@ call_cleanup(Goal, Catcher, Cleanup) :-
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
 
-Calls `(Setup, Goal)`. For each sucessful execution of  _Setup_, calling  _Goal_, the
-cleanup handler  _Cleanup_ is guaranteed to be called exactly once.
-This will happen after  _Goal_ completes, either through failure,
-deterministic success, commit, or an exception.   _Setup_ will
-contain the goals that need to be protected from asynchronous interrupts
-such as the ones received from `call_with_time_limit/2` or thread_signal/2.  In
-most uses,  _Setup_ will perform temporary side-effects required by
- _Goal_ that are finally undone by  _Cleanup_.
+Calls `(Setup, Goal)`. For each sucessful execution of _Setup_,
+calling _Goal_, the cleanup handler _Cleanup_ is guaranteed to be
+called exactly once.  This will happen after _Goal_ completes, either
+through failure, deterministic success, commit, or an exception.
+_Setup_ will contain the goals that need to be protected from
+asynchronous interrupts such as the ones received from
+`call_with_time_limit/2` or thread_signal/2.  In most uses, _Setup_
+will perform temporary side-effects required by _Goal_ that are
+finally undone by _Cleanup_.
 
 */
 
