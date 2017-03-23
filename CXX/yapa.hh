@@ -1,41 +1,56 @@
+/// @{
+
 #ifndef YAPA_HH
 #define YAPA_HH 1
 
 /**
-   Prolog operates over constants, called atoms
-   YAP, like lisp, associates properties with atoms.
+ *
+ *   @defgroup yap-cplus-interface An object oriented interface for YAP.
+ *
+ *   @ingroup ChYInterface
+ *    @tableofcontents
+ *
+ *
+ * Prolog operates over constants, called atoms. YAP's stores most data as a list
+ * of properties for atoms. Properties include functors, data-base tecords, predicates. operators,
+ * and more.
+ *
+ *
+ */
+/**
+   Tne different tgaas area represented through PropTag.
 */
 enum PropTag {
   /// predicate
   PRED_TAG                  = PEProp, // 0x0000,
   /// db key, may be associated with a functor
-    DB_TAG                    = DBProperty, // 0x8000,
+  DB_TAG                    = DBProperty, // 0x8000,
   /// generic functor, may include sub-properties
-    FUNCTOR_TAG               = FunctorProperty, // 0xBB00,
+  FUNCTOR_TAG               = FunctorProperty, // 0xBB00,
   // SPARSE_FUNCTOR_TAG        = 0xFFDF,
   /// arithmetic function
-    ARITHMETIC_PROPERTY_TAG   = ExpProperty, // 0xFFE0,
+  ARITHMETIC_PROPERTY_TAG   = ExpProperty, // 0xFFE0,
   /// map the atom to an integer
-    TRANSLATION_TAG           = TranslationProperty, // 0xFFF4,
+  TRANSLATION_TAG           = TranslationProperty, // 0xFFF4,
   /// ensure the atom may not be garbafe colected    
-    HOLD_TAG                  = HoldProperty, // 0xFFF6    
-/// named mutEX
-    MUTEX_TAG                 = MutexProperty, // 0xFFF6,
+  HOLD_TAG                  = HoldProperty, // 0xFFF6    
+  /// named mutEX
+  MUTEX_TAG                 = MutexProperty, // 0xFFF6,
   /// A typed array, may be in-db or in-stack deped
-    ARRAY_TAG                 = ArrayProperty, // 0xFFF7,    
+  ARRAY_TAG                 = ArrayProperty, // 0xFFF7,    
   /// module
-    MODULE_TAG                = ModProperty, // 0xFFFA,
+  MODULE_TAG                = ModProperty, // 0xFFFA,
   /// the original SICStus blackboard
-    BLACKBOARD_TAG            = BBProperty, // 0xFFFB,
+  BLACKBOARD_TAG            = BBProperty, // 0xFFFB,
   /// associate an atomic value with the atom
-    VALUE_TAG                 = ValProperty, // 0xFFFC,
+  VALUE_TAG                 = ValProperty, // 0xFFFC,
   /// Demoen's proposal for gkobal variables
-    GLOBAL_VAR_TAG            = GlobalProperty, // 0xFFFD
+  GLOBAL_VAR_TAG            = GlobalProperty, // 0xFFFD
   /// SWI-STYLE ATOM Extension
-    BLOB_TAG                  = BlobProperty, // 0xFFFE,
+  BLOB_TAG                  = BlobProperty, // 0xFFFE,
   /// Prolog operator,        
-    OPERATOR_TAG              = OpProperty, // 0xFFFF,  
-    };
+  OPERATOR_TAG              = OpProperty, // 0xFFFF,  
+};
 
 /**
  * @brief Atom
@@ -57,19 +72,19 @@ class YAPAtom {
   /// construct new YAPAtom from Atom
   YAPAtom( Atom at ) { a = at; }
 public:
-    /// construct new YAPAtom from UTF-8 string
-     YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
-    /// construct new YAPAtom from UTF-8 string
-     YAPAtom( const wchar_t * s) { CACHE_REGS a = UTF32ToAtom( s PASS_REGS ); }
+  /// construct new YAPAtom from UTF-8 string
+  YAPAtom( const char * s) { a = Yap_LookupAtom( s ); }
+  /// construct new YAPAtom from UTF-8 string
+  YAPAtom( const wchar_t * s) { CACHE_REGS a = UTF32ToAtom( s PASS_REGS ); }
   /// construct new YAPAtom from wide string
   //YAPAtom( const wchar_t * s) { a = Yap_LookupMaybeWideAtom( s ); }
   /// construct new YAPAtom from max-length string
- YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
+  YAPAtom( const char * s, size_t len) { a = Yap_LookupAtomWithLength( s, len ); }
   /// get name of atom
   const char *getName(void);
   ///  get name of  (other way)
-       inline const char *text(void)  { return getName(); } ;
-       /// get prop of type
+  inline const char *text(void)  { return getName(); } ;
+  /// get prop of type
   Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); }  
 };
 
@@ -90,10 +105,12 @@ class YAPProp {
 public:
   /// get name of property
   //    virtual YAPAtom name();
-virtual ~YAPProp() {};
+  virtual ~YAPProp() {};
   
 };
 
 
 #endif /* YAPA_HH */
                                                                                                               
+/// @}
+

@@ -1,3 +1,17 @@
+/**
+ *   @{
+ *
+ *   @defgroup yap-cplus-error-hanadlinge Errir Handling in the YAP interface.
+ *
+ *   @ingroup yap-cplus-interface
+ *    @tableofcontents
+ *
+ *
+ * These classes define an object that we can then throw when an error
+ * or unexoected event interrupts YAP. Often, the object is built by
+ * YAP itself, but we may generate our own errors.
+ */
+
 
 #ifndef YAPIE_HH
 #define YAPIE_HH
@@ -36,3 +50,5 @@ public:
 };
 
 #endif
+
+/// @}

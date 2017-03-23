@@ -14,8 +14,8 @@
  *    @tableofcontents
  *
  *
- * Data-base component of C++ interface to YAP. It manipulates sets of
- * atoms, each one containing a number of props.
+ * These classes define the main data-structures stored in the Data-base component: atoms, functors
+ * and predicates.
  */
 
 class YAPTerm;
@@ -40,8 +40,8 @@ class YAPModule : protected YAPAtomTerm {
   Term curModule() { CACHE_REGS return Yap_CurrentModule(); }
 
 public:
-   YAPModule() : YAPAtomTerm(curModule()){};
-   YAPModule(YAPAtom t) : YAPAtomTerm(t){};
+  YAPModule() : YAPAtomTerm(curModule()){};
+  YAPModule(YAPAtom t) : YAPAtomTerm(t){};
 };
 
 /**
@@ -54,12 +54,12 @@ class YAPModuleProp : public YAPProp {
   ModEntry *m;
 
   YAPModuleProp(ModEntry *mod) { m = mod; };
-   YAPModuleProp(Term tmod) { m = Yap_GetModuleEntry(tmod); };
+  YAPModuleProp(Term tmod) { m = Yap_GetModuleEntry(tmod); };
 
 public:
   YAPModuleProp(YAPModule tmod) { m = Yap_GetModuleEntry(tmod.gt()); };
-   YAPModuleProp() { CACHE_REGS m = Yap_GetModuleEntry(Yap_CurrentModule()); };
-   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
+  YAPModuleProp() { CACHE_REGS m = Yap_GetModuleEntry(Yap_CurrentModule()); };
+  virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
 
 /**
@@ -80,14 +80,14 @@ public:
   /// Constructor: receives name as an atom, plus arity
   ///
   /// This is the default method, and the most popular
-   YAPFunctor(YAPAtom at, uintptr_t arity) { f = Yap_MkFunctor(at.a, arity); }
+  YAPFunctor(YAPAtom at, uintptr_t arity) { f = Yap_MkFunctor(at.a, arity); }
 
   /// Constructor: receives name as a string plus arity
   ///
   /// Notice that this is designed for ISO-LATIN-1 right now
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromString
-   inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
+  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
     f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
   }
   /// Constructor: receives name as a  wide string plus arity
@@ -96,18 +96,18 @@ public:
   ///
   /// Note: Python confuses the 3 constructors,
   /// use YAPFunctorFromWideString
-   inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
+  inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
     CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
   }
   /// Getter: extract name of functor as an atom
   ///
   /// this is for external usage.
-   YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
+  YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
 
   /// Getter: extract arity of functor as an unsigned integer
   ///
   /// this is for external usage.
-   uintptr_t arity(void) { return ArityOfFunctor(f); }
+  uintptr_t arity(void) { return ArityOfFunctor(f); }
 };
 
 /**
@@ -132,14 +132,14 @@ protected:
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-   YAPPredicate(const char *s0, Term &out, Term &names) {
+  YAPPredicate(const char *s0, Term &out, Term &names) {
     CACHE_REGS
-    BACKUP_MACHINE_REGS();
+      BACKUP_MACHINE_REGS();
     Term *modp = NULL;
-names = MkVarTerm ();
+    names = MkVarTerm ();
     const unsigned char *us = (const unsigned char *)s0;
     out =
-        Yap_BufferToTermWithPrioBindings(us, strlen(s0), TermNil, 1200, names);
+      Yap_BufferToTermWithPrioBindings(us, strlen(s0), TermNil, 1200, names);
     // extern char *s0;
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
@@ -154,7 +154,7 @@ names = MkVarTerm ();
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
-   inline YAPPredicate(Term t) {
+  inline YAPPredicate(Term t) {
     CELL *v = NULL;
     ap = getPred(t, v);
   }
@@ -178,30 +178,30 @@ public:
   /// Functor constructor for predicates
   ///
   /// Asssumes that we use the current module.
-   YAPPredicate(YAPFunctor f) {
+  YAPPredicate(YAPFunctor f) {
     CACHE_REGS
-    ap = RepPredProp(PredPropByFunc(f.f, Yap_CurrentModule()));
+      ap = RepPredProp(PredPropByFunc(f.f, Yap_CurrentModule()));
   }
 
   /// Functor constructor for predicates, is given a specific module.
   ///
-   inline YAPPredicate(YAPFunctor f, YAPTerm mod) {
+  inline YAPPredicate(YAPFunctor f, YAPTerm mod) {
     ap = RepPredProp(PredPropByFunc(f.f, mod.t));
   }
 
   /// Name/arity constructor for predicates.
   ///
-   inline YAPPredicate(YAPAtom at, YAPTerm mod) {
+  inline YAPPredicate(YAPAtom at, YAPTerm mod) {
     ap = RepPredProp(PredPropByAtom(at.a, mod.t));
   }
 
   /// Name/0 constructor for predicates.
   ///
-   YAPPredicate(YAPAtom at);
+  YAPPredicate(YAPAtom at);
 
   /// Mod:Name/Arity constructor for predicates.
   ///
-   inline YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
+  inline YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
       ap = RepPredProp(PredPropByFunc(f, mod.t()));
@@ -212,32 +212,32 @@ public:
 
   /// Atom/Arity constructor for predicates.
   ///
-   YAPPredicate(YAPAtom at, uintptr_t arity);
+  YAPPredicate(YAPAtom at, uintptr_t arity);
 
   /// char */module constructor for predicates.
   ///
-   inline YAPPredicate(const char *at, uintptr_t arity) {
+  inline YAPPredicate(const char *at, uintptr_t arity) {
     ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
                                     CurrentModule));
   };
 
   /// char */module constructor for predicates.
   ///
-   inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
+  inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
     ap = RepPredProp(
-        PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
+		     PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
   };
 
   /// char */module constructor for predicates.
   ///
-   inline YAPPredicate(const char *at, YAPTerm mod) {
+  inline YAPPredicate(const char *at, YAPTerm mod) {
     ap = RepPredProp(PredPropByAtom(Yap_LookupAtom(at), mod.t));
   }
 
   /// module of a predicate
   ///
   /// notice that modules are currently treated as atoms, this should change.
-   YAPModule module() {
+  YAPModule module() {
     if (ap->ModuleOfPred == PROLOG_MODULE)
       return YAPModule(AtomProlog);
     else
@@ -259,7 +259,7 @@ public:
   /// onlu defined if arity >= 1
   YAPFunctor functor() {
     if (ap->ArityOfPE)
-        return YAPFunctor(ap->FunctorOfPred);
+      return YAPFunctor(ap->FunctorOfPred);
     return NULL;
   }
 
@@ -277,15 +277,15 @@ public:
  */
 class YAPPrologPredicate : public YAPPredicate {
 public:
-   YAPPrologPredicate(YAPTerm t) : YAPPredicate(t){};
-   YAPPrologPredicate(const char *s, arity_t arity) : YAPPredicate(s, arity){};
+  YAPPrologPredicate(YAPTerm t) : YAPPredicate(t){};
+  YAPPrologPredicate(const char *s, arity_t arity) : YAPPredicate(s, arity){};
   /// add a new clause
-   bool assertClause(YAPTerm clause, bool last = true,
-                     YAPTerm source = YAPTerm());
+  bool assertClause(YAPTerm clause, bool last = true,
+		    YAPTerm source = YAPTerm());
   /// add a new tuple
-   bool assertFact(YAPTerm *tuple, bool last = true);
+  bool assertFact(YAPTerm *tuple, bool last = true);
   /// retract at least the first clause matching the predicate.
-   void *retractClause(YAPTerm skeleton, bool all = false);
+  void *retractClause(YAPTerm skeleton, bool all = false);
   /// return the Nth clause (if source is available)
   // YAPTerm clause(size_t index, YAPPredicate p) { return YAPTerm(); };
   /// return the Nth clause (if source is available)
@@ -302,7 +302,7 @@ public:
   YAPFLIP(CPredicate call, YAPAtom name, uintptr_t arity,
           YAPModule module = YAPModule(), CPredicate retry = 0,
           CPredicate cut = 0, size_t extra = 0, bool test = false)
-      : YAPPredicate(name, arity, module) {
+    : YAPPredicate(name, arity, module) {
     if (retry) {
       Yap_InitCPredBackCut(name.getName(), arity, extra, call, retry, cut,
                            UserCPredFlag);
@@ -314,18 +314,20 @@ public:
       }
     }
   };
-   YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule(),
+  YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule(),
           bool backtrackable = false)
-      : YAPPredicate(YAPAtom(name), arity, module) {
+    : YAPPredicate(YAPAtom(name), arity, module) {
     if (backtrackable) {
       Yap_InitCPredBackCut(name, arity, 0, 0, 0, 0, UserCPredFlag);
     } else {
       YAP_UserCPredicate(name, 0, arity);
     }
   };
-   bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
-   bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }
+  bool addCall(CPredicate call) { return Yap_AddCallToFli(ap, call); }
+  bool addRetry(CPredicate call) { return Yap_AddRetryToFli(ap, call); }
   bool addCut(CPredicate call) { return Yap_AddCutToFli(ap, call); }
 };
 
 #endif
+
+/// @}

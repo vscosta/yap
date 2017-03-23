@@ -1,3 +1,17 @@
+/**
+ * @{
+ *   @defgroup yap-cplus-term-handling Term Handling in the YAP interface.
+ *
+ *   @ingroup yap-cplus-interface
+ *    @tableofcontents
+ *
+ *
+ * These classes define a term objectthat can be refined, Currently, all exported terms have an
+ * handle, in the SWI-Prolog style.
+ *
+ * Nottce that terms  are forcefully destroyed during backtracking.
+ */
+
 
 #ifndef YAPT_HH
 #define YAPT_HH 1
@@ -445,3 +459,5 @@ public:
   const char *text() { return (const char *)AtomOfTerm(gt())->StrOfAE; }
 };
 #endif /* YAPT_HH */
+
+/// @}

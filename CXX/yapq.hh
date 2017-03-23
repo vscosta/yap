@@ -1,3 +1,16 @@
+/**
+ *   @{
+ ^
+ *   @defgroup yap-cplus-query-hanadlinge Query Handling in the YAP interface.
+ *
+ *   @ingroup yap-cplus-interface
+ *    @tableofcontents
+ *
+ *
+ * These classes define the concepts of engine ana of query.Ann engine is an environment where we can rum 
+ * Prolog, that is, where we can run queries.
+ */
+
 #ifndef YAPQ_HH
 #define YAPQ_HH 1
 
@@ -217,3 +230,7 @@ public:
 };
 
 #endif /* YAPQ_HH */
+
+/// @}
+
+
