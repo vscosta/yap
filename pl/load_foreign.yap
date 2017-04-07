@@ -27,7 +27,7 @@
 /**
 
 @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup fli
+@ingroup fli_c_cx
 
 @{
 

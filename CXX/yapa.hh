@@ -1,25 +1,34 @@
-/// @{
+/// @file yapa.hh
+///
+/// @brief C++ Interface to atoms and their properties.
 
 #ifndef YAPA_HH
 #define YAPA_HH 1
 
 /**
  *
- *   @defgroup yap-cplus-interface An object oriented interface for YAP.
+ *   @defgroup yap-cplus-interface-atoms Prolog Atoms
  *
- *   @ingroup ChYInterface
+ *  @brief Symbols and associated propeeties.
+ *
+ *   @ingroup yap-cplus-interface
  *    @tableofcontents
+ *  @{
  *
  *
- * Prolog operates over constants, called atoms. YAP's stores most data as a list
- * of properties for atoms. Properties include functors, data-base tecords, predicates. operators,
- * and more.
+ * Prolog interns symbols, called *atoms* in a Hash table, usually
+ called the atom table_. Each entry in this table stores the atom's
+ name, but also may have a linked list of _properties_ We use
+ properties to represent all kinds of data including.  data-base
+ tecords, predicates. operators, and more.
  *
+ * In a nutshell:
+ *   - YAPAtom serves as the gateway to the data-base;
+ * 
+ *   - YAProp abstracts most data-base objects.
  *
+ *    - PropTag allows distinguishing the different classes of YAPProp.
  */
-/**
-   Tne different tgaas area represented through PropTag.
-*/
 enum PropTag {
   /// predicate
   PRED_TAG                  = PEProp, // 0x0000,
@@ -110,7 +119,6 @@ public:
 };
 
 
-#endif /* YAPA_HH */
-                                                                                                              
+#endif /* YAPA_HH */ 
 /// @}
 

@@ -228,3 +228,5 @@ Unify  _Size_ with the number of elements in the queue   _Queue_.
 
  
 */
+/** @} */
+

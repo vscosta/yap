@@ -274,3 +274,5 @@ join(Left-n(Y, VY, n(X, VX, C, B), NL), n(X, VX, C, n(Y, VY, B, n(Z, VZ, A1, A2)
 
 splay_init(_).
 
+/** @} */
+

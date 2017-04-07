@@ -811,3 +811,5 @@ read_link(P,D,F) :-
 	read_link(P, D),
 	absolute_file_name(D, [], F).
 
+/** @} */
+

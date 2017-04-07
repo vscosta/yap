@@ -28,9 +28,9 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-/* @defgroup CharIO Character-Based Input/Output
+/** @defgroup CharIO Character-Based Input/Output
  * @ingroup  InputOutput
- *
+ * @{
  * YAP implements most of the ISO-Prolog built-ins. Input/Output may be
  *performed on
  * the current stream or on a specified stream, and it may involve a:
@@ -1220,3 +1220,5 @@ void Yap_InitCharsio(void) {
   Yap_InitCPred("tab", 2, tab, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 1, tab_1, SafePredFlag | SyncPredFlag);
 }
+
+/// @}

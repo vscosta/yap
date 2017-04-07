@@ -3,102 +3,45 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
  *
+ *
+*/
+
+:- module( wdgraphs,
+	   [
+	    wdgraph_new/1,
+	    wdgraph_add_edge/5,
+	    wdgraph_add_edges/3,
+	    wdgraph_add_vertices_and_edges/4,
+	    wdgraph_del_edge/5,
+	    wdgraph_del_edges/3,
+	    wdgraph_del_vertex/3,
+	    wdgraph_del_vertices/3,
+	    wdgraph_edge/4,
+	    wdgraph_to_dgraph/2,
+	    dgraph_to_wdgraph/2,
+	    wdgraph_neighbors/3,
+	    wdgraph_neighbours/3,
+	    wdgraph_wneighbors/3,
+	    wdgraph_wneighbours/3,
+	    wdgraph_transpose/2,
+	    wdgraph_transitive_closure/2,
+	    wdgraph_symmetric_closure/2,
+	    wdgraph_top_sort/2,
+	    wdgraph_min_path/5,
+	    wdgraph_min_paths/3,
+	    wdgraph_max_path/5,
+	    wdgraph_path/3,
+	    wdgraph_reachable/3]).
+
+/**
+ * @defgroup wdgraphs Weighted Directed Graphs
+ * @ingroup library
+ *
  * @brief  Weighted Directed Graph Processing Utilities.
  *
+ * @{
  *
-*/
-
-:- module( wdgraphs,
-	   [
-	    wdgraph_new/1,
-	    wdgraph_add_edge/5,
-	    wdgraph_add_edges/3,
-	    wdgraph_add_vertices_and_edges/4,
-	    wdgraph_del_edge/5,
-	    wdgraph_del_edges/3,
-	    wdgraph_del_vertex/3,
-	    wdgraph_del_vertices/3,
-	    wdgraph_edge/4,
-	    wdgraph_to_dgraph/2,
-	    dgraph_to_wdgraph/2,
-	    wdgraph_neighbors/3,
-	    wdgraph_neighbours/3,
-	    wdgraph_wneighbors/3,
-	    wdgraph_wneighbours/3,
-	    wdgraph_transpose/2,
-	    wdgraph_transitive_closure/2,
-	    wdgraph_symmetric_closure/2,
-	    wdgraph_top_sort/2,
-	    wdgraph_min_path/5,
-	    wdgraph_min_paths/3,
-	    wdgraph_max_path/5,
-	    wdgraph_path/3,
-	    wdgraph_reachable/3]).
-
-:- module( wdgraphs,
-	   [
-	    wdgraph_new/1,
-	    wdgraph_add_edge/5,
-	    wdgraph_add_edges/3,
-	    wdgraph_add_vertices_and_edges/4,
-	    wdgraph_del_edge/5,
-	    wdgraph_del_edges/3,
-	    wdgraph_del_vertex/3,
-	    wdgraph_del_vertices/3,
-	    wdgraph_edge/4,
-	    wdgraph_to_dgraph/2,
-	    dgraph_to_wdgraph/2,
-	    wdgraph_neighbors/3,
-	    wdgraph_neighbours/3,
-	    wdgraph_wneighbors/3,
-	    wdgraph_wneighbours/3,
-	    wdgraph_transpose/2,
-	    wdgraph_transitive_closure/2,
-	    wdgraph_symmetric_closure/2,
-	    wdgraph_top_sort/2,
-	    wdgraph_min_path/5,
-	    wdgraph_min_paths/3,
-	    wdgraph_max_path/5,
-	    wdgraph_path/3,
-	    wdgraph_reachable/3]).
-
-/**
-* @defgroup wdgraphs Weighted Directed Graph Processing Utilities.
-
-:- module( wdgraphs,
-	   [
-	    wdgraph_new/1,
-	    wdgraph_add_edge/5,
-	    wdgraph_add_edges/3,
-	    wdgraph_add_vertices_and_edges/4,
-	    wdgraph_del_edge/5,
-	    wdgraph_del_edges/3,
-	    wdgraph_del_vertex/3,
-	    wdgraph_del_vertices/3,
-	    wdgraph_edge/4,
-	    wdgraph_to_dgraph/2,
-	    dgraph_to_wdgraph/2,
-	    wdgraph_neighbors/3,
-	    wdgraph_neighbours/3,
-	    wdgraph_wneighbors/3,
-	    wdgraph_wneighbours/3,
-	    wdgraph_transpose/2,
-	    wdgraph_transitive_closure/2,
-	    wdgraph_symmetric_closure/2,
-	    wdgraph_top_sort/2,
-	    wdgraph_min_path/5,
-	    wdgraph_min_paths/3,
-	    wdgraph_max_path/5,
-	    wdgraph_path/3,
-	    wdgraph_reachable/3]).
-
-/**
-* @defgroup wdgraphs
-/**
-* @defgroup wdgraphs Weighted Directed Graph Processing Utilities.
-* @ingroup library
-*
-*/
+ */
 
 
 :- reexport(library(dgraphs),
@@ -527,3 +470,5 @@ reachable([V-_|Vertices], Done0, DoneF, G, [V|EdgesF], Edges0) :-
 	rb_insert(Done0, V, [], Done1),
 	reachable(Kids, Done1, DoneI, G, EdgesF, EdgesI),
 	reachable(Vertices, DoneI, DoneF, G, EdgesI, Edges0).
+
+%% @}

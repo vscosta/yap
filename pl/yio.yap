@@ -69,8 +69,7 @@ setting and clearing this flag are given under 7.7.
 /* stream predicates							*/
 
 /** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
-    @ingroup InputOutput
-    @{
+     @{
 
     Autoload the socket/pipe library
 

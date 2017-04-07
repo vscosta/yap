@@ -2,9 +2,10 @@
  * @file   wundgraphs.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
- * 
- * @brief   Directed Graph Processing Utilities.
+ *
+ *
 */
+
 
 :- module( wundgraphs,
 	   [
@@ -16,14 +17,16 @@
 	    wundgraph_edges/2,
 	    wundgraph_neighbours/3,
 	    wundgraph_neighbors/3,
-	    wundgraph_wneighbours/3,
+          	    wundgraph_wneighbours/3,
 	    wundgraph_wneighbors/3,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
 
 /**
-* @defgroup wundgraphs
+* @defgroup wundgraphs Weighted Undirected Graphs
 * @ingroup library
+*
+ * @brief   Weighted Undirected Graph Processing Utilities.
 */
 
 

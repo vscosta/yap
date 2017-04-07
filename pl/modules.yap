@@ -78,7 +78,7 @@
 
 /**
    \pred use_module( +Files ) is directive
-   loads a module file
+   @load a module file
 
 This predicate loads the file specified by _Files_, importing all
 their public predicates into the current type-in module. It is

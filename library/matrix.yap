@@ -1399,3 +1399,5 @@ ints(A,B,O) :-
 	( A > B -> O = [] ; O = [A|L], A1 is A+1, ints(A1,B,L) ).
 
 zero(_, 0).
+/** @} */
+

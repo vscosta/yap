@@ -9,7 +9,7 @@
 
 /**
   @defgroup  CharacterCodes Character Encoding and Manipulation.
-  @ingroup TextProcessing
+  @ingroup InputOutput
   @{
 
 The Prolog library includes a set of built-in predicates designed to
@@ -1909,3 +1909,6 @@ paren_paren( 0xFF5F, 0xFF60).
 paren_paren( 0xFF60, 0xFF5F).
 paren_paren( 0xFF62, 0xFF63).
 paren_paren( 0xFF63, 0xFF62).
+
+/** @} */
+

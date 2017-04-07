@@ -7,21 +7,10 @@
 */
 
 
-
-:- module(arg,
-	  [
-	   genarg/3,
-	   arg0/3,
-	   genarg0/3,
-	   args/3,
-	   args0/3,
-%	   project/3
-	   path_arg/3
-	  ]).
-
-
 /**
-* @defgroup arg Term Argument Manipulation.
+*
+
+@defgroup arg Term Argument Manipulation.
 
 @ingroup @library
 
@@ -44,6 +33,19 @@ predicates use the arg/3 argument pattern.
 This file has been included in the YAP library by Vitor Santos Costa, 2008. No error checking is actuallly performed within the package: this left to the C-code thaat implements arg/3 and
 genarg/3.
 */
+
+:- module(arg,
+	  [
+	   genarg/3,
+	   arg0/3,
+	   genarg0/3,
+	   args/3,
+	   args0/3,
+%	   project/3
+	   path_arg/3
+	  ]).
+
+
 
 /** 
  * @pred arg0( +_Index_, +_Term_ , -_Arg_ )
@@ -161,5 +163,7 @@ path_arg([Index|Indices], Term, SubTerm) :-
 	genarg(Index, Term, Arg),
 	path_arg(Indices, Arg, SubTerm).
 
-%%@}
+%%% @}
+
+/** @} */
 

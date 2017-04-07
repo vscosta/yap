@@ -15,7 +15,7 @@
     @file swi.h
 
   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
-  @ingroup ChYInterface
+  @ingroup fli_c_cx
 
  *
  *    @tableofcontents

@@ -30,7 +30,7 @@ static char SccsId[] = "%W% %G%";
 
 
 /**
- * @defgroup Aliases
+ * @defgroup Aliases Aliases to Stream Names
  * @ingroup InputOutput
  *
  * Aliases:

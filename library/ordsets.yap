@@ -497,3 +497,5 @@ ord_memberchk(Element, [E|_]) :- E == Element, !.
 ord_memberchk(Element, [_|Set]) :-
 	ord_memberchk(Element, Set).
 
+/** @} */
+

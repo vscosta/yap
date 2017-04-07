@@ -243,6 +243,5 @@ tree_to_list(Tree, List) :-
 list(0, []).
 list(N, [N|L]) :- M is N-1, list(M, L).
 
-
-
+%% @}/** @} */
 

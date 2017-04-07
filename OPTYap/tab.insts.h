@@ -1356,42 +1356,42 @@
 
 
   answer_resolution:
-    INIT_PREFETCH()
-    dep_fr_ptr dep_fr;
-    ans_node_ptr ans_node;
+  dep_fr_ptr dep_fr;
+  ans_node_ptr ans_node;
+  INIT_PREFETCH();
 
-    OPTYAP_ERROR_CHECKING(answer_resolution, SCH_top_shared_cp(B) && B->cp_or_fr->alternative != ANSWER_RESOLUTION);
-    OPTYAP_ERROR_CHECKING(answer_resolution, !SCH_top_shared_cp(B) && B->cp_ap != ANSWER_RESOLUTION);
-    dep_fr = CONS_CP(B)->cp_dep_fr;
-    LOCK_DEP_FR(dep_fr);
-    ans_node = DepFr_last_answer(dep_fr);
-    if (TrNode_child(ans_node)) {
-      /* unconsumed answers */
+  OPTYAP_ERROR_CHECKING(answer_resolution, SCH_top_shared_cp(B) && B->cp_or_fr->alternative != ANSWER_RESOLUTION);
+  OPTYAP_ERROR_CHECKING(answer_resolution, !SCH_top_shared_cp(B) && B->cp_ap != ANSWER_RESOLUTION);
+  dep_fr = CONS_CP(B)->cp_dep_fr;
+  LOCK_DEP_FR(dep_fr);
+  ans_node = DepFr_last_answer(dep_fr);
+  if (TrNode_child(ans_node)) {
+    /* unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
-      if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
-	ans_node_ptr old_ans_node;
-	old_ans_node = ans_node;
+    if (IS_ANSWER_INVALID_NODE(TrNode_child(ans_node))) {
+      ans_node_ptr old_ans_node;
+      old_ans_node = ans_node;
+      ans_node = TrNode_child(ans_node);
+      do {
 	ans_node = TrNode_child(ans_node);
-	do {
-	  ans_node = TrNode_child(ans_node);
-	} while (IS_ANSWER_INVALID_NODE(ans_node));
-	TrNode_child(old_ans_node) = ans_node;
-      } else
+      } while (IS_ANSWER_INVALID_NODE(ans_node));
+      TrNode_child(old_ans_node) = ans_node;
+    } else
 #endif /* MODE_DIRECTED_TABLING */
-	ans_node = TrNode_child(ans_node);
-      DepFr_last_answer(dep_fr) = ans_node;
-      UNLOCK_DEP_FR(dep_fr);
-      consume_answer_and_procceed(dep_fr, ans_node);
-    }
+      ans_node = TrNode_child(ans_node);
+    DepFr_last_answer(dep_fr) = ans_node;
     UNLOCK_DEP_FR(dep_fr);
+    consume_answer_and_procceed(dep_fr, ans_node);
+  }
+  UNLOCK_DEP_FR(dep_fr);
 
 #ifdef YAPOR
-    if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
-      /*  B is a generator-consumer node  **
-      ** never here if batched scheduling */
-      TABLING_ERROR_CHECKING(answer_resolution, IS_BATCHED_GEN_CP(B));
-      goto completion;
-    }
+  if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
+    /*  B is a generator-consumer node  **
+    ** never here if batched scheduling */
+    TABLING_ERROR_CHECKING(answer_resolution, IS_BATCHED_GEN_CP(B));
+    goto completion;
+  }
 #endif /* YAPOR */
 
     /* no unconsumed answers */
@@ -1664,14 +1664,14 @@
 #ifdef THREADS_CONSUMER_SHARING
   goto answer_resolution_completion;
 #endif /* THREADS_CONSUMER_SHARING */
-    INIT_PREFETCH()
-    dep_fr_ptr dep_fr;
-    ans_node_ptr ans_node;
+  dep_fr_ptr dep_fr;
+  ans_node_ptr ans_node;
 #ifdef YAPOR
 #ifdef TIMESTAMP_CHECK
     long timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
     int entry_owners = 0;
+    INIT_PREFETCH();
 
     if (SCH_top_shared_cp(B)) {
 #ifdef TIMESTAMP_CHECK

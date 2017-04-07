@@ -13,18 +13,8 @@
  @file absf.yap
  @author L.Damas, V.S.Costa
 
-*/
-:- system_module( absf, [absolute_file_name/2,
-        absolute_file_name/3,
-        add_to_path/1,
-        add_to_path/2,
-        path/1,
-        remove_from_path/1], ['$full_filename'/3,
-        '$system_library_directories'/2]).
-
-/**
- * @defgroup AbsoluteFileName File Name Resolution
- * @ingroup builtins
+ @defgroup AbsoluteFileName File Name Resolution
+ @ingroup builtins
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -34,7 +24,15 @@
 
 @{
 
- */
+*/
+:- system_module( absf, [absolute_file_name/2,
+        absolute_file_name/3,
+        add_to_path/1,
+        add_to_path/2,
+        path/1,
+        remove_from_path/1], ['$full_filename'/3,
+        '$system_library_directories'/2]).
+
 
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
@@ -299,8 +297,8 @@ absolute_file_name(File0,File) :-
 '$var'(S) -->
     '$id'(S).
 
-'$drive' -->
-    '$id'(_),
+'$drive'(C) -->
+    '$id'(C),
     ":\\\\".
 
 '$id'([C|S]) --> [C],

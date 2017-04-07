@@ -204,11 +204,11 @@ Int show_time(USES_REGS1) /* MORE PRECISION */
 }
 
 #endif /* BEAM */
-       // @{
 
 /**
-   @defgroup YAPSetVal
+   @defgroup YAPSetVal  Atom to Atomic Family of Built-ins.
    @ingroup Internal_Database
+   @{
 
    Maintain a light-weight map where the key is an atom, and the value can be
    any constant.
@@ -284,7 +284,7 @@ static Int p_values(USES_REGS1) { /* '$values'(Atom,Old,New) */
   return (TRUE);
 }
 
-//@}
+///@}
 
 static Int p_opdec(USES_REGS1) { /* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */

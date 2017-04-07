@@ -861,3 +861,5 @@ ugraph_union(<, Head1, Tail1, Head2, Tail2, [Head1|Union]) :-
 ugraph_union(>, Head1, Tail1, Head2, Tail2, [Head2|Union]) :-
 	ugraph_union([Head1|Tail1], Tail2, Union).
 
+%% @}
+

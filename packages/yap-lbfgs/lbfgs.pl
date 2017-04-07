@@ -1,5 +1,7 @@
 %%% -*- Mode: Prolog; -*-
 
+%% @file lbfgs.pl
+
 %  This file is part of YAP-LBFGS.
 %  Copyright (C) 2009 Bernd Gutmann
 %
@@ -39,18 +41,20 @@
 
 /**
 
-@defgroup YAP-LBFGS
+@defgroup YAP-LBFGS Interface to LibLBFGS
 @ingroup packages
 
-@short What is YAP-LBFGS? YAP-LBFGS is an interface to call libLBFGS, http://www.chokkan.org/software/liblbfgs/, from within
+@short What is YAP-LBFGS? YAP-LBFGS is an interface to call [libLBFG](http://www.chokkan.org/software/liblbfgs/), from within
 YAP. libLBFGS is a C library for Limited-memory
 Broyden-Fletcher-Goldfarb-Shanno (L-BFGS) solving the under-constrained
 minimization problem:
 
+~~~~~~~~~~~~~~~~~~~~~~~~
 +  minimize `F(X), X=(x1,x2,..., xN)`
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-### Contact</h2>
+### Contact
 YAP-LBFGS has been developed by Bernd Gutmann. In case you publish something using YAP-LBFGS, please give credit to me and to libLBFGS. And if you find YAP-LBFGS useful, or if you find a bug, or if you
 port it to another system, ... please send me an email.
 

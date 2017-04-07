@@ -1,13 +1,15 @@
 
-%   File   : apply_macros.yap
-%   Author : E. Alphonse from code by Joachim Schimpf
-%   Updated: 15 June 2002
-%   Purpose: Macros to apply a predicate to all elements
+%%   @file   apply_macros.yap
+%%   @author E. Alphonse from code by Joachim Schimpf
+%%   @date 15 June 2002
+%%   @nrief Purpose: Macros to apply a predicate to all elements
 %            of a list or to all sub-terms of a term.
 
 :- module(apply_macros, []).
 
-/** @defgroup apply_macros Apply Interface to maplist
+/**
+
+@defgroup apply_macros Apply Interface to maplist
 @ingroup library
 @{
 

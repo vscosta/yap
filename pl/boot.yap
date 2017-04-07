@@ -18,13 +18,16 @@
 
 /**
 @file boot.yap
+
+@addtogroup builtins Core YAP Builtins
+
 @defgroup YAPControl Control Predicates
 @ingroup builtins
 
+@{
+
+
 */
-
-%% @{
-
 
 
 /** @pred   :_P_ ; :_Q_  is iso
@@ -1651,5 +1654,5 @@ log_event( String, Args ) :-
     '$ensure_prompting'.
 
 /**
-  @}
+@}  @}
 */

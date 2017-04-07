@@ -18,7 +18,9 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
+/**
+ *
+ 
  * This file includes the definition of a miscellania of standard predicates
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *

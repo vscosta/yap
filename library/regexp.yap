@@ -213,3 +213,5 @@ process_opt(I,_,G) :-
 	throw(error(domain_error(flag_value,regexp_options+I),G)).
 
 
+/** @} */
+

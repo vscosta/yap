@@ -935,7 +935,7 @@ YAPPredicate::YAPPredicate(YAPAtom at)
   ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
 }
 
-YAPPredicate::YAPPredicate(YAPAtom at, arity_t arity)
+YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity)
 {
   CACHE_REGS
   if (arity)

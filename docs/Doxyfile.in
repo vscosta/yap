@@ -58,7 +58,7 @@ PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/docs/icons/yap_96x96x32.png
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/Docs
+OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -775,7 +775,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  =                        @PROJECT_SOURCE_DIR@/pl \
+INPUT =                @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/CXX \
                        @PROJECT_SOURCE_DIR@/OPTYap \
                        @PROJECT_SOURCE_DIR@/C \
@@ -784,9 +784,10 @@ INPUT                  =                        @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/os \
                        @PROJECT_SOURCE_DIR@/library \
                        @PROJECT_SOURCE_DIR@/packages \
-                       @PROJECT_SOURCE_DIR@/swi/library \
-                       @PROJECT_SOURCE_DIR@/docs/md \
-		@PROJECT_SOURCE_DIR@/INSTALL.md
+                       @PROJECT_SOURCE_DIR@/swi/library
+#		       \
+#                       @PROJECT_SOURCE_DIR@/docs/md \
+#		@PROJECT_SOURCE_DIR@/INSTALL.md
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -829,9 +830,22 @@ RECURSIVE              = YES
 
 EXCLUDE                = *pltotex.pl \
 @PROJECT_SOURCE_DIR@/packages/myddas/sqlite3/src \
-@PROJECT_SOURCE_DIR@/packages/gecode/4.0.* \
-@PROJECT_SOURCE_DIR@/packages/gecode/3,* \
-@PROJECT_SOURCE_DIR@/C/traced_absmi_insts.h
+@PROJECT_SOURCE_DIR@/packages/gecode/4.4.0 \
+@PROJECT_SOURCE_DIR@/packages/gecode/4.2.1 \
+@PROJECT_SOURCE_DIR@/packages/gecode/4.2.0 \
+@PROJECT_SOURCE_DIR@/packages/gecode/4.0.0 \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.7.3 \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.7.2 \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.7.1 \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.7.0 \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.6.0 \
+@PROJECT_SOURCE_DIR@/packages/gecode/dev \
+@PROJECT_SOURCE_DIR@/C/traced_absmi_insts.h \
+@PROJECT_SOURCE_DIR@/packages/cplint \
+@PROJECT_SOURCE_DIR@/packages/CLPBN/examples \
+@PROJECT_SOURCE_DIR@/packages/prosqlite \
+@PROJECT_SOURCE_DIR@/packages/pyswip \
+
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -1316,7 +1330,7 @@ BINARY_TOC             = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-TOC_EXPAND             = NO
+TOC_EXPAND             = YES
 
 # If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and
 # QHP_VIRTUAL_FOLDER are set, an additional index file will be generated that
@@ -2030,7 +2044,8 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           =
+INCLUDE_PATH           = @CMAKE_BINARY_DIR@ \
+		         @CMAKE_BINARY_DIR@/packages/gecode
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the
@@ -2261,7 +2276,7 @@ TEMPLATE_RELATIONS     = NO
 
 INCLUDE_GRAPH          = YES
 
-# If the INCLUDED_BY_GRAPH, ENABLE_PREPROCESSING and SEARCH_INCLUDES tags are
+							# If the INCLUDED_BY_GRAPH, ENABLE_PREPROCESSING and SEARCH_INCLUDES tags are
 # set to YES then doxygen will generate a graph for each documented file showing
 # the direct and indirect include dependencies of the file with other documented
 # files.

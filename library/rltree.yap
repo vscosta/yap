@@ -3,8 +3,6 @@
  * @author Nuno A. Fonseca
  * @date   2008-03-26 23:05:22
  * 
- * @brief  Range-List (RL) tree data structure implementation for YAP
- * 
  * 
 */
 
@@ -23,10 +21,10 @@
 
 
 /**
-* @defgroup rltrees
+* @defgroup rltrees Range-List (RL) trees
 * @ingroup library
 *
-* Range-List (RL) tree data structure implementation for YAP
+* @brief Range-List (RL) tree data structure implementation for YAP
 */
 
 

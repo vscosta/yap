@@ -1,15 +1,23 @@
 /**
- * @{
+ * @file yapt.hh
+ */
+
+/**
  *   @defgroup yap-cplus-term-handling Term Handling in the YAP interface.
  *
+ *   @{
+ *
  *   @ingroup yap-cplus-interface
- *    @tableofcontents
+ *   @tableofcontents
  *
  *
- * These classes define a term objectthat can be refined, Currently, all exported terms have an
- * handle, in the SWI-Prolog style.
+ * These classes offer term construction and access. Terms are seens
+ * as objects that inherit from a virtual class, Currently, all
+ * terms must reside in the stack and may be moved around during 
+ * garbage collection. Term objects use an handle, in the SWI-Prolog style.
  *
  * Nottce that terms  are forcefully destroyed during backtracking.
+ * 
  */
 
 
