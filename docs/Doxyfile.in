@@ -58,7 +58,7 @@ PROJECT_LOGO           = @CMAKE_SOURCE_DIR@/docs/icons/yap_96x96x32.png
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/Docs
+OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -784,9 +784,9 @@ INPUT                  =                        @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/os \
                        @PROJECT_SOURCE_DIR@/library \
                        @PROJECT_SOURCE_DIR@/packages \
-                       @PROJECT_SOURCE_DIR@/swi/library \
-                       @PROJECT_SOURCE_DIR@/docs/md \
-		@PROJECT_SOURCE_DIR@/INSTALL.md
+                       @PROJECT_SOURCE_DIR@/swi/library
+#                       @PROJECT_SOURCE_DIR@/docs/md \
+#		@PROJECT_SOURCE_DIR@/INSTALL.md
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -829,9 +829,11 @@ RECURSIVE              = YES
 
 EXCLUDE                = *pltotex.pl \
 @PROJECT_SOURCE_DIR@/packages/myddas/sqlite3/src \
-@PROJECT_SOURCE_DIR@/packages/gecode/4.0.* \
-@PROJECT_SOURCE_DIR@/packages/gecode/3,* \
-@PROJECT_SOURCE_DIR@/C/traced_absmi_insts.h
+@PROJECT_SOURCE_DIR@/packages/gecode/4.* \
+@PROJECT_SOURCE_DIR@/packages/gecode/3.* \
+@PROJECT_SOURCE_DIR@/C/traced_absmi_insts.h \
+/Users/vsc/github/yap-6.3/packages/cplint \
+/Users/vsc/github/yap-6.3/packages/CLPBN/examples
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded

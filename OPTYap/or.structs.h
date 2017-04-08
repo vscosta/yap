@@ -197,3 +197,5 @@ typedef struct table_subgoal_answer_frame{
 #define TgAnsFr_answer(X,N)   ((X)->answer[N])
 #define TgAnsFr_next(X)       ((X)->next)
 #endif /* TABLING_INNER_CUTS */
+
+///@}

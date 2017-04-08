@@ -1423,7 +1423,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-  
+
   if (top && (lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
@@ -1465,14 +1465,16 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* abort */
       /* can be called from anywhere, must reset registers,
        */
+      while (B) {
       Yap_JumpToEnv(TermDAbort);
+  }
+  LOCAL_PrologMode &~ AbortMode;
       P = (yamop *)FAILCODE;
-      if (OldBorder == 0)
-	break;
+      if (LOCAL_CBorder)
       LOCAL_CBorder = OldBorder;
-      LOCAL_PrologMode = UserMode;
       LOCAL_RestartEnv = sighold;
-      return false;      
+         return false;
+      break;
     case 5:
       // going up, unless there is no up to go to. or someone
       // but we should inform the caller on what happened.
@@ -1549,13 +1551,13 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
   bool out;
-  
+
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
-  
+
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
   if (top)
     Yap_flush();
@@ -1579,7 +1581,7 @@ bool Yap_exec_absmi(bool top, yap_reset_t has_reset) {
  */
 void Yap_fail_all(choiceptr bb USES_REGS) {
   yamop *saved_p, *saved_cp;
-  
+
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
@@ -1625,16 +1627,16 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
-  
+
   saved_p = P;
   saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
-  
+
   PELOCK(81, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
   out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
-  
+
   if (out) {
     choiceptr cut_B;
     /* we succeeded, let's prune */
@@ -1717,14 +1719,14 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
   /* visualc*/
   /* just keep the difference because of possible garbage collections
    */
-  
+
   if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
     pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
-    
+
     if (IsBlobFunctor(f)) {
       Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
       return false;
@@ -1773,7 +1775,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   Term tmod = CurrentModule;
   Term goal_out = 0;
   LOCAL_PrologMode |= TopGoalMode;
-  
+
   t = Yap_YapStripModule(t, &tmod);
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "call/1");
@@ -1786,7 +1788,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     arity = 0;
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
-    
+
     if (IsBlobFunctor(f)) {
       Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
       LOCAL_PrologMode &= ~TopGoalMode;
@@ -1818,7 +1820,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     ts[0] = tmod;
     ts[1] = t;
     Functor f = Yap_MkFunctor(Yap_LookupAtom("call"), 1);
-    
+
     pt = &t;
     t = Yap_MkApplTerm(FunctorModule, 2, ts);
     pe = Yap_GetPredPropByFunc(f, tmod);
@@ -1828,7 +1830,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
   PELOCK(82, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  
+
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048) {
     Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
@@ -1844,7 +1846,7 @@ static void do_restore_regs(Term t, int restore_all USES_REGS) {
     Int i;
     Int max = ArityOfFunctor(FunctorOfTerm(t)) - 4;
     CELL *ptr = RepAppl(t) + 5;
-    
+
     P = (yamop *)IntegerOfTerm(ptr[-4]);
     CP = (yamop *)IntegerOfTerm(ptr[-3]);
     ENV = (CELL *)(LCL0 - IntegerOfTerm(ptr[-2]));
@@ -1874,11 +1876,11 @@ static Int restore_regs(USES_REGS1) {
  * a
  * call */
 static Int restore_regs2(USES_REGS1) {
-  
+
   Term t = Deref(ARG1), d0;
   choiceptr pt0;
   Int d;
-  
+
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
@@ -2103,7 +2105,7 @@ static Int jump_env(USES_REGS1) {
     return false;
   } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
     Term t2;
-    
+
     Yap_find_prolog_culprit(PASS_REGS1);
     //    LOCAL_Error_TYPE = ERROR_EVENT;
     t = ArgOfTerm(1, t);

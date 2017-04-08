@@ -40,6 +40,13 @@ but are strict in argument checking.
   + Symbols are processed as Prolog symbols, exception are modifiers
   that are handled as lower-case letters.
 
+  Predicates are:
+
+  + @ref char_type/2
+  + @ref code_type/2
+
+  
+  
 */
 
 /** @predicate char_type(?_Char_ , ?Type)
@@ -261,7 +268,7 @@ p_code_type( LOWER , lower) :-
 p_code_type( LOWER, lower( Upper)) :-
 	toupper( LOWER, Upper),
 	code_type_lower( LOWER ).
-p_code_type( LOWER, to_lower( Upper)) :-
+vp_code_type( LOWER, to_lower( Upper)) :-
 	toupper( LOWER, Upper).
 p_code_type( UPPER, upper  ) :-
 	code_type_upper( UPPER ).
@@ -372,7 +379,7 @@ digit_weight( 0x1D7CE, 0).
 digit_weight( 0x1D7D8, 0).
 digit_weight( 0x1D7E2, 0).
 digit_weight( 0x1D7EC, 0).
-digit_weight( 0x1D7F6, 0).
+vdigit_weight( 0x1D7F6, 0).
 digit_weight( 0x1F100, 0x1F101, 0).
 digit_weight( 0x1F10B, 0x1F10C, 0).
 digit_weight( 0x09F4, 1/16).
@@ -1379,6 +1386,7 @@ digit_weight( 0x1D7D7, 9).
 digit_weight( 0x1D7E1, 9).
 digit_weight( 0x1D7EB, 9).
 digit_weight( 0x1D7F5, 9).
+x
 digit_weight( 0x1D7FF, 9).
 digit_weight( 0x1E8CF, 9).
 digit_weight( 0x1F10A, 9).
@@ -1909,3 +1917,5 @@ paren_paren( 0xFF5F, 0xFF60).
 paren_paren( 0xFF60, 0xFF5F).
 paren_paren( 0xFF62, 0xFF63).
 paren_paren( 0xFF63, 0xFF62).
+
+/// @}

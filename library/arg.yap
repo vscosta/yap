@@ -3,7 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 01:08:55 2015
  * 
- * @brief  arg/3 and friends
+ * @brief 
 */
 
 
@@ -18,6 +18,10 @@
 %	   project/3
 	   path_arg/3
 	  ]).
+
+
+
+
 
 
 /**
@@ -40,8 +44,7 @@ to sub-arguments,
 
 It is based on the Quintus Prolog arg library. Except for project, all
 predicates use the arg/3 argument pattern.
-
-This file has been included in the YAP library by Vitor Santos Costa, 2008. No error checking is actuallly performed within the package: this left to the C-code thaat implements arg/3 and
+This file has been included in the YAP library by Vitor Santos Costa, 2008. No error checking is actuallly performed within the package: this left to the C-code thaat implements arg``/3 and
 genarg/3.
 */
 

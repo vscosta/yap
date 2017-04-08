@@ -352,7 +352,7 @@ read_sig.
 % make thes predicates non-traceable.
 
 :- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
-:- '$set_no_trace'('$current_choice_point'(_DCP), prolog).
+:- '$set_no_trace'('$current_choice_point'(_DCP), _).
 :- '$set_no_trace'('$$cut_by'(_DCP), prolog).
 :- '$set_no_trace'(true, yap_hacks).
 :- '$set_no_trace'(true, prolog).

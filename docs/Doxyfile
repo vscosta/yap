@@ -784,9 +784,11 @@ INPUT                  =                        /Users/vsc/git/yap-6.3/pl \
                        /Users/vsc/git/yap-6.3/os \
                        /Users/vsc/git/yap-6.3/library \
                        /Users/vsc/git/yap-6.3/packages \
-                       /Users/vsc/git/yap-6.3/swi/library \
-                       /Users/vsc/git/yap-6.3/docs/md \
-                       /Users/vsc/git/yap-6.3/INSTALL.md \
+                       /Users/vsc/git/yap-6.3/swi/library
+
+#\
+#                       /Users/vsc/git/yap-6.3/docs/md \
+#                       /Users/vsc/git/yap-6.3/INSTALL.md \
 
 
 # This tag can be used to specify the character encoding of the source files

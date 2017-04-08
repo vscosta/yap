@@ -70,6 +70,9 @@ If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut 
 /** @pred   :_Condition__ -> :_Action_  is iso
 
 
+@short If _Condition__ has a solution, call _Action_;
+
+@long
 Read as "if-then-else" or "commit". This operator is similar to the
 conditional operator of imperative languages and can be used alone or
 with an else part as follows:
@@ -1557,6 +1560,8 @@ catch(G, C, A) :-
   E = '$VAR'(_),
       !,
     	call(G ).
+'$run_catch'(abort,_) :-
+        abort.
 '$run_catch'('$Error'(E),E) :-
         !,
         	'$LoopError'(E, top ).

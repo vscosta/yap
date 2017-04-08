@@ -277,33 +277,45 @@ be lost.
 	'$debugger_input',
 	'$do_spy'(G, Mod, CP, spy).
 
-'$spy'([Mod|G], A1) :- 
+'$spy'([Mod|G], A1) :-
 	G =.. L,
 	lists:append( L, [A1], NL),
 	NG =.. NL,
 	'$spy'([Mod|NG]).
 
-'$spy'([Mod|G], A1, A2) :- 
+'$spy'([Mod|G], A1, A2) :-
 	G =.. L,
 	lists:append( L, [A1, A2], NL),
 	NG =.. NL,
 	'$spy'([Mod|NG]).
 
-'$spy'([Mod|G], A1, A2, A3) :- 
+'$spy'([Mod|G], A1, A2, A3) :-
 	G =.. L,
 	lists:append( L, [A1, A2, A3], NL),
 	NG =.. NL,
 	'$spy'([Mod|NG]).
 
-'$spy'([Mod|G], A1, A2, A3, A4) :- 
+'$spy'([Mod|G], A1, A2, A3, A4) :-
 	G =.. L,
-	lists:append( L, [A1, A2, A3, A4], NL),
+	lists:append( L, [A1,A2,A3,A4], NL),
 	NG =.. NL,
 	'$spy'([Mod|NG]).
 
-'$spy'([Mod|G], A1, A2, A3, A4, A5) :- 
+'$spy'([Mod|G], A1, A2, A3, A4, A5) :-
 	G =.. L,
 	lists:append( L, [A1, A2, A3, A4, A5], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2, A3, A4, A5, A6) :-
+	G =.. L,
+	lists:append( L, [A1, A2, A3, A4, A5, A6], NL),
+	NG =.. NL,
+	'$spy'([Mod|NG]).
+
+'$spy'([Mod|G], A1, A2, A3, A4, A5, A6, A7) :-
+	G =.. L,
+	lists:append( L, [A1, A2, A3, A4, A5, A6, A7 ], NL),
 	NG =.. NL,
 	'$spy'([Mod|NG]).
 
@@ -389,6 +401,10 @@ be lost.
 	\+ '$do_spy'(G, M, CP, CalledFromDebugger).
 '$do_spy'((not(G)), M, CP, CalledFromDebugger) :- !,
 	\+ '$do_spy'(G, M, CP, CalledFromDebugger).
+'$do_spy'(once(G), M, CP, CalledFromDebugger) :- !,
+	once( '$do_spy'(G, M, CP, CalledFromDebugger) ).
+'$do_spy'(ignore(G), M, CP, CalledFromDebugger) :- !,
+	ignore( '$do_spy'(G, M, CP, CalledFromDebugger) ).
 '$do_spy'(G, Module, _, CalledFromDebugger) :-
         '__NB_getval__'('$spy_gn',L,fail),		/* get goal no.			*/
 	L1 is L+1,			/* bump it			*/
@@ -414,6 +430,9 @@ be lost.
   *
 */
 %%% - retry: forward throw while the call is newer than goal
+'$TraceError'( abort, _, _, _, _) :-
+    '$stop_creeping'(_),
+    abort.
 '$TraceError'('$forward'('$retry_spy'(G0)), GoalNumber, G, Module, CalledFromDebugger) :-
 	( G0 >= GoalNumber
   ->
@@ -768,6 +787,8 @@ be lost.
 	fail.
 '$action'(0'a,_,_,_,_,off) :- !,		% 'a		abort
 	'$skipeol'(0'a),
+    '$stop_creeping'(_),
+    nodebug,
 	abort.
 '$action'(0'b,_,_,_,_,_) :- !,			% 'b		break
 	'$skipeol'(0'b),
