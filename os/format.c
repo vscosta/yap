@@ -19,8 +19,10 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /**
+ * @file format.c
+ *
  * @defgroup FormattedIO Formatted Output
- * @ingroup YAPIO
+ * @ingroup InputOutput                                                                                         
  * This file includes the definition of the formatted output predicates.
  *
  * @{

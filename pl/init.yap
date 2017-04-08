@@ -14,9 +14,15 @@
 * comments:	initializing the full prolog system			 *
 *									 *
 *************************************************************************/
-%%   @defgroup builtins  YAP  Built-Ins
 
-/*
+/**
+
+ @file init.yap
+
+@{
+ @defgroup library The Prolog library
+
+@}
 
   @addtogroup YAPControl
 

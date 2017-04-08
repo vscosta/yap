@@ -279,3 +279,5 @@ Succeeds if  _Heap_ is an empty heap.
 empty_heap(t(0,[],t)).
 
 
+/** @} */
+

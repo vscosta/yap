@@ -15,6 +15,14 @@
 * $Log: not supported by cvs2svn $					 *
 *									 *
 *************************************************************************/
+/**
+ *
+ * @file qlyr.c
+ *
+ * @addtogroup SaveRestoreSupport
+ * @{
+ *
+ */
 
 #include "absmi.h"
 #include "alloc.h"
@@ -1084,3 +1092,5 @@ void Yap_InitQLYR(void) {
     restore_codes();
   }
 }
+
+/// @}

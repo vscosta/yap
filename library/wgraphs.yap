@@ -3,8 +3,6 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
  * 
- * @brief  Weighted  Graph Processing Utilities.
- * 
  * 
 */
 
@@ -19,8 +17,11 @@ SICStus compatible wgraphs.yap
 	 ).
 
 /**
-* @defgroup wgraphs
-* @ingroup library
+ * @defgroup wgraphs Weighted Graphs
+ * @ingroup library
+ * @brief  Weighted  Graph Processing Utilities.
+ * 
+ * @{
 */
 
 
@@ -55,4 +56,6 @@ vertices_edges_to_wgraph(Vertices, Edges, Graph) :-
 	wdgraph_new(G0),
 	wdgraph_add_vertices_and_edges(G0, Vertices, Edges, Graph).
 
+
+%% @}
 

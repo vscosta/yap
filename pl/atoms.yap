@@ -8,7 +8,10 @@
  *									 *
  *************************************************************************/
 
-%% @{
+/**
+ *@file atoms.yap
+ *
+ */
 
 :- system_module( '$_atoms', [
 			      atom_concat/2,
@@ -19,15 +22,13 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-%% @{
 
-/**
+/?**
   * @addtogroup Predicates_on_Atoms
-  * @ingroup YAPChars
  *
 */
 
-/** @pred  atom_concat(+ _As_,? _A_)
+/** @pred  atom_concat(+ As, ? A)
 
 
 The predicate holds when the first argument is a list of atoms, and the

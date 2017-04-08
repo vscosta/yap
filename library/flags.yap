@@ -586,4 +586,4 @@ defined_flag(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, H
   nonvar(FlagName), nonvar(FlagGroup),
   '$defined_flag$'(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Handler).
 
-%%@}
+%% @}

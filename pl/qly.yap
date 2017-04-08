@@ -17,6 +17,24 @@
 
 %% @file qly.yap
 
+/**
+
+@defgroup YAPSaving Saving and Loading Prolog States
+@ingroup consult
+
+YAP can save and read images of its current state to files, known as
+saved states. It is possible to save the entire state or just a module
+or a file. Notice that saved states in YAP depend on the architecture
+where they were made, and may also depend on the version of YAP being
+saved.
+
+YAP always tries to find saved states from the current directory
+first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
+defined, or search the default library directory.
+
+@{
+*/
+
 :- system_module( '$_qly', [qload_module/1,
         qsave_file/1,
         qsave_module/1,
@@ -44,23 +62,6 @@
 
 :- use_system_module( '$_yio', ['$extend_file_search_path'/1]).
 
-/**
-
-@defgroup YAPSaving Saving and Loading Prolog States
-@ingroup consult
-
-YAP can save and read images of its current state to files, known as
-saved states. It is possible to save the entire state or just a module
-or a file. Notice that saved states in YAP depend on the architecture
-where they were made, and may also depend on the version of YAP being
-saved.
-
-YAP always tries to find saved states from the current directory
-first. If it cannot it will use the environment variable [YAPLIBDIR](@ref YAPLIBDIR), if
-defined, or search the default library directory.
-
-@{
-*/
 
 /** @pred save_program(+ _F_)
 Saves the current state of the data-base in file _F_ .

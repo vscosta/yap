@@ -17,11 +17,11 @@
 // 
 
 /**
-  * @file memopen.c
-  * @defgroup Memory Streams.
-  * @in.
-  * @return Description of returned value.
-  */
+ * @file fmemopen.c
+ * @defgroup Memory Streams.
+ * @in.
+ * @return Description of returned value.
+ */
 #ifdef __APPLE__
 
 #include <stdio.h>

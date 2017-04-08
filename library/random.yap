@@ -218,3 +218,5 @@ setrand(rand(X,Y,Z)) :-
 
 getrand(rand(X,Y,Z)) :-
 	getrand(X,Y,Z).
+/** @} */
+

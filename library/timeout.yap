@@ -102,3 +102,6 @@ time_out(Goal, Time, Result) :-
 	       time_out,
 	       Result0 = time_out ),
 	Result = Result0.
+
+%% @}
+

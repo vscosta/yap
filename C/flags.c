@@ -17,8 +17,9 @@
 
 /** @file C/flags.c
 
-@ingroup Flags
-@{
+    @addtogroup Flags
+@ingroup core 
+    @{
 */
 
 // this is where  we define flags

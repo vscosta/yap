@@ -16,9 +16,15 @@
 *************************************************************************/
 
 
-/** @defgroup YAP_Terms Predicates on terms
-@ingroup builtins
-@{
+/** 
+
+
+    @file inlines.c
+
+    @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
+
+    @ingroup builtins
+    @{
 
 
 */
@@ -998,41 +1004,65 @@ p_erroneous_call( USES_REGS1 )
   return(FALSE);
 }
 
-/** 
- * @genarg( ?_Index_, +_Term_ , -_Arg_ )
- * 
- * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
+ static Int
+   p_save_cp( USES_REGS1 )
+{
+  Term t = Deref(ARG1);
+  Term td;
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+  if (!IsVarTerm(t)) return(FALSE);
+  td = cp_as_integer(B PASS_REGS);
+  YapBind((CELL *)t,td);
+  return(TRUE);
+}
 
-~~~~~~~~~
-?- arg:genarg(I, f(a,b), A).
-A = a,
-I = 1.
-;
-A = b,
-I = 2.
-~~~~~~~~~
- * 
- * Note: SWI-Prolog defines arg/3 as genarg/3.  
- */
-static Int
-genarg( USES_REGS1 )
-{				/* getarg(?Atom)		 */
-  Term t0 = Deref(ARG1);
-  Term t1 = Deref(ARG2);
-  CELL *pt, *end;
-  int res;
-  UInt arity;
+ /// @}
 
-  if (!IsVarTerm(t0)) {
-    res = p_arg( PASS_REGS1 );
-    if (res) {
-      cut_succeed();
-    } else {
-      cut_fail();
-    }
-  }
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"genarg/3");
+ /** 
+  *
+  * @addtogroup args
+  *
+  * @{
+  *
+  *  @namespace args
+  *
+  * @pred genarg( ?Index, +Term , -Arg )
+  *
+  * 
+  * Similar to arg/3, but it can also backtrack through _T_'s arguments, that is:
+
+  ~~~~~~~~~
+  ?- arg:genarg(I, f(a,b), A).
+  A = a,
+  I = 1.
+  ;
+  A = b,
+  I = 2.
+  ~~~~~~~~~
+  * 
+  * Note: SWI-Prolog defines arg/3 as genarg/3.  
+  */
+ static Int
+   genarg( USES_REGS1 )
+ {				/* getarg(?Atom)		 */
+   Term t0 = Deref(ARG1);
+   Term t1 = Deref(ARG2);
+   CELL *pt, *end;
+   int res;
+   UInt arity;
+
+   if (!IsVarTerm(t0)) {
+     res = p_arg( PASS_REGS1 );
+     if (res) {
+       cut_succeed();
+     } else {
+       cut_fail();
+     }
+   }
+   if (IsVarTerm(t1)) {
+     Yap_Error(INSTANTIATION_ERROR,t1,"genarg/3");
     return FALSE;
   }
   if (IsPrimitiveTerm(t1)) {
@@ -1088,55 +1118,38 @@ cont_genarg( USES_REGS1 )
       Yap_unify(ARG3,pt[0]);
 }
 
-static Int
-p_save_cp( USES_REGS1 )
-{
-  Term t = Deref(ARG1);
-  Term td;
-#if SHADOW_HB
-  register CELL *HBREG = HB;
-#endif
-  if (!IsVarTerm(t)) return(FALSE);
-  td = cp_as_integer(B PASS_REGS);
-  YapBind((CELL *)t,td);
-  return(TRUE);
-}
 
-
-void
-Yap_InitInlines(void)
-{
-  CACHE_REGS
-  Term cm = CurrentModule;
-  Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
-  Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
-  Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
-  Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
-  Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
-  Yap_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
-  Yap_InitAsmPred("number", 1, _number, p_number, SafePredFlag);
-  Yap_InitAsmPred("var", 1, _var, p_var, SafePredFlag);
-  Yap_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
-  Yap_InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
-  Yap_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
-  Yap_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
-  Yap_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
+ void
+   Yap_InitInlines(void)
+ {
+   CACHE_REGS
+     Term cm = CurrentModule;
+   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
+   Yap_InitAsmPred("$$save_by", 1, _save_by, p_save_cp, SafePredFlag);
+   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);
+   Yap_InitAsmPred("atomic", 1, _atomic, p_atomic, SafePredFlag);
+   Yap_InitAsmPred("integer", 1, _integer, p_integer, SafePredFlag);
+   Yap_InitAsmPred("nonvar", 1, _nonvar, p_nonvar, SafePredFlag);
+   Yap_InitAsmPred("number", 1, _number, p_number, SafePredFlag);
+   Yap_InitAsmPred("var", 1, _var, p_var, SafePredFlag);
+   Yap_InitAsmPred("db_reference", 1, _db_ref, p_db_ref, SafePredFlag);
+   Yap_InitAsmPred("primitive", 1, _primitive, p_primitive, SafePredFlag);
+   Yap_InitAsmPred("compound", 1, _compound, p_compound, SafePredFlag);
+   Yap_InitAsmPred("float", 1, _float, p_float, SafePredFlag);
+   Yap_InitAsmPred("=", 2, _equal, p_equal, SafePredFlag);
 #if INLINE_BIG_COMPARISONS
-  Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag|TestPredFlag);
-  Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag|TestPredFlag);
+   Yap_InitAsmPred("\\=", 2, _dif, p_dif, SafePredFlag|TestPredFlag);
+   Yap_InitAsmPred("==", 2, _eq, p_eq, SafePredFlag|TestPredFlag);
 #else
-  Yap_InitCPred("\\=", 2, p_dif, SafePredFlag);
-  Yap_InitCPred("==", 2, p_eq, SafePredFlag);
+   Yap_InitCPred("\\=", 2, p_dif, SafePredFlag);
+   Yap_InitCPred("==", 2, p_eq, SafePredFlag);
 #endif
-  Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
-  Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
-  Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);
-  CurrentModule = ARG_MODULE;
-  Yap_InitCPredBack("genarg", 3, 3, genarg, cont_genarg,SafePredFlag);
-  CurrentModule = cm;
-}
+   Yap_InitAsmPred("arg", 3, _arg, p_arg, SafePredFlag);
+   Yap_InitAsmPred("functor", 3, _functor, p_functor, 0);
+   Yap_InitAsmPred("$label_ctl", 2, _p_label_ctl, p_erroneous_call, SafePredFlag);
+   CurrentModule = ARG_MODULE;
+   Yap_InitCPredBack("genarg", 3, 3, genarg, cont_genarg,SafePredFlag);
+   CurrentModule = cm;
+ }
 
 
-/**
-@}
-*/

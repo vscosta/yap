@@ -950,8 +950,7 @@ static Int protect_stack_from_cut(USES_REGS1) {
  * external backtrack to current stack frame: call method
  * and control backtracking.
  *
- * @`
- * method protect_stack_from_restore
+ * @method protect_stack_from_restore
  * @param  USES_REGS1                 [env for threaded execution]
  * @return                       c
  [next answer]

@@ -1,5 +1,5 @@
 /**
- * @file   pl/lists.yap
+ * @file   bootlists.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 09:54:00 2015
  *

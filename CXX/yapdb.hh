@@ -1,21 +1,32 @@
+/// @file yapdb.hh
+///
+/// @brief C++ Interface to generated code.
+
 
 #ifndef _YAPDB_H
 #define _YAPDB_H
 
 #define YAP_CPP_DB_INTERFACE 1
 
-//! @{
 
 /**
  *
  *   @defgroup yap-cplus-db-interface Data-Base Component of YAP interface.
  *
  *   @ingroup yap-cplus-interface
+ * @{
  *    @tableofcontents
  *
  *
- * These classes define the main data-structures stored in the Data-base component: atoms, functors
- * and predicates.
+ * These classes define the main data-structures stored to represent compiled
+ * programs:
+ *
+ *  + YAPFunctor represents a name/arity combination.
+ *  
+ *  + YAPModule wraps the YAP module implementation.
+ *
+ *  + YAPPredicate and subclasses store the actual program, Preliminary 
+ * support covers Prolog and C-defined predicates. 
  */
 
 class YAPTerm;

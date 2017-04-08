@@ -26,9 +26,9 @@
 */
 
 /**
-@{
 @defgroup Grammars Grammar Rules
 @ingroup builtins
+@{
 
 Grammar rules in Prolog are both a convenient way to express definite
 clause grammars and  an extension of the well known context-free grammars.
@@ -65,8 +65,6 @@ right hand side of a grammar rule
 
 
 Grammar related built-in predicates:
-
-@{
 
 */
 

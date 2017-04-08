@@ -217,3 +217,5 @@ message and  _Data_ with the message itself.
 mpi_msg_size(Term, Size) :-
 	terms:export_term(Term, Buf, Size),
 	terms:kill_exported_term(Buf).
+/** @} */
+

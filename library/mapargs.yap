@@ -1,5 +1,5 @@
 /**
- * @file   mapargs.yap
+ * @file   library/mapargs.yap
  * @author Lawrence Byrd + Richard A. O'Keefe, VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @author : E. Alphonse from code by Joachim Schimpf, Jan Wielemaker, Vitor Santos Costa
  * @date    4 August 1984 and Ken Johnson 11-8-87

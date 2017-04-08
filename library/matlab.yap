@@ -324,3 +324,5 @@ build_string([S0|S],[C|Lf],L0) :-
 
 process_arg_entry([],[]) :- !.
 process_arg_entry(L,['('|L]).
+/** @} */
+

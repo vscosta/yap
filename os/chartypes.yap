@@ -9,7 +9,7 @@
 
 /**
   @defgroup  CharacterCodes Character Encoding and Manipulation.
-  @ingroup TextProcessing
+  @ingroup InputOutput
   @{
 
 The Prolog library includes a set of built-in predicates designed to
@@ -45,8 +45,8 @@ but are strict in argument checking.
   + @ref char_type/2
   + @ref code_type/2
 
-  
-  
+
+
 */
 
 /** @predicate char_type(?_Char_ , ?Type)
@@ -238,7 +238,7 @@ prolog:code_type(CH, TYPE) :-
 		 between(0,0x10FFFF,CH)
 		 ),
 		 p_code_type( CH, TYPE).
-		 
+
 p_code_type( ALNUM, alnum) :-
 	code_type_alnum( ALNUM ).
 p_code_type( ALPHA, alpha) :-
@@ -1918,4 +1918,4 @@ paren_paren( 0xFF60, 0xFF5F).
 paren_paren( 0xFF62, 0xFF63).
 paren_paren( 0xFF63, 0xFF62).
 
-/// @}
+/** @} */

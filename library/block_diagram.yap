@@ -474,4 +474,4 @@ write_explicit.
   write(NodeConnection), nl.
  */
 
-%% @}
+%% @} @}

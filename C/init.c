@@ -106,11 +106,9 @@ void *YAP_save;
 @ingroup Syntax
 @{
 
-
-
 The Prolog syntax caters for operators of three main kinds:
 
-  +  prefix;
+  + prefix;
   + infix;
   + postfix.
 

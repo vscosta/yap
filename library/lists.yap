@@ -3,6 +3,10 @@
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
  *
+ * @addtogroup library The Prolog Library
+ *
+ * @{
+ *
  * @brief  List Manipulation Predicates
  *
  *
@@ -621,3 +625,5 @@ close_list([_|T]) :-
 
 
 %% @}
+/** @} */
+

@@ -703,3 +703,6 @@ vertices_without_children((V-[]).Pairs, V.Vertices) :-
 	vertices_without_children(Pairs, Vertices).
 vertices_without_children(_V-[_|_].Pairs, Vertices) :-
 	vertices_without_children(Pairs, Vertices).
+
+%% @}/** @} */
+

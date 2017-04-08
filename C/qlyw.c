@@ -16,6 +16,15 @@
 *									 *
 *************************************************************************/
 
+/**
+ *
+ * @file qlyr.c
+ *
+ * @addtogroup SaveRestoreSupport
+ * @{
+ *
+ */
+
 #include "absmi.h"
 #include "Foreign.h"
 #include "alloc.h"
@@ -971,3 +980,7 @@ void Yap_InitQLY(void)
     restore_codes();
   }
 }
+
+/// @}
+
+

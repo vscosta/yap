@@ -49,12 +49,11 @@
 	   rb_in/3
        ]).
 
-%%! @{
-
 /**
   * @defgroup rbtrees Red-Black Trees
   * @ingroup library
-  
+
+ @{
 Red-Black trees are balanced search binary trees. They are named because
 nodes can be classified as either red or   black. The code we include is
 based on "Introduction  to  Algorithms",   second  edition,  by  Cormen,
@@ -96,8 +95,8 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 :- pred next(tree(K,V),K,pair(K,V),V,tree(K,V)).
 */
 
+%%	@pred rb_new(-T) is det.
 % create an empty tree.
-%%	rb_new(-T) is det.
 %
 %	Create a new Red-Black tree.
 %	
@@ -107,12 +106,12 @@ rb_new(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
 rb_new(K,V,t(Nil,black(Nil,K,V,Nil))) :- Nil = black('',_,_,'').
 
-%%	rb_empty(?T) is semidet.
+%%	@pred rb_empty(?T) is semidet.
 %
 %	Succeeds if T is an empty Red-Black tree.
 rb_empty(t(Nil,Nil)) :- Nil = black('',_,_,'').
 
-%%	rb_lookup(+Key, -Value, +T) is semidet.
+%%	@pred rb_lookup(+Key, -Value, +T) is semidet.
 %
 %	Backtrack through all elements with  key   Key  in the Red-Black
 %	tree T, returning for each the value Value.
@@ -135,7 +134,7 @@ lookup(<, K, V, Tree) :-
 lookup(=, _, V, Tree) :-
 	arg(3,Tree,V).
 
-%%	rb_min(+T, -Key, -Value) is semidet.
+%%	@pred rb_min(+T, -Key, -Value) is semidet.
 %
 %	Key is the minimum key in T, and is associated with Val.
 
@@ -149,7 +148,7 @@ min(red(Right,_,_,_), Key, Val) :-
 min(black(Right,_,_,_), Key, Val) :-
 	min(Right,Key,Val).
 
-%%	rb_max(+T, -Key, -Value) is semidet.
+%%	@pred rb_max(+T, -Key, -Value) is semidet.
 %
 %	Key is the maximal key in T, and is associated with Val.
 
@@ -163,7 +162,7 @@ max(red(_,_,_,Left), Key, Val) :-
 max(black(_,_,_,Left), Key, Val) :-
 	max(Left,Key,Val).
 
-%%	rb_next(+T, +Key, -Next,-Value) is semidet.
+%%	@pred rb_next(+T, +Key, -Next,-Value) is semidet.
 %
 %	Next is the next element after Key  in T, and is associated with
 %	Val.
@@ -193,7 +192,7 @@ next(=, _, _, _, NK, Val, Tree, Candidate) :-
 	    Candidate = (NK-Val)
 	).
 
-%%	rb_previous(+T, +Key, -Previous, -Value) is semidet.
+%%	@pred rb_previous(+T, +Key, -Previous, -Value) is semidet.
 %
 %	Previous is the  previous  element  after   Key  in  T,  and  is
 %	associated with Val.
@@ -223,8 +222,8 @@ previous(=, _, _, _, K, Val, Tree, Candidate) :-
 	    Candidate = (K-Val)
 	).
 
-%%	rb_update(+T, +Key, +NewVal, -TN) is semidet.
-%%	rb_update(+T, +Key, ?OldVal, +NewVal, -TN) is semidet.
+%%	@pred rb_update(+T, +Key, +NewVal, -TN) is semidet.
+%%	@pred rb_update(+T, +Key, ?OldVal, +NewVal, -TN) is semidet.
 %
 %	Tree TN is tree T,  but  with   value  for  Key  associated with
 %	NewVal.  Fails if it cannot find Key in T.
@@ -263,8 +262,8 @@ update(red(Left,Key0,Val0,Right), Key, OldVal, Val, NewTree) :-
 	  update(Right, Key, OldVal, Val, NewRight)
 	).
 
-%%	rb_rewrite(+T, +Key, +NewVal) is semidet.
-%%	rb_rewrite(+T, +Key, ?OldVal, +NewVal) is semidet.
+%%	@pred rb_rewrite(+T, +Key, +NewVal) is semidet.
+%%	@pred rb_rewrite(+T, +Key, ?OldVal, +NewVal) is semidet.
 %
 %	Tree T has   value  for  Key  associated with
 %	NewVal.  Fails if it cannot find Key in T.
@@ -288,7 +287,7 @@ rewrite(Node, Key, OldVal, Val) :-
 	;
 	  rewrite(Right, Key, OldVal, Val)
 	).
-rewrite(Node, Key, OldVal, Val) :-
+ rewrite(Node, Key, OldVal, Val) :-
 	Node = red(Left,Key0,Val0,Right),
 	Left \= [],
 	compare(Cmp,Key0,Key),
@@ -305,7 +304,7 @@ rewrite(Node, Key, OldVal, Val) :-
 	  rewrite(Right, Key, OldVal, Val)
 	).
 
-%%	rb_apply(+T, +Key, :G, -TN) is semidet.
+%%	@pred rb_apply(+T, +Key, :G, -TN) is semidet.
 %
 %	If the value associated with  key  Key   is  Val0  in  T, and if
 %	call(G,Val0,ValF) holds, then TN differs from T only in that Key

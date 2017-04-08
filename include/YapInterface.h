@@ -1,27 +1,38 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	@(#)c_interface.h	2.2			 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YapInterface.h						 *
-* Last rev:	19/2/88							 *
-* mods:									 *
-* comments:	c_interface header file for YAP				 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	@(#)c_interface.h	2.2			 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapInterface.h						 *
+ * Last rev:	19/2/88							 *
+ * mods:									 *
+ * comments:	c_interface header file for YAP				 *
+ *									 *
+ *************************************************************************/
 
 /**
 
-@file YapInterface.h
+   @file YapInterface.h
 
-@defgroup ChYInterface Foreign Language interface to YAP
+   @{
 
-@brief Core interface to YAP.
-q
+   @defgroup fli_c_cx Foreign Language interface to YAP
+
+   @toc
+
+   @defgroup ChYInterface C interface to YAP
+   @{
+
+   @ingroup fli_c_cx
+
+   @brief Core interface to YAP.
+
+   @toc
+
 */
 
 #ifndef _yap_c_interface_h

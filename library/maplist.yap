@@ -331,7 +331,7 @@ maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
     maplist(Pred, L1, L2, L3, L4).
 
 /**
-  convlist(: _Pred_, + _ListIn_, ? _ListOut_) @anchor convlist
+  convlist(: _Pred_, + _ListIn_, ? _ListOut_) @anchor convlist3
 
   A combination of maplist/3 and selectlist/3: creates  _ListOut_ by
   applying the predicate  _Pred_ to all list elements on which
@@ -355,7 +355,7 @@ convlist(Pred, [_|Olds], News) :-
 	convlist(Pred, Olds, News).
 
 /**
-  convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut) @anchor convlist
+  convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut) @anchor convlist5
 
   A combination of maplist/4 and selectlist/3: _ListIn_, _ListExtra_,
   and _ListOut_ are the sublists so that the predicate _Pred_ succeeds.

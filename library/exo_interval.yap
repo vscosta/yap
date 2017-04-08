@@ -9,7 +9,7 @@
  * It assumes simple queries and a contiguous interval,
  * and does not really expect to do non-trivial
  * constraint propagation and solving.
- * 
+ *
  * 
 */
 :- module(exo_interval,
@@ -33,7 +33,9 @@
 	 op(700, xfx, (#=))]).
 
 
-/** @defgroup exo_interval Exo Intervals
+/**
+
+@defgroup exo_interval Exo Intervals
 @ingroup library
 @{
 
@@ -236,3 +238,5 @@ expand_op(A1, A2, A3) :-
 	 A1 == max -> A3 = max;	 A2 == max -> A3 = max;
 	 A3 = any
         ).
+%% @}
+

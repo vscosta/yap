@@ -283,3 +283,5 @@ queue_to_list(Front, Back, Ans) :-
 queue_to_list([Head|Front], Back, [Head|Tail]) :-
 	queue_to_list(Front, Back, Tail).
 
+/** @} */
+

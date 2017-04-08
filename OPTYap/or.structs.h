@@ -12,7 +12,7 @@
 ************************************************************************/
 
 
-/** 
+/**
 
 @defgroup Parallelism Parallelism in YAP
 @ingroup extensions
@@ -38,7 +38,7 @@ data-base.
 parallel execution.
 
 + Garbage collection and stack shifting are not supported in
- *YAPOr*.  
+ *YAPOr*.
 
 + Built-ins that cause side-effects can only be executed when
 left-most in the search-tree. There are no primitives to provide
@@ -166,7 +166,7 @@ typedef struct query_goal_answer_frame{
 ** --------------------------------------------- */
 
 typedef struct table_subgoal_solution_frame{
-  choiceptr generator_choice_point;  
+  choiceptr generator_choice_point;
   volatile int ltt;
   struct table_subgoal_answer_frame *first_answer_frame;
   struct table_subgoal_answer_frame *last_answer_frame;

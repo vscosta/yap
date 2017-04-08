@@ -17,6 +17,15 @@
 *									 *
 *************************************************************************/
 
+/**
+ *
+ * @file qly.h
+ *
+ * @defgroup SaveRestoreSupport C-support for saved states.
+ * @ingroup YAPSaving
+ *
+ */
+
 #define EXPORT_ATOM_TABLE_SIZE (16 * 4096)
 #define EXPORT_FUNCTOR_TABLE_SIZE (16 * 4096)
 #define EXPORT_OPCODE_TABLE_SIZE (4096)
@@ -101,11 +110,11 @@ typedef enum {
   QLY_ATOM_BLOB = 14
 } qlf_tag_t;
 
-#define STATIC_PRED_FLAGS                                                      \
-  (SourcePredFlag | DynamicPredFlag | LogUpdatePredFlag | CompiledPredFlag |   \
-   MultiFileFlag | TabledPredFlag | MegaClausePredFlag | CountPredFlag |       \
-   ProfiledPredFlag | ThreadLocalPredFlag | AtomDBPredFlag |                   \
-   ModuleTransparentPredFlag | NumberDBPredFlag | MetaPredFlag |               \
+#define STATIC_PRED_FLAGS						\
+  (SourcePredFlag | DynamicPredFlag | LogUpdatePredFlag | CompiledPredFlag | \
+   MultiFileFlag | TabledPredFlag | MegaClausePredFlag | CountPredFlag | \
+   ProfiledPredFlag | ThreadLocalPredFlag | AtomDBPredFlag |		\
+   ModuleTransparentPredFlag | NumberDBPredFlag | MetaPredFlag |	\
    SyncPredFlag | BackCPredFlag)
 #define EXTRA_PRED_FLAGS                                                       \
   (QuasiQuotationPredFlag | NoTracePredFlag | NoSpyPredFlag)

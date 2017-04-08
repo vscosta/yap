@@ -1,15 +1,22 @@
 /**
- *   @{
+ *   @file yapie.hh
  *
  *   @defgroup yap-cplus-error-hanadlinge Errir Handling in the YAP interface.
+ *
+ *   @brief this is an attempt at supporting error 
  *
  *   @ingroup yap-cplus-interface
  *    @tableofcontents
  *
+ *   @{
  *
  * These classes define an object that we can then throw when an error
  * or unexoected event interrupts YAP. Often, the object is built by
- * YAP itself, but we may generate our own errors.
+ * YAP itself. One can also define one's own error objects.
+ *
+ * Errors will be thrown from the `C++` code, and may be processed in
+ * very different ways. The error object should provide as much data asa
+ * possible.
  */
 
 

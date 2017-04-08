@@ -276,3 +276,5 @@ expand_component([_|Children], Map1, Map, Graph1, NGraph) :-
 pick_node(Graph,Node,Children,Graph1) :-
 	rb_in(Node,Children,Graph), !,
 	rb_delete(Graph, Node, Graph1).
+
+%% @}

@@ -20,7 +20,12 @@
  * @file   corout.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Mon Nov 16 22:47:27 2015
- * 
+ *
+ * @addtogroup extensions Extensions to Core Prolog
+ *
+ * @{
+ * @ addtogroup AttributeVariables Attributed Variables and Co-Routining
+ * @{
  * @brief  Support for co-routining
  * 
  * 

@@ -1,11 +1,11 @@
 SET (CODES
-solarized-light.css
-theme.css
-yap.css
-icons/yap_64x64x32.png 
-icons/yap_256x256x32.png
-icons/yap_128x128x32.png
-icons/yap_48x48x32.png
+  solarized-light.css
+  theme.css
+  yap.css
+  icons/yap_64x64x32.png 
+  icons/yap_256x256x32.png
+  icons/yap_128x128x32.png
+  icons/yap_48x48x32.png
   )
 
 SET (DOCS
@@ -42,14 +42,16 @@ if (WITH_DOCS)
     
    configure_file(${doxyfile_in} ${doxyfile} @ONLY)
 
-     add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating API documentation with Doxygen"
-        VERBATIM)
+   configure_file(source/conf.py.in source/conf.py)
+   configure_file(source/index.rst source/index.rst)
+   add_custom_target(doc
+     COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+     COMMENT "Generating API documentation with Doxygen"
+     VERBATIM)
 
-    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${docdir})
-    install(FILES  ${CODES} DESTINATION ${docdir})
+   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${docdir})
+   install(FILES  ${CODES} DESTINATION ${docdir})
 
   endif()
 

@@ -222,3 +222,6 @@ trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel
 
 trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, StartCounter, EndCounter) :-
   trie_depth_breadth(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, StartCounter, EndCounter).
+
+%% @}
+
