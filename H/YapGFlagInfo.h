@@ -17,25 +17,24 @@
 
 /** @file YapGFlagInfo.h
 
-    @ingroup Flags
+    @addtogroup YAPFlags
 */
 
-/** @pred  yap_flag(? _Param_,? _Value_)
+/** @pred  yap_flag( ?Param, ?Value)
 
 
 Set or read system properties for  _Param_:
 
+ @enum YapGFlag Prolog 
+ @Brief global flag:
+
 */
 
-/// `address_bits`
-///
-///  Number of address bits in the machine, either 64 or 32 bits.
-YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL)
-, /** `address_bits`
- Number of address bits in the machine, either 64 or 32 bits */
-    YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
-             agc_threshold), /**`agc_margin `
+YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),  /**< `address_bits`
+  Number of address bits in the machine, either 64 or 32 bits */
 
+YAP_FLAG(AGC_MARGIN_FLAG, "agc_margin", true, nat, "10000",
+             agc_threshold), /**< `agc_margin`
 An integer: if this amount of atoms has been created since the last
 atom-garbage collection, perform atom garbage collection at the first
 opportunity. Initial value is 10,000. May be changed. A value of 0

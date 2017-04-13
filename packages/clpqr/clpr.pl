@@ -1,7 +1,7 @@
 /*  $Id$
 
     Part of CLP(R) (Constraint Logic Programming over Reals)
-    
+
     Author:        Leslie De Koninck
     E-mail:        Leslie.DeKoninck@cs.kuleuven.be
     WWW:           http://www.swi-prolog.org
@@ -38,16 +38,21 @@
     the GNU General Public License.
 */
 
-/** @defgroup clpr_implementation  CLP(QR) Predicates 
+/** @addtogroup clpqr  CLP(QR)
+  @ingroup packages
+  @{
+  */
+
+/** @defgroup clpr_implementation  CLP(QR) Predicates
   @ingroup clpqr
-  
+  @{
   */
 
 /** @pred bb_inf(+ _Ints_,+ _Expression_,- _Inf_)
 The same as bb_inf/5 but without returning the values of the integers
 and with an eps of 0.001.
 
- 
+
 */
 /** @pred bb_inf(+ _Ints_,+ _Expression_,- _Inf_,- _Vertext_,+ _Eps_)
 Computes the infimum of  _Expression_ within the current constraint
@@ -58,7 +63,7 @@ value may differ from an integer to be considered an integer. E.g. when
  _Eps_ = 0.001, then X = 4.999 will be considered as an integer (5 in
 this case).  _Eps_ should be between 0 and 0.5.
 
- 
+
 */
 /** @pred dump(+ _Target_,+ _Newvars_,- _CodedAnswer_)
 Returns the constraints on  _Target_ in the list  _CodedAnswer_
@@ -81,28 +86,28 @@ Succeeds if  _Constraint_ is necessarily true within the current
 constraint store. This means that adding the negation of the constraint
 to the store results in failure.
 
- 
+
 */
 /** @pred inf(+ _Expression_,- _Inf_)
 Computes the infimum of  _Expression_ within the current state of the
 constraint store and returns that infimum in  _Inf_. This predicate
 does not change the constraint store.
 
- 
+
 */
 /** @pred inf(+ _Expression_,- _Sup_)
 Computes the supremum of  _Expression_ within the current state of
 the constraint store and returns that supremum in  _Sup_. This
 predicate does not change the constraint store.
 
- 
+
 */
 /** @pred maximize( _V_)
 maximise variable  _V_
 
- 
+
 */
-/** @pred minimize(<tt>V</tt>) 
+/** @pred minimize(<tt>V</tt>)
 minimise variable  _V_
 
 
@@ -205,3 +210,7 @@ memberchk_eq(X,[Y|Ys]) :-
 	->  true
 	;   memberchk_eq(X,Ys)
 	).
+
+%% @}
+
+%% @}

@@ -1,18 +1,27 @@
  YAP 6-3.5 Manual                         {#mainpage}
 ====================
 
-This file documents the YAP Prolog System version 6.3.4, a high-performance Prolog compiler developed at LIACC, Universidade do Porto. YAP is based on David H. D. Warren's WAM (Warren Abstract Machine), with several optimizations for better performance. YAP follows the Edinburgh tradition, and is largely compatible with DEC-10 Prolog, Quintus Prolog, and originally with C-Prolog.
+<center>
+![The YAP Logo](docs/icons/yap_128x128x32.png)
+</center>
+
+NOTE: this version of YAP is still experimental, documentation may be out of date.
+
+## Introduction
+
+This document provides User information on version 6.3.4 of
+YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
+high-performance Prolog compiler developed at Universidade do
+Porto.
 
 The manual is organised as follows:
 
-
-+ @subpage  download
 
 + @subpage  install
 
 + @subpage run
 
-+ @subpage consult
++ @subpage load_files
 
 + @subpage builtins
 
@@ -22,13 +31,9 @@ The manual is organised as follows:
 
 + @subpage packages
 
-+ @subpage swi_iso_c
-
 + @subpage YAPProgramming
 
 + @subpage fli_c_cxx
-
-
 
 
 \author Vitor Santos Costa,

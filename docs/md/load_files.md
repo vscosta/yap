@@ -1,11 +1,11 @@
-Loading and Oganising YAP Programs           {#consult}
+Loading and Oganising YAP Programs           {#load_files}
 ===================================
 
   Next, we present the main predicates and directives available to load
   files and to control the Prolog environment.
 
-  + @subpage modules.md
+  + @subpage YAPModules
 
   + @ref YAPConsulting
 
- +  @ref YAPSaving
+ +  @ref QLY

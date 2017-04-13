@@ -1,6 +1,7 @@
 YAP Syntax                                  {#YAPSyntax}
 ============
 
+	@ingroup YAPProgrammming
 
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe

@@ -10,7 +10,7 @@
 *									 *
 * File:		atts.yap						 *
 * Last rev:	8/2/88							 *
-* mods:									 *  
+* mods:									 *
 * comments:	attribute support for Prolog				 *
 *									 *
 *************************************************************************/
@@ -18,9 +18,11 @@
 /**
   @file attributes.yap
 
-@{
 
-@addtogroup New_Style_Attribute_Declarations
+@defgroup New_Style_Attribute_Declarations SWI Compatible attributes
+@{
+@ingroup attributes
+
 */
 
 :- module('$attributes', [
@@ -489,7 +491,6 @@ typically this will involve expressing all constraints in terms of
  _QueryVars_ and considering all remaining variables as existentially
 quantified.
 
-
 Projection interacts with attribute_goal/2 at the Prolog top
 level. When the query succeeds, the system first calls
 project_attributes/2. The system then calls
@@ -498,8 +499,6 @@ constraints. Typically, attribute_goal/2 will convert from the
 original constraints into a set of new constraints on the projection,
 and these constraints are the ones that will have an
 attribute_goal/2 handler.
-
-
  */
 project_attributes(AllVs, G) :-
 	attributes:modules_with_attributes(LMods),
@@ -523,6 +522,6 @@ project_module([Mod|LMods], LIV, LAV) :-
 project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).
 
-/**
-@}
-*/
+%% @}
+
+

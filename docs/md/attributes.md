@@ -1,5 +1,7 @@
- Attributed Variables and Co-Routining   {#AttributedVariables}
+ Attributed Variables and Co-Routining   {#attributes}
 =======================================
+@ingroup extensions
+
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -24,12 +26,12 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 interface.
 
-+ @ewd attributes
++ @ref SICS_attributes
 + @ref New_Style_Attribute_Declarations
 + @ref CohYroutining
 + @ref AttributeVariables_Builtins
 
-@section attributes SICStus Style attribute declarations.
+@section SICS_attributes SICStus Style attribute declarations.
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:

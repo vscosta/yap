@@ -30,7 +30,8 @@
 */
 
 %% SWI begin
-%% @addtogroup CHR
+%% @addtogroup CHR chr
+%% @ingroup packages
 %
 % SWI interface.
 %

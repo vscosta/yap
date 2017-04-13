@@ -1,12 +1,12 @@
-Extensions to core Prolog.			{#extensions}
-=========================
+Extensions to core Prolog. {#extensions}
+========================
 
 YAP includes a number of extensions over the original Prolog
-language. Next, we discuss how to use the most important ones.
+language.
 
   + @ref Rational_Trees
 
-  + @ref AttributedVariables
+  + @subpage attributes
 
   + @ref  DepthLimited
 
@@ -19,3 +19,6 @@ language. Next, we discuss how to use the most important ones.
   + @ref YAPArrays
 
   + @ref Parallelism
+
+
+

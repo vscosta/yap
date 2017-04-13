@@ -13,7 +13,11 @@
 * comments:	c_interface header file for YAP				 *
 *									 *
 *************************************************************************/
-
+/**
+ * @file c_interface.h
+ *
+ * @addtogroup ChYInterface
+ */
 #if  !defined(_c_interface_h) && !defined(_YAP_NOT_INSTALLED_)
 
 #define _c_interface_h 1

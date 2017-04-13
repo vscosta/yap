@@ -522,14 +522,14 @@ CASE_SENSE_NAMES       = NO
 # scope will be hidden.
 # The default value is: NO.
 
-HIDE_SCOPE_NAMES       = NO
+HIDE_SCOPE_NAMES       = YES
 
 # If the HIDE_COMPOUND_REFERENCE tag is set to NO (default) then doxygen will
 # append additional text to a page's title, such as Class Reference. If set to
 # YES the compound reference will be hidden.
 # The default value is: NO.
 
-HIDE_COMPOUND_REFERENCE= NO
+HIDE_COMPOUND_REFERENCE= YES
 
 # If the SHOW_INCLUDE_FILES tag is set to YES then doxygen will put a list of
 # the files that are included by a file in the documentation of that file.
@@ -775,7 +775,8 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT =                @PROJECT_SOURCE_DIR@/pl \
+INPUT =   		@PROJECT_SOURCE_DIR@/INSTALL.md \
+		       @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/CXX \
                        @PROJECT_SOURCE_DIR@/OPTYap \
                        @PROJECT_SOURCE_DIR@/C \
@@ -784,9 +785,8 @@ INPUT =                @PROJECT_SOURCE_DIR@/pl \
                        @PROJECT_SOURCE_DIR@/os \
                        @PROJECT_SOURCE_DIR@/library \
                        @PROJECT_SOURCE_DIR@/packages \
-                       @PROJECT_SOURCE_DIR@/swi/library
-#                       @PROJECT_SOURCE_DIR@/docs/md \
-#		@PROJECT_SOURCE_DIR@/INSTALL.md
+                       @PROJECT_SOURCE_DIR@/swi/library \
+                       @PROJECT_SOURCE_DIR@/docs/md \
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -844,6 +844,7 @@ EXCLUDE                = *pltotex.pl \
 @PROJECT_SOURCE_DIR@/packages/CLPBN/examples \
 @PROJECT_SOURCE_DIR@/packages/prosqlite \
 @PROJECT_SOURCE_DIR@/packages/pyswip \
+@PROJECT_SOURCE_DIR@/library/dialect/swi/os
 
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
@@ -860,7 +861,13 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */CMakeFiles/* *~
+EXCLUDE_PATTERNS       = \
+            @PROJECT_SOURCE_DIR@/packages/gecode/gecode3_yap.cc \
+            @PROJECT_SOURCE_DIR@/packages/gecode/gecode4_yap.cc \
+            @PROJECT_SOURCE_DIR@/packages/gecode/gecode3.yap \
+            @PROJECT_SOURCE_DIR@/packages/gecode/gecode4.yap \
+            @PROJECT_SOURCE_DIR@/packages/gecode/gecode3_yap_hand_written.yap \ @PROJECT_SOURCE_DIR@/packages/gecode/gecode4_yap_hand_written.yap
+            */CMakeFiles/* *~ */\#* \
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -2044,7 +2051,11 @@ SEARCH_INCLUDES        = YES
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
 INCLUDE_PATH           = @CMAKE_BINARY_DIR@ \
-		         @CMAKE_BINARY_DIR@/packages/gecode
+                        @PROJECT_SOURCE_DIR@/H \
+                        @PROJECT_SOURCE_DIR@/H/generated \
+                        @PROJECT_SOURCE_DIR@/include \
+                        @PROJECT_SOURCE_DIR@/os \
+                        @PROJECT_SOURCE_DIR@/OPTYap \
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the

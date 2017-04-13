@@ -1,28 +1,30 @@
-YAP packages files {#packages}
-===================
+YAP packages files {packages}
+==============================
 
-+ @subpage real
+  + @subpage real
 
-+ @ref BDDs
+  + @subpage bdds
 
-+ @subpage  gecode
+  + @subpage  gecode
 
-+ @subpage  myddas
+  + @subpage  myddas
 
-+ @ref PFL/CLP(BN)
+  + @ref PFL
 
-+ @ref ProbLog1
+  + @subpage ProbLog1
 
-+ @ref Python
+  + @ref Python
 
-+ @subpage YAPRaptor
+  + @subpage raptor
 
-+ @ref YAP-LBFGS
+  + @ref YAP-LBFGS
 
-+ @subpage yap-udi-indexers
+  + @subpage yap-udi-indexers
 
-Leuven packages ported from SWI-Prolog:
+  Leuven packages ported from SWI-Prolog:
 
-+ @subpage chr
+  + @subpage chr
 
-+ @subpage clpqr
+  + @subpage clpqr
+
+

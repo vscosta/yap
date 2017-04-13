@@ -1,6 +1,7 @@
-/** @defgroup BDDs Binary Decision Diagrams and Friends
-@ingroup packages
+@defgroup BDDsPL Binary Decision Diagrams and Friends
+@ingroup BDDs
 @{
+
 
 This library provides an interface to the BDD package CUDD. It requires
 CUDD compiled as a dynamic library. In Linux this is available out of

@@ -35,7 +35,7 @@
 /**
 
 @defgroup Formal_Syntax Syntax of Terms
-@ingroup Syntax
+@ingroup YAPSyntax
 @{
 
 

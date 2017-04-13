@@ -1,4 +1,4 @@
-WWW Reader/Writers for YAP.       {#YAPRaptor}
+WWW Reader/Writers for YAP.       {#raptor}
 =========================
 
 This provides YAP a rdf reader using

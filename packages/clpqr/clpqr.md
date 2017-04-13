@@ -1,4 +1,4 @@
- Constraint Logic Programming over Rationals and Reals  {#clpqr}
+Constraint Logic Programming over Rationals and Reals  {#clpqr}
 =====================================================
 
 YAP now uses the CLP(R) package developed by <em>Leslie De Koninck</em>,

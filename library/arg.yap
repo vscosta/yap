@@ -10,7 +10,7 @@
 /**
 *
 
-@defgroup arg Term Argument Manipulation.
+@defgroup args Term Argument Manipulation.
 
 @ingroup @library
 

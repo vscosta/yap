@@ -68,7 +68,8 @@
 %%	* Added initialization directives for saved-states
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% @addtogroup CHR_Rule_Types
+%% @addtogroup CHR_Rule_Types Rule Types
+%% @ingroup CHR
 %
 % CHR controlling the compiler
 %

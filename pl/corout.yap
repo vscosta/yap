@@ -24,11 +24,11 @@
  * @addtogroup extensions Extensions to Core Prolog
  *
  * @{
- * @ addtogroup AttributeVariables Attributed Variables and Co-Routining
+ * @ addtogroup attributes Attributed Variables and Co-Routining
  * @{
  * @brief  Support for co-routining
- * 
- * 
+ *
+ *
 */
 
 
@@ -43,8 +43,7 @@
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
+ 
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
@@ -52,9 +51,9 @@
 %%@{
 
 %% @aaddtogroup CohYroutining
-%% @ingroup AttributedVariables
+%% @ingroup attributes
 
-/** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_) 
+/** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
 
 
 
@@ -69,11 +68,11 @@ Normally this predicate fails to veto binding the variable to
 the two attribute and associates the combined attribute with
  _VarValue_ using put_attr/3.
 
- 
+
 */
 attr_unify_hook(DelayList, _) :-
 	wake_delays(DelayList).
-	
+
 wake_delays([]).
 wake_delays([Delay|List]) :-
 	wake_delay(Delay),
@@ -95,12 +94,12 @@ wake_delay(redo_ground(Done, X, Goal)) :-
 attribute_goals(Var) -->
 	{ get_attr(Var, '$coroutining', Delays) },
 	attgoal_for_delays(Delays, Var).
-	
+
 attgoal_for_delays([], _V) --> [].
 attgoal_for_delays([G|AllAtts], V) -->
 	attgoal_for_delay(G, V),
 	attgoal_for_delays(AllAtts, V).
-	
+
 attgoal_for_delay(redo_dif(Done, X, Y), V) -->
 	{ var(Done), first_att(dif(X,Y), V) }, !,
 	[prolog:dif(X,Y)].
@@ -126,10 +125,10 @@ remove_when_declarations(Goal, Goal).
 %
 /**
   @pred freeze(? _X_,: _G_)
-  
+
 Delay execution of goal  _G_ until the variable  _X_ is bound.
 
- 
+
 */
 prolog:freeze(V, G) :-
 	var(V), !,
@@ -183,18 +182,18 @@ freeze_goal(V,G) :-
 % several times. dif calls a special version of freeze that checks
 % whether that is in fact the case.
 %
-/** @pred dif( _X_, _Y_) 
+/** @pred dif( _X_, _Y_)
 
 
 Succeed if the two arguments do not unify. A call to dif/2 will
 suspend if unification may still succeed or fail, and will fail if they
 always unify.
 
- 
+
 */
 prolog:dif(X, Y) :-
 	'$can_unify'(X, Y, LVars), !,
-	LVars = [_|_], 
+	LVars = [_|_],
 	dif_suspend_on_lvars(LVars, redo_dif(_Done, X, Y)).
 prolog:dif(_, _).
 
@@ -269,7 +268,7 @@ redo_ground('$done', _, Goal) :-
 %
 % support for when/2 built-in
 %
-/** @pred when(+ _C_,: _G_) 
+/** @pred when(+ _C_,: _G_)
 
 
 Delay execution of goal  _G_ until the conditions  _C_ are
@@ -289,7 +288,7 @@ Delay until variable  _V_ is ground.
 
 Note that when/2 will fail if the conditions fail.
 
- 
+
 */
 prolog:when(Conds,Goal) :-
 	'$current_module'(Mod),
@@ -330,7 +329,7 @@ generate_code_for_when(Conds, G,
 prepare_goal_for_when(G, Mod, Mod:call(G)) :- var(G), !.
 prepare_goal_for_when(M:G, _,  M:G) :- !.
 prepare_goal_for_when(G, Mod, Mod:G).
-	
+
 
 %
 % now for the important bit
@@ -398,7 +397,7 @@ try_freeze(V, G, Done, LG0, LGF) :-
 	var(V),
 	LGF = ['$coroutining':internal_freeze(V, redo_freeze(Done, V, G))|LG0].
 
-try_eq(X, Y, G, Done, LG0, LGF) :- 
+try_eq(X, Y, G, Done, LG0, LGF) :-
 	'$can_unify'(X, Y, LVars), LVars = [_|_],
 	LGF = ['$coroutining':dif_suspend_on_lvars(LVars, redo_eq(Done, X, Y, G))|LG0].
 
@@ -450,7 +449,7 @@ generate_blocking_code(Conds, G, Code) :-
 	functor(G, Na, Ar),
 	'$current_module'(M),
 	abolish(M:Na, Ar),
-	generate_blocking_code((Conds,OldConds), G, Code).	
+	generate_blocking_code((Conds,OldConds), G, Code).
 generate_blocking_code(Conds, G, (G :- (If, !, when(When, G)))) :-
 	extract_head_for_block(Conds, G),
 	recorda('$blocking_code','$code'(G,Conds),_),
@@ -476,7 +475,7 @@ extract_head_for_block(C, G) :-
 %
 % We generate code as follows:
 %
-% block a(-,-,?) 
+% block a(-,-,?)
 %
 % (var(A1), var(A2) -> true ; fail), !, when((nonvar(A1);nonvar(A2)),G).
 %
@@ -524,13 +523,13 @@ prolog:'$wait'(Na/Ar) :-
 	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
 prolog:'$wait'(_).
 
-/** @pred frozen( _X_, _G_) 
+/** @pred frozen( _X_, _G_)
 
 
 Unify  _G_ with a conjunction of goals suspended on variable  _X_,
 or `true` if no goal has suspended.
 
- 
+
 */
 prolog:frozen(V, LG) :-
     var(V), !,
@@ -564,7 +563,7 @@ update_att(V, G) :-
 	attributes:put_module_atts(V, '$coroutining'(_,[G|Gs])).
 update_att(V, G) :-
 	attributes:put_module_atts(V, '$coroutining'(_,[G])).
-	  
+
 
 not_vmember(_, []).
 not_vmember(V, [V1|DonesSoFar]) :-

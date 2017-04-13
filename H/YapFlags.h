@@ -17,7 +17,7 @@
 
 /** @file YapFlags.h
 
-    @ingroup Flags
+    @addtogroup Flags
 */
 
 #ifndef YAP_FLAGS_H

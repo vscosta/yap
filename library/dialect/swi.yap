@@ -2,13 +2,17 @@
 % SWI emulation.
 % written in an on-demand basis.
 
-%% @defgroup swi Compatibility with SWI-Prolog and Other Prolog systems
+%% @defgroup SWI Compatibility with SWI-Prolog and Other Prolog systems
+%% @{
+%% @ingroup YAPProgramming
 
-/** 
+/**
 
 @defgroup System SWI Dialect Support
+@ingroup SWI
 
-  
+@{
+
 This library provides a number of SWI-Prolog builtins that are not by
 default in YAP. This support is loaded with the
 ~~~~~
@@ -17,20 +21,18 @@ expects_dialect(swi)
 
  command.
 
-@{
-
 */
 
-/** @pred  time_file(+ _File_,- _Time_) 
+/** @pred  time_file(+ _File_,- _Time_)
 
 
 Unify the last modification time of  _File_ with
  _Time_.  _Time_ is a floating point number expressing the seconds
 elapsed since Jan 1, 1970.
 
- 
+
 */
-/** @pred concat_atom(+ _List_,- _Atom_) 
+/** @pred concat_atom(+ _List_,- _Atom_)
 
 
 
@@ -39,7 +41,7 @@ if  _Atom_ can be unified with the concatenated elements of  _List_. If
  _List_ has exactly 2 elements it is equivalent to `atom_concat/3`,
 allowing for variables in the list.
 
- 
+
 */
 
 :- module(system, [concat_atom/2,
@@ -143,14 +145,14 @@ concatenated are the representation for  _A12_.
 If  _A1_ and  _A2_ are unbound, the built-in will find all the atoms
 that concatenated give  _A12_.
 
- 
+
 */
 
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 %goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
 goal_expansion(arg(A,B,C),arg:genarg(A,B,C)).
 
-% make sure we also use 
+% make sure we also use
 :- user:library_directory(X),
 	atom(X),
 	atom_concat([X,'/dialect/swi'],SwiDir),
@@ -187,7 +189,7 @@ instantiating  _Separator_ and  _Atom_:
 L = [gnu, gnat]
 ~~~~~
 
- 
+
 */
 concat_atom([A|List], Separator, New) :- var(List), !,
 	atom_codes(Separator,[C]),
@@ -224,7 +226,7 @@ cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-
 	atom_codes(AName, Name),
 	cvt_bindings(L,Bindings).
 
-/** @pred chdir(+ _Dir_) 
+/** @pred chdir(+ _Dir_)
 
 Compatibility predicate.  New code should use working_directory/2.
 */
@@ -317,5 +319,7 @@ required_predicate(Na/Ar, M) :-
 	).
 
 /**
+@}
+
 @}
 */

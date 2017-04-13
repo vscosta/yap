@@ -1,4 +1,4 @@
-#include <string.h>
+o#include <string.h>
 #include "YapInterface.h"
 #include <lbfgs.h>
 #include <stdio.h>
@@ -60,9 +60,9 @@ static lbfgsfloatval_t evaluate(
   t[2] = YAP_MkFloatTerm(step);
 
   call = YAP_MkApplTerm(fcall3, 3, t);
-  g=g_tmp;  
+  g=g_tmp;
 
-  
+
   s1 = YAP_InitSlot(call);
   optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
   result=YAP_CallProlog(call);
@@ -151,7 +151,7 @@ static YAP_Bool set_x_value(void) {
     printf("ERROR: set_x_value/2 can be called only when the optimizer is initialized and not running.\n");
     return FALSE;
   }
-  
+
   if (YAP_IsIntTerm(t1)) {
     i=YAP_IntOfTerm(t1);
   } else {
@@ -183,12 +183,12 @@ static YAP_Bool get_x_value(void) {
   YAP_Term t1=YAP_ARG1;
   YAP_Term t2=YAP_ARG2;
   int i=0;
-  
+
   if (optimizer_status==OPTIMIZER_STATUS_NONE) {
     printf("ERROR: set_x_value/2 can be called only when the optimizer is initialized.\n");
     return FALSE;
   }
-  
+
   if (YAP_IsIntTerm(t1)) {
     i=YAP_IntOfTerm(t1);
   } else {
@@ -219,7 +219,7 @@ static YAP_Bool set_g_value(void) {
     printf("ERROR: optimizer_set_g/2 can only be called by the evaluation call back function.\n");
     return FALSE;
   }
-  
+
   if (YAP_IsIntTerm(t1)) {
     i=YAP_IntOfTerm(t1);
   } else {
@@ -256,7 +256,7 @@ static YAP_Bool get_g_value(void) {
     printf("ERROR: optimizer_get_g/2 can only be called while the optimizer is running.\n");
     return FALSE;
   }
-  
+
   if (YAP_IsIntTerm(t1)) {
     i=YAP_IntOfTerm(t1);
   } else {
@@ -272,18 +272,18 @@ static YAP_Bool get_g_value(void) {
 
 /** @pred optimizer_initialize(+N,+Module,+Evaluate,+Progress)
 Create space to optimize a function with _N_ variables (_N_ has to be
-integer). 
+integer).
 
 + _Module</span>_ is the name of the module where the call back
-predicates can be found, 
+predicates can be found,
 
 + _Evaluate_ is the call back predicate (arity 3)
-to evaluate the function math <span class="math">_F</span>_, 
+to evaluate the function math <span class="math">_F</span>_,
 
 + _Progress_ is the call back predicate invoked
 (arity 8) after every iteration
 
-Example 
+Example
 ~~~~
 optimizer_initialize(1,user,evaluate,progress)</span>
 ~~~~
@@ -314,7 +314,7 @@ value will terminate the optimization process.
 static YAP_Bool optimizer_initialize(void) {
   YAP_Term t1 = YAP_ARG1;
   int temp_n=0;
-  
+
   if (optimizer_status!=OPTIMIZER_STATUS_NONE) {
     printf("ERROR: Optimizer has already been initialized. Please call optimizer_finalize/0 first.\n");
     return FALSE;
@@ -365,13 +365,13 @@ static YAP_Bool optimizer_run(void) {
     printf("ERROR: Memory for parameter vector not initialized, please call optimizer_initialize/1 first.\n");
     return FALSE;
   }
-  
+
   if (optimizer_status != OPTIMIZER_STATUS_INITIALIZED) {
     printf("ERROR: Optimizer is running right now. Please wait till it is finished.\n");
     return FALSE;
   }
 
-  
+
   // both arguments have to be variables
   if (! YAP_IsVarTerm(t1) || ! YAP_IsVarTerm(t2)) {
     return FALSE;
@@ -439,7 +439,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.m = YAP_IntOfTerm(t2);
   } else if  ((strcmp(name, "epsilon") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -456,7 +456,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.past = YAP_IntOfTerm(t2);
   } else if  ((strcmp(name, "delta") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -483,7 +483,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.max_linesearch = YAP_IntOfTerm(t2);
   } else if  ((strcmp(name, "min_step") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -495,7 +495,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.min_step=v;
   } else if  ((strcmp(name, "max_step") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -507,7 +507,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.max_step=v;
   } else if  ((strcmp(name, "ftol") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -519,7 +519,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.ftol=v;
   } else if  ((strcmp(name, "gtol") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -531,7 +531,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.gtol=v;
   } else if  ((strcmp(name, "xtol") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -543,7 +543,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
     param.xtol=v;
   } else if  ((strcmp(name, "orthantwise_c") == 0)) {
     lbfgsfloatval_t v;
-      
+
     if (YAP_IsFloatTerm(t2)) {
       v=YAP_FloatOfTerm(t2);
     } else if (YAP_IsIntTerm(t2)) {
@@ -567,7 +567,7 @@ static YAP_Bool optimizer_set_parameter( void ) {
       printf("ERROR: The parameter %s is unknown.\n",name);
       return FALSE;
   }
-  
+
   return TRUE;
 }
 
@@ -626,8 +626,8 @@ static YAP_Bool optimizer_get_parameter( void ) {
 
 
 
-void init_lbfgs_predicates( void ) 
-{ 
+void init_lbfgs_predicates( void )
+{
   fcall3 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_evaluate"), 3);
   fprogress8 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_progress"), 8);
 
@@ -646,4 +646,4 @@ void init_lbfgs_predicates( void )
 
   YAP_UserCPredicate("optimizer_set_parameter",optimizer_set_parameter,2);
   YAP_UserCPredicate("optimizer_get_parameter",optimizer_get_parameter,2);
-}  
+}

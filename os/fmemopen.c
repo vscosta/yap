@@ -14,12 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// 
+//
 
 /**
  * @file fmemopen.c
- * @defgroup Memory Streams.
- * @in.
+ * @defgroup MemoryStreams Memory Streams
+ * @ingroup InputOutput
  * @return Description of returned value.
  */
 #ifdef __APPLE__
@@ -41,13 +41,13 @@ typedef struct fmem fmem_t;
 static int readfn(void *handler, char *buf, int size) {
   fmem_t *mem = handler;
   size_t available = mem->size - mem->pos;
-  
+
   if (size > available) {
     size = available;
   }
   memcpy(buf, mem->buffer + mem->pos, sizeof(char) * size);
   mem->pos += size;
-  
+
   return size;
 }
 

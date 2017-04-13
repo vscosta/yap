@@ -18,11 +18,13 @@
 *************************************************************************/
 
 /**
- *
- * @file qly.h
- *
+  *
+  * @file qly.h
+   *
+
  * @defgroup SaveRestoreSupport C-support for saved states.
- * @ingroup YAPSaving
+ * @ingroup QLY
+ * @{
  *
  */
 
@@ -137,3 +139,5 @@ typedef enum {
 
 #define AllocTempSpace() (HR)
 #define EnoughTempSpace(sz) ((ASP - HR) * sizeof(CELL) > sz)
+
+/// @} @}

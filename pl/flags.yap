@@ -14,6 +14,16 @@
 * comments:	controlling YAP						 *
 *									 *
 *************************************************************************/
+/**
+ * @file flagd.ysp
+ *
+ * @defgroup Flags Yap Flags
+ *n@{}
+ * @ingroup builtins
+ * @}@[                                                                                                                                                                                 ]
+ */
+
+
 
 :- system_module( '$_flags', [create_prolog_flag/3,
         current_prolog_flag/2,
@@ -69,7 +79,7 @@
 	unknown(_,error).
 
 
-/** @pred create_prolog_flag(+ _Flag_,+ _Value_,+ _Options_) 
+/** @pred create_prolog_flag(+ _Flag_,+ _Value_,+ _Options_)
 
 Create a new YAP Prolog flag.  _Options_ include
 

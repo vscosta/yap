@@ -29,7 +29,8 @@
     the GNU General Public License.
 */
 
-%% @addtogroup CHR_Debugging
+%% @addtogroup CHR_Debugging Debugging
+%% @ingroup CHR
 %
 % CHR debugger
 %
@@ -43,7 +44,7 @@
 
 
 %%	chr_show_store(+Module)
-%	
+%
 %	Prints all suspended constraints of module   Mod to the standard
 %	output.
 

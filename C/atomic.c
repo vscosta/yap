@@ -18,11 +18,14 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/** @addgroup Predicates_on_Atoms Predicates on Atoms and Strings
-    @ingroup YAPChars
-@{
+/**
+ * @file atomic.c
+ *
+ * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
+ *    @ingroup builtins
+ * @{
 
-The following predicates are used to manipulate atoms:
+@brief The following predicates are used to manipulate atoms, strings, lists of codes and lists of chars:
 
 \toc
 

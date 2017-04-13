@@ -18,17 +18,10 @@
 
    @file YapInterface.h
 
+@addtogroup ChYInterface
    @{
 
-   @defgroup fli_c_cx Foreign Language interface to YAP
-
-   @toc
-
-   @defgroup ChYInterface C interface to YAP
-   @{
-
-   @ingroup fli_c_cx
-
+\
    @brief Core interface to YAP.
 
    @toc

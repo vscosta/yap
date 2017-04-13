@@ -5,8 +5,8 @@ Installing YAP           {#install}
 
 ### Downloading YAP           {#download}
 
-The latest development version of Yap-6 is available source-only through  GIT repositories. The main references
-repository is at
+The latest development version of Yap-6 is available source-only
+through GIT repositories. The main reference repository is at
 
   + [github](https://github.com/vscosta/yap-6.3)
 
@@ -16,7 +16,7 @@ We store an older version of YAP at:
 
 Please just use `git clone` to obtain the distribution. Ie, to download YAP from the command line please type:
 
-~~~~=
+~~~~~
 git clone https://github.com/vscosta/yap-6.3 yap-6.3
 ~~~~~
 
@@ -26,15 +26,15 @@ The first argument is the repository, the last argument is the (optional) target
 
 #### Download Options
 
-More detailed,  maybe useful information:
+It may be useful to know:
 
-   + If you are have limited bandwith or disk room, consider using
+   + If you are have limited bandwith or disk spaceq, consider using
      `git clone --depth XX` to only include the last `XX` commits.
 
    + Older versions of YAP were distributed with modules. YAP-6.3.5 is
      a single package, and it does not need `git submodule`.
 
-   + The GitHub site includes a number of companion packages,
+   + The GitHub site includes a number of companion packages for YAP,
    including [doxygen-yap](https://github.com/vscosta/doxygen-yap), a
    version of doxygen adapted to Prolog that was used to generate
    these documents.
@@ -48,9 +48,9 @@ generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
 to install core YAP under `cmake`:
 
-##### Ensure that you have a working  `C/C++` compiler in your system
+##### `C/C++` compiler
 
-  1. Status as of early 17
+  *Status as of early 2017*
 
 	YAP should compile well under the [GNU-CC](https://gcc.gnu.org/)
     and the [C-LANG]https://clang.llvm.org/() families, that are
@@ -58,23 +58,27 @@ to install core YAP under `cmake`:
     undder Intel `icc`.
 
 	We do not recommend using Microoft's VC++. To the best of our
-    knowledge MSC does not support threaded code, which YAP recquires
+    knowledge MSC does not support threaded emulation, which YAP recquires
     for performance, You can still use the IDE, and experiment with
     the c-lang plugin.
 
 	YAP compiles cleanly under cross-compilers, and we have used the
-    crosss-compirt [mxe](http://mxe.cc/) system with good results.
+    crosss-compilation system [mxe](http://mxe.cc/) system with good results.
 
-##### Ensure that you have a working  `cmake` in your systen,
+#####  `cmake`
 
-    All Linux and BSD distributions include `cmake`, so
+All Linux and BSD distributions include `cmake`, so
 does [Homebrew](https://brew.sh/)
 and [MacPorts](https://www.macports.org/) for the Mac,
-and [MSYS2](http://www.msys2.org/) and [cygwin](http://www.cygwin.org/)
-for WIN32. Android Studio has native support, and there are excellenr
-plugins for the Visual Codes. The `cmake` site includes pre-compiled
-binaries. If you have an older Linux you may need to compile from
-source, available at GitHub.
+and [MSYS2](http://www.msys2.org/)
+and [cygwin](http://www.cygwin.org/) for WIN32. Android Studio has
+native support for `cmake`since 2.1, although we advise to use
+2.2. Last, there are excellent plugins for the Visual Codes. In case
+you need a recent version, consider using pre-compiled binaries at
+the [CMake site](https://www.cmake.org). 
+
+If you have an older Linux you may need to compile from source,
+available at GitHub.
 
 ##### Ensure that you have other necessary packages installed:
 

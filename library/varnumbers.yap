@@ -2,10 +2,10 @@
  * @file   varnumbers.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
- * 
+ *
  * @brief  opposite to numbervars
- * 
- * 
+ *
+ *
 */
 
 :- module(varnumbers, [
@@ -16,8 +16,8 @@
 
 /**
 * @defgroup varnumbers Variabilize term.
-* @ingroup ellllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
-* 
+* @ingroup library
+*
 */
 
 

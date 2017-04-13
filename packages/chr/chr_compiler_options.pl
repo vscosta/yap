@@ -28,7 +28,8 @@
     invalidate any other reasons why the executable file might be covered by
     the GNU General Public License.
 */
-%% @addtogroup CHR_in_YAP_Programs
+%% @addtogroup CHR_in_YAP_Programs CHR Programs
+%% @ingroup CHR
 %
 % CHR controlling the compiler
 %
@@ -38,7 +39,7 @@
 	, init_chr_pp_flags/0
 	, chr_pp_flag/2
 	]).
-	
+
 %% SICStus begin
 %% :- use_module(hprolog, [nb_setval/2,nb_getval/2]).
 %% local_current_prolog_flag(_,_) :- fail.
@@ -55,11 +56,11 @@ local_current_prolog_flag(X,Y) :- current_prolog_flag(X,Y).
 % Global Options
 %
 
-handle_option(Name,Value) :- 
+handle_option(Name,Value) :-
 	var(Name), !,
 	chr_error(syntax((:- chr_option(Name,Value))),'First argument should be an atom, not a variable.\n',[]).
 
-handle_option(Name,Value) :- 
+handle_option(Name,Value) :-
 	var(Value), !,
 	chr_error(syntax((:- chr_option(Name,Value))),'Second argument cannot be a variable.\n',[]).
 
@@ -68,11 +69,11 @@ handle_option(Name,Value) :-
 	!,
 	set_chr_pp_flags(Flags).
 
-handle_option(Name,Value) :- 
+handle_option(Name,Value) :-
 	\+ option_definition(Name,_,_), !,
 	chr_error(syntax((:- chr_option(Name,Value))),'Invalid option name ~w: consult the manual for valid options.\n',[Name]).
 
-handle_option(Name,Value) :- 
+handle_option(Name,Value) :-
 	chr_error(syntax((:- chr_option(Name,Value))),'Invalid option value ~w: consult the manual for valid option values.\n',[Value]).
 
 option_definition(optimize,experimental,Flags) :-
@@ -198,7 +199,7 @@ option_definition(type_declaration,TypeDecl,[]) :-
 	TypeDecl =.. [_|ArgTypes],
 	chr_translate:constraint_type(F/A,ArgTypes)
 	; true).
-	
+
 option_definition(mode,ModeDecl,[]) :-
 	( nonvar(ModeDecl) ->
 	functor(ModeDecl,F,A),
@@ -290,7 +291,7 @@ option_definition(ht_removal,off,Flags) :-
 option_definition(mixed_stores,on,Flags) :-
 	Flags = [mixed_stores - on].
 option_definition(mixed_stores,off,Flags) :-
-	Flags = [mixed_stores - off].	
+	Flags = [mixed_stores - off].
 
 option_definition(line_numbers,on,Flags) :-
 	Flags = [line_numbers - on].
@@ -312,7 +313,7 @@ init_chr_pp_flags :-
 	chr_pp_flag_definition(Name,[DefaultValue|_]),
 	set_chr_pp_flag(Name,DefaultValue),
 	fail.
-init_chr_pp_flags.		
+init_chr_pp_flags.
 
 set_chr_pp_flags([]).
 set_chr_pp_flags([Name-Value|Flags]) :-
@@ -368,7 +369,7 @@ chr_pp_flag(Name,Value) :-
 	;
 		V = Value
 	).
-	
+
 
 % TODO: add whatever goes wrong with (debug,on), (optimize,full) combo here!
 % trivial example of what does go wrong:

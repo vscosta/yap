@@ -74,11 +74,12 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
-%% @{
-
 /**
+
   @defgroup YAPConsulting Loading files into YAP
   @ingroup consult
+
+  @{
 
   We present the main predicates and directives available to load
 files and to set-up the Prolog environment. We discuss
@@ -87,12 +88,10 @@ files and to set-up the Prolog environment. We discuss
 
   + @ref YAPCompilerSettings
 
-  @{
-
 @defgroup YAPReadFiles The Predicates that Read Source Files
   @ingroup  YAPConsulting
 
-
+@{
  */
 
 /**

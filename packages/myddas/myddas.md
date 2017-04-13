@@ -1,14 +1,20 @@
- The MYDDAS Data-base interface   {#myddas}
- ==============================
+The MYDDAS Data-base interface {#myddas}
+===============================
+
+@ingroup Packages
+
+@{
+
+@file myddas.md
 
   The MYDDAS database project was developed within a FCT project aiming at
   the development of a highly efficient deductive database system, based
   on the coupling of the MySQL relational database system with the YAP
   Prolog system. MYDDAS was later expanded to support the ODBC interface.
 
+@defgroup Requirements_and_Installation_Guide    Requirements and Installation Guide         
+@ingroup #myddas
 
-   @defgroup Requirements_and_Installation_Guide Requirements and Installation Guide
-  ee
   Next, we describe how to usen of the YAP with the MYDDAS System.  The
   use of this system is entirely depend of the MySQL development libraries
   or the ODBC development libraries. At least one of the this development
@@ -39,7 +45,8 @@
   two different ways. As if we were on the MySQL Client Shell, and as if
   we were using Datalog.
 
- @defgroup MYDDAS_Architecture MYDDAS Architecture
+@defgroup MYDDAS_Architecture   MYDDAS Architecture      
+@ingroup myddas
 
   The system includes four main blocks that are put together through the
   MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
@@ -64,33 +71,32 @@
   Prolog cut operator, which has exactly the same behaviour from
   predicates defined in the Prolog program source code, or from predicates
   defined in database as relations.
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Name = 'John Doe',
   Number = 123456789 ?
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Backtracking can then be used to retrieve the next row
   of the relation phonebook.  Records with particular field values may be
   selected in the same way as in Prolog. (In particular, no mode
   specification for database predicates is required). For instance:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- phonebook(Letter,'John Doe',Letter).
   Letter = 'D',
   Number = 123456789 ?
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   generates the query
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   SELECT A.Letter , 'John Doe' , A.Number
   FROM 'phonebook' A
   WHERE A.Name = 'John Doe';
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
- @defgroup View_Level_Interface View Level Interface
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@defgroup View_Level_Interface    View Level Interface         
+@ingroup myddas
 
   @pred db view(+,+,+).
 
@@ -101,18 +107,18 @@
 
   If we import a database relation, such as an edge relation representing the edges of a directed graph, through
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_import('Edge',edge).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   sqliand we then write a query to retrieve all the direct cycles in the
   graph, such as
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- edge(A,B), edge(B,A).
   A = 10,
   B = 20 ?
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   this is clearly inefficient [3], because of relation-level
   access. Relation-level access means that a separate SQL query will be
   generated for every goal in the body of the clause. For the second
@@ -129,10 +135,10 @@
   predicates.  One can use the view level interface through the predicates
   db_view/3 and `db_view/2`:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_view(Conn,PredName(Arg_1,...,Arg_n),DbGoal).
   ?- db_view(PredName(Arg_1,...,Arg_n),DbGoal).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   All arguments are standard Prolog terms.  _Arg1_ through  _Argn_
   define the attributes to be retrieved from the database, while
   _DbGoal_ defines the selection restrictions and join
@@ -142,48 +148,48 @@
   an example of a view definition for the direct cycles discussed
   above. Assuming the declaration:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_import('Edge',edge).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   we
   write:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_view(direct_cycle(A,B),(edge(A,B), edge(B,A))).
   yes
   ?- direct_cycle(A,B)).
   A = 10,
   B = 20 ?
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   This call generates the SQL
   statement:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   SELECT A.attr1 , A.attr2
   FROM Edge A , Edge B
   WHERE B.attr1 = A.attr2 AND B.attr2 = A.attr1;
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Backtracking, as in relational level interface, can be used to retrieve the next row of the view.
   The view interface also supports aggregate function predicates such as
   `sum`, `avg`, `count`, `min` and `max`. For
   instance:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_view(count(X),(X is count(B, B^edge(10,B)))).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   generates the query :
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   SELECT COUNT(A.attr2)
   FROM Edge A WHERE A.attr1 = 10;
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
-
- @defgroup Accessing_Tables_in_Data_Sources_Using_SQL Accessing Tables in Data Sources Using SQL
+@defgroup Accessing_Tables_in_Data_Sources_Using_SQL    Accessing Tables in Data Sources Using SQL         
+@ingroup myddas
 
 
   @pred db_sql(+,+,?).
@@ -196,22 +202,22 @@
 
   It is also possible to explicitly send a SQL query to the database server using
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_sql(Conn,SQL,List).
   ?- db_sql(SQL,List).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where  _SQL_ is an arbitrary SQL expression, and  _List_ is a list
   holding the first tuple of result set returned by the server. The result
   set can also be navigated through backtracking.
 
   Example:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@defgroup Insertion_of_Rows Insertion of Rows
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@defgroup Insertion_of_Rows    Insertion of Rows         
+@ingroup myddas
   @ingroup MYDDAS
 
  @pred db_assert(+,+).
@@ -224,36 +230,36 @@
   `db_import/2` or db_import/3, you can insert to that table
   by using db_assert/2 predicate any given fact.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_assert(Conn,Fact).
   ?- db_assert(Fact).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   The second argument must be declared with all of its arguments bound to
   constants. For example assuming `helloWorld` is imported through
   `db_import/2`:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_import('Hello World',helloWorld).
   yes
   ?- db_assert(helloWorld('A' ,'Ana',31)).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   This, would generate the following query
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   INSERT INTO helloWorld
   VALUES ('A','Ana',3)
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   which would insert into the helloWorld, the following row:
   `A,Ana,31`. If we want to insert `NULL`  values into the
   relation, we call db_assert/2 with a uninstantiated variable in
   the data base imported predicate. For example, the following query on
   the YAP-prolog system:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_assert(helloWorld('A',NULL,31)).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Would insert the row: `A,null value,31` into the relation
   `Hello World`, assuming that the second row allows null values.
@@ -268,22 +274,23 @@
   This predicate would create a new database predicate, which will insert
   any given tuple into the database.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_insert(Conn,RelationName,PredName).
   ?- db_insert(RelationName,PredName).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   This would create a new predicate with name  _PredName_, that will
   insert tuples into the relation  _RelationName_. is the connection
   identifier. For example, if we wanted to insert the new tuple
   `('A',null,31)` into the relation `Hello World`, we do:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_insert('Hello World',helloWorldInsert).
   yes
   ?- helloWorldInsert('A',NULL,31).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup  Types_of_Attributes Types of AttributesL
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@defgroup Types_of_Attributes    Types of AttributesL         
+@ingroup myddas
 
 
  @pred db_get_attributes_types(+,+,?).
@@ -297,25 +304,25 @@
 
   The prototype for this predicate is the following:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_get_attributes_types(Conn,RelationName,ListOfFields).
   ?- db_get_attributes_types(RelationName,ListOfFields).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   You can use the
   predicate `db_get_attributes types/2` or db_get_attributes_types/3, to
   know what are the names and attributes types of the fields of a given
   relation. For example:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_get_attributes_types(myddas,'Hello World',LA).
   LA = ['Number',integer,'Name',string,'Letter',string] ?
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
-
- @defgroup  Number_of_Fields Number of Fields
+@defgroup Number_of_Fields    Number of Fields         
+@ingroup myddas
 
 
   @pred db_number_of_fields(+,?).
@@ -326,23 +333,24 @@
   The prototype for this
   predicate is the following:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_number_of_fields(Conn,RelationName,Arity).
   ?- db_number_of_fields(RelationName,Arity).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can use the predicate db_number_of_fields/2 or
   `db_number_of_fields/3` to know what is the arity of a given
   relation. Example:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_number_of_fields(myddas,'Hello World',Arity).
   Arity = 3 ?
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
 
- @defgroup  Describing_a_Relation Describing a Relation
+@defgroup Describing_a_Relation    Describing a Relation         
+@ingroup #myddas
 
   @pred db_datalog_describe(+,+).
   @pred db_datalog_describe(+).
@@ -353,7 +361,7 @@
   value. It simply prints to the screen the result of the MySQL describe
   command, the same way as `DESCRIBE` in the MySQL prompt would.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_datalog_describe(myddas,'Hello World').
   +----------+----------+------+-----+---------+-------+
   |   Field  |  Type    | Null | Key | Default | Extra |
@@ -363,7 +371,7 @@
   +  Letter  | char(1)  | YES  |     |   NULL  |       |
   +----------+----------+------+-----+---------+-------+
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  @pred db_describe(+,+).
 
@@ -376,15 +384,15 @@
   difference. The results are returned by backtracking. For example, the
   last query:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_describe(myddas,'Hello World',Term).
   Term = tableInfo('Number',int(11),'YES','',null(0),'') ? ;
   Term = tableInfo('Name',char(10),'YES','',null(1),'' ? ;
   Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
   no
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
- @defgroup Enumerating_Relations Enumeration Relations Describing_a_Relation Describing a Relation
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@defgroup Enumerating_Relations    Enumeration Relations Describing_a_Relation Describing a Relation         
+@ingroup #myddas
 
 
 /@pred db_datalog_show_tables(+).
@@ -396,7 +404,7 @@
   it does not returns any value, but instead prints to the screen the result of the
   `SHOW TABLES` command, the same way as it would be in the MySQL prompt.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_datalog_show_tables(myddas).
   +-----------------+
   | Tables_in_guest |
@@ -404,7 +412,7 @@
   |   Hello World   |
   +-----------------+
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  @pred db_show_tables(+, ?).
 
 
@@ -418,12 +426,15 @@
   `db_show_tables/1` predicate but with one major difference. The
   results are returned by backtracking. For example, given the last query:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_show_tables(myddas,Table).
   Table = table('Hello World') ? ;
   no
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- @defgroup  The_MYDDAS_MySQL_Top_Level The MYDDAS MySQL Top Level
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+@defgroup The_MYDDAS_MySQL_Top_Level    The MYDDAS MySQL Top Level         
+@ingroup #myddas
 
   @pred db_top_level(+,+,+,+,+).
   @pred db_top_level(+,+,+,+).
@@ -437,27 +448,27 @@
   different from the standard mysql client. We can use this
   mode, by invoking the db top level/5. as one of the following:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_top_level(mysql,Connection,Host/Database,User,Password).
   ?- db_top_level(mysql,Connection,Host/Database/Port,User,Password).
   ?- db_top_level(mysql,Connection,Host/Database/UnixSocket,User,Password).
   ?- db_top_level(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   Usage is similar as the one described for the db_open/5 predicate
   discussed above. If the login is successful, automatically the prompt of
   the mysql client will be used.  For example:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   opens a
   connection identified by the `con1` atom, to an instance of a MySQL server
   running on host `localhost`, using database guest `db` and user `guest` with
   empty password. After this is possible to use MYDDAS as the mysql
   client.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_top_level(mysql,con1,localhost/guest_db,guest,'').
   Reading table information for completion of table and column names
   You can turn off this feature to get a quicker startup with -A
@@ -472,8 +483,10 @@
   Bye
   yes
   ?-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- @defgroup   Other_MYDDAS_Properties Other MYDDAS Properties
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@defgroup Other_MYDDAS_Properties    Other MYDDAS Properties
+@ingroup #myddas
 
   @pred db_verbose(+).
 
@@ -483,11 +496,11 @@
   `QUERY`. If we want to see that query, we must to this at a given
   point in our session on YAP.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_verbose(1).
   yes
   ?-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   If we want to
   disable this feature, we must call the `db_verbose/1` predicate with the value 0.
 
@@ -504,51 +517,51 @@
   by default on the `user` module. If we want to change this value, we can
   use the db_module/1 predicate to do so.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_module(lists).
   yes
   ?-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   By executing this predicate, all of the predicates asserted by the
   predicates enumerated earlier will created in the lists module.
   If we want to put back the value on default, we can manually put the
   value user. Example:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_module(user).
   yes
   ?-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   We can also see in what module the predicates are being asserted by doing:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_module(X).
   X=user
   yes
   ?-
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  @pred db_my_result_set(?).
 
   The MySQL C API permits two modes for transferring the data generated by
   a query to the client, in our case YAP. The first mode, and the default
-  mode used by the MYDDAS-MySQL, is to store the result. This mode copies all the
+  mod-MySQL, is to store the result. This mode copies all the
   information generated to the client side.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_my_result_set(X).
   X=store_result
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   The other mode that we can use is use result. This one uses the result
   set created directly from the server. If we want to use this mode, he
   simply do
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_my_result_set(use_result).
   yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   After this command, all
   of the database predicates will use use result by default. We can change
   this by doing again `db_my_result_set(store_result)`.
@@ -567,8 +580,10 @@
   not to ignore the INSERT statement warnings and instead of taking
   action, report an error, we could use the following SQL mode.
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?-db_my_sql_mode(traditional). yes
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
+
+@}

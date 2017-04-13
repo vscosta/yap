@@ -3,9 +3,6 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-User Manual for YAP6                (#main)
-====================
-
 NOTE: this version of YAP is still experimental, documentation may be out of date.
 
 ## Introduction
@@ -39,6 +36,10 @@ Springer-Verlag.
 YAP 6.3.4 has been built with the gcc and clang compilers on Linux and OSX machines. We expect to recover support for  WIN32 machines and
 Android next.
 
+We are happy to include in YAP several excellent packages developed
+under separate licenses. Our thanks to the authors for their kind
+authorization to include these packages.
+
 The overall copyright and permission notice for YAP4.3 can be found in
 the Artistic file in this directory. YAP follows the Perl Artistic
 license, and it is thus non-copylefted freeware. Some components of YAP have been obtained from SWI Prolog and ciao, and have
@@ -53,10 +54,6 @@ subscribe to the mailing list, visit the page
 On-line documentation is available for [YAP](http://www.dcc.fp.pt/~vsc/yap/)
 
 
-
-We are happy to include in YAP several excellent packages developed
-under separate licenses. Our thanks to the authors for their kind
-authorization to include these packages.
 
 The packages are, in alphabetical order:
 

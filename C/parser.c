@@ -20,17 +20,14 @@ static char SccsId[] = "%W% %G%";
 
 /**
 
-@defgroup YAPSyntax YAP Syntax
-@ingroup YAPProgramming
-@{
+@addtogroup YAPSyntax
 
-We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
 the \a tokens from which Prolog \a terms are
 built.
 
 @defgroup Formal_Syntax Syntax of Terms
-@ingroup Syntax
+@ingroup YAPSyntax
 @{
 
 Below, we describe the syntax of YAP terms from the different

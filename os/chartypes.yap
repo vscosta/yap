@@ -1386,7 +1386,6 @@ digit_weight( 0x1D7D7, 9).
 digit_weight( 0x1D7E1, 9).
 digit_weight( 0x1D7EB, 9).
 digit_weight( 0x1D7F5, 9).
-x
 digit_weight( 0x1D7FF, 9).
 digit_weight( 0x1E8CF, 9).
 digit_weight( 0x1F10A, 9).

@@ -1,4 +1,4 @@
-%% -*- prolog -*-
+pgec%% -*- prolog -*-
 %%=============================================================================
 %% Copyright (C) 2011 by Denys Duchier
 %%
@@ -6,12 +6,12 @@
 %% under the terms of the GNU Lesser General Public License as published by the
 %% Free Software Foundation, either version 3 of the License, or (at your
 %% option) any later version.
-%% 
+%%
 %% This program is distributed in the hope that it will be useful, but WITHOUT
 %% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
 %% FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
 %% more details.
-%% 
+%%
 %% You should have received a copy of the GNU Lesser General Public License
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
@@ -31,7 +31,7 @@ Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 
- @defgroup The_Gecode_Interface The Gecode Interface
+ @addtogroup The_Gecode_Interface The Gecode Interface
 @ingroup Gecode
 @{
 
@@ -265,7 +265,7 @@ and lookup values of variables in each solution:
 
 
 
- 
+
 */
 
 :- use_module(library(debug)).
@@ -797,11 +797,11 @@ new_setvar(SVar,Space,X1,X2) :-
 new_tupleset( TupleSet, List  ) :-
 	gecode_new_tupleset(List, TupleSet_),
 	TupleSet = 'TupleSet'(TupleSet_).
-	
+
 new_dfa( DFA, S0,  List, Finals  ) :-
 	gecode_new_dfa(DFA_, S0, List, Finals),
 	DFA = 'DFA'(DFA_).
-	
+
 
 minimize(Space,IVar) :-
 	assert_is_Space(Space,Space_),

@@ -1,4 +1,4 @@
-0/*************************************************************************
+/*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -28,11 +28,11 @@ static char SccsId[] = "%W% %G%";
 #define NULL (void *)0
 #endif
 
-/** 
+/**
     @file attvar.c
-    @{
     @defgroup AttributeVariables_Builtins Implementation of Attribute Declarations
-    @ingroup AttributeVariables
+    @{
+    @ingroup attributes
 */
 
 #ifdef COROUTINING

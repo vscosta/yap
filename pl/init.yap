@@ -385,4 +385,9 @@ clause_to_indicator(T, M:Name/Arity) :- ,
 
 /**
 @}
+
+@defgroup packages YAP Packages
+
+
+
 */

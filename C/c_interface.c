@@ -17,7 +17,9 @@
  *************************************************************************/
 
 /**
-@file c_interface.c
+ * @file c_interface.c
+ *
+ * @addtogroup ChYInterface 
 */
 
 #ifndef C_INTERFACE_C
@@ -174,11 +176,6 @@ X_API YAP_handle_t YAP_ArgsToSlots(int HowMany);
 X_API void YAP_SlotsToArgs(int HowMany, YAP_handle_t slot);
 
 /// @}
-
-/**
-@addtogroup c-interface
-@{
-*/
 
 static arity_t current_arity(void) {
   CACHE_REGS

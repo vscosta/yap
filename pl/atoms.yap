@@ -9,7 +9,7 @@
  *************************************************************************/
 
 /**
- *@file atoms.yap
+ * @file atoms.yap
  *
  */
 
@@ -23,8 +23,8 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
-/?**
-  * @addtogroup Predicates_on_Atoms
+/**
+ * @addtogroup Predicates_on_Atoms
  *
 */
 

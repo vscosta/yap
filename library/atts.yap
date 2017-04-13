@@ -18,32 +18,35 @@
 :- module(attributes, [op(1150, fx, attribute)]).
 
 /**
-  @addtogroup attributes
+ *
+ * @defgroup sicsatts SICStus style attribute declarations
+ *
+ *  @ingroup attributes
+ *
+ * @{
+ *
 
+ SICStus style attribute declarations are activated through loading the
+ library <tt>atts</tt>. The command
 
-%% @{
+ ~~~~~
+ | ?- use_module(library(atts)).
+ ~~~~~
+ enables this form of attributed variables.
 
-                                                SICStus style attribute declarations are activated through loading the
-library <tt>atts</tt>. The command
+ The directive
 
-~~~~~
-| ?- use_module(library(atts)).
-~~~~~
-enables this form of attributed variables.
+ - attribute/1
 
-The directive
+ and the following user defined predicates can be used:
 
-- attribute/1
+ - Module:get_atts/2
 
-and the following user defined predicates can be used:
+ - Module:put_atts/2
 
-- Module:get_atts/2
+ - Module:put_atts/3
 
-- Module:put_atts/2
-
-- Module:put_atts/3
-
-- Module:woken_att_do/4
+ - Module:woken_att_do/4
 
 */
 

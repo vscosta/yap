@@ -6,7 +6,7 @@ The R Prolog Progrmming Interface      {#real}
 @author	Vitor Santos Costa
 @version	1:0:4, 2013/12/25, sinter_class
 @license	Perl Artistic License
- @defgroup libReal  An interface to the R statistical software.
+
 @ingroup packages
 
 

@@ -103,7 +103,7 @@ void *YAP_save;
 /**
 
 @defgroup Operators Summary of YAP Predefined Operators
-@ingroup Syntax
+@ingroup YAPSyntax
 @{
 
 The Prolog syntax caters for operators of three main kinds:

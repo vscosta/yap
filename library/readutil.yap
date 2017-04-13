@@ -38,7 +38,7 @@
 		    ]).
 
 /**
-* @defsgroup readutil
+* @defgroup readutil
 * @ingroup library
 *
 *  Read full lines and a full file in a single call.
