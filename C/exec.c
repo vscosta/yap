@@ -1467,7 +1467,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       while (B) {
       Yap_JumpToEnv(TermDAbort);
   }
-  LOCAL_PrologMode &~ AbortMode;
+  LOCAL_PrologMode &= ~AbortMode;
       P = (yamop *)FAILCODE;
       if (LOCAL_CBorder)
       LOCAL_CBorder = OldBorder;

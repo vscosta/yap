@@ -213,6 +213,8 @@ struct pred_entry *Yap_ModulePred(Term mod) {
 void Yap_NewModulePred(Term mod, struct pred_entry *ap) {
   ModEntry *me;
 
+  if (mod == 0)
+    mod = TermProlog;
   if (!(me = LookupModule(mod)))
     return;
   WRITE_LOCK(me->ModRWLock);

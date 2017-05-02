@@ -215,12 +215,17 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
 
     if (proc_name && !*init_proc)
       *init_proc = (YapInitProc)dlsym(handle, proc_name);
-
     ofiles = ofiles->next;
   }
 
   if (!*init_proc) {
-    LOCAL_ErrorMessage = "Could not locate initialization routine";
+    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+    snprintf(LOCAL_ErrorMessage,
+           "Could not locate routine %s in %s: %s\n",
+           proc_name, LOCAL_FileNameBuf, dlerror());
+           fprintf(stderr,
+                  "Could not locate routine %s in %s: %s\n",
+                  proc_name, LOCAL_FileNameBuf, dlerror());
     return LOAD_FAILLED;
   }
 

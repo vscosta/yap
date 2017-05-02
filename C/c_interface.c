@@ -1685,7 +1685,6 @@ X_API bool YAP_EnterGoal(PredEntry *pe, CELL *ptr, YAP_dogoalinfo *dgi) {
   // LOCAL_CurSlot);
   dgi->b = LCL0 - (CELL *)B;
   out = Yap_exec_absmi(true, false);
-  RECOVER_MACHINE_REGS();
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1693,6 +1692,7 @@ X_API bool YAP_EnterGoal(PredEntry *pe, CELL *ptr, YAP_dogoalinfo *dgi) {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
   }
+  RECOVER_MACHINE_REGS();
   return out;
 }
 
@@ -1702,24 +1702,26 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
+    printf("before RETRY H=%p, ASP=%p, B=%p, ENV=%p, TR=%p %ld\n", HR, ASP, B, ENV, TR, LOCAL_CurSlot);
+    myB = (choiceptr)(LCL0 - dgi->b);
   CP = myB->cp_cp;
   /* sanity check */
   if (B >= myB) {
-    return FALSE;
+    return false;
   }
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
   LOCAL_CurSlot = dgi->EndSlot;
   out = run_emulator(PASS_REGS1);
-  RECOVER_MACHINE_REGS();
-  if (out) {
+    printf("out=%d RETRY H=%p, ASP=%p, B=%p, ENV=%p, TR=%p %ld\n", out, HR, ASP, B, ENV, TR, LOCAL_CurSlot);
+    if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
   }
+  RECOVER_MACHINE_REGS();
   return out;
 }
 
@@ -1729,7 +1731,7 @@ X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b);
-  if (B > myB) {
+  if (B < myB) {
     /* someone cut us */
     return FALSE;
   }
@@ -2342,7 +2344,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
   //  GLOBAL_PrologShouldHandleInterrupts =
   //  yap_init->PrologShouldHandleInterrupts &&
-  if (!yap_init->Embedded)
+  if (!yap_init->Embedded) {
     Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
   GLOBAL_argv = yap_init->Argv;
@@ -2353,6 +2355,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   } else {
     yroot = BootFilePath;
   }
+  }
   if (yap_init->SavedState == NULL) {
     yap_init->SavedState = YAP_STARTUP;
   }
@@ -2361,7 +2364,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   if (yap_init->SavedState == NULL)
     yap_init->SavedState = YAP_STARTUP;
 #else
-  yap_init->SavedState = Yap_findFile(yap_init->SavedState, YAP_STARTUP, yroot,
+  yap_init->SavedState = Yap_findFile(yap_init->SavedState, YAP_STARTUP, yap_init->YapLibDir,
                                       boot_file, true, YAP_QLY, true, true);
 #endif
   if (yap_init->SavedState == NULL) {
