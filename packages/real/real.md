@@ -43,8 +43,7 @@ The main modes for utilising the interface are
 
 Pass Prolog data to R, pass R data to Prolog or assign an R expression to
 an assignable R expression.
-
-@defgroup TestingR Testing Real
+###  Testing Real              {#TestingR}
 
 There is a raft of examples packed in a singl```e file that test the library.
 
@@ -55,8 +54,7 @@ There is a raft of examples packed in a singl```e file that test the library.
 
 	?- edit( pack(real/examples/for_real) ).
 ~~~~
-
-@defgroup RSyntax Prolog and R Syntax
+###  Prolog and R Syntax              {#RSyntax}
 
 There are syntactic conventions in R that make unparsable prolog code.
 Notably function and variable names are allowed to contain dots, square brackets are used
@@ -77,8 +75,7 @@ Prolog constructs are converted by the library as follows:
 * Expressions that pose difficulty in translation can always be passed as unquoted Prolog atoms or strings.
 	]]* since  0:1:2  foo()  is valid syntax:  =|<- dev..off() |= works now (with no need for dev..off(.))
 	* since  0:1:2  mat[1] is valid syntax:  =|m[1] <- 4|= works now (with no need for m^[...])
-
-@defgroup RDataTransfer Mapping Data betweenn Prolog and R
+###  Mapping Data betweenn Prolog and R              {#RDataTransfer}
 
 R vectors are mapped to prolog lists and matrices are mapped to nested lists.
 The convention works the other way around too.
@@ -159,8 +156,7 @@ This is only advisable for short data structures. For instance,
 
 Through this interface it is more convenient to be explicit about R chars by Prolog prepending
 atoms or codes with + as in the above example.
-
-@defgroup RealExamples Examples
+###  Examples              {#RealExamples}
 
 ~~~~
 

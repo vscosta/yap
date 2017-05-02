@@ -7,13 +7,13 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
-+ The @subpage c-interface
+  + The @subpage c-interface
 
-+ The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
+  + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
-+ The @ref  yap-cplus-interface is desiged to interface with the SWIG package by using Object-Oriented concepts
+  + The @ref  yap-cplus-interface is desiged to interface with the SWIG package by using Object-Oriented concepts
 
-+ The @ref LoadInterface handles the setup of foreign files
++ The @ref LoadForeign handles the setup of foreign files
 
 
 
@@ -125,8 +125,7 @@ init_my_predicates() was passed as the third argument to
 load_foreign_files/3.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
-
-@section Manipulating_Terms Terms
+###  Terms              {#Manipulating_Terms}
 
 This section provides information about the primitives available to the C
 programmer for manipulating Prolog terms.
@@ -498,8 +497,7 @@ You can set  _min_ to zero if you do not know how much room you need
 but you do know you do not need a big chunk at a single go. Usually, the routine
 would usually be called together with a long-jump to restart the
 code. Slots can also be used if there is small state.
-
-@section Unifying_Terms Unification
+###  Unification              {#Unifying_Terms}
 
 YAP provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
@@ -512,8 +510,7 @@ terms. The routine may succeed or fail:
 The routine attempts to unify the terms  _a_ and
  _b_ returning `TRUE` if the unification succeeds and `FALSE`
 otherwise.
-
-@section Manipulating_Strings Strings
+###  Strings              {#Manipulating_Strings}
 
 The YAP C-interface now includes an utility routine to copy a string
 represented as a list of a character codes to a previously allocated buffer
@@ -593,8 +590,7 @@ These C-interface functions are useful when converting Prolog lists to arrays:
 </ul>
 They return the number of integers scanned, up to a maximum of <tt>sz</tt>,
 and <tt>-1</tt> on error.
-
-@section Memory_Allocation Memory Allocation
+###  Memory Allocation              {#Memory_Allocation}
 
 The next routine can be used to ask space from the Prolog data-base:
 
@@ -618,8 +614,7 @@ back to YAP by using:
 The routine releases a buffer allocated from the code area. The system
 may crash if `buf` is not a valid pointer to a buffer in the code
 area.
-
-@section Controlling_Streams Controlling YAP Streams from `C`
+###  Controlling YAP Streams from `C`              {#Controlling_Streams}
 
 The C-Interface also provides the C-application with a measure of
 control over the YAP Input/Output system. The first routine allows one
@@ -674,8 +669,7 @@ The available flags are `YAP_INPUT_STREAM`,
 `YAP_BINARY_STREAM`, and `YAP_SEEKABLE_STREAM`. By default, the
 stream is supposed to be at position 0. The argument  _name_ gives
 the name by which YAP should know the new stream.
-
-@section Utility_Functions Utility Functions in `C`
+###  Utility Functions in `C`              {#Utility_Functions}
 
 The C-Interface  provides the C-application with a a number of utility
 functions that are useful.
@@ -766,8 +760,7 @@ ignore_variables));
 The first three arguments follow `term_has/4`. The last argument
 indicates what to do if we find a variable: if `0` fail, otherwise
 ignore the variable.
-
-@section Calling_YAP_From_C From `C` back to Prolog
+###  From `C` back to Prolog              {#Calling_YAP_From_C}
 
 There are several ways to call Prolog code from C-code. By default, the
 `YAP_RunGoal()` should be used for this task. It assumes the engine
@@ -937,8 +930,7 @@ finding the first solution to the goal, but you can call
 
 Notice that during execution, garbage collection or stack shifting may
 have moved the terms
-
-@section Module_Manipulation_in_C Module Manipulation in C
+###  Module Manipulation in C              {#Module_Manipulation_in_C}
 
 YAP allows one to create a new module from C-code. To create the new
 code it is sufficient to call:
@@ -964,8 +956,7 @@ possible by using:
 </ul>
 Notice that this function returns a term, and not an atom. You can
 [YAP_AtomOfTerm](@ref YAP_AtomOfTerm) to extract the corresponding Prolog atom.
-
-@section Miscellaneous_ChYFunctions Miscellaneous C Functions
+###  Miscellaneous C Functions              {#Miscellaneous_ChYFunctions}
 
 <ul>
  <li>`void` YAP_Throw(`YAP_Term exception`)
@@ -1026,8 +1017,7 @@ of such arguments.
 
 </li>
 </ul>
-
-@section Writing_C Writing predicates in C
+###  Writing predicates in C              {#Writing_C}
 
 We will distinguish two kinds of predicates:
 
@@ -1278,9 +1268,7 @@ init_n100(void)
 }
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 in this case no code is executed at cut time.
-
-
-@section YAP4_Notes Changes to the C-Interface in YAP4
+###  Changes to the C-Interface in YAP4              {#YAP4_Notes}
 
 YAP4 includes several changes over the previous `load_foreign_files/3`
 interface. These changes were required to support the new binary code

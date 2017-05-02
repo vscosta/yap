@@ -18,6 +18,6 @@ Object = 'http://www.example.org/tv_show',
 Predicate = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
 Subject = 'http://www.example.org/law_and_order_ci' ?
 
-~~~~{.prolog}
+~~~~
 
 The code also includes a library under developent to connect Yap and libXML2.

@@ -29,10 +29,11 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /**
-    @file attvar.c
-    @defgroup AttributeVariables_Builtins Implementation of Attribute Declarations
-    @{
+    @adefgroup AttributedVariables_Builtins Low-level support for Attributed Variables
+    
+     @brief Implementation of Attribute Declarations
     @ingroup attributes
+    @{
 */
 
 #ifdef COROUTINING

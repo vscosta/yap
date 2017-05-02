@@ -1,9 +1,9 @@
-YAP packages files {packages}
-==============================
+YAP packages              {#packages}
+============
 
   + @subpage real
 
-  + @subpage bdds
+  + @subpage BDDs
 
   + @subpage  gecode
 
@@ -26,5 +26,3 @@ YAP packages files {packages}
   + @subpage chr
 
   + @subpage clpqr
-
-

@@ -18,16 +18,18 @@
 /** @file YapGFlagInfo.h
 
     @addtogroup YAPFlags
-*/
+@ingroup builtins
+@{
 
-/** @pred  yap_flag( ?Param, ?Value)
+ @pred  yap_flag( ?Param, ?Value)
 
 
 Set or read system properties for  _Param_:
 
- @enum YapGFlag Prolog 
+ @enum YapGFlag Prolog
  @Brief global flag:
 
+@enum GlobalFlags Global Flags Dupported ny YAP *
 */
 
 YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),  /**< `address_bits`
@@ -553,3 +555,4 @@ integers that are writable character codes using the list notation. It
 is `on` if enables or `off` if disabled. The default value for
 this flag is `off`.
 */
+//! @}

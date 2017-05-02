@@ -61,6 +61,9 @@ set (POSITION_INDEPENDENT_CODE TRUE)
       chartypes.yap
   )
 
+add_to_group( pl_os_library YAPOS_PL_SOURCES )
+
+
   if (ANDROID)
       file(INSTALL ${YAPOS_PL_SOURCES}  DESTINATION ${libpl}/os)
 else()

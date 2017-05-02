@@ -268,7 +268,7 @@ p_code_type( LOWER , lower) :-
 p_code_type( LOWER, lower( Upper)) :-
 	toupper( LOWER, Upper),
 	code_type_lower( LOWER ).
-vp_code_type( LOWER, to_lower( Upper)) :-
+p_code_type( LOWER, to_lower( Upper)) :-
 	toupper( LOWER, Upper).
 p_code_type( UPPER, upper  ) :-
 	code_type_upper( UPPER ).

@@ -1,4 +1,4 @@
-CHR: Constraint Handling Rules  {#chr}
+patttCHR: Constraint Handling Rules  {#chr}
 ==============================
 
 

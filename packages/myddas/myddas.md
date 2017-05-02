@@ -1,19 +1,11 @@
 The MYDDAS Data-base interface {#myddas}
 ===============================
 
-@ingroup Packages
-
-@{
-
-@file myddas.md
-
   The MYDDAS database project was developed within a FCT project aiming at
   the development of a highly efficient deductive database system, based
   on the coupling of the MySQL relational database system with the YAP
   Prolog system. MYDDAS was later expanded to support the ODBC interface.
-
-@defgroup Requirements_and_Installation_Guide    Requirements and Installation Guide         
-@ingroup #myddas
+###  Requirements and Installation Guide                       {#Requirements_and_Installation_Guide}
 
   Next, we describe how to usen of the YAP with the MYDDAS System.  The
   use of this system is entirely depend of the MySQL development libraries
@@ -44,9 +36,7 @@ The MYDDAS Data-base interface {#myddas}
   This option is only available in MySQL.  It enables the option to interact with the MySQL server in
   two different ways. As if we were on the MySQL Client Shell, and as if
   we were using Datalog.
-
-@defgroup MYDDAS_Architecture   MYDDAS Architecture      
-@ingroup myddas
+###  MYDDAS Architecture                    {#MYDDAS_Architecture}
 
   The system includes four main blocks that are put together through the
   MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
@@ -95,8 +85,8 @@ The MYDDAS Data-base interface {#myddas}
   FROM 'phonebook' A
   WHERE A.Name = 'John Doe';
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup View_Level_Interface    View Level Interface         
-@ingroup myddas
+###  View Level Interface                       {#View_Level_Interface}
+
 
   @pred db view(+,+,+).
 
@@ -188,8 +178,7 @@ The MYDDAS Data-base interface {#myddas}
 
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
-@defgroup Accessing_Tables_in_Data_Sources_Using_SQL    Accessing Tables in Data Sources Using SQL         
-@ingroup myddas
+###  Accessing Tables in Data Sources Using SQL                       {#Accessing_Tables_in_Data_Sources_Using_SQL}
 
 
   @pred db_sql(+,+,?).
@@ -216,9 +205,7 @@ The MYDDAS Data-base interface {#myddas}
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup Insertion_of_Rows    Insertion of Rows         
-@ingroup myddas
-  @ingroup MYDDAS
+###  Insertion of Rows                       {#Insertion_of_Rows}
 
  @pred db_assert(+,+).
   @pred db_assert(+).
@@ -264,9 +251,7 @@ The MYDDAS Data-base interface {#myddas}
   Would insert the row: `A,null value,31` into the relation
   `Hello World`, assuming that the second row allows null values.
 
-*/
-
-/** @pred db insert(+,+,+).
+ @pred db insert(+,+,+).
   @pred db insert(+,+).
 
 
@@ -289,8 +274,7 @@ The MYDDAS Data-base interface {#myddas}
   ?- helloWorldInsert('A',NULL,31).
   yes
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup Types_of_Attributes    Types of AttributesL         
-@ingroup myddas
+###  Types of AttributesL                       {#Types_of_Attributes}
 
 
  @pred db_get_attributes_types(+,+,?).
@@ -321,8 +305,7 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
-@defgroup Number_of_Fields    Number of Fields         
-@ingroup myddas
+###  Number of Fields                       {#Number_of_Fields}
 
 
   @pred db_number_of_fields(+,?).
@@ -348,9 +331,7 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
-
-@defgroup Describing_a_Relation    Describing a Relation         
-@ingroup #myddas
+###  Describing a Relation                       {#Describing_a_Relation}
 
   @pred db_datalog_describe(+,+).
   @pred db_datalog_describe(+).
@@ -391,8 +372,7 @@ The MYDDAS Data-base interface {#myddas}
   Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup Enumerating_Relations    Enumeration Relations Describing_a_Relation Describing a Relation         
-@ingroup #myddas
+###  Enumeration Relations Describing_a_Relation Describing a Relation                       {#Enumerating_Relations}
 
 
 /@pred db_datalog_show_tables(+).
@@ -431,10 +411,7 @@ The MYDDAS Data-base interface {#myddas}
   Table = table('Hello World') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-@defgroup The_MYDDAS_MySQL_Top_Level    The MYDDAS MySQL Top Level         
-@ingroup #myddas
+###  The MYDDAS MySQL Top Level                       {#The_MYDDAS_MySQL_Top_Level}
 
   @pred db_top_level(+,+,+,+,+).
   @pred db_top_level(+,+,+,+).
@@ -484,9 +461,7 @@ The MYDDAS Data-base interface {#myddas}
   yes
   ?-
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@defgroup Other_MYDDAS_Properties    Other MYDDAS Properties
-@ingroup #myddas
+###  Other MYDDAS Properties              {#Other_MYDDAS_Properties}
 
   @pred db_verbose(+).
 

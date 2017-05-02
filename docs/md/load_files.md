@@ -1,4 +1,4 @@
-Loading and Oganising YAP Programs           {#load_files}
+Loading and Organising YAP Programs           {#load_files}
 ===================================
 
   Next, we present the main predicates and directives available to load
@@ -8,4 +8,8 @@ Loading and Oganising YAP Programs           {#load_files}
 
   + @ref YAPConsulting
 
- +  @ref QLY
+  +  @ref QLY
+
+  + @ref YAPBigLoad
+
+  

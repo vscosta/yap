@@ -1,8 +1,6 @@
 Compatibility with other Prolog systems {#swi_iso_c}
 ======================================
 
-@ingroup YAPProgramming
-
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus
 Prolog~\cite x . More recent work on YAP has striven at making YAP

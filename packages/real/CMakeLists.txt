@@ -18,8 +18,13 @@ if (LIBR_FOUND)
 
   set (REAL_SOURCES
     real.c
-    real.pl
 )
+
+set (REAL_PL
+  real.pl
+)
+
+add_to_group( pl_library REAL_PL )
 
 include_directories (
       ${CMAKE_CURRENT_BINARY_DIR}
@@ -33,8 +38,10 @@ include_directories (
 
   add_library (real SHARED ${REAL_SOURCES})
 
-  target_link_libraries (real ${LIBR_LIBRARIES}  ${CMAKE_DL_LIBS} libYap)
+  target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
 
+  check_include_files( "stdio.h;R.h" HAVE_R_H )
+  check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
   check_include_files( "Rembedded.h;Rinterface.h" HAVE_R_INTERFACE_H )
 
   configure_file ("rconfig.h.cmake" "rconfig.h" )

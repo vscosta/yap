@@ -1,4 +1,4 @@
-The YAP Module system {#YAPModules}
+The YAP Module system                       {#YAPModules}
 =====================
 
   The YAP module system is based on the Quintus/SISCtus module
@@ -7,6 +7,15 @@ and all predicates belong to a single module. By default, predicates are only
 visible within a module, or _private_ to that module. The module
 may also define a list of predicates that are
 _exported_, that is, visible to other modules.
+
+Next, we present:
++ @ref IntroModules
++ @ref ExplicitNaming
++ @ref ModuleBuiltins
++ @ref YAPMetaPredicates
+
+
+### Using Modules in YAP {#IntroModules}
 
 The main predicates in the module system are:
 

@@ -50,8 +50,11 @@ if (WITH_DOCS)
      COMMENT "Generating API documentation with Doxygen"
      VERBATIM)
 
+   if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/html)
    install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${docdir})
+
    install(FILES  ${CODES} DESTINATION ${docdir})
+   endif()
 
   endif()
 

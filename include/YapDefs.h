@@ -225,69 +225,72 @@ typedef enum {
 #define YAP_BOOT_MODE 2
 
 typedef struct yap_boot_params {
-  /* boot type as suggested by the user */
+  //> boot type as suggested by the user 
   YAP_file_type_t boot_file_type;
-  /* if NON-NULL, path where we can find the saved state */
+  //> if NON-NULL, path where we can find the saved state 
   const char *SavedState;
-  /* if NON-0, minimal size for Heap or Code Area */
+  //> if NON-0, minimal size for Heap or Code Area 
   size_t HeapSize;
-  /* if NON-0, maximal size for Heap or Code Area */
+  //> if NON-0, maximal size for Heap or Code Area 
   size_t MaxHeapSize;
-  /* if NON-0, minimal size for Local+Global Stack */
+  //> if NON-0, minimal size for Local+Global Stack 
   size_t StackSize;
-  /* if NON-0, maximal size for Local+Global Stack */
+  //> if NON-0, maximal size for Local+Global Stack 
   size_t MaxStackSize;
+    //*> deprecated
   size_t MaxGlobalSize;
-  /* if NON-0, minimal size for Trail */
+  //> if NON-0, minimal size for Trail 
   size_t TrailSize;
-  /* if NON-0, maximal size for Trail */
+  //> if NON-0, maximal size for Trail
   size_t MaxTrailSize;
-  /* if NON-0, minimal size for AttributeVarStack */
+  //> if NON-0, minimal size for AttributeVarStack 
   size_t AttsSize;
-  /* if NON-0, maximal size for AttributeVarStack */
+  //> if NON-0, maximal size for AttributeVarStack 
   size_t MaxAttsSize;
-  /* if NON-NULL, value for YAPLIBDIR */
-  const char *YapLibDir;
-  /* if NON-NULL, name for a Prolog file to use when booting  */
+    //> if NON-NULL, value for YAPLIBDIR 
+    const char *YapLibDir;
+    //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries 
+    const char *YapShareDir;
+    //> if NON-NULL, name for a Prolog file to use when booting  
   const char *YapPrologBootFile;
-  /* if NON-NULL, name for a Prolog file to use when initializing  */
+  //> if NON-NULL, name for a Prolog file to use when initializing  
   const char *YapPrologInitGoal;
-  /* if NON-NULL, name for a Prolog file to consult before entering top-level */
+  //> if NON-NULL, name for a Prolog file to consult before entering top-level 
   const char *YapPrologRCFile;
-  /* if NON-NULL, a goal to run before top-level  */
+  //> if NON-NULL, a goal to run before top-level  
   const char *YapPrologGoal;
-  /* if NON-NULL, a goal to run as top-level  */
+  //> if NON-NULL, a goal to run as top-level  
   const char *YapPrologTopLevelGoal;
-  /* if NON-NULL, a path to extend file-search-path   */
+  //> if NON-NULL, a path to extend file-search-path   
   const char *YapPrologAddPath;
-  /* if previous NON-NULL and TRUE, halt after consulting that file  */
+  //> if previous NON-NULL and TRUE, halt after consulting that file  
   bool HaltAfterConsult;
-  /* ignore .yaprc, .prolog.ini, etc. files.  */
+  //> ignore .yaprc, .prolog.ini, etc. files.  
   bool FastBoot;
-  /* the next field only interest YAPTAB */
-  /* if NON-0, maximum size for Table Space */
+  //> the next field only interest YAPTAB 
+  //> if NON-0, maximum size for Table Space 
   size_t MaxTableSpaceSize;
   /* the next three fields only interest YAPOR, but we keep them so that
      users don't need to recompile DLL in order to use YAPOR */
-  /* if NON-0, number of workers we want to have (default=1) */
+  //> if NON-0, number of workers we want to have (default=1) 
   unsigned long int NumberWorkers;
-  /* if NON-0, manage the inner scheduler loop (default = 10) */
+  //> if NON-0, manage the inner scheduler loop (default = 10) 
   unsigned long int SchedulerLoop;
-  /* if NON-0, say how long to keep nodes (default = 3) */
+  //> if NON-0, say how long to keep nodes (default = 3) 
   unsigned long int DelayedReleaseLoad;
-  /* end of YAPOR fields */
+  //> end of YAPOR fields 
   /* whether Prolog should handle interrupts. Note that
     interrupts will always be disabled in embedded mode. */
   bool PrologCannotHandleInterrupts;
-  /* flag for JIT mode */
+  //> flag for JIT mode 
   int ExecutionMode;
-  /* number of arguments that Prolog will see */
+  //> number of arguments that Prolog will see 
   int Argc;
-  /* array of arguments as seen by Prolog */
+  //> array of arguments as seen by Prolog 
   char **Argv;
-  /* embedded in some other system: no signals, readline, etc */
+  //> embedded in some other system: no signals, readline, etc 
   bool Embedded;
-  /* QuietMode */
+  //> QuietMode 
   int QuietMode;
 
 /* nf: Begin ypp preprocessor code */
@@ -298,9 +301,9 @@ typedef struct yap_boot_params {
 /* End preprocessor code */
 
 #ifdef MYDDAS_MYSQL
-  /* If any myddas option was given */
+  //> If any myddas option was given 
   short myddas;
-  /* MYDDAS Fields */
+  //> MYDDAS Fields 
   char *myddas_user;
   char *myddas_pass;
   char *myddas_db;
@@ -308,7 +311,7 @@ typedef struct yap_boot_params {
 #endif
   /* errornumber */
   int ErrorNo;
-  /* errorstring */
+  //> errorstring 
   char *ErrorCause;
 } YAP_init_args;
 
