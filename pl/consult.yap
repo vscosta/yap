@@ -942,18 +942,6 @@ source_file(Mod:Pred, FileName) :-
   SWI-compatible predicate. True if the predicate specified by  _ModuleAndPred_ was loaded from file  _File_, where  _File_ is an absolute path name (see `absolute_file_name/2`).
 
 */
-
-%% @}
-
-%% @{
-
-/** @addtogroup YAPLibraries Library Predicates
-
-Library files reside in the library_directory path (set by the
-`LIBDIR` variable in the Makefile for YAP). Currently,
-most files in the library are from the Edinburgh Prolog library.
-
-*/
 prolog_load_context(directory, DirName) :-
         ( source_location(F, _)
         -> file_directory_name(F, DirName) ;
@@ -1183,9 +1171,11 @@ unload_file( F0 ) :-
 
 /**
 
-  @{
+@defgroup ModPreds Module Interface Predicates
+@ingroup YAPModules
 
-@addtogroup YAPModules
+
+  @{
 
 **/
 
@@ -1294,10 +1284,11 @@ account the following observations:
 @}
 **/
 
-%%   @{
 
 /** @defgroup  YAPCompilerSettings Directing and Configuring the Compiler
     @ingroup  YAPProgramming
+
+@{
 
   The YAP system also includes a number of primitives designed to set
   compiler parameters and to track the state of the compiler. One

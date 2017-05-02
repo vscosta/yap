@@ -20,16 +20,8 @@
  * @file   corout.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Mon Nov 16 22:47:27 2015
- *
- * @addtogroup extensions Extensions to Core Prolog
- *
- * @{
- * @ addtogroup attributes Attributed Variables and Co-Routining
- * @{
- * @brief  Support for co-routining
- *
- *
-*/
+ * *
+ */
 
 
 :- module('$coroutining',[
@@ -43,15 +35,21 @@
 
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
- 
+
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
 
-%%@{
+/**
+ *  @defgroup corout Implementing Attributed Variables and Co-Routining
+ *
+ *  @ingroup attributes
+ *  @{
+ *  @brief  Support for co-routining
+	*
+	*
+””	*/
 
-%% @aaddtogroup CohYroutining
-%% @ingroup attributes
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)
 
@@ -579,6 +577,5 @@ check_first_attvar([_|Vs], V0) :-
 	check_first_attvar(Vs, V0).
 
 /**
-  @}
   @}
 */

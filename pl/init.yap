@@ -25,12 +25,12 @@
 @}
 
   @addtogroup YAPControl
-
+@ingroup builtins
     @{
 */
 :- system_module( '$_init', [!/0,
-        (:-)/1,
-        (?-)/1,
+        ':-'/1,
+        '?-'/1,
         []/0,
         extensions_to_present_answer/1,
         fail/0,
@@ -40,7 +40,7 @@
         otherwise/0,
         term_expansion/2,
         version/2,
-	'$do_log_upd_clause'/6,
+	    '$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
         '$do_log_upd_clause_erase'/6,
         '$do_static_clause'/5], [
@@ -381,13 +381,4 @@ clause_to_indicator(T, M:Name/Arity) :- ,
 	strip_module(T, M, T1),
 	pred_arity( T1, Name, Arity ).
 :- endif.
-*/
-
-/**
-@}
-
-@defgroup packages YAP Packages
-
-
-
 */

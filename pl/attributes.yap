@@ -1,4 +1,4 @@
-/*************************************************************************
+pattr/*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
 *									 *
@@ -18,16 +18,13 @@
 /**
   @file attributes.yap
 
-
 @defgroup New_Style_Attribute_Declarations SWI Compatible attributes
 @{
 @ingroup attributes
 
 */
 
-:- module('$attributes', [
-			  delayed_goals/4
-			  ], []).
+:- module('attributes', [delayed_goals/4]).
 
 :- use_system_module( '$_boot', ['$undefp'/1]).
 
@@ -348,37 +345,29 @@ printing and other special purpose operations.
 User-defined procedure, called to convert the attributes in  _Var_ to
 a  _Goal_. Should fail when no interpretation is available.
  */
-attvar_residuals([], _) --> [].
-
 attvar_residuals(att(Module,Value,As), V) -->
 	(   { nonvar(V) }
 	->  % a previous projection predicate could have instantiated
 	    % this variable, for example, to avoid redundant goals
 	    []
-	; { attributes:module_has_attributes(Module)  } ->
-	    % SICStus like run, put attributes back first
-	    { Value =.. [Name,_|Vs],
-	      NValue =.. [Name,_|Vs],
-	      attributes:put_module_atts(V,NValue)
-	    },
-	    attvar_residuals(As, V),
-	    ( { '$undefined'(attribute_goal(V, Goal), Module) }
-	       ->
-	      []
-	      ;
-	      { call(Module:attribute_goal(V, Goal)) },
-	      dot_list(Goal)
-	    )
-	;   (	{ current_predicate(Module:attribute_goals/3) }
-	    ->	{ call(Module:attribute_goals(V, Goals, [])) },
-		list(Goals)
-	    ;	{ current_predicate(Module:attribute_goal/2) }
-	    ->	{ call(Module:attribute_goal(V, Goal)) },
-		dot_list(Goal)
-	    ;	[put_attr(V, Module, Value)]
-	    ),
-	    attvar_residuals(As, V)
-	).
+	;     generate_goals(  V, As, Value,  Module)
+    ).
+
+    generate_goals( V, _, Value, Module) -->
+        { attributes:module_has_attributes(Module)  },
+    	    %  like run, put attributes back first
+    	    { Value =.. [Name,_|Vs],
+    	      NValue =.. [Name,_|Vs],
+    	      attributes:put_module_atts(V,NValue)
+    	    },
+        { current_predicate(Module:attribute_goal/2) },
+		 { call(Module:attribute_goal(V, Goal)) },
+	      dot_list(Goal),
+          [put_attr(V, Module, Value)].
+    generate_goals( V, _, _Value   , Module) -->
+        { '$pred_exists'(attribute_goals(_,_,_), Module) },
+	    call(Module:attribute_goals(V) ).
+
 
     attributes:module_has_attributes(Mod) :-
         attributes:attributed_module(Mod, _, _), !.
@@ -451,7 +440,7 @@ call_residue(Goal,Module,Residue) :-
 	),
 	copy_term(Goal, Goal, Residue).
 
-delayed_goals(G, Vs, NVs, Gs) :-
+attributes:delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
 	copy_term([G|Vs], [_|NVs], Gs).
@@ -481,10 +470,11 @@ att_vars([_|LGs], AttVars) :-
 % make sure we set the suspended goal list to its previous state!
 % make sure we have installed a SICStus like constraint solver.
 
-/** @pred _Module_:project_attributes( _+QueryVars_,  _+AttrVars_)
+/** @pred _Module_:project_attributes(+AttrVars, +Goal)
 
 
-Given a list of variables  _QueryVars_ and list of attributed
+
+Given a goal _Goa]l_ with variables  _QueryVars_ and list of attributed
 variables  _AttrVars_, project all attributes in  _AttrVars_ to
  _QueryVars_. Although projection is constraint system dependent,
 typically this will involve expressing all constraints in terms of
@@ -495,7 +485,7 @@ Projection interacts with attribute_goal/2 at the Prolog top
 level. When the query succeeds, the system first calls
 project_attributes/2. The system then calls
 attribute_goal/2 to get a user-level representation of the
-constraints. Typically, attribute_goal/2 will convert from the
+constraints. Typically, project_attributes/2 will convert from the
 original constraints into a set of new constraints on the projection,
 and these constraints are the ones that will have an
 attribute_goal/2 handler.
@@ -523,5 +513,3 @@ project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).
 
 %% @}
-
-

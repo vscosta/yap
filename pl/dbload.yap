@@ -1,6 +1,3 @@
-%%% @{
-
-%%% @addtogroup YAPModules
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -28,6 +25,15 @@
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
+%%% @file dbload.yap
+
+%%% @defgroup YAPBigLoad
+%%% @brief Fast and  Exo Loading
+
+/*!
+ * @pred load_mega_clause( +Stream ) is detail
+ * Load a single predicare composed of facts with the same size.
+ */
 load_mega_clause( Stream ) :-
 %    	line_spec( Stream, Line),
 			repeat,
@@ -38,6 +44,10 @@ load_mega_clause( Stream ) :-
     '$process_lines'(R, Lines, _Type ),
 	close(R).
 
+/*!
+ * @pred load_db( +Files ) is det
+ * Load files each one containing as single predicare composed of facts with the same size.
+ */
 prolog:load_db(Fs) :-
         '$current_module'(M0),
 	prolog_flag(agc_margin,Old,0),

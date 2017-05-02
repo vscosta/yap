@@ -1,9 +1,9 @@
 /**
 
-@{
 
   @defgroup YAPMetaPredicates Using Meta-Calls with Modules
  @ingroup YAPModules
+ @{
 
   @pred meta_predicate(_G1_,...., _Gn) is directive
 
@@ -405,7 +405,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
 
-'$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :- 
+'$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
 '$expand_clause_body'(true, _NH1, _HM1, _SM, _M, true, true ) :- !.
 '$expand_clause_body'(B, H, HM, SM, M, B1, BO ) :-

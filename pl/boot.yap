@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -18,11 +17,10 @@
 
 /**
 @file boot.yap
-
-@addtogroup builtins Core YAP Builtins
+@brief YAP bootstrap
 
 @defgroup YAPControl Control Predicates
-@ingroup builtins
+
 
 @{
 
@@ -291,7 +289,7 @@ private(_).
    source_location(F0, L),
    format('~a:~d:0: error in bootstrap:~n     ~w~n', [F0,L,Error]),
     fail.
-'$bootstrap_predicate'(delayed_goals(_, _, _ ), _M, _) :- !,
+'$bootstrap_predicate'(delayed_goals(_, _, _ , _), _M, _) :- !,
   fail.
 '$bootstrap_predicate'(sort(L, S), _M, _) :- !,
   '$sort'(L, S).
@@ -807,7 +805,7 @@ number of steps.
 	(
 	  CP is '$last_choice_pt',
 	 '$current_choice_point'(NCP1),
-	 '$attributes':delayed_goals(G, V, NV, LGs),
+	 attributes:delayed_goals(G, V, NV, LGs),
 	 '$current_choice_point'(NCP2),
 	 '$clean_ifcp'(CP),
 	 NCP is NCP2-NCP1

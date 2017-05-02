@@ -35,7 +35,6 @@ modules.yap
 newmod.yap
 os.yap
 pathconf.yap
-pl
 preddecls.yap
 preddyns.yap
 preds.yap
@@ -58,6 +57,8 @@ utils.yap
 yapor.yap
 yio.yap
   )
+
+  add_to_group( pl_boot_library PL_SOURCES )
 
 add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 

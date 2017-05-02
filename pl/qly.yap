@@ -20,6 +20,7 @@
 /**
 @defgroup QLY Creating and Using a saved state
 @ingroup YAPConsulting
+@{
 */
 
 :- system_module( '$_qly', [qload_module/1,
@@ -49,7 +50,7 @@
 
 :- use_system_module( '$_yio', ['$extend_file_search_path'/1]).
 
-
+/**
 YAP can save and read images of its current state to files, known as
 saved states. It is possible to save the entire state or just a module
 or a file. Notice that saved states in YAP depend on the architecture
