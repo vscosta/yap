@@ -3,7 +3,9 @@
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
  *
- * @addtogroup library The Prolog Library
+ * @addtogroup lists The Prolog Library
+ *
+ * @ingroup library
  *
  * @{
  *
@@ -626,4 +628,3 @@ close_list([_|T]) :-
 
 %% @}
 /** @} */
-

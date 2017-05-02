@@ -62,6 +62,7 @@ set (LIBRARY_PL
   block_diagram.yap
   )
 
+
 MY_add_subdirectory(dialect)
 MY_add_subdirectory(clp)
 MY_add_subdirectory(matlab)
@@ -73,6 +74,7 @@ MY_add_subdirectory(system)
 MY_add_subdirectory(tries)
 MY_add_subdirectory(ytest)
 
+add_to_group( pl_library LIBRARY_PL )
 
 if (0)
     	file(COPY ${LIBRARY_PL}  DESTINATION ${libpl})
