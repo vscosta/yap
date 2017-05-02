@@ -133,7 +133,7 @@ static inline PyObject *atom_to_python_string(term_t t) {
       YE(t,__LINE__,__FILE__,__FUNCTION__);\
         PyErr_Print(); PyErr_Clear();\
         }
-      
+
 #define CHECKNULL(t,rc) (rc  != NULL ? rc : YE(t,__LINE__,__FILE__,__FUNCTION__) )
 #define AOK(rc, err)  { if (!rc)  YEM( #rc ,__LINE__,__FILE__,__FUNCTION__); }
 
@@ -165,7 +165,7 @@ extern PyObject *compound_to_pytree(term_t t, PyObject *context);
 
 extern PyObject *term_to_python(term_t t, bool eval, PyObject *contextxs);
 
-extern PyObject *term_to_nametuple(const char *s, int arity, term_t t);
+extern PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *);
 
 extern foreign_t python_to_term(PyObject *pVal, term_t t);
 extern bool python_assign(term_t t, PyObject *exp, PyObject *context);

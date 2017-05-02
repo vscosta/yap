@@ -1,16 +1,18 @@
+
 /**
  *   @file yapq.hh
- ^
+ *
  *   @defgroup yap-cplus-query-hanadlinge Query Handling in the YAP interface.
  *   @brief Engine and Query Management
  *
  *   @ingroup yap-cplus-interface
- *    @tableofcontents
  *
  * @{
- * 
- * These classes wrap  engine ana of query.Ann engine is an environment where we can rum 
+ *
+ * These classes wrap  engine and query. An engine is an environment where we can rum
  * Prolog, that is, where we can run queries.
+ *
+ * Also, supports callbacks and engine configuration.
  *
  */
 
@@ -39,11 +41,12 @@ class YAPQuery : public YAPPredicate
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
-  Term names;
-  Term goal;
+  YAPPairTerm names;
+  YAPTerm goal;
   // temporaries
+  Term tnames, tgoal ;
 
-  void openQuery();
+  void openQuery(Term t);
 
 public:
   /// main constructor, uses a predicate and an array of terms
@@ -53,6 +56,7 @@ public:
   /// the same arity as the functor.
   YAPQuery(YAPPredicate p, YAPTerm t[]);
   /// full constructor,
+  ///
   ///
   /// It is given a functor, module, and an array of terms that must have at
   /// least
@@ -68,16 +72,16 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names)
+  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames)
   {
-    BACKUP_H();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
     if (!ap)
       return;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
-    openQuery();
-    RECOVER_H();
+    goal = YAPTerm(tgoal);
+    names = YAPPairTerm(tnames);
+    openQuery(tgoal);
   };
   /// string constructor with just an atom
   ///
@@ -85,9 +89,9 @@ public:
   /// goal, say `main`, `init`, `live`.
   inline YAPQuery(YAPAtom g) : YAPPredicate(g)
   {
-    goal = YAPAtomTerm(g).gt();
-    names = TermNil;
-    openQuery();
+    goal = YAPAtomTerm(g);
+    names = YAPPairTerm( );
+    openQuery(goal.term());
   };
 
   /// set flags for query execution, currently only for exception handling
@@ -112,9 +116,10 @@ public:
   void close();
   /// query variables.
   void cut();
-  Term namedVars();
+  Term namedVars() {return  names.term(); };
   /// query variables, but copied out
-  Term namedVarsCopy();
+  std::vector<Term> namedVarsVector() {
+      return names.listToArray(); };
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;
@@ -141,6 +146,172 @@ public:
   virtual void run(char *s) {}
 };
 
+
+ class  YAPEngine;
+
+/// @brief Setup all arguments to a new engine
+class YAPEngineArgs {
+
+  friend class YAPEngine;
+  
+  YAP_init_args init_args;
+
+  void fetch_defaults();
+  
+public:
+
+  inline void setEmbedded( bool fl )
+  {
+    init_args.Embedded = fl;
+  };
+
+  inline bool getEmbedded(  )
+  {
+    return init_args.Embedded;
+  };
+
+  inline void setSavedState( char *fl )
+  {
+    init_args.SavedState = fl;
+  };
+
+  inline const char * getSavedState(  )
+  {
+    return init_args.SavedState;
+  };
+
+  inline void setStackSize( bool fl )
+  {
+    init_args.StackSize = fl;
+  };
+
+  inline bool getStackSize(  )
+  {
+    return init_args.StackSize;
+  };
+
+  inline void setTrailSize( bool fl )
+  {
+    init_args.TrailSize = fl;
+  };
+
+  inline bool getTrailSize(  )
+  {
+    return init_args.TrailSize;
+  };
+
+  inline bool getMStackSize(  )
+  {
+    return init_args.StackSize;
+  };
+
+  inline void setMaxTrailSize( bool fl )
+  {
+    init_args.MaxTrailSize = fl;
+  };
+
+  inline bool getMaxTrailSize(  )
+  {
+    return init_args.MaxTrailSize;
+  };
+
+  inline void setYapLibDir( const char * fl )
+  {
+    init_args.YapLibDir = fl;
+  };
+
+  inline const char * getYapLibDir(  )
+  {
+    return init_args.YapLibDir;
+  };
+
+  inline void setYapShareDir( const char * fl )
+  {
+    init_args.YapShareDir = fl;
+  };
+
+  inline const char * getYapShareDir(  )
+  {
+    return init_args.YapShareDir;
+  };
+
+  inline void setYapPrologBootFile( const char * fl )
+  {
+    init_args.YapPrologBootFile = fl;
+  };
+
+  inline const char * getYapPrologBootFile(  )
+  {
+    return init_args.YapPrologBootFile;
+  };
+
+  inline void setYapPrologGoal( const char * fl )
+  {
+    init_args.YapPrologGoal = fl;
+  };
+
+  inline const char * getYapPrologGoal(  )
+  {
+    return init_args.YapPrologGoal;
+  };
+
+  inline void setYapPrologTopLevelGoal( const char * fl )
+  {
+    init_args.YapPrologTopLevelGoal = fl;
+  };
+
+  inline const char * getYapPrologTopLevelGoal(  )
+  {
+    return init_args.YapPrologTopLevelGoal;
+  };
+
+  inline void setHaltAfterConsult( bool fl )
+  {
+    init_args.HaltAfterConsult = fl;
+  };
+
+  inline bool getHaltAfterConsult(  )
+  {
+    return init_args.HaltAfterConsult;
+  };
+
+  inline void setFastBoot( bool fl )
+  {
+    init_args.FastBoot = fl;
+  };
+
+  inline bool getFastBoot(  )
+  {
+    return init_args.FastBoot;
+  };
+
+  inline void setArgc( int  fl )
+  {
+    init_args.Argc = fl;
+  };
+
+  inline int getArgc(  )
+  {
+    return init_args.Argc;
+  };
+
+  inline void setArgv( char ** fl )
+  {
+    init_args.Argv = fl;
+  };
+
+  inline char ** getArgv(  )
+  {
+    return init_args.Argv;
+  };
+
+
+    YAPEngineArgs() {
+      fetch_defaults();
+    };
+
+};
+
 /**
  * @brief YAP Engine: takes care of the execution environment
  where we can go executing goals.
@@ -150,23 +321,15 @@ public:
 class YAPEngine
 {
 private:
+  YAPEngineArgs engine_args;
   YAPCallback *_callback;
-  YAP_init_args init_args;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode);
   YAP_dogoalinfo q;
 
 public:
   /// construct a new engine; may use a variable number of arguments
-  YAPEngine(
-      char *savedState = (char *)NULL, char *bootFile = (char *)NULL,
-      size_t stackSize = 0, size_t trailSize = 0, size_t maxStackSize = 0,
-      size_t maxTrailSize = 0, char *libDir = (char *)NULL,
-      char *goal = (char *)NULL, char *topLevel = (char *)NULL,
-      bool script = FALSE, bool fastBoot = FALSE,
-      bool embedded = true,
-      YAPCallback *callback = (YAPCallback *)
-          NULL); /// construct a new engine, including aaccess to callbacks
+  YAPEngine(YAPEngineArgs &cargs); /// construct a new engine, including aaccess to callbacks
                  /// construct a new engine using argc/argv list of arguments
   YAPEngine(int argc, char *argv[],
             YAPCallback *callback = (YAPCallback *)NULL);
@@ -181,7 +344,7 @@ public:
     _callback = cb;
   }
   /// execute the callback.
-  ////void run() { if (_callback) _callback->run(); }
+  ////void run() { if (_callback) _callback.run(); }
   /// execute the callback with a text argument.
   void run(char *s)
   {
@@ -213,7 +376,7 @@ public:
   }
   /// reset Prolog state
   void reSet();
-  /// release: assune that there are no stack pointers, just release memory
+  /// assune that there are no stack pointers, just release memory
   // for last execution
   void release();
 
@@ -229,11 +392,13 @@ public:
     std::string s = Yap_version();
     return s.c_str();
   };
+  //> call a deterninistic predicate: the user will construct aterm of
+  //> arity N-1. YAP adds an extra variable which will have the
+  //> output.
+  YAPTerm fun(YAPTerm t);
   Term fun(Term t);
 };
 
 #endif /* YAPQ_HH */
 
 /// @}
-
-

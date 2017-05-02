@@ -29,7 +29,7 @@ class YAPEngine;
   extern "C" {
 
     extern X_API YAP_Term pythonToYAP(PyObject *pVal);
-    extern X_API PyObject  * yap_to_python(YAP_Term t, bool eval);
+    extern X_API PyObject  * yap_to_python(YAP_Term t, bool eval, PyObject *ctx);
     X_API extern bool init_python(void);
     extern X_API PyObject *py_Main;
     extern X_API PyObject *py_Builtin;
@@ -84,13 +84,14 @@ class YAPEngine;
   $1 = true;
  }
 
-%typemap(in) Term { $1 = pythonToYAP($input); }
+%typemap(in) Term { $1 = pythonToYAP($input);   PyErr_Clear(); }
+
+%typemap(in) YAPTerm { $1 = pythonToYAP($input);   PyErr_Clear(); }
 
 
-%typemap(out) YAP_Term { return $result = yap_to_python($1, false);}
+%typemap(out) YAP_Term {  return $result = yap_to_python($1, false, 0);    }
 
-%typemap(out) Term {  return $result = yap_to_python($1, false);}
-
+%typemap(out) Term {  return $result = yap_to_python($1, false, 0);  }
 
 %extend(out) Term{Term & __getitem__(size_t i){Term t0 = $self;
 
@@ -103,6 +104,7 @@ class YAPEngine;
 	    return HeadOfTerm(t0);
 	  else if (i == 1)
 	    return TailOfTerm(t0);
+        else throw( DOMAIN_ERROR_OUT_OF_RANGE, MkIntegerTerm(i), "__getitem__");
 	}
     }
   }
@@ -126,7 +128,9 @@ class YAPEngine;
       case DOMAIN_ERROR: {
 	switch (en) {
 	case DOMAIN_ERROR_OUT_OF_RANGE:
-	case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
+    pyerr = PyExc_GeneratorExit;
+    break;
+case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
 	  pyerr = PyExc_IndexError;
 	  break;
 	case DOMAIN_ERROR_CLOSE_OPTION:
@@ -369,3 +373,4 @@ class YAPEngine;
 
      %init %{
     %}
+

@@ -13,13 +13,14 @@
  *
  * These classes offer term construction and access. Terms are seens
  * as objects that inherit from a virtual class, Currently, all
- * terms must reside in the stack and may be moved around during 
+ * terms must reside in the stack and may be moved around during
  * garbage collection. Term objects use an handle, in the SWI-Prolog style.
  *
- * Nottce that terms  are forcefully destroyed during backtracking.
- * 
+ * Notice that terms  are forcefully destroyed during backtracking.
+ *
  */
 
+#include <vector>
 
 #ifndef YAPT_HH
 #define YAPT_HH 1
@@ -58,6 +59,11 @@ public:
     // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
   };
 
+  void put(Term t0) {
+    Yap_PutInHandle(t, t0);
+    // fprintf(stderr,"+%d,%lx,%p,%p",t,t0,HR,ASP); Yap_DebugPlWriteln(t0);
+  };
+
   YAPTerm(Term tn) { mk(tn); };
 #ifdef SWIGPYTHON
   //   YAPTerm(struct _object *inp) {
@@ -68,7 +74,7 @@ public:
   /// private method to convert from Term (internal YAP representation) to
   /// YAPTerm
   // do nothing constructor
-  YAPTerm() { mk(MkVarTerm()); };
+  YAPTerm() { t=0; };
   // YAPTerm(yhandle_t i) { t = i; };
   /// pointer to term
   YAPTerm(void *ptr);
@@ -82,13 +88,14 @@ public:
   /// Term destructor, tries to recover slot
   virtual ~YAPTerm() {
     //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
-    if (!t)
+/*    if (!t)
       return;
     Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
     LOCAL_HandleBase[t] = TermFreeTerm;
     while (LOCAL_HandleBase[LOCAL_CurSlot - 1] == TermFreeTerm) {
       LOCAL_CurSlot--;
     }
+    */
   };
 #endif
 
@@ -185,15 +192,19 @@ public:
     BACKUP_MACHINE_REGS();
     Term tf = 0;
     Term t0 = gt();
-    if (IsApplTerm(t0))
+
+    if (IsApplTerm(t0)) {
+        if (i > t) YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
       tf = (ArgOfTerm(i, t0));
-    else if (IsPairTerm(t0)) {
+  } else if (IsPairTerm(t0)) {
       if (i == 1)
         tf = (HeadOfTerm(t0));
       else if (i == 2)
         tf = (TailOfTerm(t0));
+        else
+        YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
     } else {
-      tf = ((Term)0);
+        YAPError(TYPE_ERROR_COMPOUND , t0, "t0.getArg()");
     }
     RECOVER_MACHINE_REGS();
     return tf;
@@ -276,9 +287,9 @@ public:
  */
 class YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
-  YAPApplTerm(Term t0) { mk(t0); }
 
 public:
+    YAPApplTerm(Term t0) { mk(t0); }
   YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
     Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
@@ -314,18 +325,36 @@ public:
  */
 class YAPPairTerm : public YAPTerm {
   friend class YAPTerm;
-  YAPPairTerm(Term t0) {
-    if (IsPairTerm(t0))
-      mk(t0);
-    else
-      mk(0);
-  }
+
 
 public:
-  YAPPairTerm(YAPTerm hd, YAPTerm tl);
+    YAPPairTerm(Term t0) {
+        t0 = Deref(t0);
+      if (IsPairTerm(t0) || t0 == TermNil)
+        mk(t0);
+      else
+        Yap_ThrowError(TYPE_ERROR_LIST, t0, "YAPPairTerms");
+    }
+    YAPPairTerm(YAPTerm hd, YAPTerm tl);
   YAPPairTerm();
   Term getHead() { return (HeadOfTerm(gt())); }
   Term getTail() { return (TailOfTerm(gt())); }
+  std::vector<Term> listToArray() {
+      Term *tailp;
+      Term t1 = gt();
+      Int l = Yap_SkipList(&t1, &tailp);
+      if (l < 0) {
+            throw YAPError(TYPE_ERROR_LIST, YAPTerm(t), "");
+  }
+  std::vector<Term> o = std::vector<Term>(l);
+  int i = 0;
+  Term t = gt();
+  while (t != TermNil) {
+      o[i++] = HeadOfTerm(t);
+      t = TailOfTerm(t);
+  }
+  return o;
+  }
 };
 
 /**

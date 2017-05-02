@@ -23,6 +23,23 @@ X_API PyObject *py_F2P;
 
 bool python_in_python;
 
+static void add_modules(void) {
+  py_Main = PyImport_AddModule("__main__");
+  Py_INCREF(py_Main);
+  py_Sys = PyImport_AddModule("sys");
+  Py_INCREF(py_Sys);
+  py_Builtin = PyImport_AddModule("__builtin__");
+  Py_INCREF(py_Builtin);
+  py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
+  // py_Yapex = PyImport_ImportModule("yap4py.yapi");
+  // PyObject *py_Yap =
+  PyImport_ImportModule("yap");
+  if (py_Yapex)
+    Py_INCREF(py_Yapex);
+  //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
+  py_F2P = NULL;
+}
+
 static void install_py_constants(void) {
   FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2);
   // FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
@@ -35,7 +52,6 @@ static void install_py_constants(void) {
   ATOM_true = PL_new_atom("true");
   ATOM_false = PL_new_atom("false");
   ATOM_dot = PL_new_atom(".");
-  ATOM_none = PL_new_atom("none");
   ATOM_self = PL_new_atom("self");
   ATOM_t = PL_new_atom("t");
   FUNCTOR_abs1 = PL_new_functor(PL_new_atom("abs"), 1);
@@ -68,24 +84,11 @@ static void install_py_constants(void) {
   FUNCTOR_comma2 = PL_new_functor(PL_new_atom(","), 2);
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   FUNCTOR_sqbrackets2 = PL_new_functor(PL_new_atom("[]"), 2);
-  //  if (python_in_python) {
-  py_Main = PyImport_AddModule("__main__");
-  Py_INCREF(py_Main);
-  py_Sys = PyImport_AddModule("sys");
-  Py_INCREF(py_Sys);
-  py_Builtin = PyImport_AddModule("__builtin__");
-  Py_INCREF(py_Builtin);
-  py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
-  py_Yapex = PyImport_ImportModule("yapex");
-  // PyObject *py_Yap =
-    PyImport_ImportModule("yap");
-  Py_INCREF(py_Yapex);
-  //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
-  py_F2P = NULL;
-}
+ }
 
 foreign_t end_python(void) {
-  Py_Finalize();
+  if (!python_in_python)
+    Py_Finalize();
 
   return true;
 }
@@ -100,12 +103,14 @@ bool do_init_python(void) {
   libpython_initialized = true;
   //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
-  Py_Initialize();
+  if (!python_in_python)
+    Py_Initialize();
   install_py_constants();
   PL_reset_term_refs(t);
   install_pypreds();
   install_pl2pl();
   // PyGILState_Release(gstate);
+    add_modules();
   return !python_in_python;
 
 }

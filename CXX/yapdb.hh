@@ -22,11 +22,11 @@
  * programs:
  *
  *  + YAPFunctor represents a name/arity combination.
- *  
+ *
  *  + YAPModule wraps the YAP module implementation.
  *
- *  + YAPPredicate and subclasses store the actual program, Preliminary 
- * support covers Prolog and C-defined predicates. 
+ *  + YAPPredicate and subclasses store the actual program, Preliminary
+ * support covers Prolog and C-defined predicates.
  */
 
 class YAPTerm;
@@ -134,7 +134,7 @@ protected:
   PredEntry *ap;
 
   /// auxiliary routine to find a predicate in the current module.
-  PredEntry *getPred(Term &t, Term *&outp);
+  PredEntry *getPred(YAPTerm &t, Term *&outp);
 
   PredEntry *asPred() { return ap; };
 
@@ -143,23 +143,20 @@ protected:
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s0, Term &out, Term &names) {
+  YAPPredicate(const char *s0, Term &tout, Term &tnames) {
     CACHE_REGS
-      BACKUP_MACHINE_REGS();
     Term *modp = NULL;
-    names = MkVarTerm ();
     const unsigned char *us = (const unsigned char *)s0;
-    out =
-      Yap_BufferToTermWithPrioBindings(us, strlen(s0), TermNil, 1200, names);
-    // extern char *s0;
+    tnames = MkVarTerm();
+    tout =
+      Yap_BufferToTermWithPrioBindings(us, strlen(s0), TermNil, 1200, tnames);
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
-    //  delete [] ns;
-    if (out == 0L)
-      ap = nullptr;
-    else
-      ap = getPred(out, modp);
-    RECOVER_MACHINE_REGS();
+    if (tout == 0L) {
+      Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, MkStringTerm(s0), "YAPPredicate");
+  }
+  YAPTerm tt = YAPTerm(tout);
+  ap = getPred(tt, modp);
   }
 
   /// Term constructor for predicates
@@ -167,7 +164,8 @@ protected:
   /// It is just a call to getPred
   inline YAPPredicate(Term t) {
     CELL *v = NULL;
-    ap = getPred(t, v);
+    YAPTerm tt = YAPTerm(t);
+    ap = getPred(tt, v);
   }
 
   /// Term constructor for predicates
@@ -175,8 +173,7 @@ protected:
   /// It is just a call to getPred
   inline YAPPredicate(YAPTerm t) {
     Term *v = nullptr;
-    Term tt = t.term();
-    ap = getPred(tt, v);
+    ap = getPred(t, v);
   }
 
   /// Cast constructor for predicates,
@@ -197,13 +194,13 @@ public:
   /// Functor constructor for predicates, is given a specific module.
   ///
   inline YAPPredicate(YAPFunctor f, YAPTerm mod) {
-    ap = RepPredProp(PredPropByFunc(f.f, mod.t));
+    ap = RepPredProp(PredPropByFunc(f.f, mod.term()));
   }
 
   /// Name/arity constructor for predicates.
   ///
   inline YAPPredicate(YAPAtom at, YAPTerm mod) {
-    ap = RepPredProp(PredPropByAtom(at.a, mod.t));
+    ap = RepPredProp(PredPropByAtom(at.a, mod.term()));
   }
 
   /// Name/0 constructor for predicates.
@@ -215,9 +212,9 @@ public:
   inline YAPPredicate(YAPAtom at, uintptr_t arity, YAPModule mod) {
     if (arity) {
       Functor f = Yap_MkFunctor(at.a, arity);
-      ap = RepPredProp(PredPropByFunc(f, mod.t()));
+      ap = RepPredProp(PredPropByFunc(f, mod.term()));
     } else {
-      ap = RepPredProp(PredPropByAtom(at.a, mod.t()));
+      ap = RepPredProp(PredPropByAtom(at.a, mod.term()));
     }
   }
 
@@ -236,13 +233,13 @@ public:
   ///
   inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
     ap = RepPredProp(
-		     PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.t));
+		     PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.term()));
   };
 
   /// char */module constructor for predicates.
   ///
   inline YAPPredicate(const char *at, YAPTerm mod) {
-    ap = RepPredProp(PredPropByAtom(Yap_LookupAtom(at), mod.t));
+    ap = RepPredProp(PredPropByAtom(Yap_LookupAtom(at), mod.term()));
   }
 
   /// module of a predicate
@@ -271,7 +268,7 @@ public:
   YAPFunctor functor() {
     if (ap->ArityOfPE)
       return YAPFunctor(ap->FunctorOfPred);
-    return NULL;
+Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0), "YAPFunctor::functor");
   }
 
   /// arity of predicate

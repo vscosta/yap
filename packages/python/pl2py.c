@@ -2,14 +2,14 @@
 
 #include "python.h"
 
-PyObject *py_Local, *py_Global;
+extern PyObject *py_Local, *py_Global;
 
 PyObject *YE(term_t t, int line, const char *file, const char *code)
 {
   char buf[1024];
   YAP_WriteBuffer(YAP_GetFromSlot(t), buf, 1023, 0);
   fprintf(stderr, "**** Warning,%s@%s:%d: failed on expression %s\n", code, file, line, buf );
-  
+
   return NULL;
 }
 
@@ -32,15 +32,16 @@ void YEM(const char * exp, int line, const char *file, const char *code)
 PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
   // o≈
   YAP_Term yt = YAP_GetFromSlot(t);
-  // Yap_DebugPlWriteln(yt);
+  Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
-    YAP_Term i = YAP_MkIntTerm(t);
-    PyObject *rc = term_to_nametuple(
-				     "H", 1, YAP_InitSlot(YAP_MkApplTerm(
-									 YAP_MkFunctor(YAP_LookupAtom("H"), 1), 1, &i)));
-    return CHECKNULL( t, rc );
-  };
+      if (t==0) {
+          Yap_ThrowError(SYSTEM_ERROR_INTERNAL, yt, "in term_to_python");
+      }
+      PyObject *out = PyTuple_New(1);
+      PyTuple_SET_ITEM(out, 0, PyLong_FromLong(t));
+        return term_to_nametuple("v", 1, out);
+      };
   case PL_ATOM: {
     YAP_Atom at = YAP_AtomOfTerm(yt);
     const char *s;
@@ -105,7 +106,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
     term_t tail = PL_new_term_ref(), arg;
     size_t len, i;
     if (PL_skip_list(t, tail, &len) && PL_get_nil(tail)) {
-      PyObject *out;
+      PyObject *out, *a;
 
       arg = tail;
       out = PyList_New(len);
@@ -115,10 +116,14 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
       for (i = 0; i < len; i++) {
         if (!PL_get_list(t, arg, t)) {
           PL_reset_term_refs(tail);
-          return CHECKNULL(t,NULL);
+          return Py_None;
         }
-        if (PyList_SetItem(out, i, term_to_python(arg, eval, o)) < 0) {
-          return CHECKNULL(t,NULL);
+	a = term_to_python(arg, eval, o);
+	if (a == NULL) {
+	  a = Py_None;
+	}
+        if (PyList_SetItem(out, i, a) < 0) {
+          return Py_None;
         }
       }
       PL_reset_term_refs(tail);
@@ -144,6 +149,8 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
 }
 
 PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o) {
+    if (t==0)
+    return NULL;
   term_t yt = YAP_InitSlot(t);
   o = term_to_python(yt, eval, o);
   PL_reset_term_refs(yt);

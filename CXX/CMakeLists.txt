@@ -28,9 +28,9 @@ else()
    MY_target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
 
    MY_install(TARGETS  YAP++
-     LIBRARY DESTINATION ${dlls}
+     LIBRARY DESTINATION ${libdir}
            RUNTIME DESTINATION ${dlls}
-           ARCHIVE DESTINATION ${dlls}
+           ARCHIVE DESTINATION ${libdir}
    )
 endif()
 

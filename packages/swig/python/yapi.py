@@ -1,8 +1,22 @@
 
 import yap
+import os.path
 import sys
 # debugging support.
 import pdb
+from collections import namedtuple
+
+yap_lib_path = os.path.dirname(__file__)
+
+use_module = namedtuple( 'use_module', 'file')
+bindvars = namedtuple( 'bindvars', 'list')
+library = namedtuple( 'library', 'list')
+v = namedtuple( '_', 'slot')
+
+
+
+def numbervars(  engine, l ):
+    return engine.fun(bindvars(l))
 
 def query_prolog(engine, s):
 
@@ -14,38 +28,39 @@ def query_prolog(engine, s):
             return False
 
     #
-    #construct a query from a one-line string
+    # construct a query from a one-line string
     # q is opaque to Python
     q = engine.query(s)
     # vs is the list of variables
     # you can print it out, the left-side is the variable name,
     # the right side wraps a handle to a variable
+    # pdb.set_trace()
     vs = q.namedVars()
+    #pdb.set_trace()
     # atom match either symbols, or if no symbol exists, sttrings, In this case
     # variable names should match strings
-    for eq in vs:
-        if not isinstance(eq[0],str):
-            print( "Error: Variable Name matches a Python Symbol")
-            return
+    #for eq in vs:
+    #    if not isinstance(eq[0],str):
+    #        print( "Error: Variable Name matches a Python Symbol")
+    #        return
     ask = True
     # launch the query
     while answer(q):
         # this new vs should contain bindings to vars
         vs=  q.namedVars()
-        #numbervars
+        print( vs )
+        gs = numbervars( engine, vs)
+        print(gs)
         i=0
-        # iteratw
-        for eq in vs:
+        # iterate
+        for eq in gs:
             name = eq[0]
+            binding = eq[1]
             # this is tricky, we're going to bind the variables in the term so thay we can
             # output X=Y. The Python way is to use dictionares.
             #Instead, we use the T function to tranform the Python term back to Prolog
-            binding = yap.T(eq[1])
-            if binding.isVar():
-                binding.unify(name)
-            else:
-                i = binding.numberVars(i, True)
-                print(name + " = " + binding.text())
+            if name != binding:
+                print(name + " = " + str(binding))
             #ok, that was Prolog code
         print("yes")
         # deterministic = one solution
@@ -73,9 +88,13 @@ def query_prolog(engine, s):
 
 
 def live():
-    engine = yap.YAPEngine()
+    args = yap.YAPEngineArgs()
+    args.setYapLibDir(yap_lib_path)
+    args.setYapShareDir(yap_lib_path)
+    #args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
+    engine = yap.YAPEngine( args )
+    engine.goal( use_module( library('yapi') ) )
     loop = True
-    pdb.set_trace()
     while loop:
         try:
             s = input("?- ")
@@ -98,4 +117,4 @@ def live():
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
-#live()
+live()
