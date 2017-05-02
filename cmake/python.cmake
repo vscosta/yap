@@ -12,7 +12,7 @@ option (WITH_PYTHON
 #
 #
 IF (WITH_PYTHON)
-    set (Python_ADDITIONAL_VERSIONS 3.5 3.6 3.4 3.3)
+    set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 3.3)
 
     find_package(PythonInterp)
    # find_package(PythonLibs)
@@ -37,9 +37,13 @@ get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABS
            OUTPUT_VARIABLE _ABS_PYTHON_SYSLIB_PATH
            OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-  find_library(ABS_PYTHON_SYSLIB_PATH
+get_filename_component ( _ABS_PYTHON_SYSLIB_PATH ${_ABS_PYTHON_SYSLIB_PATH} ABSOLUTE )
+get_filename_component ( _ABS_PYTHON_SYSLIB_PATH ${_ABS_PYTHON_SYSLIB_PATH} DIRECTORY )
+
+
+  find_library( ABS_PYTHON_SYSLIB_PATH
   NAMES python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m
-                PATHS _ABS_PYTHON_SYSLIB_PATH
+                PATHS ${_ABS_PYTHON_SYSLIB_PATH} ${libdir}
        )
 
     set ( PYTHON_LIBRARY
