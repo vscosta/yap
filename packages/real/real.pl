@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %    Author:        Nicos Angelopoulos, Vitor Santos Costa, Jan Wielemaker
 %    E-mail:        Nicos Angelopoulos <nicos@gmx.co.uk>
-				%    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
+%    Copyright (C): Nicos Angelopoulos, Universidade do Porto, VU University Amsterdam
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  This file is part of real
@@ -10,6 +10,15 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/**
+ * @file real.pl
+ * @brief Prolog component of r_interface
+ * @defgroup realpl Prolog component of r_interface
+ * @ingroup real
+ * @{
+ * Initialization code and key predicares for R-Prolog interface.
+ *
+ */
 
 :- module(real, [
      start_r/0,
@@ -51,7 +60,6 @@
      ]).
 
 
-:- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(apply_macros)).
 :- use_module(library(charsio)).
@@ -125,8 +133,8 @@ init_r_env :-
 	install_in_osx.
 init_r_env :-
 	absolute_file_name( path('R'), This,
-			 [ extensions(['',exe]),
-			   access(execute)
+			 [ extensions(['',so,dll,dylib]),
+			   access(read)
 			 ] ),
 	dirpath_to_r_home( This, Rhome ),
 	exists_directory( Rhome ), !,
@@ -134,7 +142,8 @@ init_r_env :-
 	setenv('R_HOME',Rhome).
 
 init_r_env :-
-     throw( real_error(r_root) ).
+     throw(
+     error(r_root) ).
 
 % track down binarythrough symbolic links...
 dirpath_to_r_home( This0, Rhome ) :-
@@ -209,10 +218,11 @@ install_in_osx :-
 %
 start_r :-
      \+ r_started( true ),
-     !,
+ !,
 	swipl_wins_warn,
 	init_r_env,
-	load_foreign_files([libreal], [], init_R),
+	load_foreign_files([libreal], [], install_real),
+    init_R,
 	set_prolog_flag(double_quotes, string ),
 	set_prolog_flag( real, started ).
 start_r.
