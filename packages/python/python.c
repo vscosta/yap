@@ -2,15 +2,15 @@
 #include "python.h"
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-  ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self;
+  ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self, ATOM_nil, ATOM_brackets, ATOM_curly_brackets;
 
 functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
-    FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
-    FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_iter2, FUNCTOR_long1,
-    FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
-    FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
-    FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
-    FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
+  FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
+  FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_iter2, FUNCTOR_long1,
+  FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
+  FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
+  FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
+  FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
   FUNCTOR_dot2, FUNCTOR_brackets1;
 
 X_API PyObject *py_Builtin;
@@ -53,7 +53,9 @@ static void install_py_constants(void) {
   ATOM_false = PL_new_atom("false");
   ATOM_dot = PL_new_atom(".");
   ATOM_self = PL_new_atom("self");
-  ATOM_t = PL_new_atom("t");
+  ATOM_nil = PL_new_atom("[]");
+  ATOM_brackets = PL_new_atom("()");
+  ATOM_curly_brackets = PL_new_atom("{}");
   FUNCTOR_abs1 = PL_new_functor(PL_new_atom("abs"), 1);
   FUNCTOR_all1 = PL_new_functor(PL_new_atom("all"), 1);
   FUNCTOR_any1 = PL_new_functor(PL_new_atom("any"), 1);

@@ -194,7 +194,8 @@ public:
     Term t0 = gt();
 
     if (IsApplTerm(t0)) {
-        if (i > t) YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
+      if (i > ArityOfFunctor(FunctorOfTerm(t0)))
+	YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
       tf = (ArgOfTerm(i, t0));
   } else if (IsPairTerm(t0)) {
       if (i == 1)

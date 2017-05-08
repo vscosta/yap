@@ -162,26 +162,29 @@ int Yap_CloseForeignFile(void *handle) {
 static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
                        YapInitProc *init_proc) {
   CACHE_REGS
+  LOCAL_ErrorMessage = NULL;
+
 
   while (libs) {
     const char *file = AtomName(libs->name);
     if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
+      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
       /* use LD_LIBRARY_PATH */
-      strncpy(LOCAL_FileNameBuf, (char *)AtomName(libs->name),
-              YAP_FILENAME_MAX);
+      strncpy(LOCAL_ErrorMessage, (char *)AtomName(libs->name),
+	      YAP_FILENAME_MAX);
     }
 
 #ifdef __osf__
     if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
 #else
-    if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
-        NULL)
+      if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
+	  NULL)
 #endif
-    {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-      strcpy(LOCAL_ErrorMessage, dlerror());
-      return LOAD_FAILLED;
-    }
+	{
+	  if (LOCAL_ErrorMessage == NULL) {
+	    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+	    strcpy(LOCAL_ErrorMessage, dlerror());
+	  }	}
     libs = libs->next;
   }
 
@@ -194,10 +197,11 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     /* dlopen wants to follow the LD_CONFIG_PATH */
     const char *file = AtomName(ofiles->name);
     if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-      strcpy(LOCAL_ErrorMessage,
-             "%% Trying to open unexisting file in LoadForeign");
-      return LOAD_FAILLED;
+      if (LOCAL_ErrorMessage == NULL) {
+	LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+	strcpy(LOCAL_ErrorMessage,
+	       "%% Trying to open unexisting file in LoadForeign");
+      }
     }
 #ifdef __osf__
     if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == 0)
@@ -205,10 +209,11 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) == 0)
 #endif
     {
-      fprintf(stderr, "dlopen of image %s failed: %s\n", LOCAL_FileNameBuf,
+      if (LOCAL_ErrorMessage   == NULL) {
+	LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+	fprintf(stderr, "dlopen of image %s failed: %s\n", LOCAL_FileNameBuf,
               dlerror());
-      /*      strcpy(LOCAL_ErrorSay,dlerror());*/
-      return LOAD_FAILLED;
+      }
     }
 
     ofiles->handle = handle;
@@ -216,18 +221,15 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     if (proc_name && !*init_proc)
       *init_proc = (YapInitProc)dlsym(handle, proc_name);
     ofiles = ofiles->next;
-  }
+    }
 
-  if (!*init_proc) {
-    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-    snprintf(LOCAL_ErrorMessage,
-           "Could not locate routine %s in %s: %s\n",
-           proc_name, LOCAL_FileNameBuf, dlerror());
-           fprintf(stderr,
-                  "Could not locate routine %s in %s: %s\n",
-                  proc_name, LOCAL_FileNameBuf, dlerror());
+    if (!*init_proc && LOCAL_ErrorMessage   == NULL) {
+      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+      snprintf(LOCAL_ErrorMessage,MAX_ERROR_MSG_SIZE-1,
+	       "Could not locate routine %s in %s: %s\n",
+	       proc_name, LOCAL_FileNameBuf, dlerror());
     return LOAD_FAILLED;
-  }
+    }
 
   return LOAD_SUCCEEDED;
 }

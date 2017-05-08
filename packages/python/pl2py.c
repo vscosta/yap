@@ -32,7 +32,7 @@ void YEM(const char * exp, int line, const char *file, const char *code)
 PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
   // o≈
   YAP_Term yt = YAP_GetFromSlot(t);
-  Yap_DebugPlWriteln(yt);
+  //  Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
       if (t==0) {

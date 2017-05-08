@@ -1,0 +1,1 @@
+recursive-include yap_kernel/resources *.*

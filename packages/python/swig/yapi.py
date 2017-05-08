@@ -48,21 +48,21 @@ def query_prolog(engine, s):
     while answer(q):
         # this new vs should contain bindings to vars
         vs=  q.namedVars()
-        print( vs )
-        gs = numbervars( engine, vs)
-        print(gs)
-        i=0
-        # iterate
-        for eq in gs:
-            name = eq[0]
-            binding = eq[1]
-            # this is tricky, we're going to bind the variables in the term so thay we can
-            # output X=Y. The Python way is to use dictionares.
-            #Instead, we use the T function to tranform the Python term back to Prolog
-            if name != binding:
-                print(name + " = " + str(binding))
-            #ok, that was Prolog code
-        print("yes")
+        if vs != []:
+            gs = numbervars( engine, vs)
+            i=0
+            # iterate
+            for eq in gs:
+                name = eq[0]
+                binding = eq[1]
+                # this is tricky, we're going to bind the variables in the term so thay we can
+                # output X=Y. The Python way is to use dictionares.
+                #Instead, we use the T function to tranform the Python term back to Prolog
+                if name != binding:
+                    print(name + " = " + str(binding))
+                    #ok, that was Prolog code
+        else:
+            print("yes")
         # deterministic = one solution
         if q.deterministic():
             # done
@@ -88,19 +88,21 @@ def query_prolog(engine, s):
 
 
 def live():
+    yap_lib_path = os.path.dirname(__file__)
     args = yap.YAPEngineArgs()
+    args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
     args.setYapLibDir(yap_lib_path)
-    args.setYapShareDir(yap_lib_path)
     #args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
-    engine = yap.YAPEngine( args )
-    engine.goal( use_module( library('yapi') ) )
+    engine = yap.YAPEngine(args)
+    engine.goal( use_module(library('yapi') ) )
     loop = True
     while loop:
         try:
             s = input("?- ")
             if not s:
                 loop = False
-            query_prolog(engine, s)
+            else:
+                query_prolog(engine, s)
         except SyntaxError as err:
             print("Syntax Error error: {0}".format(err))
         except EOFError:
@@ -117,4 +119,8 @@ def live():
 # initialize engine
 # engine = yap.YAPEngine();
 # engine = yap.YAPEngine(yap.YAPParams());
-live()
+#
+#
+
+if __name__ == "__main__":
+     live()

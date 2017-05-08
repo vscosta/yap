@@ -2509,6 +2509,14 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     Yap_PutValue(AtomExtendFileSearchPath,
                  MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
   }
+  if (yap_init->YapShareDir) {
+    setAtomicGlobalPrologFlag(PROLOG_LIBRARY_DIRECTORY_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(yap_init->YapShareDir)));
+  }
+  if (yap_init->YapLibDir) {
+    setAtomicGlobalPrologFlag(PROLOG_FOREIGN_DIRECTORY_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(yap_init->YapLibDir)));
+  }
   if (yap_init->QuietMode) {
     setVerbosity(TermSilent);
   }

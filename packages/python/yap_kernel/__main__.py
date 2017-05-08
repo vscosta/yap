@@ -1,4 +1,4 @@
 
 if __name__ == '__main__':
-    import yap_kernel.kernelapp
-    yap_kernel.kernelapp.launch_new_instance()
+    from yap_kernel.kernelapp import launch_new_instance
+    launch_new_instance()

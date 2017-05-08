@@ -173,7 +173,7 @@ absolute_file_name(File0,File) :-
 	current_prolog_flag(open_expands_filename, OldF),
 	current_prolog_flag( fileerrors, PreviousFileErrors ),
 	current_prolog_flag( verbose_file_search, PreviousVerbose ),
-	get_abs_file_parameter( verbose_file_search, Opts, Verbose ),
+	get_abs_file_parameter( verbose_file_search, Opts,Verbose ),
 	get_abs_file_parameter( expand, Opts, Expand ),
 	set_prolog_flag( verbose_file_search,  Verbose ),
 	get_abs_file_parameter( file_errors, Opts, FErrors ),
@@ -267,8 +267,25 @@ absolute_file_name(File0,File) :-
     '$dir',
     { '$absf_trace'('  ~w next', [P0]) },
     '$cat_file_name'(P0, E).
-'$file_name'(Name, _Opts, E) -->
-    '$cat_file_name'(Name, E).
+'$file_name'(Name, Opts, E) -->
+    '$cat_file_name'(Name, E ).
+    /*
+    (
+     {
+	get_abs_file_parameter( file_type, Opts, Lib ),
+       nonvar(Lib)
+     }
+     ->
+     { user:file_search_path(Lib, IDirs) },
+    { '$paths'(IDirs, Dir ) },
+    '$absf_trace'('  ~w first', [Dir]),
+    '$file_name'(Dir, Opts, _),
+    '$dir',
+    { '$absf_trace'('  ~w next', [P0]) }
+    ;
+    []
+    ).
+   */
 
 
 '$cat_file_name'(A/B, E	) -->
@@ -417,12 +434,12 @@ absolute_file_name(File0,File) :-
 	user:library_directory( Dir ).
 %	'$split_by_sep'(0, 0, Dirs, Dir).
 '$system_library_directories'(foreign, Dir) :-
-    foreign_directory( Dir ).
+    user:foreign_directory( Dir ).
 % compatibility with old versions
 %
 % search the current directory  first.
 '$system_library_directories'(commons, Dir) :-
-	commons_directory( Dir ).
+	user:commons_directory( Dir ).
 
 
 % enumerate all paths separated by a path_separator.

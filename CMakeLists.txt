@@ -1,11 +1,16 @@
 # value of 3.4.0 or lower.
 
+  if(COMMAND cmake_policy)
+      cmake_policy(SET CMP0003 NEW)
+    endif(COMMAND cmake_policy)
+
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
 # value of 3.4.0 or lower.
 include(CMakeToolsHelpers OPTIONAL)
 
 project( YAP )
+
 
 if (ANDROID)
   set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")

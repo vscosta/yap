@@ -67,7 +67,8 @@ static yap_signals InteractSIGINT(int ch) {
 #if PUSH_REGS
 // restore_absmi_regs(&Yap_standard_regs);
 #endif
-    siglongjmp(LOCAL_RestartEnv, 4);
+    LOCAL_RestartEnv = malloc( sizeof(sigjmp_buf) );
+    siglongjmp(*LOCAL_RestartEnv, 4);
     return YAP_ABORT_SIGNAL;
   case 'b':
     /* continue */

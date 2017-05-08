@@ -974,7 +974,7 @@ static Int current_prolog_flag2(USES_REGS1) {
     tarr = LOCAL_Flags;
   tout = tarr[fv->FlagOfVE].at;
   if (tout == TermZERO) {
-    Yap_DebugPlWriteln(tflag);
+    //    Yap_DebugPlWriteln(tflag);
     return false;
   }
   if (IsVarTerm(tout))

@@ -7,7 +7,6 @@ atoms.yap
 attributes.yap
 boot.yap
 bootlists.yap
-bootutils.yap
 callcount.yap
 checker.yap
 consult.yap
@@ -21,6 +20,10 @@ directives.yap
 eam.yap
 error.yap
 errors.yap
+
+
+
+
 eval.yap
 flags.yap
 grammar.yap
@@ -60,16 +63,18 @@ yio.yap
 
   add_to_group( pl_boot_library PL_SOURCES )
 
-add_custom_target (${YAP_STARTUP} ALL SOURCES ${PL_SOURCES} 	${YAPOS_PL_SOURCES}  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
+  add_custom_target (STARTUP ALL SOURCES
+    DEPENDS ${CMAKE_BINARY_DIR}/startup.yss              
+    )
 
-if ( NOT CMAKE_CROSSCOMPILING )
-# Create a startup.yss on the top directory.
-add_custom_command (TARGET ${YAP_STARTUP}
-  COMMAND yap-bin -B
-  VERBATIM
-  WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
-  DEPENDS yap-bin  ${PL_SOURCES}
-  )
+  if ( NOT CMAKE_CROSSCOMPILING )
+    # Create a startup.yss on the top directory.
+    add_custom_command (OUTPUT ${CMAKE_BINARY_DIR}/startup.yss
+      COMMAND yap-bin -B
+      VERBATIM
+      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
+      DEPENDS yap-bin  ${PL_SOURCES}
+      )
   endif ( NOT CMAKE_CROSSCOMPILING )
 
 

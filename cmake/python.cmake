@@ -1,6 +1,7 @@
+set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 )
 
-option (WITH_PYTHON
-"Allow Python->YAP  and YAP->Python" ON)
+find_package(PythonInterp)
+# find_package(PythonLibs)
 
 
 #   PYTHONLIBS_FOUND           - have the Python libs been found
@@ -11,67 +12,66 @@ option (WITH_PYTHON
 #   PYTHONLIBS_VERSION_STRING  - version of the Python libs found (since CMake 2.8.8)
 #
 #
-IF (WITH_PYTHON)
-    set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 3.3)
 
-    find_package(PythonInterp)
-   # find_package(PythonLibs)
+execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print(
+ sysconfig.get_path( 'include' ) )"
+  OUTPUT_VARIABLE _ABS_PYTHON_INCLUDE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-
- execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'include' ) )"
-OUTPUT_VARIABLE _ABS_PYTHON_INCLUDE_PATH
-OUTPUT_STRIP_TRAILING_WHITESPACE )
 get_filename_component ( ABS_PYTHON_INCLUDE_PATH ${_ABS_PYTHON_INCLUDE_PATH} ABSOLUTE )
 
-    set ( PYTHON_INCLUDE_DIR
-            ${ABS_PYTHON_INCLUDE_PATH}
-            CACHE "PATH" "Directory with Python.h "
-            )
+set ( PYTHON_INCLUDE_DIR
+  ${ABS_PYTHON_INCLUDE_PATH}
+  CACHE "PATH" "Directory with Python.h "
+  )
 
-    set ( PYTHON_INCLUDE_DIRS
-            ${ABS_PYTHON_INCLUDE_PATH}
-            CACHE "PATH" "Python.h Dir  (Deprecated)"
-            )
+set ( PYTHON_INCLUDE_DIRS
+  ${ABS_PYTHON_INCLUDE_PATH}
+  CACHE "PATH" "Python.h Dir  (Deprecated)"
+  )
 
-            execute_process ( COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'stdlib' ) )"
-           OUTPUT_VARIABLE _ABS_PYTHON_SYSLIB_PATH
-           OUTPUT_STRIP_TRAILING_WHITESPACE )
+execute_process ( COMMAND ${PYTHON_EXECUTABLE} "${CMAKE_SOURCE_DIR}/cmake/libfind.py"
+  OUTPUT_VARIABLE ABS_PYTHON_SYSLIB
+  OUTPUT_STRIP_TRAILING_WHITESPACE )
 
-get_filename_component ( _ABS_PYTHON_SYSLIB_PATH ${_ABS_PYTHON_SYSLIB_PATH} ABSOLUTE )
-get_filename_component ( _ABS_PYTHON_SYSLIB_PATH ${_ABS_PYTHON_SYSLIB_PATH} DIRECTORY )
+set ( PYTHON_LIBRARY
+  ${ABS_PYTHON_SYSLIB}
+  CACHE "FILEPATH" "Python Library"
+  )
 
+set ( PYTHON_LIBRARIES
+  ${PYTHON_LIBRARY}
+  CACHE "FILEPATH" "Python Library (Deprecated)"
+  )
 
-  find_library( ABS_PYTHON_SYSLIB_PATH
-  NAMES python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}m
-                PATHS ${_ABS_PYTHON_SYSLIB_PATH} ${libdir}
-       )
+if ( (EXISTS ${PYTHON_LIBRARY}) AND ( EXISTS ${PYTHON_INCLUDE_DIR}) )
+  set ( PYTHONLIBS_FOUND ON
+    CACHE "BOOLEAN" "Python installed")
+  #    else()
 
-    set ( PYTHON_LIBRARY
-            ${ABS_PYTHON_SYSLIB_PATH}
-            CACHE "FILEPATH" "Python Library"
-            )
-    set ( PYTHON_LIBRARIES
-            ${PYTHON_LIBRARY}
-            CACHE "FILEPATH" "Python Library (Deprecated)"
-            )
-        if ( (EXISTS ${PYTHON_LIBRARY}) AND ( EXISTS ${PYTHON_INCLUDE_DIR}) )
-    set ( PYTHONLIBS_FOUND ON )
-#    else()
-
-#find_package(PythonLibs)
+  #find_package(PythonLibs)
 endif()
 
-    macro_log_feature (PYTHONLIBS_FOUND "Python"
-    "Use Python System"
-  "http://www.python.org" FALSE )
 
+include_directories( BEFORE ${PYTHON_INCLUDE_DIR} )
+  
+LIST( APPEND
+  CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIR}  ${CMAKE_REQUIRED_INCLUDES})
 
-  include_directories( BEFORE ${PYTHON_INCLUDE_DIR} )
+check_include_file(Python.h HAVE_PYTHON_H)
 
-  LIST( APPEND
-   CMAKE_REQUIRED_INCLUDES ${PYTHON_INCLUDE_DIR}  ${CMAKE_REQUIRED_INCLUDES})
+IF (PYTHONLIBS_FOUND)
+  add_subDIRECTORY (packages/python)
+ENDIF()
 
-  check_include_file(Python.h HAVE_PYTHON_H)
+if (PYTHONLIBS_FOUND AND SWIG_FOUND)
+  add_subdirectory(packages/python/swig)
+  include(FindPythonModule)
 
+  find_python_module( jupyter )
 
-endif(WITH_PYTHON)
+  if (PY_JUPYTER)
+    add_subdirectory(packages/python/yap_kernel)
+  ENDIF()
+endif()
+

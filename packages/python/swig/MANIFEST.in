@@ -1,0 +1,8 @@
+recursive-include yap4py *.dylib
+recursive-include yap4py *.dll
+recursive-include yap4py *.so
+recursive-include yap4py/prolog *.yap
+recursive-include yap4py *.yss
+recursive-include yap4py/prolog *.pl
+recursive-include yap4py/prolog *.r
+recursive-include yap4py *.md

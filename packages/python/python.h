@@ -48,7 +48,7 @@ extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o);
 typedef YAP_Arity arity_t;
 
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self;
+  ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil, ATOM_brackets, ATOM_curly_brackets;;
 
 extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,

@@ -16,7 +16,7 @@
 class YAPPredicate;
 class YAPEngine;
 
-#define arity_t uintptr_t
+#define arity_t size_t
 
 
 

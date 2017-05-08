@@ -76,16 +76,21 @@ extern "C" {
   // taken from yap_structs.h
 #include "iopreds.h"
 
-  X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+  X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
 
-  /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
+  /*  extern void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
    */
-  X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
-					YAP_Term);
+  X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
+					       YAP_Term);
 
-  X_API  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
-				 arity, int extra);
+  X_API extern void UserBackCPredicate(const char *name, int *init(), int *cont(), int
+				       arity, int extra);
+#if YAP_PYTHON
 
+#include <Python.h>
+  
+  extern bool  python_in_python;
+#endif
 }
 
 class YAPEngine;
