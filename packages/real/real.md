@@ -1,7 +1,7 @@
 The R Prolog Progrmming Interface      {#real}
 ===================================
 
-@file real.pl
+@file real.md
 @author	Nicos Angelopoulos
 @author	Vitor Santos Costa
 @version	1:0:4, 2013/12/25, sinter_class
@@ -9,6 +9,7 @@ The R Prolog Progrmming Interface      {#real}
 
 @ingroup packages
 
+  + @ref realpl
 
 This library enables the communication with an R process started as a shared library.
 It is the result of the efforts of two research groups that have worked in parallel.

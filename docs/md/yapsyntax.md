@@ -1,10 +1,13 @@
 
+@ingroup YAPProgramming
+
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
 the  tokens from which Prolog  terms are
 built.
 
-###  Syntax of Terms                       {#Formal_Syntax}
+@defgroup Formal_Syntax Syntax of Terms
+@ingroup YAPSyntax
 
 Below, we describe the syntax of YAP terms from the different
 classes of tokens defined above. The formalism used will be <em>BNF</em>,
@@ -79,15 +82,17 @@ dot with single quotes.
 
 
 
-###  Prolog Tokens                    {#Tokens}
+# @defgroup Tokens Prolog Tokens
+@ingroup YAPSyntax
 
 Prolog tokens are grouped into the following categories:
 
-#### Numbers                      {#Numbers}
+## @defgroup Numbers Numbers
+@ingroup Tokens
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
-##### @defgroup  Integers           {#Integers}
+### @defgroup  Integers Integers
 @ingroup Numbers
 
 Integer numbers
@@ -135,7 +140,7 @@ the word size of the machine. This is 32 bits in most current machines,
 but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
 
-#####  Floats                         {#Floats}
+### @defgroup  Floats Floats
 @ingroup Numbers
 
 Floating-point numbers are described by:
@@ -160,7 +165,7 @@ Examples:
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-####   Strings Character Strings        {#Strings}
+## Strings @defgroup  Strings Character Strings
 
 Strings are described by the following rules:
 
@@ -230,7 +235,8 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 :- yap_flag(character_escapes,false).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-####   Atoms                          {#Atoms}
+## @addgroup Atoms Atoms
+@ingroup Tokens
 
 Atoms are defined by one of the following rules:
 
@@ -301,8 +307,7 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-#### Layout {#Layout}
-
+@subsection Layout Layout
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
 
@@ -314,8 +319,8 @@ layout characters, the YAP parser behaves as if it had found a
 single blank character. The end of a file also counts as a blank
 character for this purpose.
 
-####    Wide Character Support                 {#WideChars}
-@ingroup YAP]Syntax
+## @addgroup WideChars Encoding Wide Character Support
+@ingroup YAPSyntax
 
 
 YAP now implements a SWI-Prolog compatible interface to wide
@@ -455,7 +460,8 @@ Prolog escape sequences while other streams generate an I/O exception.
 
 
 
-##### BOM: Byte Order Mark            {#BOM}
+=== @addgroup BOM BOM: Byte Order Mark
+@ingroup WideChars
 
 From Stream Encoding, you may have got the impression that
 text-files are complicated. This section deals with a related topic,
@@ -475,7 +481,8 @@ writing, writing a BOM can be requested using the option
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
 
-###  Summary of YAP Predefined Operators            {#ops}
+= @addgroup Operators Summary of YAP Predefined Operators
+@ingroup YapSyntax
 
 The Prolog syntax caters for operators of three main kinds:
 

@@ -7,17 +7,18 @@ most language implementations were linkable to `C`, and the first interface expo
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
 
-  + The @subpage c-interface
 
   + The @ref swi-c-interface emulates Jan Wielemaker's SWI foreign language interface.
 
   + The @ref  yap-cplus-interface is desiged to interface with the SWIG package by using Object-Oriented concepts
 
-+ The @ref LoadForeign handles the setup of foreign files
+  + The @ref LoadForeign handles the setup of foreign files
+
+  + @subpage YAPAsLibrary
 
 
 
-@page c-interface  YAP original C-interface
+###   YAP original C-interface {#ChYInterface}
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -1304,8 +1305,7 @@ arguments to the backtrackable procedure.
 
 
 
-@defgroup YAPAsLibrary Using YAP as a Library
-@ingroup  c-interface
+###  Using YAP as a Library {#YAPAsLibrary}
 
 YAP can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:

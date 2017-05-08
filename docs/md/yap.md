@@ -23,11 +23,11 @@ The manual is organised as follows:
 
 + @subpage load_files
 
-+ @ref builtins
++ @subpage builtins
 
-+ @ref extensions
++ @subpage Extensions
 
-+ @ref library
++ @subpage library
 
 + @subpage packages
 
@@ -59,9 +59,8 @@ from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
-@defgroup builtins YAP Core Built-ins
+@page builtins YAP Core Built-ins
 
-@{}
 
 This chapter describes the core predicates  that control the execution of
 Prolog programs, provide fundamental functionality such as termm manipulation or arithmetic, and support interaction with external
@@ -75,34 +74,39 @@ argument" - it cannot be a free variable at the time of the call;
 + a preceding minus sign will denote an "output argument";
 + an argument with no preceding symbol can be used in both ways.
 
-@}
 
-  @defgroup library YAP Library
+@page Library YAP Library
 
-@{
+
  the library_directory path (set by the
   `LIBDIR` variable in the Makefile for YAP). Several files in the
   library are originally from the public-domain Edinburgh Prolog library.
 
-@defgroup attributes Attributed Variables and Coroutining
-@{
-    @subpage atts
-    @copydoc atts
-}
-
-@}
-
-@defgroup YAPProgramming Programming in YAP
-
-@{
-
-@defgroup YAPSyntax Prolog Syntax
-    @subpage syntax
-    @copydoc syntax
-@}
+ 
 
 
+ @defgroup extensions   YAP Extensions
+ @{
 
-@}
+@page Extensions  YAP Extensions
+
+YAP includes a number of extensions over the original Prolog
+language.
+         @subpage atts
+
+ @}
+
+@page YAPProgramming Programming in YAP
+
+    @subpage yapsyntax.md
+
+
+@page packages Packages for YAP
+YAP includes a number of packages.
+ 
+ @subpage real.md
+
+ @subpage chr.md
+
 
   

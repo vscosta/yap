@@ -1153,9 +1153,9 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  = @CMAKE_SOURCE_DIR@/docs/custom/customdoxygen.css
+HTML_EXTRA_STYLESHEET  = @CMAKE_SOURCE_DIR@/docs/custom/customdoxygen.css \
+                         @CMAKE_SOURCE_DIR@/docs/solarized-light.css
 
-# @CMAKE_SOURCE_DIR@/docs/solarized-light.css
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
 # that these files will be copied to the base HTML output directory. Use the
