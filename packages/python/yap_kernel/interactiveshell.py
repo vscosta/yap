@@ -29,6 +29,7 @@ import types
 import subprocess
 import warnings
 import yap
+import yap4py.yapi
 from io import open as io_open
 
 from pickleshare import PickleShareDB
@@ -62,7 +63,7 @@ from IPython.core.prefilter import PrefilterManager
 from IPython.core.profiledir import ProfileDir
 from IPython.core.usage import default_banner
 from IPython.core.interactiveshell import InteractiveShellABC, InteractiveShell, ExecutionResult
-from IPython.testing.skipdoctest import skip_doctest_py2, skip_doctest
+from IPython.testing.skipdoctest import skip_doctest
 from IPython.utils import PyColorize
 from IPython.utils import io
 from IPython.utils import py3compat
@@ -85,15 +86,33 @@ from traitlets import (
 )
 from warnings import warn
 from logging import error
+from collections import namedtuple
+
+
+use_module = namedtuple( 'use_module', 'file')
+bindvars = namedtuple( 'bindvars', 'list')
+library = namedtuple( 'library', 'list')
+v = namedtuple( '_', 'slot')
 
 class YAPInteractiveShell:
     """An enhanced, interactive shell for YAP."""
 
     def __init__(self, kernel):
-        self.yapeng = yap.YAPEngine()
+
+        pjoin = os.path.join
+        here = os.path.abspath(os.path.dirname(__file__))
+        yap_lib_path = pjoin(here, "../yap4py/prolog" )
+        yap_dll_path = pjoin(here, "../yap4py" )
+        args = yap.YAPEngineArgs()
+        args.setYapLibDir(yap_dll_path)
+        args.setYapShareDir(yap_lib_path)
+        #args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
+        self.yapeng = yap.YAPEngine( args )
         self.q = None
+        self.yapeng.goal( use_module( library('yapi') ) )
         self.shell = kernel.shell
         self.shell.run_cell = self.run_cell
+
 
     def closeq(self):
         if self.q:
@@ -105,26 +124,29 @@ class YAPInteractiveShell:
         """Run a complete IPython cell.
 
         Parameters
-        ----------
-        raw_cell : str
-          The code (including IPython code such as %magic functions) to run.
-        store_history : bool
+                   ----------
+                   raw_cell : str
+                   The code (including IPython code such as %magic functions) to run.
+                   store_history : bool
           If True, the raw and translated cell will be stored in IPython's
-          history. For user code calling back into IPython's machinery, this
-          should be set to False.
-        silent : bool
+                   history. For user code calling back into IPython's machinery, this
+                   should be set to False.
+                   silent : bool
           If True, avoid side-effects, such as implicit displayhooks and
-          and logging.  silent=True forces store_history=False.
-        shell_futures : bool
+                   and logging.  silent=True forces store_history=False.
+                   shell_futures : bool
           If True, the code will share future statements with the interactive
-          shell. It will both be affected by previous __future__ imports, and
-          any __future__ imports in the code will affect the shell. If False,
-          __future__ imports are not shared in either direction.
+                   shell. It will both be affected by previous __future__ imports, and
+                   any __future__ imports in the code will affect the shell. If False,
+                   __future__ imports are not shared in either direction.
 
         Returns
-        -------
-        result : :class:`ExecutionResult`
-        """
+                   -------
+                   result : :class:`ExecutionResult`
+                   """
+
+        def numbervars(self, l):
+            return self.yapeng.fun(bindvars(l))
 
         result = ExecutionResult()
 
@@ -161,19 +183,13 @@ class YAPInteractiveShell:
             # print('{0}'.format(f.getvalue()))
             # Execute the user code
             if run:
-                myvs = self.q.namedVarsCopy()
+                myvs = self.numbervars(self.q.namedVars())
                 if myvs:
-                    i = 0
-                    for peq in myvs:
-                        name = peq[0]
-                        bind = peq[1]
-                        if bind.isVar():
-                            var = yap.YAPAtom('$VAR')
-                            f = yap.YAPFunctor(var, 1)
-                            bind.unify(yap.YAPApplTerm(f, (name)))
-                        else:
-                            i = bind.numberVars(i, True)
-                            print(name.text() + " = " + bind.text())
+                    for eq in myvs:
+                        name = eq[0]
+                        binding = eq[1]
+                        if name != binding:
+                            print(name + " = " + str(binding))
                 else:
                     print("yes")
                 if self.q.deterministic():

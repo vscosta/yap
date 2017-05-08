@@ -38,7 +38,7 @@ from jupyter_client.connect import ConnectionFileMixin
 # local imports
 from ipykernel.iostream import IOPubThread
 from ipykernel.heartbeat import Heartbeat
-from .yap_kernel import YAPKernel
+from yap_kernel.yapkernel import YAPKernel
 from ipykernel.parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
@@ -103,7 +103,7 @@ class YAPKernelApp(BaseIPythonApplication,  InteractiveShellApp,
     flags = Dict(kernel_flags)
     classes = [YAPKernel, ZMQInteractiveShell, ProfileDir, Session]
     # the kernel class, as an importstring
-    kernel_class = Type('yap_kernel.yap_kernel.YAPKernel',
+    kernel_class = Type('yap_kernel.yapkernel.YAPKernel',
                         klass='ipykernel.kernelbase.Kernel',
     help="""The Kernel subclass to be used.
 

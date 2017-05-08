@@ -7,7 +7,7 @@
 from __future__ import print_function
 
 # the name of the package
-name = 'ipykernel'
+name = 'yap_kernel'
 
 #-----------------------------------------------------------------------------
 # Minimal Python version sanity check
@@ -56,7 +56,6 @@ setup_args = dict(
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),
     packages        = packages,
-    py_modules      = ['ipykernel_launcher'],
     package_data    = package_data,
     description     = "IPython Kernel for Jupyter",
     author          = 'IPython Development Team',
@@ -80,12 +79,12 @@ if 'develop' in sys.argv or any(a.startswith('bdist') for a in sys.argv):
     import setuptools
 
 setuptools_args = {}
-install_requires = setuptools_args['install_requires'] = [
-    'ipython>=4.0.0',
-    'traitlets>=4.1.0',
-    'jupyter_client',
-    'tornado>=4.0',
-]
+# install_requires = setuptools_args['install_requires'] = [
+#     'ipython>=4.0.0',
+#     'traitlets>=4.1.0',
+#     'jupyter_client',
+#     'tornado>=4.0',
+# ]
 
 if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
     from ipykernel.kernelspec import write_kernel_spec, make_ipkernel_cmd, KERNEL_NAME

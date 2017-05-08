@@ -1,6 +1,6 @@
 
 #include "python.h"
-
+    
 static foreign_t repr_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
   PL_put_pointer(t1, pVal);
@@ -25,25 +25,26 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
 foreign_t python_to_term(PyObject *pVal, term_t t) {
   bool rc = true;
   term_t to = PL_new_term_ref();
-fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",stderr);
+  // fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",stderr);
   if (pVal == Py_None) {
-    fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
-    rc= PL_unify_atom(t, ATOM_none); fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
+    //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
+    rc= PL_unify_atom(t, ATOM_none);
+    //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
   }
   if (PyBool_Check(pVal)) {
     if (PyObject_IsTrue(pVal)) {
-      rc = PL_unify_atom(t, ATOM_true);
+      rc = rc && PL_unify_atom(t, ATOM_true);
     } else {
-      rc = PL_unify_atom(t, ATOM_false);
+      rc = rc && PL_unify_atom(t, ATOM_false);
     }
   } else if (PyLong_Check(pVal)) {
-    rc = PL_unify_int64(t, PyLong_AsLong(pVal));
+    rc = rc && PL_unify_int64(t, PyLong_AsLong(pVal));
 #if PY_MAJOR_VERSION < 3
   } else if (PyInt_Check(pVal)) {
-    rc = PL_unify_int64(t, PyInt_AsLong(pVal));
+    rc = rc && PL_unify_int64(t, PyInt_AsLong(pVal));
 #endif
   } else if (PyFloat_Check(pVal)) {
-    rc = PL_unify_float(t, PyFloat_AsDouble(pVal));
+    rc = rc && PL_unify_float(t, PyFloat_AsDouble(pVal));
   } else if (PyComplex_Check(pVal)) {
    term_t t1 = PL_new_term_ref(),
            t2 = PL_new_term_ref();
@@ -52,7 +53,7 @@ fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",st
         !PL_cons_functor(to, FUNCTOR_complex2, t1, t2)) {
       rc = false;
     } else {
-      rc = PL_unify(t, to);
+      rc = rc && PL_unify(t, to);
     }
   } else if (PyUnicode_Check(pVal)) {
     atom_t tmp_atom;
@@ -67,41 +68,43 @@ fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",st
     const char *s = PyUnicode_AsUTF8(pVal);
     tmp_atom = PL_new_atom( s);
 #endif
-    rc = PL_unify_atom(t, tmp_atom);
+    rc = rc && PL_unify_atom(t, tmp_atom);
   } else if (PyByteArray_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyByteArray_AsString(pVal));
-    rc = PL_unify_atom(t, tmp_atom);
+    rc = rc && PL_unify_atom(t, tmp_atom);
 #if PY_MAJOR_VERSION < 3
   } else if (PyString_Check(pVal)) {
     atom_t tmp_atom = PL_new_atom(PyString_AsString(pVal));
-    rc = PL_unify_atom(t, tmp_atom);
+    rc = rc && PL_unify_atom(t, tmp_atom);
 #endif
   } else if (PyTuple_Check(pVal)) {
     Py_ssize_t i, sz = PyTuple_Size(pVal);
     functor_t f;
     const char *s;
-    if ((s = (Py_TYPE(pVal)->tp_name))) {
-      if (!strcmp(s, "H")) {
-        pVal = PyTuple_GetItem(pVal, 0);
-	if (pVal==NULL) {
+    if (sz == 0) {
+      rc = rc && PL_unify_atom(t, ATOM_brackets);
+    } else {
+      if ((s = (Py_TYPE(pVal)->tp_name))) {
+	if (!strcmp(s, "H")) {
+	  pVal = PyTuple_GetItem(pVal, 0);
+	  if (pVal==NULL) {
 	    pVal = Py_None;
 	    PyErr_Clear();
+	  }
 	}
-      }
-      if (s[0] == '$') {
-        char *ns = malloc(strlen(s) + 5);
-        strcpy(ns, "__");
-        strcat(ns, s + 1);
-        strcat(ns, "__");
-        f = PL_new_functor(PL_new_atom(ns), sz);
+	if (s[0] == '$') {
+	  char *ns = malloc(strlen(s) + 5);
+	  strcpy(ns, "__");
+	  strcat(ns, s + 1);
+	  strcat(ns, "__");
+	  f = PL_new_functor(PL_new_atom(ns), sz);
+	} else {
+	  f = PL_new_functor(PL_new_atom(s), sz);
+	}
       } else {
-        f = PL_new_functor(PL_new_atom(s), sz);
+	f = PL_new_functor(ATOM_t, sz);
       }
-    } else {
-      f = PL_new_functor(ATOM_t, sz);
-    }
     if (PL_unify_functor(t, f)) {
-      rc = true;
       for (i = 0; i < sz; i++) {
 	if (!PL_get_arg(i + 1, t, to))
 	  rc = false;
@@ -115,61 +118,69 @@ fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",st
     } else {
       rc = false;
     }
-    fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs(" ||***\n",stderr);
-  } else if (PyList_Check(pVal)) {
-    YAP_Term yt = YAP_GetFromSlot(t);
-    Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
-
-    for (i = 0; i < sz; i++) {
-      PyObject *obj;
-      if (!PL_unify_list(t, to, t)) {
-	rc = false;
-	break;
-      }
-      if ((obj = PyList_GetItem(pVal, i)) == NULL) {
-	obj = Py_None;
-      }
-      rc = rc &&  python_to_term(obj, to);
-      
+    //fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs(" ||***\n",stderr);
     }
-    rc = rc && PL_unify_nil(t);
-    fputs("[***]  ", stderr);
-    Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
+  } else if (PyList_Check(pVal)) {
+      Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
+
+      if (sz == 0) {
+	rc = rc && PL_unify_atom(t, ATOM_nil);
+      } else {
+	for (i = 0; i < sz; i++) {
+	  PyObject *obj;
+	  if (!PL_unify_list(t, to, t)) {
+	    rc = false;
+	    break;
+	  }
+	  if ((obj = PyList_GetItem(pVal, i)) == NULL) {
+	    obj = Py_None;
+	  }
+	  rc = rc &&  python_to_term(obj, to);
+      
+	}
+      rc = rc && PL_unify_nil(t);
+      }
+      //fputs("[***]  ", stderr);
+      //Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
   } else if (PyDict_Check(pVal)) {
     Py_ssize_t pos = 0;
     term_t to = PL_new_term_ref(), ti = to;
     int left = PyDict_Size(pVal);
     PyObject *key, *value;
 
-    while (PyDict_Next(pVal, &pos, &key, &value)) {
-      term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
-             tnew = PL_new_term_ref();
-      /* do something interesting with the values... */
-      if (!python_to_term(key, tkey)) {
-	continue;
+    if (left == 0) {
+      rc = rc && PL_unify_atom(t, ATOM_curly_brackets);
+    } else {
+      while (PyDict_Next(pVal, &pos, &key, &value)) {
+	term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
+	  tnew = PL_new_term_ref();
+	/* do something interesting with the values... */
+	if (!python_to_term(key, tkey)) {
+	  continue;
+	}
+	if (!python_to_term(value, tval)) {
+	  continue;
+	}
+	/* reuse */
+	tint = tkey;
+	if (!PL_cons_functor(tint, FUNCTOR_colon2, tkey, tval)) {
+	  rc = false;
+	  continue;
+	}
+	if (--left) {
+	  if (!PL_cons_functor(tint, FUNCTOR_comma2, tint, tnew))
+	    PL_reset_term_refs(tkey);
+	  rc = false;
+	}
+	if (!PL_unify(ti, tint)) {
+	  rc = false;      }
+	ti = tnew;
+	PL_reset_term_refs(tkey);
       }
-      if (!python_to_term(value, tval)) {
-	continue;
-      }
-      /* reuse */
-      tint = tkey;
-      if (!PL_cons_functor(tint, FUNCTOR_colon2, tkey, tval)) {
-	rc = false;
-	continue;
-      }
-      if (--left) {
-        if (!PL_cons_functor(tint, FUNCTOR_comma2, tint, tnew))
-          PL_reset_term_refs(tkey);
-	rc = false;
-      }
-      if (!PL_unify(ti, tint)) {
-	rc = false;      }
-      ti = tnew;
-      PL_reset_term_refs(tkey);
+      rc = rc && PL_unify(t, to);
     }
-    rc = PL_unify(t, to);
   } else {
-    rc = repr_term(pVal, t);
+    rc = rc && repr_term(pVal, t);
   }
   PL_reset_term_refs(to);
   return rc;

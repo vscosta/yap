@@ -1,21 +1,43 @@
+macro_log_feature (PYTHONLIBS_FOUND "Python"
+  "Use Python System"
+  "http://www.python.org" FALSE )
+
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
 
 
-
-
 if (NOT WIN32)
-set (BUILD_SHARED_LIBS ON)
+  set (BUILD_SHARED_LIBS ON)
 endif()
 
 
 
 option (WITH_JIT
-"just in Time Clause Compilation" OFF)
+  "just in Time Clause Compilation" OFF)
 if (WITH_JIT)
   add_subDIRECTORY(JIT)
 endif (WITH_JIT)
 
+OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
+
+IF (WITH_SWIG)
+  find_host_package (SWIG)
+  macro_log_feature (SWIG_FOUND "Swig"
+    "Use SWIG Interface Generator "
+    "http://www.swig.org" ON)
+ENDIF (WITH_SWIG)
+
+option (WITH_PYTHON
+  "Allow Python->YAP  and YAP->Python" ON)
+
+IF (WITH_PYTHON)
+  include(python)
+ENDIF (WITH_PYTHON)
+
+
+IF (SWIG_FOUND)
+  add_subDIRECTORY (packages/swig)
+ENDIF(SWIG_FOUND)
 
 add_subDIRECTORY (packages/raptor)
 
@@ -29,31 +51,21 @@ OPTION (WITH_CPLINT " Enable the cplint probabilistic language"   ON)
 OPTION (WITH_HORUS " Enable the CLPBN and PFL probabilistic languages"  ON)
 
 IF (WITH_CLPBN)
-add_subDIRECTORY (packages/CLPBN)
+  add_subDIRECTORY (packages/CLPBN)
 ENDIF(WITH_CLPBN)
 
 IF (WITH_CPLINT)
-add_subDIRECTORY (packages/cplint)
-ENDIF(WITH_CPLINT)
+    add_subDIRECTORY (packages/cplint)
+  ENDIF(WITH_CPLINT)
 
-
-#must be last
-add_subDIRECTORY (packages/python)
-
-OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
-IF (WITH_SWIG)
-add_subDIRECTORY (packages/swig)
-ENDIF (WITH_SWIG)
-
-
-# please install doxygen for prolog first
-# git clone http://www.github.com/vscosta/doxygen-yap
-# cd doxygen-yap
-# mkdir -p build
-# cd build
-# make; sudo make install
-option (WITH_DOCS
-     "generate YAP docs" OFF)
+  # please install doxygen for prolog first
+  # git clone http://www.github.com/vscosta/doxygen-yap
+  # cd doxygen-yap
+  # mkdir -p build
+  # cd build
+  # make; sudo make install
+  option (WITH_DOCS
+    "generate YAP docs" OFF)
 
      IF (WITH_DOCS)
   add_subDIRECTORY (docs)
@@ -150,7 +162,7 @@ if(WIN32)
 
 endif(WIN32)
 
-    add_executable (yap-bin ${CONSOLE_SOURCES})
+add_executable (yap-bin ${CONSOLE_SOURCES})
 
 set_target_properties (yap-bin PROPERTIES OUTPUT_NAME yap)
 

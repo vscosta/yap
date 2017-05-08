@@ -1,36 +1,21 @@
 
-option (WITH_SWiG
-     "Allow Python->YAP  and Java->YAP" ON)
+#
+#   SWIG_FOUND - set to true if SWIG is found
+#   SWIG_DIR - the directory where swig is installed
+#   SWIG_EXECUTABLE - the path to the swig executable
+#   SWIG_VERSION   - the version number of the swig executable
+#
 
-IF (WITH_SWiG)
+# This is a CMake example for Python and Java
 
-find_host_package (SWIG)
-macro_log_feature (SWIG_FOUND "Swig"
-  "Use SWIG Interface Generator "
-"http://www.swig.org" ON)
-
-if (SWIG_FOUND)
-  #
-  #   SWIG_FOUND - set to true if SWIG is found
-  #   SWIG_DIR - the directory where swig is installed
-  #   SWIG_EXECUTABLE - the path to the swig executable
-  #   SWIG_VERSION   - the version number of the swig executable
-  #
-
-  # This is a CMake example for Python and Java
-
-  INCLUDE(${SWIG_USE_FILE})
+INCLUDE(${SWIG_USE_FILE})
 
 if (ANDROID)
-add_subdirectory(android)
+  add_subdirectory(android)
 else(ANDROID)
-add_subdirectory(python)
-#add_subdirectory(java)
+  #  add_subdirectory(java)
 endif(ANDROID)
 
-  set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS   SWIGYAP=1)
+set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS   SWIGYAP=1)
 
 
-endif (SWIG_FOUND)
-
-ENDIF (WITH_SWiG)

@@ -1,6 +1,4 @@
 
-
-
 #define YAP_CPP_INTERFACE 1
 
 #include "yapi.hh"
@@ -13,21 +11,14 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-X_API extern char *Yap_TermToString(Term t, size_t *length, encoding_t encodingp,
+X_API char *Yap_TermToString(Term t, size_t *length, encoding_t encodingp,
                              int flags);
 
-X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
-X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
+X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
+X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
                                       YAP_Term);
-X_API extern void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
+X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
                                   arity_t, arity_t);
-#if YAP_PYTHON
-  extern bool python_in_python;
-  X_API extern bool init_python(void);  
-  extern X_API bool Py_IsInitialized();
-
-#endif
-  
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s)
@@ -384,6 +375,7 @@ Term YAPListTerm::car()
   {
     Yap_Error(TYPE_ERROR_LIST, to, "");
     throw YAPError();
+    return 0;
   }
 }
 
@@ -554,11 +546,6 @@ void YAPEngine::release()
   RECOVER_MACHINE_REGS();
 }
 
-YAPTerm YAPEngine::fun(YAPTerm t)
-{
-  return YAPTerm(fun(t.term()));
-}
-
 Term YAPEngine::fun(Term t)
 {
   CACHE_REGS
@@ -572,11 +559,6 @@ Term YAPEngine::fun(Term t)
     sigjmp_buf q_env;
     Atom name;
 
-    BACKUP_MACHINE_REGS();
-    fprintf(stderr," ++++   ");
-    Yap_DebugPlWriteln(t);
-    fprintf(stderr," ++++\n");
-    t = Yap_StripModule(t, &tmod);
     if (IsApplTerm(t))
     {
       ts = RepAppl(t) + 1;
@@ -631,7 +613,6 @@ Term YAPEngine::fun(Term t)
     Yap_CloseHandles(q.CurSlot);
     RECOVER_MACHINE_REGS();
     return XREGS[arity];
-    Yap_DebugPlWriteln(XREGS[arity]);
   }
   catch (YAPError e)
   {
@@ -676,7 +657,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap)
 bool YAPQuery::next()
 {
   CACHE_REGS
-  bool result;
+    bool result = false;
   Term terr;
   LOCAL_RestartEnv = &q_env;
   try
@@ -791,8 +772,6 @@ void YAPQuery::close()
   RECOVER_MACHINE_REGS();
 }
 
-static YAPEngine *curren;
-
 #if __ANDROID__
 
 #include <jni.h>
@@ -849,19 +828,9 @@ void Yap_displayWithJava(int c)
 
 #endif
 
-void YAPEngineArgs::fetch_defaults()
-{
-  Yap_InitDefaults(&init_args, NULL, 0, NULL);
-#if YAP_PYTHON
-  init_args.Embedded = true;
-  python_in_python  = Py_IsInitialized();
-#endif
-}
-
 void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
-  
-  if ((BootMode = YAP_Init(&engine_args.init_args)) == YAP_FOUND_BOOT_ERROR)
+  if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
   {
     throw YAPError();
   }
@@ -875,9 +844,6 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
 #endif
   yerror = YAPError();
 
-#ifdef YAP_PYTHON
-  init_python();
-#endif
   YAPQuery initq = YAPQuery(YAPAtom("$init_system"));
   if (initq.next())
   {
@@ -889,37 +855,19 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
   }
 }
 
-YAPEngine::YAPEngine(YAPEngineArgs &argp)
-    : _callback(0)
-{ // a single engine can be active
-
-  engine_args = argp;
-  YAP_file_type_t BootMode;
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "YAP %s ", bootFile);
-
-  // delYAPCallback()b
-  // if (cb)
-  //  setYAPCallback(cb);
-  curren = this;
-  BootMode = engine_args.init_args.boot_file_type;
-  doInit(BootMode);
-
-}
-
 YAPEngine::YAPEngine(int argc, char *argv[],
                      YAPCallback *cb)
-    : _callback(0)
-{ // a single engine can be active
+  : _callback(0) { // a single engine can be active
 
-  engine_args = YAPEngineArgs();
   YAP_file_type_t BootMode;
-  BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args.init_args);
+  engine_args = new YAPEngineArgs();
+  BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
   // delYAPCallback()b
   // if (cb)
   //  setYAPCallback(cb);
-  curren = this;
   doInit(BootMode);
 }
+
 
 YAPPredicate::YAPPredicate(YAPAtom at)
 {

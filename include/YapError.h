@@ -231,7 +231,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_BallTerm LOCAL_ActiveError->errorTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
-  extern bool Yap_find_prolog_culprit();
+  extern bool Yap_find_prolog_culprit(void);
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);

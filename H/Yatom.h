@@ -106,73 +106,73 @@ INLINE_ONLY inline EXTERN Prop AbsFunctorProp(FunctorEntry *p) {
 
 #endif
 
-INLINE_ONLY inline EXTERN Int ArityOfFunctor(Functor);
+ INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor);
 
-INLINE_ONLY inline EXTERN Int ArityOfFunctor(Functor Fun) {
-  return (Int)(((FunctorEntry *)Fun)->ArityOfFE);
-}
+ INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor Fun) {
+   return (arity_t)(((FunctorEntry *)Fun)->ArityOfFE);
+ }
 
-INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor);
+ INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor);
 
-INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor Fun) {
-  return (Atom)(((FunctorEntry *)Fun)->NameOfFE);
-}
+ INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor Fun) {
+   return (Atom)(((FunctorEntry *)Fun)->NameOfFE);
+ }
 
-INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int);
+ INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int);
 
-INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int flags) {
-  return (PropFlags)((flags == FunctorProperty));
-}
+ INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int flags) {
+   return (PropFlags)((flags == FunctorProperty));
+ }
 
-/* summary of property codes used
+ /* summary of property codes used
 
-        00 00	predicate entry
-        80 00	db property
-        bb 00	functor entry
-        ff df	sparse functor
-        ff ex	arithmetic property
-        ff f4   translation
-        ff f5   blob
-        ff f6   hold
-        ff f7   array
-        ff f8   wide atom
-        ff fa   module property
-        ff fb   blackboard property
-        ff fc	value property
-        ff fd	global property
-        ff fe	flag property
-        ff ff	op property
-*/
+    00 00	predicate entry
+    80 00	db property
+    bb 00	functor entry
+    ff df	sparse functor
+    ff ex	arithmetic property
+    ff f4   translation
+    ff f5   blob
+    ff f6   hold
+    ff f7   array
+    ff f8   wide atom
+    ff fa   module property
+    ff fb   blackboard property
+    ff fc	value property
+    ff fd	global property
+    ff fe	flag property
+    ff ff	op property
+ */
 
-/*	Global Variable property */
-typedef struct global_entry {
-  Prop NextOfPE;      /* used to chain properties             */
-  PropFlags KindOfPE; /* kind of property                     */
+ /*	Global Variable property */
+ typedef struct global_entry {
+   Prop NextOfPE;      /* used to chain properties             */
+   PropFlags KindOfPE; /* kind of property                     */
 #if defined(YAPOR) || defined(THREADS)
-  rwlock_t GRWLock; /* a simple lock to protect this entry */
+   rwlock_t GRWLock; /* a simple lock to protect this entry */
 #if THREADS
-  unsigned int owner_id; /* owner thread */
+   unsigned int owner_id; /* owner thread */
 #endif
 #endif
-  struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
-  struct global_entry *NextGE;      /* linked list of global entries */
-  Term global;                      /* index in module table                */
-  Term AttChain;                    /* index in module table                */
-} GlobalEntry;
+   struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
+   struct global_entry *NextGE;      /* linked list of global entries */
+   Term global;                      /* index in module table                */
+   Term AttChain;                    /* index in module table                */
+ } GlobalEntry;
 
 #if USE_OFFSETS_IN_PROPS
 
-INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p);
+ INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p);
 
-INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p) {
-  return (GlobalEntry *)(AtomBase + Unsigned(p));
-}
+ INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p) {
+   return (GlobalEntry *)(AtomBase + Unsigned(p));
+ }
 
-INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p);
+ INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p);
 
-INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+ INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p) {
+   return (Prop)(Addr(p) - AtomBase);
+ }
 
 #else
 

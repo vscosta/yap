@@ -41,11 +41,10 @@ PyObject *PythonLookupSpecial(const char *s) {
   if (strcmp(s, "false") == 0) {
     return Py_False;
   }
-  if (strcmp(s, "none") == 0)
-    return Py_None;
   if (strcmp(s, "[]") == 0) {
     return PyList_New(0);
-  } else if (strcmp(s, "{}") == 0) {
+  }
+  if (strcmp(s, "{}") == 0) {
     return PyDict_New();
     /* return __main__,s */
   }
@@ -53,11 +52,9 @@ PyObject *PythonLookupSpecial(const char *s) {
 }
 
 PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
-  PyObject *out = NULL;
+  PyObject *out = Py_None;
   if (!sp)
     return Py_None;
-    if (strcmp(sp, "none") == 0)
-      return Py_None;
   if ((out = finalLookup(pContext, sp))) {
     return out;
   }
@@ -70,7 +67,7 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   }
   PyObject *py_Local = PyEval_GetLocals();
   if ((out = finalLookup(py_Local, sp))) {
-                                       return out;
+    return out;
   }
   PyObject *py_Global = PyEval_GetGlobals();
   if ((out = finalLookup(py_Global, sp))) {
@@ -737,8 +734,10 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
 
     typp = PyMem_Malloc(sizeof(PyTypeObject));
     PyStructSequence_Desc *desc = PyMem_Malloc(sizeof(PyStructSequence_Desc));
-
-    desc->name = PyUnicode_AsUTF8(key);
+    const char*name = PyUnicode_AsUTF8(key);
+    desc->name = PyMem_Malloc(strlen(name)+1);
+    strcpy(desc->name, name);
+    Py_DECREF(key);
     desc->doc = "YAPTerm";
     desc->fields = pnull;
     desc->n_in_sequence = 32;
@@ -748,7 +747,8 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     typp->tp_repr = structseq_repr;
     //     typp = PyStructSequence_NewType(desc);
     Py_INCREF(typp);
-    typp->tp_flags |= Py_TPFLAGS_HEAPTYPE;
+    Py_INCREF(desc);
+    //typp->tp_flags |= Py_TPFLAGS_HEAPTYPE;
     // don't do this: we cannot add a type as an atribute.
     //PyModule_AddObject(py_Main, s, (PyObject *)typp);
     if (py_F2P)
@@ -759,10 +759,10 @@ for (arity_t i = 0; i < arity; i++) {
   PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
   if (pArg)
     PyStructSequence_SET_ITEM(o, i, pArg);
-  PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
-  }
+  //PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
+ }
   ((PyStructSequence *)o)->ob_base.ob_size = arity;
-  PyObject_Print(o,stderr,0);fputc('\n',stderr);
+  //PyObject_Print(o,stderr,0);fputc('\n',stderr);
   return o;
 #else
   PyObject *o1;

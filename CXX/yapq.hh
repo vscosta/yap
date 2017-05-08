@@ -147,18 +147,12 @@ public:
 };
 
 
- class  YAPEngine;
-
 /// @brief Setup all arguments to a new engine
 class YAPEngineArgs {
 
-  friend class YAPEngine;
-  
-  YAP_init_args init_args;
-
-  void fetch_defaults();
-  
 public:
+
+  YAP_init_args init_args;
 
   inline void setEmbedded( bool fl )
   {
@@ -217,7 +211,8 @@ public:
 
   inline void setYapLibDir( const char * fl )
   {
-    init_args.YapLibDir = fl;
+    init_args.YapLibDir = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)init_args.YapLibDir, fl);
   };
 
   inline const char * getYapLibDir(  )
@@ -227,7 +222,8 @@ public:
 
   inline void setYapShareDir( const char * fl )
   {
-    init_args.YapShareDir = fl;
+    init_args.YapShareDir = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)init_args.YapShareDir, fl);
   };
 
   inline const char * getYapShareDir(  )
@@ -237,8 +233,9 @@ public:
 
   inline void setYapPrologBootFile( const char * fl )
   {
-    init_args.YapPrologBootFile = fl;
-  };
+    init_args.YapPrologBootFile = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)init_args.YapPrologBootFile, fl);
+};
 
   inline const char * getYapPrologBootFile(  )
   {
@@ -305,12 +302,15 @@ public:
     return init_args.Argv;
   };
 
-
-    YAPEngineArgs() {
-      fetch_defaults();
-    };
-
+  YAPEngineArgs() {
+    Yap_InitDefaults(&init_args, NULL, 0, NULL);
+#if YAP_PYTHON
+    init_args.Embedded = true;
+    python_in_python = Py_IsInitialized();
+#endif
+  };
 };
+
 
 /**
  * @brief YAP Engine: takes care of the execution environment
@@ -318,10 +318,10 @@ public:
  *
  *
  */
-class YAPEngine
+  class YAPEngine
 {
 private:
-  YAPEngineArgs engine_args;
+  YAPEngineArgs *engine_args;
   YAPCallback *_callback;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode);
@@ -329,20 +329,24 @@ private:
 
 public:
   /// construct a new engine; may use a variable number of arguments
-  YAPEngine(YAPEngineArgs &cargs); /// construct a new engine, including aaccess to callbacks
-                 /// construct a new engine using argc/argv list of arguments
+  YAPEngine(YAPEngineArgs *cargs) {
+    engine_args = cargs;
+    //doInit(cargs->init_args.boot_file_type);
+    doInit(YAP_QLY);
+  }; /// construct a new engine, including aaccess to callbacks
+  /// construct a new engine using argc/argv list of arguments
   YAPEngine(int argc, char *argv[],
-            YAPCallback *callback = (YAPCallback *)NULL);
+	    YAPCallback *callback = (YAPCallback *)NULL);
   /// kill engine
-  ~YAPEngine() { delYAPCallback(); }
+  ~YAPEngine() { delYAPCallback(); };
   /// remove current callback
-  void delYAPCallback() { _callback = 0; }
+  void delYAPCallback() { _callback = 0; };
   /// set a new callback
   void setYAPCallback(YAPCallback *cb)
   {
     delYAPCallback();
     _callback = cb;
-  }
+  };
   /// execute the callback.
   ////void run() { if (_callback) _callback.run(); }
   /// execute the callback with a text argument.
@@ -395,8 +399,14 @@ public:
   //> call a deterninistic predicate: the user will construct aterm of
   //> arity N-1. YAP adds an extra variable which will have the
   //> output.
-  YAPTerm fun(YAPTerm t);
+  YAPTerm fun(YAPTerm t) { return YAPTerm(fun(t.term())); };
   Term fun(Term t);
+  //> set a StringFlag, usually a path
+  //>
+  bool setStringFlag(std::string arg, std::string path)
+  {
+    return setYapFlag(MkAtomTerm(Yap_LookupAtom(arg.data())), MkAtomTerm(Yap_LookupAtom(path.data())));
+  };
 };
 
 #endif /* YAPQ_HH */
