@@ -34,7 +34,7 @@ import shutil
 from distutils.core import setup
 
 pjoin = os.path.join
-here = os.path.abspath(os.path.dirname(__file__))
+here = os.path.relpath(os.path.dirname(__file__))
 pkg_root = pjoin(here, name)
 
 packages = []
@@ -56,12 +56,11 @@ setup_args = dict(
     version         = version_ns['__version__'],
     scripts         = glob(pjoin('scripts', '*')),
     packages        = packages,
-    package_dir     = {'':'${CMAKE_CURRENT_SOURCE_DIR}'},
-    py_modules      = ['ipykernel_launcher'],
+    py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
-    description     = "IPython Kernel for Jupyter",
-    author          = 'IPython Development Team',
-    author_email    = 'ipython-dev@scipy.org',
+    description     = "YAP Kernel for Jupyter",
+    author          = 'IPython Development Team and Vitor Santos Costa',
+    author_email    = 'vsc@dcc.fc.up.ot',
     url             = 'http://ipython.org',
     license         = 'BSD',
     platforms       = "Linux, Mac OS X, Windows",
@@ -86,12 +85,13 @@ install_requires = setuptools_args['install_requires'] = [
     'traitlets>=4.1.0',
     'jupyter_client',
     'tornado>=4.0',
+    'yap4py'
 ]
 
 if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
-    from ipykernel.kernelspec import write_kernel_spec, make_ipkernel_cmd, KERNEL_NAME
+    from yap_kernel.kernelspec import write_kernel_spec, make_yap_kernel_cmd, KERNEL_NAME
 
-    argv = make_ipkernel_cmd(executable='python')
+    argv = make_yap_kernel_cmd(executable='python')
     dest = os.path.join(here, 'data_kernelspec')
     if os.path.exists(dest):
         shutil.rmtree(dest)
@@ -100,6 +100,10 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
     setup_args['data_files'] = [
         (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
     ]
+
+setuptools_args['zip_safe']=False
+setuptools_args['eager_resources'] = ['yap_kernel']
+setuptools_args['include_package_data']=True
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],
