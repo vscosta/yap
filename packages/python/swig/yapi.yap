@@ -10,11 +10,18 @@
 bindvars( [], [] ) :- !.
 bindvars( L, NL ) :-
 	rb_new(T),
+%	trace,
 	foldl2( bind, L, NL, T, _ , 0, _),
 	term_variables(NL, Vs),
 	foldl( bind_new, Vs, 0, _).
 
 
+bind(t(_,t(X,Y)), Z, T0, T, N1, N2) :-
+	!,
+	bind(X=Y, Z, T0, T, N1, N2).	
+bind(tuple(_,tuple(X,Y)), Z, T0, T, N1, N2) :-
+	!,
+	bind(X=Y, Z, T0, T, N1, N2).	
 bind(X=Y, X=X, T0, T, N, N) :-
 	var(Y),
 	!,

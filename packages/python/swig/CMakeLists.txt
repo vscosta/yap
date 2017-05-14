@@ -5,26 +5,14 @@ INCLUDE(NewUseSWIG)
 
 include(FindPythonModule)
 
+set (PROLOG_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.yap)
+set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_SOURCE_DIR}/__main__.py)
+
 file(RELATIVE_PATH RELATIVE_SOURCE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
 
-configure_file("setup.py.cmake" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
-foreach(i ${pl_library})
-  get_filename_component(j ${i} NAME)
-  configure_file(${i} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/${j})
-endforeach()
-foreach(i ${pl_boot_library})
-  get_filename_component(j ${i} NAME)
-  configure_file(${i} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl/${j})
-endforeach()
-foreach(i ${pl_os_library})
-  get_filename_component(j ${i} NAME)
-  configure_file(${i} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os/${j})
-endforeach()
-configure_file("${CMAKE_SOURCE_DIR}/README.md" ${CMAKE_CURRENT_BINARY_DIR}/README)
-configure_file("__init__.py" ${CMAKE_CURRENT_BINARY_DIR}/yap4py/__init__.py)
-configure_file("yapi.py" ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yapi.py)
-configure_file("yapi.yap" ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/yapi.yap)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/YAP4PY.md" ${CMAKE_CURRENT_BINARY_DIR}/README)
 
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
@@ -33,12 +21,12 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/CXX")
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
 SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap)
-SET_SOURCE_FILES_PROPERTIES(../../yap.i PROPERTIES OUTPUT_NAME yap)
+#SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
 SWIG_ADD_LIBRARY(Py2YAP LANGUAGE python  SHARED SOURCES ../../swig/yap.i )
 if (WIN32)
     SWIG_LINK_LIBRARIES(Py2YAP YAPPython libYap ${PYTHON_LIBRARIES} )
-    else()
+else()
     SWIG_LINK_LIBRARIES(  Py2YAP  libYap YAP++ YAPPython ${PYTHON_LIBRARIES} )
   endif()
   set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME}
@@ -50,22 +38,6 @@ if (WIN32)
     )
   # inform we are compiling YAP
   # s used in MSYS
-
-  execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; print( sysconfig.get_path( 'platlib' ) )"
-    OUTPUT_VARIABLE _ABS_PYTHON_MODULE_PATH
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-
-  get_filename_component(ABS_PYTHON_MODULE_PATH ${_ABS_PYTHON_MODULE_PATH} ABSOLUTE)
-  file(RELATIVE_PATH _REL_PYTHON_MODULE_PATH ${CMAKE_INSTALL_PREFIX} ${_ABS_PYTHON_MODULE_PATH})
-  #
-  #  set ( PYTHON_MODULE_PATH
-  #    ${ABS_PYTHON_MODULE_PATH}
-  #  )
-  #
-  #  INSTALL ( FILES ${CMAKE_CURRENT_BINARY_DIR}/yap.py DESTINATION ${PYTHON_MODULE_PATH} )
-  #  INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.py DESTINATION ${PYTHON_MODULE_PATH} )
-  #  INSTALL ( FILES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.yap DESTINATION ${libpl} )
   #
   #
   #  INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
@@ -81,28 +53,31 @@ if (WIN32)
     $<TARGET_FILE:tries>
     $<TARGET_FILE:itries>
     $<TARGET_FILE:sys>
-    $<TARGET_FILE:real>
     $<TARGET_FILE:yap_random>)
   if (TARGET real)
     list( APPEND dlls $<TARGET_FILE:real>
  )
 endif()
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl )
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os )
+
 add_custom_target( YAP4PY ALL
-  )
-
-
-add_custom_command (TARGET YAP4PY
-  COMMAND ${CMAKE_COMMAND} -E copy ${dlls} ${CMAKE_BINARY_DIR}/libYap${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-  COMMAND ${PYTHON_EXECUTABLE} setup.py clean sdist bdist_wheel
-  VERBATIM
+      COMMAND ${CMAKE_COMMAND} -E copy ${dlls}  ${CMAKE_BINARY_DIR}/libYap${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+    COMMAND ${CMAKE_COMMAND} -E copy ${pl_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
+  COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yapi.yap ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
+    COMMAND ${CMAKE_COMMAND} -E copy ${pl_library} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
+    COMMAND ${CMAKE_COMMAND} -E copy ${pl_boot_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl
+    COMMAND ${CMAKE_COMMAND} -E copy ${pl_os_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os
+    COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS  ${CMAKE_BINARY_DIR}/${YAP_STARTUP} libYap ${dlls}  ${pl_library}  ${pl_boot_library}  ${pl_os_library} yapi.py}
-  )
+DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
+
 
 	  install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --no-index -f dist yap4py
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
-	    DEPENDS Py4YAP${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+ DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
 
 
 	  if (WITH_DOCS AND DOXYGEN_FOUND)

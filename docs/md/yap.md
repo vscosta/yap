@@ -84,17 +84,12 @@ argument" - it cannot be a free variable at the time of the call;
 
  
 
-
- @defgroup extensions   YAP Extensions
- @{
-
 @page Extensions  YAP Extensions
 
 YAP includes a number of extensions over the original Prolog
 language.
-         @subpage atts
 
- @}
+         @subpage atts
 
 @page YAPProgramming Programming in YAP
 

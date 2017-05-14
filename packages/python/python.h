@@ -182,7 +182,7 @@ extern install_t install_pypreds(void);
 extern install_t install_pl2pl(void);
 
 X_API extern bool init_python(void);
-extern bool do_init_python(void);
+X_API extern bool do_init_python(void);
 
 extern PyObject PyInit_yap(void);
 

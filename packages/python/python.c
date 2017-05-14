@@ -33,7 +33,7 @@ static void add_modules(void) {
   py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
   // py_Yapex = PyImport_ImportModule("yap4py.yapi");
   // PyObject *py_Yap =
-  PyImport_ImportModule("yap");
+  py_Yapex = PyImport_AddModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
   //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
@@ -97,13 +97,13 @@ foreign_t end_python(void) {
 
 static bool libpython_initialized = 0;
 
-bool do_init_python(void) {
+X_API bool do_init_python(void) {
   //  char **argv;
-
-  if (libpython_initialized)
+ if (libpython_initialized)
     return true;
   libpython_initialized = true;
-  //  PyGILState_STATE gstate = PyGILState_Ensure();
+
+   //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
   if (!python_in_python)
     Py_Initialize();
@@ -113,11 +113,12 @@ bool do_init_python(void) {
   install_pl2pl();
   // PyGILState_Release(gstate);
     add_modules();
-  return !python_in_python;
+  return true;
 
 }
 X_API bool init_python(void) {
-
+ if (python_in_python)
+    return true;
     return do_init_python();
 }
 

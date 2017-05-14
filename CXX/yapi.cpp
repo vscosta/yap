@@ -19,6 +19,11 @@ X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
                                       YAP_Term);
 X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
                                   arity_t, arity_t);
+
+  #if YAP_PYTHON
+  X_API bool     do_init_python(void);
+  #endif
+
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s)
@@ -842,7 +847,11 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
   Yap_AndroidBufp[0] = '\0';
   Yap_AndroidSz = 0;
 #endif
-  yerror = YAPError();
+  //yerror = YAPError();
+#if YAP_PYTHON
+
+    do_init_python();
+#endif
 
   YAPQuery initq = YAPQuery(YAPAtom("$init_system"));
   if (initq.next())

@@ -124,7 +124,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
 
       if (sz == 0) {
-	rc = rc && PL_unify_atom(t, ATOM_nil);
+	rc = rc && PL_unify_nil(t);
       } else {
 	for (i = 0; i < sz; i++) {
 	  PyObject *obj;

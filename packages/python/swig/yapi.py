@@ -14,9 +14,15 @@ library = namedtuple( 'library', 'list')
 v = namedtuple( '_', 'slot')
 
 
-
 def numbervars(  engine, l ):
-    return engine.fun(bindvars(l))
+    rc = engine.fun(bindvars(l))
+    o = []
+    for i  in rc:
+        if i[0] == "=":
+            o = o + [i[1]]
+        else:
+            o = o +[i]
+    return o
 
 def query_prolog(engine, s):
 
@@ -86,15 +92,18 @@ def query_prolog(engine, s):
     q.close()
     return
 
-
-def live():
+def boot_yap(**kwargs):
     yap_lib_path = os.path.dirname(__file__)
     args = yap.YAPEngineArgs()
     args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
     args.setYapLibDir(yap_lib_path)
-    #args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
+    args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
     engine = yap.YAPEngine(args)
     engine.goal( use_module(library('yapi') ) )
+    return engine
+
+def live(**kwargs):
+    boot_yap(**kwargs)
     loop = True
     while loop:
         try:

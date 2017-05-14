@@ -19,7 +19,7 @@
 /**
  * @file c_interface.c
  *
- * @addtogroup ChYInterface 
+ * @addtogroup ChYInterface
 */
 
 #ifndef C_INTERFACE_C
@@ -1702,7 +1702,6 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
-    printf("before RETRY H=%p, ASP=%p, B=%p, ENV=%p, TR=%p %ld\n", HR, ASP, B, ENV, TR, LOCAL_CurSlot);
     myB = (choiceptr)(LCL0 - dgi->b);
   CP = myB->cp_cp;
   /* sanity check */
@@ -1714,7 +1713,6 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   ASP = (CELL *)B;
   LOCAL_CurSlot = dgi->EndSlot;
   out = run_emulator(PASS_REGS1);
-    printf("out=%d RETRY H=%p, ASP=%p, B=%p, ENV=%p, TR=%p %ld\n", out, HR, ASP, B, ENV, TR, LOCAL_CurSlot);
     if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
   } else {

@@ -164,16 +164,6 @@ public:
     return init_args.Embedded;
   };
 
-  inline void setSavedState( char *fl )
-  {
-    init_args.SavedState = fl;
-  };
-
-  inline const char * getSavedState(  )
-  {
-    return init_args.SavedState;
-  };
-
   inline void setStackSize( bool fl )
   {
     init_args.StackSize = fl;
@@ -220,7 +210,7 @@ public:
     return init_args.YapLibDir;
   };
 
-  inline void setYapShareDir( const char * fl )
+    inline void setYapShareDir( const char * fl )
   {
     init_args.YapShareDir = (const char *)malloc(strlen(fl)+1);
     strcpy((char *)init_args.YapShareDir, fl);
@@ -229,6 +219,17 @@ public:
   inline const char * getYapShareDir(  )
   {
     return init_args.YapShareDir;
+  };
+
+  inline void setSavedState( const char * fl )
+  {
+    init_args.SavedState = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)init_args.SavedState, fl);
+  };
+
+  inline const char * getSavedState(  )
+  {
+    return init_args.SavedState;
   };
 
   inline void setYapPrologBootFile( const char * fl )

@@ -45,7 +45,7 @@ here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
 
-extensions=[Extension('_yap', python_sources,
+extensions=[Extension                                                                                                                    '_yap', python_sources,
                       define_macros = [('MAJOR_VERSION', '1'),
                                        ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
@@ -54,7 +54,7 @@ extensions=[Extension('_yap', python_sources,
     		      swig_opts=['-modern', '-c++', '-py3','-I${RELATIVE_SOURCE}/CXX'],
                       library_dirs=['../../..','../../../CXX','../../packages/python',"${dlls}","${bindir}", '.'],
     		      extra_link_args=my_extra_link_args,
-                      extra_compile_args=['-g'],
+                      extra_compile_args=['-g3','-O0'],
     		      libraries=['Yap','${GMP_LIBRARIES}'],
                       include_dirs=['../../..',
                                     '${GMP_INCLUDE_DIRS}',
@@ -86,12 +86,12 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7'],
     keywords=['Logic Programing'],
-    #spackage_data={'': ['yap']},
+    #package_data={'yap4py':['*.*'] },
     include_package_data=True,
     ext_modules = extensions,
-    py_modules = ['yap'],
+    #py_modules = ['yap'],
     zip_safe=False,
-    eager_resources = ['yap4py'],
-    packages=['yap4py'] # find_packages()
+    eager_resources = [''],
+    #packages=['yap4py'] # find_packages()
 #package_dir = {'':'yap4py'}
 )

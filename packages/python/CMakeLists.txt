@@ -9,6 +9,8 @@ set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 add_library (YAPPython SHARED ${PYTHON_SOURCES})
 
+target_link_libraries(YAPPython libYap ${PYTHON_LIBRARY})
+
 set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
 
 set (PYTHON_PL python.pl)

@@ -1,6 +1,8 @@
-include COPYING.md
-include CONTRIBUTING.md
+# include COPYING.md
+# include CONTRIBUTING.md
 include README.md
+
+recursive-include * *.*
 
 # Documentation
 graft docs
