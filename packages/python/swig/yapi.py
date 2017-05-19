@@ -3,7 +3,7 @@ import yap
 import os.path
 import sys
 # debugging support.
-import pdb
+# import pdb
 from collections import namedtuple
 
 yap_lib_path = os.path.dirname(__file__)
@@ -12,6 +12,7 @@ use_module = namedtuple( 'use_module', 'file')
 bindvars = namedtuple( 'bindvars', 'list')
 library = namedtuple( 'library', 'list')
 v = namedtuple( '_', 'slot')
+yap_query = namedtuple( 'yap_query', 'query owner')
 
 
 def numbervars(  engine, l ):
@@ -24,8 +25,6 @@ def numbervars(  engine, l ):
             o = o +[i]
     return o
 
-def query_prolog(engine, s):
-
     def answer(q):
         try:
             return q.next()
@@ -36,44 +35,29 @@ def query_prolog(engine, s):
     #
     # construct a query from a one-line string
     # q is opaque to Python
-    q = engine.query(s)
+    if g0:
+        q = g0
+    else:
+        q = engine.run_query(s)
     # vs is the list of variables
     # you can print it out, the left-side is the variable name,
     # the right side wraps a handle to a variable
     # pdb.set_trace()
-    vs = q.namedVars()
-    #pdb.set_trace()
+    #     #pdb.set_trace()
     # atom match either symbols, or if no symbol exists, sttrings, In this case
     # variable names should match strings
     #for eq in vs:
     #    if not isinstance(eq[0],str):
     #        print( "Error: Variable Name matches a Python Symbol")
     #        return
-    ask = True
+    # ask = True
     # launch the query
     while answer(q):
-        # this new vs should contain bindings to vars
-        vs=  q.namedVars()
-        if vs != []:
-            gs = numbervars( engine, vs)
-            i=0
-            # iterate
-            for eq in gs:
-                name = eq[0]
-                binding = eq[1]
-                # this is tricky, we're going to bind the variables in the term so thay we can
-                # output X=Y. The Python way is to use dictionares.
-                #Instead, we use the T function to tranform the Python term back to Prolog
-                if name != binding:
-                    print(name + " = " + str(binding))
-                    #ok, that was Prolog code
-        else:
-            print("yes")
         # deterministic = one solution
         if q.deterministic():
             # done
             q.close()
-            return
+            return True, True
         if ask:
             s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
             if s.startswith(';') or s.startswith('y'):

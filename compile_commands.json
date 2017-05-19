@@ -1,0 +1,1012 @@
+[
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/absmi.c.o   -c /home/vsc/yap-6.3-new/C/absmi.c",
+  "file": "/home/vsc/yap-6.3-new/C/absmi.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/agc.c.o   -c /home/vsc/yap-6.3-new/C/agc.c",
+  "file": "/home/vsc/yap-6.3-new/C/agc.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/adtdefs.c.o   -c /home/vsc/yap-6.3-new/C/adtdefs.c",
+  "file": "/home/vsc/yap-6.3-new/C/adtdefs.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/alloc.c.o   -c /home/vsc/yap-6.3-new/C/alloc.c",
+  "file": "/home/vsc/yap-6.3-new/C/alloc.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/amasm.c.o   -c /home/vsc/yap-6.3-new/C/amasm.c",
+  "file": "/home/vsc/yap-6.3-new/C/amasm.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/analyst.c.o   -c /home/vsc/yap-6.3-new/C/analyst.c",
+  "file": "/home/vsc/yap-6.3-new/C/analyst.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/args.c.o   -c /home/vsc/yap-6.3-new/C/args.c",
+  "file": "/home/vsc/yap-6.3-new/C/args.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/arrays.c.o   -c /home/vsc/yap-6.3-new/C/arrays.c",
+  "file": "/home/vsc/yap-6.3-new/C/arrays.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/arith0.c.o   -c /home/vsc/yap-6.3-new/C/arith0.c",
+  "file": "/home/vsc/yap-6.3-new/C/arith0.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/arith1.c.o   -c /home/vsc/yap-6.3-new/C/arith1.c",
+  "file": "/home/vsc/yap-6.3-new/C/arith1.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/arith2.c.o   -c /home/vsc/yap-6.3-new/C/arith2.c",
+  "file": "/home/vsc/yap-6.3-new/C/arith2.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/atomic.c.o   -c /home/vsc/yap-6.3-new/C/atomic.c",
+  "file": "/home/vsc/yap-6.3-new/C/atomic.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/attvar.c.o   -c /home/vsc/yap-6.3-new/C/attvar.c",
+  "file": "/home/vsc/yap-6.3-new/C/attvar.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/bignum.c.o   -c /home/vsc/yap-6.3-new/C/bignum.c",
+  "file": "/home/vsc/yap-6.3-new/C/bignum.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/bb.c.o   -c /home/vsc/yap-6.3-new/C/bb.c",
+  "file": "/home/vsc/yap-6.3-new/C/bb.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/blobs.c.o   -c /home/vsc/yap-6.3-new/C/blobs.c",
+  "file": "/home/vsc/yap-6.3-new/C/blobs.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/cdmgr.c.o   -c /home/vsc/yap-6.3-new/C/cdmgr.c",
+  "file": "/home/vsc/yap-6.3-new/C/cdmgr.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/cmppreds.c.o   -c /home/vsc/yap-6.3-new/C/cmppreds.c",
+  "file": "/home/vsc/yap-6.3-new/C/cmppreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/compiler.c.o   -c /home/vsc/yap-6.3-new/C/compiler.c",
+  "file": "/home/vsc/yap-6.3-new/C/compiler.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/computils.c.o   -c /home/vsc/yap-6.3-new/C/computils.c",
+  "file": "/home/vsc/yap-6.3-new/C/computils.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/corout.c.o   -c /home/vsc/yap-6.3-new/C/corout.c",
+  "file": "/home/vsc/yap-6.3-new/C/corout.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/cut_c.c.o   -c /home/vsc/yap-6.3-new/C/cut_c.c",
+  "file": "/home/vsc/yap-6.3-new/C/cut_c.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/dbase.c.o   -c /home/vsc/yap-6.3-new/C/dbase.c",
+  "file": "/home/vsc/yap-6.3-new/C/dbase.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/dlmalloc.c.o   -c /home/vsc/yap-6.3-new/C/dlmalloc.c",
+  "file": "/home/vsc/yap-6.3-new/C/dlmalloc.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/errors.c.o   -c /home/vsc/yap-6.3-new/C/errors.c",
+  "file": "/home/vsc/yap-6.3-new/C/errors.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/eval.c.o   -c /home/vsc/yap-6.3-new/C/eval.c",
+  "file": "/home/vsc/yap-6.3-new/C/eval.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/exec.c.o   -c /home/vsc/yap-6.3-new/C/exec.c",
+  "file": "/home/vsc/yap-6.3-new/C/exec.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/exo.c.o   -c /home/vsc/yap-6.3-new/C/exo.c",
+  "file": "/home/vsc/yap-6.3-new/C/exo.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/exo_udi.c.o   -c /home/vsc/yap-6.3-new/C/exo_udi.c",
+  "file": "/home/vsc/yap-6.3-new/C/exo_udi.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/flags.c.o   -c /home/vsc/yap-6.3-new/C/flags.c",
+  "file": "/home/vsc/yap-6.3-new/C/flags.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/globals.c.o   -c /home/vsc/yap-6.3-new/C/globals.c",
+  "file": "/home/vsc/yap-6.3-new/C/globals.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/gmp_support.c.o   -c /home/vsc/yap-6.3-new/C/gmp_support.c",
+  "file": "/home/vsc/yap-6.3-new/C/gmp_support.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/gprof.c.o   -c /home/vsc/yap-6.3-new/C/gprof.c",
+  "file": "/home/vsc/yap-6.3-new/C/gprof.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/grow.c.o   -c /home/vsc/yap-6.3-new/C/grow.c",
+  "file": "/home/vsc/yap-6.3-new/C/grow.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/heapgc.c.o   -c /home/vsc/yap-6.3-new/C/heapgc.c",
+  "file": "/home/vsc/yap-6.3-new/C/heapgc.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/index.c.o   -c /home/vsc/yap-6.3-new/C/index.c",
+  "file": "/home/vsc/yap-6.3-new/C/index.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/init.c.o   -c /home/vsc/yap-6.3-new/C/init.c",
+  "file": "/home/vsc/yap-6.3-new/C/init.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/inlines.c.o   -c /home/vsc/yap-6.3-new/C/inlines.c",
+  "file": "/home/vsc/yap-6.3-new/C/inlines.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/depth_bound.c.o   -c /home/vsc/yap-6.3-new/C/depth_bound.c",
+  "file": "/home/vsc/yap-6.3-new/C/depth_bound.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/mavar.c.o   -c /home/vsc/yap-6.3-new/C/mavar.c",
+  "file": "/home/vsc/yap-6.3-new/C/mavar.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/modules.c.o   -c /home/vsc/yap-6.3-new/C/modules.c",
+  "file": "/home/vsc/yap-6.3-new/C/modules.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/other.c.o   -c /home/vsc/yap-6.3-new/C/other.c",
+  "file": "/home/vsc/yap-6.3-new/C/other.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/parser.c.o   -c /home/vsc/yap-6.3-new/C/parser.c",
+  "file": "/home/vsc/yap-6.3-new/C/parser.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/qlyr.c.o   -c /home/vsc/yap-6.3-new/C/qlyr.c",
+  "file": "/home/vsc/yap-6.3-new/C/qlyr.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/qlyw.c.o   -c /home/vsc/yap-6.3-new/C/qlyw.c",
+  "file": "/home/vsc/yap-6.3-new/C/qlyw.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/range.c.o   -c /home/vsc/yap-6.3-new/C/range.c",
+  "file": "/home/vsc/yap-6.3-new/C/range.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/save.c.o   -c /home/vsc/yap-6.3-new/C/save.c",
+  "file": "/home/vsc/yap-6.3-new/C/save.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/scanner.c.o   -c /home/vsc/yap-6.3-new/C/scanner.c",
+  "file": "/home/vsc/yap-6.3-new/C/scanner.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/signals.c.o   -c /home/vsc/yap-6.3-new/C/signals.c",
+  "file": "/home/vsc/yap-6.3-new/C/signals.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/sort.c.o   -c /home/vsc/yap-6.3-new/C/sort.c",
+  "file": "/home/vsc/yap-6.3-new/C/sort.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/stdpreds.c.o   -c /home/vsc/yap-6.3-new/C/stdpreds.c",
+  "file": "/home/vsc/yap-6.3-new/C/stdpreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/stack.c.o   -c /home/vsc/yap-6.3-new/C/stack.c",
+  "file": "/home/vsc/yap-6.3-new/C/stack.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/text.c.o   -c /home/vsc/yap-6.3-new/C/text.c",
+  "file": "/home/vsc/yap-6.3-new/C/text.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/threads.c.o   -c /home/vsc/yap-6.3-new/C/threads.c",
+  "file": "/home/vsc/yap-6.3-new/C/threads.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/tracer.c.o   -c /home/vsc/yap-6.3-new/C/tracer.c",
+  "file": "/home/vsc/yap-6.3-new/C/tracer.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/unify.c.o   -c /home/vsc/yap-6.3-new/C/unify.c",
+  "file": "/home/vsc/yap-6.3-new/C/unify.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/userpreds.c.o   -c /home/vsc/yap-6.3-new/C/userpreds.c",
+  "file": "/home/vsc/yap-6.3-new/C/userpreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/utilpreds.c.o   -c /home/vsc/yap-6.3-new/C/utilpreds.c",
+  "file": "/home/vsc/yap-6.3-new/C/utilpreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/yap-args.c.o   -c /home/vsc/yap-6.3-new/C/yap-args.c",
+  "file": "/home/vsc/yap-6.3-new/C/yap-args.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/write.c.o   -c /home/vsc/yap-6.3-new/C/write.c",
+  "file": "/home/vsc/yap-6.3-new/C/write.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/udi.c.o   -c /home/vsc/yap-6.3-new/C/udi.c",
+  "file": "/home/vsc/yap-6.3-new/C/udi.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/GitSHA1.c.o   -c /home/vsc/yap-6.3-new/build/GitSHA1.c",
+  "file": "/home/vsc/yap-6.3-new/build/GitSHA1.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_foreign.c.o   -c /home/vsc/yap-6.3-new/C/load_foreign.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_foreign.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_dl.c.o   -c /home/vsc/yap-6.3-new/C/load_dl.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_dl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_dld.c.o   -c /home/vsc/yap-6.3-new/C/load_dld.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_dld.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_dyld.c.o   -c /home/vsc/yap-6.3-new/C/load_dyld.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_dyld.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_none.c.o   -c /home/vsc/yap-6.3-new/C/load_none.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_none.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_aout.c.o   -c /home/vsc/yap-6.3-new/C/load_aout.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_aout.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_aix.c.o   -c /home/vsc/yap-6.3-new/C/load_aix.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_aix.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_dll.c.o   -c /home/vsc/yap-6.3-new/C/load_dll.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_dll.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/load_shl.c.o   -c /home/vsc/yap-6.3-new/C/load_shl.c",
+  "file": "/home/vsc/yap-6.3-new/C/load_shl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/c_interface.c.o   -c /home/vsc/yap-6.3-new/C/c_interface.c",
+  "file": "/home/vsc/yap-6.3-new/C/c_interface.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/clause_list.c.o   -c /home/vsc/yap-6.3-new/C/clause_list.c",
+  "file": "/home/vsc/yap-6.3-new/C/clause_list.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIE   -Wall -fexceptions -o CMakeFiles/yap-bin.dir/console/yap.c.o   -c /home/vsc/yap-6.3-new/console/yap.c",
+  "file": "/home/vsc/yap-6.3-new/console/yap.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/alias.c.o   -c /home/vsc/yap-6.3-new/os/alias.c",
+  "file": "/home/vsc/yap-6.3-new/os/alias.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/assets.c.o   -c /home/vsc/yap-6.3-new/os/assets.c",
+  "file": "/home/vsc/yap-6.3-new/os/assets.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/charsio.c.o   -c /home/vsc/yap-6.3-new/os/charsio.c",
+  "file": "/home/vsc/yap-6.3-new/os/charsio.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/chartypes.c.o   -c /home/vsc/yap-6.3-new/os/chartypes.c",
+  "file": "/home/vsc/yap-6.3-new/os/chartypes.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/console.c.o   -c /home/vsc/yap-6.3-new/os/console.c",
+  "file": "/home/vsc/yap-6.3-new/os/console.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/files.c.o   -c /home/vsc/yap-6.3-new/os/files.c",
+  "file": "/home/vsc/yap-6.3-new/os/files.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/fmem.c.o   -c /home/vsc/yap-6.3-new/os/fmem.c",
+  "file": "/home/vsc/yap-6.3-new/os/fmem.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/fmemopen.c.o   -c /home/vsc/yap-6.3-new/os/fmemopen.c",
+  "file": "/home/vsc/yap-6.3-new/os/fmemopen.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/format.c.o   -c /home/vsc/yap-6.3-new/os/format.c",
+  "file": "/home/vsc/yap-6.3-new/os/format.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/iopreds.c.o   -c /home/vsc/yap-6.3-new/os/iopreds.c",
+  "file": "/home/vsc/yap-6.3-new/os/iopreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/mem.c.o   -c /home/vsc/yap-6.3-new/os/mem.c",
+  "file": "/home/vsc/yap-6.3-new/os/mem.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/open_memstream.c.o   -c /home/vsc/yap-6.3-new/os/open_memstream.c",
+  "file": "/home/vsc/yap-6.3-new/os/open_memstream.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/pipes.c.o   -c /home/vsc/yap-6.3-new/os/pipes.c",
+  "file": "/home/vsc/yap-6.3-new/os/pipes.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/readline.c.o   -c /home/vsc/yap-6.3-new/os/readline.c",
+  "file": "/home/vsc/yap-6.3-new/os/readline.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/random.c.o   -c /home/vsc/yap-6.3-new/os/random.c",
+  "file": "/home/vsc/yap-6.3-new/os/random.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/readterm.c.o   -c /home/vsc/yap-6.3-new/os/readterm.c",
+  "file": "/home/vsc/yap-6.3-new/os/readterm.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/readutil.c.o   -c /home/vsc/yap-6.3-new/os/readutil.c",
+  "file": "/home/vsc/yap-6.3-new/os/readutil.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/sig.c.o   -c /home/vsc/yap-6.3-new/os/sig.c",
+  "file": "/home/vsc/yap-6.3-new/os/sig.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/sockets.c.o   -c /home/vsc/yap-6.3-new/os/sockets.c",
+  "file": "/home/vsc/yap-6.3-new/os/sockets.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/streams.c.o   -c /home/vsc/yap-6.3-new/os/streams.c",
+  "file": "/home/vsc/yap-6.3-new/os/streams.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/sysbits.c.o   -c /home/vsc/yap-6.3-new/os/sysbits.c",
+  "file": "/home/vsc/yap-6.3-new/os/sysbits.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/time.c.o   -c /home/vsc/yap-6.3-new/os/time.c",
+  "file": "/home/vsc/yap-6.3-new/os/time.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/writeterm.c.o   -c /home/vsc/yap-6.3-new/os/writeterm.c",
+  "file": "/home/vsc/yap-6.3-new/os/writeterm.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/ypsocks.c.o   -c /home/vsc/yap-6.3-new/os/ypsocks.c",
+  "file": "/home/vsc/yap-6.3-new/os/ypsocks.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/os",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/os/../H -I/home/vsc/yap-6.3-new/os/../include -I/home/vsc/yap-6.3-new/os/../OPTYap -I/home/vsc/yap-6.3-new/os/.  -fPIC   -Wall -fexceptions -o CMakeFiles/libYAPOs.dir/ypstdio.c.o   -c /home/vsc/yap-6.3-new/os/ypstdio.c",
+  "file": "/home/vsc/yap-6.3-new/os/ypstdio.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.memory.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.memory.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.memory.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/opt.init.c.o   -c /home/vsc/yap-6.3-new/OPTYap/opt.init.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/opt.init.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/opt.preds.c.o   -c /home/vsc/yap-6.3-new/OPTYap/opt.preds.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/opt.preds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.copy_engine.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.copy_engine.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.copy_engine.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.cow_engine.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.cow_engine.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.cow_engine.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.sba_engine.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.sba_engine.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.sba_engine.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.thread_engine.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.thread_engine.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.thread_engine.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.scheduler.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.scheduler.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.scheduler.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/or.cut.c.o   -c /home/vsc/yap-6.3-new/OPTYap/or.cut.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/or.cut.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/tab.tries.c.o   -c /home/vsc/yap-6.3-new/OPTYap/tab.tries.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/tab.tries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/OPTYap",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/OPTYap/OPTYap  -fPIC   -Wall -fexceptions -o CMakeFiles/libOPTYap.dir/tab.completion.c.o   -c /home/vsc/yap-6.3-new/OPTYap/tab.completion.c",
+  "file": "/home/vsc/yap-6.3-new/OPTYap/tab.completion.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3  -fPIC   -Wall -fexceptions -o CMakeFiles/myddas.dir/myddas_initialization.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/myddas_initialization.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/myddas_initialization.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3  -fPIC   -Wall -fexceptions -o CMakeFiles/myddas.dir/myddas_shared.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/myddas_shared.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/myddas_shared.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3  -fPIC   -Wall -fexceptions -o CMakeFiles/myddas.dir/myddas_statistics.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/myddas_statistics.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/myddas_statistics.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3  -fPIC   -Wall -fexceptions -o CMakeFiles/myddas.dir/myddas_top_level.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/myddas_top_level.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/myddas_top_level.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3  -fPIC   -Wall -fexceptions -o CMakeFiles/myddas.dir/myddas_util.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/myddas_util.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/myddas_util.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/sqlite3",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yapsqlite3.dir/myddas_sqlite3.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/sqlite3/myddas_sqlite3.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/sqlite3/myddas_sqlite3.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/sqlite3",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yapsqlite3.dir/src/sqlite3.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/sqlite3/src/sqlite3.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src/sqlite3.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/mysql",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYapmysql_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/usr/include/mysql -I/home/vsc/yap-6.3-new/packages/myddas/mysql/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yapmysql.dir/myddas_mysql.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_mysql.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_mysql.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/mysql",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYapmysql_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/usr/include/mysql -I/home/vsc/yap-6.3-new/packages/myddas/mysql/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yapmysql.dir/myddas_util.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_util.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_util.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/mysql",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYapmysql_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/usr/include/mysql -I/home/vsc/yap-6.3-new/packages/myddas/mysql/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yapmysql.dir/myddas_wkb2prolog.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_wkb2prolog.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/mysql/myddas_wkb2prolog.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/myddas/postgres",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYappostgres_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/myddas/. -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3 -I/usr/include/pgsql/server -I/home/vsc/yap-6.3-new/packages/myddas/postgres/..  -fPIC   -Wall -fexceptions -o CMakeFiles/Yappostgres.dir/myddas_postgres.c.o   -c /home/vsc/yap-6.3-new/packages/myddas/postgres/myddas_postgres.c",
+  "file": "/home/vsc/yap-6.3-new/packages/myddas/postgres/myddas_postgres.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/utf8proc",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DUTF8PROC_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/utf8proc.dir/utf8proc.c.o   -c /home/vsc/yap-6.3-new/utf8proc/utf8proc.c",
+  "file": "/home/vsc/yap-6.3-new/utf8proc/utf8proc.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/dialect/swi/fli",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../../../H -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../.../../include -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../os  -fPIC   -Wall -fexceptions -o CMakeFiles/libswi.dir/swi.c.o   -c /home/vsc/yap-6.3-new/library/dialect/swi/fli/swi.c",
+  "file": "/home/vsc/yap-6.3-new/library/dialect/swi/fli/swi.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/dialect/swi/fli",
+  "command": "/usr/lib64/ccache/cc  -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../../../H -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../.../../include -I/home/vsc/yap-6.3-new/library/dialect/swi/fli/../os  -fPIC   -Wall -fexceptions -o CMakeFiles/libswi.dir/blobs.c.o   -c /home/vsc/yap-6.3-new/library/dialect/swi/fli/blobs.c",
+  "file": "/home/vsc/yap-6.3-new/library/dialect/swi/fli/blobs.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/CXX",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAP___EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/CXX/.  -fPIC   -Wall -fexceptions -o CMakeFiles/YAP++.dir/yapi.cpp.o -c /home/vsc/yap-6.3-new/CXX/yapi.cpp",
+  "file": "/home/vsc/yap-6.3-new/CXX/yapi.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/matrix",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dmatrix_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/matrix.dir/matrix.c.o   -c /home/vsc/yap-6.3-new/library/matrix/matrix.c",
+  "file": "/home/vsc/yap-6.3-new/library/matrix/matrix.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/random",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dyap_random_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/yap_random.dir/yap_random.c.o   -c /home/vsc/yap-6.3-new/library/random/yap_random.c",
+  "file": "/home/vsc/yap-6.3-new/library/random/yap_random.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/regex",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dregexp_EXPORTS -I/home/vsc/yap-6.3-new/library/regex/. -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/regexp.dir/regexp.c.o   -c /home/vsc/yap-6.3-new/library/regex/regexp.c",
+  "file": "/home/vsc/yap-6.3-new/library/regex/regexp.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/regex",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dregexp_EXPORTS -I/home/vsc/yap-6.3-new/library/regex/. -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/regexp.dir/regcomp.c.o   -c /home/vsc/yap-6.3-new/library/regex/regcomp.c",
+  "file": "/home/vsc/yap-6.3-new/library/regex/regcomp.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/regex",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dregexp_EXPORTS -I/home/vsc/yap-6.3-new/library/regex/. -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/regexp.dir/regerror.c.o   -c /home/vsc/yap-6.3-new/library/regex/regerror.c",
+  "file": "/home/vsc/yap-6.3-new/library/regex/regerror.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/regex",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dregexp_EXPORTS -I/home/vsc/yap-6.3-new/library/regex/. -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/regexp.dir/regexec.c.o   -c /home/vsc/yap-6.3-new/library/regex/regexec.c",
+  "file": "/home/vsc/yap-6.3-new/library/regex/regexec.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/regex",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dregexp_EXPORTS -I/home/vsc/yap-6.3-new/library/regex/. -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/regexp.dir/regfree.c.o   -c /home/vsc/yap-6.3-new/library/regex/regfree.c",
+  "file": "/home/vsc/yap-6.3-new/library/regex/regfree.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/rltree",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dyap_rl_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/yap_rl.dir/yap_rl.c.o   -c /home/vsc/yap-6.3-new/library/rltree/yap_rl.c",
+  "file": "/home/vsc/yap-6.3-new/library/rltree/yap_rl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/rltree",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dyap_rl_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/yap_rl.dir/range_list.c.o   -c /home/vsc/yap-6.3-new/library/rltree/range_list.c",
+  "file": "/home/vsc/yap-6.3-new/library/rltree/range_list.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/system",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dsys_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/sys.dir/sys.c.o   -c /home/vsc/yap-6.3-new/library/system/sys.c",
+  "file": "/home/vsc/yap-6.3-new/library/system/sys.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/system",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dsys_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/sys.dir/crypto/md5.c.o   -c /home/vsc/yap-6.3-new/library/system/crypto/md5.c",
+  "file": "/home/vsc/yap-6.3-new/library/system/crypto/md5.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Ditries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/itries.dir/core_tries.c.o   -c /home/vsc/yap-6.3-new/library/tries/core_tries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/core_tries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Ditries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/itries.dir/base_itries.c.o   -c /home/vsc/yap-6.3-new/library/tries/base_itries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/base_itries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Ditries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/itries.dir/itries.c.o   -c /home/vsc/yap-6.3-new/library/tries/itries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/itries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dtries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/tries.dir/core_tries.c.o   -c /home/vsc/yap-6.3-new/library/tries/core_tries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/core_tries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dtries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/tries.dir/base_tries.c.o   -c /home/vsc/yap-6.3-new/library/tries/base_tries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/base_tries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/library/tries",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dtries_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/tries.dir/tries.c.o   -c /home/vsc/yap-6.3-new/library/tries/tries.c",
+  "file": "/home/vsc/yap-6.3-new/library/tries/tries.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/raptor",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dlibxml2_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/raptor/../../H -I/usr/include/libxml2 -I/home/vsc/yap-6.3-new/build/packages/raptor  -fPIC   -Wall -fexceptions -o CMakeFiles/libxml2.dir/xml2_yap.c.o   -c /home/vsc/yap-6.3-new/packages/raptor/xml2_yap.c",
+  "file": "/home/vsc/yap-6.3-new/packages/raptor/xml2_yap.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/raptor",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Draptor_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/raptor/../../H -I/usr/include/libxml2 -I/home/vsc/yap-6.3-new/build/packages/raptor  -fPIC   -Wall -fexceptions -o CMakeFiles/raptor.dir/raptor_yap.c.o   -c /home/vsc/yap-6.3-new/packages/raptor/raptor_yap.c",
+  "file": "/home/vsc/yap-6.3-new/packages/raptor/raptor_yap.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/BayesBall.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/BayesBall.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/BayesBall.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/BayesBallGraph.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/BayesBallGraph.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/BayesBallGraph.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/BeliefProp.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/BeliefProp.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/BeliefProp.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/ConstraintTree.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/ConstraintTree.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/ConstraintTree.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/CountingBp.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/CountingBp.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/CountingBp.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/ElimGraph.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/ElimGraph.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/ElimGraph.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Factor.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Factor.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Factor.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/FactorGraph.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/FactorGraph.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/FactorGraph.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/GenericFactor.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/GenericFactor.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/GenericFactor.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/GroundSolver.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/GroundSolver.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/GroundSolver.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Histogram.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Histogram.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Histogram.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/HorusYap.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/HorusYap.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/HorusYap.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Indexer.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Indexer.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Indexer.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedBp.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedBp.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedBp.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedKc.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedKc.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedKc.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedOperations.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedOperations.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedOperations.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedUtils.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedUtils.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedUtils.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedVe.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedVe.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedVe.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/LiftedWCNF.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedWCNF.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/LiftedWCNF.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Parfactor.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Parfactor.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Parfactor.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/ParfactorList.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/ParfactorList.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/ParfactorList.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/ProbFormula.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/ProbFormula.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/ProbFormula.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Util.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Util.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Util.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/Var.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/Var.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/Var.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/VarElim.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/VarElim.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/VarElim.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dhorus_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIC   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/horus.dir/WeightedBp.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/WeightedBp.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/WeightedBp.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/CLPBN/horus",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/CLPBN/horus  -fPIE   -Wall -fexceptions -std=gnu++11 -o CMakeFiles/HorusCli.dir/HorusCli.cpp.o -c /home/vsc/yap-6.3-new/packages/CLPBN/horus/HorusCli.cpp",
+  "file": "/home/vsc/yap-6.3-new/packages/CLPBN/horus/HorusCli.cpp"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dbddem_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd  -fPIC   -Wall -fexceptions -o CMakeFiles/bddem.dir/slipcase/bddem.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/slipcase/bddem.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/slipcase/bddem.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dcplint_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd  -fPIC   -Wall -fexceptions -o CMakeFiles/cplint.dir/cplint_yap.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/cplint_yap.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/cplint_yap.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dcplint_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd  -fPIC   -Wall -fexceptions -o CMakeFiles/cplint.dir/cplint_Prob.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/cplint_Prob.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/cplint_Prob.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd -I/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs  -fPIE   -Wall -fexceptions -o CMakeFiles/LPADbdd.dir/general.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/general.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/general.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd -I/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs  -fPIE   -Wall -fexceptions -o CMakeFiles/LPADbdd.dir/ProblogBDD.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/ProblogBDD.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/ProblogBDD.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/cplint -I/home/vsc/yap-6.3-new/build/packages/cplint/../bdd -I/home/vsc/yap-6.3-new/build/packages/cplint/approx/simplecuddLPADs  -fPIE   -Wall -fexceptions -o CMakeFiles/LPADbdd.dir/simplecudd.c.o   -c /home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/simplecudd.c",
+  "file": "/home/vsc/yap-6.3-new/packages/cplint/approx/simplecuddLPADs/simplecudd.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/python.c.o   -c /home/vsc/yap-6.3-new/packages/python/python.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/python.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/pl2py.c.o   -c /home/vsc/yap-6.3-new/packages/python/pl2py.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/pl2py.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/pybips.c.o   -c /home/vsc/yap-6.3-new/packages/python/pybips.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/pybips.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/py2pl.c.o   -c /home/vsc/yap-6.3-new/packages/python/py2pl.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/py2pl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/pl2pl.c.o   -c /home/vsc/yap-6.3-new/packages/python/pl2pl.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/pl2pl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/python",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -DYAPPython_EXPORTS -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DYAP_KERNEL=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP  -fPIC   -Wall -fexceptions -o CMakeFiles/YAPPython.dir/pypreds.c.o   -c /home/vsc/yap-6.3-new/packages/python/pypreds.c",
+  "file": "/home/vsc/yap-6.3-new/packages/python/pypreds.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/swig/python",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_Py2YAP_EXPORTS -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/swig/python -I/home/vsc/yap-6.3-new/CXX  -fPIC   -Wall -fexceptions -o CMakeFiles/_Py2YAP.dir/yapPYTHON_wrap.cxx.o -c /home/vsc/yap-6.3-new/build/packages/swig/python/yapPYTHON_wrap.cxx",
+  "file": "/home/vsc/yap-6.3-new/build/packages/swig/python/yapPYTHON_wrap.cxx"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/gecode",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dgecode_yap_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/gecode -I/home/vsc/yap-6.3-new/packages/gecode/4.4.0  -fPIC   -Wall -fexceptions -o CMakeFiles/gecode_yap.dir/gecode4_yap.cc.o -c /home/vsc/yap-6.3-new/packages/gecode/gecode4_yap.cc",
+  "file": "/home/vsc/yap-6.3-new/packages/gecode/gecode4_yap.cc"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/real",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dreal_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/real -I/usr/include/R  -fPIC   -Wall -fexceptions -o CMakeFiles/real.dir/real.c.o   -c /home/vsc/yap-6.3-new/packages/real/real.c",
+  "file": "/home/vsc/yap-6.3-new/packages/real/real.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/jpl/src/c",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DjplYap_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/usr/lib/jvm/java/include -I/usr/lib/jvm/java/include/linux  -fPIC   -Wall -fexceptions -o CMakeFiles/jplYap.dir/jpl.c.o   -c /home/vsc/yap-6.3-new/packages/jpl/src/c/jpl.c",
+  "file": "/home/vsc/yap-6.3-new/packages/jpl/src/c/jpl.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dcudd_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd  -fPIC   -Wall -fexceptions -o CMakeFiles/cudd.dir/cudd.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/cudd.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/cudd.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd.dir/general.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd/general.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd/general.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd.dir/problogbdd.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd/problogbdd.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd/problogbdd.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd.dir/problogmath.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd/problogmath.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd/problogmath.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd.dir/simplecudd.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd/simplecudd.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd/simplecudd.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/adterror.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/adterror.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/adterror.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/allocate.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/allocate.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/allocate.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/general.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/general.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/general.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/iqueue.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/iqueue.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/iqueue.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/pqueue.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/pqueue.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/pqueue.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/problogbdd_lfi.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/problogbdd_lfi.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/problogbdd_lfi.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/problogmath.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/problogmath.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/problogmath.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi",
+  "command": "/usr/lib64/ccache/cc  -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/build/packages/bdd -I/home/vsc/yap-6.3-new/build/packages/bdd/simplecudd_lfi  -fPIE   -Wall -fexceptions -o CMakeFiles/Problogbdd-Lfi.dir/simplecudd.c.o   -c /home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/simplecudd.c",
+  "file": "/home/vsc/yap-6.3-new/packages/bdd/simplecudd_lfi/simplecudd.c"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/swi-minisat2/C",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dminisat2_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/swi-minisat2/C  -fPIC   -Wall -fexceptions -o CMakeFiles/minisat2.dir/Solver.C.o -c /home/vsc/yap-6.3-new/packages/swi-minisat2/C/Solver.C",
+  "file": "/home/vsc/yap-6.3-new/packages/swi-minisat2/C/Solver.C"
+},
+{
+  "directory": "/home/vsc/yap-6.3-new/build/packages/swi-minisat2/C",
+  "command": "/usr/lib64/ccache/c++   -DCOROUTINING=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -Dminisat2_EXPORTS -I/home/vsc/yap-6.3-new/build -I/usr/include/python3.5m -I/home/vsc/yap-6.3-new/utf8proc -I/home/vsc/yap-6.3-new/packages/myddas -I/home/vsc/yap-6.3-new/packages/myddas/sqlite3/src -I/home/vsc/yap-6.3-new/H -I/home/vsc/yap-6.3-new/H/generated -I/home/vsc/yap-6.3-new/include -I/home/vsc/yap-6.3-new/os -I/home/vsc/yap-6.3-new/OPTYap -I/home/vsc/yap-6.3-new/JIT/HPP -I/home/vsc/yap-6.3-new/packages/swi-minisat2/C  -fPIC   -Wall -fexceptions -o CMakeFiles/minisat2.dir/pl-minisat.C.o -c /home/vsc/yap-6.3-new/packages/swi-minisat2/C/pl-minisat.C",
+  "file": "/home/vsc/yap-6.3-new/packages/swi-minisat2/C/pl-minisat.C"
+}
+]

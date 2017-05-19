@@ -1,0 +1,131 @@
+dnl Gecode support
+
+AC_ARG_WITH(gecode,
+	[ --with-gecode            install gecode library],
+        [use_gecode="$withval"], use_gecode=no)
+
+if test "$use_gecode" = no; then
+  PKG_GECODE=""
+else
+  PKG_GECODE="packages/gecode"
+if test -d "$use_gecode"; then
+  CPPFLAGS="$CPPFLAGS -I $use_gecode/include"
+  GECODE_EXTRALIBS="-L $use_gecode/lib"
+  GECODE_INCLUDES=" $use_gecode/include"
+     GECODE_PATH="$use_gecode/bin"
+dnl gecode is usually in /usr/local
+elif test -d /usr/local/include/gecode -a x$SYSROOT = x; then
+  CPPFLAGS="$CPPFLAGS -I/usr/local/include"
+  GECODE_EXTRALIBS="-L/usr/local/lib"
+fi
+fi
+
+AC_SUBST(PKG_GECODE)
+
+AC_MSG_CHECKING([if dynamic arrays are supported])
+
+AC_COMPILE_IFELSE([
+  AC_LANG_PROGRAM([[void foo(int n) { int a[n]; a[1]=0; }]],[[foo(3);]])
+  ],[
+  AC_MSG_RESULT([yes])
+  AC_DEFINE([HAVE_DYNARRAY],[1],[Define if dynamic arrays are supported])
+  ],[
+  AC_MSG_RESULT([no])
+  ])
+
+GECODE_VERSION=unknown-gecode-version
+
+
+if test "$use_gecode" != no; then
+   if test $i_am_cross_compiling = yes
+   then
+     GECODE_VERSION=4.2.1
+   elif test x"$WINDOWS" = x; then
+     if test $ac_cv_sizeof_int_p = 8; then
+       GECODE_ARCH=x64
+     else
+       GECODE_ARCH=i386
+     fi
+     if test "$use_gecode" = yes; then
+       GECODE_PATH=`which fzn-gecode`
+       GECODE_PATH=`dirname "$GECODE_PATH"`
+     else
+       GECODE_PATH="$use_gecode"
+     fi
+     GECODE_INCLUDES="$GECODE_PATH"/include
+     GECODE_LIBDIR="\"$GECODE_PATH\""/lib
+     GECODE_BINDIR="\"$GECODE_PATH\""/bin
+     GECODE_TVERSION=`echo "$GECODE_PATH"/lib/GecodeDriver-*-d-"$GECODE_ARCH".lib | cut -d'-' -f 2-4`
+     GECODE_VERSION=`echo "$GECODE_TVERSION"|sed 's/-/\./g'`
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+     GE_SUF="-$GECODE_TVERSION-r-$GECODE_ARCH.dll"
+     GECODE_EXTRALIBS="$GECODE_BINDIR/GecodeDriver$GE_SUF \
+    		      $GECODE_BINDIR/GecodeSupport$GE_SUF \
+		      $GECODE_BINDIR/GecodeKernel$GE_SUF \
+     		      $GECODE_BINDIR/GecodeInt$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSet$GE_SUF \
+     		      $GECODE_BINDIR/GecodeSearch$GE_SUF"
+    if test "$GECODE_MAJOR" = "4"; then
+      GECODE_EXTRALIBS="$GECODE_EXTRALIBS $GECODE_BINDIR/GecodeFloat$GE_SUF"
+    fi
+  else
+  AC_MSG_CHECKING([gecode version])
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include "gecode/support/config.hpp"
+#include <stdio.h>
+]],[[
+  FILE* out = fopen("conftest.out","w");
+  fprintf(out,"%s\n",GECODE_VERSION);
+  fclose(out);
+  return 0;
+]])],[GECODE_VERSION=$(cat conftest.out)
+    AC_MSG_RESULT([$GECODE_VERSION])],
+   [AC_MSG_ERROR([cannot determine gecode version])])
+   case "$target_os" in
+     *darwin*)
+     if test "$use_gecode" = yes; then
+     AC_MSG_CHECKING([if -framework gecode is required])
+     AC_LANG_PUSH([C++])
+     saved_CXXFLAGS="$CXXFLAGS"
+     CXXFLAGS="$CXXFLAGS -framework gecode"
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include "gecode/int.hh"
+]],[[
+Gecode::Exception e("","");
+return 0;
+]])],[GECODE_EXTRALIBS="-framework gecode"
+      AC_MSG_RESULT([yes])],
+     [AC_MSG_RESULT([no])])
+     AC_LANG_POP()
+     CXXFLAGS="$saved_CXXFLAGS"
+     fi
+     ;;
+   esac
+
+     GECODE_MAJOR=`echo $GECODE_VERSION| sed 's/\(^.\).*/\1/'`
+  if test "$GECODE_MAJOR" = "3"; then
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch"
+  else
+    GECODE_EXTRALIBS="$GECODE_EXTRALIBS -lgecodesupport -lgecodekernel -lgecodefloat -lgecodeint -lgecodeset -lgecodesearch"
+  fi
+
+fi
+fi
+
+saved_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS -I \"$GECODE_INCLUDES\""
+
+AC_CHECK_HEADER(gecode/support/config.hpp)
+
+AC_SUBST(GECODE_EXTRALIBS)
+AC_SUBST(GECODE_INCLUDES)
+AC_SUBST(GECODE_VERSION)
+AC_SUBST(GECODE_MAJOR)
+
+
+if test "$PKG_GECODE" = "packages/gecode"; then
+AC_CONFIG_FILES([packages/gecode/Makefile])
+fi
+
+CPPFLAGS="$saved_CPPFLAGS"
+

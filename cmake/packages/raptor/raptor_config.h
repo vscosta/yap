@@ -1,0 +1,2 @@
+#define  HAVE_RAPTOR2_RAPTOR2_H 1
+/* #undef HAVE_RAPTOR_H */

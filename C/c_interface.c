@@ -3396,10 +3396,18 @@ X_API Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 
 X_API void *YAP_shared(void) { return LOCAL_shared; }
 
-void yap_init(void) {}
+ X_API PredEntry *YAP_TopGoal(void)
+ {
+   YAP_Functor f = Yap_MkFunctor(Yap_LookupAtom("yap_query"),3);
+   Term tmod = MkAtomTerm(Yap_LookupAtom("yapi"));
+   PredEntry *p = RepPredProp(Yap_GetPredPropByFunc(f, tmod));
+   return p;
+ }
+ 
+ void yap_init(void) {}
 
 #endif // C_INTERFACE_C
 
-/**
-@}
-*/
+ /**
+    @}
+ */

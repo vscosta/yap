@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """YAP Stuff for Main IPython class."""
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 #  Copyright (C) 2001 Janko Hauser <jhauser@zscout.de>
 #  Copyright (C) 2001-2007 Fernando Perez. <fperez@colorado.edu>
 #  Copyright (C) 2008-2011  The IPython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 from __future__ import absolute_import, print_function
 
@@ -92,7 +92,7 @@ use_module = namedtuple('use_module', 'file')
 bindvars = namedtuple('bindvars', 'list')
 library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
-load_fieos = namedtuple('load_files', 'file ofile args')
+load_files = namedtuple('load_files', 'file ofile args')
 
 
 class YAPInteraction:
@@ -129,6 +129,8 @@ class YAPInteraction:
     def numbervars(self, l):
         return self.yapeng.fun(bindvars(l))
 
+
+
     def run_cell(self, s, store_history=True, silent=False,
                  shell_futures=True):
         """Run a complete IPython cell.
@@ -148,8 +150,9 @@ class YAPInteraction:
                    and logging.  silent=True forces store_history=False.
                    shell_futures : bool
           If True, the code will share future statements with the interactive
-                   shell. It will both be affected by previous __future__ imports, and
-                   any __future__ imports in the code will affect the shell. If False,
+                   shell. It will both be affected by previous
+                    __future__ imports, and any __future__ imports in the code
+                     will affect the shell. If False,
                    __future__ imports are not shared in either direction.
 
         Returns
@@ -158,9 +161,7 @@ class YAPInteraction:
                    """
 
         result = ExecutionResult()
-
-        if store_history:
-            result.execution_count = self.shell.execution_count
+        result.execution_count = self.shell.execution_count
 
         def error_before_exec(value):
             result.error_before_exec = value
@@ -168,32 +169,28 @@ class YAPInteraction:
             return result
 
         # inspect for ?? in the text
-        st = s.strip('\n\j\r\t ')
-        if (st):
-            (p0, pm, pf) = st.rpartition('??')
-            if pm == '??':
-                if pf.isdigit(p):
-                    maxits = int(pf)*2
-                    s = p0
-                elif pf.isspace(p):
-                    maxits = 1
-                    s = p0
-                else:
-                    s = st
-                    maxits = 2
-            else:
-                # business as usual
-                s = st
-                maxits = 2
-        elif st == '':
-            # next. please
-            maxis = 2
-            self.qclose()
+        # print(st)
+        #
+        maxits = 2
 
+        s = s.strip('\n\j\r\t ')
+        if not self.q or s:
+            (self.q,out) = self.top_level(s, out)
+        else:
+            out = q.next_answer()
+        if self.q:
+            st = s.strip('\n\j\r\t ')
+            if st and st == '*':
+                maxits = 1
+            elif st and st.isdigit():
+                maxits = int(st)*2
+            elif st and st != ';':
+                self.closeq()
         if not self.q:
             try:
                 if s:
-                    self.q = self.yapeng.query(s)
+                    self.q = self.yapeng.query(ya[q.__hash__])
+                    self.vs = self.q.namedVarsVector()
                 else:
                     return
             except SyntaxError:
@@ -204,37 +201,11 @@ class YAPInteraction:
         # if not silent:
         #    self.shell..logger.log(cell, s)
         has_raised = False
-        self.run = True
         try:
-            while self.run and maxits != 0:
-                # f = io.StringIO()
-                # with redirect_stdout(f):
-                self.run = self.q.next()
-                # print('{0}'.format(f.getvalue()))
-                # Execute the user code
-                if self.run:
-                    myvs = self.numbervars(self.q.namedVars())
-                    if myvs:
-                        for eq in myvs:
-                            name = eq[0]
-                            binding = eq[1]
-                            if name != binding:
-                                print(name + " = " + str(binding))
-                    else:
-                        print("yes")
-                    if self.q.deterministic():
-                        self.closeq()
-                        self.run = False
-                        self.q = None
-                    else:
-                        maxits -= 2
-                else:
-                    print("No (more) answers")
-                    self.closeq()
-                    self.run = False
+            while (maxits != 0):
+                self.do_loop(maxits, gs)
         except Exception:
             result.error_in_exec = sys.exc_info()[1]
-            # self.showtraceback()
             has_raised = True
             self.closeq()
 
@@ -244,8 +215,8 @@ class YAPInteraction:
         # ExecutionResult
         # self.displayhook.exec_result = None
 
-        self.events.trigger('post_execute')
-        if not silent:
-            self.events.trigger('post_self.run_cell')
+        # self.events.trigger('post_execute')
+        # if not silent:
+        #    self.events.trigger('post_self.run_cell')
 
         return result

@@ -1,0 +1,7 @@
+ PyThreadState *_save;
+
+      _save = PyThreadState_Swap(NULL);
+    PyEval_ReleaseLock();
+    ...Do some blocking I/O operation...
+    PyEval_AcquireLock();
+    PyThreadState_Swap(_save);
