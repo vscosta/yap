@@ -40,7 +40,8 @@ if (GECODE_FOUND)
 
   target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
 
-  set_target_properties (gecode_yap  PROPERTIES PREFIX "")
+  set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
+
 
   include_directories (${GECODE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
 

@@ -2,7 +2,7 @@ GECODEDIR := $(shell g++ $(CPPFLAGS) $(CXXFLAGS) -H -E gecodedir.hh 2>&1 >/dev/n
 GECODEDIR=/usr/local/opt/gecode
 GECODECONFIG := $(GECODEDIR)/support/config.hpp
 GECODEVERSION := $(shell cat $(GECODECONFIG) | egrep '\<GECODE_VERSION\>' | awk '{print $$3}' | sed 's/"//g')
-GECODEVERSION="5.0.0"
+GECODEVERSION="5.1.0"
 PROTOTYPES = ../gecode-prototypes-$(GECODEVERSION).hh
 ENUMS = ../gecode-enums-$(GECODEVERSION).py
 
@@ -22,6 +22,7 @@ $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	| sed 's/GECODE_INT_EXPORT //g' \
 	| sed 's/GECODE_FLOAT_EXPORT //g' \
 	| sed 's/GECODE_SET_EXPORT //g' \
+	| sed 's/GECODE_BOOL_EXPORT //g' \
 	| grep -v '*' | sort >> $@ || { rm -f $@; exit 1; }
 
 $(ENUMS): % : xml/namespaceGecode.xml extract-enums.xsl

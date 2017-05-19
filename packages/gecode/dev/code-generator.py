@@ -196,6 +196,7 @@ class PredGenerator(DeclsLoader):
             "TieBreak<IntVarBranch>",
             "TieBreak<FloatVarBranch>",
             "TieBreak<SetVarBranch>",
+            "TieBreak<BoolVarBranch>",
             "TieBreakVarBranchOptions",
             "TieBreakVarBranch<SetVarBranch>")
 
