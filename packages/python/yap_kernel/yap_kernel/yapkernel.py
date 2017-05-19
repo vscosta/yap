@@ -12,7 +12,6 @@ from traitlets import Instance, Type, Any, List
 from .comm import CommManager
 from .kernelbase import Kernel as KernelBase
 from .zmqshell import ZMQInteractiveShell
-from .interactiveshell import YAPInteraction
 
 class YAPKernel(KernelBase):
     shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',
@@ -56,8 +55,7 @@ class YAPKernel(KernelBase):
         for msg_type in comm_msg_types:
             self.shell_handlers[msg_type] = getattr(self.comm_manager, msg_type)
 
-        self.engine = YAPInteraction(self)
-        self.shell.run_cell = self.engine.run_cell
+        self.engine = YAPInteraction(self.shell, **kwargs)
 
     help_links = List([
         {
@@ -194,7 +192,7 @@ class YAPKernel(KernelBase):
 
         reply_content = {}
         try:
-            res = self.shell.run_cell(code, store_history=store_history, silent=silent)
+            res = self.engine.run_cell(code, store_history=store_history, silent=silent)
         finally:
             self._restore_input()
 

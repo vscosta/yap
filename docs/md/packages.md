@@ -1,13 +1,13 @@
 YAP packages              {#packages}
 ============
 
-  + @subpage real
+  + @subpage realxplxc
 
   + @subpage BDDs
 
   + @subpage  gecode
 
-  + @subpage  myddas
+  + @subpage  myddas_dbms
 
   + @ref PFL
 

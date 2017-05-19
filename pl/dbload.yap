@@ -15,6 +15,8 @@
 *									 *
 *************************************************************************/
 
+%% @file dbload.yap
+
 :- module('$db_load',
 	  []).
 
@@ -25,10 +27,12 @@
 :- use_system_module( attributes, [get_module_atts/2,
         put_module_atts/2]).
 
-%%% @file dbload.yap
-
-%%% @defgroup YAPBigLoad
-%%% @brief Fast and  Exo Loading
+%%
+% @defgroup YAPBigLoad Loading Large Tables
+% 
+% @brief Fast and  Exo Loading
+%
+% @{
 
 /*!
  * @pred load_mega_clause( +Stream ) is detail

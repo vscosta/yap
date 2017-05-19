@@ -298,7 +298,10 @@ library('..').
 prolog_file_type(c, c).
 prolog_file_type(h, c).
 prolog_file_type('h.cmake', c).
-prolog_file_type('i', c).
+prolog_file_type('h.in', c).
+prolog_file_type('py.cmake', python).
+prolog_file_type('hxx', c).
+prolog_file_type('py', python).
 
 %
 % handle some special cases.

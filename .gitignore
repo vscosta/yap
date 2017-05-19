@@ -204,3 +204,12 @@ build
 
 library/system/#CMakeLists.txt#
 *.txt#
+cmake/CMakeCache.txt
+
+C/compiling_error.txt
+
+cmake/compile_commands.json
+
+cmake/cudd_config.h
+
+cmake/docs/Doxyfile

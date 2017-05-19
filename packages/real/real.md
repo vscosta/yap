@@ -1,4 +1,4 @@
-The R Prolog Progrmming Interface      {#real}
+The R Prolog Programming Interface                    {#realxplxc}
 ===================================
 
 @file real.md
@@ -6,8 +6,6 @@ The R Prolog Progrmming Interface      {#real}
 @author	Vitor Santos Costa
 @version	1:0:4, 2013/12/25, sinter_class
 @license	Perl Artistic License
-
-@ingroup packages
 
   + @ref realpl
 
@@ -46,7 +44,7 @@ Pass Prolog data to R, pass R data to Prolog or assign an R expression to
 an assignable R expression.
 ###  Testing Real              {#TestingR}
 
-There is a raft of examples packed in a singl```e file that test the library.
+There is a raft of examples packed in a single file that tests the library.
 
 ~~~~
 	?- [pack(real/examples/for_real)].
@@ -122,7 +120,7 @@ However, not all possible "corrections" are currently supported. For instance,
 
 ~~~~
 ?- c <- [a,b,c,1].
-ERROR: real:set_R_variable/2: Type error: `boolean' expected, found `a'
+ERROR: real:set_R_variable/2: Type error: `boolean` expected, found `a`
 ~~~~
 
 In the data passing mode we map Prolog atoms to R strings-
@@ -241,7 +239,7 @@ in~\cite{}. Their major differences:
      prefer reading double-quote strings as Prolog string.
 
    - Free variables can be used to represent missing
-     arguments,ie. `a[_,"G23"] would represent the column "G23".
+     arguments,ie. `a[_,"G23"]` would represent the column "G23".
 
    - All recent versions of real support the common syntax extensions
      for [], (), thus realC allows writing `a[[2]] <- f().
@@ -262,12 +260,8 @@ in~\cite{}. Their major differences:
 
 
 ---
-Nicos Angelopoulos and Vitor Santos Costa
-December, 2012.
+ - Nicos Angelopoulos and Vitor Santos Costa, December, 2012.
 
-Updates: Nicos Angelopoulos
-Dec. 2013,
-March, 2014
+ - Updates: Nicos Angelopoulos, Dec. 2013, March, 2014
 
-Updates: Vitor Santos Costa
-Dec. 2015
+ - Updates: Vitor Santos Costa Dec. 2015

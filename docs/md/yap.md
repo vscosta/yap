@@ -5,7 +5,7 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-NOTE: this version of YAP is still experimental, documentation may be out of date.
+NOTE: this version of YAP is still experimental, documentation may be missing or brout of date.
 
 ## Introduction
 
@@ -25,7 +25,7 @@ The manual is organised as follows:
 
 + @subpage builtins
 
-+ @subpage Extensions
++ @subpage extensions
 
 + @subpage library
 
@@ -59,21 +59,6 @@ from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
-@page builtins YAP Core Built-ins
-
-
-This chapter describes the core predicates  that control the execution of
-Prolog programs, provide fundamental functionality such as termm manipulation or arithmetic, and support interaction with external
-resources, Many of the predicates described here have been standardised by the ISO. The standartised subset of Prolog also known as ISO-Prolog.                                                                                                                                                                                              
-
-In the description of the arguments of predicates the following
-notation will be used:
-
-+ a preceding plus sign will denote an argument as an "input
-argument" - it cannot be a free variable at the time of the call;
-+ a preceding minus sign will denote an "output argument";
-+ an argument with no preceding symbol can be used in both ways.
-
 
 @page Library YAP Library
 
@@ -89,7 +74,26 @@ argument" - it cannot be a free variable at the time of the call;
 YAP includes a number of extensions over the original Prolog
 language.
 
-         @subpage atts
+  + @subpage atts
+
+  + @ref Rational_Trees
+  
+  + @ref CohYroutining
+
+  + @ref Attributed_Variables
+
+  + @ref  DepthLimited
+
+  + @ref  Tabling
+
+  + @ref Threads
+
+  + @ref Profiling
+
+  + @ref YAPArrays
+
+  + @ref Parallelism
+
 
 @page YAPProgramming Programming in YAP
 

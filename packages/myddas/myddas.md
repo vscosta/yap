@@ -1,11 +1,12 @@
-The MYDDAS Data-base interface {#myddas}
+The MYDDAS Data-base interface                  {#myddas}
 ===============================
 
   The MYDDAS database project was developed within a FCT project aiming at
   the development of a highly efficient deductive database system, based
   on the coupling of the MySQL relational database system with the YAP
   Prolog system. MYDDAS was later expanded to support the ODBC interface.
-###  Requirements and Installation Guide                       {#Requirements_and_Installation_Guide}
+
+###  Requirements and Installation Guide        {#Requirements_and_Installation_Guide}
 
   Next, we describe how to usen of the YAP with the MYDDAS System.  The
   use of this system is entirely depend of the MySQL development libraries
@@ -21,21 +22,22 @@ The MYDDAS Data-base interface {#myddas}
   tested yet.  MYDDAS must be enabled at configure time. This can be done
   with the following options:
 
-  + --enable-myddas
+     + `--enable-myddas`
 
   This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
 
-  + --enable-myddas-stats
+      + `--enable-myddas-stats`
 
   This option is only available in MySQL. It includes code to get
   statistics from the MYDDAS system;
 
 
-  + --enable-top-level
+      + `--enable-top-level`
 
   This option is only available in MySQL.  It enables the option to interact with the MySQL server in
   two different ways. As if we were on the MySQL Client Shell, and as if
   we were using Datalog.
+
 ###  MYDDAS Architecture                    {#MYDDAS_Architecture}
 
   The system includes four main blocks that are put together through the
@@ -85,6 +87,7 @@ The MYDDAS Data-base interface {#myddas}
   FROM 'phonebook' A
   WHERE A.Name = 'John Doe';
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ###  View Level Interface                       {#View_Level_Interface}
 
 
@@ -178,6 +181,7 @@ The MYDDAS Data-base interface {#myddas}
 
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
+
 ###  Accessing Tables in Data Sources Using SQL                       {#Accessing_Tables_in_Data_Sources_Using_SQL}
 
 
@@ -205,6 +209,7 @@ The MYDDAS Data-base interface {#myddas}
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ###  Insertion of Rows                       {#Insertion_of_Rows}
 
  @pred db_assert(+,+).
@@ -274,7 +279,8 @@ The MYDDAS Data-base interface {#myddas}
   ?- helloWorldInsert('A',NULL,31).
   yes
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Types of AttributesL                       {#Types_of_Attributes}
+
+###  Types of Attributes                       {#Types_of_Attributes}
 
 
  @pred db_get_attributes_types(+,+,?).
@@ -305,6 +311,7 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
+
 ###  Number of Fields                       {#Number_of_Fields}
 
 
@@ -331,6 +338,7 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
+
 ###  Describing a Relation                       {#Describing_a_Relation}
 
   @pred db_datalog_describe(+,+).
@@ -411,6 +419,7 @@ The MYDDAS Data-base interface {#myddas}
   Table = table('Hello World') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ###  The MYDDAS MySQL Top Level                       {#The_MYDDAS_MySQL_Top_Level}
 
   @pred db_top_level(+,+,+,+,+).
@@ -461,6 +470,7 @@ The MYDDAS Data-base interface {#myddas}
   yes
   ?-
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 ###  Other MYDDAS Properties              {#Other_MYDDAS_Properties}
 
   @pred db_verbose(+).
@@ -560,5 +570,4 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
-
-@}
+ b

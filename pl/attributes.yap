@@ -1,4 +1,4 @@
-pattr/*************************************************************************
+p/*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
 *									 *
@@ -24,15 +24,8 @@ pattr/*************************************************************************
 
 */
 
-:- module('attributes', [delayed_goals/4]).
-
-:- use_system_module( '$_boot', ['$undefp'/1]).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$coroutining', [attr_unify_hook/2]).
-
-:- use_system_module( attributes, [all_attvars/1,
+:- system_module( attributes, [delayed_goals/4,
+all_attvars/1,	
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
@@ -42,7 +35,13 @@ pattr/*************************************************************************
         put_att_term/2,
         put_module_atts/2,
         unbind_attvar/1,
-        woken_att_do/4]).
+        woken_att_do/4], []).
+
+:- use_system_module( '$_boot', ['$undefp'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$coroutining', [attr_unify_hook/2]).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.

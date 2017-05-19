@@ -1,15 +1,12 @@
-Loading and Organising YAP Programs           {#load_files}
-===================================
+@defgroup load_files Loading and Organising YAP Programs    
 
-  Next, we present the main predicates and directives available to load
-  files and to control the Prolog environment.
+  @brief Next, we present the main predicates and directives available to load
+  files and to control the Prolog environment. They include
+
+  + @subpage YAPConsulting
 
   + @subpage YAPModules
 
-  + @ref YAPConsulting
-
-  +  @ref QLY
-
-  + @ref YAPBigLoad
+  + @subpage YAPBigLoad
 
   
