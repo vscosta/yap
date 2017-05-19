@@ -57,6 +57,7 @@ class YAPKernel(KernelBase):
             self.shell_handlers[msg_type] = getattr(self.comm_manager, msg_type)
 
         self.engine = YAPInteraction(self)
+        self.shell._last_traceback = None
         self.shell.run_cell = self.engine.run_cell
 
     help_links = List([

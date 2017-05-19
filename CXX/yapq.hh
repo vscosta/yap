@@ -2,7 +2,7 @@
 /**
  *   @file yapq.hh
  *
- *   @defgroup yap-cplus-query-hanadlinge Query Handling in the YAP interface.
+ *   @defgroup yap-cplus-query-handling Query Handling in the YAP interface.
  *   @brief Engine and Query Management
  *
  *   @ingroup yap-cplus-interface
@@ -46,9 +46,24 @@ class YAPQuery : public YAPPredicate
   // temporaries
   Term tnames, tgoal ;
 
+  inline void setNext() {  // oq = LOCAL_execution;
+  //  LOCAL_execution = this;
+  q_open = true;
+  q_state = 0;
+  q_flags = true; // PL_Q_PASS_EXCEPTION;
+
+  q_p = P;
+  q_cp = CP;
+  // make sure this is safe
+  q_handles = LOCAL_CurSlot;
+}
+
   void openQuery(Term t);
 
+
 public:
+YAPQuery() {
+};
   /// main constructor, uses a predicate and an array of terms
   ///
   /// It is given a YAPPredicate _p_ , and an array of terms that must have at
@@ -74,63 +89,68 @@ public:
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames)
   {
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
-                        LOCAL_CurSlot);
-    if (!ap)
-      return;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
-    goal = YAPTerm(tgoal);
-    names = YAPPairTerm(tnames);
-    openQuery(tgoal);
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
+                          LOCAL_CurSlot);
+      if (!ap)
+          return;
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+      goal = YAPTerm(tgoal);
+      names = YAPPairTerm(tnames);
+      openQuery(tgoal);
   };
+  // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
+  // {
+  //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
+  //                         LOCAL_CurSlot);
+  //     if (!ap)
+  //         return;
+  //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+  //     goal = YAPTerm(tgoal);
+  //     names = YAPPairTerm(tnames);
+  //     openQuery(tgoal);
+  // };
   /// string constructor with just an atom
   ///
-  /// It is given an atom, and a Prolog term that should be a callable
-  /// goal, say `main`, `init`, `live`.
-  inline YAPQuery(YAPAtom g) : YAPPredicate(g)
-  {
-    goal = YAPAtomTerm(g);
-    names = YAPPairTerm( );
-    openQuery(goal.term());
-  };
+  /// It i;
+  ///};
 
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
-  void resetFlag(int flag) { q_flags &= ~flag; }
-  /// first query
-  ///
-  /// actually implemented by calling the next();
-  inline bool first() { return next(); }
-  /// ask for the next solution of the current query
-  /// same call for every solution
-  bool next();
-  /// does this query have open choice-points?
-  /// or is it deterministic?
-  bool deterministic();
-  /// represent the top-goal
-  const char *text();
-  /// remove alternatives in the current search space, and finish the current
-  /// query
-  /// finish the current query: undo all bindings.
-  void close();
-  /// query variables.
-  void cut();
-  Term namedVars() {return  names.term(); };
-  /// query variables, but copied out
-  std::vector<Term> namedVarsVector() {
-      return names.listToArray(); };
-  /// convert a ref to a binding.
-  YAPTerm getTerm(yhandle_t t);
-  /// simple YAP Query;
-  /// just calls YAP and reports success or failure, Useful when we just
-  /// want things done, eg YAPCommand("load_files(library(lists), )")
-  inline bool command()
-  {
-    bool rc = next();
-    close();
-    return rc;
-  };
+void resetFlag(int flag) { q_flags &= ~flag; }
+/// first query
+///
+/// actually implemented by calling the next();
+inline bool first() { return next(); }
+/// ask for the next solution of the current query
+/// same call for every solution
+bool next();
+/// does this query have open choice-points?
+/// or is it deterministic?
+bool deterministic();
+/// represent the top-goal
+const char *text();
+/// remove alternatives in the current search space, and finish the current
+/// query
+/// finish the current query: undo all bindings.
+void close();
+/// query variables.
+void cut();
+Term namedVars() {return  names.term(); };
+/// query variables, but copied out
+std::vector<Term> namedVarsVector() {
+  return names.listToArray(); };
+/// convert a ref to a binding.
+YAPTerm getTerm(yhandle_t t);
+/// simple YAP Query;
+/// just calls YAP and reports success or failure, Useful when we just
+/// want things done, eg YAPCommand("load_files(library(lists), )")
+inline bool command()
+{
+  bool rc = next();
+  close();
+  return rc;
+};
 };
 
 // Java support
@@ -408,8 +428,12 @@ public:
   {
     return setYapFlag(MkAtomTerm(Yap_LookupAtom(arg.data())), MkAtomTerm(Yap_LookupAtom(path.data())));
   };
-};
+
+  Term  top_level( std::string s);
+  Term next_answer(YAPQuery * &Q);
+
+  };
 
 #endif /* YAPQ_HH */
 
-/// @}
+    /// @}

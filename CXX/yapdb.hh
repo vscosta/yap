@@ -46,7 +46,7 @@ class YAPModule;
 class YAPModule : protected YAPAtomTerm {
   friend class YAPPredicate;
   friend class YAPModuleProp;
-  YAPModule(Term t) : YAPAtomTerm(t){};
+  YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   Term t() { return gt(); }
   Term curModule() { CACHE_REGS return Yap_CurrentModule(); }
 
@@ -138,6 +138,11 @@ protected:
 
   PredEntry *asPred() { return ap; };
 
+/// Empty constructor for predicates
+  ///
+  /// Just do nothing.
+  inline YAPPredicate() {
+  }
   /// String constructor for predicates
   ///
   /// It also communicates the array of arguments t[]
@@ -180,6 +185,13 @@ protected:
   /// if we have the implementation data.
   ///
   inline YAPPredicate(PredEntry *pe) { ap = pe; }
+
+ /// Functor constructor for predicates, is given a specific module.
+  /// This version avoids manufacturing objects
+  inline YAPPredicate(Functor f, Term mod) {
+    ap = RepPredProp(PredPropByFunc(f, mod));
+  }
+
 
 public:
 

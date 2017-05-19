@@ -1,53 +1,76 @@
-
 %% @file yapi.yap
 %% @brief support yap shell
 %%
-:- module(yapi, [bindvars/2]).
+:- module(yapi, [query/3]).
 
+:- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 
-bindvars( [], [] ) :- !.
-bindvars( L, NL ) :-
-	rb_new(T),
-%	trace,
-	foldl2( bind, L, NL, T, _ , 0, _),
-	term_variables(NL, Vs),
-	foldl( bind_new, Vs, 0, _).
+
+%% @pred yap_query(0:Goal, + VarList, +OutStream, - Dictionary)
+%% @pred yap_query(0:Goal, + VarList, - Dictionary)
+%%
+%% dictionary, Examples
+%%
+%%
+yap_query( Goal, VarNames, Stream, Dictionary) :-
+	(
+        call(Goal)
+        *->
+	constraints(VarNames, Goal, Stream, Dictionary)
+    ).
+
+prolog:yap_query( Goal, VarNames, Dictionary) :-
+        yap_query( Goal, VarNames, user_output, Dictionary).
+
+constraints(QVs, Goal, Stream, {Dict}) :-
+		 !,
+	term_variables(Goal, IVs),
+	foldl(enumerate, IVs, 0, _Ns),
+        out(QVs, Stream, Dict).
+constraints(_, _, {}) :-
+     format(' yes.~n', [] ).
+
+bind_qv(V=V0, Vs, Vs) :- var(V0), !, V0='$VAR'(V).
+bind_qv(V=V, Vs, Vs) :- !.
+bind_qv(V=S, Vs, [V=S|Vs]).
+
+enumerate('$VAR'(A), I, I1) :-
+	enum(I, Chars),
+	atom_codes(A,[0'_|Chars]),
+	I1 is I + 1.
+
+enum(I, [C]) :-
+	I < 26,
+     !, C is "A" + I.
+enum(I, [C|Cs]) :-
+	J is I//26,
+	K is I mod 26,
+	C is "A" +K,
+	enum(J, Cs).
+
+out(Bs, S, _Dict) :-
+	output(Bs, S),
+	fail.
+out(Bs, _S, Dict) :-
+	bvs(Bs, Dict).
+
+v2py(v(I0) = _V, I0, I) :-
+	!,
+	I is I0+1.
+v2py(v(I0) = v(I0), I0, I) :-
+    I is I0+1.
+
+output([V=B], S) :-
+		format(S, 'a = ~q~n', [V, B]).
+output([V=B|Ns], S) :-
+		format( S, 'a = ~q.~n', [V, B]),
+		output( Ns, S).
 
 
-bind(t(_,t(X,Y)), Z, T0, T, N1, N2) :-
-	!,
-	bind(X=Y, Z, T0, T, N1, N2).	
-bind(tuple(_,tuple(X,Y)), Z, T0, T, N1, N2) :-
-	!,
-	bind(X=Y, Z, T0, T, N1, N2).	
-bind(X=Y, X=X, T0, T, N, N) :-
-	var(Y),
-	!,
-	rb_update(T0, Y, X, T).
-bind(X = G, X = G, T, T, N0, N0) :-
-	ground(G),
-	!.
-bind(X = C, X = NC, T, NT, N0, NF) :-
- 	C =.. [N|L],
-	foldl2(newb, L, NL, T, NT, N0, NF),
-	NC =.. [N|NL].
-
-newb(Y, X, T, T, N, N) :-
-	var(Y),
-	rb_lookup(Y, X, T),
-	!.
-newb(Y, X, T, TN, N, NF) :-
-	var(Y),
-	!,
-	rb_insert(Y, T, X, TN),
-	NF is N+1,
-	atomic_concat('_',N,X).
-newb(Y, Y, T, T, N, N) :-
-	ground(Y),
-	!.
-newb(Y, X, T, NT, N0, NF) :-
- 	Y =.. [N|L],
-	foldl2(newb, L, NL, T, NT, N0, NF),
-	X =.. [N|NL].
+		bvs([V=B],{V:B}) :-
+			!.
+		bvs([V=B|Ns], (V:B,N)) :-
+				output( Ns, N).
+:- start_low_level_trace.

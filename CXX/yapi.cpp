@@ -435,16 +435,7 @@ void YAPQuery::openQuery(Term t)
       XREGS[i + 1] = ts[i];
     }
   }
-  // oq = LOCAL_execution;
-  //  LOCAL_execution = this;
-  q_open = true;
-  q_state = 0;
-  q_flags = true; // PL_Q_PASS_EXCEPTION;
-
-  q_p = P;
-  q_cp = CP;
-  // make sure this is safe
-  q_handles = LOCAL_CurSlot;
+  setNext();
 }
 
 bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
@@ -833,6 +824,7 @@ void Yap_displayWithJava(int c)
 
 #endif
 
+
 void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
   if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
@@ -852,228 +844,264 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
 
     do_init_python();
 #endif
-
-  YAPQuery initq = YAPQuery(YAPAtom("$init_system"));
-  if (initq.next())
-  {
-    initq.cut();
-  }
-  else
-  {
-    // should throw exception
-  }
+    YAP_Functor f = YAP_MkFunctor(YAP_LookupAtom("$init_system"), 3);
+    YAP_PredEntryPtr p = YAP_FunctorToPred( f );
+    YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
+    if (initq.next())
+      {
+	initq.cut();
+      }
+    else
+      {
+	// should throw exception
+      }
 }
 
 YAPEngine::YAPEngine(int argc, char *argv[],
-                     YAPCallback *cb)
-  : _callback(0) { // a single engine can be active
+		     YAPCallback *cb)
+      : _callback(0) { // a single engine can be active
 
-  YAP_file_type_t BootMode;
-  engine_args = new YAPEngineArgs();
-  BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
-  // delYAPCallback()b
-  // if (cb)
-  //  setYAPCallback(cb);
-  doInit(BootMode);
-}
-
-
-YAPPredicate::YAPPredicate(YAPAtom at)
-{
-  CACHE_REGS
-  ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
-}
-
-YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity)
-{
-  CACHE_REGS
-  if (arity)
-  {
-    Functor f = Yap_MkFunctor(at.a, arity);
-    ap = RepPredProp(PredPropByFunc(f, Yap_CurrentModule()));
-  }
-  else
-  {
-    ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
-  }
-}
-
-/// auxiliary routine to find a predicate in the current module.
-PredEntry *YAPPredicate::getPred(YAPTerm &tt, Term *&outp)
-{
-  CACHE_REGS
-  Term m = Yap_CurrentModule(), t = tt.term();
-  t = Yap_StripModule(t, &m);
-  if (IsVarTerm(t) || IsNumTerm(t))
-  {
-    if (IsVarTerm(t))
-      Yap_ThrowError(INSTANTIATION_ERROR, tt.term(), 0);
-    else if (IsNumTerm(t))
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, tt.term(), 0);
-    throw YAPError();
-  }
-  tt.put(t);
- if (IsAtomTerm(t))
-  {
-    ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
-    outp = (Term *)NULL;
-    return ap;
-  }
-  else if (IsPairTerm(t))
-  {
-    Term ts[2];
-    ts[0] = t;
-    ts[1] = m;
-    t = Yap_MkApplTerm(FunctorCsult, 2, ts);
-    tt.put(t);
-    outp = RepAppl(t) + 1;
-  }
-  Functor f = FunctorOfTerm(t);
-  if (IsExtensionFunctor(f))
-  {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, 0);
-  }
-  else
-  {
-    ap = RepPredProp(PredPropByFunc(f, m));
-    outp = RepAppl(t) + 1;
-  }
-  return ap;
-}
-
-X_API bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last,
-                                            YAPTerm source)
-{
-  CACHE_REGS
-
-  RECOVER_MACHINE_REGS();
-  Term tt = cl.gt();
-  Term sourcet;
-  Term ntt = cl.gt();
-  if (source.initialized())
-    sourcet = source.gt();
-  else
-    sourcet = TermZERO;
-  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
-                                sourcet); /* vsc: give the number of arguments
-                                       to cclause in case there is overflow */
-  if (LOCAL_ErrorMessage)
-  {
-    RECOVER_MACHINE_REGS();
-    return false;
-  }
-  Term *tref = &ntt;
-  if (Yap_addclause(ntt, codeaddr, (last ? TermAssertz : TermAsserta),
-                    Yap_CurrentModule(), tref))
-  {
-    RECOVER_MACHINE_REGS();
-  }
-  return tref;
-}
-
-bool YAPPrologPredicate::assertFact(YAPTerm *cl, bool last)
-{
-  CACHE_REGS
-  arity_t i;
-  RECOVER_MACHINE_REGS();
-  Term tt = AbsAppl(HR);
-  *HR++ = (CELL)(ap->FunctorOfPred);
-  for (i = 0; i < ap->ArityOfPE; i++, cl++)
-    *HR++ = cl->gt();
-  yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
-                                tt); /* vsc: give the number of arguments
-                                       to cclause in case there is overflow */
-  if (LOCAL_ErrorMessage)
-  {
-    RECOVER_MACHINE_REGS();
-    return false;
-  }
-  Term *tref = &tt;
-  if (Yap_addclause(tt, codeaddr, (last ? TermAssertz : TermAsserta),
-                    Yap_CurrentModule(), tref))
-  {
-    RECOVER_MACHINE_REGS();
-  }
-  return tref;
-}
-
-void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all)
-{
-  return 0;
-}
-
-std::string YAPError::text()
-{
-  char buf[256];
-  std::string s = "";
-  if (LOCAL_ActiveError->errorFunction)
-  {
-    s += LOCAL_ActiveError->errorFile;
-    s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->errorLine);
-    s += buf;
-    s += ":0 in C-code";
-  }
-  if (LOCAL_ActiveError->prologPredLine)
-  {
-    s += "\n";
-    s += LOCAL_ActiveError->prologPredFile->StrOfAE;
-    s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
-    s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
-    // YAPIntegerTerm(LOCAL_ActiveError->prologPredLine).text();
-    s += ":0   ";
-    s += LOCAL_ActiveError->prologPredModule;
-    s += ":";
-    s += (LOCAL_ActiveError->prologPredName)->StrOfAE;
-    s += "/";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
-    s += // std::to_string(LOCAL_ActiveError->prologPredArity);
-        buf;
-  }
-  s += " error ";
-  if (LOCAL_ActiveError->classAsText != nullptr)
-    s += LOCAL_ActiveError->classAsText->StrOfAE;
-  s += ".";
-  s += LOCAL_ActiveError->errorAsText->StrOfAE;
-  s += ".\n";
-  if (LOCAL_ActiveError->errorTerm)
-  {
-    Term t = LOCAL_ActiveError->errorTerm->Entry;
-    if (t)
-    {
-      s += "error term is: ";
-      s += YAPTerm(t).text();
-      s += "\n";
+      YAP_file_type_t BootMode;
+      engine_args = new YAPEngineArgs();
+      BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
+      // delYAPCallback()b
+      // if (cb)
+      //  setYAPCallback(cb);
+      doInit(BootMode);
     }
-  }
-  printf("%s\n", s.c_str());
-  return s.c_str();
-}
 
-void YAPEngine::reSet()
-{
-  /* ignore flags  for now */
-  BACKUP_MACHINE_REGS();
-  Yap_RebootHandles(worker_id);
-  while (B->cp_b)
-    B = B->cp_b;
-  P = FAILCODE;
-  Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-  /* recover stack space */
-  HR = B->cp_h;
-  TR = B->cp_tr;
+
+    YAPPredicate::YAPPredicate(YAPAtom at)
+    {
+      CACHE_REGS
+	ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
+    }
+
+    YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity)
+    {
+      CACHE_REGS
+	if (arity)
+	  {
+	    Functor f = Yap_MkFunctor(at.a, arity);
+	    ap = RepPredProp(PredPropByFunc(f, Yap_CurrentModule()));
+	  }
+	else
+	  {
+	    ap = RepPredProp(PredPropByAtom(at.a, Yap_CurrentModule()));
+	  }
+    }
+
+    /// auxiliary routine to find a predicate in the current module.
+    PredEntry *YAPPredicate::getPred(YAPTerm &tt, Term *&outp)
+    {
+      CACHE_REGS
+	Term m = Yap_CurrentModule(), t = tt.term();
+      t = Yap_StripModule(t, &m);
+      if (IsVarTerm(t) || IsNumTerm(t))
+	{
+	  if (IsVarTerm(t))
+	    Yap_ThrowError(INSTANTIATION_ERROR, tt.term(), 0);
+	  else if (IsNumTerm(t))
+	    Yap_ThrowError(TYPE_ERROR_CALLABLE, tt.term(), 0);
+	  throw YAPError();
+	}
+      tt.put(t);
+      if (IsAtomTerm(t))
+	{
+	  ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
+	  outp = (Term *)NULL;
+	  return ap;
+	}
+      else if (IsPairTerm(t))
+	{
+	  Term ts[2];
+	  ts[0] = t;
+	  ts[1] = m;
+	  t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+	  tt.put(t);
+	  outp = RepAppl(t) + 1;
+	}
+      Functor f = FunctorOfTerm(t);
+      if (IsExtensionFunctor(f))
+	{
+	  Yap_ThrowError(TYPE_ERROR_CALLABLE, t, 0);
+	}
+      else
+	{
+	  ap = RepPredProp(PredPropByFunc(f, m));
+	  outp = RepAppl(t) + 1;
+	}
+      return ap;
+    }
+
+    X_API bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last,
+						YAPTerm source)
+    {
+      CACHE_REGS
+
+	RECOVER_MACHINE_REGS();
+      Term tt = cl.gt();
+      Term sourcet;
+      Term ntt = cl.gt();
+      if (source.initialized())
+	sourcet = source.gt();
+      else
+	sourcet = TermZERO;
+      yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
+				    sourcet); /* vsc: give the number of arguments
+						 to cclause in case there is overflow */
+      if (LOCAL_ErrorMessage)
+	{
+	  RECOVER_MACHINE_REGS();
+	  return false;
+	}
+      Term *tref = &ntt;
+      if (Yap_addclause(ntt, codeaddr, (last ? TermAssertz : TermAsserta),
+			Yap_CurrentModule(), tref))
+	{
+	  RECOVER_MACHINE_REGS();
+	}
+      return tref;
+    }
+
+    bool YAPPrologPredicate::assertFact(YAPTerm *cl, bool last)
+    {
+      CACHE_REGS
+	arity_t i;
+      RECOVER_MACHINE_REGS();
+      Term tt = AbsAppl(HR);
+      *HR++ = (CELL)(ap->FunctorOfPred);
+      for (i = 0; i < ap->ArityOfPE; i++, cl++)
+	*HR++ = cl->gt();
+      yamop *codeaddr = Yap_cclause(tt, ap->ArityOfPE, Yap_CurrentModule(),
+				    tt); /* vsc: give the number of arguments
+					    to cclause in case there is overflow */
+      if (LOCAL_ErrorMessage)
+	{
+	  RECOVER_MACHINE_REGS();
+	  return false;
+	}
+      Term *tref = &tt;
+      if (Yap_addclause(tt, codeaddr, (last ? TermAssertz : TermAsserta),
+			Yap_CurrentModule(), tref))
+	{
+	  RECOVER_MACHINE_REGS();
+	}
+      return tref;
+    }
+
+    void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all)
+    {
+      return 0;
+    }
+
+    std::string YAPError::text()
+    {
+      char buf[256];
+      std::string s = "";
+      if (LOCAL_ActiveError->errorFunction)
+	{
+	  s += LOCAL_ActiveError->errorFile;
+	  s += ":";
+	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->errorLine);
+	  s += buf;
+	  s += ":0 in C-code";
+	}
+      if (LOCAL_ActiveError->prologPredLine)
+	{
+	  s += "\n";
+	  s += LOCAL_ActiveError->prologPredFile->StrOfAE;
+	  s += ":";
+	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
+	  s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
+	  // YAPIntegerTerm(LOCAL_ActiveError->prologPredLine).text();
+	  s += ":0   ";
+	  s += LOCAL_ActiveError->prologPredModule;
+	  s += ":";
+	  s += (LOCAL_ActiveError->prologPredName)->StrOfAE;
+	  s += "/";
+	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
+	  s += // std::to_string(LOCAL_ActiveError->prologPredArity);
+	    buf;
+	}
+      s += " error ";
+      if (LOCAL_ActiveError->classAsText != nullptr)
+	s += LOCAL_ActiveError->classAsText->StrOfAE;
+      s += ".";
+      s += LOCAL_ActiveError->errorAsText->StrOfAE;
+      s += ".\n";
+      if (LOCAL_ActiveError->errorTerm)
+	{
+	  Term t = LOCAL_ActiveError->errorTerm->Entry;
+	  if (t)
+	    {
+	      s += "error term is: ";
+	      s += YAPTerm(t).text();
+	      s += "\n";
+	    }
+	}
+      printf("%s\n", s.c_str());
+      return s.c_str();
+    }
+
+    void YAPEngine::reSet()
+    {
+      /* ignore flags  for now */
+      BACKUP_MACHINE_REGS();
+      Yap_RebootHandles(worker_id);
+      while (B->cp_b)
+	B = B->cp_b;
+      P = FAILCODE;
+      Yap_exec_absmi(true, YAP_EXEC_ABSMI);
+      /* recover stack space */
+      HR = B->cp_h;
+      TR = B->cp_tr;
 #ifdef DEPTH_LIMIT
-  DEPTH = B->cp_depth;
+      DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
-  YENV = ENV = B->cp_env;
+      YENV = ENV = B->cp_env;
 
-  RECOVER_MACHINE_REGS();
-}
+      RECOVER_MACHINE_REGS();
+    }
 
-YAPError::YAPError(yap_error_number id, YAPTerm culprit, std::string txt)
-{
-  ID = id;
-  goal = culprit.text();
-  info = txt;
-}
+    YAPError::YAPError(yap_error_number id, YAPTerm culprit, std::string txt)
+    {
+      ID = id;
+      goal = culprit.text();
+      info = txt;
+    }
+
+    Term  YAPEngine::top_level( std::string s)
+
+    {
+
+      /// parse string s and make term with var names
+      /// available.
+      Term tp;
+      ARG1 = YAP_ReadBuffer(s.data(), &tp);
+      ARG2 = tp;
+      ARG3 = MkVarTerm();
+      YAPPredicate p = YAPPredicate(YAP_TopGoal());
+      YAPQuery *Q = new YAPQuery(p,0);
+      if (Q->next()) {
+	Term ts[2];
+	ts[0]= MkAddressTerm(Q);
+	ts[1]= ARG3;
+	return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
+      }
+      YAPError();
+      return 0;
+    }
+
+    Term YAPEngine::next_answer(YAPQuery * &Q) {
+
+      /// parse string s and make term with var names
+      /// available.
+      if (Q->next()) {
+	Term ts[2];
+	ts[0]= MkAddressTerm(Q);
+	ts[1]= ARG3;
+	return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
+      }
+      return 0;
+    }

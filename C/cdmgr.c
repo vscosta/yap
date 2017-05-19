@@ -1647,6 +1647,14 @@ bool Yap_constPred(PredEntry *p) {
   pred_flags_t pflags;
   pflags = p->PredFlags;
 
+ if (pflags &
+      ((UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
+        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)))
+    return true;
+
+  if (p->PredFlags &
+      (SysExportPredFlag | MultiFileFlag | DynamicPredFlag | LogUpdatePredFlag))
+    return false;
   if (Yap_isSystemModule(p->ModuleOfPred)) {
     if (p->cs.p_code.NOfClauses == 0) {
       p->src.OwnerFile = Yap_source_file_name();
@@ -1656,15 +1664,7 @@ bool Yap_constPred(PredEntry *p) {
       return false;
     }
   }
-  if (pflags &
-      ((UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
-        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)))
-    return true;
-
-  if (p->PredFlags &
-      (SysExportPredFlag | MultiFileFlag | DynamicPredFlag | LogUpdatePredFlag))
-    return false;
-
+ 
   return false;
 }
 
@@ -1719,7 +1719,6 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     at = NameOfFunctor(f);
     p = RepPredProp(PredPropByFunc(f, mod));
   }
-  Yap_PutValue(AtomAbol, TermNil);
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
@@ -1727,6 +1726,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     UNLOCKPE(30, p);
     return false;
   }
+  Yap_PutValue(AtomAbol, TermNil);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
   if (pflags & MegaClausePredFlag) {

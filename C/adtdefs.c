@@ -493,8 +493,7 @@ Prop Yap_GetPredPropByAtom(Atom at, Term cur_mod)
   return (p0);
 }
 
-inline static Prop GetPredPropByAtomHavingLockInThisModule(AtomEntry *ae,
-                                                           Term cur_mod)
+inline static Prop GetPredPropByAtomHavingLockInThisModule(AtomEntry *ae, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
   Prop p0;
@@ -528,14 +527,15 @@ Prop Yap_GetPredPropByAtomInThisModule(Atom at, Term cur_mod)
   return (p0);
 }
 
+
 Prop Yap_GetPredPropByFunc(Functor f, Term cur_mod)
 /* get predicate entry for ap/arity;               */
 {
   Prop p0;
-
   FUNC_READ_LOCK(f);
 
   p0 = GetPredPropByFuncHavingLock(f, cur_mod);
+
   FUNC_READ_UNLOCK(f);
   return (p0);
 }

@@ -267,12 +267,12 @@ absolute_file_name(File0,File) :-
     '$dir',
     { '$absf_trace'('  ~w next', [P0]) },
     '$cat_file_name'(P0, E).
-'$file_name'(Name, Opts, E) -->
+'$file_name'(Name, _Opts, E) -->
     '$cat_file_name'(Name, E ).
     /*
     (
      {
-	get_abs_file_parameter( file_type, Opts, Lib ),
+	get_abs_file_parameter( file_type, _Opts, Lib ),
        nonvar(Lib)
      }
      ->

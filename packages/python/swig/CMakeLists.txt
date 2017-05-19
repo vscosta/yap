@@ -70,9 +70,9 @@ add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${pl_library} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
     COMMAND ${CMAKE_COMMAND} -E copy ${pl_boot_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl
     COMMAND ${CMAKE_COMMAND} -E copy ${pl_os_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os
-    COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
+    COMMAND  ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/setup.py sdist bdist_wheel
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
+DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
 
 
 	  install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --no-index -f dist yap4py
@@ -95,7 +95,7 @@ DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} setup.py ${SWIG_MOD
         # generate .i from doxygen .xml
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
                 COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
-                ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
+                ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
                 ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
                 DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
                 )
