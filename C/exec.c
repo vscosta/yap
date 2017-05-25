@@ -315,7 +315,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    if (pen->PredFlags & MetaPredFlag) {
+    if (pen->PredFlags & (MetaPredFlag|UndefPredFlag)) {
       return CallMetaCall(t, mod PASS_REGS);
     }
     pt = RepAppl(t) + 1;
@@ -441,7 +441,7 @@ inline static bool do_execute_n(Term t, Term mod, unsigned int n USES_REGS) {
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
   /* but no meta calls require special preprocessing */
-  if (pen->PredFlags & MetaPredFlag) {
+  if (pen->PredFlags & (MetaPredFlag|UndefPredFlag)) {
     Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
     return (CallMetaCall(t, mod PASS_REGS));
   }
@@ -1812,7 +1812,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     HR[1] = MkAtomTerm(Yap_LookupAtom("top"));
     arity = 2;
     HR += 2;
-  } else if (ppe->PredFlags & MetaPredFlag) {
+  } else if (ppe->PredFlags & (MetaPredFlag|UndefPredFlag)) {
     // we're in a meta-call, rake care about modules
     //
     Term ts[2];
