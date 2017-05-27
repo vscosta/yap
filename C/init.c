@@ -75,8 +75,8 @@ static void SetOp(int, int, char *, Term);
 static void InitOps(void);
 static void InitDebug(void);
 static void CleanBack(PredEntry *, CPredicate, CPredicate, CPredicate);
-static void InitStdPreds(void);
-static void InitCodes(void);
+static void InitStdPreds(struct yap_boot_params *yapi);
+static void InitCodes(struct yap_boot_params *yapi);
 static void InitVersion(void);
 void exit(int);
 static void InitWorker(int wid);
@@ -980,12 +980,13 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
   }
 }
 
-static void InitStdPreds(void) {
+static void InitStdPreds(struct yap_boot_params *yapi)
+{
   Yap_InitCPreds();
   Yap_InitBackCPreds();
   BACKUP_MACHINE_REGS();
   Yap_InitFlags(false);
-  Yap_InitPlIO();
+  Yap_InitPlIO(yapi);
 #if HAVE_MPE
   Yap_InitMPE();
 #endif
@@ -1268,7 +1269,8 @@ struct worker_local *Yap_local;
 struct worker_local Yap_local;
 #endif
 
-static void InitCodes(void) {
+static void InitCodes(struct yap_boot_params *yapi)
+{
   CACHE_REGS
 #if THREADS
   int wid;
@@ -1315,9 +1317,11 @@ const char *Yap_version(void) {
   return RepAtom(AtomOfTerm(t))->StrOfAE;
 }
 
-void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
+void Yap_InitWorkspace(struct yap_boot_params *yapi,
+          UInt Heap, UInt Stack, UInt Trail, UInt Atts,
                        UInt max_table_size, int n_workers, int sch_loop,
-                       int delay_load) {
+                       int delay_load)
+{
   CACHE_REGS
 
 /* initialize system stuff */
@@ -1399,7 +1403,7 @@ void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
 #else
   Yap_InitAbsmi();
 #endif
-  InitCodes();
+  InitCodes(yapi);
   InitOps();
   InitDebug();
   InitVersion();
@@ -1429,7 +1433,7 @@ void Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts,
   GLOBAL_AllowTrailExpansion = true;
   Yap_InitExStacks(0, Trail, Stack);
   Yap_InitYaamRegs(0);
-  InitStdPreds();
+  InitStdPreds(yapi);
   /* make sure tmp area is available */
   { Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace()); }
 }

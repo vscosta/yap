@@ -14,10 +14,11 @@ name = 'yap_kernel'
 #-----------------------------------------------------------------------------
 
 import sys
+import setuptools
 
 v = sys.version_info
 if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
-    error = "ERROR: %s requires Python version 2.7 or 3.3 or above." % name
+    error = "ERROR: %s requires Python version 3.3 or above." % name
     print(error, file=sys.stderr)
     sys.exit(1)
 
@@ -34,21 +35,24 @@ import shutil
 from distutils.core import setup
 
 pjoin = os.path.join
-here = os.path.relpath(os.path.dirname(__file__))
-pkg_root = pjoin(here, name)
+here = os.path.abspath(os.path.dirname(__file__))
+# pkg_root = pjoin(here, name)
 
-packages = []
-for d, _, _ in os.walk(pjoin(here, name)):
-    if os.path.exists(pjoin(d, '__init__.py')):
-        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
+# for d, _, _ in os.walk(pjoin(here, name)):
+#     if os.path.exists(pjoin(d, '__init__.py')):
+#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 package_data = {
-    'ipykernel': ['resources/*.*'],
+    'yap_kernel': ['resources/*.*'],
 }
 
+
 version_ns = {}
-with open(pjoin(here, name, '_version.py')) as f:
+with open(pjoin('${CMAKE_CURRENT_SOURCE_DIR}', name, '_version.py')) as f:
     exec(f.read(), {}, version_ns)
+
+
 
 
 setup_args = dict(
@@ -59,8 +63,8 @@ setup_args = dict(
     py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
     description     = "YAP Kernel for Jupyter",
-    author          = 'IPython Development Team and Vitor Santos Costa',
-    author_email    = 'vsc@dcc.fc.up.ot',
+    author          = 'YP Development Team',
+    author_email    = 'YAP-dev@scipy.org',
     url             = 'http://ipython.org',
     license         = 'BSD',
     platforms       = "Linux, Mac OS X, Windows",
@@ -70,8 +74,8 @@ setup_args = dict(
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: BSD License',
+        'Programming Language :: Prolog',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
     ],
 )
@@ -85,7 +89,6 @@ install_requires = setuptools_args['install_requires'] = [
     'traitlets>=4.1.0',
     'jupyter_client',
     'tornado>=4.0',
-    'yap4py'
 ]
 
 if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
@@ -100,10 +103,6 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
     setup_args['data_files'] = [
         (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
     ]
-
-setuptools_args['zip_safe']=False
-setuptools_args['eager_resources'] = ['yap_kernel']
-setuptools_args['include_package_data']=True
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],

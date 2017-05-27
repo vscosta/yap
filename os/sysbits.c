@@ -79,7 +79,7 @@ static bool is_directory(const char *FileName) {
 
   VFS_t *vfs;
   if ((vfs = vfs_owner(FileName))) {
-    return vfs->isdir(vfs, FileName);
+    return vfs->isdir(FileName);
   }
 #ifdef _WIN32
   DWORD dwAtts = GetFileAttributes(FileName);
@@ -105,7 +105,7 @@ bool Yap_Exists(const char *f) {
   VFS_t *vfs;
 
   if ((vfs = vfs_owner(f))) {
-    return vfs->exists(vfs, f);
+    return vfs->exists(f);
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -348,7 +348,7 @@ static bool ChDir(const char *path) {
 
   VFS_t *v;
   if ((v = vfs_owner(path))) {
-    return v->chdir(v, path);
+    return v->chdir(path);
   }
 #if _WIN32
   rc = true;

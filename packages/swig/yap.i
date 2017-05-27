@@ -10,6 +10,7 @@
  // Language independent exception handler
 %include exception.i
 %include stdint.i
+%include std_string.i
 
 %ignore *::operator[];
 
@@ -18,7 +19,7 @@ class YAPEngine;
 
 #define arity_t size_t
 
-
+#define Term uintptr_t
 
 %{
 

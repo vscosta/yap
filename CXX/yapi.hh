@@ -1,5 +1,6 @@
+
 /**
-   @file yapi,hh
+   @file yapi.hh
 
    @brief entry file for the YAP C++ interface
 
@@ -18,7 +19,7 @@
  *   @ingroup fli_c_cx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
- *   @{         
+ *   @{
  *
  *
  * @brief C++ wrapper to terms, predicates and queries
@@ -88,7 +89,7 @@ extern "C" {
 #if YAP_PYTHON
 
 #include <Python.h>
-  
+
   extern bool  python_in_python;
 #endif
 }

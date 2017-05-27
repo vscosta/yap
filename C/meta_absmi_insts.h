@@ -116,7 +116,7 @@
 	  }
 	  pen = RepPredProp(PredPropByFunc(f, mod));
 	execute_pred_f:
-	  if (pen->PredFlags & MetaPredFlag) {
+	  if (pen->PredFlags & (MetaPredFlag|UndefPredFlag)) {
 	    /* just strip all of M:G */
 	    if (f == FunctorModule) {
 	      Term tmod = ArgOfTerm(1,d0);
@@ -242,7 +242,7 @@
 	if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
 	  if (pen->ModuleOfPred) {
 	    if (DEPTH == MkIntTerm(0)) {
-	      FAIL(); 
+	      FAIL();
 	    } else {
 	      DEPTH = RESET_DEPTH();
 	    }

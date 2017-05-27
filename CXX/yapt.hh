@@ -467,10 +467,10 @@ public:
 class YAPAtomTerm : public YAPTerm {
   friend class YAPModule;
   // Constructor: receives a C-atom;
-  YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
 
 public:
+  YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   // Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }
   // Constructor: receives a sequence of ISO-LATIN1 codes;

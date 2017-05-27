@@ -111,7 +111,7 @@
   HIDDEN_PREDICATES = NULL;
 
 
-  Yap_InitPlIO();
+  Yap_InitPlIO(yapi);
   GLOBAL_Flags = 0;
   Yap_InitFlags(true);
 

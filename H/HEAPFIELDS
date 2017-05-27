@@ -122,7 +122,7 @@ Prop		HIDDEN_PREDICATES	=NULL RestoreHiddenPredicates()
 
 // make sure we have the streams  set at this point.
 // don't actually want to define a field
-void		void			Yap_InitPlIO()  void
+void		void			Yap_InitPlIO(yapi)  void
 
 union flagTerm*	GLOBAL_Flags		=0 void
 UInt	  	GLOBAL_flagCount	Yap_InitFlags(true)  RestoreFlags(GLOBAL_flagCount)

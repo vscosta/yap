@@ -24,6 +24,10 @@
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
+:- multifile user:system_foreign/1.
+
+
+
 /**
 
 @defgroup LoadForeign Access to Foreign Language Programs

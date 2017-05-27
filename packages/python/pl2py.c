@@ -18,6 +18,51 @@ void YEM(const char *exp, int line, const char *file, const char *code)
   fprintf(stderr, "**** Warning,%s@%s:%d: failed while executing %s\n", code, file, line, exp);
 }
 
+static PyObject *s_to_python( const char *s, bool eval, PyObject *p0)
+{
+  PyObject *o;
+    if (eval)
+    {
+      o = PythonLookup(s,p0);
+      /*     if (!o)
+	     return o;
+      */
+    }
+    else
+    {
+      o = PythonLookupSpecial(s);
+    }
+    if (o)
+    {
+      Py_INCREF(o);
+      return CHECKNULL(YAP_MkStringTerm(s), o);
+    } else {
+      PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+      return pobj;
+    }
+}
+
+/**
+ * obtain  the object matching a certain string.
+ *
+ * @param t handle to Prolog term
+ * @param t whether should  try to evaluate evaluables.
+ *
+ * @return a Python object descriptor or NULL if failed
+ */
+X_API PyObject *string_to_python( const char *s, bool eval, PyObject *p0)
+{
+  char *buf = malloc(strlen(s)+1), *child;
+  while((child = strchr(s,'.')) != NULL ) {
+    size_t len = child - s;
+    strncpy(buf,s,len);
+    buf[len]='\0';
+    p0 = s_to_python(buf, eval, p0);
+    s = child+1;
+  }
+  return s_to_python(s, eval, p0);
+}
+  
 /**
  * term_to_python translates and evaluates from Prolog to Python
  *

@@ -2401,7 +2401,7 @@ YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   }
 #endif
 
-  Yap_InitWorkspace(Heap, Stack, Trail, Atts, yap_init->MaxTableSpaceSize,
+  Yap_InitWorkspace(yap_init, Heap, Stack, Trail, Atts, yap_init->MaxTableSpaceSize,
                     yap_init->NumberWorkers, yap_init->SchedulerLoop,
                     yap_init->DelayedReleaseLoad);
   //
@@ -3266,13 +3266,15 @@ size_t YAP_UTF8_TextLength(Term t) {
       } else {
         c = '\0';
       }
+      
       sz += utf8proc_encode_char(c, dst);
       t = TailOfTerm(t);
     }
   } else if (IsAtomTerm(t)) {
-    Atom at = AtomOfTerm(t);
-    sz = strlen(RepAtom(at)->StrOfAE);
-  } else if (IsStringTerm(t)) {
+        Atom at = AtomOfTerm(t);
+	char *s = RepAtom(at)->StrOfAE;
+        sz = strlen(s);
+   } else if (IsStringTerm(t)) {
     sz = strlen(StringOfTerm(t));
   }
   return sz;
@@ -3391,6 +3393,8 @@ X_API Int YAP_FunctorToInt(Functor f) {
   }
   return FunctorTranslations - 1;
 }
+
+ X_API void * YAP_foreign_stream(int sno){ return GLOBAL_Stream[sno].u.private_data; }
 
 X_API Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 

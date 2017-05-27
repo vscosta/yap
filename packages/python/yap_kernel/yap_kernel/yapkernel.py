@@ -12,6 +12,7 @@ from traitlets import Instance, Type, Any, List
 from .comm import CommManager
 from .kernelbase import Kernel as KernelBase
 from .zmqshell import ZMQInteractiveShell
+from .interactiveshell import YAPInteraction
 
 class YAPKernel(KernelBase):
     shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',

@@ -229,6 +229,7 @@ typedef struct stream_desc {
     struct {
       const unsigned char *buf, *ptr;
     } irl;
+void *private_data;
   } u;
 
   YAP_Int charcount, linecount, linepos;

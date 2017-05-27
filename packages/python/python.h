@@ -44,7 +44,7 @@ typedef struct s_mod_t {
 
 extern X_API YAP_Term pythonToYAP(PyObject *pVal);
 extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o);
-
+extern X_API PyObject *string_to_python( const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
 
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
@@ -175,7 +175,6 @@ extern bool python_asign(term_t t, PyObject *exp, PyObject *context);
 
 extern foreign_t python_builtin(term_t out);
 
-extern int lookupPyModule(Py_mod *q);
 extern PyObject *lookupPySymbol(const char *s, PyObject *q, PyObject **d);
 
 extern install_t install_pypreds(void);

@@ -31,7 +31,7 @@
      install(TARGETS Yapmysql
               RUNTIME DESTINATION ${dlls}
              ARCHIVE DESTINATION ${dlls}
-             LIBRARY DESTINATION ${libdir}
+             LIBRARY DESTINATION ${dlls}
               )
 	    endif()
       include_directories(${MYSQL_INCLUDE_DIR} ..)

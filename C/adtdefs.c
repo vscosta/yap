@@ -642,7 +642,7 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   p->ArityOfPE = fe->ArityOfFE;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
-  p->PredFlags = 0L;
+  p->PredFlags = UndefPredFlag;
   p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -782,7 +782,7 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->StatisticsForPred = NULL;
   p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
   p->cs.p_code.NOfClauses = 0;
-  p->PredFlags = 0L;
+  p->PredFlags = UndefPredFlag;
   p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;

@@ -1,3 +1,4 @@
+
 """An in-process kernel"""
 
 # Copyright (c) IPython Development Team.

@@ -1,4 +1,5 @@
 
+
 #define YAP_CPP_INTERFACE 1
 
 #include "yapi.hh"
@@ -162,28 +163,28 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
   RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) : YAPTerm()
+YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) 
 {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
-  Term *tt = new Term[arity];
+  Term o = Yap_MkNewApplTerm(f.f, arity);
+  Term *tt = RepAppl(o)+1;
   for (arity_t i = 0; i < arity; i++)
     tt[i] = ts[i].term();
-  mk(Yap_MkApplTerm(f.f, arity, tt));
-  delete[] tt;
+  mk(o);
   RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, std::vector<YAPTerm> ts) : YAPTerm()
+YAPApplTerm::YAPApplTerm(std::string f, std::vector<YAPTerm> ts)
 {
   BACKUP_H();
   arity_t arity = ts.size();
-  std::vector<Term> tt(arity);
+  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()),arity);
+  Term o = Yap_MkNewApplTerm(ff, arity);
+  Term *tt = RepAppl(o)+1;
   for (arity_t i = 0; i < arity; i++)
     tt[i] = ts[i].term();
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  t = Yap_MkApplTerm(ff, arity, &tt[0]);
-  RECOVER_H();
+  mk(o);
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm()
@@ -415,21 +416,11 @@ YAPVarTerm::YAPVarTerm()
 
 const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a, nullptr); }
 
-void YAPQuery::openQuery(Term t)
+void YAPQuery::openQuery(Term t, Term *ts)
 {
   CACHE_REGS
-  arity_t arity = ap->ArityOfPE;
-  if (arity)
-  {
-    Term *ts;
-    if (IsPairTerm(t))
-    {
-      ts = RepPair(t);
-    }
-    else
-    {
-      ts = RepAppl(t) + 1;
-    }
+  if (ts) {
+    arity_t arity = ap->ArityOfPE;
     for (arity_t i = 0; i < arity; i++)
     {
       XREGS[i + 1] = ts[i];
@@ -592,7 +583,7 @@ Term YAPEngine::fun(Term t)
     q.cp = CP;
     // make sure this is safe
     yhandle_t o = Yap_InitHandle(XREGS[arity]);
-    // allow Prolog style exceotion handling
+    // allow Prolog style exception handling
     LOCAL_RestartEnv = &q_env;
     if (sigsetjmp(q_env, false))
     {
@@ -624,9 +615,20 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 {
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  goal = YAPApplTerm(f, ts);
+  CELL *nts;
+  Term goal;
+
+  if (ts) {
+
+  goal = Yap_MkApplTerm(f.f, f.arity(), nts);
+          nts = RepAppl(goal)+1;
+
+} else {
+  goal = MkVarTerm();
+  nts = nullptr;
+}
+    openQuery(goal, nts);
   names = YAPPairTerm( TermNil );
-  openQuery(goal.term());
   RECOVER_MACHINE_REGS();
 }
 
@@ -634,19 +636,54 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
   /* ignore flags for now */
   BACKUP_MACHINE_REGS();
-  goal = YAPTerm( YAPApplTerm(f, ts).gt() );
-  names.= YAPPairTerm( TermNil );
-  openQuery(goal.term());
+  CELL *nts;
+  if (ts) {
+  goal =  YAPApplTerm(f, nts);
+  } else {
+   goal = YAPVarTerm();
+   nts = nullptr;
+  }
+  names = YAPPairTerm( TermNil );
+  openQuery(goal.term(), nts);
   RECOVER_MACHINE_REGS();
 }
 #endif
 
-YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap)
+YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t)
 {
   BACKUP_MACHINE_REGS();
-  goal =  YAPApplTerm(YAPFunctor(p.ap->FunctorOfPred), ts);
+ CELL *nts;
+ Term tt = t.term();
+ goal = t;
+ if (IsApplTerm(tt)) {
+     Functor f = FunctorOfTerm(tt);
+     if (IsExtensionFunctor(f))
+       nts =                                              nullptr;
+     nts = RepAppl(goal.term())+1;
+  } else if (IsPairTerm(tt)) {
+         nts = RepPair(tt);
+  } else {
+    nts = nullptr;
+  }
+  openQuery(tt, nts);
   names =  YAPPairTerm( TermNil );
-  openQuery(goal.term());
+  RECOVER_MACHINE_REGS();
+}
+
+
+YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
+  BACKUP_MACHINE_REGS();
+  arity_t arity = p.ap->ArityOfPE;
+  if (arity) {
+    goal = YAPApplTerm(YAPFunctor(p.ap->FunctorOfPred), ts).term();
+    for (int i =0; i < arity; i++)
+      XREGS[i+1]=ts[i].term();
+    openQuery(goal.term(), nullptr);
+  } else {
+    goal = YAPAtomTerm((Atom)(p.ap->FunctorOfPred));
+    openQuery(goal.term(), nullptr);
+  }
+  names = TermNil;
   RECOVER_MACHINE_REGS();
 }
 
@@ -833,7 +870,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
   }
   /* Begin preprocessor code */
   /* live */
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "$init_system");
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "initialize_prolog");
 #if __ANDROID__
   Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);
   Yap_AndroidBufp[0] = '\0';
@@ -841,20 +878,21 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
 #endif
   //yerror = YAPError();
 #if YAP_PYTHON
-
     do_init_python();
 #endif
-    YAP_Functor f = YAP_MkFunctor(YAP_LookupAtom("$init_system"), 3);
-    YAP_PredEntryPtr p = YAP_FunctorToPred( f );
+    YAP_PredEntryPtr p = YAP_AtomToPred( YAP_LookupAtom("initialize_prolog") );
     YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
     if (initq.next())
       {
+        std::cerr << "init\n" ;
 	initq.cut();
-      }
+            std::cerr << "cut\n" ;
+  }
     else
       {
-	// should throw exception
-      }
+          std::cerr << "fail\n" ;
+     }
+
 }
 
 YAPEngine::YAPEngine(int argc, char *argv[],
@@ -1072,9 +1110,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
     }
 
     Term  YAPEngine::top_level( std::string s)
-
     {
-
       /// parse string s and make term with var names
       /// available.
       Term tp;
@@ -1083,25 +1119,26 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       ARG3 = MkVarTerm();
       YAPPredicate p = YAPPredicate(YAP_TopGoal());
       YAPQuery *Q = new YAPQuery(p,0);
+      Term ts[2];
+      ts[0]= MkAddressTerm(Q);
       if (Q->next()) {
-	Term ts[2];
-	ts[0]= MkAddressTerm(Q);
 	ts[1]= ARG3;
-	return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
+      } else {
+	ts[1] = TermNil;
       }
-      YAPError();
-      return 0;
+      return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
     }
 
     Term YAPEngine::next_answer(YAPQuery * &Q) {
 
       /// parse string s and make term with var names
       /// available.
+      Term ts[2];
+      ts[0]= MkAddressTerm(Q);
       if (Q->next()) {
-	Term ts[2];
-	ts[0]= MkAddressTerm(Q);
-	ts[1]= ARG3;
-	return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
+	ts[1] = ARG3;
+      } else {
+	ts[1] = TermNil;
       }
-      return 0;
+      return YAP_MkApplTerm(YAP_MkFunctor(YAP_LookupAtom("t"), 2), 2, ts);
     }

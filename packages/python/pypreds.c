@@ -629,16 +629,15 @@ PyThreadState *tstate;
 static YAP_Int p_python_threaded(void) {
 
   PyErr_Clear();
-  PyRun_SimpleString("print( \"thread initiated\" )");
   // PyEval_ReleaseThread(tstate);
-  _threaded = true;
+  // _threaded = true;
   //    _locked = 0;
   pyErrorAndReturn(true, false);
 }
 
 static PyGILState_STATE gstate;
 
- term_t python_acquire_GIL(void) {
+term_t python_acquire_GIL(void) {
   term_t curSlot = 1; //PL_new_term_ref();
   if (!_threaded)
     pyErrorAndReturn(curSlot, false);

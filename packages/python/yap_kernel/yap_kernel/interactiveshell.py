@@ -73,7 +73,6 @@ from IPython.utils.io import ask_yes_no
 from IPython.utils.ipstruct import Struct
 from IPython.paths import get_ipython_dir
 from IPython.utils.path import get_home_dir, get_py_filename, ensure_dir_exists
-from IPython.utils.process import system, getoutput
 from IPython.utils.py3compat import (builtin_mod, unicode_type, string_types,
                                      with_metaclass, iteritems)
 from IPython.utils.strdispatch import StrDispatch
@@ -93,7 +92,8 @@ bindvars = namedtuple('bindvars', 'list')
 library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
-
+python_query = namedtuple('python_query', 'query_mgr string')
+python_output = namedtuple('python_output', 'oldOut oldErryapi')
 
 class YAPInteraction:
     """An enhanced, interactive shell for YAP."""
@@ -114,9 +114,11 @@ class YAPInteraction:
         # args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
         self.yapeng = yap.YAPEngine(self.args)
         self.q = None
-        self.yapeng.goal(use_module(library('yapi')))
         self.shell = shell
         self.run = False
+        self.yapeng.goal(use_module(library('python')))
+        self.yapeng.goal(use_module(library('yapi')))
+        self.yapeng.goal(python_output(OldOi                              ))
 
     def eng(self):
         return self.yapeng
@@ -126,9 +128,41 @@ class YAPInteraction:
             self.q.close()
             self.q = None
 
-    def numbervars(self, l):
-        return self.yapeng.fun(bindvars(l))
+    def more(self):
+        if self.q.next():
+            if self.q.deterministic():
+                # done
+                self.q.close()
+                self.q = None
+            return True
+        self.q.close()
+        self.q = None
+        return False
 
+    def query_prolog(self, s):
+        if self.q:
+            return self.restart(s)
+        if not s:
+            return True
+        self.q = self.yapeng.qt(python_query(self,s))
+        # for eq in vs:
+        #     if not isinstance(eq[0],str):
+        #         print( "Error: Variable Name matches a Python Symbol")
+        #         return False
+        return self.more()
+
+    def restart(self, s):
+        if s.startswith(';') or s.startswith('y'):
+            return self.more()
+        elif s.startswith('#'):
+            exec(s.lstrip('#'))
+        elif s.startswith('*'):
+            while self.more():
+                pass
+            print("No (more) answers")
+        self.q.close()
+        self.q = None
+        return False
 
 
     def run_cell(self, s, store_history=True, silent=False,
@@ -160,63 +194,48 @@ class YAPInteraction:
                    result : :class:`ExecutionResult`
                    """
 
+        # construct a query from a one-line string
+        # q is opaque to Python
+        # vs is the list of variables
+        # you can print it out, the left-side is the variable name,
+        # the right side wraps a handle to a variable
+        # pdb.set_trace()
+        #     #pdb.set_trace()
+        # atom match either symbols, or if no symbol exists, strings, In this case
+        # variable names should match strings
+        # ask = True
+        # launch the query
         result = ExecutionResult()
-        result.execution_count = self.shell.execution_count
-
-        def error_before_exec(value):
-            result.error_before_exec = value
-            self.shell.last_execution_succeeded = False
+        if not s or s.isspace():
+            self.shell.last_execution_succeeded = True
             return result
 
-        # inspect for ?? in the text
-        # print(st)
-        #
-        maxits = 2
+        if store_history:
+            result.execution_count = self.shell.execution_count
 
-        s = s.strip('\n\j\r\t ')
-        if not self.q or s:
-            (self.q,out) = self.top_level(s, out)
-        else:
-            out = q.next_answer()
-        if self.q:
-            st = s.strip('\n\j\r\t ')
-            if st and st == '*':
-                maxits = 1
-            elif st and st.isdigit():
-                maxits = int(st)*2
-            elif st and st != ';':
-                self.closeq()
-        if not self.q:
-            try:
-                if s:
-                    self.q = self.yapeng.query(ya[q.__hash__])
-                    self.vs = self.q.namedVarsVector()
-                else:
-                    return
-            except SyntaxError:
-                return error_before_exec(sys.exc_info()[1])
-
-        cell = s  # cell has to exist so it can be stored/logged
-        # Store raw and processed history
-        # if not silent:
-        #    self.shell..logger.log(cell, s)
-        has_raised = False
         try:
-            while (maxits != 0):
-                self.do_loop(maxits, gs)
-        except Exception:
-            result.error_in_exec = sys.exc_info()[1]
-            has_raised = True
-            self.closeq()
+            self.query_prolog(s)
+            self.shell.last_execution_succeeded = True
+            result.result = True
+        except Exception as e:
+            print(e)
+            self.shell.last_execution_succeeded = False
+            result.result = False
 
-        self.shell.last_execution_succeeded = not has_raised
-        result.result = self.shell.last_execution_succeeded
         # Reset this so later displayed values do not modify the
         # ExecutionResult
         # self.displayhook.exec_result = None
 
-        # self.events.trigger('post_execute')
-        # if not silent:
-        #    self.events.trigger('post_self.run_cell')
+        #self.events.trigger('post_execute')
+        #if not silent:
+        #    self.events.trigger('post_run_cell')
+
+        if store_history:
+            # Write output to the database. Does nothing unless
+            # history output logging is enabled.
+            # self.history_manager.store_output(self.execution_count)
+            # Each cell is a *single* input, regardless of how many lines it has
+            self.shell.execution_count += 1
 
         return result
+        

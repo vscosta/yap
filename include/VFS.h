@@ -53,7 +53,7 @@ typedef enum vfs_flags {
   VFS_CAN_SEEK = 0x4,      /// we can seek within files in this space
   VFS_HAS_PREFIX = 0x8,    /// has a prefix that identifies a file in this space
   VFS_HAS_SUFFIX = 0x10,   /// has a suffix that describes the file.
-  VFS_HAS_FUNCTION = 0x10, /// has a suffix that describes the file.
+  VFS_HAS_FUNCTION = 0x20 /// has a suffix that describes the file.
 } vfs_flags_t;
 
 typedef union {
@@ -76,34 +76,29 @@ typedef struct vfs {
   const char *suffix;
   bool (*id)(struct vfs *me, const char *s);
   /** operations */
-  bool (*open)(struct vfs *me, struct stream_desc *st, const char *s,
-               const char *io_mode);
-  ; /// open an object
+  void *(*open)(const char *s,
+               const char *io_mode); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
-  bool (*close)(struct stream_desc *stream);   /// close the object
-  int (*get_char)(struct stream_desc *stream); /// get an octet to the stream
-  int (*putc)(int ch,
-              struct stream_desc *stream); /// output an octet to the stream
-  int64_t (*seek)(struct stream_desc *stream, int64_t offset,
+  bool (*close)(int sno);   /// close the object
+  int (*get_char)(int sno); /// get an octet to the stream
+  int (*put_char)(int sno, wchar_t ch); /// output an octet to the stream
+  void (*flush)(int sno); /// flush a stream
+  int64_t (*seek)(int sno, int64_t offset,
                   int whence); /// jump around the stream
-  void *(*opendir)(struct vfs *me,
-                   const char *s); /// open a directory object, if one exists
-  const char *(*nextdir)(
-      void *d); /// walk to the next entry in a directory object
+  void *(*opendir)(const char *s); /// open a directory object, if one exists
+  const char *(*nextdir)(void *d); /// walk to the next entry in a directory object
   void (*closedir)(void *d);
   ; /// close access a directory object
-  bool (*stat)(struct vfs *me, const char *s,
+  bool (*stat)(const char *s,
                vfs_stat *); /// obtain size, age, permissions of a file.
-  bool (*isdir)(struct vfs *me, const char *s); /// verify whether is directory.
-  bool (*exists)(struct vfs *me,
-                 const char *s); /// verify whether a file exists.
-  bool (*chdir)(struct vfs *me,
-                const char *s);      /// set working directory (may be virtual).
-  encoding_t enc;                    /// how the file is encoded.
-  YAP_Term (*parsers)(void *stream); // a set of parsers that can read the
+  bool (*isdir)(const char *s); /// verify whether is directory.
+  bool (*exists)(const char *s); /// verify whether a file exists.
+  bool (*chdir)(const char *s);      /// set working directory (may be virtual).
+  encoding_t enc;                    /// default file encoded.
+  YAP_Term (*parsers)(int sno); // a set of parsers that can read the
                                      // stream and generate a YAP_Term
-  int (*writers)(int ch, void *stream);
-  ; /// convert a YAP_Term into this space
+  int (*writers)(int ch, int sno );
+  /// convert a YAP_Term into this space
   const char *virtual_cwd;
   /** VFS dep
       endent area */
@@ -114,16 +109,14 @@ typedef struct vfs {
 extern VFS_t *GLOBAL_VFS;
 
 static inline VFS_t *vfs_owner(const char *fname) {
-  return NULL;
   VFS_t *me = GLOBAL_VFS;
   int d;
-  size_t sz0 = strlen(fname);
+  size_t sz0 = strlen(fname), sz;
 
   while (me) {
-    if (me->vflags & VFS_HAS_PREFIX && strstr(fname, me->prefix))
+    if ((me->vflags & VFS_HAS_PREFIX) && strstr(fname, me->prefix) == fname)
       return me;
-    size_t sz = strlen(me->suffix);
-    if (me->vflags & VFS_HAS_SUFFIX && (d = (sz0 - sz)) >= 0 &&
+    if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) && (d = (sz0 - sz)) >= 0 &&
         strcmp(fname + d, me->suffix) == 0)
       return me;
     if (me->vflags & VFS_HAS_FUNCTION && (me->id(me, fname))) {

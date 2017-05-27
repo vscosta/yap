@@ -32,8 +32,8 @@ IF(WIN32)
       ARCHIVE DESTINATION ${libdir} )
   else()
     install(TARGETS  YAPPython
-      LIBRARY DESTINATION ${libdir}
-      RUNTIME DESTINATION ${libdir}
-      ARCHIVE DESTINATION ${libdir} )
+      LIBRARY DESTINATION ${dlls}
+      RUNTIME DESTINATION ${dlls}
+      ARCHIVE DESTINATION ${dlls} )
   endif()
 

@@ -109,7 +109,6 @@ Data types are
 *************************************************************************************************************/
 
 
-:- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(apply_macros)).
 :- use_module(library(charsio)).
@@ -153,5 +152,3 @@ add_cwd_to_python :-
 	% done
 
 :- initialization( load_foreign_files([libYAPPython], [], init_python), now ).
-
-:- initialization( load_foreign_library(foreign(libYAPPython), init_python), now ).

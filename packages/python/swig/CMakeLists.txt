@@ -72,12 +72,16 @@ add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${pl_os_library} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os
     COMMAND  ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/setup.py sdist bdist_wheel
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
+DEPENDS  STARTUP ${dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME}  )
 
 
-	  install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --no-index -f dist yap4py
+
+install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  --force --no-index -f dist yap4py
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
  DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+
+install(FILES yapi.yap DESTINATION ${libpl})
+
 
 
 	  if (WITH_DOCS AND DOXYGEN_FOUND)

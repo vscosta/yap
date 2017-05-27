@@ -1020,6 +1020,7 @@ static void retract_all(PredEntry *p, int in_use) {
     p->OpcodeOfPred = FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
+    p->PredFlags |= UndefPredFlag;
   }
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
@@ -1664,7 +1665,7 @@ bool Yap_constPred(PredEntry *p) {
       return false;
     }
   }
- 
+
   return false;
 }
 
@@ -1809,6 +1810,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
       p->PredFlags = p->PredFlags | CompiledPredFlag;
   }
   if (p->cs.p_code.FirstClause == NULL) {
+      p->PredFlags &= ~UndefPredFlag;
     if (!(pflags & DynamicPredFlag)) {
       add_first_static(p, cp, spy_flag);
       /* make sure we have a place to jump to */
@@ -1910,6 +1912,7 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
       /* got rid of all clauses */
       ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
       ap->OpcodeOfPred = UNDEF_OPCODE;
+      ap->PredFlags |= UndefPredFlag;
       ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
     } else {
       yamop *ncl = cl->ClNext->ClCode;
@@ -1978,6 +1981,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
     Yap_AddClauseToIndex(pe, cp, mode == asserta);
   }
   if (pe->cs.p_code.FirstClause == NULL) {
+      pe->PredFlags &= ~UndefPredFlag;
     add_first_static(pe, cp, FALSE);
     /* make sure we have a place to jump to */
     if (pe->OpcodeOfPred == UNDEF_OPCODE ||
@@ -2663,6 +2667,7 @@ static Int p_mk_d(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     pe->OpcodeOfPred = FAIL_OPCODE;
+    pe->PredFlags &= ~UndefPredFlag;
   }
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   pe->PredFlags |= LogUpdatePredFlag;
@@ -2820,7 +2825,7 @@ static Int p_kill_dynamic(USES_REGS1) { /* '$kill_dynamic'(P,M)       */
   pe->OpcodeOfPred = UNDEF_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
       (yamop *)(&(pe->OpcodeOfPred));
-  pe->PredFlags = 0;
+      pe->PredFlags = UndefPredFlag;
   UNLOCKPE(62, pe);
   return (TRUE);
 }

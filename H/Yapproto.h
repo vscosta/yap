@@ -14,6 +14,12 @@
 *************************************************************************/
 
 /* prototype file for Yap */
+/// @file Prototype Declarations
+
+#ifndef YAP_PROTOS_H
+#define YAP_PROTOS_H 1
+
+#include "YapDefs.h"
 
 /* absmi.c */
 extern Int Yap_absmi(int);
@@ -261,7 +267,7 @@ extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
 
 /* init.c */
 extern int Yap_IsOpType(char *);
-extern void Yap_InitWorkspace(UInt, UInt, UInt, UInt, UInt, int, int, int);
+extern void Yap_InitWorkspace(struct yap_boot_params *, UInt, UInt, UInt, UInt, UInt, int, int, int);
 extern bool Yap_AddCallToFli(struct pred_entry *pe, CPredicate call);
 extern bool Yap_AddRetryToFli(struct pred_entry *pe, CPredicate re);
 extern bool Yap_AddCutToFli(struct pred_entry *pe, CPredicate cut);
@@ -285,7 +291,7 @@ extern void Yap_InitInlines(void);
 extern int Yap_eq(Term, Term);
 
 /* iopreds.c */
-extern void Yap_InitPlIO(void);
+extern void Yap_InitPlIO( struct yap_boot_params *ts );
 extern void Yap_InitBackIO(void);
 extern void Yap_InitIOPreds(void);
 extern void Yap_DebugPlWrite(Term t);
@@ -512,3 +518,5 @@ extern  void init_myddas(void);
 #if !HAVE_STRNCPY
 #define strncpy(X, Y, Z) strcpy(X, Y)
 #endif
+
+#endif /* YAP_PROTOS_H */

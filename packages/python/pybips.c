@@ -15,7 +15,7 @@
 static PyObject *finalLookup(PyObject *i, const char *s) {
   PyObject *rc;
   if (i == NULL)
-    return Py_None;
+    return NULL;
   if (strcmp(s,"none") == 0)
     return Py_None;
   if (PyDict_Check(i)) {
@@ -34,7 +34,7 @@ static PyObject *finalLookup(PyObject *i, const char *s) {
 
 PyObject *PythonLookupSpecial(const char *s) {
   if (s == NULL)
-    return Py_None;
+    return NULL;
   if (strcmp(s, "true") == 0) {
     return Py_True;
   }
@@ -52,9 +52,9 @@ PyObject *PythonLookupSpecial(const char *s) {
 }
 
 PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
-  PyObject *out = Py_None;
+  PyObject *out = NULL;
   if (!sp)
-    return Py_None;
+    return NULL;
   if ((out = finalLookup(pContext, sp))) {
     return out;
   }
@@ -66,54 +66,32 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
     return out;
   }
   PyObject *py_Local = PyEval_GetLocals();
-  if ((out = finalLookup(py_Local, sp))) {
+  if ((out = finalLookup(py_Local, sp)) && out != Py_None) {
     return out;
   }
   PyObject *py_Global = PyEval_GetGlobals();
-  if ((out = finalLookup(py_Global, sp))) {
+  if ((out = finalLookup(py_Global, sp)) ) {
       return out;
   }
   if ((out = finalLookup(py_ModDict, sp))) {
       return out;
   }
-  if ((out = finalLookup(py_Main, sp))) {
+  if ((out = finalLookup(py_Main, sp)) ) {
       return out;
   }
-  return Py_None;
-}
-
-int lookupPyModule(Py_mod *q) {
-  char buf[1024], *S = buf;
-  int prefix = 0;
-  int j;
-  py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
-  PyObject *ob;
-  S[0] = '\0';
-  while (YAP_IsAtomTerm(q->names[prefix])) {
-
-    strcat(S, YAP_AtomName(YAP_AtomOfTerm(q->names[prefix])));
-    strcat(S, ".");
-    S += strlen(S);
-    prefix++;
-  }
-  for (j = prefix; j > 0; j--) {
-    S = strrchr(buf, '.');
-    S[0] = '\0';
-    if ((ob = PyDict_GetItemString(py_ModDict, buf)) != NULL &&
-        PyModule_Check(ob)) {
-      Py_INCREF(ob);
-      q->mod = ob;
-      return j;
-    }
-  }
-  return 0;
+  return NULL;
 }
 
 PyObject *PythonLookup(const char *s, PyObject *oo) {
   PyObject *o;
   if ((o = PythonLookupSpecial(s)))
     return o;
-  return lookupPySymbol(s, oo, NULL);
+  if ((o = lookupPySymbol(s, oo, NULL)) == NULL)
+    return NULL;
+  else {
+    Py_INCREF(o);
+    return o;
+  }
 }
 
 PyObject *find_obj(PyObject *ob, term_t l, bool eval) {

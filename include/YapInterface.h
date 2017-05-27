@@ -676,6 +676,8 @@ extern X_API int YAP_RequiresExtraStack(size_t);
 extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                                      YAP_init_args *iap);
 
+extern X_API void *YAP_foreign_stream(int sno);
+
 extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);
 
 extern X_API YAP_Atom YAP_IntToAtom(YAP_Int i);

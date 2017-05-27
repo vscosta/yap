@@ -58,11 +58,12 @@ class YAPQuery : public YAPPredicate
   q_handles = LOCAL_CurSlot;
 }
 
-  void openQuery(Term t);
+  void openQuery(Term t, Term *pt);
 
 
 public:
 YAPQuery() {
+  openQuery(TermTrue, nullptr);
 };
   /// main constructor, uses a predicate and an array of terms
   ///
@@ -89,14 +90,24 @@ YAPQuery() {
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames)
   {
+    CELL *qt = nullptr;
       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                           LOCAL_CurSlot);
       if (!ap)
           return;
       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
       goal = YAPTerm(tgoal);
+      if (IsPairTerm(tgoal)) {
+        qt = RepPair(tgoal);
+        tgoal = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("consult"), 1),1,qt);
+      } else if (IsApplTerm(tgoal)) {
+        Functor f = FunctorOfTerm(tgoal);
+        if (!IsExtensionFunctor(f)) {
+          qt = RepAppl(tgoal)+1;
+        }
+      }
       names = YAPPairTerm(tnames);
-      openQuery(tgoal);
+      openQuery(tgoal, qt);
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
   // {
@@ -113,7 +124,7 @@ YAPQuery() {
   ///
   /// It i;
   ///};
-
+  YAPQuery(YAPTerm t);
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
@@ -383,6 +394,10 @@ public:
   bool hasError() { return LOCAL_Error_TYPE != YAP_NO_ERROR; }
   /// build a query on the engine
   YAPQuery *query(const char *s) { return new YAPQuery(s); };
+  /// build a query from a term
+  YAPQuery *query(YAPTerm t) { return new YAPQuery(t); };
+  /// build a query from a Prolog term (internal)
+  YAPQuery *qt(Term t) { return new YAPQuery(YAPTerm(t)); };
   /// current module for the engine
   YAPModule currentModule() { return YAPModule(); }
   /// given a handle, fetch a term from the engine
