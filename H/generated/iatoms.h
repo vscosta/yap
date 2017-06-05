@@ -409,6 +409,7 @@
   AtomTxt = Yap_LookupAtom("txt"); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
+  AtomUndefinedQuery = Yap_LookupAtom("undefined_query"); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = Yap_LookupAtom("underflow"); TermUnderflow = MkAtomTerm(AtomUnderflow);
@@ -578,6 +579,7 @@
   FunctorTraceMetaCall = Yap_MkFunctor(AtomTraceMetaCall,3);
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
+  FunctorUndefinedQuery = Yap_MkFunctor(AtomUndefinedQuery,3);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);

@@ -230,6 +230,7 @@ open_pipe_stream (USES_REGS1)
   st->linecount = 1;
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
+  st->vfs = NULL;
   Yap_DefaultStreamOps( st );
   st->u.pipe.fd = filedes[0];
   st->file = fdopen( filedes[0], "r");
@@ -242,6 +243,7 @@ open_pipe_stream (USES_REGS1)
   st->linepos = 0;
   st->charcount = 0;
   st->linecount = 1;
+  st->vfs = NULL;
   st->stream_putc = PipePutc;
   st->stream_getc = PipeGetc;
   Yap_DefaultStreamOps( st );

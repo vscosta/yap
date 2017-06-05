@@ -6,39 +6,53 @@ import sys
 # import pdb
 from collections import namedtuple
 
+global engine, handler
+
 yap_lib_path = os.path.dirname(__file__)
 
-use_module = namedtuple( 'use_module', 'file')
-bindvars = namedtuple( 'bindvars', 'list')
-library = namedtuple( 'library', 'list')
-v = namedtuple( '_', 'slot')
+use_module = namedtuple('use_module', 'file')
+bindvars = namedtuple('bindvars', 'list')
+library = namedtuple('library', 'list')
+v = namedtuple( 'v', 'slot')
 yap_query = namedtuple( 'yap_query', 'query owner')
+jupyter_query = namedtuple( 'jupyter_query', 'vars dict')
+python_query = namedtuple( 'python_query', 'vars dict')
+yapi_query = namedtuple( 'yapi_query', 'vars dict')
 
 
-def numbervars(  engine, l ):
-    rc = engine.fun(bindvars(l))
+def numbervars(  q ):
+    Dict = {}
+    if True:
+        engine.goal(yapi_query( q.namedVars(), Dict))
+        return Dict
+    rc = q.namedVarsVector()
+    q.r = q.goal().numbervars()
+    print( rc )
     o = []
     for i  in rc:
-        if i[0] == "=":
-            o = o + [i[1]]
+        if len(i) == 2:
+            do = str(i[0]) + " = " + str( i[1] ) + "\n"
+            o += do
+            print(do)
         else:
-            o = o +[i]
+            do = str(i[0]) + " = " + str( i[1] ) + "\n"
+            o += do
+            print(do)
     return o
 
-    def answer(q):
-        try:
-            return q.next()
-        except Exception as e:
-            print(e.args[1])
-            return False
+def answer(q):
+    try:
+        return q.next()
+    except Exception as e:
+        print(e.args[1])
+        return False
 
+def query_prolog(engine, s):
+    import pdb; pdb.set_trace()
     #
     # construct a query from a one-line string
     # q is opaque to Python
-    if g0:
-        q = g0
-    else:
-        q = engine.run_query(s)
+    q = engine.query(s)
     # vs is the list of variables
     # you can print it out, the left-side is the variable name,
     # the right side wraps a handle to a variable
@@ -53,6 +67,7 @@ def numbervars(  engine, l ):
     # ask = True
     # launch the query
     while answer(q):
+        print( handler( q ))
         # deterministic = one solution
         if q.deterministic():
             # done
@@ -83,11 +98,10 @@ def boot_yap(**kwargs):
     args.setYapLibDir(yap_lib_path)
     args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
     engine = yap.YAPEngine(args)
-    engine.goal( use_module(library('yapi') ) )
+    engine.goal( use_module(library('python') ) )
     return engine
 
 def live(**kwargs):
-    boot_yap(**kwargs)
     loop = True
     while loop:
         try:
@@ -116,4 +130,6 @@ def live(**kwargs):
 #
 
 if __name__ == "__main__":
-     live()
+    engine = boot_yap()
+    handler = numbervars
+    live()

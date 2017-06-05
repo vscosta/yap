@@ -126,12 +126,12 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
  * @param  mod                     current module
  * @return                         su
  */
-Term Yap_ExecuteCallMetaCall(Term mod) {
+Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   CACHE_REGS
     Term ts[4];
-  ts[0] = ARG1;
+  ts[0] = g;
   ts[1] = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
-  ts[2] = ARG1;
+  ts[2] = g;
   ts[3] = mod;
   if (Yap_GetGlobal(AtomDebugMeta) == TermOn) {
     return Yap_MkApplTerm(PredTraceMetaCall->FunctorOfPred, 3, ts);

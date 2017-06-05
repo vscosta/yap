@@ -191,7 +191,7 @@ extern void Yap_InitEval(void);
 
 /* exec.c */
 extern void Yap_fail_all(choiceptr bb USES_REGS);
-extern Term Yap_ExecuteCallMetaCall(Term);
+extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
 extern bool Yap_JumpToEnv(Term);
 extern Term Yap_RunTopGoal(Term, bool);

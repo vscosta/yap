@@ -414,6 +414,7 @@ A 	Tuple			N	"tuple"
 A	Txt			N	"txt"
 A	TypeError		N	"type_error"
 A	Undefined		N	"undefined"
+A	UndefinedQuery	N	"undefined_query"
 A	Undefp			F	"$undefp"
 A	Undefp0			F	"$undefp0"
 A	Underflow		N	"underflow"
@@ -583,6 +584,7 @@ F	TimeoutError		TimeoutError	2
 F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
+F   	UndefinedQuery  	UndefinedQuery  3
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	WriteTerm		WriteTerm	2

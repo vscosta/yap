@@ -249,8 +249,8 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     if (st->vfs) {
       st->stream_wputc = st->vfs->put_char;
       st->stream_wgetc = st->vfs->get_char;
-      st->stream_putc = FilePutc;
-      st->stream_getc = PlGetc;
+      st->stream_putc = st->vfs->put_char;
+      st->stream_wgetc = st->vfs->get_char;
       return;
     }
   st->stream_wputc = put_wchar;
@@ -285,13 +285,14 @@ static void InitFileIO(StreamDesc *s) {
   Yap_DefaultStreamOps(s);
 }
 
-static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
+static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, void *vfsp) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   s->file = file;
   s->status = flags;
   s->linepos = 0;
   s->linecount = 1;
   s->charcount = 0.;
+  s->vfs = vfsp;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
   unix_upd_stream_info(s);
@@ -339,13 +340,13 @@ Term Yap_StreamUserName(int sno) {
 static void InitStdStreams(void) {
   CACHE_REGS
   if (LOCAL_sockets_io) {
-    InitStdStream(StdInStream, Input_Stream_f, NULL);
-    InitStdStream(StdOutStream, Output_Stream_f, NULL);
-    InitStdStream(StdErrStream, Output_Stream_f, NULL);
+    InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
+    InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
+    InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
   } else {
-    InitStdStream(StdInStream, Input_Stream_f, stdin);
-    InitStdStream(StdOutStream, Output_Stream_f, stdout);
-    InitStdStream(StdErrStream, Output_Stream_f, stderr);
+    InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
+    InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
+    InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
   }
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
@@ -1056,10 +1057,11 @@ static void check_bom(int sno, StreamDesc *st) {
 }
 
 bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                    encoding_t encoding, stream_flags_t flags, Atom open_mode) {
+                    encoding_t encoding, stream_flags_t flags, Atom open_mode, void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
   st->status = flags;
 
+  st->vfs = vfs;
   st->charcount = 0;
   st->linecount = 1;
   if (flags & Binary_Stream_f) {
@@ -1288,9 +1290,9 @@ do_open(Term file_name, Term t2,
   if (st - GLOBAL_Stream < 3) {
     flags |= RepError_Prolog_f;
   }
-  st->vfs = NULL;
-  if ((st->vfs = vfs_owner(fname)) != NULL) {
-    st->u.private_data = st->vfs->open(fname,  io_mode);
+    struct vfs *vfsp = NULL;
+  if ((vfsp = vfs_owner(fname)) != NULL) {
+    st->u.private_data = vfsp->open(fname,  io_mode);
     fd = NULL;
     if (st->u.private_data == NULL)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s", fname));
@@ -1317,7 +1319,7 @@ do_open(Term file_name, Term t2,
 #endif
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
   flags &= ~(Free_Stream_f);
-  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
+  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode, vfsp))
     return false;
   if (open_mode == AtomWrite) {
     if (needs_bom && !write_bom(sno, st))
@@ -1514,7 +1516,7 @@ int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
       at = AtomWrite;
   } else
     at = AtomRead;
-  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at);
+  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, NULL);
   return sno;
 }
 

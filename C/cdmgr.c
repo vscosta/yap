@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -19,8 +20,8 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
 #include "Yap.h"
-#include "clause.h"
 #include "YapEval.h"
+#include "clause.h"
 #include "tracer.h"
 #include "yapio.h"
 #ifdef YAPOR
@@ -115,7 +116,8 @@ restart:
     Yap_Error(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
-    return RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+     return ap;
   } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
     return Yap_FindLUIntKey(IntegerOfTerm(t));
   } else if (IsPairTerm(t)) {
@@ -140,7 +142,8 @@ restart:
       t = ArgOfTerm(2, t);
       goto restart;
     }
-    return RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    return ap;
   } else {
     Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
   }
@@ -496,7 +499,7 @@ static void RemoveMainIndex(PredEntry *ap) {
 #ifdef TABLING
              || ap->PredFlags & TabledPredFlag
 #endif /* TABLING */
-             ) {
+  ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
     ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
         (yamop *)(&(ap->OpcodeOfPred));
@@ -1453,7 +1456,7 @@ static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
   CACHE_REGS
 
   LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
-    LOCAL_ErrorMessage = Malloc( 256 );
+  LOCAL_ErrorMessage = Malloc(256);
 
   if (in_use) {
     if (Arity == 0)
@@ -1648,7 +1651,7 @@ bool Yap_constPred(PredEntry *p) {
   pred_flags_t pflags;
   pflags = p->PredFlags;
 
- if (pflags &
+  if (pflags &
       ((UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
         TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)))
     return true;
@@ -1810,7 +1813,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
       p->PredFlags = p->PredFlags | CompiledPredFlag;
   }
   if (p->cs.p_code.FirstClause == NULL) {
-      p->PredFlags &= ~UndefPredFlag;
+    p->PredFlags &= ~UndefPredFlag;
     if (!(pflags & DynamicPredFlag)) {
       add_first_static(p, cp, spy_flag);
       /* make sure we have a place to jump to */
@@ -1911,9 +1914,14 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     if (ap->cs.p_code.LastClause == cl->ClCode) {
       /* got rid of all clauses */
       ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
+      if (!(ap->PredFlags & MultiFileFlag)) {
+        ap->OpcodeOfPred = FAIL_OPCODE;
+    } else {
       ap->OpcodeOfPred = UNDEF_OPCODE;
       ap->PredFlags |= UndefPredFlag;
-      ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+    }
+      ap->cs.p_code.TrueCodeOfPred = (yamop
+         *)(&(ap->OpcodeOfPred));
     } else {
       yamop *ncl = cl->ClNext->ClCode;
       ap->cs.p_code.FirstClause = ncl;
@@ -1981,7 +1989,6 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
     Yap_AddClauseToIndex(pe, cp, mode == asserta);
   }
   if (pe->cs.p_code.FirstClause == NULL) {
-      pe->PredFlags &= ~UndefPredFlag;
     add_first_static(pe, cp, FALSE);
     /* make sure we have a place to jump to */
     if (pe->OpcodeOfPred == UNDEF_OPCODE ||
@@ -2433,7 +2440,8 @@ static Int p_new_multifile(USES_REGS1) { /* '$new_multifile'(+N,+Ar,+Mod)  */
     UNLOCKPE(26, pe);
     addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
-  }
+}
+pe->PredFlags &= ~UndefPredFlag;
   if (pe->PredFlags & MultiFileFlag) {
     UNLOCKPE(26, pe);
     return true;
@@ -2467,6 +2475,7 @@ static Int p_is_multifile(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(27, pe);
+
   out = (pe->PredFlags & MultiFileFlag);
   UNLOCKPE(44, pe);
   return (out);
@@ -2510,15 +2519,20 @@ static Int new_system_predicate(
 static Int
     p_is_system_predicate(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
   PredEntry *pe;
-  bool out;
+  Term t1 = Deref(ARG1);
 
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "system_predicate");
+  // pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
+  // if (!pe)
+  pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
+  // if (!pe) pe = Yap_get_pred(t1, USER_MODULE, "system_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
-  PELOCK(27, pe);
-  out = (pe->PredFlags & SystemPredFlags);
-  UNLOCKPE(44, pe);
-  return (out);
+  return (pe->ModuleOfPred == 0);
+  //   return true;
+  // PELOCK(27, pe);
+  // out = (pe->PredFlags & SystemPredFlags);
+  // UNLOCKPE(44, pe);
+  // return (out);
 }
 
 static Int p_is_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
@@ -2719,7 +2733,7 @@ static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
 }
 
 static Int p_set_pred_module(USES_REGS1) { /* '$set_pred_module'(+P,+Mod)
-                                              */
+                                            */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), CurrentModule, "set_pred_module/1");
@@ -2732,7 +2746,7 @@ static Int p_set_pred_module(USES_REGS1) { /* '$set_pred_module'(+P,+Mod)
 }
 
 static Int p_set_pred_owner(USES_REGS1) { /* '$set_pred_module'(+P,+File)
-                                             */
+                                           */
   PredEntry *pe;
   Term a2 = Deref(ARG2);
 
@@ -2772,7 +2786,8 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(59, pe);
-  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+  if (pe->OpcodeOfPred == UNDEF_OPCODE &&
+  !(pe->PredFlags & (LogUpdatePredFlag|DynamicPredFlag|MultiFileFlag))) {
     UNLOCKPE(59, pe);
     return false;
   }
@@ -2788,7 +2803,7 @@ static Int p_undefined(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(36, pe);
-  if (pe->PredFlags & (CPredFlag | UserCPredFlag | TestPredFlag | AsmPredFlag |
+  if (pe->PredFlags & (CPredFlag | UserCPredFlag | TestPredFlag | AsmPredFlag |MultiFileFlag|
                        DynamicPredFlag | LogUpdatePredFlag | TabledPredFlag)) {
     UNLOCKPE(57, pe);
     return FALSE;
@@ -2825,7 +2840,7 @@ static Int p_kill_dynamic(USES_REGS1) { /* '$kill_dynamic'(P,M)       */
   pe->OpcodeOfPred = UNDEF_OPCODE;
   pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
       (yamop *)(&(pe->OpcodeOfPred));
-      pe->PredFlags = UndefPredFlag;
+  pe->PredFlags = UndefPredFlag;
   UNLOCKPE(62, pe);
   return (TRUE);
 }
@@ -3029,7 +3044,7 @@ void Yap_HidePred(PredEntry *pe) {
 }
 
 static Int /* $system_predicate(P) */
-    p_stash_predicate(USES_REGS1) {
+p_stash_predicate(USES_REGS1) {
   PredEntry *pe;
 
   Term t1 = Deref(ARG1);
@@ -3072,7 +3087,7 @@ restart_system_pred:
 }
 
 static Int /* $system_predicate(P) */
-    hide_predicate(USES_REGS1) {
+hide_predicate(USES_REGS1) {
   PredEntry *pe;
 
   Term t1 = Deref(ARG1);
@@ -3115,7 +3130,7 @@ restart_system_pred:
 }
 
 static Int /* $hidden_predicate(P) */
-    p_hidden_predicate(USES_REGS1) {
+p_hidden_predicate(USES_REGS1) {
   PredEntry *pe;
 
   Term t1 = Deref(ARG1);
@@ -3266,7 +3281,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb,
 }
 
 static Int /* $hidden_predicate(P) */
-    p_log_update_clause(USES_REGS1) {
+p_log_update_clause(USES_REGS1) {
   PredEntry *pe;
   Term t1 = Deref(ARG1);
   Int ret;
@@ -3286,7 +3301,7 @@ static Int /* $hidden_predicate(P) */
 }
 
 static Int /* $hidden_predicate(P) */
-    p_continue_log_update_clause(USES_REGS1) {
+p_continue_log_update_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
@@ -3416,7 +3431,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th,
 }
 
 static Int /* $hidden_predicate(P) */
-    p_log_update_clause_erase(USES_REGS1) {
+p_log_update_clause_erase(USES_REGS1) {
   PredEntry *pe;
   Term t1 = Deref(ARG1);
   Int ret;
@@ -3437,7 +3452,7 @@ static Int /* $hidden_predicate(P) */
 }
 
 static Int /* $hidden_predicate(P) */
-    p_continue_log_update_clause_erase(USES_REGS1) {
+p_continue_log_update_clause_erase(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
@@ -3878,7 +3893,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
 }
 
 static Int /* $hidden_predicate(P) */
-    p_static_clause(USES_REGS1) {
+p_static_clause(USES_REGS1) {
   PredEntry *pe;
   Term t1 = Deref(ARG1);
   yamop *new_cp;
@@ -3897,7 +3912,7 @@ static Int /* $hidden_predicate(P) */
 }
 
 static Int /* $hidden_predicate(P) */
-    p_continue_static_clause(USES_REGS1) {
+p_continue_static_clause(USES_REGS1) {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
@@ -4056,7 +4071,7 @@ static Int
 #ifdef TABLING
                        | TabledPredFlag
 #endif /* TABLING */
-                       )) {
+                      )) {
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t,
               "dbload_get_space/4");
     return FALSE;

@@ -156,6 +156,7 @@
   struct pred_entry  *PredTraceMetaCall_;
   struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
+  struct pred_entry  *PredUndefinedQuery_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
   int  Yap_do_low_level_trace_;

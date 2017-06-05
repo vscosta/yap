@@ -114,6 +114,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
   // like any file stream.
   st->file = f = fmemopen((void *)buf, nchars, "r");
   st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
+  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
   return true;
 }
@@ -139,7 +140,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
   // like any file stream.
   f = st->file = fmemopen((void *)buf, nchars, "r");
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-  Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead);
+  Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead, NULL);
 // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
@@ -181,6 +182,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;
+  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);

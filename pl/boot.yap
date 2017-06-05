@@ -332,6 +332,9 @@ true :- true.
 live :-
 	'$live'.
 
+initialize_prolog :-
+    '$init_system'.
+
 '$live' :-
 	'$init_system',
         '$do_live'.

@@ -152,6 +152,7 @@
   PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
   PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
+  PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
 
 #ifdef LOW_LEVEL_TRACER
   Yap_do_low_level_trace = FALSE;

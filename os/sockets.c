@@ -242,6 +242,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st = &GLOBAL_Stream[sno];
   st->u.socket.domain = domain;
   st->u.socket.flags = flags;
+  st->vfs = NULL;
   if (flags & (client_socket|server_session_socket)) {
     /* I can read and write from these sockets */
     st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);

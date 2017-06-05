@@ -1,4 +1,4 @@
-
+/*
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -18,10 +18,10 @@ bindvars( L, NL ) :-
 
 bind(t(_,t(X,Y)), Z, T0, T, N1, N2) :-
 	!,
-	bind(X=Y, Z, T0, T, N1, N2).	
+	bind(X=Y, Z, T0, T, N1, N2).
 bind(tuple(_,tuple(X,Y)), Z, T0, T, N1, N2) :-
 	!,
-	bind(X=Y, Z, T0, T, N1, N2).	
+	bind(X=Y, Z, T0, T, N1, N2).
 bind(X=Y, X=X, T0, T, N, N) :-
 	var(Y),
 	!,
@@ -51,3 +51,4 @@ newb(Y, X, T, NT, N0, NF) :-
  	Y =.. [N|L],
 	foldl2(newb, L, NL, T, NT, N0, NF),
 	X =.. [N|NL].
+*/

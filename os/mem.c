@@ -186,6 +186,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
 
   st->file = f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
+  st->vfs = NULL;
   Yap_initStream(st - GLOBAL_Stream, f, NULL, TermNil, LOCAL_encoding, flags,
                  AtomRead);
 // like any file stream.
@@ -220,6 +221,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
     encoding = LOCAL_encoding;
   st->file = f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
+  st->vfs = NULL;
   Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead);
 // like any file stream.
   /* currently these streams are not seekable */
@@ -269,6 +271,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;
+  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
   st->nbuf = st->u.mem_string.buf = malloc(PLGETC_BUF_SIZE);
   st->u.mem_string.src = MEM_BUF_MALLOC;

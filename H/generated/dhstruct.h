@@ -152,6 +152,7 @@
 #define PredTraceMetaCall Yap_heap_regs->PredTraceMetaCall_
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
+#define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->Yap_do_low_level_trace_

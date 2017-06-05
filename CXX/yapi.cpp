@@ -435,7 +435,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
   {
     CACHE_REGS
     if (ap.ap == NULL)
-      return false;
+      return false;                         
     BACKUP_MACHINE_REGS();
     arity_t arity = ap.getArity();
     bool result;
@@ -444,6 +444,13 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
 
     for (arity_t i = 0; i < arity; i++)
       XREGS[i + 1] = ts[i].term();
+
+    if (ap.ap == nullptr || ap.ap->OpcodeOfPred == UNDEF_OPCODE)
+    {
+      Term g = YAP_MkApplTerm(ap.ap->FunctorOfPred, arity, XREGS+1);
+      ap = YAPPredicate(rewriteUndefEngineQuery(ap.ap, g, ap.ap->ModuleOfPred));
+    }
+
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
@@ -476,27 +483,36 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     BACKUP_MACHINE_REGS();
     Term *ts = nullptr;
     PredEntry *ap = Yap_get_pred(t, tmod, "C++");
-    if (ap == nullptr)
+
+    if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
+    {
+      ap = rewriteUndefEngineQuery(ap, t, tmod);
+    }
+    if (ap==nullptr)
+
       return false;
-    arity_t arity = ap->ArityOfPE;
+      {
+	/* legal ap */
+     arity_t arity = ap->ArityOfPE;
+
+      if (arity) {
+        if (IsApplTerm(t))
+        {
+          ts = RepAppl(t) + 1;
+        }
+        else
+        {
+          ts = RepPair(t);
+        }
+        for (arity_t i = 0; i < arity; i++)
+          XREGS[i + 1] = ts[i];
+      } else if ( IsAtomTerm(t)) {
+        ts = nullptr;
+      }
+
+    }
     bool result;
     sigjmp_buf q_env;
-
-
-    if (arity) {
-      if (IsApplTerm(t))
-	{
-	  ts = RepAppl(t) + 1;
-	}
-      else
-	{
-	  ts = RepPair(t);
-	}
-	for (arity_t i = 0; i < arity; i++)
-	  XREGS[i + 1] = ts[i];
-    } else if ( IsAtomTerm(t)) {
-      ts = nullptr;
-    }
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
@@ -578,6 +594,11 @@ Term YAPEngine::fun(Term t)
     arity++;
     f = Yap_MkFunctor(name, arity);
     ap = (PredEntry *)(PredPropByFunc(f, tmod));
+    if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
+    {
+      Term g = (Yap_MkApplTerm(f,arity, ts) );
+      ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
+    }
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
@@ -615,13 +636,13 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 {
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  CELL *nts;
+    Term *nts;
   Term goal;
+  
+  if ( ts) {
 
-  if (ts) {
-
-  goal = Yap_MkApplTerm(f.f, f.arity(), nts);
-          nts = RepAppl(goal)+1;
+  goal = YAPApplTerm(f, ts).term();
+  nts = RepAppl(goal)+1;
 
 } else {
   goal = MkVarTerm();
@@ -676,7 +697,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
   arity_t arity = p.ap->ArityOfPE;
   if (arity) {
     goal = YAPApplTerm(YAPFunctor(p.ap->FunctorOfPred), ts).term();
-    for (int i =0; i < arity; i++)
+    for (arity_t i =0; i < arity; i++)
       XREGS[i+1]=ts[i].term();
     openQuery(goal.term(), nullptr);
   } else {
@@ -692,6 +713,9 @@ bool YAPQuery::next()
   CACHE_REGS
     bool result = false;
   Term terr;
+  if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
+    ap = rewriteUndefQuery();
+  }
   LOCAL_RestartEnv = &q_env;
   try
   {
@@ -757,6 +781,28 @@ bool YAPQuery::next()
     std::cerr << "Exception received by  " << __func__ << "( " << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
     throw e;
   }
+}
+
+PredEntry *
+YAPQuery::rewriteUndefQuery()
+{
+  Term ts[3];
+  ARG1 = ts[0] = goal.term();
+  ARG2 = ts[1] = ap->ModuleOfPred;
+  ARG3 = ts[2] = Yap_cp_as_integer(B PASS_REGS);
+  goal = YAPApplTerm(FunctorUndefinedQuery, ts);
+  return ap = PredUndefinedQuery;
+}
+
+PredEntry *
+YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term goal, Term mod)
+{
+  Term ts[3];
+  ARG1 = ts[0] = goal;
+  ARG2 = ts[1] = mod;
+  ARG3 = ts[2] = Yap_cp_as_integer(B PASS_REGS);
+  return PredUndefinedQuery;
+  //return YAPApplTerm(FunctorUndefinedQuery, ts);
 }
 
 void YAPQuery::cut()
@@ -884,14 +930,9 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
     YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
     if (initq.next())
       {
-        std::cerr << "init\n" ;
 	initq.cut();
-            std::cerr << "cut\n" ;
   }
-    else
-      {
-          std::cerr << "fail\n" ;
-     }
+    CurrentModule = TermUser;
 
 }
 

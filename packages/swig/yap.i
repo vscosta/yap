@@ -4,6 +4,13 @@
   %}
 #endif
 
+%{
+#include <gmpxx.h>
+  extern "C"{
+  #include  "Yap.h"
+  }
+  %}
+
 /* example.i */
 %module(directors = "1") yap
 
@@ -11,15 +18,18 @@
 %include exception.i
 %include stdint.i
 %include std_string.i
+%include std_vector.i
+
+namespace std {
+  %template(vectort) vector<Term>;
+};
+
+   %feature("novaluewrapper") std::vector<Term>;    
 
 %ignore *::operator[];
 
 class YAPPredicate;
 class YAPEngine;
-
-#define arity_t size_t
-
-#define Term uintptr_t
 
 %{
 
@@ -81,34 +91,47 @@ class YAPEngine;
   }
  }
 
-%typemap(typecheck) YPTerm  {
-  $1 = true;
- }
 
-%typemap(in) Term { $1 = pythonToYAP($input);   PyErr_Clear(); }
+//%typemap(check) YAPEngine::fun(Term) { $1 = 1; }
+//%typemap(check) YAPEngine::fun(YAPTerm) { $1 = 0; }
 
-%typemap(in) YAPTerm { $1 = pythonToYAP($input);   PyErr_Clear(); }
+
+%typemap(in) Int { if (PyLong_Check($input)) {
+    $1 = PyLong_AsLong($input);}   }
+
+//%typemap(in) double { if (PyFloat_Check($input)) {
+//    $1 = PyFloat_AsDouble($input); }   }
+
+//%typemap(in) char const * { if (PyUnicode_Check($input)) {
+//    $1 = PyUnicode_AsUTF8($input); }   }
+
+//%typemap(in) YAPTerm { $1 = new YAPTerm(pythonToYAP($input));   PyErr_Clear(); }
+%typemap(in) YAP_Term { $1 = pythonToYAP($input);   PyErr_Clear(); }
+%typemap(in) Term {   $1 = pythonToYAP($input);   PyErr_Clear(); }
+
+%typecheck(2) Int { $1 = PyLong_Check($input); }
+%typecheck(3) double { $1 = PyFloat_Check($input); }
+%typecheck(2) const char * { $1 = PyUnicode_Check($input); }
+
+     %typecheck(1) Term { $1 = !PyUnicode_Check($input); }
+     %typecheck(1) YAP_Term { $1 = PyUnicode_Check($input); }
+
+%typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
 
 
 %typemap(out) YAP_Term {  return $result = yap_to_python($1, false, 0);    }
 
 %typemap(out) Term {  return $result = yap_to_python($1, false, 0);  }
 
-%extend(out) Term{Term & __getitem__(size_t i){Term t0 = $self;
+%typemap(out) std::vector<Term> {
+  size_t len = $1.size();
+$result = PyList_New(len);
+for (size_t i = 0; i< len; i++) {
+PyObject *o = yap_to_python($1[i],false,0);
+PyList_SetItem($result,i,o);
 
-    if (IsApplTerm(t0)) {
-      Functor f = FunctorOfTerm(t0);
-      if (!IsExtensionFunctor(f))
-	return (ArgOfTerm(i + 1, t0);
-		} else if (IsPairTerm(t0)) {
-	  if (i == 0)
-	    return HeadOfTerm(t0);
-	  else if (i == 1)
-	    return TailOfTerm(t0);
-        else throw( DOMAIN_ERROR_OUT_OF_RANGE, MkIntegerTerm(i), "__getitem__");
-	}
-    }
-  }
+}
+return $result;  }
 
 
 
@@ -374,4 +397,3 @@ case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
 
      %init %{
     %}
-

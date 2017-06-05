@@ -56,10 +56,12 @@ class YAPQuery : public YAPPredicate
   q_cp = CP;
   // make sure this is safe
   q_handles = LOCAL_CurSlot;
-}
+};
 
-  void openQuery(Term t, Term *pt);
 
+void openQuery(Term t, Term *ts);
+
+PredEntry *rewriteUndefQuery();
 
 public:
 YAPQuery() {
@@ -358,10 +360,12 @@ private:
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode);
   YAP_dogoalinfo q;
+  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term t, Term tmod);
 
-public:
-  /// construct a new engine; may use a variable number of arguments
-  YAPEngine(YAPEngineArgs *cargs) {
+      public :
+      /// construct a new engine; may use a variable number of arguments
+      YAPEngine(YAPEngineArgs *cargs)
+  {
     engine_args = cargs;
     //doInit(cargs->init_args.boot_file_type);
     doInit(YAP_QLY);

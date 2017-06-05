@@ -168,6 +168,8 @@ struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE
 struct pred_entry *PredTraceMetaCall	MkPred FunctorTraceMetaCall PROLOG_MODULE
 struct pred_entry *PredCommentHook		MkPred FunctorCommentHook PROLOG_MODULE
 struct pred_entry *PredProcedure		MkLogPred FunctorProcedure   PROLOG_MODULE
+struct pred_entry *PredUndefinedQuery		MkPred FunctorUndefinedQuery   PROLOG_MODULE
+
 
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER

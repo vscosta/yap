@@ -46,13 +46,14 @@ class YAPModule;
 class YAPModule : protected YAPAtomTerm {
   friend class YAPPredicate;
   friend class YAPModuleProp;
-  YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   Term t() { return gt(); }
   Term curModule() { CACHE_REGS return Yap_CurrentModule(); }
 
 public:
+  YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   YAPModule() : YAPAtomTerm(curModule()){};
   YAPModule(YAPAtom t) : YAPAtomTerm(t){};
+  Term term() { return gt(); };
 };
 
 /**
@@ -288,6 +289,7 @@ Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0), "YAPFunctor::functor");
   /// we return a positive number.
   uintptr_t getArity() { return ap->ArityOfPE; }
   arity_t arity() { return ap->ArityOfPE; }
+  PredEntry *predEntry() { return ap; }
 };
 
 /**

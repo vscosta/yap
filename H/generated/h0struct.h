@@ -156,6 +156,7 @@ EXTERNAL    struct pred_entry  *PredThrow;
 EXTERNAL    struct pred_entry  *PredTraceMetaCall;
 EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
+EXTERNAL    struct pred_entry  *PredUndefinedQuery;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
 EXTERNAL  int  Yap_do_low_level_trace;

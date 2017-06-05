@@ -73,8 +73,7 @@ from IPython.utils.io import ask_yes_no
 from IPython.utils.ipstruct import Struct
 from IPython.paths import get_ipython_dir
 from IPython.utils.path import get_home_dir, get_py_filename, ensure_dir_exists
-from IPython.utils.py3compat import (builtin_mod, unicode_type, string_types,
-                                     with_metaclass, iteritems)
+from IPython.utils.py3compat import (builtin_mod, unicode_type, string_types, with_metaclass, iteritems)
 from IPython.utils.strdispatch import StrDispatch
 from IPython.utils.syspathcontext import prepended_to_syspath
 from IPython.utils.text import format_screen, LSString, SList, DollarFormatter
@@ -92,8 +91,8 @@ bindvars = namedtuple('bindvars', 'list')
 library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
-python_query = namedtuple('python_query', 'query_mgr string')
-python_output = namedtuple('python_output', 'oldOut oldErryapi')
+python_query= namedtuple('python_query', 'query_mgr string')
+jupyter_query = namedtuple('jupyter_query', 'query_mgr string')
 
 class YAPInteraction:
     """An enhanced, interactive shell for YAP."""
@@ -116,53 +115,8 @@ class YAPInteraction:
         self.q = None
         self.shell = shell
         self.run = False
-        self.yapeng.goal(use_module(library('python')))
-        self.yapeng.goal(use_module(library('yapi')))
-        self.yapeng.goal(python_output(OldOi                              ))
+        self.yapeng.goal(use_module(library('jupyter')))
 
-    def eng(self):
-        return self.yapeng
-
-    def closeq(self):
-        if self.q:
-            self.q.close()
-            self.q = None
-
-    def more(self):
-        if self.q.next():
-            if self.q.deterministic():
-                # done
-                self.q.close()
-                self.q = None
-            return True
-        self.q.close()
-        self.q = None
-        return False
-
-    def query_prolog(self, s):
-        if self.q:
-            return self.restart(s)
-        if not s:
-            return True
-        self.q = self.yapeng.qt(python_query(self,s))
-        # for eq in vs:
-        #     if not isinstance(eq[0],str):
-        #         print( "Error: Variable Name matches a Python Symbol")
-        #         return False
-        return self.more()
-
-    def restart(self, s):
-        if s.startswith(';') or s.startswith('y'):
-            return self.more()
-        elif s.startswith('#'):
-            exec(s.lstrip('#'))
-        elif s.startswith('*'):
-            while self.more():
-                pass
-            print("No (more) answers")
-        self.q.close()
-        self.q = None
-        return False
 
 
     def run_cell(self, s, store_history=True, silent=False,
@@ -191,7 +145,7 @@ class YAPInteraction:
 
         Returns
                    -------
-                   result : :class:`ExecutionResult`
+rquwer                                                                                 result : :class:`ExecutionResult`
                    """
 
         # construct a query from a one-line string
@@ -214,9 +168,12 @@ class YAPInteraction:
             result.execution_count = self.shell.execution_count
 
         try:
-            self.query_prolog(s)
-            self.shell.last_execution_succeeded = True
-            result.result = True
+            if self.q = query_prolog(s):
+                self.shell.last_execution_succeeded = True
+                result.result = True
+            else:
+                self.shell.last_execution_succeeded = True
+                result.result = True
         except Exception as e:
             print(e)
             self.shell.last_execution_succeeded = False
@@ -238,4 +195,56 @@ class YAPInteraction:
             self.shell.execution_count += 1
 
         return result
-        
+
+    def answer(q):
+        try:
+            return q.next()
+        except Exception as e:
+            print(e.args[1])
+            return False
+
+    def prolog_query( s ):
+
+        #
+        # construct a query from a one-line string
+        # q is opaque to Python
+        q = engine.query(s)
+        # vs is the list of variables
+        # you can print it out, the left-side is the variable name,
+        # the right side wraps a handle to a variable
+        # pdb.set_trace()
+        vs = q.namedVarsVector()
+        #pdb.set_trace()
+        # atom match either symbols, or if no symbol exists, sttrings, In this case
+        # variable names should match strings
+        #for eq in vs:
+        #    if not isinstance(eq[0],str):
+        #        print( "Error: Variable Name matches a Python Symbol")
+        #        return
+        ask = True
+        # launch the query
+        while answer(q):
+            # this new vs should contain bindings to vars
+            vs=  q.namedVars()
+            print( vs )
+            gs = numbervars( engine, vs)
+            print(gs)
+            i=0
+            # iterate
+            for eq in gs:
+                name = eq[0]
+                binding = eq[1]
+                # this is tricky, we're going to bind the variables in the term so thay we can
+                # output X=Y. The Python way is to use dictionares.
+                #Instead, we use the T function to tranform the Python term back to Prolog
+                if name != binding:
+                    print(name + " = " + str(binding))
+                    #ok, that was Prolog code
+                    print("yes")
+                    # deterministic = one solution
+                    if q.deterministic():
+                        # done
+                        q.close()
+                        return
+                    q.close()
+                    return

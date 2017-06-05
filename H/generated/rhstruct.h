@@ -152,6 +152,7 @@
   PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
   PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
+  PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
 
 #ifdef LOW_LEVEL_TRACER
 

@@ -210,6 +210,16 @@ static Int unhide_atom(USES_REGS1) { /* unhide_atom(+Atom)		 */
   return (TRUE);
 }
 
+  /** @pred  char_code(? _A_,? _I_) is iso
+
+
+  The built-in succeeds with  _A_ bound to character represented as an
+  atom, and  _I_ bound to the character code represented as an
+  integer. At least, one of either  _A_ or  _I_ must be bound before
+  the call.
+
+
+  */
 static Int char_code(USES_REGS1) {
   Int t0 = Deref(ARG1);
   if (IsVarTerm(t0)) {
@@ -269,7 +279,36 @@ static Int char_code(USES_REGS1) {
   }
 }
 
-static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
+  /** @pred name( _A_, _L_)
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). The argument  _A_ will
+  be unified with an atomic symbol and  _L_ with the list of the ASCII
+  codes for the characters of the external representation of  _A_.
+
+  ~~~~~{.prolog}
+   name(yap,L).
+  ~~~~~
+  will return:
+
+  ~~~~~{.prolog}
+   L = [121,97,112].
+  ~~~~~
+  and
+
+  ~~~~~{.prolog}
+   name(3,L).
+  ~~~~~
+  will return:
+
+  ~~~~~{.prolog}
+   L = [51].
+  ~~~~~
+
+
+  */
+  static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
   Term t = Deref(ARG2), NewT, AtomNameT = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
 
@@ -341,6 +380,30 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+
+/// @pred atomic_to_string(?Atomic.?String)
+//
+// reverse to string_to_atomic(_Atomic_, _String_).
+// The second argument may be a sequence of codes or atoms.
+//
+static Int atomic_to_string(
+    USES_REGS1) { 
+  Term t1 = ARG1; ARG1 = ARG2, ARG2 = t1;
+  return string_to_atomic(PASS_REGS1);
+}
+
+/// @pred string_to_atom(?String, ?Atom)
+//
+// Verifies if (a) at least one of the argument is bound. If _String_
+// is bound it must be a string term, list if codes, or list of atoms,
+// and _Atom_ musr be bound to a symbol with the same text. Otherwise,
+// _Atom_ must be an _Atom_ and _String_ will unify with a string term
+// of the same text.
+//
+// Notes:
+//   - some versions of YAP allow the first argument to be a number. Please use
+//     atomic_to_string/2 in this YAP. 
+//                                                          
 static Int string_to_atom(
     USES_REGS1) { /* string_to_atom(?String,?Atom)		 */
   Term t2 = Deref(ARG2), t1 = Deref(ARG1);
@@ -375,6 +438,19 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+
+/// @pred atom_to_string(?Atom.?String)
+//
+// reverse to string_to_atom(_Atom_, _String_). 
+// The second argument may be a sequence of codes or atoms.
+//                                                          
+static Int atom_to_string(
+    USES_REGS1) { /* string_to_atom(?String,?Atom)		 */
+  Term t2 = ARG1; ARG1 = ARG2; ARG2 = t2;
+  return string_to_atom(PASS_REGS1);
+      }
+
+
 static Int string_to_list(USES_REGS1) {
   Term list = Deref(ARG2), string = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
@@ -403,6 +479,12 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+
+/// @pred atom_string(?Atom.?String)
+//
+// reverse to string_to_atom(_Atom_, _String_). 
+// The second argument may be a sequence of codes or atoms.
+//                                                          
 static Int atom_string(USES_REGS1) {
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
   LOCAL_MAX_SIZE = 1024;
@@ -431,6 +513,25 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+// The second argument may be a sequence of codes or atoms.
+//                                                          
+static Int string_atom(
+    USES_REGS1) { /* string_to_atom(?String,?Atom)		 */
+  Term t2 = ARG1; ARG1 = ARG2; ARG2 = t2;
+  return atom_string(PASS_REGS1);
+      }
+
+
+  /** @pred  atom_chars(? _A_,? _L_) is iso
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). The argument  _A_ must
+  be unifiable with an atom, and the argument  _L_ with the list of the
+  characters of  _A_.
+
+
+  */
 static Int atom_chars(USES_REGS1) {
   Term t1;
   LOCAL_MAX_SIZE = 1024;
@@ -579,6 +680,17 @@ restart_aux:
   ReleaseAndReturn(false);
 }
 
+  /** @pred  number_atom(? _I_,? _A_)
+
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). The argument  _I_ must
+  be unifiable with a number, and the argument  _A_ must be unifiable
+  with an atom representing the number.
+
+
+  */
 static Int number_atom(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
@@ -613,6 +725,17 @@ restart_aux:
   ReleaseAndReturn(false);
 }
 
+  /** @pred  number_string(? _I_,? _L_)
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). The argument  _I_ must
+  be unifiable with a number, and the argument  _L_ must be unifiable
+  with a term string representing the number.
+
+
+  */
+
 static Int number_string(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
@@ -639,6 +762,16 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+  /** @pred  number_codes(? _I_,? _L_)
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). The argument  _I_ must
+  be unifiable with a number, and the argument  _L_ must be unifiable
+  with a list of UNICODE numbers representing the number.
+
+
+  */
 static Int number_codes(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
@@ -1304,6 +1437,15 @@ error:
   ReleaseAndReturn(FALSE);
 }
 
+  /** @pred  atom_length(+ _A_,? _I_) is iso
+
+
+  The predicate holds when the first argument is an atom, and the
+  second unifies with the number of characters forming that atom. If
+  bound, _I_ must be a non-negative integer.
+
+
+  */
 static Int atom_length(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1339,6 +1481,15 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+  /** @pred  atomic_length(+ _A_,? _I_) is iso
+
+
+  The predicate holds when the first argument is a number or atom, and
+  the second unifies with the number of characters needed to represent
+  the number, or atom.
+
+
+  */
 static Int atomic_length(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1724,6 +1875,17 @@ static Int atom_split(USES_REGS1) {
       (Yap_unify_constant(ARG3, to1) && Yap_unify_constant(ARG4, to2)));
 }
 
+  /** @pred  atom_number(? _Atom_,? _Number_)
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). If the argument
+   _Atom_ is an atom,  _Number_ must be the number corresponding
+  to the characters in  _Atom_, otherwise the characters in
+   _Atom_ must encode a number  _Number_.
+
+
+  */
 static Int atom_number(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
@@ -1748,6 +1910,17 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
+  /** @pred  atom_number(? _String_,? _Number_)
+
+
+  The predicate holds when at least one of the arguments is ground
+  (otherwise, an error message will be displayed). If the argument
+   _String_ is a string term,  _String_ must be the number corresponding
+  to the characters in  _Atom_, otherwise the characters in
+   _String_ must encode the number  _Number_.
+
+
+  */
 static Int string_number(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
@@ -2297,118 +2470,31 @@ void Yap_InitBackAtoms(void) {
 
 void Yap_InitAtomPreds(void) {
   Yap_InitCPred("name", 2, name, 0);
-  /** @pred  name( _A_, _L_)
-
-
-  The predicate holds when at least one of the arguments is ground
-  (otherwise, an error message will be displayed). The argument  _A_ will
-  be unified with an atomic symbol and  _L_ with the list of the ASCII
-  codes for the characters of the external representation of  _A_.
-
-  ~~~~~{.prolog}
-   name(yap,L).
-  ~~~~~
-  will return:
-
-  ~~~~~{.prolog}
-   L = [121,97,112].
-  ~~~~~
-  and
-
-  ~~~~~{.prolog}
-   name(3,L).
-  ~~~~~
-  will return:
-
-  ~~~~~{.prolog}
-   L = [51].
-  ~~~~~
-
-
-  */
   Yap_InitCPred("string_to_atom", 2, string_to_atom, 0);
-  Yap_InitCPred("atom_string", 2, atom_string, 0);
+  Yap_InitCPred("atom_to_string", 2, atom_to_string, 0);
   Yap_InitCPred("string_to_atomic", 2, string_to_atomic, 0);
+  Yap_InitCPred("atomic_to_string", 2, atomic_to_string, 0);
   Yap_InitCPred("string_to_list", 2, string_to_list, 0);
   Yap_InitCPred("char_code", 2, char_code, SafePredFlag);
-  /** @pred  char_code(? _A_,? _I_) is iso
-
-
-  The built-in succeeds with  _A_ bound to character represented as an
-  atom, and  _I_ bound to the character code represented as an
-  integer. At least, one of either  _A_ or  _I_ must be bound before
-  the call.
-
-
-  */
   Yap_InitCPred("atom_chars", 2, atom_chars, 0);
-  /** @pred  atom_chars(? _A_,? _L_) is iso
-
-
-  The predicate holds when at least one of the arguments is ground
-  (otherwise, an error message will be displayed). The argument  _A_ must
-  be unifiable with an atom, and the argument  _L_ with the list of the
-  characters of  _A_.
-
-
-  */
   Yap_InitCPred("atom_codes", 2, atom_codes, 0);
+  Yap_InitCPred("atom_string", 2, atom_string, 0);
+  Yap_InitCPred("string_atom", 2, string_atom, 0);
   Yap_InitCPred("string_codes", 2, string_codes, 0);
   Yap_InitCPred("string_chars", 2, string_chars, 0);
   Yap_InitCPred("atom_length", 2, atom_length, SafePredFlag);
-  /** @pred  atom_length(+ _A_,? _I_) is iso
-
-
-  The predicate holds when the first argument is an atom, and the second
-  unifies with the number of characters forming that atom.
-
-
-  */
   Yap_InitCPred("atomic_length", 2, atomic_length, SafePredFlag);
   Yap_InitCPred("string_length", 2, string_length, SafePredFlag);
   Yap_InitCPred("$atom_split", 4, atom_split, SafePredFlag);
   Yap_InitCPred("number_chars", 2, number_chars, 0);
   Yap_InitCPred("number_atom", 2, number_atom, 0);
-  /** @pred  number_atom(? _I_,? _L_)
-
-
-
-  The predicate holds when at least one of the arguments is ground
-  (otherwise, an error message will be displayed). The argument  _I_ must
-  be unifiable with a number, and the argument  _L_ must be unifiable
-  with an atom representing the number.
-
-
-  */
   Yap_InitCPred("number_string", 2, number_string, 0);
   Yap_InitCPred("number_codes", 2, number_codes, 0);
   Yap_InitCPred("atom_number", 2, atom_number, 0);
-  /** @pred  atom_number(? _Atom_,? _Number_)
-
-
-  The predicate holds when at least one of the arguments is ground
-  (otherwise, an error message will be displayed). If the argument
-   _Atom_ is an atom,  _Number_ must be the number corresponding
-  to the characters in  _Atom_, otherwise the characters in
-   _Atom_ must encode a number  _Number_.
-
-
-  */
   Yap_InitCPred("string_number", 2, string_number, 0);
   Yap_InitCPred("$atom_concat", 2, atom_concat2, 0);
   Yap_InitCPred("$string_concat", 2, string_concat2, 0);
   Yap_InitCPred("atomic_concat", 2, atomic_concat2, 0);
-  /** @pred  atomic_concat(+ _As_,? _A_)
-
-
-  The predicate holds when the first argument is a list of atomic terms,
-  and
-  the second unifies with the atom obtained by concatenating all the
-  atomic terms in the first list. The first argument thus may contain
-  atoms or numbers.
-
-
-  */
   Yap_InitCPred("atomics_to_string", 2, atomics_to_string2, 0);
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
