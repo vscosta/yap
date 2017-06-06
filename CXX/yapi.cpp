@@ -487,10 +487,9 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
     {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
-    }
-    if (ap==nullptr)
-
-      return false;
+      if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
+	return false;
+    } else
       {
 	/* legal ap */
      arity_t arity = ap->ArityOfPE;

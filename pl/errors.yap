@@ -142,7 +142,7 @@ system_error(Type,Goal,Culprit) :-
 	functor(Error, Severity, _),
 	print_message(Severity, Error), !.
 %'$process_error'(error(Msg, Where), _) :-
-%    print_message(error,error(Msg, [g|Where])), !.
+%    Print_message(error,error(Msg, [g|Where])), !.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 

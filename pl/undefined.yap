@@ -60,15 +60,15 @@ a call to a predicate for which no clauses were defined will result in
 the output of a message of the form:
 
 ~~~~~{.prolog}
-Undefined predicate:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            user:xyz(A1                                                                      ,A2)
+Undefined predicate:
 ~~~~~
 followed by the failure of that call.
 */
 :- multifile user:unknown_predicate_handler/3.
 
 undefined_query(G0, M0, Cut) :-
-'$undefp_search'(M0:G0, M:G),
-  '$call'(G, Cut, G, M).
+	recorded('$import','$import'(M,M0,G,G0,_,_),_),
+	'$call'(G, Cut, G, M).
 
 '$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),

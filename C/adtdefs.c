@@ -834,7 +834,7 @@ Prop Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
 
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
     /* don't match multi-files */
-    if (!(p->PredFlags & MultiFileFlag) || p->ModuleOfPred || !cur_mod ||
+    if (/*!(p->PredFlags & MultiFileFlag) ||*/ true || p->ModuleOfPred || !cur_mod ||
         cur_mod == TermProlog) {
       FUNC_WRITE_UNLOCK(f);
       return AbsPredProp(p);
@@ -871,7 +871,7 @@ Prop Yap_PredPropByAtomNonThreadLocal(Atom at, Term cur_mod)
     if (pe->KindOfPE == PEProp &&
         (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
       /* don't match multi-files */
-      if (!(pe->PredFlags & MultiFileFlag) || pe->ModuleOfPred || !cur_mod ||
+      if (/*!(pe->PredFlags & MultiFileFlag) ||*/ true || pe->ModuleOfPred || !cur_mod ||
           cur_mod == TermProlog) {
         WRITE_UNLOCK(ae->ARWLock);
         return (p0);

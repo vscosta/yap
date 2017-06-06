@@ -487,7 +487,9 @@ typedef uint64_t pred_flags_t;
 #define ForeignPredFlags                                                       \
   (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag |   \
    CArgsPredFlag | UserCPredFlag | SafePredFlag | BackCPredFlag)
-
+#define LivePredFlags \
+  (LogUpdatePredFlag|MultiFileFlag|TabledPredFlag|ForeignPredFlags)
+ 
 #define StatePredFlags                                                         \
   (InUsePredFlag | CountPredFlag | SpiedPredFlag | IndexedPredFlag)
 #define is_system(pe) (pe->PredFlags & SystemPredFlags)
@@ -495,6 +497,7 @@ typedef uint64_t pred_flags_t;
 #define is_foreign(pe) (pe->PredFlags & ForeignPredFlags)
 #define is_static(pe) (pe->PredFlags & CompiledPredFlag)
 #define is_logupd(pe) (pe->PredFlags & LogUpdatePredFlag)
+#define is_live(pe) (pe->PredFlags & LivePredFlags)
 #ifdef TABLING
 #define is_tabled(pe) (pe->PredFlags & TabledPredFlag)
 #endif /* TABLING */
@@ -1414,7 +1417,7 @@ GetPredPropByFuncAndModHavingLock(FunctorEntry *fe, Term cur_mod) {
   if (!(p = RepPredProp(fe->PropsOfFE))) {
     return NIL;
   }
-  if (p->ModuleOfPred == cur_mod) {
+  if (p->ModuleOfPred == cur_mod || p->ModuleOfPred == 0) {
 #ifdef THREADS
     /* Thread Local Predicates */
     if (p->PredFlags & ThreadLocalPredFlag) {
@@ -1498,7 +1501,7 @@ INLINE_ONLY EXTERN inline Prop PredPropByAtomAndMod(Atom at, Term cur_mod)
   p0 = ae->PropsOfAE;
   while (p0) {
     PredEntry *pe = RepPredProp(p0);
-    if (pe->KindOfPE == PEProp && (pe->ModuleOfPred == cur_mod)) {
+    if (pe->KindOfPE == PEProp && (pe->ModuleOfPred == cur_mod || pe->ModuleOfPred == 0)) {
 #ifdef THREADS
       /* Thread Local Predicates */
       if (pe->PredFlags & ThreadLocalPredFlag) {

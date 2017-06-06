@@ -18,12 +18,15 @@ yap_query = namedtuple( 'yap_query', 'query owner')
 jupyter_query = namedtuple( 'jupyter_query', 'vars dict')
 python_query = namedtuple( 'python_query', 'vars dict')
 yapi_query = namedtuple( 'yapi_query', 'vars dict')
+show_answer = namedtuple( 'show_answer', 'vars dict')
 
+def v():
+    return yap.YAPVarTerm()
 
 def numbervars(  q ):
     Dict = {}
     if True:
-        engine.goal(yapi_query( q.namedVars(), Dict))
+        engine.goal(show_answer( q.namedVars(), Dict))
         return Dict
     rc = q.namedVarsVector()
     q.r = q.goal().numbervars()
@@ -42,7 +45,10 @@ def numbervars(  q ):
 
 def answer(q):
     try:
-        return q.next()
+        v = q.next()
+        if v:
+            print( bindings )
+        return v
     except Exception as e:
         print(e.args[1])
         return False
@@ -52,7 +58,8 @@ def query_prolog(engine, s):
     #
     # construct a query from a one-line string
     # q is opaque to Python
-    q = engine.query(s)
+    bindings = {}
+    q = engine.query(python_query(s, bindings))
     # vs is the list of variables
     # you can print it out, the left-side is the variable name,
     # the right side wraps a handle to a variable
@@ -64,10 +71,9 @@ def query_prolog(engine, s):
     #    if not isinstance(eq[0],str):
     #        print( "Error: Variable Name matches a Python Symbol")
     #        return
-    # ask = True
+    ask = True
     # launch the query
     while answer(q):
-        print( handler( q ))
         # deterministic = one solution
         if q.deterministic():
             # done
@@ -98,7 +104,7 @@ def boot_yap(**kwargs):
     args.setYapLibDir(yap_lib_path)
     args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
     engine = yap.YAPEngine(args)
-    engine.goal( use_module(library('python') ) )
+    engine.goal( use_module(library('yapi') ) )
     return engine
 
 def live(**kwargs):

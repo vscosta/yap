@@ -115,6 +115,7 @@
 	'$discontiguous'(D,M).
 /** @pred initialization
 
+ 
 Execute the goals defined by initialization/1. Only the first answer is
 considered.
 

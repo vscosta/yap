@@ -1019,7 +1019,7 @@ static void retract_all(PredEntry *p, int in_use) {
   }
   p->cs.p_code.FirstClause = NULL;
   p->cs.p_code.LastClause = NULL;
-  if (p->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag)) {
+  if (is_live(p)) {
     p->OpcodeOfPred = FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
@@ -1742,8 +1742,9 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   if (pflags & IndexedPredFlag) {
     Yap_AddClauseToIndex(p, cp, mode == asserta);
   }
-  if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag))
+  if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     spy_flag = true;
+  }
   if (Yap_discontiguous(p, tmode PASS_REGS)) {
     Term disc[3], sc[4];
     if (p->ArityOfPE) {
@@ -1914,12 +1915,12 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     if (ap->cs.p_code.LastClause == cl->ClCode) {
       /* got rid of all clauses */
       ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
-      if (!(ap->PredFlags & MultiFileFlag)) {
+      if (is_live(ap)) {
         ap->OpcodeOfPred = FAIL_OPCODE;
-    } else {
-      ap->OpcodeOfPred = UNDEF_OPCODE;
-      ap->PredFlags |= UndefPredFlag;
-    }
+      } else {
+	ap->OpcodeOfPred = UNDEF_OPCODE;
+	ap->PredFlags |= UndefPredFlag;
+      }
       ap->cs.p_code.TrueCodeOfPred = (yamop
          *)(&(ap->OpcodeOfPred));
     } else {
@@ -2434,23 +2435,21 @@ static Int p_new_multifile(USES_REGS1) { /* '$new_multifile'(+N,+Ar,+Mod)  */
   else
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity), mod));
   PELOCK(26, pe);
-  if (pe->PredFlags &
-      (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
-       TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
-    UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
-    return false;
-}
-pe->PredFlags &= ~UndefPredFlag;
   if (pe->PredFlags & MultiFileFlag) {
     UNLOCKPE(26, pe);
     return true;
+  }
+  if (pe->PredFlags & (TabledPredFlag|ForeignPredFlags)) {
+    UNLOCKPE(26, pe);
+    addcl_permission_error(RepAtom(at), arity, FALSE);
+    return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
     addcl_permission_error(RepAtom(at), arity, FALSE);
     return false;
   }
+  pe->PredFlags &= ~UndefPredFlag;
   pe->PredFlags |= MultiFileFlag;
   /* mutifile-predicates are weird, they do not seat really on the default
    * module */
@@ -2727,7 +2726,7 @@ static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
     UNLOCKPE(54, pe);
     return false;
   }
-  out = (pe->OpcodeOfPred != UNDEF_OPCODE);
+  out = (is_live(pe) || pe->OpcodeOfPred != UNDEF_OPCODE);
   UNLOCKPE(55, pe);
   return out;
 }
@@ -2786,8 +2785,7 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(59, pe);
-  if (pe->OpcodeOfPred == UNDEF_OPCODE &&
-  !(pe->PredFlags & (LogUpdatePredFlag|DynamicPredFlag|MultiFileFlag))) {
+  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
     UNLOCKPE(59, pe);
     return false;
   }
@@ -2803,12 +2801,7 @@ static Int p_undefined(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(36, pe);
-  if (pe->PredFlags & (CPredFlag | UserCPredFlag | TestPredFlag | AsmPredFlag |MultiFileFlag|
-                       DynamicPredFlag | LogUpdatePredFlag | TabledPredFlag)) {
-    UNLOCKPE(57, pe);
-    return FALSE;
-  }
-  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+  if (!is_live(pe) && pe->OpcodeOfPred == UNDEF_OPCODE) {
     UNLOCKPE(58, pe);
     return TRUE;
   }

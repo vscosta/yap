@@ -108,8 +108,9 @@ In YAP, the infoo field describes:
 
 :- use_system_module( user, [message_hook/3]).
 
+%:- start_low_level_trace.
 :- multifile prolog:message/3.
-
+%:- stop_low_level_trace.
 :- multifile user:message_hook/3.
 
 
@@ -910,7 +911,7 @@ If you need to report errors from your own predicates, we advise you to
 stick to the existing error terms if you can; but should you need to
 invent new ones, you can define corresponding error messages by
 asserting clauses for `prolog:message/2`. You will need to declare
-the predicate as multifile.
+the predicate as multifile/1.
 
 Note: errors in the implementation of print_message/2 are very
 confusing to YAP (who will process the error?). So we write this small
