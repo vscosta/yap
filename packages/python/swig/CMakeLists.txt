@@ -32,10 +32,14 @@ else()
   set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME}
     PROPERTIES
     NO_SONAME ON
+    CXXFLAGS "-include cmath "
     OUTPUT_NAME _yap
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
     DEPENDS YAPPython YAPPython YAP++
     )
+
+SET( CMAKE_CXX_FLAGS  " -include cmath ${CMAKE_CXX_FLAGS} " )
+
   # inform we are compiling YAP
   # s used in MSYS
   #
@@ -44,7 +48,7 @@ else()
   #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
-  #  	)
+  #  	)x
 
 
   set (dlls $<TARGET_FILE:matrix>

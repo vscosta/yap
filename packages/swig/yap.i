@@ -1,13 +1,13 @@
-#ifdef SWIGPYTHON
-%{
-#include <Python.h>
-  %}
-#endif
+
 
 %{
+#include <cmath>
 #include <gmpxx.h>
   extern "C"{
-  #include  "Yap.h"
+#ifdef SWIGPYTHON
+#include <Python.h>
+#endif
+#include  "Yap.h"
   }
   %}
 

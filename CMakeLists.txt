@@ -60,7 +60,6 @@ option(BUILD_SHARED_LIBS "Build shared library" ON)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
-
 include(Prelims NO_POLICY_SCOPE)
 
 include(Sources NO_POLICY_SCOPE)

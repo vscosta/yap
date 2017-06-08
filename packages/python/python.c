@@ -25,8 +25,13 @@ VFS_t pystream;
 
 static void *
 py_open( const char *name, const char *io_mode) {
+#if HAVE_STRCASESTR
   if (strcasestr(name,"//python/")== name)
     name += strlen("//python/");
+  #else
+  if (strstr(name,"//python/")== name)
+    name += strlen("//python/");
+#endif
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python( name, true, NULL);
   if (stream == Py_None)

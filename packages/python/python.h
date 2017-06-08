@@ -13,6 +13,7 @@
 #endif
 
 #include <Python.h>
+
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
 #undef HAVE_STATa
