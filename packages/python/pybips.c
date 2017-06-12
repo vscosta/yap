@@ -731,7 +731,8 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     Py_INCREF(typp);
   }
   o = PyStructSequence_New(typp);
-for (arity_t i = 0; i < arity; i++) {
+  arity_t i;
+  for (i=0; i < arity; i++) {
   PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
       Py_INCREF(pArg);
   if (pArg)

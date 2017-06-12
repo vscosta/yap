@@ -23,10 +23,10 @@ restore_python_output(OldOutput,OldError) :-
 	close(OldOutput),
 	close(OldError).
 
-jupyter_query( VarNames, Dict ) :-
-	%set_python_output(OldOutput,OldError),
-writeln(my:String),
-	show_answer( VarNames, user_error, Dict),
-	writeln(my:VarNames),
-	%restore_python_output(OldOutput,OldError).
+jupyter_query(String, Dict )  :-
+	set_python_output(OldOutput,OldError),
+	writeln(my:String),
+	yapi_query( String, Dict),
+	writeln(my:Dict),
+	restore_python_output(OldOutput,OldError),
 	true.

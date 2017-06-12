@@ -12,13 +12,8 @@ include(CMakeToolsHelpers OPTIONAL)
 project( YAP )
 
 
-if (ANDROID)
-  set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
+set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
    cmake_policy(VERSION 3.4)
-
-else ()
-cmake_minimum_required(VERSION 2.8)
-endif()
 
 set(
   CMAKE_MODULE_PATH

@@ -39,7 +39,7 @@ from IPython.core import oinspect
 from IPython.core import magic
 from IPython.core import page
 from IPython.core import prefilter
-from IPython.core import shadowns
+# from IPython.core import shadows
 from IPython.core import ultratb
 from IPython.core import interactiveshell
 from IPython.core.alias import Alias, AliasManager
@@ -168,12 +168,12 @@ rquwer                                                                          
             result.execution_count = self.shell.execution_count
 
         try:
-            if self.q = query_prolog(s):
+            if self.q == jupyter_query(s, Dict):
                 self.shell.last_execution_succeeded = True
-                result.result = True
+                result.result = (True, Dict)
             else:
                 self.shell.last_execution_succeeded = True
-                result.result = True
+                result.result = (True, {})
         except Exception as e:
             print(e)
             self.shell.last_execution_succeeded = False
@@ -208,12 +208,12 @@ rquwer                                                                          
         #
         # construct a query from a one-line string
         # q is opaque to Python
-        q = engine.query(s)
+        q = jupyter_query(s,dict)
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
         # pdb.set_trace()
-        vs = q.namedVarsVector()
+        #vs = q.namedVarsVector()
         #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -225,26 +225,5 @@ rquwer                                                                          
         # launch the query
         while answer(q):
             # this new vs should contain bindings to vars
-            vs=  q.namedVars()
-            print( vs )
-            gs = numbervars( engine, vs)
-            print(gs)
-            i=0
-            # iterate
-            for eq in gs:
-                name = eq[0]
-                binding = eq[1]
-                # this is tricky, we're going to bind the variables in the term so thay we can
-                # output X=Y. The Python way is to use dictionares.
-                #Instead, we use the T function to tranform the Python term back to Prolog
-                if name != binding:
-                    print(name + " = " + str(binding))
-                    #ok, that was Prolog code
-                    print("yes")
-                    # deterministic = one solution
-                    if q.deterministic():
-                        # done
-                        q.close()
-                        return
-                    q.close()
-                    return
+            print( dict )
+  
