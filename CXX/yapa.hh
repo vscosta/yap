@@ -68,7 +68,7 @@ enum PropTag {
  * predicates, operators, modules, almost everything.
  *
  */
-class YAPAtom {
+class X_API YAPAtom {
   friend class YAPEngine;
   friend class YAPModuleProp;
   friend class YAPPredicate;
@@ -104,7 +104,7 @@ public:
  * predicates, operators, modules, almost everything.
  *
  */
-class YAPProp {
+class X_API YAPProp {
   friend class YAPModuleProp;
   friend class YAPFunctor;
   /// does nothing, p is defined by the subclass

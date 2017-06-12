@@ -90,7 +90,6 @@ ATOMS
 #ifdef EUROTRA
 Term		TermDollarU		MkAT AtomDollarU
 #endif
-Term		TermAnswer		MkAT AtomAnswer
 
 //modules
 Term		USER_MODULE		MkAT AtomUser

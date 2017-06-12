@@ -159,7 +159,7 @@ void jmp_deb2(void) { fprintf(stderr, "Here\n"); }
 
 void jmp_deb(int i) {
   if (i)
-    printf("Here we go %ld\n", old_value++);
+    printf("Here we go " Int_FORMAT "\n", old_value++);
   if (old_value == 716)
     jmp_deb2();
 }
@@ -354,8 +354,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%lld %ld ", vsc_count, LCL0 - (CELL *)B);
-  b += snprintf(b, top - b, "%ld ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
+  b += snprintf(b, top - b, Int_FORMAT " "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif
@@ -482,7 +482,7 @@ static Int reset_total_choicepoints(USES_REGS1) {
 }
 
 static Int show_low_level_trace(USES_REGS1) {
-  fprintf(stderr, "Call counter=%llu\n", vsc_count);
+  fprintf(stderr, "Call counter=" Int_FORMAT "\n", vsc_count);
   return (TRUE);
 }
 

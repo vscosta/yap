@@ -2052,24 +2052,5 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif 
 #endif
 
-
-/**
- * X_API macro
- *
- * @brief Linux exports all symbols by default, but WIN32 does
- * not. cmake can enable exports, using CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
- *
- * @param _WIN32
- *
- * @return
- */
-#if _WIN32 && !defined(YAP_KERNEL)
-#define X_API __declspec(dllimport)
-#else
-#define X_API
-#endif
-#define O_API
-
-
 #endif
 

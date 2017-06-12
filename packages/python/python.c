@@ -1,6 +1,5 @@
 
-#include "python.h"
-#include <YapStreams.h>
+#include "py4yap.h"
 #include <VFS.h>
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
@@ -25,8 +24,13 @@ VFS_t pystream;
 
 static void *
 py_open( const char *name, const char *io_mode) {
+#if HAVE_STRCASESTR
   if (strcasestr(name,"//python/")== name)
     name += strlen("//python/");
+  #else
+  if (strstr(name,"//python/")== name)
+    name += strlen("//python/");
+#endif
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python( name, true, NULL);
   if (stream == Py_None)
@@ -202,29 +206,3 @@ X_API bool do_init_python(void) {
   return true;
 
 }
-X_API bool init_python(void) {
- if (python_in_python)
-    return true;
-    return do_init_python();
-}
-
-#ifdef _WIN32
-
-#include <windows.h>
-
-int WINAPI win_python(HANDLE, DWORD, LPVOID);
-
-int WINAPI win_python(HANDLE hinst, DWORD reason, LPVOID reserved) {
-  switch (reason) {
-  case DLL_PROCESS_ATTACH:
-    break;
-  case DLL_PROCESS_DETACH:
-    break;
-  case DLL_THREAD_ATTACH:
-    break;
-  case DLL_THREAD_DETACH:
-    break;
-  }
-  return 1;
-}
-#endif

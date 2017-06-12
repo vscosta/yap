@@ -22,6 +22,7 @@
  *   @addtogroup swi-c-interface
  *
  */
+#define _EXPORT_KERNEL 1
 
 #include <Yap.h>
 #include <Yatom.h>
@@ -44,7 +45,7 @@
 static PL_blob_t unregistered_blob_atom = {
     PL_BLOB_MAGIC, PL_BLOB_NOCOPY | PL_BLOB_TEXT, "unregistered"};
 
-int PL_is_blob(term_t t, PL_blob_t **type) {
+X_API int PL_is_blob(term_t t, PL_blob_t **type) {
   CACHE_REGS
   Term yt = Yap_GetFromSlot(t);
   Atom a;

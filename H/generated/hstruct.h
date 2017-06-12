@@ -87,7 +87,6 @@
 #ifdef EUROTRA
   Term  TermDollarU_;
 #endif
-  Term  TermAnswer_;
 //modules
   Term  USER_MODULE_;
   Term  IDB_MODULE_;

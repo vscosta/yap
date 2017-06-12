@@ -1,5 +1,5 @@
 
-#include "python.h"
+#include "py4yap.h"
 
 static foreign_t array_to_python_list(term_t addr, term_t type, term_t szt,
                                       term_t py) {

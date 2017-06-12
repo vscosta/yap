@@ -3,6 +3,7 @@
 #include "rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
 #include <SWI-Prolog.h>
+#undef ERROR
 #if HAVE_R_EMBEDDED_H
 #include <Rembedded.h>
 #endif
@@ -1873,7 +1874,9 @@ static foreign_t init_R(void) {
   R_SignalHandlers = 0;
 #endif
   Rf_initEmbeddedR(argc, argv);
+#ifndef WIN32
   R_CStackLimit = -1;
+#endif
   return TRUE;
 }
 

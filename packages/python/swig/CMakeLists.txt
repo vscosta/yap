@@ -1,7 +1,7 @@
 
 # This is a CMake example for Python
 
-INCLUDE(NewUseSWIG)
+#INCLUDE(NewUseSWIG)
 
 include(FindPythonModule)
 
@@ -23,19 +23,7 @@ SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
 SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap)
 #SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
-SWIG_ADD_LIBRARY(Py2YAP LANGUAGE python  SHARED SOURCES ../../swig/yap.i )
-if (WIN32)
-    SWIG_LINK_LIBRARIES(Py2YAP YAPPython libYap ${PYTHON_LIBRARIES} )
-else()
-    SWIG_LINK_LIBRARIES(  Py2YAP  libYap YAP++ YAPPython ${PYTHON_LIBRARIES} )
-  endif()
-  set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME}
-    PROPERTIES
-    NO_SONAME ON
-    OUTPUT_NAME _yap
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-    DEPENDS YAPPython YAPPython YAP++
-    )
+
   # inform we are compiling YAP
   # s used in MSYS
   #
@@ -44,7 +32,7 @@ else()
   #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
-  #  	)
+  #  	)x
 
 
   set (dlls $<TARGET_FILE:matrix>
@@ -61,9 +49,12 @@ endif()
 
 set (PL ${pl_library} ${PROLOG_SOURCES} )
 
-add_custom_target( YAP4PY_SETUP 
-  COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-  COMMAND ${CMAKE_COMMAND} -E  copy ${dlls}  ${CMAKE_BINARY_DIR}/libYap${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py 
+add_custom_target( YAP4PY_SETUP
+        COMMAND ${CMAKE_COMMAND} -E  touch ${CMAKE_CURRENT_BINARY_DIR}/yap.py
+        COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_SOURCE_DIR}/packages/swig/yap.i ${CMAKE_CURRENT_BINARY_DIR}/yap.i
+        COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+        COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+  COMMAND ${CMAKE_COMMAND} -E  copy ${dlls}  ${CMAKE_BINARY_DIR}/libYap${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
   COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
   COMMAND ${CMAKE_COMMAND} -E  copy ${PL} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog 
   COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl

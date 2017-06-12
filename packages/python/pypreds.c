@@ -1,5 +1,5 @@
 
-#include "python.h"
+#include "py4yap.h"
 
 PyObject *py_Main;
 

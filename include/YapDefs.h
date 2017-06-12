@@ -18,6 +18,36 @@
 
 #define _YAPDEFS_H 1
 
+
+/**
+ * X_API macro
+ *
+ * @brief Linux exports all symbols by default, but WIN32 does
+ * not. cmake can enable exports, using CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
+ *
+ * @param _WIN32
+ *
+ * @return
+ */
+#if _WIN32
+#if defined(_EXPORT_KERNEL)
+// __declspec(dllexport)
+#define X_API
+#else
+// __declspec(dllimport)
+#define X_API
+#endif
+// __declspec(dllexport)
+#define O_API
+// __declspec(dllimport)
+#define I_API
+#else
+#define O_API
+#define I_API
+#define X_API
+#endif
+
+
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -7,11 +7,18 @@ set (PYTHON_HEADERS  python.h)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-add_library (YAPPython SHARED ${PYTHON_SOURCES})
+add_library (YAPPython0 OBJECT ${PYTHON_SOURCES})
+if (WIN32)
+add_library (YAPPython SHARED pyload.c )
+endif()
+
+# arithmetic hassle.
+set_property(TARGET YAPPython PROPERTY CXX_STANDARD 11)
+set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_link_libraries(YAPPython libYap ${PYTHON_LIBRARY})
 
-set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
+set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1 _GNU-SOURCE=1)
 
 set (PYTHON_PL python.pl)
 

@@ -1,4 +1,4 @@
-#include "python.h"
+#include "py4yap.h"
 
 /**
  *
@@ -700,6 +700,7 @@ static PyObject *structseq_repr(PyObject *iobj) {
 }
 #endif
 
+
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyObject *o;
 #if PY_MAJOR_VERSION >= 3 
@@ -722,7 +723,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
       return NULL;
     typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
     // typp->tp_str = structseq_str;
-   //  typp->tp_repr = structseq_repr;
+    typp->tp_repr = structseq_repr;
     //     typp = PyStructSequence_NewType(desc);
     // don't do this: we cannot add a type as an atribute.
     //PyModule_AddObject(py_Main, s, (PyObject *)typp);

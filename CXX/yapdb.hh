@@ -43,7 +43,7 @@ class YAPModule;
  * Info about the module is in YAPModuleProp
  *
  */
-class YAPModule : protected YAPAtomTerm {
+class X_API YAPModule : protected YAPAtomTerm {
   friend class YAPPredicate;
   friend class YAPModuleProp;
   Term t() { return gt(); }
@@ -61,7 +61,7 @@ public:
  * A YAPModuleProp controls access to a module property.
  *
  */
-class YAPModuleProp : public YAPProp {
+class X_API YAPModuleProp : public YAPProp {
   friend class YAPPredicate;
   ModEntry *m;
 
@@ -77,7 +77,7 @@ public:
 /**
  * @brief YAPFunctor represents Prolog functors Name/Arity
  */
-class YAPFunctor : public YAPProp {
+class X_API YAPFunctor : public YAPProp {
   friend class YAPApplTerm;
   friend class YAPTerm;
   friend class YAPPredicate;
@@ -127,7 +127,7 @@ public:
  *
  * This class interfaces with PredEntry in Yatom.
  */
-class YAPPredicate : public YAPModuleProp {
+class X_API YAPPredicate : public YAPModuleProp {
   friend class YAPQuery;
   friend class YAPEngine;
 
@@ -297,7 +297,7 @@ Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0), "YAPFunctor::functor");
  *
  * This class interfaces with Predicates Implemented in Prolog.
  */
-class YAPPrologPredicate : public YAPPredicate {
+class X_API YAPPrologPredicate : public YAPPredicate {
 public:
   YAPPrologPredicate(YAPTerm t) : YAPPredicate(t){};
   YAPPrologPredicate(const char *s, arity_t arity) : YAPPredicate(s, arity){};
@@ -319,7 +319,7 @@ public:
  *
  * This class interfaces with Predicates Implemented in Prolog.
  */
-class YAPFLIP : public YAPPredicate {
+class X_API YAPFLIP : public YAPPredicate {
 public:
   YAPFLIP(CPredicate call, YAPAtom name, uintptr_t arity,
           YAPModule module = YAPModule(), CPredicate retry = 0,

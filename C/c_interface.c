@@ -25,6 +25,7 @@
 #ifndef C_INTERFACE_C
 
 #define C_INTERFACE_C 1
+#define _EXPORT_KERNEL 1
 
 #include <stdlib.h>
 #if HAVE_UNISTD_H
@@ -1079,7 +1080,7 @@ static uintptr_t complete_exit(choiceptr ptr, int has_cp,
   return TRUE;
 }
 
-Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
+X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   CACHE_REGS
   Int ret;
   Int OASP = LCL0 - (CELL *)B;
@@ -1120,7 +1121,7 @@ Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
 #define REDO_INT 0x02 /* Returned an integer */
 #define REDO_PTR 0x03 /* returned a pointer */
 
-Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
+X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
   CACHE_REGS
   CELL ocp = LCL0 - (CELL *)B;
   /* for slots to work */
@@ -1168,7 +1169,7 @@ Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
   }
 }
 
-Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
+X_API Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
                      struct cut_c_str *top) {
   CACHE_REGS
   Int oB = LCL0 - (CELL *)B;
@@ -1216,7 +1217,7 @@ Int YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code,
   }
 }
 
-Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
+X_API Int YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code) {
   CACHE_REGS
   /* for slots to work */
   Yap_StartSlots();
@@ -1847,7 +1848,7 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
   return i + USER_BLOB_START;
 }
 
-Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes) {
+X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t tag, size_t bytes) {
   Term t = Yap_AllocExternalDataInStack((CELL)tag, bytes);
   if (t == TermNil)
     return 0L;
@@ -2322,7 +2323,7 @@ bool Yap_embedded = true;
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
-YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
+X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   YAP_file_type_t restore_result = yap_init->boot_file_type;
   bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
@@ -3088,7 +3089,7 @@ X_API void YAP_signal(int sig) { Yap_signal(sig); }
 X_API int YAP_SetYAPFlag(Term flag, Term val) { return setYapFlag(flag, val); }
 
 /*    yhandle_t  YAP_VarSlotToNumber(yhandle_t)  */
-yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
+X_API yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
   CACHE_REGS
   Term *t = (CELL *)Deref(Yap_GetFromSlot(s));
   if (t < HR)
@@ -3097,14 +3098,14 @@ yhandle_t YAP_VarSlotToNumber(yhandle_t s) {
 }
 
 /*    Term  YAP_ModuleUser()  */
-Term YAP_ModuleUser(void) { return MkAtomTerm(AtomUser); }
+X_API Term YAP_ModuleUser(void) { return MkAtomTerm(AtomUser); }
 
 /*    int  YAP_PredicateHasClauses()  */
-yhandle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
+X_API yhandle_t YAP_NumberOfClausesForPredicate(PredEntry *pe) {
   return pe->cs.p_code.NOfClauses;
 }
 
-int YAP_MaxOpPriority(Atom at, Term module) {
+X_API int YAP_MaxOpPriority(Atom at, Term module) {
   AtomEntry *ae = RepAtom(at);
   OpEntry *info;
   WRITE_LOCK(ae->ARWLock);
@@ -3122,7 +3123,7 @@ int YAP_MaxOpPriority(Atom at, Term module) {
   return ret;
 }
 
-int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio) {
+X_API int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio) {
   AtomEntry *ae = RepAtom(at);
   OpEntry *info;
   int n;
@@ -3184,14 +3185,14 @@ int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio) {
   return 1;
 }
 
-int YAP_Argv(char ***argvp) {
+X_API int YAP_Argv(char ***argvp) {
   if (argvp) {
     *argvp = GLOBAL_argv;
   }
   return GLOBAL_argc;
 }
 
-YAP_tag_t YAP_TagOfTerm(Term t) {
+X_API YAP_tag_t YAP_TagOfTerm(Term t) {
   if (IsVarTerm(t)) {
     CELL *pt = VarOfTerm(t);
     if (IsUnboundVar(pt)) {
@@ -3246,7 +3247,7 @@ Term YAP_BPROLOG_curr_toam_status;
  *
  * @return a positive number with the size, or 0.
  */
-size_t YAP_UTF8_TextLength(Term t) {
+X_API size_t YAP_UTF8_TextLength(Term t) {
   utf8proc_uint8_t dst[8];
   size_t sz = 0;
 
@@ -3280,7 +3281,7 @@ size_t YAP_UTF8_TextLength(Term t) {
   return sz;
 }
 
-Int YAP_ListLength(Term t) {
+X_API Int YAP_ListLength(Term t) {
   Term *aux;
 
   Int n = Yap_SkipList(&t, &aux);
@@ -3291,14 +3292,14 @@ Int YAP_ListLength(Term t) {
   return -1;
 }
 
-Int YAP_NumberVars(Term t, Int nbv) { return Yap_NumberVars(t, nbv, FALSE); }
+X_API Int YAP_NumberVars(Term t, Int nbv) { return Yap_NumberVars(t, nbv, FALSE); }
 
-Term YAP_UnNumberVars(Term t) {
+X_API Term YAP_UnNumberVars(Term t) {
   /* don't allow sharing of ground terms */
   return Yap_UnNumberTerm(t, FALSE);
 }
 
-int YAP_IsNumberedVariable(Term t) {
+X_API int YAP_IsNumberedVariable(Term t) {
   return IsApplTerm(t) && FunctorOfTerm(t) == FunctorDollarVar &&
          IsIntegerTerm(ArgOfTerm(1, t));
 }

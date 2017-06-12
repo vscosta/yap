@@ -1858,8 +1858,8 @@ void Yap_InitPlIO(struct yap_boot_params *argi) {
     Yap_stdout = fdopen(argi->out-1, "a");
   else if (argi->out)
      Yap_stdout = NULL;
- else
-  Yap_stdout = stdout;
+  else
+   Yap_stdout = stdout;
   if (argi->err >0 )
     Yap_stderr = fdopen(argi->err-1, "a");
   else if (argi->out)

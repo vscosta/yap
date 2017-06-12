@@ -1,5 +1,5 @@
 
-#include "python.h"
+#include "py4yap.h"
     
 static foreign_t repr_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();

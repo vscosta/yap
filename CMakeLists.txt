@@ -55,7 +55,6 @@ option(BUILD_SHARED_LIBS "Build shared library" ON)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
-
 include(Prelims NO_POLICY_SCOPE)
 
 include(Sources NO_POLICY_SCOPE)
@@ -109,7 +108,10 @@ else()
   List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
   List (APPEND YLIBS    $<TARGET_OBJECTS:libswi> )
 if (WIN32)
-  List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
+        if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:YAPPython0> )
+            endif()
   endif()
 
 
@@ -128,6 +130,9 @@ add_library( # Sets the name of the library.
 
 if (WIN32)
     target_link_libraries(libYap ${WINDLLS})
+    if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES )
+        target_link_libraries(libYap ${PYTHON_LIBRARIES})
+    endif()
 endif (WIN32)
 
 include(libYap NO_POLICY_SCOPE)
