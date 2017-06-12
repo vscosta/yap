@@ -1,6 +1,16 @@
 set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 )
-
+set (PythonInterp_FIND_VERSION 3)
 find_package(PythonInterp)
+
+get_filename_component( d ${PYTHON_EXECUTABLE} DIRECTORY )
+get_filename_component( s ${PYTHON_EXECUTABLE} EXT )
+get_filename_component( n ${PYTHON_EXECUTABLE} NAME_WE )
+
+set( o  ${d}/${n}3${s} )
+if (EXISTS o)
+    set (PYTHON_EXECUTABLE ${o})
+        endif()
+
 find_package(PythonLibs)
 
 
@@ -29,6 +39,7 @@ ENDIF()
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
   add_subdirectory(packages/python/swig)
+
   include(FindPythonModule)
 
   find_python_module( jupyter )

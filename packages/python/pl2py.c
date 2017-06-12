@@ -1,6 +1,6 @@
 
 
-#include "python.h"
+#include "py4yap.h"
 
 extern PyObject *py_Local, *py_Global;
 

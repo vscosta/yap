@@ -20,6 +20,7 @@ Moyle.  All rights reserved.
 */
 
 #define PL_KERNEL 1
+#define _EXPORT_KERNEL 1
 
 //=== includes ===============================================================
 #include <assert.h>

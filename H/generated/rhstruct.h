@@ -83,7 +83,6 @@
 #ifdef EUROTRA
   TermDollarU = AtomTermAdjust(TermDollarU);
 #endif
-  TermAnswer = AtomTermAdjust(TermAnswer);
 
   USER_MODULE = AtomTermAdjust(USER_MODULE);
   IDB_MODULE = AtomTermAdjust(IDB_MODULE);

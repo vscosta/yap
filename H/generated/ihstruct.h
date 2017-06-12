@@ -83,7 +83,6 @@
 #ifdef EUROTRA
   TermDollarU = MkAtomTerm(AtomDollarU);
 #endif
-  TermAnswer = MkAtomTerm(AtomAnswer);
 
   USER_MODULE = MkAtomTerm(AtomUser);
   IDB_MODULE = MkAtomTerm(AtomIDB);

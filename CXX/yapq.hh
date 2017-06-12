@@ -19,7 +19,7 @@
 #ifndef YAPQ_HH
 #define YAPQ_HH 1
 
-class YAPPredicate;
+class X_API YAPPredicate;
 
 /**
    Queries and engines
@@ -31,7 +31,7 @@ class YAPPredicate;
  * interface to a YAP Query;
  * uses an SWI-like status info internally.
  */
-class YAPQuery : public YAPPredicate
+class X_API YAPQuery : public YAPPredicate
 {
   bool q_open;
   int q_state;
@@ -171,7 +171,7 @@ inline bool command()
 /// This class implements a callback Prolog-side. It will be inherited by the
 /// Java or Python
 /// class that actually implements the callback.
-class YAPCallback
+class X_API YAPCallback
 {
 public:
   virtual ~YAPCallback() {}
@@ -181,7 +181,7 @@ public:
 
 
 /// @brief Setup all arguments to a new engine
-class YAPEngineArgs {
+class X_API YAPEngineArgs {
 
 public:
 

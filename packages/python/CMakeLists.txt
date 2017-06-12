@@ -7,7 +7,10 @@ set (PYTHON_HEADERS  python.h)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-add_library (YAPPython SHARED ${PYTHON_SOURCES})
+add_library (YAPPython0 OBJECT ${PYTHON_SOURCES})
+if (WIN32)
+add_library (YAPPython SHARED pyload.c )
+endif()
 
 # arithmetic hassle.
 set_property(TARGET YAPPython PROPERTY CXX_STANDARD 11)

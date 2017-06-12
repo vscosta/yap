@@ -81,7 +81,7 @@ typedef struct vfs {
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
   bool (*close)(int sno);   /// close the object
   int (*get_char)(int sno); /// get an octet to the stream
-  int (*put_char)(int sno, wchar_t ch); /// output an octet to the stream
+  int (*put_char)(int sno, int ch); /// output an octet to the stream
   void (*flush)(int sno); /// flush a stream
   int64_t (*seek)(int sno, int64_t offset,
                   int whence); /// jump around the stream

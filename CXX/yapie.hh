@@ -1,4 +1,4 @@
-/**
+                                                            /**
  *   @file yapie.hh
  *
  *   @defgroup yap-cplus-error-hanadlinge Errir Handling in the YAP interface.
@@ -23,11 +23,11 @@
 #ifndef YAPIE_HH
 #define YAPIE_HH
 
-class YAPPPredicate;
-class YAPTerm;
+class X_API YAPPPredicate;
+class X_API YAPTerm;
 
 /// take information on a Prolog error:
-class YAPError {
+class X_API YAPError {
   yap_error_number ID;
   std::string goal, info;
   int swigcode;

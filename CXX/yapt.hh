@@ -34,7 +34,7 @@ class YAPError;
 /**
  * @brief Generic Prolog Term
  */
-class YAPTerm {
+class X_API YAPTerm {
   friend class YAPPredicate;
   friend class YAPPrologPredicate;
   friend class YAPQuery;
@@ -255,38 +255,9 @@ public:
 };
 
 /**
- * @brief Variable Term
- */
-class YAPVarTerm : public YAPTerm {
-  YAPVarTerm(Term t) {
-    if (IsVarTerm(t)) {
-      mk(t);
-    }
-  }
-
-public:
-  /// constructor
-  YAPVarTerm();
-  /// get the internal representation
-  CELL *getVar() { return VarOfTerm(gt()); }
-  /// is the variable bound to another one
-  bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
-  virtual bool isVar() { return true; }      /// type check for unbound
-  virtual bool isAtom() { return false; }    ///  type check for atom
-  virtual bool isInteger() { return false; } /// type check for integer
-  virtual bool isFloat() { return false; }   /// type check for floating-point
-  virtual bool isString() { return false; }  /// type check for a string " ... "
-  virtual bool isCompound() { return false; } /// is a primitive term
-  virtual bool isAppl() { return false; }     /// is a structured term
-  virtual bool isPair() { return false; }     /// is a pair term
-  virtual bool isGround() { return false; }   /// term is ground
-  virtual bool isList() { return false; }     /// term is a list
-};
-
-/**
  * @brief Compound Term
  */
-class YAPApplTerm : public YAPTerm {
+class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
@@ -324,7 +295,7 @@ public:
 /**
  * @brief List Constructor Term
  */
-class YAPPairTerm : public YAPTerm {
+class X_API YAPPairTerm : public YAPTerm {
   friend class YAPTerm;
 
 
@@ -362,7 +333,7 @@ public:
  * @brief Number Term
  */
 
-class YAPNumberTerm : public YAPTerm {
+class X_API YAPNumberTerm : public YAPTerm {
 public:
   YAPNumberTerm(){};
   bool isTagged() { return IsIntTerm(gt()); }
@@ -372,7 +343,7 @@ public:
  * @brief Integer Term
  */
 
-class YAPIntegerTerm : public YAPNumberTerm {
+class X_API YAPIntegerTerm : public YAPNumberTerm {
 public:
   YAPIntegerTerm(intptr_t i);
   intptr_t getInteger() { return IntegerOfTerm(gt()); };
@@ -382,14 +353,14 @@ public:
  * @brief Floating Point Term
  */
 
-class YAPFloatTerm : public YAPNumberTerm {
+class X_API YAPFloatTerm : public YAPNumberTerm {
 public:
   YAPFloatTerm(double dbl) { mk(MkFloatTerm(dbl)); };
 
   double getFl() { return FloatOfTerm(gt()); };
 };
 
-class YAPListTerm : public YAPTerm {
+class X_API YAPListTerm : public YAPTerm {
 public:
   /// Create a list term out of a standard term. Check if a valid operation.
   ///
@@ -447,7 +418,7 @@ public:
 /**
  * @brief String Term
  */
-class YAPStringTerm : public YAPTerm {
+class X_API YAPStringTerm : public YAPTerm {
 public:
   /// your standard constructor
   YAPStringTerm(char *s);
@@ -464,7 +435,7 @@ public:
  * @brief Atom Term
  * Term Representation of an Atom
  */
-class YAPAtomTerm : public YAPTerm {
+class X_API YAPAtomTerm : public YAPTerm {
   friend class YAPModule;
   // Constructor: receives a C-atom;
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
@@ -497,5 +468,36 @@ public:
   const char *text() { return (const char *)AtomOfTerm(gt())->StrOfAE; }
 };
 #endif /* YAPT_HH */
+
+
+/**
+ * @brief Variable Term
+ */
+class X_API YAPVarTerm : public YAPTerm {
+    friend class YAPTerm;
+
+public:
+    /// constructor
+    YAPVarTerm();
+    /// get the internal representation
+    CELL *getVar() { return VarOfTerm(gt()); }
+    /// is the variable bound to another one
+    YAPVarTerm(Term t) {
+      if (IsVarTerm(t)) {
+        mk(t);
+      }
+    }
+    bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
+    virtual bool isVar() { return true; }      /// type check for unbound
+    virtual bool isAtom() { return false; }    ///  type check for atom
+    virtual bool isInteger() { return false; } /// type check for integer
+    virtual bool isFloat() { return false; }   /// type check for floating-point
+    virtual bool isString() { return false; }  /// type check for a string " ... "
+    virtual bool isCompound() { return false; } /// is a primitive term
+    virtual bool isAppl() { return false; }     /// is a structured term
+    virtual bool isPair() { return false; }     /// is a pair term
+    virtual bool isGround() { return false; }   /// term is ground
+    virtual bool isList() { return false; }     /// term is a list
+};
 
 /// @}

@@ -23,6 +23,12 @@
 #define EXTRA_MESSSAGES 1
 
 #ifndef PYTHON_H
+
+#define X_API
+#define I_API
+#define O_API
+
+
 #define PYTHON_H 1
 
 PyObject *find_obj(PyObject *ob, term_t lhs, bool eval);

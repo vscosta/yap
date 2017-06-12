@@ -83,7 +83,6 @@
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->TermDollarU_
 #endif
-#define TermAnswer Yap_heap_regs->TermAnswer_
 
 #define USER_MODULE Yap_heap_regs->USER_MODULE_
 #define IDB_MODULE Yap_heap_regs->IDB_MODULE_

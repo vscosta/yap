@@ -1,6 +1,6 @@
 
 
-#define YAP_CPP_INTERFACE 1
+#define _EXPORT_KERNEL 1
 
 #include "yapi.hh"
 extern "C" {
@@ -1012,7 +1012,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       return ap;
     }
 
-    X_API bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last,
+    bool YAPPrologPredicate::assertClause(YAPTerm cl, bool last,
 						YAPTerm source)
     {
       CACHE_REGS
