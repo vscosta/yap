@@ -18,27 +18,6 @@ if (WITH_JIT)
   add_subDIRECTORY(JIT)
 endif (WITH_JIT)
 
-OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
-
-IF (WITH_SWIG)
-  find_host_package (SWIG)
-  macro_log_feature (SWIG_FOUND "Swig"
-    "Use SWIG Interface Generator "
-    "http://www.swig.org" ON)
-ENDIF (WITH_SWIG)
-
-option (WITH_PYTHON
-  "Allow Python->YAP  and YAP->Python" ON)
-
-IF (WITH_PYTHON)
-  include(python)
-ENDIF (WITH_PYTHON)
-
-
-IF (SWIG_FOUND)
-  add_subDIRECTORY (packages/swig)
-ENDIF(SWIG_FOUND)
-
 add_subDIRECTORY (packages/raptor)
 
 add_subDIRECTORY (packages/xml)

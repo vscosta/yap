@@ -25,8 +25,7 @@ $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	| sed 's/GECODE_BOOL_EXPORT //g' \
 	| grep -v '*' | sort >> $@ || { rm -f $@; exit 1; }
 
-$(ENUMS): % : xml/namespaceGecode.xml extract-enums.xsl
-	cat notice.py > $@ || { rm -f $@; exit 1; }
+b	cat notice.py > $@ || { rm -f $@; exit 1; }
 	xsltproc extract-enums.xsl $< >> $@ || { rm -f $@; exit 1; }
 
 xml/namespaceGecode.xml: Doxyfile

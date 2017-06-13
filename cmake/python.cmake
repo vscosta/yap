@@ -1,17 +1,4 @@
 set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 )
-set (PythonInterp_FIND_VERSION 3)
-find_package(PythonInterp)
-
-get_filename_component( d ${PYTHON_EXECUTABLE} DIRECTORY )
-get_filename_component( s ${PYTHON_EXECUTABLE} EXT )
-get_filename_component( n ${PYTHON_EXECUTABLE} NAME_WE )
-
-set( o  ${d}/${n}3${s} )
-if (EXISTS o)
-    set (PYTHON_EXECUTABLE ${o})
-        endif()
-
-find_package(PythonLibs)
 
 
 #  PYTHONLIBS_FOUND           - have the Python libs been found
@@ -22,8 +9,22 @@ find_package(PythonLibs)
 #   PYTHONLIBS_VERSION_STRING  - version of the Python libs found (since CMake 2.8.8)
 ##
 #
+if (WIN32)
+    set (PYTHONLIBS_FOUND YES CACHE BOOL "MINGW/MSYS2" FORCE )
+    set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
+    set (PYTHON_LIBRARIES C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
+    set (PYTHON_INCLUDE_PATH C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE )
+    set (PYTHON_INCLUDE_DIRS C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE  )
+    set (PYTHON_EXECUTABLE C:/msys64/mingw64/bin/python3.exe CACHE FILEPATH "MINGW/MSYS2" FORCE )
+    set (PYTHONLIBS_VERSION_STRING 3.5 CACHE STRING "MINGW/MSYS2" FORCE )
 
+    else()
 
+    find_package(PythonInterp)
+
+    find_package(PythonLibs)
+
+endif()
 
 
 include_directories( BEFORE ${PYTHON_INCLUDE_DIRS} )
@@ -36,15 +37,3 @@ check_include_file(Python.h HAVE_PYTHON_H)
 IF (PYTHONLIBS_FOUND)
   add_subDIRECTORY (packages/python)
 ENDIF()
-
-if (PYTHONLIBS_FOUND AND SWIG_FOUND)
-  add_subdirectory(packages/python/swig)
-
-  include(FindPythonModule)
-
-  find_python_module( jupyter )
-
-  if (PY_JUPYTER)
-    add_subdirectory(packages/python/yap_kernel)
-  ENDIF()
-endif()

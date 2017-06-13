@@ -1,4 +1,5 @@
 # value of 3.4.0 or lower.
+cmake_minimum_required(VERSION 3.4)
 
   if(COMMAND cmake_policy)
       cmake_policy(SET CMP0003 NEW)
@@ -61,36 +62,57 @@ include(Sources NO_POLICY_SCOPE)
 
 include(Model NO_POLICY_SCOPE)
 
+
 include_directories ( utf8proc packages/myddas packages/myddas/sqlite3/src)
 
 if (ANDROID)
     include_directories (
- packages/myddas/sqlite3/src/Android/jni/sqlite
-  packages/myddas/sqlite3/src/Android/jni/sqlite/nativehelper
- )
- endif (ANDROID)
+            packages/myddas/sqlite3/src/Android/jni/sqlite
+            packages/myddas/sqlite3/src/Android/jni/sqlite/nativehelper
+    )
+endif (ANDROID)
 
-  set_property( SOURCE ${LIBYAP_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
+set_property( SOURCE ${LIBYAP_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
 
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (MYSQL_FOUND)
-  add_definitions(= -DMYDDAS_MYSQL=1)
-  endif()
+    add_definitions(= -DMYDDAS_MYSQL=1)
+endif()
 
 if (ODBC_FOUND)
-  add_definitions(= -DMYDDAS_ODBC=1)
-  endif()
+    add_definitions(= -DMYDDAS_ODBC=1)
+endif()
 
 if (MYSQL_POSTGRES)
-  add_definitions(= -DMYDDAS_POSTGRES=1)
-  endif()
-  if (MYSQL_POSTGRES)
-    set(SWIG_SOURCES packages/swig/python/yap_PYTHONwrapper.cxx )
-    endif()
+    add_definitions(= -DMYDDAS_POSTGRES=1)
+endif()
 
 
-  if (ANDROID)
+OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
+
+IF (WITH_SWIG)
+    find_host_package (SWIG)
+    macro_log_feature (SWIG_FOUND "Swig"
+            "Use SWIG Interface Generator "
+            "http://www.swig.org" ON)
+ENDIF (WITH_SWIG)
+
+option (WITH_PYTHON
+        "Allow Python->YAP  and YAP->Python" ON)
+
+IF (WITH_PYTHON)
+    include(python NO_POLICY_SCOPE)
+ENDIF (WITH_PYTHON)
+
+
+IF (SWIG_FOUND)
+    add_subDIRECTORY (packages/swig  NO_POLICY_SCOPE)
+ENDIF(SWIG_FOUND)
+
+
+
+if (ANDROID)
 
     ADD_SUBDIRECTORY(os)
     ADD_SUBDIRECTORY(OPTYap)
@@ -101,18 +123,21 @@ if (MYSQL_POSTGRES)
 
 else()
 
-  List (APPEND YLIBS    $<TARGET_OBJECTS:libOPTYap> )
-  List (APPEND YLIBS    $<TARGET_OBJECTS:libYAPOs> )
-  List (APPEND YLIBS    $<TARGET_OBJECTS:utf8proc> )
-  List (APPEND YLIBS    $<TARGET_OBJECTS:myddas> )
-  List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
-  List (APPEND YLIBS    $<TARGET_OBJECTS:libswi> )
-if (WIN32)
-    List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
-        if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES )
-    List (APPEND YLIBS    $<TARGET_OBJECTS:YAPPython0> )
-            endif()
-  endif()
+    List (APPEND YLIBS    $<TARGET_OBJECTS:libOPTYap> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:libYAPOs> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:utf8proc> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:myddas> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
+    List (APPEND YLIBS    $<TARGET_OBJECTS:libswi> )
+    if (WIN32)
+        List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
+        if (WITH_PYTHON )
+            List (APPEND YLIBS    $<TARGET_OBJECTS:Obj4Py> )
+        endif()
+    endif()
+
+endif()
+
 
 
 add_library( # Sets the name of the library.
@@ -137,8 +162,6 @@ endif (WIN32)
 
 include(libYap NO_POLICY_SCOPE)
 
-endif()
-
 if (USE_READLINE)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
 endif (USE_READLINE)
@@ -155,4 +178,18 @@ set_target_properties(libYap
   )
 
 MY_include(Packages NO_POLICY_SCOPE)
+
+
+if (PYTHONLIBS_FOUND AND SWIG_FOUND)
+    add_subdirectory(packages/python/swig)
+
+    include(FindPythonModule)
+
+    find_python_module( jupyter )
+
+    if (PY_JUPYTER)
+        add_subdirectory(packages/python/yap_kernel)
+    ENDIF()
+endif()
+
 include(Config NO_POLICY_SCOPE)

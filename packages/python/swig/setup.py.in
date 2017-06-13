@@ -60,14 +60,7 @@ elif platform.system() == 'Windows':
     my_extra_link_args = ['-Wl,-export-all-symbols','-Wl,-enable-auto-import','-Wl,-enable-runtime-pseudo-relocs']
 
 cplus = ['']
-bpy2yap = ['${CMAKE_SOURCE_DIR}/packages/python/python.c',
-          '${CMAKE_SOURCE_DIR}/packages/python/pl2py.c',
-          '${CMAKE_SOURCE_DIR}/packages/python/pybips.c',
-          '${CMAKE_SOURCE_DIR}/packages/python/py2pl.c',
-          '${CMAKE_SOURCE_DIR}/packages/python/pl2pl.c',
-          '${CMAKE_SOURCE_DIR}/packages/python/pypreds.c'
-          ]
-
+bpy2yap = \
 native_sources = ['yap.i']
 here = path.abspath(path.dirname(__file__))
 
@@ -80,7 +73,8 @@ extensions = [Extension('_yap', native_sources,
                                        ('_GNU_SOURCE', '1'),
                                        ('YAP_PYTHON', '1')],
                         runtime_library_dirs=['yap4py', '${libdir}', '${bindir}'],
-                        swig_opts=['-modern', '-c++', '-py3', '-I${CMAKE_SOURCE_DIR}/CXX', '-I${CMAKE_SOURCE_DIR}/include',
+                        swig_opts=['-modern', '-c++', '-py3',
+                                   '-DX_API', '-I${CMAKE_SOURCE_DIR}/CXX', '-I${CMAKE_SOURCE_DIR}/include',
                                    '-I${CMAKE_SOURCE_DIR}/H', '-I${CMAKE_SOURCE_DIR}/H/generated',
                                    '-I${CMAKE_SOURCE_DIR}/os', '-I${CMAKE_SOURCE_DIR}/OPTYap', '-I../../..'],
                         library_dirs=['../../..', '../../../CXX', '../../packages/python', "${dlls}", "${bindir}", '.'],

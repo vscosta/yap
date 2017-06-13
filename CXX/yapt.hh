@@ -20,13 +20,15 @@
  *
  */
 
+
 #include <vector>
 
 #ifndef YAPT_HH
 #define YAPT_HH 1
 
 extern "C" {
-  Term YAP_ReadBuffer(const char *s, Term *tp);
+
+  X_API Term YAP_ReadBuffer(const char *s, Term *tp);
 }
 
 class YAPError;
