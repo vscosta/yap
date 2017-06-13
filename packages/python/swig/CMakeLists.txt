@@ -20,15 +20,19 @@ INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/CXX")
 
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
-SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap)
-#SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
+SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap)
 
-set(SYS_DLLS /mingw64/bin/libgcc_s_seh-1.dll
-        /mingw64/bin/libgmp-10.dll
-        /mingw64/bin/libstdc++-6.dll
-        /mingw64/bin/libwinpthread-1.dll
+if (WIN32)
 
-        )
+set (SYS_DLLS ${GMP_LIBRARIES})
+find_library( stdc+++ tmp $ENV{PATH})
+list (APPEND SYS_DLLS ${tmp})
+find_library( winpthread tmp $ENV{PATH})
+list (APPEND SYS_DLLS ${tmp})
+find_library( gcc_s_seh tmp $ENV{PATH})
+list (APPEND SYS_DLLS ${tmp})
+
+endif()
 
   # inform we are compiling YAP
   # s used in MSYS
@@ -50,7 +54,7 @@ set(SYS_DLLS /mingw64/bin/libgcc_s_seh-1.dll
           $<TARGET_FILE:yap_random>
           )
   if (TARGET real)
-    list( APPEND python_dlls $<TARGET_FILE:real>
+    list( python_dlls $<TARGET_FILE:real>
  )
 endif()
 
@@ -77,7 +81,7 @@ add_custom_target( YAP4PY ALL
   COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 DEPENDS YAP4PY_SETUP)
-  
+
 
 
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  --force --no-index -f dist yap4py
