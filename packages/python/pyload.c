@@ -1,10 +1,16 @@
 
 #include "py4yap.h"
 
-    X_API bool init_python(void) {
-        return true;
-   }
 
+X_API bool init_python_dll(void);
+
+
+X_API bool init_python_dll(void)
+{
+    do_init_python();
+
+  return 1;
+}
 #ifdef _WIN32
 
 #include <windows.h>

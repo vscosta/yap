@@ -57,7 +57,7 @@ if platform.system() == 'Darwin':
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 elif platform.system() == 'Windows':
-    my_extra_link_args = ['-Wl,-export-all-symbols','-Wl,-enable-auto-import','-Wl,-enable-runtime-pseudo-relocs']
+    my_extra_link_args = ['-Wl,-export-all-symbols']
 
 cplus = ['']
 bpy2yap = \
@@ -70,8 +70,7 @@ extensions = [Extension('_yap', native_sources,
                         define_macros=[('MAJOR_VERSION', '1'),
                                        ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
-                                       ('_GNU_SOURCE', '1'),
-                                       ('YAP_PYTHON', '1')],
+                                       ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=['yap4py', '${libdir}', '${bindir}'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-I${CMAKE_SOURCE_DIR}/CXX', '-I${CMAKE_SOURCE_DIR}/include',
@@ -79,7 +78,7 @@ extensions = [Extension('_yap', native_sources,
                                    '-I${CMAKE_SOURCE_DIR}/os', '-I${CMAKE_SOURCE_DIR}/OPTYap', '-I../../..'],
                         library_dirs=['../../..', '../../../CXX', '../../packages/python', "${dlls}", "${bindir}", '.'],
                         extra_link_args=my_extra_link_args,
-                        libraries=['Yap', '${GMP_LIBRARIES}'],
+                        libraries=['Yap','${PYTHON_LIBRARIES}','${GMP_LIBRARIES}','wsock32','ws2_32'],
                         include_dirs=['../../..',
                                       '${GMP_INCLUDE_DIRS}',
                                       '${CMAKE_SOURCE_DIR}/H',

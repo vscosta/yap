@@ -20,7 +20,5 @@ else:
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll, mode=ctypes.RTLD_GLOBAL)
 
-load('libgcc*')
-load('libstdc*')
-load('libsinpt*')
-load('libgmp*')
+
+load('libYap*')

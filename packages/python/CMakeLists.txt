@@ -34,15 +34,8 @@ add_to_group( pl_library PYTHON_PL )
 
 #set_target_properties (YAPPython PROPERTIES PREFIX "")
 
-IF(WIN32)
-    install(TARGETS  YAPPython
-      LIBRARY DESTINATION ${libdir}
-      RUNTIME DESTINATION ${bindir}
-      ARCHIVE DESTINATION ${libdir} )
-  else()
     install(TARGETS  YAPPython
       LIBRARY DESTINATION ${dlls}
       RUNTIME DESTINATION ${dlls}
       ARCHIVE DESTINATION ${dlls} )
-  endif()
 

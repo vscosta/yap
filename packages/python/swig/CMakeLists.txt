@@ -25,12 +25,10 @@ SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap)
 if (WIN32)
 
 set (SYS_DLLS ${GMP_LIBRARIES})
-find_library( stdc+++ tmp $ENV{PATH})
-list (APPEND SYS_DLLS ${tmp})
-find_library( winpthread tmp $ENV{PATH})
-list (APPEND SYS_DLLS ${tmp})
-find_library( gcc_s_seh tmp $ENV{PATH})
-list (APPEND SYS_DLLS ${tmp})
+
+message(STATUS "SYS_ = ${tmp}")
+
+set (SYS_DLLS c:/msys64/mingw64/bin/libgmp-10.dll)
 
 endif()
 
@@ -42,7 +40,7 @@ endif()
   #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
-  #  	)x
+  #  	)
 
 
   set (python_dlls $<TARGET_FILE:matrix>
@@ -52,11 +50,13 @@ endif()
     $<TARGET_FILE:itries>
     $<TARGET_FILE:sys>
           $<TARGET_FILE:yap_random>
-          )
+          $<TARGET_FILE:YAPPython>
+  )
   if (TARGET real)
-    list( python_dlls $<TARGET_FILE:real>
- )
-endif()
+    list(APPEND python_dlls $<TARGET_FILE:real>
+  )
+  message(STATUS "${python_dlls}")
+  endif()
 
 set (PL ${pl_library} ${PROLOG_SOURCES} )
 
@@ -70,23 +70,23 @@ add_custom_target( YAP4PY_SETUP
         DEPENDS  YAP4PY_SETUP_DIRS STARTUP ${python_dlls} ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME}  )
 
 add_custom_target( YAP4PY_SETUP_DIRS
-        COMMAND ${CMAKE_COMMAND} -E  touch ${CMAKE_CURRENT_BINARY_DIR}/yap.py
         COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-  COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
-  COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl
-  COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os
+  	COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog
+  	COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl
+  	COMMAND ${CMAKE_COMMAND} -E  make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os
         )
 
 add_custom_target( YAP4PY ALL
-  COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
+        COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 DEPENDS YAP4PY_SETUP)
 
 
 
 install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  --force --no-index -f dist yap4py
-   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
- DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+  	      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
+ 	      DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
 
 install(FILES ${PROLOG_SOURCES} DESTINATION ${libpl})
 
