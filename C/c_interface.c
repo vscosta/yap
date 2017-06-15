@@ -77,6 +77,8 @@ struct foreign_context {
   struct PL_local_data *engine; /* invoking engine */
 };
 
+X_API bool python_in_python;
+
 X_API int YAP_Reset(yap_reset_t mode);
 
 #if !HAVE_STRNCPY

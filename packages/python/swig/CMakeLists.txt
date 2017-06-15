@@ -26,8 +26,6 @@ if (WIN32)
 
 set (SYS_DLLS ${GMP_LIBRARIES})
 
-message(STATUS "SYS_ = ${tmp}")
-
 set (SYS_DLLS c:/msys64/mingw64/bin/libgmp-10.dll)
 
 endif()
@@ -37,9 +35,9 @@ endif()
   #
   #
   #  INSTALL ( TARGETS  ${SWIG_MODULE_Py2YAP_REAL_NAME}
-  #  RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
-  #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
-  #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
+  #              RUNTIME  DESTINATION ${PYTHON_MODULE_PATH}
+  #  	         ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
+  #  	         LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
   #  	)
 
 
@@ -49,19 +47,20 @@ endif()
     $<TARGET_FILE:tries>
     $<TARGET_FILE:itries>
     $<TARGET_FILE:sys>
-          $<TARGET_FILE:yap_random>
-          $<TARGET_FILE:YAPPython>
+    $<TARGET_FILE:yap_random>
+    $<TARGET_FILE:YAP++>
+    $<TARGET_FILE:YAPPython>
   )
   if (TARGET real)
     list(APPEND python_dlls $<TARGET_FILE:real>
   )
-  message(STATUS "${python_dlls}")
   endif()
 
 set (PL ${pl_library} ${PROLOG_SOURCES} )
 
 add_custom_target( YAP4PY_SETUP
-        COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_SOURCE_DIR}/packages/swig/yap.i ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_SOURCE_DIR}/packages/swig/yap.i ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_BINARY_DIR}/config.h ${CMAKE_CURRENT_BINARY_DIR}
         COMMAND ${CMAKE_COMMAND} -E  copy ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
         COMMAND ${CMAKE_COMMAND} -E  copy ${python_dlls} ${SYS_DLLS}  ${CMAKE_BINARY_DIR}/libYap${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${PYTHON_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/yap4py
         COMMAND ${CMAKE_COMMAND} -E  copy ${PL} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog

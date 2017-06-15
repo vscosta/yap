@@ -76,7 +76,7 @@ extern PyObject *py_F2P;
 extern PyObject *py_Sys;
 extern PyObject *py_ModDict;
 
-extern bool python_in_python;
+extern X_API bool python_in_python;
 
 extern bool python_release_GIL(term_t state);
 extern term_t python_acquire_GIL(void);

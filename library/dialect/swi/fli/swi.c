@@ -1,4 +1,4 @@
-/* xsswi.c  */
+/* swi.c  */
 /*
 * Project: jpl for Yap Prolog
 * Author: Steve Moyle and Vitor Santos Costa
@@ -800,7 +800,7 @@ X_API int PL_get_head(term_t ts, term_t h) {
 
 *  */
 
-/** @brief t unifies with the true/false value in a.
+/*b* @brief t unifies with the true/false value in a.
 *
 */
 X_API int PL_unify_bool(term_t t, int a) {

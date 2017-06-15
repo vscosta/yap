@@ -1,4 +1,5 @@
 
+
 #include "py4yap.h"
 #include <VFS.h>
 
@@ -109,7 +110,7 @@ init_python_stream(void)
 
 X_API PyObject *py_F2P;
 
-bool python_in_python;
+extern X_API bool python_in_python;
 
 static void add_modules(void) {
   py_Main = PyImport_AddModule("__main__");
@@ -199,7 +200,6 @@ X_API bool do_init_python(void) {
     Py_Initialize();
   install_py_constants();
   PL_reset_term_refs(t);
-  install_pypreds();
   install_pl2pl();
   // PyGILState_Release(gstate);
     add_modules();

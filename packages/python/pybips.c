@@ -1,5 +1,3 @@
-#include "py4yap.h"
-
 /**
  *
  * @section Python Built-Ins
@@ -10,7 +8,7 @@
 
 //@{
 
-#include "python.h"
+#include "py4yap.h"
 
 static PyObject *finalLookup(PyObject *i, const char *s) {
   PyObject *rc;

@@ -74,53 +74,6 @@ public:
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
 
-/**
- * @brief YAPFunctor represents Prolog functors Name/Arity
- */
-class X_API YAPFunctor : public YAPProp {
-  friend class YAPApplTerm;
-  friend class YAPTerm;
-  friend class YAPPredicate;
-  friend class YAPQuery;
-  Functor f;
-  /// Constructor: receives Prolog functor and casts it to YAPFunctor
-  ///
-  /// Notice that this is designed for internal use only.
-  inline YAPFunctor(Functor ff) { f = ff; }
-
-public:
-  /// Constructor: receives name as an atom, plus arity
-  ///
-  /// This is the default method, and the most popular
-  YAPFunctor(YAPAtom at, uintptr_t arity) { f = Yap_MkFunctor(at.a, arity); }
-
-  /// Constructor: receives name as a string plus arity
-  ///
-  /// Notice that this is designed for ISO-LATIN-1 right now
-  /// Note: Python confuses the 3 constructors,
-  /// use YAPFunctorFromString
-  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
-    f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
-  }
-  /// Constructor: receives name as a  wide string plus arity
-  ///
-  /// Notice that this is designed for UNICODE right now
-  ///
-  /// Note: Python confuses the 3 constructors,
-  /// use YAPFunctorFromWideString
-  inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
-    CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
-  }
-  /// Getter: extract name of functor as an atom
-  ///
-  /// this is for external usage.
-  YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
-
-  /// Getter: extract arity of functor as an unsigned integer
-  ///
-  /// this is for external usage.
-  uintptr_t arity(void) { return ArityOfFunctor(f); }
-};
 
 /**
  * @brief Predicates

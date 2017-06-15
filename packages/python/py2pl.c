@@ -30,13 +30,8 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
     rc= PL_unify_atom(t, ATOM_none);
     //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
-  }
-  if (PyBool_Check(pVal)) {
-    if (PyObject_IsTrue(pVal)) {
-      rc = rc && PL_unify_atom(t, ATOM_true);
-    } else {
-      rc = rc && PL_unify_atom(t, ATOM_false);
-    }
+  } else if (PyBool_Check(pVal)) {
+    rc = rc && PL_unify_bool(t, PyObject_IsTrue(pVal));
   } else if (PyLong_Check(pVal)) {
     rc = rc && PL_unify_int64(t, PyLong_AsLong(pVal));
 #if PY_MAJOR_VERSION < 3

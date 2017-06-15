@@ -257,6 +257,54 @@ public:
 };
 
 /**
+ * @brief YAPFunctor represents Prolog functors Name/Arity
+ */
+class X_API YAPFunctor : public YAPProp {
+  friend class YAPApplTerm;
+  friend class YAPTerm;
+  friend class YAPPredicate;
+  friend class YAPQuery;
+  Functor f;
+  /// Constructor: receives Prolog functor and casts it to YAPFunctor
+  ///
+  /// Notice that this is designed for internal use only.
+  inline YAPFunctor(Functor ff) { f = ff; }
+
+public:
+  /// Constructor: receives name as an atom, plus arity
+  ///
+  /// This is the default method, and the most popular
+  YAPFunctor(YAPAtom at, uintptr_t arity) { f = Yap_MkFunctor(at.a, arity); }
+
+  /// Constructor: receives name as a string plus arity
+  ///
+  /// Notice that this is designed for ISO-LATIN-1 right now
+  /// Note: Python confuses the 3 constructors,
+  /// use YAPFunctorFromString
+  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
+    f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
+  }
+  /// Constructor: receives name as a  wide string plus arity
+  ///
+  /// Notice that this is designed for UNICODE right now
+  ///
+  /// Note: Python confuses the 3 constructors,
+  /// use YAPFunctorFromWideString
+  inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
+    CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
+  }
+  /// Getter: extract name of functor as an atom
+  ///
+  /// this is for external usage.
+  YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
+
+  /// Getter: extract arity of functor as an unsigned integer
+  ///
+  /// this is for external usage.
+  uintptr_t arity(void) { return ArityOfFunctor(f); }
+};
+
+/**
  * @brief Compound Term
  */
 class X_API YAPApplTerm : public YAPTerm {
@@ -273,7 +321,9 @@ public:
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
   YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
-  YAPFunctor getFunctor();
+  inline Functor functor() { return FunctorOfTerm(gt()); }
+  inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+
   Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
@@ -480,7 +530,7 @@ class X_API YAPVarTerm : public YAPTerm {
 
 public:
     /// constructor
-    YAPVarTerm();
+    YAPVarTerm() {mk(MkVarTerm()); };
     /// get the internal representation
     CELL *getVar() { return VarOfTerm(gt()); }
     /// is the variable bound to another one
@@ -490,16 +540,16 @@ public:
       }
     }
     bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
-    virtual bool isVar() { return true; }      /// type check for unbound
-    virtual bool isAtom() { return false; }    ///  type check for atom
-    virtual bool isInteger() { return false; } /// type check for integer
-    virtual bool isFloat() { return false; }   /// type check for floating-point
-    virtual bool isString() { return false; }  /// type check for a string " ... "
-    virtual bool isCompound() { return false; } /// is a primitive term
-    virtual bool isAppl() { return false; }     /// is a structured term
-    virtual bool isPair() { return false; }     /// is a pair term
-    virtual bool isGround() { return false; }   /// term is ground
-    virtual bool isList() { return false; }     /// term is a list
+    inline bool isVar() { return true; }      /// type check for unbound
+    inline bool isAtom() { return false; }    ///  type check for atom
+    inline bool isInteger() { return false; } /// type check for integer
+    inline bool isFloat() { return false; }   /// type check for floating-point
+    inline bool isString() { return false; }  /// type check for a string " ... "
+    inline bool isCompound() { return false; } /// is a primitive term
+    inline bool isAppl() { return false; }     /// is a structured term
+    inline bool isPair() { return false; }     /// is a pair term
+    inline bool isGround() { return false; }   /// term is ground
+    inline bool isList() { return false; }     /// term is a list
 };
 
 /// @}

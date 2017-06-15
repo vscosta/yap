@@ -195,8 +195,6 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm()
   RECOVER_H();
 }
 
-YAPFunctor YAPApplTerm::getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
-
 Term &YAPTerm::operator[](arity_t i)
 {
   BACKUP_MACHINE_REGS();
@@ -406,12 +404,6 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n)
     HR[2 * i] = ts[i].gt();
     HR[2 * i + 1] = AbsPair(HR + (2 * i + 2));
   }
-}
-
-YAPVarTerm::YAPVarTerm()
-{
-  CACHE_REGS
-  mk(MkVarTerm());
 }
 
 const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a, nullptr); }
@@ -1127,8 +1119,9 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       /* ignore flags  for now */
       BACKUP_MACHINE_REGS();
       Yap_RebootHandles(worker_id);
-      while (B->cp_b)
+      while (B && B->cp_b)
 	B = B->cp_b;
+      if (B) {
       P = FAILCODE;
       Yap_exec_absmi(true, YAP_EXEC_ABSMI);
       /* recover stack space */
@@ -1138,7 +1131,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
       YENV = ENV = B->cp_env;
-
+      }
       RECOVER_MACHINE_REGS();
     }
 
