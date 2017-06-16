@@ -2534,6 +2534,24 @@ static Int
   // return (out);
 }
 
+static Int
+    p_is_opaque_predicate(USES_REGS1) { /* '$is_multifile'(+S,+Mod)	 */
+  PredEntry *pe;
+  Term t1 = Deref(ARG1);
+  bool out;
+
+  // pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
+  // if (!pe)
+  pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
+  // if (!pe) pe = Yap_get_pred(t1, USER_MODULE, "system_predicate");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  return (pe->ModuleOfPred == 0 ||
+	  pe->PredFlags & (SystemPredFlags|ForeignPredFlags));
+  UNLOCKPE(44, pe);
+  return (out);
+}
+
 static Int p_is_thread_local(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PredEntry *pe;
   bool out;
@@ -4723,6 +4741,8 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$new_system_predicate", 3, new_system_predicate,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_system_predicate", 2, p_is_system_predicate,
+                TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_opaque_predicate", 2, p_is_opaque_predicate,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$new_discontiguous", 3, p_new_discontiguous,
                 SafePredFlag | SyncPredFlag);

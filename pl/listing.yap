@@ -109,6 +109,7 @@ listing(Stream, [MV|MVs]) :- !,
 
 '$do_listing'(Stream, M, Name/Arity) :-
     ( current_predicate(Name, M:Pred),
+      \+ '$is_opaque_predicate'(Pred,M),
       functor( Pred, Name, Arity),
       \+ '$undefined'(Pred, M),
       '$listing'(Name,Arity,M,Stream),

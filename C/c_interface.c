@@ -1732,7 +1732,7 @@ X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b);
-  if (B < myB) {
+  if (B > myB) {
     /* someone cut us */
     return FALSE;
   }

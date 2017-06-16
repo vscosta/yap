@@ -604,7 +604,7 @@ be lost.
 	 '$spycall_f'(G, M, CalledFromDebugger, InRedo).
 
 '$spycall_f'(G, M, _, _) :-
-	( '$is_system_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
+	( '$is_opaque_predicate'(G,M) ; '$tabled_predicate'(G,M) ),
 	!,
 	'$continue_debugging_goal'(yes, '$execute_nonstop'(G,M)).
 '$spycall_f'(G, M, CalledFromDebugger, InRedo) :-
