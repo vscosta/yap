@@ -475,7 +475,7 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     BACKUP_MACHINE_REGS();
     Term *ts = nullptr;
     PredEntry *ap = Yap_get_pred(t, tmod, "C++");
-
+    
     if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
     {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
@@ -517,7 +517,6 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-    //  fprintf(stderr,"in");Yap_DebugPlWrite(t);
     {
       YAP_LeaveGoal(false, &q);
       RECOVER_MACHINE_REGS();
@@ -625,6 +624,7 @@ Term YAPEngine::fun(Term t)
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     : YAPPredicate(f, mod)
 {
+
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
     Term *nts;
@@ -1110,7 +1110,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 	      s += "\n";
 	    }
 	}
-      printf("%s\n", s.c_str());
+      //      printf("%s\n", s.c_str());
       return s.c_str();
     }
 

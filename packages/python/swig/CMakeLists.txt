@@ -48,11 +48,13 @@ endif()
     $<TARGET_FILE:itries>
     $<TARGET_FILE:sys>
     $<TARGET_FILE:yap_random>
-    $<TARGET_FILE:YAP++>
-    $<TARGET_FILE:YAPPython>
   )
   if (TARGET real)
     list(APPEND python_dlls $<TARGET_FILE:real>
+      )
+    endif()
+  if (NOT WIN32)
+    list(APPEND python_dlls     $<TARGET_FILE:YAP++>    $<TARGET_FILE:Py4YAP>
   )
   endif()
 
@@ -76,7 +78,7 @@ add_custom_target( YAP4PY_SETUP_DIRS
         )
 
 add_custom_target( YAP4PY ALL
-        COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
+        COMMAND  ${SWIG_EXECUTABLE}  -python -modern -c++ -py3 -DX_API -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/OPTYap -I../../.. -o yap_wrap.cpp yap.i
         COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 DEPENDS YAP4PY_SETUP)

@@ -52,20 +52,21 @@ here = os.path.abspath(os.path.dirname(__file__))
 pkg_root = pjoin(here, name)
 
 my_extra_link_args = []
-if platform.system() == 'Darwin':
+if platform.system() == 'Windows':
+    local_libs = []
+    win_libs = ['wsock32','ws2_32']
+    my_extra_link_args = ['-Wl,-export-all-symbols']
+else:
+    # if platform.system() == 'Darwin':
     my_extra_link_args = ['-Wl,-rpath', '-Wl,${_ABS_PYTHON_MODULE_PATH}']
     win_libs = []
     local_libs = ['YAP++','Py4YAP']
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
-elif platform.system() == 'Windows':
-    local_libs = []
-    win_libs = ['wsock32','ws2_32']
-    my_extra_link_args = ['-Wl,-export-all-symbols']
 
 cplus = ['']
 bpy2yap = []
-native_sources = ['yap.i']
+native_sources = ['yap_wrap.cpp']
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file

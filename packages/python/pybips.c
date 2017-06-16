@@ -99,7 +99,7 @@ PyObject *find_obj(PyObject *ob, term_t l, bool eval) {
   yt = YAP_GetFromSlot(l);
   while (YAP_IsPairTerm(yt)) {
     hd = YAP_HeadOfTerm(yt);
-    ob = yap_to_python(hd, eval, ob);
+    ob = yap_to_python(hd, true, ob);
     ob = CHECKNULL(yt, ob);
     if (!ob){
       return Py_None;
