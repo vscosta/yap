@@ -1,17 +1,17 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	%W% %G% 					 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2012	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YapCompounTerm.h					 *
-* mods:									 *
-* comments:	main header file for YAP				 *
-* version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	%W% %G% 					 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2012	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapCompounTerm.h *
+ * mods: *
+ * comments:	main header file for YAP				 *
+ * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
+ *************************************************************************/
 
 /*************************************************************************************************
                            High level macros to access arguments
@@ -23,7 +23,7 @@
 
 #include "inline-only.h"
 
-EXTERN Int Yap_unify(Term a, Term b);
+EXTERN bool Yap_unify(Term a, Term b);
 
 INLINE_ONLY EXTERN inline Term Deref(Term a);
 
@@ -38,7 +38,6 @@ INLINE_ONLY EXTERN inline Term Deref(Term a) {
 }
 
 INLINE_ONLY EXTERN inline CELL *GetTermAdress(Term a);
-
 
 INLINE_ONLY EXTERN inline Term Derefa(CELL *b);
 

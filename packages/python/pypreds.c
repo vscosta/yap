@@ -638,7 +638,7 @@ static YAP_Int p_python_threaded(void) {
 static PyGILState_STATE gstate;
 
 term_t python_acquire_GIL(void) {
-  term_t curSlot = 1; //PL_new_term_ref();
+  term_t curSlot = PL_new_term_ref();
   if (!_threaded)
     pyErrorAndReturn(curSlot, false);
   //   extern int Yap_do_low_level_trace;
@@ -652,7 +652,7 @@ term_t python_acquire_GIL(void) {
 
 bool python_release_GIL(term_t curBlock) {
   PyErr_Clear();
- // PL_reset_term_refs(curBlock);
+ PL_reset_term_refs(curBlock);
   if (_threaded) {
       PyGILState_Release(gstate);
   }

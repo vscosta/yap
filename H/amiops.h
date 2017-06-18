@@ -374,19 +374,19 @@ close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
 }
 
 INLINE_ONLY EXTERN inline
-Int Yap_unify(Term t0, Term t1);
+bool Yap_unify(Term t0, Term t1);
 
 INLINE_ONLY EXTERN inline
-Int Yap_unify(Term t0, Term t1)
+bool Yap_unify(Term t0, Term t1)
 {
   CACHE_REGS
   tr_fr_ptr TR0 = TR;
 
   if (Yap_IUnify(t0,t1)) {
-    return TRUE;
+    return true;
   } else {
     reset_trail(TR0);
-    return FALSE;
+    return false;
   }
 }
 

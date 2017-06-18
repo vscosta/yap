@@ -1,6 +1,6 @@
 
 #include "py4yap.h"
-    
+
 static foreign_t repr_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
   PL_put_pointer(t1, pVal);
@@ -25,11 +25,14 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
 foreign_t python_to_term(PyObject *pVal, term_t t) {
   bool rc = true;
   term_t to = PL_new_term_ref();
-  // fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);   fputs("<<***\n",stderr);
+  // fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);
+  // fputs("<<***\n",stderr);
   if (pVal == Py_None) {
-    //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
-    rc= PL_unify_atom(t, ATOM_none);
-    //fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs(" >>***\n",stderr);
+    // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
+    // >>***\n",stderr);
+    rc = PL_unify_atom(t, ATOM_none);
+    // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
+    // >>***\n",stderr);
   } else if (PyBool_Check(pVal)) {
     rc = rc && PL_unify_bool(t, PyObject_IsTrue(pVal));
   } else if (PyLong_Check(pVal)) {
@@ -41,8 +44,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
   } else if (PyFloat_Check(pVal)) {
     rc = rc && PL_unify_float(t, PyFloat_AsDouble(pVal));
   } else if (PyComplex_Check(pVal)) {
-   term_t t1 = PL_new_term_ref(),
-           t2 = PL_new_term_ref();
+    term_t t1 = PL_new_term_ref(), t2 = PL_new_term_ref();
     if (!PL_put_float(t1, PyComplex_RealAsDouble(pVal)) ||
         !PL_put_float(t2, PyComplex_ImagAsDouble(pVal)) ||
         !PL_cons_functor(to, FUNCTOR_complex2, t1, t2)) {
@@ -61,7 +63,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     free(ptr);
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
-    tmp_atom = PL_new_atom( s);
+    tmp_atom = PL_new_atom(s);
 #endif
     rc = rc && PL_unify_atom(t, tmp_atom);
   } else if (PyByteArray_Check(pVal)) {
@@ -80,63 +82,63 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       rc = rc && PL_unify_atom(t, ATOM_brackets);
     } else {
       if ((s = (Py_TYPE(pVal)->tp_name))) {
-	if (!strcmp(s, "H")) {
-	  pVal = PyTuple_GetItem(pVal, 0);
-	  if (pVal==NULL) {
-	    pVal = Py_None;
-	    PyErr_Clear();
-	  }
-	}
-	if (s[0] == '$') {
-	  char *ns = malloc(strlen(s) + 5);
-	  strcpy(ns, "__");
-	  strcat(ns, s + 1);
-	  strcat(ns, "__");
-	  f = PL_new_functor(PL_new_atom(ns), sz);
-	} else {
-	  f = PL_new_functor(PL_new_atom(s), sz);
-	}
+        if (!strcmp(s, "H")) {
+          pVal = PyTuple_GetItem(pVal, 0);
+          if (pVal == NULL) {
+            pVal = Py_None;
+            PyErr_Clear();
+          }
+        }
+        if (s[0] == '$') {
+          char *ns = malloc(strlen(s) + 5);
+          strcpy(ns, "__");
+          strcat(ns, s + 1);
+          strcat(ns, "__");
+          f = PL_new_functor(PL_new_atom(ns), sz);
+        } else {
+          f = PL_new_functor(PL_new_atom(s), sz);
+        }
       } else {
-	f = PL_new_functor(ATOM_t, sz);
+        f = PL_new_functor(ATOM_t, sz);
       }
-    if (PL_unify_functor(t, f)) {
-      for (i = 0; i < sz; i++) {
-	if (!PL_get_arg(i + 1, t, to))
-	  rc = false;
-	PyObject *p = PyTuple_GetItem(pVal, i);
-	if (p==NULL) {
-	  PyErr_Clear();
-	  p = Py_None;
-	}
-	rc = rc && python_to_term(p, to);
+      if (PL_unify_functor(t, f)) {
+        for (i = 0; i < sz; i++) {
+          if (!PL_get_arg(i + 1, t, to))
+            rc = false;
+          PyObject *p = PyTuple_GetItem(pVal, i);
+          if (p == NULL) {
+            PyErr_Clear();
+            p = Py_None;
+          }
+          rc = rc && python_to_term(p, to);
+        }
+      } else {
+        rc = false;
       }
-    } else {
-      rc = false;
-    }
-    //fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs(" ||***\n",stderr);
+      // fputs(" ||*** ",stderr); Yap_DebugPlWrite(YAP_GetFromSlot(t)); fputs("
+      // ||***\n",stderr);
     }
   } else if (PyList_Check(pVal)) {
-      Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
+    Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
 
-      if (sz == 0) {
-	rc = rc && PL_unify_nil(t);
-      } else {
-	for (i = 0; i < sz; i++) {
-	  PyObject *obj;
-	  if (!PL_unify_list(t, to, t)) {
-	    rc = false;
-	    break;
-	  }
-	  if ((obj = PyList_GetItem(pVal, i)) == NULL) {
-	    obj = Py_None;
-	  }
-	  rc = rc &&  python_to_term(obj, to);
-      
-	}
+    if (sz == 0) {
       rc = rc && PL_unify_nil(t);
+    } else {
+      for (i = 0; i < sz; i++) {
+        PyObject *obj;
+        if (!PL_unify_list(t, to, t)) {
+          rc = false;
+          break;
+        }
+        if ((obj = PyList_GetItem(pVal, i)) == NULL) {
+          obj = Py_None;
+        }
+        rc = rc && python_to_term(obj, to);
       }
-      //fputs("[***]  ", stderr);
-      //Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
+      rc = rc && PL_unify_nil(t);
+    }
+    // fputs("[***]  ", stderr);
+    // Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
   } else if (PyDict_Check(pVal)) {
     Py_ssize_t pos = 0;
     term_t to = PL_new_term_ref(), ti = to;
@@ -147,30 +149,31 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       rc = rc && PL_unify_atom(t, ATOM_curly_brackets);
     } else {
       while (PyDict_Next(pVal, &pos, &key, &value)) {
-	term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
-	  tnew = PL_new_term_ref();
-	/* do something interesting with the values... */
-	if (!python_to_term(key, tkey)) {
-	  continue;
-	}
-	if (!python_to_term(value, tval)) {
-	  continue;
-	}
-	/* reuse */
-	tint = tkey;
-	if (!PL_cons_functor(tint, FUNCTOR_colon2, tkey, tval)) {
-	  rc = false;
-	  continue;
-	}
-	if (--left) {
-	  if (!PL_cons_functor(tint, FUNCTOR_comma2, tint, tnew))
-	    PL_reset_term_refs(tkey);
-	  rc = false;
-	}
-	if (!PL_unify(ti, tint)) {
-	  rc = false;      }
-	ti = tnew;
-	PL_reset_term_refs(tkey);
+        term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
+               tnew = PL_new_term_ref();
+        /* do something interesting with the values... */
+        if (!python_to_term(key, tkey)) {
+          continue;
+        }
+        if (!python_to_term(value, tval)) {
+          continue;
+        }
+        /* reuse */
+        tint = tkey;
+        if (!PL_cons_functor(tint, FUNCTOR_colon2, tkey, tval)) {
+          rc = false;
+          continue;
+        }
+        if (--left) {
+          if (!PL_cons_functor(tint, FUNCTOR_comma2, tint, tnew))
+            PL_reset_term_refs(tkey);
+          rc = false;
+        }
+        if (!PL_unify(ti, tint)) {
+          rc = false;
+        }
+        ti = tnew;
+        PL_reset_term_refs(tkey);
       }
       rc = rc && PL_unify(t, to);
     }
@@ -183,9 +186,10 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
   term_t t = PL_new_term_ref();
-  if (pVal == NULL ||
-      !python_to_term(pVal, t))
+  if (pVal == NULL || !python_to_term(pVal, t)) {
+    PL_reset_term_refs(t);
     return 0;
+  }
   YAP_Term tt = YAP_GetFromSlot(t);
   PL_reset_term_refs(t);
   Py_DECREF(pVal);
@@ -238,25 +242,25 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     if (PL_skip_list(t, tail, &len) &&
         PL_get_nil(tail)) { //             true list
 
-	  bool o = true;
-	  if (PySequence_Check(exp) && PySequence_Length(exp) == len)
+      bool o = true;
+      if (PySequence_Check(exp) && PySequence_Length(exp) == len)
 
-	    for (i = 0; i < len; i++) {
-	      PyObject *p;
-	      if (!PL_get_list(t, arg, t)) {
-		PL_reset_term_refs(tail);
-		o = false;
-		p = Py_None;
-	      }
-	      if ((p = PySequence_GetItem(exp, i)) == NULL)
-		  p = Py_None;
-	      if (!python_assign(arg, p, context)) {
-		PL_reset_term_refs(tail);
-		o = false;
-	      }
-	    }
-	  PL_reset_term_refs(tail);
-	  return o;
+        for (i = 0; i < len; i++) {
+          PyObject *p;
+          if (!PL_get_list(t, arg, t)) {
+            PL_reset_term_refs(tail);
+            o = false;
+            p = Py_None;
+          }
+          if ((p = PySequence_GetItem(exp, i)) == NULL)
+            p = Py_None;
+          if (!python_assign(arg, p, context)) {
+            PL_reset_term_refs(tail);
+            o = false;
+          }
+        }
+      PL_reset_term_refs(tail);
+      return o;
     } else {
       functor_t fun;
 
@@ -287,8 +291,8 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         }
         if (PyList_Check(i)) {
           i = PyList_GetItem(i, 0);
-	  if (i==NULL)
-	    i = Py_None;
+          if (i == NULL)
+            i = Py_None;
           long int j;
           if (PyList_Check(o)) {
 #if PY_MAJOR_VERSION < 3
