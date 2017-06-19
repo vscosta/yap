@@ -1233,6 +1233,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context) {
     Py_DECREF(o);
     DebugPrintf("CallObject %p\n", rc);
 
+
     return rc;
   }
 }

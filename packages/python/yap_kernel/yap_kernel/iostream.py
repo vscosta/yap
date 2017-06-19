@@ -43,6 +43,7 @@ class IOPubThread(object):
     """
 
     def __init__(self, socket, pipe=False):
+        # type: (object, object) -> object
         """Create IOPub thread
 
         Parameters
@@ -220,6 +221,7 @@ class BackgroundSocket(object):
     io_thread = None
     
     def __init__(self, io_thread):
+        # type: (object) -> object
         self.io_thread = io_thread
     
     def __getattr__(self, attr):
@@ -261,6 +263,7 @@ class OutStream(TextIOBase):
     encoding = 'UTF-8'
 
     def __init__(self, session, pub_thread, name, pipe=None):
+        # type: (object, object, object, object) -> object
         if pipe is not None:
             warnings.warn("pipe argument to OutStream is deprecated and ignored",
                 DeprecationWarning)

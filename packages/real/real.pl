@@ -950,4 +950,4 @@ prolog:message( r_root ) -->
 
 :- initialization( set_prolog_flag( double_quotes, string) ).
 
-@}
+%%% @}

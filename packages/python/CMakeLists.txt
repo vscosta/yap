@@ -18,7 +18,6 @@ else()
 add_library (Py4YAP SHARED ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 
 # arithmetic hassle.
-set_property(TARGET Py4YAP PROPERTY CXX_STANDARD 11)
 set_property(TARGET Py4YAP PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_link_libraries(Py4YAP libYap ${PYTHON_LIBRARIES})
@@ -32,7 +31,6 @@ endif()
 
 
 # arithmetic hassle.
-set_property(TARGET YAPPython PROPERTY CXX_STANDARD 11)
 set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES})

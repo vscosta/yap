@@ -127,6 +127,7 @@ def use_cloudpickle():
 
 class CannedObject(object):
     def __init__(self, obj, keys=[], hook=None):
+        # type: (object, object, object) -> object
         """can an object for safe pickling
         
         Parameters
@@ -167,6 +168,7 @@ class CannedObject(object):
 class Reference(CannedObject):
     """object for wrapping a remote reference by name."""
     def __init__(self, name):
+        # type: (object) -> object
         if not isinstance(name, string_types):
             raise TypeError("illegal name: %r"%name)
         self.name = name
@@ -185,6 +187,7 @@ class Reference(CannedObject):
 class CannedCell(CannedObject):
     """Can a closure cell"""
     def __init__(self, cell):
+        # type: (object) -> object
         self.cell_contents = can(cell.cell_contents)
     
     def get_object(self, g=None):
@@ -197,6 +200,7 @@ class CannedCell(CannedObject):
 class CannedFunction(CannedObject):
 
     def __init__(self, f):
+        # type: (object) -> object
         self._check_type(f)
         self.code = f.__code__
         if f.__defaults__:
@@ -239,6 +243,7 @@ class CannedFunction(CannedObject):
 class CannedClass(CannedObject):
 
     def __init__(self, cls):
+        # type: (object) -> object
         self._check_type(cls)
         self.name = cls.__name__
         self.old_style = not isinstance(cls, type)
@@ -263,6 +268,7 @@ class CannedClass(CannedObject):
 
 class CannedArray(CannedObject):
     def __init__(self, obj):
+        # type: (object) -> object
         from numpy import ascontiguousarray
         self.shape = obj.shape
         self.dtype = obj.dtype.descr if obj.dtype.fields else obj.dtype.str
@@ -300,6 +306,7 @@ class CannedBytes(CannedObject):
     wrap = staticmethod(buffer_to_bytes)
 
     def __init__(self, obj):
+        # type: (object) -> object
         self.buffers = [obj]
     
     def get_object(self, g=None):

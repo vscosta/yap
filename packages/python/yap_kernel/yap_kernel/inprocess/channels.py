@@ -16,6 +16,7 @@ class InProcessChannel(object):
     proxy_methods = []
 
     def __init__(self, client=None):
+        # type: (object) -> object
         super(InProcessChannel, self).__init__()
         self.client = client
         self._is_alive = False
@@ -70,6 +71,7 @@ class InProcessHBChannel(object):
     time_to_dead = 3.0
 
     def __init__(self, client=None):
+        # type: (object) -> object
         super(InProcessHBChannel, self).__init__()
         self.client = client
         self._is_alive = False

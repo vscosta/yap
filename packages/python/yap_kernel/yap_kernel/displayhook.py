@@ -18,6 +18,7 @@ class ZMQDisplayHook(object):
     topic = b'execute_result'
 
     def __init__(self, session, pub_socket):
+        # type: (object, object) -> object
         self.session = session
         self.pub_socket = pub_socket
         self.parent_header = {}

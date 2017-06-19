@@ -22,6 +22,7 @@ from pyswip.core import *
 
 class InvalidTypeError(TypeError):
     def __init__(self, *args):
+        # type: (object) -> object
         type = args and args[0] or "Unknown"
         msg = "Term is expected to be of type: '%s'" % type
         Exception.__init__(self, msg, *args)
@@ -31,6 +32,7 @@ class Atom(object):
     __slots__ = "handle","chars"
 
     def __init__(self, handleOrChars):
+        # type: (object) -> object
         """Create an atom.
         ``handleOrChars``: handle or string of the atom.
         """
@@ -71,6 +73,7 @@ class Atom(object):
 class Term(object):
     __slots__ = "handle","chars","__value","a0"
     def __init__(self, handle=None, a0=None):
+        # type: (object, object) -> object
         if handle:
             #self.handle = PL_copy_term_ref(handle)
             self.handle = handle
@@ -89,6 +92,7 @@ class Variable(object):
     __slots__ = "handle","chars"
 
     def __init__(self, handle=None, name=None):
+        # type: (object, object) -> object
         self.chars = None
         if name:
             self.chars = name
@@ -147,6 +151,7 @@ class Functor(object):
     func = {}
 
     def __init__(self, handleOrName, arity=1, args=None, a0=None):
+        # type: (object, object, object, object) -> object
         """Create a functor.
         ``handleOrName``: functor handle, a string or an atom.
         """
@@ -436,6 +441,7 @@ class Query(object):
     fid = None
 
     def __init__(self, *terms, **kwargs):
+        # type: (object, object) -> object
         for key in kwargs:
             if key not in ["flags", "module"]:
                 raise Exception("Invalid kwarg: %s" % key, key)

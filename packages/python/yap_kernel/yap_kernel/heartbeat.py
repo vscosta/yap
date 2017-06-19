@@ -30,6 +30,7 @@ class Heartbeat(Thread):
     "A simple ping-pong style heartbeat that runs in a thread."
 
     def __init__(self, context, addr=None):
+        # type: (object, object) -> object
         if addr is None:
             addr = ('tcp', localhost(), 0)
         Thread.__init__(self)

@@ -1,11 +1,48 @@
 
-import yap
 import os.path
 import sys
 # debugging support.
 # import pdb
 from collections import namedtuple
 
+from yap import *
+
+class Engine( YAPEngine ):
+    def __init__(self, args=None):
+        # type: (object) -> object
+        if not args:
+            args = YAPEngineArgs()
+        yap_lib_path = os.path.dirname(__file__)
+        args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
+        args.setYapLibDir(yap_lib_path)
+        args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
+        YAPEngine.__init__(self,args)
+        self.goal( set_prolog_flag('verbose', 'silent' ) )
+        self.goal( use_module(library('yapi') ) )
+
+    def run(self, g, m=None):
+        if m:
+            self.mgoal(g, m)
+        else:
+            self.goal(g)
+
+    def f(self, g):
+        self.E.fun(g)
+
+
+class EngineArgs( YAPEngineArgs ):
+    """ Interface to Engine Options class"""
+
+    
+class Predicate( YAPPredicate ):
+    """ Interface to Generic Predicate"""
+
+    
+class PrologPredicate( YAPPrologPredicate ):
+    """ Interface to Prolog  Predicate"""
+
+    
+    
 global engine, handler
 
 yap_lib_path = os.path.dirname(__file__)
@@ -19,6 +56,7 @@ jupyter_query = namedtuple( 'jupyter_query', 'vars dict')
 python_query = namedtuple( 'python_query', 'vars dict')
 yapi_query = namedtuple( 'yapi_query', 'vars dict')
 show_answer = namedtuple( 'show_answer', 'vars dict')
+set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 def v():
     return yap.YAPVarTerm()
@@ -96,16 +134,6 @@ def query_prolog(engine, s):
     print("No (more) answers")
     q.close()
     return
-
-def boot_yap(**kwargs):
-    yap_lib_path = os.path.dirname(__file__)
-    args = yap.YAPEngineArgs()
-    args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
-    args.setYapLibDir(yap_lib_path)
-    args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
-    engine = yap.YAPEngine(args)
-    engine.goal( use_module(library('yapi') ) )
-    return engine
 
 def live(**kwargs):
     loop = True

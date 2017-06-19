@@ -28,6 +28,7 @@ from internal_yapkernel import InternalYAPKernel
 class SimpleWindow(Qt.QWidget, InternalYAPKernel):
 
     def __init__(self, app):
+        # type: (object) -> object
         Qt.QWidget.__init__(self)
         self.app = app
         self.add_widgets()

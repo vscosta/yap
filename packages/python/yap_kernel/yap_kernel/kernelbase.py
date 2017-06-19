@@ -134,6 +134,7 @@ class Kernel(SingletonConfigurable):
     control_msg_types = msg_types + ['clear_request', 'abort_request']
 
     def __init__(self, **kwargs):
+        # type: (object) -> object
         super(Kernel, self).__init__(**kwargs)
 
         # Build dict of handlers for message types

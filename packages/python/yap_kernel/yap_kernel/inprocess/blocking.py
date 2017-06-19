@@ -27,6 +27,7 @@ from .client import InProcessKernelClient
 class BlockingInProcessChannel(InProcessChannel):
 
     def __init__(self, *args, **kwds):
+        # type: (object, object) -> object
         super(BlockingInProcessChannel, self).__init__(*args, **kwds)
         self._in_queue = Queue()
 

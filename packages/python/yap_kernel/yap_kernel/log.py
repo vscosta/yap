@@ -10,6 +10,7 @@ class EnginePUBHandler(PUBHandler):
     engine=None
 
     def __init__(self, engine, *args, **kwargs):
+        # type: (object, object, object) -> object
         PUBHandler.__init__(self,*args, **kwargs)
         self.engine = engine
 

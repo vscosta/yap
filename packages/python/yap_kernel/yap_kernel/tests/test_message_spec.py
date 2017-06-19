@@ -61,6 +61,7 @@ class Reference(HasTraits):
 
 class Version(Unicode):
     def __init__(self, *args, **kwargs):
+        # type: (object, object) -> object
         self.min = kwargs.pop('min', None)
         self.max = kwargs.pop('max', None)
         kwargs['default_value'] = self.min

@@ -36,6 +36,7 @@ class MyFrame(wx.Frame, InternalYAPKernel):
     """
 
     def __init__(self, parent, title):
+        # type: (object, object) -> object
         wx.Frame.__init__(self, parent, -1, title,
                           pos=(150, 150), size=(350, 285))
 

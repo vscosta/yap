@@ -35,6 +35,7 @@ class YAPKernel(KernelBase):
     _sys_eval_input = Any()
 
     def __init__(self, **kwargs):
+        # type: (object) -> object
         super(YAPKernel, self).__init__(**kwargs)
 
         # Initialize the InteractiveShell subclass
@@ -376,6 +377,7 @@ class YAPKernel(KernelBase):
 
 class Kernel(YAPKernel):
     def __init__(self, *args, **kwargs):
+        # type: (object, object) -> object
         import warnings
         warnings.warn('Kernel is a deprecated alias of yap_kernel.yapkernel.YAPKernel',
                       DeprecationWarning)

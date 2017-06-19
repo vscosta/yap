@@ -138,6 +138,7 @@ def loop_wx(kernel):
     # We make the Frame hidden when we create it in the main app below.
     class TimerFrame(wx.Frame):
         def __init__(self, func):
+            # type: (object) -> object
             wx.Frame.__init__(self, None, -1)
             self.timer = wx.Timer(self)
             # Units for the timer are in milliseconds
@@ -184,6 +185,7 @@ def loop_tk(kernel):
     # For Tkinter, we create a Tk object and call its withdraw method.
     class Timer(object):
         def __init__(self, func):
+            # type: (object) -> object
             self.app = Tk()
             self.app.withdraw()
             self.func = func

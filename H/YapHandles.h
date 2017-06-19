@@ -283,7 +283,7 @@ static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
     return false;
   }
 #endif
-  LOCAL_CurHandle -= n;
+  LOCAL_CurHandle = topHandle;
   // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
   return true;
 }

@@ -70,6 +70,7 @@ class InProcessKernel(YAPKernel):
     stdin_socket = Instance(DummySocket, ())
 
     def __init__(self, **traits):
+        # type: (object) -> object
         super(InProcessKernel, self).__init__(**traits)
 
         self._underlying_iopub_socket.observe(self._io_dispatch, names=['message_sent'])

@@ -25,6 +25,7 @@ class GTKEmbed(object):
     """A class to embed a kernel into the GTK main event loop.
     """
     def __init__(self, kernel):
+        # type: (object) -> object
         self.kernel = kernel
         # These two will later store the real gtk functions when we hijack them
         self.gtk_main = None

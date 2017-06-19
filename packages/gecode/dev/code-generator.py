@@ -70,6 +70,7 @@ class Type(object):
     REFERENCE = re.compile("""^(.+)&$""")
 
     def __init__(self, text):
+        # type: (object) -> object
         if isinstance(text, Type):
             self.clone_from(text)
             return
@@ -128,6 +129,7 @@ class Constraint(object):
     ARG  = re.compile("""((?:[^,<(]|<[^>]*>|\([^)]*\))+),?""")
 
     def __init__(self, line):
+        # type: (object) -> object
         if isinstance(line, Constraint):
             self.clone_from(line)
             return
@@ -182,6 +184,7 @@ def load_decls(filename):
 class DeclsLoader(object):
 
     def __init__(self, filename):
+        # type: (object) -> object
         self.decls = load_decls(filename)
 
     def print_decls(self):
@@ -201,6 +204,7 @@ class PredGenerator(DeclsLoader):
             "TieBreakVarBranch<SetVarBranch>")
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(PredGenerator, self).__init__(filename)
         self._change_home_to_space()
         self._change_intsharedarray_to_intargs()
@@ -291,6 +295,7 @@ class PredGenerator(DeclsLoader):
 class Cluster(object):
 
     def __init__(self, name, arity):
+        # type: (object, object) -> object
         self.name = name
         self.arity = arity
         self.preds = []
@@ -299,6 +304,7 @@ class Cluster(object):
 class DTree(object):
 
     def __init__(self, i, preds, cluster):
+        # type: (object, object, object) -> object
         self.index = i
         self.cluster = cluster
         if len(preds) == 1 and len(preds[0].argtypes) == i:
@@ -354,6 +360,7 @@ class DTree(object):
 class YAPConstraintGeneratorBase(PredGenerator):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintGeneratorBase, self).__init__(filename)
         self._classify()
         self._dtreefy()
@@ -389,6 +396,7 @@ class YAPConstraintGeneratorBase(PredGenerator):
 class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintPrologGenerator, self).__init__(filename)
 
     def _prolog_clauses(self):
@@ -410,6 +418,7 @@ class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 class YAPConstraintCCGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintCCGenerator, self).__init__(filename)
 
     def _cc_descriptors(self):
@@ -434,6 +443,7 @@ import sys
 class OStream(object):
 
     def __init__(self, fd=sys.stdout):
+        # type: (object) -> object
         self.file = fd
         self.column = 0
 
@@ -472,6 +482,7 @@ class PrologObject(object):
 class PrologClause(PrologObject):
 
     def __init__(self, head, body):
+        # type: (object, object) -> object
         self.head = head
         self.body = body
 
@@ -486,6 +497,7 @@ class PrologClause(PrologObject):
 class PrologLiteral(PrologObject):
 
     def __init__(self, lit):
+        # type: (object) -> object
         self.literal = lit
 
     def pp(self, out, offset):
@@ -495,6 +507,7 @@ class PrologLiteral(PrologObject):
 class PrologIF(PrologObject):
 
     def __init__(self, cond, left, right):
+        # type: (object, object, object) -> object
         self.cond = cond
         self.left = left
         self.right = right
@@ -609,6 +622,7 @@ class YAPEnumPrologGenerator(object):
 class CCDescriptor(object):
 
     def __init__(self, name, argtypes, api):
+        # type: (object, object, object) -> object
         self.name = name
         self.argtypes = argtypes
         self.api = api

@@ -98,6 +98,7 @@ class YAPInteraction:
     """An enhanced, interactive shell for YAP."""
 
     def __init__(self, shell, **kwargs):
+        # type: (object, object) -> object
         try:
             if self.yapeng:
                 return

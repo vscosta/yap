@@ -801,7 +801,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
               return false;
             }
             ARG1 = Yap_GetFromHandle(s1);
-            Yap_RecoverHandles(sl, tnum - targ);
+            Yap_RecoverHandles(tnum - targ, sl);
             Yap_CloseSlots(sl0);
           }
           break;

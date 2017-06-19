@@ -2,15 +2,15 @@
 #include "py4yap.h"
 
 
-X_API bool init_python_dll(void);
+O_API bool init_python_dll(void);
 
 
-X_API bool init_python_dll(void)
-{
+O_API bool init_python_dll(void) {
     do_init_python();
-  install_pypreds();
-  return 1;
+    install_pypreds();
+    return 1;
 }
+
 #ifdef _WIN32
 
 #include <windows.h>
