@@ -439,8 +439,9 @@ private:
   //> call a deterninistic predicate: the user will construct aterm of
   //> arity N-1. YAP adds an extra variable which will have the
   //> output.
-  YAPTerm fun(YAPTerm t) { return YAPTerm(fun(t.term())); };
+  YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
   Term fun(Term t);
+  Term fun(YAPTerm t) { return fun(t.term()); };
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path)

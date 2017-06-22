@@ -603,14 +603,19 @@ Term YAPEngine::fun(Term t)
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
-    if (YAP_EnterGoal(ap, nullptr, &q) == 0)
+    if (YAP_EnterGoal(ap, nullptr, &q) == 0) {
+#if DEBUG
+      fprintf(stderr,"function call failed:\n");
+#endif
       return 0;
-    XREGS[arity] = Yap_GetFromSlot(o);
+    }
+    DBTerm *pt = Yap_StoreTermInDB(Yap_GetFromSlot(o), arity);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %ld", o);
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
+    Term rc = Yap_PopTermFromDB(pt);
     RECOVER_MACHINE_REGS();
-    return XREGS[arity];
+    return rc;
   }
   catch (YAPError e)
   {

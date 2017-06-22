@@ -112,7 +112,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
     } else
 #endif
     {
-      PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+      //      char *p = malloc(strlen(s)+1);
+      //strcpy(p, s);
+      PyObject *pobj = PyUnicode_FromString(s);
+      Py_IncRef(pobj);
       return CHECKNULL(t, pobj);
     }
   } break;

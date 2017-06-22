@@ -1,4 +1,4 @@
-%% @file yapi.yap
+drye%% @file yapi.yap
 %% @brief support yap shell
 %%
 :- module(yapi, [python_query/2,
@@ -75,7 +75,7 @@ bind_qv(V=V0, V1 = V01, Vs, Vs, Vs1-RB, Vs1-RB) :-
 	!,
 	'$VAR'(V) = V0,
 	V1 = V01.
-%	atom_string(V1, V01). 
+%	atom_string(V1, V01).
 bind_qv(V='$VAR'(Vi), V1=S1, Vs, [V='$VAR'(Vi)|Vs], D0-RB, D-RB) :- !,
 	add2dict(D0, V1:S1, D).
 bind_qv(V=S, V1=S1, Vs, [V=S|Vs], D0-RB0, D-RB0) :-
@@ -113,6 +113,3 @@ output([V=B], S) :-
 output([V=B|_Ns], S) :-
 	format( S, '~a = ~q.~n', [V, B]),
 	fail.
-
-
-
