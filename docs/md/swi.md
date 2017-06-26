@@ -12,6 +12,7 @@ resulted in Prolog extensions such as the `dialect` feature. YAP
 currently supports most of the SWI-Prolog foreign interface. The following  SWI
 libraries have been adapted to YAP:
 
+~~~~~
   + @ref aggregate
   + @ref base64
   + @ref broadcast
@@ -42,6 +43,7 @@ libraries have been adapted to YAP:
   + @ref utf8
   + @ref win_menu
   + @ref www_browser
+~~~~~
 
 
 Note that in general SWI code may be from an earlier version than the

@@ -22,25 +22,49 @@
 
 @file absmi.c
 
-@defgroup Efficiency Efficiency Considerations
-@ingroup YAPProgramming
+@{
 
 We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
 
-+ Execution of <em>deterministic</em> programs ofte
-n
++ Execution of <em>deterministic</em> programs often
 boils down to a recursive loop of the form:
 
 ~~~~~
+loop(Done).
 loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
 ~~~~~
+
+or to the repeat-fail loop:
+
+~~~~~
+loop(Inp) :-
+        do_something(Inp,Out),
+        out_and_fail(Out).
+~~~~~
+
+
+@}
+
+@defgroup Implementation Implementation Considerations
+@ingroup YAPProgramming
+
+This section is about the YAP implementation, and is mostly of
+interest to hackers.
+
+@{
+
+@defgroup Emulator The Abstract Machine Emulator
+@ingroup Implementation
+
  */
 
+/// code belongs to the emulator
 #define IN_ABSMI_C 1
 #define _INATIVE 1
+/// use tmp variables that are placed in registers
 #define HAS_CACHE_REGS 1
 
 #include "absmi.h"
@@ -1420,3 +1444,7 @@ default:
 
 /* dummy function that is needed for profiler */
 int Yap_absmiEND(void) { return 1; }
+
+/// @}
+
+/// @}

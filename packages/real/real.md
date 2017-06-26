@@ -213,9 +213,8 @@ logical :-
 
 Also @subpaage yap-real describes the YAP specfic details in real.
 
-*/Development of real in YAP   (#yap-real)
+*/Development of real in YAP   (#yap_real)
 ---------------------------
-
 
 YAP includes a development version of real, designed to experiment
 with the internals of the implementation of R. It includes major

@@ -1,3 +1,5 @@
+* { box-sizing:border-box }
+
 h1, .h1, h2, .h2, h3, .h3{
     font-weight: 200 !important;
 }
@@ -8,7 +10,8 @@ h1, .h1, h2, .h2, h3, .h3{
 
 .adjust-right {
 margin-left: 30px !important;
-font-size: 1.15em !important;
+margin-right: 30px !important;
+Font-size: 1.15em !important;
 }
 .navbar{
  border: 0px solid #222 !important;

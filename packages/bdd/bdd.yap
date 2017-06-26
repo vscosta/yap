@@ -1,4 +1,8 @@
-@defgroup BDDsPL Binary Decision Diagrams and Friends
+/**
+
+  @file bdd.yap
+  
+  @defgroup BDDsPL Binary Decision Diagrams and Friends
 @ingroup BDDs
 @{
 

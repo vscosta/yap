@@ -28,7 +28,7 @@ interface.
   + @ref sicsatts
   + @ref New_Style_Attribute_Declarations
   + @ref AttributedVariables_Builtins
-  + @ref corout
+  + @ref attscorouts
 
 ###  SICStus Style attribute declarations.              {#SICS_attributes}
 

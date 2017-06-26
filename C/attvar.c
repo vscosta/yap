@@ -29,7 +29,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 /**
-    @adefgroup AttributedVariables_Builtins Low-level support for Attributed Variables
+    @defgroup AttributedVariables_Builtins Low-level support for Attributed Variables
     
      @brief Implementation of Attribute Declarations
     @ingroup attributes

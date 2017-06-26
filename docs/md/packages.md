@@ -7,7 +7,7 @@ YAP packages              {#packages}
 
   + @subpage  gecode
 
-  + @subpage  myddas_dbms
+  + @subpage  myddas
 
   + @ref PFL
 

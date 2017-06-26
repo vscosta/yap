@@ -1,7 +1,7 @@
 Programming in YAP            {#YAPProgramming}
 ====================
 
-  + @ref Syntax
+  + @subpage YAPSyntax
 
   + @ref YAPCompilerSettings
 

@@ -44,7 +44,7 @@ extensions = ['sphinx.ext.autodoc',
               'breathe'
 ]
 
-breathe_projects = { "yap": "${CMAKE_CURRENT_BINARY_DIR" }
+breathe_projects = { "yap": "../../build/docs/xml" }
 breathe_default_project = "yap"
 
 # Add any paths that contain templates here, relative to this directory.

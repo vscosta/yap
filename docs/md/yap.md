@@ -74,13 +74,11 @@ acknowledge the contributions from Ashwin Srinivasian.
 YAP includes a number of extensions over the original Prolog
 language.
 
-  + @subpage atts
+  + @subpage atts.md
 
   + @ref Rational_Trees
   
   + @ref CohYroutining
-
-  + @ref Attributed_Variables
 
   + @ref  DepthLimited
 
@@ -97,15 +95,8 @@ language.
 
 @page YAPProgramming Programming in YAP
 
-    @subpage yapsyntax.md
-
 
 @page packages Packages for YAP
-YAP includes a number of packages.
- 
- @subpage real.md
-
- @subpage chr.md
 
 
   

@@ -18,7 +18,12 @@
 
 /**
 @file modules.yap
-**/
+
+  @defgroup ModuleBuiltins Module Support
+
+  @{
+
+  **/
 :- system_module( '$_modules', [abolish_module/1,
         add_import_module/3,
         current_module/1,
@@ -783,3 +788,5 @@ module_state :-
     format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
 	fail.
 module_state.
+
+// @}

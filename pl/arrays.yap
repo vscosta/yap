@@ -25,7 +25,7 @@
 % YAP_ARRAYS is defined in Yap.h
 %
 
-/** @pred  array(+ _Name_, + _Size_)
+/** @pred  array( +Name, +Size )
 
 
 Creates a new dynamic array. The  _Size_ must evaluate to an
