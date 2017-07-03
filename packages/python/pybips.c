@@ -698,7 +698,7 @@ static PyObject *structseq_repr(PyObject *iobj) {
 
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyObject *o;
-#if PY_MAJOR_VERSION >= 3
+#if PY_MAJOR_VERSION >= 30
   PyTypeObject *typp;
   PyObject *key = PyUnicode_FromString(s);
   if (py_F2P && PyDict_Contains(py_F2P, key)) {
@@ -716,17 +716,20 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     desc->n_in_sequence = arity;
     if (PyStructSequence_InitType2(typp, desc) < 0)
       return NULL;
-    typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
+    //    typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
+    // typp->tp_flags &= ~Py_TPFLAGS_HAVE_GC;
     // typp->tp_str = structseq_str;
     typp->tp_repr = structseq_repr;
     //     typp = PyStructSequence_NewType(desc);
     // don't do this: we cannot add a type as an atribute.
-    // PyModule_AddObject(py_Main, s, (PyObject *)typp);
+    // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
     if (py_F2P)
       PyDict_SetItem(py_F2P, key, (PyObject *)typp);
     Py_INCREF(typp);
   }
   o = PyStructSequence_New(typp);
+  Py_INCREF(typp);
+  fprintf(stderr, "<<< %p\n",typp);
   arity_t i;
   for (i = 0; i < arity; i++) {
     PyObject *pArg = PyTuple_GET_ITEM(tuple, i);

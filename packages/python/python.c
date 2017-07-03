@@ -125,8 +125,7 @@ static void add_modules(void) {
   py_Yapex = PyImport_AddModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
-  //py_F2P = PyObject_GetAttrString(py_Yap, "globals");
-  py_F2P = NULL;
+  py_F2P = PyDict_New();
   init_python_stream();
 }
 

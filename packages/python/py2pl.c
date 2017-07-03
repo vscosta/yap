@@ -1,5 +1,55 @@
 
 #include "py4yap.h"
+#include <frameobject.h>
+
+void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
+                      yap_error_number type, term_t where, ...) {
+    va_list ap;
+    char tmpbuf[MAXPATHLEN];
+    YAP_Term wheret = YAP_GetFromSlot(where);
+
+    if (PyErr_Occurred()) {
+        PyErr_Print();
+    } else {
+        PyObject *ptype, *pvalue, *ptraceback;
+        PyObject *pystr, *module_name, *pyth_module, *pyth_func;
+
+        /* See if we can get a full traceback */
+        module_name = PyUnicode_FromString("traceback");
+        pyth_module = PyImport_Import(module_name);
+        Py_DECREF(module_name);
+
+        if (pyth_module != NULL) {
+            pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
+            if (pyth_func && PyCallable_Check(pyth_func)) {
+                PyObject *pyth_val;
+
+                pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL);
+
+                pystr = PyObject_Str(pyth_val);
+                fprintf(stderr, "%s", PyUnicode_AsUTF8(pystr));
+                Py_DECREF(pyth_val);
+            }
+        }
+    }
+    PyFrameObject *fr;
+    if ((fr = PyEval_GetFrame())) {
+        fprintf(stderr, "at frame %p, line %d\n", fr, PyFrame_GetLineNumber(fr));
+    }
+    va_start(ap, where);
+    char *format = va_arg(ap, char *);
+    if (format != NULL) {
+#if HAVE_VSNPRINTF
+        (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
+#else
+        (void)vsprintf(tnpbuf, format, ap);
+#endif
+        // fprintf(stderr, "warning: ");
+        Yap_ThrowError__(file, function, lineno, type, wheret, tmpbuf);
+    } else {
+        Yap_ThrowError__(file, function, lineno, type, wheret);
+    }
+}
 
 static foreign_t repr_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
