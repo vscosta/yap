@@ -1,4 +1,4 @@
-set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 )
+set (Python_ADDITIONAL_VERSIONS 3.7 3.6 ) #3.5 3.6 3.4 )
 
 
 #  PYTHONLIBS_FOUND           - have the Python libs been found
@@ -9,9 +9,9 @@ set (Python_ADDITIONAL_VERSIONS 3.7 3.6 3.5 3.6 3.4 )
 #   PYTHONLIBS_VERSION_STRING  - version of the Python libs found (since CMake 2.8.8)
 ##
 #
-if (WIN32)
+if (WIN320)
     set (PYTHONLIBS_FOUND YES CACHE BOOL "MINGW/MSYS2" FORCE )
-    set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
+    set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.6m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHON_LIBRARIES C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHON_INCLUDE_PATH C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE )
     set (PYTHON_INCLUDE_DIRS C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE  )

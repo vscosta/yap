@@ -132,7 +132,7 @@ else()
     if (WIN32)
         List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
         if (WITH_PYTHON )
-            List (APPEND YLIBS    $<TARGET_OBJECTS:Obj4Py> )
+            List (APPEND YLIBS    $<TARGET_OBJECTS:Py4YAP> )
         endif()
     endif()
 

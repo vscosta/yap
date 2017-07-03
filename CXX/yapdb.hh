@@ -254,6 +254,7 @@ class X_API YAPPrologPredicate : public YAPPredicate {
 public:
   YAPPrologPredicate(YAPTerm t) : YAPPredicate(t){};
   YAPPrologPredicate(const char *s, arity_t arity) : YAPPredicate(s, arity){};
+  YAPPrologPredicate(YAPAtom s, arity_t arity) : YAPPredicate(s, arity){};
   /// add a new clause
   bool assertClause(YAPTerm clause, bool last = true,
 		    YAPTerm source = YAPTerm());
