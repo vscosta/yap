@@ -197,4 +197,9 @@ extern PyObject *PythonLookup(const char *s, PyObject *o);
 
 extern PyObject *PythonLookupSpecial(const char *s);
 
+#define YAPPy_ThrowError(id, inp,  ...)                                                \
+YAPPy_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+
+extern void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
+                                  yap_error_number type, term_t where, ...);
 #endif

@@ -7,11 +7,12 @@ from collections import namedtuple
 
 from yap import *
 
+
 class Engine( YAPEngine ):
-    def __init__(self, args=None):
+    def __init__(self, args=None,**kwargs):
         # type: (object) -> object
         if not args:
-            args = YAPEngineArgs()
+            args = EngineArgs(**kwargs)
         yap_lib_path = os.path.dirname(__file__)
         args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
         args.setYapLibDir(yap_lib_path)
@@ -32,10 +33,54 @@ class Engine( YAPEngine ):
 
 class EngineArgs( YAPEngineArgs ):
     """ Interface to Engine Options class"""
+    def __init__(self, args=None,**kwargs):
+        super().__init__()
 
     
 class Predicate( YAPPredicate ):
     """ Interface to Generic Predicate"""
+
+class Predicate:
+    """Goal is a predicate instantiated under a specific environment """
+    def __init__( self, name, args, module=None, engine = None):
+        self = namedtuple( name, args )
+        if module:
+            self.p = YAPPredicate( name, len(self), module )
+        else:
+            self.p = YAPPredicate( name, len(self) )
+        self.e = engine
+    
+    def goals( self, engine):
+        self.e = engine
+
+    def __iter__(self):
+        return PrologTableIter(self.e, self.p)
+
+    def holds(self):
+        return self.e.run(self._make_())
+
+class PrologTableIter:
+
+    def __init__(self, e, goal):
+        try:
+            self.e = e
+            self.q = e.YAPQuery(goal)
+        except:
+            print('Error')
+
+    def __iter__(self):
+        # Iterators are iterables too.
+        # Adding this functions to make them so.
+        return self
+
+    def next(self):
+        if self.q.next():
+            return goal
+        else:
+            self.q.close()
+            self.q = None
+            raise StopIteration()
+
 
     
 class PrologPredicate( YAPPrologPredicate ):
@@ -163,6 +208,17 @@ def live(**kwargs):
 #
 #
 
+def boot_yap(**kwargs):
+    args = EngineArgs(**kwarg)
+    yap_lib_path = os.path.dirname(__file__)
+    args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
+    args.setYapLibDir(yap_lib_path)
+    args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
+    engine = YAPEngine(args)
+    engine.goal( set_prolog_flag('verbose', 'silent' ) )
+    engine.goal( use_module(library('yapi') ) )
+    return engine
+    
 if __name__ == "__main__":
     engine = boot_yap()
     handler = numbervars
