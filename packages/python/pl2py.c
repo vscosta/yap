@@ -149,43 +149,65 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o) {
       arg = tail;
       out = PyList_New(len);
       if (!out) {
-        PL_reset_term_refs(tail);
-        return CHECKNULL(t, Py_None);
+	PL_reset_term_refs(tail);
+	YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
       }
 
       for (i = 0; i < len; i++) {
-        if (!PL_get_list(t, arg, t)) {
-          PL_reset_term_refs(tail);
-          return Py_None;
-        }
-        a = term_to_python(arg, eval, o);
-        if (a) {
-          if (PyList_SetItem(out, i, a) < 0) {
-            PL_reset_term_refs(tail);
-            return Py_None;
-          }
-        }
+	if (!PL_get_list(t, arg, t)) {
+	  PL_reset_term_refs(tail);
+	  YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
+	}
+	a = term_to_python(arg, eval, o);
+	if (a) {
+	  if (PyList_SetItem(out, i, a) < 0) {
+	    PL_reset_term_refs(tail);
+	    YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
+	  }
+	}
       }
       PL_reset_term_refs(tail);
       return CHECKNULL(t, out);
     } else {
       functor_t fun;
+      atom_t name;
+      int arity;
       PyObject *rc;
 
       if (!PL_get_functor(t, &fun)) {
-        PL_reset_term_refs(tail);
-        return CHECKNULL(t, Py_None);
+	PL_reset_term_refs(tail);
+	YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
+      }
+      AOK(PL_get_name_arity(t, &name, &arity), NULL);
+      if (name == ATOM_t) {
+	int i;
+	rc = PyTuple_New(arity);
+	for (i = 0; i < len; i++) {
+	  term_t arg = PL_new_term_ref();
+	  if (!PL_get_arg(i+1, t, arg)) {
+	    PL_reset_term_refs(arg);
+	    YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
+	  }
+	  PyObject *a = term_to_python(arg, eval, o);
+	  if (a) {
+	    if (PyTuple_SetItem(rc, i, a) < 0) {
+	      PL_reset_term_refs(arg);
+	      YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
+	    }
+	  }
+	  PL_reset_term_refs(arg);
+	}
       }
       if (eval)
-        rc = compound_to_pyeval(t, o);
+	rc = compound_to_pyeval(t, o);
       else
-        rc = compound_to_pytree(t, o);
+	rc = compound_to_pytree(t, o);
       PL_reset_term_refs(tail);
       return rc;
     }
   }
   }
-  return CHECKNULL(t, Py_None);
+  return Py_None;
 }
 
 PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o) {
@@ -209,3 +231,7 @@ PyObject *deref_term_to_python(term_t t) {
   }
   return term_to_python(t, false, NULL);
 }
+
+
+void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
+			yap_error_number type, term_t where, ...);
