@@ -24,9 +24,7 @@ SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap)
 
 if (WIN32)
 
-set (SYS_DLLS ${GMP_LIBRARIES})
-
-set (SYS_DLLS c:/msys64/mingw64/bin/libgmp-10.dll)
+set (SYS_DLLS ${GMP_LIBRARIES}  c:/msys64/mingw64/bin/libgmp-10.dll)
 
 endif()
 
