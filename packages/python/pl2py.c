@@ -32,7 +32,9 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
     Py_INCREF(o);
     return CHECKNULL(YAP_MkStringTerm(s), o);
   } else {
-    PyObject *pobj = PyUnicode_DecodeUTF8(s, strlen(s), NULL);
+    //char *ns = Py_Malloc(strlen(s)+1);
+    ///strcpy(ns,s);
+    PyObject *pobj = PyUnicode_FromString(s);
     return pobj;
   }
 }
