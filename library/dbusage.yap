@@ -26,7 +26,8 @@
   `use_module(library(dbusage))` command.
 */
 
-/** @pred db_usage 
+/** @pred db_usage
+  
   Give general overview of data-base usage in the system.
 */
 db_usage :-

@@ -1,5 +1,5 @@
-The MYDDAS Data-base interface                  {#myddas}
-===============================
+
+## The MYDDAS Data-base interface                  {#myddas}
 
   The MYDDAS database project was developed within a FCT project aiming at
   the development of a highly efficient deductive database system, based
@@ -63,8 +63,8 @@ The MYDDAS Data-base interface                  {#myddas}
   Prolog cut operator, which has exactly the same behaviour from
   predicates defined in the Prolog program source code, or from predicates
   defined in database as relations.
+ 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   Name = 'John Doe',
   Number = 123456789 ?
   yes
@@ -92,9 +92,6 @@ The MYDDAS Data-base interface                  {#myddas}
 
 
   @pred db view(+,+,+).
-
-
-
   @pred db view(+,+).
 
 
@@ -186,9 +183,6 @@ The MYDDAS Data-base interface                  {#myddas}
 
 
   @pred db_sql(+,+,?).
-
-
-
   @pred db_sql(+,?).
 
 
@@ -284,15 +278,7 @@ The MYDDAS Data-base interface                  {#myddas}
 
 
  @pred db_get_attributes_types(+,+,?).
-
-
-
-  @pred db_get_attributes_types(+,?).
-
-
-
-
-  The prototype for this predicate is the following:
+otype for this predicate is the following:
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_get_attributes_types(Conn,RelationName,ListOfFields).
@@ -552,9 +538,6 @@ The MYDDAS Data-base interface                  {#myddas}
   this by doing again `db_my_result_set(store_result)`.
 
  @pred db_my_sql_mode(+Conn,?SQL_Mode).
-
-
-
   @pred db_my_sql_mode(?SQL_Mode).
 
 
@@ -570,4 +553,4 @@ The MYDDAS Data-base interface                  {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
- b
+ 

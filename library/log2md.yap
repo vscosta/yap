@@ -147,7 +147,7 @@ open_log(F) :-
     ).
 
   /**
-   * @pred `<--`( +Tag , :Goal )
+   * @pred  +Tag <-- :Goal 
    *
    * @param [in] output goal _Goal_ before and after being evaluated, but only
    * taking the first solution. The _Tag_ must be an atom or a string.

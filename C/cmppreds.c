@@ -540,7 +540,7 @@ Int p_compare(USES_REGS1) { /* compare(?Op,?T1,?T2)	 */
   return Yap_unify_constant(ARG1, MkAtomTerm(p));
 }
 
-/** @pred  _X_ \==  _Y_ is iso
+/** @pred  X \==  Y is iso
 
 Terms  _X_ and  _Y_ are not strictly identical.
 */
@@ -548,7 +548,7 @@ static Int a_noteq(Term t1, Term t2) { return (compare(t1, t2) != 0); }
 
 static Int a_gen_lt(Term t1, Term t2) { return (compare(t1, t2) < 0); }
 
-/** @pred  _X_ @=<  _Y_ is iso
+/** @pred  X @=< Y is iso
 
 
 Term  _X_ does not follow term  _Y_ in the standard order.
@@ -556,14 +556,14 @@ Term  _X_ does not follow term  _Y_ in the standard order.
 */
 static Int a_gen_le(Term t1, Term t2) { return (compare(t1, t2) <= 0); }
 
-/** @pred  _X_ @>  _Y_ is iso
+/** @pred  X @>  Y is iso
 
 
 Term  _X_ does not follow term  _Y_ in the standard order
 */
 static Int a_gen_gt(Term t1, Term t2) { return compare(t1, t2) > 0; }
 
-/** @pred  _X_ @>=  _Y_ is iso
+/** @pred  X @>= Y is iso
 
 Term  _X_ does not precede term  _Y_ in the standard order.
 */
@@ -778,7 +778,7 @@ static Int a_gt(Term t1, Term t2) { /* A > B		 */
 }
 
 /**
-   @pred +_X_ >= +_Y_ is iso
+   @pred +X >= +Y is iso
    Greater than or equal to arithmetic expressions
 
    The value of the expression  _X_ is greater than or equal to the
@@ -791,7 +791,7 @@ static Int a_ge(Term t1, Term t2) { /* A >= B		 */
 }
 
 /**
-   @pred +_X_ \< +_Y_ is iso
+   @pred +X < +Y is iso
    Lesser than arithmetic expressions
 
    The value of the expression  _X_ is less than the value of expression
@@ -806,7 +806,7 @@ static Int a_lt(Term t1, Term t2) { /* A < B       */
 
 /**
  *
- @pred _X_ =< + _Y_
+ @pred +X =< +Y
   Lesser than or equal to arithmetic expressions
 
 
