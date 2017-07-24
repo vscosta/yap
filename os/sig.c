@@ -317,8 +317,10 @@ static bool set_fpu_exceptions(Term flag) {
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
-  printf("11ooo\n");
-  my_signal(s, ReceiveSignal);
+  if (s == SIGINT && (LOCAL_PrologMode & ConsoleGetcMode)) {
+    return;
+  }
+    my_signal(s, ReceiveSignal);
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console

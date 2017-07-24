@@ -18,7 +18,9 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
+/** @file readline.c
+ *
+ *
  * This file includes the interface to the readline library, if installed in the
  *system.
  *
@@ -339,22 +341,22 @@ static bool getLine(int inp) {
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
   if (Yap_DoPrompt(s)) { // no output so far
+    rl_set_signals();
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
-    s->stream_getc = ReadlineGetc;
-  } else {
+    rl_clear_signals();
+} else {
+    rl_set_signals();
     myrl_line = (unsigned char *)readline(NULL);
+    rl_clear_signals();
   }
   /* Do it the gnu way */
+  LOCAL_PrologMode &= ~ConsoleGetcMode;
+  if (rl_pending_signal()) {
+    LOCAL_PrologMode |= InterruptMode;
+  }
   if (LOCAL_PrologMode & InterruptMode) {
-    Yap_external_signal(0, YAP_INT_SIGNAL);
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
-    if (LOCAL_PrologMode & AbortMode) {
-      Yap_Error(ABORT_EVENT, TermNil, "");
-      LOCAL_ErrorMessage = "Abort";
-      return console_post_process_eof(s);
-    }
+    Yap_HandleSIGINT();
   } else {
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
     LOCAL_newline = true;
   }
   strncpy(LOCAL_Prompt, RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
@@ -437,7 +439,6 @@ int Yap_ReadlineForSIGINT(void) {
   int ch;
   StreamDesc *s = &GLOBAL_Stream[StdInStream];
   const unsigned char *myrl_line = s->u.irl.buf;
-
   if ((LOCAL_PrologMode & ConsoleGetcMode) && myrl_line != NULL) {
     ch = myrl_line[0];
     free((void *)myrl_line);

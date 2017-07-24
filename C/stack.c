@@ -1155,9 +1155,12 @@ bool Yap_find_prolog_culprit(USES_REGS1) {
 
     while (curCP != YESCODE) {
       curENV = (CELL *)(curENV[E_E]);
-      if (curENV == NULL)
+      if (curENV < ASP || curENV >= LCL0)
         break;
       pe = EnvPreg(curCP);
+      if (pe==NULL) {
+        pe = PredMetaCall;
+      }
       if (pe->ModuleOfPred)
         return set_clause_info(curCP, pe);
       curCP = (yamop *)(curENV[E_CP]);
