@@ -186,6 +186,18 @@ static inline BoolAssign&
     return *(DFA *) YAP_OpaqueObjectFromTerm(t);
   }
 
+  static inline Rnd&
+  gecode_Rnd_from_term(YAP_Term t)
+  {
+    return *(Rnd *) YAP_OpaqueObjectFromTerm(t);
+  }
+
+  static inline std::function<void(Space&home)>&
+  gecode_StdFunctionSpace_from_term(YAP_Term t)
+  {
+    return *(std::function<void(Space&home)> *) YAP_OpaqueObjectFromTerm(t);
+  }
+
   static inline FloatNum
   gecode_FloatNum_from_term(YAP_Term t)
   {
@@ -379,6 +391,7 @@ static YAP_Term gecode_BOOL_VAR_RND;
   static YAP_Term gecode_FLOAT_VAR_SIZE_MIN;
   static YAP_Term gecode_FLOAT_VAR_SIZE_MAX;
   static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MAX;
+  static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MIN;
 
   static inline FloatVarBranch
   gecode_FloatVarBranch_from_term(YAP_Term t)
@@ -386,7 +399,6 @@ static YAP_Term gecode_BOOL_VAR_RND;
     if (YAP_IsAtomTerm(t)) {
       if ( t == gecode_FLOAT_VAR_SIZE_MIN)
 	return FLOAT_VAR_SIZE_MIN();
-  static YAP_Term gecode_FLOAT_VAR_DEGREE_SIZE_MIN;
       if ( t == gecode_FLOAT_VAR_SIZE_MAX)
 	return FLOAT_VAR_SIZE_MAX();
       if ( t == gecode_FLOAT_VAR_NONE)

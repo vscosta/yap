@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //=============================================================================
 
+
 static YAP_Term gecode_RM_NONE;
 static YAP_Term gecode_RM_CONSTANT;
 static YAP_Term gecode_RM_LINEAR;
@@ -1397,33 +1398,29 @@ static YAP_Bool gecode_constraint_min_313(void)
 
 static YAP_Bool gecode_constraint_when_456(void)
 {
-  return YAP_Error("SYSTEN_ERROR", TermNil, "Unsupported"); /*
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
   BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
-  std::function<void(Space&home)> X3 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG3);
+  std::function<void(Space&home)> X3 = gecode_StdFunctionSpace_from_term(YAP_ARG3);
   IntPropLevel X4 = gecode_IntPropLevel_from_term(YAP_ARG4);
   when(*space,X2,X3,X4);
-  return TRUE; */
-  return false;
+  return TRUE;
 }
 
 static YAP_Bool gecode_constraint_when_457(void)
 {
-  return YAP_Error("SYSTEN_ERROR", TermNil, "Unsupported"); /*
-
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
   BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
-  std::function<void(Space&home)> X3 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG3);
-  std::function<void(Space&home)> X4 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG4);
+  std::function<void(Space&home)> X3 = gecode_StdFunctionSpace_from_term(YAP_ARG3);
+  std::function<void(Space&home)> X4 = gecode_StdFunctionSpace_from_term(YAP_ARG4);
   when(*space,X2,X3,X4);
-  return TRUE;*/
+  return TRUE;
 }
 
 static YAP_Bool gecode_constraint_cardinality_71(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
   SetVarArgs X2 = gecode_SetVarArgs_from_term(space,YAP_ARG2);
-  int X3 = gecode_int_from_term(YAP_ARG3)289;
+  int X3 = gecode_int_from_term(YAP_ARG3);
   int X4 = gecode_int_from_term(YAP_ARG4);
   cardinality(*space,X2,X3,X4);
   return TRUE;
@@ -2247,7 +2244,7 @@ static YAP_Bool gecode_constraint_when_455(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
   BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
-  std::function<void(Space&home)> X3 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG3);
+  std::function<void(Space&home)> X3 = gecode_StdFunctionSpace_from_term(YAP_ARG3);
   when(*space,X2,X3);
   return TRUE;
 }
@@ -2888,11 +2885,10 @@ static YAP_Bool gecode_constraint_channel_74(void)
 
 static YAP_Bool gecode_constraint_when_458(void)
 {
-
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
   BoolVar X2 = gecode_BoolVar_from_term(space,YAP_ARG2);
-  std::function<void(Space&home)> X3 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG3);
-  std::function<void(Space&home)> X4 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG4);
+  std::function<void(Space&home)> X3 = gecode_StdFunctionSpace_from_term(YAP_ARG3);
+  std::function<void(Space&home)> X4 = gecode_StdFunctionSpace_from_term(YAP_ARG4);
   IntPropLevel X5 = gecode_IntPropLevel_from_term(YAP_ARG5);
   when(*space,X2,X3,X4,X5);
   return TRUE;
@@ -3145,7 +3141,7 @@ static YAP_Bool gecode_constraint_binpacking_40(void)
 static YAP_Bool gecode_constraint_branch_1(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
-  std::function<void(Space&home)> X2 = gecode_std::function<void(Space&home)>_from_term(YAP_ARG2);
+  std::function<void(Space&home)> X2 = gecode_StdFunctionSpace_from_term(YAP_ARG2);
   branch(*space,X2);
   return TRUE;
 }
@@ -5174,3 +5170,4 @@ static YAP_Bool gecode_constraint_ite_254(void)
   ite(*space,X2,X3,X4,X5,X6);
   return TRUE;
 }
+
