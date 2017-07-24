@@ -771,14 +771,14 @@ be lost.
 %	set_prolog_flag(debug, OldDeb),
 %	'$skipeol'(0'!),                        % '
 	fail.
-    '$action'(0'<,_,_,_,_,_) :- !,			% <'Depth
-    	'$new_deb_depth',
-    	'$skipeol'(0'<),
-    	fail.
-        '$action'(0'C,_,_,_,_,_) :-
-        yap_flag(system_options, Opts),
+'$action'(0'<,_,_,_,_,_) :- !,			% <'Depth
+	'$new_deb_depth',
+	'$skipeol'(0'<),
+	fail.
+'$action'(0'C,_,_,_,_,_) :-
+	yap_flag(system_options, Opts),
     lists:memberchk( call_tracer, Opts),
-            !,			% <'Depth
+	!,			% <'Depth
         	'$skipeol'(0'C),
         	'__NB_setval__'('$debug_jump',false).
 '$action'(0'^,_,_,G,_,_) :- !,			% '
@@ -791,6 +791,7 @@ be lost.
     nodebug,
 	abort.
 '$action'(0'b,_,_,_,_,_) :- !,			% 'b		break
+    '$stop_creeping'(_),
 	'$skipeol'(0'b),
 	break,
 	fail.
@@ -802,7 +803,6 @@ be lost.
 	'$skipeol'(0'c),
 	'__NB_setval__'('$debug_jump',false).
 '$action'(0'e,_,_,_,_,_) :- !,			% 'e		exit
-	'$skipeol'(0'e),
 	halt.
 '$action'(0'f,_,CallId,_,_,_) :- !,		% 'f		fail
 	'$scan_number'(0'f, CallId, GoalId),    %'f
