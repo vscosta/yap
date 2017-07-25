@@ -698,7 +698,7 @@ static PyObject *structseq_repr(PyObject *iobj) {
 
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyObject *o;
-#if PY_MAJOR_VERSION >= 30
+#if PY_MAJOR_VERSION >= 3
   PyTypeObject *typp;
   PyObject *key = PyUnicode_FromString(s);
   if (py_F2P && PyDict_Contains(py_F2P, key)) {
@@ -729,7 +729,6 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   }
   o = PyStructSequence_New(typp);
   Py_INCREF(typp);
-  fprintf(stderr, "<<< %p\n",typp);
   arity_t i;
   for (i = 0; i < arity; i++) {
     PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
@@ -750,493 +749,493 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
 #endif
 }
 
-static PyObject *bip_range(term_t t) {
-  long ilow = 0, ihigh = 0, istep = 1;
-  long bign;
-  Py_ssize_t i, n;
-  int arity;
-  atom_t name;
-  term_t arg = PL_new_term_ref();
+ static PyObject *bip_range(term_t t) {
+   long ilow = 0, ihigh = 0, istep = 1;
+   long bign;
+   Py_ssize_t i, n;
+   int arity;
+   atom_t name;
+   term_t arg = PL_new_term_ref();
 
-  PyObject *v;
+   PyObject *v;
 
-  if (!PL_get_name_arity(t, &name, &arity))
-    return NULL;
-  AOK(PL_get_arg(1, t, arg), NULL);
-  ilow = get_int(arg, true);
-  if (arity == 1) {
-    ihigh = ilow;
-    ilow = 0;
-  } else {
-    AOK(PL_get_arg(2, t, arg), NULL);
-    ihigh = get_int(arg, true);
-    if (arity == 3) {
-      AOK(PL_get_arg(3, t, arg), NULL);
-      istep = get_int(arg, true);
-    }
-  }
-  if (istep == 0) {
-    PyErr_SetString(PyExc_ValueError, "range() step argument must not be zero");
-    return NULL;
-  }
-  if (istep > 0)
-    bign = get_len_of_range(ilow, ihigh, istep);
-  else
-    bign = get_len_of_range(ihigh, ilow, -istep);
-  n = (Py_ssize_t)bign;
-  AOK(((bign >= 0 && (long)n == bign) || "range() result has too many items"),
-      NULL);
-  v = PyList_New(n);
+   if (!PL_get_name_arity(t, &name, &arity))
+     return NULL;
+   AOK(PL_get_arg(1, t, arg), NULL);
+   ilow = get_int(arg, true);
+   if (arity == 1) {
+     ihigh = ilow;
+     ilow = 0;
+   } else {
+     AOK(PL_get_arg(2, t, arg), NULL);
+     ihigh = get_int(arg, true);
+     if (arity == 3) {
+       AOK(PL_get_arg(3, t, arg), NULL);
+       istep = get_int(arg, true);
+     }
+   }
+   if (istep == 0) {
+     PyErr_SetString(PyExc_ValueError, "range() step argument must not be zero");
+     return NULL;
+   }
+   if (istep > 0)
+     bign = get_len_of_range(ilow, ihigh, istep);
+   else
+     bign = get_len_of_range(ihigh, ilow, -istep);
+   n = (Py_ssize_t)bign;
+   AOK(((bign >= 0 && (long)n == bign) || "range() result has too many items"),
+       NULL);
+   v = PyList_New(n);
 
-  if (v == NULL)
-    return Py_None;
-  for (i = 0; i < n; i++) {
+   if (v == NULL)
+     return Py_None;
+   for (i = 0; i < n; i++) {
 #if PY_MAJOR_VERSION < 3
-    PyObject *w = PyInt_FromLong(ilow);
+     PyObject *w = PyInt_FromLong(ilow);
 #else
-    PyObject *w = PyLong_FromLong(ilow);
+     PyObject *w = PyLong_FromLong(ilow);
 #endif
-    if (w == NULL) {
-      Py_DECREF(v);
-      return NULL;
-    }
-    PyList_SET_ITEM(v, i, w);
-    Py_INCREF(w);
-    ilow += istep;
-  }
-  return v;
-}
+     if (w == NULL) {
+       Py_DECREF(v);
+       return NULL;
+     }
+     PyList_SET_ITEM(v, i, w);
+     Py_INCREF(w);
+     ilow += istep;
+   }
+   return v;
+ }
 
-static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
-                               bool eval) {
-  PyObject *lhs, *rhs;
-  term_t tleft = PL_new_term_ref(), tright = PL_new_term_ref();
+ static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
+				bool eval) {
+   PyObject *lhs, *rhs;
+   term_t tleft = PL_new_term_ref(), tright = PL_new_term_ref();
 
-  functor_t fun;
+   functor_t fun;
 
-  AOK(PL_get_functor(targ, &fun), false);
-  while (fun == FUNCTOR_comma2) {
-    AOK(PL_get_arg(1, targ, tleft), false);
-    if (!copy_to_dictionary(dict, tleft, taux, eval))
-      return false;
-    AOK(PL_get_arg(2, targ, targ), false);
-    return copy_to_dictionary(dict, tright, taux, eval);
-  }
-  // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
-  // Py_DECREF(lhs);
-  // Py_DECREF(rhs);
+   AOK(PL_get_functor(targ, &fun), false);
+   while (fun == FUNCTOR_comma2) {
+     AOK(PL_get_arg(1, targ, tleft), false);
+     if (!copy_to_dictionary(dict, tleft, taux, eval))
+       return false;
+     AOK(PL_get_arg(2, targ, targ), false);
+     return copy_to_dictionary(dict, tright, taux, eval);
+   }
+   // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
+   // Py_DECREF(lhs);
+   // Py_DECREF(rhs);
 
-  AOK(PL_get_arg(1, targ, tleft), false);
-  lhs = atom_to_python_string(tleft);
-  if (lhs == NULL) {
-    return FALSE;
-  }
-  AOK(PL_get_arg(2, targ, tright), false);
-  rhs = term_to_python(tright, eval, NULL);
-  if (rhs == NULL) {
-    PyErr_Print();
-    return false;
-  }
-  return PyDict_SetItem(dict, lhs, rhs) >= 0;
-  // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
-  // Py_DECREF(lhs);
-  // Py_DECREF(rhs);
-}
+   AOK(PL_get_arg(1, targ, tleft), false);
+   lhs = atom_to_python_string(tleft);
+   if (lhs == NULL) {
+     return FALSE;
+   }
+   AOK(PL_get_arg(2, targ, tright), false);
+   rhs = term_to_python(tright, eval, NULL);
+   if (rhs == NULL) {
+     PyErr_Print();
+     return false;
+   }
+   return PyDict_SetItem(dict, lhs, rhs) >= 0;
+   // PyObject_Print(dict, stderr, 0); fprintf(stderr,"\n");
+   // Py_DECREF(lhs);
+   // Py_DECREF(rhs);
+ }
 
-PyObject *compound_to_data(term_t t, PyObject *o, functor_t fun, bool exec) {
-  atom_t name;
-  int len;
+ PyObject *compound_to_data(term_t t, PyObject *o, functor_t fun, bool exec) {
+   atom_t name;
+   int len;
 
-  AOK(PL_get_name_arity(t, &name, &len), o);
+   AOK(PL_get_name_arity(t, &name, &len), o);
 
-  if (fun == FUNCTOR_pointer1) {
-    void *ptr;
+   if (fun == FUNCTOR_pointer1) {
+     void *ptr;
 
-    AOK(PL_get_arg(1, t, t), NULL);
-    AOK(PL_get_pointer(t, &ptr), NULL)
-    /* return __main__,s */
-    return (PyObject *)ptr;
-  }
-  if (name == ATOM_t) {
-    term_t targ = PL_new_term_ref();
-    PyObject *out;
-    int i;
+     AOK(PL_get_arg(1, t, t), NULL);
+     AOK(PL_get_pointer(t, &ptr), NULL)
+       /* return __main__,s */
+       return (PyObject *)ptr;
+   }
+   if (name == ATOM_t) {
+     term_t targ = PL_new_term_ref();
+     PyObject *out;
+     int i;
 
-    out = PyTuple_New(len);
-    DebugPrintf("Tuple %p\n", out);
+     out = PyTuple_New(len);
+     DebugPrintf("Tuple %p\n", out);
 
-    if (!out)
-      return NULL;
-    for (i = 0; i < len; i++) {
-      AOK(PL_get_arg(i + 1, t, targ), NULL);
-      PyErr_Clear();
-      PyObject *oa = term_to_python(targ, true, o);
-      bool rc = PyTuple_SET_ITEM(out, i, oa) == 0;
-      if (rc) {
-        PyErr_Print();
-      }
-      Py_INCREF(oa);
-    }
-    return out;
-  } else if (fun == FUNCTOR_div2) {
-    term_t targ = PL_new_term_ref();
-    PyObject *lhs, *rhs;
+     if (!out)
+       return NULL;
+     for (i = 0; i < len; i++) {
+       AOK(PL_get_arg(i + 1, t, targ), NULL);
+       PyErr_Clear();
+       PyObject *oa = term_to_python(targ, true, o);
+       bool rc = PyTuple_SET_ITEM(out, i, oa) == 0;
+       if (rc) {
+	 PyErr_Print();
+       }
+       Py_INCREF(oa);
+     }
+     return out;
+   } else if (fun == FUNCTOR_div2) {
+     term_t targ = PL_new_term_ref();
+     PyObject *lhs, *rhs;
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    lhs = term_to_python(targ, true, NULL);
-    if (!PyNumber_Check(lhs))
-      return NULL;
-    AOK(PL_get_arg(2, t, targ), NULL);
-    rhs = term_to_python(targ, true, NULL);
-    if (!PyNumber_Check(rhs))
-      return NULL;
+     AOK(PL_get_arg(1, t, targ), NULL);
+     lhs = term_to_python(targ, true, NULL);
+     if (!PyNumber_Check(lhs))
+       return NULL;
+     AOK(PL_get_arg(2, t, targ), NULL);
+     rhs = term_to_python(targ, true, NULL);
+     if (!PyNumber_Check(rhs))
+       return NULL;
 #if PY_MAJOR_VERSION < 3
-    return PyNumber_Divide(lhs, rhs);
+     return PyNumber_Divide(lhs, rhs);
 #else
-    return PyNumber_TrueDivide(lhs, rhs);
+     return PyNumber_TrueDivide(lhs, rhs);
 #endif
-  }
-  if (fun == FUNCTOR_sqbrackets2) {
-    term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
-    PyObject *v;
-    Py_ssize_t min, max;
-    AOK(PL_get_arg(2, t, targ), NULL);
-    v = term_to_python(targ, true, o);
+   }
+   if (fun == FUNCTOR_sqbrackets2) {
+     term_t targ = PL_new_term_ref(), trhs = PL_new_term_ref();
+     PyObject *v;
+     Py_ssize_t min, max;
+     AOK(PL_get_arg(2, t, targ), NULL);
+     v = term_to_python(targ, true, o);
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    AOK(PL_get_list(targ, trhs, targ), NULL);
-    if (PL_is_functor(trhs, FUNCTOR_colon2)) {
-      if (!PySequence_Check(v))
-        return NULL;
-      min = get_p_int(term_to_python(targ, true, NULL), 0);
-      AOK(PL_get_arg(1, trhs, targ), NULL);
-      if (PL_is_functor(targ, FUNCTOR_colon2)) {
-        return NULL;
-      }
-      max = get_p_int(term_to_python(targ, true, o), PyObject_Size(v));
-      return PySequence_GetSlice(v, min, max);
-    } else {
-      PyObject *ip = term_to_python(trhs, true, o);
-      if (PySequence_Check(v)) {
+     AOK(PL_get_arg(1, t, targ), NULL);
+     AOK(PL_get_list(targ, trhs, targ), NULL);
+     if (PL_is_functor(trhs, FUNCTOR_colon2)) {
+       if (!PySequence_Check(v))
+	 return NULL;
+       min = get_p_int(term_to_python(targ, true, NULL), 0);
+       AOK(PL_get_arg(1, trhs, targ), NULL);
+       if (PL_is_functor(targ, FUNCTOR_colon2)) {
+	 return NULL;
+       }
+       max = get_p_int(term_to_python(targ, true, o), PyObject_Size(v));
+       return PySequence_GetSlice(v, min, max);
+     } else {
+       PyObject *ip = term_to_python(trhs, true, o);
+       if (PySequence_Check(v)) {
 #if PY_MAJOR_VERSION < 3
-  if (PyLong_Check(ip) {
-          min = PyLong_AsLong(ip);
-  } else if (PyInt_Check(ip) {
-          min = PyInt_asInt(ip);
-      }
+	 if (PyLong_Check(ip) {
+	     min = PyLong_AsLong(ip);
+	   } else if (PyInt_Check(ip) {
+	       min = PyInt_asInt(ip);
+	     }
 #else
-        if (PyLong_Check(ip)) {
-          PyObject *o = PySequence_GetItem(v, PyLong_AsLong(ip));
-          if (o == NULL)
-            o = Py_None;
-          if (CHECKNULL(t, o) == NULL)
-            return NULL;
-          Py_INCREF(o);
-          return o;
-        }
+	     if (PyLong_Check(ip)) {
+	       PyObject *o = PySequence_GetItem(v, PyLong_AsLong(ip));
+	       if (o == NULL)
+		 o = Py_None;
+	       if (CHECKNULL(t, o) == NULL)
+		 return NULL;
+	       Py_INCREF(o);
+	       return o;
+	     }
 #endif
-      } else {
-        o = PyObject_GetItem(v, ip);
-        if (o == NULL)
-          o = Py_None;
-        Py_INCREF(o);
-        return o;
-      }
-    }
-  }
-  if (fun == FUNCTOR_dollar1) {
-    char *s = NULL;
-    term_t targ = PL_new_term_ref();
-    AOK(PL_get_arg(1, t, targ), NULL);
-    AOK(PL_get_atom_chars(targ, &s), NULL);
-    /* return __main__,s */
-    PyObject *o = PyObject_GetAttrString(py_Main, s);
-    return o;
-  }
-  if (fun == FUNCTOR_brackets1) {
-    AOK(PL_get_arg(1, t, t), NULL);
-    return term_to_python(t, true, NULL);
-  }
-  if (fun == FUNCTOR_complex2) {
-    term_t targ = PL_new_term_ref();
-    PyObject *lhs, *rhs;
-    double d1, d2;
+	     } else {
+	       o = PyObject_GetItem(v, ip);
+	       if (o == NULL)
+		 o = Py_None;
+	       Py_INCREF(o);
+	       return o;
+	     }
+	   }
+       }
+       if (fun == FUNCTOR_dollar1) {
+	 char *s = NULL;
+	 term_t targ = PL_new_term_ref();
+	 AOK(PL_get_arg(1, t, targ), NULL);
+	 AOK(PL_get_atom_chars(targ, &s), NULL);
+	 /* return __main__,s */
+	 PyObject *o = PyObject_GetAttrString(py_Main, s);
+	 return o;
+       }
+       if (fun == FUNCTOR_brackets1) {
+	 AOK(PL_get_arg(1, t, t), NULL);
+	 return term_to_python(t, true, NULL);
+       }
+       if (fun == FUNCTOR_complex2) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *lhs, *rhs;
+	 double d1, d2;
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    lhs = term_to_python(targ, true, NULL);
-    AOK(PyNumber_Check(lhs), NULL);
-    if (PyFloat_Check(lhs)) {
-      d1 = PyFloat_AsDouble(lhs);
-    } else if (PyLong_Check(lhs)) {
-      d1 = PyLong_AsLong(lhs);
+	 AOK(PL_get_arg(1, t, targ), NULL);
+	 lhs = term_to_python(targ, true, NULL);
+	 AOK(PyNumber_Check(lhs), NULL);
+	 if (PyFloat_Check(lhs)) {
+	   d1 = PyFloat_AsDouble(lhs);
+	 } else if (PyLong_Check(lhs)) {
+	   d1 = PyLong_AsLong(lhs);
 #if PY_MAJOR_VERSION < 3
-    } else if (PyInt_Check(lhs)) {
-      d1 = PyInt_AsLong(lhs);
+	 } else if (PyInt_Check(lhs)) {
+	   d1 = PyInt_AsLong(lhs);
 #endif
-    } else {
-      return NULL;
-    }
-    AOK(PL_get_arg(2, t, targ), NULL);
-    rhs = term_to_python(targ, true, NULL);
-    AOK(PyNumber_Check(rhs), NULL);
-    if (PyFloat_Check(rhs)) {
-      d2 = PyFloat_AsDouble(rhs);
-    } else if (PyLong_Check(rhs)) {
-      d2 = PyLong_AsLong(rhs);
+	 } else {
+	   return NULL;
+	 }
+	 AOK(PL_get_arg(2, t, targ), NULL);
+	 rhs = term_to_python(targ, true, NULL);
+	 AOK(PyNumber_Check(rhs), NULL);
+	 if (PyFloat_Check(rhs)) {
+	   d2 = PyFloat_AsDouble(rhs);
+	 } else if (PyLong_Check(rhs)) {
+	   d2 = PyLong_AsLong(rhs);
 #if PY_MAJOR_VERSION < 3
-    } else if (PyInt_Check(rhs)) {
-      d2 = PyInt_AsLong(rhs);
+	 } else if (PyInt_Check(rhs)) {
+	   d2 = PyInt_AsLong(rhs);
 #endif
-    } else {
-      return NULL;
-    }
+	 } else {
+	   return NULL;
+	 }
 
-    return PyComplex_FromDoubles(d1, d2);
-  }
-  if (fun == FUNCTOR_curly1) {
-    term_t targ = PL_new_term_ref(), taux = PL_new_term_ref();
-    PyObject *dict;
+	 return PyComplex_FromDoubles(d1, d2);
+       }
+       if (fun == FUNCTOR_curly1) {
+	 term_t targ = PL_new_term_ref(), taux = PL_new_term_ref();
+	 PyObject *dict;
 
-    AOK(PL_get_arg(1, t, t), NULL);
-    if (!(dict = PyDict_New()))
-      return NULL;
-    DebugPrintf("Dict %p\n", dict);
+	 AOK(PL_get_arg(1, t, t), NULL);
+	 if (!(dict = PyDict_New()))
+	   return NULL;
+	 DebugPrintf("Dict %p\n", dict);
 
-    while (PL_is_functor(t, FUNCTOR_comma2)) {
-      AOK(PL_get_arg(1, t, targ), NULL);
-      AOK(PL_is_functor(targ, FUNCTOR_colon2), NULL);
+	 while (PL_is_functor(t, FUNCTOR_comma2)) {
+	   AOK(PL_get_arg(1, t, targ), NULL);
+	   AOK(PL_is_functor(targ, FUNCTOR_colon2), NULL);
 
-      AOK(copy_to_dictionary(dict, targ, taux, true), NULL);
-      AOK(PL_get_arg(2, t, t), NULL);
-    }
+	   AOK(copy_to_dictionary(dict, targ, taux, true), NULL);
+	   AOK(PL_get_arg(2, t, t), NULL);
+	 }
 
-    if (PL_is_functor(t, FUNCTOR_colon2)) {
-      AOK(copy_to_dictionary(dict, t, taux, true), NULL);
-    }
-    return dict;
-  }
-  return o;
-}
+	 if (PL_is_functor(t, FUNCTOR_colon2)) {
+	   AOK(copy_to_dictionary(dict, t, taux, true), NULL);
+	 }
+	 return dict;
+       }
+       return o;
+     }
 
-PyObject *compound_to_pytree(term_t t, PyObject *context) {
-  PyObject *o = py_Main, *no;
-  functor_t fun;
-  atom_t name;
-  int arity;
+     PyObject *compound_to_pytree(term_t t, PyObject *context) {
+       PyObject *o = py_Main, *no;
+       functor_t fun;
+       atom_t name;
+       int arity;
 
-  o = find_obj(context, t, false);
-  AOK(PL_get_name_arity(t, &name, &arity), NULL);
-  if (arity == 0)
-    return term_to_python(t, false, o);
-  AOK(PL_get_functor(t, &fun), NULL);
-  if ((no = compound_to_data(t, o, fun, false)) != o && no) {
-    return no;
-  }
-  if (!arity) {
-    char *s = NULL;
+       o = find_obj(context, t, false);
+       AOK(PL_get_name_arity(t, &name, &arity), NULL);
+       if (arity == 0)
+	 return term_to_python(t, false, o);
+       AOK(PL_get_functor(t, &fun), NULL);
+       if ((no = compound_to_data(t, o, fun, false)) != o && no) {
+	 return no;
+       }
+       if (!arity) {
+	 char *s = NULL;
 
-    AOK(!PL_get_atom_chars(t, &s), NULL);
-    // this should never happen
-    return term_to_python(t, false, o);
-  } else {
-    const char *s;
-    if (!(s = PL_atom_chars(name))) {
-      return NULL;
-    }
-    term_t tleft;
-    int i;
-    PyObject *out = PyTuple_New(arity);
-    DebugPrintf("Tuple %p\n", o);
-    tleft = PL_new_term_ref();
-    for (i = 0; i < arity; i++) {
-      PyObject *pArg;
-      AOK(PL_get_arg(i + 1, t, tleft), NULL);
-      pArg = term_to_python(tleft, false, NULL);
-      if (pArg) {
-        /* pArg reference stolen here: */
-        PyTuple_SET_ITEM(out, i, pArg);
-        Py_INCREF(pArg);
-      }
-    }
-    if (CHECKNULL(t, out) == NULL) {
-      PyErr_Print();
-      return NULL;
-    }
-    PyObject *c = lookupPySymbol(s, o, NULL);
+	 AOK(!PL_get_atom_chars(t, &s), NULL);
+	 // this should never happen
+	 return term_to_python(t, false, o);
+       } else {
+	 const char *s;
+	 if (!(s = PL_atom_chars(name))) {
+	   return NULL;
+	 }
+	 term_t tleft;
+	 int i;
+	 PyObject *out = PyTuple_New(arity);
+	 DebugPrintf("Tuple %p\n", o);
+	 tleft = PL_new_term_ref();
+	 for (i = 0; i < arity; i++) {
+	   PyObject *pArg;
+	   AOK(PL_get_arg(i + 1, t, tleft), NULL);
+	   pArg = term_to_python(tleft, false, NULL);
+	   if (pArg) {
+	     /* pArg reference stolen here: */
+	     PyTuple_SET_ITEM(out, i, pArg);
+	     Py_INCREF(pArg);
+	   }
+	 }
+	 if (CHECKNULL(t, out) == NULL) {
+	   PyErr_Print();
+	   return NULL;
+	 }
+	 PyObject *c = lookupPySymbol(s, o, NULL);
 
-    if (c && PyCallable_Check(c)) {
-      PyObject *n = PyTuple_New(arity);
-      PyTuple_SET_ITEM(n, 0, c);
-      PyTuple_SET_ITEM(n, 1, out);
-      return n;
-    }
-    return term_to_nametuple(s, arity, out);
-  }
-}
+	 if (c && PyCallable_Check(c)) {
+	   PyObject *n = PyTuple_New(arity);
+	   PyTuple_SET_ITEM(n, 0, c);
+	   PyTuple_SET_ITEM(n, 1, out);
+	   return n;
+	 }
+	 return term_to_nametuple(s, arity, out);
+       }
+     }
 
-PyObject *compound_to_pyeval(term_t t, PyObject *context) {
-  PyObject *o = NULL, *no;
-  atom_t name;
-  int arity;
-  functor_t fun;
+     PyObject *compound_to_pyeval(term_t t, PyObject *context) {
+       PyObject *o = NULL, *no;
+       atom_t name;
+       int arity;
+       functor_t fun;
 
-  o = find_obj(context, t, true);
-  AOK(PL_get_name_arity(t, &name, &arity), NULL);
-  if (arity == 0)
-    return term_to_python(t, true, o);
-  if (!PL_get_functor(t, &fun))
-    return NULL;
-  if ((no = compound_to_data(t, o, fun, true)) != o && no) {
-    return no;
-  }
-  if (fun == FUNCTOR_abs1) {
-    return bip_abs(t);
-  } else if (fun == FUNCTOR_all1) {
-    return bip_all(t);
-  } else if (fun == FUNCTOR_any1) {
-    return bip_any(t);
-  } else if (fun == FUNCTOR_bin1) {
-    return bip_bin(t);
-  } else if (fun == FUNCTOR_ord1) {
-    return bip_ord(t);
-  } else if (fun == FUNCTOR_int1) {
-    return bip_int(t);
-  } else if (fun == FUNCTOR_long1) {
-    return bip_long(t);
-  } else if (fun == FUNCTOR_float1) {
-    return bip_float(t, true);
-  } else if (fun == FUNCTOR_iter1) {
-    return bip_iter(t);
-  } else if (fun == FUNCTOR_range1 || fun == FUNCTOR_range2 ||
-             fun == FUNCTOR_range3) {
-    return bip_range(t);
-  } else if (fun == FUNCTOR_sum1) {
-    return bip_sum(t);
-  }
-  if (fun == FUNCTOR_len1) {
-    term_t targ = PL_new_term_ref();
-    PyObject *ptr;
+       o = find_obj(context, t, true);
+       AOK(PL_get_name_arity(t, &name, &arity), NULL);
+       if (arity == 0)
+	 return term_to_python(t, true, o);
+       if (!PL_get_functor(t, &fun))
+	 return NULL;
+       if ((no = compound_to_data(t, o, fun, true)) != o && no) {
+	 return no;
+       }
+       if (fun == FUNCTOR_abs1) {
+	 return bip_abs(t);
+       } else if (fun == FUNCTOR_all1) {
+	 return bip_all(t);
+       } else if (fun == FUNCTOR_any1) {
+	 return bip_any(t);
+       } else if (fun == FUNCTOR_bin1) {
+	 return bip_bin(t);
+       } else if (fun == FUNCTOR_ord1) {
+	 return bip_ord(t);
+       } else if (fun == FUNCTOR_int1) {
+	 return bip_int(t);
+       } else if (fun == FUNCTOR_long1) {
+	 return bip_long(t);
+       } else if (fun == FUNCTOR_float1) {
+	 return bip_float(t, true);
+       } else if (fun == FUNCTOR_iter1) {
+	 return bip_iter(t);
+       } else if (fun == FUNCTOR_range1 || fun == FUNCTOR_range2 ||
+		  fun == FUNCTOR_range3) {
+	 return bip_range(t);
+       } else if (fun == FUNCTOR_sum1) {
+	 return bip_sum(t);
+       }
+       if (fun == FUNCTOR_len1) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *ptr;
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    ptr = term_to_python(targ, true, NULL);
-    return PyLong_FromLong(PyObject_Length(ptr));
-  }
-  if (fun == FUNCTOR_dir1) {
-    term_t targ = PL_new_term_ref();
-    PyObject *ptr;
+	 AOK(PL_get_arg(1, t, targ), NULL);
+	 ptr = term_to_python(targ, true, NULL);
+	 return PyLong_FromLong(PyObject_Length(ptr));
+       }
+       if (fun == FUNCTOR_dir1) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *ptr;
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    ptr = term_to_python(targ, true, NULL);
-    return PyObject_Dir(ptr);
+	 AOK(PL_get_arg(1, t, targ), NULL);
+	 ptr = term_to_python(targ, true, NULL);
+	 return PyObject_Dir(ptr);
 
-  }
+       }
 
-  else if (fun == FUNCTOR_plus2) {
-    term_t targ = PL_new_term_ref();
-    PyObject *lhs, *rhs;
+       else if (fun == FUNCTOR_plus2) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *lhs, *rhs;
 
-    if (!PL_get_arg(1, t, targ))
-      return NULL;
-    lhs = term_to_python(targ, true, NULL);
-    AOK(PL_get_arg(2, t, targ), NULL);
-    rhs = term_to_python(targ, true, NULL);
-    if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
-      return PySequence_Concat(lhs, rhs);
-    }
-    if (!PyNumber_Check(lhs))
-      return NULL;
-    if (!PyNumber_Check(rhs))
-      return NULL;
-    return PyNumber_Add(lhs, rhs);
-  } else if (fun == FUNCTOR_sub2) {
-    term_t targ = PL_new_term_ref();
-    PyObject *lhs, *rhs;
+	 if (!PL_get_arg(1, t, targ))
+	   return NULL;
+	 lhs = term_to_python(targ, true, NULL);
+	 AOK(PL_get_arg(2, t, targ), NULL);
+	 rhs = term_to_python(targ, true, NULL);
+	 if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
+	   return PySequence_Concat(lhs, rhs);
+	 }
+	 if (!PyNumber_Check(lhs))
+	   return NULL;
+	 if (!PyNumber_Check(rhs))
+	   return NULL;
+	 return PyNumber_Add(lhs, rhs);
+       } else if (fun == FUNCTOR_sub2) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *lhs, *rhs;
 
-    if (!PL_get_arg(1, t, targ))
-      return NULL;
-    lhs = term_to_python(targ, true, NULL);
-    if (!PyNumber_Check(lhs))
-      return NULL;
-    if (!PL_get_arg(2, t, targ))
-      return NULL;
-    rhs = term_to_python(targ, true, NULL);
-    if (!PyNumber_Check(rhs))
-      return NULL;
-    return PyNumber_Subtract(lhs, rhs);
-  } else if (fun == FUNCTOR_mul2) {
-    term_t targ = PL_new_term_ref();
-    PyObject *lhs, *rhs;
+	 if (!PL_get_arg(1, t, targ))
+	   return NULL;
+	 lhs = term_to_python(targ, true, NULL);
+	 if (!PyNumber_Check(lhs))
+	   return NULL;
+	 if (!PL_get_arg(2, t, targ))
+	   return NULL;
+	 rhs = term_to_python(targ, true, NULL);
+	 if (!PyNumber_Check(rhs))
+	   return NULL;
+	 return PyNumber_Subtract(lhs, rhs);
+       } else if (fun == FUNCTOR_mul2) {
+	 term_t targ = PL_new_term_ref();
+	 PyObject *lhs, *rhs;
 
-    AOK(PL_get_arg(1, t, targ), NULL);
-    (lhs = term_to_python(targ, true, NULL));
-    CHECKNULL(targ, lhs);
-    AOK(PL_get_arg(2, t, targ), NULL);
-    (rhs = term_to_python(targ, true, NULL));
-    CHECKNULL(targ, rhs);
-    if (PySequence_Check(lhs) && (
+	 AOK(PL_get_arg(1, t, targ), NULL);
+	 (lhs = term_to_python(targ, true, NULL));
+	 CHECKNULL(targ, lhs);
+	 AOK(PL_get_arg(2, t, targ), NULL);
+	 (rhs = term_to_python(targ, true, NULL));
+	 CHECKNULL(targ, rhs);
+	 if (PySequence_Check(lhs) && (
 #if PY_MAJOR_VERSION < 3
-                                     PyInt_Check(rhs) ||
+				       PyInt_Check(rhs) ||
 #endif
-                                     PyLong_Check(rhs))) {
-      return PySequence_Repeat(lhs, get_p_int(rhs, 0));
-    }
-    if (!PyNumber_Check(lhs) + !PyNumber_Check(rhs))
-      return NULL;
-    return PyNumber_Multiply(lhs, rhs);
-  }
-  if (!arity) {
-    char *s = NULL;
-    PyObject *pValue;
+				       PyLong_Check(rhs))) {
+	   return PySequence_Repeat(lhs, get_p_int(rhs, 0));
+	 }
+	 if (!PyNumber_Check(lhs) + !PyNumber_Check(rhs))
+	   return NULL;
+	 return PyNumber_Multiply(lhs, rhs);
+       }
+       if (!arity) {
+	 char *s = NULL;
+	 PyObject *pValue;
 
-    AOK(PL_get_atom_chars(t, &s), NULL);
-    pValue = PyObject_GetAttrString(o, s);
-    if (CHECKNULL(t, pValue) == NULL) {
-      PyErr_Print();
-      return NULL;
-    }
-    return pValue;
-  } else {
-    char *s = PL_atom_chars(name);
-    o = lookupPySymbol(s, o, NULL);
-    if (CHECKNULL(t, o) == NULL) {
-      PyErr_Print();
-      return NULL;
-    }
-    PyObject *pArgs = PyTuple_New(arity);
-    DebugPrintf("Tuple %p\n", pArgs);
-    int i;
-    term_t tleft = PL_new_term_ref();
-    for (i = 0; i < arity; i++) {
-      PyObject *pArg;
-      AOK(PL_get_arg(i + 1, t, tleft), NULL);
-      /* ignore (_) */
-      if (i == 0 && PL_is_variable(tleft)) {
-        pArg = Py_None;
-      } else {
-        pArg = term_to_python(tleft, true, NULL);
-        // PyObject_Print(pArg,fdopen(2,"w"),0);
-        if (pArg == NULL) {
-          pArg = Py_None;
-        }
-        /* pArg reference stolen here: */
-        Py_INCREF(pArg);
-      }
+	 AOK(PL_get_atom_chars(t, &s), NULL);
+	 pValue = PyObject_GetAttrString(o, s);
+	 if (CHECKNULL(t, pValue) == NULL) {
+	   PyErr_Print();
+	   return NULL;
+	 }
+	 return pValue;
+       } else {
+	 char *s = PL_atom_chars(name);
+	 o = lookupPySymbol(s, o, NULL);
+	 if (CHECKNULL(t, o) == NULL) {
+	   PyErr_Print();
+	   return NULL;
+	 }
+	 PyObject *pArgs = PyTuple_New(arity);
+	 DebugPrintf("Tuple %p\n", pArgs);
+	 int i;
+	 term_t tleft = PL_new_term_ref();
+	 for (i = 0; i < arity; i++) {
+	   PyObject *pArg;
+	   AOK(PL_get_arg(i + 1, t, tleft), NULL);
+	   /* ignore (_) */
+	   if (i == 0 && PL_is_variable(tleft)) {
+	     pArg = Py_None;
+	   } else {
+	     pArg = term_to_python(tleft, true, NULL);
+	     // PyObject_Print(pArg,fdopen(2,"w"),0);
+	     if (pArg == NULL) {
+	       pArg = Py_None;
+	     }
+	     /* pArg reference stolen here: */
+	     Py_INCREF(pArg);
+	   }
 
-      PyTuple_SetItem(pArgs, i, pArg);
-    }
-    if (!PyCallable_Check(o)) {
-      return term_to_nametuple(s, arity, pArgs);
-    }
-    PyObject *rc;
+	   PyTuple_SetItem(pArgs, i, pArg);
+	 }
+	 if (!PyCallable_Check(o)) {
+	   return term_to_nametuple(s, arity, pArgs);
+	 }
+	 PyObject *rc;
 
-    // PyObject_Print(pArgs, stderr, 0);
-    // PyObject_Print(o, stderr, 0);
-    CHECK_CALL(rc, t, PyObject_CallObject(o, pArgs));
-    Py_DECREF(pArgs);
-    Py_DECREF(o);
-    DebugPrintf("CallObject %p\n", rc);
+	 // PyObject_Print(pArgs, stderr, 0);
+	 // PyObject_Print(o, stderr, 0);
+	 CHECK_CALL(rc, t, PyObject_CallObject(o, pArgs));
+	 Py_DECREF(pArgs);
+	 Py_DECREF(o);
+	 DebugPrintf("CallObject %p\n", rc);
 
 
-    return rc;
-  }
-}
+	 return rc;
+       }
+     }

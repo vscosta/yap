@@ -309,7 +309,7 @@ flag_group_chk(FlagGroup):-
 flag_type(Type):-
   flags_type_definition(Type, _, _).
 
-% flags_type_definition(TypeName, TypeHandler, TypeValidator).
+%% @pred flags_type_definition(TypeName, TypeHandler, TypeValidator).
 flags_type_definition(nonvar, nonvar, true).
 flags_type_definition(atom, atom, true).
 flags_type_definition(atomic, atomic, true).
@@ -586,4 +586,4 @@ defined_flag(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, H
   nonvar(FlagName), nonvar(FlagGroup),
   '$defined_flag$'(FlagName, FlagGroup, FlagType, DefaultValue, Description, Access, Handler).
 
-%% @}
+%% @}

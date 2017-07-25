@@ -36,7 +36,7 @@ class EngineArgs( YAPEngineArgs ):
     def __init__(self, args=None,**kwargs):
         super().__init__()
 
-    
+
 class Predicate( YAPPredicate ):
     """ Interface to Generic Predicate"""
 
@@ -49,7 +49,7 @@ class Predicate:
         else:
             self.p = YAPPredicate( name, len(self) )
         self.e = engine
-    
+
     def goals( self, engine):
         self.e = engine
 
@@ -82,12 +82,12 @@ class PrologTableIter:
             raise StopIteration()
 
 
-    
+
 class PrologPredicate( YAPPrologPredicate ):
     """ Interface to Prolog  Predicate"""
 
-    
-    
+
+
 global engine, handler
 
 yap_lib_path = os.path.dirname(__file__)
@@ -137,7 +137,7 @@ def answer(q):
         return False
 
 def query_prolog(engine, s):
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
     #
     # construct a query from a one-line string
     # q is opaque to Python
@@ -209,16 +209,8 @@ def live(**kwargs):
 #
 
 def boot_yap(**kwargs):
-    args = EngineArgs(**kwarg)
-    yap_lib_path = os.path.dirname(__file__)
-    args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
-    args.setYapLibDir(yap_lib_path)
-    args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
-    engine = YAPEngine(args)
-    engine.goal( set_prolog_flag('verbose', 'silent' ) )
-    engine.goal( use_module(library('yapi') ) )
-    return engine
-    
+    return Engine(**kwargs)
+
 if __name__ == "__main__":
     engine = boot_yap()
     handler = numbervars

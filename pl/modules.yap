@@ -789,4 +789,4 @@ module_state :-
 	fail.
 module_state.
 
-// @}
+%% @}

@@ -29,7 +29,7 @@ interface.
   + @ref sicsatts
   + @ref New_Style_Attribute_Declarations
   + @ref AttributedVariables_Builtins
-  + @ref corout
+  + @ref CohYroutining
 
 ###  SICStus Style attribute declarations.              {#SICS_attributes}
 
@@ -374,7 +374,6 @@ The argument to `wait/1` is a predicate descriptor or a conjunction
 of these predicates. These predicates will suspend until their first
 argument is bound.
 
-
 The following primitives can be used:
 
 - freeze/2
@@ -385,6 +384,7 @@ The following primitives can be used:
 
 - frozen/2
 
+See @ref attscorouts for more details.
 
 @}
 

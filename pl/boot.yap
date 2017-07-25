@@ -41,7 +41,7 @@ should be read as "p( _X_) if q( _X_) or r( _X_)".
 
 */
 
-/** @pred  \+ :_P_  is iso
+/** @pred  \+ 0:P  is iso
 Negation by failure.
 
 Goal  _P_ is not provable. The execution of this predicate fails if
@@ -68,7 +68,7 @@ If _P_ includes cuts, the cuts are defined to be scoped by _P_: they cannot cut 
 
 */
 
-/** @pred   :_Condition__ -> :_Action_  is iso
+/** @pred   0:Condition -> 0:Action  is iso
 
 
 @short If _Condition__ has a solution, call _Action_;
@@ -119,7 +119,7 @@ arguments.
 
 */
 
-/** @pred    :_Condition_ *-> :_Action_ is iso
+/** @pred    0:Condition *-> 0:Action  is iso
 
 This construct implements the so-called <em>soft-cut</em>. The control is
 defined as follows:

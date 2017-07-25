@@ -116,7 +116,7 @@ ENDIF (WITH_PYTHON)
         List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
         List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
         if (WITH_PYTHON )
-            List (APPEND YLIBS    $<TARGET_OBJECTS:Obj4Py> )
+            List (APPEND YLIBS    $<TARGET_OBJECTS:Py4YAP> )
         endif()
     endif()
 

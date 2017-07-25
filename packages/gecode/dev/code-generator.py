@@ -554,7 +554,11 @@ class YAPEnumImpl(object):
         print
 
     def _generate_from_term(self):
-        print "static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,self.TYPE)
+        if self.TYPE == "std::function<void(Space&home)>":
+            t2 = "StdFunctionSpace"
+        else:
+            t2 = self.TYPE
+        print "static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,t2)
         print "{"
         for x in self.ENUM:
             print "  if (X==gecode_%s) return %s;" % (x,x)
@@ -563,11 +567,16 @@ class YAPEnumImpl(object):
         print
 
     def _generate_from_term_forward_decl(self):
-        print "static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,self.TYPE)
+        if self.TYPE == "std::function<void(Space&home)>":
+            t2 = "StdFunctionSpace"
+        else:
+            t2 = self.TYPE
+        print "static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,t2)
 
 class YAPEnumImplGenerator(object):
 
     def generate(self):
+        generate_space_function();
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -576,6 +585,7 @@ class YAPEnumImplGenerator(object):
 class YAPEnumForwardGenerator(object):
 
     def generate(self):
+        generate_space_function_forward();
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -642,12 +652,16 @@ class CCDescriptor(object):
                 has_space = True
             else:
                 extra = ""
+                t2 = t
                 if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs"):
                     extra = "space,"
                     if has_space == False:
                         print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
                         has_space = True
-                print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t,extra,a)
+                else:
+                    if t == "std::function<void(Space&home)>":
+                        t2 = "StdFunctionSpace"
+                print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t2,extra,a)
             args.append(v)
             i += 1
         print "  %s(%s);" % (self.name, ",".join(args))
