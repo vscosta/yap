@@ -59,8 +59,9 @@ extern int pop_text_stack(int lvl USES_REGS);
 extern void *protected_pop_text_stack(int lvl, void *safe, bool tmp,
                                       size_t sz USES_REGS);
 
-#ifndef min
-#define min(x, y) (x < y ? x : y)
+#ifndef Yap_Min
+#define Yap_Min(x, y) (x < y ? x : y)
+
 #endif
 
 #define MBYTE (1024 * 1024)

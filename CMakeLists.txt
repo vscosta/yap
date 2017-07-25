@@ -91,12 +91,12 @@ endif()
 
 OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
 
-IF (WITH_SWIG)
+IF (WITH_SWIG OR ANDROID)
     find_host_package (SWIG)
     macro_log_feature (SWIG_FOUND "Swig"
             "Use SWIG Interface Generator "
             "http://www.swig.org" ON)
-ENDIF (WITH_SWIG)
+ENDIF (WITH_SWIG OR ANDROID)
 
 option (WITH_PYTHON
         "Allow Python->YAP  and YAP->Python" ON)
@@ -106,37 +106,20 @@ IF (WITH_PYTHON)
 ENDIF (WITH_PYTHON)
 
 
-IF (SWIG_FOUND)
-    add_subDIRECTORY (packages/swig  NO_POLICY_SCOPE)
-ENDIF(SWIG_FOUND)
-
-
-
-if (ANDROID)
-
-    ADD_SUBDIRECTORY(os)
-    ADD_SUBDIRECTORY(OPTYap)
-    ADD_SUBDIRECTORY(packages/myddas)
-    ADD_SUBDIRECTORY(utf8proc)
-    ADD_SUBDIRECTORY(CXX)
-
-
-else()
 
     List (APPEND YLIBS    $<TARGET_OBJECTS:libOPTYap> )
     List (APPEND YLIBS    $<TARGET_OBJECTS:libYAPOs> )
     List (APPEND YLIBS    $<TARGET_OBJECTS:utf8proc> )
     List (APPEND YLIBS    $<TARGET_OBJECTS:myddas> )
-    List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
     List (APPEND YLIBS    $<TARGET_OBJECTS:libswi> )
     if (WIN32)
+        List (APPEND YLIBS    $<TARGET_OBJECTS:Yapsqlite3> )
         List (APPEND YLIBS    $<TARGET_OBJECTS:YAP++> )
         if (WITH_PYTHON )
             List (APPEND YLIBS    $<TARGET_OBJECTS:Obj4Py> )
         endif()
     endif()
 
-endif()
 
 
 
@@ -167,8 +150,6 @@ if (USE_READLINE)
 endif (USE_READLINE)
 
 if (ANDROID)
-    add_dependencies(libYap  plmyddas )
-
     target_link_libraries(libYap android log)
 
 endif ()
@@ -191,5 +172,10 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
         add_subdirectory(packages/python/yap_kernel)
     ENDIF()
 endif()
+
+
+IF (SWIG_FOUND OR ANDROID)
+    add_subDIRECTORY (packages/swig  NO_POLICY_SCOPE)
+ENDIF()
 
 include(Config NO_POLICY_SCOPE)

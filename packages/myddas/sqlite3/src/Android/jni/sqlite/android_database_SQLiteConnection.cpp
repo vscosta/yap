@@ -360,23 +360,22 @@ static jlong nativePrepareStatement(JNIEnv *env, jclass clazz,
   int err = sqlite3_prepare16_v2(connection->db, sql, sqlLength * sizeof(jchar),
                                  &statement, NULL);
   env->ReleaseStringCritical(sqlString, sql);
-
+#if 0
   if (err != SQLITE_OK) {
     // Error messages like 'near ")": syntax error' are not
     // always helpful enough, so construct an error string that
     // includes the query itself.
     const char *query = env->GetStringUTFChars(sqlString, NULL);
-    char *message = (char *)malloc(strlen(query) + 50);
+    char *message[512];
     if (message) {
       strcpy(message, ", while compiling: "); // less than 50 chars
       strcat(message, query);
     }
     env->ReleaseStringUTFChars(sqlString, query);
     throw_sqlite3_exception(env, connection->db, message);
-    free(message);
     return 0;
   }
-
+#endif
   ALOGV("Prepared statement %p on connection %p", statement, connection->db);
   return reinterpret_cast<jlong>(statement);
 }

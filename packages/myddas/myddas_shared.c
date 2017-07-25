@@ -685,7 +685,7 @@ void init_myddas(void) {
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
-#if defined MYDDAS_SQLITE3
+#if WIN32
   Yap_InitBackMYDDAS_SQLITE3Preds();
 #endif
 #if defined USE_MYDDAS
@@ -697,7 +697,7 @@ void init_myddas(void) {
 #if defined MYDDAS_ODBC
   Yap_InitMYDDAS_ODBCPreds();
 #endif
-#if defined MYDDAS_SQLITE3
+#if WIN32
   Yap_InitMYDDAS_SQLITE3Preds();
 #endif
 #if defined USE_MYDDAS

@@ -40,14 +40,14 @@ src/Android/jni/sqlite/android_database_SQLiteConnection.cpp
 src/Android/jni/sqlite/android_database_SQLiteDebug.cpp
 src/Android/jni/sqlite/android_database_SQLiteGlobal.cpp
 src/Android/jni/sqlite/nativehelper/jni.h
-src/Android/jni/sqlite/nativehelper/jniConstants.h
+src/Android/jni/sqlite/nativehelper/JniConstants.h
 src/Android/jni/sqlite/nativehelper/JNIHelp.h
 src/Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 )
 
 endif (ANDROID)
 
-add_component(  Yapsqlite3
+add_library(  Yapsqlite3 SHARED
     ${YAPSQLITE3_SOURCES} )
 
     MY_set_target_properties(Yapsqlite3
@@ -56,3 +56,9 @@ add_component(  Yapsqlite3
       #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
       POSITION_INDEPENDENT_CODE TRUE
       )
+
+
+if (ANDROID)
+    target_link_libraries(Yapsqlite3 android log)
+
+endif ()

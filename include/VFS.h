@@ -31,6 +31,8 @@
 #endif
 #endif
 
+#include <encoding.h>
+
 typedef struct {
   dev_t st_dev;                     /* ID of device containing file */
   mode_t st_mode;                   /* Mode of file (see below) */
@@ -47,6 +49,7 @@ typedef struct {
 #endif
 } vfs_stat;
 
+
 typedef enum vfs_flags {
   VFS_CAN_WRITE = 0x1,     /// we can write to files in this space
   VFS_CAN_EXEC = 0x2,      /// we can execute files in this space
@@ -62,7 +65,7 @@ typedef union {
   size_t sz;
   void *pt;
   uintptr_t scalar;
-#if __ANDROID__
+#if __ANDROID__0
   AAssetManager *mgr;
   AAsset *asset;
 #endif
@@ -107,6 +110,10 @@ typedef struct vfs {
 } VFS_t;
 
 extern VFS_t *GLOBAL_VFS;
+
+extern void init_android_stream(void);
+
+extern void Yap_InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp);
 
 static inline VFS_t *vfs_owner(const char *fname) {
   VFS_t *me = GLOBAL_VFS;

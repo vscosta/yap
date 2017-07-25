@@ -92,12 +92,12 @@ list(APPEND YAP_SYSTEM_OPTIONS "thread support")
 # we use the nice UTF-8 package
 #available at the Julia project
 
-MY_ADD_SUBDIRECTORY ( os )
-MY_ADD_SUBDIRECTORY ( OPTYap )
-MY_ADD_SUBDIRECTORY ( packages/myddas )
-MY_ADD_SUBDIRECTORY ( utf8proc )
-MY_ADD_SUBDIRECTORY ( library/dialect/swi/fli )
-MY_ADD_SUBDIRECTORY ( CXX )
+ADD_SUBDIRECTORY ( os )
+ADD_SUBDIRECTORY ( OPTYap )
+ADD_SUBDIRECTORY ( packages/myddas )
+ADD_SUBDIRECTORY ( utf8proc )
+ADD_SUBDIRECTORY ( library/dialect/swi/fli )
+ADD_SUBDIRECTORY ( CXX )
 
 if (READLINE_LIBS)
   target_link_libraries(libYap ${READLINE_LIBS} )

@@ -41,8 +41,8 @@ class X_API YAPQuery : public YAPPredicate
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPQuery *oq;
-  YAPPairTerm names;
-  YAPTerm goal;
+  YAPPairTerm *names;
+  YAPTerm *goal;
   // temporaries
   Term tnames, tgoal ;
 
@@ -55,6 +55,8 @@ class X_API YAPQuery : public YAPPredicate
   q_p = P;
   q_cp = CP;
   // make sure this is safe
+      names = new YAPPairTerm();
+      goal = new YAPTerm();
   q_handles = LOCAL_CurSlot;
 };
 
@@ -97,8 +99,7 @@ YAPQuery() {
                           LOCAL_CurSlot);
       if (!ap)
           return;
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
-      goal = YAPTerm(tgoal);
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "ŸAPQuery");
       if (IsPairTerm(tgoal)) {
         qt = RepPair(tgoal);
         tgoal = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("consult"), 1),1,qt);
@@ -108,8 +109,11 @@ YAPQuery() {
           qt = RepAppl(tgoal)+1;
         }
       }
-      names = YAPPairTerm(tnames);
-      openQuery(tgoal, qt);
+      names = new YAPPairTerm();
+      goal = new YAPTerm(tgoal);
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "names  %d %s %ld",
+                          q_state, names->text(), LOCAL_CurSlot);
+    openQuery(tgoal, qt);
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
   // {
@@ -117,7 +121,7 @@ YAPQuery() {
   //                         LOCAL_CurSlot);
   //     if (!ap)
   //         return;
-  //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+  //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names->text());
   //     goal = YAPTerm(tgoal);
   //     names = YAPPairTerm(tnames);
   //     openQuery(tgoal);
@@ -130,40 +134,39 @@ YAPQuery() {
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
-void resetFlag(int flag) { q_flags &= ~flag; }
-/// first query
-///
-/// actually implemented by calling the next();
-inline bool first() { return next(); }
-/// ask for the next solution of the current query
-/// same call for every solution
-bool next();
-/// does this query have open choice-points?
-/// or is it deterministic?
-bool deterministic();
-/// represent the top-goal
-const char *text();
-/// remove alternatives in the current search space, and finish the current
-/// query
-/// finish the current query: undo all bindings.
-void close();
-/// query variables.
-void cut();
-Term namedVars() {return  names.term(); };
-/// query variables, but copied out
-std::vector<Term> namedVarsVector() {
-  return names.listToArray(); };
-/// convert a ref to a binding.
-YAPTerm getTerm(yhandle_t t);
-/// simple YAP Query;
-/// just calls YAP and reports success or failure, Useful when we just
-/// want things done, eg YAPCommand("load_files(library(lists), )")
-inline bool command()
-{
-  bool rc = next();
-  close();
-  return rc;
-};
+  void resetFlag(int flag) { q_flags &= ~flag; }
+  /// first query
+  ///
+  /// actually implemented by calling the next();
+  inline bool first() { return next(); }
+  /// ask for the next solution of the current query
+  /// same call for every solution
+  bool next();
+  /// does this query have open choice-points?
+  /// or is it deterministic?
+  bool deterministic();
+  /// represent the top-goal
+  const char *text();
+  /// remove alternatives in the current search space, and finish tnamedyaphe current
+  /// query
+  /// finish the current query: undo all bindings.
+  void close();
+  /// query variables.
+  void cut();
+
+    Term namedVars() {return  names->term(); };
+    YAPPairTerm * namedYAPVars() {return  names; };
+  /// query variables, but copied out
+   YAPTerm getTerm(yhandle_t t);
+  /// simple YAP Query;
+  /// just calls YAP and reports success or failure, Useful when we just
+  /// want things done, eg YAPCommand("load_files(library(lists), )")
+  inline bool command()
+  {
+    bool rc = next();
+    close();
+    return rc;
+  };
 };
 
 // Java support
