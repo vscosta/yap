@@ -69,9 +69,9 @@ extern "C"
   static YAP_opaque_tag_t gecode_space_tag;
   static YAP_opaque_handler_t gecode_space_handler;
 
-  static YAP_Bool gecode_space_fail_handler(void* p)
+  static YAP_Bool gecode_space_fail_handler(YAP_Term t)
   {
-    delete *(GenericSpace**)p;
+    delete *(GenericSpace **)YAP_OpaqueObjectFromTerm(YAP_HeadOfTerm(t));
     return TRUE;
   }
 
@@ -647,9 +647,9 @@ return BOOL_VAL_RND(Rnd());
     return * (GenericEngine**) YAP_OpaqueObjectFromTerm(t);
   }
 
-  static YAP_Bool gecode_engine_fail_handler(void* p)
+  static YAP_Bool gecode_engine_fail_handler(YAP_Term t)
   {
-    delete *(GenericEngine**)p;
+    delete *(GenericEngine**)YAP_OpaqueObjectFromTerm(YAP_HeadOfTerm(t));
     return TRUE;
   }
 
@@ -1672,7 +1672,7 @@ return BOOL_VAL_RND(Rnd());
   static YAP_opaque_tag_t gecode_tupleset_tag;
   static YAP_opaque_handler_t gecode_tupleset_handler;
 
-  static YAP_Bool gecode_tupleset_fail_handler(void* p)
+  static YAP_Bool gecode_tupleset_fail_handler(YAP_Term p)
   {
     return TRUE;
   }
@@ -1720,7 +1720,7 @@ return BOOL_VAL_RND(Rnd());
   static YAP_opaque_tag_t gecode_dfa_tag;
   static YAP_opaque_handler_t gecode_dfa_handler;
 
-  static YAP_Bool gecode_dfa_fail_handler(void* p)
+  static YAP_Bool gecode_dfa_fail_handler(YAP_Term p)
   {
     return TRUE;
   }
