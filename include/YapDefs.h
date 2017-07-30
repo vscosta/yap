@@ -1,23 +1,22 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	@(#)c_interface.h	2.2			 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		yap_structs.h						 *
-* Last rev:	15/5/2000						 *
-* mods:									 *
-* comments:	Data structures and defines used in the Interface	 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	@(#)c_interface.h	2.2			 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		yap_structs.h *
+ * Last rev:	15/5/2000						 *
+ * mods: *
+ * comments:	Data structures and defines used in the Interface	 *
+ *									 *
+ *************************************************************************/
 
 #ifndef _YAPDEFS_H
 
 #define _YAPDEFS_H 1
-
 
 /**
  * X_API macro
@@ -46,7 +45,6 @@
 #define I_API
 #define X_API
 #endif
-
 
 #include <setjmp.h>
 #include <stdio.h>
@@ -267,7 +265,7 @@ typedef struct yap_boot_params {
   size_t StackSize;
   //> if NON-0, maximal size for Local+Global Stack
   size_t MaxStackSize;
-    //*> deprecated
+  //*> deprecated
   size_t MaxGlobalSize;
   //> if NON-0, minimal size for Trail
   size_t TrailSize;
@@ -277,11 +275,11 @@ typedef struct yap_boot_params {
   size_t AttsSize;
   //> if NON-0, maximal size for AttributeVarStack
   size_t MaxAttsSize;
-    //> if NON-NULL, value for YAPLIBDIR
-    const char *YapLibDir;
-    //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries
-    const char *YapShareDir;
-    //> if NON-NULL, name for a Prolog file to use when booting
+  //> if NON-NULL, value for YAPLIBDIR
+  const char *YapLibDir;
+  //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries
+  const char *YapShareDir;
+  //> if NON-NULL, name for a Prolog file to use when booting
   const char *YapPrologBootFile;
   //> if NON-NULL, name for a Prolog file to use when initializing
   const char *YapPrologInitGoal;
@@ -376,22 +374,37 @@ typedef struct open_query_struct {
 
 typedef void (*YAP_halt_hook)(int exit_code, void *closure);
 
+/** Interface to opaque variables */
+
+/* each type has a tag */
 typedef YAP_Int YAP_opaque_tag_t;
 
-typedef YAP_Bool (*YAP_Opaque_CallOnFail)(void *);
+typedef YAP_Bool (*YAP_Opaque_CallOnFail)(YAP_Term);
+typedef YAP_Bool (*YAP_Opaque_CallOnCut)(YAP_Term);
 typedef YAP_Bool (*YAP_Opaque_CallOnWrite)(FILE *, YAP_opaque_tag_t, void *,
                                            int);
 typedef YAP_Int (*YAP_Opaque_CallOnGCMark)(YAP_opaque_tag_t, void *, YAP_Term *,
                                            YAP_Int);
 typedef YAP_Bool (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *,
                                                 YAP_Term *, YAP_Int);
-
+/// opaque variables can interact with the system
 typedef struct YAP_opaque_handler_struct {
-  YAP_Opaque_CallOnFail fail_handler;
-  YAP_Opaque_CallOnWrite write_handler;
-  YAP_Opaque_CallOnGCMark mark_handler;
-  YAP_Opaque_CallOnGCRelocate relocate_handler;
+  YAP_Opaque_CallOnCut cut_handler; //< called at cut, which may be a forward
+                                    //cut or an exception.
+  YAP_Opaque_CallOnFail
+      fail_handler; //< called at exit, it can be used to cleanup resources
+  YAP_Opaque_CallOnWrite write_handler; //< text representation
+  YAP_Opaque_CallOnGCMark
+      mark_handler; //< useful if you include pointers to stack
+  YAP_Opaque_CallOnGCRelocate
+      relocate_handler; //< useful if you include pointers to stack
 } YAP_opaque_handler_t;
+
+extern YAP_Opaque_CallOnWrite Yap_blob_write_handler_from_slot(YAP_Int slot);
+extern YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(YAP_Term t);
+extern YAP_Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(YAP_Term t);
+extern YAP_Int Yap_blob_tag_from_slot(YAP_Int slot);
+extern void *Yap_blob_info_from_slot(YAP_Int slot);
 
 /********* execution mode ***********************/
 
