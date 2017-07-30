@@ -418,12 +418,6 @@ static Int cmpclls(CELL *a, CELL *b, Int n) {
   return TRUE;
 }
 
-#if !THREADS
-int Yap_DBTrailOverflow() {
-  return ((CELL *)LOCAL_s_dbg->lr > (CELL *)LOCAL_s_dbg->tofref - 2048);
-}
-#endif
-
 /* get DB entry for ap/arity; */
 static Prop FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity,
                                  Term dbmod) {
@@ -1709,7 +1703,6 @@ static DBRef record(int Flag, Term key, Term t_data, Term t_code USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
   dbg.found_one = NULL;
 #ifdef SFUNC
   FathersPlace = NIL;
@@ -1785,7 +1778,6 @@ static DBRef record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
 #ifdef SFUNC
   FathersPlace = NIL;
 #endif
@@ -1870,7 +1862,6 @@ static LogUpdClause *new_lu_db_entry(Term t, PredEntry *pe) {
   if (!pe || !(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
 #endif
-  LOCAL_s_dbg = &dbg;
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode, e);
   if ((x = (DBTerm *)CreateDBStruct(t, NULL, d_flag, &needs_vars, (UInt)ipc,
                                     &dbg)) == NULL) {
@@ -4918,7 +4909,6 @@ static DBTerm *StoreTermInDB(Term t, int nargs USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
   LOCAL_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars, 0,
                                        &dbg)) == NULL) {
@@ -4949,7 +4939,6 @@ DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
   struct db_globs dbg;
   DBTerm *o;
 
-  LOCAL_s_dbg = &dbg;
   o = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars,
                                extra_size, &dbg);
   *sz = dbg.sz;
