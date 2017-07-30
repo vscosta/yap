@@ -79,6 +79,7 @@ Int Yap_CloseSocket(int, socket_info, socket_domain);
 
 #endif /* USE_SOCKET */
 
+extern bool Yap_clearInput(int sno);
 extern Term Yap_read_term(int inp_stream, Term opts, bool clauatse);
 extern Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 

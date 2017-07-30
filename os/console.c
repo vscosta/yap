@@ -44,13 +44,10 @@ static int ConsolePutc(int, int);
 
 bool Yap_DoPrompt(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
-    if (GLOBAL_Stream[0].status & Tty_Stream_f &&
-        s->name == GLOBAL_Stream[0].name &&
-        ((GLOBAL_Stream[1].status & Tty_Stream_f ||
-          s->name == GLOBAL_Stream[1].name) ||
-         (GLOBAL_Stream[2].status & Tty_Stream_f &&
-          s->name == GLOBAL_Stream[2].name)))
+    if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
+	GLOBAL_Stream[StdErrStream].status & Tty_Stream_f) {
       return LOCAL_newline;
+    }
   }
   return false;
 }
@@ -149,6 +146,7 @@ restart:
         GLOBAL_Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
     }
+    Yap_clearInput(StdErrStream);
     strncpy(LOCAL_Prompt, (char *)RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
     LOCAL_newline = FALSE;
   }

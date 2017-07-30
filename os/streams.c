@@ -154,7 +154,7 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 /**
  *
  */
- static bool clearInput(int sno)
+ bool Yap_clearInput(int sno)
  {
      if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
      return true;
@@ -162,7 +162,10 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
  if (GLOBAL_Stream[sno].status & Readline_Stream_f)
   return Yap_readline_clear_pending_input (GLOBAL_Stream+sno);
 #endif
-#if HAVE_TCFLUSH
+#if HAVE_FPURGE
+ fflush(NULL);
+ return fpurge(  GLOBAL_Stream[sno].file ) == 0;
+#elif HAVE_TCFLUSH
   return tcflush(fileno(GLOBAL_Stream[sno].file), TCIOFLUSH) == 0;
 #elif MSC_VER
   return fflush(GLOBAL_Stream[sno].file) == 0;
@@ -176,7 +179,7 @@ static Int clear_input( USES_REGS1 )
                             "clear_input/1");
   if (sno != -1)
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return clearInput(sno);
+  return Yap_clearInput(sno);
 }
 
 static Term lineCount(int sno) {
