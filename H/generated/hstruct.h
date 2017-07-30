@@ -273,6 +273,8 @@
 /* initialised by memory allocator */
   UInt  Yap_AttsSize_;
 #endif
+/** opaque terms used to wake up on cut of call catcher meta-goal */
+  UInt  setup_call_catcher_cleanup_tag_;
 /* Operators */
   struct operator_entry  *OpList_;
 /* foreign code loaded */

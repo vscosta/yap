@@ -116,7 +116,7 @@ char 				Executable[YAP_FILENAME_MAX]		void
 #endif
 
 int				OpaqueHandlersCount			=0
-struct opaque_handler_struct* 	OpaqueHandlers				=NULL
+struct YAP_opaque_handler_struct* 	OpaqueHandlers				=NULL
 
 #if  __simplescalar__
 char				pwd[YAP_FILENAME_MAX]			void

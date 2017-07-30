@@ -107,10 +107,11 @@ extern int Yap_IsStringTerm(Term);
 extern int Yap_IsWideStringTerm(Term);
 extern Term Yap_RatTermToApplTerm(Term);
 extern void Yap_InitBigNums(void);
-extern Term Yap_AllocExternalDataInStack(CELL, size_t);
-extern int Yap_CleanOpaqueVariable(CELL *);
+extern Term Yap_AllocExternalDataInStack(CELL, size_t, CELL **);
+extern int Yap_CleanOpaqueVariable(Term t);
 extern CELL *Yap_HeapStoreOpaqueTerm(Term t);
 extern size_t Yap_OpaqueTermToString(Term t, char *str, size_t max);
+extern Int Yap_blob_tag(Term t);
 
 /* c_interface.c */
 #ifndef YAP_CPP_INTERFACE
@@ -499,6 +500,9 @@ extern void Yap_init_optyap_preds(void);
 /* pl-file.c */
 //  struct PL_local_data *Yap_InitThreadIO(int wid);
 extern void Yap_flush(void);
+
+extern X_API YAP_opaque_tag_t
+YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 
 /* pl-yap.c */
 extern Int Yap_source_line_no(void);

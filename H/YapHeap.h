@@ -31,24 +31,6 @@ typedef int (*SWI_FlushFunction)(void *);
 typedef int (*SWI_PLGetStreamFunction)(void *);
 typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
-typedef int (*Opaque_CallOnFail)(void *);
-typedef int (*Opaque_CallOnWrite)(FILE *, int, void *, int);
-typedef Int (*Opaque_CallOnGCMark)(int, void *, Term *, Int);
-typedef int (*Opaque_CallOnGCRelocate)(int, void *, Term *, Int);
-
-typedef struct opaque_handler_struct {
-  Opaque_CallOnFail fail_handler;
-  Opaque_CallOnWrite write_handler;
-  Opaque_CallOnGCMark gc_mark_handler;
-  Opaque_CallOnGCRelocate gc_relocate_handler;
-} opaque_handler_t;
-
-extern Opaque_CallOnWrite Yap_blob_write_handler_from_slot(Int slot);
-extern Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t);
-extern Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(Term t);
-extern Int Yap_blob_tag_from_slot(Int slot);
-extern void *Yap_blob_info_from_slot(Int slot);
-
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
 #endif

@@ -273,6 +273,8 @@ EXTERNAL  int  NUM_OF_ATTS;
 /* initialised by memory allocator */
 EXTERNAL  UInt  Yap_AttsSize;
 #endif
+/** opaque terms used to wake up on cut of call catcher meta-goal */
+EXTERNAL  UInt  setup_call_catcher_cleanup_tag;
 /* Operators */
 EXTERNAL    struct operator_entry  *OpList;
 /* foreign code loaded */

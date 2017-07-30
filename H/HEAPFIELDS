@@ -307,6 +307,9 @@ int		NUM_OF_ATTS		=1	void
 UInt		Yap_AttsSize		void void
 #endif
 
+/** opaque terms used to wake up on cut of call catcher meta-goal */
+UInt		setup_call_catcher_cleanup_tag	void	void
+
 /* Operators */
 struct operator_entry	*OpList			=NULL OpListAdjust
 

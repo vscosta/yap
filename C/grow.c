@@ -586,8 +586,8 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	      (sizeof(MP_INT)+
 	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	    //printf("sz *%ld* at @%ld@\n", sz, pt-H0);
-	    Opaque_CallOnGCMark f;
-	    Opaque_CallOnGCRelocate f2;
+	    YAP_Opaque_CallOnGCMark f;
+	    YAP_Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(pt);
 
 	    if ( (f = Yap_blob_gc_mark_handler(t)) ) {

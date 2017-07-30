@@ -854,8 +854,8 @@ number of steps.
 	format(user_error,'.~n', []).
 
 '$another' :-
-	'$clear_input'(user_input),
 	format(user_error,' ? ',[]),
+	'$clear_input'(user_input),
 	get_code(user_input,C),
 	'$do_another'(C).
 
@@ -1399,7 +1399,6 @@ Command = (H --> B) ->
 
 
 '$enter_command'(Stream, Mod, Status) :-
-    '$clear_input'(Stream),
     prompt1(': '), prompt(_,'     '),
 	Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     (

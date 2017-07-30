@@ -96,6 +96,7 @@ typedef enum {
   ARRAY_FLOAT = 0x22,
   CLAUSE_LIST = 0x40,
   EXTERNAL_BLOB = 0x100,    /* generic data */
+  GOAL_CUT_POINT = 0x200,
   USER_BLOB_START = 0x1000, /* user defined blob */
   USER_BLOB_END = 0x1100    /* end of user defined blob */
 } big_blob_type;

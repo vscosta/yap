@@ -129,6 +129,7 @@ X_API EXTERNAL Atom AtomEq; X_API EXTERNAL Term TermEq;
 X_API EXTERNAL Atom AtomError; X_API EXTERNAL Term TermError;
 X_API EXTERNAL Atom AtomException; X_API EXTERNAL Term TermException;
 X_API EXTERNAL Atom AtomExtensions; X_API EXTERNAL Term TermExtensions;
+X_API EXTERNAL Atom AtomExternalException; X_API EXTERNAL Term TermExternalException;
 X_API EXTERNAL Atom AtomEvaluable; X_API EXTERNAL Term TermEvaluable;
 X_API EXTERNAL Atom AtomEvaluationError; X_API EXTERNAL Term TermEvaluationError;
 X_API EXTERNAL Atom AtomExecutable; X_API EXTERNAL Term TermExecutable;
@@ -570,6 +571,8 @@ X_API EXTERNAL  Functor FunctorExecuteWithin;
 X_API EXTERNAL  Functor FunctorExistenceError;
 
 X_API EXTERNAL  Functor FunctorExoClause;
+
+X_API EXTERNAL  Functor FunctorExternalException;
 
 X_API EXTERNAL  Functor FunctorFunctor;
 

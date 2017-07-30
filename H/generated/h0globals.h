@@ -100,7 +100,7 @@ EXTERNAL  YP_FILE*  GLOBAL_logfile;
 EXTERNAL  char  GLOBAL_Executable[YAP_FILENAME_MAX];
 #endif
 EXTERNAL  int  GLOBAL_OpaqueHandlersCount;
-EXTERNAL    struct opaque_handler_struct*  GLOBAL_OpaqueHandlers;
+EXTERNAL    struct YAP_opaque_handler_struct*  GLOBAL_OpaqueHandlers;
 #if  __simplescalar__
 EXTERNAL  char  GLOBAL_pwd[YAP_FILENAME_MAX];
 #endif

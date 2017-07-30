@@ -340,8 +340,8 @@ mark_global_cell(CELL *pt)
 	Int sz = 3 +
 	  (sizeof(MP_INT)+
 	   (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
-	Opaque_CallOnGCMark f;
-	Opaque_CallOnGCRelocate f2;
+	YAP_Opaque_CallOnGCMark f;
+	YAP_Opaque_CallOnGCRelocate f2;
 	Term t = AbsAppl(pt);
 
 	if ( (f = Yap_blob_gc_mark_handler(t)) ) {

@@ -1155,8 +1155,9 @@ bool Yap_find_prolog_culprit(USES_REGS1) {
 
     while (curCP != YESCODE) {
       curENV = (CELL *)(curENV[E_E]);
-      if (curENV < ASP || curENV >= LCL0)
+      if (curENV < ASP || curENV >= LCL0) {
         break;
+      }
       pe = EnvPreg(curCP);
       if (pe==NULL) {
         pe = PredMetaCall;

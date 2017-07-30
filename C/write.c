@@ -271,7 +271,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     return;
 #endif
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
-    Opaque_CallOnWrite f;
+    YAP_Opaque_CallOnWrite f;
     CELL blob_info;
 
     blob_info = big_tag - USER_BLOB_START;

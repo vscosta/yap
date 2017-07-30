@@ -270,6 +270,8 @@
 #define Yap_AttsSize Yap_heap_regs->Yap_AttsSize_
 #endif
 
+#define setup_call_catcher_cleanup_tag Yap_heap_regs->setup_call_catcher_cleanup_tag_
+
 #define OpList Yap_heap_regs->OpList_
 
 #define ForeignCodeLoaded Yap_heap_regs->ForeignCodeLoaded_

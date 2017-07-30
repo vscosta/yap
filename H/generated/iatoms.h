@@ -129,6 +129,7 @@
   AtomError = Yap_LookupAtom("error"); TermError = MkAtomTerm(AtomError);
   AtomException = Yap_LookupAtom("exception"); TermException = MkAtomTerm(AtomException);
   AtomExtensions = Yap_LookupAtom("extensions"); TermExtensions = MkAtomTerm(AtomExtensions);
+  AtomExternalException = Yap_LookupAtom("external_exception"); TermExternalException = MkAtomTerm(AtomExternalException);
   AtomEvaluable = Yap_LookupAtom("evaluable"); TermEvaluable = MkAtomTerm(AtomEvaluable);
   AtomEvaluationError = Yap_LookupAtom("evaluation_error"); TermEvaluationError = MkAtomTerm(AtomEvaluationError);
   AtomExecutable = Yap_LookupAtom("executable"); TermExecutable = MkAtomTerm(AtomExecutable);
@@ -505,6 +506,7 @@
   FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,1);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
   FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);
+  FunctorExternalException = Yap_MkFunctor(AtomExternalException,1);
   FunctorFunctor = Yap_MkFunctor(AtomFunctor,3);
   FunctorGAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorGAtomic = Yap_MkFunctor(AtomAtomic,1);

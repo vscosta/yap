@@ -20,7 +20,7 @@ A	AltNot			N	"not"
 A	Answer			N	"answer"
 A	Any             N	"any"
 A	Append			N	"append"
-A	Arg			N	"arg"
+A	Arg			    N	"arg"
 A	Array			F	"$array"
 A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
@@ -134,6 +134,7 @@ A	Eq			N	"="
 A	Error			N	"error"
 A	Exception		N	"exception"
 A	Extensions		N	"extensions"
+A	ExternalException		N	"external_exception"
 A	Evaluable		N	"evaluable"
 A	EvaluationError		N	"evaluation_error"
 A	Executable		N	"executable"
@@ -510,6 +511,7 @@ F	ExecuteInMod		ExecuteInMod	2
 F	ExecuteWithin		ExecuteWithin	1
 F	ExistenceError		ExistenceError	2
 F	ExoClause		ExoClause	2
+F	ExternalException		ExternalException  1
 F	Functor			Functor		3
 F	GAtom			Atom		1
 F	GAtomic			Atomic		1

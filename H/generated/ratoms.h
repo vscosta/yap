@@ -129,6 +129,7 @@
   AtomError = AtomAdjust(AtomError); TermError = MkAtomTerm(AtomError);
   AtomException = AtomAdjust(AtomException); TermException = MkAtomTerm(AtomException);
   AtomExtensions = AtomAdjust(AtomExtensions); TermExtensions = MkAtomTerm(AtomExtensions);
+  AtomExternalException = AtomAdjust(AtomExternalException); TermExternalException = MkAtomTerm(AtomExternalException);
   AtomEvaluable = AtomAdjust(AtomEvaluable); TermEvaluable = MkAtomTerm(AtomEvaluable);
   AtomEvaluationError = AtomAdjust(AtomEvaluationError); TermEvaluationError = MkAtomTerm(AtomEvaluationError);
   AtomExecutable = AtomAdjust(AtomExecutable); TermExecutable = MkAtomTerm(AtomExecutable);
@@ -505,6 +506,7 @@
   FunctorExecuteWithin = FuncAdjust(FunctorExecuteWithin);
   FunctorExistenceError = FuncAdjust(FunctorExistenceError);
   FunctorExoClause = FuncAdjust(FunctorExoClause);
+  FunctorExternalException = FuncAdjust(FunctorExternalException);
   FunctorFunctor = FuncAdjust(FunctorFunctor);
   FunctorGAtom = FuncAdjust(FunctorGAtom);
   FunctorGAtomic = FuncAdjust(FunctorGAtomic);
