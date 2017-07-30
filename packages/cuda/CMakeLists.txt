@@ -1,9 +1,6 @@
 #CHECK: CUDA
 
 macro_optional_find_package (CUDA ON)
-macro_log_feature (CUDA_FOUND "CUDA"
-  "CUDA GGPU Programming "
-  "http://www.nvidia.com/object/cuda_home_new.html" FALSE)
 
 if (CUDA_FOUND)
   #   CUDA_VERSION_MAJOR    -- The major version of cuda as reported by nvcc.

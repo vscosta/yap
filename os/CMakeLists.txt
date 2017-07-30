@@ -84,10 +84,7 @@ include(CheckVariableExists)
 
  if (WITH_READLINE)
   macro_optional_find_package (Readline ON)
-  macro_log_feature (READLINE_FOUND "libreadline"
-    "Readline line editing library"
-    "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html")
-
+  
   if (READLINE_FOUND)
   # - Find the readline library
   # This module defines

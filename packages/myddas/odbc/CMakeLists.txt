@@ -9,10 +9,6 @@ set(SO_PATCH 0)
 
 macro_optional_find_package(ODBC ON)
 
-macro_log_feature (ODBC_FOUND "Odbc"
-  "ODBC Driver for MYDDAS Data-Base Interface "
-  "http://www.odbc.org" FALSE)
-
 if (ODBC_FOUND)
   # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
   # ODBC_LIBRARIES, the libraries to link against to use ODBC

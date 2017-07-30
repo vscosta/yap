@@ -5,13 +5,7 @@ macro_optional_find_package(Java ON)
  find_package(Java COMPONENTS Runtime Development)
  #find_package(Java COMPONENTS Runtime)
 
-macro_log_feature (Java_Development_FOUND "Java"
-    "Use Java System"
-    "http://www.java.org" FALSE)
 macro_optional_find_package(JNI ON)
-    macro_log_feature (JNI_FOUND "JNI"
-    "Use Java Native Interface"
-    "http://www.java.org" FALSE)
 
 
 if (Java_Development_FOUND)

@@ -421,6 +421,11 @@ function. */
 #cmakedefine HAVE_FPCLASS ${HAVE_FPCLASS}
 #endif
 
+/* Define to 1 if you have the `fpurge' function. */
+#ifndef HAVE_FPURGE
+#cmakedefine HAVE_FPURGE ${HAVE_FPURGE}
+#endif
+
 /* Define to 1 if you have the <fpu_control.h> header file. */
 #ifndef HAVE_FPU_CONTROL_H
 #cmakedefine HAVE_FPU_CONTROL_H ${HAVE_FPU_CONTROL_H}

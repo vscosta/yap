@@ -12,6 +12,7 @@ include(CMakeToolsHelpers OPTIONAL)
 
 project( YAP )
 
+include(FeatureSummary)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
    cmake_policy(VERSION 3.4)
@@ -29,7 +30,7 @@ include(CheckTypeSize)
 include(CMakeDependentOption)
 include(MacroOptionalAddSubdirectory)
 include(MacroOptionalFindPackage)
-include(MacroLogFeature)
+include(FeatureSummary)
 include(FindPackageHandleStandardArgs)
 include (GNUInstallDirs)
 
@@ -93,9 +94,6 @@ OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
 
 IF (WITH_SWIG)
     find_host_package (SWIG)
-    macro_log_feature (SWIG_FOUND "Swig"
-            "Use SWIG Interface Generator "
-            "http://www.swig.org" ON)
 ENDIF (WITH_SWIG)
 
 option (WITH_PYTHON
@@ -193,3 +191,7 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
 endif()
 
 include(Config NO_POLICY_SCOPE)
+
+feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
+                INCLUDE_QUIET_PACKAGES
+)

@@ -10,9 +10,6 @@ find_package(CUDD)
 #  CUDD_LIBRARIES   - Link these to use CUDD
 #  CUDD_INCLUDE_DIR - Include directory for using CUDD
 #
-macro_log_feature (CUDD_FOUND "CUDD"
-    "Use CUDD BDD library"
-    "http://vlsi.colorado.edu/~fabio/CUDD/" FALSE)
 
 if (CUDD_FOUND)
 

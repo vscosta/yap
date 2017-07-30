@@ -16,10 +16,8 @@ if (NOT ANDROID AND WITH_OPENSSL)
 # but right now Open SSL is not supported enough.
 #
 find_package (OpenSSL)
-  macro_log_feature (OPENSSL_FOUND
-      OpenSLL
-      "Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-      "https://www.openssl.org/")
+
+
 if (OPENSSL_FOUND)
   include_directories (${OPENSSL_INCLUDE_DIR})
   target_link_libraries(${TARGET} ${OPENSSL_LIBRARIES})

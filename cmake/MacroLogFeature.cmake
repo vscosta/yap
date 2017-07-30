@@ -1,6 +1,6 @@
 # This file defines the Feature Logging macros.
 #
-# MACRO_LOG_FEATURE(VAR FEATURE DESCRIPTION URL [REQUIRED [MIN_VERSION [COMMENTS]]])
+# (VAR FEATURE DESCRIPTION URL [REQUIRED [MIN_VERSION [COMMENTS]]])
 #   Logs the information so that it can be displayed at the end
 #   of the configure run
 #   VAR : TRUE or FALSE, indicating whether the feature is supported

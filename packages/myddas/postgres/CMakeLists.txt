@@ -9,10 +9,6 @@ set(SO_PATCH 0)
 
 macro_optional_find_package(PostgreSQL ON)
 
-macro_log_feature (PostgreSQL_FOUND "postgres"
-  "PostgreSQL Driver for MYDDAS Data-Base Interface "
-  "http://www.postgres.org" FALSE)
-
 if (PostgreSQL_FOUND)
 #  PostgreSQL_FOUND         - Set to true when PostgreSQL is found.
 #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL

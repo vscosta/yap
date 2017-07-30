@@ -63,10 +63,7 @@ include_directories (CXX ${CMAKE_SOURCE_DIR}/../generated/src/jni)
 endif()
 
 find_package (GMP)
-macro_log_feature (GMP_FOUND
-  "GNU libgmp (in some cases MPIR"
-  "GNU big integers and rationals"
-  "http://gmplib.org")
+
   list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
 if (GMP_FOUND)

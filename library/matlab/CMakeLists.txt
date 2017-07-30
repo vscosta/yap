@@ -1,7 +1,5 @@
 macro_optional_find_package (Matlab OFF)
-macro_log_feature (MATLAB_FOUND "matlab" 
-  "MATLAB A Language for Technical Computing" 
-  "http://matlab.com")
+
 if (MATLAB_FOUND)
   #   MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
   #   MATLAB_LIBRARIES:   required libraries: libmex, etc

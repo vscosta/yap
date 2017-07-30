@@ -1,7 +1,3 @@
-macro_log_feature (PYTHONLIBS_FOUND "Python"
-  "Use Python System"
-  "http://www.python.org" FALSE )
-
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
 
@@ -28,6 +24,8 @@ OPTION (WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages"  ON)
 OPTION (WITH_CPLINT " Enable the cplint probabilistic language"   ON)
 
 OPTION (WITH_HORUS " Enable the CLPBN and PFL probabilistic languages"  ON)
+
+OPTION (WITH_HORUS " Enable documentation, requires doxygen-yap"  ON)
 
 IF (WITH_CLPBN)
   add_subDIRECTORY (packages/CLPBN)

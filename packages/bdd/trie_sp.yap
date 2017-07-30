@@ -34,9 +34,8 @@ extract_vars((_-V).MapList, V.Vs) :-
 
 complex_to_andor(empty, Map, Map, 0).
 complex_to_andor([list(Els)], Map0, MapF, Tree) :- !,
-complex_to_andor(Els, Map0, MapF, Tree).
+	complex_to_andor(Els, Map0, MapF, Tree).
 complex_to_andor([endlist|_], Map, Map, 1) :- !.
-	 El1 == endlist, !.
 complex_to_andor([El1,El2|Els], Map0, MapF, or(T1,T2)) :- !,
 	complex_to_and(El1, Map0, MapI, T1),
 	complex_to_andor([El2|Els], MapI, MapF, T2).
@@ -45,8 +44,9 @@ complex_to_andor([Els], Map0, MapF, V) :-
 
 complex_to_and(int(A1,[endlist]), Map0, MapF, V) :- !,
 	check(Map0, A1, V, MapF).
-complex_to_and(atom(true,[endlist]), Map0, MapF, 1) :- !.
+complex_to_and(atom(true,[endlist]), Map, Map, 1) :- !.
 complex_to_and(atom(A1,[endlist]), Map0, MapF, V) :- !,
+	check(Map0, A1, V, MapF).
 complex_to_and(functor(not,1,[int(A1,[endlist])]), Map0, MapF, not(V)) :- !,
 	check(Map0, A1, V, MapF).
 complex_to_and(functor(not,1,[atom(A1,[endlist])]), Map0, MapF, not(V)) :- !,
@@ -77,7 +77,6 @@ complex_to_and(functor(not,1,[int(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :-
 	complex_to_and(functor(not,1,More), MapI2, MapF, O2).
 complex_to_and(functor(not,1,[atom(A1,Els)|More]), Map0, MapF, or(NOTV1,O2)) :-
 	check(Map0, A1, V, MapI),
-	check(Map0, A1, V, MapF).
 	(Els == [endlist]
 	->
 	  NOTV1 = not(V),
@@ -96,7 +95,6 @@ tabled_complex_to_andor(IN, Map, Map, Tab, Tab, 1) :-
 	IN =  !.
 tabled_complex_to_andor([Els], Map0, MapF, Tab0, TabF, V) :-
 	tabled_complex_to_and(Els, Map0, MapF, Tab0, TabF, V).
-	rb_insert(Tab0, IN, OUT, Tab1),
 tabled_complex_to_andor([El1,Dl2], Map0, MapF, Tab0, TabF, or(T1,T2)) :-
 	tabled_complex_to_and(El1, Map0, MapI, Tab1, TabI, T1),
 	tabled_complex_to_andor(El2.Els, MapI, MapF, TabI, TabF, T2).

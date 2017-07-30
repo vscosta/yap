@@ -10,10 +10,6 @@
 #
 macro_optional_find_package (LibR ON)
 
-macro_log_feature (LIBR_FOUND "R"
-  "Use R Environment"
-  "http://www.r.org" FALSE)
-
 if (LIBR_FOUND)
 
   set (REAL_SOURCES

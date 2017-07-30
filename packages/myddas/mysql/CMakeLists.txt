@@ -12,10 +12,6 @@
 
   macro_optional_find_package(MySQL ON)
 
-  macro_log_feature(MYSQL_FOUND "MySQL"
-          "MYSQL Driver for MYDDAS Data-Base Interface "
-          "http://www.mysql.org" FALSE)
-
   if (MYSQL_FOUND)
       #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
       #  MYSQL_LIBRARIES   - List of libraries when using MySQL.

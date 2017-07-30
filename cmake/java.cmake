@@ -8,9 +8,7 @@ find_package(Java 1.5 COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
-macro_log_feature (Java_Development_FOUND "Java"
-    "Use Java System"
-    "http://www.java.org" FALSE)
+
 
 if (Java_Development_FOUND)
 
