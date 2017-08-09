@@ -54,7 +54,7 @@ def get_kernel_dict(extra_arguments=None):
     """Construct dict for kernel.json"""
     return {
         'argv': make_yap_kernel_cmd(extra_arguments=extra_arguments),
-        'display_name': 'YAP 6a',
+        'display_name': 'YAP 6',
         'language': 'prolog',
     }
 

@@ -44,7 +44,7 @@ packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
 #         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 package_data = {
-    'yap_kernel': ['resources/*.*'],
+    'yap_kernel': ['resources/*.*','prolog/*.*'],
 }
 
 
@@ -62,6 +62,7 @@ setup_args = dict(
     packages        = packages,
     py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
+    package_dir = {'':"${CMAKE_CURRENT_SOURCE_DIR}"    },
     description     = "YAP Kernel for Jupyter",
     author          = 'YP Development Team',
     author_email    = 'YAP-dev@scipy.org',

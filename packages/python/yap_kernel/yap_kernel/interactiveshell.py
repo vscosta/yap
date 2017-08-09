@@ -92,7 +92,9 @@ library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
 python_query= namedtuple('python_query', 'query_mgr string')
-jupyter_query = namedtuple('jupyter_query', 'query_mgr string')
+jupyter_query = namedtuple('jupyter_query', 'self string')
+enter_cell = namedtuple('enter_cell', 'self' )
+exit_cell = namedtuple('exit_cell', 'self' )
 
 class YAPInteraction:
     """An enhanced, interactive shell for YAP."""
@@ -107,6 +109,7 @@ class YAPInteraction:
         pjoin = os.path.join
         here = os.path.abspath(os.path.dirname(__file__))
         yap_lib_path = pjoin(here, "../yap4py/prolog")
+        #friend_path = os.path.abspath(pjoin(here, "../yap4py/prolog"))
         yap_dll_path = pjoin(here, "../yap4py")
         self.args = yap.YAPEngineArgs()
         self.args.setYapLibDir(yap_dll_path)
@@ -116,9 +119,9 @@ class YAPInteraction:
         self.q = None
         self.shell = shell
         self.run = False
-        self.yapeng.goal(use_module(library('jupyter')))
-
-
+        self.yapeng.goal(use_module(pjoin(here, 'prolog/jupyter.yap')))
+        self.os = ""
+        self.status = None
 
     def run_cell(self, s, store_history=True, silent=False,
                  shell_futures=True):
@@ -145,8 +148,10 @@ class YAPInteraction:
                    __future__ imports are not shared in either direction.
 
         Returns
+
                    -------
-rquwer                                                                                 result : :class:`ExecutionResult`
+
+`result : :class:`ExecutionResult`
                    """
 
         # construct a query from a one-line string
@@ -167,12 +172,17 @@ rquwer                                                                          
 
         if store_history:
             result.execution_count = self.shell.execution_count
+        self.shell.execution_count += 1
 
         try:
-            if self.q == jupyter_query(s, Dict):
+            self.bindings = dict = {}
+            state =self.jupyter_query(s, dict)
+            if state:
+                print("yes")
                 self.shell.last_execution_succeeded = True
-                result.result = (True, Dict)
+                result.result = (True, dict)
             else:
+                print("no")
                 self.shell.last_execution_succeeded = True
                 result.result = (True, {})
         except Exception as e:
@@ -197,25 +207,25 @@ rquwer                                                                          
 
         return result
 
-    def answer(q):
-        try:
-            return q.next()
-        except Exception as e:
-            print(e.args[1])
-            return False
-
-    def prolog_query( s ):
-
+    def jupyter_query(self, s, bindings):
+        # import pdb; pdb.set_trace()
         #
-        # construct a query from a one-line string
-        # q is opaque to Python
-        q = jupyter_query(s,dict)
+        # construct a self.query from a one-line string
+        # self.q is opaque to Python
+        self.bindings = {}
+        self.status = "call"
+        self.yapeng.goal(enter_cell(self))
+        if self.q and s != self.os:
+            self.q.close()
+            self.q = None
+        if not self.q:
+            self.q = self.yapeng.query(jupyter_query(self, s))
+            self.os = s
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
         # pdb.set_trace()
-        #vs = q.namedVarsVector()
-        #pdb.set_trace()
+        #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
         #for eq in vs:
@@ -224,7 +234,26 @@ rquwer                                                                          
         #        return
         ask = True
         # launch the query
-        while answer(q):
-            # this new vs should contain bindings to vars
-            print( dict )
-  
+        if self.answer(self.q):
+            # deterministic = one solution
+            if self.status == "exit":
+                # done
+                self.q.close()
+                self.q = None
+                self.os = ""
+            print("yes")
+            self.yapeng.goal(exit_cell(self))
+            return True, self.bindings
+        print("No (more) answers")
+        self.q.close()
+        self.q = None
+        self.yapeng.goal(exit_cell(self))
+        return True, None
+
+    def answer(self, q):
+        try:
+            return q.next()
+        except Exception as e:
+            print(e.args[1])
+            self.yapeng.goal(exit_cell(self))
+            return False, None

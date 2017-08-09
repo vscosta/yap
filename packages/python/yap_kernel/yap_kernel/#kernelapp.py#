@@ -63,10 +63,10 @@ kernel_aliases.update({
 kernel_flags = dict(base_flags)
 kernel_flags.update({
     'no-stdout' : (
-            {'YAP_KernelApp' : {'no_stdout' : True}},
+            {'YAP_KernelApp' : {'no_stdout' : False}},
             "redirect stdout to the null device"),
     'no-stderr' : (
-            {'YAP_KernelApp' : {'no_stderr' : True}},
+            {'YAP_KernelApp' : {'no_stderr' : False}},
             "redirect stderr to the null device"),
     'pylab' : (
         {'YAP_KernelApp' : {'pylab' : 'auto'}},
@@ -114,8 +114,8 @@ class YAP_KernelApp(BaseIPythonApplication, InteractiveShellApp,
     poller = Any() # don't restrict this even though current pollers are all Threads
     heartbeat = Instance(Heartbeat, allow_none=True)
     ports = Dict()
-    
-    
+
+
     subcommands = {
         'install': (
             'yap_kernel.kernelspec.InstallYAPKernelSpecApp',

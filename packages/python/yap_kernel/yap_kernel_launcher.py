@@ -12,5 +12,5 @@ if __name__ == '__main__':
     if sys.path[0] == '':
         del sys.path[0]
 
-    from yap_kernel import kernelapp as app
+    from inprocess.ipkernel import kernelapp as app
     app.launch_new_instance()

@@ -50,10 +50,6 @@
     configure_file(setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
     file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources)
-    file(COPY  yap_kernel DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    file( COPY MANIFEST.in setup.cfg data_kernelspec yap_kernel_launcher.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-    # file( GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/README.md INPUT YAP_KERNEL.md )
-    file( COPY yap_kernel/_version.py DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel   )
     file( GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png INPUT ${CMAKE_SOURCE_DIR}/docs/icons/yap_32x32x32.png )
     file( GENERATE OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png INPUT   ${CMAKE_SOURCE_DIR}/docs/icons/yap_64x64x32.png )
     file( COPY ${CMAKE_SOURCE_DIR}/misc/editors/prolog.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/)
@@ -61,11 +57,11 @@
     set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
     add_custom_target( YAPKernel ALL
-            COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} sdist
+            COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             )
 
-    install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  --no-index -f dist yap_kernel
+    install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
     #    install(FILES jupyter.yap

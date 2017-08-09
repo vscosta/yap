@@ -437,6 +437,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
 
     @catch_config_error
     def initialize(self, argv=None):
+        print("**************************************************************")
         super(YAPKernelApp, self).initialize(argv)
         if self.subapp is not None:
             return
