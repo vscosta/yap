@@ -34,16 +34,24 @@ static char SccsId[] = "%W% %G%";
   const char *s;
   int n;
   if (sno != sno0) {
-    fflush(GLOBAL_Stream[sno].file);
-    n = ftell(GLOBAL_Stream[sno].file);
-    s = GLOBAL_Stream[sno].nbuf;
-    fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
+      fflush(GLOBAL_Stream[sno].file);
+      n = ftell(GLOBAL_Stream[sno].file);
+      s = GLOBAL_Stream[sno].nbuf;
+      if (GLOBAL_Stream[sno0].vfs) {
+          int ch;
+          int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
+          while ((ch = *s++)) {
+              f(sno0, ch);
+          }
+      } else {
+          fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
+      }
     rewind(GLOBAL_Stream[sno].file);
     fg->lstart = 0;
     fg->phys_start = 0;
     fg->gapi = 0;
   }
-  fflush(GLOBAL_Stream[sno0].file);
+  Yap_flush(sno0);
   return sno;
 }
 
@@ -97,7 +105,7 @@ static char SccsId[] = "%W% %G%";
   };
 
   rewind(GLOBAL_Stream[sno].file);
-  fflush(GLOBAL_Stream[sno0].file);
+  Yap_flush(sno0);
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos += nchars;
   GLOBAL_Stream[sno].charcount = 0;

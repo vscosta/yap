@@ -2134,6 +2134,13 @@ X_API int YAP_InitConsult(int mode, const char *filename, char *full,
     return sno;
 }
 
+/// given a stream descriptor or stream alias (see open/3),
+/// return YAP's internal handle.
+X_API void *YAP_GetStreamFromId(int no)
+{
+  return GLOBAL_Stream+no;
+}
+
 X_API FILE *YAP_TermToStream(Term t) {
     BACKUP_MACHINE_REGS();
     FILE *s;

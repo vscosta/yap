@@ -526,7 +526,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
         // stream is already locked.
         Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
                     GLOBAL_MaxPriority);
-        Yap_CloseSlots(sl);
+              Yap_CloseSlots(sl);
         break;
       case 'c': {
         Int nch, i;
@@ -905,7 +905,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           fill_pads(sno, sno0, finfo.lstart + repeats, &finfo PASS_REGS);
           break;
         case 't': {
-#if MAY_WRITE
+#if MAY_WRITR
           if (fflush(GLOBAL_Stream[sno].file) == 0) {
             finfo.gap[finfo.gapi].phys = ftell(GLOBAL_Stream[sno].file);
           }
@@ -1130,9 +1130,7 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     return false;
   } else {
-
     out = doformat(tf, tas, output_stream PASS_REGS);
-
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     if (mem_stream) {
 

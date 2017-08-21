@@ -723,23 +723,19 @@ static void prune_inner_computation(choiceptr parent) {
   Int oENV = LCL0 - ENV;
 
   cut_pt = B;
-  while (cut_pt < parent) {
-    /* make sure we
-       e C-choicepoints */
-    if (POP_CHOICE_POINT(cut_pt->cp_b)) {
-      POP_EXECUTE();
-    }
+  while (cut_pt->cp_b < parent) {
     cut_pt = cut_pt->cp_b;
   }
 #ifdef YAPOR
   CUT_prune_to(cut_pt);
 #endif
-  B = parent;
+  B = cut_pt;
   Yap_TrimTrail();
   LOCAL_AllowRestart = FALSE;
   P = oP;
   CP = oCP;
   ENV = LCL0 - oENV;
+  B = parent;
 }
 
 /**
@@ -781,7 +777,7 @@ static Int Yap_ignore(Term t USES_REGS) {
     CP = oCP;
     ENV = LCL0 - oENV;
     YENV = LCL0 - oYENV;
-    B = (choiceptr)(LCL0-oB);
+    B = (choiceptr)(LCL0 - oB);
     return false;
   }
 
@@ -819,43 +815,29 @@ static bool watch_cut(Term ext USES_REGS) {
   // called after backtracking..
   //
   Term task = TailOfTerm(ext);
-  Term box = ArgOfTerm(1, task);
-  Term port = ArgOfTerm(2, task);
   Term cleanup = ArgOfTerm(3, task);
-  Term cleaned = ArgOfTerm(6, task);
-  bool first = Deref(ArgOfTerm(5, task)) == MkIntTerm(0);
-  bool done = first && !IsVarTerm(Deref(ArgOfTerm(4, task)));
-  bool previous = !IsVarTerm(Deref(ArgOfTerm(6, task)));
-
-  if (done || previous)
+  bool complete = !IsVarTerm(Deref(ArgOfTerm(4, task)));
+  bool active = ArgOfTerm(5, task) == TermTrue;
+  
+  if (complete) {
     return true;
-
-  while (B->cp_ap->opc == FAIL_OPCODE)
-    B = B->cp_b;
+  }
+  CELL *port_pt = deref_ptr(RepAppl(task) + 2);
   if (Yap_HasException()) {
     Term e = Yap_GetException();
     Term t;
-    if (first) {
+    if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
     } else {
-       t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
+      t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
     }
-    if (!Yap_unify(port, t))
-      return false;
+    port_pt[0] = t;
   } else {
-    if (!Yap_unify(port, TermCut))
-      return false;
+    port_pt[0] = TermCut;
   }
-  if (IsVarTerm(cleaned) && box != TermTrue)
-  {
-    *VarOfTerm(cleaned) = Deref(port);
-  }
-  else
-  {
-    return true;
-  }
-
   Yap_ignore(cleanup);
+  CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
+  complete_pt[0] = TermTrue;
   if (Yap_RaiseException())
     return false;
   return true;
@@ -876,58 +858,39 @@ static bool watch_retry(Term d0 USES_REGS) {
 
   choiceptr B0 = (choiceptr)(LCL0 - d);
   Term task = TailOfTerm(d0);
-  Term box = ArgOfTerm(1, task);
+  bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
-  Term port = ArgOfTerm(2, task);
-  Term cleaned = ArgOfTerm(6, task);
-  bool first = Deref(ArgOfTerm(5, task)) == MkIntTerm(0);
-  bool done = first && !IsVarTerm(Deref(ArgOfTerm(4, task)));
-  bool previous = !IsVarTerm(Deref(ArgOfTerm(6, task)));
-  bool ex = false;
-  
-  if (done || previous)
+  bool complete = !IsVarTerm(ArgOfTerm(4, task));
+  bool active = ArgOfTerm(5, task) == TermTrue;
+
+  if ( complete)
     return true;
+  CELL *port_pt= deref_ptr(RepAppl(Deref(task))+ 2);
+  CELL *complete_pt= deref_ptr(RepAppl(Deref(task))+ 4);
+  Term t;
 
   while (B->cp_ap->opc == FAIL_OPCODE)
-           B = B->cp_b;
-  if (Yap_HasException())
-  {
+    B = B->cp_b;
+  if (Yap_HasException()) {
     Term e = Yap_GetException();
-    Term t;
-
-    ex = true;
-    if (first)
-    {
+    if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
-    }
-    else
-    {
+    } else {
       t = Yap_MkApplTerm(FunctorExternalException, 1, &e);
     }
-    if (!Yap_unify(port, t))
-      return false;
-  }
-  else if(B < B0)
-  {
-    if (box != TermTrue) {
-      return true;
-    }      
-    if (!Yap_unify(port, TermRetry)) {
-    return false;
-  }
-  } else if (first) {
-    if (!Yap_unify(port, TermFail))
-      return false;
+    complete_pt[0] = t;
+  } else if (B >= B0) {
+    t = TermFail;
+    complete_pt[0] = t;
+
+  } else if (box) {
+    t = TermRetry;
   } else {
     return true;
   }
-  if (IsVarTerm(cleaned) && box != TermTrue) {
-    *VarOfTerm(cleaned) = Deref(port);
-  } else {
-    return true;
-  }
+  port_pt[0] = t;
   Yap_ignore(cleanup);
-  if (!ex && Yap_RaiseException())
+  if ( Yap_RaiseException())
     return false;
   return true;
 }
@@ -958,7 +921,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   }
   if (!rc) {
     complete_inner_computation(B0);
-    // We'll pass it through
+    // We'll pass it throughs
 
     return false;
   } else {
@@ -971,52 +934,40 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   return rc;
 }
 
-static Int tag_cleanup(USES_REGS1)
-{
+static Int tag_cleanup(USES_REGS1) {
   Int iB = LCL0 - (CELL *)B;
   set_watch(iB, Deref(ARG2));
   return Yap_unify(ARG1, MkIntegerTerm(iB));
 }
 
-static Int cleanup_on_exit(USES_REGS1)
-  {
+static Int cleanup_on_exit(USES_REGS1) {
 
-    choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
-    Term task = Deref(ARG2);
-    Term box = ArgOfTerm(1, task);
-    Term cleanup = ArgOfTerm(3, task);
-    Term catcher = ArgOfTerm(2, task);
-    Term tag = ArgOfTerm(4, task);
-    Term cleaned = ArgOfTerm(6, task);
-    while (B->cp_ap->opc == FAIL_OPCODE)
-      B = B->cp_b;
-    if (B < B0)
-    {
-      // non-deterministic
-      set_watch(LCL0 - (CELL *)B, task);
-      if (box == TermTrue)
-      {
-        if (!Yap_unify(catcher, TermAnswer))
-          return false;
-        B->cp_tr++;
-        Yap_ignore(cleanup);
-        B->cp_tr--;
-      }
+  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
+  Term task = Deref(ARG2);
+  bool box = ArgOfTerm(1, task) == TermTrue;
+  Term cleanup = ArgOfTerm(3, task);
+  Term catcher = ArgOfTerm(2, task);
+  Term complete = !IsVarTerm( ArgOfTerm(4, task));
+
+  while (B->cp_ap->opc == FAIL_OPCODE)
+    B = B->cp_b;
+  if (complete )
+    return true;
+  CELL *catcher_p = deref_ptr(RepAppl(Deref(task))+2);
+  if (B < B0)
+  {
+    // non-deterministic
+    set_watch(LCL0 - (CELL *)B, task);
+    catcher_p[0] =  TermAnswer;
+    if (!box) {
       return true;
     }
-    if (!Yap_unify(catcher, TermExit))
-      return false;
-    if (IsVarTerm(tag))
-      *VarOfTerm(tag) = TermTrue;
-    if (IsVarTerm(cleaned) && box != TermTrue)
-    {
-      *VarOfTerm(cleaned) = TermExit;
-    }
-    else
-    {
-      return true;
-    }
-    Yap_ignore(cleanup);
+  } else {
+    catcher_p[0] =   TermExit;
+    CELL *complete_p = deref_ptr(RepAppl(Deref(task))+4);
+    complete_p[0] = TermExit;
+  }
+  Yap_ignore(cleanup);
   return true;
 }
 
@@ -1490,8 +1441,6 @@ static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
 
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
-  if (top)
-    Yap_flush();
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }
@@ -1987,30 +1936,6 @@ static Int JumpToEnv() {
   }
   POP_FAIL(handler);
   B = handler;
-
-  // Yap_CopyException(ref);
-  if (Yap_PredForChoicePt(B, NULL) == PredDollarCatch) {
-    /* can recover Heap thanks to copy term :-( */
-    /* B->cp_h = H; */
-    /* I could backtrack here, but it is easier to leave the unwinding
-       to the emulator */
-    // handler->cp_h = HR;
-    /* try to recover space */
-    /* can only do that when we recover space */
-    /* first, backtrack */
-    /* so that I recover memory execute op_fail */
-    // now put the ball in place
-    // Yap_CopyException(dbt);
-    Term t = Yap_GetException();
-    if (t == 0) {
-      return false;
-    } else if (IsVarTerm(t)) {
-      t = Yap_MkApplTerm(FunctorGVar, 1, &t);
-    }
-    Yap_unify(t, B->cp_a2);
-    B->cp_h = HR;
-    TR--;
-  }
   P = FAILCODE;
   return true;
 }

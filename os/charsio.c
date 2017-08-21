@@ -1165,7 +1165,7 @@ leaving the current stream position unaltered.
 
 */
 
-void Yap_flush(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
+void Yap_flush_all(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
 void Yap_FlushStreams(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 

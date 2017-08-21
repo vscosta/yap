@@ -101,6 +101,8 @@ if (READLINE_LIBS)
 endif (READLINE_LIBS)
 
 
+add_subDIRECTORY ( H )
+
 #bootstrap and saved state
 add_subDIRECTORY ( pl  )
 

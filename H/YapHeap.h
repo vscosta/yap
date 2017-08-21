@@ -176,8 +176,6 @@ typedef struct various_codes {
 
 #include "hlocals.h"
 
-
-
 #include "dlocals.h"
 
 

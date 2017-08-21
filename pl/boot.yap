@@ -764,12 +764,12 @@ number of steps.
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-	  '$current_choice_point'(CP),
-	  '$current_module'(M),
-	  '$user_call'(G, M),
-	  '$current_choice_point'(NCP),
-	  '$delayed_goals'(G, V, NV, LGs, DCP),
-	  '$write_answer'(NV, LGs, Written),
+     '$current_module'(M),
+     '$current_choice_point'(CP),
+     '$user_call'(G, M),
+     '$current_choice_point'(NCP),
+     '$delayed_goals'(G, V, Vs, LGs, DCP),
+     '$write_answer'(Vs, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
 	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
@@ -800,6 +800,13 @@ number of steps.
 	 '$out_neg_answer'.
 
 '$add_env_and_fail' :- fail.
+
+
+'$process_answer'(Vs, LGs, Bindings) :-
+'$purge_dontcares'(Vs,IVs),
+'$sort'(IVs, NVs),
+'$prep_answer_var_by_var'(NVs, LAnsw, LGs),
+'$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
 % *-> at this point would require compiler support, which does not exist.
@@ -901,11 +908,11 @@ number of steps.
     flush_output,
 	fail.
 '$write_answer'(Vs, LBlk, FLAnsw) :-
-	'$purge_dontcares'(Vs,IVs),
-	'$sort'(IVs, NVs),
-	'$prep_answer_var_by_var'(NVs, LAnsw, LBlk),
-	'$name_vars_in_goals'(LAnsw, Vs, NLAnsw),
+    '$process_answer'(Vs, LBlk, NLAnsw),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
+
+write_query_answer( Bindings ) :-
+   '$write_vars_and_goals'(Bindings, first, _FLAnsw).
 
 '$purge_dontcares'([],[]).
 '$purge_dontcares'([Name=_|Vs],NVs) :-
@@ -1555,8 +1562,8 @@ catch(G, C, A) :-
      true
   ).
 '$catch'(_,C,A) :-
-  nonvar(C),
-  '$run_catch'(A, C).
+	'$get_exception'(C),
+	'$run_catch'(A, C).
 
 % variable throws are user-handled.
 '$run_catch'(G,E) :-
@@ -1578,8 +1585,8 @@ catch(G, C, A) :-
       functor( E, N, _),
       '$hidden_atom'(N), !,
       throw(E).
-'$run_catch'(E, _Signal) :-
-    call(E).
+'$run_catch'( Signal, _E) :-
+    call( Signal ).
 
 %
 % throw has to be *exactly* after system catch!

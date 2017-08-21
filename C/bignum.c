@@ -127,12 +127,13 @@ Term Yap_RatTermToApplTerm(Term t) {
 
 #endif
 
-Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL **pt) {
+Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, void *pt) {
   CACHE_REGS
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(HR + 2);
   CELL *ret = HR;
-
+ CELL **blobp;
+  
   nlimbs = ALIGN_BY_TYPE(bytes, CELL) / CellSize;
   if (nlimbs > (ASP - ret) - 1024) {
     return TermNil;
@@ -144,13 +145,14 @@ Term Yap_AllocExternalDataInStack(CELL tag, size_t bytes, CELL **pt) {
   HR = (CELL *)(dst + 1) + nlimbs;
   HR[0] = EndSpecials;
   HR++;
-  *pt = (CELL *)(dst + 1);
+  blobp = (CELL **)pt;
+  *blobp = (CELL *)(dst + 1);
   return AbsAppl(ret);
 }
 
 int Yap_CleanOpaqueVariable(CELL d) {
   CELL blob_info, blob_tag;
-  MP_INT *blobp;
+
   CELL *pt = RepAppl(HeadOfTerm(d));
 #ifdef DEBUG
   /* sanity checking */

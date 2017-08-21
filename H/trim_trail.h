@@ -1,7 +1,7 @@
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase;
-
+ restart:
   pbase = B->cp_tr;
   pt0 = pt1 = TR - 1;
   while (pt1 >= pbase) {
@@ -33,8 +33,10 @@
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBigInt) {
           Int tag = Yap_blob_tag(t) - USER_BLOB_START;
-          RESET_VARIABLE(&TrailTerm(pt1));
+	  RESET_VARIABLE(&TrailTerm(pt1));
+	  RESET_VARIABLE(&TrailVal(pt1));
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
+	  goto restart;
         } else {
           pt0--;
         }

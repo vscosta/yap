@@ -126,6 +126,8 @@ extern void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth,
 extern int Yap_CheckSocketStream(Term stream, const char *error);
 extern void Yap_init_socks(char *host, long interface_port);
 
+extern bool Yap_flush(int sno);
+
 extern uint64_t HashFunction(const unsigned char *);
 extern uint64_t WideHashFunction(wchar_t *);
 

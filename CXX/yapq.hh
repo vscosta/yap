@@ -59,13 +59,14 @@ class X_API YAPQuery : public YAPPredicate
 };
 
 
-void openQuery(Term t, Term *ts);
+  void openQuery( Term *ts);
 
 PredEntry *rewriteUndefQuery();
 
 public:
 YAPQuery() {
-  openQuery(TermTrue, nullptr);
+  goal = TermTrue;
+  openQuery( nullptr);
 };
   /// main constructor, uses a predicate and an array of terms
   ///
@@ -109,7 +110,7 @@ YAPQuery() {
         }
       }
       names = YAPPairTerm(tnames);
-      openQuery(tgoal, qt);
+      openQuery(qt);
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
   // {

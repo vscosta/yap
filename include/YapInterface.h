@@ -688,6 +688,8 @@ extern X_API YAP_Functor YAP_IntToFunctor(YAP_Int i);
 
 extern X_API YAP_PredEntryPtr YAP_TopGoal(void);
 
+extern X_API void *YAP_GetStreamFromId(int no);
+
 #define YAP_InitCPred(N, A, F) YAP_UserCPredicate(N, F, A)
 
 __END_DECLS

@@ -378,8 +378,8 @@ Term YAPListTerm::car()
   else
   {
     Yap_Error(TYPE_ERROR_LIST, to, "");
-    throw YAPError();
     return 0;
+    throw YAPError();
   }
 }
 
@@ -408,10 +408,12 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n)
 
 const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a, nullptr); }
 
-void YAPQuery::openQuery(Term t, Term *ts)
+void YAPQuery::openQuery(Term *ts)
 {
   CACHE_REGS
-  if (ts) {
+    if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
+      ap = rewriteUndefQuery();
+  } else if (ts) {
     arity_t arity = ap->ArityOfPE;
     for (arity_t i = 0; i < arity; i++)
     {
@@ -423,6 +425,7 @@ void YAPQuery::openQuery(Term t, Term *ts)
 
 bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
 {
+  sigjmp_buf *oj = LOCAL_RestartEnv, buf;
   try
   {
     CACHE_REGS
@@ -432,7 +435,6 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
     arity_t arity = ap.getArity();
     bool result;
     YAP_dogoalinfo q;
-    sigjmp_buf q_env;
 
     for (arity_t i = 0; i < arity; i++)
       XREGS[i + 1] = ts[i].term();
@@ -445,16 +447,19 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
 
     q.CurSlot = Yap_StartSlots();
     q.p = P;
+
     q.cp = CP;
     // allow Prolog style exceotion handling
-    LOCAL_RestartEnv = &q_env;
-    if (sigsetjmp(q_env, false))
+    LOCAL_RestartEnv = &buf;
+    if (sigsetjmp(*LOCAL_RestartEnv, false))
     {
+    return 0;
       throw YAPError();
     }
     // don't forget, on success these bindings will still be there);
     result = YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
+    LOCAL_RestartEnv = oj;
     RECOVER_MACHINE_REGS();
     return result;
   }
@@ -463,19 +468,23 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[])
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
     std::cerr << "Exception received by  " << YAPApplTerm(ap.functor(), ts).text() << ".\n Forwarded...\n\n";
+    LOCAL_RestartEnv = oj;
+    return 0;
     throw e;
   }
 }
 
 bool YAPEngine::mgoal(Term t, Term tmod)
 {
+  sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   try
   {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *ts = nullptr;
     PredEntry *ap = Yap_get_pred(t, tmod, "C++");
-    
+
+
     if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
     {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
@@ -503,15 +512,16 @@ bool YAPEngine::mgoal(Term t, Term tmod)
 
     }
     bool result;
-    sigjmp_buf q_env;
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
     // allow Prolog style exceotion handling
-    LOCAL_RestartEnv = &q_env;
-    if (sigsetjmp(q_env, false))
+    LOCAL_RestartEnv = &buf;
+    if (sigsetjmp(*LOCAL_RestartEnv, false))
     {
-      throw YAPError();
+           return false;
+    return 0;
+	   throw YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -519,6 +529,7 @@ bool YAPEngine::mgoal(Term t, Term tmod)
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
     {
       YAP_LeaveGoal(false, &q);
+      LOCAL_RestartEnv = oldp;
       RECOVER_MACHINE_REGS();
       return result;
     }
@@ -527,6 +538,8 @@ bool YAPEngine::mgoal(Term t, Term tmod)
   {
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
+    LOCAL_RestartEnv = oldp;
+    return 0;
     throw e;
   }
 }
@@ -549,7 +562,6 @@ Term YAPEngine::fun(Term t)
     PredEntry *ap;
     arity_t arity;
     Functor f;
-    sigjmp_buf q_env;
     Atom name;
 
     if (IsApplTerm(t))
@@ -595,9 +607,11 @@ Term YAPEngine::fun(Term t)
     // make sure this is safe
     yhandle_t o = Yap_InitHandle(XREGS[arity]);
     // allow Prolog style exception handling
-    LOCAL_RestartEnv = &q_env;
-    if (sigsetjmp(q_env, false))
+    sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
+    LOCAL_RestartEnv = &buf;
+    if (sigsetjmp(*LOCAL_RestartEnv, false))
     {
+      return false;
       throw YAPError();
     }
     // don't forget, on success these guys may create slots
@@ -607,13 +621,15 @@ Term YAPEngine::fun(Term t)
 #if DEBUG
       fprintf(stderr,"function call failed:\n");
 #endif
-      return 0;
+    LOCAL_RestartEnv = oldp;
+     return 0;
     }
     DBTerm *pt = Yap_StoreTermInDB(Yap_GetFromSlot(o), arity);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %ld", o);
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
     Term rc = Yap_PopTermFromDB(pt);
+    LOCAL_RestartEnv = oldp;
     RECOVER_MACHINE_REGS();
     return rc;
   }
@@ -644,7 +660,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
   goal = MkVarTerm();
   nts = nullptr;
 }
-    openQuery(goal, nts);
+    openQuery( nts);
   names = YAPPairTerm( TermNil );
   RECOVER_MACHINE_REGS();
 }
@@ -661,7 +677,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
    nts = nullptr;
   }
   names = YAPPairTerm( TermNil );
-  openQuery(goal.term(), nts);
+  openQuery(term(), nts);
   RECOVER_MACHINE_REGS();
 }
 #endif
@@ -671,7 +687,7 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t)
   BACKUP_MACHINE_REGS();
  CELL *nts;
  Term tt = t.term();
- goal = t;
+ goal = * new YAPTerm(tt);
  if (IsApplTerm(tt)) {
      Functor f = FunctorOfTerm(tt);
      if (IsExtensionFunctor(f))
@@ -682,7 +698,7 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t)
   } else {
     nts = nullptr;
   }
-  openQuery(tt, nts);
+  openQuery( nts);
   names =  YAPPairTerm( TermNil );
   RECOVER_MACHINE_REGS();
 }
@@ -695,10 +711,10 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
     goal = YAPApplTerm(YAPFunctor(p.ap->FunctorOfPred), ts).term();
     for (arity_t i =0; i < arity; i++)
       XREGS[i+1]=ts[i].term();
-    openQuery(goal.term(), nullptr);
+    openQuery( nullptr);
   } else {
     goal = YAPAtomTerm((Atom)(p.ap->FunctorOfPred));
-    openQuery(goal.term(), nullptr);
+    openQuery(nullptr);
   }
   names = TermNil;
   RECOVER_MACHINE_REGS();
@@ -708,19 +724,18 @@ bool YAPQuery::next()
 {
   CACHE_REGS
     bool result = false;
+    sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   Term terr;
-  if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
-    ap = rewriteUndefQuery();
-  }
-  LOCAL_RestartEnv = &q_env;
-  try
+ try
   {
     BACKUP_MACHINE_REGS();
     if (!q_open)
       return false;
-    if (sigsetjmp(q_env, false))
+    LOCAL_RestartEnv = &buf;
+    if (sigsetjmp(*LOCAL_RestartEnv, false))
     {
-      throw YAPError();
+      //throw YAPError();
+      return false;
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -748,6 +763,7 @@ bool YAPQuery::next()
     {
       if ((terr = Yap_GetException()))
       {
+	LOCAL_RestartEnv = &buf;
         throw YAPError();
       }
     }
@@ -764,6 +780,7 @@ bool YAPQuery::next()
       q_handles = Yap_StartSlots();
     }
     RECOVER_MACHINE_REGS();
+    LOCAL_RestartEnv = oldp;
     return result;
   }
   catch (YAPError e)
@@ -775,6 +792,7 @@ bool YAPQuery::next()
     Yap_CloseHandles(q_handles);
     q_open = false;
     std::cerr << "Exception received by  " << __func__ << "( " << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
+        LOCAL_RestartEnv = oldp;
     throw e;
   }
 }
@@ -809,7 +827,7 @@ void YAPQuery::cut()
   if (!q_open || q_state == 0)
     return;
   YAP_LeaveGoal(FALSE, &q_h);
-  q_open = 0;
+  q_open = false;
   // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }
@@ -908,6 +926,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
   if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
   {
+    return;
     throw YAPError();
   }
   /* Begin preprocessor code */

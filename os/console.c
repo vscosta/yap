@@ -44,8 +44,8 @@ static int ConsolePutc(int, int);
 
 bool Yap_DoPrompt(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
-    if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
-	GLOBAL_Stream[StdErrStream].status & Tty_Stream_f) {
+    if (GLOBAL_Stream[LOCAL_c_input_stream].status & Tty_Stream_f &&
+	GLOBAL_Stream[LOCAL_c_error_stream].status & Tty_Stream_f) {
       return LOCAL_newline;
     }
   }
@@ -56,7 +56,7 @@ bool Yap_DoPrompt(StreamDesc *s) {
 /* check if we read a newline or an EOF */
 int console_post_process_read_char(int ch, StreamDesc *s) {
   /* the character is also going to be output by the console handler */
-  console_count_output_char(ch, GLOBAL_Stream + StdErrStream);
+  console_count_output_char(ch, GLOBAL_Stream + LOCAL_c_error_stream);
   if (ch == '\r') {
     s->linepos = 0;
     LOCAL_newline = true;
@@ -146,7 +146,7 @@ restart:
         GLOBAL_Stream[StdErrStream].stream_putc(StdErrStream, ch);
       }
     }
-    Yap_clearInput(StdErrStream);
+    Yap_clearInput(LOCAL_c_error_stream);
     strncpy(LOCAL_Prompt, (char *)RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
     LOCAL_newline = FALSE;
   }

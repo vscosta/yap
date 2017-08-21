@@ -158,6 +158,10 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
  {
      if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
      return true;
+   if (GLOBAL_Stream[sno].vfs) {
+       GLOBAL_Stream[sno].vfs->flush(sno);
+       return true;
+   }
 #if USE_READLINE
  if (GLOBAL_Stream[sno].status & Readline_Stream_f)
   return Yap_readline_clear_pending_input (GLOBAL_Stream+sno);
@@ -172,6 +176,18 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
 #endif
   return false;
  }
+
+
+bool Yap_flush(int sno)
+{
+  if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
+    return true;
+      if (GLOBAL_Stream[sno].vfs) {
+          GLOBAL_Stream[sno].vfs->flush(sno);
+          return true;
+      }
+    return fflush(GLOBAL_Stream[sno].file) == 0;
+}
 
 static Int clear_input( USES_REGS1 )
 {
@@ -954,12 +970,16 @@ static void CloseStream(int sno) {
     Yap_CloseMemoryStream(sno);
   }
   GLOBAL_Stream[sno].status = Free_Stream_f;
+  GLOBAL_Stream[sno].vfs = NULL;
+  GLOBAL_Stream[sno].file = NULL;
   Yap_DeleteAliases(sno);
   if (LOCAL_c_input_stream == sno) {
     LOCAL_c_input_stream = StdInStream;
-  } else if (LOCAL_c_output_stream == sno) {
+  }
+  if (LOCAL_c_output_stream == sno) {
     LOCAL_c_output_stream = StdOutStream;
-  } else if (LOCAL_c_error_stream == sno) {
+  }
+  if (LOCAL_c_error_stream == sno) {
     LOCAL_c_error_stream = StdErrStream;
   }
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
@@ -974,12 +994,16 @@ void Yap_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
   GLOBAL_Stream[sno].user_name = 0;
+  GLOBAL_Stream[sno].vfs = NULL;
+  GLOBAL_Stream[sno].file = NULL;
   Yap_DeleteAliases(sno);
   if (LOCAL_c_input_stream == sno) {
     LOCAL_c_input_stream = StdInStream;
-  } else if (LOCAL_c_output_stream == sno) {
+  }
+  if (LOCAL_c_output_stream == sno) {
     LOCAL_c_output_stream = StdOutStream;
-  } else if (LOCAL_c_error_stream == sno) {
+  }
+  if (LOCAL_c_error_stream == sno) {
     LOCAL_c_error_stream = StdErrStream;
   }
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
@@ -1003,6 +1027,18 @@ static Int current_input(USES_REGS1) { /* current_input(?Stream) */
   }
 }
 
+bool Yap_SetInputStream( Term sd )
+{
+  int sno = Yap_CheckStream(sd, Input_Stream_f, "set_input/1");
+  if (sno < 0)
+    return false;
+  LOCAL_c_input_stream = sno;
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  Yap_SetAlias(AtomUserIn, sno);
+  return true;
+}
+
+
 /** @pred  set_input(+ _S_) is iso
  * Set stream  _S_ as the current input stream. Predicates like read/1
  * and get/1 will start using stream  _S_ by default.
@@ -1012,12 +1048,7 @@ static Int current_input(USES_REGS1) { /* current_input(?Stream) */
  *
  */
 static Int set_input(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "set_input/1");
-  if (sno < 0)
-    return false;
-  LOCAL_c_input_stream = sno;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return true;
+  return Yap_SetInputStream( ARG1 );
 }
 
 static Int current_output(USES_REGS1) { /* current_output(?Stream) */
@@ -1035,6 +1066,30 @@ static Int current_output(USES_REGS1) { /* current_output(?Stream) */
   }
 }
 
+bool Yap_SetOutputStream( Term sd )
+{
+  int sno =
+      Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_output/2");
+  if (sno < 0)
+    return false;
+  LOCAL_c_output_stream = sno;
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  Yap_SetAlias(AtomUserOut, sno);
+  return true;
+}
+
+bool Yap_SetErrorStream( Term sd )
+{
+  int sno =
+      Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_error/2");
+  if (sno < 0)
+    return false;
+  LOCAL_c_error_stream = sno;
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  Yap_SetAlias(AtomUserErr, sno);
+  return true;
+}
+
 /** @pred  set_input(+ _S_) is iso
  * Set stream  _S_ as the current input stream. Predicates like read/1
  * and get/1 will start using stream  _S_ by default.
@@ -1044,13 +1099,7 @@ static Int current_output(USES_REGS1) { /* current_output(?Stream) */
  *
  */
 static Int set_output(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
-  int sno =
-      Yap_CheckStream(ARG1, Output_Stream_f | Append_Stream_f, "set_output/2");
-  if (sno < 0)
-    return false;
-  LOCAL_c_output_stream = sno;
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return true;
+  return Yap_SetOutputStream( ARG1);
 }
 
 

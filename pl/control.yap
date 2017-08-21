@@ -291,6 +291,15 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
 	call_cleanup(Goal, Catcher, Cleanup).
 
+gated_call(Setup, Goal, Catcher, Cleanup) :-
+	Task0 = cleanup( true, Catcher, Cleanup, Tag, true, Done),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, Done),
+	'$setup_call_catcher_cleanup'(Setup),
+	'$tag_cleanup'(CP0, Task0),
+	call( Goal ),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+
 
 /** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
 
@@ -441,6 +450,22 @@ version(T) :-
 	recorda('$toplevel_hooks',H,_),
 	fail.
 '$set_toplevel_hook'(_).
+
+query_to_answer(G, V, Status, Bindings) :-
+	gated_call( true, (G,'$delayed_goals'(G, V, Vs, LGs, _DCP)), Status, '$answer'( Status, LGs, Vs, Bindings) ).
+
+  '$answer'( exit, LGs, Vs, Bindings) :-
+      !,
+      '$process_answer'(Vs, LGs, Bindings).
+      '$answer'( answer, LGs, Vs, Bindings) :-
+          !,
+          '$process_answer'(Vs, LGs, Bindings).
+'$answer'(cut, _, _, _).
+'$answer'(fail,_,_,_).
+'$answer'(exception(E),_,_,_) :-
+        '$LoopError'(E,error).
+'$answer'(external_exception(_),_,_,_).
+
 
 %% @}
 

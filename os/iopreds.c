@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		iopreds.c *
-* Last rev:	5/2/88							 *
-* mods: *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		iopreds.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -33,10 +33,10 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_UNISTD_H
@@ -246,13 +246,13 @@ static void unix_upd_stream_info(StreamDesc *s) {
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
-    if (st->vfs) {
-      st->stream_wputc = st->vfs->put_char;
-      st->stream_wgetc = st->vfs->get_char;
-      st->stream_putc = st->vfs->put_char;
-      st->stream_wgetc = st->vfs->get_char;
-      return;
-    }
+  if (st->vfs) {
+    st->stream_wputc = st->vfs->put_char;
+    st->stream_wgetc = st->vfs->get_char;
+    st->stream_putc = st->vfs->put_char;
+    st->stream_wgetc = st->vfs->get_char;
+    return;
+  }
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar_UTF8;
   st->stream_putc = FilePutc;
@@ -354,8 +354,7 @@ static void InitStdStreams(void) {
 #if USE_READLINE
   if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
       GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&
-      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f &&
-      ! Yap_embedded) {
+      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f && !Yap_embedded) {
     Yap_InitReadline(TermTrue);
   }
 #endif
@@ -1057,7 +1056,8 @@ static void check_bom(int sno, StreamDesc *st) {
 }
 
 bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                    encoding_t encoding, stream_flags_t flags, Atom open_mode, void *vfs) {
+                    encoding_t encoding, stream_flags_t flags, Atom open_mode,
+                    void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
   st->status = flags;
 
@@ -1290,21 +1290,22 @@ do_open(Term file_name, Term t2,
   if (st - GLOBAL_Stream < 3) {
     flags |= RepError_Prolog_f;
   }
-    struct vfs *vfsp = NULL;
+  struct vfs *vfsp = NULL;
   if ((vfsp = vfs_owner(fname)) != NULL) {
-    st->u.private_data = vfsp->open(fname,  io_mode);
+    st->u.private_data = vfsp->open(fname, io_mode);
     fd = NULL;
     if (st->u.private_data == NULL)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s", fname));
+    st->vfs = vfsp;
   } else if ((fd = fopen(fname, io_mode)) == NULL ||
-      (!(flags & Binary_Stream_f) && binary_file(fname))) {
+             (!(flags & Binary_Stream_f) && binary_file(fname))) {
     strncpy(LOCAL_FileNameBuf, fname, MAXPATHLEN);
     if (fname != fbuf)
       freeBuffer((void *)fname);
     fname = LOCAL_FileNameBuf;
     UNLOCK(st->streamlock);
     free(args);
-    if (errno == ENOENT && !strchr(io_mode,'r')) {
+    if (errno == ENOENT && !strchr(io_mode, 'r')) {
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s: %s", fname,
                         strerror(errno)));
     } else {
@@ -1319,7 +1320,8 @@ do_open(Term file_name, Term t2,
 #endif
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
   flags &= ~(Free_Stream_f);
-  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode, vfsp))
+  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode,
+                      vfsp))
     return false;
   if (open_mode == AtomWrite) {
     if (needs_bom && !write_bom(sno, st))
@@ -1848,24 +1850,24 @@ static Int get_abs_file_parameter(USES_REGS1) {
 void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
 
-  if (argi->inp >0 )
-    Yap_stdin = fdopen(argi->inp-1, "r");
+  if (argi->inp > 0)
+    Yap_stdin = fdopen(argi->inp - 1, "r");
   else if (argi->inp)
-     Yap_stdin = NULL;
+    Yap_stdin = NULL;
   else
     Yap_stdin = stdin;
-  if (argi->out >0 )
-    Yap_stdout = fdopen(argi->out-1, "a");
+  if (argi->out > 0)
+    Yap_stdout = fdopen(argi->out - 1, "a");
   else if (argi->out)
-     Yap_stdout = NULL;
+    Yap_stdout = NULL;
   else
-   Yap_stdout = stdout;
-  if (argi->err >0 )
-    Yap_stderr = fdopen(argi->err-1, "a");
+    Yap_stdout = stdout;
+  if (argi->err > 0)
+    Yap_stderr = fdopen(argi->err - 1, "a");
   else if (argi->out)
-     Yap_stdout = NULL;
- else
- Yap_stderr = stderr;
+    Yap_stdout = NULL;
+  else
+    Yap_stderr = stderr;
   GLOBAL_Stream =
       (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc) * MaxStreams);
   for (i = 0; i < MaxStreams; ++i) {

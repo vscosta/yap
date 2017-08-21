@@ -227,7 +227,8 @@ Yap_SetAlias (Atom arg, int sno)
       Int alno = aliasp-GLOBAL_FileAliases;
       aliasp->alias_stream = sno;
       if (!(GLOBAL_Stream[sno].status &
-	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))) {
+	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f)) &&
+	  !GLOBAL_Stream[sno].vfs) {
 	switch(alno) {
 	case 0:
 	  Yap_stdin = GLOBAL_Stream[sno].file;
