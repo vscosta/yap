@@ -26,7 +26,7 @@ namespace std {
   %template(vectort) vector<Term>;
 };
 
-   %feature("novaluewrapper") std::vector<Term>;    
+   %feature("novaluewrapper") std::vector<Term>;
 
 %ignore *::operator[];
 
@@ -42,7 +42,7 @@ class YAPEngine;
   extern "C" {
 
     extern X_API YAP_Term pythonToYAP(PyObject *pVal);
-    extern X_API PyObject  * yap_to_python(YAP_Term t, bool eval, PyObject *ctx);
+    extern X_API PyObject  * yap_to_python(YAP_Term t, bool eval, PyObject *ctx, bool cvt);
     X_API extern bool init_python(void);
     extern X_API PyObject *py_Main;
     extern X_API PyObject *py_Builtin;
@@ -122,15 +122,15 @@ class YAPEngine;
 %typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
 
 
-%typemap(out) YAP_Term {  return $result = yap_to_python($1, false, 0);    }
+%typemap(out) YAP_Term {  return $result = yap_to_python($1, false, 0, true);    }
 
-%typemap(out) Term {  return $result = yap_to_python($1, false, 0);  }
+%typemap(out) Term {  return $result = yap_to_python($1, false, 0, true);  }
 
 %typemap(out) std::vector<Term> {
   size_t len = $1.size();
 $result = PyList_New(len);
 for (size_t i = 0; i< len; i++) {
-PyObject *o = yap_to_python($1[i],false,0);
+PyObject *o = yap_to_python($1[i],false,0,true);
 PyList_SetItem($result,i,o);
 
 }
