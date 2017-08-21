@@ -5,7 +5,7 @@
 
 include(FindPythonModule)
 
-set (PROLOG_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.yap ${CMAKE_CURRENT_SOURCE_DIR}/jupyter.yap)
+set (PROLOG_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.yap)
 set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py ${CMAKE_CURRENT_SOURCE_DIR}/__main__.py)
 
 file(RELATIVE_PATH RELATIVE_SOURCE ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_SOURCE_DIR})
@@ -76,17 +76,15 @@ add_custom_target( YAP4PY_SETUP_DIRS
         )
 
       add_custom_target( YAP4PY ALL
-	COMMAND ${PYTHON_EXECUTABLE} -m pip uninstall  -y YAP4PY
         COMMAND  ${SWIG_EXECUTABLE}  -python -modern -c++ -py3 -DX_API -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/OPTYap -I../../.. -o yap_wrap.cpp yap.i
         COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 DEPENDS YAP4PY_SETUP)
 
 
-
 install(CODE "execute_process(
-              COMMAND ${PYTHON_EXECUTABLE} -m pip install  --force --no-index -f packages/python/swig/dist YAP4PY
-  	      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})"
+              COMMAND ${PYTHON_EXECUTABLE} -m pip install --ignore-installed  ${CMAKE_CURRENT_BINARY_DIR}
+  	      WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})"
  	      DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
 
 install(FILES ${PROLOG_SOURCES} DESTINATION ${libpl})
