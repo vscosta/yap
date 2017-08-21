@@ -245,5 +245,12 @@ DBMS(call_procedure)(Connection,Procedure,Args,LA) :-
 	DBMS(sql)(Connection,SQL,LA).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+DBMS(row)(ResultSet,Arity,Args) :-
+    setup_call_cleanup(
+        c_DBMS(row_initialise)(ResultSet,Arity,Args,State),
+        c_DBMS(row_get)(ResultSet,Arity,Args,State),
+        DBMS(row_terminate)(State)
+        ).
+
 
 #endif /* MYDDAS_DBMS */
