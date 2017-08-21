@@ -16,7 +16,7 @@ from jupyter_client.kernelspec import KernelSpecManager
 
 pjoin = os.path.join
 
-KERNEL_NAME = 'YAPKernel'
+KERNEL_NAME = 'yap_kernel'
 
 # path to kernelspec resources
 RESOURCES = pjoin(os.path.dirname(__file__), 'resources')
@@ -59,7 +59,7 @@ def get_kernel_dict(extra_arguments=None):
     }
 
 
-def write_kernel_spec(path=None, overrides=None, extra_arguments=None):
+def write_kernel_spec(path=os.path.join(tempfile.mkdtemp(suffix='_kernels'), KERNEL_NAME), overrides=None, extra_arguments=None):
     """Write a kernel spec directory to `path`
 
     If `path` is not specified, a temporary directory is created.
@@ -69,7 +69,7 @@ def write_kernel_spec(path=None, overrides=None, extra_arguments=None):
     """
     if path is None:
         path = os.path.join(tempfile.mkdtemp(suffix='_kernels'), KERNEL_NAME)
-
+    print( path )
     # stage resources
     shutil.copytree(RESOURCES, path)
     # write kernel.json
@@ -142,7 +142,7 @@ from traitlets.config import Application
 
 class InstallYAPKernelSpecApp(Application):
     """Dummy app wrapping argparse"""
-    name = 'ipython-kernel-install'
+    name = 'yap-kernel-install'
 
     def initialize(self, argv=None):
         if argv is None:
@@ -152,12 +152,12 @@ class InstallYAPKernelSpecApp(Application):
     def start(self):
         import argparse
         parser = argparse.ArgumentParser(prog=self.name,
-            description="Install the IPython kernel spec.")
+            description="Install the YAP kernel spec.")
         parser.add_argument('--user', action='store_true',
             help="Install for the current user instead of system-wide")
         parser.add_argument('--name', type=str, default=KERNEL_NAME,
             help="Specify a name for the kernelspec."
-            " This is needed to have multiple IPython kernels at the same time.")
+            " This is needed to have multiple YAP kernels at the same time.")
         parser.add_argument('--display-name', type=str,
             help="Specify the display name for the kernelspec."
             " This is helpful when you have multiple IPython kernels.")

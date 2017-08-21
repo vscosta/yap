@@ -1,32 +1,5 @@
 
 #include "py4yap.h"
-#include <frameobject.h>
-
-void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
-                        yap_error_number type, term_t where, ...) {
-  va_list ap;
-  char tmpbuf[MAXPATHLEN];
-  YAP_Term wheret = YAP_GetFromSlot(where);
-  PyObject *ptype;
-
-  if ((ptype = PyErr_Occurred()) == NULL) {
-    PyErr_Print();
-  }
-
-  va_start(ap, where);
-  char *format = va_arg(ap, char *);
-  if (format != NULL) {
-#if HAVE_VSNPRINTF
-    (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
-#else
-    (void)vsprintf(tnpbuf, format, ap);
-#endif
-    // fprintf(stderr, "warning: ");
-    Yap_ThrowError__(file, function, lineno, type, wheret, tmpbuf);
-  } else {
-    Yap_ThrowError__(file, function, lineno, type, wheret);
-  }
-}
 
 static foreign_t repr_term(PyObject *pVal, term_t t) {
   term_t to = PL_new_term_ref(), t1 = PL_new_term_ref();
@@ -109,14 +82,12 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       rc = rc && PL_unify_atom(t, ATOM_brackets);
     } else {
       if ((s = (Py_TYPE(pVal)->tp_name))) {
-        if (!strcmp(s, "v")) {
+        if (!strcmp(s, "H")) {
           pVal = PyTuple_GetItem(pVal, 0);
           if (pVal == NULL) {
             pVal = Py_None;
             PyErr_Clear();
           }
-          term_t v = YAP_InitSlot(PyLong_AsLong(pVal));
-          return PL_unify(v, t);
         }
         if (s[0] == '$') {
           char *ns = malloc(strlen(s) + 5);
@@ -150,17 +121,22 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
   } else if (PyList_Check(pVal)) {
     Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
 
-    for (i = 0; i < sz; i++) {
-      PyObject *obj;
-      rc = rc && PL_unify_list(t, to, t);
-      if ((obj = PyList_GetItem(pVal, i - 1)) == NULL) {
-        obj = Py_None;
+    if (sz == 0) {
+      rc = rc && PL_unify_nil(t);
+    } else {
+      for (i = 0; i < sz; i++) {
+        PyObject *obj;
+        if (!PL_unify_list(t, to, t)) {
+          rc = false;
+          break;
+        }
+        if ((obj = PyList_GetItem(pVal, i)) == NULL) {
+          obj = Py_None;
+        }
+        rc = rc && python_to_term(obj, to);
       }
-      rc = rc && python_to_term(obj, to);
-      if (!rc)
-        return false;
+      rc = rc && PL_unify_nil(t);
     }
-    return rc && PL_unify_nil(t);
     // fputs("[***]  ", stderr);
     // Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
   } else if (PyDict_Check(pVal)) {
@@ -253,10 +229,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     PL_get_atom_chars(t, &s);
     if (!context)
       context = py_Main;
-    if (PyObject_SetAttrString(context, s, exp) == 0)
-      return true;
-    PyErr_Print();
-    return false;
+    return PyObject_SetAttrString(context, s, exp) == 0;
   }
   case PL_STRING:
   case PL_INTEGER:
@@ -266,29 +239,28 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
   default: {
     term_t tail = PL_new_term_ref(), arg = PL_new_term_ref();
     size_t len, i;
+    if (PL_skip_list(t, tail, &len) &&
+        PL_get_nil(tail)) { //             true list
 
-    if (PL_is_pair(t)) {
-      if (PL_skip_list(t, tail, &len) &&
-          PL_get_nil(tail)) { //             true list
+      bool o = true;
+      if (PySequence_Check(exp) && PySequence_Length(exp) == len)
 
-        bool o = true;
-        if (PySequence_Check(exp) && PySequence_Length(exp) == len)
-
-          for (i = 0; i < len; i++) {
-            PyObject *p;
-            if (!PL_get_list(t, arg, t)) {
-              PL_reset_term_refs(tail);
-              o = false;
-              p = Py_None;
-            }
-            if ((p = PySequence_GetItem(exp, i)) == NULL)
-              p = Py_None;
-            if (!python_assign(arg, p, context)) {
-              PL_reset_term_refs(tail);
-              o = false;
-            }
+        for (i = 0; i < len; i++) {
+          PyObject *p;
+          if (!PL_get_list(t, arg, t)) {
+            PL_reset_term_refs(tail);
+            o = false;
+            p = Py_None;
           }
-      }
+          if ((p = PySequence_GetItem(exp, i)) == NULL)
+            p = Py_None;
+          if (!python_assign(arg, p, context)) {
+            PL_reset_term_refs(tail);
+            o = false;
+          }
+        }
+      PL_reset_term_refs(tail);
+      return o;
     } else {
       functor_t fun;
 
@@ -298,65 +270,50 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       }
 
       if (fun == FUNCTOR_sqbrackets2) {
-        //  tail is the object o
         if (!PL_get_arg(2, t, tail)) {
           PL_reset_term_refs(tail);
           return false;
         }
-        PyObject *o = term_to_python(tail, true, context, false);
-        // t now refers to the index
-        if (!PL_get_arg(1, t, t) || !PL_get_list(t, t, tail) ||
-            !PL_get_nil(tail)) {
+
+        PyObject *o = term_to_python(tail, true, context);
+        if (!PL_get_arg(2, t, tail) && !PL_get_nil(tail)) {
           PL_reset_term_refs(tail);
           return false;
         }
-        PyObject *i = term_to_python(t, true, NULL, false);
-        // check numeric
-        if (PySequence_Check(o) && PyLong_Check(i)) {
-          long int j;
-          j = PyLong_AsLong(i);
-          return PySequence_SetItem(o, j, exp) == 0;
+        if (!PL_get_arg(1, t, t)) {
+          PL_reset_term_refs(tail);
+          return false;
         }
+        PL_reset_term_refs(tail);
+        PyObject *i = term_to_python(t, true, NULL);
+        if (!i) {
+          return false;
+        }
+        if (PyList_Check(i)) {
+          i = PyList_GetItem(i, 0);
+          if (i == NULL)
+            i = Py_None;
+          long int j;
+          if (PyList_Check(o)) {
 #if PY_MAJOR_VERSION < 3
-        if (PySequence_Check(o) && PyInt_Check(i)) {
-          long int j;
-          j = PyInt_AsLong(i);
-          return PySequence_SetItem(o, i, exp) == 0;
-        }
+            if (PyInt_Check(i))
+              j = PyInt_AsLong(i);
+            else
 #endif
-        if (PyDict_Check(o)) {
-          if (PyDict_SetItem(o, i, exp) == 0)
-            return true;
-        }
-        if (PyObject_SetAttr(o, i, exp) == 0) {
-          return true;
-        }
-      } else {
-        atom_t s;
-        int n, i;
-        PL_get_name_arity(t, &s, &n);
-        PyObject *o = term_to_python(t, true, context, true);
-        if (PySequence_Check(o) && PySequence_Length(o) == n) {
-          for (i = 1; i <= n; i++) {
-            PyObject *p;
-            if (!PL_get_arg(i, t, arg)) {
-              PL_reset_term_refs(tail);
-              o = false;
-              p = Py_None;
-            }
-            if ((p = PySequence_GetItem(exp, i - 1)) == NULL)
-              p = Py_None;
-            else if (!python_assign(arg, p, NULL)) {
-              PL_reset_term_refs(tail);
-              o = NULL;
-            }
+                if (PyLong_Check(i))
+              j = PyLong_AsLong(i);
+            else
+              return NULL;
+            return PyList_SetItem(o, j, exp) == 0;
           }
-          return true;
+          if (PyDict_Check(i)) {
+            return PyDict_SetItem(o, i, exp) == 0;
+          }
+          return PyObject_SetAttr(o, i, exp) == 0;
         }
       }
     }
-    PL_reset_term_refs(tail);
   }
-    return NULL;
   }
+  return NULL;
 }

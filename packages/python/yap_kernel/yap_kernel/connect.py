@@ -5,6 +5,8 @@
 
 from __future__ import absolute_import
 
+from IPython.utils.py3compat import str_to_bytes
+
 import json
 import sys
 from subprocess import Popen, PIPE
@@ -13,7 +15,6 @@ import warnings
 from IPython.core.profiledir import ProfileDir
 from IPython.paths import get_ipython_dir
 from ipython_genutils.path import filefind
-from ipython_genutils.py3compat import str_to_bytes
 
 import jupyter_client
 from jupyter_client import write_connection_file
@@ -39,7 +40,7 @@ def get_connection_file(app=None):
 
 def find_connection_file(filename='kernel-*.json', profile=None):
     """DEPRECATED: find a connection file, and return its absolute path.
-    
+
     THIS FUNCION IS DEPRECATED. Use juptyer_client.find_connection_file instead.
 
     Parameters
@@ -54,7 +55,7 @@ def find_connection_file(filename='kernel-*.json', profile=None):
     -------
     str : The absolute path of the connection file.
     """
-    
+
     import warnings
     warnings.warn("""yap_kernel.find_connection_file is deprecated, use jupyter_client.find_connection_file""",
         DeprecationWarning, stacklevel=2)
@@ -77,13 +78,13 @@ def find_connection_file(filename='kernel-*.json', profile=None):
         # find profiledir by profile name:
         profile_dir = ProfileDir.find_profile_dir_by_name(get_ipython_dir(), profile)
     security_dir = profile_dir.security_dir
-    
+
     return jupyter_client.find_connection_file(filename, path=['.', security_dir])
 
 
 def _find_connection_file(connection_file, profile=None):
     """Return the absolute path for a connection file
-    
+
     - If nothing specified, return current Kernel's connection file
     - If profile specified, show deprecation warning about finding connection files in profiles
     - Otherwise, call jupyter_client.find_connection_file

@@ -14,6 +14,7 @@ name = 'yap_kernel'
 #-----------------------------------------------------------------------------
 
 import sys
+import sysconfig
 import setuptools
 
 v = sys.version_info
@@ -43,8 +44,10 @@ packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
 #     if os.path.exists(pjoin(d, '__init__.py')):
 #         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
+sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 package_data = {
-    'yap_kernel': ['resources/*.*','prolog/*.*'],
+'yap_ipython': ['prolog/*.*'],
+'yap_kernel': ['resources/*.*']
 }
 
 
@@ -62,9 +65,9 @@ setup_args = dict(
     packages        = packages,
     py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
-    package_dir = {'':"${CMAKE_CURRENT_SOURCE_DIR}"    },
+    package_dir = {'':"${CMAKE_CURRENT_SOURCE_DIR}"},
     description     = "YAP Kernel for Jupyter",
-    author          = 'YP Development Team',
+    author          = 'YAP Development Team',
     author_email    = 'YAP-dev@scipy.org',
     url             = 'http://ipython.org',
     license         = 'BSD',
@@ -91,15 +94,26 @@ install_requires = setuptools_args['install_requires'] = [
 if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
     from yap_kernel.kernelspec import write_kernel_spec, make_yap_kernel_cmd, KERNEL_NAME
 
+
     argv = make_yap_kernel_cmd(executable='python')
-    dest = os.path.join(here, 'data_kernelspec')
+    dest = os.path.join(here, 'resources')
     if os.path.exists(dest):
         shutil.rmtree(dest)
     write_kernel_spec(dest, overrides={'argv': argv})
-
+    shutil.copy('${CMAKE_CURRENT_SOURCE_DIR}/kernel.js',dest)
+    shutil.copy('${CMAKE_SOURCE_DIR}/misc/editors/prolog.js',dest)
+    shutil.copy('${CMAKE_SOURCE_DIR}/docs/icons/yap_32x32x32.png',os.path.join(dest,'logo-32x32.png'))
+    shutil.copy('${CMAKE_SOURCE_DIR}/docs/icons/yap_64x64x32.png',os.path.join(dest,'logo-64x64.png'))
     setup_args['data_files'] = [
         (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
     ]
+    mode_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'components', 'codemirror', 'mode', 'prolog')
+    try:
+        os.mkdir(mode_loc)
+    except:
+        pass
+    shutil.copy( "${CMAKE_SOURCE_DIR}/misc/editors/prolog.js" , mode_loc)
+
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],

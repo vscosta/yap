@@ -1,12 +1,15 @@
 
+#ifndef PY4YAP_H
+#define PY4YAP_H 1
+
 //@{
 
 /** @brief  Prolog to Python library
-*
-*
-* Please look at python.pl for more information, and to real.pl and real.c
-* for related work.
-*/
+ *
+ *
+ * Please look at python.pl for more information, and to real.pl and real.c
+ * for related work.
+ */
 
 #ifdef _XOPEN_SOURCE
 #undef _XOPEN_SOURCE // python does its own thing
@@ -27,7 +30,6 @@
 #define X_API
 #define I_API
 #define O_API
-
 
 #define PYTHON_H 1
 
@@ -50,12 +52,15 @@ typedef struct s_mod_t {
 } Py_mod;
 
 extern X_API YAP_Term pythonToYAP(PyObject *pVal);
-extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o);
-extern X_API PyObject *string_to_python( const char *s, bool eval, PyObject *p0);
+extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o,
+                                     bool cvt);
+extern X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
 
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-  ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil, ATOM_brackets, ATOM_curly_brackets;;
+    ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil,
+    ATOM_brackets, ATOM_curly_brackets;
+;
 
 extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -72,7 +77,7 @@ extern X_API PyObject *py_Yapex;
 extern X_API PyObject *py_Local;
 extern X_API PyObject *py_Global;
 extern X_API PyObject *py_Context;
-extern PyObject *py_F2P;
+extern PyObject *Py_f2p;
 extern PyObject *py_Sys;
 extern PyObject *py_ModDict;
 
@@ -133,20 +138,25 @@ static inline PyObject *atom_to_python_string(term_t t) {
   }
 }
 
-#define CHECK_CALL(rc, t, call)			\
-      PyErr_Clear();\
-      rc = call; \
-      if (rc == NULL || PyErr_Occurred()) {\
-      YE(t,__LINE__,__FILE__,__FUNCTION__);\
-        PyErr_Print(); PyErr_Clear();\
-        }
+#define CHECK_CALL(rc, t, call)                                                \
+  PyErr_Clear();                                                               \
+  rc = call;                                                                   \
+  if (rc == NULL || PyErr_Occurred()) {                                        \
+    YE(t, __LINE__, __FILE__, __FUNCTION__);                                   \
+    PyErr_Print();                                                             \
+    PyErr_Clear();                                                             \
+  }
 
-#define CHECKNULL(t,rc) (rc  != NULL ? rc : YE(t,__LINE__,__FILE__,__FUNCTION__) )
-#define AOK(rc, err)  { if (!rc)  YEM( #rc ,__LINE__,__FILE__,__FUNCTION__); }
-
+#define CHECKNULL(t, rc)                                                       \
+  (rc != NULL ? rc : YE(t, __LINE__, __FILE__, __FUNCTION__))
+#define AOK(rc, err)                                                           \
+  {                                                                            \
+    if (!rc)                                                                   \
+      YEM(#rc, __LINE__, __FILE__, __FUNCTION__);                              \
+  }
 
 extern PyObject *YE(term_t t, int line, const char *file, const char *code);
-extern void YEM( const char *ex, int line, const char *file, const char *code);
+extern void YEM(const char *ex, int line, const char *file, const char *code);
 extern void pyErrorHandler__(int line, const char *file, const char *code);
 
 #define pyErrorHandler()                                                       \
@@ -167,10 +177,11 @@ extern void pyErrorHandler__(int line, const char *file, const char *code);
   }
 // #define pyErrorAndReturn( x, y ) return x
 
-extern PyObject *compound_to_pyeval(term_t t, PyObject *context);
-extern PyObject *compound_to_pytree(term_t t, PyObject *context);
+extern PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt);
+extern PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt);
 
-extern PyObject *term_to_python(term_t t, bool eval, PyObject *contextxs);
+extern PyObject *term_to_python(term_t t, bool eval, PyObject *contextxs,
+                                bool eval_atom);
 
 extern PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *);
 
@@ -197,9 +208,12 @@ extern PyObject *PythonLookup(const char *s, PyObject *o);
 
 extern PyObject *PythonLookupSpecial(const char *s);
 
-#define YAPPy_ThrowError(id, inp,  ...)                                                \
-YAPPy_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+#define YAPPy_ThrowError(id, inp, ...)                                         \
+  YAPPy_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-extern void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
-                                  yap_error_number type, term_t where, ...);
+extern void YAPPy_ThrowError__(const char *file, const char *function,
+                               int lineno, yap_error_number type, term_t where,
+                               ...);
+#endif
+
 #endif

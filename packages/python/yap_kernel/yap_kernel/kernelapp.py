@@ -21,8 +21,8 @@ from IPython.core.application import (
     BaseIPythonApplication, base_flags, base_aliases, catch_config_error
 )
 from IPython.core.profiledir import ProfileDir
-from IPython.core.shellapp import (
-    InteractiveShellApp, shell_flags, shell_aliases
+from yap_ipython.core.shellapp import (
+    YAPInteractiveApp, shell_flags, shell_aliases
 )
 from IPython.utils import io
 from ipython_genutils.path import filefind, ensure_dir_exists
@@ -96,7 +96,7 @@ To read more about this, see https://github.com/ipython/ipython/issues/2049
 # Application class for starting an IPython Kernel
 #-----------------------------------------------------------------------------
 
-class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
+class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
         ConnectionFileMixin):
     name='YAP Kernel'
     aliases = Dict(kernel_aliases)
@@ -385,7 +385,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
         if not os.environ.get('MPLBACKEND'):
             os.environ['MPLBACKEND'] = 'module://yap_kernel.pylab.backend_inline'
 
-        # Provide a wrapper for :meth:`InteractiveShellApp.init_gui_pylab`
+        # Provide a wrapper for :meth:`YAPInteractiveApp.init_gui_pylab`
         # to ensure that any exception is printed straight to stderr.
         # Normally _showtraceback associates the reply with an execution,
         # which means frontends will never draw it, as this exception
@@ -400,7 +400,7 @@ class YAPKernelApp(BaseIPythonApplication, InteractiveShellApp,
                        file=sys.stderr)
                 print (shell.InteractiveTB.stb2text(stb), file=sys.stderr)
             shell._showtraceback = print_tb
-            InteractiveShellApp.init_gui_pylab(self)
+            YAPInteractiveApp.init_gui_pylab(self)
         finally:
             shell._showtraceback = _showtraceback
 

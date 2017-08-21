@@ -12,7 +12,7 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   Py_ssize_t len;
   PyObject *o;
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL);
   if (o == NULL) {
     pyErrorAndReturn(false, false);
   }
@@ -24,7 +24,7 @@ static foreign_t python_dir(term_t tobj, term_t tf) {
   PyObject *dir;
   PyObject *o;
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL);
   if (o == NULL) {
     pyErrorAndReturn(false, false);
   }
@@ -41,14 +41,14 @@ static foreign_t python_index(term_t tobj, term_t tindex, term_t val) {
   PyObject *o;
   PyObject *f;
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL);
   if (o == NULL) {
     pyErrorAndReturn(false, false);
   }
   if (!PySequence_Check(o)) {
     pyErrorAndReturn(false, false);
   }
-  i = term_to_python(tindex, true, NULL, true);
+  i = term_to_python(tindex, true, NULL);
   if (i == NULL) {
     pyErrorAndReturn(false, false);
   }
@@ -69,7 +69,7 @@ static foreign_t python_is(term_t tobj, term_t tf) {
 
   term_t lim = python_acquire_GIL();
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL);
   if (!o) {
     python_release_GIL(lim);
     pyErrorAndReturn(false, false);
@@ -87,7 +87,7 @@ static foreign_t python_proc(term_t tobj) {
 
   term_t lim = python_acquire_GIL();
 
-  o = term_to_python(tobj, true, NULL, true);
+  o = term_to_python(tobj, true, NULL);
    python_release_GIL(lim);
    bool rc = o != NULL;
    pyErrorAndReturn(rc , false);
@@ -100,10 +100,10 @@ static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
   PyObject *p;
 
   // get Scope ...
-  pI = term_to_python(indx, true, NULL, true);
+  pI = term_to_python(indx, true, NULL);
   // got Scope.Exp
   // get Scope ...
-  p = term_to_python(parent, true, NULL, true);
+  p = term_to_python(parent, true, NULL);
   // Exp
   if (!pI || !p) {
     { pyErrorAndReturn(false, false); }
@@ -131,7 +131,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   foreign_t out;
   term_t targ = PL_new_term_ref();
 
-  pF = term_to_python(tin, true, NULL, true);
+  pF = term_to_python(tin, true, NULL);
   PyErr_Clear();
   if (pF == NULL) {
     { pyErrorAndReturn(false, false); }
@@ -159,7 +159,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
         if (!PL_get_arg(i + 1, targs, targ)) {
           pyErrorAndReturn(false, false);
         }
-        pArg = term_to_python(targ, true, NULL, true);
+        pArg = term_to_python(targ, true, NULL);
         if (pArg == NULL) {
           pyErrorAndReturn(false, false);
         }
@@ -171,7 +171,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   if (PL_is_atom(keywds)) {
     pKeywords = NULL;
   } else {
-    pKeywords = term_to_python(keywds, true, NULL, true);
+    pKeywords = term_to_python(keywds, true, NULL);
   }
   if (PyCallable_Check(pF)) {
     pValue = PyEval_CallObjectWithKeywords(pF, pArgs, pKeywords);
@@ -204,7 +204,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
 
 static foreign_t assign_python(term_t exp, term_t name) {
 term_t stackp = python_acquire_GIL();
-  PyObject *e = term_to_python(exp, true, NULL, true);
+  PyObject *e = term_to_python(exp, true, NULL);
 
   if (e == NULL) {
     python_release_GIL(stackp);
@@ -253,7 +253,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
     if (i == 0 && PL_is_variable(targ)) {
       pArg = Py_None;
     } else {
-      pArg = term_to_python(targ, true, NULL, true);
+      pArg = term_to_python(targ, true, NULL);
       if (pArg == NULL) {
         pyErrorAndReturn(false, false);
       }
@@ -280,7 +280,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
 
 static foreign_t python_access(term_t obj, term_t f, term_t out) {
   PyErr_Clear();
-  PyObject *o = term_to_python(obj, true, NULL, true), *pValue, *pArgs, *pF;
+  PyObject *o = term_to_python(obj, true, NULL), *pValue, *pArgs, *pF;
   atom_t name;
   char *s = NULL;
   int i, arity;
@@ -323,7 +323,7 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
     if (i == 0 && PL_is_variable(targ)) {
       pArgs = Py_None;
     }
-    pArg = term_to_python(targ, true, NULL, true);
+    pArg = term_to_python(targ, true, NULL);
     if (pArg == NULL) {
       pyErrorAndReturn(false, false);
     }
@@ -352,7 +352,7 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
 
     // got Scope.Exp
     // get Scope ...
-    p = term_to_python(parent, true, NULL, true);
+    p = term_to_python(parent, true, NULL);
     // Exp
     if (!PL_get_name_arity(att, &name, &arity)) {
       { pyErrorAndReturn(false, false); }
@@ -392,7 +392,7 @@ static foreign_t python_main_module(term_t mod) {
 
 static foreign_t python_function(term_t tobj) {
   PyErr_Clear();
-  PyObject *obj = term_to_python(tobj, true, NULL, true);
+  PyObject *obj = term_to_python(tobj, true, NULL);
   foreign_t rc = PyFunction_Check(obj);
 
   pyErrorAndReturn(rc, false);
@@ -595,7 +595,7 @@ if (pName == NULL) {
 static foreign_t python_to_rhs(term_t inp, term_t t) {
   PyObject *pVal;
   PyErr_Clear();
-  pVal = term_to_python(inp, true, NULL, true);
+  pVal = term_to_python(inp, true, NULL);
   if (pVal == NULL)
     pyErrorAndReturn(false, false);
   pyErrorAndReturn(address_to_term(pVal, t), false);

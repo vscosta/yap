@@ -1,6 +1,7 @@
 
 import os.path
 import sys
+import keyword
 # debugging support.
 # import pdb
 from collections import namedtuple
@@ -20,6 +21,8 @@ class Engine( YAPEngine ):
         YAPEngine.__init__(self,args)
         self.goal( set_prolog_flag('verbose', 'silent' ) )
         self.goal( use_module(library('yapi') ) )
+        self.goal( set_prolog_flag('verbose', 'normal' ) )
+
 
     def run(self, g, m=None):
         if m:
@@ -81,7 +84,16 @@ class PrologTableIter:
             self.q = None
             raise StopIteration()
 
+f2p = []
+for i in range(16):
+    f2p += [{}]
 
+def named( name, arity):
+    if arity > 0 and name.isidentifier() and not keyword.iskeyword(name):
+        s = []
+        for i in range(arity):
+            s += ["A" + str(i)]
+        f2p[arity][name] = namedtuple(name, s)
 
 class PrologPredicate( YAPPrologPredicate ):
     """ Interface to Prolog  Predicate"""
@@ -103,8 +115,12 @@ yapi_query = namedtuple( 'yapi_query', 'vars dict')
 show_answer = namedtuple( 'show_answer', 'vars dict')
 set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
-def v():
-    return yap.YAPVarTerm()
+class v(YAPVarTerm):
+    def __init__(self):
+        super().__init__()
+
+    def binding(self):
+        return self.term()
 
 def numbervars(  q ):
     Dict = {}
@@ -113,105 +129,110 @@ def numbervars(  q ):
         return Dict
     rc = q.namedVarsVector()
     q.r = q.goal().numbervars()
-    print( rc )
     o = []
     for i  in rc:
         if len(i) == 2:
             do = str(i[0]) + " = " + str( i[1] ) + "\n"
             o += do
-            print(do)
         else:
             do = str(i[0]) + " = " + str( i[1] ) + "\n"
             o += do
-            print(do)
     return o
 
-def answer(q):
-    try:
-        v = q.next()
-        if v:
-            print( bindings )
-        return v
-    except Exception as e:
-        print(e.args[1])
-        return False
+class YAPShell:
 
-def query_prolog(engine, s):
-    # import pdb; pdb.set_trace()
-    #
-    # construct a query from a one-line string
-    # q is opaque to Python
-    bindings = {}
-    q = engine.query(python_query(s, bindings))
-    # vs is the list of variables
-    # you can print it out, the left-side is the variable name,
-    # the right side wraps a handle to a variable
-    # pdb.set_trace()
-    #     #pdb.set_trace()
-    # atom match either symbols, or if no symbol exists, sttrings, In this case
-    # variable names should match strings
-    #for eq in vs:
-    #    if not isinstance(eq[0],str):
-    #        print( "Error: Variable Name matches a Python Symbol")
-    #        return
-    ask = True
-    # launch the query
-    while answer(q):
-        # deterministic = one solution
-        if q.deterministic():
-            # done
-            q.close()
-            return True, True
-        if ask:
-            s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
-            if s.startswith(';') or s.startswith('y'):
-                continue
-            elif s.startswith('#'):
-                try:
-                    exec(s.lstrip('#'))
-                except:
-                    raise
-            elif s.startswith('*') or s.startswith('a'):
-                ask = False
-                continue
-            else:
-                break
-    print("No (more) answers")
-    q.close()
-    return
 
-def live(**kwargs):
-    loop = True
-    while loop:
+    def answer(self, q):
         try:
-            s = input("?- ")
-            if not s:
-                loop = False
-            else:
-                query_prolog(engine, s)
-        except SyntaxError as err:
-            print("Syntax Error error: {0}".format(err))
-        except EOFError:
-            return
-        except RuntimeError as err:
-            print("YAP Execution Error: {0}".format(err))
-        except ValueError:
-            print("Could not convert data to an integer.")
-        except:
-            print("Unexpected error:", sys.exc_info()[0])
-            raise
-    engine.close()
-#
-# initialize engine
-# engine = yap.YAPEngine();
-# engine = yap.YAPEngine(yap.YAPParams());
-#
-#
+            self.bindings = {}
+            v = q.next()
+            if v:
+                print( self.bindings )
+            return v
+        except Exception as e:
+            print(e.args[1])
+            return False
 
-def boot_yap(**kwargs):
-    return Engine(**kwargs)
+    def query_prolog(self, engine, s):
+        # import pdb; pdb.set_trace()
+        #
+        # construct a query from a one-line string
+        # q is opaque to Python
+        #
+        q = engine.query(python_query(self, s))
+        #
+        #        # vs is the list of variables
+        # you can print it out, the left-side is the variable name,
+        # the right side wraps a handle to a variable
+        # pdb.set_trace()
+        #     #pdb.set_trace()
+        # atom match either symbols, or if no symbol exists, sttrings, In this case
+        # variable names should match strings
+        #for eq in vs:
+        #    if not isinstance(eq[0],str):
+        #        print( "Error: Variable Name matches a Python Symbol")
+        #        return
+        do_ask = True
+        self.port = "call"
+        # launch the query
+        while self.answer(q):
+            if self.port == "exit":
+                # done
+                q.close()
+                return True, True
+            if do_ask:
+                s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
+                if s.startswith(';') or s.startswith('y'):
+                    continue
+                elif s.startswith('#'):
+                    try:
+                        exec(s.lstrip('#'))
+                    except:
+                        raise
+                elif s.startswith('*') or s.startswith('a'):
+                    do_ask = False
+                    continue
+                else:
+                    break
+        print("No (more) answers")
+        q.close()
+        return
+
+    def live(self, engine, **kwargs):
+        loop = True
+        while loop:
+            try:
+                s = input("?- ")
+                if not s:
+                    loop = False
+                else:
+                    self.query_prolog(engine, s)
+            except SyntaxError as err:
+                print("Syntax Error error: {0}".format(err))
+            except EOFError:
+                return
+            except RuntimeError as err:
+                print("YAP Execution Error: {0}".format(err))
+            except ValueError:
+                print("Could not convert data to an integer.")
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
+                raise
+        engine.close()
+    #
+    # initialize engine
+    # engine = yap.YAPEngine();
+    # engine = yap.YAPEngine(yap.YAPParams());
+    #
+    def __init__(self, engine, **kwargs):
+       self.live(engine)
+
+
+
+def main():
+    engine = Engine()
+    handler = numbervars
+    YAPShell(engine)
 
 if __name__ == "__main__":
-    engine = boot_yap()
-    handler = numbervars
-    live()
+    main()

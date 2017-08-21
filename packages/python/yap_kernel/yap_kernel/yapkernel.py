@@ -2,20 +2,19 @@
 
 import getpass
 import sys
-import traceback
 
-from IPython.core import release
-from ipython_genutils.py3compat import builtin_mod, PY3, unicode_type, safe_unicode
 from IPython.utils.tokenutil import token_at_cursor, line_at_cursor
+from ipython_genutils.py3compat import builtin_mod, PY3, unicode_type, safe_unicode
 from traitlets import Instance, Type, Any, List
 
+from yap_ipython.core.interactiveshell import YAPInteractive
 from .comm import CommManager
 from .kernelbase import Kernel as KernelBase
 from .zmqshell import ZMQInteractiveShell
-from .interactiveshell import YAPInteraction
+
 
 class YAPKernel(KernelBase):
-    shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',
+    shell = Instance('yap_ipython.core.interactiveshell.YAPInteractiveABC',
                      allow_none=True)
     shell_class = Type(ZMQInteractiveShell)
     user_module = Any()
@@ -57,7 +56,7 @@ class YAPKernel(KernelBase):
         for msg_type in comm_msg_types:
             self.shell_handlers[msg_type] = getattr(self.comm_manager, msg_type)
 
-        self.engine = YAPInteraction(self)
+        self.engine = YAPInteractive()
         self.shell._last_traceback = None
         self.shell.run_cell = self.engine.run_cell
 
@@ -100,8 +99,8 @@ class YAPKernel(KernelBase):
         'version': '6.3',
         'mimetype': 'text/x-prolog',
         'codemirror_mode': {
-            'name': 'prolog',
-            'version': sys.version_info[0]
+            'name': 'prolog' #,
+            #'version': '3'
         },
         'pygments_lexer': 'prolog',
         'nbconvert_exporter': 'prolog',

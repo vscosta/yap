@@ -25,8 +25,8 @@ from threading import local
 
 from tornado import ioloop
 
-from IPython.core.interactiveshell import (
-    InteractiveShell, InteractiveShellABC
+from yap_ipython.core.interactiveshell import (
+    YAPInteractive, YAPInteractiveABC
 )
 from IPython.core import page
 from IPython.core.autocall import ZMQExitAutocall
@@ -437,7 +437,7 @@ class KernelMagics(Magics):
             print("Autosave disabled")
 
 
-class ZMQInteractiveShell(InteractiveShell):
+class ZMQInteractiveShell(YAPInteractive):
     """A subclass of InteractiveShell for ZMQ."""
 
     displayhook_class = Type(ZMQShellDisplayHook)
@@ -598,4 +598,4 @@ class ZMQInteractiveShell(InteractiveShell):
         # https://ipython.readthedocs.io/en/latest/install/kernel_install.html
         pass
 
-InteractiveShellABC.register(ZMQInteractiveShell)
+YAPInteractiveABC.register(ZMQInteractiveShell)
