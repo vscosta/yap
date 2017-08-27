@@ -51,9 +51,9 @@ you don't. */
 #cmakedefine HAVE_RL_CLEAR_PENDING_INPUT ${HAVE_RL_CLEAR_PENDING_INPUT}
 #endif
 
-/* Define to 1 if the system has the type `rl_completion_func_t'). */
-#ifndef HAVE_RL_COMPLETION_FUNC_T
-#cmakedefine HAVE_RL_COMPLETION_FUNC_T ${HAVE_RL_COMPLETION_FUNC_T}
+/* Define to 1 if the system has the type `rl_completion_entry_function'). */
+#ifndef HAVE_RL_COMPLETION_ENTRY_FUNCTION
+#cmakedefine HAVE_RL_COMPLETION_ENTRY_FUNCTION ${HAVE_RL_COMPLETION_ENTRY_FUNCTION}
 #endif
 
 /* Define to 1 if the system has the type `rl_completion_func_t'. */

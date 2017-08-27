@@ -273,24 +273,6 @@ bool Yap_ReadlineOps(StreamDesc *s) {
   return false;
 }
 
-static int prolog_complete(int ignore, int key) {
-  if (rl_point > 0 && rl_line_buffer[rl_point - 1] != ' ') {
-#if HAVE_DECL_RL_CATCH_SIGNALS   /* actually version >= 1.2, or true readline   \
-                                   */
-    rl_begin_undo_group();
-    rl_complete(ignore, key);
-    if (rl_point > 0 && rl_line_buffer[rl_point - 1] == ' ') {
-      rl_delete_text(rl_point - 1, rl_point);
-      rl_point -= 1;
-      rl_delete(-1, key);
-    }
-    rl_end_undo_group();
-#endif
-  } else
-    rl_complete(ignore, key);
-
-  return 0;
-}
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
@@ -320,12 +302,6 @@ bool Yap_InitReadline(Term enable) {
   }
   rl_readline_name = "YAP Prolog";
   rl_attempted_completion_function = prolog_completion;
-#ifdef HAVE_RL_FILENAME_COMPLETION_FUNCTION
-  rl_add_defun("prolog-complete", prolog_complete, '\t');
-#else
-  rl_add_defun("prolog-complete", (void *)prolog_complete, '\t');
-#endif
-  // does not work
   // rl_prep_terminal(1);
   if (GLOBAL_Flags)
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
