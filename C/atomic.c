@@ -974,21 +974,25 @@ static Int cont_string_concat3(USES_REGS1) {
   Term t3;
   Term ts[2];
   size_t i, max;
-  int l = push_text_stack();
+  int l;
 restart_aux:
+  l  = push_text_stack();
   t3 = Deref(ARG3);
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
   if (!Yap_SpliceString(t3, ts, i, max PASS_REGS)) {
+    pop_text_stack(l);
     release_cut_fail();
   } else {
-    if (i < max)
+    pop_text_stack(l);
+    if (i < max) 
       return Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]);
     if (Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]))
       release_cut_succeed();
     release_cut_fail();
   }
+  pop_text_stack(l);
   /* Error handling */
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("string_concat/3")) {
@@ -1005,30 +1009,34 @@ static Int string_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Term tf = 0;
   bool g1, g2, g3;
-  int l = push_text_stack();
+  int l;
 restart_aux:
+  l  = push_text_stack();
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
   t3 = Deref(ARG3);
   g1 = Yap_IsGroundTerm(t1);
   g2 = Yap_IsGroundTerm(t2);
   g3 = Yap_IsGroundTerm(t3);
+
   if (g1 && g2) {
-    tf = Yap_ConcatStrings(t1, t2 PASS_REGS);
+     tf = Yap_ConcatStrings(t1, t2 PASS_REGS);
     ot = ARG3;
   } else if (g1 && g3) {
-    tf = Yap_SubtractHeadString(t3, t1 PASS_REGS);
+     tf = Yap_SubtractHeadString(t3, t1 PASS_REGS);
     ot = ARG2;
   } else if (g2 && g3) {
-    tf = Yap_SubtractTailString(t3, t2 PASS_REGS);
+     tf = Yap_SubtractTailString(t3, t2 PASS_REGS);
     ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
+    pop_text_stack(l);
     return cont_string_concat3(PASS_REGS1);
   } else {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
   }
+  pop_text_stack(l);
   if (tf) {
     if (Yap_unify(ot, tf)) {
       release_cut_succeed();
@@ -1053,8 +1061,9 @@ static Int cont_string_code3(USES_REGS1) {
   utf8proc_int32_t chr;
   const unsigned char *s;
   const unsigned char *s0;
-  int l = push_text_stack();
+  int l;
 restart_aux:
+  l = push_text_stack();
   t2 = Deref(ARG2);
   s0 = UStringOfTerm(t2);
   i = IntOfTerm(
@@ -1860,8 +1869,12 @@ static Int atom_split(USES_REGS1) {
     ReleaseAndReturn((FALSE));
   s1 = s10 = Malloc(len);
   s0 = RepAtom(at)->UStrOfAE;
-  if (s1 + len > (unsigned char *)ASP - 1024)
-    Yap_Error(RESOURCE_ERROR_STACK, t1, "$atom_split/4");
+  if (s1 + len > (unsigned char *)ASP - 1024) {
+    if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      return FALSE;
+    }
+  }
   size_t j;
   for (j = 0; j < len; j++) {
     int32_t val;
@@ -2429,9 +2442,9 @@ static Int cont_current_atom(USES_REGS1) {
       READ_UNLOCK(ap->ARWLock);
     }
     EXTRA_CBACK_ARG(1, 2) = MkIntTerm(i);
-    return (TRUE);
+    return true;
   } else {
-    return (FALSE);
+    return false;
   }
 }
 
