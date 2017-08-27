@@ -160,11 +160,10 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  char buf0[YAP_FILENAME_MAX + 1];
   const char *buf;
 
   ti = Deref(ARG1);
-  buf = Yap_TextTermToText(ti, buf0, 0, LOCAL_encoding);
+  buf = Yap_TextTermToText(ti, NULL, 0, LOCAL_encoding);
   if (!buf) {
     return false;
   }
@@ -292,7 +291,11 @@ void Yap_MemOps(StreamDesc *st) {
 
 }
 
+  static int sssno;
+
 bool Yap_CloseMemoryStream(int sno) {
+  sssno++;
+  //  if (sssno > 1720) Yap_do_low_level_trace=1;
   if ((GLOBAL_Stream[sno].status & Output_Stream_f)) {
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);

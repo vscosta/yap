@@ -8,7 +8,6 @@
  *									 *
  **************************************************************************
  *									 *
-read_term
  * File:		iopreds.c *
  * Last rev:	5/2/88							 *
  * mods: *
@@ -26,11 +25,11 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapFlags.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
@@ -238,48 +237,45 @@ static Term add_priority(Term t, Term tail) {
   }
 }
 
-static Term scanToList(TokEntry *tok, TokEntry *errtok)
-{
+static Term scanToList(TokEntry *tok, TokEntry *errtok) {
   TokEntry *tok0 = tok;
   CELL *Hi = HR;
-  Term tf = TermNil;
-  Term *tailp = &tf;
+  Term ts[1];
+  ts[0] = TermNil;
+  Term *tailp = ts;
 
-  while (tok)
-  {
+  while (tok) {
 
-    if (HR > ASP - 1024)
-    {
-      Int used = HR-Hi;
+    if (HR > ASP - 1024) {
+      Int used = HR - Hi;
       /* for some reason moving this earlier confuses gcc on solaris */
       HR = Hi;
       tok = tok0;
-      if (!Yap_gcl(used, 1, ENV, CP))
-      {
+      if (!Yap_gcl(used, 1, ENV, CP)) {
         return 0;
       }
       continue;
     }
-    if (tok == errtok && tok->Tok != Error_tok)
-    {
+    if (tok == errtok && tok->Tok != Error_tok) {
       *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
       tailp = RepPair(*tailp) + 1;
     }
     Term rep = Yap_tokRep(tok);
     *tailp = MkPairTerm(rep, TermNil);
     tailp = RepPair(*tailp) + 1;
-    if (tok->TokNext)
-    {
-      tok = tok->TokNext;
+    if (tok->TokNext == NULL) {
+      break;
     }
-
+    tok = tok->TokNext;
   }
-  return tf;
+  Yap_DebugPlWriteln(ts[0]);
+  return ts[0];
 }
 
-    /** 
+/**
 @pred scan_to_list( +Stream, -Tokens )
-Generate a list of tokens from a scan of the (input) stream, Tokens are of the form:
+Generate a list of tokens from a scan of the (input) stream, Tokens are of the
+form:
 
 + `atom`(Atom)
 + `<QQ>`(Text)
@@ -290,28 +286,27 @@ Generate a list of tokens from a scan of the (input) stream, Tokens are of the f
 + symbols, including `(`, `)`, `,`, `;`
 
 */
-    static Int scan_to_list(USE_ARGS1)
-    {
-      int inp_stream;
-      Term tpos, tout;
+static Int scan_to_list(USE_ARGS1) {
+  int inp_stream;
+  Term tpos, tout;
 
-      /* needs to change LOCAL_output_stream for write */
-      inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
-      if (inp_stream == -1)
-      {
-        return false;
-      }
-      TokEntry *tok = Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
-      UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
-      tout = scanToList(tok, NULL);
-      if (tout == 0)
-        return false;
-          Yap_clean_tokenizer(tok, LOCAL_VarTable, LOCAL_AnonVarTable);
+  /* needs to change LOCAL_output_stream for write */
+  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+  if (inp_stream == -1) {
+    return false;
+  }
+  TokEntry *tok = LOCAL_tokptr = LOCAL_toktide =
+      Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
+  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
+  tout = scanToList(tok, NULL);
+  if (tout == 0)
+    return false;
+  Yap_clean_tokenizer(tok, LOCAL_VarTable, LOCAL_AnonVarTable);
 
-      return Yap_unify(ARG1, tout);
-    }
+  return Yap_unify(ARG2, tout);
+}
 
-    /**
+/**
  * Syntax Error Handler
  *
  * @par tokptr: the sequence of tokens
@@ -320,83 +315,74 @@ Generate a list of tokens from a scan of the (input) stream, Tokens are of the f
  * Implicit arguments:
  *    +
  */
-    static Term syntax_error(TokEntry * errtok, int sno, Term cmod)
-    {
-      CACHE_REGS
-      Term startline, errline, endline;
-      Term tf[3];
-      Term tm;
-      Term *tailp = tf + 2;
-      CELL *Hi = HR;
-      TokEntry *tok = LOCAL_tokptr;
-      Int cline = tok->TokPos;
+static Term syntax_error(TokEntry *errtok, int sno, Term cmod) {
+  CACHE_REGS
+  Term startline, errline, endline;
+  Term tf[3];
+  Term tm;
+  Term *tailp = tf + 2;
+  CELL *Hi = HR;
+  TokEntry *tok = LOCAL_tokptr;
+  Int cline = tok->TokPos;
 
-      startline = MkIntegerTerm(cline);
-      endline = MkIntegerTerm(cline);
-      if (errtok != LOCAL_toktide)
-      {
-        errtok = LOCAL_toktide;
-      }
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      errline = MkIntegerTerm(errtok->TokPos);
-      if (LOCAL_ErrorMessage)
-        tm = MkStringTerm(LOCAL_ErrorMessage);
-      else
-        tm = MkStringTerm("syntax error");
-      while (tok)
-      {
+  startline = MkIntegerTerm(cline);
+  endline = MkIntegerTerm(cline);
+  if (errtok != LOCAL_toktide) {
+    errtok = LOCAL_toktide;
+  }
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  errline = MkIntegerTerm(errtok->TokPos);
+  if (LOCAL_ErrorMessage)
+    tm = MkStringTerm(LOCAL_ErrorMessage);
+  else
+    tm = MkStringTerm("syntax error");
+  while (tok) {
 
-        if (HR > ASP - 1024)
-        {
-          errline = MkIntegerTerm(0);
-          endline = MkIntegerTerm(0);
-          /* for some reason moving this earlier confuses gcc on solaris */
-          HR = Hi;
-          break;
-        }
-        if (tok->TokPos != cline)
-        {
-          *tailp = MkPairTerm(TermNewLine, TermNil);
-          tailp = RepPair(*tailp) + 1;
-          cline = tok->TokPos;
-        }
-        if (tok == errtok && tok->Tok != Error_tok)
-        {
-          *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
-          tailp = RepPair(*tailp) + 1;
-        }
-        Term rep = Yap_tokRep(tok);
-        if (tok->TokNext)
-        {
-          tok = tok->TokNext;
-        }
-        else
-        {
-          endline = MkIntegerTerm(tok->TokPos);
-          tok = NULL;
-          break;
-        }
-        *tailp = MkPairTerm(rep, TermNil);
-        tailp = RepPair(*tailp) + 1;
-      }
-      {
-        Term t[3];
-        t[0] = startline;
-        t[1] = errline;
-        t[2] = endline;
-        tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomBetween, 3), 3, t);
-      }
-      /* 0:  strat, error, end line */
-      /*2 msg */
-      /* 1: file */
-      tf[1] = Yap_StreamUserName(sno);
-      clean_vars(LOCAL_VarTable);
-      clean_vars(LOCAL_AnonVarTable);
-      Term terr = Yap_MkApplTerm(FunctorInfo3, 3, tf);
-      Term tn[2];
-      tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &tm);
-      tn[1] = terr;
-      terr = Yap_MkApplTerm(FunctorError, 2, tn);
+    if (HR > ASP - 1024) {
+      errline = MkIntegerTerm(0);
+      endline = MkIntegerTerm(0);
+      /* for some reason moving this earlier confuses gcc on solaris */
+      HR = Hi;
+      break;
+    }
+    if (tok->TokPos != cline) {
+      *tailp = MkPairTerm(TermNewLine, TermNil);
+      tailp = RepPair(*tailp) + 1;
+      cline = tok->TokPos;
+    }
+    if (tok == errtok && tok->Tok != Error_tok) {
+      *tailp = MkPairTerm(MkAtomTerm(AtomError), TermNil);
+      tailp = RepPair(*tailp) + 1;
+    }
+    Term rep = Yap_tokRep(tok);
+    if (tok->TokNext) {
+      tok = tok->TokNext;
+    } else {
+      endline = MkIntegerTerm(tok->TokPos);
+      tok = NULL;
+      break;
+    }
+    *tailp = MkPairTerm(rep, TermNil);
+    tailp = RepPair(*tailp) + 1;
+  }
+  {
+    Term t[3];
+    t[0] = startline;
+    t[1] = errline;
+    t[2] = endline;
+    tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomBetween, 3), 3, t);
+  }
+  /* 0:  strat, error, end line */
+  /*2 msg */
+  /* 1: file */
+  tf[1] = Yap_StreamUserName(sno);
+  clean_vars(LOCAL_VarTable);
+  clean_vars(LOCAL_AnonVarTable);
+  Term terr = Yap_MkApplTerm(FunctorInfo3, 3, tf);
+  Term tn[2];
+  tn[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, &tm);
+  tn[1] = terr;
+  terr = Yap_MkApplTerm(FunctorError, 2, tn);
 #if DEBUG
   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
     fprintf(stderr, "SYNTAX ERROR while booting: ");
@@ -589,7 +575,7 @@ static Term get_variables(FEnv *fe, TokEntry *tokstart) {
       if (setjmp(LOCAL_IOBotch) == 0) {
         if ((v = Yap_Variables(LOCAL_VarTable, TermNil))) {
           fe->old_H = HR;
-       return v;
+          return v;
         }
       } else {
         reset_regs(tokstart, fe);
@@ -628,8 +614,8 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 
       if (setjmp(LOCAL_IOBotch) == 0) {
         if ((v = Yap_Singletons(LOCAL_VarTable, TermNil))) {
-  return v;
-      }
+          return v;
+        }
       } else {
         reset_regs(tokstart, fe);
       }
@@ -676,7 +662,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
       }
     }
   }
- return 0;
+  return 0;
 }
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
