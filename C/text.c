@@ -51,11 +51,13 @@ typedef struct TextBuffer_manager {
   int lvl;
 } text_buffer_t;
 
-int push_text_stack(USES_REGS1) { return LOCAL_TextBuffer->lvl++; }
+int push_text_stack(USES_REGS1) {
+
+  return LOCAL_TextBuffer->lvl++; }
 
 int pop_text_stack(int i) {
   int lvl = LOCAL_TextBuffer->lvl;
-  while (lvl > i) {
+  while (lvl >= i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];
     while (p) {
       struct mblock *np = p->next;
@@ -66,7 +68,7 @@ int pop_text_stack(int i) {
     LOCAL_TextBuffer->last[lvl] = NULL;
     lvl--;
   }
-  LOCAL_TextBuffer->lvl = lvl;
+  LOCAL_TextBuffer->lvl = i;
   return lvl;
 }
 
@@ -105,6 +107,8 @@ void *Malloc(size_t sz USES_REGS) {
     sz = 1024;
   sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
   struct mblock *o = malloc(sz);
+  if (!o)
+    return NULL;
   o->prev = LOCAL_TextBuffer->last[lvl];
   if (o->prev) {
     o->prev->next = o;
@@ -414,20 +418,33 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return NULL;
 
-  if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
+   if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
     Atom at = AtomOfTerm(inp->val.t);
+     size_t sz = strlen(at->StrOfAE);
     if (lengp)
-      *lengp = strlen(at->StrOfAE);
-    return at->UStrOfAE;
+      *lengp = sz;
+    if (inp->type & YAP_STRING_WITH_BUFFER)
+      return at->UStrOfAE;
+    inp->type |= YAP_STRING_IN_TMP;
+    char *o =  Malloc(sz+1);
+    strcpy(o, at->StrOfAE);
+    return (unsigned char *)o;
   }
   if (IsStringTerm(inp->val.t) && inp->type & YAP_STRING_STRING) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
+    const char *s = StringOfTerm(inp->val.t);
+    size_t sz = strlen( s );
     if (lengp)
-      *lengp = strlen(StringOfTerm(inp->val.t));
-    return (unsigned char *)UStringOfTerm(inp->val.t);
+      *lengp = sz;
+    if (inp->type & YAP_STRING_WITH_BUFFER)
+      return UStringOfTerm(inp->val.t);
+    inp->type |= YAP_STRING_IN_TMP;
+    char *o =  Malloc(sz+1);
+    strcpy(o, s);
+    return (unsigned char *)o;
   }
   if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
        (YAP_STRING_CODES | YAP_STRING_ATOMS)) &&
@@ -514,38 +531,25 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out,
   if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
     if (out->type & YAP_STRING_NCHARS)
       min = out->max;
-    if (out->type & YAP_STRING_TRUNC && out->max < max)
+    if (out->type & YAP_STRING_TRUNC && out->max < max) {
       max = out->max;
+      s0[max] = '\0';
+    }
   }
 
-  unsigned char *s = s0, *lim = s + (max = strlen_utf8(s));
+  char *s = (char *)s0, *lim = s + max;
   Term t = init_tstring(PASS_REGS1);
-  unsigned char *cp = s, *buf;
-
-  LOCAL_TERM_ERROR(t, 2 * (lim - s));
-  buf = buf_from_tstring(HR);
-  while (*cp && cp < lim) {
-    utf8proc_int32_t chr;
-    int off;
-    off = get_utf8(cp, -1, &chr);
-    if (off > 0)
-      cp += off;
-    else {
-      // Yap_Error(TYPE_ERROR_TEXT, t, NULL);
-      cp++;
-    }
-    off = put_utf8(buf, chr);
-    if (off > 0)
-      buf += off;
+  LOCAL_TERM_ERROR(t, 2 * max);
+  unsigned char *buf = buf_from_tstring(HR);
+  strcpy( (char *)buf, s )
+    ;
+  if (max+1 < min) {
+      LOCAL_TERM_ERROR(t, 2 * min);
+    memset(buf+min, max, '\0');
+    buf += min;
+  } else {
+    buf += max+1;
   }
-  if (max >= min)
-    *buf++ = '\0';
-  else
-    while (max < min) {
-      max++;
-      buf += put_utf8(buf, '\0');
-    }
-
   close_tstring(buf PASS_REGS);
   out->val.t = t;
 
@@ -967,12 +971,13 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   int i;
   size_t leng;
 
+
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
     return NULL;
   }
   for (i = 0; i < tot; i++) {
-    inp[i].type |= YAP_STRING_IN_TMP;
+    inp[i].type |= YAP_STRING_WITH_BUFFER;
     unsigned char *nbuf = Yap_readText(inp + i, &leng PASS_REGS);
 
     if (!nbuf) {
@@ -982,6 +987,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   }
   buf = concat(tot, bufv PASS_REGS);
   bool rc = write_Text(buf, out, strlen_utf8(buf) PASS_REGS);
+
   return rc;
 }
 
