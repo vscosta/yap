@@ -54,9 +54,9 @@ else (WIN32)
   endif()
   
    install(TARGETS  libxml2
-           LIBRARY DESTINATION ${libdir}
+           LIBRARY DESTINATION ${dlls}
     RUNTIME DESTINATION ${dlls}
-     ARCHIVE DESTINATION ${dlls}
+     ARCHIVE DESTINATION ${libdir}
    )
 endif(WIN32)
 
@@ -111,7 +111,7 @@ IF (RAPTOR_FOUND)
   install(TARGETS  raptor
           LIBRARY DESTINATION ${dlls}
           RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+    ARCHIVE DESTINATION ${libdir}
 
     )
 

@@ -6,7 +6,7 @@
  @ingroup YAPModules
  @{
 
-  @pred meta_predicate(_G1_,...., _Gn) is directive
+  @pred meta_predicate(G1 , Gj , Gn) is directive
 
 Declares that this predicate manipulates references to predicates.
 Each _Gi_ is a mode specification.

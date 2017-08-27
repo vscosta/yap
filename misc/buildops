@@ -399,11 +399,6 @@ output_walk(C,"Osbpp",[Op|_]) :-
 	walk_to_meta_call(C).
 output_walk(C,"Osbpp",_) :- !,
 	label_in_clause(C,"Osbpp","p0").
-output_walk(C,"pp",[Op|_]) :-
-	c_call_op(Op), !,
-	walk_to_c_code(C,"pp","p").
-output_walk(C,"pp",_) :- !,
-	label_in_clause(C,"pp","p0").
 output_walk(C,"OtapFs",_) :- !,
 	label_in_clause(C,"OtapFs","p").
 output_walk(C,"Otapl",_) :- !,
