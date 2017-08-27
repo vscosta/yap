@@ -526,8 +526,8 @@ static int interrupt_execute(USES_REGS1) {
   }
   if (PP)
     UNLOCKPE(1, PP);
-  PP = P->y_u.pp.p0;
-  if ((P->y_u.pp.p->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
+  PP = P->y_u.Osbpp.p0;
+  if ((P->y_u.Osbpp.p->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
@@ -535,11 +535,11 @@ static int interrupt_execute(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.pp.p, ENV, CP,
-                          P->y_u.pp.p->ArityOfPE PASS_REGS)) >= 0) {
+  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, CP,
+                          P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
-  return interrupt_handler(P->y_u.pp.p PASS_REGS);
+  return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
 }
 
 static int interrupt_call(USES_REGS1) {
@@ -864,8 +864,8 @@ static int interrupt_dexecute(USES_REGS1) {
 #endif
   if (PP)
     UNLOCKPE(1, PP);
-  PP = P->y_u.pp.p0;
-  pe = P->y_u.pp.p;
+  PP = P->y_u.Osbpp.p0;
+  pe = P->y_u.Osbpp.p;
   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
@@ -877,8 +877,8 @@ static int interrupt_dexecute(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.pp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
-                          P->y_u.pp.p->ArityOfPE PASS_REGS)) >= 0) {
+  if ((v = stack_overflow(P->y_u.Osbpp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
+                          P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
   /* first, deallocate */

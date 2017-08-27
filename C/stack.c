@@ -789,9 +789,9 @@ static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp, void **
     return pp;
  }                                                                                                 
  if (!pp) {
-   yamop *o = PREVOP(pc,pp);
+   yamop *o = PREVOP(pc,Osbpp);
    if (o->opc ==Yap_opcode(_execute_cpred)) {
-     pp = o->y_u.pp.p0;
+     pp = o->y_u.Osbpp.p0;
    } else {
      /* must be an index */
     PredEntry **pep = (PredEntry **)pc->y_u.l.l;

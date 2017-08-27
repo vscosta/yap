@@ -558,11 +558,6 @@ typedef struct yami {
       CELL next;
     } p;
     struct {
-      struct pred_entry   *p;
-      struct pred_entry   *p0;
-      CELL next;
-    } pp;
-    struct {
       COUNT               s;
       CELL next;
     } s;

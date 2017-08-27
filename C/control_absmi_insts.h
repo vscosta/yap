@@ -194,18 +194,18 @@
       /* Macros for stack trimming                                            */
 
       /* execute     Label               */
-      BOp(execute, pp);
+      BOp(execute, Osbpp);
       {
         PredEntry *pt0;
         CACHE_Y_AS_ENV(YREG);
-        pt0 = PREG->y_u.pp.p;
+        pt0 = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         check_stack(NoStackExecute, HR);
         goto skip_do_execute;
 #endif
       do_execute:
         FETCH_Y_FROM_ENV(YREG);
-        pt0 = PREG->y_u.pp.p;
+        pt0 = PREG->y_u.Osbpp.p;
       skip_do_execute:
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
@@ -244,17 +244,17 @@
 
       /* dexecute    Label               */
       /* joint deallocate and execute */
-      BOp(dexecute, pp);
+      BOp(dexecute, Osbpp);
 #ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
-        low_level_trace(enter_pred,PREG->y_u.pp.p,XREGS+1);
+        low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
 #endif  /* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt0;
 
         CACHE_A1();
-        pt0 = PREG->y_u.pp.p;
+        pt0 = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
@@ -262,7 +262,7 @@
 #endif
       continue_dexecute:
         FETCH_Y_FROM_ENV(YREG);
-        pt0 = PREG->y_u.pp.p;
+        pt0 = PREG->y_u.Osbpp.p;
       skip_dexecute:
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */

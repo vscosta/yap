@@ -74,7 +74,7 @@
       ENDBOp();
 
       /* execute     Label               */
-      BOp(execute_cpred, pp);
+      BOp(execute_cpred, Osbpp);
       check_trail(TR);
       {
         PredEntry *pt0;
@@ -103,7 +103,7 @@
         SET_ASP(YREG, E_CB * sizeof(CELL));
 /* for slots to work */
 #endif /* FROZEN_STACKS */
-        pt0 = PREG->y_u.pp.p;
+        pt0 = PREG->y_u.Osbpp.p;
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred, pt0, XREGS + 1);
@@ -131,7 +131,7 @@
 #endif /* DEPTH_LIMIT */
         /* now call C-Code */
         {
-          CPredicate f = PREG->y_u.pp.p->cs.f_code;
+          CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
           yamop *oldPREG = PREG;
           saveregs();
           d0 = f(PASS_REGS1);
