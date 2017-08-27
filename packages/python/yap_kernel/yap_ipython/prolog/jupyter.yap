@@ -1,6 +1,7 @@
 
 :-	 use_module(library(yapi)).
-
+:-	 use_module(library(lists)).
+:-	 use_module(library(maplist)).
 :-	 use_module(library(python)).
 
 :- python_import(sys).
@@ -24,11 +25,17 @@ exit_cell(_Self) :-
 
 
 completions(S, Self) :-
-	open(atom(S), read, St),
+	open_mem_read_stream(S, St),
 	scan_to_list(St, Tokens),
+	close(St),
 	reverse(Tokens, RTokens),
-	setof( Completion, complete(RTokens, Completion), Cs),
+	strip_final_tokens(RTokens, MyTokens),
+	setof( Completion, complete(MyTokens, Completion), Cs),
 	Self.completions := Cs.
+
+
+strip_final_tokens(['EOT'|Ts], Ts) :- !.
+strip_final_tokens( Ts, Ts ).
 
 complete( [atom(F)|LibRest], C) :-
 	LibRest = [l, atom(Where)|Consult],
@@ -42,19 +49,19 @@ complete( [atom(F)|Consult], C) :-
 complete( [atom(F)|Rest], C) :-
 	\+ arg( Rest ),
 	predicate( F, Pred, Arity ),
-	cont( Arity, Pred, C).
+	cont( Arity, F, Pred, C).
 
-isconsult( [l, use_module| _Rest]).
-isconsult( [l, ensure_loaded| _Rest]).
-isconsult( [l, compile| _Rest]).
-isconsult( [l, consult| _Rest]).
-isconsult( [l, reconsult| _Rest]).
-isconsult( [l, load_files| _Rest]).
-isconsult( ['-', ']'| _Rest]).
-isconsult( [']'| _Rest]).
+isconsult( [l, use_module| Rest], Rest).
+isconsult( [l, ensure_loaded| Rest], Rest).
+isconsult( [l, compile| Rest], Rest).
+isconsult( [l, consult| Rest], Rest).
+isconsult( [l, reconsult| Rest], Rest).
+isconsult( [l, load_files| Rest], Rest).
+isconsult( ['-', ']'| Rest], Rest).
+isconsult( [']'| Rest], Rest  ).
 
-arg(([']'|_]).
-arg(([l|_]).
+arg([']'|_]).
+arg([l|_]).
 
 check_file(F,C) :-
 	atom_concat( F, '*'	, Pat),
@@ -78,6 +85,7 @@ predicate(N,P,A) :-
 	current_predicate(P0/A),
 	atom_concat(N,P,P0).
 
-cont(0, P, P).
-cont( _, P, PB ):-
-	atom_concat( P, '(', PB ).
+cont(0, F, P, P0)- :-
+		atom_concat( F, P, PB ).
+cont( _, F, P, PB ):-
+	atom_concat( [F, P, '('], PB ).
