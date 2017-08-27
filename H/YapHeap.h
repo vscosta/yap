@@ -211,7 +211,13 @@ extern struct various_codes *Yap_heap_regs;
  */
 
 static inline yamop *gc_P(yamop *p, yamop *cp) {
-  return (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+  yamop *n= (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+ if (p->opc == Yap_opcode(_try_c) ||
+      p->opc == Yap_opcode(_try_userc) ||
+      p->opc == Yap_opcode(_retry_c) ||
+      p->opc == Yap_opcode(_retry_userc))
+    return cp;
+  return n;
 }
 
 /**

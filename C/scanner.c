@@ -1180,13 +1180,15 @@ Term Yap_tokRep(void *tokptre) {
   case Name_tok:
     if (!info) {
       info = TermNil;
+    } else {
+      info = MkAtomTerm((Atom)info);
     }
     return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
   case QuasiQuotes_tok:
     info = MkAtomTerm(Yap_LookupAtom("<QQ>"));
     return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
   case Number_tok:
-    return Yap_MkApplTerm(Yap_MkFunctor(AtomAtom, 1), 1, &info);
+    return Yap_MkApplTerm(Yap_MkFunctor(AtomNumber, 1), 1, &info);
     break;
   case Var_tok: {
     Term t[2];

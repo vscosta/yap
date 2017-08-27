@@ -1396,12 +1396,14 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
   SMALLUNSGN flag;
   int NOfLinks = 0;
   /* place DBRefs in ConsultStack */
-  DBRef *TmpRefBase = (DBRef *)LOCAL_TrailTop;
+  DBRef *TmpRefBase;
   CELL *CodeAbs; /* how much code did we find	 */
   int vars_found = FALSE;
   yap_error_number oerr = LOCAL_Error_TYPE;
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
 
+ retry_record:
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  TmpRefBase = (DBRef *)LOCAL_TrailTop;
   if (p == NULL) {
     if (IsVarTerm(Tm)) {
 #ifdef COROUTINING
@@ -1475,7 +1477,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     /* attachment */
     if (IsVarTerm(Tm)) {
       tt = (CELL)(ppt0->Contents);
-      ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0 + 1, ntp0 - 1,
+       ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0 + 1, ntp0 - 1,
                      &attachments, &vars_found, dbg);
       if (ntp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1500,7 +1502,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     } else {
       unsigned int arity;
       Functor fun;
-
+      vars_found = true;
       tt = AbsAppl(ppt0->Contents);
       /* we need to store the functor manually */
       fun = FunctorOfTerm(Tm);
@@ -1510,13 +1512,37 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
           ntp = copy_double(ntp0, RepAppl(Tm));
           break;
         case (CELL)FunctorString:
-          ntp = copy_string(ntp0, RepAppl(Tm));
+	  {
+	    UInt sz = 1024+sizeof(CELL)*(3 + RepAppl(Tm)[1]);
+	    if (sz >
+		(char*)AuxSp-(char*)ppt0) {
+	      LOCAL_Error_Size = sz;
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		return NULL;
+	      }
+	      goto retry_record;
+	    }
+	  }
+	    ntp = copy_string(ntp0, RepAppl(Tm));
           break;
         case (CELL)FunctorDBRef:
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
           return CreateDBWithDBRef(Tm, p, dbg);
 #ifdef USE_GMP
         case (CELL)FunctorBigInt:
+	  {
+	    UInt sz = 1024+sizeof(CELL)*Yap_SizeOfBigInt(Tm);
+	    if (sz >
+		(char*)AuxSp-(char*)ppt0) {
+	      LOCAL_Error_Size = sizeof(CELL)*(3 + RepAppl(Tm)[1]);
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		return NULL;
+	      }
+	      goto retry_record;
+	    }
+	  }
           ntp = copy_big_int(ntp0, RepAppl(Tm));
           break;
 #endif
