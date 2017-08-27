@@ -25,6 +25,7 @@
 	   fields/3,
 	   glue/3,
 	   copy_line/2,
+	   filter/1,
 	   filter/3,
 	   file_filter/3,
        file_select/2,
@@ -49,6 +50,7 @@ available by loading the
 */
 
 :- meta_predicate
+	filter(v -2),
 	filter(+,+,2),
 	file_filter(+,+,2),
 	file_filter_with_initialization(+,+,2,+,:),
@@ -96,7 +98,7 @@ integer(N) -->
 	"-", !,
 	natural(0, N0),
 	N is -N0.
-integer(N) -->
+vzinteger(N) -->
 	natural(0, N).
 
 /** @pred scan_natural(? _Nat_,+ _Line_,+ _RestOfLine_)
@@ -413,6 +415,9 @@ filter(StreamInp, StreamOut, Command) :-
 	 fail
 	).
 
+filter(G) :-
+	filter(user_input, user_output, G).
+
 /** @pred process(+ _StreamInp_, + _Goal_) is meta
 
 For every line  _LineIn_ in stream  _StreamInp_, call
@@ -430,6 +435,7 @@ process(StreamInp, Command) :-
 	 fail
 	).
 
+ 
 /**
   * @pred file_filter(+ _FileIn_, + _FileOut_, + _Goal_)  is meta
   *
