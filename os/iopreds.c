@@ -254,7 +254,10 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     return;
   }
   st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar_UTF8;
+  if (st->encoding == ENC_ISO_UTF8)
+            st->stream_wgetc = get_wchar_UTF8;
+  else
+    st->stream_wgetc = get_wchar;
   st->stream_putc = FilePutc;
   st->stream_getc = PlGetc;
   if (st->status & (Promptable_Stream_f)) {

@@ -138,7 +138,8 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
 
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil,
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS,
+                      TermNil,
                       "new stream not available for open_mem_read_stream/1"));
   st = GLOBAL_Stream + sno;
   if (encp)

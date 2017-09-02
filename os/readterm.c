@@ -1353,8 +1353,8 @@ static Int style_checker(USES_REGS1) {
 Term Yap_BufferToTerm(const unsigned char *s, size_t len, Term opts) {
   Term rval;
   int sno;
-  encoding_t L;
-  sno = Yap_open_buf_read_stream((char *)s, len, &L, MEM_BUF_USER);
+  encoding_t l = ENC_ISO_UTF8;
+  sno = Yap_open_buf_read_stream((char *)s, len, &l, MEM_BUF_USER);
 
   rval = Yap_read_term(sno, opts, false);
   Yap_CloseStream(sno);
