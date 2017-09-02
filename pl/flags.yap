@@ -18,9 +18,9 @@
  * @file flagd.ysp
  *
  * @defgroup Flags Yap Flags
- *n@{}
+ * @{}
  * @ingroup builtins
- * @}@[                                                                                                                                                                                 ]
+ * 
  */
 
 
@@ -79,7 +79,7 @@
 	unknown(_,error).
 
 
-/** @pred create_prolog_flag(+ _Flag_,+ _Value_,+ _Options_)
+/** @pred create_prolog_flag(  +Flag, +Value, +Options)
 
 Create a new YAP Prolog flag.  _Options_ include
 

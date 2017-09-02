@@ -150,7 +150,7 @@ min(red(Right,_,_,_), Key, Val) :-
 min(black(Right,_,_,_), Key, Val) :-
 	min(Right,Key,Val).
 
-%%	@pred rb_max(+T, -Key, -Value) is semidet.
+%%	@pred rb_max( +T, -Key, -Value) is semidet.
 %
 %	Key is the maximal key in T, and is associated with Val.
 
@@ -612,8 +612,8 @@ pretty_print(black(L,K,_,R),D) :-
 rb_delete(t(Nil,T), K, t(Nil,NT)) :-
 	delete(T, K, _, NT, _).
 
-%%	rb_delete(+T, +Key, -TN).
-%%	rb_delete(+T, +Key, -Val, -TN).
+%%	@pred rb_delete(+T, +Key, -TN).
+%%	@pred rb_delete(+T, +Key, -Val, -TN).
 %
 %	Delete element with key Key from the tree T, returning the value
 %	Val associated with the key and a new tree TN.
@@ -648,7 +648,7 @@ delete(black(L,_,V,R), _, V, OUT, Flag) :-
 %	K == K0,
 	delete_black_node(L,R,OUT,Flag).
 
-%%	rb_del_min(+T, -Key, -Val, -TN)
+%%	@pred rb_del_min(+T, -Key, -Val, -TN)
 %
 %	Delete the least element from the tree T, returning the key Key,
 %	the value Val associated with the key and a new tree TN.
@@ -668,7 +668,7 @@ del_min(black(L,K0,V0,R), K, V, Nil, NT, Flag) :-
 	fixup_left(Flag0,black(NL,K0,V0,R),NT, Flag).
 
 
-%%	rb_del_max(+T, -Key, -Val, -TN)
+%%	@pred rb_del_max( +T, -Key, -Val, -TN)
 %
 %	Delete the largest element from the   tree  T, returning the key
 %	Key, the value Val associated with the key and a new tree TN.

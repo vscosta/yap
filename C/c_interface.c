@@ -2390,9 +2390,9 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
     Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-    //  GLOBAL_PrologShouldHandleInterrupts =
-    //  yap_init->PrologShouldHandleInterrupts &&
     if (!yap_init->Embedded) {
+        GLOBAL_PrologShouldHandleInterrupts =
+          ~yap_init->PrologCannotHandleInterrupts;
         Yap_InitSysbits(0); /* init signal handling and time, required by later
                         functions */
         GLOBAL_argv = yap_init->Argv;

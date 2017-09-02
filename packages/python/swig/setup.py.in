@@ -68,6 +68,8 @@ cplus = ['']
 bpy2yap = []
 native_sources = ['yap_wrap.cpp']
 here = path.abspath(path.dirname(__file__))
+gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
+python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}"))
 
 # Get the long description from the README file
 
@@ -79,14 +81,14 @@ extensions = [Extension('_yap', native_sources,
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('_GNU_SOURCE', '1')],
-                        runtime_library_dirs=['yap4py', '${libdir}', '${bindir}'],
+                        runtime_library_dirs=['yap4py', '${libdir}', '${bindir}', '${gmp_dir}', '${python_libdir}'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-I${CMAKE_SOURCE_DIR}/CXX', '-I${CMAKE_SOURCE_DIR}/include',
                                    '-I${CMAKE_SOURCE_DIR}/H', '-I${CMAKE_SOURCE_DIR}/H/generated',
                                    '-I${CMAKE_SOURCE_DIR}/os', '-I${CMAKE_SOURCE_DIR}/OPTYap', '-I../../..'],
                         library_dirs=['../../..', '../../../CXX', '..', "${dlls}", "${bindir}", 'c:/Anaconda3'],
                         extra_link_args=my_extra_link_args,
-                        libraries=['Yap','YAPPython','python3','yap']+win_libs+local_libs,
+                        libraries=['Yap','gmp']+win_libs+local_libs,
                         include_dirs=['../../..',
                                       '${GMP_INCLUDE_DIRS}',
                                       '${CMAKE_SOURCE_DIR}/H',

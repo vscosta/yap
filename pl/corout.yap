@@ -41,7 +41,7 @@
 
 
 /**
- *  @defgroup corout Implementing Attributed Variables and Co-Routining
+ *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
  *
  *  @ingroup attributes
  *  @{

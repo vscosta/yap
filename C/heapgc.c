@@ -1658,7 +1658,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 	  }
 	}
 #endif
-	mark_external_reference(saved_var PASS_REGS);
+ 	mark_external_reference(saved_var PASS_REGS);
       }
       bmap <<= 1;
       currv++;

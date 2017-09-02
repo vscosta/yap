@@ -179,15 +179,15 @@ INLINE_ONLY inline EXTERN void Yap_PutInHandle__(yhandle_t slot,
   LOCAL_HandleBase[slot] = t;
 }
 
-#ifndef max
-#define max(X, Y) (X > Y ? X : Y)
+#ifndef Yap_Max
+#define Yap_Max(X, Y) (X > Y ? X : Y)
 #endif
 
 #define ensure_handles ensure_slots
 INLINE_ONLY inline EXTERN void ensure_slots(int N USES_REGS) {
   if (LOCAL_CurHandle + N >= LOCAL_NHandles) {
-    size_t inc = max(16 * 1024, LOCAL_NHandles / 2); // measured in cells
-    inc = max(inc, (size_t)N + 16);                  // measured in cells
+    size_t inc = Yap_Max(16 * 1024, LOCAL_NHandles / 2); // measured in cells
+    inc = Yap_Max(inc, (size_t)N + 16);                  // measured in cells
     LOCAL_HandleBase = (CELL *)realloc(LOCAL_HandleBase,
                                        (inc + LOCAL_NHandles) * sizeof(CELL));
     LOCAL_NHandles += inc;

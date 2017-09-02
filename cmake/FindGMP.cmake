@@ -8,6 +8,8 @@
 # GMP_LIBRARY_DLL    - library DLL to install. Only available on WIN32.
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
 
+message( "xxxxx ${ANDROID_ABI} yyyyy ${CMAKE_CURRENT_DIR} zzzzzzzzzz"  )
+
 if (ANDROID)
 set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
   set (GMP_FOUND ON)
@@ -26,7 +28,8 @@ if(MSVC)
 			${CMAKE_SOURCE_DIR}/../tools/mpird/lib
 			${CMAKE_SOURCE_DIR}/../mpir/lib
 			${CMAKE_SOURCE_DIR}/../mpird/lib
-			$ENV{PROGRAMFILES}/mpir/lib
+
+				$ENV{PROGRAMFILES}/mpir/lib
 			$ENV{PROGRAMFILES}/mpird/lib
 			$ENV{HOME}/mpir/lib
 			$ENV{HOME}/mpird/lib

@@ -28,9 +28,9 @@ static char SccsId[] = "%W% %G%";
 #include <io.h>
 #include <stdio.h>
 #endif
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 #ifdef TABLING
 #include "tab.macros.h"
@@ -65,10 +65,8 @@ static yap_signals InteractSIGINT(int ch) {
   case 'a':
 /* abort computation */
 #if PUSH_REGS
-// restore_absmi_regs(&Yap_standard_regs);
+  // restore_absmi_regs(&Yap_standard_regs);
 #endif
-    LOCAL_RestartEnv = malloc( sizeof(sigjmp_buf) );
-    siglongjmp(*LOCAL_RestartEnv, 4);
     return YAP_ABORT_SIGNAL;
   case 'b':
     /* continue */
@@ -112,9 +110,11 @@ static yap_signals InteractSIGINT(int ch) {
   }
 }
 
-/*
-  This function talks to the user about a signal. We assume we are in
-  the context of the main Prolog thread (trivial in Unix, but hard in WIN32)
+/**
+  This function interacts with the user about a signal. We assume we are in
+  the context of the main Prolog thread (trivial in Unix, but hard in WIN32).
+
+
  */
 static yap_signals ProcessSIGINT(void) {
   CACHE_REGS

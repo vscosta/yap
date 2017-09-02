@@ -122,8 +122,8 @@ if (WITH_DOCS AND DOXYGEN_FOUND)
                 COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
                 COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
                 WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
-		)
+        DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
+        )
 
         # generate .i from doxygen .xml
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i

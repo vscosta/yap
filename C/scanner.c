@@ -871,7 +871,7 @@ static int num_send_error_message(char s[]) {
 
 #define number_overflow()                                                      \
   {                                                                            \
-    size_t nsz = min(max_size * 2, max_size);                                  \
+    size_t nsz = Yap_Min(max_size * 2, max_size);                                  \
     char *nbuf;                                                                \
                                                                                \
     if (buf == buf0) {                                                         \
@@ -1406,7 +1406,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
       for (; chtype(ch) <= NU; ch = getchr(inp_stream)) {
         if (charp == TokImage + (sz - 1)) {
           unsigned char *p0 = TokImage;
-          sz = min(sz * 2, sz + MBYTE);
+          sz = Yap_Min(sz * 2, sz + MBYTE);
           TokImage = Realloc(p0, sz);
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
@@ -1560,7 +1560,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
 
       while (TRUE) {
         if (charp > TokImage + (sz - 1)) {
-          TokImage = Realloc(TokImage, min(sz * 2, sz + MBYTE));
+          TokImage = Realloc(TokImage, Yap_Min(sz * 2, sz + MBYTE));
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
@@ -1735,7 +1735,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         add_ch_to_buff(och);
         for (; chtype(ch) == SY; ch = getchr(inp_stream)) {
           if (charp >= TokImage + (sz - 10)) {
-            sz = min(sz * 2, sz + MBYTE);
+            sz = Yap_Min(sz * 2, sz + MBYTE);
             TokImage = Realloc(TokImage, sz);
             if (!TokImage)
               return CodeSpaceError(t, p, l);

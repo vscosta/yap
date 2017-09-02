@@ -281,7 +281,7 @@ has_reposition(int sno,
 }
 
 char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
-  size_t maxs = max(255, max);
+  size_t maxs = Yap_Max(255, max);
   if (!nameb) {
     nameb = malloc(maxs + 1);
   }

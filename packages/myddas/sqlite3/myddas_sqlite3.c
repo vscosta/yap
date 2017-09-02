@@ -658,6 +658,17 @@ void init_sqlite3( void )
     Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
+#if _ANDROID_
+JNIEXPORT void JNICALL
+        lib_yap_up_pt_init_sqlite(JNIEnv *env);
+
+JNIEXPORT void JNICALL
+        lib_yap_up_pt_init_sqlite(JNIEnv *env)
+{
+    init_sqlite3();
+}
+
+#endif
 
 #ifdef _WIN32
 
