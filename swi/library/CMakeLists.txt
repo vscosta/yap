@@ -37,6 +37,8 @@ set (LIBRARY_PL
   )
 
 
+add_to_group( pl_library LIBRARY_PL )
+
   if (ANDROID)
       file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
   else()
