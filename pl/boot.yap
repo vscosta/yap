@@ -1091,23 +1091,19 @@ incore(G) :- '$execute'(G).
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	(
-	 '$$save_by'(CP),
-	 '$enable_debugging',
-	 '$call'(G, CP, M:G, M),
-	 '$$save_by'(CP2),
-	 (
-	  CP == CP2
-	 ->
-	  !
-	 ;
-	  ( true ; '$enable_debugging', fail )
-	 ),
-	 '$disable_debugging'
-	;
-	 '$disable_debugging',
-	 fail
-	).
+    '$gated_call'(
+       ('$$save_by'(CP),
+       '$enable_debugging'),
+  	 '$call'(G, CP, M:G, M),
+       Port,
+  	   '$disable_debugging_on_port'(Port)
+       ).
+
+'$disable_debugging_on_port'(retry) :-
+    !,
+    '$enable_debugging'.
+'$disable_debugging_on_port'(_Port) :-
+	 '$disable_debugging'.
 
 
 
@@ -1432,6 +1428,19 @@ Command = (H --> B) ->
 
 '$head_and_body'((H:-B),H,B) :- !.
 '$head_and_body'(H,H,true).
+
+
+gated_call(Setup, Goal, Catcher, Cleanup) :-
+'$setup_call_catcher_cleanup'(Setup),
+'$gated_call'( true , Goal, Catcher, Cleanup)  .
+
+'$gated_call'( All , Goal, Catcher, Cleanup) :-
+	Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	call( Goal ),
+	'$cleanup_on_exit'(CP0, TaskF).
+
 
 %
 % split head and body, generate an error if body is unbound.

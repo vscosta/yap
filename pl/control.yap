@@ -262,12 +262,10 @@ This is similar to call_cleanup/1 but with an additional
 
 */
 call_cleanup(Goal, Cleanup) :-
-	call_cleanup(Goal, _Catcher, Cleanup).
+'$gated_call'( false , Goal,_Catcher, Cleanup)  .
 
 call_cleanup(Goal, Catcher, Cleanup) :-
-    '$tag_cleanup'(CP0, cleanup( false, Catcher, Cleanup, Tag, 0, Done)),
-    call( Goal ),
-    '$cleanup_on_exit'(CP0, cleanup( false, Catcher, Cleanup, Tag, 1, Done	)).
+'$gated_call'( false , Goal, Catcher, Cleanup)  .
 
 /** @pred setup_call_cleanup(: _Setup_,: _Goal_, : _CleanUpGoal_)
 
@@ -290,15 +288,6 @@ setup_call_cleanup(Setup,Goal, Cleanup) :-
 setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
 	call_cleanup(Goal, Catcher, Cleanup).
-
-gated_call(Setup, Goal, Catcher, Cleanup) :-
-	Task0 = cleanup( true, Catcher, Cleanup, Tag, true, Done),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, Done),
-	'$setup_call_catcher_cleanup'(Setup),
-	'$tag_cleanup'(CP0, Task0),
-	call( Goal ),
-	'$cleanup_on_exit'(CP0, TaskF).
-
 
 
 /** @pred  call_with_args(+ _Name_,...,? _Ai_,...)

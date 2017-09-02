@@ -406,45 +406,83 @@ be lost.
 '$do_spy'(ignore(G), M, CP, CalledFromDebugger) :- !,
 	ignore( '$do_spy'(G, M, CP, CalledFromDebugger) ).
 '$do_spy'(G, Module, _, CalledFromDebugger) :-
+    '$loop_spy'(G, Module, CalledFromDebugger).
+
+% we are skipping, so we can just call the goal,
+% while leaving the minimal structure in place.
+'$loop_spy'(G, Module, CalledFromDebugger) :-
+    catch(
+    gated_call(
+	'$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H),
+	'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger),
+		Port,
+        '$spy_port'(Port, GoalNumber, G, Module, CalledFromDebugger, H)),
+        E,
+        '$redo_spy'( E, G, Module, CalledFromDebugger, GoalNumber, H)
+        ).
+
+%%% fail just fails.
+'$redo_spy'(abort, _G, _Module, _CalledFromDebugger, _GoalNumber, _H) :-
+	z
+    abort.
+'$redo_spy'('$forward'('$wrapper'(E),G0), _G, _Module, _CalledFromDebugger, _                           z'$redo_spy'('$forward'('$fail_spy',G0), __G, __Module, __CalledFromDebugger, GoalNumber, _H) :-
+    GoalNumber =< G0,
+    !,
+    fail.
+'$redo_spy'('$forward'('$retry_spy',G0), G, Module, CalledFromDebugger, GoalNumber, H) :-
+    GoalNumber =< G0,
+    !,
+    catch(
+    gated_call(
+	'$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H),
+	'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger),
+		Port,
+        '$spy_port'(Port, GoalNumber, G, Module, CalledFromDebugger, H)),
+        E,
+        '$redo_spy'( G, Module, CalledFromDebugger, H)
+        ).
+'$redo_spy'('$forward'(C,G0), G, Module, CalledFromDebugger, GoalNumber, H) :-
+            throw(C,G0).
+
+'$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H) :-
         '__NB_getval__'('$spy_gn',L,fail),		/* get goal no.			*/
 	L1 is L+1,			/* bump it			*/
 	'__NB_setval__'('$spy_gn',L1),	/* and save it globaly		*/
         '__NB_getval__'('$spy_glist',History,true),	/* get goal list		*/
-	'__B_setval__'('$spy_glist',[info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History]),
+    H  = [info(L,Module,G,_Retry,_Det,_HasFoundAnswers)|History],
+	'__B_setval__'('$spy_glist',H).
 	/* and update it		*/
-	'$loop_spy'(L, G, Module, CalledFromDebugger).
 
-% we are skipping, so we can just call the goal,
-% while leaving the minimal structure in place.
-'$loop_spy'(GoalNumber, G, Module, CalledFromDebugger) :-
-	'$current_choice_point'(CP),
-	'$system_catch'('$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP),
-		    Module, Error,
-		    '$TraceError'(Error, GoalNumber, G, Module, CalledFromDebugger)).
+'$spy_port'(Port, GoalNumber, G, Module, CalledFromDebugger, Info) :-
+    '$stop_creeping'(_) ,
+    '$spy_port_'(Port, GoalNumber, G, Module, CalledFromDebugger, Info).
 
-/**
-  * @pred '$TraceError'(+Exception, +CurrentGoalId, +CurrentGoal, +Module, +Status)
-  *
-  * forward exception until leaving the debugger or
-  * finding a matching frame:
-  *
-*/
+'$spy_port_'(exit, GoalNumber, G, Module, CalledFromDebugger, Info) :-
+    nb_setarg(6, Info, true),
+    '$show_trace'(exit,G,Module,GoalNumber,true),
+    '$continue_debugging'(exit, CalledFromDebugger).
+'$spy_port_'(answer, GoalNumber, G, Module, CalledFromDebugger, Info) :-
+    '$show_trace'(exit,G,Module,GoalNumber,false),
+    '$continue_debugging'(exit, CalledFromDebugger).
+'$spy_port_'(redo, GoalNumber, G, Module, CalledFromDebugger, Info) :-
+    '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
+    '$continue_debugging'(fail, CalledFromDebugger).
+'$spy_port_'(fail, GoalNumber, G, Module, CalledFromDebugger, Info) :-
+    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform user_error		*/
+    '$continue_debugging'(fail, CalledFromDebugger).
+'$spy_port_'(! ,G,Module,GoalNumber,_) :- /* inform user_error		*/
+    !.
+'$spy_port_'(exception(E), GoalNumber, G, Module, CalledFromDebugger, _Info) :-
+    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
+'$spy_port_'(external_exception(E), GoalNumber, G, Module, CalledFromDebugger, _Info) :-
+    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
+
+
 %%% - retry: forward throw while the call is newer than goal
-'$TraceError'( abort, _, _, _, _) :-
-    '$stop_creeping'(_),
-    abort.
-'$TraceError'('$forward'('$retry_spy'(G0)), GoalNumber, G, Module, CalledFromDebugger) :-
-	( G0 >= GoalNumber
-  ->
-	'$loop_spy'(GoalNumber, G, Module, CalledFromDebugger)
-;
-	throw('$forward'('$retry_spy'(G0)))
-  ).
+'$TraceError'( abort, _, _, _, _).
+'$TraceError'('$forward'('$retry_spy'(G0)), _, _, _, _).
 %%% - backtrack long distance
-'$TraceError'('$forward'('$fail_spy'(G0)), GoalNumber, G, Module, CalledFromDebugger) :-
-	G0 >= GoalNumber, !,
-	'$loop_fail'(GoalNumber, G, Module, CalledFromDebugger).
-'$TraceError'('$forward'('$fail_spy'(GoalNumber)), _, _, _, _) :- !,
+'$TraceError'('$forward'('$fail_spy'(G0)), _, _, _, _) :- !,
 	throw(error('$fail_spy'(GoalNumber))).
 %%%
 %%% - forward through the debugger
@@ -473,75 +511,6 @@ be lost.
 	'$continue_debugging'(fail, CalledFromDebugger),
 	fail.
 
-/**
- * core routine for the debugger
- *
- * @param _ GoalNumbera id
- * @param _ S9c
- * @param _
- * @param Retry
- * @param Det
- * @param false
- *
- * @return
-*/
-'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger, CP) :-
-/* the following choice point is where the predicate is  called */
-	   '__NB_getval__'('$spy_glist',[Info|_],true),	/* get goal list		*/
-	   Info = info(_,_,_,Retry,Det,false),
-	   (
-	    /* call port */
-	    '$enter_goal'(GoalNumber, G, Module),
-	    '$spycall'(G, Module, CalledFromDebugger, Retry),
-	    '$stop_creeping'(_) ,
-	    % make sure we are in system mode when running the debugger.
-	    (
-	      '$debugger_deterministic_goal'(G) ->
-	      Det=true
-	    ;
-	      Det=false
-	    ),
-	    /* go execute the continuation	*/
-	    (
-	       /* exit port */
-         Retry = false,
-         /* found an answer, so it can redo */
-         nb_setarg(6, Info, true),
-         '$show_trace'(exit,G,Module,GoalNumber,Det),	/* output message at exit	*/
-        /* exit port */
-        /* get rid of deterministic computations */
-        (
-         Det == true
-		->
-         '$$cut_by'(CP)
-		;
-         true
-        ),
-         '$continue_debugging'(exit, CalledFromDebugger)
-	     ;
-	     /* make sure we are in system mode when running the debugger. */
-         /* backtracking from exit				*/
-         /* we get here when we want to redo a goal		*/
-         /* redo port */
-         (
-          arg(6, Info, true)
-         ->
-          '$stop_creeping'(_) ,
-          '$show_trace'(redo,G,Module,GoalNumber,_), /* inform user_error		*/
-         nb_setarg(6, Info, false)
-         ;
-          true
-         ),
-	     '$continue_debugging'(fail, CalledFromDebugger),
-	     fail			/* to backtrack to spycall	*/
-        )
-	  ;
-        '$stop_creeping'(_) ,
-	    '$show_trace'(fail,G,Module,GoalNumber,_), /* inform at fail port		*/
-       '$continue_debugging'(fail, CalledFromDebugger),
-	    /* fail port */
-	    fail
-       ).
 
 '$enter_goal'(GoalNumber, G, Module) :-
     '$zip'(GoalNumber, G, Module), !.
