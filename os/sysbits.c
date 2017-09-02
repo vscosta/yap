@@ -954,16 +954,16 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
     if ((dir = Yap_RegistryGetString("library")) && is_directory(dir)) {
       dir_done = true;
       if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(dir))))
-        return FALSE;
+        return false;
     }
     if ((dir = Yap_RegistryGetString("prolog_commons")) && is_directory(dir)) {
       if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(dir))))
-        return FALSE;
+        return false;
       commons_done = true;
     }
   }
   if (dir_done && commons_done)
-    return TRUE;
+    return true;
 #endif
   strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
   strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX);
@@ -972,7 +972,7 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
     strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
     if (is_directory(LOCAL_FileNameBuf)) {
       if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-        return FALSE;
+        return false;
       dir_done = true;
     }
   }
@@ -1035,15 +1035,15 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
   if (!dir_done && is_directory(LOCAL_FileNameBuf)) {
     if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
       return FALSE;
+    dir_done = true;
   }
-  dir_done = true;
   LOCAL_FileNameBuf[len] = '\0';
   strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
   if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
     if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
       return FALSE;
-  }
   commons_done = true;
+  }
 #endif
   return dir_done && commons_done;
 }
