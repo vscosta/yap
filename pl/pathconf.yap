@@ -74,10 +74,13 @@ commons_directory( Path ):-
 foreign_directory(Home) :-
     current_prolog_flag(prolog_foreign_directory, Home),
     Home \= ''.
+foreign_directory(C) :-
+    current_prolog_flag(windows, true),
+    file_search_path(path, C).
 foreign_directory( '.').
 foreign_directory(yap('lib/Yap')).
-foreign_directory( Path ):-
-    system_foreign( Path ).
+%foreign_directory( Path ):-
+%    system_foreign( Path ).
 
 /**
   @pred prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
@@ -118,7 +121,7 @@ prolog_file_type(qly, qly).
 prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
   	prolog_file_type(pyd, executable).
-  
+
 /**
   @pred file_search_path(+Name:atom, -Directory:atom) is nondet
 
