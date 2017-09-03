@@ -33,7 +33,7 @@ static char SccsId[] = "%W% %G%";
 // for native asset manager
 #include <sys/types.h>
 
-#if __ANDROID__
+#if __ANDROID__0
 
 
 static AAssetManager  * getMgr(struct vfs *me)
@@ -212,7 +212,7 @@ VFS_t *
 Yap_InitAssetManager(void)
 {
 
-#if __ANDROID__
+#if __ANDROID__O
     VFS_t *me;
   /* init standard VFS */
   me = (VFS_t *)Yap_AllocCodeSpace(sizeof(struct vfs));

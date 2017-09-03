@@ -39,11 +39,17 @@ function(cpp_compile output filename)
     set_source_files_properties(${outfile} PROPERTIES GENERATED TRUE)
 endfunction()
 
+if (ANDROID)
+set (MYDDAS_PL_OUTDIR ${YAP_APP_DIR}/src/generated/assets/Yap} )
+else()
+set (MYDDAS_PL_OUTDIR ${CMAKE_CURRENT_BINARY_DIR} )
+endif()
+
 function(cpp_driver output dbms filename)
     if (0)
-  set(outfile ${libpl}/myddas_${dbms}.yap)
+  set(outfile  ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
     else()
-  set(outfile ${CMAKE_CURRENT_BINARY_DIR}/myddas_${dbms}.yap)
+  set(outfile ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
   endif()
     set(${output} ${${output}} ${outfile} PARENT_SCOPE)
                    IF (MSVC)
@@ -74,3 +80,4 @@ add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
     install(FILES ${MYDDAS_YAP}
      DESTINATION ${libpl}
         )
+

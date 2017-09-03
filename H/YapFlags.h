@@ -300,7 +300,7 @@ static inline bool trueLocalPrologFlag(int id) {
   return LOCAL_Flags[id].at == TermTrue;
 }
 
-static inline bool falsePrologFlag(int id) {
+static inline bool falseLocalPrologFlag(int id) {
   CACHE_REGS
   return LOCAL_Flags[id].at == TermFalse;
 }
@@ -315,6 +315,10 @@ static inline bool strictISOFlag(void) {
 
 static inline bool silentMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at == TermSilent;
+}
+
+static inline bool verboseMode(void) {
+  return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
 static inline void setVerbosity(Term val) {

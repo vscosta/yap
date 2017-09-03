@@ -213,3 +213,6 @@ cmake/compile_commands.json
 cmake/cudd_config.h
 
 cmake/docs/Doxyfile
+
+*.stackdump
+*.gz

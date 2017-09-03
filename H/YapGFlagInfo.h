@@ -358,7 +358,7 @@ call_count_data/3 built-in.
   YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
 	   NULL),
   YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,
-	   "boot.yap", NULL),
+	   "pl/boot.yap", NULL),
 		    /**<`resource_database`
 		       Name of the resource file (saved-state or Prolog file) used to construct
 		       the YAP

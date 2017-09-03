@@ -1,10 +1,11 @@
-
+// supports Java and Python
 
 
 %{
 
 #include <cmath>
 #include <gmpxx.h>
+
   extern "C"{
 #ifdef SWIGPYTHON
 #include <Python.h>
@@ -22,11 +23,11 @@
 %include std_string.i
 %include std_vector.i
 
-namespace std {
-  %template(vectort) vector<Term>;
-};
 
+<<<<<<< HEAD
    %feature("novaluewrapper") std::vector<Term>;
+=======
+>>>>>>> 11e81b457dcc145e07b457482698a90e0ec350a2
 
 %ignore *::operator[];
 
@@ -255,148 +256,87 @@ case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
 
 #else
 
-  // Language independent exception handler
-  %include exception.i
+%typemap(in) arity_t {   (jlong)($input); }
 
-     %exception {
-    try {
-      $action
-	} catch (YAPError e) {
-      yap_error_number en = e.getID();
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      switch (e.getErrorClass()) {
-      case YAPC_NO_ERROR:
-	break;
-	/// bad domain, "first argument often is the predicate.
-      case DOMAIN_ERROR: {
-	switch (en) {
-	case DOMAIN_ERROR_OUT_OF_RANGE:
-	case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
-	  SWIG_exception(SWIG_IndexError, e.text());
-	  break;
-	case DOMAIN_ERROR_CLOSE_OPTION:
-	case DOMAIN_ERROR_ENCODING:
-	case DOMAIN_ERROR_PROLOG_FLAG:
-	case DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION:
-	case DOMAIN_ERROR_READ_OPTION:
-	case DOMAIN_ERROR_SET_STREAM_OPTION:
-	  SWIG_exception(SWIG_AttributeError, e.text());
-	  break;
-	case DOMAIN_ERROR_FILE_ERRORS:
-	case DOMAIN_ERROR_FILE_TYPE:
-	case DOMAIN_ERROR_IO_MODE:
-	case DOMAIN_ERROR_SOURCE_SINK:
-	case DOMAIN_ERROR_STREAM_POSITION:
-	  SWIG_exception(SWIG_IOError, e.text());
-	  break;
-	default:
-	  SWIG_exception(SWIG_ValueError, e.text());
-	}
-      } break;
-	/// bad arithmetic
-      case EVALUATION_ERROR: {
-	switch (en) {
-	case EVALUATION_ERROR_FLOAT_OVERFLOW:
-	case EVALUATION_ERROR_FLOAT_UNDERFLOW:
-	case EVALUATION_ERROR_INT_OVERFLOW:
-	case EVALUATION_ERROR_UNDERFLOW:
-	  SWIG_exception(SWIG_OverflowError, e.text());
-	  break;
-	case EVALUATION_ERROR_ZERO_DIVISOR:
-	  SWIG_exception(SWIG_DivisionByZero, e.text());
-	  break;
-	default:
-	  SWIG_exception(SWIG_RuntimeError, e.text());
-	}
-      } break;
-	/// missing object (I/O mostly)
-      case EXISTENCE_ERROR:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// should be bound
-      case INSTANTIATION_ERROR_CLASS:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// bad access, I/O
-      case PERMISSION_ERROR: {
-	switch (en) {
-	case PERMISSION_ERROR_INPUT_BINARY_STREAM:
-	case PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM:
-	case PERMISSION_ERROR_INPUT_STREAM:
-	case PERMISSION_ERROR_INPUT_TEXT_STREAM:
-	case PERMISSION_ERROR_OPEN_SOURCE_SINK:
-	case PERMISSION_ERROR_OUTPUT_BINARY_STREAM:
-	case PERMISSION_ERROR_REPOSITION_STREAM:
-	case PERMISSION_ERROR_OUTPUT_STREAM:
-	case PERMISSION_ERROR_OUTPUT_TEXT_STREAM:
-	  SWIG_exception(SWIG_OverflowError, e.text());
-	  break;
-	default:
-	  SWIG_exception(SWIG_RuntimeError, e.text());
-	}
-      } break;
-	/// something that could not be represented into a type
-      case REPRESENTATION_ERROR:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// not enough ....
-      case RESOURCE_ERROR:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// bad text
-      case SYNTAX_ERROR_CLASS:
-	SWIG_exception(SWIG_SyntaxError, e.text());
-	break;
-	/// OS or internal
-      case SYSTEM_ERROR_CLASS:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// bad typing
-      case TYPE_ERROR:
-	SWIG_exception(SWIG_TypeError, e.text());
-	break;
-	/// should be unbound
-      case UNINSTANTIATION_ERROR_CLASS:
-	SWIG_exception(SWIG_RuntimeError, e.text());
-	break;
-	/// escape hatch
-      default:
-	break;
-      }
-    }
+%typecheck(2) Int { $1 = PyLong_Check($input); }
+%typecheck(3) double { $1 = PyFloat_Check($input); }
+%typecheck(2) const char * { $1 = PyUnicode_Check($input); }
+
+     %typecheck(1) Term { $1 = !PyUnicode_Check($input); }
+     %typecheck(1) YAP_Term { $1 = PyUnicode_Check($input); }
+
+%typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
+
+
+%typemap(in) jlong %{
+    $1 = (jlong)$input;
+%}
+
+%typemap(out) arity_t {  *(jlong *)&$result = $1;    }
+
+  // Language independent exception handler
+  // simplified version
+%include <exception.i>
+
+%exception {
+  try {
+    $action
+      } catch (const std::out_of_range& e) {
+    SWIG_exception(SWIG_IndexError, e.what());
+  } catch (const std::exception& e) {
+    SWIG_exception(SWIG_RuntimeError, e.what());
+  } catch (...) {
+    SWIG_exception(SWIG_RuntimeError, "unknown exception");
   }
+} 
+
 
 #endif
 
-  %{
-    /* Put header files here or function declarations like below */
+%{
+  /* Put header files here or function declarations like below */
 
 
-    extern "C" {
+  extern "C" {
 
 #if THREADS
 #define Yap_regp regcache
 #endif
 
-      // we cannot consult YapInterface.h, that conflicts with what we
-      // declare, though
-      // it shouldn't
-    }
+    // we cannot consult YapInterface.h, that conflicts with what we
+    // declare, though
+    // it shouldn't
+  }
 
-    %}
+extern void init_sqlite();
 
-  /* turn on director wrapping Callback */
-  %feature("director") YAPCallback;
+  %}
 
-  %include "yapa.hh"
 
-     %include "yapie.hh"
+/* turn on director wrapping Callback */
+//%feature("director") YAPCallback;
 
-     %include "yapt.hh"
+%include "yapa.hh"
 
-     %include "yapdb.hh"
+%include "yapie.hh"
 
-     %include "yapq.hh"
+%include "yapt.hh"
 
-     %init %{
-    %}
+%include "yapdb.hh"
+
+%include "yapq.hh"
+
+
+
+namespace std {
+
+  %template(TermVector) vector<Term>;
+  %feature("novaluewrapper") vector<Term>;
+
+  //%template(YAPTermVector) vector<YAPTerm>;
+  //%feature("novaluewrapper") vector<YAPTerm>;
+ };
+
+
+ %init %{
+  %}

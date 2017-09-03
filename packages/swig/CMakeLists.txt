@@ -8,12 +8,14 @@
 
 # This is a CMake example for Python and Java
 
+set (SOURCES yap.i)
+
 INCLUDE(${SWIG_USE_FILE})
 
 if (ANDROID)
   add_subdirectory(android)
 else(ANDROID)
-  #  add_subdirectory(java)
+  add_subdirectory(java)
 endif(ANDROID)
 
 set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS   SWIGYAP=1)

@@ -546,7 +546,10 @@ initialize_prolog :-
 	current_prolog_flag(compiled_at,AT),
 	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
 	sub_atom( VersionGit, 0, 8, _, VERSIONGIT ),
+	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
+	current_prolog_flag(resource_database, Saved ),
 	format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
+	format(user_error, '% database loaded from ~a~n', [Saved]),
 	fail.
 '$version'.
 

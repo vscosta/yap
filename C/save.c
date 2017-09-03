@@ -1430,6 +1430,7 @@ OpenRestore(const char *inpf, const char *YapLibDir, CELL *Astate, CELL *ATrail,
     return FAIL_RESTORE;
   if (fname[0] &&
       (mode = try_open(fname,Astate,ATrail,AStack,AHeap,streamp)) != FAIL_RESTORE) {
+    setAtomicGlobalPrologFlag( RESOURCE_DATABASE_FLAG, MkAtomTerm(Yap_LookupAtom(fname)) );
     return mode;
   }
   /* try to open from current directory */

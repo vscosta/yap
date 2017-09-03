@@ -288,7 +288,7 @@ static void InitFileIO(StreamDesc *s) {
   Yap_DefaultStreamOps(s);
 }
 
-static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, void *vfsp) {
+static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   s->file = file;
   s->status = flags;
@@ -298,7 +298,15 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, void *vfsp) {
   s->vfs = vfsp;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
+  if (vfsp != NULL) {
+    s->u.private_data = vfsp->open(vfsp->name, (sno == StdInStream ? "read" : "write" ));
+    if (s->u.private_data == NULL) {
+      (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s", vfsp->name));
+      return;
+    }
+  } else {
   unix_upd_stream_info(s);
+}
   /* Getting streams to prompt is a mess because we need for cooperation
    between readers and writers to the stream :-(
    */
@@ -329,6 +337,11 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, void *vfsp) {
 #endif /* HAVE_SETBUF */
 }
 
+void Yap_InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
+    InitStdStream(sno,  flags, file, vfsp);
+}
+
+
 Term Yap_StreamUserName(int sno) {
   Term atname;
   StreamDesc *s = &GLOBAL_Stream[sno];
@@ -344,13 +357,13 @@ static void InitStdStreams(void) {
   CACHE_REGS
   if (LOCAL_sockets_io) {
     InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
-    InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
+   InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
   } else {
     InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
     InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
-  }
+    }
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
   GLOBAL_Stream[StdErrStream].name = Yap_LookupAtom("user_error");
@@ -1072,6 +1085,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
   } else {
     st->encoding = encoding;
   }
+
 
   if (name == NULL) {
     char buf[YAP_FILENAME_MAX + 1];
