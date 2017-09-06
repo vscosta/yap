@@ -537,7 +537,7 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out,
     }
   }
 
-  char *s = (char *)s0, *lim = s + max;
+  char *s = (char *)s0;
   Term t = init_tstring(PASS_REGS1);
   LOCAL_TERM_ERROR(t, 2 * max);
   unsigned char *buf = buf_from_tstring(HR);

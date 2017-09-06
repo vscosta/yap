@@ -1,8 +1,7 @@
 #ifdef FROZEN_STACKS
 {
-  tr_fr_ptr pt0, pt1, pbase;
- restart:
-  pbase = B->cp_tr;
+  tr_fr_ptr pt0, pt1, pbase, ptop;
+  pbase = B->cp_tr, ptop = TR;
   pt0 = pt1 = TR - 1;
   while (pt1 >= pbase) {
     BEGD(d1);
@@ -33,10 +32,7 @@
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBigInt) {
           Int tag = Yap_blob_tag(t) - USER_BLOB_START;
-	  RESET_VARIABLE(&TrailTerm(pt1));
-	  RESET_VARIABLE(&TrailVal(pt1));
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
-	  goto restart;
         } else {
           pt0--;
         }
@@ -91,8 +87,12 @@
   if (pt0 != pt1) {
     int size;
     pt0++;
-    size = TR - pt0;
+    size = ptop - pt0;
     memmove(pbase, pt0, size * sizeof(struct trail_frame));
+    if (ptop != TR) {
+      memmove(pbase + size, ptop, (TR - ptop) * sizeof(struct trail_frame));
+      size += (TR - ptop);
+    }
     TR = pbase + size;
   }
 }

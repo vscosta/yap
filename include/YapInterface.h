@@ -7,9 +7,9 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		YapInterface.h						 *
+ * File:		YapInterface.h *
  * Last rev:	19/2/88							 *
- * mods:									 *
+ * mods: *
  * comments:	c_interface header file for YAP				 *
  *									 *
  *************************************************************************/
@@ -78,7 +78,6 @@ __BEGIN_DECLS
  */
 
 #include "YapFormat.h"
-
 
 /* Primitive Functions */
 
@@ -661,18 +660,18 @@ extern X_API int YAP_RequiresExtraStack(size_t);
  *
  * @return
  */ /*
-   * proccess command line arguments: valid switches are:
-   *  -b    boot file
-   *  -l    load file
-   *  -L    load file, followed by exit.
-   *  -s    stack area size (K)
-   *  -h    heap area size
-   *  -a    aux stack size
-   *  -e    emacs_mode -m
-   *  -DVar=Value
-   *  reserved memory for alloc IF DEBUG
-   *  -P    only in development versions
-   */
+     * proccess command line arguments: valid switches are:
+     *  -b    boot file
+     *  -l    load file
+     *  -L    load file, followed by exit.
+     *  -s    stack area size (K)
+     *  -h    heap area size
+     *  -a    aux stack size
+     *  -e    emacs_mode -m
+     *  -DVar=Value
+     *  reserved memory for alloc IF DEBUG
+     *  -P    only in development versions
+     */
 extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                                      YAP_init_args *iap);
 

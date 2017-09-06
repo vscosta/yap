@@ -354,7 +354,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, Int_FORMAT " "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B);
+  b += snprintf(b, top - b,  "%llud "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B);
   b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
@@ -482,7 +482,7 @@ static Int reset_total_choicepoints(USES_REGS1) {
 }
 
 static Int show_low_level_trace(USES_REGS1) {
-  fprintf(stderr, "Call counter=" Int_FORMAT "\n", vsc_count);
+  fprintf(stderr, "Call counter=%lld\n", vsc_count);
   return (TRUE);
 }
 

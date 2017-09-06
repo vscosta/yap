@@ -610,7 +610,7 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
     while (*s) {
       int32_t ch;
       s += get_utf8(s, 1, &ch);
-      write_quoted(ch, '\'', stream);
+      write_quoted( ch, '\'', stream);
     }
     wrputc('\'', stream);
   } else {

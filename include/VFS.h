@@ -113,7 +113,7 @@ extern VFS_t *GLOBAL_VFS;
 
 extern void init_android_stream(void);
 
-extern void Yap_InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp);
+extern void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp);
 
 static inline VFS_t *vfs_owner(const char *fname) {
   VFS_t *me = GLOBAL_VFS;
