@@ -24,7 +24,7 @@
  *
  * In a nutshell:
  *   - YAPAtom serves as the gateway to the data-base;
- * 
+ *
  *   - YAProp abstracts most data-base objects.
  *
  *    - PropTag allows distinguishing the different classes of YAPProp.
@@ -41,12 +41,12 @@ enum PropTag {
   ARITHMETIC_PROPERTY_TAG   = ExpProperty, // 0xFFE0,
   /// map the atom to an integer
   TRANSLATION_TAG           = TranslationProperty, // 0xFFF4,
-  /// ensure the atom may not be garbafe colected    
-  HOLD_TAG                  = HoldProperty, // 0xFFF6    
+  /// ensure the atom may not be garbafe colected
+  HOLD_TAG                  = HoldProperty, // 0xFFF6
   /// named mutEX
   MUTEX_TAG                 = MutexProperty, // 0xFFF6,
   /// A typed array, may be in-db or in-stack deped
-  ARRAY_TAG                 = ArrayProperty, // 0xFFF7,    
+  ARRAY_TAG                 = ArrayProperty, // 0xFFF7,
   /// module
   MODULE_TAG                = ModProperty, // 0xFFFA,
   /// the original SICStus blackboard
@@ -57,8 +57,8 @@ enum PropTag {
   GLOBAL_VAR_TAG            = GlobalProperty, // 0xFFFD
   /// SWI-STYLE ATOM Extension
   BLOB_TAG                  = BlobProperty, // 0xFFFE,
-  /// Prolog operator,        
-  OPERATOR_TAG              = OpProperty, // 0xFFFF,  
+  /// Prolog operator,
+  OPERATOR_TAG              = OpProperty, // 0xFFFF,
 };
 
 /**
@@ -94,7 +94,7 @@ public:
   ///  get name of  (other way)
   inline const char *text(void)  { return getName(); } ;
   /// get prop of type
-  Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); }  
+  Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); }
 };
 
 /**
@@ -115,10 +115,9 @@ public:
   /// get name of property
   //    virtual YAPAtom name();
   virtual ~YAPProp() {};
-  
+
 };
 
 
-#endif /* YAPA_HH */ 
+#endif /* YAPA_HH */
 /// @}
-

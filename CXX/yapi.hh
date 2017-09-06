@@ -6,13 +6,12 @@
 
 */
 
-
 #define YAP_CPP_INTERFACE 1
 
 #include <gmpxx.h>
-#include <vector>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
 
 /*!
  *
@@ -71,26 +70,31 @@ extern "C" {
 #endif
 
 #if _MSC_VER || defined(__MINGW32__)
-  //#include <windows.h>
+//#include <windows.h>
 #endif
 
-  // taken from yap_structs.h
+// taken from yap_structs.h
 #include "iopreds.h"
 
-  X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
+                                     YAP_Arity arity);
 
-  /*  extern void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
-   */
-  X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
-					       YAP_Term);
+/*  extern void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int
+ * arity)
+ */
+X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
+                                             YAP_Arity, YAP_Term);
 
-  X_API extern void UserBackCPredicate(const char *name, int *init(), int *cont(), int
-				       arity, int extra);
+X_API extern void UserBackCPredicate(const char *name, int *init(), int *cont(),
+                                     int arity, int extra);
+
+X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
+
 #if YAP_PYTHON
 
 #include <Python.h>
 
-  extern bool  python_in_python;
+extern bool python_in_python;
 #endif
 }
 
