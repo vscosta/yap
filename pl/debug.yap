@@ -423,9 +423,9 @@ be lost.
 
 %%% fail just fails.
 '$redo_spy'(abort, _G, _Module, _CalledFromDebugger, _GoalNumber, _H) :-
-	z
+	!,
     abort.
-'$redo_spy'('$forward'('$wrapper'(E),G0), _G, _Module, _CalledFromDebugger, _                           z'$redo_spy'('$forward'('$fail_spy',G0), __G, __Module, __CalledFromDebugger, GoalNumber, _H) :-
+'$redo_spy'('$forward'('$wrapper'(E),G0), _G, _Module, _CalledFromDebugger, _                      '$redo_spy'('$forward'('$fail_spy',G0), __G, __Module, __CalledFromDebugger, GoalNumber, _H) :-
     GoalNumber =< G0,
     !,
     fail.
@@ -434,17 +434,17 @@ be lost.
     !,
     catch(
     gated_call(
-	'$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H),
-	'$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger),
-		Port,
-        '$spy_port'(Port, GoalNumber, G, Module, CalledFromDebugger, H)),
-        E,
-        '$redo_spy'( G, Module, CalledFromDebugger, H)
-        ).
-'$redo_spy'('$forward'(C,G0), G, Module, CalledFromDebugger, GoalNumber, H) :-
+	       '$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H),
+	       '$loop_spy2'(GoalNumber, G, Module, CalledFromDebugger),
+	       Port,
+	       '$spy_port'(Port, GoalNumber, G, Module, CalledFromDebugger, H)),
+	  E,
+	  throw(E)
+	 ).
+'$redo_spy'('$forward'(C,G0), G, _Module, _CalledFromDebugger, _GoalNumber, _H) :-
             throw(C,G0).
 
-'$enter_spy'(GoalNumber, G, Module, CalledFromDebugger, H) :-
+'$enter_spy'(GoalNumber, G, Module,	     CalledFromDebugger, H) :-
         '__NB_getval__'('$spy_gn',L,fail),		/* get goal no.			*/
 	L1 is L+1,			/* bump it			*/
 	'__NB_setval__'('$spy_gn',L1),	/* and save it globaly		*/
@@ -480,9 +480,9 @@ be lost.
 
 %%% - retry: forward throw while the call is newer than goal
 '$TraceError'( abort, _, _, _, _).
-'$TraceError'('$forward'('$retry_spy'(G0)), _, _, _, _).
+'$TraceError'('$forward'('$retry_spy'(_G0)), _, _, _, _).
 %%% - backtrack long distance
-'$TraceError'('$forward'('$fail_spy'(G0)), _, _, _, _) :- !,
+'$TraceError'('$forward'('$fail_spy'(_G0)),GoalNumber, _, _, _) :- !,
 	throw(error('$fail_spy'(GoalNumber))).
 %%%
 %%% - forward through the debugger
