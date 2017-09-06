@@ -1,5 +1,5 @@
 
-add_library (matrix SHARED matrix.c)
+add_lib(matrix matrix.c)
 
 target_link_libraries(matrix libYap)
 

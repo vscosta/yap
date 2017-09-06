@@ -24,7 +24,7 @@ if ( WIN32)
 
   set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
 else()
-   add_external (YAP++ ${CXX_SOURCES} )
+   add_lib(YAP++ ${CXX_SOURCES} )
    MY_target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
 
    MY_install(TARGETS  YAP++

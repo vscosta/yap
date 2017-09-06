@@ -337,7 +337,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
 #endif /* HAVE_SETBUF */
 }
 
-void Yap_InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
+void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
     InitStdStream(sno,  flags, file, vfsp);
 }
 

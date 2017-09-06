@@ -2,7 +2,7 @@ set( LIBSYSTEM_SOURCES sys.c crypto/md5.c )
 set( LIBSYSTEM_HEADERS  crypto/md5.h)
 
 
-add_external (sys ${LIBSYSTEM_SOURCES})
+add_lib(sys ${LIBSYSTEM_SOURCES})
 if (ANDROID)
 set (TARGET libYap)
 else()

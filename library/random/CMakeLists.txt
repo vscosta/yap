@@ -1,6 +1,6 @@
 	
 set( LIBRANDOM_SOURCES yap_random.c)
-add_external (yap_random ${LIBRANDOM_SOURCES})
+add_lib(yap_random ${LIBRANDOM_SOURCES})
 if (ANDROID)
 else()
 

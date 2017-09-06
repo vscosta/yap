@@ -4,7 +4,7 @@ set ( RLTREE_SOURCES
   range_list.h
   )
 
-add_library (yap_rl SHARED  yap_rl.c  ${RLTREE_SOURCES})
+add_lib(yap_rl  yap_rl.c  ${RLTREE_SOURCES})
 
 target_link_libraries(yap_rl libYap)
 

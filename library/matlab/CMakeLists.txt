@@ -7,7 +7,7 @@ if (MATLAB_FOUND)
   #   MATLAB_MX_LIBRARY:  path to libmx.lib
   #   MATLAB_ENG_LIBRARY: path to libeng.lib
 
-  add_library (matlab SHARED matlab.c)
+  add_li (matlab matlab.c)
 
   set_target_properties (matlab PROPERTIES prefix "")
   

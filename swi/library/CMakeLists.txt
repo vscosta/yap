@@ -36,12 +36,13 @@ set (LIBRARY_PL
   dcg/basics.pl
   )
 
-add_to_group( pl_library LIBRARY_PL )
 
   if (ANDROID)
       file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
-  else()
+  endif()
 
+install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
   )
 
+  add_to_group( pl_swi_library LIBRARY_PL )

@@ -67,7 +67,7 @@ if (MPI_C_FOUND)
   # pass to the MPI program.
   #
 
-  add_library (yap_mpi SHARED ${MPI_SOURCES})
+  add_lib (yap_mpi ${MPI_SOURCES})
 
   target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
 

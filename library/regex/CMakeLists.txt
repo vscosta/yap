@@ -17,7 +17,7 @@ set ( REGEX_SOURCES
 
 
 
-add_library (regexp SHARED regexp.c  ${REGEX_SOURCES})
+add_lib(regexp regexp.c  ${REGEX_SOURCES})
 
 target_link_libraries(regexp libYap)
 

@@ -94,9 +94,9 @@ OPTION (WITH_SWIG " Enable SWIG interfaces to foreign languages"  ON)
 
 IF (WITH_SWIG OR ANDROID)
     find_host_package (SWIG)
-    macro_log_feature (SWIG_FOUND "Swig"
-            "Use SWIG Interface Generator "
-            "http://www.swig.org" ON)
+    # macro_log_feature (SWIG_FOUND "Swig"
+    #         "Use SWIG Interface Generator "
+    #         "http://www.swig.org" ON)
 ENDIF (WITH_SWIG OR ANDROID)
 
 option (WITH_PYTHON
@@ -124,7 +124,7 @@ ENDIF (WITH_PYTHON)
 
 
 
-add_library( # Sets the name of the library.
+add_lib( # Sets the name of the library.
         libYap
 
         # Sets the library as a shared library.
