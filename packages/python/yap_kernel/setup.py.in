@@ -108,12 +108,14 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
         (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
     ]
     mode_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'components', 'codemirror', 'mode', 'prolog')
+    custom_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'custom')
     try:
-        os.mkdir(mode_loc)
+        os.makedirs(mode_loc)
+        shutil.copy( "${CMAKE_SOURCE_DIR}/misc/editors/prolog.js" , mode_loc)
     except:
         pass
-    shutil.copy( "${CMAKE_SOURCE_DIR}/misc/editors/prolog.js" , mode_loc)
-
+    shutil.copy( pjoin( custom_loc, "custom.js") , pjoin( custom_loc, "custom.js.orig"))
+    shutil.copy( "${CMAKE_CURRENT_SOURCE_DIR}/custom.js" , pjoin( custom_loc, "custom.js"))
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],

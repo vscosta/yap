@@ -169,7 +169,7 @@ int Yap_CleanOpaqueVariable(CELL d) {
   }
   blob_info = blob_tag - USER_BLOB_START;
   if (!GLOBAL_OpaqueHandlers)
-    return FALSE;
+    return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
     return true;
   return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)(d);
