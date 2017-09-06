@@ -1,19 +1,18 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		alloc.c							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	allocating space					 *
-* version:$Id: alloc.c,v 1.95 2008-05-10 23:24:11 vsc Exp $		 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		alloc.c * Last
+ *rev:								 * mods:
+ ** comments:	allocating space					 *
+ * version:$Id: alloc.c,v 1.95 2008-05-10 23:24:11 vsc Exp $		 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 
@@ -78,7 +77,7 @@ void *my_malloc(size_t sz) {
   p = malloc(sz);
   //    Yap_DebugPuts(stderr,"gof\n");
   if (Yap_do_low_level_trace)
-    fprintf(stderr, "+ %p: %" Sizet_F "\n", p, sz);
+    fprintf(stderr, "+s %p\n @%p %ld\n", p, TR, LCL0 - (CELL *)LCL0);
   if (sz > 500 && write_malloc++ > 0)
     __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,
                         p);
@@ -91,17 +90,17 @@ void *my_realloc(void *ptr, size_t sz) {
   p = realloc(ptr, sz);
   if (Yap_do_low_level_trace)
     //  fprintf(stderr, "+ %p -> %p : " Sizet_F "\n", ptr, p, sz);
-  //    Yap_DebugPuts(stderr,"gof\n");
-  if (sz > 500 && write_malloc++ > 0)
-    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p", write_malloc,
-                        p);
+    //    Yap_DebugPuts(stderr,"gof\n");
+    if (sz > 500 && write_malloc++ > 0)
+      __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p",
+                          write_malloc, p);
   return p;
 }
 
 void my_free(void *p) {
   // printf("f %p\n",p);
   if (Yap_do_low_level_trace)
-    fprintf(stderr, "+ %p\n", p);
+    fprintf(stderr, "- %p\n @%p %ld\n", p, TR, LCL0 - (CELL *)LCL0);
   if (write_malloc && write_malloc++ > 0)
     __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "- %d %p", write_malloc,
                         p);
@@ -296,7 +295,7 @@ ADDR Yap_InitPreAllocCodeSpace(int wid) {
 #else
                  my_malloc(sz)
 #endif
-                 )) {
+    )) {
       REMOTE_PrologMode(wid) &= ~MallocMode;
 #if USE_DL_MALLOC
       UNLOCK(DLMallocLock);
@@ -393,7 +392,7 @@ static void InitExStacks(int wid, int Trail, int Stack) {
     Stack = MinStackSpace;
   pm = (Trail + Stack) * K; /* memory to be
                              * requested         */
-  sa = Stack * K;           /* stack area size   */
+  sa = Stack * K; /* stack area size   */
 
 #ifdef THREADS
   if (wid)
@@ -671,7 +670,7 @@ static char *AllocHeap(size_t size) {
   LOCK(FreeBlocksLock);
   if ((b = GetBlock(size))) {
     if (b->b_size >= size + 24 + 1) {
-      n = (BlockHeader *)(((YAP_SEG_SIZE *)b) + size + 1)v;
+      n = (BlockHeader *)(((YAP_SEG_SIZE *)b) + size + 1) v;
       n->b_size = b->b_size - size - 1;
       b->b_size = size;
       AddToFreeList(n);
@@ -1455,7 +1454,7 @@ void Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack) {
 #endif
   pm = (Trail + Heap + Stack); /* memory to be
                                 * requested         */
-  sa = Stack;                  /* stack area size   */
+  sa = Stack; /* stack area size   */
   ta = Trail; /* trail area size   */
 
 #if RANDOMIZE_START_ADDRESS
@@ -1477,7 +1476,7 @@ void Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack) {
 
   LOCAL_GlobalBase = LOCAL_LocalBase - sa;
   HeapLim = LOCAL_GlobalBase; /* avoid confusions while
-                                       * * restoring */
+                               * * restoring */
 #if !USE_DL_MALLOC
   AuxTop = (ADDR)(AuxSp = (CELL *)LOCAL_GlobalBase);
 #endif
@@ -1496,8 +1495,9 @@ void Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack) {
             (UInt)LOCAL_TrailTop);
 #endif
 
-    fprintf(stderr, "Heap+Aux: " UInt_FORMAT "\tLocal+Global: " UInt_FORMAT
-                    "\tTrail: " UInt_FORMAT "\n",
+    fprintf(stderr,
+            "Heap+Aux: " UInt_FORMAT "\tLocal+Global: " UInt_FORMAT
+            "\tTrail: " UInt_FORMAT "\n",
             pm - sa - ta, sa, ta);
   }
 #endif /* DEBUG */
