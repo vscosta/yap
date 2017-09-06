@@ -222,7 +222,6 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         atom_t name;
         int arity;
         PyObject *rc;
-        size_t len;
 
         if (!PL_get_functor(t, &fun)) {
           PL_reset_term_refs(tail);

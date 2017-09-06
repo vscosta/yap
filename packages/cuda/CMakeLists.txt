@@ -77,7 +77,7 @@ cuda.c
     cuda.yap
     )
 
-  cuda_add_library (libcuda SHARED  ${CUDA_SOURCES})
+  cuda_add_lib(libcuda   ${CUDA_SOURCES})
 
   target_link_libraries(libcuda  libYap
     ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}

@@ -14,7 +14,7 @@ if (PostgreSQL_FOUND)
 #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL
 #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
 #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
-  add_library (Yappostgres SHARED ${YAPPOSTGRES_SOURCES})
+  add_lib(Yappostgres  ${YAPPOSTGRES_SOURCES})
   target_link_libraries(Yappostgres libYap   ${PostgreSQL_LIBRARIES})
   include_directories (${PostgreSQL_INCLUDE_DIRS} ..)
  set_target_properties (Yappostgres PROPERTIES

@@ -32,7 +32,7 @@ if (GECODE_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  add_library (gecode_yap SHARED ${GECODE_SOURCES})
+  add_lib(gecode_yap  ${GECODE_SOURCES})
 
   target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
 

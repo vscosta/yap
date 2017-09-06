@@ -33,7 +33,7 @@ if (JNI_FOUND)
     endif()
     #SET(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS} ")
 
-    SWIG_ADD_MODULE(Native java ${SWIG_SOURCES}
+    SWIG_ADD_LIBRARY(Native LANGUAGE java SOURCES                                         ${SWIG_SOURCES}
 	   )
 
 

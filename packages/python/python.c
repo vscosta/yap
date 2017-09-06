@@ -53,7 +53,7 @@ static bool py_close(int sno) {
 
 
 static int py_put(int sno, int ch) {
-    PyObject *pyw; // buffer
+  // PyObject *pyw; // buffer
     //int pyw_kind;
     //PyObject *pyw_data;
 

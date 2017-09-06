@@ -47,7 +47,7 @@ src/Android/jni/sqlite/nativehelper/ScopedLocalRef.h
 
 endif (ANDROID)
 
-add_library(  Yapsqlite3 SHARED
+add_lib(  Yapsqlite3 
     ${YAPSQLITE3_SOURCES} )
 
     MY_set_target_properties(Yapsqlite3
@@ -57,6 +57,7 @@ add_library(  Yapsqlite3 SHARED
       POSITION_INDEPENDENT_CODE TRUE
       )
 
+      target_link_libraries(Yapsqlite3 libYap)
 
 if (ANDROID)
     target_link_libraries(Yapsqlite3 android log)

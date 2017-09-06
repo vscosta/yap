@@ -132,7 +132,7 @@ IF (CUDD_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}/../bdd
     )
 
-  add_library (bddem  SHARED
+  add_lib(bddem
     ${BDDEM_SOURCES}
     )
 
@@ -153,7 +153,7 @@ IF (CUDD_FOUND)
   )
 
 
-  add_library (cplint SHARED
+  add_lib(cplint 
     ${CPLINT_SOURCES}
    )
 

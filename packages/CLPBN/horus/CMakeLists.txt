@@ -45,14 +45,14 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    ADD_LIBRARY(horus SHARED ${HORUS_SOURCES} HorusYap.cpp )
+    ADD_LIB(horus ${HORUS_SOURCES} HorusYap.cpp )
 
    if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(horus
       libYap
       )
   else()
-    ADD_LIBRARY(horus SHARED ${HORUS_SOURCES} )
+    ADD_LIB(horus ${HORUS_SOURCES} )
   endif()
 
 #set_property(TARGET horus PROPERTY CXX_STANDARD 11)

@@ -13,7 +13,7 @@ if (ODBC_FOUND)
   # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
   # ODBC_LIBRARIES, the libraries to link against to use ODBC
   # ODBC_FOUND.  If false, you cannot build anything that requires Odbc.
-add_library (Yapodbc SHARED ${YAPODBC_SOURCES})
+add_lib(Yapodbc  ${YAPODBC_SOURCES})
 target_link_libraries(Yapodbc libYap ${ODBC_LIBRARIES})
 include_directories (${ODBC_INCLUDE_DIRECTORIES} ..)
 

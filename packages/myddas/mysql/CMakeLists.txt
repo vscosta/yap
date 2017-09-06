@@ -22,7 +22,7 @@
 	    if (WIN32)
 	      	    add_library(Yapmysql OBJECT ${MYSQL_SOURCES})
 	      else()
-	    add_library(Yapmysql SHARED ${MYSQL_SOURCES})
+	    add_lib(Yapmysql  ${MYSQL_SOURCES})
 	    target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
      install(TARGETS Yapmysql
               RUNTIME DESTINATION ${dlls}

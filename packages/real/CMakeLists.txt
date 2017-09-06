@@ -32,7 +32,7 @@ include_directories (
         ${LIBR_INCLUDE_DIRS}
     )
 
-  add_library (real SHARED ${REAL_SOURCES})
+  add_lib(real  ${REAL_SOURCES})
 
   target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
 

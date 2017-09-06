@@ -45,7 +45,7 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
 
 
 
-      add_library (YAPJava SHARED
+      add_lib(YAPJava 
 	yap_swig.cpp swig_streamer.cpp streamer.cpp streamer.h
 	)
 	target_link_libraries(YAPJava ${GMP_LIBRARIES} )

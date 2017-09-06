@@ -1,5 +1,5 @@
 
-add_library (jplYap SHARED jpl.h jpl.c hacks.h)
+add_lib(jplYap  jpl.h jpl.c hacks.h)
   
 include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS} )
   

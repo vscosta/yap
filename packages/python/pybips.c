@@ -879,7 +879,6 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
   atom_t name;
   int arity;
   functor_t fun;
-  PyObject *d = NULL;
 
   o = find_obj(context, t, true);
   AOK(PL_get_name_arity(t, &name, &arity), NULL);
