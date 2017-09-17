@@ -1094,35 +1094,34 @@ incore(G) :- '$execute'(G).
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-    '$gated_call'(
-       ('$$save_by'(CP),
-       '$enable_debugging'),
-  	 '$call'(G, CP, M:G, M),
-       Port,
-  	   '$disable_debugging_on_port'(Port)
+        gated_call(
+                '$enable_debugging',
+                M:G,
+	         Port,
+  	         '$disable_debugging_on_port'(Port)
        ).
 
 '$disable_debugging_on_port'(retry) :-
     !,
     '$enable_debugging'.
 '$disable_debugging_on_port'(_Port) :-
-	 '$disable_debugging'.
+    '$disable_debugging'.
 
 
 
 % enable creeping
 '$enable_debugging':-
-	current_prolog_flag(debug, false), !.
+    current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-	'$trace_on', !,
-	'$creep'.
+    '$trace_on', !,
+    '$creep'.
 '$enable_debugging'.
 
 '$trace_on' :-
-	'$nb_getval'('$trace', on, fail).
+    '$nb_getval'('$trace', on, fail).
 
 '$trace_off' :-
-	'$nb_getval'('$trace', off, fail).
+    '$nb_getval'('$trace', off, fail).
 
 
 /** @pred   :_P_ , :_Q_   is iso, meta
@@ -1300,7 +1299,7 @@ not(G) :-    \+ '$execute'(G).
 bootstrap(F) :-
   %	'$open'(F, '$csult', Stream, 0, 0, F),
 %	'$file_name'(Stream,File),
-    yap_flag(verbose_load, Old, silent),
+        yap_flag(verbose_load, Old, silent),
 	open(F, read, Stream),
 	stream_property(Stream, [file_name(File)]),
 	'$start_consult'(consult, File, LC),
@@ -1434,14 +1433,14 @@ Command = (H --> B) ->
 
 
 gated_call(Setup, Goal, Catcher, Cleanup) :-
-'$setup_call_catcher_cleanup'(Setup),
-'$gated_call'( true , Goal, Catcher, Cleanup)  .
+    '$setup_call_catcher_cleanup'(Setup),
+    '$gated_call'( true , Goal, Catcher, Cleanup)  .
 
 '$gated_call'( All , Goal, Catcher, Cleanup) :-
-	Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+        Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	call( Goal ),
+	'$execute'( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 

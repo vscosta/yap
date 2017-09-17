@@ -886,7 +886,7 @@ static bool watch_retry(Term d0 USES_REGS) {
     complete_pt[0] = t;
 
   } else if (box) {
-    t = TermRetry;
+    t = TermRedo;
   } else {
     return true;
   }
@@ -952,7 +952,6 @@ static Int cleanup_on_exit(USES_REGS1) {
   Term task = Deref(ARG2);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
-  Term catcher = ArgOfTerm(2, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
 
   while (B->cp_ap->opc == FAIL_OPCODE)
@@ -1150,6 +1149,83 @@ restart_exec:
   /* call may not define new system predicates!! */
   return CallPredicate(RepPredProp(pe), B,
                        RepPredProp(pe)->CodeOfPred PASS_REGS);
+}
+
+static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
+                                     */
+  Term t = Deref(ARG1);
+  Term mod = Deref(ARG2);
+  unsigned int arity;
+  Prop pe;
+  bool rc;
+  t = Yap_YapStripModule(t, &mod);
+  if (IsVarTerm(mod)) {
+    mod = CurrentModule;
+  } else if (!IsAtomTerm(mod)) {
+    Yap_Error(TYPE_ERROR_ATOM, ARG2, "call/1");
+    return FALSE;
+  }
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR, ARG1, "call/1");
+    return FALSE;
+  } else if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    pe = PredPropByAtom(a, mod);
+  } else if (IsApplTerm(t)) {
+    register Functor f = FunctorOfTerm(t);
+    register unsigned int i;
+    register CELL *pt;
+
+    if (IsExtensionFunctor(f))
+      return (FALSE);
+    pe = PredPropByFunc(f, mod);
+    arity = ArityOfFunctor(f);
+    if (arity > MaxTemps) {
+      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+    }
+    /* I cannot use the standard macro here because
+       otherwise I would dereference the argument and
+       might skip a svar */
+    pt = RepAppl(t) + 1;
+    for (i = 1; i <= arity; ++i) {
+#if YAPOR_SBA
+      Term d0 = *pt++;
+      if (d0 == 0)
+        XREGS[i] = (CELL)(pt - 1);
+      else
+        XREGS[i] = d0;
+#else
+      XREGS[i] = *pt++;
+#endif
+    }
+  } else {
+    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    return FALSE;
+  }
+  /*	N = arity; */
+  /* call may not define new system predicates!! */
+  if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
+    if (!LOCAL_InterruptsDisabled && Yap_get_signal(YAP_CREEP_SIGNAL)) {
+      Yap_signal(YAP_CREEP_SIGNAL);
+    }
+#if defined(YAPOR) || defined(THREADS)
+    if (RepPredProp(pe)->PredFlags & LogUpdatePredFlag) {
+      PP = RepPredProp(pe);
+      PELOCK(80, PP);
+    }
+#endif
+    rc = CallPredicate(RepPredProp(pe), B,
+                       RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
+  } else {
+    rc = CallPredicate(RepPredProp(pe), B,
+                       RepPredProp(pe)->CodeOfPred PASS_REGS);
+  }
+  if (!LOCAL_InterruptsDisabled &&
+      (!(RepPredProp(pe)->PredFlags & (AsmPredFlag | CPredFlag)) ||
+       RepPredProp(pe)->OpcodeOfPred == Yap_opcode(_call_bfunc_xx))) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  return rc;
 }
 
 static Int execute_nonstop(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
@@ -1361,8 +1437,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       }
       LOCAL_PrologMode &= ~AbortMode;
       P = (yamop *)FAILCODE;
-      if (LOCAL_CBorder)
-        LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       return false;
       break;
@@ -1927,23 +2001,14 @@ static Int JumpToEnv() {
      so get pointers here     */
   /* find the first choicepoint that may be a catch */
   // DBTerm *dbt = Yap_RefToException();
-  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch) {
-    // printf("--handler=%p, max=%p\n", handler, LCL0-LOCAL_CBorder);
-    if (handler == (choiceptr)(LCL0 - LOCAL_CBorder)) {
-      break;
-    }
-    /* we are already doing a catch */
-    /* make sure we prune C-choicepoints */
-    if ((handler->cp_ap == NOCODE && handler->cp_b == NULL) ||
-        (handler->cp_b >= (choiceptr)(LCL0 - LOCAL_CBorder))) {
-      break;
-    }
+  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
+         LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE &&
+         handler->cp_b != NULL) {
     handler = handler->cp_b;
   }
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
-  POP_FAIL(handler);
   B = handler;
   P = FAILCODE;
   return true;
@@ -1979,7 +2044,10 @@ static Int jump_env(USES_REGS1) {
       LOCAL_ActiveError->classAsText = NULL;
     }
   } else {
-    // LOCAL_Error_TYPE = THROW_EVENT;
+      Yap_find_prolog_culprit(PASS_REGS1);
+      LOCAL_ActiveError->errorAsText = NULL;
+      LOCAL_ActiveError->classAsText = NULL;
+  //return true;
   }
   LOCAL_ActiveError->prologPredName = NULL;
   Yap_PutException(t);
@@ -2197,9 +2265,11 @@ void Yap_InitExecFs(void) {
 #endif
   Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
   Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
+  Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
-  Yap_InitCPred("$current_choicepoint", 1, current_choice_point, 0);
+  Yap_InitCPred("$                                    ", 1,
+                current_choice_point, 0);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);

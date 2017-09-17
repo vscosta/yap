@@ -318,6 +318,7 @@ X_API EXTERNAL Atom AtomReconsult; X_API EXTERNAL Term TermReconsult;
 X_API EXTERNAL Atom AtomRecordedP; X_API EXTERNAL Term TermRecordedP;
 X_API EXTERNAL Atom AtomRecordedWithKey; X_API EXTERNAL Term TermRecordedWithKey;
 X_API EXTERNAL Atom AtomRedefineWarnings; X_API EXTERNAL Term TermRedefineWarnings;
+X_API EXTERNAL Atom AtomRedo; X_API EXTERNAL Term TermRedo;
 X_API EXTERNAL Atom AtomRedoFreeze; X_API EXTERNAL Term TermRedoFreeze;
 X_API EXTERNAL Atom AtomRefoundVar; X_API EXTERNAL Term TermRefoundVar;
 X_API EXTERNAL Atom AtomRelativeTo; X_API EXTERNAL Term TermRelativeTo;

@@ -318,6 +318,7 @@
   AtomRecordedP = AtomAdjust(AtomRecordedP); TermRecordedP = MkAtomTerm(AtomRecordedP);
   AtomRecordedWithKey = AtomAdjust(AtomRecordedWithKey); TermRecordedWithKey = MkAtomTerm(AtomRecordedWithKey);
   AtomRedefineWarnings = AtomAdjust(AtomRedefineWarnings); TermRedefineWarnings = MkAtomTerm(AtomRedefineWarnings);
+  AtomRedo = AtomAdjust(AtomRedo); TermRedo = MkAtomTerm(AtomRedo);
   AtomRedoFreeze = AtomAdjust(AtomRedoFreeze); TermRedoFreeze = MkAtomTerm(AtomRedoFreeze);
   AtomRefoundVar = AtomAdjust(AtomRefoundVar); TermRefoundVar = MkAtomTerm(AtomRefoundVar);
   AtomRelativeTo = AtomAdjust(AtomRelativeTo); TermRelativeTo = MkAtomTerm(AtomRelativeTo);
