@@ -842,20 +842,24 @@ static Int doformat(volatile Term otail, volatile Term oargs,
           if (targ > tnum - 1 || has_repeats)
             goto do_format_control_sequence_error;
           t = targs[targ++];
+          {
           yhandle_t sl0 = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0,
                       Handle_vars_f | Quote_illegal_f | To_heap_f,
                       GLOBAL_MaxPriority);
           Yap_CloseSlots(sl0);
+          }
           break;
         case 'w':
           if (targ > tnum - 1 || has_repeats)
             goto do_format_control_sequence_error;
           t = targs[targ++];
+          {
           yhandle_t slf = Yap_StartSlots();
           Yap_plwrite(t, GLOBAL_Stream + sno, 0, Handle_vars_f | To_heap_f,
                       GLOBAL_MaxPriority);
           Yap_CloseSlots(slf);
+          }
           break;
         case 'W':
           if (targ > tnum - 2 || has_repeats)
