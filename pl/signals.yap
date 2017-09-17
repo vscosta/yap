@@ -25,7 +25,7 @@
 
 :- use_system_module( '$_boot', ['$meta_call'/2]).
 
-:- use_system_module( '$_debug', ['$do_spy'/4]).
+:- use_system_module( '$_debug', ['$spycall'/4]).
 
 :- use_system_module( '$_threads', ['$thread_gfetch'/1]).
 
@@ -160,7 +160,8 @@ order of dispatch.
 % never creep on entering system mode!!!
 % don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
-	 '$start_creep'(MG, creep).
+  '$disable_debugging',
+ '$start_creep'(MG, creep).
 '$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 	% if more signals alive, set creep flag
@@ -215,26 +216,13 @@ order of dispatch.
 
 % we may be creeping outside and coming back to system mode.
 '$start_creep'([_M|G], _) :-
-         nonvar(G),
+nonvar(G),
          G = '$$cut_by'(CP),
          !,
 	'$$cut_by'(CP).
-'$start_creep'([M|G], _) :-
-	'$is_no_trace'(G, M), !,
-	(
-	'$$save_by'(CP),
-	 '$no_creep_call'(G,M),
-	 '$$save_by'(CP2),
-	 '$disable_debugging',
-	 (CP == CP2 -> ! ; ( true ; '$enable_debugging', fail ) ),
-	 '$enable_debugging'
-	;
-	'$disable_debugging',
-	fail
-	).
-'$start_creep'([Mod|G], WhereFrom) :-
+	     '$start_creep'([Mod|G], _WhereFrom) :-
 	CP is '$last_choice_pt',
-	'$do_spy'(G, Mod, CP, WhereFrom).
+	'$spycall'(G, Mod, CP, not_expanded).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',

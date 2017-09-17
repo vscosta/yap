@@ -209,8 +209,8 @@ beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
 beautify_hidden_goal('$spycall'(G,M,InControl,Redo),prolog) -->
 	['DebuggerCall'(M:G, InControl, Redo)].
-beautify_hidden_goal('$do_spy'(Goal, Mod, _CP, InControl),prolog) -->
-	['DebuggerCall'(Mod:Goal, InControl)].
+beautify_hidden_goal('$spycall'(Goal, Mod, _CP, Expanded),prolog) -->
+	['DebuggerCall'(Mod:Goal, Expanded)].
 beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
 beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->

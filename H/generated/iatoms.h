@@ -318,6 +318,7 @@
   AtomRecordedP = Yap_FullLookupAtom("$recordep"); TermRecordedP = MkAtomTerm(AtomRecordedP);
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key"); TermRecordedWithKey = MkAtomTerm(AtomRecordedWithKey);
   AtomRedefineWarnings = Yap_LookupAtom("redefine_warnings"); TermRedefineWarnings = MkAtomTerm(AtomRedefineWarnings);
+  AtomRedo = Yap_FullLookupAtom("redo"); TermRedo = MkAtomTerm(AtomRedo);
   AtomRedoFreeze = Yap_FullLookupAtom("$redo_freeze"); TermRedoFreeze = MkAtomTerm(AtomRedoFreeze);
   AtomRefoundVar = Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"); TermRefoundVar = MkAtomTerm(AtomRefoundVar);
   AtomRelativeTo = Yap_FullLookupAtom("relative_to"); TermRelativeTo = MkAtomTerm(AtomRelativeTo);

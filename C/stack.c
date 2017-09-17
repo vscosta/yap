@@ -1,22 +1,22 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		stack.c							 *
-* comments:	Stack Introspection *
-*									 *
-* Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $		 *
-* $Log: not supported by cvs2svn $                                       *
-* Revision 1.230  2008/06/02 17:20:28  vsc				 *
-*									 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		stack.c *
+ * comments:	Stack Introspection *
+ *									 *
+ * Last rev:     $Date: 2008-07-22 23:34:44 $,$Author: vsc $		 *
+ * $Log: not supported by cvs2svn $                                       *
+ * Revision 1.230  2008/06/02 17:20:28  vsc				 *
+ *									 *
+ *									 *
+ *************************************************************************/
 
 /**
  * @file   stack.c
@@ -29,8 +29,8 @@
  */
 
 #include "Yap.h"
-#include "clause.h"
 #include "YapEval.h"
+#include "clause.h"
 #include "iopreds.h"
 #include "tracer.h"
 #include "yapio.h"
@@ -163,13 +163,7 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
                    /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif             /* TABLING */
     case _or_else:
-      if (p_code == p_code->y_u.Osblp.l) {
-        /* repeat */
-        Atom at = AtomRepeatSpace;
-        return RepPredProp(PredPropByAtom(at, PROLOG_MODULE));
-      } else {
-        return p_code->y_u.Osblp.p0;
-      }
+      return p_code->y_u.Osblp.p0;
       break;
     case _or_last:
 #ifdef YAPOR
@@ -779,7 +773,8 @@ static PredEntry *found_expand(yamop *pc, void **startp,
   return pp;
 }
 
-static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp, void **endp, PredEntry *pp USES_REGS) {
+static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp,
+                              void **endp, PredEntry *pp USES_REGS) {
   if (pc == YESCODE) {
     pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, CurrentModule));
     if (startp)
@@ -787,17 +782,17 @@ static PredEntry *found_ystop(yamop *pc, int clause_code, void **startp, void **
     if (endp)
       *endp = (CODEADDR)YESCODE + (CELL)(NEXTOP((yamop *)NULL, e));
     return pp;
- }                                                                                                 
- if (!pp) {
-   yamop *o = PREVOP(pc,Osbpp);
-   if (o->opc ==Yap_opcode(_execute_cpred)) {
-     pp = o->y_u.Osbpp.p0;
-   } else {
-     /* must be an index */
-    PredEntry **pep = (PredEntry **)pc->y_u.l.l;
-    pp = pep[-1];
   }
- }
+  if (!pp) {
+    yamop *o = PREVOP(pc, Osbpp);
+    if (o->opc == Yap_opcode(_execute_cpred)) {
+      pp = o->y_u.Osbpp.p0;
+    } else {
+      /* must be an index */
+      PredEntry **pep = (PredEntry **)pc->y_u.l.l;
+      pp = pep[-1];
+    }
+  }
   if (pp->PredFlags & LogUpdatePredFlag) {
     if (clause_code) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(pc->y_u.l.l);
@@ -1159,7 +1154,7 @@ bool Yap_find_prolog_culprit(USES_REGS1) {
         break;
       }
       pe = EnvPreg(curCP);
-      if (pe==NULL) {
+      if (pe == NULL) {
         pe = PredMetaCall;
       }
       if (pe->ModuleOfPred)
@@ -1634,7 +1629,7 @@ static Int p_choicepoint_info(USES_REGS1) {
 }
 
 static Int /* $parent_pred(Module, Name, Arity) */
-    parent_pred(USES_REGS1) {
+parent_pred(USES_REGS1) {
   /* This predicate is called from the debugger.
      We assume a sequence of the form a -> b */
   Atom at;
@@ -2045,7 +2040,7 @@ Term Yap_pc_location(yamop *pc, choiceptr b_ptr, CELL *env) {
   if (pe != NULL
       // pe->ModuleOfPred != PROLOG_MODULE &&
       // &&!(pe->PredFlags & HiddenPredFlag)
-      ) {
+  ) {
     return build_bug_location(codeptr, pe);
   }
   return TermNil;
@@ -2058,7 +2053,8 @@ Term Yap_env_location(yamop *cp, choiceptr b_ptr, CELL *env, Int ignore_first) {
     PredEntry *pe = EnvPreg(cp);
     if (pe == PredTrue)
       return TermNil;
-    if (ignore_first <= 0 && pe
+    if (ignore_first <= 0 &&
+        pe
         // pe->ModuleOfPred != PROLOG_MODULE &&s
         && !(pe->PredFlags & HiddenPredFlag)) {
       return build_bug_location(cp, pe);
