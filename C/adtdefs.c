@@ -178,13 +178,15 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
     na = SearchAtom(atom, a);
     if (na != NIL) {
       WRITE_UNLOCK(HashChain[hash].AERWLock);
-      return (na);
+      return na;
     }
   }
 #endif
   /* add new atom to start of chain */
+  size_t asz = strlen((const char *)atom);
+
   ae = (AtomEntry *)Yap_AllocAtomSpace((sizeof *ae) +
-                                       strlen((const char *)atom) + 1);
+   asz+4);
   if (ae == NULL) {
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return NIL;
@@ -192,13 +194,12 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  if (ae->UStrOfAE != atom)
-    strcpy((char *)ae->StrOfAE, (const char *)atom);
+  stpncpy((char *)ae->StrOfAE, (const char *)atom, asz+1);
+
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;
   INIT_RWLOCK(ae->ARWLock);
   WRITE_UNLOCK(HashChain[hash].AERWLock);
-
   if (NOfAtoms > 2 * AtomHashTableSize) {
     Yap_signal(YAP_CDOVF_SIGNAL);
   }
