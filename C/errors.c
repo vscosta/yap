@@ -41,12 +41,7 @@ bool Yap_Warning(const char *s, ...) {
   const char *format;
   char tmpbuf[MAXPATHLEN];
 
-  if (LOCAL_within_print_message) {
-    /* error within error */
-    fprintf(stderr, "%% WARNING WITHIN WARNING\n");
-    Yap_RestartYap(1);
-  }
-  LOCAL_DoingUndefp = true;
+   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2

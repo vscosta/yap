@@ -495,8 +495,10 @@ restart_aux:
     Atom at;
     // verify if an atom, int, float or bignnum
     at = Yap_StringSWIToAtom(t2 PASS_REGS);
-    if (at)
-      ReleaseAndReturn(Yap_unify(MkAtomTerm(at), t1));
+    if (at) {
+        ReleaseAndReturn(Yap_unify(MkAtomTerm(at), t1));
+    }
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
     // else
   } else if (IsAtomTerm(t1)) {
     Term t0 = Yap_AtomSWIToString(t1 PASS_REGS);
@@ -1836,7 +1838,7 @@ static Int upcase_text_to_chars(USES_REGS1) {
 static Int atom_split(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
-  size_t len;
+  size_t u_mid;
   Term to1, to2;
   Atom at;
 
@@ -1857,33 +1859,26 @@ static Int atom_split(USES_REGS1) {
     Yap_Error(TYPE_ERROR_INTEGER, t2, "$atom_split/4");
     ReleaseAndReturn((FALSE));
   }
-  if ((Int)(len = IntOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "$atom_split/4");
+  if ((Int)(u_mid = IntOfTerm(t2)) < 0) {
+    Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2, "atom_split/4");
     ReleaseAndReturn((FALSE));
   }
   at = AtomOfTerm(t1);
-  char *s;
-  unsigned char *s1, *s10, *s0;
-  s = RepAtom(at)->StrOfAE;
-  if (len > strlen(s))
-    ReleaseAndReturn((FALSE));
-  s1 = s10 = Malloc(len);
-  s0 = RepAtom(at)->UStrOfAE;
-  if (s1 + len > (unsigned char *)ASP - 1024) {
-    if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return FALSE;
+    const  char *s = RepAtom(at)->StrOfAE;
+    const unsigned char *s0 = RepAtom(at)->UStrOfAE;
+    unsigned char  *s1, *s10;
+    size_t u_len = strlen_utf8(s0);
+    if (u_mid > u_len) {
+        ReleaseAndReturn(false);
     }
-  }
-  size_t j;
-  for (j = 0; j < len; j++) {
-    int32_t val;
-    s0 += get_utf8(s0, 1, &val);
-    s1 += put_utf8(s1, val);
-  }
-  s1[0] = '\0';
+    size_t b_mid = skip_utf8(s0, u_mid)-s0;
+ s1 = s10 = Malloc(b_mid +1);
+  memcpy(s1, s, b_mid);
+  s1[b_mid] ='\0';
   to1 = MkAtomTerm(Yap_ULookupAtom(s10));
-  to2 = MkAtomTerm(Yap_LookupAtom(s));
+  to2 = MkAtomTerm(Yap_ULookupAtom(s0+b_mid));
+    Yap_DebugPlWriteln(to1);
+    Yap_DebugPlWriteln(to2);
   ReleaseAndReturn(
       (Yap_unify_constant(ARG3, to1) && Yap_unify_constant(ARG4, to2)));
 }
