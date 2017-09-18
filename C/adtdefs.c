@@ -224,7 +224,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
 }
 
 Atom Yap_LookupAtom(const char *atom) { /* lookup atom in atom table */
-  return LookupAtom((const unsigned char *)atom);
+      return LookupAtom((const unsigned char *)atom);
 }
 
 Atom Yap_ULookupAtom(

@@ -239,13 +239,8 @@ static Int SkipListCodes(unsigned char **bufp, Term *l, Term **tailp,
             return -REPRESENTATION_ERROR_CHARACTER_CODE;
           } else {
             AtomEntry *ae = RepAtom(AtomOfTerm(hd));
-            if ((ae->StrOfAE)[1] != '\0') {
-              length = -REPRESENTATION_ERROR_CHARACTER;
-            } else {
-              ch = RepAtom(AtomOfTerm(hd))->StrOfAE[0];
-              *wide |= ch > 0x80;
+st = stpcpy(st, ae->StrOfAE);
             }
-          }
         } else if (IsIntegerTerm(hd)) {
           ch = IntegerOfTerm(hd);
           if (*atoms)
@@ -263,12 +258,13 @@ static Int SkipListCodes(unsigned char **bufp, Term *l, Term **tailp,
           *tailp = l;
           return length;
         }
+          // now copy char to buffer
+          int chsz = put_utf8(st, ch);
+          if (chsz > 0) {
+              st += chsz;
+          }
       }
-      // now copy char to buffer
-      int chsz = put_utf8(st, ch);
-      if (chsz > 0) {
-        st += chsz;
-      }
+
       l = RepPair(*l) + 1;
       do_derefa(v, l, derefa2_unk, derefa2_nonvar);
     } while (*l != *s && IsPairTerm(*l));
@@ -440,7 +436,7 @@ unsigned char *Yap_readText(seq_tv_t *inp, size_t *lengp) {
     if (lengp)
       *lengp = sz;
     if (inp->type & YAP_STRING_WITH_BUFFER)
-      return UStringOfTerm(inp->val.t);
+      return (unsigned char*)UStringOfTerm(inp->val.t);
     inp->type |= YAP_STRING_IN_TMP;
     char *o =  Malloc(sz+1);
     strcpy(o, s);
@@ -571,17 +567,19 @@ static Term write_atoms(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
 
   unsigned char *s = s0, *lim = s + strnlen((char *)s, max);
   unsigned char *cp = s;
-  unsigned char w[10], *wp = w;
+  unsigned char w[10];
+  int wp = 0;
   LOCAL_TERM_ERROR(t, 2 * (lim - s));
   while (cp < lim && *cp) {
     utf8proc_int32_t chr;
     CELL *cl;
-    s += get_utf8(s, 1, &chr);
+    s += get_utf8(s, -1, &chr);
     if (chr == '\0') {
-      wp[0] = '\0';
+      w[0] = '\0';
       break;
     }
-    wp += put_utf8(w, chr);
+    wp = put_utf8(w, chr);
+    w[wp] = '\0';
     cl = HR;
     HR += 2;
     cl[0] = MkAtomTerm(Yap_ULookupAtom(w));
@@ -994,47 +992,52 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
 //
 bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
-  unsigned char *buf;
-  size_t l;
+  const unsigned char *buf;
+  size_t b_l, u_l;
 
   inp->type |= YAP_STRING_IN_TMP;
-  buf = Yap_readText(inp, &l PASS_REGS);
+  buf = Yap_readText(inp, &b_l PASS_REGS);
   if (!buf) {
     return false;
   }
+  u_l = strlen_utf8(buf);
   if (!cuts) {
     if (n == 2) {
-      size_t l0, l1;
+      size_t b_l0, b_l1, u_l0, u_l1;
       unsigned char *buf0, *buf1;
 
       if (outv[0].val.t) {
-        buf0 = Yap_readText(outv, &l0 PASS_REGS);
+        buf0 = Yap_readText(outv, &b_l0 PASS_REGS);
         if (!buf0) {
           return false;
         }
-        if (cmp_Text(buf, buf0, l0) != 0) {
+        if (bcmp(buf, buf0, b_l0) != 0) {
           return false;
         }
-        l1 = l - l0;
+        u_l0 = strlen_utf8(buf0);
+        u_l1 = u_l - u_l0;
 
-        buf1 = slice(l0, l, buf PASS_REGS);
-        bool rc = write_Text(buf1, outv + 1, l1 PASS_REGS);
+        buf1 = slice(u_l0, u_l, buf PASS_REGS);
+        b_l1 = strlen(buf1);
+        bool rc = write_Text(buf1, outv + 1, b_l1 PASS_REGS);
         if (!rc) {
           return false;
         }
         return rc;
       } else /* if (outv[1].val.t) */ {
-        buf1 = Yap_readText(outv + 1, &l1 PASS_REGS);
+        buf1 = Yap_readText(outv + 1, &b_l1 PASS_REGS);
         if (!buf1) {
           return false;
         }
-        l0 = l - l1;
-        if (cmp_Text(skip_utf8((const unsigned char *)buf, l0), buf1, l1) !=
+        u_l1 = strlen_utf8(buf1);
+        b_l0 = b_l - b_l1;
+        u_l0 = u_l - u_l1;
+        if (bcmp(skip_utf8((const  char *)buf, b_l0), buf1, b_l1) !=
             0) {
           return false;
         }
-        buf0 = slice(0, l0, buf PASS_REGS);
-        bool rc = write_Text(buf0, outv, l0 PASS_REGS);
+        buf0 = slice(0, u_l0, buf PASS_REGS);
+        bool rc = write_Text(buf0, outv, b_l0 PASS_REGS);
         return rc;
       }
     }
@@ -1048,7 +1051,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
     if (i > 0 && cuts[i] == 0)
       break;
     void *bufi = slice(next, cuts[i], buf PASS_REGS);
-    if (!write_Text(bufi, outv + i, cuts[i] - next PASS_REGS)) {
+    if (!write_Text(bufi, outv + i, strlen(bufi) PASS_REGS)) {
       return false;
     }
   }
