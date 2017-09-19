@@ -412,7 +412,7 @@ be lost.
 	'$undefined'(G, M), !,
 	'$get_undefined_pred'(G, M,  Goal, NM), NM \= M,
 	'$spycall'(Goal, NM, CP, expanded).
-'$spycall'(G, M, CP, _) :-
+'$spycall'(G, M, _CP, _) :-
         /* get goal no.			*/
         '__NB_getval__'('$spy_gn',L,fail),
         /* bump it			*/

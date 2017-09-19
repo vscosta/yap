@@ -376,6 +376,7 @@ static void AdjustSwitchTable__(op_numbers op, yamop *table,
       startcode += 2;
     }
     /* adjust fail code */
+
     startcode[1] = (CELL)CodeAddrAdjust((CODEADDR)startcode[1]);
   } break;
   case _if_cons: {

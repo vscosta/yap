@@ -300,7 +300,7 @@ has_reposition(int sno,
 }
 
 char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
-  size_t maxs = Yap_Max(255, max);
+  size_t maxs = Yap_Max(1024, max);
   if (!nameb) {
     nameb = malloc(maxs + 1);
   }
@@ -315,25 +315,30 @@ char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
   }
 
 #if __linux__
-  char path[256];
-  if (snprintf(path, 255, "/proc/self/fd/%d", f) && readlink(path, nameb, max))
-    return nameb;
+  char *path= malloc(1024);
+  if (snprintf(path, 1023, "/proc/self/fd/%d", f) && readlink(path, nameb, maxs)) {
+      free(path);
+      return nameb;
+  }
 #elif __APPLE__
   if (fcntl(f, F_GETPATH, nameb) != -1) {
     return nameb;
   }
 #else
-  TCHAR path[MAX_PATH + 1];
-  if (!GetFullPathName(path, MAX_PATH, path, NULL))
+  TCHAR path= malloc(MAX_PATH + 1);
+  if (!GetFullPathName(path, MAX_PATH, path, NULL)) {
+        free(path);
     return NULL;
-  else {
+  } else {
     int i;
     unsigned char *ptr = (unsigned char *)nameb;
     for (i = 0; i < strlen(path); i++)
       ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';
+    free(path);
     return nameb;
   }
+    free(path);
 #endif
   if (!StreamName(sno)) {
     return NULL;

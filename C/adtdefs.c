@@ -184,9 +184,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
 #endif
   /* add new atom to start of chain */
   size_t asz = strlen((const char *)atom);
-
-  ae = (AtomEntry *)Yap_AllocAtomSpace((sizeof *ae) +
-   asz+4);
+  ae = (AtomEntry *)Yap_AllocAtomSpace((sizeof *ae) + asz+1);
   if (ae == NULL) {
     WRITE_UNLOCK(HashChain[hash].AERWLock);
     return NIL;
@@ -194,7 +192,7 @@ LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */
   NOfAtoms++;
   na = AbsAtom(ae);
   ae->PropsOfAE = NIL;
-  stpncpy((char *)ae->StrOfAE, (const char *)atom, asz+1);
+  strcpy(ae->StrOfAE, (const char *)atom);
 
   ae->NextOfAE = a;
   HashChain[hash].Entry = na;

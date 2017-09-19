@@ -286,7 +286,7 @@ form:
 + symbols, including `(`, `)`, `,`, `;`
 
 */
-static Int scan_to_list(USE_ARGS1) {
+static Int scan_to_list(USES_ARGS1) {
   int inp_stream;
   Term tpos, tout;
 

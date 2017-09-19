@@ -188,18 +188,18 @@ static Term Globalize(Term v USES_REGS) {
 static Int SkipListCodes(unsigned char **bufp, Term *l, Term **tailp,
                          Int *atoms, bool *wide, seq_tv_t *inp USES_REGS) {
   Int length = 0;
-  Term *s; /* slow */
   Term v;  /* temporary */
   *wide = false;
   unsigned char *st0 = *bufp, *st;
+  bool atomst;
+    size_t max_lim = 1024;
 
   if (!st0) {
-    st0 = Malloc(0);
+    st0 = Malloc(1024);
   }
 
   do_derefa(v, l, derefa_unk, derefa_nonvar);
   *tailp = l;
-  s = l;
 
   *bufp = st = st0;
 
@@ -208,66 +208,61 @@ static Int SkipListCodes(unsigned char **bufp, Term *l, Term **tailp,
     return 0;
   }
   if (IsPairTerm(*l)) {
-    Term hd0 = HeadOfTerm(*l);
-    if (IsVarTerm(hd0)) {
-      return -INSTANTIATION_ERROR;
-    }
-    // are we looking for atoms/codes?
-    // whatever the case, we should be consistent throughout,
-    // so we should be consistent with the first arg.
-    if (*atoms == 1) {
-      if (!IsIntegerTerm(hd0)) {
-        return -INSTANTIATION_ERROR;
-      }
-    } else if (*atoms == 2) {
-      if (!IsAtomTerm(hd0)) {
-        return -TYPE_ERROR_ATOM;
-      }
-    }
-
-    do {
-      int ch;
-      length++;
-      {
-        Term hd = Deref(RepPair(*l)[0]);
-        if (IsVarTerm(hd)) {
+      Term hd0 = HeadOfTerm(*l);
+      if (IsVarTerm(hd0)) {
           return -INSTANTIATION_ERROR;
-        } else if (IsAtomTerm(hd)) {
-          (*atoms)++;
-          if (*atoms < length) {
-            *tailp = l;
-            return -REPRESENTATION_ERROR_CHARACTER_CODE;
-          } else {
-            AtomEntry *ae = RepAtom(AtomOfTerm(hd));
-st = stpcpy(st, ae->StrOfAE);
-            }
-        } else if (IsIntegerTerm(hd)) {
-          ch = IntegerOfTerm(hd);
-          if (*atoms)
-            length = -REPRESENTATION_ERROR_CHARACTER;
-          else if (ch < 0) {
-            *tailp = l;
-            length = -REPRESENTATION_ERROR_CHARACTER_CODE;
-          } else {
-            *wide |= ch > 0x80;
-          }
-        } else {
-          length = -TYPE_ERROR_INTEGER;
-        }
-        if (length < 0) {
-          *tailp = l;
-          return length;
-        }
-          // now copy char to buffer
-          int chsz = put_utf8(st, ch);
-          if (chsz > 0) {
-              st += chsz;
-          }
+      }
+      // are we looking for atoms/codes?
+      // whatever the case, we should be consistent throughout,
+      // so we should be consistent with the first arg.
+      if (st > st0+max_lim) {
+          max_lim += 2048;
+          *bufp = st0 = Realloc(st0,max_lim);
+      }
+    if (IsAtomTerm(hd0)) {
+           atomst = true;
+
+      } else {
+          atomst = false;
       }
 
-      l = RepPair(*l) + 1;
-      do_derefa(v, l, derefa2_unk, derefa2_nonvar);
-    } while (*l != *s && IsPairTerm(*l));
+      while ( IsPairTerm(*l)) {
+          int ch;
+          length++;
+          {
+              Term hd = Deref(RepPair(*l)[0]);
+              if (IsVarTerm(hd)) {
+                  return -INSTANTIATION_ERROR;
+              } else if (IsAtomTerm(hd)) {
+                  if (!atomst) {
+                     return -REPRESENTATION_ERROR_CHARACTER;
+                  } else {
+                      AtomEntry *ae = RepAtom(AtomOfTerm(hd));
+                      st = (unsigned char *) stpcpy( ( char *)st, ae->StrOfAE);
+                  }
+              } else if (IsIntegerTerm(hd)) {
+                  ch = IntegerOfTerm(hd);
+                  if (atomst)
+                      return -REPRESENTATION_ERROR_CHARACTER;
+                  else if (ch < 0) {
+                      *tailp = l;
+                      return -REPRESENTATION_ERROR_CHARACTER_CODE;
+                  } else {
+st += put_utf8(st,ch);
+                  }
+              } else {
+                  return -TYPE_ERROR_INTEGER;
+              }
+              if (length < 0) {
+                  *tailp = l;
+                  return length;
+              }
+          }
+
+          l = RepPair(*l) + 1;
+          do_derefa(v, l, derefa2_unk, derefa2_nonvar);
+
+      }
   }
   if (IsVarTerm(*l)) {
     return -INSTANTIATION_ERROR;
@@ -315,7 +310,7 @@ static unsigned char *wchar2utf8(seq_tv_t *inp, size_t *lengp) {
   return buf;
 }
 
-static void *slice(size_t min, size_t max, unsigned char *buf USES_REGS);
+static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS);
 
 static unsigned char *to_buffer(unsigned char *buf, Term t, seq_tv_t *inp,
                                 bool *widep, Int *atoms,
@@ -537,11 +532,10 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out,
   Term t = init_tstring(PASS_REGS1);
   LOCAL_TERM_ERROR(t, 2 * max);
   unsigned char *buf = buf_from_tstring(HR);
-  strcpy( (char *)buf, s )
-    ;
+  strcpy( (char *)buf, s );
   if (max+1 < min) {
       LOCAL_TERM_ERROR(t, 2 * min);
-    memset(buf+min, max, '\0');
+    memset(buf+min, '\0', max);
     buf += min;
   } else {
     buf += max+1;
@@ -911,19 +905,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   return rc;
 }
 
-static int cmp_Text(const unsigned char *s1, const unsigned char *s2, int l) {
-  const unsigned char *w1 = s1;
-  utf8proc_int32_t chr1, chr2;
-  const unsigned char *w2 = s2;
-  int i;
-  for (i = 0; i < l; i++) {
-    w2 += get_utf8(w2, -1, &chr2);
-    w1 += get_utf8(w1, -1, &chr1);
-    if (chr1 - chr2)
-      return chr1 - chr2;
-  }
-  return 0;
-}
 
 static unsigned char *concat(int n, void *sv[] USES_REGS) {
   void *buf;
@@ -947,7 +928,7 @@ static unsigned char *concat(int n, void *sv[] USES_REGS) {
   return buf0;
 }
 
-static void *slice(size_t min, size_t max, unsigned char *buf USES_REGS) {
+static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
   unsigned char *nbuf = Malloc((max - min) * 4 + 1);
   const unsigned char *ptr = skip_utf8(buf, min);
   unsigned char *nptr = nbuf;
@@ -1018,7 +999,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         u_l1 = u_l - u_l0;
 
         buf1 = slice(u_l0, u_l, buf PASS_REGS);
-        b_l1 = strlen(buf1);
+        b_l1 = strlen((const char *)buf1);
         bool rc = write_Text(buf1, outv + 1, b_l1 PASS_REGS);
         if (!rc) {
           return false;
@@ -1032,7 +1013,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         u_l1 = strlen_utf8(buf1);
         b_l0 = b_l - b_l1;
         u_l0 = u_l - u_l1;
-        if (bcmp(skip_utf8((const  char *)buf, b_l0), buf1, b_l1) !=
+        if (bcmp(skip_utf8((const unsigned char *)buf, b_l0), buf1, b_l1) !=
             0) {
           return false;
         }

@@ -389,7 +389,6 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   wglb.lw = separator;
   wglb.stream = GLOBAL_Stream + sno;
   wrputf(f, &wglb);
-  wrputc('\0', wglb.stream);
   so = Yap_MemExportStreamPtr(sno);
   *s = Malloc( strlen(so) )+1;
   strcpy(*s, so );

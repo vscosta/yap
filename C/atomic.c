@@ -800,7 +800,8 @@ restart_aux:
   ReleaseAndReturn(FALSE);
 }
 
-static Int cont_atom_concat3(USES_REGS1) {
+static Int
+cont_atom_concat3(USES_REGS1) {
   Term t3;
   Atom ats[2];
   Int i, max;
@@ -858,7 +859,7 @@ restart_aux:
     ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomToLength(t3 PASS_REGS));
+    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomToUnicodeLength(t3 PASS_REGS));
     ReleaseAndReturn(cont_atom_concat3(PASS_REGS1));
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
@@ -948,7 +949,7 @@ restart_aux:
     ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomicToLength(t3 PASS_REGS));
+    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_AtomicToUnicodeLength(t3 PASS_REGS));
     return cont_atomic_concat3(PASS_REGS1);
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
@@ -1032,7 +1033,7 @@ restart_aux:
     ot = ARG1;
   } else if (g3) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
-    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_StringToLength(t3 PASS_REGS));
+    EXTRA_CBACK_ARG(3, 2) = MkIntTerm(Yap_StringToUnicodeLength(t3 PASS_REGS));
     pop_text_stack(l);
     return cont_string_concat3(PASS_REGS1);
   } else {
@@ -1482,7 +1483,7 @@ static Int atom_length(USES_REGS1) {
     }
   }
 restart_aux:
-  len = Yap_AtomicToLength(t1 PASS_REGS);
+  len = Yap_AtomToUnicodeLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     ReleaseAndReturn(Yap_unify(ARG2, MkIntegerTerm(len)));
   /* error handling */
@@ -1523,7 +1524,7 @@ static Int atomic_length(USES_REGS1) {
     }
   }
 restart_aux:
-  len = Yap_AtomicToLength(t1 PASS_REGS);
+  len = Yap_AtomicToUnicodeLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     ReleaseAndReturn(Yap_unify(ARG2, MkIntegerTerm(len)));
   /* error handling */
@@ -1552,7 +1553,7 @@ static Int string_length(USES_REGS1) {
   }
 restart_aux:
   t1 = Deref(ARG1);
-  len = Yap_AtomicToLength(t1 PASS_REGS);
+  len = Yap_StringToUnicodeLength(t1 PASS_REGS);
   if (len != (size_t)-1)
     ReleaseAndReturn(Yap_unify(ARG2, MkIntegerTerm(len)));
   /* error handling */

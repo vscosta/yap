@@ -1089,6 +1089,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
 
   if (name == NULL) {
     char buf[YAP_FILENAME_MAX + 1];
+      memset(buf, 0, YAP_FILENAME_MAX + 1);
     name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
     if (name)
       st->name = Yap_LookupAtom(name);
