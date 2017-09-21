@@ -660,6 +660,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.val.t = t0;
    inp.type = YAP_STRING_ATOM;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -687,6 +688,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
      YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
    out.val.uc = NULL;
    out.type = YAP_STRING_STRING;
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -715,6 +717,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
      YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
    out.val.uc = NULL;
    out.type = mod_to_type(mod PASS_REGS);
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -754,6 +757,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_CHARS;
    out.val.uc = NULL;
    out.type = YAP_STRING_ATOM;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
    return out.val.a;
@@ -925,6 +929,8 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_ATOMS;
    out.type = YAP_STRING_ATOM;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return (Atom)NULL;
    return out.val.a;
@@ -937,6 +943,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    out.type =
      YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
    return out.val.t;
@@ -948,6 +955,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_ATOMS;
    out.type = YAP_STRING_STRING;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
    return out.val.t;
@@ -959,6 +967,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_CODES;
    out.type = YAP_STRING_ATOM;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return (Atom)NULL;
    return out.val.a;
@@ -969,6 +978,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.val.t = t0;
    inp.type = YAP_STRING_CODES;
    out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
+   out.enc = ENC_ISO_UTF8;
    out.val.uc = NULL;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -981,6 +991,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_CODES;
    out.val.uc = NULL;
    out.type = YAP_STRING_STRING;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
    return out.val.t;
@@ -992,6 +1003,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_ATOMS_CODES;
    out.val.uc = NULL;
    out.type = YAP_STRING_ATOM;
+   out.enc = ENC_ISO_UTF8;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
    return out.val.a;
@@ -1002,6 +1014,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.val.t = t0;
    inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    out.type = YAP_STRING_ATOM | YAP_STRING_INT | YAP_STRING_FLOAT |
      YAP_STRING_BIG | YAP_STRING_OUTPUT_TERM;
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1015,6 +1028,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.val.t = t0;
    inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES;
    out.val.uc = NULL;
+   out.enc = ENC_ISO_UTF8;
    out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1029,6 +1043,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
    out.val.uc = NULL;
    out.type = YAP_STRING_STRING;
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -1044,6 +1059,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
      YAP_STRING_OUTPUT_TERM;
    out.val.uc = NULL;
    out.type = YAP_STRING_STRING;
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -1057,6 +1073,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
    out.val.uc = NULL;
    out.type = mod_to_type(mod PASS_REGS);
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -1070,6 +1087,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.type = YAP_STRING_STRING | YAP_STRING_ATOMS_CODES | YAP_STRING_TERM;
    out.val.uc = NULL;
    out.type = mod_to_bqtype(mod PASS_REGS);
+   out.enc = ENC_ISO_UTF8;
 
    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
      return 0L;
@@ -1083,6 +1101,7 @@ static inline size_t Yap_AtomToLength(Term t0 USES_REGS) {
    inp.val.c0 = s;
    inp.type = YAP_STRING_CHARS | YAP_STRING_NCHARS;
    inp.enc = enc;
+   out.enc = ENC_ISO_UTF8;
    out.type = YAP_STRING_ATOM;
    out.val.uc = NULL;
    out.max = len;

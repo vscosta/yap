@@ -379,8 +379,8 @@ typedef void (*YAP_halt_hook)(int exit_code, void *closure);
 /* each type has a tag */
 typedef YAP_Int YAP_opaque_tag_t;
 
-typedef YAP_Bool (*YAP_Opaque_CallOnFail)(void *);
-typedef YAP_Bool (*YAP_Opaque_CallOnCut)(void *);
+typedef YAP_Bool (*YAP_Opaque_CallOnFail)(YAP_Term);
+typedef YAP_Bool (*YAP_Opaque_CallOnCut)(YAP_Term);
 typedef YAP_Bool (*YAP_Opaque_CallOnWrite)(FILE *, YAP_opaque_tag_t, void *,
                                            int);
 typedef YAP_Int (*YAP_Opaque_CallOnGCMark)(YAP_opaque_tag_t, void *, YAP_Term *,

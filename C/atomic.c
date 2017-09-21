@@ -309,42 +309,40 @@ static Int char_code(USES_REGS1) {
 
   */
   static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
-  Term t = Deref(ARG2), NewT, AtomNameT = Deref(ARG1);
+  Term t2 = Deref(ARG2), NewT, t1 = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
 
   int l = push_text_stack();
 restart_aux:
-  if (Yap_IsGroundTerm(AtomNameT)) {
-    if (!IsVarTerm(t) && !IsPairTerm(t) && t != TermNil) {
+  if (Yap_IsGroundTerm(t1)) {
+    if (!IsVarTerm(t2) && !IsPairTerm(t2) && t2 != TermNil) {
       Yap_Error(TYPE_ERROR_LIST, ARG2, "name/2");
-      pop_text_stack(l);
       ReleaseAndReturn(FALSE);
     }
     // verify if an atom, int, float or bi§gnnum
-    NewT = Yap_AtomicToListOfCodes(AtomNameT PASS_REGS);
+    NewT = Yap_AtomicToListOfCodes(t1 PASS_REGS);
     if (NewT) {
-      pop_text_stack(l);
       ReleaseAndReturn(Yap_unify(NewT, ARG2));
     }
     // else
-  } else if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "name/2");
+  } else if (IsVarTerm(t2)) {
+    Yap_Error(INSTANTIATION_ERROR, t2, "name/2");
     pop_text_stack(l);
-    return FALSE;
+    return false;
   } else {
-    Term at = Yap_ListToAtomic(t PASS_REGS);
+    Term at = Yap_ListToAtomic(t2 PASS_REGS);
     if (at) {
       pop_text_stack(l);
       ReleaseAndReturn(Yap_unify(at, ARG1));
     }
   }
   if (LOCAL_Error_TYPE && Yap_HandleError("atom/2")) {
-    AtomNameT = Deref(ARG1);
-    t = Deref(ARG2);
+    t1 = Deref(ARG1);
+    t2 = Deref(ARG2);
     goto restart_aux;
   }
   pop_text_stack(l);
-  ReleaseAndReturn(FALSE);
+  ReleaseAndReturn(false);
 }
 
 static Int string_to_atomic(

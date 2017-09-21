@@ -2221,7 +2221,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
 
     BACKUP_MACHINE_REGS();
     inp.val.t = t;
-    inp.type = YAP_STRING_TERM;
+    inp.type = YAP_STRING_TERM|YAP_STRING_DATUM;
     out.type = YAP_STRING_CHARS;
     out.val.c = buf;
     out.max = sze - 1;

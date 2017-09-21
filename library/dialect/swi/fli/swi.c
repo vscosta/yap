@@ -140,16 +140,16 @@ static UInt cvtFlags(unsigned flags) {
     inptype |= YAP_STRING_FLOAT;
   }
   if (flags & CVT_VARIABLE) {
-    inptype |= YAP_STRING_TERM;
+    inptype |= YAP_STRING_DATUM;
   }
   if (flags & CVT_WRITE) {
-    inptype |= YAP_STRING_TERM;
+    inptype |= YAP_STRING_DATUM;
   }
   if (flags & CVT_WRITEQ) {
-    inptype |= YAP_STRING_TERM | YAP_STRING_WQ;
+    inptype |= YAP_STRING_DATUM | YAP_STRING_WQ;
   }
   if (flags & CVT_WRITE_CANONICAL) {
-    inptype |= YAP_STRING_TERM | YAP_STRING_WC;
+    inptype |= YAP_STRING_DATUM | YAP_STRING_WC;
   }
   return inptype;
 }

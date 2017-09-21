@@ -116,18 +116,19 @@ static char SccsId[] = "%W% %G%";
 }
 
 
-bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, encoding_t enc, size_t nchars) {
   FILE *f;
 
   // like any file stream.
   st->file = f = fmemopen((void *)buf, nchars, "r");
   st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   st->vfs = NULL;
+          st->encoding = enc;
   Yap_DefaultStreamOps(st);
   return true;
 }
 
-int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
+int                 Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
                              memBufSource src) {
   CACHE_REGS
   int sno;
