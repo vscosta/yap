@@ -948,9 +948,10 @@ static Int current_predicate(USES_REGS1) {
 
 static OpEntry *NextOp(Prop pp USES_REGS) {
 
-  while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
-         (RepOpProp(pp)->OpModule != PROLOG_MODULE
-	  || RepOpProp(pp)->OpModule != CurrentModule) )
+  while (!EndOfPAEntr(pp) && 
+    pp->KindOfPE != OpProperty &&
+    (RepOpProp(pp)->OpModule != PROLOG_MODULE || RepOpProp(pp)->OpModule != CurrentModule)
+   )
 	 pp = pp->NextOfPE;
   return RepOpProp(pp);
 }

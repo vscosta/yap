@@ -1,19 +1,18 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	%W% %G%
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		yapio.h							 *
-* Last rev:	22/1/03							 *
-* mods:									 *
-* comments:	Input/Output information				 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	%W% %G%
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		yapio.h * Last
+ *rev:	22/1/03							 * mods:
+ ** comments:	Input/Output information				 *
+ *									 *
+ *************************************************************************/
 
 #ifndef YAPIO_H
 
@@ -78,8 +77,7 @@ extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 extern int Yap_OpenStream(FILE *, char *, Term, int);
-extern char *Yap_TermToString(Term t, size_t *length, encoding_t encoding,
-                              int flags);
+extern char *Yap_TermToString(Term t, encoding_t encoding, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);
@@ -110,10 +108,10 @@ extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
-extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf, encoding_t enc,
-                                  size_t nchars);
+extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf,
+                                  encoding_t enc, size_t nchars);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
-extern Term Yap_BufferToTerm(const unsigned char *s, size_t sz, Term opts);
+extern Term Yap_BufferToTerm(const unsigned char *s, Term opts);
 extern X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s,
                                                    size_t sz, Term opts,
                                                    int prio, Term bindings);

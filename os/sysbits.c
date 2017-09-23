@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		sysbits.c *
-* Last rev:	4/03/88							 *
-* mods: *
-* comments:	very much machine dependent routines			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		sysbits.c *
+ * Last rev:	4/03/88							 *
+ * mods: *
+ * comments:	very much machine dependent routines			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -487,8 +487,8 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
 }
 
 static Term
-    /* Expand the string for the program to run.  */
-    do_glob(const char *spec, bool glob_vs_wordexp) {
+/* Expand the string for the program to run.  */
+do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
   if (spec == NULL) {
     return TermNil;
@@ -847,7 +847,7 @@ static Int absolute_file_system_path(USES_REGS1) {
   const char *fp;
   bool rc;
   char s[MAXPATHLEN + 1];
-  const char *text = Yap_TextTermToText(t, s, MAXPATHLEN, LOCAL_encoding);
+  const char *text = Yap_TextTermToText(t, s, LOCAL_encoding);
 
   if (text == NULL) {
     return false;
@@ -1042,7 +1042,7 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
   if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
     if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
       return FALSE;
-  commons_done = true;
+    commons_done = true;
   }
 #endif
   return dir_done && commons_done;
@@ -1163,19 +1163,19 @@ static Int working_directory(USES_REGS1) {
 }
 
 /** Yap_findFile(): tries to locate a file, no expansion should be performed/
-   *
-   *
-   * @param isource the proper file
-   * @param idef the default name fothe file, ie, startup.yss
-   * @param root the prefix
-   * @param result the output
-   * @param access verify whether the file has access permission
-   * @param ftype saved state, object, saved file, prolog file
-   * @param expand_root expand $ ~, etc
-   * @param in_lib library file
-   *
-   * @return
-   */
+ *
+ *
+ * @param isource the proper file
+ * @param idef the default name fothe file, ie, startup.yss
+ * @param root the prefix
+ * @param result the output
+ * @param access verify whether the file has access permission
+ * @param ftype saved state, object, saved file, prolog file
+ * @param expand_root expand $ ~, etc
+ * @param in_lib library file
+ *
+ * @return
+ */
 const char *Yap_findFile(const char *isource, const char *idef,
                          const char *iroot, char *result, bool access,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib) {
@@ -1199,7 +1199,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
         source = (isource ? isource : idef);
       }
       if (source) {
-          abspath = Yap_IsAbsolutePath(source);
+        abspath = Yap_IsAbsolutePath(source);
       }
       if (!abspath && !root && ftype == YAP_BOOT_PL) {
         root = YAP_PL_SRCDIR;
@@ -1359,7 +1359,7 @@ static Int p_expand_file_name(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
-  text = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
+  text = Yap_TextTermToText(t, NULL, LOCAL_encoding);
   if (!text)
     return false;
   if (!(text2 = PlExpandVars(text, NULL, NULL)))
@@ -1808,9 +1808,9 @@ static Int p_env_separator(USES_REGS1) {
 }
 
 /*
-   * This is responsable for the initialization of all machine dependant
-   * predicates
-   */
+ * This is responsable for the initialization of all machine dependant
+ * predicates
+ */
 void Yap_InitSysbits(int wid) {
   CACHE_REGS
 #if __simplescalar__
@@ -1925,7 +1925,7 @@ static HKEY reg_open_key(const wchar_t *which, int create) {
 #define MAXREGSTRLEN 1024
 
 static wchar_t *WideStringFromAtom(Atom KeyAt USES_REGS) {
-    return Yap_AtomToWide( KeyAt );
+  return Yap_AtomToWide(KeyAt);
 }
 
 static Int p_win_registry_get_value(USES_REGS1) {
@@ -1942,24 +1942,24 @@ static Int p_win_registry_get_value(USES_REGS1) {
   if (IsVarTerm(Key)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   if (!IsAtomTerm(Key)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   KeyAt = AtomOfTerm(Key);
   if (IsVarTerm(Name)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   if (!IsAtomTerm(Name)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
-pop_text_stack(l);
+    pop_text_stack(l);
     return FALSE;
   }
   NameAt = AtomOfTerm(Name);
@@ -1967,7 +1967,7 @@ pop_text_stack(l);
   k = WideStringFromAtom(KeyAt PASS_REGS);
   if (!(key = reg_open_key(k, FALSE))) {
     Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
-pop_text_stack(l);
+    pop_text_stack(l);
     return FALSE;
   }
   name = WideStringFromAtom(NameAt PASS_REGS);
@@ -1979,19 +1979,18 @@ pop_text_stack(l);
       ((wchar_t *)data)[len] = '\0';
       Atom at = Yap_NWCharsToAtom((wchar_t *)data, len PASS_REGS);
       pop_text_stack(l);
-      return Yap_unify(MkAtomTerm(at),ARG3);
-    case REG_DWORD:
-       {
-        DWORD *d = (DWORD *)data;
-pop_text_stack(l);
-        return Yap_unify(MkIntegerTerm((Int)d[0]), ARG3);
-      }
+      return Yap_unify(MkAtomTerm(at), ARG3);
+    case REG_DWORD: {
+      DWORD *d = (DWORD *)data;
+      pop_text_stack(l);
+      return Yap_unify(MkIntegerTerm((Int)d[0]), ARG3);
+    }
     default:
- pop_text_stack(l);
-       return FALSE;
+      pop_text_stack(l);
+      return FALSE;
     }
   }
-pop_text_stack(l);
+  pop_text_stack(l);
   return FALSE;
 }
 

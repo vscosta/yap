@@ -12,18 +12,18 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-X_API char *Yap_TermToString(Term t, size_t *length, encoding_t encodingp,
+X_API char *Yap_TermToString(Term t, encoding_t encodingp,
                              int flags);
 
-X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
-X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
-                                      YAP_Term);
-X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-                                  arity_t, arity_t);
+  X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
+  X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
+					YAP_Term);
+  X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
+				    arity_t, arity_t);
 
-  #if YAP_PYTHON
+#if YAP_PYTHON
   X_API bool     do_init_python(void);
-  #endif
+#endif
 
 }
 

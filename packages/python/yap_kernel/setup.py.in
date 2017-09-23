@@ -97,25 +97,29 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
 
     argv = make_yap_kernel_cmd(executable='python')
     dest = os.path.join(here, 'resources')
-    if os.path.exists(dest):
+    try:
         shutil.rmtree(dest)
-    write_kernel_spec(dest, overrides={'argv': argv})
-    shutil.copy('${CMAKE_CURRENT_SOURCE_DIR}/kernel.js',dest)
-    shutil.copy('${CMAKE_SOURCE_DIR}/misc/editors/prolog.js',dest)
-    shutil.copy('${CMAKE_SOURCE_DIR}/docs/icons/yap_32x32x32.png',os.path.join(dest,'logo-32x32.png'))
-    shutil.copy('${CMAKE_SOURCE_DIR}/docs/icons/yap_64x64x32.png',os.path.join(dest,'logo-64x64.png'))
-    setup_args['data_files'] = [
-        (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
-    ]
+        os.makedirs(  dest )
+        shutil.copy2('${CMAKE_SOURCE_DIR}/docs/icons/yap_32x32x32.png',dest)
+        shutil.copy2('${CMAKE_SOURCE_DIR}/docs/icons/yap_64x64x32.png',dest)
+        write_kernel_spec(dest, overrides={'argv': argv})
+    except:
+        pass
+    # shutil.copy('${CMAKE_CURRENT_SOURCE_DIR}/kernel.js',dest)
+    # shutil.copy('${CMAKE_SOURCE_DIR}/misc/editors/prolog.js',dest)
+        setup_args['data_files'] = [
+          (pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*'))),
+          ]
     mode_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'components', 'codemirror', 'mode', 'prolog')
     custom_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'custom')
     try:
-        os.makedirs(mode_loc)
+        shutil.copy( pjoin( custom_loc, "custom.js") , pjoin( custom_loc, "custom.js.orig"))
+        shutil.copy( "${CMAKE_CURRENT_SOURCE_DIR}/custom.js" , pjoin( custom_loc, "custom.js"))
+        if not os.path.exists(mode_loc):
+            os.makedirs(mode_loc)
         shutil.copy( "${CMAKE_SOURCE_DIR}/misc/editors/prolog.js" , mode_loc)
     except:
         pass
-    shutil.copy( pjoin( custom_loc, "custom.js") , pjoin( custom_loc, "custom.js.orig"))
-    shutil.copy( "${CMAKE_CURRENT_SOURCE_DIR}/custom.js" , pjoin( custom_loc, "custom.js"))
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],

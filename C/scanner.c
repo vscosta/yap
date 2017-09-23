@@ -1,19 +1,19 @@
 /*************************************************************************
-*                   *
-*   YAP Prolog                *
-*                   *
-*  Yap Prolog was developed at NCCUP - Universidade do Porto   *
-*                   *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003   *
-*                   *
-**************************************************************************
-*                   *
-* File:    %W% %G%                     *
-* Last rev:  22-1-03               *
-* mods:                   *
-* comments:  Prolog's scanner           *
-*                   *
-*************************************************************************/
+ *                   *
+ *   YAP Prolog                *
+ *                   *
+ *  Yap Prolog was developed at NCCUP - Universidade do Porto   *
+ *                   *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2003   *
+ *                   *
+ **************************************************************************
+ *                   *
+ * File:    %W% %G%                     *
+ * Last rev:  22-1-03               *
+ * mods:                   *
+ * comments:  Prolog's scanner           *
+ *                   *
+ *************************************************************************/
 
 /*
  * Description:
@@ -404,10 +404,10 @@ writing, writing a BOM can be requested using the option
                                */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "alloc.h"
-#include "YapEval.h"
 #include "yapio.h"
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
@@ -462,7 +462,7 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* dle dc1 dc2 dc3 dc4 nak syn etb can  em sub esc  fs  gs  rs  us
-           */
+     */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   / */
@@ -484,11 +484,11 @@ char_kind_t Yap_chtype0[NUMBER_OF_CHARS + 1] = {
     LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, BK, BK, BK, SY, BS,
 
     /* 128 129 130 131 132 133 134 135 136 137 138 139 140 141 142 143
-           */
+     */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /* 144 145    147 148 149 150 151 152 153 154 155 156 157 158 159
-           */
+     */
     BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS, BS,
 
     /*     ¡   ¢   £   ¤   ¥   ¦   §   ¨   ©   ª   «   ¬   ­   ®   ¯ */
@@ -871,7 +871,7 @@ static int num_send_error_message(char s[]) {
 
 #define number_overflow()                                                      \
   {                                                                            \
-    size_t nsz = Yap_Min(max_size * 2, max_size);                                  \
+    size_t nsz = Yap_Min(max_size * 2, max_size);                              \
     char *nbuf;                                                                \
                                                                                \
     if (buf == buf0) {                                                         \
@@ -1104,7 +1104,7 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   CACHE_REGS
   Term out;
   int sign = 1;
-  int ch, cherr;
+  int ch, cherr = 0;
   char *ptr;
   void *old_tr = TR;
 
@@ -1225,8 +1225,8 @@ const char *Yap_tokText(void *tokptre) {
   case eot_tok:
     return "EOT";
   case Ponctuation_tok:
-   if (info == Terml)
-     return "(";
+    if (info == Terml)
+      return "(";
   case Error_tok:
   case BQString_tok:
   case String_tok:
@@ -1604,7 +1604,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = String_tok);
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
@@ -1612,7 +1611,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *inp_stream, bool store_comments,
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = String_tok);
       } else {
         t->TokInfo = MkAtomTerm(Yap_ULookupAtom(TokImage));

@@ -42,7 +42,7 @@ bool Yap_GetFileName(Term t, char *buf, size_t len, encoding_t enc) {
     t = ArgOfTerm(2, t);
     len -= (szl + 1);
   }
-  return Yap_TextTermToText(t, buf, len, enc);
+  return Yap_TextTermToText(t, buf, enc);
 }
 
 static Int file_name_extension(USES_REGS1) {
@@ -78,8 +78,7 @@ static Int file_name_extension(USES_REGS1) {
       Yap_unify(t2, t);
     } else {
       f2 = ss + (strlen(ss) + 1);
-      if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 1 - (f2 - f),
-                              ENC_ISO_UTF8))
+      if (!Yap_TextTermToText(t2, f2, ENC_ISO_UTF8))
         return false;
 #if __APPLE__ || _WIN32
       Yap_OverwriteUTF8BufferToLowCase(f2);
@@ -113,12 +112,11 @@ static Int file_name_extension(USES_REGS1) {
     return true;
   } else {
     char *f2;
-    if (!Yap_TextTermToText(t1, f, YAP_FILENAME_MAX - 2, ENC_ISO_UTF8)) {
+    if (!Yap_TextTermToText(t1, f, ENC_ISO_UTF8)) {
       return false;
     }
     f2 = f + strlen(f);
-    if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 2 - (f2 - f),
-                            ENC_ISO_UTF8)) {
+    if (!Yap_TextTermToText(t2, f2, ENC_ISO_UTF8)) {
       return false;
     }
     if (f2[0] != '.') {
@@ -460,7 +458,7 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return false;
   }
-  const char *buf = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
+  const char *buf = Yap_TextTermToText(t, NULL, LOCAL_encoding);
   if (buf) {
     rc = Yap_IsAbsolutePath(buf);
   } else {

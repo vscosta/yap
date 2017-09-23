@@ -53,6 +53,7 @@ static ModEntry *initMod(AtomEntry *toname, AtomEntry *ae) {
   n->NextME = CurrentModules;
   CurrentModules = n;
   n->AtomOfME = ae;
+  n->NextOfPE =NULL;
   n->OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   AddPropToAtom(ae, (PropEntry *)n);
   Yap_setModuleFlags(n, parent);
@@ -385,25 +386,20 @@ static Int strip_module(USES_REGS1) {
 }
 
 static Int yap_strip_clause(USES_REGS1) {
-    Functor f;
     Term t1 = Deref(ARG1), tmod = LOCAL_SourceModule;
     if (tmod == PROLOG_MODULE) {
         tmod = TermProlog;
     }
     t1 = Yap_StripModule(t1, &tmod);
-    if (IsVarTerm(t1)) {
+    if (IsVarTerm(t1) || IsVarTerm(tmod)) {
         Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
         return false;
-    } else  if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, tmod, "trying to obtain module");
-        return false;
-    } else if (IsIntTerm(t1) || (IsApplTerm(t1) && IsExtensionFunctor((f = FunctorOfTerm(t1))))) {
-    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
-    return false;
-    } else if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, tmod, "trying to obtain module");
-        return false;
-    }
+    } else if (IsApplTerm(t1)) {
+      Functor f = FunctorOfTerm(t1);  
+      if (IsExtensionFunctor(f)) {
+          Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+          return false;      
+      }
         if (f == FunctorAssert || f == FunctorDoubleArrow) {
             Term thmod = tmod;
             Term th = ArgOfTerm(1, t1);
@@ -411,7 +407,7 @@ static Int yap_strip_clause(USES_REGS1) {
             if (IsVarTerm(th)) {
                 Yap_Error(INSTANTIATION_ERROR, t1, "trying to obtain module");
                 return false;
-            } else if (IsVarTerm(thmod)) {
+              } else if (IsVarTerm(thmod)) {
                     Yap_Error(INSTANTIATION_ERROR, thmod, "trying to obtain module");
                     return false;
             } else if (IsIntTerm(th) ||  (IsApplTerm(th) && IsExtensionFunctor(FunctorOfTerm(t1)))) {
@@ -422,6 +418,11 @@ static Int yap_strip_clause(USES_REGS1) {
                 return false;
             }
        }
+
+    } else if (IsIntTerm(t1) || IsIntTerm(tmod) ) {
+    Yap_Error(TYPE_ERROR_CALLABLE, t1, "trying to obtain module");
+    return false; 
+  }  
     return Yap_unify(ARG3, t1) && Yap_unify(ARG2, tmod);
 }
 

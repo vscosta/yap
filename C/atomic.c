@@ -268,12 +268,11 @@ static Int char_code(USES_REGS1) {
     Atom at = AtomOfTerm(t0);
     Term tf;
     unsigned char *c = RepAtom(at)->UStrOfAE;
-    int32_t v;
-    c += get_utf8(c, 1, &v);
-    if (c[0] != '\0') {
-      Yap_Error(TYPE_ERROR_CHARACTER, t0, "char_code/2");
-      return FALSE;
-    }
+    int32_t v = IntegerOfTerm(ARG1);
+
+    get_utf8(c, -1, &v);
+    if (!v)
+      return false;
     tf = MkIntTerm(v);
     return Yap_unify(ARG2, tf);
   }
@@ -282,38 +281,38 @@ static Int char_code(USES_REGS1) {
   /** @pred name( _A_, _L_)
 
 
-  The predicate holds when at least one of the arguments is ground
-  (otherwise, an error message will be displayed). The argument  _A_ will
-  be unified with an atomic symbol and  _L_ with the list of the ASCII
-  codes for the characters of the external representation of  _A_.
+      The predicate holds when at least one of the arguments is ground
+      (otherwise, an error message will be displayed). The argument  _A_ will
+      be unified with an atomic symbol and  _L_ with the list of the ASCII
+      codes for the characters of the external representation of  _A_.
 
-  ~~~~~{.prolog}
-   name(yap,L).
-  ~~~~~
-  will return:
+      ~~~~~{.prolog}
+      name(yap,L).
+      ~~~~~
+      will return:
 
-  ~~~~~{.prolog}
-   L = [121,97,112].
-  ~~~~~
-  and
+      ~~~~~{.prolog}
+      L = [121,97,112].
+      ~~~~~
+      and
 
-  ~~~~~{.prolog}
-   name(3,L).
-  ~~~~~
-  will return:
+      ~~~~~{.prolog}
+      name(3,L).
+      ~~~~~
+      will return:
 
-  ~~~~~{.prolog}
-   L = [51].
-  ~~~~~
+      ~~~~~{.prolog}
+      L = [51].
+      ~~~~~
 
 
   */
-  static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
+static Int name(USES_REGS1) { /* name(?Atomic,?String)		 */
   Term t2 = Deref(ARG2), NewT, t1 = Deref(ARG1);
   LOCAL_MAX_SIZE = 1024;
 
   int l = push_text_stack();
-restart_aux:
+ restart_aux:
   if (Yap_IsGroundTerm(t1)) {
     if (!IsVarTerm(t2) && !IsPairTerm(t2) && t2 != TermNil) {
       Yap_Error(TYPE_ERROR_LIST, ARG2, "name/2");

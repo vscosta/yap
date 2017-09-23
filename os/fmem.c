@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		mem.c *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		mem.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -23,29 +23,27 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
-#include "sysbits.h"
 #include "format.h"
+#include "sysbits.h"
 
 #if HAVE_FMEMOPEN
 
-
-
- int format_synch(int sno, int sno0, format_info *fg) {
+int format_synch(int sno, int sno0, format_info *fg) {
   const char *s;
   int n;
   if (sno != sno0) {
-      fflush(GLOBAL_Stream[sno].file);
-      n = ftell(GLOBAL_Stream[sno].file);
-      s = GLOBAL_Stream[sno].nbuf;
-      if (GLOBAL_Stream[sno0].vfs) {
-          int ch;
-          int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
-          while ((ch = *s++)) {
-              f(sno0, ch);
-          }
-      } else {
-          fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
+    fflush(GLOBAL_Stream[sno].file);
+    n = ftell(GLOBAL_Stream[sno].file);
+    s = GLOBAL_Stream[sno].nbuf;
+    if (GLOBAL_Stream[sno0].vfs) {
+      int ch;
+      int (*f)() = GLOBAL_Stream[sno0].vfs->put_char;
+      while ((ch = *s++)) {
+        f(sno0, ch);
       }
+    } else {
+      fwrite(s, n, 1, GLOBAL_Stream[sno0].file);
+    }
     rewind(GLOBAL_Stream[sno].file);
     fg->lstart = 0;
     fg->phys_start = 0;
@@ -55,9 +53,9 @@ static char SccsId[] = "%W% %G%";
   return sno;
 }
 
- bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
+bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
 // uses directly the buffer in the memory stream.
-  {
+{
   int nfillers, fill_space, lfill_space, nchars;
   int (*f_putc)(int, int);
   const char *buf;
@@ -115,20 +113,20 @@ static char SccsId[] = "%W% %G%";
   return true;
 }
 
-
-bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, encoding_t enc, size_t nchars) {
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, encoding_t enc,
+                           size_t nchars) {
   FILE *f;
 
   // like any file stream.
   st->file = f = fmemopen((void *)buf, nchars, "r");
   st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   st->vfs = NULL;
-          st->encoding = enc;
+  st->encoding = enc;
   Yap_DefaultStreamOps(st);
   return true;
 }
 
-int                 Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
+int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
                              memBufSource src) {
   CACHE_REGS
   int sno;
@@ -139,8 +137,7 @@ int                 Yap_open_buf_read_stream(const char *buf, size_t nchars, enc
 
   sno = GetFreeStreamD();
   if (sno < 0)
-    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS,
-                      TermNil,
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil,
                       "new stream not available for open_mem_read_stream/1"));
   st = GLOBAL_Stream + sno;
   if (encp)
@@ -151,7 +148,7 @@ int                 Yap_open_buf_read_stream(const char *buf, size_t nchars, enc
   f = st->file = fmemopen((void *)buf, nchars, "r");
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
   Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead, NULL);
-// like any file stream.
+  // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;
@@ -165,7 +162,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   const char *buf;
 
   ti = Deref(ARG1);
-  buf = Yap_TextTermToText(ti, NULL, 0, LOCAL_encoding);
+  buf = Yap_TextTermToText(ti, NULL, LOCAL_encoding);
   if (!buf) {
     return false;
   }
@@ -290,10 +287,9 @@ void Yap_MemOps(StreamDesc *st) {
   st->stream_putc = FilePutc;
 
   st->stream_getc = PlGetc;
-
 }
 
-  static int sssno;
+static int sssno;
 
 bool Yap_CloseMemoryStream(int sno) {
   sssno++;

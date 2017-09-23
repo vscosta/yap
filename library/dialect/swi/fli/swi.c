@@ -11,13 +11,13 @@ Moyle.  All rights reserved.
 */
 
 /**
-*
-*   @file swi.c
-*
-*   @addtogroup swi-c-interface
-*
-* @{
-*/
+ *
+ *   @file swi.c
+ *
+ *   @addtogroup swi-c-interface
+ *
+ * @{
+ */
 
 #define PL_KERNEL 1
 #define _EXPORT_KERNEL 1
@@ -119,8 +119,8 @@ static void UserCPredicate(char *a, CPredicate def, unsigned long int arity,
 //!  @{
 
 /** @defgroup swi-ATOMS Atom Construction
-*  @ingroup swi-c-interface
-*  */
+ *  @ingroup swi-c-interface
+ *  */
 
 static UInt cvtFlags(unsigned flags) {
   UInt inptype = 0;
@@ -156,8 +156,8 @@ static UInt cvtFlags(unsigned flags) {
 
 /*  void PL_agc_hook(void) */
 /** @brief Atom garbage collection hook
-*
-*/
+ *
+ */
 X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t entry) {
   return (PL_agc_hook_t)YAP_AGCRegisterHook((YAP_agc_hook)entry);
 }
@@ -227,9 +227,7 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
     pop_text_stack(lvl);
     return false;
   }
-  out.val.c = protected_pop_text_stack(lvl, out.val.c,
-                                       flags & (BUF_RING | BUF_DISCARDABLE),
-                                       strlen(out.val.c) + 1 PASS_REGS);
+  out.val.c = export_block(-1, out.val.c PASS_REGS);
   *s = out.val.c;
   return true;
 }
@@ -281,15 +279,15 @@ X_API int PL_unify_chars(term_t l, int flags, size_t length, const char *s) {
   } else if (flags & PL_CHAR_LIST) {
     out.type = YAP_STRING_ATOMS;
   }
-    out.max = length;
+  out.max = length;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
     return 0L;
   return Yap_unify(Yap_GetFromSlot(l), out.val.t);
 }
 
 /** @brief extract the text representation from atom
-*
-*/
+ *
+ */
 X_API char *PL_atom_chars(atom_t a) /* SAM check type */
 {
   Atom at = SWIAtomToAtom(a);
@@ -297,8 +295,8 @@ X_API char *PL_atom_chars(atom_t a) /* SAM check type */
 }
 
 /** @brief extract the text representation from atom, including its length
-*
-*/
+ *
+ */
 X_API char *PL_atom_nchars(atom_t a, size_t *len) /* SAM check type */
 {
   char *s = RepAtom(SWIAtomToAtom(a))->StrOfAE;
@@ -309,14 +307,14 @@ X_API char *PL_atom_nchars(atom_t a, size_t *len) /* SAM check type */
 //!  @}
 
 /** @{
-*
-* @defgroup swi-term_references Term References
-*  @ingroup swi-c-interface
-*  */
+ *
+ * @defgroup swi-term_references Term References
+ *  @ingroup swi-c-interface
+ *  */
 
 /** @brief create a clean term reference
-*
-*/
+ *
+ */
 X_API term_t PL_new_term_ref(void) {
   CACHE_REGS
   term_t to = Yap_NewSlots(1);
@@ -324,17 +322,17 @@ X_API term_t PL_new_term_ref(void) {
 }
 
 /** @brief duplicate a term reference
-*
-*/
+ *
+ */
 X_API term_t PL_copy_term_ref(term_t from) {
   CACHE_REGS
   return Yap_InitSlot(Yap_GetFromSlot(from));
 }
 
 /** @brief create several new term references
-*
-* @par n is the number of references
-*/
+ *
+ * @par n is the number of references
+ */
 X_API term_t PL_new_term_refs(int n) {
   CACHE_REGS
   term_t to = Yap_NewSlots(n);
@@ -342,31 +340,31 @@ X_API term_t PL_new_term_refs(int n) {
 }
 
 /** @brief dispose of all term references created since after
-*
-*/
+ *
+ */
 X_API void PL_reset_term_refs(term_t after) {
   CACHE_REGS
   LOCAL_CurSlot = after;
 }
 
 /** @}
-*/
+ */
 
 //!  @{
 
 /**  @defgroup swi-term_manipulation Term Manipulation
-*  @ingroup swi-c-interface
-*  */
+ *  @ingroup swi-c-interface
+ *  */
 
 /**
-*  @defgroup swi-get-operations Reading Terms
-*  @ingroup swi-term_manipulation
-*  */
+ *  @defgroup swi-get-operations Reading Terms
+ *  @ingroup swi-term_manipulation
+ *  */
 
 /** @brief *name is assigned the name and *arity the arity if term ts, or the
  * operaton fails.
-*
-*/
+ *
+ */
 X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -399,8 +397,8 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
 }
 
 /** @brief a is assigned the argument index from term  ts
-*
-*/
+ *
+ */
 X_API int PL_get_arg(int index, term_t ts, term_t a) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -429,8 +427,8 @@ X_API int PL_get_arg(int index, term_t ts, term_t a) {
 }
 
 /** @brief *ap is assigned the name and *ip the arity from term  ts
-*
-*/
+ *
+ */
 X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -456,8 +454,8 @@ X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip) {
 }
 
 /** @brief *a is assigned the atom in term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_atom(term_t ts, atom_t *a) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -468,8 +466,8 @@ X_API int PL_get_atom(term_t ts, atom_t *a) {
 }
 
 /** @brief *i is assigned the int in term  ts, or the operation fails
-*
-*/
+ *
+ */
 /*  int PL_get_integer(term_t t, int *i)
 YAP: long int  YAP_IntOfTerm(Term) */
 X_API int PL_get_integer(term_t ts, int *i) {
@@ -483,8 +481,8 @@ X_API int PL_get_integer(term_t ts, int *i) {
 
 /** @brief *i is assigned the boolean atom `true` or `false` in term  ts, or the
  * operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_long(term_t ts, long *i) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -524,8 +522,8 @@ X_API int PL_get_bool(term_t ts, int *i) {
 }
 
 /** @brief *a is assigned the int64 in term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_int64(term_t ts, int64_t *i) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -575,8 +573,8 @@ X_API int PL_get_int64(term_t ts, int64_t *i) {
 X_API int PL_get_int64_ex(term_t ts, int64_t *i) { return PL_get_int64(ts, i); }
 
 /** @brief *a is assigned the intptr_t in term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_intptr(term_t ts, intptr_t *a) {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
@@ -587,8 +585,8 @@ X_API int PL_get_intptr(term_t ts, intptr_t *a) {
 }
 
 /** @brief *a is assigned the uintptr_t in term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_uintptr(term_t ts, uintptr_t *a) {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
@@ -599,8 +597,8 @@ X_API int PL_get_uintptr(term_t ts, uintptr_t *a) {
 }
 #ifdef do_not_ld
 /** @brief a is assigned the argument index from term  ts
-*
-*/
+ *
+ */
 X_API int _PL_get_arg(int index, term_t ts, term_t a) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -623,8 +621,8 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a) {
 
 /** @brief *a is assigned the string representation of the atom in term  ts, or
  * the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_atom_chars(term_t ts, char **a) /* SAM check type */
 {
   CACHE_REGS
@@ -645,8 +643,8 @@ X_API int PL_get_atom_chars(term_t ts, char **a) /* SAM check type */
 
 /** @brief *a is assigned the string representation of the atom in term  ts, and
  * *len its size, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_atom_nchars(term_t ts, size_t *len,
                              char **s) /* SAM check type */
 {
@@ -655,11 +653,11 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len,
   if (!IsAtomTerm(t)) {
     return 0;
   }
-    if (s)
-  *s = (char*)RepAtom(AtomOfTerm(t))->StrOfAE;
+  if (s)
+    *s = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
   if (len) {
-  *len = strlen(*s);
-}
+    *len = strlen(*s);
+  }
   return 1;
 }
 
@@ -693,8 +691,8 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len,
 */
 
 /** @brief *f is assigned the functor of term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_functor(term_t ts, functor_t *f) {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
@@ -710,8 +708,8 @@ X_API int PL_get_functor(term_t ts, functor_t *f) {
 
 /** @brief *f is assigned the floating  point number of term  ts, or the
  * operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {
   CACHE_REGS
@@ -740,8 +738,8 @@ X_API int PL_get_string_chars(term_t t, char **s, size_t *len) {
 
 /** @brief *s is assigned the string representation of the string in term  ts,
  * and *len its size, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_string(term_t t, char **s, size_t *len) {
   CACHE_REGS
   Term tt = Yap_GetFromSlot(t);
@@ -762,8 +760,8 @@ X_API int PL_get_string(term_t t, char **s, size_t *len) {
 
 /** @brief h is assigned the head of the pair term  ts, and tl its tail, or the
  * operation fails
-*
-*/
+ *
+ */
 
 X_API int PL_get_list(term_t ts, term_t h, term_t tl) {
   CACHE_REGS
@@ -777,8 +775,8 @@ X_API int PL_get_list(term_t ts, term_t h, term_t tl) {
 }
 
 /** @brief h is assigned the head of the pair term  ts, or the operation fails
-*
-*/
+ *
+ */
 X_API int PL_get_head(term_t ts, term_t h) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -790,8 +788,8 @@ X_API int PL_get_head(term_t ts, term_t h) {
 }
 
 /**
-*  @}
-*  */
+ *  @}
+ *  */
 
 //!  @{
 /**
@@ -801,8 +799,8 @@ X_API int PL_get_head(term_t ts, term_t h) {
 *  */
 
 /*b* @brief t unifies with the true/false value in a.
-*
-*/
+ *
+ */
 X_API int PL_unify_bool(term_t t, int a) {
   CACHE_REGS
   Term iterm = (a ? MkAtomTerm(AtomTrue) : MkAtomTerm(AtomFalse));
@@ -813,7 +811,7 @@ X_API int PL_unify_bool(term_t t, int a) {
 
 /*******************************
  *	       GMP		*
-*******************************/
+ *******************************/
 
 X_API int PL_get_mpz(term_t t, mpz_t mpz) {
   CACHE_REGS
@@ -1554,7 +1552,7 @@ X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars) {
 }
 
 /*  int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
-*/
+ */
 X_API int PL_unify_wchars(term_t t, int type, size_t len,
                           const pl_wchar_t *chars) {
   CACHE_REGS
@@ -1786,8 +1784,9 @@ int PL_unify_termv(term_t l, va_list ap) {
           Term t = Yap_MkNewApplTerm(ff, arity);
           if (nels) {
             if (depth == MAX_DEPTH) {
-              fprintf(stderr, "ERROR: very deep term in PL_unify_term, change "
-                              "MAX_DEPTH from %d\n",
+              fprintf(stderr,
+                      "ERROR: very deep term in PL_unify_term, change "
+                      "MAX_DEPTH from %d\n",
                       MAX_DEPTH);
               return FALSE;
             }
@@ -2525,8 +2524,9 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name,
 
 #ifdef DEBUG
   if (flags & (PL_FA_CREF)) {
-    fprintf(stderr, "PL_register_foreign_in_module called with non-implemented "
-                    "flag %x when creating predicate %s:%s/%d\n",
+    fprintf(stderr,
+            "PL_register_foreign_in_module called with non-implemented "
+            "flag %x when creating predicate %s:%s/%d\n",
             flags, module, name, arity);
   }
 #endif
@@ -3139,6 +3139,6 @@ char *PL_cwd(char *cwd, size_t cwdlen) {
 }
 
 /**
-* @}
-* @}
-*/
+ * @}
+ * @}
+ */

@@ -294,7 +294,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   s->status = flags;
   s->linepos = 0;
   s->linecount = 1;
-  s->charcount = 0.;
+  s->charcount = 0;
   s->vfs = vfsp;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
@@ -305,11 +305,11 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
       return;
     }
   } else {
-  unix_upd_stream_info(s);
-}
+    unix_upd_stream_info(s);
+  }
   /* Getting streams to prompt is a mess because we need for cooperation
-   between readers and writers to the stream :-(
-   */
+     between readers and writers to the stream :-(
+  */
   InitFileIO(s);
   switch (sno) {
   case 0:
@@ -330,7 +330,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
 #if HAVE_SETBUF
   if (s->status & Tty_Stream_f && sno == 0) {
     /* make sure input is unbuffered if it comes from stdin, this
-     makes life simpler for interrupt handling */
+       makes life simpler for interrupt handling */
     setbuf(stdin, NULL);
     //    fprintf(stderr,"here I am\n");
   }

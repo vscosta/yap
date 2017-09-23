@@ -12,6 +12,7 @@
 *.dll
 docs/yap.info*
 .build
+build
 tags
 TGSautom4te.cache
 cscope.*
@@ -24,7 +25,6 @@ tmtags*
 .Rhistory
 .zedstate
 config.h
-Yap.h
 YapConfig.h
 YapTermConfig.h
 .graffiti
@@ -42,7 +42,6 @@ groups
 .cproject
 .dir-locals.el
 .DS_store
-.kateproject
 .project
 .pydevproject
 .Rhistory
@@ -150,7 +149,7 @@ yap-6.3.workspace
 yap-6.3.geany
 YAP.project
 CBlocks
-yPQ	
+yPQ
 *.tmp
 YAP.sublime*
 yap32

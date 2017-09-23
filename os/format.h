@@ -1,8 +1,10 @@
 
 #define FORMAT_MAX_SIZE 1024
 
+#include <Yap.h>
+
 typedef struct {
-  Int filler;
+  intptr_t filler;
   /* character to dump */
   int phys;
   /* position in buffer */

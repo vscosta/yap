@@ -4585,6 +4585,9 @@ renumbervar(Term t, Int id USES_REGS)
   ts[1] = MkIntegerTerm(id);
 }
 
+extern int vsc;
+
+int vsc;
 
 static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv, int singles USES_REGS)
 {
@@ -4604,6 +4607,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     deref_head(d0, vars_in_term_unk);
   vars_in_term_nvar:
     {
+      vsc++;
       if (IsPairTerm(d0)) {
 	if (to_visit + 1024 >= (CELL **)AuxSp) {
 	  goto aux_overflow;

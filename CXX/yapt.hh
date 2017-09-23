@@ -226,18 +226,17 @@ public:
   /// return a string with a textual representation of the term
   virtual const char *text() {
     CACHE_REGS
-    size_t length = 0;
     encoding_t enc = LOCAL_encoding;
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc,
+    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), enc,
                                 Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
     RECOVER_MACHINE_REGS();
-    length = strlen(os) + 1;
+    size_t  length = strlen(os);
     char *sm = (char *)malloc(length + 1);
     strcpy(sm, os);
     return sm;
