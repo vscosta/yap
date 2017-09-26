@@ -171,7 +171,7 @@ static const char *PlExpandVars(const char *source, const char *root,
   CACHE_REGS
   const char *src = source;
   if (!result)
-    result = malloc(YAP_FILENAME_MAX + 1);
+    result = BaseMalloc(YAP_FILENAME_MAX + 1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
@@ -844,20 +844,23 @@ static Int expand_file_name3(USES_REGS1) {
 
 static Int absolute_file_system_path(USES_REGS1) {
   Term t = Deref(ARG1);
-  const char *fp;
-  bool rc;
-  char s[MAXPATHLEN + 1];
-  const char *text = Yap_TextTermToText(t, s, LOCAL_encoding);
+  int l = push_text_stack();
+  const char *text = Yap_TextTermToText(t, NULL, LOCAL_encoding);
+    const char *fp;
+    bool rc;
 
   if (text == NULL) {
+    pop_text_stack(l);
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, true)))
+  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, true))) {
+    pop_text_stack(l);
     return false;
+  }
+    pop_text_stack(l);
+
   rc = Yap_unify(Yap_MkTextTerm(fp, LOCAL_encoding, t), ARG2);
-  if (fp != s)
-    freeBuffer((void *)fp);
-  return rc;
+    return rc;
 }
 
 static Int prolog_to_os_filename(USES_REGS1) {
@@ -1359,14 +1362,18 @@ static Int p_expand_file_name(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
+  int l = push_text_stack();
   text = Yap_TextTermToText(t, NULL, LOCAL_encoding);
-  if (!text)
+  if (!text) {
+    pop_text_stack(l);
     return false;
-  if (!(text2 = PlExpandVars(text, NULL, NULL)))
+  }
+  if (!(text2 = PlExpandVars(text, NULL, NULL))) {
+    pop_text_stack(l);
     return false;
-  freeBuffer(text);
+  }
   bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding, t));
-  freeBuffer(text2);
+  pop_text_stack(l);
   return rc;
 }
 

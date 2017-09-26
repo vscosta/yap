@@ -406,7 +406,7 @@ YAPListTerm::YAPListTerm(YAPTerm ts[], arity_t n)
   }
 }
 
-const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a, nullptr); }
+const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
 
 void YAPQuery::openQuery(Term *ts)
 {
@@ -691,7 +691,7 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t)
  if (IsApplTerm(tt)) {
      Functor f = FunctorOfTerm(tt);
      if (IsExtensionFunctor(f))
-       nts =                                              nullptr;
+       nts =    nullptr;
      nts = RepAppl(goal.term())+1;
   } else if (IsPairTerm(tt)) {
          nts = RepPair(tt);

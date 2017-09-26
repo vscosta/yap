@@ -31,31 +31,14 @@
 #include "../utf8proc/utf8proc.h"
 #include "Yap.h"
 
-#define ReleaseAndReturn(r)                                                    \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    return r;                                                                  \
-  }
-#define release_cut_fail()                                                     \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    cut_fail();                                                                \
-  }
-#define release_cut_succeed()                                                  \
-  {                                                                            \
-    pop_text_stack(l);                                                         \
-    cut_succeed();                                                             \
-  }
-
 /// allocate a temporary text block
 ///
 extern void *Malloc(size_t sz USES_REGS);
 extern void *Realloc(void *buf, size_t sz USES_REGS);
 extern void Free(void *buf USES_REGS);
 
-extern int push_text_stack(USES_REGS1);
-extern int pop_text_stack(int lvl USES_REGS);
-extern void *export_block(int lvl, void *exp USES_REGS);
+extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
+#define BaseMalloc(sz) MallocAtLevel(sz, 1)
 
 #ifndef Yap_Min
 #define Yap_Min(x, y) (x < y ? x : y)
@@ -65,6 +48,17 @@ extern void *export_block(int lvl, void *exp USES_REGS);
 #define MBYTE (1024 * 1024)
 
 /* Character types for tokenizer and write.c */
+extern int AllocLevel(void);
+
+#define push_text_stack()                                                      \
+  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0', __FILE__,  __FUNCTION__, __LINE__), */ \
+   push_text_stack__(PASS_REGS1))
+extern int push_text_stack__(USES_REGS1);
+
+#define pop_text_stack(lvl)						\
+  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,  __FUNCTION__, __LINE__),*/ \
+   pop_text_stack__(lvl))
+extern int pop_text_stack__(int lvl USES_REGS);
 
 /****************** character definition table **************************/
 
@@ -878,24 +872,8 @@ static inline Term Yap_CharsToString(const char *s, encoding_t enc USES_REGS) {
   return out.val.t;
 }
 
-static inline char *Yap_AtomToUTF8Text(Atom at, const char *s USES_REGS) {
-  seq_tv_t inp, out;
-
-  inp.val.a = at;
-  inp.type = YAP_STRING_ATOM;
-  out.type = YAP_STRING_CHARS;
-  out.val.uc = NULL;
-  out.enc = ENC_ISO_UTF8;
-  if (s) {
-    out.val.c0 = s;
-    out.type |= YAP_STRING_WITH_BUFFER;
-  } else {
-    out.type |= YAP_STRING_MALLOC;
-    out.val.c = NULL;
-  }
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
-  return out.val.c;
+static inline char *Yap_AtomToUTF8Text(Atom at USES_REGS) {
+  return RepAtom(at)->StrOfAE;
 }
 
 static inline Term Yap_CharsToTDQ(const char *s, Term mod,
@@ -1635,6 +1613,5 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 
 #endif // ≈YAP_TEXT_H
 
-const char *Yap_TextTermToText(Term t, char *bufwrite_Text,
-                               encoding_t e USES_REGS);
+const char *Yap_TextTermToText(Term t, char *s, encoding_t e USES_REGS);
 Term Yap_MkTextTerm(const char *s, encoding_t e, Term tguide);

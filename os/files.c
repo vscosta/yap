@@ -453,23 +453,23 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
   Term t = Deref(ARG1);
   Atom at;
   bool rc;
-
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return false;
   }
+  int l = push_text_stack();
   const char *buf = Yap_TextTermToText(t, NULL, LOCAL_encoding);
   if (buf) {
     rc = Yap_IsAbsolutePath(buf);
   } else {
-    at = AtomOfTerm(t);
+      at = AtomOfTerm(t);
 #if _WIN32
-    rc = PathIsRelative(RepAtom(at)->StrOfAE);
+      rc = PathIsRelative(RepAtom(at)->StrOfAE);
 #else
-    rc = RepAtom(at)->StrOfAE[0] == '/';
+      rc = RepAtom(at)->StrOfAE[0] == '/';
 #endif
-    freeBuffer(buf);
   }
+  pop_text_stack(l);
   return rc;
 }
 

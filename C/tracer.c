@@ -1,19 +1,19 @@
 /*************************************************************************
-  *									 *
-  *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
-  *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-  *									 *
-  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-  *									 *
-  **************************************************************************
-  *									 *
-  * File:		tracer.h *
-  * Last rev:								 *
-  * mods: *
-  * comments:	definitions for low level tracer			 *
-  *									 *
-  *************************************************************************/
+ *									 *
+ *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		tracer.h *
+ * Last rev:								 *
+ * mods: *
+ * comments:	definitions for low level tracer			 *
+ *									 *
+ *************************************************************************/
 
 #include "Yap.h"
 
@@ -48,7 +48,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
       s = s1;
       expand = false;
     }
-  min = 1024;
+    min = 1024;
     if (name == NULL) {
 #ifdef YAPOR
       d = snprintf(s, max, "(%d)%s", worker_id, start);
@@ -81,7 +81,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           if (max > 16) {
             *s++ = ',';
             *s++ = ' ';
-            max-=2;
+            max -= 2;
           } else {
             expand = true;
             continue;
@@ -95,18 +95,18 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
         }
         sz = strlen(sn);
         if (max <= sz) {
-	  min = sz + 1024;
+          min = sz + 1024;
           expand = true;
           continue;
         }
         strcpy(s, sn);
         s += sz;
-	max -= sz;
+        max -= sz;
       }
       if (arity) {
         *s++ = ' ';
         *s++ = ')';
-	max -= 2;
+        max -= 2;
       }
     }
   } while (expand);
@@ -346,7 +346,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       if (p == pe) {
         UNLOCK(Yap_heap_regs->low_level_trace_lock);
         pop_text_stack(l);
-        ReleaseAndReturn(true);
+        return (true);
       }
       if (env_ptr != NULL)
         env_ptr = (CELL *)(env_ptr[E_E]);
@@ -354,7 +354,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b,  "%llud "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
+                LCL0 - (CELL *)B);
   b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
@@ -363,12 +364,13 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   if (pred == NULL) {
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
-    ReleaseAndReturn(true);
+    return (true);
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
       UNLOCK(Yap_low_level_trace_lock);
-      ReleaseAndReturn(true);
+      pop_text_stack(l);
+      return (true);
     }
     mname = "prolog";
   } else {
@@ -460,7 +462,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   fputs(buf, stderr);
 #endif
   pop_text_stack(l);
-  ReleaseAndReturn(true);
+  return (true);
 }
 
 void toggle_low_level_trace(void) {
