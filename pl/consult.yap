@@ -56,7 +56,7 @@
         '$set_encoding'/1,
         '$use_module'/3]).
 
-:- use_system_module( '$_absf', ['$full_filename'/3]).
+:- use_system_module( '$_absf', ['$full_filename'/2]).
 
 :- use_system_module( '$_boot', ['$clear_reconsulting'/0,
         '$init_system'/0,
@@ -434,7 +434,7 @@ load_files(Files,Opts) :-
 	b_setval('$user_source_file', File),
 	( var(Stream) ->
 	  /* need_to_open_file */
-	  ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( '$full_filename'(File, Y) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	  stream_property(Stream, file_name(Y))
@@ -464,7 +464,7 @@ load_files(Files,Opts) :-
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
 %	start_low_level_trace,
-	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
+	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
@@ -741,7 +741,7 @@ db_files(Fs) :-
     '$lf_opt'(qcompile, TOpts, QComp),
     '$lf_opt'('$source_pos', TOpts, Pos),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
+    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
@@ -831,7 +831,7 @@ nb_setval('$if_le1vel',0).
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
 	b_getval('$lf_status', TOpts),
-	'$full_filename'(X, Y , ( :- include(X)) ),
+	'$full_filename'(X, Y ),
 	'$including'(Old, Y),
 	'$lf_opt'(stream, TOpts, OldStream),
 	'$current_module'(Mod),
@@ -976,7 +976,7 @@ prolog_load_context(stream, Stream) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
 	    atom_concat(Prefix, '.qly', F0 ),
-	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
+	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
         ;
            F0 = F
 				   ),
@@ -1079,7 +1079,7 @@ make_library_index(_Directory).
 
 
 exists_source(File) :-
-	'$full_filename'(File, _AbsFile, exists_source(File)).
+	'$full_filename'(File, _AbsFile).
 
 % reload_file(File) :-
 %         ' $source_base_name'(File, Compile),

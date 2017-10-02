@@ -787,7 +787,7 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
 #if _WIN32
       && tmpe != cmd2
 #endif
-      ) {
+  ) {
     freeBuffer(tmpe);
   }
   return tf;
@@ -845,22 +845,21 @@ static Int expand_file_name3(USES_REGS1) {
 static Int absolute_file_system_path(USES_REGS1) {
   Term t = Deref(ARG1);
   int l = push_text_stack();
-  const char *text = Yap_TextTermToText(t, NULL, LOCAL_encoding);
-    const char *fp;
-    bool rc;
+  const char *text = Yap_TextTermToText(t);
+  const char *fp;
+  bool rc;
 
   if (text == NULL) {
     pop_text_stack(l);
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, true))) {
+  if (!(fp = Yap_AbsoluteFile(text, NULL, true))) {
     pop_text_stack(l);
     return false;
   }
-    pop_text_stack(l);
-
-  rc = Yap_unify(Yap_MkTextTerm(fp, LOCAL_encoding, t), ARG2);
-    return rc;
+  rc = Yap_unify(Yap_MkTextTerm(fp, Yap_TextType(t)), ARG2);
+  pop_text_stack(l);
+  return rc;
 }
 
 static Int prolog_to_os_filename(USES_REGS1) {
@@ -1363,7 +1362,7 @@ static Int p_expand_file_name(USES_REGS1) {
     return FALSE;
   }
   int l = push_text_stack();
-  text = Yap_TextTermToText(t, NULL, LOCAL_encoding);
+  text = Yap_TextTermToText(t);
   if (!text) {
     pop_text_stack(l);
     return false;
@@ -1372,7 +1371,7 @@ static Int p_expand_file_name(USES_REGS1) {
     pop_text_stack(l);
     return false;
   }
-  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding, t));
+  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, Yap_TextType(t)));
   pop_text_stack(l);
   return rc;
 }
@@ -1561,7 +1560,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
                        NULL,       // Use parent's starting directory
                        &si,        // Pointer to STARTUPINFO structure
                        &pi)        // Pointer to PROCESS_INFORMATION structure
-        ) {
+    ) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "CreateProcess failed (%d).\n",
                 GetLastError());
       return FALSE;

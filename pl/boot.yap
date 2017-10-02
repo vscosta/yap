@@ -270,6 +270,12 @@ private(_).
     (yap_flag( verbose_load , silent ) -> true;
     format(user_error, '~*|% ~a ~w...~n', [2,C,F]) ).
 '$early_print_message'(_, loaded(F,C,M,T,H)) :- !,
+     (yap_flag( verbose_load , silent ) -> true;
+     format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [2, M, F ,C, H, T]) ).
+'$early_print_message'(_, loaded(F,C,M,T,H)) :- !,
+    (yap_flag( verbose_load , silent ) -> true;
+    format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [2, M, F ,C, H, T]) ).
+'$early_print_message'(_, loaded(F,C,M,T,H)) :- !,
     (yap_flag( verbose_load , silent ) -> true;
     format(user_error, '~*|% ~a:~w ~a ~d bytes in ~d seconds...~n', [2, M, F ,C, H, T]) ).
 '$early_print_message'(Level, Msg) :-
@@ -659,6 +665,7 @@ number of steps.
 	     O = (:- G1)
 	 ->
 	  '$yap_strip_module'(G1, M, G2),
+
 	   '$process_directive'(G2, Option, M, VL, Pos)
      ;
 	    '$execute_commands'(G1,VL,Pos,Option,O)
@@ -1297,13 +1304,11 @@ not(G) :-    \+ '$execute'(G).
 
 
 bootstrap(F) :-
-  %	'$open'(F, '$csult', Stream, 0, 0, F),
-%	'$file_name'(Stream,File),
         yap_flag(verbose_load, Old, silent),
-	open(F, read, Stream),
-	stream_property(Stream, [file_name(File)]),
-	'$start_consult'(consult, File, LC),
-	file_directory_name(File, Dir),
+	       open(F, read, Stream),
+	        stream_property(Stream, [file_name(File)]),
+	         '$start_consult'(consult, File, LC),
+	          file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
 	(
 	  current_prolog_flag(verbose_load, silent)

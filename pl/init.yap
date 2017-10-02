@@ -133,11 +133,14 @@ otherwise.
 :- bootstrap('absf.yap').
 
 :- dynamic prolog:'$parent_module'/2.
-
+%:- set_prolog_flag(verbose_file_search, true ).
+%:- yap_flag(write_strings,on).
+%:- start_low_level_trace.
 :- [
 	 'preds.yap',
 	 'modules.yap'
    ].
+
 
 :- use_module('error.yap').
 

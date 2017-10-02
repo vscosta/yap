@@ -882,26 +882,26 @@ static Int cont_atom_concat3(USES_REGS1) {
   Term t3;
   Atom ats[2];
   Int i, max;
-  int l = push_text_stack();
 restart_aux:
   t3 = Deref(ARG3);
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS) &&
-      LOCAL_Error_TYPE == YAP_NO_ERROR) {
-    pop_text_stack(l);
-    cut_fail();
-  } else {
-    pop_text_stack(l);
-    if (i < max) {
-      return (Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
-              Yap_unify(ARG2, MkAtomTerm(ats[1])));
+
+  int l = push_text_stack();
+  bool rc = Yap_SpliceAtom(t3, ats, i, max PASS_REGS);
+  pop_text_stack(l);
+  if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
+    if (rc) {
+      if (i < max) {
+        return (Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
+                Yap_unify(ARG2, MkAtomTerm(ats[1])));
+      }
+      return do_cut(Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
+                    Yap_unify(ARG2, MkAtomTerm(ats[1])));
+    } else {
+      cut_fail();
     }
-    if (Yap_unify(ARG1, MkAtomTerm(ats[0])) &&
-        Yap_unify(ARG2, MkAtomTerm(ats[1])))
-      cut_succeed();
-    cut_fail();
   }
   /* Error handling */
   if (LOCAL_Error_TYPE) {
@@ -918,7 +918,6 @@ static Int atom_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Atom at;
   bool g1, g2, g3;
-  int l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -927,50 +926,43 @@ restart_aux:
   g2 = Yap_IsGroundTerm(t2);
   g3 = Yap_IsGroundTerm(t3);
   if (g1 && g2) {
+    int l = push_text_stack();
     at = Yap_ConcatAtoms(t1, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG3;
   } else if (g1 && g3) {
+    int l = push_text_stack();
     at = Yap_SubtractHeadAtom(t3, t1 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG2;
   } else if (g2 && g3) {
+    int l = push_text_stack();
     at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG1;
   } else if (g3) {
     Int len = Yap_AtomToUnicodeLength(t3 PASS_REGS);
     if (len <= 0) {
-      pop_text_stack(l);
       cut_fail();
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
-    {
-      pop_text_stack(l);
-      return cont_atom_concat3(PASS_REGS1);
-    }
+    { return cont_atom_concat3(PASS_REGS1); }
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
     at = NULL;
   }
   if (at) {
-    pop_text_stack(l);
-    if (Yap_unify(ot, MkAtomTerm(at))) {
-      cut_succeed();
-    } else {
-      cut_fail();
-    }
+    return do_cut(Yap_unify(ot, MkAtomTerm(at)));
   }
   /* Error handling */
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("atom_concat/3")) {
       goto restart_aux;
     } else {
-      {
-        pop_text_stack(l);
-        return false;
-      }
+      return false;
     }
   }
-  pop_text_stack(l);
   cut_fail();
 }
 
@@ -989,19 +981,20 @@ static Int cont_atomic_concat3(USES_REGS1) {
   Term t3;
   Atom ats[2];
   size_t i, max;
-  int l = push_text_stack();
 restart_aux:
   t3 = Deref(ARG3);
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  if (!Yap_SpliceAtom(t3, ats, i, max PASS_REGS)) {
+  int l = push_text_stack();
+  bool rc = Yap_SpliceAtom(t3, ats, i, max PASS_REGS);
+  pop_text_stack(l);
+  if (!rc) {
     cut_fail();
   } else {
     Term t1 = CastToNumeric(ats[0]);
     Term t2 = CastToNumeric(ats[1]);
     if (i < max) {
-      pop_text_stack(l);
       return Yap_unify(ARG1, t1) && Yap_unify(ARG2, t2);
     }
     if (Yap_unify(ARG1, t1) && Yap_unify(ARG2, t2))
@@ -1013,10 +1006,7 @@ restart_aux:
     if (Yap_HandleError("string_concat/3")) {
       goto restart_aux;
     } else {
-      {
-        pop_text_stack(l);
-        return false;
-      }
+      return false;
     }
   }
   cut_fail();
@@ -1027,7 +1017,6 @@ static Int atomic_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Atom at = NULL;
   bool g1, g2, g3;
-  int l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -1036,32 +1025,33 @@ restart_aux:
   g2 = Yap_IsGroundTerm(t2);
   g3 = Yap_IsGroundTerm(t3);
   if (g1 && g2) {
+    int l = push_text_stack();
     at = Yap_ConcatAtomics(t1, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG3;
   } else if (g1 && g3) {
+    int l = push_text_stack();
     at = Yap_SubtractHeadAtom(t3, t1 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG2;
   } else if (g2 && g3) {
+    int l = push_text_stack();
     at = Yap_SubtractTailAtom(t3, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG1;
   } else if (g3) {
     Int len = Yap_AtomicToUnicodeLength(t3 PASS_REGS);
     if (len <= 0) {
-      pop_text_stack(l);
       cut_fail();
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
-    {
-      pop_text_stack(l);
-      return cont_atomic_concat3(PASS_REGS1);
-    }
+    return cont_atomic_concat3(PASS_REGS1);
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
     at = NULL;
   }
   if (at) {
-    pop_text_stack(l);
     if (Yap_unify(ot, MkAtomTerm(at))) {
       cut_succeed();
     } else {
@@ -1073,13 +1063,9 @@ restart_aux:
     if (Yap_HandleError("atomic_concat/3")) {
       goto restart_aux;
     } else {
-      {
-        pop_text_stack(l);
-        return false;
-      }
+      return false;
     }
   }
-  pop_text_stack(l);
   cut_fail();
 }
 
@@ -1087,33 +1073,30 @@ static Int cont_string_concat3(USES_REGS1) {
   Term t3;
   Term ts[2];
   size_t i, max;
-  int l;
-  l = push_text_stack();
 restart_aux:
   t3 = Deref(ARG3);
   i = IntOfTerm(EXTRA_CBACK_ARG(3, 1));
   max = IntOfTerm(EXTRA_CBACK_ARG(3, 2));
   EXTRA_CBACK_ARG(3, 1) = MkIntTerm(i + 1);
-  if (!Yap_SpliceString(t3, ts, i, max PASS_REGS)) {
+  int l;
+  l = push_text_stack();
+  bool rc = Yap_SpliceString(t3, ts, i, max PASS_REGS);
+  pop_text_stack(l);
+  if (!rc) {
     cut_fail();
   } else {
     if (i < max) {
-      pop_text_stack(l);
       return Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]);
     }
-    if (Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]))
-      cut_succeed();
-    cut_fail();
+    return do_cut(Yap_unify(ARG1, ts[0]) && Yap_unify(ARG2, ts[1]));
+    cut_succeed();
   }
   /* Error handling */
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("string_concat/3")) {
       goto restart_aux;
     } else {
-      {
-        pop_text_stack(l);
-        return FALSE;
-      }
+      return FALSE;
     }
   }
   cut_fail();
@@ -1124,8 +1107,6 @@ static Int string_concat3(USES_REGS1) {
   Term t2, t3, ot;
   Term tf = 0;
   bool g1, g2, g3;
-  int l;
-  l = push_text_stack();
 restart_aux:
   t1 = Deref(ARG1);
   t2 = Deref(ARG2);
@@ -1135,49 +1116,45 @@ restart_aux:
   g3 = Yap_IsGroundTerm(t3);
 
   if (g1 && g2) {
+    int l;
+    l = push_text_stack();
     tf = Yap_ConcatStrings(t1, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG3;
   } else if (g1 && g3) {
+    int l;
+    l = push_text_stack();
     tf = Yap_SubtractHeadString(t3, t1 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG2;
   } else if (g2 && g3) {
+    int l;
+    l = push_text_stack();
     tf = Yap_SubtractTailString(t3, t2 PASS_REGS);
+    pop_text_stack(l);
     ot = ARG1;
   } else if (g3) {
     Int len = Yap_StringToUnicodeLength(t3 PASS_REGS);
     if (len <= 0) {
-      pop_text_stack(l);
       cut_fail();
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
     EXTRA_CBACK_ARG(3, 2) = MkIntTerm(len);
-    {
-      pop_text_stack(l);
-      return cont_string_concat3(PASS_REGS1);
-    }
+    { return cont_string_concat3(PASS_REGS1); }
   } else {
     LOCAL_Error_TYPE = INSTANTIATION_ERROR;
   }
   if (tf) {
-    pop_text_stack(l);
-    if (Yap_unify(ot, tf)) {
-      cut_succeed();
-    } else {
-      cut_fail();
-    }
+    return do_cut(Yap_unify(ot, tf));
   }
   /* Error handling */
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("atom_concat/3")) {
       goto restart_aux;
     } else {
-      {
-        pop_text_stack(l);
-        return false;
-      }
+      return false;
     }
   }
-  pop_text_stack(l);
   cut_fail();
 }
 
@@ -1204,12 +1181,8 @@ restart_aux:
     return (Yap_unify(MkIntegerTerm(chr), ARG3) &&
             Yap_unify(MkIntegerTerm(j + 1), ARG1));
   }
-  if (Yap_unify(MkIntegerTerm(chr), ARG3) &&
-      Yap_unify(MkIntegerTerm(j), ARG1)) {
-    cut_succeed();
-  } else {
-    cut_fail();
-  }
+  return do_cut(Yap_unify(MkIntegerTerm(chr), ARG3) &&
+                Yap_unify(MkIntegerTerm(j), ARG1));
   /* Error handling */
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("string_code/3")) {

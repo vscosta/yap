@@ -39,6 +39,7 @@ extern void Free(void *buf USES_REGS);
 
 extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
 #define BaseMalloc(sz) MallocAtLevel(sz, 1)
+extern void *export_block(void *blk);
 
 #ifndef Yap_Min
 #define Yap_Min(x, y) (x < y ? x : y)
@@ -51,12 +52,14 @@ extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
 extern int AllocLevel(void);
 
 #define push_text_stack()                                                      \
-  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0', __FILE__,  __FUNCTION__, __LINE__), */ \
+  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0',      \
+      __FILE__,  __FUNCTION__, __LINE__), */                                   \
    push_text_stack__(PASS_REGS1))
 extern int push_text_stack__(USES_REGS1);
 
-#define pop_text_stack(lvl)						\
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,  __FUNCTION__, __LINE__),*/ \
+#define pop_text_stack(lvl)                                                    \
+  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,          \
+      __FUNCTION__, __LINE__),*/                                               \
    pop_text_stack__(lvl))
 extern int pop_text_stack__(int lvl USES_REGS);
 
@@ -447,6 +450,31 @@ static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
     return YAP_STRING_ATOMS;
   }
   return YAP_STRING_CODES;
+}
+
+static inline seq_type_t Yap_TextType(Term t) {
+  if (IsVarTerm(t = Deref(t))) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "expected text");
+  }
+  if (IsAtomTerm(t)) {
+    return YAP_STRING_ATOM;
+  }
+  if (IsStringTerm(t)) {
+    return YAP_STRING_STRING;
+  }
+  if (IsPairTerm(t)) {
+    Term hd = HeadOfTerm(t);
+    if (IsVarTerm(hd)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, t, "expected text");
+    }
+    if (IsIntegerTerm(hd)) {
+      return YAP_STRING_CODES;
+    }
+    if (IsAtomTerm(hd)) {
+      return YAP_STRING_ATOMS;
+    }
+  }
+  Yap_ThrowError(TYPE_ERROR_TEXT, t, "expected text");
 }
 
 // the routines
@@ -1487,7 +1515,7 @@ static inline Term Yap_WCharsToString(const wchar_t *s USES_REGS) {
 static inline Atom Yap_ConcatAtoms(Term t1, Term t2 USES_REGS) {
   seq_tv_t inpv[2], out;
   inpv[0].val.t = t1;
-  inpv[0].type = YAP_STRING_ATOM;
+  inpv[0].type = YAP_STRING_ATOM | YAP_STRING_TERM;
   inpv[1].val.t = t2;
   inpv[1].type = YAP_STRING_ATOM;
   out.type = YAP_STRING_ATOM;
@@ -1613,5 +1641,5 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 
 #endif // ≈YAP_TEXT_H
 
-const char *Yap_TextTermToText(Term t, char *s, encoding_t e USES_REGS);
-Term Yap_MkTextTerm(const char *s, encoding_t e, Term tguide);
+extern const char *Yap_TextTermToText(Term t USES_REGS);
+extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);

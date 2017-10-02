@@ -23,6 +23,7 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
+#include "YapText.h"
 #include "format.h"
 #include "sysbits.h"
 
@@ -162,10 +163,13 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   const char *buf;
 
   ti = Deref(ARG1);
-  buf = Yap_TextTermToText(ti, NULL, LOCAL_encoding);
+  int l = push_text_stack();
+  buf = Yap_TextTermToText(ti);
   if (!buf) {
     return false;
   }
+  buf = export_block( buf );
+  pop_text_stack(l);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);

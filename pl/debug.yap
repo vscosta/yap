@@ -406,7 +406,7 @@ be lost.
 '$spycall'(G, M, CP, not_expanded) :-
         '$is_metapredicate'(G, M),
         !,
-        '$expand_meta_call'(M:G, [], G1),
+        '$debugger_expand_meta_call'(M:G, [], G1),
         '$spycall'(G1, M, CP, expanded).
 '$spycall'(G, M, CP, _) :-
 	'$undefined'(G, M), !,
@@ -426,7 +426,9 @@ be lost.
                 '$re_spycall'(E, G, M, L, H)
                 ).
 
-'$spygoal'(G, M,  GoalNumber, H) :-
+%% @pred $spygoal( +Goal, +Module, +CallId, +CallInfo)
+%%
+%% Actually debugs a % goal!                                                                                                    '$spygoal'(G, M,  GoalNumber, H) :-
         '$is_source'( G, M ),                       % use the interpreter
         !,
         gated_call(

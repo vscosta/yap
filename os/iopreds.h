@@ -136,7 +136,7 @@ extern void Yap_InitMems(void);
 extern void Yap_InitConsole(void);
 extern void Yap_InitReadlinePreds(void);
 extern bool Yap_InitReadline(Term);
-extern bool Yap_readline_clear_pending_input (StreamDesc *s);
+extern bool Yap_readline_clear_pending_input(StreamDesc *s);
 extern void Yap_InitChtypes(void);
 extern void Yap_InitCharsio(void);
 extern void Yap_InitFormat(void);

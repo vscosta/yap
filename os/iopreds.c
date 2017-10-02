@@ -255,7 +255,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   }
   st->stream_wputc = put_wchar;
   if (st->encoding == ENC_ISO_UTF8)
-            st->stream_wgetc = get_wchar_UTF8;
+    st->stream_wgetc = get_wchar_UTF8;
   else
     st->stream_wgetc = get_wchar;
   st->stream_putc = FilePutc;
@@ -299,9 +299,11 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
   if (vfsp != NULL) {
-    s->u.private_data = vfsp->open(vfsp->name, (sno == StdInStream ? "read" : "write" ));
+    s->u.private_data =
+        vfsp->open(vfsp->name, (sno == StdInStream ? "read" : "write"));
     if (s->u.private_data == NULL) {
-      (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s", vfsp->name));
+      (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s",
+                 vfsp->name));
       return;
     }
   } else {
@@ -338,9 +340,8 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
 }
 
 void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
-    InitStdStream(sno,  flags, file, vfsp);
+  InitStdStream(sno, flags, file, vfsp);
 }
-
 
 Term Yap_StreamUserName(int sno) {
   Term atname;
@@ -357,13 +358,13 @@ static void InitStdStreams(void) {
   CACHE_REGS
   if (LOCAL_sockets_io) {
     InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
-   InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
+    InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
   } else {
     InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
     InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
     InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
-    }
+  }
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
   GLOBAL_Stream[StdErrStream].name = Yap_LookupAtom("user_error");
@@ -401,6 +402,8 @@ Int PlIOError__(const char *file, const char *function, int lineno,
     /* and fail */
     return false;
   } else {
+    pop_text_stack(0);
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     return false;
   }
 }
@@ -1086,10 +1089,9 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
     st->encoding = encoding;
   }
 
-
   if (name == NULL) {
     char buf[YAP_FILENAME_MAX + 1];
-      memset(buf, 0, YAP_FILENAME_MAX + 1);
+    memset(buf, 0, YAP_FILENAME_MAX + 1);
     name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
     if (name)
       st->name = Yap_LookupAtom(name);
@@ -1854,7 +1856,7 @@ static Int abs_file_parameters(USES_REGS1) {
 }
 
 static Int get_abs_file_parameter(USES_REGS1) {
-  Term t = Deref(ARG1), topts = ARG2;
+  Term t = Deref(ARG1), topts = Deref(ARG2);
   /* get options */
   /* done */
   int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,

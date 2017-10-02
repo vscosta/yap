@@ -230,13 +230,12 @@ public:
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), enc,
-                                Handle_vars_f))) {
+    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), enc, Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
     RECOVER_MACHINE_REGS();
-    size_t  length = strlen(os);
+    size_t length = strlen(os);
     char *sm = (char *)malloc(length + 1);
     strcpy(sm, os);
     return sm;

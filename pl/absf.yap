@@ -30,7 +30,7 @@
         add_to_path/1,
         add_to_path/2,
         path/1,
-        remove_from_path/1], ['$full_filename'/3,
+        remove_from_path/1], ['$full_filename'/2,
         '$system_library_directories'/2]).
 
 
@@ -145,7 +145,7 @@ absolute_file_name(File,TrueFileName,Opts) :-
     !,
     absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
-    '$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
+    '$absolute_file_name'(File,Opts,TrueFileName).
 
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
@@ -157,17 +157,26 @@ absolute_file_name(V,Out) :- var(V),
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
-	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
+	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File).
 
-'$full_filename'(F0, F, G) :-
+'$full_filename'(F0, F) :-
 	'$absolute_file_name'(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
-                              expand(true)],F,G).
+                              expand(true)],F).
 
-'$absolute_file_name'(File,LOpts,TrueFileName, G) :-
+'$absolute_file_name'(File,LOpts,TrueFileName) :-
 				%   must_be_of_type( atom, File ),
+     % look for solutions
+     gated_call(
+        '$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ),
+         '$find_in_path'(File, Opts,TrueFileName),
+         Port,
+     '$absf_port'(Port, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors )
+	).
+
+'$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
 	( var(File) -> instantiation_error(File) ; true),
 	abs_file_parameters(LOpts,Opts),
 	current_prolog_flag(open_expands_filename, OldF),
@@ -177,40 +186,41 @@ absolute_file_name(File0,File) :-
 	get_abs_file_parameter( expand, Opts, Expand ),
 	set_prolog_flag( verbose_file_search,  Verbose ),
 	get_abs_file_parameter( file_errors, Opts, FErrors ),
-	get_abs_file_parameter( solutions, Opts, First ),
+	get_abs_file_parameter( solutions, Opts, TakeFirst ),
 	(  FErrors == fail -> FileErrors = false ; FileErrors = true ),
 	set_prolog_flag( fileerrors, FileErrors ),
 	set_prolog_flag(file_name_variables, Expand),
 	'$absf_trace'(File),
 	'$absf_trace_options'(LOpts),
-    HasSol = t(no),
-    (
-     % look for solutions
-         '$find_in_path'(File, Opts,TrueFileName),
-        (     (First == first -> ! ; nb_setarg(1, HasSol, yes) ),
-	           set_prolog_flag( fileerrors, PreviousFileErrors ),
-	           set_prolog_flag( open_expands_filename, OldF),
-	           set_prolog_flag( verbose_file_search, PreviousVerbose ),
- 	          '$absf_trace'(' |------- found  ~a', [TrueFileName])
-	       ;
-                set_prolog_flag( fileerrors, FileErrors ),
-                set_prolog_flag( verbose_file_search, Verbose ),
-	           set_prolog_flag( file_name_variables, Expand ),
-	           '$absf_trace'(' |------- restarted search for  ~a', [File]),
-	           fail
-         )
- 	 ;
-	 % finished
-	 %	 	stop_low_level_trace,
-	 '$absf_trace'(' !------- failed.', []),
-	 set_prolog_flag( fileerrors, PreviousFileErrors ),
-	 set_prolog_flag( verbose_file_search, PreviousVerbose ),
-	 set_prolog_flag(file_name_variables, OldF),
-     % check if no solution
-     arg(1,HasSol,no),
-     FileErrors = error,
-	 '$do_error'(existence_error(file,File),G)
-	).
+    HasSol = t(no).
+
+'$absf_port'(answer, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+            '$absf_port'(exit, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
+'$absf_port'(exit, _File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, TakeFirst, _FileErrors ) :-
+    (TakeFirst == first -> ! ; nb_setarg(1, HasSol, yes) ),
+    set_prolog_flag( fileerrors, PreviousFileErrors ),
+    set_prolog_flag( open_expands_filename, OldF),
+    set_prolog_flag( verbose_file_search, PreviousVerbose ),
+    '$absf_trace'(' |------- found  ~a', [TrueFileName]).
+'$absf_port'(redo, File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, Expand, Verbose, _TakeFirst, FileErrors ) :-
+    set_prolog_flag( fileerrors, FileErrors ),
+    set_prolog_flag( verbose_file_search, Verbose ),
+    set_prolog_flag( file_name_variables, Expand ),
+    '$absf_trace'(' |------- restarted search for  ~a', [File]).
+'$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, _TakeFirst, FileErrors ) :-
+    '$absf_trace'(' !------- failed.', []),
+    set_prolog_flag( fileerrors, PreviousFileErrors ),
+    set_prolog_flag( verbose_file_search, PreviousVerbose ),
+    set_prolog_flag(file_name_variables, OldF),
+    % check if no solution
+    arg(1,HasSol,no),
+    FileErrors = error,
+    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, ['...'])).
+'$absf_port'(!, _File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, _Expand, _Verbose, _TakeFirst, _FileErrors ).
+'$absf_port'(exception(_), File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+    '$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
+'$absf_port'(external_exception(_),  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+    '$absf_port'(fail,  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
 
 % This sequence must be followed:
 % user and user_input are special;
@@ -339,7 +349,7 @@ absolute_file_name(File0,File) :-
 
 '$suffix'(Last, _Opts) -->
     { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },
-    '$absf_trace'(' suffix in ~s', [Last]),
+    '$absf_trace'(' suffix in ~s', [Alphas]),
     !.
 '$suffix'(_, Opts) -->
     {
@@ -444,7 +454,6 @@ absolute_file_name(File0,File) :-
 
 % enumerate all paths separated by a path_separator.
 '$paths'(Cs, C) :-
-    
     atom(Cs),
     (	current_prolog_flag(windows, true) -> Sep = ';' ; Sep = ':' ),
     sub_atom(Cs, N0, 1, N, Sep),

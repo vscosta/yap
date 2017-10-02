@@ -41,7 +41,7 @@ bool Yap_Warning(const char *s, ...) {
   const char *format;
   char tmpbuf[MAXPATHLEN];
 
-   LOCAL_DoingUndefp = true;
+  LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
@@ -132,17 +132,14 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   } else {
     serr = s;
   }
-  if (P->opc == Yap_opcode(_try_c) ||
-      P->opc == Yap_opcode(_try_userc) ||
-      P->opc == Yap_opcode(_retry_c) ||
-      P->opc == Yap_opcode(_retry_userc)) {
+  if (P->opc == Yap_opcode(_try_c) || P->opc == Yap_opcode(_try_userc) ||
+      P->opc == Yap_opcode(_retry_c) || P->opc == Yap_opcode(_retry_userc)) {
 
     arity = P->y_u.OtapFs.p->ArityOfPE;
   } else {
-    arity = PREVOP(P,Osbpp)->y_u.Osbpp.p->ArityOfPE;
+    arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
   }
-      
-  
+
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_gc(arity, ENV, gc_P(P, CP))) {
@@ -444,6 +441,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   va_end(ap);
   if (P == (yamop *)(FAILCODE)) {
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }
@@ -618,9 +616,9 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   } else {
     error_t = Yap_MkApplTerm(fun, 2, nt);
   }
+  memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   Yap_JumpToEnv(error_t);
   P = (yamop *)FAILCODE;
-
   LOCAL_PrologMode &= ~InErrorMode;
   return P;
 }

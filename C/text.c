@@ -145,17 +145,11 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
   return o + 1;
 }
 
-void *export_block(int i, void *protected USES_REGS) {
+void *export_block( void *protected) {
   struct mblock *o = ((struct mblock *)protected) - 1;
   release_block(o);
-  if (i >= 0) {
-    o->lvl = i;
-    insert_block(o);
-    return protected;
-  } else {
     memcpy(o, protected, o->sz);
     return o;
-  }
 }
 void *Realloc(void *pt, size_t sz USES_REGS) {
   sz += sizeof(struct mblock);
@@ -206,7 +200,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
   if (t == TermNil) {
     st0 = Malloc(4);
     st0[0] = 0;
-    export_block(0, st0);
+    st0 = export_block( st0);
     return st0;
   }
   if (!IsPairTerm(t))
@@ -259,7 +253,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
     }
 
     st0 = st = Malloc(length + 1);
-    export_block(0, st0);
+    export_block(st0);
     t = t0;
     if (codes) {
       while (IsPairTerm(t)) {
@@ -909,7 +903,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
   }
 
   static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS) {
-    unsigned char *nbuf = Malloc((max - min) * 4 + 1);
+    unsigned char *nbuf = BaseMalloc((max - min) * 4 + 1);
     const unsigned char *ptr = skip_utf8(buf, min);
     unsigned char *nptr = nbuf;
     utf8proc_int32_t chr;
@@ -1049,24 +1043,15 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
    * @return the buffer, or NULL in case of failure. If so, Yap_Error may be
    called.
   */
-  const char *Yap_TextTermToText(Term t, char *buf, encoding_t enc USES_REGS) {
+  const char *Yap_TextTermToText(Term t USES_REGS) {
     seq_tv_t inp, out;
     inp.val.t = t;
-    if (IsAtomTerm(t) && t != TermNil) {
-      inp.type = YAP_STRING_ATOM;
+      inp.type = Yap_TextType(t);
+      inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_ATOMS_CODES| YAP_STRING_TERM;
       inp.enc = ENC_ISO_UTF8;
-    } else if (IsStringTerm(t)) {
-      inp.type = YAP_STRING_STRING;
-      inp.enc = ENC_ISO_UTF8;
-    } else if (IsPairOrNilTerm(t)) {
-      inp.type = (YAP_STRING_CODES | YAP_STRING_ATOMS);
-    } else {
-      Yap_Error(TYPE_ERROR_TEXT, t, NULL);
-      return false;
-    }
-    out.enc = enc;
+       out.enc = ENC_ISO_UTF8;
     out.type = YAP_STRING_CHARS;
-    out.val.c = buf;
+    out.val.c = NULL;
     if (!Yap_CVT_Text(&inp, &out PASS_REGS))
       return NULL;
     return out.val.c;
@@ -1148,13 +1133,14 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
    *
    ≈  * @return the term
   */
-  Term Yap_MkTextTerm(const char *s, encoding_t enc, Term tguide USES_REGS) {
-    if (IsAtomTerm(tguide))
+  Term Yap_MkTextTerm(const char *s, int guide USES_REGS) {
+    if (guide == YAP_STRING_ATOM) {
       return MkAtomTerm(Yap_LookupAtom(s));
-    if (IsStringTerm(tguide))
+    } else if (guide == YAP_STRING_STRING) {
       return MkStringTerm(s);
-    if (IsPairTerm(tguide) && IsAtomTerm(HeadOfTerm(tguide))) {
-      return Yap_CharsToListOfAtoms(s, enc PASS_REGS);
+  } else if (guide == YAP_STRING_ATOMS) {
+    return Yap_CharsToListOfAtoms(s, ENC_ISO_UTF8 PASS_REGS);
+    } else {
+      return Yap_CharsToListOfCodes(s, ENC_ISO_UTF8 PASS_REGS);
     }
-    return Yap_CharsToListOfCodes(s, enc PASS_REGS);
   }
