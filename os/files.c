@@ -76,15 +76,14 @@ static Int file_name_extension(USES_REGS1) {
       pop_text_stack(l);
       return false;
     }
-    size_t len_b = strlen(f), lenb_b, lene_b;
+    size_t len_b = strlen(f), lenb_b;
     char *candidate = strrchr(f, '.');
     char *file = strrchr(f, '/');
     if (candidate && file && candidate > file) {
-      lenb_b = candidate - f, lene_b = (f + len_b) - (candidate + 1);
+      lenb_b = candidate - f;
       ext = candidate + 1;
     } else {
       lenb_b = len_b;
-      lene_b = 0;
       ext = "";
     }
     base = Malloc(lenb_b + 1);
@@ -98,7 +97,7 @@ static Int file_name_extension(USES_REGS1) {
 #if __APPLE__ || _WIN32
       rc = strcasecmp(f_a, base) == 0;
 #else
-      rc = strcmp(f_a, base) == 0
+      rc = strcmp(f_a, base) == 0;
 #endif
     }
     if (rc) {
@@ -113,7 +112,7 @@ static Int file_name_extension(USES_REGS1) {
 #if __APPLE__ || _WIN32
         rc = strcasecmp(f_a, ext) == 0;
 #else
-        rc = strcmp(f_a, ext) == 0
+        rc = strcmp(f_a, ext) == 0;
 #endif
       }
     }
