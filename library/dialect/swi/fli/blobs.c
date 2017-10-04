@@ -1,23 +1,23 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright V.Santos Costa and Universidade do Porto 1985--		 *
-*									 *
-**************************************************************************
-*									 *
-* File:		blobs.c							 *
-* comments:	support blobs in YAP definition 			 *
-*									 *
-* Last rev:	$Date: $,$Author: vsc $					 *
-*									 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright V.Santos Costa and Universidade do Porto 1985--		 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		blobs.c *
+ * comments:	support blobs in YAP definition 			 *
+ *									 *
+ * Last rev:	$Date: $,$Author: vsc $					 *
+ *									 *
+ *									 *
+ *************************************************************************/
 /**
  *
  * @{
-*   @file swi/fli/blobs.c
+ *   @file swi/fli/blobs.c
  *
  *   @addtogroup swi-c-interface
  *
@@ -59,7 +59,7 @@ X_API int PL_is_blob(term_t t, PL_blob_t **type) {
   if (!IsBlob(a))
     return FALSE;
   b = RepBlobProp(a->PropsOfAE);
-  *type = (struct PL_blob_t *)b->blob_type;
+  *type = (PL_blob_t *)b->blob_type;
   return TRUE;
 }
 
@@ -77,7 +77,7 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type) {
     return FALSE;
   }
   if (type->acquire) {
-    type->acquire(AtomToSWIAtom(AbsAtom(ae)));
+    type->acquire((AbsAtom(ae)));
   }
   return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(AbsAtom(ae)));
 }
@@ -95,7 +95,7 @@ PL_put_blob(term_t t, void *blob, size_t len, PL_blob_t *type) {
     return FALSE;
   }
   if (type->acquire) {
-    type->acquire(AtomToSWIAtom(AbsAtom(ae)));
+    type->acquire((AbsAtom(ae)));
   }
   Yap_PutInSlot(t, MkAtomTerm(AbsAtom(ae)));
   return ret;
@@ -118,7 +118,7 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type) {
     return FALSE;
   ae = RepAtom(a);
   if (type)
-    *type = (struct PL_blob_t *)RepBlobProp(ae->PropsOfAE)->blob_type;
+    *type = (PL_blob_t *)RepBlobProp(ae->PropsOfAE)->blob_type;
   if (len)
     *len = ae->rep.blob[0].length;
   if (blob)
@@ -127,7 +127,7 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type) {
 }
 
 PL_EXPORT(void *)
-PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type) {
+PL_blob_data(atom_t a, size_t *len, PL_blob_t **type) {
   Atom x = SWIAtomToAtom(a);
 
   if (!IsBlob(x)) {
@@ -140,22 +140,22 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type) {
   if (len)
     *len = x->rep.blob[0].length;
   if (type)
-    *type = (struct PL_blob_t *)RepBlobProp(x->PropsOfAE)->blob_type;
+    *type = (PL_blob_t *)RepBlobProp(x->PropsOfAE)->blob_type;
 
   return x->rep.blob[0].data;
 }
 
 PL_EXPORT(void)
 PL_register_blob_type(PL_blob_t *type) {
-  type->next = (PL_blob_t *)BlobTypes;
-  BlobTypes = (struct YAP_blob_t *)type;
+  type->next = BlobTypes;
+  BlobTypes = type;
 }
 
 PL_EXPORT(PL_blob_t *)
 PL_find_blob_type(const char *name) {
   Atom at = Yap_LookupAtom((char *)name);
 
-  return YAP_find_blob_type((YAP_Atom)at);
+  return YAP_find_blob_type(RepAtom(at)->StrOfAE);
 }
 
 PL_EXPORT(int)

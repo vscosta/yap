@@ -11,6 +11,7 @@ from setuptools.extension import Extension
 from codecs import open
 from os import path, makedirs, walk
 from shutil import copytree, rmtree, copy2, move
+import sysconfig
 from glob import glob
 from pathlib import Path
 import platform
@@ -42,15 +43,16 @@ from shutil import copytree, rmtree, copy2, move
 from glob import glob
 from pathlib import Path
 import platform
-import os.path
+from os.path import dirname, join,abspath
 import os
 import shutil
 
 from distutils.core import setup
 
-pjoin = os.path.join
-here = os.path.abspath(os.path.dirname(__file__))
-#pkg_root = pjoin(here, name)
+here = abspath(dirname(__file__))
+libpydir = abspath(dirname(os.path.dirname('stdlib')))
+libpyauxdir = abspath(os.path.dirname('stdlib'))
+#pkg_root = join(here, name)
 
 sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -61,15 +63,15 @@ if platform.system() == 'Windows':
     my_extra_link_args = ['-Wl,-export-all-symbols']
 else:
     # if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath', '-Wl,${_ABS_PYTHON_MODULE_PATH}']
+    my_extra_link_args = ['-Wl,-rpath', '-Wl,'+libpydir,'-Wl,-rpath', '-Wl,'+libpyauxdir, ]
     win_libs = []
-    local_libs = ['YAP++','Py4YAP']
+    local_libs = ['Py4YAP']
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-native_sources = ["yap.i"]
+native_sources = ["yap.i",'yapi.cpp']
 
-for i in '${PYTHON_SOURCES}'.split(";"): 
+for i in '${PYTHON_SOURCES}'.split(";"):
     copy2(i, 'yap4py')
 for i in '${pl_library}'.split(";") + '${pl_swi_library}'.split(";")  :
     copy2(i, 'yap4py/prolog')
@@ -83,7 +85,16 @@ for i in my_libs0:
     my_libs = glob(i) + my_libs
 for i in my_libs:
     copy2(i, 'yap4py')
-bpy2yap = []
+my_includes = ['${CMAKE_SOURCE_DIR}/CXX', '${CMAKE_SOURCE_DIR}/include',
+               '${CMAKE_SOURCE_DIR}/H', '${CMAKE_SOURCE_DIR}/H/generated',
+               '${CMAKE_SOURCE_DIR}/os', '${CMAKE_SOURCE_DIR}/OPTYap',
+               '${CMAKE_SOURCE_DIR}/utf8proc',
+               '${CMAKE_SOURCE_DIR}/packages/python',
+               '${CMAKE_BINARY_DIR}']
+for i in my_includes:
+    includes = glob(i+"/*.??h")
+    for j in includes:
+      copy2(j, 'yap4py/include')
 here = path.abspath(path.dirname(__file__))
 #gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
 #python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}")
@@ -99,25 +110,14 @@ extensions = [Extension('_yap', native_sources,
                                        ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=['yap4py', '${libdir}', '${bindir}', '${gmp_dir}', '${python_libdir}'],
                         swig_opts=['-modern', '-c++', '-py3',
-                                   '-DX_API', '-I${CMAKE_SOURCE_DIR}/CXX', '-I${CMAKE_SOURCE_DIR}/include',
-                                   '-I${CMAKE_SOURCE_DIR}/H', '-I${CMAKE_SOURCE_DIR}/H/generated',
-                                   '-I${CMAKE_SOURCE_DIR}/os', '-I${CMAKE_SOURCE_DIR}/OPTYap',
-                                   '-I${CMAKE_SOURCE_DIR}/packages/python'],
-                        library_dirs=['../../..', '../../../CXX', '..', "${bindir}"],
+                                   '-DX_API', '-Iyap4py/include' ],
+                        library_dirs=['../../..', '../../../CXX', 'yap4py/include', '..', "${bindir}"],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
-                        include_dirs=['../../..',
-                                      '${GMP_INCLUDE_DIRS}',
-                                      '${CMAKE_SOURCE_DIR}/H',
-                                      '${CMAKE_SOURCE_DIR}/H/generated',
-                                      '${CMAKE_SOURCE_DIR}/OPTYap',
-                                      '${CMAKE_SOURCE_DIR}/os',
-                                      '${CMAKE_SOURCE_DIR}/packages/python',
-                                      '${CMAKE_SOURCE_DIR}/include',
-                                      '${CMAKE_SOURCE_DIR}/CXX', '.']
-                        )]#
+                        include_dirs=['yap4py/include']
+                        )]
 
-packages = packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
+packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
 
 
 
@@ -131,21 +131,21 @@ version_ns = {'__version__': '6.3.5', 'minor-version': '6', 'minor-version': '3'
 setup_args = dict(
     name=name,
     version=version_ns['__version__'],
-    scripts=glob(pjoin('scripts', '*')),
+    scripts=glob(join('scripts', '*')),
     packages=packages,
     py_modules=['yap','yap4py'],
     package_data=package_data,
     include_package_data=True,
-    requirements=[
-    'm2w64-gmp',
-    'm2-msys2-keyring',
-    'm2-msys2-launcher-git',
-    'm2-msys2-runtime',
-    ],
+    # requirements=[
+    # 'm2w64-gmp',
+    # 'm2-msys2-keyring',
+    # 'm2-msys2-launcher-git',
+    # 'm2-msys2-runtime',
+    # ],
     description="YAP in Python",
     author='YAP Development Team',
-    author_email='ipython-dev@scipy.org',
-    url='http://ipython.org',
+    author_email='vsc@dcc.fc.up.pt',
+    url='http://www.dcc.fc.up/~vsc/yap',
     license='BSD',
     ext_modules=extensions,
     platforms="Linux, Mac OS X, Windows",

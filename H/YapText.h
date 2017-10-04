@@ -28,7 +28,7 @@
  * mirroring
  */
 
-#include "../utf8proc/utf8proc.h"
+#include "utf8proc.h"
 #include "Yap.h"
 
 /// allocate a temporary text block
@@ -51,15 +51,15 @@ extern void *export_block(void *blk);
 /* Character types for tokenizer and write.c */
 extern int AllocLevel(void);
 
-#define push_text_stack()                                                      \
-  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0',      \
-      __FILE__,  __FUNCTION__, __LINE__), */                                   \
+#define push_text_stack()						\
+  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0', \
+      __FILE__,  __FUNCTION__, __LINE__), */				\
    push_text_stack__(PASS_REGS1))
 extern int push_text_stack__(USES_REGS1);
 
-#define pop_text_stack(lvl)                                                    \
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,          \
-      __FUNCTION__, __LINE__),*/                                               \
+#define pop_text_stack(lvl)						\
+  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
+     __FUNCTION__, __LINE__),*/						\
    pop_text_stack__(lvl))
 extern int pop_text_stack__(int lvl USES_REGS);
 

@@ -659,8 +659,9 @@ class YAPEngine;
 
                             //%template(YAPTermVector) vector<YAPTerm>;
                             //%feature("novaluewrapper") vector<YAPTerm>;
+
+
                           };
 
-
-                          %init %{
-                            %}
+%init %{
+  %}

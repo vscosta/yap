@@ -48,18 +48,20 @@ else()
   #  	)
 
 
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os)
-file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4y)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl)
 
-add_custom_target( YAP4PY ALL
-#     COMMAND ${CMAKE_COMMAND} -E copy ${YAP_DLLS} ${CMAKE_BINARY_DIR}/startup.yss  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+
+  add_custom_target( YAP4PY ALL
+    #     COMMAND ${CMAKE_COMMAND} -E copy ${YAP_DLLS} ${CMAKE_BINARY_DIR}/startup.yss  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
     COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-DEPENDS  STARTUP ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    DEPENDS  STARTUP ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )
 
-function(f_copy filename output )
+  function(f_copy filename output )
     get_filename_component(base ${filename} NAME_WE)
     set(outfile ${output}/${base})
     file (COPY ${filename} DESTiNATION ${output})
@@ -69,34 +71,33 @@ function(f_copy filename output )
       DEPENDS ${filename}
       )
     set_source_files_properties(${outfile} PROPERTIES GENERATED TRUE)
-endfunction()
+  endfunction()
 
-
-	  install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install --no-index -f dist yap4py
+  install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install .
    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
- DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+    DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
 
 
-	  if (WITH_DOCS AND DOXYGEN_FOUND)
+  if (WITH_DOCS AND DOXYGEN_FOUND)
 
-        set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
+    set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})
 
-        # Run doxygen to only generate the xml
-        add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
-                COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
-                COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
-		)
+    # Run doxygen to only generate the xml
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/doc
+      COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_BINARY_DIR}/Doxyfile.xml
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+      DEPENDS ${c_headers};${c_sources};${cpp_sources};${cpp_headers}
+      )
 
-        # generate .i from doxygen .xml
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-                COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
-                ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
-                ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-                DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
-                )
-        add_custom_target(doc_i DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i)
-        add_dependencies(${SWIG_MODULE_ftdi1_REAL_NAME} doc_i)
+    # generate .i from doxygen .xml
+    add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
+      COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
+      ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
+      ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
+      DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
+      )
+    add_custom_target(doc_i DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i)
+    add_dependencies(${SWIG_MODULE_ftdi1_REAL_NAME} doc_i)
 
-    ENDIF ()
+  ENDIF ()

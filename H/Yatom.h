@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog   %W% %G%
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YAtom.h.m4						 *
-* Last rev:	19/2/88							 *
-* mods:									 *
-* comments:	atom properties header file for YAP			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog   %W% %G%
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YAtom.h.m4 *
+ * Last rev:	19/2/88							 *
+ * mods: *
+ * comments:	atom properties header file for YAP			 *
+ *									 *
+ *************************************************************************/
 
 /* This code can only be defined *after* including Regs.h!!! */
 
@@ -106,73 +106,73 @@ INLINE_ONLY inline EXTERN Prop AbsFunctorProp(FunctorEntry *p) {
 
 #endif
 
- INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor);
+INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor);
 
- INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor Fun) {
-   return (arity_t)(((FunctorEntry *)Fun)->ArityOfFE);
- }
+INLINE_ONLY inline EXTERN arity_t ArityOfFunctor(Functor Fun) {
+  return (arity_t)(((FunctorEntry *)Fun)->ArityOfFE);
+}
 
- INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor);
+INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor);
 
- INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor Fun) {
-   return (Atom)(((FunctorEntry *)Fun)->NameOfFE);
- }
+INLINE_ONLY inline EXTERN Atom NameOfFunctor(Functor Fun) {
+  return (Atom)(((FunctorEntry *)Fun)->NameOfFE);
+}
 
- INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int);
+INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int);
 
- INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int flags) {
-   return (PropFlags)((flags == FunctorProperty));
- }
+INLINE_ONLY inline EXTERN PropFlags IsFunctorProperty(int flags) {
+  return (PropFlags)((flags == FunctorProperty));
+}
 
- /* summary of property codes used
+/* summary of property codes used
 
-    00 00	predicate entry
-    80 00	db property
-    bb 00	functor entry
-    ff df	sparse functor
-    ff ex	arithmetic property
-    ff f4   translation
-    ff f5   blob
-    ff f6   hold
-    ff f7   array
-    ff f8   wide atom
-    ff fa   module property
-    ff fb   blackboard property
-    ff fc	value property
-    ff fd	global property
-    ff fe	flag property
-    ff ff	op property
- */
+   00 00	predicate entry
+   80 00	db property
+   bb 00	functor entry
+   ff df	sparse functor
+   ff ex	arithmetic property
+   ff f4   translation
+   ff f5   blob
+   ff f6   hold
+   ff f7   array
+   ff f8   wide atom
+   ff fa   module property
+   ff fb   blackboard property
+   ff fc	value property
+   ff fd	global property
+   ff fe	flag property
+   ff ff	op property
+*/
 
- /*	Global Variable property */
- typedef struct global_entry {
-   Prop NextOfPE;      /* used to chain properties             */
-   PropFlags KindOfPE; /* kind of property                     */
+/*	Global Variable property */
+typedef struct global_entry {
+  Prop NextOfPE;      /* used to chain properties             */
+  PropFlags KindOfPE; /* kind of property                     */
 #if defined(YAPOR) || defined(THREADS)
-   rwlock_t GRWLock; /* a simple lock to protect this entry */
+  rwlock_t GRWLock; /* a simple lock to protect this entry */
 #if THREADS
-   unsigned int owner_id; /* owner thread */
+  unsigned int owner_id; /* owner thread */
 #endif
 #endif
-   struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
-   struct global_entry *NextGE;      /* linked list of global entries */
-   Term global;                      /* index in module table                */
-   Term AttChain;                    /* index in module table                */
- } GlobalEntry;
+  struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
+  struct global_entry *NextGE;      /* linked list of global entries */
+  Term global;                      /* index in module table                */
+  Term AttChain;                    /* index in module table                */
+} GlobalEntry;
 
 #if USE_OFFSETS_IN_PROPS
 
- INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p);
+INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p);
 
- INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p) {
-   return (GlobalEntry *)(AtomBase + Unsigned(p));
- }
+INLINE_ONLY inline EXTERN GlobalEntry *RepGlobalProp(Prop p) {
+  return (GlobalEntry *)(AtomBase + Unsigned(p));
+}
 
- INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p);
+INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p);
 
- INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p) {
-   return (Prop)(Addr(p) - AtomBase);
- }
+INLINE_ONLY inline EXTERN Prop AbsGlobalProp(GlobalEntry *p) {
+  return (Prop)(Addr(p) - AtomBase);
+}
 
 #else
 
@@ -443,40 +443,53 @@ don't forget to also add in qly.h
 */
 /// Different predicate flags
 typedef uint64_t pred_flags_t;
-#define UndefPredFlag ((pred_flags_t)0x4000000000)    //< Predicate not explicitely defined.
-#define ProfiledPredFlag   ((pred_flags_t)0x2000000000) //< pred is being profiled
-#define DiscontiguousPredFlag ((pred_flags_t)0x1000000000) //< predicates whose clauses may be all-over the place..
-#define SysExportPredFlag ((pred_flags_t)0x800000000) //< reuse export list to prolog module.
-#define NoTracePredFlag  ((pred_flags_t)0x400000000) //< cannot trace this predicate
-#define NoSpyPredFlag  ((pred_flags_t)0x200000000) //< cannot spy this predicate
-#define QuasiQuotationPredFlag  ((pred_flags_t)0x100000000) //< SWI-like quasi quotations
-#define MegaClausePredFlag  ((pred_flags_t)0x80000000) //< predicate is implemented as a mega-clause
+#define UndefPredFlag                                                          \
+  ((pred_flags_t)0x4000000000) //< Predicate not explicitely defined.
+#define ProfiledPredFlag ((pred_flags_t)0x2000000000) //< pred is being profiled
+#define DiscontiguousPredFlag                                                  \
+  ((pred_flags_t)0x1000000000) //< predicates whose clauses may be all-over the
+                               // place..
+#define SysExportPredFlag                                                      \
+  ((pred_flags_t)0x800000000) //< reuse export list to prolog module.
+#define NoTracePredFlag                                                        \
+  ((pred_flags_t)0x400000000) //< cannot trace this predicate
+#define NoSpyPredFlag ((pred_flags_t)0x200000000) //< cannot spy this predicate
+#define QuasiQuotationPredFlag                                                 \
+  ((pred_flags_t)0x100000000) //< SWI-like quasi quotations
+#define MegaClausePredFlag                                                     \
+  ((pred_flags_t)0x80000000) //< predicate is implemented as a mega-clause
 #define ThreadLocalPredFlag ((pred_flags_t)0x40000000) //< local to a thread
 #define MultiFileFlag ((pred_flags_t)0x20000000)       //< is multi-file
 #define UserCPredFlag ((pred_flags_t)0x10000000) //< CPred defined by the user
-#define LogUpdatePredFlag  ((pred_flags_t)0x08000000) //< dynamic predicate with log. upd. sem.
+#define LogUpdatePredFlag                                                      \
+  ((pred_flags_t)0x08000000) //< dynamic predicate with log. upd. sem.
 #define InUsePredFlag ((pred_flags_t)0x04000000)  //< count calls to pred
 #define CountPredFlag ((pred_flags_t)0x02000000)  //< count calls to pred
 #define HiddenPredFlag ((pred_flags_t)0x01000000) //< invisible predicate
-#define CArgsPredFlag  ((pred_flags_t)0x00800000) //< SWI-like C-interface pred.
-#define SourcePredFlag ((pred_flags_t)0x00400000) //< static predicate with source declaration
-#define MetaPredFlag  ((pred_flags_t)0x00200000) //< predicate subject to a meta declaration
-#define SyncPredFlag  ((pred_flags_t)0x00100000) //< has to synch before it can execute
-#define NumberDBPredFlag ((pred_flags_t)0x00080000)    //< entry for an atom key
-#define AtomDBPredFlag ((pred_flags_t)0x00040000) //< entry for a number key
-// #define GoalExPredFlag  ((pred_flags_t)0x00020000)	/// predicate that is called by goal_expand
-#define TestPredFlag ((pred_flags_t)0x00010000) //< is a test (optim. comit)
-#define AsmPredFlag ((pred_flags_t)0x00008000)  //< inline
+#define CArgsPredFlag ((pred_flags_t)0x00800000)  //< SWI-like C-interface pred.
+#define SourcePredFlag                                                         \
+  ((pred_flags_t)0x00400000) //< static predicate with source declaration
+#define MetaPredFlag                                                           \
+  ((pred_flags_t)0x00200000) //< predicate subject to a meta declaration
+#define SyncPredFlag                                                           \
+  ((pred_flags_t)0x00100000) //< has to synch before it can execute
+#define NumberDBPredFlag ((pred_flags_t)0x00080000) //< entry for an atom key
+#define AtomDBPredFlag ((pred_flags_t)0x00040000)   //< entry for a number key
+// #define GoalExPredFlag  ((pred_flags_t)0x00020000)	/// predicate that is
+// called by goal_expand
+#define TestPredFlag ((pred_flags_t)0x00010000)     //< is a test (optim. comit)
+#define AsmPredFlag ((pred_flags_t)0x00008000)      //< inline
 #define StandardPredFlag ((pred_flags_t)0x00004000) //< system predicate
 #define DynamicPredFlag ((pred_flags_t)0x00002000)  //< dynamic predicate
 #define CPredFlag ((pred_flags_t)0x00001000)        //< written in C
-#define SafePredFlag ((pred_flags_t)0x00000800) //< does not alter arguments
+#define SafePredFlag ((pred_flags_t)0x00000800)     //< does not alter arguments
 #define CompiledPredFlag ((pred_flags_t)0x00000400) //< is static
 #define IndexedPredFlag ((pred_flags_t)0x00000200)  //< has indexing code
 #define SpiedPredFlag ((pred_flags_t)0x00000100)    //< is a spy point
 #define BinaryPredFlag ((pred_flags_t)0x00000080)   //< test predicate
 #define TabledPredFlag ((pred_flags_t)0x00000040)   //< is tabled
-#define SequentialPredFlag ((pred_flags_t)0x00000020) //< may not create parallel choice points!
+#define SequentialPredFlag                                                     \
+  ((pred_flags_t)0x00000020) //< may not create parallel choice points!
 #define BackCPredFlag ((pred_flags_t)0x00000008) //<	Myddas Imported pred
 #define ModuleTransparentPredFlag ((pred_flags_t)0x00000004)
 #define SWIEnvPredFlag ((pred_flags_t)0x00000002) //< new SWI interface
@@ -487,9 +500,9 @@ typedef uint64_t pred_flags_t;
 #define ForeignPredFlags                                                       \
   (AsmPredFlag | SWIEnvPredFlag | CPredFlag | BinaryPredFlag | UDIPredFlag |   \
    CArgsPredFlag | UserCPredFlag | SafePredFlag | BackCPredFlag)
-#define LivePredFlags \
-  (LogUpdatePredFlag|MultiFileFlag|TabledPredFlag|ForeignPredFlags)
- 
+#define LivePredFlags                                                          \
+  (LogUpdatePredFlag | MultiFileFlag | TabledPredFlag | ForeignPredFlags)
+
 #define StatePredFlags                                                         \
   (InUsePredFlag | CountPredFlag | SpiedPredFlag | IndexedPredFlag)
 #define is_system(pe) (pe->PredFlags & SystemPredFlags)
@@ -705,8 +718,8 @@ typedef struct DB_STRUCT {
   struct DB_STRUCT *p, *n;       /* entry's age, negative if from recorda,
                                     positive if it was recordz  */
   CELL Mask;                     /* parts that should be cleared         */
-  CELL Key;                      /* A mask that can be used to check before
-                                    you unify */
+  CELL Key; /* A mask that can be used to check before
+               you unify */
   DBTerm DBT;
 } DBStruct;
 
@@ -1178,7 +1191,7 @@ INLINE_ONLY inline EXTERN bool IsArrayProperty(PropFlags flags) {
 typedef struct YAP_blob_prop_entry {
   Prop NextOfPE;                /* used to chain properties             */
   PropFlags KindOfPE;           /* kind of property                     */
-  struct YAP_blob_t *blob_type; /* type of blob */
+  struct _PL_blob_t *blob_type; /* type of blob */
 } YAP_BlobPropEntry;
 
 #if USE_OFFSETS_IN_PROPS
@@ -1501,7 +1514,8 @@ INLINE_ONLY EXTERN inline Prop PredPropByAtomAndMod(Atom at, Term cur_mod)
   p0 = ae->PropsOfAE;
   while (p0) {
     PredEntry *pe = RepPredProp(p0);
-    if (pe->KindOfPE == PEProp && (pe->ModuleOfPred == cur_mod || pe->ModuleOfPred == 0)) {
+    if (pe->KindOfPE == PEProp &&
+        (pe->ModuleOfPred == cur_mod || pe->ModuleOfPred == 0)) {
 #ifdef THREADS
       /* Thread Local Predicates */
       if (pe->PredFlags & ThreadLocalPredFlag) {
@@ -1539,8 +1553,8 @@ INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *, PropEntry *p);
 INLINE_ONLY EXTERN inline void AddPropToAtom(AtomEntry *ae, PropEntry *p) {
   /* old properties should be always last, and wide atom properties
      should always be first */
-    p->NextOfPE = ae->PropsOfAE;
-    ae->PropsOfAE = AbsProp(p);
+  p->NextOfPE = ae->PropsOfAE;
+  ae->PropsOfAE = AbsProp(p);
 }
 
 // auxiliary functions
