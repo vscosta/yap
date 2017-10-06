@@ -27,16 +27,7 @@ set (YAPOS_SOURCES
   ypstdio.c
   )
 
-set (YAPOS_HEADERS
-  encoding.h
-  iopreds.h
-  fmemopen.h
-  yapio.h
-  sysbits.h
-  VFS.h
-  )
-
-  include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR})
+  include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
@@ -84,7 +75,7 @@ include(CheckVariableExists)
 
  if (WITH_READLINE)
   macro_optional_find_package (Readline ON)
-  
+
   if (READLINE_FOUND)
   # - Find the readline library
   # This module defines

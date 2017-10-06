@@ -1,4 +1,4 @@
-"""The main routine of the yap python project."""
+ """The main routine of the yap python project."""
 
 import sys
 import yap4py.yapi
@@ -11,4 +11,4 @@ def main(**args):
 
 if __name__ == "__main__":
     main()
-    yap4py.yapi.live()
+    yap4py.yapi.main()

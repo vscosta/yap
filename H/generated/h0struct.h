@@ -287,7 +287,7 @@ EXTERNAL    struct record_list  *Yap_Records;
 EXTERNAL  Atom  EmptyWakeups[MAX_EMPTY_WAKEUPS];
 EXTERNAL  int  MaxEmptyWakeups;
 /* SWI blobs */
-EXTERNAL    struct YAP_blob_t  *BlobTypes;
+EXTERNAL    struct _PL_blob_t  *BlobTypes;
 EXTERNAL    struct AtomEntryStruct  *Blobs;
 EXTERNAL  UInt  NOfBlobs;
 EXTERNAL  UInt  NOfBlobsMax;

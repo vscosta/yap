@@ -104,65 +104,173 @@ set(C_INTERFACE_SOURCES
 
 list(APPEND LIBYAP_SOURCES ${C_INTERFACE_SOURCES} ${ENGINE_SOURCES})
 
-  set (HEADERS
-  	H/Atoms.h
-  	H/sshift.h
-  	H/Yap.h
-  	H/Yatom.h
-  	H/YapHeap.h
-  	H/Regs.h
-  	H/Yapproto.h
-  	H/absmi.h
-  	H/absmi-switch.h
-  	H/absmi-threaded.h
-  	H/absmi-traced.h
-  	H/alloc.h
-  	H/amidefs.h
-  	H/amiops.h
-  	H/arrays.h
-  	H/arith2.h
-  	H/attvar.h
-      H/blobs.h
-  	H/clause.h
-  	H/YapCompile.h
-  	H/corout.h
-  	H/dlmalloc.h
-  	H/generated/dglobals.h
-  	H/generated/dlocals.h
-  	H/generated/dhstruct.h
-  	H/YapEval.h
-  	H/heapgc.h
-  	H/generated/hglobals.h
-  	H/generated/hlocals.h
-  	H/generated/hstruct.h
-  	H/generated/iglobals.h
-  	H/generated/ihstruct.h
-  	H/generated/ilocals.h
-  	H/index.h
-  	H/inline-only.h
-  	H/qly.h
-  	H/rclause.h
-  	H/generated/rglobals.h
-  	H/generated/rlocals.h
-  	H/rheap.h
-  	H/generated/rhstruct.h
-  	H/threads.h
-  	H/tracer.h
-  	H/trim_trail.h
-  	H/YapSignals.h
-    H/YapGFlagInfo.h
-    H/YapFlags.h
-    H/YapLFlagInfo.h
-  	H/YapText.h
-  	H/cut_c.h
-  	H/generated/iatoms.h
-    H/generated/ratoms.h
-    H/generated/tatoms.h
-  	CXX/yapdb.hh
-  	CXX/yapi.hh
-  	BEAM/eam.h BEAM/eamamasm.h
+set( BEAM_HEADERS
+BEAM/beam.h
+)
+  set (CORE_HEADERS
+      ${CMAKE_SOURCE_DIR}/H/Atoms.h
+    ${CMAKE_SOURCE_DIR}/H/Foreign.h
+    ${CMAKE_SOURCE_DIR}/H/Regs.h
+    ${CMAKE_SOURCE_DIR}/H/ScannerTypes.h
+    ${CMAKE_SOURCE_DIR}/H/Tags_24bits.h
+    ${CMAKE_SOURCE_DIR}/H/Tags_32LowTag.h
+    ${CMAKE_SOURCE_DIR}/H/Tags_32Ops.h
+    ${CMAKE_SOURCE_DIR}/H/Tags_32bits.h
+    ${CMAKE_SOURCE_DIR}/H/Tags_64bits.h
+    ${CMAKE_SOURCE_DIR}/H/TermExt.h
+    ${CMAKE_SOURCE_DIR}/H/Yap.h
+    ${CMAKE_SOURCE_DIR}/H/YapAppliedOpcodes.h
+    ${CMAKE_SOURCE_DIR}/H/YapCompile.h
+    ${CMAKE_SOURCE_DIR}/H/YapCompoundTerm.h
+    ${CMAKE_SOURCE_DIR}/H/YapEval.h
+    ${CMAKE_SOURCE_DIR}/H/YapFlags.h
+    ${CMAKE_SOURCE_DIR}/H/YapGFlagInfo.h
+    ${CMAKE_SOURCE_DIR}/H/YapHandles.h
+    ${CMAKE_SOURCE_DIR}/H/YapHeap.h
+    ${CMAKE_SOURCE_DIR}/H/YapLFlagInfo.h
+    ${CMAKE_SOURCE_DIR}/H/YapOpcodes.h
+    ${CMAKE_SOURCE_DIR}/H/YapSignals.h
+    ${CMAKE_SOURCE_DIR}/H/YapTags.h
+    ${CMAKE_SOURCE_DIR}/H/YapTerm.h
+    ${CMAKE_SOURCE_DIR}/H/YapText.h
+    ${CMAKE_SOURCE_DIR}/H/Yapproto.h
+    ${CMAKE_SOURCE_DIR}/H/Yatom.h
+    ${CMAKE_SOURCE_DIR}/H/absmi-interpretrer.h
+    ${CMAKE_SOURCE_DIR}/H/absmi-switch.h
+    ${CMAKE_SOURCE_DIR}/H/absmi-threaded.h
+    ${CMAKE_SOURCE_DIR}/H/absmi-traced.h
+    ${CMAKE_SOURCE_DIR}/H/absmi.h
+    ${CMAKE_SOURCE_DIR}/H/alloc.h
+    ${CMAKE_SOURCE_DIR}/H/amidefs.h
+    ${CMAKE_SOURCE_DIR}/H/amijit.h
+    ${CMAKE_SOURCE_DIR}/H/amiops.h
+    ${CMAKE_SOURCE_DIR}/H/arith2.h
+    ${CMAKE_SOURCE_DIR}/H/arrays.h
+    ${CMAKE_SOURCE_DIR}/H/attvar.h
+    ${CMAKE_SOURCE_DIR}/H/clause.h
+    ${CMAKE_SOURCE_DIR}/H/corout.h
+    ${CMAKE_SOURCE_DIR}/H/cut_c.h
+    ${CMAKE_SOURCE_DIR}/H/dlmalloc.h
+    ${CMAKE_SOURCE_DIR}/H/fields.h
+    ${CMAKE_SOURCE_DIR}/H/findclause.h
+    ${CMAKE_SOURCE_DIR}/H/generated/dglobals.h
+	${CMAKE_SOURCE_DIR}/H/generated/dhstruct.h
+	${CMAKE_SOURCE_DIR}/H/generated/h0globals.h
+	${CMAKE_SOURCE_DIR}/H/generated/h0struct.h
+	${CMAKE_SOURCE_DIR}/H/generated/hglobals.h
+	${CMAKE_SOURCE_DIR}/H/generated/hlocals.h
+	${CMAKE_SOURCE_DIR}/H/generated/hstruct.h
+	${CMAKE_SOURCE_DIR}/H/generated/i0globals.h
+	${CMAKE_SOURCE_DIR}/H/generated/iatoms.h
+	${CMAKE_SOURCE_DIR}/H/generated/iglobals.h
+	${CMAKE_SOURCE_DIR}/H/generated/ihstruct.h
+	${CMAKE_SOURCE_DIR}/H/generated/ilocals.h
+	${CMAKE_SOURCE_DIR}/H/generated/ratoms.h
+	${CMAKE_SOURCE_DIR}/H/generated/rglobals.h
+	${CMAKE_SOURCE_DIR}/H/generated/rhstruct.h
+	${CMAKE_SOURCE_DIR}/H/generated/rlocals.h
+	${CMAKE_SOURCE_DIR}/H/generated/tatoms.h
+    ${CMAKE_SOURCE_DIR}/H/globals.h
+    ${CMAKE_SOURCE_DIR}/H/headclause.h
+    ${CMAKE_SOURCE_DIR}/H/heap.h
+    ${CMAKE_SOURCE_DIR}/H/heapgc.h
+    ${CMAKE_SOURCE_DIR}/H/index.h
+    ${CMAKE_SOURCE_DIR}/H/inline-only.h
+    ${CMAKE_SOURCE_DIR}/H/iswiatoms.h
+    ${CMAKE_SOURCE_DIR}/H/locals.h
+    ${CMAKE_SOURCE_DIR}/H/nolocks.h
+    ${CMAKE_SOURCE_DIR}/H/qly.h
+    ${CMAKE_SOURCE_DIR}/H/rclause.h
+    ${CMAKE_SOURCE_DIR}/H/rheap.h
+    ${CMAKE_SOURCE_DIR}/H/saveclause.h
+    ${CMAKE_SOURCE_DIR}/H/sig.h
+    ${CMAKE_SOURCE_DIR}/H/sshift.h
+    ${CMAKE_SOURCE_DIR}/H/threads.h
+    ${CMAKE_SOURCE_DIR}/H/tracer.h
+    ${CMAKE_SOURCE_DIR}/H/trim_trail.h
+    ${CMAKE_SOURCE_DIR}/H/udi_private.h
+    ${CMAKE_SOURCE_DIR}/H/utarray.h
+    ${CMAKE_SOURCE_DIR}/H/uthash.h
+    ${CMAKE_SOURCE_DIR}/H/walkclause.h
+    ${CMAKE_SOURCE_DIR}/H/yerror.h
 	)
 
+set (INCLUDE_HEADERS
+    ${CMAKE_SOURCE_DIR}/include/GitSHA1.h
+    ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
+    ${CMAKE_SOURCE_DIR}/include/VFS.h
+    ${CMAKE_SOURCE_DIR}/include/YapDefs.h
+    ${CMAKE_SOURCE_DIR}/include/YapError.h
+    ${CMAKE_SOURCE_DIR}/include/YapErrors.h
+    ${CMAKE_SOURCE_DIR}/include/YapFormat.h
+    ${CMAKE_SOURCE_DIR}/include/YapInterface.h
+    ${CMAKE_SOURCE_DIR}/include/YapRegs.h
+    ${CMAKE_SOURCE_DIR}/include/YapStreams.h
+    ${CMAKE_SOURCE_DIR}/include/blobs.h
+    ${CMAKE_SOURCE_DIR}/include/c_interface.h
+    ${CMAKE_SOURCE_DIR}/include/clause_list.h
+    ${CMAKE_SOURCE_DIR}/include/pl-types.h
+    ${CMAKE_SOURCE_DIR}/include/udi.h
+)
+
+set (CONFIGURATION_HEADERS
+${CMAKE_BINARY_DIR}/YapConfig.h
+    ${CMAKE_BINARY_DIR}/YapTermConfig.h
+    ${CMAKE_BINARY_DIR}/config.h
+    ${CMAKE_BINARY_DIR}/cudd_config.h
+    ${CMAKE_BINARY_DIR}/dlocals.h
+    ${CMAKE_BINARY_DIR}/YapIOConfig.h
+)
+
+
+set (CXX_HEADERS
+    ${CMAKE_SOURCE_DIR}/CXX/yapa.hh
+    ${CMAKE_SOURCE_DIR}/CXX/yapdb.hh
+    ${CMAKE_SOURCE_DIR}/CXX/yapi.hh
+    ${CMAKE_SOURCE_DIR}/CXX/yapie.hh
+    ${CMAKE_SOURCE_DIR}/CXX/yapq.hh
+    ${CMAKE_SOURCE_DIR}/CXX/yapt.hh
+
+)
+set (PYTHON_HEADERS  ${CMAKE_SOURCE_DIR}/packages/python/py4yap.h)
+
+set (OPTYap_HEADERS
+	${CMAKE_SOURCE_DIR}/OPTYap/opt.config.h
+	${CMAKE_SOURCE_DIR}/OPTYap/opt.proto.h
+	${CMAKE_SOURCE_DIR}/OPTYap/opt.structs.h
+	${CMAKE_SOURCE_DIR}/OPTYap/opt.macros.h
+	${CMAKE_SOURCE_DIR}/OPTYap/or.macros.h
+	${CMAKE_SOURCE_DIR}/OPTYap/or.sba_amiops.h
+	${CMAKE_SOURCE_DIR}/OPTYap/or.sba_unify.h
+	${CMAKE_SOURCE_DIR}/OPTYap/tab.structs.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_x86.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_sparc.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_mips.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_mips_funcs.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_alpha.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_alpha_funcs.h
+	${CMAKE_SOURCE_DIR}/OPTYap/locks_pthread.h
+
+  )
+
+set (YAPOS_HEADERS
+	${CMAKE_SOURCE_DIR}/os/encoding.h
+	${CMAKE_SOURCE_DIR}/os/fmemopen.h
+	${CMAKE_SOURCE_DIR}/os/format.h
+	${CMAKE_SOURCE_DIR}/os/getw.h
+	${CMAKE_SOURCE_DIR}/os/iopreds.h
+	${CMAKE_SOURCE_DIR}/os/sysbits.h
+	${CMAKE_SOURCE_DIR}/os/yapio.h
+)
+
+list( APPEND c_headers ${CMAKE_SOURCE_DIR}/utf8proc/utf8proc.h )
+list( APPEND c_headers ${YAPOS_HEADERS} )
+list( APPEND c_headers ${OPTYap_HEADERS} ) 
+list( APPEND c_headers ${INCLUDE_HEADERS} )
+list( APPEND c_headers ${CORE_HEADERS} )
+list (APPEND c_headers ${PYTHON_HEADERS})
+#list( APPEND c_headers ${CONFIGURATION_HEADERS} )
+list( APPEND cxx_headers ${CXX_HEADERS} )
 
 
 set(STATIC_SOURCES

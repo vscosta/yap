@@ -223,13 +223,13 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
     out.type |= YAP_STRING_NCHARS;
     out.max = *lengthp;
   }
-  char *sf = malloc(strlen(out.val.c)+1);
-  strcpy(sf, out.val.c);
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     pop_text_stack(lvl);
     return false;
   }
-  *s = out.val.c = sf;
+  if (*s) {
+    *s = out.val.c;
+  }
   return true;
 }
 

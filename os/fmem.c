@@ -168,7 +168,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   if (!buf) {
     return false;
   }
-  buf = export_block( buf );
+  buf = export_block( (char *)buf );
   pop_text_stack(l);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);

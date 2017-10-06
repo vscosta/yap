@@ -5,18 +5,8 @@ set(SO_MINOR 0)
 set(SO_PATCH 0)
 
 set (CXX_SOURCES
-    yapi.cpp
+    yapi.cpp 
 )
-
-set (CXX_HEADERS
-    yapa.hh
-    yapdb.hh
-    yapi.h
-    yapie.hh
-    yapq.hh
--   yapt.hh
--)
-
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
 if ( WIN32)

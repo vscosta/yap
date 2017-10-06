@@ -18,6 +18,6 @@
 
 static void InitWorker(int wid){
 #include "locals.h"
-} w_local;
+} ;
 
 #endif

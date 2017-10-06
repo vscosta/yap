@@ -326,7 +326,7 @@ Atom	EmptyWakeups[MAX_EMPTY_WAKEUPS]		InitEmptyWakeups() RestoreEmptyWakeups()
 int		MaxEmptyWakeups		=0
 
 /* SWI blobs */
-struct YAP_blob_t		*BlobTypes		=NULL		RestoreBlobTypes()
+struct _PL_blob_t	*BlobTypes	=NULL		RestoreBlobTypes()
 struct AtomEntryStruct	*Blobs		=NULL		RestoreBlobs()
 UInt   			NOfBlobs		=0
 UInt   			NOfBlobsMax		=256

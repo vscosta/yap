@@ -407,5 +407,5 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/../YapTermConfig.h.cmake
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake
         ${CMAKE_BINARY_DIR}/config.h)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../GitSHA1.c.in GitSHA1.c @ONLY)
-configure_file(${CMAKE_CURRENT_LIST_DIR}/../os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/os/YapIOConfig.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/../os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h)
 

@@ -11,13 +11,11 @@ set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_S
 
 configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
-configure_file(../../swig/yap.i ${CMAKE_CURRENT_BINARY_DIR}/yap.i)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/YAP4PY.md" ${CMAKE_CURRENT_BINARY_DIR}/README)
-
 
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 
-INCLUDE_DIRECTORIES("${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/packages/python" "${CMAKE_SOURCE_DIR}/CXX")
+INCLUDE_DIRECTORIES("${CMAKE_CURRENT_BINARY_DIR}/yap4py/include")
 
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
@@ -33,7 +31,7 @@ else()
   set_target_properties ( ${SWIG_MODULE_Py2YAP_REAL_NAME}
     PROPERTIES
     NO_SONAME ON
-    OUTPUT_NAME _yap
+    OUTPUT_NAME yapc
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
     DEPENDS YAPPython YAPPython YAP++
     )
@@ -54,9 +52,16 @@ else()
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os)
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl)
 
+  file(COPY ../../swig/yap.i DESTINATION .)
+  file(COPY ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp DESTINATION .)
+file(COPY ${pl_library} DESTINATION yap4py/prolog)
+file(COPY ${pl_os_library} DESTINATION yap4py/prolog/os)
+file(COPY ${c_headers} DESTINATION yap4py/include)
+file(COPY ${cxx_headers} DESTINATION yap4py/include)
 
   add_custom_target( YAP4PY ALL
-    #     COMMAND ${CMAKE_COMMAND} -E copy ${YAP_DLLS} ${CMAKE_BINARY_DIR}/startup.yss  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/startup.yss  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+    COMMAND ${CMAKE_COMMAND} -E copy ${CONFIGURATION_HEADERS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
     COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist bdist_wheel
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS  STARTUP ${PYTHON_SOURCES} ${PROLOG_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/setup.py ${SWIG_MODULE_Py2YAP_REAL_NAME} )

@@ -56,6 +56,7 @@ libpyauxdir = abspath(os.path.dirname('stdlib'))
 
 sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 
+if 'conda' in sys.version or 'Continuum' in sys.version:\
 my_extra_link_args = []
 if platform.system() == 'Windows':
     local_libs = []
@@ -63,7 +64,7 @@ if platform.system() == 'Windows':
     my_extra_link_args = ['-Wl,-export-all-symbols']
 else:
     # if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath', '-Wl,'+libpydir,'-Wl,-rpath', '-Wl,'+libpyauxdir, ]
+    my_extra_link_args = []
     win_libs = []
     local_libs = ['Py4YAP']
 # or dll in glob('yap/dlls/*'):
@@ -73,28 +74,12 @@ native_sources = ["yap.i",'yapi.cpp']
 
 for i in '${PYTHON_SOURCES}'.split(";"):
     copy2(i, 'yap4py')
-for i in '${pl_library}'.split(";") + '${pl_swi_library}'.split(";")  :
-    copy2(i, 'yap4py/prolog')
-for i in '${pl_os_library}'.split(";") :
-    copy2(i, 'yap4py/prolog/os')
-for i in  '${pl_boot_library}'.split(";") :
-    copy2(i, 'yap4py/prolog/pl')
-my_libs0 = '${YAP_DLLS}'.split(";")+['${CMAKE_BINARY_DIR}/startup.yss']
+my_libs0 = '${YAP_DLLS}'.split(";")
 my_libs = []
 for i in my_libs0:
     my_libs = glob(i) + my_libs
 for i in my_libs:
     copy2(i, 'yap4py')
-my_includes = ['${CMAKE_SOURCE_DIR}/CXX', '${CMAKE_SOURCE_DIR}/include',
-               '${CMAKE_SOURCE_DIR}/H', '${CMAKE_SOURCE_DIR}/H/generated',
-               '${CMAKE_SOURCE_DIR}/os', '${CMAKE_SOURCE_DIR}/OPTYap',
-               '${CMAKE_SOURCE_DIR}/utf8proc',
-               '${CMAKE_SOURCE_DIR}/packages/python',
-               '${CMAKE_BINARY_DIR}']
-for i in my_includes:
-    includes = glob(i+"/*.??h")
-    for j in includes:
-      copy2(j, 'yap4py/include')
 here = path.abspath(path.dirname(__file__))
 #gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
 #python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}")
@@ -108,12 +93,12 @@ extensions = [Extension('_yap', native_sources,
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('_GNU_SOURCE', '1')],
-                        runtime_library_dirs=['yap4py', '${libdir}', '${bindir}', '${gmp_dir}', '${python_libdir}'],
+                        runtime_library_dirs=['yap4py'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=['../../..', '../../../CXX', 'yap4py/include', '..', "${bindir}"],
+                        library_dirs=["yap4py"],
                         extra_link_args=my_extra_link_args,
-                        libraries=['Yap','gmp']+win_libs+local_libs,
+                        libraries=['Yap','Py4YAP','gmp']+win_libs+local_libs,
                         include_dirs=['yap4py/include']
                         )]
 

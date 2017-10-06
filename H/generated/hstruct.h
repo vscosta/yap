@@ -287,7 +287,7 @@
   Atom  EmptyWakeups_[MAX_EMPTY_WAKEUPS];
   int  MaxEmptyWakeups_;
 /* SWI blobs */
-  struct YAP_blob_t  *BlobTypes_;
+  struct _PL_blob_t  *BlobTypes_;
   struct AtomEntryStruct  *Blobs_;
   UInt  NOfBlobs_;
   UInt  NOfBlobsMax_;

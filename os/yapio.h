@@ -25,7 +25,7 @@
 #include <stdio.h>
 #include <wchar.h>
 
-#include "os/YapIOConfig.h"
+#include "YapIOConfig.h"
 #include <Yatom.h>
 
 #ifndef _PL_WRITE_

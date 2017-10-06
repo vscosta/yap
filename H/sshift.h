@@ -15,9 +15,13 @@
 *									 *
 *************************************************************************/
 
+#ifndef SSHIFT_H
+#define SSHIFT_H
+
 #define REINIT_LOCK(P) INIT_LOCK(P) 
 #define REINIT_RWLOCK(P) INIT_RWLOCK(P) 
 
+#include <blobs.h>
 
 #define CharP(ptr)	((char *) (ptr))
 
@@ -461,8 +465,6 @@ NoAGCAtomAdjust__ (Atom at USES_REGS)
   return (Atom) ((at == NULL ? (at) : (Atom) (CharP (at) + LOCAL_HDiff)));
 }
 
-
-
 INLINE_ONLY inline EXTERN Prop PropAdjust__ (Prop CACHE_TYPE);
 
 INLINE_ONLY inline EXTERN Prop
@@ -474,12 +476,12 @@ PropAdjust__ (Prop p USES_REGS)
 
 #endif
 
-INLINE_ONLY inline EXTERN struct YAP_blob_t *BlobTypeAdjust__ (struct YAP_blob_t *CACHE_TYPE);
+INLINE_ONLY inline EXTERN YAP_blob_t *BlobTypeAdjust__ (YAP_blob_t *CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct YAP_blob_t *
-BlobTypeAdjust__ (struct YAP_blob_t *at USES_REGS)
+INLINE_ONLY inline EXTERN YAP_blob_t *
+BlobTypeAdjust__ ( YAP_blob_t *at USES_REGS)
 {
-  return (struct YAP_blob_t *) ((at == NULL ? (at) : (struct YAP_blob_t *) (CharP (at) + LOCAL_HDiff)));
+  return ( YAP_blob_t *) ((at == NULL ? (at) : ( YAP_blob_t *) (CharP (at) + LOCAL_HDiff)));
 }
 
 INLINE_ONLY inline EXTERN PredEntry *PredEntryAdjust__ (PredEntry * CACHE_TYPE);
@@ -1138,3 +1140,4 @@ IsGlobal__ (CELL reg USES_REGS)
 void Yap_AdjustStacksAndTrail(void);
 void Yap_AdjustRegs(int);
 
+#endif

@@ -3,9 +3,6 @@
 
 set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c)
 
-set (PYTHON_HEADERS  py4yap.h)
-
-
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 include_directories( ${CMAKE_BINARY_DIR}
