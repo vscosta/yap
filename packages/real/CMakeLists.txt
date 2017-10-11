@@ -20,7 +20,7 @@ set (REAL_PL
   real.pl
 )
 
-add_to_group( pl_library REAL_PL )
+add_to_group( REAL_PL  pl_library)
 
 include_directories (
       ${CMAKE_CURRENT_BINARY_DIR}

@@ -50,37 +50,29 @@ import shutil
 from distutils.core import setup
 
 here = abspath(dirname(__file__))
-libpydir = abspath(dirname(os.path.dirname('stdlib')))
-libpyauxdir = abspath(os.path.dirname('stdlib'))
+libpydir = abspath(sysconfig.get_path('platlib'))
+libpyauxdir = abspath(os.path.dirname('std  lib'))
 #pkg_root = join(here, name)
+
+here = path.abspath(path.dirname(__file__))
 
 sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 
-if 'conda' in sys.version or 'Continuum' in sys.version:\
-my_extra_link_args = []
+
 if platform.system() == 'Windows':
     local_libs = []
     win_libs = ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 else:
-    # if platform.system() == 'Darwin':
-    my_extra_link_args = []
+    #if platform.system() == 'Darwin':
+    my_extra_link_args = ['-Wl,-rpath','-Wl,@loader_path/../../..']
     win_libs = []
     local_libs = ['Py4YAP']
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-native_sources = ["yap.i",'yapi.cpp']
+native_sources = ["yapPYTHON_wrap.cxx",'yapi.cpp']
 
-for i in '${PYTHON_SOURCES}'.split(";"):
-    copy2(i, 'yap4py')
-my_libs0 = '${YAP_DLLS}'.split(";")
-my_libs = []
-for i in my_libs0:
-    my_libs = glob(i) + my_libs
-for i in my_libs:
-    copy2(i, 'yap4py')
-here = path.abspath(path.dirname(__file__))
 #gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
 #python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}")
 # Get the long description from the README file
@@ -93,10 +85,11 @@ extensions = [Extension('_yap', native_sources,
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('_GNU_SOURCE', '1')],
-                        runtime_library_dirs=['yap4py'],
+                        runtime_library_dirs=[abspath(sysconfig.get_path('platlib')),
+                        abspath(sysconfig.get_path('platlib'))],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=["yap4py"],
+                        library_dirs=[".",'../../..'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','Py4YAP','gmp']+win_libs+local_libs,
                         include_dirs=['yap4py/include']
@@ -111,6 +104,8 @@ package_data = {
     '': '*.*'
 }
 
+data_files=[('../..', glob('lib*.*'))]
+
 version_ns = {'__version__': '6.3.5', 'minor-version': '6', 'minor-version': '3', 'patch': '5'}
 
 setup_args = dict(
@@ -118,9 +113,11 @@ setup_args = dict(
     version=version_ns['__version__'],
     scripts=glob(join('scripts', '*')),
     packages=packages,
-    py_modules=['yap','yap4py'],
+    ext_modules=extensions,
+    py_modules=['yap','yap4py.yapi'],
     package_data=package_data,
     include_package_data=True,
+    data_files = data_files,
     # requirements=[
     # 'm2w64-gmp',
     # 'm2-msys2-keyring',
@@ -132,7 +129,6 @@ setup_args = dict(
     author_email='vsc@dcc.fc.up.pt',
     url='http://www.dcc.fc.up/~vsc/yap',
     license='BSD',
-    ext_modules=extensions,
     platforms="Linux, Mac OS X, Windows",
     keywords=['Interactive', 'Interpreter', 'Shell', 'Web'],
     classifiers=[

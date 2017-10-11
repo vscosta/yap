@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		readline.c *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		readline.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -253,13 +253,13 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
-bool Yap_readline_clear_pending_input(StreamDesc *s) { 
+bool Yap_readline_clear_pending_input(StreamDesc *s) {
   rl_clear_pending_input();
   if (s->u.irl.buf) {
-    free( ( void *)s->u.irl.buf ); 
-}
-    s->u.irl.ptr = s->u.irl.buf = NULL;
-    return true;
+    free((void *)s->u.irl.buf);
+  }
+  s->u.irl.ptr = s->u.irl.buf = NULL;
+  return true;
 }
 
 bool Yap_ReadlineOps(StreamDesc *s) {
@@ -272,7 +272,6 @@ bool Yap_ReadlineOps(StreamDesc *s) {
   }
   return false;
 }
-
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
@@ -320,16 +319,18 @@ static bool getLine(int inp) {
     rl_set_signals();
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
     rl_clear_signals();
-} else {
+  } else {
     rl_set_signals();
     myrl_line = (unsigned char *)readline(NULL);
     rl_clear_signals();
   }
   /* Do it the gnu way */
   LOCAL_PrologMode &= ~ConsoleGetcMode;
+#if HAVE_RL_PENDING_SIGNAL
   if (rl_pending_signal()) {
     LOCAL_PrologMode |= InterruptMode;
   }
+#endif
   if (LOCAL_PrologMode & InterruptMode) {
     Yap_HandleSIGINT();
   } else {
@@ -438,10 +439,10 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
- if (!Yap_embedded) {
-  return true;
- }
- return false;
+  if (!Yap_embedded) {
+    return true;
+  }
+  return false;
 #else
   return false;
 #endif

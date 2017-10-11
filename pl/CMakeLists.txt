@@ -1,4 +1,4 @@
-	set(PL_SOURCES
+	set(PL_BOOT_SOURCES
 absf.yap
 arith.yap
 arithpreds.yap
@@ -20,10 +20,6 @@ directives.yap
 eam.yap
 error.yap
 errors.yap
-
-
-
-
 eval.yap
 flags.yap
 grammar.yap
@@ -58,10 +54,9 @@ udi.yap
 undefined.yap
 utils.yap
 yapor.yap
-yio.yap
   )
 
-  add_to_group( pl_boot_library PL_SOURCES )
+  add_to_group(  PL_BOOT_SOURCES   pl_boot_library )
 
   add_custom_target (STARTUP ALL SOURCES
     DEPENDS ${CMAKE_BINARY_DIR}/startup.yss              

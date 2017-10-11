@@ -77,6 +77,29 @@ int pop_text_stack__(int i) {
   return lvl;
 }
 
+void *pop_output_text_stack__(int i, void *export) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  while (lvl >= i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      if (p+1 == export) {
+	size_t sz = p->sz;
+	memcpy(p, p+1, sz);
+	export = p;
+      } else {
+      free(p);
+      }
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  return export;
+}
+
 //	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }
 void insert_block(struct mblock *o) {
   int lvl = o->lvl;
@@ -145,12 +168,6 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
   return o + 1;
 }
 
-void *export_block( void *protected) {
-  struct mblock *o = ((struct mblock *)protected) - 1;
-  release_block(o);
-    memcpy(o, protected, o->sz);
-    return o;
-}
 void *Realloc(void *pt, size_t sz USES_REGS) {
   sz += sizeof(struct mblock);
   struct mblock *old = pt, *o;
@@ -198,9 +215,8 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
   size_t length = 0;
 
   if (t == TermNil) {
-    st0 = Malloc(4);
+    st0 = malloc(4);
     st0[0] = 0;
-    st0 = export_block( st0);
     return st0;
   }
   if (!IsPairTerm(t))
@@ -252,8 +268,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
       }
     }
 
-    st0 = st = Malloc(length + 1);
-    export_block(st0);
+    st0 = st = malloc(length + 1);
     t = t0;
     if (codes) {
       while (IsPairTerm(t)) {

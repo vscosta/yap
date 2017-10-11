@@ -2,10 +2,10 @@
 set (LIBSWI_SOURCES
 swi.c blobs.c     )
 
-add_component (libswi  
+add_component (libswi
   ${LIBSWI_SOURCES})
 
- 
+
 MY_set_target_properties(libswi
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
@@ -15,9 +15,9 @@ MY_set_target_properties(libswi
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
-include_directories (../../../H ../.../../include ../os ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIR})
+include_directories (../../../H ../.../../include ../os ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS})
 
 set (YAP_SWILIB $<TARGET_FILE_NAME:libswi> )
 
-set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIR} )
+set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
 #set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${GMP_LIBRARIES} )

@@ -5,8 +5,9 @@ set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
+message( ${GMP_INCLUDE_DIRS} )
 include_directories( ${CMAKE_BINARY_DIR}
- ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os )
+${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${GMP_INCLUDE_DIRS} )
 
 #talk to python.pl
 add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )
@@ -18,8 +19,13 @@ add_library (Py4YAP OBJECT ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 
 
 else()
-add_lib(Py4YAP  ${PYTHON_SOURCES} ${PYTHON_HEADERS})
+add_corelib(Py4YAP  ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 
+MY_set_target_properties(
+    Py4YAP
+PROPERTIES VERSION ${YAP_FULL_VERSION}
+SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
+)
 
 target_link_libraries(Py4YAP libYap ${PYTHON_LIBRARIES})
 
@@ -40,7 +46,7 @@ set (PYTHON_PL python.pl)
 
 install(FILES python.pl DESTINATION ${libpl} )
 
-add_to_group( pl_library PYTHON_PL )
+add_to_group(  PYTHON_PL pl_library )
 
 set_target_properties (YAPPython PROPERTIES PREFIX "")
 
@@ -48,4 +54,3 @@ set_target_properties (YAPPython PROPERTIES PREFIX "")
       LIBRARY DESTINATION ${dlls}
       RUNTIME DESTINATION ${dlls}
       ARCHIVE DESTINATION ${dlls} )
-

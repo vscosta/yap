@@ -208,27 +208,30 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   inp.val.t = Yap_GetFromSlot(l);
   inp.type = cvtFlags(flags);
   out.type = YAP_STRING_CHARS;
-  out.val.c = *s;
+
   if (flags & (REP_UTF8 | REP_MB)) {
     out.enc = ENC_ISO_UTF8;
   } else {
     out.enc = ENC_ISO_LATIN1;
   }
-
-  if (flags & BUF_MALLOC) {
-    out.type |= YAP_STRING_MALLOC;
     out.val.c = NULL;
-  }
-  if (lengthp) {
-    out.type |= YAP_STRING_NCHARS;
-    out.max = *lengthp;
-  }
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     pop_text_stack(lvl);
     return false;
   }
-  if (*s) {
-    *s = out.val.c;
+  if (s) {
+    size_t len = strlen(out.val.c);
+    if (flags & (BUF_DISCARDABLE|BUF_RING)) {
+      return true;
+    }
+    *s = pop_output_text_stack(lvl, out.val.c);
+    if (*s == out.val.c) {
+      char *v = malloc(len+1);
+      strcpy(v, *s);
+      *s = v;
+    }
+  if (lengthp)
+    *lengthp  = len;
   }
   return true;
 }

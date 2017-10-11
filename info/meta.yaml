@@ -1,0 +1,23 @@
+package:
+  name: yap4py
+  version: 1.8.0
+
+requirements:
+  build:
+    - cmake
+    - swig
+    - readline
+    - gmp
+  run:
+    - readline
+    - gmp
+
+
+about:
+    home: http://www.github.com/vscosta/yap-6.3.git
+    license: LGPL2
+    license_family: LGPL
+    summary: Prolog System
+
+source:
+  path: ..

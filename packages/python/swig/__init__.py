@@ -17,10 +17,9 @@ if platform.system() == 'Windows':
     load('libYap*')
 else:
     def load( dll ):
-        dll = glob.glob(os.path.join(yap_lib_path,dll))[0]
+        dll = os.path.join(yap_lib_path,dll)
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll, mode=ctypes.RTLD_GLOBAL)
-    if platform.system() == 'Apple'::
-      load('libYap*')
-      load('libYAP+*')
-      load('libPy4YAP*')
+    if platform.system() == 'Apple':
+         load('libYap.dylib')
+         load('libPy4YAP.dylib'   )

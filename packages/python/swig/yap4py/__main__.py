@@ -1,4 +1,4 @@
- """The main routine of the yap python project."""
+"""The main routine of the yap python project."""
 
 import sys
 import yap4py.yapi

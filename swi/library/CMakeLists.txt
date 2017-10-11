@@ -45,4 +45,4 @@ install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
   )
 
-  add_to_group( pl_swi_library LIBRARY_PL )
+  add_to_group( LIBRARY_PL pl_library )

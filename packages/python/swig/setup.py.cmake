@@ -57,7 +57,9 @@ if platform.system() == 'Darwin':
     so = 'dylib'
 #or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
-
+libs = glob('../../../*.{dylib;dll;so}'+'../../../*/*.{dylib;dll;so}'+'../../../*/*/*.{dylib;dll;so}')
+for l in libs:
+    copy2(l, 'yap4py', follow_symlinks=False)
 
 cplus=['${RELATIVE_SOURCE}CXX/yapi.cpp']
 

@@ -8,8 +8,6 @@
 # GMP_LIBRARY_DLL    - library DLL to install. Only available on WIN32.
 # GMP_LIBRARIES_DIR - the directory the library we link with is found in.
 
-message( "xxxxx ${ANDROID_ABI} yyyyy ${CMAKE_CURRENT_DIR} zzzzzzzzzz"  )
-
 if (ANDROID)
 set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
   set (GMP_FOUND ON)
@@ -19,7 +17,7 @@ set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
 else(ANDROID)
 if(MSVC)
    find_library(GMP_LIBRARIES NAMES mpir mpird
-                PATHS  
+                PATHS
 			$ENV{GMP_ROOT}
 			$ENV{GMP_ROOT}/lib
 			${GMP_ROOT}
@@ -58,28 +56,33 @@ else(MSVC)
 #its proper places
 
 
-find_path(GMP_INCLUDE_DIRS
-        NAMES gmp.h
-        PATHS
-            .
-            ${GMP_ROOT}
-			${GMP_LIBRARIES_DIR}/../include
-			${GMP_LIBRARIES_DIR}
-			)
-
-  find_library(GMP_LIBRARIES NAMES gmp
-                PATHS
+  find_library(GMP_LIBRARIES
+	  NAMES gmp	libgmp
+                HINTS
                 .
-                			${GMP_ROOT}
-                			${GMP_ROOT}/lib
 			$ENV{GMP_ROOT}
 			$ENV{GMP_ROOT}/lib
+			${GMP_ROOT}
+			    			${GMP_ROOT}/lib
 			/usr/local/opt/gmp/lib
 			/opt/lib
 			/usr/local/lib
 			$ENV{HOME}/lib
 			${CMAKE_INSTALL_PREFIX}/lib
   )
+
+
+  find_path(GMP_INCLUDE_DIRS
+          NAMES gmp.h
+          HINTS
+              .
+              $ENV{GMP_ROOT}
+              $ENV{GMP_ROOT}/include
+              ${GMP_ROOT}
+              ${GMP_ROOT}/include
+  			${GMP_LIBRARIES_DIR}/../include
+  			${GMP_LIBRARIES_DIR}
+  			)
 
 get_filename_component(GMP_LIBRARIES_DIR "${GMP_LIBRARIES}" PATH CACHE)
 

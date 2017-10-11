@@ -75,6 +75,8 @@ foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)
 endforeach ()
 
+add_to_group(MYDDAS_YAP pl_library )
+
 add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
 
     install(FILES ${MYDDAS_YAP}

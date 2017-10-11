@@ -155,7 +155,7 @@ otherwise.
 
 :- [
     % lists is often used.
-   	 'yio.yap',
+   	 '../os/yio.yap',
 	 'debug.yap',
 	 'checker.yap',
 	 'depth_bound.yap',

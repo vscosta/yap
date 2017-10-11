@@ -20,5 +20,5 @@ else:
         dll = glob.glob(os.path.join(yap_lib_path,dll))[0]
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll, mode=ctypes.RTLD_GLOBAL)
-    load('libYap*')
-    load('libPy4YAP*')
+    # load('libYap*')
+    # load('libPy4YAP*')

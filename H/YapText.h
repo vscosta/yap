@@ -63,6 +63,12 @@ extern int push_text_stack__(USES_REGS1);
    pop_text_stack__(lvl))
 extern int pop_text_stack__(int lvl USES_REGS);
 
+#define pop_output_text_stack(lvl,p)					\
+  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
+     __FUNCTION__, __LINE__),*/						\
+   pop_output_text_stack__(lvl,p))
+extern void *pop_output_text_stack__(int lvl, void *ox USES_REGS);
+
 /****************** character definition table **************************/
 
 #define NUMBER_OF_CHARS 256

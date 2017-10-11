@@ -14,6 +14,7 @@
 # # try to extract R from readline to avoid collision
 IF(APPLE)
   FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h PATHS
+      ${CMAKE_INCLUDE_PATH}
     ${R_INCLUDE_DIR}
     /sw/include
     /opt/local/include
@@ -31,6 +32,7 @@ FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h)
 # So we look for another one by default
 IF(APPLE)
  FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline PATHS
+     ${CMAKE_LIBRARY_PATH}
     /sw/lib
     /opt/local/lib
     /usr/local/opt/readline/lib #brew

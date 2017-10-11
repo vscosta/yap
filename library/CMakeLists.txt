@@ -74,7 +74,7 @@ MY_add_subdirectory(system)
 MY_add_subdirectory(tries)
 MY_add_subdirectory(ytest)
 
-add_to_group( pl_library LIBRARY_PL )
+add_to_group( LIBRARY_PL  pl_library)
 
 if (0)
     	file(COPY ${LIBRARY_PL}  DESTINATION ${libpl})
