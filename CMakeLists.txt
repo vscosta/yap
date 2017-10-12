@@ -359,6 +359,18 @@ set(C_INTERFACE_SOURCES
 
     list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
+# include subdirectories configuration
+## after we have all functionality in
+#
+# ADD_SUBDIRECTORY(console/terminal)
+
+    include(readline)
+    if (READLINE_FOUND  )
+        list( APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES} )
+
+        list(APPEND YAP_SYSTEM_OPTIONS readline)
+    endif()
+
 list(APPEND LIBYAP_SOURCES ${C_INTERFACE_SOURCES} ${ENGINE_SOURCES})
 
 set( BEAM_HEADERS
@@ -1047,19 +1059,6 @@ CMAKE_DEPENDENT_OPTION (WITH_SYSTEM_SHM "Use SHM for shared memory allocation" O
 ##   add_subDIRECTORY(utils)
 
 #
-# include subdirectories configuration
-## after we have all functionality in
-#
-# ADD_SUBDIRECTORY(console/terminal)
-
-if (NOT WIN32 AND WITH_READLINE)
-  include(readline)
- macro_optional_find_package (Readline ON)
-if (READLINE_FOUND  )
-     MY_target_link_libraries(libYap ${READLINE_LIBRARIES})
- endif()
- endif()
-
 
 
 
