@@ -53,7 +53,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "iopreds.h"
 
-#if USE_READLINE
+#if defined(HAVE_LIBREADLINE)
 
 #include <readline/history.h>
 #include <readline/readline.h>

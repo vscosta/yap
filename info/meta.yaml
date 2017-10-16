@@ -5,14 +5,18 @@ package:
 requirements:
   build:
     - cmake
+    - clang
     - swig
     - readline
     - gmp
-  run:
+    - python
+    - r
+    - notebook
+run:
     - readline
     - gmp
-
-
+    - r
+    - notebook
 about:
     home: http://www.github.com/vscosta/yap-6.3.git
     license: LGPL2

@@ -1,4 +1,4 @@
-
+``
 <center>
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>

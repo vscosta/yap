@@ -2054,8 +2054,7 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifdef _WIN32
 #ifndef  __WINDOWS__
 #define __WINDOWS__ 1
-#endif 
+#endif
 #endif
 
 #endif
-

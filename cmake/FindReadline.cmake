@@ -12,49 +12,14 @@
 # So we look for another one by default
 #
 # # try to extract R from readline to avoid collision
-IF(APPLE)
-  FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h PATHS
-      ${CMAKE_INCLUDE_PATH}
-    ${R_INCLUDE_DIR}
-    /sw/include
-    /opt/local/include
-    /opt/include
-    /usr/local/opt/readline/include #brew
-    /usr/local/include
-    /usr/include/
-    NO_DEFAULT_PATH
-    )
-ENDIF(APPLE)
 FIND_PATH(READLINE_INCLUDE_DIR NAMES readline/readline.h)
 
 
 # Apple readline does not support readline hooks
 # So we look for another one by default
-IF(APPLE)
- FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline PATHS
-     ${CMAKE_LIBRARY_PATH}
-    /sw/lib
-    /opt/local/lib
-    /usr/local/opt/readline/lib #brew
-    /opt/lib
-    /usr/local/lib
-    /usr/lib
-    NO_DEFAULT_PATH
-    )
-ENDIF(APPLE)
 FIND_LIBRARY(READLINE_readline_LIBRARY NAMES readline)
 
 # Sometimes readline really needs ncurses
-IF(APPLE)
-  FIND_LIBRARY(READLINE_ncurses_LIBRARY NAMES ncurses PATHS
-    /sw/lib
-    /opt/local/lib
-    /opt/lib
-    /usr/local/lib
-    /usr/lib
-    NO_DEFAULT_PATH
-    )
-ENDIF(APPLE)
 FIND_LIBRARY(READLINE_ncurses_LIBRARY NAMES ncurses)
 
 MARK_AS_ADVANCED(
@@ -63,7 +28,10 @@ MARK_AS_ADVANCED(
   READLINE_ncurses_LIBRARY
   )
 
-SET( READLINE_FOUND "NO" )
+    message(STATUS "readline headers found at   ${READLINE_INCLUDE_DIR}")
+    message(STATUS "readline library found at   ${READLINE_readline_LIBRARY} ${READLINE_ncurses_LIBRARY} ")
+
+    SET( READLINE_FOUND "NO" )
 IF(READLINE_INCLUDE_DIR)
   IF(READLINE_readline_LIBRARY)
     SET( READLINE_FOUND "YES" )
@@ -79,8 +47,11 @@ IF(READLINE_INCLUDE_DIR)
   ENDIF(READLINE_readline_LIBRARY)
 ENDIF(READLINE_INCLUDE_DIR)
 
+set(HAVE_LIBREADLINE 0 CACHE BOOL "Readline works.")
+
 IF(READLINE_FOUND)
   MESSAGE(STATUS "Found readline library")
+  set(HAVE_LIBREADLINE 1)
 ELSE(READLINE_FOUND)
   IF(READLINE_FIND_REQUIRED)
     MESSAGE(SYSTEM_ERROR_FATAL "Could not find readline -- please give some paths to CMake")
@@ -92,4 +63,5 @@ find_package_handle_standard_args(Readline READLINE_INCLUDE_DIR READLINE_LIBRARI
 
 MARK_AS_ADVANCED(
   READLINE_FOUND
+  HAVE_LIBREADLINE
   )

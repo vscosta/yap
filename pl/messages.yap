@@ -310,7 +310,7 @@ main_message(error(type_error(Type,Who), _What), Level, _LC) -->
 	[ ' ~a: ~q should be of type ~a' - [Level,Who,Type]],
 	[ nl ].
 main_message(error(system_error(Who), _What), Level, _LC) -->
-	[ ' ~a: ~q error' - [Level,Who]],
+	[ ' ~a: ~q' - [Level,Who]],
 	[ nl ].
 main_message(error(uninstantiation_error(T),_), Level, _LC) -->
 	[ ' ~a: found ~q, expected unbound variable ' - [Level,T], nl ].

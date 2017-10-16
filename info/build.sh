@@ -1,24 +1,34 @@
 #!/bin/bash
 
-export MACOSX_DEPLOYMENT_TARGET=10.12
+export MACOSX_DEPLOYMENT_TARGET=10.9
+# export CC=$SYS_PREFIX/bin/clang
+# export CXX=$SYS_PREFIX/bin/clang++
+export R_COMMAND=$R
+export CMAKE_BUILD_TYPE=Debug
+export CMAKE=$PREFIX/bin/cmake
+export CMAKE_INCLUDE_PATH=$SYS_PREFIX/include
+export CMAKE_LIBRARY_PATH=$SYS_PREFIX/lib
+export CMAKE_INSTALL_PREFIX=$PREFIX
+export GENERATOR="-GNinja"
+export PYTHON_EXECUTABLE="$PYTHON"
+export PYTHON_LIBRARY="$STDLIB_DIR/../libPython${PY_VER}m$SHLIB_EXT"
+export PYTHON_INCLUDE_DIR="$STDLIB_DIR/../../include/python$PY_VER"m
 
 mkdir $PREFIX/conda
 cd  $PREFIX/conda
 # The datarootdir option places the docs into a temp folder that won't
-CC=$SYS_PREFIX/bin/clang \
-  CXX=$SYS_PREFIX/bin/clang++ \
-  $SYS_PREFIX/bin/cmake \
-  -DCMAKE_INCLUDE_PATH="$SYS_PREFIX"/include \
-  -DCMAKE_LIBRARY_PATH="$SYS_PREFIX"/lib \
-  -DCMAKE_BUILD_TYPE=Debug \
+  $CMAKE --build=. --target=install\
+  -DCMAKE_INCLUDE_PATH="$CMAKE_INCLUDE_PATH" \
+  -DCMAKE_LIBRARY_PATH="$CMAKE_LIBRARY_PATH" \
+  -DCMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX" \
+  -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TYPE" \
+  -DPYTHON_EXECUTABLE:FILEPATH="$PYTHON_EXECUTABLE" \
+  -DPYTHON_LIBRARY:FILEPATH="$PYTHON_LIBRARY" \
+  -DPYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE_DIR" \
 	$RECIPE_DIR/..
-CC=$SYS_PREFIX/bin/clang \
-  CXX=$SYS_PREFIX/bin/clang++ \
-make
-CC=$SYS_PREFIX/bin/clang \
-  CXX=$SYS_PREFIX/bin/clang++ \
-make install
+
+  make -j install CMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX"
 
 # Remove the created lib64 directory
 
-rm -rf $PREFIX/conda
+# rm -rf $PREFIX/conda
