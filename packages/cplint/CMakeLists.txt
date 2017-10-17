@@ -147,13 +147,13 @@ IF (CUDD_FOUND)
     )
 
   install(TARGETS  bddem
-          LIBRARY DESTINATION ${libdir}
+          LIBRARY DESTINATION ${dlls}
           RUNTIME DESTINATION ${dlls}
       ARCHIVE DESTINATION ${dlls}
   )
 
 
-  add_lib(cplint 
+  add_lib(cplint
     ${CPLINT_SOURCES}
    )
 
@@ -170,7 +170,7 @@ IF (CUDD_FOUND)
     add_subDIRECTORY ( approx/simplecuddLPADs )
 
   install(TARGETS  cplint
-          LIBRARY DESTINATION ${libdir}
+          LIBRARY DESTINATION ${dlls}
     RUNTIME DESTINATION ${dlls}
     ARCHIVE DESTINATION ${dlls}
     )
