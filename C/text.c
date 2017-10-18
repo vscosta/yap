@@ -268,7 +268,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
       }
     }
 
-    st0 = st = malloc(length + 1);
+    st0 = st = Malloc(length + 1);
     t = t0;
     if (codes) {
       while (IsPairTerm(t)) {
@@ -290,20 +290,20 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
     st[0] = '\0';
 
     return st0;
-  }
+}
 
-  static unsigned char *latin2utf8(seq_tv_t *inp) {
-    unsigned char *b0 = inp->val.uc;
-    size_t sz = strlen(inp->val.c);
-    sz *= 2;
-    int ch;
-    unsigned char *buf = Malloc(sz + 1), *pt = buf;
-    if (!buf)
-      return NULL;
-    while ((ch = *b0++)) {
-      int off = put_utf8(pt, ch);
-      if (off < 0) {
-	continue;
+static unsigned char *latin2utf8(seq_tv_t *inp) {
+  unsigned char *b0 = inp->val.uc;
+  size_t sz = strlen(inp->val.c);
+  sz *= 2;
+  int ch;
+  unsigned char *buf = Malloc(sz + 1), *pt = buf;
+  if (!buf)
+    return NULL;
+  while ((ch = *b0++)) {
+    int off = put_utf8(pt, ch);
+    if (off < 0) {
+      continue;
       }
       pt += off;
     }
@@ -339,13 +339,13 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
 						seq_tv_t *inp USES_REGS) {
     bool codes;
     unsigned char *nbuf = codes2buf(t, buf, &codes PASS_REGS);
-    if (!codes)
+    if (codes)
       return NULL;
     return nbuf;
   }
 
-  static unsigned char *Yap_ListToBuffer(unsigned char *buf, Term t,
-					 seq_tv_t *inp USES_REGS) {
+static unsigned char *Yap_ListToBuffer(unsigned char *buf, Term t,
+				       seq_tv_t *inp USES_REGS) {
     unsigned char *nbuf = codes2buf(t, buf, NULL PASS_REGS);
     return nbuf;
   }
@@ -645,7 +645,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
 	out->val.uc = BaseMalloc(leng + 1);
 	strcpy(out->val.c, (char *)s0);
       } else if (out->val.uc != s0) {
-	out->val.c = Realloc(out->val.c, leng + 1);
+	out->val.c = BaseMalloc(leng + 1);
 	strcpy(out->val.c, (char *)s0);
       }
     } else if (out->enc == ENC_ISO_LATIN1) {
@@ -954,7 +954,7 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
       bufv[j++] = nbuf;
     }
     if (j == 0) {
-      buf = malloc(8);
+      buf = Malloc(8);
       memset(buf, 0, 4);
     } else if (j == 1) {
       buf = bufv[0];
@@ -966,25 +966,25 @@ bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
     return rc;
   }
 
-  //
-  bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
-		       seq_tv_t outv[] USES_REGS) {
-    const unsigned char *buf;
-    size_t b_l, u_l;
+//
+bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
+		     seq_tv_t outv[] USES_REGS) {
+  const unsigned char *buf;
+  size_t b_l, u_l;
 
-    inp->type |= YAP_STRING_IN_TMP;
-    buf = Yap_readText(inp PASS_REGS);
-    if (!buf) {
-      return false;
-    }
-    b_l = strlen((char *)buf);
-    if (b_l == 0) {
-      return false;
-    }
-    u_l = strlen_utf8(buf);
-    if (!cuts) {
-      if (n == 2) {
-	size_t b_l0, b_l1, u_l0, u_l1;
+  inp->type |= YAP_STRING_IN_TMP;
+  buf = Yap_readText(inp PASS_REGS);
+  if (!buf) {
+    return false;
+  }
+  b_l = strlen((char *)buf);
+  if (b_l == 0) {
+    return false;
+  }
+  u_l = strlen_utf8(buf);
+  if (!cuts) {
+    if (n == 2) {
+      size_t b_l0, b_l1, u_l0, u_l1;
 	unsigned char *buf0, *buf1;
 
 	if (outv[0].val.t) {

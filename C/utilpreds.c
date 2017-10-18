@@ -800,12 +800,12 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   ptr = (char *)AdjustSize((CELL*)ptr, buf);
 
   p0 = ptr;
-   *ptr++ = 0;
-    sz = strlen(RepAtom(at)->StrOfAE);
-    if (sz + 1  >= len)
-      return (Atom)NULL;
-    strcpy(ptr, RepAtom(at)->StrOfAE);
-    *hpp = ptr+(sz+1);
+  *ptr++ = 0;
+  sz = strlen(RepAtom(at)->StrOfAE);
+  if (sz + 1  >= len)
+    return (Atom)NULL;
+  strcpy(ptr, RepAtom(at)->StrOfAE);
+  *hpp = ptr+(sz+1);
   return (Atom)(p0-buf);
 }
 
@@ -827,7 +827,7 @@ Functor export_functor(Functor f, char **hpp, char *buf, size_t len)
   return (Functor)(((char *)hptr-buf)+1);
 }
 
-#define export_derefa_body(D,A,LabelUnk,LabelNonVar)                \
+#define export_derefa_body(D,A,LabelUnk,LabelNonVar)	     \
 		do {                                         \
 		  if ((CELL *)(D) < CellDifH(HR,HLow)) { (A) = (CELL *)(D); break; } \
                    (A) = (CELL *)(D);                        \

@@ -97,7 +97,7 @@ Int Yap_peek(int sno) {
   CACHE_REGS
   Int ocharcount, olinecount, olinepos;
   StreamDesc *s;
-  uint32_t ch;
+  int32_t ch;
 
   s = GLOBAL_Stream + sno;
 #if USE_READLINE
@@ -1039,11 +1039,11 @@ code with  _C_, while leaving the current stream position unaltered.
 */
 static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "peek_byte/2");
+  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "peek_byte/2");
   Int ch;
 
   if (sno < 0)
-    return (FALSE);
+    return false;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
@@ -1099,24 +1099,22 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char(USES_REGS1) {
   /* the next character is a EOF */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
-  unsigned char sinp[10];
+  unsigned char sinp[16];
   Int ch;
 
-  if (sno < 0)
-    return false;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
-    return (FALSE);
-  }
-  if ((ch = Yap_peek(sno)) < 0) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
-  }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  int off = put_utf8(sinp, ch);
-  sinp[off] = '\0';
-  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+if (sno < 0)
+  return false;
+ if ((ch = Yap_peek(sno)) < 0) {
+   UNLOCK(GLOBAL_Stream[sno].streamlock);
+   return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+ }
+ UNLOCK(GLOBAL_Stream[sno].streamlock);
+ int off = put_utf8(sinp, ch);
+ if (off < 0) {
+   return false;
+ }
+ sinp[off] = '\0';
+ return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek_char( - _C_) is iso

@@ -38,7 +38,7 @@ bool Yap_Warning(const char *s, ...) {
   PredEntry *pred;
   bool rc;
   Term ts[2];
-  const char *format;
+  const char *fmt;
   char tmpbuf[MAXPATHLEN];
 
   LOCAL_DoingUndefp = true;
@@ -46,12 +46,12 @@ bool Yap_Warning(const char *s, ...) {
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
                                     PROLOG_MODULE)); // PROCEDURE_print_message2
   va_start(ap, s);
-  format = va_arg(ap, char *);
-  if (format != NULL) {
+  fmt = va_arg(ap, char *);
+  if (fmt != NULL) {
 #if HAVE_VSNPRINTF
-    vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
+    vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
 #else
-    (void)vsprintf(tmpbuf, format, ap);
+    (void)vsprintf(tmpbuf, fmt, ap);
 #endif
   } else
     return false;
@@ -321,12 +321,12 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   char tmpbuf[MAXPATHLEN];
 
   va_start(ap, where);
-  char *format = va_arg(ap, char *);
-  if (format != NULL) {
+  char *fmt = va_arg(ap, char *);
+  if (fmt != NULL) {
 #if HAVE_VSNPRINTF
-    (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, format, ap);
+    (void)vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
 #else
-    (void)vsprintf(tnpbuf, format, ap);
+    (void)vsprintf(tnpbuf, fmt, ap);
 #endif
     // fprintf(stderr, "warning: ");
     Yap_Error__(file, function, lineno, type, where, tmpbuf);
@@ -377,7 +377,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   Functor fun;
   Term error_t;
   Term comment;
-  char *format;
+  char *fmt;
   char s[MAXPATHLEN];
 
   /* disallow recursive error handling */
@@ -389,7 +389,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   LOCAL_ActiveError->errorAsText = Yap_LookupAtom(Yap_errorName(type));
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
   LOCAL_ActiveError->classAsText =
-      Yap_LookupAtom(Yap_errorClassName(LOCAL_ActiveError->errorClass));
+    Yap_LookupAtom(Yap_errorClassName(LOCAL_ActiveError->errorClass));
   LOCAL_ActiveError->errorLine = lineno;
   LOCAL_ActiveError->errorFunction = function;
   LOCAL_ActiveError->errorFile = file;
@@ -399,17 +399,17 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   if (where == 0L) {
     where = TermNil;
   }
-// first, obtain current location
-// sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno,
-// function);
-//  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
+  // first, obtain current location
+  // sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno,
+  // function);
+  //  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode))
     fprintf(stderr, "***** Processing Error %d (%lx,%x) %s***\n", type,
-            (unsigned long int)LOCAL_Signals, LOCAL_PrologMode, format);
+            (unsigned long int)LOCAL_Signals, LOCAL_PrologMode, fmt);
   else
     fprintf(stderr, "***** Processing Error %d (%x) %s***\n", type,
-            LOCAL_PrologMode, format);
+            LOCAL_PrologMode, fmt);
 #endif
   if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
@@ -425,12 +425,12 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     Yap_exit(1);
   }
   va_start(ap, where);
-  format = va_arg(ap, char *);
-  if (format != NULL) {
+  fmt = va_arg(ap, char *);
+  if (fmt != NULL) {
 #if HAVE_VSNPRINTF
-    (void)vsnprintf(s, MAXPATHLEN - 1, format, ap);
+    (void)vsnprintf(s, MAXPATHLEN - 1, fmt, ap);
 #else
-    (void)vsprintf(s, format, ap);
+    (void)vsprintf(s, fmt, ap);
 #endif
     // fprintf(stderr, "warning: ");
     comment = MkAtomTerm(Yap_LookupAtom(s));
@@ -479,7 +479,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     error_exit_yap(1);
   }
 #ifdef DEBUG
-// DumpActiveGoals( USES_REGS1 );
+  // DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
   if (!IsVarTerm(where) && IsApplTerm(where) &&
       FunctorOfTerm(where) == FunctorError) {
@@ -569,7 +569,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       LOCAL_ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
     } else {
       LOCAL_ErrorMessage =
-          (char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
+	(char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
     }
     nt[1] = TermNil;
     switch (type) {
@@ -588,15 +588,15 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
         ts[2] = MkAtomTerm(Yap_LookupAtom(function));
         t3 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("c"), 3), 3, ts);
         nt[1] =
-            MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
+	  MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
       }
       if ((location = Yap_pc_location(P, B, ENV)) != TermNil) {
         nt[1] = MkPairTerm(
-            MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location), nt[1]);
+			   MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location), nt[1]);
       }
       if ((location = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
         nt[1] = MkPairTerm(
-            MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location), nt[1]);
+			   MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location), nt[1]);
       }
     }
   }
@@ -604,7 +604,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   LOCAL_Signals = 0;
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
-//    DumpActiveGoals( PASS_REGS1 );
+  //    DumpActiveGoals( PASS_REGS1 );
 #endif
   /* wait if we we are in user code,
      it's up to her to decide */

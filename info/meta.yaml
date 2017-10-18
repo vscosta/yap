@@ -5,7 +5,6 @@ package:
 requirements:
   build:
     - cmake
-    - clang
     - swig
     - readline
     - gmp
