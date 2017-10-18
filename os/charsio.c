@@ -1104,7 +1104,7 @@ static Int peek_char(USES_REGS1) {
 
   if (sno < 0)
     return false;
-  Int ch = Yap_peek(sno);
+  ch = Yap_peek(sno);
   if (ch < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
@@ -1115,7 +1115,7 @@ static Int peek_char(USES_REGS1) {
     return false;
   }
   sinp[off] = '\0';
-  printf("%s\n", simp) return Yap_unify_constant(
+  return Yap_unify_constant(
       ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
