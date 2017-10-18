@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		charcodes.c						 *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Character codes and character conversion		 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		charcodes.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Character codes and character conversion		 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -504,7 +504,7 @@ static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   status = GLOBAL_Stream[sno].status;
   if (!(status & Binary_Stream_f)
       // &&strictISOFlag()
-      ) {
+  ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/1");
     return (FALSE);
@@ -843,7 +843,7 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)
       //&& strictISOFlag()
-      ) {
+  ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
     return (FALSE);
@@ -1102,19 +1102,21 @@ static Int peek_char(USES_REGS1) {
   unsigned char sinp[16];
   Int ch;
 
-if (sno < 0)
-  return false;
- if ((ch = Yap_peek(sno)) < 0) {
-   UNLOCK(GLOBAL_Stream[sno].streamlock);
-   return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
- }
- UNLOCK(GLOBAL_Stream[sno].streamlock);
- int off = put_utf8(sinp, ch);
- if (off < 0) {
-   return false;
- }
- sinp[off] = '\0';
- return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+  if (sno < 0)
+    return false;
+  Int ch = Yap_peek(sno);
+  if (ch < 0) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
+  }
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  int off = put_utf8(sinp, ch);
+  if (off < 0) {
+    return false;
+  }
+  sinp[off] = '\0';
+  printf("%s\n", simp) return Yap_unify_constant(
+      ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek_char( - _C_) is iso
