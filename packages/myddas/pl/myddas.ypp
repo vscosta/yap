@@ -15,8 +15,6 @@
   *									 *
   *************************************************************************/
 
-#if USE_MYDDAS
-
 //:- load_foreign_files([myddas], [], init_myddas).
 
 /* Initialize MYDDAS GLOBAL STRUCTURES */
@@ -129,8 +127,8 @@
 
 #ifdef MYDDAS_MYSQL
 :- use_module(myddas_mysql,[
-			    db_my_result_set/1,
-			    db_datalog_describe/1,
+		  db_my_result_set/1,
+		  db_datalog_describe/1,
 			    db_datalog_describe/2,
 			    db_describe/3,
 			    db_describe/2,
@@ -148,19 +146,16 @@
 			    db_my_sql_mode/2,
 			    db_sql_mode/1,
 			    db_sql_mode/2
-			   ]).
+			    ]).
 #endif /* MYDDAS_MYSQL */
-#ifdef MYDDAS_SQLITE3
 :- use_module(myddas_sqlite3,[
-				% myddas_mysql.ypp
-		 c_sqlite3_connect/4,
-         c_sqlite3_disconnect/1,
-         c_sqlite3_query/5,
-         sqlite3_result_set/1,
-         c_sqlite3_number_of_fields/3
-
-]).
-#endif /* MYDDAS_MYSQL */
+		  % myddas_mysql.ypp
+		  c_sqlite3_connect/4,
+		  c_sqlite3_disconnect/1,
+		  c_sqlite3_query/5,
+		  sqlite3_result_set/1,
+		  c_sqlite3_number_of_fields/3
+	      ]).
 
 
 :- use_module(myddas_util_predicates,[
@@ -192,9 +187,9 @@
 				 queries_atom/2
 				]).
 
-:- use_module(lists,[
-		     append/3
-		    ]).
+:- use_module(library(lists),[
+		  append/3
+	      ]).
 
 
 
@@ -203,168 +198,6 @@
 				% db_open/5
 				% db_open/4
 				%
-
-#if 0 // MYDDAS_DECLARATIONS
-
-:- use_module(library(parameters)).
-
-:- db_open(Protocol) extra_arguments
-db=Db,
-port=Port,
-socket=Socket,
-user=User,
-password=Password,
-			% next arguments all refer to the data access point,
-% so they are all are mutually exclusive
-data:file=File,
-data:host=Host/Db,
-data:host=Host/Db/Port,
-data:host=Host/Db/Socket,
-data:odbc=ODBC_DSN
-
-/* specify conditions */
-such_that
-
-/** implicit, types are conditioned on start
-
- atom(Db),
- positive_or_zero_integer(Port),
-     atom(Socket),
-     atom(User),
-     atom(Password),
- file(File),
-     atom(ODBC_DSN),
-     internet_host(Host), */
-
-/* general theory, type hierarchy
-atom(X) ==> nonvar(X),
-\+ atom(X) * nonvar(X) ==> error(atom, X),
-    var(X)  ==> error(var, X),
-
-internet_host(X) == atom(X),
-
-    integer(X) ==> nonvar(X),
-    \+ integer(X) * nonvar(X) ==> error(integer, X),
-    var(X)  ==> error(var, X)
-
-positive_or_zero_integer(X) ==> integer(X),
-    positive_or_zero_integer(X) ==> positive_or_zero(X)
-
-positive_or_zero(X) ==> number(X),
-
-integer(X) ==> number(X),
-
-float(X) ==> number(X),
-    rational(X) => number(X),
-    number(X) ==> nonvar(X),
-    \+ number(X) * nonvar(X) ==> error(number, X),
-   var(X)  ==> error(var, X),
-   */
-
-/************
-  this unfolds to
-  P == ( (Protocol = mysql) + Protocol = powstgres + Protocol =  odbc + Protocol = sqlite3 ),
-
-Protocol = mysql ==> \+ Protocol = postgres,
-    Protocol = mysql ==> \+ Protocol = odbc,
-    Protocol = mysql ==> \+ Protocol = sqlite3,
-    Protocol = postgres ==> \+ Protocol = mysql,
-
-                            % P(X,D)
-    P ==> atom(Protocol),
-    atom(X) * not P ==> error(domain, X, D),
-*/
-
-/* problem specific axioms */
-Connection?=myddas,
-Host ?= localhost,
-User ?= '',
-Password ?= '',
-
-
-t_atom(X) =:= atom(X) \/ t_var(X) \/ type_err(atom(X)),
-t_var(X) =:= err(var(X)),
-t_integer(X) =:= integer(X) \/ t_var(X) \/ err(integer(X)),
-i_atom(X) =:= atom(X) \/ i_var(X) \/ t(atom(X)),
-i_var(X) =:= i(var(X)),
-i_integer(X) =:= integer(X) \/ i_var(X) \/ err(integer(X)),
-
-
-( list( X ) =:= ( nil(X) + ( X = cons( A, Y ) * L ) ) ),
-
-list( Protocol ) .
-
-/*
-  c_db_c_odbc_connect_connect ==> c_odbc_connect,
-	c_db_my_connect ==> c_db_connect,
-	c_c_postgres_connect_connect ==> c_postgres_connect,
-	c_sqlite3_connect ==> sqlite3.
-*/
-
-	%c_odbc_connect ==> i_atom( Password ) * i_atom( User ) *
-
-
-
-(- (c^c_sqlite3_connect(File,User,Password,Handle)) :- (c ^fail) ).
-
-/*
-( c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle) ==
-Protocol = odbc
- (Protocol = mysql) *
--(Protocol = sqlite3)*
- -(Protocol = postgres) ),
-
-
-% t_internet_host(Host),
-%  i_atom(User) *
-%  i_atom(Password) *
-%  i_positive_or_zero_integer(Port) *
-%  i_atom(Db) *
-% i_atom(Socket)
-
-( c^c_odbc_connect(ODBCEntry,User,Password,Handle)  ==
- (Protocol = odbc)*
--(Protocol = mysql) *
- -(Protocol = sqlite3)*
--(Protocol = postgres) ),
-
-
-
-( c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle) ==
- -(Protocol = odbc)*
--(Protocol = mysql) *
--(Protocol = sqlite3)*
- (Protocol = posgres) ),
-
-% t_internet_host(Host)*
-% i_atom(User) *
-% i_atom(Password) *
-% i_positive_or_zero_integer(Port) *
-% i_atom(Db) *
-% i_atom(Socket) *
-
-% 0 is default port and Var to be NULL, the default socket
-(c^c_sqlite3_connect(File,User,Password,Handle)
-			==
--(Protocol = odbc)*
--(Protocol = mysql) *
- (Protocol = sqlite3)*
--(Protocol = postgres)).
-%(Protocol = sqlite3),
-% t_file( File ) *
-%
-% i_atom(User) *
-% i_atom(Password).
-/*
-integer(Handle) ==
-c^c_db_my_connect(Host,User,Password,Db,Port,Socket,Handle)  +
-c^c_odbc_connect(ODBCEntry,User,Password,Handle) +
-c^c_postgres_connect(Host/Db/Port/Socket,User,Password, Handle) +
-c^c_sqlite3_connect(File,User,Password,Handle).
-*/
-db_open(Protocol) :- true.
-
-#else
 
 
 
@@ -409,13 +242,10 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 	c_odbc_connect(ODBCEntry,User,Password,Con),
 	set_value(Connection,Con).
 #endif
-#ifdef MYDDAS_SQLITE3
 db_open(sqlite3,Connection,File,User,Password) :-
 	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
 	c_sqlite3_connect(File,User,Password,Con),
 	set_value(Connection,Con).
-#endif
-#endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -857,4 +687,4 @@ db_multi_queries_number(Connection,Number) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-#endif /*MYDDAS_MYSQL || MYDDAS_ODBC*/
+
