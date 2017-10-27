@@ -15,6 +15,19 @@
  *									 *
  *************************************************************************/
 
+/**
+  * @file   utils.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:21:01 2017
+  * 
+  * @brief  Utilities
+  *
+  * @defgroup MixBag Diverse Utilities
+  * @ingroup builtin
+  * 
+  * 
+*/
+
 :- system_module( '$_utils', [callable/1,
         current_op/3,
         nb_current/2,

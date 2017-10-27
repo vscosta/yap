@@ -1,3 +1,17 @@
+
+/**
+  * @file   dialect.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 10:50:33 2017
+  * 
+  * @brief  support Prolog dialects
+  *
+  * @defgroup Dialects
+  * @ingroup builtins
+  * 
+*/
+
+
 :- module(dialect,
 	  [
 	   exists_source/1,
@@ -6,6 +20,9 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+
+				%
+%%
 %	@pred expects_dialect(+Dialect)
 %
 %	True if YAP can enable support for a different Prolog dialect.

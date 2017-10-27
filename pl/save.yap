@@ -15,6 +15,17 @@
  *									 *
  *************************************************************************/
 
+/**
+  * @file   save.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:10:47 2017
+  * 
+  * @brief  Old Style save
+  *
+  * @addtòxgroup QLY
+  * 
+*/
+
 :- system_module( '$_save', [], []).
 
 %%% Saving and restoring a computation

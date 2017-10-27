@@ -546,29 +546,30 @@ b_getval(GlobalVariable, Val) :-
 	it saves the importante data about current streams and
 	debugger state */
 
-'$debug_state'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :-
+'$debug_state'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
 	'$init_debugger',
 	nb_getval('$trace',Trace),
-	nb_getval('$debug_jump',Jump),
-	nb_getval('$debug_run',Run),
+	nb_getval('$debug_state',State),
 	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList).
+	b_getval('$spy_glist',GList),
+	b_getval('$spy_depth',GDList).
 
 
-'$debug_stop'( State ) :-
-        '$debug_state'( State ),
+'$debug_stop' :-
+	nb_setval('$debug_state', state(creep,0,stop)),
 	b_setval('$trace',off),
-%	set_prolog_flag(debug, false),
+	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
+	b_setval('$spy_gdlist',[]),
 	'$disable_debugging'.
 
-'$debug_restart'(state(Trace, Debug, Jump, Run, SPY_GN, GList)) :-
+'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
 	b_setval('$spy_glist',GList),
+	b_setval('$spy_gdlist',GDList),
 	b_setval('$spy_gn',SPY_GN),
 	set_prolog_flag(debug, Debug),
-	b_setval('$debug_jump',Jump),
-	b_setval('$debug_run',Run),
+    nb_setval('$debug_state',State),
 	b_setval('$trace',Trace),
 	'$enable_debugging'.
 
@@ -589,33 +590,20 @@ debugging.
 
 */
 break :-
-	'$init_debugger',
-	nb_getval('$trace',Trace),
-	nb_setval('$trace',off),
-	nb_getval('$debug_jump',Jump),
-	nb_getval('$debug_run',Run),
-	current_prolog_flag(debug, Debug),
-	set_prolog_flag(debug, false),
+        '$debug_state'(DState),
+        '$debug_start',
 	'$break'( true ),
-	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList),
-	b_setval('$spy_glist',[]),
 	current_output(OutStream), current_input(InpStream),
 	current_prolog_flag(break_level, BL ),
-    NBL is BL+1,
+        NBL is BL+1,
 	set_prolog_flag(break_level, NBL ),
 	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
 	!,
 	set_value('$live','$true'),
-	b_setval('$spy_glist',GList),
-	nb_setval('$spy_gn',SPY_GN),
+        '$debug_restore'(DState),
 	set_input(InpStream),
 	set_output(OutStream),
-	set_prolog_flag(debug, Debug),
-	nb_setval('$debug_jump',Jump),
-	nb_setval('$debug_run',Run),
-	nb_setval('$trace',Trace),
 	set_prolog_flag(break_level, BL ),
 	'$break'( false ).
 

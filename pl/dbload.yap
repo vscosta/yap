@@ -29,6 +29,7 @@
 
 %%
 % @defgroup YAPBigLoad Loading Large Tables
+% @ingroup YAPConsulting
 % 
 % @brief Fast and  Exo Loading
 %

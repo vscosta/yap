@@ -19,7 +19,7 @@
 /**
  * @file protect.yap
  * @addgroup ProtectCore Freeze System Configuration
- * @ingroup CoreUtilities
+ * @ingroup YAPControl
  *
  * This protects current code from further changes
  *  and also makes it impossible for some predicates to be seen

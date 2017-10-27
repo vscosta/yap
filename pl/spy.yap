@@ -67,8 +67,7 @@ mode and the existing spy-points, when the debugger is on.
 	'__NB_setval__'('$if_skip_mode',no_skip),
 	'__NB_setval__'('$spy_glist',[]),
 	'__NB_setval__'('$spy_gn',1),
-	'__NB_setval__'('$debug_run',off),
-	'__NB_setval__'('$debug_jump',false).
+	'__NB_setval__'('$debug_state', state(creep,0,stop)).
 
 
  % First part : setting and reseting spy points
@@ -92,17 +91,9 @@ mode and the existing spy-points, when the debugger is on.
 
  '$suspy_predicates_by_name'(A,S,M) :-
 	 % just check one such predicate exists
-	 (
-	   current_predicate(A,M:_)
-	 ->
-	  M = EM,
-	  A = NA
-	 ;
-	  recorded('$import','$import'(EM,M,GA,_,A,_),_),
-	  functor(GA,NA,_)
-	 ),
+	 current_predicate(A,M:_),
 	 !,
-	 '$do_suspy_predicates_by_name'(NA,S,EM).
+	 '$do_suspy_predicates_by_name'(A,S,M).
 '$suspy_predicates_by_name'(A,spy,M) :- !,
 	 print_message(warning,no_match(spy(M:A))).
 '$suspy_predicates_by_name'(A,nospy,M) :-
@@ -111,10 +102,9 @@ mode and the existing spy-points, when the debugger is on.
 '$do_suspy_predicates_by_name'(A,S,M) :-
 	 current_predicate(A,M:T),
 	 functor(T,A,N),
-	 '$do_suspy'(S, A, N, T, M).
-'$do_suspy_predicates_by_name'(A, S, M) :-
-	 recorded('$import','$import'(EM,M,_,T,A,N),_),
-	 '$do_suspy'(S, A, N, T, EM).
+	 '$do_suspy'(S, A, N, T, M),
+	 fail.
+'$do_suspy_predicates_by_name'(_A, _S, _M).
 
 
  %
@@ -229,8 +219,7 @@ debug :-
 	 ;
 	  set_prolog_flag(debug, false)
 	 ),
-	 '__NB_setval__'('$debug_run',off),
-	 '__NB_setval__'('$debug_jump',false).
+	 '__NB_setval__'('$debug_state',state(creep,0,stop) ).
 
 nodebug :-
 	 '$init_debugger',

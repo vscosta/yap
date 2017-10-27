@@ -16,11 +16,11 @@
 *************************************************************************/
 
 /**
-@file boot.yap
-@brief YAP bootstrap
+  @file boot.yap
+  @brief YAP bootstrap
 
-@defgroup YAPControl Control Predicates
-
+  @defgroup YAPControl Control Predicates
+  @ingroup builtins
 
 @{
 
@@ -523,8 +523,7 @@ initialize_prolog :-
 	'$read_toplevel'(Command,Varnames),
 	nb_setval('$spy_gn',1),
 	% stop at spy-points if debugging is on.
-	nb_setval('$debug_run',off),
-	nb_setval('$debug_jump',off),
+	nb_setval('$debug_state', state(creep,0,stop)),
 	'$command'(Command,Varnames,_Pos,top),
 	current_prolog_flag(break_level, BreakLevel),
 	(
@@ -1120,6 +1119,7 @@ incore(G) :- '$execute'(G).
 '$enable_debugging':-
     current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
+	'__NB_setval__'('$debug_status', state(creep, 0, stop)),
     '$trace_on', !,
     '$creep'.
 '$enable_debugging'.

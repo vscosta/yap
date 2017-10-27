@@ -212,20 +212,22 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a ~a in module ~a, ~d msec ~d bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
-compose_message(trace_command(-1), _Leve) -->
-	[ 'EOF is not a valid debugger command.'  ].
 compose_message(trace_command(C), _Leve) -->
-	[ '~c is not a valid debugger command.' - [C] ].
+	!,
+	[ '~a is not a valid debugger command.' - [C] ].
 compose_message(trace_help, _Leve) -->
+	!,
 	[ '   Please enter a valid debugger command (h for help).'  ].
 compose_message(version(Version), _Leve) -->
+	!,
 	[ '~a' - [Version] ].
 compose_message(myddas_version(Version), _Leve) -->
+	!,
 	[ 'MYDDAS version ~a' - [Version] ].
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
 compose_message(Term, Level) -->
-		{ '$show_consult_level'(LC) },
+	{ '$show_consult_level'(LC) },
 	location(Term, Level, LC),
 	main_message( Term, Level, LC ),
 	c_goal( Term, Level ),

@@ -15,6 +15,18 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   listing.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:05:19 2017
+  * 
+  * @brief  list predicates in a module
+  *
+  * @defgroup Listing  list predicates in a module
+  * @ingroup builtins
+  * 
+*/
+
 :- system_module( '$_listing', [listing/0,
         listing/1,
         portray_clause/1,

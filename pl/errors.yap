@@ -16,9 +16,9 @@
 *************************************************************************/
 
 
-/** @defgroup YAPError Error Handling
+/** @defgroup YAPErrorHandler Error Handling
 
-@ingroup YAPControl
+@ingroup YAPErrors
 
 The error handler is called when there is an execution error or a
 warning needs to be displayed. The handlers include a number of hooks

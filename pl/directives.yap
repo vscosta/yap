@@ -15,6 +15,19 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   directives.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 11:47:38 2017
+  * 
+  * @brief  Control File Loading
+  %
+  % @defgroup Directives
+  @ @ingroup consult
+  * 
+  * 
+*/
+
 
 :- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
         '$exec_directives'/5]).

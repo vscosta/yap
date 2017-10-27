@@ -1,170 +1,170 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		signals.pl						 *
-* Last rev:								 *
-* mods:									 *
-* comments:	signal handling in YAP					 *
-*									 *
-*************************************************************************/
+  *									 *
+  *	 YAP Prolog 							 *
+  *									 *
+  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+  *									 *
+  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+  *									 *
+  **************************************************************************
+  *									 *
+  * File:		signals.pl						 *
+  * Last rev:								 *
+  * mods:									 *
+  * comments:	signal handling in YAP					 *
+  *									 *
+  *************************************************************************/
 
 %%! @addtogroup OS
 %%  @{
 :- system_module( '$_signals', [alarm/3,
-        on_exception/3,
-        on_signal/3,
-        raise_exception/1,
-        read_sig/0], []).
+				on_exception/3,
+				on_signal/3,
+				raise_exception/1,
+				read_sig/0], []).
 
 :- use_system_module( '$_boot', ['$meta_call'/2]).
 
-:- use_system_module( '$_debug', ['$spycall'/4]).
+:- use_system_module( '$_debug', ['$trace'/1]).
 
 :- use_system_module( '$_threads', ['$thread_gfetch'/1]).
 
 /** @pred  alarm(+ _Seconds_,+ _Callable_,+ _OldAlarm_)
 
 
-Arranges for YAP to be interrupted in  _Seconds_ seconds, or in
-[ _Seconds_| _MicroSeconds_]. When interrupted, YAP will execute
- _Callable_ and then return to the previous execution. If
- _Seconds_ is `0`, no new alarm is scheduled. In any event,
-any previously set alarm is canceled.
+  Arranges for YAP to be interrupted in  _Seconds_ seconds, or in
+  [ _Seconds_| _MicroSeconds_]. When interrupted, YAP will execute
+  _Callable_ and then return to the previous execution. If
+  _Seconds_ is `0`, no new alarm is scheduled. In any event,
+  any previously set alarm is canceled.
 
-The variable  _OldAlarm_ unifies with the number of seconds remaining
-until any previously scheduled alarm was due to be delivered, or with
-`0` if there was no previously scheduled alarm.
+  The variable  _OldAlarm_ unifies with the number of seconds remaining
+  until any previously scheduled alarm was due to be delivered, or with
+  `0` if there was no previously scheduled alarm.
 
-Note that execution of  _Callable_ will wait if YAP is
-executing built-in predicates, such as Input/Output operations.
+  Note that execution of  _Callable_ will wait if YAP is
+  executing built-in predicates, such as Input/Output operations.
 
-The next example shows how  _alarm/3_ can be used to implement a
-simple clock:
+  The next example shows how  _alarm/3_ can be used to implement a
+  simple clock:
 
-~~~~~
-loop :- loop.
+  ~~~~~
+  loop :- loop.
 
-ticker :- write('.'), flush_output,
-          get_value(tick, yes),
-          alarm(1,ticker,_).
+  ticker :- write('.'), flush_output,
+  get_value(tick, yes),
+  alarm(1,ticker,_).
 
-:- set_value(tick, yes), alarm(1,ticker,_), loop.
-~~~~~
+  :- set_value(tick, yes), alarm(1,ticker,_), loop.
+  ~~~~~
 
-The clock, `ticker`, writes a dot and then checks the flag
-`tick` to see whether it can continue ticking. If so, it calls
-itself again. Note that there is no guarantee that the each dot
-corresponds a second: for instance, if the YAP is waiting for
-user input, `ticker` will wait until the user types the entry in.
+  The clock, `ticker`, writes a dot and then checks the flag
+  `tick` to see whether it can continue ticking. If so, it calls
+  itself again. Note that there is no guarantee that the each dot
+  corresponds a second: for instance, if the YAP is waiting for
+  user input, `ticker` will wait until the user types the entry in.
 
-The next example shows how alarm/3 can be used to guarantee that
-a certain procedure does not take longer than a certain amount of time:
+  The next example shows how alarm/3 can be used to guarantee that
+  a certain procedure does not take longer than a certain amount of time:
 
-~~~~~
-loop :- loop.
+  ~~~~~
+  loop :- loop.
 
-:-   catch((alarm(10, throw(ball), _),loop),
-        ball,
-        format('Quota exhausted.~n',[])).
-~~~~~
-In this case after `10` seconds our `loop` is interrupted,
-`ball` is thrown,  and the handler writes `Quota exhausted`.
-Execution then continues from the handler.
+  :-   catch((alarm(10, throw(ball), _),loop),
+  ball,
+  format('Quota exhausted.~n',[])).
+  ~~~~~
+  In this case after `10` seconds our `loop` is interrupted,
+  `ball` is thrown,  and the handler writes `Quota exhausted`.
+  Execution then continues from the handler.
 
-Note that in this case `loop/0` always executes until the alarm is
-sent. Often, the code you are executing succeeds or fails before the
-alarm is actually delivered. In this case, you probably want to disable
-the alarm when you leave the procedure. The next procedure does exactly so:
+  Note that in this case `loop/0` always executes until the alarm is
+  sent. Often, the code you are executing succeeds or fails before the
+  alarm is actually delivered. In this case, you probably want to disable
+  the alarm when you leave the procedure. The next procedure does exactly so:
 
-~~~~~
-once_with_alarm(Time,Goal,DoOnAlarm) :-
-   catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
+  ~~~~~
+  once_with_alarm(Time,Goal,DoOnAlarm) :-
+  catch(execute_once_with_alarm(Time, Goal), alarm, DoOnAlarm).
 
-execute_once_with_alarm(Time, Goal) :-
-        alarm(Time, alarm, _),
-        ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
-~~~~~
+  execute_once_with_alarm(Time, Goal) :-
+  alarm(Time, alarm, _),
+  ( call(Goal) -> alarm(0, alarm, _) ; alarm(0, alarm, _), fail).
+  ~~~~~
 
-The procedure `once_with_alarm/3` has three arguments:
-the  _Time_ to wait before the alarm is
-sent; the  _Goal_ to execute; and the goal  _DoOnAlarm_ to execute
-if the alarm is sent. It uses catch/3 to handle the case the
-`alarm` is sent. Then it starts the alarm, calls the goal
- _Goal_, and disables the alarm on success or failure.
+  The procedure `once_with_alarm/3` has three arguments:
+  the  _Time_ to wait before the alarm is
+  sent; the  _Goal_ to execute; and the goal  _DoOnAlarm_ to execute
+  if the alarm is sent. It uses catch/3 to handle the case the
+  `alarm` is sent. Then it starts the alarm, calls the goal
+  _Goal_, and disables the alarm on success or failure.
 
 
 */
 /** @pred  on_signal(+ _Signal_,? _OldAction_,+ _Callable_)
 
 
-Set the interrupt handler for soft interrupt  _Signal_ to be
- _Callable_.  _OldAction_ is unified with the previous handler.
+  Set the interrupt handler for soft interrupt  _Signal_ to be
+  _Callable_.  _OldAction_ is unified with the previous handler.
 
-Only a subset of the software interrupts (signals) can have their
-handlers manipulated through on_signal/3.
-Their POSIX names, YAP names and default behavior is given below.
-The "YAP name" of the signal is the atom that is associated with
-each signal, and should be used as the first argument to
-on_signal/3. It is chosen so that it matches the signal's POSIX
-name.
+  Only a subset of the software interrupts (signals) can have their
+  handlers manipulated through on_signal/3.
+  Their POSIX names, YAP names and default behavior is given below.
+  The "YAP name" of the signal is the atom that is associated with
+  each signal, and should be used as the first argument to
+  on_signal/3. It is chosen so that it matches the signal's POSIX
+  name.
 
-on_signal/3 succeeds, unless when called with an invalid
-signal name or one that is not supported on this platform. No checks
-are made on the handler provided by the user.
+  on_signal/3 succeeds, unless when called with an invalid
+  signal name or one that is not supported on this platform. No checks
+  are made on the handler provided by the user.
 
-+ sig_up (Hangup)
-SIGHUP in Unix/Linux; Reconsult the initialization files
-~/.yaprc, ~/.prologrc and ~/prolog.ini.
-+ sig_usr1 and sig_usr2 (User signals)
-SIGUSR1 and SIGUSR2 in Unix/Linux; Print a message and halt.
+  + sig_up (Hangup)
+  SIGHUP in Unix/Linux; Reconsult the initialization files
+  ~/.yaprc, ~/.prologrc and ~/prolog.ini.
+  + sig_usr1 and sig_usr2 (User signals)
+  SIGUSR1 and SIGUSR2 in Unix/Linux; Print a message and halt.
 
 
-A special case is made, where if  _Callable_ is bound to
-`default`, then the default handler is restored for that signal.
+  A special case is made, where if  _Callable_ is bound to
+  `default`, then the default handler is restored for that signal.
 
-A call in the form `on_signal( _S_, _H_, _H_)` can be used
-to retrieve a signal's current handler without changing it.
+  A call in the form `on_signal( _S_, _H_, _H_)` can be used
+  to retrieve a signal's current handler without changing it.
 
-It must be noted that although a signal can be received at all times,
-the handler is not executed while YAP is waiting for a query at the
-prompt. The signal will be, however, registered and dealt with as soon
-as the user makes a query.
+  It must be noted that although a signal can be received at all times,
+  the handler is not executed while YAP is waiting for a query at the
+  prompt. The signal will be, however, registered and dealt with as soon
+  as the user makes a query.
 
-Please also note, that neither POSIX Operating Systems nor YAP guarantee
-that the order of delivery and handling is going to correspond with the
-order of dispatch.
+  Please also note, that neither POSIX Operating Systems nor YAP guarantee
+  that the order of delivery and handling is going to correspond with the
+  order of dispatch.
 */
 :- meta_predicate on_signal(+,?,:), alarm(+,:,-).
 
 '$creep'(G) :-
-	% get the first signal from the mask
+				% get the first signal from the mask
 	'$first_signal'(Sig), !,
-	% process it
+				% process it
 	'$do_signal'(Sig, G).
 '$creep'([M|G]) :-
-	% noise, just go on with our life.
+				% noise, just go on with our life.
 	'$execute'(M:G).
 
 '$do_signal'(sig_wake_up, G) :-
  	'$awoken_goals'(LG),
-	% if more signals alive, set creep flag
+				% if more signals alive, set creep flag
 	'$continue_signals',
 	'$wake_up_goal'(G, LG).
-% never creep on entering system mode!!!
-% don't creep on meta-call.
+				% never creep on entering system mode!!!
+				% don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
-  '$disable_debugging',
- '$start_creep'(MG, creep).
+	'$disable_debugging',
+	'$start_creep'(MG, creep).
 '$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
-	% if more signals alive, set creep flag
+				% if more signals alive, set creep flag
 	'$continue_signals',
 	'$current_module'(M0),
 	'$execute0'(Goal,M0),
@@ -177,61 +177,17 @@ order of dispatch.
 	'$continue_signals',
 	debug,
 	'$execute'(M:G).
-'$do_signal'(sig_break, [M|G]) :-
-	'$continue_signals',
-	break,
-	'$execute0'(G,M).
-'$do_signal'(sig_statistics, [M|G]) :-
-	'$continue_signals',
-	statistics,
-	'$execute0'(G,M).
-% the next one should never be called...
-'$do_signal'(fail, [_|_]) :-
-	fail.
-'$do_signal'(sig_stack_dump, [M|G]) :-
-	'$continue_signals',
-	'$hacks':'$stack_dump',
-	'$execute0'(G,M).
-'$do_signal'(sig_fpe,G) :-
-    '$signal_handler'(sig_fpe, G).
-'$do_signal'(sig_alarm, G) :-
-	'$signal_handler'(sig_alarm, G).
-'$do_signal'(sig_vtalarm, G) :-
-	'$signal_handler'(sig_vtalarm, G).
-'$do_signal'(sig_hup, G) :-
-	'$signal_handler'(sig_hup, G).
-'$do_signal'(sig_usr1, G) :-
-	'$signal_handler'(sig_usr1, G).
-'$do_signal'(sig_usr2, G) :-
-	'$signal_handler'(sig_usr2, G).
-'$do_signal'(sig_pipe, G) :-
-	'$signal_handler'(sig_pipe, G).
-
-'$signal_handler'(Sig, [M|G]) :-
-	'$signal_do'(Sig, Goal),
-	% if more signals alive, set creep flag
-	'$continue_signals',
-	'$current_module'(M0),
-	'$execute0'((Goal,M:G),M0).
-
-% we may be creeping outside and coming back to system mode.
-'$start_creep'([_M|G], _) :-
-nonvar(G),
-         G = '$$cut_by'(CP),
-         !,
-	'$$cut_by'(CP).
-	     '$start_creep'([Mod|G], _WhereFrom) :-
-	CP is '$last_choice_pt',
-	'$spycall'(G, Mod, CP, not_expanded).
+'$start_creep'([Mod|G], _WhereFrom) :-
+	'$trace'([Mod|G]).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',
 	'$execute_clause'(G,Mod,Ref,CP).
 '$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
-	 '$enable_debugging',
+	'$enable_debugging',
 	'$execute_nonstop'(G, M).
 '$no_creep_call'(G, M) :-
-	 '$enable_debugging',
+	'$enable_debugging',
 	'$execute_nonstop'(G, M).
 
 
@@ -240,9 +196,9 @@ nonvar(G),
 	(
 	 '$is_metapredicate'(G, Mod)
 	->
-	'$meta_call'(G,Mod)
+	 '$meta_call'(G,Mod)
 	;
-	'$execute_nonstop'(G,Mod)
+	 '$execute_nonstop'(G,Mod)
 	).
 
 
@@ -251,16 +207,16 @@ nonvar(G),
 '$signal_do'(Sig, Goal) :-
 	'$signal_def'(Sig, Goal).
 
-% reconsult init files.
+				% reconsult init files. %
 '$signal_def'(sig_hup, (( exists('~/.yaprc') -> [-'~/.yaprc'] ; true ),
-		      ( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
-		      ( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
-% die on signal default.
+			( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
+			( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
+				% die on signal default. %
 '$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
 '$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
 '$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
 '$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
-% ignore sig_alarm by default
+				% ignore sig_alarm by default %
 '$signal_def'(sig_alarm, true).
 
 
@@ -289,10 +245,10 @@ on_signal(Signal,OldAction,Action) :-
 	Goal = OldAction.
 on_signal(Signal,OldAction,Action) :-
 	'$reset_signal'(Signal, OldAction),
-        % 13211-2 speaks only about callable
+				% 13211-2 speaks only about callable %
 	( Action = M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
-	% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a
-	% but the following agrees with 13211-1:7.12.2a
+				% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a %
+				% but the following agrees with 13211-1:7.12.2a %
 	( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
 	( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
 	( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
@@ -336,8 +292,8 @@ read_sig :-
 	fail.
 read_sig.
 
-%
-% make thes predicates non-traceable.
+				% %
+				% make thes predicates non-traceable. %
 
 :- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
 :- '$set_no_trace'('$current_choice_point'(_DCP), _).

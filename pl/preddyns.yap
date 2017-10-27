@@ -4,7 +4,7 @@
 /** @file preddyns.yap */
 
 /**
- * @ingroup Database
+ * @addtogroup Database
  * @{
 
 Next follow the main operations on dynamic predicates.

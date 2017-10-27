@@ -366,8 +366,9 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$yap_strip_module'( BM:G0, M0N, G0N),
     '$user_expansion'(M0N:G0N, M1:G1),
     '$import_expansion'(M1:G1, M2:G2),
-    '$meta_expansion'(M2:G2, M1, HVars, M2:B1F),
-    '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M2, H).
+    '$meta_expansion'(M2:G2, M1, HVars, M2B1F),
+    '$yap_strip_module'(M2B1F, M3, B1F),    
+    '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M3, H).
 
 '$end_goal_expansion'(G, G1F, GOF, HM, SM, BM, H) :-
     '$match_mod'(G, HM, SM, BM, G1F),
@@ -390,7 +391,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     (
      % \+ '$is_multifile'(G1,M),
      %->
-      '$is_system_predicate'(G,prolog)
+      '$is_system_predicate'(G,M)
      ->
       O = G
     ;

@@ -16,6 +16,17 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   hacks.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:02:56 2017
+  * 
+  * @brief  Low-level access
+  *
+  * @defgroup Hacks Low-level access
+  * @ingroup builtins
+  * 
+*/
 
 %% @file pl/hacks.yap
 
@@ -207,10 +218,6 @@ beautify_hidden_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
 	['Query'(G,V,P)].
 beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
-beautify_hidden_goal('$spycall'(G,M,InControl,Redo),prolog) -->
-	['DebuggerCall'(M:G, InControl, Redo)].
-beautify_hidden_goal('$spycall'(Goal, Mod, _CP, Expanded),prolog) -->
-	['DebuggerCall'(Mod:Goal, Expanded)].
 beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
 beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->

@@ -17,8 +17,12 @@
 
 %% @{
 
-/** @defgroup Profiling Profiling Prolog Programs
-@ingroup extensions
+/**
+  @file callcount.yap
+  @short support call counting.
+  
+  @defgroup Profiling Profiling Prolog Programs
+  @ingroup extensions
   
 YAP includes two profilers. The count profiler keeps information on the
 number of times a predicate was called. This information can be used to

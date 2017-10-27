@@ -14,6 +14,18 @@
 * comments:	support user defined indexing				 *
 *									 *
 *************************************************************************/
+/**
+  * @file   udi.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:19:04 2017
+  * 
+  * @brief  User Defined Extensions
+  *
+  * @addgroup UDI User Defined Extensions
+  * @ingroup extensions
+  * 
+  * 
+*/
 
 :- system_module( '$_udi', [udi/1], []).
 

@@ -15,6 +15,17 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   ground.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:01:27 2017
+  * 
+  * @brief  term operations
+  *
+  * @addtogroup YAPTypes
+  * 
+  * 
+*/
 /*
 % grounds all free variables
 % as terms of the form '$VAR'(N)
