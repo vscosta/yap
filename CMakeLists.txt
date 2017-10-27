@@ -235,6 +235,7 @@ set ( exec_prefix ${CMAKE_INSTALL_PREFIX}/libexec) #LIBEXECDIR})
 set(  datarootdir ${CMAKE_INSTALL_PREFIX}/share) #DATAROOTDIR})
 set ( datadir ${CMAKE_INSTALL_PREFIX}/share) #DATADIR})
 set ( mandir ${CMAKE_INSTALL_PREFIX}/share/man) #MANDIR})
+set ( docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
 
 set ( libpl  ${datarootdir}/Yap)
 

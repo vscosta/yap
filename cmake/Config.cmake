@@ -406,6 +406,9 @@ check_symbol_exists( rl_done stdio.h;readline/readline.h  HAVE_DECL_RL_DONE )
 CHECK_TYPE_SIZE( rl_hook_func_t  RL_HOOK_FUNC_T  )
 check_symbol_exists( rl_event_hook stdio.h;readline/readline.h HAVE_DECL_RL_EVENT_HOOK )
 check_symbol_exists( rl_readline_state stdio.h;readline/readline.h HAVE_DECL_RL_READLINE_STATE )
+check_function_exists( add_history HAVE_ADD_HISTORY)
+check_function_exists( remove_history HAVE_REMOVE_HISTORY)
+check_function_exists( using_history HAVE_USING_HISTORY)
 
 
 configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h)
