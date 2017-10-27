@@ -170,8 +170,9 @@ absolute_file_name(File0,File) :-
 				%   must_be_of_type( atom, File ),
      % look for solutions
      gated_call(
+
         '$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ),
-         '$find_in_path'(File, Opts,TrueFileName),
+         '$find_in_path'(File, Opts,TrueFileName, HasSol, TakeFirst),
          Port,
      '$absf_port'(Port, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors )
 	).
@@ -227,13 +228,13 @@ absolute_file_name(File0,File) :-
 % library(F) must check library_directories
 % T(F) must check file_search_path
 % all must try search in path
-'$find_in_path'(user,_,user_input) :- !.
-'$find_in_path'(user_input,_,user_input) :- !.
-'$find_in_path'(user_output,_,user_ouput) :- !.
-'$find_in_path'(user_error,_,user_error) :- !.
-'$find_in_path'(Name, Opts, File) :-
+'$find_in_path'(user,_,user_input,  _, _) :- !.
+'$find_in_path'(user_input,_,user_input, _, _) :- !.
+'$find_in_path'(user_output,_,user_ouput, _, _) :- !.
+'$find_in_path'(user_error,_,user_error, _, _) :- !.
+'$find_in_path'(Name, Opts, File, _, First) :-
 %    (	atom(Name) -> true ; start_low_level_trace ),
-    get_abs_file_parameter( file_type, Opts, Type ),
+	get_abs_file_parameter( file_type, Opts, Type ),
     get_abs_file_parameter( access, Opts, Access ),
     get_abs_file_parameter( expand, Opts, Expand ),
     '$absf_trace'('start with ~w', [Name]),
@@ -256,7 +257,8 @@ absolute_file_name(File0,File) :-
     real_path( EPath, File),
     '$absf_trace'('      after canonical path name: ~a', [File]),
     '$check_file'( File, Type, Access ),
-    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]).
+    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]),
+    (First == first -> ! ; true ).
 
 % allow paths in File Name
 '$core_file_name'(Name, Opts) -->
@@ -567,4 +569,3 @@ remove_from_path(New) :- '$check_path'(New,Path),
 '$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
 '$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
 '$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
-
