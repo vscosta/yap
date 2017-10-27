@@ -84,7 +84,7 @@ void *pop_output_text_stack__(int i, void *export) {
     while (p) {
       struct mblock *np = p->next;
       if (p + 1 == export) {
-        size_t sz = p->sz;
+        size_t sz = p->sz-sizeof(struct mblock) ;
         memcpy(p, p + 1, sz);
         export = p;
       } else {
@@ -641,7 +641,7 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
   size_t leng = strlen((char *)s0);
   size_t min = 0, max = leng;
   if (out->enc == ENC_ISO_UTF8) {
-    if (true || out->val.uc == NULL) { // this should always be the case
+    if ( out->val.uc == NULL) { // this should always be the case
       out->val.uc = BaseMalloc(leng + 1);
       strcpy(out->val.c, (char *)s0);
     } else if (out->val.uc != s0) {

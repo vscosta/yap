@@ -1355,7 +1355,9 @@ X_API void YAP_FreeSpaceFromYap(void *ptr) { Yap_FreeCodeSpace(ptr); }
  */ X_API char *
 YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
     CACHE_REGS
-    seq_tv_t inp, out;
+       BACKUP_MACHINE_REGS();
+ seq_tv_t inp, out;
+      int l = push_text_stack();
     inp.val.t = t;
     inp.type = YAP_STRING_ATOMS_CODES | YAP_STRING_STRING | YAP_STRING_ATOM |
                YAP_STRING_TRUNC | YAP_STRING_MALLOC;
@@ -1363,9 +1365,18 @@ YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize) {
     out.type = YAP_STRING_CHARS;
     out.val.c = buf;
     out.enc = ENC_ISO_UTF8;
-    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-        return NULL;
-    return out.val.c;
+    if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
+        pop_text_stack(l);
+      RECOVER_MACHINE_REGS();
+      return NULL;
+    } else {
+     RECOVER_MACHINE_REGS();
+       if (buf == out.val.c) {
+          return buf;
+         }     else {
+          return pop_output_text_stack(l, out.val.c);
+         }
+    }
 }
 
 /* copy a string to a buffer */
@@ -2220,17 +2231,26 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
     seq_tv_t inp, out;
 
     BACKUP_MACHINE_REGS();
+    int l = push_text_stack();
     inp.val.t = t;
     inp.type = YAP_STRING_TERM|YAP_STRING_DATUM;
     out.type = YAP_STRING_CHARS;
     out.val.c = buf;
     out.max = sze - 1;
     out.enc = LOCAL_encoding;
-    if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-        return NULL;
+     if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     RECOVER_MACHINE_REGS();
-    return out.val.c;
-}
+        pop_text_stack(l);
+        return NULL;
+    } else {
+       RECOVER_MACHINE_REGS();
+     if (buf == out.val.c) {
+          return buf;
+         }     else {
+          return pop_output_text_stack(l, out.val.c);
+         }
+    }}
+
 
 /// write a a term to n user-provided buffer: make sure not tp
 /// overflow the buffer even if the text is much larger.
