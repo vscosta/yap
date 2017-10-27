@@ -1737,7 +1737,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	 than its new binding is not accessible and we can reset it. Note
 	 we must use gc_H to avoid trouble with dangling variables
 	 in the heap */
-      if (((hp < gc_H   && hp >= H0) || (hp > (CELL *)gc_B && hp < LCL0) ) && !MARKED_PTR(hp)) {
+      if ((hp < gc_H   && hp >= H0 ) && !MARKED_PTR(hp)) {
 	/* perform early reset */
 	/* reset term to be a variable */
 	RESET_VARIABLE(hp);
