@@ -693,6 +693,7 @@ static StaticArrayEntry *CreateStaticArray(AtomEntry *ae, size_t dim,
       }
     }
     p->KindOfPE = ArrayProperty;
+    p->ValueOfVE.ints = NULL;
     INIT_RWLOCK(p->ArRWLock);
     AddPropToAtom(ae, (PropEntry *)p);
     p->NextAE = LOCAL_StaticArrays;
@@ -1081,13 +1082,13 @@ static Int
     return (FALSE);
   }
 
+    StaticArrayEntry *pp;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "create static array");
     return (FALSE);
   } else if (IsAtomTerm(t)) {
     /* Create a named array */
     AtomEntry *ae = RepAtom(AtomOfTerm(t));
-    StaticArrayEntry *pp;
     ArrayEntry *app;
 
     WRITE_LOCK(ae->ARWLock);
@@ -1099,36 +1100,29 @@ static Int
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
       pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
       if (pp == NULL || pp->ValueOfVE.ints == NULL) {
-        WRITE_UNLOCK(ae->ARWLock);
-        return FALSE;
+       return TRUE;
       }
-      WRITE_UNLOCK(ae->ARWLock);
-      return TRUE;
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
         pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
-        WRITE_UNLOCK(ae->ARWLock);
-        if (pp == NULL) {
-          return false;
-        }
-        return true;
       } else {
-        WRITE_UNLOCK(ae->ARWLock);
         Yap_Error(PERMISSION_ERROR_CREATE_ARRAY, t,
                   "cannot create static array over dynamic array");
-        return false;
       }
-    } else {
-      if (pp->ArrayEArity == size && pp->ArrayType == props) {
-        WRITE_UNLOCK(ae->ARWLock);
-        return true;
+  } else {
+      if (pp->ArrayType != props) {
+	Yap_Error(TYPE_ERROR_ATOM, t, "create static array %d/%d %d/%d", pp->ArrayEArity,size,pp->ArrayType,props);
+     pp = NULL;
+      } else {
+	    AllocateStaticArraySpace(pp, props, pp->ValueOfVE.ints, size PASS_REGS);
       }
-      Yap_FreeCodeSpace(pp->ValueOfVE.floats);
-      WRITE_UNLOCK(ae->ARWLock);
-      return true;
     }
+    WRITE_UNLOCK(ae->ARWLock);
+      if (!pp) {
+      return false;
+      }
+  return true;
   }
-  Yap_Error(TYPE_ERROR_ATOM, t, "create static array");
   return false;
 }
 
