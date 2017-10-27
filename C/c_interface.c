@@ -323,11 +323,11 @@ X_API Int YAP_IntOfTerm(Term t) {
     }
 }
 
-X_API Term YAP_MkBigNumTerm(void *big) {
+X_API Term YAP_MkBigNumTerm(void*big) {
 #if USE_GMP
     Term I;
     BACKUP_H();
-    I = Yap_MkBigIntTerm((MP_INT *) big);
+    I = Yap_MkBigIntTerm(big);
     RECOVER_H();
     return I;
 #else
@@ -2433,7 +2433,7 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
       if (!yap_init->Embedded) {
         GLOBAL_PrologShouldHandleInterrupts =
-          ~yap_init->PrologCannotHandleInterrupts;
+          !yap_init->PrologCannotHandleInterrupts;
         Yap_InitSysbits(0); /* init signal handling and time, required by later
 			       functions */
         GLOBAL_argv = yap_init->Argv;

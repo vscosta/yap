@@ -1,6 +1,12 @@
 
 # This is a CMake example for Python
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os)
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl)
+
 INCLUDE(UseSWIG)
 
 include(FindPythonModule)
@@ -24,7 +30,7 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/i
            DEPENDS ${SWIG_SOURCES} YAP++
    	)
 
- 
+
 
 SWIG_ADD_LIBRARY(Py2YAP LANGUAGE python  SHARED SOURCES ../../swig/yap.i )
 if (WIN32)
@@ -57,11 +63,6 @@ else()
   #  	)
 
 
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include)
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog)
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/os)
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/prolog/pl)
 
   add_custom_command( OUTPUT yap.i
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/packages/swig/yap.i  .

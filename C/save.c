@@ -164,19 +164,19 @@ static Int
 do_SYSTEM_ERROR_INTERNAL(yap_error_number etype, const char *msg)
 {
   CACHE_REGS
-    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE+1);
+  char *buf = malloc(1043);
 #if HAVE_SNPRINTF
 #if HAVE_STRERROR
-    snprintf(LOCAL_ErrorMessage,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg,
+snprintf(buf,1043-1,"%s (%s when reading %s)", msg,
              strerror(errno), LOCAL_FileNameBuf);
 #else
-  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
+snprintf(buf,1024-1,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
 #else
 #if HAVE_STRERROR
-  sprintf(LOCAL_ErrorSay,"%s, (%s when reading %s)",msg,strerror(errno),LOCAL_FileNameBuf);
+  snprintf(buf,1024-1,"%s, (%s when reading %s)",msg,strerror(errno),LOCAL_FileNameBuf);
 #else
-  sprintf(LOCAL_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
+  snprintf(buf,1024-1,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);
 #endif
 #endif
   LOCAL_Error_TYPE = etype;
@@ -203,7 +203,7 @@ inline static
 Int
 mywrite(FILE *fd, char *buff, Int len) {
   size_t nwritten;
-  
+
   while (len > 0) {
     nwritten = fwrite(buff, 1, (size_t)len, fd);
     if ((long int)nwritten < 0) {
@@ -1376,7 +1376,7 @@ ShowAtoms()
 
 static int
 commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap) {
-  CACHE_REGS  
+  CACHE_REGS
     int mode;
 
   if ((mode = check_header(Astate,ATrail,AStack,AHeap PASS_REGS)) == FAIL_RESTORE)
@@ -1422,7 +1422,7 @@ static int
 OpenRestore(const char *inpf, const char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, FILE **streamp)
 {
   CACHE_REGS
-    
+
   int mode;
   char fname[YAP_FILENAME_MAX +1];
 

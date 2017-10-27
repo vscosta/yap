@@ -521,7 +521,6 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # rpath stuff, hopefully it works
 # use, i.e. don't skip the full RPATH for the build tree
-# use, i.e. don't skip the full RPATH for the build tree
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # when building, don't use the install RPATH already
@@ -596,6 +595,8 @@ set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
 
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
+
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
   add_subdirectory(packages/python/swig)
 
@@ -640,7 +641,7 @@ OPTION (WITH_CPLINT " Enable the cplint probabilistic language"   ON)
 
 OPTION (WITH_HORUS " Enable the CLPBN and PFL probabilistic languages"  ON)
 
-OPTION (WITH_HORUS " Enable documentation, requires doxygen-yap"  ON)
+OPTION (WITH_DOCS " Enable documentation, requires doxygen-yap"  ON)
 
 IF (WITH_CLPBN)
   add_subDIRECTORY (packages/CLPBN)

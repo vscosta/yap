@@ -205,7 +205,7 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     }
 #ifdef __osf__
     if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == 0)
-#else
+#elseö
     if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) == 0)
 #endif
     {
@@ -224,8 +224,8 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
     }
 
     if (!*init_proc && LOCAL_ErrorMessage   == NULL) {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-      snprintf(LOCAL_ErrorMessage,MAX_ERROR_MSG_SIZE-1,
+      char *buf = malloc(1058);
+      snprintf(buf,1058-1,
 	       "Could not locate routine %s in %s: %s\n",
 	       proc_name, LOCAL_FileNameBuf, dlerror());
     return LOAD_FAILLED;
