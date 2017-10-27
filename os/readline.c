@@ -342,6 +342,7 @@ static bool getLine(int inp) {
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
     add_history((char *)myrl_line);
+    write_history(history_file);
     fflush(NULL);
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
