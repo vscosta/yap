@@ -1,7 +1,7 @@
 
 
 Installing YAP           {#install}
-==============
+++++++++
 
 ### Downloading YAP           {#download}
 
