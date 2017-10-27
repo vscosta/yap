@@ -1115,8 +1115,7 @@ static Int peek_char(USES_REGS1) {
     return false;
   }
   sinp[off] = '\0';
-  return Yap_unify_constant(
-      ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
+  return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
 
 /** @pred  peek_char( - _C_) is iso
@@ -1216,7 +1215,7 @@ void Yap_InitCharsio(void) {
   Yap_InitCPred("peek_char", 1, peek_char_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("peek_byte", 1, peek_byte_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("skip", 2, skip, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("skip1", 1, skip_1, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("skip", 1, skip_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 2, tab, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 1, tab_1, SafePredFlag | SyncPredFlag);
 }
