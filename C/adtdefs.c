@@ -393,6 +393,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     }
     info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
+    info->NextOfPE = NULL;
     info->OpModule = mod;
     info->OpName = a;
     LOCK(OpListLock);

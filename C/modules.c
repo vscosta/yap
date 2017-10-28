@@ -50,6 +50,7 @@ static ModEntry *initMod(AtomEntry *toname, AtomEntry *ae) {
   INIT_RWLOCK(n->ModRWLock);
   n->KindOfPE = ModProperty;
   n->PredForME = NULL;
+  n->OpForME = NULL;
   n->NextME = CurrentModules;
   CurrentModules = n;
   n->AtomOfME = ae;
