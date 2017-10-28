@@ -74,7 +74,7 @@ meta_predicate declaration
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
-'$clean_cuts'(G,('$current_choicepoint'(DCP),NG)) :-
+'$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
 
@@ -303,19 +303,19 @@ meta_predicate declaration
 '$expand_goals'(not(A),not(A1),('$current_choice_point'(CP),AO,'$$cut_by'(CP) -> fail; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(if(A,B,C),if(A1,B1,C1),
-	('$current_choicepoint'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
+	('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
-	('$current_choicepoint'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
+	('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
 	'$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'((A*->B),(A1*->B1),
-	('$current_choicepoint'(DCP),AO,BO),HM,SM,BM,HVars) :- !,
+	('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
