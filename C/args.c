@@ -42,6 +42,8 @@ int Yap_ArgKey(Atom key, const param_t *def, int n) {
 
 static xarg *failed__(yap_error_number e, Term t, xarg *a USES_REGS) {
   free(a);
+  LOCAL_ActiveError->errorNo = e;
+  LOCAL_ActiveError->rawErrorTerm = t;
   return NULL;
 }
 
@@ -49,12 +51,13 @@ xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n) {
   CACHE_REGS
   listl = Deref(listl);
   xarg *a = calloc(n, sizeof(xarg));
+  
+  if (IsVarTerm(listl)) {
+    return failed(INSTANTIATION_ERROR, listl, a);
+  }
   if (IsApplTerm(listl) && FunctorOfTerm(listl) == FunctorModule)
     listl = ArgOfTerm(2, listl);
   if (!IsPairTerm(listl) && listl != TermNil) {
-    if (IsVarTerm(listl)) {
-      return failed(INSTANTIATION_ERROR, listl, a);
-    }
     if (IsAtomTerm(listl)) {
       xarg *na = matchKey(AtomOfTerm(listl), a, n, def);
       if (!na) {
@@ -84,12 +87,11 @@ xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n) {
   while (IsPairTerm(listl)) {
     Term hd = HeadOfTerm(listl);
     listl = TailOfTerm(listl);
-    if (IsVarTerm(hd) || IsVarTerm(listl)) {
-      if (IsVarTerm(hd)) {
-        return failed(INSTANTIATION_ERROR, hd, a);
-      } else {
-        return failed(INSTANTIATION_ERROR, listl, a);
-      }
+    if (IsVarTerm(hd)) {
+      return failed(INSTANTIATION_ERROR, hd, a);
+    }
+    if (IsVarTerm(listl)) {
+      return failed(INSTANTIATION_ERROR, listl, a);
     }
     if (IsAtomTerm(hd)) {
       xarg *na = matchKey(AtomOfTerm(hd), a, n, def);

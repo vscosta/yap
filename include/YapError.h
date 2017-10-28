@@ -217,6 +217,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     YAP_Atom prologParserFile;
     YAP_Bool prologConsulting;
     struct DB_TERM *errorTerm;
+    YAP_Term rawErrorTerm, rawExtraErrorTerm;
     char *errorMsg;
     size_t errorMsgLen;
     struct yap_error_descriptor *top_error;
@@ -229,6 +230,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_Error_Lineno LOCAL_ActiveError->errorLine
 #define LOCAL_Error_Size LOCAL_ActiveError->errorMsgLen
 #define LOCAL_BallTerm LOCAL_ActiveError->errorTerm
+#define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
   extern bool Yap_find_prolog_culprit(void);
