@@ -95,10 +95,10 @@ typedef enum {
   ARRAY_INT = 0x21,
   ARRAY_FLOAT = 0x22,
   CLAUSE_LIST = 0x40,
-  EXTERNAL_BLOB = 0x100,    /* generic data */
-  GOAL_CUT_POINT = 0x200,
-  USER_BLOB_START = 0x1000, /* user defined blob */
-  USER_BLOB_END = 0x1100    /* end of user defined blob */
+  EXTERNAL_BLOB = 0x0A0,    /* generic data */
+  GOAL_CUT_POINT = 0x0A1,
+  USER_BLOB_START = 0x0100, /* user defined blob */
+  USER_BLOB_END = 0x0200    /* end of user defined blob */
 } big_blob_type;
 
 INLINE_ONLY inline EXTERN blob_type BlobOfFunctor(Functor f);

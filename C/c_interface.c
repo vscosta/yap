@@ -1893,34 +1893,36 @@ X_API void *YAP_ExternalDataInStackFromTerm(Term t) {
 
 X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
     int i;
-    if (!GLOBAL_OpaqueHandlers) {
+    if (!GLOBAL_OpaqueHandlersCount) {
         GLOBAL_OpaqueHandlers =
-                malloc(sizeof(YAP_opaque_handler_t) * (USER_BLOB_END - USER_BLOB_START));
+                malloc(sizeof(YAP_opaque_handler_t) *USER_BLOB_END );
         if (!GLOBAL_OpaqueHandlers) {
             /* no room */
             return -1;
         }
-    } else if (GLOBAL_OpaqueHandlersCount == USER_BLOB_END - USER_BLOB_START) {
+	GLOBAL_OpaqueHandlersCount = USER_BLOB_START;
+    } else if (GLOBAL_OpaqueHandlersCount == USER_BLOB_END) {
         /* all types used */
         return -1;
     }
     i = GLOBAL_OpaqueHandlersCount++;
     memcpy(GLOBAL_OpaqueHandlers + i, f, sizeof(YAP_opaque_handler_t));
-    return i + USER_BLOB_START;
+    return i;
 }
 
 X_API Term YAP_NewOpaqueObject(YAP_opaque_tag_t blob_tag, size_t bytes) {
   CELL *pt;
   Term t = Yap_AllocExternalDataInStack((CELL) blob_tag, bytes, &pt);
-    if (t == TermNil)
-        return 0L;
+  if (t == TermNil)
+    return 0L;
+  pt = RepAppl(t);
   blob_tag = pt[1];
   if (blob_tag < USER_BLOB_START ||
       blob_tag >= USER_BLOB_END) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
     return FALSE;
   }
-  YAP_opaque_tag_t blob_info = blob_tag - USER_BLOB_START;
+  YAP_opaque_tag_t blob_info = blob_tag;
     if (GLOBAL_OpaqueHandlers[blob_info].cut_handler ||
 	GLOBAL_OpaqueHandlers[blob_info].fail_handler ) {
       *HR++ = t;

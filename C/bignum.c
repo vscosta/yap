@@ -167,7 +167,7 @@ int Yap_CleanOpaqueVariable(CELL d) {
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
-  blob_info = blob_tag - USER_BLOB_START;
+  blob_info = blob_tag;
   if (!GLOBAL_OpaqueHandlers)
     return false;
   if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
@@ -192,7 +192,7 @@ YAP_Opaque_CallOnWrite Yap_blob_write_handler(Term t) {
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
-  blob_info = blob_tag - USER_BLOB_START;
+  blob_info = blob_tag;
   if (!GLOBAL_OpaqueHandlers) {
     return NULL;
   }
@@ -214,7 +214,7 @@ YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t) {
   if (blob_tag < USER_BLOB_START || blob_tag >= USER_BLOB_END) {
     return NULL;
   }
-  blob_info = blob_tag - USER_BLOB_START;
+  blob_info = blob_tag;
   if (!GLOBAL_OpaqueHandlers)
     return NULL;
   return GLOBAL_OpaqueHandlers[blob_info].mark_handler;
@@ -237,7 +237,7 @@ YAP_Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(Term t) {
               "clean opaque: bad blob with tag " UInt_FORMAT, blob_tag);
     return FALSE;
   }
-  blob_info = blob_tag - USER_BLOB_START;
+  blob_info = blob_tag;
   if (!GLOBAL_OpaqueHandlers)
     return NULL;
   return GLOBAL_OpaqueHandlers[blob_info].relocate_handler;
