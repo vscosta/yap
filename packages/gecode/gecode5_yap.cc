@@ -193,7 +193,7 @@ static inline BoolAssign&
   }
 
   static inline std::function<void(Space&home)>&
-  gecode_StdFunctionSpace_from_term(YAP_Term t)
+  gecode_std_function_from_term(YAP_Term t)
   {
     return *(std::function<void(Space&home)> *) YAP_OpaqueObjectFromTerm(t);
   }
@@ -1160,8 +1160,8 @@ return BOOL_VAL_RND(Rnd());
   static bool
   gecode_bool_from_term(YAP_Term X)
   {
-    if (X==gecode_TRUE) return true;
-    if (X==gecode_FALSE) return false;
+    if (X==gecode_TRUE || YAP_MkIntTerm(1)) return true;
+    if (X==gecode_FALSE || YAP_MkIntTerm(0)) return false;
     cerr << "this should never happen" << endl; exit(1);
   }
 
