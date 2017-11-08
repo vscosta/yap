@@ -62,6 +62,8 @@ def prolog_print_notice():
 def cc_print_notice():
     print NOTICE_CC
 
+
+
 class Type(object):
 
     DEFAULT   = re.compile("""^(.+)=(.+)$""")
@@ -193,15 +195,16 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = ("VarBranchOptions",
-            "ValBranchOptions",
-            "TieBreakVarBranch<IntVarBranch>",
-            "TieBreak<IntVarBranch>",
-            "TieBreak<FloatVarBranch>",
-            "TieBreak<SetVarBranch>",
-            "TieBreak<BoolVarBranch>",
-            "TieBreakVarBranchOptions",
-            "TieBreakVarBranch<SetVarBranch>")
+    OMIT = ()
+        # "VarBranchOptions",
+        #     "ValBranchOptions",
+        #     "TieBreakVarBranch<IntVarBranch>",
+        #     "TieBreak<IntVarBranch>",
+        #     "TieBreak<FloatVarBranch>",
+        #     "TieBreak<SetVarBranch>",
+        #     "TieBreak<BoolVarBranch>",
+        #     "TieBreakVarBranchOptions",
+        #     "TieBreakVarBranch<SetVarBranch>")
 
     def __init__(self, filename):
         # type: (object) -> object
@@ -344,10 +347,16 @@ class DTree(object):
         # hack for disjunctor support
         if typ=="Space":
             typ = "Space_or_Clause"
+        elif typ.startswith("std::function") and typ.endswith(")>"):
+            typ = "std_function"
+        elif typ.endswith(">"):
+            sp = typ.split("<")
+            if len(sp) > 1:
+                typ = sp[1].rstrip(">")
         return PrologIF(
-            PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
-            dtree._generate_body(user_vars, lib_vars),
-            self._generate_dispatch(i+1, user_vars, lib_vars))
+                    PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
+                    dtree._generate_body(user_vars, lib_vars),
+                    self._generate_dispatch(i+1, user_vars, lib_vars))
 
     def _cc_descriptors(self, name, argtypes):
         if self.is_leaf:
@@ -554,10 +563,7 @@ class YAPEnumImpl(object):
         print
 
     def _generate_from_term(self):
-        if self.TYPE == "std::function<void(Space&home)>":
-            t2 = "StdFunctionSpace"
-        else:
-            t2 = self.TYPE
+        t2 = self.TYPE
         print "static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,t2)
         print "{"
         for x in self.ENUM:
@@ -567,16 +573,13 @@ class YAPEnumImpl(object):
         print
 
     def _generate_from_term_forward_decl(self):
-        if self.TYPE == "std::function<void(Space&home)>":
-            t2 = "StdFunctionSpace"
-        else:
-            t2 = self.TYPE
+        t2 =  self.TYPE
         print "static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,t2)
 
 class YAPEnumImplGenerator(object):
 
     def generate(self):
-        generate_space_function();
+        # generate_space_function_forward()
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -585,7 +588,7 @@ class YAPEnumImplGenerator(object):
 class YAPEnumForwardGenerator(object):
 
     def generate(self):
-        generate_space_function_forward();
+        # gsenerate_space_function_forward()
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -611,14 +614,21 @@ class YAPEnumInitGenerator(object):
 class YAPEnumProlog(object):
 
     def generate(self):
+        t = self.TYPE
+        if t.startswith("std::function") and t.endswith(")>"):
+            t = "std_function"
+        elif t.endswith(">"):
+            sp = t.split("<")
+            if len(sp) > 1:
+                t = sp[1].rstrip(">")
         for x in self.ENUM:
-            print "is_%s_('%s')." % (self.TYPE, x)
+            print "is_%s_('%s')." % (t, x)
         print
         for x in self.ENUM:
-            print "is_%s_('%s','%s')." % (self.TYPE, x, x)
+            print "is_%s_('%s','%s')." % (t, x, x)
         print
-        print "is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (self.TYPE,self.TYPE)
-        print "is_%s(X) :- is_%s(X,_)." % (self.TYPE,self.TYPE)
+        print "is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t)
+        print "is_%s(X) :- is_%s_(X,_)." % (t,t)
         print
 
 class YAPEnumPrologGenerator(object):
@@ -645,22 +655,31 @@ class CCDescriptor(object):
         has_space = False
         for t in self.argtypes:
             v = "X%d" % i
+            v2 = v
             a = "YAP_ARG%d" % i
             if t=="Space":
                 v = "*space"
-                print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                print "  GenericSpace* space = gecode_Space_from_term(%s);" % (a)
                 has_space = True
+                v2 = v
             else:
-                extra = ""
                 t2 = t
-                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs"):
+                if t.startswith("std::function") and t.endswith(")>"):
+                    sp = t.split("&")
+                    if len(sp) > 1:
+                        t2 = "std_function"
+                        v2 = v #sp[0]+"("+v+")"
+                elif t.endswith(">"):
+                    sp = t.split("<")
+                    if len(sp) > 1:
+                        t2 = sp[1].rstrip(">")
+                        v2 = v #sp[0]+"("+v+")"
+                extra = ""
+                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","std_function"):
                     extra = "space,"
                     if has_space == False:
                         print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
                         has_space = True
-                else:
-                    if t == "std::function<void(Space&home)>":
-                        t2 = "StdFunctionSpace"
                 print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t2,extra,a)
             args.append(v)
             i += 1
