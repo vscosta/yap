@@ -61,17 +61,17 @@ sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if platform.system() == 'Windows':
     local_libs = []
-    win_libs = ['wsock32','ws2_32']
+    win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 else:
     #if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath','-Wl,@loader_path/../../..']
+    my_extra_link_args = ['-Wl,-rpath','-Wl,@loader_path']
     win_libs = []
     local_libs = ['Py4YAP']
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 
-native_sources = ["yapPYTHON_wrap.cxx",'yapi.cpp']
+native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
 #gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
 #python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}")
@@ -79,7 +79,7 @@ native_sources = ["yapPYTHON_wrap.cxx",'yapi.cpp']
 
 
 
-extensions = [Extension('_yap', native_sources,
+extensions = [Extension('yap4py._yap', native_sources,
                         define_macros=[('MAJOR_VERSION', '1'),
                                        ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
@@ -91,20 +91,24 @@ extensions = [Extension('_yap', native_sources,
                                    '-DX_API', '-Iyap4py/include' ],
                         library_dirs=[".",'../../..'],
                         extra_link_args=my_extra_link_args,
-                        libraries=['Yap','Py4YAP','gmp']+win_libs+local_libs,
-                        include_dirs=['yap4py/include']
+                        libraries=['Yap','gmp']+win_libs+local_libs,
+                        include_dirs=['${CMAKE_SOURCE_DIR}/H',
+                        '${CMAKE_SOURCE_DIR}/H/generated',
+                        '${CMAKE_SOURCE_DIR}/include',
+                        '${CMAKE_SOURCE_DIR}/OPTYap',
+                        '${CMAKE_SOURCE_DIR}/os',
+                        '${CMAKE_SOURCE_DIR}/utf8proc',
+                        '${CMAKE_SOURCE_DIR}/packages/python',
+                        '../../..',
+                        '${CMAKE_SOURCE_DIR}/CXX' ]
                         )]
-
-packages = setuptools.find_packages('${CMAKE_CURRENT_SOURCE_DIR}')
-
 
 
 package_data = {
-    'yap4py/prolog': 'prolog/*.*',
-    '': '*.*'
+    #'': '*.*'
 }
 
-data_files=[('../..', glob('lib*.*'))]
+data_files=[]
 
 version_ns = {'__version__': '6.3.5', 'minor-version': '6', 'minor-version': '3', 'patch': '5'}
 
@@ -112,10 +116,10 @@ setup_args = dict(
     name=name,
     version=version_ns['__version__'],
     scripts=glob(join('scripts', '*')),
-    packages=packages,
+    packages=['yap4py'],
     ext_modules=extensions,
-    py_modules=['yap','yap4py.yapi'],
-    package_data=package_data,
+    py_modules=[],
+#    package_data=package_data,
     include_package_data=True,
     data_files = data_files,
     # requirements=[

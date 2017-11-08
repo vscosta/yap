@@ -214,24 +214,27 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   } else {
     out.enc = ENC_ISO_LATIN1;
   }
-    out.val.c = NULL;
+  out.val.c = NULL;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
     pop_text_stack(lvl);
     return false;
   }
   if (s) {
     size_t len = strlen(out.val.c);
-    if (flags & (BUF_DISCARDABLE|BUF_RING)) {
+    if (flags & (BUF_DISCARDABLE | BUF_RING)) {
+      pop_text_stack(lvl);
       return true;
     }
-    *s = pop_output_text_stack(lvl, out.val.c);
     if (*s == out.val.c) {
-      char *v = malloc(len+1);
-      strcpy(v, *s);
-      *s = v;
+      pop_text_stack(lvl);
+    } else if (*s == NULL) {
+      *s = pop_output_text_stack(lvl, out.val.c);
+    } else {
+      strcpy(*s, out.val.c);
+      pop_text_stack(lvl);
     }
-  if (lengthp)
-    *lengthp  = len;
+    if (lengthp)
+      *lengthp = len;
   }
   return true;
 }

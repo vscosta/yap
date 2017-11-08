@@ -916,7 +916,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
   int i;
   temp.varcnt = varcnt;
   temp.varstart = varstart;
-  temp.vars = (const char **)malloc(sizeof(char *) * varcnt);
+  temp.vars = (char **)malloc(sizeof(char *) * varcnt);
   temp.loaded = (int *)malloc(sizeof(int) * varcnt);
   temp.dvalue = (double *)malloc(sizeof(double) * varcnt);
   temp.ivalue = (int *)malloc(sizeof(int) * varcnt);
@@ -933,7 +933,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
 
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt) {
   int i;
-  varmap->vars = (const char **)realloc(varmap->vars, sizeof(const char *) * newvarcnt);
+  varmap->vars = (char **)realloc(varmap->vars, sizeof(const char *) * newvarcnt);
   varmap->loaded = (int *)realloc(varmap->loaded, sizeof(int) * newvarcnt);
   varmap->dvalue =
       (double *)realloc(varmap->dvalue, sizeof(double) * newvarcnt);

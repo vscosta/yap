@@ -1,3 +1,4 @@
+
 #ifdef FROZEN_STACKS
 {
   tr_fr_ptr pt0, pt1, pbase, ptop;
@@ -31,7 +32,7 @@
         Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBigInt) {
-          Int tag = Yap_blob_tag(t) - USER_BLOB_START;
+          Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
         } else {
           pt0--;

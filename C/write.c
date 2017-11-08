@@ -274,7 +274,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     YAP_Opaque_CallOnWrite f;
     CELL blob_info;
 
-    blob_info = big_tag - USER_BLOB_START;
+    blob_info = big_tag;
     if (GLOBAL_OpaqueHandlers &&
         (f = GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
       (f)(wglb->stream->file, big_tag, ExternalBlobFromTerm(t), 0);

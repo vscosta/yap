@@ -23,6 +23,8 @@
 
 :- python_import(yap4py.yapi).
 
+%:- start_low_level_trace.
+
 	%% @pred yapi_query( + VarList, - Dictionary)
 	%%
 	%% dictionary, Examples
@@ -32,18 +34,25 @@
 		show_answer(VarNames, Dict),
 		Self.bindings := Dict.
 
-:- initialization set_preds.
+
+%:- initialization set_preds.
 
 set_preds :-
 	current_predicate(P, Q),
 	functor(Q,P,A),
 	atom_string(P,S),
-	:= yap4py.yapi.named( S, A),
+	catch(
+	      := yap4py.yapi.named( S, A),
+	      _,
+	      fail),
 	fail.
 set_preds :-
 	system_predicate(P/A),
 	atom_string(P,S),
-	:= yap4py.yapi.named( S, A),
+	catch(
+	      := yap4py.yapi.named( S, A),
+	      _,
+	      fail),
 	fail.
 set_preds.
 

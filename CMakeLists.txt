@@ -2,10 +2,6 @@
 # value of 3.4.0 or lower.
 cmake_minimum_required(VERSION 3.4)
 
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
-
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
 # value of 3.4.0 or lower.
@@ -65,7 +61,15 @@ if(NOT COMMAND find_host_program)
   endmacro()
 endif()
 
-option(BUILD_SHARED_LIBS "Build shared library" ON)
+if (POLICY CMP0003)
+  cmake_policy(SET CMP0003 NEW)
+    endif()
+if (POLICY CMP0068)
+  cmake_policy(SET CMP0068 NEW)
+    endif()
+
+  option(BUILD_SHARED_LIBS "Build shared library" ON)
+
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
 
@@ -87,18 +91,18 @@ function(add_to_group list output)
 endfunction(add_to_group list output )
 
 function(add_to_libgroup el list)
-  add_custom_command(  TARGET ${el} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
-    DEPENDS   ${el} )
+  # add_custom_command(  TARGET ${el} POST_BUILD
+  #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+  #   DEPENDS   ${el} )
   list( APPEND ${list} ${${el}})
   set (${list} ${${list}} CACHE INTERNAL "prolog dll files")
 endfunction(add_to_libgroup el list )
 
 
 function(add_to_corelibgroup el list)
-  add_custom_command(  TARGET ${el} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}> $<TARGET_SONAME_FILE:${el}>  $<TARGET_LINKER_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
-    DEPENDS   ${el} )
+  # add_custom_command(  TARGET ${el} POST_BUILD
+  #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}> $<TARGET_SONAME_FILE:${el}>  $<TARGET_LINKER_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
+  #   DEPENDS   ${el} )
   list( APPEND ${list} ${${el}})
   set (${list} ${${list}} CACHE INTERNAL "prolog dll files")
 endfunction(add_to_corelibgroup el list )
@@ -205,8 +209,11 @@ include(disallow)
 disallow_intree_builds()
 
 # set(CMAKE_BUILD_TYPE  Debug)
+set (ANACONDA $ENV{CONDA_PY})
 
-if (APPLE)
+if (ANACONDA)
+
+elseif (APPLE)
   set (MACOSX_RPATH ON)
   set (PATH $ENV{PATH})
   list (FIND ${PATH} pos /usr/local)
@@ -223,7 +230,8 @@ if (APPLE)
     /usr/local/opt/readline
     /usr/local/opt/swig
     )
-endif (APPLE )
+endif ( )
+
 if(ANDROID)
   set ( datarootdir /assets )
 endif()
@@ -521,24 +529,23 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # rpath stuff, hopefully it works
 # use, i.e. don't skip the full RPATH for the build tree
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+# SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+# SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
-SET(CMAKE_INSTALL_RPATH "${libdir}")
+# SET(CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_BUILD_PATH})
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
 
 
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
-IF("${isSystemDir}" STREQUAL "-1")
-  SET(CMAKE_INSTALL_RPATH "${libdir}")
-ENDIF("${isSystemDir}" STREQUAL "-1")
+# the RPATH to be used when installing, but only if it's not a system directory#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
+# IF("${isSystemDir}" STREQUAL "-1")
+#   SET(CMAKE_INSTALL_RPATH "${libdir}")
+# ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories (H
   H/generated
@@ -595,7 +602,7 @@ set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
 
-  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
+  # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
   add_subdirectory(packages/python/swig)

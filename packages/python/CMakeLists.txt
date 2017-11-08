@@ -15,13 +15,10 @@ add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )
 
 if (WIN32)
 add_library (Py4YAP OBJECT ${PYTHON_SOURCES} ${PYTHON_HEADERS})
-
-
-
 else()
-add_corelib(Py4YAP  ${PYTHON_SOURCES} ${PYTHON_HEADERS})
+add_library(Py4YAP SHARED  ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 
-MY_set_target_properties(
+set_target_properties(
     Py4YAP
 PROPERTIES VERSION ${YAP_FULL_VERSION}
 SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
@@ -30,6 +27,20 @@ SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
 target_link_libraries(Py4YAP libYap ${PYTHON_LIBRARIES})
 
 # arithmetic hassle.
+
+
+install(TARGETS  Py4YAP
+  RUNTIME DESTINATION ${bindir}
+  LIBRARY DESTINATION ${libdir}
+  ARCHIVE DESTINATION ${libdir}
+  )
+
+
+
+    install(TARGETS  YAPPython
+      LIBRARY DESTINATION ${dlls}
+      RUNTIME DESTINATION ${dlls}
+      ARCHIVE DESTINATION ${dlls} )
 
 target_link_libraries( YAPPython  Py4YAP )
  endif()

@@ -1,17 +1,17 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		load_dl.c						 *
-* comments:	dl based dynamic loaderr of external routines		 *
-*               tested on i486-linuxelf					 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		load_dl.c *
+ * comments:	dl based dynamic loaderr of external routines		 *
+ *               tested on i486-linuxelf *
+ *************************************************************************/
 
 #include "Yap.h"
 #include "YapHeap.h"
@@ -47,7 +47,7 @@ int Yap_CallFunctionByName(const char *thing_string) {
                                   | RTLD_NOLOAD
 #endif
 #endif
-                        );
+  );
   // you could do RTLD_NOW as well.  shouldn't matter
   if (!handle) {
     CACHE_REGS
@@ -64,7 +64,7 @@ int Yap_CallFunctionByName(const char *thing_string) {
 /*
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap
-*/
+ */
 char *Yap_FindExecutable(void) {
 #if HAVE_GETEXECNAME
   // Solaris
@@ -76,7 +76,8 @@ char *Yap_FindExecutable(void) {
   if (!_NSGetExecutablePath(buf, &size)) {
     buf = realloc(buf, size + 1);
     return buf;
-  }     return "yap";
+  }
+  return "yap";
 #elif defined(__linux__)
   enum { BUFFERSIZE = 1024 };
   char *buf = malloc(BUFFERSIZE);
@@ -158,78 +159,76 @@ int Yap_CloseForeignFile(void *handle) {
 /*
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
-*/
+ */
 static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
                        YapInitProc *init_proc) {
   CACHE_REGS
   LOCAL_ErrorMessage = NULL;
 
-
   while (libs) {
     const char *file = AtomName(libs->name);
-    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true,
+                      true)) {
       LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
       /* use LD_LIBRARY_PATH */
       strncpy(LOCAL_ErrorMessage, (char *)AtomName(libs->name),
-	      YAP_FILENAME_MAX);
+              YAP_FILENAME_MAX);
     }
 
 #ifdef __osf__
     if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
 #else
-      if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
-	  NULL)
+    if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
+        NULL)
 #endif
-	{
-	  if (LOCAL_ErrorMessage == NULL) {
-	    LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-	    strcpy(LOCAL_ErrorMessage, dlerror());
-	  }	}
+    {
+      if (LOCAL_ErrorMessage == NULL) {
+        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+        strcpy(LOCAL_ErrorMessage, dlerror());
+      }
+    }
     libs = libs->next;
   }
 
   while (ofiles) {
-    void *handle;
 
     /* load libraries first so that their symbols are available to
        other routines */
-
     /* dlopen wants to follow the LD_CONFIG_PATH */
     const char *file = AtomName(ofiles->name);
-    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true, true)) {
+    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true,
+                      true)) {
       if (LOCAL_ErrorMessage == NULL) {
-	LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-	strcpy(LOCAL_ErrorMessage,
-	       "%% Trying to open unexisting file in LoadForeign");
+        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+        strcpy(LOCAL_ErrorMessage,
+               "%% Trying to open unexisting file in LoadForeign");
       }
     }
 #ifdef __osf__
-    if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == 0)
-#elseö
-    if ((handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) == 0)
+    if ((ofiles->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
+#else
+    if ((ofiles->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
+        NULL)
 #endif
     {
-      if (LOCAL_ErrorMessage   == NULL) {
-	LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-	fprintf(stderr, "dlopen of image %s failed: %s\n", LOCAL_FileNameBuf,
-              dlerror());
+      if (LOCAL_ErrorMessage == NULL) {
+        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
+        fprintf(stderr, "dlopen of image %s failed: %s\n", LOCAL_FileNameBuf,
+                dlerror());
       }
     }
 
-    ofiles->handle = handle;
-
-    if (proc_name && !*init_proc)
-      *init_proc = (YapInitProc)dlsym(handle, proc_name);
+    if (ofiles->handle && proc_name && !*init_proc)
+      *init_proc = (YapInitProc)dlsym(ofiles->handle, proc_name);
     ofiles = ofiles->next;
-    }
+  }
 
-    if (!*init_proc && LOCAL_ErrorMessage   == NULL) {
-      char *buf = malloc(1058);
-      snprintf(buf,1058-1,
-	       "Could not locate routine %s in %s: %s\n",
-	       proc_name, LOCAL_FileNameBuf, dlerror());
+  if (!*init_proc && LOCAL_ErrorMessage == NULL) {
+    char *buf = malloc(1058);
+    snprintf(buf, 1058 - 1, "Could not locate routine %s in %s: %s\n",
+             proc_name, LOCAL_FileNameBuf, dlerror());
     return LOAD_FAILLED;
-    }
+  }
 
   return LOAD_SUCCEEDED;
 }

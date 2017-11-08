@@ -81,18 +81,16 @@ static foreign_t python_is(term_t tobj, term_t tf) {
   pyErrorAndReturn(rc, false);
 }
 
-
 static foreign_t python_proc(term_t tobj) {
   PyObject *o;
 
   term_t lim = python_acquire_GIL();
 
   o = term_to_python(tobj, true, NULL, true);
-   python_release_GIL(lim);
-   bool rc = o != NULL;
-   pyErrorAndReturn(rc , false);
+  python_release_GIL(lim);
+  bool rc = o != NULL;
+  pyErrorAndReturn(rc, false);
 }
-
 
 static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
   PyObject *pF, *pI;
@@ -203,7 +201,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
 }
 
 static foreign_t assign_python(term_t exp, term_t name) {
-term_t stackp = python_acquire_GIL();
+  term_t stackp = python_acquire_GIL();
   PyObject *e = term_to_python(exp, true, NULL, true);
 
   if (e == NULL) {
@@ -211,10 +209,9 @@ term_t stackp = python_acquire_GIL();
     pyErrorAndReturn(false, false);
   }
   bool b = python_assign(name, e, NULL);
-    python_release_GIL(stackp);
+  python_release_GIL(stackp);
   pyErrorAndReturn(b, false);
 }
-
 
 static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   PyErr_Clear();
@@ -525,7 +522,6 @@ static foreign_t python_export(term_t t, term_t pl) {
   pyErrorAndReturn(rc, false);
 }
 
-
 /**
  * @pred python_import(MName, Mod)
  *   Import a python module to the YAP environment.
@@ -538,18 +534,18 @@ static foreign_t python_export(term_t t, term_t pl) {
 static int python_import(term_t mname, term_t mod) {
   PyObject *pName;
 
-term_t t0 = python_acquire_GIL();
+  term_t t0 = python_acquire_GIL();
   term_t arg = PL_new_term_ref();
   char s0[MAXPATHLEN], *s = s0;
   while (true) {
     size_t len;
-
+    PyErr_Clear();
     len = (MAXPATHLEN - 1) - (s - s0);
     if (PL_is_pair(mname)) {
       char *sa = NULL;
       if (!PL_get_arg(1, mname, arg) || !PL_get_atom_chars(arg, &sa) ||
           !PL_get_arg(2, mname, mname)) {
-            python_release_GIL(t0);
+        python_release_GIL(t0);
         pyErrorAndReturn(false, false);
       }
       PL_get_atom_chars(arg, &sa);
@@ -570,8 +566,8 @@ term_t t0 = python_acquire_GIL();
 #else
   pName = PyUnicode_FromString(s0);
 #endif
-            python_release_GIL(t0);
-if (pName == NULL) {
+  python_release_GIL(t0);
+  if (pName == NULL) {
     pyErrorAndReturn(false, false);
   }
 
@@ -652,9 +648,9 @@ term_t python_acquire_GIL(void) {
 
 bool python_release_GIL(term_t curBlock) {
   PyErr_Clear();
- PL_reset_term_refs(curBlock);
+  PL_reset_term_refs(curBlock);
   if (_threaded) {
-      PyGILState_Release(gstate);
+    PyGILState_Release(gstate);
   }
   pyErrorAndReturn(true, false);
 }

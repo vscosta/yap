@@ -6,18 +6,20 @@ import keyword
 # import pdb
 from collections import namedtuple
 
-from yap import *
+from .yap import *
 
 
 class Engine( YAPEngine ):
     def __init__(self, args=None,**kwargs):
         # type: (object) -> object
+        self.contained = False
         if not args:
             args = EngineArgs(**kwargs)
-        yap_lib_path = os.path.dirname(__file__)
-        args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
-        args.setYapLibDir(yap_lib_path)
-        args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
+        if self.contained:
+            yap_lib_path = os.path.dirname(__file__)
+            args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
+            args.setYapLibDir(yap_lib_path)
+            args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
         YAPEngine.__init__(self,args)
         self.goal( set_prolog_flag('verbose', 'silent' ) )
         self.goal( use_module(library('yapi') ) )
@@ -84,19 +86,10 @@ class PrologTableIter:
             self.q = None
             raise StopIteration()
 
-f2p = []
+f2p = {"fails":{}}
 for i in range(16):
-    f2p += [{}]
+    f2p[i] ={}
 
-def named( name, arity):
-    if arity > 0 and name.isidentifier() and not keyword.iskeyword(name):
-        s = []
-        for i in range(arity):
-            s += ["A" + str(i)]
-        f2p[arity][name] = namedtuple(name, s)
-
-class PrologPredicate( YAPPrologPredicate ):
-    """ Interface to Prolog  Predicate"""
 
 
 
@@ -114,6 +107,20 @@ python_query = namedtuple( 'python_query', 'vars dict')
 yapi_query = namedtuple( 'yapi_query', 'vars dict')
 show_answer = namedtuple( 'show_answer', 'vars dict')
 set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
+
+
+def named( name, arity):
+    try:
+        if  arity > 0 and name.isidentifier() and not keyword.iskeyword(name):
+            s = []
+            for i in range(arity):
+                s += ["A" + str(i)]
+            f2p[arity][name] = namedtuple(name, s)
+    except:
+        f2p[fails][name] = True
+
+class PrologPredicate( YAPPrologPredicate ):
+    """ Interface to Prolog  Predicate"""
 
 class v(YAPVarTerm):
     def __init__(self):

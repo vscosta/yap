@@ -95,9 +95,9 @@ tabled_complex_to_andor(IN, Map, Map, Tab, Tab, 1) :-
 	IN =  !.
 tabled_complex_to_andor([Els], Map0, MapF, Tab0, TabF, V) :-
 	tabled_complex_to_and(Els, Map0, MapF, Tab0, TabF, V).
-tabled_complex_to_andor([El1,Dl2], Map0, MapF, Tab0, TabF, or(T1,T2)) :-
-	tabled_complex_to_and(El1, Map0, MapI, Tab1, TabI, T1),
-	tabled_complex_to_andor(El2.Els, MapI, MapF, TabI, TabF, T2).
+tabled_complex_to_andor([El1,El2|Els], Map0, MapF, Tab0, TabF, or(T1,T2)) :-
+	tabled_complex_to_and(El1, Map0, MapI, Tab0, TabI, T1),
+	tabled_complex_to_andor([El2|Els], MapI, MapF, TabI, TabF, T2).
 
 tabled_complex_to_and(int(A1,[endlist]), Map0, MapF, Tab, Tab, V) :- !,
 	check(Map0, A1, V, MapF).
