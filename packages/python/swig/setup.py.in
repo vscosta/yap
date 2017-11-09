@@ -51,7 +51,7 @@ from distutils.core import setup
 
 here = abspath(dirname(__file__))
 libpydir = abspath(sysconfig.get_path('platlib'))
-libpyauxdir = abspath(os.path.dirname('std  lib'))
+libpyauxdir = abspath(os.path.dirname('stdlib'))
 #pkg_root = join(here, name)
 
 here = path.abspath(path.dirname(__file__))
@@ -64,10 +64,10 @@ if platform.system() == 'Windows':
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 else:
-    #if platform.system() == 'Darwin':
-    my_extra_link_args = ['-Wl,-rpath','-Wl,@loader_path']
+    my_extra_link_args = ['-Wl,-rpath','-Wl,${libdir}']
     win_libs = []
     local_libs = ['Py4YAP']
+
 # or dll in glob('yap/dlls/*'):
 #    move(  dll ,'lib' )
 

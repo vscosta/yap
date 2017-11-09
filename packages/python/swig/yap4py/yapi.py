@@ -10,6 +10,7 @@ from .yap import *
 
 
 class Engine( YAPEngine ):
+
     def __init__(self, args=None,**kwargs):
         # type: (object) -> object
         self.contained = False
@@ -17,14 +18,13 @@ class Engine( YAPEngine ):
             args = EngineArgs(**kwargs)
         if self.contained:
             yap_lib_path = os.path.dirname(__file__)
-            args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
+            args.setYapShareDir(os.path.join(yap_lib_path, "prolog"))
             args.setYapLibDir(yap_lib_path)
-            args.setSavedState(os.path.join(yap_lib_path,"startup.yss"))
-        YAPEngine.__init__(self,args)
-        self.goal( set_prolog_flag('verbose', 'silent' ) )
-        self.goal( use_module(library('yapi') ) )
-        self.goal( set_prolog_flag('verbose', 'normal' ) )
-
+            args.setSavedState(os.path.join(yap_lib_path, "startup.yss"))
+        YAPEngine.__init__(self, args)
+        self.goal(set_prolog_flag('verbose', 'silent'))
+        self.goal(use_module(library('yapi')))
+        self.goal(set_prolog_flag('verbose', 'normal'))
 
     def run(self, g, m=None):
         if m:

@@ -29,7 +29,7 @@
 
 macro_optional_find_package (R ON)
 
-if (R_HOME)
+if (R_LIBRARIES AND R_INCLUDE_DIR)
 
   set (REAL_SOURCES
     real.c

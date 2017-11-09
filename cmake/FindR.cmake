@@ -66,13 +66,10 @@ if(R_COMMAND)
   find_library(R_LIBRARY_READLINE readline
             DOC "(Optional) system readline library. Only required if the R libraries were built with readline support.")
 
-else()
-  message(SEND_ERROR "FindR.cmake requires the following variables to be set: R_COMMAND")
-endif()
 
-# Note: R_LIBRARY_BASE is added to R_LIBRARIES twice; this may be due to circular linking dependencies; needs further investigation
-set(R_LIBRARIES ${R_LIBRARY_BASE} ${R_LIBRARY_BLAS} ${R_LIBRARY_LAPACK} ${R_LIBRARY_BASE})
-if(R_LIBRARY_READLINE)
-  set(R_LIBRARIES ${R_LIBRARIES} ${R_LIBRARY_READLINE})
+              # Note: R_LIBRARY_BASE is added to R_LIBRARIES twice; this may be due to circular linking dependencies; needs further investigation
+              set(R_LIBRARIES ${R_LIBRARY_BASE} ${R_LIBRARY_BLAS} ${R_LIBRARY_LAPACK} ${R_LIBRARY_BASE})
+              if(R_LIBRARY_READLINE)
+                set(R_LIBRARIES ${R_LIBRARIES} ${R_LIBRARY_READLINE})
+              endif()
 endif()
-

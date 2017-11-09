@@ -8,6 +8,7 @@ include(FindPythonModule)
 list (APPEND pl_library ${CMAKE_CURRENT_SOURCE_DIR}/prolog/jupyter.yap ${CMAKE_CURRENT_SOURCE_DIR}/prolog/yapi.yap )
 set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__init__.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
+
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
 SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
@@ -15,13 +16,13 @@ SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap4py.ya
 
 
 set(YAP4PY_PL prolog/jupyter.yap prolog/yapi.yap)
+set(YAP4PY_PY yap4py/__init__.py yap4py/__main__.py yap4py/yapi.py)
 
 configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/YAP4PY.md" ${CMAKE_CURRENT_BINARY_DIR}/README)
+configure_file("YAP4PY.md" README.md)
 
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
-
            DEPENDS ${SWIG_SOURCES} YAP++
    	)
 
@@ -50,17 +51,25 @@ else()
     set(bdist bdist_wheel)
 endif()
 
-
   add_custom_target( YAP4PY ALL
-    COMMAND ${CMAKE_COMMAND} -E remove_directory  yap4py
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/yap4py  yap4py
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp  yap4py
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include   -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""  -o yap4py/yap_wrap.cxx -oh yap4py/yap_wrap.hh ${SWIG_SOURCES}
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include
+     -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python
+      -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}
     COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS  ${SWIG_SOURCES} Py4YAP YAP++
+    DEPENDS  ${SWIG_SOURCES} Py4YAP YAP++ yap4py/yapi.cpp YAP4PY_PY
   )
 
+
+  add_custom_command( OUTPUT yap4py/yapi.cpp
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+  DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp
+  )
+
+  add_custom_command( OUTPUT YAP4PY_PY
+  COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
+  DEPENDS ${PYTHON_SOURCES}
+  )
 
       install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"

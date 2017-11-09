@@ -544,7 +544,7 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # the RPATH to be used when installing, but only if it's not a system directory#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
 # IF("${isSystemDir}" STREQUAL "-1")
-#   SET(CMAKE_INSTALL_RPATH "${libdir}")
+  SET(CMAKE_INSTALL_RPATH "${libdir}")
 # ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories (H
