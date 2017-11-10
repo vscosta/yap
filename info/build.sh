@@ -6,13 +6,13 @@ export MACOSX_DEPLOYMENT_TARGET=10.9
 export R_COMMAND=$R
 export CMAKE_BUILD_TYPE=Debug
 export CMAKE=$PREFIX/bin/cmake
-export CMAKE_INCLUDE_PATH=$SYS_PREFIX/include
-export CMAKE_LIBRARY_PATH=$SYS_PREFIX/lib
+export CMAKE_INCLUDE_PATH=$PREFIX/include
+export CMAKE_LIBRARY_PATH=$PREFIX/lib
 export CMAKE_INSTALL_PREFIX=$PREFIX
 export GENERATOR="-GNinja"
 export PYTHON_EXECUTABLE="$PYTHON"
-export PYTHON_LIBRARY="$STDLIB_DIR/../libPython${PY_VER}m$SHLIB_EXT"
-export PYTHON_INCLUDE_DIR="$STDLIB_DIR/../../include/python$PY_VER"m
+export PYTHON_LIBRARY="$PREFIX/lib/libpython${PY_VER}m$SHLIB_EXT"
+export PYTHON_INCLUDE_DIR="$PREFIX/include/python$PY_VER"m
 
 mkdir $PREFIX/conda
 cd  $PREFIX/conda
@@ -28,7 +28,8 @@ cd  $PREFIX/conda
 	$RECIPE_DIR/..
 
   make -j install CMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX"
-
+  #./yap -B
+  # mv startup.yss $PREFIX/lib/Yap
 # Remove the created lib64 directory
 
-# rm -rf $PREFIX/conda
+rm -rf $PREFIX/conda

@@ -63,8 +63,12 @@ if platform.system() == 'Windows':
     local_libs = []
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
-else:
-    my_extra_link_args = ['-Wl,-rpath','-Wl,${libdir}']
+elif platform.system() == 'Darwin':
+    my_extra_link_args = ['-L','..']
+    win_libs = []
+    local_libs = ['Py4YAP']
+elif platform.system() == 'Linux':
+    my_extra_link_args = ['-L','..']
     win_libs = []
     local_libs = ['Py4YAP']
 

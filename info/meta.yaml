@@ -6,13 +6,11 @@ requirements:
   build:
     - cmake
     - swig
-    - readline
     - gmp
     - python
     - r
     - notebook
 run:
-    - readline
     - gmp
     - r
     - notebook
