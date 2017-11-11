@@ -31,7 +31,7 @@
 { YAP_Atom X= YAP_LookupAtom("RM_GEOMETRIC");
   gecode_RM_GEOMETRIC = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("FRT_EQ");
   gecode_FRT_EQ = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -50,7 +50,7 @@
 { YAP_Atom X= YAP_LookupAtom("FRT_GR");
   gecode_FRT_GR = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("RM_EQV");
   gecode_RM_EQV = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -60,7 +60,7 @@
 { YAP_Atom X= YAP_LookupAtom("RM_PMI");
   gecode_RM_PMI = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("IRT_EQ");
   gecode_IRT_EQ = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -79,7 +79,7 @@
 { YAP_Atom X= YAP_LookupAtom("IRT_GR");
   gecode_IRT_GR = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("BOT_AND");
   gecode_BOT_AND = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -95,7 +95,7 @@
 { YAP_Atom X= YAP_LookupAtom("BOT_XOR");
   gecode_BOT_XOR = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("IPL_DEF");
   gecode_IPL_DEF = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -123,7 +123,7 @@
 { YAP_Atom X= YAP_LookupAtom("IPL_BASIC_ADVANCED");
   gecode_IPL_BASIC_ADVANCED = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("TT_FIXP");
   gecode_TT_FIXP = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -133,7 +133,7 @@
 { YAP_Atom X= YAP_LookupAtom("TT_FIXE");
   gecode_TT_FIXE = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("TE_INIT");
   gecode_TE_INIT = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -155,7 +155,7 @@
 { YAP_Atom X= YAP_LookupAtom("TE_COMMIT");
   gecode_TE_COMMIT = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("SRT_EQ");
   gecode_SRT_EQ = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -186,7 +186,7 @@
 { YAP_Atom X= YAP_LookupAtom("SRT_GR");
   gecode_SRT_GR = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 { YAP_Atom X= YAP_LookupAtom("SOT_UNION");
   gecode_SOT_UNION = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
@@ -199,7 +199,7 @@
 { YAP_Atom X= YAP_LookupAtom("SOT_MINUS");
   gecode_SOT_MINUS = YAP_MkAtomTerm(X);
   YAP_AtomGetHold(X); }
-
+()
 YAP_UserCPredicate("gecode_constraint_unary_471", gecode_constraint_unary_471, 6);
 YAP_UserCPredicate("gecode_constraint_unary_467", gecode_constraint_unary_467, 6);
 YAP_UserCPredicate("gecode_constraint_nvalues_361", gecode_constraint_nvalues_361, 5);

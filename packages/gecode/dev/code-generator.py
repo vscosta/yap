@@ -57,11 +57,13 @@ NOTICE_PROLOG="""%% -*- prolog -*-
 """
 
 def prolog_print_notice():
-    print NOTICE_PROLOG
+    print(NOTICE_PROLOG)
 
 def cc_print_notice():
-    print NOTICE_CC
+    print(NOTICE_CC)
 
+def islegal(a):
+    return a[0].islower() and a.replace("_","a").isalnum()
 
 
 class Type(object):
@@ -191,7 +193,7 @@ class DeclsLoader(object):
 
     def print_decls(self):
         for con in self.decls:
-            print str(con)
+            print(str(con))
 
 class PredGenerator(DeclsLoader):
 
@@ -293,7 +295,7 @@ class PredGenerator(DeclsLoader):
 
     def print_preds(self):
         for p in self.preds:
-            print str(p)
+            print(str(p))
 
 class Cluster(object):
 
@@ -326,7 +328,7 @@ class DTree(object):
                 dispatch[t.type] = d
             d.append(p)
         self.subtrees = tuple((t2,DTree(i+1,p2,cluster))
-                              for t2,p2 in dispatch.iteritems())
+                              for t2,p2 in dispatch.items())
 
     def _generate_body(self, user_vars, lib_vars):
         if self.is_leaf:
@@ -337,9 +339,11 @@ class DTree(object):
 
     def _generate_dispatch(self, i, user_vars, lib_vars):
         if i == len(self.subtrees):
-            return PrologLiteral("throw(error(type_error(%s(X%d),gecode_argument_error(%s(%s),arg=%d)))" \
-                                     % (self.subtrees[i][0], self.index+1. self.cluster.name, ",".join(user_vars),
-                                        self.index+1))
+            ty = self.subtrees[i-1][0]
+            name = self.cluster.name
+            if not islegal(ty):
+                ty = "\'"+ty+"\'"
+            return PrologLiteral("throw(error(type_error(%s(X%d)),gecode_argument_error(%s(%s),arg=%d)))"  % (ty, self.index, name, ",".join(user_vars), self.index+1))
         typ, dtree = self.subtrees[i]
         idx = self.index
         X = user_vars[idx]
@@ -391,7 +395,7 @@ class YAPConstraintGeneratorBase(PredGenerator):
     # for each cluster, create a dtree
     def _dtreefy(self):
         dtrees = {}
-        for key, cluster in self.clusters.iteritems():
+        for key, cluster in self.clusters.items():
             dtree = DTree(0, cluster.preds, cluster)
             dtrees[key] = dtree
         self.dtrees = dtrees
@@ -410,7 +414,7 @@ class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 
     def _prolog_clauses(self):
         clauses = []
-        for (name, arity), dtree in self.dtrees.iteritems():
+        for (name, arity), dtree in self.dtrees.items():
             user_vars = self._user_vars(arity)
             lib_vars = self._lib_vars(arity)
             head = "%s(%s)" % (name, ",".join(user_vars))
@@ -432,7 +436,7 @@ class YAPConstraintCCGenerator(YAPConstraintGeneratorBase):
 
     def _cc_descriptors(self):
         descriptors = []
-        for (name, arity), dtree in self.dtrees.iteritems():
+        for (name, arity), dtree in self.dtrees.items():
             descriptors.extend(dtree._cc_descriptors(name,()))
         return descriptors
 
@@ -559,22 +563,22 @@ class YAPEnumImpl(object):
 
     def _generate_atoms(self):
         for x in self.ENUM:
-            print "static YAP_Term gecode_%s;" % x
-        print
+            print("static YAP_Term gecode_%s;" % x)
+        print()
 
     def _generate_from_term(self):
         t2 = self.TYPE
-        print "static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,t2)
-        print "{"
+        print("static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,t2))
+        print("{")
         for x in self.ENUM:
-            print "  if (X==gecode_%s) return %s;" % (x,x)
-        print '  cerr << "this should never happen" << endl; exit(1);'
-        print "}"
-        print
+            print("  if (X==gecode_%s) return %s;" % (x,x))
+        print('  cerr << "this should never happen" << endl; exit(1);')
+        print("}")
+        print()
 
     def _generate_from_term_forward_decl(self):
         t2 =  self.TYPE
-        print "static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,t2)
+        print("static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,t2))
 
 class YAPEnumImplGenerator(object):
 
@@ -598,10 +602,10 @@ class YAPEnumInit(object):
 
     def generate(self):
         for x in self.ENUM:
-            print '{ YAP_Atom X= YAP_LookupAtom("%s");' % x
-            print '  gecode_%s = YAP_MkAtomTerm(X);' % x
-            print '  YAP_AtomGetHold(X); }'
-        print
+            print('{ YAP_Atom X= YAP_LookupAtom("%s");' % x)
+            print('  gecode_%s = YAP_MkAtomTerm(X);' % x)
+            print('  YAP_AtomGetHold(X); }')
+        print()
 
 class YAPEnumInitGenerator(object):
 
@@ -622,14 +626,14 @@ class YAPEnumProlog(object):
             if len(sp) > 1:
                 t = sp[1].rstrip(">")
         for x in self.ENUM:
-            print "is_%s_('%s')." % (t, x)
-        print
+            print("is_%s_('%s')." % (t, x))
+        print()
         for x in self.ENUM:
-            print "is_%s_('%s','%s')." % (t, x, x)
-        print
-        print "is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t)
-        print "is_%s(X) :- is_%s_(X,_)." % (t,t)
-        print
+            print("is_%s_('%s','%s')." % (t, x, x))
+        print()
+        print("is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t))
+        print("is_%s(X) :- is_%s_(X,_)." % (t,t))
+        print()
 
 class YAPEnumPrologGenerator(object):
 
@@ -648,8 +652,8 @@ class CCDescriptor(object):
         self.api = api
 
     def generate_impl(self):
-        print "static YAP_Bool gecode_constraint_%s(void)" % self.api
-        print "{"
+        print("static YAP_Bool gecode_constraint_%s(void)" % self.api)
+        print("{")
         i = 1
         args = []
         has_space = False
@@ -659,13 +663,11 @@ class CCDescriptor(object):
             a = "YAP_ARG%d" % i
             if t=="Space":
                 v = "*space"
-                print "  GenericSpace* space = gecode_Space_from_term(%s);" % (a)
+                print("  GenericSpace* space = gecode_Space_from_term(%s);" % (a))
                 has_space = True
                 v2 = v
             else:
                 t2 = t
-                if t.endswith("&"):
-                    t = t.rstrip("&")
                 if t.startswith("std::function") and t.endswith(")>"):
                     sp = t.split("&")
                     if len(sp) > 1:
@@ -680,19 +682,19 @@ class CCDescriptor(object):
                 if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","std_function"):
                     extra = "space,"
                     if has_space == False:
-                        print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                        print("  GenericSpace* space = gecode_Space_from_term(%s);" % a)
                         has_space = True
-                print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t2,extra,a)
+                print("  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t2,extra,a))
             args.append(v)
             i += 1
-        print "  %s(%s);" % (self.name, ",".join(args))
-        print "  return TRUE;"
-        print "}"
-        print
+        print("  %s(%s);" % (self.name, ",".join(args)))
+        print("  return TRUE;")
+        print("}")
+        print()
 
     def generate_init(self):
-        print 'YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
-            % (self.api, self.api, len(self.argtypes))
+        print('YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
+            % (self.api, self.api, len(self.argtypes)))
 
 GECODE_VERSION = None
 
@@ -711,7 +713,7 @@ def gecode_version():
     pid = os.getpid()
     file_hh = "_gecode_version_%d.hh" % pid
     file_txt = "_gecode_version_%d.txt" % pid
-    f = file(file_hh,"w")
+    f = open(file_hh,"w")
     f.write("""#include "gecode/support/config.hpp"
 @@GECODE_VERSION""")
     f.close()
@@ -741,25 +743,25 @@ def generate_files():
     import sys
     stdout = sys.stdout
     try:
-        sys.stdout = file(os.path.join(DIR,"gecode-version.txt"),"w")
-        print gecode_version()
+        sys.stdout = open(os.path.join(DIR,"gecode-version.txt"),"w")
+        print(gecode_version())
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_auto_generated.yap"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_auto_generated.yap"),"w")
         prolog_print_notice()
         YAPEnumPrologGenerator().generate()
         YAPConstraintPrologGenerator(filename).generate()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_impl_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_impl_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumImplGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_impl()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_init_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_init_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumInitGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_init()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_forward_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_forward_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumForwardGenerator().generate()
         sys.stdout.close()
