@@ -1,7 +1,0 @@
-
-[test]
-nose_warnings_filters
-nose-timer
-
-[test:python_version=="2.7"]
-mock

@@ -972,7 +972,7 @@ be lost.
 	get_code( debugger_input,NC),
 	'$get_deb_depth_char_by_char'(NC,XI,XF).
 % reset when given garbage.
-'$get_deb_depth_char_by_char'(C,_,10) :- skip(10).
+'$get_deb_depth_char_by_char'(_C,_,10) :- skip(10).
 
 '$set_deb_depth'(D) :-
 	yap_flag(debugger_print_options,L),

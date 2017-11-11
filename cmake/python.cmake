@@ -11,21 +11,20 @@ set (Python_ADDITIONAL_VERSIONS 3.7 3.6 ) #3.5 3.6 3.4 )
 #
 if (WIN320)
     set (PYTHONLIBS_FOUND YES CACHE BOOL "MINGW/MSYS2" FORCE )
-    set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.6m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
+        set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.6m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHON_LIBRARIES C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHON_INCLUDE_PATH C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE )
     set (PYTHON_INCLUDE_DIRS C:/msys64/mingw64/include/python3.5m CACHE PATH "MINGW/MSYS2" FORCE  )
     set (PYTHON_EXECUTABLE C:/msys64/mingw64/bin/python3.exe CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHONLIBS_VERSION_STRING 3.5 CACHE STRING "MINGW/MSYS2" FORCE )
 
-    else()
-
+else()
     find_package(PythonInterp)
 
     find_package(PythonLibs)
 
-endif()
 
+endif()
 
 include_directories( BEFORE ${PYTHON_INCLUDE_DIRS} )
 

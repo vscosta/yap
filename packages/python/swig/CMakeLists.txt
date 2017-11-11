@@ -14,11 +14,12 @@ SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
 SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
 #SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
 set(YAP4PY_PL prolog/jupyter.yap prolog/yapi.yap)
 set(YAP4PY_PY yap4py/__init__.py yap4py/__main__.py yap4py/yapi.py)
 
-configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+configure_file("setup.py.in" setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
 configure_file("YAP4PY.md" README.md)
 
@@ -41,10 +42,6 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/i
   #  	ARCHIVE DESTINATION ${PYTHON_MODULE_PATH}
   #  	LIBRARY DESTINATION ${PYTHON_MODULE_PATH}
   #  	)
-
-if (NOT EXISTS  ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
-  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
-endif()
 
 if (CONDA)
     set(bdist bdist_conda)

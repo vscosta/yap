@@ -7,9 +7,12 @@ requirements:
     - cmake
     - swig
     - gmp
+    - readline
     - python
     - r
     - notebook
+    - pkgconfig
+    - make
 run:
     - python
     - pythonlab

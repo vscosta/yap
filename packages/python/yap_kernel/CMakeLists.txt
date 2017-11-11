@@ -63,6 +63,7 @@
     add_custom_target( YAPKernel ALL
             COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            DEPENDS YAP4PY
             )
 
     install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
