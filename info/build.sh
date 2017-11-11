@@ -27,8 +27,9 @@ cd  $PREFIX/conda
   -DPYTHON_INCLUDE_DIR:PATH="$PYTHON_INCLUDE_DIR" \
 	$RECIPE_DIR/..
 
-  make install CMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX"
+  make -j install CMAKE_INSTALL_PREFIX="$CMAKE_INSTALL_PREFIX"
+  #./yap -B
+  #
+  # Remove the created lib64 directory
 
-# Remove the created lib64 directory
-
-# rm -rf $PREFIX/conda
+rm -rf $PREFIX/conda

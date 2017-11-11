@@ -21,6 +21,10 @@ set(
   "${CMAKE_SOURCE_DIR}/cmake"
   )
 
+IF (ENV{CONDA_BUILD} STREQUAL "1")
+  set (ANACONDA YES)
+endif()
+
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
 include(CheckSymbolExists)
@@ -63,12 +67,12 @@ endif()
 
 if (POLICY CMP0003)
   cmake_policy(SET CMP0003 NEW)
-    endif()
+endif()
 if (POLICY CMP0068)
   cmake_policy(SET CMP0068 NEW)
-    endif()
+endif()
 
-  option(BUILD_SHARED_LIBS "Build shared library" ON)
+option(BUILD_SHARED_LIBS "Build shared library" ON)
 
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -209,11 +213,8 @@ include(disallow)
 disallow_intree_builds()
 
 # set(CMAKE_BUILD_TYPE  Debug)
-set (ANACONDA $ENV{CONDA_PY})
-
-if (ANACONDA)
-
-elseif (APPLE)
+  
+if (APPLE)
   set (MACOSX_RPATH ON)
   set (PATH $ENV{PATH})
   list (FIND ${PATH} pos /usr/local)
@@ -531,6 +532,7 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 # use, i.e. don't skip the full RPATH for the build tree
 # SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
+
 # when building, don't use the install RPATH already
 # (but later on when installing)
 # SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -544,7 +546,14 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # the RPATH to be used when installing, but only if it's not a system directory#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
 # IF("${isSystemDir}" STREQUAL "-1")
+if (ANACONDA)
+  SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+  SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+  SET(CMAKE_INSTALL_RPATH ${CMAKE_BINARY_DIR})
+  
+else()
   SET(CMAKE_INSTALL_RPATH "${libdir}")
+endif()
 # ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories (H
@@ -571,6 +580,7 @@ MY_set_target_properties(libYap
   PROPERTIES VERSION ${YAP_FULL_VERSION}
   SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
   )
+
 
 #utf-8 is not an option
 # we use the nice UTF-8 package
@@ -602,7 +612,7 @@ set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
 
-  # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
+# file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
   add_subdirectory(packages/python/swig)

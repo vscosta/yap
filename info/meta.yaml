@@ -6,7 +6,6 @@ requirements:
   build:
     - cmake
     - swig
-    - readline
     - gmp
     - python
     - r

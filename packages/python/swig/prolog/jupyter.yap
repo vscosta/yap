@@ -35,7 +35,8 @@ completions(S, Self) :-
 
 
 strip_final_tokens(['EOT'|Ts], Ts) :- !.
-strip_final_tokens( Ts, Ts ).|_],
+strip_final_tokens( Ts, Ts ).
+
 complete([E,l,C,l,A|More],
 	 isconsult(A),
 	  %B = l,
@@ -80,22 +81,22 @@ isconsult( '['   ).
 arg([']'|_]).
 arg([l|_]).
 
-fileerrors-or_library(F,C) :-
+file_or_library(F,C) :-
 	libsym(C0),
 	atom_cooncat(F,C,Co).
-fileerrors-or_library(F,C) :-     
+file_or_library(F,C) :-
 	check_file(F0,C).
 		      
 check_file(F0,C) :-
 	atom_concat('\'',F,F0),
 	!,
 	absolute_file_name( F, FF, [access(none)]  ),
-	atom_concat( F, '*'	, Pat),
+	atom_concat( FF, '*'	, Pat),
 	absolute_file_name( Pat, C0, [glob(true)]  ),
 	atom_concat(Pat,C00,C0),
 	atom_conct(C00,'\'',C).
 check_file(F0,C) :-
-	atom_concat( F, '*'	, Pat),
+	atom_concat( F0, '*'	, Pat),
 	absolute_file_name( Pat, C0, [glob(true)]  ),
 	atom_concat(Pat,C,C0).
 
@@ -116,7 +117,7 @@ predicate(N,P,A) :-
 	current_predicate(P0/A),
 	atom_concat(N,P,P0).
 
-cont(0, F, P, P0)- :-
-		atom_concat( F, P, PB ).
+cont(0, F, P, P0):-
+		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
 	atom_concat( [F, P, '('], PB ).
