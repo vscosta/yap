@@ -822,6 +822,8 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 extern bool  Yap_embedded, Yap_Server;
 
+#include "YapText.h"
+
 #endif /* YAP_H */
 
-#include "YapText.h"
+

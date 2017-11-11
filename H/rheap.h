@@ -1,242 +1,250 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		rheap.h							 *
-* comments:	walk through heap code					 *
-*									 *
-* Last rev:     $Date: 2008-08-07 20:51:23 $,$Author: vsc $
-**
-* $Log: not supported by cvs2svn $
-* Revision 1.99  2008/07/22 23:34:49  vsc
-* SWI and module fixes
-*
-* Revision 1.98  2008/05/12 22:31:37  vsc
-* fix previous fixes
-*
-* Revision 1.97  2008/05/12 14:04:23  vsc
-* updates to restore
-*
-* Revision 1.96  2008/04/11 16:58:17  ricroc
-* yapor: seq_def initialization
-*
-* Revision 1.95  2008/04/06 12:06:48  vsc
-* more small fixes
-*
-* Revision 1.94  2008/04/06 11:53:02  vsc
-*  fix some restore bugs
-*
-* Revision 1.93  2008/04/04 09:10:02  vsc
-* restore was restoring twice
-*
-* Revision 1.92  2008/04/03 11:34:47  vsc
-* fix restorebb in cases entry key is not an atom (obs from Nicos
-* Angelopoulos)
-*
-* Revision 1.91  2008/04/01 15:31:43  vsc
-* more saved state fixes
-*
-* Revision 1.90  2008/04/01 14:09:43  vsc
-* improve restore
-*
-* Revision 1.89  2008/04/01 09:41:05  vsc
-* more fixes to restore
-*
-* Revision 1.88  2008/04/01 08:42:46  vsc
-* fix restore and small VISTA thingies
-*
-* Revision 1.87  2008/03/25 22:03:14  vsc
-* fix some icc warnings
-*
-* Revision 1.86  2008/03/25 16:45:53  vsc
-* make or-parallelism compile again
-*
-* Revision 1.85  2008/02/12 17:03:52  vsc
-* SWI-portability changes
-*
-* Revision 1.84  2008/02/07 21:39:51  vsc
-* fix case where predicate is for an integer (DBEntry).
-*
-* Revision 1.83  2008/01/23 17:57:55  vsc
-* valgrind it!
-* enable atom garbage collection.
-*
-* Revision 1.82  2007/12/05 12:17:23  vsc
-* improve JT
-* fix graph compatibility with SICStus
-* re-export declaration.
-*
-* Revision 1.81  2007/11/26 23:43:09  vsc
-* fixes to support threads and assert correctly, even if inefficiently.
-*
-* Revision 1.80  2007/11/07 09:35:53  vsc
-* small fix
-*
-* Revision 1.79  2007/11/07 09:25:27  vsc
-* speedup meta-calls
-*
-* Revision 1.78  2007/11/06 17:02:12  vsc
-* compile ground terms away.
-*
-* Revision 1.77  2007/10/10 09:44:24  vsc
-* some more fixes to make YAP swi compatible
-* fix absolute_file_name (again)
-* fix setarg
-*
-* Revision 1.76  2007/09/28 23:18:17  vsc
-* handle learning from interpretations.
-*
-* Revision 1.75  2007/04/10 22:13:21  vsc
-* fix max modules limitation
-*
-* Revision 1.74  2007/03/22 11:12:21  vsc
-* make sure that YAP_Restart does not restart a failed goal.
-*
-* Revision 1.73  2007/02/18 00:26:36  vsc
-* fix atom garbage collector (although it is still off by default)
-* make valgrind feel better
-*
-* Revision 1.72  2007/01/08 08:27:19  vsc
-* fix restore (Trevor)
-* make indexing a bit faster on IDB
-*
-* Revision 1.71  2006/11/27 17:42:03  vsc
-* support for UNICODE, and other bug fixes.
-*
-* Revision 1.70  2006/08/25 19:50:35  vsc
-* global data structures
-*
-* Revision 1.69  2006/08/22 16:12:46  vsc
-* global variables
-*
-* Revision 1.68  2006/08/02 18:18:30  vsc
-* preliminary support for readutil library (SWI compatible).
-*
-* Revision 1.67  2006/05/17 18:38:11  vsc
-* make system library use true file name
-*
-* Revision 1.66  2006/04/28 15:48:33  vsc
-* do locking on streams
-*
-* Revision 1.65  2006/04/28 13:23:23  vsc
-* fix number of overflow bugs affecting threaded version
-* make current_op faster.
-*
-* Revision 1.64  2006/03/22 20:07:28  vsc
-* take better care of zombies
-*
-* Revision 1.63  2006/03/06 14:04:56  vsc
-* fixes to garbage collector
-* fixes to debugger
-*
-* Revision 1.62  2006/02/24 14:03:42  vsc
-* fix refs to old LogUpd implementation (pre 5).
-*
-* Revision 1.61  2006/01/02 02:16:18  vsc
-* support new interface between YAP and GMP, so that we don't rely on our own
-* allocation routines.
-* Several big fixes.
-*
-* Revision 1.60  2005/12/17 03:25:39  vsc
-* major changes to support online event-based profiling
-* improve error discovery and restart on scanner.
-*
-* Revision 1.59  2005/12/05 17:16:11  vsc
-* write_depth/3
-* overflow handlings and garbage collection
-* Several ipdates to CLPBN
-* dif/2 could be broken in the presence of attributed variables.
-*
-* Revision 1.58  2005/11/23 03:01:33  vsc
-* fix several bugs in save/restore.b
-*
-* Revision 1.57  2005/10/28 17:38:50  vsc
-* sveral updates
-*
-* Revision 1.56  2005/10/21 16:09:03  vsc
-* SWI compatible module only operators
-*
-* Revision 1.55  2005/10/19 19:00:48  vsc
-* extend arrays with nb_terms so that we can implement nb_ builtins
-* correctly.
-*
-* Revision 1.54  2005/09/09 17:24:39  vsc
-* a new and hopefully much better implementation of atts.
-*
-* Revision 1.53  2005/08/01 15:40:38  ricroc
-* TABLING NEW: better support for incomplete tabling
-*
-* Revision 1.52  2005/07/06 19:34:11  ricroc
-* TABLING: answers for completed calls can now be obtained by loading (new
-*option) or executing (default) them from the trie data structure.
-*
-* Revision 1.51  2005/07/06 15:10:15  vsc
-* improvements to compiler: merged instructions and fixes for ->
-*
-* Revision 1.50  2005/06/01 13:53:46  vsc
-* improve bb routines to use the DB efficiently
-* change interface between DB and BB.
-*
-* Revision 1.49  2005/05/30 03:26:37  vsc
-* add some atom gc fixes
-*
-* Revision 1.48  2005/01/04 02:50:21  vsc
-* - allow MegaClauses with blobs
-* - change Diffs to be thread specific
-* - include Christian's updates
-*
-* Revision 1.47  2004/12/02 06:06:47  vsc
-* fix threads so that they at least start
-* allow error handling to work with threads
-* replace heap_base by Yap_heap_base, according to Yap's convention for globals.
-*
-* Revision 1.46  2004/11/23 21:16:21  vsc
-* A few extra fixes for saved states.
-*
-* Revision 1.45  2004/10/26 20:16:18  vsc
-* More bug fixes for overflow handling
-*
-* Revision 1.44  2004/10/06 16:55:47  vsc
-* change configure to support big mem configs
-* get rid of extra globals
-* fix trouble with multifile preds
-*
-* Revision 1.43  2004/09/27 20:45:04  vsc
-* Mega clauses
-* Fixes to sizeof(expand_clauses) which was being overestimated
-* Fixes to profiling+indexing
-* Fixes to reallocation of memory after restoring
-* Make sure all clauses, even for C, end in _Ystop
-* Don't reuse space for Streams
-* Fix Stream_F on StreaNo+1
-*
-* Revision 1.42  2004/06/05 03:37:00  vsc
-* coroutining is now a part of attvars.
-* some more fixes.
-*
-* Revision 1.41  2004/04/29 03:45:50  vsc
-* fix garbage collection in execute_tail
-*
-* Revision 1.40  2004/03/31 01:03:10  vsc
-* support expand group of clauses
-*
-* Revision 1.39  2004/03/19 11:35:42  vsc
-* trim_trail for default machine
-* be more aggressive about try-retry-trust chains.
-*    - handle cases where block starts with a wait
-*    - don't use _killed instructions, just let the thing rot by itself.
-*									 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		rheap.h *
+ * comments:	walk through heap code					 *
+ *									 *
+ * Last rev:     $Date: 2008-08-07 20:51:23 $,$Author: vsc $
+ **
+ * $Log: not supported by cvs2svn $
+ * Revision 1.99  2008/07/22 23:34:49  vsc
+ * SWI and module fixes
+ *
+ * Revision 1.98  2008/05/12 22:31:37  vsc
+ * fix previous fixes
+ *
+ * Revision 1.97  2008/05/12 14:04:23  vsc
+ * updates to restore
+ *
+ * Revision 1.96  2008/04/11 16:58:17  ricroc
+ * yapor: seq_def initialization
+ *
+ * Revision 1.95  2008/04/06 12:06:48  vsc
+ * more small fixes
+ *
+ * Revision 1.94  2008/04/06 11:53:02  vsc
+ *  fix some restore bugs
+ *
+ * Revision 1.93  2008/04/04 09:10:02  vsc
+ * restore was restoring twice
+ *
+ * Revision 1.92  2008/04/03 11:34:47  vsc
+ * fix restorebb in cases entry key is not an atom (obs from Nicos
+ * Angelopoulos)
+ *
+ * Revision 1.91  2008/04/01 15:31:43  vsc
+ * more saved state fixes
+ *
+ * Revision 1.90  2008/04/01 14:09:43  vsc
+ * improve restore
+ *
+ * Revision 1.89  2008/04/01 09:41:05  vsc
+ * more fixes to restore
+ *
+ * Revision 1.88  2008/04/01 08:42:46  vsc
+ * fix restore and small VISTA thingies
+ *
+ * Revision 1.87  2008/03/25 22:03:14  vsc
+ * fix some icc warnings
+ *
+ * Revision 1.86  2008/03/25 16:45:53  vsc
+ * make or-parallelism compile again
+ *
+ * Revision 1.85  2008/02/12 17:03:52  vsc
+ * SWI-portability changes
+ *
+ * Revision 1.84  2008/02/07 21:39:51  vsc
+ * fix case where predicate is for an integer (DBEntry).
+ *
+ * Revision 1.83  2008/01/23 17:57:55  vsc
+ * valgrind it!
+ * enable atom garbage collection.
+ *
+ * Revision 1.82  2007/12/05 12:17:23  vsc
+ * improve JT
+ * fix graph compatibility with SICStus
+ * re-export declaration.
+ *
+ * Revision 1.81  2007/11/26 23:43:09  vsc
+ * fixes to support threads and assert correctly, even if inefficiently.
+ *
+ * Revision 1.80  2007/11/07 09:35:53  vsc
+ * small fix
+ *
+ * Revision 1.79  2007/11/07 09:25:27  vsc
+ * speedup meta-calls
+ *
+ * Revision 1.78  2007/11/06 17:02:12  vsc
+ * compile ground terms away.
+ *
+ * Revision 1.77  2007/10/10 09:44:24  vsc
+ * some more fixes to make YAP swi compatible
+ * fix absolute_file_name (again)
+ * fix setarg
+ *
+ * Revision 1.76  2007/09/28 23:18:17  vsc
+ * handle learning from interpretations.
+ *
+ * Revision 1.75  2007/04/10 22:13:21  vsc
+ * fix max modules limitation
+ *
+ * Revision 1.74  2007/03/22 11:12:21  vsc
+ * make sure that YAP_Restart does not restart a failed goal.
+ *
+ * Revision 1.73  2007/02/18 00:26:36  vsc
+ * fix atom garbage collector (although it is still off by default)
+ * make valgrind feel better
+ *
+ * Revision 1.72  2007/01/08 08:27:19  vsc
+ * fix restore (Trevor)
+ * make indexing a bit faster on IDB
+ *
+ * Revision 1.71  2006/11/27 17:42:03  vsc
+ * support for UNICODE, and other bug fixes.
+ *
+ * Revision 1.70  2006/08/25 19:50:35  vsc
+ * global data structures
+ *
+ * Revision 1.69  2006/08/22 16:12:46  vsc
+ * global variables
+ *
+ * Revision 1.68  2006/08/02 18:18:30  vsc
+ * preliminary support for readutil library (SWI compatible).
+ *
+ * Revision 1.67  2006/05/17 18:38:11  vsc
+ * make system library use true file name
+ *
+ * Revision 1.66  2006/04/28 15:48:33  vsc
+ * do locking on streams
+ *
+ * Revision 1.65  2006/04/28 13:23:23  vsc
+ * fix number of overflow bugs affecting threaded version
+ * make current_op faster.
+ *
+ * Revision 1.64  2006/03/22 20:07:28  vsc
+ * take better care of zombies
+ *
+ * Revision 1.63  2006/03/06 14:04:56  vsc
+ * fixes to garbage collector
+ * fixes to debugger
+ *
+ * Revision 1.62  2006/02/24 14:03:42  vsc
+ * fix refs to old LogUpd implementation (pre 5).
+ *
+ * Revision 1.61  2006/01/02 02:16:18  vsc
+ * support new interface between YAP and GMP, so that we don't rely on our own
+ * allocation routines.
+ * Several big fixes.
+ *
+ * Revision 1.60  2005/12/17 03:25:39  vsc
+ * major changes to support online event-based profiling
+ * improve error discovery and restart on scanner.
+ *
+ * Revision 1.59  2005/12/05 17:16:11  vsc
+ * write_depth/3
+ * overflow handlings and garbage collection
+ * Several ipdates to CLPBN
+ * dif/2 could be broken in the presence of attributed variables.
+ *
+ * Revision 1.58  2005/11/23 03:01:33  vsc
+ * fix several bugs in save/restore.b
+ *
+ * Revision 1.57  2005/10/28 17:38:50  vsc
+ * sveral updates
+ *
+ * Revision 1.56  2005/10/21 16:09:03  vsc
+ * SWI compatible module only operators
+ *
+ * Revision 1.55  2005/10/19 19:00:48  vsc
+ * extend arrays with nb_terms so that we can implement nb_ builtins
+ * correctly.
+ *
+ * Revision 1.54  2005/09/09 17:24:39  vsc
+ * a new and hopefully much better implementation of atts.
+ *
+ * Revision 1.53  2005/08/01 15:40:38  ricroc
+ * TABLING NEW: better support for incomplete tabling
+ *
+ * Revision 1.52  2005/07/06 19:34:11  ricroc
+ * TABLING: answers for completed calls can now be obtained by loading (new
+ *option) or executing (default) them from the trie data structure.
+ *
+ * Revision 1.51  2005/07/06 15:10:15  vsc
+ * improvements to compiler: merged instructions and fixes for ->
+ *
+ * Revision 1.50  2005/06/01 13:53:46  vsc
+ * improve bb routines to use the DB efficiently
+ * change interface between DB and BB.
+ *
+ * Revision 1.49  2005/05/30 03:26:37  vsc
+ * add some atom gc fixes
+ *
+ * Revision 1.48  2005/01/04 02:50:21  vsc
+ * - allow MegaClauses with blobs
+ * - change Diffs to be thread specific
+ * - include Christian's updates
+ *
+ * Revision 1.47  2004/12/02 06:06:47  vsc
+ * fix threads so that they at least start
+ * allow error handling to work with threads
+ * replace heap_base by Yap_heap_base, according to Yap's convention for
+ *globals.
+ *
+ * Revision 1.46  2004/11/23 21:16:21  vsc
+ * A few extra fixes for saved states.
+ *
+ * Revision 1.45  2004/10/26 20:16:18  vsc
+ * More bug fixes for overflow handling
+ *
+ * Revision 1.44  2004/10/06 16:55:47  vsc
+ * change configure to support big mem configs
+ * get rid of extra globals
+ * fix trouble with multifile preds
+ *
+ * Revision 1.43  2004/09/27 20:45:04  vsc
+ * Mega clauses
+ * Fixes to sizeof(expand_clauses) which was being overestimated
+ * Fixes to profiling+indexing
+ * Fixes to reallocation of memory after restoring
+ * Make sure all clauses, even for C, end in _Ystop
+ * Don't reuse space for Streams
+ * Fix Stream_F on StreaNo+1
+ *
+ * Revision 1.42  2004/06/05 03:37:00  vsc
+ * coroutining is now a part of attvars.
+ * some more fixes.
+ *
+ * Revision 1.41  2004/04/29 03:45:50  vsc
+ * fix garbage collection in execute_tail
+ *
+ * Revision 1.40  2004/03/31 01:03:10  vsc
+ * support expand group of clauses
+ *
+ * Revision 1.39  2004/03/19 11:35:42  vsc
+ * trim_trail for default machine
+ * be more aggressive about try-retry-trust chains.
+ *    - handle cases where block starts with a wait
+ *    - don't use _killed instructions, just let the thing rot by itself.
+ *									 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #endif
+
+#ifndef RHEAP_H
+#define RHEAP_H 1
+
+#include "YapHeap.h"
+#include "absmi.h"
+#include "clause.h"
 
 #define Atomics 0
 #define Funcs 1
@@ -1495,3 +1503,5 @@ static void RestoreAtom(AtomEntry *at USES_REGS) {
   if (nat)
     at->NextOfAE = AbsAtom(AtomEntryAdjust(nat));
 }
+
+#endif

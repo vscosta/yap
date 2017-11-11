@@ -271,21 +271,18 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       if (PL_skip_list(t, tail, &len) &&
           PL_get_nil(tail)) { //             true list
 
-        bool o = true;
         if (PySequence_Check(exp) && PySequence_Length(exp) == len)
 
           for (i = 0; i < len; i++) {
             PyObject *p;
             if (!PL_get_list(t, arg, t)) {
               PL_reset_term_refs(tail);
-              o = false;
               p = Py_None;
             }
             if ((p = PySequence_GetItem(exp, i)) == NULL)
               p = Py_None;
             if (!python_assign(arg, p, context)) {
               PL_reset_term_refs(tail);
-              o = false;
             }
           }
       }

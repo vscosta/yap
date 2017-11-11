@@ -1,23 +1,23 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-97	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		Foreign.h						 *
-* comments:	header file for dynamic loading routines  	 	 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-97	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		Foreign.h *
+ * comments:	header file for dynamic loading routines  	 	 *
+ *************************************************************************/
 
 #define NO_DYN 1
 
 #ifndef FOREIGN_H
 #define FOREIGN_H
 
-/** 
+/**
 
     @:
     @file Foreign.h
@@ -25,26 +25,29 @@
     load_foreign_files/3 has works for the following configurations:
 
     - linux: should work both for a.out (untested by me) and ELF;
-    
+
     - WIN32: works (notice that symbols are not exported by default)
 
     - OSX: works using Mach dynamic libs.
 
     - osf:  should work, but isn't working yet.
-    
+
     - sunos4: should work, using A.OUT format;
-    
+
     - svr4, eg solaris: should work, using ELF format;
 
     - AIX: should work for 3.2 and 4.1 at least, using ECOFF;
-    
+
     YAP should be able to load on most BSD Unixes, but you will need to
   say that here.
 
   YAP also supports COFF loading (pretty much the same technique as
-  used for A.OUT loading) but that is untested so far. 
+  used for A.OUT loading) but that is untested so far.
 
 */
+
+#include "Yap.h"
+#include "YapHeap.h"
 
 #ifdef _AIX
 #undef NO_DYN
@@ -96,8 +99,8 @@
 #endif
 #endif /* LOAD_DYLD */
 
-#define LOAD_SUCCEEDED   0
-#define LOAD_FAILLED    -1
+#define LOAD_SUCCEEDED 0
+#define LOAD_FAILLED -1
 
 typedef struct StringListItem {
   Atom name;
@@ -115,16 +118,15 @@ typedef struct ForeignLoadItem {
 
 typedef void (*YapInitProc)(void);
 
+void *Yap_LoadForeignFile(char *, int);
+int Yap_CallForeignFile(void *, char *);
+int Yap_CloseForeignFile(void *);
+Int Yap_LoadForeign(StringList, StringList, char *, YapInitProc *);
+Int Yap_ReLoadForeign(StringList, StringList, char *, YapInitProc *);
+void Yap_ReOpenLoadForeign(void);
+void Yap_ShutdownLoadForeign(void);
 
-void   *Yap_LoadForeignFile(char *, int);
-int     Yap_CallForeignFile(void *, char *);
-int     Yap_CloseForeignFile(void *);
-Int     Yap_LoadForeign(StringList, StringList, char *, YapInitProc *);
-Int     Yap_ReLoadForeign(StringList, StringList, char *, YapInitProc *);
-void	Yap_ReOpenLoadForeign(void);
-void	Yap_ShutdownLoadForeign(void);
-
-#define EAGER_LOADING  1
+#define EAGER_LOADING 1
 #define GLOBAL_LOADING 2
 
 #endif

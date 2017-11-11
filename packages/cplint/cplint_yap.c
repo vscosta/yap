@@ -134,7 +134,7 @@ static YAP_Bool compute_prob(void)
   expr expression; 
   DdNode * function;
   DdManager * mgr;
-  int nBVar,i,intBits,create_dot;
+  int nBVar,i,create_dot;
   FILE * file;
   DdNode * array[1];
   double prob;
@@ -184,11 +184,10 @@ static YAP_Bool compute_prob(void)
     array[0]=function;
     onames[0]="Out";
     file = open_file("cpl.dot", "w");
-    Cudd_DumpDot(mgr,1,array,names,onames,file);
+    Cudd_DumpDot(mgr,1,array,names,( char * const*)onames,file);
     fclose(file);
   }
   nodes=init_table(vars.nBVar);
-  intBits=sizeof(unsigned int)*8;
   prob=Prob(function,vars,nodes);
   out=YAP_MkFloatTerm(prob);
   destroy_table(nodes,vars.nBVar);

@@ -24,9 +24,8 @@ PROPERTIES VERSION ${YAP_FULL_VERSION}
 SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
 )
 
-target_link_libraries(Py4YAP libYap ${PYTHON_LIBRARIES})
-
 # arithmetic hassle.
+target_link_libraries(Py4YAP YAPPython libYap ${PYTHON_LIBRARIES})
 
 
 install(TARGETS  Py4YAP
@@ -36,16 +35,9 @@ install(TARGETS  Py4YAP
   )
 
 
-
-    install(TARGETS  YAPPython
-      LIBRARY DESTINATION ${dlls}
-      RUNTIME DESTINATION ${dlls}
-      ARCHIVE DESTINATION ${dlls} )
-
-target_link_libraries( YAPPython  Py4YAP )
  endif()
 
-target_link_libraries(YAPPython libYap ${PYTHON_LIBRARIES})
+target_link_libraries(YAPPython libYap)
 
 # arithmetic hassle.
 set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)

@@ -1,20 +1,20 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V. Santos Costa and Universidade do Porto 1985--	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		qlyr.c							 *
-* comments:	quick saver/loader					 *
-*									 *
-* Last rev:     $Date: 2011-08-29$,$Author: vsc $			 *
-* $Log: not supported by cvs2svn $					 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V. Santos Costa and Universidade do Porto 1985--	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		qlyr.c *
+ * comments:	quick saver/loader					 *
+ *									 *
+ * Last rev:     $Date: 2011-08-29$,$Author: vsc $			 *
+ * $Log: not supported by cvs2svn $					 *
+ *									 *
+ *************************************************************************/
 /**
  *
  * @file qlyr.c
@@ -638,7 +638,7 @@ static bool checkChars(FILE *stream, char s[]) {
 }
 
 static Atom do_header(FILE *stream) {
-  char s[256], *p = s, ch;
+  char s[2560], *p = s, ch;
   Atom at;
 
   if (!checkChars(stream, "#!/bin/sh\nexec_dir=${YAPBINDIR:-"))
@@ -696,7 +696,7 @@ static void ReadHash(FILE *stream) {
     Atom at;
     qlf_tag_t tg = read_tag(stream);
 
-  if (tg == QLY_ATOM) {
+    if (tg == QLY_ATOM) {
       char *rep = (char *)AllocTempSpace();
       UInt len;
 

@@ -12,6 +12,8 @@ requirements:
     - r
     - notebook
 run:
+    - python
+    - pythonlab
     - readline
     - gmp
     - r
