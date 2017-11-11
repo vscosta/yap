@@ -337,8 +337,8 @@ class DTree(object):
 
     def _generate_dispatch(self, i, user_vars, lib_vars):
         if i == len(self.subtrees):
-            return PrologLiteral("throw(gecode_argument_error(%s(%s),arg=%d))" \
-                                     % (self.cluster.name, ",".join(user_vars),
+            return PrologLiteral("throw(error(type_error(%s(X%d),gecode_argument_error(%s(%s),arg=%d)))" \
+                                     % (self.subtrees[i][0], self.index+1. self.cluster.name, ",".join(user_vars),
                                         self.index+1))
         typ, dtree = self.subtrees[i]
         idx = self.index
@@ -664,6 +664,8 @@ class CCDescriptor(object):
                 v2 = v
             else:
                 t2 = t
+                if t.endswith("&"):
+                    t = t.rstrip("&")
                 if t.startswith("std::function") and t.endswith(")>"):
                     sp = t.split("&")
                     if len(sp) > 1:
@@ -725,7 +727,7 @@ def gecode_version():
         os.remove(file_hh)
         os.remove(file_txt)
     else:
-        version = "5.0.0" 
+        version = "5.0.0"
     GECODE_VERSION = version
     return version
 
