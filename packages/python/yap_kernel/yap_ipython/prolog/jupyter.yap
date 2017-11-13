@@ -35,7 +35,8 @@ completions(S, Self) :-
 
 
 strip_final_tokens(['EOT'|Ts], Ts) :- !.
-strip_final_tokens( Ts, Ts ).|_],
+strip_final_tokens( Ts, Ts ).
+
 complete([E,l,C,l,A|More],
 	 isconsult(A),
 	  %B = l,
@@ -80,10 +81,10 @@ isconsult( '['   ).
 arg([']'|_]).
 arg([l|_]).
 
-fileerrors-or_library(F,C) :-
+file_or_library(F,C) :-
 	libsym(C0),
 	atom_cooncat(F,C,Co).
-fileerrors-or_library(F,C) :-     
+file_or_library(F,C) :-
 	check_file(F0,C).
 		      
 check_file(F0,C) :-
@@ -117,6 +118,6 @@ predicate(N,P,A) :-
 	atom_concat(N,P,P0).
 
 cont(0, F, P, P0)- :-
-		atom_concat( F, P, PB ).
+		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
 	atom_concat( [F, P, '('], PB ).
