@@ -193,6 +193,10 @@ static inline Term options(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
 }
 
+static inline Term rootdir(Term inp) {
+  return MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
+}
+
 // INLINE_ONLY inline EXTERN  Term ok( Term inp );
 
 static inline Term ok(Term inp) { return inp; }

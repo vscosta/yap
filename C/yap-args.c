@@ -45,6 +45,18 @@
 #include <direct.h>
 #endif
 
+
+#ifndef YAP_ROOTDIR
+#include <libgen.h>
+
+char
+   *YAP_BINDIR,
+   *YAP_ROOTDIR,
+   *YAP_SHAREDIR,
+   *YAP_LIBDIR,
+   *YAP_YAPLIB;
+#endif
+
 static void print_usage(void) {
   fprintf(stderr, "\n[ Valid switches for command line arguments: ]\n");
   fprintf(stderr, "  -?   Shows this screen\n");
@@ -147,6 +159,7 @@ YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char saved_state[],
 #endif
   iap->Argc = argc;
   iap->Argv = argv;
+  iap->YapLibDir = YAP_YAPLIB;
   return iap->boot_file_type;
 }
 
@@ -154,6 +167,33 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                               YAP_init_args *iap) {
   char *p;
   size_t *ssize;
+
+#ifndef YAP_ROOTDIR
+  {
+    char *b0=Yap_FindExecutable(), *b1, *b2;
+  char b[YAP_FILENAME_MAX + 1];
+
+  strncpy(b, b0, YAP_FILENAME_MAX);
+ b1 = dirname(b);
+  YAP_BINDIR = malloc(strlen(b1)+1);
+  strcpy(YAP_BINDIR, b1);
+  b2 = dirname(b1);
+ YAP_ROOTDIR = malloc(strlen(b2)+1);
+  strcpy(YAP_ROOTDIR, b2);
+  strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
+  strncat( b, "/share", YAP_FILENAME_MAX);
+  YAP_SHAREDIR=  malloc(strlen(b)+1);
+  strcpy(YAP_SHAREDIR, b);
+  strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
+  strncat( b, "/lib", YAP_FILENAME_MAX);
+  YAP_LIBDIR=  malloc(strlen(b)+1);
+  strcpy(YAP_LIBDIR, b);
+   strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
+ strncat( b, "/lib/Yap", YAP_FILENAME_MAX);
+  YAP_YAPLIB=  malloc(strlen(b)+1);
+  strcpy(YAP_YAPLIB, b);
+};
+#endif
 
   Yap_InitDefaults(iap, NULL, argc, argv);
   while (--argc > 0) {

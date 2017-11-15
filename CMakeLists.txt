@@ -222,7 +222,7 @@ if (ANACONDA)
     #set( CMAKE_INSTALL_PREFIX $ENV{PREFIX} )
         set( PYTHON_LIBRARY $ENV{PREFIX}/lib/libpython$ENV{PY_VER}m$ENV{SHLIB_EXT})
     set( PYTHON_INCLUDE_DIR $ENV{PREFIX}/include/python$ENV{PY_VER}m)
-
+set(YAP_IS_MOVABLE 1)
 endif()
 if (APPLE)
     set(MACOSX_RPATH ON)
@@ -500,12 +500,13 @@ add_corelib( # Sets the name of the library.
         )
 
 if (WIN32)
-    target_link_libraries(libYap ${WINDLLS})
-    if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
+   target_link_libraries(libYap ${WINDLLS})
+     if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
         target_link_libraries(libYap ${PYTHON_LIBRARIES})
     endif ()
 endif (WIN32)
 
+target_link_libraries(libYap m)
 
 if (GMP_FOUND)
     #config.h needs this (TODO: change in code latter)
@@ -542,31 +543,25 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # rpath stuff, hopefully it works
 # use, i.e. don't skip the full RPATH for the build tree
-# SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+#SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
 
 # when building, don't use the install RPATH already
 # (but later on when installing)
-# SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
-# SET(CMAKE_INSTALL_RPATH ${CMAKE_CURRENT_BUILD_PATH})
+# SET(CMAKE_INSTALL_RPATH ${CMAKE_TOP_BINARY_DIR})
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 
-# the RPATH to be used when installing, but only if it's not a system directory#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
-# IF("${isSystemDir}" STREQUAL "-1")
-if (ANACONDA)
-    SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-    SET(CMAKE_INSTALL_RPATH ${CMAKE_BINARY_DIR})
-
-else ()
-    SET(CMAKE_INSTALL_RPATH "${libdir}")
-endif ()
-# ENDIF("${isSystemDir}" STREQUAL "-1")
+# the RPATH to be used when installing, but only if it's not a system directory
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
+ IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH ${libdir})
+ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories(H
         H/generated

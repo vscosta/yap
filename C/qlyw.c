@@ -727,14 +727,15 @@ static size_t save_ops(FILE *stream, Term mod) {
   return 1;
 }
 
-static int save_header(FILE *stream, char type[]) {
-  char msg[256 * 16];
+static size_t save_header(FILE *stream, char type[]) {
+  char msg[2048];
 
+  memset(msg, 0, 2048);
   sprintf(msg,
           "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 "
           "\"$@\"\n%s %s\n",
           YAP_BINDIR, type, YAP_FULL_VERSION);
-  return save_bytes(stream, msg, strlen(msg) + 1);
+  return save_bytes(stream, msg, 2048);
 }
 
 static size_t save_module(FILE *stream, Term mod) {

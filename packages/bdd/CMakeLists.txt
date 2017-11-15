@@ -35,11 +35,13 @@ IF (CUDD_FOUND)
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
+            m
       libYap
       )
   else()
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
+            m
       ${YAP_LIBRARY}
       )
   endif()

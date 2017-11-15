@@ -139,6 +139,7 @@ IF (CUDD_FOUND)
   TARGET_LINK_LIBRARIES(bddem
     ${CUDD_LIBRARIES}
     libYap
+          m
     )
 
   set_target_properties (bddem  PROPERTIES

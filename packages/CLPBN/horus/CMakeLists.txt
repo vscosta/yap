@@ -64,7 +64,7 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
 
   set_target_properties (HorusCli PROPERTIES OUTPUT_NAME hcli CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 
-  target_link_libraries(HorusCli horus )
+  target_link_libraries(HorusCli m horus )
 
 
   install(TARGETS  horus HorusCli

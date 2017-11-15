@@ -16,7 +16,7 @@ SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap4py.ya
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
-set(YAP4PY_PL prolog/jupyter.yap prolog/yapi.yap)
+set(YAP4PY_PL prolog/yapi.yap)
 set(YAP4PY_PY yap4py/__init__.py yap4py/__main__.py yap4py/yapi.py)
 
 configure_file("setup.py.in" setup.py)

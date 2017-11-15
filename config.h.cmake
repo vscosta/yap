@@ -1932,8 +1932,10 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_PL_SRCDIR "${PROJECT_SOURCE_DIR}/pl"
 #endif
 
-#ifndef YAP_SHAREDIR
-#define YAP_SHAREDIR  "${YAP_SHAREDIR}"
+
+/* YAP_IS_MOVABLE */
+#ifndef YAP_IS_MOVABLE
+#cmakedefine YAP_IS_MOVABLE "${YAP_IS_MOVABLE}"
 #endif
 
 /* saved state file */
@@ -1961,30 +1963,47 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_COMPILED_AT "${YAP_TIMESTAMP}@${YAP_SITE}"
 #endif
 
-/* name of YAP library */
-#ifndef YAP_YAPLIB
-#define YAP_YAPLIB "${YAP_YAPLIB}"
-#endif
 
-/* name of YAP library */
-#ifndef YAP_BINDIR
-#define YAP_BINDIR "${bindir}"
-#endif
-
-/* name of YAP library */
+#ifndef YAP_IS_MOVABLE
+/* name of YAP instaii */
 #ifndef YAP_ROOTDIR
 #define YAP_ROOTDIR "${YAP_ROOTDIR}"
 #endif
 
+/* name of YAP binaries */
+#ifndef YAP_BINDIR
+#define YAP_BINDIR "${YAP_ROOTDIR}/bin"
+#endif
+
 /* name of YAP library */
 #ifndef YAP_LIBDIR
-#define YAP_LIBDIR "${YAP_LIBDIR}"
+#define YAP_LIBDIR "${YAP_ROOTDIR}/lib"
+#endif
+
+/* name of YAP DLL library */
+#ifndef YAP_YAPLIB
+#define YAP_YAPLIB "${YAP_LIBDIR}/Yap"
 #endif
 
 /* name of YAP JIT library */
 #ifndef YAP_YAPJITLIB
 #define YAP_YAPJITLIB "${YAP_YAPJITLIB}"
 #endif
+
+#ifndef YAP_SHAREDIR
+#define YAP_SHAREDIR  "${YAP_ROOTDIR}/share"
+#endif
+
+#else
+extern  char
+*YAP_BINDIR,
+*YAP_ROOTDIR,
+*YAP_SHAREDIR,
+*YAP_LIBDIR,
+*YAP_YAPLIB;
+#endif
+
+
 
 /* HP-UX old socket stuff */
 #ifndef _XOPEN_SOURCE
