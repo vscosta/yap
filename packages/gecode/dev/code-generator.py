@@ -63,8 +63,7 @@ def cc_print_notice():
     print(NOTICE_CC)
 
 def islegal(a):
-    return a[0].islower() and a.replace("_","a").isalnum()
-
+    return a[0].islower() and a.replace("_","a").isalnum() or a[0] == '\'' and a[len(a)-1] == '\''
 
 class Type(object):
 
@@ -348,7 +347,6 @@ class DTree(object):
         idx = self.index
         X = user_vars[idx]
         Y = lib_vars[idx]
-        # hack for disjunctor support
         if typ=="Space":
             typ = "Space_or_Clause"
         elif typ.startswith("std::function") and typ.endswith(")>"):
@@ -699,6 +697,7 @@ class CCDescriptor(object):
 GECODE_VERSION = None
 
 def gecode_version():
+    #import pdb; pdb.set_trace()
     global GECODE_VERSION
     if GECODE_VERSION is not None:
         return GECODE_VERSION
@@ -734,12 +733,12 @@ def gecode_version():
     return version
 
 def generate_files():
-    DIR = "../%s" % gecode_version()
+    DIR = "../" + gecode_version()
     import os, os.path
     DIR = os.path.abspath(DIR)
     if not os.path.exists(DIR):
         os.mkdir(DIR)
-    filename = "gecode-prototypes-%s.hh" % gecode_version()
+    filename = "gecode-prototypes-" + gecode_version() + ".hh"
     import sys
     stdout = sys.stdout
     try:
