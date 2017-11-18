@@ -79,11 +79,18 @@ static char *Yap_AlwaysAllocCodeSpace(UInt size) {
   return out;
 }
 
-static void QLYR_ERROR(qlfr_err_t my_err) {
+
+#define QLYR_ERROR(err)                                                  \
+  QLYR_ERROR__(__FILE__, __FUNCTION__, __LINE__, err)
+
+
+
+static void QLYR_ERROR__(const char *file, const char *function, int lineno,
+                       qlfr_err_t my_err) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %s in saved state
   // %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
-  Yap_Error(SYSTEM_ERROR_SAVED_STATE, TermNil, "error %s in saved state %s",
-            GLOBAL_RestoreFile, qlyr_error[my_err]);
+    Yap_Error__(file, function, lineno, SYSTEM_ERROR_SAVED_STATE, TermNil, "error %s in saved state %s",
+              GLOBAL_RestoreFile, qlyr_error[my_err]);
   Yap_exit(1);
 }
 
@@ -638,7 +645,7 @@ static bool checkChars(FILE *stream, char s[]) {
 }
 
 static Atom do_header(FILE *stream) {
-  char s[2560], *p = s, ch;
+  char s[2048], *p = s, ch;
   Atom at;
 
   if (!checkChars(stream, "#!/bin/sh\nexec_dir=${YAPBINDIR:-"))
@@ -1044,6 +1051,8 @@ static void ReInitProlog(void) {
 
 static Int qload_program(USES_REGS1) {
   FILE *stream;
+
+
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {

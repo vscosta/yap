@@ -4,9 +4,22 @@
             YAP_KERNEL.md
             )
 
+    set (PL_SOURCES
+            yap_ipython/prolog/jupyter.yap
+            )
+
     set (PYTHON_SOURCES
+            yap_ipython/core/getipython.py
+            yap_ipython/core/__init__.py
+            yap_ipython/core/interactiveshell.py
+            yap_ipython/core/modulefind.py
+            yap_ipython/core/oinspect.py
+            yap_ipython/core/release.py
+            yap_ipython/core/shellapp.py
+            yap_ipython/display.py
+            yap_ipython/__init__.py
+            yap_ipython/shellapp.py
             yap_kernel_launcher.py
-            data_kernelspec/kernel.json
             yap_kernel/__init__.py
             yap_kernel/__main__.py
             yap_kernel/_version.py
@@ -69,5 +82,5 @@
     install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
-    #    install(FILES jupyter.yap
-    #    DESTINATION ${libpl} )
+      install(FILES ${PL_FILES} DESTINATION ${libpl} )
+

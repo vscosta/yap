@@ -106,9 +106,8 @@ class YAPInteractive(InteractiveShell):
         super(YAPInteractive, self).__init__(**kwargs)
         # type: (object, object) -> object
         pjoin = os.path.join
-        here = os.path.dirname(__file__)
         self.yapeng = yap4py.yapi.Engine()
-        self.yapeng.goal(use_module(pjoin(here, '../prolog/jupyter.yap')))
+        self.yapeng.goal(use_module(library("jupyter")))
         self.q = None
         self.run = False
         self.os = ""

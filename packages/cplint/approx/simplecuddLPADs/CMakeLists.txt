@@ -15,6 +15,7 @@ set_target_properties (LPADbdd PROPERTIES
   )
 
 target_link_libraries(LPADbdd
+        m
   ${CUDD_LIBRARIES}    
   libYap    
  )

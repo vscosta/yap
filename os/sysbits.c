@@ -1242,7 +1242,8 @@ const char *Yap_findFile(const char *isource, const char *idef,
         if (ftype == YAP_PL) {
           root = YAP_SHAREDIR;
         } else if (ftype == YAP_BOOT_PL) {
-          root = YAP_SHAREDIR "/pl";
+          root = YAP_SHAREDIR;
+          strcat(root,"/pl");
         } else {
           root = YAP_LIBDIR;
         }
@@ -1761,21 +1762,24 @@ static Int p_yap_paths(USES_REGS1) {
 
   if (env_destdir) {
     strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_LIBDIR, YAP_FILENAME_MAX);
+    strncat(destdir, "/", YAP_FILENAME_MAX);
+    strncat(destdir,  YAP_LIBDIR, YAP_FILENAME_MAX);
     out1 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
     out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
   }
   if (env_destdir) {
     strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_SHAREDIR, YAP_FILENAME_MAX);
+    strncat(destdir, "/", YAP_FILENAME_MAX);
+    strncat(destdir, YAP_SHAREDIR, YAP_FILENAME_MAX);
     out2 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
     out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
   }
   if (env_destdir) {
     strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_BINDIR, YAP_FILENAME_MAX);
+    strncat(destdir, "/", YAP_FILENAME_MAX);
+    strncat(destdir, YAP_BINDIR, YAP_FILENAME_MAX);
     out3 = MkAtomTerm(Yap_LookupAtom(destdir));
   } else {
     out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));

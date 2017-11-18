@@ -88,6 +88,7 @@ struct foreign_context {
     struct PL_local_data *engine; /* invoking engine */
 };
 
+
 X_API bool python_in_python;
 
 X_API int YAP_Reset(yap_reset_t mode);
@@ -2426,7 +2427,6 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
       /* ignore repeated calls to YAP_Init */
       if (YAP_initialized)
         return YAP_FOUND_BOOT_ERROR;
-
       Yap_embedded = yap_init->Embedded;
       Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
 					     later functions */

@@ -3,6 +3,8 @@ package:
   version: 1.8.0
 
 requirements:
+  ignore_prefix_files:
+    - startup.yss
   build:
     - cmake
     - swig

@@ -79,9 +79,8 @@ char *Yap_FindExecutable(void) {
   }
   return "yap";
 #elif defined(__linux__)
-  enum { BUFFERSIZE = 1024 };
-  char *buf = malloc(BUFFERSIZE);
-  ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+  char *buf = malloc(YAP_FILENAME_MAX);
+  ssize_t len = readlink("/proc/self/exe", buf, YAP_FILENAME_MAX - 1);
 
   if (len != -1) {
     buf[len] = '\0';
@@ -194,7 +193,6 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
 
     /* load libraries first so that their symbols are available to
        other routines */
-    /* dlopen wants to follow the LD_CONFIG_PATH */
     const char *file = AtomName(ofiles->name);
     if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true,
                       true)) {

@@ -14,7 +14,8 @@ set_target_properties (Problogbdd PROPERTIES
   )
 
 target_link_libraries(Problogbdd
-  ${CUDD_LIBRARIES}    
+  ${CUDD_LIBRARIES}
+        m
   libYap    
  )
 
