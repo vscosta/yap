@@ -864,27 +864,24 @@ as those for `put` (see 6.11).
 */
 static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   Int n;
-  Term t2;
+  Term t1;
   int sno;
   int ch;
 
-  if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
+  if (IsVarTerm(t1 = Deref(ARG1))) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "skip/1");
     return FALSE;
-  } else if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "skip/2");
+  } else if (!IsIntegerTerm(t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "skip/1");
     return FALSE;
-  } else if ((n = IntegerOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "skip/2");
-    return FALSE;
+  } else if ((n = IntegerOfTerm(t1)) < 0) {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t1, "skip/1");
+    return false;
   }
-  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "skip/2");
-  if (sno < 0)
-    return (FALSE);
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (TRUE);
+  return true;
 }
 
 /** @pred  skip(+ _S_,- _C_)

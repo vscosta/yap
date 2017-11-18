@@ -1383,7 +1383,6 @@ Command = (H --> B) ->
  ;
      '$system_catch'('$boot_clause'( Command, Where ),  prolog, Error,
         user:'$LoopError'(Error, consult) ),
-
   fail
  ).
 

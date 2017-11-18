@@ -224,6 +224,10 @@ if (ANACONDA)
     set( PYTHON_INCLUDE_DIR $ENV{PREFIX}/include/python$ENV{PY_VER}m)
 
 endif()
+
+ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
+
+
 if (APPLE)
     set(MACOSX_RPATH ON)
     if (NOT ANACONDA)

@@ -201,7 +201,7 @@ static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
       if (LOCAL_ErrorMessage == NULL) {
         LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
         strcpy(LOCAL_ErrorMessage,
-               "%% Trying to open unexisting file in LoadForeign");
+               "%% Trying to open non-existing file in LoadForeign");
       }
     }
 #ifdef __osf__

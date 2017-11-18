@@ -138,7 +138,7 @@ static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   /* search atom in chain */
   while (a != NIL) {
     ae = RepAtom(a);
-    if (strcmp((char *)ae->StrOfAE, (const char *)p) == 0) {
+    if (strcmp(ae->UStrOfAE, p) == 0) {
       return (a);
     }
     a = ae->NextOfAE;

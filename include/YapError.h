@@ -36,7 +36,7 @@
 
 #include "YapErrors.h"
 
-#define MAX_ERROR_MSG_SIZE 10
+#define MAX_ERROR_MSG_SIZE 1024
 
 struct yami *Yap_Error__(const char *file, const char *function, int lineno,
                          yap_error_number err, YAP_Term wheret, ...);
