@@ -77,7 +77,7 @@
 	atom(RelationName),
 	atom(PredName).
 '$error_checks'(db_insert2(Connection,_,[query(Att,[rel(Relation,_)],_)])) :- !,
-        atom(Connection), 
+        atom(Connection),
 	get_value(Connection,Con),
 	% Number of fields of the Relation, must be
         % equal to the number of attributes
@@ -166,7 +166,8 @@
 '$error_checks'(db_describe(Connection,Relation,_)) :- !,
 	atom(Connection),
 	nonvar(Relation).
-'$error_checks'(db_my_show_tables(_)):- !.
+'$error_checks'(db_show_tables(Connection,_)):- !,
+    atom(Connection).
 '$error_checks'(db_is_database_predicate(PredName,Arity,Module)):-!,
         nonvar(PredName),
 	nonvar(Arity),

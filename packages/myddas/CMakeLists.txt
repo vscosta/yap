@@ -55,6 +55,7 @@ SET_PROPERTY(SOURCE ${MYDDAS_SOURCES}
 MY_add_dependencies(myddas plmyddas)
 add_subdirectory(pl)
 
+
 MY_set_target_properties(myddas PROPERTIES
         POSITION_INDEPENDENT_CODE ON
         )

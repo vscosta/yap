@@ -52,15 +52,16 @@ if (ANDROID)
 
 endif (ANDROID)
 
-add_lib(  Yapsqlite3 
+add_library(  Yapsqlite3 SHARED
   ${YAPSQLITE3_SOURCES} )
 
-MY_set_target_properties(Yapsqlite3
+set_target_properties(Yapsqlite3
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
   #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
   POSITION_INDEPENDENT_CODE TRUE
-  )
+        PREFIX ""
+        )
 
 target_link_libraries(Yapsqlite3 libYap)
 
@@ -68,3 +69,9 @@ if (ANDROID)
   target_link_libraries(Yapsqlite3 android log)
 
 endif ()
+
+install(TARGETS Yapsqlite3
+        RUNTIME DESTINATION ${dlls}
+        ARCHIVE DESTINATION ${dlls}
+        LIBRARY DESTINATION ${dlls}
+        )

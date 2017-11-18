@@ -66,7 +66,7 @@
 			      c_sqlite3_get_next_result_set/3,
 			      c_sqlite3_query/5,
 			      c_sqlite3_number_of_fields/3,
-			      c_sqlite3_row/3
+				  sqlite3_row/3
                            ]).
 :- use_module(myddas_odbc,[
 			      odbc_result_set/1,
@@ -92,7 +92,7 @@ db_import(RelationName,PredName):-
 	db_import(myddas,RelationName,PredName).
 db_import(Connection,RelationName,PredName0) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName0)),
-        get_value(Connection,Con),      
+        get_value(Connection,Con),
 	table_arity( Con, ConType, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
@@ -100,13 +100,13 @@ db_import(Connection,RelationName,PredName0) :-
 	R=..[relation,PredName,Arity,RelationName],
 	% assert relation fact
 	assert(myddas_prolog2sql:R),
-	
+
 	Size is 2*Arity,
         length(TypesList, Size),
 	% get attributes types in TypesList [field0,type0,field1,type1...]
 	table_attributes( ConType, Con, RelationName, TypesList ),
-	
-				% assert attributes facts 
+
+				% assert attributes facts
         '$assert_attribute_information'(0,Arity,RelationName,TypesList),
 
 	% build PredName functor
@@ -131,7 +131,7 @@ db_view(PredName,DbGoal) :-
 db_view(Connection,PredName,DbGoal) :-
 	'$error_checks'(db_view(Connection,PredName,DbGoal)),
 	get_value(Connection,Con),
-		
+
        	% get arity of projection term
 	functor(PredName,ViewName,Arity),
 	db_module(Module),
@@ -178,7 +178,7 @@ db_insert(Connection,RelationName,PredName) :-
 	% build PredName functor
 	functor(Predicate,PredName,Arity),
 	Predicate=..[PredName|LA],
-	
+
 	Size is 2*Arity,
         '$make_a_list'(Size,TypesList),
 
@@ -315,7 +315,7 @@ table_access_predicate( sqlite3, Con, Arity, P, LA, M,
                                       '$write_or_not'(FinalSQL),
 				      c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
 				      !,
-				  c_sqlite3_row(ResultSet,Arity,LA)
+				  sqlite3_row(ResultSet,Arity,LA)
 				     ) )).
 
 table_access_predicate( odbc, Con, Arity, P, LA, M,
@@ -355,7 +355,7 @@ table_insert( sqlite3, Con, RelationName, TypesList, Predicate, LA,
 		'$write_or_not'(SQL),
 		c_sqlite3_query(SQL,_,Con,Mode,_)))
 	    ).
-                              
+
 table_insert( odbc, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
