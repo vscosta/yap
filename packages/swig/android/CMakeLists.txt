@@ -20,21 +20,36 @@ set_property(GLOBAL
 
   # This is a CMake file for SWIG and Android
 
-FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/main/java/pt/up/yap/lib )
-FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/main/assets)
-  set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/main/java )
+FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
+FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
+  set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/generated/java )
   set(SWIG_OUTFILE_OUTDIR    ${CMAKE_CURRENT_SOURCE_DIR} )
   set_property(SOURCE ../yap.i PROPERTY CPLUSPLUS ON)
   set_property(SOURCE streamer.i PROPERTY CPLUSPLUS ON)
   set( SWIG_MODULE_NAME pt.up.yap.lib )
-  set ( pllib ${YAP_APP_DIR}/src/main/assets/Yap )
 
 set (SWIG_SOURCES ../yap.i streamer.i streamer.cpp)
 
-add_library(YAPJava SHARED ${YAP_APP_DIR}/src/generated/jni/yap_swig.cpp)
+SWIG_ADD_LIBRARY(YAPJava
+                  SHARED          # [TYPE <SHARED|MODULE|STATIC|USE_BUILD_SHARED_LIBS>]
+                 LANGUAGE java
+                 SOURCES ../yap.i
+                 )
 
-add_library(YAPStreamer SHARED ${YAP_APP_DIR}/src/generated/jni/streamer_swig.cpp streamer.cpp)
+SWIG_ADD_LIBRARY(YAPStreamer
+                  SHARED          # [TYPE <SHARED|MODULE|STATIC|USE_BUILD_SHARED_LIBS>]
+                 LANGUAGE java
+                 SOURCES streamer.i streamer.cpp streamer.h
+                 )
 
 target_link_libraries(YAPJava YAP++ android log)
 
 target_link_libraries(YAPStreamer YAP++ android log)
+
+
+
+install(TARGETS  YAPJava  YAPStreamer
+  RUNTIME DESTINATION ${dlls}
+  LIBRARY DESTINATION c{libdir}
+  ARCHIVE DESTINATION ${libdir}
+  )
