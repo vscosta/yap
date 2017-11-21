@@ -22,6 +22,8 @@
 #undef HAVE_LIBREADLINE
 #endif
 
+#include  "YapStreams.h"
+
 #include <stdio.h>
 #include <wchar.h>
 
@@ -108,8 +110,6 @@ extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
-extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf,
-                                  encoding_t enc, size_t nchars);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const unsigned char *s, Term opts);
 extern X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s,
@@ -151,4 +151,8 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
+
+
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars USES_REGS);
+
 #endif

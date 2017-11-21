@@ -46,9 +46,7 @@ IF (CUDD_FOUND)
       )
   endif()
 
-  set_target_properties (cudd PROPERTIES PREFIX "")
-
-  add_subdirectory(simplecudd)
+   add_subdirectory(simplecudd)
   add_subdirectory(simplecudd_lfi)
   set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 

@@ -496,11 +496,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           GLOBAL_Home = p + strlen("-home=");
         } else if (!strncmp("-cwd=", p, strlen("-cwd="))) {
-#if __WINDOWS__
-          if (_chdir(p + strlen("-cwd=")) < 0) {
-#else
-          if (chdir(p + strlen("-cwd=")) < 0) {
-#endif
+          if (!ChDir(p + strlen("-cwd=")) ) {
             fprintf(stderr, " [ YAP unrecoverable error in setting cwd: %s ]\n",
                     strerror(errno));
           }

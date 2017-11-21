@@ -11,18 +11,19 @@ set(MYDDAS_YPP
 set(MYDDAS_DRIVERS
         "myddas_driver.ypp"
         )
-message("libpl ${libpl}")
-if (0)
-    set (PREFIX ${libpl} )
+
+
+        if (ANDROID)
+    set (MYDDAS_PREFIX ${libpl} )
 else()
-    set (PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
+    set (MYDDAS_PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
 
 get_property(MYDDAS_FLAGS GLOBAL PROPERTY COMPILE_DEFINITIONS)
 
 function(cpp_compile output filename)
     get_filename_component(base ${filename} NAME_WE)
-    set(base_abs ${PREFIX}/${base})
+    set(base_abs ${MYDDAS_PREFIX}/${base})
     set(outfile ${base_abs}.yap)
      set(${output} ${${output}} ${outfile} PARENT_SCOPE)
             IF (MSVC)
@@ -40,17 +41,13 @@ function(cpp_compile output filename)
 endfunction()
 
 if (ANDROID)
-set (MYDDAS_PL_OUTDIR ${YAP_APP_DIR}/src/generated/assets/Yap} )
+set (MYDDAS_PL_OUTDIR ${YAP_APP_DIR}/src/generated/assets/Yap )
 else()
 set (MYDDAS_PL_OUTDIR ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
 
 function(cpp_driver output dbms filename)
-    if (0)
-  set(outfile  ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
-    else()
-  set(outfile ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
-  endif()
+    set(outfile ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
     set(${output} ${${output}} ${outfile} PARENT_SCOPE)
                    IF (MSVC)
 		    add_custom_command(

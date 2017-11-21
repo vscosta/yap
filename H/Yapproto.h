@@ -306,7 +306,6 @@ extern void Yap_CloseReadline(void);
 extern bool Yap_InitReadline(Term t);
 extern void Yap_InitItDeepenPreds(void);
 extern struct AliasDescS *Yap_InitStandardAliases(void);
-extern struct vfs *Yap_InitAssetManager(void);
 
 /* load_foreign.c */
 extern void Yap_InitLoadForeign(void);
@@ -436,6 +435,8 @@ extern const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t
 extern const char *Yap_findFile(const char *isource, const char *idef,
                          const char *root, char *result, bool access,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib);
+extern bool ChDir(const char *path);
+
 /* threads.c */
 extern void Yap_InitThreadPreds(void);
 extern void Yap_InitFirstWorkerThreadHandle(void);

@@ -58,7 +58,7 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
 #set_property(TARGET horus PROPERTY CXX_STANDARD 11)
   #set_property(TARGET horus PROPERTY CXX_STANDARD_REQUIRED ON)
 
-  set_target_properties (horus PROPERTIES PREFIX "" CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
+  set_target_properties (horus PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 
   add_executable (HorusCli HorusCli.cpp)
 

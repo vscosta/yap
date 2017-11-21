@@ -31,6 +31,11 @@ inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
 #define wcsnlen(S, N) min_size(N, wcslen(S))
 #endif
 
+#ifndef HAVE_STPCPY
+inline static void* __stpcpy(void * i, const void * j) { return strcpy(i,j)+strlen(j);}
+#define stpcpy __stpcpy
+#endif
+
 #ifndef NAN
 #define NAN (0.0 / 0.0)
 #endif
@@ -993,7 +998,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
           return false;
         }
         b_l0 = strlen((const char *)buf0);
-        if (bcmp(buf, buf0, b_l0) != 0) {
+        if (memcmp(buf, buf0, b_l0) != 0) {
           return false;
         }
         u_l0 = strlen_utf8(buf0);
@@ -1016,7 +1021,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         u_l1 = strlen_utf8(buf1);
         b_l0 = b_l - b_l1;
         u_l0 = u_l - u_l1;
-        if (bcmp(skip_utf8((const unsigned char *)buf, b_l0), buf1, b_l1) !=
+        if (memcmp(skip_utf8((const unsigned char *)buf, b_l0), buf1, b_l1) !=
             0) {
           return false;
         }
@@ -1043,35 +1048,6 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
   return true;
 }
 
-/**
- * Function to convert a generic text term (string, atom, list of codes, list
- of<
- atoms)  into a buff
- er.
- *
- * @param t     the term
- * @param buf   the buffer, if NULL a buffer is malloced, and the user should
- reclai it
- * @param len   buffer size
- * @param enc   encoding (UTF-8 is strongly recommended)
- *
- * @return the buffer, or NULL in case of failure. If so, Yap_Error may be
- called.
-*/
-const char *Yap_TextTermToText(Term t USES_REGS) {
-  seq_tv_t inp, out;
-  inp.val.t = t;
-  inp.type = Yap_TextType(t);
-  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_ATOMS_CODES |
-             YAP_STRING_TERM;
-  inp.enc = ENC_ISO_UTF8;
-  out.enc = ENC_ISO_UTF8;
-  out.type = YAP_STRING_CHARS;
-  out.val.c = NULL;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return NULL;
-  return out.val.c;
-}
 
 /**
  * Convert from a predicate structure to an UTF-8 string of the form

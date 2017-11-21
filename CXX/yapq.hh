@@ -25,6 +25,10 @@ class X_API YAPPredicate;
    Queries and engines
 */
 
+#if __ANDROID__
+
+#endif
+
 /**
  * @brief Queries
  *
@@ -94,11 +98,11 @@ YAPQuery() {
   inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames)
   {
     CELL *qt = nullptr;
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                           LOCAL_CurSlot);
       if (!ap)
           return;
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
       goal = YAPTerm(tgoal);
       if (IsPairTerm(tgoal)) {
         qt = RepPair(tgoal);
@@ -151,6 +155,7 @@ void close();
 /// query variables.
 void cut();
 Term namedVars() {return  names.term(); };
+YAPPairTerm namedVarTerms() {return  names; };
 /// query variables, but copied out
 std::vector<Term> namedVarsVector() {
   return names.listToArray(); };
@@ -312,10 +317,18 @@ public:
     init_args.FastBoot = fl;
   };
 
-  inline bool getFastBoot(  )
-  {
-    return init_args.FastBoot;
-  };
+    inline bool getFastBoot(  )
+    {
+        return init_args.FastBoot;
+    };
+
+#if __ANDROID__
+    //> export ResoourceManager
+    inline void setAssetManager( AAssetManager *mgr )
+    {
+        init_args.assetManager = mgr;
+    };
+#endif
 
   inline void setArgc( int  fl )
   {

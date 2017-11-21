@@ -246,20 +246,18 @@ static void unix_upd_stream_info(StreamDesc *s) {
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
-  if (st->vfs) {
-    st->stream_wputc = st->vfs->put_char;
-    st->stream_wgetc = st->vfs->get_char;
-    st->stream_putc = st->vfs->put_char;
-    st->stream_wgetc = st->vfs->get_char;
-    return;
-  }
   st->stream_wputc = put_wchar;
   if (st->encoding == ENC_ISO_UTF8)
     st->stream_wgetc = get_wchar_UTF8;
   else
     st->stream_wgetc = get_wchar;
-  st->stream_putc = FilePutc;
-  st->stream_getc = PlGetc;
+  if (st->vfs) {
+    st->stream_putc = st->vfs->put_char;
+    st->stream_wgetc = st->vfs->get_char;
+  } else {
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+  }
   if (st->status & (Promptable_Stream_f)) {
     Yap_ConsoleOps(st);
   }
@@ -300,7 +298,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   INIT_LOCK(s->streamlock);
   if (vfsp != NULL) {
     s->u.private_data =
-        vfsp->open(vfsp->name, (sno == StdInStream ? "read" : "write"));
+        vfsp->open(sno, vfsp->name, (sno == StdInStream ? "read" : "write"));
     if (s->u.private_data == NULL) {
       (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s",
                  vfsp->name));
@@ -1312,7 +1310,7 @@ do_open(Term file_name, Term t2,
   }
   struct vfs *vfsp = NULL;
   if ((vfsp = vfs_owner(fname)) != NULL) {
-    st->u.private_data = vfsp->open(fname, io_mode);
+    st->u.private_data = vfsp->open(sno, fname, io_mode);
     fd = NULL;
     if (st->u.private_data == NULL)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s", fname));
@@ -1869,8 +1867,11 @@ static Int get_abs_file_parameter(USES_REGS1) {
 
 void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
-
-  if (argi->inp > 0)
+#if __ANDROID__
+  if (argi->assetManager)
+    Yap_InitAssetManager( argi->assetManager );
+#endif
+    if (argi->inp > 0)
     Yap_stdin = fdopen(argi->inp - 1, "r");
   else if (argi->inp)
     Yap_stdin = NULL;

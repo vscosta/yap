@@ -249,9 +249,6 @@ if (APPLE)
     endif ()
 endif ()
 
-if (ANDROID)
-    set(datarootdir /assets)
-endif ()
 set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
 set(bindir ${CMAKE_INSTALL_PREFIX}/bin) #BINDIR})
 set(includedir ${CMAKE_INSTALL_PREFIX}/include) #INCLUDEDIR})
@@ -259,6 +256,10 @@ set(libdir ${CMAKE_INSTALL_PREFIX}/lib) #LIBDIR})
 set(exec_prefix ${CMAKE_INSTALL_PREFIX}/libexec) #LIBEXECDIR})
 set(datarootdir ${CMAKE_INSTALL_PREFIX}/share) #DATAROOTDIR})
 set(datadir ${CMAKE_INSTALL_PREFIX}/share) #DATADIR})
+if (ANDROID)
+    set(datarootdir ${YAP_APP_DIR}/src/generated/assets)
+    set(datadir ${YAP_APP_DIR}/src/generated/assets)
+endif ()
 set(mandir ${CMAKE_INSTALL_PREFIX}/share/man) #MANDIR})
 set(docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
 
@@ -458,7 +459,7 @@ endif ()
 
 OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
 
-IF (WITH_SWIG OR ANDROID)
+IF (WITH_SWIG)
     find_host_package(SWIG)
     # macro_log_feature (SWIG_FOUND "Swig"
     #         "Use SWIG Interface Generator "
@@ -614,11 +615,6 @@ ADD_SUBDIRECTORY(library)
 
 ADD_SUBDIRECTORY(swi/library "swiLibrary")
 
-if (ANDROID)
-    target_link_libraries(libYap android log)
-
-endif ()
-
 set_target_properties(libYap
         PROPERTIES OUTPUT_NAME Yap
         )
@@ -638,8 +634,9 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
 endif ()
 
 
-IF (SWIG_FOUND OR ANDROID)
-    add_subDIRECTORY(packages/swig NO_POLICY_SCOPE)
+IF ( ANDROID)
+   add_subDIRECTORY(packages/swig )
+    target_link_libraries(libYap android log)
 ENDIF ()
 
 
@@ -801,9 +798,11 @@ CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" 
 CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_SHM "Use SHM for shared memory allocation" ON
         "NOT WITH_YAPOR_THOR; NOT WITH_SYSTEM_MMAP" OFF)
 
+if (NOT ANDROID)
+
 add_subDIRECTORY(library/lammpi)
 
-if (MPI_C_FOUND)
+if (MPI_C_FOUND\D)
 
     CMAKE_DEPENDENT_OPTION(WITH_MPI ON "Interface to OpenMPI/MPICH"
             "MPI_C_FOUND" OFF)
@@ -821,6 +820,8 @@ if (MPI_C_FOUND)
                 LINK_FLAGS "${MPI_C_LINK_FLAGS}")
     endif ()
 endif (MPI_C_FOUND)
+
+endif(NOT ANDROID)
 
 ##   add_subDIRECTORY(utils)
 

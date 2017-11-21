@@ -189,6 +189,11 @@ typedef encoding_t YAP_encoding_t;
 
 #endif
 
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/native_activity.h>
+#endif
+
 typedef struct YAP_thread_attr_struct {
   size_t ssize;
   size_t tsize;
@@ -322,6 +327,10 @@ typedef struct yap_boot_params {
   int QuietMode;
   //> 0, maintain default, > 0 use fd-1, < 0 close
   int inp, out, err;
+#if __ANDROID__
+    //> android asset support
+    AAssetManager *assetManager;
+#endif
 /* support nf's ypp preprocessor code */
 #define YAP_MAX_YPP_DEFS 100
   char *def_var[YAP_MAX_YPP_DEFS];

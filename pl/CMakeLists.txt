@@ -58,7 +58,12 @@ set(PL_BOOT_SOURCES
 
 add_to_group(PL_BOOT_SOURCES pl_boot_library)
 
-if (CMAKE_CROSSCOMPILING)
+if (ANDROID)
+    add_custom_target(STARTUP
+       DEPENDS ${PL_BOOT_SOURCES}
+            )
+    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
+elseif(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
             )
@@ -67,7 +72,6 @@ else ()
             DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             )
     add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND ldd yap
             COMMAND ./yap -B
             VERBATIM
             WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
@@ -79,7 +83,7 @@ install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
         )
 endif()
 
+
 install(FILES ${PL_SOURCES}
         DESTINATION ${libpl}/pl
         )
-

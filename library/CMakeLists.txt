@@ -76,8 +76,8 @@ MY_add_subdirectory(ytest)
 
 add_to_group( LIBRARY_PL  pl_library)
 
-if (0)
-    	file(COPY ${LIBRARY_PL}  DESTINATION ${libpl})
-else()
-    install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+
+if (ANDROID)
+file( INSTALL  ${LIBRARY_PL} DESTINATION ${libpl} )
 endif()

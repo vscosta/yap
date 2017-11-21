@@ -79,7 +79,7 @@ static bool is_directory(const char *FileName) {
 
   VFS_t *vfs;
   if ((vfs = vfs_owner(FileName))) {
-    return vfs->isdir(FileName);
+    return vfs->isdir(vfs,FileName);
   }
 #ifdef _WIN32
   DWORD dwAtts = GetFileAttributes(FileName);
@@ -102,10 +102,13 @@ static bool is_directory(const char *FileName) {
 }
 
 bool Yap_Exists(const char *f) {
-  VFS_t *vfs;
+  VFS_t *vfs = GLOBAL_VFS;
 
-  if ((vfs = vfs_owner(f))) {
-    return vfs->exists(f);
+  while(vfs) {
+    VFS_t *n=vfs->exists(vfs,f);
+        if (n==vfs) return true;
+      if (!n) return false;
+      vfs = n;
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -341,14 +344,14 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_REALPATH 1
 #endif
 
-static bool ChDir(const char *path) {
+ bool ChDir(const char *path) {
   bool rc = false;
   char qp[FILENAME_MAX + 1];
   const char *qpath = Yap_AbsoluteFile(path, qp, true);
 
   VFS_t *v;
   if ((v = vfs_owner(path))) {
-    return v->chdir(path);
+    return v->chdir(v, path);
   }
 #if _WIN32
   rc = true;
@@ -1242,7 +1245,8 @@ const char *Yap_findFile(const char *isource, const char *idef,
         if (ftype == YAP_PL) {
           root = YAP_SHAREDIR;
         } else if (ftype == YAP_BOOT_PL) {
-          root = YAP_SHAREDIR;
+          root = malloc(YAP_FILENAME_MAX+1);
+            strcpy(root, YAP_SHAREDIR);
           strcat(root,"/pl");
         } else {
           root = YAP_LIBDIR;

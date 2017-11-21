@@ -10,12 +10,27 @@
 
 
 if (ANDROID)
-set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
-  set (GMP_INCLUDE_DIRS ${GMP_ROOT})
-  set (GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
-set (GMP_FOUND ON)
-  set (GMP_LIBRARIES_DIR ${GMP_ROOT})
-elif(MSVC)
+  
+  set( GMP_LOC ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
+  if (EXISTS ${GMP_LOC} )
+    message("Looking good for ${GMP_LOC}")
+    set(GMP_INCLUDE_DIRS ${GMP_LOC} CACHE PATH "include search path")
+    set(GMP_LIBRARIES  ${GMP_LOC}/libgmp.so CACHE FILEPATH "include search path")
+    set(GMP_LIBRARIES_DIR ${GMP_LOC} CACHE PATH "include search path")
+    else()
+    message("Bad call: ${GMP_LOC} does not exist")
+    endif()
+find_path(GMP_INCLUDE_DIRS
+        NAMES gmp.h
+        HINTS ${GMP_LOC} 
+	  NO_SYSTEM_ENVIRONMENT_PATH)
+  find_library(GMP_LIBRARIES NAMES gmp
+                PATHS
+			${GMP_ROOT}
+		  NO_SYSTEM_ENVIRONMENT_PATH)
+
+
+elseif(MSVC)
    find_library(GMP_LIBRARIES NAMES mpir mpird
                 PATHS
 			$ENV{GMP_ROOT}
@@ -84,6 +99,7 @@ else()
   			${GMP_LIBRARIES_DIR}/../include
   			${GMP_LIBRARIES_DIR}
   			)
+		      endif()
 
 get_filename_component(GMP_LIBRARIES_DIR "${GMP_LIBRARIES}" PATH CACHE)
 
@@ -101,5 +117,4 @@ endif()
 
 mark_as_advanced(GMP_LIBRARIES GMP_LIBRARIES_DIR GMP_INCLUDE_DIRS)
 
-endif()
 

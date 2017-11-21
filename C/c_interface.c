@@ -2304,21 +2304,23 @@ X_API char *YAP_CompileClause(Term t) {
 static int yap_lineno = 0;
 
 /* do initial boot by consulting the file boot.yap */
-static void do_bootfile(const char *bootfilename USES_REGS) {
+static void do_bootfile(const char *b_file USES_REGS) {
   Term t;
   int bootfile, osno;
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
-  char full[YAP_FILENAME_MAX + 1];
 
   /* consult boot.pl */
+    char *full = malloc(YAP_FILENAME_MAX + 1);
+    full[0] = '\0';
   /* the consult mode does not matter here, really */
-  bootfile = YAP_InitConsult(YAP_BOOT_MODE, bootfilename, full, &osno);
+  bootfile = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &osno);
   if (bootfile < 0) {
     fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n",
-	    bootfilename);
+	    b_file);
     exit(1);
   }
+free(full);
   do {
     CACHE_REGS
       YAP_Reset(YAP_FULL_RESET);
@@ -2329,7 +2331,7 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
         if (t == 0) {
 	  fprintf(stderr,
 		  "[ SYNTAX ERROR: while parsing bootfile %s at line %d ]\n",
-		  bootfilename, yap_lineno);
+		  b_file, yap_lineno);
         } else if (YAP_IsVarTerm(t) || t == TermNil) {
 	  fprintf(stderr, "[ line %d: term cannot be compiled ]", yap_lineno);
         } else if (YAP_IsPairTerm(t)) {
@@ -2420,10 +2422,11 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
       YAP_file_type_t restore_result = yap_init->boot_file_type;
       bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
       CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-      char boot_file[YAP_FILENAME_MAX + 1];
+      char *boot_file;
       Int rc;
       const char *yroot;
 
+    boot_file = calloc(YAP_FILENAME_MAX + 1, 1);
       /* ignore repeated calls to YAP_Init */
       if (YAP_initialized)
         return YAP_FOUND_BOOT_ERROR;
@@ -2467,9 +2470,10 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
         if (yap_init->YapPrologBootFile == NULL)
           yap_init->YapPrologBootFile = BootFile;
 #else
-        yap_init->YapPrologBootFile =
-	  Yap_findFile(yap_init->YapPrologBootFile, BootFile, yroot, boot_file,
+
+	  const char *s = Yap_findFile(yap_init->YapPrologBootFile, BootFile, yroot, boot_file,
 		       true, YAP_BOOT_PL, true, true);
+          if (s && s[0] != '\0') strcpy(boot_file, s);
 #endif
       }
 
@@ -2619,18 +2623,17 @@ static void do_bootfile(const char *bootfilename USES_REGS) {
 	  setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
 	  rc = YAP_QLY;
 	} else {
-	  if (!yap_init->YapPrologBootFile)
-            yap_init->YapPrologBootFile = BootFile;
-	  rc = YAP_BOOT_PL;
-	  do_bootfile(yap_init->YapPrologBootFile);
+	  if (boot_file[0] == '\0')
+            strcpy(boot_file, BootFile);
+	  do_bootfile(boot_file PASS_REGS);
 	  setAtomicGlobalPrologFlag(
 				    RESOURCE_DATABASE_FLAG,
-				    MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologBootFile)));
+				    MkAtomTerm(Yap_LookupAtom(boot_file)));
 	  setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
 	}
 	start_modules();
 	YAP_initialized = true;
-	return rc;
+	return YAP_BOOT_PL;
       }
 
 #if (DefTrailSpace < MinTrailSpace)
