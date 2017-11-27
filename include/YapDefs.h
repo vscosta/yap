@@ -351,11 +351,14 @@ typedef struct yap_boot_params {
   int ErrorNo;
   //> errorstring
   char *ErrorCause;
+#ifdef __cplusplus
+void YAP_init_args();
+#endif
 } YAP_init_args;
 
 #ifdef YAP_H
 YAP_file_type_t Yap_InitDefaults(YAP_init_args *init_args, char saved_state[],
-                                 int Argc, char *Argv[]);
+                                 int Argc, char **Argv);
 #endif
 
 /* this should be opaque to the user */

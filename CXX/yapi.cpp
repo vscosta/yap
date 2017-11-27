@@ -927,7 +927,7 @@ void Yap_displayWithJava(int c)
 
 void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
-  if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
+  if ((BootMode = YAP_Init(engine_args)) == YAP_FOUND_BOOT_ERROR)
   {
     return;
     throw YAPError();
@@ -960,7 +960,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 
       YAP_file_type_t BootMode;
       engine_args = new YAPEngineArgs();
-      BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
+      BootMode = YAP_parse_yap_arguments(argc, argv, engine_args);
       // delYAPCallback()b
       // if (cb)
       //  setYAPCallback(cb);

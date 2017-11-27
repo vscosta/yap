@@ -134,11 +134,12 @@ inline static Atom SearchInInvisible(const unsigned char *atom) {
 
 static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   AtomEntry *ae;
+  const char *ps = (const char *)p;
 
   /* search atom in chain */
   while (a != NIL) {
     ae = RepAtom(a);
-    if (strcmp(ae->UStrOfAE, p) == 0) {
+    if (strcmp(ae->StrOfAE, ps) == 0) {
       return (a);
     }
     a = ae->NextOfAE;

@@ -40,16 +40,14 @@ static char SccsId[] = "%W% %G%";
 
 AAssetManager * Yap_assetManager;
 
-jboolean Java_pt_up_yap_app_assetAssetManager(JNIEnv* env, jclass clazz,   jobject assetManager)
+jboolean Java_pt_up_yap_app_YAPDroid_setAssetManager(JNIEnv* env, jclass clazz,   jobject assetManager)
 {
     Yap_assetManager = AAssetManager_fromJava(env, assetManager);
-
+return true;
 }
 
 static void *
-open_asset__
-        ( int sno, const char *fname, const char
-	   *io_mode)
+open_asset__( int sno, const char *fname, const char *io_mode)
 {
   int mode;
   const void *buf;
@@ -57,14 +55,16 @@ open_asset__
   if (strstr(fname,"/assets") == fname) {
       // we're in
       if (  Yap_assetManager == NULL) {
-          return PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, TermNil,
+          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, TermNil,
                            "asset manager",
                            fname);
+          return NULL;
       }
       if (strchr(io_mode, 'w') || strchr(io_mode, 'a')) {
-          return PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, TermNil,
+          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, TermNil,
                            "%s: no writing but flags are %s",
                            fname, io_mode);
+          return NULL;
       }
       if (strchr(io_mode, 'B'))
           mode = AASSET_MODE_BUFFER;
@@ -85,13 +85,13 @@ open_asset__
       } else if ((buf = AAsset_getBuffer(a))) {
           // copy to memory
           bool rc = Yap_set_stream_to_buf(st, buf, sz);
-          AAsset_close(a);
-          return rc;
+          if (rc) AAsset_close(a);
+          return st;
       }
       // should be done, but if not
       GLOBAL_Stream[sno].vfs_handle= a;
       st->vfs = me;
-      return true;
+      return a;
   }
   return NULL;
 }
@@ -169,14 +169,14 @@ bool is_dir_a( VFS_t *me,const char *dirName)
 }
 
 static
-bool exists_a(VFS_t *me, const char *dirName)
+VFS_t *exists_a(VFS_t *me, const char *dirName)
 {
     // try not to use it as an asset
     AAsset *d = AAssetManager_open ( Yap_assetManager, dirName,  AASSET_MODE_UNKNOWN);
     if (d == NULL)
-      return false;
+      return NULL;
   AAsset_close(d);
-      return true;
+      return me;
 }
 
 
@@ -192,14 +192,13 @@ static bool set_cwd (VFS_t *me, const char *dirName) {
 #endif
 
 
-/* create a new alias arg for stream sno */
 VFS_t *
-Yap_InitAssetManager( AAssetManager* mgr )
+Yap_InitAssetManager( void )
 {
 
 #if __ANDROID__
     VFS_t *me;
-         Yap_assetManager = mgr;
+
   /* init standard VFS */
   me = (VFS_t *)Yap_AllocCodeSpace(sizeof(struct vfs));
   me->name = "/assets";

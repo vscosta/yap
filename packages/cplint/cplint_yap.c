@@ -19,7 +19,7 @@ for the relative license.
 
 
 
-FILE *open_file (char *filename, const char *mode);
+FILE *open_file (char *file_name, const char *mode);
 static YAP_Bool compute_prob(void);
 
 variables  createVars(YAP_Term t,DdManager * mgr, int create_dot,  char inames[1000][20])
@@ -214,14 +214,14 @@ void init_my_predicates()
      YAP_UserCPredicate("compute_prob",compute_prob,4);
 }
 
-FILE * open_file(char *filename, const char *mode)
+FILE * open_file(char *file_name, const char *mode)
 /* opens a file */
 {
   FILE *fp;
 
-  if ((fp = fopen(filename, mode)) == NULL) 
+  if ((fp = fopen(file_name, mode)) == NULL)
   {
-    perror(filename);
+    perror(file_name);
     exit(1);
   }
   return fp;

@@ -82,7 +82,7 @@ int pop_text_stack__(int i) {
   return lvl;
 }
 
-void *pop_output_text_stack__(int i, void *export) {
+void *pop_output_text_stack__(int i, const void *export) {
   int lvl = LOCAL_TextBuffer->lvl;
   while (lvl >= i) {
     struct mblock *p = LOCAL_TextBuffer->first[lvl];

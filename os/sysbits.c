@@ -102,13 +102,9 @@ static bool is_directory(const char *FileName) {
 }
 
 bool Yap_Exists(const char *f) {
-  VFS_t *vfs = GLOBAL_VFS;
-
-  while(vfs) {
-    VFS_t *n=vfs->exists(vfs,f);
-        if (n==vfs) return true;
-      if (!n) return false;
-      vfs = n;
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(f))) {
+        return vfs->exists(vfs,f) != NULL;
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -172,9 +168,10 @@ bool Yap_IsAbsolutePath(const char *p0) {
 static const char *PlExpandVars(const char *source, const char *root,
                                 char *result) {
   CACHE_REGS
+  int lvl = push_text_stack();
   const char *src = source;
   if (!result)
-    result = BaseMalloc(YAP_FILENAME_MAX + 1);
+    result = Malloc(YAP_FILENAME_MAX + 1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
@@ -197,6 +194,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       if (s != NULL)
         strncpy(result, s, YAP_FILENAME_MAX);
       strcat(result, src);
+      result = pop_output_text_stack(lvl, result);
       return result;
     } else {
 #if HAVE_GETPWNAM
@@ -211,6 +209,7 @@ static const char *PlExpandVars(const char *source, const char *root,
         FileError(SYSTEM_ERROR_OPERATING_SYSTEM,
                   MkAtomTerm(Yap_LookupAtom(source)),
                   "User %s does not exist in %s", result, source);
+        pop_text_stack(lvl);
         return NULL;
       }
       strncpy(result, user_passwd->pw_dir, YAP_FILENAME_MAX);
@@ -222,6 +221,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       return NULL;
 #endif
     }
+    result = pop_output_text_stack(lvl, result);
     return result;
   }
   // do VARIABLE expansion
@@ -263,6 +263,7 @@ static const char *PlExpandVars(const char *source, const char *root,
     if (tocp > YAP_FILENAME_MAX) {
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
                 "path too long");
+      pop_text_stack(lvl);
       return NULL;
     }
     if (root && !Yap_IsAbsolutePath(source)) {
@@ -274,6 +275,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       strncpy(result, source, strlen(src) + 1);
     }
   }
+  result = pop_output_text_stack(lvl, result);
   return result;
 }
 

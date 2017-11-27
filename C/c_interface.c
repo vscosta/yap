@@ -2112,38 +2112,39 @@ X_API void YAP_ClearExceptions(void) {
     Yap_ResetException(worker_id);
 }
 
-X_API int YAP_InitConsult(int mode, const char *filename, char *full,
+X_API int YAP_InitConsult(int mode, const char *fname, char *full,
                           int *osnop) {
     CACHE_REGS
-    FILE *f = NULL;
     int sno;
     BACKUP_MACHINE_REGS();
-
+    int lvl = push_text_stack();
     if (mode == YAP_BOOT_MODE) {
         mode = YAP_CONSULT_MODE;
     }
+    char *bfp = Malloc(YAP_FILENAME_MAX+1);
+    bfp[0] = '\0';
+    if(fname != NULL && fname[0] !=  0 )
+        strcpy( bfp, fname );
     bool consulted = (mode == YAP_CONSULT_MODE);
-    Yap_init_consult(consulted, filename);
-    const char *fl = Yap_findFile(filename, NULL, BootFilePath, full, true,
+    const char *fl = Yap_findFile(bfp, NULL, NULL, full, true,
                                   YAP_BOOT_PL, true, true);
-    if (!fl)
-        return -1;
-    f = fopen(fl, "r");
-    if (!f)
-        return -1;
-    if (!f) {
+    if (!fl || !fl[0]) {
+        pop_text_stack(lvl);
         return -1;
     }
-    sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
+    Yap_init_consult(consulted,bfp);
+    sno = Yap_OpenStream(fl, "r" );
     *osnop = Yap_CheckAlias(AtomLoopStream);
     if (!Yap_AddAlias(AtomLoopStream, sno)) {
         Yap_CloseStream(sno);
-        sno = -1;
+           pop_text_stack(lvl);
+     sno = -1;
     }
     GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
-    GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(filename));
-    GLOBAL_Stream[sno].encoding = ENC_ISO_UTF8;
-    RECOVER_MACHINE_REGS();
+    GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
+    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+           pop_text_stack(lvl);
+     RECOVER_MACHINE_REGS();
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return sno;
 }
@@ -2181,7 +2182,7 @@ X_API void YAP_EndConsult(int sno, int *osnop) {
 
 X_API Term YAP_Read(FILE *f) {
     Term o;
-    int sno = Yap_OpenStream(f, NULL, TermNil, Input_Stream_f);
+    int sno = Yap_FileStream(f, NULL, TermNil, Input_Stream_f);
 
     BACKUP_MACHINE_REGS();
     o = Yap_read_term(sno, TermNil, 1);
@@ -2210,7 +2211,7 @@ X_API Term YAP_ReadClauseFromStream(int sno) {
 
 X_API void YAP_Write(Term t, FILE *f, int flags) {
     BACKUP_MACHINE_REGS();
-    int sno = Yap_OpenStream(f, NULL, TermNil, Output_Stream_f);
+    int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f);
 
     Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
     Yap_ReleaseStream(sno);
@@ -2453,7 +2454,12 @@ free(full);
       if (yap_init->SavedState == NULL) {
         yap_init->SavedState = YAP_STARTUP;
       }
-
+    if (!LOCAL_TextBuffer)
+LOCAL_TextBuffer = Yap_InitTextAllocator();
+#if __ANDROID__
+    //if (yap_init->assetManager)
+        Yap_InitAssetManager(  );
+#endif
 #if USE_DL_MALLOC
       if (yap_init->SavedState == NULL)
 	yap_init->SavedState = YAP_STARTUP;
@@ -2655,7 +2661,7 @@ free(full);
 #define DEFAULT_SCHEDULERLOOP 10
 #define DEFAULT_DELAYEDRELEASELOAD 3
 
-      X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc, char *argv[]) {
+      X_API YAP_file_type_t YAP_FastInit(char *saved_state, int argc, char *argv[]) {
 	YAP_init_args init_args;
 	YAP_file_type_t out;
 

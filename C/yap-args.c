@@ -147,12 +147,14 @@ static int dump_runtime_variables(void) {
   return 1;
 }
 
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char saved_state[],
+YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char *saved_state,
                                  int argc, char *argv[]) {
   memset(iap, 0, sizeof(YAP_init_args));
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
-  iap->SavedState = NULL;
+  iap->SavedState = malloc(strlen(saved_state)+1);
+  strcpy(iap->SavedState, saved_state);
+  iap->assetManager = true;
 #else
   iap->boot_file_type = YAP_QLY;
   iap->SavedState = saved_state;

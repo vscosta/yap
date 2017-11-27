@@ -464,7 +464,7 @@ IF (WITH_SWIG)
     # macro_log_feature (SWIG_FOUND "Swig"
     #         "Use SWIG Interface Generator "
     #         "http://www.swig.org" ON)
-ENDIF (WITH_SWIG OR ANDROID)
+ENDIF (WITH_SWIG)
 
 
 option(WITH_PYTHON

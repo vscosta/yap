@@ -29,6 +29,7 @@
 
 #include "YapIOConfig.h"
 #include <Yatom.h>
+#include <VFS.h>
 
 #ifndef _PL_WRITE_
 
@@ -46,6 +47,13 @@ typedef struct AliasDescS {
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp LOCAL_ScannerStack
+
+/**
+ *
+ * @return a new VFS that will support /assets
+ */
+
+extern VFS_t *Yap_InitAssetManager( void );
 
 /* routines in parser.c */
 extern VarEntry *Yap_LookupVar(const char *);
@@ -78,7 +86,8 @@ extern int Yap_PlGetWchar(void);
 extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
-extern int Yap_OpenStream(FILE *, char *, Term, int);
+extern int Yap_OpenStream(const char*, const char *);
+extern int Yap_FileStream(FILE*, char *, Term, int);
 extern char *Yap_TermToString(Term t, encoding_t encoding, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);

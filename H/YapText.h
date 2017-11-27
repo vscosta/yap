@@ -67,7 +67,7 @@ extern int pop_text_stack__(int lvl USES_REGS);
   (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
      __FUNCTION__, __LINE__),*/						\
    pop_output_text_stack__(lvl,p))
-extern void *pop_output_text_stack__(int lvl, void *ox USES_REGS);
+extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
 
 /****************** character definition table **************************/
 
