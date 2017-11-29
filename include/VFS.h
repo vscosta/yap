@@ -80,7 +80,7 @@ typedef struct vfs {
   const char *suffix;
   bool (*chDir)(struct vfs *me, const char *s);
   /** operations */
-  void *(*open)(int sno, const char *fname, const char *io_mode); /// open an object
+  void *(*open)(struct vfs *,int sno, const char *fname, const char *io_mode); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
   bool (*close)(int sno);   /// close the object
   int (*get_char)(int sno); /// get an octet to the stream
@@ -92,7 +92,7 @@ typedef struct vfs {
   const char *(*nextdir)(void *d); /// walk to the next entry in a directory object
   bool (*closedir)(void *d);
   ; /// close access a directory object
-  bool (*stat)(const char *s,
+  bool (*stat)(struct vfs *,const char *s,
                vfs_stat *); /// obtain size, age, permissions of a file.
   bool (*isdir)(struct vfs *,const char *s); /// verify whether is directory.
   bool (*exists)(struct vfs *, const char *s); /// verify whether a file exists.

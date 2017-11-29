@@ -88,7 +88,9 @@ protected:
   PredEntry *ap;
 
   /// auxiliary routine to find a predicate in the current module.
-  PredEntry *getPred(YAPTerm &t, Term *&outp);
+
+    /// auxiliary routine to find a predicate in the current module.
+    PredEntry *getPred(YAPTerm &t, CELL *& outp);
 
   PredEntry *asPred() { return ap; };
 
@@ -122,7 +124,7 @@ protected:
   ///
   /// It is just a call to getPred
   inline YAPPredicate(Term t) {
-    CELL *v = NULL;
+    CELL *v = nullptr;
     YAPTerm tt = YAPTerm(t);
     ap = getPred(tt, v);
   }
@@ -131,7 +133,7 @@ protected:
   ///
   /// It is just a call to getPred
   inline YAPPredicate(YAPTerm t) {
-    Term *v = nullptr;
+    CELL *v = nullptr;
     ap = getPred(t, v);
   }
 
@@ -275,13 +277,13 @@ public:
  */
 class X_API YAPFLIP : public YAPPredicate {
 public:
-  YAPFLIP(CPredicate call, YAPAtom name, uintptr_t arity,
-          YAPModule module = YAPModule(), CPredicate retry = 0,
-          CPredicate cut = 0, size_t extra = 0, bool test = false)
+  YAPFLIP(YAP_UserCPred call, YAPAtom name, YAP_Arity arity,
+          YAPModule module = YAPModule(), YAP_UserCPred retry = 0,
+          YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
     : YAPPredicate(name, arity, module) {
     if (retry) {
-      Yap_InitCPredBackCut(name.getName(), arity, extra, call, retry, cut,
-                           UserCPredFlag);
+      YAP_UserBackCutCPredicate(name.getName(), call, retry, cut, arity, extra
+      );
     } else {
       if (test) {
         YAP_UserCPredicate(name.getName(), call, arity);

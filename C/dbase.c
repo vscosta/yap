@@ -4911,17 +4911,17 @@ static Int cont_current_key_integer(USES_REGS1) {
   return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
 }
 
-Term Yap_FetchTermFromDB(DBTerm *ref) {
+Term Yap_FetchTermFromDB(void *ref) {
   CACHE_REGS
   return GetDBTerm(ref, FALSE PASS_REGS);
 }
 
-Term Yap_FetchClauseTermFromDB(DBTerm *ref) {
+Term Yap_FetchClauseTermFromDB(void *ref) {
   CACHE_REGS
   return GetDBTerm(ref, TRUE PASS_REGS);
 }
 
-Term Yap_PopTermFromDB(DBTerm *ref) {
+Term Yap_PopTermFromDB(void *ref) {
   CACHE_REGS
 
   Term t = GetDBTerm(ref, FALSE PASS_REGS);
@@ -5304,7 +5304,7 @@ static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
   FreeDBSpace((char *)ref);
 }
 
-void Yap_ReleaseTermFromDB(DBTerm *ref) {
+void Yap_ReleaseTermFromDB(void *ref) {
   CACHE_REGS
   ReleaseTermFromDB(ref PASS_REGS);
 }

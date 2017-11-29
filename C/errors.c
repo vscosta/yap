@@ -386,10 +386,10 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     Yap_RestartYap(1);
   }
   LOCAL_ActiveError->errorNo = type;
-  LOCAL_ActiveError->errorAsText = Yap_LookupAtom(Yap_errorName(type));
+  LOCAL_ActiveError->errorAsText = Yap_errorName(type);
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
   LOCAL_ActiveError->classAsText =
-    Yap_LookupAtom(Yap_errorClassName(LOCAL_ActiveError->errorClass));
+    Yap_errorClassName(LOCAL_ActiveError->errorClass);
   LOCAL_ActiveError->errorLine = lineno;
   LOCAL_ActiveError->errorFunction = function;
   LOCAL_ActiveError->errorFile = file;

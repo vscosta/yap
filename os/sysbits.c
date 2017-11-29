@@ -52,7 +52,6 @@ static Int p_putenv(USES_REGS1);
 static Term do_glob(const char *spec, bool ok_to);
 #ifdef MACYAP
 
-static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 static const char *expandVars(const char *spec, char *u);
@@ -104,7 +103,7 @@ static bool is_directory(const char *FileName) {
 bool Yap_Exists(const char *f) {
     VFS_t *vfs;
     if ((vfs = vfs_owner(f))) {
-        return vfs->exists(vfs,f) != NULL;
+        return vfs->exists(vfs,f);
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -346,7 +345,7 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_REALPATH 1
 #endif
 
- bool ChDir(const char *path) {
+ bool Yap_ChDir(const char *path) {
   bool rc = false;
   char qp[FILENAME_MAX + 1];
   const char *qpath = Yap_AbsoluteFile(path, qp, true);
@@ -1137,6 +1136,14 @@ static int volume_header(char *file) {
 int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
+  VFS_t *me = GLOBAL_VFS;
+  while(me) {
+    if (me->virtual_cwd) {
+        strcpy(cwd, me->virtual_cwd);
+        return cwd;
+    }
+      me = me->next;
+  }
 #if _WIN32 || defined(__MINGW32__)
   if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0) {
     Yap_WinError("GetCurrentDirectory failed");
@@ -1166,7 +1173,7 @@ static Int working_directory(USES_REGS1) {
   }
   if (t2 == TermEmptyAtom || t2 == TermDot)
     return true;
-  return ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
+  return Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
 }
 
 /** Yap_findFile(): tries to locate a file, no expansion should be performed/
@@ -1188,11 +1195,21 @@ const char *Yap_findFile(const char *isource, const char *idef,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib) {
 
   char *save_buffer = NULL;
-  const char *root = iroot, *source = isource;
+ char *root =  iroot, *source = isource;
   int rc = FAIL_RESTORE;
-  int try
-    = 0;
+  int try = 0;
   bool abspath = false;
+    int lvl = push_text_stack();
+    root = Malloc(YAP_FILENAME_MAX+1);
+    source= Malloc(YAP_FILENAME_MAX+1);
+    if (iroot && iroot[0])
+    strcpy(root, iroot);
+    else
+        root[0] = 0;
+     if (isource && isource[0])
+   strcpy(source, isource);
+    else
+        source[0] = 0;
   //__android_log_print(ANDROID_LOG_ERROR,  "YAPDroid " __FUNCTION__,
   // "try=%d %s %s", try, isource, iroot) ; }
   while (rc == FAIL_RESTORE) {
@@ -1201,21 +1218,28 @@ const char *Yap_findFile(const char *isource, const char *idef,
     // { CACHE_REGS
     switch (try ++) {
     case 0: // path or file name is given;
-      root = iroot;
-      if (idef || isource) {
-        source = (isource ? isource : idef);
+      if (!source[0] && idef && idef[0]) {
+          strcpy(source, idef);
       }
-      if (source) {
+      if (source[0]) {
         abspath = Yap_IsAbsolutePath(source);
       }
-      if (!abspath && !root && ftype == YAP_BOOT_PL) {
+      if (!abspath && !root[0] && ftype == YAP_BOOT_PL) {
         root = YAP_PL_SRCDIR;
       }
       break;
     case 1: // library directory is given in command line
       if (in_lib && ftype == YAP_SAVED_STATE) {
-        root = iroot;
-        source = (isource ? isource : idef);
+          if (iroot && iroot[0])
+              strcpy(root, iroot);
+          else
+              root[0] = 0;
+          if (isource && isource[0])
+              strcpy(source, isource);
+          else if (idef && idef[0])
+              strcpy(source, idef);
+          else
+              source[0] = 0;
       } else {
         done = true;
       }
@@ -1223,35 +1247,45 @@ const char *Yap_findFile(const char *isource, const char *idef,
     case 2: // use environment variable YAPLIBDIR
 #if HAVE_GETENV
       if (in_lib) {
+          const char *eroot;
+
         if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-          root = getenv("YAPLIBDIR");
+          eroot = getenv("YAPLIBDIR");
         } else if (ftype == YAP_BOOT_PL) {
-          root = getenv("YAPSHAREDIR"
+          eroot = getenv("YAPSHAREDIR"
                         "/pl");
-          if (root == NULL) {
+          if (eroot == NULL) {
             continue;
           } else {
-            save_buffer = getFileNameBuffer();
-            strncpy(save_buffer, root, YAP_FILENAME_MAX);
-            strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
+            strncpy(root, eroot, YAP_FILENAME_MAX);
+            strncat(root, "/pl", YAP_FILENAME_MAX);
           }
         }
-        source = (isource ? isource : idef);
+          if (isource && isource[0])
+              strcpy(source, isource);
+          else if (idef && idef[0])
+              strcpy(source, idef);
+          else
+              source[0] = 0;
       } else
 #endif
         done = true;
       break;
     case 3: // use compilation variable YAPLIBDIR
       if (in_lib) {
-        source = (isource ? isource : idef);
+          if (isource && isource[0])
+              strcpy(source, isource);
+          else if (idef && idef[0])
+              strcpy(source, idef);
+          else
+              source[0] = 0;
         if (ftype == YAP_PL) {
-          root = YAP_SHAREDIR;
+          strcpy(root,YAP_SHAREDIR);
         } else if (ftype == YAP_BOOT_PL) {
-          root = malloc(YAP_FILENAME_MAX+1);
             strcpy(root, YAP_SHAREDIR);
           strcat(root,"/pl");
         } else {
-          root = YAP_LIBDIR;
+            strcpy(root,YAP_LIBDIR);
         }
       } else
         done = true;
@@ -1260,9 +1294,9 @@ const char *Yap_findFile(const char *isource, const char *idef,
     case 4: // WIN stuff: registry
 #if __WINDOWS
       if (in_lib) {
-        source = (ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup");
-        source = Yap_RegistryGetString(source);
-        root = NULL;
+        const char *key = (ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup");
+        strcpy( source, Yap_RegistryGetString(source) );
+        root[0] = 0;
       } else
 #endif
         done = true;
@@ -1280,42 +1314,45 @@ const char *Yap_findFile(const char *isource, const char *idef,
         if (pt) {
           if (ftype == YAP_BOOT_PL) {
 #if __ANDROID__
-            root = "../../../files/Yap/pl";
+            strcpy(root, "../../../files/Yap/pl");
 #else
           root = "../../share/Yap/pl";
 #endif
           } else {
-            root = (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
+            strcpy(root, (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
                         ? "../../lib/Yap"
-                        : "../../share/Yap");
+                        : "../../share/Yap"));
           }
-          if (root == iroot) {
+          if (strcmp(root, iroot)==0) {
             done = true;
             continue;
           }
           if (!save_buffer)
-            save_buffer = getFileNameBuffer();
+            save_buffer = Malloc(YAP_FILENAME_MAX+1);
           if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
                            expand_root, in_lib))
-            root = save_buffer;
+            strcpy(root, save_buffer);
           else
             done = true;
         } else {
           done = true;
         }
-        source = (isource ? isource : idef);
+          if (isource && isource[0])
+              strcpy(source, isource);
+          else if (idef && idef[0])
+              strcpy(source, idef);
+          else
+              source[0] = 0;
       }
       break;
     case 6: // default, try current directory
       if (!isource && ftype == YAP_SAVED_STATE)
-        source = idef;
-      root = NULL;
+        strcpy(source, idef);
+      root[0] = 0;
       break;
     default:
-      if (save_buffer)
-        freeFileNameBuffer(save_buffer);
-
-      return false;
+        pop_text_stack(lvl);
+      return NULL;
     }
 
     if (done)
@@ -1324,12 +1361,11 @@ const char *Yap_findFile(const char *isource, const char *idef,
     //    "root= %s %s ", root, source) ; }
     const char *work = PlExpandVars(source, root, result);
 
-    if (save_buffer)
-      freeFileNameBuffer(save_buffer);
 
     // expand names in case you have
     // to add a prefix
     if (!access || Yap_Exists(work)) {
+        work = pop_output_text_stack(lvl,work);
       return work; // done
     } else if (abspath)
       return NULL;

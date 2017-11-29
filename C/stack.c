@@ -1098,7 +1098,7 @@ bool set_clause_info(yamop *codeptr, PredEntry *pp) {
         LOCAL_ActiveError->prologPredArity = pp->ArityOfPE;
     }
     LOCAL_ActiveError->prologPredModule =
-            (pp->ModuleOfPred ? pp->ModuleOfPred : TermProlog);
+            (pp->ModuleOfPred ? pp->ModuleOfPred : "prolog");
     LOCAL_ActiveError->prologPredFile = pp->src.OwnerFile;
     if (codeptr->opc == UNDEF_OPCODE) {
         LOCAL_ActiveError->prologPredFirstLine = 0;

@@ -19,7 +19,7 @@ X_API char *Yap_TermToString(Term t, encoding_t encodingp,
   X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
 					YAP_Term);
   X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-				    arity_t, arity_t);
+				    YAP_Arity, YAP_Arity);
 
 #if YAP_PYTHON
   X_API bool     do_init_python(void);
@@ -944,7 +944,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
 #if YAP_PYTHON
     do_init_python();
 #endif
-    YAP_PredEntryPtr p = YAP_AtomToPred( YAP_LookupAtom("initialize_prolog") );
+    YAPPredicate p = YAPPredicate( YAPAtomTerm("initialize_prolog") );
     YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
     if (initq.next())
       {
@@ -992,7 +992,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
     }
 
     /// auxiliary routine to find a predicate in the current module.
-    PredEntry *YAPPredicate::getPred(YAPTerm &tt, Term *&outp)
+    PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL * &outp)
     {
       CACHE_REGS
 	Term m = Yap_CurrentModule(), t = tt.term();
@@ -1110,7 +1110,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       if (LOCAL_ActiveError->prologPredLine)
 	{
 	  s += "\n";
-	  s += LOCAL_ActiveError->prologPredFile->StrOfAE;
+	  s += LOCAL_ActiveError->prologPredFile;
 	  s += ":";
 	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
 	  s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
@@ -1118,7 +1118,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 	  s += ":0   ";
 	  s += LOCAL_ActiveError->prologPredModule;
 	  s += ":";
-	  s += (LOCAL_ActiveError->prologPredName)->StrOfAE;
+	  s += (LOCAL_ActiveError->prologPredName);
 	  s += "/";
 	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
 	  s += // std::to_string(LOCAL_ActiveError->prologPredArity);
@@ -1126,13 +1126,13 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 	}
       s += " error ";
       if (LOCAL_ActiveError->classAsText != nullptr)
-	s += LOCAL_ActiveError->classAsText->StrOfAE;
+	s += LOCAL_ActiveError->classAsText;
       s += ".";
-      s += LOCAL_ActiveError->errorAsText->StrOfAE;
+      s += LOCAL_ActiveError->errorAsText;
       s += ".\n";
       if (LOCAL_ActiveError->errorTerm)
 	{
-	  Term t = LOCAL_ActiveError->errorTerm->Entry;
+	  Term t = Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
 	  if (t)
 	    {
 	      s += "error term is: ";

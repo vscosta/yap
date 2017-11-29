@@ -80,7 +80,7 @@ Int Yap_CloseSocket(int, socket_info, socket_domain);
 #endif /* USE_SOCKET */
 
 extern bool Yap_clearInput(int sno);
-extern Term Yap_read_term(int inp_stream, Term opts, bool clauatse);
+extern Term Yap_read_term(int inp_stream, Term opts, bool clause);
 extern Term Yap_Parse(UInt prio, encoding_t enc, Term cmod);
 
 extern void init_read_data(ReadData _PL_rd, struct stream_desc *s);
@@ -216,7 +216,7 @@ INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s) {
 
 inline static Term StreamName(int i) { return (GLOBAL_Stream[i].user_name); }
 
-inline static Atom StreamFullName(int i) { return (GLOBAL_Stream[i].name); }
+inline static Atom StreamFullName(int i) { return (Atom)(GLOBAL_Stream[i].name); }
 
 inline static void console_count_output_char(int ch, StreamDesc *s) {
   CACHE_REGS
