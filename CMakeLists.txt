@@ -802,7 +802,7 @@ if (NOT ANDROID)
 
 add_subDIRECTORY(library/lammpi)
 
-if (MPI_C_FOUND\D)
+if (MPI_C_FOUND)
 
     CMAKE_DEPENDENT_OPTION(WITH_MPI ON "Interface to OpenMPI/MPICH"
             "MPI_C_FOUND" OFF)

@@ -1360,6 +1360,11 @@ signal. */
 #cmakedefine HAVE_STRNLEN ${HAVE_STRNLEN}
 #endif
 
+/* Define to 1 if you have the `stpcpy' function. */
+#ifndef HAVE_STPCPY
+#cmakedefine HAVE_STPCPY ${HAVE_STPCPY}
+#endif
+
 /* Define to 1 if you have the <stropts.h> header file. */
 #ifndef HAVE_STROPTS_H
 #cmakedefine HAVE_STROPTS_H ${HAVE_STROPTS_H}
