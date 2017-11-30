@@ -934,12 +934,6 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
   }
   /* Begin preprocessor code */
   /* live */
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "initialize_prolog");
-#if __ANDROID__
-  Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);
-  Yap_AndroidBufp[0] = '\0';
-  Yap_AndroidSz = 0;
-#endif
   //yerror = YAPError();
 #if YAP_PYTHON
     do_init_python();
@@ -1015,9 +1009,11 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       else if (IsPairTerm(t))
 	{
 	  Term ts[2];
-	  ts[0] = t;
-	  ts[1] = m;
-	  t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+        Functor FunctorConsult = Yap_MkFunctor(Yap_LookupAtom("consult"), 1);
+	  ts[1] = t;
+	  ts[0] = m;
+      t = Yap_MkApplTerm(FunctorModule, 2, ts);
+      t = Yap_MkApplTerm(FunctorConsult, 1, &t);
 	  tt.put(t);
 	  outp = RepAppl(t) + 1;
 	}

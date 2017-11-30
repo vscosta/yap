@@ -34,13 +34,6 @@ static void FileError(yap_error_number type, Term where, const char *format,
   }
 }
 
-/// Allocate a temporary buffer
-static char *getFileNameBuffer(void) {
-
-  return Yap_AllocAtomSpace(YAP_FILENAME_MAX);
-}
-
-static void freeFileNameBuffer(char *s) { Yap_FreeCodeSpace(s); }
 
 static Int p_sh(USES_REGS1);
 static Int p_shell(USES_REGS1);
@@ -344,6 +337,8 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_BASENAME 1
 #define HAVE_REALPATH 1
 #endif
+
+char virtual_cwd[YAP_FILENAME_MAX + 1];
 
  bool Yap_ChDir(const char *path) {
   bool rc = false;
@@ -1136,13 +1131,12 @@ static int volume_header(char *file) {
 int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
-  VFS_t *me = GLOBAL_VFS;
-  while(me) {
-    if (me->virtual_cwd) {
-        strcpy(cwd, me->virtual_cwd);
-        return cwd;
+  if (virtual_cwd[0]) {
+    if  (!cwd) {
+      cwd = malloc(cwdlen+1);
     }
-      me = me->next;
+      strcpy( cwd, virtual_cwd);
+    return cwd;
   }
 #if _WIN32 || defined(__MINGW32__)
   if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0) {

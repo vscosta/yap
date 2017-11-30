@@ -170,13 +170,16 @@ bool exists_a(VFS_t *me, const char *dirName) {
 }
 
 
+extern char virtual_cwd[YAP_FILENAME_MAX + 1];
+
 static bool set_cwd(VFS_t *me, const char *dirName) {
 
     chdir("/assets");
-    if (!me->virtual_cwd)
-        me->virtual_cwd = malloc(YAP_FILENAME_MAX + 1);
-    strcpy(me->virtual_cwd, dirName);
-    return true;
+    strcpy(virtual_cwd, dirName);
+     __android_log_print(ANDROID_LOG_INFO, "YAPDroid",
+                        "chdir %s", virtual_cwd);
+    Yap_do_low_level_trace =    true;
+   return true;
 }
 
 #endif
@@ -210,7 +213,6 @@ Yap_InitAssetManager(void) {
     me->enc = ENC_ISO_UTF8;            /// how the file is encoded.
     me->parsers = NULL;                    /// a set of parsers that can read the stream and generate a term
     me->writers = NULL;
-    me->virtual_cwd = NULL;
     LOCK(BGL);
     me->next = GLOBAL_VFS;
     GLOBAL_VFS = me;

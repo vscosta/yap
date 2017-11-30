@@ -2133,7 +2133,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full,
         return -1;
     }
     Yap_init_consult(consulted, bfp);
-    sno = Yap_OpenStream(fl, AtomRead);
+    sno = Yap_OpenStream(fl,"r");
     *osnop = Yap_CheckAlias(AtomLoopStream);
     if (!Yap_AddAlias(AtomLoopStream, sno)) {
         Yap_CloseStream(sno);
