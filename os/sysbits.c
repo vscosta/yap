@@ -1244,16 +1244,10 @@ const char *Yap_findFile(const char *isource, const char *idef,
           const char *eroot;
 
         if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-          eroot = getenv("YAPLIBDIR");
+          root = getenv("YAPLIBDIR");
         } else if (ftype == YAP_BOOT_PL) {
-          eroot = getenv("YAPSHAREDIR"
+          root = getenv("YAPSHAREDIR"
                         "/pl");
-          if (eroot == NULL) {
-            continue;
-          } else {
-            strncpy(root, eroot, YAP_FILENAME_MAX);
-            strncat(root, "/pl", YAP_FILENAME_MAX);
-          }
         }
           if (isource && isource[0])
               strcpy(source, isource);
@@ -1273,11 +1267,9 @@ const char *Yap_findFile(const char *isource, const char *idef,
               strcpy(source, idef);
           else
               source[0] = 0;
-        if (ftype == YAP_PL) {
-          strcpy(root,YAP_SHAREDIR);
-        } else if (ftype == YAP_BOOT_PL) {
-            strcpy(root, YAP_SHAREDIR);
-          strcat(root,"/pl");
+	  if (ftype == YAP_PL || ftype == YAP_BOOT_PL) {
+	    strcpy(root,YAP_SHAREDIR);
+	    strcat(root,"/pl");
         } else {
             strcpy(root,YAP_LIBDIR);
         }
@@ -1310,12 +1302,12 @@ const char *Yap_findFile(const char *isource, const char *idef,
 #if __ANDROID__
             strcpy(root, "../../../files/Yap/pl");
 #else
-          root = "../../share/Yap/pl";
+          root = "../share/Yap/pl";
 #endif
           } else {
             strcpy(root, (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
-                        ? "../../lib/Yap"
-                        : "../../share/Yap"));
+                        ? "../lib/Yap"
+                        : "../share/Yap"));
           }
           if (strcmp(root, iroot)==0) {
             done = true;
