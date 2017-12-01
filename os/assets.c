@@ -178,7 +178,7 @@ static bool set_cwd(VFS_t *me, const char *dirName) {
     strcpy(virtual_cwd, dirName);
      __android_log_print(ANDROID_LOG_INFO, "YAPDroid",
                         "chdir %s", virtual_cwd);
-    Yap_do_low_level_trace =    true;
+    Yap_do_low_level_trace=1;
    return true;
 }
 

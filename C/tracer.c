@@ -87,7 +87,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
             continue;
           }
         }
-        const char *sn = Yap_TermToString(args[i], LOCAL_encoding,
+        const char *sn = Yap_TermToBuffer(args[i], LOCAL_encoding,
                                           Quote_illegal_f | Handle_vars_f);
         size_t sz;
         if (sn == NULL) {

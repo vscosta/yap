@@ -1183,7 +1183,6 @@ do_open(Term file_name, Term t2,
     const char *fname;
     char fbuf[FILENAME_MAX];
     stream_flags_t flags;
-    FILE *fd;
     const char *s_encoding;
     encoding_t encoding;
     Term tenc;
@@ -1515,7 +1514,6 @@ int Yap_OpenStream(const char *fname, const char *io_mode) {
     struct vfs *vfsp;
     FILE *fd;
     int flags;
-    SMALLUNSGN s;
 
     sno = GetFreeStreamD();
     if (sno < 0) {
@@ -1526,6 +1524,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode) {
     st = GLOBAL_Stream + sno;
     // read, write, append
     st->file = NULL;
+    fname = Yap_VF(fname);
     if ((vfsp = vfs_owner(fname)) != NULL ) {
         if (!vfsp->open(vfsp, sno, fname, io_mode)) {
             UNLOCK(st->streamlock);

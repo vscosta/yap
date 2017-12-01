@@ -12,7 +12,7 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-X_API char *Yap_TermToString(Term t, encoding_t encodingp,
+X_API char *Yap_TermToBuffer(Term t, encoding_t encodingp,
                              int flags);
 
   X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);

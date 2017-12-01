@@ -88,7 +88,7 @@ extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 extern int Yap_OpenStream(const char*, const char*);
 extern int Yap_FileStream(FILE*, char *, Term, int);
-extern char *Yap_TermToString(Term t, encoding_t encoding, int flags);
+extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);
@@ -103,7 +103,7 @@ extern int Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 extern int Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 extern int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
-extern bool Yap_IsAbsolutePath(const char *p);
+extern bool Yap_IsAbsolutePath(const char *p, bool);
 extern Atom Yap_TemporaryFile(const char *prefix, int *fd);
 extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
 
@@ -156,6 +156,37 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
   return MkAtomTerm(Yap_ULookupAtom(cs));
 }
 
+
+
+INLINE_ONLY inline EXTERN  char *Yap_VF(const char *path){
+    char out[YAP_FILENAME_MAX+1], *p = (char *)path;
+    extern char virtual_cwd[];
+
+    if ( virtual_cwd[0] == 0 || Yap_IsAbsolutePath(path, false)) {
+        return p;
+    }
+    strcpy(out, virtual_cwd);
+    strcat(out, "/" );
+    strcat(out, p);
+    strcpy(p, out);
+    return p;
+}
+
+
+INLINE_ONLY inline EXTERN  char *Yap_VFAlloc(const char *path){
+    char *out;
+    extern char virtual_cwd[];
+
+    out = (char *)malloc(YAP_FILENAME_MAX+1);
+    if ( virtual_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
+        return (char *)path;
+    }
+    strcpy(out, virtual_cwd);
+    strcat(out, "/" );
+    strcat(out, path);
+    return out;
+}
+
 /// UT when yap started
 extern uint64_t Yap_StartOfWTimes;
 
@@ -164,5 +195,7 @@ extern bool Yap_HandleSIGINT(void);
 
 extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
                                   size_t nchars USES_REGS);
+
+
 
 #endif

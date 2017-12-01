@@ -1255,7 +1255,7 @@ static void wrputref(CODEADDR ref, int Quote_illegal,
     Yap_CloseSlots(sls);
   }
 
-  char *Yap_TermToString(Term t, encoding_t enc, int flags) {
+   char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
     CACHE_REGS
       int sno = Yap_open_buf_write_stream(enc, flags);
     const char *sf;

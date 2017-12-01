@@ -487,7 +487,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 #endif
   if (inp->type & YAP_STRING_TERM) {
     // Yap_DebugPlWriteln(inp->val.t);
-    char *s = (char *)Yap_TermToString(inp->val.t, ENC_ISO_UTF8, 0);
+    char *s = (char *) Yap_TermToBuffer(inp->val.t, ENC_ISO_UTF8, 0);
     return inp->val.uc = (unsigned char *)s;
   }
   if (inp->type & YAP_STRING_CHARS) {

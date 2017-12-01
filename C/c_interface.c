@@ -2144,7 +2144,6 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full,
     GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
     GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-    pop_text_stack(lvl);
     RECOVER_MACHINE_REGS();
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return sno;
@@ -2263,7 +2262,7 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
     char *b;
 
     BACKUP_MACHINE_REGS();
-    b = Yap_TermToString(t, enc, flags);
+    b = Yap_TermToBuffer(t, enc, flags);
     strncpy(buf, b, sze);
     buf[sze] = 0;
     RECOVER_MACHINE_REGS();
@@ -2431,9 +2430,8 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     if (!LOCAL_TextBuffer)
         LOCAL_TextBuffer = Yap_InitTextAllocator();
 
-    int lvl = push_text_stack();
-    yroot =  Malloc(YAP_FILENAME_MAX + 1);
-    boot_file = Malloc(YAP_FILENAME_MAX + 1);
+    yroot =  malloc(YAP_FILENAME_MAX + 1);
+    boot_file = malloc(YAP_FILENAME_MAX + 1);
     /* ignore repeated calls to YAP_Init */
     Yap_embedded = yap_init->Embedded;
     Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
@@ -2674,7 +2672,6 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     start_modules();
 
     YAP_initialized = true;
-    pop_text_stack(lvl);
     return
             YAP_BOOT_PL;
 }
