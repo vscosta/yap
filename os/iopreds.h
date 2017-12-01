@@ -283,8 +283,4 @@ static inline void freeBuffer(const void *ptr) {
   free((void *)ptr);
 }
 
-/** VFS handling */
-
-VFS_t *Yap_InitAssetManager(void);
-
 #endif

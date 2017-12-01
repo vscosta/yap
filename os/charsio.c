@@ -865,7 +865,7 @@ as those for `put` (see 6.11).
 static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   Int n;
   Term t1;
-  int sno;
+  int sno = LOCAL_c_output_stream;
   int ch;
 
   if (IsVarTerm(t1 = Deref(ARG1))) {

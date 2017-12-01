@@ -33,6 +33,7 @@
 
 #include <encoding.h>
 
+
 typedef struct {
   dev_t st_dev;                     /* ID of device containing file */
   mode_t st_mode;                   /* Mode of file (see below) */
@@ -77,10 +78,9 @@ typedef struct vfs {
   /// a way to identify a file in this VFS: two special cases, prefix and suffix
   const char *prefix;
   const char *suffix;
-  bool (*id)(struct vfs *me, const char *s);
+  bool (*chDir)(struct vfs *me, const char *s);
   /** operations */
-  void *(*open)(const char *s,
-               const char *io_mode); /// open an object
+  void *(*open)(int sno, const char *fname, const char *io_mode); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
   bool (*close)(int sno);   /// close the object
   int (*get_char)(int sno); /// get an octet to the stream
@@ -88,15 +88,15 @@ typedef struct vfs {
   void (*flush)(int sno); /// flush a stream
   int64_t (*seek)(int sno, int64_t offset,
                   int whence); /// jump around the stream
-  void *(*opendir)(const char *s); /// open a directory object, if one exists
+  void *(*opendir)(struct vfs *,const char *s); /// open a directory object, if one exists
   const char *(*nextdir)(void *d); /// walk to the next entry in a directory object
-  void (*closedir)(void *d);
+  bool (*closedir)(void *d);
   ; /// close access a directory object
   bool (*stat)(const char *s,
                vfs_stat *); /// obtain size, age, permissions of a file.
-  bool (*isdir)(const char *s); /// verify whether is directory.
-  bool (*exists)(const char *s); /// verify whether a file exists.
-  bool (*chdir)(const char *s);      /// set working directory (may be virtual).
+  bool (*isdir)(struct vfs *,const char *s); /// verify whether is directory.
+  bool (*exists)(struct vfs *, const char *s); /// verify whether a file exists.
+  bool (*chdir)(struct vfs *,const char *s);      /// set working directory (may be virtual).
   encoding_t enc;                    /// default file encoded.
   YAP_Term (*parsers)(int sno); // a set of parsers that can read the
                                      // stream and generate a YAP_Term
@@ -121,12 +121,15 @@ static inline VFS_t *vfs_owner(const char *fname) {
   size_t sz0 = strlen(fname), sz;
 
   while (me) {
-    if ((me->vflags & VFS_HAS_PREFIX) && strstr(fname, me->prefix) == fname)
+    bool p = true;
+    if ((me->vflags & VFS_HAS_PREFIX) && p) {
+      const char *r = fname, *s = me->prefix;
+      while (*s && p) p = *s++ == *r++;
+      if (p && r > fname+1)
       return me;
+    }
     if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) && (d = (sz0 - sz)) >= 0 &&
-        strcmp(fname + d, me->suffix) == 0)
-      return me;
-    if (me->vflags & VFS_HAS_FUNCTION && (me->id(me, fname))) {
+        strcmp(fname + d, me->suffix) == 0) {
       return me;
     }
     me = me->next;

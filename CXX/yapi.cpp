@@ -625,7 +625,7 @@ Term YAPEngine::fun(Term t)
      return 0;
     }
     DBTerm *pt = Yap_StoreTermInDB(Yap_GetFromSlot(o), arity);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %ld", o);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", o);
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
     Term rc = Yap_PopTermFromDB(pt);
@@ -751,8 +751,8 @@ bool YAPQuery::next()
     }
     if (result)
     {
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %ld",
-                          q_state, vnames.text(), LOCAL_CurSlot);
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
+                          q_state, names.text(), LOCAL_CurSlot);
     }
     else
     {
@@ -892,6 +892,8 @@ static size_t Yap_AndroidMax, Yap_AndroidSz;
 
 extern void (*Yap_DisplayWithJava)(int c);
 
+static YAPCallback *cb = new YAPCallback();
+
 void Yap_displayWithJava(int c)
 {
   char *ptr = Yap_AndroidBufp;
@@ -914,17 +916,18 @@ void Yap_displayWithJava(int c)
   if (c == '\n')
   {
     Yap_AndroidBufp[Yap_AndroidSz] = '\0';
-    curren->run(Yap_AndroidBufp);
+    cb->run(Yap_AndroidBufp);
     Yap_AndroidSz = 0;
   }
 }
+
 
 #endif
 
 
 void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
-  if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
+  if ((BootMode = YAP_Init(engine_args)) == YAP_FOUND_BOOT_ERROR)
   {
     return;
     throw YAPError();
@@ -945,24 +948,27 @@ void YAPEngine::doInit(YAP_file_type_t BootMode)
     YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
     if (initq.next())
       {
-	initq.cut();
+        initq.cut();
   }
     CurrentModule = TermUser;
 
 }
 
 YAPEngine::YAPEngine(int argc, char *argv[],
-		     YAPCallback *cb)
+                     YAPCallback *cb)
       : _callback(0) { // a single engine can be active
 
       YAP_file_type_t BootMode;
       engine_args = new YAPEngineArgs();
-      BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
+      BootMode = YAP_parse_yap_arguments(argc, argv, engine_args);
       // delYAPCallback()b
       // if (cb)
       //  setYAPCallback(cb);
-      doInit(BootMode);
+
+  doInit(BootMode);
     }
+
+
 
 
     YAPPredicate::YAPPredicate(YAPAtom at)

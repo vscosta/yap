@@ -112,7 +112,18 @@ public:
   inline Term term() {
     return gt();
   } /// from YAPTerm to Term (internal YAP representation)
-  inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
+    YAPTerm arg(int i) {
+        BACKUP_MACHINE_REGS();
+        Term t0 = gt();
+        YAPTerm tf;
+        if (!IsApplTerm(t0) && !IsPairTerm(t))
+            return (Term)0;
+        tf = YAPTerm(ArgOfTerm(i, t0) );
+        RECOVER_MACHINE_REGS();
+        return tf;
+    };
+
+    inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
   inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
@@ -324,7 +335,7 @@ public:
     RECOVER_MACHINE_REGS();
     return tf;
   };
-  virtual bool isVar() { return false; }     /// type check for unbound
+   virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer
   virtual bool isFloat() { return false; }   /// type check for floating-point
@@ -354,6 +365,9 @@ public:
   YAPPairTerm();
   Term getHead() { return (HeadOfTerm(gt())); }
   Term getTail() { return (TailOfTerm(gt())); }
+  YAPTerm car() { return YAPTerm(HeadOfTerm(gt())); }
+  bool nil() { return gt() == TermNil; }
+  YAPPairTerm cdr() { return YAPPairTerm(TailOfTerm(gt())); }
   std::vector<Term> listToArray() {
     Term *tailp;
     Term t1 = gt();

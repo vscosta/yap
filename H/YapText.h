@@ -67,7 +67,7 @@ extern int pop_text_stack__(int lvl USES_REGS);
   (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
      __FUNCTION__, __LINE__),*/						\
    pop_output_text_stack__(lvl,p))
-extern void *pop_output_text_stack__(int lvl, void *ox USES_REGS);
+extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
 
 /****************** character definition table **************************/
 
@@ -1433,6 +1433,38 @@ static inline void Yap_OverwriteUTF8BufferToLowCase(void *buf USES_REGS) {
   }
 }
 
+/**
+ * Function to convert a generic text term (string, atom, list of codes, list
+ of<
+ atoms)  into a buff
+ er.
+ *
+ * @param t     the term
+ * @param buf   the buffer, if NULL a buffer is malloced, and the user should
+ reclai it
+ * @param len   buffer size
+ * @param enc   encoding (UTF-8 is strongly recommended)
+ *
+ * @return the buffer, or NULL in case of failure. If so, Yap_Error may be
+ called.
+ *
+ * notice that it must be called from a push memory.
+*/
+static inline const char *Yap_TextTermToText(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
+             YAP_STRING_ATOMS_CODES | YAP_STRING_MALLOC;
+  out.val.uc = NULL;
+  out.type = YAP_STRING_CHARS;
+  out.enc = ENC_ISO_UTF8;
+
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return NULL;
+  return out.val.c0;
+}
+
 static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
@@ -1444,7 +1476,7 @@ static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+    return NULL;
   return out.val.uc0;
 }
 
@@ -1642,5 +1674,4 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 
 #endif // ≈YAP_TEXT_H
 
-extern const char *Yap_TextTermToText(Term t USES_REGS);
 extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);

@@ -1873,8 +1873,6 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   } else {
     tf = Yap_MkStaticRefTerm(ClauseCodeToStaticClause(cp), p);
   }
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "add %s/%ld %p",
-                      RepAtom(at)->StrOfAE, Arity);
   if (mod == PROLOG_MODULE)
     mod = TermProlog;
   if (pflags & MultiFileFlag) {
@@ -2059,36 +2057,33 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_consult_level == 0) {
     return (AtomUser);
   } else {
-    return (Yap_ULookupAtom(LOCAL_ConsultBase[2].filename));
+    return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
   }
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
-static void init_consult(int mode, const unsigned char *file) {
-  CACHE_REGS
-  if (!LOCAL_ConsultSp) {
-    InitConsultStack();
-  }
-  if (LOCAL_ConsultSp >= LOCAL_ConsultLow + 6) {
-    expand_consult();
-  }
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->filename = file;
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->mode = mode;
-  LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->c = (LOCAL_ConsultBase - LOCAL_ConsultSp);
-  LOCAL_ConsultBase = LOCAL_ConsultSp;
+void Yap_init_consult(int mode, const char *filenam) {
+    CACHE_REGS
+    if (!LOCAL_ConsultSp) {
+        InitConsultStack();
+    }
+    if (LOCAL_ConsultSp >= LOCAL_ConsultLow + 6) {
+        expand_consult();
+    }
+    LOCAL_ConsultSp--;
+    LOCAL_ConsultSp->f_name = (const unsigned char *)filenam;
+    LOCAL_ConsultSp--;
+    LOCAL_ConsultSp->mode = mode;
+    LOCAL_ConsultSp--;
+    LOCAL_ConsultSp->c = (LOCAL_ConsultBase - LOCAL_ConsultSp);
+    LOCAL_ConsultBase = LOCAL_ConsultSp;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(TRUE); */
 #endif
-  LOCAL_consult_level++;
-  LOCAL_LastAssertedPred = NULL;
-}
+    LOCAL_consult_level++;
+    LOCAL_LastAssertedPred = NULL;
 
-void Yap_init_consult(int mode, const char *file) {
-  init_consult(mode, (const unsigned char *)file);
 }
 
 static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
@@ -2097,7 +2092,7 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   int mode;
 
   mode = strcmp("consult", (char *)smode);
-  init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->UStrOfAE);
+  Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG3, t));
 }

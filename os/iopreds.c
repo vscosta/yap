@@ -246,20 +246,18 @@ static void unix_upd_stream_info(StreamDesc *s) {
 
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
-  if (st->vfs) {
-    st->stream_wputc = st->vfs->put_char;
-    st->stream_wgetc = st->vfs->get_char;
-    st->stream_putc = st->vfs->put_char;
-    st->stream_wgetc = st->vfs->get_char;
-    return;
-  }
   st->stream_wputc = put_wchar;
   if (st->encoding == ENC_ISO_UTF8)
     st->stream_wgetc = get_wchar_UTF8;
   else
     st->stream_wgetc = get_wchar;
-  st->stream_putc = FilePutc;
-  st->stream_getc = PlGetc;
+  if (st->vfs) {
+    st->stream_putc = st->vfs->put_char;
+    st->stream_wgetc = st->vfs->get_char;
+  } else {
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+  }
   if (st->status & (Promptable_Stream_f)) {
     Yap_ConsoleOps(st);
   }
@@ -300,7 +298,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   INIT_LOCK(s->streamlock);
   if (vfsp != NULL) {
     s->u.private_data =
-        vfsp->open(vfsp->name, (sno == StdInStream ? "read" : "write"));
+        vfsp->open(sno, vfsp->name, (sno == StdInStream ? "read" : "write"));
     if (s->u.private_data == NULL) {
       (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s",
                  vfsp->name));
@@ -1312,7 +1310,7 @@ do_open(Term file_name, Term t2,
   }
   struct vfs *vfsp = NULL;
   if ((vfsp = vfs_owner(fname)) != NULL) {
-    st->u.private_data = vfsp->open(fname, io_mode);
+    st->u.private_data = vfsp->open(sno, fname, io_mode);
     fd = NULL;
     if (st->u.private_data == NULL)
       return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s", fname));
@@ -1522,7 +1520,56 @@ static Int p_open_null_stream(USES_REGS1) {
   return (Yap_unify(ARG1, t));
 }
 
-int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
+int Yap_OpenStream(const char *fname, const char * io_mode) {
+  CACHE_REGS
+  int sno;
+  StreamDesc *st;
+  Atom at;
+  struct vfs *vfsp;
+  FILE *fd;
+  int flags;
+
+  sno = GetFreeStreamD();
+  if (sno < 0)
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, MkAtomTerm(Yap_LookupAtom(fname)),
+                      "new stream not available for opening"));
+  st = GLOBAL_Stream+sno;
+  vfsp = NULL;
+  if ((vfsp = vfs_owner(fname)) != NULL) {
+    st->u.private_data = vfsp->open(sno, fname, io_mode);
+    UNLOCK(st->streamlock);
+    fd = NULL;
+    if (st->u.private_data == NULL)
+      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)), "%s", fname));
+    st->vfs = vfsp;
+  } else if ((fd = fopen(fname, io_mode)) == NULL ||
+             (!strchr(io_mode, 'b') && binary_file(fname))) {
+    UNLOCK(st->streamlock);
+    if (errno == ENOENT && !strchr(io_mode, 'r')) {
+      return PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s", fname,
+                        strerror(errno));
+    } else {
+      return PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s",
+                        fname, strerror(errno));
+    }
+  }
+  if (strchr(io_mode, 'r')) {
+    if (strchr(io_mode, 'a')) {
+      at = AtomAppend;
+      flags = Append_Stream_f | Output_Stream_f;
+    } else {
+      at = AtomWrite;
+            flags = Output_Stream_f;
+    }
+  } else {
+    at = AtomRead;
+             flags = Input_Stream_f;
+ }
+  Yap_initStream(sno, fd, fname, fname, LOCAL_encoding, flags, at, NULL);
+  return sno;
+}
+
+int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags) {
   CACHE_REGS
   int sno;
   Atom at;
@@ -1530,6 +1577,26 @@ int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
+                      "new stream not available for opening"));
+  if (flags & Output_Stream_f) {
+    if (flags & Append_Stream_f)
+      at = AtomAppend;
+    else
+      at = AtomWrite;
+  } else
+    at = AtomRead;
+  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, NULL);
+  return sno;
+}
+
+int FileStream(FILE* fd, char *name, Term file_name, int flags )
+{
+  int sno;
+  Atom at;
+
+  sno = GetFreeStreamD();
+  if (sno < 0)
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, name,
                       "new stream not available for opening"));
   if (flags & Output_Stream_f) {
     if (flags & Append_Stream_f)
@@ -1869,8 +1936,7 @@ static Int get_abs_file_parameter(USES_REGS1) {
 
 void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
-
-  if (argi->inp > 0)
+    if (argi->inp > 0)
     Yap_stdin = fdopen(argi->inp - 1, "r");
   else if (argi->inp)
     Yap_stdin = NULL;

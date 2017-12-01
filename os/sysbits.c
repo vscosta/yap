@@ -79,7 +79,7 @@ static bool is_directory(const char *FileName) {
 
   VFS_t *vfs;
   if ((vfs = vfs_owner(FileName))) {
-    return vfs->isdir(FileName);
+    return vfs->isdir(vfs,FileName);
   }
 #ifdef _WIN32
   DWORD dwAtts = GetFileAttributes(FileName);
@@ -102,10 +102,9 @@ static bool is_directory(const char *FileName) {
 }
 
 bool Yap_Exists(const char *f) {
-  VFS_t *vfs;
-
-  if ((vfs = vfs_owner(f))) {
-    return vfs->exists(f);
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(f))) {
+        return vfs->exists(vfs,f) != NULL;
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -169,9 +168,10 @@ bool Yap_IsAbsolutePath(const char *p0) {
 static const char *PlExpandVars(const char *source, const char *root,
                                 char *result) {
   CACHE_REGS
+  int lvl = push_text_stack();
   const char *src = source;
   if (!result)
-    result = BaseMalloc(YAP_FILENAME_MAX + 1);
+    result = Malloc(YAP_FILENAME_MAX + 1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
@@ -194,6 +194,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       if (s != NULL)
         strncpy(result, s, YAP_FILENAME_MAX);
       strcat(result, src);
+      result = pop_output_text_stack(lvl, result);
       return result;
     } else {
 #if HAVE_GETPWNAM
@@ -208,6 +209,7 @@ static const char *PlExpandVars(const char *source, const char *root,
         FileError(SYSTEM_ERROR_OPERATING_SYSTEM,
                   MkAtomTerm(Yap_LookupAtom(source)),
                   "User %s does not exist in %s", result, source);
+        pop_text_stack(lvl);
         return NULL;
       }
       strncpy(result, user_passwd->pw_dir, YAP_FILENAME_MAX);
@@ -219,6 +221,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       return NULL;
 #endif
     }
+    result = pop_output_text_stack(lvl, result);
     return result;
   }
   // do VARIABLE expansion
@@ -260,6 +263,7 @@ static const char *PlExpandVars(const char *source, const char *root,
     if (tocp > YAP_FILENAME_MAX) {
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
                 "path too long");
+      pop_text_stack(lvl);
       return NULL;
     }
     if (root && !Yap_IsAbsolutePath(source)) {
@@ -271,6 +275,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       strncpy(result, source, strlen(src) + 1);
     }
   }
+  result = pop_output_text_stack(lvl, result);
   return result;
 }
 
@@ -341,14 +346,14 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_REALPATH 1
 #endif
 
-static bool ChDir(const char *path) {
+ bool ChDir(const char *path) {
   bool rc = false;
   char qp[FILENAME_MAX + 1];
   const char *qpath = Yap_AbsoluteFile(path, qp, true);
 
   VFS_t *v;
   if ((v = vfs_owner(path))) {
-    return v->chdir(path);
+    return v->chdir(v, path);
   }
 #if _WIN32
   rc = true;
@@ -1242,7 +1247,8 @@ const char *Yap_findFile(const char *isource, const char *idef,
         if (ftype == YAP_PL) {
           root = YAP_SHAREDIR;
         } else if (ftype == YAP_BOOT_PL) {
-          root = YAP_SHAREDIR;
+          root = malloc(YAP_FILENAME_MAX+1);
+            strcpy(root, YAP_SHAREDIR);
           strcat(root,"/pl");
         } else {
           root = YAP_LIBDIR;

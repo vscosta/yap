@@ -147,12 +147,14 @@ static int dump_runtime_variables(void) {
   return 1;
 }
 
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char saved_state[],
+YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char *saved_state,
                                  int argc, char *argv[]) {
   memset(iap, 0, sizeof(YAP_init_args));
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
-  iap->SavedState = NULL;
+  iap->SavedState = malloc(strlen(saved_state)+1);
+  strcpy(iap->SavedState, saved_state);
+  iap->assetManager = true;
 #else
   iap->boot_file_type = YAP_QLY;
   iap->SavedState = saved_state;
@@ -496,11 +498,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           GLOBAL_Home = p + strlen("-home=");
         } else if (!strncmp("-cwd=", p, strlen("-cwd="))) {
-#if __WINDOWS__
-          if (_chdir(p + strlen("-cwd=")) < 0) {
-#else
-          if (chdir(p + strlen("-cwd=")) < 0) {
-#endif
+          if (!ChDir(p + strlen("-cwd=")) ) {
             fprintf(stderr, " [ YAP unrecoverable error in setting cwd: %s ]\n",
                     strerror(errno));
           }

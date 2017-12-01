@@ -25,6 +25,7 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "sysbits.h"
+#include "yapio.h"
 
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat

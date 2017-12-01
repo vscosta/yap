@@ -22,11 +22,14 @@
 #undef HAVE_LIBREADLINE
 #endif
 
+#include  "YapStreams.h"
+
 #include <stdio.h>
 #include <wchar.h>
 
 #include "YapIOConfig.h"
 #include <Yatom.h>
+#include <VFS.h>
 
 #ifndef _PL_WRITE_
 
@@ -44,6 +47,13 @@ typedef struct AliasDescS {
 
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp LOCAL_ScannerStack
+
+/**
+ *
+ * @return a new VFS that will support /assets
+ */
+
+extern VFS_t *Yap_InitAssetManager( void );
 
 /* routines in parser.c */
 extern VarEntry *Yap_LookupVar(const char *);
@@ -76,7 +86,8 @@ extern int Yap_PlGetWchar(void);
 extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
-extern int Yap_OpenStream(FILE *, char *, Term, int);
+extern int Yap_OpenStream(const char*, const char *);
+extern int Yap_FileStream(FILE*, char *, Term, int);
 extern char *Yap_TermToString(Term t, encoding_t encoding, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
@@ -108,8 +119,6 @@ extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
-extern bool Yap_set_stream_to_buf(struct stream_desc *st, const char *buf,
-                                  encoding_t enc, size_t nchars);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const unsigned char *s, Term opts);
 extern X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s,
@@ -151,4 +160,8 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
+
+
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars USES_REGS);
+
 #endif
