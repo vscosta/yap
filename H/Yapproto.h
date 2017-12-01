@@ -416,7 +416,7 @@ extern AAssetManager *Yap_assetManager;
 extern void *Yap_openAssetFile(const char *path);
 extern bool Yap_isAsset(const char *path);
 #endif
-extern const char *Yap_getcwd(const char *, size_t);
+extern const char *Yap_getcwd( char *, size_t);
 extern void Yap_cputime_interval(Int *, Int *);
 extern void Yap_systime_interval(Int *, Int *);
 extern void Yap_InitSysbits(int wid);

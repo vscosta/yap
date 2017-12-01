@@ -5,6 +5,7 @@
 
 #include "streamer.h"
 
+
 static AndroidStreamer * streamerInstance = 0;
 
 void setStreamer(AndroidStreamer* streamer) {
@@ -21,24 +22,29 @@ extern "C" {
 #include <Yap.h>
 #include <YapStreams.h>
 #include <VFS.h>
+#include <yapio.h>
+#include <iopreds.h>
 
-VFS_t andstream;
+extern void Java_pt_up_yap_lib_streamerJNI_swig_1module_1init__(void);
 
+static VFS_t andstream;
 
+void Java_pt_up_yap_lib_streamerJNI_swig_1module_1init__(void) {
+    streamerInstance = 0;
+} ;
 
 static std::string buff0;
-int n;
 
 static void *
-and_open(const char *name, const char *io_mode) {
-    if (!strcmp(name,"//android/user_output") ||
-      !strcmp(name,"//android/user_error"))
+and_open(struct vfs *me, int sno, const char *name, const char *io_mode) {
     // we assume object is already open, so there is no need to open it.
-  return streamerInstance;
-  else
-  return NULL;
+    GLOBAL_Stream[sno].vfs_handle = streamerInstance;
+    GLOBAL_Stream[sno].vfs = me;
+    GLOBAL_Stream[sno].status = Append_Stream_f | Output_Stream_f;
+    buff0.clear();
+    return streamerInstance;
 }
-
+}
 static bool
 and_close(int sno) {
   return true;
@@ -46,10 +52,13 @@ and_close(int sno) {
 
 static int
 and_put(int sno, int ch) {
-buff0[n++] = ch;
- if (ch=='\n'  || n == 128) { buff0[n] = '\0'; streamerInstance->display(buff0); n = 0; }
+buff0 += ch;
+ if (ch=='\n'  || buff0.length() == 128) { //buff0+= '\0';
+     streamerInstance->display(buff0);
+ }
  return ch;
  }
+
 static int
 and_get(int sno) {
   return EOF;
@@ -62,9 +71,10 @@ static int64_t  and_seek(int sno, int64_t where, int how) {
 static void
 and_flush(int sno) {
 
-buff0[n] = '\0';
-streamerInstance->display(buff0); n = 0;
-}
+buff0 += '\0';
+streamerInstance->display(buff0);
+
+
 
 //
 // Created by vsc on 11-07-2017.
@@ -73,13 +83,11 @@ streamerInstance->display(buff0); n = 0;
 }
 
 void
-AndroidStreamer::bind()
-{
-    buff0 = * new std::string[256];
-    n = 0;
-    andstream.name = "//android/user_error";
-    andstream.vflags = VFS_CAN_WRITE|VFS_HAS_PREFIX;
-    andstream.prefix = "//android/";
+AndroidStreamer::bind() {
+    buff0 = *new std::string[256];
+    andstream.name = "/android/user_error";
+    andstream.vflags = VFS_CAN_WRITE | VFS_HAS_PREFIX;
+    andstream.prefix = "/android";
     andstream.suffix = NULL;
     andstream.open = and_open;
     andstream.close = and_close;
@@ -89,8 +97,6 @@ AndroidStreamer::bind()
     andstream.seek = and_seek;
     andstream.next = GLOBAL_VFS;
     GLOBAL_VFS = &andstream;
-    // NULL;
-    Yap_InitStdStream(StdOutStream, Output_Stream_f, NULL, &andstream);
-    Yap_InitStdStream(StdErrStream, Output_Stream_f, NULL, &andstream);
+    Yap_InitStdStream(StdOutStream, Output_Stream_f | Append_Stream_f, NULL, &andstream);
+    Yap_InitStdStream(StdErrStream, Output_Stream_f | Append_Stream_f, NULL, &andstream);
 }
-

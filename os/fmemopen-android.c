@@ -1,9 +1,11 @@
-* Copyright (C) 2007 Eric Blake
+/* Copyright (C) 2007 Eric Blake
  * Permission to use, copy, modify, and distribute this software
  * is freely granted, provided that this notice is preserved.
  *
  * Modifications for Android written Jul 2009 by Alan Viverette
  */
+
+#if __ANDROID__
 
 /*
 FUNCTION
@@ -69,7 +71,7 @@ Supporting OS subroutines required: <<sbrk>>.
 #include <errno.h>
 #include <string.h>
 #include <malloc.h>
-#include "stdioext.h"
+//#include "stdioext.h"
 
 /* Describe details of an open memstream.  */
 typedef struct fmemcookie {
@@ -172,13 +174,13 @@ fmemseek(void *cookie, fpos_t pos, int whence)
     }
   else
     {
-      if (c->writeonly &amp;&amp; c->pos < c->eof)
+      if (c->writeonly && c->pos < c->eof)
 	{
 	  c->buf[c->pos] = c->saved;
 	  c->saved = '\0';
 	}
       c->pos = offset;
-      if (c->writeonly &amp;&amp; c->pos < c->eof)
+      if (c->writeonly && c->pos < c->eof)
 	{
 	  c->saved = c->buf[c->pos];
 	  c->buf[c->pos] = '\0';
@@ -206,9 +208,9 @@ fmemopen(void *buf, size_t size, const char *mode)
   int flags;
   int dummy;
 
-  if ((flags = __sflags (mode, &amp;dummy)) == 0)
+  if ((flags = __sflags (mode, &dummy)) == 0)
     return NULL;
-  if (!size || !(buf || flags &amp; __SAPP))
+  if (!size || !(buf || flags & __SAPP))
     {
       return NULL;
     }
@@ -225,7 +227,7 @@ fmemopen(void *buf, size_t size, const char *mode)
   c->max = size;
   /* 9 modes to worry about.  */
   /* w/a, buf or no buf: Guarantee a NUL after any file writes.  */
-  c->writeonly = (flags &amp; __SWR) != 0;
+  c->writeonly = (flags & __SWR) != 0;
   c->saved = '\0';
   if (!buf)
     {
@@ -233,7 +235,7 @@ fmemopen(void *buf, size_t size, const char *mode)
       c->buf = (char *) (c + 1);
       *(char *) buf = '\0';
       c->pos = c->eof = 0;
-      c->append = (flags &amp; __SAPP) != 0;
+      c->append = (flags & __SAPP) != 0;
     }
   else
     {
@@ -244,7 +246,7 @@ fmemopen(void *buf, size_t size, const char *mode)
 	  /* a/a+ and buf: position and size at first NUL.  */
 	  buf = memchr (c->buf, '\0', size);
 	  c->eof = c->pos = buf ? (char *) buf - c->buf : size;
-	  if (!buf &amp;&amp; c->writeonly)
+	  if (!buf && c->writeonly)
 	    /* a: guarantee a NUL within size even if no writes.  */
 	    c->buf[size - 1] = '\0';
 	  c->append = 1;
@@ -267,10 +269,12 @@ fmemopen(void *buf, size_t size, const char *mode)
   fp->_file = -1;
   fp->_flags = flags;
   fp->_cookie = c;
-  fp->_read = flags &amp; (__SRD | __SRW) ? fmemread : NULL;
-  fp->_write = flags &amp; (__SWR | __SRW) ? fmemwrite : NULL;
+  fp->_read = flags & (__SRD | __SRW) ? fmemread : NULL;
+  fp->_write = flags & (__SWR | __SRW) ? fmemwrite : NULL;
   fp->_seek = fmemseek;
   fp->_close = fmemclose;
 
   return fp;
 }
+
+#endif

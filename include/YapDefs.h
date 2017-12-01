@@ -50,22 +50,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef YAP_H
 
 /* The YAP main types */
 #include "YapTerm.h"
-
-/**
-  This term can never be constructed as a valid term, so it is
-  used as a "BAD" term
-*/
-#define TermZERO ((Term)0)
-
-#else
-
-#include "YapConfig.h"
-
-#endif /* YAP_H */
 
 #if HAVE_STDINT_H
 #include <stdint.h>
@@ -73,21 +60,6 @@
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-
-/* truth-values */
-/* stdbool defines the booleam type, bool,
-   and the constants false and true */
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#else
-#ifndef true
-typedef int _Bool;
-#define bool _Bool;
-
-#define false 0
-#define true 1
-#endif
-#endif /* HAVE_STDBOOL_H */
 
 /**
    FALSE and TRUE are the pre-standard versions,
@@ -103,79 +75,26 @@ typedef int _Bool;
 typedef bool YAP_Bool;
 #endif
 
-#ifdef YAP_H
 
-/* if Yap.h is available, just reexport */
+/**
+  This term can never be constructed as a valid term, so it is
+  used as a "BAD" term
+*/
+#define TermZERO ((Term)0)
 
-#define YAP_CELL CELL
 
-#define YAP_Term Term
+#include "YapConfig.h"
 
-#define YAP_Arity arity_t
 
-#define YAP_Module Term
-
-#define YAP_Functor Functor
-
-#define YAP_Atom Atom
-
-#define YAP_Int Int
-
-#define YAP_UInt UInt
-
-#define YAP_Float Float
-
-#define YAP_handle_t yhandle_t
-
-#define YAP_PredEntryPtr struct pred_entry *
-
-#define YAP_UserCPred CPredicate
-
-#define YAP_agc_hook Agc_hook
-
-#define YAP_encoding_t encoding_t
-
-#else
-
-/* Type definitions */
-#if defined(PRIdPTR)
-typedef uintptr_t YAP_UInt;
-typedef intptr_t YAP_Int;
-#elif _WIN64
-typedef int64_t YAP_Int;
-typedef uint64_t YAP_UInt;
-#elif _WIN32
-typedef int32_t YAP_Int;
-typedef uint32_t YAP_UInt;
-#else
-typedef long int YAP_Int;
-typedef unsigned long int YAP_UInt;
-#endif
-
-typedef YAP_UInt YAP_CELL;
-
-typedef YAP_CELL YAP_Term;
+typedef void *YAP_PredEntryPtr;
 
 typedef size_t YAP_Arity;
 
 typedef YAP_Term YAP_Module;
 
-typedef struct FunctorEntry *YAP_Functor;
-
-typedef struct AtomEntry *YAP_Atom;
-
-typedef double YAP_Float;
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 typedef YAP_Int YAP_handle_t;
 
-typedef struct YAP_pred_entry *YAP_PredEntryPtr;
+typedef void *YAP_PredEntryPtr;
 
 typedef YAP_Bool (*YAP_UserCPred)(void);
 
@@ -186,8 +105,6 @@ typedef int (*YAP_agc_hook)(void *_Atom);
 #include "../os/encoding.h"
 
 typedef encoding_t YAP_encoding_t;
-
-#endif
 
 #if __ANDROID__
 #include <android/asset_manager.h>
@@ -256,6 +173,10 @@ typedef enum {
 #define YAP_CONSULT_MODE 0
 #define YAP_RECONSULT_MODE 1
 #define YAP_BOOT_MODE 2
+
+
+X_API YAP_file_type_t Yap_InitDefaults(void *init_args,  char saved_state[],
+                                 int Argc, char *Argv[]);
 
 typedef struct yap_boot_params {
   //> boot type as suggested by the user
@@ -351,15 +272,7 @@ typedef struct yap_boot_params {
   int ErrorNo;
   //> errorstring
   char *ErrorCause;
-#ifdef __cplusplus
-void YAP_init_args();
-#endif
 } YAP_init_args;
-
-#ifdef YAP_H
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *init_args, char saved_state[],
-                                 int Argc, char **Argv);
-#endif
 
 /* this should be opaque to the user */
 typedef struct {

@@ -185,17 +185,15 @@ public:
   virtual void run(char *s) {}
 };
 
-void YAP_init_args::YAP_init_args()
-{
-      Yap_InitDefaults(this, NULL, 0, NULL);
-} ;
-
 /// @brief Setup all arguments to a new engine
 struct X_API YAPEngineArgs: YAP_init_args {
 public:
 
-    YAPEngineArgs(): yap_boot_params() {
-   #if YAP_PYTHON
+    YAPEngineArgs():yap_boot_params() {
+         char s[32];
+         strcpy(s, "startup.yss" );
+            Yap_InitDefaults(this,s,0,nullptr);
+#if YAP_PYTHON
       Embedded = true;
     python_in_python = Py_IsInitialized();
 #endif

@@ -241,7 +241,7 @@ public:
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), enc, Handle_vars_f))) {
+    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), enc, Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }

@@ -460,7 +460,7 @@ static Int exists_directory(USES_REGS1) {
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 
-    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    file_name = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
     if (SYSTEM_STAT(file_name, &ss) != 0) {
       /* ignore errors while checking a file */
       return false;
@@ -483,7 +483,7 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
   int l = push_text_stack();
   const char *buf = Yap_TextTermToText(t PASS_REGS);
   if (buf) {
-    rc = Yap_IsAbsolutePath(buf);
+    rc = Yap_IsAbsolutePath(buf, true);
   } else {
     at = AtomOfTerm(t);
 #if _WIN32

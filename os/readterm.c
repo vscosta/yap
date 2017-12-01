@@ -829,13 +829,13 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   return YAP_SCANNING;
 }
 
-static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
+static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   CACHE_REGS
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
 
-      Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &fe->tpos);
+      Yap_tokenizer(GLOBAL_Stream + sno, false, &fe->tpos);
 #if DEBUG
   if (GLOBAL_Option[2]) {
     TokEntry *t = LOCAL_tokptr;
@@ -857,7 +857,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream) {
     LOCAL_Error_TYPE = SYNTAX_ERROR;
     return YAP_PARSING_ERROR;
   }
-  return scanEOF(fe, inp_stream);
+  return scanEOF(fe, sno);
 }
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
@@ -956,7 +956,7 @@ static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
  *
  *
  */
-Term Yap_read_term(int inp_stream, Term opts, bool clause) {
+Term Yap_read_term(int sno, Term opts, bool clause) {
   FEnv fe;
   REnv re;
 #if EMACS
@@ -968,23 +968,23 @@ Term Yap_read_term(int inp_stream, Term opts, bool clause) {
   while (true) {
     switch (state) {
     case YAP_START_PARSING:
-      state = initParser(opts, &fe, &re, inp_stream, clause);
+      state = initParser(opts, &fe, &re, sno, clause);
       if (state == YAP_PARSING_FINISHED) {
         pop_text_stack(lvl);
         return 0;
       }
       break;
     case YAP_SCANNING:
-      state = scan(&re, &fe, inp_stream);
+      state = scan(&re, &fe, sno);
       break;
     case YAP_SCANNING_ERROR:
-      state = scanError(&re, &fe, inp_stream);
+      state = scanError(&re, &fe, sno);
       break;
     case YAP_PARSING:
-      state = parse(&re, &fe, inp_stream);
+      state = parse(&re, &fe, sno);
       break;
     case YAP_PARSING_ERROR:
-      state = parseError(&re, &fe, inp_stream);
+      state = parseError(&re, &fe, sno);
       break;
     case YAP_PARSING_FINISHED: {
       CACHE_REGS
@@ -1021,17 +1021,17 @@ static Int
 
 static Int read_term(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  int inp_stream;
+  int sno;
   Term out;
 
   /* needs to change LOCAL_output_stream for write */
 
-  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
-  if (inp_stream == -1) {
+  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+  if (sno == -1) {
     return (FALSE);
   }
-  out = Yap_read_term(inp_stream, add_output(ARG2, ARG3), false);
-  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
+  out = Yap_read_term(sno, add_output(ARG2, ARG3), false);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out != 0L;
 }
 
@@ -1060,7 +1060,7 @@ static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
 #undef PAR
 
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
-                              int inp_stream) {
+                              int sno) {
   CACHE_REGS
 
   xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END);
@@ -1082,7 +1082,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
       fe->cmod = PROLOG_MODULE;
   }
   re->bq = getBackQuotesFlag();
-  fe->enc = GLOBAL_Stream[inp_stream].encoding;
+  fe->enc = GLOBAL_Stream[sno].encoding;
   fe->sp = 0;
   fe->qq = 0;
   if (args[READ_CLAUSE_OUTPUT].used) {
@@ -1118,12 +1118,12 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
     fe->vp = 0;
   }
   fe->ce = Yap_CharacterEscapes(fe->cmod);
-  re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
+  re->seekable = (GLOBAL_Stream[sno].status & Seekable_Stream_f) != 0;
   if (re->seekable) {
 #if HAVE_FGETPOS
-    fgetpos(GLOBAL_Stream[inp_stream].file, &re->rpos);
+    fgetpos(GLOBAL_Stream[sno].file, &re->rpos);
 #else
-    re->cpos = GLOBAL_Stream[inp_stream].charcount;
+    re->cpos = GLOBAL_Stream[sno].charcount;
 #endif
   }
   re->prio = LOCAL_default_priority;
@@ -1166,15 +1166,15 @@ static Int read_clause2(USES_REGS1) {
  */
 static Int read_clause(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  int inp_stream;
+  int sno;
   Term out;
 
   /* needs to change LOCAL_output_stream for write */
-  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
-  if (inp_stream < 0)
+  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+  if (sno < 0)
     return false;
-  out = Yap_read_term(inp_stream, add_output(ARG2, ARG3), true);
-  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
+  out = Yap_read_term(sno, add_output(ARG2, ARG3), true);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out != 0;
 }
 
@@ -1191,20 +1191,20 @@ static Int read_clause(
  */
 #if 0
 static Int start_mega(USES_REGS1) {
-  int inp_stream;
+  int sno;
   Term out;
   Term t3 = Deref(ARG3);
   yhandle_t h = Yap_InitSlot(ARG2);
   TokENtry *tok;
   arity_t srity = 0;
   /* needs to change LOCAL_output_stream for write */
-  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read_exo/3");
-  if (inp_stream < 0)
+  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read_exo/3");
+  if (sno < 0)
     return false;
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
-      x Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
+      x Yap_tokenizer(GLOBAL_Stream + sno, false, &tpos);
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket) {
           bool start = true;
@@ -1253,16 +1253,16 @@ static Int source_location(USES_REGS1) {
  */
 static Int read2(
     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  int inp_stream;
+  int sno;
   Int out;
 
   /* needs to change LOCAL_output_stream for write */
-  inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
-  if (inp_stream == -1) {
+  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+  if (sno == -1) {
     return (FALSE);
   }
-  out = Yap_read_term(inp_stream, add_output(ARG2, TermNil), false);
-  UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
+  out = Yap_read_term(sno, add_output(ARG2, TermNil), false);
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
   return out;
 }
 

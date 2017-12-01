@@ -20,6 +20,11 @@
 #define ENCODING_H 1
 
 #include "YapError.h"
+#if HAVE_STRING_H
+
+#include <string.h>
+
+#endif
 
 typedef enum {
   ENC_OCTET = 0,          /// binary files
