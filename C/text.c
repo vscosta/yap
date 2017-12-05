@@ -102,7 +102,7 @@ void *pop_output_text_stack__(int i, const void *export) {
     lvl--;
   }
   LOCAL_TextBuffer->lvl = lvl;
-  return export;
+  return (void *)export;
 }
 
 //	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }

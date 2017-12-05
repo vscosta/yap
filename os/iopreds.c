@@ -687,6 +687,8 @@ int post_process_weof(StreamDesc *s) {
     return EOFCHAR;
 }
 
+void *Yap_RepStreamFromId(int sno) { return GLOBAL_Stream+(sno); }
+
 /**
  * caled after EOF found a peek, it just calls console_post_process to
  *conclude
@@ -705,7 +707,7 @@ int EOFWPeek(int sno) { return EOFCHAR; }
  post_process_read_char, something to think about */
 int PlGetc(int sno) {
     StreamDesc *s = &GLOBAL_Stream[sno];
-    return fgetc(s->file);
+                                                                                                   return fgetc(s->file);
 }
 
 // layered version
@@ -928,7 +930,7 @@ static int binary_file(const char *file_name) {
 #endif
     {
         /* ignore errors while checking a file */
-        return (FALSE);
+        return false;
     }
     return (S_ISDIR(ss.st_mode));
 #else
@@ -993,24 +995,26 @@ static int write_bom(int sno, StreamDesc *st) {
 
 static void check_bom(int sno, StreamDesc *st) {
     int ch1, ch2, ch3, ch4;
-
-    ch1 = fgetc(st->file);
+if (st-> file == NULL) {
+    PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno), "YAP does not support BOM n %x type of files", st->status);                                                         return;
+}
+    ch1 = st->stream_getc(sno);
     switch (ch1) {
         case 0x00: {
-            ch2 = fgetc(st->file);
+            ch2 = st->stream_getc(sno);
             if (ch2 != 0x00) {
                 ungetc(ch1, st->file);
                 ungetc(ch2, st->file);
                 return;
             } else {
-                ch3 = fgetc(st->file);
+                ch3 = st->stream_getc(sno);
                 if (ch3 == EOFCHAR || ch3 != 0xFE) {
                     ungetc(ch1, st->file);
                     ungetc(ch2, st->file);
                     ungetc(ch3, st->file);
                     return;
                 } else {
-                    ch4 = fgetc(st->file);
+                    ch4 = st->stream_getc(sno);
                     if (ch4 == EOFCHAR || ch3 != 0xFF) {
                         ungetc(ch1, st->file);
                         ungetc(ch2, st->file);
@@ -1228,22 +1232,7 @@ do_open(Term file_name, Term t2,
         return false;
     }
     /* done */
-    sno = GetFreeStreamD();
-    if (sno < 0) {
-        free(args);
-        return PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil, "open/3");
-    }
-    st = &GLOBAL_Stream[sno];
-    st->user_name = file_name;
     flags = 0;
-    // user requested encoding?
-    if (args[OPEN_ALIAS].used) {
-        Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
-        if (!Yap_AddAlias(al, sno)) {
-            free(args);
-            return false;
-        }
-    }
     if (args[OPEN_ENCODING].used) {
         tenc = args[OPEN_ENCODING].tvalue;
         s_encoding = RepAtom(AtomOfTerm(tenc))->StrOfAE;
@@ -1259,9 +1248,8 @@ do_open(Term file_name, Term t2,
               trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
     // expand file name?
     fname = Yap_AbsoluteFile(fname, fbuf, ok);
-    if (fname) {
-        st->name = Yap_LookupAtom(fname);
-    } else {
+
+    if (!fname) {
         PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
     }
 
@@ -1305,21 +1293,32 @@ do_open(Term file_name, Term t2,
             needs_bom = false;
         }
     }
-    if (st - GLOBAL_Stream < 3) {
-        flags |= RepError_Prolog_f;
-    }
     if (open_mode == AtomRead) {
-        strncpy(io_mode, "rb", 8);
+        strncpy(io_mode, "r", 8);
     } else if (open_mode == AtomWrite) {
         strncpy(io_mode, "w", 8);
     } else if (open_mode == AtomAppend) {
         strncpy(io_mode, "a", 8);
     } else {
         Yap_Error(DOMAIN_ERROR_IO_MODE, MkAtomTerm(open_mode), "open/3");
-        return -2;
+        return false;
     }
-    if (Yap_OpenStream(RepAtom(AtomOfTerm(file_name))->StrOfAE, io_mode)  < 0) {
+    if ((sno = Yap_OpenStream(fname, io_mode, file_name))  < 0) {
 return false;
+    }
+    st = &GLOBAL_Stream[sno];
+    st->user_name = file_name;
+    // user requested encoding?
+    if (args[OPEN_ALIAS].used) {
+        Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
+        if (!Yap_AddAlias(al, sno)) {
+            free(args);
+            return false;
+        }
+    }
+    st->name = Yap_LookupAtom(fname);
+    if (st - GLOBAL_Stream < 3) {
+        flags |= RepError_Prolog_f;
     }
 #if MAC
     if (open_mode == AtomWrite) {
@@ -1327,7 +1326,6 @@ return false;
     }
 #endif
     //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
-    flags &= ~(Free_Stream_f);
     Yap_DefaultStreamOps(st);
         if (needs_bom && !write_bom(sno, st)) {
             return false;
@@ -1372,7 +1370,8 @@ writable.
 
 */
 
-static Int open3(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
+static Int open3(USES_REGS1) {
+/* '$open'(+File,+Mode,?Stream,-ReturnCode) */
     return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
 
@@ -1506,7 +1505,7 @@ static Int p_open_null_stream(USES_REGS1) {
     return (Yap_unify(ARG1, t));
 }
 
-int Yap_OpenStream(const char *fname, const char *io_mode) {
+int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
     CACHE_REGS
     int sno;
     StreamDesc *st;
@@ -1532,19 +1531,23 @@ int Yap_OpenStream(const char *fname, const char *io_mode) {
                       MkAtomTerm(Yap_LookupAtom(fname)), "%s", fname);
             return -1;
         }
-      } else if ((fd = fopen(fname, io_mode)) == NULL ||
-               (!strchr(io_mode, 'b') && binary_file(fname))) {
-        UNLOCK(st->streamlock);
-        if (errno == ENOENT && !strchr(io_mode, 'r')) {
-            PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s",
-                      fname,
-                      strerror(errno));
-        } else {
-            PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)),
-                      "%s: %s",
-                      fname, strerror(errno));
+    } else {
+        fd = st->file = fopen(fname, io_mode);
+        if (fd == NULL) {
+            if (!strchr(io_mode, 'b') && binary_file(fname)) {
+                UNLOCK(st->streamlock);
+                if (errno == ENOENT && !strchr(io_mode, 'r')) {
+                    PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s",
+                          fname,
+                          strerror(errno));
+                } else {
+                    PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)),
+                          "%s: %s",
+                          fname, strerror(errno));
+                }
+            }
+            return -1;
         }
-        return -1;
     }
     flags = st->status;
     if (strchr(io_mode, 'w')) {
@@ -1559,12 +1562,13 @@ int Yap_OpenStream(const char *fname, const char *io_mode) {
         at = AtomRead;
         flags |= Input_Stream_f;
     }
-    Atom name = Yap_LookupAtom(fname);
-    Yap_initStream(sno, st->file, name, MkAtomTerm( name ), LOCAL_encoding, st->status, at, NULL);
+    if (strchr(io_mode, 'b')) {
+        flags |= Binary_Stream_f;
+    }
+    Yap_initStream(sno, st->file, fname, user_name, LOCAL_encoding, flags, at, NULL);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid",
                         "exists %s <%d>", fname, sno);
-    return sno
-            ;
+    return sno;
 }
 
 int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags) {

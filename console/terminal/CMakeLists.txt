@@ -58,7 +58,7 @@ include_directories(../../CXX)
 
 
   install(TARGETS  qtyap
-     RUNTIME DESTINATION ${bindir}
+     RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BIINDIR}
     )
 
 ENDIF(Qt5Widgets_FOUND)

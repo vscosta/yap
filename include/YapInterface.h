@@ -475,6 +475,16 @@ extern X_API void YAP_SetOutputMessage(void);
 
 extern X_API int YAP_StreamToFileNo(YAP_Term);
 
+
+/**
+ * Utility routine to Obtain a pointer to the YAP representation of a stream.
+ *
+ * @param sno Stream Id
+ * @return data structure for stream
+ */
+extern X_API void *YAP_RepStreamFromId(int sno);
+
+
 extern X_API void YAP_CloseAllOpenStreams(void);
 
 extern X_API void YAP_FlushAllStreams(void);

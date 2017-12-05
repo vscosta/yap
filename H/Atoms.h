@@ -96,7 +96,7 @@ typedef struct ExtraAtomEntryStruct {
 #define USE_OFFSETS_IN_PROPS 0
 #endif
 
-typedef u_short PropFlags;
+typedef CELL PropFlags;
 
 /*	    basic property entry structure				*/
 typedef struct PropEntryStruct {

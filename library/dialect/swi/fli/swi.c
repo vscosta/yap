@@ -3142,7 +3142,7 @@ term_t Yap_CvtTerm(term_t ts) {
 }
 
 char *PL_cwd(char *cwd, size_t cwdlen) {
-  return (char *)Yap_getcwd((const char *)cwd, cwdlen);
+  return (char *)Yap_getcwd(cwd, cwdlen);
 }
 
 /**

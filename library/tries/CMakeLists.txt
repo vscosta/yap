@@ -13,9 +13,9 @@ target_link_libraries(tries libYap)
 set_target_properties (tries PROPERTIES PREFIX "")
 
 install(TARGETS  tries
-        LIBRARY DESTINATION ${dlls}
-        RUNTIME DESTINATION ${dlls}
-  ARCHIVE DESTINATION ${dlls})
+        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR})
 
 
 set ( ITRIES_SOURCES
@@ -34,7 +34,7 @@ target_link_libraries(itries libYap)
 set_target_properties (itries PROPERTIES PREFIX "")
 
 install(TARGETS  itries
-        LIBRARY DESTINATION ${dlls}
-  RUNTIME DESTINATION ${dlls}
-  ARCHIVE DESTINATION ${dlls} )
+        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+  RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
 

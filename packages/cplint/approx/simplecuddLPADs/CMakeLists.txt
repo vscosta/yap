@@ -26,7 +26,7 @@ target_link_libraries(LPADbdd
     )
  
   install(TARGETS LPADbdd
-    RUNTIME DESTINATION ${bindir}
-    LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 

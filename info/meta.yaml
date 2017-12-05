@@ -9,6 +9,7 @@ requirements:
     - cmake
     - swig
     - gmp
+    - ninja
     - readline
     - python
     - r
@@ -16,8 +17,7 @@ requirements:
     - pkgconfig
     - make
 run:
-    - python
-    - pythonlab
+    - jupyterlab
     - readline
     - gmp
     - r

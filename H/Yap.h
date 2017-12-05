@@ -151,6 +151,8 @@ typedef void *(*fptr_t)(void);
                               main exports in YapInterface.h
 *************************************************************************************************/
 
+extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR, *Yap_PLDIR;
+
 /* Basic exports */
 
 #include "YapDefs.h"

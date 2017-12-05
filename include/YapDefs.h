@@ -129,10 +129,11 @@ typedef enum {
   YAP_SAVED_STATE = 0x0004,
   YAP_OBJ = 0x0008,
   YAP_PL = 0x0010,
-  YAP_BOOT_PL = 0x0030,
+    YAP_BOOT_PL = 0x0030,
   YAP_QLY = 0x0040,
   YAP_EXE = 0x0080,
-  YAP_FOUND_BOOT_ERROR = 0x0100
+  YAP_FOUND_BOOT_ERROR = 0x0100,
+  YAP_DIR = 0x0200
 } YAP_file_type_t;
 
 #define YAP_ANY_FILE (0x00ff)
@@ -179,8 +180,10 @@ X_API YAP_file_type_t Yap_InitDefaults(void *init_args,  char saved_state[],
                                  int Argc, char *Argv[]);
 
 typedef struct yap_boot_params {
-  //> boot type as suggested by the user
-  YAP_file_type_t boot_file_type;
+    //> boot type as suggested by the user
+    YAP_file_type_t boot_file_type;
+    //> bootstrapping mode: YAP is not properly installed
+    bool bootstrapping;
   //> if NON-NULL, path where we can find the saved state
   const char *SavedState;
   //> if NON-0, minimal size for Heap or Code Area
@@ -201,10 +204,16 @@ typedef struct yap_boot_params {
   size_t AttsSize;
   //> if NON-0, maximal size for AttributeVarStack
   size_t MaxAttsSize;
-  //> if NON-NULL, value for YAPLIBDIR
-  const char *YapLibDir;
-  //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries
-  const char *YapShareDir;
+    //> if NON-NULL, value for YAPROOTDIR
+    const char *YapRootDir;
+    //> if NON-NULL, value for YAPLIBDIR
+    const char *YapLibDir;
+    //> if NON-NULL, value for YAPSHAREDIR, that is, default value for libraries
+    const char *YapShareDir;
+    //> if NON-NULL, value for YAPDLLDIR, that is, default value for libraries
+    const char *YapDLLDir;
+    //> if NON-NULL, value for YAPPLDIR, that is, default value for libraries
+    const char *YapPlDir;
   //> if NON-NULL, name for a Prolog file to use when booting
   const char *YapPrologBootFile;
   //> if NON-NULL, name for a Prolog file to use when initializing

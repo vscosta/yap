@@ -106,7 +106,6 @@ X_API int YAP_Reset(yap_reset_t mode);
 #if __ANDROID__
 #define BOOT_FROM_SAVED_STATE true
 #endif
-static char BootFile[] = "boot.yap";
 
 /**
 @defgroup slotInterface Term Handles or Slots
@@ -2123,7 +2122,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full,
     }
     char *bfp = Malloc(YAP_FILENAME_MAX + 1);
     bfp[0] = '\0';
-    if (fname != NULL && fname[0] != 0)
+    if (fname != NULL && fname[0] != '\0')
         strcpy(bfp, fname);
     bool consulted = (mode == YAP_CONSULT_MODE);
     const char *fl = Yap_findFile(bfp, NULL, NULL, full, true,
@@ -2133,7 +2132,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full,
         return -1;
     }
     Yap_init_consult(consulted, bfp);
-    sno = Yap_OpenStream(fl,"r");
+    sno = Yap_OpenStream(fl,"r", MkAtomTerm(Yap_LookupAtom(fname)));
     *osnop = Yap_CheckAlias(AtomLoopStream);
     if (!Yap_AddAlias(AtomLoopStream, sno)) {
         Yap_CloseStream(sno);
@@ -2321,6 +2320,9 @@ static void do_bootfile(const char *b_file USES_REGS) {
         exit(1);
     }
     free(full);
+        setAtomicGlobalPrologFlag(
+                RESOURCE_DATABASE_FLAG,
+                MkAtomTerm(GLOBAL_Stream[boot_stream].name));
     do {
         CACHE_REGS
         YAP_Reset(YAP_FULL_RESET);
@@ -2422,7 +2424,7 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     YAP_file_type_t restore_result = yap_init->boot_file_type;
     bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
     CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-    char *boot_file;
+    char *boot_file, *restore_file;
     Int rc;
     char *yroot;
     if (YAP_initialized)
@@ -2430,8 +2432,9 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     if (!LOCAL_TextBuffer)
         LOCAL_TextBuffer = Yap_InitTextAllocator();
 
-    yroot =  malloc(YAP_FILENAME_MAX + 1);
-    boot_file = malloc(YAP_FILENAME_MAX + 1);
+    yroot =  Malloc(YAP_FILENAME_MAX + 1);
+    boot_file = Malloc(YAP_FILENAME_MAX + 1);
+    restore_file = Malloc(YAP_FILENAME_MAX + 1);
     /* ignore repeated calls to YAP_Init */
     Yap_embedded = yap_init->Embedded;
     Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
@@ -2446,51 +2449,63 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 			       functions */
         GLOBAL_argv = yap_init->Argv;
         GLOBAL_argc = yap_init->Argc;
-        if (0 && ((YAP_QLY && yap_init->SavedState) ||
-                  (YAP_BOOT_PL && (yap_init->YapPrologBootFile)))) {
-            strcpy(yroot, ".");
-        } else {
-            strcpy(yroot, BootFile);
-        }
     }
-    char *tmp = NULL;
-    if (yap_init->SavedState == NULL) {
-        tmp = Malloc(strlen(YAP_STARTUP) + 1);
-        strncpy(tmp, YAP_STARTUP, strlen(YAP_STARTUP) + 1);;
+
+    char *tmp = NULL, *root;
+    if (yap_init->bootstrapping) {
+        restore_result = YAP_BOOT_PL;
+    } else if (restore_result == YAP_QLY){
+        if (yap_init->SavedState == NULL) {
+            tmp = Malloc(strlen(YAP_STARTUP) + 1);
+            strncpy(tmp, YAP_STARTUP, strlen(YAP_STARTUP) + 1);
+            root = Malloc(YAP_FILENAME_MAX+1);
+	    if (yap_init->YapLibDir)
+	      strncpy( root, yap_init->YapLibDir,YAP_FILENAME_MAX );
+	    else
+	      strncpy( root, YAP_LIBDIR, YAP_FILENAME_MAX );
+        } else {
+            root = Malloc(YAP_FILENAME_MAX);
+            Yap_getcwd(root, YAP_FILENAME_MAX);
+	    tmp = yap_init->SavedState;
+        }
     }
 
 #if __ANDROID__
 
-//if (yap_init->assetManager)
-    Yap_InitAssetManager();
+        //if (yap_init->assetManager)
+            Yap_InitAssetManager();
 
 #endif
 #if USE_DL_MALLOC
-    if (yap_init->SavedState == NULL)
-    yap_init->SavedState = YAP_STARTUP;
+        if (yap_init->SavedState == NULL)
+        yap_init->SavedState = YAP_STARTUP;
 #else
-    yap_init->SavedState = Yap_findFile(tmp, YAP_STARTUP, yap_init->YapLibDir,
-                                        boot_file, true, YAP_QLY, true, true);
+        yap_init->SavedState = Yap_findFile(tmp, YAP_STARTUP, root,
+                                            restore_file, true, YAP_QLY, true, true);
 #endif
-    if (yap_init->SavedState == NULL) {
-        restore_result = YAP_BOOT_PL;
-    }
-
     if (restore_result == YAP_BOOT_PL) {
 #if USE_DL_MALLOC
         if (yap_init->YapPrologBootFile == NULL ||
         yap_init->YapPrologBootFile[0] == 0)
-          yap_init->YapPrologBootFile = BootFile;
-          strcpy(boot_file, BootFile);
+        {
+      yap_init->YapPrologBootFile = YAP_BOOTFILE;
+                    strcpy(boot_file, YAP_BOOTFILE);
         }
 #else
-        strcpy(boot_file, BootFile);
-        const char *s = Yap_findFile(yap_init->YapPrologBootFile,
-                                     BootFile, yroot, boot_file,
-                                     true, YAP_BOOT_PL, true, true);
-        if (s && s[0] != '\0') {
-            strcpy(boot_file, s);
+        if (yap_init->YapPrologBootFile == NULL) {
+            tmp = Malloc(strlen(YAP_BOOTFILE) + 1);
+            strncpy(tmp,YAP_BOOTFILE, strlen(YAP_BOOTFILE) + 1);
+        } else {
+            tmp = (char*)yap_init->YapPrologBootFile;
         }
+        const char *bpath;
+        if (yap_init->bootstrapping)
+            bpath = YAP_PL_SRCDIR;
+        else
+            bpath = yap_init->YapShareDir;
+        yap_init->YapPrologBootFile = Yap_findFile(tmp, yap_init->YapPrologBootFile,
+                                     bpath, boot_file,
+                                     true, YAP_BOOT_PL, true, true);
 #endif
     }
 
@@ -2543,7 +2558,7 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
                     YAP_BOOT_PL;
         } else { // try always to boot from the saved state.
             if (restore_result == YAP_QLY) {
-                if (!
+                if (DO_ONLY_CODE !=
                         Yap_SavedInfo(yap_init
                                               ->SavedState, yap_init->YapLibDir, &Trail,
                                       &Stack, &Heap)) {
@@ -2633,23 +2648,20 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
                      MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath))
         );
     }
-    if (yap_init->YapShareDir) {
+    if (yap_init->YapPlDir) {
         setAtomicGlobalPrologFlag(PROLOG_LIBRARY_DIRECTORY_FLAG,
-                                  MkAtomTerm(Yap_LookupAtom(yap_init->YapShareDir))
+                                  MkAtomTerm(Yap_LookupAtom(yap_init->YapPlDir))
         );
     }
-    if (yap_init->YapLibDir) {
+    if (yap_init->YapDLLDir) {
         setAtomicGlobalPrologFlag(PROLOG_FOREIGN_DIRECTORY_FLAG,
-                                  MkAtomTerm(Yap_LookupAtom(yap_init->YapLibDir))
+                                  MkAtomTerm(Yap_LookupAtom(yap_init->YapDLLDir))
         );
     }
     if (yap_init->QuietMode) {
         setVerbosity(TermSilent);
     }
     if (restore_result == YAP_QLY) {
-        setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                                  MkAtomTerm(Yap_LookupAtom(yap_init->SavedState))
-        );
         LOCAL_PrologMode &=
                 ~BootMode;
         CurrentModule = LOCAL_SourceModule = USER_MODULE;
@@ -2658,22 +2670,18 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
         rc = YAP_QLY;
     } else {
         if (boot_file[0] == '\0')
-            strcpy(boot_file, BootFile
+            strcpy(boot_file, YAP_BOOTFILE
             );
         do_bootfile(boot_file PASS_REGS);
-        setAtomicGlobalPrologFlag(
-                RESOURCE_DATABASE_FLAG,
-                MkAtomTerm(Yap_LookupAtom(boot_file))
-        );
         setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG,
                                    false);
+	rc = YAP_BOOT_PL;
     }
 
     start_modules();
 
     YAP_initialized = true;
-    return
-            YAP_BOOT_PL;
+    return rc;
 }
 
 #if (DefTrailSpace < MinTrailSpace)
@@ -2735,6 +2743,13 @@ X_API void YAP_SetOutputMessage(void) {
 }
 
 X_API int YAP_StreamToFileNo(Term t) { return (Yap_StreamToFileNo(t)); }
+
+/**
+ * Obtain a pointer to the YAP representation of a stream.
+ * @param sno Stream Id
+ * @return data structure for stream
+ */
+X_API void *YAP_RepStreamFromId(int sno) { return GLOBAL_Stream+sno; }
 
 X_API void YAP_CloseAllOpenStreams(void) {
     BACKUP_H();

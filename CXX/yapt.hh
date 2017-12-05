@@ -194,7 +194,7 @@ public:
   virtual bool isGround() { return Yap_IsGroundTerm(gt()); } /// term is ground
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
-  /// extract the argument i of the term, where i in 1...arity
+  /// extract the argument i of the term, where i in 1...arityvoid *Yap_RepStreamFromId(int sno)
   virtual Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term tf = 0;
@@ -493,7 +493,7 @@ public:
  * Term Representation of an Atom
  */
 class X_API YAPAtomTerm : public YAPTerm {
-  friend class YAPModule;
+                                                                                                                                              friend class YAPModule;
   // Constructor: receives a C-atom;
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
 
@@ -501,15 +501,17 @@ public:
   YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   // Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }
-  // Constructor: receives a sequence of ISO-LATIN1 codes;
+  // Constructor: receives a sequence of UTF-8 codes;
   YAPAtomTerm(char s[]);
-  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;
+  // Constructor: receives a sequence of up to n UTF-8 codes;
   YAPAtomTerm(char *s, size_t len);
   // Constructor: receives a sequence of wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s);
-  // Constructor: receives a sequence of n wchar_ts, whatever they may be;
-  YAPAtomTerm(wchar_t *s, size_t len);
-  bool isVar() { return false; }           /// type check for unbound
+    // Constructor: receives a sequence of n wchar_ts, whatever they may be;
+    YAPAtomTerm(wchar_t *s, size_t len);
+// Constructor: receives a std::string;
+    YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))); };
+    bool isVar() { return false; }           /// type check for unbound
   bool isAtom() { return true; }           ///  type check for atom
   bool isInteger() { return false; }       /// type check for integer
   bool isFloat() { return false; }         /// type check for floating-point

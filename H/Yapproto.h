@@ -435,7 +435,7 @@ extern const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t
 extern const char *Yap_findFile(const char *isource, const char *idef,
                          const char *root, char *result, bool access,
                          YAP_file_type_t ftype, bool expand_root, bool in_lib);
-extern bool ChDir(const char *path);
+extern bool Yap_ChDir(const char *path);
 
 /* threads.c */
 extern void Yap_InitThreadPreds(void);
@@ -498,6 +498,7 @@ extern int Yap_get_stream_handle(Term, int, int, void *);
 extern Term Yap_get_stream_position(void *);
 extern struct AtomEntryStruct *Yap_lookupBlob(void *blob, size_t len, void *type,
                                        int *newp);
+extern void *Yap_RepStreamFromId(int sno);
 
 /* opt.preds.c */
 extern void Yap_init_optyap_preds(void);

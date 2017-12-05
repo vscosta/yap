@@ -194,7 +194,7 @@ static inline Term options(Term inp) {
 }
 
 static inline Term rootdir(Term inp) {
-  return MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
+  return MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR));
 }
 
 // INLINE_ONLY inline EXTERN  Term ok( Term inp );

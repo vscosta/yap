@@ -1363,7 +1363,7 @@ static int OpenRestore(const char *inpf, const char *YapLibDir, CELL *Astate,
   int mode;
   char fname[YAP_FILENAME_MAX + 1];
 
-  if (!Yap_findFile(inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_SAVED_STATE,
+  if (!Yap_findFile(inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_QLY,
                     true, true))
     return FAIL_RESTORE;
   if (fname[0] && (mode = try_open(fname, Astate, ATrail, AStack, AHeap,

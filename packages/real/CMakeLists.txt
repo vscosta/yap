@@ -62,9 +62,9 @@ include_directories (
   configure_file ("rconfig.h.cmake" "rconfig.h" )
 
  install(TARGETS  real
-    RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
-    LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES real.pl

@@ -71,7 +71,7 @@ endif()
 
       install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
-    DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+    DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${YAP_INSTALL_DLLDIR} )
 
 
 install(FILES ${YAP4PY_PL} DESTINATION ${libpl} )

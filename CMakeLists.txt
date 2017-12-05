@@ -7,10 +7,10 @@ cmake_minimum_required(VERSION 3.4)
 # value of 3.4.0 or lower.
 include(CMakeToolsHelpers OPTIONAL)
 
-project(YAP)
-
 include(FeatureSummary)
 include(GNUInstallDirs)
+
+project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
 cmake_policy(VERSION 3.4)
@@ -219,7 +219,7 @@ if (ANACONDA)
 #set(CMAKE_LIBRARY_PATH $ENV{SYS_PREFIX}/lib $ENV{SYS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
 #        set(ENV{PATH} PATH $ENV{PREFIX}/bin $ENV{SYS_PREFIX}/bin $ENV{PATH})
 #        set(PATH $ENV{PATH} ${PATH})
-    #set( CMAKE_INSTALL_PREFIX $ENV{PREFIX} )
+    #set( CMAKE_INSTALL_FULL_PREFIX $ENV{PREFIX} )
         set( PYTHON_LIBRARY $ENV{PREFIX}/lib/libpython$ENV{PY_VER}m$ENV{SHLIB_EXT})
     set( PYTHON_INCLUDE_DIR $ENV{PREFIX}/include/python$ENV{PY_VER}m)
 set(YAP_IS_MOVABLE 1)
@@ -249,42 +249,28 @@ if (APPLE)
     endif ()
 endif ()
 
-set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
-set(bindir ${CMAKE_INSTALL_PREFIX}/bin) #BINDIR})
-set(includedir ${CMAKE_INSTALL_PREFIX}/include) #INCLUDEDIR})
-set(libdir ${CMAKE_INSTALL_PREFIX}/lib) #LIBDIR})
-set(exec_prefix ${CMAKE_INSTALL_PREFIX}/libexec) #LIBEXECDIR})
-set(datarootdir ${CMAKE_INSTALL_PREFIX}/share) #DATAROOTDIR})
-set(datadir ${CMAKE_INSTALL_PREFIX}/share) #DATADIR})
-if (ANDROID)
-    set(datarootdir ${YAP_APP_DIR}/src/generated/assets)
-    set(datadir ${YAP_APP_DIR}/src/generated/assets)
-endif ()
-set(mandir ${CMAKE_INSTALL_PREFIX}/share/man) #MANDIR})
-set(docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
-
-set(libpl ${datarootdir}/Yap)
-
-set(dlls ${libdir}/Yap)
-
-set(YAP_ROOTDIR ${prefix})
+set(YAP_ROOTDIR ${CMAKE_INSTALL_PREFIX})
 # erootdir -> rootdir
-# bindir defined above
 # libdir defined above
-set(YAP_SHAREDIR ${datarootdir})
-set(YAP_BINDIR ${bindir})
-set(YAP_INCLUDEDIR ${includedir})
-set(YAP_ROOTDIR ${prefix})
-set(YAP_LIBDIR ${dlls})
+set(YAP_DATADIR  ${CMAKE_INSTALL_FULL_DATADIR})
+set(YAP_INCLUDEDIR  ${CMAKE_INSTALL_FULL_INCLUDEDIR}/Yap)
+set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
+set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
+set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
+
+set(YAP_INSTALL_DLLDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
+set(YAP_INSTALL_PLDIR ${CMAKE_INSTALL_DATADIR}/Yap)
+
+set(libpl ${YAP_INSTALL_PLDIR})
 
 #
 #
-# include( Sources NO_POLICY_SCOPE )
+# include( Sources  )
 #
-# include( Model NO_POLICY_SCOPE  )
+# include( Model   )
 
-include(cudd NO-POLICY-SCOPE)
-include(java NO-POLICY-SCOPE)
+include(cudd )
+include(java )
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
@@ -471,7 +457,7 @@ option(WITH_PYTHON
         "Allow Python->YAP  and YAP->Python" ON)
 
 IF (WITH_PYTHON)
-    include(python NO_POLICY_SCOPE)
+    include(python )
 ENDIF (WITH_PYTHON)
 
 
@@ -529,6 +515,7 @@ endif ()
 
 
 set(YAP_STARTUP startup.yss)
+set(YAP_BOOTFILE boot.yap                                                                                                                                                                                                                                                                                                                           )
 ## define system
 
 # Optional libraries that affect compilation
@@ -555,7 +542,7 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 # (but later on when installing)
 #SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
-# SET(CMAKE_INSTALL_RPATH ${CMAKE_TOP_BINARY_DIR})
+# SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
@@ -786,9 +773,9 @@ set_target_properties(yap-bin PROPERTIES OUTPUT_NAME yap)
 target_link_libraries(yap-bin libYap)
 
 install(TARGETS libYap yap-bin
-        RUNTIME DESTINATION ${bindir}
-        LIBRARY DESTINATION ${libdir}
-        ARCHIVE DESTINATION ${libdir}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 
@@ -802,7 +789,7 @@ if (NOT ANDROID)
 
 add_subDIRECTORY(library/lammpi)
 
-if (MPI_C_FOUND\D)
+if (MPI_C_FOUND)
 
     CMAKE_DEPENDENT_OPTION(WITH_MPI ON "Interface to OpenMPI/MPICH"
             "MPI_C_FOUND" OFF)
@@ -827,15 +814,20 @@ endif(NOT ANDROID)
 
 #
 
+install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${YAP_INCLUDEDIR} )
+
+
 
 macro_display_feature_log()
 if (POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif (POLICY CMP0058)
 
-include(Config NO_POLICY_SCOPE)
+include(Config )
 
 
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
         INCLUDE_QUIET_PACKAGES
         )
+
+ 

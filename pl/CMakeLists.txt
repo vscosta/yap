@@ -79,7 +79,7 @@ else ()
             )
 
 install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${dlls}
+        DESTINATION ${YAP_INSTALL_DLLDIR}
         )
 endif()
 

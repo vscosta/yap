@@ -159,7 +159,8 @@ int Yap_CloseForeignFile(void *handle) {
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine
  */
-static Int LoadForeign(StringList ofiles, StringList libs, char *proc_name,
+static Int LoadForeign(StringList 
+  ofiles, StringList libs, char *proc_name,
                        YapInitProc *init_proc) {
   CACHE_REGS
   LOCAL_ErrorMessage = NULL;

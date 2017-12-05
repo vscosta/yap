@@ -303,14 +303,14 @@ static char tmpbuf[YAP_BUF_SIZE];
   }
 
 #include "YapErrors.h"
-
+//
 void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
   new_error->top_error = LOCAL_ActiveError;
   LOCAL_ActiveError = new_error;
 }
 
 yap_error_descriptor_t *Yap_popErrorContext(void) {
-  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
+ struct  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
   return new_error;
 }

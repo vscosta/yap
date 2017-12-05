@@ -957,10 +957,10 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
   int len;
+    char *dir;
 
 #if __WINDOWS__
   {
-    char *dir;
     if ((dir = Yap_RegistryGetString("library")) && is_directory(dir)) {
       dir_done = true;
       if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(dir))))
@@ -975,17 +975,9 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
   if (dir_done && commons_done)
     return true;
 #endif
-  strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
-  strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  if (!dir_done) {
-    strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) {
-      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
+
+      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
         return false;
-      dir_done = true;
-    }
-  }
   if (!commons_done) {
     LOCAL_FileNameBuf[len] = '\0';
     strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
@@ -1202,6 +1194,7 @@ const char *Yap_findFile(const char *isource, const char *idef,
   int rc = FAIL_RESTORE;
   int try = 0;
   bool abspath = false;
+
     int lvl = push_text_stack();
     root = Malloc(YAP_FILENAME_MAX+1);
     source= Malloc(YAP_FILENAME_MAX+1);
@@ -1246,32 +1239,6 @@ const char *Yap_findFile(const char *isource, const char *idef,
       } else {
         done = true;
       }
-      break;
-    case 2: // use environment variable YAPLIBDIR
-#if HAVE_GETENV
-      if (in_lib) {
-          const char *eroot;
-
-        if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-          eroot = getenv("YAPLIBDIR");
-        } else if (ftype == YAP_BOOT_PL) {
-          eroot = getenv("YAPSHAREDIR");
-          if (eroot == NULL) {
-            continue;
-          } else {
-            strncpy(root, eroot, YAP_FILENAME_MAX);
-            strncat(root, "/pl", YAP_FILENAME_MAX);
-          }
-        }
-          if (isource && isource[0])
-              strcpy(source, isource);
-          else if (idef && idef[0])
-              strcpy(source, idef);
-          else
-              source[0] = 0;
-      } else
-#endif
-        done = true;
       break;
     case 3: // use compilation variable YAPLIBDIR
       if (in_lib) {
@@ -1804,39 +1771,19 @@ static Int p_host_type(USES_REGS1) {
 }
 
 static Int p_yap_home(USES_REGS1) {
-  Term out = MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
-  return (Yap_unify(out, ARG1));
+    Term out;
+
+        out = MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR));
+    return Yap_unify(out, ARG1);
 }
 
 static Int p_yap_paths(USES_REGS1) {
   Term out1, out2, out3;
-  const char *env_destdir = getenv("DESTDIR");
-  char destdir[YAP_FILENAME_MAX + 1];
 
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/", YAP_FILENAME_MAX);
-    strncat(destdir,  YAP_LIBDIR, YAP_FILENAME_MAX);
-    out1 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
-  }
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/", YAP_FILENAME_MAX);
-    strncat(destdir, YAP_SHAREDIR, YAP_FILENAME_MAX);
-    out2 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
-  }
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/", YAP_FILENAME_MAX);
-    strncat(destdir, YAP_BINDIR, YAP_FILENAME_MAX);
-    out3 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
-  }
+    out1 = MkAtomTerm(Yap_LookupAtom(Yap_LIBDIR));
+    out2 = MkAtomTerm(Yap_LookupAtom(Yap_SHAREDIR));
+    out3 = MkAtomTerm(Yap_LookupAtom(Yap_BINDIR));
+
   return (Yap_unify(out1, ARG1) && Yap_unify(out2, ARG2) &&
           Yap_unify(out3, ARG3));
 }
@@ -1917,7 +1864,7 @@ static Int p_win32(USES_REGS1) {
 }
 
 static Int p_ld_path(USES_REGS1) {
-  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR)));
+  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(YAP_DLLDIR)));
 }
 
 static Int p_address_bits(USES_REGS1) {
