@@ -292,6 +292,9 @@ extern void Yap_InitInlines(void);
 extern int Yap_eq(Term, Term);
 
 /* iopreds.c */
+extern bool Yap_IsAbsolutePath(const char *p, bool);
+extern Atom Yap_TemporaryFile(const char *prefix, int *fd);
+extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
 extern void Yap_InitPlIO( struct yap_boot_params *ts );
 extern void Yap_InitBackIO(void);
 extern void Yap_InitIOPreds(void);

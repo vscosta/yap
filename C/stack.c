@@ -1099,7 +1099,7 @@ bool set_clause_info(yamop *codeptr, PredEntry *pp) {
     }
     LOCAL_ActiveError->prologPredModule =
             (pp->ModuleOfPred ? RepAtom(AtomOfTerm(pp->ModuleOfPred))->StrOfAE : "prolog");
-    LOCAL_ActiveError->prologPredFile = RepAtom(pp->src.OwnerFile->StrOfAE);
+    LOCAL_ActiveError->prologPredFile = RepAtom(pp->src.OwnerFile)->StrOfAE;
     if (codeptr->opc == UNDEF_OPCODE) {
         LOCAL_ActiveError->prologPredFirstLine = 0;
         LOCAL_ActiveError->prologPredLine = 0;

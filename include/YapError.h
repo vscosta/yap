@@ -178,7 +178,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 
   /// a Prolog goal that caused a bug
 
-  typedef struct error_prolog_source {
+  typedef struct yap_error_prolog_source {
     intptr_t prologPredCl;
     uintptr_t prologPredLine;
     uintptr_t prologPredFirstLine;
@@ -189,10 +189,10 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
       const char *  prologPredFile;
     void *errorGoal;
     struct error_prolog_source *errorParent;
-  } error_prolog_source_t;
+  } yap_error_prolog_source_t;
 
   /// all we need to know about an error/throw
-  typedef struct error_descriptor {
+  typedef struct s_yap_error_descriptor {
     enum yap_error_status status;
     yap_error_class_number errorClass;
     const char * errorAsText;
@@ -220,7 +220,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     uintptr_t rawErrorTerm, rawExtraErrorTerm;
     char *errorMsg;
     size_t errorMsgLen;
-    struct yap_error_descriptor *top_error;
+    struct s_yap_error_descriptor *top_error;
   } yap_error_descriptor_t;
 
 /// compatibility with existing code..

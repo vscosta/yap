@@ -310,7 +310,7 @@ void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
 }
 
 yap_error_descriptor_t *Yap_popErrorContext(void) {
- struct  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
+ yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
   return new_error;
 }

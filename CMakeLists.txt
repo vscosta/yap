@@ -547,7 +547,7 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
-# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 
 # the RPATH to be used when installing, but only if it's not a system directory

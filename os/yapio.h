@@ -103,10 +103,6 @@ extern int Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 extern int Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 extern int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
 
-extern bool Yap_IsAbsolutePath(const char *p, bool);
-extern Atom Yap_TemporaryFile(const char *prefix, int *fd);
-extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
-
 typedef enum mem_buf_source {
   MEM_BUF_MALLOC = 1,
   MEM_BUF_USER = 2

@@ -954,8 +954,6 @@ static Int p_rmdir(USES_REGS1) {
 static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
-  int len;
-  char *dir;
 
   if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
     return false;
