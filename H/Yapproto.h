@@ -354,16 +354,16 @@ extern void Yap_InitReadUtil(void);
 
 /* qly.c */
 extern void Yap_InitQLY(void);
-extern YAP_file_type_t Yap_Restore(const char *, const char *);
+extern YAP_file_type_t Yap_Restore(const char *);
 extern void Yap_InitQLYR(void);
 
 /* range.c */
 extern void Yap_InitRange(void);
 
 /* save.c */
-extern int Yap_SavedInfo(const char *, const char *, CELL *, CELL *, CELL *);
-extern int Yap_SavedStateRestore(char *, char *);
-extern FILE *Yap_OpenRestore(const char *, const char *);
+extern int Yap_SavedInfo(const char *, CELL *, CELL *, CELL *);
+extern int Yap_SavedStateRestore(char *);
+extern FILE *Yap_OpenRestore(const char *);
 extern void Yap_InitSavePreds(void);
 
 /* scanner.c */
@@ -432,10 +432,10 @@ extern void Yap_WinError(char *);
 extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool ok);
 extern const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz,
                                      bool ok);
-extern const char *Yap_findFile(const char *isource, const char *idef,
-                         const char *root, char *result, bool access,
-                         YAP_file_type_t ftype, bool expand_root, bool in_lib);
 extern bool Yap_ChDir(const char *path);
+bool Yap_isDirectory(const char *FileName);
+extern bool Yap_Exists(const char *f);
+
 
 /* threads.c */
 extern void Yap_InitThreadPreds(void);

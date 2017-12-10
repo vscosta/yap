@@ -1097,10 +1097,10 @@ static Int qload_program(USES_REGS1) {
   return true;
 }
 
-YAP_file_type_t Yap_Restore(const char *s, const char *lib_dir) {
+YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-  FILE *stream = Yap_OpenRestore(s, lib_dir);
+  FILE *stream = Yap_OpenRestore(s);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;

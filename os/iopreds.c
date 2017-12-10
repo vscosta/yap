@@ -1370,7 +1370,7 @@ writable.
 
 */
 
-static Int open3(USES_REGS1) {
+static Int open3(USES_RfEGS1) {
 /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
     return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
@@ -1465,11 +1465,11 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
         PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
         return (FALSE);
     }
-    if (!Yap_findFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, NULL, NULL,
-                      LOCAL_FileNameBuf, true, YAP_ANY_FILE, true, false))
+    char tmp[YAP_FILENAME_MAX+1];
+    if (!Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE,tmp, false))
         return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
                           "absolute_file_name/3"));
-    return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))));
+    return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(tmp))));
 }
 
 static Int p_open_null_stream(USES_REGS1) {

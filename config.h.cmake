@@ -1971,7 +1971,6 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 
 
-#ifndef YAP_IS_MOVABLE
 /* name of YAP instaii */
 #ifndef YAP_ROOTDIR
 #define YAP_ROOTDIR "${YAP_ROOTDIR}"
@@ -2001,13 +2000,14 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_SHAREDIR  "${YAP_ROOTDIR}/share"
 #endif
 
-#else
-extern  char
-*YAP_BINDIR,
-*YAP_ROOTDIR,
-*YAP_SHAREDIR,
-*YAP_LIBDIR,
-*YAP_YAPLIB;
+/* name of YAP PL library */
+#ifndef YAP_PLDIR
+#define YAP_PLDIR "${YAP_SHAREDIR}/Yap"
+#endif
+
+/* name of Commons library */
+#ifndef YAP_COMMONSDIR
+#define YAP COMMONSDIR "${YAP_SHAREDIR}/PrologCommmons"
 #endif
 
 

@@ -87,7 +87,7 @@ void initIO(void);
 
 static int myread(FILE *, char *, Int);
 static Int mywrite(FILE *, char *, Int);
-static FILE *open_file(char *, int);
+static FILE *open_file(const char *, int);
 static int close_file(void);
 static Int putout(CELL);
 static Int putcellptr(CELL *);
@@ -123,7 +123,7 @@ static void restore_heap(void);
 static void ShowAtoms(void);
 static void ShowEntries(PropEntry *);
 #endif
-static int OpenRestore(const char *, const char *, CELL *, CELL *, CELL *,
+static int OpenRestore(const char *, CELL *, CELL *, CELL *,
                        CELL *, FILE **);
 static void CloseRestore(void);
 #ifndef _WIN32
@@ -233,7 +233,7 @@ static Int OldHeapUsed;
 static CELL which_save;
 
 /* Open a file to read or to write */
-static FILE *open_file(char *my_file, int flag) {
+static FILE *open_file(const char *my_file, int flag) {
   FILE *splfild;
   char flags[6];
   int i = 0;
@@ -1307,10 +1307,11 @@ static void ShowAtoms() {
 
 #include <stdio.h>
 
-static int commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail,
+static int commit_to_saved_state(const char *s, CELL *Astate, CELL *ATrail,
                                  CELL *AStack, CELL *AHeap) {
   CACHE_REGS
   int mode;
+  char tmp[YAP_FILENAME_MAX+1];
 
   if ((mode = check_header(Astate, ATrail, AStack, AHeap PASS_REGS)) ==
       FAIL_RESTORE)
@@ -1318,9 +1319,8 @@ static int commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail,
   LOCAL_PrologMode = BootMode;
   if (Yap_HeapBase) {
     if (falseGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG) && !silentMode()) {
-      Yap_findFile(s, NULL, NULL, LOCAL_FileNameBuf2, true, YAP_QLY, true,
-                   true);
-      fprintf(stderr, "%% Restoring file %s\n", LOCAL_FileNameBuf2);
+      Yap_AbsoluteFile(s, tmp, true);
+      fprintf(stderr, "%% Restoring file %s\n", tmp);
     }
     Yap_CloseStreams(TRUE);
   }
@@ -1333,7 +1333,7 @@ static int commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail,
   return mode;
 }
 
-static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack,
+static int try_open(const char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack,
                     CELL *AHeap, FILE **streamp) {
   int mode;
 
@@ -1355,18 +1355,13 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack,
   return mode;
 }
 
-static int OpenRestore(const char *inpf, const char *YapLibDir, CELL *Astate,
+static int OpenRestore(const char *fname,  CELL *Astate,
                        CELL *ATrail, CELL *AStack, CELL *AHeap,
                        FILE **streamp) {
   CACHE_REGS
 
   int mode;
-  char fname[YAP_FILENAME_MAX + 1];
-
-  if (!Yap_findFile(inpf, YAP_STARTUP, YapLibDir, fname, true, YAP_QLY,
-                    true, true))
-    return FAIL_RESTORE;
-  if (fname[0] && (mode = try_open(fname, Astate, ATrail, AStack, AHeap,
+  if (fname && fname[0] && (mode = try_open(fname, Astate, ATrail, AStack, AHeap,
                                    streamp)) != FAIL_RESTORE) {
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
                               MkAtomTerm(Yap_LookupAtom(fname)));
@@ -1378,22 +1373,19 @@ static int OpenRestore(const char *inpf, const char *YapLibDir, CELL *Astate,
     do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,
                              "incorrect saved state ");
   } else {
-    strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX - 1);
+    strncpy(LOCAL_FileNameBuf, fname, YAP_FILENAME_MAX - 1);
     do_SYSTEM_ERROR_INTERNAL(PERMISSION_ERROR_OPEN_SOURCE_SINK,
                              "could not open saved state");
   }
   return FAIL_RESTORE;
 }
 
-FILE *Yap_OpenRestore(const char *inpf, const char *YapLibDir) {
+FILE *Yap_OpenRestore(const char *inpf) {
   FILE *stream = NULL;
 
   if (!inpf)
     inpf = "startup.yss";
-  if (!YapLibDir) {
-    YapLibDir = YAP_LIBDIR;
-  }
-  OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
+  OpenRestore(inpf, NULL, NULL, NULL, NULL, &stream);
   return stream;
 }
 
@@ -1467,14 +1459,14 @@ static void RestoreHeap(OPCODE old_ops[] USES_REGS) {
  * This function is called to know about the parameters of the last saved
  * state
  */
-int Yap_SavedInfo(const char *FileName, const char *YapLibDir, CELL *ATrail,
+int Yap_SavedInfo(const char *FileName, CELL *ATrail,
                   CELL *AStack, CELL *AHeap) {
   return DO_ONLY_CODE;
 
   CELL MyTrail, MyStack, MyHeap, MyState;
   int mode;
 
-  mode = OpenRestore(FileName, YapLibDir, &MyState, &MyTrail, &MyStack, &MyHeap,
+  mode = OpenRestore(FileName, &MyState, &MyTrail, &MyStack, &MyHeap,
                      NULL);
   if (mode == FAIL_RESTORE) {
     return -1;
@@ -1554,13 +1546,13 @@ static void FreeRecords(void) {
  * This function is called when wanting only to restore the heap and
  * associated registers
  */
-static int Restore(char *s, char *lib_dir USES_REGS) {
+static int Restore(char *s_dir USES_REGS) {
   int restore_mode;
 
   OPCODE old_ops[_std_top + 1];
   CELL MyTrail, MyStack, MyHeap, MyState;
 
-  if ((restore_mode = OpenRestore(s, lib_dir, &MyState, &MyTrail, &MyStack,
+  if ((restore_mode = OpenRestore(s_dir, &MyState, &MyTrail, &MyStack,
                                   &MyHeap, NULL)) == FAIL_RESTORE)
     return (FALSE);
   Yap_ShutdownLoadForeign();
@@ -1612,9 +1604,9 @@ static int Restore(char *s, char *lib_dir USES_REGS) {
   return restore_mode;
 }
 
-int Yap_SavedStateRestore(char *s, char *lib_dir) {
+int Yap_SavedStateRestore(char *s) {
   CACHE_REGS
-  return Restore(s, lib_dir PASS_REGS);
+  return Restore(s PASS_REGS);
 }
 
 static Int p_restore(USES_REGS1) {
@@ -1640,7 +1632,7 @@ static Int p_restore(USES_REGS1) {
     Yap_Error(TYPE_ERROR_LIST, t1, "restore/1");
     return (FALSE);
   }
-  if ((mode = Restore(s, NULL PASS_REGS)) == DO_ONLY_CODE) {
+  if ((mode = Restore(s PASS_REGS)) == DO_ONLY_CODE) {
     Yap_RestartYap(3);
   }
   return (mode != FAIL_RESTORE);

@@ -7,6 +7,7 @@ set(PL_BOOT_SOURCES
         attributes.yap
         boot.yap
         bootlists.yap
+	bootutils.yap
         callcount.yap
         checker.yap
         consult.yap
@@ -84,6 +85,9 @@ install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
 endif()
 
 
-install(FILES ${PL_SOURCES}
+install(FILES ${PL_BOOT_SOURCES}
         DESTINATION ${libpl}/pl
+        )
+install(FILES ../library/ypp.yap
+        DESTINATION ${libpl}/library
         )

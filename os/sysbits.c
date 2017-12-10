@@ -34,7 +34,6 @@ static void FileError(yap_error_number type, Term where, const char *format,
   }
 }
 
-
 static Int p_sh(USES_REGS1);
 static Int p_shell(USES_REGS1);
 static Int p_system(USES_REGS1);
@@ -67,11 +66,11 @@ void Yap_WinError(char *yap_error) {
 
 /// is_directory: verifies whether an expanded file name
 /// points at a readable directory
-static bool is_directory(const char *FileName) {
+bool Yap_isDirectory(const char *FileName) {
 
   VFS_t *vfs;
   if ((vfs = vfs_owner(FileName))) {
-    return vfs->isdir(vfs,FileName);
+    return vfs->isdir(vfs, FileName);
   }
 #ifdef _WIN32
   DWORD dwAtts = GetFileAttributes(FileName);
@@ -94,10 +93,10 @@ static bool is_directory(const char *FileName) {
 }
 
 bool Yap_Exists(const char *f) {
-    VFS_t *vfs;
-    f = Yap_VFAlloc(f);
-    if ((vfs = vfs_owner(f))) {
-        return vfs->exists(vfs,f);
+  VFS_t *vfs;
+  f = Yap_VFAlloc(f);
+  if ((vfs = vfs_owner(f))) {
+    return vfs->exists(vfs, f);
   }
 #if _WIN32
   if (_access(f, 0) == 0)
@@ -108,7 +107,7 @@ bool Yap_Exists(const char *f) {
   return false;
 #elif HAVE_ACCESS
   if (access(f, F_OK) == 0) {
-      return true;
+    return true;
   }
   if (errno == EINVAL) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
@@ -145,9 +144,9 @@ bool Yap_IsAbsolutePath(const char *p0, bool expand) {
   // verify first if expansion is needed: ~/ or $HOME/
   const char *p = p0;
   bool nrc;
-    if (expand) {
-        p = expandVars(p0, LOCAL_FileNameBuf);
-    }
+  if (expand) {
+    p = expandVars(p0, LOCAL_FileNameBuf);
+  }
 #if _WIN32 || __MINGW32__
   nrc = !PathIsRelative(p);
 #else
@@ -345,7 +344,7 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 
 char virtual_cwd[YAP_FILENAME_MAX + 1];
 
- bool Yap_ChDir(const char *path) {
+bool Yap_ChDir(const char *path) {
   bool rc = false;
   char qp[FILENAME_MAX + 1];
   const char *qpath = Yap_AbsoluteFile(path, qp, true);
@@ -369,10 +368,9 @@ char virtual_cwd[YAP_FILENAME_MAX + 1];
   return rc;
 }
 
-
 static const char *myrealpath(const char *path, char *out) {
-    int lvl = push_text_stack();
- #if _WIN32
+  int lvl = push_text_stack();
+#if _WIN32
   DWORD retval = 0;
 
   // notice that the file does not need to exist
@@ -388,13 +386,13 @@ static const char *myrealpath(const char *path, char *out) {
     char *rc = realpath(path, NULL);
 
     if (rc) {
-        pop_text_stack(lvl);
+      pop_text_stack(lvl);
       return rc;
     }
     // rc = NULL;
     if (errno == ENOENT || errno == EACCES) {
-      char *base= Malloc(YAP_FILENAME_MAX + 1);
-      strncpy(base, path, YAP_FILENAME_MAX );
+      char *base = Malloc(YAP_FILENAME_MAX + 1);
+      strncpy(base, path, YAP_FILENAME_MAX);
       rc = realpath(dirname(base), out);
 
       if (rc) {
@@ -418,7 +416,7 @@ static const char *myrealpath(const char *path, char *out) {
         }
 #endif
         strcat(rc, b);
-          rc = pop_output_text_stack(lvl, rc);
+        rc = pop_output_text_stack(lvl, rc);
         return rc;
       }
     }
@@ -426,7 +424,7 @@ static const char *myrealpath(const char *path, char *out) {
 #endif
   out = malloc(strlen(path) + 1);
   strcpy(out, path);
-    pop_text_stack(lvl);
+  pop_text_stack(lvl);
   return out;
 }
 
@@ -957,97 +955,12 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
   int len;
-    char *dir;
+  char *dir;
 
-#if __WINDOWS__
-  {
-    if ((dir = Yap_RegistryGetString("library")) && is_directory(dir)) {
-      dir_done = true;
-      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(dir))))
-        return false;
-    }
-    if ((dir = Yap_RegistryGetString("prolog_commons")) && is_directory(dir)) {
-      if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(dir))))
-        return false;
-      commons_done = true;
-    }
-  }
-  if (dir_done && commons_done)
-    return true;
-#endif
+  if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
+    return false;
 
-      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
-        return false;
-  if (!commons_done) {
-    LOCAL_FileNameBuf[len] = '\0';
-    strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) {
-      if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-        return FALSE;
-    }
-    commons_done = true;
-  }
-  if (dir_done && commons_done)
-    return TRUE;
-
-#if __WINDOWS__
-  {
-    size_t buflen;
-    char *pt;
-    /* couldn't find it where it was supposed to be,
-   let's try using the executable */
-    if (!GetModuleFileName(NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-      Yap_WinError("could not find executable name");
-      /* do nothing */
-      return FALSE;
-    }
-    buflen = strlen(LOCAL_FileNameBuf);
-    pt = LOCAL_FileNameBuf + buflen;
-    while (*--pt != '\\') {
-      /* skip executable */
-      if (pt == LOCAL_FileNameBuf) {
-        FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-                  "could not find executable name");
-        /* do nothing */
-        return FALSE;
-      }
-    }
-    while (*--pt != '\\') {
-      /* skip parent directory "bin\\" */
-      if (pt == LOCAL_FileNameBuf) {
-        FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-                  "could not find executable name");
-        /* do nothing */
-        return FALSE;
-      }
-    }
-    /* now, this is a possible location for the ROOT_DIR, let's look for a share
-     * directory here */
-    pt[1] = '\0';
-    /* grosse */
-    strncat(LOCAL_FileNameBuf, "lib\\Yap", YAP_FILENAME_MAX);
-    libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf) + 1);
-    strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf) + 1);
-    pt[1] = '\0';
-    strncat(LOCAL_FileNameBuf, "share", YAP_FILENAME_MAX);
-  }
-  strncat(LOCAL_FileNameBuf, "\\", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  if (!dir_done && is_directory(LOCAL_FileNameBuf)) {
-    if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-      return FALSE;
-    dir_done = true;
-  }
-  LOCAL_FileNameBuf[len] = '\0';
-  strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-  if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
-    if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-      return FALSE;
-    commons_done = true;
-  }
-#endif
-  return dir_done && commons_done;
+  return Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(Yap_COMMONSDIR)));
 }
 
 static Int libraries_directories(USES_REGS1) {
@@ -1133,10 +1046,10 @@ int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   if (virtual_cwd[0]) {
-    if  (!cwd) {
-      cwd = malloc(cwdlen+1);
+    if (!cwd) {
+      cwd = malloc(cwdlen + 1);
     }
-      strcpy( cwd, virtual_cwd);
+    strcpy(cwd, virtual_cwd);
     return cwd;
   }
 #if _WIN32 || defined(__MINGW32__)
@@ -1169,184 +1082,6 @@ static Int working_directory(USES_REGS1) {
   if (t2 == TermEmptyAtom || t2 == TermDot)
     return true;
   return Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
-}
-
-/** Yap_findFile(): tries to locate a file, no expansion should be performed/
- *
- *
- * @param isource the proper file
- * @param idef the default name fothe file, ie, startup.yss
- * @param root the prefix
- * @param result the output
- * @param access verify whether the file has access permission
- * @param ftype saved state, object, saved file, prolog file
- * @param expand_root expand $ ~, etc
- * @param in_lib library file
- *
- * @return
- */
-const char *Yap_findFile(const char *isource, const char *idef,
-                         const char *iroot, char *result, bool access,
-                         YAP_file_type_t ftype, bool expand_root, bool in_lib) {
-
-  char *save_buffer = NULL;
- char *root, *source;
-  int rc = FAIL_RESTORE;
-  int try = 0;
-  bool abspath = false;
-
-    int lvl = push_text_stack();
-    root = Malloc(YAP_FILENAME_MAX+1);
-    source= Malloc(YAP_FILENAME_MAX+1);
-    if (iroot && iroot[0])
-    strcpy(root, iroot);
-    else
-        root[0] = 0;
-     if (isource && isource[0])
-   strcpy(source, isource);
-    else
-        source[0] = 0;
-  //__android_log_print(ANDROID_LOG_ERROR,  "YAPDroid " __FUNCTION__,
-  // "try=%d %s %s", try, isource, iroot) ; }
-  while (rc == FAIL_RESTORE) {
-    // means we failed this iteration
-    bool done = false;
-    // { CACHE_REGS
-    switch (try ++) {
-    case 0: // path or file name is given;
-      if (!source[0] && idef && idef[0]) {
-          strcpy(source, idef);
-      }
-      if (source[0]) {
-        abspath = Yap_IsAbsolutePath(source, expand_root);
-      }
-      if (!abspath && !root[0] && ftype == YAP_BOOT_PL) {
-        strcpy(root, YAP_PL_SRCDIR);
-      }
-      break;
-    case 1: // library directory is given in command line
-      if (in_lib && ftype == YAP_SAVED_STATE) {
-          if (iroot && iroot[0])
-              strcpy(root, iroot);
-          else
-              root[0] = 0;
-          if (isource && isource[0])
-              strcpy(source, isource);
-          else if (idef && idef[0])
-              strcpy(source, idef);
-          else
-              source[0] = 0;
-      } else {
-        done = true;
-      }
-      break;
-    case 3: // use compilation variable YAPLIBDIR
-      if (in_lib) {
-          if (isource && isource[0])
-              strcpy(source, isource);
-          else if (idef && idef[0])
-              strcpy(source, idef);
-          else
-              source[0] = 0;
-        if (ftype == YAP_PL) {
-          strcpy(root,YAP_SHAREDIR);
-        } else if (ftype == YAP_BOOT_PL) {
-            strcpy(root, YAP_SHAREDIR);
-          strcat(root,"/pl");
-        } else {
-            strcpy(root,YAP_LIBDIR);
-        }
-      } else
-        done = true;
-      break;
-
-    case 4: // WIN stuff: registry
-#if __WINDOWS
-      if (in_lib) {
-        const char *key = (ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup");
-        strcpy( source, Yap_RegistryGetString(source) );
-        root[0] = 0;
-      } else
-#endif
-        done = true;
-      break;
-
-    case 5: // search from the binary
-#ifndef __ANDROID__
-    {
-      done = true;
-    } break;
-#endif
-      {
-        const char *pt = Yap_FindExecutable();
-
-        if (pt) {
-            if (ftype == YAP_BOOT_PL) {
-#if __ANDROID__
-                strcpy(root, "../../../files/Yap/pl");
-#else
-                root = "../../share/Yap/pl";
-#endif
-            } else {
-                strcpy(root, (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
-                              ? "../../lib/Yap"
-                              : "../../share/Yap"));
-            }
-            if (strcmp(root, iroot) == 0) {
-                done = true;
-                continue;
-            }
-            if (!save_buffer) {
-                save_buffer = Malloc(YAP_FILENAME_MAX + 1);
-
-            save_buffer[0] = 0;
-        }
-                 if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
-                           expand_root, in_lib))
-            strcpy(root, save_buffer);
-          else
-            done = true;
-        } else {
-          done = true;
-        }
-          if (isource && isource[0])
-              strcpy(source, isource);
-          else if (idef && idef[0])
-              strcpy(source, idef);
-          else
-              source[0] = 0;
-      }
-      break;
-    case 6: // default, try current directory
-      if (!isource && ftype == YAP_SAVED_STATE)
-        strcpy(source, idef);
-      root[0] = 0;
-      break;
-    default:
-        pop_text_stack(lvl);
-      return NULL;
-    }
-
-    if (done)
-      continue;
-    //    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__,
-    //    "root= %s %s ", root, source) ; }
-    const char *work = PlExpandVars(source, root, result);
-
-
-    // expand names in case you have
-    // to add a prefix
-    if (!access || Yap_Exists(work)) {
-        work = pop_output_text_stack(lvl,work);
-      return work; // done
-    } else if (abspath) {
-        pop_text_stack(lvl);
-        return NULL;
-    }
-  }
-    pop_text_stack(lvl);
-
-  return NULL;
 }
 
 static Int true_file_name(USES_REGS1) {
@@ -1414,10 +1149,10 @@ static Int true_file_name3(USES_REGS1) {
     }
     root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
-  if (!Yap_findFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, root,
-                    LOCAL_FileNameBuf, false, YAP_PL, false, false))
+  char tmp[YAP_FILENAME_MAX + 1];
+  if (!Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, tmp, true))
     return FALSE;
-  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(tmp)));
 }
 
 /* Executes $SHELL under Prolog */
@@ -1644,8 +1379,8 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
     newname = Yap_VFAlloc((RepAtom(AtomOfTerm(t2)))->StrOfAE);
     if ((r = link(oldname, newname)) == 0 && (r = unlink(oldname)) != 0)
       unlink(newname);
-      free(oldname);
-      free(newname);
+    free(oldname);
+    free(newname);
     if (r != 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "%s in rename(%s,%s)",
@@ -1771,18 +1506,18 @@ static Int p_host_type(USES_REGS1) {
 }
 
 static Int p_yap_home(USES_REGS1) {
-    Term out;
+  Term out;
 
-        out = MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR));
-    return Yap_unify(out, ARG1);
+  out = MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR));
+  return Yap_unify(out, ARG1);
 }
 
 static Int p_yap_paths(USES_REGS1) {
   Term out1, out2, out3;
 
-    out1 = MkAtomTerm(Yap_LookupAtom(Yap_LIBDIR));
-    out2 = MkAtomTerm(Yap_LookupAtom(Yap_SHAREDIR));
-    out3 = MkAtomTerm(Yap_LookupAtom(Yap_BINDIR));
+  out1 = MkAtomTerm(Yap_LookupAtom(Yap_LIBDIR));
+  out2 = MkAtomTerm(Yap_LookupAtom(Yap_SHAREDIR));
+  out3 = MkAtomTerm(Yap_LookupAtom(Yap_BINDIR));
 
   return (Yap_unify(out1, ARG1) && Yap_unify(out2, ARG2) &&
           Yap_unify(out3, ARG3));
@@ -1864,7 +1599,7 @@ static Int p_win32(USES_REGS1) {
 }
 
 static Int p_ld_path(USES_REGS1) {
-  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(YAP_DLLDIR)));
+  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(Yap_DLLDIR)));
 }
 
 static Int p_address_bits(USES_REGS1) {

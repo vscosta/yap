@@ -57,7 +57,7 @@ variable:
 + YAPLIBDIR
 
 if defined, or in the default library.
-
+available as
 YAP supports the SWI-Prolog interface to loading foreign code, the shlib package.
 
 */

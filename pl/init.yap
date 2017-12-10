@@ -118,6 +118,7 @@ otherwise.
 
 :- compile_expressions.
 
+
 :- bootstrap('bootutils.yap').
 :- bootstrap('bootlists.yap').
 :- bootstrap('consult.yap').

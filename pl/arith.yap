@@ -22,7 +22,7 @@
 :- system_module( '$_arith', [compile_expressions/0,
         expand_exprs/2,
         plus/3,
-        succ/2], ['$c_built_in'/3]).
+        succ/2], ['$c_built_in'/4]).
 
 :- private( [do_c_built_in/3,
 	     do_c_built_metacall/3,
@@ -86,7 +86,6 @@ expand_exprs(Old,New) :-
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
-
 compile_expressions :- set_value('$c_arith',true).
 
 /**  @pred do_not_compile_expressions

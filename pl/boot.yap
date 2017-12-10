@@ -1305,10 +1305,10 @@ not(G) :-    \+ '$execute'(G).
 
 bootstrap(F) :-
         yap_flag(verbose_load, Old, silent),
-	       open(F, read, Stream),
-	        stream_property(Stream, [file_name(File)]),
-	         '$start_consult'(consult, File, LC),
-	          file_directory_name(File, Dir),
+	open(F, read, Stream),
+	stream_property(Stream, [file_name(File)]),
+	'$start_consult'(consult, File, LC),
+	file_directory_name(File, Dir),
 	working_directory(OldD, Dir),
 	(
 	  current_prolog_flag(verbose_load, silent)

@@ -31,7 +31,7 @@ inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
 #define wcsnlen(S, N) min_size(N, wcslen(S))
 #endif
 
-#ifndef HAVE_STPCPY
+#if !defined(HAVE_STPCPY) && !defined(__APPLE__)
 inline static void* __stpcpy(void * i, const void * j) { return strcpy(i,j)+strlen(j);}
 #define stpcpy __stpcpy
 #endif

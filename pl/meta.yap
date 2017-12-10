@@ -30,6 +30,9 @@ meta_predicate declaration
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
+:- use_system_module( '$_arith', ['$c_built_in'/4]).
+
+
 :- dynamic prolog:'$meta_predicate'/4.
 
 :- multifile prolog:'$meta_predicate'/4,

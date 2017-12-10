@@ -167,18 +167,10 @@ static Int LoadForeign(StringList
 
   while (libs) {
     const char *file = AtomName(libs->name);
-    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true,
-                      true)) {
-      LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-      /* use LD_LIBRARY_PATH */
-      strncpy(LOCAL_ErrorMessage, (char *)AtomName(libs->name),
-              YAP_FILENAME_MAX);
-    }
-
 #ifdef __osf__
     if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
 #else
-    if ((libs->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
+    if ((libs->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
         NULL)
 #endif
     {
@@ -195,20 +187,9 @@ static Int LoadForeign(StringList
     /* load libraries first so that their symbols are available to
        other routines */
     const char *file = AtomName(ofiles->name);
-    if (!Yap_findFile(file, NULL, NULL, LOCAL_FileNameBuf, true, YAP_OBJ, true,
-                      true)) {
-      if (LOCAL_ErrorMessage == NULL) {
-        LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);
-        strcpy(LOCAL_ErrorMessage,
-               "%% Trying to open non-existing file in LoadForeign");
-      }
-    }
-#ifdef __osf__
-    if ((ofiles->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY)) == NULL)
-#else
-    if ((ofiles->handle = dlopen(LOCAL_FileNameBuf, RTLD_LAZY | RTLD_GLOBAL)) ==
+
+    if ((ofiles->handle = dlopen(file, RTLD_LAZY | RTLD_GLOBAL)) ==
         NULL)
-#endif
     {
       if (LOCAL_ErrorMessage == NULL) {
         LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE);

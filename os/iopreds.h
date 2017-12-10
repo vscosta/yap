@@ -273,7 +273,6 @@ extern FILE *Yap_stderr;
 
 char *Yap_MemExportStreamPtr(int sno);
 
-extern bool Yap_Exists(const char *f);
 
 static inline void freeBuffer(const void *ptr) {
   CACHE_REGS
