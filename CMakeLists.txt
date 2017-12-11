@@ -384,6 +384,36 @@ if (${C_COMPILER} MATCHES "Intel")
     set(HAVE_GCC 1)
 endif ()
 
+# rpath stuff, hopefully it works
+# use, i.e. don't skip the full RPATH for the build tree
+#SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+
+
+# when building, don't use the install RPATH already
+# (but later on when installing)
+#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+# SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+# the RPATH to be used when installing, but only if it's not a system directory
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
+ IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH  ${libdir})
+ ENDIF("${isSystemDir}" STREQUAL "-1")
+
+IF(NOT WIN32 AND NOT APPLE)
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../lib/Yap)
+LIST(APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_FULL_LIBDIR})
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../lib)
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../../../lib)
+
+ENDIF()
+
 # Model Specific
 if (HAVE_GCC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wall)
@@ -534,27 +564,6 @@ string(SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT)
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
-# rpath stuff, hopefully it works
-# use, i.e. don't skip the full RPATH for the build tree
-#SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-
-# SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
- IF("${isSystemDir}" STREQUAL "-1")
-    SET(CMAKE_INSTALL_RPATH ${libdir})
- ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories(H
         H/generated

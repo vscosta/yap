@@ -2,7 +2,11 @@
 
 
 /* example.i */
+#if PYTHONSWIG
+%module(directors = "1", package="yap4py") yap
+#else
 %module(directors = "1") yap
+#endif
 
 // Language independent exception handler
 %include exception.i
