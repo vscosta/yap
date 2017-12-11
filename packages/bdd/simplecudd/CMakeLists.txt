@@ -25,7 +25,7 @@ target_link_libraries(Problogbdd
     )
  
   install(TARGETS Problogbdd
-    RUNTIME DESTINATION ${bindir}
-    LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 

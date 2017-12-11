@@ -12,14 +12,14 @@ extern "C" {
 #include "YapInterface.h"
 #include "blobs.h"
 
-X_API char *Yap_TermToString(Term t, encoding_t encodingp,
+X_API char *Yap_TermToBuffer(Term t, encoding_t encodingp,
                              int flags);
 
   X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, arity_t arity);
   X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, arity_t,
 					YAP_Term);
   X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
-				    arity_t, arity_t);
+				    YAP_Arity, YAP_Arity);
 
 #if YAP_PYTHON
   X_API bool     do_init_python(void);
@@ -625,7 +625,7 @@ Term YAPEngine::fun(Term t)
      return 0;
     }
     DBTerm *pt = Yap_StoreTermInDB(Yap_GetFromSlot(o), arity);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %ld", o);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", o);
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
     Term rc = Yap_PopTermFromDB(pt);
@@ -751,8 +751,8 @@ bool YAPQuery::next()
     }
     if (result)
     {
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %ld",
-                          q_state, vnames.text(), LOCAL_CurSlot);
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "vnames  %d %s %d",
+                          q_state, names.text(), LOCAL_CurSlot);
     }
     else
     {
@@ -892,6 +892,8 @@ static size_t Yap_AndroidMax, Yap_AndroidSz;
 
 extern void (*Yap_DisplayWithJava)(int c);
 
+static YAPCallback *cb = new YAPCallback();
+
 void Yap_displayWithJava(int c)
 {
   char *ptr = Yap_AndroidBufp;
@@ -914,55 +916,54 @@ void Yap_displayWithJava(int c)
   if (c == '\n')
   {
     Yap_AndroidBufp[Yap_AndroidSz] = '\0';
-    curren->run(Yap_AndroidBufp);
+    cb->run(Yap_AndroidBufp);
     Yap_AndroidSz = 0;
   }
 }
+
 
 #endif
 
 
 void YAPEngine::doInit(YAP_file_type_t BootMode)
 {
-  if ((BootMode = YAP_Init(&engine_args->init_args)) == YAP_FOUND_BOOT_ERROR)
+  if ((BootMode = YAP_Init(engine_args)) == YAP_FOUND_BOOT_ERROR)
   {
     return;
     throw YAPError();
   }
   /* Begin preprocessor code */
   /* live */
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "initialize_prolog");
-#if __ANDROID__
-  Yap_AndroidBufp = (char *)malloc(Yap_AndroidMax = 4096);
-  Yap_AndroidBufp[0] = '\0';
-  Yap_AndroidSz = 0;
-#endif
   //yerror = YAPError();
 #if YAP_PYTHON
     do_init_python();
 #endif
-    YAP_PredEntryPtr p = YAP_AtomToPred( YAP_LookupAtom("initialize_prolog") );
+  std::string s = "initialize_prolog";
+    YAPPredicate p = YAPPredicate( YAPAtomTerm(s) );
     YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
     if (initq.next())
       {
-	initq.cut();
+        initq.cut();
   }
     CurrentModule = TermUser;
 
 }
 
 YAPEngine::YAPEngine(int argc, char *argv[],
-		     YAPCallback *cb)
+                     YAPCallback *cb)
       : _callback(0) { // a single engine can be active
 
       YAP_file_type_t BootMode;
       engine_args = new YAPEngineArgs();
-      BootMode = YAP_parse_yap_arguments(argc, argv, &engine_args->init_args);
+      BootMode = YAP_parse_yap_arguments(argc, argv, engine_args);
       // delYAPCallback()b
       // if (cb)
       //  setYAPCallback(cb);
-      doInit(BootMode);
+
+  doInit(BootMode);
     }
+
+
 
 
     YAPPredicate::YAPPredicate(YAPAtom at)
@@ -986,7 +987,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
     }
 
     /// auxiliary routine to find a predicate in the current module.
-    PredEntry *YAPPredicate::getPred(YAPTerm &tt, Term *&outp)
+    PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL * &outp)
     {
       CACHE_REGS
 	Term m = Yap_CurrentModule(), t = tt.term();
@@ -1009,9 +1010,11 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       else if (IsPairTerm(t))
 	{
 	  Term ts[2];
-	  ts[0] = t;
-	  ts[1] = m;
-	  t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+        Functor FunctorConsult = Yap_MkFunctor(Yap_LookupAtom("consult"), 1);
+	  ts[1] = t;
+	  ts[0] = m;
+      t = Yap_MkApplTerm(FunctorModule, 2, ts);
+      t = Yap_MkApplTerm(FunctorConsult, 1, &t);
 	  tt.put(t);
 	  outp = RepAppl(t) + 1;
 	}
@@ -1104,7 +1107,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
       if (LOCAL_ActiveError->prologPredLine)
 	{
 	  s += "\n";
-	  s += LOCAL_ActiveError->prologPredFile->StrOfAE;
+	  s += LOCAL_ActiveError->prologPredFile;
 	  s += ":";
 	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
 	  s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
@@ -1112,7 +1115,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 	  s += ":0   ";
 	  s += LOCAL_ActiveError->prologPredModule;
 	  s += ":";
-	  s += (LOCAL_ActiveError->prologPredName)->StrOfAE;
+	  s += (LOCAL_ActiveError->prologPredName);
 	  s += "/";
 	  sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
 	  s += // std::to_string(LOCAL_ActiveError->prologPredArity);
@@ -1120,13 +1123,13 @@ YAPEngine::YAPEngine(int argc, char *argv[],
 	}
       s += " error ";
       if (LOCAL_ActiveError->classAsText != nullptr)
-	s += LOCAL_ActiveError->classAsText->StrOfAE;
+	s += LOCAL_ActiveError->classAsText;
       s += ".";
-      s += LOCAL_ActiveError->errorAsText->StrOfAE;
+      s += LOCAL_ActiveError->errorAsText;
       s += ".\n";
       if (LOCAL_ActiveError->errorTerm)
 	{
-	  Term t = LOCAL_ActiveError->errorTerm->Entry;
+	  Term t = Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
 	  if (t)
 	    {
 	      s += "error term is: ";

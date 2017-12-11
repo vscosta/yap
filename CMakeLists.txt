@@ -7,18 +7,18 @@ cmake_minimum_required(VERSION 3.4)
 # value of 3.4.0 or lower.
 include(CMakeToolsHelpers OPTIONAL)
 
-project(YAP)
-
 include(FeatureSummary)
 include(GNUInstallDirs)
+
+project(YAP)
 
 set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
 cmake_policy(VERSION 3.4)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
 
-    set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
-    message(STATUS "ANACONDA found:   ${ANACONDA}")
+set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
+message(STATUS "ANACONDA found:   ${ANACONDA}")
 
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
@@ -219,9 +219,10 @@ if (ANACONDA)
 #set(CMAKE_LIBRARY_PATH $ENV{SYS_PREFIX}/lib $ENV{SYS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
 #        set(ENV{PATH} PATH $ENV{PREFIX}/bin $ENV{SYS_PREFIX}/bin $ENV{PATH})
 #        set(PATH $ENV{PATH} ${PATH})
-    #set( CMAKE_INSTALL_PREFIX $ENV{PREFIX} )
+    #set( CMAKE_INSTALL_FULL_PREFIX $ENV{PREFIX} )
         set( PYTHON_LIBRARY $ENV{PREFIX}/lib/libpython$ENV{PY_VER}m$ENV{SHLIB_EXT})
     set( PYTHON_INCLUDE_DIR $ENV{PREFIX}/include/python$ENV{PY_VER}m)
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
 set(YAP_IS_MOVABLE 1)
 endif()
 
@@ -249,6 +250,7 @@ if (APPLE)
     endif ()
 endif ()
 
+
 set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
 set(bindir ${CMAKE_INSTALL_PREFIX}/bin) #BINDIR})
 set(includedir ${CMAKE_INSTALL_PREFIX}/include) #INCLUDEDIR})
@@ -268,22 +270,26 @@ set(dlls ${libdir}/Yap)
 
 set(YAP_ROOTDIR ${prefix})
 # erootdir -> rootdir
-# bindir defined above
 # libdir defined above
-set(YAP_SHAREDIR ${datarootdir})
-set(YAP_BINDIR ${bindir})
-set(YAP_INCLUDEDIR ${includedir})
-set(YAP_ROOTDIR ${prefix})
-set(YAP_LIBDIR ${dlls})
+set(YAP_DATADIR  ${CMAKE_INSTALL_FULL_DATADIR})
+set(YAP_INCLUDEDIR  ${CMAKE_INSTALL_FULL_INCLUDEDIR}/Yap)
+set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
+set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
+set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
+
+set(YAP_INSTALL_DLLDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
+set(YAP_INSTALL_PLDIR ${CMAKE_INSTALL_DATADIR}/Yap)
+
+set(libpl ${YAP_INSTALL_PLDIR})
 
 #
 #
-# include( Sources NO_POLICY_SCOPE )
+# include( Sources  )
 #
-# include( Model NO_POLICY_SCOPE  )
+# include( Model   )
 
-include(cudd NO-POLICY-SCOPE)
-include(java NO-POLICY-SCOPE)
+include(cudd )
+include(java )
 
 set(pl_library "" CACHE INTERNAL "prolog library files")
 set(pl_os_library "" CACHE INTERNAL "prolog os files")
@@ -396,6 +402,36 @@ if (${C_COMPILER} MATCHES "Intel")
     set(HAVE_GCC 1)
 endif ()
 
+# rpath stuff, hopefully it works
+# use, i.e. don't skip the full RPATH for the build tree
+#SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+
+
+# when building, don't use the install RPATH already
+# (but later on when installing)
+#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+
+# SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
+
+# add the automatically determined parts of the RPATH
+# which point to directories outside the build tree to the install RPATH
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+
+# the RPATH to be used when installing, but only if it's not a system directory
+LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
+ IF("${isSystemDir}" STREQUAL "-1")
+    SET(CMAKE_INSTALL_RPATH  ${libdir})
+ ENDIF("${isSystemDir}" STREQUAL "-1")
+
+IF(NOT WIN32 AND NOT APPLE)
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../lib/Yap)
+LIST(APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_FULL_LIBDIR})
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../lib)
+LIST(APPEND CMAKE_INSTALL_RPATH \\$ORIGIN/../../../lib)
+
+ENDIF()
+
 # Model Specific
 if (HAVE_GCC)
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wall)
@@ -458,19 +494,19 @@ endif ()
 
 OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
 
-IF (WITH_SWIG OR ANDROID)
+IF (WITH_SWIG)
     find_host_package(SWIG)
     # macro_log_feature (SWIG_FOUND "Swig"
     #         "Use SWIG Interface Generator "
     #         "http://www.swig.org" ON)
-ENDIF (WITH_SWIG OR ANDROID)
+ENDIF (WITH_SWIG)
 
 
 option(WITH_PYTHON
         "Allow Python->YAP  and YAP->Python" ON)
 
 IF (WITH_PYTHON)
-    include(python NO_POLICY_SCOPE)
+    include(python )
 ENDIF (WITH_PYTHON)
 
 
@@ -528,6 +564,7 @@ endif ()
 
 
 set(YAP_STARTUP startup.yss)
+set(YAP_BOOTFILE boot.yap                                                                                                                                                                                                                                                                                                                           )
 ## define system
 
 # Optional libraries that affect compilation
@@ -545,27 +582,6 @@ string(SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT)
 
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
-# rpath stuff, hopefully it works
-# use, i.e. don't skip the full RPATH for the build tree
-#SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
-
-
-# when building, don't use the install RPATH already
-# (but later on when installing)
-#SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-
-# SET(CMAKE_INSTALL_RPATH ${CMAKE_TOP_BINARY_DIR})
-
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-# SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-
-# the RPATH to be used when installing, but only if it's not a system directory
-LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
- IF("${isSystemDir}" STREQUAL "-1")
-    SET(CMAKE_INSTALL_RPATH ${libdir})
- ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include_directories(H
         H/generated
@@ -614,11 +630,6 @@ ADD_SUBDIRECTORY(library)
 
 ADD_SUBDIRECTORY(swi/library "swiLibrary")
 
-if (ANDROID)
-    target_link_libraries(libYap android log)
-
-endif ()
-
 set_target_properties(libYap
         PROPERTIES OUTPUT_NAME Yap
         )
@@ -638,8 +649,9 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
 endif ()
 
 
-IF (SWIG_FOUND OR ANDROID)
-    add_subDIRECTORY(packages/swig NO_POLICY_SCOPE)
+IF ( ANDROID)
+   add_subDIRECTORY(packages/swig )
+    target_link_libraries(libYap android log)
 ENDIF ()
 
 
@@ -789,9 +801,9 @@ set_target_properties(yap-bin PROPERTIES OUTPUT_NAME yap)
 target_link_libraries(yap-bin libYap)
 
 install(TARGETS libYap yap-bin
-        RUNTIME DESTINATION ${bindir}
-        LIBRARY DESTINATION ${libdir}
-        ARCHIVE DESTINATION ${libdir}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         )
 
 
@@ -800,6 +812,8 @@ CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_MMAP "Use MMAP for shared memory allocation" 
 
 CMAKE_DEPENDENT_OPTION(WITH_SYSTEM_SHM "Use SHM for shared memory allocation" ON
         "NOT WITH_YAPOR_THOR; NOT WITH_SYSTEM_MMAP" OFF)
+
+if (NOT ANDROID)
 
 add_subDIRECTORY(library/lammpi)
 
@@ -822,9 +836,14 @@ if (MPI_C_FOUND)
     endif ()
 endif (MPI_C_FOUND)
 
+endif(NOT ANDROID)
+
 ##   add_subDIRECTORY(utils)
 
 #
+
+install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
+
 
 
 macro_display_feature_log()
@@ -832,9 +851,11 @@ if (POLICY CMP0058)
     cmake_policy(SET CMP0058 NEW)
 endif (POLICY CMP0058)
 
-include(Config NO_POLICY_SCOPE)
+include(Config )
 
 
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
         INCLUDE_QUIET_PACKAGES
         )
+
+ 

@@ -597,8 +597,32 @@ static void RestoreHashPreds(USES_REGS1) {}
 
 static void RestoreAtomList(Atom atm USES_REGS) {}
 
+static bool maybe_read_bytes(FILE *stream, void *ptr, size_t sz) {
+  do {
+    size_t count;
+    if ((count = fread(ptr, 1, sz, stream)) == sz)
+      return true;
+    if (feof(stream) || ferror(stream))
+      return false;
+    sz -= count;
+    ptr += count;
+  } while (true);
+}
+    
 static size_t read_bytes(FILE *stream, void *ptr, size_t sz) {
-  return fread(ptr, sz, 1, stream);
+  do {
+    size_t count = fread(ptr, 1, sz, stream);
+    if (count == sz)
+      return  sz;
+      if (feof(stream)) {
+        PlIOError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, TermNil, "read_qly/3: expected %ld bytes got %ld", sz, count);
+        return 0;
+      } else if (ferror(stream)) {
+        PlIOError(PERMISSION_ERROR_INPUT_STREAM, TermNil, "read_qly/3: expected %ld bytes got error %s", sz, strerror(errno));
+        return 0;
+      }
+    sz -= count;
+    } while(true);
 }
 
 static unsigned char read_byte(FILE *stream) { return getc(stream); }
@@ -632,34 +656,26 @@ static pred_flags_t read_predFlags(FILE *stream) {
   return v;
 }
 
-static bool checkChars(FILE *stream, char s[]) {
-  int ch, c;
-  char *p = s;
-
-  while ((ch = *p++)) {
-    if ((c = read_byte(stream)) != ch) {
-      return false;
-    }
-  }
-  return TRUE;
-}
 
 static Atom do_header(FILE *stream) {
-  char s[2048], *p = s, ch;
+  char s[2049], *p = s, *q;
+  char h0[] = "#!/bin/sh\nexec_dir=${YAPBINDIR:-";
+  char h1[] = "exec $exec_dir/yap $0 \"$@\"\nsaved ";
   Atom at;
 
-  if (!checkChars(stream, "#!/bin/sh\nexec_dir=${YAPBINDIR:-"))
+  if (!maybe_read_bytes( stream, s, 2048) )
     return NIL;
-  while ((ch = read_byte(stream)) != '\n')
-    ;
-  if (!checkChars(stream, "exec $exec_dir/yap $0 \"$@\"\nsaved "))
+  if (strstr(s, h0)!= s)
     return NIL;
-  while ((ch = read_byte(stream)) != ',')
-    *p++ = ch;
-  *p++ = '\0';
-  at = Yap_LookupAtom(s);
-  while ((ch = read_byte(stream)))
-    ;
+  if ((p=strstr(s, h1)) == NULL) {
+    return NIL;
+  }
+  p += strlen(h1);
+  q = strchr(p,',');
+  if (!q)
+    return NIL;
+  q[0] = '\0';
+  at = Yap_LookupAtom(p);
   return at;
 }
 
@@ -674,13 +690,22 @@ static Int get_header(USES_REGS1) {
     return FALSE;
   }
   if (!(stream = Yap_GetInputStream(t1, "header scanning in qload"))) {
-    return FALSE;
+    return false;
   }
-  if ((at = do_header(stream)) == NIL)
-    rc = FALSE;
-  else
+    sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  LOCAL_RestartEnv = &signew;
+
+  if (sigsetjmp(signew, 1) != 0) {
+      LOCAL_RestartEnv = sighold;
+      return false;
+    }
+  if ((at = do_header(stream)) == NIL) 
+    rc = false;
+  else {
     rc = Yap_unify(ARG2, MkAtomTerm(at));
-  return rc;
+  }
+    LOCAL_RestartEnv = sighold;
+    return rc;
 }
 
 static void ReadHash(FILE *stream) {
@@ -1072,10 +1097,10 @@ static Int qload_program(USES_REGS1) {
   return true;
 }
 
-YAP_file_type_t Yap_Restore(const char *s, const char *lib_dir) {
+YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-  FILE *stream = Yap_OpenRestore(s, lib_dir);
+  FILE *stream = Yap_OpenRestore(s);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;

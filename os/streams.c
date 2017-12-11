@@ -144,6 +144,7 @@ int GetFreeStreamD(void) {
     return -1;
   }
   LOCK(GLOBAL_Stream[sno].streamlock);
+    GLOBAL_Stream[sno].status &= ~Free_Stream_f;
   UNLOCK(GLOBAL_StreamDescLock);
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   return sno;
@@ -958,8 +959,9 @@ void Yap_CloseStreams(int loud) {
 static void CloseStream(int sno) {
   CACHE_REGS
 
-  fflush(NULL);
-  if (!(GLOBAL_Stream[sno].status &
+  //fflush(NULL);
+  if (GLOBAL_Stream[sno].file &&
+          !(GLOBAL_Stream[sno].status &
         (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
     fclose(GLOBAL_Stream[sno].file);
 #if HAVE_SOCKET

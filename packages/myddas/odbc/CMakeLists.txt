@@ -29,9 +29,9 @@ set_target_properties (Yapodbc PROPERTIES
 
 
   install(TARGETS  Yapodbc
-          LIBRARY DESTINATION ${dlls}
-          RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
 else()

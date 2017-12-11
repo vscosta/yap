@@ -114,16 +114,18 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   return true;
 }
 
-bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, encoding_t enc,
-                           size_t nchars) {
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
+                           size_t nchars USES_REGS) {
   FILE *f;
 
   // like any file stream.
-  st->file = f = fmemopen((void *)buf, nchars, "r");
-  st->status = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
+  st->file = f = fmemopen((char *)buf, nchars, "r");
+  st->status = Input_Stream_f | Seekable_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
-  st->encoding = enc;
+  st->encoding = LOCAL_encoding;
   Yap_DefaultStreamOps(st);
+  st->linecount = 0;
+  st->linepos = st->charcount = 0;
   return true;
 }
 
@@ -198,9 +200,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   // setbuf(st->file, NULL);
   st->status |= Seekable_Stream_f;
 #else
-  st->file = fmemopen((void *)buf, nchars, "w");
-  st->nsize = nchars;
-  st->nbuf = buf;
+  st->file = fmemopen((void *)st->nbuf, st->nsize, "w");
   if (!st->nbuf) {
     return -1;
   }
@@ -292,17 +292,15 @@ void Yap_MemOps(StreamDesc *st) {
   st->stream_getc = PlGetc;
 }
 
-static int sssno;
 
 bool Yap_CloseMemoryStream(int sno) {
-  sssno++;
-  //  if (sssno > 1720) Yap_do_low_level_trace=1;
-  if ((GLOBAL_Stream[sno].status & Output_Stream_f)) {
+  if ((GLOBAL_Stream[sno].status & Output_Stream_f) && GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
   } else {
+    if (GLOBAL_Stream[sno].file)
     fclose(GLOBAL_Stream[sno].file);
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);

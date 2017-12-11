@@ -6,7 +6,7 @@ INCLUDE(UseSWIG)
 include(FindPythonModule)
 
 list (APPEND pl_library ${CMAKE_CURRENT_SOURCE_DIR}/prolog/yapi.yap )
-set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__init__.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
+set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
 
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
@@ -22,6 +22,7 @@ set(YAP4PY_PY yap4py/__init__.py yap4py/__main__.py yap4py/yapi.py)
 configure_file("setup.py.in" setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
 configure_file("YAP4PY.md" README.md)
+configure_file(yap4py/__init__.py.in yap4py/__init__.py)
 
 INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
    	)
@@ -71,7 +72,7 @@ endif()
 
       install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
-    DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${dlls} )
+    DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${YAP_INSTALL_DLLDIR} )
 
 
 install(FILES ${YAP4PY_PL} DESTINATION ${libpl} )

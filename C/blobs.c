@@ -17,7 +17,11 @@
 /* for freeBSD9.1 */
 #define _WITH_DPRINTF
 
-#ifdef __APPLE__
+#ifdef CONDA_BUILD
+#undef HAVE_FMEMOPEN
+#endif
+
+#ifdef __APPLE__ 
 #include "fmemopen.h"
 #endif
 
@@ -209,8 +213,8 @@ bool YAP_get_blob(Term t, void **blob, size_t *len, blob_type_t **type) {
   return TRUE;
 }
 
-void *YAP_blob_data(Atom x, size_t *len, blob_type_t **type) {
-
+void *YAP_blob_data(YAP_Atom at, size_t *len, blob_type_t **type) {
+Atom x = at;
   if (!IsBlob(x)) {
 
     if (len)

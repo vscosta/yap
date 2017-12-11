@@ -2039,10 +2039,10 @@ static Int jump_env(USES_REGS1) {
     //    LOCAL_Error_TYPE = ERROR_EVENT;
     Term t1 = ArgOfTerm(1, t);
     if (IsApplTerm(t1) && IsAtomTerm((t2 = ArgOfTerm(1, t1)))) {
-      LOCAL_ActiveError->errorAsText = AtomOfTerm(t2);
-	LOCAL_ActiveError->classAsText = NameOfFunctor(FunctorOfTerm(t1));
+      LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t2))->StrOfAE;
+	LOCAL_ActiveError->classAsText = RepAtom(NameOfFunctor(FunctorOfTerm(t1)))->StrOfAE;
       } else if (IsAtomTerm(t)) {
-	LOCAL_ActiveError->errorAsText = AtomOfTerm(t1);
+	LOCAL_ActiveError->errorAsText = RepAtom(AtomOfTerm(t1))->StrOfAE;
 	LOCAL_ActiveError->classAsText = NULL;
       }
     } else {

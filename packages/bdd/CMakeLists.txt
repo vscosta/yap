@@ -46,16 +46,14 @@ IF (CUDD_FOUND)
       )
   endif()
 
-  set_target_properties (cudd PROPERTIES PREFIX "")
-
-  add_subdirectory(simplecudd)
+   add_subdirectory(simplecudd)
   add_subdirectory(simplecudd_lfi)
   set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
   install(TARGETS  cudd
-          LIBRARY DESTINATION ${dlls}
-          RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
 
     )
 

@@ -50,22 +50,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef YAP_H
 
 /* The YAP main types */
 #include "YapTerm.h"
-
-/**
-  This term can never be constructed as a valid term, so it is
-  used as a "BAD" term
-*/
-#define TermZERO ((Term)0)
-
-#else
-
-#include "YapConfig.h"
-
-#endif /* YAP_H */
 
 #if HAVE_STDINT_H
 #include <stdint.h>
@@ -73,21 +60,6 @@
 #if HAVE_INTTYPES_H
 #include <inttypes.h>
 #endif
-
-/* truth-values */
-/* stdbool defines the booleam type, bool,
-   and the constants false and true */
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#else
-#ifndef true
-typedef int _Bool;
-#define bool _Bool;
-
-#define false 0
-#define true 1
-#endif
-#endif /* HAVE_STDBOOL_H */
 
 /**
    FALSE and TRUE are the pre-standard versions,
@@ -103,79 +75,26 @@ typedef int _Bool;
 typedef bool YAP_Bool;
 #endif
 
-#ifdef YAP_H
 
-/* if Yap.h is available, just reexport */
+/**
+  This term can never be constructed as a valid term, so it is
+  used as a "BAD" term
+*/
+#define TermZERO ((Term)0)
 
-#define YAP_CELL CELL
 
-#define YAP_Term Term
+#include "YapConfig.h"
 
-#define YAP_Arity arity_t
 
-#define YAP_Module Term
-
-#define YAP_Functor Functor
-
-#define YAP_Atom Atom
-
-#define YAP_Int Int
-
-#define YAP_UInt UInt
-
-#define YAP_Float Float
-
-#define YAP_handle_t yhandle_t
-
-#define YAP_PredEntryPtr struct pred_entry *
-
-#define YAP_UserCPred CPredicate
-
-#define YAP_agc_hook Agc_hook
-
-#define YAP_encoding_t encoding_t
-
-#else
-
-/* Type definitions */
-#if defined(PRIdPTR)
-typedef uintptr_t YAP_UInt;
-typedef intptr_t YAP_Int;
-#elif _WIN64
-typedef int64_t YAP_Int;
-typedef uint64_t YAP_UInt;
-#elif _WIN32
-typedef int32_t YAP_Int;
-typedef uint32_t YAP_UInt;
-#else
-typedef long int YAP_Int;
-typedef unsigned long int YAP_UInt;
-#endif
-
-typedef YAP_UInt YAP_CELL;
-
-typedef YAP_CELL YAP_Term;
+typedef void *YAP_PredEntryPtr;
 
 typedef size_t YAP_Arity;
 
 typedef YAP_Term YAP_Module;
 
-typedef struct FunctorEntry *YAP_Functor;
-
-typedef struct AtomEntry *YAP_Atom;
-
-typedef double YAP_Float;
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 typedef YAP_Int YAP_handle_t;
 
-typedef struct YAP_pred_entry *YAP_PredEntryPtr;
+typedef void *YAP_PredEntryPtr;
 
 typedef YAP_Bool (*YAP_UserCPred)(void);
 
@@ -187,6 +106,9 @@ typedef int (*YAP_agc_hook)(void *_Atom);
 
 typedef encoding_t YAP_encoding_t;
 
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/native_activity.h>
 #endif
 
 typedef struct YAP_thread_attr_struct {
@@ -207,10 +129,11 @@ typedef enum {
   YAP_SAVED_STATE = 0x0004,
   YAP_OBJ = 0x0008,
   YAP_PL = 0x0010,
-  YAP_BOOT_PL = 0x0030,
+    YAP_BOOT_PL = 0x0030,
   YAP_QLY = 0x0040,
   YAP_EXE = 0x0080,
-  YAP_FOUND_BOOT_ERROR = 0x0100
+  YAP_FOUND_BOOT_ERROR = 0x0100,
+  YAP_DIR = 0x0200
 } YAP_file_type_t;
 
 #define YAP_ANY_FILE (0x00ff)
@@ -252,9 +175,15 @@ typedef enum {
 #define YAP_RECONSULT_MODE 1
 #define YAP_BOOT_MODE 2
 
+
+X_API YAP_file_type_t Yap_InitDefaults(void *init_args,  char saved_state[],
+                                 int Argc, char *Argv[]);
+
 typedef struct yap_boot_params {
-  //> boot type as suggested by the user
-  YAP_file_type_t boot_file_type;
+    //> boot type as suggested by the user
+    YAP_file_type_t boot_file_type;
+    //> bootstrapping mode: YAP is not properly installed
+    bool bootstrapping;
   //> if NON-NULL, path where we can find the saved state
   const char *SavedState;
   //> if NON-0, minimal size for Heap or Code Area
@@ -275,10 +204,16 @@ typedef struct yap_boot_params {
   size_t AttsSize;
   //> if NON-0, maximal size for AttributeVarStack
   size_t MaxAttsSize;
-  //> if NON-NULL, value for YAPLIBDIR
-  const char *YapLibDir;
-  //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries
-  const char *YapShareDir;
+    //> if NON-NULL, value for YAPROOTDIR
+    const char *YapRootDir;
+    //> if NON-NULL, value for YAPLIBDIR
+    const char *YapLibDir;
+    //> if NON-NULL, value for YAPSHAREDIR, that is, default value for libraries
+    const char *YapShareDir;
+    //> if NON-NULL, value for YAPDLLDIR, that is, default value for libraries
+    const char *YapDLLDir;
+    //> if NON-NULL, value for YAPPLDIR, that is, default value for libraries
+    const char *YapPlDir;
   //> if NON-NULL, name for a Prolog file to use when booting
   const char *YapPrologBootFile;
   //> if NON-NULL, name for a Prolog file to use when initializing
@@ -322,6 +257,10 @@ typedef struct yap_boot_params {
   int QuietMode;
   //> 0, maintain default, > 0 use fd-1, < 0 close
   int inp, out, err;
+#if __ANDROID__
+    //> android asset support
+    AAssetManager *assetManager;
+#endif
 /* support nf's ypp preprocessor code */
 #define YAP_MAX_YPP_DEFS 100
   char *def_var[YAP_MAX_YPP_DEFS];
@@ -343,11 +282,6 @@ typedef struct yap_boot_params {
   //> errorstring
   char *ErrorCause;
 } YAP_init_args;
-
-#ifdef YAP_H
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *init_args, char saved_state[],
-                                 int Argc, char *Argv[]);
-#endif
 
 /* this should be opaque to the user */
 typedef struct {

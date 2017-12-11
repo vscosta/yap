@@ -27,7 +27,7 @@ PyObject *py_ModDict;
 
 VFS_t pystream;
 
-static void *py_open(const char *name, const char *io_mode) {
+static void *py_open(VFS_t *me, int sno, const char *name, const char *io_mode) {
 #if HAVE_STRCASESTR
   if (strcasestr(name, "//python/") == name)
     name += strlen("//python/");
@@ -35,12 +35,16 @@ static void *py_open(const char *name, const char *io_mode) {
   if (strstr(name, "//python/") == name)
     name += strlen("//python/");
 #endif
+StreamDesc *st = YAP_RepStreamFromId(sno);
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python(name, true, NULL);
   if (stream == Py_None)
     return NULL;
     Py_INCREF(stream);
-  return stream;
+    st->vfs_handle = stream;
+    st->vfs = me;
+    st->status = Append_Stream_f | Output_Stream_f;
+    return stream;
 }
 
 static bool py_close(int sno) {

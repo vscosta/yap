@@ -1306,10 +1306,10 @@ void Yap_UpdateTimestamps(PredEntry *);
 void Yap_ErDBE(DBRef);
 DBTerm *Yap_StoreTermInDB(Term, int);
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
-Term Yap_FetchTermFromDB(DBTerm *);
-Term Yap_FetchClauseTermFromDB(DBTerm *);
-Term Yap_PopTermFromDB(DBTerm *);
-void Yap_ReleaseTermFromDB(DBTerm *);
+Term Yap_FetchTermFromDB(void *);
+Term Yap_FetchClauseTermFromDB(void *);
+Term Yap_PopTermFromDB(void *);
+void Yap_ReleaseTermFromDB(void *);
 
 /* init.c */
 Atom Yap_GetOp(OpEntry *, int *, int);
@@ -1598,8 +1598,8 @@ bool Yap_PutException(Term t);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
   return LOCAL_BallTerm != NULL;
 }
-INLINE_ONLY inline EXTERN DBTerm *Yap_RefToException(void) {
-  DBTerm *dbt = LOCAL_BallTerm;
+INLINE_ONLY inline EXTERN void *Yap_RefToException(void) {
+  void *dbt = LOCAL_BallTerm;
   LOCAL_BallTerm = NULL;
   return dbt;
 }

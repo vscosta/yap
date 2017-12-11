@@ -64,7 +64,7 @@ if (JNI_FOUND)
      INCLUDE_JARS NativeJar )
    SET(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
 install(    TARGETS Native
-    RUNTIME DESTINATION ${bindir}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BIINDIR}
     ARCHIVE  DESTINATION ${libdir}
     LIBRARY  DESTINATION ${libdir}
 )

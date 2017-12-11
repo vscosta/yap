@@ -19,7 +19,7 @@
 		]).
 
 
-:- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up)
+:- catch(load_foreign_files([libhorus], [], init_predicates), _, patch_things_up)
 	-> true ; warning.
 
 

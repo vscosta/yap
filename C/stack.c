@@ -1091,15 +1091,15 @@ bool set_clause_info(yamop *codeptr, PredEntry *pp) {
     Term ts[2];
     void *begin;
     if (pp->ArityOfPE == 0) {
-        LOCAL_ActiveError->prologPredName = (Atom) pp->FunctorOfPred;
+        LOCAL_ActiveError->prologPredName = RepAtom((Atom) pp->FunctorOfPred)->StrOfAE;
         LOCAL_ActiveError->prologPredArity = 0;
     } else {
-        LOCAL_ActiveError->prologPredName = NameOfFunctor(pp->FunctorOfPred);
+        LOCAL_ActiveError->prologPredName = RepAtom(NameOfFunctor(pp->FunctorOfPred))->StrOfAE;
         LOCAL_ActiveError->prologPredArity = pp->ArityOfPE;
     }
     LOCAL_ActiveError->prologPredModule =
-            (pp->ModuleOfPred ? pp->ModuleOfPred : TermProlog);
-    LOCAL_ActiveError->prologPredFile = pp->src.OwnerFile;
+            (pp->ModuleOfPred ? RepAtom(AtomOfTerm(pp->ModuleOfPred))->StrOfAE : "prolog");
+    LOCAL_ActiveError->prologPredFile = RepAtom(pp->src.OwnerFile)->StrOfAE;
     if (codeptr->opc == UNDEF_OPCODE) {
         LOCAL_ActiveError->prologPredFirstLine = 0;
         LOCAL_ActiveError->prologPredLine = 0;

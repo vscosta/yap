@@ -1,33 +1,41 @@
 /*************************************************************************
-*									 *
-*	 Yap Prolog 							 *
-*									 *
-*	Yap Prolog Was Developed At Nccup - Universidade Do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa And Universidade Do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		Yap.C							 *
-* Last Rev:								 *
-* Mods:									 *
-* Comments:	Yap's Main File: parse arguments			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 Yap Prolog 							 *
+ *									 *
+ *	Yap Prolog Was Developed At Nccup - Universidade Do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa And Universidade Do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		Yap.C * Last
+ *Rev:
+ * Mods:
+ ** Comments:	Yap's Main File: parse arguments			 *
+ *									 *
+ *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
 
 #include "Yap.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
+#include "YapStreams.h"
 #include "config.h"
+
 #if HAVE_UNISTD_H
+
 #include <unistd.h>
+
 #endif
 #if HAVE_STDINT_H
+
 #include <stdint.h>
+
 #endif
+
 #include <stddef.h>
 #include <stdlib.h>
+
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef HAVE_UNISTD_H
 #undef HAVE_UNISTD_H
@@ -35,27 +43,351 @@
 #endif
 
 #include <stdio.h>
+
 #if HAVE_STRING_H
+
 #include <string.h>
+
 #endif
 #if HAVE_ERRNO_H
+
 #include <errno.h>
+
 #endif
 #if HAVE_DIRECT_H
 #include <direct.h>
 #endif
 
-
-#ifndef YAP_ROOTDIR
+#if HAVE_LIBGEN_H
 #include <libgen.h>
 
-char
-   *YAP_BINDIR,
-   *YAP_ROOTDIR,
-   *YAP_SHAREDIR,
-   *YAP_LIBDIR,
-   *YAP_YAPLIB;
 #endif
+
+const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
+    *Yap_PLDIR, *Yap_BOOTPLDIR, *Yap_BOOTSTRAPPLDIR, *Yap_COMMONSDIR,
+    *Yap_STARTUP, *Yap_BOOTFILE;
+
+static int yap_lineno = 0;
+
+/* do initial boot by consulting the file boot.yap */
+static void do_bootfile(const char *b_file USES_REGS) {
+  Term t;
+  int boot_stream, osno;
+  Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
+  Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
+
+  /* consult boot.pl */
+  char *full = malloc(YAP_FILENAME_MAX + 1);
+  full[0] = '\0';
+  /* the consult mode does not matter here, really */
+  boot_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &osno);
+  if (boot_stream < 0) {
+    fprintf(stderr, "[ FATAL ERROR: could not open boot_stream %s ]\n", b_file);
+    exit(1);
+  }
+  free(full);
+  setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                            MkAtomTerm(GLOBAL_Stream[boot_stream].name));
+  do {
+    CACHE_REGS
+    YAP_Reset(YAP_FULL_RESET);
+    Yap_StartSlots();
+    t = YAP_ReadClauseFromStream(boot_stream);
+
+    // Yap_DebugPlWriteln(t);
+    if (t == 0) {
+      fprintf(stderr,
+              "[ SYNTAX ERROR: while parsing boot_stream %s at line %d ]\n",
+              b_file, yap_lineno);
+    } else if (YAP_IsVarTerm(t) || t == TermNil) {
+      fprintf(stderr, "[ line %d: term cannot be compiled ]", yap_lineno);
+    } else if (YAP_IsPairTerm(t)) {
+      fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
+      fprintf(stderr, "error found at line %d and pos %d", yap_lineno,
+              fseek(GLOBAL_Stream[boot_stream].file, 0L, SEEK_CUR));
+    } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
+                                 FunctorOfTerm(t) == functor_command1)) {
+      YAP_RunGoalOnce(ArgOfTerm(1, t));
+    } else {
+      Term ts[2];
+      char *ErrorMessage;
+      Functor fun = Yap_MkFunctor(Yap_LookupAtom("$prepare_clause"), 2);
+      PredEntry *pe = RepPredProp(PredPropByFunc(fun, PROLOG_MODULE));
+
+      if (pe->OpcodeOfPred != UNDEF_OPCODE && pe->OpcodeOfPred != FAIL_OPCODE) {
+        ts[0] = t;
+        RESET_VARIABLE(ts + 1);
+        if (YAP_RunGoal(Yap_MkApplTerm(fun, 2, ts)))
+          t = ts[1];
+      }
+      ErrorMessage = YAP_CompileClause(t);
+      if (ErrorMessage) {
+        fprintf(stderr, "%s", ErrorMessage);
+      }
+    }
+  } while (t != TermEof);
+  BACKUP_MACHINE_REGS();
+
+  YAP_EndConsult(boot_stream, &osno);
+#if DEBUG
+  if (Yap_output_msg)
+    fprintf(stderr, "Boot loaded\n");
+#endif
+}
+
+/** @brief A simple language for detecting where YAP stuff cn be found
+ *
+ * @long The options are
+ *  `[V]` use a configuration variable YAP_XXXDIR, prefixed by "DESTDIR"
+ *  `(V)PATH` compute V and add /PATH,
+ *  `$V` search the envurinment
+ *  `?V` search the WINDOWS registry
+ *  ~` search HOME
+ *  `@` query user option.
+ *
+ */
+const char *rootdirs[] = {"[root]", "(execdir)..", "/usr/local", "~", NULL};
+
+const char *bindirs[] = {"[bin]", "(root)bin", NULL};
+
+const char *libdirs[] = {
+#if __ANDROID__
+    "/assets/lib",
+#endif
+    "[lib]", "(root)lib", NULL};
+
+const char *sharedirs[] = {
+#if __ANDROID__
+    "/assets/share",
+#endif
+    "[share]", "(root)share", NULL};
+
+const char *dlldirs[] = {"$YAPLIBDIR", "(lib)Yap", ".", NULL};
+
+const char *ssdirs[] = {".", "$YAPLIBDIR", "(lib)Yap", NULL};
+
+const char *pldirs[] = {"$YAPSHAREDIR", "?library", "(share)Yap", ".", NULL};
+
+const char *bootpldirs[] = {"(pl)pl", ".", NULL};
+
+const char *bootstrappldirs[] = {YAP_PL_SRCDIR, NULL};
+
+const char *commonsdirs[] = {"(share)PrologCommons", ".", NULL};
+
+const char *ssnames[] = {"@SavedState", YAP_STARTUP, "startup.yss", NULL};
+
+const char *plnames[] = {"@YapPrologBootFile", YAP_BOOTFILE, "boot.yap", NULL};
+
+/**
+ * Search
+ */
+char *location(YAP_init_args *iap, const char *inp, char *out) {
+  if (inp == NULL || inp[0] == '\0') {
+    return NULL;
+  }
+  out[0] = '\0';
+  if (inp[0] == '(') {
+    if (strstr(inp + 1, "root") == inp + 1 && Yap_ROOTDIR &&
+        Yap_ROOTDIR[0] != '\0') {
+      strcpy(out, Yap_ROOTDIR);
+      strcat(out, "/");
+      strcat(out, inp + strlen("(root)"));
+    } else if (strstr(inp + 1, "bin") == inp + 1 && Yap_BINDIR &&
+               Yap_BINDIR[0] != '\0') {
+      strcpy(out, Yap_BINDIR);
+      strcat(out, "/");
+      strcat(out, inp + strlen("(bin)"));
+    } else if (strstr(inp + 1, "lib") == inp + 1 && Yap_LIBDIR &&
+               Yap_LIBDIR[0] != '\0') {
+      strcpy(out, Yap_LIBDIR);
+      strcat(out, "/");
+      strcat(out, inp + strlen("(lib)"));
+    } else if (strstr(inp + 1, "share") == inp + 1 && Yap_SHAREDIR &&
+               Yap_SHAREDIR[0] != '\0') {
+      strcpy(out, Yap_SHAREDIR);
+      strcat(out, "/");
+      strcat(out, inp + strlen("(share)"));
+    } else if (strstr(inp + 1, "pl") == inp + 1 && Yap_PLDIR &&
+               Yap_PLDIR[0] != '\0') {
+      strcpy(out, Yap_PLDIR);
+      strcat(out, "/");
+      strcat(out, inp + strlen("(pl)"));
+    } else if (strstr(inp + 1, "execdir") == inp + 1) {
+      char *buf = Malloc(YAP_FILENAME_MAX+1);
+      const char *ex = Yap_AbsoluteFile(Yap_FindExecutable(), buf, false);
+      if (ex != NULL) {
+        strcpy(out, dirname((char *)ex));
+        strcat(out, "/");
+        strcat(out, inp + strlen("(execdir)"));
+      }
+    }
+  } else if (inp[0] == '@') {
+
+    if (strstr(inp + 1, "YapPrologBootFile") == inp + 1) {
+      const char *tmp;
+      tmp = iap->YapPrologBootFile;
+      if (tmp && tmp[0])
+        strcpy(out, tmp);
+    } else if (strstr(inp + 1, "SavedState") == inp + 1) {
+      const char *tmp = iap->SavedState;
+      if (tmp && tmp[0])
+        strcpy(out, tmp);
+    }
+  } else if (inp[0] == '$') {
+    char *e;
+    if ((e = getenv(inp + 1)) != NULL) {
+      strcpy(out, e);
+    }
+  } else if (inp[0] == '?') {
+#if _WINDOWS_
+    char *e;
+    if ((e = Yap_RegistryGetString(inp + 1)) != NULL) {
+      strcpy(out, e);
+    }
+#endif
+  } else if (inp[0] == '~') {
+    char *e;
+    if ((e = getenv("HOME")) != NULL) {
+      if (inp[1] == '\0') {
+        strcpy(out, e);
+      } else if (inp[1] == '/') {
+        strcpy(out, e);
+        strcat(out, inp + 1);
+      }
+    }
+  } else if (inp[0] == '[') {
+      char *o = out;
+      const char *e;
+      if ((e = getenv("DESTDIR"))) {
+        strcpy(out, e);
+        o += strlen(e);
+      }
+      if (strstr(inp + 1, "root") == inp + 1) {
+#ifdef YAP_ROOTDIR
+        strcpy(o, YAP_ROOTDIR);
+#endif
+      } else if (strstr(inp + 1, "lib") == inp + 1) {
+#ifdef YAP_LIBDIR
+        strcpy(o, YAP_LIBDIR);
+#endif
+      } else if (strstr(inp + 1, "share") == inp + 1) {
+#ifdef YAP_SHAREDIR
+        strcpy(o, YAP_SHAREDIR);
+#endif
+      } else if (strstr(inp + 1, "dll") == inp + 1) {
+#ifdef YAP_DLLDIR
+        strcpy(o, YAP_DLLDIR);
+#endif
+      } else if (strstr(inp + 1, "pl") == inp + 1) {
+#ifdef YAP_PLDIR
+        strcpy(o, YAP_PLDIR);
+#endif
+      } else if (strstr(inp + 1, "commons") == inp + 1) {
+#ifdef YAP_COMMONSDIR
+        strcpy(o, YAP_COMMONSDIR);
+#endif
+      }
+    } else {
+      strcpy(out, inp);
+    }
+  if (out[0]) {
+    return out;
+  }
+  return NULL;
+}
+
+/**
+ * @brief find default paths for main YAP variables
+ *
+ * This function is called once at boot time to set the main paths; it
+ * searches a list of paths to instantiate a number of variables. Paths must
+ * be directories.
+ *
+ * It treats the following variables as :
+ *  ROOTDIR, SHAREDIR, LIBDIR, EXECUTABLE
+ *
+ * @return
+ */
+static const char *find_directory(YAP_init_args *iap, const char *paths[],
+                                  const char *names[]) {
+  int lvl = push_text_stack();
+  char *out = Malloc(YAP_FILENAME_MAX + 1);
+  const char *inp;
+  char *full;
+  if (names) {
+    full = Malloc(YAP_FILENAME_MAX + 1);
+  }
+  int i = 0;
+  while ((inp = paths[i++]) != NULL) {
+    out[0] = '\0';
+    char *o = location(iap, inp, out), *no;
+    if (o && o[0] && Yap_isDirectory(o)) {
+      if (names) {
+        size_t s = strlen(o);
+        o[s++] = '/';
+        const char *p;
+        int j = 0;
+        while ((p = names[j++])) {
+          char *io = o + s;
+          if ((no = location(iap, p, io)) && io[0] != '\0' && Yap_Exists(o))
+            return pop_output_text_stack(lvl, realpath(o, full));
+        }
+      } else
+        return pop_output_text_stack(lvl, o);
+    }
+  }
+  pop_text_stack(lvl);
+  return NULL;
+}
+
+static void Yap_set_locations(YAP_init_args *iap) {
+#if CONDA_BUILD
+  if (!getenv("DESTDIR")) {
+    char *buf = Malloc( YAP_FILENAME_MAX + 1);
+    const char *o = Yap_FindExecutable();
+    if (!o)
+      return;
+    o = Yap_AbsoluteFile(o, buf, false);
+      Int i = strlen(o);
+      while (--i) {
+	if (Yap_dir_separator((int)o[i]))
+	  break;
+      }
+      if (i == 0) {     setenv("DESTDIR", "/", 1); }
+      else {
+     while (--i) {
+	if (Yap_dir_separator((int)o[i]))
+	  break;
+      }
+           if (i == 0) {     setenv("DESTDIR", "/", 1); }
+	   else  {     setenv("DESTDIR", o, 1); }
+      }
+
+
+    setenv("DESTDIR", buf, 1);
+  }
+#endif
+  Yap_ROOTDIR = find_directory(iap, rootdirs, NULL);
+  Yap_LIBDIR = find_directory(iap, libdirs, NULL);
+  Yap_BINDIR = find_directory(iap, bindirs, NULL);
+  Yap_SHAREDIR = find_directory(iap, sharedirs, NULL);
+  Yap_DLLDIR = find_directory(iap, dlldirs, NULL);
+  Yap_PLDIR = find_directory(iap, pldirs, NULL);
+  Yap_COMMONSDIR = find_directory(iap, commonsdirs, NULL);
+  Yap_STARTUP = find_directory(iap, ssdirs, ssnames);
+  if (iap->bootstrapping)
+    Yap_BOOTFILE = find_directory(iap, bootstrappldirs, plnames);
+  else
+    Yap_BOOTFILE = find_directory(iap, bootpldirs, plnames);
+  if (Yap_ROOTDIR)
+    setAtomicGlobalPrologFlag(HOME_FLAG, MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
+  if (Yap_PLDIR)
+    setAtomicGlobalPrologFlag(PROLOG_LIBRARY_DIRECTORY_FLAG,
+                            MkAtomTerm(Yap_LookupAtom(Yap_PLDIR)));
+  if (Yap_DLLDIR)
+    setAtomicGlobalPrologFlag(PROLOG_FOREIGN_DIRECTORY_FLAG,
+                            MkAtomTerm(Yap_LookupAtom(Yap_DLLDIR)));
+}
 
 static void print_usage(void) {
   fprintf(stderr, "\n[ Valid switches for command line arguments: ]\n");
@@ -97,8 +429,9 @@ static void print_usage(void) {
     defined(YAPOR_THREADS)
   fprintf(stderr, "  -w   Number of workers (default: %d)\n",
           DEFAULT_NUMBERWORKERS);
-  fprintf(stderr, "  -sl  Loop scheduler executions before look for hiden "
-                  "shared work (default: %d)\n",
+  fprintf(stderr,
+          "  -sl  Loop scheduler executions before look for hiden "
+          "shared work (default: %d)\n",
           DEFAULT_SCHEDULERLOOP);
   fprintf(stderr, "  -d   Value of delayed release of load (default: %d)\n",
           DEFAULT_DELAYEDRELEASELOAD);
@@ -147,53 +480,37 @@ static int dump_runtime_variables(void) {
   return 1;
 }
 
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *iap, char saved_state[],
-                                 int argc, char *argv[]) {
+X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
+                                       char *argv[]) {
+
+  if (!LOCAL_TextBuffer)
+    LOCAL_TextBuffer = Yap_InitTextAllocator();
+  YAP_init_args *iap = x;
   memset(iap, 0, sizeof(YAP_init_args));
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
   iap->SavedState = NULL;
+  iap->assetManager = NULL;
 #else
   iap->boot_file_type = YAP_QLY;
   iap->SavedState = saved_state;
 #endif
   iap->Argc = argc;
   iap->Argv = argv;
-  iap->YapLibDir = YAP_YAPLIB;
-  return iap->boot_file_type;
+  return YAP_QLY;
 }
 
+/**
+ * @short Paese command line
+ * @param argc number of arguments
+ * @param argv arguments
+ * @param iap options, see YAP_init_args
+ * @return boot from saved state or restore; error
+ */
 X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                               YAP_init_args *iap) {
   char *p;
   size_t *ssize;
-
-#ifndef YAP_ROOTDIR
-  {
-    char *b0=Yap_FindExecutable(), *b1, *b2;
-  char b[YAP_FILENAME_MAX + 1];
-
-  strncpy(b, b0, YAP_FILENAME_MAX);
- b1 = dirname(b);
-  YAP_BINDIR = malloc(strlen(b1)+1);
-  strcpy(YAP_BINDIR, b1);
-  b2 = dirname(b1);
- YAP_ROOTDIR = malloc(strlen(b2)+1);
-  strcpy(YAP_ROOTDIR, b2);
-  strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
-  strncat( b, "/share", YAP_FILENAME_MAX);
-  YAP_SHAREDIR=  malloc(strlen(b)+1);
-  strcpy(YAP_SHAREDIR, b);
-  strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
-  strncat( b, "/lib", YAP_FILENAME_MAX);
-  YAP_LIBDIR=  malloc(strlen(b)+1);
-  strcpy(YAP_LIBDIR, b);
-   strncpy(b, YAP_ROOTDIR, YAP_FILENAME_MAX);
- strncat( b, "/lib/Yap", YAP_FILENAME_MAX);
-  YAP_YAPLIB=  malloc(strlen(b)+1);
-  strcpy(YAP_YAPLIB, b);
-};
-#endif
 
   Yap_InitDefaults(iap, NULL, argc, argv);
   while (--argc > 0) {
@@ -219,8 +536,9 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
           iap->YapPrologBootFile = *++argv;
           argc--;
         } else {
-          iap->YapPrologBootFile = "boot.yap";
+          iap->YapPrologBootFile = NULL;
         }
+        iap->bootstrapping = true;
         break;
       case '?':
         print_usage();
@@ -474,9 +792,8 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         else {
           argc--;
           if (argc == 0) {
-            fprintf(
-                stderr,
-                " [ YAP unrecoverable error: missing goal for option 'z' ]\n");
+            fprintf(stderr, " [ YAP unrecoverable error: missing goal for "
+                            "option 'z' ]\n");
             exit(EXIT_FAILURE);
           }
           argv++;
@@ -496,11 +813,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           GLOBAL_Home = p + strlen("-home=");
         } else if (!strncmp("-cwd=", p, strlen("-cwd="))) {
-#if __WINDOWS__
-          if (_chdir(p + strlen("-cwd=")) < 0) {
-#else
-          if (chdir(p + strlen("-cwd=")) < 0) {
-#endif
+          if (!Yap_ChDir(p + strlen("-cwd="))) {
             fprintf(stderr, " [ YAP unrecoverable error in setting cwd: %s ]\n",
                     strerror(errno));
           }
@@ -537,9 +850,8 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         else {
           argc--;
           if (argc == 0) {
-            fprintf(
-                stderr,
-                " [ YAP unrecoverable error: missing paths for option 'p' ]\n");
+            fprintf(stderr, " [ YAP unrecoverable error: missing paths for "
+                            "option 'p' ]\n");
             exit(EXIT_FAILURE);
           }
           argv++;
@@ -582,4 +894,271 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
     }
   }
   return iap->boot_file_type;
+}
+
+/**
+   YAP_DelayInit()
+
+   ensures initialization is done after engine creation.
+   It receives a pointer to function and a string describing
+   the module.
+*/
+
+X_API bool YAP_initialized = false;
+static int n_mdelays = 0;
+static YAP_delaymodule_t *m_delays;
+
+X_API bool YAP_DelayInit(YAP_ModInit_t f, const char s[]) {
+  if (m_delays) {
+    m_delays = realloc(m_delays, (n_mdelays + 1) * sizeof(YAP_delaymodule_t));
+  } else {
+    m_delays = malloc(sizeof(YAP_delaymodule_t));
+  }
+  m_delays[n_mdelays].f = f;
+  m_delays[n_mdelays].s = s;
+  n_mdelays++;
+  return true;
+}
+
+bool Yap_LateInit(const char s[]) {
+  int i;
+  for (i = 0; i < n_mdelays; i++) {
+    if (!strcmp(m_delays[i].s, s)) {
+      m_delays[i].f();
+      return true;
+    }
+  }
+  return false;
+}
+
+static void start_modules(void) {
+  Term cm = CurrentModule;
+  size_t i;
+  for (i = 0; i < n_mdelays; i++) {
+    CurrentModule = MkAtomTerm(YAP_LookupAtom(m_delays[i].s));
+    m_delays[i].f();
+  }
+  CurrentModule = cm;
+}
+
+/// whether Yap is under control of some other system
+bool Yap_embedded = true;
+
+struct ssz_t {
+  size_t Heap, Stack, Trail;
+};
+
+static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
+  Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
+                                           later functions */
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
+  Yap_init_yapor_global_local_memory();
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+  if (!yap_init->Embedded) {
+    GLOBAL_PrologShouldHandleInterrupts =
+        !yap_init->PrologCannotHandleInterrupts;
+    Yap_InitSysbits(0); /* init signal handling and time, required by later
+                           functions */
+    GLOBAL_argv = yap_init->Argv;
+    GLOBAL_argc = yap_init->Argc;
+  }
+
+#if __ANDROID__
+
+  // if (yap_init->assetManager)
+  Yap_InitAssetManager();
+
+#endif
+
+  if (yap_init->TrailSize == 0) {
+    if (spt->Trail == 0)
+      spt->Trail = DefTrailSpace;
+  } else {
+    spt->Trail = yap_init->TrailSize;
+  }
+  // Atts = yap_init->AttsSize;
+  if (yap_init->StackSize == 0) {
+    spt->Stack = DefStackSpace;
+  } else {
+    spt->Stack = yap_init->StackSize;
+  }
+#ifndef USE_SYSTEM_MALLOC
+  if (yap_init->HeapSize == 0) {
+    if (spt->Heap == 0)
+      spt->Heap = DefHeapSpace;
+  } else {
+    spt->Heap = yap_init->HeapSize;
+  }
+#endif
+}
+
+static void init_globals(YAP_init_args *yap_init) {
+  GLOBAL_FAST_BOOT_FLAG = yap_init->FastBoot;
+#if defined(YAPOR) || defined(TABLING)
+
+  Yap_init_root_frames();
+
+#endif /* YAPOR || TABLING */
+#ifdef YAPOR
+  Yap_init_yapor_workers();
+#if YAPOR_THREADS
+  if (Yap_thread_self() != 0) {
+#else
+  if (worker_id != 0) {
+#endif
+#if defined(YAPOR_COPY) || defined(YAPOR_SBA)
+    /*
+      In the SBA we cannot just happily inherit registers
+      from the other workers
+    */
+    Yap_InitYaamRegs(worker_id);
+#endif /* YAPOR_COPY || YAPOR_SBA */
+#ifndef YAPOR_THREADS
+    Yap_InitPreAllocCodeSpace(0);
+#endif /* YAPOR_THREADS */
+    /* slaves, waiting for work */
+    CurrentModule = USER_MODULE;
+    P = GETWORK_FIRST_TIME;
+    Yap_exec_absmi(FALSE, YAP_EXEC_ABSMI);
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+              "abstract machine unexpected exit (YAP_Init)");
+  }
+#endif /* YAPOR */
+  RECOVER_MACHINE_REGS();
+  /* make sure we do this after restore */
+  if (yap_init->MaxStackSize) {
+    GLOBAL_AllowLocalExpansion = FALSE;
+  } else {
+    GLOBAL_AllowLocalExpansion = TRUE;
+  }
+  if (yap_init->MaxGlobalSize) {
+    GLOBAL_AllowGlobalExpansion = FALSE;
+  } else {
+    GLOBAL_AllowGlobalExpansion = TRUE;
+  }
+  if (yap_init->MaxTrailSize) {
+    GLOBAL_AllowTrailExpansion = FALSE;
+  } else {
+    GLOBAL_AllowTrailExpansion = TRUE;
+  }
+  if (yap_init->YapPrologRCFile) {
+    Yap_PutValue(AtomConsultOnBoot,
+                 MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
+    /*
+      This must be done again after restore, as yap_flags
+      has been overwritten ....
+    */
+    setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
+                               yap_init->HaltAfterConsult);
+  }
+  if (yap_init->YapPrologTopLevelGoal) {
+    Yap_PutValue(AtomTopLevelGoal,
+                 MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologTopLevelGoal)));
+  }
+  if (yap_init->YapPrologGoal) {
+    Yap_PutValue(AtomInitGoal,
+                 MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologGoal)));
+  }
+  if (yap_init->YapPrologAddPath) {
+    Yap_PutValue(AtomExtendFileSearchPath,
+                 MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologAddPath)));
+  }
+
+  if (yap_init->QuietMode) {
+    setVerbosity(TermSilent);
+  }
+}
+
+static YAP_file_type_t end_init(YAP_init_args *yap_init, YAP_file_type_t rc) {
+  init_globals(yap_init);
+  LOCAL_PrologMode &= ~BootMode;
+
+  start_modules();
+
+  YAP_initialized = true;
+  return rc;
+}
+
+/* this routine is supposed to be called from an external program
+   that wants to control Yap */
+
+X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
+  YAP_file_type_t restore_result = yap_init->boot_file_type;
+  bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
+  struct ssz_t minfo;
+
+  if (YAP_initialized)
+    return YAP_FOUND_BOOT_ERROR;
+  if (!LOCAL_TextBuffer)
+    LOCAL_TextBuffer = Yap_InitTextAllocator();
+
+  /* ignore repeated calls to YAP_Init */
+  Yap_embedded = yap_init->Embedded;
+
+  minfo.Trail = 0, minfo.Stack = 0, minfo.Trail = 0;
+  init_hw(yap_init, &minfo);
+  Yap_InitWorkspace(yap_init, minfo.Heap, minfo.Stack, minfo.Trail, 0,
+                    yap_init->MaxTableSpaceSize, yap_init->NumberWorkers,
+                    yap_init->SchedulerLoop, yap_init->DelayedReleaseLoad);
+  //
+
+  CACHE_REGS
+  if (Yap_embedded)
+    if (yap_init->QuietMode) {
+      setVerbosity(TermSilent);
+    }
+  if (yap_init->YapPrologRCFile != NULL) {
+    /*
+      This must be done before restore, otherwise
+      restore will print out messages ....
+    */
+    setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
+                               yap_init->HaltAfterConsult);
+  }
+  /* tell the system who should cope with interrupts */
+  Yap_ExecutionMode = yap_init->ExecutionMode;
+  Yap_set_locations(yap_init);
+  if (!do_bootstrap && Yap_STARTUP && yap_init->boot_file_type != YAP_BOOT_PL &&
+      Yap_SavedInfo(Yap_STARTUP, &minfo.Trail, &minfo.Stack, &minfo.Heap) &&
+      Yap_Restore(Yap_STARTUP)) {
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
+    CurrentModule = LOCAL_SourceModule = USER_MODULE;
+    return end_init(yap_init, YAP_QLY);
+  } else {
+    do_bootfile(Yap_BOOTFILE PASS_REGS);
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
+    return end_init(yap_init, YAP_BOOT_PL);
+  }
+}
+
+#if (DefTrailSpace < MinTrailSpace)
+#undef DefTrailSpace
+#define DefTrailSpace MinTrailSpace
+#endif
+
+#if (DefStackSpace < MinStackSpace)
+#undef DefStackSpace
+#define DefStackSpace MinStackSpace
+#endif
+
+#if (DefHeapSpace < MinHeapSpace)
+#undef DefHeapSpace
+#define DefHeapSpace MinHeapSpace
+#endif
+
+#define DEFAULT_NUMBERWORKERS 1
+#define DEFAULT_SCHEDULERLOOP 10
+#define DEFAULT_DELAYEDRELEASELOAD 3
+
+X_API YAP_file_type_t YAP_FastInit(char *saved_state, int argc, char *argv[]) {
+  YAP_init_args init_args;
+  YAP_file_type_t out;
+
+  if ((out = Yap_InitDefaults(&init_args, saved_state, argc, argv)) !=
+      YAP_FOUND_BOOT_ERROR)
+    out = YAP_Init(&init_args);
+  if (out == YAP_FOUND_BOOT_ERROR) {
+    Yap_Error(init_args.ErrorNo, TermNil, init_args.ErrorCause);
+  }
+  return out;
 }

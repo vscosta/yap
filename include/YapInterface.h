@@ -268,17 +268,18 @@ extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
 extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred,
                                          YAP_UserCPred, YAP_Arity, YAP_Arity);
 
-/*   YAP_Int      YAP_ListLength(YAP_Term t) */
-extern X_API YAP_Int YAP_ListLength(YAP_Term);
-
-extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(),
    int
     arity, int extra) */
-extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred,
+extern X_API void YAP_UserBackCutCPredicate(const char *name, YAP_UserCPred,
                                             YAP_UserCPred, YAP_UserCPred,
                                             YAP_Arity, YAP_Arity);
+
+/*   YAP_Int      YAP_ListLength(YAP_Term t) */
+extern X_API YAP_Int YAP_ListLength(YAP_Term);
+
+extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
@@ -399,7 +400,7 @@ extern X_API YAP_Term YAP_ReadFromStream(int s);
 
 /// read a Prolog clause from a Prolog opened stream $s$. Similar to
 /// YAP_ReadFromStream() but takes /// default options from read_clause/3.
-extern X_API YAP_Term YAP_ReadFromStream(int s);
+extern X_API YAP_Term YAP_ReadClauseFromStream(int s);
 
 extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
@@ -473,6 +474,16 @@ extern X_API YAP_Term MkSFTerm();
 extern X_API void YAP_SetOutputMessage(void);
 
 extern X_API int YAP_StreamToFileNo(YAP_Term);
+
+
+/**
+ * Utility routine to Obtain a pointer to the YAP representation of a stream.
+ *
+ * @param sno Stream Id
+ * @return data structure for stream
+ */
+extern X_API void *YAP_RepStreamFromId(int sno);
+
 
 extern X_API void YAP_CloseAllOpenStreams(void);
 

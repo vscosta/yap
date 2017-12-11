@@ -60,7 +60,6 @@ set_target_properties(Yapsqlite3
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
   #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
   POSITION_INDEPENDENT_CODE TRUE
-        PREFIX ""
         )
 
 target_link_libraries(Yapsqlite3 libYap)
@@ -71,7 +70,7 @@ if (ANDROID)
 endif ()
 
 install(TARGETS Yapsqlite3
-        RUNTIME DESTINATION ${dlls}
-        ARCHIVE DESTINATION ${dlls}
-        LIBRARY DESTINATION ${dlls}
+        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+        ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
         )

@@ -24,7 +24,7 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "sysbits.h"
-
+#include "YapStreams.h"
 
 #if !HAVE_FMEMOPEN || !defined(HAVE_FMEMOPEN)
 
@@ -180,7 +180,7 @@ static int MemPutc(int sno, int ch) {
   return ((int)ch);
 }
 
-bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars) {
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars USES_REGS) {
   FILE *f;
   stream_flags_t flags;
 
@@ -241,14 +241,15 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
 {
   Term t, ti;
   int sno;
-  char buf0[YAP_FILENAME_MAX + 1];
+  int i = push_text_stack();
   const char *buf;
 
   ti = Deref(ARG1);
-  buf = Yap_TextTermToText(ti, buf0, 0, LOCAL_encoding);
+  buf = Yap_TextTermToText(ti PASS_REGS);
   if (!buf) {
     return false;
   }
+  buf = pop_output_text_stack(i, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);

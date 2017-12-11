@@ -7,14 +7,14 @@ import platform
 import sys
 
 global yap_lib_path
-yap_lib_path = os.path.dirname(__file__)
+yap_lib_path = "@CMAKE_INSTALL_FULL_LIBDIR@"
 
 if platform.system() == 'Windows':
     def load( dll ):
         dll = glob.glob(os.path.join(yap_lib_path,dll))[0]
         dll = os.path.abspath(dll)
         ctypes.WinDLL(dll)
-elseif  platform.system() == 'Apple':
+elif  platform.system() == 'Apple':
     def load( dll ):
           dll = glob.glob(os.path.join(yap_lib_path,dll))[0]
           dll = os.path.abspath(dll)

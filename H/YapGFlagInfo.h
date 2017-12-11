@@ -236,7 +236,7 @@ process, namely, on choice-points.
     YAP_FLAG(GMP_VERSION_FLAG, "gmp_version", false, isatom, "4.8.12", NULL),
     YAP_FLAG(HALT_AFTER_CONSULT_FLAG, "halt_after_consult", false, booleanFlag,
              "false", NULL),
-  /* YAP_FLAG(HOME_FLAG, "home", false, isatom, rootdir, NULL),*/ /**< home `
+  YAP_FLAG(HOME_FLAG, "home", false, isatom, YAP_ROOTDIR, NULL), /**< home `
 
 the root of the YAP installation, by default `/usr/local` in Unix or
 `c:\Yap` in Windows system. Can only be set at configure time

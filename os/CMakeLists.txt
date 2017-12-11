@@ -7,7 +7,10 @@ set (YAPOS_SOURCES
   console.c
   files.c
   fmem.c
-  fmemopen.c
+ # fmemopen.c
+ #android/fmemopen.c
+  #  android/fopencookie.c
+   #   android/open_memstream.c
   format.c
   iopreds.c
   mem.c

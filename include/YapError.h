@@ -176,51 +176,51 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     /// go back t
   } yap_error_stage_t;
 
-  /// a Prolo goal that caused a bug
+  /// a Prolog goal that caused a bug
 
-  typedef struct error_prolog_source {
-    YAP_Int prologPredCl;
-    YAP_UInt prologPredLine;
-    YAP_UInt prologPredFirstLine;
-    YAP_UInt prologPredLastLine;
-    YAP_Atom prologPredName;
-    YAP_UInt prologPredArity;
-    YAP_Term prologPredModule;
-    YAP_Atom prologPredFile;
-    struct DB_TERM *errorGoal;
+  typedef struct yap_error_prolog_source {
+    intptr_t prologPredCl;
+    uintptr_t prologPredLine;
+    uintptr_t prologPredFirstLine;
+    uintptr_t prologPredLastLine;
+      const char *   prologPredName;
+    uintptr_t prologPredArity;
+      const char *  prologPredModule;
+      const char *  prologPredFile;
+    void *errorGoal;
     struct error_prolog_source *errorParent;
-  } error_prolog_source_t;
+  } yap_error_prolog_source_t;
 
   /// all we need to know about an error/throw
-  typedef struct yap_error_descriptor {
+  typedef struct s_yap_error_descriptor {
     enum yap_error_status status;
     yap_error_class_number errorClass;
-    YAP_Atom errorAsText;
-    YAP_Atom classAsText;
+    const char * errorAsText;
+    const char * classAsText;
     yap_error_number errorNo;
-    YAP_Int errorLine;
+    intptr_t errorLine;
     const char *errorFunction;
     const char *errorFile;
     // struct error_prolog_source *errorSource;
-    YAP_Int prologPredCl;
-    YAP_UInt prologPredLine;
-    YAP_UInt prologPredFirstLine;
-    YAP_UInt prologPredLastLine;
-    YAP_Atom prologPredName;
-    YAP_UInt prologPredArity;
-    YAP_Term prologPredModule;
-    YAP_Atom prologPredFile;
-    YAP_UInt prologParserLine;
-    YAP_UInt prologParserFirstLine;
-    YAP_UInt prologParserLastLine;
-    YAP_Atom prologParserName;
-    YAP_Atom prologParserFile;
-    YAP_Bool prologConsulting;
-    struct DB_TERM *errorTerm;
-    YAP_Term rawErrorTerm, rawExtraErrorTerm;
+    intptr_t prologPredCl;
+    uintptr_t prologPredLine;
+    uintptr_t prologPredFirstLine;
+    uintptr_t prologPredLastLine;
+    const char * prologPredName;
+    uintptr_t prologPredArity;
+      const char *  prologPredModule;
+      const char *  prologPredFile;
+    uintptr_t prologParserLine;
+    uintptr_t prologParserFirstLine;
+    uintptr_t prologParserLastLine;
+      const char *  prologParserName;
+      const char *  prologParserFile;
+    bool prologConsulting;
+    void *errorTerm;
+    uintptr_t rawErrorTerm, rawExtraErrorTerm;
     char *errorMsg;
     size_t errorMsgLen;
-    struct yap_error_descriptor *top_error;
+    struct s_yap_error_descriptor *top_error;
   } yap_error_descriptor_t;
 
 /// compatibility with existing code..

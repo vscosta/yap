@@ -25,6 +25,10 @@ class X_API YAPPredicate;
    Queries and engines
 */
 
+#if __ANDROID__
+
+#endif
+
 /**
  * @brief Queries
  *
@@ -94,11 +98,11 @@ YAPQuery() {
   inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames)
   {
     CELL *qt = nullptr;
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                           LOCAL_CurSlot);
       if (!ap)
           return;
-      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
       goal = YAPTerm(tgoal);
       if (IsPairTerm(tgoal)) {
         qt = RepPair(tgoal);
@@ -151,6 +155,7 @@ void close();
 /// query variables.
 void cut();
 Term namedVars() {return  names.term(); };
+YAPPairTerm namedVarTerms() {return  names; };
 /// query variables, but copied out
 std::vector<Term> namedVarsVector() {
   return names.listToArray(); };
@@ -180,170 +185,177 @@ public:
   virtual void run(char *s) {}
 };
 
-
 /// @brief Setup all arguments to a new engine
-class X_API YAPEngineArgs {
-
+struct X_API YAPEngineArgs: YAP_init_args {
 public:
 
-  YAP_init_args init_args;
+    YAPEngineArgs():yap_boot_params() {
+         char s[32];
+         strcpy(s, "startup.yss" );
+            Yap_InitDefaults(this,s,0,nullptr);
+#if YAP_PYTHON
+      Embedded = true;
+    python_in_python = Py_IsInitialized();
+#endif
+    };
 
   inline void setEmbedded( bool fl )
   {
-    init_args.Embedded = fl;
+    Embedded = fl;
   };
 
   inline bool getEmbedded(  )
   {
-    return init_args.Embedded;
+    return Embedded;
   };
 
   inline void setStackSize( bool fl )
   {
-    init_args.StackSize = fl;
+    StackSize = fl;
   };
 
   inline bool getStackSize(  )
   {
-    return init_args.StackSize;
+    return StackSize;
   };
 
   inline void setTrailSize( bool fl )
   {
-    init_args.TrailSize = fl;
+    TrailSize = fl;
   };
 
   inline bool getTrailSize(  )
   {
-    return init_args.TrailSize;
+    return TrailSize;
   };
 
   inline bool getMStackSize(  )
   {
-    return init_args.StackSize;
+    return StackSize;
   };
 
   inline void setMaxTrailSize( bool fl )
   {
-    init_args.MaxTrailSize = fl;
+    MaxTrailSize = fl;
   };
 
   inline bool getMaxTrailSize(  )
   {
-    return init_args.MaxTrailSize;
+    return MaxTrailSize;
   };
 
   inline void setYapLibDir( const char * fl )
   {
-    init_args.YapLibDir = (const char *)malloc(strlen(fl)+1);
-    strcpy((char *)init_args.YapLibDir, fl);
+    YapLibDir = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)YapLibDir, fl);
   };
 
   inline const char * getYapLibDir(  )
   {
-    return init_args.YapLibDir;
+    return YapLibDir;
   };
 
     inline void setYapShareDir( const char * fl )
   {
-    init_args.YapShareDir = (const char *)malloc(strlen(fl)+1);
-    strcpy((char *)init_args.YapShareDir, fl);
+    YapShareDir = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)YapShareDir, fl);
   };
 
   inline const char * getYapShareDir(  )
   {
-    return init_args.YapShareDir;
+    return YapShareDir;
   };
 
   inline void setSavedState( const char * fl )
   {
-    init_args.SavedState = (const char *)malloc(strlen(fl)+1);
-    strcpy((char *)init_args.SavedState, fl);
+    SavedState = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)SavedState, fl);
   };
 
   inline const char * getSavedState(  )
   {
-    return init_args.SavedState;
+    return SavedState;
   };
 
   inline void setYapPrologBootFile( const char * fl )
   {
-    init_args.YapPrologBootFile = (const char *)malloc(strlen(fl)+1);
-    strcpy((char *)init_args.YapPrologBootFile, fl);
+    YapPrologBootFile = (const char *)malloc(strlen(fl)+1);
+    strcpy((char *)YapPrologBootFile, fl);
 };
 
   inline const char * getYapPrologBootFile(  )
   {
-    return init_args.YapPrologBootFile;
+    return YapPrologBootFile;
   };
 
   inline void setYapPrologGoal( const char * fl )
   {
-    init_args.YapPrologGoal = fl;
+    YapPrologGoal = fl;
   };
 
   inline const char * getYapPrologGoal(  )
   {
-    return init_args.YapPrologGoal;
+    return YapPrologGoal;
   };
 
   inline void setYapPrologTopLevelGoal( const char * fl )
   {
-    init_args.YapPrologTopLevelGoal = fl;
+    YapPrologTopLevelGoal = fl;
   };
 
   inline const char * getYapPrologTopLevelGoal(  )
   {
-    return init_args.YapPrologTopLevelGoal;
+    return YapPrologTopLevelGoal;
   };
 
   inline void setHaltAfterConsult( bool fl )
   {
-    init_args.HaltAfterConsult = fl;
+    HaltAfterConsult = fl;
   };
 
   inline bool getHaltAfterConsult(  )
   {
-    return init_args.HaltAfterConsult;
+    return HaltAfterConsult;
   };
 
   inline void setFastBoot( bool fl )
   {
-    init_args.FastBoot = fl;
+    FastBoot = fl;
   };
 
-  inline bool getFastBoot(  )
-  {
-    return init_args.FastBoot;
-  };
+    inline bool getFastBoot(  )
+    {
+        return FastBoot;
+    };
+
+#if __ANDROID__
+    //> export ResoourceManager
+    inline void setAssetManager( AAssetManager *mgr )
+    {
+        assetManager = mgr;
+    };
+#endif
 
   inline void setArgc( int  fl )
   {
-    init_args.Argc = fl;
+    Argc = fl;
   };
 
   inline int getArgc(  )
   {
-    return init_args.Argc;
+    return Argc;
   };
 
   inline void setArgv( char ** fl )
   {
-    init_args.Argv = fl;
+    Argv = fl;
   };
 
   inline char ** getArgv(  )
   {
-    return init_args.Argv;
+    return Argv;
   };
 
-  YAPEngineArgs() {
-    Yap_InitDefaults(&init_args, NULL, 0, NULL);
-#if YAP_PYTHON
-    init_args.Embedded = true;
-    python_in_python = Py_IsInitialized();
-#endif
-  };
 };
 
 
@@ -368,7 +380,7 @@ private:
       YAPEngine(YAPEngineArgs *cargs)
   {
     engine_args = cargs;
-    //doInit(cargs->init_args.boot_file_type);
+    //doInit(cargs->boot_file_type);
     doInit(YAP_QLY);
   }; /// construct a new engine, including aaccess to callbacks
   /// construct a new engine using argc/argv list of arguments

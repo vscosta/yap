@@ -2,6 +2,7 @@
 %module(directors="1") streamer
 %{
 #include "streamer.h"
+
 %}
 
 %include "std_string.i"
@@ -10,7 +11,3 @@
 %feature("director") AndroidStreamer;
 
 %include "streamer.h"
-
-
- %init %{
-  %}

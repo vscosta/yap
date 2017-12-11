@@ -303,14 +303,14 @@ static char tmpbuf[YAP_BUF_SIZE];
   }
 
 #include "YapErrors.h"
-
+//
 void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
   new_error->top_error = LOCAL_ActiveError;
   LOCAL_ActiveError = new_error;
 }
 
 yap_error_descriptor_t *Yap_popErrorContext(void) {
-  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
+ yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
   return new_error;
 }
@@ -386,10 +386,10 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     Yap_RestartYap(1);
   }
   LOCAL_ActiveError->errorNo = type;
-  LOCAL_ActiveError->errorAsText = Yap_LookupAtom(Yap_errorName(type));
+  LOCAL_ActiveError->errorAsText = Yap_errorName(type);
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
   LOCAL_ActiveError->classAsText =
-    Yap_LookupAtom(Yap_errorClassName(LOCAL_ActiveError->errorClass));
+    Yap_errorClassName(LOCAL_ActiveError->errorClass);
   LOCAL_ActiveError->errorLine = lineno;
   LOCAL_ActiveError->errorFunction = function;
   LOCAL_ActiveError->errorFile = file;

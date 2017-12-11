@@ -105,13 +105,15 @@ static void exec_top_level(int BootMode, YAP_init_args *iap) {
     YAP_Reset(YAP_FULL_RESET);
     do_top_goal(YAP_MkAtomTerm(livegoal));
     livegoal = YAP_FullLookupAtom("$live");
+  } 
+   YAP_Exit(EXIT_SUCCESS);
+
   }
-  YAP_Exit(EXIT_SUCCESS);
-}
 
 // FILE *debugf;
 
 #ifdef LIGHT
+
 int _main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -121,6 +123,7 @@ int main(int argc, char **argv)
   int i;
   YAP_init_args init_args;
   BootMode = init_standard_system(argc, argv, &init_args);
+  
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr, "[ FATAL ERROR: could not find saved state ]\n");
     exit(1);

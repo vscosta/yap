@@ -136,9 +136,9 @@ FILE *open_memstream(char **buf, size_t *len);
 #endif
 
 #if __ANDROID__
-
-#undef HAVE_FMEMOPEN
-#undef HAVE_OPEN_MEMSTREAM
+//extern FILE * fmemopen(void *buf, size_t size, const char *mode);
+#define HAVE_FMEMOPEN 1
+#define HAVE_OPEN_MEMSTREAM 1
 #endif
 
 #if HAVE_FMEMOPEN
