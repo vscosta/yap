@@ -439,7 +439,6 @@ extern bool Yap_ChDir(const char *path);
 bool Yap_isDirectory(const char *FileName);
 extern bool Yap_Exists(const char *f);
 
-
 /* threads.c */
 extern void Yap_InitThreadPreds(void);
 extern void Yap_InitFirstWorkerThreadHandle(void);

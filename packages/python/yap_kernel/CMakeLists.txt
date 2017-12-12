@@ -82,5 +82,5 @@
     install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
-      install(FILES ${PL_FILES} DESTINATION ${libpl} )
+      install(FILES ${PL_SOURCES} DESTINATION ${libpl} )
 

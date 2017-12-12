@@ -370,8 +370,9 @@ be lost.
 	stream_property(_,alias(debugger_input)),
 	!.
 '$debugger_input' :-
+        S = user_input,
         stream_property(S,tty(true)),
-        stream_property(S,input),
+    %    stream_property(S,input),
 	!,
 	set_stream(S,alias(debugger_input)).
 '$debugger_input' :-
@@ -469,7 +470,7 @@ be lost.
 	 ( Spy == ignore ; '$pred_being_spied'(G, M) )
 	),
 	writeln(go:G:M),
-	!, 
+	!,
 	'$execute_nonstop'(G,M).
 '$trace_goal'(G, M, GoalNumber, H) :-
 	'$undefined'(G, M),
@@ -631,7 +632,7 @@ be lost.
     '$TraceError'(E, GoalNumber, G, Module, Info).
 '$trace_port_'(external_exception(E), GoalNumber, G, Module, Info) :-
     '$TraceError'(E, GoalNumber, G, Module, Info).
- 
+
 
 %%% - abort: forward throw while the call is newer than goal
 '$TraceError'( abort, _, _, _, _).

@@ -53,7 +53,7 @@ typedef struct AliasDescS {
  * @return a new VFS that will support /assets
  */
 
-extern VFS_t *Yap_InitAssetManager( void );
+extern struct vfs *Yap_InitAssetManager( void );
 
 /* routines in parser.c */
 extern VarEntry *Yap_LookupVar(const char *);
