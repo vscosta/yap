@@ -267,10 +267,6 @@ inline static Term CurrentPositionToTerm(void) {
   return Yap_MkApplTerm(FunctorStreamPos, 5, sargs);
 }
 
-extern FILE *Yap_stdin;
-extern FILE *Yap_stdout;
-extern FILE *Yap_stderr;
-
 char *Yap_MemExportStreamPtr(int sno);
 
 

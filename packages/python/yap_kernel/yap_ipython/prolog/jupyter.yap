@@ -15,13 +15,13 @@ jupyter_query(Self, Cell) :-
 
 enter_cell(_Self) :-
 	open('//python/sys.stdout', append, _Output, [alias(jupo)]),
-	open('//python/sys.stdout', append, _, [alias(jupe)]),
-	set_prolog_flag(user_output, jupo),
-	set_prolog_flag(user_error, jupe).
+	open('//python/sys.stdout', append, _Error, [alias(jupe)]),
+	set_prolog_flag(user_output, _Output),
+	set_prolog_flag(user_error, _Error).
 
 exit_cell(_Self) :-
-	close( jupo),
-	close( jupe).
+	close( user_output),
+	close( user_error).
 
 
 completions(S, Self) :-
@@ -83,20 +83,20 @@ arg([l|_]).
 
 file_or_library(F,C) :-
 	libsym(C0),
-	atom_cooncat(F,C,Co).
+	atom_cooncat(F,C,C0).
 file_or_library(F,C) :-
-	check_file(F0,C).
-		      
+	check_file(F,C).
+
 check_file(F0,C) :-
 	atom_concat('\'',F,F0),
 	!,
 	absolute_file_name( F, FF, [access(none)]  ),
-	atom_concat( F, '*'	, Pat),
+	atom_concat( FF, '*'	, Pat),
 	absolute_file_name( Pat, C0, [glob(true)]  ),
 	atom_concat(Pat,C00,C0),
 	atom_conct(C00,'\'',C).
 check_file(F0,C) :-
-	atom_concat( F, '*'	, Pat),
+	atom_concat( F0, '*'	, Pat),
 	absolute_file_name( Pat, C0, [glob(true)]  ),
 	atom_concat(Pat,C,C0).
 
@@ -117,7 +117,7 @@ predicate(N,P,A) :-
 	current_predicate(P0/A),
 	atom_concat(N,P,P0).
 
-cont(0, F, P, P0)- :-
+cont(0, F, P, P0) :-
 		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
 	atom_concat( [F, P, '('], PB ).

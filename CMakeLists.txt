@@ -209,21 +209,17 @@ disallow_intree_builds()
 
 # set(CMAKE_BUILD_TYPE  Debug)
 
-if (ANACONDA)
+if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
     set(CMAKE_LIBRARY_ARCHITECTURE $ENV{PREFIX})
-    set(CMAKE_PREFIX_PATH $ENV{PREFIX} $ENV{SYS_PREFIX})
-        set( PATH $ENV{PREFIX}/bin $ENV{SYS_PREFIX}/bin ${PATH} )
-    set( PYTHON_EXECUTABLE "$ENV{PYTHON}")
+    set(CMAKE_PREFIX_PATH $ENV{PREFIX})
     set( R_COMMAND "$ENV{R}")
-#      set(CMAKE_INCLUDE_PATH  $ENV{SYS_PREFIX}/include ${CMAKE_INCLUDE_PATH} )
-#set(CMAKE_LIBRARY_PATH $ENV{SYS_PREFIX}/lib $ENV{SYS_PREFIX}/lib ${CMAKE_LIBRARY_PATH})
-#        set(ENV{PATH} PATH $ENV{PREFIX}/bin $ENV{SYS_PREFIX}/bin $ENV{PATH})
-#        set(PATH $ENV{PATH} ${PATH})
-    #set( CMAKE_INSTALL_FULL_PREFIX $ENV{PREFIX} )
-        set( PYTHON_LIBRARY $ENV{PREFIX}/lib/libpython$ENV{PY_VER}m$ENV{SHLIB_EXT})
-    set( PYTHON_INCLUDE_DIR $ENV{PREFIX}/include/python$ENV{PY_VER}m)
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
+ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
+    list (APPEND CMAKE_REQUIRED_INCLUDES
+        ${PREFIX}/include
+        ${SYS_PREFIX}/include
+    )
 set(YAP_IS_MOVABLE 1)
+
 endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
@@ -304,6 +300,12 @@ find_package(GMP)
 
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
+
+if (GMP_FOUND)
+    #config.h needs this (TODO: change in code latter)
+    include_directories(${GMP_INCLUDE_DIRS})
+endif (GMP_FOUND)
+
 include(FindReadline)
 
 List(APPEND YAP_SYSTEM_OPTIONS readline)
@@ -311,6 +313,13 @@ List(APPEND YAP_SYSTEM_OPTIONS readline)
 ## after we have all functionality in
 #
 # ADD_SUBDIRECTORY(console/terminal)
+
+if (READLINE_FOUND)
+    include_directories(${READLINE_INCLUDE_DIR})
+    # required for configure
+    list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
+    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
+endif ()
 
 
 #MPI STUFF
@@ -539,6 +548,16 @@ add_corelib( # Sets the name of the library.
         ${YLIBS}
         )
 
+if (GMP_FOUND)
+    target_link_libraries(libYap ${GMP_LIBRARIES})
+endif (GMP_FOUND)
+
+if (READLINE_FOUND)
+    target_link_libraries(libYap ${READLINE_LIBRARIES})
+    # required for configure
+ 
+endif ()
+
 if (WIN32)
    target_link_libraries(libYap ${WINDLLS})
      if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
@@ -547,20 +566,6 @@ if (WIN32)
 endif (WIN32)
 
 target_link_libraries(libYap m)
-
-if (GMP_FOUND)
-    #config.h needs this (TODO: change in code latter)
-    include_directories(${GMP_INCLUDE_DIRS})
-    target_link_libraries(libYap ${GMP_LIBRARIES})
-endif (GMP_FOUND)
-
-if (READLINE_FOUND)
-    include_directories(${READLINE_INCLUDE_DIR})
-    target_link_libraries(libYap ${READLINE_LIBRARIES})
-    # required for configure
-    list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
-endif ()
 
 
 set(YAP_STARTUP startup.yss)

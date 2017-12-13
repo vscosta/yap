@@ -183,6 +183,7 @@ class YAPShell:
         self.port = "call"
         # launch the query
         while self.answer(q):
+            print( self.port )
             if self.port == "exit":
                 # done
                 q.close()

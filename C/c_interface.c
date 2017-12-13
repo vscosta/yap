@@ -2171,7 +2171,7 @@ X_API void YAP_EndConsult(int sno, int *osnop) {
 
 X_API Term YAP_Read(FILE *f) {
   Term o;
-  int sno = Yap_FileStream(f, NULL, TermNil, Input_Stream_f);
+  int sno = Yap_FileStream(f, NULL, TermNil, Input_Stream_f, NULL);
 
   BACKUP_MACHINE_REGS();
   o = Yap_read_term(sno, TermNil, 1);
@@ -2199,7 +2199,7 @@ X_API Term YAP_ReadClauseFromStream(int sno) {
 
 X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
-  int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f);
+  int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
 
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
   Yap_ReleaseStream(sno);

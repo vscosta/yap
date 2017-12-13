@@ -1091,7 +1091,7 @@ if (st-> file == NULL) {
     }
 }
 
-bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
+    bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
                     encoding_t encoding, stream_flags_t flags, Atom open_mode,
                     void *vfs) {
     StreamDesc *st = &GLOBAL_Stream[sno];
@@ -1326,7 +1326,6 @@ return false;
     }
 #endif
     //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
-    Yap_DefaultStreamOps(st);
         if (needs_bom && !write_bom(sno, st)) {
             return false;
     } else if (open_mode == AtomRead && !avoid_bom) {
@@ -1523,6 +1522,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
     st = GLOBAL_Stream + sno;
     // read, write, append
     st->file = NULL;
+    st->status = 0;
     fname = Yap_VF(fname);
     if ((vfsp = vfs_owner(fname)) != NULL ) {
         if (!vfsp->open(vfsp, sno, fname, io_mode)) {
@@ -1558,20 +1558,21 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
             at = AtomWrite;
             flags |= Output_Stream_f;
         }
-    } else {
+    }
+    if (strchr(io_mode, 'r')) {
         at = AtomRead;
         flags |= Input_Stream_f;
     }
     if (strchr(io_mode, 'b')) {
         flags |= Binary_Stream_f;
     }
-    Yap_initStream(sno, st->file, fname, user_name, LOCAL_encoding, flags, at, NULL);
+    Yap_initStream(sno, st->file, fname, user_name, LOCAL_encoding, flags, at, vfsp);
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid",
                         "exists %s <%d>", fname, sno);
     return sno;
 }
 
-int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags) {
+int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags, VFS_t *vfsp) {
     CACHE_REGS
     int sno;
     Atom at;
@@ -1587,28 +1588,10 @@ int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags) {
             at = AtomWrite;
     } else
         at = AtomRead;
-    Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, NULL);
+    Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, vfsp);
     return sno;
 }
 
-int FileStream(FILE *fd, char *name, Term file_name, int flags) {
-    int sno;
-    Atom at;
-
-    sno = GetFreeStreamD();
-    if (sno < 0)
-        return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, MkAtomTerm(Yap_LookupAtom(name)),
-                          "new stream not available for opening"));
-    if (flags & Output_Stream_f) {
-        if (flags & Append_Stream_f)
-            at = AtomAppend;
-        else
-            at = AtomWrite;
-    } else
-        at = AtomRead;
-    Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, NULL);
-    return sno;
-}
 
 #define CheckStream(arg, kind, msg)                                            \
   CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
@@ -1754,13 +1737,13 @@ static Int close1 /** @pred  close(+ _S_) is iso
  */
 
         (USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
-    Int sno = CheckStream(
+    int sno = CheckStream(
             ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
     if (sno < 0)
-        return (FALSE);
+        return false;
     if (sno <= StdErrStream) {
         UNLOCK(GLOBAL_Stream[sno].streamlock);
-        return TRUE;
+        return true;
     }
     Yap_CloseStream(sno);
     UNLOCK(GLOBAL_Stream[sno].streamlock);

@@ -416,6 +416,9 @@ function. */
 #ifndef HAVE_FMEMOPEN
 #cmakedefine HAVE_FMEMOPEN ${HAVE_FMEMOPEN}
 #endif
+#if CONDA_BUILD
+#undef HAVE_FMEMOPEN
+#endif
 
 /* Define to 1 if you have the `fpclass' function. */
 #ifndef HAVE_FPCLASS
@@ -978,6 +981,10 @@ function. */
 #ifndef HAVE_OPEN_MEMSTREAM
 #cmakedefine HAVE_OPEN_MEMSTREAM ${HAVE_OPEN_MEMSTREAM}
 #endif
+#if CONDA_BUILD
+#undef HAVE_OPEN_MEMSTREAM
+#endif
+
 
 /* Define to 1 if you have the `opendir' function. */
 #ifndef HAVE_OPENDIR

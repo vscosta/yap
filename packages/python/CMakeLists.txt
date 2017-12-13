@@ -2,12 +2,11 @@
 #CHECK: PythonLibs, changed to work in WIN32
 
 set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c)
-
+set (PYTHON_HEADERS py4yap.h)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-message( ${GMP_INCLUDE_DIRS} )
-include_directories( ${CMAKE_BINARY_DIR}
-${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${GMP_INCLUDE_DIRS} )
+include_directories( ${CMAKE_BINARY_DIR} ${PYTHON_INCLUDE_DIRS}
+${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os )
 
 #talk to python.pl
 add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )

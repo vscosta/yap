@@ -593,7 +593,7 @@ be lost.
     !,
     fail.
 '$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
-    GoalNumber >= G0,
+    GoalNumber > G0,
     !,
     catch(
             '$trace_goal'(G, M, GoalNumber, H),

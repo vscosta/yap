@@ -253,8 +253,10 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
-bool Yap_readline_clear_pending_input(StreamDesc *s) {
+bool Yap_readline_clear_pending_input(StreamDesc *s) {  
+#if HAVE_RL_CLEAR_PENDING_INPUT
   rl_clear_pending_input();
+#endif
   if (s->u.irl.buf) {
     free((void *)s->u.irl.buf);
   }
@@ -306,6 +308,11 @@ bool Yap_InitReadline(Term enable) {
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
+
+#if !HAVE_RL_SET_SIGNALS
+#define rl_clear_signals()
+#define rl_set_signals()
+#endif
 
 static bool getLine(int inp) {
   CACHE_REGS

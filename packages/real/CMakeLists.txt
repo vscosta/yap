@@ -46,9 +46,9 @@ include_directories (
       ${R_INCLUDE_DIR}
       )
 
-    set (CMAKE_REQUIRED_INCLUDES
+    list (APPEND CMAKE_REQUIRED_INCLUDES
         ${CMAKE_CURRENT_BINARY_DIR}
-        ${LIBR_INCLUDE_DIRS}
+        ${R_INCLUDE_DIR}
     )
 
   add_lib(real  ${REAL_SOURCES})

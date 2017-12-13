@@ -960,10 +960,16 @@ static void CloseStream(int sno) {
   CACHE_REGS
 
   //fflush(NULL);
-  if (GLOBAL_Stream[sno].file &&
-          !(GLOBAL_Stream[sno].status &
-        (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
-    fclose(GLOBAL_Stream[sno].file);
+  VFS_t *me;
+  if ((me = GLOBAL_Stream[sno].vfs) != NULL) {
+  if (me->close) {
+  me->close(sno);
+  }
+    GLOBAL_Stream[sno].vfs = NULL;
+  } else if (GLOBAL_Stream[sno].file &&
+        !(GLOBAL_Stream[sno].status &
+          (Null_Stream_f | Socket_Stream_f | InMemory_Stream_f | Pipe_Stream_f)))
+      fclose(GLOBAL_Stream[sno].file);
 #if HAVE_SOCKET
   else if (GLOBAL_Stream[sno].status & (Socket_Stream_f)) {
     Yap_CloseSocket(GLOBAL_Stream[sno].u.socket.fd,
@@ -1001,7 +1007,8 @@ void Yap_ReleaseStream(int sno) {
   CACHE_REGS
   GLOBAL_Stream[sno].status = Free_Stream_f;
   GLOBAL_Stream[sno].user_name = 0;
-  GLOBAL_Stream[sno].vfs = NULL;
+  
+    GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   Yap_DeleteAliases(sno);
   if (LOCAL_c_input_stream == sno) {

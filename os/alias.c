@@ -224,28 +224,7 @@ Yap_SetAlias (Atom arg, int sno)
   while (aliasp < aliasp_max) {
     // replace alias
     if (aliasp->name == arg) {
-      Int alno = aliasp-GLOBAL_FileAliases;
       aliasp->alias_stream = sno;
-      if (!(GLOBAL_Stream[sno].status &
-	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f)) &&
-	  !GLOBAL_Stream[sno].vfs) {
-	switch(alno) {
-	case 0:
-	  Yap_stdin = GLOBAL_Stream[sno].file;
-	  break;
-	case 1:
-	  Yap_stdout = GLOBAL_Stream[sno].file;
-	  break;
-	case 2:
-	  Yap_stderr = GLOBAL_Stream[sno].file;
-#if HAVE_SETBUF
-	  setvbuf (GLOBAL_Stream[sno].file, NULL, _IONBF, 0);
-#endif /* HAVE_SETBUF */
-	  break;
-	default:
-	  break;
-	}
-      }
       return;
     }
     aliasp++;
@@ -272,17 +251,6 @@ Yap_DeleteAliases (int sno)
 	/* get back to std streams, but keep alias around */
 	Int alno = aliasp-GLOBAL_FileAliases;
 	new_aliasp->alias_stream = alno;
-	switch(alno) {
-	case 0:
-	  Yap_stdin = stdin;
-	  break;
-	case 1:
-	  Yap_stdout = stdout;
-	  break;
-	case 2:
-	  Yap_stderr = stderr;
-	  break; /* just put something here */
-	}
 	new_aliasp++;
      } else {
 	GLOBAL_NOfFileAliases--;

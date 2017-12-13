@@ -110,3 +110,8 @@ you don't. */
 #ifndef HAVE_RL_SET_PROMPT
 #cmakedefine HAVE_RL_SET_PROMPT ${HAVE_RL_SET_PROMPT}
 #endif
+
+/* Define to 1 if you have the `rl_set_signals' function. */
+#ifndef HAVE_RL_SET_SIGNALS
+#cmakedefine HAVE_RL_SET_SIGNALS ${HAVE_RL_SET_SIGNALS}
+#endif

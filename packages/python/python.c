@@ -41,13 +41,15 @@ StreamDesc *st = YAP_RepStreamFromId(sno);
   if (stream == Py_None)
     return NULL;
     Py_INCREF(stream);
-    st->vfs_handle = stream;
+    st->u.private_data = stream;
     st->vfs = me;
     st->status = Append_Stream_f | Output_Stream_f;
+    Yap_DefaultStreamOps(st);
     return stream;
 }
 
 static bool py_close(int sno) {
+  return true;
     StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fclose = PyObject_GetAttrString(s->u.private_data, "close");
   PyObject *rc = PyObject_CallObject(fclose, NULL);
@@ -67,7 +69,7 @@ static int py_put(int sno, int ch) {
         PyObject *fput = PyObject_GetAttrString(st->u.private_data, "write");
   s[0] = ch;
     s[1] = '\0';
-  PyObject_CallFunctionObjArgs(fput, PyBytes_FromString(s), NULL);
+  PyObject_CallFunctionObjArgs(fput, PyUnicode_FromString(s), NULL);
   return ch;
 }
 

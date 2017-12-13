@@ -1,6 +1,6 @@
 package:
   name: yap4py
-  version: 1.8.0
+  version: 6.4.0
 
 requirements:
   ignore_prefix_files:
@@ -16,12 +16,15 @@ requirements:
     - notebook
     - pkgconfig
     - make
+    - libxml2
 run:
     - jupyterlab
+    - python
     - readline
     - gmp
     - r
     - notebook
+    - libxml2
 about:
     home: http://www.github.com/vscosta/yap-6.3.git
     license: LGPL2

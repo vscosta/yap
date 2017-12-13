@@ -1279,6 +1279,7 @@ not(G) :-    \+ '$execute'(G).
 '$call'([A|B], _, _, M) :- !,
 	'$csult'([A|B], M).
 '$call'(G, _CP, _G0, CurMod) :-
+/*
 	(
      '$is_metapredicate'(G,CurMod)
     ->
@@ -1288,7 +1289,8 @@ not(G) :-    \+ '$execute'(G).
     ;
      NG = G
     ),
-    '$execute0'(NG, CurMod).
+	*/
+    '$execute0'(G, CurMod).
 
 '$check_callable'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).

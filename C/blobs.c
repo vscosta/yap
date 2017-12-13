@@ -17,14 +17,6 @@
 /* for freeBSD9.1 */
 #define _WITH_DPRINTF
 
-#ifdef CONDA_BUILD
-#undef HAVE_FMEMOPEN
-#endif
-
-#ifdef __APPLE__ 
-#include "fmemopen.h"
-#endif
-
 #include "blobs.h"
 
 static blob_type_t unregistered_blob_atom = {
