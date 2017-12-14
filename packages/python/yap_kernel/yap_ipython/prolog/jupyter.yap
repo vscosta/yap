@@ -6,18 +6,31 @@
 
 :- python_import(sys).
 
-jupyter_query(Self, Cell) :-
+:- start_low_level_trace.
+
+user:jupyter_query(Self, Cell, Line ) :-
 	setup_call_cleanup(
 			   enter_cell(Self),
-			   python_query(Self, Cell),
-			   exit_cell(Self)
-			  ).
+			   jupyter_cell(Self, Cell, Line),
+			   exit_cell(Self) ).
+
+jupyter_cell(_Self, Cell, _) :-
+	open_mem_read_stream( Cell, Stream),
+	load_files(['jupyter cell'],[stream(Stream)]),
+	close( Stream ),
+	fail.
+jupyter_cell( Self, _, Line ) :-
+	python_query( Self, Line ).
 
 enter_cell(_Self) :-
-	open('//python/sys.stdout', append, _Output, [alias(jupo)]),
-	open('//python/sys.stdout', append, _Error, [alias(jupe)]),
+	open('//python/sys.stdout', append, _Output, []),
+	open('//python/sys.stdout', append, _Error, []),
 	set_prolog_flag(user_output, _Output),
-	set_prolog_flag(user_error, _Error).
+	set_prolog_flag(user_error, _Error),
+	writeln(hello),
+	format(user_error,'h~n',[]),
+	:= print("py"),
+	:= sys.stderr.write("ok\n").
 
 exit_cell(_Self) :-
 	close( user_output),

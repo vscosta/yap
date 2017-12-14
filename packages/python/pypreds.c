@@ -266,7 +266,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   Py_DECREF(pI);
   if (pOut == NULL) {
     PyErr_Print();
-    { pyErrorAndReturn(false, false); }
+   { pyErrorAndReturn(false, false); }
   }
   {
     foreign_t rc = address_to_term(pOut, out);

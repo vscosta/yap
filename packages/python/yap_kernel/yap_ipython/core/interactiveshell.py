@@ -23,7 +23,7 @@ library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
 python_query= namedtuple('python_query', 'query_mgr string')
-jupyter_query = namedtuple('jupyter_query', 'self string')
+jupyter_query = namedtuple('jupyter_query', 'self text query')
 enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
@@ -325,7 +325,6 @@ class YAPInteractive(InteractiveShell):
         # Reset this so later displayed values do not modify the
         # ExecutionResult
         self.displayhook.exec_result = None
-        print(self.complete)
         self.events.trigger('post_execute')
         if not silent:
             self.events.trigger('post_run_cell')
@@ -339,6 +338,45 @@ class YAPInteractive(InteractiveShell):
 
         return result
 
+    def    prolog_cell(self,s):
+        """"
+        Trasform a text into program+query. A query is the
+        last line if the last line is non-empty and does not terminate  
+        on a dot. You can also finish with
+
+            - `*`: you request all solutions
+            - '^': you want to check if there is an answer
+            - '?'[N]: you want an answer; optionally you want N answers
+
+            If the line terminates on a `*/` or starts on a `%` we assume the line
+        is a comment.            
+        """
+        s = s.rstrip()
+        take = 0
+        its = 0
+        [program,x,query] = s.partition('\n')
+        if query == '':
+            query = program
+        while take < len(query):
+            take += 1
+            ch = query[-take]
+            if ch.isdigit():
+                its = its + ord(ch) - ord('0')
+            elif ch == '*' and take == 1:
+                return program, query[:-take], -1
+            elif ch == '.' and take == 1:
+                return s, '', 1
+            elif ch == '/' and query[-2] == '*' and take == 1:
+                return program, query[:-take], -1
+            elif ch == '^' and take == 1:
+                return program, query[:-take], 1
+            elif ch == '?':
+                return program, query[:-take], its+1
+            else:
+                return program, query, 1
+        return s, '', 1
+
+
     def jupyter_query(self, s):
         # import pdb; pdb.set_trace()
         #
@@ -350,7 +388,9 @@ class YAPInteractive(InteractiveShell):
             self.q.close()
             self.q = None
         if not self.q:
-            self.q = self.yapeng.query(jupyter_query(self, s))
+            import pdb; pdb.set_trace()
+            program,query,self.iterations = self.prolog_cell(s)
+            self.q = self.yapeng.query(jupyter_query(self, program, query))
             self.os = s
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
@@ -365,21 +405,24 @@ class YAPInteractive(InteractiveShell):
         #        return
         # ask = True
         # launch the query
-        # run the new command using the given tracer
-        rc = self.answer(self.q)
-        if rc:
-            # deterministic = one solution
-            if self.port == "exit":
-                # done
-                self.q.close()
-                self.q = None
-                self.os = ""
-            print("yes")
-            return True, self.bindings
-        print("No (more) answers")
-        self.q.close()
-        self.q = None
-        return True, None
+        # run the new commbnand using the given tracer
+        solutions = []
+        while self.iterations > 0:
+            self.iterations -= 1
+            rc = self.answer(self.q)
+            if rc:
+                # deterministic = one solution
+                if self.port == "exit":
+                    # done
+                    self.q.close()
+                    self.q = None
+                    self.os = ""
+                print("yes")
+                solutions += [self.bindings]
+            print("No (more) answers")
+            self.q.close()
+            self.q = None
+            return True, solutions
 
     def answer(self, q):
         try:

@@ -227,7 +227,7 @@ ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
 if (APPLE)
     set(MACOSX_RPATH ON)
-    if (NOT ANACONDA)
+    if (NOT $ENV{CONDA_BUILD}x STREQUAL "1x")
         set(PATH $ENV{PATH})
         list(FIND ${PATH} pos /usr/local)
         if (pos EQUAL -1)

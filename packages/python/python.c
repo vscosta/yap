@@ -66,10 +66,13 @@ static int py_put(int sno, int ch) {
     char s[2];
         StreamDesc *st = YAP_GetStreamFromId(sno);
         //  PyUnicode_WRITE(pyw_kind, pyw_data, 0, ch);
-        PyObject *fput = PyObject_GetAttrString(st->u.private_data, "write");
+        PyObject *err,*fput = PyObject_GetAttrString(st->u.private_data, "write");
   s[0] = ch;
     s[1] = '\0';
   PyObject_CallFunctionObjArgs(fput, PyUnicode_FromString(s), NULL);
+if ((err = PyErr_Occurred())) {
+  PyErr_SetString(err, "Error in put\n");// %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
+}
   return ch;
 }
 
