@@ -61,13 +61,13 @@ argi(N,I,I1) :-
 	I1 is I+1.
 
 python_query( Self, String ) :-
-	yap_flag(typein_module, Mod),
  	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Mod:Goal, VarNames, Status, Bindings),
-	maplist(in_dict(Self.bindings), Bindings),
+	query_to_answer( Goal, VarNames, Status, Bindings),
+	Self.port := Status,
 	write_query_answer( Bindings ),
-	nl( user_error ),
-	Self.port := Status.
+	nl(user_error),
+	Self.bindings := {},
+	maplist(in_dict(Self.bindings), Bindings).
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,

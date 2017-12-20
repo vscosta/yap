@@ -1,6 +1,5 @@
 
 
-
 #include "py4yap.h"
 #include <VFS.h>
 
@@ -27,7 +26,8 @@ PyObject *py_ModDict;
 
 VFS_t pystream;
 
-static void *py_open(VFS_t *me, int sno, const char *name, const char *io_mode) {
+static void *py_open(VFS_t *me, int sno, const char *name,
+                     const char *io_mode) {
 #if HAVE_STRCASESTR
   if (strcasestr(name, "//python/") == name)
     name += strlen("//python/");
@@ -35,56 +35,57 @@ static void *py_open(VFS_t *me, int sno, const char *name, const char *io_mode) 
   if (strstr(name, "//python/") == name)
     name += strlen("//python/");
 #endif
-StreamDesc *st = YAP_RepStreamFromId(sno);
+  StreamDesc *st = YAP_RepStreamFromId(sno);
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python(name, true, NULL);
   if (stream == Py_None)
     return NULL;
-    Py_INCREF(stream);
-    st->u.private_data = stream;
-    st->vfs = me;
-    st->status = Append_Stream_f | Output_Stream_f;
-    Yap_DefaultStreamOps(st);
-    return stream;
+  Py_INCREF(stream);
+  st->u.private_data = stream;
+  st->vfs = me;
+  st->status = Append_Stream_f | Output_Stream_f;
+  Yap_DefaultStreamOps(st);
+  return stream;
 }
 
 static bool py_close(int sno) {
   return true;
-    StreamDesc *s = YAP_GetStreamFromId(sno);
+  StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fclose = PyObject_GetAttrString(s->u.private_data, "close");
   PyObject *rc = PyObject_CallObject(fclose, NULL);
   bool v = (rc == Py_True);
   return v;
 }
 
-
 static int py_put(int sno, int ch) {
   // PyObject *pyw; // buffer
-    //int pyw_kind;
-    //PyObject *pyw_data;
+  // int pyw_kind;
+  // PyObject *pyw_data;
 
-    char s[2];
-        StreamDesc *st = YAP_GetStreamFromId(sno);
-        //  PyUnicode_WRITE(pyw_kind, pyw_data, 0, ch);
-        PyObject *err,*fput = PyObject_GetAttrString(st->u.private_data, "write");
+  char s[2];
+  StreamDesc *st = YAP_GetStreamFromId(sno);
+  //  PyUnicode_WRITE(pyw_kind, pyw_data, 0, ch);
+  PyObject *err, *fput = PyObject_GetAttrString(st->u.private_data, "write");
   s[0] = ch;
-    s[1] = '\0';
-  PyObject_CallFunctionObjArgs(fput, PyUnicode_FromString(s), NULL);
-if ((err = PyErr_Occurred())) {
-  PyErr_SetString(err, "Error in put\n");// %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
-}
+  s[1] = '\0';
+  PyObject_CallFunctionObjArgs(fput, PyBytes_FromString(s), NULL);
+  if ((err = PyErr_Occurred())) {
+    PyErr_SetString(
+        err,
+        "Error in put\n"); // %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
+  }
   return ch;
 }
 
 static int py_get(int sno) {
-    StreamDesc *s = YAP_GetStreamFromId(sno);
+  StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fget = PyObject_GetAttrString(s->u.private_data, "read");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fget, PyLong_FromLong(1), NULL);
   return PyUnicode_READ_CHAR(pyr, 0);
 }
 
 static int64_t py_seek(int sno, int64_t where, int how) {
-    StreamDesc *s = YAP_GetStreamFromId(sno);
+  StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fseek = PyObject_GetAttrString(s->u.private_data, "seek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fseek, PyLong_FromLong(where),
                                                PyLong_FromLong(how), NULL);
@@ -92,7 +93,7 @@ static int64_t py_seek(int sno, int64_t where, int how) {
 }
 
 static void py_flush(int sno) {
-    StreamDesc *s = YAP_GetStreamFromId(sno);
+  StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
   PyObject_CallFunction(flush, NULL);
 }
@@ -111,9 +112,9 @@ static void python_output(void) {
 #endif
 
 static bool init_python_stream(void) {
-  //pyw = PyUnicode_FromString("x");
-  //pyw_kind = PyUnicode_KIND(pyw);
-  //pyw_data = PyUnicode_DATA(pyw);
+  // pyw = PyUnicode_FromString("x");
+  // pyw_kind = PyUnicode_KIND(pyw);
+  // pyw_data = PyUnicode_DATA(pyw);
 
   pystream.name = "python stream";
   pystream.vflags =
@@ -227,6 +228,6 @@ X_API bool do_init_python(void) {
   install_pl2pl();
   // PyGILState_Release(gstate);
   add_modules();
-//    python_output();
+  //    python_output();
   return true;
 }

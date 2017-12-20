@@ -1,4 +1,14 @@
-
+/**
+ * @file jupyter.yap
+ *
+ * @brief allow interaction between Jupyter and YAP.
+ *
+ * @long The code in here:
+ * - establishes communication between Prolog and Python Streams
+ * - inputs Prolog code and queries
+ * - supports completion of Prolog programs.
+ * -
+ */
 :-	 use_module(library(yapi)).
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
@@ -6,33 +16,50 @@
 
 :- python_import(sys).
 
-:- start_low_level_trace.
-
 user:jupyter_query(Self, Cell, Line ) :-
 	setup_call_cleanup(
 			   enter_cell(Self),
 			   jupyter_cell(Self, Cell, Line),
-			   exit_cell(Self) ).
+			   exit_cell(Self)
+	 	   ).
 
 jupyter_cell(_Self, Cell, _) :-
-	open_mem_read_stream( Cell, Stream),
-	load_files(['jupyter cell'],[stream(Stream)]),
-	close( Stream ),
+	stop_low_level_trace,
+	jupyter_consult(Cell),
 	fail.
+jupyter_cell( _Self, _, Line ) :-
+	blank( Line ),
+	!.
 jupyter_cell( Self, _, Line ) :-
+	start_low_level_trace,
 	python_query( Self, Line ).
 
+jupyter_consult(Text) :-
+	blank( Text ),
+	!.
+jupyter_consult(Cell) :-
+	open_mem_read_stream( Cell, Stream),
+	load_files(user:'jupyter cell',[stream(Stream)]). 
+	%should load_files  close?
+
+blank(Text) :-
+	atom_codes(Text, L),
+	maplist( blankc, L).
+
+blankc(' ').
+blankc('\n').
+blankc('\t').
+
 enter_cell(_Self) :-
+	%open('//python/sys.stdin', read, _Input, []),
 	open('//python/sys.stdout', append, _Output, []),
 	open('//python/sys.stdout', append, _Error, []),
+	%set_prolog_flag(user_input, _Input),
 	set_prolog_flag(user_output, _Output),
-	set_prolog_flag(user_error, _Error),
-	writeln(hello),
-	format(user_error,'h~n',[]),
-	:= print("py"),
-	:= sys.stderr.write("ok\n").
+	set_prolog_flag(user_error, _Error).
 
 exit_cell(_Self) :-
+	%close( user_input),
 	close( user_output),
 	close( user_error).
 

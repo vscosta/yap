@@ -1,6 +1,7 @@
 import os
 import sys
 import abc
+import math
 
 import yap4py.yapi
 from IPython.core import interactiveshell
@@ -14,6 +15,7 @@ from pygments import highlight
 from pygments.lexers.prolog import PrologLexer
 from pygments.formatters import HtmlFormatter
 
+import pdb
 
 from collections import namedtuple
 
@@ -87,7 +89,7 @@ class YAPCompleter:
 
 class YAPInteractive(InteractiveShell):
     """An enhanced, interactive shell for YAP."""
-    
+
     def init_yap_completer(self):
         """Initialize the completion machinery.
 
@@ -110,9 +112,9 @@ class YAPInteractive(InteractiveShell):
         self.yapeng.goal(use_module(library("jupyter")))
         self.q = None
         self.run = False
-        self.os = ""
         self.port = None
         self.init_yap_completer()
+        self.init_syntax_highlighting()
 
     def init_syntax_highlighting(self, changes=None):
         # Python source parser/formatter for syntax highlighting
@@ -169,7 +171,7 @@ class YAPInteractive(InteractiveShell):
 
 
 
-        
+
     def run_cell(self, raw_cell, store_history=True, silent=False,
                  shell_futures=True):
         """Run a complete IPython cell.
@@ -206,9 +208,9 @@ class YAPInteractive(InteractiveShell):
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # pdb.set_trace()
-        #     #pdb.set_trace()
-        # atom match either symbols, or if no symbol exists, strings, In this case
+        pdb.set_trace()
+        # import pdb; pdb.set_trace()
+        # atom match either symbols, or if no symbol ex                                                                                b    pl                                                                                                                                                                                      nvists, strings, In this case
         # variable names should match strings
         # ask = True
         # launch the query
@@ -222,6 +224,7 @@ class YAPInteractive(InteractiveShell):
             store_history = False
 
         if store_history:
+            self.execution_count = self.execution_count+1
             result.execution_count = self.execution_count
 
         def error_before_exec(value):
@@ -237,13 +240,14 @@ class YAPInteractive(InteractiveShell):
         # prefilter_manager) raises an exception, we store it in this variable
         # so that we can display the error after logging the input and storing
         # it in the history.
-        # preprocessing_exc_tuple = None
-        # try:
-        #     # Static input transformations
-        #     cell = raw_cell #self.input_transformer_manager.transform_cell(raw_cell)
-        # except SyntaxError:
-        #     preprocessing_exc_tuple = sys.exc_info()
-        cell = raw_cell  # cell has to exist so it can be stored/logged
+        preprocessing_exc_tuple = None
+        try:
+            # Static input transformations
+            cell = raw_cell.strip(" \n\t").rstrip(" \n\t") #self.input_transformer_manager.transform_cell(raw_cell.strip(" \n\t").rstrip(" \n\t"))
+        except SyntaxError:
+            preprocessing_exc_tuple = sys.exc_info()
+        #
+        # cell = raw_cell  # cell has to exist so it can be stored/logged
         # else:
         #     # import pdb; pdb.set_trace()
         #     if False and len(cell.splitlines()) == 1:
@@ -277,6 +281,8 @@ class YAPInteractive(InteractiveShell):
         # compiler
         # compiler = self.compile if shell_futures else CachingCompiler()
 
+        pdb.set_trace()
+
         cell_name = str( self.execution_count)
 
         if cell[0] == '%':
@@ -308,7 +314,7 @@ class YAPInteractive(InteractiveShell):
         has_raised = False
         try:
             self.bindings = dict = {}
-            state = self.jupyter_query(cell)
+            state = self.jupyter_query(raw_cell)
             if state:
                 self.last_execution_succeeded = True
                 result.result = (True, dict)
@@ -341,7 +347,7 @@ class YAPInteractive(InteractiveShell):
     def    prolog_cell(self,s):
         """"
         Trasform a text into program+query. A query is the
-        last line if the last line is non-empty and does not terminate  
+        last line if the last line is non-empty and does not terminate
         on a dot. You can also finish with
 
             - `*`: you request all solutions
@@ -349,33 +355,48 @@ class YAPInteractive(InteractiveShell):
             - '?'[N]: you want an answer; optionally you want N answers
 
             If the line terminates on a `*/` or starts on a `%` we assume the line
-        is a comment.            
+        is a comment.
         """
-        s = s.rstrip()
-        take = 0
-        its = 0
-        [program,x,query] = s.partition('\n')
-        if query == '':
-            query = program
-        while take < len(query):
-            take += 1
-            ch = query[-take]
-            if ch.isdigit():
-                its = its + ord(ch) - ord('0')
-            elif ch == '*' and take == 1:
-                return program, query[:-take], -1
-            elif ch == '.' and take == 1:
-                return s, '', 1
-            elif ch == '/' and query[-2] == '*' and take == 1:
-                return program, query[:-take], -1
-            elif ch == '^' and take == 1:
-                return program, query[:-take], 1
-            elif ch == '?':
-                return program, query[:-take], its+1
+        s = s.rstrip().strip()
+        l = s.split("\n")
+        while not l[0]:
+            l = l[1:]
+        rl = []
+        for h in l:
+            if h and h[0] == '%':
+                if h[1] == '%':
+                    break
             else:
-                return program, query, 1
-        return s, '', 1
-
+                rl = [h] + rl
+        if not rl:
+            return '','',1
+        query = rl[0]
+        program = ''
+        i=0
+        for h in rl:
+            if h and not h.isspace():
+                break
+            i += 1
+        rl = rl[i:]
+        if not rl:
+            return '','',1
+        take = 1
+        ch = query[-take]
+        if ch == '*' and take == 1:
+            query = l[:-1]
+            sols = -1
+        if ch == '.':
+            return s, '', 1
+        rl = rl[1:]
+        while True:
+            h = rl[0]
+            if h and not h.isspace():
+                query = h + '\n'+ query
+                rl = rl[1:]
+            break
+        for l in rl:
+            program = l + '\n'+ program
+        return program,query,take
 
     def jupyter_query(self, s):
         # import pdb; pdb.set_trace()
@@ -383,15 +404,19 @@ class YAPInteractive(InteractiveShell):
         # construct a self.query from a one-line string
         # self.q is opaque to Python
         self.bindings = {}
-        self.port = "call"
+        iterations=1
         if self.q and s != self.os:
             self.q.close()
             self.q = None
         if not self.q:
-            import pdb; pdb.set_trace()
-            program,query,self.iterations = self.prolog_cell(s)
+            #import pdb; pdb.set_trace()
+            self.port = "call"
+            program,query,iterations = self.prolog_cell(s)
             self.q = self.yapeng.query(jupyter_query(self, program, query))
-            self.os = s
+            self.solutions = []
+        if not self.q:
+            return True, []
+        self.os = s
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
@@ -406,23 +431,34 @@ class YAPInteractive(InteractiveShell):
         # ask = True
         # launch the query
         # run the new commbnand using the given tracer
-        solutions = []
-        while self.iterations > 0:
-            self.iterations -= 1
-            rc = self.answer(self.q)
-            if rc:
-                # deterministic = one solution
-                if self.port == "exit":
-                    # done
-                    self.q.close()
-                    self.q = None
-                    self.os = ""
-                print("yes")
-                solutions += [self.bindings]
+        if iterations <0:
+            while self.answer( self.q):
+                self.solutions += [self.bindings]
+                self.q.close()
+            self.q = None
+            self.os = ""
+            if not self.solutions:
+                print("no solutions found")
+            return True
+
+        rc = self.answer(self.q)
+        if rc:
+            # deterministic = one solution
+            #Dict = {}
+            #engine.goal(show_answer( q.namedVars(), Dict))
+            self.solutions += [self.bindings]
+            if self.port == "exit":
+                # done
+                self.q.close()
+                self.q = None
+                self.os = ""
+            return True
+        else:
             print("No (more) answers")
             self.q.close()
             self.q = None
-            return True, solutions
+            self.os = ''
+            return False
 
     def answer(self, q):
         try:
@@ -430,7 +466,7 @@ class YAPInteractive(InteractiveShell):
         except Exception as e:
             print(e.args[1])
             self.yapeng.goal(exit_cell(self))
-            return False, None
+            return e
 
 
 class YAPInteractiveABC(metaclass=abc.ABCMeta):

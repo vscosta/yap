@@ -348,7 +348,6 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 
 :- dynamic user:exception/3.
 
-
 :- reconsult('pathconf.yap').
 /*
    Add some tests

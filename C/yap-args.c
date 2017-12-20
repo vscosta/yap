@@ -146,7 +146,8 @@ static void do_bootfile(const char *b_file USES_REGS) {
  *  `@` query user option.
  *
  */
-const char *rootdirs[] = {"[root]", "(execdir)..", "/usr/local", "~", NULL};
+const char *rootdirs[] = {"[root]", "(execdir)..", "/usr/local", "/", "/usr",
+                          "/opt",   "$HOME",       "$PWD",       NULL};
 
 const char *bindirs[] = {"[bin]", "(root)bin", NULL};
 
@@ -162,17 +163,17 @@ const char *sharedirs[] = {
 #endif
     "[share]", "(root)share", NULL};
 
-const char *dlldirs[] = {"$YAPLIBDIR", "(lib)Yap", ".", NULL};
+const char *dlldirs[] = {"$YAPLIBDIR", "(lib)Yap", "$PWD", NULL};
 
-const char *ssdirs[] = {".", "$YAPLIBDIR", "(lib)Yap", NULL};
+const char *ssdirs[] = {"$PWD", "$YAPLIBDIR", "(lib)Yap", NULL};
 
-const char *pldirs[] = {"$YAPSHAREDIR", "?library", "(share)Yap", ".", NULL};
+const char *pldirs[] = {"$YAPSHAREDIR", "?library", "(share)Yap", "$PWD", NULL};
 
-const char *bootpldirs[] = {"(pl)pl", ".", NULL};
+const char *bootpldirs[] = {"(pl)pl", "$PWD", NULL};
 
 const char *bootstrappldirs[] = {YAP_PL_SRCDIR, NULL};
 
-const char *commonsdirs[] = {"(share)PrologCommons", ".", NULL};
+const char *commonsdirs[] = {"(share)PrologCommons", "$PWD", NULL};
 
 const char *ssnames[] = {"@SavedState", YAP_STARTUP, "startup.yss", NULL};
 
@@ -213,7 +214,7 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
       strcat(out, "/");
       strcat(out, inp + strlen("(pl)"));
     } else if (strstr(inp + 1, "execdir") == inp + 1) {
-      char *buf = Malloc(YAP_FILENAME_MAX+1);
+      char *buf = Malloc(YAP_FILENAME_MAX + 1);
       const char *ex = Yap_AbsoluteFile(Yap_FindExecutable(), buf, false);
       if (ex != NULL) {
         strcpy(out, dirname((char *)ex));
@@ -256,40 +257,40 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
       }
     }
   } else if (inp[0] == '[') {
-      char *o = out;
-      const char *e;
-      if ((e = getenv("DESTDIR"))) {
-        strcpy(out, e);
-        o += strlen(e);
-      }
-      if (strstr(inp + 1, "root") == inp + 1) {
-#ifdef YAP_ROOTDIR
-        strcpy(o, YAP_ROOTDIR);
-#endif
-      } else if (strstr(inp + 1, "lib") == inp + 1) {
-#ifdef YAP_LIBDIR
-        strcpy(o, YAP_LIBDIR);
-#endif
-      } else if (strstr(inp + 1, "share") == inp + 1) {
-#ifdef YAP_SHAREDIR
-        strcpy(o, YAP_SHAREDIR);
-#endif
-      } else if (strstr(inp + 1, "dll") == inp + 1) {
-#ifdef YAP_DLLDIR
-        strcpy(o, YAP_DLLDIR);
-#endif
-      } else if (strstr(inp + 1, "pl") == inp + 1) {
-#ifdef YAP_PLDIR
-        strcpy(o, YAP_PLDIR);
-#endif
-      } else if (strstr(inp + 1, "commons") == inp + 1) {
-#ifdef YAP_COMMONSDIR
-        strcpy(o, YAP_COMMONSDIR);
-#endif
-      }
-    } else {
-      strcpy(out, inp);
+    char *o = out;
+    const char *e;
+    if ((e = getenv("DESTDIR"))) {
+      strcpy(out, e);
+      o += strlen(e);
     }
+    if (strstr(inp + 1, "root") == inp + 1) {
+#ifdef YAP_ROOTDIR
+      strcpy(o, YAP_ROOTDIR);
+#endif
+    } else if (strstr(inp + 1, "lib") == inp + 1) {
+#ifdef YAP_LIBDIR
+      strcpy(o, YAP_LIBDIR);
+#endif
+    } else if (strstr(inp + 1, "share") == inp + 1) {
+#ifdef YAP_SHAREDIR
+      strcpy(o, YAP_SHAREDIR);
+#endif
+    } else if (strstr(inp + 1, "dll") == inp + 1) {
+#ifdef YAP_DLLDIR
+      strcpy(o, YAP_DLLDIR);
+#endif
+    } else if (strstr(inp + 1, "pl") == inp + 1) {
+#ifdef YAP_PLDIR
+      strcpy(o, YAP_PLDIR);
+#endif
+    } else if (strstr(inp + 1, "commons") == inp + 1) {
+#ifdef YAP_COMMONSDIR
+      strcpy(o, YAP_COMMONSDIR);
+#endif
+    }
+  } else {
+    strcpy(out, inp);
+  }
   if (out[0]) {
     return out;
   }
@@ -319,7 +320,6 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
   }
   int i = 0;
   while ((inp = paths[i++]) != NULL) {
-    printf("%s\n", inp);
     out[0] = '\0';
     char *o = location(iap, inp, out), *no;
     if (o && o[0] && Yap_isDirectory(o)) {
@@ -330,7 +330,7 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
         int j = 0;
         while ((p = names[j++])) {
           char *io = o + s;
-          printf("-> %s\n", o);
+          printf("%s -> %s\n", inp, o);
           if ((no = location(iap, p, io)) && io[0] != '\0' && Yap_Exists(o))
             return pop_output_text_stack(lvl, realpath(o, full));
         }
@@ -347,31 +347,27 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
 static void Yap_set_locations(YAP_init_args *iap) {
 #if CONDA_BUILD
   if (!getenv("DESTDIR")) {
-    char *buf = Malloc( YAP_FILENAME_MAX + 1);
-    const char *o = Yap_FindExecutable();
-    if (!o)
-      return;
-    o = Yap_AbsoluteFile(o, buf, false);
-      Int i = strlen(o);
-      while (--i) {
-	if (Yap_dir_separator((int)o[i]))
-	  break;
-      }
-      if (i == 0) {     setenv("DESTDIR", "/", 1); }
-      else {
-     while (--i) {
-	if (Yap_dir_separator((int)o[i]))
-	  break;
-      }
-           if (i == 0) {     setenv("DESTDIR", "/", 1); }
-	   else  {     setenv("DESTDIR", o, 1); }
-      }
-
-
-    setenv("DESTDIR", buf, 1);
+    int lvl = push_text_stack();
+    const char *path = getenv("PATH");
+    char *o = &path[0L], *no, *p;
+    char *buf = Malloc(YAP_FILENAME_MAX + 1);
+    o = Malloc(strlen(path) + 1);
+    strcpy(o, path);
+    if ((p = strstr(o, "anaconda"))) {
+      char *q = p + strlen("anaconda"), *r = strstr(q, "/bin");
+      if (r - q > 0 && r - q < 10 && (r[4] == ':' || r[4] == '\0')) {
+        r[0] = '\0';
+        q = strrchr(o, ':');
+        if (q)
+          o = q + 1;
+      } else
+        o = NULL;
+    }
+    Yap_ROOTDIR = pop_output_text_stack(lvl, o);
   }
+  if (!Yap_ROOTDIR)
 #endif
-  Yap_ROOTDIR = find_directory(iap, rootdirs, NULL);
+    Yap_ROOTDIR = find_directory(iap, rootdirs, NULL);
   Yap_LIBDIR = find_directory(iap, libdirs, NULL);
   Yap_BINDIR = find_directory(iap, bindirs, NULL);
   Yap_SHAREDIR = find_directory(iap, sharedirs, NULL);
@@ -384,13 +380,14 @@ static void Yap_set_locations(YAP_init_args *iap) {
   else
     Yap_BOOTFILE = find_directory(iap, bootpldirs, plnames);
   if (Yap_ROOTDIR)
-    setAtomicGlobalPrologFlag(HOME_FLAG, MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
+    setAtomicGlobalPrologFlag(HOME_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
   if (Yap_PLDIR)
     setAtomicGlobalPrologFlag(PROLOG_LIBRARY_DIRECTORY_FLAG,
-                            MkAtomTerm(Yap_LookupAtom(Yap_PLDIR)));
+                              MkAtomTerm(Yap_LookupAtom(Yap_PLDIR)));
   if (Yap_DLLDIR)
     setAtomicGlobalPrologFlag(PROLOG_FOREIGN_DIRECTORY_FLAG,
-                            MkAtomTerm(Yap_LookupAtom(Yap_DLLDIR)));
+                              MkAtomTerm(Yap_LookupAtom(Yap_DLLDIR)));
 }
 
 static void print_usage(void) {

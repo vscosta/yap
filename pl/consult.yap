@@ -244,10 +244,11 @@ load_files(Files,Opts) :-
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
 '$lf_option'('$source_pos', 30, _).
-'$lf_option'(initialization, 31, Ref) :-
+'$lf_option'('$from_stream', 31, false).
+'$lf_option'(initialization, 32, Ref) :-
       nb:nb_queue(Ref).
 
-'$lf_option'(last_opt, 31).
+'$lf_option'(last_opt, 32).
 
 '$lf_opt'( Op, TOpts, Val) :-
 	'$lf_option'(Op, Id, _),
@@ -265,8 +266,7 @@ load_files(Files,Opts) :-
 	    functor( OldTOpts, opt, LastOpt ),
        '$lf_opt'('$context_module', OldTOpts, user)
      ),
-	'$check_files'(Files,load_files(Files,Opts)),
-	'$lf_option'(last_opt, LastOpt),
+ 	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),
 	( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
@@ -276,16 +276,22 @@ load_files(Files,Opts) :-
 	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	'$process_lf_opts'(Opts,TOpts,Files,Call),
 	'$lf_default_opts'(1, LastOpt, TOpts),
+        '$lf_opt'(stream, TOpts, Stream),
+        (  nonvar(Stream) ->
+           '$set_lf_opt'('$from_stream', TOpts, true )
+       ;
+       '$check_files'(Files,load_files(Files,Opts))
+            ),
 	'$check_use_module'(Call,UseModule),
 	'$lf_opt'('$use_module', TOpts, UseModule),
         '$current_module'(M0),
-	( '$lf_opt'(autoload, TOpts, Autoload),
-	  var(Autoload) ->
-	  Autoload = OldAutoload
-	;
-	  true
-	),
-	% make sure we can run consult
+        ( '$lf_opt'(autoload, TOpts, Autoload),
+          var(Autoload) ->
+          Autoload = OldAutoload
+       ;
+          true
+        ),
+        % make sure we can run consult
 	'$init_consult',
 	'$lf'(Files, M0, Call, TOpts).
 
@@ -432,7 +438,7 @@ load_files(Files,Opts) :-
 '$lf'(File, Mod, Call, TOpts) :-
 	'$lf_opt'(stream, TOpts, Stream),
 	b_setval('$user_source_file', File),
-	( var(Stream) ->
+	( '$lf_opt'('$from_stream', TOpts, false ) ->
 	  /* need_to_open_file */
 	  ( '$full_filename'(File, Y) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
@@ -448,18 +454,22 @@ load_files(Files,Opts) :-
 	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
 	close(Stream).
 
-
+% consulting from a stre
+'$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+    '$lf_opt'('$from_stream', TOpts, true ),
+    !,
+    '$do_lf'(Mod, Stream, UserFile, File, TOpts).
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
 	'$file_loaded'(File, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, Opts),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
         '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
 	'$file_unchanged'(File, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, Opts),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
@@ -677,7 +687,7 @@ db_files(Fs) :-
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
- 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
+ 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
         working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
 	current_prolog_flag(generate_debug_info, GenerateDebug),
@@ -740,6 +750,7 @@ db_files(Fs) :-
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp),
     '$lf_opt'('$source_pos', TOpts, Pos),
+    '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
     '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
@@ -844,7 +855,7 @@ nb_setval('$if_le1vel',0).
 	working_directory(Dir0, Dir),
 	'$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
-    '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, []),
+    '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, TOpts,[]),
     ( nb:'$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
 	print_message(informational, loading(including, Y)),
@@ -1012,10 +1023,9 @@ prolog_load_context(stream, Stream) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
-
 				% inform the file has been loaded and is now available.
-'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
-	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
+	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
@@ -1044,7 +1054,7 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
+	( '$lf_opt'('$from_stream',TOpts,true) -> Age = 0 ; time_file64(F, Age) ),
 				% modules are logically loaded only once
 
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;

@@ -170,9 +170,9 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   if (!buf) {
     return false;
   }
+  buf = pop_output_text_stack(l, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);
-  pop_text_stack(l);
   t = Yap_MkStream(sno);
   return Yap_unify(ARG2, t);
 }
@@ -292,16 +292,16 @@ void Yap_MemOps(StreamDesc *st) {
   st->stream_getc = PlGetc;
 }
 
-
 bool Yap_CloseMemoryStream(int sno) {
-  if ((GLOBAL_Stream[sno].status & Output_Stream_f) && GLOBAL_Stream[sno].file) {
+  if ((GLOBAL_Stream[sno].status & Output_Stream_f) &&
+      GLOBAL_Stream[sno].file) {
     fflush(GLOBAL_Stream[sno].file);
     fclose(GLOBAL_Stream[sno].file);
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
   } else {
     if (GLOBAL_Stream[sno].file)
-    fclose(GLOBAL_Stream[sno].file);
+      fclose(GLOBAL_Stream[sno].file);
     if (GLOBAL_Stream[sno].status & FreeOnClose_Stream_f)
       free(GLOBAL_Stream[sno].nbuf);
   }
