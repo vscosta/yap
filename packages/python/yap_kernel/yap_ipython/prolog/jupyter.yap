@@ -9,29 +9,215 @@
  * - supports completion of Prolog programs.
  * -
  */
-:-	 use_module(library(yapi)).
-:-	 use_module(library(lists)).
-:-	 use_module(library(maplist)).
-:-	 use_module(library(python)).
 
-:- python_import(sys).
+:- module(jupyter, [jupyter_query/3,
+        ready/3,
+		valid/3,
+		errors/2]).
 
-user:jupyter_query(Self, Cell, Line ) :-
+		:-	 use_module(library(yapi)).
+		:-	 use_module(library(lists)).
+		:-	 use_module(library(maplist)).
+		:-	 use_module(library(python)).
+
+		:- python_import(sys).
+
+		:- dynamic user:portray_message/2.
+		:- multifile user:portray_message/2.
+
+jupyter_query(Self, Cell, Line ) :-
 	setup_call_cleanup(
 			   enter_cell(Self),
 			   jupyter_cell(Self, Cell, Line),
 			   exit_cell(Self)
 	 	   ).
 
+ready(_Self, Line ) :-
+            blank( Line ),
+            !.
+ready(Self, Line ) :-
+    errors( Self, Line ),
+	\+ syntax_error(_,_).
+
+errors( Self, Text ) :-
+       	setup_call_cleanup(
+       			   open_events( Self, Text, Stream),
+       			   clauses(Self, Stream),
+       			   close_events( Self )
+       	 	   ).
+
+clauses(Self, Stream) :-
+    repeat,
+    read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
+	command( Self, Cl ),
+    Cl == end_of_file,
+    !.
+
+command( _Self, ( :- op(Prio,Assoc,Name) ) ) :-
+	addop(Prio,Assoc,Name).
+
+command( _Self, ( :- module(Name, Exports) )) :-
+	retract( active_module( M0 ) ),
+	atom_concat( '__m0_', Name, M ),
+	assert( active_module(M) ),
+	assert( undo( active_module(M0) ) ),
+	maplist( addop2(M), Exports).
+
+
+addop(Prio,Assoc,Name) :-
+	(
+	current_op(OPrio, SimilarAssoc, Name),
+	op(Prio, Assoc, Name),
+	matched_op(Assoc, SimilarAssoc)
+	->
+		assertz( undo(op( OPrio, Assoc, Name ) ) )
+		;
+		assertz( undo(op( 0, Assoc, Name ) ) )
+		).
+
+addop2(M, op(Prio, Assoc, Name)) :-
+	addop( Prio, Assoc, M:Name ).
+
+matched_op(A, B) :-
+	optype( A, T),
+	optype( B, T).
+
+optype(fx,pre).
+optype(fy,pre).
+optype(xfx,in).
+optype(xfy,in).
+optype(yfx,in).
+optype(yfy,in).
+optype(xf,pos).
+optype(yf,pos).
+
+:- dynamic user:portray_message/2.
+:-  multifile user:portray_message/2.
+
+:- dynamic syntax_error/2, undo/1.
+
+open_events(Self, Text, Stream) :-
+    Self.errors := [],
+    open_mem_read_stream( Text, Stream ),
+    assert((user:portray_message(_Severity, error(error(syntax_error(_),info(between(_,LN,_), _FileName, CharPos, _Details)))) :-
+        assert( syntax_error(LN,CharPos) )
+        )).
+
+close_events( Self ) :-
+	retract( undo(G) ),
+	call(G),
+	fail.
+close_events( Self ) :-
+    retract( syntax_error( L, N )),
+    Self.errors := [t(L,N)] + Self.errors,
+    fail.
+close_events( _ ).
+
+cell2pq( Cell, ``, ``) :-
+	sub_string(Cell, 0, 2, _, `%%`),
+	string_code(3, Cell, Code),
+	code_type(Code, alpha),
+	!.
+cell2pq( Cell, P, Q, N) :-
+	sub_string(Cell, 0, 1, _, `%`),
+	string_codes(Cell, [Code|Codes]),
+	code_type(Code, alpha),
+	skip(10, Codes, Rest, LineF,Line1),
+	skip_blanks(Rest, Body, Line1,Line0),
+	reverse(Body, RBody),
+	cell2pq2(RBody, Ps, Qs, N),
+	extend(Ps, Qs, LineF, Line0, NPs, NQs),
+	string_codes(P, NPs),
+	string_codes(Q, NQs).
+cell2pq( Cell, P, Q, N) :-
+	string_codes(Cell, Codes),
+	reverse(Codes, RCodes),
+	cell2pq2(RCodes, NPs, NQs, N),
+	string_codes(P, NPs),
+	string_codes(Q, NQs).
+
+%
+% terminates with dot
+%
+cell2pq2(RCodes, NP, NQ, N) :-
+	skip_allblanks( RCodes, [C|Rest], L1, L0),
+	( C =:= "."
+	->
+	N = 1,
+	RP = RCodes,
+	RQ = ""
+	;
+	skip_to_blank_line( [C|Rest], RP, L0, []),
+	RQ = L1,
+	(
+	C =:= "*"
+	->
+	N = -1
+	;
+	N=1
+	)
+	),
+	reverse(RP,NP),
+	reverse(RQ,NQ).
+
+/**
+ * @pred skip( Char, Input, Remainder, Begin, End)
+ *
+ * split the list according  to character _Char_:
+ *
+ * - _Remainder_ is what is after chars
+ * - _Begin_-_End_ represents what is before char.
+ *
+ */
+skip(_, "", "")  -->
+	!,
+	[].
+skip(C, [C|Cs], Cs)  -->
+	!,
+	[C].
+skip(C, [OC|Cs], Line)  -->
+	[OC],
+	skip(C,Cs, Line).
+
+skip_to_blank_line("", "")  -->
+	!.
+skip_to_blank_line(Cs, Left)  -->
+	blank_line(Cs, Left),
+	!,
+    [].
+skip_to_blank_line(Cs, Line)  -->
+	line(Cs, Line),
+	!.
+
+blank_line("", []) --> [].
+blank_line([10|Cs], Cs) -->
+	[10],
+	!.
+blank_line([C|Cs], Rest) -->
+	{ code_type(C, white)},
+	!,
+	[C],
+	blank_line(Cs, Rest).
+
+line("", []) -->
+	[].
+line([10|Cs], Cs) -->
+	[10],
+	!.
+line([C|Cs], Rest) -->
+	[C],
+	line(Cs,Rest).
+
+
 jupyter_cell(_Self, Cell, _) :-
-	stop_low_level_trace,
+	% stop_low_level_trace,
 	jupyter_consult(Cell),
 	fail.
 jupyter_cell( _Self, _, Line ) :-
 	blank( Line ),
 	!.
 jupyter_cell( Self, _, Line ) :-
-	start_low_level_trace,
+	% start_low_level_trace,
 	python_query( Self, Line ).
 
 jupyter_consult(Text) :-
@@ -39,7 +225,7 @@ jupyter_consult(Text) :-
 	!.
 jupyter_consult(Cell) :-
 	open_mem_read_stream( Cell, Stream),
-	load_files(user:'jupyter cell',[stream(Stream)]). 
+	load_files(user:'jupyter cell',[stream(Stream)]).
 	%should load_files  close?
 
 blank(Text) :-

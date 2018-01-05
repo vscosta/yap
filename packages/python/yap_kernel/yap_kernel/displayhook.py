@@ -1,12 +1,12 @@
 """Replacements for sys.displayhook that publish over ZMQ."""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import sys
 
-from IPython.core.displayhook import DisplayHook
-from yap_kernel.jsonutil import encode_images
+from yap_ipython.core.displayhook import DisplayHook
+from yap_kernel.jsonutil import encode_images, json_clean
 from ipython_genutils.py3compat import builtin_mod
 from traitlets import Instance, Dict, Any
 from jupyter_client.session import extract_header, Session
@@ -18,7 +18,6 @@ class ZMQDisplayHook(object):
     topic = b'execute_result'
 
     def __init__(self, session, pub_socket):
-        # type: (object, object) -> object
         self.session = session
         self.pub_socket = pub_socket
         self.parent_header = {}
@@ -69,7 +68,7 @@ class ZMQShellDisplayHook(DisplayHook):
         self.msg['content']['execution_count'] = self.prompt_count
 
     def write_format_data(self, format_dict, md_dict=None):
-        self.msg['content']['data'] = encode_images(format_dict)
+        self.msg['content']['data'] = json_clean(encode_images(format_dict))
         self.msg['content']['metadata'] = md_dict
 
     def finish_displayhook(self):

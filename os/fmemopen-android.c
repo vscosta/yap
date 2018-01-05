@@ -189,7 +189,7 @@ fmemseek(void *cookie, fpos_t pos, int whence)
   return (fpos_t) offset;
 }
 
-/* Reclaim resources used by stream described by COOKIE.  */
+/* Reclaim  resources used by stream described by COOKIE.  */
 static int
 fmemclose(void *cookie)
 {

@@ -4,7 +4,7 @@
 import warnings
 warnings.warn("yap_kernel.datapub is deprecated. It has moved to ipyparallel.datapub", DeprecationWarning)
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from traitlets.config import Configurable

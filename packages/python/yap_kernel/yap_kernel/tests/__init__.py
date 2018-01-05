@@ -1,4 +1,4 @@
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import os
@@ -12,7 +12,7 @@ except ImportError:
     from mock import patch
 
 from jupyter_core import paths as jpaths
-from IPython import paths as ipaths
+from yap_ipython import paths as ipaths
 from yap_kernel.kernelspec import install
 
 pjoin = os.path.join
@@ -34,7 +34,7 @@ def setup():
     for p in patchers:
         p.start()
     
-    # install IPython in the temp home:
+    # install yap_ipython in the temp home:
     install(user=True)
 
 

@@ -1,18 +1,16 @@
 """Tests for kernel connection utilities"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import json
 import os
 
-import nose.tools as nt
-
 from traitlets.config import Config
 from ipython_genutils.tempdir import TemporaryDirectory, TemporaryWorkingDirectory
 from ipython_genutils.py3compat import str_to_bytes
 from yap_kernel import connect
-from yap_kernel.kernelapp import YAP_KernelApp
+from yap_kernel.kernelapp import YAPKernelApp
 
 
 sample_info = dict(ip='1.2.3.4', transport='ipc',
@@ -21,7 +19,7 @@ sample_info = dict(ip='1.2.3.4', transport='ipc',
     )
 
 
-class DummyKernelApp(YAP_KernelApp):
+class DummyKernelApp(YAPKernelApp):
     def initialize(self, argv=[]):
         self.init_profile_dir()
         self.init_connection_file()
@@ -36,14 +34,14 @@ def test_get_connection_file():
         app.initialize()
 
         profile_cf = os.path.join(app.connection_dir, cf)
-        nt.assert_equal(profile_cf, app.abs_connection_file)
+        assert profile_cf == app.abs_connection_file
         with open(profile_cf, 'w') as f:
             f.write("{}")
-        nt.assert_true(os.path.exists(profile_cf))
-        nt.assert_equal(connect.get_connection_file(app), profile_cf)
+        assert os.path.exists(profile_cf)
+        assert connect.get_connection_file(app) == profile_cf
 
         app.connection_file = cf
-        nt.assert_equal(connect.get_connection_file(app), profile_cf)
+        assert connect.get_connection_file(app) == profile_cf
 
 
 def test_get_connection_info():
@@ -52,12 +50,12 @@ def test_get_connection_info():
         connect.write_connection_file(cf, **sample_info)
         json_info = connect.get_connection_info(cf)
         info = connect.get_connection_info(cf, unpack=True)
-    
-    nt.assert_equal(type(json_info), type(""))
+    assert isinstance(json_info, str)
+
     sub_info = {k:v for k,v in info.items() if k in sample_info}
-    nt.assert_equal(sub_info, sample_info)
+    assert sub_info == sample_info
 
     info2 = json.loads(json_info)
     info2['key'] = str_to_bytes(info2['key'])
     sub_info2 = {k:v for k,v in info.items() if k in sample_info}
-    nt.assert_equal(sub_info2, sample_info)
+    assert sub_info2 == sample_info

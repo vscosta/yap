@@ -1,7 +1,7 @@
 """A client for in-process kernels."""
 
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2012  The IPython Development Team
+#  Copyright (C) 2012  The yap_ipython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
@@ -11,7 +11,7 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-# IPython imports
+# yap_ipython imports
 from yap_kernel.inprocess.socket import DummySocket
 from traitlets import Type, Instance, default
 from jupyter_client.clientabc import KernelClientABC
@@ -43,7 +43,7 @@ class InProcessKernelClient(KernelClient):
     stdin_channel_class = Type(InProcessChannel)
     hb_channel_class = Type(InProcessHBChannel)
 
-    kernel = Instance('yap_kernel.inprocess.yapkernel.InProcessKernel',
+    kernel = Instance('yap_kernel.inprocess.ipkernel.InProcessKernel',
                       allow_none=True)
 
     #--------------------------------------------------------------------------

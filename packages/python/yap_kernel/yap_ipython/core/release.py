@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Release data for the IPython project."""
+"""Release data for the yap_ipython project."""
 
 #-----------------------------------------------------------------------------
-#  Copyright (c) 2008, IPython Development Team.
+#  Copyright (c) 2008, yap_ipython Development Team.
 #  Copyright (c) 2001, Fernando Perez <fernando.perez@colorado.edu>
 #  Copyright (c) 2001, Janko Hauser <jhauser@zscout.de>
 #  Copyright (c) 2001, Nathaniel Gray <n8gray@caltech.edu>
@@ -16,15 +16,15 @@
 # the tarballs and RPMs made by distutils, so it's best to lowercase it.
 name = 'ipython'
 
-# IPython version information.  An empty _version_extra corresponds to a full
+# yap_ipython version information.  An empty _version_extra corresponds to a full
 # release.  'dev' as a _version_extra string means this is a development
 # version
-_version_major = 0
-_version_minor = 1
+_version_major = 6
+_version_minor = 2
 _version_patch = 0
 _version_extra = '.dev'
 # _version_extra = 'rc2'
-_version_extra = ''  # Uncomment this for full releases
+#_version_extra = ''  # Uncomment this for full releases
 
 # Construct full version string from these.
 _ver = [_version_major, _version_minor, _version_patch]
@@ -40,11 +40,11 @@ version_info = (_version_major, _version_minor, _version_patch, _version_extra)
 kernel_protocol_version_info = (5, 0)
 kernel_protocol_version = "%i.%i" % kernel_protocol_version_info
 
-description = "IPython: Productive Interactive Computing"
+description = "yap_ipython: Productive Interactive Computing"
 
 long_description = \
 """
-IPython provides a rich toolkit to help you make the most out of using Python
+yap_ipython provides a rich toolkit to help you make the most out of using Python
 interactively.  Its main components are:
 
 * A powerful interactive Python shell
@@ -64,7 +64,7 @@ The enhanced interactive Python shells have the following main features:
   variables and keywords, filenames and function keywords.
 
 * Extensible system of 'magic' commands for controlling the environment and
-  performing many tasks related either to IPython or the operating system.
+  performing many tasks related either to yap_ipython or the operating system.
 
 * A rich configuration system with easy switching between different setups
   (simpler than changing $PYTHONSTARTUP environment variables every time).
@@ -79,7 +79,7 @@ The enhanced interactive Python shells have the following main features:
 
 * Integrated access to the pdb debugger and the Python profiler.
 
-The latest development version is always available from IPython's `GitHub
+The latest development version is always available from yap_ipython's `GitHub
 site <http://github.com/ipython>`_.
 """
 
@@ -96,7 +96,7 @@ authors = {'Fernando' : ('Fernando Perez','fperez.net@gmail.com'),
            'Matthias' : ('Matthias Bussonnier', 'bussonniermatthias@gmail.com'),
            }
 
-author = 'The IPython Development Team'
+author = 'The yap_ipython Development Team'
 
 author_email = 'ipython-dev@python.org'
 
@@ -108,11 +108,12 @@ platforms = ['Linux','Mac OSX','Windows']
 keywords = ['Interactive','Interpreter','Shell', 'Embedding']
 
 classifiers = [
-    'Framework :: IPython',
+    'Framework :: yap_ipython',
     'Intended Audience :: Developers',
     'Intended Audience :: Science/Research',
     'License :: OSI Approved :: BSD License',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3 :: Only',
     'Topic :: System :: Shells'
     ]

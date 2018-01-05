@@ -163,7 +163,7 @@ following flags:
 + must_be_module(+ _Bool_)
 
     If true, raise an error if the file is not a module file. Used by
-    ` use_module/1 and use_module/2.
+    use_module/1 and use_module/2.
 
 + qcompile(+ _Value_)
 
@@ -181,11 +181,10 @@ following flags:
 
   `part`, not supported in YAP.
 
-
 + autoload(+ _Autoload_)
 
-  SWI-compatible option where if _Autoload_ is `true` undefined
-    predicates are loaded on first call.
+SWI-compatible option where if _Autoload_ is `true` undefined
+  predicates are loaded on first call.
 
 + derived_from(+ _File_)
 

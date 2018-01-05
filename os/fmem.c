@@ -108,6 +108,7 @@ bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS)
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos += nchars;
   GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].recbs = NULL;
   fg->phys_start = 0;
   fg->lstart = GLOBAL_Stream[sno].linepos;
   fg->gapi = 0;
@@ -122,6 +123,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   st->file = f = fmemopen((char *)buf, nchars, "r");
   st->status = Input_Stream_f | Seekable_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
+  st->recbs = NULL;
   st->encoding = LOCAL_encoding;
   Yap_DefaultStreamOps(st);
   st->linecount = 0;
@@ -194,7 +196,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->linecount = 1;
   st->encoding = enc;
   st->vfs = NULL;
-  Yap_DefaultStreamOps(st);
+  st->recbs = NULL;
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
   // setbuf(st->file, NULL);
@@ -205,6 +207,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
     return -1;
   }
 #endif
+  Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;
 }

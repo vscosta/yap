@@ -1,17 +1,16 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	%W% %G% 					 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YapError.h   						 *
-* mods:									 *
-* comments:	error header file for YAP				 *
-* version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	%W% %G% 					 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapError.h * mods:
+ ** comments:	error header file for YAP				 *
+ * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
+ *************************************************************************/
 
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
@@ -42,21 +41,20 @@ struct yami *Yap_Error__(const char *file, const char *function, int lineno,
                          yap_error_number err, YAP_Term wheret, ...);
 
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
-                 yap_error_number err, YAP_Term wheret, ...)
-                 #ifndef MSC_VER
-                 __attribute__ ((noreturn))
-                 #endif
-                 ;
-
+                      yap_error_number err, YAP_Term wheret, ...)
+#ifndef MSC_VER
+    __attribute__((noreturn))
+#endif
+    ;
 
 #define Yap_NilError(id, ...)                                                  \
   Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_Error(id, inp, ...)                                                \
-Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
-#define Yap_ThrowError(id, inp,  ...)                                                \
-Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+#define Yap_ThrowError(id, inp, ...)                                           \
+  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
 #ifdef YAP_TERM_H
 /**
@@ -183,10 +181,10 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     uintptr_t prologPredLine;
     uintptr_t prologPredFirstLine;
     uintptr_t prologPredLastLine;
-      const char *   prologPredName;
+    const char *prologPredName;
     uintptr_t prologPredArity;
-      const char *  prologPredModule;
-      const char *  prologPredFile;
+    const char *prologPredModule;
+    const char *prologPredFile;
     void *errorGoal;
     struct error_prolog_source *errorParent;
   } yap_error_prolog_source_t;
@@ -195,8 +193,8 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
   typedef struct s_yap_error_descriptor {
     enum yap_error_status status;
     yap_error_class_number errorClass;
-    const char * errorAsText;
-    const char * classAsText;
+    const char *errorAsText;
+    const char *classAsText;
     yap_error_number errorNo;
     intptr_t errorLine;
     const char *errorFunction;
@@ -206,15 +204,16 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     uintptr_t prologPredLine;
     uintptr_t prologPredFirstLine;
     uintptr_t prologPredLastLine;
-    const char * prologPredName;
+    const char *prologPredName;
     uintptr_t prologPredArity;
-      const char *  prologPredModule;
-      const char *  prologPredFile;
+    const char *prologPredModule;
+    const char *prologPredFile;
+    uintptr_t prologParserPos;
     uintptr_t prologParserLine;
     uintptr_t prologParserFirstLine;
     uintptr_t prologParserLastLine;
-      const char *  prologParserName;
-      const char *  prologParserFile;
+    const char *prologParserText;
+    const char *prologParserFile;
     bool prologConsulting;
     void *errorTerm;
     uintptr_t rawErrorTerm, rawExtraErrorTerm;

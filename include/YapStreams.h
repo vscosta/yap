@@ -65,6 +65,16 @@ typedef struct yap_io_position {
   intptr_t reserved[2]; /* future extensions */
 } yapIOPOS;
 
+typedef struct yapchlookahead {
+    intptr_t charcount;       /* character position in file */
+    intptr_t linecount;      /* lineno in file */
+    intptr_t linepos;     /* position in line */
+    intptr_t ch; /* future extensions */
+    struct yapchlookahead *next;
+} yapStreamLookahead;
+
+extern int PopCode(int sno);
+
 #ifndef _PL_STREAM_H
 typedef struct {
   YAP_Atom file;     /* current source file */
@@ -244,6 +254,7 @@ typedef struct stream_desc {
       int);            /* function the stream uses for parser. It may be different
                           from above if the ISO  character conversion is on */
   encoding_t encoding; /** current encoding for stream */
+struct yapchlookahead *recbs; /// support arbitrary depth peek
 } StreamDesc;
 
 #endif

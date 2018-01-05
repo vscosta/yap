@@ -1,7 +1,6 @@
 """The main routine of the yap python project."""
 
 import sys
-import yap4py.yapi
 
 
 def main(**args):
@@ -10,5 +9,6 @@ def main(**args):
         args = sys.argv[1:]
 
 if __name__ == "__main__":
+    import yap4py.yapi
     main()
     yap4py.yapi.main()

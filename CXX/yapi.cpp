@@ -1031,6 +1031,8 @@ Term YAPEngine::top_level(std::string s) {
   ARG1 = YAP_ReadBuffer(s.data(), &tp);
   ARG2 = tp;
   ARG3 = MkVarTerm();
+  if (ARG1 == 0)
+    YAPError(SYNTAX_ERROR);
   YAPPredicate p = YAPPredicate(YAP_TopGoal());
   YAPQuery *Q = new YAPQuery(p, 0);
   Term ts[2];

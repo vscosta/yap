@@ -1,6 +1,6 @@
-"""The IPython kernel spec for Jupyter"""
+"""The yap_ipython kernel spec for Jupyter"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -16,19 +16,19 @@ from jupyter_client.kernelspec import KernelSpecManager
 
 pjoin = os.path.join
 
-KERNEL_NAME = 'yap_kernel'
+KERNEL_NAME = "yap_kernel"
 
 # path to kernelspec resources
 RESOURCES = pjoin(os.path.dirname(__file__), 'resources')
 
 
-def make_yap_kernel_cmd(mod='yap_kernel', executable=None, extra_arguments=None, **kw):
-    """Build Popen command list for launching an IPython kernel.
+def make_yap_kernel_cmd(mod='yap_kernel_launcher', executable=None, extra_arguments=None, **kw):
+    """Build Popen command list for launching an yap_ipython kernel.
 
     Parameters
     ----------
     mod : str, optional (default 'yap_kernel')
-        A string of an IPython module whose __main__ starts an IPython kernel
+        A string of an yap_ipython module whose __main__ starts an yap_ipython kernel
 
     executable : str, optional (default sys.executable)
         The Python executable to use for the kernel process.
@@ -59,7 +59,7 @@ def get_kernel_dict(extra_arguments=None):
     }
 
 
-def write_kernel_spec(path=os.path.join(tempfile.mkdtemp(suffix='_kernels'), KERNEL_NAME), overrides=None, extra_arguments=None):
+def write_kernel_spec(path=None, overrides=None, extra_arguments=None):
     """Write a kernel spec directory to `path`
 
     If `path` is not specified, a temporary directory is created.
@@ -69,7 +69,7 @@ def write_kernel_spec(path=os.path.join(tempfile.mkdtemp(suffix='_kernels'), KER
     """
     if path is None:
         path = os.path.join(tempfile.mkdtemp(suffix='_kernels'), KERNEL_NAME)
-    print( path )
+
     # stage resources
     shutil.copytree(RESOURCES, path)
     # write kernel.json
@@ -85,7 +85,7 @@ def write_kernel_spec(path=os.path.join(tempfile.mkdtemp(suffix='_kernels'), KER
 
 def install(kernel_spec_manager=None, user=False, kernel_name=KERNEL_NAME, display_name=None,
             prefix=None, profile=None):
-    """Install the IPython kernelspec for Jupyter
+    """Install the yap_ipython kernelspec for Jupyter
 
     Parameters
     ----------
@@ -97,7 +97,7 @@ def install(kernel_spec_manager=None, user=False, kernel_name=KERNEL_NAME, displ
         Whether to do a user-only install, or system-wide.
     kernel_name: str, optional
         Specify a name for the kernelspec.
-        This is needed for having multiple IPython kernels for different environments.
+        This is needed for having multiple yap_ipython kernels for different environments.
     display_name: str, optional
         Specify the display name for the kernelspec
     profile: str, optional
@@ -142,7 +142,7 @@ from traitlets.config import Application
 
 class InstallYAPKernelSpecApp(Application):
     """Dummy app wrapping argparse"""
-    name = 'yap-kernel-install'
+    name = 'ipython-kernel-install'
 
     def initialize(self, argv=None):
         if argv is None:
@@ -152,17 +152,17 @@ class InstallYAPKernelSpecApp(Application):
     def start(self):
         import argparse
         parser = argparse.ArgumentParser(prog=self.name,
-            description="Install the YAP kernel spec.")
+            description="Install the yap_ipython kernel spec.")
         parser.add_argument('--user', action='store_true',
             help="Install for the current user instead of system-wide")
         parser.add_argument('--name', type=str, default=KERNEL_NAME,
             help="Specify a name for the kernelspec."
-            " This is needed to have multiple YAP kernels at the same time.")
+            " This is needed to have multiple yap_ipython kernels at the same time.")
         parser.add_argument('--display-name', type=str,
             help="Specify the display name for the kernelspec."
-            " This is helpful when you have multiple IPython kernels.")
+            " This is helpful when you have multiple yap_ipython kernels.")
         parser.add_argument('--profile', type=str,
-            help="Specify an IPython profile to load. "
+            help="Specify an yap_ipython profile to load. "
             "This can be used to create custom versions of the kernel.")
         parser.add_argument('--prefix', type=str,
             help="Specify an install prefix for the kernelspec."

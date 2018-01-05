@@ -1,17 +1,22 @@
 # coding: utf-8
 """Wrappers for forwarding stdout/stderr over zmq"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
 import atexit
 from binascii import b2a_hex
+from collections import deque
+try:
+    from importlib import lock_held as import_lock_held
+except ImportError:
+    from imp import lock_held as import_lock_held
 import os
 import sys
 import threading
 import warnings
-from io import StringIO, UnsupportedOperation, TextIOBase
+from io import StringIO, TextIOBase
 
 import zmq
 from zmq.eventloop.ioloop import IOLoop
@@ -43,7 +48,6 @@ class IOPubThread(object):
     """
 
     def __init__(self, socket, pipe=False):
-        # type: (object, object) -> object
         """Create IOPub thread
 
         Parameters
@@ -59,17 +63,18 @@ class IOPubThread(object):
         self.background_socket = BackgroundSocket(self)
         self._master_pid = os.getpid()
         self._pipe_flag = pipe
-        self.io_loop = IOLoop()
+        self.io_loop = IOLoop(make_current=False)
         if pipe:
             self._setup_pipe_in()
         self._local = threading.local()
-        self._events = {}
+        self._events = deque()
         self._setup_event_pipe()
         self.thread = threading.Thread(target=self._thread_main)
         self.thread.daemon = True
 
     def _thread_main(self):
         """The inner loop that's actually run in a thread"""
+        self.io_loop.make_current()
         self.io_loop.start()
         self.io_loop.close(all_fds=True)
 
@@ -84,7 +89,7 @@ class IOPubThread(object):
         pipe_in.bind(iface)
         self._event_puller = ZMQStream(pipe_in, self.io_loop)
         self._event_puller.on_recv(self._handle_event)
-    
+
     @property
     def _event_pipe(self):
         """thread-local event pipe for signaling events that should be processed in the thread"""
@@ -100,11 +105,20 @@ class IOPubThread(object):
         return event_pipe
 
     def _handle_event(self, msg):
-        """Handle an event on the event pipe"""
-        event_id = msg[0]
-        event_f = self._events.pop(event_id)
-        event_f()
-    
+        """Handle an event on the event pipe
+
+        Content of the message is ignored.
+
+        Whenever *an* event arrives on the event stream,
+        *all* waiting events are processed in order.
+        """
+        # freeze event count so new writes don't extend the queue
+        # while we are processing
+        n_events = len(self._events)
+        for i in range(n_events):
+            event_f = self._events.popleft()
+            event_f()
+
     def _setup_pipe_in(self):
         """setup listening pipe for IOPub from forked subprocesses"""
         ctx = self.socket.context
@@ -126,7 +140,7 @@ class IOPubThread(object):
             return
         self._pipe_in = ZMQStream(pipe_in, self.io_loop)
         self._pipe_in.on_recv(self._handle_pipe_msg)
-    
+
     def _handle_pipe_msg(self, msg):
         """handle a pipe message from a subprocess"""
         if not self._pipe_flag or not self._is_master_process():
@@ -184,11 +198,9 @@ class IOPubThread(object):
         If the thread is not running, call immediately.
         """
         if self.thread.is_alive():
-            event_id = os.urandom(16)
-            while event_id in self._events:
-                event_id = os.urandom(16)
-            self._events[event_id] = f
-            self._event_pipe.send(event_id)
+            self._events.append(f)
+            # wake event thread (message content is ignored)
+            self._event_pipe.send(b'')
         else:
             f()
 
@@ -221,7 +233,6 @@ class BackgroundSocket(object):
     io_thread = None
     
     def __init__(self, io_thread):
-        # type: (object) -> object
         self.io_thread = io_thread
     
     def __getattr__(self, attr):
@@ -257,13 +268,15 @@ class OutStream(TextIOBase):
     Output is handed off to an IO Thread
     """
 
+    # timeout for flush to avoid infinite hang
+    # in case of misbehavior
+    flush_timeout = 10
     # The time interval between automatic flushes, in seconds.
     flush_interval = 0.2
     topic = None
     encoding = 'UTF-8'
 
     def __init__(self, session, pub_thread, name, pipe=None):
-        # type: (object, object, object, object) -> object
         if pipe is not None:
             warnings.warn("pipe argument to OutStream is deprecated and ignored",
                 DeprecationWarning)
@@ -299,7 +312,7 @@ class OutStream(TextIOBase):
 
     def _schedule_flush(self):
         """schedule a flush in the IO thread
-        
+
         call this on write, to indicate that flush should be called soon.
         """
         if self._flush_pending:
@@ -313,21 +326,29 @@ class OutStream(TextIOBase):
 
     def flush(self):
         """trigger actual zmq send
-        
+
         send will happen in the background thread
         """
         if self.pub_thread.thread.is_alive():
-            # wait for flush to actually get through:
+            # request flush on the background thread
             self.pub_thread.schedule(self._flush)
-            evt = threading.Event()
-            self.pub_thread.schedule(evt.set)
-            evt.wait()
+            # wait for flush to actually get through, if we can.
+            # waiting across threads during import can cause deadlocks
+            # so only wait if import lock is not held
+            if not import_lock_held():
+                evt = threading.Event()
+                self.pub_thread.schedule(evt.set)
+                # and give a timeout to avoid
+                if not evt.wait(self.flush_timeout):
+                    # write directly to __stderr__ instead of warning because
+                    # if this is happening sys.stderr may be the problem.
+                    print("IOStream.flush timed out", file=sys.__stderr__)
         else:
             self._flush()
-    
+
     def _flush(self):
         """This is where the actual send happens.
-        
+
         _flush should generally be called in the IO thread,
         unless the thread has been destroyed (e.g. forked subprocess).
         """

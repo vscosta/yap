@@ -1,12 +1,12 @@
-"""GUI support for the IPython ZeroMQ kernel.
+"""GUI support for the yap_ipython ZeroMQ kernel.
 
 This package contains the various toolkit-dependent utilities we use to enable
-coordination between the IPython kernel and the event loops of the various GUI
+coordination between the yap_ipython kernel and the event loops of the various GUI
 toolkits.
 """
 
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2010-2011  The IPython Development Team.
+#  Copyright (C) 2010-2011  The yap_ipython Development Team.
 #
 #  Distributed under the terms of the BSD License.
 #

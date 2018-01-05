@@ -93,125 +93,67 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
   return val;
 }
 
-Int Yap_peek(int sno) {
-  CACHE_REGS
-  Int ocharcount, olinecount, olinepos;
+int PopCode(int sno) {
   StreamDesc *s;
-  int32_t ch;
-
+  Int ch;
+  struct yapchlookahead *p;
   s = GLOBAL_Stream + sno;
-#if USE_READLINE
-  if (s->status & Readline_Stream_f && trueGlobalPrologFlag(READLINE_FLAG)) {
-    ch = Yap_ReadlinePeekChar(sno);
-    if (ch == EOFCHAR) {
-      s->stream_getc = EOFPeek;
-      s->stream_wgetc = EOFWPeek;
-      s->status |= Push_Eof_Stream_f;
-    }
-    return ch;
+  if (!s->recbs) {
+    return EOF;
   }
-#endif
-#if !HAVE_FMEMOPEN
-  if (s->status & InMemory_Stream_f) {
-    return Yap_MemPeekc(sno);
-  }
-#endif
-  /* buffer the character */
-  if (s->encoding == Yap_SystemEncoding() && 0) {
-    ch = fgetwc(s->file);
-    ungetwc(ch, s->file);
-    return ch;
-  } else {
-    ocharcount = s->charcount;
-    olinecount = s->linecount;
-    olinepos = s->linepos;
-    ch = s->stream_wgetc(sno);
-    if (ch == EOFCHAR) {
-      s->stream_getc = EOFPeek;
-      s->stream_wgetc = EOFWPeek;
-      s->status |= Push_Eof_Stream_f;
-      return ch;
-    }
-  }
-  if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
-      s->encoding == ENC_ISO_ASCII) {
-    ungetc(ch, s->file);
-  } else if (s->encoding == ENC_ISO_UTF8) {
-    unsigned char cs[8];
-    size_t n = put_utf8(cs, ch);
-    while (n--) {
-      ungetc(cs[n], s->file);
-    }
-  } else if (s->encoding == ENC_UTF16_BE) {
-    /* do the ungetc as if a write .. */
-    // computations
-    if (ch < 0x10000) {
-      ungetc(ch % 256, s->file);
-      ungetc(ch / 256, s->file);
-    } else {
-      uint16_t lead = LEAD_OFFSET + (ch >> 10);
-      uint16_t trail = 0xDC00 + (ch & 0x3FF);
-
-      ungetc(lead % 256, s->file);
-      ungetc(lead / 256, s->file);
-      ungetc(trail % 256, s->file);
-      ungetc(trail / 256, s->file);
-    }
-  } else if (s->encoding == ENC_UTF16_LE) {
-    if (ch < 0x10000) {
-      ungetc(ch / 256, s->file);
-      ungetc(ch % 256, s->file);
-    } else {
-      uint16_t lead = LEAD_OFFSET + (ch >> 10);
-      uint16_t trail = 0xDC00 + (ch & 0x3FF);
-
-      ungetc(trail / 256, s->file);
-      ungetc(trail % 256, s->file);
-      ungetc(lead / 256, s->file);
-      ungetc(lead % 256, s->file);
-    }
-  } else if (s->encoding == ENC_ISO_UTF32_LE) {
-    ungetc((ch >> 24) & 0xff, s->file);
-    ungetc((ch >> 16) & 0xff, s->file);
-    ungetc((ch >> 8) & 0xff, s->file);
-    ungetc(ch & 0xff, s->file);
-  } else if (s->encoding == ENC_ISO_UTF32_BE) {
-    ungetc(ch & 0xff, s->file);
-    ungetc((ch >> 8) & 0xff, s->file);
-    ungetc((ch >> 16) & 0xff, s->file);
-    ungetc((ch >> 24) & 0xff, s->file);
-  } else if (s->encoding == ENC_UCS2_BE) {
-    /* do the ungetc as if a write .. */
-    // computations
-    ungetc(ch % 256, s->file);
-    ungetc(ch / 256, s->file);
-  } else if (s->encoding == ENC_UCS2_LE) {
-    ungetc(ch / 256, s->file);
-    ungetc(ch % 256, s->file);
-  }
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
+  p = s->recbs;
+  ch = p->ch;
+  s->recbs = s->recbs->next;
+  free(p);
+  if (!s->recbs)
+    Yap_DefaultStreamOps(s);
   return ch;
 }
 
-static Int dopeek_byte(int sno) {
+static int peekCode(int sno, bool wide) {
   Int ocharcount, olinecount, olinepos;
   StreamDesc *s;
   Int ch;
-
+  struct yapchlookahead *recb = malloc(sizeof(struct yapchlookahead)), *r;
+  recb->next = NULL;
   s = GLOBAL_Stream + sno;
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
-  ch = GLOBAL_Stream[sno].stream_getc(sno);
+  if (wide)
+    recb->ch = ch = GLOBAL_Stream[sno].stream_wgetc(sno);
+  else
+    recb->ch = ch = GLOBAL_Stream[sno].stream_getc(sno);
+  if (ch == EOFCHAR) {
+    s->stream_getc = EOFPeek;
+    s->stream_wgetc = EOFWPeek;
+    s->status |= Push_Eof_Stream_f;
+    return ch;
+  }
+  recb->charcount = s->charcount;
+  recb->linecount = s->linecount;
+  recb->linepos = s->linepos;
   s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;
+  if (s->recbs) {
+    r = s->recbs;
+    while (r->next) {
+      r = r->next;
+    }
+    r->next = recb;
+  } else {
+    s->recbs = recb;
+  }
   /* buffer the character */
-  ungetc(ch, s->file);
+  GLOBAL_Stream[sno].stream_getc = PopCode;
+  GLOBAL_Stream[sno].stream_wgetc = PopCode;
   return ch;
 }
+
+Int Yap_peek(int sno) { return peekCode(sno, true); }
+
+static Int dopeek_byte(int sno) { return peekCode(sno, false); }
 
 bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);

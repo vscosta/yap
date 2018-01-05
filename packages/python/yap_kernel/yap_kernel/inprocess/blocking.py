@@ -3,7 +3,7 @@
 Useful for test suites and blocking terminal interfaces.
 """
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2012  The IPython Development Team
+#  Copyright (C) 2012  The yap_ipython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING.txt, distributed as part of this software.
@@ -14,8 +14,8 @@ try:
 except ImportError:
     from Queue import Queue, Empty  # Py 2
 
-# IPython imports
-from IPython.utils.io import raw_print
+# yap_ipython imports
+from yap_ipython.utils.io import raw_print
 from traitlets import Type
 
 # Local imports
@@ -27,7 +27,6 @@ from .client import InProcessKernelClient
 class BlockingInProcessChannel(InProcessChannel):
 
     def __init__(self, *args, **kwds):
-        # type: (object, object) -> object
         super(BlockingInProcessChannel, self).__init__(*args, **kwds)
         self._in_queue = Queue()
 

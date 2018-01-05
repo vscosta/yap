@@ -1,4 +1,4 @@
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -6,12 +6,12 @@ from __future__ import print_function
 import sys
 import unittest
 
-from ipykernel.inprocess.blocking import BlockingInProcessKernelClient
-from ipykernel.inprocess.manager import InProcessKernelManager
-from ipykernel.inprocess.ipkernel import InProcessKernel
-from ipykernel.tests.utils import assemble_output
-from IPython.testing.decorators import skipif_not_matplotlib
-from IPython.utils.io import capture_output
+from yap_kernel.inprocess.blocking import BlockingInProcessKernelClient
+from yap_kernel.inprocess.manager import InProcessKernelManager
+from yap_kernel.inprocess.ipkernel import InProcessKernel
+from yap_kernel.tests.utils import assemble_output
+from yap_ipython.testing.decorators import skipif_not_matplotlib
+from yap_ipython.utils.io import capture_output
 from ipython_genutils import py3compat
 
 if py3compat.PY3:
@@ -50,7 +50,7 @@ class InProcessKernelTestCase(unittest.TestCase):
                 self.kc.execute('x = raw_input()')
         finally:
             sys.stdin = sys_stdin
-        self.assertEqual(self.km.kernel.shell.user_ns.get('x'), 'foobar')
+        assert self.km.kernel.shell.user_ns.get('x') == 'foobar'
 
     def test_stdout(self):
         """ Does the in-process kernel correctly capture IO?
@@ -59,13 +59,13 @@ class InProcessKernelTestCase(unittest.TestCase):
 
         with capture_output() as io:
             kernel.shell.run_cell('print("foo")')
-        self.assertEqual(io.stdout, 'foo\n')
+        assert io.stdout == 'foo\n'
 
         kc = BlockingInProcessKernelClient(kernel=kernel, session=kernel.session)
         kernel.frontends.append(kc)
         kc.execute('print("bar")')
         out, err = assemble_output(kc.iopub_channel)
-        self.assertEqual(out, 'bar\n')
+        assert out == 'bar\n'
 
     def test_getpass_stream(self):
         "Tests that kernel getpass accept the stream parameter"

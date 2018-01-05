@@ -698,68 +698,66 @@ static PyObject *structseq_repr(PyObject *iobj) {
 }
 #endif
 
-static bool
-legal_symbol( const char *s)
-{
-    int ch;
-    while(((ch = *s++) != '\0')) {
-     if (isalnum(ch) || ch == '_')
-         continue;
-        return false;
-    }
-    return true;
+static bool legal_symbol(const char *s) {
+  int ch;
+  while (((ch = *s++) != '\0')) {
+    if (isalnum(ch) || ch == '_')
+      continue;
+    return false;
+  }
+  return true;
 }
 
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyObject *o, *d = NULL;
   if (legal_symbol(s)) {
-      PyTypeObject *typp;
-      PyObject *key = PyUnicode_FromString(s);
-      if (Py_f2p && (d = PyList_GetItem(Py_f2p, arity)) &&
-          PyDict_Contains(d, key)) {
-          typp = (PyTypeObject *) PyDict_GetItem(d, key);
-          Py_INCREF(typp);
-      } else {
-          typp = calloc(sizeof(PyTypeObject), 1);
-          PyStructSequence_Desc *desc = calloc(sizeof(PyStructSequence_Desc), 1);
-          desc->name = PyMem_Malloc(strlen(s) + 1);
-          strcpy(desc->name, s);
-          desc->doc = "YAPTerm";
-          desc->fields = pnull;
-          desc->n_in_sequence = arity;
-          if (PyStructSequence_InitType2(typp, desc) < 0)
-              return NULL;
-          //    typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
-          // typp->tp_flags &= ~Py_TPFLAGS_HAVE_GC;
-          // typp->tp_str = structseq_str;
-          typp->tp_repr = structseq_repr;
-          //     typp = PyStructSequence_NewType(desc);
-          // don't do this: we cannot add a type as an atribute.
-          // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
-          if (d && !PyDict_Contains(d, key))
-              PyDict_SetItem(d, key, (PyObject *) typp);
-          Py_DECREF(key);
-          Py_INCREF(typp);
-      }
-      o = PyStructSequence_New(typp);
+    PyTypeObject *typp;
+    PyObject *key = PyUnicode_FromString(s);
+    if (Py_f2p && (d = PyList_GetItem(Py_f2p, arity)) &&
+        PyDict_Contains(d, key)) {
+      typp = (PyTypeObject *)PyDict_GetItem(d, key);
       Py_INCREF(typp);
-      arity_t i;
-      for (i = 0; i < arity; i++) {
-          PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
-          Py_INCREF(pArg);
-          if (pArg)
-              PyStructSequence_SET_ITEM(o, i, pArg);
-          // PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
-      }
-      //((PyStructSequence *)o)->ob_base.ob_size = arity;
-      // PyObject_Print(o,stderr,0);fputc('\n',stderr);
-      return o;
+    } else {
+      typp = calloc(sizeof(PyTypeObject), 1);
+      PyStructSequence_Desc *desc = calloc(sizeof(PyStructSequence_Desc), 1);
+      desc->name = PyMem_Malloc(strlen(s) + 1);
+      strcpy(desc->name, s);
+      desc->doc = "YAPTerm";
+      desc->fields = pnull;
+      desc->n_in_sequence = arity;
+      if (PyStructSequence_InitType2(typp, desc) < 0)
+        return NULL;
+      //    typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
+      // typp->tp_flags &= ~Py_TPFLAGS_HAVE_GC;
+      // typp->tp_str = structseq_str;
+      typp->tp_repr = structseq_repr;
+      //     typp = PyStructSequence_NewType(desc);
+      // don't do this: we cannot add a type as an atribute.
+      // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
+      if (d && !PyDict_Contains(d, key))
+        PyDict_SetItem(d, key, (PyObject *)typp);
+      Py_DECREF(key);
+      Py_INCREF(typp);
+    }
+    o = PyStructSequence_New(typp);
+    Py_INCREF(typp);
+    arity_t i;
+    for (i = 0; i < arity; i++) {
+      PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
+      Py_INCREF(pArg);
+      if (pArg)
+        PyStructSequence_SET_ITEM(o, i, pArg);
+      // PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
+    }
+    //((PyStructSequence *)o)->ob_base.ob_size = arity;
+    // PyObject_Print(o,stderr,0);fputc('\n',stderr);
+    return o;
   } else {
-      PyObject *o1;
-      o1 = PyTuple_New(2);
-      PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
-      PyTuple_SET_ITEM(o1, 1, tuple);
-      return o1;
+    PyObject *o1;
+    o1 = PyTuple_New(2);
+    PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
+    PyTuple_SET_ITEM(o1, 1, tuple);
+    return o1;
   }
 }
 
@@ -945,7 +943,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     AOK(PL_get_arg(1, t, targ), NULL);
     ptr = term_to_python(targ, true, NULL, true);
     return PyObject_Dir(ptr);
-
+    {}
   }
 
   else if (fun == FUNCTOR_plus2) {
@@ -1004,9 +1002,10 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
   if (!arity) {
     char *s = NULL;
     PyObject *pValue;
-
     AOK(PL_get_atom_chars(t, &s), NULL);
+    PyObject_Print(o, stderr, 0);
     pValue = PyObject_GetAttrString(o, s);
+    PyObject_Print(pValue, stderr, 0);
     if (CHECKNULL(t, pValue) == NULL) {
       PyErr_Print();
       return NULL;
@@ -1014,43 +1013,68 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     return pValue;
   } else {
     char *s = PL_atom_chars(name);
-    PyObject *ys = lookupPySymbol(s, o, NULL);
-    PyObject *pArgs = PyTuple_New(arity);
+    PyObject *ys = lookupPySymbol(s, o, NULL), *pArgs;
     DebugPrintf("Tuple %p\n", pArgs);
     int i;
     term_t tleft = PL_new_term_ref();
-    for (i = 0; i < arity; i++) {
+    bool indict = true;
+    PyObject *pyDict = PyDict_New();
+
+    for (i = arity; i > 0; i--) {
       PyObject *pArg;
-      AOK(PL_get_arg(i + 1, t, tleft), NULL);
+      AOK(PL_get_arg(i, t, tleft), NULL);
       /* ignore (_) */
-      if (i == 0 && PL_is_variable(tleft)) {
-        pArg = Py_None;
-      } else {
-        pArg = term_to_python(tleft, true, NULL, true);
-        // PyObject_Print(pArg,fdopen(2,"w"),0);
-        if (pArg == NULL) {
-          pArg = Py_None;
+      if (indict) {
+        if (PL_get_functor(tleft, &fun) && fun == FUNCTOR_equal2) {
+          term_t tatt = PL_new_term_ref();
+          AOK(PL_get_arg(1, tleft, tatt), NULL);
+          PyObject *key = term_to_python(tatt, true, NULL, true);
+          AOK(PL_get_arg(2, tleft, tatt), NULL);
+          PyObject *val = term_to_python(tatt, true, NULL, true);
+          PyDict_SetItem(pyDict, key, val);
+        } else {
+          indict = false;
+          pArgs = PyTuple_New(i);
         }
-        /* pArg reference stolen here: */
-        Py_INCREF(pArg);
       }
+      if (!indict) {
+        if (PL_is_variable(tleft)) {
+          pArg = Py_None;
+        } else {
+          pArg = term_to_python(tleft, true, NULL, true);
+          // PyObject_Print(pArg,fdopen(2,"w"),0);
+          if (pArg == NULL) {
+            pArg = Py_None;
+          }
+          /* pArg reference stolen here: */
+          Py_INCREF(pArg);
+        }
 
-      PyTuple_SetItem(pArgs, i, pArg);
+        PyTuple_SetItem(pArgs, i - 1, pArg);
+      }
     }
 
-        PyObject *rc;
+    if (indict) {
+      pArgs = PyTuple_New(0);
+    }
+
+    PyObject *rc;
     if (ys && PyCallable_Check(ys)) {
+      PyObject_Print(ys, stderr, 0);
+      PyObject_Print(pArgs, stderr, 0);
+      PyObject_Print(pyDict, stderr, 0);
 
-    // PyObject_Print(pArgs, stderr, 0);
-    // PyObject_Print(o, stderr, 0);
-    CHECK_CALL(rc, t, PyObject_CallObject(ys, pArgs));
-    Py_DECREF(pArgs);
-    Py_DECREF(ys);
-    DebugPrintf("CallObject %p\n", rc);
+      // PyObject_Print(pArgs, stderr, 0);
+      // PyObject_Print(o, stderr, 0);
+      CHECK_CALL(rc, t, PyObject_Call(ys, pArgs, pyDict));
+      Py_DECREF(pArgs);
+      Py_DECREF(ys);
+      PyObject_Print(rc, stderr, 0);
+      DebugPrintf("CallObject %p\n", rc);
     } else {
-    rc = term_to_nametuple(s, arity, pArgs);
+      rc = term_to_nametuple(s, arity, pArgs);
     }
-  
+
     return rc;
   }
 }

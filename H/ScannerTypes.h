@@ -13,7 +13,7 @@ typedef enum TokenKinds {
 typedef struct TOKEN {
   enum TokenKinds Tok;
   Term TokInfo;
-  int TokPos;
+  intptr_t TokPos, TokLine;
   struct TOKEN *TokNext;
 } TokEntry;
 

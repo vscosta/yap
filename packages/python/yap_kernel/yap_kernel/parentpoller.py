@@ -1,4 +1,4 @@
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 try:
@@ -25,7 +25,6 @@ class ParentPollerUnix(Thread):
     """
 
     def __init__(self):
-        # type: () -> object
         super(ParentPollerUnix, self).__init__()
         self.daemon = True
 
@@ -51,7 +50,6 @@ class ParentPollerWindows(Thread):
     """
 
     def __init__(self, interrupt_handle=None, parent_handle=None):
-        # type: (object, object) -> object
         """ Create the poller. At least one of the optional parameters must be
         provided.
 

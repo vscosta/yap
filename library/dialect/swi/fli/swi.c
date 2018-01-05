@@ -222,6 +222,8 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   if (s) {
     size_t len = strlen(out.val.c);
     if (flags & (BUF_DISCARDABLE | BUF_RING)) {
+      strncpy(LOCAL_FileNameBuf, out.val.c, YAP_FILENAME_MAX);
+      *s = LOCAL_FileNameBuf;
       pop_text_stack(lvl);
       return true;
     }
@@ -707,10 +709,12 @@ X_API int PL_get_functor(term_t ts, functor_t *f) {
     *f = t;
   } else if (IsPairTerm(t)) {
     *f = FunctorToSWIFunctor(FunctorDot);
-  } else {
+  } else if (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) {
     *f = FunctorToSWIFunctor(FunctorOfTerm(t));
+  } else {
+    return false;
   }
-  return 1;
+  return true;
 }
 
 /** @brief *f is assigned the floating  point number of term  ts, or the

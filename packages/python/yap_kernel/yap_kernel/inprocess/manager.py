@@ -1,6 +1,6 @@
 """A kernel manager for in-process kernels."""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from traitlets import Instance, DottedObjectName, default
@@ -22,7 +22,7 @@ class InProcessKernelManager(KernelManager):
     """
 
     # The kernel process with which the KernelManager is communicating.
-    kernel = Instance('yap_kernel.inprocess.yapkernel.InProcessKernel',
+    kernel = Instance('yap_kernel.inprocess.ipkernel.InProcessKernel',
                       allow_none=True)
     # the client class for KM.client() shortcut
     client_class = DottedObjectName('yap_kernel.inprocess.BlockingInProcessKernelClient')
@@ -42,7 +42,7 @@ class InProcessKernelManager(KernelManager):
     #--------------------------------------------------------------------------
 
     def start_kernel(self, **kwds):
-        from yap_kernel.inprocess.yapkernel import InProcessKernel
+        from yap_kernel.inprocess.ipkernel import InProcessKernel
         self.kernel = InProcessKernel(parent=self, session=self.session)
 
     def shutdown_kernel(self):

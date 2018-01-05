@@ -1,7 +1,7 @@
-"""GUI support for the IPython ZeroMQ kernel - GTK toolkit support.
+"""GUI support for the yap_ipython ZeroMQ kernel - GTK toolkit support.
 """
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2010-2011  The IPython Development Team
+#  Copyright (C) 2010-2011  The yap_ipython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING.txt, distributed as part of this software.
@@ -27,7 +27,6 @@ class GTKEmbed(object):
     """A class to embed a kernel into the GTK main event loop.
     """
     def __init__(self, kernel):
-        # type: (object) -> object
         self.kernel = kernel
         # These two will later store the real gtk functions when we hijack them
         self.gtk_main = None
@@ -68,11 +67,11 @@ class GTKEmbed(object):
         sys.exit()
 
     def _hijack_gtk(self):
-        """Hijack a few key functions in GTK for IPython integration.
+        """Hijack a few key functions in GTK for yap_ipython integration.
 
         Modifies pyGTK's main and main_quit with a dummy so user code does not
-        block IPython.  This allows us to use %run to run arbitrary pygtk
-        scripts from a long-lived IPython session, and when they attempt to
+        block yap_ipython.  This allows us to use %run to run arbitrary pygtk
+        scripts from a long-lived yap_ipython session, and when they attempt to
         start or stop
 
         Returns

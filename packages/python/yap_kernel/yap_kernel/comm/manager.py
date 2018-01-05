@@ -1,6 +1,6 @@
 """Base class to manage comms"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import sys

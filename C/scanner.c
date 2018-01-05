@@ -688,8 +688,7 @@ static int send_error_message(char s[]) {
   return 0;
 }
 
-static wchar_t read_quoted_char(int *scan_nextp,
-                                struct stream_desc *st) {
+static wchar_t read_quoted_char(int *scan_nextp, struct stream_desc *st) {
   int ch;
 
 /* escape sequence */
@@ -1123,7 +1122,8 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
     ;
 #endif
   TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
-  tokptr->TokPos = GetCurInpPos(inp);
+    tokptr->TokLine = GetCurInpLine(inp);
+    tokptr->TokPos = GetCurInpPos(inp);
   if (ch == '-') {
     sign = -1;
     ch = getchr(inp);
@@ -1324,8 +1324,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "i %d", st-GLOBAL_Stream);
-    ch = getchr(st);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "i %d", st - GLOBAL_Stream);
+  ch = getchr(st);
   while (chtype(ch) == BS) {
     ch = getchr(st);
   }
@@ -1353,7 +1353,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     while (chtype(ch) == BS) {
       ch = getchr(st);
     }
-    t->TokPos = GetCurInpPos(st);
+      t->TokPos = GetCurInpPos(st);
+      t->TokLine = GetCurInpLine(st);
 
     switch (chtype(ch)) {
 
@@ -1472,7 +1473,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       if (cherr) {
         TokEntry *e;
         t->Tok = Number_tok;
-        t->TokPos = GetCurInpPos(st);
+          t->TokPos = GetCurInpPos(st);
+          t->TokLine = GetCurInpLine(st);
         e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
         if (e == NULL) {
           return TrailSpaceError(p, l);
@@ -1498,7 +1500,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 
             t->Tok = Ord(Var_tok);
             t->TokInfo = (Term)Yap_LookupVar("E");
-            t->TokPos = GetCurInpPos(st);
+              t->TokPos = GetCurInpPos(st);
+              t->TokLine = GetCurInpLine(st);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
@@ -1531,7 +1534,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             if (ch == '(')
               solo_flag = FALSE;
             t->TokInfo = MkAtomTerm(AtomE);
-            t->TokPos = GetCurInpPos(st);
+              t->TokLine = GetCurInpLine(st);
+              t->TokPos = GetCurInpPos(st);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
               return TrailSpaceError(p, l);
@@ -1967,7 +1971,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       p->TokNext = e;
       e->Tok = Error_tok;
       e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-      e->TokPos = GetCurInpPos(st);
+        e->TokPos = GetCurInpPos(st);
+        e->TokLine = GetCurInpLine(st);
       e->TokNext = NULL;
       LOCAL_ErrorMessage = NULL;
       p = e;

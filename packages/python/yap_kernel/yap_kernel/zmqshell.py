@@ -8,11 +8,11 @@ we subclass and override what we want to fix.  Once this is working well, we
 can go back to the base class and refactor the code for a cleaner inheritance
 implementation that doesn't rely on so much monkeypatching.
 
-But this lets us maintain a fully working IPython as we develop the new
+But this lets us maintain a fully working yap_ipython as we develop the new
 machinery.  This should thus be thought of as scaffolding.
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -26,23 +26,23 @@ from threading import local
 from tornado import ioloop
 
 from yap_ipython.core.interactiveshell import (
-    YAPInteractive, YAPInteractiveABC
+    InteractiveShell, InteractiveShellABC
 )
-from IPython.core import page
-from IPython.core.autocall import ZMQExitAutocall
-from IPython.core.displaypub import DisplayPublisher
-from IPython.core.error import UsageError
-from IPython.core.magics import MacroToEdit, CodeMagics
-from IPython.core.magic import magics_class, line_magic, Magics
-from IPython.core import payloadpage
-from IPython.core.usage import default_banner
-from IPython.display import display, Javascript
+from yap_ipython.core import page
+from yap_ipython.core.autocall import ZMQExitAutocall
+from yap_ipython.core.displaypub import DisplayPublisher
+from yap_ipython.core.error import UsageError
+from yap_ipython.core.magics import MacroToEdit, CodeMagics
+from yap_ipython.core.magic import magics_class, line_magic, Magics
+from yap_ipython.core import payloadpage
+from yap_ipython.core.usage import default_banner
+from yap_ipython.display import display, Javascript
 from yap_kernel import (
     get_connection_file, get_connection_info, connect_qtconsole
 )
-from IPython.utils import openpy
+from yap_ipython.utils import openpy
 from yap_kernel.jsonutil import json_clean, encode_images
-from IPython.utils.process import arg_split
+from yap_ipython.utils.process import arg_split
 from ipython_genutils import py3compat
 from ipython_genutils.py3compat import unicode_type
 from traitlets import (
@@ -225,7 +225,7 @@ class KernelMagics(Magics):
         configuration file before it will work.
 
         This command allows you to conveniently edit multi-line code right in
-        your IPython session.
+        your yap_ipython session.
 
         If called without arguments, %edit opens up an empty editor with a
         temporary file and will execute the contents of this file when you
@@ -234,7 +234,7 @@ class KernelMagics(Magics):
         Options:
 
         -n <number>
-          Open the editor at a specified line number. By default, the IPython
+          Open the editor at a specified line number. By default, the yap_ipython
           editor hook uses the unix syntax 'editor +N filename', but you can
           configure this by providing your own modified hook if your favorite
           editor supports line-number specifications with a different syntax.
@@ -249,7 +249,7 @@ class KernelMagics(Magics):
           magics are loaded in their transformed version to valid Python.  If
           this option is given, the raw input as typed as the command line is
           used instead.  When you exit the editor, it will be executed by
-          IPython's own processor.
+          yap_ipython's own processor.
 
         Arguments:
 
@@ -265,7 +265,7 @@ class KernelMagics(Magics):
           previous edits).
 
         - If the argument is the name of an object (other than a string),
-          IPython will try to locate the file where it was defined and open the
+          yap_ipython will try to locate the file where it was defined and open the
           editor at the point where it is defined. You can use ``%edit function``
           to load an editor exactly at the point where 'function' is defined,
           edit it and have the file be executed automatically.
@@ -279,7 +279,7 @@ class KernelMagics(Magics):
           '+NUMBER' parameter necessary for this feature. Good editors like
           (X)Emacs, vi, jed, pico and joe all do.
 
-        - If the argument is not found as a variable, IPython will look for a
+        - If the argument is not found as a variable, yap_ipython will look for a
           file with that name (adding .py if necessary) and load it into the
           editor. It will execute its contents with execfile() when you exit,
           loading any code in the file into your interactive namespace.
@@ -428,7 +428,7 @@ class KernelMagics(Magics):
 
         # javascript wants milliseconds
         milliseconds = 1000 * interval
-        display(Javascript("IPython.notebook.set_autosave_interval(%i)" % milliseconds),
+        display(Javascript("yap_ipython.notebook.set_autosave_interval(%i)" % milliseconds),
             include=['application/javascript']
         )
         if interval:
@@ -437,7 +437,7 @@ class KernelMagics(Magics):
             print("Autosave disabled")
 
 
-class ZMQInteractiveShell(YAPInteractive):
+class ZMQInteractiveShell(InteractiveShell):
     """A subclass of InteractiveShell for ZMQ."""
 
     displayhook_class = Type(ZMQShellDisplayHook)
@@ -469,13 +469,17 @@ class ZMQInteractiveShell(YAPInteractive):
     def _update_exit_now(self, change):
         """stop eventloop when exit_now fires"""
         if change['new']:
-            loop = ioloop.IOLoop.instance()
-            loop.add_timeout(time.time() + 0.1, loop.stop)
+            loop = self.kernel.io_loop
+            loop.call_later(0.1, loop.stop)
+            if self.kernel.eventloop:
+                exit_hook = getattr(self.kernel.eventloop, 'exit_hook', None)
+                if exit_hook:
+                    exit_hook(self.kernel)
 
     keepkernel_on_exit = None
 
     # Over ZeroMQ, GUI control isn't done with PyOS_InputHook as there is no
-    # interactive input being read; we provide event loop support in yapkernel
+    # interactive input being read; we provide event loop support in ipkernel
     def enable_gui(self, gui):
         from .eventloops import enable_gui as real_enable_gui
         try:
@@ -507,7 +511,7 @@ class ZMQInteractiveShell(YAPInteractive):
     @property
     def data_pub(self):
         if not hasattr(self, '_data_pub'):
-            warnings.warn("InteractiveShell.data_pub is deprecated outside IPython parallel.",
+            warnings.warn("InteractiveShell.data_pub is deprecated outside yap_ipython parallel.",
                 DeprecationWarning, stacklevel=2)
 
             self._data_pub = self.data_pub_class(parent=self)
@@ -598,4 +602,5 @@ class ZMQInteractiveShell(YAPInteractive):
         # https://ipython.readthedocs.io/en/latest/install/kernel_install.html
         pass
 
-YAPInteractiveABC.register(ZMQInteractiveShell)
+
+InteractiveShellABC.register(ZMQInteractiveShell)

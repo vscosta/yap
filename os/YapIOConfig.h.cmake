@@ -13,7 +13,7 @@
 #cmakedefine HAVE_READLINE_READLINE_H  ${HAVE_READLINE_READLINE_H}
 #endif
 
-#if  defined(FOUND_READLINE)
+#if  defined(HAVE_READLINE_READLINE_H) && defined(HAVE_LIBREADLINE)
 #define USE_READLINE 1
 #endif
 

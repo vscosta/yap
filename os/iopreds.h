@@ -91,9 +91,14 @@ extern void Yap_InitStdStreams(void);
 extern Term Yap_StreamPosition(int);
 extern void Yap_CloseStream(int sno);
 
-static inline Int GetCurInpPos(StreamDesc *inp_stream) {
-  return (inp_stream->linecount);
+static inline Int GetCurInpLine(StreamDesc *inp_stream) {
+    return (inp_stream->linecount);
 }
+
+static inline Int GetCurInpPos(StreamDesc *inp_stream) {
+    return (inp_stream->charcount);
+}
+
 
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)

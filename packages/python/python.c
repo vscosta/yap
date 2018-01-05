@@ -77,14 +77,24 @@ static int py_put(int sno, int ch) {
   return ch;
 }
 
-static int py_get(int sno) {
+static int py_get(int sno)
+{
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fget = PyObject_GetAttrString(s->u.private_data, "read");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fget, PyLong_FromLong(1), NULL);
   return PyUnicode_READ_CHAR(pyr, 0);
 }
 
-static int64_t py_seek(int sno, int64_t where, int how) {
+static int py_peek(int sno)
+{
+  StreamDesc *s = YAP_GetStreamFromId(sno);
+  PyObject *fget = PyObject_GetAttrString(s->u.private_data, "peek");
+  PyObject *pyr = PyObject_CallFunctionObjArgs(fget, PyLong_FromLong(1), NULL);
+  return PyUnicode_READ_CHAR(pyr, 0);
+}
+
+static int64_t py_seek(int sno, int64_t where, int how)
+{
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fseek = PyObject_GetAttrString(s->u.private_data, "seek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fseek, PyLong_FromLong(where),
@@ -124,6 +134,7 @@ static bool init_python_stream(void) {
   pystream.open = py_open;
   pystream.close = py_close;
   pystream.get_char = py_get;
+  pystream.peek_char = py_peek;
   pystream.put_char = py_put;
   pystream.flush = py_flush;
   pystream.seek = py_seek;

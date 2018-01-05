@@ -1,9 +1,9 @@
-"""Configurable for configuring the IPython inline backend
+"""Configurable for configuring the yap_ipython inline backend
 
 This module does not import anything from matplotlib.
 """
 #-----------------------------------------------------------------------------
-#       Copyright (C) 2011 The IPython Development Team
+#       Copyright (C) 2011 The yap_ipython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
@@ -64,7 +64,7 @@ class InlineBackend(InlineBackendConfig):
 
     def _update_figure_formatters(self):
         if self.shell is not None:
-            from IPython.core.pylabtools import select_figure_formats
+            from yap_ipython.core.pylabtools import select_figure_formats
             select_figure_formats(self.shell, self.figure_formats, **self.print_figure_kwargs)
 
     def _figure_formats_changed(self, name, old, new):
@@ -105,6 +105,6 @@ class InlineBackend(InlineBackendConfig):
         be explicit.
         """).tag(config=True)
     
-    shell = Instance('IPython.core.interactiveshell.InteractiveShellABC',
+    shell = Instance('yap_ipython.core.interactiveshell.InteractiveShellABC',
                      allow_none=True)
 

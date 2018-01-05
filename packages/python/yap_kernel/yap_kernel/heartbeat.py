@@ -2,7 +2,7 @@
 """
 
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2008-2011  The IPython Development Team
+#  Copyright (C) 2008-2011  The yap_ipython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
@@ -30,7 +30,6 @@ class Heartbeat(Thread):
     "A simple ping-pong style heartbeat that runs in a thread."
 
     def __init__(self, context, addr=None):
-        # type: (object, object) -> object
         if addr is None:
             addr = ('tcp', localhost(), 0)
         Thread.__init__(self)

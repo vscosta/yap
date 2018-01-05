@@ -70,13 +70,13 @@ An error record comsists of An ISO compatible descriptor of the format
 
 error(errror_kind(Culprit,..), Info)
 
-In YAP, the infoo field describes:
+In YAP, the info field describes:
 
 - what() more detauls on the event
 
-- input_stream, may be ine of;
+- input_stream, may be one of;
 
-	- loop_sream
+	- loop_stream
 	- file()
 	- none
 
@@ -241,7 +241,7 @@ compose_message(Term, Level) -->
 	main_message( Term, Level, LC),
 	[nl,nl].
 
-location(error(syntax_error(_),info(between(_,LN,_), FileName, _)), _ , _) -->
+location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
 	[ '~a:~d:~d ' - [FileName,LN,0] ] .
 
@@ -262,7 +262,7 @@ location( error(_,Term), Level, LC ) -->
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,Info), _, _) --> {var(Info)}, !,
 	[  ' error: uninstantiated message ~w~n.' - [Msg], nl ].
-main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream,Term)), Level, LC ) -->
+main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
 	!,
 	  [' ~a: syntax error ~s' - [Level,Msg]],
 	  [nl],
@@ -635,54 +635,58 @@ list_of_preds([P|L]) -->
 	['~q' - [P]],
 	list_of_preds(L).
 
-syntax_error_term(between(_I,_J,_L),LTaL,LC) -->
-	['term between lines ~d and ~d' - [_I,_L], nl ],
-	syntax_error_tokens(LTaL, LC).
+syntax_error_term(between(_I,J,_L),S,_LC) -->
+	{string(S)},
+	!,
+	[ '~s' - [S] ],
+	[' <<<< at line ~d ' - [J], nl ].
+syntax_error_term(between(_I,J,_L),LTaL,LC) -->
+	syntax_error_tokens(LTaL, J, LC).
 
-syntax_error_tokens([], _LC) --> [].
-syntax_error_tokens([T|L], LC) -->
-	syntax_error_token(T, LC),
-	syntax_error_tokens(L, LC).
+syntax_error_tokens([], _, _LC) --> [].
+syntax_error_tokens([T|L], J, LC) -->
+	syntax_error_token(T, J, LC),
+	syntax_error_tokens(L, J, LC).
 
-syntax_error_token(atom(A), _LC) --> !,
+syntax_error_token(atom(A), _, _LC) --> !,
 	[ '~q' - [A] ].
-syntax_error_token(number(N), _LC) --> !,
+syntax_error_token(number(N), _, _LC) --> !,
 	[ '~w' - [N] ].
-syntax_error_token(var(_,S), _LC)  --> !,
+syntax_error_token(var(_,S), _, _LC)  --> !,
 	[ '~a'  - [S] ].
-syntax_error_token(string(S), _LC) --> !,
+syntax_error_token(string(S), _, _LC) --> !,
 	[ '`~s`' - [S] ].
-syntax_error_token(error, _LC) --> !,
-	[ ' <== HERE ==> ' ].
-syntax_error_token('EOT', _LC) --> !,
+syntax_error_token(error, L, _LC) --> !,
+	[ ' <<<< at line %d' - [L] ].
+syntax_error_token('EOT',_,  _LC) --> !,
 	[ '.' - [], nl  ].
-syntax_error_token('(', _LC) --> !,
+syntax_error_token('(',_,  _LC) --> !,
 	[ '( '- []  ].
-syntax_error_token('{', _LC) --> !,
+syntax_error_token('{',_,  _LC) --> !,
 	[ '{ '- []  ].
-syntax_error_token('[', _LC) --> !,
+syntax_error_token('[', _, _LC) --> !,
 	[ '[' - [] ].
-syntax_error_token(')', _LC) --> !,
+syntax_error_token(')',_,  _LC) --> !,
 	[ ' )'- []  ].
-syntax_error_token(']', _LC) --> !,
+syntax_error_token(']',_,  _LC) --> !,
 	[ ']'- []  ].
-syntax_error_token('}', _LC) --> !,
+syntax_error_token('}',_,  _LC) --> !,
 	[ ' }' - [] ].
-syntax_error_token(',', _LC) --> !,
+syntax_error_token(',',_,  _LC) --> !,
 	[ ', ' - [] ].
-syntax_error_token('.', _LC) --> !,
+syntax_error_token('.',_,  _LC) --> !,
 	[ '.' - [] ].
-syntax_error_token(';', _LC) --> !,
+syntax_error_token(';', _, _LC) --> !,
 	[ '; ' - [] ].
-syntax_error_token(':', _LC) --> !,
+syntax_error_token(':', _, _LC) --> !,
 	[ ':' - [] ].
-syntax_error_token('|', _LC) --> !,
+syntax_error_token('|', _, _LC) --> !,
 	[ '|' - [] ].
-syntax_error_token('l', _LC) --> !,
+syntax_error_token('l',_,  _LC) --> !,
 	[ '|' - [] ].
-syntax_error_token(nl, LC) --> !,
+syntax_error_token(nl, _, LC) --> !,
 	[  '~*|     ' -[LC], nl ].
-syntax_error_token(B, _LC) --> !,
+syntax_error_token(B,_,  _LC) --> !,
 	[ nl, 'bad_token: ~q' - [B], nl ].
 
 

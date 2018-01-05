@@ -64,14 +64,14 @@ if (ANDROID)
        DEPENDS ${PL_BOOT_SOURCES}
             )
     file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
-elseif(CMAKE_CROSSCOMPILING)
+else(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
             )
-else ()
-    add_custom_target(STARTUP ALL
-            DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            )
+#else ()
+    #add_custom_target(STARTUP ALL
+    #        DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+    #        )
     add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             COMMAND ./yap -B
             VERBATIM
@@ -79,7 +79,12 @@ else ()
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )
 
-install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+#    install(CODE "execute_process(COMMAND ./yap -B
+#      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR})"
+#            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )
+
+
+    install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
         DESTINATION ${YAP_INSTALL_DLLDIR}
         )
 endif()

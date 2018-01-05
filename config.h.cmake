@@ -382,9 +382,14 @@ function. */
 #cmakedefine HAVE_FFSL ${HAVE_FFSL}
 #endif
 
-/* Define to 1 if you have the `ffsll' function. */
-#ifndef HAVE_FFSLL
-#cmakedefine HAVE_FFSLL ${HAVE_FFSLL}
+/* Define to 1 if you have the `ftell' function. */
+    #ifndef HAVE_FTELL
+    #cmakedefine HAVE_FTELL ${HAVE_FTELL}
+    #endif
+
+/* Define to 1 if you have the `ftello' function. */
+#ifndef HAVE_FTELLO
+#cmakedefine HAVE_FTELLO ${HAVE_FTELLO}
 #endif
 
 /* Define to 1 if you have the `fgetpos' function. */

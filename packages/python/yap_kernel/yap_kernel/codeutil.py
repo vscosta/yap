@@ -10,7 +10,7 @@ we need to automate all of this so that functions themselves can be pickled.
 Reference: A. Tremols, P Cogolo, "Python Cookbook," p 302-305
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import warnings

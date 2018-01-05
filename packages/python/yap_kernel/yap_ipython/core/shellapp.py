@@ -1,10 +1,10 @@
 # encoding: utf-8
 """
-A mixin for :class:`~IPython.core.application.Application` classes that
+A mixin for :class:`~yap_ipython.core.application.Application` classes that
 launch InteractiveShell instances, load extensions, etc.
 """
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import glob
@@ -15,20 +15,14 @@ import sys
 from traitlets.config.application import boolean_flag
 from traitlets.config.configurable import Configurable
 from traitlets.config.loader import Config
-from IPython.core.application import SYSTEM_CONFIG_DIRS
-from IPython.core import pylabtools
-from IPython.utils.contexts import preserve_keys
-from IPython.utils.path import filefind
+from yap_ipython.core.application import SYSTEM_CONFIG_DIRS, ENV_CONFIG_DIRS
+from yap_ipython.core import pylabtools
+from yap_ipython.utils.contexts import preserve_keys
+from yap_ipython.utils.path import filefind
 from traitlets import (
     Unicode, Instance, List, Bool, CaselessStrEnum, observe,
 )
-from IPython.terminal import pt_inputhooks
-
-ENV_CONFIG_DIRS = []
-_env_config_dir = os.path.join(sys.prefix, 'etc', 'ipython')
-if _env_config_dir not in SYSTEM_CONFIG_DIRS:
-    # only add ENV_CONFIG if sys.prefix is not already included
-    ENV_CONFIG_DIRS.append(_env_config_dir)
+from yap_ipython.terminal import pt_inputhooks
 
 #-----------------------------------------------------------------------------
 # Aliases and Flags
@@ -42,15 +36,15 @@ backend_keys.insert(0, 'auto')
 shell_flags = {}
 
 addflag = lambda *args: shell_flags.update(boolean_flag(*args))
-addflag('autoindent', 'YAPInteractive.autoindent',
+addflag('autoindent', 'InteractiveShell.autoindent',
         'Turn on autoindenting.', 'Turn off autoindenting.'
 )
-addflag('automagic', 'YAPInteractive.automagic',
+addflag('automagic', 'InteractiveShell.automagic',
         """Turn on the auto calling of magic commands. Type %%magic at the
-        IPython  prompt  for  more information.""",
+        yap_ipython  prompt  for  more information.""",
         'Turn off the auto calling of magic commands.'
 )
-addflag('pdb', 'YAPInteractive.pdb',
+addflag('pdb', 'InteractiveShell.pdb',
     "Enable auto calling the pdb debugger after every exception.",
     "Disable auto calling the pdb debugger after every exception."
 )
@@ -58,8 +52,8 @@ addflag('pprint', 'PlainTextFormatter.pprint',
     "Enable auto pretty printing of results.",
     "Disable auto pretty printing of results."
 )
-addflag('color-info', 'YAPInteractive.color_info',
-    """IPython can display information about objects via a set of functions,
+addflag('color-info', 'InteractiveShell.color_info',
+    """yap_ipython can display information about objects via a set of functions,
     and optionally can use colors for this, syntax highlighting
     source code and various other elements. This is on by default, but can cause
     problems with some pagers. If you see such problems, you can disable the
@@ -67,43 +61,43 @@ addflag('color-info', 'YAPInteractive.color_info',
     "Disable using colors for info related things."
 )
 nosep_config = Config()
-nosep_config.YAPInteractive.separate_in = ''
-nosep_config.YAPInteractive.separate_out = ''
-nosep_config.YAPInteractive.separate_out2 = ''
+nosep_config.InteractiveShell.separate_in = ''
+nosep_config.InteractiveShell.separate_out = ''
+nosep_config.InteractiveShell.separate_out2 = ''
 
 shell_flags['nosep']=(nosep_config, "Eliminate all spacing between prompts.")
 shell_flags['pylab'] = (
-    {'YAPInteractiveApp' : {'pylab' : 'auto'}},
+    {'InteractiveShellApp' : {'pylab' : 'auto'}},
     """Pre-load matplotlib and numpy for interactive use with
     the default matplotlib backend."""
 )
 shell_flags['matplotlib'] = (
-    {'YAPInteractiveApp' : {'matplotlib' : 'auto'}},
+    {'InteractiveShellApp' : {'matplotlib' : 'auto'}},
     """Configure matplotlib for interactive use with
     the default matplotlib backend."""
 )
 
 # it's possible we don't want short aliases for *all* of these:
 shell_aliases = dict(
-    autocall='YAPInteractive.autocall',
-    colors='YAPInteractive.colors',
-    logfile='YAPInteractive.logfile',
-    logappend='YAPInteractive.logappend',
-    c='YAPInteractiveApp.code_to_run',
-    m='YAPInteractiveApp.module_to_run',
-    ext='YAPInteractiveApp.extra_extension',
-    gui='YAPInteractiveApp.gui',
-    pylab='YAPInteractiveApp.pylab',
-    matplotlib='YAPInteractiveApp.matplotlib',
+    autocall='InteractiveShell.autocall',
+    colors='InteractiveShell.colors',
+    logfile='InteractiveShell.logfile',
+    logappend='InteractiveShell.logappend',
+    c='InteractiveShellApp.code_to_run',
+    m='InteractiveShellApp.module_to_run',
+    ext='InteractiveShellApp.extra_extension',
+    gui='InteractiveShellApp.gui',
+    pylab='InteractiveShellApp.pylab',
+    matplotlib='InteractiveShellApp.matplotlib',
 )
-shell_aliases['cache-size'] = 'YAPInteractive.cache_size'
+shell_aliases['cache-size'] = 'InteractiveShell.cache_size'
 
 #-----------------------------------------------------------------------------
 # Main classes and functions
 #-----------------------------------------------------------------------------
 
-class YAPInteractiveApp(Configurable):
-    """A Mixin for applications that start YAPInteractive instances.
+class InteractiveShellApp(Configurable):
+    """A Mixin for applications that start InteractiveShell instances.
 
     Provides configurables for loading extensions and executing files
     as part of configuring a Shell environment.
@@ -118,14 +112,14 @@ class YAPInteractiveApp(Configurable):
       - :meth:`init_code`
     """
     extensions = List(Unicode(),
-        help="A list of dotted module names of IPython extensions to load."
+        help="A list of dotted module names of yap_ipython extensions to load."
     ).tag(config=True)
     extra_extension = Unicode('',
-        help="dotted module name of an IPython extension to load."
+        help="dotted module name of an yap_ipython extension to load."
     ).tag(config=True)
 
     reraise_ipython_extension_failures = Bool(False,
-        help="Reraise exceptions encountered loading IPython extensions?",
+        help="Reraise exceptions encountered loading yap_ipython extensions?",
     ).tag(config=True)
 
     # Extensions that are always loaded (not configurable)
@@ -137,17 +131,17 @@ class YAPInteractiveApp(Configurable):
     ).tag(config=True)
 
     exec_files = List(Unicode(),
-        help="""List of files to run at IPython startup."""
+        help="""List of files to run at yap_ipython startup."""
     ).tag(config=True)
     exec_PYTHONSTARTUP = Bool(True,
         help="""Run the file referenced by the PYTHONSTARTUP environment
-        variable at IPython startup."""
+        variable at yap_ipython startup."""
     ).tag(config=True)
     file_to_run = Unicode('',
         help="""A file to be run""").tag(config=True)
 
     exec_lines = List(Unicode(),
-        help="""lines of code to run at IPython startup."""
+        help="""lines of code to run at yap_ipython startup."""
     ).tag(config=True)
     code_to_run = Unicode('',
         help="Execute the given command string."
@@ -168,13 +162,13 @@ class YAPInteractiveApp(Configurable):
         """
     ).tag(config=True)
     pylab_import_all = Bool(True,
-        help="""If true, IPython will populate the user namespace with numpy, pylab, etc.
+        help="""If true, yap_ipython will populate the user namespace with numpy, pylab, etc.
         and an ``import *`` is done from numpy and pylab, when using pylab mode.
 
         When False, pylab mode should not import any names into the user namespace.
         """
     ).tag(config=True)
-    shell = Instance('yap_ipython.core.interactiveshell.YAPInteractiveABC',
+    shell = Instance('yap_ipython.core.interactiveshell.InteractiveShellABC',
                      allow_none=True)
     # whether interact-loop should start
     interact = Bool(True)
@@ -234,19 +228,19 @@ class YAPInteractiveApp(Configurable):
                       "eventloop=%s", gui)
 
     def init_extensions(self):
-        """Load all IPython extensions in IPythonApp.extensions.
+        """Load all yap_ipython extensions in IPythonApp.extensions.
 
         This uses the :meth:`ExtensionManager.load_extensions` to load all
         the extensions listed in ``self.extensions``.
         """
         try:
-            self.log.debug("Loading IPython extensions...")
+            self.log.debug("Loading yap_ipython extensions...")
             extensions = self.default_extensions + self.extensions
             if self.extra_extension:
                 extensions.append(self.extra_extension)
             for ext in extensions:
                 try:
-                    self.log.info("Loading IPython extension: %s" % ext)
+                    self.log.info("Loading yap_ipython extension: %s" % ext)
                     self.shell.extension_manager.load_extension(ext)
                 except:
                     if self.reraise_ipython_extension_failures:

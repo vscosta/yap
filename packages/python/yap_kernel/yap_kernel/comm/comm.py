@@ -1,6 +1,6 @@
 """Base class for a Comm"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import uuid
@@ -48,7 +48,6 @@ class Comm(LoggingConfigurable):
     _closed = Bool(True)
 
     def __init__(self, target_name='', data=None, metadata=None, buffers=None, **kwargs):
-        # type: (object, object, object, object, object) -> object
         if target_name:
             kwargs['target_name'] = target_name
         super(Comm, self).__init__(**kwargs)

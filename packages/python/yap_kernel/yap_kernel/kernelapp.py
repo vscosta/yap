@@ -1,6 +1,6 @@
 """An Application for launching a kernel"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -17,14 +17,14 @@ import zmq
 from zmq.eventloop import ioloop as zmq_ioloop
 from zmq.eventloop.zmqstream import ZMQStream
 
-from IPython.core.application import (
-    BaseIPythonApplication, base_flags, base_aliases, catch_config_error
+from yap_ipython.core.application import (
+    BaseYAPApplication, base_flags, base_aliases, catch_config_error
 )
-from IPython.core.profiledir import ProfileDir
+from yap_ipython.core.profiledir import ProfileDir
 from yap_ipython.core.shellapp import (
-    YAPInteractiveApp, shell_flags, shell_aliases
+    InteractiveShellApp, shell_flags, shell_aliases
 )
-from IPython.utils import io
+from yap_ipython.utils import io
 from ipython_genutils.path import filefind, ensure_dir_exists
 from traitlets import (
     Any, Instance, Dict, Unicode, Integer, Bool, DottedObjectName, Type, default
@@ -37,7 +37,7 @@ from jupyter_client.connect import ConnectionFileMixin
 # local imports
 from .iostream import IOPubThread
 from .heartbeat import Heartbeat
-from .yapkernel import YAPKernel
+from .ipkernel import YAPKernel
 from .parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
@@ -74,7 +74,7 @@ kernel_flags.update({
         the default matplotlib backend."""),
 })
 
-# inherit flags&aliases for any IPython shell apps
+# inherit flags&aliases for any yap_ipython shell apps
 kernel_aliases.update(shell_aliases)
 kernel_flags.update(shell_flags)
 
@@ -93,22 +93,22 @@ To read more about this, see https://github.com/ipython/ipython/issues/2049
 """
 
 #-----------------------------------------------------------------------------
-# Application class for starting an IPython Kernel
+# Application class for starting an yap_ipython Kernel
 #-----------------------------------------------------------------------------
 
-class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
+class YAPKernelApp(BaseYAPApplication, InteractiveShellApp,
         ConnectionFileMixin):
-    name='YAP Kernel'
+    name='yap-kernel'
     aliases = Dict(kernel_aliases)
     flags = Dict(kernel_flags)
     classes = [YAPKernel, ZMQInteractiveShell, ProfileDir, Session]
     # the kernel class, as an importstring
-    kernel_class = Type('yap_kernel.yapkernel.YAPKernel',
-                        klass='yap_kernel.yapkernel.YAPKernel',
+    kernel_class = Type('yap_kernel.ipkernel.YAPKernel',
+                        klass='yap_kernel.kernelbase.Kernel',
     help="""The Kernel subclass to be used.
 
     This should allow easy re-use of the YAPKernelApp entry point
-    to configure and launch kernels other than IPython's own.
+    to configure and launch kernels other than yap_ipython's own.
     """).tag(config=True)
     kernel = Any()
     poller = Any() # don't restrict this even though current pollers are all Threads
@@ -118,7 +118,7 @@ class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
     subcommands = {
         'install': (
             'yap_kernel.kernelspec.InstallYAPKernelSpecApp',
-            'Install the YAP kernel'
+            'Install the yap_ipython kernel'
         ),
     }
 
@@ -385,7 +385,7 @@ class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
         if not os.environ.get('MPLBACKEND'):
             os.environ['MPLBACKEND'] = 'module://yap_kernel.pylab.backend_inline'
 
-        # Provide a wrapper for :meth:`YAPInteractiveApp.init_gui_pylab`
+        # Provide a wrapper for :meth:`InteractiveShellApp.init_gui_pylab`
         # to ensure that any exception is printed straight to stderr.
         # Normally _showtraceback associates the reply with an execution,
         # which means frontends will never draw it, as this exception
@@ -400,7 +400,7 @@ class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
                        file=sys.stderr)
                 print (shell.InteractiveTB.stb2text(stb), file=sys.stderr)
             shell._showtraceback = print_tb
-            YAPInteractiveApp.init_gui_pylab(self)
+            InteractiveShellApp.init_gui_pylab(self)
         finally:
             shell._showtraceback = _showtraceback
 
@@ -437,7 +437,6 @@ class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
 
     @catch_config_error
     def initialize(self, argv=None):
-        print("**************************************************************")
         super(YAPKernelApp, self).initialize(argv)
         if self.subapp is not None:
             return
@@ -474,15 +473,16 @@ class YAPKernelApp(BaseIPythonApplication, YAPInteractiveApp,
         if self.poller is not None:
             self.poller.start()
         self.kernel.start()
+        self.io_loop = ioloop.IOLoop.current()
         try:
-            ioloop.IOLoop.instance().start()
+            self.io_loop.start()
         except KeyboardInterrupt:
             pass
 
 launch_new_instance = YAPKernelApp.launch_instance
 
 def main():
-    """Run an YAPKernel as an application"""
+    """Run an IPKernel as an application"""
     app = YAPKernelApp.instance()
     app.initialize()
     app.start()

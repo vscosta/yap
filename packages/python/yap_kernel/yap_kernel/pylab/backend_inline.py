@@ -1,6 +1,6 @@
 """A matplotlib backend for publishing figures via display_data"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -9,14 +9,14 @@ import matplotlib
 from matplotlib.backends.backend_agg import new_figure_manager, FigureCanvasAgg # analysis: ignore
 from matplotlib._pylab_helpers import Gcf
 
-from IPython.core.getipython import get_ipython
-from IPython.core.display import display
+from yap_ipython.core.getipython import get_ipython
+from yap_ipython.core.display import display
 
 from .config import InlineBackend
 
 
 def show(close=None, block=None):
-    """Show all figures as SVG/PNG payloads sent to the IPython clients.
+    """Show all figures as SVG/PNG payloads sent to the yap_ipython clients.
 
     Parameters
     ----------
@@ -99,9 +99,9 @@ def flush_figures():
     This is meant to be called automatically and will call show() if, during
     prior code execution, there had been any calls to draw_if_interactive.
 
-    This function is meant to be used as a post_execute callback in IPython,
+    This function is meant to be used as a post_execute callback in yap_ipython,
     so user-caused errors are handled with showtraceback() instead of being
-    allowed to raise.  If this function is not called from within IPython,
+    allowed to raise.  If this function is not called from within yap_ipython,
     then these exceptions will raise.
     """
     if not show._draw_called:
@@ -112,7 +112,7 @@ def flush_figures():
         try:
             return show(True)
         except Exception as e:
-            # safely show traceback if in IPython, else raise
+            # safely show traceback if in yap_ipython, else raise
             ip = get_ipython()
             if ip is None:
                 raise e
@@ -126,7 +126,7 @@ def flush_figures():
             try:
                 display(fig)
             except Exception as e:
-                # safely show traceback if in IPython, else raise
+                # safely show traceback if in yap_ipython, else raise
                 ip = get_ipython()
                 if ip is None:
                     raise e
@@ -145,17 +145,19 @@ def flush_figures():
 FigureCanvas = FigureCanvasAgg
 
 def _enable_matplotlib_integration():
-    """Enable extra IPython matplotlib integration when we are loaded as the matplotlib backend."""
+    """Enable extra yap_ipython matplotlib integration when we are loaded as the matplotlib backend."""
     from matplotlib import get_backend
     ip = get_ipython()
     backend = get_backend()
     if ip and backend == 'module://%s' % __name__:
-        from IPython.core.pylabtools import configure_inline_support
+        from yap_ipython.core.pylabtools import configure_inline_support, activate_matplotlib
         try:
+            activate_matplotlib(backend)
             configure_inline_support(ip, backend)
-        except ImportError:
+        except (ImportError, AttributeError):
             # bugs may cause a circular import on Python 2
             def configure_once(*args):
+                activate_matplotlib(backend)
                 configure_inline_support(ip, backend)
                 ip.events.unregister('post_run_cell', configure_once)
             ip.events.register('post_run_cell', configure_once)

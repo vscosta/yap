@@ -33,7 +33,6 @@
 
 #include <encoding.h>
 
-
 typedef struct {
   dev_t st_dev;                     /* ID of device containing file */
   mode_t st_mode;                   /* Mode of file (see below) */
@@ -50,13 +49,12 @@ typedef struct {
 #endif
 } vfs_stat;
 
-
 typedef enum vfs_flags {
-  VFS_CAN_WRITE = 0x1,     /// we can write to files in this space
-  VFS_CAN_EXEC = 0x2,      /// we can execute files in this space
-  VFS_CAN_SEEK = 0x4,      /// we can seek within files in this space
-  VFS_HAS_PREFIX = 0x8,    /// has a prefix that identifies a file in this space
-  VFS_HAS_SUFFIX = 0x10,   /// has a suffix that describes the file.
+  VFS_CAN_WRITE = 0x1,    /// we can write to files in this space
+  VFS_CAN_EXEC = 0x2,     /// we can execute files in this space
+  VFS_CAN_SEEK = 0x4,     /// we can seek within files in this space
+  VFS_HAS_PREFIX = 0x8,   /// has a prefix that identifies a file in this space
+  VFS_HAS_SUFFIX = 0x10,  /// has a suffix that describes the file.
   VFS_HAS_FUNCTION = 0x20 /// has a suffix that describes the file.
 } vfs_flags_t;
 
@@ -80,27 +78,32 @@ typedef struct vfs {
   const char *suffix;
   bool (*chDir)(struct vfs *me, const char *s);
   /** operations */
-  void *(*open)(struct vfs *,int sno, const char *fname, const char *io_mode); /// open an object
+  void *(*open)(struct vfs *, int sno, const char *fname,
+                const char *io_mode); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
-  bool (*close)(int sno);   /// close the object
-  int (*get_char)(int sno); /// get an octet to the stream
+  bool (*close)(int sno);           /// close the object
+  int (*get_char)(int sno);         /// get an octet from the stream
+  int (*peek_char)(int sno);        /// unget an octet from the stream
   int (*put_char)(int sno, int ch); /// output an octet to the stream
-  void (*flush)(int sno); /// flush a stream
+  void (*flush)(int sno);           /// flush a stream
   int64_t (*seek)(int sno, int64_t offset,
                   int whence); /// jump around the stream
-  void *(*opendir)(struct vfs *,const char *s); /// open a directory object, if one exists
-  const char *(*nextdir)(void *d); /// walk to the next entry in a directory object
+  void *(*opendir)(struct vfs *,
+                   const char *s); /// open a directory object, if one exists
+  const char *(*nextdir)(
+      void *d); /// walk to the next entry in a directory object
   bool (*closedir)(void *d);
   ; /// close access a directory object
-  bool (*stat)(struct vfs *,const char *s,
+  bool (*stat)(struct vfs *, const char *s,
                vfs_stat *); /// obtain size, age, permissions of a file.
-  bool (*isdir)(struct vfs *,const char *s); /// verify whether is directory.
+  bool (*isdir)(struct vfs *, const char *s);  /// verify whether is directory.
   bool (*exists)(struct vfs *, const char *s); /// verify whether a file exists.
-  bool (*chdir)(struct vfs *,const char *s);      /// set working directory (may be virtual).
-  encoding_t enc;                    /// default file encoded.
+  bool (*chdir)(struct vfs *,
+                const char *s); /// set working directory (may be virtual).
+  encoding_t enc;               /// default file encoded.
   YAP_Term (*parsers)(int sno); // a set of parsers that can read the
-                                     // stream and generate a YAP_Term
-  int (*writers)(int ch, int sno );
+                                // stream and generate a YAP_Term
+  int (*writers)(int ch, int sno);
   /// convert a YAP_Term into this space
   const char *virtual_cwd;
   /** VFS dep
@@ -113,7 +116,8 @@ extern VFS_t *GLOBAL_VFS;
 
 extern void init_android_stream(void);
 
-extern void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp);
+extern void Yap_InitStdStream(int sno, unsigned int flags, FILE *file,
+                              VFS_t *vfsp);
 
 static inline VFS_t *vfs_owner(const char *fname) {
   VFS_t *me = GLOBAL_VFS;
@@ -124,12 +128,13 @@ static inline VFS_t *vfs_owner(const char *fname) {
     bool p = true;
     if ((me->vflags & VFS_HAS_PREFIX) && p) {
       const char *r = fname, *s = me->prefix;
-      while (*s && p) p = *s++ == *r++;
-      if (p && r > fname+1)
-      return me;
+      while (*s && p)
+        p = *s++ == *r++;
+      if (p && r > fname + 1)
+        return me;
     }
-    if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) && (d = (sz0 - sz)) >= 0 &&
-        strcmp(fname + d, me->suffix) == 0) {
+    if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) &&
+        (d = (sz0 - sz)) >= 0 && strcmp(fname + d, me->suffix) == 0) {
       return me;
     }
     me = me->next;

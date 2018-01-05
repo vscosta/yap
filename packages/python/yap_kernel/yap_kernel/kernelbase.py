@@ -1,6 +1,6 @@
 """Base class for a kernel that talks to frontends over 0MQ."""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from __future__ import print_function
@@ -25,7 +25,7 @@ from tornado import ioloop
 from zmq.eventloop.zmqstream import ZMQStream
 
 from traitlets.config.configurable import SingletonConfigurable
-from IPython.core.error import StdinNotImplementedError
+from yap_ipython.core.error import StdinNotImplementedError
 from ipython_genutils import py3compat
 from ipython_genutils.py3compat import unicode_type, string_types
 from yap_kernel.jsonutil import json_clean
@@ -49,11 +49,11 @@ class Kernel(SingletonConfigurable):
     @observe('eventloop')
     def _update_eventloop(self, change):
         """schedule call to eventloop from IOLoop"""
-        loop = ioloop.IOLoop.instance()
+        loop = ioloop.IOLoop.current()
         loop.add_callback(self.enter_eventloop)
 
     session = Instance(Session, allow_none=True)
-    profile_dir = Instance('IPython.core.profiledir.ProfileDir', allow_none=True)
+    profile_dir = Instance('yap_ipython.core.profiledir.ProfileDir', allow_none=True)
     shell_streams = List()
     control_stream = Instance(ZMQStream, allow_none=True)
     iopub_socket = Any()
@@ -107,7 +107,7 @@ class Kernel(SingletonConfigurable):
     # necessary reply message so it can be sent by our registered atexit
     # handler.  This ensures that the reply is only sent to clients truly at
     # the end of our shutdown process (which happens after the underlying
-    # IPython shell's own shutdown).
+    # yap_ipython shell's own shutdown).
     _shutdown_message = None
 
     # This is a dict of port number that the kernel is listening on. It is set
@@ -117,7 +117,7 @@ class Kernel(SingletonConfigurable):
     # set of aborted msg_ids
     aborted = Set()
 
-    # Track execution count here. For IPython, we override this to use the
+    # Track execution count here. For yap_ipython, we override this to use the
     # execution count we store in the shell.
     execution_count = 0
 
@@ -134,9 +134,7 @@ class Kernel(SingletonConfigurable):
     control_msg_types = msg_types + ['clear_request', 'abort_request']
 
     def __init__(self, **kwargs):
-        # type: (object) -> object
         super(Kernel, self).__init__(**kwargs)
-
         # Build dict of handlers for message types
         self.shell_handlers = {}
         for msg_type in self.msg_types:
@@ -145,7 +143,6 @@ class Kernel(SingletonConfigurable):
         self.control_handlers = {}
         for msg_type in self.control_msg_types:
             self.control_handlers[msg_type] = getattr(self, msg_type)
-
 
     def dispatch_control(self, msg):
         """dispatch control requests"""
@@ -214,8 +211,6 @@ class Kernel(SingletonConfigurable):
         self.set_parent(idents, msg)
         self._publish_status(u'busy')
 
-        header = msg['header']
-        msg_id = header['msg_id']
         msg_type = msg['header']['msg_type']
 
         # Print some info about this message and leave a '--->' marker, so it's
@@ -277,6 +272,7 @@ class Kernel(SingletonConfigurable):
 
     def start(self):
         """register dispatchers for streams"""
+        self.io_loop = ioloop.IOLoop.current()
         if self.control_stream:
             self.control_stream.on_recv(self.dispatch_control, copy=False)
 
@@ -432,12 +428,11 @@ class Kernel(SingletonConfigurable):
         content = parent['content']
         code = content['code']
         cursor_pos = content['cursor_pos']
-
+        
         matches = self.do_complete(code, cursor_pos)
         matches = json_clean(matches)
         completion_msg = self.session.send(stream, 'complete_reply',
                                            matches, parent, ident)
-        self.log.debug("%s", completion_msg)
 
     def do_complete(self, code, cursor_pos):
         """Override in subclasses to find completions.
@@ -512,7 +507,7 @@ class Kernel(SingletonConfigurable):
         content = parent['content']
         target_name = content.get('target_name', None)
 
-        # Should this be moved to yapkernel?
+        # Should this be moved to ipkernel?
         if hasattr(self, 'comm_manager'):
             comms = {
                 k: dict(target_name=v.target_name)
@@ -536,7 +531,7 @@ class Kernel(SingletonConfigurable):
 
         self._at_shutdown()
         # call sys.exit after a short delay
-        loop = ioloop.IOLoop.instance()
+        loop = ioloop.IOLoop.current()
         loop.add_timeout(time.time()+0.1, loop.stop)
 
     def do_shutdown(self, restart):
@@ -598,7 +593,7 @@ class Kernel(SingletonConfigurable):
 
     def abort_request(self, stream, ident, parent):
         """abort a specific msg by id"""
-        self.log.warn("abort_request is deprecated in kernel_base. It os only part of IPython parallel")
+        self.log.warn("abort_request is deprecated in kernel_base. It os only part of yap_ipython parallel")
         msg_ids = parent['content'].get('msg_ids', None)
         if isinstance(msg_ids, string_types):
             msg_ids = [msg_ids]
@@ -614,7 +609,7 @@ class Kernel(SingletonConfigurable):
 
     def clear_request(self, stream, idents, parent):
         """Clear our namespace."""
-        self.log.warn("clear_request is deprecated in kernel_base. It os only part of IPython parallel")
+        self.log.warn("clear_request is deprecated in kernel_base. It os only part of yap_ipython parallel")
         content = self.do_clear()
         self.session.send(stream, 'clear_reply', ident=idents, parent=parent,
                 content = content)

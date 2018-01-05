@@ -38,7 +38,7 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_IO_H
 /* Windows */
 #include <io.h>
-#endif 
+#endif
 #if HAVE_SOCKET
 #include <winsock2.h>
 #endif
@@ -84,7 +84,7 @@ Yap_socketStream( StreamDesc *s )
     }
 }
 
-/* 
+/*
    sockets cannot use standard FILE *, we have to go through fds, and in the
    case of VC++, we have to use the receive routines...
 */
@@ -108,7 +108,7 @@ SocketGetc(int sno)
     ch = c;
   } else {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, 
+      Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
 	    "( socket_getc: %s)", strerror(errno));
 #else
       Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
@@ -211,7 +211,7 @@ SocketPutc (int sno, int ch)
 	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket: %s", strerror(errno));
 #else
 	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket");
-#endif	
+#endif
       }
     }
   }
@@ -256,6 +256,8 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->charcount = 0;
   st->linecount = 1;
   st->linepos = 0;
+  st->vfs = NULL;
+  st->recbs = NULL;
   st->stream_putc = SocketPutc;
   st->stream_getc = SocketGetc;
   Yap_DefaultStreamOps( st );

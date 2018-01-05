@@ -1,4 +1,4 @@
-"""Simple function for embedding an IPython kernel
+"""Simple function for embedding an yap_ipython kernel
 """
 #-----------------------------------------------------------------------------
 # Imports
@@ -6,7 +6,7 @@
 
 import sys
 
-from IPython.utils.frame import extract_module_locals
+from yap_ipython.utils.frame import extract_module_locals
 
 from .kernelapp import YAPKernelApp
 
@@ -15,14 +15,14 @@ from .kernelapp import YAPKernelApp
 #-----------------------------------------------------------------------------
 
 def embed_kernel(module=None, local_ns=None, **kwargs):
-    """Embed and start an IPython kernel in a given scope.
+    """Embed and start an yap_ipython kernel in a given scope.
 
     Parameters
     ----------
     module : ModuleType, optional
-        The module to load into IPython globals (default: caller)
+        The module to load into yap_ipython globals (default: caller)
     local_ns : dict, optional
-        The namespace to load into IPython user namespace (default: caller)
+        The namespace to load into yap_ipython user namespace (default: caller)
 
     kwargs : various, optional
         Further keyword args are relayed to the YAPKernelApp constructor,

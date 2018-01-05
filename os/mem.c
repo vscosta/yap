@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		mem.c *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		mem.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -24,10 +24,10 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "sysbits.h"
-#include "YapStreams.h"
 
 #if !HAVE_FMEMOPEN || !defined(HAVE_FMEMOPEN)
 
+#include "YapStreams.h"
 
 #include "format.h"
 
@@ -48,6 +48,8 @@ int format_synch(int sno, int sno0, format_info *fg) {
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos = 0;
   GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].recbs = NULL;
+  GLOBAL_Stream[sno].vfs = NULL;
   fg->lstart = 0;
   fg->phys_start = 0;
   fg->gapi = 0;
@@ -55,7 +57,7 @@ int format_synch(int sno, int sno0, format_info *fg) {
 }
 
 // uses directly the buffer in the memory stream.
- bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
+bool fill_pads(int sno, int sno0, int total, format_info *fg USES_REGS) {
   int nfillers, fill_space, lfill_space, nchars;
   int (*f_putc)(int, int);
   const char *buf;
@@ -103,6 +105,9 @@ int format_synch(int sno, int sno0, format_info *fg) {
   GLOBAL_Stream[sno].linecount = 1;
   GLOBAL_Stream[sno].linepos += nchars;
   GLOBAL_Stream[sno].charcount = 0;
+  GLOBAL_Stream[sno].recbs = NULL;
+  GLOBAL_Stream[sno].vfs = NULL;
+  GLOBAL_Stream[sno].file = NULL;
   fg->phys_start = 0;
   fg->lstart = GLOBAL_Stream[sno].linepos;
   fg->gapi = 0;
@@ -180,7 +185,8 @@ static int MemPutc(int sno, int ch) {
   return ((int)ch);
 }
 
-bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars USES_REGS) {
+bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
+                           size_t nchars USES_REGS) {
   FILE *f;
   stream_flags_t flags;
 
@@ -189,14 +195,14 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf, size_t nchars USES_R
   st->vfs = NULL;
   Yap_initStream(st - GLOBAL_Stream, f, NULL, TermNil, LOCAL_encoding, flags,
                  AtomRead, NULL);
-// like any file stream.
+  // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
   st->u.mem_string.pos = 0;
   st->u.mem_string.buf = (char *)buf;
   st->u.mem_string.max_size = nchars;
   st->u.mem_string.error_handler = NULL;
-// st->u.mem_string.src = src; check new assets coode
+  // st->u.mem_string.src = src; check new assets coode
   Yap_DefaultStreamOps(st);
   return true;
 }
@@ -223,7 +229,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
   flags = Input_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
   Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead, NULL);
-// like any file stream.
+  // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
   st->u.mem_string.pos = 0;
@@ -272,7 +278,9 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->charcount = 0;
   st->linecount = 1;
   st->encoding = enc;
+  st->recbs = NULL;
   st->vfs = NULL;
+  st->file = NULL;
   Yap_DefaultStreamOps(st);
   st->nbuf = st->u.mem_string.buf = malloc(PLGETC_BUF_SIZE);
   st->u.mem_string.src = MEM_BUF_MALLOC;
@@ -357,7 +365,8 @@ restart:
 void Yap_MemOps(StreamDesc *st) {
   st->stream_putc = MemPutc;
 
-  st->stream_getc = MemGetc;}
+  st->stream_getc = MemGetc;
+}
 
 bool Yap_CloseMemoryStream(int sno) {
   if ((GLOBAL_Stream[sno].status & Output_Stream_f)) {

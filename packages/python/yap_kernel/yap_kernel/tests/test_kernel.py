@@ -1,7 +1,7 @@
 # coding: utf-8
-"""test the IPython Kernel"""
+"""test the yap_ipython Kernel"""
 
-# Copyright (c) IPython Development Team.
+# Copyright (c) yap_ipython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import io
@@ -11,9 +11,9 @@ import time
 
 import nose.tools as nt
 
-from IPython.testing import decorators as dec, tools as tt
+from yap_ipython.testing import decorators as dec, tools as tt
 from ipython_genutils import py3compat
-from IPython.paths import locate_profile
+from yap_ipython.paths import locate_profile
 from ipython_genutils.tempdir import TemporaryDirectory
 
 from .utils import (
@@ -26,13 +26,13 @@ def _check_master(kc, expected=True, stream="stdout"):
     flush_channels(kc)
     msg_id, content = execute(kc=kc, code="print (sys.%s._is_master_process())" % stream)
     stdout, stderr = assemble_output(kc.iopub_channel)
-    nt.assert_equal(stdout.strip(), repr(expected))
+    assert stdout.strip() == repr(expected)
 
 
 def _check_status(content):
     """If status=error, show the traceback"""
     if content['status'] == 'error':
-        nt.assert_true(False, ''.join(['\n'] + content['traceback']))
+        assert False, ''.join(['\n'] + content['traceback'])
 
 
 # printing tests
@@ -43,8 +43,8 @@ def test_simple_print():
         iopub = kc.iopub_channel
         msg_id, content = execute(kc=kc, code="print ('hi')")
         stdout, stderr = assemble_output(iopub)
-        nt.assert_equal(stdout, 'hi\n')
-        nt.assert_equal(stderr, '')
+        assert stdout == 'hi\n'
+        assert stderr == ''
         _check_master(kc, expected=True)
 
 
@@ -53,7 +53,7 @@ def test_sys_path():
     with kernel() as kc:
         msg_id, content = execute(kc=kc, code="import sys; print (repr(sys.path[0]))")
         stdout, stderr = assemble_output(kc.iopub_channel)
-        nt.assert_equal(stdout, "''\n")
+        assert stdout == "''\n"
 
 def test_sys_path_profile_dir():
     """test that sys.path doesn't get messed up when `--profile-dir` is specified"""
@@ -61,7 +61,7 @@ def test_sys_path_profile_dir():
     with new_kernel(['--profile-dir', locate_profile('default')]) as kc:
         msg_id, content = execute(kc=kc, code="import sys; print (repr(sys.path[0]))")
         stdout, stderr = assemble_output(kc.iopub_channel)
-        nt.assert_equal(stdout, "''\n")
+        assert stdout == "''\n"
 
 @dec.skipif(sys.platform == 'win32', "subprocess prints fail on Windows")
 def test_subprocess_print():
@@ -87,7 +87,7 @@ def test_subprocess_print():
         nt.assert_equal(stdout.count("hello"), np, stdout)
         for n in range(np):
             nt.assert_equal(stdout.count(str(n)), 1, stdout)
-        nt.assert_equal(stderr, '')
+        assert stderr == ''
         _check_master(kc, expected=True)
         _check_master(kc, expected=True, stream="stderr")
 
@@ -107,8 +107,8 @@ def test_subprocess_noprint():
 
         msg_id, content = execute(kc=kc, code=code)
         stdout, stderr = assemble_output(iopub)
-        nt.assert_equal(stdout, '')
-        nt.assert_equal(stderr, '')
+        assert stdout == ''
+        assert stderr == ''
 
         _check_master(kc, expected=True)
         _check_master(kc, expected=True, stream="stderr")
@@ -129,8 +129,8 @@ def test_subprocess_error():
 
         msg_id, content = execute(kc=kc, code=code)
         stdout, stderr = assemble_output(iopub)
-        nt.assert_equal(stdout, '')
-        nt.assert_true("ValueError" in stderr, stderr)
+        assert stdout == ''
+        assert "ValueError" in stderr
 
         _check_master(kc, expected=True)
         _check_master(kc, expected=True, stream="stderr")
@@ -147,15 +147,15 @@ def test_raw_input():
         code = 'print({input_f}("{theprompt}"))'.format(**locals())
         msg_id = kc.execute(code, allow_stdin=True)
         msg = kc.get_stdin_msg(block=True, timeout=TIMEOUT)
-        nt.assert_equal(msg['header']['msg_type'], u'input_request')
+        assert msg['header']['msg_type'] == u'input_request'
         content = msg['content']
-        nt.assert_equal(content['prompt'], theprompt)
+        assert content['prompt'] == theprompt
         text = "some text"
         kc.input(text)
         reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
-        nt.assert_equal(reply['content']['status'], 'ok')
+        assert reply['content']['status'] == 'ok'
         stdout, stderr = assemble_output(iopub)
-        nt.assert_equal(stdout, text + "\n")
+        assert stdout == text + "\n"
 
 
 @dec.skipif(py3compat.PY3)
@@ -169,14 +169,14 @@ def test_eval_input():
         code = 'print(input("{theprompt}"))'.format(**locals())
         msg_id = kc.execute(code, allow_stdin=True)
         msg = kc.get_stdin_msg(block=True, timeout=TIMEOUT)
-        nt.assert_equal(msg['header']['msg_type'], u'input_request')
+        assert msg['header']['msg_type'] == u'input_request'
         content = msg['content']
-        nt.assert_equal(content['prompt'], theprompt)
+        assert content['prompt'] == theprompt
         kc.input("1+1")
         reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
-        nt.assert_equal(reply['content']['status'], 'ok')
+        assert reply['content']['status'] == 'ok'
         stdout, stderr = assemble_output(iopub)
-        nt.assert_equal(stdout, "2\n")
+        assert stdout == "2\n"
 
 
 def test_save_history():
@@ -189,11 +189,11 @@ def test_save_history():
         execute(u'b=u"abcþ"', kc=kc)
         wait_for_idle(kc)
         _, reply = execute("%hist -f " + file, kc=kc)
-        nt.assert_equal(reply['status'], 'ok')
+        assert reply['status'] == 'ok'
         with io.open(file, encoding='utf-8') as f:
             content = f.read()
-        nt.assert_in(u'a=1', content)
-        nt.assert_in(u'b=u"abcþ"', content)
+        assert u'a=1' in content
+        assert u'b=u"abcþ"' in content
 
 
 @dec.skip_without('faulthandler')
@@ -224,7 +224,7 @@ def test_is_complete():
         reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
         assert reply['content']['status'] == 'complete'
 
-        # SyntaxError should mean it's complete
+        # SyntaxError
         kc.is_complete('raise = 2')
         reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
         assert reply['content']['status'] == 'invalid'
@@ -234,22 +234,27 @@ def test_is_complete():
         assert reply['content']['status'] == 'incomplete'
         assert reply['content']['indent'] == ''
 
+        # Cell magic ends on two blank lines for console UIs
+        kc.is_complete('%%timeit\na\n\n')
+        reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
+        assert reply['content']['status'] == 'complete'
+
 
 def test_complete():
     with kernel() as kc:
         execute(u'a = 1', kc=kc)
         wait_for_idle(kc)
-        cell = 'import IPython\nb = a.'
+        cell = 'import yap_ipython\nb = a.'
         kc.complete(cell)
         reply = kc.get_shell_msg(block=True, timeout=TIMEOUT)
         c = reply['content']
-        nt.assert_equal(c['status'], 'ok')
-        nt.assert_equal(c['cursor_start'], cell.find('a.'))
-        nt.assert_equal(c['cursor_end'], cell.find('a.') + 2)
+        assert c['status'] == 'ok'
+        assert c['cursor_start'] == cell.find('a.')
+        assert c['cursor_end'] == cell.find('a.') + 2
         matches = c['matches']
         nt.assert_greater(len(matches), 0)
         for match in matches:
-            nt.assert_equal(match[:2], 'a.')
+            assert match[:2] == 'a.'
 
 
 @dec.skip_without('matplotlib')
@@ -265,7 +270,7 @@ def test_matplotlib_inline_on_import():
         _check_status(reply)
         backend_bundle = reply['user_expressions']['backend']
         _check_status(backend_bundle)
-        nt.assert_in('backend_inline', backend_bundle['data']['text/plain'])
+        assert 'backend_inline' in backend_bundle['data']['text/plain']
 
 
 def test_shutdown():
@@ -280,4 +285,4 @@ def test_shutdown():
                 time.sleep(.1)
             else:
                 break
-        nt.assert_false(km.is_alive())
+        assert not km.is_alive()

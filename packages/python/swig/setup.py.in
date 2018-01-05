@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+    #!/usr/bin/env python
 # coding: utf-8
 
 # Copyright (c) IPython Development Team.
@@ -64,7 +64,7 @@ if platform.system() == 'Windows':
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..']
+    my_extra_link_args = ['-L','..','-Wl,-rpath','-Wl,${CMAKE_INSTALL_FULL_LIBDIR}']
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':

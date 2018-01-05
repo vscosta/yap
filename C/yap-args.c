@@ -330,12 +330,10 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
         int j = 0;
         while ((p = names[j++])) {
           char *io = o + s;
-          printf("%s -> %s\n", inp, o);
           if ((no = location(iap, p, io)) && io[0] != '\0' && Yap_Exists(o))
             return pop_output_text_stack(lvl, realpath(o, full));
         }
       } else {
-        printf("-> %s\n", o);
         return pop_output_text_stack(lvl, o);
       }
     }

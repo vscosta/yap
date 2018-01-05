@@ -1,4 +1,3 @@
-
     set (EXTRAS
             MANIFEST.in
             YAP_KERNEL.md
@@ -60,21 +59,14 @@
             yap_kernel/pylab/config.py
             )
 
-    configure_file(setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+            configure_file(setup.py.in ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
+            configure_file(${CMAKE_SOURCE_DIR}/misc/editors/prolog.js.in ${CMAKE_CURRENT_BINARY_DIR}/prolog.js )
 
-      file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources )
-      file(  COPY ${CMAKE_SOURCE_DIR}/docs/icons/yap_32x32x32.png
-  DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/ )
-  file(  RENAME ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/yap_32x32x32.png  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png         )
-  file(  COPY ${CMAKE_SOURCE_DIR}/docs/icons/yap_64x64x32.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources         )
-  file(  RENAME ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/yap_64x64x32.png  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png         )
-  file(  COPY ${CMAKE_CURRENT_SOURCE_DIR}/kernel.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/         )
-    file( COPY ${CMAKE_SOURCE_DIR}/misc/editors/prolog.js DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/)
 
     set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
     add_custom_target( YAPKernel ALL
-            COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
+        COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS YAP4PY
             )
@@ -83,4 +75,3 @@
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
       install(FILES ${PL_SOURCES} DESTINATION ${libpl} )
-
