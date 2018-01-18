@@ -29,6 +29,9 @@
  * interface.
  *
  */
+
+extern "C" {
+
 #include <stdlib.h>
 
 #include <string>
@@ -36,8 +39,6 @@
 // Bad export from Python
 
 #include <config.h>
-
-extern "C" {
 
 #include <stddef.h>
 

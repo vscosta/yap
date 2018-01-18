@@ -140,7 +140,7 @@ rwlock_t	PredHashRWLock		void
 
 /* Well-Known Predicates */
 struct pred_entry *CreepCode		MkPred AtomCreep 1 PROLOG_MODULE
-struct pred_entry *UndefCode		MkPred AtomUndefp0 2 PROLOG_MODULE
+struct pred_entry *UndefCode		MkPred AtomUndefp 2 PROLOG_MODULE
 struct pred_entry *SpyCode			MkPred AtomSpy 1 PROLOG_MODULE
 struct pred_entry *PredFail		    MkPred AtomFail 0 PROLOG_MODULE
 struct pred_entry *PredTrue		    MkPred AtomTrue 0 PROLOG_MODULE
@@ -157,6 +157,7 @@ struct pred_entry *PredIs			MkPred FunctorIs PROLOG_MODULE
 struct pred_entry *PredLogUpdClause	MkPred FunctorDoLogUpdClause PROLOG_MODULE
 struct pred_entry *PredLogUpdClauseErase MkPred FunctorDoLogUpdClauseErase PROLOG_MODULE
 struct pred_entry *PredLogUpdClause0	MkPred FunctorDoLogUpdClause PROLOG_MODULE
+struct pred_entry *PredCall		MkPred FunctorCall PROLOG_MODULE
 struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
 struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
 struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE

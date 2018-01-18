@@ -1216,6 +1216,8 @@ static void wrputref(CODEADDR ref, int Quote_illegal,
     struct rewind_term rwt;
     yhandle_t sls = Yap_CurrentSlot();
 
+    if (t==0)
+      return;
     if (!mywrite) {
       CACHE_REGS
 	wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;

@@ -164,6 +164,11 @@ static inline CELL *ArenaLimit(Term arena) {
 }
 
 /* pointer to top of an arena */
+CELL *Yap_ArenaLimit(Term arena) {
+  return ArenaLimit(arena);
+}
+
+/* pointer to top of an arena */
 static inline CELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
 
 static inline UInt ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }

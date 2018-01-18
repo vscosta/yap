@@ -210,7 +210,7 @@ extern bool Yap_Execute(Term t USES_REGS);
 /* exo.c */
 extern void Yap_InitExoPreds(void);
 extern void Yap_udi_Interval_init(void);
-extern bool Yap_Reset(yap_reset_t mode);
+extern bool Yap_Reset(yap_reset_t mode, bool hard);
 
 /* foreign.c */
 extern char *Yap_FindExecutable(void);
@@ -237,8 +237,9 @@ extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
-extern Int Yap_DeleteGlobal(Atom);
+extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(Int, Int, int);
+extern CELL *Yap_ArenaLimit(Term arena);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
@@ -282,7 +283,7 @@ extern void Yap_KillStacks(int);
 #else
 extern void Yap_KillStacks(int);
 #endif
-extern void Yap_InitYaamRegs(int);
+extern void Yap_InitYaamRegs(int, bool full_reset);
 extern void Yap_ReInitWTime(void);
 extern int Yap_OpDec(int, char *, Atom, Term);
 extern void Yap_CloseScratchPad(void);

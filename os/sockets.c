@@ -257,7 +257,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
   st->linecount = 1;
   st->linepos = 0;
   st->vfs = NULL;
-  st->recbs = NULL;
+  st->buf.on = false;
   st->stream_putc = SocketPutc;
   st->stream_getc = SocketGetc;
   Yap_DefaultStreamOps( st );

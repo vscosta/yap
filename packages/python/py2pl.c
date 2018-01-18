@@ -57,7 +57,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
   if (pVal == Py_None) {
     // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
     // >>***\n",stderr);
-    rc = PL_unify_atom(t, ATOM_none);
+    rc = true;
     // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
     // >>***\n",stderr);
   } else if (PyBool_Check(pVal)) {
@@ -80,26 +80,23 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       rc = rc && PL_unify(t, to);
     }
   } else if (PyUnicode_Check(pVal)) {
-    atom_t tmp_atom;
-
 #if PY_MAJOR_VERSION < 3
     size_t sz = PyUnicode_GetSize(pVal) + 1;
-    wchar_t *ptr = malloc(sizeof(wchar_t) * sz);
-    sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, ptr, sz - 1);
-    tmp_atom = PL_new_atom_wchars(sz, ptr);
+    wchar_t *s = malloc(sizeof(wchar_t) * sz);
+    sz = PyUnicode_AsWideChar((PyUnicodeObject *)pVal, a, sz - 1);
     free(ptr);
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
-    tmp_atom = PL_new_atom(s);
 #endif
-    rc = rc && PL_unify_atom(t, tmp_atom);
-  } else if (PyByteArray_Check(pVal)) {
-    atom_t tmp_atom = PL_new_atom(PyByteArray_AsString(pVal));
-    rc = rc && PL_unify_atom(t, tmp_atom);
-#if PY_MAJOR_VERSION < 3
-  } else if (PyString_Check(pVal)) {
-    atom_t tmp_atom = PL_new_atom(PyString_AsString(pVal));
-    rc = rc && PL_unify_atom(t, tmp_atom);
+//    if (PyDict_GetItemString(py_Atoms, s))
+//      rc = rc && PL_unify_atom_chars(t, s);
+//    else
+      rc = rc && PL_unify_atom_chars(t, s);
+    } else if (PyByteArray_Check(pVal)) {
+      rc = rc && PL_unify_string_chars(t, PyByteArray_AsString(pVal));
+  #if PY_MAJOR_VERSION < 3
+    } else if (PyString_Check(pVal)) {
+    rc = rc && PL_unify_string_chars(t, PyString_AsString(pVal));
 #endif
   } else if (PyTuple_Check(pVal)) {
     Py_ssize_t i, sz = PyTuple_Size(pVal);

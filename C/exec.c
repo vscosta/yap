@@ -1637,6 +1637,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
+
       HB = B->cp_h;
     YENV = ENV;
     // should we catch the exception or pass it through?
@@ -1744,7 +1745,13 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     Yap_Error(INSTANTIATION_ERROR, t, "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
-  } else if (IsAtomTerm(t)) {
+  } if (IsPairTerm(t)) {
+        Term ts[2];
+        ts[0] = t;
+        ts[1] = (CurrentModule == 0? TermProlog: CurrentModule);
+    t = Yap_MkApplTerm(FunctorCsult,2,ts);
+  }
+  if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pt = NULL;
     pe = Yap_GetPredPropByAtom(a, tmod);
@@ -1951,20 +1958,28 @@ static Int cut_up_to_next_disjunction(USES_REGS1) {
   return TRUE;
 }
 
-bool Yap_Reset(yap_reset_t mode) {
+/** 
+ * Reset the Prolog engine . If _Hard_ resèt the global stack_el. If
+ * p_no_use_'soft_float keei
+ * 
+ * @param mode 
+ * @param hard 
+ * 
+ * @return 
+ */
+bool Yap_Reset(yap_reset_t mode, bool hard) {
   CACHE_REGS
   int res = TRUE;
 
   Yap_ResetException(worker_id);
   /* first, backtrack to the root */
-  while (B->cp_b) {
+  while (B) {
+    P = FAILCODE;
+    Yap_exec_absmi(true, mode);
     B = B->cp_b;
   }
-  // B shoul lead to CP with _ystop0,
-  P = FAILCODE;
-  res = Yap_exec_absmi(true, mode);
   /* reinitialize the engine */
-  //  Yap_InitYaamRegs( worker_id );
+  Yap_InitYaamRegs(worker_id, false);
   GLOBAL_Initialised = true;
   ENV = LCL0;
   ASP = (CELL *)B;
@@ -2069,7 +2084,7 @@ static Int jump_env(USES_REGS1) {
     return TRUE;
   }
 
-  void Yap_InitYaamRegs(int myworker_id) {
+  void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     Term h0var;
     //  getchar();
 #if PUSH_REGS
@@ -2090,8 +2105,8 @@ static Int jump_env(USES_REGS1) {
       Yap_ResetException(worker_id);
     Yap_PutValue(AtomBreak, MkIntTerm(0));
     TR = (tr_fr_ptr)REMOTE_TrailBase(myworker_id);
-    HR = H0 = ((CELL *)REMOTE_GlobalBase(myworker_id)) +
-      1; // +1: hack to ensure the gc does not try to mark mistakenly
+      HR = H0 = ((CELL *) REMOTE_GlobalBase(myworker_id)) +
+                1; // +1: hack to ensure the gc does not try to mark mistakenly
     LCL0 = ASP = (CELL *)REMOTE_LocalBase(myworker_id);
     CurrentTrailTop = (tr_fr_ptr)(REMOTE_TrailTop(myworker_id) - MinTrailGap);
     /* notice that an initial choice-point and environment
@@ -2103,12 +2118,22 @@ static Int jump_env(USES_REGS1) {
     DEPTH = RESET_DEPTH();
 #endif
     STATIC_PREDICATES_MARKED = FALSE;
-    if (REMOTE_GlobalArena(myworker_id) == 0L ||
-	REMOTE_GlobalArena(myworker_id) == TermNil) {
+    if (full_reset) {
+      HR = H0+1;
+      h0var = MkVarTerm();
+	REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
+	REMOTE_GcCurrentPhase(myworker_id) = 0L;
+	REMOTE_GcPhase(myworker_id) =
+	  Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
+#if COROUTINING
+	REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
+	h0var = MkVarTerm();
+	REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
+#endif
+	Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
     } else {
-      HR = RepAppl(REMOTE_GlobalArena(myworker_id));
+      HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
     }
-    REMOTE_GlobalArena(myworker_id) = TermNil;
     Yap_InitPreAllocCodeSpace(myworker_id);
 #ifdef FROZEN_STACKS
     H_FZ = HR;
@@ -2125,22 +2150,11 @@ static Int jump_env(USES_REGS1) {
     LOCAL = REMOTE(myworker_id);
     worker_id = myworker_id;
 #endif /* THREADS */
-#if COROUTINING
-    REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
-    h0var = MkVarTerm();
-    REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
-#endif
     Yap_RebootSlots(myworker_id);
-    h0var = MkVarTerm();
-    REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
-    REMOTE_GcCurrentPhase(myworker_id) = 0L;
-    REMOTE_GcPhase(myworker_id) =
-      Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
 #if defined(YAPOR) || defined(THREADS)
     PP = NULL;
     PREG_ADDR = NULL;
 #endif
-    Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
     cut_c_initialize(myworker_id);
     Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef FROZEN_STACKS

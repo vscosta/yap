@@ -109,6 +109,9 @@ undefined_query(G0, M0, Cut) :-
     expand_goal(MG, FMG).
 
 
+:- abolish('$undefp'/2).
+
+
 % undef handler
 '$undefp'([M0|G0], Action) :-
     % make sure we do not loop on undefined predicates
@@ -135,7 +138,7 @@ undefined_query(G0, M0, Cut) :-
      '$handle_error'(Action,G0,M0)
     ).
 
-:- '$undefp_handler'('$undefp'(_,_), prolog).
+%:- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 

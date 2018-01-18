@@ -98,6 +98,8 @@ static inline Int GetCurInpLine(StreamDesc *inp_stream) {
 static inline Int GetCurInpPos(StreamDesc *inp_stream) {
     return (inp_stream->charcount);
 }
+extern bool Yap_SetCurInpPos(int sno,  Int pos USES_REGS);
+
 
 
 #define PlIOError(type, culprit, ...)                                          \
@@ -151,12 +153,21 @@ extern void Yap_InitWriteTPreds(void);
 extern void Yap_InitReadTPreds(void);
 extern void Yap_socketStream(StreamDesc *s);
 extern void Yap_ReadlineFlush(int sno);
-Int Yap_ReadlinePeekChar(int sno);
+int Yap_ReadlinePeekChar(int sno);
 int Yap_ReadlineForSIGINT(void);
 bool Yap_DoPrompt(StreamDesc *s);
 
-Int Yap_peek(int sno);
-int Yap_MemPeekc(int sno);
+extern int Yap_peek(int sno);
+extern int Yap_MemPeekc(int sno);
+
+extern int Yap_popChar(int sno);
+extern int Yap_peekWithGetc(int sno);
+extern int Yap_peekWideWithGetwc(int sno);
+extern int Yap_peekWideWithSeek(int sno);
+    extern int Yap_peekWithSeek(int sno);
+extern int Yap_peekWide(int sno);
+extern int Yap_peekChar(int sno);
+
 
 Term Yap_syntax_error(TokEntry *tokptr, int sno);
 

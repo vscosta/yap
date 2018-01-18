@@ -93,7 +93,7 @@ dynamic(X) :-
 	'$dynamic'(A/N1,Mod).
 '$dynamic'(A/N,Mod) :-
   functor(G, A, N),
-  '$mk_d'(G,Mod).
+  '$mk_dynamic'(G,Mod).
 
 /** @pred public(  _P_ ) is iso
 
@@ -176,9 +176,7 @@ multifile(P) :-
 	fail.
 '$multifile'(N/A, M) :-
     functor(S,N,A),
-	'$is_multifile'(S, M), !.
-'$multifile'(N/A, M) :- !,
-	'$new_multifile'(N,A,M).
+	'$new_multifile'(S, M), !.
 '$multifile'([H|T], M) :- !,
 	'$multifile'(H,M),
 	'$multifile'(T,M).

@@ -102,7 +102,7 @@ static void exec_top_level(int BootMode, YAP_init_args *iap) {
   */
   atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("$false"));
   while (YAP_GetValue(livegoal) != atomfalse) {
-    YAP_Reset(YAP_FULL_RESET);
+    YAP_Reset(YAP_FULL_RESET, false);
     do_top_goal(YAP_MkAtomTerm(livegoal));
     livegoal = YAP_FullLookupAtom("$live");
   } 
@@ -141,7 +141,7 @@ int main(int argc, char **argv)
     }
   }
 
-  YAP_Reset(YAP_FULL_RESET);
+  YAP_Reset(YAP_FULL_RESET, false);
   /* End preprocessor code */
 
   exec_top_level(BootMode, &init_args);

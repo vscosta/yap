@@ -230,11 +230,16 @@ typedef struct stream_desc {
       int fd;
     } socket;
 #endif
-    struct {
+     struct {
       const unsigned char *buf, *ptr;
     } irl;
     void *private_data;
   } u;
+    struct {
+        bool on;
+        int ch;
+        intptr_t pos, line, lpos;
+    } buf;
 
   YAP_Int charcount, linecount, linepos;
   stream_flags_t status;
@@ -250,11 +255,11 @@ typedef struct stream_desc {
       int);         /** function the stream uses for reading a character. */
   struct vfs *vfs;  /** stream belongs to a space */
   void *vfs_handle; /** direct handle to stream in that space. */
-  int (*stream_wgetc_for_read)(
-      int);            /* function the stream uses for parser. It may be different
+    int (*stream_wgetc_for_read)(int);   /** function the stream uses for parser. It may be different
                           from above if the ISO  character conversion is on */
+    int (*stream_peek)(int);   /** check if the next character is available. */
+    int (*stream_wpeek)(int);   /**  check if the next wide character is available. */
   encoding_t encoding; /** current encoding for stream */
-struct yapchlookahead *recbs; /// support arbitrary depth peek
 } StreamDesc;
 
 #endif

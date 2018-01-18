@@ -2,7 +2,7 @@
 %% @brief support yap shell
 %%
 
-% :- yap_flag(verbose, verbose).
+:- yap_flag(verbose, verbose).
 
 :- use_module( library(python) ).
 

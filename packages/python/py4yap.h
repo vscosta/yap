@@ -60,7 +60,6 @@ typedef YAP_Arity arity_t;
 extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
     ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil,
     ATOM_brackets, ATOM_curly_brackets;
-;
 
 extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
@@ -75,6 +74,7 @@ extern X_API PyObject *py_Main;
 extern X_API PyObject *py_Builtin;
 extern X_API PyObject *py_Yapex;
 extern X_API PyObject *py_Local;
+extern X_API PyObject *py_Atoms;
 extern X_API PyObject *py_Global;
 extern X_API PyObject *py_Context;
 extern PyObject *Py_f2p;

@@ -8,6 +8,7 @@ set(PL_BOOT_SOURCES
         boot.yap
         bootlists.yap
 	bootutils.yap
+        builtins.yap
         callcount.yap
         checker.yap
         consult.yap
@@ -26,7 +27,7 @@ set(PL_BOOT_SOURCES
         grammar.yap
         ground.yap
         hacks.yap
-        init.yap
+        imports.yap
         listing.yap
         load_foreign.yap
         messages.yap
@@ -59,11 +60,16 @@ set(PL_BOOT_SOURCES
 
 add_to_group(PL_BOOT_SOURCES pl_boot_library)
 
+install(FILES ${PL_BOOT_SOURCES}
+        DESTINATION ${libpl}/pl
+        )
+install(FILES ../library/ypp.yap
+        DESTINATION ${libpl}/library
+        )
 if (ANDROID)
     add_custom_target(STARTUP
        DEPENDS ${PL_BOOT_SOURCES}
             )
-    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
 else(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
@@ -72,27 +78,17 @@ else(CMAKE_CROSSCOMPILING)
     #add_custom_target(STARTUP ALL
     #        DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
     #        )
-    add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND ./yap -B
+    install(CODE
+            "execute_process(COMMAND ${bindir}/yap -B
             VERBATIM
-            WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR}
-            DEPENDS ${PL_BOOT_SOURCES} yap-bin
-            )
+            WORKING_DIRECTORY ${dlls}
+            )")
 
 #    install(CODE "execute_process(COMMAND ./yap -B
 #      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR})"
 #            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )
 
 
-    install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${YAP_INSTALL_DLLDIR}
-        )
 endif()
 
 
-install(FILES ${PL_BOOT_SOURCES}
-        DESTINATION ${libpl}/pl
-        )
-install(FILES ../library/ypp.yap
-        DESTINATION ${libpl}/library
-        )

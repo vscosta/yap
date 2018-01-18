@@ -145,6 +145,7 @@
   struct pred_entry  *PredLogUpdClause_;
   struct pred_entry  *PredLogUpdClauseErase_;
   struct pred_entry  *PredLogUpdClause0_;
+  struct pred_entry  *PredCall_;
   struct pred_entry  *PredMetaCall_;
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;

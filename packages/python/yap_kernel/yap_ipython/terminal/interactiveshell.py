@@ -33,7 +33,7 @@ from .debugger import TerminalPdb, Pdb
 from .magics import TerminalMagics
 from .pt_inputhooks import get_inputhook_name_and_func
 from .prompts import Prompts, ClassicPrompts, RichPromptDisplayHook
-from .ptutils import IPythonPTCompleter, IPythonPTLexer
+#from .ptutils import IPythonPTCompleter, IPythonPTLexer
 from .shortcuts import register_ipython_shortcuts
 
 DISPLAY_BANNER_DEPRECATED = object()
@@ -269,8 +269,8 @@ class TerminalInteractiveShell(InteractiveShell):
                             editing_mode=editing_mode,
                             key_bindings_registry=kbmanager.registry,
                             history=history,
-                            completer=IPythonPTCompleter(shell=self,
-                                                    patch_stdout=patch_stdout),
+        #                    completer=IPythonPTCompleter(shell=self,
+        #                                            patch_stdout=patch_stdout),
                             enable_history_search=True,
                             style=self.style,
                             mouse_support=self.mouse_support,

@@ -56,7 +56,7 @@ static Int p_startconsult(USES_REGS1);
 static Int p_showconslultlev(USES_REGS1);
 static Int p_endconsult(USES_REGS1);
 static Int p_undefined(USES_REGS1);
-static Int p_new_multifile(USES_REGS1);
+static Int new_multifile(USES_REGS1);
 static Int p_is_multifile(USES_REGS1);
 static Int p_optimizer_on(USES_REGS1);
 static Int p_optimizer_off(USES_REGS1);
@@ -2405,32 +2405,25 @@ static Int
   return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
 }
 
-static Int p_new_multifile(USES_REGS1) { /* '$new_multifile'(+N,+Ar,+Mod)  */
-  Atom at;
-  arity_t arity;
-  PredEntry *pe;
-  Term t = Deref(ARG1);
-  Term mod = Deref(ARG3);
+/*  @pred '$new_multifile'(+N,+Ar,+Mod)
+ *  sets the multi-file flag
+ * */
+static Int new_multifile(USES_REGS1) {
+    PredEntry *pe;
+    Atom at;
+    arity_t arity;
 
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsAtomTerm(t))
-    at = AtomOfTerm(t);
-  else
-    return (FALSE);
-  t = Deref(ARG2);
-  if (IsVarTerm(t))
-    return (FALSE);
-  if (IsIntTerm(t))
-    arity = IntOfTerm(t);
-  else
-    return FALSE;
-  if (arity == 0)
-    pe = RepPredProp(PredPropByAtom(at, mod));
-  else
-    pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity), mod));
-  PELOCK(26, pe);
-  if (pe->PredFlags & MultiFileFlag) {
+    pe = new_pred(Deref(ARG1), Deref(ARG2), "multifile");
+    if (EndOfPAEntr(pe))
+        return FALSE;
+    PELOCK(30, pe);
+    arity = pe->ArityOfPE;
+    if (arity == 0)
+        at = (Atom)pe->FunctorOfPred;
+    else
+        at = NameOfFunctor(pe->FunctorOfPred);
+
+    if (pe->PredFlags & MultiFileFlag) {
     UNLOCKPE(26, pe);
     return true;
   }
@@ -2656,7 +2649,7 @@ static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
   return TRUE;
 }
 
-static Int p_mk_d(USES_REGS1) { /* '$make_dynamic'(+P)	 */
+static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   PredEntry *pe;
   Atom at;
   arity_t arity;
@@ -4713,10 +4706,10 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
   Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
-  Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag);
+  Yap_InitCPred("$mk_dynamic", 2, mk_dynamic, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses,
+  Yap_InitCPred("$numb  er_of_clauses", 3, p_number_of_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$undefp_handler", 2, undefp_handler,
@@ -4729,8 +4722,8 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic,
                 SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$new_multifile", 3, p_new_multifile,
-                SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("$new_multifile", 2, new_multifile,
+                SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
                 TestPredFlag | SafePredFlag);
   Yap_InitCPred("$new_system_predicate", 3, new_system_predicate,

@@ -199,6 +199,64 @@ static Term is_file_errors(Term t) {
   return TermZERO;
 }
 
+
+
+int ResetEOF(StreamDesc *s) {
+    if (s->status & Eof_Error_Stream_f) {
+        Atom name = s->name;
+        // Yap_CloseStream(s - GLOBAL_Stream);
+        Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+                  "GetC");
+        return FALSE;
+    } else if (s->status & Reset_Eof_Stream_f) {
+        s->status &= ~Push_Eof_Stream_f;
+        /* reset the eof indicator on file */
+        if (feof(s->file))
+            clearerr(s->file);
+        /* reset our function for reading input */
+        Yap_DefaultStreamOps(s);
+        /* next, reset our own error indicator */
+        s->status &= ~Eof_Stream_f;
+        /* try reading again */
+        return TRUE;
+    } else {
+        s->status |= Past_Eof_Stream_f;
+        return FALSE;
+    }
+}
+
+/* handle reading from a stream after having found an EOF */
+static int EOFWGetc(int sno) {
+    register StreamDesc *s = &GLOBAL_Stream[sno];
+
+    if (s->status & Push_Eof_Stream_f) {
+        /* ok, we have pushed an EOF, send it away */
+        s->status &= ~Push_Eof_Stream_f;
+        return EOF;
+    }
+    if (ResetEOF(s)) {
+        Yap_DefaultStreamOps(s);
+        return (s->stream_wgetc(sno));
+    }
+    return EOF;
+}
+
+static int EOFGetc(int sno) {
+    register StreamDesc *s = &GLOBAL_Stream[sno];
+
+    if (s->status & Push_Eof_Stream_f) {
+        /* ok, we have pushed an EOF, send it away */
+        s->status &= ~Push_Eof_Stream_f;
+        ResetEOF(s);
+        return EOF;
+    }
+    if (ResetEOF(s)) {
+        Yap_DefaultStreamOps(s);
+        return s->stream_getc(sno);
+    }
+    return EOF;
+}
+
 static void unix_upd_stream_info(StreamDesc *s) {
   if (s->status & InMemory_Stream_f) {
     s->status |= Seekable_Stream_f;
@@ -290,9 +348,22 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_wgetc = get_wchar_from_file;
   }
 #endif
-  if (st->recbs) {
-    st->stream_getc = PopCode;
-    st->stream_wgetc = PopCode;
+  if (st->buf.on) {
+    st->stream_getc = Yap_popChar;
+    st->stream_wgetc = Yap_popChar;
+  }
+  if (st->status & Seekable_Stream_f  ) {
+    st->stream_peek = Yap_peekWithSeek;
+    st->stream_wpeek = Yap_peekWideWithSeek;
+  } else {
+    st->stream_peek = Yap_peekChar;
+    st->stream_wpeek = Yap_peekWide;
+  }
+  if (st->status & Eof_Stream_f  ) {
+    st->stream_peek = EOFPeek;
+    st->stream_wpeek = EOFPeek;
+    st->stream_getc = EOFGetc;
+    st->stream_wgetc = EOFWGetc;
   }
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
@@ -313,7 +384,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   s->linecount = 1;
   s->charcount = 0;
   s->vfs = vfsp;
-  s->recbs = NULL;
+  s->buf.on = false;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
   if (vfsp != NULL) {
@@ -346,7 +417,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
 #if LIGHT
   s->status |= Tty_Stream_f | Promptable_Stream_f;
 #endif
-  s->recbs = NULL;
+  s->buf.on = false;
   Yap_DefaultStreamOps(s);
 #if HAVE_SETBUF
   if (s->status & Tty_Stream_f && sno == 0) {
@@ -590,61 +661,6 @@ static int NullPutc(int sno, int ch) {
   return ((int)ch);
 }
 
-int ResetEOF(StreamDesc *s) {
-  if (s->status & Eof_Error_Stream_f) {
-    Atom name = s->name;
-    // Yap_CloseStream(s - GLOBAL_Stream);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
-              "GetC");
-    return FALSE;
-  } else if (s->status & Reset_Eof_Stream_f) {
-    s->status &= ~Push_Eof_Stream_f;
-    /* reset the eof indicator on file */
-    if (feof(s->file))
-      clearerr(s->file);
-    /* reset our function for reading input */
-    Yap_DefaultStreamOps(s);
-    /* next, reset our own error indicator */
-    s->status &= ~Eof_Stream_f;
-    /* try reading again */
-    return TRUE;
-  } else {
-    s->status |= Past_Eof_Stream_f;
-    return FALSE;
-  }
-}
-
-/* handle reading from a stream after having found an EOF */
-static int EOFWGetc(int sno) {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
-    return (s->stream_wgetc(sno));
-  }
-  return EOF;
-}
-
-static int EOFGetc(int sno) {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    ResetEOF(s);
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
-    return s->stream_getc(sno);
-  }
-  return EOF;
-}
 
 /* check if we read a LOCAL_newline or an EOF */
 int console_post_process_eof(StreamDesc *s) {
@@ -1106,7 +1122,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
   st->status = flags;
 
   st->vfs = vfs;
-  st->recbs = NULL;
+  st->buf.on = false;
   st->charcount = 0;
   st->linecount = 1;
   if (flags & Binary_Stream_f) {
@@ -1973,6 +1989,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitCPred("$open_null_stream", 1, p_open_null_stream,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitIOStreams();
+  Yap_InitAliases();
   Yap_InitCharsio();
   Yap_InitChtypes();
   Yap_InitConsole();

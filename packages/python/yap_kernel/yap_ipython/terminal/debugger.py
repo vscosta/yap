@@ -3,8 +3,8 @@ import sys
 
 from yap_ipython.core.debugger import Pdb
 
-from yap_ipython.core.completer import IPCompleter
-from .ptutils import IPythonPTCompleter
+from yap_ipython.yapi import YAPCompleter
+#from .ptutils import IPythonPTCompleter
 from .shortcuts import suspend_to_bg, cursor_in_leading_ws
 
 from prompt_toolkit.enums import DEFAULT_BUFFER

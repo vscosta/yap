@@ -182,10 +182,28 @@ X_API YAP_file_type_t Yap_InitDefaults(void *init_args,  char saved_state[],
 typedef struct yap_boot_params {
     //> boot type as suggested by the user
     YAP_file_type_t boot_file_type;
-    //> bootstrapping mode: YAP is not properly installed
-    bool bootstrapping;
+    //> how files are organised: NULL is GNU/Linux way
+    // const char *directory_structure;
+    //> if NON-NULL, set value for Yap_ROOTDIR
+    const char *RootDir;
+    //> if NON-NULL, location of libYap, sets Yap_LIBDIR
+    const char *LibDir;
+    //> if NON-NULL, architecture independent files, sets Yap_SHAREDIR
+    const char *SharedDir;
+    //> if NON-NULL, include files, sets Yap_INCLUDEDIR
+    const char *IncludeDir;
+    //> if NON-NULL, Prolog DLL location, sets Yap_DLLDIR
+    const char *DLLDir;
+    //> if NON-NULL, Prolog library, sets Yap_DLLDIR
+    const char *PlDir;
+  //> if NON-NULL, name for a Prolog file to use when booting
+  const char *PrologBootFile;
   //> if NON-NULL, path where we can find the saved state
   const char *SavedState;
+    //> bootstrapping mode: YAP is not properly installed
+    bool install;
+    //>  generats a saved space at this path
+    char *OutputSavedState;
   //> if NON-0, minimal size for Heap or Code Area
   size_t HeapSize;
   //> if NON-0, maximal size for Heap or Code Area
@@ -204,28 +222,16 @@ typedef struct yap_boot_params {
   size_t AttsSize;
   //> if NON-0, maximal size for AttributeVarStack
   size_t MaxAttsSize;
-    //> if NON-NULL, value for YAPROOTDIR
-    const char *YapRootDir;
-    //> if NON-NULL, value for YAPLIBDIR
-    const char *YapLibDir;
-    //> if NON-NULL, value for YAPSHAREDIR, that is, default value for libraries
-    const char *YapShareDir;
-    //> if NON-NULL, value for YAPDLLDIR, that is, default value for libraries
-    const char *YapDLLDir;
-    //> if NON-NULL, value for YAPPLDIR, that is, default value for libraries
-    const char *YapPlDir;
-  //> if NON-NULL, name for a Prolog file to use when booting
-  const char *YapPrologBootFile;
   //> if NON-NULL, name for a Prolog file to use when initializing
   const char *YapPrologInitGoal;
   //> if NON-NULL, name for a Prolog file to consult before entering top-level
-  const char *YapPrologRCFile;
+  const char *PrologRCFile;
   //> if NON-NULL, a goal to run before top-level
-  const char *YapPrologGoal;
+  const char *PrologGoal;
   //> if NON-NULL, a goal to run as top-level
-  const char *YapPrologTopLevelGoal;
+  const char *PrologTopLevelGoal;
   //> if NON-NULL, a path to extend file-search-path
-  const char *YapPrologAddPath;
+  const char *PrologAddPath;
   //> if previous NON-NULL and TRUE, halt after consulting that file
   bool HaltAfterConsult;
   //> ignore .yaprc, .prolog.ini, etc. files.

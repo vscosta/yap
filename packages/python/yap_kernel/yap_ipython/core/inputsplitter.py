@@ -292,7 +292,7 @@ class InputSplitter(object):
     """
     # A cache for storing the current indentation
     # The first value stores the most recently processed source input
-    # The second value is the number of spaces for the current indentation 
+    # The second value is the number of spaces for the current indentation
     # If self.source matches the first value, the second value is a valid
     # current indentation. Otherwise, the cache is invalid and the indentation
     # must be recalculated.
@@ -345,14 +345,14 @@ class InputSplitter(object):
 
     def check_complete(self, source):
         """Return whether a block of code is ready to execute, or should be continued
-        
+
         This is a non-stateful API, and will reset the state of this InputSplitter.
-        
+
         Parameters
         ----------
         source : string
           Python input code, which can be multiline.
-        
+
         Returns
         -------
         status : str
@@ -441,7 +441,7 @@ class InputSplitter(object):
         guess whether a block is complete or not based solely on prior and
         current input lines.  The InputSplitter considers it has a complete
         interactive block and will not accept more input when either:
-        
+
         * A SyntaxError is raised
 
         * The code is complete and consists of a single line or a single
@@ -461,20 +461,20 @@ class InputSplitter(object):
         if not self._is_complete:
             #print("Not complete")  # debug
             return True
-        
+
         # The user can make any (complete) input execute by leaving a blank line
         last_line = self.source.splitlines()[-1]
         if (not last_line) or last_line.isspace():
             #print("Blank line")  # debug
             return False
-        
+
         # If there's just a single line or AST node, and we're flush left, as is
         # the case after a simple statement such as 'a=1', we want to execute it
         # straight away.
         if self.get_indent_spaces() == 0:
             if len(self.source.splitlines()) <= 1:
                 return False
-            
+
             try:
                 code_ast = ast.parse(u''.join(self._buffer))
             except Exception:
@@ -528,11 +528,11 @@ class IPythonInputSplitter(InputSplitter):
 
     # String with raw, untransformed input.
     source_raw = ''
-    
+
     # Flag to track when a transformer has stored input that it hasn't given
     # back yet.
     transformer_accumulating = False
-    
+
     # Flag to track when assemble_python_lines has stored input that it hasn't
     # given back yet.
     within_python_line = False
@@ -547,7 +547,7 @@ class IPythonInputSplitter(InputSplitter):
         super(IPythonInputSplitter, self).__init__()
         self._buffer_raw = []
         self._validate = True
-        
+
         if physical_line_transforms is not None:
             self.physical_line_transforms = physical_line_transforms
         else:
@@ -557,7 +557,7 @@ class IPythonInputSplitter(InputSplitter):
                                              ipy_prompt(),
                                              cellmagic(end_on_blank_line=line_input_checker),
                                             ]
-        
+
         self.assemble_logical_lines = assemble_logical_lines()
         if logical_line_transforms is not None:
             self.logical_line_transforms = logical_line_transforms
@@ -568,21 +568,21 @@ class IPythonInputSplitter(InputSplitter):
                                             assign_from_magic(),
                                             assign_from_system(),
                                            ]
-        
+
         self.assemble_python_lines = assemble_python_lines()
         if python_line_transforms is not None:
             self.python_line_transforms = python_line_transforms
         else:
             # We don't use any of these at present
             self.python_line_transforms = []
-    
+
     @property
     def transforms(self):
         "Quick access to all transformers."
         return self.physical_line_transforms + \
             [self.assemble_logical_lines] + self.logical_line_transforms + \
             [self.assemble_python_lines]  + self.python_line_transforms
-    
+
     @property
     def transforms_in_use(self):
         """Transformers, excluding logical line transformers if we're in a
@@ -607,13 +607,13 @@ class IPythonInputSplitter(InputSplitter):
                 # Nothing that calls reset() expects to handle transformer
                 # errors
                 pass
-    
+
     def flush_transformers(self):
         def _flush(transform, outs):
             """yield transformed lines
-            
+
             always strings, never None
-            
+
             transform: the current transform
             outs: an iterable of previously transformed inputs.
                  Each may be multiline, which will be passed
@@ -625,16 +625,16 @@ class IPythonInputSplitter(InputSplitter):
                     tmp = transform.push(line)
                     if tmp is not None:
                         yield tmp
-            
+
             # reset the transform
             tmp = transform.reset()
             if tmp is not None:
                 yield tmp
-        
+
         out = []
         for t in self.transforms_in_use:
             out = _flush(t, out)
-        
+
         out = list(out)
         if out:
             self._store('\n'.join(out))
@@ -645,7 +645,7 @@ class IPythonInputSplitter(InputSplitter):
         out = self.source_raw
         self.reset()
         return out
-    
+
     def source_reset(self):
         try:
             self.flush_transformers()
@@ -714,18 +714,14 @@ class IPythonInputSplitter(InputSplitter):
 
         if transformed_lines_list:
             transformed_lines = '\n'.join(transformed_lines_list)
-            return super(IPythonInputSplitter, self).push(transformed_lines)
-        else:
-            # Got nothing back from transformers - they must be waiting for
-            # more input.
-            return False
+        return hasSyntaxError(self, lines)
 
     def _transform_line(self, line):
         """Push a line of input code through the various transformers.
-        
+
         Returns any output from the transformers, or None if a transformer
         is accumulating lines.
-        
+
         Sets self.transformer_accumulating as a side effect.
         """
         def _accumulating(dbg):
@@ -738,24 +734,8 @@ class IPythonInputSplitter(InputSplitter):
             if line is None:
                 return _accumulating(transformer)
 
-        if not self.within_python_line:
-            line = self.assemble_logical_lines.push(line)
-            if line is None:
-                return _accumulating('acc logical line')
 
-            for transformer in self.logical_line_transforms:
-                line = transformer.push(line)
-                if line is None:
-                    return _accumulating(transformer)
-
-        line = self.assemble_python_lines.push(line)
-        if line is None:
-            self.within_python_line = True
-            return _accumulating('acc python line')
-        else:
-            self.within_python_line = False
-
-        for transformer in self.python_line_transforms:
+        for transformer in self.logical_line_transforms:
             line = transformer.push(line)
             if line is None:
                 return _accumulating(transformer)
@@ -763,4 +743,3 @@ class IPythonInputSplitter(InputSplitter):
         #print("transformers clear") #debug
         self.transformer_accumulating = False
         return line
-

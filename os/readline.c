@@ -390,7 +390,7 @@ static int ReadlineGetc(int sno) {
   with EOF, though.
 
 */
-Int Yap_ReadlinePeekChar(int sno) {
+int Yap_ReadlinePeekChar(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
 

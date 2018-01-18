@@ -485,7 +485,7 @@ variable is used non-backtrackable.
 
 */
 nb_getval(GlobalVariable, Val) :-
-	'$nb_getval'(GlobalVariable, Val, Error),
+	'__NB_getval__'(GlobalVariable, Val, Error),
 	(var(Error)
 	->
 	 true
@@ -524,7 +524,7 @@ the requested variable does not exist.
 
 */
 b_getval(GlobalVariable, Val) :-
-	'$nb_getval'(GlobalVariable, Val, Error),
+	'__NB_getval__'(GlobalVariable, Val, Error),
 	(var(Error)
 	->
 	 true

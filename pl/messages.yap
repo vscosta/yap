@@ -956,7 +956,7 @@ prolog:print_message(Level, _Msg) :-
 	!.
 prolog:print_message(_, _Msg) :-
 	% first step at hook processing
-	'$nb_getval'('$if_skip_mode',skip,fail),
+	'__NB_getval__'('$if_skip_mode',skip,fail),
 	!.
 prolog:print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).

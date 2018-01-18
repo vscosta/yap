@@ -916,6 +916,7 @@ static int interrupt_dexecute(USES_REGS1) {
 
 static void undef_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
+    CELL *b;
 
   BEGD(d0);
 /* avoid trouble with undefined dynamic procedures */
@@ -926,12 +927,24 @@ static void undef_goal(USES_REGS1) {
     PP = pe;
   }
 #endif
-  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ||
-      pe == UndefCode) {
+  if (UndefCode == NULL || UndefCode->OpcodeOfPred == UNDEF_OPCODE) {
+    fprintf(stderr,"call to undefined Predicates %s ->", IndicatorOfPred(pe));
+    Yap_DebugPlWriteln(ARG1);
+    fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
+    CalculateStackGap(PASS_REGS1);
+    P = FAILCODE;
+    return;
+  }
+  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
+#if defined(YAPOR) || defined(THREADS)
+    UNLOCKPE(19, PP);
+    PP = NULL;
+#endif
+    CalculateStackGap(PASS_REGS1);
     P = FAILCODE;
     return;
   }
@@ -940,12 +953,14 @@ static void undef_goal(USES_REGS1) {
   PP = NULL;
 #endif
   d0 = pe->ArityOfPE;
+    HR[0] = Yap_Module_Name(pe);
+        b = HR;
+        HR += 2;
   if (d0 == 0) {
-    HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+    b[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
   } else {
-    HR[d0 + 2] = AbsAppl(HR);
-    *HR = (CELL)pe->FunctorOfPred;
-    HR++;
+    b[1] = AbsAppl(HR);
+    *HR++ = (CELL)pe->FunctorOfPred;
     BEGP(pt1);
     pt1 = XREGS + 1;
     for (; d0 > 0; --d0) {
@@ -976,10 +991,8 @@ static void undef_goal(USES_REGS1) {
     ENDP(pt1);
   }
   ENDD(d0);
-  HR[0] = Yap_Module_Name(pe);
-  ARG1 = (Term)AbsPair(HR);
-  ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
-  HR += 2;
+    ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(b[0]));
+    ARG1 = AbsPair(b);
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);

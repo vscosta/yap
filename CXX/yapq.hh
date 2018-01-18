@@ -109,14 +109,12 @@ public:
     if (IsApplTerm(tgoal)) {
       Functor f = FunctorOfTerm(tgoal);
       if (!IsExtensionFunctor(f)) {
-        if (!IsExtensionFunctor(f)) {
           arity_t arity = ap->ArityOfPE;
           if (arity) {
             qt = RepAppl(tgoal) + 1;
             for (arity_t i = 0; i < arity; i++)
               XREGS[i + 1] = qt[i];
           }
-        }
       }
     }
     names = YAPPairTerm(tnames);
@@ -125,7 +123,6 @@ public:
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
   // {
   //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
-  //                         LOCAL_CurSlot);
   //     if (!ap)
   //         return;
   //     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", vnames.text());
@@ -219,19 +216,19 @@ public:
 
   inline bool getMaxTrailSize() { return MaxTrailSize; };
 
-  inline void setYapLibDir(const char *fl) {
-    YapLibDir = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)YapLibDir, fl);
+  inline void setLibDir(const char *fl) {
+    LibDir = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)LibDir, fl);
   };
 
-  inline const char *getYapLibDir() { return YapLibDir; };
+  inline const char *getLibDir() { return LibDir; };
 
-  inline void setYapShareDir(const char *fl) {
-    YapShareDir = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)YapShareDir, fl);
+  inline void setSharedDir(const char *fl) {
+    SharedDir = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)SharedDir, fl);
   };
 
-  inline const char *getYapShareDir() { return YapShareDir; };
+  inline const char *getSharedDir() { return SharedDir; };
 
   inline void setSavedState(const char *fl) {
     SavedState = (const char *)malloc(strlen(fl) + 1);
@@ -240,23 +237,23 @@ public:
 
   inline const char *getSavedState() { return SavedState; };
 
-  inline void setYapPrologBootFile(const char *fl) {
-    YapPrologBootFile = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)YapPrologBootFile, fl);
+  inline void setPrologBootFile(const char *fl) {
+    PrologBootFile = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)PrologBootFile, fl);
   };
 
-  inline const char *getYapPrologBootFile() { return YapPrologBootFile; };
+  inline const char *getPrologBootFile() { return PrologBootFile; };
 
-  inline void setYapPrologGoal(const char *fl) { YapPrologGoal = fl; };
+  inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
 
-  inline const char *getYapPrologGoal() { return YapPrologGoal; };
+  inline const char *getPrologGoal() { return PrologGoal; };
 
-  inline void setYapPrologTopLevelGoal(const char *fl) {
-    YapPrologTopLevelGoal = fl;
+  inline void setPrologTopLevelGoal(const char *fl) {
+    PrologTopLevelGoal = fl;
   };
 
-  inline const char *getYapPrologTopLevelGoal() {
-    return YapPrologTopLevelGoal;
+  inline const char *getPrologTopLevelGoal() {
+    return PrologTopLevelGoal;
   };
 
   inline void setHaltAfterConsult(bool fl) { HaltAfterConsult = fl; };

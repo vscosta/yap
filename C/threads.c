@@ -384,7 +384,7 @@ setup_engine(int myworker_id, int init_thread)
   // create a mbox
   mboxCreate( MkIntTerm(myworker_id), &REMOTE_ThreadHandle(myworker_id).mbox_handle PASS_REGS );
   Yap_InitTime( myworker_id );
-  Yap_InitYaamRegs( myworker_id );
+  Yap_InitYaamRegs( myworker_id, true] );
   REFRESH_CACHE_REGS
     Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */

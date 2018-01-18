@@ -141,6 +141,7 @@
   PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);
   PredLogUpdClauseErase = PtoPredAdjust(PredLogUpdClauseErase);
   PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
+  PredCall = PtoPredAdjust(PredCall);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);

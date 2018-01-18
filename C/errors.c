@@ -385,6 +385,11 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     fprintf(stderr, "%% ERROR WITHIN ERROR %d: %s\n", LOCAL_Error_TYPE, tmpbuf);
     Yap_RestartYap(1);
   }
+  if (LOCAL_DoingUndefp && type == EVALUATION_ERROR_UNDEFINED) {
+    P = FAILCODE;
+      CalculateStackGap(PASS_REGS1);
+    return P;
+  }
   LOCAL_ActiveError->errorNo = type;
   LOCAL_ActiveError->errorAsText = Yap_errorName(type);
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
@@ -616,8 +621,12 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   } else {
     error_t = Yap_MkApplTerm(fun, 2, nt);
   }
-  memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
-  Yap_JumpToEnv(error_t);
+  if (LOCAL_DoingUndefp) {
+    Yap_PrintWarning(error_t);
+  } else {
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+    Yap_JumpToEnv(error_t);
+  }
   P = (yamop *)FAILCODE;
   LOCAL_PrologMode &= ~InErrorMode;
   return P;

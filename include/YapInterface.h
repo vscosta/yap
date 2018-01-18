@@ -356,7 +356,7 @@ extern X_API YAP_Bool YAP_GoalHasException(YAP_Term *);
 /*  void YAP_ClearExceptions(void) */
 extern X_API void YAP_ClearExceptions(void);
 
-extern X_API int YAP_Reset(yap_reset_t reset);
+extern X_API int YAP_Reset(yap_reset_t reset, bool reset_global);
 
 extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 
@@ -409,7 +409,7 @@ extern X_API FILE *YAP_TermToStream(YAP_Term t);
 extern X_API int YAP_InitConsult(int mode, const char *filename, char *buf,
                                  int *previous_sno);
 
-extern X_API void YAP_EndConsult(int s, int *previous_sno);
+extern X_API void YAP_EndConsult(int s, int *previous_sno, const char *previous_cwd);
 
 extern X_API void YAP_Exit(int);
 

@@ -344,7 +344,7 @@ enumeration is undefined.
 */
 nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
-	'$nb_getval'(GlobalVariable, Val, _).
+	'__NB_getval__'(GlobalVariable, Val, _).
 
 '$getval_exception'(GlobalVariable, _Val, Caller) :-
 	user:exception(undefined_global_variable, GlobalVariable, Action),

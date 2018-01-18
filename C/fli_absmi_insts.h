@@ -623,10 +623,12 @@
 
       BOp(undef_p, e);
       /* save S for module name */
-      saveregs();
+        LOCAL_DoingUndefp = true;
+	saveregs();
       undef_goal(PASS_REGS1);
       setregs();
       /* for profiler */
+        LOCAL_DoingUndefp = false;
       CACHE_A1();
       JMPNext();
       ENDBOp();

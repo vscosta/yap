@@ -57,7 +57,7 @@ name with the `:/2` operator.
     '$module_dec'(N, Ps).
 '$module_dec'(N, Ps) :-
    source_location(F,Line),
-  '$nb_getval'( '$user_source_file', F0 , fail),
+  '__NB_getval__'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, Line,F0, Ps),
 	'$current_module'(_M0,N).
 

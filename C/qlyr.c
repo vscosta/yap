@@ -1087,7 +1087,7 @@ static Int qload_program(USES_REGS1) {
   if ((stream = Yap_GetInputStream(t1, "from read_program"))) {
     return FALSE;
   }
-  Yap_Reset(YAP_RESET_FROM_RESTORE);
+  Yap_Reset(YAP_RESET_FROM_RESTORE, true);
   if (do_header(stream) == NIL)
     return FALSE;
   read_module(stream);

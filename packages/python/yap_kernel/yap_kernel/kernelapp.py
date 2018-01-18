@@ -35,14 +35,14 @@ from jupyter_client import write_connection_file
 from jupyter_client.connect import ConnectionFileMixin
 
 # local imports
-from .iostream import IOPubThread
-from .heartbeat import Heartbeat
-from .ipkernel import YAPKernel
-from .parentpoller import ParentPollerUnix, ParentPollerWindows
+from yap_kernel.iostream import IOPubThread
+from yap_kernel.heartbeat import Heartbeat
+from yap_kernel.ipkernel import YAPKernel
+from yap_kernel.parentpoller import ParentPollerUnix, ParentPollerWindows
 from jupyter_client.session import (
     Session, session_flags, session_aliases,
 )
-from .zmqshell import ZMQInteractiveShell
+from yap_kernel.zmqshell import ZMQInteractiveShell
 
 #-----------------------------------------------------------------------------
 # Flags and Aliases

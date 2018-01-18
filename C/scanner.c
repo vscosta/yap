@@ -530,15 +530,26 @@ typedef struct scanner_internals {
   size_t CommentsBuffLim;
 } scanner_internals;
 
+static struct stream_desc *inp0;
+
 // standard get char, uses conversion table
 // and converts to wide
-#define getchr(inp) inp->stream_wgetc_for_read(inp - GLOBAL_Stream)
+static inline int getchr(struct stream_desc *inp)
+{
+  if (inp != inp0) { fprintf(stderr,"\n %s **********************************\n", AtomName(inp->name));
+    inp0 = inp;
+  }
+  int ch = inp->stream_wgetc_for_read(inp - GLOBAL_Stream);
+  // fprintf(stderr,"%c", ch);
+  return ch;
+}
 // get char for quoted data, eg, quoted atoms and so on
 // converts to wide
-#define getchrq(inp) inp->stream_wgetc(inp - GLOBAL_Stream)
-// get char for UTF-8 quoted data, eg, quoted strings
-// reads bytes
-#define getchru(inp) inp->stream_getc_utf8(inp - GLOBAL_Stream)
+static inline int getchrq(struct stream_desc *inp)
+{
+  int ch = inp->stream_wgetc(inp - GLOBAL_Stream);
+  return ch;
+}
 
 /* in case there is an overflow */
 typedef struct scanner_extra_alloc {

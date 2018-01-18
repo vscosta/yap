@@ -15,7 +15,7 @@ from .zmqshell import ZMQInteractiveShell
 
 try:
     from yap_ipython.core.completer import rectify_completions as _rectify_completions, provisionalcompleter as _provisionalcompleter
-    _use_experimental_60_completion = True
+    _use_experimental_60_completion = False
 except ImportError:
     _use_experimental_60_completion = False
 
@@ -203,6 +203,7 @@ class YAPKernel(KernelBase):
         self._forward_input(allow_stdin)
 
         reply_content = {}
+        import trace;
         try:
             res = shell.run_cell(code, store_history=store_history, silent=silent)
         finally:

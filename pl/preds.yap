@@ -97,6 +97,8 @@ and therefore he should try to avoid them whenever possible.
 
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1]).
 
+
+
 /** @pred  assert_static(: _C_)
 
 

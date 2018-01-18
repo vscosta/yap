@@ -88,7 +88,7 @@ struct foreign_context {
 
 X_API bool python_in_python;
 
-X_API int YAP_Reset(yap_reset_t mode);
+X_API int YAP_Reset(yap_reset_t mode, bool reset_global);
 
 #if !HAVE_STRNCPY
 #define strncpy(X, Y, Z) strcpy(X, Y)
@@ -1484,6 +1484,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
         return 0L;
       }
       LOCAL_ErrorMessage = NULL;
+        RECOVER_H();
       return 0;
     } else {
       break;
@@ -1941,14 +1942,12 @@ X_API Int YAP_RunGoalOnce(Term t) {
   yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
-  Yap_InitYaamRegs(0);
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
-
   //  Yap_heap_regs->yap_do_low_level_trace=true;
-  out = Yap_RunTopGoal(t, true);
+      out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
-  Yap_CloseSlots(CSlot);
+  //  Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -2110,22 +2109,23 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
   int lvl = push_text_stack();
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE;
-  }
-  char *bfp = Malloc(YAP_FILENAME_MAX + 1);
-  bfp[0] = '\0';
-  if (fname == NULL || fname[0] == '\0') {
-    fname = Yap_BOOTFILE;
-  }
-  if (fname) {
-    fl = Yap_AbsoluteFile(fname, bfp, true);
-    if (!fl || !fl[0]) {
-      pop_text_stack(lvl);
+    }
+    char *bfp = Malloc(YAP_FILENAME_MAX + 1);
+    bfp[0] = '\0';
+    if (fname == NULL || fname[0] == '\0') {
+      fname = Yap_BOOTFILE;
+    }
+    if (fname) {
+      fl = Yap_AbsoluteFile(fname, bfp, true);
+      if (!fl || !fl[0]) {
+        pop_text_stack(lvl);
       return -1;
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  Yap_init_consult(consulted, bfp);
   sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(bfp)));
+  if (!Yap_ChDir(dirname((char *)fl))) return -1;
+  Yap_init_consult(consulted, bfp);
   *osnop = Yap_CheckAlias(AtomLoopStream);
   if (!Yap_AddAlias(AtomLoopStream, sno)) {
     Yap_CloseStream(sno);
@@ -2136,6 +2136,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
   GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2159,9 +2160,10 @@ X_API FILE *YAP_TermToStream(Term t) {
   return NULL;
 }
 
-X_API void YAP_EndConsult(int sno, int *osnop) {
+X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
+  Yap_ChDir(full);
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
@@ -2298,10 +2300,10 @@ X_API int YAP_CompareTerms(Term t1, Term t2) {
   return Yap_compare_terms(t1, t2);
 }
 
-X_API int YAP_Reset(yap_reset_t mode) {
+X_API int YAP_Reset(yap_reset_t mode, bool reset_global) {
   int res = TRUE;
   BACKUP_MACHINE_REGS();
-  res = Yap_Reset(mode);
+  res = Yap_Reset(mode, reset_global);
   RECOVER_MACHINE_REGS();
   return res;
 }

@@ -145,6 +145,7 @@ EXTERNAL    struct pred_entry  *PredIs;
 EXTERNAL    struct pred_entry  *PredLogUpdClause;
 EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
 EXTERNAL    struct pred_entry  *PredLogUpdClause0;
+EXTERNAL    struct pred_entry  *PredCall;
 EXTERNAL    struct pred_entry  *PredMetaCall;
 EXTERNAL    struct pred_entry  *PredProtectStack;
 EXTERNAL    struct pred_entry  *PredRecordedWithKey;

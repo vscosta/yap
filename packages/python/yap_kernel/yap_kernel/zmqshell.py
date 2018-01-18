@@ -235,7 +235,7 @@ class KernelMagics(Magics):
 
         -n <number>
           Open the editor at a specified line number. By default, the yap_ipython
-          editor hook uses the unix syntax 'editor +N filename', but you can
+          editor hook uses the unix syntax//i 'editor +N filename', but you can
           configure this by providing your own modified hook if your favorite
           editor supports line-number specifications with a different syntax.
 

@@ -57,10 +57,7 @@ meta_predicate declaration
 	functor(P,F,N),
 	( M1 = prolog -> M = _ ; M1 = M),
 	( retractall(prolog:'$meta_predicate'(F,M,N,_)), fail ; true),
-	asserta(prolog:'$meta_predicate'(F,M,N,P)),
-	'$predicate_flags'(P, M1, Fl, Fl),
-	NFlags is Fl \/ 0x200000,
-	'$predicate_flags'(P, M1, Fl, NFlags).
+	'$compile'(('$meta_predicate'(F,M,N,P) :- true),assertz,'$meta_predicate'(F,M,N,P),prolog,_).
 
                                 % comma has its own problems.
 

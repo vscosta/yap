@@ -18,6 +18,7 @@ functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
     FUNCTOR_dot2, FUNCTOR_brackets1;
 
+X_API PyObject *py_Atoms;
 X_API PyObject *py_Builtin;
 X_API PyObject *py_Yapex;
 X_API PyObject *py_Sys;
@@ -77,24 +78,21 @@ static int py_put(int sno, int ch) {
   return ch;
 }
 
-static int py_get(int sno)
-{
+static int py_get(int sno) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fget = PyObject_GetAttrString(s->u.private_data, "read");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fget, PyLong_FromLong(1), NULL);
   return PyUnicode_READ_CHAR(pyr, 0);
 }
 
-static int py_peek(int sno)
-{
+static int py_peek(int sno) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fget = PyObject_GetAttrString(s->u.private_data, "peek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fget, PyLong_FromLong(1), NULL);
   return PyUnicode_READ_CHAR(pyr, 0);
 }
 
-static int64_t py_seek(int sno, int64_t where, int how)
-{
+static int64_t py_seek(int sno, int64_t where, int how) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fseek = PyObject_GetAttrString(s->u.private_data, "seek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fseek, PyLong_FromLong(where),
@@ -152,6 +150,7 @@ static void add_modules(void) {
   py_Main = PyImport_AddModule("__main__");
   Py_INCREF(py_Main);
   py_Sys = PyImport_AddModule("sys");
+  py_Atoms = PyDict_New();
   Py_INCREF(py_Sys);
   py_Builtin = PyImport_AddModule("__builtin__");
   Py_INCREF(py_Builtin);

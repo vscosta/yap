@@ -1432,7 +1432,7 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
   GLOBAL_AllowLocalExpansion = true;
   GLOBAL_AllowTrailExpansion = true;
   Yap_InitExStacks(0, Trail, Stack);
-  Yap_InitYaamRegs(0);
+    Yap_InitYaamRegs(0, true);
   InitStdPreds(yapi);
   /* make sure tmp area is available */
   { Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace()); }

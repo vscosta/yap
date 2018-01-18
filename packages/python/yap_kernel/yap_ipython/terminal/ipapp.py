@@ -18,7 +18,7 @@ from traitlets.config.loader import Config
 from traitlets.config.application import boolean_flag, catch_config_error
 from yap_ipython.core import release
 from yap_ipython.core import usage
-from yap_ipython.core.completer import IPCompleter
+from yap_ipython.yapi import YAPCompleter
 from yap_ipython.core.crashhandler import CrashHandler
 from yap_ipython.core.formatters import PlainTextFormatter
 from yap_ipython.core.history import HistoryManager
@@ -177,7 +177,7 @@ class LocateIPythonApp(BaseYAPApplication):
 
 
 class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
-    name = u'ipython'
+    name = u'yap'
     description = usage.cl_usage
     crash_handler_class = IPAppCrashHandler
     examples = _examples
@@ -202,7 +202,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             HistoryManager,
             ProfileDir,
             PlainTextFormatter,
-            IPCompleter,
+            YAPCompleter,
             ScriptMagics,
             LoggingMagics,
             StoreMagics,
@@ -301,7 +301,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             argv[idx] = '--pylab'
 
         return super(TerminalIPythonApp, self).parse_command_line(argv)
-    
+
     @catch_config_error
     def initialize(self, argv=None):
         """Do actions after construct, but before starting the app."""

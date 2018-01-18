@@ -29,6 +29,7 @@ from io import open as io_open
 
 from pickleshare import PickleShareDB
 
+import yap_ipython.yapi
 from traitlets.config.configurable import SingletonConfigurable
 from yap_ipython.core import oinspect
 from yap_ipython.core import magic
@@ -78,7 +79,7 @@ from traitlets import (
 from warnings import warn
 from logging import error
 import yap_ipython.core.hooks
-from yap_ipython.yapi import YAPRun, YAPCompleter
+from yap_ipython.yapi import YAPRun, YAPCompleter, YAPInputSplitter
 
 from typing import List as ListType
 from ast import AST
@@ -337,15 +338,17 @@ class InteractiveShell(SingletonConfigurable):
 
     # Input splitter, to transform input line by line and detect when a block
     # is ready to be executed.
-    input_splitter = Instance('yap_ipython.core.inputsplitter.IPythonInputSplitter',
-                              (), {'line_input_checker': True})
+    #input_splitter = Instance('yap_ipython.core.inputsplitter.IPythonInputSplitter',
+    #                          (), {'line_input_checker': True})
+    input_splitter = Instance('yap_ipython.yapi.YAPInputSplitter',
+                                          (), {'line_input_checker': False})
 
     # This InputSplitter instance is used to transform completed cells before
     # running them. It allows cell magics to contain blank lines.
     # input_transformer_manager = Instance('yap_ipython.core.inputsplitter.IPythonInputSplitter',
     #                                      (), {'line_input_checker': False})
-    input_transformer_manager = Instance('yap_ipython.yapi.YAPLineProcessor',
-                                          (), {'line_input_checker': False})
+    input_transformer_manager = Instance('yap_ipython.yapi.YAPInputSplitter',
+                                          (), {'line_input_checker': True})
 
     logstart = Bool(False, help=
         """
@@ -476,8 +479,8 @@ class InteractiveShell(SingletonConfigurable):
             warn('As of yap_ipython 5.0 `PromptManager` config will have no effect'
                  ' and has been replaced by TerminalInteractiveShell.prompts_class')
         self.configurables = [self]
-        self._yrun_cell = YAPRun._yrun_cell
-        YAPRun.init(self)
+        yrun = YAPRun( self)
+        self._yrun_cell = yrun._yrun_cell
 
         # These are relatively independent and stateless
         self.init_ipython_dir(ipython_dir)
@@ -519,6 +522,8 @@ class InteractiveShell(SingletonConfigurable):
         # The following was in post_config_initialization
         self.init_inspector()
         self.raw_input_original = input
+        self.input_splitter.engine(self.yapeng)
+        self.input_transformer_manager.engine(self.yapeng)
         self.init_completer()
         # TODO: init_io() needs to happen before init_traceback handlers
         # because the traceback handlers hardcode the stdout/stderr streams.
@@ -540,6 +545,8 @@ class InteractiveShell(SingletonConfigurable):
         self.hooks.late_startup_hook()
         self.events.trigger('shell_initialized', self)
         atexit.register(self.atexit_operations)
+
+
 
     def get_ipython(self):
         """Return the currently running yap_ipython instance."""
@@ -1966,23 +1973,20 @@ class InteractiveShell(SingletonConfigurable):
                 magic_run_completer, cd_completer, reset_completer)
 
         self.Completer = YAPCompleter(shell=self,
-                                     namespace=self.user_ns,
-                                     global_namespace=self.user_global_ns,
-                                     parent=self
                                      )
         self.configurables.append(self.Completer)
 
         # Add custom completers to the basic ones built into IPCompleter
-        sdisp = self.strdispatchers.get('complete_command', StrDispatch())
-        self.strdispatchers['complete_command'] = sdisp
-        self.Completer.custom_completers = sdisp
-
-        self.set_hook('complete_command', module_completer, str_key = 'import')
-        self.set_hook('complete_command', module_completer, str_key = 'from')
-        self.set_hook('complete_command', module_completer, str_key = '%aimport')
-        self.set_hook('complete_command', magic_run_completer, str_key = '%run')
-        self.set_hook('complete_command', cd_completer, str_key = '%cd')
-        self.set_hook('complete_command', reset_completer, str_key = '%reset')
+        # sdisp = self.strdispatchers.get('complete_command', StrDispatch())
+        # self.strdispatchers['complete_command'] = sdisp
+        # self.Completer.custom_completers = sdisp
+        #
+        # #self.set_hook('complete_command', module_completer, str_key = 'import')
+        # #self.set_hook('complete_command', module_completer, str_key = 'from')
+        # self.set_hook('complete_command', module_completer, str_key = '%aimport')
+        # self.set_hook('complete_command', magic_run_completer, str_key = '%run')
+        # self.set_hook('complete_command', cd_completer, str_key = '%cd')
+        # self.set_hook('complete_command', reset_completer, str_key = '%reset')
 
 
     def complete(self, text, line=None, cursor_pos=None):
@@ -2376,6 +2380,7 @@ class InteractiveShell(SingletonConfigurable):
         # code out there that may rely on this).
         self.prefilter = self.prefilter_manager.prefilter_lines
 
+
     def auto_rewrite_input(self, cmd):
         """Print to the screen the rewritten form of the user's command.
 
@@ -2658,7 +2663,7 @@ class InteractiveShell(SingletonConfigurable):
         """
         try:
             result = self._yrun_cell(
-                       self, raw_cell, store_history, silent, shell_futures)
+                       raw_cell, store_history, silent, shell_futures)
         finally:
             self.events.trigger('post_execute')
             if not silent:

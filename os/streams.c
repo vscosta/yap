@@ -157,7 +157,7 @@ int Yap_GetFreeStreamD(void) { return GetFreeStreamD(); }
  */
  bool Yap_clearInput(int sno)
  {
-     if (!(GLOBAL_Stream[sno].status & Tty_Stream_f))
+     if (!(GLOBAL_Stream[sno].status & Tty_Stream_f) || sno < 3)
      return true;
    if (GLOBAL_Stream[sno].vfs) {
        GLOBAL_Stream[sno].vfs->flush(sno);
@@ -298,6 +298,29 @@ has_reposition(int sno,
   } else {
     return Yap_unify_constant(t2, TermFalse);
   }
+}
+
+
+
+
+bool Yap_SetCurInpPos(int sno,  Int pos
+             USES_REGS) { /* '$set_output'(+Stream,-ErrorMessage)  */
+
+
+  if (GLOBAL_Stream[sno].vfs) {
+    if (GLOBAL_Stream[sno].vfs->seek && GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) == -1) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(SYSTEM_ERROR_INTERNAL, pos,
+                "fseek failed for set_stream_position/2: %s", strerror(errno));
+      return (FALSE);
+    }
+      } else if (fseek(GLOBAL_Stream[sno].file, pos, SEEK_SET) == -1) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    PlIOError(SYSTEM_ERROR_INTERNAL, MkIntegerTerm(0),
+              "fseek failed for set_stream_position/2: %s", strerror(errno));
+    return (FALSE);
+  }
+  return true;
 }
 
 char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
@@ -1319,7 +1342,14 @@ static Int
                 "set_stream_position/2");
       return (FALSE);
     }
-    if (fseek(GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
+    if(GLOBAL_Stream[sno].vfs) {
+      if (GLOBAL_Stream[sno].vfs->seek && GLOBAL_Stream[sno].vfs->seek(sno, 0L, SEEK_END) ==  -1) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError(SYSTEM_ERROR_INTERNAL, tp,
+                "fseek failed for set_stream_position/2: %s", strerror(errno));
+      return (FALSE);
+      }
+      } else if (fseek(GLOBAL_Stream[sno].file, 0L, SEEK_END) == -1) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       PlIOError(SYSTEM_ERROR_INTERNAL, tp,
                 "fseek failed for set_stream_position/2: %s", strerror(errno));

@@ -141,6 +141,7 @@
 #define PredLogUpdClause Yap_heap_regs->PredLogUpdClause_
 #define PredLogUpdClauseErase Yap_heap_regs->PredLogUpdClauseErase_
 #define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
+#define PredCall Yap_heap_regs->PredCall_
 #define PredMetaCall Yap_heap_regs->PredMetaCall_
 #define PredProtectStack Yap_heap_regs->PredProtectStack_
 #define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_

@@ -133,6 +133,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
       o = PyUnicode_FromString(s);
     }
     if (o) {
+      //PyDict_SetItemString(py_Atoms, s, Py_None);
       Py_INCREF(o);
       return o;
     }

@@ -2198,8 +2198,8 @@ X_API int PL_initialise(int myargc, char **myargv) {
 #else
   init_args.SavedState = NULL;
 #endif
-  init_args.YapLibDir = NULL;
-  init_args.YapPrologBootFile = NULL;
+  init_args.LibDir = NULL;
+  init_args.PrologBootFile = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
   init_args.MaxTableSpaceSize = 0;

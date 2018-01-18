@@ -1,3 +1,8 @@
+set (YAPOS_HEADERS
+        getw.h
+        iopreds.h
+        yapio.h
+        )
 
 set (YAPOS_SOURCES
   alias.c

@@ -119,6 +119,7 @@ protected:
   YAPTerm tt = YAPTerm(tout);
   ap = getPred(tt, modp);
   }
+    YAPPredicate(Term &t, Term &tmod, CELL * &ts, const char *pname);
 
   /// Term constructor for predicates
   ///

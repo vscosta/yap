@@ -3,6 +3,7 @@
 #define _EXPORT_KERNEL 1
 
 #include "yapi.hh"
+
 extern "C" {
 
 #if __ANDROID__
@@ -23,6 +24,45 @@ X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
 #if YAP_PYTHON
 X_API bool do_init_python(void);
 #endif
+}
+
+
+YAPPredicate::YAPPredicate(Term &t, Term &tmod, CELL * &ts, const char *pname) {
+    Term t0 = t;
+    ap = nullptr;
+    restart:
+    if (IsVarTerm(t)) {
+        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    } else if (IsAtomTerm(t)) {
+        ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+        ts = nullptr;
+    } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+        ts = nullptr;
+        ap = Yap_FindLUIntKey(IntegerOfTerm(t));
+    } else if (IsPairTerm(t)) {
+        t = Yap_MkApplTerm(FunctorCsult, 1, &t);
+        goto restart;
+    } else if (IsApplTerm(t)) {
+        Functor fun = FunctorOfTerm(t);
+        if (IsExtensionFunctor(fun)) {
+            Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+        }
+        if (fun == FunctorModule) {
+            tmod = ArgOfTerm(1, t);
+            if (IsVarTerm(tmod)) {
+                Yap_Error(INSTANTIATION_ERROR, t0, pname);
+            }
+            if (!IsAtomTerm(tmod)) {
+                Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+            }
+            t = ArgOfTerm(2, t);
+            goto restart;
+        }
+        ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+        ts = RepAppl(t)+1;
+    } else {
+        Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+    }
 }
 
 YAPAtomTerm::YAPAtomTerm(char *s) { // build string
@@ -384,11 +424,6 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
     for (arity_t i = 0; i < arity; i++)
       XREGS[i + 1] = ts[i].term();
 
-    if (ap.ap == nullptr || ap.ap->OpcodeOfPred == UNDEF_OPCODE) {
-      Term g = YAP_MkApplTerm(ap.ap->FunctorOfPred, arity, XREGS + 1);
-      ap = YAPPredicate(rewriteUndefEngineQuery(ap.ap, g, ap.ap->ModuleOfPred));
-    }
-
     q.CurSlot = Yap_StartSlots();
     q.p = P;
 
@@ -422,38 +457,30 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *ts = nullptr;
-    PredEntry *ap = Yap_get_pred(t, tmod, "C++");
-
+      Yap_DebugPlWriteln(tmod);
+      if (IsStringTerm(tmod))
+          tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
+    PredEntry *ap = (new YAPPredicate(t, tmod, ts, "C++"))->ap;
+      Yap_DebugPlWriteln(t);
     if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
-      if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE)
-        return false;
-    } else {
-      /* legal ap */
-      arity_t arity = ap->ArityOfPE;
-
-      if (arity) {
-        if (IsApplTerm(t)) {
-          ts = RepAppl(t) + 1;
-        } else {
-          ts = RepPair(t);
-        }
-        for (arity_t i = 0; i < arity; i++)
-          XREGS[i + 1] = ts[i];
-      } else if (IsAtomTerm(t)) {
-        ts = nullptr;
-      }
     }
+    /* legal ap */
+    arity_t arity = ap->ArityOfPE;
+
+      for (arity_t i = 0; i < arity; i++) {
+	XREGS[i + 1] = ts[i];
+    }
+      ts = nullptr;
     bool result;
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
-    // allow Prolog style exceotion handling
+    // allow Prolog style exception handling
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
       return false;
-      return 0;
-      throw YAPError();
+      //throw YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -470,7 +497,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     Yap_CloseHandles(q.CurSlot);
     LOCAL_RestartEnv = oldp;
     return 0;
-    throw e;
+    //throw e;
   }
 }
 
@@ -529,8 +556,10 @@ Term YAPEngine::fun(Term t) {
     sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      return false;
-      throw YAPError();
+      //      throw YAPError();
+      LOCAL_RestartEnv = oldp;
+      RECOVER_MACHINE_REGS();
+      return 0;
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -578,7 +607,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     goal = MkVarTerm();
   }
   openQuery();
-  names = YAPPairTerm(TermNil);
+                                  names = YAPPairTerm(TermNil);
   RECOVER_MACHINE_REGS();
 }
 
@@ -603,16 +632,16 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t) {
   BACKUP_MACHINE_REGS();
   CELL *nts;
   Term tt = t.term();
-  goal = *new YAPTerm(tt);
   if (IsPairTerm(tt)) {
     nts = RepPair(tt);
     tt = Yap_MkApplTerm(FunctorCsult, 1, nts);
   }
+  goal = *new YAPTerm(tt);
   if (IsApplTerm(tt)) {
     Functor f = FunctorOfTerm(tt);
     if (!IsExtensionFunctor(f)) {
       nts = nullptr;
-      arity_t arity = ap->ArityOfPE;
+      arity_t arity = ArityOfFunctor(f);
       if (arity) {
         nts = RepAppl(tt) + 1;
         for (arity_t i = 0; i < arity; i++)
@@ -704,21 +733,21 @@ bool YAPQuery::next() {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
-  Term ts[3];
-  ARG1 = ts[0] = goal.term();
-  ARG2 = ts[1] = ap->ModuleOfPred;
-  ARG3 = ts[2] = Yap_cp_as_integer(B PASS_REGS);
-  goal = YAPApplTerm(FunctorUndefinedQuery, ts);
-  return ap = PredUndefinedQuery;
+  ARG1 = goal.term();
+  goal = YAPApplTerm(FunctorMetaCall, &ARG1);
+  return ap = PredCall;
 }
 
-PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term goal,
+PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term tgoal,
                                               Term mod) {
-  Term ts[3];
-  ARG1 = ts[0] = goal;
-  ARG2 = ts[1] = mod;
-  ARG3 = ts[2] = Yap_cp_as_integer(B PASS_REGS);
-  return PredUndefinedQuery;
+  Term ts[2];
+  ts[0] = mod;
+  ts[1] = tgoal;
+  ARG1 = Yap_MkApplTerm(FunctorModule, 2, ts);
+  //goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
+  return PredCall;
+  
+  
   // return YAPApplTerm(FunctorUndefinedQuery, ts);
 }
 
