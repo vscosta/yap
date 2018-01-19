@@ -352,7 +352,11 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_getc = Yap_popChar;
     st->stream_wgetc = Yap_popChar;
   }
-  if (st->status & Seekable_Stream_f  ) {
+    if (st->file) {
+        st->stream_peek = Yap_peekWithGetc;
+        st->stream_wpeek = Yap_peekWideWithGetwc;
+
+    } else if (st->status & Seekable_Stream_f  ) {
     st->stream_peek = Yap_peekWithSeek;
     st->stream_wpeek = Yap_peekWideWithSeek;
   } else {

@@ -153,9 +153,9 @@ extern void Yap_InitWriteTPreds(void);
 extern void Yap_InitReadTPreds(void);
 extern void Yap_socketStream(StreamDesc *s);
 extern void Yap_ReadlineFlush(int sno);
-int Yap_ReadlinePeekChar(int sno);
-int Yap_ReadlineForSIGINT(void);
-bool Yap_DoPrompt(StreamDesc *s);
+extern int Yap_ReadlinePeekChar(int sno);
+extern int Yap_ReadlineForSIGINT(void);
+extern bool Yap_DoPrompt(StreamDesc *s);
 
 extern int Yap_peek(int sno);
 extern int Yap_MemPeekc(int sno);
@@ -169,42 +169,42 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-Term Yap_syntax_error(TokEntry *tokptr, int sno);
+extern Term Yap_syntax_error(TokEntry *tokptr, int sno);
 
-int console_post_process_read_char(int, StreamDesc *);
-int console_post_process_eof(StreamDesc *);
-int post_process_read_wchar(int, size_t, StreamDesc *);
-int post_process_weof(StreamDesc *);
+extern int console_post_process_read_char(int, StreamDesc *);
+extern int console_post_process_eof(StreamDesc *);
+extern int post_process_read_wchar(int, size_t, StreamDesc *);
+extern int post_process_weof(StreamDesc *);
 
-bool is_same_tty(FILE *f1, FILE *f2);
+extern bool is_same_tty(FILE *f1, FILE *f2);
 
-int ISOWGetc(int sno);
-int GetUTF8(int sno);
-Term read_line(int sno);
-int PlGets(int sno, UInt size, char *buf);
-GetsFunc PlGetsFunc(void);
-int PlGetc(int sno);
-int FilePutc(int sno, int c);
-int DefaultGets(int, UInt, char *);
-int put_wchar(int sno, wchar_t ch);
-Int GetStreamFd(int sno);
-int ResetEOF(StreamDesc *s);
-int EOFPeek(int sno);
-int EOFWPeek(int sno);
+extern int ISOWGetc(int sno);
+extern int GetUTF8(int sno);
+extern Term read_line(int sno);
+extern int PlGets(int sno, UInt size, char *buf);
+extern GetsFunc PlGetsFunc(void);
+extern int PlGetc(int sno);
+extern int FilePutc(int sno, int c);
+extern int DefaultGets(int, UInt, char *);
+extern int put_wchar(int sno, wchar_t ch);
+extern Int GetStreamFd(int sno);
+extern int ResetEOF(StreamDesc *s);
+extern int EOFPeek(int sno);
+extern int EOFWPeek(int sno);
 
 extern void Yap_SetAlias(Atom arg, int sno);
-bool Yap_AddAlias(Atom arg, int sno);
-int Yap_CheckAlias(Atom arg);
-int Yap_RemoveAlias(Atom arg, int snoinline);
+extern bool Yap_AddAlias(Atom arg, int sno);
+extern int Yap_CheckAlias(Atom arg);
+extern int Yap_RemoveAlias(Atom arg, int snoinline);
 extern void Yap_SetAlias(Atom arg, int sno);
-void Yap_InitAliases(void);
-void Yap_DeleteAliases(int sno);
+extern void Yap_InitAliases(void);
+extern void Yap_DeleteAliases(int sno);
 extern bool Yap_FindStreamForAlias(Atom al);
 extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 
 INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
 
-Term Yap_StreamUserName(int sno);
+extern Term Yap_StreamUserName(int sno);
 
 INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s) {
   if (ch == '\n') {

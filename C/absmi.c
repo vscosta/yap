@@ -930,6 +930,8 @@ static void undef_goal(USES_REGS1) {
   if (UndefCode == NULL || UndefCode->OpcodeOfPred == UNDEF_OPCODE) {
     fprintf(stderr,"call to undefined Predicates %s ->", IndicatorOfPred(pe));
     Yap_DebugPlWriteln(ARG1);
+    fputc(':', stderr);
+    Yap_DebugPlWriteln(ARG2);
     fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);

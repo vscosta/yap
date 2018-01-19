@@ -40,28 +40,40 @@ meta_predicate declaration
       '$full_clause_optimisation'/4.
 
 
-'$meta_predicate'(M:P) :-
+'$meta_predicate'(P,M) :-
 	var(P),
+	!,
 	'$do_error'(instantiation_error,meta_predicate(M:P)).
-'$meta_predicate'(M:P) :-
+'$meta_predicate'(P,M) :-
 	var(M),
+	!,
 	'$do_error'(instantiation_error,meta_predicate(M:P)).
-'$meta_predicate'(M:(P,Ps)) :- !,
-	'$meta_predicate'(M:P),
-	'$meta_predicate'(M:Ps).
-'$meta_predicate'( M:D ) :-
-    '$yap_strip_module'( M:D, M1, P),
-	'$install_meta_predicate'(M1:P).
+'$meta_predicate'((P,_Ps),M) :-
+	'$meta_predicate'(P,M),
+	fail.
+'$meta_predicate'((_P,Ps),M) :-
+	!,
+	'$meta_predicate'(Ps,M).
+'$meta_predicate'( D, M ) :-
+	'$yap_strip_module'( M:D, M1, P),
+	P\==D,
+	!,
+	'$meta_predicate'( P, M1 ).
+'$meta_predicate'( D, M ) :-
+	functor(D,F,N),
+	( M = prolog -> M2 = _ ; M2 = M),
+	'$install_meta_predicate'(D,M2,F,N),
+	fail.
+'$meta_predicate'( _D, _M ).
 
-'$install_meta_predicate'(M1:P) :-
-	functor(P,F,N),
-	( M1 = prolog -> M = _ ; M1 = M),
-	( retractall(prolog:'$meta_predicate'(F,M,N,_)), fail ; true),
-	'$compile'(('$meta_predicate'(F,M,N,P) :- true),assertz,'$meta_predicate'(F,M,N,P),prolog,_).
+'$install_meta_predicate'(P,M,F,N) :-
+writeln(P),
+	retractall(prolog:'$meta_predicate'(F,M,N,_)),
+	fail.
+'$install_meta_predicate'(P,M,F,N) :-
+	assertz('$meta_predicate'(F,M,N,P)).
 
                                 % comma has its own problems.
-
-:- '$install_meta_predicate'(prolog:','(0,0)).
 
 %% handle module transparent predicates by defining a
 %% new context module.
@@ -482,7 +494,9 @@ expand_goal(Input, Output) :-
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
 
-:- '$meta_predicate'(prolog:(
+:- '$install_meta_predicate'((_,_),_,(','),2).
+
+:- meta_predicate
 	abolish(:),
 	abolish(:,+),
 	all(?,0,-),
@@ -572,13 +586,12 @@ expand_goal(Input, Output) :-
 	'->'(0 , 0),
 	'*->'(0 , 0),
 	';'(0 , 0),
-%	','(0 , 0),
 	^(+,0),
 	{}(0,?,?),
 	','(2,2,?,?),
-	;(2,2,?,?),
+	';'(2,2,?,?),
 	'|'(2,2,?,?),
 	->(2,2,?,?),
 	\+(2,?,?),
-	\+( 0 )
-            )).
+		  \+( 0 )
+            .

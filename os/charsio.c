@@ -93,7 +93,7 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
   return val;
 }
 
-int peekWideWithGetwc(int sno){
+int Yap_peekWideWithGetwc(int sno){
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
   int ch = getwc(s->file);
@@ -102,7 +102,7 @@ int peekWideWithGetwc(int sno){
 }
 
 
-int Yap_peekWithGetw(int sno) {
+int Yap_peekWithGetc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
   int ch = getc(s->file);
@@ -114,7 +114,7 @@ int Yap_peekWithGetw(int sno) {
 int Yap_peekWideWithSeek(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  Int pos = s->charcount;
+  Int pos = IntegerOfTerm(Yap_StreamPosition(sno));
   Int line = s->linecount;
   Int lpos = s->linepos;
   int ch = s->stream_wgetc(sno);
@@ -135,7 +135,7 @@ int Yap_peekWideWithSeek(int sno) {
 int Yap_peekWithSeek(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  Int pos = s->charcount;
+  Int pos = IntegerOfTerm(Yap_StreamPosition(sno));
   Int line = s->linecount;
   Int lpos = s->linepos;
   int ch = s->stream_getc(sno);

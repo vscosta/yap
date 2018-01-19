@@ -261,10 +261,11 @@ retractall(V) :-
 '$retractall'(M:V,_) :- !,
 	'$retractall'(V,M).
 '$retractall'(T,M) :-
+     functor(T,Na,Ar),
 	(
      '$is_log_updatable'(T, M) ->
 	 ( '$is_multifile'(T, M) ->
-	   '$retractall_lu_mf'(T,M)
+	   '$retractall_lu_mf'(T,M,Na,Ar)
 	 ;
 	   '$retractall_lu'(T,M)
 	 )
@@ -273,13 +274,11 @@ retractall(V) :-
      '$do_error'(type_error(callable,T),retractall(T))
 	;
      '$undefined'(T,M) ->
-     functor(T,Na,Ar),
      '$dynamic'(Na/Ar,M), !
 	;
      '$is_dynamic'(T,M) ->
      '$erase_all_clauses_for_dynamic'(T, M)
 	;
-     functor(T,Na,Ar),
      '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
 	).
 
@@ -292,12 +291,12 @@ retractall(V) :-
 	fail.
 '$retractall_lu'(_,_).
 
-'$retractall_lu_mf'(T,M) :-
+'$retractall_lu_mf'(T,M,Na,Ar) :-
 	'$log_update_clause'(T,M,_,R),
-	( recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
+	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
 	erase(R),
 	fail.
-'$retractall_lu_mf'(_,_).
+'$retractall_lu_mf'(_,_,_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
 	'$recordedp'(M:T,(T :- _),R), erase(R), fail.

@@ -41,7 +41,7 @@ you don't. */
 #cmakedefine HAVE_DECL_RL_READLINE_STATE ${HAVE_DECL_RL_READLINE_STATE}
 #endif
 
-/* Define to 1 if you have the `rl_begin_undo_group' function. */
+        /* Define to 1 if you have the `rl_begin_undo_group' function. */
 #ifndef HAVE_RL_BEGIN_UNDO_GROUP
 #cmakedefine HAVE_RL_BEGIN_UNDO_GROUP ${HAVE_RL_BEGIN_UNDO_GROUP}
 #endif

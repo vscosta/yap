@@ -2136,7 +2136,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
   GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  
+  pop_text_stack(lvl);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2191,10 +2191,10 @@ X_API Term YAP_ReadFromStream(int sno) {
   return o;
 }
 
-X_API Term YAP_ReadClauseFromStream(int sno) {
+X_API Term YAP_ReadClauseFromStream(int sno, Term vs) {
 
   BACKUP_MACHINE_REGS();
-  Term t = Yap_read_term(sno, TermNil, true);
+  Term t = Yap_read_term(sno, t = MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames,1),1,&vs), TermNil), true);
   RECOVER_MACHINE_REGS();
   return t;
 }

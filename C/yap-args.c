@@ -159,23 +159,22 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
     *Yap_PLDIR, *Yap_BOOTPLDIR, *Yap_BOOTSTRAPPLDIR, *Yap_COMMONSDIR,
     *Yap_STARTUP, *Yap_BOOTFILE;
 
-static int yap_lineno = 0;
-
 /* do initial boot by consulting the file boot.yap */
 static void consult(const char *b_file USES_REGS) {
   Term t;
   int boot_stream, osno;
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
-  Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 2);
-
+  Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
+  Functor functor_bc = Yap_MkFunctor(Yap_LookupAtom("$bc"), 2);
+  
   /* consult boot.pl */
   char *full = malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';
   /* the consult mode does not matter here, really */
   boot_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &osno);
   if (boot_stream < 0) {
-    fprintf(stderr, "[ FATAL ERROR: could not open boot_stream %s ]\n", b_file);
+    fprintf(stderr, "[ FATAL ERROR: could not open stream %s ]\n", b_file);
     exit(1);
   }
 
@@ -183,20 +182,25 @@ do {
     CACHE_REGS
       YAP_Reset(YAP_FULL_RESET, false);
     Yap_StartSlots();
-    t = YAP_ReadClauseFromStream(boot_stream);
+    Term vs = YAP_MkVarTerm();
+    t = YAP_ReadClauseFromStream(boot_stream, vs);
     //Yap_GetNèwSlot(t);
     if (t == 0) {
       fprintf(stderr,
-              "[ SYNTAX ERROR: while parsing boot_stream %s at line %d ]\n",
-              b_file, yap_lineno);
+              "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
+              b_file, GLOBAL_Stream[boot_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
-      fprintf(stderr, "[ line %d: term cannot be compiled ]", yap_lineno);
+      fprintf(stderr, "[ line %d: term cannot be compiled ]", GLOBAL_Stream[boot_stream].linecount);
     } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
 	consult( RepAtom(AtomOfTerm(ArgOfTerm(1,t)))->StrOfAE);
       } else {
+	YAP_Term ts[2];
+	ts[0] = t;
+	ts[1] = vs;
+	t = YAP_MkApplTerm(functor_bc, 2, ts);
         YAP_RunGoalOnce(t);
       }
     } else {
@@ -227,7 +231,7 @@ do {
 #endif
 }
 
-/** @brief A simple language for detecting where YAP stuff cn be found
+/** @brief A simple language for detecting where YAP stuff can be found
  *
  * @long The options are
  *  `[V]` use a configuration variable YAP_XXXDIR, prefixed by "DESTDIR"
@@ -1194,7 +1198,7 @@ return end_init(yap_init, YAP_QLY);
     start_modules();
     consult(Yap_BOOTFILE PASS_REGS);
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                                MkAtomTerm(Yap_BOOTFILE));
+                                MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
       setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
     return end_init(yap_init, YAP_BOOT_PL);
   }

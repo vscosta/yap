@@ -217,7 +217,7 @@
   AtomLength = Yap_FullLookupAtom("length"); TermLength = MkAtomTerm(AtomLength);
   AtomList = Yap_LookupAtom("list"); TermList = MkAtomTerm(AtomList);
   AtomLine = Yap_LookupAtom("line"); TermLine = MkAtomTerm(AtomLine);
-  AtomLive = Yap_FullLookupAtom("$live"); TermLive = MkAtomTerm(AtomLive);
+  AtomLive = Yap_FullLookupAtom("live"); TermLive = MkAtomTerm(AtomLive);
   AtomLoadAnswers = Yap_LookupAtom("load_answers"); TermLoadAnswers = MkAtomTerm(AtomLoadAnswers);
   AtomLocal = Yap_LookupAtom("local"); TermLocal = MkAtomTerm(AtomLocal);
   AtomLocalSp = Yap_LookupAtom("local_sp"); TermLocalSp = MkAtomTerm(AtomLocalSp);
@@ -226,8 +226,7 @@
   AtomMaximum = Yap_LookupAtom("maximum"); TermMaximum = MkAtomTerm(AtomMaximum);
   AtomMaxArity = Yap_LookupAtom("max_arity"); TermMaxArity = MkAtomTerm(AtomMaxArity);
   AtomMaxFiles = Yap_LookupAtom("max_files"); TermMaxFiles = MkAtomTerm(AtomMaxFiles);
-
-AtomMegaClause = Yap_FullLookupAtom("$mega_clause"); TermMegaClause = MkAtomTerm(AtomMegaClause);
+  AtomMegaClause = Yap_FullLookupAtom("$mega_clause"); TermMegaClause = MkAtomTerm(AtomMegaClause);
   AtomMetaCall = Yap_FullLookupAtom("$call"); TermMetaCall = MkAtomTerm(AtomMetaCall);
   AtomMfClause = Yap_FullLookupAtom("$mf_clause"); TermMfClause = MkAtomTerm(AtomMfClause);
   AtomMin = Yap_LookupAtom("min"); TermMin = MkAtomTerm(AtomMin);

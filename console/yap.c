@@ -58,8 +58,8 @@
 #include <ieeefp.h>
 #endif
 
-static void do_top_goal(YAP_Term Goal);
-static void exec_top_level(int BootMode, YAP_init_args *iap);
+static bool do_top_goal(YAP_Term Goal);
+static bool exec_top_level(int BootMode, YAP_init_args *iap);
 
 #ifdef lint
 /* VARARGS1 */
@@ -69,7 +69,7 @@ static void exec_top_level(int BootMode, YAP_init_args *iap);
 long _stksize = 32000;
 #endif
 
-static void do_top_goal(YAP_Term Goal) { YAP_RunGoalOnce(Goal); }
+static bool do_top_goal(YAP_Term Goal) { return YAP_RunGoalOnce(Goal); }
 
 static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
 
@@ -86,7 +86,7 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   return BootMode;
 }
 
-static void exec_top_level(int BootMode, YAP_init_args *iap) {
+static bool exec_top_level(int BootMode, YAP_init_args *iap) {
   YAP_Term atomfalse;
   YAP_Atom livegoal;
 
@@ -94,19 +94,22 @@ static void exec_top_level(int BootMode, YAP_init_args *iap) {
     /* continue executing from the frozen stacks */
     YAP_ContinueGoal();
   }
-  livegoal = YAP_FullLookupAtom("$live");
+  livegoal = YAP_FullLookupAtom("live");
   /* the top-level is now ready */
 
   /* read it before case someone, that is, Ashwin, hides
      the atom false away ;-).
   */
-  atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("$false"));
+  atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("false"));
   while (YAP_GetValue(livegoal) != atomfalse) {
     YAP_Reset(YAP_FULL_RESET, false);
-    do_top_goal(YAP_MkAtomTerm(livegoal));
-    livegoal = YAP_FullLookupAtom("$live");
-  } 
-   YAP_Exit(EXIT_SUCCESS);
+    if (!do_top_goal(YAP_MkAtomTerm(livegoal))) {
+      return false;
+    };
+    livegoal = YAP_FullLookupAtom("live");
+  }
+  return true;
+   //YAP_Exit(EXIT_SUCCESS);
 
   }
 
@@ -144,7 +147,7 @@ int main(int argc, char **argv)
   YAP_Reset(YAP_FULL_RESET, false);
   /* End preprocessor code */
 
-  exec_top_level(BootMode, &init_args);
+  bool rc = exec_top_level(BootMode, &init_args);
 
-  return (0);
+  return rc;
 }

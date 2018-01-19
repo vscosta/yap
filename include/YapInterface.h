@@ -400,7 +400,7 @@ extern X_API YAP_Term YAP_ReadFromStream(int s);
 
 /// read a Prolog clause from a Prolog opened stream $s$. Similar to
 /// YAP_ReadFromStream() but takes /// default options from read_clause/3.
-extern X_API YAP_Term YAP_ReadClauseFromStream(int s);
+extern X_API YAP_Term YAP_ReadClauseFromStream(int s, YAP_Term varNames);
 
 extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
