@@ -124,7 +124,7 @@ set_module_property(Mod, class(Class)) :-
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
         % first build the initial export table
         '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
-        sort( AllExports0, AllExports ),
+        '$sort'( AllExports0, AllExports ),
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
         % last, export everything to the host: if the loading crashed you didn't actually do
         % no evil.

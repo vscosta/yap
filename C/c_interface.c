@@ -2191,10 +2191,10 @@ X_API Term YAP_ReadFromStream(int sno) {
   return o;
 }
 
-X_API Term YAP_ReadClauseFromStream(int sno, Term vs) {
+X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
 
   BACKUP_MACHINE_REGS();
-  Term t = Yap_read_term(sno, t = MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames,1),1,&vs), TermNil), true);
+  Term t = Yap_read_term(sno,MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames,1),1,&vs), MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomTermPosition,1),1,&pos),  TermNil)), true);
   RECOVER_MACHINE_REGS();
   return t;
 }

@@ -154,7 +154,6 @@ static void start_modules(void) {
   CurrentModule = cm;
 }
 
-
 const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
     *Yap_PLDIR, *Yap_BOOTPLDIR, *Yap_BOOTSTRAPPLDIR, *Yap_COMMONSDIR,
     *Yap_STARTUP, *Yap_BOOTFILE;
@@ -166,8 +165,8 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
-  Functor functor_bc = Yap_MkFunctor(Yap_LookupAtom("$bc"), 2);
-  
+  Functor functor_bc = Yap_MkFunctor(Yap_LookupAtom("$bc"), 3);
+
   /* consult boot.pl */
   char *full = malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';
@@ -178,43 +177,29 @@ static void consult(const char *b_file USES_REGS) {
     exit(1);
   }
 
-do {
+  do {
     CACHE_REGS
-      YAP_Reset(YAP_FULL_RESET, false);
+    YAP_Reset(YAP_FULL_RESET, false);
     Yap_StartSlots();
-    Term vs = YAP_MkVarTerm();
-    t = YAP_ReadClauseFromStream(boot_stream, vs);
-    //Yap_GetNèwSlot(t);
+    Term vs = YAP_MkVarTerm(), pos = MkVarTerm();
+    t = YAP_ReadClauseFromStream(boot_stream, vs, pos);
+    // Yap_GetNèwSlot(t);
     if (t == 0) {
-      fprintf(stderr,
-              "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
+      fprintf(stderr, "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
               b_file, GLOBAL_Stream[boot_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
-      fprintf(stderr, "[ line %d: term cannot be compiled ]", GLOBAL_Stream[boot_stream].linecount);
+      fprintf(stderr, "[ line %d: term cannot be compiled ]",
+              GLOBAL_Stream[boot_stream].linecount);
     } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
-	consult( RepAtom(AtomOfTerm(ArgOfTerm(1,t)))->StrOfAE);
+        consult(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
       } else {
-	YAP_Term ts[2];
-	ts[0] = t;
-	ts[1] = vs;
-	t = YAP_MkApplTerm(functor_bc, 2, ts);
         YAP_RunGoalOnce(t);
       }
     } else {
-      Term ts[2];
       char *ErrorMessage;
-      Functor fun = Yap_MkFunctor(Yap_LookupAtom("$prepare_clause"), 2);
-      PredEntry *pe = RepPredProp(PredPropByFunc(fun, PROLOG_MODULE));
-
-      if (pe->OpcodeOfPred != UNDEF_OPCODE && pe->OpcodeOfPred != FAIL_OPCODE) {
-        ts[0] = t;
-        RESET_VARIABLE(ts + 1);
-        if (YAP_RunGoal(Yap_MkApplTerm(fun, 2, ts)))
-          t = ts[1];
-      }
       ErrorMessage = YAP_CompileClause(t);
       if (ErrorMessage) {
         fprintf(stderr, "%s", ErrorMessage);
@@ -243,30 +228,29 @@ do {
  *
  */
 typedef struct config {
-   char *name;
-   const char * *root;
-const char  * *lib;
-const char  * *share;
-const char  * *include;
-const char  * *pl;
-const char  * *commons;
-const char  * *dll;
-   const char * *ss;
- const char * *bootpl;
+  char *name;
+  const char **root;
+  const char **lib;
+  const char **share;
+  const char **include;
+  const char **pl;
+  const char **commons;
+  const char **dll;
+  const char **ss;
+  const char **bootpl;
 } config_t;
 
-const char *gd_root[] = {"@RootDir","[root]", "(execdir).."};
-const char *gd_lib[] =  {"@LibDir","[lib]", "(root)lib"};
-const char *gd_share[] =  {"@ShareDir","[share]", "(root)share"};
-const char *gd_include[] =   {"@IncludeDir","[include]", "(root)include"};
-const char *gd_dll[] =  {"@DLLDir","(lib)Yap"};
-const char *gd_pl[] =  {"@PlDir","(share)Yap"};
-const char *gd_commons[] =  {"@CommonsDir","(share)PrologCommons"};
-const char *gd_ss[] =  {"@SavedState","(dll)startup.yss"};
-const char *gd_bootpl[] =  {"@PrologBootFile","(pl)pl/boot.yap"};
+const char *gd_root[] = {"@RootDir", "[root]", "(execdir).."};
+const char *gd_lib[] = {"@LibDir", "[lib]", "(root)lib"};
+const char *gd_share[] = {"@ShareDir", "[share]", "(root)share"};
+const char *gd_include[] = {"@IncludeDir", "[include]", "(root)include"};
+const char *gd_dll[] = {"@DLLDir", "(lib)Yap"};
+const char *gd_pl[] = {"@PlDir", "(share)Yap"};
+const char *gd_commons[] = {"@CommonsDir", "(share)PrologCommons"};
+const char *gd_ss[] = {"@SavedState", "(dll)startup.yss"};
+const char *gd_bootpl[] = {"@PrologBootFile", "(pl)pl/boot.yap"};
 
-static config_t *gnu(config_t *i)
-{
+static config_t *gnu(config_t *i) {
   i->root = gd_root;
   i->lib = gd_lib;
   i->share = gd_share;
@@ -280,33 +264,30 @@ static config_t *gnu(config_t *i)
   return i;
 }
 
-const char *build_root[] =    {"."};
-const char *build_lib[] =    {"."};
-const char *build_share[] =    {"(src)"};
-const char *build_include[] =    {"(src/include]"};
-const char *build_dll[] =    {"."};
-const char *build_pl[] =    {"pl"};
-const char *build_commons[] =    {"PrologCommons"};
-const char *build_ss[] =    {NULL};
-const char *build_bootpl[] =    {"(pl)boot.yap"};
+const char *build_root[] = {"."};
+const char *build_lib[] = {"."};
+const char *build_share[] = {"(src)"};
+const char *build_include[] = {"(src/include]"};
+const char *build_dll[] = {"."};
+const char *build_pl[] = {"pl"};
+const char *build_commons[] = {"PrologCommons"};
+const char *build_ss[] = {NULL};
+const char *build_bootpl[] = {"(pl)boot.yap"};
 
-
-static config_t *build(config_t *i)
-{
-i->root = build_root;
-i->lib = build_lib;
-i->share = build_share;
-i->include = build_include;
-i->dll = build_dll;
-i->pl = build_pl;
-i->commons = build_commons;
-i->ss = build_ss;
-i->bootpl = build_bootpl;
- return i;
+static config_t *build(config_t *i) {
+  i->root = build_root;
+  i->lib = build_lib;
+  i->share = build_share;
+  i->include = build_include;
+  i->dll = build_dll;
+  i->pl = build_pl;
+  i->commons = build_commons;
+  i->ss = build_ss;
+  i->bootpl = build_bootpl;
+  return i;
 }
-  
-  
- /**
+
+/**
  * Search
  */
 char *location(YAP_init_args *iap, const char *inp, char *out) {
@@ -342,7 +323,7 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
       strcat(out, inp + strlen("(pl)"));
     } else if (strstr(inp + 1, "execdir") == inp + 1) {
       char *buf = Malloc(YAP_FILENAME_MAX + 1);
-      const  char *ex = Yap_AbsoluteFile(Yap_FindExecutable(), buf, false);
+      const char *ex = Yap_AbsoluteFile(Yap_FindExecutable(), buf, false);
       if (ex != NULL) {
         strcpy(out, dirname((char *)ex));
         strcat(out, "/");
@@ -356,23 +337,23 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "LibDir") == inp + 1) {
-       const char *tmp = iap->LibDir;
+      const char *tmp = iap->LibDir;
       if (tmp && tmp[0])
         strcpy(out, tmp);
-     } else if (strstr(inp + 1, "IncludeDir") == inp + 1) {
-       const char *tmp = iap->IncludeDir;
+    } else if (strstr(inp + 1, "IncludeDir") == inp + 1) {
+      const char *tmp = iap->IncludeDir;
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "SharedDir") == inp + 1) {
-       const char *tmp = iap->SharedDir;
+      const char *tmp = iap->SharedDir;
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "DLLDir") == inp + 1) {
-       const char *tmp = iap->DLLDir;
+      const char *tmp = iap->DLLDir;
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "PlDir") == inp + 1) {
-       const char *tmp = iap->SavedState;
+      const char *tmp = iap->SavedState;
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "PrologBootFile") == inp + 1) {
@@ -460,35 +441,27 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
  * @return
  */
 static const char *find_directory(YAP_init_args *iap, const char *paths[],
-                                  const char *names[]) {
+                                  char *filename) {
   int lvl = push_text_stack();
   char *out = Malloc(YAP_FILENAME_MAX + 1);
   const char *inp;
   char *full;
-  if (names) {
+  if (filename) {
     full = Malloc(YAP_FILENAME_MAX + 1);
   }
   int i = 0;
   while ((inp = paths[i++]) != NULL) {
     out[0] = '\0';
     char *o = location(iap, inp, out), *no;
-    if (o && o[0] && Yap_Exists(o)) {
-      if (names) {
-        size_t s = strlen(o);
-        o[s++] = '/';
-        const char *p;
-        int j = 0;
-        while ((p = names[j++])) {
-          char *io = o + s;
-          if ((no = location(iap, p, io)) && io[0] != '\0' && Yap_Exists(o)) {
-            o = pop_output_text_stack(lvl, o);
-	    o = realpath(o, full);
-	    return o;
-	  
-        }
-	}
+    if (o && o[0] && Yap_isDirectory(o)) {
+      if (filename) {
+        o = realpath(o, full);
+        strcat(o, "/");
+        strcat(o, filename);
+        return o;
       } else {
-        return pop_output_text_stack(lvl, o);
+        o = pop_output_text_stack(lvl, o);
+        return o;
       }
     }
   }
@@ -499,17 +472,16 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
 static void Yap_set_locations(YAP_init_args *iap) {
   config_t t, *template;
 
-  
-    template= gnu(&t);
-    Yap_ROOTDIR = find_directory(iap, template->root, NULL);
+  template = gnu(&t);
+  Yap_ROOTDIR = find_directory(iap, template->root, NULL);
   Yap_LIBDIR = find_directory(iap, template->lib, NULL);
-  //Yap_BINDIR = find_directory(iap, template->bin, NULL);
+  // Yap_BINDIR = find_directory(iap, template->bin, NULL);
   Yap_SHAREDIR = find_directory(iap, template->share, NULL);
   Yap_DLLDIR = find_directory(iap, template->dll, NULL);
   Yap_PLDIR = find_directory(iap, template->pl, NULL);
   Yap_COMMONSDIR = find_directory(iap, template->commons, NULL);
   Yap_STARTUP = find_directory(iap, template->ss, NULL);
-    Yap_BOOTFILE = find_directory(iap, template->bootpl, NULL);
+  Yap_BOOTFILE = find_directory(iap, template->bootpl, NULL);
   if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
@@ -942,17 +914,22 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         if (!strcmp("-nosignals", p)) {
           iap->PrologCannotHandleInterrupts = true;
           break;
-        } else if (!strncmp("-output-saved-state=", p, strlen("-output-saved-state="))) {
+        } else if (!strncmp("-output-saved-state=", p,
+                            strlen("-output-saved-state="))) {
           iap->OutputSavedState = p + strlen("-output-saved-state=");
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           iap->RootDir = p + strlen("-home=");
-        } else if (!strncmp("-system-library-directory=", p, strlen("-system-library-directory="))) {
+        } else if (!strncmp("-system-library-directory=", p,
+                            strlen("-system-library-directory="))) {
           iap->LibDir = p + strlen("-system-library-directory=");
-        } else if (!strncmp("-system-shared-directory=", p, strlen("-system-shared-directory="))) {
+        } else if (!strncmp("-system-shared-directory=", p,
+                            strlen("-system-shared-directory="))) {
           iap->SharedDir = p + strlen("-system-shared-directory=");
-        } else if (!strncmp("-prolog-library-directory=", p, strlen("-prolog-library-directory="))) {
+        } else if (!strncmp("-prolog-library-directory=", p,
+                            strlen("-prolog-library-directory="))) {
           iap->PlDir = p + strlen("-prolog-library-directory=");
-        } else if (!strncmp("-dll-library-directory=", p, strlen("-dll-library-directory="))) {
+        } else if (!strncmp("-dll-library-directory=", p,
+                            strlen("-dll-library-directory="))) {
           iap->DLLDir = p + strlen("-dll-library-directory=");
         } else if (!strncmp("-home=", p, strlen("-home="))) {
           iap->RootDir = p + strlen("-home=");
@@ -977,7 +954,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
           ssize = &(iap->HeapSize);
           p += strlen("-heap=");
           goto GetSize;
-         } else if (!strncmp("-max-stack=", p, strlen("-max-stack="))) {
+        } else if (!strncmp("-max-stack=", p, strlen("-max-stack="))) {
           ssize = &(iap->MaxStackSize);
           p += strlen("-max-stack=");
           goto GetSize;
@@ -1140,7 +1117,7 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 
 static YAP_file_type_t end_init(YAP_init_args *yap_init, YAP_file_type_t rc) {
   YAP_initialized = true;
-    LOCAL_PrologMode &= ~BootMode;
+  LOCAL_PrologMode &= ~BootMode;
   return rc;
 }
 
@@ -1188,18 +1165,24 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
       Yap_Restore(Yap_STARTUP)) {
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
     CurrentModule = LOCAL_SourceModule = USER_MODULE;
-        init_globals(yap_init);
+    init_globals(yap_init);
 
-  start_modules();
-return end_init(yap_init, YAP_QLY);
+    start_modules();
+    return end_init(yap_init, YAP_QLY);
   } else {
     init_globals(yap_init);
 
     start_modules();
     consult(Yap_BOOTFILE PASS_REGS);
-      setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                                MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
-      setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
+    if (yap_init->install) {
+      Term t = MkAtomTerm(Yap_LookupAtom(YAP_STARTUP));
+      Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
+                              1, &t);
+      YAP_RunGoalOnce(g);
+    }
+    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
     return end_init(yap_init, YAP_BOOT_PL);
   }
 }
@@ -1226,7 +1209,6 @@ return end_init(yap_init, YAP_QLY);
 X_API YAP_file_type_t YAP_FastInit(char *saved_state, int argc, char *argv[]) {
   YAP_init_args init_args;
   YAP_file_type_t out;
-
 
   if ((out = Yap_InitDefaults(&init_args, saved_state, argc, argv)) !=
       YAP_FOUND_BOOT_ERROR)

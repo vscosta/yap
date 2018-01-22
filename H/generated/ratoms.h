@@ -392,6 +392,7 @@
   AtomT = AtomAdjust(AtomT); TermT = MkAtomTerm(AtomT);
   AtomTerm = AtomAdjust(AtomTerm); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = AtomAdjust(AtomTermExpansion); TermTermExpansion = MkAtomTerm(AtomTermExpansion);
+  AtomTermPosition = AtomAdjust(AtomTermPosition); TermTermPosition = MkAtomTerm(AtomTermPosition);
   AtomTerms = AtomAdjust(AtomTerms); TermTerms = MkAtomTerm(AtomTerms);
   AtomText = AtomAdjust(AtomText); TermText = MkAtomTerm(AtomText);
   AtomTextStream = AtomAdjust(AtomTextStream); TermTextStream = MkAtomTerm(AtomTextStream);

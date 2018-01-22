@@ -392,6 +392,7 @@
   AtomT = Yap_LookupAtom("t"); TermT = MkAtomTerm(AtomT);
   AtomTerm = Yap_LookupAtom("term"); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = Yap_LookupAtom("term_expansion"); TermTermExpansion = MkAtomTerm(AtomTermExpansion);
+  AtomTermPosition = Yap_LookupAtom("term_position"); TermTermPosition = MkAtomTerm(AtomTermPosition);
   AtomTerms = Yap_LookupAtom("terms"); TermTerms = MkAtomTerm(AtomTerms);
   AtomText = Yap_LookupAtom("text"); TermText = MkAtomTerm(AtomText);
   AtomTextStream = Yap_LookupAtom("text_stream"); TermTextStream = MkAtomTerm(AtomTextStream);

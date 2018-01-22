@@ -285,7 +285,7 @@ use_module(F,Is) :-
     recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
-    sort( Everything0, Everything ),
+    '$sort'( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),
     recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 

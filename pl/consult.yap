@@ -472,7 +472,8 @@ load_files(Files,Opts) :-
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
-%	start_low_level_trace,
+				%	start_low_level_trace,
+	'$pred_exists'('$absolute_file_name'(File,[],F),prolog),
 	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
     open( F, read, Stream , [type(binary)] ),
 	(
@@ -1089,6 +1090,18 @@ make_library_index(_Directory).
 
 exists_source(File) :-
 	'$full_filename'(File, _AbsFile).
+
+
+'$full_filename'(F0, F) :-
+	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
+	!,
+	absolute_file_system_path(F0, F).
+'$full_filename'(F0, F) :-		     
+	'$absolute_file_name'(F0,[access(read),
+                              file_type(prolog),
+                              file_errors(fail),
+                              solutions(first),
+                              expand(true)],F).
 
 % reload_file(File) :-
 %         ' $source_base_name'(File, Compile),

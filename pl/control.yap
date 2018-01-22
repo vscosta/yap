@@ -87,26 +87,6 @@
 
 */
 
-
-/** @pred  once(: _G_) is iso
-
-
-Execute the goal  _G_ only once. The predicate is defined by:
-
-~~~~~{.prolog}
- once(G) :- call(G), !.
-~~~~~
-
-Note that cuts inside once/1 can only cut the other goals inside
-once/1.
-
-
-*/
-once(G) :-
-	strip_module(G, M, C),
-	'$meta_call'(C, M),
-	!.
-
 /** @pred  forall(: _Cond_,: _Action_)
 
 

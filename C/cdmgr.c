@@ -47,7 +47,7 @@ static void assertz_dynam_clause(PredEntry *, yamop *);
 static void expand_consult(void);
 static int not_was_reconsulted(PredEntry *, Term, int);
 static int RemoveIndexation(PredEntry *);
-static Int p_number_of_clauses(USES_REGS1);
+static Int number_of_clauses(USES_REGS1);
 static Int p_compile(USES_REGS1);
 static Int p_purge_clauses(USES_REGS1);
 static Int p_setspy(USES_REGS1);
@@ -1490,7 +1490,9 @@ PredEntry *Yap_PredFromClause(Term t USES_REGS) {
       t = ArgOfTerm(2, t);
     } else if (f == FunctorAssert) {
       t = ArgOfTerm(1, t);
-    } else if (f == FunctorComma && extra_arity == 2) {
+    } else if (f == FunctorComma
+
+               && extra_arity == 2) {
       t = ArgOfTerm(1, t);
     } else if (f == FunctorDoubleArrow) {
       extra_arity = 2;
@@ -2379,7 +2381,7 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
 ******************************************************************/
 
 static Int
-    p_number_of_clauses(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
+number_of_clauses(USES_REGS1) { /* '$number_of_clauses'(Predicate,M,N) */
   Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
   int ncl = 0;
@@ -2405,7 +2407,7 @@ static Int
   return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
 }
 
-/*  @pred '$new_multifile'(+N,+Ar,+Mod)
+/*  @pred '$new_multifile'(+G,+Mod)
  *  sets the multi-file flag
  * */
 static Int new_multifile(USES_REGS1) {
@@ -4709,7 +4711,7 @@ void Yap_InitCdMgr(void) {
   Yap_InitCPred("$mk_dynamic", 2, mk_dynamic, SafePredFlag);
   Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$numb  er_of_clauses", 3, p_number_of_clauses,
+  Yap_InitCPred("$number_of_clauses", 3, number_of_clauses,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$undefp_handler", 2, undefp_handler,

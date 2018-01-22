@@ -105,6 +105,7 @@ In YAP, the info field describes:
 	   prefix/5,
 	   file_location/3]).
 
+:- abolish(prolog:print_message/2).
 
 :- use_system_module( user, [message_hook/3]).
 

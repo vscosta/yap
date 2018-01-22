@@ -337,10 +337,25 @@ call(G) :- '$execute'(G).
 
 /** @pred  incore( 0:P )
 
-The same as call/1.
-*/
-incore(G) :- '$execute'(G).
 
+/** @pred  once( 0 G) is iso
+
+
+Execute the goal  _G_ only once. The predicate is defined by:
+
+~~~~~{.prolog}
+ once(G) :- call(G), !.
+~~~~~
+
+Note that cuts inside once/1 can only cut the other goals inside
+once/1.
+
+
+*/
+once(G) :-
+	strip_module(G, M, C),
+	'$meta_call'(C, M),
+	!.
 
 (:- G) :- '$execute'(G), !.
 

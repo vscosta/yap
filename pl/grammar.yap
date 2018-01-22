@@ -67,7 +67,7 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-
+/*
 :- system_module( '$_grammar', [!/2,
          (',')/4,
          (->)/4,
@@ -81,6 +81,7 @@ Grammar related built-in predicates:
         phrase/3,
         {}/3,
         ('|')/4], ['$do_error'/2]).
+*/
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
@@ -276,11 +277,11 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-:- multifile system:goal_expansion/2.
-
-:- dynamic system:goal_expansion/2.
+:- '$new_multifile'( goal_expansion(_,_), prolog).
+:- '$mk_dynamic'( goal_expansion(_,_), prolog).
 
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
+	nonvar(NT),
     catch(prolog:'$translate_rule'(
           (pseudo_nt --> Mod:NT), Rule),
      	  error(Pat,ImplDep),

@@ -260,13 +260,13 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]),
     (First == first -> ! ; true ).
 
-% allow paths in File Name
+				% allow paths in File Name
 '$core_file_name'(Name, Opts) -->
     '$file_name'(Name, Opts, E),
     '$suffix'(E, Opts),
     '$glob'(Opts).
 
-%
+				%
 % handle library(lists) or foreign(jpl)
 %
 '$file_name'(Name, Opts, E) -->

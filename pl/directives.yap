@@ -69,7 +69,9 @@
 	'$directive'(G).
 
 %:- '$multifile'( '$directive'/1, prolog ).
-:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
+%:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
+:- '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
+:- '$new_multifile'('$directive'(_), prolog).
 
 
 

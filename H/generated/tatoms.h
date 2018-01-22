@@ -392,6 +392,7 @@ X_API EXTERNAL Atom AtomSystemLibraryDir; X_API EXTERNAL Term TermSystemLibraryD
 X_API EXTERNAL Atom AtomT; X_API EXTERNAL Term TermT;
 X_API EXTERNAL Atom AtomTerm; X_API EXTERNAL Term TermTerm;
 X_API EXTERNAL Atom AtomTermExpansion; X_API EXTERNAL Term TermTermExpansion;
+X_API EXTERNAL Atom AtomTermPosition; X_API EXTERNAL Term TermTermPosition;
 X_API EXTERNAL Atom AtomTerms; X_API EXTERNAL Term TermTerms;
 X_API EXTERNAL Atom AtomText; X_API EXTERNAL Term TermText;
 X_API EXTERNAL Atom AtomTextStream; X_API EXTERNAL Term TermTextStream;

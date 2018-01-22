@@ -52,6 +52,7 @@ set(PL_BOOT_SOURCES
         swi.yap
         tabling.yap
         threads.yap
+        top.yap
         udi.yap
         undefined.yap
         utils.yap
@@ -90,5 +91,3 @@ else(CMAKE_CROSSCOMPILING)
 
 
 endif()
-
-
