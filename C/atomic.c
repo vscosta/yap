@@ -2230,17 +2230,17 @@ static bool check_sub_string_bef(int max, const unsigned char *p1,
                                  const unsigned char *p2) {
   size_t len = strlen_utf8(p2);
   int minv = max - len;
-  int c1;
+  int c2;
 
-  if ((Int)(minv - len) < 0)
+  if ((Int)(minv) < 0)
     return FALSE;
 
   p1 = skip_utf8(p1, minv);
   if (p1 == NULL || p2 == NULL)
     return p1 == p2;
-  while ((c1 = *p1++) == *p2++ && c1)
+  while ((c2 = *p2++) == *p1++ && c2)
     ;
-  return c1 == 0;
+  return c2 == 0;
 }
 
 static Int cont_sub_atomic(USES_REGS1) {
@@ -2478,23 +2478,46 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
   if (bnds > 1) {
     int out = FALSE;
 
-    if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
-        (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
+    if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_AFTER)) ==
+        (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL | SUB_ATOM_HAS_AFTER)) {
+      const unsigned char *sm;
       if (sub_atom)
+	sm = RepAtom(AtomOfTerm(tout))->UStrOfAE;
+      else
+	sm =  UStringOfTerm(tout);
+      if (mask & SUB_ATOM_HAS_SIZE) {
+	if (len != strlen_utf8(sm) ) {
+	  cut_fail();
+	} else {
+	  len = strlen_utf8(sm);
+	}
+      }
+      if (sz != minv+len+after) {
+	 cut_fail();
+      } 
+      return do_cut(check_sub_string_at(
+            minv, p, sm, len));
+    } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
+        (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
+	if (! Yap_unify(ARG4,MkIntegerTerm(sz-minv-len)) )
+	  cut_fail();
+      if (sub_atom) 
         return do_cut(check_sub_string_at(
             minv, p, RepAtom(AtomOfTerm(tout))->UStrOfAE, len));
       else
         return do_cut(check_sub_string_at(minv, p, UStringOfTerm(tout), len));
     } else if ((mask & (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) ==
                (SUB_ATOM_HAS_AFTER | SUB_ATOM_HAS_VAL)) {
-      if (sub_atom)
+	if (! Yap_unify(ARG2,MkIntegerTerm(sz-after-len)) )
+	  cut_fail();
+      if (sub_atom) {
         return do_cut(check_sub_string_bef(
             sz - after, p, RepAtom(AtomOfTerm(tout))->UStrOfAE));
-      else
-        return do_cut(check_sub_string_bef(sz - after, p, UStringOfTerm(tout)));
+      } else {
+        return do_cut(check_sub_string_bef(sz - after, p, UStringOfTerm(tout)));}
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) ==
                (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_SIZE)) {
-      if (minv + len > sz) {
+      if (minv + len + after > sz) {
         cut_fail();
       }
       if ((Int)(after = (sz - (minv + len))) < 0) {
