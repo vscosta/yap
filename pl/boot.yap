@@ -165,6 +165,8 @@ print_message(L,E) :-
 % This is the YAP init file
 % should be consulted first step after booting
 
+:- '$mk_dynamic'(term_expansion/2).
+
 :- c_compile('top.yap').
 
 % These are pseudo declarations
@@ -237,7 +239,12 @@ print_message(L,E) :-
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
 
+:- '$init_prolog'.
 
+initialize_prolog :-
+	'$init_prolog'.
+
+:- set_prolog_flag(verbose, silent).
 %:- set_prolog_flag(verbose_file_search, true ).
 %:- yap_flag(write_strings,on).
 %:- start_low_level_trace.

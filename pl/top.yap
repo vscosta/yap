@@ -1,6 +1,7 @@
 
-live :-
-	initialize_prolog,
+live :- '$live'.
+
+'$live' :-
  	repeat,
 	'$current_module'(Module),
 	( Module==user ->
@@ -9,12 +10,6 @@ live :-
 	  format(user_error,'[~w]~n', [Module])
 	),
 	'$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
-
-initialize_prolog :-
-    '$init_system'.
-
-
-
 
 '$init_globals' :-
 	% set_prolog_flag(break_level, 0),
@@ -62,20 +57,14 @@ initialize_prolog :-
 	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
 	current_prolog_flag(resource_database, Saved ),
 	format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
-	format(user_error, '% database loaded from ~a~n', [Saved]),
-	fail.
-'$version'.
+	format(user_error, '% database loaded from ~a~n', [Saved]).
 
-'$init_system' :-
-    get_value('$yap_inited', true), !.
-'$init_system' :-
-    set_value('$yap_inited', true),    % start_low_level_trace,
+'$init_prolog' :-
     % do catch as early as possible
-    '$version',
-    current_prolog_flag(file_name_variables, OldF),
-    set_prolog_flag(file_name_variables, true),
+	'$version',
+	yap_flag(file_name_variables, _OldF, true),
     '$init_consult',
-    set_prolog_flag(file_name_variables, OldF),
+    %set_prolog_flag(file_name_variables, OldF),
     '$init_globals',
     set_prolog_flag(fileerrors, true),
     set_value('$gc',on),
@@ -100,7 +89,6 @@ initialize_prolog :-
     '$init_or_threads',
     '$run_at_thread_start'.
 
-
 % Start file for yap
 
 /*		I/O predicates						*/
@@ -113,11 +101,11 @@ initialize_prolog :-
 */
 
 /* main execution loop							*/
-'$read_toplevel'(Goal, Bindings) :-
+'$read_toplevel'(Goal, Bindings, Pos) :-
 	'$prompt',
 	catch(read_term(user_input,
 			Goal,
-			[variable_names(Bindings), syntax_errors(dec10)]),
+			[variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
 			 E, '$handle_toplevel_error'( E) ).
 
 '$handle_toplevel_error'( syntax_error(_)) :-
@@ -144,7 +132,18 @@ initialize_prolog :-
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
 	'$run_atom_goal'(GA),
-	current_prolog_flag(break_level, BreakLevel),
+	fail.
+'$enter_top_level' :-
+	flush_output,
+'$run_toplevel_hooks',
+prompt1(' ?- '),
+'$read_toplevel'(Command,Varnames,Pos),
+nb_setval('$spy_gn',1),
+% stop at spy-points if debugging is on.
+nb_setval('$debug_run',off),
+nb_setval('$debug_jump',off),
+'$command'(Command,Varnames,Pos,top),
+current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
 	->
@@ -211,19 +210,25 @@ initialize_prolog :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
-'$execute_command'((:-G1),VL,Pos,Option,_) :-
+'$execute_command'((:-G),VL,Pos,Option,_) :-
 %          !,
-	 Option \= top, !,
-	 % allow user expansion
-	 '$yap_strip_module'(G1, M, G2),
-	 '$process_directive'(G2, Option, M, VL, Pos).
- '$execute_command'((?-G), VL, Pos, Option, Source) :-
+	 Option \= top,
+	!,			% allow user expansion
+	catch(expand_term((:- G), O),_O, fail),
+       (
+            O = (:- G1)
+        ->
+         '$yap_strip_module'(G1, M, G2),
+          '$process_directive'(G2, Option, M, VL, Pos)
+     ;
+           '$execute_commands'(G1,VL,Pos,Option,O)
+        ).
+'$execute_command'((?-G), VL, Pos, Option, Source) :-
 	 Option \= top,
 	 !,
 	 '$execute_command'(G, VL, Pos, top, Source).
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
-
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,

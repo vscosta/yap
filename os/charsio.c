@@ -93,14 +93,13 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
   return val;
 }
 
-int Yap_peekWideWithGetwc(int sno){
+int Yap_peekWideWithGetwc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
   int ch = getwc(s->file);
   ungetwc(ch, s->file);
   return ch;
 }
-
 
 int Yap_peekWithGetc(int sno) {
   StreamDesc *s;
@@ -110,7 +109,6 @@ int Yap_peekWithGetc(int sno) {
   return ch;
 }
 
-
 int Yap_peekWideWithSeek(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
@@ -119,18 +117,18 @@ int Yap_peekWideWithSeek(int sno) {
   Int lpos = s->linepos;
   int ch = s->stream_wgetc(sno);
   if (ch == EOF) {
-    if (s->file) clearerr(s->file);
+    if (s->file)
+      clearerr(s->file);
     s->status &= ~Eof_Error_Stream_f;
     // do not try doing error processing
   } else {
-  Yap_SetCurInpPos(sno, pos);
-  s->charcount = pos;
-  s->linecount = line;
-  s->linepos = lpos;
-}
+    Yap_SetCurInpPos(sno, pos);
+    s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
+  }
   return ch;
 }
-
 
 int Yap_peekWithSeek(int sno) {
   StreamDesc *s;
@@ -140,7 +138,8 @@ int Yap_peekWithSeek(int sno) {
   Int lpos = s->linepos;
   int ch = s->stream_getc(sno);
   if (ch == EOF) {
-    if (s->file) clearerr(s->file);
+    if (s->file)
+      clearerr(s->file);
     s->status &= ~Eof_Error_Stream_f;
     // do not try doing error processing
   } else {
@@ -152,15 +151,14 @@ int Yap_peekWithSeek(int sno) {
   return ch;
 }
 
-
 int Yap_popChar(int sno) {
-    StreamDesc *s = GLOBAL_Stream + sno;
-        s->buf.on = false;
-        s->charcount = s->buf.pos;
-        s->linecount = s->buf.line;
-        s->linepos = s->buf.lpos;
-    Yap_DefaultStreamOps(s);
-    return s->buf.ch;
+  StreamDesc *s = GLOBAL_Stream + sno;
+  s->buf.on = false;
+  s->charcount = s->buf.pos;
+  s->linecount = s->buf.line;
+  s->linepos = s->buf.lpos;
+  Yap_DefaultStreamOps(s);
+  return s->buf.ch;
 }
 
 int Yap_peekWide(int sno) {
@@ -170,25 +168,25 @@ int Yap_peekWide(int sno) {
   Int lpos = s->linepos;
   int ch = s->stream_wgetc(sno);
   if (ch == EOF) {
-    if (s->file) clearerr(s->file);
+    if (s->file)
+      clearerr(s->file);
     s->status &= ~Eof_Error_Stream_f;
     // do not try doing error processing
   } else {
     s->buf.on = true;
     s->buf.ch = ch;
-    s->buf.pos =  s->charcount;
+    s->buf.pos = s->charcount;
     s->buf.line = s->linecount;
     s->buf.lpos = s->linepos;
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
-      s->stream_getc = Yap_popChar;
-      s->stream_wgetc = Yap_popChar;
-      Yap_SetCurInpPos(sno, pos);
+    s->stream_getc = Yap_popChar;
+    s->stream_wgetc = Yap_popChar;
+    Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
-
 
 int Yap_peekChar(int sno) {
   StreamDesc *s = GLOBAL_Stream + sno;
@@ -197,25 +195,25 @@ int Yap_peekChar(int sno) {
   Int lpos = s->linepos;
   int ch = s->stream_getc(sno);
   if (ch == EOF) {
-    if (s->file) clearerr(s->file);
+    if (s->file)
+      clearerr(s->file);
     s->status &= ~Eof_Error_Stream_f;
     // do not try doing error processing
   } else {
     s->buf.on = true;
     s->buf.ch = ch;
-    s->buf.pos =  s->charcount;
+    s->buf.pos = s->charcount;
     s->buf.line = s->linecount;
     s->buf.lpos = s->linepos;
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
-      s->stream_getc = Yap_popChar;
-      s->stream_wgetc = Yap_popChar;
+    s->stream_getc = Yap_popChar;
+    s->stream_wgetc = Yap_popChar;
     Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
-
 
 int Yap_peek(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
 

@@ -159,13 +159,6 @@ absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
 	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File).
 
-'$full_filename'(F0, F) :-
-	'$absolute_file_name'(F0,[access(read),
-                              file_type(prolog),
-                              file_errors(fail),
-                              solutions(first),
-                              expand(true)],F).
-
 '$absolute_file_name'(File,LOpts,TrueFileName) :-
 				%   must_be_of_type( atom, File ),
      % look for solutions

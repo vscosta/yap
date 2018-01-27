@@ -61,7 +61,7 @@ class YAPInputSplitter(InputSplitter):
     def __init__(self, line_input_checker=True, physical_line_transforms=None,
                     logical_line_transforms=None):
         self._buffer_raw = []
-        self._validate = True
+v        self._validate = True
         self.yapeng = None
 
         if physical_line_transforms is not None:
@@ -524,7 +524,7 @@ class YAPRun:
         return self.errors
 
     def jupyter_query(self, s):
-        # import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
@@ -550,8 +550,8 @@ class YAPRun:
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
         #for eq in vs:
-        #    if not isinstance(eq[0],str):
-        #        print( "Error: Variable Name matches a Python Symbol")
+        #    if not isinstance(eq[0],str):x
+xf        #        print( "Error: Variable Name matches a Python Symbol")
         #        return
         # ask = True
         # launch the query

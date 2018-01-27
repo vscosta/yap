@@ -1373,12 +1373,10 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   } else {
-    oldname = Yap_VFAlloc((RepAtom(AtomOfTerm(t1)))->StrOfAE);
-    newname = Yap_VFAlloc((RepAtom(AtomOfTerm(t2)))->StrOfAE);
+    oldname = RepAtom(AtomOfTerm(t1))->StrOfAE;
+    newname = RepAtom(AtomOfTerm(t2))->StrOfAE;
     if ((r = link(oldname, newname)) == 0 && (r = unlink(oldname)) != 0)
       unlink(newname);
-    free(oldname);
-    free(newname);
     if (r != 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, t2, "%s in rename(%s,%s)",

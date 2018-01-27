@@ -90,6 +90,8 @@ static bool exec_top_level(int BootMode, YAP_init_args *iap) {
   YAP_Term atomfalse;
   YAP_Atom livegoal;
 
+  if (iap->install)
+    return true;
   if (BootMode == YAP_BOOT_FROM_SAVED_STACKS) {
     /* continue executing from the frozen stacks */
     YAP_ContinueGoal();
@@ -148,6 +150,7 @@ int main(int argc, char **argv)
   /* End preprocessor code */
 
   bool rc = exec_top_level(BootMode, &init_args);
-
-  return rc;
+  if (!rc)
+    return 1;
+  return 0;
 }

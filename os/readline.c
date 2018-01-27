@@ -253,7 +253,7 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
-bool Yap_readline_clear_pending_input(StreamDesc *s) {  
+bool Yap_readline_clear_pending_input(StreamDesc *s) {
 #if HAVE_RL_CLEAR_PENDING_INPUT
   rl_clear_pending_input();
 #endif
@@ -267,9 +267,12 @@ bool Yap_readline_clear_pending_input(StreamDesc *s) {
 bool Yap_ReadlineOps(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&
-        is_same_tty(s->file, GLOBAL_Stream[0].file))
+        is_same_tty(s->file, GLOBAL_Stream[0].file)) {
       s->stream_getc = ReadlineGetc;
-    s->status |= Readline_Stream_f;
+      s->stream_peek = Yap_ReadlinePeekChar;
+      s->stream_wpeek = Yap_ReadlinePeekChar;
+      s->status |= Readline_Stream_f;
+    }
     return true;
   }
   return false;

@@ -136,6 +136,8 @@ considered.
 
 
 */
+'$exec_directive'(M:A, Status, _M, VL, Pos) :-
+	'$exec_directives'(A, Status, M, VL, Pos).	
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -272,7 +274,7 @@ user_defined_directive(Dir,Action) :-
  %
  % but YAP and SICStus do.
  %
- '$process_directive'(G, _Mode, M, _VL, _Pos) :-
+'$process_directive'(G, _Mode, M, _VL, _Pos) :-
       '$execute'(M:G),
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-

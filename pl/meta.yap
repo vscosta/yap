@@ -66,11 +66,11 @@ meta_predicate declaration
 	fail.
 '$meta_predicate'( _D, _M ).
 
-'$install_meta_predicate'(P,M,F,N) :-
-writeln(P),
+'$install_meta_predicate'(_P,M,F,N) :-
 	retractall(prolog:'$meta_predicate'(F,M,N,_)),
 	fail.
 '$install_meta_predicate'(P,M,F,N) :-
+	'$new_meta_pred'(P, M),
 	assertz('$meta_predicate'(F,M,N,P)).
 
                                 % comma has its own problems.
@@ -379,7 +379,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$user_expansion'(M0N:G0N, M1:G1),
     '$import_expansion'(M1:G1, M2:G2),
     '$meta_expansion'(M2:G2, M1, HVars, M2B1F),
-    '$yap_strip_module'(M2B1F, M3, B1F),    
+    '$yap_strip_module'(M2B1F, M3, B1F),
     '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M3, H).
 
 '$end_goal_expansion'(G, G1F, GOF, HM, SM, BM, H) :-
@@ -494,7 +494,7 @@ expand_goal(Input, Output) :-
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
 
-:- '$install_meta_predicate'((_,_),_,(','),2).
+:- '$install_meta_predicate'((0,0),_,(','),2).
 
 :- meta_predicate
 	abolish(:),
@@ -556,6 +556,7 @@ expand_goal(Input, Output) :-
 	if(0,0,0),
 	ignore(0),
 	incore(0),
+	initializon(0),
 	multifile(:),
 	nospy(:),
         not(0),

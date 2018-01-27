@@ -27,10 +27,11 @@
 :- python_import(sys).
 
 user:jupyter_query(Self, Cell, Line ) :-
+	start_low_level_trace,
         setup_call_cleanup(
-			   enter_cell(Self),
-			   jupyter_cell(Self, Cell, Line),
-			   exit_cell(Self)
+			  jupyter: enter_cell(Self),
+			   jupyter:jupyter_cell(Self, Cell, Line),
+			   jupyter:exit_cell(Self)
 	 	   ).
 
 jupyter_cell(_Self, Cell, _) :-
@@ -39,7 +40,7 @@ jupyter_cell(_Self, Cell, _) :-
 jupyter_cell( _Self, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( Self, _, [] ) :- !.
+jupyter_cell( _Self, _, [] ) :- !.
 jupyter_cell( Self, _, Line ) :-
 	python_query( Self, Line ).
 
@@ -177,7 +178,7 @@ ready(_Self, Line ) :-
             !.
 ready(Self, Line ) :-
     errors( Self, Line ),
-	\+ syntax_error(_,_).
+    \+ syntax_error(_,_).
 
 user:errors( Self, Text ) :-
        	setup_call_cleanup(
@@ -245,7 +246,7 @@ open_events(Self, Text, Stream) :-
         assert( syntax_error(Cause,LN,CharPos,Details) )
         )).
 
-close_events( Self ) :-
+close_events( _Self ) :-
 	retract( undo(G) ),
 	call(G),
 	fail.

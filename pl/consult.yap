@@ -807,18 +807,17 @@ nb_setval('$if_le1vel',0).
 	),
    fail.
 '$exec_initialization_goals' :-
-	'$current_module'(M),
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
 	lists:member(G, Answers),
-    strip_module( M:G, M0, G0),
+	'$yap_strip_module'( G, M0, G0),
 	(
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	 true
 	;
-    format(user_error,':- ~w:~w failed.~n',[M,G])
+    format(user_error,':- ~w:~w failed.~n',[M0,G0])
 	),
 	fail.
 '$exec_initialization_goals'.
@@ -877,7 +876,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+	catch(load_files(user:X, [silent(false)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1096,7 +1095,7 @@ exists_source(File) :-
 	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
 	!,
 	absolute_file_system_path(F0, F).
-'$full_filename'(F0, F) :-		     
+'$full_filename'(F0, F) :-
 	'$absolute_file_name'(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),

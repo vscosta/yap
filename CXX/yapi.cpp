@@ -854,12 +854,12 @@ void YAPEngine::doInit(YAP_file_type_t BootMode) {
 #if YAP_PYTHON
   do_init_python();
 #endif
-  std::string s = "initialize_prolog";
-  YAPPredicate p = YAPPredicate(YAPAtomTerm(s));
-  YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
-  if (initq.next()) {
-    initq.cut();
-  }
+  // std::string s = "initialize_prolog";
+  // YAPPredicate p = YAPPredicate(MkAtomTerm(Yap_LookupAtom(s.c_str())));
+  // YAPQuery initq = YAPQuery(YAPPredicate(p), nullptr);
+  // if (initq.next()) {
+  //   initq.cut();
+  // }
   CurrentModule = TermUser;
 }
 

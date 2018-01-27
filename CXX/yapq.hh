@@ -189,9 +189,9 @@ public:
 struct X_API YAPEngineArgs : YAP_init_args {
 public:
   YAPEngineArgs() : yap_boot_params() {
-    char s[32];
-    strcpy(s, "startup.yss");
-    Yap_InitDefaults(this, s, 0, nullptr);
+    const std::string *s = new std::string("startup.yss");
+    Embedded = true;
+    Yap_InitDefaults(this, (char *)s->c_str(), 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
     python_in_python = Py_IsInitialized();

@@ -11,12 +11,11 @@ from .yap import *
 
 class Engine( YAPEngine ):
 
-    def __init__(self, args=None,**kwargs):
+    def __init__(self, args=None,self_contained=False,**kwargs):
         # type: (object) -> object
-        self.contained = False
         if not args:
             args = EngineArgs(**kwargs)
-        if self.contained:
+        if self_contained:
             yap_lib_path = os.path.dirname(__file__)
             args.setYapShareDir(os.path.join(yap_lib_path, "prolog"))
             args.setYapLibDir(yap_lib_path)

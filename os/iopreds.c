@@ -199,62 +199,60 @@ static Term is_file_errors(Term t) {
   return TermZERO;
 }
 
-
-
 int ResetEOF(StreamDesc *s) {
-    if (s->status & Eof_Error_Stream_f) {
-        Atom name = s->name;
-        // Yap_CloseStream(s - GLOBAL_Stream);
-        Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
-                  "GetC");
-        return FALSE;
-    } else if (s->status & Reset_Eof_Stream_f) {
-        s->status &= ~Push_Eof_Stream_f;
-        /* reset the eof indicator on file */
-        if (feof(s->file))
-            clearerr(s->file);
-        /* reset our function for reading input */
-        Yap_DefaultStreamOps(s);
-        /* next, reset our own error indicator */
-        s->status &= ~Eof_Stream_f;
-        /* try reading again */
-        return TRUE;
-    } else {
-        s->status |= Past_Eof_Stream_f;
-        return FALSE;
-    }
+  if (s->status & Eof_Error_Stream_f) {
+    Atom name = s->name;
+    // Yap_CloseStream(s - GLOBAL_Stream);
+    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+              "GetC");
+    return FALSE;
+  } else if (s->status & Reset_Eof_Stream_f) {
+    s->status &= ~Push_Eof_Stream_f;
+    /* reset the eof indicator on file */
+    if (feof(s->file))
+      clearerr(s->file);
+    /* reset our function for reading input */
+    Yap_DefaultStreamOps(s);
+    /* next, reset our own error indicator */
+    s->status &= ~Eof_Stream_f;
+    /* try reading again */
+    return TRUE;
+  } else {
+    s->status |= Past_Eof_Stream_f;
+    return FALSE;
+  }
 }
 
 /* handle reading from a stream after having found an EOF */
 static int EOFWGetc(int sno) {
-    register StreamDesc *s = &GLOBAL_Stream[sno];
+  register StreamDesc *s = &GLOBAL_Stream[sno];
 
-    if (s->status & Push_Eof_Stream_f) {
-        /* ok, we have pushed an EOF, send it away */
-        s->status &= ~Push_Eof_Stream_f;
-        return EOF;
-    }
-    if (ResetEOF(s)) {
-        Yap_DefaultStreamOps(s);
-        return (s->stream_wgetc(sno));
-    }
+  if (s->status & Push_Eof_Stream_f) {
+    /* ok, we have pushed an EOF, send it away */
+    s->status &= ~Push_Eof_Stream_f;
     return EOF;
+  }
+  if (ResetEOF(s)) {
+    Yap_DefaultStreamOps(s);
+    return (s->stream_wgetc(sno));
+  }
+  return EOF;
 }
 
 static int EOFGetc(int sno) {
-    register StreamDesc *s = &GLOBAL_Stream[sno];
+  register StreamDesc *s = &GLOBAL_Stream[sno];
 
-    if (s->status & Push_Eof_Stream_f) {
-        /* ok, we have pushed an EOF, send it away */
-        s->status &= ~Push_Eof_Stream_f;
-        ResetEOF(s);
-        return EOF;
-    }
-    if (ResetEOF(s)) {
-        Yap_DefaultStreamOps(s);
-        return s->stream_getc(sno);
-    }
+  if (s->status & Push_Eof_Stream_f) {
+    /* ok, we have pushed an EOF, send it away */
+    s->status &= ~Push_Eof_Stream_f;
+    ResetEOF(s);
     return EOF;
+  }
+  if (ResetEOF(s)) {
+    Yap_DefaultStreamOps(s);
+    return s->stream_getc(sno);
+  }
+  return EOF;
 }
 
 static void unix_upd_stream_info(StreamDesc *s) {
@@ -352,18 +350,22 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_getc = Yap_popChar;
     st->stream_wgetc = Yap_popChar;
   }
-    if (st->file) {
-        st->stream_peek = Yap_peekWithGetc;
-        st->stream_wpeek = Yap_peekWideWithGetwc;
-
-    } else if (st->status & Seekable_Stream_f  ) {
+  if (st->file) {
+    if (st->status & Readline_Stream_f) {
+      st->stream_peek = Yap_ReadlinePeekChar;
+      st->stream_wpeek = Yap_ReadlinePeekChar;
+    } else {
+      st->stream_peek = Yap_peekWithGetc;
+      st->stream_wpeek = Yap_peekWideWithGetwc;
+    }
+  } else if (st->status & Seekable_Stream_f) {
     st->stream_peek = Yap_peekWithSeek;
     st->stream_wpeek = Yap_peekWideWithSeek;
   } else {
     st->stream_peek = Yap_peekChar;
     st->stream_wpeek = Yap_peekWide;
   }
-  if (st->status & Eof_Stream_f  ) {
+  if (st->status & Eof_Stream_f) {
     st->stream_peek = EOFPeek;
     st->stream_wpeek = EOFPeek;
     st->stream_getc = EOFGetc;
@@ -664,7 +666,6 @@ static int NullPutc(int sno, int ch) {
   count_output_char(ch, s);
   return ((int)ch);
 }
-
 
 /* check if we read a LOCAL_newline or an EOF */
 int console_post_process_eof(StreamDesc *s) {

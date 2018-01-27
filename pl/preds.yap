@@ -218,6 +218,7 @@ clause(V0,Q,R) :-
 '$init_preds' :-
 	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
 	fail.
+    
 '$init_preds'.
 
 :- '$init_preds'.
