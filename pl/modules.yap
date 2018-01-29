@@ -194,7 +194,7 @@ X = 2 ? ;
      ERROR!!
      EXISTENCE ERROR- procedure c/1 is undefined, called from context  prolog:$user_call/2
                  Goal was c:c(_131290)
-vv~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The state of  the module system after this error is undefined.
 
@@ -452,10 +452,15 @@ export_resource(P0) :-
 	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
 	).
 export_resource(op(Prio,Assoc,Name)) :- !,
-  op(Prio,Assoc,prolog:Name).
-export_resource(op(Prio,Assoc,Name)) :- !,
-  op(Prio,Assoc,user:Name).
-export_resource(Resource) :-
+'$current_module'(Mod),
+op(Prio,Assoc,Mod:Name),
+(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
+  erase(R),
+  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|ExportedPreds],Line ),_)
+;	prolog_load_context(file, File) ->
+  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
+;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
+).export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
 export_list(Module, List) :-

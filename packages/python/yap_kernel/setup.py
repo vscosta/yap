@@ -37,12 +37,15 @@ from distutils.core import setup
 
 pjoin = os.path.join
 here = os.path.abspath(os.path.dirname(__file__))
+packages = []
 # pkg_root = pjoin(here, name)
 
-packages = setuptools.find_packages(here)
-# for d, _, _ in os.walk(pjoin(here, name)):
-#     if os.path.exists(pjoin(d, '__init__.py')):
-#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
+    if os.path.exists(pjoin(d, '__init__.py')):
+        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
+    if os.path.exists(pjoin(d, '__init__.py')):
+        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 sys.path.insert(0, here)
 package_data = {
@@ -50,9 +53,10 @@ package_data = {
 'yap_kernel': ['resources/*.*']
 }
 
-
-version_ns = {here, name, '_version.py')) as f:
+version_ns = {}
+with open(pjoin(here, name, '_version.py')) as f:
     exec(f.read(), {}, version_ns)
+
 
 
 
@@ -64,10 +68,10 @@ setup_args = dict(
     packages        = packages,
     py_modules      = ['yap_kernel_launcher'],
     package_data    = package_data,
-    package_dir = {'':here},
+    #package_dir = {'':here},
     description     = "YAP Kernel for Jupyter",
     author          = 'YAP Development Team',
-    author_email    = 'YAP-dev@scipy.org',
+    author_email    = 'yap-dev@scipy.org',
     url             = 'http://ipython.org',
     license         = 'BSD',
     platforms       = "Linux, Mac OS X, Windows",
@@ -95,7 +99,7 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
 
 
     argv = make_yap_kernel_cmd(executable=sys.executable)
-    dest = os.path.join(here, 'resources')
+    dest = os.path.join(here, 'yap_kernel', 'resources')
     try:
         write_kernel_spec(dest, overrides={'argv': argv})
     except:
@@ -104,14 +108,14 @@ if any(a.startswith(('bdist', 'build', 'install')) for a in sys.argv):
     #setup_args['data_files'] = [(pjoin('share', 'jupyter', 'kernels', KERNEL_NAME), glob(pjoin(dest, '*')))]
     mode_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'components', 'codemirror', 'mode', 'prolog')
     custom_loc = pjoin( sysconfig.get_path('platlib'), 'notebook', 'static', 'custom')
-    try:
-        shutil.copy( pjoin( custom_loc, "custom.js") , pjoin( custom_loc, "custom.js.orig"))
-        shutil.copy( pjoin( "resources", "custom.js") , pjoin( custom_loc, "custom.js"))
-        if not os.path.exists(mode_loc):
-            os.makedirs(mode_loc)
-        shutil.copy( pjoin( "resources","prolog.js") , mode_loc)
-    except:
-        pass
+#    try:
+#        shutil.copy( pjoin( custom_loc, "custom.js") , pjoin( custom_loc, "custom.js.orig"))
+#        shutil.copy( pjoin( "resources", "custom.js") , pjoin( custom_loc, "custom.js"))
+#        if not os.path.exists(mode_loc):
+#            os.makedirs(mode_loc)
+#        shutil.copy( pjoin( "resources","prolog.js") , mode_loc)
+#    except:
+#        pass
 
 extras_require = setuptools_args['extras_require'] = {
     'test:python_version=="2.7"': ['mock'],

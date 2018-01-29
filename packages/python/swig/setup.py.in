@@ -68,7 +68,7 @@ elif platform.system() == 'Darwin':
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..']
+    my_extra_link_args = ['-L','..','-Wl,-rpath','-Wl,${CMAKE_INSTALL_FULL_LIBDIR}']
     win_libs = []
     local_libs = ['Py4YAP']
 

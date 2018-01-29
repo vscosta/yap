@@ -165,8 +165,6 @@ print_message(L,E) :-
 % This is the YAP init file
 % should be consulted first step after booting
 
-:- '$mk_dynamic'(term_expansion/2).
-
 :- c_compile('top.yap').
 
 % These are pseudo declarations
@@ -214,14 +212,13 @@ print_message(L,E) :-
 	  C == end_of_file
 	).
 
-:- '$init_system'.
-
 :- c_compile('arith.yap').
 :- c_compile('builtins.yap').
 %:- stop_low_level_trace.
 
 :- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
+:- '$init_prolog'.
 
 :- compile_expressions.
 
@@ -238,8 +235,6 @@ print_message(L,E) :-
 :- c_compile('atoms.yap').
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
-
-:- '$init_prolog'.
 
 initialize_prolog :-
 	'$init_prolog'.

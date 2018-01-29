@@ -61,17 +61,20 @@ meta_predicate declaration
 	'$meta_predicate'( P, M1 ).
 '$meta_predicate'( D, M ) :-
 	functor(D,F,N),
-	( M = prolog -> M2 = _ ; M2 = M),
-	'$install_meta_predicate'(D,M2,F,N),
+	'$install_meta_predicate'(D,M,F,N),
 	fail.
 '$meta_predicate'( _D, _M ).
 
+'$install_meta_predicate'(P,M,_F,_N) :-
+    '$new_meta_pred'(P, M),
+	fail.
 '$install_meta_predicate'(_P,M,F,N) :-
-	retractall(prolog:'$meta_predicate'(F,M,N,_)),
+    	( M = prolog -> M2 = _ ; M2 = M),
+	retractall(prolog:'$meta_predicate'(F,M2,N,_)),
 	fail.
 '$install_meta_predicate'(P,M,F,N) :-
-	'$new_meta_pred'(P, M),
-	assertz('$meta_predicate'(F,M,N,P)).
+    	( M = prolog -> M2 = _ ; M2 = M), 
+	assertz('$meta_predicate'(F,M2,N,P)).
 
                                 % comma has its own problems.
 
@@ -494,7 +497,14 @@ expand_goal(Input, Output) :-
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
 
-:- '$install_meta_predicate'((0,0),_,(','),2).
+:- '$install_meta_predicate'((0,0),prolog,(','),2).
+:- '$install_meta_predicate'((0),prolog,(','),2).
+
+meta_predicate(P) :-
+     source_module(SM),
+'$meta_predicate'(P, SM).
+
+
 
 :- meta_predicate
 	abolish(:),
@@ -594,5 +604,5 @@ expand_goal(Input, Output) :-
 	'|'(2,2,?,?),
 	->(2,2,?,?),
 	\+(2,?,?),
-		  \+( 0 )
+		  \+( 0 ) 
             .

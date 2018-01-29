@@ -96,7 +96,7 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
 int Yap_peekWideWithGetwc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  int ch = getwc(s->file);
+  int ch = fgetwc(s->file);
   ungetwc(ch, s->file);
   return ch;
 }
@@ -104,7 +104,7 @@ int Yap_peekWideWithGetwc(int sno) {
 int Yap_peekWithGetc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  int ch = getc(s->file);
+  int ch = fgetc(s->file);
   ungetc(ch, s->file);
   return ch;
 }
@@ -167,6 +167,7 @@ int Yap_peekWide(int sno) {
   Int line = s->linecount;
   Int lpos = s->linepos;
   int ch = s->stream_wgetc(sno);
+  fprintf(stderr, "%d=%c\n", fileno(s->file), ch);
   if (ch == EOF) {
     if (s->file)
       clearerr(s->file);
@@ -181,9 +182,13 @@ int Yap_peekWide(int sno) {
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
+    s->stream_wgetc = Yap_popChar;
+    s->stream_getc = NU;
+    s->stream_peek= NULL;
+    s->stream_wpeek= NULL;
     s->stream_getc = Yap_popChar;
     s->stream_wgetc = Yap_popChar;
-    Yap_SetCurInpPos(sno, pos);
+    //  Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
@@ -209,15 +214,17 @@ int Yap_peekChar(int sno) {
     s->linecount = line;
     s->linepos = lpos;
     s->stream_getc = Yap_popChar;
-    s->stream_wgetc = Yap_popChar;
-    Yap_SetCurInpPos(sno, pos);
+    s->stream_wgetc = NU;
+    s->stream_peek= NULL;
+    s->stream_wpeek= NULL;
+    //Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
 
 int Yap_peek(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
 
-static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
+static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_peek(sno); }
 
 bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);
@@ -255,10 +262,7 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
       out = (Yap_peek(sno) < 0);
     }
   }
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return out;
-}
-
+  UNLOCK(GLOBAL_Stream[sno].streaml
 /** @pred  at_end_of_stream is iso
 
 

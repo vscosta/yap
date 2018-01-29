@@ -2,10 +2,6 @@
 %% @brief support yap shell
 %%
 
-:- yap_flag(verbose, verbose).
-
-:- use_module( library(python) ).
-
 :- module(yapi, [
 		 python_ouput/0,
 		 show_answer/2,
@@ -15,11 +11,20 @@
 		 yapi_query/2
 		 ]).
 
+
+     :- yap_flag(verbose, verbose).
+
+
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
-:- use_module( library(python) ).
+:- reexport( library(python) ).
+
+:- current_op(X,Y,':='), writeln(X:Y).
+:- current_op(X,Y,'.'), writeln(X:Y).
+
+:- stop_low_level_trace.
 
 :- python_import(yap4py.yapi).
 

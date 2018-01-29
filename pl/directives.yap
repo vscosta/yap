@@ -156,8 +156,7 @@ considered.
 '$exec_directive'(module(N,P,Op), Status, _, _, _) :-
 	'$module'(Status,N,P,Op).
 '$exec_directive'(meta_predicate(P), _, M, _, _) :-
-    '$yap_strip_module'(M:P,M0,P0),
-    '$meta_predicate'(P0,M0).
+    '$meta_predicate'(P,M).
 '$exec_directive'(module_transparent(P), _, M, _, _) :-
 	'$module_transparent'(P, M).
 '$exec_directive'(noprofile(P), _, M, _, _) :-
