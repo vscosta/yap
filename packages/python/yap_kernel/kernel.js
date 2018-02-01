@@ -1,18 +1,27 @@
+requirejs.config({
+    map: {
+      '*' : {
+        'codemirror/mode/prolog/prolog':'/kernelspecs/yap_kernel/prolog.js'
+
+      }
+    }
+});    
 
 define([
-    "/kernelspecs/yap_kernel/prolog.js"],function(CodeMirror){
+    'codemirror/lib/codemirror',
+ 'base/js/namespace',
+   'base/js/events',
+],function(Jupyter,events,CodeMirror){
+    var onload = function(){
+      var mode = {
+            mime: "text/x-prolog",
+            name: "Prolog",
+            mode: "prolog",
+            ext: ["pl", "yap", "yss", "P"]
+        };
+      //console.log("I am being loaded");
+        CodeMirror.requireMode("prolog", mode);
+      CodeMirror.setOption("mode",mode);
 
-	var onload = function(){
-            console.log("I am being loaded");
-	    var cell = Jupyter.notebook.get_selected_cell();
-	    var cm = cell.config;
-	    var patch = {
-		CodeCell:{
-		    cm_config:{mode: "prolog"} // only change here.
-		}
-	    };
-	    config.update(patch);
-	    return {onload:onload};
-	}	
-    }
-      );
+    return {onload:onload};
+}});

@@ -845,7 +845,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   //  cnt++;
   int l = push_text_stack();
   buf = Yap_readText(inp PASS_REGS);
-  if (!buf) {
+  if (!buf || buf[0] == '\0') {
     pop_text_stack(l);
     return 0L;
   }

@@ -61,7 +61,7 @@ blankc('\n').
 blankc('\t').
 
 enter_cell(_Self) :-
-	%open('//python/sys.stdin', read, _Input, []),
+	open('//python/input', read, _Input, []),
 	open('//python/sys.stdout', append, _Output, []),
 	open('//python/sys.stdout', append, _Error, []),
 	%set_prolog_flag(user_input, _Input),
