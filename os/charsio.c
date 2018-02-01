@@ -77,7 +77,6 @@ static Int put_code(USES_REGS1);
 static Int put_byte(USES_REGS1);
 static Int skip(USES_REGS1);
 static Int flush_output(USES_REGS1);
-static Int flush_all_streams(USES_REGS1);
 
 /**
  * CharOfAtom: convert an atom  into a single character.
@@ -167,7 +166,6 @@ int Yap_peekWide(int sno) {
   Int line = s->linecount;
   Int lpos = s->linepos;
   int ch = s->stream_wgetc(sno);
-  fprintf(stderr, "%d=%c\n", fileno(s->file), ch);
   if (ch == EOF) {
     if (s->file)
       clearerr(s->file);
@@ -183,7 +181,7 @@ int Yap_peekWide(int sno) {
     s->linecount = line;
     s->linepos = lpos;
     s->stream_wgetc = Yap_popChar;
-    s->stream_getc = NU;
+    s->stream_getc = NULL;
     s->stream_peek= NULL;
     s->stream_wpeek= NULL;
     s->stream_getc = Yap_popChar;
@@ -214,7 +212,7 @@ int Yap_peekChar(int sno) {
     s->linecount = line;
     s->linepos = lpos;
     s->stream_getc = Yap_popChar;
-    s->stream_wgetc = NU;
+    s->stream_wgetc = NULL;
     s->stream_peek= NULL;
     s->stream_wpeek= NULL;
     //Yap_SetCurInpPos(sno, pos);
@@ -262,7 +260,10 @@ static Int at_end_of_stream(USES_REGS1) { /* at_end_of_stream */
       out = (Yap_peek(sno) < 0);
     }
   }
-  UNLOCK(GLOBAL_Stream[sno].streaml
+  UNLOCK(GLOBAL_Stream[sno].streamlock);
+  return out;
+}
+
 /** @pred  at_end_of_stream is iso
 
 

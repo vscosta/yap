@@ -460,7 +460,8 @@ op(Prio,Assoc,Mod:Name),
 ;	prolog_load_context(file, File) ->
   recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
 ;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
-).export_resource(Resource) :-
+).
+export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
 export_list(Module, List) :-

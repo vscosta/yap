@@ -213,12 +213,11 @@ print_message(L,E) :-
 	).
 
 :- c_compile('arith.yap').
-:- c_compile('builtins.yap').
 %:- stop_low_level_trace.
 
-:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
-
 :- '$init_prolog'.
+
+:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
 :- compile_expressions.
 
@@ -230,6 +229,7 @@ print_message(L,E) :-
 :- c_compile('preddecls.yap').
 :- c_compile('preddyns.yap').
 :- c_compile('meta.yap').
+:- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 
 :- c_compile('atoms.yap').

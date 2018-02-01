@@ -524,7 +524,6 @@ class YAPRun:
         return self.errors
 
     def jupyter_query(self, s):
-        import pdb; pdb.set_trace()
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
@@ -715,7 +714,7 @@ class YAPRun:
                 mcell = cell.lstrip('%')
             txt0 = mcell.split(maxsplit = 2, sep = '\n')
             txt = txt0[0].split(maxsplit = 2)
-            magic = txt[0]                     
+            magic = txt[0]
             if len(txt) == 2:
                 line = txt[1]
             else:

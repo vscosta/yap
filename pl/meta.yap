@@ -498,7 +498,6 @@ expand_goal(Input, Output) :-
     '$yap_strip_module'(M:GF0, MF, GF).
 
 :- '$install_meta_predicate'((0,0),prolog,(','),2).
-:- '$install_meta_predicate'((0),prolog,(','),2).
 
 meta_predicate(P) :-
      source_module(SM),
