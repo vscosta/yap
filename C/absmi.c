@@ -917,7 +917,8 @@ static int interrupt_dexecute(USES_REGS1) {
 static void undef_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
     CELL *b;
-
+    CELL *b0;
+    
   BEGD(d0);
 /* avoid trouble with undefined dynamic procedures */
 /* I assume they were not locked beforehand */
@@ -955,14 +956,23 @@ static void undef_goal(USES_REGS1) {
   PP = NULL;
 #endif
   d0 = pe->ArityOfPE;
+  if (pe->ModuleOfPred == PROLOG_MODULE) {
+    if (CurrentModule == PROLOG_MODULE)
+      HR[0] = MkAtomTerm(Yap_LookupAtom("prolog"));
+    else
+      HR[0] = CurrentModule;
+  } else {
     HR[0] = Yap_Module_Name(pe);
-        b = HR;
-        HR += 2;
+  }
+  b = b0 = HR;
+  HR += 2;
   if (d0 == 0) {
     b[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
   } else {
-    b[1] = AbsAppl(HR);
+    b[1] = AbsAppl(b+2);
     *HR++ = (CELL)pe->FunctorOfPred;
+    b += 3;
+    HR += d0;
     BEGP(pt1);
     pt1 = XREGS + 1;
     for (; d0 > 0; --d0) {
@@ -973,13 +983,13 @@ static void undef_goal(USES_REGS1) {
       deref_head(d1, undef_unk);
     undef_nonvar:
       /* just copy it to the heap */
-      *HR++ = d1;
+      *b++ = d1;
       continue;
 
       derefa_body(d1, pt0, undef_unk, undef_nonvar);
       if (pt0 <= HR) {
         /* variable is safe */
-        *HR++ = (CELL)pt0;
+        *b++ = (CELL)pt0;
       } else {
         /* bind it, in case it is a local variable */
         d1 = Unsigned(HR);
@@ -993,8 +1003,8 @@ static void undef_goal(USES_REGS1) {
     ENDP(pt1);
   }
   ENDD(d0);
-    ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(b[0]));
-    ARG1 = AbsPair(b);
+  ARG1 = AbsPair(b0);
+  ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(b0[0]));
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);

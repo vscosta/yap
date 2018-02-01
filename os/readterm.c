@@ -337,28 +337,30 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   else {
       tm = MkStringTerm("syntax error");
   }
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
     if (errpos && newpos >= 0) {
-    char o[128 + 1];
-    diff = errpos - startpos;
-    if (diff > 128) {
-      diff = 128;
-      startpos = errpos - diff;
+      char o[128 + 1];
+      diff = errpos - startpos;
+      if (diff > 128) {
+	diff = 128;
+	startpos = errpos - diff;
+      }
+#if HAVE_FTELLO
+      Int curpos = ftello(GLOBAL_Stream[sno].file);
+      fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+#else
+      Int curpos = ftell(GLOBAL_Stream[sno].file);
+      fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
+#endif
+      fread(o, diff, 1, GLOBAL_Stream[sno].file);
+#if HAVE_FTELLO
+      fseeko(GLOBAL_Stream[sno].file, curpos, SEEK_SET);
+#else
+      fseek(GLOBAL_Stream[sno].file, curpos, SEEK_SET);
+#endif
+      o[diff] = '\0';
+      tf[3] = MkStringTerm(o);
     }
-#if HAVE_FTELLO
-        Int curpos = ftello(GLOBAL_Stream[sno].file);
-        fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
-#else
-        Int curpos = ftell(GLOBAL_Stream[sno].file);
-        fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
-#endif
-    fread(o, diff, 1, GLOBAL_Stream[sno].file);
-#if HAVE_FTELLO
-        fseeko(GLOBAL_Stream[sno].file, curpos, SEEK_SET);
-#else
-        fseek(GLOBAL_Stream[sno].file, curpos, SEEK_SET);
-#endif
-    o[diff] = '\0';
-    tf[3] = MkStringTerm(o);
   } else {
     while (tok) {
 

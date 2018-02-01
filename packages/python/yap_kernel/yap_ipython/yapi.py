@@ -61,7 +61,7 @@ class YAPInputSplitter(InputSplitter):
     def __init__(self, line_input_checker=True, physical_line_transforms=None,
                     logical_line_transforms=None):
         self._buffer_raw = []
-v        self._validate = True
+        self._validate = True
         self.yapeng = None
 
         if physical_line_transforms is not None:
@@ -524,7 +524,6 @@ class YAPRun:
         return self.errors
 
     def jupyter_query(self, s):
-        import pdb; pdb.set_trace()
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
@@ -551,7 +550,7 @@ class YAPRun:
         # variable names should match strings
         #for eq in vs:
         #    if not isinstance(eq[0],str):x
-xf        #        print( "Error: Variable Name matches a Python Symbol")
+        #        print( "Error: Variable Name matches a Python Symbol")
         #        return
         # ask = True
         # launch the query
@@ -677,7 +676,7 @@ xf        #        print( "Error: Variable Name matches a Python Symbol")
         #                 preprocessing_exc_tuple = sys.exc_info()
 
 
-      e  for i in self.syntaxErrors(raw_cell):
+        for i in self.syntaxErrors(raw_cell):
             try:
                 (what,lin,_,text) = i
                 e = SyntaxError(what, ("<string>", lin, 1, text))
@@ -715,7 +714,7 @@ xf        #        print( "Error: Variable Name matches a Python Symbol")
                 mcell = cell.lstrip('%')
             txt0 = mcell.split(maxsplit = 2, sep = '\n')
             txt = txt0[0].split(maxsplit = 2)
-            magic = txt[0]                     
+            magic = txt[0]
             if len(txt) == 2:
                 line = txt[1]
             else:

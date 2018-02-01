@@ -77,7 +77,6 @@ static Int put_code(USES_REGS1);
 static Int put_byte(USES_REGS1);
 static Int skip(USES_REGS1);
 static Int flush_output(USES_REGS1);
-static Int flush_all_streams(USES_REGS1);
 
 /**
  * CharOfAtom: convert an atom  into a single character.
@@ -96,7 +95,7 @@ INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
 int Yap_peekWideWithGetwc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  int ch = getwc(s->file);
+  int ch = fgetwc(s->file);
   ungetwc(ch, s->file);
   return ch;
 }
@@ -104,7 +103,7 @@ int Yap_peekWideWithGetwc(int sno) {
 int Yap_peekWithGetc(int sno) {
   StreamDesc *s;
   s = GLOBAL_Stream + sno;
-  int ch = getc(s->file);
+  int ch = fgetc(s->file);
   ungetc(ch, s->file);
   return ch;
 }
@@ -181,9 +180,13 @@ int Yap_peekWide(int sno) {
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
+    s->stream_wgetc = Yap_popChar;
+    s->stream_getc = NULL;
+    s->stream_peek= NULL;
+    s->stream_wpeek= NULL;
     s->stream_getc = Yap_popChar;
     s->stream_wgetc = Yap_popChar;
-    Yap_SetCurInpPos(sno, pos);
+    //  Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
@@ -209,15 +212,17 @@ int Yap_peekChar(int sno) {
     s->linecount = line;
     s->linepos = lpos;
     s->stream_getc = Yap_popChar;
-    s->stream_wgetc = Yap_popChar;
-    Yap_SetCurInpPos(sno, pos);
+    s->stream_wgetc = NULL;
+    s->stream_peek= NULL;
+    s->stream_wpeek= NULL;
+    //Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }
 
 int Yap_peek(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
 
-static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
+static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_peek(sno); }
 
 bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);

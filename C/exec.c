@@ -269,7 +269,7 @@ static bool CommaCall(Term t, Term mod) {
 }
 
 inline static bool do_execute(Term t, Term mod USES_REGS) {
-  Term t0 = t;
+  Term t0 = t, mod0 = mod;
   t = Yap_YapStripModule(t, &mod);
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
@@ -278,7 +278,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
   if (IsVarTerm(t) || IsVarTerm(mod)) {
-    return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
+    return CallError(INSTANTIATION_ERROR, t0, mod0 PASS_REGS);
   }
   if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
@@ -290,9 +290,9 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     if (f == FunctorComma && false) {
       Term t2 = ArgOfTerm(2, t);
       if (IsVarTerm(t2))
-        return CallMetaCall(t, mod PASS_REGS);
+        return CallMetaCall(t0, mod0 PASS_REGS);
       if (1 || !CommaCall(t2, mod))
-        return CallMetaCall(t, mod PASS_REGS);
+        return CallMetaCall(t0, mod0 PASS_REGS);
       Term t1 = ArgOfTerm(1, t);
 
       t = t1;
@@ -301,11 +301,11 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
         return do_execute(t, mod);
       }
     } else if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod0 PASS_REGS);
     }
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod0 PASS_REGS);
     }
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
@@ -315,7 +315,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
        otherwise I would dereference the argument and
        might skip a svar */
     if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
-      return CallMetaCall(t, mod PASS_REGS);
+      return CallMetaCall(t0, mod0 PASS_REGS);
     }
     pt = RepAppl(t) + 1;
     for (i = 1; i <= arity; i++) {
@@ -346,7 +346,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     pe = RepPredProp(PredPropByAtom(a, mod));
     return (CallPredicate(pe, B, pe->CodeOfPred PASS_REGS));
   }
-  return CallMetaCall(t, mod PASS_REGS);
+  return CallMetaCall(t0, mod0 PASS_REGS);
 }
 
 static Term copy_execn_to_heap(Functor f, CELL *pt, unsigned int n,
@@ -390,17 +390,17 @@ inline static bool do_execute_n(Term t, Term mod, unsigned int n USES_REGS) {
   PredEntry *pen;
   unsigned int i, arity;
   int j = -n;
-  Term t0 = t;
+  Term t0 = t, mod0 = mod;
 
 restart_exec:
   if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
+    return CallError(INSTANTIATION_ERROR, t0, mod0 PASS_REGS);
   } else if (IsAtomTerm(t)) {
     arity = n;
     Name = AtomOfTerm(t);
     pt = NULL;
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t, mod0 PASS_REGS);
   } else if (IsPairTerm(t)) {
     arity = n + 2;
     pt = RepPair(t);
@@ -415,9 +415,9 @@ restart_exec:
         goto restart_exec;
       } else {
         if (IsVarTerm(tmod)) {
-          return CallError(INSTANTIATION_ERROR, t0, tmod PASS_REGS);
+          return CallError(INSTANTIATION_ERROR, t0, mod0 PASS_REGS);
         } else {
-          return CallError(TYPE_ERROR_ATOM, t0, tmod PASS_REGS);
+          return CallError(TYPE_ERROR_ATOM, t0, mod0 PASS_REGS);
         }
       }
     }
@@ -427,7 +427,7 @@ restart_exec:
   }
   f = Yap_MkFunctor(Name, arity);
   if (IsExtensionFunctor(f)) {
-    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod0 PASS_REGS);
   }
   if (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(
@@ -435,14 +435,14 @@ restart_exec:
         mod PASS_REGS);
   }
   if (arity > MaxTemps) {
-    return CallError(TYPE_ERROR_CALLABLE, t, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod0 PASS_REGS);
   }
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
   /* but no meta calls require special preprocessing */
   if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
-    Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-    return (CallMetaCall(t, mod PASS_REGS));
+    // Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
+    return (CallMetaCall(t0, mod0 PASS_REGS));
   }
   /* now let us do what we wanted to do from the beginning !! */
   /* I cannot use the standard macro here because
