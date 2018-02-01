@@ -19,7 +19,7 @@
             ).
 
 
-:-	 use_module(library(yapi)).
+:-	 reexport(library(yapi)).
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 :-	 use_module(library(python)).
@@ -255,4 +255,3 @@ close_events( Self ) :-
     Self.errors := [t(C,L,N,A)] + Self.errors,
     fail.
 close_events( _ ).
-

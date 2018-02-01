@@ -19,7 +19,7 @@
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
-:- use_module( library(python) ).
+:- reexport( library(python) ).
 
 :- python_import(yap4py.yapi).
 
