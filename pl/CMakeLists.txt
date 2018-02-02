@@ -75,7 +75,7 @@ DESTINATION ${libpl}/library)
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/startup.yss)
 
         add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/startup.yss
-        COMMAND yap-bin -B${CMAKE_CURRENT_SOURCE_DIR}/boot.yap --output-saved-state=${CMAKE_CURRENT_BINARY_DIR}/startup.yss
+        COMMAND yap-bin -B${CMAKE_CURRENT_SOURCE_DIR} --output-saved-state=${CMAKE_CURRENT_BINARY_DIR}/startup.yss
          DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )
 #else ()

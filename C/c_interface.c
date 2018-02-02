@@ -2109,16 +2109,16 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
   int lvl = push_text_stack();
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE;
-    }
-    char *bfp = Malloc(YAP_FILENAME_MAX + 1);
-    bfp[0] = '\0';
-    if (fname == NULL || fname[0] == '\0') {
-      fname = Yap_BOOTFILE;
-    }
-    if (fname) {
-      fl = Yap_AbsoluteFile(fname, bfp, true);
-      if (!fl || !fl[0]) {
-        pop_text_stack(lvl);
+  }
+  char *bfp = Malloc(YAP_FILENAME_MAX + 1);
+  bfp[0] = '\0';
+  if (fname == NULL || fname[0] == '\0') {
+    fname = Yap_BOOTFILE;
+  }
+  if (fname) {
+    fl = Yap_AbsoluteFile(fname, bfp, true);
+    if (!fl || !fl[0]) {
+      pop_text_stack(lvl);
       return -1;
     }
   }

@@ -176,16 +176,17 @@ current_prolog_flag(break_level, BreakLevel),
  %
  % Hack in case expand_term has created a list of commands.
  %
- '$execute_commands'(V,_,_,_,Source) :- var(V), !,
+'$execute_commands'(V,_,_,_,Source) :- var(V), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
- '$execute_commands'([],_,_,_,_) :- !.
- '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
-	 (
-	   '$system_catch'('$execute_command'(C,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
-	   fail
-	 ;
-	   '$execute_commands'(Cs,VL,Pos,Con,Source)
-	 ).
+'$execute_commands'([],_,_,_,_) :- !.
+'$execute_commands'([C|Cs],VL,Pos,Con,Source) :-
+    !,
+    (
+	'$system_catch'('$execute_command'(C,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
+	fail
+    ;
+    '$execute_commands'(Cs,VL,Pos,Con,Source)
+    ).
  '$execute_commands'(C,VL,Pos,Con,Source) :-
 	 '$execute_command'(C,VL,Pos,Con,Source).
 
@@ -211,15 +212,14 @@ current_prolog_flag(break_level, BreakLevel),
 	 \+ '$if_directive'(Command),
 	 !.
 '$execute_command'((:-G),VL,Pos,Option,_) :-
-%          !,
-	 Option \= top,
-	!,			% allow user expansion
-	catch(expand_term((:- G), O),_O, fail),
-       (
+    Option \= top,
+    !,			% allow user expansion
+    '$expand_term'((:- G), O),
+    (
             O = (:- G1)
         ->
-         '$yap_strip_module'(G1, M, G2),
-          '$process_directive'(G2, Option, M, VL, Pos)
+		'$yap_strip_module'(G1, M, NG),
+                  '$process_directive'(NG, Option, M, VL, Pos)
      ;
            '$execute_commands'(G1,VL,Pos,Option,O)
         ).
@@ -229,6 +229,23 @@ current_prolog_flag(break_level, BreakLevel),
 	 '$execute_command'(G, VL, Pos, top, Source).
  '$execute_command'(G, VL, Pos, Option, Source) :-
 	 '$continue_with_command'(Option, VL, Pos, G, Source).
+
+'$expand_term'(T,O) :-
+	catch( '$expand_term0'(T,O), _,( '$disable_debugging', fail) ),
+      	!.
+
+'$expand_term0'(T,O) :-
+	expand_term( T, T1),
+	!,
+ 	'$expand_term1'(T1,O).	
+'$expand_term0'(T,T).
+
+'$expand_term1'(T,O) :-
+	'$yap_strip_module'(T1, M, G2),
+        '$is_metapredicate'(G2,M),
+        '$expand_meta_call'(M:G2, [], O),
+	!.
+'$expand_term1'(O,O).
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,

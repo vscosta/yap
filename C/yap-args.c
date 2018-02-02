@@ -165,7 +165,6 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
-  Functor functor_bc = Yap_MkFunctor(Yap_LookupAtom("$bc"), 3);
 
   /* consult boot.pl */
   char *full = malloc(YAP_FILENAME_MAX + 1);
@@ -238,7 +237,7 @@ typedef struct config {
   const char **dll;
   const char **ss;
   const char **oss;
-  const char **bootpl;
+  const char **plbootdir;
 } config_t;
 
 const char *gd_root[] = {"@RootDir", "[root]", "(execdir)/.."};
@@ -250,7 +249,8 @@ const char *gd_pl[] = {"@PlDir", "(share)/Yap"};
 const char *gd_commons[] = {"@CommonsDir", "(share)/PrologCommons"};
 const char *gd_ss[] = {"(dll)"};
 const char *gd_oss[] = {"."};
-const char *gd_bootpl[] = {"(pl)/pl"};
+const char *gd_plbootdir[] = {"@BootPlDi",
+			   "(pl)/pl"};
 
 static config_t *gnu(config_t *i) {
   i->root = gd_root;
@@ -262,31 +262,8 @@ static config_t *gnu(config_t *i) {
   i->commons = gd_commons;
   i->ss = gd_ss;
   i->oss = gd_oss;
-  i->bootpl = gd_bootpl;
+  i->plbootdir = gd_plbootdir;
 
-  return i;
-}
-
-const char *build_root[] = {"."};
-const char *build_lib[] = {"."};
-const char *build_share[] = {"(src)"};
-const char *build_include[] = {"(src/include]"};
-const char *build_dll[] = {"."};
-const char *build_pl[] = {"pl"};
-const char *build_commons[] = {"PrologCommons"};
-const char *build_ss[] = {NULL};
-const char *build_bootpl[] = {"(pl)boot.yap"};
-
-static config_t *build(config_t *i) {
-  i->root = build_root;
-  i->lib = build_lib;
-  i->share = build_share;
-  i->include = build_include;
-  i->dll = build_dll;
-  i->pl = build_pl;
-  i->commons = build_commons;
-  i->ss = build_ss;
-  i->bootpl = build_bootpl;
   return i;
 }
 
@@ -355,7 +332,11 @@ char *location(YAP_init_args *iap, const char *inp, char *out) {
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "PlDir") == inp + 1) {
-      const char *tmp = iap->SavedState;
+      const char *tmp = iap->PlDir;
+      if (tmp && tmp[0])
+        strcpy(out, tmp);
+    } else if (strstr(inp + 1, "PlBootDir") == inp + 1) {
+      const char *tmp = iap->PlBootDir;
       if (tmp && tmp[0])
         strcpy(out, tmp);
     } else if (strstr(inp + 1, "PrologBootFile") == inp + 1) {
@@ -485,6 +466,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_SHAREDIR = find_directory(iap, template->share, NULL);
   Yap_DLLDIR = find_directory(iap, template->dll, NULL);
   Yap_PLDIR = find_directory(iap, template->pl, NULL);
+  Yap_BOOTPLDIR = find_directory(iap, template->plbootdir, NULL);
   Yap_COMMONSDIR = find_directory(iap, template->commons, NULL);
   if (iap->SavedState == NULL)
     iap->SavedState = "startup.yss";
@@ -494,7 +476,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_OUTPUT_STARTUP = find_directory(iap, template->ss, iap->OutputSavedState);
   if (iap->PrologBootFile == NULL)
     iap->PrologBootFile = "boot.yap";
-  Yap_BOOTFILE = find_directory(iap, template->bootpl, iap->PrologBootFile);
+  Yap_BOOTFILE = find_directory(iap, template->plbootdir, iap->PrologBootFile);
   if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
@@ -641,19 +623,15 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
         else if (argv[1] && *argv[1] != '-') {
           iap->PrologBootFile = *++argv;
           argc--;
-        } else {
-          iap->PrologBootFile = "boot.yap";
         }
         break;
       case 'B':
         iap->boot_file_type = YAP_BOOT_PL;
         if (p[1])
-          iap->PrologBootFile = p + 1;
+          iap->PlDir = p + 1;
         else if (argv[1] && *argv[1] != '-') {
-          iap->PrologBootFile = *++argv;
+          iap->PlDir = *++argv;
           argc--;
-        } else {
-          iap->PrologBootFile = "boot.yap";
         }
         iap->install = true;
         break;

@@ -1130,7 +1130,6 @@ static Int p_expand_file_name(USES_REGS1) {
 
 static Int true_file_name3(USES_REGS1) {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
-  char *root = NULL;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
@@ -1145,7 +1144,7 @@ static Int true_file_name3(USES_REGS1) {
       Yap_Error(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
       return FALSE;
     }
-    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
+    //    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
   char tmp[YAP_FILENAME_MAX + 1];
   if (!Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, tmp, true))

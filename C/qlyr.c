@@ -614,7 +614,7 @@ static size_t read_bytes(FILE *stream, void *ptr, size_t sz) {
     size_t count = fread(ptr, 1, sz, stream);
     if (count == sz)
       return  sz;
-      if (feof(stream)) {
+    if (feof(stream)) {
         PlIOError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, TermNil, "read_qly/3: expected %ld bytes got %ld", sz, count);
         return 0;
       } else if (ferror(stream)) {

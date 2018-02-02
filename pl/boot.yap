@@ -205,7 +205,7 @@ print_message(L,E) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	  '$execute_command'(C,VL,Pos,Con,C), ! ;
 	  % do term expansion
-	  expand_term(C, EC),
+	  '$expand_term'(C, EC),
 	  % execute a list of commands
 	  '$execute_commands'(EC,VL,Pos,Con,_Source),
 	  % succeed only if the *original* was at end of file.
@@ -453,3 +453,4 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+

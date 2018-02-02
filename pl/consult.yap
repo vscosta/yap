@@ -1588,7 +1588,7 @@ End of conditional compilation.
 	catch('$eval_if'(G), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
+	'$expand_term'(Goal,TrueGoal),
 	once(TrueGoal).
 
 '$if_directive'((:- if(_))).

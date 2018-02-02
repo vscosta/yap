@@ -1399,7 +1399,7 @@ writable.
 
 */
 
-static Int open3(USES_RfEGS1) {
+static Int open3(USES_REGS1) {
   /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
   return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
