@@ -434,7 +434,7 @@ static const char *expandVars(const char *spec, char *u) {
   char *out;
 
   // first pass, remove Unix style stuff
-  if ((out = unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
+  if (spec == NULL || (out = unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
     return NULL;
   spec = u;
 #endif
@@ -462,11 +462,11 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   const char *spec2;
   char rc1[YAP_FILENAME_MAX + 1];
 
-/// spec gothe original spec;
-/// rc0 may be an outout buffer
-/// rc1 the internal buffer
-///
-/// PlExpandVars
+  /// spec gothe original spec;
+  /// rc0 may be an outout buffer
+  /// rc1 the internal buffer
+  ///
+  /// PlExpandVars
 
 #if _WIN32
   char rc2[YAP_FILENAME_MAX];

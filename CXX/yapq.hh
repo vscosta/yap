@@ -109,12 +109,12 @@ public:
     if (IsApplTerm(tgoal)) {
       Functor f = FunctorOfTerm(tgoal);
       if (!IsExtensionFunctor(f)) {
-          arity_t arity = ap->ArityOfPE;
-          if (arity) {
-            qt = RepAppl(tgoal) + 1;
-            for (arity_t i = 0; i < arity; i++)
-              XREGS[i + 1] = qt[i];
-          }
+        arity_t arity = ap->ArityOfPE;
+        if (arity) {
+          qt = RepAppl(tgoal) + 1;
+          for (arity_t i = 0; i < arity; i++)
+            XREGS[i + 1] = qt[i];
+        }
       }
     }
     names = YAPPairTerm(tnames);
@@ -244,6 +244,13 @@ public:
 
   inline const char *getPrologBootFile() { return PrologBootFile; };
 
+  inline void setPrologBootDir(const char *fl) {
+    BootPlDir = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)BootPlDir, fl);
+  };
+
+  inline const char *getPrologBootDir() { return BootPlDir; };
+
   inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
 
   inline const char *getPrologGoal() { return PrologGoal; };
@@ -252,9 +259,7 @@ public:
     PrologTopLevelGoal = fl;
   };
 
-  inline const char *getPrologTopLevelGoal() {
-    return PrologTopLevelGoal;
-  };
+  inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
 
   inline void setHaltAfterConsult(bool fl) { HaltAfterConsult = fl; };
 
