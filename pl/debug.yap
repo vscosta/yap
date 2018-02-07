@@ -924,7 +924,10 @@ be lost.
 
 '$scan_number'(Nb) :-
 	readutil:read_line_to_codes( debugger_input, S),
+	S = [_|_],
+	!,
         number_codes(Nb,S).
+'$scan_number'(0).
 
 '$print_deb_sterm'(G) :-
 	'$get_sterm_list'(L), !,
