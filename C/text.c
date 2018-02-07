@@ -220,7 +220,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
   size_t length = 0;
 
   if (t == TermNil) {
-    st0 = malloc(4);
+    st0 = Malloc(4);
     st0[0] = 0;
     return st0;
   }
@@ -522,7 +522,10 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
   Term t = init_tstring(PASS_REGS1);
   LOCAL_TERM_ERROR(t, 2 * max);
   unsigned char *buf = buf_from_tstring(HR);
-  strcpy((char *)buf, s);
+  if (max==0)
+    buf[0] = '\0';
+  else
+    strcpy((char *)buf, s);
   if (max + 1 < min) {
     LOCAL_TERM_ERROR(t, 2 * min);
     memset(buf + min, '\0', max);
@@ -845,10 +848,11 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   //  cnt++;
   int l = push_text_stack();
   buf = Yap_readText(inp PASS_REGS);
-  if (!buf || buf[0] == '\0') {
+  if (!buf) {
     pop_text_stack(l);
     return 0L;
   }
+  if (buf[0]) {
   size_t leng = strlen_utf8(buf);
   if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
     if (out->max < leng) {
@@ -877,7 +881,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
       }
     }
   }
-
+  }
   rc = write_Text(buf, out PASS_REGS);
   /*    fprintf(stderr, " -> ");
         if (!rc) fprintf(stderr, "NULL");
