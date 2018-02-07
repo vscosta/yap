@@ -305,12 +305,17 @@ static char tmpbuf[YAP_BUF_SIZE];
 #include "YapErrors.h"
 //
 void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
+  memset(new_error, 0, sizeof(yap_error_descriptor_t));
   new_error->top_error = LOCAL_ActiveError;
   LOCAL_ActiveError = new_error;
 }
 
-yap_error_descriptor_t *Yap_popErrorContext(void) {
- yap_error_descriptor_t *new_error = LOCAL_ActiveError;
+yap_error_descriptor_t *Yap_popErrorContext(bool pass) {
+  if (pass && LOCAL_ActiveError->top_error->errorNo == YAP_NO_ERROR &&
+      LOCAL_ActiveError->errorNo != YAP_NO_ERROR)
+    memcpy(LOCAL_ActiveError->top_error, LOCAL_ActiveError,
+           sizeof(yap_error_descriptor_t));
+  yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
   return new_error;
 }
@@ -387,14 +392,14 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   if (LOCAL_DoingUndefp && type == EVALUATION_ERROR_UNDEFINED) {
     P = FAILCODE;
-      CalculateStackGap(PASS_REGS1);
+    CalculateStackGap(PASS_REGS1);
     return P;
   }
   LOCAL_ActiveError->errorNo = type;
   LOCAL_ActiveError->errorAsText = Yap_errorName(type);
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
   LOCAL_ActiveError->classAsText =
-    Yap_errorClassName(LOCAL_ActiveError->errorClass);
+      Yap_errorClassName(LOCAL_ActiveError->errorClass);
   LOCAL_ActiveError->errorLine = lineno;
   LOCAL_ActiveError->errorFunction = function;
   LOCAL_ActiveError->errorFile = file;
@@ -574,7 +579,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
       LOCAL_ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
     } else {
       LOCAL_ErrorMessage =
-	(char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
+          (char *)RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
     }
     nt[1] = TermNil;
     switch (type) {
@@ -593,15 +598,15 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
         ts[2] = MkAtomTerm(Yap_LookupAtom(function));
         t3 = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("c"), 3), 3, ts);
         nt[1] =
-	  MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
+            MkPairTerm(MkPairTerm(MkAtomTerm(Yap_LookupAtom("c")), t3), nt[1]);
       }
       if ((location = Yap_pc_location(P, B, ENV)) != TermNil) {
         nt[1] = MkPairTerm(
-			   MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location), nt[1]);
+            MkPairTerm(MkAtomTerm(Yap_LookupAtom("p")), location), nt[1]);
       }
       if ((location = Yap_env_location(CP, B, ENV, 0)) != TermNil) {
         nt[1] = MkPairTerm(
-			   MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location), nt[1]);
+            MkPairTerm(MkAtomTerm(Yap_LookupAtom("e")), location), nt[1]);
       }
     }
   }

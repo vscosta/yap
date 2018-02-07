@@ -440,7 +440,7 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
   const char *inp;
   if (filename) {
     strcpy(out, filename);
-    if (Yap_IsAbsolutePath(out, false)) {
+    if (Yap_IsAbsolutePath(out, true)) {
       out = pop_output_text_stack(lvl, out);
       return out;
     }
