@@ -513,7 +513,7 @@ path(Path) :-
 '$in_path'(X) :-
 	recorded('$path',Path,_),
 	atom_codes(Path,S),
-	( S = ""  -> X = '.' ;
+	( S = []  -> X = '.' ;
 	  atom_codes(X,S) ).
 
 /**
