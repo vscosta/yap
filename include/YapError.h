@@ -238,6 +238,6 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
   extern const char *Yap_errorClassName(yap_error_class_number e);
 
   extern void Yap_pushErrorContext(yap_error_descriptor_t * new_error);
-  extern yap_error_descriptor_t *Yap_popErrorContext(void);
+  extern yap_error_descriptor_t *Yap_popErrorContext(bool pass);
 
 #endif

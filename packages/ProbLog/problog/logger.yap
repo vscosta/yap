@@ -224,13 +224,11 @@
 
 :- yap_flag(unknown,error).
 :- style_check(single_var).
-:- start_low_level_trace.
 :- initialization((
 	bb_put(logger_filename,'out.dat'),
 	bb_put(logger_delimiter,';'),
   bb_put(logger_variables,[])
                   )).
-:- stopS_low_level_trace.
 
 %========================================================================
 %= Defines a new variable, possible types are: int, float and time

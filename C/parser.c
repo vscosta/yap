@@ -175,7 +175,7 @@ static void syntax_msg(const char *msg, ...) {
   va_list ap;
   if (!LOCAL_ErrorMessage ||
       (LOCAL_Error_TYPE == SYNTAX_ERROR &&
-              LOCAL_tokptr->TokPos < LOCAL_ActiveError->prologParserPos  )) {
+       LOCAL_tokptr->TokPos < LOCAL_ActiveError->prologParserPos)) {
     if (!LOCAL_ErrorMessage) {
       LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
     }
@@ -1013,8 +1013,8 @@ static Term ParseTerm(int prio, JMPBUFF *FailBuff, encoding_t enc,
       }
     }
     if (LOCAL_tokptr->Tok <= Ord(String_tok)) {
-      syntax_msg("line %d: expected operator, got \'%s\'", LOCAL_tokptr->TokLine,
-                 Yap_tokText(LOCAL_tokptr));
+      syntax_msg("line %d: expected operator, got \'%s\'",
+                 LOCAL_tokptr->TokLine, Yap_tokText(LOCAL_tokptr));
       FAIL;
     }
     break;
@@ -1036,6 +1036,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     t = ParseTerm(prio, &FailBuff, enc, cmod PASS_REGS);
 #if DEBUG
     if (GLOBAL_Option['p' - 'a' + 1]) {
+      Yap_DebugPlWrite(MkIntTerm(LOCAL_tokptr->TokLine));
       Yap_DebugPutc(stderr, '[');
       if (t == 0)
         Yap_DebugPlWrite(MkIntTerm(0));

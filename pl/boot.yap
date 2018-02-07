@@ -120,6 +120,7 @@ print_message(L,E) :-
 	).
 
 
+
 '$undefp0'([M|G], _Action) :-
     stream_property( loop_stream, file_name(F)),
     stream_property( loop_stream, line_number(L)),
@@ -165,6 +166,9 @@ print_message(L,E) :-
 % This is the YAP init file
 % should be consulted first step after booting
 
+
+:-  yap_flag(prolog:unknown, error).
+
 :- c_compile('top.yap').
 
 % These are pseudo declarations
@@ -200,14 +204,17 @@ print_message(L,E) :-
 
 '$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
-	 '$execute_command'(C,VL,Pos,Con,_Source).
+	 '$yap_strip_module'(C, EM, EG),
+   '$execute_command'(EM,EG,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
-	  '$execute_command'(C,VL,Pos,Con,C), ! ;
+	 '$yap_strip_module'(C, EM, EG),
+	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
 	  % do term expansion
 	  '$expand_term'(C, EC),
+    '$yap_strip_module'(EC, EM, EG),
 	  % execute a list of commands
-	  '$execute_commands'(EC,VL,Pos,Con,_Source),
+	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
 	  % succeed only if the *original* was at end of file.
 	  C == end_of_file
 	).
@@ -216,8 +223,6 @@ print_message(L,E) :-
 %:- stop_low_level_trace.
 
 :- '$init_prolog'.
-
-:- '$all_current_modules'(M), yap_flag(M:unknown, error) ; true.
 
 :- compile_expressions.
 
@@ -453,4 +458,3 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
-

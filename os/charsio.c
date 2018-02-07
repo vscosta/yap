@@ -153,9 +153,6 @@ int Yap_peekWithSeek(int sno) {
 int Yap_popChar(int sno) {
   StreamDesc *s = GLOBAL_Stream + sno;
   s->buf.on = false;
-  s->charcount = s->buf.pos;
-  s->linecount = s->buf.line;
-  s->linepos = s->buf.lpos;
   Yap_DefaultStreamOps(s);
   return s->buf.ch;
 }
@@ -174,16 +171,13 @@ int Yap_peekWide(int sno) {
   } else {
     s->buf.on = true;
     s->buf.ch = ch;
-    s->buf.pos = s->charcount;
-    s->buf.line = s->linecount;
-    s->buf.lpos = s->linepos;
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
     s->stream_wgetc = Yap_popChar;
     s->stream_getc = NULL;
-    s->stream_peek= NULL;
-    s->stream_wpeek= NULL;
+    s->stream_peek = NULL;
+    s->stream_wpeek = NULL;
     s->stream_getc = Yap_popChar;
     s->stream_wgetc = Yap_popChar;
     //  Yap_SetCurInpPos(sno, pos);
@@ -205,17 +199,14 @@ int Yap_peekChar(int sno) {
   } else {
     s->buf.on = true;
     s->buf.ch = ch;
-    s->buf.pos = s->charcount;
-    s->buf.line = s->linecount;
-    s->buf.lpos = s->linepos;
     s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
     s->stream_getc = Yap_popChar;
     s->stream_wgetc = NULL;
-    s->stream_peek= NULL;
-    s->stream_wpeek= NULL;
-    //Yap_SetCurInpPos(sno, pos);
+    s->stream_peek = NULL;
+    s->stream_wpeek = NULL;
+    // Yap_SetCurInpPos(sno, pos);
   }
   return ch;
 }

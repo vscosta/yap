@@ -50,7 +50,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
 /* The YAP main types */
 #include "YapTerm.h"
 
@@ -75,16 +74,13 @@
 typedef bool YAP_Bool;
 #endif
 
-
 /**
   This term can never be constructed as a valid term, so it is
   used as a "BAD" term
 */
 #define TermZERO ((Term)0)
 
-
 #include "YapConfig.h"
-
 
 typedef void *YAP_PredEntryPtr;
 
@@ -129,7 +125,7 @@ typedef enum {
   YAP_SAVED_STATE = 0x0004,
   YAP_OBJ = 0x0008,
   YAP_PL = 0x0010,
-    YAP_BOOT_PL = 0x0030,
+  YAP_BOOT_PL = 0x0030,
   YAP_QLY = 0x0040,
   YAP_EXE = 0x0080,
   YAP_FOUND_BOOT_ERROR = 0x0100,
@@ -175,37 +171,36 @@ typedef enum {
 #define YAP_RECONSULT_MODE 1
 #define YAP_BOOT_MODE 2
 
-
-X_API YAP_file_type_t Yap_InitDefaults(void *init_args,  char saved_state[],
-                                 int Argc, char *Argv[]);
+X_API YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
+                                       int Argc, char *Argv[]);
 
 typedef struct yap_boot_params {
-    //> boot type as suggested by the user
-    YAP_file_type_t boot_file_type;
-    //> how files are organised: NULL is GNU/Linux way
-    // const char *directory_structure;
-    //> if NON-NULL, set value for Yap_ROOTDIR
-    const char *RootDir;
-    //> if NON-NULL, location of libYap, sets Yap_LIBDIR
-    const char *LibDir;
-    //> if NON-NULL, architecture independent files, sets Yap_SHAREDIR
-    const char *SharedDir;
-    //> if NON-NULL, include files, sets Yap_INCLUDEDIR
-    const char *IncludeDir;
-    //> if NON-NULL, Prolog DLL location, sets Yap_DLLDIR
-    const char *DLLDir;
-    //> if NON-NULL, Prolog library, sets Yap_DLLDIR
-    const char *PlDir;
+  //> boot type as suggested by the user
+  YAP_file_type_t boot_file_type;
+  //> how files are organised: NULL is GNU/Linux way
+  // const char *directory_structure;
+  //> if NON-NULL, set value for Yap_ROOTDIR
+  const char *RootDir;
+  //> if NON-NULL, location of libYap, sets Yap_LIBDIR
+  const char *LibDir;
+  //> if NON-NULL, architecture independent files, sets Yap_SHAREDIR
+  const char *SharedDir;
+  //> if NON-NULL, include files, sets Yap_INCLUDEDIR
+  const char *IncludeDir;
+  //> if NON-NULL, Prolog DLL location, sets Yap_DLLDIR
+  const char *DLLDir;
+  //> if NON-NULL, Prolog library, sets Yap_DLLDIR
+  const char *PlDir;
   //> if NON-NULL, name for a Prolog file to use when booting
   const char *PrologBootFile;
   //> if NON-NULL, directory for a Prolog file to be when booting
-  const char *PlBootDir;
+  const char *BootPlDir;
   //> if NON-NULL, path where we can find the saved state
   const char *SavedState;
-    //> bootstrapping mode: YAP is not properly installed
-    bool install;
-    //>  generats a saved space at this path
-    char *OutputSavedState;
+  //> bootstrapping mode: YAP is not properly installed
+  bool install;
+  //>  generats a saved space at this path
+  char *OutputSavedState;
   //> if NON-0, minimal size for Heap or Code Area
   size_t HeapSize;
   //> if NON-0, maximal size for Heap or Code Area
@@ -266,15 +261,15 @@ typedef struct yap_boot_params {
   //> 0, maintain default, > 0 use fd-1, < 0 close
   int inp, out, err;
 #if __ANDROID__
-    //> android asset support
-    AAssetManager *assetManager;
+  //> android asset support
+  AAssetManager *assetManager;
 #endif
 /* support nf's ypp preprocessor code */
 #define YAP_MAX_YPP_DEFS 100
   char *def_var[YAP_MAX_YPP_DEFS];
   char *def_value[YAP_MAX_YPP_DEFS];
   int def_c;
-/* End preprocessor code */
+  /* End preprocessor code */
 
 #ifdef MYDDAS_MYSQL
   //> If any myddas option was given
@@ -332,7 +327,7 @@ typedef YAP_Bool (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *,
 /// opaque variables can interact with the system
 typedef struct YAP_opaque_handler_struct {
   YAP_Opaque_CallOnCut cut_handler; //< called at cut, which may be a forward
-                                    //cut or an exception.
+                                    // cut or an exception.
   YAP_Opaque_CallOnFail
       fail_handler; //< called at exit, it can be used to cleanup resources
   YAP_Opaque_CallOnWrite write_handler; //< text representation

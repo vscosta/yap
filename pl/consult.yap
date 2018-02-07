@@ -1403,16 +1403,17 @@ Similar to initialization/1, but allows for specifying when
       Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
-initialization(G0,OPT) :-
-    expand_goal(G0, G),
+initialization(G,OPT) :-
    catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
     fail.
 initialization(_G,_OPT).
 
-'$initialization'(G,OPT) :-
-    must_be_of_type(callable, G, initialization(G,OPT)),
+'$initialization'(G0,OPT) :-
+    must_be_of_type(callable, G0, initialization(G0,OPT)),
     must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G,OPT)),
+                OPT, initialization(G0,OPT)),
+                '$yap_strip_module'(G0,M,G1),
+              '$expand_term'((M:G1), G),
    (
 	 OPT == now
 	->
@@ -1426,7 +1427,7 @@ initialization(_G,_OPT).
 	->
     recordz('$call_at_restore', G, _ )
     ).
-:- .
+
 /**
 
 @}

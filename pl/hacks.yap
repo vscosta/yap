@@ -20,12 +20,12 @@
   * @file   hacks.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:02:56 2017
-  * 
+  *
   * @brief  Low-level access
   *
   * @defgroup Hacks Low-level access
   * @ingroup builtins
-  * 
+  *
 */
 
 %% @file pl/hacks.yap
@@ -222,8 +222,8 @@ beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
 	[catch(Mod:G, Exc, Handler)].
 beautify_hidden_goal('$catch'(G,Exc,Handler),prolog) -->
 	[catch(G, Exc, Handler)].
-beautify_hidden_goal('$execute_command'(Query,V,P,Option,Source),prolog) -->
-	[toplevel_query(Query, V, P, Option, Source)].
+beautify_hidden_goal('$execute_command'(Query,M,V,P,Option,Source),prolog) -->
+	[toplevel_query(M:Query, V, P, Option, Source)].
 beautify_hidden_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
 	[(:- Gs)].
 beautify_hidden_goal('$loop'(Stream,Option),prolog) -->

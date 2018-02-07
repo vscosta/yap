@@ -8,7 +8,6 @@ set(PL_BOOT_SOURCES
         boot.yap
         bootlists.yap
 	bootutils.yap
-        builtins.yap
         callcount.yap
         checker.yap
         consult.yap
@@ -27,7 +26,7 @@ set(PL_BOOT_SOURCES
         grammar.yap
         ground.yap
         hacks.yap
-        imports.yap
+        init.yap
         listing.yap
         load_foreign.yap
         messages.yap
@@ -52,7 +51,6 @@ set(PL_BOOT_SOURCES
         swi.yap
         tabling.yap
         threads.yap
-        top.yap
         udi.yap
         undefined.yap
         utils.yap
@@ -61,29 +59,39 @@ set(PL_BOOT_SOURCES
 
 add_to_group(PL_BOOT_SOURCES pl_boot_library)
 
+if (ANDROID)
+    add_custom_target(STARTUP
+       DEPENDS ${PL_BOOT_SOURCES}
+            )
+    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
+elif(CMAKE_CROSSCOMPILING)
+    add_custom_target(STARTUP ALL SOURCES
+            DEPENDS ${PL_BOOT_SOURCES}
+            )
+else ()
+    add_custom_target(STARTUP ALL
+            DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            )
+    add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            COMMAND yap-bin -B${CMAKE_SOURCE_DIR}/pl --output-saved-state=${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            VERBATIM
+            DEPENDS ${PL_BOOT_SOURCES} yap-bin
+            )
+
+#    install(CODE "execute_process(COMMAND ./yap -B
+#      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR})"
+#            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )
+
+
+    install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+        DESTINATION ${YAP_INSTALL_DLLDIR}
+        )
+endif()
+
+
 install(FILES ${PL_BOOT_SOURCES}
         DESTINATION ${libpl}/pl
         )
 install(FILES ../library/ypp.yap
-DESTINATION ${libpl}/library)
-#         )
-# if (ANDROID OR CMAKE_CROSSCOMPILING)
-#     add_custom_target(STARTUP
-#               )
-# else()
-    add_custom_target(STARTUP ALL
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/startup.yss)
-
-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/startup.yss
-        COMMAND yap-bin -B${CMAKE_CURRENT_SOURCE_DIR} --output-saved-state=${CMAKE_CURRENT_BINARY_DIR}/startup.yss
-         DEPENDS ${PL_BOOT_SOURCES} yap-bin
-            )
-#else ()
-    #add_custom_target(STARTUP ALL
-    #        DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-    #        )
-
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/startup.yss DESTINATION ${dlls} )
-
-
-#endif()
+        DESTINATION ${libpl}/library
+        )

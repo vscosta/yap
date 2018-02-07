@@ -117,7 +117,7 @@ live :- '$live'.
 	throw(E).
 
 
-/** @pred  stream_property( _Stream_, _Prop_)
+/** @pred  stream_property( Stream, Prop )
 
 */
 
@@ -161,7 +161,7 @@ current_prolog_flag(break_level, BreakLevel),
 		 eraseall('$$set'),
 		 eraseall('$$one'),
 		 eraseall('$reconsulted'), fail.
-'$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',"",_).
+'$erase_sets' :- \+ recorded('$path',_,_), recorda('$path',[],_).
 '$erase_sets'.
 
 '$start_corouts' :-
@@ -176,59 +176,59 @@ current_prolog_flag(break_level, BreakLevel),
  %
  % Hack in case expand_term has created a list of commands.
  %
-'$execute_commands'(V,_,_,_,Source) :- var(V), !,
+'$execute_commands'(V,_,_,_,_,Source) :- var(V), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
-'$execute_commands'([],_,_,_,_) :- !.
-'$execute_commands'([C|Cs],VL,Pos,Con,Source) :-
+'$execute_commands'([],_,_,_,_,_) :- !.
+'$execute_commands'([C|Cs],M,VL,Pos,Con,Source) :-
     !,
     (
-	'$system_catch'('$execute_command'(C,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
+	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
 	fail
     ;
-    '$execute_commands'(Cs,VL,Pos,Con,Source)
+    '$execute_commands'(Cs,M,VL,Pos,Con,Source)
     ).
- '$execute_commands'(C,VL,Pos,Con,Source) :-
-	 '$execute_command'(C,VL,Pos,Con,Source).
+ '$execute_commands'(C,M,VL,Pos,Con,Source) :-
+	 '$execute_command'(C,M,VL,Pos,Con,Source).
 
 				%
  %
  %
 
-'$execute_command'(C,_,_,top,Source) :-
+'$execute_command'(C,_,_,_,_,Source) :-
     var(C),
     !,
 	'$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,_,top,Source) :-
+'$execute_command'(C,_,_,_,_top,Source) :-
     number(C),
     !,
 	'$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,_,top,Source) :-
+ '$execute_command'(R,_,_,_,_top,Source) :-
      db_reference(R),
      !,
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
- '$execute_command'(end_of_file,_,_,_,_) :- !.
- '$execute_command'(Command,_,_,_,_) :-
+ '$execute_command'(end_of_file,_,_,_,_,_) :- !.
+ '$execute_command'(Command,_,_,_,_,_) :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
-'$execute_command'((:-G),VL,Pos,Option,_) :-
+'$execute_command'((:-G),M,VL,Pos,Option,_) :-
     Option \= top,
     !,			% allow user expansion
-    '$expand_term'((:- G), O),
+    '$expand_term'((:- M:G), O),
+    '$yap_strip_module'(O, NM, NO),
     (
-            O = (:- G1)
+            NO = (:- G1)
         ->
-		'$yap_strip_module'(G1, M, NG),
-                  '$process_directive'(NG, Option, M, VL, Pos)
+	      '$process_directive'(G1, Option, NM, VL, Pos)
      ;
-           '$execute_commands'(G1,VL,Pos,Option,O)
+           '$execute_commands'(G1,NM,VL,Pos,Option,O)
         ).
-'$execute_command'((?-G), VL, Pos, Option, Source) :-
+'$execute_command'((?-G), M, VL, Pos, Option, Source) :-
 	 Option \= top,
 	 !,
-	 '$execute_command'(G, VL, Pos, top, Source).
- '$execute_command'(G, VL, Pos, Option, Source) :-
-	 '$continue_with_command'(Option, VL, Pos, G, Source).
+	 '$execute_command'(G, M, VL, Pos, top, Source).
+ '$execute_command'(G, M, VL, Pos, Option, Source) :-
+	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
 '$expand_term'(T,O) :-
 	catch( '$expand_term0'(T,O), _,( '$disable_debugging', fail) ),
@@ -237,13 +237,11 @@ current_prolog_flag(break_level, BreakLevel),
 '$expand_term0'(T,O) :-
 	expand_term( T, T1),
 	!,
- 	'$expand_term1'(T1,O).	
+ 	'$expand_term1'(T1,O).
 '$expand_term0'(T,T).
 
 '$expand_term1'(T,O) :-
-	'$yap_strip_module'(T1, M, G2),
-        '$is_metapredicate'(G2,M),
-        '$expand_meta_call'(M:G2, [], O),
+        '$expand_meta_call'(T, [], O),
 	!.
 '$expand_term1'(O,O).
 
@@ -680,8 +678,10 @@ write_query_answer( Bindings ) :-
 
 '$call'(M:_,_,G0,_) :- var(M), !,
 	'$do_error'(instantiation_error,call(G0)).
-'$call'(M:G,CP,G0,_) :- !,
-        '$call'(G,CP,G0,M).
+'$call'(M:G,CP,G0,_M0) :- !,
+'$expand_meta_call'(M:G, [], NG),
+'$yap_strip_module'(NG,NM,NC),
+        '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).
