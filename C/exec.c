@@ -440,10 +440,10 @@ restart_exec:
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
   /* but no meta calls require special preprocessing */
-  if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
+  //  if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
     // Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-    return (CallMetaCall(t0, mod0 PASS_REGS));
-  }
+    //return (CallMetaCall(t0, mod0 PASS_REGS));
+  //}
   /* now let us do what we wanted to do from the beginning !! */
   /* I cannot use the standard macro here because
      otherwise I would dereference the argument and

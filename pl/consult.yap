@@ -1414,7 +1414,6 @@ initialization(_G,_OPT).
                 OPT, initialization(G0,OPT)),
                 '$yap_strip_module'(G0,M,G1),
               '$expand_term'((M:G1), G),
-              writeln(G),
    (
 	 OPT == now
 	->
