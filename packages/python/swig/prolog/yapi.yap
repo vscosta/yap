@@ -20,7 +20,7 @@
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
 :- reexport( library(python) ).
-w
+
 :- python_import(yap4py.yapi).
 
 %:- start_low_level_trace.
