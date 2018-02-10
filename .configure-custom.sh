@@ -1,7 +1,9 @@
-ENABLE_VARS="clpbn|yes|WITH_CLPBN \
+ENABLE_VARS="brew|yes|WITH_BREW\
+  clpbn|yes|WITH_CLPBN \
   cplint|yes|WITH_CPLINT \
   horus|yes|WITH_HORUS \
   clpr|yes|WITH_CLPR \
+  macports|yes|WITH_MACPORTS\
   problog|yes|WITH_PROBLOG \
    jit|no|WITH_JIT \
    chr|no|WITH_CHR \
@@ -17,4 +19,4 @@ WITH_VARS="swig|yes|WITH_SWIG \
    python|yes|WITH_PYTHON \
    openssl|yes|WITH_OPENSSL\
    readline|yes|WITH_READLINE \
-   gmp|yes|WITH_GMP " 
+   gmp|yes|WITH_GMP" 

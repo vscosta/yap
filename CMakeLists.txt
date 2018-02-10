@@ -226,24 +226,58 @@ ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
 
 if (APPLE)
-    set(MACOSX_RPATH ON)
-    if (NOT $ENV{CONDA_BUILD}x STREQUAL "1x")
+  set(MACOSX_RPATH ON)
+
+      if (NOT $ENV{CONDA_BUILD}x STREQUAL "1x")
+
         set(PATH $ENV{PATH})
-        list(FIND ${PATH} pos /usr/local)
-        if (pos EQUAL -1)
-            set(pos 0)
-        endif ()
+
+    option(WITH_BREW "brew" ON)
+	if (WITH_MACPORTS)
+# Add MacPorts
+# Detect if the "port" command is valid on this system; if so, return full path
+EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+IF (${DETECT_MACPORTS} EQUAL 0)
+    # "/opt/local/bin/port" doesn't have libs, so we get the parent directory
+    GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+
+    # "/opt/local/bin" doesn't have libs, so we get the parent directory
+    GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+
+    # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+    LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
+
+    MESSAGE("WINNING!: ${MACPORTS_PREFIX}/lib")
+ENDIF()
+ENDIF()
+
+    option(WITH_BREW "brew" ON)
+
+    if (WITH_BREW)
+EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+IF (${DETECT_BREW} EQUAL 0)
+
+    # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+    LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
+
+    MESSAGE("BREW!: ${BREW_PREFIX}/lib")
+ENDIF()
+
+
         list(INSERT CMAKE_PREFIX_PATH pos
-                /usr/local/opt/gmp
-                /usr/local/opt/libxml2
-                /usr/local/opt/openmpi
-                /usr/local/opt/openssl
-                /usr/local/opt/postgresql
-                /usr/local/opt/python3
-                /usr/local/opt/readline
-                /usr/local/opt/swig
+                ${BREW_PREFIX}/opt/gmp
+                ${BREW_PREFIX}/opt/libxml2
+                ${BREW_PREFIX}/opt/openmpi
+                ${BREW_PREFIX}/opt/openssl
+                ${BREW_PREFIX}/opt/postgresql
+                ${BREW_PREFIX}/opt/python3
+                ${BREW_PREFIX}/opt/readline
+                ${BREW_PREFIX}/opt/swig
                 )
-    endif ()
+	    endif ()
+	  endif()
 endif ()
 
 
@@ -306,6 +340,9 @@ if (GMP_FOUND)
     include_directories(${GMP_INCLUDE_DIRS})
 endif (GMP_FOUND)
 
+    option(WITH_READLINE "use readline or libedit" ON)
+
+if (WITH_READLINE)
 include(FindReadline)
 
 List(APPEND YAP_SYSTEM_OPTIONS readline)
@@ -320,7 +357,7 @@ if (READLINE_FOUND)
     list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
     list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
 endif ()
-
+endif()
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c

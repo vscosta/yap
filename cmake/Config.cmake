@@ -390,6 +390,7 @@ git_describe(GIT_DESCRIBE)
 #Test standard headers (mimics AC_HEADER_STDC)
 include(TestSTDC)
 
+if (WITH_READLINE)
                                                 
 check_include_files( "stdio.h;readline/readline.h" HAVE_READLINE_READLINE_H )
 check_include_files( "stdio.h;readline/history.h"  HAVE_READLINE_HISTORY_H )
@@ -413,7 +414,7 @@ check_symbol_exists( rl_readline_state stdio.h;readline/readline.h HAVE_DECL_RL_
 check_function_exists( add_history HAVE_ADD_HISTORY)
 check_function_exists( remove_history HAVE_REMOVE_HISTORY)
 check_function_exists( using_history HAVE_USING_HISTORY)
-
+endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/os/YapIOConfig.h.cmake ${CMAKE_BINARY_DIR}/YapIOConfig.h)
 configure_file(${CMAKE_CURRENT_LIST_DIR}/../config.h.cmake

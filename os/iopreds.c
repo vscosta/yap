@@ -350,6 +350,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_getc = Yap_popChar;
     st->stream_wgetc = Yap_popChar;
   }
+#if USE_READLINE
   if (st->status & Readline_Stream_f) {
       st->stream_peek = Yap_ReadlinePeekChar;
       st->stream_wpeek = Yap_ReadlinePeekChar;
@@ -362,7 +363,9 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_peek = Yap_peekWithSeek;
     st->stream_wpeek = Yap_peekWideWithSeek;
     } */
-  else {
+  else
+#endif
+    {
     st->stream_peek = Yap_peekChar;
     st->stream_wpeek = Yap_peekWide;
   }

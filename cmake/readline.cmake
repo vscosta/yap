@@ -9,38 +9,38 @@ if (WITH_READLINE)
       find_library(READLINE_tinfo_LIBRARY
         NAMES tinfo
      message(STATUS "tinfo DLL found at   ${READLINE_tinfo_LIBRARY}")
-       HINTS ${Readline_ROOT_DIR}/lib
+       HINTS ${READLINE_ROOT_DIR}/lib
         )
       find_library(READLINE_tinfow_LIBRARY
         NAMES tinfow
-        HINTS ${Readline_ROOT_DIR}/lib
+        HINTS ${READLINE_ROOT_DIR}/lib
         )
   find_library(READLINE_ncurses_LIBRARY
 essage(STATUS "tinfo DLL found at   ${READLINE_tinfo_LIBRARY}")
-       HINTS ${Readline_ROOT_DIR}/lib
+       HINTS ${READLINE_ROOT_DIR}/lib
         )
       find_library(READLINE_tinfow_LIBRARY
         NAMES tinfow
-        HINTS ${Readline_ROOT_DIR}/lib
+        HINTS ${READLINE_ROOT_DIR}/lib
         )
   find_library(READLINE_ncurses_LIBRARY
     NAMES ncurses
-    HINTS ${Readline_ROOT_DIR}/lib
+    HINTS ${READLINE_ROOT_DIR}/lib
     message(STATUS "readline ncurses DLL found at   ${READLINE_ncurses_LIBRARY}")
     )
     find_library(READLINE_ncursesw_LIBRARY
       NAMES ncursesw
     message(STATUS "readline ncursesw DLL found at   ${READLINE_ncursesw_LIBRARY}")
-      HINTS ${Readline_ROOT_DIR}/lib
+      HINTS ${READLINE_ROOT_DIR}/lib
       )
 
   find_path(READLINE_INCLUDE_DIR
     NAMES readline/readline.h
-    HINTS ${Readline_ROOT_DIR}/include
+    HINTS ${READLINE_ROOT_DIR}/include
     )
   find_library(READLINE_readline_LIBRARY
     NAMES readline
-    HINTS ${READLINE_INCLUDE_DIR/../lib} ${Readline_ROOT_DIR}/lib 
+    HINTS ${READLINE_INCLUDE_DIR/../lib} ${READLINE_ROOT_DIR}/lib 
   if (READLINE_readline_LIBRARY)
     set (HAVE_LIBREADLINE TRUE)
     if (READLINE_INCLUDE_DIR)
