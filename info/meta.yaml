@@ -17,7 +17,9 @@ requirements:
     - pkgconfig
     - make
     - libxml2
+    - backcall
 run:
+    - backcall
     - jupyterlab
     - python
     - readline
@@ -32,4 +34,5 @@ about:
     summary: Prolog System
 
 source:
-  path: ..
+  git_url: ..
+  git_rev: master

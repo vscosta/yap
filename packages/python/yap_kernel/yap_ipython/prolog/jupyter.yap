@@ -10,13 +10,14 @@
  * -
  */
 
- :- module( jupyter,
-            [jupyter_query/3,
-            errors/2,
-            ready/2,
-            completion/2
-            ]
-            ).
+ %% :- module( jupyter,
+ %%            [jupyter_query/3,
+ %%            errors/2,
+ %%            ready/2,
+ %%            completion/2,
+
+ %%            ]
+ %%            ).
 
 
 :-	 reexport(library(yapi)).
@@ -26,12 +27,11 @@
 
 :- python_import(sys).
 
-user:jupyter_query(Self, Cell, Line ) :-
-	start_low_level_trace,
+jupyter_query(Self, Cell, Line ) :-
         setup_call_cleanup(
-			  jupyter: enter_cell(Self),
-			   jupyter:jupyter_cell(Self, Cell, Line),
-			   jupyter:exit_cell(Self)
+			   enter_cell(Self),
+			  jupyter_cell(Self, Cell, Line),
+			   exit_cell(Self)
 	 	   ).
 
 jupyter_cell(_Self, Cell, _) :-
@@ -61,7 +61,7 @@ blankc('\n').
 blankc('\t').
 
 enter_cell(_Self) :-
-	open('//python/input', read, _Input, []),
+	%open('//python/input', read, _Input, []),
 	open('//python/sys.stdout', append, _Output, []),
 	open('//python/sys.stdout', append, _Error, []),
 	%set_prolog_flag(user_input, _Input),
@@ -74,7 +74,7 @@ exit_cell(_Self) :-
 	close( user_error).
 
 
-user:completions(S, Self) :-
+completions(S, Self) :-
 	open_mem_read_stream(S, St),
 	scan_to_list(St, Tokens),
 	close(St),
@@ -180,7 +180,7 @@ ready(Self, Line ) :-
     errors( Self, Line ),
     \+ syntax_error(_,_).
 
-user:errors( Self, Text ) :-
+errors( Self, Text ) :-
        	setup_call_cleanup(
        			   open_events( Self, Text, Stream),
        			   clauses(Self, Stream),
