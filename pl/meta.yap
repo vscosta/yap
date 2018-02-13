@@ -308,8 +308,7 @@ meta_predicate declaration
         '$clean_cuts'(AO0, CP, AO).
 '$expand_goals'((:-A),(:-A1),
 	(:-AO),HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
-        '$clean_cuts'(AO0, CP, AO).
+	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
 	('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
