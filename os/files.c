@@ -406,6 +406,33 @@ static Int access_file(USES_REGS1) {
     if (!(ares = RepAtom(AtomOfTerm(tname))->StrOfAE))
       return FALSE;
   }
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(ares))) {
+        bool rc = true;
+        vfs_stat o;
+        if (vfs->stat(vfs, ares, &o)) {
+            if (atmode == AtomExist)
+                return true;
+            else if (atmode == AtomExists)
+                return true;
+            else if (atmode == AtomWrite)
+                return o.st_mode & VFS_CAN_WRITE;
+            else if (atmode == AtomRead)
+                return o.st_mode & VFS_CAN_READ;
+            else if (atmode == AtomAppend)
+                return o.st_mode & VFS_CAN_WRITE;
+            else if (atmode == AtomCsult)
+                return o.st_mode & VFS_CAN_READ;
+            else if (atmode == AtomExecute)
+                return o.st_mode & VFS_CAN_EXEC;
+            else {
+                Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
+                return FALSE;
+            }
+        } else {
+            rc = false;
+        }
+    }
 #if HAVE_ACCESS
 #if _WIN32
   {
@@ -496,12 +523,7 @@ static Int exists_directory(USES_REGS1) {
     if ((vfs = vfs_owner(s))) {
 bool rc = true;
 void *o;
-      if ((o=vfs->opendir(vfs, s))) {
-        rc = true;
-        vfs->closedir(o);
-      } else {
-        rc = false;
-      }
+      return vfs->isdir(vfs, s);
 
       UNLOCK(GLOBAL_Stream[sno].streamlock);
       return rc;

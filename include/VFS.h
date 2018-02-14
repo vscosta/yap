@@ -50,12 +50,13 @@ typedef struct {
 } vfs_stat;
 
 typedef enum vfs_flags {
-  VFS_CAN_WRITE = 0x1,    /// we can write to files in this space
-  VFS_CAN_EXEC = 0x2,     /// we can execute files in this space
-  VFS_CAN_SEEK = 0x4,     /// we can seek within files in this space
-  VFS_HAS_PREFIX = 0x8,   /// has a prefix that identifies a file in this space
-  VFS_HAS_SUFFIX = 0x10,  /// has a suffix that describes the file.
-  VFS_HAS_FUNCTION = 0x20 /// has a suffix that describes the file.
+    VFS_CAN_READ = 0x1,    /// we can write to files in this space
+    VFS_CAN_WRITE = 0x2,    /// we can write to files in this space
+  VFS_CAN_EXEC = 0x4,     /// we can execute files in this space
+  VFS_CAN_SEEK = 0x8,     /// we can seek within files in this space
+  VFS_HAS_PREFIX = 0x10,   /// has a prefix that identifies a file in this space
+  VFS_HAS_SUFFIX = 0x20,  /// has a suffix that describes the file.
+  VFS_HAS_FUNCTION = 0x40 /// has a suffix that describes the file.
 } vfs_flags_t;
 
 typedef union {

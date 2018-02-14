@@ -248,11 +248,12 @@ initialize_prolog :-
 :- set_prolog_flag(verbose, silent).
 %:- set_prolog_flag(verbose_file_search, true ).
 %:- yap_flag(write_strings,on).
-%:- start_low_level_trace.
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 :- ['absf.yap'].
+
+%:- start_low_level_trace.
 
 :- use_module('error.yap').
 

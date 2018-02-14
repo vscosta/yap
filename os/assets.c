@@ -153,7 +153,7 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
     struct stat bf;
     fname += strlen(me->prefix) + 1;
     if (stat("/assets", &bf)) {
-
+        out->st_mode = me   ->vflags ;
         out->st_dev = bf.st_dev;
         out->st_uid = bf.st_uid;
         out->st_gid = bf.st_gid;
@@ -165,6 +165,8 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
     }
     AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);
     // try not to use it as an asset
+    if (!a)
+        return false;
     out->st_size = AAsset_getLength64(a);
     AAsset_close(a);
     return true;
@@ -173,12 +175,12 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
 
 static
 bool is_dir_a(VFS_t *me, const char *dirName) {
-    dirName += strlen(me->prefix);
+    dirName += strlen(me->prefix)+1;
     if (dirName[0] == '\0')
-        dirName = "/";
+        return true;
     // try not to use it as an asset
     AAssetDir *d = AAssetManager_openDir(Yap_assetManager(), dirName);
-    if (d == NULL)
+    if (d == NULL || AAssetDir_getNextFileName(d) == NULL)
         return false;
      (AAssetDir_close(d));
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
@@ -222,7 +224,7 @@ Yap_InitAssetManager(void) {
     /* init standard VFS */
     me = (VFS_t *) Yap_AllocCodeSpace(sizeof(struct vfs));
     me->name = "/assets";
-    me->vflags = VFS_CAN_EXEC | VFS_CAN_SEEK |
+    me->vflags = VFS_CAN_EXEC | VFS_CAN_SEEK | VFS_CAN_READ |
                  VFS_HAS_PREFIX;  /// the main flags describing the operation of the Fs.
     me->prefix = "/assets";
     /** operations */

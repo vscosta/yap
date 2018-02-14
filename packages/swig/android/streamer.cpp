@@ -42,7 +42,7 @@ and_open(struct vfs *me, int sno, const char *name, const char *io_mode) {
     GLOBAL_Stream[sno].vfs = me;
     GLOBAL_Stream[sno].status = Append_Stream_f | Output_Stream_f;
     GLOBAL_Stream[sno].name = Yap_LookupAtom(name);
-    buff0.clear();
+    buff0.clear(); // does not work?
     return streamerInstance;
 }
 }
