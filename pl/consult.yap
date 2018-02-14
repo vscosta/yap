@@ -992,6 +992,7 @@ prolog_load_context(stream, Stream) :-
 				   ),
 	'$ensure_file_loaded'(F, M),
 	!,
+  %format( 'IU=~w~n', [(F:Imports->M)] ),
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, M) :-
@@ -1004,7 +1005,7 @@ prolog_load_context(stream, Stream) :-
 % be imported from any module.
 '$file_unchanged'(F, M, Imports, TOpts) :-
 	'$ensure_file_unchanged'(F, M),
-%	format( 'IU=~w~n', [(F1:Imports->M)] ),
+	%format( 'IU=~w~n', [(F:Imports->M)] ),
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 % module can be reexported.
@@ -1223,30 +1224,37 @@ current module. Otherwise, operate as use_module/2, and load the files
 specified by _F_, importing the predicates specified in the list _L_.
 */
 
-use_module(M,F,Is) :- '$use_module'(M,F,Is).
+use_module(M,F,Is) :-
+'$yap_strip_module'(F,M1,F1),
+'$use_module'(M,M1,F1,Is).
 
-'$use_module'(M,F,Is) :-
+'$use_module'(M,M1,F,Is) :-
 	var(Is), !,
-	'$use_module'(M,F,all).
-'$use_module'(M,F,Is) :-
+	'$use_module'(M,M1,F,all).
+'$use_module'(M,M1,F,Is) :-
 	nonvar(F), !,
-        strip_module(F, M0, F0),
-	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
-	( var(M) -> true
-	;
-	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+	( var(M) ->
+    '$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
+	   absolute_file_name( F, F1, [expand(true),file_type(prolog)] ),
 	  recorded('$module','$module'(F1,M,_,_,_),_)
+;
+'$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
 	).
-'$use_module'(M,F,Is) :-
+'$use_module'(M,M1,F,Is) :-
 	nonvar(M), !,
-	strip_module(F, M0, F0),
+   (var(F) -> F0 = F ;  absolute_file_name( F, F0, [expand(true),file_type(prolog)] ) ),
 	(
-	    recorded('$module','$module'(F1,M,_,_,_),_)
+	    recorded('$module','$module'(F0,M,_,_,_),_)
 	->
-	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
-	),
-        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
-'$use_module'(M,F,Is) :-
+	    '$load_files'(M1:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+      ;
+      nonvar(F0)
+      ->
+      '$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+      ;
+      '$do_error'(instantiation_error,use_module(M,F,Is))
+	).
+'$use_module'(M,_,F,Is) :-
 	'$do_error'(instantiation_error,use_module(M,F,Is)).
 
 /**
