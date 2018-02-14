@@ -52,7 +52,7 @@ if (ANDROID)
 
 endif (ANDROID)
 
-add_library(  Yapsqlite3 SHARED
+add_library(  Yapsqlite3 OBJECT
   ${YAPSQLITE3_SOURCES} )
 
 set_target_properties(Yapsqlite3
@@ -62,15 +62,13 @@ set_target_properties(Yapsqlite3
   POSITION_INDEPENDENT_CODE TRUE
         )
 
-target_link_libraries(Yapsqlite3 libYap)
+#target_link_libraries(Yapsqlite3 libYap)
 
-if (ANDROID)
-  target_link_libraries(Yapsqlite3 android log)
+ # target_link_libraries(Yapsqlite3 android log)
 
-endif ()
 
-install(TARGETS Yapsqlite3
-        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-        ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
-        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-        )
+#install(TARGETS Yapsqlite3
+#        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+#        ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+#        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+#        )

@@ -2108,31 +2108,23 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
   const char *fl = NULL;
   int lvl = push_text_stack();
   if (mode == YAP_BOOT_MODE) {
-    mode = YAP_CONSULT_MODE;
-  }
-  char *bfp = Malloc(YAP_FILENAME_MAX + 1);
-  bfp[0] = '\0';
+    mode = YAP_CONSULT_MODE; }
   if (fname == NULL || fname[0] == '\0') {
-    fname = Yap_BOOTFILE;
+    fl = Yap_BOOTFILE;
   }
   if (fname) {
-    fl = Yap_AbsoluteFile(fname, bfp, true);
+    fl = Yap_AbsoluteFile(fname, true);
     if (!fl || !fl[0]) {
       pop_text_stack(lvl);
       return -1;
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(bfp)));
+  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)));
+    if (sno < 0)
+        return sno;
   if (!Yap_ChDir(dirname((char *)fl))) return -1;
-  Yap_init_consult(consulted, bfp);
-  *osnop = Yap_CheckAlias(AtomLoopStream);
-  if (!Yap_AddAlias(AtomLoopStream, sno)) {
-    Yap_CloseStream(sno);
-    pop_text_stack(lvl);
-    sno = -1;
-    return sno;
-  }
+  Yap_init_consult(consulted, fl);
   GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
@@ -2167,7 +2159,8 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
-
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s(%d), %d", full, *osnop, sno);
+        // LOCAL_CurSlot);
   RECOVER_MACHINE_REGS();
 }
 

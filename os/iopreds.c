@@ -1217,8 +1217,7 @@ do_open(Term file_name, Term t2,
   int sno;
   StreamDesc *st;
   bool avoid_bom = false, needs_bom = false;
-  const char *fname;
-  char fbuf[FILENAME_MAX];
+  const char *fname0;
   stream_flags_t flags;
   const char *s_encoding;
   encoding_t encoding;
@@ -1231,13 +1230,13 @@ do_open(Term file_name, Term t2,
   }
   if (!IsAtomTerm(file_name)) {
     if (IsStringTerm(file_name)) {
-      fname = (char *)StringOfTerm(file_name);
+      fname0 = (char *)StringOfTerm(file_name);
     } else {
       Yap_Error(DOMAIN_ERROR_SOURCE_SINK, file_name, "open/3");
       return FALSE;
     }
   } else {
-    fname = RepAtom(AtomOfTerm(file_name))->StrOfAE;
+    fname0 = RepAtom(AtomOfTerm(file_name))->StrOfAE;
   }
   // open mode
   if (IsVarTerm(t2)) {
@@ -1280,13 +1279,16 @@ do_open(Term file_name, Term t2,
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
   // expand file name?
-  fname = Yap_AbsoluteFile(fname, fbuf, ok);
+    int lvl = push_text_stack();
+  const char *fname = Yap_AbsoluteFile(fname0, ok);
 
   if (!fname) {
+      pop_text_stack(lvl);
     PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
   }
 
   // Skip scripts that start with !#/.. or similar
+    pop_text_stack(lvl);
   bool script =
       (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
   // binary type
@@ -1307,7 +1309,8 @@ do_open(Term file_name, Term t2,
 #endif
       /* note that this matters for UNICODE style  conversions */
     } else {
-      Yap_Error(DOMAIN_ERROR_STREAM, tlist,
+        pop_text_stack(lvl);
+        Yap_Error(DOMAIN_ERROR_STREAM, tlist,
                 "type is ~a, must be one of binary or text", t);
     }
   }
@@ -1333,10 +1336,11 @@ do_open(Term file_name, Term t2,
   } else if (open_mode == AtomAppend) {
     strncpy(io_mode, "a", 8);
   } else {
-    Yap_Error(DOMAIN_ERROR_IO_MODE, MkAtomTerm(open_mode), "open/3");
+      pop_text_stack(lvl);
     return false;
   }
   if ((sno = Yap_OpenStream(fname, io_mode, file_name)) < 0) {
+      pop_text_stack(lvl);
     return false;
   }
   st = &GLOBAL_Stream[sno];
@@ -1369,12 +1373,12 @@ do_open(Term file_name, Term t2,
     st->encoding = enc_id(s_encoding, st->encoding);
   else
     st->encoding = encoding;
-  if (script)
-    open_header(sno, open_mode);
-  if (fname != fbuf)
-    freeBuffer(fname);
+  if (script) {
+      open_header(sno, open_mode);
+  }
+    pop_text_stack(lvl);
 
-  free(args);
+    free(args);
   UNLOCK(st->streamlock);
   {
     Term t = Yap_MkStream(sno);
@@ -1497,11 +1501,16 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-  char tmp[YAP_FILENAME_MAX + 1];
-  if (!Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, tmp, false))
-    return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
-                      "absolute_file_name/3"));
-  return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(tmp))));
+    int lvl = push_text_stack();
+   const char *tmp;
+  if ((tmp=Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, false)) ==  NULL) {
+      pop_text_stack(lvl);
+      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
+                        "absolute_file_name/3"));
+  }
+  bool rc = (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(tmp))));
+    pop_text_stack(lvl);
+    return rc;
 }
 
 static Int p_open_null_stream(USES_REGS1) {
@@ -1558,12 +1567,13 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
   st->status = 0;
   fname = Yap_VF(fname);
   if ((vfsp = vfs_owner(fname)) != NULL) {
-    if (!vfsp->open(vfsp, sno, fname, io_mode)) {
+    if (!vfsp->open(vfsp, sno, fname, "r")) {
       UNLOCK(st->streamlock);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)),
                 "%s", fname);
       return -1;
     }
+      vfsp = GLOBAL_Stream[sno].vfs;
   } else {
     fd = st->file = fopen(fname, io_mode);
     if (fd == NULL) {

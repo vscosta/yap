@@ -450,7 +450,7 @@ extern int Yap_output_msg;
 #include <android/log.h>
 #include <jni.h>
 
-extern AAssetManager *Yap_assetManager;
+extern AAssetManager *Yap_assetManager(void);
 
 extern void *Yap_openAssetFile(const char *path);
 extern bool Yap_isAsset(const char *path);

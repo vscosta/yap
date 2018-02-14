@@ -1349,13 +1349,17 @@ static Int p_statistics_lu_db_size(USES_REGS1) {
 }
 
 static Int p_executable(USES_REGS1) {
-  char tmp[YAP_FILENAME_MAX+1];
-  if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_AbsoluteFile(GLOBAL_argv[0], tmp, true);
-  else
-    strncpy(tmp, Yap_FindExecutable(), YAP_FILENAME_MAX);
+  int lvl = push_text_stack();
+  const char *tmp =
 
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(tmp)), ARG1);
+    Yap_AbsoluteFile(GLOBAL_argv[0], true);
+    if (!tmp || tmp[0] == '\0' ) {
+      tmp = Malloc(YAP_FILENAME_MAX + 1);
+      strncpy((char *)tmp, Yap_FindExecutable(), YAP_FILENAME_MAX);
+    }
+  Atom at = Yap_LookupAtom(tmp);
+  pop_text_stack(lvl);
+  return Yap_unify(MkAtomTerm(at), ARG1);
 }
 
 static Int p_system_mode(USES_REGS1) {

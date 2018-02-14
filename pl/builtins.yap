@@ -240,31 +240,6 @@ not(G) :-    \+ '$execute'(G).
 
 
 
-/** @pred  fail is iso
-
-Always fails.
-*/
-fail :- fail.
-
-/** @pred  false is iso
-
-The same as fail.
-*/
-false :- fail.
-
-/** @pred true is iso
-Succeed.
-
-Succeeds once.
-*/
-true :- true.
-
-/** @pred otherwise is iso
-Succeed.
-
-Succeeds once.
-*/
-otherwise.
 
 /** @pred  repeat is iso
 Succeeds repeatedly.

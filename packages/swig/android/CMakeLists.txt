@@ -18,22 +18,34 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
    set (GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
 
 
-      add_custom_command (OUTPUT  yap_swig.cpp
-        	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}
+      add_custom_target (pllib ALL
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}
+         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${pllib}
+ )
+
+ 	      add_custom_target (pllibpl ALL
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}/pl
+         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${pllib}/pl
+ 	)
+ 	      add_custom_target (pllibos ALL
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}/os
+         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${pllib}/os
+
+    	)
+
+    add_custom_command (OUTPUT  swig_streamer.cpp
+         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -outdir ${CMAKE_SWIG_OUTDIR} -outcurrentdir -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o swig_streamer.cpp streamer.i
+         DEPENDS streamer.i
+ 	)
+
+ 	     add_custom_command (OUTPUT  yap_swig.cpp
         	COMMAND ${CMAKE_COMMAND} -E  make_directory ${pllib}/pl
         	COMMAND ${CMAKE_COMMAND} -E  make_directory ${pllib}/os
-
-        COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${pllib}
-        COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${pllib}/pl
-        COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${pllib}/os
            COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -outdir ${CMAKE_SWIG_OUTDIR} -outcurrentdir -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o yap_swig.cpp ${SWIG_SOURCES}
-           DEPENDS ${SWIG_SOURCES} YAP++
-   	)
+	   DEPENDS pllibos  ${SWIG_SOURCES} YAP++ ${pl_boot_library}
+	   )
+	   
 
-   add_custom_command (OUTPUT  swig_streamer.cpp
-        COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -outdir ${CMAKE_SWIG_OUTDIR} -outcurrentdir -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o swig_streamer.cpp streamer.i
-        DEPENDS streamer.i
-	)
 
 
       # GMP_FOUND         - true if GMP/MPIR was found
@@ -51,7 +63,7 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
 	target_link_libraries(YAPJava ${GMP_LIBRARIES} )
 
 
-	target_link_libraries( YAPJava YAP++ libYap android log)
+	target_link_libraries( YAPJava libYap android log)
 
       if (FALSE)
 

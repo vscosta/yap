@@ -9,13 +9,13 @@ set (CXX_SOURCES
 )
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
-if ( WIN32)
+if ( WIN32 OR ANDROID)
    add_component (YAP++ ${CXX_SOURCES} )
 
   set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
 else()
    add_lib(YAP++ ${CXX_SOURCES} )
-   MY_target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
+   target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
 
    MY_install(TARGETS  YAP++
      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

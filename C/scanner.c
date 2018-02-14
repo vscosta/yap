@@ -539,7 +539,8 @@ static inline int getchr(struct stream_desc *inp) {
    * **********************************\n", AtomName(inp->name)); */
   /*   inp0 = inp; */
   /* } */
-  int ch = inp->stream_wgetc_for_read(inp - GLOBAL_Stream);
+  int sno = inp - GLOBAL_Stream;
+  int ch = inp->stream_wgetc_for_read(sno);
   // fprintf(stderr,"%c", ch);
   return ch;
 }
@@ -1334,7 +1335,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   LOCAL_AnonVarTable = NULL;
   l = NULL;
   p = NULL; /* Just to make lint happy */
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "i %d", st - GLOBAL_Stream);
   ch = getchr(st);
   while (chtype(ch) == BS) {
     ch = getchr(st);

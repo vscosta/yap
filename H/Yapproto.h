@@ -295,7 +295,6 @@ extern int Yap_eq(Term, Term);
 /* iopreds.c */
 extern bool Yap_IsAbsolutePath(const char *p, bool);
 extern Atom Yap_TemporaryFile(const char *prefix, int *fd);
-extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool expand);
 extern void Yap_InitPlIO( struct yap_boot_params *ts );
 extern void Yap_InitBackIO(void);
 extern void Yap_InitIOPreds(void);
@@ -413,9 +412,9 @@ extern int Yap_signal_index(const char *);
 #ifdef MAC
 extern void Yap_SetTextFile(char *);
 #endif
+extern const char *Yap_AbsoluteFile(const char *spec, bool expand);
 #if __ANDROID__
 #include <android/asset_manager.h>
-extern AAssetManager *Yap_assetManager;
 
 extern void *Yap_openAssetFile(const char *path);
 extern bool Yap_isAsset(const char *path);
@@ -433,7 +432,6 @@ extern char *Yap_RegistryGetString(char *);
 extern void Yap_WinError(char *);
 #endif
 
-extern const char *Yap_AbsoluteFile(const char *spec, char *obuf, bool ok);
 extern const char *Yap_AbsoluteFileInBuffer(const char *spec, char *outp, size_t sz,
                                      bool ok);
 extern bool Yap_ChDir(const char *path);

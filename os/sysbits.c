@@ -161,13 +161,11 @@ bool Yap_IsAbsolutePath(const char *p0, bool expand) {
 // this is necessary because
 // support for ~expansion at the beginning
 // systems like Android do not do this.
-static const char *PlExpandVars(const char *source, const char *root,
-                                char *result) {
+static const char *PlExpandVars(const char *source, const char *root) {
   CACHE_REGS
   int lvl = push_text_stack();
   const char *src = source;
-  if (!result)
-    result = Malloc(YAP_FILENAME_MAX + 1);
+  char *  result = Malloc(YAP_FILENAME_MAX + 1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
@@ -346,13 +344,15 @@ char virtual_cwd[YAP_FILENAME_MAX + 1];
 
 bool Yap_ChDir(const char *path) {
   bool rc = false;
-  char qp[FILENAME_MAX + 1];
-  const char *qpath = Yap_AbsoluteFile(path, qp, true);
+    int lvl = push_text_stack();
 
   VFS_t *v;
   if ((v = vfs_owner(path))) {
-    return v->chdir(v, path);
+      rc = v->chdir(v, path);
+      pop_text_stack(lvl);
+      return rc;
   }
+  const char *qpath = Yap_AbsoluteFile(path, true);
 #if _WIN32
   rc = true;
   if (qpath != NULL && qpath[0] &&
@@ -362,47 +362,125 @@ bool Yap_ChDir(const char *path) {
 #else
   rc = (chdir(qpath) == 0);
 #endif
-  if (qpath != qp && qpath != path && qpath != LOCAL_FileNameBuf &&
-      qpath != LOCAL_FileNameBuf2)
-    free((char *)qpath);
+    pop_text_stack(lvl);
   return rc;
 }
 
-static const char *myrealpath(const char *path, char *out) {
+static char * close_path(char *b0,char *o0, char *o ){
+
+if (b0[0] == '\0') {
+    return o;
+} else if (!strcmp(b0, "..")) {
+while (o-- > o0) {
+    if (dir_separator(*o)) {
+        break;
+    }
+}
+
+} else if (strcmp(b0, ".") != 0) {
+    *o++ = '/';
+    strcpy(o, b0);
+    o += strlen(b0);
+}
+    return o;
+}
+
+static char * clean_path(const char *path)
+{
+    const char *p, *p0;
+      int lvl = push_text_stack();
+
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " looking at %s", path) ;
+    char *o0 = Malloc(FILENAME_MAX+1),*o = o0;
+    int ch;
+    char *b0 = Malloc(FILENAME_MAX+1), *b = b0;
+    p = p0 = path;
+    while((ch = *p++)) {
+         if (dir_separator(ch)) {
+            if (b==b0) {
+                o = o0;
+            } else {
+                b[0] = '\0';
+                o = close_path(b0, o0, o);
+                b = b0;
+            }
+        } else {
+            *b++ = ch;
+        }
+    }
+    if (!dir_separator(p[-1])) {
+                 b[0] = '\0';
+       o = close_path(b0, o0, o);
+    }
+    if (o == o0)
+        *o++ = '/';
+    *o = '\0';
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " %s at %s, %p-%p", p0, o0, o, o0) ;
+    return pop_output_text_stack(lvl,o0);
+
+}
+
+static const char *myrealpath(const char *path USES_REGS) {
+
   int lvl = push_text_stack();
+  VFS_t *v;
+char *out, *o;
+    if (Yap_IsAbsolutePath(path,true)) {
+        o = clean_path(path);
+        if ((v = vfs_owner(o))
+                ) {
+            return pop_output_text_stack(lvl, o);
+
+        }
+    } else {
+        out = Malloc(FILENAME_MAX+1);
+    Yap_getcwd(out, FILENAME_MAX);
+    strcat(out, "/");
+    strcat(out, path);
+    o = clean_path(out);
+        if ((v = vfs_owner(o))) {
+             return pop_output_text_stack(lvl, o);
+         }
+}
 #if _WIN32
   DWORD retval = 0;
 
   // notice that the file does not need to exist
-  retval = GetFullPathName(path, YAP_FILENAME_MAX, out, NULL);
-  pop_text_stack(lvl);
+  retval = GetFullPathName(path, YAP_FILENAME_MAX, o, NULL);
   if (retval == 0) {
-    Yap_WinError("Generating a full path name for a file");
+   pop_text_stack(lvl);
+   Yap_WinError("Generating a full path name for a file");
     return NULL;
   }
-  return out;
+  return pop_output_text_stack(lvl, o);
 #elif HAVE_REALPATH
   {
-    char *rc = realpath(path, NULL);
+    char *rc = realpath(path, o);
 
     if (rc) {
-      pop_text_stack(lvl);
-      return rc;
+      rc = pop_output_text_stack(lvl, rc);
     }
     // rc = NULL;
     if (errno == ENOENT || errno == EACCES) {
-      char *base = Malloc(YAP_FILENAME_MAX + 1);
-      strncpy(base, path, YAP_FILENAME_MAX);
-      rc = realpath(dirname(base), out);
+      char *base = Malloc(FILENAME_MAX + 1);
+      strncpy(base, path, FILENAME_MAX);
+        char *p = base+strlen(base);
+        while (p>base && !dir_separator(*--p));
+        if (p == base) p[1] = '\0';
+        else p[0]  = '\0';
+        char *tmp = Malloc(FILENAME_MAX + 1);
+      rc = realpath(base, tmp);
 
       if (rc) {
-        // base may haave been destroyed
-        const char *b = basename((char *)path);
-        size_t e = strlen(rc);
+        // base may have been destroyed
+          char *b = base+strlen(base);
+          while (b>base && !dir_separator(*--b));
+          if (b[0] && !dir_separator(b[0])) b++;
+          size_t e = strlen(rc);
         size_t bs = strlen(b);
 
         if (rc != out && rc != base) {
-          rc = realloc(rc, e + bs + 2);
+          rc = Realloc(rc, e + bs + 2);
         }
 #if _WIN32
         if (rc[e - 1] != '\\' && rc[e - 1] != '/') {
@@ -422,10 +500,8 @@ static const char *myrealpath(const char *path, char *out) {
     }
   }
 #endif
-  out = malloc(strlen(path) + 1);
-  strcpy(out, path);
   pop_text_stack(lvl);
-  return out;
+  return path;
 }
 
 static const char *expandVars(const char *spec, char *u) {
@@ -456,11 +532,11 @@ static const char *expandVars(const char *spec, char *u) {
  *
  * @return tmp, or NULL, in malloced memory
  */
-const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
+const char *Yap_AbsoluteFile(const char *spec, bool ok) {
   const char *rc;
   const char *spec1;
   const char *spec2;
-  char rc1[YAP_FILENAME_MAX + 1];
+    int lvl = push_text_stack();
 
   /// spec gothe original spec;
   /// rc0 may be an outout buffer
@@ -480,7 +556,7 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   /// spec gothe original spec;
   /// rc1 the internal buffer
   if (ok) {
-    const char *q = PlExpandVars(spec1, NULL, rc1);
+    const char *q = PlExpandVars(spec1, NULL);
     if (!q)
       spec2 = spec1;
     else
@@ -488,8 +564,8 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   } else {
     spec2 = spec1;
   }
-  rc = myrealpath(spec2, rc0);
-  return rc;
+  rc = myrealpath(spec2 PASS_REGS);
+    return   pop_output_text_stack(lvl,rc);
 }
 
 static Term
@@ -678,14 +754,15 @@ static Int real_path(USES_REGS1) {
   }
   cmd = rc;
 #endif
-
-  rc0 = myrealpath(cmd, NULL);
+int lvl = push_text_stack();
+  rc0 = myrealpath(cmd PASS_REGS);
   if (!rc0) {
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
   }
   bool out = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
-  freeBuffer(rc0);
-  return out;
+pop_output_text_stack(lvl,rc0);
+
+    return out;
 }
 
 #define EXPAND_FILENAME_DEFS()                                                 \
@@ -859,7 +936,7 @@ static Int absolute_file_system_path(USES_REGS1) {
     pop_text_stack(l);
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile(text, NULL, true))) {
+  if (!(fp = Yap_AbsoluteFile(text, true))) {
     pop_text_stack(l);
     return false;
   }
@@ -1086,8 +1163,8 @@ static Int true_file_name(USES_REGS1) {
   Term t = Deref(ARG1);
   const char *s;
 
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+    if (IsVarTerm(t)) {
+      Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
   if (IsAtomTerm(t)) {
@@ -1095,13 +1172,14 @@ static Int true_file_name(USES_REGS1) {
   } else if (IsStringTerm(t)) {
     s = StringOfTerm(t);
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
+      Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
     return FALSE;
   }
-  if (!(s = Yap_AbsoluteFile(s, LOCAL_FileNameBuf, true)))
+    int l = push_text_stack();
+  if (!(s = Yap_AbsoluteFile(s, true)))
     return false;
   bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
-  freeBuffer(s);
+    pop_text_stack(l);
   return rc;
 }
 
@@ -1119,7 +1197,7 @@ static Int p_expand_file_name(USES_REGS1) {
     pop_text_stack(l);
     return false;
   }
-  if (!(text2 = PlExpandVars(text, NULL, NULL))) {
+  if (!(text2 = PlExpandVars(text, NULL))) {
     pop_text_stack(l);
     return false;
   }
@@ -1129,27 +1207,30 @@ static Int p_expand_file_name(USES_REGS1) {
 }
 
 static Int true_file_name3(USES_REGS1) {
-  Term t = Deref(ARG1), t2 = Deref(ARG2);
+    Term t = Deref(ARG1), t2 = Deref(ARG2);
 
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
-    return FALSE;
-  }
-  if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
-    return FALSE;
-  }
-  if (!IsVarTerm(t2)) {
-    if (!IsAtomTerm(t)) {
-      Yap_Error(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
-      return FALSE;
+    if (IsVarTerm(t)) {
+        Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+        return FALSE;
     }
-    //    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
-  }
-  char tmp[YAP_FILENAME_MAX + 1];
-  if (!Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, tmp, true))
-    return FALSE;
-  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(tmp)));
+    if (!IsAtomTerm(t)) {
+        Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
+        return FALSE;
+    }
+    if (!IsVarTerm(t2)) {
+        if (!IsAtomTerm(t)) {
+            Yap_Error(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
+            return FALSE;
+        }
+        //    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
+    }
+    int lvl = push_text_stack();
+    const char *tmp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, true);
+    Atom at = NULL;
+    bool rc = (tmp != NULL &&
+              (at = Yap_LookupAtom(tmp)) != NULL);
+    pop_text_stack(lvl);
+    return rc && Yap_unify(ARG3, MkAtomTerm(at));
 }
 
 /* Executes $SHELL under Prolog */

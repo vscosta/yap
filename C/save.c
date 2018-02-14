@@ -1319,7 +1319,7 @@ static int commit_to_saved_state(const char *s, CELL *Astate, CELL *ATrail,
   LOCAL_PrologMode = BootMode;
   if (Yap_HeapBase) {
     if (falseGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG) && !silentMode()) {
-      Yap_AbsoluteFile(s, tmp, true);
+      strcpy(tmp, Yap_AbsoluteFile(s, true));
       fprintf(stderr, "%% Restoring file %s\n", tmp);
     }
     Yap_CloseStreams(TRUE);

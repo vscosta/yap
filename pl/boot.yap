@@ -161,6 +161,7 @@ print_message(L,E) :-
 
 :- use_system_module( '$_boot', ['$cut_by'/1]).
 
+
 %:- start_low_level_trace.
 
 % This is the YAP init file
@@ -291,6 +292,7 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap'].
+:- stop_low_level_trace.
 
 
 :- meta_predicate(log_event(+,:)).

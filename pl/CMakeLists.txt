@@ -51,6 +51,7 @@ set(PL_BOOT_SOURCES
         swi.yap
         tabling.yap
         threads.yap
+        top.yap
         udi.yap
         undefined.yap
         utils.yap
@@ -64,7 +65,7 @@ if (ANDROID)
        DEPENDS ${PL_BOOT_SOURCES}
             )
     file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
-elif(CMAKE_CROSSCOMPILING)
+elseif(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
             )
@@ -73,7 +74,7 @@ else ()
             DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             )
     add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND yap-bin -B${CMAKE_SOURCE_DIR}/pl --output-saved-state=${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            COMMAND yap-bin -B${CMAKE_SOURCE_DIR}/pl/boot.yap --output-saved-state=${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             VERBATIM
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )

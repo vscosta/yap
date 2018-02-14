@@ -296,7 +296,7 @@ bool Yap_InitReadline(Term enable) {
 #endif
   // rl_outstream = stderr;
   using_history();
-  const char *s = Yap_AbsoluteFile("~/.YAP.history", NULL, true);
+  const char *s = Yap_AbsoluteFile("~/.YAP.history", true);
   history_file = s;
   if (read_history(s) != 0) {
     FILE *f = fopen(s, "a");

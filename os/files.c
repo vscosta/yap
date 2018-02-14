@@ -163,6 +163,15 @@ static Int access_path(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "access");
     return false;
   } else {
+          VFS_t *vfs;
+          char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
+          if (!s) return false;
+          if ((vfs = vfs_owner(s))) {
+              vfs_stat st;
+              bool rc = vfs->stat(vfs, s, &st);
+              UNLOCK(GLOBAL_Stream[sno].streamlock);
+              return rc;
+          }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
     char *file_name;
@@ -190,6 +199,15 @@ static Int exists_file(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "access");
     return FALSE;
   } else {
+      VFS_t *vfs;
+      char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
+      if (!s) return false;
+      if ((vfs = vfs_owner(s))) {
+          vfs_stat st;
+          bool rc = vfs->stat(vfs, s, &st);
+          UNLOCK(GLOBAL_Stream[sno].streamlock);
+return rc;
+      }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 
@@ -249,6 +267,12 @@ static Int time_file(USES_REGS1) {
     return FALSE;
   } else {
     const char *n = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(n))) {
+      vfs_stat s;
+      vfs->stat(vfs, n, &s);
+      return Yap_unify(ARG2, MkIntegerTerm(s.st_mtimespec.tv_sec));
+    }
 #if __WIN32
     FILETIME ft;
     HANDLE hdl;
@@ -304,6 +328,15 @@ static Int file_size(USES_REGS1) {
       "file_size/2");
   if (sno < 0)
     return (FALSE);
+  VFS_t *vfs;
+  char *s = RepAtom(GLOBAL_Stream[sno].name)->StrOfAE;
+  if (!s) return false;
+  if ((vfs = vfs_owner(s))) {
+    vfs_stat st;
+    vfs->stat(vfs, s, &st);
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return Yap_unify_constant(ARG2, MkIntegerTerm(st.st_size));
+  }
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
       !(GLOBAL_Stream[sno].status &
         (InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f))) {
@@ -457,6 +490,22 @@ static Int exists_directory(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "exists_directory/1");
     return FALSE;
   } else {
+    VFS_t *vfs;
+    char *s = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
+    if (!s) return false;
+    if ((vfs = vfs_owner(s))) {
+bool rc = true;
+void *o;
+      if ((o=vfs->opendir(vfs, s))) {
+        rc = true;
+        vfs->closedir(o);
+      } else {
+        rc = false;
+      }
+
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return rc;
+    }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 

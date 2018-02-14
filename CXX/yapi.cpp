@@ -12,6 +12,7 @@ extern "C" {
 
 #include "YapInterface.h"
 #include "blobs.h"
+#include "iopreds.h"
 
 X_API char *Yap_TermToBuffer(Term t, encoding_t encodingp, int flags);
 
@@ -843,8 +844,8 @@ void Yap_displayWithJava(int c) {
 
 #endif
 
-void YAPEngine::doInit(YAP_file_type_t BootMode) {
-  if ((BootMode = YAP_Init(engine_args)) == YAP_FOUND_BOOT_ERROR) {
+void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
+  if ((BootMode = YAP_Init(engineArgs)) == YAP_FOUND_BOOT_ERROR) {
     return;
     throw YAPError();
   }
@@ -874,7 +875,7 @@ YAPEngine::YAPEngine(int argc, char *argv[],
   // if (cb)
   //  setYAPCallback(cb);
 
-  doInit(BootMode);
+  doInit(BootMode, engine_args);
 }
 
 YAPPredicate::YAPPredicate(YAPAtom at) {

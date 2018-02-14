@@ -411,7 +411,7 @@ load_files(Files,Opts) :-
 '$check_use_module'(use_module(M,_,_), use_module(M)) :- !.
 '$check_use_module'(_, load_files) :- !.
 
-'$lf'(V,_,Call, _ ) :- var(V), !,
+'$lf'(V,_,Call, _ ) :-   var(V), !,
 	'$do_error'(instantiation_error,Call).
 '$lf'([], _, _, _) :- !.
 '$lf'(M:X, _, Call, TOpts) :- !,
@@ -424,7 +424,7 @@ load_files(Files,Opts) :-
 	).
 '$lf'([F|Fs], Mod, Call, TOpts) :- !,
 	% clean up after each consult
-	( '$lf'(F,Mod,Call, TOpts), fail ;
+	( '$lf'(F,Mod,Call, TOpts), fail;
 	  '$lf'(Fs, Mod, Call, TOpts), fail;
 	  true
 	).

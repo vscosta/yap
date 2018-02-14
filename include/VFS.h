@@ -128,10 +128,7 @@ static inline VFS_t *vfs_owner(const char *fname) {
   while (me) {
     bool p = true;
     if ((me->vflags & VFS_HAS_PREFIX) && p) {
-      const char *r = fname, *s = me->prefix;
-      while (*s && p)
-        p = *s++ == *r++;
-      if (p && r > fname + 1)
+      if (strstr(fname,me->prefix)==fname)
         return me;
     }
     if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) &&

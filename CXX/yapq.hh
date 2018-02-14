@@ -188,7 +188,7 @@ public:
 /// @brief Setup all arguments to a new engine
 struct X_API YAPEngineArgs : YAP_init_args {
 public:
-  YAPEngineArgs() : yap_boot_params() {
+  YAPEngineArgs() {
     const std::string *s = new std::string("startup.yss");
     Embedded = true;
     Yap_InitDefaults(this, (char *)s->c_str(), 0, nullptr);
@@ -294,7 +294,7 @@ private:
   YAPEngineArgs *engine_args;
   YAPCallback *_callback;
   YAPError yerror;
-  void doInit(YAP_file_type_t BootMode);
+  void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
   PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term t, Term tmod);
 
@@ -303,7 +303,7 @@ public:
   YAPEngine(YAPEngineArgs *cargs) {
     engine_args = cargs;
     // doInit(cargs->boot_file_type);
-    doInit(YAP_QLY);
+    doInit(YAP_QLY, cargs);
   }; /// construct a new engine, including aaccess to callbacks
   /// construct a new engine using argc/argv list of arguments
   YAPEngine(int argc, char *argv[],
