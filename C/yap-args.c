@@ -20,8 +20,8 @@
 #include "YapHeap.h"
 #include "YapInterface.h"
 #include "YapStreams.h"
-#include "iopreds.h"
 #include "config.h"
+#include "iopreds.h"
 
 #if HAVE_UNISTD_H
 
@@ -168,22 +168,22 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
 
   /* consult boot.pl */
-    int lvl = push_text_stack();
+  int lvl = push_text_stack();
   char *full = Malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';
   /* the consult mode does not matter here, really */
-    if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
-        osno = 0;
+  if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
+    osno = 0;
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
   if (c_stream < 0) {
-      pop_text_stack(lvl);
+    pop_text_stack(lvl);
     fprintf(stderr, "[ FATAL ERROR: could not open stream %s ]\n", b_file);
     exit(1);
   }
-        if (!Yap_AddAlias(AtomLoopStream, c_stream)) {
-            pop_text_stack(lvl);
-            return;
-        }
+  if (!Yap_AddAlias(AtomLoopStream, c_stream)) {
+    pop_text_stack(lvl);
+    return;
+  }
 
   do {
     CACHE_REGS
@@ -215,8 +215,8 @@ static void consult(const char *b_file USES_REGS) {
     }
   } while (t != TermEof);
   BACKUP_MACHINE_REGS();
-    YAP_EndConsult(c_stream, &osno, full);
-    pop_text_stack(lvl);
+  YAP_EndConsult(c_stream, &osno, full);
+  pop_text_stack(lvl);
 }
 
 /** @brief A simple language for detecting where YAP stuff can be found
@@ -247,7 +247,9 @@ typedef struct config {
 
 #if __ANDROID__
 const char *gd_root[] = {"@RootDir", "/assets"};
-const char *gd_lib[] = {"@LibDir", "[lib]", "(root)/lib/" "x86"};
+const char *gd_lib[] = {"@LibDir", "[lib]",
+                        "(root)/lib/"
+                        "x86"};
 const char *gd_share[] = {"@ShareDir", "(root)"};
 const char *gd_include[] = {"@IncludeDir", "[include]", "(root)/include"};
 const char *gd_dll[] = {"@DLLDir", "(lib)"};
@@ -256,7 +258,7 @@ const char *gd_commons[] = {"@CommonsDir", "(share)/PrologCommons"};
 const char *gd_ss[] = {"(dll)"};
 const char *gd_oss[] = {"."};
 const char *gd_bootpldir[] = {"@BootPlDir", "@PrologBootFile/..", "(pl)/pl"};
-const char *gd_bootpl[] = {"(bootpldir)" };
+const char *gd_bootpl[] = {"(bootpldir)"};
 #else
 const char *gd_root[] = {"@RootDir", "[root]", "(execdir)/.."};
 const char *gd_lib[] = {"@LibDir", "[lib]", "(root)/lib"};
@@ -294,7 +296,7 @@ char *location(YAP_init_args *iap, const char *inp) {
   if (inp == NULL || inp[0] == '\0') {
     return NULL;
   }
-  char * out = Malloc(FILENAME_MAX+1);
+  char *out = Malloc(FILENAME_MAX + 1);
   out[0] = '\0';
   if (inp[0] == '(') {
     if (strstr(inp + 1, "root") == inp + 1 && Yap_ROOTDIR &&
@@ -457,22 +459,21 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
   char *out = Malloc(YAP_FILENAME_MAX + 1);
   const char *inp;
   if (filename) {
-    strcpy(out, filename);
-    if (Yap_IsAbsolutePath(out, true)) {
-      out = pop_output_text_stack(lvl, out);
-      return out;
+    if (Yap_IsAbsolutePath(filename, true)) {
+      return pop_output_text_stack(lvl, filename);
     }
   }
   int i = 0;
   while ((inp = paths[i++]) != NULL) {
     char *o = location(iap, inp);
-      if (filename && o) {
-          strcat(o, "/");
-          strcat(o, filename);
-      if (o =(const char *) Yap_AbsoluteFile(o, false)) {
-          o = pop_output_text_stack(lvl, o);
-          return o;
+    if (filename && o) {
+      strcat(o, "/");
+      strcat(o, filename);
+      if ((o = Yap_AbsoluteFile(o, false))) {
+        return pop_output_text_stack(lvl, o);
       }
+    } else if (o && Yap_isDirectory(o)) {
+      return pop_output_text_stack(lvl, o);
     }
   }
   pop_text_stack(lvl);
@@ -490,17 +491,21 @@ static void Yap_set_locations(YAP_init_args *iap) {
   Yap_DLLDIR = find_directory(iap, template->dll, NULL);
   Yap_PLDIR = find_directory(iap, template->pl, NULL);
   Yap_BOOTPLDIR = find_directory(iap, template->bootpldir, NULL);
-            if (iap->PrologBootFile == NULL)
-                iap->PrologBootFile = "boot.yap";
-  Yap_BOOTFILE = find_directory(iap, template->bootpldir,iap->PrologBootFile );
+  if (iap->PrologBootFile == NULL)
+    iap->PrologBootFile = "boot.yap";
+  Yap_BOOTFILE = find_directory(iap, template->bootpldir, iap->PrologBootFile);
   Yap_COMMONSDIR = find_directory(iap, template->commons, NULL);
-  if (iap->SavedState == NULL)
-    iap->SavedState = "startup.yss";
+  if (iap->SavedState == NULL) {
+    if (iap->OutputSavedState)
+      iap->SavedState = iap->OutputSavedState;
+    else
+      iap->SavedState = "startup.yss";
+  }
   Yap_STARTUP = find_directory(iap, template->ss, iap->SavedState);
   if (iap->OutputSavedState == NULL)
     iap->OutputSavedState = "startup.yss";
   Yap_OUTPUT_STARTUP = find_directory(iap, template->ss, iap->OutputSavedState);
-   if (Yap_ROOTDIR)
+  if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
   if (Yap_PLDIR)

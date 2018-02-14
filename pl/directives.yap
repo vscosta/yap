@@ -19,13 +19,13 @@
   * @file   directives.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 11:47:38 2017
-  * 
+  *
   * @brief  Control File Loading
   %
   % @defgroup Directives
   @ @ingroup consult
-  * 
-  * 
+  *
+  *
 */
 
 
@@ -130,14 +130,14 @@
 	'$discontiguous'(D,M).
 /** @pred initialization
 
- 
+
 Execute the goals defined by initialization/1. Only the first answer is
 considered.
 
 
 */
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
-	'$exec_directives'(A, Status, M, VL, Pos).	
+	'$exec_directives'(A, Status, M, VL, Pos).
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -193,7 +193,7 @@ considered.
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
-	'$use_module'(Mod,F,Is).
+	use_module(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _, _, _) :-
