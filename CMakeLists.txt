@@ -518,16 +518,17 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 include_directories(utf8proc packages/myddas packages/myddas/sqlite3/src)
 
 
+set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
+
+add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
+
 if (ANDROID)
     include_directories(
             packages/myddas/sqlite3/src/Android/jni/sqlite
             packages/myddas/sqlite3/src/Android/jni/sqlite/nativehelper
     )
-endif (ANDROID)
 
-set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
-
-add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
+    else()
 
 if (MYSQL_FOUND)
     add_definitions(= -DMYDDAS_MYSQL=1)
@@ -540,7 +541,7 @@ endif ()
 if (MYSQL_POSTGRES)
     add_definitions(= -DMYDDAS_POSTGRES=1)
 endif ()
-
+endif()
 
 OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
 
