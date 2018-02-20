@@ -98,7 +98,13 @@ load_foreign_files(Objs,Libs,Entry) :-
 Loads object files produced by the C compiler. It is useful when no search should be performed and instead one has the full paths to the _Files_ and _Libs_.
 
 */
-load_absolute_foreign_files(_Objs,_Libs,_Entry).
+load_absolute_foreign_files(Objs,Libs,Entry) :-
+    source_module(M),
+   '$load_foreign_files'(Objs,Libs,Entry),
+    !,
+    prolog_load_context(file, F),
+    ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
+
 '$checklib_prefix'(F,F) :- is_absolute_file_name(F), !.
 '$checklib_prefix'(F, F) :-
 	sub_atom(F, 0, _, _, lib), !.

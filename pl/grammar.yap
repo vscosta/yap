@@ -67,7 +67,6 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-/*
 :- system_module( '$_grammar', [!/2,
          (',')/4,
          (->)/4,
@@ -81,7 +80,7 @@ Grammar related built-in predicates:
         phrase/3,
         {}/3,
         ('|')/4], ['$do_error'/2]).
-*/
+
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
@@ -121,7 +120,7 @@ t_hgoal(V, _, _, _, G0) :- var(V), !,
 t_hgoal(M:H, M:NH, S, SR, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0).
 t_hgoal(H, NH, S, SR, _) :-
-	extend([S,SR],H,NH).
+	dcg_extend([S,SR],H,NH).
 
 t_hlist(V, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
@@ -174,10 +173,10 @@ t_body((T|R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
 t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
-	extend([S,SR], T, Tt).
+	dcg_extend([S,SR], T, Tt).
 
 
-extend(More, OldT, NewT) :-
+dcg_extend(More, OldT, NewT) :-
 	OldT =.. OldL,
 	lists:append(OldL, More, NewL),
 	NewT =.. NewL.
@@ -232,7 +231,7 @@ prolog:phrase(V, S0, S) :-
     '$do_error'(instantiation_error,phrase(V,S0,S)).
 prolog:phrase([H|T], S0, S) :-
     !,
-    S0 = [H|S1],	      
+    S0 = [H|S1],
     '$phrase_list'(T, S1, S).
 prolog:phrase([], S0, S) :-
     !,
@@ -313,10 +312,10 @@ prolog:'\\+'(A, S0, S) :-
 
 do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
-do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :- 
+do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :-
     nonvar(NT), nonvar(Mod), !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
-    
+
 do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
     nonvar(NT), nonvar(Mod),
     '$c_built_in_phrase'(NT, Xs, [], Mod, NewGoal).

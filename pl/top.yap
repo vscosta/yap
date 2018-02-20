@@ -231,14 +231,21 @@ current_prolog_flag(break_level, BreakLevel),
 	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
 '$expand_term'(T,O) :-
-	catch( '$expand_term0'(T,O), _,( '$disable_debugging', fail) ),
+	 '$expand_term'(T,top,O).
+
+'$expand_term'(T,Con,O) :-
+	catch( '$expand_term0'(T,Con,O), _,( '$disable_debugging', fail) ),
       	!.
 
-'$expand_term0'(T,O) :-
-	expand_term( T, T1),
+		'$expand_term0'(T,consult,O) :-
+		expand_term( T,  O).
+		'$expand_term0'(T,reconsult,O) :-
+		expand_term( T,  O).
+		'$expand_term0'(T,top,O) :-
+	expand_term( T,  T1),
 	!,
  	'$expand_term1'(T1,O).
-'$expand_term0'(T,T).
+'$expand_term0'(T,_,T).
 
 '$expand_term1'(T,O) :-
         '$expand_meta_call'(T, [], O),

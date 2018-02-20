@@ -212,7 +212,7 @@ print_message(L,E) :-
 	 '$yap_strip_module'(C, EM, EG),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
 	  % do term expansion
-	  '$expand_term'(C, EC),
+	  '$expand_term'(C, Con, EC),
     '$yap_strip_module'(EC, EM, EG),
 	  % execute a list of commands
 	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
