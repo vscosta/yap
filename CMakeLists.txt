@@ -18,7 +18,7 @@ cmake_policy(VERSION 3.4)
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
 
 set(ANACONDA $ENV{CONDA_BUILD} CACHE BOOL "Anaconda Environment")
-message(STATUS "ANACONDA found:   ${ANACONDA}")
+#message(STATUS "ANACONDA found:   ${ANACONDA}")
 
 include(CheckIncludeFiles)
 include(CheckLibraryExists)
@@ -596,7 +596,7 @@ endif (GMP_FOUND)
 if (READLINE_FOUND)
     target_link_libraries(libYap ${READLINE_LIBRARIES})
     # required for configure
- 
+
 endif ()
 
 if (WIN32)
@@ -655,7 +655,7 @@ MY_set_target_properties(libYap
         )
 
 
-#utf-8 is not an option
+#utf-8 is not aPconn option
 # we use the nice UTF-8 package
 #available at the Julia project
 
@@ -726,7 +726,9 @@ OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ON)
 
 OPTION(WITH_HORUS " Enable the CLPBN and PFL probabilistic languages" ON)
 
-OPTION(WITH_DOCS " Enable documentation, requires doxygen-yap" ON)
+find_host_package(Doxygen)
+
+option(WITH_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
 
 IF (WITH_CLPBN)
     add_subDIRECTORY(packages/CLPBN)
@@ -903,5 +905,3 @@ include(Config )
 feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
         INCLUDE_QUIET_PACKAGES
         )
-
- 

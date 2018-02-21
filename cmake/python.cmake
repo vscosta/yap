@@ -31,13 +31,17 @@ set( PYTHON_INCLUDE_DIRS  $ENV{PYTHON_INCLUDE_DIRS} CACHE PATH "MINGW/MSYS2" FOR
     set (PYTHONLIBS_VERSION_STRING $ENV{PY_VER} CACHE STRING "MINGW/MSYS2" FORCE )
  list (APPEND CMAKE_REQUIRED_INCLUDES
         ${PYTHON_INCLUDE_PATH})
-
 else()
     find_package(PythonInterp)
+
     find_package(PythonLibs)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import sysconfig; sysconfig.get_paths()['include']"
+    OUTPUT_VARIABLE PYTHON_INCLUDE_PATH
+  OUTPUT_STRIP_TRAILING_WHITESPACE)
+ list (APPEND CMAKE_REQUIRED_INCLUDES
+        ${PYTHON_INCLUDE_PATH})
 endif()
 
-check_include_file(Python.h HAVE_PYTHON_H)
 
 IF (PYTHONLIBS_FOUND)
   add_subDIRECTORY (packages/python)
