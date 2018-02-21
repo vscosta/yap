@@ -152,30 +152,29 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
   return MkAtomTerm(Yap_ULookupAtom(cs));
 }
 
+extern char *virtual_cwd;
 
 
 INLINE_ONLY inline EXTERN  char *Yap_VF(const char *path){
-    char out[YAP_FILENAME_MAX+1], *p = (char *)path;
-    extern char virtual_cwd[];
+    char *out;
 
-    if ( virtual_cwd[0] == 0 || Yap_IsAbsolutePath(path, false)) {
-        return p;
+    out = (char *)malloc(YAP_FILENAME_MAX+1);
+    if ( virtual_cwd == NULL || virtual_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
+        return (char *) path;
     }
     strcpy(out, virtual_cwd);
     strcat(out, "/" );
-    strcat(out, p);
-    strcpy(p, out);
-    return p;
+    strcat(out, path);
+    return out;
 }
 
 
 INLINE_ONLY inline EXTERN  char *Yap_VFAlloc(const char *path){
     char *out;
-    extern char virtual_cwd[];
 
     out = (char *)malloc(YAP_FILENAME_MAX+1);
-    if ( virtual_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
-        return (char *)path;
+    if ( virtual_cwd == NULL || virtual_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
+        return (char *) path;
     }
     strcpy(out, virtual_cwd);
     strcat(out, "/" );

@@ -94,7 +94,7 @@ bool Yap_isDirectory(const char *FileName) {
 
 bool Yap_Exists(const char *f) {
   VFS_t *vfs;
-  f = Yap_VFAlloc(f);
+ // f = Yap_VFAlloc(f);
   if ((vfs = vfs_owner(f))) {
     return vfs->exists(vfs, f);
   }
@@ -340,7 +340,7 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_REALPATH 1
 #endif
 
-char virtual_cwd[YAP_FILENAME_MAX + 1];
+extern char *virtual_cwd;
 
 bool Yap_ChDir(const char *path) {
   bool rc = false;
@@ -1121,7 +1121,7 @@ static int volume_header(char *file) {
 int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(char *cwd, size_t cwdlen) {
-  if (virtual_cwd[0]) {
+  if (virtual_cwd && virtual_cwd[0]) {
     if (!cwd) {
       cwd = malloc(cwdlen + 1);
     }
@@ -1135,6 +1135,9 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   }
   return (char *)cwd;
 #endif
+  if (!cwd) {
+    cwd = malloc(cwdlen + 1);
+  }
   return getcwd((char *)cwd, cwdlen);
 }
 

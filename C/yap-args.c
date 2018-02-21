@@ -176,8 +176,8 @@ static void consult(const char *b_file USES_REGS) {
     osno = 0;
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
   if (c_stream < 0) {
-    pop_text_stack(lvl);
     fprintf(stderr, "[ FATAL ERROR: could not open stream %s ]\n", b_file);
+      pop_text_stack(lvl);
     exit(1);
   }
   if (!Yap_AddAlias(AtomLoopStream, c_stream)) {
@@ -456,7 +456,6 @@ char *location(YAP_init_args *iap, const char *inp) {
 static const char *find_directory(YAP_init_args *iap, const char *paths[],
                                   const char *filename) {
   int lvl = push_text_stack();
-  char *out = Malloc(YAP_FILENAME_MAX + 1);
   const char *inp;
   if (filename) {
     if (Yap_IsAbsolutePath(filename, true)) {
@@ -466,11 +465,12 @@ static const char *find_directory(YAP_init_args *iap, const char *paths[],
   int i = 0;
   while ((inp = paths[i++]) != NULL) {
     char *o = location(iap, inp);
+      const char *rc;
     if (filename && o) {
       strcat(o, "/");
       strcat(o, filename);
-      if ((o = Yap_AbsoluteFile(o, false))) {
-        return pop_output_text_stack(lvl, o);
+      if ((rc = Yap_AbsoluteFile(o, false))) {
+        return pop_output_text_stack(lvl, rc);
       }
     } else if (o && Yap_isDirectory(o)) {
       return pop_output_text_stack(lvl, o);
@@ -484,27 +484,51 @@ static void Yap_set_locations(YAP_init_args *iap) {
   config_t t, *template;
 
   template = cfg(&t);
-  Yap_ROOTDIR = find_directory(iap, template->root, NULL);
-  Yap_LIBDIR = find_directory(iap, template->lib, NULL);
-  // Yap_BINDIR = find_directory(iap, template->bin, NULL);
-  Yap_SHAREDIR = find_directory(iap, template->share, NULL);
-  Yap_DLLDIR = find_directory(iap, template->dll, NULL);
-  Yap_PLDIR = find_directory(iap, template->pl, NULL);
-  Yap_BOOTPLDIR = find_directory(iap, template->bootpldir, NULL);
+#if __ANDROID__
+    Yap_ROOTDIR = "/assets";
+    Yap_LIBDIR = "/assets/lib";
+    // Yap_BINDIR = MallocExportAsROfind_directory(iap, template->bin, NULL);
+    Yap_SHAREDIR = "/assets/Yap";
+    Yap_DLLDIR = "/assets/lib";
+    Yap_PLDIR = "/assets/Yap";
+    Yap_BOOTPLDIR = "/assets/Yap/pl";
+    if (iap->PrologBootFile == NULL)
+        iap->PrologBootFile = "boot.yap";
+    Yap_BOOTFILE = "/assets/Yap/pl/boot.yap";
+    Yap_COMMONSDIR =NULL;
+    if (iap->SavedState == NULL) {
+        if (iap->OutputSavedState)
+            iap->SavedState = iap->OutputSavedState;
+        else
+            iap->SavedState = "startup.yss";
+    }
+    Yap_STARTUP = NULL;
+        iap->OutputSavedState = "startup.yss";
+    Yap_OUTPUT_STARTUP = NULL;
+#else
+    Yap_ROOTDIR = MallocExportAsRO(find_directory(iap, template->root, NULL) );
+  Yap_LIBDIR = MallocExportAsRO( find_directory(iap, template->lib, NULL) );
+  // Yap_BINDIR = MallocExportAsROfind_directory(iap, template->bin, NULL);
+  Yap_SHAREDIR = MallocExportAsRO( find_directory(iap, template->share, NULL) );
+  Yap_DLLDIR = MallocExportAsRO( find_directory(iap, template->dll, NULL) );
+  Yap_PLDIR = MallocExportAsRO( find_directory(iap, template->pl, NULL) );
+  Yap_BOOTPLDIR = MallocExportAsRO( find_directory(iap, template->bootpldir, NULL) );
   if (iap->PrologBootFile == NULL)
     iap->PrologBootFile = "boot.yap";
-  Yap_BOOTFILE = find_directory(iap, template->bootpldir, iap->PrologBootFile);
-  Yap_COMMONSDIR = find_directory(iap, template->commons, NULL);
+  Yap_BOOTFILE = MallocExportAsRO( find_directory(iap, template->bootpldir, iap->PrologBootFile) ) ;
+  Yap_COMMONSDIR = MallocExportAsRO( find_directory(iap, template->commons, NULL) );
   if (iap->SavedState == NULL) {
     if (iap->OutputSavedState)
       iap->SavedState = iap->OutputSavedState;
     else
       iap->SavedState = "startup.yss";
   }
-  Yap_STARTUP = find_directory(iap, template->ss, iap->SavedState);
+  Yap_STARTUP = MallocExportAsRO( find_directory(iap, template->ss, iap->SavedState));
   if (iap->OutputSavedState == NULL)
     iap->OutputSavedState = "startup.yss";
-  Yap_OUTPUT_STARTUP = find_directory(iap, template->ss, iap->OutputSavedState);
+  Yap_OUTPUT_STARTUP = MallocExportAsRO( find_directory(iap, template->ss, iap->OutputSavedState) );
+
+#endif
   if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
@@ -1108,7 +1132,7 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 #if __ANDROID__
 
   // if (yap_init->assetManager)
-  Yap_InitAssetManager();
+  //Yap_InitAssetManager();
 
 #endif
 
@@ -1149,11 +1173,11 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   struct ssz_t minfo;
 
   if (YAP_initialized)
-    return YAP_FOUND_BOOT_ERROR;
+  /* ignore repeated calls to YAP_Init */
+  return YAP_FOUND_BOOT_ERROR;
   if (!LOCAL_TextBuffer)
     LOCAL_TextBuffer = Yap_InitTextAllocator();
 
-  /* ignore repeated calls to YAP_Init */
   Yap_embedded = yap_init->Embedded;
 
   minfo.Trail = 0, minfo.Stack = 0, minfo.Trail = 0;

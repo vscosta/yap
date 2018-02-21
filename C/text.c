@@ -185,6 +185,23 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
   return o + 1;
 }
 
+
+/**
+ * Export a local memory object as a RO object to the outside world, that is, recovering as much storage as one can.
+ * @param pt pointer to object
+ * @return new object
+ */
+const void *MallocExportAsRO(const void *pt USES_REGS) {
+  struct mblock *old = pt, *o;
+    if (o == NULL)
+        return NULL;
+  old--;
+  release_block(old);
+size_t sz = strlen(pt)+1;
+memcpy((void*)pt,old,sz);
+  return realloc((void *)pt, sz);
+}
+
 void Free(void *pt USES_REGS) {
   struct mblock *o = pt;
   o--;

@@ -39,7 +39,7 @@ extern void Free(void *buf USES_REGS);
 
 extern void *MallocAtLevel(size_t sz, int atL USES_REGS);
 #define BaseMalloc(sz) MallocAtLevel(sz, 1)
-extern void *export_block(void *blk);
+extern const void *MallocExportAsRO(const void *blk);
 
 #ifndef Yap_Min
 #define Yap_Min(x, y) (x < y ? x : y)

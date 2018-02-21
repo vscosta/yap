@@ -40,6 +40,10 @@ static char SccsId[] = "%W% %G%";
 #include <android/asset_manager.h>
 #include <android/native_activity.h>
 
+
+extern void
+Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager);
+
 jobject *Yap_aref;
 JNIEnv *Yap_env;
 
@@ -48,11 +52,10 @@ AAssetManager *Yap_assetManager(void)
     return AAssetManager_fromJava(Yap_env, Yap_aref);
 }
 
-jboolean
-Java_pt_up_yap_app_YAPDroid_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
+void
+Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
     Yap_aref = (*env)->NewGlobalRef(env,assetManager);
     Yap_env = env;
-    return true;
 }
 
 
@@ -60,7 +63,6 @@ static void *
 open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
     int mode;
     const void *buf;
-
 
     AAsset *am = NULL;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode);
@@ -83,9 +85,9 @@ open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
 //
 //        }
 //    }
-
-    if (!am)
+    if (!am) {
         return NULL;
+    }
     // try not to use it as an asset
     off64_t sz = AAsset_getLength64(am), sz0 = 0;
     int fd;
@@ -157,10 +159,10 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
         out->st_dev = bf.st_dev;
         out->st_uid = bf.st_uid;
         out->st_gid = bf.st_gid;
-        memcpy(&out->st_atimespec, (const void *) &out->st_atimespec, sizeof(struct timespec));
-        memcpy(&out->st_mtimespec, (const void *) &out->st_mtimespec, sizeof(struct timespec));
-        memcpy(&out->st_ctimespec, (const void *) &out->st_ctimespec, sizeof(struct timespec));
-        memcpy(&out->st_birthtimespec, (const void *) &out->st_birthtimespec,
+        memcpy(&out->st_atimespec, (const void *) &bf.st_atim, sizeof(struct timespec));
+        memcpy(&out->st_mtimespec, (const void *) &bf.st_mtim, sizeof(struct timespec));
+        memcpy(&out->st_ctimespec, (const void *) &bf.st_ctim, sizeof(struct timespec));
+        memcpy(&out->st_birthtimespec, (const void *) &bf.st_ctim,
                sizeof(struct timespec));
     }
     AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);
@@ -201,14 +203,17 @@ bool exists_a(VFS_t *me, const char *dirName) {
 }
 
 
-char virtual_cwd[YAP_FILENAME_MAX + 1];
+char *virtual_cwd;
 
 static bool set_cwd(VFS_t *me, const char *dirName) {
 
     chdir("/assets");
+    if (virtual_cwd) {
+        free(virtual_cwd);
+    }
+    virtual_cwd = malloc(strlen(dirName)+1);
     strcpy(virtual_cwd, dirName);
-__android_log_print(ANDROID_LOG_INFO, "YAPDroid",
-"chdir %s", virtual_cwd);
+__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", virtual_cwd);
 return true;
 }
 
@@ -243,6 +248,7 @@ Yap_InitAssetManager(void) {
     me->enc = ENC_ISO_UTF8;            /// how the file is encoded.
     me->parsers = NULL;                    /// a set of parsers that can read the stream and generate a term
     me->writers = NULL;
+    virtual_cwd = NULL;
     LOCK(BGL);
     me->next = GLOBAL_VFS;
     GLOBAL_VFS = me;

@@ -106,8 +106,6 @@ typedef struct vfs {
   YAP_Term (*parsers)(int sno); // a set of parsers that can read the
                                 // stream and generate a YAP_Term
   int (*writers)(int ch, int sno);
-  /// convert a YAP_Term into this space
-  const char *virtual_cwd;
   /** VFS dep
       endent area */
   cell_size_t priv[4];

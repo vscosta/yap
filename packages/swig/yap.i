@@ -31,6 +31,13 @@ class YAPEngine;
 
   extern "C"{
     #include "Yap.h"
+
+
+
+#if __ANDROID__
+
+#endif
+
     #ifdef SWIGPYTHON
     #include <py4yap.h>
 

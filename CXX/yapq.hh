@@ -187,6 +187,8 @@ public:
 
 /// @brief Setup all arguments to a new engine
 struct X_API YAPEngineArgs : YAP_init_args {
+
+
 public:
   YAPEngineArgs() {
     const std::string *s = new std::string("startup.yss");
@@ -195,6 +197,8 @@ public:
 #if YAP_PYTHON
     Embedded = true;
     python_in_python = Py_IsInitialized();
+#endif
+#if __ANDROID__
 #endif
   };
 
@@ -269,11 +273,6 @@ public:
 
   inline bool getFastBoot() { return FastBoot; };
 
-#if __ANDROID__
-  //> export ResoourceManager
-  inline void setAssetManager(AAssetManager *mgr) { assetManager = mgr; };
-#endif
-
   inline void setArgc(int fl) { Argc = fl; };
 
   inline int getArgc() { return Argc; };
@@ -281,6 +280,7 @@ public:
   inline void setArgv(char **fl) { Argv = fl; };
 
   inline char **getArgv() { return Argv; };
+
 };
 
 /**

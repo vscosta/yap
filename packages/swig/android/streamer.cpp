@@ -25,12 +25,12 @@ extern "C" {
 #include <yapio.h>
 #include <iopreds.h>
 
-extern void Java_pt_up_yap_lib_streamerJNI_swig_1module_1init__(void);
+extern void Java_pt_up_yap_streamerJNI_swig_1module_1init__(void);
 
 static VFS_t andstream;
 
-void Java_pt_up_yap_lib_streamerJNI_swig_1module_1init__(void) {
-    streamerInstance = 0;
+void Java_pt_up_yap_streamerJNI_swig_1module_1init__(void) {
+ //   streamerInstance = 0;
 } ;
 
 static std::string buff0;

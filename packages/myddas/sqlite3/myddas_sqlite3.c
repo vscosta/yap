@@ -664,15 +664,15 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 }
 
 X_API void init_sqlite3(void) {
-  Yap_InitMYDDAS_SQLITE3Preds();
-  Yap_InitBackMYDDAS_SQLITE3Preds();
+ // Yap_InitMYDDAS_SQLITE3Preds();
+ // Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
 #if _ANDROID_
-JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
+//JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
 
-JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
-  init_sqlite3();
+// JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
+//  init_sqlite3();
 }
 
 #endif

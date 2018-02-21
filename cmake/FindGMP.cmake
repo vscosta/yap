@@ -11,18 +11,18 @@
 
 if (ANDROID)
   
-  set( GMP_LOC ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
-  if (EXISTS ${GMP_LOC} )
-    message("Looking good for ${GMP_LOC}")
-    set(GMP_INCLUDE_DIRS ${GMP_LOC} CACHE PATH "include search path")
-    set(GMP_LIBRARIES  ${GMP_LOC}/libgmp.so CACHE FILEPATH "include search path")
-    set(GMP_LIBRARIES_DIR ${GMP_LOC} CACHE PATH "include search path")
+  set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../../../gmp/${ANDROID_ABI} )
+  if (EXISTS ${GMP_ROOT} )
+    message("Looking good for ${GMP_ROOT}")
+    set(GMP_INCLUDE_DIRS ${GMP_ROOT} CACHE PATH "include search path")
+    set(GMP_LIBRARIES  ${GMP_ROOT}/libgmp.so CACHE FILEPATH "include search path")
+    set(GMP_LIBRARIES_DIR ${GMP_ROOT} CACHE PATH "include search path")
     else()
-    message("Bad call: ${GMP_LOC} does not exist")
+    message("Bad call: ${GMP_ROOT} does not exist")
     endif()
 find_path(GMP_INCLUDE_DIRS
         NAMES gmp.h
-        HINTS ${GMP_LOC} 
+        HINTS ${GMP_ROOT} 
 	  NO_SYSTEM_ENVIRONMENT_PATH)
   find_library(GMP_LIBRARIES NAMES gmp
                 PATHS

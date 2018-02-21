@@ -515,19 +515,13 @@ endif (WITH_CALL_TRACER)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-include_directories(utf8proc packages/myddas packages/myddas/sqlite3/src)
-
+include_directories(utf8proc packages/myddas packages/myddas/sqlite3/src )
 
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
 
 if (ANDROID)
-    include_directories(
-            packages/myddas/sqlite3/src/Android/jni/sqlite
-            packages/myddas/sqlite3/src/Android/jni/sqlite/nativehelper
-    )
-
     else()
 
 if (MYSQL_FOUND)
@@ -572,7 +566,10 @@ if (WIN32 OR ANDROID)
     if (WIN32 AND WITH_PYTHON)
         List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
     endif ()
+    if (ANDROID)
+        List(APPEND YLIBS $<TARGET_OBJECTS:YAPJava>)
 endif ()
+    endif ()
 
 include(Sources)
 
@@ -697,8 +694,18 @@ endif ()
 
 
 IF ( ANDROID)
-   add_subDIRECTORY(packages/swig )
-    target_link_libraries(libYap android log)
+   set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
+   set(CMAKE_SWIG_OUTPUT    ${YAP_APP_DIR}/src/generated/jni )
+   set( SWIG_MODULE_NAME pt.up.yap.lib )
+
+  add_subDIRECTORY(packages/swig )
+
+
+
+
+    #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../../../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
+
+    target_link_libraries(libYap android log )
 ENDIF ()
 
 
