@@ -970,6 +970,10 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
       number_overflow();
     *sp++ = ch;
     ch = getchr(st);
+    if (!iswhexnumber(ch))  {
+      Yap_InitError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
+      return 0;
+    }
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
       int chval =
@@ -982,16 +986,27 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
       if (oval != (val - chval) / 16) /* overflow */
         has_overflow = TRUE;
       ch = getchr(st);
+
     }
     *chp = ch;
   } else if (ch == 'o' && base == 0) {
-    might_be_float = FALSE;
+    might_be_float = false;
     base = 8;
     ch = getchr(st);
+      if (ch < '0' || ch > '7') {
+          Yap_InitError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
+        return 0;
+      }
   } else if (ch == 'b' && base == 0) {
-    might_be_float = FALSE;
+    might_be_float = false;
     base = 2;
     ch = getchr(st);
+  if (ch < '0' || ch > '1') {
+                                          Yap_InitError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
+    return 0;
+                                      }
+
+
   } else {
     val = base;
     base = 10;
@@ -1011,7 +1026,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     }
     val = val * base + ch - '0';
     if (val / base != oval || val - oval * base != ch - '0') /* overflow */
-      has_overflow = TRUE;
+      has_overflow = true;
     ch = getchr(st);
   }
   if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
@@ -1162,8 +1177,7 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
 #endif
   if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
     Yap_clean_tokenizer(old_tr, NULL, NULL);
-    if (error_on)
-      Yap_Error(SYNTAX_ERROR, ARG2, "converting number");
+   Yap_InitError(SYNTAX_ERROR, ARG2, "while converting stream %d to number", inp-GLOBAL_Stream );
     return 0;
   }
   return out;
@@ -1472,7 +1486,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       cherr = 0;
       CHECK_SPACE();
       if ((t->TokInfo = get_num(&cha, &cherr, st, sign)) == 0L) {
-        if (p) {
+        if (t->TokInfo == 0) {
           p->Tok = eot_tok;
           t->TokInfo = TermError;
         }

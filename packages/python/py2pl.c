@@ -150,7 +150,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     for (i = 0; i < sz; i++) {
       PyObject *obj;
       rc = rc && PL_unify_list(t, to, t);
-      if ((obj = PyList_GetItem(pVal, i - 1)) == NULL) {
+      if ((obj = PyList_GetItem(pVal, i)) == NULL) {
         obj = Py_None;
       }
       rc = rc && python_to_term(obj, to);

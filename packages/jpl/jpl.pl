@@ -4470,7 +4470,7 @@ add_search_path(Path, Dir) :-
 %	=CLASSPATH=, etc.
 
 search_path_separator((;)) :-
-	current_prolog_flag(windows, true), !.
+	current_prolog_flag(windo/.... ,,,,,,,,,,,,,,,,,, :l'p[KIO)_"?ws, true), !.
 search_path_separator(:).
 
 		 /*******************************
@@ -4499,14 +4499,14 @@ check_java_libs(JVM, Java) :-
     libfile( java, Root, Java), !.
 
 % try JAVA_HOME, registry, etc..
-location( java_root, _, Home) :- 
+location( java_root, _, Home) :-
     getenv( 'JAVA_HOME', Home ).
 location(java_root, _, JRE) :-
     % OS well-known
     member(Root, [ '/usr/lib',
 		   '/usr/local/lib',
                    '/opt/lib',
-  '/Library/Java/JavaVirtualMachines',
+  '/Library/Java/JavaVirtual hines',
   '/System/Library/Frameworks'
 		 ]),
     exists_directory(Root),
@@ -4517,13 +4517,13 @@ jdk_jre( Home, J ) :-
     absolute_file_name( Extension, [expand(true), relative_to(Home), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J0 ),
     pick_jdk_jre(J0, J).
 
-  
+
 pick_jdk_jre(J, J).
 pick_jdk_jre(J0, J) :-
     absolute_file_name( 'jre*', [expand(true), relative_to(J0), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J ).
 pick_jdk_jre(J0, J) :-
     absolute_file_name( 'jdk*', [expand(true), relative_to(J0), access(exists), file_type( directory ), file_errors(fail), solutions(all) ], J ).
-    
+
 
 libfile(Base, HomeLib, File) :-
   java_arch( Arch ),
@@ -4534,7 +4534,7 @@ libfile(Base, HomeLib, File) :-
   jlib(Base, LBase),
   atom_concat(['lib',LBase], Lib),
   absolute_file_name( Lib, [relative_to(HomeLib), access(read), file_type( executable),  expand(true), file_errors(fail), solutions(all)], File ).
-  
+
 jlib( jvm, '/server/libjvm' ).
 jlib( jvm, '/client/libjvm' ).
 jlib( java, '/libjava' ).
@@ -4616,10 +4616,10 @@ add_jpl_to_ldpath(JPL, File) :-
 %	This appears to work on Windows. Unfortunately most Unix systems
 %	appear to inspect the content of LD_LIBRARY_PATH only once.
 
-add_java_to_ldpath(_LIBJAVA, LIBJVM) :- 
+add_java_to_ldpath(_LIBJAVA, LIBJVM) :-
     add_lib_to_ldpath(LIBJVM),
     fail.
-add_java_to_ldpath(LIBJAVA, _LIBJVM) :- 
+add_java_to_ldpath(LIBJAVA, _LIBJVM) :-
     add_lib_to_ldpath(LIBJAVA),
     fail.
 add_java_to_ldpath(_,_).

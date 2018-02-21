@@ -736,21 +736,23 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_number(unsigned char *s, seq_tv_t *out,
                          bool error_on USES_REGS) {
   Term t;
-  yap_error_number erro = LOCAL_Error_TYPE;
-  int i = push_text_stack();
+    yap_error_descriptor_t new_error;
+    int i = push_text_stack();
+    Yap_pushErrorContext(&new_error);
   t = Yap_StringToNumberTerm((char *)s, &out->enc, error_on);
   pop_text_stack(i);
-  LOCAL_Error_TYPE = erro;
+    Yap_popErrorContext(true);
   return t;
 }
 
 static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   Term o;
-  yap_error_number erro = LOCAL_Error_TYPE;
-  o = out->val.t = Yap_BufferToTerm(s, TermNil);
-  LOCAL_Error_TYPE = erro;
+    yap_error_descriptor_t new_error;
+    Yap_pushErrorContext(&new_error);
+    o = out->val.t = Yap_BufferToTerm(s, TermNil);
+    Yap_popErrorContext(true);
 
-  return o;
+    return o;
 }
 
 bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {

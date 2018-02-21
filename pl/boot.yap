@@ -107,7 +107,66 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
-% be careful here not to generate an undefined exception.
+% be careful here not to generate an undefined exception..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
@@ -212,7 +271,7 @@ print_message(L,E) :-
 	 '$yap_strip_module'(C, EM, EG),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
 	  % do term expansion
-	  '$expand_term'(C, EC),
+	  '$expand_term'(C, Con, EC),
     '$yap_strip_module'(EC, EM, EG),
 	  % execute a list of commands
 	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),

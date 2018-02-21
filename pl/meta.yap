@@ -73,7 +73,7 @@ meta_predicate declaration
 	retractall(prolog:'$meta_predicate'(F,M2,N,_)),
 	fail.
 '$install_meta_predicate'(P,M,F,N) :-
-    	( M = prolog -> M2 = _ ; M2 = M), 
+    	( M = prolog -> M2 = _ ; M2 = M),
 	assertz('$meta_predicate'(F,M2,N,P)).
 
                                 % comma has its own problems.
@@ -300,8 +300,9 @@ meta_predicate declaration
     nonvar(G),
     G = (A = B),
     !.
-'$expand_goals'(\+A,\+A1,('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> false;true),HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
+'$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
+	'$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
 	('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
@@ -591,8 +592,8 @@ meta_predicate(P) :-
 	spy(:),
 	stash_predicate(:),
 	use_module(:),
-	use_module(:,?),
-	use_module(?,:,?),
+	use_module(:,+),
+	use_module(?,:,+),
 	when(+,0),
 	with_mutex(+,0),
 	with_output_to(?,0),
@@ -606,5 +607,5 @@ meta_predicate(P) :-
 	'|'(2,2,?,?),
 	->(2,2,?,?),
 	\+(2,?,?),
-		  \+( 0 ) 
+		  \+( 0 )
             .

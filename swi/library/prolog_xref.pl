@@ -55,9 +55,7 @@
 :- use_module(library(lists), [append/3, member/2]).
 :- use_module(library(operators),
 	      [pop_operators/0, push_op/3, push_operators/1]).
-:- if(current_prolog_flag(dialect, swi)).
 :- use_module(library(shlib), [current_foreign_library/2]).
-:- endif.
 :- use_module(library(prolog_source)).
 :- use_module(library(option)).
 :- use_module(library(error)).
@@ -121,12 +119,12 @@ called_by(on_signal(_,_,New), [New+1]) :-
 
 :- expects_dialect(swi).
 
-:- if(current_prolog_flag(dialect, swi)).
-system_predicate(Goal) :-
-	functor(Goal, Name, Arity),
-	current_predicate(system:Name/Arity),	% avoid autoloading
-	predicate_property(system:Goal, built_in), !.
-:-endif.
+% :- if(current_prolog_flag(dialect, swi)).
+% system_predicate(Goal) :-
+% 	functor(Goal, Name, Arity),
+% 	current_predicate(system:Name/Arity),	% avoid autoloading
+% 	predicate_property(system:Goal, built_in), !.
+% :-endif.
 
 		/********************************
 		*            TOPLEVEL		*
@@ -1452,4 +1450,3 @@ do_xref_source_file(Spec, File, Options) :-
 			     access(read),
 			     file_errors(fail)
 			   ], File), !.
-
