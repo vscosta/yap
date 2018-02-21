@@ -324,9 +324,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   CELL *Hi = HR;
   TokEntry *tok = LOCAL_tokptr;
   Int cline = tok->TokLine;
-    Int startpos = tok->TokPos;
-    errtok = LOCAL_toktide;
-    Int errpos = errtok->TokPos;
+  Int startpos = tok->TokPos;
+  errtok = LOCAL_toktide;
+  Int errpos = errtok->TokPos;
   UInt diff = 0;
   startline = MkIntegerTerm(cline);
   endline = MkIntegerTerm(cline);
@@ -335,15 +335,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   if (LOCAL_ErrorMessage)
     tm = MkStringTerm(LOCAL_ErrorMessage);
   else {
-      tm = MkStringTerm("syntax error");
+    tm = MkStringTerm("syntax error");
   }
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
     if (errpos && newpos >= 0) {
       char o[128 + 1];
       diff = errpos - startpos;
       if (diff > 128) {
-	diff = 128;
-	startpos = errpos - diff;
+        diff = 128;
+        startpos = errpos - diff;
       }
 #if HAVE_FTELLO
       Int curpos = ftello(GLOBAL_Stream[sno].file);
@@ -729,7 +729,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
   Term v_vp, v_vnames, v_comments, v_pos;
 
-  if (fe->t0 & fe->t && !Yap_unify(fe->t, fe->t0))
+  if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
   if (fe->t && fe->vp)
     v_vp = get_variables(fe, tokstart);
@@ -907,6 +907,9 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
     }
   }
   // go back to the start
+  if (LOCAL_Error_TYPE == SYNTAX_ERROR) {
+    return YAP_PARSING_ERROR;
+  }
   if (re->seekable) {
     if (GLOBAL_Stream[inp_stream].status & InMemory_Stream_f) {
       GLOBAL_Stream[inp_stream].u.mem_string.pos = re->cpos;

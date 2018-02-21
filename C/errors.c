@@ -68,7 +68,24 @@ bool Yap_Warning(const char *s, ...) {
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
   return rc;
 }
-void Yap_InitError(yap_error_number e, Term t, const char *msg) {
+
+void Yap_InitError__(const char *file, const char *function, int lineno, yap_error_number e, Term t, ...) {
+  CACHE_REGS
+  va_list ap;
+  va_start(ap, t);
+  const char *fmt;
+  char tmpbuf[MAXPATHLEN];
+
+  fmt = va_arg(ap, char *);
+  if (fmt != NULL) {
+#if HAVE_VSNPRINTF
+    vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
+#else
+    (void)vsprintf(tmpbuf, fmt, ap);
+#endif
+  } else
+    return;
+  va_end(ap);
   if (LOCAL_ActiveError->status) {
     Yap_exit(1);
   }
@@ -76,10 +93,10 @@ void Yap_InitError(yap_error_number e, Term t, const char *msg) {
   LOCAL_ActiveError->errorFile = NULL;
   LOCAL_ActiveError->errorFunction = NULL;
   LOCAL_ActiveError->errorLine = 0;
-  if (msg) {
-    LOCAL_Error_Size = strlen(msg);
+  if (fmt) {
+    LOCAL_Error_Size = strlen(tmpbuf);
     LOCAL_ActiveError->errorMsg = malloc(LOCAL_Error_Size + 1);
-    strcpy(LOCAL_ActiveError->errorMsg, msg);
+    strcpy(LOCAL_ActiveError->errorMsg, tmpbuf);
   } else {
     LOCAL_Error_Size = 0;
   }

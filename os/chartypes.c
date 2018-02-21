@@ -95,9 +95,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     s++;
 #endif
   t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
-  if (LOCAL_Error_TYPE == SYNTAX_ERROR)
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-  Yap_CloseStream(sno);
+    Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return t;
 }

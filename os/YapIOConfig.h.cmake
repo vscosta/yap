@@ -1,3 +1,12 @@
+
+// play nice
+#ifndef HAVE_PYTHON
+#cmakedefine HAVE_PYTHON  ${HAVE_PYTHON}
+#endif
+#if HAVE_PYTHON
+#include <Python.h>
+#endif
+
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
 #cmakedefine HAVE_LIBREADLINE  ${HAVE_LIBREADLINE}

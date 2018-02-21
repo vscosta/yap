@@ -38,12 +38,10 @@ class X_API YAPPredicate;
 class X_API YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
-  yhandle_t q_g, q_handles;
+  yhandle_t  q_handles;
   struct yami *q_p, *q_cp;
-  sigjmp_buf q_env;
   int q_flags;
   YAP_dogoalinfo q_h;
-  YAPQuery *oq;
   YAPPairTerm names;
   YAPTerm goal;
   // temporaries

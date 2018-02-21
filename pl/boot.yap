@@ -107,7 +107,66 @@ private(_).
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 
-% be careful here not to generate an undefined exception.
+% be careful here not to generate an undefined exception..
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
