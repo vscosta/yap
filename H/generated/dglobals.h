@@ -141,4 +141,5 @@
 #define GLOBAL_NOfFileAliases Yap_global->NOfFileAliases_
 #define GLOBAL_SzOfFileAliases Yap_global->SzOfFileAliases_
 #define GLOBAL_VFS Yap_global->VFS_
+#define GLOBAL_cwd Yap_global->cwd_
 

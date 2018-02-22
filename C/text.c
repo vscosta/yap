@@ -121,10 +121,6 @@ void insert_block(struct mblock *o) {
 }
 
 void release_block(struct mblock *o) {
-  if (o->prev)
-    o->prev->next = o->next;
-  if (o->next)
-    o->next->prev = o->prev;
   int lvl = o->lvl;
   if (LOCAL_TextBuffer->first[lvl] == o) {
     if (LOCAL_TextBuffer->last[lvl] == o) {
@@ -134,6 +130,10 @@ void release_block(struct mblock *o) {
   } else if (LOCAL_TextBuffer->last[lvl] == o) {
     LOCAL_TextBuffer->last[lvl] = o->prev;
   }
+  if (o->prev)
+    o->prev->next = o->next;
+  if (o->next)
+    o->next->prev = o->prev;
 }
 
 void *Malloc(size_t sz USES_REGS) {
@@ -192,14 +192,13 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
  * @return new object
  */
 const void *MallocExportAsRO(const void *pt USES_REGS) {
-  struct mblock *old = pt, *o;
-    if (o == NULL)
+  struct mblock *old = pt, *o = old-1;
+    if (old == NULL)
         return NULL;
-  old--;
-  release_block(old);
-size_t sz = strlen(pt)+1;
-memcpy((void*)pt,old,sz);
-  return realloc((void *)pt, sz);
+  size_t sz = o->sz;
+  release_block(o);
+  memcpy((void*)o, pt,sz);
+  return realloc((void *)o, sz);
 }
 
 void Free(void *pt USES_REGS) {

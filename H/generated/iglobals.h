@@ -141,4 +141,5 @@ static void InitGlobal(void) {
 
 
   GLOBAL_VFS = Yap_InitAssetManager();
+  GLOBAL_cwd = NULL;
 }

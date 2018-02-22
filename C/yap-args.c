@@ -176,7 +176,7 @@ static void consult(const char *b_file USES_REGS) {
     osno = 0;
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
   if (c_stream < 0) {
-    fprintf(stderr, "[ FATAL ERROR: could not open stream %s ]\n", b_file);
+    fprintf(stderr, "[ FATAL ERROR: could not open file %s ]\n", b_file);
       pop_text_stack(lvl);
     exit(1);
   }
@@ -189,6 +189,7 @@ static void consult(const char *b_file USES_REGS) {
     CACHE_REGS
     YAP_Reset(YAP_FULL_RESET, false);
     Yap_StartSlots();
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "read %s <%d>", b_file, GLOBAL_Stream[c_stream].linecount);
     Term vs = YAP_MkVarTerm(), pos = MkVarTerm();
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);
@@ -490,11 +491,9 @@ static void Yap_set_locations(YAP_init_args *iap) {
     // Yap_BINDIR = MallocExportAsROfind_directory(iap, template->bin, NULL);
     Yap_SHAREDIR = "/assets/Yap";
     Yap_DLLDIR = "/assets/lib";
-    Yap_PLDIR = "/assets/Yap";
-    Yap_BOOTPLDIR = "/assets/Yap/pl";
-    if (iap->PrologBootFile == NULL)
-        iap->PrologBootFile = "boot.yap";
-    Yap_BOOTFILE = "/assets/Yap/pl/boot.yap";
+    Yap_PLDIR = iap->PlDir;
+    Yap_BOOTPLDIR =  iap->PrologBootFile;
+        Yap_BOOTFILE = iap->PrologBootFile;
     Yap_COMMONSDIR =NULL;
     if (iap->SavedState == NULL) {
         if (iap->OutputSavedState)
@@ -506,27 +505,27 @@ static void Yap_set_locations(YAP_init_args *iap) {
         iap->OutputSavedState = "startup.yss";
     Yap_OUTPUT_STARTUP = NULL;
 #else
-    Yap_ROOTDIR = MallocExportAsRO(find_directory(iap, template->root, NULL) );
-  Yap_LIBDIR = MallocExportAsRO( find_directory(iap, template->lib, NULL) );
-  // Yap_BINDIR = MallocExportAsROfind_directory(iap, template->bin, NULL);
-  Yap_SHAREDIR = MallocExportAsRO( find_directory(iap, template->share, NULL) );
-  Yap_DLLDIR = MallocExportAsRO( find_directory(iap, template->dll, NULL) );
-  Yap_PLDIR = MallocExportAsRO( find_directory(iap, template->pl, NULL) );
-  Yap_BOOTPLDIR = MallocExportAsRO( find_directory(iap, template->bootpldir, NULL) );
+    Yap_ROOTDIR = find_directory(iap, template->root, NULL) ;
+  Yap_LIBDIR =  find_directory(iap, template->lib, NULL) ;
+  // Yap_BINDIR = MallocExportAsROfind_directory(iap, template->bin, NULL;
+  Yap_SHAREDIR =  find_directory(iap, template->share, NULL) ;
+  Yap_DLLDIR =  find_directory(iap, template->dll, NULL) ;
+  Yap_PLDIR =  find_directory(iap, template->pl, NULL) ;
+  Yap_BOOTPLDIR =  find_directory(iap, template->bootpldir, NULL);
   if (iap->PrologBootFile == NULL)
     iap->PrologBootFile = "boot.yap";
-  Yap_BOOTFILE = MallocExportAsRO( find_directory(iap, template->bootpldir, iap->PrologBootFile) ) ;
-  Yap_COMMONSDIR = MallocExportAsRO( find_directory(iap, template->commons, NULL) );
+  Yap_BOOTFILE =  find_directory(iap, template->bootpldir, iap->PrologBootFile);
+  Yap_COMMONSDIR =  find_directory(iap, template->commons, NULL);
   if (iap->SavedState == NULL) {
     if (iap->OutputSavedState)
       iap->SavedState = iap->OutputSavedState;
     else
       iap->SavedState = "startup.yss";
   }
-  Yap_STARTUP = MallocExportAsRO( find_directory(iap, template->ss, iap->SavedState));
+  Yap_STARTUP =  find_directory(iap, template->ss, iap->SavedState);
   if (iap->OutputSavedState == NULL)
     iap->OutputSavedState = "startup.yss";
-  Yap_OUTPUT_STARTUP = MallocExportAsRO( find_directory(iap, template->ss, iap->OutputSavedState) );
+  Yap_OUTPUT_STARTUP =  find_directory(iap, template->ss, iap->OutputSavedState) ;
 
 #endif
   if (Yap_ROOTDIR)

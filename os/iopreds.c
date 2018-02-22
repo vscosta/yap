@@ -1565,7 +1565,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
   // read, write, append
   st->file = NULL;
   st->status = 0;
-  fname = Yap_VF(fname);
+  //fname = Yap_VF(fname);
   if ((vfsp = vfs_owner(fname)) != NULL) {
     if (!vfsp->open(vfsp, sno, fname, "r")) {
       UNLOCK(st->streamlock);

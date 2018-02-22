@@ -970,7 +970,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
       number_overflow();
     *sp++ = ch;
     ch = getchr(st);
-    if (!iswhexnumber(ch))  {
+    if (!my_isxdigit(ch, 'F', 'f'))  {
       Yap_InitError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
       return 0;
     }

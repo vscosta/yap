@@ -94,7 +94,7 @@ bool Yap_isDirectory(const char *FileName) {
 
 bool Yap_Exists(const char *f) {
   VFS_t *vfs;
- // f = Yap_VFAlloc(f);
+  f = Yap_VFAlloc(f);
   if ((vfs = vfs_owner(f))) {
     return vfs->exists(vfs, f);
   }
@@ -1121,11 +1121,8 @@ static int volume_header(char *file) {
 int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(char *cwd, size_t cwdlen) {
-  if (virtual_cwd && virtual_cwd[0]) {
-    if (!cwd) {
-      cwd = malloc(cwdlen + 1);
-    }
-    strcpy(cwd, virtual_cwd);
+  if (GLOBAL_cwd && GLOBAL_cwd[0]) {
+   strcpy(cwd, GLOBAL_cwd);
     return cwd;
   }
 #if _WIN32 || defined(__MINGW32__)
@@ -1135,10 +1132,7 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   }
   return (char *)cwd;
 #endif
-  if (!cwd) {
-    cwd = malloc(cwdlen + 1);
-  }
-  return getcwd((char *)cwd, cwdlen);
+  return getcwd(cwd, FILENAME_MAX);
 }
 
 static Int working_directory(USES_REGS1) {

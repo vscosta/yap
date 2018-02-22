@@ -141,4 +141,5 @@ const char*  RestoreFile_;
   int  NOfFileAliases_;
   int  SzOfFileAliases_;
   struct vfs*  VFS_;
+  char*  cwd_;
 } w_shared;

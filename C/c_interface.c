@@ -2501,15 +2501,12 @@ X_API int YAP_HaltRegisterHook(HaltHookFunc hook, void *closure) {
 
 X_API char *YAP_cwd(void) {
   CACHE_REGS
-  char *buf = NULL;
+  char *buf = Yap_AllocCodeSpace(FILENAME_MAX+1);
   int len;
-  if (!Yap_getcwd(LOCAL_FileNameBuf, YAP_FILENAME_MAX))
+  if (!Yap_getcwd(buf, FILENAME_MAX))
     return FALSE;
-  len = strlen(LOCAL_FileNameBuf);
-  buf = Yap_AllocCodeSpace(len + 1);
-  if (!buf)
-    return NULL;
-  strncpy(buf, LOCAL_FileNameBuf, len);
+  len = strlen(buf);
+  buf = Yap_ReallocCodeSpace(buf,len+1);
   return buf;
 }
 

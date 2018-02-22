@@ -208,12 +208,12 @@ char *virtual_cwd;
 static bool set_cwd(VFS_t *me, const char *dirName) {
 
     chdir("/assets");
-    if (virtual_cwd) {
-        free(virtual_cwd);
+    if (GLOBAL_cwd) {
+        free(GLOBAL_cwd);
     }
-    virtual_cwd = malloc(strlen(dirName)+1);
-    strcpy(virtual_cwd, dirName);
-__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", virtual_cwd);
+    GLOBAL_cwd = malloc(strlen(dirName)+1);
+    strcpy(GLOBAL_cwd, dirName);
+__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
 return true;
 }
 
@@ -225,7 +225,7 @@ Yap_InitAssetManager(void) {
 
 #if __ANDROID__
     VFS_t *me;
-
+return NULL;
     /* init standard VFS */
     me = (VFS_t *) Yap_AllocCodeSpace(sizeof(struct vfs));
     me->name = "/assets";
@@ -248,7 +248,7 @@ Yap_InitAssetManager(void) {
     me->enc = ENC_ISO_UTF8;            /// how the file is encoded.
     me->parsers = NULL;                    /// a set of parsers that can read the stream and generate a term
     me->writers = NULL;
-    virtual_cwd = NULL;
+    GLOBAL_cwd = NULL;
     LOCK(BGL);
     me->next = GLOBAL_VFS;
     GLOBAL_VFS = me;

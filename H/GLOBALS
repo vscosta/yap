@@ -169,4 +169,6 @@ int				SzOfFileAliases				void
 
 struct vfs*			VFS					=Yap_InitAssetManager()
 
+char*          cwd                         =NULL
+
 END_GLOBAL_DATA
