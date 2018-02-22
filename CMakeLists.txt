@@ -12,7 +12,7 @@ include(GNUInstallDirs)
 
 project(YAP)
 
-set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../..")
+set(YAP_APP_DIR "${CMAKE_SOURCE_DIR}/../yaplib")
 cmake_policy(VERSION 3.4)
 
 set( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}" "${CMAKE_SOURCE_DIR}/cmake")
@@ -703,7 +703,7 @@ IF ( ANDROID)
 
 
 
-    #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../../../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
+    #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
 
     target_link_libraries(libYap android log )
 ENDIF ()

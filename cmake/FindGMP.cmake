@@ -11,7 +11,7 @@
 
 if (ANDROID)
   
-  set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../../../gmp/${ANDROID_ABI} )
+  set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
   if (EXISTS ${GMP_ROOT} )
     message("Looking good for ${GMP_ROOT}")
     set(GMP_INCLUDE_DIRS ${GMP_ROOT} CACHE PATH "include search path")
