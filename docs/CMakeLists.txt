@@ -3,16 +3,8 @@ if (WITH_DOCS)
 
 
 
-find_host_package(Doxygen)
-option(WITH_DOCS "Create and install the HTML based API documentation (requires Doxygen)" ${DOXYGEN_FOUND})
-
-    if(NOT DOXYGEN_FOUND)
-        message(FATAL_ERROR "Doxygen is needed to build the documentation.")
-    endif()
 
     set (TOP_DIR YES)
-
-set (PACKAGES raptor)
 
 set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
