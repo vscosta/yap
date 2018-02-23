@@ -4,13 +4,21 @@ option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ON)
 if (WITH_JAVA)
 #detect java setup, as it is shared between different installations.
 
-find_package(Java 1.5 COMPONENTS Runtime Development)
+find_package(Java 8 COMPONENTS Runtime Development)
 # find_package(Java COMPONENTS Development)
 # find_package(Java COMPONENTS Runtime)
 #find_package(JavaLibs)
 
 
 if (Java_Development_FOUND)
+
+    find_package(JNI)
+
+  if (NOT JNI_FOUND)
+
+set (JAVA_HOME ${JAVA_INCLUDE_PATH}/..)
+
+endif()
 
   find_package(JNI)
 
@@ -52,4 +60,3 @@ endif (JNI_FOUND)
 
 endif (Java_Development_FOUND)
 endif(WITH_JAVA)
-
