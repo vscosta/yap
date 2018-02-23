@@ -21,7 +21,7 @@
 #define REINIT_LOCK(P) INIT_LOCK(P) 
 #define REINIT_RWLOCK(P) INIT_RWLOCK(P) 
 
-#include <blobs.h>
+#include <YapBlobs.h>
 
 #define CharP(ptr)	((char *) (ptr))
 

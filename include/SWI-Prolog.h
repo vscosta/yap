@@ -692,7 +692,7 @@ PL_EXPORT(int) PL_resource_error(const char *resource);
 #define PL_set_feature PL_set_prolog_flag /* compatibility */
 PL_EXPORT(int) PL_set_prolog_flag(const char *name, int type, ...);
 
-#include <blobs.h>
+#include "YapBlobs.h"
 
 #if USE_GMP && !defined(__cplusplus)
 

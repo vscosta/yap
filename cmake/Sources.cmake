@@ -216,8 +216,6 @@ set (INCLUDE_HEADERS
 set (CONFIGURATION_HEADERS
 ${CMAKE_BINARY_DIR}/YapConfig.h
     ${CMAKE_BINARY_DIR}/YapTermConfig.h
-    ${CMAKE_BINARY_DIR}/config.h
-    ${CMAKE_BINARY_DIR}/cudd_config.h
     ${CMAKE_BINARY_DIR}/dlocals.h
     ${CMAKE_BINARY_DIR}/YapIOConfig.h
 )

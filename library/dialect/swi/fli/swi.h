@@ -43,6 +43,7 @@
 void Yap_swi_install(void);
 void Yap_install_blobs(void);
 
+
 static inline Term
 SWIModuleToModule(module_t m)
 {

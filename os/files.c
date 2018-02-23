@@ -408,7 +408,6 @@ static Int access_file(USES_REGS1) {
   }
     VFS_t *vfs;
     if ((vfs = vfs_owner(ares))) {
-        bool rc = true;
         vfs_stat o;
         if (vfs->stat(vfs, ares, &o)) {
             if (atmode == AtomExist)
@@ -430,7 +429,7 @@ static Int access_file(USES_REGS1) {
                 return FALSE;
             }
         } else {
-            rc = false;
+	  return true;
         }
     }
 #if HAVE_ACCESS
