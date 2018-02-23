@@ -2194,12 +2194,12 @@ X_API int PL_initialise(int myargc, char **myargv) {
   init_args.Argv = myargv;
   init_args.Argc = myargc;
 #if BOOT_FROM_SAVED_STATE
-  init_args.SavedState = "startup.yss";
+  init_args.STARTUP = "startup.yss";
 #else
-  init_args.SavedState = NULL;
+  init_args.STARTUP = NULL;
 #endif
-  init_args.LibDir = NULL;
-  init_args.PrologBootFile = NULL;
+  init_args.LIBDIR = NULL;
+  init_args.BOOTFILE = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
   init_args.MaxTableSpaceSize = 0;

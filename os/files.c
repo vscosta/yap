@@ -408,7 +408,6 @@ static Int access_file(USES_REGS1) {
   }
     VFS_t *vfs;
     if ((vfs = vfs_owner(ares))) {
-        bool rc = true;
         vfs_stat o;
         if (vfs->stat(vfs, ares, &o)) {
             if (atmode == AtomExist)
@@ -430,7 +429,7 @@ static Int access_file(USES_REGS1) {
                 return FALSE;
             }
         } else {
-            rc = false;
+            return false;
         }
     }
 #if HAVE_ACCESS
@@ -522,7 +521,6 @@ static Int exists_directory(USES_REGS1) {
     if (!s) return false;
     if ((vfs = vfs_owner(s))) {
 bool rc = true;
-void *o;
       return vfs->isdir(vfs, s);
 
       UNLOCK(GLOBAL_Stream[sno].streamlock);

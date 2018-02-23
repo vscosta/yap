@@ -1978,6 +1978,8 @@ X_API Int YAP_RunGoalOnce(Term t) {
       Yap_TrimTrail();
     }
     B = cut_pt;
+  } else {
+    Yap_CloseSlots(CSlot);
   }
   ASP = B->cp_env;
   ENV = (CELL *)ASP[E_E];

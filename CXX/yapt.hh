@@ -499,9 +499,9 @@ class X_API YAPAtomTerm : public YAPTerm {
 
 public:
   YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
-  // Constructor: receives an atom;
+  //> Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }
-  // Constructor: receives a sequence of UTF-8 codes;
+  //> Constructor: receives a sequence of UTF-8 codes;
   YAPAtomTerm(char s[]);
   // Constructor: receives a sequence of up to n UTF-8 codes;
   YAPAtomTerm(char *s, size_t len);
@@ -510,7 +510,7 @@ public:
     // Constructor: receives a sequence of n wchar_ts, whatever they may be;
     YAPAtomTerm(wchar_t *s, size_t len);
 // Constructor: receives a std::string;
-    YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))); };
+ //   YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))); };
     bool isVar() { return false; }           /// type check for unbound
   bool isAtom() { return true; }           ///  type check for atom
   bool isInteger() { return false; }       /// type check for integer

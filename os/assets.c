@@ -225,7 +225,6 @@ Yap_InitAssetManager(void) {
 
 #if __ANDROID__
     VFS_t *me;
-return NULL;
     /* init standard VFS */
     me = (VFS_t *) Yap_AllocCodeSpace(sizeof(struct vfs));
     me->name = "/assets";

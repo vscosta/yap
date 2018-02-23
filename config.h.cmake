@@ -1998,6 +1998,11 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_BINDIR "${YAP_BINDIR}"
 #endif
 
+/* name of YAP headers */
+#ifndef YAP_INCLUDEDIR
+#define YAP_INCLUDEDIR "${YAP_INCLUDEDIR}"
+#endif
+
 /* name of YAP library */
 #ifndef YAP_LIBDIR
 #define YAP_LIBDIR "${YAP_LIBDIR}"
