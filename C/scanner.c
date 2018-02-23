@@ -530,8 +530,6 @@ typedef struct scanner_internals {
   size_t CommentsBuffLim;
 } scanner_internals;
 
-static struct stream_desc *inp0;
-
 // standard get char, uses conversion table
 // and converts to wide
 static inline int getchr(struct stream_desc *inp) {

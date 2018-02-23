@@ -219,39 +219,40 @@ public:
   inline bool getMaxTrailSize() { return MaxTrailSize; };
 
   inline void setLibDir(const char *fl) {
-    LibDir = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)LibDir, fl);
+    LIBDIR = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)LIBDIR, fl);
   };
 
-  inline const char *getLibDir() { return LibDir; };
+  inline const char *getLIBDIR() { return LIBDIR; };
 
-  inline void setSharedDir(const char *fl) {
-    SharedDir = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)SharedDir, fl);
+  inline void setSHAREDIR(const char *fl) {
+    SHAREDIR = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)SHAREDIR, fl);
   };
 
-  inline const char *getSharedDir() { return SharedDir; };
+  inline const char *getSHAREDIR() { return SHAREDIR; };
 
-  inline void setSavedState(const char *fl) {
-    SavedState = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)SavedState, fl);
+
+  inline void setRESTORE(const char *fl) {
+    STARTUP = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)STARTUP, fl);
   };
 
-  inline const char *getSavedState() { return SavedState; };
+  inline const char *getSTARTUP() { return STARTUP; };
 
-  inline void setPrologBootFile(const char *fl) {
-    PrologBootFile = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)PrologBootFile, fl);
+  inline void setBOOTFILE(const char *fl) {
+    BOOTFILE = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)BOOTFILE, fl);
   };
 
-  inline const char *getPrologBootFile() { return PrologBootFile; };
+  inline const char *getBOOTFILE() { return BOOTFILE; };
 
-  inline void setPrologBootDir(const char *fl) {
-    BootPlDir = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BootPlDir, fl);
+  inline void setPrologBOOTPLDIR(const char *fl) {
+    BOOTPLDIR = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)BOOTPLDIR, fl);
   };
 
-  inline const char *getPrologBootDir() { return BootPlDir; };
+  inline const char *getBOOTPLDIR() { return BOOTPLDIR; };
 
   inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
 

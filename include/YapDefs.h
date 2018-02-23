@@ -180,27 +180,32 @@ typedef struct yap_boot_params {
   //> how files are organised: NULL is GNU/Linux way
   // const char *directory_structure;
   //> if NON-NULL, set value for Yap_ROOTDIR
-  const char *RootDir;
+  const char *ROOTDIR;
+  //> if NON-NULL, location of yaap, sets Yap_BINDIR
+  const char *BINDIR;
   //> if NON-NULL, location of libYap, sets Yap_LIBDIR
-  const char *LibDir;
+  const char *LIBDIR;
   //> if NON-NULL, architecture independent files, sets Yap_SHAREDIR
-  const char *SharedDir;
+  const char *SHAREDIR;
   //> if NON-NULL, include files, sets Yap_INCLUDEDIR
-  const char *IncludeDir;
+  const char *INCLUDEDIR;
   //> if NON-NULL, Prolog DLL location, sets Yap_DLLDIR
-  const char *DLLDir;
+  const char *DLLDIR;
   //> if NON-NULL, Prolog library, sets Yap_DLLDIR
-  const char *PlDir;
+  const char *PLDIR;
+  //> if NON-NULL, Prolog library, sets Yap_COMMONSDIR
+  const char *COMMONSDIR;
   //> if NON-NULL, name for a Prolog file to use when booting
-  const char *PrologBootFile;
+  const char *BOOTFILE;
   //> if NON-NULL, directory for a Prolog file to be when booting
-  const char *BootPlDir;
+  const char *BOOTPLDIR;
+  const char *BOOTPLFILE;
   //> if NON-NULL, path where we can find the saved state
-  const char *SavedState;
+  const char *STARTUP;
   //> bootstrapping mode: YAP is not properly installed
   bool install;
   //>  generats a saved space at this path
-  char *OutputSavedState;
+  const char *OUTPUT_STARTUP;
   //> if NON-0, minimal size for Heap or Code Area
   size_t HeapSize;
   //> if NON-0, maximal size for Heap or Code Area

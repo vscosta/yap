@@ -602,7 +602,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     goal = YAPApplTerm(f, ts).term();
     nts = RepAppl(goal) + 1;
     size_t arity = f.arity();
-    for (int i = 0; i < arity; i++)
+    for (arity_t i = 0; i < arity; i++)
       XREGS[i + 1] = nts[i];
   } else {
     goal = MkVarTerm();

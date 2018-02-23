@@ -192,7 +192,7 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
  * @return new object
  */
 const void *MallocExportAsRO(const void *pt USES_REGS) {
-  struct mblock *old = pt, *o = old-1;
+  struct  mblock *old = (void *)pt, *o = old-1;
     if (old == NULL)
         return NULL;
   size_t sz = o->sz;
