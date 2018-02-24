@@ -17,7 +17,7 @@
 /* for freeBSD9.1 */
 #define _WITH_DPRINTF
 
-#include "blobs.h"
+#include "YapBlobs.h"
 
 static blob_type_t unregistered_blob_atom = {
     YAP_BLOB_MAGIC_B, PL_BLOB_NOCOPY | PL_BLOB_TEXT, "unregistered"};
