@@ -61,12 +61,12 @@ blankc('\n').
 blankc('\t').
 
 enter_cell(_Self) :-
-	%open('//python/input', read, _Input, []),
-	open('//python/sys.stdout', append, _Output, []),
-	open('//python/sys.stdout', append, _Error, []),
-	%set_prolog_flag(user_input, _Input),
-	set_prolog_flag(user_output, _Output),
-	set_prolog_flag(user_error, _Error).
+	open('//python/input', read, Input, []),
+	open('//python/sys.stdout', append, Output, []),
+	open('//python/sys.stdout', append, Error, []),
+	set_prolog_flag(user_input, Input),
+	set_prolog_flag(user_output, Output),
+	set_prolog_flag(user_error, Error).
 
 exit_cell(_Self) :-
 	%close( user_input),
@@ -239,14 +239,21 @@ optype(yf,pos).
 
 :- dynamic syntax_error/4, undo/1.
 
+user:portray_message(_Severity, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
+	nb_getval(jupyter_cell, on),
+        assert( syntax_error(Cause,LN,CharPos,Details) ).
+user:portray_message(_Severity, error(style_check(_),_) ) :-
+	nb_getval(jupyter_cell, on).
+      
 open_events(Self, Text, Stream) :-
-    Self.errors := [],
-    open_mem_read_stream( Text, Stream ),
-    assert((user:portray_message(_Severity, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
-        assert( syntax_error(Cause,LN,CharPos,Details) )
-        )).
+	Self.errors := [],
+	nb_setval( jupyter, on),
+    open_mem_read_stream( Text, Stream ).
 
+:- initialization( nb_setval( jupyter, off ) ).
+		     
 close_events( _Self ) :-
+	nb_setval( jupyter, off ),
 	retract( undo(G) ),
 	call(G),
 	fail.
@@ -255,3 +262,5 @@ close_events( Self ) :-
     Self.errors := [t(C,L,N,A)] + Self.errors,
     fail.
 close_events( _ ).
+
+:- ( start_low_level_trace ).

@@ -40,7 +40,9 @@ bool Yap_Warning(const char *s, ...) {
   Term ts[2];
   const char *fmt;
   char tmpbuf[MAXPATHLEN];
+  yap_error_descriptor_t olde;
 
+  Yap_pushErrorContext(&olde);
   LOCAL_DoingUndefp = true;
   LOCAL_within_print_message = true;
   pred = RepPredProp(PredPropByFunc(FunctorPrintMessage,
@@ -53,20 +55,24 @@ bool Yap_Warning(const char *s, ...) {
 #else
     (void)vsprintf(tmpbuf, fmt, ap);
 #endif
-  } else
+  } else {
+    Yap_popErrorContext(false);
     return false;
+  }
   va_end(ap);
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "warning message: %s\n", tmpbuf);
     LOCAL_DoingUndefp = false;
     LOCAL_within_print_message = false;
+    Yap_popErrorContext(false);
     return false;
   }
 
   ts[1] = MkAtomTerm(AtomWarning);
   ts[0] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
-  return rc;
+    Yap_popErrorContext(false);
+    return rc;
 }
 
 void Yap_InitError__(const char *file, const char *function, int lineno, yap_error_number e, Term t, ...) {
