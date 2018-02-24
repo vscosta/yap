@@ -27,7 +27,8 @@ PyObject *py_ModDict;
 
 VFS_t pystream;
 
-static void *py_open(VFS_t *me, int sno, const char *name,
+static void *
+py_open(VFS_t *me, int sno, const char *name,
                      const char *io_mode) {
 #if HAVE_STRCASESTR
   if (strcasestr(name, "//python/") == name)
@@ -37,6 +38,7 @@ static void *py_open(VFS_t *me, int sno, const char *name,
     name += strlen("//python/");
 #endif
   StreamDesc *st = YAP_RepStreamFromId(sno);
+  fprintf(stderr,"opened %p\n");
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python(name, true, NULL);
   if (stream == Py_None)
@@ -44,12 +46,16 @@ static void *py_open(VFS_t *me, int sno, const char *name,
   Py_INCREF(stream);
   st->u.private_data = stream;
   st->vfs = me;
+  if (strchr(io_mode,'r'))
+      st->status = Input_Stream_f;
+      else
   st->status = Append_Stream_f | Output_Stream_f;
   Yap_DefaultStreamOps(st);
   return stream;
 }
 
-static bool py_close(int sno) {
+static bool
+py_close(int sno) {
   return true;
   StreamDesc *s = YAP_GetStreamFromId(sno);
   PyObject *fclose = PyObject_GetAttrString(s->u.private_data, "close");
@@ -58,7 +64,8 @@ static bool py_close(int sno) {
   return v;
 }
 
-static int py_put(int sno, int ch) {
+static int
+py_put(int sno, int ch) {
   // PyObject *pyw; // buffer
   // int pyw_kind;
   // PyObject *pyw_data;
