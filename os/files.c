@@ -429,11 +429,7 @@ static Int access_file(USES_REGS1) {
                 return FALSE;
             }
         } else {
-<<<<<<< HEAD
-	  return true;
-=======
             return false;
->>>>>>> f798372fb1dc4ff03c592d2ae8e0245a842305b8
         }
     }
 #if HAVE_ACCESS

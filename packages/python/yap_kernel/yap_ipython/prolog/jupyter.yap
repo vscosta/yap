@@ -183,14 +183,21 @@ ready(Self, Line ) :-
 errors( Self, Text ) :-
        	setup_call_cleanup(
        			   open_events( Self, Text, Stream),
-       			   clauses(Self, Stream),
+       			   goals(Self, Stream),
        			   close_events( Self )
        	 	   ).
 
 clauses(Self, Stream) :-
     repeat,
     read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
-	command( Self, Cl ),
+%	command( Self, Cl ),
+    Cl == end_of_file,
+    !.
+
+goals(Self, Stream) :-
+    repeat,
+    read_term(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
+%	command( Self, Cl ),
     Cl == end_of_file,
     !.
 

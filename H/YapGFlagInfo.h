@@ -32,6 +32,7 @@ Set or read system properties for  _Param_:
 @enum GlobalFlags Global Flags Dupported ny YAP *
 */
 
+
 YAP_FLAG(ADDRESS_BITS_FLAG, "address_bits", false, nat, BITNESS, NULL),  /**< `address_bits`
   Number of address bits in the machine, either 64 or 32 bits */
 
@@ -358,7 +359,7 @@ call_count_data/3 built-in.
   YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
 	   NULL),
   YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,
-	   "pl/boot.yap", NULL),
+	   YAP_BOOTSTRAP, NULL),
 		    /**<`resource_database`
 		       Name of the resource file (saved-state or Prolog file) used to construct
 		       the YAP

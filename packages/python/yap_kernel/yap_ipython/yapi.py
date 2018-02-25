@@ -113,6 +113,7 @@ class YAPInputSplitter(InputSplitter):
             return False
         self.errors = []
         self.yapeng.mgoal(errors(self, line),"user")
+        print(self.errors)
         return self.errors != []
 
 

@@ -147,8 +147,8 @@ static void init_globals(YAP_init_args *yap_init) {
 
 
 const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
-    *Yap_PLDIR, *Yap_BOOTPLDIR, *Yap_BOOTSTRAPPLDIR, *Yap_COMMONSDIR,
-  *Yap_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
+    *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR,
+  *Yap_STARTUP, *Yap_INPUT_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 /* do initial boot by consulting the file boot.yap */
 static void consult(const char *b_file USES_REGS) {
@@ -188,7 +188,7 @@ static void consult(const char *b_file USES_REGS) {
       fprintf(stderr, "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
               b_file, GLOBAL_Stream[c_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
-      fprintf(stderr, "[ line %d: term cannot be compiled ]",
+      fprintf(stderr, "[ line: " Int_FORMAT ": term cannot be compiled ]",
               GLOBAL_Stream[c_stream].linecount);
     } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
@@ -337,13 +337,13 @@ static const char * join(const char *s, ...) {
 #endif
 			false    );
  /// BOOTPLDIR: where we can find Prolog bootstrap files
- Yap_BOOTPLDIR = sel(true,
-		      iap->BOOTPLDIR != NULL, iap->BOOTPLDIR,
+   Yap_BOOTSTRAP = sel(true,
+		      iap->BOOTSTRAP != NULL, iap->BOOTSTRAP,
 		      true,
 #if __ANDROID__
 		      "/assets/Yap/pl",
 #else
-		     join(getenv("DESTDIR"),YAP_PLDIR "/pl", NULL),
+		     join(getenv("DESTDIR"),YAP_BOOTSTRAP, NULL),
 #endif
 			false    );
  /// BOOTFILE: where we can find the core Prolog bootstrap file
@@ -357,24 +357,24 @@ static const char * join(const char *s, ...) {
 #endif
 			false    );
  /// STARTUP: where we can find the core Prolog bootstrap file
- Yap_STARTUP = sel(false,
-		      iap->STARTUP != NULL, iap->STARTUP,
-		      true,
+   Yap_OUTPUT_STARTUP = sel(false,
+                            iap->OUTPUT_STARTUP != NULL, iap->OUTPUT_STARTUP,
+                            true,
 #if __ANDROID__
-		      NULL,
+           NULL,
 #else
-		   join(getenv("DESTDIR"),YAP_STARTUP,NULL),
+                            join(getenv("DESTDIR"),YAP_OUTPUT_STARTUP,NULL),
 #endif
-			false    );
- Yap_OUTPUT_STARTUP = sel(false,
-		      iap->OUTPUT_STARTUP != NULL, iap->OUTPUT_STARTUP,
-		      true,
+                            false    );
+   Yap_INPUT_STARTUP = sel(false,
+                            iap->INPUT_STARTUP != NULL, iap->INPUT_STARTUP,
+                            true,
 #if __ANDROID__
-		      NULL,
+           NULL,
 #else
-		   join(getenv("DESTDIR"),YAP_STARTUP,NULL),
+                            join(getenv("DESTDIR"),YAP_INPUT_STARTUP,NULL),
 #endif
-			false    );
+                            false    );
  if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
@@ -490,7 +490,7 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
   iap->assetManager = NULL;
 #else
   iap->boot_file_type = YAP_QLY;
-  iap->STARTUP = saved_state;
+  iap->INPUT_STARTUP = saved_state;
 #endif
   iap->Argc = argc;
   iap->Argv = argv;
@@ -526,9 +526,9 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
       case 'B':
         iap->boot_file_type = YAP_BOOT_PL;
         if (p[1])
-          iap->BOOTFILE = p + 1;
+          iap->BOOTSTRAP = p + 1;
         else if (argv[1] && *argv[1] != '-') {
-          iap->BOOTFILE = *++argv;
+          iap->BOOTSTRAP = *++argv;
           argc--;
         }
         iap->install = true;
@@ -912,7 +912,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
       }
       }
     else {
-      iap->STARTUP = p;
+      iap->INPUT_STARTUP = p;
     }
   }
   return iap->boot_file_type;
@@ -1057,9 +1057,9 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
 
-  if (!do_bootstrap && Yap_STARTUP && yap_init->boot_file_type != YAP_BOOT_PL &&
-      Yap_SavedInfo(Yap_STARTUP, &minfo.Trail, &minfo.Stack, &minfo.Heap) &&
-      Yap_Restore(Yap_STARTUP)) {
+  if (!do_bootstrap && Yap_INPUT_STARTUP && yap_init->boot_file_type != YAP_BOOT_PL &&
+      Yap_SavedInfo(Yap_INPUT_STARTUP, &minfo.Trail, &minfo.Stack, &minfo.Heap) &&
+      Yap_Restore(Yap_INPUT_STARTUP)) {
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
     CurrentModule = LOCAL_SourceModule = USER_MODULE;
     init_globals(yap_init);
@@ -1071,8 +1071,8 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
-    consult(Yap_BOOTFILE PASS_REGS);
-    if (yap_init->install && Yap_OUTPUT_STARTUP == NULL) {
+    consult(Yap_BOOTSTRAP PASS_REGS);
+    if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
                               1, &t);

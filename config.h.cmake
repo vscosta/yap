@@ -1956,17 +1956,6 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #cmakedefine YAP_IS_MOVABLE "${YAP_IS_MOVABLE}"
 #endif
 
-/* saved state file */
-#ifndef YAP_STARTUP
-#define YAP_STARTUP "${YAP_STARTUP}"
-#endif
-
-/* saved state file */
-#ifndef YAP_BOOTFILE
-#define YAP_BOOTFILE "${YAP_BOOTFILE}"
-#endif
-
-/* date of compilation */
 #ifndef YAP_TIMESTAMP
 #define YAP_TIMESTAMP ${YAP_TIMESTAMP}
 #endif
@@ -2013,6 +2002,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_DLLDIR "${YAP_LIBDIR}/Yap"
 #endif
 
+
 /* name of YAP JIT library */
 #ifndef YAP_YAPJITLIB
 #define YAP_YAPJITLIB "${YAP_YAPJITLIB}"
@@ -2033,6 +2023,27 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #endif
 
 
+/* run-time boot */
+#ifndef YAP_BOOTFILE
+#define YAP_BOOTFILE "${YAP_PLDIR}/pl/boot.yap"
+#endif
+
+/* init-time boot */
+#ifndef YAP_BOOTSTRAP
+#define YAP_BOOTSTRAP "${CMAKE_SOURCE_DIR}/pl/boot.yap"
+#endif
+
+
+
+/* run-time boot */
+#ifndef YAP_INPUT_STARTUP
+#define YAP_INPUT_STARTUP "${YAP_DLLDIR}/${YAP_STARTUP}"
+#endif
+
+/* init-time boot */
+##ifndef YAP_OUTPUT_STARTUP
+##define YAP_OUTPUT_STARTUP "${CMAKE_BINARY_DIR}/${YAP_STARTUP}"
+##endif
 
 /* HP-UX old socket stuff */
 #ifndef _XOPEN_SOURCE

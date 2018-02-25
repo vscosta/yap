@@ -195,13 +195,12 @@ typedef struct yap_boot_params {
   const char *PLDIR;
   //> if NON-NULL, Prolog library, sets Yap_COMMONSDIR
   const char *COMMONSDIR;
-  //> if NON-NULL, name for a Prolog file to use when booting
+  //> if NON-NULL, name for a Prolog file to use when booting at run-time
   const char *BOOTFILE;
-  //> if NON-NULL, directory for a Prolog file to be when booting
-  const char *BOOTPLDIR;
-  const char *BOOTPLFILE;
+  //> if NON-NULL, name for a Prolog file to use when booting at compile-time
+  const char *BOOTSTRAP;
   //> if NON-NULL, path where we can find the saved state
-  const char *STARTUP;
+  const char *INPUT_STARTUP;
   //> bootstrapping mode: YAP is not properly installed
   bool install;
   //>  generats a saved space at this path

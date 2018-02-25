@@ -198,7 +198,8 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/GitSHA1.h
     ${CMAKE_SOURCE_DIR}/include/SWI-Prolog.h
     ${CMAKE_SOURCE_DIR}/include/VFS.h
-    ${CMAKE_SOURCE_DIR}/include/YapDefs.h
+		${CMAKE_SOURCE_DIR}/include/YapBlobs.h
+		${CMAKE_SOURCE_DIR}/include/YapDefs.h
     ${CMAKE_SOURCE_DIR}/include/YapError.h
     ${CMAKE_SOURCE_DIR}/include/YapErrors.h
     ${CMAKE_SOURCE_DIR}/include/YapFormat.h
@@ -206,7 +207,6 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/YapRegs.h
     ${CMAKE_SOURCE_DIR}/include/YapStreams.h
 		${CMAKE_SOURCE_DIR}/include/YapTerm.h
-    ${CMAKE_SOURCE_DIR}/include/blobs.h
     ${CMAKE_SOURCE_DIR}/include/c_interface.h
     ${CMAKE_SOURCE_DIR}/include/clause_list.h
     ${CMAKE_SOURCE_DIR}/include/pl-types.h

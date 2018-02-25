@@ -189,9 +189,9 @@ struct X_API YAPEngineArgs : YAP_init_args {
 
 public:
   YAPEngineArgs() {
-    const std::string *s = new std::string("startup.yss");
+   // const std::string *s = new std::string("startup.yss");
     Embedded = true;
-    Yap_InitDefaults(this, (char *)s->c_str(), 0, nullptr);
+    Yap_InitDefaults(this, nullptr, 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
     python_in_python = Py_IsInitialized();
@@ -233,26 +233,34 @@ public:
   inline const char *getSHAREDIR() { return SHAREDIR; };
 
 
-  inline void setRESTORE(const char *fl) {
-    STARTUP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)STARTUP, fl);
-  };
+    inline void setINPUT_RESTORE(const char *fl) {
+        STARTUP = (const char *)malloc(strlen(fl) + 1);
+        strcpy((char *)INPUT_STARTUP, fl);
+    };
 
-  inline const char *getSTARTUP() { return STARTUP; };
+    inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
 
-  inline void setBOOTFILE(const char *fl) {
+
+    inline void setOUTPUT_RESTORE(const char *fl) {
+        STARTUP = (const char *)malloc(strlen(fl) + 1);
+        strcpy((char *)OUTPUT_STARTUP, fl);
+    };
+
+    inline const char *getINPUT_STARTUP() { return OUTPUT_STARTUP; };
+
+    inline void setBOOTFILE(const char *fl) {
     BOOTFILE = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)BOOTFILE, fl);
   };
 
   inline const char *getBOOTFILE() { return BOOTFILE; };
 
-  inline void setPrologBOOTPLDIR(const char *fl) {
-    BOOTPLDIR = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BOOTPLDIR, fl);
+  inline void setPrologBOOTSTRAP(const char *fl) {
+    BOOTSTRAP = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)BOOTSTRAP, fl);
   };
 
-  inline const char *getBOOTPLDIR() { return BOOTPLDIR; };
+  inline const char *getBOOTSTRAP() { return BOOTSTRAP; };
 
   inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
 
