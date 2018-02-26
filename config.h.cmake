@@ -2041,9 +2041,9 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #endif
 
 /* init-time boot */
-##ifndef YAP_OUTPUT_STARTUP
-##define YAP_OUTPUT_STARTUP "${CMAKE_BINARY_DIR}/${YAP_STARTUP}"
-##endif
+#ifndef YAP_OUTPUT_STARTUP
+#define YAP_OUTPUT_STARTUP "${CMAKE_BINARY_DIR}/${YAP_STARTUP}"
+#endif
 
 /* HP-UX old socket stuff */
 #ifndef _XOPEN_SOURCE

@@ -71,10 +71,10 @@ elseif(CMAKE_CROSSCOMPILING)
             )
 else ()
     add_custom_target(STARTUP ALL
-            DEPENDS  ${CMAKE_BUILD_DIR}/${YAP_STARTUPFILE}
+            DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             )
     add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND yap-bin -B${CMAKE_SOURCE_DIR}/pl/boot.yap --output-saved-state=${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            COMMAND yap-bin -B
             VERBATIM
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )

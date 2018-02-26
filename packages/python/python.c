@@ -31,14 +31,14 @@ static void *
 py_open(VFS_t *me, int sno, const char *name,
                      const char *io_mode) {
 #if HAVE_STRCASESTR
-  if (strcasestr(name, "//python/") == name)
-    name += strlen("//python/");
+  if (strcasestr(name, "/python/") == name)
+    name += strlen("/python/");
 #else
-  if (strstr(name, "//python/") == name)
-    name += strlen("//python/");
+  if (strstr(name, "/python/") == name)
+    name += strlen("/python/");
 #endif
   StreamDesc *st = YAP_RepStreamFromId(sno);
-  fprintf(stderr,"opened %p\n");
+  fprintf(stderr,"opened %d\n", sno);
   // we assume object is already open, so there is no need to open it.
   PyObject *stream = string_to_python(name, true, NULL);
   if (stream == Py_None)
@@ -133,8 +133,8 @@ static bool init_python_stream(void) {
 
   pystream.name = "python stream";
   pystream.vflags =
-      VFS_CAN_WRITE | VFS_CAN_EXEC | VFS_CAN_SEEK | VFS_HAS_PREFIX;
-  pystream.prefix = "//python/";
+      VFS_CAN_WRITE | VFS_CAN_EXEC | VFS_CAN_READ | VFS_HAS_PREFIX;
+  pystream.prefix = "/python/";
   pystream.suffix = NULL;
   pystream.open = py_open;
   pystream.close = py_close;

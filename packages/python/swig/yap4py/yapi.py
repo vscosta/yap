@@ -5,7 +5,7 @@ import keyword
 # debugging support.
 # import pdb
 from collections import namedtuple
-
+import readline
 from .yap import *
 
 
@@ -44,46 +44,48 @@ class EngineArgs( YAPEngineArgs ):
 class Predicate( YAPPredicate ):
     """ Interface to Generic Predicate"""
 
-class Predicate:
-    """Goal is a predicate instantiated under a specific environment """
-    def __init__( self, name, args, module=None, engine = None):
-        self = namedtuple( name, args )
-        if module:
-            self.p = YAPPredicate( name, len(self), module )
-        else:
-            self.p = YAPPredicate( name, len(self) )
-        self.e = engine
+    def __init__(self, t, module=None):
+        super().__init__(t)
 
-    def goals( self, engine):
+class Goal(object):
+    """Goal is a predicate instantiated under a specific environment """
+    def __init__(self, g, engine, module="user",program=None, max_answers=None ):
+        self.g = g
         self.e = engine
 
     def __iter__(self):
-        return PrologTableIter(self.e, self.p)
-
-    def holds(self):
-        return self.e.run(self._make_())
+        return PrologTableIter( self.e, self.g )
 
 class PrologTableIter:
 
-    def __init__(self, e, goal):
+    def __init__(self, e, query):
         try:
             self.e = e
-            self.q = e.YAPQuery(goal)
+            self.q = e.query(python_query(self, query))
         except:
             print('Error')
 
     def __iter__(self):
         # Iterators are iterables too.
-        # Adding this functions to make them so.
+        # -        # Adding this functions to make them so.
         return self
 
-    def next(self):
-        if self.q.next():
-            return goal
-        else:
-            self.q.close()
-            self.q = None
+    def __next__(self):
+        if not self.q:
             raise StopIteration()
+        if self.q.next():
+            rc = self.q.bindings
+            if self.q.port == "exit":
+                self.close()
+            return rc
+        else:
+            if self.q:
+                self.close()
+            raise StopIteration()
+
+    def close(self):
+        self.q.close()
+        self.q = None
 
 f2p = {"fails":{}}
 for i in range(16):
@@ -148,24 +150,15 @@ def numbervars(  q ):
 class YAPShell:
 
 
-    def answer(self, q):
-        try:
-            self.bindings = {}
-            v = q.next()
-            if v:
-                print( self.bindings )
-            return v
-        except Exception as e:
-            print(e.args[1])
-            return False
 
-    def query_prolog(self, engine, s):
-        # import pdb; pdb.set_trace()
+
+    def query_prolog(self, engine, query):
+        import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
         #
-        q = engine.query(python_query(self, s))
+        #q = engine.query(python_query(self, s))
         #
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
@@ -179,33 +172,41 @@ class YAPShell:
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
         do_ask = True
-        self.port = "call"
-        # launch the query
-        while self.answer(q):
-            if self.port == "exit":
-                # done
-                q.close()
-                return True, True
+        self.e = engine
+        bindings = []
+        if not self.q:
+            self.it = PrologTableIter( self.e, query )
+        for bind in self.it:
+            bindings += [bind]
             if do_ask:
+                print(bindings)
+                bindings = []
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
-                if s.startswith(';') or s.startswith('y'):
-                    continue
-                elif s.startswith('#'):
-                    try:
-                        exec(s.lstrip('#'))
-                    except:
-                        raise
-                elif s.startswith('*') or s.startswith('a'):
-                    do_ask = False
-                    continue
-                else:
-                    break
+            else:
+                s = ";"
+            if s.startswith(';') or s.startswith('y'):
+                continue
+            elif s.startswith('#'):
+                try:
+                    exec(s.lstrip('#'))
+                except:
+                    raise
+            elif s.startswith('*') or s.startswith('a'):
+                do_ask = False
+                continue
+            else:
+                break
+        if self.q:
+            self.os = query
+        if bindings:
+            return True,bindings
         print("No (more) answers")
-        q.close()
-        return
+        return False, None
+
 
     def live(self, engine, **kwargs):
         loop = True
+        self.q = None
         while loop:
             try:
                 s = input("?- ")

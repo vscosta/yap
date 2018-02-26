@@ -2196,7 +2196,7 @@ X_API int PL_initialise(int myargc, char **myargv) {
 #if BOOT_FROM_SAVED_STATE
   init_args.STARTUP = "startup.yss";
 #else
-  init_args.STARTUP = NULL;
+  init_args.INPUT_STARTUP = NULL;
 #endif
   init_args.LIBDIR = NULL;
   init_args.BOOTFILE = NULL;

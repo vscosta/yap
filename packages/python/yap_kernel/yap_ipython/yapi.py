@@ -106,6 +106,7 @@ class YAPInputSplitter(InputSplitter):
     def validQuery(self, text, line=None):
         """Return whether a legal query
         """
+        print("valid")
         if not  line:
             (_,line,_) = self.shell.prolog_cell(text)
         line = line.strip().rstrip()
@@ -524,67 +525,27 @@ class YAPRun:
         self.yapeng.mgoal(errors(self,text),"user")
         return self.errors
 
-    def jupyter_query(self, s):
+    def jupyter_query(self, s, mx):
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
         iterations = 0
-        self.shell.bindings = {}
-        if self.q and s != self.os:
-            self.q.close()
-            self.q = None
-        if not self.q:
-            #import pdb; pdb.set_trace()
-            self.shell.port = "call"
-            program,query,_ = self.prolog_cell(s)
-            self.q = self.yapeng.query(jupyter_query(self, program, query))
-        self.shell.Solutions = []
-        if not self.q:
-            return True, []
-        self.os = s
-        # vs is the list of variables
-        # you can print it out, the left-side is the variable name,
-        # the right side wraps a handle to a variable
-        # pdb.set_trace()
-        #     #pdb.set_trace()
-        # atom match either symbols, or if no symbol exists, sttrings, In this case
-        # variable names should match strings
-        #for eq in vs:
-        #    if not isinstance(eq[0],str):x
-        #        print( "Error: Variable Name matches a Python Symbol")
-        #        return
-        # ask = True
-        # launch the query
-        # run the new command using the given tracer
-        while True:
-            iterations = iterations - 1
-            rc = YAPRun.answer(self, self.q)
-            if rc:
-                # deterministic = one solution
-                #Dict = {}
-                #engine.goal(show_answer( q.namedVars(), Dict))
-                self.shell.Solutions += [self.shell.bindings]
-                if self.shell.port == "exit":
-                    # done
-                    self.q.close()
-                    self.q = None
-                    self.os = ""
-                    return True, self.shell.Solutions
-                if iterations == 0:
-                    return True, self.shell.Solutions
-            else:
-                print("No (more) answers")
-                self.q.close()
-                self.q = None
-                self.os = ''
-                return True, self.shell.Solutions
-
-    def answer(self, q):
-        try:
-            return q.next()
-        except Exception as e:
-            self.yapeng.goal(exit_cell(self))
-            return False, None
+        bindings = []
+        program,query,_ = self.prolog_cell(s)
+        if query == self.shell.os:
+            q = self.shell.q
+            self.shell.os = None
+        else:
+            q = Goal(jupyter_query(self, query), self.yapeng, module="user",program=program)
+        for q in q:
+            bindings += [q.bindings()]
+            iterations += 1
+            if mx == iterations:
+                break
+        if q:
+            self.shell.os = query
+        self.shell.q = q
+        return bindings
 
 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
@@ -690,9 +651,9 @@ class YAPRun:
         if store_history:
             self.shell.history_manager.store_inputs(self.shell.execution_count,
                                               cell, raw_cell)
+        silent = False
         if not silent:
             self.shell.logger.log(cell, raw_cell)
-
         # # Display the exception if input processing failed.
         # if preprocessing_exc_tuple is not None:
         #     self.showtraceback(preprocessing_exc_tuple)

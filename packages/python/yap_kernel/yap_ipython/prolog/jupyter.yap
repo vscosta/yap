@@ -20,7 +20,7 @@
  %%            ).
 
 
-:-	 reexport(library(yapi)).
+%:-	 reexport(library(yapi)).
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 :-	 use_module(library(python)).
@@ -28,7 +28,8 @@
 :- python_import(sys).
 
 jupyter_query(Self, Cell, Line ) :-
-        setup_call_cleanup(
+        start_low_level_trace,
+	setup_call_cleanup(
 			   enter_cell(Self),
 			  jupyter_cell(Self, Cell, Line),
 			   exit_cell(Self)
@@ -61,15 +62,15 @@ blankc('\n').
 blankc('\t').
 
 enter_cell(_Self) :-
-	open('//python/input', read, Input, []),
-	open('//python/sys.stdout', append, Output, []),
-	open('//python/sys.stdout', append, Error, []),
+	open('/python/input', read, Input, []),
+	open('/python/sys.stdout', append, Output, []),
+	open('/python/sys.stdout', append, Error, []),
 	set_prolog_flag(user_input, Input),
 	set_prolog_flag(user_output, Output),
 	set_prolog_flag(user_error, Error).
 
 exit_cell(_Self) :-
-	%close( user_input),
+	close( user_input),
 	close( user_output),
 	close( user_error).
 

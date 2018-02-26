@@ -1,16 +1,16 @@
 %% @file yapi.yap
 %% @brief support yap shell
 %%
-
-:- module(yapi, [
-		 python_ouput/0,
-		 show_answer/2,
-		 show_answer/3,
-		 yap_query/4,
-		 python_query/2,
-		 yapi_query/2
-		 ]).
-
+:- start_low_level_trace.
+ :- module(yapi, [
+ 		 python_ouput/0,
+ 		 show_answer/2,
+ 		 show_answer/3,
+ 		 yap_query/4,
+ 		 python_query/2,
+ 		 yapi_query/2
+ 		 ]).
+:- stop_low_level_trace.
 
      :- yap_flag(verbose, verbose).
 

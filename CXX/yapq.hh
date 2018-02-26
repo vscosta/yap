@@ -38,7 +38,7 @@ class X_API YAPPredicate;
 class X_API YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
-  yhandle_t  q_handles;
+  yhandle_t q_handles;
   struct yami *q_p, *q_cp;
   int q_flags;
   YAP_dogoalinfo q_h;
@@ -186,10 +186,9 @@ public:
 /// @brief Setup all arguments to a new engine
 struct X_API YAPEngineArgs : YAP_init_args {
 
-
 public:
   YAPEngineArgs() {
-   // const std::string *s = new std::string("startup.yss");
+    // const std::string *s = new std::string("startup.yss");
     Embedded = true;
     Yap_InitDefaults(this, nullptr, 0, nullptr);
 #if YAP_PYTHON
@@ -223,32 +222,21 @@ public:
     strcpy((char *)LIBDIR, fl);
   };
 
-  inline const char *getLIBDIR() { return LIBDIR; };
-
-  inline void setSHAREDIR(const char *fl) {
-    SHAREDIR = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)SHAREDIR, fl);
+  inline const char *setINPUT_STARTUP(const char *fl) {
+    INPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)INPUT_STARTUP, fl);
   };
 
-  inline const char *getSHAREDIR() { return SHAREDIR; };
+  inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
 
+  inline void setOUTPUT_RESTORE(const char *fl) {
+    OUTPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)OUTPUT_STARTUP, fl);
+  };
 
-    inline void setINPUT_RESTORE(const char *fl) {
-        STARTUP = (const char *)malloc(strlen(fl) + 1);
-        strcpy((char *)INPUT_STARTUP, fl);
-    };
+  inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
-    inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
-
-
-    inline void setOUTPUT_RESTORE(const char *fl) {
-        STARTUP = (const char *)malloc(strlen(fl) + 1);
-        strcpy((char *)OUTPUT_STARTUP, fl);
-    };
-
-    inline const char *getINPUT_STARTUP() { return OUTPUT_STARTUP; };
-
-    inline void setBOOTFILE(const char *fl) {
+  inline void setBOOTFILE(const char *fl) {
     BOOTFILE = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)BOOTFILE, fl);
   };
@@ -287,7 +275,6 @@ public:
   inline void setArgv(char **fl) { Argv = fl; };
 
   inline char **getArgv() { return Argv; };
-
 };
 
 /**

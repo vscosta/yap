@@ -233,15 +233,16 @@ static const char * join(const char *s, ...) {
   CACHE_REGS
   va_list args;
   va_start(args , s);
-  int lvl = push_text_stack();
-  char *buf = Malloc(FILENAME_MAX+1);
+  //  int lvl = push_text_stack();
+  char *buf = malloc(FILENAME_MAX+1);
   if (s && s[0])
     strcpy(buf, s);
   while (true) {
     const char *fmt = va_arg(args, char *);
     if (fmt == NULL) {
       va_end(args);
-      return pop_output_text_stack(lvl,buf);	
+      //    return pop_output_text_stack(lvl,buf);
+      return buf;
     }
     strcat(buf, fmt);
   }
