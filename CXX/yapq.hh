@@ -217,12 +217,14 @@ public:
 
   inline bool getMaxTrailSize() { return MaxTrailSize; };
 
-  inline void setLibDir(const char *fl) {
+  inline void setPLDIR(const char *fl) {
     LIBDIR = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)LIBDIR, fl);
   };
 
-  inline const char *setINPUT_STARTUP(const char *fl) {
+  inline const char *getPLDIR() { return PLDIR; };
+
+  inline void setINPUT_STARTUP(const char *fl) {
     INPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)INPUT_STARTUP, fl);
   };
@@ -290,7 +292,7 @@ private:
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
-  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term t, Term tmod);
+  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 
 public:
   /// construct a new engine; may use a variable number of arguments

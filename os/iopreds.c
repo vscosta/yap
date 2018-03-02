@@ -315,57 +315,8 @@ static void unix_upd_stream_info(StreamDesc *s) {
   s->status |= Seekable_Stream_f;
 }
 
-void Yap_DefaultStreamOps(StreamDesc *st) {
-  CACHE_REGS
-  st->stream_wputc = put_wchar;
-  if (st->encoding == ENC_ISO_UTF8)
-    st->stream_wgetc = get_wchar_UTF8;
-  else
-    st->stream_wgetc = get_wchar;
-  if (st->vfs) {
-    st->stream_putc = st->vfs->put_char;
-    st->stream_wgetc = st->vfs->get_char;
-  } else {
-    st->stream_putc = FilePutc;
-    st->stream_getc = PlGetc;
-  }
-  if (st->status & Pipe_Stream_f) {
-    Yap_PipeOps(st);
-  } else if (st->status & InMemory_Stream_f) {
-    Yap_MemOps(st);
-  } else if (st->status & Tty_Stream_f) {
-    Yap_ConsoleOps(st);
-  } else {
-    unix_upd_stream_info(st);
-  }
-  if (st->status & (Promptable_Stream_f)) {
-    Yap_ConsoleOps(st);
-  }
-#ifndef _WIN32
-  else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
-    st->stream_wgetc = get_wchar_from_file;
-  }
-#endif
-  if (st->buf.on) {
-    st->stream_getc = Yap_popChar;
-    st->stream_wgetc = Yap_popChar;
-  }
-#if USE_READLINE
-  if (st->status & Readline_Stream_f) {
-      st->stream_peek = Yap_ReadlinePeekChar;
-      st->stream_wpeek = Yap_ReadlinePeekChar;
-    }
-  /* else {
-      st->stream_peek = Yap_peekWithGetc;
-      st->stream_wpeek = Yap_peekWideWithGetwc;
-    }
-  } else if (st->status & Seekable_Stream_f) {
-    st->stream_peek = Yap_peekWithSeek;
-    st->stream_wpeek = Yap_peekWideWithSeek;
-    } */
-  else
-#endif
-    {
+static void default_peek(StreamDesc *st) {
+  {
     st->stream_peek = Yap_peekChar;
     st->stream_wpeek = Yap_peekWide;
   }
@@ -379,6 +330,64 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc;
+}
+
+void Yap_DefaultStreamOps(StreamDesc *st) {
+  CACHE_REGS
+
+  st->stream_wputc = put_wchar;
+  st->stream_wgetc = get_wchar;
+  if (st->vfs) {
+    st->stream_putc = st->vfs->put_char;
+    st->stream_wputc = st->vfs->put_char;
+    st->stream_getc = st->vfs->get_char;
+    st->stream_wgetc = st->vfs->get_char;
+    default_peek(st);
+    return;
+  } else {
+    if (st->encoding == ENC_ISO_UTF8)
+      st->stream_wgetc = get_wchar_UTF8;
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+    if (st->status & Pipe_Stream_f) {
+      Yap_PipeOps(st);
+    } else if (st->status & InMemory_Stream_f) {
+      Yap_MemOps(st);
+    } else if (st->status & Tty_Stream_f) {
+      Yap_ConsoleOps(st);
+    } else {
+      unix_upd_stream_info(st);
+    }
+    if (st->status & (Promptable_Stream_f)) {
+      Yap_ConsoleOps(st);
+    }
+#ifndef _WIN32
+    else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
+      st->stream_wgetc = get_wchar_from_file;
+    }
+#endif
+    if (st->buf.on) {
+      st->stream_getc = Yap_popChar;
+      st->stream_wgetc = Yap_popChar;
+    }
+  }
+#if USE_READLINE
+  if (st->status & Readline_Stream_f) {
+    st->stream_peek = Yap_ReadlinePeekChar;
+    st->stream_wpeek = Yap_ReadlinePeekChar;
+  }
+
+  /* else {
+      st->stream_peek = Yap_peekWithGetc;
+      st->stream_wpeek = Yap_peekWideWithGetwc;
+    }
+  } else if (st->status & Seekable_Stream_f) {
+    st->stream_peek = Yap_peekWithSeek;
+    st->stream_wpeek = Yap_peekWideWithSeek;
+    } */
+  else
+#endif
+    default_peek(st);
 }
 
 static void InitFileIO(StreamDesc *s) {
@@ -1279,16 +1288,16 @@ do_open(Term file_name, Term t2,
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
   // expand file name?
-    int lvl = push_text_stack();
+  int lvl = push_text_stack();
   const char *fname = Yap_AbsoluteFile(fname0, ok);
 
   if (!fname) {
-      pop_text_stack(lvl);
+    pop_text_stack(lvl);
     PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
   }
 
   // Skip scripts that start with !#/.. or similar
-    pop_text_stack(lvl);
+  pop_text_stack(lvl);
   bool script =
       (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
   // binary type
@@ -1309,8 +1318,8 @@ do_open(Term file_name, Term t2,
 #endif
       /* note that this matters for UNICODE style  conversions */
     } else {
-        pop_text_stack(lvl);
-        Yap_Error(DOMAIN_ERROR_STREAM, tlist,
+      pop_text_stack(lvl);
+      Yap_Error(DOMAIN_ERROR_STREAM, tlist,
                 "type is ~a, must be one of binary or text", t);
     }
   }
@@ -1336,13 +1345,14 @@ do_open(Term file_name, Term t2,
   } else if (open_mode == AtomAppend) {
     strncpy(io_mode, "a", 8);
   } else {
-      pop_text_stack(lvl);
+    pop_text_stack(lvl);
     return false;
   }
   if ((sno = Yap_OpenStream(fname, io_mode, file_name)) < 0) {
-      pop_text_stack(lvl);
+    pop_text_stack(lvl);
     return false;
   }
+
   st = &GLOBAL_Stream[sno];
   st->user_name = file_name;
   // user requested encoding?
@@ -1374,11 +1384,11 @@ do_open(Term file_name, Term t2,
   else
     st->encoding = encoding;
   if (script) {
-      open_header(sno, open_mode);
+    open_header(sno, open_mode);
   }
-    pop_text_stack(lvl);
+  pop_text_stack(lvl);
 
-    free(args);
+  free(args);
   UNLOCK(st->streamlock);
   {
     Term t = Yap_MkStream(sno);
@@ -1501,16 +1511,17 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-    int lvl = push_text_stack();
-   const char *tmp;
-  if ((tmp=Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, false)) ==  NULL) {
-      pop_text_stack(lvl);
-      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
-                        "absolute_file_name/3"));
+  int lvl = push_text_stack();
+  const char *tmp;
+  if ((tmp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE,
+                              false)) == NULL) {
+    pop_text_stack(lvl);
+    return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
+                      "absolute_file_name/3"));
   }
   bool rc = (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(tmp))));
-    pop_text_stack(lvl);
-    return rc;
+  pop_text_stack(lvl);
+  return rc;
 }
 
 static Int p_open_null_stream(USES_REGS1) {
@@ -1565,7 +1576,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
   // read, write, append
   st->file = NULL;
   st->status = 0;
-  //fname = Yap_VF(fname);
+  // fname = Yap_VF(fname);
   if ((vfsp = vfs_owner(fname)) != NULL) {
     if (!vfsp->open(vfsp, sno, fname, "r")) {
       UNLOCK(st->streamlock);
@@ -1573,7 +1584,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
                 "%s", fname);
       return -1;
     }
-      vfsp = GLOBAL_Stream[sno].vfs;
+    vfsp = GLOBAL_Stream[sno].vfs;
   } else {
     fd = st->file = fopen(fname, io_mode);
     if (fd == NULL) {

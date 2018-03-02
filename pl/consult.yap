@@ -1,4 +1,4 @@
-/*************************************************************************
+s444444444444444444444444444444444444444444444444444444444444444444444444/*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
 *									 *
@@ -651,11 +651,16 @@ db_files(Fs) :-
 
 
 '$csult'(Fs, M) :-
+	 '$skip_list'(_, Fs ,L),
+	 L \== [],
+	 user:dot_qualified_goal(Fs),
+	 !.
+'$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
 	'$load_files'(M:MFs,[],[M:Fs]).
 '$csult'(Fs, M) :-
 	'$load_files'(M:Fs,[consult(consult)],[M:Fs]).
-
+	
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
@@ -1626,6 +1631,8 @@ End of conditional compilation.
 '$fetch_comp_status'(compact).
 
 consult_depth(LV) :- '$show_consult_level'(LV).
+
+:- '$add_multifile'(Name,Arity,Module).
 
 /**
   @}

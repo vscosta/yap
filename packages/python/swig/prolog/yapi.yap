@@ -1,7 +1,7 @@
 %% @file yapi.yap
 %% @brief support yap shell
 %%
-:- start_low_level_trace.
+%:- start_low_level_trace.
  :- module(yapi, [
  		 python_ouput/0,
  		 show_answer/2,
@@ -60,7 +60,8 @@ argi(N,I,I1) :-
     atomic_concat(`A`,I,N),
 	I1 is I+1.
 
-python_query( Self, String ) :-
+python_query( Caller, String ) :-
+    Self := Caller.it,
  	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	Self.port := Status,

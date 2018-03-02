@@ -680,4 +680,6 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_import", 2, python_import, 0);
   PL_register_foreign("python_access", 3, python_access, 0);
   PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
+
+  init_python_vfs();
 }

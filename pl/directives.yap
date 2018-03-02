@@ -238,7 +238,7 @@ user_defined_directive(Dir,Action) :-
 
 '$thread_initialization'(M:D) :-
 	eraseall('$thread_initialization'),
-	writeln(M:D),
+	%writeln(M:D),
 	recorda('$thread_initialization',M:D,_),
 	fail.
 '$thread_initialization'(M:D) :-

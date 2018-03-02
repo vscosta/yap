@@ -2002,6 +2002,15 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #define YAP_DLLDIR "${YAP_LIBDIR}/Yap"
 #endif
 
+/* run-time boot */
+#ifndef YAP_INPUT_STARTUP
+#define YAP_INPUT_STARTUP "${YAP_DLLDIR}/${YAP_STARTUP}"
+#endif
+
+/* init-time boot */
+#ifndef YAP_OUTPUT_STARTUP
+#define YAP_OUTPUT_STARTUP "${CMAKE_BINARY_DIR}/${YAP_STARTUP}"
+#endif
 
 /* name of YAP JIT library */
 #ifndef YAP_YAPJITLIB
@@ -2009,17 +2018,17 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #endif
 
 #ifndef YAP_SHAREDIR
-#define YAP_SHAREDIR  "${YAP_ROOTDIR}/share"
+#define YAP_SHAREDIR  "${YAP_DATADIR}"
 #endif
 
 /* name of YAP PL library */
 #ifndef YAP_PLDIR
-#define YAP_PLDIR "${YAP_SHAREDIR}/Yap"
+#define YAP_PLDIR "${YAP_PLDIR}"
 #endif
 
 /* name of Commons library */
 #ifndef YAP_COMMONSDIR
-#define YAP COMMONSDIR "${YAP_SHAREDIR}/PrologCommmons"
+#define YAP COMMONSDIR "${YAP_DATADIR}/PrologCommmons"
 #endif
 
 
@@ -2034,16 +2043,6 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 #endif
 
 
-
-/* run-time boot */
-#ifndef YAP_INPUT_STARTUP
-#define YAP_INPUT_STARTUP "${YAP_DLLDIR}/${YAP_STARTUP}"
-#endif
-
-/* init-time boot */
-#ifndef YAP_OUTPUT_STARTUP
-#define YAP_OUTPUT_STARTUP "${CMAKE_BINARY_DIR}/${YAP_STARTUP}"
-#endif
 
 /* HP-UX old socket stuff */
 #ifndef _XOPEN_SOURCE

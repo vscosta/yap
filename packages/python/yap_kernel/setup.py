@@ -37,15 +37,15 @@ from distutils.core import setup
 
 pjoin = os.path.join
 here = os.path.abspath(os.path.dirname(__file__))
-packages = []
+packages = ['yap_kernel','yap_ipython']
 # pkg_root = pjoin(here, name)
 
-for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
-    if os.path.exists(pjoin(d, '__init__.py')):
-        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
-for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
-    if os.path.exists(pjoin(d, '__init__.py')):
-        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+# for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
+#     if os.path.exists(pjoin(d, '__init__.py')):
+#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+# for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
+#     if os.path.exists(pjoin(d, '__init__.py')):
+#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 sys.path.insert(0, here)
 package_data = {

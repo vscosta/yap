@@ -600,6 +600,7 @@ static Int writeln(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
+  fprintf(stderr,"writeln %d\n", output_stream);
   if (output_stream < 0) {
     free(args);
     return false;

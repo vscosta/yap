@@ -738,9 +738,9 @@ static Term write_number(unsigned char *s, seq_tv_t *out,
     yap_error_descriptor_t new_error;
     int i = push_text_stack();
     Yap_pushErrorContext(&new_error);
-  t = Yap_StringToNumberTerm((char *)s, &out->enc, error_on);
+  t = Yap_StringToNumberTerm((char *)s, &out->enc,true);
   pop_text_stack(i);
-    Yap_popErrorContext(true);
+    Yap_popErrorContext(error_on);
   return t;
 }
 

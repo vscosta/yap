@@ -26,7 +26,7 @@
 
 #endif
 
-typedef enum {
+typedef enum YAP_encoding {
   ENC_OCTET = 0,          /// binary files
   ENC_ISO_LATIN1 = 1,     /// US+West Europe
   ENC_ISO_ASCII = 2,      /// US only

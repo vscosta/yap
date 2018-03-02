@@ -18,11 +18,11 @@ class Engine( YAPEngine ):
         if self_contained:
             yap_lib_path = os.path.dirname(__file__)
             args.setYapShareDir(os.path.join(yap_lib_path, "prolog"))
-            args.setYapLibDir(yap_lib_path)
+            args.setYapPLDIR(yap_lib_path)
             args.setSavedState(os.path.join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
         self.goal(set_prolog_flag('verbose', 'silent'))
-        self.goal(use_module(library('yapi')))
+        self.goal(compile(library('yapi')))
         self.goal(set_prolog_flag('verbose', 'normal'))
 
     def run(self, g, m=None):
@@ -49,19 +49,22 @@ class Predicate( YAPPredicate ):
 
 class Goal(object):
     """Goal is a predicate instantiated under a specific environment """
-    def __init__(self, g, engine, module="user",program=None, max_answers=None ):
-        self.g = g
+    def __init__(self, engine, g):
+        self.q = engine.query(g)
         self.e = engine
+        self.port = "call"
+        self.bindings = None
 
     def __iter__(self):
-        return PrologTableIter( self.e, self.g )
+        return PrologTableIter( self.e, self )
 
 class PrologTableIter:
 
-    def __init__(self, e, query):
+    def __init__(self, e, g):
         try:
             self.e = e
-            self.q = e.query(python_query(self, query))
+            self.g = g
+            self.q = g.q
         except:
             print('Error')
 
@@ -74,8 +77,8 @@ class PrologTableIter:
         if not self.q:
             raise StopIteration()
         if self.q.next():
-            rc = self.q.bindings
-            if self.q.port == "exit":
+            rc = self.g.bindings
+            if self.g.port == "exit":
                 self.close()
             return rc
         else:
@@ -98,7 +101,7 @@ global engine, handler
 
 yap_lib_path = os.path.dirname(__file__)
 
-use_module = namedtuple('use_module', 'file')
+compile = namedtuple('compile', 'file')
 bindvars = namedtuple('bindvars', 'list')
 library = namedtuple('library', 'list')
 v = namedtuple( 'v', 'slot')
@@ -153,7 +156,7 @@ class YAPShell:
 
 
     def query_prolog(self, engine, query):
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
@@ -174,8 +177,9 @@ class YAPShell:
         do_ask = True
         self.e = engine
         bindings = []
+        g = python_query(self, query)
         if not self.q:
-            self.it = PrologTableIter( self.e, query )
+            self.it = Goal( engine, g )
         for bind in self.it:
             bindings += [bind]
             if do_ask:

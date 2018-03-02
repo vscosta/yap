@@ -225,6 +225,12 @@ Yap_SetAlias (Atom arg, int sno)
     // replace alias
     if (aliasp->name == arg) {
       aliasp->alias_stream = sno;
+      if (arg == AtomUserIn)
+	  LOCAL_c_input_stream = sno;
+       if (arg == AtomUserOut)
+	  LOCAL_c_output_stream = sno;
+       if (arg == AtomUserErr)
+	  LOCAL_c_error_stream = sno;
       return;
     }
     aliasp++;
@@ -310,6 +316,18 @@ ExistsAliasForStream (int sno, Atom al)
 
   while (aliasp < aliasp_max) {
     if (aliasp->alias_stream == sno && aliasp->name == al) {
+       if (al == AtomUserIn) {
+	  LOCAL_c_input_stream = StdInStream;
+	  aliasp->alias_stream = StdInStream;
+      }
+       if (al == AtomUserOut) {
+	  LOCAL_c_output_stream = StdOutStream;
+	  aliasp->alias_stream = StdOutStream;
+      }
+      if (al == AtomUserErr) {
+	LOCAL_c_error_stream = StdErrStream;
+	  aliasp->alias_stream = StdErrStream;
+      }
       return true;
     }
     aliasp++;

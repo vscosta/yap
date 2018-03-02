@@ -9,20 +9,21 @@ from typing import Iterator, List, Tuple, Iterable, Union
 from traitlets import Bool, Enum, observe, Int
 
 try:
-    from yap4py.yapi import Engine
+    from yap4py.yapi import Engine, Goal, EngineArgs, PrologTableIter
 except:
     print("Could not load _yap dll.")
-from yap_ipython.core import interactiveshell
 from yap_ipython.core.completer import Completer, Completion
 from yap_ipython.utils.strdispatch import StrDispatch
 # import yap_ipython.core
 from traitlets import Instance
 from yap_ipython.core.inputsplitter import *
 from yap_ipython.core.inputtransformer import *
+from yap_ipython.core.interactiveshell import *
 from pygments import highlight
 from pygments.lexers.prolog import PrologLexer
 from pygments.formatters import HtmlFormatter
 
+from yap_ipython.core import interactiveshell
 
 from collections import namedtuple
 
@@ -106,7 +107,6 @@ class YAPInputSplitter(InputSplitter):
     def validQuery(self, text, line=None):
         """Return whether a legal query
         """
-        print("valid")
         if not  line:
             (_,line,_) = self.shell.prolog_cell(text)
         line = line.strip().rstrip()
@@ -114,7 +114,6 @@ class YAPInputSplitter(InputSplitter):
             return False
         self.errors = []
         self.yapeng.mgoal(errors(self, line),"user")
-        print(self.errors)
         return self.errors != []
 
 
@@ -279,7 +278,7 @@ class YAPCompleter(Completer):
                   help="""Activate greedy completion
         PENDING DEPRECTION. this is now mostly taken care of with Jedi.
 
-        This will enable completion on elements of lists, results of function calls, etc.,
+        This will enable completion on elements of lists, self.results of function calls, etc.,
         but can be unsafe because the code is actually evaluated on TAB.
         """
                   ).tag(config=True)
@@ -511,8 +510,9 @@ class YAPRun:
         self.yapeng = Engine()
         self.yapeng.goal(use_module(library("jupyter")))
         self.q = None
-        self.run = False
-        self.shell.port = None
+        self.port = "call"
+        self.os = None
+        self.it = None
         self.shell.yapeng = self.yapeng
         self._get_exc_info = shell._get_exc_info
 
@@ -525,27 +525,37 @@ class YAPRun:
         self.yapeng.mgoal(errors(self,text),"user")
         return self.errors
 
-    def jupyter_query(self, s, mx):
+    def jupyter_query(self, s):
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
-        iterations = 0
-        bindings = []
-        program,query,_ = self.prolog_cell(s)
-        if query == self.shell.os:
-            q = self.shell.q
-            self.shell.os = None
+        program,query,mx = self.prolog_cell(s)
+        Found = False
+
+        if query != self.os:
+            self.os = None
+            self.iterations = 0
+            pg = jupyter_query( self, program, query)
+            self.it = Goal( self.yapeng,  pg)
         else:
-            q = Goal(jupyter_query(self, query), self.yapeng, module="user",program=program)
-        for q in q:
-            bindings += [q.bindings()]
-            iterations += 1
-            if mx == iterations:
-                break
-        if q:
-            self.shell.os = query
-        self.shell.q = q
-        return bindings
+            mx += self.iterations
+            self.os = s
+        for answ in self.it:
+            found = True
+            self.bindings += [answ]
+            self.iterations += 1
+            if mx == self.iterations:
+                return True, self.bindings
+        port = self.it.port
+        if port == "exit":
+            self.q = None
+            self.os = None
+            return True,self.bindings
+        if port == "fail":
+            self.q = none
+            self.os = None
+            if self.bindings_message:
+                return True,self.bindings
 
 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
@@ -563,7 +573,7 @@ class YAPRun:
                    IPython's machinery, this
                    should be set to False.
                    silent : bool
-          If True, avoid side-effects, such as implicit displayhooks and
+v          If True, avoid side-effects, such as implicit displayhooks and
                    and logging.  silent=True forces store_history=False.
                    shell_futures : bool
           If True, the code will share future statements with the interactive
@@ -576,7 +586,7 @@ class YAPRun:
 
                    -------
 
-`result : :class:`ExecutionResult`
+`self.result : :class:`Executionself.result`
                    """
 
         # construct a query from a one-line string
@@ -594,22 +604,22 @@ class YAPRun:
         info = interactiveshell.ExecutionInfo(
             raw_cell, store_history, silent, shell_futures)
 
-        result = interactiveshell.ExecutionResult(info)
+        self.result = interactiveshell.ExecutionResult(info)
 
         if (raw_cell == "") or raw_cell.isspace():
             self.shell.last_execution_succeeded = True
-            return result
+            return self.result
 
         if silent:
             store_history = False
 
         if store_history:
-            result.execution_count = self.shell.execution_count+1
+            self.result   .execution_count = self.shell.execution_count+1
 
         def error_before_exec(value):
-            result.error_before_exec = value
+            self.result   .error_before_exec = value
             self.shell.last_execution_succeeded = False
-            return result
+            return self.result
 
         self.shell.events.trigger('pre_execute')
         if not silent:
@@ -646,12 +656,10 @@ class YAPRun:
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
                 preprocessing_exc_tuple = sys.exc_info()
-
         # Store raw and processed history
         if store_history:
             self.shell.history_manager.store_inputs(self.shell.execution_count,
                                               cell, raw_cell)
-        silent = False
         if not silent:
             self.shell.logger.log(cell, raw_cell)
         # # Display the exception if input processing failed.
@@ -681,32 +689,33 @@ class YAPRun:
                 line = txt[1]
             else:
                 line = ""
+            if len(txt0) == 2:
+                cell = txt0[1]
+            else:
+                cell = ""
             if linec:
                 self.shell.run_line_magic(magic, line)
-                if len(txt0) == 2:
-                    cell = txt0[1]
-                else:
-                    cellArea = ""
             else:
                 self.shell.run_cell_magic(magic, line, cell)
-                return
+                cell = ""
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
-        self.shell.displayhook.exec_result = result
+        self.shell.displayhook.exec_result = self.result
         has_raised = False
         try:
+            state = None
             self.shell.bindings = dict = {}
-            state = self.jupyter_query( cell)
+            if cell.strip():
+                state = self.jupyter_query( cell )
             if state:
                 self.shell.last_execution_succeeded = True
-                result.result = (True, dict)
+                self.result.result    = (True, dict)
             else:
                 self.shell.last_execution_succeeded = True
-                result.result = (True, {})
+                self.result.result = (True, {})
         except Exception as e:
-            print(e)
             has_raised = True
-            result.result = False
+            self.result.result = False
 
         self.shell.last_execution_succeeded = not has_raised
 
@@ -724,10 +733,10 @@ class YAPRun:
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
-        return result
+        return self.result
 
     def    prolog_cell(self,s):
-        """"
+        """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate
         on a dot. You can also finish with

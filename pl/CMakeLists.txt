@@ -56,6 +56,7 @@ set(PL_BOOT_SOURCES
         undefined.yap
         utils.yap
         yapor.yap
+        ypp.yap
         )
 
 add_to_group(PL_BOOT_SOURCES pl_boot_library)
@@ -91,8 +92,5 @@ endif()
 
 
 install(FILES ${PL_BOOT_SOURCES}
-        DESTINATION ${libpl}/pl
-        )
-install(FILES ../library/ypp.yap
-        DESTINATION ${libpl}/library
+        DESTINATION ${libpl}/pll
         )

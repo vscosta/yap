@@ -1,16 +1,16 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 	%W% %G% 					 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		YapError.h * mods:
- ** comments:	error header file for YAP				 *
- * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
- *************************************************************************/
+   *									 *
+   *	 YAP Prolog 	%W% %G% 					 *
+   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+   *									 *
+   * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+   *									 *
+   **************************************************************************
+   *									 *
+   * File:		YapError.h * mods:
+   ** comments:	error header file for YAP				 *
+   * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
+   *************************************************************************/
 
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
@@ -37,13 +37,16 @@
 
 #define MAX_ERROR_MSG_SIZE 1024
 
-extern void Yap_InitError__(const char *file, const char *function, int lineno, yap_error_number e, YAP_Term g, ...);
+    extern void
+    Yap_InitError__(const char *file, const char *function, int lineno,
+                    yap_error_number e, YAP_Term g, ...);
 
-extern struct yami *Yap_Error__(const char *file, const char *function, int lineno,
-                         yap_error_number err, YAP_Term wheret, ...);
+extern struct yami *Yap_Error__(const char *file, const char *function,
+                                int lineno, yap_error_number err,
+                                YAP_Term wheret, ...);
 
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
-                      yap_error_number err, YAP_Term wheret, ...)
+                             yap_error_number err, YAP_Term wheret, ...)
 #ifndef MSC_VER
     __attribute__((noreturn))
 #endif
@@ -52,7 +55,7 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
 #define Yap_NilError(id, ...)                                                  \
   Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
-#define Yap_InitError(id, ...)                                                  \
+#define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_Error(id, inp, ...)                                                \

@@ -365,7 +365,6 @@ system_module(Mod) :-
 	functor(G0, N, K),
 	'$autoloader_find_predicate'(G0,ExportingMod),
 	ExportingMod \= ImportingMod,
-    writeln((ExportingMod,ImportingMod,G0,G0, N  ,K)),
     (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
 
 
@@ -399,7 +398,7 @@ be associated to a new file.
 */
 
 '$declare_module'(Name, _Super, Context, _File, _Line) :-
-	add_import_module(Name, Context, start).
+	addi_mport_module(Name, Context, start).
 
 /**
  @pred abolish_module( + Mod) is det
@@ -492,11 +491,9 @@ export_list(Module, List) :-
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod == prolog ->
-	   writeln((M0,ContextMod,G0,G1,N1,K)),
       recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
         fail
 	  ;
-    writeln((M0,ContextMod,G0,G1,N1,K)),
 	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
         fail
         ;

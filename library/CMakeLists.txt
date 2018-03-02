@@ -55,7 +55,6 @@ set (LIBRARY_PL
   wgraphs.yap
   wundgraphs.yap
   lam_mpi.yap
-  ypp.yap
    ytest.yap
    c_alarms.yap
   flags.yap

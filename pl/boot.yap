@@ -109,65 +109,6 @@ private(_).
 
 % be careful here not to generate an undefined exception..
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
 	!,
@@ -326,7 +267,7 @@ initialize_prolog :-
 :- [
     % lists is often used.
    	 '../os/yio.yap',
-	 '../pl/debug.yap',
+	 'debug.yap',
 	 'checker.yap',
 	 'depth_bound.yap',
 	 'ground.yap',
@@ -418,7 +359,7 @@ sub-goal  _NG_ will replace  _G_ and will be processed in the same
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
 :- use_module('dbload.yap').
-:- use_module('../library/ypp.yap').
+:- use_module('ypp.yap').
 :- use_module('../os/chartypes.yap').
 :- ensure_loaded('../os/edio.yap').
 

@@ -1,3 +1,4 @@
+
 /**
  * @file jupyter.yap
  *
@@ -20,30 +21,30 @@
  %%            ).
 
 
-%:-	 reexport(library(yapi)).
+:-	 reexport(library(yapi)).
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 :-	 use_module(library(python)).
 
 :- python_import(sys).
 
-jupyter_query(Self, Cell, Line ) :-
-        start_low_level_trace,
-	setup_call_cleanup(
-			   enter_cell(Self),
-			  jupyter_cell(Self, Cell, Line),
-			   exit_cell(Self)
-	 	   ).
+jupyter_query(Caller, Cell, Line ) :-
+	jupyter_cell(Caller, Cell, Line).
 
-jupyter_cell(_Self, Cell, _) :-
+jupyter_cell(_Caller, Cell, _) :-
 	jupyter_consult(Cell),
 	fail.
-jupyter_cell( _Self, _, Line ) :-
+jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( _Self, _, [] ) :- !.
-jupyter_cell( Self, _, Line ) :-
-	python_query( Self, Line ).
+jupyter_cell( _Caller, _, [] ) :- !.
+jupyter_cell( Caller, _, Line ) :-
+gated_call(
+		   enter_cell(call),
+		  python_query( Caller, Line ),
+		  Port,
+		   enter_cell(Port)
+	   ).
 
 jupyter_consult(Text) :-
 	blank( Text ),
@@ -61,18 +62,31 @@ blankc(' ').
 blankc('\n').
 blankc('\t').
 
-enter_cell(_Self) :-
-	open('/python/input', read, Input, []),
-	open('/python/sys.stdout', append, Output, []),
-	open('/python/sys.stdout', append, Error, []),
-	set_prolog_flag(user_input, Input),
-	set_prolog_flag(user_output, Output),
-	set_prolog_flag(user_error, Error).
+enter_cell(retry) :-
+	enter_cell(call).
+enter_cell(call) :-
+	into_cell.
+enter_cell(fail) :-
+	enter_cell(exit).
+enter_cell(answer) :-
+	enter_cell(exit).
+enter_cell(exception(_)) :-
+	enter_cell(exit).
+enter_cell(external_exception(_)).
+	enter_cell(!).
+enter_cell(exit) :-
+    nb_setval(jupyter_cell, off),
+	close( user_output).
 
-exit_cell(_Self) :-
-	close( user_input),
-	close( user_output),
-	close( user_error).
+
+into_cell :-
+    nb_setval(jupyter_cell, on),
+	open('/python/sys.input', read, _Input, [bom(false)]),
+    open('/python/sys.stdout', append, _Output, []),
+    open('/python/sys.stderr', append, _Error, []),
+	set_prolog_flag(user_input,_Output),
+	set_prolog_flag(user_output,_Output),
+    set_prolog_flag(user_error,_Error).
 
 
 completions(S, Self) :-
@@ -188,14 +202,14 @@ errors( Self, Text ) :-
        			   close_events( Self )
        	 	   ).
 
-clauses(Self, Stream) :-
+clauses(_Self, Stream) :-
     repeat,
     read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
 %	command( Self, Cl ),
     Cl == end_of_file,
     !.
 
-goals(Self, Stream) :-
+goals(_Self, Stream) :-
     repeat,
     read_term(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
 %	command( Self, Cl ),
@@ -252,14 +266,14 @@ user:portray_message(_Severity, error(syntax_error(Cause),info(between(_,LN,_), 
         assert( syntax_error(Cause,LN,CharPos,Details) ).
 user:portray_message(_Severity, error(style_check(_),_) ) :-
 	nb_getval(jupyter_cell, on).
-      
+
 open_events(Self, Text, Stream) :-
 	Self.errors := [],
 	nb_setval( jupyter, on),
     open_mem_read_stream( Text, Stream ).
 
 :- initialization( nb_setval( jupyter, off ) ).
-		     
+
 close_events( _Self ) :-
 	nb_setval( jupyter, off ),
 	retract( undo(G) ),
@@ -271,4 +285,4 @@ close_events( Self ) :-
     fail.
 close_events( _ ).
 
-:- ( start_low_level_trace ).
+%:- ( start_low_level_trace ).

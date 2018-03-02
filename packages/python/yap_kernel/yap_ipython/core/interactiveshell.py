@@ -2324,8 +2324,8 @@ class InteractiveShell(SingletonConfigurable):
           Command to execute (can not end in '&', as background processes are
           not supported.
         split : bool, optional
-          If True, split the output into an yap_ipython SList.  Otherwise, an
-          yap_ipython LSString is returned.  These are objects similar to normal
+          If True, split the output into an IPython SList.  Otherwise, an
+          ipython LSString is returned.  These are objects similar to normal
           lists and strings, with a few convenience attributes for easier
           manipulation of line-based output.  You can use '?' on them for
           details.
@@ -2598,7 +2598,7 @@ class InteractiveShell(SingletonConfigurable):
         with prepended_to_syspath(dname):
             try:
                 for cell in get_cells():
-                    result = self.run_cell(cell, silent=True, shell_futures=shell_futures)
+                    result = self.run_cell(cell, silent=False , shell_futures=shell_futures)
                     if raise_exceptions:
                         result.raise_error()
                     elif not result.success:

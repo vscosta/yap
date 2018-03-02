@@ -469,7 +469,7 @@ be lost.
 	 Border < GoalNumber,
 	 ( Spy == ignore ; '$pred_being_spied'(G, M) )
 	),
-	writeln(go:G:M),
+	%writeln(go:G:M),
 	!,
 	'$execute_nonstop'(G,M).
 '$trace_goal'(G, M, GoalNumber, H) :-

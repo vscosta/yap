@@ -458,14 +458,14 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
     Term *ts = nullptr;
-      Yap_DebugPlWriteln(tmod);
       if (IsStringTerm(tmod))
           tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
     PredEntry *ap = (new YAPPredicate(t, tmod, ts, "C++"))->ap;
-      Yap_DebugPlWriteln(t);
     if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
     }
+    if (IsApplTerm(t)) ts = RepAppl(t)+1;
+    else if (IsPairTerm(t)) ts = RepPair(t);
     /* legal ap */
     arity_t arity = ap->ArityOfPE;
 
@@ -739,12 +739,12 @@ PredEntry *YAPQuery::rewriteUndefQuery() {
   return ap = PredCall;
 }
 
-PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term tgoal,
+PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
                                               Term mod) {
   Term ts[2];
   ts[0] = mod;
   ts[1] = tgoal;
-  ARG1 = Yap_MkApplTerm(FunctorModule, 2, ts);
+  ARG1 = tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
   //goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
   return PredCall;
   

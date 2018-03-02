@@ -31,11 +31,7 @@
 	   release_GIL/0,
 		 python_threaded/0,
 		 prolog_list_to_python_list/3,
-	   (:=)/2,
-	   (:=)/1,
-	%   (<-)/2,
-	%   (<-)/1,
-	   op(100,fy,$),
+		   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
 	   op(950,fx,<-),
@@ -114,41 +110,60 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
+:- multifile user:(:=)/2,
+        user:(:=)/1,
+        user:(<-)/1,
+        user:(<-)/2, user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
+
+
+import( F ) :- catch( python:python_import(F), _, fail ).
+
+user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
+
+user:F() :-
+	catch( python:python_proc(F() ), _, fail ).
+
+
+user(P1,P2) :- !,
+	:= P1,
+	:= P2.
+
+:= F :- catch( python:python_proc(F), _, fail ).
+
 := (P1,P2) :- !,
 	:= P1,
 	:= P2.
-:= import( F ) :- !, python_import(F).
-:= F :- python_proc(F).
 
-V <- F :-
+user:(:= ) :- catch( python:python_proc(F), _, fail ).
+
+user:( V := F ) :-
+    python:python_assign(F, V).
+
+user:(<- F) :-
+	catch( python:python_proc(F), _, fail ).
+
+user:(V <- F) :-
 	V := F.
 
-( V := F ) :-
-    python_assign(F, V).
-
-((<- F)) :-
-	:= F.
-
-python_import(Module) :-
-    python_import(Module, _).
+python:python_import(Module) :-
+    python:python_import(Module, _).
 
 
 python(Exp, Out) :-
 	Out := Exp.
 
 python_command(Cmd) :-
-       python_run_command(Cmd).
-
+       python:python_run_command(Cmd).
 
 start_python :-
-	python_import('inspect', _),
+	python:python_import('inspect', _),
 	at_halt(end_python).
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),
 	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
-	python_command(Command),
-	python_command("sys.argv = [\"yap\"]").
+	python:python_command(Command),
+	python:python_command("sys.argv = [\"yap\"]").
 	% done
 
 :- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).

@@ -429,7 +429,7 @@ query_to_answer(G, V, Status, Bindings) :-
       '$answer'( answer, LGs, Vs, Bindings) :-
           !,
           '$process_answer'(Vs, LGs, Bindings).
-'$answer'(cut, _, _, _).
+'$answer'(!, _, _, _).
 '$answer'(fail,_,_,_).
 '$answer'(exception(E),_,_,_) :-
         '$LoopError'(E,error).

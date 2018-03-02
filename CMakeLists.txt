@@ -294,7 +294,7 @@ set(datadir ${CMAKE_INSTALL_PREFIX}/share) #DATADIR})
 set(mandir ${CMAKE_INSTALL_PREFIX}/share/man) #MANDIR})
 set(docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
 
-set(libpl ${datarootdir}/Yap)
+set(libpl ${datadir}/Yap)
 
 set(dlls ${libdir}/Yap)
 

@@ -1109,7 +1109,6 @@ bool Yap_SetOutputStream( Term sd )
       Yap_CheckStream(sd, Output_Stream_f | Append_Stream_f, "set_output/2");
   if (sno < 0)
     return false;
-  LOCAL_c_output_stream = sno;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   Yap_SetAlias(AtomUserOut, sno);
   return true;
