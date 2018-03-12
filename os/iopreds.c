@@ -1848,7 +1848,6 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
-    return FALSE;
   }
   // if (args[CLOSE_FORCE].used) {
   // }

@@ -35,7 +35,7 @@
 
 PyObject *find_obj(PyObject *ob, term_t lhs, bool eval);
 
-#if DEBUG_MEMORY
+#if DEBUG_MEMORY||1
 #define DebugPrintf(s, op) fprintf(stderr, "%s:%d: " s, __FILE__, __LINE__, op)
 #else
 #define DebugPrintf(s, op)
@@ -85,7 +85,7 @@ extern PyObject *py_ModDict;
 
 extern X_API bool python_in_python;
 
-extern bool python_release_GIL(term_t state);
+extern bool python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);
 
 static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
@@ -182,7 +182,7 @@ extern void pyErrorHandler__(int line, const char *file, const char *code);
 extern PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt);
 extern PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt);
 
-extern PyObject *term_to_python(term_t t, bool eval, PyObject *contextxs,
+extern PyObject *term_to_python(term_t t, bool eval, PyObject *context,
                                 bool eval_atom);
 
 extern PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *);

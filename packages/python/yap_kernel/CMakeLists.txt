@@ -64,6 +64,8 @@ yap_ipython/frontend.py
 yap_ipython/parallel.py
 yap_ipython/html.py
 yap_ipython/__main__.py
+_version.py
+yap_ipython/_version.py
 yap_ipython/testing/iptest.py
 yap_ipython/testing/skipdoctest.py
 yap_ipython/testing/tools.py
@@ -387,7 +389,7 @@ set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})
     set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz
-      COMMAND ${CMAKE_COMMAND} -E tar cf ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz  ${FILES}
+     COMMAND ${CMAKE_COMMAND} -E tar cf ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz  ${FILES}
 
 
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -421,13 +423,14 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-
 
 	      add_custom_target(YAP_KERNEL ALL
 		COMMAND ${CMAKE_COMMAND} -E tar xzf yap.tgz
-        COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png yap.tgz ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
 	    )
 
 	  
-    install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
+    install(CODE "execute_process(
+        COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 

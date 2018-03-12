@@ -268,7 +268,8 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
     }
     tok = tok->TokNext;
   }
-  Yap_DebugPlWriteln(ts[0]);
+  if (ts[0])
+    Yap_DebugPlWriteln(ts[0]);
   return ts[0];
 }
 
@@ -307,7 +308,7 @@ static Int scan_to_list(USES_REGS1) {
 }
 
 /**
- * Syntax Error Handler
+ * Syntaax Error Handler
  *
  * @par tokptr: the sequence of tokens
  * @par sno: the stream numbet

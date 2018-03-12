@@ -11,15 +11,15 @@
  * -
  */
 
- %% :- module( jupyter,
- %%            [jupyter_query/3,
- %%            errors/2,
- %%            ready/2,
- %%            completion/2,
+  % :- module( jupyter,
+  %            [jupyter_query/3,
+  %            errors/2,
+  %            ready/2,
+  %           completion/2,
 
- %%            ]
- %%            ).
-
+  %         ]
+%%            ).
+:- [library(hacks)].
 
 :-	 reexport(library(yapi)).
 :-	 use_module(library(lists)).
@@ -32,26 +32,24 @@ jupyter_query(Caller, Cell, Line ) :-
 	jupyter_cell(Caller, Cell, Line).
 
 jupyter_cell(_Caller, Cell, _) :-
-	jupyter_consult(Cell),
+	jupyter_consult(Cell),	%stack_dump,
 	fail.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
 jupyter_cell( _Caller, _, [] ) :- !.
 jupyter_cell( Caller, _, Line ) :-
-gated_call(
-		   enter_cell(call),
-		  python_query( Caller, Line ),
-		  Port,
-		   enter_cell(Port)
-	   ).
+	Self := Caller.query,
+	python_query( Self, Line ).
 
 jupyter_consult(Text) :-
 	blank( Text ),
 	!.
 jupyter_consult(Cell) :-
 	open_mem_read_stream( Cell, Stream),
-	load_files(user:'jupyter cell',[stream(Stream)]).
+%	Name = 'Inp',
+%	stream_property(Stream, file_name(Name) ),
+	load_files(user:'jupyter cell',[stream(Stream)]), !.
 	%should load_files  close?
 
 blank(Text) :-
@@ -62,31 +60,18 @@ blankc(' ').
 blankc('\n').
 blankc('\t').
 
-enter_cell(retry) :-
-	enter_cell(call).
-enter_cell(call) :-
-	into_cell.
-enter_cell(fail) :-
-	enter_cell(exit).
-enter_cell(answer) :-
-	enter_cell(exit).
-enter_cell(exception(_)) :-
-	enter_cell(exit).
-enter_cell(external_exception(_)).
-	enter_cell(!).
-enter_cell(exit) :-
-    nb_setval(jupyter_cell, off),
-	close( user_output).
 
-
-into_cell :-
-    nb_setval(jupyter_cell, on),
-	open('/python/sys.input', read, _Input, [bom(false)]),
-    open('/python/sys.stdout', append, _Output, []),
-    open('/python/sys.stderr', append, _Error, []),
-	set_prolog_flag(user_input,_Output),
+streams(false) :-
+%    close( user_input),
+    close( user_error ),
+    close( user_output ).
+streams(true) :-
+%	open('/python/input', read, _Input, [alias(user_input),bom(false)]),
+	open('/python/sys.stdout', append, _Output, [alias(user_output)]),
+	open('/python/sys.stderr', append, _Error, [alias(user_error)]),
+%	set_prolog_flag(user_input,_Input),
 	set_prolog_flag(user_output,_Output),
-    set_prolog_flag(user_error,_Error).
+	set_prolog_flag(user_error,_Error).
 
 
 completions(S, Self) :-
@@ -185,7 +170,7 @@ predicate(N,P,A) :-
 cont(0, F, P, P0) :-
 		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
-	atom_concat( [F, P, '('], PB ).
+	atom_concat( [F, P, '(  )'], PB ).
 
 
 ready(_Self, Line ) :-

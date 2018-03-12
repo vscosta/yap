@@ -219,9 +219,9 @@ class ExecutionResult(object):
 
     def raise_error(self):
         """Reraises error if `success` is `False`, otherwise does nothing"""
-        if self.error_before_exec is not None:
+        if self.error_before_exec:
             raise self.error_before_exec
-        if self.error_in_exec is not None:
+        if self.error_in_exec:
             raise self.error_in_exec
 
     def __repr__(self):
@@ -2598,7 +2598,7 @@ class InteractiveShell(SingletonConfigurable):
         with prepended_to_syspath(dname):
             try:
                 for cell in get_cells():
-                    result = self.run_cell(cell, silent=False , shell_futures=shell_futures)
+                    result = self.run_cell(cell, silent=False, shell_futures=shell_futures)
                     if raise_exceptions:
                         result.raise_error()
                     elif not result.success:
@@ -2661,6 +2661,9 @@ class InteractiveShell(SingletonConfigurable):
         -------
         result : :class:`ExecutionResult`
         """
+
+        print("go")
+        result = None
         try:
             result = self._yrun_cell(
                        raw_cell, store_history, silent, shell_futures)
@@ -2668,6 +2671,7 @@ class InteractiveShell(SingletonConfigurable):
             self.events.trigger('post_execute')
             if not silent:
                 self.events.trigger('post_run_cell', result)
+        print("go", result)
         return result
 
     def _run_cell(self, raw_cell, store_history, silent, shell_futures):

@@ -46,6 +46,7 @@ class X_API YAPQuery : public YAPPredicate {
   YAPTerm goal;
   // temporaries
   Term tnames, tgoal;
+    YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
     //  LOCAL_execution = this;
@@ -292,7 +293,8 @@ private:
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
-  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
+    YAPError e;
+    PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 
 public:
   /// construct a new engine; may use a variable number of arguments

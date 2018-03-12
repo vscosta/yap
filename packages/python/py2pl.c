@@ -46,6 +46,7 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
   PyObject *dic;
   if (!lookupPySymbol(s, NULL, &dic))
     dic = py_Main;
+                                                      Py_INCREF(e);
   return PyObject_SetAttrString(dic, s, e) == 0;
 }
 
@@ -315,12 +316,13 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         if (PySequence_Check(o) && PyInt_Check(i)) {
           long int j;
           j = PyInt_AsLong(i);
-          return PySequence_SetItem(o, i, exp) == 0;
+  return PySequence_SetItem(o, i, exp) == 0;
         }
 #endif
         if (PyDict_Check(o)) {
-          if (PyDict_SetItem(o, i, exp) == 0)
+          if (PyDict_SetItem(o, i, exp) == 0) {
             return true;
+          }
         }
         if (PyObject_SetAttr(o, i, exp) == 0) {
           return true;

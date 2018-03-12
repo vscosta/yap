@@ -35,6 +35,7 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
     // char *ns = Py_Malloc(strlen(s)+1);
     /// strcpy(ns,s);
     PyObject *pobj = PyUnicode_FromString(s);
+    Py_INCREF(pobj);
     return pobj;
   }
 }
@@ -48,6 +49,8 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
  * @return a Python object descriptor or NULL if failed
  */
 X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0) {
+
+  
   char *buf = malloc(strlen(s) + 1), *child;
   while ((child = strchr(s, '.')) != NULL) {
     size_t len = child - s;
@@ -341,6 +344,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           AOK(PL_get_arg(1, t, t), NULL);
           if (!(dict = PyDict_New()))
             return NULL;
+          Py_INCREF(dict);                                                                                                                            
           DebugPrintf("Dict %p\n", dict);
 
           while (PL_is_functor(t, FUNCTOR_comma2)) {

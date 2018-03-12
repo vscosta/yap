@@ -631,9 +631,9 @@ static YAP_Int p_python_threaded(void) {
   pyErrorAndReturn(true, false);
 }
 
-static PyGILState_STATE gstate;
 
 term_t python_acquire_GIL(void) {
+static PyGILState_STATE gstate;
   term_t curSlot = PL_new_term_ref();
   if (!_threaded)
     pyErrorAndReturn(curSlot, false);
@@ -643,15 +643,18 @@ term_t python_acquire_GIL(void) {
   //  if (_locked > 0) { _locked++  ; }
   // else
   gstate = PyGILState_Ensure();
+  PL_put_integer(curSlot, gstate);
   pyErrorAndReturn(curSlot, false);
 }
 
 bool python_release_GIL(term_t curBlock) {
+ PyGILState_STATE gstate;
   PyErr_Clear();
-  PL_reset_term_refs(curBlock);
   if (_threaded) {
+    PL_get_integer(curBlock, &gstate);
     PyGILState_Release(gstate);
   }
+  PL_reset_term_refs(curBlock);
   pyErrorAndReturn(true, false);
 }
 

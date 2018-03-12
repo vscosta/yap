@@ -34,7 +34,11 @@ class X_API YAPError {
   
 public:
   YAPError(){
-    //ID = LOCAL_ActiveError->errorNo;
+      if (LOCAL_ActiveError == nullptr)
+          return;
+    ID = LOCAL_ActiveError->errorNo;
+      if (ID != YAP_NO_ERROR) {};
+    std::cerr << "Error detected" << ID << "\n";
   }
   /// error handler object with initial data when receiving the error term
   YAPError(yap_error_number id, YAPTerm culprit, std::string txt);

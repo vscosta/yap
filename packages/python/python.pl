@@ -134,7 +134,7 @@ user(P1,P2) :- !,
 	:= P1,
 	:= P2.
 
-user:(:= ) :- catch( python:python_proc(F), _, fail ).
+user:(:= F) :- catch( python:python_proc(F), _, fail ).
 
 user:( V := F ) :-
     python:python_assign(F, V).

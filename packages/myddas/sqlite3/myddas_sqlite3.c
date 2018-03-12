@@ -664,8 +664,8 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 }
 
 X_API void init_sqlite3(void) {
- // Yap_InitMYDDAS_SQLITE3Preds();
- // Yap_InitBackMYDDAS_SQLITE3Preds();
+ Yap_InitMYDDAS_SQLITE3Preds();
+ Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
 #if _ANDROID_

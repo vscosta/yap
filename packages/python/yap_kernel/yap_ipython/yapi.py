@@ -3,15 +3,14 @@ import sys
 import abc
 import math
 import itertools
+import trace
 
 
 from typing import Iterator, List, Tuple, Iterable, Union
 from traitlets import Bool, Enum, observe, Int
 
-try:
-    from yap4py.yapi import Engine, Goal, EngineArgs, PrologTableIter
-except:
-    print("Could not load _yap dll.")
+
+from yap4py.yapi import *
 from yap_ipython.core.completer import Completer, Completion
 from yap_ipython.utils.strdispatch import StrDispatch
 # import yap_ipython.core
@@ -32,12 +31,13 @@ bindvars = namedtuple('bindvars', 'list')
 library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
-python_query= namedtuple('python_query', 'query_mgr string')
+python_query = namedtuple('python_query', 'query_mgr string')
 jupyter_query = namedtuple('jupyter_query', 'self text query')
 enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
+streams = namedtuple('streams', ' text' )
 
 
 class YAPInputSplitter(InputSplitter):
@@ -100,6 +100,7 @@ class YAPInputSplitter(InputSplitter):
         Python line."""
         t = self.physical_line_transforms + \
         [self.assemble_logical_lines] + self.logical_line_transforms
+        return t
 
     def engine(self, engine):
         self.yapeng = engine
@@ -107,11 +108,11 @@ class YAPInputSplitter(InputSplitter):
     def validQuery(self, text, line=None):
         """Return whether a legal query
         """
+        if text == self.shell.os:
+            return True
         if not  line:
-            (_,line,_) = self.shell.prolog_cell(text)
-        line = line.strip().rstrip()
-        if not line:
-            return False
+            line = text.rstrip()
+            (line, _, _, _)=self.shell.clean_end(line)
         self.errors = []
         self.yapeng.mgoal(errors(self, line),"user")
         return self.errors != []
@@ -496,9 +497,11 @@ class YAPCompleter(Completer):
         """
         self.matches = []
         prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user")
+        if self.matches:
+            return text, self.matches
         magic_res = self.magic_matches(text)
+        return text,  magic_res
 
-        return text, self.matches+magic_res
 
 
 
@@ -509,8 +512,7 @@ class YAPRun:
         self.shell = shell
         self.yapeng = Engine()
         self.yapeng.goal(use_module(library("jupyter")))
-        self.q = None
-        self.port = "call"
+        self.query = None
         self.os = None
         self.it = None
         self.shell.yapeng = self.yapeng
@@ -521,41 +523,58 @@ class YAPRun:
         """
         if not  text:
             return []
+        if text == self.os:
+            return self.errors
         self.errors=[]
+        (text,_,_,_) = self.clean_end(text)
         self.yapeng.mgoal(errors(self,text),"user")
         return self.errors
 
     def jupyter_query(self, s):
         #
-        # construct a self.query from a one-line string
-        # self.q is opaque to Python
-        program,query,mx = self.prolog_cell(s)
-        Found = False
-
-        if query != self.os:
-            self.os = None
-            self.iterations = 0
-            pg = jupyter_query( self, program, query)
-            self.it = Goal( self.yapeng,  pg)
-        else:
-            mx += self.iterations
-            self.os = s
-        for answ in self.it:
-            found = True
-            self.bindings += [answ]
-            self.iterations += 1
-            if mx == self.iterations:
-                return True, self.bindings
-        port = self.it.port
-        if port == "exit":
-            self.q = None
-            self.os = None
-            return True,self.bindings
-        if port == "fail":
-            self.q = none
-            self.os = None
-            if self.bindings_message:
-                return True,self.bindings
+        # construct a self.queryuery from a one-line string
+        # self.query is opaque to Python
+        try:
+            program,query,stop,howmany = self.prolog_cell(s)
+            found = False
+            if  s != self.os:
+                self.os = s
+                self.iterations = 0
+                self.bindings = []
+                pg = jupyter_query( self, program, query)
+                self.query =  self.yapeng.query(  pg)
+                self.query.port = "call"
+            else:
+                self.query.port   = "retry"
+                self.os = s
+                howmany += self.iterations
+            while self.query.next():
+                answer = self.query.answer
+                found = True
+                self.bindings += [answer]
+                self.iterations += 1
+                if stop and howmany == self.iterations:
+                    self.query.close()
+                    self.query = None
+                    self.os = None
+                    return True, self.bindings
+                if self.query.port  == "exit":
+                    self.query.close()
+                    self.query = None
+                    self.os = None
+                    sys.stderr.writeln('Done, with', self.bindings)
+                    return True,self.bindings
+                self.query.close()
+                self.query = None
+                self.os = None
+                if self.bindings:
+                    sys.stderr.write('Done, with', self.bindings, '\n')
+                else:
+                    sys.stderr.write('Fail\n')
+            return True,{}
+        except Exception as e:
+            has_raised = True
+            self.result.result = False
 
 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
@@ -573,7 +592,7 @@ class YAPRun:
                    IPython's machinery, this
                    should be set to False.
                    silent : bool
-v          If True, avoid side-effects, such as implicit displayhooks and
+          If True, avoid side-effects, such as implicit displayhooks and
                    and logging.  silent=True forces store_history=False.
                    shell_futures : bool
           If True, the code will share future statements with the interactive
@@ -704,12 +723,31 @@ v          If True, avoid side-effects, such as implicit displayhooks and
         has_raised = False
         try:
             state = None
-            self.shell.bindings = dict = {}
-            if cell.strip():
-                state = self.jupyter_query( cell )
+            self.bindings = dicts = []
+            if cell.strip('\n \t'):
+                 #create a Trace object, telling it what to ignore, and whether to
+                 # do tracing or line-counting or both.
+                 tracer = trace.Trace(
+                     #ignoredirs=[sys.prefix, sys.exec_prefix],
+                     trace=1,
+                     count=0)
+
+                 def f(self, cell):
+                     self.jupyter_query( cell )
+
+                 # run the new command using the given tracer
+                 # 
+                 try:
+                     self.yapeng.mgoal(streams(True),"user")
+                     #state = tracer.runfunc(f,self,cell)
+                     state = self.jupyter_query( cell )
+                     self.yapeng.mgoal(streams(False),"user")
+                 except Exception as e:
+                     has_raised = True
+                     self.yapeng.mgoal(streams("off"),"user")                
             if state:
                 self.shell.last_execution_succeeded = True
-                self.result.result    = (True, dict)
+                self.result.result    = (True, dicts)
             else:
                 self.shell.last_execution_succeeded = True
                 self.result.result = (True, {})
@@ -735,50 +773,49 @@ v          If True, avoid side-effects, such as implicit displayhooks and
 
         return self.result
 
+    def    clean_end(self,s):
+        """
+        Look at the query suffix and return
+            - whatever is left
+            - how much was taken
+            - whether to stop
+            - when to stop
+        """
+        i = -1
+        try:
+            its = 0
+            j = 1
+            while s[i].isdigit():
+                ch = s[i]
+                its +=  j * (ord(ch) - ord('0'))
+                i-=1
+                j *= 10;
+            if s[i] == ';':
+                if j > 1 or its != 0:
+                    return s[:i], 0 - i, True, its
+                return s[:i], 0 - i, False, 0
+            # one solution, stop
+            return s, 0, True, 1
+        except:
+            return s,0, False, 0
+
+
+
     def    prolog_cell(self,s):
         """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate
         on a dot. You can also finish with
 
-            - `*`: you request all solutions
-            - '^': you want to check if there is an answer
-            - '?'[N]: you want an answer; optionally you want N answers
+            - `;`: you request all solutions
+            - ';'[N]: you want an answer; optionally you want N answers
 
             If the line terminates on a `*/` or starts on a `%` we assume the line
         is a comment.
         """
-        s = s.rstrip()
-        take = 0
-        its = 0
-        s0 = ''
-        for c in s:
-            if c == '\n' or c.isspace():
-                s0 += c
-            break
-        sf = ''
-        for c in reversed(s):
-            if c == '\n' or c.isspace():
-                sf += c
-            break
-        [program,x,query] = s.rpartition('\n')
-        if query == '':
-            query = program
-        while take < len(query):
-            take += 1
-            ch = query[-take]
-            if ch.isdigit():
-                its = its*10 + ord(ch) - ord('0')
-            elif ch == '*' and take == 1:
-                return program, query[:-take], -1
-            elif ch == '.' and take == 1:
-                return s, '', 1
-            elif ch == '/' and query[-2] == '*' and take == 1:
-                return program, query[:-take], 1
-            elif ch == '^' and take == 1:
-                return program, query[:-take], 1
-            elif ch == '?':
-                return program, query[:-take], its+1
-            else:
-                return program, query, 1
-        return s, '', 1
+        s0 = s.rstrip(' \n\t\i')
+        [program,x,query] = s0.rpartition('\n')
+        if query[-1] == '.':
+            return s,'',False,0
+        (query, _,loop, sols) = self.clean_end(query)
+        return (program, query, loop, sols)

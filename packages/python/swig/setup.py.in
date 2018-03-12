@@ -1,4 +1,4 @@
-    #!/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 
 # Copyright (c) IPython Development Team.
@@ -51,24 +51,25 @@ from distutils.core import setup
 
 here = abspath(dirname(__file__))
 libpydir = abspath(sysconfig.get_path('platlib'))
-libpyauxdir = abspath(os.path.dirname('stdlib'))
+#libpyauxdir = abspath(os.path.dirname('stdlib'))
 #pkg_root = join(here, name)
 
 here = path.abspath(path.dirname(__file__))
 
 sys.path.insert(0, "${CMAKE_CURRENT_SOURCE_DIR}")
 
+python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}"))
 
 if platform.system() == 'Windows':
     local_libs = []
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..','-Wl,-rpath','-Wl,${CMAKE_INSTALL_FULL_LIBDIR}']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,${CMAKE_INSTALL_FULL_LIBDIR}','-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath','-Wl,${CMAKE_INSTALL_FULL_LIBDIR}']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,${CMAKE_INSTALL_FULL_LIBDIR}','-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 
@@ -78,22 +79,21 @@ elif platform.system() == 'Linux':
 native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
 #gmp_dir = path.abspath(path.dirname("${GMP_LIBRARIES}"))
-#python_libdir = path.abspath(path.dirname("${PYTHON_LIBRARIES}")
 # Get the long description from the README file
 
 
 
-extensions = [Extension('yap4py._yap', native_sources,
+extensions = [Extension('_yap', native_sources,
                         define_macros=[('MAJOR_VERSION', '1'),
                                        ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('_GNU_SOURCE', '1')],
-                        runtime_library_dirs=[abspath(sysconfig.get_path('platlib')),
-                        abspath(sysconfig.get_path('platlib'))],
+                        runtime_library_dirs=[
+                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'${CMAKE_INSTALL_FULL_LIBDIR}'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=[".",'../../..'],
+                        library_dirs=[".",'../../..','${CMAKE_INSTALL_FULL_LIBDIR}'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
                         include_dirs=['${CMAKE_SOURCE_DIR}/H',
@@ -122,7 +122,7 @@ setup_args = dict(
     scripts=glob(join('scripts', '*')),
     packages=['yap4py'],
     ext_modules=extensions,
-    py_modules=[],
+    sources=['yap4py/yapi.py','yap4py/yap.py','yap4py/__main__.py','yap4py/__init_.py'],
 #    package_data=package_data,
     include_package_data=True,
     data_files = data_files,

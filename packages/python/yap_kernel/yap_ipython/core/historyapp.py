@@ -32,15 +32,15 @@ This is an handy alias to `ipython history trim --keep=0`
 
 class HistoryTrim(BaseYAPApplication):
     description = trim_hist_help
-    
+
     backup = Bool(False,
         help="Keep the old history file as history.sqlite.<N>"
         ).tag(config=True)
-    
+
     keep = Int(1000,
         help="Number of recent lines to keep in the database."
         ).tag(config=True)
-    
+
     flags = Dict(dict(
         backup = ({'HistoryTrim' : {'backup' : True}},
             backup.help
@@ -50,7 +50,7 @@ class HistoryTrim(BaseYAPApplication):
     aliases=Dict(dict(
         keep = 'HistoryTrim.keep'
     ))
-    
+
     def start(self):
         profile_dir = self.profile_dir.location
         hist_file = os.path.join(profile_dir, 'history.sqlite')
@@ -63,9 +63,9 @@ class HistoryTrim(BaseYAPApplication):
             print("There are already at most %d entries in the history database." % self.keep)
             print("Not doing anything. Use --keep= argument to keep fewer entries")
             return
-        
+
         print("Trimming history to the most recent %d entries." % self.keep)
-        
+
         inputs.pop() # Remove the extra element we got to check the length.
         inputs.reverse()
         if inputs:
@@ -75,7 +75,7 @@ class HistoryTrim(BaseYAPApplication):
             sessions = list(con.execute('SELECT session, start, end, num_cmds, remark FROM '
                                         'sessions WHERE session >= ?', (first_session,)))
         con.close()
-        
+
         # Create the new history database.
         new_hist_file = os.path.join(profile_dir, 'history.sqlite.new')
         i = 0
@@ -114,18 +114,18 @@ class HistoryTrim(BaseYAPApplication):
             print("Backed up longer history file to", backup_hist_file)
         else:
             os.remove(hist_file)
-        
+
         os.rename(new_hist_file, hist_file)
 
 class HistoryClear(HistoryTrim):
     description = clear_hist_help
     keep = Int(0,
         help="Number of recent lines to keep in the database.")
-    
+
     force = Bool(False,
         help="Don't prompt user for confirmation"
         ).tag(config=True)
-    
+
     flags = Dict(dict(
         force = ({'HistoryClear' : {'force' : True}},
             force.help),

@@ -11,13 +11,13 @@ set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_S
 
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_FLAGS "-O;-py3")
-SET_SOURCE_FILES_PROPERTIES(../../swiyap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
+SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES SWIG_MODULE_NAME yap4py.yap)
 #SET_SOURCE_FILES_PROPERTIES(../../swi/yap.i PROPERTIES OUTPUT_NAME yap)
 
 file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 
 set(YAP4PY_PL prolog/yapi.yap)
-set(YAP4PY_PY yap4py/__init__.py yap4py/__main__.py yap4py/yapi.py)
+set(YAP4PY_PY  yap4py/__main__.py yap4py/yapi.py)
 
 configure_file("setup.py.in" setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
@@ -51,7 +51,7 @@ else()
 endif()
 
   add_custom_target( YAP4PY ALL
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include
      -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python
       -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}
     COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}

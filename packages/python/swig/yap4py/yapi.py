@@ -47,24 +47,21 @@ class Predicate( YAPPredicate ):
     def __init__(self, t, module=None):
         super().__init__(t)
 
-class Goal(object):
+class IQuery(YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
-        self.q = engine.query(g)
-        self.e = engine
+        self = engine.query(g)
         self.port = "call"
         self.bindings = None
 
     def __iter__(self):
-        return PrologTableIter( self.e, self )
+        return PrologTableIter( self )
 
 class PrologTableIter:
 
-    def __init__(self, e, g):
+    def __init__(self, q):
         try:
-            self.e = e
-            self.g = g
-            self.q = g.q
+            self.q = q
         except:
             print('Error')
 
@@ -77,9 +74,9 @@ class PrologTableIter:
         if not self.q:
             raise StopIteration()
         if self.q.next():
-            rc = self.g.bindings
-            if self.g.port == "exit":
-                self.close()
+            rc = self.q.bindings
+            if self.q.port == "exit":
+                self.q.close()
             return rc
         else:
             if self.q:
@@ -179,7 +176,7 @@ class YAPShell:
         bindings = []
         g = python_query(self, query)
         if not self.q:
-            self.it = Goal( engine, g )
+            self.it = IQuery( engine, g )
         for bind in self.it:
             bindings += [bind]
             if do_ask:
