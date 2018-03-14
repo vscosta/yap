@@ -202,6 +202,7 @@ print_message(L,E) :-
 
 
 :- c_compile('directives.yap').
+:- c_compile('init.yap').
 
 '$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
@@ -222,8 +223,6 @@ print_message(L,E) :-
 
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.
-
-:- '$init_prolog'.
 
 :- compile_expressions.
 

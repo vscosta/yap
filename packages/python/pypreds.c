@@ -643,16 +643,18 @@ static PyGILState_STATE gstate;
   //  if (_locked > 0) { _locked++  ; }
   // else
   gstate = PyGILState_Ensure();
+  fprintf(stderr, "+%d\n", (int)gstate);
   PL_put_integer(curSlot, gstate);
   pyErrorAndReturn(curSlot, false);
 }
 
 bool python_release_GIL(term_t curBlock) {
  PyGILState_STATE gstate;
-  PyErr_Clear();
+
   if (_threaded) {
     PL_get_integer(curBlock, &gstate);
     PyGILState_Release(gstate);
+    fprintf(stderr, "-%d\n", (int)gstate);
   }
   PL_reset_term_refs(curBlock);
   pyErrorAndReturn(true, false);

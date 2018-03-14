@@ -472,7 +472,18 @@ class YAPKernelApp(BaseYAPApplication, InteractiveShellApp,
             return self.subapp.start()
         if self.poller is not None:
             self.poller.start()
-        self.kernel.start()
+
+        import trace
+        #create a Trace object, telling it what to ignore, and whether to
+        # do tracing or line-counting or both.
+        tracer = trace.Trace(
+            #ignoredirs=[sys.prefix, sys.exec_prefix],
+            trace=1,
+            count=0)
+
+        tracer.runfunc(self.kernel.start)
+
+        #self.kernel.start()
         self.io_loop = ioloop.IOLoop.current()
         try:
             self.io_loop.start()
@@ -485,6 +496,7 @@ def main():
     """Run an IPKernel as an application"""
     app = YAPKernelApp.instance()
     app.initialize()
+    
     app.start()
 
 

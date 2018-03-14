@@ -59,11 +59,12 @@ class YAPInputSplitter(InputSplitter):
     # List with lines of raw input accumulated so far.
     _buffer_raw = None
 
-    def __init__(self, line_input_checker=True, physical_line_transforms=None,
+    def __init__(self, engine=None, shell=None, line_input_checker=True, physical_line_transforms=None,
                     logical_line_transforms=None):
         self._buffer_raw = []
         self._validate = True
-        self.yapeng = None
+        self.yapeng = engine
+        self.shell = shell
 
         if physical_line_transforms is not None:
             self.physical_line_transforms = physical_line_transforms
@@ -102,19 +103,16 @@ class YAPInputSplitter(InputSplitter):
         [self.assemble_logical_lines] + self.logical_line_transforms
         return t
 
-    def engine(self, engine):
-        self.yapeng = engine
-
-    def validQuery(self, text, line=None):
+    def validQuery(self, text, engine, shell, line=None):
         """Return whether a legal query
         """
-        if text == self.shell.os:
+        if text == shell.os:
             return True
         if not  line:
             line = text.rstrip()
             (line, _, _, _)=self.shell.clean_end(line)
         self.errors = []
-        self.yapeng.mgoal(errors(self, line),"user")
+        engine.mgoal(errors(self, line),"user")
         return self.errors != []
 
 
@@ -183,7 +181,7 @@ class YAPInputSplitter(InputSplitter):
         if self.transformer_accumulating:
             return True
         else:
-            return self,validQuery(self.source)
+            return self.validQuery(self.source, self.yapeng, self)
 
     def transform_cell(self, cell):
         """Process and translate a cell of input.

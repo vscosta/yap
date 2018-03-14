@@ -378,10 +378,10 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
                                   size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API YAP_file_type_t YAP_Init(YAP_init_args *);
+extern X_API void YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc,
+extern X_API void YAP_FastInit(char saved_state[], int argc,
                                           char *argv[]);
 
 #ifndef _PL_STREAM_H

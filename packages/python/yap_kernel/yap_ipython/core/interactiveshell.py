@@ -522,8 +522,7 @@ class InteractiveShell(SingletonConfigurable):
         # The following was in post_config_initialization
         self.init_inspector()
         self.raw_input_original = input
-        self.input_splitter.engine(self.yapeng)
-        self.input_transformer_manager.engine(self.yapeng)
+        #self.input_transformer_manager.engine(self.yapeng)
         self.init_completer()
         # TODO: init_io() needs to happen before init_traceback handlers
         # because the traceback handlers hardcode the stdout/stderr streams.
@@ -2671,7 +2670,6 @@ class InteractiveShell(SingletonConfigurable):
             self.events.trigger('post_execute')
             if not silent:
                 self.events.trigger('post_run_cell', result)
-        print("go", result)
         return result
 
     def _run_cell(self, raw_cell, store_history, silent, shell_futures):

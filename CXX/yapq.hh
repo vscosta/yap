@@ -263,9 +263,9 @@ public:
 
   inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
 
-  inline void setHaltAfterConsult(bool fl) { HaltAfterConsult = fl; };
+  inline void setHaltAfterBoot(bool fl) { HaltAfterBoot = fl; };
 
-  inline bool getHaltAfterConsult() { return HaltAfterConsult; };
+  inline bool getHaltAfterBoot() { return HaltAfterBoot; };
 
   inline void setFastBoot(bool fl) { FastBoot = fl; };
 

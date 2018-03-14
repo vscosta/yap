@@ -11,84 +11,6 @@ live :- '$live'.
 	),
 	'$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
 
-'$init_globals' :-
-	% set_prolog_flag(break_level, 0),
-	% '$set_read_error_handler'(error), let the user do that
-	nb_setval('$chr_toplevel_show_store',false).
-
-'$init_consult' :-
-	set_value('$open_expands_filename',true),
-	nb_setval('$assert_all',off),
-	nb_setval('$if_level',0),
-	nb_setval('$endif',off),
- 	nb_setval('$initialization_goals',off),
-	nb_setval('$included_file',[]),
-	nb_setval('$loop_streams',[]),
-	\+ '$undefined'('$init_preds',prolog),
-	'$init_preds',
-	fail.
-'$init_consult'.
-
-'$init_win_graphics' :-
-    '$undefined'(window_title(_,_), system), !.
-'$init_win_graphics' :-
-    load_files([library(win_menu)], [silent(true),if(not_loaded)]),
-    fail.
-'$init_win_graphics'.
-
-'$init_or_threads' :-
-	'$c_yapor_workers'(W), !,
-	'$start_orp_threads'(W).
-'$init_or_threads'.
-
-'$start_orp_threads'(1) :- !.
-'$start_orp_threads'(W) :-
-	thread_create('$c_worker',_,[detached(true)]),
-	W1 is W-1,
-	'$start_orp_threads'(W1).
-
-'$version' :-
-      current_prolog_flag(halt_after_consult, false),
-      current_prolog_flag(verbose, normal), !,
-	current_prolog_flag(version_git,VersionGit),
-	current_prolog_flag(compiled_at,AT),
-	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-	sub_atom( VersionGit, 0, 8, _, VERSIONGIT ),
-	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-	current_prolog_flag(resource_database, Saved ),
-	format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
-	format(user_error, '% database loaded from ~a~n', [Saved]).
-
-'$init_prolog' :-
-    % do catch as early as possible
-	'$version',
-	yap_flag(file_name_variables, _OldF, true),
-    '$init_consult',
-    %set_prolog_flag(file_name_variables, OldF),
-    '$init_globals',
-    set_prolog_flag(fileerrors, true),
-    set_value('$gc',on),
-    ('$exit_undefp' -> true ; true),
-    prompt1(' ?- '),
-    set_prolog_flag(debug, false),
-    % simple trick to find out if this is we are booting from Prolog.
-    % boot from a saved state
-    (
-      current_prolog_flag(saved_program, true)
-      % use saved state
-    ->
-      '$init_state'
-    ;
-	   true
-    ),
-    '$db_clean_queues'(0),
-				% this must be executed from C-code.
-				%	'$startup_saved_state',
-    set_input(user_input),
-    set_output(user_output),
-    '$init_or_threads',
-    '$run_at_thread_start'.
-
 % Start file for yap
 
 /*		I/O predicates						*/
@@ -135,13 +57,13 @@ live :- '$live'.
 	fail.
 '$enter_top_level' :-
 	flush_output,
-'$run_toplevel_hooks',
-prompt1(' ?- '),
-'$read_toplevel'(Command,Varnames,Pos),
-nb_setval('$spy_gn',1),
-% stop at spy-points if debugging is on.
-nb_setval('$debug_run',off),
-nb_setval('$debug_jump',off),
+	'$run_toplevel_hooks',
+	prompt1(' ?- '),
+	'$read_toplevel'(Command,Varnames,Pos),
+	nb_setval('$spy_gn',1),
+				% stop at spy-points if debugging is on.
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_jump',off),
 '$command'(Command,Varnames,Pos,top),
 current_prolog_flag(break_level, BreakLevel),
 	(

@@ -243,6 +243,7 @@ Term &YAPTerm::operator[](arity_t i) {
       Yap_Error(TYPE_ERROR_COMPOUND, t0, "");
  }
     RECOVER_MACHINE_REGS();
+    return (tf);
 }
 
 Term &YAPListTerm::operator[](arity_t i) {
@@ -842,11 +843,12 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
-  if ((BootMode = YAP_Init(engineArgs)) == YAP_FOUND_BOOT_ERROR) {
+  if (BootMode == YAP_FOUND_BOOT_ERROR) {
       std::cerr << "Exception received by  " << __func__ << "( "
                 << "while booting" << ").\n Forwarded...\n\n";
       return;
   }
+  YAP_Init(engineArgs);
 /* Begin preprocessor code */
 /* live */
 // yerror = YAPError();
