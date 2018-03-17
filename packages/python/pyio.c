@@ -43,7 +43,7 @@ static int py_put(int sno, int ch)
 }
 
 VFS_t pystream;
- static void *py_open(VFS_t *me, int sno, const char *name, const char *io_mode) {
+ static void *py_open(VFS_t *me, const char *name, const char *io_mode, int sno) {
 #if HAVE_STRCASESTR
   if (strcasestr(name, "/python/") == name)
     name += strlen("/python/");
@@ -51,29 +51,28 @@ VFS_t pystream;
   if (strstr(name, "/python/") == name)
     name += strlen("/python/");
 #endif
+    PyObject *pystream = string_to_python(name, true, NULL);
+    if (pystream == NULL || pystream == Py_None) {
+      return NULL;
+    } 
   StreamDesc *st = YAP_RepStreamFromId(sno);
-  if  (strcmp(name,"sys.output") == 0) {
+  st->name = YAP_LookupAtom(name);
+  if  (0&&strcmp(name,"sys.stdout") == 0) {
     st->user_name = TermOutStream;
-  } else if(strcmp(name,"sys.error") == 0) {
+  } else if(0&&strcmp(name,"sys.stderr") == 0) {
     st->user_name = TermErrStream;
   } else {
-    // we assume object is already open, so there is no need to open it.
-    PyObject *pystream = string_to_python(name, true, NULL);
-    if (pystream == Py_None) {
-      return NULL;
-    } else  {
-      st->u.private_data = pystream;
-      st->vfs = me;
-      st->name = YAP_LookupAtom(name);
-      st->user_name = YAP_MkAtomTerm(st->name);
-    }
+    st->user_name = YAP_MkAtomTerm(st->name);
   }
+  // we assume object is already open, so there is no need to open it.
+  st->u.private_data = pystream;
+  st->vfs = me;
   return st;
 }
 
 static bool py_close(int sno) {
-    StreamDesc *st = YAP_RepStreamFromId(sno);
-  Py_DECREF(st->u.private_data);
+  StreamDesc *st = YAP_RepStreamFromId(sno);
+  Py_XDECREF(st->u.private_data);
   return true;
 }
 
@@ -153,7 +152,7 @@ return PyLong_AsLong(pyr);
 
 static void py_flush(int sno) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
-  YAP_Term tg =   python_acquire_GIL();
+  PyGILState_STATE  tg =   python_acquire_GIL();
   PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
   PyObject_CallFunction(flush, NULL);
     python_release_GIL(tg);

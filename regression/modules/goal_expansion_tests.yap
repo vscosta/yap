@@ -1,4 +1,4 @@
-
+                               
 :- use_module(library(lists)).
 
 
@@ -13,4 +13,3 @@ given  user:goal_expansion(a(X,Y), m, Y is X*X ))
 
 test  m:a(3,X) returns X =@= 9
 given  user:goal_expansion(a(X,Y), m, Y is X*X ), user:goal_expansion(a(X), X is 3*5)
-

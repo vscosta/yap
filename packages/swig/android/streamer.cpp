@@ -36,7 +36,7 @@ void Java_pt_up_yap_streamerJNI_swig_1module_1init__(void) {
 static std::string buff0;
 
 static void *
-and_open(struct vfs *me, int sno, const char *name, const char *io_mode) {
+and_open(struct vfs *me, const char *name, const char *io_mode, int sno) {
     // we assume object is already open, so there is no need to open it.
     GLOBAL_Stream[sno].vfs_handle = streamerInstance;
     GLOBAL_Stream[sno].vfs = me;

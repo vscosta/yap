@@ -406,16 +406,8 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   s->buf.on = false;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
-  if (vfsp != NULL) {
-    s->u.private_data = vfsp->open(vfsp, sno, vfsp->name,
-                                   (sno == StdInStream ? "read" : "write"));
-    if (s->u.private_data == NULL) {
-      (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkIntTerm(sno), "%s",
-                 vfsp->name));
-      return;
-    }
-  } else {
-    unix_upd_stream_info(s);
+  if (vfsp == NULL) {
+     unix_upd_stream_info(s);
   }
   /* Getting streams to prompt is a mess because we need for cooperation
      between readers and writers to the stream :-(
@@ -1133,11 +1125,23 @@ static void check_bom(int sno, StreamDesc *st) {
   }
 }
 
-bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                    encoding_t encoding, stream_flags_t flags, Atom open_mode,
-                    void *vfs) {
+bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Term file_name, encoding_t encoding,
+                    stream_flags_t flags, void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
-  st->status = flags;
+  if (io_mode == NULL)
+    Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno), "File opened with NULL Permissions");
+    if (strchr(io_mode, 'a')) {
+        st->status = Append_Stream_f|Output_Stream_f|flags;
+    } else
+    if (strchr(io_mode, 'w')) {
+        st->status = Output_Stream_f | flags;
+    }
+    if (strchr(io_mode, 'r')) {
+        st->status = Input_Stream_f|flags;
+    }
+    if (strchr(io_mode, 'b')) {
+        st->status = Binary_Stream_f|flags;
+    }
 
   st->vfs = vfs;
   st->buf.on = false;
@@ -1150,12 +1154,13 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
   }
 
   if (name == NULL) {
-    char buf[YAP_FILENAME_MAX + 1];
-    memset(buf, 0, YAP_FILENAME_MAX + 1);
-    name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
-    if (name)
-      st->name = Yap_LookupAtom(name);
+      char buf[YAP_FILENAME_MAX + 1];
+      memset(buf, 0, YAP_FILENAME_MAX + 1);
+      name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
   }
+    if (!name)
+        Yap_Error(SYSTEM_ERROR_INTERNAL,file_name,"Yap_guessFileName failed: opening a file without a name");
+      st->name = Yap_LookupAtom(name);
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
@@ -1221,7 +1226,7 @@ static const param_t open_defs[] = {OPEN_DEFS()};
 
 static Int
 do_open(Term file_name, Term t2,
-        Term tlist USES_REGS) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
+          Term tlist USES_REGS) {
   Atom open_mode;
   int sno;
   StreamDesc *st;
@@ -1232,6 +1237,7 @@ do_open(Term file_name, Term t2,
   encoding_t encoding;
   Term tenc;
   char io_mode[8];
+
   // original file name
   if (IsVarTerm(file_name)) {
     Yap_Error(INSTANTIATION_ERROR, file_name, "open/3");
@@ -1287,6 +1293,7 @@ do_open(Term file_name, Term t2,
                  ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
+
   // expand file name?
   int lvl = push_text_stack();
   const char *fname = Yap_AbsoluteFile(fname0, ok);
@@ -1298,9 +1305,18 @@ do_open(Term file_name, Term t2,
 
   // Skip scripts that start with !#/.. or similar
   pop_text_stack(lvl);
-  bool script =
-      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
-  // binary type
+  
+  if (open_mode == AtomRead) {
+    strncpy(io_mode, "r", 8);
+  } else if (open_mode == AtomWrite) {
+    strncpy(io_mode, "w", 8);
+  } else if (open_mode == AtomAppend) {
+    strncpy(io_mode, "a", 8);
+  } else {
+    pop_text_stack(lvl);
+    return false;
+  }
+   // binary type
   if (args[OPEN_TYPE].used) {
     Term t = args[OPEN_TYPE].tvalue;
     bool bin = (t == TermBinary);
@@ -1323,39 +1339,37 @@ do_open(Term file_name, Term t2,
                 "type is ~a, must be one of binary or text", t);
     }
   }
-  // BOM mess
-  if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
-      encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
-      encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE) {
-    needs_bom = true;
-  }
-  if (args[OPEN_BOM].used) {
-    if (args[OPEN_BOM].tvalue == TermTrue) {
-      avoid_bom = false;
-      needs_bom = true;
-    } else if (args[OPEN_BOM].tvalue == TermFalse) {
-      avoid_bom = true;
-      needs_bom = false;
-    }
-  }
-  if (open_mode == AtomRead) {
-    strncpy(io_mode, "r", 8);
-  } else if (open_mode == AtomWrite) {
-    strncpy(io_mode, "w", 8);
-  } else if (open_mode == AtomAppend) {
-    strncpy(io_mode, "a", 8);
-  } else {
-    pop_text_stack(lvl);
-    return false;
-  }
-  if ((sno = Yap_OpenStream(fname, io_mode, file_name)) < 0) {
+   if ((sno = Yap_OpenStream(fname, io_mode, file_name, encoding)) < 0)
+  {
     pop_text_stack(lvl);
     return false;
   }
 
   st = &GLOBAL_Stream[sno];
-  st->user_name = file_name;
   // user requested encoding?
+  // BOM mess
+  if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
+      encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
+      encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE)
+  {
+    needs_bom = true;
+  }
+  if (args[OPEN_BOM].used)
+  {
+    if (args[OPEN_BOM].tvalue == TermTrue)
+    {
+      avoid_bom = false;
+      needs_bom = true;
+    }
+    else if (args[OPEN_BOM].tvalue == TermFalse)
+    {
+      avoid_bom = true;
+      needs_bom = false;
+    }
+  }
+  bool script =
+      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
+
   if (args[OPEN_ALIAS].used) {
     Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
     if (!Yap_AddAlias(al, sno)) {
@@ -1363,7 +1377,6 @@ do_open(Term file_name, Term t2,
       return false;
     }
   }
-  st->name = Yap_LookupAtom(fname);
   if (st - GLOBAL_Stream < 3) {
     flags |= RepError_Prolog_f;
   }
@@ -1557,14 +1570,13 @@ static Int p_open_null_stream(USES_REGS1) {
   return (Yap_unify(ARG1, t));
 }
 
-int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
+int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encoding_t enc) {
   CACHE_REGS
   int sno;
   StreamDesc *st;
-  Atom at;
-  struct vfs *vfsp;
-  FILE *fd;
-  int flags;
+  struct vfs *vfsp = NULL;
+  FILE *fd = NULL;
+  int flags;                                                                                               
 
   sno = GetFreeStreamD();
   if (sno < 0) {
@@ -1573,20 +1585,20 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
     return -1;
   }
   st = GLOBAL_Stream + sno;
-  // read, write, append
-  st->file = NULL;
-  st->status = 0;
-  // fname = Yap_VF(fname);
+   // fname = Yap_VF(fname);
+  flags = 0;
   if ((vfsp = vfs_owner(fname)) != NULL) {
-    if (!vfsp->open(vfsp, sno, fname, "r")) {
+    if (!vfsp->open(vfsp, fname, io_mode, sno)) {
       UNLOCK(st->streamlock);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)),
                 "%s", fname);
+      /* extract BACK info passed through the stream descriptor */
       return -1;
     }
-    vfsp = GLOBAL_Stream[sno].vfs;
+    // read, write, append
+    user_name = st->user_name;
   } else {
-    fd = st->file = fopen(fname, io_mode);
+    fd  = fopen(fname, io_mode);
     if (fd == NULL) {
       if (!strchr(io_mode, 'b') && binary_file(fname)) {
         UNLOCK(st->streamlock);
@@ -1603,25 +1615,7 @@ int Yap_OpenStream(const char *fname, const char *io_mode, Term user_name) {
       return -1;
     }
   }
-  flags = st->status;
-  if (strchr(io_mode, 'w')) {
-    if (strchr(io_mode, 'a')) {
-      at = AtomAppend;
-      flags |= Append_Stream_f | Output_Stream_f;
-    } else {
-      at = AtomWrite;
-      flags |= Output_Stream_f;
-    }
-  }
-  if (strchr(io_mode, 'r')) {
-    at = AtomRead;
-    flags |= Input_Stream_f;
-  }
-  if (strchr(io_mode, 'b')) {
-    flags |= Binary_Stream_f;
-  }
-  Yap_initStream(sno, st->file, fname, user_name, LOCAL_encoding, flags, at,
-                 vfsp);
+    Yap_initStream(sno, fd, fname, io_mode, user_name, LOCAL_encoding, flags, vfsp);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
                       sno);
   return sno;
@@ -1631,7 +1625,7 @@ int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
                    VFS_t *vfsp) {
   CACHE_REGS
   int sno;
-  Atom at;
+  const char *mode;
 
   sno = GetFreeStreamD();
   if (sno < 0)
@@ -1639,12 +1633,13 @@ int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
                       "new stream not available for opening"));
   if (flags & Output_Stream_f) {
     if (flags & Append_Stream_f)
-      at = AtomAppend;
+      mode = "a";
     else
-      at = AtomWrite;
-  } else
-    at = AtomRead;
-  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at, vfsp);
+      mode = "w";
+  } else {
+    mode = "r";
+  }
+    Yap_initStream(sno, fd, name, mode, file_name, LOCAL_encoding, flags, vfsp);
   return sno;
 }
 

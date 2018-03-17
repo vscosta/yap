@@ -10,6 +10,10 @@ extern "C" {
 #include "android/log.h"
 #endif
 
+#if 1
+#include "Python.h"
+#endif
+
 #include "YapInterface.h"
 #include "YapBlobs.h"
 #include "iopreds.h"
@@ -238,7 +242,6 @@ Term &YAPTerm::operator[](arity_t i) {
     else if (i == 1)
       tf = TailOfTerm(t0);
     RECOVER_MACHINE_REGS();
-    tf = RepPair(tf)[i];
   } else {
       Yap_Error(TYPE_ERROR_COMPOUND, t0, "");
  }
@@ -252,6 +255,7 @@ Term &YAPListTerm::operator[](arity_t i) {
   Term tf = 0;
   while (IsPairTerm(t0)) {
     if (i == 0) {
+
       tf = HeadOfTerm(t0);
       break;
     } else {
@@ -436,7 +440,10 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
       //q.e = new YAPError();
     }
     // don't forget, on success these bindings will still be there);
+    PyThreadState *tstate;
+Py_BEGIN_ALLOW_THREADS
     result = YAP_LeaveGoal(false, &q);
+    Py_END_ALLOW_THREADS
     Yap_CloseHandles(q.CurSlot);
     LOCAL_RestartEnv = oj;
     RECOVER_MACHINE_REGS();
@@ -453,6 +460,9 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
 bool YAPEngine::mgoal(Term t, Term tmod) {
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
+  PyThreadState *_save;
+
+  _save = PyEval_SaveThread();
   try {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
@@ -479,15 +489,16 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     // allow Prolog style exception handling
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-        std::cerr << "Restart\n";
+      PyEval_RestoreThread(_save);
+  std::cerr << "Restart\n";
         //throw new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
     {
       YAP_LeaveGoal(false, &q);
+      PyEval_RestoreThread(_save);
       LOCAL_RestartEnv = oldp;
       RECOVER_MACHINE_REGS();
       return result;
@@ -495,7 +506,8 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   } catch (YAPError e) {
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
-    LOCAL_RestartEnv = oldp;
+    PyEval_RestoreThread(_save);
+  LOCAL_RestartEnv = oldp;
     return 0;
     //throw e;
   }
@@ -745,8 +757,8 @@ PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
   ARG1 = tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
   //goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
   return PredCall;
-  
-  
+
+
   // return YAPApplTerm(FunctorUndefinedQuery, ts);
 }
 

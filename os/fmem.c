@@ -152,7 +152,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
   // like any file stream.
   f = st->file = fmemopen((void *)buf, nchars, "r");
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-  Yap_initStream(sno, f, NULL, TermNil, encoding, flags, AtomRead, NULL);
+    Yap_initStream(sno, f, "memStream", "r", buf, encoding, flags, NULL);
   // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);

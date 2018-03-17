@@ -62,9 +62,11 @@ blankc('\t').
 
 
 streams(false) :-
-%    close( user_input),
-    close( user_error ),
-    close( user_output ).
+	flush_output,
+	forall(
+	       stream_property( S, mode(_) ),
+	       close(S)
+	      ).
 streams(true) :-
 %	open('/python/input', read, _Input, [alias(user_input),bom(false)]),
 	open('/python/sys.stdout', append, _Output, [alias(user_output)]),

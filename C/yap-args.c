@@ -149,7 +149,10 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
     *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR, *Yap_STARTUP,
     *Yap_INPUT_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
-/* do initial boot by consulting the file boot.yap */
+/**
+ * consult loop in C: used to boot the system, butt supports goal execution and recursive consulting.
+ *
+ * */
 static void consult(const char *b_file USES_REGS) {
   Term t;
   int c_stream, osno, oactive;
@@ -157,7 +160,7 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
 
-  /* consult boot.pl */
+  /* consult in C */
   int lvl = push_text_stack();
   char *full = Malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';

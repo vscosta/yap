@@ -1,12 +1,21 @@
-
-import os.path
-import sys
-import keyword
-# debugging support.
-# import pdb
-from collections import namedtuple
 import readline
-from .yap import *
+from yap4py.yap import YAPEngine, YAPEngineArgs, YAPPredicate, YAPQuery, YAPPrologPredicate, YAPVarTerm
+from os.path import join, dirname
+from collections import namedtuple
+import sys
+
+yap_lib_path = dirname(__file__)
+
+compile = namedtuple('compile', 'file')
+bindvars = namedtuple('bindvars', 'list')
+library = namedtuple('library', 'list')
+v0 = namedtuple('v', 'slot')
+yap_query = namedtuple('yap_query', 'query owner')
+jupyter_query = namedtuple('jupyter_query', 'vars dict')
+python_query = namedtuple('python_query', 'vars dict')
+yapi_query = namedtuple('yapi_query', 'vars dict')
+show_answer = namedtuple('show_answer', 'vars dict')
+set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 
 class Engine( YAPEngine ):
@@ -16,10 +25,10 @@ class Engine( YAPEngine ):
         if not args:
             args = EngineArgs(**kwargs)
         if self_contained:
-            yap_lib_path = os.path.dirname(__file__)
-            args.setYapShareDir(os.path.join(yap_lib_path, "prolog"))
+            yap_lib_path = dirname(__file__)
+            args.setYapShareDir(join(yap_lib_path, "prolog"))
             args.setYapPLDIR(yap_lib_path)
-            args.setSavedState(os.path.join(yap_lib_path, "startup.yss"))
+            args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
         self.goal(set_prolog_flag('verbose', 'silent'))
         self.goal(compile(library('yapi')))
@@ -30,9 +39,6 @@ class Engine( YAPEngine ):
             self.mgoal(g, m)
         else:
             self.goal(g)
-
-    def f(self, g):
-        self.E.fun(g)
 
 
 class EngineArgs( YAPEngineArgs ):
@@ -47,112 +53,79 @@ class Predicate( YAPPredicate ):
     def __init__(self, t, module=None):
         super().__init__(t)
 
-class IQuery(YAPQuery):
+class Query:
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
-        self = engine.query(g)
-        self.port = "call"
-        self.bindings = None
+        self.q = engine.query(g)
+        if self.q:
+            self.port = "call"
+            self.bindings = None
+            self.engine = engine
+            self.answer = {}
 
     def __iter__(self):
-        return PrologTableIter( self )
-
-class PrologTableIter:
-
-    def __init__(self, q):
-        try:
-            self.q = q
-        except:
-            print('Error')
-
-    def __iter__(self):
-        # Iterators are iterables too.
-        # -        # Adding this functions to make them so.
         return self
 
     def __next__(self):
+        print(self)
         if not self.q:
             raise StopIteration()
         if self.q.next():
-            rc = self.q.bindings
-            if self.q.port == "exit":
-                self.q.close()
+            rc = self.answer
+            if self.port == "exit":
+                self.close()
             return rc
         else:
-            if self.q:
+            if self:
                 self.close()
             raise StopIteration()
 
-    def close(self):
+    def close( self ):
         self.q.close()
         self.q = None
 
-f2p = {"fails":{}}
-for i in range(16):
-    f2p[i] ={}
 
-
-
-
-global engine, handler
-
-yap_lib_path = os.path.dirname(__file__)
-
-compile = namedtuple('compile', 'file')
-bindvars = namedtuple('bindvars', 'list')
-library = namedtuple('library', 'list')
-v = namedtuple( 'v', 'slot')
-yap_query = namedtuple( 'yap_query', 'query owner')
-jupyter_query = namedtuple( 'jupyter_query', 'vars dict')
-python_query = namedtuple( 'python_query', 'vars dict')
-yapi_query = namedtuple( 'yapi_query', 'vars dict')
-show_answer = namedtuple( 'show_answer', 'vars dict')
-set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
-
-
-def named( name, arity):
+def name( name, arity):
     try:
-        if  arity > 0 and name.isidentifier() and not keyword.iskeyword(name):
+        if  arity > 0 and name.isidentifier(): # and not keyword.iskeyword(name):
             s = []
             for i in range(arity):
                 s += ["A" + str(i)]
-            f2p[arity][name] = namedtuple(name, s)
+            return namedtuple(name, s)
     except:
-        f2p[fails][name] = True
+        return None
 
 class PrologPredicate( YAPPrologPredicate ):
     """ Interface to Prolog  Predicate"""
 
-class v(YAPVarTerm):
+class v(YAPVarTerm,v0):
     def __init__(self):
-        super().__init__()
+        YAPVarTerm.__init__()
 
     def binding(self):
         return self.term()
 
-def numbervars(  q ):
-    Dict = {}
-    if True:
-        engine.goal(show_answer( q.namedVars(), Dict))
-        return Dict
-    rc = q.namedVarsVector()
-    q.r = q.goal().numbervars()
-    o = []
-    for i  in rc:
-        if len(i) == 2:
-            do = str(i[0]) + " = " + str( i[1] ) + "\n"
-            o += do
-        else:
-            do = str(i[0]) + " = " + str( i[1] ) + "\n"
-            o += do
-    return o
 
 class YAPShell:
 
+    def numbervars( self ):
+        Dict = {}
+        self.engine.goal(show_answer( self, Dict))
+        return Dict
+        # rc = self.q.namedVarsVector()
+        # self.q.r = self.q.goal().numbervars()
+        # o = []
+        # for i  in rc:
+        #     if len(i) == 2:
+        #         do = str(i[0]) + " = " + str( i[1] ) + "\n"
+        #         o += do
+        #     else:
+        #         do = str(i[0]) + " = " + str( i[1] ) + "\n"
+        #         o += do
+        # return o
 
 
-
-    def query_prolog(self, engine, query):
+    def query_prolog(self, query):
         #import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
@@ -172,12 +145,12 @@ class YAPShell:
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
         do_ask = True
-        self.e = engine
+        engine = self.engine
         bindings = []
         g = python_query(self, query)
         if not self.q:
-            self.it = IQuery( engine, g )
-        for bind in self.it:
+            self.q = Query( engine, g )
+        for bind in self.q:
             bindings += [bind]
             if do_ask:
                 print(bindings)
@@ -214,7 +187,7 @@ class YAPShell:
                 if not s:
                     loop = False
                 else:
-                    self.query_prolog(engine, s)
+                    self.query_prolog(s)
             except SyntaxError as err:
                 print("Syntax Error error: {0}".format(err))
             except EOFError:
@@ -233,13 +206,13 @@ class YAPShell:
     # engine = yap.YAPEngine(yap.YAPParams());
     #
     def __init__(self, engine, **kwargs):
-       self.live(engine)
+        self.engine = engine
+        self.live(engine)
 
 
 
 def main():
     engine = Engine()
-    handler = numbervars
     YAPShell(engine)
 
 if __name__ == "__main__":

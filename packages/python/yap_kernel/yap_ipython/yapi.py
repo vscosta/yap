@@ -39,6 +39,7 @@ completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
 streams = namedtuple('streams', ' text' )
 
+global  engine
 
 class YAPInputSplitter(InputSplitter):
     """An input splitter that recognizes all of iyap's special syntax."""
@@ -106,11 +107,10 @@ class YAPInputSplitter(InputSplitter):
     def validQuery(self, text, engine, shell, line=None):
         """Return whether a legal query
         """
-        if text == shell.os:
+        if shell and text == shell.os:
             return True
         if not  line:
             line = text.rstrip()
-            (line, _, _, _)=self.shell.clean_end(line)
         self.errors = []
         engine.mgoal(errors(self, line),"user")
         return self.errors != []
@@ -181,7 +181,7 @@ class YAPInputSplitter(InputSplitter):
         if self.transformer_accumulating:
             return True
         else:
-            return self.validQuery(self.source, self.yapeng, self)
+            return self.validQuery(self.source, engine, self.shell)
 
     def transform_cell(self, cell):
         """Process and translate a cell of input.
@@ -509,6 +509,8 @@ class YAPRun:
     def __init__(self, shell):
         self.shell = shell
         self.yapeng = Engine()
+        global engine
+        engine = self.yapeng
         self.yapeng.goal(use_module(library("jupyter")))
         self.query = None
         self.os = None
@@ -542,6 +544,7 @@ class YAPRun:
                 pg = jupyter_query( self, program, query)
                 self.query =  self.yapeng.query(  pg)
                 self.query.port = "call"
+                self.query.answer = {}
             else:
                 self.query.port   = "retry"
                 self.os = s

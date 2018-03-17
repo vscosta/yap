@@ -168,14 +168,12 @@ extern void pyErrorHandler__(int line, const char *file, const char *code);
     }                                                                          \
   }
 
-#define pyErrorAndReturn(x, y)                                                 \
+#define pyErrorAndReturn(x)                                                    \
   {                                                                            \
     if (PyErr_Occurred()) {                                                    \
       pyErrorHandler__(__LINE__, __FILE__, __FUNCTION__);                      \
-      return (x);                                                              \
-    } else {                                                                   \
-      return (x);                                                              \
     }                                                                          \
+    return (x);                                                                \
   }
 // #define pyErrorAndReturn( x, y ) return x
 

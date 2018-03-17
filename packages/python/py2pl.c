@@ -207,6 +207,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 }
 
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
+
   term_t t = PL_new_term_ref();
   if (pVal == NULL || !python_to_term(pVal, t)) {
     PL_reset_term_refs(t);

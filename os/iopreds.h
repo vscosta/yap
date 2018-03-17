@@ -31,9 +31,8 @@ INLINE_ONLY EXTERN inline bool IsStreamTerm(Term t) {
           (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
 }
 
-extern bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                           encoding_t encoding, stream_flags_t flags,
-                           Atom open_mode, void *vfs);
+extern bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Term file_name, encoding_t encoding,
+                           stream_flags_t flags, void *vfs);
 
 #define Yap_CheckStream(arg, kind, msg)                                        \
   Yap_CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
