@@ -30,4 +30,4 @@ else:
         dll = glob.glob(os.path.join(os.path.dirname(__file__),dll))[0]
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll)
-    load('_yap*.so')
+    #load('_yap*.so')

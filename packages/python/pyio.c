@@ -51,15 +51,17 @@ VFS_t pystream;
   if (strstr(name, "/python/") == name)
     name += strlen("/python/");
 #endif
+  term_t ctk = python_acquire_GIL();
     PyObject *pystream = string_to_python(name, true, NULL);
     if (pystream == NULL || pystream == Py_None) {
+      python_release_GIL(ctk);
       return NULL;
     } 
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
-  if  (0&&strcmp(name,"sys.stdout") == 0) {
+  if  (strcmp(name,"sys.stdout") == 0) {
     st->user_name = TermOutStream;
-  } else if(0&&strcmp(name,"sys.stderr") == 0) {
+  } else if(strcmp(name,"sys.stderr") == 0) {
     st->user_name = TermErrStream;
   } else {
     st->user_name = YAP_MkAtomTerm(st->name);
@@ -67,12 +69,19 @@ VFS_t pystream;
   // we assume object is already open, so there is no need to open it.
   st->u.private_data = pystream;
   st->vfs = me;
+   python_release_GIL(ctk);
   return st;
 }
 
 static bool py_close(int sno) {
   StreamDesc *st = YAP_RepStreamFromId(sno);
+  if (strcmp(st->name,"sys.stdout") &&
+      strcmp(st->name,"sys.stderr")) {
   Py_XDECREF(st->u.private_data);
+  }
+      st->u.private_data = NULL;
+  st->vfs = NULL;
+
   return true;
 }
 
@@ -142,7 +151,7 @@ static int py_peek(int sno) {
 
 static int64_t py_seek(int sno, int64_t where, int how) {
   StreamDesc *g0 = YAP_RepStreamFromId(sno);
-  PyGILState_STATE s0 =   python_acquire_GIL();
+  term_t s0 =   python_acquire_GIL();
   PyObject *fseek = PyObject_GetAttrString(g0->u.private_data, "seek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fseek, PyLong_FromLong(where),
                                                PyLong_FromLong(how), NULL);
@@ -152,7 +161,7 @@ return PyLong_AsLong(pyr);
 
 static void py_flush(int sno) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
-  PyGILState_STATE  tg =   python_acquire_GIL();
+  term_t  tg =   python_acquire_GIL();
   PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
   PyObject_CallFunction(flush, NULL);
     python_release_GIL(tg);

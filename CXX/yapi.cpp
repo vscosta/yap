@@ -440,10 +440,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
       //q.e = new YAPError();
     }
     // don't forget, on success these bindings will still be there);
-    PyThreadState *tstate;
-Py_BEGIN_ALLOW_THREADS
     result = YAP_LeaveGoal(false, &q);
-    Py_END_ALLOW_THREADS
     Yap_CloseHandles(q.CurSlot);
     LOCAL_RestartEnv = oj;
     RECOVER_MACHINE_REGS();
@@ -462,7 +459,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   PyThreadState *_save;
 
-  _save = PyEval_SaveThread();
+  //  _save = PyEval_SaveThread();
   try {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
@@ -489,7 +486,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     // allow Prolog style exception handling
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      PyEval_RestoreThread(_save);
+      //      PyEval_RestoreThread(_save);
   std::cerr << "Restart\n";
         //throw new YAPError();
     }
@@ -498,7 +495,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
     {
       YAP_LeaveGoal(false, &q);
-      PyEval_RestoreThread(_save);
+      //      PyEval_RestoreThread(_save);
       LOCAL_RestartEnv = oldp;
       RECOVER_MACHINE_REGS();
       return result;
@@ -506,7 +503,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   } catch (YAPError e) {
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
-    PyEval_RestoreThread(_save);
+    //    PyEval_RestoreThread(_save);
   LOCAL_RestartEnv = oldp;
     return 0;
     //throw e;

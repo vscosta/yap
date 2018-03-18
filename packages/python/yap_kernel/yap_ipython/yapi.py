@@ -716,7 +716,8 @@ class YAPRun:
             if linec:
                 self.shell.run_line_magic(magic, line)
             else:
-                self.shell.run_cell_magic(magic, line, cell)
+                print(txt0[1])
+                self.shell.run_cell_magic(magic, line, txt0[1])
                 cell = ""
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.

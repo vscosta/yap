@@ -2664,22 +2664,21 @@ class InteractiveShell(SingletonConfigurable):
         print("go")
         result = None
         try:
-            import trace
-            tracer = trace.Trace(
-                #ignoredirs=[sys.prefix, sys.exec_prefix],
-                trace=1,
-                count=0)
+            # import trace
+            # tracer = trace.Trace(
+            #     #ignoredirs=[sys.prefix, sys.exec_prefix],
+            #     trace=1,
+            #     count=0)
 
-            # run the new command using the given tracer
-            #
-            result =tracer.runfunc(self._yrun_cell,
-                                   raw_cell, store_history,
-                                   silent, shell_futures)
+            # # run the new command using the given tracer
+            # #
+            # result =tracer.runfunc(self._yrun_cell,
+            #                        raw_cell, store_history,
+            #                        silent, shell_futures)
 
-        #     result = self._yrun_cell(
-        #                raw_cell, store_history, silent, shell_futures)
+            result = self._yrun_cell(
+                       raw_cell, store_history, silent, shell_futures)
         finally:
-            print("ugh", self.events)
             self.events.trigger('post_execute')
             if not silent:
                 self.events.trigger('post_run_cell', result)

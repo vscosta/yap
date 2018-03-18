@@ -228,7 +228,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
   st->file = f = NULL;
   flags = Input_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
-  Yap_initStream(sno, f, ""wa", TermNil, encoding, flags, AtomRead, NULL);
+  Yap_initStream(sno, f, "wa", TermNil, encoding, flags, AtomRead, NULL);
   // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;

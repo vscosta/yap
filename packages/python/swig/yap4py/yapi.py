@@ -1,5 +1,5 @@
 import readline
-from yap4py.yap import YAPEngine, YAPEngineArgs, YAPPredicate, YAPQuery, YAPPrologPredicate, YAPVarTerm
+from yap4py.yap import *
 from os.path import join, dirname
 from collections import namedtuple
 import sys
@@ -144,7 +144,7 @@ class YAPShell:
         #    if not isinstance(eq[0],str):
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
-        do_ask = True
+        self.do_ask = True
         engine = self.engine
         bindings = []
         g = python_query(self, query)
@@ -152,7 +152,7 @@ class YAPShell:
             self.q = Query( engine, g )
         for bind in self.q:
             bindings += [bind]
-            if do_ask:
+            if self.do_ask:
                 print(bindings)
                 bindings = []
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
@@ -166,7 +166,7 @@ class YAPShell:
                 except:
                     raise
             elif s.startswith('*') or s.startswith('a'):
-                do_ask = False
+                self.do_ask = False
                 continue
             else:
                 break

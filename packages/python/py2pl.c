@@ -215,7 +215,7 @@ X_API YAP_Term pythonToYAP(PyObject *pVal) {
   }
   YAP_Term tt = YAP_GetFromSlot(t);
   PL_reset_term_refs(t);
-  Py_DECREF(pVal);
+  //Py_DECREF(pVal);
   return tt;
 }
 
