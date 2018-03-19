@@ -19,7 +19,6 @@ requirements:
     - libxml2
     - backcall
 run:
-    - backcall
     - jupyterlab
     - python
     - readline
