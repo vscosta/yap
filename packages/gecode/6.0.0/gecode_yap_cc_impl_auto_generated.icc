@@ -112,8 +112,8 @@ static IntPropLevel gecode_IntPropLevel_from_term(YAP_Term X)
   if (X==gecode_IPL_VAL) return IPL_VAL;
   if (X==gecode_IPL_BND) return IPL_BND;
   if (X==gecode_IPL_DOM) return IPL_DOM;
-  if (X==gecode_IPL_SPEED) return IPL_SPEED;
-  if (X==gecode_IPL_MEMORY) return IPL_MEMORY;
+  // if (X==gecode_IPL_SPEED) return IPL_SPEED;
+  // if (X==gecode_IPL_MEMORY) return IPL_MEMORY;
   if (X==gecode_IPL_BASIC) return IPL_BASIC;
   if (X==gecode_IPL_ADVANCED) return IPL_ADVANCED;
   if (X==gecode_IPL_BASIC_ADVANCED) return IPL_BASIC_ADVANCED;

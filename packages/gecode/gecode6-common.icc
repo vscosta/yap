@@ -67,42 +67,39 @@ namespace generic_gecode
 
     class GenericSpace;
 
-
     struct GenericEngine
     {
-         GenericSpace* next(void);
-       // virtual ~GenericEngine() {};
+        virtual GenericSpace* next(void)=0;
+        virtual ~GenericEngine() {};
     };
 
-  struct GenericDFS: GenericEngine
-  {
-    DFS<GenericSpace> engine;
-    GenericDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
-     GenericSpace* next(void) { return engine.next(); }
-  };
+    struct GenericDFS: GenericEngine
+    {
+        DFS<GenericSpace> engine;
+        GenericDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
+        virtual GenericSpace* next(void) { return engine.next(); }
+    };
 
-  struct GenericRestartDFS: GenericEngine
-  {
-    RBS<GenericSpace,DFS> engine;
-    GenericRestartDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
-     GenericSpace* next(void) { return engine.next(); }
-  };
-
-
+    struct GenericRestartDFS: GenericEngine
+    {
+        RBS<GenericSpace,DFS> engine;
+        GenericRestartDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
+        virtual GenericSpace* next(void) { return engine.next(); }
+    };
 
     struct GenericBAB: GenericEngine
-  {
-    BAB<GenericSpace> engine;
-    GenericBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
-     GenericSpace* next(void) { return engine.next(); }
-  };
+    {
+        BAB<GenericSpace> engine;
+        GenericBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
+        virtual GenericSpace* next(void) { return engine.next(); }
+    };
 
-  struct GenericRestartBAB: GenericEngine
-  {
-    RBS<GenericSpace,BAB> engine;
-    GenericRestartBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
-     GenericSpace* next(void) { return engine.next(); }
-  };
+    struct GenericRestartBAB: GenericEngine
+    {
+        RBS<GenericSpace,BAB> engine;
+        GenericRestartBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
+        virtual GenericSpace* next(void) { return engine.next(); }
+    };
 
 #ifdef OLD
   struct GenericRestart: GenericEngine
@@ -226,10 +223,10 @@ namespace generic_gecode
    public:
      Space* space() { return this; }
 
-        GenericSpace copy(bool share)
-       { freeze(); return *new GenericSpace(share, *this); }
+       Space* copy(bool share)
+       { freeze(); return new GenericSpace(share, *this); }
 
-
+       Space* copy(void) {return copy(false);}
     GenericSpace(bool share, GenericSpace& s)
       : Space(  s), optim(s.optim), dock(NULL), keeping_some(s.keeping_some)
     {
