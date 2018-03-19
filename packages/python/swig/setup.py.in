@@ -69,7 +69,7 @@ elif platform.system() == 'Darwin':
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,${CMAKE_INSTALL_FULL_LIBDIR}','-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,@CMAKE_INSTALL_FULL_LIBDIR@','-Wl,-rpath,'+join('@CMAKE_INSTALL_FULL_LIBDIR@','..'),'-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 

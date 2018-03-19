@@ -19,7 +19,7 @@ file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/yap4py)
 set(YAP4PY_PL prolog/yapi.yap)
 set(YAP4PY_PY  yap4py/__main__.py yap4py/yapi.py)
 
-configure_file("setup.py.in" setup.py)
+configure_file("setup.py.in" ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 configure_file("MANIFEST.in" ${CMAKE_CURRENT_BINARY_DIR}/MANIFEST.in)
 configure_file("YAP4PY.md" README.md)
 configure_file(yap4py/__init__.py.in yap4py/__init__.py)

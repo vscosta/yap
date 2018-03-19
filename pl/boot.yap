@@ -463,10 +463,3 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- yap_flag(user:unknown,error).
 
 
-:- compile('../myddas').
-
-:- start_low_level_trace.
-
-%:- db_open(sqlite3, '/asssets/Yap/chinook.db', _, _).
-
-:- compile('../test').

@@ -88,64 +88,15 @@ static Int c_sqlite3_connect(USES_REGS1) {
 
   CALL_SQLITE(ARG1, open(file, &db));
 
-  if (!Yap_unify(arg_db, MkAddressTerm(db)))
+  if (!Yap_unify(arg_db, MkAddressTerm(db))) {
     return FALSE;
-  else {
+ } else {
     /* Criar um novo no na lista de ligacoes*/
     new = myddas_util_add_connection(db, NULL, API_SQLITE3);
 
     if (new == NULL) {
 #ifdef DEBUG
-      fprintf(stderr, "ERROR: ** c_db_my_connect ** Error allocating memory\n");135761 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4011d 240 0 FAIL RETRY:  prolog:$user_expansion(user:main, _135757:_135758 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4012d 173 0 CALL:  prolog:$import_expansion(user:main, _135760:_135761 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4013d 239 0 CALL:  prolog:$imported_predicate(main, user, _135761, _135760 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4014d 255 0 CALL:  prolog:$is_system_predicate(main, prolog )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4015d 255 0 FAIL RETRY:  prolog:$imported_predicate(main, user, _135761, _135760 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4016d 239 0 CALL:  prolog:$undefined(main, user )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4017d 239 0 FAIL RETRY:  prolog:$import_expansion(user:main, _135760:_135761 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4018d 173 0 CALL:  prolog:$meta_expansion(user:main, user, [], _1048348 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4019d 238 0 CALL:  prolog:$yap_strip_module(user:main, _135763, _1048327 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4020d 238 0 CALL:  prolog:functor(main, _135766, _135767 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4021d 238 0 CALL:  prolog:$meta_predicate(main, user, 0, _1048328 )
-03-16 17:31:30.590 25588-25588/? E/YAPDroid: 4022d 238 0 FAIL RETRY:  prolog:$meta_expansion(user:main, user, [], _1048348 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4023d 173 0 CALL:  prolog:$yap_strip_module(user:main, _135763, _135764 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4024d 173 0 CALL:  prolog:$yap_strip_module(user:main, _135765, _135766 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4025d 173 0 CALL:  prolog:$end_goal_expansion(main, _135738, _135740, user, user, user, :-user:main )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4026d 173 0 CALL:  prolog:$match_mod(main, user, user, user, _135738 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4027d 173 0 CALL:  prolog:$is_system_predicate(main, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4028d 173 0 TRY_OR
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4029d 216 0 CALL:  prolog:==(user, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4030d 216 0 CALL:  prolog:==(user, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4031d 173 0 CALL:  prolog:$c_built_in(main, user, :-user:main, _1048378 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4032d 209 0 CALL:  prolog:get_value('$c_arith', true )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4033d 173 0 CALL:  prolog:do_c_built_in(main, user, :-user:main, _1048378 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4034d 220 0 CALL:  prolog:$compop(main, _1048340, _1048341, _1048343 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4035d 220 0 FAIL RETRY:  prolog:do_c_built_in(main, user, :-user:main, _1048378 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4036d 220 0 CALL:  prolog:$yap_strip_module(user:main, _135770, _135771 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4037d 220 0 CALL:  prolog:$match_mod(main, user, user, user, _135740 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4038d 220 0 CALL:  prolog:$is_system_predicate(main, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4039d 220 0 TRY_OR
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4040d 236 0 CALL:  prolog:==(user, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4041d 236 0 CALL:  prolog:==(user, user )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4042d 220 0 CALL:  prolog:$yap_strip_module(user: (:-main), _135727, _135728 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4043d 158 0 TRY_OR
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4044d 172 0 CALL:  prolog:==(158, 158 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4045d 105 0 CALL:  prolog:$yap_strip_module(user: (:-main), _1048434, _135775 )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4046d 105 0 TRY_OR
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4047d 105 0 CALL:  prolog:$process_directive(main, reconsult, user, [], '$stream_position'(1342,80,1,0) )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4048d 130 0 FAIL RETRY:  prolog:$process_directive(main, reconsult, user, [], '$stream_position'(1342,80,1,0) )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4049d 130 0 FAIL RETRY:  prolog:$process_directive(main, reconsult, user, [], '$stream_position'(1342,80,1,0) )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4050d 130 0 CALL:  prolog:$all_directives(main )
-03-16 17:31:30.591 25588-25588/? E/YAPDroid: 4051d 130 0 CALL:  prolog:$directive(main )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4052d 130 0 FAIL RETRY:  prolog:$process_directive(main, reconsult, user, [], '$stream_position'(1342,80,1,0) )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4053d 130 0 CALL:  prolog:current_prolog_flag(language_mode, iso )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4054d 130 0 FAIL RETRY:  prolog:$process_directive(main, reconsult, user, [], '$stream_position'(1342,80,1,0) )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4055d 130 0 CALL:  prolog:$execute(user:main )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4056d 130 0 CALL:  user:main
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4057d 130 0 CALL:  user:init
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4058d 130 0 CALL:  user:db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _1048428, _1048429 )
-03-16 17:31:30.592 25588-25588/? E/YAPDroid: 4059d 130 0 CALL:  user:db_open(sqlite3, myddas, '/data/user/0/pt.up.yap.yapdr
+      fprintf(stderr, "ERROR: ** c_db_my_connect ** Error allocating memory\n");
 #endif
       return FALSE;
     }
@@ -714,17 +665,10 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 
 X_API void init_sqlite3(void) {
  Yap_InitMYDDAS_SQLITE3Preds();
+
  Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
-#if _ANDROID_
-//JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
-
-// JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
-init_sqlite3();
-}
-
-#endif
 
 #ifdef _WIN32
 

@@ -54,5 +54,5 @@ install(TARGETS sqlite4YAP
         )
 endif()
 
-    file (INSTALL  chinook.db test.yap DESTINATION ${libpl})
 
+  #  file (INSTALL  chinook.db test.yap DESTINATION ${libpl})
