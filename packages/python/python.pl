@@ -34,8 +34,8 @@
 		   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
-	   op(950,fx,<-),
-	   op(950,yfx,<-),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
 	   op(50, yf, []),
 	   op(50, yf, '()'),
 	   op(100, xfy, '.'),
@@ -112,8 +112,9 @@ Data types are
 
 :- multifile user:(:=)/2,
         user:(:=)/1,
-        user:(<-)/1,
-        user:(<-)/2, user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
+				%        user:(<-)/1,
+				%        user:(<-)/2,
+	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).
@@ -139,11 +140,13 @@ user:(:= F) :- catch( python:python_proc(F), _, fail ).
 user:( V := F ) :-
     python:python_assign(F, V).
 
+/*
 user:(<- F) :-
 	catch( python:python_proc(F), _, fail ).
 
 user:(V <- F) :-
 	V := F.
+*/
 
 python:python_import(Module) :-
     python:python_import(Module, _).

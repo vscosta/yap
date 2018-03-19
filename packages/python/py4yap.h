@@ -63,7 +63,7 @@ extern  bool init_python_vfs(void);
     ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil,
     ATOM_brackets, ATOM_curly_brackets;
 
-extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
+extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2,
     FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
     FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_iter2, FUNCTOR_long1,
     FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,

@@ -2661,7 +2661,6 @@ class InteractiveShell(SingletonConfigurable):
         result : :class:`ExecutionResult`
         """
 
-        print("go")
         result = None
         try:
             # import trace

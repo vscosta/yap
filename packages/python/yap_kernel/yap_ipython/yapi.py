@@ -555,9 +555,6 @@ class YAPRun:
                 self.bindings += [answer]
                 self.iterations += 1
                 if stop and howmany == self.iterations:
-                    self.query.close()
-                    self.query = None
-                    self.os = None
                     return True, self.bindings
                 if self.query.port  == "exit":
                     self.query.close()
@@ -565,13 +562,13 @@ class YAPRun:
                     self.os = None
                     sys.stderr.writeln('Done, with', self.bindings)
                     return True,self.bindings
+            if self.bindings:
+                sys.stderr.write('Done, with', self.bindings, '\n')
+            else:
                 self.query.close()
                 self.query = None
                 self.os = None
-                if self.bindings:
-                    sys.stderr.write('Done, with', self.bindings, '\n')
-                else:
-                    sys.stderr.write('Fail\n')
+                sys.stderr.write('Fail\n')
             return True,{}
         except Exception as e:
             has_raised = True
@@ -614,7 +611,7 @@ class YAPRun:
         # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, strings, In this case
         # variable names should match strings
@@ -655,19 +652,6 @@ class YAPRun:
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
         cell = raw_cell  # cell has to exist so it can be stored/logged
-        # else:
-        #     if False and len(cell.splitlines()) == 1:
-        #         # Dynamic transformations - only applied for single line commands
-        #         with self.shell.builtin_trap:
-        #             try:
-        #                 # use prefilter_lines to handle trailing newlines
-        #                 # restore trailing newline for ast.parse
-        #                 cell = self.shell.prefilter_manager.prefilter_lines(cell) + '\n'
-        #             except Exception:
-        #                 # don't allow prefilter errors to crash IPython
-        #                 preprocessing_exc_tuple = sys.exc_info()
-
-
         for i in self.syntaxErrors(raw_cell):
             try:
                 (what,lin,_,text) = i
@@ -683,18 +667,17 @@ class YAPRun:
         if not silent:
             self.shell.logger.log(cell, raw_cell)
         # # Display the exception if input processing failed.
-        # if preprocessing_exc_tuple is not None:
-        #     self.showtraceback(preprocessing_exc_tuple)
-        #     if store_history:
-        #         self.shell.execution_count += 1
-        #     return error_before_exec(preprocessing_exc_tuple[2])
+        if preprocessing_exc_tuple is not None:
+            self.showtraceback(preprocessing_exc_tuple)
+            if store_history:
+                self.shell.execution_count += 1
+            return error_before_exec(preprocessing_exc_tuple[2])
 
         # Our own compiler remembers the __future__ environment. If we want to
         # run code with a separate __future__ environment, use the default
         # compiler
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
         cell_name = str( self.shell.execution_count)
-
         if cell[0] == '%':
             if cell[1] == '%':
                 linec = False
@@ -709,15 +692,15 @@ class YAPRun:
                 line = txt[1]
             else:
                 line = ""
-            if len(txt0) == 2:
-                cell = txt0[1]
-            else:
-                cell = ""
             if linec:
                 self.shell.run_line_magic(magic, line)
             else:
-                print(txt0[1])
-                self.shell.run_cell_magic(magic, line, txt0[1])
+                print("txt0: ",txt0,"\n")
+                if len(txt0) == 1:
+                    cell = ""
+                else:
+                    body = txt0[1]+'\n'+txt0[2]
+                self.shell.run_cell_magic(magic, line, body)
                 cell = ""
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
@@ -729,16 +712,16 @@ class YAPRun:
             if cell.strip('\n \t'):
                  #create a Trace object, telling it what to ignore, and whether to
                  # do tracing or line-counting or both.
-                 tracer = trace.Trace(
-                     #ignoredirs=[sys.prefix, sys.exec_prefix],
-                     trace=1,
-                     count=0)
-
-                 def f(self, cell):
-                     self.jupyter_query( cell )
+                 # tracer = trace.Trace(
+                 #     #ignoredirs=[sys.prefix, sys.exec_prefix],
+                 #     trace=1,
+                 #     count=0)
+                 #
+                 # def f(self, cell):
+                 #     self.jupyter_query( cell )
 
                  # run the new command using the given tracer
-                 # 
+                 #
                  try:
                      self.yapeng.mgoal(streams(True),"user")
                      #state = tracer.runfunc(f,self,cell)
@@ -746,7 +729,7 @@ class YAPRun:
                      self.yapeng.mgoal(streams(False),"user")
                  except Exception as e:
                      has_raised = True
-                     self.yapeng.mgoal(streams("off"),"user")                
+                     self.yapeng.mgoal(streams("off"),"user")
             if state:
                 self.shell.last_execution_succeeded = True
                 self.result.result    = (True, dicts)

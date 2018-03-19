@@ -14,13 +14,13 @@ static int py_put(int sno, int ch)
   // PyObject *pyw_data;
   StreamDesc *st = YAP_GetStreamFromId(sno);
   if (st->user_name == TermOutStream) {
-    PyGILState_STATE tg = python_acquire_GIL();
+    term_t tg = python_acquire_GIL();
     PySys_WriteStdout("%C", ch);
       python_release_GIL(tg);
    return ch;
   }
   if (st->user_name == TermErrStream) {
-     PyGILState_STATE tg = python_acquire_GIL();
+     term_t tg = python_acquire_GIL();
    PySys_WriteStderr("%C", ch);
       python_release_GIL(tg);
     return ch;
@@ -29,7 +29,7 @@ static int py_put(int sno, int ch)
   PyObject *err;
   s[0] = ch;
   s[1] = '\0';
-   PyGILState_STATE g0 = python_acquire_GIL();
+  term_t g0 = python_acquire_GIL();
   PyObject_CallMethodObjArgs(st->u.private_data, PyUnicode_FromString("write"),
                              PyUnicode_FromString(s), NULL);
   python_release_GIL(g0);
@@ -88,10 +88,12 @@ static bool py_close(int sno) {
 static bool getLine(int inp) {
   char *myrl_line = NULL;
     StreamDesc *rl_instream = YAP_RepStreamFromId(inp);
-  PyObject*prompt  = PyUnicode_FromString( "?- "),
+   term_t ctk = python_acquire_GIL();
+ PyObject*prompt  = PyUnicode_FromString( "?- "),
   *msg = PyUnicode_FromString("");
   /* window of vulnerability opened */
   myrl_line = PyUnicode_AsUTF8(PyObject_CallFunctionObjArgs(rl_instream->u.private_data,msg,prompt,NULL));
+  python_release_GIL(ctk);
   rl_instream->u.irl.ptr = rl_instream->u.irl.buf = (const unsigned char*)myrl_line;
   myrl_line = NULL;
   return true;

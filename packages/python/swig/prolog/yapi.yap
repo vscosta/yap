@@ -1,3 +1,4 @@
+
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -21,7 +22,9 @@
 :- reexport( library(python) ).
 
 :- python_import(yap4py.yapi).
-:- python_import(gc).
+%:- python_import(gc).
+
+:- meta_predicate( yapi_query(:,+) ).
 
 %:- start_low_level_trace.
 
