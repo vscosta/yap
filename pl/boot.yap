@@ -251,11 +251,7 @@ initialize_prolog :-
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 
-:- start_low_level_trace.
-
 :- ['absf.yap'].
-
-:- stop_low_level_trace.
 
 :- use_module('error.yap').
 

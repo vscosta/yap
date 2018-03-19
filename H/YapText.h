@@ -440,8 +440,33 @@ static inline seq_type_t mod_to_type(Term mod USES_REGS) {
 }
 
 // string type depends on current module
-static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
+static inline seq_type_t mod_to_atype(Term mod USES_REGS) {
 
+  // see pl-incl.h
+  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+  if (flags & SNGQ_ATOM) {
+    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
+  } else if (flags & SNGQ_STRING) {
+    return YAP_STRING_STRING;
+  } else if (flags & SNGQ_CHARS) {
+    return YAP_STRING_ATOMS;
+  }
+  return YAP_STRING_CODES;
+}
+
+// string type depends on current module
+static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
+  Term t2;
+  if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
+    if (t2 == TermString) {
+    return YAP_STRING_STRING;
+    } else if (t2 == TermAtom) {
+      return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
+    } else if (t2 == TermCodes) {
+       return YAP_STRING_CODES;
+    }
+    return YAP_STRING_ATOMS;
+  }    
   // see pl-incl.h
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
@@ -904,6 +929,21 @@ static inline Term Yap_CharsToString(const char *s, encoding_t enc USES_REGS) {
 
 static inline char *Yap_AtomToUTF8Text(Atom at USES_REGS) {
   return RepAtom(at)->StrOfAE;
+}
+
+static inline Term Yap_CharsToTAQ(const char *s, Term mod,
+				  encoding_t enc USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.c0 = s;
+  inp.type = YAP_STRING_CHARS;
+  inp.mod = mod;
+  inp.enc = enc;
+  out.type = mod_to_atype(mod PASS_REGS);
+  out.val.uc = NULL;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
 }
 
 static inline Term Yap_CharsToTDQ(const char *s, Term mod,

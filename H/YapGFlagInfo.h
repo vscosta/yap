@@ -90,9 +90,9 @@ running on an Apple machine.
     YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
     YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
              booleanFlag, "true", NULL),
-    YAP_FLAG(BACKQUOTED_STRING_FLAG, "backquoted_string", true, isatom,
-             "string", ), /**>
-If  _Value_ is unbound, tell whether a double quoted list of characters
+    YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom,
+             "string", bqs), /**>
+If  _Value_ is unbound, tell whether a back quoted list of characters
 token is converted to a list of atoms, `chars`, to a list of integers,
 `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
 the corresponding behavior. The default value is `string`
@@ -174,7 +174,7 @@ If `off` (default)  consider the character `$` a control character, if
 `on` consider `$` a lower case character.
 */
     YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, isatom, "codes",
-             dqf), /**< `double_quotes is iso `
+             dqs), /**< `double_quotes is iso `
 
 If  _Value_ is unbound, tell whether a double quoted list of characters
 token is converted to a list of atoms, `chars`, to a list of integers,
@@ -383,6 +383,9 @@ Name of the environment variable used by the system to search for shared
 objects.
 
 				   */
+    YAP_FLAG(SINGLE_QUOTES_FLAG, "single_quotes", true, isatom, "atom",
+             sqf), /**< `single_quoted text is usuallly interpreted as atoms. This flagTerm allows other inerpretations such as strings_contains_strings */ 
+
   YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true",
 	   NULL), /**< `signals`
 

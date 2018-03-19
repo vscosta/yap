@@ -68,8 +68,7 @@ set (MPI_YAP_SOURCES
   # pass to the MPI program.
   #
 
-  add_executable (yap_mpi ${MPI_YAP_SOURCES} Yaplib ../../console/yap.c)
-
+  add_executable (yap_mpi ${MPI_YAP_SOURCES}  ../../console/yap.c)
   target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
 
   set_target_properties (yap_mpi PROPERTIES PREFIX "")
@@ -77,10 +76,11 @@ set (MPI_YAP_SOURCES
   include_directories (${MPI_C_INCLUDE_PATH})
 
   add_definitions (-DHAVE_MPI_H=1)
-    target_compile_definitions(yap_mpi  ${MPI_C_COMPILE_FLAGS})
+    target_compile_definitions(yap_mpi
+    PRIVATE ${MPI_C_COMPILE_FLAGS})
 
   install(TARGETS  yap_mpi
-    RUNTIME DESTINATION ${YAP_INSTALL_BDIR}
+    RUNTIME DESTINATION ${bindir}
     )
 
   endif (MPI_C_FOUND)

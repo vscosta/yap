@@ -279,6 +279,11 @@ INLINE_ONLY inline EXTERN bool IsModProperty(int flags) {
 #define UNKNOWN_MASK                                                           \
   (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
    UNKNOWN_ABORT | UNKNOWN_HALT)
+#define SNGQ_CHARS (0x10000)   /* 'ab' --> [a, b] */
+#define SNGQ_ATOM (0x20000)    /* 'ab' --> ab */
+#define SNGQ_STRING (0x40000)  /* 'ab' --> "ab" */
+#define SNGQ_CODES (0x80000)   /* 'ab' --> [0'a, 0'b] */
+#define SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
 
 Term Yap_getUnknownModule(ModEntry *m);
 void Yap_setModuleFlags(ModEntry *n, ModEntry *o);
