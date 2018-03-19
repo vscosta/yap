@@ -10,7 +10,7 @@ extern "C" {
 #include "android/log.h"
 #endif
 
-#if 1
+#if YAP_PYTHON
 #include "Python.h"
 #endif
 
@@ -457,9 +457,11 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
 bool YAPEngine::mgoal(Term t, Term tmod) {
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
-  PyThreadState *_save;
+#if YAP_PYTHON
+  //PyThreadState *_save;
 
   //  _save = PyEval_SaveThread();
+#endif
   try {
     CACHE_REGS
     BACKUP_MACHINE_REGS();

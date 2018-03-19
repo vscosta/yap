@@ -15,7 +15,11 @@ if ( WIN32 OR ANDROID)
   set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
 else()
    add_lib(YAP++ ${CXX_SOURCES} )
-   target_link_libraries(YAP++ ${CMAKE_DL_LIBS} Py4YAP libYap)
+   if (WITH_PYTHON)
+     target_link_libraries(YAP++ Py4YAP )
+   endif()
+    target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
+  
 
    MY_install(TARGETS  YAP++
      LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
