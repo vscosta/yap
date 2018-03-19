@@ -2121,7 +2121,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)));
+  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
     if (sno < 0)
         return sno;
   if (!Yap_ChDir(dirname((char *)fl))) return -1;

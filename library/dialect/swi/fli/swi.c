@@ -2200,7 +2200,7 @@ X_API int PL_initialise(int myargc, char **myargv) {
 #endif
   init_args.LIBDIR = NULL;
   init_args.BOOTFILE = NULL;
-  init_args.HaltAfterConsult = FALSE;
+  init_args.HaltAfterBoot = true;
   init_args.FastBoot = FALSE;
   init_args.MaxTableSpaceSize = 0;
   init_args.NumberWorkers = 1;
@@ -2212,9 +2212,9 @@ X_API int PL_initialise(int myargc, char **myargv) {
   GLOBAL_PL_Argc = myargc;
   GLOBAL_PL_Argv = myargv;
   GLOBAL_InitialisedFromPL = true;
-  YAP_file_type_t rc = YAP_Init(&init_args) != YAP_FOUND_BOOT_ERROR;
   ATOM_nil = YAP_SWIAtomFromAtom(AtomNil);
-  return rc;
+  YAP_Init(&init_args);
+  return true;
 }
 
 X_API int PL_is_initialised(int *argcp, char ***argvp) {

@@ -234,7 +234,7 @@ typedef struct yap_boot_params {
   //> if NON-NULL, a path to extend file-search-path
   const char *PrologAddPath;
   //> if previous NON-NULL and TRUE, halt after consulting that file
-  bool HaltAfterConsult;
+  bool HaltAfterBoot;
   //> ignore .yaprc, .prolog.ini, etc. files.
   bool FastBoot;
   //> the next field only interest YAPTAB

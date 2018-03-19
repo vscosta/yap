@@ -4913,11 +4913,15 @@ static Int cont_current_key_integer(USES_REGS1) {
 
 Term Yap_FetchTermFromDB(void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, FALSE PASS_REGS);
 }
 
 Term Yap_FetchClauseTermFromDB(void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, TRUE PASS_REGS);
 }
 

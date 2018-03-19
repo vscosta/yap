@@ -689,10 +689,10 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     find_python_module(wheel)
     find_python_module(setuptools)
     find_python_module(backcall)
-
     if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
         add_subdirectory(packages/python/yap_kernel)
     ENDIF ()
+
 endif ()
 
 
@@ -900,7 +900,7 @@ endif(NOT ANDROID)
 
 #
 
-install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
+install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${includedir}/Yap )
 
 
 

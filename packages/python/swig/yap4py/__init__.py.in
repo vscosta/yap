@@ -16,15 +16,18 @@ if platform.system() == 'Windows':
         ctypes.WinDLL(dll)
 elif platform.system() == 'Darwin':
     def load( dll ):
-        dll = glob.glob(os.path.join(os.path.realpath(__file__),dll))[0]
+        dll = glob.glob(os.path.join(os.path.dirname(__file__),dll))[0]
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll)
-    #    load('libYap.dylib')
-    #    load('libPy4YAP.dylib')
-    #load( '_yap*.dylib' )
+        print('loaded ',dll)
+        
+    # try:
+    #     load( '_yap*.so' )
+    # except:
+    #     load( '_yap*.dylib' )
 else:
     def load( dll ):
-        dll = glob.glob(os.path.join(os.path.realpath(__file__),dll))[0]
+        dll = glob.glob(os.path.join(os.path.dirname(__file__),dll))[0]
         dll = os.path.abspath(dll)
         ctypes.CDLL(dll)
-    #   \`load('_yap*.so')
+    #load('_yap*.so')

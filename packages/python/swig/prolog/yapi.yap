@@ -1,3 +1,4 @@
+
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -10,9 +11,8 @@
  		 python_query/2,
  		 yapi_query/2
  		 ]).
-:- stop_low_level_trace.
 
-     :- yap_flag(verbose, verbose).
+     :- yap_flag(verbose, silent).
 
 
 :- use_module( library(lists) ).
@@ -22,6 +22,9 @@
 :- reexport( library(python) ).
 
 :- python_import(yap4py.yapi).
+%:- python_import(gc).
+
+:- meta_predicate( yapi_query(:,+) ).
 
 %:- start_low_level_trace.
 
@@ -38,6 +41,7 @@
 %:- initialization set_preds.
 
 set_preds :-
+fail,
 	current_predicate(P, Q),
 	functor(Q,P,A),
 	atom_string(P,S),
@@ -47,6 +51,7 @@ set_preds :-
 	      fail),
 	fail.
 set_preds :-
+fail,
 	system_predicate(P/A),
 	atom_string(P,S),
 	catch(
@@ -61,14 +66,15 @@ argi(N,I,I1) :-
 	I1 is I+1.
 
 python_query( Caller, String ) :-
-    Self := Caller.it,
  	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
-	Self.port := Status,
+	Caller.port := Status,
+%  := print(  gc.get_referrers(Caller.port)),
 	write_query_answer( Bindings ),
 	nl(user_error),
-	Self.bindings := {},
-	maplist(in_dict(Self.bindings), Bindings).
+	Caller.answer := {},
+	maplist(in_dict(Caller.answer), Bindings).
+ % := print(  "b", gc.get_referrers(Caller.answer)).
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,

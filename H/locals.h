@@ -1,6 +1,6 @@
-// Stuff that must be considered local to a thread or worker
+/// Thread Local Variables. This file now follows C syntax. 
 
-// Streams
+// Macro support
 #ifndef LOCAL
 #include "Yap.h"
 #include "heap.h"
@@ -17,6 +17,7 @@
   #define LOCAL_INIT_RESTORE(A,B,C,D) A B; C; D;
 #endif
 
+/// Current bindings for std streams, includes default s
 LOCAL_INIT(int, c_input_stream, 0);
 LOCAL_INIT(int, c_output_stream, 1);
 LOCAL_INIT(int, c_error_stream, 2);

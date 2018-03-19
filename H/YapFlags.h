@@ -162,19 +162,6 @@ static inline Term list_filler(Term inp) {
   return TermZERO;
 }
 
-static Term bqs(Term inp) {
-  if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
-    return inp;
-
-  if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
-              "set_prolog_flag in {codes,string}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {codes,string}");
-  return TermZERO;
-}
-
 // INLINE_ONLY inline EXTERN  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
@@ -342,17 +329,26 @@ static inline Term getSyntaxErrorsFlag(void) {
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
-static inline bool setBackQuotesFlag(Term val) {
-  if (!bqs(val))
-    return false;
-  if (val == TermSymbolChar)
-    val = TermString;
-  GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at = val;
+// used to overwrite singletons quoteFunc flag
+static inline bool setReadTermBackQuotesFlag(Term val) {
+
+  GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
   return true;
 }
 
-static inline Term getBackQuotesFlag(void) {
-  return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
+static inline Term getReadTermBackQuotesFlag(void) {
+  Term val;
+  unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+  if (flags & BCKQ_ATOM) {
+    val = TermAtom;
+  } else if (flags & BCKQ_STRING) {
+    val = TermString;
+  } else if (flags & BCKQ_CHARS) {
+    val = TermChars;
+  } else {
+    val = TermCodes;
+  }
+return GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
 }
 
 static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }

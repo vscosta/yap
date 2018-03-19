@@ -2954,7 +2954,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres == 4) {
     restore_machine_regs();
@@ -2962,7 +2962,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres != 0) {
     restore_machine_regs();
@@ -2970,7 +2970,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
-      return FAILCODE;
+      return NULL;
     }
   }
 restart_index:
@@ -2983,7 +2983,7 @@ restart_index:
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
-    return FAILCODE;
+    return NULL;
   }
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {

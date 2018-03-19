@@ -125,7 +125,7 @@ static void init_globals(YAP_init_args *yap_init) {
       has been overwritten ....
     */
     setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
-                               yap_init->HaltAfterConsult);
+                               yap_init->HaltAfterBoot);
   }
   if (yap_init->PrologTopLevelGoal) {
     Yap_PutValue(AtomTopLevelGoal,
@@ -149,7 +149,10 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
     *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR,
     *Yap_INPUT_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
-/* do initial boot by consulting the file boot.yap */
+/**
+ * consult loop in C: used to boot the system, butt supports goal execution and recursive consulting.
+ *
+ * */
 static void consult(const char *b_file USES_REGS) {
   Term t;
   int c_stream, osno, oactive;
@@ -157,7 +160,7 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
 
-  /* consult boot.pl */
+  /* consult in C */
   int lvl = push_text_stack();
   char *full = Malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';
@@ -699,7 +702,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
           goto GetSize;
         }
         iap->QuietMode = TRUE;
-        iap->HaltAfterConsult = TRUE;
+        iap->HaltAfterBoot = true;
       case 'l':
         p++;
         if (!*++argv) {
@@ -759,6 +762,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
           argv++;
           iap->PrologTopLevelGoal = add_end_dot(*argv);
         }
+	iap->HaltAfterBoot = true;
         break;
       case 'n':
         if (!strcmp("nosignals", p)) {
@@ -967,11 +971,10 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 #endif
 }
 
-static YAP_file_type_t end_init(YAP_init_args *yap_init, YAP_file_type_t rc) {
+static void end_init(YAP_init_args *iap) {
   YAP_initialized = true;
+  if (iap->HaltAfterBoot) Yap_exit(0);
   LOCAL_PrologMode &= ~BootMode;
-  CurrentModule = USER_MODULE;
-  return rc;
 }
 
 static void start_modules(void) {
@@ -987,14 +990,14 @@ static void start_modules(void) {
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
-X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
-  YAP_file_type_t restore_result = yap_init->boot_file_type;
-  bool do_bootstrap = (restore_result & YAP_CONSULT_MODE);
+X_API void YAP_Init(YAP_init_args *yap_init) {
+  bool try_restore = yap_init->boot_file_type == YAP_QLY;
+  bool do_bootstrap = yap_init->boot_file_type == YAP_BOOT_PL;
   struct ssz_t minfo;
 
   if (YAP_initialized)
     /* ignore repeated calls to YAP_Init */
-    return YAP_FOUND_BOOT_ERROR;
+    return;
   if (!LOCAL_TextBuffer)
     LOCAL_TextBuffer = Yap_InitTextAllocator();
 
@@ -1008,7 +1011,7 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-  if (Yap_embedded)
+    
     if (yap_init->QuietMode) {
       setVerbosity(TermSilent);
     }
@@ -1018,41 +1021,42 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
       restore will print out messages ....
     */
     setBooleanGlobalPrologFlag(HALT_AFTER_CONSULT_FLAG,
-                               yap_init->HaltAfterConsult);
+                               yap_init->HaltAfterBoot);
   }
   /* tell the system who should cope with interrupts */
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
 
-  if (!do_bootstrap && Yap_INPUT_STARTUP &&
-      yap_init->boot_file_type != YAP_BOOT_PL &&
-      Yap_SavedInfo(Yap_INPUT_STARTUP, &minfo.Trail, &minfo.Stack,
-                    &minfo.Heap) &&
-      Yap_Restore(Yap_INPUT_STARTUP)) {
-    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
-    CurrentModule = LOCAL_SourceModule = USER_MODULE;
+  if (do_bootstrap ||
+      !try_restore ||
+      !Yap_SavedInfo(Yap_INPUT_STARTUP, &minfo.Trail, &minfo.Stack,
+		     &minfo.Heap) ) {
     init_globals(yap_init);
-    YAP_RunGoalOnce(TermInitProlog);
 
     start_modules();
-    return end_init(yap_init, YAP_QLY);
+    consult(Yap_BOOTSTRAP PASS_REGS);
+    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
+    Yap_Restore(Yap_INPUT_STARTUP);
     init_globals(yap_init);
 
     start_modules();
-    consult(Yap_BOOTFILE PASS_REGS);
-    if (yap_init->install && Yap_OUTPUT_STARTUP) {
+    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
+  }
+  YAP_RunGoalOnce(TermInitProlog);
+
+     if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
                               1, &t);
 
       YAP_RunGoalOnce(g);
-    }
-    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                              MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
-    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
-    return end_init(yap_init, YAP_BOOT_PL);
-  }
+     }
+    end_init(yap_init);
 }
 
 #if (DefTrailSpace < MinTrailSpace)
@@ -1074,15 +1078,14 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
 #define DEFAULT_SCHEDULERLOOP 10
 #define DEFAULT_DELAYEDRELEASELOAD 3
 
-X_API YAP_file_type_t YAP_FastInit(char *saved_state, int argc, char *argv[]) {
+X_API void YAP_FastInit(char *saved_state, int argc, char *argv[]) {
   YAP_init_args init_args;
   YAP_file_type_t out;
 
   if ((out = Yap_InitDefaults(&init_args, saved_state, argc, argv)) !=
       YAP_FOUND_BOOT_ERROR)
-    out = YAP_Init(&init_args);
+    YAP_Init(&init_args);
   if (out == YAP_FOUND_BOOT_ERROR) {
     Yap_Error(init_args.ErrorNo, TermNil, init_args.ErrorCause);
   }
-  return out;
 }

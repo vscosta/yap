@@ -44,7 +44,6 @@ extern "C" {
 #include <config.h>
 #else
 #include <Yap/YapInterface.h>
-#include <Yap/pl/config.h>
 #endif
 #endif
 #include <stdarg.h>

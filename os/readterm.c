@@ -268,7 +268,8 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
     }
     tok = tok->TokNext;
   }
-  Yap_DebugPlWriteln(ts[0]);
+  if (ts[0])
+    Yap_DebugPlWriteln(ts[0]);
   return ts[0];
 }
 
@@ -307,7 +308,7 @@ static Int scan_to_list(USES_REGS1) {
 }
 
 /**
- * Syntax Error Handler
+ * Syntaax Error Handler
  *
  * @par tokptr: the sequence of tokens
  * @par sno: the stream numbet
@@ -465,7 +466,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
     return NULL;
   }
 
-  re->bq = getBackQuotesFlag();
+  re->bq = getReadTermBackQuotesFlag();
   if (args[READ_OUTPUT].used) {
     fe->t0 = args[READ_OUTPUT].tvalue;
   } else {
@@ -479,7 +480,7 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
       fe->cmod = PROLOG_MODULE;
   }
   if (args[READ_BACKQUOTED_STRING].used) {
-    if (!setBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue)) {
+    if (!setReadTermBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue)) {
       return false;
     }
   }
@@ -1108,7 +1109,7 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
     if (fe->cmod == TermProlog)
       fe->cmod = PROLOG_MODULE;
   }
-  re->bq = getBackQuotesFlag();
+  re->bq = getReadTermBackQuotesFlag();
   fe->enc = GLOBAL_Stream[sno].encoding;
   fe->sp = 0;
   fe->qq = 0;

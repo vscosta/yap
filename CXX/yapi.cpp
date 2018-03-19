@@ -10,6 +10,10 @@ extern "C" {
 #include "android/log.h"
 #endif
 
+#if YAP_PYTHON
+#include "Python.h"
+#endif
+
 #include "YapInterface.h"
 #include "YapBlobs.h"
 #include "iopreds.h"
@@ -238,11 +242,11 @@ Term &YAPTerm::operator[](arity_t i) {
     else if (i == 1)
       tf = TailOfTerm(t0);
     RECOVER_MACHINE_REGS();
-    tf = RepPair(tf)[i];
-  }
-  RECOVER_MACHINE_REGS();
-  Yap_Error(TYPE_ERROR_COMPOUND, tf, "");
-  throw YAPError();
+  } else {
+      Yap_Error(TYPE_ERROR_COMPOUND, t0, "");
+ }
+    RECOVER_MACHINE_REGS();
+    return (tf);
 }
 
 Term &YAPListTerm::operator[](arity_t i) {
@@ -251,6 +255,7 @@ Term &YAPListTerm::operator[](arity_t i) {
   Term tf = 0;
   while (IsPairTerm(t0)) {
     if (i == 0) {
+
       tf = HeadOfTerm(t0);
       break;
     } else {
@@ -377,8 +382,7 @@ Term YAPListTerm::car() {
     return (HeadOfTerm(to));
   else {
     Yap_Error(TYPE_ERROR_LIST, to, "");
-    return 0;
-    throw YAPError();
+    return TermUnique;
   }
 }
 
@@ -432,8 +436,8 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
     // allow Prolog style exceotion handling
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      return 0;
-      throw YAPError();
+        std::cerr << "Restart\n";
+      //q.e = new YAPError();
     }
     // don't forget, on success these bindings will still be there);
     result = YAP_LeaveGoal(false, &q);
@@ -447,13 +451,17 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
     std::cerr << "Exception received by  "
               << YAPApplTerm(ap.functor(), ts).text() << ".\n Forwarded...\n\n";
     LOCAL_RestartEnv = oj;
-    return 0;
-    throw e;
+    return false;
   }
 }
 
 bool YAPEngine::mgoal(Term t, Term tmod) {
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
+#if YAP_PYTHON
+  //PyThreadState *_save;
+
+  //  _save = PyEval_SaveThread();
+#endif
   try {
     CACHE_REGS
     BACKUP_MACHINE_REGS();
@@ -480,15 +488,16 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     // allow Prolog style exception handling
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      return false;
-      //throw YAPError();
+      //      PyEval_RestoreThread(_save);
+  std::cerr << "Restart\n";
+        //throw new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
     {
       YAP_LeaveGoal(false, &q);
+      //      PyEval_RestoreThread(_save);
       LOCAL_RestartEnv = oldp;
       RECOVER_MACHINE_REGS();
       return result;
@@ -496,7 +505,8 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   } catch (YAPError e) {
     YAP_LeaveGoal(false, &q);
     Yap_CloseHandles(q.CurSlot);
-    LOCAL_RestartEnv = oldp;
+    //    PyEval_RestoreThread(_save);
+  LOCAL_RestartEnv = oldp;
     return 0;
     //throw e;
   }
@@ -557,7 +567,7 @@ Term YAPEngine::fun(Term t) {
     sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      //      throw YAPError();
+      //  throw new YAPError();
       LOCAL_RestartEnv = oldp;
       RECOVER_MACHINE_REGS();
       return 0;
@@ -676,14 +686,14 @@ bool YAPQuery::next() {
   bool result = false;
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   Term terr;
+    e = nullptr;
   try {
     BACKUP_MACHINE_REGS();
     if (!q_open)
       return false;
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      // throw YAPError();
-      return false;
+      //e = new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -701,11 +711,10 @@ bool YAPQuery::next() {
       __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "fail");
     }
     q_state = 1;
-    if ((terr = Yap_GetException())) {
-      if ((terr = Yap_GetException())) {
+    if ((terr = Yap_PeekException())) {
         LOCAL_RestartEnv = &buf;
-        throw YAPError();
-      }
+
+        result = false;
     }
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
@@ -747,8 +756,8 @@ PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
   ARG1 = tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
   //goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
   return PredCall;
-  
-  
+
+
   // return YAPApplTerm(FunctorUndefinedQuery, ts);
 }
 
@@ -845,10 +854,12 @@ void Yap_displayWithJava(int c) {
 #endif
 
 void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
-  if ((BootMode = YAP_Init(engineArgs)) == YAP_FOUND_BOOT_ERROR) {
-    return;
-    throw YAPError();
+  if (BootMode == YAP_FOUND_BOOT_ERROR) {
+      std::cerr << "Exception received by  " << __func__ << "( "
+                << "while booting" << ").\n Forwarded...\n\n";
+      return;
   }
+  YAP_Init(engineArgs);
 /* Begin preprocessor code */
 /* live */
 // yerror = YAPError();
@@ -903,7 +914,8 @@ PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL *&outp) {
       Yap_ThrowError(INSTANTIATION_ERROR, tt.term(), 0);
     else if (IsNumTerm(t))
       Yap_ThrowError(TYPE_ERROR_CALLABLE, tt.term(), 0);
-    throw YAPError();
+       std::cerr << "Exception received by  " << __func__ << "( "
+                  << YAPTerm(tt).text() << ").\n Forwarded...\n\n";
   }
   tt.put(t);
   if (IsAtomTerm(t)) {
@@ -1062,7 +1074,7 @@ Term YAPEngine::top_level(std::string s) {
   ARG2 = tp;
   ARG3 = MkVarTerm();
   if (ARG1 == 0)
-    YAPError(SYNTAX_ERROR);
+    Yap_Error(SYNTAX_ERROR, ARG1, "in input query");
   YAPPredicate p = YAPPredicate(YAP_TopGoal());
   YAPQuery *Q = new YAPQuery(p, 0);
   Term ts[2];

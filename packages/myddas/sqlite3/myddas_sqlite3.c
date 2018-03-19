@@ -713,11 +713,8 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 }
 
 X_API void init_sqlite3(void) {
-    Term cm = CurrentModule;
-    CurrentModule = PROLOG_MODULE;
  Yap_InitMYDDAS_SQLITE3Preds();
  Yap_InitBackMYDDAS_SQLITE3Preds();
-    CurrentModule = cm;
 }
 
 #if _ANDROID_
