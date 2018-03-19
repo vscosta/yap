@@ -20,6 +20,7 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/jni)
       add_custom_target (pllib
          	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}
          COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${pllib}
+         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${pllib}
  DEPENDS  ${pl_library}
 )
 

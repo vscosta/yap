@@ -338,7 +338,7 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goalt(YAPTerm Yt) { return Yt.term(); };
+  bool goal(YAPTerm Yt, YAPModule module) { return mgoal(Yt.term(),module.term()); };
   /// current directory for the engine
   bool mgoal(Term t, Term tmod);
   /// current directory for the engine

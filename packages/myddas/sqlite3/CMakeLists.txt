@@ -53,3 +53,6 @@ install(TARGETS sqlite4YAP
         LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
         )
 endif()
+
+    file (INSTALL  chinook.db test.yap DESTINATION ${libpl})
+

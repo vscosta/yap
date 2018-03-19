@@ -243,8 +243,7 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
 	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
-	absolute_file_name(File,FullFile,[access(exist),file_errors(error),expand(true)]),
-	c_sqlite3_connect(FullFile,User,Password,Con),
+	c_sqlite3_connect(File,User,Password,Con),
 	set_value(Connection,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

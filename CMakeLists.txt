@@ -706,9 +706,8 @@ IF ( ANDROID)
 
 
 
-    #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
+    target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
 
-    target_link_libraries(libYap android log )
 ENDIF ()
 
 

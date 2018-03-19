@@ -72,6 +72,7 @@ foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)
 endforeach ()
 
+list (APPEND MYDDAS_YAP ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/test.yap ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/chinook.db)
 add_to_group(MYDDAS_YAP pl_library )
 
 add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
@@ -79,4 +80,3 @@ add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
     install(FILES ${MYDDAS_YAP}
      DESTINATION ${libpl}
         )
-

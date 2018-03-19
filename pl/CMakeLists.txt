@@ -8,6 +8,7 @@ set(PL_BOOT_SOURCES
         boot.yap
         bootlists.yap
 	bootutils.yap
+	builtins.yap
         callcount.yap
         checker.yap
         consult.yap
@@ -26,6 +27,7 @@ set(PL_BOOT_SOURCES
         grammar.yap
         ground.yap
         hacks.yap
+        imports.yap
         init.yap
         listing.yap
         load_foreign.yap

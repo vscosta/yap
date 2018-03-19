@@ -45,6 +45,9 @@ Int p_load_foreign(USES_REGS1) {
   StringList new;
   bool returncode = FALSE;
   yhandle_t CurSlot = Yap_StartSlots();
+#if __ANDROID__
+return true;
+#endif
 
   //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
   // Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
@@ -94,7 +97,7 @@ Int p_load_foreign(USES_REGS1) {
       } else {
         f = RepAtom(libs->name)->StrOfAE;
       }
-      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG3,
+     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG3,
                 "Foreign module %s does not have initialization function %s", f,
                 InitProcName);
       return false;

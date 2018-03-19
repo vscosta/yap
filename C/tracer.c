@@ -455,7 +455,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
   UNLOCK(Yap_low_level_trace_lock);
 #if __ANDROID__
-  __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s\n", buf);
+  __android_log_print(ANDROID_LOG_ERROR, "YAPDroid", "%s\n", buf);
 #else
   *b++ = '\n';
   *b = '\0';
@@ -510,7 +510,7 @@ not being output.
 static Int stop_low_level_trace(USES_REGS1) {
   Yap_do_low_level_trace = FALSE;
   LOCAL_do_trace_primitives = TRUE;
-#if DEBUG_LOCKS
+#if DEBUG_LOCKS////
   debug_locks = TRUE;
 #endif
   return (TRUE);

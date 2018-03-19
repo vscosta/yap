@@ -342,7 +342,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 %%	contains_illegal_dcgnt(+Term) is semidet.
 %
 %	True if Term contains a non-terminal   we cannot deal with using
-%	goal-expansion. The test is too general approximation, but safe.
+%	goal-expansion. The test is too general an approximation, but safe.
 
 '$contains_illegal_dcgnt'(NT) :-
     functor(NT, _, A),
@@ -355,7 +355,6 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 '$harmless_dcgexception'(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
-
 
 :- set_value('$c_arith',true).
 /**
