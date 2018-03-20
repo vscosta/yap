@@ -1,21 +1,18 @@
 
-:- [library(myddas)].
-
-:- initialization(main).
+:- compile(library(myddas)).
 
 main :-
-	setup_call_cleanup(
-				   init,
-				  main_ ,
-				  (trace,
-		   close)).
+		 init,
+		 main_,
+		  close.
 main_ :-
 	go,
 	fail.
 main_ .
 
 init :-
-    db_open(sqlite3, '~/Yap/Chinook/Chinook_Sqlite.sqlite', _, _),
+    db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+    writeln('chinook has landed'),
 	db_import('Artist', artist),
 	db_import('Album', album),
 	db_import('Track', track).
@@ -25,26 +22,24 @@ init :-
 		db_get_attributes_types(track,Ts),
 		db_get_attributes_types(artist,As),
 		writeln(As:Als:Ts).
-
 go :-
 	db_number_of_fields(album,Als),
 	db_number_of_fields(track,Ts),
 	db_number_of_fields(artist,As),
 	writeln(As:Als:Ts).
 
-	go :-
+go :-
 		db_describe(album, Desc), writeln(Desc) ;
 		db_describe(track, Desc), writeln(Desc) ;
 			db_describe(artist, Desc), writeln(Desc).
-
-			go :-
+go :-
 				db_show_tables(Desc), writeln(Desc).
-				go :-
+go :-
 					db_show_tables(table(T)),
 					db_describe(T,tableinfo(FieldID,Type,Null,Primary,Default,'')),
 					 writeln(T:tableinfo(FieldID,Type,Null,Primary,Default,'')).
 
-	go :-
+go :-
 	go_cut0.
 
 
@@ -79,3 +74,6 @@ go_cut1 :-
 
 close :-
 	db_close.
+
+:- main.
+

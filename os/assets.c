@@ -41,8 +41,8 @@ static char SccsId[] = "%W% %G%";
 #include <android/native_activity.h>
 
 
-extern void
-Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager);
+extern X_API void
+Java_pt_up_yap_yapdroid_YAPDroid_loadAssetManager(JNIEnv *env, jclass clazz, jobject assetManager);
 
 jobject *Yap_aref;
 JNIEnv *Yap_env;
@@ -52,8 +52,8 @@ AAssetManager *Yap_assetManager(void)
     return AAssetManager_fromJava(Yap_env, Yap_aref);
 }
 
-void
-Java_pt_up_yap_YAPIO_setAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
+X_API void
+Java_pt_up_yap_yapdroid_YAPDroid_loadAssetManager(JNIEnv *env, jclass clazz, jobject assetManager) {
     Yap_aref = (*env)->NewGlobalRef(env,assetManager);
     Yap_env = env;
 }

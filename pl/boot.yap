@@ -291,7 +291,7 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap'].
-:- stop_low_level_trace.
+%:- stop_low_level_trace.
 
 
 :- meta_predicate(log_event(+,:)).
@@ -461,3 +461,5 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+
+

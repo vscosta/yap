@@ -77,7 +77,7 @@ static Int c_sqlite3_get_database(USES_REGS1);
 static Int c_sqlite3_change_database(USES_REGS1);
 
 static Int c_sqlite3_connect(USES_REGS1) {
-
+  printf("hello darkness\n");
   Term arg_file = Deref(ARG1);
   Term arg_db = ARG4;
 
@@ -88,9 +88,9 @@ static Int c_sqlite3_connect(USES_REGS1) {
 
   CALL_SQLITE(ARG1, open(file, &db));
 
-  if (!Yap_unify(arg_db, MkAddressTerm(db)))
+  if (!Yap_unify(arg_db, MkAddressTerm(db))) {
     return FALSE;
-  else {
+ } else {
     /* Criar um novo no na lista de ligacoes*/
     new = myddas_util_add_connection(db, NULL, API_SQLITE3);
 
@@ -665,17 +665,10 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 
 X_API void init_sqlite3(void) {
  Yap_InitMYDDAS_SQLITE3Preds();
+
  Yap_InitBackMYDDAS_SQLITE3Preds();
 }
 
-#if _ANDROID_
-//JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
-
-// JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
-//  init_sqlite3();
-}
-
-#endif
 
 #ifdef _WIN32
 

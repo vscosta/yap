@@ -76,7 +76,7 @@ public:
   YAPTerm(void *ptr);
   /// parse string s and construct a term.
   YAPTerm(char *s) {
-    Term tp;
+    Term tp = 0;
     mk(YAP_ReadBuffer(s, &tp));
   }
 
@@ -322,20 +322,27 @@ public:
     RECOVER_MACHINE_REGS();
   };
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+    YAPApplTerm(const std::string s, unsigned int arity) { mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity), arity)); };
+    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
 
-  Term getArg(arity_t i) {
-    BACKUP_MACHINE_REGS();
-    Term t0 = gt();
-    Term tf;
-    tf = ArgOfTerm(i, t0);
-    RECOVER_MACHINE_REGS();
-    return tf;
-  };
-   virtual bool isVar() { return false; }     /// type check for unbound
+    Term getArg(arity_t i) {
+      BACKUP_MACHINE_REGS();
+      Term t0 = gt();
+      Term tf;
+      tf = ArgOfTerm(i, t0);
+      RECOVER_MACHINE_REGS();
+      return tf;
+    };
+    void putArg(int i, YAPTerm t) {
+      BACKUP_MACHINE_REGS();
+      Term t0 = gt();
+      RepAppl(t0)[i] = t.term();
+      RECOVER_MACHINE_REGS();
+    };
+    virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer
   virtual bool isFloat() { return false; }   /// type check for floating-point

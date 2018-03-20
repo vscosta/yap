@@ -117,9 +117,9 @@ extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const unsigned char *s, Term opts);
-extern X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s,
-                                                   size_t sz, Term opts,
-                                                   int prio, Term bindings);
+extern X_API Term
+Yap_BufferToTermWithPrioBindings(const unsigned char *s, Term opts, Term bindings, size_t sz,
+                                 int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
 extern char *Yap_guessFileName(FILE *f, int sno, char *nameb, size_t max);

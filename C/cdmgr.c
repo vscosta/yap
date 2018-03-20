@@ -36,6 +36,7 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include <assert.h>
 #include <heapgc.h>
 #include <iopreds.h>
+#include <Yatom.h>
 
 static void retract_all(PredEntry *, int);
 static void add_first_static(PredEntry *, yamop *, int);
@@ -1741,7 +1742,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   /* The only problem we have now is when we need to throw away
      Indexing blocks
   */
-  if (pflags & IndexedPredFlag) {
+  if (pflags & IndexedPredFlag && p->cs.p_code.NOfClauses > 1) {
     Yap_AddClauseToIndex(p, cp, mode == asserta);
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
