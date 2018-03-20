@@ -689,7 +689,11 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     find_python_module(wheel)
     find_python_module(setuptools)
     find_python_module(backcall)
-    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
+    if (NOT FOUND_BACKALL)
+      #bring your own
+      execute_process( COMMAND  ${PYTHON_EXECUTABLE} -m pip install  ${CMAKE_SOURCE_DIR}/misc/backcall-0.1.0-cp36-none-any.whl)
+      endif()
+    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS)
         add_subdirectory(packages/python/yap_kernel)
     ENDIF ()
 
