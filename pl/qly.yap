@@ -240,7 +240,7 @@ qend_program :-
 	X \= argv,
 	X \= os_argv,
 	X \= language,
-    X \= encoding.
+	X \= encoding,
 	fail.
 
 qsave_file(F0) :-
