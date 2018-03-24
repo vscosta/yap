@@ -144,38 +144,41 @@ class YAPShell:
         #    if not isinstance(eq[0],str):
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
-        self.do_ask = True
-        engine = self.engine
-        bindings = []
-        g = python_query(self, query)
-        if not self.q:
-            self.q = Query( engine, g )
-        for bind in self.q:
-            bindings += [bind]
-            if self.do_ask:
-                print(bindings)
-                bindings = []
+        try:
+            engine = self.engine
+            bindings = []
+            loop = False
+            g = python_query(self, query)
+            if not self.q:
+                self.q = Query( engine, g )
+            for bind in self.q:
+                bindings += [bind]
+                if loop:
+                    continue
+                if not self.q:
+                    break
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
-            else:
-                s = ";"
-            if s.startswith(';') or s.startswith('y'):
-                continue
-            elif s.startswith('#'):
-                try:
-                    exec(s.lstrip('#'))
-                except:
-                    raise
-            elif s.startswith('*') or s.startswith('a'):
-                self.do_ask = False
-                continue
-            else:
-                break
-        if self.q:
-            self.os = query
-        if bindings:
-            return True,bindings
-        print("No (more) answers")
-        return False, None
+                if s.startswith(';') or s.startswith('y'):
+                    continue
+                elif s.startswith('#'):
+                    try:
+                        exec(s.lstrip('#'))
+                    except:
+                        raise
+                elif s.startswith('*') or s.startswith('a'):
+                    loop = True
+                    continue
+                else:
+                    break
+            if self.q:
+                self.os = query
+            if bindings:
+                return True,bindings
+            print("No (more) answers")
+            return False, None
+        except e:
+            print("Exception")
+            print(e)
 
 
     def live(self, engine, **kwargs):

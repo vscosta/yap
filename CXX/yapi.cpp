@@ -437,6 +437,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
         std::cerr << "Restart\n";
+        throw *new YAPError();
       //q.e = new YAPError();
     }
     // don't forget, on success these bindings will still be there);
@@ -490,7 +491,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
       //      PyEval_RestoreThread(_save);
   std::cerr << "Restart\n";
-        //throw new YAPError();
+      throw *new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -567,10 +568,7 @@ Term YAPEngine::fun(Term t) {
     sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      //  throw new YAPError();
-      LOCAL_RestartEnv = oldp;
-      RECOVER_MACHINE_REGS();
-      return 0;
+      throw *new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -693,7 +691,7 @@ bool YAPQuery::next() {
       return false;
     LOCAL_RestartEnv = &buf;
     if (sigsetjmp(*LOCAL_RestartEnv, false)) {
-      //e = new YAPError();
+      throw *new YAPError();
     }
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -712,10 +710,9 @@ bool YAPQuery::next() {
     }
     q_state = 1;
     if ((terr = Yap_PeekException())) {
-        LOCAL_RestartEnv = &buf;
+      throw * new YAPError();
 
-        result = false;
-    }
+      }
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
     if (!result) {
