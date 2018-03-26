@@ -4506,7 +4506,7 @@ location(java_root, _, JRE) :-
     member(Root, [ '/usr/lib',
 		   '/usr/local/lib',
                    '/opt/lib',
-  '/Library/Java/JavaVirtual hines',
+  '/Library/Java/JavaVirtualMachines',
   '/System/Library/Frameworks'
 		 ]),
     exists_directory(Root),

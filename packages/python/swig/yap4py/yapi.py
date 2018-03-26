@@ -67,7 +67,6 @@ class Query:
         return self
 
     def __next__(self):
-        print(self)
         if not self.q:
             raise StopIteration()
         if self.q.next():
@@ -144,39 +143,41 @@ class YAPShell:
         #    if not isinstance(eq[0],str):
         #        print( "Error: Variable Name matches a Python Symbol")
         #        return
-        self.do_ask = True
-        engine = self.engine
-        bindings = []
-        g = python_query(self, query)
-        if not self.q:
+        try:
+            engine = self.engine
+            bindings = []
+            loop = False
+            g = python_query(self, query)
             self.q = Query( engine, g )
-        for bind in self.q:
-            bindings += [bind]
-            if self.do_ask:
-                print(bindings)
-                bindings = []
+            for bind in self.q:
+                bindings += [bind]
+                if loop:
+                    continue
+                if not self.q.port == "exit":
+                    break
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
-            else:
-                s = ";"
-            if s.startswith(';') or s.startswith('y'):
-                continue
-            elif s.startswith('#'):
-                try:
-                    exec(s.lstrip('#'))
-                except:
-                    raise
-            elif s.startswith('*') or s.startswith('a'):
-                self.do_ask = False
-                continue
-            else:
-                break
-        if self.q:
-            self.os = query
-        if bindings:
-            return True,bindings
-        print("No (more) answers")
-        return False, None
-
+                if s.startswith(';') or s.startswith('y'):
+                    continue
+                elif s.startswith('#'):
+                    try:
+                        exec(s.lstrip('#'))
+                    except:
+                        raise
+                elif s.startswith('*') or s.startswith('a'):
+                    loop = True
+                    continue
+                else:
+                    break
+            if self.q:
+                self.os = query
+            if bindings:
+                return True,bindings
+            print("No (more) answers")
+            return False, None
+        except Exception as e:
+            print("Exception")
+            print(dir(e))
+            return False, None
 
     def live(self, engine, **kwargs):
         loop = True

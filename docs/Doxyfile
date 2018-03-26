@@ -38,7 +38,7 @@ PROJECT_NAME           = "YAP"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 6.3.4
+PROJECT_NUMBER         = 6.3.5
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -51,14 +51,14 @@ PROJECT_BRIEF          = "The YAP Prolog Compiler Manual"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = /Users/vsc/git/yap-6.3/docs/icons/yap_96x96x32.png
+PROJECT_LOGO           = /home/vsc/github/yap-6.3/docs/icons/yap_96x96x32.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = /Users/vsc/git/yap-6.3/Docs
+OUTPUT_DIRECTORY       = /home/vsc/github/yap-6.3/docs
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -152,8 +152,8 @@ FULL_PATH_NAMES        = YES
 # will be relative from the directory where doxygen is started.
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
-STRIP_FROM_PATH        = /Users/vsc/git/yap-6.3 \
-                         /Users/vsc/git/yap-6.3
+STRIP_FROM_PATH        = /home/vsc/github/yap-6.3 \
+                         /home/vsc/github/yap-6.3
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
 # path mentioned in the documentation of a class, which tells the reader which
@@ -378,13 +378,13 @@ SUBGROUPING            = YES
 # SEPARATE_MEMBER_PAGES.
 # The default value is: NO.
 
-INLINE_GROUPED_CLASSES = NO
+INLINE_GROUPED_CLASSES = YES
 
 # When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and unions
 # with only public data fields or simple typedef fields will be shown inline in
 # the documentation of the scope in which they are defined (i.e. file,
 # namespace, or group documentation), provided this scope is documented. If set
-v# to NO, structs, classes, and unions are shown on a separate page (for HTML and
+# to NO, structs, classes, and unions are shown on a separate page (for HTML and
 # Man pages) or section (for LaTeX and RTF).
 # The default value is: NO.
 
@@ -522,14 +522,14 @@ CASE_SENSE_NAMES       = NO
 # scope will be hidden.
 # The default value is: NO.
 
-HIDE_SCOPE_NAMES       = NO
+HIDE_SCOPE_NAMES       = YES
 
 # If the HIDE_COMPOUND_REFERENCE tag is set to NO (default) then doxygen will
 # append additional text to a page's title, such as Class Reference. If set to
 # YES the compound reference will be hidden.
 # The default value is: NO.
 
-HIDE_COMPOUND_REFERENCE= NO
+HIDE_COMPOUND_REFERENCE= YES
 
 # If the SHOW_INCLUDE_FILES tag is set to YES then doxygen will put a list of
 # the files that are included by a file in the documentation of that file.
@@ -775,20 +775,7 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  =                        /Users/vsc/git/yap-6.3/pl \
-                       /Users/vsc/git/yap-6.3/CXX \
-                       /Users/vsc/git/yap-6.3/OPTYap \
-                       /Users/vsc/git/yap-6.3/C \
-                       /Users/vsc/git/yap-6.3/H \
-                       /Users/vsc/git/yap-6.3/include \
-                       /Users/vsc/git/yap-6.3/os \
-                       /Users/vsc/git/yap-6.3/library \
-                       /Users/vsc/git/yap-6.3/packages \
-                       /Users/vsc/git/yap-6.3/swi/library
-
-#\
-#                       /Users/vsc/git/yap-6.3/docs/md \
-#                       /Users/vsc/git/yap-6.3/INSTALL.md \
+INPUT =   /home/vsc/github/yap-6.3/INSTALL.md /home/vsc/github/yap-6.3/pl /home/vsc/github/yap-6.3/CXX /home/vsc/github/yap-6.3/OPTYap /home/vsc/github/yap-6.3/C /home/vsc/github/yap-6.3/H /home/vsc/github/yap-6.3/include /home/vsc/github/yap-6.3/os /home/vsc/github/yap-6.3/library /home/vsc/github/yap-6.3/swi/library /home/vsc/github/yap-6.3/docs/md 
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -829,7 +816,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = *pltotex.pl
+EXCLUDE                = /home/vsc/github/yap-6.3/packages/jpl /home/vsc/github/yap-6.3/packages/swig /home/vsc/github/yap-6.3/packages/myddas/sqlite3/src /home/vsc/github/yap-6.3/packages/gecode/4.4.0 /home/vsc/github/yap-6.3/packages/gecode/4.2.1 /home/vsc/github/yap-6.3/packages/gecode/4.2.0 /home/vsc/github/yap-6.3/packages/gecode/4.0.0 /home/vsc/github/yap-6.3/packages/gecode/3.7.3 /home/vsc/github/yap-6.3/packages/gecode/3.7.2 /home/vsc/github/yap-6.3/packages/gecode/3.7.1 /home/vsc/github/yap-6.3/packages/gecode/3.7.0 /home/vsc/github/yap-6.3/packages/gecode/3.6.0 /home/vsc/github/yap-6.3/packages/gecode/dev /home/vsc/github/yap-6.3/C/traced_absmi_insts.h /home/vsc/github/yap-6.3/H/locals.h /home/vsc/github/yap-6.3/H/globals.h /home/vsc/github/yap-6.3/packages/cplint /home/vsc/github/yap-6.3/packages/CLPBN/examples /home/vsc/github/yap-6.3/packages/CLPBN/horus /home/vsc/github/yap-6.3/packages/prosqlite /home/vsc/github/yap-6.3/packages/pyswip /home/vsc/github/yap-6.3/packages/yap-lbfgs/liblbfgs-1.10 /home/vsc/github/yap-6.3/library/dialect/swi/os /home/vsc/github/yap-6.3/packages/gecode/gecode3_yap.cc /home/vsc/github/yap-6.3/packages/gecode/gecode4_yap.cc /home/vsc/github/yap-6.3/packages/gecode/gecode3.yap /home/vsc/github/yap-6.3/packages/gecode/gecode4.yap /home/vsc/github/yap-6.3/packages/gecode/gecode3_yap_hand_written.yap /home/vsc/github/yap-6.3/packages/gecode/gecode4_yap_hand_written.yap */CMakeFiles/* *~ */ 
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -845,7 +832,13 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */CMakeFiles/* *~
+EXCLUDE_PATTERNS       = \
+            /home/vsc/github/yap-6.3/packages/gecode/gecode3_yap.cc \
+            /home/vsc/github/yap-6.3/packages/gecode/gecode4_yap.cc \
+            /home/vsc/github/yap-6.3/packages/gecode/gecode3.yap \
+            /home/vsc/github/yap-6.3/packages/gecode/gecode4.yap \
+            /home/vsc/github/yap-6.3/packages/gecode/gecode3_yap_hand_written.yap \ /home/vsc/github/yap-6.3/packages/gecode/gecode4_yap_hand_written.yap
+            */CMakeFiles/* *~ */\#* \
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -882,7 +875,7 @@ EXAMPLE_RECURSIVE      = NO
 # that contain images that are to be included in the documentation (see the
 # \image command).
 
-IMAGE_PATH             = /Users/vsc/git/yap-6.3/docs/icons
+IMAGE_PATH             = /home/vsc/github/yap-6.3/docs/icons
 
 # The INPUT_FILTER tag can be used to specify a program that doxygen should
 # invoke to filter for each input file. Doxygen will invoke the filter program
@@ -938,7 +931,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = 
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
@@ -1094,9 +1087,7 @@ HTML_FILE_EXTENSION    = .html
 # of the possible markers and block names see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_HEADER            =
-
-#/Users/vsc/git/yap-6.3/docs/web/bootstrap/header.html
+HTML_HEADER          = /home/vsc/github/yap-6.3/docs/custom/header.html
 
 # The HTML_FOOTER tag can be used to specify a user-defined HTML footer for each
 # generated HTML page. If the tag is left blank doxygen will generate a standard
@@ -1106,9 +1097,7 @@ HTML_HEADER            =
 # that doxygen normally uses.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_FOOTER            =
-
-#/Users/vsc/git/yap-6.3/docs/web/bootstrap/footer.html
+HTML_FOOTER            = /home/vsc/github/yap-6.3/docs/custom/footer.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading style
 # sheet that is used by each HTML page. It can be used to fine-tune the look of
@@ -1122,8 +1111,6 @@ HTML_FOOTER            =
 
 HTML_STYLESHEET        =
 
-#/Users/vsc/git/yap-6.3/docs/web/bootstrap/customdoxygen.css
-
 # The HTML_EXTRA_STYLESHEET tag can be used to specify additional user-defined
 # cascading style sheets that are included after the standard style sheets
 # created by doxygen. Using this option one can overrule certain style aspects.
@@ -1135,9 +1122,9 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET  =
-
-# /Users/vsc/git/yap-6.3/docs/solarized-light.css
+HTML_EXTRA_STYLESHEET  = \
+            /home/vsc/github/yap-6.3/docs/custom/customdoxygen.css \
+	/home/vsc/github/yap-6.3/docs/custom/solarized-light.css \
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1147,9 +1134,7 @@ HTML_EXTRA_STYLESHEET  =
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =
-
-#/Users/vsc/git/yap-6.3/docs/web/bootstrap/doxy-boot.js
+HTML_EXTRA_FILES      = /home/vsc/github/yap-6.3/docs/custom/application.js /home/vsc/github/yap-6.3/docs/custom/assets /home/vsc/github/yap-6.3/docs/custom/bootstrap.min.css /home/vsc/github/yap-6.3/docs/custom/bootstrap.min.js /home/vsc/github/yap-6.3/docs/custom/customdoxygen.css /home/vsc/github/yap-6.3/docs/custom/default /home/vsc/github/yap-6.3/docs/custom/doxy-boot.js /home/vsc/github/yap-6.3/docs/custom/font-awesome.min.css /home/vsc/github/yap-6.3/docs/custom/footer.html /home/vsc/github/yap-6.3/docs/custom/header.html /home/vsc/github/yap-6.3/docs/custom/jquery-3.2.1.min.js /home/vsc/github/yap-6.3/docs/custom/offcanvas.css /home/vsc/github/yap-6.3/docs/custom/offcanvas.js /home/vsc/github/yap-6.3/docs/custom/solarized-light.css /home/vsc/github/yap-6.3/docs/custom/theme.css /home/vsc/github/yap-6.3/docs/custom/yap.css 
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to
@@ -1314,7 +1299,7 @@ BINARY_TOC             = NO
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTMLHELP is set to YES.
 
-TOC_EXPAND             = NO
+TOC_EXPAND             = YES
 
 # If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and
 # QHP_VIRTUAL_FOLDER are set, an additional index file will be generated that
@@ -1551,7 +1536,7 @@ SEARCHENGINE           = YES
 # The default value is: NO.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-SERVER_BASED_SEARCH    = NO
+SERVER_BASED_SEARCH    = YES
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
 # script for searching. Instead the search results are written to an XML file
@@ -1594,7 +1579,7 @@ SEARCHDATA_FILE        = searchdata.xml
 # projects and redirect the results back to the right project.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-EXTERNAL_SEARCH_ID     =
+EXTERNAL_SEARCH_ID     = YAP
 
 # The EXTRA_SEARCH_MAPPINGS tag can be used to enable searching through doxygen
 # projects other than the one defined by this configuration file, but that are
@@ -1883,7 +1868,7 @@ MAN_SUBDIR             =
 # The default value is: NO.
 # This tag requires that the tag GENERATE_MAN is set to YES.
 
-MAN_LINKS              = NO
+MAN_LINKS              = NOoi9   0
 
 #---------------------------------------------------------------------------
 # Configuration options related to the XML output
@@ -2028,7 +2013,12 @@ SEARCH_INCLUDES        = YES
 # preprocessor.
 # This tag requires that the tag SEARCH_INCLUDES is set to YES.
 
-INCLUDE_PATH           =
+INCLUDE_PATH           = /home/vsc/github/yap-6.3 \
+                        /home/vsc/github/yap-6.3/H \
+                        /home/vsc/github/yap-6.3/H/generated \
+                        /home/vsc/github/yap-6.3/include \
+                        /home/vsc/github/yap-6.3/os \
+                        /home/vsc/github/yap-6.3/OPTYap \
 
 # You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard
 # patterns (like *.h and *.hpp) to filter out the header-files in the
@@ -2203,7 +2193,7 @@ DOT_FONTPATH           =
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-CLASS_GRAPH            = YES
+CLASS_GRAPH            = NO
 
 # If the COLLABORATION_GRAPH tag is set to YES then doxygen will generate a
 # graph for each documented class showing the direct and indirect implementation
@@ -2257,7 +2247,7 @@ TEMPLATE_RELATIONS     = NO
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-INCLUDE_GRAPH          = YES
+INCLUDE_GRAPH          = NO
 
 # If the INCLUDED_BY_GRAPH, ENABLE_PREPROCESSING and SEARCH_INCLUDES tags are
 # set to YES then doxygen will generate a graph for each documented file showing
@@ -2266,7 +2256,7 @@ INCLUDE_GRAPH          = YES
 # The default value is: YES.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-INCLUDED_BY_GRAPH      = YES
+INCLUDED_BY_GRAPH      = NO
 
 # If the CALL_GRAPH tag is set to YES then doxygen will generate a call
 # dependency graph for every global function or class method.

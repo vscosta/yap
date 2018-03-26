@@ -46,3 +46,7 @@ endif()
 IF (PYTHONLIBS_FOUND)
   add_subDIRECTORY (packages/python)
 ENDIF()
+
+IF (CMAKE_INSTALL_PREFIX MATCHES $ENV{HOME}.* )
+ set (PYTHON_USER_INSTALL --user)
+ ENDIF() 

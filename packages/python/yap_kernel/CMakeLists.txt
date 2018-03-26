@@ -1,5 +1,6 @@
 
     set (PYTHON_SOURCES
+    backcall.py
 yap_kernel_launcher.py
 docs/conf.py
 yap_kernel/codeutil.py 
@@ -463,7 +464,7 @@ yap.tgz ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRE
 	  
     install(CODE "execute_process(
         COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed --no-deps  .
+        COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 

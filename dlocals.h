@@ -1,5 +1,5 @@
-// Stuff that must be considered local to a thread or worker
-// Streams
+/// Thread Local Variables. This file now follows C syntax. 
+// Macro support
 #ifndef LOCAL
 #include "Yap.h"
 #include "heap.h"
@@ -11,6 +11,7 @@
 #define LOCAL_INITF(A, B, C)                                                     A B                                                                           C
   #define LOCAL_INIT_RESTORE(A,B,C,D) A B C D
 #endif
+/// Current bindings for std streams, includes default s
 #define LOCAL_c_input_stream (Yap_local.c_input_stream)
 #define REMOTE_c_input_stream(wid) (REMOTE(wid)->c_input_stream)
 

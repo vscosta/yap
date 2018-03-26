@@ -562,7 +562,7 @@ class YAPRun:
                     self.os = None
                     sys.stderr.writeln('Done, with', self.bindings)
                     return True,self.bindings
-            if self.bindings:
+            if found:
                 sys.stderr.write('Done, with', self.bindings, '\n')
             else:
                 self.query.close()
@@ -571,8 +571,9 @@ class YAPRun:
                 sys.stderr.write('Fail\n')
             return True,{}
         except Exception as e:
+            sys.stderr.write('Exception after', self.bindings, '\n')
             has_raised = True
-            self.result.result = False
+            return False,{}
 
 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,

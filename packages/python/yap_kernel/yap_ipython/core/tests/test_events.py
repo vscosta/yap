@@ -1,4 +1,4 @@
-from backcall import callback_prototype
+from yap_ipython.core.backcall import callback_prototype
 import unittest
 from unittest.mock import Mock
 import nose.tools as nt

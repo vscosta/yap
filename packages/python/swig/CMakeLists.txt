@@ -70,7 +70,7 @@ endif()
   DEPENDS ${PYTHON_SOURCES}
   )
 
-      install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install     --ignore-installed .
+      install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
     DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${YAP_INSTALL_DLLDIR} )
 
