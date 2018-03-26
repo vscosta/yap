@@ -182,7 +182,7 @@ DBMS(show_databases)(Connection,database(Databases)) :-
 	DBMS(result_set)(Mode),
 	'$write_or_not'('SHOW DATABASES'),
 	c_DBMS(query)('SHOW DATABASES',ResultSet,Conn,Mode,_),
-	!,c_DBMS(row)(ResultSet,1,[Databases]).
+	!,DBMS(row)(ResultSet,1,[Databases]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 

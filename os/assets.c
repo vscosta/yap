@@ -68,7 +68,7 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s-%s <%s>", fname, me->prefix,io_mode);
     if (strchr(io_mode, 'B')) {
         mode = AASSET_MODE_BUFFER;
-    } else {[lib]
+    } else {
         mode = AASSET_MODE_UNKNOWN;
     }
     GLOBAL_Stream[sno].name = Yap_LookupAtom(fname);
