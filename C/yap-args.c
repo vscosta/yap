@@ -315,7 +315,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// BOOTPLDIR: where we can find Prolog bootstrap files
   Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
 #if __ANDROID__
-                      "/assets/Yap/pl/boot,yap",
+                      "/assets/Yap/pl/boot.yap",
 #else
                       join(getenv("DESTDIR"), YAP_BOOTSTRAP),
 #endif

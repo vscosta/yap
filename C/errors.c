@@ -333,6 +333,14 @@ void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
   LOCAL_ActiveError = new_error;
 }
 
+static void
+reset_error_description(void) {
+  sigjmp_buf *bf = LOCAL_ActiveError->top_error;
+  memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+  LOCAL_ActiveError->top_error = bf;
+
+}
+
 yap_error_descriptor_t *Yap_popErrorContext(bool pass) {
   if (pass && LOCAL_ActiveError->top_error->errorNo == YAP_NO_ERROR &&
       LOCAL_ActiveError->errorNo != YAP_NO_ERROR)
@@ -361,6 +369,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(file, function, lineno, type, where);
   }
+  if (LOCAL_RestartEnv)
   siglongjmp(*LOCAL_RestartEnv, 5);
 }
 
@@ -474,7 +483,6 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   va_end(ap);
   if (P == (yamop *)(FAILCODE)) {
-    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     LOCAL_PrologMode &= ~InErrorMode;
     return P;
   }

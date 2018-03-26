@@ -337,7 +337,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
 
   st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
-  if (st->vfs) {
+  if (st->vfs && !st->file) {
     st->stream_putc = st->vfs->put_char;
     st->stream_wputc = st->vfs->put_char;
     st->stream_getc = st->vfs->get_char;
@@ -1143,7 +1143,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Te
         st->status = Binary_Stream_f|flags;
     }
 
-  st->vfs = vfs;
+  //st->vfs = vfs;
   st->buf.on = false;
   st->charcount = 0;
   st->linecount = 1;
@@ -1598,7 +1598,7 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
     // read, write, append
     user_name = st->user_name;
   } else {
-    fd  = fopen(fname, io_mode);
+    st->file  = fopen(fname, io_mode);
     if (fd == NULL) {
       if (!strchr(io_mode, 'b') && binary_file(fname)) {
         UNLOCK(st->streamlock);
@@ -1615,7 +1615,7 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
       return -1;
     }
   }
-    Yap_initStream(sno, fd, fname, io_mode, user_name, LOCAL_encoding, flags, vfsp);
+    Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding, flags, vfsp);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
                       sno);
   return sno;

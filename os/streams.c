@@ -984,7 +984,7 @@ static void CloseStream(int sno) {
 
   //fflush(NULL);
   VFS_t *me;
-  if ((me = GLOBAL_Stream[sno].vfs) != NULL) {
+  if ((me = GLOBAL_Stream[sno].vfs) != NULL && GLOBAL_Stream[sno].file == NULL) {
   if (me->close) {
   me->close(sno);
   }
