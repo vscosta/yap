@@ -688,7 +688,7 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     find_python_module(jupyter)
     find_python_module(wheel)
     find_python_module(setuptools)
-    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
+    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS)
         add_subdirectory(packages/python/yap_kernel)
     ENDIF ()
 

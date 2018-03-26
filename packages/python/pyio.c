@@ -89,8 +89,9 @@ static bool getLine(int inp) {
   char *myrl_line = NULL;
     StreamDesc *rl_instream = YAP_RepStreamFromId(inp);
    term_t ctk = python_acquire_GIL();
- PyObject*prompt  = PyUnicode_FromString( "?- "),
-  *msg = PyUnicode_FromString("");
+   fprintf(stderr,"in");
+     PyObject*prompt  = PyUnicode_FromString( "?- "),
+  *msg = PyUnicode_FromString(" **input** ");
   /* window of vulnerability opened */
   myrl_line = PyUnicode_AsUTF8(PyObject_CallFunctionObjArgs(rl_instream->u.private_data,msg,prompt,NULL));
   python_release_GIL(ctk);

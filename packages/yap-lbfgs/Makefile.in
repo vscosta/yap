@@ -1,0 +1,68 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+SHAREDIR=$(ROOTDIR)/share/Yap
+YAPLIBDIR=@libdir@/Yap
+#
+#
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/liblbfgs-1.10/include
+LDFLAGS=@LDFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+OBJS=yap_lbfgs.o lbfgs.o
+SOBJS=yap_lbfgs.@SO@
+PLLIB=$(srcdir)/lbfgs.pl
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS) 
+
+yap_lbfgs.o: $(srcdir)/yap_lbfgs.c
+	$(CC) -c $(CFLAGS) $(srcdir)/yap_lbfgs.c -o yap_lbfgs.o
+
+lbfgs.o: $(srcdir)/liblbfgs-1.10/lib/lbfgs.c
+	$(CC) -c $(CFLAGS) -I $(srcdir)/liblbfgs-1.10/lib $(srcdir)/liblbfgs-1.10/lib/lbfgs.c -o lbfgs.o
+
+@DO_SECOND_LD@yap_lbfgs.@SO@: yap_lbfgs.o lbfgs.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_lbfgs.@SO@ yap_lbfgs.o lbfgs.o @EXTRA_LIBS_FOR_DLLS@
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	for h in $(PLLIB); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
+
+install-examples:
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
+
+distclean: clean
+	rm -f Makefile

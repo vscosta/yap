@@ -1,0 +1,323 @@
+// Stuff that must be considered local to a thread or worker
+START_WORKER_LOCAL
+
+// Streams
+int				c_input_stream				=0
+int				c_output_stream				=1
+int				c_error_stream				=2
+
+bool				sockets_io				=false
+
+bool				within_print_message	=false
+
+//
+
+// Used by the prompts to check if they are after a newline, and then a
+// prompt should be output, or if we are in the middle of a line.
+//
+bool				newline					=true
+
+Atom				AtPrompt				=AtomNil
+char				Prompt[MAX_PROMPT+1]			void
+
+encoding_t			encoding				=Yap_DefaultEncoding()
+bool				quasi_quotations			=false
+UInt				default_priority			=1200
+
+bool				eot_before_eof				=false
+UInt				max_depth				=0
+UInt				max_list				=0
+UInt				max_write_args				=0
+
+
+// Restore info
+CELL*				OldASP					=NULL
+CELL*				OldLCL0					=NULL
+tr_fr_ptr			OldTR					=NULL
+CELL*				OldGlobalBase				=NULL
+CELL*				OldH					=NULL
+CELL*				OldH0					=NULL
+ADDR				OldTrailBase				=NULL
+ADDR				OldTrailTop				=NULL
+ADDR				OldHeapBase				=NULL
+ADDR				OldHeapTop				=NULL
+Int				ClDiff					=0L
+Int				GDiff					=0L
+Int				HDiff					=0L
+Int				GDiff0					=0L
+CELL*				GSplit					=NULL
+Int				LDiff					=0L
+Int				TrDiff					=0L
+Int				XDiff					=0L
+Int				DelayDiff				=0L
+Int				BaseDiff				=0L
+
+// Reduction counters
+YAP_ULONG_LONG			ReductionsCounter			=0L
+YAP_ULONG_LONG			PredEntriesCounter			=0L
+YAP_ULONG_LONG			RetriesCounter				=0L
+int				ReductionsCounterOn			=0L
+int				PredEntriesCounterOn			=0L
+int				RetriesCounterOn			=0L
+
+// support for consulting files
+/* current consult stack */
+union CONSULT_OBJ*		ConsultSp				=NULL
+/* current maximum number of cells in consult stack */
+UInt				ConsultCapacity				void
+/* top of consult stack  */
+union CONSULT_OBJ*		ConsultBase				=NULL
+/* low-water mark for consult  */
+union CONSULT_OBJ*		ConsultLow				=NULL
+Term				VarNames				=((Term)0)
+Atom				SourceFileName				=NULL
+UInt				SourceFileLineno			=0
+
+//global variables
+Term				GlobalArena				=0L		TermToGlobalOrAtomAdjust
+UInt				GlobalArenaOverflows			=0L
+Int				ArenaOverflows				=0L
+Int				DepthArenas				=0
+
+struct    pred_entry*		LastAssertedPred			=NULL
+struct    pred_entry*		TmpPred					=NULL
+char*			ScannerStack				=NULL
+struct    scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
+
+/// worker control information
+/// stack limit after which the stack is managed by C-code.
+Int				CBorder				=0
+
+
+/// max number of signals (uint64_t)
+UInt				MaxActiveSignals			=64L
+/// actual life signals
+uint64_t			Signals					=0L
+/// indexing help data?
+UInt				IPredArity				=0L
+yamop*				ProfEnd					=NULL
+int				DoingUndefp				=FALSE
+Int				StartCharCount				=0L
+Int				StartLineCount				=0L
+Int				StartLinePos			=0L
+scratch_block			ScratchPad						InitScratchPad(wid)
+#ifdef  COROUTINING
+Term				WokenGoals				=0L 		TermToGlobalAdjust
+Term				AttsMutableList				=0L 		TermToGlobalAdjust
+#endif
+
+
+
+// gc_stuff
+Term				GcGeneration				=0L 		TermToGlobalAdjust
+Term				GcPhase					=0L 		TermToGlobalAdjust
+UInt				GcCurrentPhase				=0L
+UInt				GcCalls					=0L
+Int				TotGcTime				=0L
+YAP_ULONG_LONG			TotGcRecovered				=0L
+Int				LastGcTime				=0L
+Int				LastSSTime				=0L
+CELL*				OpenArray				=NULL
+
+/* in a single gc */
+Int				total_marked				=0L
+Int				total_oldies				=0L
+struct choicept*		current_B				=NULL
+CELL*				prev_HB					=NULL
+CELL*				HGEN					=NULL
+CELL**				iptop					=NULL
+
+#if defined(GC_NO_TAGS)
+char*				bp					=NULL
+#endif
+tr_fr_ptr			sTR					=NULL
+tr_fr_ptr			sTR0					=NULL
+tr_fr_ptr			new_TR					=NULL
+struct gc_mark_continuation*	cont_top0				=NULL
+struct gc_mark_continuation*	cont_top				=NULL
+int				discard_trail_entries			=0
+gc_ma_hash_entry		gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	void
+gc_ma_hash_entry*		gc_ma_h_top				=NULL
+gc_ma_hash_entry*		gc_ma_h_list				=NULL
+UInt				gc_timestamp				=0L
+ADDR				db_vec					=NULL
+ADDR				db_vec0					=NULL
+struct RB_red_blk_node*		db_root					=NULL
+struct RB_red_blk_node*		db_nil					=NULL
+
+sigjmp_buf*			gc_restore				void
+CELL*				extra_gc_cells				void
+CELL*				extra_gc_cells_base			void
+CELL*				extra_gc_cells_top			void
+UInt				extra_gc_cells_size			=256
+struct array_entry*		DynamicArrays				=NULL 		PtoArrayEAdjust
+struct static_array_entry*	StaticArrays				=NULL 		PtoArraySAdjust
+struct global_entry*		GlobalVariables				=NULL 		PtoGlobalEAdjust
+int				AllowRestart				=FALSE
+
+// Thread Local Area for Fast Storage of Intermediate Compiled Code
+struct mem_blk*			CMemFirstBlock				=NULL
+UInt				CMemFirstBlockSz			=0L
+
+// Variable used by the compiler to store number of permanent vars in a clause
+int				nperm					=0
+int       jMP           =0
+// Thread Local Area for Labels
+Int*				LabelFirstArray				=NULL
+UInt				LabelFirstArraySz			=0L
+
+// Thread Local Area for SWI-Prolog emulation routines.
+// struct PL_local_data*		PL_local_data_p				=Yap_InitThreadIO(wid)
+
+#ifdef THREADS
+struct thandle			ThreadHandle				InitThreadHandle(wid)
+#endif /* THREADS */
+
+#if defined(YAPOR) || defined(TABLING)
+struct local_optyap_data	optyap_data   				Yap_init_local_optyap_data(wid)
+UInt				TabMode					=0L
+#endif /* YAPOR || TABLING */
+
+int				InterruptsDisabled			=FALSE
+
+struct open_query_struct* 	execution				=NULL
+
+#if LOW_LEVEL_TRACER
+Int				total_choicepoints			=0
+#endif
+
+int				consult_level				=0
+
+// Variables related to memory allocation
+ADDR				LocalBase				void
+ADDR				GlobalBase				void
+ADDR				TrailBase				void
+ADDR				TrailTop				void
+
+/* error handling info, designed to be easy to pass to the foreign world */
+yap_error_descriptor_t*		ActiveError			=calloc(sizeof(yap_error_descriptor_t),1)
+/// pointer to an exception term, from throw
+
+jmp_buf* 			IOBotch					void
+TokEntry*			tokptr					void
+TokEntry*			toktide					void
+VarEntry*			VarTable 				void
+VarEntry*			AnonVarTable				void
+Term				Comments				void
+CELL*				CommentsTail				void
+CELL*				CommentsNextChar			void
+wchar_t*			CommentsBuff				void
+size_t				CommentsBuffPos				void
+size_t				CommentsBuffLim				void
+sigjmp_buf*         	RestartEnv				void
+char     			FileNameBuf[YAP_FILENAME_MAX+1]		void
+char        			FileNameBuf2[YAP_FILENAME_MAX+1]	void
+
+struct TextBuffer_manager*  TextBuffer      =Yap_InitTextAllocator()
+
+// Prolog State
+UInt				BreakLevel				=0
+Int      			PrologMode 				=BootMode
+int      			CritLocks 				=0
+
+// Prolog execution and state flags
+union flagTerm*		       Flags					void
+UInt   			       flagCount				void
+
+//analyst.c
+/* used to find out how many instructions of each kind are executed */
+#ifdef ANALYST
+YAP_ULONG_LONG 			opcount[_std_top+1]			void
+YAP_ULONG_LONG 			2opcount[_std_top+1][_std_top+1] 	void
+#endif /* ANALYST */
+
+//dbase.c
+struct db_globs*		s_dbg					void
+
+//eval.c
+Term		 		mathtt		 			void
+char*		 		mathstring				=NULL
+
+//grow.c
+int 				heap_overflows 				=0
+Int 				total_heap_overflow_time		=0
+int 				stack_overflows 			=0
+Int 				total_stack_overflow_time 		=0
+int 				delay_overflows 			=0
+Int 				total_delay_overflow_time 		=0
+int 				trail_overflows 			=0
+Int 				total_trail_overflow_time 		=0
+int 				atom_table_overflows 			=0
+Int 				total_atom_table_overflow_time 		=0
+
+//load_dyld
+#ifdef LOAD_DYLD
+int 				dl_errno				=0
+#endif
+
+//tracer.c
+#ifdef LOW_LEVEL_TRACER
+int 				do_trace_primitives 			=TRUE
+#endif
+
+//quick loader
+struct export_atom_hash_entry_struct *ExportAtomHashChain		=NULL
+UInt				ExportAtomHashTableSize			=0
+UInt				ExportAtomHashTableNum			=0
+struct export_functor_hash_entry_struct *ExportFunctorHashChain		=NULL
+UInt				ExportFunctorHashTableSize		=0
+UInt				ExportFunctorHashTableNum		=0
+struct export_pred_entry_hash_entry_struct *ExportPredEntryHashChain	=NULL
+UInt				ExportPredEntryHashTableSize		=0
+UInt				ExportPredEntryHashTableNum		=0
+struct export_dbref_hash_entry_struct *ExportDBRefHashChain		=NULL
+UInt				ExportDBRefHashTableSize		=0
+UInt				ExportDBRefHashTableNum			=0
+struct import_atom_hash_entry_struct **ImportAtomHashChain		=NULL
+UInt				ImportAtomHashTableSize			=0
+UInt				ImportAtomHashTableNum			=0
+struct import_functor_hash_entry_struct **ImportFunctorHashChain	=NULL
+UInt				ImportFunctorHashTableSize		=0
+UInt				ImportFunctorHashTableNum		=0
+struct import_opcode_hash_entry_struct **ImportOPCODEHashChain		=NULL
+UInt				ImportOPCODEHashTableSize		=0
+struct import_pred_entry_hash_entry_struct **ImportPredEntryHashChain	=NULL
+UInt				ImportPredEntryHashTableSize		=0
+UInt				ImportPredEntryHashTableNum		=0
+struct import_dbref_hash_entry_struct **ImportDBRefHashChain		=NULL
+UInt				ImportDBRefHashTableSize		=0
+UInt				ImportDBRefHashTableNum			=0
+yamop			       *ImportFAILCODE				=NULL
+
+// exo indexing
+
+UInt				ibnds[256]				void
+struct index_t*			exo_it					=NULL
+CELL*				exo_base				=NULL
+UInt				exo_arity				=0
+UInt				exo_arg					=0
+
+// atom completion
+struct scan_atoms*		search_atoms				void
+struct pred_entry*		SearchPreds				void
+
+/// Slots Status
+yhandle_t				CurSlot					=0
+yhandle_t				FrozenHandles			=0
+yhandle_t				NSlots					=0
+CELL*				SlotBase					=InitHandles(wid)
+
+// Mutexes
+struct swi_mutex*		Mutexes					=NULL
+
+Term				SourceModule				=0
+Term				Including				=TermNil
+
+size_t				MAX_SIZE				=1024L
+
+/* last call to walltime. */
+uint64_t			LastWTime				=0
+
+void*				shared					=NULL
+
+END_WORKER_LOCAL

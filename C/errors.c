@@ -660,7 +660,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   if (LOCAL_DoingUndefp) {
     Yap_PrintWarning(error_t);
   } else {
-    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+    //memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     Yap_JumpToEnv(error_t);
   }
   P = (yamop *)FAILCODE;

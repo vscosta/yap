@@ -1,0 +1,11 @@
+setup.py
+/Users/vsc/Yap/yap-6.3/packages/python/yapex.py
+/Users/vsc/Yap/yap-6.3/packages/python/yapex.egg-info/PKG-INFO
+/Users/vsc/Yap/yap-6.3/packages/python/yapex.egg-info/SOURCES.txt
+/Users/vsc/Yap/yap-6.3/packages/python/yapex.egg-info/dependency_links.txt
+/Users/vsc/Yap/yap-6.3/packages/python/yapex.egg-info/top_level.txt
+/Users/vsc/github/yap-6.3/packages/python/yapex.py
+/Users/vsc/github/yap-6.3/packages/python/yapex.egg-info/PKG-INFO
+/Users/vsc/github/yap-6.3/packages/python/yapex.egg-info/SOURCES.txt
+/Users/vsc/github/yap-6.3/packages/python/yapex.egg-info/dependency_links.txt
+/Users/vsc/github/yap-6.3/packages/python/yapex.egg-info/top_level.txt
