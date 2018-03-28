@@ -1,4 +1,0 @@
-core
-yap_ipython
-yap_kernel
-yap_kernel_launcher
