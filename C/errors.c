@@ -166,7 +166,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_gc(arity, ENV, gc_P(P, CP))) {
-      Yap_Error__(file, function, lineno, RESOURCE_ERROR_STACK, ARG1, serr);
+      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_STACK, ARG1, serr);
       return false;
     }
     return true;
@@ -176,18 +176,18 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
     }
     if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
       /* crash in flames */
-      Yap_Error__(file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK, ARG1,
+      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_AUXILIARY_STACK, ARG1,
                   serr);
       return false;
     }
     return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error__(file, function, lineno, RESOURCE_ERROR_HEAP, ARG2, serr);
+      Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_HEAP, ARG2, serr);
       return false;
     }
   default:
-    Yap_Error__(file, function, lineno, err, TermNil, serr);
+    Yap_Error__(false, file, function, lineno, err, TermNil, serr);
     return false;
   }
 }
@@ -218,24 +218,25 @@ int Yap_SWIHandleError(const char *s, ...) {
       Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, ARG1, serr);
       return FALSE;
     }
-    return TRUE;
+    return true;
   case RESOURCE_ERROR_HEAP:
-    if (!Yap_growheap(FALSE, 0, NULL)) {
+    if (!Yap_growheap(false, 0, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, ARG2, serr);
-      return FALSE;
+      return false;
     }
   default:
     Yap_Error(err, TermNil, serr);
-    return (FALSE);
+    return false;
   }
 }
 
 void Yap_RestartYap(int flag) {
   CACHE_REGS
+  fprintf(stderr,"HR=%p\n", HR);
 #if PUSH_REGS
   restore_absmi_regs(&Yap_standard_regs);
 #endif
-  siglongjmp(*LOCAL_RestartEnv, 1);
+  siglongjmp(*LOCAL_RestartEnv, flag);
 }
 
 static void error_exit_yap(int value) {
@@ -335,7 +336,8 @@ void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
 
 static void
 reset_error_description(void) {
-  sigjmp_buf *bf = LOCAL_ActiveError->top_error;
+  yap_error_descriptor_t *bf = LOCAL_ActiveError->top_error;
+  if (Yap_HasException())
   memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
   LOCAL_ActiveError->top_error = bf;
 
@@ -365,12 +367,15 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     (void)vsprintf(tnpbuf, fmt, ap);
 #endif
     // fprintf(stderr, "warning: ");
-    Yap_Error__(file, function, lineno, type, where, tmpbuf);
+    Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
   } else {
-    Yap_Error__(file, function, lineno, type, where);
+    Yap_Error__(true, file, function, lineno, type, where);
   }
-  if (LOCAL_RestartEnv)
-  siglongjmp(*LOCAL_RestartEnv, 5);
+  if (LOCAL_RestartEnv) {
+    Yap_RestartYap(5);
+  } else {
+    exit(5);
+  }
 }
 
 /**
@@ -406,7 +411,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
  *
  *   + i=i(Comment): an user-written comment on this bug.
  */
-yamop *Yap_Error__(const char *file, const char *function, int lineno,
+yamop *Yap_Error__(bool throw, const char *file, const char *function, int lineno,
                    yap_error_number type, Term where, ...) {
   CACHE_REGS
   va_list ap;
@@ -573,7 +578,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallCounter));
-    P = (yamop *)FAILCODE;
+    P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return (P);
   case PRED_ENTRY_COUNTER_UNDERFLOW_EVENT:
@@ -582,7 +587,7 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
     LOCAL_PredEntriesCounterOn = FALSE;
     LOCAL_RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallAndRetryCounter));
-    P = (yamop *)FAILCODE;
+    P = FAILCODE;
     LOCAL_PrologMode &= ~InErrorMode;
     return (P);
   case RETRY_COUNTER_UNDERFLOW_EVENT:
@@ -659,11 +664,16 @@ yamop *Yap_Error__(const char *file, const char *function, int lineno,
   }
   if (LOCAL_DoingUndefp) {
     Yap_PrintWarning(error_t);
-  } else {
-    //memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
-    Yap_JumpToEnv(error_t);
+    return P;
   }
-  P = (yamop *)FAILCODE;
+  //reset_error_description();
+  Yap_PutException(error_t);
+  fprintf(stderr,"HR before jmp=%p\n", HR);
+    if (throw)
+        LOCAL_BallTerm = Yap_StoreTermInDB(error_t, 5);
+    else
+    Yap_JumpToEnv(error_t);
+    fprintf(stderr,"HR after jmp=%p\n", HR);
   LOCAL_PrologMode &= ~InErrorMode;
   return P;
 }

@@ -41,7 +41,7 @@
     Yap_InitError__(const char *file, const char *function, int lineno,
                     yap_error_number e, YAP_Term g, ...);
 
-extern struct yami *Yap_Error__(const char *file, const char *function,
+extern struct yami *Yap_Error__(bool thrw, const char *file, const char *function,
                                 int lineno, yap_error_number err,
                                 YAP_Term wheret, ...);
 
@@ -53,13 +53,13 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
     ;
 
 #define Yap_NilError(id, ...)                                                  \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
+  Yap_Error__(false,__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_Error(id, inp, ...)                                                \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+  Yap_Error__(false,__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
 #define Yap_ThrowError(id, inp, ...)                                           \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
@@ -80,11 +80,11 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
   if (!IsVarTerm(t) && IsAtomTerm(t))
     return t;
   if (IsVarTerm(t)) {
-    Yap_Error__(fu, fi, line, INSTANTIATION_ERROR, t, NULL);
+    Yap_Error__(false,fu, fi, line, INSTANTIATION_ERROR, t, NULL);
   } else {
     if (IsAtomTerm(t))
       return t;
-    Yap_Error__(fu, fi, line, TYPE_ERROR_ATOM, t, NULL);
+    Yap_Error__(false,fu, fi, line, TYPE_ERROR_ATOM, t, NULL);
     return 0L;
   }
 

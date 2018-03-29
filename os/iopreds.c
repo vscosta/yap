@@ -499,7 +499,7 @@ Int PlIOError__(const char *file, const char *function, int lineno,
       who[0] = '\0';
     }
     va_end(args);
-    Yap_Error__(file, function, lineno, type, culprit, who);
+    Yap_Error__(false, file, function, lineno, type, culprit, who);
     /* and fail */
     return false;
   } else {
@@ -1574,8 +1574,7 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
   CACHE_REGS
   int sno;
   StreamDesc *st;
-  struct vfs *vfsp = NULL;
-  FILE *fd = NULL;
+  struct vfs *vfsp;
   int flags;                                                                                               
 
   sno = GetFreeStreamD();
@@ -1599,7 +1598,7 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
     user_name = st->user_name;
   } else {
     st->file  = fopen(fname, io_mode);
-    if (fd == NULL) {
+    if (st->file == NULL) {
       if (!strchr(io_mode, 'b') && binary_file(fname)) {
         UNLOCK(st->streamlock);
         if (errno == ENOENT && !strchr(io_mode, 'r')) {

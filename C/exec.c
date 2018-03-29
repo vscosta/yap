@@ -1390,76 +1390,85 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   LOCAL_CBorder = LCL0 - (CELL *)B;
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
+  REGSTORE *old_rs = Yap_regp;
 
   if (top && (lval = sigsetjmp(signew, 1)) != 0) {
-    switch (lval) {
-    case 1: { /* restart */
-      /* otherwise, SetDBForThrow will fail entering critical mode */
-      LOCAL_PrologMode = UserMode;
-      /* find out where to cut to */
-      /* siglongjmp resets the TR hardware register */
-      /* TR and B are crucial, they might have been changed, or not */
-      restore_TR();
-      restore_B();
-      /* H is not so important, because we're gonna backtrack */
-      restore_H();
-      /* set stack */
-      ASP = (CELL *)PROTECT_FROZEN_B(B);
-      /* forget any signals active, we're reborne */
-      LOCAL_Signals = 0;
-      CalculateStackGap(PASS_REGS1);
-      LOCAL_PrologMode = UserMode;
-      P = (yamop *)FAILCODE;
-    } break;
-    case 2: {
-      /* arithmetic exception */
-      /* must be done here, otherwise siglongjmp will clobber all the
-       * registers
-       */
-      /* reset the registers so that we don't have trash in abstract
-       * machine */
-      Yap_set_fpu_exceptions(
-          getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
-      P = (yamop *)FAILCODE;
-      LOCAL_PrologMode = UserMode;
-    } break;
-    case 3: { /* saved state */
-      LOCAL_CBorder = OldBorder;
-      LOCAL_RestartEnv = sighold;
-      return false;
-    }
-    case 4:
-      /* abort */
-      /* can be called from anywhere, must reset registers,
-       */
-      while (B) {
-        Yap_JumpToEnv(TermDAbort);
+      switch (lval) {
+          case 1: { /* restart */
+              /* otherwise, SetDBForThrow will fail entering critical mode */
+              LOCAL_PrologMode = UserMode;
+              /* find out where to cut to */
+              /* siglongjmp resets the TR hardware register */
+              /* TR and B are crucial, they might have been changed, or not */
+              restore_TR();
+              restore_B();
+              /* H is not so important, because we're gonna backtrack */
+              restore_H();
+              /* set stack */
+              ASP = (CELL *) PROTECT_FROZEN_B(B);
+              /* forget any signals active, we're reborne */
+              LOCAL_Signals = 0;
+              CalculateStackGap(PASS_REGS1);
+              LOCAL_PrologMode = UserMode;
+              P = (yamop *) FAILCODE;
+          }
+              break;
+          case 2: {
+              /* arithmetic exception */
+              /* must be done here, otherwise siglongjmp will clobber all the
+               * registers
+               */
+              /* reset the registers so that we don't have trash in abstract
+               * machine */
+              Yap_set_fpu_exceptions(
+                      getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
+              P = (yamop *) FAILCODE;
+              LOCAL_PrologMode = UserMode;
+          }
+              break;
+          case 3: { /* saved state */
+              LOCAL_CBorder = OldBorder;
+              LOCAL_RestartEnv = sighold;
+              return false;
+          }
+          case 4:
+              /* abort */
+              /* can be called from anywhere, must reset registers,
+               */
+              while (B) {
+                  Yap_JumpToEnv(TermDAbort);
+              }
+              LOCAL_PrologMode &= ~AbortMode;
+              P = (yamop *) FAILCODE;
+              LOCAL_RestartEnv = sighold;
+              return false;
+              break;
+          case 5:
+              // going up, unless there is no up to go to. or someone
+              // but we should inform the caller on what happened.
+
+              Yap_regp = old_rs;
+              fprintf(stderr,"HR before jmp=%p\n", HR);
+              Yap_JumpToEnv(0);
+              fprintf(stderr,"HR after jmp=%p\n", HR);
+              LOCAL_PrologMode = UserMode;
+              ASP = (CELL *) B;
+              if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {
+                  LOCAL_RestartEnv = sighold;
+                  LOCAL_CBorder = OldBorder;
+                  fprintf(stderr, "HR after sigset A=%p\n", HR);
+                  return false;
+              }
+              fprintf(stderr, "HR after sigset=B %p\n", HR);
+              P = FAILCODE;
+
       }
-      LOCAL_PrologMode &= ~AbortMode;
-      P = (yamop *)FAILCODE;
-      LOCAL_RestartEnv = sighold;
-      return false;
-      break;
-    case 5:
-      // going up, unless there is no up to go to. or someone
-      // but we should inform the caller on what happened.
-      if (B && B->cp_b && B->cp_b <= (choiceptr)(LCL0 - LOCAL_CBorder)) {
-        break;
-      }
-      LOCAL_RestartEnv = sighold;
-      LOCAL_PrologMode = UserMode;
-      LOCAL_CBorder = OldBorder;
-      return false;
-    default:
-      /* do nothing */
-      LOCAL_PrologMode = UserMode;
-    }
-  } else {
-    LOCAL_PrologMode = UserMode;
   }
+    LOCAL_PrologMode = UserMode;
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
   out = Yap_absmi(0);
+    fprintf(stderr, "HR after absmi=%p\n", HR);
   /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
   if (!Yap_has_a_signal())
@@ -1958,14 +1967,14 @@ static Int cut_up_to_next_disjunction(USES_REGS1) {
   return TRUE;
 }
 
-/** 
+/**
  * Reset the Prolog engine . If _Hard_ resèt the global stack_el. If
  * p_no_use_'soft_float keei
- * 
- * @param mode 
- * @param hard 
- * 
- * @return 
+ *
+ * @param mode
+ * @param hard
+ *
+ * @return
  */
 bool Yap_Reset(yap_reset_t mode, bool hard) {
   CACHE_REGS
@@ -2008,7 +2017,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
   return pe == PredSafeCallCleanup;
 }
 
-static Int JumpToEnv() {
+  static Int JumpToEnv() {
   choiceptr handler = B;
   /* just keep the throwm object away, we don't need to care about it
    */
@@ -2025,7 +2034,7 @@ static Int JumpToEnv() {
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
-  
+
   B = handler;
   P = FAILCODE;
   return true;
@@ -2033,6 +2042,7 @@ static Int JumpToEnv() {
 
 bool Yap_JumpToEnv(Term t) {
   CACHE_REGS
+  if (t)
     LOCAL_BallTerm = Yap_StoreTermInDB(t, 0);
   if (!LOCAL_BallTerm)
     return false;
@@ -2181,6 +2191,7 @@ static Int jump_env(USES_REGS1) {
       t = Yap_PopTermFromDB(LOCAL_BallTerm);
     }
     LOCAL_BallTerm = NULL;
+
     return t;
   }
 
@@ -2201,20 +2212,30 @@ static Int jump_env(USES_REGS1) {
   }
 
   bool Yap_ResetException(int wid) {
+    // reset errir descriptir
+    yap_error_descriptor_t *bf = REMOTE_ActiveError(wid)->top_error;
     if (REMOTE_ActiveError(wid)->errorTerm) {
       Yap_PopTermFromDB(REMOTE_ActiveError(wid)->errorTerm);
     }
-    REMOTE_ActiveError(wid)->errorTerm = NULL;
+    memset(REMOTE_ActiveError(wid), 0, sizeof(*LOCAL_ActiveError));
+    REMOTE_ActiveError(wid)->top_error = bf;
     return true;
   }
 
   static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
   static Int get_exception(USES_REGS1) {
+    fprintf(stderr,"HR befo get_xc=%p\n", HR);
     Term t = Yap_GetException();
-    if (t == 0)
+      fprintf(stderr,"HR befo get_xc=%p\n", HR);
+      if (t == 0)
       return false;
-    return Yap_unify(t, ARG1);
+    Yap_DebugPlWriteln(t);
+    Yap_ResetException(worker_id);
+    fprintf(stderr,"HR after get_xc=%p\n", HR);
+    Int rc= Yap_unify(t, ARG1);
+    Yap_DebugPlWriteln(t);
+return rc;
   }
 
   int Yap_dogc(int extra_args, Term *tp USES_REGS) {

@@ -4470,7 +4470,7 @@ add_search_path(Path, Dir) :-
 %	=CLASSPATH=, etc.
 
 search_path_separator((;)) :-
-	current_prolog_flag(windo/.... ,,,,,,,,,,,,,,,,,, :l'p[KIO)_"?ws, true), !.
+	current_prolog_flag(windows, true), !.
 search_path_separator(:).
 
 		 /*******************************
@@ -4503,7 +4503,8 @@ location( java_root, _, Home) :-
     getenv( 'JAVA_HOME', Home ).
 location(java_root, _, JRE) :-
     % OS well-known
-    member(Root, [ '/usr/lib',
+    member(Root, [
+		/System/Library/Frameworks/JavaVM.framework/Versions/A/JavaV '/usr/lib',
 		   '/usr/local/lib',
                    '/opt/lib',
   '/Library/Java/JavaVirtualMachines',

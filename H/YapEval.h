@@ -402,16 +402,14 @@ Term Yap_eval_binary(Int, Term, Term);
 Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_EvalError(id, t, ...)                                              \
-  Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
-                       ...);
+  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 
 #define Yap_ArithError(id, t, ...)                                             \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 #define Yap_BinError(id)                                                       \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)                                                     \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 
 #include "inline-only.h"
