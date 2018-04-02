@@ -1303,18 +1303,23 @@ INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags flags) {
 
 /* Proto types */
 
+
+extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+
+extern Term Yap_BufferToTerm(const  char *s, Term opts);
+
 /* cdmgr.c */
-int Yap_RemoveIndexation(PredEntry *);
-void Yap_UpdateTimestamps(PredEntry *);
+extern int Yap_RemoveIndexation(PredEntry *);
+extern void Yap_UpdateTimestamps(PredEntry *);
 
 /* dbase.c */
-void Yap_ErDBE(DBRef);
-DBTerm *Yap_StoreTermInDB(Term, int);
+extern void Yap_ErDBE(DBRef);
+extern DBTerm *Yap_StoreTermInDB(Term, int);
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
-Term Yap_FetchTermFromDB(void *);
-Term Yap_FetchClauseTermFromDB(void *);
-Term Yap_PopTermFromDB(void *);
-void Yap_ReleaseTermFromDB(void *);
+Term Yap_FetchTermFromDB(const void *);
+Term Yap_FetchClauseTermFromDB(const void *);
+Term Yap_PopTermFromDB(const void *);
+void Yap_ReleaseTermFromDB(const void *);
 
 /* init.c */
 Atom Yap_GetOp(OpEntry *, int *, int);
@@ -1335,6 +1340,7 @@ Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 *************************************************************************************************/
 
 #include "YapFlags.h"
+
 INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
 
 INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *fe, Term cur_mod,
@@ -1595,22 +1601,14 @@ INLINE_ONLY inline EXTERN const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-bool Yap_ResetException(int wid);
-bool Yap_HasException(void);
-Term Yap_GetException(void);
-Term Yap_PeekException(void);
-bool Yap_PutException(Term t);
+extern bool Yap_ResetException(int wid);
+extern bool Yap_HasException(void);
+extern Term Yap_GetException(void);
+extern void Yap_PrintException(void);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
-  return LOCAL_BallTerm != NULL;
+  return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
-INLINE_ONLY inline EXTERN void *Yap_RefToException(void) {
-  void *dbt = LOCAL_BallTerm;
-  LOCAL_BallTerm = NULL;
-  return dbt;
-}
-INLINE_ONLY inline EXTERN void Yap_CopyException(DBTerm *dbt) {
-  LOCAL_BallTerm = dbt;
-}
-bool Yap_RaiseException(void);
+
+extern bool Yap_RaiseException(void);
 
 #endif

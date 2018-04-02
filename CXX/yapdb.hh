@@ -107,10 +107,10 @@ protected:
   YAPPredicate(const char *s0, Term &tout, Term &tnames) {
     CACHE_REGS
     Term *modp = NULL;
-    const unsigned char *us = (const unsigned char *)s0;
+    const char *s = (const char *)s0;
     tnames = MkVarTerm();
     tout =
-            Yap_BufferToTermWithPrioBindings(us, TermNil, tnames, strlen(s0), 1200);
+            Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
     if (tout == 0L) {

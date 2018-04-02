@@ -943,18 +943,10 @@ static void RestoreForeignCode__(USES_REGS1) {
   }
 }
 
-static void RestoreBallTerm(int wid) {
-  CACHE_REGS
-  if (LOCAL_BallTerm) {
-    LOCAL_BallTerm = DBTermAdjust(LOCAL_BallTerm);
-    RestoreDBTerm(LOCAL_BallTerm, false, 1 PASS_REGS);
-  }
-}
 
 static void RestoreYapRecords__(USES_REGS1) {
   struct record_list *ptr;
 
-  RestoreBallTerm(worker_id);
   Yap_Records = DBRecordAdjust(Yap_Records);
   ptr = Yap_Records;
   while (ptr) {

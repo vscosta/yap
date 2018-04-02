@@ -1454,8 +1454,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   else
     tv = (Term)0;
   LOCAL_ErrorMessage = NULL;
-  const unsigned char *us = (const unsigned char *)s;
-  while (!(t = Yap_BufferToTermWithPrioBindings(us, TermNil, tv, strlen(s) + 1, GLOBAL_MaxPriority))) {
+  while (!(t = Yap_BufferToTermWithPrioBindings(s, TermNil, tv, strlen(s) + 1, GLOBAL_MaxPriority))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -2091,9 +2090,7 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
 X_API bool YAP_GoalHasException(Term *t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  if (t)
-    *t = Yap_PeekException();
-  return Yap_PeekException();
+  return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
 
 X_API void YAP_ClearExceptions(void) {
@@ -2254,12 +2251,13 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
   return true;
 }
 
-X_API char *YAP_CompileClause(Term t) {
+X_API bool YAP_CompileClause(Term t) {
   CACHE_REGS
   yamop *codeaddr;
   Term mod = CurrentModule;
   Term tn = TermNil;
-
+  bool ok = true;
+  
   BACKUP_MACHINE_REGS();
 
   /* allow expansion during stack initialization */
@@ -2267,12 +2265,14 @@ X_API char *YAP_CompileClause(Term t) {
   ARG1 = t;
   YAPEnterCriticalSection();
   codeaddr = Yap_cclause(t, 0, mod, t);
-  if (codeaddr != NULL) {
+  ok = (codeaddr != NULL);
+  if (ok) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
     if (!Yap_addclause(t, codeaddr, TermAssertz, mod, &tn)) {
-      YAPLeaveCriticalSection();
-      return LOCAL_ErrorMessage;
+      ok = false;
     }
+  } else {
+    ok = false;
   }
   YAPLeaveCriticalSection();
 
@@ -2280,10 +2280,16 @@ X_API char *YAP_CompileClause(Term t) {
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
                 LOCAL_ErrorMessage);
+      ok = false;
     }
   }
   RECOVER_MACHINE_REGS();
-  return (LOCAL_ErrorMessage);
+  if (!ok) {
+      t = Yap_GetException();
+      Yap_DebugPlWrite(t);
+      return NULL;        
+  }
+  return ok;
 }
 
 X_API void YAP_PutValue(YAP_Atom at, Term t) { Yap_PutValue(at, t); }
@@ -2339,7 +2345,9 @@ X_API void YAP_FlushAllStreams(void) {
 
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
-  Yap_JumpToEnv(t);
+  LOCAL_ActiveError->errorNo = THROW_EVENT;
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  Yap_JumpToEnv();
   RECOVER_MACHINE_REGS();
 }
 
@@ -2347,7 +2355,9 @@ X_API void YAP_AsyncThrow(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
-  Yap_JumpToEnv(t);
+  LOCAL_ActiveError->errorNo = THROW_EVENT;
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  Yap_JumpToEnv();
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }

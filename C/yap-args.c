@@ -202,12 +202,12 @@ static void consult(const char *b_file USES_REGS) {
         YAP_RunGoalOnce(t);
       }
     } else {
-      char *ErrorMessage;
-      ErrorMessage = YAP_CompileClause(t);
-      if (ErrorMessage) {
-        fprintf(stderr, "%s", ErrorMessage);
-      }
+     YAP_CompileClause(t);
     }
+    Term terr;
+    Yap_PrintException();
+    if ((terr = Yap_GetException()))
+      fprintf(stderr,"Exception Found\n");
   } while (t != TermEof);
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);

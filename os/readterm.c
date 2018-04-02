@@ -943,7 +943,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 
     Term t = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos);
     if (ParserErrorStyle == TermError) {
-      LOCAL_ActiveError->errorTerm = Yap_StoreTermInDB(t, 4);
+      LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, LOCAL_encoding, TermNil);
       LOCAL_Error_TYPE = SYNTAX_ERROR;
       // dec-10
     } else if (Yap_PrintWarning(t)) {
@@ -1374,19 +1374,31 @@ static Int style_checker(USES_REGS1) {
   return TRUE;
 }
 
-Term Yap_BufferToTerm(const unsigned char *s, Term opts) {
-  Term rval;
-  int sno;
-  encoding_t l = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
-                                 MEM_BUF_USER);
+Term Yap_BufferToTerm(const  char *s, Term opts) {
+    Term rval;
+    int sno;
+    encoding_t l = ENC_ISO_UTF8;
+    sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
+                                   MEM_BUF_USER);
 
-  rval = Yap_read_term(sno, opts, false);
-  Yap_CloseStream(sno);
-  return rval;
+    rval = Yap_read_term(sno, opts, false);
+    Yap_CloseStream(sno);
+    return rval;
 }
 
-X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s, Term opts, Term bindings, size_t len,
+Term Yap_UBufferToTerm(const  unsigned char *s, Term opts) {
+    Term rval;
+    int sno;
+    encoding_t l = ENC_ISO_UTF8;
+    sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
+                                   MEM_BUF_USER);
+
+    rval = Yap_read_term(sno, opts, false);
+    Yap_CloseStream(sno);
+    return rval;
+}
+
+X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Term bindings, size_t len,
                                             int prio) {
   CACHE_REGS
   Term ctl;
@@ -1434,7 +1446,7 @@ static Int read_term_from_atom(USES_REGS1) {
   }
   Term ctl = add_output(ARG2, ARG3);
 
-  return Yap_BufferToTerm(s, ctl);
+  return Yap_UBufferToTerm(s, ctl);
 }
 
 /**
@@ -1468,7 +1480,7 @@ static Int read_term_from_atomic(USES_REGS1) {
   }
   Term ctl = add_output(ARG2, ARG3);
 
-  return Yap_BufferToTerm(s, ctl);
+  return Yap_UBufferToTerm(s, ctl);
 }
 
 /**
@@ -1518,7 +1530,7 @@ static Int atomic_to_term(USES_REGS1) {
   } else {
     Term t = Yap_AtomicToString(t1 PASS_REGS);
     const unsigned char *us = UStringOfTerm(t);
-    return Yap_BufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
+    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
   }
 }
 
@@ -1533,7 +1545,7 @@ static Int atom_to_term(USES_REGS1) {
   } else {
     Term t = Yap_AtomicToString(t1 PASS_REGS);
     const unsigned char *us = UStringOfTerm(t);
-    return Yap_BufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
+    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
   }
 }
 
@@ -1548,7 +1560,7 @@ static Int string_to_term(USES_REGS1) {
     return (FALSE);
   } else {
     const unsigned char *us = UStringOfTerm(t1);
-    return Yap_BufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
+    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
   }
 }
 

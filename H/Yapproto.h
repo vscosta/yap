@@ -177,7 +177,11 @@ extern void Yap_InitDBPreds(void);
 extern const char *Yap_PrintPredName(struct pred_entry *ap);
 #endif
 extern void Yap_RestartYap(int);
-extern void Yap_exit(int);
+extern void Yap_exit(int)
+#ifndef MSC_VER
+__attribute__((noreturn))
+#endif
+;
 extern bool Yap_Warning(const char *s, ...);
 extern bool Yap_PrintWarning(Term t);
 extern bool Yap_HandleError__(const char *file, const char *function, int lineno,
@@ -194,7 +198,7 @@ extern void Yap_InitEval(void);
 extern void Yap_fail_all(choiceptr bb USES_REGS);
 extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
-extern bool Yap_JumpToEnv(Term);
+extern bool Yap_JumpToEnv(void);
 extern Term Yap_RunTopGoal(Term, bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);

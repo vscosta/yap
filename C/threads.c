@@ -1817,7 +1817,8 @@ p_new_mutex(void)
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
   } else if ( excep != 0) {
-    return Yap_JumpToEnv(excep);
+    LOCAL_ActiveError->errorNo = IntegerOfTerm(excep);
+    return Yap_JumpToEnv();
   }
   return rc;
 }

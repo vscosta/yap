@@ -199,11 +199,11 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 
   /// all we need to know about an error/throw
   typedef struct s_yap_error_descriptor {
-    enum yap_error_status status;
+    yap_error_number errorNo;
     yap_error_class_number errorClass;
+    const char *errorGoal;
     const char *errorAsText;
     const char *classAsText;
-    yap_error_number errorNo;
     intptr_t errorLine;
     const char *errorFunction;
     const char *errorFile;
@@ -223,8 +223,8 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
     const char *prologParserText;
     const char *prologParserFile;
     bool prologConsulting;
-    void *errorTerm;
-    uintptr_t rawErrorTerm, rawExtraErrorTerm;
+    const  char *culprit;
+    YAP_Term errorRawTerm, rawExtraErrorTerm;
     char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;
@@ -236,11 +236,13 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_Error_Function LOCAL_ActiveError->errorFunction
 #define LOCAL_Error_Lineno LOCAL_ActiveError->errorLine
 #define LOCAL_Error_Size LOCAL_ActiveError->errorMsgLen
-#define LOCAL_BallTerm LOCAL_ActiveError->errorTerm
 #define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
-  extern bool Yap_find_prolog_culprit(void);
+extern yap_error_descriptor_t * Yap_pc_add_location(yap_error_descriptor_t *t, void *pc0, void *b_ptr0, void *env0);
+extern yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,void *cp0, void * b_ptr0, void *env0, YAP_Int ignore_first);
+
+  extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *t);
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);

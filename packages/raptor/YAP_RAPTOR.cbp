@@ -17,7 +17,94 @@
 					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="libxml2">
+				<Option output="/home/vsc/github/yap-6.3/packages/raptor/libxml2.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/vsc/github/yap-6.3/packages/raptor"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DDEPTH_LIMIT=1"/>
+					<Add option="-DCOROUTINING=1"/>
+					<Add option="-DRATIONAL_TREES=1"/>
+					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
+					<Add option="-DHAVE_CONFIG_H=1"/>
+					<Add option="-D_GNU_SOURCE"/>
+					<Add option="-DDEBUG=1"/>
+					<Add option="-DTHREADED_CODE=1"/>
+					<Add option="-DLOW_LEVEL_TRACER=1"/>
+					<Add option="-DUTF8PROC=1"/>
+					<Add option="-DUSE_MYDDAS=1"/>
+					<Add option="-DMYDDAS_SQLITE3=1"/>
+					<Add option="-DTABLING=1"/>
+					<Add directory="/home/vsc/github/yap-6.3"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
+					<Add directory="/home/vsc/github/yap-6.3/H"/>
+					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
+					<Add directory="/home/vsc/github/yap-6.3/include"/>
+					<Add directory="/home/vsc/github/yap-6.3/os"/>
+					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
+					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/raptor/../../H"/>
+					<Add directory="/home/vsc/anaconda3/conda-bld/yap4py_1522051601517/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/include/libxml2"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/raptor"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 libxml2"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="libxml2/fast">
+				<Option output="/home/vsc/github/yap-6.3/packages/raptor/libxml2.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/vsc/github/yap-6.3/packages/raptor"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add option="-DDEPTH_LIMIT=1"/>
+					<Add option="-DCOROUTINING=1"/>
+					<Add option="-DRATIONAL_TREES=1"/>
+					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
+					<Add option="-DHAVE_CONFIG_H=1"/>
+					<Add option="-D_GNU_SOURCE"/>
+					<Add option="-DDEBUG=1"/>
+					<Add option="-DTHREADED_CODE=1"/>
+					<Add option="-DLOW_LEVEL_TRACER=1"/>
+					<Add option="-DUTF8PROC=1"/>
+					<Add option="-DUSE_MYDDAS=1"/>
+					<Add option="-DMYDDAS_SQLITE3=1"/>
+					<Add option="-DTABLING=1"/>
+					<Add directory="/home/vsc/github/yap-6.3"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
+					<Add directory="/home/vsc/github/yap-6.3/H"/>
+					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
+					<Add directory="/home/vsc/github/yap-6.3/include"/>
+					<Add directory="/home/vsc/github/yap-6.3/os"/>
+					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
+					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/raptor/../../H"/>
+					<Add directory="/home/vsc/anaconda3/conda-bld/yap4py_1522051601517/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/include/libxml2"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/raptor"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 libxml2/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/raptor/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 		</Build>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/xml2_yap.c">
+			<Option target="libxml2"/>
+		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

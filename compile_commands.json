@@ -1,6 +1,11 @@
 [
 {
   "directory": "/home/vsc/github/yap-6.3",
+  "command": "/usr/bin/clang -DCOROUTINING=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DLOW_LEVEL_TRACER=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/github/yap-6.3 -I/usr/include/x86_64-linux-gnu -I/home/vsc/github/yap-6.3/utf8proc -I/home/vsc/github/yap-6.3/packages/myddas -I/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src -I/home/vsc/github/yap-6.3/H -I/home/vsc/github/yap-6.3/H/generated -I/home/vsc/github/yap-6.3/include -I/home/vsc/github/yap-6.3/os -I/home/vsc/github/yap-6.3/OPTYap -I/home/vsc/github/yap-6.3/JIT/HPP  -g3 -gdwarf-2 -fPIE   -Wall -fexceptions -o CMakeFiles/yap-bin.dir/console/yap.c.o   -c /home/vsc/github/yap-6.3/console/yap.c",
+  "file": "/home/vsc/github/yap-6.3/console/yap.c"
+},
+{
+  "directory": "/home/vsc/github/yap-6.3",
   "command": "/usr/bin/clang -DCOROUTINING=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DLOW_LEVEL_TRACER=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -I/home/vsc/github/yap-6.3 -I/usr/include/x86_64-linux-gnu -I/home/vsc/github/yap-6.3/utf8proc -I/home/vsc/github/yap-6.3/packages/myddas -I/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src -I/home/vsc/github/yap-6.3/H -I/home/vsc/github/yap-6.3/H/generated -I/home/vsc/github/yap-6.3/include -I/home/vsc/github/yap-6.3/os -I/home/vsc/github/yap-6.3/OPTYap -I/home/vsc/github/yap-6.3/JIT/HPP  -g3 -gdwarf-2 -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/absmi.c.o   -c /home/vsc/github/yap-6.3/C/absmi.c",
   "file": "/home/vsc/github/yap-6.3/C/absmi.c"
 },
@@ -363,11 +368,6 @@
   "directory": "/home/vsc/github/yap-6.3",
   "command": "/usr/bin/clang -DCOROUTINING=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DLOW_LEVEL_TRACER=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -DlibYap_EXPORTS -I/home/vsc/github/yap-6.3 -I/usr/include/x86_64-linux-gnu -I/home/vsc/github/yap-6.3/utf8proc -I/home/vsc/github/yap-6.3/packages/myddas -I/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src -I/home/vsc/github/yap-6.3/H -I/home/vsc/github/yap-6.3/H/generated -I/home/vsc/github/yap-6.3/include -I/home/vsc/github/yap-6.3/os -I/home/vsc/github/yap-6.3/OPTYap -I/home/vsc/github/yap-6.3/JIT/HPP  -g3 -gdwarf-2 -fPIC   -Wall -fexceptions -o CMakeFiles/libYap.dir/C/clause_list.c.o   -c /home/vsc/github/yap-6.3/C/clause_list.c",
   "file": "/home/vsc/github/yap-6.3/C/clause_list.c"
-},
-{
-  "directory": "/home/vsc/github/yap-6.3",
-  "command": "/usr/bin/clang -DCOROUTINING=1 -DDEBUG=1 -DDEPTH_LIMIT=1 -DHAVE_CONFIG_H=1 -DLOW_LEVEL_TRACER=1 -DMYDDAS_SQLITE3=1 -DRATIONAL_TREES=1 -DTABLING=1 -DTHREADED_CODE=1 -DUSE_MYDDAS=1 -DUSE_SYSTEM_MALLOC=1 -DUTF8PROC=1 -D_GNU_SOURCE -D_YAP_NOT_INSTALLED_=1 -I/home/vsc/github/yap-6.3 -I/usr/include/x86_64-linux-gnu -I/home/vsc/github/yap-6.3/utf8proc -I/home/vsc/github/yap-6.3/packages/myddas -I/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src -I/home/vsc/github/yap-6.3/H -I/home/vsc/github/yap-6.3/H/generated -I/home/vsc/github/yap-6.3/include -I/home/vsc/github/yap-6.3/os -I/home/vsc/github/yap-6.3/OPTYap -I/home/vsc/github/yap-6.3/JIT/HPP  -g3 -gdwarf-2 -fPIE   -Wall -fexceptions -o CMakeFiles/yap-bin.dir/console/yap.c.o   -c /home/vsc/github/yap-6.3/console/yap.c",
-  "file": "/home/vsc/github/yap-6.3/console/yap.c"
 },
 {
   "directory": "/home/vsc/github/yap-6.3/packages/python",

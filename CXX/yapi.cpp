@@ -435,7 +435,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   result = YAP_LeaveGoal(false, &q);
   Term terr;
 
-  if ((terr = Yap_PeekException()) != 0) {
+  if ((terr = Yap_GetException()) != 0) {
     std::cerr << "Exception received by  " << __func__ << "( "
               << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
     // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
@@ -482,7 +482,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
 
   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   Term terr;
-  if ((terr = Yap_PeekException()) != 0) {
+  if ((terr = Yap_GetException()) != 0) {
     std::cerr << "Exception received by  " << __func__ << "( "
               << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
     // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
@@ -551,7 +551,7 @@ Term YAPEngine::fun(Term t) {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  if ((terr = Yap_PeekException()) != 0) {
+  if ((terr = Yap_GetException()) != 0) {
     std::cerr << "Exception received by  " << __func__ << "( "
               << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
     // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
@@ -982,14 +982,6 @@ std::string YAPError::text() {
   s += ".";
   s += LOCAL_ActiveError->errorAsText;
   s += ".\n";
-  if (LOCAL_ActiveError->errorTerm) {
-    Term t = Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    if (t) {
-      s += "error term is: ";
-      s += YAPTerm(t).text();
-      s += "\n";
-    }
-  }
   //      printf("%s\n", s.c_str());
   return s.c_str();
 }

@@ -367,10 +367,12 @@ extern X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
                                         int flags);
 
 /*  void YAP_Term(YAP_Term) */
-extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
+extern X_API YAP_Term YAP_CopyTerm(YAP_Term t);
 
-/*  char *YAP_CompileClause(YAP_Term) */
-extern X_API char *YAP_CompileClause(YAP_Term);
+/* bool YAP_CompileClause(YAP_Term)
+
+@short compile the clause _Cl_; on failure it may call the exception handler.  */
+extern X_API bool YAP_CompileClause(YAP_Term Cl);
 
 extern X_API int YAP_NewExo(YAP_PredEntryPtr ap, size_t data, void *user_di);
 

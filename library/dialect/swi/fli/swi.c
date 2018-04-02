@@ -1272,18 +1272,15 @@ YAP: NO EQUIVALENT */
 
 X_API int PL_raise_exception(term_t exception) {
   CACHE_REGS
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
-  Yap_PutException(Yap_GetFromSlot(exception));
+  LOCAL_Error_TYPE = THROW_EVENT;
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(Yap_GetFromHandle(exception), LOCAL_encoding, TermNil);
+  //Yap_PutException(Yap_GetFromSlot(exception));
   Yap_RaiseException();
   return 0;
 }
 
 X_API int PL_throw(term_t exception) {
-  CACHE_REGS
-  YAP_Throw(Yap_GetFromSlot(exception));
-  if (LOCAL_execution)
-    longjmp(LOCAL_execution->q_env, 0);
-  return 0;
+  return PL_raise_exception( exception );
 }
 
 X_API void PL_fatal_error(const char *msg) {

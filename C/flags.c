@@ -1376,7 +1376,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
       return false;
     }
     CACHE_REGS
-    const unsigned char *us = (const unsigned char *)s;
+    const  char *us = (const  char *)s;
     t0 = Yap_BufferToTermWithPrioBindings(us, TermNil, 0L, strlen(s) + 1, GLOBAL_MaxPriority);
     if (!t0)
       return false;

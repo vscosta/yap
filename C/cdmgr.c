@@ -1453,28 +1453,34 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
   return TRUE; /* careful */
 }
 
-static void addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) {
+static yamop * addcl_permission_error(const char *file, const char *function, int lineno, AtomEntry *ap, Int Arity, int in_use) {
   CACHE_REGS
-
-  LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
-  LOCAL_ErrorMessage = Malloc(256);
-
-  if (in_use) {
-    if (Arity == 0)
-      sprintf(LOCAL_ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
+    Term culprit;
+    if (Arity ==  0)
+      culprit = MkAtomTerm(AbsAtom(ap));
     else
-      sprintf(LOCAL_ErrorMessage,
-              "static predicate %s/" Int_FORMAT " is in use", ap->StrOfAE,
-              Arity);
-  } else {
-    if (Arity == 0)
-      sprintf(LOCAL_ErrorMessage, "system predicate %s", ap->StrOfAE);
-    else
-      sprintf(LOCAL_ErrorMessage, "system predicate %s/" Int_FORMAT,
-              ap->StrOfAE, Arity);
-  }
-}
+      culprit = Yap_MkNewApplTerm(Yap_MkFunctor(AbsAtom(ap),Arity), Arity);
+return
+    (in_use ?
+     (Arity == 0 ?
+      Yap_Error__(false, file, function, lineno, PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
+		"static predicate %s is in use", ap->StrOfAE)
+      :
+      Yap_Error__(false, file, function, lineno, PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
+              "static predicate %s/" Int_FORMAT " is in use", ap->StrOfAE, Arity)
+      )
+     :
+     (Arity == 0 ?
+      Yap_Error__(false, file, function, lineno, PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
+		"system predicate %s is in use", ap->StrOfAE)
+      :
+      Yap_Error__(false, file, function, lineno, PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
+		  "system predicate %s/" Int_FORMAT, ap->StrOfAE, Arity)
+      )
+     );
+    }
 
+      
 PredEntry *Yap_PredFromClause(Term t USES_REGS) {
   Term cmod = LOCAL_SourceModule;
   arity_t extra_arity = 0;
@@ -1729,7 +1735,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(RepAtom(at), Arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), Arity, FALSE);
     UNLOCKPE(30, p);
     return false;
   }
@@ -2430,12 +2436,12 @@ static Int new_multifile(USES_REGS1) {
   }
   if (pe->PredFlags & (TabledPredFlag | ForeignPredFlags)) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__,RepAtom(at), arity, FALSE);
     return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__,RepAtom(at), arity, FALSE);
     return false;
   }
   pe->PredFlags &= ~UndefPredFlag;
@@ -2669,7 +2675,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
       (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
     UNLOCKPE(30, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__,RepAtom(at), arity, FALSE);
     return false;
   }
   if (pe->PredFlags & LogUpdatePredFlag) {
@@ -2682,7 +2688,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   }
   if (pe->cs.p_code.NOfClauses != 0) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity, FALSE);
     return false;
   }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
@@ -2732,7 +2738,7 @@ static Int new_meta_pred(USES_REGS1) {
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(RepAtom(at), arity, FALSE);
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity, FALSE);
     return false;
   }
   pe->PredFlags |= MetaPredFlag;

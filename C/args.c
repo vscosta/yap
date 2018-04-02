@@ -43,7 +43,7 @@ int Yap_ArgKey(Atom key, const param_t *def, int n) {
 static xarg *failed__(yap_error_number e, Term t, xarg *a USES_REGS) {
   free(a);
   LOCAL_ActiveError->errorNo = e;
-  LOCAL_ActiveError->rawErrorTerm = t;
+  LOCAL_ActiveError->errorRawTerm = t;
   return NULL;
 }
 
