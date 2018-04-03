@@ -992,6 +992,10 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
   int emacs_cares = FALSE;
 #endif
 
+  yap_error_descriptor_t new;
+
+
+  Yap_pushErrorContext(&new);
   int lvl = push_text_stack();
   parser_state_t state = YAP_START_PARSING;
   while (true) {
@@ -1000,7 +1004,8 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       state = initParser(opts, &fe, &re, sno, clause);
       if (state == YAP_PARSING_FINISHED) {
         pop_text_stack(lvl);
-        return 0;
+  Yap_popErrorContext(true);
+  return 0;
       }
       break;
     case YAP_SCANNING:
@@ -1033,11 +1038,13 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 #if EMACS
       first_char = tokstart->TokPos;
 #endif /* EMACS */
+      Yap_popErrorContext(true);
       pop_text_stack(lvl);
       return fe.t;
     }
     }
   }
+  Yap_popErrorContext(true);
   pop_text_stack(lvl);
   return 0;
 }

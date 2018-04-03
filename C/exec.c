@@ -1452,7 +1452,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
               fprintf(stderr,"HR before jmp=%p\n", HR);
               Yap_JumpToEnv();
               fprintf(stderr,"HR after jmp=%p\n", HR);
-              LOCAL_PrologMode = UserMode;
               ASP = (CELL *) B;
               if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {
                   LOCAL_RestartEnv = sighold;
