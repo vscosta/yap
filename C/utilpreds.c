@@ -1665,7 +1665,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     ++ pt0;
     ptd0 = pt0;
     d0 = *ptd0;
-		fprintf(stderr,"d0=%lx in attvars after jmp=%p\n", d0, HR);
+
     deref_head(d0, attvars_in_term_unk);
   attvars_in_term_nvar:
     {

@@ -228,12 +228,12 @@ compose_message(myddas_version(Version), _Leve) -->
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
 compose_message(Term, Level) -->
-	{ '$show_consult_level'(LC) },
-	location(Term, Level, LC),
+    { '$show_consult_level'(LC) },
+	location( Term, Level, LC),
 	main_message( Term, Level, LC ),
 	c_goal( Term, Level ),
 	caller( Term, Level ),
-	extra_info(  Term, Level ),
+	extra_info( Term, Level ),
 	!,
 	[nl,nl].
 compose_message(Term, Level) -->
@@ -249,15 +249,23 @@ location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), 
 location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 	!,
 	[ '~a:~d:0 ' - [FileName,LN] ] .
-location( error(_,Term), Level, LC ) -->
+location( error(_,Desc), Level, LC ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)) }, !,
-	display_consulting( F0, Level, LC ),
-	{ lists:memberchk([p|p(M,Na,Ar,_File,_FilePos)], Term ) },
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	'$query_exception'(prologPredArity, Desc, Ar),
+	display_consulting( F0, Level, LC )
+	},
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
-location( error(_,Term), Level, LC ) -->
-	{ lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) }, !,
+location( error(_,Desc), Level, LC ) -->
+    '$query_exception'(prologPredFile, Desc, File),
 	display_consulting( File, Level, LC ),
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	'$query_exception'(prologPredArity, Desc, Ar)
+	},
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
@@ -284,25 +292,25 @@ main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), Lev
 	}.
 main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_), Level, _LC) -->
     !,
-	[  ' ~a: ~a redefines ~q from  ~a.' - [Level,File, Mod:N/A, I0] ].
+    [  ' ~a: ~a redefines ~q from  ~a.' - [Level,File, Mod:N/A, I0] ].
 main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) , Level, _LC)-->
     !,
-	[  ' ~a: discontiguous definition for ~p.' - [Level,Mod:N/A] ].
+    [  ' ~a: discontiguous definition for ~p.' - [Level,Mod:N/A] ].
 main_message(error(consistency_error(Who)), Level, _LC) -->
     !,
-	[ ' ~a: has argument ~a not consistent with type.'-[Level,Who] ].
+    [ ' ~a: has argument ~a not consistent with type.'-[Level,Who] ].
 main_message(error(domain_error(Who , Type), _Where), Level, _LC) -->
     !,
-    	[ ' ~a:  ~q does not belong to domain ~a,' - [Level,Type,Who], nl ].
-	main_message(error(evaluation_error(What), _Where), Level, _LC) -->
-	        !,
-	        [ ' ~a: ~w during evaluation of arithmetic expressions,' - [Level,What], nl ].
-		main_message(error(evaluation_error(What, Who), _Where), Level, _LC) -->
-		        !,
-		        [ ' ~a: ~w caused ~a during evaluation of arithmetic expressions,' - [Level,Who,What], nl ].
+    [ ' ~a:  ~q does not belong to domain ~a,' - [Level,Type,Who], nl ].
+main_message(error(evaluation_error(What), _Where), Level, _LC) -->
+    !,
+    [ ' ~a: ~w during evaluation of arithmetic expressions,' - [Level,What], nl ].
+main_message(error(evaluation_error(What, Who), _Where), Level, _LC) -->
+    !,
+    [ ' ~a: ~w caused ~a during evaluation of arithmetic expressions,' - [Level,Who,What], nl ].
 main_message(error(existence_error(Type , Who), _Where), Level, _LC) -->
     !,
-	[  ' ~a:  ~q ~q could not be found,' - [Level,Type, Who], nl ].
+    [  ' ~a:  ~q ~q could not be found,' - [Level,Type, Who], nl ].
 main_message(error(permission_error(Op, Type, Id), _Where), Level, _LC) -->
 	[ ' ~a:  ~q is not allowed in ~a ~q,' - [Level, Op, Type,Id], nl ].
 main_message(error(instantiation_error, _Where), Level, _LC) -->
@@ -327,29 +335,50 @@ display_consulting( F, Level, LC) -->
 display_consulting(_F, _, _LC) -->
 	  [].
 
-caller( error(_,Term), _) -->
-	{  lists:memberchk([p|p(M,Na,Ar,File,FilePos)], Term ) },
-	{  lists:memberchk([g|g(Call)], Term) },
-	  !,
-	  ['~*|goal was ~q' - [10,Call]],
+caller( error(_,Desc), _) -->
+        { 
+	'$query_exception'(errorGoal, Desc, Call),
+	Call \= [],
+	'$query_exception'(prologPredFile, Desc, File),
+	File \= [],
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	'$query_exception'(prologPredArity, Desc, Ar)
+	},
+	!,
+	  ['~*|goal was ~s' - [10,Call]],
 	  [nl],
 	  ['~*|exception raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
-caller( error(_,Term), _) -->
-	{ lists:memberchk([e|p(M,Na,Ar,File,FilePos)], Term ) },
+caller( error(_,Desc), _) -->
+        { 
+	'$query_exception'(prologPredFile, Desc, File),
+	File \= [],
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	'$query_exception'(prologPredArity, Desc, Ar)
+	},
 	!,
 	['~*|exception raised from  ~a:~q/~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
-caller( error(_,Term), _) -->
-	{  lists:memberchk([g|g(Call)], Term) },
+caller( error(_,Desc), _) -->
+        {
+	'$query_exception'(errorGoal, Desc, Call),
+	Call \= [] },
 	!,
 	['~*|goal  ~q '-[10,Call]],
 	[nl].
 caller( _, _) -->
 	[].
 
-c_goal( error(_,Term), Level ) -->
-	{ lists:memberchk([c|c(File, Line, Func)], Term ) },
+c_goal( error(_,Desc), Level ) -->
+    { '$query_exception'(errorFile, Desc, Func),
+      Func \= [],
+      '$query_exception'(errorFunction, Desc, File),
+      '$query_exception'(errorLine, Desc, Line)
+      },
 	!,
 	['~*|~a raised at C-function ~a() in ~a:~d:0: '-[10, Level, Func, File, Line]],
 	[nl].
@@ -576,7 +605,11 @@ domain_error(Domain, Opt) -->
 	[ '~w not a valid element for ~w' - [Opt,Domain] ].
 
 extra_info( error(_,Extra), _ ) -->
-	    {lists:memberchk([i|Msg], Extra)}, !,
+    {
+	 '$query_exception'(prologPredFile, Extra, Msg),
+	 Msg != []
+    },
+    !,
         ['~*|user provided data is: ~q' - [10,Msg]],
         [nl].
 extra_info( _, _ ) -->

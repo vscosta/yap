@@ -854,9 +854,7 @@ static size_t downcase(void *s0, seq_tv_t *out USES_REGS) {
 bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   bool rc;
-  yap_error_descriptor_t new;
-
-
+ 
   /*
   //printf(stderr, "[ %d ", n++)    ;
   if (inp->type & (YAP_STRING_TERM|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES

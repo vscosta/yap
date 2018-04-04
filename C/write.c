@@ -1255,11 +1255,9 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(enc, flags);
   const char *sf;
-  yap_error_descriptor_t ne;
-
+ 
   if (sno < 0)
     return NULL;
-  Yap_pushErrorContext(&ne);
   if (enc)
     GLOBAL_Stream[sno].encoding = enc;
   else
@@ -1271,6 +1269,5 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
   char *new = malloc(len + 1);
   strcpy(new, sf);
   Yap_CloseStream(sno);
-  Yap_popErrorContext (true);
   return new;
 }

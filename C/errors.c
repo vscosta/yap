@@ -32,6 +32,48 @@
 #endif
 #include "Foreign.h"
 
+
+#define query_key_b(k, ks, q, i)		\
+  if (strcmp(ks,q) == 0) \
+    { return i->k ? TermTrue : TermFalse; }	\
+
+#define query_key_i(k, ks, q, i)		\
+  if (strcmp(ks,q) == 0) \
+    { return MkIntegerTerm(i->k); }
+
+#define query_key_s(k, ks, q, i)			\
+  if (strcmp(ks,q) == 0) \
+    { return i->k ? MkStringTerm(i->k) : TermNil; }
+
+static Term queryErr(const char *q, yap_error_descriptor_t *i) {
+  query_key_i( errorNo, "errorNo", q, i );
+  query_key_i(errorClass, "errorClass", q, i);
+  query_key_s(errorAsText, "errorAsText", q, i);
+  query_key_s( errorGoal, "errorGoal", q, i);
+  query_key_s( classAsText, "classAsText", q, i);
+  query_key_i( errorLine, "errorLine", q, i );
+  query_key_s( errorFunction, "errorFunction", q, i);
+  query_key_s( errorFile, "errorFile", q, i);
+  query_key_i(  prologPredLine, "prologPredLine", q, i);
+  query_key_i(  prologPredFirstLine, "prologPredFirstLine", q, i);
+  query_key_i(  prologPredLastLine, "prologPredLastLine", q, i);
+  query_key_s( prologPredName, "prologPredName", q, i);
+  query_key_i(  prologPredArity, "prologPredArity", q, i);
+  query_key_s( prologPredModule, "prologPredModule", q, i);
+  query_key_s( prologPredFile, "prologPredFile", q, i);
+  query_key_i(  prologParserPos, "prologParserPos", q, i);
+  query_key_i(  prologParserLine, "prologParserLine", q, i);
+  query_key_i(  prologParserFirstLine, "prologParserFirstLine", q, i);
+  query_key_i(  prologParserLastLine, "prologParserLastLine", q, i);
+  query_key_s( prologParserText, "prologParserText", q, i);
+  query_key_s( prologParserFile, "prologParserFile", q, i);
+  query_key_b( prologConsulting, "prologConsulting", q, i);
+  query_key_s( culprit, "culprit", q, i);
+  query_key_s( errorMsg, "errorMsg", q, i);
+  query_key_i( errorMsgLen, "errorMsgLen", q, i);
+      return TermNil;
+}
+
 static void print_key_b(const char *key, bool v)
 {
   const char *b = v ? "true" : "false";
@@ -914,10 +956,10 @@ const char *Yap_errorClassName(yap_error_class_number e) {
   Term Yap_GetException(void) {
     CACHE_REGS
     if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
-      yap_error_descriptor_t *t =  LOCAL_ActiveError;
-      Term rc = mkerrort(t->errorNo, Yap_BufferToTerm(t->culprit, TermNil), err2list(t));
-      Yap_DebugPlWriteln(rc);
-      Yap_ResetException(worker_id);
+      yap_error_descriptor_t *t =  LOCAL_ActiveError, *nt = malloc(sizeof(yap_error_descriptor_t));
+      memcpy(nt,t,sizeof(yap_error_descriptor_t));
+      Term rc = mkerrort(t->errorNo, Yap_BufferToTerm(t->culprit, TermNil), MkAddressTerm(nt));
+     Yap_ResetException(worker_id);
       save_H();
       return rc;
     }
@@ -945,6 +987,34 @@ const char *Yap_errorClassName(yap_error_class_number e) {
 
   static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
+ static Int read_exception(USES_REGS1) {
+   yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
+      Term rc = mkerrort(t->errorNo, Yap_BufferToTerm(t->culprit, TermNil), err2list(t));
+      Yap_DebugPlWriteln(rc);
+      return Yap_unify(ARG2, rc);
+ }
+
+ static Int query_exception(USES_REGS1) {
+   const char *query;
+   Term t;
+   
+   if (IsAtomTerm((t = Deref(ARG1))))
+     query = RepAtom(AtomOfTerm(t))->StrOfAE;
+   if (IsStringTerm(t))
+     query = StringOfTerm(t);
+   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
+       Term rc = queryErr(query, y);
+      Yap_DebugPlWriteln(rc);
+      return Yap_unify(ARG3, rc);
+ }
+
+
+ static Int drop_exception(USES_REGS1) {
+   yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
+   free(t);
+   return true;
+ }
+
 
   static Int get_exception(USES_REGS1) {
     Term t;
@@ -959,6 +1029,10 @@ void Yap_InitErrorPreds(void) {
   CACHE_REGS
     Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
     Yap_InitCPred("$get_exception", 1, get_exception, 0);
+    Yap_InitCPred("$drop_exception", 1, get_exception, 0);
+    Yap_InitCPred("$read_exception", 2, read_exception, 0);
+    Yap_InitCPred("$query_exception", 3, query_exception, 0);
+    Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 0, close_error, HiddenPredFlag);
   Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
   Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
