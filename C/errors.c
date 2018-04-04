@@ -201,10 +201,11 @@ bool Yap_Warning(const char *s, ...) {
   Term ts[2];
   const char *fmt;
   char tmpbuf[MAXPATHLEN];
+  yap_error_number err;
 
   LOCAL_DoingUndefp = true;
-  if (LOCAL_PrologMode & InErrorMode) {
-    fprintf(stderr, "%% ERROR WITHIN ERROR %d: %s\n", LOCAL_Error_TYPE, tmpbuf);
+  if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
+    fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s, Yap_errorClassName( Yap_errorClass(err)), Yap_errorName(err));
     Yap_RestartYap(1);
   }
   LOCAL_PrologMode |= InErrorMode;
@@ -504,6 +505,7 @@ void Yap_pushErrorContext(yap_error_descriptor_t *new_error) {
   memset(new_error, 0, sizeof(yap_error_descriptor_t));
   new_error->top_error = LOCAL_ActiveError;
   LOCAL_ActiveError = new_error;
+  LOCAL_PrologMode = UserMode;
 }
 
 /* static void */
@@ -524,6 +526,10 @@ yap_error_descriptor_t *Yap_popErrorContext(bool pass) {
            sizeof(yap_error_descriptor_t));
   yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
+  if (LOCAL_ActiveError == YAP_NO_ERROR)
+    LOCAL_PrologMode = UserMode;
+  else
+    LOCAL_PrologMode = InErrorMode;
   return new_error;
 }
 
@@ -590,10 +596,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function, int linen
     va_list ap;
     char *fmt;
     char s[MAXPATHLEN];
+        yap_error_number err;
 
     /* disallow recursive error handling */
-    if (LOCAL_PrologMode & InErrorMode) {
-        fprintf(stderr, "%% ERROR WITHIN ERROR %d: %s\n", LOCAL_Error_TYPE, tmpbuf);
+    if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
+	fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n", Yap_errorClassName( Yap_errorClass(type)), Yap_errorName(type), Yap_errorClassName( Yap_errorClass(err)), Yap_errorName(err));
         Yap_RestartYap(1);
     }
     if (LOCAL_DoingUndefp && type == EVALUATION_ERROR_UNDEFINED) {

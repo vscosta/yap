@@ -936,6 +936,7 @@ catch(G, C, A) :-
 	'$catch'(M:G,C,A).
 
 '$catch'(MG,_,_) :-
+    writeln(MG),
 	'$$save_by'(CP0),
 	'$execute'(MG),
 	'$$save_by'(CP1),

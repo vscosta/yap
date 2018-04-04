@@ -1954,7 +1954,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   }
   // should we catch the exception or pass it through?
   // We'll pass it through
-  Yap_RaiseException();
+  // Yap_RaiseException();
   if (out) {
     choiceptr cut_pt, ob;
 

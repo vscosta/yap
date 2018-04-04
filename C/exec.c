@@ -1385,7 +1385,7 @@ static Int execute_depth_limit(USES_REGS1) {
 #endif
 
 static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
-  int lval, out;
+  int lval = 0, out;
   Int OldBorder = LOCAL_CBorder;
   LOCAL_CBorder = LCL0 - ENV;
 
@@ -2031,9 +2031,11 @@ bool is_cleanup_cp(choiceptr cp_b) {
   // DBTerm *dbt = Yap_RefToException();
   while (handler
 	 && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
-	 // && LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE
-	 // && handler->cp_b != NULL
+	 //&& LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE
+	 //&& handler->cp_b != NULL
 	 ) {
+    if (handler->cp_ap != NOCODE)
+      handler->cp_ap = TRUSTFAILCODE;
     handler = handler->cp_b;
   }
   pop_text_stack(1);
@@ -2041,7 +2043,7 @@ bool is_cleanup_cp(choiceptr cp_b) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
 
-  B = handler;
+  //B = handler;
   P = FAILCODE;
   return true;
 }
