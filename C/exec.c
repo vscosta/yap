@@ -917,7 +917,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   bool rc;
-
+  fprintf(stderr, "HR before catch=%p--%p\n", HR, B );
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
@@ -1387,10 +1387,11 @@ static Int execute_depth_limit(USES_REGS1) {
 static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval, out;
   Int OldBorder = LOCAL_CBorder;
-  LOCAL_CBorder = LCL0 - (CELL *)B;
+  LOCAL_CBorder = LCL0 - ENV;
+
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-  REGSTORE *old_rs = Yap_regp;
+   REGSTORE *old_rs = Yap_regp;
 
   if (top && (lval = sigsetjmp(signew, 1)) != 0) {
       switch (lval) {
@@ -1429,6 +1430,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
           case 3: { /* saved state */
               LOCAL_CBorder = OldBorder;
               LOCAL_RestartEnv = sighold;
+    LOCAL_PrologMode = UserMode;
               return false;
           }
           case 4:
@@ -1439,7 +1441,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 		LOCAL_ActiveError->errorNo = ABORT_EVENT;
                   Yap_JumpToEnv();
               }
-              LOCAL_PrologMode &= ~AbortMode;
+	      LOCAL_PrologMode = UserMode;
               P = (yamop *) FAILCODE;
               LOCAL_RestartEnv = sighold;
               return false;
@@ -1449,27 +1451,27 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
               // but we should inform the caller on what happened.
 
               Yap_regp = old_rs;
-              fprintf(stderr,"HR before jmp=%p\n", HR);
-              Yap_JumpToEnv();
-              fprintf(stderr,"HR after jmp=%p\n", HR);
-              ASP = (CELL *) B;
+              restore_TR();
+              restore_B();
+              /* H is not so important, because we're gonna backtrack */
+              restore_H();
+              /* set stack */
+              ASP = (CELL *) PROTECT_FROZEN_B(B);
+	      
               if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {
                   LOCAL_RestartEnv = sighold;
                   LOCAL_CBorder = OldBorder;
-                  fprintf(stderr, "HR after sigset A=%p\n", HR);
                   return false;
               }
-              fprintf(stderr, "HR after sigset=B %p\n", HR);
               P = FAILCODE;
 
       }
   }
-    LOCAL_PrologMode = UserMode;
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
-  out = Yap_absmi(0);
-  // fprintf(stderr, "HR after absmi=%p\n", HR);
-  /* make sure we don't leave a FAIL signal hanging around */
+  fprintf(stderr, "HR before absmi(%d)=%p--%p\n", lval, HR, B);
+out = Yap_absmi(0);
+    /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
   if (!Yap_has_a_signal())
     CalculateStackGap(PASS_REGS1);
@@ -1525,6 +1527,8 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
   bool out;
+
+  fprintf(stderr,"B before PrepGoal=%p\n", B); 
 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
@@ -2025,9 +2029,11 @@ bool is_cleanup_cp(choiceptr cp_b) {
      so get pointers here     */
   /* find the first choicepoint that may be a catch */
   // DBTerm *dbt = Yap_RefToException();
-  while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
-         LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE &&
-         handler->cp_b != NULL) {
+  while (handler
+	 && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
+	 // && LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE
+	 // && handler->cp_b != NULL
+	 ) {
     handler = handler->cp_b;
   }
   pop_text_stack(1);

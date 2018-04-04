@@ -395,7 +395,7 @@ int Yap_SWIHandleError(const char *s, ...) {
 
 void Yap_RestartYap(int flag) {
   CACHE_REGS
-  fprintf(stderr,"call siglongjmp HR=%p\n", HR);
+    fprintf(stderr,"call siglongjmp HR=%p B=%p\n", HR, B);
 #if PUSH_REGS
   restore_absmi_regs(&Yap_standard_regs);
 #endif
@@ -630,13 +630,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function, int linen
         LOCAL_PrologMode &= ~InErrorMode;
         Yap_exit(1);
     }
-    if (LOCAL_within_print_message) {
-        /* error within error */
-        fprintf(stderr, "%% ERROR WITHIN WARNING %d: %s\n", LOCAL_Error_TYPE,
-                tmpbuf);
-        LOCAL_PrologMode &= ~InErrorMode;
-        Yap_exit(1);
-    }
     if (where == 0L || where == TermNil) {
         LOCAL_ActiveError->culprit = NULL;
     } else {
@@ -790,9 +783,9 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function, int linen
   }
   //reset_error_description();
   fprintf(stderr,"HR before jmp=%p\n", HR);
-  if (!throw) {
+  //  if (!throw) {
     Yap_JumpToEnv();
-  }
+    //  }
   return P;
 }
 
