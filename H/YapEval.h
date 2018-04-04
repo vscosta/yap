@@ -405,7 +405,8 @@ Term Yap_InnerEval__(Term USES_REGS);
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
 
 #define Yap_ArithError(id, t, ...)                                             \
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
+  {  Yap_Error__(false,__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__); return 0L; }
+
 #define Yap_BinError(id)                                                       \
   Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 #define Yap_AbsmiError(id)                                                     \
@@ -435,7 +436,9 @@ inline static void Yap_ClearExs(void) {}
 #endif
 
 inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
-  if (LOCAL_Error_TYPE != YAP_NO_ERROR)
+  if (LOCAL_PrologMode & InErrorMode)
+  return YAP_NO_ERROR;
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR )
     return LOCAL_Error_TYPE;
   if (trueGlobalPrologFlag(
           ARITHMETIC_EXCEPTIONS_FLAG)) // test support for exception

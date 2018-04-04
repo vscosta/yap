@@ -251,15 +251,16 @@ location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 	[ '~a:~d:0 ' - [FileName,LN] ] .
 location( error(_,Desc), Level, LC ) -->
 	{  source_location(F0, L),
-	   stream_property(_Stream, alias(loop_stream)) }, !,
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar),
-	display_consulting( F0, Level, LC )
+	   stream_property(_Stream, alias(loop_stream)),
+	   !,
+	   '$query_exception'(prologPredModule, Desc, M),
+	   '$query_exception'(prologPredName, Desc, Na),
+	   '$query_exception'(prologPredArity, Desc, Ar),
+	   display_consulting( F0, Level, LC )
 	},
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
 location( error(_,Desc), Level, LC ) -->
-    '$query_exception'(prologPredFile, Desc, File),
+    {    '$query_exception'(prologPredFile, Desc, File),
 	display_consulting( File, Level, LC ),
 	'$query_exception'(prologPredLine, Desc, FilePos),
 	'$query_exception'(prologPredModule, Desc, M),
@@ -607,7 +608,7 @@ domain_error(Domain, Opt) -->
 extra_info( error(_,Extra), _ ) -->
     {
 	 '$query_exception'(prologPredFile, Extra, Msg),
-	 Msg != []
+	 Msg \= []
     },
     !,
         ['~*|user provided data is: ~q' - [10,Msg]],

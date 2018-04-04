@@ -93,7 +93,6 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
 static Term Eval(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    fprintf(stderr,"HR before jmp=%p v=%p\n", HR, VarOfTerm(t));
     Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;

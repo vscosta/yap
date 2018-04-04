@@ -484,7 +484,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 #define E2(A, B, C, D)							\
   case A:								\
   {									\
-  Term ft[2], nt[3];							\
+    Term ft[2], nt[3];							\
      nt[0] = MkAtomTerm(Yap_LookupAtom(C));				\
      nt[1] = MkAtomTerm(Yap_LookupAtom(D));				\
      nt[2] = MkVarTerm(); \
@@ -789,7 +789,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function, int linen
     return P;
   }
   //reset_error_description();
-  fprintf(stderr,"HR before jmp=%p\n", HR);
   //  if (!throw) {
     Yap_JumpToEnv();
     //  }
@@ -990,7 +989,7 @@ const char *Yap_errorClassName(yap_error_class_number e) {
  static Int read_exception(USES_REGS1) {
    yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
       Term rc = mkerrort(t->errorNo, Yap_BufferToTerm(t->culprit, TermNil), err2list(t));
-      Yap_DebugPlWriteln(rc);
+      //      Yap_DebugPlWriteln(rc);
       return Yap_unify(ARG2, rc);
  }
 
@@ -1004,7 +1003,7 @@ const char *Yap_errorClassName(yap_error_class_number e) {
      query = StringOfTerm(t);
    yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
        Term rc = queryErr(query, y);
-      Yap_DebugPlWriteln(rc);
+       //      Yap_DebugPlWriteln(rc);
       return Yap_unify(ARG3, rc);
  }
 

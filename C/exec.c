@@ -917,7 +917,6 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   bool rc;
-  fprintf(stderr, "HR before catch=%p--%p\n", HR, B );
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
@@ -1469,7 +1468,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   }
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
-  fprintf(stderr, "HR before absmi(%d)=%p--%p\n", lval, HR, B);
 out = Yap_absmi(0);
     /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
@@ -1527,8 +1525,6 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
   bool out;
-
-  fprintf(stderr,"B before PrepGoal=%p\n", B); 
 
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   CACHE_A1();
@@ -2031,11 +2027,11 @@ bool is_cleanup_cp(choiceptr cp_b) {
   // DBTerm *dbt = Yap_RefToException();
   while (handler
 	 && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
-	 //&& LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE
-	 //&& handler->cp_b != NULL
+	 && LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE
+	 && handler->cp_b != NULL
 	 ) {
-    if (handler->cp_ap != NOCODE)
-      handler->cp_ap = TRUSTFAILCODE;
+    //if (handler->cp_ap != NOCODE)
+    //  handler->cp_ap = TRUSTFAILCODE;
     handler = handler->cp_b;
   }
   pop_text_stack(1);

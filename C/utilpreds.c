@@ -1673,9 +1673,6 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     ++ pt0;
     ptd0 = pt0;
     d0 = *ptd0;
-        printf("%p--%p -> %lx\n", ptd0, pt0_end, d0);
-	//Yap_DebugPlWriteln(d0);
-
     deref_head(d0, attvars_in_term_unk);
   attvars_in_term_nvar:
     {
@@ -1733,7 +1730,6 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	}
 #endif
 	arity_t a = ArityOfFunctor(f);
-	printf("%p %d %p\n", f, a, ap2);
 	pt0 = ap2;
 	pt0_end = ap2 + a;
       }
@@ -1790,7 +1786,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     to_visit --;
     pt0 = to_visit->beg;
     pt0_end = to_visit->end;
-    *pt0 = (CELL)to_visit[2];
+    *pt0 = to_visit->oval;
 #else
     to_visit -= 2;
     pt0 = to_visit[0];
@@ -1817,9 +1813,9 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
  trail_overflow:
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->beg;
+    *pt0 = to_visit->oval;
   }
 #endif
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
@@ -1843,9 +1839,9 @@ goto restart;
  global_overflow:
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->beg;
+    *pt0 = to_visit->oval;
   }
 #endif
   clean_tr(TR0 PASS_REGS);

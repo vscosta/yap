@@ -610,8 +610,7 @@ be lost.
 	( Skip == creep -> true; '$id_goal'(GoalNumber) ; GoalNumber =< Border),
 	!,
 	'__NB_setval__'('$debug_status', state(creep, 0, stop)),
-	'$trace_port_'(Port, GoalNumber, G, Module, Info),
-	writeln(Port:G).
+	'$trace_port_'(Port, GoalNumber, G, Module, Info).
 '$trace_port'(_Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info).
 
 '$trace_port_'(call, GoalNumber, G, Module, Info) :-
