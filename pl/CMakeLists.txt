@@ -33,6 +33,7 @@ set(PL_BOOT_SOURCES
         load_foreign.yap
         messages.yap
         meta.yap
+	metadecls.yap
         modules.yap
         newmod.yap
         os.yap

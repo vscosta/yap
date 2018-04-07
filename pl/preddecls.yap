@@ -25,6 +25,15 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+
+:- '$system_meta_predicates'([
+			      discontiguous(:),
+			      multifile(:)
+			     ]
+			    ).
+
+:- op(1150, fx, [multifile,discontiguous]).
+
 '$log_upd'(1).
 
 /**

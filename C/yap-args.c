@@ -159,15 +159,14 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
-
+  char *full;
+  
   /* consult in C */
   int lvl = push_text_stack();
-  char *full = Malloc(YAP_FILENAME_MAX + 1);
-  full[0] = '\0';
   /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
     osno = 0;
-  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, full, &oactive);
+  c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, &full, &oactive);
   if (c_stream < 0) {
     fprintf(stderr, "[ FATAL ERROR: could not open file %s ]\n", b_file);
     pop_text_stack(lvl);

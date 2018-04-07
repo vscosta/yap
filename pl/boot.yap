@@ -119,8 +119,6 @@ print_message(L,E) :-
 	 format( user_error, '~w in bootstrap: got ~w~n',[L,E])
 	).
 
-
-
 '$undefp0'([M|G], _Action) :-
     stream_property( loop_stream, file_name(F)),
     stream_property( loop_stream, line_number(L)),
@@ -129,6 +127,25 @@ print_message(L,E) :-
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).
 
+/**
+  * @pred $system_meta_predicates'( +L )
+  *
+  * @param L declare a set of system meta-predicates
+  *
+  * @return system predicates
+*/
+'$system_meta_predicates'([]).
+'$system_meta_predicates'([P|L]) :-
+	functor(P,N,A),
+	'$new_meta_pred'(P, prolog),
+	G = ('$meta_predicate'(N,_M2,A,P) :- true),
+	'$compile'(G, assertz, G, prolog, _R),
+	'$system_meta_predicates'(L).
+
+  :- '$mk_dynamic'( '$meta_predicate'(_N,_M,_A,_P), prolog).
+  :- '$new_multifile'( '$meta_predicate'(_N,_M,_A,_P), prolog).
+:-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
+:-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
 
 /**
 
@@ -174,7 +191,6 @@ print_message(L,E) :-
 
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
-
 
 % just create a choice-point
 % the 6th argument marks the time-stamp.
@@ -232,8 +248,9 @@ print_message(L,E) :-
 :- c_compile('bootlists.yap').
 :- c_compile('consult.yap').
 :- c_compile('preddecls.yap').
-:- c_compile('preddyns.yap').
 :- c_compile('meta.yap').
+:- c_compile('metadecls.yap').
+:- c_compile('preddyns.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 
@@ -461,5 +478,3 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
-
-

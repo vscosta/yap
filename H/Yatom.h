@@ -1601,13 +1601,21 @@ INLINE_ONLY inline EXTERN const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-extern bool Yap_ResetException(int wid);
+extern Term MkErrorTerm(yap_error_descriptor_t *t);
+
+extern bool Yap_ResetException(yap_error_descriptor_t *i);
 extern bool Yap_HasException(void);
-extern Term Yap_GetException(void);
+extern yap_error_descriptor_t * Yap_GetException(void);
 extern void Yap_PrintException(void);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
   return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
+
+INLINE_ONLY inline EXTERN Term MkSysError(yap_error_descriptor_t *i) {
+  Term et = MkAddressTerm(i);
+  return Yap_MkApplTerm( FunctorException, 1, &et);
+}
+yap_error_descriptor_t *Yap_UserError( Term t, Term t1, yap_error_descriptor_t *i);
 
 extern bool Yap_RaiseException(void);
 

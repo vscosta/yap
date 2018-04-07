@@ -68,7 +68,7 @@ handling in YAP:
 
 An error record comsists of An ISO compatible descriptor of the format
 
-error(errror_kind(Culprit,..), Info)
+error(errror_kind(Culprit,..), In)
 
 In YAP, the info field describes:
 
@@ -213,6 +213,9 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a ~a in module ~a, ~d msec ~d bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
+compose_message(error(signal(SIG,_), _), _) -->
+	!,
+	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
 compose_message(trace_command(C), _Leve) -->
 	!,
 	[ '~a is not a valid debugger command.' - [C] ].
@@ -227,20 +230,74 @@ compose_message(myddas_version(Version), _Leve) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
-compose_message(Term, Level) -->
+compose_message(error(E, exception(Exc)), Level) -->
     { '$show_consult_level'(LC) },
-	location( Term, Level, LC),
-	main_message( Term, Level, LC ),
-	c_goal( Term, Level ),
-	caller( Term, Level ),
-	extra_info( Term, Level ),
+	location( Exc, Level, LC),
+	main_message( Exc, Level, LC ),
+	c_goal( Exc, Level ),
+	caller( Exc, Level ),
+	extra_info( Exc, Level ),
 	!,
 	[nl,nl].
-compose_message(Term, Level) -->
+compose_message(error(E,[I|Is]), Level) -->
 	{  Level == error -> true ; Level == warning },
-	{ '$show_consult_level'(LC) },
-	main_message( Term, Level, LC),
+	{ '$show_consult_level'(LC),
+	  translate_info([I|Is], In))
+	},
+	compose_message( e(Err, In), Level),
 	[nl,nl].
+compose_message(Throw), _Leve) -->
+  	!,
+  	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
+
+translate_info([I1|I2],exception(R) ) :-
+	!,
+	'$new_exception'(R),
+	tinfo(R, [I1|I2], []).
+translate_info(E, none ).
+
+tinfo(_Reg) -->
+	!.
+tinfo(Reg) -->
+  addinfo(Reg),
+  tinfo(Reg).
+
+addinfo( Desc) -->
+   ( [[p|p(M,Na,Ar,File,FilePos)]]
+   ->
+	{
+	 '$query_exception'(prologPredFile, Desc, File),
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	 '$query_exception'(prologPredArity, Desc, Ar)
+	}
+  ;
+  [e|p(M,Na,Ar,File,FilePos)], Desc)
+  ->
+	{
+	 '$query_exception'(prologPredFile, Desc, File),
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	 '$query_exception'(prologPredArity, Desc, Ar)
+	}
+  ;
+[[c|c(File, Line, Func)]]
+ ->
+	{
+	 '$query_exception'(errorFile, Desc, File),
+	'$query_exception'(errorFunction, Desc, Func),
+	'$query_exception'(errorLine, Desc, Line)
+	}
+  ;
+[[g|g(Call)]
+->
+	{
+	 '$query_exception'(errorGoal, Desc, Call)
+	}
+).
+
 
 location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
@@ -249,28 +306,28 @@ location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), 
 location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 	!,
 	[ '~a:~d:0 ' - [FileName,LN] ] .
-location( error(_,Desc), Level, LC ) -->
+location( error(_,exception(Desc)), Level, LC ) -->
 	{  source_location(F0, L),
 	   stream_property(_Stream, alias(loop_stream)),
 	   !,
 	   '$query_exception'(prologPredModule, Desc, M),
 	   '$query_exception'(prologPredName, Desc, Na),
-	   '$query_exception'(prologPredArity, Desc, Ar),
-	   display_consulting( F0, Level, LC )
+	   '$query_exception'(prologPredArity, Desc, Ar)
 	},
+	display_consulting( F0, Level, LC ),
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
-location( error(_,Desc), Level, LC ) -->
-    {    '$query_exception'(prologPredFile, Desc, File),
-	display_consulting( File, Level, LC ),
+location( error(_,exception(Desc)), Level, LC ) -->
+	{    '$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
 	'$query_exception'(prologPredModule, Desc, M),
 	'$query_exception'(prologPredName, Desc, Na),
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
+	display_consulting( File, Level, LC ),
 	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-main_message(error(Msg,Info), _, _) --> {var(Info)}, !,
+main_message(error(Msg,In), _, _) --> {var(In)}, !,
 	[  ' error: uninstantiated message ~w~n.' - [Msg], nl ].
 main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
 	!,
@@ -336,8 +393,8 @@ display_consulting( F, Level, LC) -->
 display_consulting(_F, _, _LC) -->
 	  [].
 
-caller( error(_,Desc), _) -->
-        { 
+caller( error(_,exception(Desc)), _) -->
+        {
 	'$query_exception'(errorGoal, Desc, Call),
 	Call \= [],
 	'$query_exception'(prologPredFile, Desc, File),
@@ -352,8 +409,8 @@ caller( error(_,Desc), _) -->
 	  [nl],
 	  ['~*|exception raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
-caller( error(_,Desc), _) -->
-        { 
+caller( error(_,exception(Desc)), _) -->
+        {
 	'$query_exception'(prologPredFile, Desc, File),
 	File \= [],
 	'$query_exception'(prologPredLine, Desc, FilePos),
@@ -364,7 +421,7 @@ caller( error(_,Desc), _) -->
 	!,
 	['~*|exception raised from  ~a:~q/~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
-caller( error(_,Desc), _) -->
+caller( error(_,exception(Desc)), _) -->
         {
 	'$query_exception'(errorGoal, Desc, Call),
 	Call \= [] },
@@ -374,8 +431,8 @@ caller( error(_,Desc), _) -->
 caller( _, _) -->
 	[].
 
-c_goal( error(_,Desc), Level ) -->
-    { '$query_exception'(errorFile, Desc, Func),
+c_goal( error(_,exception(Desc)), Level ) -->
+    { '$query_exception'(errorFile, Desc, File),
       Func \= [],
       '$query_exception'(errorFunction, Desc, File),
       '$query_exception'(errorLine, Desc, Line)
@@ -389,9 +446,9 @@ c_goal( _, _Level ) --> [].
 prolog_message(X) -->
 	system_message(X).
 
-system_message(error(Msg,Info)) -->
-	( { var(Msg) } ; { var(Info)} ), !,
-	['bad error ~w' - [error(Msg,Info)]].
+system_message(error(Msg,In)) -->
+	( { var(Msg) } ; { var(In)} ), !,
+	['bad error ~w' - [error(Msg,In)]].
 system_message(error(consistency_error(Who),Where)) -->
 	[ 'CONSISTENCY ERROR (arguments not compatible with format)- ~w ~w' - [Who,Where] ].
 system_message(error(context_error(Goal,Who),Where)) -->

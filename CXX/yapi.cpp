@@ -433,11 +433,10 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   // allow Prolog style exceotion handling
   // don't forget, on success these bindings will still be there);
   result = YAP_LeaveGoal(false, &q);
-  Term terr;
 
-  if ((terr = Yap_GetException()) != 0) {
+  if (LOCAL_CommittedError != nullptr) {
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
+              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
     // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
     // throw  YAPError();
   }
@@ -481,12 +480,9 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  Term terr;
-  if ((terr = Yap_GetException()) != 0) {
+  if (LOCAL_CommittedError != nullptr) {
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
-    // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    // throw  YAPError();
+              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
   }
 
   {
@@ -547,13 +543,12 @@ Term YAPEngine::fun(Term t) {
   q.cp = CP;
   // make sure this is safe
   // allow Prolog style exception handling
-  Term terr;
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  if ((terr = Yap_GetException()) != 0) {
+  if (LOCAL_CommittedError != nullptr) {
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPTerm(terr).text() << ").\n Forwarded...\n\n";
+              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
     // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
     // throw  YAPError();
   }
@@ -673,16 +668,12 @@ bool YAPQuery::next() {
     YAP_LeaveGoal(false, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;
-    if (Yap_HasException()) {
-      terr = Yap_GetException();
-      yap_error_descriptor_t *tp = LOCAL_ActiveError->top_error;
-        memset(LOCAL_ActiveError, 0, sizeof(yap_error_descriptor_t));
-	LOCAL_ActiveError->top_error = tp;
-      std::cerr << "Exception at  " << __func__ << "() " << YAPTerm(terr).text()
-                << ").\n\n\n";
+  if (LOCAL_CommittedError != nullptr) {
+    // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
+    // throw  YAPError();
       Term es[2];
       es[0] = TermError;
-      es[1] = terr;
+      es[1] = MkErrorTerm(LOCAL_CommittedError);
       Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
       YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
       // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);

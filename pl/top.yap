@@ -1,3 +1,19 @@
+/**
+  * @file   top.yap
+  * @author VITOR SANTOS COSTA <vsc@vcosta-laptop.dcc.fc.up.pt>
+  * @date   Sat Apr  7 03:14:17 2018
+  *
+  * @brief  top-level implementation plus system booting.x
+  *
+  *   @defgroup Top-Level and Boot Predicates
+  *   @ingroup YAPControl
+  *
+*/
+
+:- '$system_meta_predicates'([
+	catch(0,?,0),
+  log_event(+,:)]).
+
 
 live :- '$live'.
 
@@ -64,8 +80,8 @@ live :- '$live'.
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-'$command'(Command,Varnames,Pos,top),
-current_prolog_flag(break_level, BreakLevel),
+	'$command'(Command,Varnames,Pos,top),
+	current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
 	->
@@ -985,9 +1001,6 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-throw(Ball) :-
-	% get current jump point
-	    '$jump_env_and_store_ball'(Ball).
 
 '$run_toplevel_hooks' :-
 	current_prolog_flag(break_level, 0 ),

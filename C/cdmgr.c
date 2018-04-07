@@ -2724,7 +2724,7 @@ static Int new_meta_pred(USES_REGS1) {
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
   if (EndOfPAEntr(pe))
-    return FALSE;
+    return false;
   PELOCK(30, pe);
   arity = pe->ArityOfPE;
   if (arity == 0)

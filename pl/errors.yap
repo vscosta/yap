@@ -63,12 +63,7 @@ system_error(Type,Goal) :-
 
 
 '$do_error'(Type,Goal) :-
-%        format('~w~n', [Type]),
-	ancestor_location(Call, Caller),
-	throw(error(Type, [
-	       [g|g(Goal)],
-	       [p|Call],
-	       [e|Caller]])).
+	throw(error(Type, [error(Goal)])).
 
 /**
  * @pred system_error( +Error, +Cause, +Culprit)
@@ -82,13 +77,8 @@ system_error(Type,Goal) :-
  *
  */
 system_error(Type,Goal,Culprit) :-
- %        format('~w~n', [Type]),
-	ancestor_location(Call, Caller),
-	throw(error(Type, [
-	       [i|Culprit],
-	       [g|g(Goal)],
-	       [p|Call],
-	       [e|Caller]])).
+	ancestor_location(Goal, Culprit),
+	throw(error(Type, [error(Goal, Culprit)])).
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).

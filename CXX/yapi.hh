@@ -42,6 +42,14 @@ extern "C" {
 
 #include <stddef.h>
 
+
+#if YAP_PYTHON
+
+#include <Python.h>
+
+extern bool python_in_python;
+#endif
+
 #include "Yap.h"
 
 #include "Yatom.h"
@@ -99,13 +107,6 @@ X_API extern void YAP_UserBackCutCPredicate(const char *name,
 
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
-
-#if YAP_PYTHON
-
-#include <Python.h>
-
-extern bool python_in_python;
-#endif
 
 
 }

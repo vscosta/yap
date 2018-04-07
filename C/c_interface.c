@@ -2099,7 +2099,7 @@ X_API void YAP_ClearExceptions(void) {
   Yap_ResetException(worker_id);
 }
 
-X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
+X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) {
   CACHE_REGS
   int sno;
   BACKUP_MACHINE_REGS();
@@ -2114,19 +2114,25 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
     fl = Yap_AbsoluteFile(fname, true);
     if (!fl || !fl[0]) {
       pop_text_stack(lvl);
+      *full = NULL;
       return -1;
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
   sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
-    if (sno < 0)
-        return sno;
-  if (!Yap_ChDir(dirname((char *)fl))) return -1;
+    if (sno < 0 ||
+	!Yap_ChDir(dirname((char *)fl))) {
+      pop_text_stack(lvl);
+      *full = NULL;
+      return -1;
+    }
+                    LOCAL_PrologMode = UserMode;
+
   Yap_init_consult(consulted, fl);
   GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  pop_text_stack(lvl);
+  *full = pop_output_text_stack(lvl, fl);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2285,8 +2291,6 @@ X_API bool YAP_CompileClause(Term t) {
   }
   RECOVER_MACHINE_REGS();
   if (!ok) {
-      t = Yap_GetException();
-      Yap_DebugPlWrite(t);
       return NULL;        
   }
   return ok;

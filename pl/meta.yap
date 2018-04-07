@@ -23,22 +23,20 @@ For example, the declaration for call/1 and setof/3 are:
 :- meta_predicate call(0), setof(?,0,?).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-meta_predicate declaration
- implemented by asserting $meta_predicate(SourceModule,Functor,Arity,Declaration)
+The meta_predicate declaration is
+ implemented by:
 
+  - asserting `$meta_predicate(SourceModule,Functor,Arity,Declaration)`
+  - setting up a `MetaPredicate` flag in the internal predicate descriptor.
 */
 
 % directive now meta_predicate Ps :- $meta_predicate(Ps).
 
 :- use_system_module( '$_arith', ['$c_built_in'/4]).
 
-
-:- dynamic prolog:'$meta_predicate'/4.
-
-:- multifile prolog:'$meta_predicate'/4,
-      '$inline'/2,
-      '$full_clause_optimisation'/4.
-
+meta_predicate(P) :-
+     source_module(SM),
+     '$meta_predicate'(P, SM).
 
 '$meta_predicate'(P,M) :-
 	var(P),
@@ -66,7 +64,7 @@ meta_predicate declaration
 '$meta_predicate'( _D, _M ).
 
 '$install_meta_predicate'(P,M,_F,_N) :-
-    '$new_meta_pred'(P, M),
+	'$new_meta_pred'(P, M),
 	fail.
 '$install_meta_predicate'(_P,M,F,N) :-
     	( M = prolog -> M2 = _ ; M2 = M),
@@ -220,8 +218,8 @@ meta_predicate declaration
 %
 %
 %       head variab'$expand_goals'(M:G,G1,GO,HM,SM,,_M,HVars)les.
-%       goals or arguments/sub-arguments?
-% I cannot use call here because of format/3
+				%       goals or arguments/sub-arguments?
+				% I cannot use call here because of format/3
 % modules:
 % A4: module for body of clause (this is the one used in looking up predicates)
 % A5: context module (this is the current context
@@ -231,16 +229,16 @@ meta_predicate declaration
 %'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
 	var(V),
-    !,
+	!,
 	( lists:identical_member(V, HVars)
 	->
-      '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
+	  '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
 	;
 	  ( atom(BM)
-      ->
-        NG = call(BM:V),
-        NGO = '$execute_in_mod'(V,BM)
-   ;
+	  ->
+	    NG = call(BM:V),
+	    NGO = '$execute_in_mod'(V,BM)
+	  ;
         '$expand_goals'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
       )
    ).
@@ -500,112 +498,3 @@ expand_goal(Input, Output) :-
     '$yap_strip_module'(SM:G, M, IG),
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
-
-:- '$install_meta_predicate'((0,0),prolog,(','),2).
-
-meta_predicate(P) :-
-     source_module(SM),
-'$meta_predicate'(P, SM).
-
-
-
-:- meta_predicate
-	abolish(:),
-	abolish(:,+),
-	all(?,0,-),
-	assert(:),
-	assert(:,+),
-	assert_static(:),
-	asserta(:),
-	asserta(:,+),
-	asserta_static(:),
-	assertz(:),
-	assertz(:,+),
-	assertz_static(:),
-	at_halt(0),
-	bagof(?,0,-),
-	bb_get(:,-),
-	bb_put(:,+),
-	bb_delete(:,?),
-	bb_update(:,?,?),
-	call(0),
-	call(1,?),
-	call(2,?,?),
-	call(3,?,?,?),
-	call_with_args(0),
-	call_with_args(1,?),
-	call_with_args(2,?,?),
-	call_with_args(3,?,?,?),
-	call_with_args(4,?,?,?,?),
-	call_with_args(5,?,?,?,?,?),
-	call_with_args(6,?,?,?,?,?,?),
-	call_with_args(7,?,?,?,?,?,?,?),
-	call_with_args(8,?,?,?,?,?,?,?,?),
-	call_with_args(9,?,?,?,?,?,?,?,?,?),
-	call_cleanup(0,0),
-	call_cleanup(0,?,0),
-	call_residue(0,?),
-	call_residue_vars(0,?),
-	call_shared_object_function(:,+),
-	catch(0,?,0),
-	clause(:,?),
-	clause(:,?,?),
-	compile(:),
-	consult(:),
-	current_predicate(:),
-	current_predicate(?,:),
-	db_files(:),
-			     depth_bound_call(0,+),
-	discontiguous(:),
-	ensure_loaded(:),
-	exo_files(:),
-	findall(?,0,-),
-	findall(?,0,-,?),
-	forall(0,0),
-	format(+,:),
-	format(+,+,:),
-	freeze(?,0),
-	hide_predicate(:),
-	if(0,0,0),
-	ignore(0),
-	incore(0),
-	initializon(0),
-	multifile(:),
-	nospy(:),
-        not(0),
-        notrace(0),
-        once(0),
-        phrase(2,?),
-        phrase(2,?,+),
-	predicate_property(:,?),
-	predicate_statistics(:,-,-,-),
-	on_exception(+,0,0),
-	qsave_program(+,:),
-	reconsult(:),
-	retract(:),
-	retract(:,?),
-	retractall(:),
-	reconsult(:),
-	setof(?,0,-),
-	setup_call_cleanup(0,0,0),
-	setup_call_catcher_cleanup(0,0,?,0),
-	spy(:),
-	stash_predicate(:),
-	use_module(:),
-	use_module(:,+),
-	use_module(?,:,+),
-	when(+,0),
-	with_mutex(+,0),
-	with_output_to(?,0),
-	'->'(0 , 0),
-	'*->'(0 , 0),
-	';'(0 , 0),
-	^(+,0),
-	{}(0,?,?),
-	','(2,2,?,?),
-	';'(2,2,?,?),
-	'|'(2,2,?,?),
-	->(2,2,?,?),
-	\+(2,?,?),
-		  \+( 0 )
-            .

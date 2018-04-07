@@ -156,6 +156,7 @@ E(CALL_COUNTER_UNDERFLOW_EVENT, EVENT, "call_counter_underflow")
 E(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT, EVENT, "pred_entry_counter_underflow")
 E(RETRY_COUNTER_UNDERFLOW_EVENT, EVENT, "retry_counter_underflow")
 E(INTERRUPT_EVENT, EVENT, "interrupt")
+E(USER_EVENT, EVENT, "user event")
 
 E(TYPE_ERROR_ARRAY, TYPE_ERROR, "array")
 E(TYPE_ERROR_ATOM, TYPE_ERROR, "atom")

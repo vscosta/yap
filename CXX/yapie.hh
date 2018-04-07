@@ -40,6 +40,11 @@ public:
       if (ID != YAP_NO_ERROR) {};
     std::cerr << "Error detected" << ID << "\n";
   }
+  YAPError(yap_error_descriptor_t *des){
+      ID = des->errorNo;
+      if (ID != YAP_NO_ERROR) {};
+    std::cerr << "Error detected" << ID << "\n";
+  }
   /// error handler object with initial data when receiving the error term
   YAPError(yap_error_number id, YAPTerm culprit, std::string txt);
   
