@@ -647,11 +647,14 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   yap_error_number err;
 
   /* disallow recursive error handling */
-  if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
-    fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n",
+  if (LOCAL_PrologMode & InErrorMode &&
+     ((err = LOCAL_ActiveError->errorNo) ||
+     ( LOCAL_CommittedError->errorNo &&
+       (err = LOCAL_CommittedError->errorNo)))) {
+         fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n",
             Yap_errorClassName(Yap_errorClass(type)), Yap_errorName(type),
             Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
-    Yap_RestartYap(1);
+    return P;
   }
   if (LOCAL_DoingUndefp && type == EVALUATION_ERROR_UNDEFINED) {
     P = FAILCODE;
@@ -1002,6 +1005,7 @@ static Int get_exception(USES_REGS1) {
   Term t;
 
   i = LOCAL_CommittedError;
+  LOCAL_CommittedError = NULL;
   if (i && i->errorNo != YAP_NO_ERROR) {
     if (i->errorNo == THROW_EVENT)
       t = i->errorRawTerm;
@@ -1012,12 +1016,8 @@ static Int get_exception(USES_REGS1) {
       t = mkerrort(i->errorNo, TermNil, MkSysError(i));
     }
     Yap_ResetException(LOCAL_ActiveError);
-    LOCAL_CommittedError = NULL;
-    Int rc = Yap_unify(t, ARG1);
-    return rc;
-  }
-      LOCAL_CommittedError = NULL;
-
+    return Yap_unify(t, ARG1);
+  } 
   return false;
 }
 
@@ -1091,8 +1091,8 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
       Term hdtl = TailOfTerm(hd);
       if (hdhd == Termg) {
 	Term n = ArgOfTerm(1,hdtl);
-     
-	LOCAL_ActiveError->errorGoal =  Yap_TermToBuffer(n, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);	  
+
+	LOCAL_ActiveError->errorGoal =  Yap_TermToBuffer(n, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
       }
 
     }

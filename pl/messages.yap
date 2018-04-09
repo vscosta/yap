@@ -302,7 +302,7 @@ addinfo( Desc) -->
 	 '$query_exception'(errorGoal, Desc, Call)
 	}
   ;
-  [[h|p(M,Na,Ar,File,FilePos)g)](_)]]
+  [h|p(M,Na,Ar,File,FilePos)]
 ->
     []
 ).
@@ -805,7 +805,7 @@ print_lines( S, Prefixes, Key) -->
 	!,
 	{ nl(S),
 	  Prefixes = [PrefixS - Cmds|More],
-	  format(S, PrefixS, []Cmds)
+	  format(S, PrefixS, Cmds)
 	},
 	{
 	   More == []

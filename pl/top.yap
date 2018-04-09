@@ -965,30 +965,9 @@ catch(G, C, A) :-
   ).
 '$catch'(_,C,A) :-
 	'$get_exception'(C),
-	'$run_catch'(A, C).
+	'$execute'(A),
+	'$true'.
 
-% variable throws are user-handled.
-'$run_catch'(G,E) :-
-  E = '$VAR'(_),
-      !,
-    	call(G ).
-'$run_catch'(abort,_) :-
-        abort.
-'$run_catch'('$Error'(E),E) :-
-        !,
-        	'$LoopError'(E, top ).
-'$run_catch'('$LoopError'(E, Where),E) :-
-      !,
-      '$LoopError'(E, Where).
-'$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),E) :-
-      !,
-      '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
-'$run_catch'(_Signal,E) :-
-      functor( E, N, _),
-      '$hidden_atom'(N), !,
-      throw(E).
-'$run_catch'( Signal, _E) :-
-    call( Signal ).
 
 %
 % throw has to be *exactly* after system catch!

@@ -948,7 +948,7 @@ static Int tag_cleanup(USES_REGS1) {
 
 static Int cleanup_on_exit(USES_REGS1) {
 
-  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
+  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1))), bp;
   Term task = Deref(ARG2);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
@@ -956,6 +956,7 @@ static Int cleanup_on_exit(USES_REGS1) {
 
   while (B->cp_ap->opc == FAIL_OPCODE)
     B = B->cp_b;
+ 
   if (complete) {
     return true;
   }
@@ -973,6 +974,14 @@ static Int cleanup_on_exit(USES_REGS1) {
     complete_pt[0] = TermExit;
   }
   Yap_ignore(cleanup, false);
+  bp = B;
+  while (bp && bp != B0) {
+    if (bp->cp_ap == NOCODE &&
+	bp->cp_b) {
+      bp->cp_ap = TRUSTFAILCODE;
+    }
+    bp = bp->cp_b;
+  }
   if (Yap_RaiseException()) {
     return false;
   }
@@ -2028,12 +2037,11 @@ static Int JumpToEnv(USES_REGS1) {
   // DBTerm *dbt = Yap_RefToException();
   while (handler
 	 && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
-	 && LOCAL_CBorder < LCL0 - (CELL *)handler
-	 && handler->cp_ap != NOCODE
+	 //&& LOCAL_CBorder < LCL0 - (CELL *)handler
+	 //&& handler->cp_ap != NOCODE
 	 && handler->cp_b != NULL
 	 ) {
-    //if (handler->cp_ap != NOCODE)
-    //  handler->cp_ap = TRUSTFAILCODE;
+    handler->cp_ap = TRUSTFAILCODE;
     handler = handler->cp_b;
   }
   pop_text_stack(1);
