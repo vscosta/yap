@@ -1756,7 +1756,7 @@ p_new_mutex(void)
  p_with_mutex( USES_REGS1 )
  {
    Int mut;
-   Term t1 = Deref(ARG1), excep;
+   Term t1 = Deref(ARG1);
    Int rc = FALSE;
    Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
    PredEntry *pe;
@@ -1813,11 +1813,11 @@ p_new_mutex(void)
   }
  end:
   ARG1 = MkIntegerTerm(mut);
-  excep = Yap_GetException();
+  yap_error_descriptor_t *err = Yap_GetException();
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );
-  } else if ( excep != 0) {
-    LOCAL_ActiveError->errorNo = IntegerOfTerm(excep);
+  } else if ( err ) {
+    LOCAL_ActiveError->errorNo = err->errorNo;
     return Yap_JumpToEnv();
   }
   return rc;

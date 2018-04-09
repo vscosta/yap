@@ -1258,6 +1258,8 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
  
   if (sno < 0)
     return NULL;
+  if (t == 0)
+    return NULL;
   if (enc)
     GLOBAL_Stream[sno].encoding = enc;
   else

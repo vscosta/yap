@@ -166,6 +166,7 @@
   AtomFunctor = AtomAdjust(AtomFunctor); TermFunctor = MkAtomTerm(AtomFunctor);
   AtomGT = AtomAdjust(AtomGT); TermGT = MkAtomTerm(AtomGT);
   AtomGVar = AtomAdjust(AtomGVar); TermGVar = MkAtomTerm(AtomGVar);
+  Atomg = AtomAdjust(Atomg); Termg = MkAtomTerm(Atomg);
   AtomGc = AtomAdjust(AtomGc); TermGc = MkAtomTerm(AtomGc);
   AtomGcMargin = AtomAdjust(AtomGcMargin); TermGcMargin = MkAtomTerm(AtomGcMargin);
   AtomGcTrace = AtomAdjust(AtomGcTrace); TermGcTrace = MkAtomTerm(AtomGcTrace);
@@ -424,6 +425,7 @@
   AtomUserErr = AtomAdjust(AtomUserErr); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = AtomAdjust(AtomUserIn); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = AtomAdjust(AtomUserOut); TermUserOut = MkAtomTerm(AtomUserOut);
+  AtomUTF8 = AtomAdjust(AtomUTF8); TermUTF8 = MkAtomTerm(AtomUTF8);
   AtomDollarVar = AtomAdjust(AtomDollarVar); TermDollarVar = MkAtomTerm(AtomDollarVar);
   AtomVBar = AtomAdjust(AtomVBar); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = AtomAdjust(AtomVarBranches); TermVarBranches = MkAtomTerm(AtomVarBranches);
@@ -499,6 +501,7 @@
   FunctorDoubleArrow = FuncAdjust(FunctorDoubleArrow);
   FunctorDoubleSlash = FuncAdjust(FunctorDoubleSlash);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
+  FunctorEncoding = FuncAdjust(FunctorEncoding);
   FunctorEq = FuncAdjust(FunctorEq);
   FunctorError = FuncAdjust(FunctorError);
   FunctorEvaluationError = FuncAdjust(FunctorEvaluationError);

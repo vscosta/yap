@@ -171,6 +171,7 @@ A	Full			N	"full"
 A	Functor			N	"functor"
 A	GT			N	">"
 A	GVar			N	"var"
+A	g			N	"g"
 A	Gc			F	"$gc"
 A	GcMargin		F	"$gc_margin"
 A	GcTrace			F	"$gc_trace"
@@ -429,6 +430,7 @@ A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
+A	UTF8			N	"utf8"
 A	DollarVar	    N	"$VAR"
 A	VBar			N	"|"
 A	VarBranches		N	"var_branches"
@@ -504,6 +506,7 @@ F	Dot9			Dot		9
 F	DoubleArrow			DoubleArrow		2
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
+F	Encoding		Encoding	1
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1

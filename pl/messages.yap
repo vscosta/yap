@@ -213,7 +213,7 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a ~a in module ~a, ~d msec ~d bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
-compose_message(error(signal(SIG,_), _), _) -->
+compose_message(signal(SIG,_), _) -->
 	!,
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
 compose_message(trace_command(C), _Leve) -->
@@ -232,21 +232,18 @@ compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
 compose_message(error(E, exception(Exc)), Level) -->
     { '$show_consult_level'(LC) },
-	location( Exc, Level, LC),
-	main_message( Exc, Level, LC ),
+	location(error(E, exception(Exc)), Level, LC),
+	main_message(error(E, exception(Exc)) , Level, LC ),
 	c_goal( Exc, Level ),
 	caller( Exc, Level ),
 	extra_info( Exc, Level ),
 	!,
 	[nl,nl].
-compose_message(error(E,[I|Is]), Level) -->
-	{  Level == error -> true ; Level == warning },
-	{ '$show_consult_level'(LC),
-	  translate_info([I|Is], In))
-	},
-	compose_message( e(Err, In), Level),
-	[nl,nl].
-compose_message(Throw), _Leve) -->
+  compose_message(error(E,[I|Is]), Level) -->
+      { translate_info([I|Is], In)	},
+  	compose_message( e(E, In), Level),
+  	[nl,nl].
+compose_message(Throw, _Leve) -->
   	!,
   	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
@@ -254,7 +251,7 @@ translate_info([I1|I2],exception(R) ) :-
 	!,
 	'$new_exception'(R),
 	tinfo(R, [I1|I2], []).
-translate_info(E, none ).
+translate_info(_E, none ).
 
 tinfo(_Reg) -->
 	!.
@@ -263,7 +260,12 @@ tinfo(Reg) -->
   tinfo(Reg).
 
 addinfo( Desc) -->
-   ( [[p|p(M,Na,Ar,File,FilePos)]]
+   (  ;
+  [[p]]
+  ->
+      []
+  ;
+ [[p|p(M,Na,Ar,File,FilePos)]]
    ->
 	{
 	 '$query_exception'(prologPredFile, Desc, File),
@@ -273,7 +275,11 @@ addinfo( Desc) -->
 	 '$query_exception'(prologPredArity, Desc, Ar)
 	}
   ;
-  [e|p(M,Na,Ar,File,FilePos)], Desc)
+  [[e]]
+  ->
+  []
+  ;
+  [[e|p(M,Na,Ar,File,FilePos)]]
   ->
 	{
 	 '$query_exception'(prologPredFile, Desc, File),
@@ -291,11 +297,15 @@ addinfo( Desc) -->
 	'$query_exception'(errorLine, Desc, Line)
 	}
   ;
-[[g|g(Call)]
+  [[g|g(Call)]]
 ->
 	{
 	 '$query_exception'(errorGoal, Desc, Call)
 	}
+  ;
+  [[h|p(M,Na,Ar,File,FilePos)g)](_)]]
+->
+    []
 ).
 
 
@@ -307,16 +317,6 @@ location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
 	!,
 	[ '~a:~d:0 ' - [FileName,LN] ] .
 location( error(_,exception(Desc)), Level, LC ) -->
-	{  source_location(F0, L),
-	   stream_property(_Stream, alias(loop_stream)),
-	   !,
-	   '$query_exception'(prologPredModule, Desc, M),
-	   '$query_exception'(prologPredName, Desc, Na),
-	   '$query_exception'(prologPredArity, Desc, Ar)
-	},
-	display_consulting( F0, Level, LC ),
-	[  '~a:~d:0 ~a in ~a:~q/~d:'-[F0, L,Level,M,Na,Ar] ].
-location( error(_,exception(Desc)), Level, LC ) -->
 	{    '$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
 	'$query_exception'(prologPredModule, Desc, M),
@@ -324,15 +324,15 @@ location( error(_,exception(Desc)), Level, LC ) -->
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
 	display_consulting( File, Level, LC ),
-	[  '~a:~d:0 ~a in ~a:~q/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,In), _, _) --> {var(In)}, !,
 	[  ' error: uninstantiated message ~w~n.' - [Msg], nl ].
 main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
 	!,
-	  [' ~a: syntax error ~s' - [Level,Msg]],
-	  [nl],
+	[' ~a: syntax error ~s' - [Level,Msg]],
+	[nl],
 	  ( syntax_error_term( between(L0,LM,LF), Term, LC )
 	  ->
 	    []
@@ -747,7 +747,7 @@ syntax_error_token(number(N), _, _LC) --> !,
 syntax_error_token(var(_,S), _, _LC)  --> !,
 	[ '~a'  - [S] ].
 syntax_error_token(string(S), _, _LC) --> !,
-	[ '`~s`' - [S] ].
+					  [ '`~s`' - [S] ].
 syntax_error_token(error, L, _LC) --> !,
 	[ ' <<<< at line %d' - [L] ].
 syntax_error_token('EOT',_,  _LC) --> !,
@@ -806,8 +806,8 @@ print_lines( S, Prefixes, Key) -->
 	!,
 	{ nl(S),
 	  Prefixes = [PrefixS - Cmds|More],
-	  format(S, PrefixS, Cmds)
-	},
+	  format(S, PrefixS, []Cmds)
+	}
 	{
 	   More == []
 	  ->

@@ -63,12 +63,12 @@ system_error(Type,Goal) :-
 
 
 '$do_error'(Type,Goal) :-
-	throw(error(Type, [error(Goal)])).
+	throw(error(Type, [[g|g(Goal)]])).
 
 /**
  * @pred system_error( +Error, +Cause, +Culprit)
  *
- * Generate a system error _Error_, informing the source goal _Cause_ and a possible _Culprit_.
+ * Generate a system error _Error_, informing the source goal _Cause_
  *
  *
  * ~~~~~~~~~~
@@ -76,9 +76,8 @@ system_error(Type,Goal) :-
  *
  *
  */
-system_error(Type,Goal,Culprit) :-
-	ancestor_location(Goal, Culprit),
-	throw(error(Type, [error(Goal, Culprit)])).
+system_error(Type,Goal) :-
+	hrow(error(Type, [[g|g(Goal)]])).
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).
@@ -132,7 +131,7 @@ system_error(Type,Goal,Culprit) :-
 	functor(Error, Severity, _),
 	print_message(Severity, Error), !.
 %'$process_error'(error(Msg, Where), _) :-
-%    Print_message(error,error(Msg, [g|Where])), !.
+%    Print_message(error,error(Msg, [g|fWhere])), !.
 '$process_error'(Throw, _) :-
 	print_message(error,error(unhandled_exception,Throw)).
 

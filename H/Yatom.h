@@ -1615,7 +1615,7 @@ INLINE_ONLY inline EXTERN Term MkSysError(yap_error_descriptor_t *i) {
   Term et = MkAddressTerm(i);
   return Yap_MkApplTerm( FunctorException, 1, &et);
 }
-yap_error_descriptor_t *Yap_UserError( Term t, Term t1, yap_error_descriptor_t *i);
+yap_error_descriptor_t *Yap_UserError( Term t, yap_error_descriptor_t *i);
 
 extern bool Yap_RaiseException(void);
 

@@ -2055,15 +2055,12 @@ bool Yap_JumpToEnv(void) {
 
 /* This does very nasty stuff!!!!! */
 static Int jump_env(USES_REGS1) {
-  Term t = Deref(ARG1), t0 = t, t1;
+  Term t = Deref(ARG1), t0 = t;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
     return false;
-  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError
-	     && (t1 = ArgOfTerm(1, t))
-	     && IsPairTerm((t = ArgOfTerm(2, t)))
-	     && IsApplTerm((t = HeadOfTerm(t)))) {
-    LOCAL_ActiveError = Yap_UserError(t, t1, LOCAL_ActiveError);
+  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+    LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
   } else {
     LOCAL_Error_TYPE = THROW_EVENT;
     LOCAL_ActiveError->errorAsText = NULL;

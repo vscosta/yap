@@ -166,6 +166,7 @@
   AtomFunctor = Yap_LookupAtom("functor"); TermFunctor = MkAtomTerm(AtomFunctor);
   AtomGT = Yap_LookupAtom(">"); TermGT = MkAtomTerm(AtomGT);
   AtomGVar = Yap_LookupAtom("var"); TermGVar = MkAtomTerm(AtomGVar);
+  Atomg = Yap_LookupAtom("g"); Termg = MkAtomTerm(Atomg);
   AtomGc = Yap_FullLookupAtom("$gc"); TermGc = MkAtomTerm(AtomGc);
   AtomGcMargin = Yap_FullLookupAtom("$gc_margin"); TermGcMargin = MkAtomTerm(AtomGcMargin);
   AtomGcTrace = Yap_FullLookupAtom("$gc_trace"); TermGcTrace = MkAtomTerm(AtomGcTrace);
@@ -424,6 +425,7 @@
   AtomUserErr = Yap_LookupAtom("user_error"); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = Yap_LookupAtom("user_output"); TermUserOut = MkAtomTerm(AtomUserOut);
+  AtomUTF8 = Yap_LookupAtom("utf8"); TermUTF8 = MkAtomTerm(AtomUTF8);
   AtomDollarVar = Yap_LookupAtom("$VAR"); TermDollarVar = MkAtomTerm(AtomDollarVar);
   AtomVBar = Yap_LookupAtom("|"); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = Yap_LookupAtom("var_branches"); TermVarBranches = MkAtomTerm(AtomVarBranches);
@@ -499,6 +501,7 @@
   FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
   FunctorDoubleSlash = Yap_MkFunctor(AtomDoubleSlash,2);
   FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
+  FunctorEncoding = Yap_MkFunctor(AtomEncoding,1);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
   FunctorError = Yap_MkFunctor(AtomError,2);
   FunctorEvaluationError = Yap_MkFunctor(AtomEvaluationError,1);

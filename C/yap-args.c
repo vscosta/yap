@@ -203,10 +203,11 @@ static void consult(const char *b_file USES_REGS) {
     } else {
      YAP_CompileClause(t);
     }
-    Term terr;
-    Yap_PrintException();
-    if ((terr = Yap_GetException()))
-      fprintf(stderr,"Exception Found\n");
+    yap_error_descriptor_t *errd;
+    if ((errd = Yap_GetException())) {
+      fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
+              errd->errorAsText);
+    }
   } while (t != TermEof);
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);

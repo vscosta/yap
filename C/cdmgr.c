@@ -1699,6 +1699,9 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   Term tf;
   int mode;
 
+  if (tmode == 0) {
+    tmode = TermConsult;
+  }
   if (tmode == TermConsult) {
     mode = consult;
   } else if (tmode == TermReconsult) {

@@ -166,6 +166,7 @@ X_API EXTERNAL Atom AtomFull; X_API EXTERNAL Term TermFull;
 X_API EXTERNAL Atom AtomFunctor; X_API EXTERNAL Term TermFunctor;
 X_API EXTERNAL Atom AtomGT; X_API EXTERNAL Term TermGT;
 X_API EXTERNAL Atom AtomGVar; X_API EXTERNAL Term TermGVar;
+X_API EXTERNAL Atom Atomg; X_API EXTERNAL Term Termg;
 X_API EXTERNAL Atom AtomGc; X_API EXTERNAL Term TermGc;
 X_API EXTERNAL Atom AtomGcMargin; X_API EXTERNAL Term TermGcMargin;
 X_API EXTERNAL Atom AtomGcTrace; X_API EXTERNAL Term TermGcTrace;
@@ -424,6 +425,7 @@ X_API EXTERNAL Atom AtomUser; X_API EXTERNAL Term TermUser;
 X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
 X_API EXTERNAL Atom AtomUserOut; X_API EXTERNAL Term TermUserOut;
+X_API EXTERNAL Atom AtomUTF8; X_API EXTERNAL Term TermUTF8;
 X_API EXTERNAL Atom AtomDollarVar; X_API EXTERNAL Term TermDollarVar;
 X_API EXTERNAL Atom AtomVBar; X_API EXTERNAL Term TermVBar;
 X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
@@ -555,6 +557,8 @@ X_API EXTERNAL  Functor FunctorDoubleArrow;
 X_API EXTERNAL  Functor FunctorDoubleSlash;
 
 X_API EXTERNAL  Functor FunctorEmptySquareBrackets;
+
+X_API EXTERNAL  Functor FunctorEncoding;
 
 X_API EXTERNAL  Functor FunctorEq;
 

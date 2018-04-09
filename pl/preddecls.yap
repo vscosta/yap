@@ -32,8 +32,6 @@
 			     ]
 			    ).
 
-:- op(1150, fx, [multifile,discontiguous]).
-
 '$log_upd'(1).
 
 /**

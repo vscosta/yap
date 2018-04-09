@@ -646,7 +646,6 @@ bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
-  Term terr;
   e = nullptr;
   BACKUP_MACHINE_REGS();
   if (!q_open)
