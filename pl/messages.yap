@@ -780,28 +780,48 @@ syntax_error_token(nl, _, LC) --> !,
 syntax_error_token(B,_,  _LC) --> !,
 	[ nl, 'bad_token: ~q' - [B], nl ].
 
+print_lines( S, A, Key) -->
+	[Tok],
+	print_lines_(Tok, S, A, Key).
 
-print_lines( S, _, Key) -->
-	[nl, end(Key0)],
+
+print_lines_( at_same_line, S, Prefix, Key) -->
+	!,
+	print_lines( S, Prefix, Key).
+print_lines_(begin(Severity, OtherKey), S, Prefixes, Key) -->
+	!,
+	{ prefix( Severity, P ) },
+	print_message_lines(S, [P], OtherKey),
+	print_lines( S, Prefixes, Key ).
+print_lines_( end(Key0), S, _, Key) -->
+	{ Key0 == Key },
+	!,
+	{ nl(S) }.
+print_lines_( end(_OtherKey), S, Prefixes, Key) -->
+	!,
+	print_lines( S, Prefixes, Key ).
+print_lines_( flush, S, _, Key) -->
+	[ end(Key0)],
+	{ Key == Key0 },
+	!,
+	{ flush_output(S) }.
+print_lines_(flush, S, Prefixes, Key) -->
+	!,
+	{ flush_output(S) },
+	print_lines( S, Prefixes, Key ).
+	!,
+	print_lines( S, Prefixes, Key ).
+print_lines_(format(Fmt,Args), S, Prefixes, Key) -->
+	!,
+	{ format(S, Fmt, Args) },
+	print_lines( S, Prefixes, Key ).
+print_lines_( nl, S, _, Key) -->
+	[ end(Key0)],
 	{ Key == Key0 },
 	!,
 	{ nl(S),
 	  flush_output(S) }.
-print_lines( S, _, Key) -->
-	[flush, end(Key0)],
-	{ Key == Key0 },
-	!,
-	{ flush_output(S) }.
-print_lines(S, _, Key) -->
-	[ end(Key0) ],
-	{ Key0 == Key }, !,
-	{ nl(S) }.
-print_lines( S, Prefix, Key) -->
-	[at_same_line],
-	!,
-	print_lines( S, Prefix, Key).
-print_lines( S, Prefixes, Key) -->
-	[nl],
+print_lines_(nl, S, Prefixes, Key) -->
 	!,
 	{ nl(S),
 	  Prefixes = [PrefixS - Cmds|More],
@@ -815,50 +835,25 @@ print_lines( S, Prefixes, Key) -->
 	   NPrefixes = More
 	},
 	print_lines( S, NPrefixes, Key).
-print_lines( S, Prefixes, Key) -->
-	[flush],
-	!,
-	{ flush_output(S) },
-	print_lines( S, Prefixes, Key ).
-print_lines(S, Prefixes, Key) -->
-	[end(_OtherKey)],
-	!,
-	print_lines( S, Prefixes, Key ).
 % consider this a message within the message
-print_lines(S, Prefixes, Key) -->
-	[begin(Severity, OtherKey)],
-	!,
-	{ prefix( Severity, P ) },
-	print_message_lines(S, [P], OtherKey),
-	print_lines( S, Prefixes, Key ).
-print_lines(S, Prefixes, Key) -->
-	[prefix(Fmt-Args)],
+print_lines_(prefix(Fmt-Args), S, Prefixes, Key) -->
 	!,
 	print_lines( S, [Fmt-Args|Prefixes], Key ).
-print_lines(S, Prefixes, Key) -->
-	[prefix(Fmt)],
+print_lines_(prefix(Fmt), S, Prefixes, Key) -->
 	{ atom( Fmt ) ; string( Fmt ) },
 	!,
 	print_lines( S, [Fmt-[]|Prefixes], Key ).
-print_lines(S, Prefixes, Key) -->
-	[Fmt-Args],
-	!,
-	{ format(S, Fmt, Args) },
-	print_lines( S, Prefixes, Key ).
-print_lines(S, Prefixes, Key) -->
-	[format(Fmt,Args)],
+print_lines_(Fmt-Args, S, Prefixes, Key) -->
 	!,
 	{ format(S, Fmt, Args) },
 	print_lines( S, Prefixes, Key ).
 % deprecated....
-print_lines(S, Prefixes, Key) -->
-	[ Fmt ],
+print_lines_(Fmt, S, Prefixes, Key) -->
 	{ atom(Fmt) ; string( Fmt ) },
 	!,
 	{ format(S, Fmt, []) },
 	print_lines(S, Prefixes, Key).
-print_lines(S, _Prefixes, _Key) -->
-	[ Msg ],
+print_lines_(Msg, S, _Prefixes, _Key) -->
 	{ format(S, 'Illegal message Component: ~q !!!.~n', [Msg]) }.
 
 prefix(help,	      '~N'-[]).
