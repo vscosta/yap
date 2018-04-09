@@ -690,6 +690,8 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     find_python_module(setuptools)
     if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS)
         add_subdirectory(packages/python/yap_kernel)
+      else()
+        message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setutools=${PY_SETUPTOOLS}")
     ENDIF ()
 
 endif ()
@@ -911,6 +913,9 @@ endif (POLICY CMP0058)
 include(Config )
 
 
-feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
-        INCLUDE_QUIET_PACKAGES
-        )
+feature_summary(DESCRIPTION "Packages found:"
+  WHAT  PACKAGES_FOUND
+                )
+feature_summary(DESCRIPTION "Packages not found:"
+  WHAT  PACKAGES_NOT_FOUND
+                )
