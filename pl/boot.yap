@@ -227,15 +227,15 @@ print_message(L,E) :-
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
-	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
+	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
 	  % do term expansion
 	  '$expand_term'(C, Con, EC),
     '$yap_strip_module'(EC, EM, EG),
 	  % execute a list of commands
-	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
+	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source)
+	),
 	  % succeed only if the *original* was at end of file.
-	  C == end_of_file
-	).
+	  C == end_of_file.
 
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.

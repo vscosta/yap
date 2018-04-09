@@ -260,8 +260,7 @@ tinfo(Reg) -->
   tinfo(Reg).
 
 addinfo( Desc) -->
-   (  ;
-  [[p]]
+   (  [[p]]
   ->
       []
   ;
@@ -807,7 +806,7 @@ print_lines( S, Prefixes, Key) -->
 	{ nl(S),
 	  Prefixes = [PrefixS - Cmds|More],
 	  format(S, PrefixS, []Cmds)
-	}
+	},
 	{
 	   More == []
 	  ->

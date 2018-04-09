@@ -358,7 +358,6 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   const char *serr;
 
   arity_t arity = 2;
-
   if (LOCAL_ErrorMessage) {
     serr = LOCAL_ErrorMessage;
   } else {
@@ -379,6 +378,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
                   serr);
       return false;
     }
+  LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
@@ -390,6 +390,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
                   ARG1, serr);
       return false;
     }
+  LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -398,7 +399,9 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
       return false;
     }
   default:
-    Yap_Error__(false, file, function, lineno, err, TermNil, serr);
+
+    if (LOCAL_PrologMode == UserMode)
+      Yap_Error__(false, file, function, lineno, err, TermNil, serr);
     return false;
   }
 }
@@ -1013,6 +1016,8 @@ static Int get_exception(USES_REGS1) {
     Int rc = Yap_unify(t, ARG1);
     return rc;
   }
+      LOCAL_CommittedError = NULL;
+
   return false;
 }
 

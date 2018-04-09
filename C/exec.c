@@ -817,7 +817,7 @@ static bool watch_cut(Term ext USES_REGS) {
   }
   CELL *port_pt = deref_ptr(RepAppl(task) + 2);
   CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
-  if (LOCAL_CommittedError) {
+  if (LOCAL_CommittedError && LOCAL_CommittedError->errorNo !=  YAP_NO_ERROR) {
     e = MkErrorTerm(LOCAL_CommittedError);
     Term t;
     if (active) {
