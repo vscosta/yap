@@ -230,6 +230,12 @@ compose_message(myddas_version(Version), _Leve) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
+compose_message(style_check(What,FILE,Line,Clause), Level)-->
+    !,
+    { '$show_consult_level'(LC) },
+	location(style_check(What,FILE,Line,Clause), Level, LC),
+	main_message(style_check(What,FILE,Line,Clause) , Level, LC )
+	].
 compose_message(error(E, exception(Exc)), Level) -->
     { '$show_consult_level'(LC) },
 	location(error(E, exception(Exc)), Level, LC),
@@ -239,7 +245,7 @@ compose_message(error(E, exception(Exc)), Level) -->
 	extra_info( Exc, Level ),
 	!,
 	[nl,nl].
-  compose_message(error(E,[I|Is]), Level) -->
+compose_message(error(E,[I|Is]), Level) -->
       { translate_info([I|Is], In)	},
   	compose_message( e(E, In), Level),
   	[nl,nl].
@@ -312,9 +318,10 @@ location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), 
 		!,
 	[ '~a:~d:~d ' - [FileName,LN,0] ] .
 
-location(error(style_check(style_check(_,LN,FileName,_ ) ),_), _ , _) -->
+location(style_check(_,LN,FileName,_ ), Level , LC) -->
 	!,
-	[ '~a:~d:0 ' - [FileName,LN] ] .
+	display_consulting( FileName, Level, LC ),
+	[ '~a:~d:0 ~s ' - [FileName,LN,Level] ] .
 location( error(_,exception(Desc)), Level, LC ) -->
 	{    '$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
@@ -339,7 +346,7 @@ main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term
 	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
 	    [nl]
 	  ).
-main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), Level, _LC) -->
+main_message(style_check(singleton(SVs),_Pos,_File,P), Level, _LC) -->
     !,
 %    {writeln(ci)},
 	{ clause_to_indicator(P, I) },
@@ -347,10 +354,10 @@ main_message(error(style_check(style_check(singleton(SVs),_Pos,_File,P)),_), Lev
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(error(style_check(style_check(multiple(N,A,Mod,I0),_Pos,File,_P)),_), Level, _LC) -->
+main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P),_), Level, _LC) -->
     !,
     [  ' ~a: ~a redefines ~q from  ~a.' - [Level,File, Mod:N/A, I0] ].
-main_message(error(style_check(style_check(discontiguous(N,A,Mod),_S,_W,_P)),_) , Level, _LC)-->
+main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , Level, _LC)-->
     !,
     [  ' ~a: discontiguous definition for ~p.' - [Level,Mod:N/A] ].
 main_message(error(consistency_error(Who)), Level, _LC) -->
@@ -808,8 +815,6 @@ print_lines_( flush, S, _, Key) -->
 print_lines_(flush, S, Prefixes, Key) -->
 	!,
 	{ flush_output(S) },
-	print_lines( S, Prefixes, Key ).
-	!,
 	print_lines( S, Prefixes, Key ).
 print_lines_(format(Fmt,Args), S, Prefixes, Key) -->
 	!,

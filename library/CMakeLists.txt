@@ -80,3 +80,5 @@ install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
 if (ANDROID)
 file( INSTALL  ${LIBRARY_PL} DESTINATION ${libpl} )
 endif()
+
+include_directories("dialect/swi")

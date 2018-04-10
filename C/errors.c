@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -323,12 +324,12 @@ bool Yap_PrintWarning(Term twarning) {
 						 FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
-  Term ts[2];
+  Term ts[2], err;
 
-  if (LOCAL_PrologMode & InErrorMode) {
-    fprintf(stderr, "%% ERROR WITHIN ERROR while processing warning: %s\n",
-            Yap_TermToBuffer(twarning, ENC_ISO_UTF8,Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f));
-    Yap_RestartYap(1);
+  if (LOCAL_PrologMode & InErrorMode &&  LOCAL_CommittedError && (err = LOCAL_CommittedError->errorNo)) {
+    fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
+	    Yap_TermToBuffer(twarning, ENC_ISO_UTF8,Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f), Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
+    return false;
   }
   LOCAL_PrologMode |= InErrorMode;
   LOCAL_DoingUndefp = true;
@@ -378,7 +379,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
                   serr);
       return false;
     }
-  LOCAL_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_AUXILIARY_STACK:
     if (LOCAL_MAX_SIZE < (char *)AuxSp - AuxBase) {
@@ -390,7 +391,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
                   ARG1, serr);
       return false;
     }
-  LOCAL_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
     return true;
   case RESOURCE_ERROR_HEAP:
     if (!Yap_growheap(FALSE, 0, NULL)) {
@@ -574,10 +575,6 @@ yap_error_descriptor_t *Yap_popErrorContext(bool pass) {
            sizeof(yap_error_descriptor_t));
   yap_error_descriptor_t *new_error = LOCAL_ActiveError;
   LOCAL_ActiveError = LOCAL_ActiveError->top_error;
-  if (LOCAL_ActiveError == YAP_NO_ERROR)
-    LOCAL_PrologMode = UserMode;
-  else
-    LOCAL_PrologMode = InErrorMode;
   return new_error;
 }
 
@@ -648,10 +645,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 
   /* disallow recursive error handling */
   if (LOCAL_PrologMode & InErrorMode &&
-     ((err = LOCAL_ActiveError->errorNo) ||
-     ( LOCAL_CommittedError->errorNo &&
-       (err = LOCAL_CommittedError->errorNo)))) {
-         fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n",
+      ((err = LOCAL_ActiveError->errorNo) ||
+       ( LOCAL_CommittedError &&
+	 LOCAL_CommittedError->errorNo &&
+	 (err = LOCAL_CommittedError->errorNo)))) {
+    fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n",
             Yap_errorClassName(Yap_errorClass(type)), Yap_errorName(type),
             Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
     return P;
@@ -667,7 +665,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     LOCAL_ActiveError->culprit = Yap_TermToBuffer(
 						  where, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
   }
-   LOCAL_ActiveError->errorNo = type;
+  LOCAL_ActiveError->errorNo = type;
   LOCAL_ActiveError->errorAsText = Yap_errorName(type);
   LOCAL_ActiveError->errorClass = Yap_errorClass(type);
   LOCAL_ActiveError->classAsText =
@@ -1007,13 +1005,15 @@ static Int get_exception(USES_REGS1) {
   i = LOCAL_CommittedError;
   LOCAL_CommittedError = NULL;
   if (i && i->errorNo != YAP_NO_ERROR) {
-    if (i->errorNo == THROW_EVENT)
+    printErr(i);
+ if (i->errorNo == THROW_EVENT)
       t = i->errorRawTerm;
     else if (i->culprit != NULL) {
       t = mkerrort(i->errorNo, Yap_BufferToTerm(i->culprit,TermNil),
                    MkSysError(i));
     } else {
       t = mkerrort(i->errorNo, TermNil, MkSysError(i));
+      Yap_DebugPlWriteln(t);
     }
     Yap_ResetException(LOCAL_ActiveError);
     return Yap_unify(t, ARG1);
@@ -1026,6 +1026,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
   t1 = ArgOfTerm(1, t);
   t2 = ArgOfTerm(2, t);
   char ename[65];
+  Term n = t;
 
   //    LOCAL_Error_TYPE = ERROR_EVENT;
   LOCAL_ActiveError->errorNo = USER_EVENT;
@@ -1084,20 +1085,21 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
       LOCAL_ActiveError->errorNo = UNINSTANTIATION_ERROR;
     }
   }
+  n = t2;
   while (IsPairTerm(t2)) {
     Term hd = HeadOfTerm(t2);
     if (IsPairTerm(hd)) {
       Term hdhd = HeadOfTerm(hd);
       Term hdtl = TailOfTerm(hd);
       if (hdhd == Termg) {
-	Term n = ArgOfTerm(1,hdtl);
+	n = ArgOfTerm(1,hdtl);
 
-	LOCAL_ActiveError->errorGoal =  Yap_TermToBuffer(n, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
       }
 
+      t2 = TailOfTerm(t2);
     }
-    t2 = TailOfTerm(t2);
   }
+  LOCAL_ActiveError->errorGoal =  Yap_TermToBuffer(n, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
   Yap_prolog_add_culprit(LOCAL_ActiveError PASS_REGS);
   {
     char *errs = malloc(strlen(LOCAL_ActiveError->errorAsText)+1);

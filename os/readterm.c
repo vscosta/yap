@@ -661,10 +661,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
     else
       singls[1] = TermTrue;
     Term t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-    singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 1), 1, &t);
-
-    singls[1] = v;
-    Yap_PrintWarning(Yap_MkApplTerm(FunctorError, 2, singls));
+    Yap_PrintWarning(t);
   }
 }
 

@@ -974,18 +974,12 @@ static Int cleanup_on_exit(USES_REGS1) {
     complete_pt[0] = TermExit;
   }
   Yap_ignore(cleanup, false);
-  bp = B;
-  while (bp && bp != B0) {
-    if (bp->cp_ap == NOCODE &&
-	bp->cp_b) {
-      bp->cp_ap = TRUSTFAILCODE;
-    }
-    bp = bp->cp_b;
-  }
+  if (B0->cp_ap == NOCODE)
+    B0->cp_ap = TRUSTFAILCODE;
   if (Yap_RaiseException()) {
     return false;
   }
-  return true;
+  return true;                                                                        
 }
 
 static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
@@ -2081,7 +2075,6 @@ static Int jump_env(USES_REGS1) {
       LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
   }
-  LOCAL_CommittedError = Yap_GetException();
   return out;
 }
 
