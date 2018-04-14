@@ -817,8 +817,8 @@ static bool watch_cut(Term ext USES_REGS) {
   }
   CELL *port_pt = deref_ptr(RepAppl(task) + 2);
   CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
-  if (LOCAL_CommittedError && LOCAL_CommittedError->errorNo !=  YAP_NO_ERROR) {
-    e = MkErrorTerm(LOCAL_CommittedError);
+  if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo !=  YAP_NO_ERROR) {
+    e = MkErrorTerm(LOCAL_ActiveError);
     Term t;
     if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
@@ -873,9 +873,9 @@ static bool watch_retry(Term d0 USES_REGS) {
   // just do the frrpest
   if (B >= B0 && !ex_mode && !active)
     return true;
-  if (LOCAL_CommittedError &&
-      LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
-    e = MkErrorTerm(LOCAL_CommittedError);
+  if (LOCAL_ActiveError &&
+      LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+    e = MkErrorTerm(LOCAL_ActiveError);
     if (active) {
       t = Yap_MkApplTerm(FunctorException, 1, &e);
     } else {
@@ -956,7 +956,7 @@ static Int cleanup_on_exit(USES_REGS1) {
 
   while (B->cp_ap->opc == FAIL_OPCODE)
     B = B->cp_b;
- 
+
   if (complete) {
     return true;
   }
@@ -979,7 +979,7 @@ static Int cleanup_on_exit(USES_REGS1) {
   if (Yap_RaiseException()) {
     return false;
   }
-  return true;                                                                        
+  return true;
 }
 
 static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
@@ -2058,18 +2058,8 @@ bool Yap_JumpToEnv(void) {
 /* This does very nasty stuff!!!!! */
 static Int jump_env(USES_REGS1) {
   Term t = Deref(ARG1), t0 = t;
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "throw ball must be bound");
-    return false;
-  } else if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorError) {
+ // Yap_DebugPlWriteln(t);
     LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
-  } else {
-    LOCAL_Error_TYPE = THROW_EVENT;
-    LOCAL_ActiveError->errorAsText = NULL;
-    LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
-    LOCAL_ActiveError->classAsText = NULL;
-    //return true;
-  }
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
       LCL0 - (CELL *)B > LOCAL_CBorder) {

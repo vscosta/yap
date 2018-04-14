@@ -1480,7 +1480,7 @@ return
      );
     }
 
-      
+
 PredEntry *Yap_PredFromClause(Term t USES_REGS) {
   Term cmod = LOCAL_SourceModule;
   arity_t extra_arity = 0;

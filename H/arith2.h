@@ -24,7 +24,19 @@ inline static int sub_overflow(Int x, Int i, Int j) {
 }
 
 inline static Term sub_int(Int i, Int j USES_REGS) {
-  Int x = i - j;
+#if defined(__clang__)
+    Int w;
+    if (!__builtin_sub_overflow(i,j,&w))
+         RINT(w);
+    return Yap_gmp_add_ints(i, j);
+#elif defined(__GNUC__)
+    Int w;
+    if (!__builtin_sub_overflow_p(i,j,w))
+         RINT(w);
+    return Yap_gmp_add_ints(i, j);
+#else
+    Int x = i - j;
+
 #if USE_GMP
   Int overflow = ((i & ~j & ~x) | (~i & j & x)) < 0;
   /* Integer overflow, we need to use big integers */
@@ -38,6 +50,7 @@ inline static Term sub_int(Int i, Int j USES_REGS) {
 #else
   RINT(x);
 #endif
+#endif
 }
 
 inline static Int SLR(Int i, Int shift) {
@@ -50,8 +63,12 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
   return (i2 && z / i2 != i1);
 }
 
-#
-#if defined(__GNUC__) && defined(__i386__)
+#if defined(__clang__) || defined(__GNUC__)
+#define DO_MULTI()                                                             \
+  if (__builtin_mul_overflow(i1, i2, &z)) {                                   \
+    goto overflow;                                                             \
+  }
+#elif defined(__GNUC__) && defined(__i386__)
 #define DO_MULTI()                                                             \
   {                                                                            \
     Int tmp1;                                                                  \
@@ -75,11 +92,7 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
       goto overflow;                                                           \
     z = i1 * i2;                                                               \
   }
-#elif __clang__ && FALSE /* not in OSX yet */
-#define DO_MULTI()                                                             \
-  if (__builtin_smul_overflow(i1, i2, &z)) {                                   \
-    goto overflow;                                                             \
-  }
+
 #elif SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 #define DO_MULTI()                                                             \
   {                                                                            \

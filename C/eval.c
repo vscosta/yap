@@ -91,6 +91,8 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
 }
 
 static Term Eval(Term t USES_REGS) {
+  eval_context_t ctx;
+  ctx.p = LOCAL_ctx;
 
   if (IsVarTerm(t)) {
     Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
@@ -134,21 +136,20 @@ static Term Eval(Term t USES_REGS) {
           return get_matrix_element(ArgOfTerm(1, t), t2 PASS_REGS);
         }
       }
+      ctx.f = fun;
+      ctx.fp = RepAppl(t);
+      LOCAL_ctx = &ctx;
       *RepAppl(t) = (CELL)AtomFoundVar;
       t1 = Eval(ArgOfTerm(1, t) PASS_REGS);
-      if (t1 == 0L) {
-        *RepAppl(t) = (CELL)fun;
-        return FALSE;
-      }
       if (n == 1) {
         *RepAppl(t) = (CELL)fun;
+        LOCAL_ctx = ctx.p;
         return Yap_eval_unary(p->FOfEE, t1);
       }
       t2 = Eval(ArgOfTerm(2, t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
-      if (t2 == 0L)
-        return FALSE;
-      return Yap_eval_binary(p->FOfEE, t1, t2);
+        LOCAL_ctx = ctx.p;
+        return Yap_eval_binary(p->FOfEE, t1, t2);
     }
   } /* else if (IsPairTerm(t)) */
   {
@@ -161,7 +162,9 @@ static Term Eval(Term t USES_REGS) {
   }
 }
 
-Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
+Term Yap_InnerEval__(Term t USES_REGS) {
+  return Eval(t PASS_REGS);
+ }
 
 #ifdef BEAM
 Int BEAM_is(void);
@@ -196,18 +199,18 @@ arithmetic_operators
 
 /// @memberof is/2
 static Int p_is(USES_REGS1) { /* X is Y	 */
-  Term out;
+  Term out = TermNil;
   yap_error_number err;
 
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t, "X is Y");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "var(Y) in X is Y");
     return (FALSE);
   }
   Yap_ClearExs();
   do {
     out = Yap_InnerEval(Deref(ARG2));
-    if ((err = Yap_FoundArithError()) == YAP_NO_ERROR)
+    if ( (err = Yap_FoundArithError()) == YAP_NO_ERROR )
       break;
     if (err == RESOURCE_ERROR_STACK) {
       LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -215,9 +218,6 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
         Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
         return FALSE;
       }
-    } else {
-      Yap_EvalError(err, takeIndicator(ARG2), "X is Exp");
-      return FALSE;
     }
   } while (TRUE);
   return Yap_unify_constant(ARG1, out);

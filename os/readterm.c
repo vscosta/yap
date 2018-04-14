@@ -940,7 +940,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 
     Term t = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos);
     if (ParserErrorStyle == TermError) {
-      LOCAL_ActiveError->culprit = Yap_TermToBuffer(t, LOCAL_encoding, TermNil);
+      LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
       LOCAL_Error_TYPE = SYNTAX_ERROR;
       // dec-10
     } else if (Yap_PrintWarning(t)) {
@@ -948,7 +948,6 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
       return YAP_SCANNING;
     }
   }
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
   return YAP_PARSING_FINISHED;
 }
 
@@ -1029,14 +1028,14 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
         fe.t = 0;
         break;
       }
-      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-        Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
-      }
 #if EMACS
       first_char = tokstart->TokPos;
 #endif /* EMACS */
       Yap_popErrorContext(true);
       pop_text_stack(lvl);
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+        Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+      }
       return fe.t;
     }
     }

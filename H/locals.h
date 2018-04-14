@@ -236,6 +236,8 @@ LOCAL(struct db_globs *, s_dbg);
 // eval.c
 LOCAL(Term, mathtt);
 LOCAL_INIT(char *, mathstring, NULL);
+LOCAL_INIT(struct eval_context *, ctx, NULL);
+
 
 // grow.c
 LOCAL_INIT(int, heap_overflows, 0);

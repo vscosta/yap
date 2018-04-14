@@ -548,7 +548,7 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
   t->prologPredLine = cl->lusl.ClLine;
   } else {
   t->prologPredLine = cl->lusl.ClSource->ag.line_number;
-  }  
+  }
   }   else if (pp->PredFlags & DynamicPredFlag) {
   // DynamicClause *cl;
   // cl = ClauseCodeToDynamicClause(clcode);
@@ -1145,7 +1145,7 @@ yap_error_descriptor_t * set_clause_info(yap_error_descriptor_t *t, yamop   *cod
   } else if (pp->cs.p_code.NOfClauses) {
     if ((t->prologPredCl =
 	 find_code_in_clause(pp, codeptr, &begin, NULL)) <= 0) {
-      t->prologPredLine = 0;  
+      t->prologPredLine = 0;
     } else {
       t->prologPredLine = IntegerOfTerm(clause_loc(begin, pp));
     }
@@ -1207,11 +1207,11 @@ yap_error_descriptor_t * Yap_prolog_add_culprit(yap_error_descriptor_t *t PASS_R
   } else {
     CELL *curENV = ENV;
     yamop *curCP = CP;
-    choiceptr curB;
+    choiceptr curB = B;
     PredEntry *pe = EnvPreg(curCP);
 
-    while (curCP != YESCODE && curB) {
-      if (curENV < (CELL *)curB) {
+    while (curCP != YESCODE) {
+      if (curENV ) {
 	pe = EnvPreg(curCP);
 	curENV = (CELL *)(curENV[E_E]);
 	if (curENV < ASP || curENV >= LCL0) {
@@ -1223,16 +1223,19 @@ yap_error_descriptor_t * Yap_prolog_add_culprit(yap_error_descriptor_t *t PASS_R
 	}
 	if (pe->ModuleOfPred || !(pe->PredFlags & HiddenPredFlag))
 	  return set_clause_info(t, curCP, pe);
-      } else {
+    curCP = (yamop *)(curENV[E_CP]);
+} else if (0) {
+if ( curB->cp_ap != NOCODE && curB->cp_ap  != TRUSTFAILCODE
+&& curB->cp_ap != FAILCODE) {
       pe = curB->cp_ap->y_u.Otapl.p;
       if (pe && (pe->ModuleOfPred || !(pe->PredFlags & HiddenPredFlag)))
         return set_clause_info(t, curB->cp_ap, pe);
+      }
       curB = curB->cp_b;
       }
     }
-    curCP = (yamop *)(curENV[E_CP]);
   }
-  
+
 return NULL;
 }
 

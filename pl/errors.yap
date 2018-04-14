@@ -63,7 +63,7 @@ system_error(Type,Goal) :-
 
 
 '$do_error'(Type,Goal) :-
-	throw(error(Type, [[g|g(Goal)]])).
+	throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))).
 
 /**
  * @pred system_error( +Error, +Cause, +Culprit)
@@ -77,7 +77,7 @@ system_error(Type,Goal) :-
  *
  */
 system_error(Type,Goal) :-
-	hrow(error(Type, [[g|g(Goal)]])).
+  throw(error(Type, print_message(['while calling goal = ~w'-Goal,nl]))) .
 
 '$do_pi_error'(type_error(callable,Name/0),Message) :- !,
 	'$do_error'(type_error(callable,Name),Message).
@@ -85,7 +85,7 @@ system_error(Type,Goal) :-
 	'$do_error'(Error,Message).
 
 '$Error'(E) :-
-	'$LoopError'(E,top).
+	'$LoopError'(E, top).
 
 '$LoopError'(_, _) :-
 	flush_output(user_output),
@@ -99,7 +99,7 @@ system_error(Type,Goal) :-
 	'$close_error',
 	fail.
 
-'$process_error'('$forward'(Msg), _) :-
+'$process_error'('$forward'(Msg),  _) :-
 	!,
 	throw( '$forward'(Msg) ).
 '$process_error'(abort, Level) :-
@@ -119,20 +119,13 @@ system_error(Type,Goal) :-
 	 current_prolog_flag(break_level, I),
 	 throw(abort)
 	).
-'$process_error'(error(thread_cancel(_Id), _G),top) :-
-	!.
-'$process_error'(error(thread_cancel(Id), G), _) :-
-	!,
-        throw(error(thread_cancel(Id), G)).
 '$process_error'(error(permission_error(module,redefined,A),B), Level) :-
         Level \= top, !,
         throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(Error, _Level) :-
 	functor(Error, Severity, _),
 	print_message(Severity, Error), !.
-%'$process_error'(error(Msg, Where), _) :-
-%    Print_message(error,error(Msg, [g|fWhere])), !.
-'$process_error'(Throw, _) :-
-	print_message(error,error(unhandled_exception,Throw)).
+'$process_error'(error(Type,Info), _, _) :-
+	print_message(error,error(unhandled_exception(Type),Info)).
 
 %% @}

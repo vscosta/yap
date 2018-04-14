@@ -197,6 +197,17 @@ compose_message( leash([A|B]), _Level) -->
 	[  'Leashing set to ~w.' - [[A|B]] ].
 compose_message( halt, _Level) --> !,
 	[ 'YAP execution halted.'-[] ].
+
+		% syntax error.
+compose_message(error(E, Exc), Level) -->
+    { '$show_consult_level'(LC) },
+	location(error(E, Exc), Level, LC),
+	main_message(error(E,Exc) , Level, LC ),
+	c_goal( Exc, Level ),
+	caller( Exc, Level ),
+	extra_info( Exc, Level ),
+	!,
+	[nl,nl].
 compose_message( false, _Level) --> !,
 	[ 'false.'-[] ].
 compose_message( '$abort', _Level) --> !,
@@ -228,113 +239,42 @@ compose_message(version(Version), _Leve) -->
 compose_message(myddas_version(Version), _Leve) -->
 	!,
 	[ 'MYDDAS version ~a' - [Version] ].
-compose_message(yes, _Level) --> !,
-	[  'yes'- []  ].
 compose_message(style_check(What,FILE,Line,Clause), Level)-->
     !,
     { '$show_consult_level'(LC) },
 	location(style_check(What,FILE,Line,Clause), Level, LC),
-	main_message(style_check(What,FILE,Line,Clause) , Level, LC )
-	].
-compose_message(error(E, exception(Exc)), Level) -->
-    { '$show_consult_level'(LC) },
-	location(error(E, exception(Exc)), Level, LC),
-	main_message(error(E, exception(Exc)) , Level, LC ),
-	c_goal( Exc, Level ),
-	caller( Exc, Level ),
-	extra_info( Exc, Level ),
-	!,
-	[nl,nl].
-compose_message(error(E,[I|Is]), Level) -->
-      { translate_info([I|Is], In)	},
-  	compose_message( e(E, In), Level),
-  	[nl,nl].
+	main_message(style_check(What,FILE,Line,Clause) , Level, LC ).
+compose_message(yes, _Level) --> !,
+	[  'yes'- []  ].
 compose_message(Throw, _Leve) -->
   	!,
   	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
-translate_info([I1|I2],exception(R) ) :-
-	!,
-	'$new_exception'(R),
-	tinfo(R, [I1|I2], []).
-translate_info(_E, none ).
-
-tinfo(_Reg) -->
-	!.
-tinfo(Reg) -->
-  addinfo(Reg),
-  tinfo(Reg).
-
-addinfo( Desc) -->
-   (  [[p]]
-  ->
-      []
-  ;
- [[p|p(M,Na,Ar,File,FilePos)]]
-   ->
-	{
-	 '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	 '$query_exception'(prologPredArity, Desc, Ar)
-	}
-  ;
-  [[e]]
-  ->
-  []
-  ;
-  [[e|p(M,Na,Ar,File,FilePos)]]
-  ->
-	{
-	 '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	 '$query_exception'(prologPredArity, Desc, Ar)
-	}
-  ;
-[[c|c(File, Line, Func)]]
- ->
-	{
-	 '$query_exception'(errorFile, Desc, File),
-	'$query_exception'(errorFunction, Desc, Func),
-	'$query_exception'(errorLine, Desc, Line)
-	}
-  ;
-  [[g|g(Call)]]
-->
-	{
-	 '$query_exception'(errorGoal, Desc, Call)
-	}
-  ;
-  [h|p(M,Na,Ar,File,FilePos)]
-->
-    []
-).
-
-
 location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
 	[ '~a:~d:~d ' - [FileName,LN,0] ] .
-
 location(style_check(_,LN,FileName,_ ), Level , LC) -->
 	!,
 	display_consulting( FileName, Level, LC ),
 	[ '~a:~d:0 ~s ' - [FileName,LN,Level] ] .
-location( error(_,exception(Desc)), Level, LC ) -->
-	{    '$query_exception'(prologPredFile, Desc, File),
+location( error(_,Info), Level, LC ) -->
+	{ '$error_descriptor'(Info, Desc) },
+   {
+   '$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
 	'$query_exception'(prologPredModule, Desc, M),
 	'$query_exception'(prologPredName, Desc, Na),
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
-	display_consulting( File, Level, LC ),
+  !,
+  display_consulting( File, Level, LC ),
 	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+location( _Ball, _Level, _LC ) --> [].
+
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
-main_message(error(Msg,In), _, _) --> {var(In)}, !,
-	[  ' error: uninstantiated message ~w~n.' - [Msg], nl ].
+main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
+	[  'ninstantiated message ~w~n.' - [error(Msg,In)], nl ].
 main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
 	!,
 	[' ~a: syntax error ~s' - [Level,Msg]],
@@ -354,7 +294,7 @@ main_message(style_check(singleton(SVs),_Pos,_File,P), Level, _LC) -->
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P),_), Level, _LC) -->
+main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P), Level, _LC) -->
     !,
     [  ' ~a: ~a redefines ~q from  ~a.' - [Level,File, Mod:N/A, I0] ].
 main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , Level, _LC)-->
@@ -399,11 +339,17 @@ display_consulting( F, Level, LC) -->
 display_consulting(_F, _, _LC) -->
 	  [].
 
-caller( error(_,exception(Desc)), _) -->
-        {
-	'$query_exception'(errorGoal, Desc, Call),
-	Call \= [],
-	'$query_exception'(prologPredFile, Desc, File),
+caller( error(_,Info), _) -->
+        { '$error_descriptor'(Info, Desc) },
+        ({   '$query_exception'(errorGoal, Desc, Call),
+         	Call \= []
+          }
+          ->
+          ['~*|by ~w' - [10,Call]]
+          ;
+          true
+        ),
+	{ '$query_exception'(prologPredFile, Desc, File),
 	File \= [],
 	'$query_exception'(prologPredLine, Desc, FilePos),
 	'$query_exception'(prologPredModule, Desc, M),
@@ -411,33 +357,14 @@ caller( error(_,exception(Desc)), _) -->
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
 	!,
-	  ['~*|goal was ~s' - [10,Call]],
 	  [nl],
-	  ['~*|exception raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
-	[nl].
-caller( error(_,exception(Desc)), _) -->
-        {
-	'$query_exception'(prologPredFile, Desc, File),
-	File \= [],
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
-	},
-	!,
-	['~*|exception raised from  ~a:~q/~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
-	[nl].
-caller( error(_,exception(Desc)), _) -->
-        {
-	'$query_exception'(errorGoal, Desc, Call),
-	Call \= [] },
-	!,
-	['~*|goal  ~q '-[10,Call]],
+	  ['~*|        raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
 	[nl].
 caller( _, _) -->
 	[].
 
-c_goal( error(_,exception(Desc)), Level ) -->
+c_goal( error(_,Info), Level ) -->
+{ '$error_descriptor'(Info, Desc) },
     { '$query_exception'(errorFile, Desc, File),
       Func \= [],
       '$query_exception'(errorFunction, Desc, File),
@@ -1079,7 +1006,8 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(Severity, _Term) :-
 	format('No handler for ~a message ~q,~n',[Severity, _Term]).
 
-
+'$error_descriptor'(_Info, Desc) :-
+    '$committed_exception'( Desc ).
 /**
   @}
 */

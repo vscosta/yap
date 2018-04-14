@@ -213,7 +213,7 @@ p_div2(Term t1, Term t2 USES_REGS) {
 	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " div 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
-	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+	  return Yap_gmp_add_ints(Int_MAX, 1);
 #else
 	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "// /2 with %d and %d", i1, i2);
@@ -443,7 +443,7 @@ p_xor(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
-    
+
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
@@ -643,7 +643,7 @@ p_power(Term t1, Term t2 USES_REGS)
 }
 
 /* next function is adapted from:
-   Inline C++ integer exponentiation routines 
+   Inline C++ integer exponentiation routines
    Version 1.01
    Copyright (C) 1999-2004 John C. Bowman <bowman@math.ualberta.ca>
 */
@@ -654,9 +654,9 @@ ipow(Int x, Int p)
 
   if (p == 0) return ((CELL)1);
   if (x == 0 && p > 0) return 0L;
-  if(p < 0) 
+  if(p < 0)
     return (-p % 2) ? x : ((CELL)1);
-	
+
   r = ((CELL)1);
   for(;;) {
     if(p & 1) {
@@ -1142,7 +1142,7 @@ static InitBinEntry InitBinTab[] = {
   {"rdiv", op_rdiv}
 };
 
-static Int 
+static Int
 p_binary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
@@ -1222,7 +1222,7 @@ p_binary_is( USES_REGS1 )
 
 
 
-static Int 
+static Int
 do_arith23(arith2_op op USES_REGS)
 {				/* X is Y	 */
   Term t = Deref(ARG1);
@@ -1254,55 +1254,55 @@ do_arith23(arith2_op op USES_REGS)
   return Yap_unify_constant(ARG3,out);
 }
 
-static Int 
+static Int
 export_p_plus( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_plus PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_minus( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_minus PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_times( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_times PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_div( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_div PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_and( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_and PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_or( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_or PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_slr( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_slr PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_sll( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_sll PASS_REGS);
 }
 
-static Int 
+static Int
 p_binary_op_as_integer( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG1);
@@ -1376,4 +1376,3 @@ Yap_ReInitBinaryExps(void)
 {
   return(TRUE);
 }
-

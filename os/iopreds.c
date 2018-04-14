@@ -1305,7 +1305,7 @@ do_open(Term file_name, Term t2,
 
   // Skip scripts that start with !#/.. or similar
   pop_text_stack(lvl);
-  
+
   if (open_mode == AtomRead) {
     strncpy(io_mode, "r", 8);
   } else if (open_mode == AtomWrite) {
@@ -1392,10 +1392,11 @@ do_open(Term file_name, Term t2,
     check_bom(sno, st); // can change encoding
   }
   // follow declaration unless there is v
-  if (st->status & HAS_BOM_f)
+  if (st->status & HAS_BOM_f) {
     st->encoding = enc_id(s_encoding, st->encoding);
-  else
+  } else
     st->encoding = encoding;
+  Yap_DefaultStreamOps(st);
   if (script) {
     open_header(sno, open_mode);
   }
@@ -1575,7 +1576,7 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
   int sno;
   StreamDesc *st;
   struct vfs *vfsp;
-  int flags;                                                                                               
+  int flags;
 
   sno = GetFreeStreamD();
   if (sno < 0) {
