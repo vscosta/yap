@@ -24,11 +24,13 @@ inline static int sub_overflow(Int x, Int i, Int j) {
 }
 
 inline static Term sub_int(Int i, Int j USES_REGS) {
-#if defined(__clang__)
-    Int w;
-    if (!__builtin_sub_overflow(i,j,&w))
-         RINT(w);
-    return Yap_gmp_add_ints(i, j);
+#if defined(__clang__ ) || defined(__GNUC__)
+    Int k;
+    if (__builtin_sub_overflow(i,j,&k)) {
+      return Yap_gmp_add_ints(i, j);
+    }
+    printf("%ld %ld %ld\n", i, j , k);
+    RINT(k);
 #elif defined(__GNUC__)
     Int w;
     if (!__builtin_sub_overflow_p(i,j,w))

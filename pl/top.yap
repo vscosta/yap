@@ -965,10 +965,8 @@ catch(G, C, A) :-
   ).
 '$catch'(_,C,A) :-
 	'$get_exception'(C),
-	!,
-	'$run_catch'(A, C).
-'$catch'(_,_C,A) :-
-	throw(A).
+	%( C = C0 -> '$execute'(A) ; throw(A0) ).
+	'$run_catch'(C,A).
 
 % variable throws are user-handled.
 '$run_catch'(G,E) :-

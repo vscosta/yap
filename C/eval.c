@@ -148,8 +148,8 @@ static Term Eval(Term t USES_REGS) {
       }
       t2 = Eval(ArgOfTerm(2, t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
-        LOCAL_ctx = ctx.p;
-        return Yap_eval_binary(p->FOfEE, t1, t2);
+      LOCAL_ctx = ctx.p;
+      return Yap_eval_binary(p->FOfEE, t1, t2);
     }
   } /* else if (IsPairTerm(t)) */
   {
@@ -208,8 +208,8 @@ static Int p_is(USES_REGS1) { /* X is Y	 */
   }
   do {
     go = false;
-    out = Yap_InnerEval(Deref(ARG2));
-    Yap_CheckArithError();
+    out = Yap_Eval(t PASS_REGS);
+    go = Yap_CheckArithError();
   } while (go);
   return Yap_unify_constant(ARG1, out);
 }

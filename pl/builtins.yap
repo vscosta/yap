@@ -332,6 +332,7 @@ once(G) :-
 	'$meta_call'(C, M),
 	!.
 
+
 (:- G) :- '$execute'(G), !.
 
 (?- G) :- '$execute'(G).

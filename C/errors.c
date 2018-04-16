@@ -551,7 +551,6 @@ static char tmpbuf[YAP_BUF_SIZE];
 #include "YapErrors.h"
 
 bool Yap_pushErrorContext(bool pass, yap_error_descriptor_t *new_error) {
-    yap_error_number err = LOCAL_ActiveError->errorNo;
     memset(new_error, 0, sizeof(yap_error_descriptor_t));
     new_error->top_error = LOCAL_ActiveError;
     LOCAL_ActiveError = new_error;
@@ -1029,7 +1028,10 @@ static Int get_exception(USES_REGS1) {
     } else {
       t = mkerrort(i->errorNo, TermNil, MkSysError(i));
     }
-    return Yap_unify(t, ARG1);
+    while (B && B->cp_b && ! Yap_unify(t, B->cp_a2)) {
+      Yap_JumpToEnv();
+    }
+    return true;
   }
   return false;
 }
