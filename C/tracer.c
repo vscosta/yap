@@ -114,7 +114,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
   return s;
 }
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 unsigned long long vsc_count;
 #else
 unsigned long vsc_count;
@@ -202,6 +202,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   int l = push_text_stack();
   /*  extern int gc_calls; */
   vsc_count++;
+  //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;

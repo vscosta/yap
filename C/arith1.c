@@ -972,7 +972,7 @@ p_unary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term top;
-  yap_error_number err;
+  bool go;
 
   if (IsVarTerm(t)) {
     Yap_EvalError(INSTANTIATION_ERROR, t, "unbound unary operator");
@@ -980,22 +980,12 @@ p_unary_is( USES_REGS1 )
   }
   Yap_ClearExs();
   top = Yap_Eval(Deref(ARG3));
-  if ((err=Yap_FoundArithError())) {
-    Yap_EvalError(err,ARG3,"X is op(Y): error in Y ");
-    return FALSE;
-  }
   if (IsIntTerm(t)) {
     Term tout;
     Int i;
 
     i = IntegerOfTerm(t);
     tout = eval1(i, top PASS_REGS);
-    if ((err=Yap_FoundArithError())) {
-      Functor f = Yap_MkFunctor( Yap_NameOfUnaryOp(i), 1 );
-      Term t = Yap_MkApplTerm( f, 1, &top );
-      Yap_EvalError(err, t ,"error in %s/1 ", RepAtom(NameOfFunctor(f))->StrOfAE);
-      return FALSE;
-    }
     return Yap_unify_constant(ARG1,tout);
   } else if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
@@ -1008,13 +998,13 @@ p_unary_is( USES_REGS1 )
 		RepAtom(name)->StrOfAE);
       return FALSE;
     }
+    do {
     out= eval1(p->FOfEE, top PASS_REGS);
-    if ((err=Yap_FoundArithError())) {
-      return FALSE;
-    }
+    go = Yap_CheckArithError();
+    } while(go);
     return Yap_unify_constant(ARG1,out);
   }
-  return(FALSE);
+  return false;
 }
 
 static Int

@@ -284,6 +284,7 @@ Yap_InitConstExps(void)
   }
 }
 
+
 /* This routine is called from Restore to make sure we have the same arithmetic operators */
 int
 Yap_ReInitConstExps(void)

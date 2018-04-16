@@ -1231,9 +1231,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
   yap_error_descriptor_t ne;
-  Yap_pushErrorContext(&ne);
+  bool err = Yap_pushErrorContext(true, &ne);
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
-  Yap_popErrorContext(true);
+  Yap_popErrorContext(err,true);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

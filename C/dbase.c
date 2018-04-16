@@ -3940,11 +3940,11 @@ static void complete_lu_erase(LogUpdClause *clau) {
 
 static void EraseLogUpdCl(LogUpdClause *clau) {
   PredEntry *ap;
-
   ap = clau->ClPred;
   /* no need to erase what has been erased */
   if (!(clau->ClFlags & ErasedMask)) {
-    /* get ourselves out of the list */
+    clau->ClFlags |= ErasedMask;
+/* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       clau->ClNext->ClPrev = clau->ClPrev;
     }
@@ -3968,7 +3968,6 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
       }
       ap->cs.p_code.NOfClauses--;
     }
-    clau->ClFlags |= ErasedMask;
 #ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;

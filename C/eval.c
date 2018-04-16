@@ -200,26 +200,17 @@ arithmetic_operators
 /// @memberof is/2
 static Int p_is(USES_REGS1) { /* X is Y	 */
   Term out = TermNil;
-  yap_error_number err;
-
+  bool go;
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
     Yap_ThrowError(INSTANTIATION_ERROR, t, "var(Y) in X is Y");
     return (FALSE);
   }
-  Yap_ClearExs();
   do {
+    go = false;
     out = Yap_InnerEval(Deref(ARG2));
-    if ( (err = Yap_FoundArithError()) == YAP_NO_ERROR )
-      break;
-    if (err == RESOURCE_ERROR_STACK) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-        return FALSE;
-      }
-    }
-  } while (TRUE);
+    Yap_CheckArithError();
+  } while (go);
   return Yap_unify_constant(ARG1, out);
 }
 

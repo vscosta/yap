@@ -247,7 +247,7 @@ extern yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,vo
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);
 
-  extern void Yap_pushErrorContext(yap_error_descriptor_t * new_error);
-  extern yap_error_descriptor_t *Yap_popErrorContext(bool pass);
+  extern bool Yap_pushErrorContext(bool pass, yap_error_descriptor_t *new_error);
+  extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass);
 
 #endif

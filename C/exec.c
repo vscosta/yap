@@ -770,8 +770,10 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   Int oB = LCL0 - (CELL *)B;
+  yap_error_descriptor_t ctx;
+  bool newxp = Yap_pushErrorContext(true, &ctx);
   bool rc = Yap_RunTopGoal(t, false);
-
+  Yap_popErrorContext(newxp, true);
   if (!rc) {
     complete_inner_computation((choiceptr)(LCL0 - oB));
     // We'll pass it through
@@ -948,7 +950,7 @@ static Int tag_cleanup(USES_REGS1) {
 
 static Int cleanup_on_exit(USES_REGS1) {
 
-  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1))), bp;
+  choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(Deref(ARG1)));
   Term task = Deref(ARG2);
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
@@ -2058,6 +2060,9 @@ bool Yap_JumpToEnv(void) {
 /* This does very nasty stuff!!!!! */
 static Int jump_env(USES_REGS1) {
   Term t = Deref(ARG1), t0 = t;
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "throw/1 must be called instantiated");
+  }
  // Yap_DebugPlWriteln(t);
     LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
   bool out = JumpToEnv(PASS_REGS1);

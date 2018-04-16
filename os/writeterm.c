@@ -299,17 +299,14 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
       Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
-  yap_error_descriptor_t new;
 
 
-  Yap_pushErrorContext(&new);
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
-  Yap_popErrorContext(true);
   return (TRUE);
 }
 

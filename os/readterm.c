@@ -991,7 +991,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
   yap_error_descriptor_t new;
 
 
-  Yap_pushErrorContext(&new);
+  bool err = Yap_pushErrorContext(true,&new);
   int lvl = push_text_stack();
   parser_state_t state = YAP_START_PARSING;
   while (true) {
@@ -1000,7 +1000,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       state = initParser(opts, &fe, &re, sno, clause);
       if (state == YAP_PARSING_FINISHED) {
         pop_text_stack(lvl);
-  Yap_popErrorContext(true);
+  Yap_popErrorContext(err, true);
   return 0;
       }
       break;
@@ -1031,8 +1031,8 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 #if EMACS
       first_char = tokstart->TokPos;
 #endif /* EMACS */
-      Yap_popErrorContext(true);
       pop_text_stack(lvl);
+      Yap_popErrorContext(err, true);
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
         Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
       }
@@ -1040,7 +1040,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
     }
     }
   }
-  Yap_popErrorContext(true);
+  Yap_popErrorContext(err,true);
   pop_text_stack(lvl);
   return 0;
 }
