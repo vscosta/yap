@@ -1397,7 +1397,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
 
-  if (top && (lval = sigsetjmp(signew, 1)) != 0) {
+  if /* top &&*/( (lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
               /* otherwise, SetDBForThrow will fail entering critical mode */
@@ -1469,7 +1469,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 	return false;
       }
       P = FAILCODE;
-
     }
   }
   YENV = ASP;

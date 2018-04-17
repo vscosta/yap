@@ -699,13 +699,11 @@ restart_aux:
   t1 = Deref(ARG1);
   if (IsNumTerm(t1)) {
     Term t2 = Deref(ARG2);
-    if (IsVarTerm(t2)) {
-      t1 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    }
-    if (t1) {
+    Term t12 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
+    if (t12) {
       {
         pop_text_stack(l);
-        return Yap_unify(t1, t2);
+        return Yap_unify(t12, t2);
       }
     }
   } else if (IsVarTerm(t1)) {

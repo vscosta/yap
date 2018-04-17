@@ -471,16 +471,22 @@ static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
 
 /** @pred  get_byte(+ _S_,- _C_) is iso
 
-If  _C_ is unbound, or is a character code, and the stream  _S_ is a
+If  _C_ is unbound, or is a byte, and the stream  _S_ is a
 binary stream, read the next byte from that stream and unify its
-code with  _C_.
+code with  _C_. A byte is represented as either a number between 1 and 255, or as -1 for EOF.
 
 
 */
-static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
-  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
-  Term out;
+static Int get_byte(USES_REGS) { /* '$get_byte'(Stream,-N) */
+  Term out = Deref(ARG2);
 
+  if (!IsVarTerm(out)) {
+    if (!IsIntegerTerm(out)) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
+    Int ch = IntegerOfTerm(out);
+    if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
+  }
+
+  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
   if (sno < 0)
     return (FALSE);
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
@@ -500,8 +506,13 @@ code with  _C_.
 static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   int sno = LOCAL_c_input_stream;
   Int status;
-  Term out;
+  Term out = Deref(ARG1);
 
+  if (!IsVarTerm(out)) {
+    if (!IsIntegerTerm(out)) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG2, " bad type");
+    Int ch = IntegerOfTerm(out);
+    if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG2, " bad type");
+  }
   LOCK(GLOBAL_Stream[sno].streamlock);
   status = GLOBAL_Stream[sno].status;
   if (!(status & Binary_Stream_f)

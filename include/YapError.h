@@ -19,6 +19,7 @@
 
 #define E0(A, B) A,
 #define E(A, B, C) A,
+#define E1(A, B, C) A,
 #define E2(A, B, C, D) A,
 
 #define BEGIN_ERRORS() typedef enum {

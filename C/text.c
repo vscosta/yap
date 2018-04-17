@@ -735,12 +735,7 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_number(unsigned char *s, seq_tv_t *out,
                          bool error_on USES_REGS) {
   Term t;
-  yap_error_descriptor_t new_error;
-    int i = push_text_stack();
-    bool new_rec = Yap_pushErrorContext(true,&new_error);
   t = Yap_StringToNumberTerm((char *)s, &out->enc,true);
-  pop_text_stack(i);
-    Yap_popErrorContext(new_rec , true);
   return t;
 }
 

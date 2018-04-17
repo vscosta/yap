@@ -82,6 +82,8 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   Term t;
+  yap_error_descriptor_t new_error;
+    int i = push_text_stack();
 
   sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER);
   if (sno < 0)
@@ -90,6 +92,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
     GLOBAL_Stream[sno].encoding = *encp;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+    bool new_rec = Yap_pushErrorContext(error_on,&new_error);
 #ifdef __ANDROID__
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
@@ -97,6 +100,8 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
     Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
+    pop_text_stack(i);
+    Yap_popErrorContext(new_rec , error_on);
   return t;
 }
 

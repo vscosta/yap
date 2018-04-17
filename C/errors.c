@@ -300,7 +300,10 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
     return;
   va_end(ap);
   if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
-    Yap_exit(1);
+    yap_error_number err = LOCAL_ActiveError->errorNo;
+    fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", Yap_errorName(e),
+            Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
+     return;
   }
   LOCAL_ActiveError->errorNo = e;
   LOCAL_ActiveError->errorFile = NULL;
@@ -401,6 +404,8 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
 
     if (LOCAL_PrologMode == UserMode)
       Yap_Error__(false, file, function, lineno, err, TermNil, serr);
+    else
+      LOCAL_PrologMode &= ~InErrorMode;
     return false;
   }
 }
@@ -492,6 +497,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 #undef BEGIN_ERRORS
 #undef E0
 #undef E
+#undef E1
 #undef E2
 #undef END_ERRORS
 
@@ -527,6 +533,16 @@ static char tmpbuf[YAP_BUF_SIZE];
     nt[1] = MkVarTerm();						\
     Yap_unify(nt[1], culprit);						\
     ft[0] = Yap_MkApplTerm(Yap_MkFunctor(mkerrorct(B), 2), 2, nt);	\
+    ft[1] = info;							\
+    return Yap_MkApplTerm(FunctorError, 2, ft);				\
+  }
+
+#define E1(A, B, C)							\
+  case A: {								\
+    Term ft[2], nt[1];							\
+    nt[0] = MkVarTerm();						\
+    Yap_unify(nt[0], culprit);						\
+    ft[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom(C), 1),1 , nt);	\
     ft[1] = info;							\
     return Yap_MkApplTerm(FunctorError, 2, ft);				\
   }
@@ -864,6 +880,7 @@ static Int close_error(USES_REGS1) {
 #undef BEGIN_ERRORS
 #undef E0
 #undef E
+#undef E1
 #undef E2
 #undef END_ERRORS
 
@@ -878,6 +895,7 @@ static Int close_error(USES_REGS1) {
 #define BEGIN_ERRORS()
 #define E0(X, Y)
 #define E(X, Y, Z)
+#define E1(X, Y, Z)
 #define E2(X, Y, Z, W)
 #define END_ERRORS()
 
@@ -889,6 +907,7 @@ static Int close_error(USES_REGS1) {
 #undef BEGIN_ERRORS
 #undef E0
 #undef E
+#undef E1
 #undef E2
 #undef END_ERRORS
 
@@ -908,6 +927,7 @@ typedef struct c_error_info {
 #define BEGIN_ERRORS() static struct c_error_info c_error_list[] = {
 #define E0(X, Y) {Y##__, ""},
 #define E(X, Y, Z) {Y##__, Z},
+#define E1(X, Y, Z) {Y##__, Z},
 #define E2(X, Y, Z, W) {Y##__, Z " " W},
 #define END_ERRORS()				\
   { YAPC_NO_ERROR, "" }				\
@@ -1028,10 +1048,7 @@ static Int get_exception(USES_REGS1) {
     } else {
       t = mkerrort(i->errorNo, TermNil, MkSysError(i));
     }
-    while (B && B->cp_b && ! Yap_unify(t, B->cp_a2)) {
-      Yap_JumpToEnv();
-    }
-    return true;
+    return Yap_unify(ARG1,t);
   }
   return false;
 }
@@ -1055,40 +1072,13 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
     LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
     LOCAL_ActiveError->culprit = NULL;
   } else {
-      char ename[65];
       Term t1, t2;
       t1 = ArgOfTerm(1, t);
       t2 = ArgOfTerm(2, t);
       //    LOCAL_Error_TYPE = ERROR_EVENT;
-    i->errorNo = ERROR_EVENT;
-    i->errorClass = EVENT;
-    if (IsApplTerm(t1)) {
-      Functor f1 = FunctorOfTerm(t1);
-      arity_t a1 = ArityOfFunctor(f1);
-      i->errorAsText = ename;
-      i->classAsText = RepAtom(NameOfFunctor(f1))->StrOfAE;
-      if (a1 == 1) {
-        wellformed = false;
-      } else {
-        Term ti;
-        if (!IsAtomTerm((ti = ArgOfTerm(1, t1)))) {
-          wellformed = false;
-        }
-        strncpy(ename, RepAtom(AtomOfTerm(ti))->StrOfAE, 64);
-      }
-      if (a1 == 3) {
-        Term ti;
-        if (!IsAtomTerm((ti = ArgOfTerm(2, t1))))
-          wellformed = false;
-        strncat(ename, " ", 64);
-        strncat(ename, RepAtom(AtomOfTerm(ti))->StrOfAE, 64);
-      } else if (a1 > 3) {
-        wellformed = false;
-      }
-      i->culprit =
-              Yap_TermToBuffer(ArgOfTerm(a1, t1), ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
-      int j;
+      wellformed = wellformed && ( i->errorAsText != NULL );
       if (wellformed) {
+	int j;
         for (j = 0; j < sizeof(c_error_list) / sizeof(struct c_error_info); j++) {
           if (!strcmp(c_error_list[j].name, i->errorAsText) &&
               (c_error_list[j].class == 0 ||
@@ -1106,7 +1096,6 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
             }
           }
         }
-      }
     } else if (IsAtomTerm(t1)) {
       const char *err = RepAtom(AtomOfTerm(t1))->StrOfAE;
       if (!strcmp(err, "instantiation_error")) {
