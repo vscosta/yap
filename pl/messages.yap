@@ -256,7 +256,7 @@ location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), 
 location(style_check(_,LN,FileName,_ ), Level , LC) -->
 	!,
 	display_consulting( FileName, Level, LC ),
-	[ '~a:~d:0 ~s ' - [FileName,LN,Level] ] .
+	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
    {
@@ -286,20 +286,20 @@ main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term
 	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
 	    [nl]
 	  ).
-main_message(style_check(singleton(SVs),_Pos,_File,P), Level, _LC) -->
+main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
     !,
 %    {writeln(ci)},
 	{ clause_to_indicator(P, I) },
-	[  ' ~a: singleton variable~*c ~s in ~q.' - [ Level,  NVs, 0's, SVsL, I] ],
+	[  nl, '           singleton variable~*c ~w in ~q.' - [  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
-main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P), Level, _LC) -->
+main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P), _Level, _LC) -->
     !,
-    [  ' ~a: ~a redefines ~q from  ~a.' - [Level,File, Mod:N/A, I0] ].
-main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , Level, _LC)-->
+    [  '           ~a redefines ~q, originally defined in  ~a.' - [File, Mod:N/A, I0] ].
+main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , _Level, _LC)-->
     !,
-    [  ' ~a: discontiguous definition for ~p.' - [Level,Mod:N/A] ].
+    [  '           discontiguous definition for ~p.' - [Mod:N/A] ].
 main_message(error(consistency_error(Who)), Level, _LC) -->
     !,
     [ ' ~a: has argument ~a not consistent with type.'-[Level,Who] ].

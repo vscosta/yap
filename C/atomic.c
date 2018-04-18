@@ -906,7 +906,6 @@ restart_aux:
     if (Yap_HandleError("atom_concat/3")) {
       goto restart_aux;
     }
-    return false;
   }
   cut_fail();
 }
@@ -957,8 +956,6 @@ restart_aux:
   if (LOCAL_Error_TYPE) {
     if (Yap_HandleError("atom_concat/3")) {
       goto restart_aux;
-    } else {
-      return false;
     }
   }
   cut_fail();
@@ -2492,14 +2489,14 @@ static Int sub_atomic(bool sub_atom, bool sub_string USES_REGS) {
       }
       if (sz != minv+len+after) {
 	 cut_fail();
-      } 
+      }
       return do_cut(check_sub_string_at(
             minv, p, sm, len));
     } else if ((mask & (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) ==
         (SUB_ATOM_HAS_MIN | SUB_ATOM_HAS_VAL)) {
 	if (! Yap_unify(ARG4,MkIntegerTerm(sz-minv-len)) )
 	  cut_fail();
-      if (sub_atom) 
+      if (sub_atom)
         return do_cut(check_sub_string_at(
             minv, p, RepAtom(AtomOfTerm(tout))->UStrOfAE, len));
       else

@@ -2032,8 +2032,8 @@ static Int JumpToEnv(USES_REGS1) {
   // DBTerm *dbt = Yap_RefToException();
   while (handler
 	 && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
-	 //&& LOCAL_CBorder < LCL0 - (CELL *)handler
-	 //&& handler->cp_ap != NOCODE
+	 && LOCAL_CBorder < LCL0 - (CELL *)handler
+	 && handler->cp_ap != NOCODE
 	 && handler->cp_b != NULL
 	 ) {
     handler->cp_ap = TRUSTFAILCODE;

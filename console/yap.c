@@ -119,7 +119,7 @@ static bool exec_top_level(int BootMode, YAP_init_args *iap) {
 // FILE *debugf;
 
 #ifdef LIGHT
-
+    
 int _main(int argc, char **argv)
 #else
 int main(int argc, char **argv)

@@ -344,9 +344,7 @@ bool Yap_PrintWarning(Term twarning) {
   }
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
-  HB = B->cp_h = HR;
-  B->cp_tr = TR;
-  rc = Yap_execute_pred(pred, ts, true PASS_REGS);
+ rc = Yap_execute_pred(pred, ts, true PASS_REGS);
   LOCAL_within_print_message = false;
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
@@ -403,7 +401,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   default:
 
     if (LOCAL_PrologMode == UserMode)
-      Yap_Error__(false, file, function, lineno, err, TermNil, serr);
+      Yap_ThrowError__( file, function, lineno, err, LOCAL_RawTerm, serr);
     else
       LOCAL_PrologMode &= ~InErrorMode;
     return false;
@@ -594,7 +592,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
     } else {
       if (e->errorNo)
 	return e;
-    }	
+    }
     return NULL;
 }
 

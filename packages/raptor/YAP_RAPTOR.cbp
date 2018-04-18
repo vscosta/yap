@@ -49,7 +49,7 @@
 					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
 					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
 					<Add directory="/home/vsc/github/yap-6.3/packages/raptor/../../H"/>
-					<Add directory="/home/vsc/anaconda3/conda-bld/yap4py_1522051601517/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/include/libxml2"/>
+					<Add directory="/usr/include/libxml2"/>
 					<Add directory="/home/vsc/github/yap-6.3/packages/raptor"/>
 				</Compiler>
 				<MakeCommands>
@@ -91,7 +91,7 @@
 					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
 					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
 					<Add directory="/home/vsc/github/yap-6.3/packages/raptor/../../H"/>
-					<Add directory="/home/vsc/anaconda3/conda-bld/yap4py_1522051601517/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/include/libxml2"/>
+					<Add directory="/usr/include/libxml2"/>
 					<Add directory="/home/vsc/github/yap-6.3/packages/raptor"/>
 				</Compiler>
 				<MakeCommands>

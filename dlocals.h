@@ -423,6 +423,9 @@
 #define LOCAL_ActiveError (Yap_local.ActiveError)
 #define REMOTE_ActiveError(wid) (REMOTE(wid)->ActiveError)
 
+#define LOCAL_CommittedError (Yap_local.CommittedError)
+#define REMOTE_CommittedError(wid) (REMOTE(wid)->CommittedError)
+
 /// pointer to an exception term, from throw
 #define LOCAL_IOBotch (Yap_local.IOBotch)
 #define REMOTE_IOBotch(wid) (REMOTE(wid)->IOBotch)
@@ -507,6 +510,9 @@
 
 #define LOCAL_mathstring (Yap_local.mathstring)
 #define REMOTE_mathstring(wid) (REMOTE(wid)->mathstring)
+
+#define LOCAL_ctx (Yap_local.ctx)
+#define REMOTE_ctx(wid) (REMOTE(wid)->ctx)
 
 // grow.c
 #define LOCAL_heap_overflows (Yap_local.heap_overflows)

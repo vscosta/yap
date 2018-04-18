@@ -65,11 +65,11 @@ if platform.system() == 'Windows':
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib','-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib','-Wl,-rpath,'+join('/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib','..'),'-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,'+join('/usr/local/lib','..'),'-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 
@@ -90,10 +90,10 @@ extensions = [Extension('_yap', native_sources,
                                        ('YAP_PYTHON', '1'),
                                        ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=[
-                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib'],
+                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/usr/local/lib'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=[".",'../../..','/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib'],
+                        library_dirs=[".",'../../..','/usr/local/lib'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
                         include_dirs=['/home/vsc/github/yap-6.3/H',

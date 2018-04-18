@@ -7,7 +7,7 @@ import platform
 import sys
 
 global yap_lib_path
-yap_lib_path = "/home/vsc/anaconda3/conda-bld/yap4py_1522052049872/_h_env_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placehold_placeho/lib"
+yap_lib_path = "/usr/local/lib"
 
 if platform.system() == 'Windows':
     def load( dll ):

@@ -417,6 +417,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
       }
     }
+    LOCAL_ActiveError->errorRawTerm = inp->val.t;
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR)
     return NULL;
