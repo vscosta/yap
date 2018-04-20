@@ -700,7 +700,7 @@ restart_aux:
   if (IsNumTerm(t1)) {
     Term t2 = Deref(ARG2);
     Term t12 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    if (t12) {
+    if (t12 && t2) {
       {
         pop_text_stack(l);
         return Yap_unify(t12, t2);

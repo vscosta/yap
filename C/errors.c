@@ -785,12 +785,14 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     fprintf(stderr, "***** Processing Error %d (%x) %s***\n", type,
             LOCAL_PrologMode, fmt);
 #endif
-if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR) {
-  ;
-LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-  return P;
-}
-if (type == INTERRUPT_EVENT) {
+  if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR) {
+    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
+    return P;
+  } else if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR_NUMBER) {
+    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
+    LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
+  }
+  if (type == INTERRUPT_EVENT) {
     fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
             (int)IntOfTerm(where));
     Yap_exit(1);
