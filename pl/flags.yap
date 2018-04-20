@@ -17,8 +17,8 @@
 /**
  * @file flagd.ysp
  *
- * @defgroup Flags Yap Flags
- * @{}
+ * @defgroup YAPFlags Yap Flags
+ *
  * @ingroup builtins
  * 
  */

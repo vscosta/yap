@@ -284,27 +284,29 @@ be lost.
 /**
   * @pred $trace( +Goal )
   *
+  * This launches a goal from the debugger with the  call. It must:
+  *  - disable user interaction;
+  *  - verify whether debugging is still ok;
+  *  - enter the debugger core.
+  * The top gated_call should set up creeping for the next call.
   *
-  * @param _Goal_ is the goal to be examined.
+  * @param _Mod_:_Goal_ is the goal to be examined.
   * @return `call(Goal)`
 */
-% handle suspended goals
-% take care with hidden goals.
-%
-% $trace may be called from user code, so be careful.
 '$trace'([Mod|G]) :-
-        '$stop_creeping'(_),
+    '$stop_creeping'(_),
 	current_prolog_flag(debug, false),
 	!,
 	'$execute_nonstop'(G,Mod).
 '$trace'([Mod|G]) :-
 	CP is '$last_choice_pt',
 	gated_call(
-	'$debugger_input',
-		   '$trace_query'(G, Mod, CP, not_expanded),
-		   E,
-		   '$continue_debugging'(E)
+		'$debugger_input',
+	    '$trace_query'(G, Mod, CP, not_expanded),
+	     E,
+		'$continue_debugging'(E)
 		  ).
+
 
 '$continue_debugging'(_) :- !,
 	current_prolog_flag(debug, false).
@@ -361,10 +363,12 @@ be lost.
 
 /**
   * @pred debugger_input.
-  * name of stream used for debugging,
-  * must be always connected to a tty.
   *
-  * '$debugger_input': try to connect the debugger to an open terminal.
+  * set up the stream used for debugging,
+  * - must be interactive.
+  * - default is `user_input`, but /dev/tty and CONIN$ can be used directly if
+  *   user_input is bound to a file.
+  *
 */
 '$debugger_input' :-
 	stream_property(_,alias(debugger_input)),
@@ -388,10 +392,13 @@ be lost.
 
 %% @pred '$trace_query'( +G, +M, +CP, +Expanded)
 %
-%% debug a complex query
-
+% debug a complex query
+% 
 '$trace_query'(V, M, CP, _) :-
-	'$stop_creeping'(_),
+	'$creep',
+	!,
+	'$call'(V,M,V,CP).
+'$trace_query'(V, M, CP, _) :-
 	var(V), !,
 	'$trace_query'(call(V), M, CP, _).
 '$trace_query'(!, _, CP, _) :-
@@ -459,7 +466,7 @@ be lost.
 
 %% @pred $trace_goal( +Goal, +Module, +CallId, +CallInfo)
 %%
-%% Actually debugs a
+%% Actuallb sy debugs a
 %% goal!
 '$trace_goal'(G, M, GoalNumber, _H) :-
 	(
@@ -490,18 +497,18 @@ be lost.
         '$debugger_expand_meta_call'(M:G, [], G1),
 	strip_module(G1, MF, NG),
 	gated_call(
-		   '$enter_trace'(GoalNumber, G, M, H, _What),
+		   '$enter_trace'(GoalNumber, G, M, H),
 		   '$execute_nonstop'(NG,MF),
 		   Port,
 		   '$trace_port'(Port, GoalNumber, G, M, true, H)
                   ).
 % system_
 '$trace_goal'(G, M, GoalNumber, H) :-
-	(
-	 '$is_opaque_predicate'(G, M)
-	;
-	 'strip_module'(M:G, prolog, _NG)
-	),
+	   (
+	    '$is_opaque_predicate'(G, M)
+	       ;
+	     'strip_module'(M:G, prolog, _NG)
+	   ),
 	!,
 	gated_call(
 		   '$enter_trace'(GoalNumber, G, M, H),
@@ -510,12 +517,24 @@ be lost.
 		   '$trace_port'(Port, GoalNumber, G, M, true, H)
                   ).
 '$trace_goal'(G, M, GoalNumber, H) :-
-	gated_call(
-		   '$enter_trace'(GoalNumber, G, M, H),
-		   '$debug'( GoalNumber, G, M, H),
-		   Port,
-		   '$trace_port'(Port, GoalNumber, G, M, true, H)
-                  ).
+	     gated_call(
+		          '$enter_trace'(GoalNumber, G, M, H),
+		          '$debug'( GoalNumber, G, M, H),
+		          Port,
+		          '$trace_port'(Port, GoalNumber, G, M, true, H)
+              ).
+
+
+/**
+ * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * 
+ * call goal: prelims
+ *  
+ * @parameter _Module_:_G_ 
+ * @parameter _L_ is the list of active goals
+ * @parameter _Info_ describes the goal
+ * 
+ */
 '$enter_trace'(L, G, Module, Info) :-
         /* get goal no.	*/
         ( var(L) ->
@@ -543,6 +562,19 @@ be lost.
         /* and save it globaly		*/
         '__NB_setval__'('$spy_gn',L1).
 
+/**
+ * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * 
+ * call goal: setup the diferrent cases
+ *  - zip, just run through
+ *  - source, call an interpreter
+ *  - compiled code: try black magic.
+ *  
+ * @parameter _Module_:_G_ 
+ * @parameter _GoalNumber_ identifies the active goal
+ * @parameter _Info_ describes the goal
+ * 
+ */
 '$debug'(_, G, M, _H) :-
         '__NB_getval__'('$debug_status',state(zip,_Border,_), fail),
 	!,
@@ -555,12 +587,24 @@ be lost.
 	'$creep_step'(GoalNumber, G, M, Info).
 
 
-
+/**
+ * @pred '$trace_go'(+L, 0:G, +Module, +Info)
+ * 
+ * It needs to run in two separate steps:
+ *    1. Select a clause;
+ *    2. Debug it.
+ * We use a marker to track who we are in gated_call.
+ *  
+ * @parameter _Module_:_G_ 
+ * @parameter _GoalNumber_ identifies the active goal
+ * @parameter _Info_ describes the goal
+ * 
+ */
 '$trace_go'(GoalNumber, G, M, Info) :-
-	X=marker(_,M,G),
+		X=marker(_,M,G),
         CP is '$last_choice_pt',
         clause(M:G, Cl, _),
-	'$retry_clause'(GoalNumber, G, M, Info, X),
+		'$retry_clause'(GoalNumber, G, M, Info, X),
         '$trace_query'(Cl, M, CP, expanded).
 
 '$creep_step'(GoalNumber, G, M, Info) :-
@@ -592,7 +636,7 @@ be lost.
     GoalNumber =< G0,
     !,
     fail.
-'$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
+    '$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
     GoalNumber > G0,
     !,
     catch(
@@ -638,7 +682,7 @@ be lost.
 '$TraceError'(forward(redo,_G0), _, _, _, _).
 %%% - backtrack long distance
 '$TraceError'(forward(fail,_G0),GoalNumber, _, _, _) :- !,
-	throw(error(fail(GoalNumber))).
+	throw(debugger(fail,GoalNumber)).
 %%%
 %%% - forward through the debugger
 '$TraceError'(forward('$wrapper',Event), _, _, _, _) :-

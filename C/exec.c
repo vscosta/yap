@@ -1233,8 +1233,15 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
   return rc;
 }
 
-static Int execute_nonstop(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
-                                          */
+
+/**
+ * @brief Two argument version of non-interruptible execution: this will
+ * ignore signals including debugging requests.
+ * 
+ * @return Int succeeds if it can transfer control.
+ */
+
+static Int execute_nonstop(USES_REGS1) { 
   Term t = Deref(ARG1);
   Term mod = Deref(ARG2);
   unsigned int arity;
@@ -1308,6 +1315,20 @@ static Int execute_nonstop(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
                          RepPredProp(pe)->CodeOfPred PASS_REGS);
   }
 }
+
+
+/**
+ * @brief One argument version of non-interruptible execution: this will
+ * ignore signals including debugging requests.
+ * 
+ * @return Int succeeds if it can transfer control.
+ */
+static Int execute_nonstop1(USES_REGS1)
+{
+ ARG2 = CurrentModule;
+return execute_nonstop( PASS_REGS1 );
+}
+
 
 static Int execute_0(USES_REGS1) { /* '$execute_0'(Goal)	 */
   Term mod = CurrentModule;
@@ -2233,6 +2254,7 @@ void Yap_InitExecFs(void) {
 #endif
   Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
   Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
+  Yap_InitCPred("$execute_nonstop", 1, execute_nonstop1, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);

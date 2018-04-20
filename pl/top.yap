@@ -670,6 +670,7 @@ write_query_answer( Bindings ) :-
         ;
 	'$call'(Z,CP,G0,M)
 	).
+
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
 	 '$current_choice_point'(DCP),
@@ -831,7 +832,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
         Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$execute'( Goal ),
+	'$execute_nonstop'( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -965,7 +966,7 @@ catch(G, C, A) :-
   ).
 '$catch'(_,C,A) :-
 	'$get_exception'(C0),
-	( C = C0 -> '$execute'(A) ; throw(C0) ).
+	( C = C0 -> '$execute_nonstop'(A, prolog) ; throw(C0) ).
 
 % variable throws are user-handled.
 '$run_catch'(G,E) :-

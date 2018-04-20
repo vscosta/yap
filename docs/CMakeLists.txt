@@ -33,6 +33,8 @@ SET (CMAKE_HTML_EXTRA_
     endforeach(i ${CMAKE_HTML_EXTRA_})
 
 set(DOCS_EXCLUDE_
+${CMAKE_SOURCE_DIR}/build
+${CMAKE_SOURCE_DIR}/Debug
 ${CMAKE_SOURCE_DIR}/packages/jpl
 ${CMAKE_SOURCE_DIR}/packages/swig
 ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
@@ -47,7 +49,6 @@ ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/dev
 ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
-${CMAKE_SOURCE_DIR}/H/locals.h
 ${CMAKE_SOURCE_DIR}/H/globals.h
 ${CMAKE_SOURCE_DIR}/packages/cplint
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
