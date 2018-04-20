@@ -363,14 +363,15 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   } else {
     serr = s;
   }
-  if (P->opc == Yap_opcode(_try_c) || P->opc == Yap_opcode(_try_userc) ||
-      P->opc == Yap_opcode(_retry_c) || P->opc == Yap_opcode(_retry_userc)) {
+  if (P!= FAILCODE) {
+    if (P->opc == Yap_opcode(_try_c) || P->opc == Yap_opcode(_try_userc) ||
+        P->opc == Yap_opcode(_retry_c) || P->opc == Yap_opcode(_retry_userc)) {
 
-    arity = P->y_u.OtapFs.p->ArityOfPE;
-  } else {
-    arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
+      arity = P->y_u.OtapFs.p->ArityOfPE;
+    } else {
+      arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
+    }
   }
-
   switch (err) {
   case RESOURCE_ERROR_STACK:
     if (!Yap_gc(arity, ENV, gc_P(P, CP))) {
