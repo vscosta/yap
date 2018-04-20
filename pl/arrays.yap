@@ -15,10 +15,13 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
+
+@file arrays.yap
+
 @addtogroup YAPArrays
+
+@{
 */
 %
 % These are the array built-in predicates. They will only work if

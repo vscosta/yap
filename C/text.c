@@ -249,42 +249,62 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
       if (IsVarTerm(hd)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
         return NULL;
       }
       if (!IsIntegerTerm(hd)) {
-        Yap_Error(TYPE_ERROR_INTEGER, t0, "scanning list of codes");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, hd, "scanning list of codes");
         return NULL;
       }
       Int code = IntegerOfTerm(hd);
       if (code < 0) {
-        Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t0,
+        Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, hd,
                   "scanning list of codes");
         return NULL;
       }
       length += put_utf8(ar, code);
       t = TailOfTerm(t);
+      if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        return NULL;
+      }
+      if (!IsPairTerm(t) && t != TermNil) {
+        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        return NULL;
+      }
     }
   } else {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
+      if (IsVarTerm(hd)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
+        return NULL;
+      }
       if (!IsAtomTerm(hd)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, "scanning list of atoms");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       }
       const char *code = RepAtom(AtomOfTerm(hd))->StrOfAE;
       if (code < 0) {
-        Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "scanning list of atoms");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       }
       length += strlen(code);
       t = TailOfTerm(t);
+      if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        return NULL;
+      }
+      if (!IsPairTerm(t) && t != TermNil) {
+        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        return NULL;
+      }
     }
   }
 
   if (!IsVarTerm(t)) {
     if (t != TermNil) {
-      Yap_Error(TYPE_ERROR_INTEGER, t0, "scanning list of codes");
+      Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
       return NULL;
     }
   }
@@ -294,7 +314,6 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
   if (codes) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
-
       Int code = IntegerOfTerm(hd);
 
       st = st + put_utf8(st, code);
@@ -736,7 +755,18 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_number(unsigned char *s, seq_tv_t *out,
                          bool error_on USES_REGS) {
   Term t;
-  t = Yap_StringToNumberTerm((char *)s, &out->enc,true);
+  yap_error_descriptor_t new_error;
+  bool mdnew = true;
+  Yap_pushErrorContext(error_on, &new_error);
+  t = Yap_StringToNumberTerm((char *)s, &out->enc,error_on);
+    Yap_popErrorContext(mdnew, true);
+  if (error_on) {
+    if (t == 0 && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+      P = FAILCODE;
+      Yap_HandleError("scanningx");
+    }
+  }
+  Yap_ResetException(LOCAL_ActiveError);
   return t;
 }
 

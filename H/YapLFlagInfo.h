@@ -18,10 +18,12 @@
 
 /** @file YapLFlagInfo.h
 
-    @addtogroup Flags
+    @addtogroup YAPFlags
 */
 
+/** + `autoload`: set the system to look for undefined procedures */
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false" , NULL ),
+/** + `read-only flag, that tells if Prolog is in an inner top-level */
 YAP_FLAG(  BREAK_LEVEL_FLAG, "break_level", true, nat, "0" , NULL ),
 YAP_FLAG(  CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true" , NULL ), /** + `call_counting`
 

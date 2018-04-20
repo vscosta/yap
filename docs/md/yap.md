@@ -17,7 +17,7 @@ Porto.
 The manual is organised as follows:
 
 
-+ @subpage  install
++ @subpage  INSTALL
 
 + @subpage run
 
