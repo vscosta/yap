@@ -5,7 +5,7 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-NOTE: this version of YAP is still experimental, documentation may be missing or brout of date.
+NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
 ## Introduction
 

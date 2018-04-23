@@ -1,4 +1,3 @@
-
 #include "sysbits.h"
 
 #if HAVE_SIGINFO_H

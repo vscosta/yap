@@ -832,7 +832,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
         Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$execute_nonstop'( Goal ),
+	call( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 

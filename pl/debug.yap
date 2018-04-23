@@ -300,9 +300,10 @@ be lost.
 	'$execute_nonstop'(G,Mod).
 '$trace'([Mod|G]) :-
 	CP is '$last_choice_pt',
+	    '$trace_query'(G, Mod, CP, G, EG),
 	gated_call(
-		'$debugger_input',
-	    '$trace_query'(G, Mod, CP, not_expanded),
+		   '$debugger_input',
+		   EG,
 	     E,
 		'$continue_debugging'(E)
 		  ).
@@ -388,81 +389,48 @@ be lost.
 
 
 '$trace_meta_call'( G, M, CP ) :-
-	'$trace_query'(G, M, CP, not_expanded ).
+	'$trace_query'(G, M, CP, G, EG ),
+	call(EG).
 
 %% @pred '$trace_query'( +G, +M, +CP, +Expanded)
 %
 % debug a complex query
 % 
-'$trace_query'(V, M, CP, _) :-
-	'$creep',
-	!,
-	'$call'(V,M,V,CP).
-'$trace_query'(V, M, CP, _) :-
-	var(V), !,
-	'$trace_query'(call(V), M, CP, _).
-'$trace_query'(!, _, CP, _) :-
-	!,
-	'$$cut_by'(CP).
-'$trace_query'('$cut_by'(M), _, _, _) :-
-	!,
-	'$$cut_by'(M).
-'$trace_query'('$$cut_by'(M), _, _, _) :-
-	!,
-	'$$cut_by'(M).
-'$trace_query'(true, _, _, _) :- !.
-%'$trace_query'(fail, _, _, _) :- !, fail.
-'$trace_query'(M:G, _, CP, Expanded) :-
+'$trace_query'(V, M, CP, _, '$trace'([M|V],CP)) :-
+	var(V), !.
+'$trace_query'(!, _, CP, _, '$$cut_by'(CP)) :-
+	!.
+'$trace_query'('$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
+	!.
+'$trace_query'('$$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
+	!.
+'$trace_query'(true, _, _, _, true) :- !.
+'$trace_query'(fail, _, _, _, '$trace'(fail)) :- !.
+'$trace_query'(M:G, _, CP,S, Expanded) :-
         !,
         '$yap_strip_module'(M:G, M0, G0),
-	'$trace_query'(G0, M0, CP, Expanded ).
-'$trace_query'((A,B), M, CP, Expanded) :- !,
-	'$trace_query'(A, M, CP, Expanded),
-	'$trace_query'(B, M, CP, Expanded).
-'$trace_query'((T->A;B), M, CP, Expanded) :- !,
-	( '$trace_query'(T, M, CP, Expanded) -> '$trace_query'(A, M, CP, Expanded)
-	;
-
-	  '$trace_query'(B, M, CP, Expanded)
-	).
-'$trace_query'((T->A|B), M, CP, Expanded) :- !,
-	(
-	 '$trace_query'(T, M, CP, Expanded)
-	->
-	  '$trace_query'(A, M, CP, Expanded)
-	;
-	  '$trace_query'(B, M, CP, Expanded)
-	).
-'$trace_query'((T->A), M, CP, Expanded) :- !,
-	( '$trace_query'(T, M, CP, Expanded) -> '$trace_query'(A, M, CP,  Expanded) ).
-'$trace_query'((A;B), M, CP, Expanded) :- !,
-	(
-	 '$trace_query'(A, M, CP, Expanded)
-	;
-     '$trace_query'(B, M, CP, Expanded)
-	).
-'$trace_query'((A|B), M, CP, Expanded) :- !,
-	(
-	  '$trace_query'(A, M, CP, Expanded )
-	;
-     '$trace_query'(B, M, CP, Expanded )
-	).
-'$trace_query'((\+G), M, CP, Expanded) :- !,
-	\+ '$trace_query'(G, M, CP, Expanded).
-'$trace_query'((not(G)), M, CP, Expanded) :- !,
-	\+ '$trace_query'(G, M, CP, Expanded).
-'$trace_query'(once(G), M, CP, Expanded) :- !,
-	once( '$trace_query'(G, M, CP, Expanded) ).
-'$trace_query'(ignore(G), M, CP, Expanded) :- !,
-	ignore( '$trace_query'(G, M, CP, Expanded) ).
-'$trace_query'(G, M, _CP, _) :-
+	'$trace_query'(G0, M0, CP,S, Expanded ).
+'$trace_query'((A,B), M, CP, S, (EA,EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A->B), M, CP, S, (EA->EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A;B), M, CP, S, (EA;EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A|B), M, CP, S, (EA|EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+'$trace_query'((\+ A), M, CP, S, (\+ EA)) :- !,
+	'$trace_query'(A, M, CP, S, EA).
+'$trace_query'(G, M, _CP, _, (
         % spy a literal
 	'$id_goal'(L),
         catch(
                 '$trace_goal'(G, M, L, H),
                 E,
                 '$re_trace_query'(E, G, M, L, H)
-                ).
+                ))).
 
 %% @pred $trace_goal( +Goal, +Module, +CallId, +CallInfo)
 %%
@@ -605,7 +573,8 @@ be lost.
         CP is '$last_choice_pt',
         clause(M:G, Cl, _),
 		'$retry_clause'(GoalNumber, G, M, Info, X),
-        '$trace_query'(Cl, M, CP, expanded).
+		'$trace_query'(Cl, M, CP, Cl, ECl),
+		'$execute0'(ECl,M).
 
 '$creep_step'(GoalNumber, G, M, Info) :-
 	X=marker(_,M,G),

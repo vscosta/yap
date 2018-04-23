@@ -6,7 +6,6 @@
 
 main :-
   %system('find . \( -name '*.pl' -o -name '*.yap'  -o -name '*.c' -o -name '*.h' -o -name '*.cpp' -o -name '*.hh' \) -type f -print | xargs grep  '@defgroup\|@ingroup\|@addtogroup\|@{|@}').
-
  file_filter_with_start_end( docs, tmp, add2graph, initgraph,  checkgraph).
 
 initgraph(_,_).

@@ -1,6 +1,6 @@
 
 
-Installing YAP           {#install}
+Installing YAP           {#INSTALL}
 ++++++++
 
 ### Downloading YAP           {#download}
