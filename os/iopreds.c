@@ -125,7 +125,7 @@ FILE *Yap_stderr;
 
 static Term gethdir(Term t) {
   CACHE_REGS
-  Atom aref = AtomOfTerm(t);
+    Atom aref = AtomOfTerm(t);
   char *s = RepAtom(aref)->StrOfAE;
   size_t nsz;
 
@@ -282,7 +282,7 @@ static void unix_upd_stream_info(StreamDesc *s) {
 #if HAVE_ISATTY
 #if __simplescalar__
   /* isatty does not seem to work with simplescar. I'll assume the first
-   three streams will probably be ttys (pipes are not thatg different) */
+     three streams will probably be ttys (pipes are not thatg different) */
   if (s - Stream < 3) {
     s->name = AtomTty;
     s->status |= Tty_Stream_f | Reset_Eof_Stream_f | Promptable_Stream_f;
@@ -335,7 +335,7 @@ static void default_peek(StreamDesc *st) {
 void Yap_DefaultStreamOps(StreamDesc *st) {
   CACHE_REGS
 
-  st->stream_wputc = put_wchar;
+    st->stream_wputc = put_wchar;
   st->stream_wgetc = get_wchar;
   if (st->vfs && !st->file) {
     st->stream_putc = st->vfs->put_char;
@@ -378,13 +378,13 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   }
 
   /* else {
-      st->stream_peek = Yap_peekWithGetc;
-      st->stream_wpeek = Yap_peekWideWithGetwc;
-    }
-  } else if (st->status & Seekable_Stream_f) {
-    st->stream_peek = Yap_peekWithSeek;
-    st->stream_wpeek = Yap_peekWideWithSeek;
-    } */
+     st->stream_peek = Yap_peekWithGetc;
+     st->stream_wpeek = Yap_peekWideWithGetwc;
+     }
+     } else if (st->status & Seekable_Stream_f) {
+     st->stream_peek = Yap_peekWithSeek;
+     st->stream_wpeek = Yap_peekWideWithSeek;
+     } */
   else
 #endif
     default_peek(st);
@@ -392,7 +392,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
 
 static void InitFileIO(StreamDesc *s) {
   CACHE_REGS
-  Yap_DefaultStreamOps(s);
+    Yap_DefaultStreamOps(s);
 }
 
 static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
@@ -407,7 +407,7 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
   if (vfsp == NULL) {
-     unix_upd_stream_info(s);
+    unix_upd_stream_info(s);
   }
   /* Getting streams to prompt is a mess because we need for cooperation
      between readers and writers to the stream :-(
@@ -457,15 +457,15 @@ Term Yap_StreamUserName(int sno) {
 
 static void InitStdStreams(void) {
   CACHE_REGS
-  if (LOCAL_sockets_io) {
-    InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
-    InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
-    InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
-  } else {
-    InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
-    InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
-    InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
-  }
+    if (LOCAL_sockets_io) {
+      InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
+      InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
+      InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
+    } else {
+      InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
+      InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
+      InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
+    }
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
   GLOBAL_Stream[StdErrStream].name = Yap_LookupAtom("user_error");
@@ -589,8 +589,8 @@ void Yap_DebugPlWrite(Term t) {
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
-  if (t == 0)
-    fprintf(stderr, "NULL");
+    if (t == 0)
+      fprintf(stderr, "NULL");
   Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
@@ -598,12 +598,12 @@ void Yap_DebugPlWriteln(Term t) {
 
 void Yap_DebugErrorPutc(int c) {
   CACHE_REGS
-  Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, c);
+    Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, c);
 }
 
 void Yap_DebugWriteIndicator(PredEntry *ap) {
   CACHE_REGS
-  Term tmod = ap->ModuleOfPred;
+    Term tmod = ap->ModuleOfPred;
   if (!tmod)
     tmod = TermProlog;
 #if THREADS
@@ -675,13 +675,13 @@ static int NullPutc(int sno, int ch) {
 /* check if we read a LOCAL_newline or an EOF */
 int console_post_process_eof(StreamDesc *s) {
   CACHE_REGS
-  if (!ResetEOF(s)) {
-    s->status |= Eof_Stream_f;
-    s->stream_getc = EOFGetc;
-    s->stream_wgetc = EOFWGetc;
-    s->stream_wgetc_for_read = EOFWGetc;
-    LOCAL_newline = true;
-  }
+    if (!ResetEOF(s)) {
+      s->status |= Eof_Stream_f;
+      s->stream_getc = EOFGetc;
+      s->stream_wgetc = EOFWGetc;
+      s->stream_wgetc_for_read = EOFWGetc;
+      LOCAL_newline = true;
+    }
   return EOFCHAR;
 }
 
@@ -735,8 +735,8 @@ int EOFPeek(int sno) { return EOFCHAR; }
 int EOFWPeek(int sno) { return EOFCHAR; }
 
 /* standard routine, it should read from anything pointed by a FILE *.
- It could be made more efficient by doing our own buffering and avoiding
- post_process_read_char, something to think about */
+   It could be made more efficient by doing our own buffering and avoiding
+   post_process_read_char, something to think about */
 int PlGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   return fgetc(s->file);
@@ -780,9 +780,9 @@ static int handle_write_encoding_error(int sno, wchar_t ch) {
     return ch;
   } else {
     CACHE_REGS
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),
-              "charater %ld cannot be encoded in stream %d",
-              (unsigned long int)ch, sno);
+      Yap_Error(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),
+		"charater %ld cannot be encoded in stream %d",
+		(unsigned long int)ch, sno);
     return -1;
   }
 }
@@ -820,91 +820,91 @@ int put_wchar(int sno, wchar_t ch) {
       }
       return ch;
     }
-  case ENC_ISO_UTF8:
-    if (ch < 0x80) {
-      GLOBAL_Stream[sno].stream_putc(sno, ch);
-    } else if (ch < 0x800) {
-      GLOBAL_Stream[sno].stream_putc(sno, 0xC0 | ch >> 6);
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-    } else if (ch < 0x10000) {
-      GLOBAL_Stream[sno].stream_putc(sno, 0xE0 | ch >> 12);
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-    } else if (ch < 0x200000) {
-      GLOBAL_Stream[sno].stream_putc(sno, 0xF0 | ch >> 18);
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 12 & 0x3F));
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
-      GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-    } else {
-      /* should never happen */
-      return -1;
-    }
-    return ch;
-    break;
-  case ENC_UTF16_LE: {
-    if (ch < 0x10000) {
-      GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
-      GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
-    } else {
-      // computations
-      uint16_t ich = ch;
-      uint16_t lead = LEAD_OFFSET + (ich >> 10);
-      uint16_t trail = 0xDC00 + (ich & 0x3FF);
-
-      GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
-      GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
-      GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
-      GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
-    }
-    return ch;
-  }
-  case ENC_UTF16_BE: {
-    // computations
-    if (ch < 0x10000) {
-      GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
-      GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
-    } else {
-      uint16_t lead = (uint16_t)LEAD_OFFSET + ((uint16_t)ch >> 10);
-      uint16_t trail = 0xDC00 + ((uint16_t)ch & 0x3FF);
-
-      GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
-      GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
-      GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
-      GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
-    }
-    return ch;
-  }
-  case ENC_UCS2_LE: {
-    if (ch >= 0x10000) {
-      return 0;
-    }
-    GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
-    return ch;
-  }
-  case ENC_UCS2_BE: {
-    // computations
-    if (ch < 0x10000) {
-      GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
-      GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+    case ENC_ISO_UTF8:
+      if (ch < 0x80) {
+	GLOBAL_Stream[sno].stream_putc(sno, ch);
+      } else if (ch < 0x800) {
+	GLOBAL_Stream[sno].stream_putc(sno, 0xC0 | ch >> 6);
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+      } else if (ch < 0x10000) {
+	GLOBAL_Stream[sno].stream_putc(sno, 0xE0 | ch >> 12);
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+      } else if (ch < 0x200000) {
+	GLOBAL_Stream[sno].stream_putc(sno, 0xF0 | ch >> 18);
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 12 & 0x3F));
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch >> 6 & 0x3F));
+	GLOBAL_Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
+      } else {
+	/* should never happen */
+	return -1;
+      }
       return ch;
-    } else {
-      return 0;
-    }
-  }
+      break;
+      case ENC_UTF16_LE: {
+	if (ch < 0x10000) {
+	  GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+	  GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
+	} else {
+	  // computations
+	  uint16_t ich = ch;
+	  uint16_t lead = LEAD_OFFSET + (ich >> 10);
+	  uint16_t trail = 0xDC00 + (ich & 0x3FF);
 
-  case ENC_ISO_UTF32_BE:
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
-    return ch;
-  case ENC_ISO_UTF32_LE:
-    GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
-    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
-    return ch;
+	  GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
+	  GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
+	  GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
+	  GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
+	}
+	return ch;
+      }
+	case ENC_UTF16_BE: {
+	  // computations
+	  if (ch < 0x10000) {
+	    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
+	    GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+	  } else {
+	    uint16_t lead = (uint16_t)LEAD_OFFSET + ((uint16_t)ch >> 10);
+	    uint16_t trail = 0xDC00 + ((uint16_t)ch & 0x3FF);
+
+	    GLOBAL_Stream[sno].stream_putc(sno, (lead >> 8));
+	    GLOBAL_Stream[sno].stream_putc(sno, (lead & 0xff));
+	    GLOBAL_Stream[sno].stream_putc(sno, (trail >> 8));
+	    GLOBAL_Stream[sno].stream_putc(sno, (trail & 0xff));
+	  }
+	  return ch;
+	}
+	  case ENC_UCS2_LE: {
+	    if (ch >= 0x10000) {
+	      return 0;
+	    }
+	    GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+	    GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
+	    return ch;
+	  }
+	    case ENC_UCS2_BE: {
+	      // computations
+	      if (ch < 0x10000) {
+		GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8));
+		GLOBAL_Stream[sno].stream_putc(sno, (ch & 0xff));
+		return ch;
+	      } else {
+		return 0;
+	      }
+	    }
+
+	      case ENC_ISO_UTF32_BE:
+		GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
+		GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
+		GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
+		GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
+		return ch;
+		case ENC_ISO_UTF32_LE:
+		  GLOBAL_Stream[sno].stream_putc(sno, ch & 0xff);
+		  GLOBAL_Stream[sno].stream_putc(sno, (ch >> 8) & 0xff);
+		  GLOBAL_Stream[sno].stream_putc(sno, (ch >> 16) & 0xff);
+		  GLOBAL_Stream[sno].stream_putc(sno, (ch >> 24) & 0xff);
+		  return ch;
   }
   }
   return -1;
@@ -913,19 +913,19 @@ int put_wchar(int sno, wchar_t ch) {
 /* used by user-code to read characters from the current input stream */
 int Yap_PlGetchar(void) {
   CACHE_REGS
-  return (
-      GLOBAL_Stream[LOCAL_c_input_stream].stream_getc(LOCAL_c_input_stream));
+    return (
+	    GLOBAL_Stream[LOCAL_c_input_stream].stream_getc(LOCAL_c_input_stream));
 }
 
 int Yap_PlGetWchar(void) {
   CACHE_REGS
-  return get_wchar(LOCAL_c_input_stream);
+    return get_wchar(LOCAL_c_input_stream);
 }
 
 /* avoid using a variable to call a function */
 int Yap_PlFGetchar(void) {
   CACHE_REGS
-  return (PlGetc(LOCAL_c_input_stream));
+    return (PlGetc(LOCAL_c_input_stream));
 }
 
 Term Yap_MkStream(int n) {
@@ -941,11 +941,11 @@ Int GetStreamFd(int sno) {
     return (GLOBAL_Stream[sno].u.socket.fd);
   } else
 #endif
-      if (GLOBAL_Stream[sno].status & Pipe_Stream_f) {
-    return (GLOBAL_Stream[sno].u.pipe.fd);
-  } else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
-    return (-1);
-  }
+    if (GLOBAL_Stream[sno].status & Pipe_Stream_f) {
+      return (GLOBAL_Stream[sno].u.pipe.fd);
+    } else if (GLOBAL_Stream[sno].status & InMemory_Stream_f) {
+      return (-1);
+    }
   return (fileno(GLOBAL_Stream[sno].file));
 }
 
@@ -957,13 +957,13 @@ static int binary_file(const char *file_name) {
   struct _stat ss;
   if (_stat(file_name, &ss) != 0)
 #else
-  struct stat ss;
+    struct stat ss;
   if (stat(file_name, &ss) != 0)
 #endif
-  {
-    /* ignore errors while checking a file */
-    return false;
-  }
+    {
+      /* ignore errors while checking a file */
+      return false;
+    }
   return (S_ISDIR(ss.st_mode));
 #else
   return (FALSE);
@@ -1130,18 +1130,18 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Te
   StreamDesc *st = &GLOBAL_Stream[sno];
   if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno), "File opened with NULL Permissions");
-    if (strchr(io_mode, 'a')) {
-        st->status = Append_Stream_f|Output_Stream_f|flags;
-    } else
+  if (strchr(io_mode, 'a')) {
+    st->status = Append_Stream_f|Output_Stream_f|flags;
+  } else
     if (strchr(io_mode, 'w')) {
-        st->status = Output_Stream_f | flags;
+      st->status = Output_Stream_f | flags;
     }
-    if (strchr(io_mode, 'r')) {
-        st->status = Input_Stream_f|flags;
-    }
-    if (strchr(io_mode, 'b')) {
-        st->status = Binary_Stream_f|flags;
-    }
+  if (strchr(io_mode, 'r')) {
+    st->status = Input_Stream_f|flags;
+  }
+  if (strchr(io_mode, 'b')) {
+    st->status = Binary_Stream_f|flags;
+  }
 
   //st->vfs = vfs;
   st->buf.on = false;
@@ -1154,13 +1154,13 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Te
   }
 
   if (name == NULL) {
-      char buf[YAP_FILENAME_MAX + 1];
-      memset(buf, 0, YAP_FILENAME_MAX + 1);
-      name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
+    char buf[YAP_FILENAME_MAX + 1];
+    memset(buf, 0, YAP_FILENAME_MAX + 1);
+    name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
   }
-    if (!name)
-        Yap_Error(SYSTEM_ERROR_INTERNAL,file_name,"Yap_guessFileName failed: opening a file without a name");
-      st->name = Yap_LookupAtom(name);
+  if (!name)
+    Yap_Error(SYSTEM_ERROR_INTERNAL,file_name,"Yap_guessFileName failed: opening a file without a name");
+  st->name = Yap_LookupAtom(name);
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
@@ -1197,28 +1197,28 @@ static bool open_header(int sno, Atom open_mode) {
   return true;
 }
 
-#define OPEN_DEFS()                                                            \
-  PAR("alias", isatom, OPEN_ALIAS)                                             \
-  , PAR("bom", booleanFlag, OPEN_BOM), PAR("buffer", isatom, OPEN_BUFFER),     \
-      PAR("close_on_abort", booleanFlag, OPEN_CLOSE_ON_ABORT),                 \
-      PAR("create", isatom, OPEN_CREATE),                                      \
-      PAR("encoding", isatom, OPEN_ENCODING),                                  \
-      PAR("eof_action", isatom, OPEN_EOF_ACTION),                              \
-      PAR("expand_filename", booleanFlag, OPEN_EXPAND_FILENAME),               \
-      PAR("file_name", isatom, OPEN_FILE_NAME), PAR("input", ok, OPEN_INPUT),  \
-      PAR("locale", isatom, OPEN_LOCALE), PAR("lock", isatom, OPEN_LOCK),      \
-      PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),          \
-      PAR("representation_errors", booleanFlag, OPEN_REPRESENTATION_ERRORS),   \
-      PAR("reposition", booleanFlag, OPEN_REPOSITION),                         \
-      PAR("script", booleanFlag, OPEN_SCRIPT), PAR("type", isatom, OPEN_TYPE), \
-      PAR("wait", booleanFlag, OPEN_WAIT), PAR(NULL, ok, OPEN_END)
+#define OPEN_DEFS()							\
+  PAR("alias", isatom, OPEN_ALIAS)					\
+  , PAR("bom", booleanFlag, OPEN_BOM), PAR("buffer", isatom, OPEN_BUFFER), \
+    PAR("close_on_abort", booleanFlag, OPEN_CLOSE_ON_ABORT),		\
+    PAR("create", isatom, OPEN_CREATE),					\
+    PAR("encoding", isatom, OPEN_ENCODING),				\
+    PAR("eof_action", isatom, OPEN_EOF_ACTION),				\
+    PAR("expand_filename", booleanFlag, OPEN_EXPAND_FILENAME),		\
+    PAR("file_name", isatom, OPEN_FILE_NAME), PAR("input", ok, OPEN_INPUT), \
+    PAR("locale", isatom, OPEN_LOCALE), PAR("lock", isatom, OPEN_LOCK),	\
+    PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),	\
+    PAR("representation_errors", booleanFlag, OPEN_REPRESENTATION_ERRORS), \
+    PAR("reposition", booleanFlag, OPEN_REPOSITION),			\
+    PAR("script", booleanFlag, OPEN_SCRIPT), PAR("type", isatom, OPEN_TYPE), \
+    PAR("wait", booleanFlag, OPEN_WAIT), PAR(NULL, ok, OPEN_END)
 
 #define PAR(x, y, z) z
 typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 
 #undef PAR
 
-#define PAR(x, y, z)                                                           \
+#define PAR(x, y, z)				\
   { x, y, z }
 
 static const param_t open_defs[] = {OPEN_DEFS()};
@@ -1226,7 +1226,7 @@ static const param_t open_defs[] = {OPEN_DEFS()};
 
 static Int
 do_open(Term file_name, Term t2,
-          Term tlist USES_REGS) {
+	Term tlist USES_REGS) {
   Atom open_mode;
   int sno;
   StreamDesc *st;
@@ -1290,9 +1290,9 @@ do_open(Term file_name, Term t2,
   encoding = enc_id(s_encoding, ENC_OCTET);
   // only set encoding after getting BOM
   bool ok = (args[OPEN_EXPAND_FILENAME].used
-                 ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
-                 : false) ||
-            trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
+	     ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
+	     : false) ||
+    trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
 
   // expand file name?
   int lvl = push_text_stack();
@@ -1316,7 +1316,7 @@ do_open(Term file_name, Term t2,
     pop_text_stack(lvl);
     return false;
   }
-   // binary type
+  // binary type
   if (args[OPEN_TYPE].used) {
     Term t = args[OPEN_TYPE].tvalue;
     bool bin = (t == TermBinary);
@@ -1339,11 +1339,11 @@ do_open(Term file_name, Term t2,
                 "type is ~a, must be one of binary or text", t);
     }
   }
-   if ((sno = Yap_OpenStream(fname, io_mode, file_name, encoding)) < 0)
-  {
-    pop_text_stack(lvl);
-    return false;
-  }
+  if ((sno = Yap_OpenStream(file_name, io_mode, file_name, encoding)) < 0)
+    {
+      pop_text_stack(lvl);
+      return false;
+    }
 
   st = &GLOBAL_Stream[sno];
   // user requested encoding?
@@ -1351,24 +1351,24 @@ do_open(Term file_name, Term t2,
   if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
       encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
       encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE)
-  {
-    needs_bom = true;
-  }
-  if (args[OPEN_BOM].used)
-  {
-    if (args[OPEN_BOM].tvalue == TermTrue)
     {
-      avoid_bom = false;
       needs_bom = true;
     }
-    else if (args[OPEN_BOM].tvalue == TermFalse)
+  if (args[OPEN_BOM].used)
     {
-      avoid_bom = true;
-      needs_bom = false;
+      if (args[OPEN_BOM].tvalue == TermTrue)
+	{
+	  avoid_bom = false;
+	  needs_bom = true;
+	}
+      else if (args[OPEN_BOM].tvalue == TermFalse)
+	{
+	  avoid_bom = true;
+	  needs_bom = false;
+	}
     }
-  }
   bool script =
-      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
+    (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
 
   if (args[OPEN_ALIAS].used) {
     Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
@@ -1413,20 +1413,20 @@ do_open(Term file_name, Term t2,
 /** @pred  open(+ _F_,+ _M_,- _S_) is iso
 
 
-Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
-`append`), returning  _S_ unified with the stream name.
+    Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
+    `append`), returning  _S_ unified with the stream name.
 
-Yap allows 64 streams opened at the same time. If you need more,
- redefine the MaxStreams constant.  Each stream is either an input or
- an output stream but not both. There are always 3 open streams:
- user_input for reading, user_output for writing and user_error for
- writing. If there is no ambiguity, the atoms user_input and
- user_output may be referred to as `user`.
+    Yap allows 64 streams opened at the same time. If you need more,
+    redefine the MaxStreams constant.  Each stream is either an input or
+    an output stream but not both. There are always 3 open streams:
+    user_input for reading, user_output for writing and user_error for
+    writing. If there is no ambiguity, the atoms user_input and
+    user_output may be referred to as `user`.
 
-The `file_errors` flag controls whether errors are reported when in
-mode `read` or `append` the file  _F_ does not exist or is not
-readable, and whether in mode `write` or `append` the file is not
-writable.
+    The `file_errors` flag controls whether errors are reported when in
+    mode `read` or `append` the file  _F_ does not exist or is not
+    readable, and whether in mode `write` or `append` the file is not
+    writable.
 
 */
 
@@ -1437,79 +1437,79 @@ static Int open3(USES_REGS1) {
 
 /** @pred open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
 
-Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
-`append`), returning  _S_ unified with the stream name, and following
-these options:
+    Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
+    `append`), returning  _S_ unified with the stream name, and following
+    these options:
 
 
 
-+ `type(+ _T_)` is iso
+    + `type(+ _T_)` is iso
 
-  Specify whether the stream is a `text` stream (default), or a
-`binary` stream.
+    Specify whether the stream is a `text` stream (default), or a
+    `binary` stream.
 
-+ `reposition(+ _Bool_)` is iso
-  Specify whether it is possible to reposition the stream (`true`), or
-not (`false`). By default, YAP enables repositioning for all
-files, except terminal files and sockets.
+    + `reposition(+ _Bool_)` is iso
+    Specify whether it is possible to reposition the stream (`true`), or
+    not (`false`). By default, YAP enables repositioning for all
+    files, except terminal files and sockets.
 
-+ `eof(+ _Action_)` is iso
+    + `eof(+ _Action_)` is iso
 
-  Specify the action to take if attempting to input characters from a
-stream where we have previously found an `end_of_file`. The possible
-actions are `error`, that raises an error, `reset`, that tries to
-reset the stream and is used for `tty` type files, and `eof_code`,
-which generates a new `end_of_file` (default for non-tty files).
+    Specify the action to take if attempting to input characters from a
+    stream where we have previously found an `end_of_file`. The possible
+    actions are `error`, that raises an error, `reset`, that tries to
+    reset the stream and is used for `tty` type files, and `eof_code`,
+    which generates a new `end_of_file` (default for non-tty files).
 
-+ `alias(+ _Name_)` is iso
+    + `alias(+ _Name_)` is iso
 
-  Specify an alias to the stream. The alias <tt>Name</tt> must be an atom.
-The
-alias can be used instead of the stream descriptor for every operation
-concerning the stream.
+    Specify an alias to the stream. The alias <tt>Name</tt> must be an atom.
+    The
+    alias can be used instead of the stream descriptor for every operation
+    concerning the stream.
 
     The operation will fail and give an error if the alias name is already
-in use. YAP allows several aliases for the same file, but only
-one is returned by stream_property/2
+    in use. YAP allows several aliases for the same file, but only
+    one is returned by stream_property/2
 
-+ `bom(+ _Bool_)`
+    + `bom(+ _Bool_)`
 
-  If present and `true`, a BOM (<em>Byte Order Mark</em>) was
-detected while opening the file for reading or a BOM was written while
-opening the stream. See BOM for details.
+    If present and `true`, a BOM (<em>Byte Order Mark</em>) was
+    detected while opening the file for reading or a BOM was written while
+    opening the stream. See BOM for details.
 
-+ `encoding(+ _Encoding_)`
+    + `encoding(+ _Encoding_)`
 
-Set the encoding used for text.  See Encoding for an overview of
-wide character and encoding issues.
+    Set the encoding used for text.  See Encoding for an overview of
+    wide character and encoding issues.
 
-+ `representation_errors(+ _Mode_)`
+    + `representation_errors(+ _Mode_)`
 
-  Change the behaviour when writing characters to the stream that cannot
-be represented by the encoding.  The behaviour is one of `error`
-(throw and Input/Output error exception), `prolog` (write `\u...\`
-escape code or `xml` (write `\&#...;` XML character entity).
-The initial mode is `prolog` for the user streams and
-`error` for all other streams. See also Encoding.
+    Change the behaviour when writing characters to the stream that cannot
+    be represented by the encoding.  The behaviour is one of `error`
+    (throw and Input/Output error exception), `prolog` (write `\u...\`
+    escape code or `xml` (write `\&#...;` XML character entity).
+    The initial mode is `prolog` for the user streams and
+    `error` for all other streams. See also Encoding.
 
-+ `expand_filename(+ _Mode_)`
+    + `expand_filename(+ _Mode_)`
 
-  If  _Mode_ is `true` then do filename expansion, then ask Prolog
-to do file name expansion before actually trying to opening the file:
-this includes processing `~` characters and processing `$`
-environment variables at the beginning of the file. Otherwise, just try
-to open the file using the given name.
+    If  _Mode_ is `true` then do filename expansion, then ask Prolog
+    to do file name expansion before actually trying to opening the file:
+    this includes processing `~` characters and processing `$`
+    environment variables at the beginning of the file. Otherwise, just try
+    to open the file using the given name.
 
-  The default behavior is given by the Prolog flag
-open_expands_filename.
+    The default behavior is given by the Prolog flag
+    open_expands_filename.
 
-+ `script( + _Boolean_ )` YAP extension.
+    + `script( + _Boolean_ )` YAP extension.
 
-  The file may be a Prolog script. In `read` mode just check for
-  initial lines if they start with the hash symbol, and skip them. In
-  `write` mode output an header that can be used to launch the file by
-  calling `yap -l file -- $*`. Note that YAP will not set file
-  permissions as executable. In `append` mode ignore the flag.
+    The file may be a Prolog script. In `read` mode just check for
+    initial lines if they start with the hash symbol, and skip them. In
+    `write` mode output an header that can be used to launch the file by
+    calling `yap -l file -- $*`. Note that YAP will not set file
+    permissions as executable. In `append` mode ignore the flag.
 
 
 */
@@ -1571,23 +1571,27 @@ static Int p_open_null_stream(USES_REGS1) {
   return (Yap_unify(ARG1, t));
 }
 
-int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encoding_t enc) {
+int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc) {
   CACHE_REGS
-  int sno;
+    int sno;
   StreamDesc *st;
   struct vfs *vfsp;
   int flags;
+  const char *fname;
 
   sno = GetFreeStreamD();
   if (sno < 0) {
-    PlIOError(RESOURCE_ERROR_MAX_STREAMS, MkAtomTerm(Yap_LookupAtom(fname)),
-              "new stream not available for opening");
+    PlIOError(RESOURCE_ERROR_MAX_STREAMS,tin, "new stream not available for opening");
     return -1;
   }
   st = GLOBAL_Stream + sno;
-   // fname = Yap_VF(fname);
+  // fname = Yap_VF(fname);
   flags = 0;
-  if ((vfsp = vfs_owner(fname)) != NULL) {
+  if ((((IsAtomTerm(tin) &&
+	(fname = RepAtom(AtomOfTerm(tin))->StrOfAE))) ||
+      (IsStringTerm(tin) &&
+       (fname =StringOfTerm(tin)))) &&
+      ((vfsp = vfs_owner(fname)) != NULL)) {
     if (!vfsp->open(vfsp, fname, io_mode, sno)) {
       UNLOCK(st->streamlock);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, MkAtomTerm(Yap_LookupAtom(fname)),
@@ -1597,439 +1601,471 @@ int Yap_OpenStream(const char *fname, const char* io_mode, Term user_name, encod
     }
     // read, write, append
     user_name = st->user_name;
-  } else {
-    st->file  = fopen(fname, io_mode);
+  } else if (IsApplTerm(tin)) {
+    Functor f = FunctorOfTerm(tin);
+    if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+	f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
+      if (strchr(io_mode, 'r')) {
+	return Yap_OpenBufWriteStream(PASS_REGS1);
+      } else {
+	int i = push_text_stack();
+	const char *buf;
+
+	buf = Yap_TextTermToText(tin PASS_REGS);
+	if (!buf) {
+	  return false;
+	}
+	buf = pop_output_text_stack(i, buf);
+	sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+				       MEM_BUF_MALLOC);
+	return Yap_OpenBufWriteStream(PASS_REGS1);
+      }
+    } else if (f == FunctorPopen) {
+      const char *buf;
+      int i = push_text_stack();
+      buf = Yap_TextTermToText(tin PASS_REGS);
+      if (!buf) {
+	return false;
+      }
+      pop_text_stack(i);
+#if _WIN32
+      st->file = _popen(buf, io_mode); 
+#else
+      st->file = popen(buf, io_mode);
+#endif
+    } else {
+      st->file  = fopen(fname, io_mode);
+    }
     if (st->file == NULL) {
       if (!strchr(io_mode, 'b') && binary_file(fname)) {
-        UNLOCK(st->streamlock);
-        if (errno == ENOENT && !strchr(io_mode, 'r')) {
-          PlIOError(EXISTENCE_ERROR_SOURCE_SINK,
-                    MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s", fname,
-                    strerror(errno));
-        } else {
-          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,
-                    MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s", fname,
-                    strerror(errno));
-        }
+	UNLOCK(st->streamlock);
+	if (errno == ENOENT && !strchr(io_mode, 'r')) {
+	  PlIOError(EXISTENCE_ERROR_SOURCE_SINK,
+		    MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s", fname,
+		    strerror(errno));
+	} else {
+	  PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,
+		    MkAtomTerm(Yap_LookupAtom(fname)), "%s: %s", fname,
+		    strerror(errno));
+	}
+	return -1;
       }
-      return -1;
-    }
-  }
+    }}
     Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding, flags, vfsp);
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
-                      sno);
-  return sno;
-}
-
-int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
-                   VFS_t *vfsp) {
-  CACHE_REGS
-  int sno;
-  const char *mode;
-
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
-                      "new stream not available for opening"));
-  if (flags & Output_Stream_f) {
-    if (flags & Append_Stream_f)
-      mode = "a";
-    else
-      mode = "w";
-  } else {
-    mode = "r";
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
+			sno);
+    return sno;
   }
-    Yap_initStream(sno, fd, name, mode, file_name, LOCAL_encoding, flags, vfsp);
-  return sno;
-}
 
-#define CheckStream(arg, kind, msg)                                            \
+  int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
+		     VFS_t *vfsp) {
+    CACHE_REGS
+      int sno;
+    const char *mode;
+
+    sno = GetFreeStreamD();
+    if (sno < 0)
+      return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
+			"new stream not available for opening"));
+    if (flags & Output_Stream_f) {
+      if (flags & Append_Stream_f)
+	mode = "a";
+      else
+	mode = "w";
+    } else {
+      mode = "r";
+    }
+    Yap_initStream(sno, fd, name, mode, file_name, LOCAL_encoding, flags, vfsp);
+    return sno;
+  }
+
+#define CheckStream(arg, kind, msg)					\
   CheckStream__(__FILE__, __FUNCTION__, __LINE__, arg, kind, msg)
 
-static int CheckStream__(const char *file, const char *f, int line, Term arg,
-                         int kind, const char *msg) {
-  int sno = -1;
-  arg = Deref(arg);
-  if (IsVarTerm(arg)) {
-    Yap_Error(INSTANTIATION_ERROR, arg, msg);
-    return -1;
-  } else if (IsAtomTerm(arg)) {
-    Atom sname = AtomOfTerm(arg);
+  static int CheckStream__(const char *file, const char *f, int line, Term arg,
+			   int kind, const char *msg) {
+    int sno = -1;
+    arg = Deref(arg);
+    if (IsVarTerm(arg)) {
+      Yap_Error(INSTANTIATION_ERROR, arg, msg);
+      return -1;
+    } else if (IsAtomTerm(arg)) {
+      Atom sname = AtomOfTerm(arg);
 
-    if (sname == AtomUser) {
-      if (kind & Input_Stream_f) {
-        if (kind & (Output_Stream_f | Append_Stream_f)) {
-          PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
-                      "ambiguous use of 'user' as a stream");
-          return (-1);
-        }
-        sname = AtomUserIn;
+      if (sname == AtomUser) {
+	if (kind & Input_Stream_f) {
+	  if (kind & (Output_Stream_f | Append_Stream_f)) {
+	    PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg,
+			"ambiguous use of 'user' as a stream");
+	    return (-1);
+	  }
+	  sname = AtomUserIn;
+	} else {
+	  sname = AtomUserOut;
+	}
+      }
+      if ((sno = Yap_CheckAlias(sname)) < 0) {
+	UNLOCK(GLOBAL_Stream[sno].streamlock);
+	PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
+	return -1;
       } else {
-        sname = AtomUserOut;
+	LOCK(GLOBAL_Stream[sno].streamlock);
+      }
+    } else if (IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorStream) {
+      arg = ArgOfTerm(1, arg);
+      if (!IsVarTerm(arg) && IsIntegerTerm(arg)) {
+	sno = IntegerOfTerm(arg);
       }
     }
-    if ((sno = Yap_CheckAlias(sname)) < 0) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (sno < 0) {
+      Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
+      return -1;
+    }
+    if (GLOBAL_Stream[sno].status & Free_Stream_f) {
       PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
-    } else {
-      LOCK(GLOBAL_Stream[sno].streamlock);
     }
-  } else if (IsApplTerm(arg) && FunctorOfTerm(arg) == FunctorStream) {
-    arg = ArgOfTerm(1, arg);
-    if (!IsVarTerm(arg) && IsIntegerTerm(arg)) {
-      sno = IntegerOfTerm(arg);
+    LOCK(GLOBAL_Stream[sno].streamlock);
+    if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
+	!(kind & Input_Stream_f)) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
+      return -1;
     }
-  }
-  if (sno < 0) {
-    Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
-    return -1;
-  }
-  if (GLOBAL_Stream[sno].status & Free_Stream_f) {
-    PlIOError__(file, f, line, EXISTENCE_ERROR_STREAM, arg, msg);
-    return -1;
-  }
-  LOCK(GLOBAL_Stream[sno].streamlock);
-  if ((GLOBAL_Stream[sno].status & Input_Stream_f) &&
-      !(kind & Input_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
-    return -1;
-  }
-  if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
-      !(kind & Output_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-    return -1;
-  }
-  return sno;
-}
-
-int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
-                      int kind, const char *msg) {
-  return CheckStream__(file, f, line, arg, kind, msg);
-}
-
-int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
-                          int kind, const char *msg) {
-  int sno;
-  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
-    return -1;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    if (kind == Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
-                  msg);
-    else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
-                  msg);
-    return -1;
-  }
-  return sno;
-}
-
-int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
-                            int kind, const char *msg) {
-  int sno;
-  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
-    return -1;
-  if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    if (kind == Input_Stream_f)
-      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
-    else
-      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
-    return -1;
-  }
-  return sno;
-}
-
-/* used from C-interface */
-int Yap_GetFreeStreamDForReading(void) {
-  int sno = GetFreeStreamD();
-  StreamDesc *s;
-
-  if (sno < 0)
+    if ((GLOBAL_Stream[sno].status & (Append_Stream_f | Output_Stream_f)) &&
+	!(kind & Output_Stream_f)) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_STREAM, arg, msg);
+      return -1;
+    }
     return sno;
-  s = GLOBAL_Stream + sno;
-  s->status |= User_Stream_f | Input_Stream_f;
-  s->charcount = 0;
-  s->linecount = 1;
-  s->linepos = 0;
-  Yap_DefaultStreamOps(s);
-  UNLOCK(s->streamlock);
-  return sno;
-}
+  }
 
-/**
- * @pred always_prompt_user
- *
- * Ensure that the stream always prompts before asking the standard input
- stream for data.
+  int Yap_CheckStream__(const char *file, const char *f, int line, Term arg,
+			int kind, const char *msg) {
+    return CheckStream__(file, f, line, arg, kind, msg);
+  }
 
- */
-static Int always_prompt_user(USES_REGS1) {
-  StreamDesc *s = GLOBAL_Stream + StdInStream;
+  int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
+			    int kind, const char *msg) {
+    int sno;
+    if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+      return -1;
+    if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      if (kind == Input_Stream_f)
+	PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+		    msg);
+      else
+	PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+		    msg);
+      return -1;
+    }
+    return sno;
+  }
 
-  s->status |= Promptable_Stream_f;
-  Yap_DefaultStreamOps(s);
-  return (TRUE);
-}
+  int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
+			      int kind, const char *msg) {
+    int sno;
+    if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+      return -1;
+    if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      if (kind == Input_Stream_f)
+	PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_TEXT_STREAM, arg, msg);
+      else
+	PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_TEXT_STREAM, arg, msg);
+      return -1;
+    }
+    return sno;
+  }
 
-static Int close1 /** @pred  close(+ _S_) is iso
+  /* used from C-interface */
+  int Yap_GetFreeStreamDForReading(void) {
+    int sno = GetFreeStreamD();
+    StreamDesc *s;
+
+    if (sno < 0)
+      return sno;
+    s = GLOBAL_Stream + sno;
+    s->status |= User_Stream_f | Input_Stream_f;
+    s->charcount = 0;
+    s->linecount = 1;
+    s->linepos = 0;
+    Yap_DefaultStreamOps(s);
+    UNLOCK(s->streamlock);
+    return sno;
+  }
+
+  /**
+   * @pred always_prompt_user
+   *
+   * Ensure that the stream always prompts before asking the standard input
+   stream for data.
+
+  */
+  static Int always_prompt_user(USES_REGS1) {
+    StreamDesc *s = GLOBAL_Stream + StdInStream;
+
+    s->status |= Promptable_Stream_f;
+    Yap_DefaultStreamOps(s);
+    return (TRUE);
+  }
+
+  static Int close1 /** @pred  close(+ _S_) is iso
 
 
- Closes the stream  _S_. If  _S_ does not stand for a stream
- currently opened an error is reported. The streams user_input,
- user_output, and user_error can never be closed.
+Closes the stream  _S_. If  _S_ does not stand for a stream
+currently opened an error is reported. The streams user_input,
+user_output, and user_error can never be closed.
 
 
- */
+		    */
 
     (USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
-  int sno = CheckStream(
-      ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
-  if (sno < 0)
-    return false;
-  if (sno <= StdErrStream) {
+    int sno = CheckStream(
+			  ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
+    if (sno < 0)
+      return false;
+    if (sno <= StdErrStream) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return true;
+    }
+    Yap_CloseStream(sno);
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return true;
+    return (TRUE);
   }
-  Yap_CloseStream(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (TRUE);
-}
 
-#define CLOSE_DEFS()                                                           \
+#define CLOSE_DEFS()							\
   PAR("force", booleanFlag, CLOSE_FORCE), PAR(NULL, ok, CLOSE_END)
 
 #define PAR(x, y, z) z
 
-typedef enum close_enum_choices { CLOSE_DEFS() } close_choices_t;
+  typedef enum close_enum_choices { CLOSE_DEFS() } close_choices_t;
 
 #undef PAR
 
-#define PAR(x, y, z)                                                           \
+#define PAR(x, y, z)				\
   { x, y, z }
 
-static const param_t close_defs[] = {CLOSE_DEFS()};
+  static const param_t close_defs[] = {CLOSE_DEFS()};
 #undef PAR
 
-/** @pred  close(+ _S_,+ _O_) is iso
+  /** @pred  close(+ _S_,+ _O_) is iso
 
-Closes the stream  _S_, following options  _O_.
+      Closes the stream  _S_, following options  _O_.
 
-The only valid options are `force(true)` and `force(false)`.
-YAP currently ignores these options.
+      The only valid options are `force(true)` and `force(false)`.
+      YAP currently ignores these options.
 
 
-*/
-static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
-  Int sno = CheckStream(
-      ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
-  Term tlist;
-  if (sno < 0)
-    return (FALSE);
-  if (sno <= StdErrStream) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return TRUE;
-  }
-  xarg *args =
-      Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+  */
+  static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
+    Int sno = CheckStream(
+			  ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
+    Term tlist;
+    if (sno < 0)
+      return (FALSE);
+    if (sno <= StdErrStream) {
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return TRUE;
     }
-    return false;
+    xarg *args =
+      Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END);
+    if (args == NULL) {
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+	if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
+	Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+      }
+      return false;
+    }
+    // if (args[CLOSE_FORCE].used) {
+    // }
+    Yap_CloseStream(sno);
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return (TRUE);
   }
-  // if (args[CLOSE_FORCE].used) {
-  // }
-  Yap_CloseStream(sno);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (TRUE);
-}
 
-Term read_line(int sno) {
-  CACHE_REGS
-  Term tail;
-  Int ch;
+  Term read_line(int sno) {
+    CACHE_REGS
+      Term tail;
+    Int ch;
 
-  if ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) == 10) {
-    return (TermNil);
+    if ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) == 10) {
+      return (TermNil);
+    }
+    tail = read_line(sno);
+    return (MkPairTerm(MkIntTerm(ch), tail));
   }
-  tail = read_line(sno);
-  return (MkPairTerm(MkIntTerm(ch), tail));
-}
 
-#define ABSOLUTE_FILE_NAME_DEFS()                                              \
-  PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS)                             \
-  , PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                     \
-      PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
-      PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
-      PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
-      PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
-      PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),              \
-      PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),             \
-      PAR("verbose_file_search", booleanFlag,                                  \
-          ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),                             \
-      PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
+#define ABSOLUTE_FILE_NAME_DEFS()					\
+  PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS)			\
+    , PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),		\
+    PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),		\
+    PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS), \
+    PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),	\
+    PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),				\
+    PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),		\
+    PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),	\
+    PAR("verbose_file_search", booleanFlag,				\
+	ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),			\
+    PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
 
 #define PAR(x, y, z) z
 
-typedef enum ABSOLUTE_FILE_NAME_enum_ {
-  ABSOLUTE_FILE_NAME_DEFS()
-} absolute_file_name_choices_t;
+  typedef enum ABSOLUTE_FILE_NAME_enum_ {
+    ABSOLUTE_FILE_NAME_DEFS()
+  } absolute_file_name_choices_t;
 
 #undef PAR
 
-#define PAR(x, y, z)                                                           \
+#define PAR(x, y, z)				\
   { x, y, z }
 
-static const param_t absolute_file_name_search_defs[] = {
+  static const param_t absolute_file_name_search_defs[] = {
     ABSOLUTE_FILE_NAME_DEFS()};
 #undef PAR
 
-static Int abs_file_parameters(USES_REGS1) {
-  Term t[ABSOLUTE_FILE_NAME_END];
-  Term tlist = Deref(ARG1), tf;
-  /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+  static Int abs_file_parameters(USES_REGS1) {
+    Term t[ABSOLUTE_FILE_NAME_END];
+    Term tlist = Deref(ARG1), tf;
+    /* get options */
+    xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
+				     ABSOLUTE_FILE_NAME_END);
+    if (args == NULL) {
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+	if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
+	Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
+      }
+      return false;
     }
+    /* done */
+    if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
+      t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
+	args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
+    } else {
+      t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
+    }
+    if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
+      t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
+	gethdir(args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue);
+    } else {
+      t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = gethdir(TermDot);
+    }
+    if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
+      t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
+    if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
+      t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
+    if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
+      t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
+	args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermError;
+    if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
+      t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
+    if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
+      t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
+    if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
+      t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
+      t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
+    } else
+      t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;
+    if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
+      t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
+	args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
+    else
+      t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
+	(trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
+    tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
+			ABSOLUTE_FILE_NAME_END, t);
+    return (Yap_unify(ARG2, tf));
+  }
+
+  static Int get_abs_file_parameter(USES_REGS1) {
+    Term t = Deref(ARG1), topts = Deref(ARG2);
+    /* get options */
+    /* done */
+    int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
+		       ABSOLUTE_FILE_NAME_END);
+    if (i >= 0)
+      return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
+    Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
     return false;
   }
-  /* done */
-  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
-        args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
-  } else {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
-  }
-  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
-        gethdir(args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue);
-  } else {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = gethdir(TermDot);
-  }
-  if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
-  if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
-    t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
-  if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
-        args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermError;
-  if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
-  if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
-    t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
-  if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
-    t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
-  } else
-    t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;
-  if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        (trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
-  tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
-                      ABSOLUTE_FILE_NAME_END, t);
-  return (Yap_unify(ARG2, tf));
-}
 
-static Int get_abs_file_parameter(USES_REGS1) {
-  Term t = Deref(ARG1), topts = Deref(ARG2);
-  /* get options */
-  /* done */
-  int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
-                     ABSOLUTE_FILE_NAME_END);
-  if (i >= 0)
-    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
-  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
-  return false;
-}
-
-void Yap_InitPlIO(struct yap_boot_params *argi) {
-  Int i;
-  if (argi->inp > 0)
-    Yap_stdin = fdopen(argi->inp - 1, "r");
-  else if (argi->inp)
-    Yap_stdin = NULL;
-  else
-    Yap_stdin = stdin;
-  if (argi->out > 0)
-    Yap_stdout = fdopen(argi->out - 1, "a");
-  else if (argi->out)
-    Yap_stdout = NULL;
-  else
-    Yap_stdout = stdout;
-  if (argi->err > 0)
-    Yap_stderr = fdopen(argi->err - 1, "a");
-  else if (argi->out)
-    Yap_stdout = NULL;
-  else
-    Yap_stderr = stderr;
-  GLOBAL_Stream =
+  void Yap_InitPlIO(struct yap_boot_params *argi) {
+    Int i;
+    if (argi->inp > 0)
+      Yap_stdin = fdopen(argi->inp - 1, "r");
+    else if (argi->inp)
+      Yap_stdin = NULL;
+    else
+      Yap_stdin = stdin;
+    if (argi->out > 0)
+      Yap_stdout = fdopen(argi->out - 1, "a");
+    else if (argi->out)
+      Yap_stdout = NULL;
+    else
+      Yap_stdout = stdout;
+    if (argi->err > 0)
+      Yap_stderr = fdopen(argi->err - 1, "a");
+    else if (argi->out)
+      Yap_stdout = NULL;
+    else
+      Yap_stderr = stderr;
+    GLOBAL_Stream =
       (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc) * MaxStreams);
-  for (i = 0; i < MaxStreams; ++i) {
-    INIT_LOCK(GLOBAL_Stream[i].streamlock);
-    GLOBAL_Stream[i].status = Free_Stream_f;
+    for (i = 0; i < MaxStreams; ++i) {
+      INIT_LOCK(GLOBAL_Stream[i].streamlock);
+      GLOBAL_Stream[i].status = Free_Stream_f;
+    }
+    InitStdStreams();
   }
-  InitStdStreams();
-}
 
-void Yap_InitIOPreds(void) {
-  /* here the Input/Output predicates */
-  Yap_InitCPred("always_prompt_user", 0, always_prompt_user,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("close", 1, close1, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("close", 2, close2, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("open", 4, open4, SyncPredFlag);
-  Yap_InitCPred("open", 3, open3, SyncPredFlag);
-  Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,
-                SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$file_expansion", 2, p_file_expansion,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("$open_null_stream", 1, p_open_null_stream,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
-  Yap_InitIOStreams();
-  Yap_InitAliases();
-  Yap_InitCharsio();
-  Yap_InitChtypes();
-  Yap_InitConsole();
-  Yap_InitReadUtil();
-  Yap_InitMems();
-  Yap_InitPipes();
-  Yap_InitFiles();
-  Yap_InitWriteTPreds();
-  Yap_InitReadTPreds();
-  Yap_InitFormat();
-  Yap_InitRandomPreds();
+  void Yap_InitIOPreds(void) {
+    /* here the Input/Output predicates */
+    Yap_InitCPred("always_prompt_user", 0, always_prompt_user,
+		  SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("close", 1, close1, SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("close", 2, close2, SafePredFlag | SyncPredFlag);
+    Yap_InitCPred("open", 4, open4, SyncPredFlag);
+    Yap_InitCPred("open", 3, open3, SyncPredFlag);
+    Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,
+		  SyncPredFlag | HiddenPredFlag);
+    Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter,
+		  SafePredFlag | SyncPredFlag | HiddenPredFlag);
+    Yap_InitCPred("$file_expansion", 2, p_file_expansion,
+		  SafePredFlag | SyncPredFlag | HiddenPredFlag);
+    Yap_InitCPred("$open_null_stream", 1, p_open_null_stream,
+		  SafePredFlag | SyncPredFlag | HiddenPredFlag);
+    Yap_InitIOStreams();
+    Yap_InitAliases();
+    Yap_InitCharsio();
+    Yap_InitChtypes();
+    Yap_InitConsole();
+    Yap_InitReadUtil();
+    Yap_InitMems();
+    Yap_InitPipes();
+    Yap_InitFiles();
+    Yap_InitWriteTPreds();
+    Yap_InitReadTPreds();
+    Yap_InitFormat();
+    Yap_InitRandomPreds();
 #if USE_READLINE
-  Yap_InitReadlinePreds();
+    Yap_InitReadlinePreds();
 #endif
-  Yap_InitSockets();
-  Yap_InitSignalPreds();
-  Yap_InitSysPreds();
-  Yap_InitTimePreds();
-}
+    Yap_InitSockets();
+    Yap_InitSignalPreds();
+    Yap_InitSysPreds();
+    Yap_InitTimePreds();
+  }

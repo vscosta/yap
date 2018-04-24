@@ -285,7 +285,6 @@
   AtomOutOfTrailError = Yap_LookupAtom("out_of_trail_error"); TermOutOfTrailError = MkAtomTerm(AtomOutOfTrailError);
   AtomOutput = Yap_LookupAtom("output"); TermOutput = MkAtomTerm(AtomOutput);
   AtomParameter = Yap_LookupAtom("parameter"); TermParameter = MkAtomTerm(AtomParameter);
-  AtomPrologCommonsDir = Yap_LookupAtom("prolog_commons_directory"); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomPast = Yap_LookupAtom("past"); TermPast = MkAtomTerm(AtomPast);
   AtomPastEndOfStream = Yap_LookupAtom("past_end_of_stream"); TermPastEndOfStream = MkAtomTerm(AtomPastEndOfStream);
   AtomPermissionError = Yap_LookupAtom("permission_error"); TermPermissionError = MkAtomTerm(AtomPermissionError);
@@ -294,6 +293,7 @@
   AtomPriority = Yap_LookupAtom("priority"); TermPriority = MkAtomTerm(AtomPriority);
   AtomPlus = Yap_LookupAtom("+"); TermPlus = MkAtomTerm(AtomPlus);
   AtomPointer = Yap_LookupAtom("pointer"); TermPointer = MkAtomTerm(AtomPointer);
+  AtomPopen = Yap_LookupAtom("popen"); TermPopen = MkAtomTerm(AtomPopen);
   AtomPortray = Yap_FullLookupAtom("portray"); TermPortray = MkAtomTerm(AtomPortray);
   AtomPredicateIndicator = Yap_LookupAtom("predicate_indicator"); TermPredicateIndicator = MkAtomTerm(AtomPredicateIndicator);
   AtomPrimitive = Yap_LookupAtom("primitive"); TermPrimitive = MkAtomTerm(AtomPrimitive);
@@ -302,6 +302,7 @@
   AtomProcedure = Yap_LookupAtom("procedure"); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = Yap_FullLookupAtom("$profile"); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = Yap_LookupAtom("prolog"); TermProlog = MkAtomTerm(AtomProlog);
+  AtomPrologCommonsDir = Yap_LookupAtom("prolog_commons_directory"); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomQly = Yap_LookupAtom("qly"); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = Yap_LookupAtom("?-"); TermQuery = MkAtomTerm(AtomQuery);
@@ -553,6 +554,7 @@
   FunctorOutput = Yap_MkFunctor(AtomOutput,1);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
+  FunctorPopen = Yap_MkFunctor(AtomPopen,1);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);

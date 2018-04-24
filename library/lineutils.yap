@@ -64,21 +64,6 @@ available by loading the
 :- use_module(library(readutil),
 	      [read_line_to_codes/2]).
 
-re_open(S, Mode, S) :-
-	is_stream(S),
-	!,
-	current_stream(_, Mode, S).
-re_open(F, Mode, S) :-
-	open(F, Mode, S).
-
-re_open(S, Mode, S, Props) :-
-	is_stream(S),
-	!,
-	current_stream(_, Mode, S),
-	maplist( set_stream(S), Props).
-re_open(F, Mode, S, Props) :-
-	open(F, Mode, S, Props).
-
 /**
  @pred search_for(+ _Char_,+ _Line_)
   Search for a character  _Char_ in the list of codes  _Line_.
@@ -469,8 +454,8 @@ process(StreamInp, Command) :-
   the output stream is accessible through `filter_output`.
 */
 file_filter(Inp, Out, Command) :-
-	re_open(Inp, read, StreamInp, [alias(filter_input)]),
-	re_open(Out, write, StreamOut),
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut),
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
 	close(StreamOut).
@@ -482,8 +467,8 @@ Same as file_filter/3, but before starting the filter execute
  _Arguments_.
 */
 file_filter_with_initialization(Inp, Out, Command, FormatString, Parameters) :-
-	re_open(Inp, read, StreamInp, [alias(filter_input)]),
-	re_open(Out, write, StreamOut, [alias(filter_output)]),
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut, [alias(filter_output)]),
 	format(StreamOut, FormatString, Parameters),
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
@@ -498,8 +483,8 @@ _StartGoal_,  and call _ENdGoal_ as an epilog.
 The input stream are always accessible through `filter_output` and `filter_input`.
 */
 file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
-	re_open(Inp, read, StreamInp, [alias(filter_input)]),
-	re_open(Out, write, StreamOut, [alias(filter_output)]),
+	open(Inp, read, StreamInp, [alias(filter_input)]),
+	open(Out, write, StreamOut, [alias(filter_output)]),
 	call( StartGoal, StreamInp, StreamOut ),
 	filter(StreamInp, StreamOut, Command),
 	call( EndGoal, StreamInp, StreamOut ),
@@ -525,7 +510,7 @@ file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
 file_select(Inp, Command) :-
 	( retract(alias(F)) -> true ; F = '' ),
 	atom_concat(filter_input, F, Alias),
-        re_open(Inp, read, StreamInp, [Alias]),
+        open(Inp, read, StreamInp, [Alias]),
 	atom_concat('_', F, NF),
 	assert( alias(NF) ),
 	repeat,

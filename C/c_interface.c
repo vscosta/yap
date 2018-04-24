@@ -2119,7 +2119,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
+  sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
     if (sno < 0 ||
 	!Yap_ChDir(dirname((char *)fl))) {
       pop_text_stack(lvl);

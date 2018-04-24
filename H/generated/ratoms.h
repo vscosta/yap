@@ -285,7 +285,6 @@
   AtomOutOfTrailError = AtomAdjust(AtomOutOfTrailError); TermOutOfTrailError = MkAtomTerm(AtomOutOfTrailError);
   AtomOutput = AtomAdjust(AtomOutput); TermOutput = MkAtomTerm(AtomOutput);
   AtomParameter = AtomAdjust(AtomParameter); TermParameter = MkAtomTerm(AtomParameter);
-  AtomPrologCommonsDir = AtomAdjust(AtomPrologCommonsDir); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomPast = AtomAdjust(AtomPast); TermPast = MkAtomTerm(AtomPast);
   AtomPastEndOfStream = AtomAdjust(AtomPastEndOfStream); TermPastEndOfStream = MkAtomTerm(AtomPastEndOfStream);
   AtomPermissionError = AtomAdjust(AtomPermissionError); TermPermissionError = MkAtomTerm(AtomPermissionError);
@@ -294,6 +293,7 @@
   AtomPriority = AtomAdjust(AtomPriority); TermPriority = MkAtomTerm(AtomPriority);
   AtomPlus = AtomAdjust(AtomPlus); TermPlus = MkAtomTerm(AtomPlus);
   AtomPointer = AtomAdjust(AtomPointer); TermPointer = MkAtomTerm(AtomPointer);
+  AtomPopen = AtomAdjust(AtomPopen); TermPopen = MkAtomTerm(AtomPopen);
   AtomPortray = AtomAdjust(AtomPortray); TermPortray = MkAtomTerm(AtomPortray);
   AtomPredicateIndicator = AtomAdjust(AtomPredicateIndicator); TermPredicateIndicator = MkAtomTerm(AtomPredicateIndicator);
   AtomPrimitive = AtomAdjust(AtomPrimitive); TermPrimitive = MkAtomTerm(AtomPrimitive);
@@ -302,6 +302,7 @@
   AtomProcedure = AtomAdjust(AtomProcedure); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = AtomAdjust(AtomProfile); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = AtomAdjust(AtomProlog); TermProlog = MkAtomTerm(AtomProlog);
+  AtomPrologCommonsDir = AtomAdjust(AtomPrologCommonsDir); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomProtectStack = AtomAdjust(AtomProtectStack); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomQly = AtomAdjust(AtomQly); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = AtomAdjust(AtomQuery); TermQuery = MkAtomTerm(AtomQuery);
@@ -553,6 +554,7 @@
   FunctorOutput = FuncAdjust(FunctorOutput);
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
   FunctorPlus = FuncAdjust(FunctorPlus);
+  FunctorPopen = FuncAdjust(FunctorPopen);
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrintMessage = FuncAdjust(FunctorPrintMessage);
   FunctorProcedure = FuncAdjust(FunctorProcedure);
