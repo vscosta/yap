@@ -2258,8 +2258,7 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
   Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
-  Yap_InitCPred("$                                    ", 1,
-		current_choice_point, 0);
+  Yap_InitCPred("$current_choicepoint", 1, current_choice_point, 0);
   CurrentModule = HACKS_MODULE;
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
@@ -2268,8 +2267,7 @@ void Yap_InitExecFs(void) {
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,
 		NoTracePredFlag | SafePredFlag);
-  Yap_InitCPred("$restore_regs", 2, restore_regs2,
-		NoTracePredFlag | SafePredFlag);
+  Yap_InitCPred("$restore_regs", 2, restore_regs2,NoTracePredFlag  | SafePredFlag);
   Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, SafePredFlag);
   Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
 		SafePredFlag);
@@ -2279,6 +2277,6 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
   Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
 		0);
-  Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, 0);
+  Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, NoTracePredFlag);
   Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
 }

@@ -1,12 +1,13 @@
 
 :- use_module(library(lists)).
 :- use_module(library(lineutils)).
+:- use_module(library(system)).
 
 :- initialization(main).
 
 main :-
-  %system('find . \( -name '*.pl' -o -name '*.yap'  -o -name '*.c' -o -name '*.h' -o -name '*.cpp' -o -name '*.hh' \) -type f -print | xargs grep  '@defgroup\|@ingroup\|@addtogroup\|@{|@}').
- file_filter_with_start_end( docs, tmp, add2graph, initgraph,  checkgraph).
+  popen('find . \\( -name \"*.pl\" -o -name \"*.yap\"  -o -name \"*.c\" -o -name \"*.h\" -o -name \"*.cpp\" -o -name \"*.hh\" \\) -type f -print | xargs grep  \"@defgroup\\|@ingroup\\|@addtogroup\\|@\\{\\|@\\}\"', read, S),
+ file_filter_with_start_end( S, user_output, add2graph, initgraph,  checkgraph).
 
 initgraph(_,_).
 
