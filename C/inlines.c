@@ -21,10 +21,11 @@
 
     @file inlines.c
 
+    @{
+
     @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
 
     @ingroup builtins
-    @{
 
 
 */
@@ -1208,3 +1209,4 @@ cont_genarg( USES_REGS1 )
 }
 
 
+// @}

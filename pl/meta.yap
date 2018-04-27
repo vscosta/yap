@@ -2,11 +2,15 @@
 
   @file meta.yap
 
-  @defgroup YAPMetaPredicates Using Meta-Calls with Modules
- @ingroup YAPModules
  @{
 
-  @pred meta_predicate(G1 , Gj , Gn) is directive
+  @defgroup YAPMetaPredicates Using Meta-Calls with Modules
+ @ingroup YAPModules
+
+*/
+
+  /**
+  @pred meta_predicate( Gi ) is directive
 
 Declares that this predicate manipulates references to predicates.
 Each _Gi_ is a mode specification.
@@ -498,3 +502,5 @@ expand_goal(Input, Output) :-
     '$yap_strip_module'(SM:G, M, IG),
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
     '$yap_strip_module'(M:GF0, MF, GF).
+
+%% @}

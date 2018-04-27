@@ -1,5 +1,5 @@
 /**
-  @file bootutils.c
+  @file bootutils.yap
   @short utilities
 
   @addtogroup Internal_Database

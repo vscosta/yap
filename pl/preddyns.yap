@@ -4,8 +4,8 @@
 /** @file preddyns.yap */
 
 /**
- * @addtogroup Database
  * @{
+ * @addtogroup Database
 
 Next follow the main operations on dynamic predicates.
 
@@ -347,3 +347,5 @@ dynamic_predicate(P,Sem) :-
 '$bad_if_is_semantics'(Sem, Goal) :-
 	Sem \= immediate, Sem \= logical, !,
 	'$do_error'(domain_error(semantics_indicator,Sem),Goal).
+
+%% @}

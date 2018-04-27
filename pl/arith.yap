@@ -129,15 +129,7 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      (strip_module(M:Goal,M1,NGoal),
-	       throw(error(Error,
-         print_message(
-                       ['while executing goal ~w' -M1:NGoal,nl,
-                       'in clause matching ~w'-Head,nl]
-                      )
-                      )
-                )
-	      )
+	       throw(error(Error,M:Goal))
 	     ) :- !.
 do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
        do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).

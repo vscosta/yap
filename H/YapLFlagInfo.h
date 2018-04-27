@@ -1,4 +1,5 @@
 
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -19,8 +20,16 @@
 /** @file YapLFlagInfo.h
 
     @addtogroup YAPFlags
+@ingroup builtins
+@{
+
+
+@enum LocalFlags local Flags supported by YAP
+ @brief local flag:
 */
 
+typedef enum {
+  
 /** + `autoload`: set the system to look for undefined procedures */
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false" , NULL ),
 /** + `read-only flag, that tells if Prolog is in an inner top-level */
@@ -119,3 +128,6 @@ automatically redirects the user_error alias to the original
  */
 YAP_FLAG(  USER_INPUT_FLAG, "user_input", true, stream, "user_input" , set_input_stream ),
   YAP_FLAG(  USER_OUTPUT_FLAG, "user_output", true, stream, "user_output" , set_output_stream ),
+
+
+} local_flag_t;

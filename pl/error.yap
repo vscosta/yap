@@ -25,7 +25,7 @@
 	  ]), [])  .
 
 /**
- @defgroup error Error generating support
+ @defgroup SWI-error High-level error testing.
 @ingroup YAPError
 
 This  SWI module  provides  predicates  to  simplify  error  generation  and

@@ -18,7 +18,7 @@
 :- system_module( '$_protect', [], ['$protect'/0]).
 /**
  * @file protect.yap
- * @addgroup ProtectCore Freeze System Configuration
+ * @addtogroup ProtectCore Freeze System Configuration
  * @ingroup YAPControl
  *
  * This protects current code from further changes
@@ -38,7 +38,7 @@
     new_system_module( M ),    
     fail.
 '$protect' :-
-    '$current_predicate'(Name,M,P,_),
+	'$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
@@ -48,7 +48,7 @@
     fail.
 '$protect' :-
     current_atom(Name),
-    sub_atom(Name,0,1,_, '$'),
+	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.

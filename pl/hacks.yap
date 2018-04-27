@@ -45,7 +45,7 @@
   Notice that variable names option must have been on.
 */
 
-hacks:context_variables(NamedVariables) :-
+yap_hacks:context_variables(NamedVariables) :-
 	'$context_variables'(NamedVariables).
 
 

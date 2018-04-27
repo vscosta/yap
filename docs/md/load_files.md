@@ -3,10 +3,10 @@
   @brief Next, we present the main predicates and directives available to load
   files and to control the Prolog environment.
 
-  + @subpage YAPConsulting
+  + @ref YAPConsulting
 
-  + @subpage YAPModules
+  + @ref YAPModules
 
-  + @subpage YAPBigLoad
+  + @ref YAPBigLoad
 
   

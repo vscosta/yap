@@ -574,7 +574,7 @@ process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_inp_stream_for_exec(null, null, _, L, L) :- !.
 process_inp_stream_for_exec(std, 0, _, L, L) :- !.
 process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- var(ForWriting), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_inp_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
 	stream_property(Stream, input).
 process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -587,7 +587,7 @@ process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_out_stream_for_exec(null, null, _, L, L) :- !.
 process_out_stream_for_exec(std, 1, _, L, L) :- !.
 process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_out_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
 	stream_property(Stream, output).
 process_out_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -599,7 +599,7 @@ process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_err_stream_for_exec(null, null, _, L, L) :- !.
 process_err_stream_for_exec(std, 2, _, L, L) :- !.
 process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_err_stream_for_exec(pipe(Stream), Stream, _, L, L) :- !,
 	stream_property(Stream, output).
 process_err_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -803,7 +803,7 @@ Create file  _OldFile_ to  _NewFile_. This predicate uses the
 */
 rename_file(F0, F) :-
 	rename_file(F0, F, Error),
-	handle_system_internal(Error, off, rename_file(F0, F))).
+	handle_system_internal(Error, off, rename_file(F0, F)).
 
 /** @pred  system(+ _S_)
 

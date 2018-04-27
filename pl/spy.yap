@@ -377,6 +377,20 @@ debugging :-
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
 
+notrace(G) :-
+	 strip_module(G, M, G1),
+	 ( '$$save_by'(CP),
+	   '$debug_stop'( State ),
+	   '$call'(G1, CP, G, M),
+	   '$$save_by'(CP2),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
+	   '$debug_restart'( State )
+     ;
+	'$debug_restart'( State ),
+	fail
+    ).
+
+
 /*
 
 @}

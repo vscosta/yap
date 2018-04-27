@@ -5,7 +5,7 @@
   *
   * @brief  top-level implementation plus system booting.x
   *
-  *   @defgroup Top-Level and Boot Predicates
+  *   @defgroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
   *
 */

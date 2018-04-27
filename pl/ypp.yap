@@ -32,10 +32,10 @@
         ).
 
 /**
-* @defgroup ypp Yap PreProcessing
-* @ingroup library
-* 
-*/
+ * @defgroup ypp Yap PreProcessing
+ * @ingroup library
+ * 
+ */
 
 %====================================================================================
 % Public Predicates

@@ -19,10 +19,10 @@
   @file boot.yap
   @brief YAP bootstrap
 
+@{
+
   @defgroup YAPControl Control Predicates
   @ingroup builtins
-
-@{
 
 
 */
@@ -147,17 +147,6 @@ print_message(L,E) :-
 :-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
 :-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
 
-/**
-
-@{
- @defgroup library The Prolog library
-
-
-
-  @addtogroup YAPControl
-@ingroup builtins
-    @{
-*/
 :- system_module( '$_init', [!/0,
         ':-'/1,
         '?-'/1,
@@ -321,8 +310,6 @@ initialize_prolog :-
 
 :-	 ['protect.yap'].
 
-:- stop_low_level_trace.
-
 version(yap,[6,3]).
 
 :- op(1150,fx,(mode)).
@@ -439,7 +426,7 @@ as directives.
 
 :- dynamic system:term_expansion/2.
 
-:- multifile swi:swi_predicate_table/4.
+:- multifile system:swi_predicate_table/4.
 
 /** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
 
@@ -478,3 +465,5 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+
+%% @}

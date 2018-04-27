@@ -20,7 +20,7 @@
 		   (+=)/2, op(500, xfx, '+=')]).
 
 
-/** @defgroup Gecode Gecode Interface
+/** @addtogroup Gecode5 Gecode 5 Interface
 
 @ingroup packages
 @{

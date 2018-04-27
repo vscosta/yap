@@ -878,8 +878,7 @@ a solution was found.
 Notice that you cannot create new slots if an YAP_ExnterGoal goal is open.
 
 </li>
- <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor
-YAP_RetryGoal
+ <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
 
 
 Backtrack to a query created by [YAP_EnterGoal](@ref YAP_EnterGoal). The query
@@ -984,8 +983,8 @@ collector, the second does the same for the atom garbage collector.`
 </li>
  <li>`void \*` YAP_ExternalDataInStackFromTerm(`YAP_Term t`)
 </li>
- <li>`YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`) @anchor
-YAP_AllocExternalDataInStack
+ <li>`YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`) 
+ @anchor YAP_AllocExternalDataInStack
 
 
 The next routines allow one to store external data in the Prolog
@@ -1000,8 +999,8 @@ so it should not be used to store Prolog terms. On the other hand, it
 may be useful to store arrays in a compact way, or pointers to external objects.
 
 </li>
- <li>`int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`) @anchor
-YAP_HaltRegisterHook
+ <li>`int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`) 
+ @anchor YAP_HaltRegisterHook
 
 
 Register the function  _f_ to be called if YAP is halted. The
@@ -1076,8 +1075,8 @@ the predicate and  _arity_ is the predicate's arity.
 
 </li>
  <li>void YAP_UserBackCPredicate(char \* _name_, int \* _init_(), int \*
-_cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) @anchor
-YAP_UserBackCPredicate
+_cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) 
+@anchor YAP_UserBackCPredicate
 
 describes a new predicate where  _name_ is the name of the predicate,
  _init_, and  _cont_ are the C functions that implement the
@@ -1092,8 +1091,8 @@ predicate and  _arity_ is the predicate's arity.
 
 
 </li>
- <li>void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); @anchor
-YAP_PRESERVED_DATA_CUT
+ <li>void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); 
+ @anchor YAP_PRESERVED_DATA_CUT
 
 
 </li>

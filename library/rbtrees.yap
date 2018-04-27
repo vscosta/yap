@@ -52,10 +52,12 @@
        ]).
 
 /**
+  *
+  * @{
+  *
   * @defgroup rbtrees Red-Black Trees
   * @ingroup library
 
- @{
 Red-Black trees are balanced search binary trees. They are named because
 nodes can be classified as either red or   black. The code we include is
 based on "Introduction  to  Algorithms",   second  edition,  by  Cormen,

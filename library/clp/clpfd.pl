@@ -5682,20 +5682,32 @@ attribute_goals(X) -->
         ),
         attributes_goals(Ps).
 
+%% @namespace clpfd_aux
+
 clpfd_aux:attribute_goals(_) --> [].
 clpfd_aux:attr_unify_hook(_,_) :- false.
+
+%% @namespace clpfd_gcc_vs
 
 clpfd_gcc_vs:attribute_goals(_) --> [].
 clpfd_gcc_vs:attr_unify_hook(_,_) :- false.
 
+%% @namespace clpfd_gcc_num
+
 clpfd_gcc_num:attribute_goals(_) --> [].
 clpfd_gcc_num:attr_unify_hook(_,_) :- false.
+
+%% @namespace clpfd_gcc_occurred
 
 clpfd_gcc_occurred:attribute_goals(_) --> [].
 clpfd_gcc_occurred:attr_unify_hook(_,_) :- false.
 
+%% @namespace clpfd_relation
+
 clpfd_relation:attribute_goals(_) --> [].
 clpfd_relation:attr_unify_hook(_,_) :- false.
+
+%% @namespace clpfd_original
 
 clpfd_original:attribute_goals(_) --> [].
 clpfd_original:attr_unify_hook(_,_) :- false.

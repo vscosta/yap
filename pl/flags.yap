@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 /**
- * @file flagd.ysp
+ * @file flags.yap
  *
  * @defgroup YAPFlags Yap Flags
  *

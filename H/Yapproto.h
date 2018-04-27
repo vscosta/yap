@@ -14,7 +14,9 @@
 *************************************************************************/
 
 /* prototype file for Yap */
-/// @file Prototype Declarations
+/// @file Yapproto.h
+///
+/// @brief Prototype Declarations
 
 #ifndef YAP_PROTOS_H
 #define YAP_PROTOS_H 1
@@ -535,3 +537,5 @@ extern  void init_myddas(void);
 #endif
 
 #endif /* YAP_PROTOS_H */
+
+/// @}

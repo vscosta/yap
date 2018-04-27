@@ -15,8 +15,10 @@
 *									 *
 *************************************************************************/
 
-/** @file YapFlags.h
+/**
+ @file YapFlags.h
 
+@{
     @addtogroup YAPFlags
 */
 
@@ -228,15 +230,24 @@ typedef union flagTerm {
 
 void Yap_InitFlags(bool);
 
-#define YAP_FLAG(x, NAME, WRITABLE, DEF, INIT, HELPER) x
+/**
+ @pred  yap_flag( ?Param, ?Value)
 
-typedef enum {
+
+Set or read system properties for  _Param_:
+*/
+
+
+#define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
+
+
+/*  */  
 #include "YapGFlagInfo.h"
-} global_flag_t;
 
-typedef enum {
+  /* Local flags */  
 #include "YapLFlagInfo.h"
-} local_flag_t;
+  
+
 #undef YAP_FLAG
 
 bool setYapFlag(Term tflag, Term t2);
@@ -372,3 +383,5 @@ xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
 xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
 
 #endif // YAP_FLAGS_H
+
+/// @}

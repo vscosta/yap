@@ -22,7 +22,7 @@
   * 
   * @brief  compiling expressions
   *
-  * @defgroup CompiledExpressions
+  * @defgroup CompiledExpression A Compiler for Arithmetic 
   * @ingroup drectives
   * 
   * 

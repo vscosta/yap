@@ -309,7 +309,7 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-@subsection Layout Layout
+@subsection LayoutComents Character Layout
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
 

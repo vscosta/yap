@@ -19,7 +19,7 @@
   @file boot.yap
   @brief YAP bootstrap
 
-  @defgroup YAPControl Control Predicates
+  @addtogroupg YAPControl Control Predicates
   @ingroup builtins
 
 @{

@@ -421,6 +421,7 @@ be lost.
 	'$trace_query'(B, M, CP, S, EB).
 '$trace_query'((A|B), M, CP, S, (EA|EB)) :- !,
 	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
 '$trace_query'((\+ A), M, CP, S, (\+ EA)) :- !,
 	'$trace_query'(A, M, CP, S, EA).
 '$trace_query'(G, M, _CP, _, (
