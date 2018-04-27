@@ -156,7 +156,8 @@ no_style_check(-multiple) :-
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
-/** @pred discontiguous(+ _G_) is iso
+/** 
+  * @pred discontiguous(+ G) is iso, directive
     Avoid warnings from the sytax checker.
 
 Declare that the predicate _G_ or list of predicates are discontiguous

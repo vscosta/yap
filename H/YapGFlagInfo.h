@@ -72,17 +72,17 @@ YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p",
 Read-write flag telling whether arithmetic exceptions generate
 Prolog exceptions. If enabled:
 
-~~~~
+~~~
 ?- X is 2/0.
 ERROR!!
-ZERO DIVISO]]R ERROR- X is Exp
-~~~~
+ZERO DIVISOR ERROR- X is Exp
+~~~
 
 If disabled:
-~~~~
+~~~
 ?- X is 2/0.
 X = (+inf).
-~~~~
+~~~
 
 It is `true` by default, but it is disabled by packages like CLP(BN) and
 ProbLog.

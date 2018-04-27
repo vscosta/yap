@@ -531,7 +531,7 @@ environ_split([61|SVal], [], SVal) :- !.
 environ_split([C|S],[C|SNa],SVal) :-
 	environ_split(S,SNa,SVal).
 
-/** @pred exec(+ _Command_, _StandardStreams_,- _PID_)
+/** @pred exec(+ Command, StandardStreams, -PID)
  *
  *
  * 
@@ -610,7 +610,7 @@ close_temp_streams([S|Ss]) :-
 	close(S),
 	close_temp_streams(Ss).
 
-/** @pred popen(+ _Command_, + _TYPE_, - _Stream_)
+/** @pred popen( +Command, +TYPE, -Stream)
 
  * Provides the functionaluty of the Unix <tt>popen</tt> function. It
  * opens a process by creating a pipe, forking and invoking _Command_ on
@@ -805,7 +805,8 @@ rename_file(F0, F) :-
 	rename_file(F0, F, Error),
 	handle_system_internal(Error, off, rename_file(F0, F)).
 
-/** @pred  system(+ _S_)
+/** 
+  * @pred  system(+ _S_)
 
 Passes command  _S_ to the Bourne shell (on UNIX environments) or the
 current command interpreter in WIN32 environments.

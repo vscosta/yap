@@ -1078,11 +1078,13 @@ static Int with_output_to(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
     return false;
   }
-  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin)) &&
-      (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin))) {
+      if(f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
     my_mem_stream = true;
+    
+  } 
   } else {
     /* needs to change LOCAL_c_output_stream for write */
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");

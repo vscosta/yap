@@ -222,4 +222,5 @@ getrand(rand(X,Y,Z)) :-
 	getrand(X,Y,Z).
 
 /** @} */
+/** @} */
 

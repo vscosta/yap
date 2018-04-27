@@ -1,9 +1,9 @@
-
+	
 
 Installing YAP           {#INSTALL}
 ++++++++
 
-### Downloading YAP           {#download}
+### Downloading YAP           {#Download}
 
 The latest development version of Yap-6 is available source-only
 through GIT repositories. The main reference repository is at

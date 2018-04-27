@@ -460,9 +460,9 @@ errors can be controlled using `open/4` or `set_stream/2` (not
 implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
+@{
 
-
-=== @addgroup BOM BOM: Byte Order Mark
+@addgroup BOM BOM: Byte Order Mark
 @ingroup WideChars
 
 From Stream Encoding, you may have got the impression that
@@ -483,7 +483,11 @@ writing, writing a BOM can be requested using the option
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
 
-= @addgroup Operators Summary of YAP Predefined Operators
+@{
+
+
+@}
+ @addgroup Operators Summary of YAP Predefined Operators
 @ingroup YapSyntax
 
 The Prolog syntax caters for operators of three main kinds:

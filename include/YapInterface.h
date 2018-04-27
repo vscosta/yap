@@ -21,10 +21,9 @@
 @addtogroup ChYInterface
    @{
 
-\
-   @brief Core interface to YAP.
+   @brief C-Interface to YAP.
 
-   @toc
+The following routines export the YAP internals and architecture.
 
 */
 
@@ -70,10 +69,10 @@ __BEGIN_DECLS
 /**
  * X_API macro
  *
- * brif
+ * @brief declares the symbol as to be exported/imported from a
+ * DLL. It is mostly ignored in Linux, but honored in WIN32.
  *
- * @param _WIN32
- *
+
  * @return
  */
 
@@ -81,6 +80,7 @@ __BEGIN_DECLS
 
 /* Primitive Functions */
 
+// Basic operation that follows a pointer chain.
 #define YAP_Deref(t) (t)
 
 X_API

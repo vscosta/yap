@@ -1,0 +1,8 @@
+site_name: 'YAP'
+theme: 'readthedocs'
+plugins:
+    - search
+    - awesome-pages:
+        filename: .index
+        disable_auto_arrange_index: false
+        collapse_single_pages: true

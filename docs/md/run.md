@@ -1,13 +1,13 @@
 
 
-Running YAP                                         {#run}
-===========
+#### Running YAP                                         {#run}
+
 
 We next describe how to invoke YAP in Unix systems.
 
 [TOC]
 
-###  Running YAP Interactively                     {#Running_YAP_Interactively}
+#####  Running YAP Interactively                     {#Running_YAP_Interactively}
 
 
 Most often you will want to use YAP in interactive mode. Assuming that

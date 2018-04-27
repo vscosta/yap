@@ -17,7 +17,7 @@ Porto.
 The manual is organised as follows:
 
 
-+ @subpage  INSTALL
++ @subpage  INSTALL.md
 
 + @subpage run
 
@@ -74,7 +74,7 @@ acknowledge the contributions from Ashwin Srinivasian.
 YAP includes a number of extensions over the original Prolog
 language.
 
-  + @subpage atts.md
+  + @subpage attributes.md
 
   + @ref Rational_Trees
   

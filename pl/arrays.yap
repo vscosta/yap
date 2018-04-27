@@ -21,7 +21,7 @@
 
 @addtogroup YAPArraysPl Prolog Support for seeing terms as arrays and for data-base arrays of objects
 
-  @ingroupp YAPArrays
+  @ingroup YAPArrays
   
 @{
 */

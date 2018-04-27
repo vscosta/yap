@@ -131,3 +131,5 @@ YAP_FLAG(  USER_INPUT_FLAG, "user_input", true, stream, "user_input" , set_input
 
 
 } local_flag_t;
+
+/// @}

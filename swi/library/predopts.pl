@@ -32,8 +32,8 @@
 	  ]).
 
 :- multifile
-	predicate_options:option_decl/3,
-	predicate_options:pred_option/3.
+	option_decl/3,
+	:pred_option/3.
 :- multifile				% provided by library(predicate_options)
 	system:predicate_option_type/2,
 	system:predicate_option_mode/2.

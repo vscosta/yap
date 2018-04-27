@@ -27,8 +27,6 @@ module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 /**
- \pred	module(+ Module:atom, +ExportList:list) is directive
-  define a new module
 
 This directive defines the file where it appears as a _module file_;
 it must be the first declaration in the file.  _Module_ must be an

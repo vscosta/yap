@@ -1,6 +1,6 @@
 
 /**
-  * @file   metadecl.yap
+  * @file   metadecls.yap
   * @author VITOR SANTOS COSTA <vsc@vcosta-laptop.dcc.fc.up.pt>
   * @date   Sat Apr  7 03:08:03 2018
   *

@@ -18,8 +18,16 @@
 /** @file C/flags.c
 
     @{
-    @addtogroup Flags
-@ingroup builtins 
+    @defgroup YAPFlags_Impl C-code to handle Prolog flags.
+    @ingroup YAPFlags
+
+@brief Low-level code to support flags. Flags can be:
+  = thread-local or global
+  = module-based or module-independent.
+  = read-only or read-write
+  = System or User Defined.
+  = Have type boolean, number, atom constant or may be a general term.
+
 */
 
 // this is where  we define flags

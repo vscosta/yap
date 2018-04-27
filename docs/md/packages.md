@@ -14,7 +14,7 @@ YAP packages              {#packages}
   + @subpage ProbLog1
 
   + @ref Python
-
+x
   + @subpage raptor
 
   + @ref YAP-LBFGS

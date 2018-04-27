@@ -1,5 +1,5 @@
-The Foreign Code Interface    {#fli_c_cxx}
-===========================
+### The Foreign Code Interface    {#fli_c_cxx}
+
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -17,8 +17,8 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
   + @subpage YAPAsLibrary
 
 
-
-###   YAP original C-interface {#ChYInterface}
+@{
+####   YAP original C-interface {#ChYInterface}
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -48,13 +48,11 @@ void init_my_predicates()
 The commands to compile the above file depend on the operating
 system.
 
+@}
+
 @{
 
-*/
-
-/**
- *
- * Using the compiler:
+@defgroup CallYAP Using the compiler:
 
 Under Linux you should use:
 
@@ -800,8 +798,6 @@ this is possible,  _Goal_ will become invalid after executing
   YAP_RecoverSlots(1);
   if (out == 0) return FALSE;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@copydoc real
 
 The following functions complement  _YAP_RunGoal_:
 

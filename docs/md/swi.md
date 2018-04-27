@@ -56,8 +56,8 @@ Please do refer to the SWI-Prolog home page:
 
 for more information on SWI-Prolog and the SWI packages.
 
-Compatibility with the C-Prolog interpreter {#ChYProlog}
--------------------------------------------
+#### Compatibility with the C-Prolog interpreter {#ChYProlog}
+
 
 YAP was designed so that most C-Prolog programs should run under YAP
 without changes.
@@ -180,5 +180,6 @@ known to still exist (please check Ulrich Neumerkel's page for more details):
 operations, and handles floating-point errors only in some
 architectures. Otherwise, YAP follows IEEE arithmetic.
 
+<ul>
 Please inform the authors on other incompatibilities that may still
 exist.
