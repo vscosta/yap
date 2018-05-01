@@ -1,4 +1,3 @@
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -22,15 +21,20 @@ static char SccsId[] = "%W% %G%";
 /**
  * @file atomic.c
  *
+ * @namespace prolog
+ *
+/
+
+/**
  * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
  *    @ingroup builtins
  * @{
-
- @brief The following predicates are used to manipulate atoms, strings, lists of
- codes and lists of chars:
-
- \toc
-
+ * 
+ *  @brief The following predicates are used to manipulate atoms, strings, lists of
+ * codes and lists of chars:
+ *
+ * \toc
+ *
 */
 
 #define HAS_CACHE_REGS 1

@@ -1,11 +1,17 @@
 /**
 
   @file newmod.yap
-  @short support for creating a new module.
+  @brief support for creating a new module.
 
   @ingroup ModuleBuiltins
+
+  */
+
+
+  /**
   @pred module(+M) is det
-   set the type-in module
+
+  set the type-in module
 
 
 Defines  _M_ to be the current working or type-in module. All files

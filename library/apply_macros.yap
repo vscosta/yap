@@ -2,8 +2,8 @@
 %%   @file   apply_macros.yap
 %%   @author E. Alphonse from code by Joachim Schimpf
 %%   @date 15 June 2002
-%%   @nrief Purpose: Macros to apply a predicate to all elements
-%            of a list or to all sub-terms of a term.
+%%   @brief Purpose: Macros to apply a predicate to all elements
+%%            of a list or to all sub-terms of a term.
 
 :- module(apply_macros, []).
 

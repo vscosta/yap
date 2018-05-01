@@ -17,6 +17,17 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
+/**
+ * @file   bignum.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:34:59 2018
+ * 
+ * @brief  BigNums and More
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
 
 #include "Yap.h"
 #include "Yatom.h"

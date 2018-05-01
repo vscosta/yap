@@ -1,5 +1,5 @@
-### The YAP Module system {#YAPModules}
-
+The YAP Module system {#YAPModules}
+=======================
 
   The YAP module system is based on the Quintus/SISCtus module
 system ˜\cite quintus . In this design, modules are named collections of predicates,
@@ -37,6 +37,8 @@ The main mechanism to change the current type-in module is by using
 the module/2 declaration.This declaration sets the source module when
   it starts consulting a file, and resets it at the end.  One can set
 the type-in module permanently by using the built-in `module/1`.
+
+[TOC]
 
 #### Explicit Naming                                    {#ExplicitNaming}
 

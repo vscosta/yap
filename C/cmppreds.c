@@ -16,6 +16,18 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   cmppreds.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:35:58 2018
+ * 
+ * @brief  comparison
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
 ///    @file cmppreds.c
 
 /**

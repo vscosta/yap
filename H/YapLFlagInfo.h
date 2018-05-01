@@ -24,11 +24,10 @@
 @{
 
 
-@enum LocalFlags local Flags supported by YAP
- @brief local flag:
+@enum local_flags flag:
 */
 
-typedef enum {
+typedef enum local_flags_enum {
   
 /** + `autoload`: set the system to look for undefined procedures */
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false" , NULL ),

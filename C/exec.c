@@ -18,6 +18,19 @@
 static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #endif
 
+/**
+ * @file   exec.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 13:48:35 2018
+ * 
+ * @brief  meta-call
+ *
+ * @namespace prolog
+ *
+ * 
+ * 
+ */
+
 #include "absmi.h"
 #include "attvar.h"
 #include "cut_c.h"
@@ -121,7 +134,8 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
 
 /**
  * Transfer control to a meta-call in ARG1, cut up to B.
- * @method Yap_ExecuteCallMetaCall
+ * 
+ * @param  g                     goal
  * @param  mod                     current module
  * @return                         su
  */
@@ -1574,8 +1588,8 @@ bool Yap_exec_absmi(bool top, yap_reset_t has_reset) {
 
 /**
  * Fails computation up to choice-point bb
- * @method Yap_fail_all
- * @param  USES_REGS    [description]
+ * 
+ * @param  USES_REGS    thread support
  */
 void Yap_fail_all(choiceptr bb USES_REGS) {
   yamop *saved_p, *saved_cp;

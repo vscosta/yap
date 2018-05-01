@@ -1312,19 +1312,18 @@ account the following observations:
 
 <ul>
 
-  <li> The `reexport` declarations must be the first declarations to
+  + The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
 
-  <li> It is possible to use both `reexport` and `use_module`, but all
+  + It is possible to use both `reexport` and `use_module`, but all
   predicates reexported are automatically available for use in the
-  current module.  </li>
+  current module.
 
-  <li> In order to obtain efficient execution, YAP compiles
+  + In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.  </li>
+  the file may result in incorrect execution. 
 
-</ul>
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;

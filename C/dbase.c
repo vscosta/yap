@@ -18,6 +18,20 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   dbase.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:36:46 2018
+ * 
+ * @brief  record and other forms of storing terms.
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
+
+
 /** @defgroup Internal_Database Internal Data Base
 @ingroup builtins
 @{

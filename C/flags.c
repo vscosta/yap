@@ -30,6 +30,10 @@
 
 */
 
+/*
+ * @namespace prolog
+ * /
+
 // this is where  we define flags
 #define INIT_FLAGS 1
 

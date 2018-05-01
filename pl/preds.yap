@@ -417,7 +417,7 @@ abolish(X0) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
 
-/**  @pred stash_predicate(+ _Pred_) @anchor stash_predicate
+/**  @pred stash_predicate(+ _Pred_) 
 Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.

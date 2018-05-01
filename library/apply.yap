@@ -11,30 +11,6 @@
 
 :- module(apply_stub,[]).
 
-/**
-*  @file apply.yap
-* @defgroup apply_stub Apply Predicates
-*
-* @ingroup library
-*
-* @{
-
-This library provides a SWI-compatible set of utilities for applying a
-predicate to all elements of a list.
-
-The apply library is a _stub_, it just forwards definitions to the
-@ref maplist library. The predicates forwarded are:
-
-  - maplist/2,
-  - maplist/3,
-  - maplist/4,
-  - maplist/5,
-  - include/3,
-  - exclude/3,
-  - partition/4,
-  - partition/5
-
- */
 
 :- reexport(library(maplist),
 	    [maplist/2,
@@ -46,6 +22,31 @@ The apply library is a _stub_, it just forwards definitions to the
 	     partition/4,
 	     partition/5
 	    ]).
+
+/**
+* @defgroup apply_stub Apply Predicates
+*
+* @ingroup library
+*
+  
+* @{
+
+This library provides a SWI-compatible set of utilities for applying a
+predicate to all elements of a list.
+
+The apply library is a _stub_, it just forwards definitions to the
+@ref maplist library. The predicates forwarded are:
+
+  - @ref maplist/2,
+  - @ref maplist/3,
+  - @ref maplist/4,
+  - @ref maplist/5,
+  - @ref include/3,
+  - @ref exclude/3,
+  - @ref partition/4,
+  - @ref partition/5
+
+ */
 
 
 %% @}

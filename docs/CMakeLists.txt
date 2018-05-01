@@ -8,7 +8,9 @@ if (WITH_DOCS)
 
 set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-SET (CMAKE_HTML_EXTRA_
+SET (CMAKE_HTML_EXTRA_)
+
+SET( EXT
   ${DOCS_SOURCE_DIR}/custom/application.js
   ${DOCS_SOURCE_DIR}/custom/assets
     ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
@@ -84,21 +86,18 @@ endforeach(i ${DOCS_EXCLUDE_})
 
    add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
-
-
-
-SET(DOC_INPUT_FILES_ 	${CMAKE_SOURCE_DIR}/INSTALL.md
-		       ${CMAKE_SOURCE_DIR}/pl
-                       ${CMAKE_SOURCE_DIR}/CXX
-                       ${CMAKE_SOURCE_DIR}/OPTYap
-                       ${CMAKE_SOURCE_DIR}/C
-                       ${CMAKE_SOURCE_DIR}/H
-                       ${CMAKE_SOURCE_DIR}/include
-                       ${CMAKE_SOURCE_DIR}/os
-                       ${CMAKE_SOURCE_DIR}/library
-                       ${CMAKE_SOURCE_DIR}/swi/library
-                       ${CMAKE_SOURCE_DIR}/docs/md
-)
+   SET(DOC_INPUT_FILES_
+     ${CMAKE_SOURCE_DIR}/pl
+     ${CMAKE_SOURCE_DIR}/docs/md
+     ${CMAKE_SOURCE_DIR}/CXX
+     ${CMAKE_SOURCE_DIR}/OPTYap
+     ${CMAKE_SOURCE_DIR}/C
+     ${CMAKE_SOURCE_DIR}/H
+     ${CMAKE_SOURCE_DIR}/include
+     ${CMAKE_SOURCE_DIR}/os
+     ${CMAKE_SOURCE_DIR}/library
+     ${CMAKE_SOURCE_DIR}/swi/library
+     )
 
 foreach(i ${DOC_INPUT_FILES_})
 

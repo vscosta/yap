@@ -1,5 +1,5 @@
- Attributed Variables and Co-Routining   {#attributes}
-=======================================
+### Attributed Variables and Co-Routining   {#attributes}
+
 @ingroup extensions
 
 
@@ -26,15 +26,9 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
-+ @ref SICS_attributes
-+ @ref sicsatts
-+ @ref New_Style_Attribute_Declarations
-+ @ref CohYroutining
-+ @ref AttributeVariables_Builtins
+[TOC]
 
-
-
-###  SICStus Style attribute declarations.              {#SICS_attributes}
+####  SICStus Style attribute declarations.              {#SICS_attributes}
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -279,7 +273,7 @@ Module:get_atts/2`.
 @}
 
 @{
-###  hProlog and SWI-Prolog style Attribute Declarations              {#New_Style_Attribute_Declarations}
+####  hProlog and SWI-Prolog style Attribute Declarations              {#New_Style_Attribute_Declarations}
 
   The following documentation is taken from the SWI-Prolog manual.
 
@@ -351,7 +345,7 @@ v  put_attr(Y, domain, Domain),
 
 
 @{
-###  Co-routining              {#CohYroutining}
+####  Co-routining              {#CohYroutining}
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only execute when

@@ -241,7 +241,7 @@ void Yap_init_optyap_preds(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables,
                 SafePredFlag | SyncPredFlag);
-  /** @pred abolish_all_tables/0
+  /** @pred abolish_all_tables
 
 
   Removes all the entries from the table space for all tabled

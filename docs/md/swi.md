@@ -67,9 +67,9 @@ assert/1, clause/1 and retract/1 are used. First
 predicates which will change during execution should be declared as
 `dynamic` by using commands like:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
 :- dynamic f/n.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
 
  where `f` is the predicate name and n is the arity of the
 predicate. Note that  several such predicates can be declared in a
@@ -174,12 +174,9 @@ standard.
 The following incompatibilities between YAP and the ISO standard are
 known to still exist (please check Ulrich Neumerkel's page for more details):
 
-<ul>
-
- <li>Currently, YAP does not handle overflow errors in integer
+ + Currently, YAP does not handle overflow errors in integer
 operations, and handles floating-point errors only in some
 architectures. Otherwise, YAP follows IEEE arithmetic.
 
-<ul>
 Please inform the authors on other incompatibilities that may still
 exist.

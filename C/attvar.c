@@ -18,6 +18,15 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   attvar.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:31:59 2018
+ * 
+ * @brief  attributed variables
+ * @namespace prolog
+ * 
+ */
 #include "Yap.h"
 
 #include "Yatom.h"

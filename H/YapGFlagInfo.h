@@ -47,11 +47,11 @@ YAP_FLAG(ALLOW_ASSERT_FOR_STATIC_PREDICATES,
 	 NULL),
 
   /**<  `allow_variable_name_as_functor` boolean flag allows constructs such as
- ~~~~~~~~~~~~
+~~~
 Tree(Node(L,node,R)) :-
      Tree(L),
      Tree(R).
-~~~~~~~~~~~~
+~~~
  */
   YAP_FLAG(  ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG, "allow_variable_name_as_functor", false, booleanFlag, "false", NULL),
   

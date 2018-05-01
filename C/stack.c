@@ -1260,19 +1260,21 @@ static Term all_calls(bool internal USES_REGS) {
   return Yap_MkApplTerm(f, 6, ts);
 }
 
-/**
- * report the current status of the stacks up to level $N$
- *
- * @param depth
- *
- * @return data on the current program counter
- */
 
 Term Yap_all_calls(void) {
   CACHE_REGS
     return all_calls(true PASS_REGS);
 }
 
+/**
+ * @pred current_stack( +Depth )
+ *
+ * report the current status of the stacks up to level $N$
+ *
+ * @param Depth
+ *
+ * @return data on the current Prolog stack.
+ */
 static Int current_stack(USES_REGS1) {
   Term t;
   while ((t = all_calls(false PASS_REGS)) == 0L) {

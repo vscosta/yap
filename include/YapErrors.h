@@ -1,6 +1,7 @@
 ///
 /// @file YapErrors.h
-/// /// @adddtogroup YapError
+///
+/// @addtogroup YapError
 ///
 /// The file  YapErrors.h contains a list with all the error classes known
 /// internally to the YAP system.

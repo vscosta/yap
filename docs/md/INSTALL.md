@@ -1,7 +1,9 @@
-	
+Downloading and Installing YAP           {#INSTALL}
+===========================
 
-Installing YAP           {#INSTALL}
-++++++++
+This text includes instructions to download and install YAP.
+
+[TOC]
 
 ### Downloading YAP           {#Download}
 
@@ -24,7 +26,7 @@ The first argument is the repository, the last argument is the (optional) target
 
  There are a variety of graphical interfaces to `git`, including GitHub's own [GitHub Desktop](https://desktop.github.com/) that supports Microsoft Windows and Apple OSX. A list with GUI applications, editor integration,  and much more can be found at the  [git Wiki](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools),
 
-#### Download Options
+### Download Options
 
 It may be useful to know:
 
@@ -40,7 +42,6 @@ It may be useful to know:
    these documents.
 
 ### Compiling YAP {#CompilingYAP}
--------------
 
 YAP-6.3.4 is a [cmake](www.cmake.org) based
 system. We use `cmake` because it supports mosts popular software, can
@@ -48,7 +49,7 @@ generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
 to install core YAP under `cmake`:
 
-##### `C/C++` compiler
+#### The compiler
 
   *Status as of early 2017*
 
@@ -65,7 +66,7 @@ to install core YAP under `cmake`:
 	YAP compiles cleanly under cross-compilers, and we have used the
     crosss-compilation system [mxe](http://mxe.cc/) system with good results.
 
-#####  `cmake`
+###  cmake
 
 All Linux and BSD distributions include `cmake`, so
 does [Homebrew](https://brew.sh/)
@@ -80,7 +81,7 @@ the [CMake site](https://www.cmake.org).
 If you have an older Linux you may need to compile from source,
 available at GitHub.
 
-##### Ensure that you have other necessary packages installed:
+### Ensure that you have other necessary packages installed:
 
 + YAP requires [gmp]{https://gmplib.org/} for infinite precision
           integer and rational. Please ensure the development pacakage
@@ -101,7 +102,7 @@ available at GitHub.
 
 	+ make sure to install Python-3, and not Python-2, 
 	
-##### Compile and Install
+### Compile and Install
 
 1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).
 	*YAP should not be compiled at its rootxo directory, some packages do not allow for that.
@@ -115,15 +116,14 @@ available at GitHub.
 5: If you feel satisfied with the result, do `make install`.
 	* In most systems you will need to be superuser in order to do `make install` and `make info` on the standard directories.
 
-Tuning the Functionality of YAP
--------------------------------
+### Tuning the Functionality of YAP
 
 By default, YAP supports tabling, depth first search, and most features found in
 modern Prologs. In some cases, you may want to suport extra features, or reduce system size.
 `cmake`provides an graphical interface for doing so. From the commmand line,  a typical example could be:
 
 ~~~~~
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~ /users/vsc/src/yap
+Cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=~ /users/vsc/src/yap
 ~~~~~
 
 The first argument says that this is a release, compiled with full optimisation. The second argument says YAP should install under the ~ drectory. In this case, YAP will add the binaries to /users/vsc/bin, include files to `/users/vsc/include/Yap`, Prolog files to `/users/vsc/share/Yap`, and ay DLL to `/users/vsc/lib/Yap`.
@@ -177,7 +177,7 @@ You can also use `xcodebuild` from the command line.
 
 Bext follow instructions to fully compile YAP:
 
-#### Compilation Notes for OSX/Brew
+### Compilation Notes for OSX/Brew
 
 Next follows a detailed description of a full install of YAP, including all the packages that YAP can use:
 
@@ -210,7 +210,7 @@ brew install cudd
 cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
 ~~~~~
 
- #### Compilation Notes for Android
+### Compilation Notes for Android
 
  Next we present the compilation process for Android. The environment is an OSX, but steps
  should be similar for Linux machines. We assume you have downloaded both the Android NDK and the Android SDK.

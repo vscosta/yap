@@ -17,8 +17,19 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-
-//! @file eval.c
+/**
+ * @file   eval.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:37:59 2018
+ * 
+ * @brief  is/2
+ *
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
 
 //! @{
 

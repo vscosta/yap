@@ -1,13 +1,13 @@
 
 
-#### Running YAP                                         {#run}
+## Running YAP                                         {#run}
 
 
 We next describe how to invoke YAP in Unix systems.
 
 [TOC]
 
-#####  Running YAP Interactively                     {#Running_YAP_Interactively}
+###  Running YAP Interactively                     {#Running_YAP_Interactively}
 
 
 Most often you will want to use YAP in interactive mode. Assuming that
@@ -104,7 +104,7 @@ YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget
 that the shell comments are very important):
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 #!/usr/local/bin/yap -L --
 #
 # Hello World script file using YAP
@@ -113,7 +113,7 @@ that the shell comments are very important):
 
 :- write('Hello World'), nl.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 The `#!`  characters specify that the script should call the binary
 file YAP. Notice that many systems will require the complete path to the
@@ -147,7 +147,7 @@ Notice that the `--` is required so that the shell passes the extra
 arguments to YAP.  As an example, consider the following script
 `dump_args`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 #!/usr/bin/yap -L --
 #.
 
@@ -158,13 +158,13 @@ main( [H|T] ) :-
 
 :- unix( argv(AllArgs) ), main( AllArgs ).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 If you this run this script with the arguments:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 ./dump_args -s 10000
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 the script will start an YAP process with stack size `10MB`, and
 the list of arguments to the process will be empty.
 
@@ -172,7 +172,7 @@ Often one wants to run the script as any other program, and for this it
 is convenient to ignore arguments to YAP. This is possible by using
 `L --` as in the next version of `dump_args`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 #!/usr/bin/yap -L --
 
 main( [] ).
@@ -182,13 +182,13 @@ main( [H|T] ) :-
 
 :- unix( argv(AllArgs) ), main( AllArgs ).
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 The `--` indicates the next arguments are not for YAP. Instead,
 they must be sent directly to the argv built-in. Hence, running
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 ./dump_args test
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 will write `test` on the standard output.

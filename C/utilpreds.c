@@ -1617,8 +1617,9 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
 
 /**
  * Exports a nil-terminated list with all the variables in a term.
- * @param[in] the term
- * @param[in] the arity of the calling predicate (required for exact garbage collection).
+ * @param[t] the term
+ * @param[arity] the arity of the calling predicate (required for exact garbage collection).
+ * @param[USES_REGS] threading
  */
 Term
 Yap_TermVariables( Term t, UInt arity USES_REGS )	/* variables in term t		 */
