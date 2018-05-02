@@ -23,7 +23,7 @@ Last rev: $Id: range_list.h,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
 **************************************************************************/
 
 /**
- * @file yap_rl.h
+ * @file range_list.h
  *
  *  range list core data-structures.
  *

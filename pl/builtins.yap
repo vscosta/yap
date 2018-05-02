@@ -312,6 +312,9 @@ call(G) :- '$execute'(G).
 
 /** @pred  incore( 0:P )
 
+  same as call/1.
+
+  */
 
 /** @pred  once( 0 G) is iso
 
@@ -340,3 +343,5 @@ once(G) :-
 '$$!'(CP) :- '$cut_by'(CP).
 
 [] :- true.
+
+%%% @}

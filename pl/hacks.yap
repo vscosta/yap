@@ -17,8 +17,7 @@
 *************************************************************************/
 
 /**
-DD%% @file pl/hacks.yap
-* @file   hacks.yap
+  * @file   pl/hacks.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:02:56 2017
   *
