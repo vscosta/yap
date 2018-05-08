@@ -1425,7 +1425,7 @@ X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Term bind
  * @param _T_ the output term _T_, may be any term
  * @param _Options_ read_term/3 options.
  *
- * @notes Originally from SWI-Prolog, in YAP only works with internalised
+ * @note Originally from SWI-Prolog, in YAP only works with internalised
  *atoms
  * Check  read_term_from_atomic/3 for the general version. Also, the built-in
  *is
@@ -1495,7 +1495,7 @@ static Int read_term_from_atomic(USES_REGS1) {
  * @param _T_ the output term _T_, may be any term
  * @param _Options_ read_term/3 options.
  *
- * @notes Idea from SWI-Prolog, in YAP only works with strings
+ *  Idea from SWI-Prolog, in YAP only works with strings
  * Check  read_term_from_atomic/3 for the general version.
  */
 static Int read_term_from_string(USES_REGS1) {

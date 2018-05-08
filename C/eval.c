@@ -259,7 +259,7 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
 }
 
 /**
-   @pred isinf(? X:float) is det</b>
+   @pred isinf(? X:float) is det
 
    Interface to the IEE754 `isinf` test.
 */

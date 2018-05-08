@@ -69,7 +69,7 @@ restart:
   }
 }
 
-YAPAtomTerm::YAPAtomTerm(char *s) { // build string
+YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
   BACKUP_H();
 
   CACHE_REGS

@@ -1,4 +1,5 @@
-### Attributed Variables and Co-Routining   {#attributes}
+Attributed Variables and Co-Routining   {#AttributedVariables}
+====================================
 
 @ingroup extensions
 
@@ -28,7 +29,7 @@ awi interface.
 
 [TOC]
 
-####  SICStus Style attribute declarations.              {#SICS_attributes}
+##  SICStus Style attribute declarations.              {#SICS_attributes}
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:

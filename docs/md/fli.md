@@ -1,5 +1,5 @@
-### The Foreign Code Interface    {#fli_c_cxx}
-
+The Foreign Code Interface    {#fli_c_cxx}
+================================
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
@@ -18,7 +18,7 @@ being designed to work with the swig (www.swig.orgv) interface compiler.
 
 
 @{
-####   YAP original C-interface {#ChYInterface}
+##   YAP original C-interface {#ChYInterface}
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -124,6 +124,7 @@ init_my_predicates() was passed as the third argument to
 load_foreign_files/3.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
+
 ###  Terms              {#Manipulating_Terms}
 
 This section provides information about the primitives available to the C

@@ -32,7 +32,6 @@ YAP Prolog Library                       {#library}
 + @ref heaps
 + @ref lam_mpi
 + @ref line_utils
-+ @ref swi_listing
 + @ref Log2MD
 + @ref mapargs
 + @ref maplist

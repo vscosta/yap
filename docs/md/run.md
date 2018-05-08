@@ -1,7 +1,7 @@
 
 
-## Running YAP                                         {#run}
-
+Running YAP                                         {#run}
+==============
 
 We next describe how to invoke YAP in Unix systems.
 
@@ -98,7 +98,7 @@ YAP always tries to find saved states from the current directory
 YAP will try to find library files from the YAPSHAREDIR/library
 directory.
 
-### Running Prolog Files                           {#Running_Prolog_Files}
+## Running Prolog Files                           {#Running_Prolog_Files}
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget

@@ -353,7 +353,7 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-== @addgroup Stream_Encoding Wide character encodings on streams
+== @addtogroup Stream_Encoding Wide character encodings on streams
 @ingroup WideChars
 
 The UCS standard describes all possible characters (or code points, as they include
@@ -462,7 +462,7 @@ Prolog escape sequences while other streams generate an I/O exception.
 
 @{
 
-@addgroup BOM BOM: Byte Order Mark
+@addtogroup BOM BOM: Byte Order Mark
 @ingroup WideChars
 
 From Stream Encoding, you may have got the impression that

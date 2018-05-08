@@ -1205,7 +1205,7 @@ static Int set_prolog_flag(USES_REGS1) {
 
 After executing this goal, YAP keeps information on the source
 of the predicates that will be consulted. This enables the use of
-[listing/0](@ref listing), `listing/1` and [clause/2](@ref clause) for those
+listing/0, listing/1 and clause/2 for those
 clauses.
 
 The same as `source_mode(_,on)` or as declaring all newly defined
@@ -1713,9 +1713,9 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);
     TR = tr0;
-    /** @pred prolog_flag(? _Flag_,- _Value__)
+    /** @pred prolog_flag( ?Flag, - Value)
 
-    Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2_.
+    Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2.
     */
     Yap_InitCPredBack("prolog_flag", 3, 1, current_prolog_flag, cont_yap_flag,
                       0);

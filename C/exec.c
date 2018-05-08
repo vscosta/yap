@@ -54,7 +54,7 @@ static choiceptr cp_from_integer(Term cpt USES_REGS) {
 /**
  * Represents a choice-point as an offset to the top of local stack. This should
  * *be stable acroos gc or stack shifts.
- * @method Yap_cp_as_integer
+ * @procedure Yap_cp_as_integer
  * @param  cp                pointer to choice-point
  * @return                   Term with offset
  */
