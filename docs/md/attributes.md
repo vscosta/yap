@@ -1,9 +1,11 @@
 
-@defgroup AttributedVariables Attributed Variables and Co-Routining
 
-@ingroup extensions
+@defgroup   AttributedVariables                 Attributed Variables
 
 @{
+  
+
+@ingroup extensions
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -28,8 +30,10 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
-@defgroup SICS_attributes SICStus Style attribute declarations.
+@defgroup SICS_attributes  SICStus Style attribute declarations.
 
+@{
+@ingroup  AttributedVariables
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -82,10 +86,9 @@ mechanism is used for this purpose.
 
 The  attribute manipulation predicates always work as follows:
 
-  + The first argument is the unbound variable associated with
++ The first argument is the unbound variable associated with
 attributes,
-
-  + The second argument is a list of attributes. Each attribute will
++ The second argument is a list of attributes. Each attribute will
 be a Prolog term or a constant, prefixed with the <tt>+</tt> and <tt>-</tt> unary
 operators. The prefix <tt>+</tt> may be dropped for convenience.
 
@@ -100,9 +103,9 @@ attempting to unify an attributed variable which might have attributes
 in some  _Module_.
 
 
-At execution conclusion, attributes still unsatisfied are presented as
-goals. The following routines are used by built-in predicates such as
-call_residue/2 and by the Prolog top-level to display attributes:
+Attributes are usually presented as goals. The following routines are
+used by built-in predicates such as call_residue/2 and by the
+Prolog top-level to display attributes:
 
 
 Constraint solvers must be able to project a set of constraints to a set
@@ -270,11 +273,15 @@ variables only.  More complicated interactions are likely to be found
 in more sophisticated solvers.  The corresponding
 verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
-Module:get_atts/2.
+Module:get_atts/2`.
+
+@}
 
 
-hProlog and SWI-Prolog style Attribute Declarations              {#New_Style_Attribute_Declarations}
-------------------------------------------------
+@defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
+
+@{
+  @ingroup AttributedVariables
 
   The following documentation is taken from the SWI-Prolog manual.
 
@@ -288,26 +295,23 @@ hProlog and SWI-Prolog style Attribute Declarations              {#New_Style_Att
 
 ~~~~~
 :- module(domain,
-[ domain/2            % Var, ?Domain %
-]).
+    [ domain/2            % Var, ?Domain %
+    ]).
 :- use_module(library(ordsets)).
-	
+
 domain(X, Dom) :-
-    var(Dom), !,
-	get_attr(X, domain, Dom).
-	domain(X, List) :-
-	list_to_ord_set(List, Domain),
-	put_attr(Y, domain, Domain),
-	X = Y.
-
+  var(Dom), !,
+  get_attr(X, domain, Dom).
+domain(X, List) :-
+  list_to_ord_set(List, Domain),
+  put_attr(Y, domain, Domain),
+  X = Y.
 ~~~~~
 
-The next predicate is called *after* _X_, the attributed variable with attribute value _Domain_ has been
-assigned the value Y.
-
+  An attributed variable with attribute value Domain has been assigned the value Y.
 
 ~~~~~
-attr_unify_hook(Domain, Y) :-
+  attr_unify_hook(Domain, Y) :-
   (   get_attr(Y, domain, Dom2)
   ->  ord_intersection(Domain, Dom2, NewDomain),
   (   NewDomain == []
@@ -322,7 +326,7 @@ attr_unify_hook(Domain, Y) :-
   ).
 ~~~~~
 
-The user defined attribute_goals/1 attributes from this module to residual goals 
+Translate attributes from this module to residual goals:
 
 ~~~~~
 attribute_goals(X) -->
@@ -330,7 +334,7 @@ attribute_goals(X) -->
   [domain(X, List)].
 ~~~~~
 
-  Before explaining the code in detail we give some example queries:
+  Before explaining the code we give some example queries:
 
   The predicate `domain/2` fetches (first clause) or assigns
   (second clause) the variable a <em>domain</em>, a set of values it can
@@ -348,8 +352,12 @@ attribute_goals(X) -->
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
 
-Co-routining              {#CohYroutining}
-------------
+@}
+
+@defgroup CohYroutining Co-routining
+
+@{
+  @ingroup AttributedVariables
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only execute when
@@ -362,27 +370,31 @@ attributed variables to implement co-routining.
 
 Two declarations are supported:
 
-	+ block/1
-   The argument to `block/1` is a condition on a goal or a conjunction
-   of conditions, with each element separated by commas. Each condition is
-   of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
-   arity of the goal, and each  _CI_ is of the form `-`, if the
-   argument must suspend until the first such variable is bound, or
-   `?`, otherwise.
++ block/1
+The argument to `block/1` is a condition on a goal or a conjunction
+of conditions, with each element separated by commas. Each condition is
+of the form `predname( _C1_,..., _CN_)`, where  _N_ is the
+arity of the goal, and each  _CI_ is of the form `-`, if the
+argument must suspend until the first such variable is bound, or
+`?`, otherwise.
 
-	+ wait/1
-   The argument to `wait/1` is a predicate descriptor or a conjunction
-   of these predicates. These predicates will suspend until their first
-   argument is bound.
++ wait/1
+The argument to `wait/1` is a predicate descriptor or a conjunction
+of these predicates. These predicates will suspend until their first
+argument is bound.
 
 
 The following primitives can be used:
 
-	- freeze/2
+- freeze/2
 
-	- dif/2
+- dif/2
 
-	- when/2
+- when/2
 
-	- frozen/2
+- frozen/2
 
+
+@}
+
+@}

@@ -7,8 +7,8 @@ We next describe how to invoke YAP in Unix systems.
 
 [TOC]
 
-###  Running YAP Interactively                     {#Running_YAP_Interactively}
-
+Running YAP Interactively      {#Running_YAP_Interactively}
+--------------------------
 
 Most often you will want to use YAP in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -54,7 +54,7 @@ boot code is in Prolog file  _BOOT_FILE_. The filename must define
 the predicate `'$live'/0`.
 + -c <tt>IP_HOST</tt> <tt>port</tt>
 connect standard streams to host <tt>IP_HOST</tt> at port <tt>port</tt>
-+ filename
++ filename 
 restore state saved in the given file
 + -f
 do not consult initial files
@@ -67,38 +67,28 @@ through the unix/1 built-in predicate.
 
 Note that YAP will output an error message on the following conditions:
 
-+
-a file name was given but the file does not exist or is not a saved
++ a file name was given but the file does not exist or is not a saved
 YAP state;
 
-+
-the necessary amount of memory could not be allocated;
++ the necessary amount of memory could not be allocated;
 
-+
-the allocated memory is not enough to restore the state.
++ the allocated memory is not enough to restore the state.
 
+  When restoring a saved state, YAP will allocate the same amount of memory as that in use when the state was saved, unless a different amount is specified by flags in the command line. By default, YAP restores the file startup.yss from the current directory or from the YAP library.
 
-    When restoring a saved state, YAP will allocate the
-same amount of memory as that in use when the state was saved, unless a
-different amount is specified by flags in the command line. By default,
-YAP restores the file startup.yss from the current directory or from
-the YAP library.
-
-+
-YAP usually boots from a saved state. The saved state will use the default
++ YAP usually boots from a saved state. The saved state will use the default
 installation directory to search for the YAP binary unless you define
 the environment variable YAPBINDIR.
 
-+
-YAP always tries to find saved states from the current directory
-	first. If it cannot it will use the environment variable YAPLIBDIR, if
++ YAP always tries to find saved states from the current directory
+	first. If it cannot it will use the environment variable YAPLIBDIR,
+   if
 	defined, or search the default library directory.
 
++ YAP will try to find library files from the YAPSHAREDIR/library directory.
 
-YAP will try to find library files from the YAPSHAREDIR/library
-directory.
-
-## Running Prolog Files                           {#Running_Prolog_Files}
+Running Prolog Files                           {#Running_Prolog_Files}
+--------------------
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget
