@@ -15,7 +15,7 @@
 
 /*!
  *
- *   @ingroup fli_c_cx
+ *   @ingroup fli_c_cxx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
  *   @{

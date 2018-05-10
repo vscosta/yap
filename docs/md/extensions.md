@@ -1,3 +1,4 @@
+
 @defgroup extensions   Extensions to core Prolog.
 
 @{ 

@@ -23,15 +23,15 @@ The manual is organised as follows:
 
 + @ref builtins
 
-+ @subpage extensions
++ @ref extensions
 
-+ @subpage library
++ @ref library
 
-+ @subpage packages
++ @ref packages
 
-+ @subpage YAPProgramming
++ @ref YAPProgramming
 
-+ @subpage fli_c_cxx
++ @ref fli_c_cxx
 
 
 \author Vitor Santos Costa,
@@ -57,41 +57,3 @@ from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
-
-@page Library YAP Library
-
-
- the library_directory path (set by the
-  `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library.
-
-
-
-@page Extensions  YAP Extensions
-
-YAP includes a number of extensions over the original Prolog
-language.
-
-  + @subpage attributes.md
-
-  + @ref Rational_Trees
-
-  + @ref CohYroutining
-
-  + @ref  DepthLimited
-
-  + @ref  Tabling
-
-  + @ref Threads
-
-  + @ref Profiling
-
-  + @ref YAPArrays
-
-  + @ref Parallelism
-
-
-@page YAPProgramming Programming in YAP
-
-
-@page packages Packages for YAP
