@@ -8,10 +8,8 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		attvar.c						 *
- * Last rev:								 *
- * mods:									 *
- * comments:	YAP support for attributed vars				 *
+ * File:		attvar.c * Last rev:
+ ** mods: * comments:	YAP support for attributed vars *
  *									 *
  *************************************************************************/
 #ifdef SCCS
@@ -22,26 +20,27 @@ static char SccsId[] = "%W% %G%";
  * @file   attvar.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
  * @date   Mon Apr 30 09:31:59 2018
- * 
+ *
  * @brief  attributed variables
  * @namespace prolog
- * 
+ *
  */
 #include "Yap.h"
 
-#include "Yatom.h"
 #include "YapHeap.h"
-#include "heapgc.h"
+#include "Yatom.h"
 #include "attvar.h"
+#include "heapgc.h"
 #ifndef NULL
 #define NULL (void *)0
 #endif
 
 /**
-    @defgroup AttributedVariables_Builtins Low-level support for Attributed Variables
-    
+    @defgroup AttributedVariables_Builtins Low-level support for Attributed
+   Variables
+
      @brief Implementation of Attribute Declarations
-    @ingroup attributes
+    @ingroup AttributedVariables
     @{
 */
 
@@ -211,7 +210,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
 
 void Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
-    CELL d0 = *pt0;
+  CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
 }
@@ -684,7 +683,6 @@ static Int free_att(USES_REGS1) {
   }
 }
 
-
 static Int get_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -896,7 +894,7 @@ static Term AllAttVars(USES_REGS1) {
 
   while (pt < myH) {
     switch (*pt) {
-    case (CELL) FunctorAttVar:
+    case (CELL)FunctorAttVar:
       if (IsUnboundVar(pt + 1)) {
         if (ASP - myH < 1024) {
           LOCAL_Error_Size = (ASP - HR) * sizeof(CELL);
@@ -910,24 +908,23 @@ static Term AllAttVars(USES_REGS1) {
       }
       pt += (1 + ATT_RECORD_ARITY);
       break;
-    case (CELL) FunctorDouble:
+    case (CELL)FunctorDouble:
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
       pt += 4;
 #else
       pt += 3;
 #endif
       break;
-    case (CELL) FunctorString:
+    case (CELL)FunctorString:
       pt += 3 + pt[1];
       break;
-    case (CELL) FunctorBigInt: {
-      Int sz = 3 +
-	(sizeof(MP_INT) +
-	 (((MP_INT *)(pt + 2))->_mp_alloc * sizeof(mp_limb_t))) /
-	sizeof(CELL);
+    case (CELL)FunctorBigInt: {
+      Int sz = 3 + (sizeof(MP_INT) +
+                    (((MP_INT *)(pt + 2))->_mp_alloc * sizeof(mp_limb_t))) /
+                       sizeof(CELL);
       pt += sz;
     } break;
-    case (CELL) FunctorLongInt:
+    case (CELL)FunctorLongInt:
       pt += 3;
       break;
     default:
@@ -976,7 +973,7 @@ static Int is_attvar(USES_REGS1) {
 static Int attvar_bound(USES_REGS1) {
   Term t = Deref(ARG1);
   return IsVarTerm(t) && IsAttachedTerm(t) &&
-    !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
+         !IsUnboundVar(&(RepAttVar(VarOfTerm(t))->Done));
 }
 
 static Int void_term(USES_REGS1) { return Yap_unify(ARG1, TermVoidAtt); }
@@ -1016,7 +1013,7 @@ static Int attvar_bound(USES_REGS1) { return FALSE; }
 
 void Yap_InitAttVarPreds(void) {
   CACHE_REGS
-    Term OldCurrentModule = CurrentModule;
+  Term OldCurrentModule = CurrentModule;
   CurrentModule = ATTRIBUTES_MODULE;
 #ifdef COROUTINING
   GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
@@ -1038,8 +1035,7 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPred("rm_att", 4, rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
   Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);
-  Yap_InitCPred("modules_with_attributes", 2, modules_with_atts,
-                SafePredFlag);
+  Yap_InitCPred("modules_with_attributes", 2, modules_with_atts, SafePredFlag);
   Yap_InitCPred("void_term", 1, void_term, SafePredFlag);
   Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
   Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);

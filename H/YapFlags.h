@@ -239,7 +239,10 @@ Set or read system properties for  _Param_:
 
 
 #define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
-
+#define START_LOCAL_FLAGS  enum {
+#define END_LOCAL_FLAGS };
+#define START_GLOBAL_FLAGS  enum {
+#define END_GLOBAL_FLAGS };
 
 /*  */  
 #include "YapGFlagInfo.h"
@@ -249,6 +252,10 @@ Set or read system properties for  _Param_:
   
 
 #undef YAP_FLAG
+#undef START_LOCAL_FLAGS
+#undef END_LOCAL_FLAGS
+#undef START_GLOBAL_FLAGS
+#undef END_GLOBAL_FLAGS
 
 bool setYapFlag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);

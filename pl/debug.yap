@@ -245,7 +245,9 @@ be lost.
 
 
  /**
-   *  ### Implementation
+   * @defgroup DebImplementation Implementation of the Debugger
+   * @{
+   * @brief Prolog code to do debugging.
    *
    * The debugger is an interpreter. with main predicates:
    * - $trace: this is the API
@@ -256,7 +258,7 @@ be lost.
    *    + asking Prolog to do it (system_library-builtins)
    *
    *	|flag	        | description	| initial | possible values
-   *       ----------------------------------------------------------------
+   *    |   ----------------------------------------------------------------
    *	| spy_gn	| last goal number 	| 1	| 1...
    *	| spy_trace	| trace	 		| 0	| 0, 1
    *	| spy_status	| step	 	 	| creep	| creep,leap,skip
@@ -395,7 +397,7 @@ be lost.
 %% @pred '$trace_query'( +G, +M, +CP, +Expanded)
 %
 % debug a complex query
-% 
+%
 '$trace_query'(V, M, CP, _, '$trace'([M|V],CP)) :-
 	var(V), !.
 '$trace_query'(!, _, CP, _, '$$cut_by'(CP)) :-
@@ -496,13 +498,13 @@ be lost.
 
 /**
  * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
- * 
+ *
  * call goal: prelims
- *  
- * @parameter _Module_:_G_ 
+ *
+ * @parameter _Module_:_G_
  * @parameter _L_ is the list of active goals
  * @parameter _Info_ describes the goal
- * 
+ *
  */
 '$enter_trace'(L, G, Module, Info) :-
         /* get goal no.	*/
@@ -533,16 +535,16 @@ be lost.
 
 /**
  * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
- * 
+ *
  * call goal: setup the diferrent cases
  *  - zip, just run through
  *  - source, call an interpreter
  *  - compiled code: try black magic.
- *  
- * @parameter _Module_:_G_ 
+ *
+ * @parameter _Module_:_G_
  * @parameter _GoalNumber_ identifies the active goal
  * @parameter _Info_ describes the goal
- * 
+ *
  */
 '$debug'(_, G, M, _H) :-
         '__NB_getval__'('$debug_status',state(zip,_Border,_), fail),
@@ -558,16 +560,16 @@ be lost.
 
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
- * 
+ *
  * It needs to run in two separate steps:
  *    1. Select a clause;
  *    2. Debug it.
  * We use a marker to track who we are in gated_call.
- *  
- * @parameter _Module_:_G_ 
+ *
+ * @parameter _Module_:_G_
  * @parameter _GoalNumber_ identifies the active goal
  * @parameter _Info_ describes the goal
- * 
+ *
  */
 '$trace_go'(GoalNumber, G, M, Info) :-
 		X=marker(_,M,G),
@@ -1065,3 +1067,6 @@ be lost.
 '$creep'(creep) :- '$creep'.
 '$creep'(leap) :- '$creep'.
 '$creep'(zip).
+
+%% @}
+%% @}

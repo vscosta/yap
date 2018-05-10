@@ -19,7 +19,7 @@
 
 /**
 @defgroup QLY Creating and Using a saved state
-@ingroup YAPConsulting
+@ingroup load_files
 @{
 */
 

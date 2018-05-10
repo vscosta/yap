@@ -14,7 +14,17 @@
 * comments:	initializing the full prolog system			 *
 *									 *
 *************************************************************************/
+/**
+ * @file init.yap
+ *
+ * @brief how to boot and run the top-level.
+ *
+*/
 
+/**
+ * @insection YAPControl
+ *
+*/
 
 '$init_globals' :-
 	% set_prolog_flag(break_level, 0),

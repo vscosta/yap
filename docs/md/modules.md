@@ -40,7 +40,8 @@ the type-in module permanently by using the built-in `module/1`.
 
 [TOC]
 
-## Explicit Naming                                    {#ExplicitNaming}
+Explicit Naming                                    {#ExplicitNaming}
++++++++++++++++
 
 The module system allows one to _explicitly_ specify the source mode for
 a clause by prefixing a clause with its module, say:
@@ -228,7 +229,8 @@ X = 2 ? ;
 
 The state of  the module system after this error is undefined.
 
-## BuiltIn predicates                                     {#ModuleBuiltins)
+BuiltIn predicates                                     {#ModuleBuiltins)
+++++++++++++++++++
 
 @\pred module(+ M:atom,+ L:list ) is directive
   the current file defines module _M_ with exports _L_. The list may include
@@ -298,7 +300,7 @@ the graphs library is implemented on top of the red-black trees library, and som
 Unfortunately it is still not possible to change argument order.
 
 
-\pred module(+ M:atom,+ L:list ) is directive
+@pred module(+ M:atom,+ L:list ) is directive
   the current file defines module _M_ with exports _L_. The list may include
 
   + predicate indicators

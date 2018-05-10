@@ -91,7 +91,7 @@
 /**
 
   @defgroup YAPConsulting Loading files into YAP
-  @ingroup consult
+  @ingroup load_files
 
   @{
 
@@ -1322,7 +1322,7 @@ account the following observations:
   + In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution. 
+  the file may result in incorrect execution.
 
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-

@@ -48,7 +48,8 @@
 /**  
  * @{
  *
- * @addtogroup library The Prolog Library
+ * @addtogroup lists List Predicates in the Prolog Library
+ * @ingroup library  
  *
  * @brief  List Manipulation Predicates
  *

@@ -23,7 +23,8 @@
   * @brief  Control File Loading
   %
   % @defgroup Directives Prolog Directives
-  @ @ingroup consult
+  * @ingroup YAPConsulting
+  * @{
   *
   *
 */
@@ -279,3 +280,5 @@ user_defined_directive(Dir,Action) :-
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-
       format(user_error,':- ~w:~w failed.~n',[M,G]).
+
+%% @}

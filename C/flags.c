@@ -16,23 +16,29 @@
 *************************************************************************/
 
 /** @file C/flags.c
-
-    @{
-    @defgroup YAPFlags_Impl C-code to handle Prolog flags.
-    @ingroup YAPFlags
-
-@brief Low-level code to support flags. Flags can be:
-  = thread-local or global
-  = module-based or module-independent.
-  = read-only or read-write
-  = System or User Defined.
-  = Have type boolean, number, atom constant or may be a general term.
-
+    
+    @brief  Prolog parameter setting,
 */
 
 /*
  * @namespace prolog
- * /
+ */
+
+/**
+    @{
+    @defgroup YAPFlags_Impl C-code to handle Prolog flags.
+    @ingroup YAPFlags
+
+@brief Low-level code to support flags.
+
+Prolog Flags can be:
+= thread-local or global
+= module-based or module-independent.
+= read-only or read-write
+= System or User Defined.
+= Have type boolean, number, atom constant or may be a general term.
+
+*/
 
 // this is where  we define flags
 #define INIT_FLAGS 1
@@ -78,21 +84,22 @@ static Int set_prolog_flag(USES_REGS1);
 #include "YapEval.h"
 #include "yapio.h"
 
-#define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)                        \
-  { NAME, WRITABLE, DEF, INIT, HELPER }
+#define YAP_FLAG(ID, NAME, WRITABLE, DEF, INIT, HELPER)    { NAME, WRITABLE, DEF, INIT, HELPER }
 
-#define GZERO_FLAG                                                             \
-  { NULL, false, NULL, NULL, NULL }
-#define LZERO_FLAG                                                             \
-  { NULL, false, NULL, NULL, NULL }
+#define START_LOCAL_FLAGS static flag_info local_flags_setup[] = {
+#define END_LOCAL_FLAGS     LZERO_FLAG};
 
-static flag_info global_flags_setup[] = {
+#define START_GLOBAL_FLAGS static flag_info global_flags_setup[] = {
+#define END_GLOBAL_FLAGS     GZERO_FLAG};
+
+
+#define GZERO_FLAG       { NULL, false, NULL, NULL, NULL }
+#define LZERO_FLAG       { NULL, false, NULL, NULL, NULL }
+
+
 #include "YapGFlagInfo.h"
-    GZERO_FLAG};
 
-static flag_info local_flags_setup[] = {
 #include "YapLFlagInfo.h"
-    LZERO_FLAG};
 
 static Term indexer(Term inp) {
   if (inp == TermOff || inp == TermSingle || inp == TermCompact ||

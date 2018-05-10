@@ -1,6 +1,6 @@
-YAP Syntax                                  {#YAPSyntax}
-============
+@defgroup YAPSyntax YAP Syntax
 
+@{
 	@ingroup YAPProgrammming
 
 We will describe the syntax of YAP at two levels. We first will
@@ -9,6 +9,7 @@ the  tokens from which Prolog  terms are
 built.
 
 @defgroup Formal_Syntax Syntax of Terms
+@{
 @ingroup YAPSyntax
 
 Below, we describe the syntax of YAP terms from the different
@@ -82,19 +83,22 @@ paragraph). When a name consisting of a single dot could be taken for
 the end of term marker, the ambiguity should be avoided by surrounding the
 dot with single quotes.
 
+@}
+@defgroup Tokens Prolog Tokens
 
-
-# @defgroup Tokens Prolog Tokens
+@{
 @ingroup YAPSyntax
 
 Prolog tokens are grouped into the following categories:
 
-## @defgroup Numbers Numbers
+@defgroup Numbers Numbers
+@{
 @ingroup Tokens
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
-### @defgroup  Integers Integers
+@defgroup  Integers Integers
+@{
 @ingroup Numbers
 
 Integer numbers
@@ -141,8 +145,10 @@ YAP (version 6.3.4) supports integers that can fit
 the word size of the machine. This is 32 bits in most current machines,
 but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
+@}
 
-### @defgroup  Floats Floats
+@defgroup  Floats Floats
+@}
 @ingroup Numbers
 
 Floating-point numbers are described by:
@@ -167,7 +173,10 @@ Examples:
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-## Strings @defgroup  Strings Character Strings
+@}
+@}
+@defgroup  Strings Character Strings
+@{
 
 Strings are described by the following rules:
 
@@ -218,7 +227,7 @@ Escape sequences can be used to include the non-printable characters
 `f` (form feed), `t` (horizontal tabulation), `n` (new
 line), and `v` (vertical tabulation). Escape sequences also be
 include the meta-characters `\\`, `"`, `'`, and
-```. Last, one can use escape sequences to include the characters
+`''`. Last, one can use escape sequences to include the characters
 either as an octal or hexadecimal number.
 
 The next examples demonstrates the use of escape sequences in YAP:
@@ -237,7 +246,12 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 :- yap_flag(character_escapes,false).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-## @addgroup Atoms Atoms
+@}
+
+@addtogroup Atoms Atoms
+
+@}
+
 @ingroup Tokens
 
 Atoms are defined by one of the following rules:
@@ -278,7 +292,10 @@ Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
 available in the system.
 
-## @addgroup Variables Variables
+@}
+
+ @addtogroup Variables Variables
+@{
 @ingroup Tokens
 
 Variables are described by:
@@ -299,7 +316,9 @@ variables are known as anonymous variables. Note that different
 occurrences of `_` on the same term represent <em>different</em>
 anonymous variables.
 
-## @addgroup Punctuation_Tokens Punctuation Tokens
+@}
+@addtogroup Punctuation_Tokens Punctuation Tokens
+@{
 @ingroup Tokens
 Punctuation tokens consist of one of the following characters:
 
@@ -309,7 +328,10 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-@subsection LayoutComents Character Layout
+@}
+@defgroup LayoutComents Character Layout
+@{
+	@ingroup Tokens
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
 
@@ -321,8 +343,11 @@ layout characters, the YAP parser behaves as if it had found a
 single blank character. The end of a file also counts as a blank
 character for this purpose.
 
-## @addgroup WideChars Encoding Wide Character Support
-@ingroup YAPSyntax
+@}
+@}
+@addtogroup WideChars Encoding Wide Character Support
+@{
+	@ingroup YAPSyntax
 
 
 YAP now implements a SWI-Prolog compatible interface to wide
@@ -353,7 +378,8 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-== @addtogroup Stream_Encoding Wide character encodings on streams
+@addtogroup Stream_Encoding Wide character encodings on streams
+@{
 @ingroup WideChars
 
 The UCS standard describes all possible characters (or code points, as they include
@@ -460,9 +486,10 @@ errors can be controlled using `open/4` or `set_stream/2` (not
 implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
-@{
+@}
 
 @addtogroup BOM BOM: Byte Order Mark
+@{
 @ingroup WideChars
 
 From Stream Encoding, you may have got the impression that
@@ -483,11 +510,10 @@ writing, writing a BOM can be requested using the option
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
 
-@{
-
-
+@}
 @}
  @addgroup Operators Summary of YAP Predefined Operators
+ @{
 @ingroup YapSyntax
 
 The Prolog syntax caters for operators of three main kinds:
@@ -566,4 +592,5 @@ The following is the list of the declarations of the predefined operators:
 :-op(50,xfx,same).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+@}
 @}

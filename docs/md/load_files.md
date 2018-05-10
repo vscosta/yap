@@ -6,7 +6,7 @@ Loading and Organising YAP Programs    {#load_files}
 
   + @ref YAPConsulting
 
-  - @page modules
+  + @page modules
 
   + @ref YAPBigLoad
 

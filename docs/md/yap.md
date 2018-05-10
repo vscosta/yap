@@ -60,43 +60,6 @@ Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
 
-@page Library YAP Library
-
-
- the library_directory path (set by the
-  `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library.
-
- 
-
-@page Extensions  YAP Extensions
-
-YAP includes a number of extensions over the original Prolog
-language.
-
-  + @subpage attributes.md
-
-  + @ref Rational_Trees
-  
-  + @ref CohYroutining
-
-  + @ref  DepthLimited
-
-  + @ref  Tabling
-
-  + @ref Threads
-
-  + @ref Profiling
-
-  + @ref YAPArrays
-
-  + @ref Parallelism
-
-
-@page YAPProgramming Programming in YAP
-
-
-@page packages Packages for YAP
 
 
   
