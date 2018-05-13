@@ -129,7 +129,7 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	       throw(error(Error,M:Goal))
+	       throw(error(Error,M:(Head :- Goal)))
 	     ) :- !.
 do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
        do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).

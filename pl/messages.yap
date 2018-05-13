@@ -342,8 +342,14 @@ display_consulting(_F, _, _LC) -->
 caller( error(_,Info), _) -->
         { '$error_descriptor'(Info, Desc) },
         ({   '$query_exception'(errorGoal, Desc, Call),
-         	Call \= []
+         	Call = M:(H :- G)
           }
+          ->
+          ['~*|at ~w' - [10,M:G],
+           '~*|called from ~w' - [10,H]
+          ]
+          ;
+         	{Call \= []}
           ->
           ['~*|by ~w' - [10,Call]]
           ;

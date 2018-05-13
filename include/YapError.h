@@ -240,6 +240,9 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
+  extern void Yap_ThrowExistingError(void);
+
+  
 extern yap_error_descriptor_t * Yap_pc_add_location(yap_error_descriptor_t *t, void *pc0, void *b_ptr0, void *env0);
 extern yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,void *cp0, void * b_ptr0, void *env0, YAP_Int ignore_first);
 

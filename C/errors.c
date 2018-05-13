@@ -595,8 +595,15 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
     }
     return NULL;
 }
-
-
+/** 
+ * Throw an error directly to the error handler
+ * 
+ * @param file      where
+ * @param function  who
+ * @param lineno    when
+ * @param type      what, error code
+ * @param where     how, user information
+ */
 void Yap_ThrowError__(const char *file, const char *function, int lineno,
                       yap_error_number type, Term where, ...) {
   va_list ap;
@@ -615,6 +622,17 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(true, file, function, lineno, type, where);
   }
+  if (LOCAL_RestartEnv) {
+    Yap_RestartYap(5);
+  }
+  Yap_exit(5);
+}
+
+/** 
+ * complete delayed error.
+ * 
+ */
+void Yap_ThrowExistingError(void) {
   if (LOCAL_RestartEnv) {
     Yap_RestartYap(5);
   }
@@ -641,18 +659,6 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
  *
  * In a bad day, it has to deal with OOM, abort, and errors within errorts.
  *
- * The list includes the following options:
- *   + c=c(file, line, function): where the bug was detected;
- *
- *   + e=p(mod, name, arity, cl, file, lin): where the code was entered;
- *
- *   + p=p(mod, name, arity, cl, file, line): the prolog procedure that caused
- *the bug,
- *and optionally,
- *
- *   + g=g(Goal):   the goal that created this mess
- *
- *   + i=i(Comment): an user-written comment on this bug.
  */
 yamop *Yap_Error__(bool throw, const char *file, const char *function,
                    int lineno, yap_error_number type, Term where, ...) {

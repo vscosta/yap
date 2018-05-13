@@ -23,7 +23,7 @@ static char SccsId[] = "%W% %G%";
  *
  * @namespace prolog
  *
-/
+*/
 
 /**
  * @defgroup Predicates_on_Atoms Predicates on Atoms and Strings
@@ -2307,6 +2307,8 @@ static Int cont_sub_atomic(USES_REGS1) {
     }
   } else if (mask & SUB_ATOM_HAS_SIZE) {
     Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
+     if (nat == 0)
+	Yap_ThrowExistingError();
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
@@ -2317,6 +2319,8 @@ static Int cont_sub_atomic(USES_REGS1) {
   } else if (mask & SUB_ATOM_HAS_MIN) {
     after = sz - (minv + len);
     Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
+      if (nat == 0)
+	Yap_ThrowExistingError();
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));
     Yap_unify(ARG5, nat);
@@ -2327,6 +2331,8 @@ static Int cont_sub_atomic(USES_REGS1) {
   } else if (mask & SUB_ATOM_HAS_AFTER) {
     len = sz - (minv + after);
     Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
+     if (nat == 0)
+	Yap_ThrowExistingError();
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG5, nat);
@@ -2336,6 +2342,8 @@ static Int cont_sub_atomic(USES_REGS1) {
     }
   } else {
     Term nat = build_new_atomic(mask, p, minv, len PASS_REGS);
+     if (nat == 0)
+	Yap_ThrowExistingError();
     Yap_unify(ARG2, MkIntegerTerm(minv));
     Yap_unify(ARG3, MkIntegerTerm(len));
     Yap_unify(ARG4, MkIntegerTerm(after));

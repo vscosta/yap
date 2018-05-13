@@ -59,10 +59,10 @@ $( document ).ready(function() {
     $('div.fragment.well div.line:first').css('margin-top', '15px');
     $('div.fragment.well div.line:last').css('margin-bottom', '15px');
 	
-	$('table.doxtable').removeClass('doxtable').addClass('table table-striped table-bordered').each(function(){
+  $('table.doxtable').removeClass('doxtable').addClass('table table-striped table-bordered table-small;').each(function(){
 		$(this).prepend('<thead></thead>');
 		$(this).find('tbody > tr:first').prependTo($(this).find('thead'));
-		
+    $(this).bootstrapTable('remove', {class: 'separator'});
 		$(this).find('td > span.success').parent().addClass('success');
 		$(this).find('td > span.warning').parent().addClass('warning');
 		$(this).find('td > span.danger').parent().addClass('danger');
@@ -93,6 +93,7 @@ $( document ).ready(function() {
 	
 	$(".memitem").removeClass('memitem');
     $(".memproto").removeClass('memproto');
+  $(".separator").removeClass('separator');
     $(".memdoc").removeClass('memdoc');
 	$("span.mlabel").removeClass('mlabel');
 	$("table.memberdecls").removeClass('memberdecls');

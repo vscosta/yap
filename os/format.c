@@ -1072,7 +1072,7 @@ static Int with_output_to(USES_REGS1) {
   Term tin = Deref(ARG1);
   Functor f;
   bool out;
-  bool my_mem_stream;
+  bool mem_stream = false;
   yhandle_t hdl = Yap_PushHandle(tin);
   if (IsVarTerm(tin)) {
     Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
@@ -1082,23 +1082,22 @@ static Int with_output_to(USES_REGS1) {
 	  if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
 		  f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
 		  output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-		  my_mem_stream = true;
+		  mem_stream = true;
 	  }
   }
-  if (my_mem_stream){
-    /* needs to change LOCAL_c_output_stream for write */
+  if (!mem_stream){
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");
-    my_mem_stream = false;
     f = NIL;
   }
   if (output_stream == -1) {
     return false;
   }
+  LOCAL_c_output_stream = output_stream;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   out = Yap_Execute(Deref(ARG2) PASS_REGS);
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   LOCAL_c_output_stream = old_out;
-  if (my_mem_stream) {
+  if (mem_stream) {
     Term tat;
     Term inp = Yap_GetFromHandle(hdl);
     if (out) {
@@ -1113,7 +1112,7 @@ static Int with_output_to(USES_REGS1) {
 static Int format(Term tf, Term tas, Term tout USES_REGS) {
   Int out;
   Functor f;
-  int output_stream;
+  int output_stream = LOCAL_c_output_stream;
   bool mem_stream = false;
 
   if (IsVarTerm(tout)) {
