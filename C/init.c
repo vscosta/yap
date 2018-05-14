@@ -1478,7 +1478,7 @@ void Yap_exit(int value) {
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
-  Yap_CloseStreams(false);
+  Yap_CloseStreams();
   Yap_CloseReadline();
 #if USE_SYSTEM_MALLOC
 #endif

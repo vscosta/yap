@@ -78,7 +78,8 @@ extern void Yap_UnLockStream(void *);
 #define Yap_UnLockStream(X)
 #endif
 extern Int Yap_GetStreamFd(int);
-extern void Yap_CloseStreams(int);
+extern void Yap_CloseStreams(void);
+extern void Yap_CloseTemporaryStreams(void);
 extern void Yap_FlushStreams(void);
 extern void Yap_ReleaseStream(int);
 extern int Yap_PlGetchar(void);

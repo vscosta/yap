@@ -667,7 +667,7 @@ static Term float_send(char *s, int sign) {
 #endif
   {
     CACHE_REGS
-    return (MkEvalFl(f));
+    return MkFloatTerm(f);
   }
 }
 
@@ -969,7 +969,8 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-      Yap_InitError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
+      Yap_syntax_error(NULL, st-GLOBAL_Stream);
+      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
       return 0;
     }
     while (my_isxdigit(ch, 'F', 'f')) {
@@ -992,17 +993,19 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-          Yap_InitError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
+      Yap_syntax_error(NULL, st-GLOBAL_Stream);
+      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
         return 0;
       }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
-  if (ch < '0' || ch > '1') {
-                                          Yap_InitError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
-    return 0;
-                                      }
+    if (ch < '0' || ch > '1') {
+      Yap_syntax_error(NULL, st-GLOBAL_Stream);
+      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
+      return 0;
+    }
 
 
   } else {
@@ -1032,7 +1035,6 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     if (has_dot) {
       unsigned char *dp;
       int dc;
-
       if (chtype(ch = getchr(st)) != NU) {
         if (ch == 'e' || ch == 'E') {
           if (trueGlobalPrologFlag(ISO_FLAG))
@@ -1173,11 +1175,6 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
-  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
-    Yap_clean_tokenizer(old_tr, NULL, NULL);
-   Yap_InitError(SYNTAX_ERROR, ARG2, "while converting stream %d to number", inp-GLOBAL_Stream );
-    return 0;
-  }
   return out;
 }
 

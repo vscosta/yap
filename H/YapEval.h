@@ -357,11 +357,11 @@ Functor EvalArg(Term);
 #define FlIsInt(X) (FALSE)
 #endif
 
-#ifdef M_WILLIAMS
+//#if defined(M_WILLIAMS)
 #define MkEvalFl(X) MkFloatTerm(X)
-#else
-#define MkEvalFl(X) (FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X))
-#endif
+//#else
+//#define MkEvalFl(X) (FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X))
+//#endif
 
 /* Macros used by some of the eval functions */
 #define REvalInt(I)                                                            \

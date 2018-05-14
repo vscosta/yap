@@ -757,16 +757,22 @@ static Term write_number(unsigned char *s, seq_tv_t *out,
   Term t;
   yap_error_descriptor_t new_error;
   bool mdnew = true;
-  Yap_pushErrorContext(error_on, &new_error);
-  t = Yap_StringToNumberTerm((char *)s, &out->enc,error_on);
-    Yap_popErrorContext(mdnew, true);
-  if (error_on) {
-    if (t == 0 && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
-      P = FAILCODE;
-      Yap_HandleError("scanningx");
-    }
+  if (!error_on) {
+      sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+      
+      LOCAL_RestartEnv = &signew;
+      Yap_pushErrorContext(error_on, &new_error);
+      if /* top &&*/( sigsetjmp(signew, 1) == 0) {
+	t = Yap_StringToNumberTerm((char *)s, &out->enc,error_on);
+      } else {
+	Yap_ResetException(LOCAL_ActiveError);
+	t = 0;
+      }
+      Yap_popErrorContext(mdnew, true);
+      LOCAL_RestartEnv = sighold;
+  } else {
+    t = Yap_StringToNumberTerm((char *)s, &out->enc,error_on);
   }
-  Yap_ResetException(LOCAL_ActiveError);
   return t;
 }
 

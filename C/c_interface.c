@@ -2334,7 +2334,7 @@ X_API void *YAP_RepStreamFromId(int sno) { return GLOBAL_Stream + sno; }
 X_API void YAP_CloseAllOpenStreams(void) {
   BACKUP_H();
 
-  Yap_CloseStreams(FALSE);
+  Yap_CloseStreams();
 
   RECOVER_H();
 }

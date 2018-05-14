@@ -216,7 +216,7 @@
      printed, `%g` will print all floats using 6 digits instead of the
      default 15.
   */
-  YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.16g",
+  YAP_FLAG(FLOAT_FORMAT_FLAG, "float_format", true, isatom, "%.16f",
 	   NULL),
   /**< `gc`
 

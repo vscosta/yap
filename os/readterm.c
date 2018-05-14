@@ -1384,6 +1384,7 @@ Term Yap_BufferToTerm(const  char *s, Term opts) {
     sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
                                    MEM_BUF_USER);
 
+    GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     rval = Yap_read_term(sno, opts, false);
     Yap_CloseStream(sno);
     return rval;
@@ -1395,7 +1396,7 @@ Term Yap_UBufferToTerm(const  unsigned char *s, Term opts) {
     encoding_t l = ENC_ISO_UTF8;
     sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
                                    MEM_BUF_USER);
-
+    GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
     rval = Yap_read_term(sno, opts, false);
     Yap_CloseStream(sno);
     return rval;
@@ -1515,6 +1516,7 @@ static Int read_term_from_string(USES_REGS1) {
   char *ss = (char *)s;
   encoding_t enc = ENC_ISO_UTF8;
   int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER);
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   rc = Yap_read_term(sno, Deref(ARG3), 3);
   Yap_CloseStream(sno);
   if (!rc)

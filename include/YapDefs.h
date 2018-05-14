@@ -391,7 +391,9 @@ typedef enum stream_f {
       0x1000000, /**< do not close the stream after an abort event */
   Readline_Stream_f = 0x2000000, /**< the stream is a readline stream */
   FreeOnClose_Stream_f =
-      0x4000000 /**< the stream buffer should be releaed on close */
+  0x4000000, /**< the stream buffer should be releaed on close */
+  CloseOnException_Stream_f =
+      0x8000000 /**< the stream closed by Yap_Error and friends */
 } estream_f;
 
 typedef uint64_t stream_flags_t;

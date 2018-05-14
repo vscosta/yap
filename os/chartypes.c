@@ -95,6 +95,7 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
 #endif
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
     Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);

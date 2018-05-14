@@ -1427,15 +1427,18 @@ static Int execute_depth_limit(USES_REGS1) {
 static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval = 0, out;
   Int OldBorder = LOCAL_CBorder;
+  //   yap_error_descriptor_t *err_info= LOCAL_ActiveError;
   LOCAL_CBorder = LCL0 - ENV;
 
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-
+  int i = AllocLevel();
   if /* top &&*/( (lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
               /* otherwise, SetDBForThrow will fail entering critical mode */
+      // LOCAL_ActiveError = err_info;
+      pop_text_stack(0);
       LOCAL_PrologMode = UserMode;
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
@@ -1454,12 +1457,14 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     }
       break;
     case 2: {
+      // LOCAL_ActiveError = err_info;
       /* arithmetic exception */
       /* must be done here, otherwise siglongjmp will clobber all the
        * registers
        */
       /* reset the registers so that we don't have trash in abstract
        * machine */
+      pop_text_stack(i);
       Yap_set_fpu_exceptions(
 			     getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *) FAILCODE;
@@ -1467,6 +1472,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     }
       break;
     case 3: { /* saved state */
+      // LOCAL_ActiveError = err_info;
+      pop_text_stack(i);
       LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
@@ -1476,6 +1483,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* abort */
       /* can be called from anywhere, must reset registers,
        */
+      // LOCAL_ActiveError = err_info;
       while (B) {
 	LOCAL_ActiveError->errorNo = ABORT_EVENT;
 	Yap_JumpToEnv();
@@ -1483,6 +1491,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_PrologMode = UserMode;
       P = (yamop *) FAILCODE;
       LOCAL_RestartEnv = sighold;
+      pop_text_stack(i);
       return false;
       break;
     case 5:
@@ -1490,12 +1499,15 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       // but we should inform the caller on what happened.
 
       //           Yap_regp = old_rs;
+      // LOCAL_ActiveError = err_info;
       restore_TR();
       restore_B();
       /* H is not so important, because we're gonna backtrack */
       restore_H();
       /* set stack */
       Yap_JumpToEnv();
+      Yap_CloseTemporaryStreams();
+      pop_text_stack(i);
       ASP = (CELL *) PROTECT_FROZEN_B(B);
 
       if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {

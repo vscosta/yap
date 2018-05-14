@@ -964,11 +964,11 @@ static Int set_stream(USES_REGS1) { /* Init current_stream */
   return do_set_stream(sno, Deref(ARG2) PASS_REGS);
 }
 
-/*
+/**
  * Called when you want to close all open streams, except for stdin, stdout
  * and stderr
  */
-void Yap_CloseStreams(int loud) {
+void Yap_CloseStreams(void) {
   CACHE_REGS
   int sno;
   fflush(NULL);
@@ -976,6 +976,23 @@ void Yap_CloseStreams(int loud) {
     if (GLOBAL_Stream[sno].status & Free_Stream_f)
       continue;
     CloseStream(sno);
+  }
+}
+
+/**
+ * Called when you want to close all temporary streams,
+ * except for stdin, stdout
+ * and stderr
+ */
+void Yap_CloseTemporaryStreams(void) {
+  CACHE_REGS
+  int sno;
+  fflush(NULL);
+  for (sno = 3; sno < MaxStreams; ++sno) {
+    if (GLOBAL_Stream[sno].status & Free_Stream_f)
+      continue;
+    if (GLOBAL_Stream[sno].status & CloseOnException_Stream_f)
+      CloseStream(sno);
   }
 }
 

@@ -349,7 +349,7 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
         found_dot = TRUE;
         wrputs(".0", stream);
       }
-      found_dot = TRUE;
+      found_dot = true;
     }
     wrputc(ch, stream);
     pt++;
@@ -1264,6 +1264,7 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
     GLOBAL_Stream[sno].encoding = enc;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
 
   sf = Yap_MemExportStreamPtr(sno);
