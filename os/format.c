@@ -476,8 +476,9 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     tnum = 0;
   }
 
-  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f)) {
+    sno = Yap_OpenBufWriteStream(PASS_REGS1);	\
+  }
   if (sno < 0) {
     if (!alloc_fstr)
       fstr = NULL;
@@ -485,6 +486,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_clean_up(sno, sno0, finfo);
     return false;
   }
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   f_putc = GLOBAL_Stream[sno].stream_wputc;
   while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
     Term t = TermNil;

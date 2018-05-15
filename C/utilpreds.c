@@ -1714,7 +1714,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	  continue;
 	}
 	/* store the terms to visit */
-	if (to_visit + 1024 >= to_visit_max) {
+	if (to_visit + 32 >= to_visit_max) {
 	  goto aux_overflow;
 	}
 #ifdef RATIONAL_TREES
@@ -4601,12 +4601,15 @@ int vsc;
 static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv, int singles USES_REGS)
 {
 
-  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  int lvl = push_text_stack();
+  att_rec_t *to_visit0, *to_visit = Malloc(1024*sizeof(att_rec_t));
+  att_rec_t *to_visit_max;
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
 
   to_visit0 = to_visit;
- loop:
+   to_visit_max = to_visit0+1024;
+loop:
   while (pt0 < pt0_end) {
     register CELL d0;
     register CELL *ptd0;
@@ -4616,16 +4619,15 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     deref_head(d0, vars_in_term_unk);
   vars_in_term_nvar:
     {
-      vsc++;
       if (IsPairTerm(d0)) {
-	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	if (to_visit + 32 >= to_visit_max) {
 	  goto aux_overflow;
 	}
 #ifdef RATIONAL_TREES
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)*pt0;
-	to_visit += 3;
+	to_visit->beg = pt0;
+	to_visit->end = pt0_end;
+	to_visit->oval = *pt0;
+	to_visit ++;
 	*pt0 = TermNil;
 #else
 	if (pt0 < pt0_end) {
@@ -4637,8 +4639,8 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	pt0 = RepPair(d0) - 1;
 	pt0_end = RepPair(d0) + 1;
       } else if (IsApplTerm(d0)) {
-	register Functor f;
-	register CELL *ap2;
+	 Functor f;
+	 CELL *ap2;
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
 	f = (Functor)(*ap2);
@@ -4650,21 +4652,16 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	  continue;
 	}
 	/* store the terms to visit */
-	if (to_visit + 1024 >= (CELL **)AuxSp) {
-	  goto aux_overflow;
-	}
+      if (to_visit + 32 >= to_visit_max) {
+	goto aux_overflow;
+      }
 #ifdef RATIONAL_TREES
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)*pt0;
-	to_visit += 3;
-	*pt0 = TermNil;
 #else
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit += 2;
-	}
+	to_visit->beg = pt0;
+	to_visit->end = pt0_end;
+	to_visit->oval = *pt0;
+	to_visit ++;
+	*pt0 = TermNil;
 #endif
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
@@ -4700,10 +4697,10 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
 #ifdef RATIONAL_TREES
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->beg;
+    pt0_end = to_visit->end;
+    *pt0 = to_visit->oval;
 #else
     to_visit -= 2;
     pt0 = to_visit[0];
@@ -4713,52 +4710,50 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   }
 
   prune(B PASS_REGS);
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
+  pop_text_stack(lvl);
   return numbv;
 
  trail_overflow:
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+     to_visit --;
+    pt0 = to_visit->beg;
+    pt0_end = to_visit->end;
+    *pt0 = to_visit->oval;
   }
 #endif
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
+  pop_text_stack(lvl);
   return numbv-1;
 
  aux_overflow:
-  LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
-  }
-#endif
-  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-  clean_tr(TR0 PASS_REGS);
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
-  HR = InitialH;
-  return numbv-1;
+  {
+  size_t d1 = to_visit-to_visit0;
+  size_t d2 = to_visit_max-to_visit0;
+  to_visit0 = Realloc(to_visit0,d2*sizeof(CELL*)+64*1024);
+  to_visit = to_visit0+d1;
+  to_visit_max = to_visit0+(d2+(64*1024))/sizeof(CELL **);
+}
+pt0--;
+goto loop;
 
  global_overflow:
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->beg;
+    pt0_end = to_visit->end;
+    *pt0 = to_visit->oval;
   }
 #endif
   clean_tr(TR0 PASS_REGS);
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   HR = InitialH;
   LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);
+  pop_text_stack(lvl);
   return numbv-1;
 
 }

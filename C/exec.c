@@ -1429,6 +1429,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   Int OldBorder = LOCAL_CBorder;
   //   yap_error_descriptor_t *err_info= LOCAL_ActiveError;
   LOCAL_CBorder = LCL0 - ENV;
+  yhandle_t sls = Yap_CurrentSlot();
 
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
@@ -1438,7 +1439,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     case 1: { /* restart */
               /* otherwise, SetDBForThrow will fail entering critical mode */
       // LOCAL_ActiveError = err_info;
-      pop_text_stack(0);
       LOCAL_PrologMode = UserMode;
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
@@ -1453,6 +1453,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_Signals = 0;
       CalculateStackGap(PASS_REGS1);
       LOCAL_PrologMode = UserMode;
+      Yap_CloseSlots(sls);
       P = (yamop *) FAILCODE;
     }
       break;
@@ -1469,6 +1470,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 			     getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *) FAILCODE;
       LOCAL_PrologMode = UserMode;
+      Yap_CloseSlots(sls);
     }
       break;
     case 3: { /* saved state */
@@ -1477,7 +1479,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
-      return false;
+        Yap_CloseSlots(sls);
+	return false;
     }
     case 4:
       /* abort */
@@ -1486,12 +1489,15 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       // LOCAL_ActiveError = err_info;
       while (B) {
 	LOCAL_ActiveError->errorNo = ABORT_EVENT;
+	pop_text_stack(i);
+	Yap_CloseSlots(sls);
 	Yap_JumpToEnv();
       }
       LOCAL_PrologMode = UserMode;
       P = (yamop *) FAILCODE;
       LOCAL_RestartEnv = sighold;
-      pop_text_stack(i);
+      Yap_CloseSlots(sls);
+     pop_text_stack(i);
       return false;
       break;
     case 5:
@@ -1507,7 +1513,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* set stack */
       Yap_JumpToEnv();
       Yap_CloseTemporaryStreams();
-      pop_text_stack(i);
+        Yap_CloseSlots(sls);
+    pop_text_stack(i);
       ASP = (CELL *) PROTECT_FROZEN_B(B);
 
       if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {

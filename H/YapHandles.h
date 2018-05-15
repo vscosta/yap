@@ -219,9 +219,9 @@ INLINE_ONLY inline EXTERN yhandle_t Yap_InitHandle__(Term t USES_REGS) {
   if (t==0) {
     t = MkVarTerm();
   } else if (IsVarTerm(t) && (H0 > (CELL*)t || (CELL*)t > HR)) {
-    RESET_VARIABLE(HR); 
-    Yap_unify(t,(CELL)HR); t = (CELL)HR++;
-  }
+    Term tg = MkVarTerm();
+    Bind_Global( VarOfTerm(t), tg);
+}
   LOCAL_HandleBase[old_slots] = t;
   LOCAL_CurHandle++;
   return old_slots;

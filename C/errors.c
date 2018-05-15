@@ -793,7 +793,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #endif
   if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR) {
     LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-    return P;
+      return P;
   } else if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR_NUMBER) {
     LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
     LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
