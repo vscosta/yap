@@ -699,7 +699,6 @@ restart_aux:
 static Int number_chars(USES_REGS1) {
   Term t1;
   int l = push_text_stack();
-restart_aux:
   t1 = Deref(ARG1);
   if (IsNumTerm(t1)) {
     Term t2 = Deref(ARG2);
@@ -714,26 +713,21 @@ restart_aux:
     /* ARG1 unbound */
     Term t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
-    if (tf) {
+    if (tf)
       {
         pop_text_stack(l);
         return Yap_unify(ARG1, tf);
       }
-    }
-  } else if (IsVarTerm(t1)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-  }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_chars/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
+
+  LOCAL_ActiveError->errorRawTerm = 0;
+             Yap_ThrowExistingError();
+
     return false;
   }
+return true;
 }
 
-/** @pred  number_atom(? _I_,? _A_)
+/** @pred  number_atom(? _I_,? _A_){te
 
 
 

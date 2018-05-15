@@ -212,16 +212,17 @@ print_message(L,E) :-
 '$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
 	 '$yap_strip_module'(C, EM, EG),
-   '$execute_command'(EM,EG,VL,Pos,Con,_Source).
+   '$execute_command'(EG,EM,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
+	 writeln(EM),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
 	  % do term expansion
 	  '$expand_term'(C, Con, EC),
-    '$yap_strip_module'(EC, EM, EG),
+    '$yap_strip_module'(EC, EM2, EG2),
 	  % execute a list of commands
-	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source)
+	  '$execute_commands'(EG2,EM2,VL,Pos,Con,_Source)
 	),
 	  % succeed only if the *original* was at end of file.
 	  C == end_of_file.

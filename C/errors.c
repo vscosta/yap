@@ -622,7 +622,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
   } else {
     Yap_Error__(true, file, function, lineno, type, where);
   }
-  if (LOCAL_RestartEnv) {
+  if (LOCAL_RestartEnv && !LOCAL_delay) {
     Yap_RestartYap(5);
   }
   Yap_exit(5);
@@ -793,7 +793,6 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #endif
   if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR) {
     LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-      return P;
   } else if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR_NUMBER) {
     LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
     LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
@@ -860,7 +859,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #endif
   /* wait if we we are in user code,
      it's up to her to decide */
-
+  if (LOCAL_delay)
+    return P;
   if (LOCAL_DoingUndefp) {
     LOCAL_Signals = 0;
     Yap_PrintWarning(MkErrorTerm(Yap_GetException()));

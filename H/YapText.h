@@ -1039,6 +1039,7 @@ static inline Term Yap_ListOfCodesToNumber(Term t0 USES_REGS) {
 
 static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
+
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
   out.val.uc = NULL;

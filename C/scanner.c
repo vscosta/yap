@@ -874,7 +874,7 @@ do_switch:
 static int num_send_error_message(char s[]) {
   CACHE_REGS
   LOCAL_ErrorMessage = s;
-  return TermNil;
+  return MkStringTerm(s);
 }
 
 #define number_overflow()                                                      \
@@ -921,7 +921,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
   }
   if (ch == '\'') {
     if (base > 36) {
-      return num_send_error_message("Admissible bases are 0..36");
+        Yap_ThrowError(SYNTAX_ERROR, MkIntegerTerm(base), "Admissible bases are 0..36");
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -969,8 +969,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-      Yap_syntax_error(NULL, st-GLOBAL_Stream);
-      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
+        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
       return 0;
     }
     while (my_isxdigit(ch, 'F', 'f')) {
@@ -993,8 +994,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-      Yap_syntax_error(NULL, st-GLOBAL_Stream);
-      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
+          Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+          Yap_local.ActiveError->errorRawTerm = 0;
+          Yap_ThrowError(SYNTAX_ERROR, t, "invalid octal digit 0x%C",ch)   ;
         return 0;
       }
   } else if (ch == 'b' && base == 0) {
@@ -1002,8 +1004,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     base = 2;
     ch = getchr(st);
     if (ch < '0' || ch > '1') {
-      Yap_syntax_error(NULL, st-GLOBAL_Stream);
-      Yap_ThrowError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
+        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+        Yap_ThrowError(SYNTAX_ERROR, t, "invalid binary digit 0x%C",ch)   ;
       return 0;
     }
 
@@ -1175,7 +1178,9 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
+  if (ch == EOF)
   return out;
+  return 0;
 }
 
 #define CHECK_SPACE()                                                          \

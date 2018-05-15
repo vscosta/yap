@@ -322,6 +322,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   Term tf[4];
   Term tm;
   Term *tailp = tf + 3;
+
   CELL *Hi = HR;
   TokEntry *tok = LOCAL_tokptr;
   Int cline = tok->TokLine;
@@ -330,13 +331,22 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   Int errpos = errtok->TokPos;
   UInt diff = 0;
   startline = MkIntegerTerm(cline);
+  Yap_local.ActiveError->errorNo = SYNTAX_ERROR;
+  Yap_local.ActiveError->prologPredFirstLine = cline;
+  Yap_local.ActiveError->prologPredLastLine = cline;
   endline = MkIntegerTerm(cline);
+
   LOCAL_Error_TYPE = YAP_NO_ERROR;
   errline = MkIntegerTerm(errtok->TokLine);
-  if (LOCAL_ErrorMessage)
+  Yap_local.ActiveError->prologPredLine = errtok->TokLine;
+  if (!LOCAL_ErrorMessage) {
+    LOCAL_ErrorMessage = "syntax error";
+  }
     tm = MkStringTerm(LOCAL_ErrorMessage);
-  else {
-    tm = MkStringTerm("syntax error");
+  {
+  char *s = malloc( strlen(LOCAL_ErrorMessage)+1);
+  strcpy(s,LOCAL_ErrorMessage );
+  Yap_local.ActiveError->errorMsg = s;
   }
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
     if (errpos && newpos >= 0) {
