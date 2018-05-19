@@ -59,13 +59,20 @@ ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3.yap
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4.yap
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap
-           ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
-            */CMakeFiles/* *~ */#*
+${CMAKE_SOURCE_DIR}/packages/python
+${CMAKE_SOURCE_DIR}/*/bprolog/* 
+                         ${CMAKE_SOURCE_DIR}/*/prism/* 
+                         ${CMAKE_SOURCE_DIR}/*/gecodde/[345]*
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap  
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
+			 ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
+   */CMakeFiles/* *~ */#*
 
 )
 
@@ -97,6 +104,7 @@ endforeach(i ${DOCS_EXCLUDE_})
      ${CMAKE_SOURCE_DIR}/os
      ${CMAKE_SOURCE_DIR}/library
      ${CMAKE_SOURCE_DIR}/swi/library
+     ${CMAKE_SOURCE_DIR}/packages
      )
 
 foreach(i ${DOC_INPUT_FILES_})

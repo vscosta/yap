@@ -1,3 +1,19 @@
+
+/**
+ * @file   real.c
+ * @date   Sat May 19 13:44:04 2018
+ * 
+ * @brief  Prolog  to R interface
+ * 
+ * 
+ */
+
+/**
+ * @defgroup realI Interface Prolog to R
+ * @ brief How to call R from YAP
+ * @ingroup realm
+ * @{
+ */
 #define CSTACK_DEFNS
 #include "rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
@@ -2210,3 +2226,5 @@ install_real(void) { /* FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2); */
 }
 
 #endif /* R_H */
+/// @}
+

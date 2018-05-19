@@ -1,12 +1,11 @@
-lDownloading and Installing YAP           {#INSTALL}
+Downloading and Installing YAP           {#INSTALL}
 ===========================
  
 This text includes instructions to download and install YAP.
 
 [TOC]
 
-Downloading YAP           {#Download}
-----------------
+## Downloading YAP           {#Download}
 
 The latest development version of Yap-6 is available source-only
 through GIT repositories. The main reference repository is at
@@ -32,7 +31,10 @@ The first argument is the repository, the last argument is the (optional) target
 It may be useful to know:
 
 + If you are have limited bandwith or disk spaceq, consider using
-     `git clone --depth XX` to only include the last `XX` commits.
+~~~~~
+git clone --depth XX
+~~~~~
+to only include the last `XX` commits.
 
 + Older versions of YAP were distributed with modules. YAP-6.3.5 is
      a single package, and it does not need `git submodule`.
@@ -42,16 +44,16 @@ It may be useful to know:
    version of doxygen adapted to Prolog that was used to generate
    these documents.
 
-Compiling YAP          {#CompilingYAP}
-----------------
+## CompilingYAP Compiling YAP
+
 
 YAP-6.3.4 is a [cmake](www.cmake.org) based
 system. We use `cmake` because it supports mosts popular software, can
 generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
-to install core YAP under `cmake`:
+to install core YAP under `cmake` are presented in detail next.
 
-### The compiler
+### Compilation The compiler
 
   *Status as of early 2017*
 
@@ -104,7 +106,7 @@ available at GitHub.
 
 	+ make sure to install Python-3, and not Python-2,
 
-### Compile and Install
+### Compiling Compile and Install
 
 1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).
 	*YAP should not be compiled at its rootxo directory, some packages do not allow for that.

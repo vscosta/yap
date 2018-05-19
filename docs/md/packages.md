@@ -1,7 +1,7 @@
 YAP packages              {#packages}
 ============
 
-  + @subpage realxplxc
+  + @subpage realmd
 
   + @subpage BDDs
 

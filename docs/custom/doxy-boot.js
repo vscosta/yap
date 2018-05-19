@@ -60,7 +60,7 @@ $( document ).ready(function() {
     $('div.fragment.well div.line:last').css('margin-bottom', '15px');
 	
   $('table.doxtable').removeClass('doxtable').addClass('table table-striped table-bordered table-small;').each(function(){
-		$(this).prepend('<thead></thead>');
+		$(this).prepend('<thead><th scope="col">first</th><th scope="col">Last</th>s</thead>');
 		$(this).find('tbody > tr:first').prependTo($(this).find('thead'));
     $(this).bootstrapTable('remove', {class: 'separator'});
 		$(this).find('td > span.success').parent().addClass('success');

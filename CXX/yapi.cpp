@@ -36,7 +36,7 @@ YAPPredicate::YAPPredicate(Term &t, Term &tmod, CELL *&ts, const char *pname) {
   ap = nullptr;
 restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    throw YAPError( SOURCE(), INSTANTIATION_ERROR, t0, pname);
   } else if (IsAtomTerm(t)) {
     ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
     ts = nullptr;
@@ -49,15 +49,15 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      throw YAPError( SOURCE(), TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
     }
     if (fun == FunctorModule) {
       tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        throw YAPError( SOURCE(),  INSTANTIATION_ERROR, t0, pname);
       }
       if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        throw YAPError( SOURCE(),  TYPE_ERROR_ATOM, t0, pname);
       }
       t = ArgOfTerm(2, t);
       goto restart;
@@ -65,9 +65,32 @@ restart:
     ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     ts = RepAppl(t) + 1;
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+    throw YAPError( SOURCE(),  TYPE_ERROR_CALLABLE, t0, pname);
   }
 }
+
+ Term YAPTerm::getArg(arity_t i) {
+    BACKUP_MACHINE_REGS();
+    Term tf = 0;
+    Term t0 = gt();
+
+    if (IsApplTerm(t0)) {
+      if (i > ArityOfFunctor(FunctorOfTerm(t0)))
+        throw YAPError( SOURCE(), DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
+      tf = (ArgOfTerm(i, t0));
+    } else if (IsPairTerm(t0)) {
+      if (i == 1)
+        tf = (HeadOfTerm(t0));
+      else if (i == 2)
+        tf = (TailOfTerm(t0));
+      else
+        throw YAPError( SOURCE(), DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
+    } else {
+      throw YAPError( SOURCE(), TYPE_ERROR_COMPOUND, t0, "t0.getArg()");
+    }
+    RECOVER_MACHINE_REGS();
+    return tf;
+  }
 
 YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
   BACKUP_H();
@@ -242,7 +265,7 @@ Term &YAPTerm::operator[](arity_t i) {
       tf = RepPair(t0) + 1;
     RECOVER_MACHINE_REGS();
   } else {
-    Yap_Error(TYPE_ERROR_COMPOUND, t0, "");
+    throw YAPError( SOURCE(),  TYPE_ERROR_COMPOUND, t0, "");
   }
   RECOVER_MACHINE_REGS();
   return *tf;
@@ -278,6 +301,24 @@ YAPPairTerm::YAPPairTerm() {
   mk(TermNil);
   RECOVER_H();
 }
+
+std::vector<Term> YAPPairTerm::listToArray() {
+    Term *tailp;
+    Term t1 = gt();
+    Int l = Yap_SkipList(&t1, &tailp);
+    if (l < 0) {
+       throw YAPError( SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+    }
+    std::vector<Term> o = std::vector<Term>(l);
+    int i = 0;
+    Term t = gt();
+    while (t != TermNil) {      
+      o[i++] = HeadOfTerm(t);
+      t = TailOfTerm(t);
+    }
+    return o;
+  }
+
 
 YAP_tag_t YAPTerm::tag() {
   Term tt = gt();
@@ -333,6 +374,16 @@ Term YAPTerm::deepCopy() {
   return (tn);
 }
 
+Term YAPListTerm::cdr() {
+    Term to = gt();
+    if (IsPairTerm(to))
+      return (TailOfTerm(to));
+    else if (to == TermNil)
+      return TermNil;
+    /* error */
+     throw YAPError( SOURCE(), TYPE_ERROR_LIST, to, "");
+  }
+
 Term YAPListTerm::dup() {
   yhandle_t tn;
   BACKUP_MACHINE_REGS();
@@ -380,7 +431,7 @@ Term YAPListTerm::car() {
   if (IsPairTerm(to))
     return (HeadOfTerm(to));
   else {
-    Yap_Error(TYPE_ERROR_LIST, to, "");
+    throw YAPError( SOURCE(),  TYPE_ERROR_LIST, to, "");
     return TermUnique;
   }
 }
@@ -436,9 +487,9 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
   if (LOCAL_CommittedError != nullptr) {
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
-    // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    // throw  YAPError();
+              << YAPError( LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
+    // Yap_PopTermFromDB(info->errorTerm);
+    // throw  throw YAPError( SOURCE(), );
   }
   Yap_CloseHandles(q.CurSlot);
   RECOVER_MACHINE_REGS();
@@ -454,42 +505,49 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   Term *ts = nullptr;
-  if (IsStringTerm(tmod))
-    tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
-  PredEntry *ap = (new YAPPredicate(t, tmod, ts, "C++"))->ap;
-  if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
-    ap = rewriteUndefEngineQuery(ap, t, tmod);
-  }
-  if (IsApplTerm(t))
-    ts = RepAppl(t) + 1;
-  else if (IsPairTerm(t))
-    ts = RepPair(t);
-  /* legal ap */
-  arity_t arity = ap->ArityOfPE;
+  try {
+    if (IsStringTerm(tmod))
+      tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
+    PredEntry *ap = (new YAPPredicate(t, tmod, ts, "C++"))->ap;
+    if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
+      ap = rewriteUndefEngineQuery(ap, t, tmod);
+    }
+    if (IsApplTerm(t))
+      ts = RepAppl(t) + 1;
+    else if (IsPairTerm(t))
+      ts = RepPair(t);
+    /* legal ap */
+    arity_t arity = ap->ArityOfPE;
 
-  for (arity_t i = 0; i < arity; i++) {
-    XREGS[i + 1] = ts[i];
-  }
-  ts = nullptr;
-  bool result;
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
+    for (arity_t i = 0; i < arity; i++) {
+      XREGS[i + 1] = ts[i];
+    }
+    ts = nullptr;
+    bool result;
+    q.CurSlot = Yap_StartSlots();
+    q.p = P;
+    q.cp = CP;
   // allow Prolog style exception handling
   // don't forget, on success these guys may create slots
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
-  result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  if (LOCAL_CommittedError != nullptr) {
-    std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
-  }
-
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
+    
+    result = (bool)YAP_EnterGoal(ap, nullptr, &q);
+    if (LOCAL_CommittedError != nullptr &&
+      LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
+      throw  YAPError( LOCAL_CommittedError);
+    }
   {
     YAP_LeaveGoal(result, &q);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
     return result;
+  }
+  } catch ( ... ) {
+  if (LOCAL_CommittedError != nullptr &&
+      LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
+    std::cerr << "Exception received by  " << __func__ << "( "
+              <<  YAPError( LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
+  }
   }
 }
 
@@ -527,7 +585,7 @@ Term YAPEngine::fun(Term t) {
     name = AtomDot;
     f = FunctorDot;
   } else {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, 0);
+    throw YAPError( SOURCE(),   TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
   XREGS[arity + 1] = MkVarTerm();
@@ -548,9 +606,9 @@ Term YAPEngine::fun(Term t) {
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   if (LOCAL_CommittedError != nullptr) {
     std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPError(LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
-    // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    // throw  YAPError();
+              <<  YAPError(  LOCAL_CommittedError).text() << ").\n Forwarded...\n\n";
+    // Yap_PopTermFromDB(info->errorTerm);
+    // throw  throw YAPError( SOURCE(), );
   }
   {
     YAP_LeaveGoal(result, &q);
@@ -668,15 +726,15 @@ bool YAPQuery::next() {
     Yap_CloseHandles(q_handles);
     q_open = false;
   if (LOCAL_CommittedError != nullptr) {
-    // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-    // throw  YAPError();
+    // Yap_PopTermFromDB(info->errorTerm);
+    // throw  throw YAPError(  );
       Term es[2];
       es[0] = TermError;
       es[1] = MkErrorTerm(LOCAL_CommittedError);
       Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
       YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
-      // Yap_PopTermFromDB(LOCAL_ActiveError->errorTerm);
-      // throw  YAPError();
+      // Yap_PopTermFromDB(info->errorTerm);
+      // throw  throw YAPError( SOURCE(), );
     }
   } else {
     q_handles = Yap_StartSlots();
@@ -806,7 +864,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
   YAP_Init(engineArgs);
 /* Begin preprocessor code */
 /* live */
-// yerror = YAPError();
+// yerror = throw YAPError( SOURCE(), );
 #if YAP_PYTHON
   do_init_python();
 #endif
@@ -853,13 +911,15 @@ PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL *&outp) {
   CACHE_REGS
   Term m = Yap_CurrentModule(), t = tt.term();
   t = Yap_StripModule(t, &m);
+  
+    std::cerr << "Exception received by  " << __func__ << "( "
+              << tt.text() << ").\n Forwarded...\n\n";
+
   if (IsVarTerm(t) || IsNumTerm(t)) {
     if (IsVarTerm(t))
-      Yap_ThrowError(INSTANTIATION_ERROR, tt.term(), 0);
+      throw YAPError( SOURCE(),   INSTANTIATION_ERROR, tt.term(), 0);
     else if (IsNumTerm(t))
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, tt.term(), 0);
-    std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPTerm(tt).text() << ").\n Forwarded...\n\n";
+      throw YAPError( SOURCE(),   TYPE_ERROR_CALLABLE, tt.term(), 0);
   }
   tt.put(t);
   if (IsAtomTerm(t)) {
@@ -878,7 +938,7 @@ PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL *&outp) {
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, 0);
+    throw YAPError( SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
   } else {
     ap = RepPredProp(PredPropByFunc(f, m));
     outp = RepAppl(t) + 1;
@@ -943,34 +1003,41 @@ void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {
 std::string YAPError::text() {
   char buf[256];
   std::string s = "";
-  if (LOCAL_ActiveError->errorFunction) {
-    s += LOCAL_ActiveError->errorFile;
+  if (info->errorNo == YAP_NO_ERROR)
+    return 0;
+  if (info->errorFunction) {
+    s += info->errorFile;
     s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->errorLine);
+    sprintf(buf, "%ld", (long int)info->errorLine);
     s += buf;
     s += ":0 in C-code";
   }
-  if (LOCAL_ActiveError->prologPredLine) {
+  if (info->prologPredLine) {
     s += "\n";
-    s += LOCAL_ActiveError->prologPredFile;
+    s += info->prologPredFile;
     s += ":";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredLine);
-    s += buf; // std::to_string(LOCAL_ActiveError->prologPredLine) ;
-    // YAPIntegerTerm(LOCAL_ActiveError->prologPredLine).text();
+    sprintf(buf, "%ld", (long int)info->prologPredLine);
+    s += buf; // std::to_string(info->prologPredLine) ;
+    // YAPIntegerTerm(info->prologPredLine).text();
     s += ":0   ";
-    s += LOCAL_ActiveError->prologPredModule;
+    s += info->prologPredModule;
     s += ":";
-    s += (LOCAL_ActiveError->prologPredName);
+    s += (info->prologPredName);
     s += "/";
-    sprintf(buf, "%ld", (long int)LOCAL_ActiveError->prologPredArity);
-    s += // std::to_string(LOCAL_ActiveError->prologPredArity);
+    sprintf(buf, "%ld", (long int)info->prologPredArity);
+    s += // std::to_string(info->prologPredArity);
         buf;
   }
   s += " error ";
-  if (LOCAL_ActiveError->classAsText != nullptr)
-    s += LOCAL_ActiveError->classAsText;
+  if (info->classAsText == nullptr)
+    info->classAsText = Yap_errorClassName(info->errorClass);
+  if (info->classAsText != nullptr)
+    s += info->classAsText;
   s += ".";
-  s += LOCAL_ActiveError->errorAsText;
+  if (info->errorAsText == nullptr)
+      info->errorAsText = Yap_errorName(info->errorNo);
+  if (info->errorAsText != nullptr)
+    s += info->errorAsText;
   s += ".\n";
   //      printf("%s\n", s.c_str());
   return s.c_str();
@@ -996,11 +1063,6 @@ void YAPEngine::reSet() {
   RECOVER_MACHINE_REGS();
 }
 
-YAPError::YAPError(yap_error_number id, YAPTerm culprit, std::string txt) {
-  ID = id;
-  goal = culprit.text();
-  info = txt;
-}
 
 Term YAPEngine::top_level(std::string s) {
   /// parse string s and make term with var names
@@ -1010,7 +1072,7 @@ Term YAPEngine::top_level(std::string s) {
   ARG2 = tp;
   ARG3 = MkVarTerm();
   if (ARG1 == 0)
-    Yap_Error(SYNTAX_ERROR, ARG1, "in input query");
+    throw YAPError( SOURCE(), SYNTAX_ERROR, ARG1, "in input query");
   YAPPredicate p = YAPPredicate(YAP_TopGoal());
   YAPQuery *Q = new YAPQuery(p, 0);
   Term ts[2];

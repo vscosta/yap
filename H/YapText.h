@@ -354,10 +354,8 @@ typedef enum {
   YAP_STRING_INT = 0x40,        /// target is an integer term
   YAP_STRING_FLOAT = 0x80,      /// target is a floar term
   YAP_STRING_BIG = 0x100,       /// target is an big num term
-  YAP_STRING_DATUM =
-  0x200, /// associated with previous 3, use actual object if type, not tern
-  YAP_STRING_LENGTH =
-  0x400, /// input: length is fixed; output: return integer with length
+  YAP_STRING_DATUM =  0x200, /// associated with previous 3, use actual object if type, not tern
+  YAP_STRING_LENGTH =  0x400, /// input: length is fixed; output: return integer with length
   YAP_STRING_NTH = 0x800,           ///  input: ignored; output: nth char
   YAP_STRING_TERM = 0x1000,         // Generic term, if nothing else given
   YAP_STRING_DIFF = 0x2000,         // difference list

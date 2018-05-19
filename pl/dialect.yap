@@ -7,7 +7,9 @@
   * @brief  support Prolog dialects
   *
   * @defgroup Dialects Compatibilty with other Prolog dialects
-  * @ingroup builtins
+  * @ingroup extensions
+  * @{
+  * @brief Prolog dialects
   * 
 */
 
@@ -54,7 +56,7 @@ check_dialect(Dialect) :-
 check_dialect(Dialect) :-
 	'$do_error'(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
 
-%%	exists_source(+Source) is semidet.
+%%	@pred exists_source(+Source) is semidet.
 %
 %	True if Source (a term  valid   for  load_files/2) exists. Fails
 %	without error if this is not the case. The predicate is intended
@@ -77,8 +79,8 @@ exists_source(Source, Path) :-
 			     file_errors(fail)
 			   ]).
 
-%%	source_exports(+Source, +Export) is semidet.
-%%	source_exports(+Source, -Export) is nondet.
+%%	@pred source_exports(+Source, +Export) is semidet.
+%%	@pred source_exports(+Source, -Export) is nondet.
 %
 %	True if Source exports Export. Fails   without  error if this is
 %	not the case.  See also exists_source/1.
@@ -93,7 +95,7 @@ source_exports(Source, Export) :-
 	;   lists:member(Export, Exports)
 	).
 
-%%	open_source(+Source, -In:stream) is semidet.
+%%	@pred open_source(+Source, -In:stream) is semidet.
 %
 %	Open a source location.
 
@@ -108,3 +110,5 @@ open_source(File, In) :-
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
+
+@}

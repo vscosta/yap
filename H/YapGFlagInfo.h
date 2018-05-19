@@ -17,11 +17,10 @@
 
 /** @file YapGFlagInfo.h
 
-    @addtogroup YAPGFlags YAPGlobalFlags
-    @ingroup builtins
+    @addtogroup YAPFlags
     @{
 
-    @enum global_flags_setup  Global Flags supported by YAP
+    @enum GLOBAL_FLAGS  Global Flags supported by YAP
     @brief global flags and their values.
 */
 

@@ -1341,3 +1341,5 @@ keep_list_(_, X) :-
 (Space += maximize(X,Y)) :- !, maximize(Space,X,Y).
 
 (Space += keep(X)) :- !, keep_(Space,X).
+
+%! @}

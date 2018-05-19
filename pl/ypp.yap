@@ -34,6 +34,12 @@
 /**
  * @defgroup ypp Yap PreProcessing
  * @ingroup library
+ *
+ * This program_continuation can be used as a preprocessor in the
+ * style of the `C` language. Currently, it must be used through
+ * ypp_consult and or ypp_reconsult.
+ *
+ * Notice that ypp uses `#` commands.
  * 
  */
 

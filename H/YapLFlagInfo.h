@@ -24,7 +24,8 @@
 @{
 
 
-@enum local_flags_setup thread-local flag:
+    @enum THREAD_LOCAL_FLAGS  Local Flags supported by YAP
+    @brief local flags and their values.
 */
 
 START_LOCAL_FLAGS

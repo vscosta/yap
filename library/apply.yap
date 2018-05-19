@@ -5,7 +5,6 @@
  * 
  * @brief  Stub for maplist and friends
  * 
- * 
 */
 
 
@@ -24,11 +23,10 @@
 	    ]).
 
 /**
-@defgroup apply_stub Apply Predicates
 
-@ingroup library
+@defgroup ApplyMaplist Appy Stub for maplist Predicates
+@ingroup maplist
 
-  
 @{
 
 This library provides a SWI-compatible set of utilities for applying a
@@ -37,14 +35,14 @@ predicate to all elements of a list.
 The apply library is a _stub_, it just forwards definitions to the
 @ref maplist library. The predicates forwarded are:
 
-*  maplist:maplist/2,
-*  maplist:maplist/3,
-*  maplist:maplist/4,
-*  maplist:maplist/5,
-*  maplist:include/3,
-*  maplist:exclude/3,
-*  maplist:partition/4,
-*  maplist:partition/5
+*  maplist/2,
+*  maplist/3,
+*  maplist/4,
+*  maplist/5,
+*  include/3,
+*  exclude/3,
+*  partition/4,
+*  partition/5
 
  */
 

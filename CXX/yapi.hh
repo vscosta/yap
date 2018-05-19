@@ -121,6 +121,7 @@ class YAPModule;
 class YAPError;
 class YAPPredicate;
 
+
 #include "yapa.hh"
 
 #include "yapie.hh"

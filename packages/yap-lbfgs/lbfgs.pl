@@ -278,3 +278,4 @@ print_param(Name,Value,Text,Dom) :-
 	format(user,'~w~10+~w~19+~w~15+~w~30+~n',[Dom,Name,Value,Text]).
 
 
+%% @}

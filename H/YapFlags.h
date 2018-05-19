@@ -239,9 +239,9 @@ Set or read system properties for  _Param_:
 
 
 #define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
-#define START_LOCAL_FLAGS  enum {
+#define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
 #define END_LOCAL_FLAGS };
-#define START_GLOBAL_FLAGS  enum {
+#define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
 #define END_GLOBAL_FLAGS };
 
 /*  */  
@@ -249,13 +249,16 @@ Set or read system properties for  _Param_:
 
   /* Local flags */  
 #include "YapLFlagInfo.h"
-  
+
+#ifndef DOXYGEN
 
 #undef YAP_FLAG
 #undef START_LOCAL_FLAGS
 #undef END_LOCAL_FLAGS
 #undef START_GLOBAL_FLAGS
 #undef END_GLOBAL_FLAGS
+
+#endif
 
 bool setYapFlag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);

@@ -639,6 +639,69 @@ void Yap_ThrowExistingError(void) {
   Yap_exit(5);
 }
 
+bool Yap_MkErrorRecord( yap_error_descriptor_t *r,
+			const char *file, const char *function,
+                   int lineno, yap_error_number type, Term where,
+			const char *s) {
+  if (!Yap_pc_add_location(r, CP, B, ENV))
+    Yap_env_add_location(r, CP, B, ENV, 0);
+  if (where == 0L || where == TermNil||type==INSTANTIATION_ERROR) {
+    r->culprit = NULL;
+  } else {
+    r->culprit = Yap_TermToBuffer(
+						  where, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+  }
+  r->errorNo = type;
+  r->errorAsText = Yap_errorName(type);
+  r->errorClass = Yap_errorClass(type);
+  r->classAsText =
+    Yap_errorClassName(r->errorClass);
+  r->errorLine = lineno;
+  r->errorFunction = function;
+  r->errorFile = file;
+  Yap_prolog_add_culprit(r PASS_REGS1);
+  LOCAL_PrologMode |= InErrorMode;
+  Yap_ClearExs();
+  // first, obtain current location
+  // sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno,
+  // function);
+  //  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
+#if DEBUG_STRICT
+  if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode))
+    fprintf(stderr, "***** Processing Error %d (%lx,%x) %s***\n", type,
+            (unsigned long int)LOCAL_Signals, LOCAL_PrologMode, fmt);
+  else
+    fprintf(stderr, "***** Processing Error %d (%x) %s***\n", type,
+            LOCAL_PrologMode, fmt);
+#endif
+  if (r->errorNo == SYNTAX_ERROR) {
+    r->errorClass = SYNTAX_ERROR_CLASS;
+  } else if (r->errorNo == SYNTAX_ERROR_NUMBER) {
+    r->errorClass = SYNTAX_ERROR_CLASS;
+    r->errorNo = SYNTAX_ERROR;
+  }
+  if (type == INTERRUPT_EVENT) {
+    fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
+            (int)IntOfTerm(where));
+    Yap_exit(1);
+  }
+  // fprintf(stderr, "warning: ");
+  if (s[0]) {
+      r->errorMsgLen = strlen(s) + 1;
+      r->errorMsg = malloc(r->errorMsgLen);
+      strcpy(r->errorMsg, s);
+    } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
+      r->errorMsgLen = strlen(LOCAL_ErrorMessage) + 1;
+      r->errorMsg = malloc(r->errorMsgLen);
+      strcpy(r->errorMsg, LOCAL_ErrorMessage);
+    } else {
+    r->errorMsgLen = 0;
+      r->errorMsg = 0;
+    }
+    return true;
+}
+
+
 /**
  * @brief Yap_Error
  *   This function handles errors in the C code. Check errors.yap for the
@@ -666,7 +729,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     va_list ap;
   char *fmt;
   char s[MAXPATHLEN];
-  switch (type) {
+
+   switch (type) {
     case SYSTEM_ERROR_INTERNAL: {
       fprintf(stderr, "%% Internal YAP Error: %s exiting....\n", tmpbuf);
       //    serious = true;
@@ -736,73 +800,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
           P = FAILCODE;
           LOCAL_PrologMode &= ~InErrorMode;
           return P;
-    default:
-      if (!Yap_pc_add_location(LOCAL_ActiveError, CP, B, ENV))
-        Yap_env_add_location(LOCAL_ActiveError, CP, B, ENV, 0);
-          break;
-  }
-
-  yap_error_number err = LOCAL_ActiveError->errorNo;
-  /* disallow recursive error handling */
-  if (LOCAL_PrologMode & InErrorMode && err) {
-    fprintf(stderr, "%% ERROR %s %s WITHIN ERROR %s %s\n",
-            Yap_errorClassName(Yap_errorClass(type)), Yap_errorName(type),
-            Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
-    return P;
-  }
-  if (LOCAL_PrologMode & BootMode || type ==  SYSTEM_ERROR_FATAL) {
-    /* crash in flames! */
-    fprintf(stderr,
-            "%s:%d:0 YAP Fatal Error %d in function %s:\n  %s exiting....\n",
-            file, lineno, type, function, s);
-    error_exit_yap(1);
-  }
-  if (LOCAL_DoingUndefp && type == EVALUATION_ERROR_UNDEFINED) {
-    P = FAILCODE;
-    CalculateStackGap(PASS_REGS1);
-    return P;
-  }
-  if (where == 0L || where == TermNil||type==INSTANTIATION_ERROR) {
-    LOCAL_ActiveError->culprit = NULL;
-  } else {
-    LOCAL_ActiveError->culprit = Yap_TermToBuffer(
-						  where, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
-  }
-  LOCAL_ActiveError->errorNo = type;
-  LOCAL_ActiveError->errorAsText = Yap_errorName(type);
-  LOCAL_ActiveError->errorClass = Yap_errorClass(type);
-  LOCAL_ActiveError->classAsText =
-    Yap_errorClassName(LOCAL_ActiveError->errorClass);
-  LOCAL_ActiveError->errorLine = lineno;
-  LOCAL_ActiveError->errorFunction = function;
-  LOCAL_ActiveError->errorFile = file;
-  Yap_prolog_add_culprit(LOCAL_ActiveError PASS_REGS1);
-  LOCAL_PrologMode |= InErrorMode;
-  Yap_ClearExs();
-  // first, obtain current location
-  // sprintf(LOCAL_FileNameBuf, "%s:%d in C-function %s ", file, lineno,
-  // function);
-  //  tf = MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf));
-#if DEBUG_STRICT
-  if (Yap_heap_regs && !(LOCAL_PrologMode & BootMode))
-    fprintf(stderr, "***** Processing Error %d (%lx,%x) %s***\n", type,
-            (unsigned long int)LOCAL_Signals, LOCAL_PrologMode, fmt);
-  else
-    fprintf(stderr, "***** Processing Error %d (%x) %s***\n", type,
-            LOCAL_PrologMode, fmt);
-#endif
-  if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR) {
-    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-  } else if (LOCAL_ActiveError->errorNo == SYNTAX_ERROR_NUMBER) {
-    LOCAL_ActiveError->errorClass = SYNTAX_ERROR_CLASS;
-    LOCAL_ActiveError->errorNo = SYNTAX_ERROR;
-  }
-  if (type == INTERRUPT_EVENT) {
-    fprintf(stderr, "%% YAP exiting: cannot handle signal %d\n",
-            (int)IntOfTerm(where));
-    Yap_exit(1);
-  }
-  va_start(ap, where);
+     default:
+   va_start(ap, where);
   fmt = va_arg(ap, char *);
   if (fmt != NULL) {
 #if HAVE_VSNPRINTF
@@ -810,22 +809,12 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #else
     (void)vsprintf(s, fmt, ap);
 #endif
-    // fprintf(stderr, "warning: ");
-    if (s[0]) {
-      LOCAL_ActiveError->errorMsgLen = strlen(s) + 1;
-      LOCAL_ActiveError->errorMsg = malloc(LOCAL_ActiveError->errorMsgLen);
-      strcpy(LOCAL_ActiveError->errorMsg, s);
-    } else if (LOCAL_ErrorMessage && LOCAL_ErrorMessage[0]) {
-      LOCAL_ActiveError->errorMsgLen = strlen(LOCAL_ErrorMessage) + 1;
-      LOCAL_ActiveError->errorMsg = malloc(LOCAL_ActiveError->errorMsgLen);
-      strcpy(LOCAL_ActiveError->errorMsg, LOCAL_ErrorMessage);
-    } else {
-      LOCAL_ActiveError->errorMsgLen = 0;
-      LOCAL_ActiveError->errorMsg = 0;
-    }
+    va_end(ap);
+          break;
   }
-  va_end(ap);
-  if (where == 0 || where == TermNil) {
+   }
+   Yap_MkErrorRecord(LOCAL_ActiveError, file, function, lineno, type, where, s);
+    if (where == 0 || where == TermNil) {
     LOCAL_ActiveError->culprit = 0;
   }
   if (P == (yamop *)(FAILCODE)) {

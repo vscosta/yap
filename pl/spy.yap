@@ -33,7 +33,7 @@
 
 /**
  * @defgroup DebSet Debugger Control
- * @ingroup builtins Deb_Interaction
+ * @ingroup Deb_Interaction
 
 @{
 The

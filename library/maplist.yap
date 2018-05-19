@@ -44,83 +44,6 @@
   sumnodes/4
     ]).
 
-/**
-  * @defgroup maplist Map List and Term Operations
-  * @ingroup library
-  * @{
-  *
-  * This library provides a set of utilities for applying a predicate to
-  * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
-  *  To avoid performance degradation, each call creates an
-  * equivalent Prolog program, without meta-calls, which is executed by
-  * the Prolog engine instead. The library was based on code
-  * by Joachim Schimpf and on code from SWI-Prolog, and it is also inspired by the GHC
-  * libraries.
-  *
-  * The  routines are available once included with the
-  * `use_module(library(apply_macros))` command.
-
-*/
-
-  /*
-
-Examples:
-
-~~~~
-
-given the progran:
-
-~~~~
-plus(X,Y,Z) :- Z is X + Y.
-
-plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
-
-vars(X, Y, [X|Y]) :- var(X), !.
-vars(_, Y, Y).
-
-trans(TermIn, TermOut) :-
-        nonvar(TermIn),
-        TermIn =.. [p|Args],
-        TermOut =..[q|Args], !.
-trans(X,X).
-~~~~
-%success
-
-  ?- maplist(plus(1), [1,2,3,4], [2,3,4,5]).
-
-  ?- checklist(var, [X,Y,Z]).
-
-  ?- selectlist(<(0), [-1,0,1], [1]).
-
-  ?- convlist(plus_if_pos(1), [-1,0,1], [2]).
-
-  ?- sumlist(plus, [1,2,3,4], 1, 11).
-
-  ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
-~~~~
-
-  */
-
-
-
-/** @pred maplist( 2:Pred, + _List1_,+ _List2_)
-
-Apply  _Pred_ on all successive pairs of elements from
- _List1_ and
- _List2_. Fails if  _Pred_ can not be applied to a
-pair. See the example above.
-
-
-*/
-
-/** @pred maplist(3:Pred,+ List1,+ List2,+ List4)
-
-Apply  _Pred_ on all successive triples of elements from  _List1_,
- _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
-triple. See the example above.
-
- */
-
 :- meta_predicate
 	selectlist(2,+,-),
 	selectlist(3,+,+,-),
@@ -160,6 +83,73 @@ triple. See the example above.
 :- use_module(library(lists), [append/3]).
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
+
+/**
+  * @defgroup maplist Map List and Term Operations
+  * @ingroup library
+  * @{
+  *
+  * This library provides a set of utilities for applying a predicate to
+  * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
+  *  To avoid performance degradation, each call creates an
+  * equivalent Prolog program, without meta-calls, which is executed by
+  * the Prolog engine instead. The library was based on code
+  * by Joachim Schimpf and on code from SWI-Prolog, and it is also inspired by the GHC
+  * libraries.
+  *
+  * The  routines are available once included with the
+  * `use_module(library(maplist))` command.
+  * Examples:
+  * 
+  * ~~~~
+  * plus(X,Y,Z) :- Z is X + Y.
+  * 
+  * plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
+  * 
+  * vars(X, Y, [X|Y]) :- var(X), !.
+  * vars(_, Y, Y).
+  * 
+  * trans(TermIn, TermOut) :-
+  *         nonvar(TermIn),
+  *         TermIn =.. [p|Args],
+  *         TermOut =..[q|Args], !.
+  * trans(X,X).
+  * ~~~~
+  * %success
+  * 
+  *   ?- maplist(plus(1), [1,2,3,4], [2,3,4,5]).
+  * 
+  *   ?- checklist(var, [X,Y,Z]).
+  * 
+  *   ?- selectlist(<(0), [-1,0,1], [1]).
+  * 
+  *   ?- convlist(plus_if_pos(1), [-1,0,1], [2]).
+  * 
+  *   ?- sumlist(plus, [1,2,3,4], 1, 11).
+  * 
+  *   ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+  * ~~~~
+  * 
+  **/
+
+/** @pred maplist( 2:Pred, + _List1_,+ _List2_)
+
+Apply  _Pred_ on all successive pairs of elements from
+ _List1_ and
+ _List2_. Fails if  _Pred_ can not be applied to a
+pair. See the example above.
+
+
+*/
+
+/** @pred maplist(3:Pred,+ List1,+ List2,+ List4)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
+triple. See the example above.
+
+ */
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
