@@ -1,20 +1,20 @@
 YAP packages              {#packages}
 ============
 
-  + @subpage realmd
+  + @ref real
 
-  + @subpage BDDs
+  + @subpage BDDs 
 
   + @subpage  gecode
 
-  + @subpage  myddas
+  + @ref  myddas
 
   + @ref PFL
 
   + @subpage ProbLog1
 
-  + @ref Python
-x
+  + @ref python
+
   + @subpage raptor
 
   + @ref YAP-LBFGS

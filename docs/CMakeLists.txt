@@ -2,8 +2,6 @@
 if (WITH_DOCS)
 
 
-
-
     set (TOP_DIR YES)
 
 set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
@@ -39,6 +37,8 @@ ${CMAKE_SOURCE_DIR}/build
 ${CMAKE_SOURCE_DIR}/Debug
 ${CMAKE_SOURCE_DIR}/packages/jpl
 ${CMAKE_SOURCE_DIR}/packages/swig
+        ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/output
+         ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/queries
 ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.4.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.1
@@ -59,7 +59,6 @@ ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-${CMAKE_SOURCE_DIR}/packages/python
 ${CMAKE_SOURCE_DIR}/*/bprolog/* 
                          ${CMAKE_SOURCE_DIR}/*/prism/* 
                          ${CMAKE_SOURCE_DIR}/*/gecodde/[345]*
@@ -73,7 +72,6 @@ ${CMAKE_SOURCE_DIR}/*/bprolog/*
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
 			 ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
    */CMakeFiles/* *~ */#*
-
 )
 
 
@@ -120,12 +118,7 @@ endforeach(i ${DOC_INPUT_FILES_})
 
 add_custom_target(docs
   COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-  COMMAND ${CMAKE_COMMAND} -E COPY ${CMAKE_SOURCE_DIR}/docs/custom/assets html/assets/
-     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-     COMMENT "Generating API documentation with Doxygen"
-     VERBATIM
-     DEPENDS ${DEPENDS})
-
+  )
 
 
    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/html)

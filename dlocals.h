@@ -426,6 +426,9 @@
 #define LOCAL_CommittedError (Yap_local.CommittedError)
 #define REMOTE_CommittedError(wid) (REMOTE(wid)->CommittedError)
 
+#define LOCAL_delay (Yap_local.delay)
+#define REMOTE_delay(wid) (REMOTE(wid)->delay)
+
 /// pointer to an exception term, from throw
 #define LOCAL_IOBotch (Yap_local.IOBotch)
 #define REMOTE_IOBotch(wid) (REMOTE(wid)->IOBotch)
