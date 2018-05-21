@@ -28,7 +28,8 @@ static char SccsId[] = "%W% %G%";
  */
 /*
  * This file includes the definition of a miscellania of standard predicates *
- *for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
+ *for yap refering to: Files and GLOBAL_1588
+ *ams, Simple Input/Output,
  *
  */
 
@@ -1584,7 +1585,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       st->file = fopen(fname, io_mode);
     }
     if (!st->file) {
-
+      fprintf(stderr, "trying %s\n", fname);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
       /* extract BACK info passed through the stream descriptor */
       return -1;
@@ -1632,12 +1633,10 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
     if (!strchr(io_mode, 'b') && binary_file(fname)) {
       UNLOCK(st->streamlock);
       if (errno == ENOENT && !strchr(io_mode, 'r')) {
-        PlIOError(EXISTENCE_ERROR_SOURCE_SINK,
-                  tin, "%s: %s", fname,
+        PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
                   strerror(errno));
       } else {
-        PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,
-                  tin, "%s: %s", fname,
+        PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
                   strerror(errno));
       }
     }

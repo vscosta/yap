@@ -20,7 +20,6 @@
   %         ]
 %%            ).
 :- [library(hacks)].
-
 :-	 reexport(library(yapi)).
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
@@ -273,5 +272,22 @@ close_events( Self ) :-
     Self.errors := [t(C,L,N,A)] + Self.errors,
     fail.
 close_events( _ ).
+
+
+:- if(  current_prolog_flag(apple, true) ).
+
+:- putenv( 'LC_ALL', 'en_us:UTF-8').
+
+plot_inline :-
+	X := self.inline_plotting,
+	nb_setval(inline, X ),
+	X = true,
+	!,
+	:= (
+	   import( matplotlib ),
+	   matplotlib.use( `nbagg` )
+	   ).
+
+:- endif.
 
 %:- ( start_low_level_trace ).
