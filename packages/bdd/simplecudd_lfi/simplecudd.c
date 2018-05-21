@@ -400,7 +400,7 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
   //	Cudd_AutodynEnable(mana, CUDD_REORDER_EXACT);
   //	Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT, 1);
 
-  ret = Cudd_DumpDot(manager, 1, f, varmap.vars, NULL, fd);
+  ret = Cudd_DumpDot(manager, 1, f, (const char *const *)varmap.vars, NULL, fd);
   fclose(fd);
   return ret;
 }

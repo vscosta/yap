@@ -4,8 +4,8 @@
 	<Project>
 		<Option title="YAP_CLPBN"/>
 		<Option makefile_is_custom="1"/>
-		<Option compiler="clang"/>
-		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\.git\;CMake Files\.git\refs\;CMake Files\.git\refs\heads\;CMake Files\os\;CMake Files\packages\;CMake Files\packages\python\;CMake Files\packages\python\swig\;CMake Files\packages\python\swig\yap4py\;CMake Files\packages\python\yap_kernel\;CMake Files\packages\myddas\;CMake Files\packages\myddas\sqlite3\;CMake Files\packages\myddas\mysql\;CMake Files\packages\myddas\odbc\;CMake Files\packages\myddas\postgres\;CMake Files\packages\myddas\pl\;CMake Files\packages\raptor\;CMake Files\packages\raptor\cmake\;CMake Files\packages\raptor\doc\;CMake Files\packages\xml\;CMake Files\packages\CLPBN\;CMake Files\packages\CLPBN\horus\;CMake Files\packages\cplint\;CMake Files\packages\cplint\approx\;CMake Files\packages\cplint\approx\simplecuddLPADs\;CMake Files\packages\gecode\;CMake Files\packages\real\;CMake Files\packages\jpl\;CMake Files\packages\jpl\src\;CMake Files\packages\jpl\src\c\;CMake Files\packages\jpl\src\java\;CMake Files\packages\bdd\;CMake Files\packages\bdd\simplecudd\;CMake Files\packages\bdd\simplecudd_lfi\;CMake Files\packages\ProbLog\;CMake Files\packages\swi-minisat2\;CMake Files\packages\swi-minisat2\C\;CMake Files\packages\clpqr\;CMake Files\OPTYap\;CMake Files\utf8proc\;CMake Files\library\;CMake Files\library\dialect\;CMake Files\library\dialect\swi\;CMake Files\library\dialect\swi\fli\;CMake Files\library\clp\;CMake Files\library\matlab\;CMake Files\library\matrix\;CMake Files\library\random\;CMake Files\library\regex\;CMake Files\library\rltree\;CMake Files\library\system\;CMake Files\library\tries\;CMake Files\library\ytest\;CMake Files\library\lammpi\;CMake Files\CXX\;CMake Files\H\;CMake Files\pl\;CMake Files\swi\;CMake Files\swi\library\;CMake Files\docs\;CMake Files\docs\source\;"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\.git\;CMake Files\.git\refs\;CMake Files\.git\refs\heads\;CMake Files\os\;CMake Files\packages\;CMake Files\packages\python\;CMake Files\packages\python\swig\;CMake Files\packages\python\swig\yap4py\;CMake Files\packages\python\yap_kernel\;CMake Files\packages\myddas\;CMake Files\packages\myddas\sqlite3\;CMake Files\packages\myddas\mysql\;CMake Files\packages\myddas\odbc\;CMake Files\packages\myddas\postgres\;CMake Files\packages\myddas\pl\;CMake Files\packages\raptor\;CMake Files\packages\raptor\cmake\;CMake Files\packages\raptor\doc\;CMake Files\packages\xml\;CMake Files\packages\CLPBN\;CMake Files\packages\CLPBN\horus\;CMake Files\packages\cplint\;CMake Files\packages\gecode\;CMake Files\packages\real\;CMake Files\packages\jpl\;CMake Files\packages\bdd\;CMake Files\packages\ProbLog\;CMake Files\packages\swi-minisat2\;CMake Files\packages\swi-minisat2\C\;CMake Files\packages\clpqr\;CMake Files\OPTYap\;CMake Files\utf8proc\;CMake Files\library\;CMake Files\library\dialect\;CMake Files\library\dialect\swi\;CMake Files\library\dialect\swi\fli\;CMake Files\library\clp\;CMake Files\library\matlab\;CMake Files\library\matrix\;CMake Files\library\random\;CMake Files\library\regex\;CMake Files\library\rltree\;CMake Files\library\system\;CMake Files\library\tries\;CMake Files\library\ytest\;CMake Files\library\lammpi\;CMake Files\CXX\;CMake Files\H\;CMake Files\pl\;CMake Files\swi\;CMake Files\swi\library\;CMake Files\docs\;CMake Files\docs\source\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN"/>
@@ -17,92 +17,12 @@
 					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="HorusCli">
-				<Option output="/home/vsc/github/yap-6.3/packages/CLPBN/horus/hcli" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="clang"/>
-				<Compiler>
-					<Add option="-DDEPTH_LIMIT=1"/>
-					<Add option="-DCOROUTINING=1"/>
-					<Add option="-DRATIONAL_TREES=1"/>
-					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
-					<Add option="-DHAVE_CONFIG_H=1"/>
-					<Add option="-D_GNU_SOURCE"/>
-					<Add option="-DDEBUG=1"/>
-					<Add option="-DTHREADED_CODE=1"/>
-					<Add option="-DLOW_LEVEL_TRACER=1"/>
-					<Add option="-DUTF8PROC=1"/>
-					<Add option="-DUSE_MYDDAS=1"/>
-					<Add option="-DMYDDAS_SQLITE3=1"/>
-					<Add option="-DTABLING=1"/>
-					<Add directory="/home/vsc/github/yap-6.3"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
-					<Add directory="/home/vsc/github/yap-6.3/H"/>
-					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
-					<Add directory="/home/vsc/github/yap-6.3/include"/>
-					<Add directory="/home/vsc/github/yap-6.3/os"/>
-					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
-					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 HorusCli"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="HorusCli/fast">
-				<Option output="/home/vsc/github/yap-6.3/packages/CLPBN/horus/hcli" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="clang"/>
-				<Compiler>
-					<Add option="-DDEPTH_LIMIT=1"/>
-					<Add option="-DCOROUTINING=1"/>
-					<Add option="-DRATIONAL_TREES=1"/>
-					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
-					<Add option="-DHAVE_CONFIG_H=1"/>
-					<Add option="-D_GNU_SOURCE"/>
-					<Add option="-DDEBUG=1"/>
-					<Add option="-DTHREADED_CODE=1"/>
-					<Add option="-DLOW_LEVEL_TRACER=1"/>
-					<Add option="-DUTF8PROC=1"/>
-					<Add option="-DUSE_MYDDAS=1"/>
-					<Add option="-DMYDDAS_SQLITE3=1"/>
-					<Add option="-DTABLING=1"/>
-					<Add directory="/home/vsc/github/yap-6.3"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
-					<Add directory="/home/vsc/github/yap-6.3/H"/>
-					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
-					<Add directory="/home/vsc/github/yap-6.3/include"/>
-					<Add directory="/home/vsc/github/yap-6.3/os"/>
-					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
-					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
-					<Add directory="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 HorusCli/fast"/>
-					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 			<Target title="horus">
 				<Option output="/home/vsc/github/yap-6.3/packages/CLPBN/horus/libhorus.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
-				<Option compiler="clang"/>
+				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DDEPTH_LIMIT=1"/>
 					<Add option="-DCOROUTINING=1"/>
@@ -142,7 +62,7 @@
 				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
 				<Option object_output="./"/>
 				<Option type="3"/>
-				<Option compiler="clang"/>
+				<Option compiler="gcc"/>
 				<Compiler>
 					<Add option="-DDEPTH_LIMIT=1"/>
 					<Add option="-DCOROUTINING=1"/>
@@ -172,6 +92,86 @@
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 horus/fast"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="HorusCli">
+				<Option output="/home/vsc/github/yap-6.3/packages/CLPBN/horus/hcli" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DDEPTH_LIMIT=1"/>
+					<Add option="-DCOROUTINING=1"/>
+					<Add option="-DRATIONAL_TREES=1"/>
+					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
+					<Add option="-DHAVE_CONFIG_H=1"/>
+					<Add option="-D_GNU_SOURCE"/>
+					<Add option="-DDEBUG=1"/>
+					<Add option="-DTHREADED_CODE=1"/>
+					<Add option="-DLOW_LEVEL_TRACER=1"/>
+					<Add option="-DUTF8PROC=1"/>
+					<Add option="-DUSE_MYDDAS=1"/>
+					<Add option="-DMYDDAS_SQLITE3=1"/>
+					<Add option="-DTABLING=1"/>
+					<Add directory="/home/vsc/github/yap-6.3"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
+					<Add directory="/home/vsc/github/yap-6.3/H"/>
+					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
+					<Add directory="/home/vsc/github/yap-6.3/include"/>
+					<Add directory="/home/vsc/github/yap-6.3/os"/>
+					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
+					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 HorusCli"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="HorusCli/fast">
+				<Option output="/home/vsc/github/yap-6.3/packages/CLPBN/horus/hcli" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DDEPTH_LIMIT=1"/>
+					<Add option="-DCOROUTINING=1"/>
+					<Add option="-DRATIONAL_TREES=1"/>
+					<Add option="-D_YAP_NOT_INSTALLED_=1"/>
+					<Add option="-DHAVE_CONFIG_H=1"/>
+					<Add option="-D_GNU_SOURCE"/>
+					<Add option="-DDEBUG=1"/>
+					<Add option="-DTHREADED_CODE=1"/>
+					<Add option="-DLOW_LEVEL_TRACER=1"/>
+					<Add option="-DUTF8PROC=1"/>
+					<Add option="-DUSE_MYDDAS=1"/>
+					<Add option="-DMYDDAS_SQLITE3=1"/>
+					<Add option="-DTABLING=1"/>
+					<Add directory="/home/vsc/github/yap-6.3"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/home/vsc/github/yap-6.3/utf8proc"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/src"/>
+					<Add directory="/home/vsc/github/yap-6.3/H"/>
+					<Add directory="/home/vsc/github/yap-6.3/H/generated"/>
+					<Add directory="/home/vsc/github/yap-6.3/include"/>
+					<Add directory="/home/vsc/github/yap-6.3/os"/>
+					<Add directory="/home/vsc/github/yap-6.3/OPTYap"/>
+					<Add directory="/home/vsc/github/yap-6.3/JIT/HPP"/>
+					<Add directory="/home/vsc/github/yap-6.3/packages/CLPBN/horus"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 HorusCli/fast"/>
 					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/CLPBN/horus/Makefile&quot;  VERBOSE=1 clean"/>
@@ -412,9 +412,6 @@
 		<Unit filename="/home/vsc/github/yap-6.3/cmake/cudd.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/cmake/cudd_config.h.cmake">
-			<Option virtualFolder="CMake Files\cmake\"/>
-		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/cmake/disallow.cmake">
 			<Option virtualFolder="CMake Files\cmake\"/>
 		</Unit>
@@ -478,6 +475,9 @@
 		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\raptor\"/>
 		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/raptor_config.h.cmake">
+			<Option virtualFolder="CMake Files\packages\raptor\"/>
+		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/cmake/FindRAPTOR.cmake">
 			<Option virtualFolder="CMake Files\packages\raptor\cmake\"/>
 		</Unit>
@@ -496,9 +496,6 @@
 		<Unit filename="/home/vsc/github/yap-6.3/packages/cplint/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\cplint\"/>
 		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/packages/cplint/approx/simplecuddLPADs/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\packages\cplint\approx\simplecuddLPADs\"/>
-		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/packages/gecode/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\gecode\"/>
 		</Unit>
@@ -511,20 +508,8 @@
 		<Unit filename="/home/vsc/github/yap-6.3/packages/jpl/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\jpl\"/>
 		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/packages/jpl/src/c/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\packages\jpl\src\c\"/>
-		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/packages/jpl/src/java/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\packages\jpl\src\java\"/>
-		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/packages/bdd/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\bdd\"/>
-		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/packages/bdd/simplecudd/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\packages\bdd\simplecudd\"/>
-		</Unit>
-		<Unit filename="/home/vsc/github/yap-6.3/packages/bdd/simplecudd_lfi/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\packages\bdd\simplecudd_lfi\"/>
 		</Unit>
 		<Unit filename="/home/vsc/github/yap-6.3/packages/ProbLog/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\packages\ProbLog\"/>

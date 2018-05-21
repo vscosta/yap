@@ -265,7 +265,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 #if PY_MAJOR_VERSION < 3
 	      if (PyLong_Check(ip)) {
                 min = PyLong_AsLong(ip);
-         } else if (PyInt_Check(ip) {
+         } else if (PyInt_Check(ip)) {
                 min = PyInt_asInt(ip);
            }
 #else

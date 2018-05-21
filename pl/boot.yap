@@ -21,7 +21,8 @@
 
 @{
 
-  @defgroup YAPControl Control Predicates
+  @addtogroup TopLevel Top-Level and Boot Predicates
+
   @ingroup builtins
 
 
@@ -248,6 +249,11 @@ print_message(L,E) :-
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
 
+%%
+% @pred initialize_prolog
+%
+% User-interface to Prolog bootstrap routine.
+%
 initialize_prolog :-
 	'$init_prolog'.
 
@@ -324,16 +330,23 @@ version(yap,[6,3]).
 
 :- dynamic user:portray_message/2.
 
-/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_)
+/** @pred prolog:goal_expansion( :G,+ M,- NG)
+    @pred user:goalexpansion(+ G,+ M,- NG)
 
-
-YAP now supports goal_expansion/3. This is an user-defined
+The goal_expansion/3 hook  is an user-defined
 procedure that is called after term expansion when compiling or
 asserting goals for each sub-goal in a clause. The first argument is
 bound to the goal and the second to the module under which the goal
  _G_ will execute. If goal_expansion/3 succeeds the new
 sub-goal  _NG_ will replace  _G_ and will be processed in the same
- way. If goal_expansion/3 fails the system will use the defaultyap+flrules.
+ way. If goal_expansion/3 fails the system will use the default
+expandion mechanism.
+
+This hook is called:
+- at compilation time;
+- when running a query in the top-level
+
+Older versions of YAP would call this procedure  at every meta-call.
 
 
 */
@@ -399,7 +412,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- module(user).
 
 
-/** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_)
+/** @pred  term_expansion( _T_,- _X_)
+    user:term_expansion( _T_,- _X_)
 
 
 This user-defined predicate is called by `expand_term/3` to

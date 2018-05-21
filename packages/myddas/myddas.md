@@ -1,12 +1,15 @@
 
-## The MYDDAS Data-base interface                  {#myddas}
+@defgroup myddas The MYDDAS Data-base interface
+@ingroup packages
 
-  The MYDDAS database project was developed within a FCT project aiming at
-  the development of a highly efficient deductive database system, based
-  on the coupling of the MySQL relational database system with the YAP
-  Prolog system. MYDDAS was later expanded to support the ODBC interface.
+  The MYDDAS database project was developed within a FCT project
+  aiming at the development of a highly efficient deductive database
+  system, based on the coupling of the MySQL relational database
+  system with the YAP Prolog system. MYDDAS was later expanded to
+  support the ODBC interface, postgres and sqlite3.
 
-###  Requirements and Installation Guide        {#Requirements_and_Installation_Guide}
+@defgroup  Requirements_and_Installation_Guide  Requirements and Installation Guide        
+@ingroup myddas @{
 
   Next, we describe how to usen of the YAP with the MYDDAS System.  The
   use of this system is entirely depend of the MySQL development libraries
@@ -38,7 +41,9 @@
   two different ways. As if we were on the MySQL Client Shell, and as if
   we were using Datalog.
 
-###  MYDDAS Architecture                    {#MYDDAS_Architecture}
+@}
+@defgroup  MYDDAS_Architecture  MYDDAS Architecture                    
+@ingroup myddas @{
 
   The system includes four main blocks that are put together through the
   MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
@@ -88,8 +93,9 @@
   WHERE A.Name = 'John Doe';
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-###  View Level Interface                       {#View_Level_Interface}
-
+@}
+@defgroup  View_Level_Interface  View Level Interface                       
+@ingroup myddas @{
 
   @pred db view(+,+,+).
   @pred db view(+,+).
@@ -179,7 +185,7 @@
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
 
-###  Accessing Tables in Data Sources Using SQL                       {#Accessing_Tables_in_Data_Sources_Using_SQL}
+@defgroup  Accessing_Tables_in_Data_Sources_Using_SQL  Accessing Tables in Data Sources Using SQL                       
 
 
   @pred db_sql(+,+,?).
@@ -203,9 +209,9 @@
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-###  Insertion of Rows                       {#Insertion_of_Rows}
-
+@}
+@defgroup  Insertion_of_Rows  Insertion of Rows                       
+@ingroup myddas @{
  @pred db_assert(+,+).
   @pred db_assert(+).
 
@@ -274,7 +280,7 @@
   yes
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-###  Types of Attributes                       {#Types_of_Attributes}
+@defgroup  Types_of_Attributes  Types of Attributes                       
 
 
  @pred db_get_attributes_types(+,+,?).
@@ -298,7 +304,7 @@ otype for this predicate is the following:
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
 
-###  Number of Fields                       {#Number_of_Fields}
+@defgroup  Number_of_Fields  Number of Fields                       
 
 
   @pred db_number_of_fields(+,?).
@@ -325,7 +331,7 @@ otype for this predicate is the following:
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
 
-###  Describing a Relation                       {#Describing_a_Relation}
+@defgroup  Describing_a_Relation  Describing a Relation                       
 
   @pred db_datalog_describe(+,+).
   @pred db_datalog_describe(+).
@@ -366,10 +372,10 @@ otype for this predicate is the following:
   Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Enumeration Relations Describing_a_Relation Describing a Relation                       {#Enumerating_Relations}
+@defgroup  Enumerating_Relations  Enumeration Relations Describing_a_Relation Describing a Relation                       
 
 
-/@pred db_datalog_show_tables(+).
+@pred db_datalog_show_tables(+).
   @pred db_datalog_show_tables
 
 
@@ -406,7 +412,8 @@ otype for this predicate is the following:
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-###  The MYDDAS MySQL Top Level                       {#The_MYDDAS_MySQL_Top_Level}
+@}
+@defgroup  The_MYDDAS_MySQL_Top_Level  The MYDDAS MySQL Top Level              @ingroup myddas @{
 
   @pred db_top_level(+,+,+,+,+).
   @pred db_top_level(+,+,+,+).
@@ -456,9 +463,9 @@ otype for this predicate is the following:
   yes
   ?-
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-###  Other MYDDAS Properties              {#Other_MYDDAS_Properties}
-
+@}
+@defgroup  Other_MYDDAS_Properties  Other MYDDAS Properties              
+@ingroup myddas @{ 
   @pred db_verbose(+).
 
 
@@ -553,4 +560,7 @@ otype for this predicate is the following:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
+ 
+ @]
+ @}
  

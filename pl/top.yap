@@ -3,18 +3,20 @@
   * @author VITOR SANTOS COSTA <vsc@vcosta-laptop.dcc.fc.up.pt>
   * @date   Sat Apr  7 03:14:17 2018
   *
-  * @brief  top-level implementation plus system booting.x
+  * @brief  top-level implementation plus system booting.
   *
-  *   @defgroup TopLevel Top-Level and Boot Predicates
+  *   @addtogroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
-  *
+  *   @{
 */
 
 :- '$system_meta_predicates'([
 	catch(0,?,0),
   log_event(+,:)]).
 
-
+% @pred live
+%
+% start a Prolog engine.
 live :- '$live'.
 
 '$live' :-
@@ -433,6 +435,13 @@ live :- '$live'.
     '$process_answer'(Vs, LBlk, NLAnsw),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
+% @pred write_query_answer( +Bindings )
+%
+% YAP uses this routine to  output the answer to a query.
+% _Bindings_ are
+% - unifications
+% - suspended or floundered goals, representing constraints.
+%
 write_query_answer( Bindings ) :-
    '$write_vars_and_goals'(Bindings, first, _FLAnsw).
 
@@ -914,7 +923,12 @@ expand_term(Term,Expanded) :-
 	'$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
+%% @}
 
+%% @addto group YAPControl
+
+%% @{
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
 
@@ -1069,5 +1083,5 @@ log_event( String, Args ) :-
 
 
 /**
-@}  @}
+@} 
 */

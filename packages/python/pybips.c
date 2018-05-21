@@ -1,6 +1,7 @@
 /**
  *
- * @section Python Built-Ins
+ * @defgroup Py4YAP-Bips Python Built-Ins
+ * @ingroup Py4YAP
  *
  * The Python engine includes a large number of Python built-ins. Some
  * of them are interfaced here.
@@ -1078,3 +1079,5 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     return rc;
   }
 }
+
+// @}

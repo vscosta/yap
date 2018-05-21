@@ -554,6 +554,13 @@ IF (WITH_PYTHON)
     include(python )
 ENDIF (WITH_PYTHON)
 
+option(WITH_R
+        "Allow YAP->R" ON)
+
+IF (WITH_R)
+    include_directories(packages/real )
+ENDIF (WITH_R)
+
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
@@ -691,7 +698,7 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS)
         add_subdirectory(packages/python/yap_kernel)
       else()
-        message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setutools=${PY_SETUPTOOLS}")
+        message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setuptools=${PY_SETUPTOOLS}")
     ENDIF ()
 
 endif ()

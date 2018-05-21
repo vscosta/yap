@@ -147,7 +147,7 @@ template<class V>
 Clause* Clause_new(const V& ps, bool learnt) {
         assert(sizeof(Lit)      == sizeof(uint32_t));
         assert(sizeof(float)    == sizeof(uint32_t));
-        void* mem = malloc(sizeof(Clause) + sizeof(uint32_t)*(ps.size()));
+        void* mem = std::malloc(sizeof(Clause) + sizeof(uint32_t)*(ps.size()));
         return new (mem) Clause(ps, learnt); }
 /*_________________________________________________________________________________________________
 |
