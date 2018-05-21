@@ -252,8 +252,8 @@ include_directories (
     )
 
   add_lib(real  ${REAL_SOURCES})
-link_directories(${R_LIBDIR})
-  target_link_libraries (real R   libYap)
+
+  target_link_libraries (real ${LIBR_SO}   libYap)
 
   check_include_files( "stdio.h;R.h" HAVE_R_H )
   check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
