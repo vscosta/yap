@@ -1584,7 +1584,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
     } else {
       st->file = fopen(fname, io_mode);
     }
-    if (!st->file) {
+    if (!st->file && !st->vfs) {
       fprintf(stderr, "trying %s\n", fname);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
       /* extract BACK info passed through the stream descriptor */
@@ -1629,7 +1629,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       pop_text_stack(i);
     }
   }
-  if (st->file == NULL) {
+  if (st->file == NULL && st->vfs == NULL) {
     if (!strchr(io_mode, 'b') && binary_file(fname)) {
       UNLOCK(st->streamlock);
       if (errno == ENOENT && !strchr(io_mode, 'r')) {

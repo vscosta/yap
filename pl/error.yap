@@ -26,7 +26,7 @@
 
 /**
  @defgroup SWI-error High-level error testing.
-@ingroup builtins
+@ingroup Deb_Interaction
 
 This  SWI module  provides  predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
