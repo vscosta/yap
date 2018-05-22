@@ -29,6 +29,25 @@ X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
 #if YAP_PYTHON
 X_API bool do_init_python(void);
 #endif
+
+  
+}
+
+static void YAPCatchError()
+  {
+    if (LOCAL_CommittedError != nullptr &&
+	LOCAL_CommittedError->errorNo != YAP_NO_ERROR  ) {
+      // Yap_PopTermFromDB(info->errorTerm);
+      // throw  throw YAPError(  );
+      Term es[2];
+      es[0] = TermError;
+      es[1] = MkErrorTerm(LOCAL_CommittedError);
+      LOCAL_CommittedError = nullptr;
+      Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
+      YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
+      // Yap_PopTermFromDB(info->errorTerm);
+      // throw  throw YAPError( SOURCE(), );
+  }
 }
 
 YAPPredicate::YAPPredicate(Term &t, Term &tmod, CELL *&ts, const char *pname) {
@@ -486,13 +505,8 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   // don't forget, on success these bindings will still be there);
   result = YAP_LeaveGoal(false, &q);
 
-  if (LOCAL_CommittedError != nullptr) {
-    std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPError(LOCAL_CommittedError).text()
-              << ").\n Forwarded...\n\n";
-    // Yap_PopTermFromDB(info->errorTerm);
-    // throw  throw YAPError( SOURCE(), );
-  }
+  YAPCatchError();
+
   Yap_CloseHandles(q.CurSlot);
   RECOVER_MACHINE_REGS();
   return result;
@@ -551,17 +565,11 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
       return result;
     }
   } catch (...) {
-    if (LOCAL_CommittedError != nullptr &&
-        LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
-      std::cerr << "Exception received by  " << __func__ << "( "
-                << YAPError(LOCAL_CommittedError).text()
-                << ").\n Forwarded...\n\n";
-      YAP_LeaveGoal(result, &q);
+      YAPCatchError();
 
       // free(LOCAL_CommittedError);
       return false;
     }
-  }
 }
 
 void YAPEngine::release() {
@@ -617,13 +625,7 @@ Term YAPEngine::fun(Term t) {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  if (LOCAL_CommittedError != nullptr) {
-    std::cerr << "Exception received by  " << __func__ << "( "
-              << YAPError(LOCAL_CommittedError).text()
-              << ").\n Forwarded...\n\n";
-    // Yap_PopTermFromDB(info->errorTerm);
-    // throw  throw YAPError( SOURCE(), );
-  }
+  YAPCatchError();
   {
     YAP_LeaveGoal(result, &q);
     //      PyEval_RestoreThread(_save);
@@ -739,18 +741,8 @@ bool YAPQuery::next() {
     YAP_LeaveGoal(false, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;
-    if (LOCAL_CommittedError != nullptr) {
-      // Yap_PopTermFromDB(info->errorTerm);
-      // throw  throw YAPError(  );
-      Term es[2];
-      es[0] = TermError;
-      es[1] = MkErrorTerm(LOCAL_CommittedError);
-      Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
-      YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
-      // Yap_PopTermFromDB(info->errorTerm);
-      // throw  throw YAPError( SOURCE(), );
-    }
-  } else {
+    YAPCatchError();
+ } else {
     q_handles = Yap_StartSlots();
   }
   RECOVER_MACHINE_REGS();
@@ -925,9 +917,6 @@ PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL *&outp) {
   CACHE_REGS
   Term m = Yap_CurrentModule(), t = tt.term();
   t = Yap_StripModule(t, &m);
-
-  std::cerr << "Exception received by  " << __func__ << "( " << tt.text()
-            << ").\n Forwarded...\n\n";
 
   if (IsVarTerm(t) || IsNumTerm(t)) {
     if (IsVarTerm(t))

@@ -6,7 +6,7 @@
   * 
   * @brief  support Prolog dialects
   *
-  * @defgroup Dialects Compatibilty with other Prolog dialects
+  * @defgroup Dialects Compatibility with other Prolog dialects
   * @ingroup extensions
   * @{
   * @brief Prolog dialects

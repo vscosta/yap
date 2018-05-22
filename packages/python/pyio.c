@@ -62,13 +62,11 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
     st->user_name = TermOutStream;
   } else if (strcmp(name, "sys.stderr") == 0) {
     st->user_name = TermErrStream;
+  } else if (strcmp(name, "input") == 0) {
+    pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
   } else {
     st->user_name = YAP_MkAtomTerm(st->name);
   }
-  // we assume object is already open, so there is no need to open it.
-  if (PyCallable_Check(pystream))
-    st->u.private_data = PyObject_Call(pystream, PyTuple_New(0), NULL);
-  else
     st->u.private_data = pystream;
   st->vfs = me;
   python_release_GIL(ctk);
