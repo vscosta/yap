@@ -63,8 +63,8 @@ Solver::Solver() :
 
 Solver::~Solver()
 {
-    for (int i = 0; i < learnts.size(); i++) free(learnts[i]);
-    for (int i = 0; i < clauses.size(); i++) free(clauses[i]);
+  for (int i = 0; i < learnts.size(); i++) std::free(learnts[i]);
+  for (int i = 0; i < clauses.size(); i++) std::free(clauses[i]);
 }
 
 
@@ -163,7 +163,7 @@ void Solver::detachClause(Clause& c) {
 
 void Solver::removeClause(Clause& c) {
     detachClause(c);
-    free(&c); }
+    std::free(&c); }
 
 
 bool Solver::satisfied(const Clause& c) const {

@@ -200,7 +200,7 @@
 
 int getRealNumber(char *c, double *number);
 int getIntNumber(char *c, int *number);
-inline int getPosNumber(char *c, int *number);
+//inline int getPosNumber(char *c, int *number);
 int IsRealNumber(char *c);
 int IsPosNumber(const char *c);
 int IsNumber(const char *c);

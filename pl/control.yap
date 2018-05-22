@@ -82,10 +82,11 @@
 
 
 @addtogroup YAPControl
-
-%% @{
+@ingroup builtins
 
 */
+
+%% @{
 
 /** @pred  forall(: _Cond_,: _Action_)
 
@@ -618,13 +619,13 @@ break :-
 	'$break'( false ).
 
 
-/** 
+/**
   * @pred at_halt( G )
   *
   * Hook predicate: _G_ must be called on exit.
-  * 
-  * @param _G_: the hook 
-  * 
+  *
+  * @param _G_: the hook
+  *
   * @return succeeds with side-effect.
 */at_halt(G) :-
 	recorda('$halt', G, _),
@@ -657,16 +658,16 @@ halt(X) :-
 	set_value('$live','$false'),
 	'$halt'(X).
 
-/** 
+/**
   * @pred prolog_current_frame(-Env)
   *
   * reports a reference to the last execution environment _Env_.
   * YAP creates an enviroment when a clause contains several sub-goals.
   * Facts and simple recursion do not need an environment,
-  * 
-  * @param Env 
-  * 
-  * @return 
+  *
+  * @param Env
+  *
+  * @return
 */prolog_current_frame(Env) :-
 	Env is '$env'.
 
