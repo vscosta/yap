@@ -556,10 +556,9 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
       std::cerr << "Exception received by  " << __func__ << "( "
                 << YAPError(LOCAL_CommittedError).text()
                 << ").\n Forwarded...\n\n";
+      YAP_LeaveGoal(result, &q);
+
       // free(LOCAL_CommittedError);
-      LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
-      LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
-      LOCAL_CommittedError = nullptr;
       return false;
     }
   }
