@@ -145,6 +145,7 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
+            engine.ReSet()
             bindings = []
             loop = False
             g = python_query(self, query)
@@ -176,7 +177,6 @@ class YAPShell:
             return False, None
         except Exception as e:
             print("Exception")
-            print(dir(e))
             return False, None
 
     def live(self, engine, **kwargs):
@@ -208,6 +208,7 @@ class YAPShell:
     #
     def __init__(self, engine, **kwargs):
         self.engine = engine
+
         self.live(engine)
 
 

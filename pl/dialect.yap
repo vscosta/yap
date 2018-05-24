@@ -111,4 +111,4 @@ exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
 
-@}
+%% @}

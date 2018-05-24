@@ -571,13 +571,13 @@ int Yap_DebugGetc() {
 int Yap_DebugPutc(FILE *s, wchar_t ch) {
   if (Yap_Option['l' - 96])
     (void)putc(ch, Yap_logfile);
-  return (putc(ch, s));
+  return (putc(ch, stderr));
 }
 
 int Yap_DebugPuts(FILE *s, const char *sch) {
   if (Yap_Option['l' - 96])
     (void)fputs(sch, Yap_logfile);
-  return fputs(sch, s);
+  return fputs(sch, stderr);
 }
 
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
@@ -1584,7 +1584,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
     } else {
       st->file = fopen(fname, io_mode);
     }
-    if (!st->file && !st->vfs) {
+    if (!st->file) {
       fprintf(stderr, "trying %s\n", fname);
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
       /* extract BACK info passed through the stream descriptor */
@@ -1629,7 +1629,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       pop_text_stack(i);
     }
   }
-  if (st->file == NULL && st->vfs == NULL) {
+  if (st->file == NULL) {
     if (!strchr(io_mode, 'b') && binary_file(fname)) {
       UNLOCK(st->streamlock);
       if (errno == ENOENT && !strchr(io_mode, 'r')) {

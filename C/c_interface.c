@@ -1774,7 +1774,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
+X_API bool YAP_LeaveGoal(bool exit, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
 
@@ -1792,7 +1792,7 @@ X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
     B = myB;
   }
   /* if backtracking asked for, recover space and bindings */
-  if (backtrack) {
+  if (!exit) {
     P = FAILCODE;
     Yap_exec_absmi(true, YAP_EXEC_ABSMI);
     /* recover stack space */

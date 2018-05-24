@@ -53,7 +53,6 @@ static void YAPCatchError()
 YAPPredicate::YAPPredicate(Term &t, Term &tmod, CELL *&ts, const char *pname) {
   Term t0 = t;
   ap = nullptr;
-  Yap_DebugPlWriteln(t);
 restart:
   if (IsVarTerm(t)) {
     throw YAPError(SOURCE(), INSTANTIATION_ERROR, t0, pname);
@@ -503,7 +502,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   q.cp = CP;
   // allow Prolog style exceotion handling
   // don't forget, on success these bindings will still be there);
-  result = YAP_LeaveGoal(false, &q);
+  result = YAP_LeaveGoal(true, &q);
 
   YAPCatchError();
 
@@ -737,14 +736,10 @@ bool YAPQuery::next() {
   q_state = 1;
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 
-  if (!result) {
-    YAP_LeaveGoal(false, &q_h);
+    YAP_LeaveGoal(result, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;
     YAPCatchError();
- } else {
-    q_handles = Yap_StartSlots();
-  }
   RECOVER_MACHINE_REGS();
   LOCAL_RestartEnv = oldp;
   return result;
@@ -1004,7 +999,7 @@ void *YAPPrologPredicate::retractClause(YAPTerm skeleton, bool all) {
 }
 
 std::string YAPError::text() {
-  char buf[256];
+
   return "Error";
 #if 0
 std::stringstream s;

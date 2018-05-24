@@ -7,21 +7,21 @@
 
 YAP_Term TermErrStream, TermOutStream;
 
-static int py_put(int sno, int ch) {
+static int py_putc(int sno, int ch) {
   // PyObject *pyw; // buffer
   // int pyw_kind;
   // PyObject *pyw_data;
   StreamDesc *st = YAP_GetStreamFromId(sno);
   if (st->user_name == TermOutStream) {
-    term_t tg = python_acquire_GIL();
+   // term_t tg = python_acquire_GIL();
     PySys_WriteStdout("%C", ch);
-    python_release_GIL(tg);
+    //python_release_GIL(tg);
     return ch;
   }
   if (st->user_name == TermErrStream) {
-    term_t tg = python_acquire_GIL();
+    //term_t tg = python_acquire_GIL();
     PySys_WriteStderr("%C", ch);
-    python_release_GIL(tg);
+    //python_release_GIL(tg);
     return ch;
   }
   char s[2];
@@ -72,6 +72,7 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   python_release_GIL(ctk);
   return st;
 }
+
 
 static bool py_close(int sno) {
   StreamDesc *st = YAP_RepStreamFromId(sno);
@@ -200,7 +201,7 @@ bool init_python_vfs(void) {
   pystream.close = py_close;
   pystream.get_char = py_getc;
   pystream.peek_char = py_peek;
-  pystream.put_char = py_put;
+  pystream.put_char = py_putc;
   pystream.flush = py_flush;
   pystream.seek = py_seek;
   pystream.next = GLOBAL_VFS;

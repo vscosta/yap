@@ -45,7 +45,6 @@ class X_API YAPQuery : public YAPPredicate {
   YAPPairTerm names;
   YAPTerm goal;
   // temporaries
-  Term tnames, tgoal;
     YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
@@ -92,31 +91,30 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames) {
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal.term(), names.term()) {
     CELL *qt = nullptr;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
     if (!ap)
       return;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
-    if (IsPairTerm(tgoal)) {
-      qt = RepPair(tgoal);
-      tgoal = Yap_MkApplTerm(FunctorCsult, 1, qt);
+    if (IsPairTerm(goal.term())) {
+      qt = RepPair(goal.term());
+      goal.put(Yap_MkApplTerm(FunctorCsult, 1, qt));
       ap = RepPredProp(PredPropByFunc(FunctorCsult, TermProlog));
     }
-    goal = YAPTerm(tgoal);
-    if (IsApplTerm(tgoal)) {
-      Functor f = FunctorOfTerm(tgoal);
+    if (IsApplTerm(goal.term())) {
+      Functor f = FunctorOfTerm(goal.term());
       if (!IsExtensionFunctor(f)) {
         arity_t arity = ap->ArityOfPE;
         if (arity) {
-          qt = RepAppl(tgoal) + 1;
+          qt = RepAppl(goal.term()) + 1;
           for (arity_t i = 0; i < arity; i++)
             XREGS[i + 1] = qt[i];
         }
       }
     }
-    names = YAPPairTerm(tnames);
+    names = YAPPairTerm(names.term());
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)

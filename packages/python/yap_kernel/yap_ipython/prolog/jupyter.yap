@@ -72,7 +72,7 @@ streams(true) :-
 %  open('/python/input', read, _Input, [alias(user_input),bom(false)]),
 	open('/python/sys.stdout', append, _Output, [alias(user_output)]),
 	open('/python/sys.stderr', append, _Error, [alias(user_error)]),
-%  set_prolog_flag(user_input,_Input),
+  %  set_prolog_flag(user_input,_Input),
 	set_prolog_flag(user_output,_Output),
 	set_prolog_flag(user_error,_Error).
 
