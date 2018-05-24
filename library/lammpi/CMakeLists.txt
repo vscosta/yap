@@ -67,20 +67,21 @@ set (MPI_YAP_SOURCES
   # program, EXECUTABLE is the MPI program, and ARGS are the arguments to
   # pass to the MPI program.
   #
+add_lib(yap_mpi ${MPI_YAP_SOURCES})
 
-  add_executable (yap_mpi ${MPI_YAP_SOURCES}  ../../console/yap.c)
-  target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
+ target_link_libraries(yap_mpi libYap)
 
-  set_target_properties (yap_mpi PROPERTIES PREFIX "")
+ 
+  include_directories( ${MPI_C_INCLUDE_PATH})
 
-  include_directories (${MPI_C_INCLUDE_PATH})
-
-  add_definitions (-DHAVE_MPI_H=1)
-    target_compile_definitions(yap_mpi
-    PRIVATE ${MPI_C_COMPILE_FLAGS})
+set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1)
+   target_compile_options(yap_mpi
+   PUBLIC ${MPI_C_COMPILE_FLAGS})
 
   install(TARGETS  yap_mpi
     RUNTIME DESTINATION ${bindir}
+      LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   endif (MPI_C_FOUND)

@@ -1723,8 +1723,11 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
+  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
-  dgi->p = P;
+  if( LOCAL_CommittedError)
+  LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
+ dgi->p = P;
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
@@ -1734,7 +1737,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
-  dgi->b = LCL0 - (CELL *)B;
+  dgi->b = dgi->b0 = LCL0 - (CELL *)B;
   out = Yap_exec_absmi(true, false);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
@@ -1749,15 +1752,20 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
 
 X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   CACHE_REGS
-  choiceptr myB;
+    choiceptr myB, myB0;
   bool out;
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b);
+  myB0 = (choiceptr)(LCL0 - dgi->b0);
   CP = myB->cp_cp;
   /* sanity check */
-  if (B >= myB) {
+  if (B >= myB0) {
     return false;
+  }
+  if (B < myB) {
+    // get rid of garbage choice-points 
+    B = myB;
   }
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
@@ -1766,6 +1774,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   out = run_emulator(PASS_REGS1);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
+    dgi->b = LCL0-(CELL *)B;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1774,25 +1783,25 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-X_API bool YAP_LeaveGoal(bool exit, YAP_dogoalinfo *dgi) {
+X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
 
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
+  myB = (choiceptr)(LCL0 - dgi->b0);
   if (B >= myB) {
     /* someone cut us */
     return false;
   }
   /* prune away choicepoints */
-  if (B != myB) {
+  while (B != myB) {
 #ifdef YAPOR
     CUT_prune_to(myB);
 #endif
     B = myB;
   }
   /* if backtracking asked for, recover space and bindings */
-  if (!exit) {
+  if (!successful) {
     P = FAILCODE;
     Yap_exec_absmi(true, YAP_EXEC_ABSMI);
     /* recover stack space */

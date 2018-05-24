@@ -86,6 +86,13 @@ system_error(Type,Goal) :-
 
 '$Error'(E) :-
 	'$LoopError'(E, top).
+%%
+% error_handler(+Error,+ Level)
+%
+% process a````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````n error term.
+%
+errorv_handler(Error, Level) :-
+    '$LoopError'(Error, Level).
 
 '$LoopError'(_, _) :-
 	flush_output(user_output),
@@ -124,7 +131,9 @@ system_error(Type,Goal) :-
         throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(Error, _Level) :-
 	functor(Error, Severity, _),
-	print_message(Severity, Error), !.
+	print_message(Severity, Error),
+	!,
+	'$close_error'.
 '$process_error'(error(Type,Info), _, _) :-
 	print_message(error,error(unhandled_exception(Type),Info)).
 

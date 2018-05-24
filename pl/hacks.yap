@@ -170,7 +170,7 @@ show_env(Env,Cont,NCont) -->
 	['~@.~n' - write_term(G,Opts)].
 
 clean_goal(G,Mod,NG) :-
-	beautify_hidden_goal(G,Mod,[NG],[]), !.
+	fail, beautify_hidden_goal(G,Mod,[NG],[]), !.
 clean_goal(G,_,G).
 
 scratch_goal(N,0,Mod,Mod:N) :-
@@ -179,7 +179,7 @@ scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(
-	  beautify_hidden_goal(G,Mod,[NG],[])
+	  fail,beautify_hidden_goal(G,Mod,[NG],[])
 	;
 	  G = NG
 	),

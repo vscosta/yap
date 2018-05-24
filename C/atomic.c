@@ -1440,8 +1440,8 @@ restart_aux:
     if (!Yap_Concat_Text(n, inpv, out PASS_REGS)) {
       goto error;
     }
-    pop_text_stack(l);
     at = out->val.a;
+    pop_text_stack(l);
     if (at) {
       bool rc = Yap_unify(ARG2, MkAtomTerm(at));
       return rc;

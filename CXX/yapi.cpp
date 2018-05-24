@@ -35,14 +35,13 @@ X_API bool do_init_python(void);
 
 static void YAPCatchError()
   {
-    if (LOCAL_CommittedError != nullptr &&
+    if (false && LOCAL_CommittedError != nullptr &&
 	LOCAL_CommittedError->errorNo != YAP_NO_ERROR  ) {
       // Yap_PopTermFromDB(info->errorTerm);
       // throw  throw YAPError(  );
       Term es[2];
       es[0] = TermError;
       es[1] = MkErrorTerm(LOCAL_CommittedError);
-      LOCAL_CommittedError = nullptr;
       Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
       YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
       // Yap_PopTermFromDB(info->errorTerm);
@@ -549,21 +548,11 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-    if (LOCAL_CommittedError != nullptr &&
-        LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
-      throw YAPError(LOCAL_CommittedError);
-    }
-    {
       YAP_LeaveGoal(result, &q);
-      if (LOCAL_CommittedError != nullptr &&
-          LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
-        throw YAPError(LOCAL_CommittedError);
-      }
       //      PyEval_RestoreThread(_save);
       RECOVER_MACHINE_REGS();
       return result;
-    }
-  } catch (...) {
+      } catch (...) {
       YAPCatchError();
 
       // free(LOCAL_CommittedError);
@@ -696,12 +685,12 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t) {
   }
   openQuery();
   names = YAPPairTerm(TermNil);
-  RECOVER_MACHINE_REGS();
 }
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
   BACKUP_MACHINE_REGS();
-  arity_t arity = p.ap->ArityOfPE;
+  try {
+    arity_t arity = p.ap->ArityOfPE;
   if (arity) {
     goal = YAPApplTerm(YAPFunctor(p.ap->FunctorOfPred), ts).term();
     for (arity_t i = 0; i < arity; i++)
@@ -712,7 +701,10 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
     openQuery();
   }
   names = TermNil;
-  RECOVER_MACHINE_REGS();
+} catch (...) {
+
+ }
+RECOVER_MACHINE_REGS();
 }
 
 bool YAPQuery::next() {
@@ -769,7 +761,7 @@ void YAPQuery::cut() {
   BACKUP_MACHINE_REGS();
   if (!q_open || q_state == 0)
     return;
-  YAP_LeaveGoal(FALSE, &q_h);
+  YAP_LeaveGoal(true, &q_h);
   q_open = false;
   // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
@@ -798,7 +790,7 @@ void YAPQuery::close() {
     RECOVER_MACHINE_REGS();
     return;
   }
-  YAP_LeaveGoal(FALSE, &q_h);
+  YAP_LeaveGoal(false, &q_h);
   q_open = 0;
   Yap_CloseHandles(q_handles);
   // LOCAL_execution = this;

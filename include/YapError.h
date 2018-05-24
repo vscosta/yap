@@ -240,6 +240,7 @@ INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
 #define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
+  extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
   extern bool Yap_MkErrorRecord( yap_error_descriptor_t *r,
 				 const char *file, const char *function,

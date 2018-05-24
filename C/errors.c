@@ -686,7 +686,7 @@ bool Yap_MkErrorRecord( yap_error_descriptor_t *r,
     Yap_exit(1);
   }
   // fprintf(stderr, "warning: ");
-  if (s[0]) {
+  if (s && s[0]) {
       r->errorMsgLen = strlen(s) + 1;
       r->errorMsg = malloc(r->errorMsgLen);
       strcpy(r->errorMsg, s);
@@ -852,7 +852,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     return P;
   if (LOCAL_DoingUndefp) {
     LOCAL_Signals = 0;
-    Yap_PrintWarning(MkErrorTerm(Yap_GetException()));
+    Yap_PrintWarning(MkErrorTerm(Yap_GetException(LOCAL_ActiveError)));
     return P;
   }
   //LOCAL_ActiveError = Yap_GetException();
@@ -941,9 +941,9 @@ const char *Yap_errorClassName(yap_error_class_number e) {
   return c_error_class_name[e];
 }
 
-yap_error_descriptor_t *Yap_GetException(void) {
+yap_error_descriptor_t *Yap_GetException(yap_error_descriptor_t *i ) {
   CACHE_REGS
-    if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+    if(i->errorNo != YAP_NO_ERROR) {
       yap_error_descriptor_t *t = LOCAL_ActiveError,
 	*nt = malloc(sizeof(yap_error_descriptor_t));
       memcpy(nt, t, sizeof(yap_error_descriptor_t));
@@ -1025,13 +1025,13 @@ static Int committed_exception(USES_REGS1) {
   return Yap_unify(ARG1, t);
 }
 
-static Int get_exception(USES_REGS1) {
+static Int get_exception(  USES_REGS1) {
   yap_error_descriptor_t *i;
   Term t;
 
-  LOCAL_CommittedError = i = LOCAL_ActiveError;
+  i = LOCAL_ActiveError;
   if (i && i->errorNo != YAP_NO_ERROR) {
-    i = Yap_GetException();
+    i = Yap_GetException(LOCAL_CommittedError);
     Yap_ResetException(LOCAL_ActiveError);
     LOCAL_PrologMode = UserMode;
     if (i->errorRawTerm &&
