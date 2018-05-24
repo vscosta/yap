@@ -72,8 +72,7 @@ class Query:
         if self.q.next():
             rc = self.answer
             if self.port == "exit":
-                self.close()
-            return rc
+                return rc
         else:
             if self:
                 self.close()
@@ -106,7 +105,7 @@ class v(YAPVarTerm,v0):
 
 
 class YAPShell:
-
+    
     def numbervars( self ):
         Dict = {}
         self.engine.goal(show_answer( self, Dict))
@@ -135,7 +134,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        # pdb.set_trace()
+        import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -148,12 +147,12 @@ class YAPShell:
             bindings = []
             loop = False
             g = python_query(self, query)
-            self.q = Query( engine, g )
-            for bind in self.q:
+            q = Query( engine, g )
+            for bind in q:
                 bindings += [bind]
                 if loop:
                     continue
-                if not self.q.port == "exit":
+                if not q.port == "exit":
                     break
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
                 if s.startswith(';') or s.startswith('y'):
@@ -168,13 +167,15 @@ class YAPShell:
                     continue
                 else:
                     break
-            if self.q:
+            if q:
                 self.os = query
             if bindings:
                 return True,bindings
             print("No (more) answers")
             return False, None
         except Exception as e:
+            if not q:
+                return False, None
             print("Exception")
             print(dir(e))
             return False, None
@@ -209,7 +210,7 @@ class YAPShell:
     def __init__(self, engine, **kwargs):
         self.engine = engine
         self.live(engine)
-
+        self.q = None
 
 
 def main():

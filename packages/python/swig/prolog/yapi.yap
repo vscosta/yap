@@ -66,7 +66,7 @@ argi(N,I,I1) :-
 	I1 is I+1.
 
 python_query( Caller, String ) :-
- 	atomic_to_term( String, Goal, VarNames ),
+    atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	Caller.port := Status,
 %  := print(  gc.get_referrers(Caller.port)),

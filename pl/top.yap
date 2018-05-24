@@ -17,17 +17,15 @@
 % @pred live
 %
 % start a Prolog engine.
-live :- '$live'.
-
-'$live' :-
- 	repeat,
-	'$current_module'(Module),
-	( Module==user ->
-	  true % '$compile_mode'(_,0)
-	;
-	  format(user_error,'[~w]~n', [Module])
-	),
-	'$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
+live :-
+    repeat,
+    '$current_module'(Module),
+    ( Module==user ->
+      true % '$compile_mode'(_,0)
+    ;
+    format(user_error,'[~w]~n', [Module])
+    ),
+    '$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
 
 % Start file for yap
 
@@ -74,7 +72,7 @@ live :- '$live'.
 	'$run_atom_goal'(GA),
 	fail.
 '$enter_top_level' :-
-	flush_output,
+    flush_output,
 	'$run_toplevel_hooks',
 	prompt1(' ?- '),
 	'$read_toplevel'(Command,Varnames,Pos),
@@ -976,7 +974,7 @@ catch(G, C, A) :-
      ->
      !
    ;
-     true
+   true
   ).
 '$catch'(_,C,A) :-
 	'$get_exception'(C0),

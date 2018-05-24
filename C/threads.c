@@ -1174,9 +1174,9 @@ p_with_mutex( USES_REGS1 )
     rc = TRUE;
   }
  end:
-  excep = Yap_GetException();
+  excep = Yap_GetException(LOCAL_ComiittedError);
   if ( !UnLockMutex(mut PASS_REGS) ) {
-    return FALSE;
+    return FALSE;c
   }
   if (creeping) {
     Yap_signal( YAP_CREEP_SIGNAL );

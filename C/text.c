@@ -695,14 +695,15 @@ static Atom write_atom(void *s0, seq_tv_t *out USES_REGS) {
 }
 
 void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
+  int l = push_text_stack();
   size_t leng = strlen((char *)s0);
   size_t min = 0, max = leng;
   if (out->enc == ENC_ISO_UTF8) {
     if (out->val.uc == NULL) { // this should always be the case
-      out->val.uc = BaseMalloc(leng + 1);
+      out->val.uc = Malloc(leng + 1);
       strcpy(out->val.c, (char *)s0);
     } else if (out->val.uc != s0) {
-      out->val.c = BaseMalloc(leng + 1);
+      out->val.c = Malloc(leng + 1);
       strcpy(out->val.c, (char *)s0);
     }
   } else if (out->enc == ENC_ISO_LATIN1) {
@@ -710,13 +711,18 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     unsigned char *s = s0;
     unsigned char *cp = s;
     unsigned char *buf = out->val.uc;
-    if (!buf)
+    if (!buf) {
+      pop_text_stack(l);
       return NULL;
+    }
     while (*cp) {
       utf8proc_int32_t chr;
       int off = get_utf8(cp, -1, &chr);
-      if (off <= 0 || chr > 255)
+      if (off <= 0 || chr > 255) {
+      pop_text_stack(l);
         return NULL;
+	
+      }
       if (off == max)
         break;
       cp += off;
@@ -737,8 +743,10 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     wchar_t *buf0, *buf;
 
     buf = buf0 = out->val.w;
-    if (!buf)
+    if (!buf) {
+      pop_text_stack(l);
       return NULL;
+    }
     while (*cp && cp < lim) {
       utf8proc_int32_t chr;
       cp += get_utf8(cp, -1, &chr);
@@ -756,8 +764,10 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     *buf = '\0';
   } else {
     // no other encodings are supported.
+    pop_text_stack(l);
     return NULL;
   }
+  out->val.c = pop_output_text_stack__(l, out->val.c);
   return out->val.c;
 }
 

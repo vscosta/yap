@@ -1605,7 +1605,7 @@ extern Term MkErrorTerm(yap_error_descriptor_t *t);
 
 extern bool Yap_ResetException(yap_error_descriptor_t *i);
 extern bool Yap_HasException(void);
-extern yap_error_descriptor_t * Yap_GetException(void);
+extern yap_error_descriptor_t * Yap_GetException();
 extern void Yap_PrintException(void);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
   return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;

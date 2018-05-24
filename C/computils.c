@@ -721,7 +721,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    Yap_DebugPlWrite (MkIntTerm (rn & 1));
 	    break;
 	  case 'w':
-	    Yap_DebugPlWrite (arg);
+	    Yap_DebugPlWrite (MkIntTerm(arg));
 	    break;
 	  case 'o':
 	    Yap_DebugPlWrite ((Term) * cptr++);

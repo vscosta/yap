@@ -204,7 +204,8 @@ static void consult(const char *b_file USES_REGS) {
      YAP_CompileClause(t);
     }
     yap_error_descriptor_t *errd;
-    if ((errd = Yap_GetException())) {
+    if ((errd =
+	 Yap_GetException(LOCAL_CommittedError))) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
               errd->errorAsText);
     }

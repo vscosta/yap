@@ -408,7 +408,17 @@ o:p(B) :- n:g, X is 2+3, call(B).
     ).
 '$user_expansion'(MG, MG).
 
+
   '$match_mod'(G, HMod, SMod, M, O) :-
+      '$is_system_predicate'(G,M),
+      !,
+      O = G.
+  '$match_mod'(G, M, M, M, G) :-    !.
+  '$match_mod'(G, _HM, _M, M, M:G).
+
+
+/*
+'$match_mod'(G, HMod, SMod, M, O) :-
     (
      % \+ '$is_multifile'(G1,M),
      %->
@@ -420,8 +430,10 @@ o:p(B) :- n:g, X is 2+3, call(B).
     ->
      O = G
     ;
+    stop_low_level_trace,
      O = M:G
     ).
+*/
 
 '$build_up'(HM, NH, SM, true, NH, true, NH) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, true, HM:NH, true, HM:NH) :- !.
