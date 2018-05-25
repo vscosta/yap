@@ -339,11 +339,15 @@ public:
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
   bool goal(YAPTerm Yt, YAPModule module) { return mgoal(Yt.term(),module.term()); };
-  /// current directory for the engine
-  bool mgoal(Term t, Term tmod);
+  /// ru1n a goal in a module.
+  ///
+  /// By default, memory will only be fully
+  /// recovered on backtracking. The release option ensures
+  /// backtracking is called at the very end.
+  bool mgoal(Term t, Term tmod, bool release= false);
   /// current directory for the engine
 
-  bool goal(Term t) { return mgoal(t, CurrentModule); }
+  bool goal(Term t, bool release=false) { return mgoal(t, CurrentModule, release); }
   /// reset Prolog state
   void reSet();
   /// assune that there are no stack pointers, just release memory

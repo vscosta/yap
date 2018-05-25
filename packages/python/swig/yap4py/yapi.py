@@ -30,15 +30,15 @@ class Engine( YAPEngine ):
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
-        self.goal(set_prolog_flag('verbose', 'silent'))
-        self.goal(compile(library('yapi')))
-        self.goal(set_prolog_flag('verbose', 'normal'))
+        self.goal(set_prolog_flag('verbose', 'silent'), recover=True)
+        self.goal(compile(library('yapi')), recover=True)
+        self.goal(set_prolog_flag('verbose', 'normal'), release=True)
 
-    def run(self, g, m=None):
+    def run(self, g, m=None, release=False):
         if m:
-            self.mgoal(g, m)
+            self.mgoal(g, m, release=release)
         else:
-            self.goal(g)
+            self.goal(release=release)
 
 
 class EngineArgs( YAPEngineArgs ):
@@ -105,7 +105,7 @@ class v(YAPVarTerm,v0):
 
 
 class YAPShell:
-    
+
     def numbervars( self ):
         Dict = {}
         self.engine.goal(show_answer( self, Dict))
@@ -124,6 +124,7 @@ class YAPShell:
 
 
     def query_prolog(self, query):
+        g = None
         #import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
@@ -134,7 +135,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -144,16 +145,17 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
-            engine.ReSet()
-            bindings = []
+            bindings    = []
             loop = False
+            if g:
+                g.release()
             g = python_query(self, query)
-            q = Query( engine, g )
-            for bind in q:
+            self.q = Query( engine, g )
+            for bind in self.q:
                 bindings += [bind]
                 if loop:
                     continue
-                if not q.port == "exit":
+                if not self.q.port == "exit":
                     break
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
                 if s.startswith(';') or s.startswith('y'):
@@ -168,14 +170,14 @@ class YAPShell:
                     continue
                 else:
                     break
-            if q:
+            if self.q:
                 self.os = query
             if bindings:
                 return True,bindings
             print("No (more) answers")
             return False, None
         except Exception as e:
-            if not q:
+            if not self.q:
                 return False, None
             print("Exception")
             return False, None

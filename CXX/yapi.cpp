@@ -30,7 +30,7 @@ X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred, YAP_UserCPred,
 X_API bool do_init_python(void);
 #endif
 
-  
+
 }
 
 static void YAPCatchError()
@@ -510,7 +510,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   return result;
 }
 
-bool YAPEngine::mgoal(Term t, Term tmod) {
+bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
   // PyThreadState *_save;
 
@@ -548,7 +548,7 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-      YAP_LeaveGoal(result, &q);
+      YAP_LeaveGoal(result && !release, &q);
       //      PyEval_RestoreThread(_save);
       RECOVER_MACHINE_REGS();
       return result;
@@ -559,7 +559,10 @@ bool YAPEngine::mgoal(Term t, Term tmod) {
       return false;
     }
 }
-
+/**
+ * called when a query must be terminated and its state fully recovered,
+ * @type {[type]}
+ */
 void YAPEngine::release() {
 
   BACKUP_MACHINE_REGS();

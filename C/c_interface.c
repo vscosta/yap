@@ -1738,7 +1738,10 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
   dgi->b = dgi->b0 = LCL0 - (CELL *)B;
+  fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
+    fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1758,7 +1761,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b);
   myB0 = (choiceptr)(LCL0 - dgi->b0);
-  CP = myB->cp_cp;
+ CP = myB->cp_cp;
   /* sanity check */
   if (B >= myB0) {
     return false;
@@ -1767,6 +1770,8 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     // get rid of garbage choice-points 
     B = myB;
   }
+  fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
@@ -1787,9 +1792,11 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
 
+    fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b0);
-  if (B >= myB) {
+  if (B < myB) {
     /* someone cut us */
     return false;
   }
@@ -1810,6 +1817,7 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
+    
     YENV = ENV = B->cp_env;
   } else {
     Yap_TrimTrail();
@@ -1835,6 +1843,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   P = dgi->p;
   LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
+    fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
 }
 
