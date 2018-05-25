@@ -30,15 +30,15 @@ class Engine( YAPEngine ):
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
-        self.goal(set_prolog_flag('verbose', 'silent'), recover=True)
-        self.goal(compile(library('yapi')), recover=True)
-        self.goal(set_prolog_flag('verbose', 'normal'), release=True)
+        self.goal(set_prolog_flag('verbose', 'silent'),True)
+        self.goal(compile(library('yapi')), True)
+        self.goal(set_prolog_flag('verbose', 'normal'), True)
 
     def run(self, g, m=None, release=False):
         if m:
-            self.mgoal(g, m, release=release)
+            self.mgoal(g, m, release)
         else:
-            self.goal(release=release)
+            self.goal(release)
 
 
 class EngineArgs( YAPEngineArgs ):
@@ -56,6 +56,7 @@ class Predicate( YAPPredicate ):
 class Query:
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
+        engine.reSet();
         self.q = engine.query(g)
         if self.q:
             self.port = "call"
@@ -79,8 +80,10 @@ class Query:
             raise StopIteration()
 
     def close( self ):
-        self.q.close()
-        self.q = None
+        engine.reSet()
+        if self.q:
+            self.q.close()
+            self.q = None
 
 
 def name( name, arity):
@@ -108,7 +111,7 @@ class YAPShell:
 
     def numbervars( self ):
         Dict = {}
-        self.engine.goal(show_answer( self, Dict))
+        self.engine.goal(show_answer( self, Dict), True)
         return Dict
         # rc = self.q.namedVarsVector()
         # self.q.r = self.q.goal().numbervars()

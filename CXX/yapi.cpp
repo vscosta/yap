@@ -477,7 +477,9 @@ const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
 
 void YAPQuery::openQuery() {
   CACHE_REGS
-  if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
+    lvl = AllocLevel();
+
+    if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
   }
   setNext();
@@ -492,13 +494,13 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   bool result;
   YAP_dogoalinfo q;
 
-  for (arity_t i = 0; i < arity; i++)
-    XREGS[i + 1] = ts[i].term();
-
   q.CurSlot = Yap_StartSlots();
   q.p = P;
 
   q.cp = CP;
+  for (arity_t i = 0; i < arity; i++)
+    XREGS[i + 1] = ts[i].term();
+
   // allow Prolog style exceotion handling
   // don't forget, on success these bindings will still be there);
   result = YAP_LeaveGoal(true, &q);
@@ -506,6 +508,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   YAPCatchError();
 
   Yap_CloseHandles(q.CurSlot);
+  pop_text_stack(q.lvl+1);
   RECOVER_MACHINE_REGS();
   return result;
 }
@@ -519,6 +522,9 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   Term *ts = nullptr;
+    q.CurSlot = Yap_StartSlots();
+    q.p = P;
+    q.cp = CP;
   try {
     if (IsStringTerm(tmod))
       tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
@@ -540,9 +546,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
     }
     ts = nullptr;
     bool result;
-    q.CurSlot = Yap_StartSlots();
-    q.p = P;
-    q.cp = CP;
     // allow Prolog style exception handling
     // don't forget, on success these guys may create slots
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -1041,21 +1044,19 @@ std::stringstream s;
 void YAPEngine::reSet() {
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  Yap_RebootHandles(worker_id);
-  while (B && B->cp_b)
-    B = B->cp_b;
-  if (B) {
-    P = FAILCODE;
-    Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-    /* recover stack space */
-    HR = B->cp_h;
-    TR = B->cp_tr;
-#ifdef DEPTH_LIMIT
-    DEPTH = B->cp_depth;
-#endif /* DEPTH_LIMIT */
-    YENV = ENV = B->cp_env;
-  }
-  RECOVER_MACHINE_REGS();
+  
+  choiceptr b = (choiceptr)(LCL0-q.b);
+  if (b > B) B = b;
+  P = FAILCODE;
+  Yap_exec_absmi(true, YAP_EXEC_ABSMI);
+  /* recover stack space */
+  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+  if (H0+q.h < HR)
+    HR = H0+q.h;
+  if (LCL0+q.tr < (CELL*)TR)
+    TR = (tr_fr_ptr)(LCL0+q.tr);
+  Yap_CloseHandles(    q.CurSlot );
+RECOVER_MACHINE_REGS();
 }
 
 Term YAPEngine::top_level(std::string s) {

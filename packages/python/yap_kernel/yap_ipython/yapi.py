@@ -112,7 +112,7 @@ class YAPInputSplitter(InputSplitter):
         if not  line:
             line = text.rstrip()
         self.errors = []
-        engine.mgoal(errors(self, line),"user")
+        engine.mgoal(errors(self, line),"user",True)
         return self.errors != []
 
 
@@ -494,7 +494,7 @@ class YAPCompleter(Completer):
             ensure that each completion object will only be present once.
         """
         self.matches = []
-        prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user")
+        prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
         if self.matches:
             return text, self.matches
         magic_res = self.magic_matches(text)
@@ -511,7 +511,7 @@ class YAPRun:
         self.yapeng = Engine()
         global engine
         engine = self.yapeng
-        self.yapeng.goal(use_module(library("jupyter")))
+        self.yapeng.goal(use_module(library("jupyter")),True)
         self.query = None
         self.os = None
         self.it = None
@@ -527,7 +527,7 @@ class YAPRun:
             return self.errors
         self.errors=[]
         (text,_,_,_) = self.clean_end(text)
-        self.yapeng.mgoal(errors(self,text),"user")
+        self.yapeng.mgoal(errors(self,text),"user",True)
         return self.errors
 
     def jupyter_query(self, s):
@@ -724,10 +724,10 @@ class YAPRun:
                  # run the new command using the given tracer
                  #
                  try:
-                     self.yapeng.mgoal(streams(True),"user")
+                     self.yapeng.mgoal(streams(True),"user", True)
                      #state = tracer.runfunc(f,self,cell)
                      state = self.jupyter_query( cell )
-                     self.yapeng.mgoal(streams(False),"user")
+                     self.yapeng.mgoal(streams(False),"user", True)
                  except Exception as e:
                      has_raised = True
                      self.yapeng.mgoal(streams("off"),"user")

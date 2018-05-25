@@ -52,20 +52,20 @@ extern const void *MallocExportAsRO(const void *blk);
 extern int AllocLevel(void);
 
 #define push_text_stack()						\
-  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0', \
-      __FILE__,  __FUNCTION__, __LINE__), */				\
+  (/* fprintf(stderr, " + *** %d %s:%s:%d\n", AllocLevel(),*/		\
+      /*   __FILE__,  __FUNCTION__, __LINE__), */	    \
    push_text_stack__(PASS_REGS1))
 extern int push_text_stack__(USES_REGS1);
 
 #define pop_text_stack(lvl)						\
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
-     __FUNCTION__, __LINE__),*/						\
+  (/* fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel(), __FILE__,*/	\
+   /*  __FUNCTION__, __LINE__),				*/		\
    pop_text_stack__(lvl))
 extern int pop_text_stack__(int lvl USES_REGS);
 
 #define pop_output_text_stack(lvl,p)					\
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
-     __FUNCTION__, __LINE__),*/						\
+  (/*fprintf(stderr, "-- *** %d %s:%s:%d\n", AllocLevel(), __FILE__,*/	\
+   /*  __FUNCTION__, __LINE__),*/					\
    pop_output_text_stack__(lvl,p))
 extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
 

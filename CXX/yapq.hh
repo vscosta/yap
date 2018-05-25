@@ -45,7 +45,8 @@ class X_API YAPQuery : public YAPPredicate {
   YAPPairTerm names;
   YAPTerm goal;
   // temporaries
-    YAPError *e;
+  int lvl;
+  YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
     //  LOCAL_execution = this;
@@ -291,7 +292,7 @@ private:
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
-    YAPError e;
+  YAPError e;
     PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 
 public:
@@ -338,7 +339,7 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goal(YAPTerm Yt, YAPModule module) { return mgoal(Yt.term(),module.term()); };
+  bool goal(YAPTerm Yt, YAPModule module, bool release=false) { return mgoal(Yt.term(),module.term(), release); };
   /// ru1n a goal in a module.
   ///
   /// By default, memory will only be fully

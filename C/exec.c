@@ -1512,8 +1512,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* set stack */
       Yap_JumpToEnv();
       Yap_CloseTemporaryStreams();
-        Yap_CloseSlots(sls);
-    pop_text_stack(i);
+      Yap_CloseSlots(sls);
       ASP = (CELL *) PROTECT_FROZEN_B(B);
 
       if (B == NULL || B->cp_b == NULL || (CELL*)(B->cp_b) > LCL0 - LOCAL_CBorder) {
@@ -2092,7 +2091,6 @@ static Int JumpToEnv(USES_REGS1) {
     handler->cp_ap = TRUSTFAILCODE;
     handler = handler->cp_b;
   }
-  pop_text_stack(1);
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }

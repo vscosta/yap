@@ -297,6 +297,8 @@ typedef struct {
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
+  int lvl;
+  unsigned long tr, h;
 } YAP_dogoalinfo;
 
 // query manipulation support

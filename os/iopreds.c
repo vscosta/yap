@@ -1583,9 +1583,18 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       UNLOCK(st->streamlock);
     } else {
       st->file = fopen(fname, io_mode);
+      if (st->file == NULL) {
+      UNLOCK(st->streamlock);
+      if (errno == ENOENT && !strchr(io_mode, 'r')) {
+        PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+                  strerror(errno));
+      } else {
+        PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
+                  strerror(errno));
+      }
+      }
     }
-    if (!st->file) {
-      fprintf(stderr, "trying %s\n", fname);
+    if (!st->file && !st->vfs) {
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
       /* extract BACK info passed through the stream descriptor */
       return -1;
@@ -1629,19 +1638,9 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       pop_text_stack(i);
     }
   }
-  if (st->file == NULL) {
     if (!strchr(io_mode, 'b') && binary_file(fname)) {
-      UNLOCK(st->streamlock);
-      if (errno == ENOENT && !strchr(io_mode, 'r')) {
-        PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
-                  strerror(errno));
-      } else {
-        PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
-                  strerror(errno));
-      }
+      flags |= Binary_Stream_f;
     }
-    return -1;
-  }
   Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
                  flags, vfsp);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,

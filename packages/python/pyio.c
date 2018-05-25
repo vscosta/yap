@@ -69,6 +69,7 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   }
     st->u.private_data = pystream;
   st->vfs = me;
+  st->file = NULL;
   python_release_GIL(ctk);
   return st;
 }
