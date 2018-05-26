@@ -69,10 +69,9 @@ set (MPI_YAP_SOURCES
   #
 add_lib(yap_mpi ${MPI_YAP_SOURCES})
 
- target_link_libraries(yap_mpi libYap)
+ target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
 
- 
-  include_directories( ${MPI_C_INCLUDE_PATH})
+  include_directories( ${MPI_C_INCLUDE_PATH} ${CMAKE_BINARY_DIR})
 
 set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  HAVE_MPI_H=1)
    target_compile_options(yap_mpi

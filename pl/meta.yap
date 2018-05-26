@@ -362,27 +362,13 @@ meta_predicate(P) :-
 '$meta_expansion'(GMG, _BM, _HVars, GM:G) :-
 	'$yap_strip_module'(GMG, GM, G ).
 
- /**
- * @brief Perform meta-variable and user expansion on a goal _G_
- *
- * given the example
-~~~~~
-:- module(m, []).
-
-o:p(B) :- n:g, X is 2+3, call(B).
-~~~~~
- *
- * @param G input goal, without module quantification.
- * @param G1F output, non-optimised for debugging
- * @param GOF output, optimised, ie, `n:g`, `prolog:(X is 2+3)`, `call(m:B)`, where `prolog` does not  need to be explicit
- * @param GOF output, optimised, `n:g`, `prolog:(X=5)`,  `call(m:B)`
- * @param HM head module, input, o
- * @param HM source module, input, m
- * @param M current module, input, `n`, `m`, `m`
- * @param HVars-H, list of meta-variables and initial head, `[]` and `p(B)`
- *
- *
- */
+%% none -- metacalls
+ '$expand_goal'(G0, GF, GF, _HM, _SM, BM, none-_) :-
+	 !,
+    '$yap_strip_module'( BM:G0, M0N, G0N),
+    '$user_expansion'(M0N:G0N, M1:G1),
+    '$import_expansion'(M1:G1, M2:G2),
+    '$meta_expansion'(M2:G2, M1, [], GF).
 '$expand_goal'(G0, G1F, GOF, HM, SM, BM, HVars-H) :-
     '$yap_strip_module'( BM:G0, M0N, G0N),
     '$user_expansion'(M0N:G0N, M1:G1),
@@ -391,11 +377,11 @@ o:p(B) :- n:g, X is 2+3, call(B).
     '$yap_strip_module'(M2B1F, M3, B1F),
     '$end_goal_expansion'(B1F, G1F, GOF, HM, SM, M3, H).
 
-'$end_goal_expansion'(G, G1F, GOF, HM, SM, BM, H) :-
-    '$match_mod'(G, HM, SM, BM, G1F),
-    '$c_built_in'(G1F, BM, H, GO),
+'$end_goal_expansion'(G, G1, GOF, HM, SM, BM, H) :-
+    '$match_mod'(G, HM, SM, BM, G1),
+    '$c_built_in'(G1, BM, H, GO),
     '$yap_strip_module'(BM:GO, MO, IGO),
-    '$match_mod'(IGO, HM, SM, MO, GOF).
+	'$match_mod'(IGO, HM, SM, MO, GOF).
 
 '$user_expansion'(M0N:G0N, M1:G1) :-
     '_user_expand_goal'(M0N:G0N, M:G),
@@ -409,7 +395,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 '$user_expansion'(MG, MG).
 
 
-  '$match_mod'(G, HMod, SMod, M, O) :-
+  '$match_mod'(G, _HMod, _SMod, M, O) :-
       '$is_system_predicate'(G,M),
       !,
       O = G.
@@ -507,7 +493,7 @@ o:p(B) :- n:g, X is 2+3, call(B).
 
 
 expand_goal(Input, Output) :-
-    '$expand_meta_call'(Input, [], Output ).
+    '$expand_meta_call'(Input, none, Output ).
 
 '$expand_meta_call'(G, HVars, MF:GF ) :-
     source_module(SM),
