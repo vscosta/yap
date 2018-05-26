@@ -50,11 +50,11 @@ static xarg *failed__(yap_error_number e, Term t, xarg *a USES_REGS) {
 xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n) {
   CACHE_REGS
   listl = Deref(listl);
+    if (IsVarTerm(listl)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, listl, "while opening a list of options");
+    }    
   xarg *a = calloc(n, sizeof(xarg));
   
-  if (IsVarTerm(listl)) {
-    return failed(INSTANTIATION_ERROR, listl, a);
-  }
   if (IsApplTerm(listl) && FunctorOfTerm(listl) == FunctorModule)
     listl = ArgOfTerm(2, listl);
   if (!IsPairTerm(listl) && listl != TermNil) {
@@ -144,7 +144,11 @@ static xarg *matchKey2(Atom key, xarg *e0, int n, const param2_t *def) {
 /// scope
 xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n) {
   CACHE_REGS
-  xarg *a = calloc(n, sizeof(xarg));
+    listl = Deref(listl);
+    if (IsVarTerm(listl)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, listl, "while opening a list of options");
+    }    
+    xarg *a = calloc(n, sizeof(xarg));
   if (!IsPairTerm(listl) && listl != TermNil) {
     if (IsVarTerm(listl)) {
       return failed(INSTANTIATION_ERROR, listl, a);

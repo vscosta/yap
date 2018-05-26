@@ -205,7 +205,7 @@ static void consult(const char *b_file USES_REGS) {
     }
     yap_error_descriptor_t *errd;
     if ((errd =
-	 Yap_GetException(LOCAL_CommittedError))) {
+	 Yap_GetException(LOCAL_ActiveError))) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
               errd->errorAsText);
     }

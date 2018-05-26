@@ -217,7 +217,6 @@ print_message(L,E) :-
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
-	 writeln(EM),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
 	  % do term expansion
 	  '$expand_term'(C, Con, EC),

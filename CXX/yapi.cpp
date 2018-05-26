@@ -35,7 +35,7 @@ X_API bool do_init_python(void);
 
 static void YAPCatchError()
   {
-    if (false && LOCAL_CommittedError != nullptr &&
+    if (LOCAL_CommittedError != nullptr &&
 	LOCAL_CommittedError->errorNo != YAP_NO_ERROR  ) {
       // Yap_PopTermFromDB(info->errorTerm);
       // throw  throw YAPError(  );
@@ -555,10 +555,9 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
       //      PyEval_RestoreThread(_save);
       RECOVER_MACHINE_REGS();
       return result;
-      } catch (...) {
+  } catch (...) {
       YAPCatchError();
-
-      // free(LOCAL_CommittedError);
+      
       return false;
     }
 }
@@ -1050,12 +1049,17 @@ void YAPEngine::reSet() {
   P = FAILCODE;
   Yap_exec_absmi(true, YAP_EXEC_ABSMI);
   /* recover stack space */
-  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   if (H0+q.h < HR)
     HR = H0+q.h;
   if (LCL0+q.tr < (CELL*)TR)
     TR = (tr_fr_ptr)(LCL0+q.tr);
   Yap_CloseHandles(    q.CurSlot );
+  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
+  if (LOCAL_CommittedError) {
+    LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
+    free(LOCAL_CommittedError  );
+    LOCAL_CommittedError = NULL;
+  }
 RECOVER_MACHINE_REGS();
 }
 

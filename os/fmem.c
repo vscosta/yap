@@ -151,6 +151,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
     encoding = LOCAL_encoding;
   // like any file stream.
   f = st->file = fmemopen((void *)buf, nchars, "r");
+  st->vfs = NULL;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
     Yap_initStream(sno, f, "memStream", "r", TermNone, encoding, flags, NULL);
   // like any file stream.
@@ -172,7 +173,7 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   if (!buf) {
     return false;
   }
-  buf = pop_output_text_stack(l, buf);
+   buf = pop_output_text_stack(l, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);

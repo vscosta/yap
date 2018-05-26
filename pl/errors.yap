@@ -89,9 +89,9 @@ system_error(Type,Goal) :-
 %%
 % error_handler(+Error,+ Level)
 %
-% process a````````````````````````````````````````````````````````````````````````````````````````````````````````````````````````n error term.
+% process an error term.
 %
-errorv_handler(Error, Level) :-
+error_handler(Error, Level) :-
     '$LoopError'(Error, Level).
 
 '$LoopError'(_, _) :-

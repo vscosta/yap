@@ -1237,7 +1237,10 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   encoding_t encoding;
   Term tenc;
   char io_mode[8];
-
+  file_name = Deref( file_name);
+      if (IsVarTerm(file_name)) {
+      Yap_ThrowError(INSTANTIATION_ERROR, file_name, "while opening a list of options");
+    }
   // open mode
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "open/3");
@@ -1321,7 +1324,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
 #endif
       /* note that this matters for UNICODE style  conversions */
     } else {
-      Yap_Error(DOMAIN_ERROR_STREAM, tlist,
+      Yap_Error(DOMAIN_ERROR_STREAM_OPTION, t,
                 "type is ~a, must be one of binary or text", t);
     }
   }
@@ -1584,15 +1587,16 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
     } else {
       st->file = fopen(fname, io_mode);
       if (st->file == NULL) {
-      UNLOCK(st->streamlock);
-      if (errno == ENOENT && !strchr(io_mode, 'r')) {
-        PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+	UNLOCK(st->streamlock);
+	if (errno == ENOENT && !strchr(io_mode, 'r')) {
+	  PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+		    strerror(errno));
+	} else {
+	  PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
                   strerror(errno));
-      } else {
-        PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
-                  strerror(errno));
+	}
       }
-      }
+      st->vfs = NULL;
     }
     if (!st->file && !st->vfs) {
       PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
@@ -1636,6 +1640,8 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       user_name = tin;
       flags |= Popen_Stream_f;
       pop_text_stack(i);
+    } else {
+      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
     }
   }
     if (!strchr(io_mode, 'b') && binary_file(fname)) {

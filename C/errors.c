@@ -865,7 +865,11 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 }
 
 static Int close_error(USES_REGS1) {
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  if (!LOCAL_CommittedError)
+    return true;
+  LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
+  free(LOCAL_CommittedError);
+  LOCAL_CommittedError = NULL;
   return true;
 }
 
@@ -955,7 +959,8 @@ yap_error_descriptor_t *Yap_GetException(yap_error_descriptor_t *i ) {
 void Yap_PrintException(void) { printErr(LOCAL_ActiveError); }
 
 bool Yap_RaiseException(void) {
-  if (LOCAL_ActiveError->errorNo == YAP_NO_ERROR)
+  if (LOCAL_CommittedError == NULL ||
+      LOCAL_CommittedError->errorNo == YAP_NO_ERROR)
     return false;
   return Yap_JumpToEnv();
 }
@@ -970,7 +975,9 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
   return true;
 }
 
-static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
+static Int reset_exception(USES_REGS1) {
+  return Yap_ResetException(worker_id); }
+
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorClass == EVENT)
@@ -1020,18 +1027,12 @@ static Int new_exception(USES_REGS1) {
   return Yap_unify(ARG1, t);
 }
 
-static Int committed_exception(USES_REGS1) {
-  Term t = MkSysError(LOCAL_CommittedError);
-  return Yap_unify(ARG1, t);
-}
-
 static Int get_exception(  USES_REGS1) {
   yap_error_descriptor_t *i;
   Term t;
 
-  i = LOCAL_ActiveError;
-  if (i && i->errorNo != YAP_NO_ERROR) {
-    i = Yap_GetException(LOCAL_CommittedError);
+  if (LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+    i = Yap_GetException(LOCAL_ActiveError);
     Yap_ResetException(LOCAL_ActiveError);
     LOCAL_PrologMode = UserMode;
     if (i->errorRawTerm &&
@@ -1216,7 +1217,6 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$get_exception", 1, get_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
-  Yap_InitCPred("$committed_exception", 1, committed_exception, 0);
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 0, close_error, HiddenPredFlag);
   Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);

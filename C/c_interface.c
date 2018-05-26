@@ -1725,8 +1725,6 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
-  if( LOCAL_CommittedError)
-  LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
  dgi->p = P;
   dgi->cp = CP;
   dgi->CurSlot = LOCAL_CurSlot;
@@ -1845,8 +1843,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   P = dgi->p;
   LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
-    fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
-	    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  //    fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  //    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
 }
 

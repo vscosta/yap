@@ -1009,11 +1009,8 @@ prolog:print_message(Severity, Term) :-
 	 prolog:print_message_lines(user_error, Prefix, Lines)
 	),
 	!.
-prolog:print_message(Severity, _Term) :-
-	format('No handler for ~a message ~q,~n',[Severity, _Term]).
 
-'$error_descriptor'(_Info, Desc) :-
-    '$committed_exception'( Desc ).
+'$error_descriptor'( Info, Info ).
 /**
   @}
 */

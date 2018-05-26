@@ -195,7 +195,7 @@ LOCAL(ADDR, TrailTop);
 
 /* error handling info, designed to be easy to pass to the foreign world */
 LOCAL_INIT(yap_error_descriptor_t *, ActiveError, calloc(sizeof(yap_error_descriptor_t), 1));
-LOCAL_INIT(yap_error_descriptor_t *, CommittedError, calloc(sizeof(yap_error_descriptor_t), 1));
+LOCAL_INIT(yap_error_descriptor_t *, CommittedError, NULL);
 LOCAL_INIT(bool, delay, false);
 /// pointer to an exception term, from throw
 LOCAL(jmp_buf, IOBotch);

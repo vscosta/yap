@@ -9,6 +9,7 @@
  		 show_answer/3,
  		 yap_query/4,
  		 python_query/2,
+		 python_query/3,
  		 yapi_query/2
  		 ]).
 
