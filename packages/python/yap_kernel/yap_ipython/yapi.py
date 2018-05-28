@@ -496,8 +496,10 @@ class YAPCompleter(Completer):
         self.matches = []
         prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
         if self.matches:
+            print( text, magic_res )
             return text, self.matches
         magic_res = self.magic_matches(text)
+        print( text, magic_res )
         return text,  magic_res
 
 
@@ -535,6 +537,7 @@ class YAPRun:
         # construct a self.queryuery from a one-line string
         # self.query is opaque to Python
         try:
+            print(query,s, file=sys.stderr)
             program,query,stop,howmany = self.prolog_cell(s)
             found = False
             if  s != self.os:
@@ -545,10 +548,12 @@ class YAPRun:
                 self.query =  self.yapeng.query(  pg)
                 self.query.port = "call"
                 self.query.answer = {}
+                print("new", file=sys.stderr)
             else:
                 self.query.port   = "retry"
                 self.os = s
                 howmany += self.iterations
+                print('old', file=sys.stderr)
             while self.query.next():
                 answer = self.query.answer
                 found = True
@@ -696,7 +701,7 @@ class YAPRun:
             if linec:
                 self.shell.run_line_magic(magic, line)
             else:
-                print("txt0: ",txt0,"\n")
+                print("txt0: ",txt0,"\n", file=sys.stderr)
                 if len(txt0) == 1:
                     cell = ""
                 else:
@@ -730,7 +735,7 @@ class YAPRun:
                      self.yapeng.mgoal(streams(False),"user", True)
                  except Exception as e:
                      has_raised = True
-                     self.yapeng.mgoal(streams("off"),"user")
+                     self.yapeng.mgoal(streams(False),"user")
             if state:
                 self.shell.last_execution_succeeded = True
                 self.result.result    = (True, dicts)

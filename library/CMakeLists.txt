@@ -11,6 +11,7 @@ set (LIBRARY_PL
   charsio.yap
   clauses.yap
   coinduction.yap
+  completer.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap

@@ -1741,7 +1741,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   //fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
 	//  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
-  //  fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1792,8 +1792,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
 
-   // fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
-	  //  successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b0);
   if (B < myB) {
@@ -1827,9 +1827,6 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   DEPTH = ENV[E_DEPTH];
 #endif
   /* make sure we prune C-choicepoints */
-  if (POP_CHOICE_POINT(B->cp_b)) {
-    POP_EXECUTE();
-  }
   ENV = (CELL *)(ENV[E_E]);
   /* ASP should be set to the top of the local stack when we
      did the call */
@@ -1843,8 +1840,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   P = dgi->p;
   LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
-  //    fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
-  //    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+     fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
 }
 

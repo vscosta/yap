@@ -10,17 +10,19 @@
  		 yap_query/4,
  		 python_query/2,
 		 python_query/3,
+		 python_import/1,
  		 yapi_query/2
  		 ]).
 
-     :- yap_flag(verbose, silent).
+:- yap_flag(verbose, silent).
 
+:- use_module(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
-:- reexport( library(python) ).
+
 
 :- python_import(yap4py.yapi).
 %:- python_import(gc).

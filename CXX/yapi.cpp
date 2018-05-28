@@ -517,6 +517,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
   // PyThreadState *_save;
 
+
+  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
@@ -715,6 +717,8 @@ RECOVER_MACHINE_REGS();
 bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
+  std::cerr <<  "next " <<  goal.text() << "\n";
+
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   e = nullptr;
   BACKUP_MACHINE_REGS();

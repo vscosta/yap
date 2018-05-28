@@ -1,30 +1,24 @@
-
 /**
- * @file jupyter.yap
- *
- * @brief allow interaction between Jupyter and YAP.
- *
- * @long The code in here:
- * - establishes communication between Prolog and Python Streams
- * - inputs Prolog code and queries
- * - supports completion of Prolog programs.
- * -
- */
+  * @file jupyter.yap4py
+  *
+  * @brief JUpyter support.
+  */
 
+  
   % :- module( jupyter,
   %            [jupyter_query/3,
   %            errors/2,
   %            ready/2,
   %           completion/2,
-
   %         ]
 %%            ).
-:- [library(hacks)].
-:-	 reexport(library(yapi)).
-:-	 reexport(completer).
+:- use_module(library(hacks)).
+
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
+
 :-	 use_module(library(python)).
+:-	 use_module(library(yapi)).
 
 :- python_import(sys).
 
@@ -40,7 +34,8 @@ jupyter_cell( _Caller, _, Line ) :-
 jupyter_cell( _Caller, _, [] ) :- !.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
-	python_query( Self, Line, box_input ).
+		       start_low_level_trace,
+		       python_query( Self, Line ).
 
 jupyter_consult(Text) :-
 	blank( Text ),
@@ -62,21 +57,26 @@ blankc('\t').
 
 
 streams(false) :-
-nb_setval(jupyter_cell, false),
-	flush_output,
-	forall(
-	       stream_property( S, mode(_) ),
-	       close(S)
-	      ).
+    nb_setval(jupyter_cell, false),
+    fail,
+    flush_output,
+        retract(cell_stream(S)),
+	close(S),
+	fail.
+streams(false).
 streams(true) :-
-  nb_setval(jupyter_cell, true),
-%  open('/python/input', read, _Input, [alias(user_input),bom(false)]),
-	open('/python/sys.stdout', append, _Output, [alias(user_output)]),
-	open('/python/sys.stderr', append, _Error, [alias(user_error)]),
-  %  set_prolog_flag(user_input,_Input),
-	set_prolog_flag(user_output,_Output),
-	set_prolog_flag(user_error,_Error).
 
+  nb_setval(jupyter_cell, true),
+fail,
+%  open('/python/input', read, _Input, [alias(user_input),bom(false)]),
+  open('/python/sys.stdout', append, Output, [alias(user_output)]),
+  assert( cell_stream( Output) ),
+  open('/python/sys.stderr', append, Error, [alias(user_error)]),
+    assert( cell_stream( Error) ),
+%  set_prolog_flag(user_input,_Input),
+	set_prolog_flag(user_output, Output),
+	set_prolog_flag(user_error, Error).
+streams(true).
 
 ready(_Self, Line ) :-
             blank( Line ),
