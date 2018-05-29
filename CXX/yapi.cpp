@@ -559,7 +559,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
       return result;
   } catch (...) {
       YAPCatchError();
-      
+
       return false;
     }
 }
@@ -736,10 +736,11 @@ bool YAPQuery::next() {
   }
   q_state = 1;
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
-
+if (!result) {
     YAP_LeaveGoal(result, &q_h);
     Yap_CloseHandles(q_handles);
     q_open = false;
+  }
     YAPCatchError();
   RECOVER_MACHINE_REGS();
   LOCAL_RestartEnv = oldp;
@@ -1047,7 +1048,7 @@ std::stringstream s;
 void YAPEngine::reSet() {
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  
+
   choiceptr b = (choiceptr)(LCL0-q.b);
   if (b > B) B = b;
   P = FAILCODE;

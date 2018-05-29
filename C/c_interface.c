@@ -1721,6 +1721,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
   bool out;
+   fprintf(stderr,"EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
@@ -1741,7 +1742,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   //fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
 	//  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
-   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+   fprintf(stderr,"EnterGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1767,7 +1768,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     return false;
   }
   if (B < myB) {
-    // get rid of garbage choice-points 
+    // get rid of garbage choice-points
     B = myB;
   }
   //fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
@@ -1791,43 +1792,48 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB;
+  bool backtrack = false;
 
-   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
-	    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",
+	   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b0);
-  if (B < myB) {
+  myB = (choiceptr)(LCL0 - dgi->b);
+  if (B > myB) {
     /* someone cut us */
     return false;
   }
   /* prune away choicepoints */
-  while (B != myB) {
+  while (B && B->cp_b && B < myB && B->cp_b < myB) {
 #ifdef YAPOR
-    CUT_prune_to(myB);
+    CUT_prune_to(B);
 #endif
-    B = myB;
+    if (successful) {
+    B = B->cp_b;
+    trim_trail();
+    } else {
+    P = TRUSTFAILCODE;
+    Yap_exec_absmi(true, YAP_EXEC_ABSMI);
+    }
   }
   /* if backtracking asked for, recover space and bindings */
-  if (!successful) {
-    P = FAILCODE;
-    Yap_exec_absmi(true, YAP_EXEC_ABSMI);
+#if 0
+  if (0 && !successful) {
     /* recover stack space */
     HR = B->cp_h;
     TR = B->cp_tr;
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
 #endif /* DEPTH_LIMIT */
-    
+
     YENV = ENV = B->cp_env;
   } else {
     Yap_TrimTrail();
   }
+  #endif
 /* recover local stack */
 #ifdef DEPTH_LIMIT
   DEPTH = ENV[E_DEPTH];
 #endif
-  /* make sure we prune C-choicepoints */
-  ENV = (CELL *)(ENV[E_E]);
   /* ASP should be set to the top of the local stack when we
      did the call */
   ASP = B->cp_env;
@@ -1835,7 +1841,9 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   YENV = ENV = (CELL *)((B->cp_env)[E_E]);
   B = B->cp_b;
   // SET_BB(B);
-  HB = PROTECT_FROZEN_H(B);
+  if (B) {
+    HB = PROTECT_FROZEN_H(B);
+  }
   CP = dgi->cp;
   P = dgi->p;
   LOCAL_CurSlot = dgi->CurSlot;
@@ -2279,7 +2287,7 @@ X_API bool YAP_CompileClause(Term t) {
   Term mod = CurrentModule;
   Term tn = TermNil;
   bool ok = true;
-  
+
   BACKUP_MACHINE_REGS();
 
   /* allow expansion during stack initialization */
@@ -2307,7 +2315,7 @@ X_API bool YAP_CompileClause(Term t) {
   }
   RECOVER_MACHINE_REGS();
   if (!ok) {
-      return NULL;        
+      return NULL;
   }
   return ok;
 }

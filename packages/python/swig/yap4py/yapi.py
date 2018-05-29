@@ -56,7 +56,8 @@ class Predicate( YAPPredicate ):
 class Query:
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
-        engine.reSet();
+        engine.reSet()
+        self.engine = engine
         self.q = engine.query(g)
         if self.q:
             self.port = "call"
@@ -71,8 +72,8 @@ class Query:
         if not self.q:
             raise StopIteration()
         if self.q.next():
-            rc = self.answer
-            if self.port == "exit":
+            rc = self.q.answer
+            if self.q.port == "exit":
                 return rc
         else:
             if self:
@@ -80,7 +81,6 @@ class Query:
             raise StopIteration()
 
     def close( self ):
-        engine.reSet()
         if self.q:
             self.q.close()
             self.q = None
@@ -138,7 +138,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -148,7 +148,7 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
-            bindings    = []
+            bindings   = []
             loop = False
             if g:
                 g.release()
@@ -158,7 +158,7 @@ class YAPShell:
                 bindings += [bind]
                 if loop:
                     continue
-                if not self.q.port == "exit":
+                if self.q.port == "exit":
                     break
                 s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
                 if s.startswith(';') or s.startswith('y'):
@@ -174,7 +174,7 @@ class YAPShell:
                 else:
                     break
             if self.q:
-                self.os = query
+                self.q.close()
             if bindings:
                 return True,bindings
             print("No (more) answers")
@@ -182,6 +182,7 @@ class YAPShell:
         except Exception as e:
             if not self.q:
                 return False, None
+            self.q.close()
             print("Exception")
             return False, None
 

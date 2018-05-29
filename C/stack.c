@@ -115,7 +115,7 @@ static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
       *opn = opnum;
     switch (opnum) {
     case _Nstop:
-      return NULL;
+      return PredFail;
     case _jump:
       p_code = p_code->y_u.l.l;
       break;
@@ -284,8 +284,9 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
     }
     /* now mark the choicepoint */
 
-    if (b_ptr)
+    if (b_ptr) {
       pe = PredForChoicePt(b_ptr->cp_ap, NULL);
+    }
     else
       return false;
     if (pe == p) {

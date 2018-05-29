@@ -38,6 +38,7 @@ int Yap_ArgKey(Atom key, const param_t *def, int n) {
   return -1;
 }
 
+#define YAP_XARGINFO(Error, Message)
 #define failed(e, t, a) failed__(e, t, a PASS_REGS)
 
 static xarg *failed__(yap_error_number e, Term t, xarg *a USES_REGS) {

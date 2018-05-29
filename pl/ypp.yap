@@ -2,17 +2,17 @@
  * @file   ypp.yap
  * @author Nuno Fonseca (nunofonseca@acm.org), Tiago Soares
  * @date  2005-05-14
- * 
+ *
  * @brief  Yap PreProcessing
- * 
- * 
+ *
+ *
 */
 %====================================================================================
 %
 % YPP: Yap PreProcessing
 %
 % Author: Nuno Fonseca (nunofonseca@acm.org)
-% Date: 
+% Date:
 % $Id: ypp.yap,v 1.4 2006-03-07 17:30:47 tiagosoares Exp $
 %
 %====================================================================================
@@ -33,14 +33,16 @@
 
 /**
  * @defgroup ypp Yap PreProcessing
+ * @{
  * @ingroup library
  *
- * This program_continuation can be used as a preprocessor in the
+ * This program can be used as a preprocessor in the
  * style of the `C` language. Currently, it must be used through
  * ypp_consult and or ypp_reconsult.
  *
- * Notice that ypp uses `#` commands.
- * 
+ * Notice that ypp uses `#` commands and it is different from the Prolog if/1
+ * directive.
+ *
  */
 
 %====================================================================================
@@ -140,3 +142,5 @@ ypp_file(File,PPFile):-
 :-set_state(on),
 	ypp_extcmd('cpp -P -E -w -o ').
 %	ypp_extcmd('gpp -o').
+
+%% @}

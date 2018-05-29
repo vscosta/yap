@@ -82,7 +82,9 @@ python_query( Caller, String ) :-
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,
 	in_dict( Dict, var([V0|Vs])).
+in_dict(Dict, var([],_G)) :- !.
 in_dict(Dict, nonvar([V0|Vs],G)) :- !,
 	Dict[V0] := G,
 	in_dict( Dict, var([V0|Vs])).
+in_dict(Dict, nonvar([],_G)) :- !.
 in_dict(_, _).
