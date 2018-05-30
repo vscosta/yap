@@ -1726,8 +1726,9 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
- dgi->p = P;
+  dgi->p = P;
   dgi->cp = CP;
+  dgi->b0 = LCL0 - (CELL *)B;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
@@ -1736,7 +1737,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
-  dgi->b = dgi->b0 = LCL0 - (CELL *)B;
+  dgi->b = LCL0 - (CELL *)B;
   dgi->h = HR-H0;
   dgi->tr = (CELL*)TR-LCL0;
   //fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
@@ -1791,64 +1792,43 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
 
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
-  choiceptr myB;
+    choiceptr myB, handler;
   bool backtrack = false;
 
    fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",
 	   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
-  if (B > myB) {
-    /* someone cut us */
-    return false;
+  myB = (choiceptr)(LCL0 - dgi->b0);
+  handler = B;
+    while (handler
+	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
+	   //&& handler->cp_ap != NOCODE
+	 && handler->cp_b != NULL
+	   && handler != myB
+	 ) {
+    handler->cp_ap = TRUSTFAILCODE;
+    handler = handler->cp_b;
   }
-  /* prune away choicepoints */
-  while (B && B->cp_b && B < myB && B->cp_b < myB) {
-#ifdef YAPOR
-    CUT_prune_to(B);
-#endif
-    if (successful) {
-    B = B->cp_b;
-    trim_trail();
-    } else {
-    P = TRUSTFAILCODE;
+  if (LOCAL_PrologMode & AsyncIntMode) {
+    Yap_signal(YAP_FAIL_SIGNAL);
+  }
+  B = handler;
+  if (successful) {
+    Yap_TrimTrail();
+    CP = dgi->cp;
+    P = dgi->p;
+  } else {
     Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-    }
-  }
-  /* if backtracking asked for, recover space and bindings */
-#if 0
-  if (0 && !successful) {
-    /* recover stack space */
+    LOCAL_CurSlot = dgi->CurSlot;
+    ENV = YENV = B->cp_env;
     HR = B->cp_h;
     TR = B->cp_tr;
-#ifdef DEPTH_LIMIT
-    DEPTH = B->cp_depth;
-#endif /* DEPTH_LIMIT */
-
-    YENV = ENV = B->cp_env;
-  } else {
-    Yap_TrimTrail();
+    // use the current choicepoint
+    //  B=B->cp_b;
+    ASP=(CELL*)B;
   }
-  #endif
-/* recover local stack */
-#ifdef DEPTH_LIMIT
-  DEPTH = ENV[E_DEPTH];
-#endif
-  /* ASP should be set to the top of the local stack when we
-     did the call */
-  ASP = B->cp_env;
-  /* YENV should be set to the current environment */
-  YENV = ENV = (CELL *)((B->cp_env)[E_E]);
-  B = B->cp_b;
-  // SET_BB(B);
-  if (B) {
-    HB = PROTECT_FROZEN_H(B);
-  }
-  CP = dgi->cp;
-  P = dgi->p;
-  LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
-     fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
     successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
 }

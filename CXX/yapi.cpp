@@ -477,7 +477,7 @@ const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
 
 void YAPQuery::openQuery() {
   CACHE_REGS
-    lvl = AllocLevel();
+    int lvl = AllocLevel();
 
     if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
@@ -509,6 +509,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
   Yap_CloseHandles(q.CurSlot);
   pop_text_stack(q.lvl+1);
+
   RECOVER_MACHINE_REGS();
   return result;
 }
@@ -658,7 +659,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
   BACKUP_MACHINE_REGS();
   CELL *nts;
   if (ts) {
-  goal =  YAPApplTerm(f, nts);
+goal =  YAPApplTerm(f, nts);
   } else {
    goal = YAPVarTerm();
    nts = nullptr;
@@ -1047,25 +1048,14 @@ std::stringstream s;
 
 void YAPEngine::reSet() {
   /* ignore flags  for now */
-  BACKUP_MACHINE_REGS();
-
-  choiceptr b = (choiceptr)(LCL0-q.b);
-  if (b > B) B = b;
-  P = FAILCODE;
-  Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-  /* recover stack space */
-  if (H0+q.h < HR)
-    HR = H0+q.h;
-  if (LCL0+q.tr < (CELL*)TR)
-    TR = (tr_fr_ptr)(LCL0+q.tr);
-  Yap_CloseHandles(    q.CurSlot );
+  if (B && B->cp_b && B->cp_ap != NOCODE )
+  YAP_LeaveGoal(false, &q);
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   if (LOCAL_CommittedError) {
     LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
     free(LOCAL_CommittedError  );
     LOCAL_CommittedError = NULL;
   }
-RECOVER_MACHINE_REGS();
 }
 
 Term YAPEngine::top_level(std::string s) {

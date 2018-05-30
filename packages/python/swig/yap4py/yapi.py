@@ -73,8 +73,8 @@ class Query:
             raise StopIteration()
         if self.q.next():
             rc = self.q.answer
-            if self.q.port == "exit":
-                return rc
+            # if self.q.port == "exit":
+            return rc
         else:
             if self:
                 self.close()
@@ -138,7 +138,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -154,7 +154,9 @@ class YAPShell:
                 g.release()
             g = python_query(self, query)
             self.q = Query( engine, g )
+            print(self.q.port)
             for bind in self.q:
+                print(bind,self.q.port)
                 bindings += [bind]
                 if loop:
                     continue
@@ -175,6 +177,7 @@ class YAPShell:
                     break
             if self.q:
                 self.q.close()
+                self.q = None
             if bindings:
                 return True,bindings
             print("No (more) answers")
@@ -183,7 +186,9 @@ class YAPShell:
             if not self.q:
                 return False, None
             self.q.close()
-            print("Exception")
+            self.q = None
+            print("Exception",e)
+            e.errorNo = 0
             return False, None
 
     def live(self, engine, **kwargs):
@@ -193,8 +198,9 @@ class YAPShell:
             try:
                 s = input("?- ")
                 if not s:
-                    loop = False
+                    continue
                 else:
+                    print(s)
                     self.query_prolog(s)
             except SyntaxError as err:
                 print("Syntax Error error: {0}".format(err))

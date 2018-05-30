@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -705,6 +706,7 @@ static void write_list(Term t, int direction, int depth,
   while (1) {
     writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE,
               wglb);
+    Yap_DebugPlWriteln(TermNil);
     t = Yap_GetFromHandle(h);
     t = TailOfTerm(t);
     if (IsVarTerm(t))
@@ -1070,7 +1072,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   struct write_globs wglb;
   yhandle_t sls = Yap_CurrentSlot();
   int lvl = push_text_stack();
-  t = Deref(t);  
+  
   if (t == 0)
     return;
   if (!mywrite) {
