@@ -70,17 +70,14 @@ class Query:
 
     def __next__(self):
         if not self.q:
-            raise StopIteration()
-        if self.port == "exit":
-            self.close()
-            return
-        if self.q.next():
-            rc = self.answer
-            return rc
-        else:
-            if self.q:
-                self.close()
             raise RuntimeError()
+        if self.port == "exit":
+            return
+        else:
+            if self.q.next():
+                return self.port,self.answer
+            else:
+                self.close()
 
     def close( self ):
         if self.q:
@@ -140,7 +137,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -156,15 +153,13 @@ class YAPShell:
                 g.release()
             g = python_query(self, query)
             self.q = Query( engine, g )
-            print(self.q.port)
-            for bind in self.q:
-                print(bind,self.q.port)
+            for port,bind in self.q:
                 bindings += [bind]
+                if port == "exit":
+                    break
                 if loop:
                     continue
-                if self.q.port == "exit":
-                    break
-                s = input("more(;),  all(*), no(\\n), python(#) ?").lstrip()
+                s = input("more(;), all(*), no(\\n), python(#)?  ").lstrip()
                 if s.startswith(';') or s.startswith('y'):
                     continue
                 elif s.startswith('#'):

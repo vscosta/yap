@@ -19,18 +19,24 @@
   * @file   pl/listing.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:05:19 2017
-  * 
+  *
   * @brief  list predicates in a module
   *
-  * @defgroup Listing  list predicates in a module
-  * @ingroup builtins
-  * 
-*/
+  */
+
 
 :- system_module( '$_listing', [listing/0,
         listing/1,
         portray_clause/1,
         portray_clause/2], []).
+
+/**
+  * @defgroup Listing  List predicates in a module
+  * @{
+  * @ingroup builtins
+  *
+*/
+
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
@@ -44,7 +50,7 @@
 /** @pred  listing
 
 
-vxuLists in the current output stream all the clauses for which source code
+Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 

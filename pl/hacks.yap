@@ -21,13 +21,8 @@
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:02:56 2017
   *
-  * @brief  Low-level access
-  *
-  * @defgroup Hacks Low-level access
-  * @ingroup builtins
-  *
-*/
-
+  * @brief  Access to the YAP engine internal data
+  */
 
 :- module('$hacks',
 	  [display_stack_info/4,
@@ -35,6 +30,15 @@
 	   display_pc/4,
        fully_strip_module/3,
 	   code_location/3]).
+
+/**
+ *
+ * @defgroup Hacks Low-level access
+ * @ingroup builtins
+ * @{
+ *
+**/
+
 
 /** hacks:context_variables(-NamedVariables)
   Access variable names.
@@ -259,3 +263,5 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
+
+%% @}

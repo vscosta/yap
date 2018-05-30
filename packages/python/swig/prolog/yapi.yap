@@ -69,16 +69,14 @@ argi(N,I,I1) :-
 	I1 is I+1.
 
 python_query( Caller, String ) :-
-writeln(String),
-atomic_to_term( String, Goal, VarNames ),
-query_to_answer( Goal, VarNames, Status, Bindings),
-	Caller.q.port := Status,
-%  := print(  gc.get_referrers(Caller.port)),
+	atomic_to_term( String, Goal, VarNames ),
+	query_to_answer( Goal, VarNames, Status, Bindings),
+	atom_to_string( Status, SStatus ),
+	Caller.q.port := SStatus,
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.q.answer := {},
 	maplist(in_dict(Caller.q.answer), Bindings).
- % := print(  "b", gc.get_referrers(Caller.answer)).
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,

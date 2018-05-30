@@ -1,5 +1,4 @@
 
-
 #define _EXPORT_KERNEL 1
 
 #include "yapi.hh"
@@ -746,8 +745,10 @@ if (!result) {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
-  ARG1 = goal;
-  goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorMetaCall, 4, &ARG1));
+  Term ts[2];
+  ts[0] = CurrentModule;
+  ts[1] = goal;
+  ARG1 = goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorModule, 2, ts));
   return ap = PredCall;
 }
 
