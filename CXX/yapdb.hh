@@ -118,8 +118,12 @@ protected:
   }
   YAPTerm tt = YAPTerm(tout);
   ap = getPred(tt, modp);
+  tout = Yap_SaveTerm(tout);
+  tnames = Yap_SaveTerm(tnames);
   }
-    YAPPredicate(Term &t, Term &tmod, CELL * &ts, const char *pname);
+
+  
+  YAPPredicate(Term &to, Term &tmod, CELL * &ts, const char *pname);
 
   /// Term constructor for predicates
   ///

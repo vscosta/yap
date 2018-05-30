@@ -477,8 +477,6 @@ const char *YAPAtom::getName(void) { return Yap_AtomToUTF8Text(a); }
 
 void YAPQuery::openQuery() {
   CACHE_REGS
-    int lvl = AllocLevel();
-
     if (ap == NULL || ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefQuery();
   }
@@ -649,7 +647,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     goal = MkVarTerm();
   }
   openQuery();
-  names = YAPPairTerm(TermNil);
+  names = TermNil;
   RECOVER_MACHINE_REGS();
 }
 
@@ -678,7 +676,6 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t) {
     nts = RepPair(tt);
     tt = Yap_MkApplTerm(FunctorCsult, 1, nts);
   }
-  goal = *new YAPTerm(tt);
   if (IsApplTerm(tt)) {
     Functor f = FunctorOfTerm(tt);
     if (!IsExtensionFunctor(f)) {
@@ -691,8 +688,9 @@ YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t) {
       }
     }
   }
+  goal =Yap_SaveTerm( tt);
   openQuery();
-  names = YAPPairTerm(TermNil);
+  names =  TermNil ;
 }
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
@@ -705,7 +703,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
       XREGS[i + 1] = ts[i].term();
     openQuery();
   } else {
-    goal = YAPAtomTerm((Atom)(p.ap->FunctorOfPred));
+    goal = MkAtomTerm((Atom)(p.ap->FunctorOfPred));
     openQuery();
   }
   names = TermNil;
@@ -718,7 +716,7 @@ RECOVER_MACHINE_REGS();
 bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
-  std::cerr <<  "next " <<  goal.text() << "\n";
+  std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
 
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   e = nullptr;
@@ -739,7 +737,6 @@ bool YAPQuery::next() {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
 if (!result) {
     YAP_LeaveGoal(result, &q_h);
-    Yap_CloseHandles(q_handles);
     q_open = false;
   }
     YAPCatchError();
@@ -749,8 +746,8 @@ if (!result) {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
-  ARG1 = goal.term();
-  goal = YAPApplTerm(FunctorMetaCall, &ARG1);
+  ARG1 = goal;
+  goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorMetaCall, 4, &ARG1));
   return ap = PredCall;
 }
 
@@ -759,7 +756,7 @@ PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
   Term ts[2];
   ts[0] = mod;
   ts[1] = tgoal;
-  ARG1 = tgoal = Yap_MkApplTerm(FunctorModule, 2, ts);
+  ARG1 = tgoal = Yap_SaveTerm(Yap_MkApplTerm(FunctorModule, 2, ts));
   // goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
   return PredCall;
 

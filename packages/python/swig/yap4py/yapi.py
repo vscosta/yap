@@ -71,14 +71,16 @@ class Query:
     def __next__(self):
         if not self.q:
             raise StopIteration()
+        if self.port == "exit":
+            self.close()
+            return
         if self.q.next():
-            rc = self.q.answer
-            # if self.q.port == "exit":
+            rc = self.answer
             return rc
         else:
-            if self:
+            if self.q:
                 self.close()
-            raise StopIteration()
+            raise RuntimeError()
 
     def close( self ):
         if self.q:
@@ -189,7 +191,7 @@ class YAPShell:
             self.q = None
             print("Exception",e)
             e.errorNo = 0
-            return False, None
+            raise
 
     def live(self, engine, **kwargs):
         loop = True
@@ -204,6 +206,7 @@ class YAPShell:
                     self.query_prolog(s)
             except SyntaxError as err:
                 print("Syntax Error error: {0}".format(err))
+                continue
             except EOFError:
                 return
             except RuntimeError as err:

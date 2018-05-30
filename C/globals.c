@@ -1249,7 +1249,7 @@ Term Yap_SaveTerm(Term t0) {
   CACHE_REGS
   Term to;
   to = CopyTermToArena(
-      t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
+		       Deref(t0), LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;

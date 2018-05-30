@@ -71,21 +71,21 @@ argi(N,I,I1) :-
 python_query( Caller, String ) :-
 writeln(String),
 atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, VarNames, Status, Bindings),
+query_to_answer( Goal, VarNames, Status, Bindings),
 	Caller.q.port := Status,
 %  := print(  gc.get_referrers(Caller.port)),
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.q.answer := {},
-	maplist(in_dict(Caller.answer), Bindings).
+	maplist(in_dict(Caller.q.answer), Bindings).
  % := print(  "b", gc.get_referrers(Caller.answer)).
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,
 	in_dict( Dict, var([V0|Vs])).
-in_dict(Dict, var([],_G)) :- !.
+in_dict(_Dict, var([_],_G)) :- !.
 in_dict(Dict, nonvar([V0|Vs],G)) :- !,
 	Dict[V0] := G,
-	in_dict( Dict, var([V0|Vs])).
-in_dict(Dict, nonvar([],_G)) :- !.
+	in_dict( Dict, nonvar(Vs, Gs)).
+in_dict(_Dict, nonvar([],_G)) :- !.
 in_dict(_, _).

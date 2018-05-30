@@ -42,8 +42,8 @@ class X_API YAPQuery : public YAPPredicate {
   struct yami *q_p, *q_cp;
   int q_flags;
   YAP_dogoalinfo q_h;
-  YAPPairTerm names;
-  YAPTerm goal;
+  Term names;
+  Term goal;
   // temporaries
   int lvl;
   YAPError *e;
@@ -92,30 +92,32 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, goal.term(), names.term()) {
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names) {
     CELL *qt = nullptr;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
     if (!ap)
       return;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
-    if (IsPairTerm(goal.term())) {
-      qt = RepPair(goal.term());
-      goal.put(Yap_MkApplTerm(FunctorCsult, 1, qt));
+    if (IsPairTerm(goal)) {
+      qt = RepPair(goal);
+      goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCsult, 1, qt));
       ap = RepPredProp(PredPropByFunc(FunctorCsult, TermProlog));
+    } else {
+      goal = Yap_SaveTerm(goal);
     }
-    if (IsApplTerm(goal.term())) {
-      Functor f = FunctorOfTerm(goal.term());
+    if (IsApplTerm(goal)) {
+      Functor f = FunctorOfTerm(goal);
       if (!IsExtensionFunctor(f)) {
         arity_t arity = ap->ArityOfPE;
         if (arity) {
-          qt = RepAppl(goal.term()) + 1;
+          qt = RepAppl(goal) + 1;
           for (arity_t i = 0; i < arity; i++)
             XREGS[i + 1] = qt[i];
         }
       }
     }
-    names = YAPPairTerm(names.term());
+    names = Yap_SaveTerm(names);
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
@@ -155,10 +157,10 @@ public:
   void close();
   /// query variables.
   void cut();
-  Term namedVars() { return names.term(); };
+  Term namedVars() { return names; };
   YAPPairTerm namedVarTerms() { return names; };
   /// query variables, but copied out
-  std::vector<Term> namedVarsVector() { return names.listToArray(); };
+  std::vector<Term> namedVarsVector() { return YAPPairTerm(names).listToArray(); };
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;
@@ -339,7 +341,8 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goal(YAPTerm Yt, YAPModule module, bool release=false) { return mgoal(Yt.term(),module.term(), release); };
+  bool goal(YAPTerm Yt, YAPModule module, bool release=false)
+  { return mgoal(Yt.term(),module.term(), release); };
   /// ru1n a goal in a module.
   ///
   /// By default, memory will only be fully
