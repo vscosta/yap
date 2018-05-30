@@ -53,37 +53,29 @@ class Predicate( YAPPredicate ):
     def __init__(self, t, module=None):
         super().__init__(t)
 
-class Query:
+class Query (YAPQuery):
     """Goal is a predicate instantiated under a specific environment """
     def __init__(self, engine, g):
-        engine.reSet()
+        super().__init__(g)
         self.engine = engine
-        self.q = engine.query(g)
-        if self.q:
-            self.port = "call"
-            self.bindings = None
-            self.engine = engine
-            self.answer = {}
+        self.port = "call"
+        self.bindings = None
+        self.answer = {}
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        if not self.q:
-            raise RuntimeError()
-        if self.port == "exit":
+        if self.port == "exit" or self.port == "fail":
             return
         else:
-            if self.q.next():
+            if self.next():
                 return self.port,self.answer
             else:
                 self.close()
 
     def close( self ):
-        if self.q:
-            self.q.close()
-            self.q = None
-
+        self.engine.reSet()
 
 def name( name, arity):
     try:

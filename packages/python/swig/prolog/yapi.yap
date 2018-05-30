@@ -72,11 +72,13 @@ python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	atom_to_string( Status, SStatus ),
-	Caller.q.port := SStatus,
+	Caller.port := SStatus,
+	       start_low_level_trace,
 	write_query_answer( Bindings ),
 	nl(user_error),
-	Caller.q.answer := {},
-	maplist(in_dict(Caller.q.answer), Bindings).
+	Caller.answer := {},
+		 maplist(in_dict(Caller.answer), Bindings).
+							     
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,
@@ -84,6 +86,6 @@ in_dict(Dict, var([V0,V|Vs])) :- !,
 in_dict(_Dict, var([_],_G)) :- !.
 in_dict(Dict, nonvar([V0|Vs],G)) :- !,
 	Dict[V0] := G,
-	in_dict( Dict, nonvar(Vs, Gs)).
+	in_dict( Dict, nonvar(Vs, G) ).
 in_dict(_Dict, nonvar([],_G)) :- !.
 in_dict(_, _).

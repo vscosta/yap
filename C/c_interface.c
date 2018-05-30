@@ -1744,6 +1744,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
 	//  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
    fprintf(stderr,"EnterGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  dgi->b = LCL0 - (CELL *)B;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
