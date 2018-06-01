@@ -502,7 +502,7 @@ write_query_answer( Bindings ) :-
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
-        ( yap_flag(toplevel_print_options, Opts) ->
+       ( yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,B,[priority(699)|Opts]) ;
 	   write_term(user_error,B,[priority(699)])
         ).

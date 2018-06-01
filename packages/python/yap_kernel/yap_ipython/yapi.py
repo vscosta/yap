@@ -560,6 +560,8 @@ class YAPRun:
                 pg = jupyter_query( self, program, squery)
                 self.query =  self.yapeng.query(pg)
                 self.query.answer = {}
+                self.yapeng.mgoal(streams(False),"user", True)
+                self.yapeng.mgoal(streams(True),"user", True)
             while self.query.next():
                 answer = self.query.answer
                 found = True
@@ -568,6 +570,7 @@ class YAPRun:
                 if self.query.port  == "exit":
                     self.os = None
                     sys.stderr.writeln('Done, with', self.bindings)
+                    self.yapeng.mgoal(streams(False),"user", True)
                     return True,self.bindings
                 if stop or howmany == self.iterations:
                     return True, self.bindings
@@ -576,12 +579,14 @@ class YAPRun:
             else:
                 self.os = None
                 self.query.close()
-                self.query = None
+``                self.query = None
                 sys.stderr.write('Fail\n')
-            return True,self.bindings
+                self.yapeng.mgoal(streams(False),"user", True)
+                return True,self.bindings
         except Exception as e:
             sys.stderr.write('Exception after', self.bindings, '\n')
             has_raised = True
+            self.yapeng.mgoal(streams(False),"user", True)
             return False,[]
 
 
@@ -627,6 +632,7 @@ class YAPRun:
         # variable names should match strings
         # ask = True
         # launch the query
+
 
         info = interactiveshell.ExecutionInfo(
             raw_cell, store_history, silent, shell_futures)
@@ -731,11 +737,10 @@ class YAPRun:
 
                 # run the new command using the given tracer
                 #
-                #   self.yapeng.mgoal(streams(True),"user", True)
                 # tracer.runfunc(f,self,cell,state)
                 self.jupyter_query( cell )
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
-                #  self.yapeng.mgoal(streams(False),"user", True)
+                self.yapeng.mgoal(streams(False),"user", True)
             self.shell.last_execution_succeeded = True
             self.result.result    = (True, dicts)
             

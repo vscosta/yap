@@ -34,26 +34,18 @@ jupyter_cell( _Caller, _, Line ) :-
 jupyter_cell( _Caller, _, [] ) :- !.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
-		       gated_call( streams(true),
-				   python_query(Self,Line),
-				   Gate,
-				   restreams(Gate)
-				 ).
+		       python_query(Self,Line).
 
-restreams(redo) :-
+restreams(call) :-
     streams(true).
 restreams(fail) :-
     streams(false).
-restreams(answer) :-
-    streams(false).
+restreams(answer).
 restreams(exit) :-
     streams(false).
-restreams(!) :-
-    streams(false).
-restreams(external_exception(_)) :-
-    streams(false).
-restreams(exception) :-
-    streams(false).
+restreams(!).
+restreams(external_exception(_)).
+restreams(exception).
 
 jupyter_consult(Text) :-
 	blank( Text ),
@@ -83,7 +75,6 @@ streams(false) :-
 streams(false).
 streams(true) :-
     nb_setval(jupyter_cell, true),
-    start_low_level_trace,
     \+ current_stream('/python/input',_,_),
     open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
     assert( cell_stream( Input) ),

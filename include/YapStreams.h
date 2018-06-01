@@ -233,6 +233,9 @@ typedef struct stream_desc {
      struct {
       const unsigned char *buf, *ptr;
     } irl;
+     struct {
+       unsigned char *buf, *ptr;
+    } w_irl;
     void *private_data;
   } u;
     struct {

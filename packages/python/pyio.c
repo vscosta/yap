@@ -4,26 +4,46 @@
 #include <VFS.h>
 
 #include "YapStreams.h"
+#include "YapUTF8.h"
 
 YAP_Term TermErrStream, TermOutStream;
+
+static unsigned char *outbuf, *errbuf;
+
+static void  pyflush( StreamDesc *st)
+{
+  #if 0
+  st->u.w_irl.ptr[0] = '\0';
+  fprintf(stderr,"%s\n", st->u.w_irl.buf);
+  term_t tg = python_acquire_GIL();
+  if (st->user_name == TermOutStream){
+    PySys_WriteStdout("%s", st->u.w_irl.buf);
+  } else {
+    PySys_WriteStderr("%s", st->u.w_irl.buf);
+    
+  }
+  python_release_GIL(tg);
+  st->u.w_irl.ptr =   st->u.w_irl.buf;
+  #endif
+      
+}
 
 static int py_putc(int sno, int ch) {
   // PyObject *pyw; // buffer
   // int pyw_kind;
   // PyObject *pyw_data;
   StreamDesc *st = YAP_GetStreamFromId(sno);
-  if (st->user_name == TermOutStream) {
-    term_t tg = python_acquire_GIL();
-   PySys_WriteStdout("%C", ch);
-    python_release_GIL(tg);
-    return ch;
+#if 0
+  if (false && (st->user_name == TermOutStream || st->user_name == TermErrStream)) {
+     size_t sz = put_utf8(st->u.w_irl.ptr, ch);
+     if (sz > 0) {
+	st->u.w_irl.ptr += sz;
+      if (ch == '\n' ||  st->u.w_irl.ptr - st->u.w_irl.buf > 256)
+	{pyflush(st); }
+     }
+        return ch;
   }
-  if (st->user_name == TermErrStream) {
-    term_t tg = python_acquire_GIL();
-    PySys_WriteStderr("%C", ch);
-    python_release_GIL(tg);
-    return ch;
-  }
+  #endif
   char s[2];
   PyObject *err;
   s[0] = ch;
@@ -58,13 +78,20 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   }
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
-  if (strcmp(name, "sys.stdout") == 0) {
+  /*  if (strcmp(name, "sys.stdout") == 0) {
+    if (!outbuf)
+       outbuf =   ( unsigned char *)malloc(1024);
+    st->u.w_irl.ptr = st->u.w_irl.buf = outbuf;
     st->user_name = TermOutStream;
   } else if (strcmp(name, "sys.stderr") == 0) {
     st->user_name = TermErrStream;
+    if (!errbuf)
+     errbuf = ( unsigned char *)malloc(1024);
+    st->u.w_irl.ptr = st->u.w_irl.buf = errbuf;
     //  } else if (strcmp(name, "input") == 0) {
     //pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
-  } else {
+    } else */
+  {
     st->user_name = YAP_MkAtomTerm(st->name);
   }
     st->u.private_data = pystream;
@@ -75,10 +102,23 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
 }
 
 
+static void py_flush(int sno) {
+  StreamDesc *s = YAP_GetStreamFromId(sno);
+  term_t tg = python_acquire_GIL();
+  PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
+   pyflush(s);
+  PyObject_CallFunction(flush, NULL);
+  python_release_GIL(tg);
+}
+
+
 static bool py_close(int sno) {
   StreamDesc *st = YAP_RepStreamFromId(sno);
+  if (st->status & (Output_Stream_f|Append_Stream_f))
+  py_flush(sno);
   if (strcmp(st->name, "sys.stdout") && strcmp(st->name, "sys.stderr")) {
     Py_XDECREF(st->u.private_data);
+    st->u.w_irl.buf = st->u.w_irl.ptr = NULL;
   }
   st->u.private_data = NULL;
   st->vfs = NULL;
@@ -161,14 +201,6 @@ static int64_t py_seek(int sno, int64_t where, int how) {
                                                PyLong_FromLong(how), NULL);
   python_release_GIL(s0);
   return PyLong_AsLong(pyr);
-}
-
-static void py_flush(int sno) {
-  StreamDesc *s = YAP_GetStreamFromId(sno);
-  term_t tg = python_acquire_GIL();
-  PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
-  PyObject_CallFunction(flush, NULL);
-  python_release_GIL(tg);
 }
 
 #if 0
