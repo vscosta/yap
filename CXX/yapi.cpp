@@ -516,7 +516,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   // PyThreadState *_save;
 
 
-  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
@@ -632,7 +632,6 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 
   /* ignore flags  for now */
   BACKUP_MACHINE_REGS();
-  Term *nts;
   Term goal;
 
   if (ts) {
@@ -654,7 +653,6 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
   /* ignore flags for now */
   BACKUP_MACHINE_REGS();
-  CELL *nts;
   if (ts) {
 goal =  YAPApplTerm(f, nts);
   } else {
@@ -667,30 +665,6 @@ goal =  YAPApplTerm(f, nts);
 }
 #endif
 
-YAPQuery::YAPQuery(YAPTerm t) : YAPPredicate(t) {
-  BACKUP_MACHINE_REGS();
-  CELL *nts;
-  Term tt = t.term();
-  if (IsPairTerm(tt)) {
-    nts = RepPair(tt);
-    tt = Yap_MkApplTerm(FunctorCsult, 1, nts);
-  }
-  if (IsApplTerm(tt)) {
-    Functor f = FunctorOfTerm(tt);
-    if (!IsExtensionFunctor(f)) {
-      nts = nullptr;
-      arity_t arity = ArityOfFunctor(f);
-      if (arity) {
-        nts = RepAppl(tt) + 1;
-        for (arity_t i = 0; i < arity; i++)
-          XREGS[i + 1] = nts[i];
-      }
-    }
-  }
-  goal =Yap_SaveTerm( tt);
-  openQuery();
-  names =  TermNil ;
-}
 
 YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
   BACKUP_MACHINE_REGS();
@@ -715,7 +689,7 @@ RECOVER_MACHINE_REGS();
 bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
-  std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
+  //std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
 
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   e = nullptr;
@@ -909,38 +883,39 @@ YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity) {
 }
 
 /// auxiliary routine to find a predicate in the current module.
-PredEntry *YAPPredicate::getPred(YAPTerm &tt, CELL *&outp) {
+PredEntry *YAPPredicate::getPred(Term &t, CELL *&out) {
   CACHE_REGS
-  Term m = Yap_CurrentModule(), t = tt.term();
+  Term m = Yap_CurrentModule();
   t = Yap_StripModule(t, &m);
 
   if (IsVarTerm(t) || IsNumTerm(t)) {
     if (IsVarTerm(t))
-      throw YAPError(SOURCE(), INSTANTIATION_ERROR, tt.term(), 0);
+      throw YAPError(SOURCE(), INSTANTIATION_ERROR, t, 0);
     else if (IsNumTerm(t))
-      throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, tt.term(), 0);
+      throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
   }
-  tt.put(t);
   if (IsAtomTerm(t)) {
     ap = RepPredProp(PredPropByAtom(AtomOfTerm(t), m));
-    outp = (Term *)NULL;
     return ap;
   } else if (IsPairTerm(t)) {
-    Term ts[2];
+    Term ts[2], *s = ( out ? out : ts );
     Functor FunctorConsult = Yap_MkFunctor(Yap_LookupAtom("consult"), 1);
-    ts[1] = t;
-    ts[0] = m;
-    t = Yap_MkApplTerm(FunctorModule, 2, ts);
+    s[1] = t;
+    s[0] = m;
+    t = Yap_MkApplTerm(FunctorModule, 2, s);
     t = Yap_MkApplTerm(FunctorConsult, 1, &t);
-    tt.put(t);
-    outp = RepAppl(t) + 1;
+    if (!out)
+      out = RepAppl(t) + 1;
   }
   Functor f = FunctorOfTerm(t);
   if (IsExtensionFunctor(f)) {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
   } else {
     ap = RepPredProp(PredPropByFunc(f, m));
-    outp = RepAppl(t) + 1;
+    if (out)
+      memcpy( out, RepAppl(t) + 1, ap->ArityOfPE*sizeof(CELL) );
+    else
+      out = RepAppl(t) + 1;
   }
   return ap;
 }

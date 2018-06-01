@@ -34,8 +34,26 @@ jupyter_cell( _Caller, _, Line ) :-
 jupyter_cell( _Caller, _, [] ) :- !.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
-		       start_low_level_trace,
-		       python_query( Self, Line ).
+		       gated_call( streams(true),
+				   python_query(Self,Line),
+				   Gate,
+				   restreams(Gate)
+				 ).
+
+restreams(redo) :-
+    streams(true).
+restreams(fail) :-
+    streams(false).
+restreams(answer) :-
+    streams(false).
+restreams(exit) :-
+    streams(false).
+restreams(!) :-
+    streams(false).
+restreams(external_exception(_)) :-
+    streams(false).
+restreams(exception) :-
+    streams(false).
 
 jupyter_consult(Text) :-
 	blank( Text ),
@@ -58,24 +76,30 @@ blankc('\t').
 
 streams(false) :-
     nb_setval(jupyter_cell, false),
-    fail,
     flush_output,
         retract(cell_stream(S)),
 	close(S),
 	fail.
 streams(false).
 streams(true) :-
-
-  nb_setval(jupyter_cell, true),
-fail,
-%  open('/python/input', read, _Input, [alias(user_input),bom(false)]),
-  open('/python/sys.stdout', append, Output, [alias(user_output)]),
-  assert( cell_stream( Output) ),
-  open('/python/sys.stderr', append, Error, [alias(user_error)]),
+    nb_setval(jupyter_cell, true),
+    start_low_level_trace,
+    \+ current_stream('/python/input',_,_),
+    open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
+    assert( cell_stream( Input) ),
+    set_prolog_flag(user_input,Input),
+    fail.
+streams(true) :-
+	\+ current_stream('/python/sys.stdout',_,_),
+	open('/python/sys.stdout', append, Output, [alias(user_output)]),
+	assert( cell_stream( Output) ),
+	fail.
+streams(true) :-
+    \+ current_stream('/python/sys.stderr',_,_),
+    open('/python/sys.stderr', append, Error, [alias(user_error)]),
     assert( cell_stream( Error) ),
-%  set_prolog_flag(user_input,_Input),
-	set_prolog_flag(user_output, Output),
-	set_prolog_flag(user_error, Error).
+    set_prolog_flag(user_error, Error),
+fail.
 streams(true).
 
 ready(_Self, Line ) :-

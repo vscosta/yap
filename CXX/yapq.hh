@@ -44,8 +44,8 @@ class X_API YAPQuery : public YAPPredicate {
   YAP_dogoalinfo q_h;
   Term names;
   Term goal;
+  CELL *nts;
   // temporaries
-  int lvl;
   YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
@@ -69,6 +69,7 @@ public:
     goal = TermTrue;
     openQuery();
   };
+  inline ~YAPQuery() { close(); }
   /// main constructor, uses a predicate and an array of terms
   ///
   /// It is given a YAPPredicate _p_ , and an array of terms that must have at
@@ -92,32 +93,10 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names) {
-    CELL *qt = nullptr;
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
-    if (!ap)
-      return;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
-    if (IsPairTerm(goal)) {
-      qt = RepPair(goal);
-      goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCsult, 1, qt));
-      ap = RepPredProp(PredPropByFunc(FunctorCsult, TermProlog));
-    } else {
-      goal = Yap_SaveTerm(goal);
-    }
-    if (IsApplTerm(goal)) {
-      Functor f = FunctorOfTerm(goal);
-      if (!IsExtensionFunctor(f)) {
-        arity_t arity = ap->ArityOfPE;
-        if (arity) {
-          qt = RepAppl(goal) + 1;
-          for (arity_t i = 0; i < arity; i++)
-            XREGS[i + 1] = qt[i];
-        }
-      }
-    }
-    names = Yap_SaveTerm(names);
+    
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
@@ -134,7 +113,13 @@ public:
   ///
   /// It i;
   ///};
-  YAPQuery(YAPTerm t);
+  /// build a query from a term
+  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()),(nts=Yap_XREGS+1)) {
+    BACKUP_MACHINE_REGS();
+    openQuery();
+    names =  TermNil ;
+  RECOVER_MACHINE_REGS();
+  }
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling

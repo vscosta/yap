@@ -13,15 +13,15 @@ static int py_putc(int sno, int ch) {
   // PyObject *pyw_data;
   StreamDesc *st = YAP_GetStreamFromId(sno);
   if (st->user_name == TermOutStream) {
-   // term_t tg = python_acquire_GIL();
-    PySys_WriteStdout("%C", ch);
-    //python_release_GIL(tg);
+    term_t tg = python_acquire_GIL();
+   PySys_WriteStdout("%C", ch);
+    python_release_GIL(tg);
     return ch;
   }
   if (st->user_name == TermErrStream) {
-    //term_t tg = python_acquire_GIL();
+    term_t tg = python_acquire_GIL();
     PySys_WriteStderr("%C", ch);
-    //python_release_GIL(tg);
+    python_release_GIL(tg);
     return ch;
   }
   char s[2];
@@ -62,8 +62,8 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
     st->user_name = TermOutStream;
   } else if (strcmp(name, "sys.stderr") == 0) {
     st->user_name = TermErrStream;
-  } else if (strcmp(name, "input") == 0) {
-    pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
+    //  } else if (strcmp(name, "input") == 0) {
+    //pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
   } else {
     st->user_name = YAP_MkAtomTerm(st->name);
   }
@@ -90,16 +90,16 @@ static bool getLine(int inp) {
   char *myrl_line = NULL;
   StreamDesc *rl_instream = YAP_RepStreamFromId(inp);
   term_t ctk = python_acquire_GIL();
-  fprintf(stderr, "in");
+  Py_ssize_t size;
   PyObject *prompt = PyUnicode_FromString("?- "),
            *msg = PyUnicode_FromString(" **input** ");
   /* window of vulnerability opened */
-  myrl_line = PyUnicode_AsUTF8(PyObject_CallFunctionObjArgs(
-      rl_instream->u.private_data, msg, prompt, NULL));
+  myrl_line = PyUnicode_AsUTF8AndSize(PyObject_CallFunctionObjArgs(
+								   rl_instream->u.private_data, msg, prompt, NULL), &size);
   python_release_GIL(ctk);
   rl_instream->u.irl.ptr = rl_instream->u.irl.buf =
-      (const unsigned char *)myrl_line;
-  myrl_line = NULL;
+    (const unsigned char *)malloc(size);
+  memcpy((void *)rl_instream->u.irl.buf, myrl_line, size);
   return true;
 }
 

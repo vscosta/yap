@@ -73,7 +73,6 @@ python_query( Caller, String ) :-
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	atom_to_string( Status, SStatus ),
 	Caller.port := SStatus,
-	       start_low_level_trace,
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.answer := {},
@@ -88,4 +87,4 @@ in_dict(Dict, nonvar([V0|Vs],G)) :- !,
 	Dict[V0] := G,
 	in_dict( Dict, nonvar(Vs, G) ).
 in_dict(_Dict, nonvar([],_G)) :- !.
-in_dict(_, _).
+in_dict(_, _)

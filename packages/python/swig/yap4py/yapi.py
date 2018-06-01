@@ -66,17 +66,10 @@ class Query (YAPQuery):
         return self
 
     def __next__(self):
-        if self.port == "exit" or self.port == "fail":
-            return
-        else:
-            if self.next():
-                return self.port,self.answer
-            else:
-                self.close()
-
-    def close( self ):
-        self.engine.reSet()
-
+        if self.port == "fail":
+            raise IndexError()
+        return self.next()
+ 
 def name( name, arity):
     try:
         if  arity > 0 and name.isidentifier(): # and not keyword.iskeyword(name):
@@ -141,13 +134,11 @@ class YAPShell:
             engine = self.engine
             bindings   = []
             loop = False
-            if g:
-                g.release()
             g = python_query(self, query)
             self.q = Query( engine, g )
-            for port,bind in self.q:
-                bindings += [bind]
-                if port == "exit":
+            while self.q.next():
+                bindings += [self.q.answer]
+                if self.q.port == "exit":
                     break
                 if loop:
                     continue
@@ -189,7 +180,6 @@ class YAPShell:
                 if not s:
                     continue
                 else:
-                    print(s)
                     self.query_prolog(s)
             except SyntaxError as err:
                 print("Syntax Error error: {0}".format(err))

@@ -433,7 +433,7 @@ live :-
     '$process_answer'(Vs, LBlk, NLAnsw),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
-% @pred write_query_answer( +Bindings )
+%% @pred write_query_answer( +Bindings )
 %
 % YAP uses this routine to  output the answer to a query.
 % _Bindings_ are
