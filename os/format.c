@@ -997,7 +997,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   fstr = NULL;
   targs = NULL;
   format_clean_up(sno, sno0, finfo);
-  return (TRUE);
+  return true;
 }
 
 static Term memStreamToTerm(int output_stream, Functor f, Term inp) {

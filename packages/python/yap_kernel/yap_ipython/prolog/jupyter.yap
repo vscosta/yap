@@ -66,32 +66,34 @@ blankc(' ').
 blankc('\n').
 blankc('\t').
 
+:- dynamic cell_stream/1.
 
 streams(false) :-
     nb_setval(jupyter_cell, false),
-    flush_output,
         retract(cell_stream(S)),
 	close(S),
 	fail.
 streams(false).
 streams(true) :-
+    streams( false ),
     nb_setval(jupyter_cell, true),
-    \+ current_stream('/python/input',_,_),
+%    \+ current_stream('/python/input',_,_),
     open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
     assert( cell_stream( Input) ),
     set_prolog_flag(user_input,Input),
     fail.
 streams(true) :-
-	\+ current_stream('/python/sys.stdout',_,_),
-	open('/python/sys.stdout', append, Output, [alias(user_output)]),
-	assert( cell_stream( Output) ),
-	fail.
+%    \+ current_stream('/python/sys.stdout',_,_),
+    open('/python/sys.stdout', append, Output, [alias(user_output)]),
+    set_prolog_flag(user_output, Output),
+    assert( cell_stream( Output) ),
+    fail.
 streams(true) :-
-    \+ current_stream('/python/sys.stderr',_,_),
+    %    \+ current_stream('/python/sys.stderr',_,_),
     open('/python/sys.stderr', append, Error, [alias(user_error)]),
     assert( cell_stream( Error) ),
     set_prolog_flag(user_error, Error),
-fail.
+    fail.
 streams(true).
 
 ready(_Self, Line ) :-

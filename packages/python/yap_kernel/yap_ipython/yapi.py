@@ -1,26 +1,17 @@
-import os
 import sys
-import abc
-import math
-import itertools
-import trace
 
 
-from typing import Iterator, List, Tuple, Iterable, Union
-from traitlets import Bool, Enum, observe, Int
+from typing import  List
+from traitlets import Bool
 
 
 from yap4py.yapi import *
-from yap_ipython.core.completer import Completer, Completion
-from yap_ipython.utils.strdispatch import StrDispatch
+from yap_ipython.core.completer import Completer
 # import yap_ipython.core
 from traitlets import Instance
 from yap_ipython.core.inputsplitter import *
 from yap_ipython.core.inputtransformer import *
 from yap_ipython.core.interactiveshell import *
-from pygments import highlight
-from pygments.lexers.prolog import PrologLexer
-from pygments.formatters import HtmlFormatter
 
 from yap_ipython.core import interactiveshell
 
@@ -38,6 +29,7 @@ exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
 streams = namedtuple('streams', ' text' )
+nostreams = namedtuple('nostreams', ' text' )
 
 global  engine
 
@@ -50,7 +42,6 @@ def tracefunc(frame, event, arg, indent=[0]):
         indent[0] -= 2
     return tracefunc
 
-import sys
 
 class YAPInputSplitter(InputSplitter):
     """An input splitter that recognizes all of iyap's special syntax."""
@@ -560,8 +551,6 @@ class YAPRun:
                 pg = jupyter_query( self, program, squery)
                 self.query =  self.yapeng.query(pg)
                 self.query.answer = {}
-                self.yapeng.mgoal(streams(False),"user", True)
-                self.yapeng.mgoal(streams(True),"user", True)
             while self.query.next():
                 answer = self.query.answer
                 found = True
@@ -570,7 +559,6 @@ class YAPRun:
                 if self.query.port  == "exit":
                     self.os = None
                     sys.stderr.writeln('Done, with', self.bindings)
-                    self.yapeng.mgoal(streams(False),"user", True)
                     return True,self.bindings
                 if stop or howmany == self.iterations:
                     return True, self.bindings
@@ -581,7 +569,6 @@ class YAPRun:
                 self.query.close()
                 self.query = None
                 sys.stderr.write('Fail\n')
-                self.yapeng.mgoal(streams(False),"user", True)
                 return True,self.bindings
         except Exception as e:
             sys.stderr.write('Exception after', self.bindings, '\n')
@@ -738,9 +725,10 @@ class YAPRun:
                 # run the new command using the given tracer
                 #
                 # tracer.runfunc(f,self,cell,state)
+                self.yapeng.mgoal(streams(True),"user", True)
                 self.jupyter_query( cell )
-                # state = tracer.runfunc(jupyter_query( self, cell ) )
                 self.yapeng.mgoal(streams(False),"user", True)
+                # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
             self.result.result    = (True, dicts)
             
@@ -786,7 +774,6 @@ class YAPRun:
             s = s[:i-1]
             if n:
                 its = 0
-                j = 0
                 for ch in n:
                     if not ch.isdigit():
                         raise SyntaxError()
