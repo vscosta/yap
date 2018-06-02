@@ -280,7 +280,7 @@ set (RENAMED_RESOURCES
   # yap_kernel/resources/codemirror/mode/prolog/prolog.js
 )
 
-set (PL_SOURCES yap_ipython/prolog/jupyter.yap
+set (PL_SOURCES yap_ipython/prolog/jupyter.yap yap_ipython/prolog/complete.yap
   )
 
 set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})

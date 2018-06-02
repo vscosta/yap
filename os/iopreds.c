@@ -1761,6 +1761,42 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   return sno;
 }
 
+int Yap_CheckTextWriteStream__(const char *file, const char *f, int line, Term arg,
+   const char *msg) {
+  int sno, kind = Output_Stream_f;
+  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (kind & Output_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+                  msg);
+    return -1;
+  }
+  return sno;
+}
+
+int Yap_CheckTextReadStream__(const char *file, const char *f, int line, Term arg,
+    const char *msg) {
+  int sno, kind = Input_Stream_f;
+  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (kind & Input_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+                  msg);
+    return -1;
+  }
+  return sno;
+}
+
 int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
                             int kind, const char *msg) {
   int sno;

@@ -19,6 +19,7 @@
 
 :-	 use_module(library(python)).
 :-	 use_module(library(yapi)).
+:-	 use_module(library(complete)).
 
 :- python_import(sys).
 

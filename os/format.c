@@ -1114,7 +1114,7 @@ static Int with_output_to(USES_REGS1) {
 static Int format(Term tf, Term tas, Term tout USES_REGS) {
   Int out;
   Functor f;
-  int output_stream = LOCAL_c_output_stream;
+  int output_stream;
   bool mem_stream = false;
 
   if (IsVarTerm(tout)) {
@@ -1122,16 +1122,16 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
     return false;
   }
   yhandle_t hl = Yap_StartHandles(), yo = Yap_PushHandle(tout);
-  if (IsApplTerm(tout) && (f = FunctorOfTerm(tout))) {
-     if (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
-       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars){
+  if (IsApplTerm(tout) && (f = FunctorOfTerm(tout)) &&
+      (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
+       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) ){
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
     mem_stream = true;
   }
-  if (!mem_stream) {
+  if (output_stream <0 ||!mem_stream) {
+    UNLOCK(GLOBAL_Stream[output_stream].streamlock);
     /* needs to change LOCAL_c_output_stream for write */
     output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
-  }
   }
   if (output_stream == -1) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);

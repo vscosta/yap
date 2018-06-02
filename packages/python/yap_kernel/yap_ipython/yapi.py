@@ -579,7 +579,7 @@ class YAPRun:
             else:
                 self.os = None
                 self.query.close()
-``                self.query = None
+                self.query = None
                 sys.stderr.write('Fail\n')
                 self.yapeng.mgoal(streams(False),"user", True)
                 return True,self.bindings
