@@ -82,6 +82,11 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
     if (!outbuf)
        outbuf =   ( unsigned char *)malloc(1024);
     st->u.w_irl.ptr = st->u.w_irl.buf = outbuf;
+
+
+
+
+]\]
     st->user_name = TermOutStream;
   } else if (strcmp(name, "sys.stderr") == 0) {
     st->user_name = TermErrStream;

@@ -525,11 +525,10 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
-  try {
+    PredEntry *ap;
     if (IsStringTerm(tmod))
       tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
     YAPPredicate *p = new YAPPredicate(t, tmod, ts, "C++");
-    PredEntry *ap = nullptr;
     if (p == nullptr || (ap = p->ap) == nullptr ||
         ap->OpcodeOfPred == UNDEF_OPCODE) {
       ap = rewriteUndefEngineQuery(ap, t, tmod);
@@ -555,11 +554,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
       //      PyEval_RestoreThread(_save);
       RECOVER_MACHINE_REGS();
       return result;
-  } catch (...) {
-      YAPCatchError();
-
-      return false;
-    }
 }
 /**
  * called when a query must be terminated and its state fully recovered,
@@ -722,17 +716,14 @@ PredEntry *YAPQuery::rewriteUndefQuery() {
   Term ts[2];
   ts[0] = CurrentModule;
   ts[1] = goal;
-  ARG1 = goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorModule, 2, ts));
+  ARG1 = goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCall
+					    , 1, &goal));
   return ap = PredCall;
 }
 
 PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
                                               Term mod) {
-  Term ts[2];
-  ts[0] = mod;
-  ts[1] = tgoal;
-  ARG1 = tgoal = Yap_SaveTerm(Yap_MkApplTerm(FunctorModule, 2, ts));
-  // goal = YAPTerm(Yap_MkApplTerm(FunctorMetaCall, 1, &ARG1));
+  tgoal = Yap_MkApplTerm(FunctorCall, 1, &tgoal);
   return PredCall;
 
   // return YAPApplTerm(FunctorUndefinedQuery, ts);
