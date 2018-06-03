@@ -1,4 +1,4 @@
-	/**
+/**
   * @file jupyter.yap4py
   *
   * @brief JUpyter support.
@@ -32,7 +32,7 @@ jupyter_cell(_Caller, Cell, _) :-
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( _Caller, _, [] ) :- !.
+jupyter_cell( _Caller, _, '' ) :- !.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
 		       python_query(Self,Line).
@@ -72,7 +72,7 @@ blankc('\t').
 
 streams(false) :-
     nb_setval(jupyter_cell, false),
-        retract(cell_stream(S)),
+    retract(cell_stream(S)),
 	close(S),
 	fail.
 streams(false).
@@ -213,4 +213,3 @@ plot_inline :-
 :- endif.
 
 %:- ( start_low_level_trace ).
-
