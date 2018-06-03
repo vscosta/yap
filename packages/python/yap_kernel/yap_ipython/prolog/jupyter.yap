@@ -1,4 +1,4 @@
-/**
+	/**
   * @file jupyter.yap4py
   *
   * @brief JUpyter support.
@@ -213,3 +213,4 @@ plot_inline :-
 :- endif.
 
 %:- ( start_low_level_trace ).
+
