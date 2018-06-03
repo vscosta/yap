@@ -804,5 +804,4 @@ class YAPRun:
         if query[-1] == '.':
             return s,'',False,0
         (query, _,loop, sols) = self.clean_end(query)
-        print(program, query, loop, sols)
         return (program, query, loop, sols)

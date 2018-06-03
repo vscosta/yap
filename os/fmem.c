@@ -153,7 +153,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,
   f = st->file = fmemopen((void *)buf, nchars, "r");
   st->vfs = NULL;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-    Yap_initStream(sno, f, "memStream", "r", TermNone, encoding, flags, NULL);
+  Yap_initStream(sno, f, "memStream", "r", TermNone, encoding, flags, NULL);
   // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
@@ -171,9 +171,10 @@ open_mem_read_stream(USES_REGS1) /* $open_mem_read_stream(+List,-Stream) */
   int l = push_text_stack();
   buf = Yap_TextTermToText(ti);
   if (!buf) {
+    pop_text_stack(l);
     return false;
   }
-   buf = pop_output_text_stack(l, buf);
+  buf = pop_output_text_stack(l, buf);
   sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                  MEM_BUF_MALLOC);
   t = Yap_MkStream(sno);
@@ -197,7 +198,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->linecount = 1;
   st->encoding = enc;
   st->vfs = NULL;
-    st->buf.on = false;
+  st->buf.on = false;
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
   // setbuf(st->file, NULL);

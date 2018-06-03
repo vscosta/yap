@@ -1,20 +1,19 @@
-/**
+
+/*!
  *  @file complete.yap
  *
  *  @brief Prolog completer.
  */
 
 :- module( completer,
-	   [
-	       completions/2.
-	   ]).
+	   [completions/2 ]).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 :-	 use_module(library(python)).
 
 %% completions( +Text, +PythonCell )
-% 
+%
 % Tries to complete the current text. The list with the set of completions
 % is stored in the
 % `matches` field of the python object.
@@ -116,8 +115,3 @@ cont(0, F, P, P0) :-
 		atom_concat( F, P, P0 ).
 cont( _, F, P, PB ):-
 	atom_concat( [F, P, '(  )'], PB ).
-
-
-
-
-

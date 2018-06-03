@@ -4,7 +4,7 @@
   * @brief JUpyter support.
   */
 
-  
+
   % :- module( jupyter,
   %            [jupyter_query/3,
   %            errors/2,
@@ -52,11 +52,13 @@ jupyter_consult(Text) :-
 	blank( Text ),
 	!.
 jupyter_consult(Cell) :-
-	open_mem_read_stream( Cell, Stream),
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),
-	load_files(user:'jupyter cell',[stream(Stream)]), !.
-	%should load_files  close?
+	setup_call_cleanup(
+  open_mem_read_stream( Cell, Stream),
+  load_files(user:'jupyter cell',[stream(Stream)]),
+	close(Stream)
+  ).
 
 blank(Text) :-
 	atom_codes(Text, L),

@@ -1127,11 +1127,8 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) ){
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
     mem_stream = true;
-  }
-  if (output_stream <0 ||!mem_stream) {
-    UNLOCK(GLOBAL_Stream[output_stream].streamlock);
-    /* needs to change LOCAL_c_output_stream for write */
-    output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
+  } else {
+      output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
   }
   if (output_stream == -1) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);

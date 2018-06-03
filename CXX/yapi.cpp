@@ -525,7 +525,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
     q.CurSlot = Yap_StartSlots();
     q.p = P;
     q.cp = CP;
-    PredEntry *ap;
+    PredEntry *ap = nullptr;
     if (IsStringTerm(tmod))
       tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
     YAPPredicate *p = new YAPPredicate(t, tmod, ts, "C++");

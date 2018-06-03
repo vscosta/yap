@@ -1557,7 +1557,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   CACHE_REGS
   int sno;
   StreamDesc *st;
-  struct vfs *vfsp;
+  struct vfs *vfsp = NULL;
   int flags;
   const char *fname;
 
@@ -1627,7 +1627,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       const char *buf;
       int i = push_text_stack();
       buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
-      if (!buf) {
+      if (buf == NULL) {
         pop_text_stack(i);
         return -1;
       }
