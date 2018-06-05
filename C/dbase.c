@@ -33,8 +33,9 @@ static char SccsId[] = "%W% %G%";
 
 
 /** @defgroup Internal_Database Internal Data Base
-@ingroup builtins
-@{
+
+    @ingroup builtins
+    @{
 
 Some programs need global information for, e.g. counting or collecting
 data obtained by backtracking. As a rule, to keep this information, the

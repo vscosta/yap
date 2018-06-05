@@ -26,13 +26,13 @@
 jupyter_query(Caller, Cell, Line ) :-
 	jupyter_cell(Caller, Cell, Line).
 
-jupyter_cell(_Caller, Cell, _) :-
+jupyter_cell(_Caller, Cell, _Line) :-
 	jupyter_consult(Cell),	%stack_dump,
 	fail.
+jupyter_cell( _Caller, _, '' ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( _Caller, _, '' ) :- !.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
 		       python_query(Self,Line).
@@ -54,19 +54,13 @@ jupyter_consult(Text) :-
 jupyter_consult(Cell) :-
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),
-	setup_call_cleanup(
+%	setup_call_cleanup(
   open_mem_read_stream( Cell, Stream),
-  load_files(user:'jupyter cell',[stream(Stream)]),
-	close(Stream)
-  ).
+  load_files(user:'jupyter cell',[stream(Stream)]).
 
 blank(Text) :-
 	atom_codes(Text, L),
-	maplist( blankc, L).
-
-blankc(' ').
-blankc('\n').
-blankc('\t').
+	maplist( code_type(space), L).
 
 :- dynamic cell_stream/1.
 

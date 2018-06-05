@@ -22,12 +22,11 @@
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
 
-%% @{
-
 /**
 
-@defgroup   YAPStyle Checker
-    @ingroup  YAPCompilerSettings
+   @defgroup   YAPStyle Checker
+   @ingroup  YAPCompilerSettings
+   @{
 
 YAP implements a style-checker thay currently verifies whether:
 

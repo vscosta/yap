@@ -1237,10 +1237,11 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   encoding_t encoding;
   Term tenc;
   char io_mode[8];
-  file_name = Deref( file_name);
-      if (IsVarTerm(file_name)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, file_name, "while opening a list of options");
-    }
+  file_name = Deref(file_name);
+  if (IsVarTerm(file_name)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, file_name,
+                   "while opening a list of options");
+  }
   // open mode
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "open/3");
@@ -1583,18 +1584,19 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
         vfsp->open(vfsp, fname, io_mode, sno)) {
       // read, write, append
       user_name = st->user_name;
+      st->vfs = vfsp;
       UNLOCK(st->streamlock);
     } else {
       st->file = fopen(fname, io_mode);
       if (st->file == NULL) {
-	UNLOCK(st->streamlock);
-	if (errno == ENOENT && !strchr(io_mode, 'r')) {
-	  PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
-		    strerror(errno));
-	} else {
-	  PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
-                  strerror(errno));
-	}
+        UNLOCK(st->streamlock);
+        if (errno == ENOENT && !strchr(io_mode, 'r')) {
+          PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        } else {
+          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        }
       }
       st->vfs = NULL;
     }
@@ -1644,9 +1646,9 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
       Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
     }
   }
-    if (!strchr(io_mode, 'b') && binary_file(fname)) {
-      flags |= Binary_Stream_f;
-    }
+  if (!strchr(io_mode, 'b') && binary_file(fname)) {
+    flags |= Binary_Stream_f;
+  }
   Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
                  flags, vfsp);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
@@ -1761,8 +1763,8 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   return sno;
 }
 
-int Yap_CheckTextWriteStream__(const char *file, const char *f, int line, Term arg,
-   const char *msg) {
+int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
+                               Term arg, const char *msg) {
   int sno, kind = Output_Stream_f;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;
@@ -1779,8 +1781,8 @@ int Yap_CheckTextWriteStream__(const char *file, const char *f, int line, Term a
   return sno;
 }
 
-int Yap_CheckTextReadStream__(const char *file, const char *f, int line, Term arg,
-    const char *msg) {
+int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
+                              Term arg, const char *msg) {
   int sno, kind = Input_Stream_f;
   if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
     return -1;

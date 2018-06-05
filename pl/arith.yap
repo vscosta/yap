@@ -36,6 +36,7 @@
 
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
+    @{
 
   YAP supports several clause optimisation mechanisms, that
   are designed to improve execution of arithmetic
@@ -59,7 +60,6 @@
 
 */
 
-%% @{
 
 /** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.

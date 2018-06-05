@@ -19,11 +19,11 @@
   @file boot.yap
   @brief YAP bootstrap
 
-@{
 
   @addtogroup TopLevel Top-Level and Boot Predicates
 
   @ingroup builtins
+  @{
 
 
 */

@@ -26,7 +26,7 @@
 
 /**
  * @addtogroup Predicates_on_Atoms
- *
+ * @{
 */
 
 /** @pred  atom_concat(+ As, ? A)

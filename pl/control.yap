@@ -83,10 +83,8 @@
 
 @addtogroup YAPControl
 @ingroup builtins
-
+@{
 */
-
-%% @{
 
 /** @pred  forall(: _Cond_,: _Action_)
 

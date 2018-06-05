@@ -10,9 +10,8 @@ YAP_Term TermErrStream, TermOutStream;
 
 static unsigned char *outbuf, *errbuf;
 
-static void  pyflush( StreamDesc *st)
-{
-  #if 0
+static void pyflush(StreamDesc *st) {
+#if 0
   st->u.w_irl.ptr[0] = '\0';
   fprintf(stderr,"%s\n", st->u.w_irl.buf);
   term_t tg = python_acquire_GIL();
@@ -20,12 +19,11 @@ static void  pyflush( StreamDesc *st)
     PySys_WriteStdout("%s", st->u.w_irl.buf);
   } else {
     PySys_WriteStderr("%s", st->u.w_irl.buf);
-    
+
   }
   python_release_GIL(tg);
   st->u.w_irl.ptr =   st->u.w_irl.buf;
-  #endif
-      
+#endif
 }
 
 static int py_putc(int sno, int ch) {
@@ -43,7 +41,7 @@ static int py_putc(int sno, int ch) {
      }
         return ch;
   }
-  #endif
+#endif
   char s[2];
   PyObject *err;
   s[0] = ch;
@@ -96,31 +94,27 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
     //  } else if (strcmp(name, "input") == 0) {
     //pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
     } else */
-  {
-    st->user_name = YAP_MkAtomTerm(st->name);
-  }
-    st->u.private_data = pystream;
+  { st->user_name = YAP_MkAtomTerm(st->name); }
+  st->u.private_data = pystream;
   st->vfs = me;
   st->file = NULL;
   python_release_GIL(ctk);
   return st;
 }
 
-
 static void py_flush(int sno) {
   StreamDesc *s = YAP_GetStreamFromId(sno);
   term_t tg = python_acquire_GIL();
   PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
-   pyflush(s);
+  pyflush(s);
   PyObject_CallFunction(flush, NULL);
   python_release_GIL(tg);
 }
 
-
 static bool py_close(int sno) {
   StreamDesc *st = YAP_RepStreamFromId(sno);
-  if (st->status & (Output_Stream_f|Append_Stream_f))
-  py_flush(sno);
+  if (st->status & (Output_Stream_f | Append_Stream_f))
+    py_flush(sno);
   if (strcmp(st->name, "sys.stdout") && strcmp(st->name, "sys.stderr")) {
     Py_XDECREF(st->u.private_data);
     st->u.w_irl.buf = st->u.w_irl.ptr = NULL;
@@ -137,13 +131,14 @@ static bool getLine(int inp) {
   term_t ctk = python_acquire_GIL();
   Py_ssize_t size;
   PyObject *prompt = PyUnicode_FromString("?- "),
-           *msg = PyUnicode_FromString(" **input** ");
+           *msg = PyUnicode_FromString(" **input** "),
+           *o = PyObject_GetAttrString(rl_iostream->u.private_data, "read");
   /* window of vulnerability opened */
-  myrl_line = PyUnicode_AsUTF8AndSize(PyObject_CallFunctionObjArgs(
-								   rl_instream->u.private_data, msg, prompt, NULL), &size);
+  myrl_line = PyUnicode_AsUTF8AndSize(
+      PyObject_CallFunctionObjArgs(o, msg, prompt, NULL), &size);
   python_release_GIL(ctk);
   rl_instream->u.irl.ptr = rl_instream->u.irl.buf =
-    (const unsigned char *)malloc(size);
+      (const unsigned char *)malloc(size);
   memcpy((void *)rl_instream->u.irl.buf, myrl_line, size);
   return true;
 }

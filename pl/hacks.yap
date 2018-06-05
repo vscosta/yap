@@ -32,6 +32,7 @@
 	   code_location/3]).
 
 /**
+ * @namespace yap_hacks
  *
  * @defgroup Hacks Low-level access
  * @ingroup builtins

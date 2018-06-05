@@ -25,27 +25,27 @@
   */
 
 
-:- system_module( '$_listing', [listing/0,
+/*:- system_module( '$_listing', [listing/0,
         listing/1,
         portray_clause/1,
         portray_clause/2], []).
+*/
 
 /**
-  * @defgroup Listing  List predicates in a module
-  * @{
+  * @defgroup listingGroup  List predicates in a module
+  * 
   * @ingroup builtins
   *
+  * @{ 
 */
 
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$_preds', ['$clause'/4,
         '$current_predicate'/4]).
 
-/* listing : Listing clauses in the database
-
-*/
+/** @brief listing : Listing clauses in the database
+ *
+ */
 
 /** @pred  listing
 
@@ -347,3 +347,5 @@ portray_clause(Clause) :-
 	'$list_transform'(L,M).
 '$list_transform'([_|L],M) :-
 	'$list_transform'(L,M).
+
+%% @}

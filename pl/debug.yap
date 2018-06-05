@@ -24,6 +24,7 @@
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
+@{
   @ingroup YAPProgramming
 
 Debugging with YAP is similar to debugging with C-Prolog. Both systems
@@ -236,6 +237,8 @@ The debugging information, when fast-skip `quasi-leap` is used, will
 be lost.
 
 */
+
+
 
 /*-----------------------------------------------------------------------------
 

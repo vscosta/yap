@@ -21,8 +21,7 @@
 
   @addtogroup YAPControl Control Predicates
   @ingroup builtins
-
-@{
+  @{
 
 */
 
