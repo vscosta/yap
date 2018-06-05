@@ -1,10 +1,15 @@
 /**
+ * @file pathconf.yap
+ * 
+ */
+
+/**
  @defgroup pathconf Configuration of the Prolog file search path
+
+ @{
  @ingroup AbsoluteFileName
 
   Prolog systems search follow a complex search on order to track down files.
-
-@{
 **/
 :- module(user).
 

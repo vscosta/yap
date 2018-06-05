@@ -2,9 +2,12 @@
 
   @file newmod.yap
   @brief support for creating a new module.
+  */
+
+ /**
 
   @ingroup ModuleBuiltins
-
+@{
   */
 
 
@@ -253,3 +256,5 @@ set_module_property(Mod, class(Class)) :-
           	).
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
+
+%% @}

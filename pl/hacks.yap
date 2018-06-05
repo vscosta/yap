@@ -41,7 +41,7 @@
 **/
 
 
-/** hacks:context_variables(-NamedVariables)
+/** yap_hacks:context_variables(-NamedVariables)
   Access variable names.
 
   Unify NamedVariables with a list of terms _Name_=_V_

@@ -57,6 +57,8 @@ ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
 ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
+${CMAKE_SOURCE_DIR}/packages/python/yap_kernel
+${CMAKE_SOURCE_DIR}/packages/python/swig
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
 ${CMAKE_SOURCE_DIR}/*/bprolog/* 

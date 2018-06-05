@@ -15,7 +15,11 @@
 *									 *
 *************************************************************************/
 
-
+/**
+ * @file load_foreign.yap
+ *
+ * @brief load predicates written in C (also C++, Java, Python, R)
+ */
 :- system_module( '$_load_foreign', [load_foreign_files/3,
         open_shared_object/2,
         open_shared_object/3], ['$import_foreign'/3]).

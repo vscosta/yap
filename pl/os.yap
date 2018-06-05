@@ -8,7 +8,9 @@
  *									 *
  *************************************************************************/
 
-
+/**
+ * @file os.yap
+ */
 :- system_module( '$os', [
 	       cd/0,
 	       cd/1,
@@ -24,12 +26,12 @@
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
+
+%% @{
 @ingroup builtins
 
 The following built-in predicates allow access to underlying
 Operating System functionality.
-
-%% @{
 
  */
 

@@ -1,10 +1,14 @@
 /**
 
   @file meta.yap
+*/
 
- @{
+/**
+   @defgroup YAPMetaPredicates Using Meta-Calls with Modules
 
-  @defgroup YAPMetaPredicates Using Meta-Calls with Modules
+   @{
+
+
  @ingroup YAPModules
 
 */

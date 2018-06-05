@@ -19,6 +19,7 @@
 /** @defgroup YAPErrorHandler Error Handling
 
 @ingroup YAPErrors
+@{
 
 The error handler is called when there is an execution error or a
 warning needs to be displayed. The handlers include a number of hooks
@@ -37,8 +38,6 @@ Errors are terms of the form:
    - error( system_error( Domain, Culprit )`
    - error( type_error( Type, Culprit )`
    - error( uninstantiation_error(  Culprit )`
-
-@{
 
 */
 

@@ -27,6 +27,7 @@
 /**
  @defgroup SWI-error High-level error testing.
 @ingroup Deb_Interaction
+@{
 
 This  SWI module  provides  predicates  to  simplify  error  generation  and
 checking. Adapted to use YAP built-ins.
@@ -38,8 +39,6 @@ predicates are simple wrappers around throw/1   to simplify throwing the
 most common ISO error terms.
 
 YAP reuses the code with some extensions, and supports interfacing to some C-builtins.
-
-@{
 
 */
 

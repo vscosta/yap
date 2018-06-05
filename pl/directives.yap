@@ -21,8 +21,10 @@
   * @date   Thu Oct 19 11:47:38 2017
   *
   * @brief  Control File Loading
-  %
-  % @defgroup Directives Prolog Directives
+  %/
+
+/**
+  * @defgroup Directives Prolog Directives
   * @ingroup YAPConsulting
   * @{
   *

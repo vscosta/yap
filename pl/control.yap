@@ -84,6 +84,7 @@
 @addtogroup YAPControl
 @ingroup builtins
 @{
+
 */
 
 /** @pred  forall(: _Cond_,: _Action_)
@@ -124,7 +125,7 @@ Call goal  _H_ once per each solution of goal  _H_. If goal
  _H_ has no solutions, call goal  _I_.
 
 The built-in `if/3` is similar to `->/3`, with the difference
-that it will backtrack over the test goal. Consider the following
+that it will backtrack over the test https://wiki.python.org/moin/HandlingExceptionsgoal. Consider the following
 small data-base:
 
 ~~~~~{.prolog}

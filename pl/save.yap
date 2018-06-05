@@ -19,11 +19,14 @@
   * @file   save.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:10:47 2017
-  * 
-  * @brief  Old Style save
   *
+  * @brief  Old Style save
+  */
+
+ /**
   * @addtogroup QLY
-  * 
+  * @{
+  *
 */
 
 :- system_module( '$_save', [], []).
@@ -39,7 +42,7 @@ save(S,OUT) :- '$save'(S,OUT).
 
 save_program(A) :- var(A), !,
 	'$do_error'(instantiation_error,save_program(A)).
-save_program(A) :- atom(A), !, 
+save_program(A) :- atom(A), !,
 	atom_codes(A,S),
 	'$save_program2'(S, true).
 save_program(S) :- '$save_program2'(S, true).
@@ -95,3 +98,7 @@ restore(A) :- atom(A), !, name(A,S), '$restore'(S).
 restore(S) :- '$restore'(S).
 
 */
+
+/**
+ * @}
+ */

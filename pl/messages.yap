@@ -26,9 +26,17 @@
  *
 */
 
+
+:- module(system('$messages'),
+	  [system_message/4,
+	   prefix/6,
+	   prefix/5,
+	   file_location/3]).
+
 /**
 
   @defgroup Messages Message Handling
+  @{
   @ingroup YAPControl
 
 The interaction between YAP and the user relies on YAP's ability to
@@ -92,18 +100,9 @@ In YAP, the info field describes:
  - user_message () - ttext on the event.
 
 
-
-@{
-
 */
 
 
-
-:- module(system('$messages'),
-	  [system_message/4,
-	   prefix/6,
-	   prefix/5,
-	   file_location/3]).
 
 :- abolish(prolog:print_message/2).
 

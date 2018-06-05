@@ -17,10 +17,13 @@
 /**
  * @file pl/flags.yap
  *
+ /
+
+/**
  * @defgroup YAPFlags Yap Flags
- *
+ * @{
  * @ingroup builtins
- * 
+ *
  */
 
 

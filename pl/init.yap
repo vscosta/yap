@@ -22,7 +22,8 @@
 */
 
 /**
- * @insection YAPControl
+ * @ingroup YAPControl
+ * @{
  *
 */
 
@@ -210,3 +211,7 @@
 	'$extend_file_search_path'(P).
 '$init_path_extensions'.
 
+/**
+ *
+ * @}
+ */

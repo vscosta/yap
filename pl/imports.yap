@@ -1,3 +1,15 @@
+/**
+ ** @file imports.yapi
+ *
+ * @brief Module systemm code to import predicates
+ *
+ * This code does not provide visible builtins.
+ */
+
+/**
+ *   @ingroup ModuleBuiltins
+ *   @{
+ */
 :- '$mk_dynamic'('$parent_module'(_,_),prolog).
 
 
@@ -42,3 +54,8 @@
 	),
 	'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod),
 	ExportingMod \= ImportingMod.
+
+	/**
+	 *
+	 * @}
+	 */

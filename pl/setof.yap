@@ -19,10 +19,10 @@
  * @file   setof.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 10:45:32 2015
- * 
+ *
  * @brief  Setof and friends.
- * 
- * 
+ *
+ *
 */
 
 
@@ -36,6 +36,7 @@
 /**
 
 @defgroup Sets Collecting Solutions to a Goal
+@{
 @ingroup builtins
 
 When there are several solutions to a goal, if the user wants to collect all
@@ -46,10 +47,6 @@ YAP allows the programmer to choose from several system
 predicates instead of writing his own routines.  findall/3 gives you
 the fastest, but crudest solution. The other built-in predicates
 post-process the result of the query in several different ways:
-
-@{
-
-
 
 */
 
@@ -182,7 +179,7 @@ no
 
  */
 setof(Template, Generator, Set) :-
-    
+
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;

@@ -3,15 +3,9 @@
   * @file   dialect.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 10:50:33 2017
-  * 
-  * @brief  support Prolog dialects
   *
-  * @defgroup Dialects Compatibility with other Prolog dialects
-  * @ingroup extensions
-  * @{
-  * @brief Prolog dialects
-  * 
-*/
+  * @brief  support Prolog dialects
+  */
 
 
 :- module(dialect,
@@ -20,18 +14,27 @@
 	   source_exports/2
 	  ]).
 
+    /**
+     * @defgroup Dialects Compatibility with other Prolog dialects
+     * @ingroup extensions
+     * @{
+     * @brief Prolog dialects
+     *
+   */
+
+
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
-				%
+
 %%
 %	@pred expects_dialect(+Dialect)
 %
-%	True if YAP can enable support for a different Prolog dialect.
+%	  True if YAP can enable support for a different Prolog dialect.
 %   Currently there is support for bprolog, hprolog and swi-prolog.
 %   Notice that this support may be incomplete.
 %
-%   The
+% 
 prolog:expects_dialect(yap) :- !,
 	eraseall('$dialect'),
 	recorda('$dialect',yap,_).

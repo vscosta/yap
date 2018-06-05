@@ -4,10 +4,10 @@
 /** @file preddyns.yap */
 
 /**
- * @{
  * @addtogroup Database
-
-Next follow the main operations on dynamic predicates.
+ * @{
+ *
+ * @brief main operations on dynamic predicates.
 
 */
 
