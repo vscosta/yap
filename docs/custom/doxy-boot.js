@@ -36,21 +36,22 @@ $( document ).ready(function() {
     $("div.summary > a").addClass("btn btn-default btn-xs");
     $("table.fieldtable").addClass("table");
     $(".fragment").addClass("well");
-    $(".memitem").addClass("panel panel-default");
-    $(".memproto").addClass("panel-heading");
-    $(".memdoc").addClass("panel-body");
-    $("span.mlabel").addClass("label label-info");
+    $(".memitem").addClass("card text-center");
+    $(".memproto").addClass("card-title text-center");
+    $(".memdoc").addClass("card-body text-right);
+    // $("span.mlabel").addClass("card-link label-info");
+
 
     $("table.memberdecls").addClass("table");
     $("[class^=memitem]").addClass("active");
 
     $("div.ah").addClass("btn btn-default");
     $("span.mlabels").addClass("pull-right");
-    $("table.mlabels").css("width", "100%")
+    $("span.mlabels").css("width", "100%")
     $("td.mlabels-right").addClass("pull-right");
 
     $("div.ttc").addClass("panel panel-primary");
-    $("div.ttname").addClass("panel-heading");
+    //$("div.ttname").addClass("panel-heading");
     $("div.ttname a").css("color", 'white');
     $("div.ttdef,div.ttdoc,div.ttdeci").addClass("panel-body");
 

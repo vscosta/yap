@@ -110,21 +110,6 @@ This example is equivalent to using the delete_file/1 predicate:
 
 
 */
-/** @pred directory_files(+ _Dir_,+ _List_)
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
-
-
-*/
 /** @pred environ(? _EnvVar_,+ _EnvValue_)
 
 
@@ -452,13 +437,6 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 	delete_file(TrueF, off, on, Ignore),
 	delete_dirfiles(Fs, File, Ignore).
 
-directory_files(File, FileList) :-
-    directory_files(File, FileList, on).
-
-directory_files(File, FileList, Ignore) :-
-       list_directory(File, FileList, Error),
-       handle_system_internal(Error, Ignore, directory_files(File, FileList)).
-
 handle_system_internal(Error, _Ignore, _G) :- var(Error), !.
 handle_system_internal(Error, off, G) :- atom(Error), !,
 	throw(error(system_internal(Error),G)).
@@ -708,7 +686,75 @@ get_shell(Shell, '/c') :-
 get_shell('/bin/sh','-c').
 
 system :-
-	default_shell(Command),
+	default_shell(C/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32.
+
+
+*/
+ `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32.
+
+
+*/
+ `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32.
+
+
+*/
+ommand),/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the
+
+*/
+
 	do_system(Command, _Status, Error),
 	handle_system_internal(Error, off, system).
 
@@ -811,6 +857,23 @@ rename_file(F0, F) :-
 Passes command  _S_ to the Bourne shell (on UNIX environments) or the
 current command interpreter in WIN32 environments.
 */
+
+/** @pred directory_files(+ _Dir_,+ _List_)a
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32.
+
+*/
+directory_files(X,Y) :=
+     list_directory(X,Y).
 
 /** @} */
 

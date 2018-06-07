@@ -1048,7 +1048,6 @@ X_API void init_sys(void) {
 #endif
   YAP_UserCPredicate("datime", datime, 2);
   YAP_UserCPredicate("mktime", sysmktime, 8);
-  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);
   YAP_UserCPredicate("rmdir", p_rmdir, 2);

@@ -159,12 +159,12 @@ Similar to `bagof( _T_, _G_, _L_)` but sorts list
  _L_ and keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
-~~~~~
+~~~
 setof(X,a(X,Y),L).
-~~~~~
+~~~
 would be:
 
-~~~~~
+~~~
 X = _32
 Y = 1
 L = [1,2];
@@ -172,7 +172,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
+~~~
 
 
 
@@ -202,7 +202,7 @@ For each set of possible instances of the free variables occurring in
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 
-~~~~~
+~~~
 bagof(X,a(X,Y),L).
 
 would be:
@@ -213,7 +213,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
+~~~
 
 
 */
@@ -272,17 +272,17 @@ Similar to `findall( _T_, _G_, _L_)` but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
-~~~~~
+~~~
 all(X,a(X,Y),L).
-~~~~~
+~~~
 would be:
 
-~~~~~
+~~~
 X = _32
 Y = _33
 L = [2,1];
 no
-~~~~~
+~~~
 
 Note that all/3 will fail if no answers are found.
 
