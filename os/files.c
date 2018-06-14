@@ -676,7 +676,8 @@ static Int list_directory(USES_REGS1) {
     const char *dp;
 
     if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
-      return (YAP_Unify(ARD3, YAP_MkIntTerm(errno)));
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+		strerror(errno));
     }
     while ((dp = AAssetDir_getNextFileName(de))) {
       YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
@@ -691,10 +692,13 @@ static Int list_directory(USES_REGS1) {
     struct dirent *dp;
 
     if ((de = opendir(buf)) == NULL) {
-      return (YAP_unify(ARG3, MkIntegerTerm(errno)));
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+		strerror(errno));
+
+      return false;
     }
     while ((dp = readdir(de))) {
-      Term ti = Yap_MkAtomTerm(Yap_LookupAtom(dp->d_name));
+      Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
       Yap_PutInSlot(sl,     MkPairTerm(ti, Yap_GetFromSlot(sl)));
     }
     closedir(de);
@@ -796,5 +800,5 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension,
                 SafePredFlag | SyncPredFlag);
-  YAP_InitPredt("list_directory", list_directory, 2, SyncPredFlag);
+  Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
 }

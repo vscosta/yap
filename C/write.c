@@ -748,7 +748,7 @@ static void write_var(CELL *t, struct write_globs *wglb,
 
       wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
-	yhandle_t h = Yap_InitHandle((CELL)t);
+        yhandle_t h = Yap_InitHandle((CELL)t);
         attvar_record *attv = RepAttVar(t);
         CELL *l = &attv->Value; /* dirty low-level hack, check atts.h */
 
@@ -759,8 +759,9 @@ static void write_var(CELL *t, struct write_globs *wglb,
         l = restore_from_write(&nrwt, wglb);
         wrputc(',', wglb->stream);
 
-	attv = RepAttVar((CELL *)Yap_GetFromHandle(h));
-	l = &attv->Value;;
+        attv = RepAttVar((CELL *)Yap_GetFromHandle(h));
+        l = &attv->Value;
+        ;
         l++;
         writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
         restore_from_write(&nrwt, wglb);
@@ -1208,10 +1209,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 {
   CACHE_REGS
   struct write_globs wglb;
- struct rewind_term rwt;
-   yhandle_t sls = Yap_CurrentSlot();
+  struct rewind_term rwt;
+  yhandle_t sls = Yap_CurrentSlot();
   int lvl = push_text_stack();
-  
+
   if (t == 0)
     return;
   if (!mywrite) {
@@ -1258,13 +1259,13 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(enc, flags);
   const char *sf;
- 
+
   if (sno < 0)
     return NULL;
   if (t == 0)
     return NULL;
   else
-     t = Deref(t);
+    t = Deref(t);
   if (enc)
     GLOBAL_Stream[sno].encoding = enc;
   else

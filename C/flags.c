@@ -1444,7 +1444,7 @@ do_prolog_flag_property(Term tflag,
   prolog_flag_property_choices_t i;
   bool rc = true;
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
-                              PROLOG_FLAG_PROPERTY_END);
+                              PROLOG_FLAG_PROPERTY_END, DOMAIN_ERROR_PROLOG_FLAG);
   if (args == NULL) {
     Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
@@ -1612,7 +1612,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
   Term tflag = Deref(ARG1), tval = Deref(ARG2), opts = Deref(ARG3);
 
   args = Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
-                              PROLOG_FLAG_PROPERTY_END);
+                              PROLOG_FLAG_PROPERTY_END, DOMAIN_ERROR_PROLOG_FLAG);
   if (args == NULL) {
     Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;

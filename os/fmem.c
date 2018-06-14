@@ -191,6 +191,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   sno = GetFreeStreamD();
   if (sno < 0)
     return -1;
+
   st = GLOBAL_Stream + sno;
   st->status = Output_Stream_f | InMemory_Stream_f | FreeOnClose_Stream_f;
   st->linepos = 0;
@@ -198,7 +199,9 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->linecount = 1;
   st->encoding = enc;
   st->vfs = NULL;
-  st->buf.on = false;
+  st->buf.on = true;
+  st->nbuf = NULL;
+  st->nsize = 0;
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
   // setbuf(st->file, NULL);

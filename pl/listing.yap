@@ -40,8 +40,6 @@
 */
 
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
-        '$current_predicate'/4]).
 
 /** @brief listing : Listing clauses in the database
  *

@@ -268,6 +268,28 @@ location( error(_,Info), Level, LC ) -->
   !,
   display_consulting( File, Level, LC ),
 	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+location( error(_,Info), Level, LC ) -->
+	{ '$error_descriptor'(Info, Desc) },
+   {
+   '$query_exception'(prologPredFile, Desc, File),
+	'$query_exception'(prologPredLine, Desc, FilePos),
+	'$query_exception'(prologPredModule, Desc, M),
+	'$query_exception'(prologPredName, Desc, Na),
+	'$query_exception'(prologPredArity, Desc, Ar)
+	},
+  !,
+  display_consulting( File, Level, Info, LC ),
+  [  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+location( error(_,Info), Level, LC ) -->
+	{ '$error_descriptor'(Info, Desc) },
+   {
+   '$query_exception'(errorFile, Desc, File),
+	'$query_exception'(errorLine, Desc, FilePos),
+	'$query_exception'(errorFunction, Desc, F)
+	},
+  !,
+  display_consulting( File, Level, Info,  LC ),
+  [  '~s:~d:0 ~a in ~s():'-[File, FilePos,Level,F] ].
 location( _Ball, _Level, _LC ) --> [].
 
 
@@ -329,13 +351,21 @@ main_message(error(system_error(Who), _What), Level, _LC) -->
 main_message(error(uninstantiation_error(T),_), Level, _LC) -->
 	[ ' ~a: found ~q, expected unbound variable ' - [Level,T], nl ].
 
-display_consulting( F, Level, LC) -->
+display_consulting( F, Level, Info, LC) -->
+    {  LC > 0,
+       '$error_descriptor'(Info, Desc),
+       '$query_exception'(prologParserFile, Desc, F0),
+       '$query_exception'(prologarserLine, Desc, L),
+       F \= F0
+    }, !,
+    [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
+display_consulting( F, Level, _, LC) -->
 	{  LC > 0,
 	   source_location(F0, L),
 		  F \= F0
 	 }, !,
 	[ '~a:~d:0: ~a  while compiling.'-[F0,L,Level], nl ].
-display_consulting(_F, _, _LC) -->
+display_consulting(_F, _, _, _LC) -->
 	  [].
 
 caller( error(_,Info), _) -->

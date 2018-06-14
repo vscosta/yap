@@ -1227,17 +1227,120 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
+
+static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, Term user_name,
+                   encoding_t enc)
+{
+  struct vfs *vfsp = NULL;
+  const char *fname;
+  
+
+  if (IsAtomTerm(tin))
+    fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
+  else if (IsStringTerm(tin))
+    fname = StringOfTerm(tin);
+  else
+    fname = NULL;
+
+  st->file = NULL;
+  if (fname) {
+    if ((vfsp = vfs_owner(fname)) != NULL &&
+        vfsp->open(vfsp, fname, io_mode, sno)) {
+      // read, write, append
+      user_name = st->user_name;
+      st->vfs = vfsp;
+      UNLOCK(st->streamlock);
+    } else {
+      st->file = fopen(fname, io_mode);
+      if (st->file == NULL) {
+        UNLOCK(st->streamlock);
+        if (errno == ENOENT && !strchr(io_mode, 'r')) {
+          PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        } else {
+          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        }
+      }
+      st->vfs = NULL;
+    }
+    if (!st->file && !st->vfs) {
+      PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
+      /* extract BACK info passed through the stream descriptor */
+      return false;
+    }
+  } else if (IsApplTerm(tin)) {
+    Functor f = FunctorOfTerm(tin);
+    if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
+      if (strchr(io_mode, 'r')) {
+        return Yap_OpenBufWriteStream(PASS_REGS1);
+      } else {
+        int i = push_text_stack();
+        const char *buf;
+
+        buf = Yap_TextTermToText(tin PASS_REGS);
+        if (!buf) {
+          pop_text_stack(i);
+          return false;
+        }
+        buf = pop_output_text_stack(i, buf);
+        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+                                       MEM_BUF_MALLOC);
+        return Yap_OpenBufWriteStream(PASS_REGS1);
+      }
+    } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
+      const char *buf;
+      int i = push_text_stack();
+      buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
+      if (buf == NULL) {
+        pop_text_stack(i);
+        return false;
+      }
+#if _WIN32
+      st->file = _popen(buf, io_mode);
+#else
+      st->file = popen(buf, io_mode);
+#endif
+      fname = "popen";
+      user_name = tin;
+      st->status |= Popen_Stream_f;
+      pop_text_stack(i);
+    } else {
+      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
+    }
+  }
+  if (!strchr(io_mode, 'b') && binary_file(fname)) {
+    st->status |= Binary_Stream_f;
+  }
+  Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
+                 st->status, vfsp);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
+                      sno);
+  return true;
+}
+
 static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   Atom open_mode;
-  int sno;
-  StreamDesc *st;
   bool avoid_bom = false, needs_bom = false;
-  stream_flags_t flags;
-  const char *s_encoding;
-  encoding_t encoding;
   Term tenc;
   char io_mode[8];
-  file_name = Deref(file_name);
+  int sno = GetFreeStreamD();
+  if (sno < 0)
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
+                      "new stream not available for opening"));
+  StreamDesc *st = GLOBAL_Stream + sno;
+  memset(st, 0, sizeof(*st));
+  // user requested encoding?
+  // BOM mess
+  st->encoding = LOCAL_encoding;
+  if (st->encoding == ENC_UTF16_BE || st->encoding == ENC_UTF16_LE ||
+      st->encoding == ENC_UCS2_BE || st->encoding == ENC_UCS2_LE ||
+      st->encoding == ENC_ISO_UTF32_BE || st->encoding == ENC_ISO_UTF32_LE) {
+    st->status |= HAS_BOM_f;
+  }
+
+  st->user_name = Deref(file_name);
   if (IsVarTerm(file_name)) {
     Yap_ThrowError(INSTANTIATION_ERROR, file_name,
                    "while opening a list of options");
@@ -1245,30 +1348,30 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   // open mode
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "open/3");
-    return FALSE;
+    return false;
   }
   if (!IsAtomTerm(t2)) {
     if (IsStringTerm(t2)) {
       open_mode = Yap_LookupAtom(StringOfTerm(t2));
     } else {
       Yap_Error(TYPE_ERROR_ATOM, t2, "open/3");
-      return (FALSE);
+      return false;
     }
   } else {
     open_mode = AtomOfTerm(t2);
   }
-  /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, open_defs, OPEN_END);
+  /* get options */ 
+  xarg *args = Yap_ArgListToVector(tlist, open_defs, OPEN_END,
+                                   DOMAIN_ERROR_OPEN_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
     }
     return false;
   }
   /* done */
-  flags = 0;
+  st->status = 0;
+  const char *s_encoding; 
   if (args[OPEN_ENCODING].used) {
     tenc = args[OPEN_ENCODING].tvalue;
     s_encoding = RepAtom(AtomOfTerm(tenc))->StrOfAE;
@@ -1276,7 +1379,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
     s_encoding = "default";
   }
   // default encoding, no bom yet
-  encoding = enc_id(s_encoding, ENC_OCTET);
+  st->encoding = enc_id(s_encoding, ENC_OCTET);
   // only set encoding after getting BOM
   char const *fname0;
   bool ok = (args[OPEN_EXPAND_FILENAME].used
@@ -1315,8 +1418,8 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
 #ifdef _WIN32
       strncat(io_mode, "b", 8);
 #endif
-      flags |= Binary_Stream_f;
-      encoding = ENC_OCTET;
+      st->status |= Binary_Stream_f;
+      st->encoding = ENC_OCTET;
       avoid_bom = true;
       needs_bom = false;
     } else if (t == TermText) {
@@ -1329,19 +1432,14 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
                 "type is ~a, must be one of binary or text", t);
     }
   }
-  if ((sno = Yap_OpenStream(file_name, io_mode, file_name, encoding)) < 0) {
+  
+  st = &GLOBAL_Stream[sno];
+
+    if (!fill_stream(sno, st, file_name,io_mode,st->user_name,st->encoding)) {
     return false;
   }
 
-  st = &GLOBAL_Stream[sno];
-  // user requested encoding?
-  // BOM mess
-  if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
-      encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
-      encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE) {
-    needs_bom = true;
-  }
-  if (args[OPEN_BOM].used) {
+if (args[OPEN_BOM].used) {
     if (args[OPEN_BOM].tvalue == TermTrue) {
       avoid_bom = false;
       needs_bom = true;
@@ -1361,24 +1459,26 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
     }
   }
   if (st - GLOBAL_Stream < 3) {
-    flags |= RepError_Prolog_f;
+    st->status |= RepError_Prolog_f;
   }
 #if MAC
   if (open_mode == AtomWrite) {
     Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
   }
 #endif
+  // interactive streams do not have a start, so they probably don't have
+  // a BOM
+  avoid_bom = avoid_bom || (st->status & Tty_Stream_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
   if (needs_bom && !write_bom(sno, st)) {
     return false;
   } else if (open_mode == AtomRead && !avoid_bom) {
     check_bom(sno, st); // can change encoding
+    // follow declaration unless there is v
+    if (st->status & HAS_BOM_f) {
+      st->encoding = enc_id(s_encoding, st->encoding);
+    }
   }
-  // follow declaration unless there is v
-  if (st->status & HAS_BOM_f) {
-    st->encoding = enc_id(s_encoding, st->encoding);
-  } else
-    st->encoding = encoding;
   Yap_DefaultStreamOps(st);
   if (script) {
     open_header(sno, open_mode);
@@ -1558,9 +1658,6 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   CACHE_REGS
   int sno;
   StreamDesc *st;
-  struct vfs *vfsp = NULL;
-  int flags;
-  const char *fname;
 
   sno = GetFreeStreamD();
   if (sno < 0) {
@@ -1570,90 +1667,11 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   }
   st = GLOBAL_Stream + sno;
   // fname = Yap_VF(fname);
-  flags = 0;
-  if (IsAtomTerm(tin))
-    fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
-  else if (IsStringTerm(tin))
-    fname = StringOfTerm(tin);
-  else
-    fname = NULL;
 
-  st->file = NULL;
-  if (fname) {
-    if ((vfsp = vfs_owner(fname)) != NULL &&
-        vfsp->open(vfsp, fname, io_mode, sno)) {
-      // read, write, append
-      user_name = st->user_name;
-      st->vfs = vfsp;
-      UNLOCK(st->streamlock);
-    } else {
-      st->file = fopen(fname, io_mode);
-      if (st->file == NULL) {
-        UNLOCK(st->streamlock);
-        if (errno == ENOENT && !strchr(io_mode, 'r')) {
-          PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
-                    strerror(errno));
-        } else {
-          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
-                    strerror(errno));
-        }
-      }
-      st->vfs = NULL;
-    }
-    if (!st->file && !st->vfs) {
-      PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
-      /* extract BACK info passed through the stream descriptor */
-      return -1;
-    }
-  } else if (IsApplTerm(tin)) {
-    Functor f = FunctorOfTerm(tin);
-    if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
-        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-      if (strchr(io_mode, 'r')) {
-        return Yap_OpenBufWriteStream(PASS_REGS1);
-      } else {
-        int i = push_text_stack();
-        const char *buf;
 
-        buf = Yap_TextTermToText(tin PASS_REGS);
-        if (!buf) {
-          pop_text_stack(i);
-          return false;
-        }
-        buf = pop_output_text_stack(i, buf);
-        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                       MEM_BUF_MALLOC);
-        return Yap_OpenBufWriteStream(PASS_REGS1);
-      }
-    } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
-      const char *buf;
-      int i = push_text_stack();
-      buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
-      if (buf == NULL) {
-        pop_text_stack(i);
-        return -1;
-      }
-#if _WIN32
-      st->file = _popen(buf, io_mode);
-#else
-      st->file = popen(buf, io_mode);
-#endif
-      fname = "popen";
-      user_name = tin;
-      flags |= Popen_Stream_f;
-      pop_text_stack(i);
-    } else {
-      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
-    }
-  }
-  if (!strchr(io_mode, 'b') && binary_file(fname)) {
-    flags |= Binary_Stream_f;
-  }
-  Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
-                 flags, vfsp);
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
-                      sno);
-  return sno;
+  if (fill_stream(sno, st, tin,io_mode,user_name,enc)) 
+   return sno;
+  return -1;
 }
 
 int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
@@ -1905,12 +1923,10 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return TRUE;
   }
-  xarg *args =
-      Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END);
+  xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END,
+                                   DOMAIN_ERROR_CLOSE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
@@ -1967,11 +1983,10 @@ static Int abs_file_parameters(USES_REGS1) {
   Term tlist = Deref(ARG1), tf;
   /* get options */
   xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END);
+                                   ABSOLUTE_FILE_NAME_END,
+                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;

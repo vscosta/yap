@@ -75,56 +75,6 @@ are available through the `use_module(library(system))` command.
 */
 
 
-/** @pred  working_directory(- _CurDir_,? _NextDir_)
-
-
-Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
-to an atom, make its value the current working directory.
-
-
-*/
-/** @pred delete_file(+ _File_)
-
-
-The delete_file/1 procedure removes file  _File_. If
- _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
-
-~~~~~
-   ?- delete_file(x).
-~~~~~
-
-
-*/
-/** @pred delete_file(+ _File_,+ _Opts_)
-
-The `delete_file/2` procedure removes file  _File_ according to
-options  _Opts_. These options are `directory` if one should
-remove directories, `recursive` if one should remove directories
-recursively, and `ignore` if errors are not to be reported.
-
-This example is equivalent to using the delete_file/1 predicate:
-
-~~~~~
-  ?- delete_file(x, [recursive]).
-~~~~~
-
-
-*/
-/** @pred environ(? _EnvVar_,+ _EnvValue_)
-
-
-Unify environment variable  _EnvVar_ with its value  _EnvValue_,
-if there is one. This predicate is backtrackable in Unix systems, but
-not currently in Win32 configurations.
-
-~~~~~
-   ?- environ('HOME',X).
-
-X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~
-
-
-*/
 /** @pred file_exists(+ _File_)
 
 
@@ -302,9 +252,13 @@ Interface with  _tmpnam_: obtain a new, unique file name  _File_.
 */
 /** @pred working_directory(- _Old_,+ _New_)
 
+/** @pred  working_directory(- _CurDir_,? _NextDir_)
 
 
-Unify  _Old_ with an absolute path to the current working directory
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+Unifies  _Old_ with an absolute path to the current working directory
 and change working directory to  _New_.  Use the pattern
 `working_directory(CWD, CWD)` to get the current directory.  See
 also `absolute_file_name/2` and chdir/1.
@@ -371,10 +325,37 @@ check_int(I, Inp) :-
 % file operations
 % file operations
 
+/** @pred delete_file(+ _File_)
+
+The delete_file/1 procedure removes file  _File_. If
+ _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
+
+~~~~~
+   ?- delete_file(x).
+~~~~~
+
+See delete_file/2 for a more flexible version.
+
+*/
 delete_file(IFile) :-
 	true_file_name(IFile, File),
 	delete_file(File, off, on, off).
 
+/** @pred delete_file(+ _File_,+ _Opts_)
+
+The `delete_file/2` procedure removes file  _File_ according to
+options  _Opts_. These options are `directory` if one should
+remove directories, `recursive` if one should remove directories
+recursively, and `ignore` if errors are not to be reported.
+
+This example is equivalent to using the delete_file/1 predicate:
+
+~~~~~
+  ?- delete_file(x, [recursive]).
+~~~~~
+
+
+*/
 delete_file(IFile, Opts) :-
 	true_file_name(IFile, File),
 	process_delete_file_opts(Opts, Dir, Recurse, Ignore, delete_file(File,Opts)),
@@ -421,7 +402,7 @@ rm_directory(File, Ignore) :-
 	handle_system_internal(Error, Ignore, delete_file(File)).
 
 delete_directory(on, File, Ignore) :-
-	directory_files(File, FileList, Ignore),
+	directory_files(File, FileList),
 	path_separator(D),
 	atom_concat(File, D, FileP),
 	delete_dirfiles(FileList, FileP, Ignore),
@@ -475,6 +456,19 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	handle_system_internal(Error, off, file_property(File)).
 
 
+/** @pred environ(? _EnvVar_,+ _EnvValue_)
+
+
+Unify environment variable  _EnvVar_ with its value  _EnvValue_,
+if there is one. This predicate is backtrackable in Unix systems, but
+not currently in Win32 configurations.
+
+~~~~~
+   ?- environ('HOME',X).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+~~~~~
+*/
 /** @pred  environ(+E, -S)
 
   Given an environment variable _E_ this predicate unifies the second
@@ -512,16 +506,16 @@ environ_split([C|S],[C|SNa],SVal) :-
 /** @pred exec(+ Command, StandardStreams, -PID)
  *
  *
- * 
+ *
  * Execute command _Command_ with its standard streams connected to the
  * list [_InputStream_, _OutputStream_, _ErrorStream_]. A numeric
  * identifier to the process that executes the command is returned as
  * _PID_. The command is executed by the default shell `bin/sh -c` in
  * Unix.
- * 
+ *
  * The following example demonstrates the use of exec/3 to send a
  * command and process its output:
- * 
+ *
  * ~~~~~
   go :-
      exec(ls,[std,pipe(S),null],P),
@@ -529,12 +523,12 @@ environ_split([C|S],[C|SNa],SVal) :-
      get0(S,C),
      (C = -1, close(S) ! ; put(C)).
 ~~~~~
- * 
+ *
  * The streams may be one of standard stream, `std`, null stream,
  * `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
  * that it is up to the user to close the pipe.
- * 
- * 
+ *
+ *
 */
 exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	G = exec(Command, [StdIn, StdOut, StdErr], PID),
@@ -596,7 +590,7 @@ close_temp_streams([S|Ss]) :-
  * _Type_ argument may be `read` or `write`, not both. The stream should
  * be closed using close/1, there is no need for a special `pclose`
  * command.
- * 
+ *
  * The following example demonstrates the use of popen/3 to process the
  * output of a command, note that popen/3 works as a simplified interface
  * to the exec/3 command:
@@ -606,8 +600,8 @@ close_temp_streams([S|Ss]) :-
 
 X = 'C:\\cygwin\\home\\administrator' ?
 ~~~~~
- * 
- * The implementation of popen/3 relies on exec/3. 
+ *
+ * The implementation of popen/3 relies on exec/3.
  *
 */
 popen(Command, read, Stream) :-
@@ -686,75 +680,7 @@ get_shell(Shell, '/c') :-
 get_shell('/bin/sh','-c').
 
 system :-
-	default_shell(C/** @pred directory_files(+ _Dir_,+ _List_)a
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
-
-
-*/
- `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
-
-
-*/
- `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
-
-
-*/
-ommand),/** @pred directory_files(+ _Dir_,+ _List_)a
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the/** @pred directory_files(+ _Dir_,+ _List_)a
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the
-
-*/
-
+	default_shell(Command),
 	do_system(Command, _Status, Error),
 	handle_system_internal(Error, off, system).
 
@@ -851,14 +777,14 @@ rename_file(F0, F) :-
 	rename_file(F0, F, Error),
 	handle_system_internal(Error, off, rename_file(F0, F)).
 
-/** 
+/**
   * @pred  system(+ _S_)
 
 Passes command  _S_ to the Bourne shell (on UNIX environments) or the
 current command interpreter in WIN32 environments.
 */
 
-/** @pred directory_files(+ _Dir_,+ _List_)a
+/** @pred directory_files(+ _Dir_,+ _List_)
 
 
 Given a directory  _Dir_,  directory_files/2 procedures a
@@ -869,11 +795,10 @@ listing of all files and directories in the directory:
 ['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
 ~~~~~
 The predicates uses the `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
+environments, and `findfirst` in WIN32 through the system_library buil
 
 */
-directory_files(X,Y) :=
+directory_files(X,Y) :-
      list_directory(X,Y).
 
 /** @} */
-

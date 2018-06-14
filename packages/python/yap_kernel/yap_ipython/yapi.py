@@ -540,12 +540,12 @@ class YAPRun:
             program,squery,stop,howmany = self.prolog_cell(s)
             found = False
             # sys.settrace(tracefunc)
-            if self.query and self.os == squery:
+            if self.query and self.os == program+squery:
                 howmany += self.iterations
             else:
                 if self.query:
                     self.query.close()
-                self.os = squery
+                self.os = program+squery
                 self.iterations = 0
                 self.bindings = []
                 pg = jupyter_query( self, program, squery)

@@ -244,10 +244,10 @@ Set or read system properties for  _Param_:
 #define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
 #define END_GLOBAL_FLAGS };
 
-/*  */  
+/*  */
 #include "YapGFlagInfo.h"
 
-  /* Local flags */  
+  /* Local flags */
 #include "YapLFlagInfo.h"
 
 #ifndef DOXYGEN
@@ -388,10 +388,20 @@ Term Yap_UnknownFlag(Term mod);
 
 bool rmdot(Term inp);
 
-xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
+#define Yap_ArgListToVector(l, def, n, e)           \
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
-xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
+extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n,
+                          yap_error_number e);
 
+#define Yap_ArgListToVector(l, def, n, e)				\
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+                                
+extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
+
+#define Yap_ArgList2ToVector(l, def, n, e)           \
+  Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+                                
 #endif // YAP_FLAGS_H
 
 /// @}
