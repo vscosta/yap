@@ -16,8 +16,8 @@ typedef struct myddas_global *MYDDAS_GLOBAL;
 #include "myddas_util.h"
 
 
-static void Yap_InitMYDDAS_SQLITE3Preds(void);
-static void Yap_InitBackMYDDAS_SQLITE3Preds(void);
+//extern void Yap_InitMYDDAS_SQLITE3Preds(void);
+//extern void Yap_InitBackMYDDAS_SQLITE3Preds(void);
 
 #ifdef MYDDAS_STATS
 typedef struct myddas_stats_time_struct *MYDDAS_STATS_TIME;
