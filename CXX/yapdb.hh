@@ -6,6 +6,8 @@
 #ifndef _YAPDB_H
 #define _YAPDB_H
 
+#include <YapInterface.h>
+
 #define YAP_CPP_DB_INTERFACE 1
 
 
@@ -70,7 +72,7 @@ class X_API YAPModuleProp : public YAPProp {
 
 public:
   YAPModuleProp(YAPModule tmod) { m = Yap_GetModuleEntry(tmod.gt()); };
-  YAPModuleProp() { CACHE_REGS m = Yap_GetModuleEntry(Yap_CurrentModule()); };
+  YAPModuleProp() {  m = Yap_GetModuleEntry(YAP_CurrentModule()); };
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
 
