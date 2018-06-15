@@ -1794,7 +1794,6 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
     choiceptr myB, handler;
-  bool backtrack = false;
 
   //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
