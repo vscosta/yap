@@ -263,6 +263,7 @@ extern size_t Yap_page_size;
 #define M1 ((CELL)(1024 * 1024))
 #define M2 ((CELL)(2048 * 1024))
 
+typedef YAP_UInt CELL;
 #if ALIGN_LONGS
 typedef CELL SFLAGS;
 #else

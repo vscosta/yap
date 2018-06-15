@@ -263,7 +263,7 @@ INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
 
 INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
-  return AuxBase;
+    return AuxBase;
 }
 
 #endif /* HEAP_H */

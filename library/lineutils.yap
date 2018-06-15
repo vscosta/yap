@@ -495,17 +495,17 @@ file_filter_with_start_end(Inp, Out, Command, StartGoal, EndGoal) :-
 /**
   * @pred file_select(+ _FileIn_, + _Goal_)  is meta
   *
-  * @param _FileIn_  File to process
+  * @param _FileIn_  File or Stream to process
   * @param _Goal_ to be metacalled, receives FileIn as
   * extra arguments
   *
   * @return  bindings to arguments of _Goal_.
-
-  For every line  _LineIn_ in file  _FileIn_, execute
-  `call(`Goal,LineIn)`.
-
-  The input stream is accessible through the alias `filter_input`, and
-  the output stream is accessible through `filter_output`.
+  *
+  * @brief For every line  _LineIn_ in file  _FileIn_, execute
+  * `call(`Goal,LineIn)`.
+  *
+  * The input stream is accessible through the alias `filter_input`, and
+  * the output stream is accessible through `filter_output`.
 */
 file_select(Inp, Command) :-
 	( retract(alias(F)) -> true ; F = '' ),

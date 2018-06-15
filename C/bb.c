@@ -18,6 +18,17 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   bb.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:32:54 2018
+ * 
+ * @brief  blackboard
+ * 
+ * @namespace prolog
+ * 
+ */
+
 
 /** @defgroup BlackBoard The Blackboard
 @ingroup builtins

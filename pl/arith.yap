@@ -36,6 +36,7 @@
 
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
+    @{
 
   YAP supports several clause optimisation mechanisms, that
   are designed to improve execution of arithmetic
@@ -59,7 +60,6 @@
 
 */
 
-%% @{
 
 /** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.
@@ -129,14 +129,10 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      (clause_location(Call, Caller),
-	       strip_module(M:Goal,M1,NGoal),
-	       throw(error(Error,
-                       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]
-                      )
-                )
-	      )
+	       throw(error(Error,M:(Head :- Goal)))
 	     ) :- !.
+do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
+       do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).

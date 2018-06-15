@@ -15,7 +15,13 @@
 *									 *
 *************************************************************************/
 
-/** @defgroup YAPArrays Named Arrays
+/** 
+
+@file arrays.c
+
+@namespace prolog
+
+@addtogroup YAPArrays Named Arrays
 @ingroup extensions
 @{
 

@@ -25,8 +25,8 @@
 
 */
 
-:- system_module( attributes, [delayed_goals/4,
-all_attvars/1,	
+:- module( attributes, [delayed_goals/4,
+all_attvars/1,
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
@@ -36,7 +36,7 @@ all_attvars/1,
         put_att_term/2,
         put_module_atts/2,
         unbind_attvar/1,
-        woken_att_do/4], []).
+        woken_att_do/4]) .
 
 :- use_system_module( '$_boot', ['$undefp'/1]).
 

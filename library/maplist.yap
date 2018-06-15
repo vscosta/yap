@@ -44,83 +44,6 @@
   sumnodes/4
     ]).
 
-/**
-  * @defgroup maplist Map List and Term Operations
-  * @ingroup library
-  *
-  * This library provides a set of utilities for applying a predicate to
-  * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
-  *  To avoid performance degradation, each call creates an
-  * equivalent Prolog program, without meta-calls, which is executed by
-  * the Prolog engine instead. The library was based on code
-  * by Joachim Schimpf and on code from SWI-Prolog, and it is also inspired by the GHC
-  * libraries.
-  *
-  * The following routines are available once included with the
-  * `use_module(library(apply_macros))` command.
-  * @author : Lawrence Byrd
-  * @author Richard A. O'Keefe
-  * @author Joachim Schimpf
-  * @author Jan Wielemaker
-  * @author E. Alphonse
-  * @author Vitor Santos Costa
-
-
-Examples:
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-%given
-plus(X,Y,Z) :- Z is X + Y.
-
-plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
-
-vars(X, Y, [X|Y]) :- var(X), !.
-vars(_, Y, Y).
-
-trans(TermIn, TermOut) :-
-        nonvar(TermIn),
-        TermIn =.. [p|Args],
-        TermOut =..[q|Args], !.
-trans(X,X).
-
-%success
-
-  ?- maplist(plus(1), [1,2,3,4], [2,3,4,5]).
-
-  ?- checklist(var, [X,Y,Z]).
-
-  ?- selectlist(<(0), [-1,0,1], [1]).
-
-  ?- convlist(plus_if_pos(1), [-1,0,1], [2]).
-
-  ?- sumlist(plus, [1,2,3,4], 1, 11).
-
-  ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-  @{
-
-  */
-
-
-
-/** @pred maplist(+ _Pred_,+ _List1_,+ _List2_)
-
-Apply  _Pred_ on all successive pairs of elements from
- _List1_ and
- _List2_. Fails if  _Pred_ can not be applied to a
-pair. See the example above.
-
-
-*/
-/** @pred maplist(+ _Pred_,+ _List1_,+ _List2_,+ _List4_)
-
-Apply  _Pred_ on all successive triples of elements from  _List1_,
- _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
-triple. See the example above.
-
- */
-
 :- meta_predicate
 	selectlist(2,+,-),
 	selectlist(3,+,+,-),
@@ -161,19 +84,90 @@ triple. See the example above.
 :- use_module(library(charsio), [format_to_chars/3, read_from_chars/2]).
 :- use_module(library(occurs), [sub_term/2]).
 
+/**
+  * @defgroup maplist Map List and Term Operations
+  * @ingroup library
+  * @{
+  *
+  * This library provides a set of utilities for applying a predicate to
+  * all elements of a list. They allow one to easily perform the most common do-loop constructs in Prolog.
+  *  To avoid performance degradation, each call creates an
+  * equivalent Prolog program, without meta-calls, which is executed by
+  * the Prolog engine instead. The library was based on code
+  * by Joachim Schimpf and on code from SWI-Prolog, and it is also inspired by the GHC
+  * libraries.
+  *
+  * The  routines are available once included with the
+  * `use_module(library(maplist))` command.
+  * Examples:
+  * 
+  * ~~~~
+  * plus(X,Y,Z) :- Z is X + Y.
+  * 
+  * plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
+  * 
+  * vars(X, Y, [X|Y]) :- var(X), !.
+  * vars(_, Y, Y).
+  * 
+  * trans(TermIn, TermOut) :-
+  *         nonvar(TermIn),
+  *         TermIn =.. [p|Args],
+  *         TermOut =..[q|Args], !.
+  * trans(X,X).
+  * ~~~~
+  * %success
+  * 
+  *   ?- maplist(plus(1), [1,2,3,4], [2,3,4,5]).
+  * 
+  *   ?- checklist(var, [X,Y,Z]).
+  * 
+  *   ?- selectlist(<(0), [-1,0,1], [1]).
+  * 
+  *   ?- convlist(plus_if_pos(1), [-1,0,1], [2]).
+  * 
+  *   ?- sumlist(plus, [1,2,3,4], 1, 11).
+  * 
+  *   ?- maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+  * ~~~~
+  * 
+  **/
+
+/** @pred maplist( 2:Pred, + _List1_,+ _List2_)
+
+Apply  _Pred_ on all successive pairs of elements from
+ _List1_ and
+ _List2_. Fails if  _Pred_ can not be applied to a
+pair. See the example above.
+
+
+*/
+
+/** @pred maplist(3:Pred,+ List1,+ List2,+ List4)
+
+Apply  _Pred_ on all successive triples of elements from  _List1_,
+ _List2_ and  _List3_. Fails if  _Pred_ can not be applied to a
+triple. See the example above.
+
+ */
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Definitions for Metacalls
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/** include(+ _Pred_, + _ListIn_, ? _ListOut_)
+/**
+  @pred  include( 2:Pred, + ListIn, ? ListOut)
+
   Same as selectlist/3.
 */
 include(G,In,Out) :-
 	selectlist(G, In, Out).
 
-/** selectlist(: _Pred_, + _ListIn_, ? _ListOut_))
+/**
+  @pred  selectlist(1:Pred, + ListIn, ? ListOut))
+
   Creates  _ListOut_ of all list elements of  _ListIn_ that pass a given test
 */
 selectlist(_, [], []).
@@ -185,7 +179,9 @@ selectlist(Pred, [In|ListIn], ListOut) :-
     ),
     selectlist(Pred, ListIn, NewListOut).
 
-/** selectlist(: _Pred_, + _ListIn_, + _ListInAux_, ? _ListOut_, ? _ListOutAux_)
+/**
+  @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut, ? ListOutAux)
+  
   Creates  _ListOut_ and _ListOutAux_ of all list elements of  _ListIn_ and _ListInAux_ that
   pass the given test  _Pred_.
 */
@@ -200,7 +196,8 @@ selectlists(Pred, [In|ListIn], [In1|ListIn1], ListOut, ListOut1) :-
     ),
     selectlist(Pred, ListIn, ListIn1, NewListOut, NewListOut1).
 
-/** selectlist(: _Pred_, + _ListIn_, + _ListInAux_, ? _ListOut_)
+/** @pred  selectlist( 2:Pred, + ListIn, + ListInAux, ? ListOut)
+
   Creates  _ListOut_ of all list elements of  _ListIn_ that
   pass the given test  _Pred_ using + _ListInAux_ as an
   auxiliary element.
@@ -214,7 +211,9 @@ selectlist(Pred, [In|ListIn], [In1|ListIn1], ListOut) :-
     ),
     selectlist(Pred, ListIn, ListIn1, NewListOut).
 
-/** exclude(+ _Goal_, + _List1_, ? _List2_)
+/**
+  @pred  exclude( 2:Goal, + List1, ? List2)
+
   Filter elements for which  _Goal_ fails. True if  _List2_ contains
   those elements  _Xi_ of  _List1_ for which `call(Goal, Xi)` fails.
 */
@@ -227,11 +226,13 @@ exclude(Pred, [In|ListIn], ListOut) :-
     ),
     exclude(Pred, ListIn, NewListOut).
 
-/** partition(+ _Pred_,  + _List1_, ? _Included_, ? _Excluded_)
-  Filter elements of  _List_ according to  _Pred_. True if
+/**
+  @pred  partition(1:Pred,  + List1, ? Included, ? Excluded)
+
+  Filter elements of  _List1_ according to  _Pred_. True if
   _Included_ contains all elements for which `call(Pred, X)`
   succeeds and  _Excluded_ contains the remaining elements.
-*/
+ */
 partition(_, [], [], []).
 partition(Pred, [In|ListIn], List1, List2) :-
     (call(Pred, In) ->
@@ -243,7 +244,8 @@ partition(Pred, [In|ListIn], List1, List2) :-
     ),
     partition(Pred, ListIn, RList1, RList2).
 
-/** partition(+ _Pred_,  + _List1_, ? _Lesser_, ? _Equal_, ? _Greater_)
+/**
+  @pred  partition(2:Pred,  + List1, ? Lesser, ? Equal, ? Greater)
 
   Filter list according to  _Pred_ in three sets. For each element
   _Xi_ of  _List_, its destination is determined by
@@ -274,7 +276,9 @@ partition(Pred, [In|ListIn], List1, List2, List3) :-
     ),
     partition(Pred, ListIn, RList1, RList2, RList3).
 
-/** checklist(: _Pred_, + _List_)
+/**
+  @pred  checklist( 1:Pred, + List)
+
   Succeeds if the predicate  _Pred_ succeeds on all elements of  _List_.
 */
 checklist(_, []).
@@ -282,7 +286,8 @@ checklist(Pred, [In|ListIn]) :-
     call(Pred, In),
     checklist(Pred, ListIn).
 
-/** maplist(: _Pred_, ? _ListIn_)
+/**
+  @pred  maplist(: Pred, ? ListIn)
 
   Applies predicate  _Pred_( _El_ ) to all
   elements _El_ of  _ListIn_.
@@ -294,7 +299,8 @@ maplist(Pred, [In|ListIn]) :-
     maplist(Pred, ListIn).
 
 
-/** maplist(: _Pred_, ? _L1_, ? _L2_ )
+/**
+  @pred  maplist(: Pred, ? L1, ? L2 )
   _L1_  and  _L2_ are such that
   `call( _Pred_, _A1_, _A2_)` holds for every
   corresponding element in lists  _L1_,   _L2_.
@@ -308,7 +314,8 @@ maplist(Pred, [In|ListIn], [Out|ListOut]) :-
 	call(Pred, In, Out),
 	maplist(Pred, ListIn, ListOut).
 
-/** maplist(: _Pred_, ? _L1_, ? _L2_, ? _L3_)
+/**
+  @pred  maplist(: Pred, ? L1, ? L2, ? L3)
   _L1_,   _L2_, and  _L3_ are such that
   `call( _Pred_, _A1_, _A2_, _A3_)` holds for every
   corresponding element in lists  _L1_,   _L2_, and  _L3_.
@@ -319,7 +326,9 @@ maplist(Pred, [A1|L1], [A2|L2], [A3|L3]) :-
     call(Pred, A1, A2, A3),
     maplist(Pred, L1, L2, L3).
 
-/** maplist(: _Pred_, ? _L1_, ? _L2_, ? _L3_, ? _L4_)
+/**
+  @pred  maplist(: Pred, ? L1, ? L2, ? L3, ? L4)
+
   _L1_,  _L2_,  _L3_, and  _L4_ are such that
   `call( _Pred_, _A1_, _A2_, _A3_, _A4_)` holds
   for every corresponding element in lists  _L1_,  _L2_,  _L3_, and
@@ -331,7 +340,7 @@ maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
     maplist(Pred, L1, L2, L3, L4).
 
 /**
-  convlist(: _Pred_, + _ListIn_, ? _ListOut_) @anchor convlist3
+  @pred convlist(: Pred, + ListIn, ? ListOut)
 
   A combination of maplist/3 and selectlist/3: creates  _ListOut_ by
   applying the predicate  _Pred_ to all list elements on which
@@ -355,7 +364,7 @@ convlist(Pred, [_|Olds], News) :-
 	convlist(Pred, Olds, News).
 
 /**
-  convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut) @anchor convlist5
+  @pred convlist(: Pred, ? ListIn, ?ExtraList, ? ListOut)
 
   A combination of maplist/4 and selectlist/3: _ListIn_, _ListExtra_,
   and _ListOut_ are the sublists so that the predicate _Pred_ succeeds.
@@ -378,7 +387,7 @@ convlist(Pred, [_|Olds], News) :-
 	convlist(Pred, Olds, News).
 
 /**
-  mapnodes(+ _Pred_, + _TermIn_, ? _TermOut_)
+  @pred mapnodes(+ _Pred_, + _TermIn_, ? _TermOut_)
 
   Creates  _TermOut_ by applying the predicate  _Pred_
   to all sub-terms of  _TermIn_ (depth-first and left-to-right order).
@@ -398,7 +407,7 @@ mapnodes_list(Pred, [TermIn|ArgsIn], [TermOut|ArgsOut]) :-
     mapnodes_list(Pred, ArgsIn, ArgsOut).
 
 /**
-  checknodes(+ _Pred_, + _Term_)  @anchor checknodes
+  @pred checknodes(+ _Pred_, + _Term_)  
 
   Succeeds if the predicate  _Pred_ succeeds on all sub-terms of
   _Term_ (depth-first and left-to-right order)
@@ -416,8 +425,8 @@ checknodes_list(Pred, [Term|Args]) :-
     checknodes_body(Pred, Term),
     checknodes_list(Pred, Args).
 
-/**
-  sumlist(: _Pred_, + _List_, ? _AccIn_, ? _AccOut_)
+/** 
+  @pred sumlist(: _Pred_, + _List_, ? _AccIn_, ? _AccOut_)
 
   Calls  _Pred_ on all elements of List and collects a result in
   _Accumulator_. Same as fold/4.
@@ -428,7 +437,7 @@ sumlist(Pred, [H|T], AccIn, AccOut) :-
     sumlist(Pred, T, A1, AccOut).
 
 /**
-  sumnodes(+ _Pred_, + _Term_, ? _AccIn_, ? _AccOut_) @anchor sumnodes
+  @pred sumnodes(+ _Pred_, + _Term_, ? _AccIn_, ? _AccOut_)
 
   Calls the predicate  _Pred_ on all sub-terms of  _Term_ and
   collect a result in  _Accumulator_ (depth-first and left-to-right
@@ -457,11 +466,12 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 		 *	      FOLDL		*
 		 *******************************/
 
-%%	foldl(:Goal, +List, +V0, -V, +W0, -WN).
+%%
+%% @pred foldl(:Goal, +List, +V0, -V, +W0, -WN).
 %
 
 /**
-  foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
+  @pred oldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
 
   Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
   foldr/3.
@@ -475,7 +485,7 @@ foldl_([H|T], Goal, V0, V) :-
 	foldl_(T, Goal, V1, V).
 
 /**
-  foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
+  @pred foldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
 
   Calls  _Pred_ on all elements of _List1_ and
   _List2_ and collects a result in  _Accumulator_. Same as
@@ -522,7 +532,7 @@ foldl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V0, V) :-
 
 
 /**
-  foldl2(: _Pred_, + _List_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+   @pred foldl2(: _Pred_, + _List_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
 
   Calls  _Pred_ on all elements of `List` and collects a result in
   _X_ and  _Y_.
@@ -537,7 +547,7 @@ foldl2_([H|T], Goal, V0, V, W0, W) :-
 	foldl2_(T, Goal, V1, V, W1, W).
 
 /**
-  foldl2(: _Pred_, + _List_, ? _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+v   @pred foldl2(: _Pred_, + _List_, ? _List1_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
 
   Calls  _Pred_ on all elements of  _List_  and  _List1_  and collects a result in
   _X_ and  _Y_.
@@ -551,7 +561,7 @@ foldl2_([H1|T1], [H2|T2], Goal, V0, V, W0, W) :-
 	foldl2_(T1, T2, Goal, V1, V, W1, W).
 
 /**
-  foldl2(: _Pred_, + _List_, ? _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
+   @pred foldl2(: _Pred_, + _List_, ? _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_)
 
   Calls  _Pred_ on all elements of  _List_,  _List1_  and  _List2_  and collects a result in
   _X_ and  _Y_.
@@ -567,7 +577,7 @@ foldl2_([H1|T1], [H2|T2], [H3|T3], Goal, V0, V, W0, W) :-
 
 
 /**
-  foldl3(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
+   @pred foldl3(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_)
 
 
   Calls  _Pred_ on all elements of `List` and collects a
@@ -582,7 +592,7 @@ foldl3_([H|T], Goal, V0, V, W0, W, X0, X) :-
 	fold3_(T, Goal, V1, V, W1, W, X1, X).
 
 /**
-  foldl4(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
+  @pred foldl4(: _Pred_, + _List1_, ? _List2_, ? _X0_, ? _X_, ? _Y0_, ? _Y_, ? _Z0_, ? _Z_, ? _W0_, ? _W_)
 
 
   Calls  _Pred_ on all elements of `List` and collects a
@@ -618,7 +628,6 @@ foldl4_([H|T], Goal, V0, V, W0, W, X0, X, Y0, Y) :-
 %	  ==
 
 /**
-    scanl(: _Pred_, + _List_, + _V0_, ? _Values_)
 
 
 Left scan of  list.  The  scanl   family  of  higher  order list

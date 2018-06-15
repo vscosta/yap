@@ -33,18 +33,18 @@ from recommonmark.parser import CommonMarkParser
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
+              'sphinx.ext.doctest',
+              'sphinx.ext.intersphinx',
+              'sphinx.ext.todo',
+              'sphinx.ext.coverage',
+              'sphinx.ext.mathjax',
+              'sphinx.ext.ifconfig',
+              'sphinx.ext.viewcode',
               'sphinx.ext.githubpages',
               'breathe'
 ]
 
-breathe_projects = { "yap": "../../build/docs/xml" }
+breathe_projects = { "yap": "/home/vsc/github/yap-6.3/docs/xml" }
 breathe_default_project = "yap"
 
 # Add any paths that contain templates here, relative to this directory.
@@ -92,7 +92,7 @@ pygments_style = 'sphinx'
 todo_include_todos = True
 
 source_parsers = {
-   '.md': 'recommonmark.parser.CommonMarkParser',
+    '.md': 'recommonmark.parser.CommonMarkParser',
 }
 # -- Options for HTML output ----------------------------------------------
 

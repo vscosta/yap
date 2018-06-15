@@ -15,10 +15,15 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
-@addtogroup YAPArrays
+
+@file arrays.yap
+
+@addtogroup YAPArraysPl Prolog Support for seeing terms as arrays and for data-base arrays of objects
+
+  @ingroup YAPArrays
+  
+@{
 */
 %
 % These are the array built-in predicates. They will only work if

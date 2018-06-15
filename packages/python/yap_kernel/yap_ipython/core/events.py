@@ -13,7 +13,7 @@ events and the arguments which will be passed to them.
    This API is experimental in yap_ipython 2.0, and may be revised in future versions.
 """
 
-from backcall import callback_prototype
+from yap_ipython.core.backcall import callback_prototype
 
 
 class EventManager(object):

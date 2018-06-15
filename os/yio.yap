@@ -350,7 +350,6 @@ with  _S_.
 
 */
 current_stream(File, Mode, Stream) :-
-
     stream_property(Stream, mode(Mode)),
     '$stream_name'(Stream, File).
 

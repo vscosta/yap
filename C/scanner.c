@@ -667,7 +667,7 @@ static Term float_send(char *s, int sign) {
 #endif
   {
     CACHE_REGS
-    return (MkEvalFl(f));
+    return MkFloatTerm(f);
   }
 }
 
@@ -874,7 +874,7 @@ do_switch:
 static int num_send_error_message(char s[]) {
   CACHE_REGS
   LOCAL_ErrorMessage = s;
-  return TermNil;
+  return MkStringTerm(s);
 }
 
 #define number_overflow()                                                      \
@@ -921,7 +921,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
   }
   if (ch == '\'') {
     if (base > 36) {
-      return num_send_error_message("Admissible bases are 0..36");
+        Yap_ThrowError(SYNTAX_ERROR, MkIntegerTerm(base), "Admissible bases are 0..36");
     }
     might_be_float = FALSE;
     if (--left == 0)
@@ -969,7 +969,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-      Yap_InitError(SYNTAX_ERROR, TermNil, "empty hexadecimal number 0x%C",ch)   ;
+        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+      Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
       return 0;
     }
     while (my_isxdigit(ch, 'F', 'f')) {
@@ -992,17 +994,21 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-          Yap_InitError(SYNTAX_ERROR, TermNil, "empty octal number 0b%C", ch)   ;
+          Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+          Yap_local.ActiveError->errorRawTerm = 0;
+          Yap_ThrowError(SYNTAX_ERROR, t, "invalid octal digit 0x%C",ch)   ;
         return 0;
       }
   } else if (ch == 'b' && base == 0) {
     might_be_float = false;
     base = 2;
     ch = getchr(st);
-  if (ch < '0' || ch > '1') {
-                                          Yap_InitError(SYNTAX_ERROR, TermNil, "empty binary  0b%C", ch)   ;
-    return 0;
-                                      }
+    if (ch < '0' || ch > '1') {
+        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = 0;
+        Yap_ThrowError(SYNTAX_ERROR, t, "invalid binary digit 0x%C",ch)   ;
+      return 0;
+    }
 
 
   } else {
@@ -1032,7 +1038,6 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
     if (has_dot) {
       unsigned char *dp;
       int dc;
-
       if (chtype(ch = getchr(st)) != NU) {
         if (ch == 'e' || ch == 'E') {
           if (trueGlobalPrologFlag(ISO_FLAG))
@@ -1173,12 +1178,9 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
-  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr) {
-    Yap_clean_tokenizer(old_tr, NULL, NULL);
-   Yap_InitError(SYNTAX_ERROR, ARG2, "while converting stream %d to number", inp-GLOBAL_Stream );
-    return 0;
-  }
+  if (ch == EOF)
   return out;
+  return 0;
 }
 
 #define CHECK_SPACE()                                                          \
@@ -1671,6 +1673,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       int pch;
       if (ch == '.' && (pch = Yap_peek(st - GLOBAL_Stream)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
+            if (chtype(ch) != EF)
+              getchr(st);
         t->Tok = Ord(kind = eot_tok);
         // consume...
         if (pch == '%') {

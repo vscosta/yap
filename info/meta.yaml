@@ -17,9 +17,7 @@ requirements:
     - pkgconfig
     - make
     - libxml2
-    - backcall
 run:
-    - backcall
     - jupyterlab
     - python
     - readline

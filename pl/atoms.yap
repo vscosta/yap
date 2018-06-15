@@ -9,7 +9,8 @@
  *************************************************************************/
 
 /**
- * @file atoms.yap
+ * @file pl/atoms.yap
+  *
  *
  */
 
@@ -25,7 +26,7 @@
 
 /**
  * @addtogroup Predicates_on_Atoms
- *
+ * @{
 */
 
 /** @pred  atom_concat(+ As, ? A)
@@ -38,44 +39,43 @@ the first list.
 
 */
 atom_concat(Xs,At) :-
+	must_be( list, Xs),
 	( var(At) ->
 	   '$atom_concat'(Xs, At )
         ;
-	 '$atom_concat_constraints'(Xs, 0, At, Unbound),
-	 '$process_atom_holes'(Unbound)
+	 must_be( atom, At),
+	  atom_length(At, Len),
+	  '$atom_used_up'(Xs,Len,Available),
+	  Available >= 0,
+	  '$atom_generate'(Xs,At,Available,0)
         ).
 
-% the constraints are of the form hole: HoleAtom, Begin, Atom, End
-'$atom_concat_constraints'([At], 0, At, []) :- !.
-'$atom_concat_constraints'([At0], mid(Next, At), At, [hole(At0, Next, At, end)]) :-  !.
-% just slice first atom
-'$atom_concat_constraints'([At0|Xs], 0, At, Unbound) :-
-	atom(At0), !,
-	sub_atom(At0, 0, _Sz, L, _Ata ),
-	sub_atom(At, _, L, 0, Atr ), %remainder
-	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
-% first hole: Follow says whether we have two holes in a row, At1 will be our atom
-'$atom_concat_constraints'([At0|Xs], 0, At, [hole(At0, 0, At, Next)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Next,_At1), At, Unbound).
-% end of a run
-'$atom_concat_constraints'([At0|Xs], mid(end, At1), At, Unbound) :-
-	atom(At0), !,
-	sub_atom(At, Next, _Sz, L, At0),
-	sub_atom(At, 0, Next, Next, At1),
-	sub_atom(At, _, L, 0, Atr), %remainder
-	'$atom_concat_constraints'(Xs, 0, Atr, Unbound).
-'$atom_concat_constraints'([At0|Xs], mid(Next,At1), At, Next, [hole(At0, Next, At, Follow)|Unbound]) :-
-	 '$atom_concat_constraints'(Xs, mid(Follow, At1), At, Unbound).
+'$atom_used_up'([H|Xs],Len,Available) :-
+	(
+	 var(H)
+	->
+	 '$atom_used_up'(Xs,Len,Available)
+	;
+	 must_be( atom, H),
+	 atom_length(H, L),
+	 Li is Len-L,
+	 '$atom_used_up'(Xs,Li,Available)
+	).
+'$atom_used_up'([],Available,Available).
 
-'$process_atom_holes'([]).
-'$process_atom_holes'([hole(At0, Next, At1, End)|Unbound]) :- End == end, !,
-	sub_atom(At1, Next, _, 0, At0),
-	 '$process_atom_holes'(Unbound).
-'$process_atom_holes'([hole(At0, Next, At1, Follow)|Unbound]) :-
-	sub_atom(At1, Next, Sz, _Left, At0),
-	Follow is Next+Sz,
-	 '$process_atom_holes'(Unbound).
-
+'$atom_generate'([],_,0, _).
+'$atom_generate'([H|Xs],At,Available, I0) :-
+	(
+	 var(H)
+	->
+	 between(0,Available,I)
+	;
+	 true
+	),
+	sub_atom(At,I0,I,_,H),
+	More is Available-I,
+	NI0 is I0+I,
+	'$atom_generate'(Xs, At, More, NI0).
 
 /** @pred  atomic_list_concat(+ _As_,? _A_)
 

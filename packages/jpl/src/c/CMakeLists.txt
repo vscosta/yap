@@ -1,3 +1,4 @@
+set(CMAKE_MACOSX_RPATH 1)
 
 add_lib(jplYap  jpl.h jpl.c hacks.h)
 

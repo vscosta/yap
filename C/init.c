@@ -165,8 +165,10 @@ The following is the list of the declarations of the predefined operators:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :-op(1200,fx,['?-', ':-']).
 :-op(1200,xfx,[':-','-->']).
-:-op(1150,fx,[block,dynamic,mode,public,multifile,meta_predicate,
-              sequential,table,initialization]).
+:-op(1150,fx,[block,
+	discontiguous,dynamic,
+        initialization,mode,multifile,meta_predicate,
+              public,sequential,table]).
 :-op(1100,xfy,[';','|']).
 :-op(1050,xfy,->).
 :-op(1000,xfy,',').
@@ -1476,7 +1478,7 @@ void Yap_exit(int value) {
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
-  Yap_CloseStreams(false);
+  Yap_CloseStreams();
   Yap_CloseReadline();
 #if USE_SYSTEM_MALLOC
 #endif

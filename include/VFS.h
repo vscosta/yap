@@ -79,8 +79,9 @@ typedef struct vfs {
   const char *suffix;
   bool (*chDir)(struct vfs *me, const char *s);
   /** operations */
-  void *(*open)(struct vfs *, int sno, const char *fname,
-                const char *io_mode); /// open an object
+  void *(*open)(struct vfs *, const char *fname,
+                const char *io_mode,
+		int sno); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
   bool (*close)(int sno);           /// close the object
   int (*get_char)(int sno);         /// get an octet from the stream

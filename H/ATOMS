@@ -171,6 +171,7 @@ A	Full			N	"full"
 A	Functor			N	"functor"
 A	GT			N	">"
 A	GVar			N	"var"
+A	g			N	"g"
 A	Gc			F	"$gc"
 A	GcMargin		F	"$gc_margin"
 A	GcTrace			F	"$gc_trace"
@@ -289,15 +290,15 @@ A	OutOfStackError		N	"out_of_stack_error"
 A	OutOfTrailError		N	"out_of_trail_error"
 A	Output			N	"output"
 A	Parameter		N	"parameter"
-A	PrologCommonsDir	N	"prolog_commons_directory"
 A	Past			N	"past"
 A	PastEndOfStream		N	"past_end_of_stream"
 A	PermissionError		N	"permission_error"
 A	Pi			N	"pi"
 A	Pipe			N	"pipe"
-A   Priority		N   "priority"
+A	Priority		N   "priority"
 A	Plus			N	"+"
 A	Pointer			N	"pointer"
+A	Popen			N	"popen"
 A	Portray			F	"portray"
 A	PredicateIndicator	N	"predicate_indicator"
 A	Primitive		N	"primitive"
@@ -306,6 +307,7 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
+A	PrologCommonsDir	N	"prolog_commons_directory"
 A	ProtectStack	F	"$protect_stack"
 A	Qly			    N	"qly"
 A	Query			N	"?-"
@@ -429,6 +431,7 @@ A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
+A	UTF8			N	"utf8"
 A	DollarVar	    N	"$VAR"
 A	VBar			N	"|"
 A	VarBranches		N	"var_branches"
@@ -504,6 +507,7 @@ F	Dot9			Dot		9
 F	DoubleArrow			DoubleArrow		2
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
+F	Encoding		Encoding	1
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1
@@ -555,6 +559,7 @@ F	Or			Semic		2
 F   Output      Output      1
 F	PermissionError		PermissionError	3
 F	Plus			Plus		2
+F	Popen			Popen		1
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5

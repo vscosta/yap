@@ -22,12 +22,11 @@
         '$syntax_check_multiple'/2,
         '$syntax_check_single_var'/2]).
 
-%% @{
-
 /**
 
-@defgroup   YAPStyle Checker
-    @ingroup  YAPCompilerSettings
+   @defgroup   YAPStyle Checker
+   @ingroup  YAPCompilerSettings
+   @{
 
 YAP implements a style-checker thay currently verifies whether:
 
@@ -72,7 +71,6 @@ The style_check/1 built-in is now deprecated. Please use
 %
 % A Small style checker for YAP
 
-:- op(1150, fx, [multifile,discontiguous]).
 
 style_check(V) :- var(V), !, fail.
 style_check(V) :-
@@ -157,7 +155,8 @@ no_style_check(-multiple) :-
 no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
-/** @pred discontiguous(+ _G_) is iso
+/** 
+  * @pred discontiguous(+ G) is iso, directive
     Avoid warnings from the sytax checker.
 
 Declare that the predicate _G_ or list of predicates are discontiguous

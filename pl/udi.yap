@@ -21,7 +21,7 @@
   * 
   * @brief  User Defined Extensions
   *
-  * @addgroup UDI User Defined Extensions
+  * @addtogroup UDI User Defined Extensions
   * @ingroup extensions
   * 
   * 

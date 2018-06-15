@@ -15,9 +15,11 @@
 *									 *
 *************************************************************************/
 
-/** @file YapFlags.h
+/**
+ @file YapFlags.h
 
-    @addtogroup Flags
+@{
+    @addtogroup YAPFlags
 */
 
 #ifndef YAP_FLAGS_H
@@ -162,19 +164,6 @@ static inline Term list_filler(Term inp) {
   return TermZERO;
 }
 
-static Term bqs(Term inp) {
-  if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
-    return inp;
-
-  if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
-              "set_prolog_flag in {codes,string}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {codes,string}");
-  return TermZERO;
-}
-
 // INLINE_ONLY inline EXTERN  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
@@ -241,16 +230,35 @@ typedef union flagTerm {
 
 void Yap_InitFlags(bool);
 
-#define YAP_FLAG(x, NAME, WRITABLE, DEF, INIT, HELPER) x
+/**
+ @pred  yap_flag( ?Param, ?Value)
 
-typedef enum {
+
+Set or read system properties for  _Param_:
+*/
+
+
+#define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
+#define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
+#define END_LOCAL_FLAGS };
+#define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
+#define END_GLOBAL_FLAGS };
+
+/*  */
 #include "YapGFlagInfo.h"
-} global_flag_t;
 
-typedef enum {
+  /* Local flags */
 #include "YapLFlagInfo.h"
-} local_flag_t;
+
+#ifndef DOXYGEN
+
 #undef YAP_FLAG
+#undef START_LOCAL_FLAGS
+#undef END_LOCAL_FLAGS
+#undef START_GLOBAL_FLAGS
+#undef END_GLOBAL_FLAGS
+
+#endif
 
 bool setYapFlag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
@@ -342,17 +350,26 @@ static inline Term getSyntaxErrorsFlag(void) {
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
-static inline bool setBackQuotesFlag(Term val) {
-  if (!bqs(val))
-    return false;
-  if (val == TermSymbolChar)
-    val = TermString;
-  GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at = val;
+// used to overwrite singletons quoteFunc flag
+static inline bool setReadTermBackQuotesFlag(Term val) {
+
+  GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
   return true;
 }
 
-static inline Term getBackQuotesFlag(void) {
-  return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
+static inline Term getReadTermBackQuotesFlag(void) {
+  Term val;
+  unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+  if (flags & BCKQ_ATOM) {
+    val = TermAtom;
+  } else if (flags & BCKQ_STRING) {
+    val = TermString;
+  } else if (flags & BCKQ_CHARS) {
+    val = TermChars;
+  } else {
+    val = TermCodes;
+  }
+return GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
 }
 
 static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
@@ -371,8 +388,20 @@ Term Yap_UnknownFlag(Term mod);
 
 bool rmdot(Term inp);
 
-xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
+#define Yap_ArgListToVector(l, def, n, e)           \
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
-xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
+extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n,
+                          yap_error_number e);
 
+#define Yap_ArgListToVector(l, def, n, e)				\
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+                                
+extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
+
+#define Yap_ArgList2ToVector(l, def, n, e)           \
+  Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+                                
 #endif // YAP_FLAGS_H
+
+/// @}

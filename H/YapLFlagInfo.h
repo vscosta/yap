@@ -1,4 +1,5 @@
 
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -18,10 +19,20 @@
 
 /** @file YapLFlagInfo.h
 
-    @addtogroup Flags
+    @addtogroup YAPFlags
+@ingroup builtins
+@{
+
+
+    @enum THREAD_LOCAL_FLAGS  Local Flags supported by YAP
+    @brief local flags and their values.
 */
 
+START_LOCAL_FLAGS
+
+  /** + `autoload`: set the system to look for undefined procedures */
 YAP_FLAG(  AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false" , NULL ),
+/** + `read-only flag, that tells if Prolog is in an inner top-level */
 YAP_FLAG(  BREAK_LEVEL_FLAG, "break_level", true, nat, "0" , NULL ),
 YAP_FLAG(  CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true" , NULL ), /** + `call_counting`
 
@@ -117,3 +128,7 @@ automatically redirects the user_error alias to the original
  */
 YAP_FLAG(  USER_INPUT_FLAG, "user_input", true, stream, "user_input" , set_input_stream ),
   YAP_FLAG(  USER_OUTPUT_FLAG, "user_output", true, stream, "user_output" , set_output_stream ),
+
+END_LOCAL_FLAGS
+
+/// @}

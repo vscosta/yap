@@ -1,5 +1,6 @@
 # include CONTRIBUTING.md
 include README.md
+include *.py
 
 recursive-include yap4py/prolog *.*
 recursive-include html *.*

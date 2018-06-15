@@ -2,17 +2,8 @@
  * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
- *
- * @addtogroup lists The Prolog Library
- *
- * @ingroup library
- *
- * @{
- *
- * @brief  List Manipulation Predicates
- *
- *
 */
+
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
 :- module(lists,
@@ -54,14 +45,18 @@
 	  ]).
 
 
-/** @defgroup lists List Manipulation
-@ingroup library
-@{
-
-The following list manipulation routines are available once included
-with the `use_module(library(lists))` command.
-
+/**  
+ * @{
+ *
+ * @addtogroup lists List Predicates in the Prolog Library
+ * @ingroup library  
+ *
+ * @brief  List Manipulation Predicates
+ *
+ * The following list manipulation routines are available once included
+    with the `use_module(library(lists))` command.
 */
+
 
 /** @pred list_concat(+ _Lists_,? _List_)
 

@@ -25,10 +25,18 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+
+:- '$system_meta_predicates'([
+			      discontiguous(:),
+			      multifile(:)
+			     ]
+			    ).
+
 '$log_upd'(1).
 
 /**
   @defgroup YAPPredDecls Declaring Properties of Predicates
+  @{
   @ingroup YAPCompilerSettings
 
 The YAP Compiler allows the programmer to include declarations with
@@ -266,3 +274,6 @@ its caller.
 	'$predicate_flags'(P, M, Fl, Fl),
 	NFlags is Fl \/ 0x200004,
 	'$predicate_flags'(P, M, Fl, NFlags).
+  /**
+   * @}
+   */

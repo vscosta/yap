@@ -213,7 +213,7 @@ p_div2(Term t1, Term t2 USES_REGS) {
 	  Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " div 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
-	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+	  return Yap_gmp_add_ints(Int_MAX, 1);
 #else
 	  Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
 		    "// /2 with %d and %d", i1, i2);
@@ -443,7 +443,7 @@ p_xor(Term t1, Term t2 USES_REGS)
 {
   switch (ETypeOfTerm(t1)) {
   case long_int_e:
-    
+
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
@@ -643,7 +643,7 @@ p_power(Term t1, Term t2 USES_REGS)
 }
 
 /* next function is adapted from:
-   Inline C++ integer exponentiation routines 
+   Inline C++ integer exponentiation routines
    Version 1.01
    Copyright (C) 1999-2004 John C. Bowman <bowman@math.ualberta.ca>
 */
@@ -654,9 +654,9 @@ ipow(Int x, Int p)
 
   if (p == 0) return ((CELL)1);
   if (x == 0 && p > 0) return 0L;
-  if(p < 0) 
+  if(p < 0)
     return (-p % 2) ? x : ((CELL)1);
-	
+
   r = ((CELL)1);
   for(;;) {
     if(p & 1) {
@@ -1142,32 +1142,20 @@ static InitBinEntry InitBinTab[] = {
   {"rdiv", op_rdiv}
 };
 
-static Int 
+static Int
 p_binary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
-  Term t1, t2;
-  yap_error_number err;
+  Term t1, t2, tout;
 
   if (IsVarTerm(t)) {
     Yap_ArithError(INSTANTIATION_ERROR,t, "VAR(X , Y)");
     return(FALSE);
   }
-  Yap_ClearExs();
-  t1 = Yap_Eval(Deref(ARG3));
-  if ((err = Yap_FoundArithError())) {
-    Atom name;
-    if (IsIntTerm(t)) {
-      Int i = IntOfTerm(t);
-      name = Yap_NameOfBinaryOp(i);
-    } else {
-      name = AtomOfTerm(Deref(ARG2));
-    }
-    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
-    return FALSE;
-  }
+          Yap_ClearExs();
+    t1 = Yap_Eval(Deref(ARG3));
   t2 = Yap_Eval(Deref(ARG4));
-  if ((err=Yap_FoundArithError())) {
+  {
     Atom name;
     if (IsIntTerm(t)) {
       Int i = IntOfTerm(t);
@@ -1175,134 +1163,113 @@ p_binary_is( USES_REGS1 )
     } else {
       name = AtomOfTerm(Deref(ARG2));
     }
-    Yap_EvalError(err,ARG3,"X is ~s/2: error in first argument ", RepAtom(name)->StrOfAE);
-    return FALSE;
   }
   if (IsIntTerm(t)) {
     Int i = IntOfTerm(t);
-    Term tout = eval2(i, t1, t2 PASS_REGS);
-    if ((err = Yap_FoundArithError()) != YAP_NO_ERROR) {
-      Term ts[2], terr;
-      Atom name = Yap_NameOfBinaryOp( i );
-      Functor f = Yap_MkFunctor( name, 2 );
-      ts[0] = t1;
-      ts[1] = t2;
-      terr = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, terr ,"error in %s/2 ", RepAtom(name)->StrOfAE);
-      return FALSE;
-    }
+    bool go;
+    do {
+      go = false;
+	  tout = eval2(i, t1, t2 PASS_REGS);
+      go = Yap_CheckArithError();
+    }  while (go);
     return Yap_unify_constant(ARG1,tout);
   }
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
-    Term out;
-
+    bool go;
+    int j;
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
-      Yap_EvalError(TYPE_ERROR_EVALUABLE, takeIndicator(t),
-		"functor %s/2 for arithmetic expression",
-		RepAtom(name)->StrOfAE);
-      P = FAILCODE;
-      return(FALSE);
+      Yap_EvalError(TYPE_ERROR_EVALUABLE, t, "`%s ", name->StrOfAE
+			   );
     }
-    out= eval2(p->FOfEE, t1, t2 PASS_REGS);
-    if ((err = Yap_FoundArithError()) != YAP_NO_ERROR) {
-      Term ts[2], terr;
-      Functor f = Yap_MkFunctor( name, 2 );
-      ts[0] = t1;
-      ts[1] = t2;
-      terr = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, terr ,"error in ~s/2 ", RepAtom(name)->StrOfAE);
-      return FALSE;
-    }
-    return Yap_unify_constant(ARG1,out);
+    j = p->FOfEE;
+
+    do {
+      go = false;
+          Yap_ClearExs();
+	  tout = eval2(j, t1, t2 PASS_REGS);
+      go = Yap_CheckArithError();
+    }  while (go);
+    return Yap_unify_constant(ARG1,tout);
   }
   return FALSE;
 }
 
 
 
-static Int 
+static Int
 do_arith23(arith2_op op USES_REGS)
 {				/* X is Y	 */
   Term t = Deref(ARG1);
-  Int out;
-  Term t1, t2;
-  yap_error_number err;
+  bool go;
+  Term t1, t2, out;
 
-  Yap_ClearExs();
   if (IsVarTerm(t)) {
     Yap_EvalError(INSTANTIATION_ERROR,t, "X is Y");
     return(FALSE);
   }
-  t1 = Yap_Eval(t);
-  if (t1 == 0L)
-    return FALSE;
+    do {
+      go = false;
+  Yap_ClearExs();
+      t1 = Yap_Eval(t);
   t2 = Yap_Eval(Deref(ARG2));
-  if (t2 == 0L)
-    return FALSE;
   out= eval2(op, t1, t2 PASS_REGS);
-  if ((err=Yap_FoundArithError())) {
-      Term ts[2], t;
-      Functor f = Yap_MkFunctor( Yap_NameOfBinaryOp(op), 2 );
-      ts[0] = t1;
-      ts[1] = t2;
-      t = Yap_MkApplTerm( f, 2, ts );
-      Yap_EvalError(err, t ,"error in ~s(Y,Z) ",Yap_NameOfBinaryOp(op));
-      return FALSE;
-  }
+
+    go = Yap_CheckArithError();
+  } while (go);
   return Yap_unify_constant(ARG3,out);
 }
 
-static Int 
+static Int
 export_p_plus( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_plus PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_minus( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_minus PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_times( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_times PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_div( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_div PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_and( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_and PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_or( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_or PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_slr( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_slr PASS_REGS);
 }
 
-static Int 
+static Int
 export_p_sll( USES_REGS1 )
 {				/* X is Y	 */
   return do_arith23(op_sll PASS_REGS);
 }
 
-static Int 
+static Int
 p_binary_op_as_integer( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG1);
@@ -1317,7 +1284,6 @@ p_binary_op_as_integer( USES_REGS1 )
   if (IsAtomTerm(t)) {
     Atom name = AtomOfTerm(t);
     ExpEntry *p;
-
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
       return Yap_unify(ARG1,ARG2);
     }
@@ -1376,4 +1342,3 @@ Yap_ReInitBinaryExps(void)
 {
   return(TRUE);
 }
-

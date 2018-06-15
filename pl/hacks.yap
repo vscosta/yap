@@ -17,18 +17,12 @@
 *************************************************************************/
 
 /**
-  * @file   hacks.yap
+  * @file   pl/hacks.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:02:56 2017
   *
-  * @brief  Low-level access
-  *
-  * @defgroup Hacks Low-level access
-  * @ingroup builtins
-  *
-*/
-
-%% @file pl/hacks.yap
+  * @brief  Access to the YAP engine internal data
+  */
 
 :- module('$hacks',
 	  [display_stack_info/4,
@@ -37,7 +31,17 @@
        fully_strip_module/3,
 	   code_location/3]).
 
-/** hacks:context_variables(-NamedVariables)
+/**
+ * @namespace yap_hacks
+ *
+ * @defgroup Hacks Low-level access
+ * @ingroup builtins
+ * @{
+ *
+**/
+
+
+/** yap_hacks:context_variables(-NamedVariables)
   Access variable names.
 
   Unify NamedVariables with a list of terms _Name_=_V_
@@ -45,7 +49,7 @@
   Notice that variable names option must have been on.
 */
 
-hacks:context_variables(NamedVariables) :-
+yap_hacks:context_variables(NamedVariables) :-
 	'$context_variables'(NamedVariables).
 
 
@@ -171,7 +175,7 @@ show_env(Env,Cont,NCont) -->
 	['~@.~n' - write_term(G,Opts)].
 
 clean_goal(G,Mod,NG) :-
-	beautify_hidden_goal(G,Mod,[NG],[]), !.
+	fail, beautify_hidden_goal(G,Mod,[NG],[]), !.
 clean_goal(G,_,G).
 
 scratch_goal(N,0,Mod,Mod:N) :-
@@ -180,7 +184,7 @@ scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
 	(
-	  beautify_hidden_goal(G,Mod,[NG],[])
+	  fail,beautify_hidden_goal(G,Mod,[NG],[])
 	;
 	  G = NG
 	),
@@ -260,3 +264,5 @@ beautify_hidden_goal('$current_predicate'(Na,M,S,_),prolog) -->
 	[current_predicate(Na,M:S)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(Stream,M:Pred)].
+
+%% @}

@@ -1,4 +1,3 @@
-
 #include "sysbits.h"
 
 #if HAVE_SIGINFO_H
@@ -860,5 +859,6 @@ void Yap_InitSignalPreds(void) {
   Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("enable_interrupts", 0, enable_interrupts, SafePredFlag);
   Yap_InitCPred("disable_interrupts", 0, disable_interrupts, SafePredFlag);
+  my_signal_info(SIGSEGV, HandleSIGSEGV);
   CurrentModule = cm;
 }

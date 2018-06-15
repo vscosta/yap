@@ -19,19 +19,21 @@
   * @file   eval.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 11:52:48 2017
-  * 
-  * @brief  compiling expressions
   *
-  * @defgroup CompiledExpressions
+  * @brief  compiling expressions
+  */
+  :- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
+
+  :- use_system_module( terms, [new_variables_in_term/3,
+          variables_within_term/3]).
+
+/**
+  *
+  * @defgroup CompiledExpression A Compiler for Arithmetic
   * @ingroup drectives
-  * 
-  * 
+  *
+  * @{
 */
-:- system_module( '$_eval', [], ['$full_clause_optimisation'/4]).
-
-:- use_system_module( terms, [new_variables_in_term/3,
-        variables_within_term/3]).
-
 :- multifile '$full_clause_optimisation'/4.
 
 
@@ -138,3 +140,5 @@
 %, portray_clause((H:-BF))
 '$full_clause_optimisation'(H, M, B0, BF) :-
 	'$localise_vars_opt'(H, M, B0, BF), !.
+
+%% @}

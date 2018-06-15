@@ -195,29 +195,8 @@ public:
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
   /// extract the argument i of the term, where i in 1...arityvoid *Yap_RepStreamFromId(int sno)
-  virtual Term getArg(arity_t i) {
-    BACKUP_MACHINE_REGS();
-    Term tf = 0;
-    Term t0 = gt();
-
-    if (IsApplTerm(t0)) {
-      if (i > ArityOfFunctor(FunctorOfTerm(t0)))
-        YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
-      tf = (ArgOfTerm(i, t0));
-    } else if (IsPairTerm(t0)) {
-      if (i == 1)
-        tf = (HeadOfTerm(t0));
-      else if (i == 2)
-        tf = (TailOfTerm(t0));
-      else
-        YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
-    } else {
-      YAPError(TYPE_ERROR_COMPOUND, t0, "t0.getArg()");
-    }
-    RECOVER_MACHINE_REGS();
-    return tf;
-  }
-
+  virtual Term getArg(arity_t i);
+  
   /// extract the arity of the term
   /// variables have arity 0
   virtual inline arity_t arity() {
@@ -322,20 +301,27 @@ public:
     RECOVER_MACHINE_REGS();
   };
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+    YAPApplTerm(const std::string s, unsigned int arity) { mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity), arity)); };
+    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
 
-  Term getArg(arity_t i) {
-    BACKUP_MACHINE_REGS();
-    Term t0 = gt();
-    Term tf;
-    tf = ArgOfTerm(i, t0);
-    RECOVER_MACHINE_REGS();
-    return tf;
-  };
-   virtual bool isVar() { return false; }     /// type check for unbound
+    Term getArg(arity_t i) {
+      BACKUP_MACHINE_REGS();
+      Term t0 = gt();
+      Term tf;
+      tf = ArgOfTerm(i, t0);
+      RECOVER_MACHINE_REGS();
+      return tf;
+    };
+    void putArg(int i, YAPTerm t) {
+      BACKUP_MACHINE_REGS();
+      Term t0 = gt();
+      RepAppl(t0)[i] = t.term();
+      RECOVER_MACHINE_REGS();
+    };
+    virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer
   virtual bool isFloat() { return false; }   /// type check for floating-point
@@ -368,22 +354,7 @@ public:
   YAPTerm car() { return YAPTerm(HeadOfTerm(gt())); }
   bool nil() { return gt() == TermNil; }
   YAPPairTerm cdr() { return YAPPairTerm(TailOfTerm(gt())); }
-  std::vector<Term> listToArray() {
-    Term *tailp;
-    Term t1 = gt();
-    Int l = Yap_SkipList(&t1, &tailp);
-    if (l < 0) {
-      throw YAPError(TYPE_ERROR_LIST, YAPTerm(t), "");
-    }
-    std::vector<Term> o = std::vector<Term>(l);
-    int i = 0;
-    Term t = gt();
-    while (t != TermNil) {
-      o[i++] = HeadOfTerm(t);
-      t = TailOfTerm(t);
-    }
-    return o;
-  }
+  std::vector<Term> listToArray();
 };
 
 /**
@@ -448,15 +419,7 @@ public:
   /// Extract the tail elements of a list.
   ///
   /// @param[in] the list
-  Term cdr() {
-    Term to = gt();
-    if (IsPairTerm(to))
-      return (TailOfTerm(to));
-    else if (to == TermNil)
-      return TermNil;
-    /* error */
-    throw YAPError(TYPE_ERROR_LIST, YAPTerm(to), "");
-  }
+  Term cdr();
   /// copy a list.
   ///
   /// @param[in] the list

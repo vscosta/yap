@@ -39,8 +39,10 @@ The <tt>time_out/3</tt> command relies on the <tt>alarm/3</tt> built-in to
 implement a call with a maximum time of execution. The command is
 available with the `use_module(library(timeout))` command.
 
+  */
 
-
+/*
+  
  @pred time_out(+ _Goal_, + _Timeout_, - _Result_) 
 
 

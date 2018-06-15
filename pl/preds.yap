@@ -16,26 +16,8 @@
 *************************************************************************/
 
 /**
- * @{
- * @defgroup Database The Clausal Data Base
- * @ingroup builtins
-
-Predicates in YAP may be dynamic or static. By default, when
-consulting or reconsulting, predicates are assumed to be static:
-execution is faster and the code will probably use less space.
-Static predicates impose some restrictions: in general there can be no
-addition or removal of  clauses for a procedure if it is being used in the
-current execution.
-
-Dynamic predicates allow programmers to change the Clausal Data Base with
-the same flexibility as in C-Prolog. With dynamic predicates it is
-always possible to add or remove clauses during execution and the
-semantics will be the same as for C-Prolog. But the programmer should be
-aware of the fact that asserting or retracting are still expensive operations,
-and therefore he should try to avoid them whenever possible.
-
-*/
-
+ * @file preds.yap
+ */
 :- system_module( '$_preds', [abolish/1,
         abolish/2,
         assert/1,
@@ -75,6 +57,27 @@ and therefore he should try to avoid them whenever possible.
         '$public'/2,
         '$unknown_error'/1,
         '$unknown_warning'/1]).
+
+/**
+ * @defgroup Database The Clausal Data Base
+ * @{
+ * @ingroup builtins
+
+Predicates in YAP may be dynamic or static. By default, when
+consulting or reconsulting, predicates are assumed to be static:
+execution is faster and the code will probably use less space.
+Static predicates impose some restrictions: in general there can be no
+addition or removal of  clauses for a procedure if it is being used in the
+current execution.
+
+Dynamic predicates allow programmers to change the Clausal Data Base with
+the same flexibility as in C-Prolog. With dynamic predicates it is
+always possible to add or remove clauses during execution and the
+semantics will be the same as for C-Prolog. But the programmer should be
+aware of the fact that asserting or retracting are still expensive operations,
+and therefore he should try to avoid them whenever possible.
+
+*/
 
 :- use_system_module( '$_boot', ['$check_head_and_body'/4,
         '$check_if_reconsulted'/2,
@@ -218,7 +221,7 @@ clause(V0,Q,R) :-
 '$init_preds' :-
 	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
 	fail.
-    
+
 '$init_preds'.
 
 :- '$init_preds'.
@@ -417,7 +420,7 @@ abolish(X0) :-
 	'$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
 
-/**  @pred stash_predicate(+ _Pred_) @anchor stash_predicate
+/**  @pred stash_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
 `listing`, and friends. New predicates with the same name and
 functor can be declared.

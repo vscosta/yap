@@ -166,6 +166,7 @@ X_API EXTERNAL Atom AtomFull; X_API EXTERNAL Term TermFull;
 X_API EXTERNAL Atom AtomFunctor; X_API EXTERNAL Term TermFunctor;
 X_API EXTERNAL Atom AtomGT; X_API EXTERNAL Term TermGT;
 X_API EXTERNAL Atom AtomGVar; X_API EXTERNAL Term TermGVar;
+X_API EXTERNAL Atom Atomg; X_API EXTERNAL Term Termg;
 X_API EXTERNAL Atom AtomGc; X_API EXTERNAL Term TermGc;
 X_API EXTERNAL Atom AtomGcMargin; X_API EXTERNAL Term TermGcMargin;
 X_API EXTERNAL Atom AtomGcTrace; X_API EXTERNAL Term TermGcTrace;
@@ -284,7 +285,6 @@ X_API EXTERNAL Atom AtomOutOfStackError; X_API EXTERNAL Term TermOutOfStackError
 X_API EXTERNAL Atom AtomOutOfTrailError; X_API EXTERNAL Term TermOutOfTrailError;
 X_API EXTERNAL Atom AtomOutput; X_API EXTERNAL Term TermOutput;
 X_API EXTERNAL Atom AtomParameter; X_API EXTERNAL Term TermParameter;
-X_API EXTERNAL Atom AtomPrologCommonsDir; X_API EXTERNAL Term TermPrologCommonsDir;
 X_API EXTERNAL Atom AtomPast; X_API EXTERNAL Term TermPast;
 X_API EXTERNAL Atom AtomPastEndOfStream; X_API EXTERNAL Term TermPastEndOfStream;
 X_API EXTERNAL Atom AtomPermissionError; X_API EXTERNAL Term TermPermissionError;
@@ -293,6 +293,7 @@ X_API EXTERNAL Atom AtomPipe; X_API EXTERNAL Term TermPipe;
 X_API EXTERNAL Atom AtomPriority; X_API EXTERNAL Term TermPriority;
 X_API EXTERNAL Atom AtomPlus; X_API EXTERNAL Term TermPlus;
 X_API EXTERNAL Atom AtomPointer; X_API EXTERNAL Term TermPointer;
+X_API EXTERNAL Atom AtomPopen; X_API EXTERNAL Term TermPopen;
 X_API EXTERNAL Atom AtomPortray; X_API EXTERNAL Term TermPortray;
 X_API EXTERNAL Atom AtomPredicateIndicator; X_API EXTERNAL Term TermPredicateIndicator;
 X_API EXTERNAL Atom AtomPrimitive; X_API EXTERNAL Term TermPrimitive;
@@ -301,6 +302,7 @@ X_API EXTERNAL Atom AtomPrivateProcedure; X_API EXTERNAL Term TermPrivateProcedu
 X_API EXTERNAL Atom AtomProcedure; X_API EXTERNAL Term TermProcedure;
 X_API EXTERNAL Atom AtomProfile; X_API EXTERNAL Term TermProfile;
 X_API EXTERNAL Atom AtomProlog; X_API EXTERNAL Term TermProlog;
+X_API EXTERNAL Atom AtomPrologCommonsDir; X_API EXTERNAL Term TermPrologCommonsDir;
 X_API EXTERNAL Atom AtomProtectStack; X_API EXTERNAL Term TermProtectStack;
 X_API EXTERNAL Atom AtomQly; X_API EXTERNAL Term TermQly;
 X_API EXTERNAL Atom AtomQuery; X_API EXTERNAL Term TermQuery;
@@ -424,6 +426,7 @@ X_API EXTERNAL Atom AtomUser; X_API EXTERNAL Term TermUser;
 X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
 X_API EXTERNAL Atom AtomUserOut; X_API EXTERNAL Term TermUserOut;
+X_API EXTERNAL Atom AtomUTF8; X_API EXTERNAL Term TermUTF8;
 X_API EXTERNAL Atom AtomDollarVar; X_API EXTERNAL Term TermDollarVar;
 X_API EXTERNAL Atom AtomVBar; X_API EXTERNAL Term TermVBar;
 X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
@@ -556,6 +559,8 @@ X_API EXTERNAL  Functor FunctorDoubleSlash;
 
 X_API EXTERNAL  Functor FunctorEmptySquareBrackets;
 
+X_API EXTERNAL  Functor FunctorEncoding;
+
 X_API EXTERNAL  Functor FunctorEq;
 
 X_API EXTERNAL  Functor FunctorError;
@@ -657,6 +662,8 @@ X_API EXTERNAL  Functor FunctorOutput;
 X_API EXTERNAL  Functor FunctorPermissionError;
 
 X_API EXTERNAL  Functor FunctorPlus;
+
+X_API EXTERNAL  Functor FunctorPopen;
 
 X_API EXTERNAL  Functor FunctorPortray;
 

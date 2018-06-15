@@ -554,6 +554,13 @@ IF (WITH_PYTHON)
     include(python )
 ENDIF (WITH_PYTHON)
 
+option(WITH_R
+        "Allow YAP->R" ON)
+
+IF (WITH_R)
+    include_directories(packages/real )
+ENDIF (WITH_R)
+
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
@@ -688,11 +695,12 @@ if (PYTHONLIBS_FOUND AND SWIG_FOUND)
     find_python_module(jupyter)
     find_python_module(wheel)
     find_python_module(setuptools)
-    find_python_module(backcall)
-
-    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS AND PY_BACKCALL)
+    if (PY_JUPYTER AND PY_WHEEL AND PY_SETUPTOOLS)
         add_subdirectory(packages/python/yap_kernel)
+      else()
+        message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setuptools=${PY_SETUPTOOLS}")
     ENDIF ()
+
 endif ()
 
 
@@ -706,9 +714,8 @@ IF ( ANDROID)
 
 
 
-    #target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
+    target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
 
-    target_link_libraries(libYap android log )
 ENDIF ()
 
 
@@ -901,7 +908,7 @@ endif(NOT ANDROID)
 
 #
 
-install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
+install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${includedir}/Yap )
 
 
 
@@ -913,6 +920,9 @@ endif (POLICY CMP0058)
 include(Config )
 
 
-feature_summary(WHAT ENABLED_FEATURES DISABLED_FEATURES
-        INCLUDE_QUIET_PACKAGES
-        )
+feature_summary(DESCRIPTION "Packages found:"
+  WHAT  PACKAGES_FOUND
+                )
+feature_summary(DESCRIPTION "Packages not found:"
+  WHAT  PACKAGES_NOT_FOUND
+                )

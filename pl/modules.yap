@@ -18,13 +18,7 @@
 
 /**
 @file modules.yap
-
-  @defgroup ModuleBuiltins Module Support
-
-  @ingroup YAPModules
-  @{
-
-  **/
+*/
 :- system_module( '$_modules', [abolish_module/1,
         add_import_module/3,
         current_module/1,
@@ -58,6 +52,13 @@
         '$module_transparent'/2,
         '$module_transparent'/4]).
 
+        /**
+          @defgroup ModuleBuiltins Module Support
+
+          @ingroup YAPModules
+          @{
+
+          **/
 
 
 :- use_system_module( '$_arith', ['$c_built_in'/3]).

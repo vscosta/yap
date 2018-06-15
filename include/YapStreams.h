@@ -213,7 +213,7 @@ typedef struct stream_desc {
   // useful in memory streams
   char *nbuf;
   size_t nsize;
-  union {
+  struct {
     struct {
 #define PLGETC_BUF_SIZE 4096
       unsigned char *buf, *ptr;
@@ -233,6 +233,9 @@ typedef struct stream_desc {
      struct {
       const unsigned char *buf, *ptr;
     } irl;
+     struct {
+       unsigned char *buf, *ptr;
+    } w_irl;
     void *private_data;
   } u;
     struct {

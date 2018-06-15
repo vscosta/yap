@@ -277,8 +277,10 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
     const unsigned char *pt = UStringOfTerm(args);
     while (*pt && (!has_size || size > 0)) {
       utf8proc_int32_t ch;
-      pt += get_utf8(pt, -1, &ch);
-      f_putc(sno, ch);
+      
+      if ((pt += get_utf8(pt, -1, &ch)) > 0) {
+	f_putc(sno, ch);
+      }	
     }
   } else {
     while (!has_size || size > 0) {
@@ -474,8 +476,9 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     tnum = 0;
   }
 
-  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f))
-    sno = Yap_OpenBufWriteStream(PASS_REGS1);
+  if ( !(GLOBAL_Stream[sno].status & InMemory_Stream_f)) {
+    sno = Yap_OpenBufWriteStream(PASS_REGS1);	\
+  }
   if (sno < 0) {
     if (!alloc_fstr)
       fstr = NULL;
@@ -483,6 +486,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     format_clean_up(sno, sno0, finfo);
     return false;
   }
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   f_putc = GLOBAL_Stream[sno].stream_wputc;
   while ((fptr += get_utf8(fptr, -1, &ch)) && ch) {
     Term t = TermNil;
@@ -993,7 +997,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   fstr = NULL;
   targs = NULL;
   format_clean_up(sno, sno0, finfo);
-  return (TRUE);
+  return true;
 }
 
 static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
@@ -1070,31 +1074,32 @@ static Int with_output_to(USES_REGS1) {
   Term tin = Deref(ARG1);
   Functor f;
   bool out;
-  bool my_mem_stream;
+  bool mem_stream = false;
   yhandle_t hdl = Yap_PushHandle(tin);
   if (IsVarTerm(tin)) {
     Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
     return false;
   }
-  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin)) &&
-      (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
-       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
-    output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
-    my_mem_stream = true;
-  } else {
-    /* needs to change LOCAL_c_output_stream for write */
+  if (IsApplTerm(tin) && (f = FunctorOfTerm(tin))) {
+	  if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+		  f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
+		  output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
+		  mem_stream = true;
+	  }
+  }
+  if (!mem_stream){
     output_stream = Yap_CheckStream(ARG1, Output_Stream_f, "format/3");
-    my_mem_stream = false;
     f = NIL;
   }
   if (output_stream == -1) {
     return false;
   }
+  LOCAL_c_output_stream = output_stream;
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   out = Yap_Execute(Deref(ARG2) PASS_REGS);
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   LOCAL_c_output_stream = old_out;
-  if (my_mem_stream) {
+  if (mem_stream) {
     Term tat;
     Term inp = Yap_GetFromHandle(hdl);
     if (out) {
@@ -1119,12 +1124,11 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
   yhandle_t hl = Yap_StartHandles(), yo = Yap_PushHandle(tout);
   if (IsApplTerm(tout) && (f = FunctorOfTerm(tout)) &&
       (f == FunctorAtom || f == FunctorString1 || f == FunctorCodes1 ||
-       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars)) {
+       f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) ){
     output_stream = Yap_OpenBufWriteStream(PASS_REGS1);
     mem_stream = true;
   } else {
-    /* needs to change LOCAL_c_output_stream for write */
-    output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
+      output_stream = Yap_CheckStream(tout, Output_Stream_f, "format/3");
   }
   if (output_stream == -1) {
     UNLOCK(GLOBAL_Stream[output_stream].streamlock);

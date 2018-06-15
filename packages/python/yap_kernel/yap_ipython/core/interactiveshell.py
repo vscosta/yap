@@ -219,9 +219,9 @@ class ExecutionResult(object):
 
     def raise_error(self):
         """Reraises error if `success` is `False`, otherwise does nothing"""
-        if self.error_before_exec is not None:
+        if self.error_before_exec:
             raise self.error_before_exec
-        if self.error_in_exec is not None:
+        if self.error_in_exec:
             raise self.error_in_exec
 
     def __repr__(self):
@@ -522,8 +522,7 @@ class InteractiveShell(SingletonConfigurable):
         # The following was in post_config_initialization
         self.init_inspector()
         self.raw_input_original = input
-        self.input_splitter.engine(self.yapeng)
-        self.input_transformer_manager.engine(self.yapeng)
+        #self.input_transformer_manager.engine(self.yapeng)
         self.init_completer()
         # TODO: init_io() needs to happen before init_traceback handlers
         # because the traceback handlers hardcode the stdout/stderr streams.
@@ -2598,7 +2597,7 @@ class InteractiveShell(SingletonConfigurable):
         with prepended_to_syspath(dname):
             try:
                 for cell in get_cells():
-                    result = self.run_cell(cell, silent=False , shell_futures=shell_futures)
+                    result = self.run_cell(cell, silent=False, shell_futures=shell_futures)
                     if raise_exceptions:
                         result.raise_error()
                     elif not result.success:
@@ -2661,7 +2660,21 @@ class InteractiveShell(SingletonConfigurable):
         -------
         result : :class:`ExecutionResult`
         """
+
+        result = None
         try:
+            # import trace
+            # tracer = trace.Trace(
+            #     #ignoredirs=[sys.prefix, sys.exec_prefix],
+            #     trace=1,
+            #     count=0)
+
+            # # run the new command using the given tracer
+            # #
+            # result =tracer.runfunc(self._yrun_cell,
+            #                        raw_cell, store_history,
+            #                        silent, shell_futures)
+
             result = self._yrun_cell(
                        raw_cell, store_history, silent, shell_futures)
         finally:

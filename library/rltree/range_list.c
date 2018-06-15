@@ -22,6 +22,15 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 Last rev: $Id: range_list.c,v 1.1 2008-03-26 23:05:22 nunofonseca Exp $
 **************************************************************************/
 
+/**
+ * @file range_list.c
+ *
+ * @brief Nuno Fonseca range list implementation.
+ *
+ * @namespace rltree
+ *
+ */
+
 #include "range_list.h"
 #include <stdio.h>
 #include <stdlib.h>

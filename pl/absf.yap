@@ -14,7 +14,7 @@
  @author L.Damas, V.S.Costa
 
  @defgroup AbsoluteFileName File Name Resolution
- @ingroup builtins
+ @ingroup load_files
 
  Support for file name resolution through absolute_file_name/3 and
   friends. These utility built-ins describe a list of directories that
@@ -226,7 +226,7 @@ absolute_file_name(File0,File) :-
 '$find_in_path'(user_output,_,user_ouput, _, _) :- !.
 '$find_in_path'(user_error,_,user_error, _, _) :- !.
 '$find_in_path'(Name, Opts, File, _, First) :-
-%    (	atom(Name) -> true ; start_low_level_trace ),
+    %    (	atom(Name) -> true ; start_low_level_trace ),
 	get_abs_file_parameter( file_type, Opts, Type ),
     get_abs_file_parameter( access, Opts, Access ),
     get_abs_file_parameter( expand, Opts, Expand ),

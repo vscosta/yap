@@ -272,6 +272,11 @@ INLINE_ONLY inline EXTERN bool IsModProperty(int flags) {
 #define UNKNOWN_MASK                                                           \
   (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
    UNKNOWN_ABORT | UNKNOWN_HALT)
+#define SNGQ_CHARS (0x10000)   /* 'ab' --> [a, b] */
+#define SNGQ_ATOM (0x20000)    /* 'ab' --> ab */
+#define SNGQ_STRING (0x40000)  /* 'ab' --> "ab" */
+#define SNGQ_CODES (0x80000)   /* 'ab' --> [0'a, 0'b] */
+#define SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
 
 Term Yap_getUnknownModule(ModEntry *m);
 void Yap_setModuleFlags(ModEntry *n, ModEntry *o);
@@ -1291,18 +1296,23 @@ INLINE_ONLY inline EXTERN bool IsFlagProperty(PropFlags flags) {
 
 /* Proto types */
 
+
+extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+
+extern Term Yap_BufferToTerm(const  char *s, Term opts);
+
 /* cdmgr.c */
-int Yap_RemoveIndexation(PredEntry *);
-void Yap_UpdateTimestamps(PredEntry *);
+extern int Yap_RemoveIndexation(PredEntry *);
+extern void Yap_UpdateTimestamps(PredEntry *);
 
 /* dbase.c */
-void Yap_ErDBE(DBRef);
-DBTerm *Yap_StoreTermInDB(Term, int);
+extern void Yap_ErDBE(DBRef);
+extern DBTerm *Yap_StoreTermInDB(Term, int);
 DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term, UInt, UInt *);
-Term Yap_FetchTermFromDB(void *);
-Term Yap_FetchClauseTermFromDB(void *);
-Term Yap_PopTermFromDB(void *);
-void Yap_ReleaseTermFromDB(void *);
+Term Yap_FetchTermFromDB(const void *);
+Term Yap_FetchClauseTermFromDB(const void *);
+Term Yap_PopTermFromDB(const void *);
+void Yap_ReleaseTermFromDB(const void *);
 
 /* init.c */
 Atom Yap_GetOp(OpEntry *, int *, int);
@@ -1323,6 +1333,7 @@ Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 *************************************************************************************************/
 
 #include "YapFlags.h"
+
 INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
 
 INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *fe, Term cur_mod,
@@ -1583,22 +1594,22 @@ INLINE_ONLY inline EXTERN const char *AtomTermName(Term t) {
   return RepAtom(AtomOfTerm(t))->rep.uStrOfAE;
 }
 
-bool Yap_ResetException(int wid);
-bool Yap_HasException(void);
-Term Yap_GetException(void);
-Term Yap_PeekException(void);
-bool Yap_PutException(Term t);
+extern Term MkErrorTerm(yap_error_descriptor_t *t);
+
+extern bool Yap_ResetException(yap_error_descriptor_t *i);
+extern bool Yap_HasException(void);
+extern yap_error_descriptor_t * Yap_GetException();
+extern void Yap_PrintException(void);
 INLINE_ONLY inline EXTERN bool Yap_HasException(void) {
-  return LOCAL_BallTerm != NULL;
+  return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
-INLINE_ONLY inline EXTERN void *Yap_RefToException(void) {
-  void *dbt = LOCAL_BallTerm;
-  LOCAL_BallTerm = NULL;
-  return dbt;
+
+INLINE_ONLY inline EXTERN Term MkSysError(yap_error_descriptor_t *i) {
+  Term et = MkAddressTerm(i);
+  return Yap_MkApplTerm( FunctorException, 1, &et);
 }
-INLINE_ONLY inline EXTERN void Yap_CopyException(DBTerm *dbt) {
-  LOCAL_BallTerm = dbt;
-}
-bool Yap_RaiseException(void);
+yap_error_descriptor_t *Yap_UserError( Term t, yap_error_descriptor_t *i);
+
+extern bool Yap_RaiseException(void);
 
 #endif

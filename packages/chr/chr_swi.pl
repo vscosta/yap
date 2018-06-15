@@ -29,6 +29,12 @@
     the GNU General Public License.
 */
 
+%% @file chr_swi.pl
+%% @brief CHR SWI specific
+
+%% @namespace check
+%% @brief internal space
+
 %% SWI begin
 %% @addtogroup CHR chr
 %% @ingroup packages

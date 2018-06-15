@@ -15,7 +15,7 @@
 
 /*!
  *
- *   @ingroup fli_c_cx
+ *   @ingroup fli_c_cxx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
  *   @{
@@ -41,6 +41,14 @@ extern "C" {
 #include <config.h>
 
 #include <stddef.h>
+
+
+#if YAP_PYTHON
+
+#include <Python.h>
+
+extern bool python_in_python;
+#endif
 
 #include "Yap.h"
 
@@ -100,13 +108,6 @@ X_API extern void YAP_UserBackCutCPredicate(const char *name,
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
 
-#if YAP_PYTHON
-
-#include <Python.h>
-
-extern bool python_in_python;
-#endif
-
 
 }
 
@@ -119,6 +120,7 @@ class YAPQuery;
 class YAPModule;
 class YAPError;
 class YAPPredicate;
+
 
 #include "yapa.hh"
 

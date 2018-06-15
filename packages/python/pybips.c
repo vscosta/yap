@@ -1,6 +1,7 @@
 /**
  *
- * @section Python Built-Ins
+ * @defgroup Py4YAP-Bips Python Built-Ins
+ * @ingroup Py4YAP
  *
  * The Python engine includes a large number of Python built-ins. Some
  * of them are interfaced here.
@@ -1014,7 +1015,6 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
   } else {
     char *s = PL_atom_chars(name);
     PyObject *ys = lookupPySymbol(s, o, NULL), *pArgs;
-    DebugPrintf("Tuple %p\n", pArgs);
     int i;
     term_t tleft = PL_new_term_ref();
     bool indict = true;
@@ -1037,6 +1037,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
           pArgs = PyTuple_New(i);
         }
       }
+      DebugPrintf("Tuple %p\n", pyDict);
       if (!indict) {
         if (PL_is_variable(tleft)) {
           pArg = Py_None;
@@ -1078,3 +1079,5 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     return rc;
   }
 }
+
+// @}

@@ -1,6 +1,6 @@
-// Stuff that must be considered local to a thread or worker
+/// Thread Local Variables. This file now follows C syntax. 
 
-// Streams
+// Macro support
 #ifndef LOCAL
 #include "Yap.h"
 #include "heap.h"
@@ -17,6 +17,7 @@
   #define LOCAL_INIT_RESTORE(A,B,C,D) A B; C; D;
 #endif
 
+/// Current bindings for std streams, includes default s
 LOCAL_INIT(int, c_input_stream, 0);
 LOCAL_INIT(int, c_output_stream, 1);
 LOCAL_INIT(int, c_error_stream, 2);
@@ -194,6 +195,8 @@ LOCAL(ADDR, TrailTop);
 
 /* error handling info, designed to be easy to pass to the foreign world */
 LOCAL_INIT(yap_error_descriptor_t *, ActiveError, calloc(sizeof(yap_error_descriptor_t), 1));
+LOCAL_INIT(yap_error_descriptor_t *, CommittedError, NULL);
+LOCAL_INIT(bool, delay, false);
 /// pointer to an exception term, from throw
 LOCAL(jmp_buf, IOBotch);
 
@@ -234,6 +237,8 @@ LOCAL(struct db_globs *, s_dbg);
 // eval.c
 LOCAL(Term, mathtt);
 LOCAL_INIT(char *, mathstring, NULL);
+LOCAL_INIT(struct eval_context *, ctx, NULL);
+
 
 // grow.c
 LOCAL_INIT(int, heap_overflows, 0);

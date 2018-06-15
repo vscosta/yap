@@ -16,6 +16,18 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file   cmppreds.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:35:58 2018
+ * 
+ * @brief  comparison
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
 ///    @file cmppreds.c
 
 /**
@@ -711,7 +723,7 @@ static Int p_acomp(USES_REGS1) { /* $a_compare(?R,+X,+Y) */
 }
 
 /**
-   @pred +_X_ =:= _Y_ is iso
+   @pred +X '=:=' Y is iso
    Equality of arithmetic expressions
 
    The value of the expression  _X_ is equal to the value of expression _Y_.

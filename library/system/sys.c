@@ -729,7 +729,15 @@ static YAP_Bool execute_command(void) {
 #endif /* UNIX code */
 }
 
-/* execute a command as a detached process */
+/** @pred  system(+ _S_)
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+
+Note that it executes them command as a detached process. It requires
+`system` to be implemented by the system library.
+
+*/
 static YAP_Bool do_system(void) {
   char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_SYSTEM
@@ -1040,7 +1048,6 @@ X_API void init_sys(void) {
 #endif
   YAP_UserCPredicate("datime", datime, 2);
   YAP_UserCPredicate("mktime", sysmktime, 8);
-  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);
   YAP_UserCPredicate("rmdir", p_rmdir, 2);

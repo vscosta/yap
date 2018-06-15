@@ -814,7 +814,9 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   spec = rc;
 #endif
 
-  args = Yap_ArgListToVector(opts, expand_filename_defs, EXPAND_FILENAME_END);
+  args = Yap_ArgListToVector(
+      opts, expand_filename_defs,
+      EXPAND_FILENAME_END,DOMAIN_ERROR_EXPAND_FILENAME_OPTION);
   if (args == NULL) {
     return TermNil;
   }
@@ -1122,7 +1124,7 @@ int Yap_volume_header(char *file) { return volume_header(file); }
 
 const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   if (GLOBAL_cwd && GLOBAL_cwd[0]) {
-   strcpy(cwd, GLOBAL_cwd);
+    strcpy(cwd, GLOBAL_cwd);
     return cwd;
   }
 #if _WIN32 || defined(__MINGW32__)

@@ -457,12 +457,12 @@ LogUpdClause *Yap_new_ludbe(Term, PredEntry *, UInt);
 Term Yap_LUInstance(LogUpdClause *, UInt);
 
 /* udi.c */
-int Yap_new_udi_clause(PredEntry *, yamop *, Term);
-yamop *Yap_udi_search(PredEntry *);
+extern int Yap_new_udi_clause(PredEntry *, yamop *, Term);
+extern yamop *Yap_udi_search(PredEntry *);
 
-Term Yap_bug_location(yamop *p, yamop *cp, choiceptr b_ptr, CELL *env);
-Term Yap_pc_location(yamop *p, choiceptr b_ptr, CELL *env);
-Term Yap_env_location(yamop *p, choiceptr b_ptr, CELL *env, Int ignore_first);
+extern yap_error_descriptor_t *Yap_bug_location(yap_error_descriptor_t *t, yamop *p, yamop *cp, choiceptr b_ptr, void *env);
+extern yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env); 
+extern yap_error_descriptor_t * Yap_env_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env, YAP_Int ignore_first);
 
 #if LOW_PROF
 void Yap_InformOfRemoval(void *);

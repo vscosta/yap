@@ -4,7 +4,7 @@ $( document ).ready(function() {
     $("div.title").addClass("h1");
 
     $('li > a[href="index.html"] > span').before("<i class='fa fa-cog'></i> ");
-    $('li > a[href="index.html"] > span').text("BioGears");
+    $('li > a[href="index.html"] > span').text("YAP");
     $('li > a[href="modules.html"] > span').before("<i class='fa fa-square'></i> ");
     $('li > a[href="namespaces.html"] > span').before("<i class='fa fa-bars'></i> ");
     $('li > a[href="annotated.html"] > span').before("<i class='fa fa-list-ul'></i> ");
@@ -14,7 +14,7 @@ $( document ).ready(function() {
     $('li > a[href="functions_func.html"] > span').before("<i class='fa fa-list'></i> ");
     $('li > a[href="functions_vars.html"] > span').before("<i class='fa fa-list'></i> ");
     $('li > a[href="functions_enum.html"] > span').before("<i class='fa fa-list'></i> ");
-    $('li > a[href="functions_YapEval.html"] > span').before("<i class='fa fa-list'></i> ");
+    $('li > a[href="functions_eval.html"] > span').before("<i class='fa fa-list'></i> ");
     $('img[src="ftv2ns.png"]').replaceWith('<span class="label label-danger">N</span> ');
     $('img[src="ftv2cl.png"]').replaceWith('<span class="label label-danger">C</span> ');
 
@@ -36,21 +36,22 @@ $( document ).ready(function() {
     $("div.summary > a").addClass("btn btn-default btn-xs");
     $("table.fieldtable").addClass("table");
     $(".fragment").addClass("well");
-    $(".memitem").addClass("panel panel-default");
-    $(".memproto").addClass("panel-heading");
-    $(".memdoc").addClass("panel-body");
-    $("span.mlabel").addClass("label label-info");
+    $(".memitem").addClass("card text-center");
+    $(".memproto").addClass("card-title text-center");
+    $(".memdoc").addClass("card-body text-right);
+    // $("span.mlabel").addClass("card-link label-info");
+
 
     $("table.memberdecls").addClass("table");
     $("[class^=memitem]").addClass("active");
 
     $("div.ah").addClass("btn btn-default");
     $("span.mlabels").addClass("pull-right");
-    $("table.mlabels").css("width", "100%")
+    $("span.mlabels").css("width", "100%")
     $("td.mlabels-right").addClass("pull-right");
 
     $("div.ttc").addClass("panel panel-primary");
-    $("div.ttname").addClass("panel-heading");
+    //$("div.ttname").addClass("panel-heading");
     $("div.ttname a").css("color", 'white');
     $("div.ttdef,div.ttdoc,div.ttdeci").addClass("panel-body");
 
@@ -59,10 +60,10 @@ $( document ).ready(function() {
     $('div.fragment.well div.line:first').css('margin-top', '15px');
     $('div.fragment.well div.line:last').css('margin-bottom', '15px');
 	
-	$('table.doxtable').removeClass('doxtable').addClass('table table-striped table-bordered').each(function(){
-		$(this).prepend('<thead></thead>');
+  $('table.doxtable').removeClass('doxtable').addClass('table table-striped table-bordered table-small;').each(function(){
+		$(this).prepend('<thead><th scope="col">first</th><th scope="col">Last</th>s</thead>');
 		$(this).find('tbody > tr:first').prependTo($(this).find('thead'));
-		
+    $(this).bootstrapTable('remove', {class: 'separator'});
 		$(this).find('td > span.success').parent().addClass('success');
 		$(this).find('td > span.warning').parent().addClass('warning');
 		$(this).find('td > span.danger').parent().addClass('danger');
@@ -93,6 +94,7 @@ $( document ).ready(function() {
 	
 	$(".memitem").removeClass('memitem');
     $(".memproto").removeClass('memproto');
+  $(".separator").removeClass('separator');
     $(".memdoc").removeClass('memdoc');
 	$("span.mlabel").removeClass('mlabel');
 	$("table.memberdecls").removeClass('memberdecls');

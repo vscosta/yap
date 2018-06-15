@@ -20,6 +20,9 @@
 static char SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
+#ifndef AMIOPS_H
+#define AMIOPS_H 1
+
 #include "inline-only.h"
 
 #define IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
@@ -567,3 +570,5 @@ static inline int do_cut(int i) {
 #define cut_succeed() return do_cut(TRUE)
 
 #define cut_fail() return do_cut(FALSE)
+
+#endif

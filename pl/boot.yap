@@ -19,10 +19,11 @@
   @file boot.yap
   @brief YAP bootstrap
 
-  @defgroup YAPControl Control Predicates
-  @ingroup builtins
 
-@{
+  @addtogroup TopLevel Top-Level and Boot Predicates
+
+  @ingroup builtins
+  @{
 
 
 */
@@ -119,8 +120,6 @@ print_message(L,E) :-
 	 format( user_error, '~w in bootstrap: got ~w~n',[L,E])
 	).
 
-
-
 '$undefp0'([M|G], _Action) :-
     stream_property( loop_stream, file_name(F)),
     stream_property( loop_stream, line_number(L)),
@@ -129,18 +128,26 @@ print_message(L,E) :-
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).
 
-
 /**
-
-@{
- @defgroup library The Prolog library
-
-
-
-  @addtogroup YAPControl
-@ingroup builtins
-    @{
+  * @pred $system_meta_predicates'( +L )
+  *
+  * @param L declare a set of system meta-predicates
+  *
+  * @return system predicates
 */
+'$system_meta_predicates'([]).
+'$system_meta_predicates'([P|L]) :-
+	functor(P,N,A),
+	'$new_meta_pred'(P, prolog),
+	G = ('$meta_predicate'(N,_M2,A,P) :- true),
+	'$compile'(G, assertz, G, prolog, _R),
+	'$system_meta_predicates'(L).
+
+  :- '$mk_dynamic'( '$meta_predicate'(_N,_M,_A,_P), prolog).
+  :- '$new_multifile'( '$meta_predicate'(_N,_M,_A,_P), prolog).
+:-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
+:-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
+
 :- system_module( '$_init', [!/0,
         ':-'/1,
         '?-'/1,
@@ -175,7 +182,6 @@ print_message(L,E) :-
 % These are pseudo declarations
 % so that the user will get a redefining system predicate
 
-
 % just create a choice-point
 % the 6th argument marks the time-stamp.
 '$do_log_upd_clause'(_,_,_,_,_,_).
@@ -202,28 +208,27 @@ print_message(L,E) :-
 
 
 :- c_compile('directives.yap').
+:- c_compile('init.yap').
 
 '$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
 	 '$yap_strip_module'(C, EM, EG),
-   '$execute_command'(EM,EG,VL,Pos,Con,_Source).
+   '$execute_command'(EG,EM,VL,Pos,Con,_Source).
 '$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
-	  '$execute_command'(EG,EM,VL,Pos,Con,C), ! ;
+	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
 	  % do term expansion
 	  '$expand_term'(C, Con, EC),
-    '$yap_strip_module'(EC, EM, EG),
+    '$yap_strip_module'(EC, EM2, EG2),
 	  % execute a list of commands
-	  '$execute_commands'(EG,EM,VL,Pos,Con,_Source),
+	  '$execute_commands'(EG2,EM2,VL,Pos,Con,_Source)
+	),
 	  % succeed only if the *original* was at end of file.
-	  C == end_of_file
-	).
+	  C == end_of_file.
 
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.
-
-:- '$init_prolog'.
 
 :- compile_expressions.
 
@@ -233,8 +238,9 @@ print_message(L,E) :-
 :- c_compile('bootlists.yap').
 :- c_compile('consult.yap').
 :- c_compile('preddecls.yap').
-:- c_compile('preddyns.yap').
 :- c_compile('meta.yap').
+:- c_compile('metadecls.yap').
+:- c_compile('preddyns.yap').
 :- c_compile('builtins.yap').
 :- c_compile('newmod.yap').
 
@@ -242,6 +248,11 @@ print_message(L,E) :-
 :- c_compile('os.yap').
 :- c_compile('errors.yap').
 
+%%
+% @pred initialize_prolog
+%
+% User-interface to Prolog bootstrap routine.
+%
 initialize_prolog :-
 	'$init_prolog'.
 
@@ -251,9 +262,8 @@ initialize_prolog :-
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
-:- ['absf.yap'].
 
-%:- start_low_level_trace.
+:- ['absf.yap'].
 
 :- use_module('error.yap').
 
@@ -319,16 +329,23 @@ version(yap,[6,3]).
 
 :- dynamic user:portray_message/2.
 
-/** @pred  _CurrentModule_:goal_expansion(+ _G_,+ _M_,- _NG_), user:goal_expansion(+ _G_,+ _M_,- _NG_)
+/** @pred prolog:goal_expansion( :G,+ M,- NG)
+    @pred user:goalexpansion(+ G,+ M,- NG)
 
-
-YAP now supports goal_expansion/3. This is an user-defined
+The goal_expansion/3 hook  is an user-defined
 procedure that is called after term expansion when compiling or
 asserting goals for each sub-goal in a clause. The first argument is
 bound to the goal and the second to the module under which the goal
  _G_ will execute. If goal_expansion/3 succeeds the new
 sub-goal  _NG_ will replace  _G_ and will be processed in the same
- way. If goal_expansion/3 fails the system will use the defaultyap+flrules.
+ way. If goal_expansion/3 fails the system will use the default
+expandion mechanism.
+
+This hook is called:
+- at compilation time;
+- when running a query in the top-level
+
+Older versions of YAP would call this procedure  at every meta-call.
 
 
 */
@@ -394,7 +411,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- module(user).
 
 
-/** @pred  _CurrentModule_:term_expansion( _T_,- _X_),  user:term_expansion( _T_,- _X_)
+/** @pred  term_expansion( _T_,- _X_)
+    user:term_expansion( _T_,- _X_)
 
 
 This user-defined predicate is called by `expand_term/3` to
@@ -422,7 +440,7 @@ as directives.
 
 :- dynamic system:term_expansion/2.
 
-:- multifile swi:swi_predicate_table/4.
+:- multifile system:swi_predicate_table/4.
 
 /** @pred  user:message_hook(+ _Term_, + _Kind_, + _Lines_)
 
@@ -445,7 +463,7 @@ modules defining clauses for it too.
 
 
 Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time`. The values for  _Exception_ are described below. See also catch/3 and throw/1.
-If this hook predicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
+If this hook preodicate succeeds it must instantiate the  _Action_ argument to the atom `fail` to make the operation fail silently, `retry` to tell Prolog to retry the operation or `error` to make the system generate an exception. The action `retry` only makes sense if this hook modified the environment such that the operation can now succeed without error.
 
 + `undefined_predicate`
  _Context_ is instantiated to a predicate-indicator ( _Module:Name/Arity_). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also `unknown`.
@@ -461,3 +479,5 @@ If this hook predicate succeeds it must instantiate the  _Action_ argument to th
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+
+%% @}

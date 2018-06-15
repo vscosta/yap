@@ -3,7 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 09:54:00 2015
  *
- * @addtogroup lists
+ * @addtogroup lists 
  * @{
 */
 

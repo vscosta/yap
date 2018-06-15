@@ -728,7 +728,7 @@ def gecode_version():
         os.remove(file_hh)
         os.remove(file_txt)
     else:
-        version = "5.0.0"
+        version = "6.0.0"
     GECODE_VERSION = version
     return version
 

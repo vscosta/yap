@@ -22,9 +22,9 @@
         showprofres/0,
         showprofres/1], []).
 
-/** @defgroup The_Count_Profiler The Count Profiler
-@ingroup Profiling
-@{
+/**
+ * @ingroup Profiling
+ * @{
 
 The count profiler works by incrementing counters at procedure entry or
 backtracking. It provides exact information:
@@ -65,7 +65,7 @@ write_profile_data([D-[M:P|R]|SLP]) :-
 These are  the current predicates to access and clear profiling data:
 
 
- 
+
 */
 
 
@@ -77,7 +77,7 @@ These are  the current predicates to access and clear profiling data:
 % describing a predicate; used e.g. on the tick profiler defined below
 :- multifile(user:prolog_predicate_name/2).
 
-/** @pred  profile_data( ?Na/Ar, ?Parameter, -Data_) 
+/** @pred  profile_data( ?Na/Ar, ?Parameter, -Data_)
 
 
 Give current profile data on  _Parameter_ for a predicate described
@@ -92,7 +92,7 @@ Number of times a procedure was called.
 Number of times a call to the procedure was backtracked to and retried.
 
 
-+ profile_reset 
++ profile_reset
 
 
 Reset all profiling information.
@@ -143,12 +143,12 @@ profile_reset :-
 	fail.
 profile_reset.
 
-/** @pred  showprofres 
+/** @pred  showprofres
 
 
 Show profiling info.
 
- 
+
 */
 showprofres :-
 	showprofres(-1).

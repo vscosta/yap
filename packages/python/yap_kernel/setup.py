@@ -40,14 +40,15 @@ here = os.path.abspath(os.path.dirname(__file__))
 packages = ['yap_kernel','yap_ipython']
 # pkg_root = pjoin(here, name)
 
-# for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
-#     if os.path.exists(pjoin(d, '__init__.py')):
-#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
-# for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
-#     if os.path.exists(pjoin(d, '__init__.py')):
-#         packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+for d, _, _ in os.walk(pjoin(here, 'yap_kernel')):
+    if os.path.exists(pjoin(d, '__init__.py')):
+        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
+for d, _, _ in os.walk(pjoin(here, 'yap_ipython')):
+    if os.path.exists(pjoin(d, '__init__.py')):
+        packages.append(d[len(here)+1:].replace(os.path.sep, '.'))
 
 sys.path.insert(0, here)
+sys.path.insert(0, pjoin(here,'..','swig'))
 package_data = {
 'yap_ipython': ['prolog/*.*'],
 'yap_kernel': ['resources/*.*']

@@ -78,7 +78,8 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   BootMode = YAP_parse_yap_arguments(argc, argv, iap);
   iap->Embedded = false;
   /* init memory */
-  iap->boot_file_type = BootMode = YAP_Init(iap);
+  iap->boot_file_type = BootMode;
+  YAP_Init(iap);
   if (iap->ErrorNo) {
     /* boot failed */
     YAP_Error(iap->ErrorNo, 0L, iap->ErrorCause);
@@ -118,7 +119,7 @@ static bool exec_top_level(int BootMode, YAP_init_args *iap) {
 // FILE *debugf;
 
 #ifdef LIGHT
-
+    
 int _main(int argc, char **argv)
 #else
 int main(int argc, char **argv)

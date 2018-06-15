@@ -234,7 +234,7 @@ typedef struct yap_boot_params {
   //> if NON-NULL, a path to extend file-search-path
   const char *PrologAddPath;
   //> if previous NON-NULL and TRUE, halt after consulting that file
-  bool HaltAfterConsult;
+  bool HaltAfterBoot;
   //> ignore .yaprc, .prolog.ini, etc. files.
   bool FastBoot;
   //> the next field only interest YAPTAB
@@ -292,11 +292,13 @@ typedef struct yap_boot_params {
 
 /* this should be opaque to the user */
 typedef struct {
-  unsigned long b;      //> choice-point at entry
+  unsigned long b, b0;      //> choice-point at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
+  int lvl;
+  unsigned long tr, h;
 } YAP_dogoalinfo;
 
 // query manipulation support
@@ -391,7 +393,9 @@ typedef enum stream_f {
       0x1000000, /**< do not close the stream after an abort event */
   Readline_Stream_f = 0x2000000, /**< the stream is a readline stream */
   FreeOnClose_Stream_f =
-      0x4000000 /**< the stream buffer should be releaed on close */
+  0x4000000, /**< the stream buffer should be releaed on close */
+  CloseOnException_Stream_f =
+      0x8000000 /**< the stream closed by Yap_Error and friends */
 } estream_f;
 
 typedef uint64_t stream_flags_t;

@@ -206,6 +206,7 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/YapInterface.h
     ${CMAKE_SOURCE_DIR}/include/YapRegs.h
     ${CMAKE_SOURCE_DIR}/include/YapStreams.h
+    ${CMAKE_SOURCE_DIR}/include/YapUTF8.h
 		${CMAKE_SOURCE_DIR}/include/YapTerm.h
     ${CMAKE_SOURCE_DIR}/include/c_interface.h
     ${CMAKE_SOURCE_DIR}/include/clause_list.h

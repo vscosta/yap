@@ -16,20 +16,15 @@
  *************************************************************************/
 #ifndef YAP_TEXT_H
 #define YAP_TEXT_H
-
-#if SIZEOF_WCHAR_T == 2
-#define CHARCODE_MAX 0xffff
-#else
-#define CHARCODE_MAX 0x10ffff
-#endif
+#include "Yap.h"
 
 /*
- * This file defines main data-structure for text conversion and
+ * @file YapText.h
+ * @brief This file defines main data-structure for text conversion and
  * mirroring
  */
 
-#include "utf8proc.h"
-#include "Yap.h"
+#include "YapUTF8.h"
 
 /// allocate a temporary text block
 ///
@@ -52,20 +47,20 @@ extern const void *MallocExportAsRO(const void *blk);
 extern int AllocLevel(void);
 
 #define push_text_stack()						\
-  (/* fprintf(stderr, "^ %*c %s:%s:%d\n", AllocLevel(), AllocLevel()+'0', \
-      __FILE__,  __FUNCTION__, __LINE__), */				\
+  (/* fprintf(stderr, " + *** %d %s:%s:%d\n", AllocLevel(),*/		\
+      /*   __FILE__,  __FUNCTION__, __LINE__), */	    \
    push_text_stack__(PASS_REGS1))
 extern int push_text_stack__(USES_REGS1);
 
 #define pop_text_stack(lvl)						\
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
-     __FUNCTION__, __LINE__),*/						\
+  (/* fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel(), __FILE__,*/	\
+   /*  __FUNCTION__, __LINE__),				*/		\
    pop_text_stack__(lvl))
 extern int pop_text_stack__(int lvl USES_REGS);
 
 #define pop_output_text_stack(lvl,p)					\
-  (/*fprintf(stderr, "v %*c %s:%s:%d\n", AllocLevel(), ' ', __FILE__,	\
-     __FUNCTION__, __LINE__),*/						\
+  (/*fprintf(stderr, "-- *** %d %s:%s:%d\n", AllocLevel(), __FILE__,*/	\
+   /*  __FUNCTION__, __LINE__),*/					\
    pop_output_text_stack__(lvl,p))
 extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
 
@@ -179,165 +174,6 @@ INLINE_ONLY EXTERN inline char_kind_t chtype(Int ch) {
 #define __android_log_print(...)
 #endif
 
-INLINE_ONLY inline EXTERN utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
-                                                    size_t n,
-                                                    utf8proc_int32_t *valp);
-
-INLINE_ONLY inline EXTERN utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
-                                                    size_t n,
-                                                    utf8proc_int32_t *valp) {
-  utf8proc_ssize_t rc = utf8proc_iterate(ptr, n, valp);
-  if (rc < 0) {
-    LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_IN_CHARACTER_CODE;
-  }
-  return rc;
-}
-
-INLINE_ONLY inline EXTERN utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
-                                                    utf8proc_int32_t val);
-
-INLINE_ONLY inline EXTERN utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
-                                                    utf8proc_int32_t val) {
-  utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
-  if (rc < 0) {
-    LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
-  }
-  return rc;
-}
-
-inline static const utf8proc_uint8_t *skip_utf8(const utf8proc_uint8_t *pt,
-						utf8proc_ssize_t n) {
-  utf8proc_ssize_t i;
-  utf8proc_int32_t b;
-  for (i = 0; i < n; i++) {
-    utf8proc_ssize_t l = utf8proc_iterate(pt, -1, &b);
-    if (b == 0)
-      return pt;
-    if (l < 0) {
-      LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
-    } else {
-      pt += l;
-    }
-  }
-  return pt;
-}
-
-inline static utf8proc_ssize_t utf8_nof(utf8proc_int32_t val) {
-  return utf8proc_charwidth(val);
-}
-
-inline static utf8proc_ssize_t strlen_utf8(const utf8proc_uint8_t *pt) {
-  utf8proc_ssize_t rc = 0;
-  utf8proc_int32_t b;
-  while (true) {
-    utf8proc_ssize_t l = utf8proc_iterate(pt, -1, &b);
-    if (b == 0)
-      return rc;
-    else if (l > 0) {
-      pt += l;
-      rc++;
-    } else {
-      LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
-      pt++;
-    }
-  }
-  return rc;
-}
-
-inline static utf8proc_ssize_t strlen_latin_utf8(const unsigned char *pt) {
-  utf8proc_ssize_t rc = 0;
-  utf8proc_uint8_t b;
-  while (true) {
-    utf8proc_ssize_t l = utf8proc_encode_char(*pt, &b);
-    if (l<0) {
-      pt++;
-    }
-    if (b == 0)
-      return rc;
-    pt++;
-    rc += l;
-  }
-  return rc;
-}
-
-inline static utf8proc_ssize_t strnlen_latin_utf8(const unsigned char *pt,
-						  size_t max) {
-  utf8proc_ssize_t rc = 0;
-  utf8proc_uint8_t b;
-  while (true) {
-    utf8proc_ssize_t l = utf8proc_encode_char(*pt, &b);
-    if (b == 0)
-      return rc;
-    pt++;
-    if (l > 0)
-      rc += l;
-    if (--max == 0)
-      return rc;
-  }
-  return rc;
-}
-
-inline static utf8proc_ssize_t strlen_ucs2_utf8(const wchar_t *pt) {
-  utf8proc_ssize_t rc = 0;
-  utf8proc_uint8_t b;
-  while (true) {
-    utf8proc_ssize_t l = utf8proc_encode_char(*pt, &b);
-    if (b == 0)
-      return rc;
-    if (l < 0)
-      continue;
-    pt++;
-    rc += l;
-  }
-  return rc;
-}
-
-inline static utf8proc_ssize_t strnlen_ucs2_utf8(const wchar_t *pt,
-						 size_t max) {
-  utf8proc_ssize_t rc = 0;
-  utf8proc_uint8_t b;
-  while (true) {
-    utf8proc_ssize_t l = utf8proc_encode_char(*pt, &b);
-    if (b == 0)
-      return rc;
-    pt++;
-    rc += l;
-    if (--max == 0)
-      return rc;
-  }
-  return rc;
-}
-
-inline static int cmpn_utf8(const utf8proc_uint8_t *pt1,
-			    const utf8proc_uint8_t *pt2, utf8proc_ssize_t n) {
-  utf8proc_ssize_t i;
-  utf8proc_int32_t b;
-  for (i = 0; i < n; i++) {
-    if (pt1[0] != pt2[0])
-      return pt1[0] - pt2[0];
-    utf8proc_ssize_t l = utf8proc_iterate(pt1, -1, &b);
-    if (l == 2) {
-      if (pt1[1] != pt2[1])
-	return pt1[1] - pt2[1];
-    } else if (l == 3) {
-      if (pt1[2] != pt2[2])
-	return pt1[2] - pt2[2];
-    } else if (l == 4) {
-      if (pt1[3] != pt2[3])
-	return pt1[3] - pt2[3];
-    }
-    pt1 += l;
-    pt2 += l;
-  }
-  return 0;
-}
-
-// UTF16
-
-#define LEAD_OFFSET ((uint32_t)0xD800 - (uint32_t)(0x10000 >> 10))
-#define SURROGATE_OFFSET						\
-  ((uint32_t)0x10000 - (uint32_t)(0xD800 << 10) - (uint32_t)0xDC00)
-
 extern const char *Yap_tokText(void *tokptr);
 extern Term Yap_tokRep(void *tokptr);
 
@@ -354,10 +190,8 @@ typedef enum {
   YAP_STRING_INT = 0x40,        /// target is an integer term
   YAP_STRING_FLOAT = 0x80,      /// target is a floar term
   YAP_STRING_BIG = 0x100,       /// target is an big num term
-  YAP_STRING_DATUM =
-  0x200, /// associated with previous 3, use actual object if type, not tern
-  YAP_STRING_LENGTH =
-  0x400, /// input: length is fixed; output: return integer with length
+  YAP_STRING_DATUM =  0x200, /// associated with previous 3, use actual object if type, not tern
+  YAP_STRING_LENGTH =  0x400, /// input: length is fixed; output: return integer with length
   YAP_STRING_NTH = 0x800,           ///  input: ignored; output: nth char
   YAP_STRING_TERM = 0x1000,         // Generic term, if nothing else given
   YAP_STRING_DIFF = 0x2000,         // difference list
@@ -440,8 +274,33 @@ static inline seq_type_t mod_to_type(Term mod USES_REGS) {
 }
 
 // string type depends on current module
-static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
+static inline seq_type_t mod_to_atype(Term mod USES_REGS) {
 
+  // see pl-incl.h
+  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+  if (flags & SNGQ_ATOM) {
+    return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
+  } else if (flags & SNGQ_STRING) {
+    return YAP_STRING_STRING;
+  } else if (flags & SNGQ_CHARS) {
+    return YAP_STRING_ATOMS;
+  }
+  return YAP_STRING_CODES;
+}
+
+// string type depends on current module
+static inline seq_type_t mod_to_bqtype(Term mod USES_REGS) {
+  Term t2;
+  if ((t2 = GLOBAL_Flags[BACK_QUOTES_FLAG].at)) {
+    if (t2 == TermString) {
+    return YAP_STRING_STRING;
+    } else if (t2 == TermAtom) {
+      return YAP_STRING_ATOM | YAP_STRING_OUTPUT_TERM;
+    } else if (t2 == TermCodes) {
+       return YAP_STRING_CODES;
+    }
+    return YAP_STRING_ATOMS;
+  }    
   // see pl-incl.h
   unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
@@ -906,6 +765,21 @@ static inline char *Yap_AtomToUTF8Text(Atom at USES_REGS) {
   return RepAtom(at)->StrOfAE;
 }
 
+static inline Term Yap_CharsToTAQ(const char *s, Term mod,
+				  encoding_t enc USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.c0 = s;
+  inp.type = YAP_STRING_CHARS;
+  inp.mod = mod;
+  inp.enc = enc;
+  out.type = mod_to_atype(mod PASS_REGS);
+  out.val.uc = NULL;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
 static inline Term Yap_CharsToTDQ(const char *s, Term mod,
 				  encoding_t enc USES_REGS) {
   seq_tv_t inp, out;
@@ -999,6 +873,7 @@ static inline Term Yap_ListOfCodesToNumber(Term t0 USES_REGS) {
 
 static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
+
   inp.val.t = t0;
   inp.type = YAP_STRING_CODES;
   out.val.uc = NULL;
@@ -1491,8 +1366,10 @@ static inline Atom UTF32ToAtom(const wchar_t *s USES_REGS) {
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_ATOM;
   out.max = -1;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
-    return 0L;
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
+    LOCAL_Error_TYPE  = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+    return NULL;
+  }
   return out.val.a;
 }
 
@@ -1540,8 +1417,10 @@ static inline Term Yap_WCharsToString(const wchar_t *s USES_REGS) {
   inp.type = YAP_STRING_WCHARS;
   out.type = YAP_STRING_STRING;
   out.val.uc = NULL;
-  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     return 0L;
+  }
   return out.val.t;
 }
 
@@ -1553,8 +1432,10 @@ static inline Atom Yap_ConcatAtoms(Term t1, Term t2 USES_REGS) {
   inpv[1].type = YAP_STRING_ATOM;
   out.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
-  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS))
-    return (Atom)NULL;
+  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS)) {
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+    return NULL;
+  }
   return out.val.a;
 }
 
@@ -1581,8 +1462,10 @@ static inline Term Yap_ConcatStrings(Term t1, Term t2 USES_REGS) {
   inpv[1].type = YAP_STRING_STRING;
   out.type = YAP_STRING_STRING;
 
-  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS))
+  if (!Yap_Concat_Text(2, inpv, &out PASS_REGS)){
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     return 0L;
+  }
   return out.val.t;
 }
 
@@ -1596,8 +1479,10 @@ static inline Atom Yap_SpliceAtom(Term t1, Atom ats[], size_t cut,
   inp.val.t = t1;
   outv[0].type = YAP_STRING_ATOM;
   outv[1].type = YAP_STRING_ATOM;
-  if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS))
-    return (Atom)NULL;
+  if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS)) {
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+    return NULL;
+  }
   ats[0] = outv[0].val.a;
   ats[1] = outv[1].val.a;
   return ats[0];
@@ -1611,8 +1496,10 @@ static inline Atom Yap_SubtractHeadAtom(Term t1, Term th USES_REGS) {
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
-    return (Atom)NULL;
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)) {
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+    return NULL;
+  }
   return outv[1].val.a;
 }
 
@@ -1624,8 +1511,10 @@ static inline Atom Yap_SubtractTailAtom(Term t1, Term th USES_REGS) {
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_ATOM;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
-    return (Atom)NULL;
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)) {
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_ATOM : LOCAL_Error_TYPE  );
+    return 0L;
+  }
   return outv[0].val.a;
 }
 
@@ -1639,8 +1528,10 @@ static inline Term Yap_SpliceString(Term t1, Term ts[], size_t cut,
   outv[1].type = YAP_STRING_STRING;
   cuts[0] = cut;
   cuts[1] = max;
-  if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, cuts, &inp, outv PASS_REGS)){
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     return 0L;
+  }
   ts[0] = outv[0].val.t;
   ts[1] = outv[1].val.t;
   return ts[0];
@@ -1654,8 +1545,10 @@ static inline Term Yap_SubtractHeadString(Term t1, Term th USES_REGS) {
   outv[0].val.t = th;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = 0;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE );
     return 0L;
+  }
   return outv[1].val.t;
 }
 
@@ -1667,8 +1560,10 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
   outv[0].val.t = 0;
   outv[1].type = YAP_STRING_STRING;
   outv[1].val.t = th;
-  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS))
+  if (!Yap_Splice_Text(2, (size_t *)NULL, &inp, outv PASS_REGS)){
+    LOCAL_Error_TYPE   = (LOCAL_Error_TYPE  == TYPE_ERROR_TEXT ? TYPE_ERROR_STRING : LOCAL_Error_TYPE  );
     return 0L;
+  }
   return outv[0].val.t;
 }
 

@@ -15,12 +15,15 @@
 *									 *
 *************************************************************************/
 /**
- * @file flagd.ysp
+ * @file pl/flags.yap
  *
- * @defgroup Flags Yap Flags
- * @{}
+ /
+
+/**
+ * @defgroup YAPFlags Yap Flags
+ * @{
  * @ingroup builtins
- * 
+ *
  */
 
 

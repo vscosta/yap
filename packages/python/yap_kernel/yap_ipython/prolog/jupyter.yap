@@ -1,192 +1,96 @@
-
 /**
- * @file jupyter.yap
- *
- * @brief allow interaction between Jupyter and YAP.
- *
- * @long The code in here:
- * - establishes communication between Prolog and Python Streams
- * - inputs Prolog code and queries
- * - supports completion of Prolog programs.
- * -
- */
-
- %% :- module( jupyter,
- %%            [jupyter_query/3,
- %%            errors/2,
- %%            ready/2,
- %%            completion/2,
-
- %%            ]
- %%            ).
+  * @file jupyter.yap4py
+  *
+  * @brief JUpyter support.
+  */
 
 
-:-	 reexport(library(yapi)).
+  % :- module( jupyter,
+  %            [jupyter_query/3,
+  %            errors/2,
+  %            ready/2,
+  %           completion/2,
+  %         ]
+%%            ).
+:- use_module(library(hacks)).
+
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
+
 :-	 use_module(library(python)).
+:-	 use_module(library(yapi)).
+:-	 use_module(library(complete)).
 
 :- python_import(sys).
 
 jupyter_query(Caller, Cell, Line ) :-
 	jupyter_cell(Caller, Cell, Line).
 
-jupyter_cell(_Caller, Cell, _) :-
-	jupyter_consult(Cell),
+jupyter_cell(_Caller, Cell, _Line) :-
+	jupyter_consult(Cell),	%stack_dump,
 	fail.
+jupyter_cell( _Caller, _, '' ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( _Caller, _, [] ) :- !.
 jupyter_cell( Caller, _, Line ) :-
-gated_call(
-		   enter_cell(call),
-		  python_query( Caller, Line ),
-		  Port,
-		   enter_cell(Port)
-	   ).
+	Self := Caller.query,
+		       python_query(Self,Line).
+
+restreams(call) :-
+    streams(true).
+restreams(fail) :-
+    streams(false).
+restreams(answer).
+restreams(exit) :-
+    streams(false).
+restreams(!).
+restreams(external_exception(_)).
+restreams(exception).
 
 jupyter_consult(Text) :-
 	blank( Text ),
 	!.
 jupyter_consult(Cell) :-
-	open_mem_read_stream( Cell, Stream),
-	load_files(user:'jupyter cell',[stream(Stream)]).
-	%should load_files  close?
+%	Name = 'Inp',
+%	stream_property(Stream, file_name(Name) ),
+%	setup_call_cleanup(
+  open_mem_read_stream( Cell, Stream),
+  load_files(user:'jupyter cell',[stream(Stream)]).
 
 blank(Text) :-
 	atom_codes(Text, L),
-	maplist( blankc, L).
+	maplist( code_type(space), L).
 
-blankc(' ').
-blankc('\n').
-blankc('\t').
+:- dynamic cell_stream/1.
 
-enter_cell(retry) :-
-	enter_cell(call).
-enter_cell(call) :-
-	into_cell.
-enter_cell(fail) :-
-	enter_cell(exit).
-enter_cell(answer) :-
-	enter_cell(exit).
-enter_cell(exception(_)) :-
-	enter_cell(exit).
-enter_cell(external_exception(_)).
-	enter_cell(!).
-enter_cell(exit) :-
-    nb_setval(jupyter_cell, off),
-	close( user_output).
-
-
-into_cell :-
-    nb_setval(jupyter_cell, on),
-	open('/python/sys.input', read, _Input, [bom(false)]),
-    open('/python/sys.stdout', append, _Output, []),
-    open('/python/sys.stderr', append, _Error, []),
-	set_prolog_flag(user_input,_Output),
-	set_prolog_flag(user_output,_Output),
-    set_prolog_flag(user_error,_Error).
-
-
-completions(S, Self) :-
-	open_mem_read_stream(S, St),
-	scan_to_list(St, Tokens),
-	close(St),
-	reverse(Tokens, RTokens),
-	strip_final_tokens(RTokens, MyTokens),
-	setof( Completion, complete(MyTokens, Completion), Cs),
-	Self.matches := Cs.
-
-
-strip_final_tokens(['EOT'|Ts], Ts) :- !.
-strip_final_tokens( Ts, Ts ).
-
-complete([E,l,C,l,A|More],
-	 isconsult(A),
-	  %B = l,
-	  library(C,Lib),
-	  %D=l,
-	  E=atom(Prefix),
-	\+ arg( Rest ),
-	check_library( Prefix, Lib, C).
-complete([E,l,C,l,-,'['|More],
-	 isconsult(A),
-	  %B = l,
-	  library(C,Lib),
-	  %D=l,
-	  E=atom(Prefix),
-	\+ arg( Rest ),
-	check_library( Prefix, Lib, C).
-complete([C,l,A|More],
-	 isconsult(A),
-	  %B = l,
-	  C=atom(Prefix),
-	\+ arg( Rest ),
-	file_or_library( Prefix, C).
-complete([C,l,-,'['|More],
-	 isconsult(A),
-	  %B = l,
-	  C=atom(Prefix),
-	\+ arg( Rest ),
-	file_or_library( Prefix, C).
-complete( [atom(F)|Rest], C) :-
-	\+ arg( Rest ),
-	predicate( F, Pred, Arity ),
-	cont( Arity, F, Pred, C).
-
-isconsult( atom(use_module) ).
-isconsult( atom(ensure_loaded) ).
-isconsult( atom(compile) ).
-isconsult( atom(consult) ).
-isconsult( atom(reconsult) ).
-isconsult( atom(load_files) ).
-isconsult( '['   ).
-
-arg([']'|_]).
-arg([l|_]).
-
-file_or_library(F,C) :-
-	libsym(C0),
-	atom_cooncat(F,C,C0).
-file_or_library(F,C) :-
-	check_file(F,C).
-
-check_file(F0,C) :-
-	atom_concat('\'',F,F0),
-	!,
-	absolute_file_name( F, FF, [access(none)]  ),
-	atom_concat( FF, '*'	, Pat),
-	absolute_file_name( Pat, C0, [glob(true)]  ),
-	atom_concat(Pat,C00,C0),
-	atom_conct(C00,'\'',C).
-check_file(F0,C) :-
-	atom_concat( F0, '*'	, Pat),
-	absolute_file_name( Pat, C0, [glob(true)]  ),
-	atom_concat(Pat,C,C0).
-
-check_library( Lib, F, C) :-
-	atom_concat( F, '*'	, Pat),
-	LibF =.. [Lib(Pat)],
-	absolute_file_name( LibF, Lib, [glob(true)]  ),
-	file_directory_name( Lib, Name),
-	( atom_concat(C, '.yap', Name) -> true ;
-	 atom_concat(C, '.ypp', Name) -> true ;
-	 atom_concat(C, '.prolog', Name) -> true
-	).
-
-predicate(N,P,A) :-
-	system_predicate(P0/A),
-	atom_concat(N,P,P0).
-predicate(N,P,A) :-
-	current_predicate(P0/A),
-	atom_concat(N,P,P0).
-
-cont(0, F, P, P0) :-
-		atom_concat( F, P, P0 ).
-cont( _, F, P, PB ):-
-	atom_concat( [F, P, '('], PB ).
-
+streams(false) :-
+    nb_setval(jupyter_cell, false),
+    retract(cell_stream(S)),
+	close(S),
+	fail.
+streams(false).
+streams(true) :-
+    streams( false ),
+    nb_setval(jupyter_cell, true),
+%    \+ current_stream('/python/input',_,_),
+    open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
+    assert( cell_stream( Input) ),
+    set_prolog_flag(user_input,Input),
+    fail.
+streams(true) :-
+%    \+ current_stream('/python/sys.stdout',_,_),
+    open('/python/sys.stdout', append, Output, [alias(user_output)]),
+    set_prolog_flag(user_output, Output),
+    assert( cell_stream( Output) ),
+    fail.
+streams(true) :-
+    %    \+ current_stream('/python/sys.stderr',_,_),
+    open('/python/sys.stderr', append, Error, [alias(user_error)]),
+    assert( cell_stream( Error) ),
+    set_prolog_flag(user_error, Error),
+    fail.
+streams(true).
 
 ready(_Self, Line ) :-
             blank( Line ),
@@ -284,5 +188,22 @@ close_events( Self ) :-
     Self.errors := [t(C,L,N,A)] + Self.errors,
     fail.
 close_events( _ ).
+
+
+:- if(  current_prolog_flag(apple, true) ).
+
+:- putenv( 'LC_ALL', 'en_us:UTF-8').
+
+plot_inline :-
+	X := self.inline_plotting,
+	nb_setval(inline, X ),
+	X = true,
+	!,
+	:= (
+	   import( matplotlib ),
+	   matplotlib.use( `nbagg` )
+	   ).
+
+:- endif.
 
 %:- ( start_low_level_trace ).

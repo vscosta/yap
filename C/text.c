@@ -32,7 +32,9 @@ inline static size_t min_size(size_t i, size_t j) { return (i < j ? i : j); }
 #endif
 
 #if !defined(HAVE_STPCPY) && !defined(__APPLE__)
-inline static void* __stpcpy(void * i, const void * j) { return strcpy(i,j)+strlen(j);}
+inline static void *__stpcpy(void *i, const void *j) {
+  return strcpy(i, j) + strlen(j);
+}
 #define stpcpy __stpcpy
 #endif
 
@@ -89,7 +91,7 @@ void *pop_output_text_stack__(int i, const void *export) {
     while (p) {
       struct mblock *np = p->next;
       if (p + 1 == export) {
-        size_t sz = p->sz-sizeof(struct mblock) ;
+        size_t sz = p->sz - sizeof(struct mblock);
         memcpy(p, p + 1, sz);
         export = p;
       } else {
@@ -185,19 +187,19 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
   return o + 1;
 }
 
-
 /**
- * Export a local memory object as a RO object to the outside world, that is, recovering as much storage as one can.
+ * Export a local memory object as a RO object to the outside world, that is,
+ * recovering as much storage as one can.
  * @param pt pointer to object
  * @return new object
  */
 const void *MallocExportAsRO(const void *pt USES_REGS) {
-  struct  mblock *old = (void *)pt, *o = old-1;
-    if (old == NULL)
-        return NULL;
+  struct mblock *old = (void *)pt, *o = old - 1;
+  if (old == NULL)
+    return NULL;
   size_t sz = o->sz;
   release_block(o);
-  memcpy((void*)o, pt,sz);
+  memcpy((void *)o, pt, sz);
   return realloc((void *)o, sz);
 }
 
@@ -249,42 +251,61 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
       if (IsVarTerm(hd)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, "scanning list of codes");
+        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
         return NULL;
       }
       if (!IsIntegerTerm(hd)) {
-        Yap_Error(TYPE_ERROR_INTEGER, t0, "scanning list of codes");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, hd, "scanning list of codes");
         return NULL;
       }
       Int code = IntegerOfTerm(hd);
       if (code < 0) {
-        Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t0,
-                  "scanning list of codes");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, hd, "scanning list of codes");
         return NULL;
       }
       length += put_utf8(ar, code);
       t = TailOfTerm(t);
+      if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        return NULL;
+      }
+      if (!IsPairTerm(t) && t != TermNil) {
+        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        return NULL;
+      }
     }
   } else {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
+      if (IsVarTerm(hd)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, hd, "scanning list of codes");
+        return NULL;
+      }
       if (!IsAtomTerm(hd)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, "scanning list of atoms");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       }
       const char *code = RepAtom(AtomOfTerm(hd))->StrOfAE;
       if (code < 0) {
-        Yap_Error(REPRESENTATION_ERROR_CHARACTER, t0, "scanning list of atoms");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
       }
       length += strlen(code);
       t = TailOfTerm(t);
+      if (IsVarTerm(t)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
+        return NULL;
+      }
+      if (!IsPairTerm(t) && t != TermNil) {
+        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        return NULL;
+      }
     }
   }
 
   if (!IsVarTerm(t)) {
     if (t != TermNil) {
-      Yap_Error(TYPE_ERROR_INTEGER, t0, "scanning list of codes");
+      Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
       return NULL;
     }
   }
@@ -294,7 +315,6 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
   if (codes) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
-
       Int code = IntegerOfTerm(hd);
 
       st = st + put_utf8(st, code);
@@ -400,6 +420,7 @@ static yap_error_number gen_type_error(int flags) {
 
 unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 
+  int lvl = push_text_stack();
   /* we know what the term is */
   if (!(inp->type & (YAP_STRING_CHARS | YAP_STRING_WCHARS))) {
     if (!(inp->type & YAP_STRING_TERM)) {
@@ -417,9 +438,12 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
       }
     }
+    LOCAL_ActiveError->errorRawTerm = inp->val.t;
   }
-  if (LOCAL_Error_TYPE != YAP_NO_ERROR)
+  if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+    pop_text_stack(lvl);
     return NULL;
+  }
 
   if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
@@ -428,85 +452,93 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     if (RepAtom(at)->UStrOfAE[0] == 0) {
       unsigned char *o = Malloc(4);
       memset(o, 0, 4);
-      return o;
+      return pop_output_text_stack(lvl, o);
     }
-    if (inp->type & YAP_STRING_WITH_BUFFER)
+    if (inp->type & YAP_STRING_WITH_BUFFER) {
+      pop_text_stack(lvl);
       return at->UStrOfAE;
+    }
     size_t sz = strlen(at->StrOfAE);
     inp->type |= YAP_STRING_IN_TMP;
-    char *o = BaseMalloc(sz + 1);
+    void *o = Malloc(sz + 1);
     strcpy(o, at->StrOfAE);
-    return (unsigned char *)o;
+    return pop_output_text_stack(lvl, o);
   }
   if (IsStringTerm(inp->val.t) && inp->type & YAP_STRING_STRING) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
     const char *s = StringOfTerm(inp->val.t);
     if (s[0] == 0) {
-      char *o = BaseMalloc(4);
+      char *o = Malloc(4);
       memset(o, 0, 4);
+      return pop_output_text_stack(lvl, o);
     }
     if (inp->type & YAP_STRING_WITH_BUFFER)
       return (unsigned char *)UStringOfTerm(inp->val.t);
     inp->type |= YAP_STRING_IN_TMP;
     size_t sz = strlen(s);
-    char *o = BaseMalloc(sz + 1);
+    char *o = Malloc(sz + 1);
     strcpy(o, s);
-    return (unsigned char *)o;
+    return pop_output_text_stack(lvl, o);
   }
   if (((inp->type & (YAP_STRING_CODES | YAP_STRING_ATOMS)) ==
        (YAP_STRING_CODES | YAP_STRING_ATOMS)) &&
       IsPairOrNilTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
-    return Yap_ListToBuffer(NULL, inp->val.t, inp PASS_REGS);
+    return pop_output_text_stack(
+        lvl, Yap_ListToBuffer(NULL, inp->val.t, inp PASS_REGS));
     // this is a term, extract to a sfer, and representation is wide
   }
   if (inp->type & YAP_STRING_CODES && IsPairOrNilTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
-    return Yap_ListOfCodesToBuffer(NULL, inp->val.t, inp PASS_REGS);
+    return pop_output_text_stack(
+        lvl, Yap_ListOfCodesToBuffer(NULL, inp->val.t, inp PASS_REGS));
     // this is a term, extract to a sfer, and representation is wide
   }
   if (inp->type & YAP_STRING_ATOMS && IsPairOrNilTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
-    return Yap_ListOfAtomsToBuffer(NULL, inp->val.t, inp PASS_REGS);
+    return pop_output_text_stack(
+        lvl, Yap_ListOfAtomsToBuffer(NULL, inp->val.t, inp PASS_REGS));
     // this is a term, extract to a buffer, and representation is wide
   }
   if (inp->type & YAP_STRING_INT && IsIntegerTerm(inp->val.t)) {
     // ASCII, so both LATIN1 and UTF-8
     // Yap_DebugPlWriteln(inp->val.t);
     char *s;
-    s = BaseMalloc(2 * MaxTmp(PASS_REGS1));
+    s = Malloc(2 * MaxTmp(PASS_REGS1));
     if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
     }
-    return (unsigned char *)s;
+    return pop_output_text_stack(lvl, s);
   }
   if (inp->type & YAP_STRING_FLOAT && IsFloatTerm(inp->val.t)) {
     char *s;
     // Yap_DebugPlWriteln(inp->val.t);
     if (!Yap_FormatFloat(FloatOfTerm(inp->val.t), &s, 1024)) {
+      pop_text_stack(lvl);
       return NULL;
     }
-    return (unsigned char *)s;
+    return pop_output_text_stack(lvl, s);
   }
 #if USE_GMP
   if (inp->type & YAP_STRING_BIG && IsBigIntTerm(inp->val.t)) {
     // Yap_DebugPlWriteln(inp->val.t);
     char *s;
-    s = BaseMalloc(MaxTmp());
+    s = Malloc(MaxTmp());
     if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), s, MaxTmp() - 1, 10)) {
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     }
-    return inp->val.uc = (unsigned char *)s;
+    return inp->val.uc = pop_output_text_stack(lvl, s);
   }
 #endif
   if (inp->type & YAP_STRING_TERM) {
     // Yap_DebugPlWriteln(inp->val.t);
-    char *s = (char *) Yap_TermToBuffer(inp->val.t, ENC_ISO_UTF8, 0);
-    return inp->val.uc = (unsigned char *)s;
+    char *s = (char *)Yap_TermToBuffer(inp->val.t, ENC_ISO_UTF8, 0);
+    return inp->val.uc = pop_output_text_stack(lvl, s);
   }
   if (inp->type & YAP_STRING_CHARS) {
+    pop_text_stack(lvl);
     if (inp->enc == ENC_ISO_LATIN1) {
       return latin2utf8(inp);
     } else if (inp->enc == ENC_ISO_ASCII) {
@@ -515,6 +547,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       return inp->val.uc;
     }
   }
+  pop_text_stack(lvl);
   if (inp->type & YAP_STRING_WCHARS) {
     // printf("%S\n",inp->val.w);
     return wchar2utf8(inp);
@@ -538,7 +571,7 @@ static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
   Term t = init_tstring(PASS_REGS1);
   LOCAL_TERM_ERROR(t, 2 * max);
   unsigned char *buf = buf_from_tstring(HR);
-  if (max==0)
+  if (max == 0)
     buf[0] = '\0';
   else
     strcpy((char *)buf, s);
@@ -662,14 +695,15 @@ static Atom write_atom(void *s0, seq_tv_t *out USES_REGS) {
 }
 
 void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
+  int l = push_text_stack();
   size_t leng = strlen((char *)s0);
   size_t min = 0, max = leng;
   if (out->enc == ENC_ISO_UTF8) {
-    if ( out->val.uc == NULL) { // this should always be the case
-      out->val.uc = BaseMalloc(leng + 1);
+    if (out->val.uc == NULL) { // this should always be the case
+      out->val.uc = Malloc(leng + 1);
       strcpy(out->val.c, (char *)s0);
     } else if (out->val.uc != s0) {
-      out->val.c = BaseMalloc(leng + 1);
+      out->val.c = Malloc(leng + 1);
       strcpy(out->val.c, (char *)s0);
     }
   } else if (out->enc == ENC_ISO_LATIN1) {
@@ -677,13 +711,17 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     unsigned char *s = s0;
     unsigned char *cp = s;
     unsigned char *buf = out->val.uc;
-    if (!buf)
+    if (!buf) {
+      pop_text_stack(l);
       return NULL;
+    }
     while (*cp) {
       utf8proc_int32_t chr;
       int off = get_utf8(cp, -1, &chr);
-      if (off <= 0 || chr > 255)
+      if (off <= 0 || chr > 255) {
+        pop_text_stack(l);
         return NULL;
+      }
       if (off == max)
         break;
       cp += off;
@@ -704,8 +742,10 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     wchar_t *buf0, *buf;
 
     buf = buf0 = out->val.w;
-    if (!buf)
+    if (!buf) {
+      pop_text_stack(l);
       return NULL;
+    }
     while (*cp && cp < lim) {
       utf8proc_int32_t chr;
       cp += get_utf8(cp, -1, &chr);
@@ -723,8 +763,10 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     *buf = '\0';
   } else {
     // no other encodings are supported.
+    pop_text_stack(l);
     return NULL;
   }
+  out->val.c = pop_output_text_stack__(l, out->val.c);
   return out->val.c;
 }
 
@@ -735,29 +777,29 @@ static size_t write_length(const unsigned char *s0, seq_tv_t *out USES_REGS) {
 static Term write_number(unsigned char *s, seq_tv_t *out,
                          bool error_on USES_REGS) {
   Term t;
-    yap_error_descriptor_t new_error;
-    int i = push_text_stack();
-    Yap_pushErrorContext(&new_error);
-  t = Yap_StringToNumberTerm((char *)s, &out->enc,true);
-  pop_text_stack(i);
-    Yap_popErrorContext(error_on);
+  LOCAL_delay = !error_on;
+  t = Yap_StringToNumberTerm((char *)s, &out->enc, error_on);
+  LOCAL_delay = false;
   return t;
 }
 
 static Term string_to_term(void *s, seq_tv_t *out USES_REGS) {
   Term o;
-    yap_error_descriptor_t new_error;
-    Yap_pushErrorContext(&new_error);
-    o = out->val.t = Yap_BufferToTerm(s, TermNil);
-    Yap_popErrorContext(true);
+  yap_error_descriptor_t *new_error = malloc(sizeof(yap_error_descriptor_t));
+  bool mdnew = Yap_pushErrorContext(true, new_error);
+  o = out->val.t = Yap_BufferToTerm(s, TermNil);
+  Yap_popErrorContext(mdnew, true);
 
-    return o;
+  return o;
 }
 
 bool write_Text(unsigned char *inp, seq_tv_t *out USES_REGS) {
   /* we know what the term is */
   if (out->type == 0) {
     return true;
+  }
+  if (LOCAL_Error_TYPE) {
+    return false;
   }
 
   if (out->type & (YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG)) {
@@ -854,6 +896,7 @@ static size_t downcase(void *s0, seq_tv_t *out USES_REGS) {
 bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
   unsigned char *buf;
   bool rc;
+
   /*
   //printf(stderr, "[ %d ", n++)    ;
   if (inp->type & (YAP_STRING_TERM|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES
@@ -871,34 +914,34 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     return 0L;
   }
   if (buf[0]) {
-  size_t leng = strlen_utf8(buf);
-  if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
-    if (out->max < leng) {
-      const unsigned char *ptr = skip_utf8(buf, out->max);
-      size_t diff = (ptr - buf);
-      char *nbuf = Malloc(diff + 1);
-      memcpy(nbuf, buf, diff);
-      nbuf[diff] = '\0';
-      leng = diff;
+    size_t leng = strlen_utf8(buf);
+    if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
+      if (out->max < leng) {
+        const unsigned char *ptr = skip_utf8(buf, out->max);
+        size_t diff = (ptr - buf);
+        char *nbuf = Malloc(diff + 1);
+        memcpy(nbuf, buf, diff);
+        nbuf[diff] = '\0';
+        leng = diff;
+      }
+      // else if (out->type & YAP_STRING_NCHARS &&
+      // const unsigned char *ptr = skip_utf8(buf)
     }
-    // else if (out->type & YAP_STRING_NCHARS &&
-    // const unsigned char *ptr = skip_utf8(buf)
-  }
 
-  if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
-    if (out->type & YAP_STRING_UPCASE) {
-      if (!upcase(buf, out)) {
-        pop_text_stack(l);
-        return false;
+    if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
+      if (out->type & YAP_STRING_UPCASE) {
+        if (!upcase(buf, out)) {
+          pop_text_stack(l);
+          return false;
+        }
+      }
+      if (out->type & YAP_STRING_DOWNCASE) {
+        if (!downcase(buf, out)) {
+          pop_text_stack(l);
+          return false;
+        }
       }
     }
-    if (out->type & YAP_STRING_DOWNCASE) {
-      if (!downcase(buf, out)) {
-        pop_text_stack(l);
-        return false;
-      }
-    }
-  }
   }
   rc = write_Text(buf, out PASS_REGS);
   /*    fprintf(stderr, " -> ");
@@ -964,9 +1007,10 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   void **bufv;
   unsigned char *buf;
   int i, j;
-
+  // int lvl = push_text_stack();
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
+    // pop_text_stack(lvl);
     return NULL;
   }
   for (i = 0, j = 0; i < tot; i++) {
@@ -974,6 +1018,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     unsigned char *nbuf = Yap_readText(inp + i PASS_REGS);
 
     if (!nbuf) {
+      // pop_text_stack(lvl);
       return NULL;
     }
     //      if (!nbuf[0])
@@ -989,6 +1034,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     buf = concat(tot, bufv PASS_REGS);
   }
   bool rc = write_Text(buf, out PASS_REGS);
+  // pop_text_stack( lvl );
 
   return rc;
 }
@@ -996,16 +1042,19 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
 //
 bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
                      seq_tv_t outv[] USES_REGS) {
+  int lvl = push_text_stack();
   const unsigned char *buf;
   size_t b_l, u_l;
 
   inp->type |= YAP_STRING_IN_TMP;
   buf = Yap_readText(inp PASS_REGS);
   if (!buf) {
+    pop_text_stack(lvl);
     return false;
   }
   b_l = strlen((char *)buf);
   if (b_l == 0) {
+    pop_text_stack(lvl);
     return false;
   }
   u_l = strlen_utf8(buf);
@@ -1021,6 +1070,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         }
         b_l0 = strlen((const char *)buf0);
         if (memcmp(buf, buf0, b_l0) != 0) {
+          pop_text_stack(lvl);
           return false;
         }
         u_l0 = strlen_utf8(buf0);
@@ -1030,6 +1080,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         buf1 = slice(u_l0, u_l, buf PASS_REGS);
         b_l1 = strlen((const char *)buf1);
         bool rc = write_Text(buf1, outv + 1 PASS_REGS);
+        pop_text_stack(lvl);
         if (!rc) {
           return false;
         }
@@ -1037,6 +1088,7 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
       } else /* if (outv[1].val.t) */ {
         buf1 = Yap_readText(outv + 1 PASS_REGS);
         if (!buf1) {
+          pop_text_stack(lvl);
           return false;
         }
         b_l1 = strlen((char *)buf1);
@@ -1045,9 +1097,11 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
         u_l0 = u_l - u_l1;
         if (memcmp(skip_utf8((const unsigned char *)buf, b_l0), buf1, b_l1) !=
             0) {
+          pop_text_stack(lvl);
           return false;
         }
         buf0 = slice(0, u_l0, buf PASS_REGS);
+        buf0 = pop_output_text_stack(lvl, buf0);
         bool rc = write_Text(buf0, outv PASS_REGS);
         return rc;
       }
@@ -1062,14 +1116,15 @@ bool Yap_Splice_Text(int n, size_t cuts[], seq_tv_t *inp,
     if (i > 0 && cuts[i] == 0)
       break;
     void *bufi = slice(next, cuts[i], buf PASS_REGS);
+    bufi = pop_output_text_stack(lvl, bufi);
     if (!write_Text(bufi, outv + i PASS_REGS)) {
       return false;
     }
   }
+  pop_text_stack(lvl);
 
   return true;
 }
-
 
 /**
  * Convert from a predicate structure to an UTF-8 string of the form

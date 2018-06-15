@@ -37,26 +37,46 @@
  *	@(#)cclass.h	8.3 (Berkeley) 3/20/94
  */
 
+/**
+ * @file cclass.h
+ *
+ * @brief Regexp character classes.
+ *
+ * @namespace regexp
+ *
+ */
 
-typedef enum {CALNUM, CALPHA, CBLANK, CCNTRL, CDIGIT, CGRAPH,
-	      CLOWER, CPRINT, CPUNCT, CSPACE, CUPPER, CXDIGIT} citype;
+typedef enum {
+  CALNUM,
+  CALPHA,
+  CBLANK,
+  CCNTRL,
+  CDIGIT,
+  CGRAPH,
+  CLOWER,
+  CPRINT,
+  CPUNCT,
+  CSPACE,
+  CUPPER,
+  CXDIGIT
+} citype;
 
 /* character-class table */
 static struct cclass {
-	char *name;
-	citype fidx;
-} cclasses[] = {
-	{"alnum",       CALNUM},
-	{"alpha",       CALPHA},
-	{"blank",       CBLANK},
-	{"cntrl",       CCNTRL},
-	{"digit",       CDIGIT},
-	{"graph",       CGRAPH},
-	{"lower",       CLOWER},
-	{"print",       CPRINT},
-	{"punct",       CPUNCT},
-	{"space",       CSPACE},
-	{"upper",       CUPPER},
-	{"xdigit",      CXDIGIT},
-	{NULL,          }
-};
+  char *name;
+  citype fidx;
+} cclasses[] = {{"alnum", CALNUM},
+                {"alpha", CALPHA},
+                {"blank", CBLANK},
+                {"cntrl", CCNTRL},
+                {"digit", CDIGIT},
+                {"graph", CGRAPH},
+                {"lower", CLOWER},
+                {"print", CPRINT},
+                {"punct", CPUNCT},
+                {"space", CSPACE},
+                {"upper", CUPPER},
+                {"xdigit", CXDIGIT},
+                {
+                    NULL,
+                }};

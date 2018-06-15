@@ -2,9 +2,9 @@
 *									 *
 *	 YAP Prolog 							 *
 *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
 **************************************************************************
 *									 *
@@ -74,130 +74,7 @@ are available through the `use_module(library(system))` command.
 
 */
 
-/**
 
- @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
-
-The datime/1 procedure returns the current date and time, with
-information on  _Year_,  _Month_,  _DayOfTheMonth_,
- _Hour_,  _Minute_, and  _Second_. The  _Hour_ is returned
-on local time. This function uses the WIN32
-`GetLocalTime` function or the Unix `localtime` function.
-
-~~~~~
-   ?- datime(X).
-
-X = datime(2001,5,28,15,29,46) ?
-~~~~~
-
-
-*/
-
-
-/** @pred  environ(+ _E_,- _S_)
-
-
-
-
-
-  Given an environment variable  _E_ this predicate unifies the second argument  _S_ with its value.
-
-
-*/
-/** @pred  system(+ _S_)
-
-
-Passes command  _S_ to the Bourne shell (on UNIX environments) or the
-current command interpreter in WIN32 environments.
-
-
-*/
-/** @pred  working_directory(- _CurDir_,? _NextDir_)
-
-
-Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
-to an atom, make its value the current working directory.
-
-
-*/
-/** @pred delete_file(+ _File_)
-
-
-The delete_file/1 procedure removes file  _File_. If
- _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
-
-~~~~~
-   ?- delete_file(x).
-~~~~~
-
-
-*/
-/** @pred delete_file(+ _File_,+ _Opts_)
-
-The `delete_file/2` procedure removes file  _File_ according to
-options  _Opts_. These options are `directory` if one should
-remove directories, `recursive` if one should remove directories
-recursively, and `ignore` if errors are not to be reported.
-
-This example is equivalent to using the delete_file/1 predicate:
-
-~~~~~
-  ?- delete_file(x, [recursive]).
-~~~~~
-
-
-*/
-/** @pred directory_files(+ _Dir_,+ _List_)
-
-
-Given a directory  _Dir_,  directory_files/2 procedures a
-listing of all files and directories in the directory:
-
-~~~~~
-    ?- directory_files('.',L), writeq(L).
-['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
-~~~~~
-The predicates uses the `dirent` family of routines in Unix
-environments, and `findfirst` in WIN32.
-
-
-*/
-/** @pred environ(? _EnvVar_,+ _EnvValue_)
-
-
-Unify environment variable  _EnvVar_ with its value  _EnvValue_,
-if there is one. This predicate is backtrackable in Unix systems, but
-not currently in Win32 configurations.
-
-~~~~~
-   ?- environ('HOME',X).
-
-X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~
-
-
-*/
-/** @pred exec(+ _Command_, _StandardStreams_,- _PID_)
-
-
-Execute command  _Command_ with its standard streams connected to
-the list [_InputStream_,  _OutputStream_, _ErrorStream_]. The
-process that executes the command is returned as  _PID_. The
-command is executed by the default shell `bin/sh -c` in Unix.
-
-The following example demonstrates the use of exec/3 to send a
-command and process its output:
-
-~~~~~
-exec(ls,[std,pipe(S),null],P),repeat, get0(S,C), (C = -1, close(S) ! ; put(C)).
-~~~~~
-
-The streams may be one of standard stream, `std`, null stream,
-`null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
-that it is up to the user to close the pipe.
-
-
-*/
 /** @pred file_exists(+ _File_)
 
 
@@ -289,37 +166,7 @@ process. An interface to the <tt>getpid</tt> function.
 
 
 */
-/** @pred popen(+ _Command_, + _TYPE_, - _Stream_)
 
-
-Interface to the <tt>popen</tt> function. It opens a process by creating a
-pipe, forking and invoking  _Command_ on the current shell. Since a
-pipe is by definition unidirectional the  _Type_ argument may be
-`read` or `write`, not both. The stream should be closed
-using close/1, there is no need for a special `pclose`
-command.
-
-The following example demonstrates the use of popen/3 to process
-the output of a command, as exec/3 would do:
-
-~~~~~{.prolog}
-   ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
-
-X = 'C:\\cygwin\\home\\administrator' ?
-~~~~~
-
-The WIN32 implementation of popen/3 relies on exec/3.
-
-
-*/
-/** @pred rename_file(+ _OldFile_,+ _NewFile_)
-
-
-Create file  _OldFile_ to  _NewFile_. This predicate uses the
-`C` built-in function `rename`.
-
-
-*/
 /** @pred read_link(+ SymbolicLink, -Link, -NewPath)
 
 
@@ -405,9 +252,13 @@ Interface with  _tmpnam_: obtain a new, unique file name  _File_.
 */
 /** @pred working_directory(- _Old_,+ _New_)
 
+/** @pred  working_directory(- _CurDir_,? _NextDir_)
 
 
-Unify  _Old_ with an absolute path to the current working directory
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+Unifies  _Old_ with an absolute path to the current working directory
 and change working directory to  _New_.  Use the pattern
 `working_directory(CWD, CWD)` to get the current directory.  See
 also `absolute_file_name/2` and chdir/1.
@@ -423,6 +274,24 @@ also `absolute_file_name/2` and chdir/1.
 
 % time builtins
 
+/**
+
+ @pred datime(datime(- _Year_, - _Month_, - _DayOfTheMonth_, - _Hour_, - _Minute_, - _Second_)
+
+The datime/1 procedure returns the current date and time, with
+information on  _Year_,  _Month_,  _DayOfTheMonth_,
+ _Hour_,  _Minute_, and  _Second_. The  _Hour_ is returned
+on local time. This function uses the WIN32
+`GetLocalTime` function or the Unix `localtime` function.
+
+~~~~~
+   ?- datime(X).
+
+X = datime(2001,5,28,15,29,46) ?
+~~~~~
+
+
+*/
 datime(X) :-
 	datime(X, Error),
 	handle_system_internal(Error, off, datime(X)).
@@ -456,10 +325,37 @@ check_int(I, Inp) :-
 % file operations
 % file operations
 
+/** @pred delete_file(+ _File_)
+
+The delete_file/1 procedure removes file  _File_. If
+ _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
+
+~~~~~
+   ?- delete_file(x).
+~~~~~
+
+See delete_file/2 for a more flexible version.
+
+*/
 delete_file(IFile) :-
 	true_file_name(IFile, File),
 	delete_file(File, off, on, off).
 
+/** @pred delete_file(+ _File_,+ _Opts_)
+
+The `delete_file/2` procedure removes file  _File_ according to
+options  _Opts_. These options are `directory` if one should
+remove directories, `recursive` if one should remove directories
+recursively, and `ignore` if errors are not to be reported.
+
+This example is equivalent to using the delete_file/1 predicate:
+
+~~~~~
+  ?- delete_file(x, [recursive]).
+~~~~~
+
+
+*/
 delete_file(IFile, Opts) :-
 	true_file_name(IFile, File),
 	process_delete_file_opts(Opts, Dir, Recurse, Ignore, delete_file(File,Opts)),
@@ -506,7 +402,7 @@ rm_directory(File, Ignore) :-
 	handle_system_internal(Error, Ignore, delete_file(File)).
 
 delete_directory(on, File, Ignore) :-
-	directory_files(File, FileList, Ignore),
+	directory_files(File, FileList),
 	path_separator(D),
 	atom_concat(File, D, FileP),
 	delete_dirfiles(FileList, FileP, Ignore),
@@ -521,13 +417,6 @@ delete_dirfiles([F|Fs], File, Ignore) :-
 	atom_concat(File,F,TrueF),
 	delete_file(TrueF, off, on, Ignore),
 	delete_dirfiles(Fs, File, Ignore).
-
-directory_files(File, FileList) :-
-    directory_files(File, FileList, on).
-
-directory_files(File, FileList, Ignore) :-
-       list_directory(File, FileList, Error),
-       handle_system_internal(Error, Ignore, directory_files(File, FileList)).
 
 handle_system_internal(Error, _Ignore, _G) :- var(Error), !.
 handle_system_internal(Error, off, G) :- atom(Error), !,
@@ -567,10 +456,27 @@ file_property(File, Type, Size, Date, Permissions, LinkName) :-
 	handle_system_internal(Error, off, file_property(File)).
 
 
-%
-% environment manipulation.
-%
+/** @pred environ(? _EnvVar_,+ _EnvValue_)
 
+
+Unify environment variable  _EnvVar_ with its value  _EnvValue_,
+if there is one. This predicate is backtrackable in Unix systems, but
+not currently in Win32 configurations.
+
+~~~~~
+   ?- environ('HOME',X).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+~~~~~
+*/
+/** @pred  environ(+E, -S)
+
+  Given an environment variable _E_ this predicate unifies the second
+  argument _S_ with its value. _E_ may be bound to an atom, or just be
+  unbound. In the latter case environ/2 will enumerate over all
+  environment variables.
+
+*/
 environ(Na,Val) :- var(Na), !,
 	environ_enum(0,I),
 	( p_environ(I,S) -> environ_split(S,SNa,SVal) ; !, fail ),
@@ -597,9 +503,33 @@ environ_split([61|SVal], [], SVal) :- !.
 environ_split([C|S],[C|SNa],SVal) :-
 	environ_split(S,SNa,SVal).
 
-%
-% process execution
-%
+/** @pred exec(+ Command, StandardStreams, -PID)
+ *
+ *
+ *
+ * Execute command _Command_ with its standard streams connected to the
+ * list [_InputStream_, _OutputStream_, _ErrorStream_]. A numeric
+ * identifier to the process that executes the command is returned as
+ * _PID_. The command is executed by the default shell `bin/sh -c` in
+ * Unix.
+ *
+ * The following example demonstrates the use of exec/3 to send a
+ * command and process its output:
+ *
+ * ~~~~~
+  go :-
+     exec(ls,[std,pipe(S),null],P),
+     repeat,
+     get0(S,C),
+     (C = -1, close(S) ! ; put(C)).
+~~~~~
+ *
+ * The streams may be one of standard stream, `std`, null stream,
+ * `null`, or `pipe(S)`, where  _S_ is a pipe stream. Note
+ * that it is up to the user to close the pipe.
+ *
+ *
+*/
 exec(Command, [StdIn, StdOut, StdErr], PID) :-
 	G = exec(Command, [StdIn, StdOut, StdErr], PID),
 	check_command_with_default_shell(Command, TrueCommand, G),
@@ -616,7 +546,7 @@ process_inp_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_inp_stream_for_exec(null, null, _, L, L) :- !.
 process_inp_stream_for_exec(std, 0, _, L, L) :- !.
 process_inp_stream_for_exec(pipe(ForWriting), ForReading, _, L, [ForReading|L]) :- var(ForWriting), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_inp_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
 	stream_property(Stream, input).
 process_inp_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -629,7 +559,7 @@ process_out_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_out_stream_for_exec(null, null, _, L, L) :- !.
 process_out_stream_for_exec(std, 1, _, L, L) :- !.
 process_out_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_out_stream_for_exec(pipe(Stream), _, _, L, L) :- !,
 	stream_property(Stream, output).
 process_out_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -641,7 +571,7 @@ process_err_stream_for_exec(Error, _, G, L, L) :- var(Error), !,
 process_err_stream_for_exec(null, null, _, L, L) :- !.
 process_err_stream_for_exec(std, 2, _, L, L) :- !.
 process_err_stream_for_exec(pipe(ForReading), ForWriting, _, L, [ForWriting|L]) :- var(ForReading), !,
-	open_pipe_streams(ForReading, ForWriting).
+	open_pipe_stream(ForReading, ForWriting).
 process_err_stream_for_exec(pipe(Stream), Stream, _, L, L) :- !,
 	stream_property(Stream, output).
 process_err_stream_for_exec(Stream, Stream, _, L, L) :-
@@ -652,8 +582,32 @@ close_temp_streams([S|Ss]) :-
 	close(S),
 	close_temp_streams(Ss).
 
-popen(Command, Mode, Stream) :-
-	open(pipe(Command), Mode, Stream).
+/** @pred popen( +Command, +TYPE, -Stream)
+
+ * Provides the functionaluty of the Unix <tt>popen</tt> function. It
+ * opens a process by creating a pipe, forking and invoking _Command_ on
+ * the child process. Since a pipe is by definition unidirectional the
+ * _Type_ argument may be `read` or `write`, not both. The stream should
+ * be closed using close/1, there is no need for a special `pclose`
+ * command.
+ *
+ * The following example demonstrates the use of popen/3 to process the
+ * output of a command, note that popen/3 works as a simplified interface
+ * to the exec/3 command:
+ *
+~~~~~{.prolog}
+?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
+
+X = 'C:\\cygwin\\home\\administrator' ?
+~~~~~
+ *
+ * The implementation of popen/3 relies on exec/3.
+ *
+*/
+popen(Command, read, Stream) :-
+	exec(Command, [std,pipe(Stream),std], Stream).
+popen(Command, write, Stream) :-
+	exec(Command, [pipe(Stream),std,std], Stream).
 
 check_command_with_default_shell(Com, ComF, G) :-
 	check_command(Com, G),
@@ -811,5 +765,40 @@ read_link(P,D,F) :-
 	read_link(P, D),
 	absolute_file_name(D, [], F).
 
-/** @} */
+/** @pred rename_file(+ _OldFile_,+ _NewFile_)
 
+
+Create file  _OldFile_ to  _NewFile_. This predicate uses the
+`C` built-in function `rename`.
+
+
+*/
+rename_file(F0, F) :-
+	rename_file(F0, F, Error),
+	handle_system_internal(Error, off, rename_file(F0, F)).
+
+/**
+  * @pred  system(+ _S_)
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+*/
+
+/** @pred directory_files(+ _Dir_,+ _List_)
+
+
+Given a directory  _Dir_,  directory_files/2 procedures a
+listing of all files and directories in the directory:
+
+~~~~~
+    ?- directory_files('.',L), writeq(L).
+['Makefile.~1~','sys.so','Makefile','sys.o',x,..,'.']
+~~~~~
+The predicates uses the `dirent` family of routines in Unix
+environments, and `findfirst` in WIN32 through the system_library buil
+
+*/
+directory_files(X,Y) :-
+     list_directory(X,Y).
+
+/** @} */

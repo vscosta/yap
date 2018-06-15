@@ -1,4 +1,8 @@
-:- system_module( '$_debug', [debug/0,
+/**
+ * @file spy.yap
+ * @brief debugger operation.
+ */
+  :- system_module( '$_debug', [debug/0,
         debugging/0,
         leash/1,
         nodebug/0,
@@ -27,8 +31,9 @@
 
 -----------------------------------------------------------------------------*/
 
-/** @defgroup Deb_Preds Debugging Predicates
-@ingroup builtins
+/**
+ * @defgroup DebSet Debugger Control
+ * @ingroup Deb_Interaction
 
 @{
 The
@@ -39,17 +44,13 @@ programs:
 
     Switches the debugger on.
 
-+ debuggi=
-r
-
-g
++ debugging
 
 
     Outputs status information about the debugger which includes the leash
 mode and the existing spy-points, when the debugger is on.
 
 + nodebug
-
 
     Switches the debugger off.
 
@@ -376,6 +377,20 @@ debugging :-
 	print_message(help,breakpoints(L)),
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
+
+notrace(G) :-
+	 strip_module(G, M, G1),
+	 ( '$$save_by'(CP),
+	   '$debug_stop'( State ),
+	   '$call'(G1, CP, G, M),
+	   '$$save_by'(CP2),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
+	   '$debug_restart'( State )
+     ;
+	'$debug_restart'( State ),
+	fail
+    ).
+
 
 /*
 

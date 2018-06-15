@@ -11,6 +11,7 @@ set (LIBRARY_PL
   charsio.yap
   clauses.yap
   coinduction.yap
+  completer.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
@@ -80,3 +81,5 @@ install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
 if (ANDROID)
 file( INSTALL  ${LIBRARY_PL} DESTINATION ${libpl} )
 endif()
+
+include_directories("dialect/swi")

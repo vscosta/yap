@@ -18,9 +18,24 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   dbase.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:36:46 2018
+ * 
+ * @brief  record and other forms of storing terms.
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
+
+
 /** @defgroup Internal_Database Internal Data Base
-@ingroup builtins
-@{
+
+    @ingroup builtins
+    @{
 
 Some programs need global information for, e.g. counting or collecting
 data obtained by backtracking. As a rule, to keep this information, the
@@ -259,7 +274,7 @@ static Int p_rcdz(USES_REGS1);
 static Int p_rcdzp(USES_REGS1);
 static Int p_drcdap(USES_REGS1);
 static Int p_drcdzp(USES_REGS1);
-static Term GetDBTerm(DBTerm *, int src CACHE_TYPE);
+static Term GetDBTerm(const DBTerm *, int src CACHE_TYPE);
 static DBProp FetchDBPropFromKey(Term, int, int, char *);
 static Int i_recorded(DBProp, Term CACHE_TYPE);
 static Int c_recorded(int CACHE_TYPE);
@@ -267,8 +282,8 @@ static Int co_rded(USES_REGS1);
 static Int in_rdedp(USES_REGS1);
 static Int co_rdedp(USES_REGS1);
 static Int p_first_instance(USES_REGS1);
-static void ErasePendingRefs(DBTerm *CACHE_TYPE);
-static void RemoveDBEntry(DBRef CACHE_TYPE);
+static void ErasePendingRefs(const DBTerm *CACHE_TYPE);
+static void RemoveDBEntry(const DBRef CACHE_TYPE);
 static void EraseLogUpdCl(LogUpdClause *);
 static void MyEraseClause(DynamicClause *CACHE_TYPE);
 static void PrepareToEraseClause(DynamicClause *, DBRef);
@@ -292,10 +307,10 @@ static void sf_include(SFKeep *);
 #endif
 static Int p_init_queue(USES_REGS1);
 static Int p_enqueue(USES_REGS1);
-static void keepdbrefs(DBTerm *CACHE_TYPE);
+static void keepdbrefs(const DBTerm *ref USES_REGS);
 static Int p_dequeue(USES_REGS1);
 static void ErDBE(DBRef CACHE_TYPE);
-static void ReleaseTermFromDB(DBTerm *CACHE_TYPE);
+static void ReleaseTermFromDB(const DBTerm *ref USES_REGS);
 static PredEntry *new_lu_entry(Term);
 static PredEntry *new_lu_int_key(Int);
 static PredEntry *find_lu_entry(Term);
@@ -2519,7 +2534,7 @@ Int Yap_unify_immediate_ref(DBRef ref USES_REGS) {
   }
 }
 
-static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
+static Term GetDBTerm(const DBTerm *DBSP, int src USES_REGS) {
   Term t = DBSP->Entry;
 
   if (IsVarTerm(t)
@@ -3779,7 +3794,7 @@ static Int p_heap_space_info(USES_REGS1) {
  * This is called when we are erasing a data base clause, because we may have
  * pending references
  */
-static void ErasePendingRefs(DBTerm *entryref USES_REGS) {
+static void ErasePendingRefs(const DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -3940,11 +3955,11 @@ static void complete_lu_erase(LogUpdClause *clau) {
 
 static void EraseLogUpdCl(LogUpdClause *clau) {
   PredEntry *ap;
-
   ap = clau->ClPred;
   /* no need to erase what has been erased */
   if (!(clau->ClFlags & ErasedMask)) {
-    /* get ourselves out of the list */
+    clau->ClFlags |= ErasedMask;
+/* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       clau->ClNext->ClPrev = clau->ClPrev;
     }
@@ -3968,7 +3983,6 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
       }
       ap->cs.p_code.NOfClauses--;
     }
-    clau->ClFlags |= ErasedMask;
 #ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;
@@ -4911,17 +4925,21 @@ static Int cont_current_key_integer(USES_REGS1) {
   return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
 }
 
-Term Yap_FetchTermFromDB(void *ref) {
+Term Yap_FetchTermFromDB(const void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, FALSE PASS_REGS);
 }
 
-Term Yap_FetchClauseTermFromDB(void *ref) {
+Term Yap_FetchClauseTermFromDB(const void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, TRUE PASS_REGS);
 }
 
-Term Yap_PopTermFromDB(void *ref) {
+Term Yap_PopTermFromDB(const void *ref) {
   CACHE_REGS
 
   Term t = GetDBTerm(ref, FALSE PASS_REGS);
@@ -5137,7 +5155,7 @@ static Int p_enqueue_unlocked(USES_REGS1) {
    entry itself is still accessible from a trail entry, so we could not remove
    the target entry,
  */
-static void keepdbrefs(DBTerm *entryref USES_REGS) {
+static void keepdbrefs (const DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -5296,7 +5314,7 @@ static Int p_resize_int_keys(USES_REGS1) {
   return resize_int_keys(IntegerOfTerm(t1));
 }
 
-static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
+static void ReleaseTermFromDB(const DBTerm *ref USES_REGS) {
   if (!ref)
     return;
   keepdbrefs(ref PASS_REGS);
@@ -5304,7 +5322,7 @@ static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
   FreeDBSpace((char *)ref);
 }
 
-void Yap_ReleaseTermFromDB(void *ref) {
+void Yap_ReleaseTermFromDB(const void *ref) {
   CACHE_REGS
   ReleaseTermFromDB(ref PASS_REGS);
 }

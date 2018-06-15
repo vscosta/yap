@@ -21,10 +21,9 @@
 @addtogroup ChYInterface
    @{
 
-\
-   @brief Core interface to YAP.
+   @brief C-Interface to YAP.
 
-   @toc
+The following routines export the YAP internals and architecture.
 
 */
 
@@ -70,10 +69,10 @@ __BEGIN_DECLS
 /**
  * X_API macro
  *
- * brif
+ * @brief declares the symbol as to be exported/imported from a
+ * DLL. It is mostly ignored in Linux, but honored in WIN32.
  *
- * @param _WIN32
- *
+
  * @return
  */
 
@@ -81,6 +80,7 @@ __BEGIN_DECLS
 
 /* Primitive Functions */
 
+// Basic operation that follows a pointer chain.
 #define YAP_Deref(t) (t)
 
 X_API
@@ -367,10 +367,12 @@ extern X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
                                         int flags);
 
 /*  void YAP_Term(YAP_Term) */
-extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
+extern X_API YAP_Term YAP_CopyTerm(YAP_Term t);
 
-/*  char *YAP_CompileClause(YAP_Term) */
-extern X_API char *YAP_CompileClause(YAP_Term);
+/* bool YAP_CompileClause(YAP_Term)
+
+@short compile the clause _Cl_; on failure it may call the exception handler.  */
+extern X_API bool YAP_CompileClause(YAP_Term Cl);
 
 extern X_API int YAP_NewExo(YAP_PredEntryPtr ap, size_t data, void *user_di);
 
@@ -378,10 +380,10 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
                                   size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API YAP_file_type_t YAP_Init(YAP_init_args *);
+extern X_API void YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc,
+extern X_API void YAP_FastInit(char saved_state[], int argc,
                                           char *argv[]);
 
 #ifndef _PL_STREAM_H
@@ -406,7 +408,7 @@ extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
 extern X_API FILE *YAP_TermToStream(YAP_Term t);
 
-extern X_API int YAP_InitConsult(int mode, const char *filename, char *buf,
+extern X_API int YAP_InitConsult(int mode, const char *filename, char **buf,
                                  int *previous_sno);
 
 extern X_API void YAP_EndConsult(int s, int *previous_sno, const char *previous_cwd);

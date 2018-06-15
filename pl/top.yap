@@ -1,93 +1,31 @@
+/**
+  * @file   top.yap
+  * @author VITOR SANTOS COSTA <vsc@vcosta-laptop.dcc.fc.up.pt>
+  * @date   Sat Apr  7 03:14:17 2018
+  *
+  * @brief  top-level implementation plus system booting.
+  *
+  *   @addtogroup TopLevel Top-Level and Boot Predicates
+  *   @ingroup YAPControl
+  *   @{
+*/
 
-live :- '$live'.
+:- '$system_meta_predicates'([
+	catch(0,?,0),
+  log_event(+,:)]).
 
-'$live' :-
- 	repeat,
-	'$current_module'(Module),
-	( Module==user ->
-	  true % '$compile_mode'(_,0)
-	;
-	  format(user_error,'[~w]~n', [Module])
-	),
-	'$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
-
-'$init_globals' :-
-	% set_prolog_flag(break_level, 0),
-	% '$set_read_error_handler'(error), let the user do that
-	nb_setval('$chr_toplevel_show_store',false).
-
-'$init_consult' :-
-	set_value('$open_expands_filename',true),
-	nb_setval('$assert_all',off),
-	nb_setval('$if_level',0),
-	nb_setval('$endif',off),
- 	nb_setval('$initialization_goals',off),
-	nb_setval('$included_file',[]),
-	nb_setval('$loop_streams',[]),
-	\+ '$undefined'('$init_preds',prolog),
-	'$init_preds',
-	fail.
-'$init_consult'.
-
-'$init_win_graphics' :-
-    '$undefined'(window_title(_,_), system), !.
-'$init_win_graphics' :-
-    load_files([library(win_menu)], [silent(true),if(not_loaded)]),
-    fail.
-'$init_win_graphics'.
-
-'$init_or_threads' :-
-	'$c_yapor_workers'(W), !,
-	'$start_orp_threads'(W).
-'$init_or_threads'.
-
-'$start_orp_threads'(1) :- !.
-'$start_orp_threads'(W) :-
-	thread_create('$c_worker',_,[detached(true)]),
-	W1 is W-1,
-	'$start_orp_threads'(W1).
-
-'$version' :-
-      current_prolog_flag(halt_after_consult, false),
-      current_prolog_flag(verbose, normal), !,
-	current_prolog_flag(version_git,VersionGit),
-	current_prolog_flag(compiled_at,AT),
-	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-	sub_atom( VersionGit, 0, 8, _, VERSIONGIT ),
-	current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
-	current_prolog_flag(resource_database, Saved ),
-	format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
-	format(user_error, '% database loaded from ~a~n', [Saved]).
-
-'$init_prolog' :-
-    % do catch as early as possible
-	'$version',
-	yap_flag(file_name_variables, _OldF, true),
-    '$init_consult',
-    %set_prolog_flag(file_name_variables, OldF),
-    '$init_globals',
-    set_prolog_flag(fileerrors, true),
-    set_value('$gc',on),
-    ('$exit_undefp' -> true ; true),
-    prompt1(' ?- '),
-    set_prolog_flag(debug, false),
-    % simple trick to find out if this is we are booting from Prolog.
-    % boot from a saved state
-    (
-      current_prolog_flag(saved_program, true)
-      % use saved state
-    ->
-      '$init_state'
+% @pred live
+%
+% start a Prolog engine.
+live :-
+    repeat,
+    '$current_module'(Module),
+    ( Module==user ->
+      true % '$compile_mode'(_,0)
     ;
-	   true
+    format(user_error,'[~w]~n', [Module])
     ),
-    '$db_clean_queues'(0),
-				% this must be executed from C-code.
-				%	'$startup_saved_state',
-    set_input(user_input),
-    set_output(user_output),
-    '$init_or_threads',
-    '$run_at_thread_start'.
+    '$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
 
 % Start file for yap
 
@@ -134,16 +72,16 @@ live :- '$live'.
 	'$run_atom_goal'(GA),
 	fail.
 '$enter_top_level' :-
-	flush_output,
-'$run_toplevel_hooks',
-prompt1(' ?- '),
-'$read_toplevel'(Command,Varnames,Pos),
-nb_setval('$spy_gn',1),
-% stop at spy-points if debugging is on.
-nb_setval('$debug_run',off),
-nb_setval('$debug_jump',off),
-'$command'(Command,Varnames,Pos,top),
-current_prolog_flag(break_level, BreakLevel),
+    flush_output,
+	'$run_toplevel_hooks',
+	prompt1(' ?- '),
+	'$read_toplevel'(Command,Varnames,Pos),
+	nb_setval('$spy_gn',1),
+				% stop at spy-points if debugging is on.
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_jump',off),
+	'$command'(Command,Varnames,Pos,top),
+	current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
 	->
@@ -495,6 +433,13 @@ current_prolog_flag(break_level, BreakLevel),
     '$process_answer'(Vs, LBlk, NLAnsw),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
+%% @pred write_query_answer( +Bindings )
+%
+% YAP uses this routine to  output the answer to a query.
+% _Bindings_ are
+% - unifications
+% - suspended or floundered goals, representing constraints.
+%
 write_query_answer( Bindings ) :-
    '$write_vars_and_goals'(Bindings, first, _FLAnsw).
 
@@ -557,7 +502,7 @@ write_query_answer( Bindings ) :-
 	format(user_error,'~a',[V]),
 	'$write_output_vars'(VL),
 	format(user_error,' = ', []),
-        ( yap_flag(toplevel_print_options, Opts) ->
+       ( yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,B,[priority(699)|Opts]) ;
 	   write_term(user_error,B,[priority(699)])
         ).
@@ -732,6 +677,7 @@ write_query_answer( Bindings ) :-
         ;
 	'$call'(Z,CP,G0,M)
 	).
+
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
 	 '$current_choice_point'(DCP),
@@ -893,7 +839,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
         Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$execute'( Goal ),
+	call( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -975,7 +921,12 @@ expand_term(Term,Expanded) :-
 	'$arrays':'$c_arrays'(Expanded0,ExpandedF), !.
 '$expand_array_accesses_in_term'(Expanded,Expanded).
 
+%% @}
 
+%% @addto group YAPControl
+
+%% @{
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
 
@@ -1023,22 +974,22 @@ catch(G, C, A) :-
      ->
      !
    ;
-     true
+   true
   ).
 '$catch'(_,C,A) :-
-	'$get_exception'(C),
-	'$run_catch'(A, C).
+	'$get_exception'(C0),
+	( C = C0 -> '$execute_nonstop'(A, prolog) ; throw(C0) ).
 
 % variable throws are user-handled.
 '$run_catch'(G,E) :-
-  E = '$VAR'(_),
+	var(E),
       !,
-    	call(G ).
+       call(G ).
 '$run_catch'(abort,_) :-
         abort.
 '$run_catch'('$Error'(E),E) :-
         !,
-        	'$LoopError'(E, top ).
+               '$LoopError'(E, top ).
 '$run_catch'('$LoopError'(E, Where),E) :-
       !,
       '$LoopError'(E, Where).
@@ -1052,6 +1003,8 @@ catch(G, C, A) :-
 '$run_catch'( Signal, _E) :-
     call( Signal ).
 
+
+
 %
 % throw has to be *exactly* after system catch!
 %
@@ -1063,9 +1016,6 @@ stopped, and the exception is sent to the ancestor goals until reaching
 a matching catch/3, or until reaching top-level.
 
 */
-throw(Ball) :-
-	% get current jump point
-	    '$jump_env_and_store_ball'(Ball).
 
 '$run_toplevel_hooks' :-
 	current_prolog_flag(break_level, 0 ),
@@ -1131,5 +1081,5 @@ log_event( String, Args ) :-
 
 
 /**
-@}  @}
+@} 
 */

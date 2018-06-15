@@ -1,8 +1,9 @@
 /**
-  @file bootutils.c
+  @file bootutils.yap
   @short utilities
 
   @addtogroup Internal_Database
+ @{
   */
 
 /** @pred  recordaifnot(+ _K_, _T_,- _R_) 
@@ -41,3 +42,4 @@ recordzifnot(K,T,R) :-
 recordzifnot(K,T,R) :-
         recordz(K,T,R).
 
+%% @}

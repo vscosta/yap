@@ -41,14 +41,11 @@
 
 
 /**
- *  @defgroup attscorouts Implementing Attributed Variables and Co-Routining
- *
- *  @ingroup attributes
+ *  @ingroup AttributedVariables_Builtins
  *  @{
- *  @brief  Support for co-routining
-	*
-	*
-””	*/
+ *
+ *
+ */
 
 
 /** @pred attr_unify_hook(+ _AttValue_,+ _VarValue_)

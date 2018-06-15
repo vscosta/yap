@@ -1454,8 +1454,7 @@ X_API Term YAP_ReadBuffer(const char *s, Term *tp) {
   else
     tv = (Term)0;
   LOCAL_ErrorMessage = NULL;
-  const unsigned char *us = (const unsigned char *)s;
-  while (!(t = Yap_BufferToTermWithPrioBindings(us, TermNil, tv, strlen(s) + 1, GLOBAL_MaxPriority))) {
+  while (!(t = Yap_BufferToTermWithPrioBindings(s, TermNil, tv, strlen(s) + 1, GLOBAL_MaxPriority))) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage, "Stack Overflow")) {
         if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -1722,11 +1721,14 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
   bool out;
+  //   fprintf(stderr,"EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
+  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
+  dgi->b0 = LCL0 - (CELL *)B;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
@@ -1736,7 +1738,13 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
   dgi->b = LCL0 - (CELL *)B;
+  dgi->h = HR-H0;
+  dgi->tr = (CELL*)TR-LCL0;
+  //fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	//  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
+  //   fprintf(stderr,"EnterGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  dgi->b = LCL0 - (CELL *)B;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1750,16 +1758,23 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
 
 X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   CACHE_REGS
-  choiceptr myB;
+    choiceptr myB, myB0;
   bool out;
 
   BACKUP_MACHINE_REGS();
   myB = (choiceptr)(LCL0 - dgi->b);
-  CP = myB->cp_cp;
+  myB0 = (choiceptr)(LCL0 - dgi->b0);
+ CP = myB->cp_cp;
   /* sanity check */
-  if (B >= myB) {
+  if (B >= myB0) {
     return false;
   }
+  if (B < myB) {
+    // get rid of garbage choice-points
+    B = myB;
+  }
+  //fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+	//  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
@@ -1767,6 +1782,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   out = run_emulator(PASS_REGS1);
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
+    dgi->b = LCL0-(CELL *)B;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1775,58 +1791,44 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-X_API bool YAP_LeaveGoal(bool backtrack, YAP_dogoalinfo *dgi) {
+X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
-  choiceptr myB;
+    choiceptr myB, handler;
+  bool backtrack = false;
 
+  //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
-  if (B > myB) {
-    /* someone cut us */
-    return FALSE;
+  myB = (choiceptr)(LCL0 - dgi->b0);
+  handler = B;
+    while (handler
+	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
+	   //&& handler->cp_ap != NOCODE
+	 && handler->cp_b != NULL
+	   && handler != myB
+	 ) {
+    handler->cp_ap = TRUSTFAILCODE;
+    handler = handler->cp_b;
   }
-  /* prune away choicepoints */
-  if (B != myB) {
-#ifdef YAPOR
-    CUT_prune_to(myB);
-#endif
-    B = myB;
+  if (LOCAL_PrologMode & AsyncIntMode) {
+    Yap_signal(YAP_FAIL_SIGNAL);
   }
-  /* if backtracking asked for, recover space and bindings */
-  if (backtrack) {
-    P = FAILCODE;
+  B = handler;
+  if (successful) {
+    Yap_TrimTrail();
+    CP = dgi->cp;
+    P = dgi->p;
+  } else {
     Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-    /* recover stack space */
+    LOCAL_CurSlot = dgi->CurSlot;
+    ENV = YENV = B->cp_env;
     HR = B->cp_h;
     TR = B->cp_tr;
-#ifdef DEPTH_LIMIT
-    DEPTH = B->cp_depth;
-#endif /* DEPTH_LIMIT */
-    YENV = ENV = B->cp_env;
-  } else {
-    Yap_TrimTrail();
+    // use the current choicepoint
+    //  B=B->cp_b;
+    ASP=(CELL*)B;
   }
-/* recover local stack */
-#ifdef DEPTH_LIMIT
-  DEPTH = ENV[E_DEPTH];
-#endif
-  /* make sure we prune C-choicepoints */
-  if (POP_CHOICE_POINT(B->cp_b)) {
-    POP_EXECUTE();
-  }
-  ENV = (CELL *)(ENV[E_E]);
-  /* ASP should be set to the top of the local stack when we
-     did the call */
-  ASP = B->cp_env;
-  /* YENV should be set to the current environment */
-  YENV = ENV = (CELL *)((B->cp_env)[E_E]);
-  B = B->cp_b;
-  // SET_BB(B);
-  HB = PROTECT_FROZEN_H(B);
-  CP = dgi->cp;
-  P = dgi->p;
-  LOCAL_CurSlot = dgi->CurSlot;
   RECOVER_MACHINE_REGS();
+  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
 }
 
@@ -1955,7 +1957,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   }
   // should we catch the exception or pass it through?
   // We'll pass it through
-  Yap_RaiseException();
+  // Yap_RaiseException();
   if (out) {
     choiceptr cut_pt, ob;
 
@@ -2091,9 +2093,7 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
 X_API bool YAP_GoalHasException(Term *t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  if (t)
-    *t = Yap_PeekException();
-  return Yap_PeekException();
+  return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
 
 X_API void YAP_ClearExceptions(void) {
@@ -2102,7 +2102,7 @@ X_API void YAP_ClearExceptions(void) {
   Yap_ResetException(worker_id);
 }
 
-X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
+X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) {
   CACHE_REGS
   int sno;
   BACKUP_MACHINE_REGS();
@@ -2117,19 +2117,25 @@ X_API int YAP_InitConsult(int mode, const char *fname, char *full, int *osnop) {
     fl = Yap_AbsoluteFile(fname, true);
     if (!fl || !fl[0]) {
       pop_text_stack(lvl);
+      *full = NULL;
       return -1;
     }
   }
   bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(fl, "r", MkAtomTerm(Yap_LookupAtom(fl)));
-    if (sno < 0)
-        return sno;
-  if (!Yap_ChDir(dirname((char *)fl))) return -1;
+  sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
+    if (sno < 0 ||
+	!Yap_ChDir(dirname((char *)fl))) {
+      pop_text_stack(lvl);
+      *full = NULL;
+      return -1;
+    }
+                    LOCAL_PrologMode = UserMode;
+
   Yap_init_consult(consulted, fl);
   GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
   GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  pop_text_stack(lvl);
+  *full = pop_output_text_stack(lvl, fl);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2254,11 +2260,12 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
   return true;
 }
 
-X_API char *YAP_CompileClause(Term t) {
+X_API bool YAP_CompileClause(Term t) {
   CACHE_REGS
   yamop *codeaddr;
   Term mod = CurrentModule;
   Term tn = TermNil;
+  bool ok = true;
 
   BACKUP_MACHINE_REGS();
 
@@ -2267,12 +2274,14 @@ X_API char *YAP_CompileClause(Term t) {
   ARG1 = t;
   YAPEnterCriticalSection();
   codeaddr = Yap_cclause(t, 0, mod, t);
-  if (codeaddr != NULL) {
+  ok = (codeaddr != NULL);
+  if (ok) {
     t = Deref(ARG1); /* just in case there was an heap overflow */
     if (!Yap_addclause(t, codeaddr, TermAssertz, mod, &tn)) {
-      YAPLeaveCriticalSection();
-      return LOCAL_ErrorMessage;
+      ok = false;
     }
+  } else {
+    ok = false;
   }
   YAPLeaveCriticalSection();
 
@@ -2280,10 +2289,14 @@ X_API char *YAP_CompileClause(Term t) {
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
                 LOCAL_ErrorMessage);
+      ok = false;
     }
   }
   RECOVER_MACHINE_REGS();
-  return (LOCAL_ErrorMessage);
+  if (!ok) {
+      return NULL;
+  }
+  return ok;
 }
 
 X_API void YAP_PutValue(YAP_Atom at, Term t) { Yap_PutValue(at, t); }
@@ -2324,7 +2337,7 @@ X_API void *YAP_RepStreamFromId(int sno) { return GLOBAL_Stream + sno; }
 X_API void YAP_CloseAllOpenStreams(void) {
   BACKUP_H();
 
-  Yap_CloseStreams(FALSE);
+  Yap_CloseStreams();
 
   RECOVER_H();
 }
@@ -2339,7 +2352,9 @@ X_API void YAP_FlushAllStreams(void) {
 
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
-  Yap_JumpToEnv(t);
+  LOCAL_ActiveError->errorNo = THROW_EVENT;
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  Yap_JumpToEnv();
   RECOVER_MACHINE_REGS();
 }
 
@@ -2347,7 +2362,9 @@ X_API void YAP_AsyncThrow(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
-  Yap_JumpToEnv(t);
+  LOCAL_ActiveError->errorNo = THROW_EVENT;
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  Yap_JumpToEnv();
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }

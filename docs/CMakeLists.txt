@@ -2,13 +2,13 @@
 if (WITH_DOCS)
 
 
-
-
     set (TOP_DIR YES)
 
 set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-SET (CMAKE_HTML_EXTRA_
+SET (CMAKE_HTML_EXTRA_)
+
+SET( EXT
   ${DOCS_SOURCE_DIR}/custom/application.js
   ${DOCS_SOURCE_DIR}/custom/assets
     ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
@@ -33,8 +33,12 @@ SET (CMAKE_HTML_EXTRA_
     endforeach(i ${CMAKE_HTML_EXTRA_})
 
 set(DOCS_EXCLUDE_
+${CMAKE_SOURCE_DIR}/build
+${CMAKE_SOURCE_DIR}/Debug
 ${CMAKE_SOURCE_DIR}/packages/jpl
 ${CMAKE_SOURCE_DIR}/packages/swig
+        ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/output
+         ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/queries
 ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.4.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.1
@@ -47,23 +51,29 @@ ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/dev
 ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
-${CMAKE_SOURCE_DIR}/H/locals.h
 ${CMAKE_SOURCE_DIR}/H/globals.h
 ${CMAKE_SOURCE_DIR}/packages/cplint
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
 ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
+${CMAKE_SOURCE_DIR}/packages/python/yap_kernel
+${CMAKE_SOURCE_DIR}/packages/python/swig
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
-${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3.yap
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4.yap
-            ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap
-           ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
-            */CMakeFiles/* *~ */#*
-
+${CMAKE_SOURCE_DIR}/*/bprolog/* 
+                         ${CMAKE_SOURCE_DIR}/*/prism/* 
+                         ${CMAKE_SOURCE_DIR}/*/gecodde/[345]*
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap.cc 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5.yap 
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap  
+                         ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
+			 ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
+   */CMakeFiles/* *~ */#*
 )
 
 
@@ -83,21 +93,19 @@ endforeach(i ${DOCS_EXCLUDE_})
 
    add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
-
-
-
-SET(DOC_INPUT_FILES_ 	${CMAKE_SOURCE_DIR}/INSTALL.md
-		       ${CMAKE_SOURCE_DIR}/pl
-                       ${CMAKE_SOURCE_DIR}/CXX
-                       ${CMAKE_SOURCE_DIR}/OPTYap
-                       ${CMAKE_SOURCE_DIR}/C
-                       ${CMAKE_SOURCE_DIR}/H
-                       ${CMAKE_SOURCE_DIR}/include
-                       ${CMAKE_SOURCE_DIR}/os
-                       ${CMAKE_SOURCE_DIR}/library
-                       ${CMAKE_SOURCE_DIR}/swi/library
-                       ${CMAKE_SOURCE_DIR}/docs/md
-)
+   SET(DOC_INPUT_FILES_
+     ${CMAKE_SOURCE_DIR}/pl
+     ${CMAKE_SOURCE_DIR}/docs/md
+     ${CMAKE_SOURCE_DIR}/CXX
+     ${CMAKE_SOURCE_DIR}/OPTYap
+     ${CMAKE_SOURCE_DIR}/C
+     ${CMAKE_SOURCE_DIR}/H
+     ${CMAKE_SOURCE_DIR}/include
+     ${CMAKE_SOURCE_DIR}/os
+     ${CMAKE_SOURCE_DIR}/library
+     ${CMAKE_SOURCE_DIR}/swi/library
+     ${CMAKE_SOURCE_DIR}/packages
+     )
 
 foreach(i ${DOC_INPUT_FILES_})
 
@@ -112,12 +120,7 @@ endforeach(i ${DOC_INPUT_FILES_})
 
 add_custom_target(docs
   COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-  COMMAND ${CMAKE_COMMAND} -E COPY ${CMAKE_SOURCE_DIR}/docs/custom/assets html/assets/
-     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-     COMMENT "Generating API documentation with Doxygen"
-     VERBATIM
-     DEPENDS ${DEPENDS})
-
+  )
 
 
    if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/html)

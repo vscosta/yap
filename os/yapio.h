@@ -78,7 +78,8 @@ extern void Yap_UnLockStream(void *);
 #define Yap_UnLockStream(X)
 #endif
 extern Int Yap_GetStreamFd(int);
-extern void Yap_CloseStreams(int);
+extern void Yap_CloseStreams(void);
+extern void Yap_CloseTemporaryStreams(void);
 extern void Yap_FlushStreams(void);
 extern void Yap_ReleaseStream(int);
 extern int Yap_PlGetchar(void);
@@ -86,13 +87,16 @@ extern int Yap_PlGetWchar(void);
 extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
-extern int Yap_OpenStream(const char*, const char*, Term);
+extern int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc);
 extern int Yap_FileStream(FILE*, char *, Term, int, VFS_t *);
 extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);
 extern int Yap_GetFreeStreamDForReading(void);
+
+extern Term Yap_BufferToTerm(const char *s, Term opts);
+extern Term Yap_UBufferToTerm(const unsigned char *s, Term opts);
 
 extern Term Yap_WStringToList(wchar_t *);
 extern Term Yap_WStringToListOfAtoms(wchar_t *);
@@ -116,9 +120,8 @@ extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     encoding_t *encp, memBufSource src);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
-extern Term Yap_BufferToTerm(const unsigned char *s, Term opts);
-extern X_API Term
-Yap_BufferToTermWithPrioBindings(const unsigned char *s, Term opts, Term bindings, size_t sz,
+extern Term Yap_BufferToTerm(const  char *s, Term opts);
+extern X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Term bindings, size_t sz,
                                  int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);

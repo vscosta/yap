@@ -90,7 +90,7 @@ protected:
   /// auxiliary routine to find a predicate in the current module.
 
     /// auxiliary routine to find a predicate in the current module.
-    PredEntry *getPred(YAPTerm &t, CELL *& outp);
+    PredEntry *getPred(Term &t, CELL *& outp);
 
   PredEntry *asPred() { return ap; };
 
@@ -99,43 +99,36 @@ protected:
   /// Just do nothing.
   inline YAPPredicate() {
   }
-  /// String constructor for predicates
-  ///
-  /// It also communicates the array of arguments t[]
-  /// and the array of variables
-  /// back to yapquery
-  YAPPredicate(const char *s0, Term &tout, Term &tnames) {
-    CACHE_REGS
-    Term *modp = NULL;
-    const unsigned char *us = (const unsigned char *)s0;
-    tnames = MkVarTerm();
-    tout =
-            Yap_BufferToTermWithPrioBindings(us, TermNil, tnames, strlen(s0), 1200);
-    // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
-    //  Yap_DebugPlWrite(out);
-    if (tout == 0L) {
-      Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, MkStringTerm(s0), "YAPPredicate");
-  }
-  YAPTerm tt = YAPTerm(tout);
-  ap = getPred(tt, modp);
-  }
-    YAPPredicate(Term &t, Term &tmod, CELL * &ts, const char *pname);
+
+  YAPPredicate(Term &to, Term &tmod, CELL * &ts, const char *pname);
 
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
-  inline YAPPredicate(Term t) {
-    CELL *v = nullptr;
-    YAPTerm tt = YAPTerm(t);
-    ap = getPred(tt, v);
+  inline YAPPredicate(Term t, CELL *&v) {
+    if (t) {
+      ap = getPred(t, v);
+    }
+  }
+
+inline YAPPredicate(Term t) {
+    if (t) {
+      CELL *v = nullptr;
+      ap = getPred(t, v);
+    }
   }
 
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
-  inline YAPPredicate(YAPTerm t) {
-    CELL *v = nullptr;
-    ap = getPred(t, v);
+  inline YAPPredicate(YAPTerm t, CELL *&v) {
+    Term tp = t.term();
+    ap = getPred(tp, v);
+  }
+inline YAPPredicate(YAPTerm t) {
+  CELL *v = nullptr;
+     Term tp = t.term();
+ ap = getPred(tp, v);
   }
 
   /// Cast constructor for predicates,
@@ -151,6 +144,28 @@ protected:
 
 
 public:
+
+    /// String constructor for predicates
+  ///
+  /// It also communicates the array of arguments t[]
+  /// and the array of variables
+  /// back to yapquery
+  YAPPredicate(const char *s0, Term &tout, Term &tnames, CELL *&nts) {
+    CACHE_REGS
+    const char *s = (const char *)s0;
+    tnames = MkVarTerm();
+    tout =
+            Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
+    // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
+    //  Yap_DebugPlWrite(out);
+    if (tout == 0L) {
+      throw YAPError();
+  }
+  ap = getPred(tout, nts);
+  tout = Yap_SaveTerm(tout);
+  tnames = Yap_SaveTerm(tnames);
+  }
+
 
   /// Functor constructor for predicates
   ///
@@ -175,6 +190,7 @@ public:
   /// Name/0 constructor for predicates.
   ///
   YAPPredicate(YAPAtom at);
+
 
   /// Mod:Name/Arity constructor for predicates.
   ///

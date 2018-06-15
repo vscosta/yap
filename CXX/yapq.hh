@@ -42,10 +42,11 @@ class X_API YAPQuery : public YAPPredicate {
   struct yami *q_p, *q_cp;
   int q_flags;
   YAP_dogoalinfo q_h;
-  YAPPairTerm names;
-  YAPTerm goal;
+  Term names;
+  Term goal;
+  CELL *nts;
   // temporaries
-  Term tnames, tgoal;
+  YAPError *e;
 
   inline void setNext() { // oq = LOCAL_execution;
     //  LOCAL_execution = this;
@@ -68,6 +69,7 @@ public:
     goal = TermTrue;
     openQuery();
   };
+  inline ~YAPQuery() { close(); }
   /// main constructor, uses a predicate and an array of terms
   ///
   /// It is given a YAPPredicate _p_ , and an array of terms that must have at
@@ -91,31 +93,10 @@ public:
   /// It is given a string, calls the parser and obtains a Prolog term that
   /// should be a callable
   /// goal.
-  inline YAPQuery(const char *s) : YAPPredicate(s, tgoal, tnames) {
-    CELL *qt = nullptr;
+  inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
-    if (!ap)
-      return;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "%s", names.text());
-    if (IsPairTerm(tgoal)) {
-      qt = RepPair(tgoal);
-      tgoal = Yap_MkApplTerm(FunctorCsult, 1, qt);
-      ap = RepPredProp(PredPropByFunc(FunctorCsult, TermProlog));
-    }
-    goal = YAPTerm(tgoal);
-    if (IsApplTerm(tgoal)) {
-      Functor f = FunctorOfTerm(tgoal);
-      if (!IsExtensionFunctor(f)) {
-        arity_t arity = ap->ArityOfPE;
-        if (arity) {
-          qt = RepAppl(tgoal) + 1;
-          for (arity_t i = 0; i < arity; i++)
-            XREGS[i + 1] = qt[i];
-        }
-      }
-    }
-    names = YAPPairTerm(tnames);
+    
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
@@ -132,7 +113,13 @@ public:
   ///
   /// It i;
   ///};
-  YAPQuery(YAPTerm t);
+  /// build a query from a term
+  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()),(nts=Yap_XREGS+1)) {
+    BACKUP_MACHINE_REGS();
+    openQuery();
+    names =  TermNil ;
+  RECOVER_MACHINE_REGS();
+  }
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
   /// reset flags for query execution, currently only for exception handling
@@ -155,10 +142,10 @@ public:
   void close();
   /// query variables.
   void cut();
-  Term namedVars() { return names.term(); };
+  Term namedVars() { return names; };
   YAPPairTerm namedVarTerms() { return names; };
   /// query variables, but copied out
-  std::vector<Term> namedVarsVector() { return names.listToArray(); };
+  std::vector<Term> namedVarsVector() { return YAPPairTerm(names).listToArray(); };
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;
@@ -262,9 +249,9 @@ public:
 
   inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
 
-  inline void setHaltAfterConsult(bool fl) { HaltAfterConsult = fl; };
+  inline void setHaltAfterBoot(bool fl) { HaltAfterBoot = fl; };
 
-  inline bool getHaltAfterConsult() { return HaltAfterConsult; };
+  inline bool getHaltAfterBoot() { return HaltAfterBoot; };
 
   inline void setFastBoot(bool fl) { FastBoot = fl; };
 
@@ -292,7 +279,8 @@ private:
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
-  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
+  YAPError e;
+    PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 
 public:
   /// construct a new engine; may use a variable number of arguments
@@ -338,12 +326,17 @@ public:
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goalt(YAPTerm Yt) { return Yt.term(); };
-  /// current directory for the engine
-  bool mgoal(Term t, Term tmod);
+  bool goal(YAPTerm Yt, YAPModule module, bool release=false)
+  { return mgoal(Yt.term(),module.term(), release); };
+  /// ru1n a goal in a module.
+  ///
+  /// By default, memory will only be fully
+  /// recovered on backtracking. The release option ensures
+  /// backtracking is called at the very end.
+  bool mgoal(Term t, Term tmod, bool release= false);
   /// current directory for the engine
 
-  bool goal(Term t) { return mgoal(t, CurrentModule); }
+  bool goal(Term t, bool release=false) { return mgoal(t, CurrentModule, release); }
   /// reset Prolog state
   void reSet();
   /// assune that there are no stack pointers, just release memory

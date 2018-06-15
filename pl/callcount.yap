@@ -39,11 +39,11 @@ implementation.
 
  */
 
-%% @{  
-
-/** @defgroup Call_Counting Counting Calls
-@ingroup Profiling
-  
+/**
+ @defgroup Call_Counting Counting Calls
+ @ingroup Profiling
+ @{ 
+ 
 Predicates compiled with YAP's flag call_counting set to
 `on` update counters on the numbers of calls and of
 retries. Counters are actually decreasing counters, so that they can be

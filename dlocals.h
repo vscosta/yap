@@ -1,5 +1,5 @@
-// Stuff that must be considered local to a thread or worker
-// Streams
+/// Thread Local Variables. This file now follows C syntax. 
+// Macro support
 #ifndef LOCAL
 #include "Yap.h"
 #include "heap.h"
@@ -11,6 +11,7 @@
 #define LOCAL_INITF(A, B, C)                                                     A B                                                                           C
   #define LOCAL_INIT_RESTORE(A,B,C,D) A B C D
 #endif
+/// Current bindings for std streams, includes default s
 #define LOCAL_c_input_stream (Yap_local.c_input_stream)
 #define REMOTE_c_input_stream(wid) (REMOTE(wid)->c_input_stream)
 
@@ -422,6 +423,12 @@
 #define LOCAL_ActiveError (Yap_local.ActiveError)
 #define REMOTE_ActiveError(wid) (REMOTE(wid)->ActiveError)
 
+#define LOCAL_CommittedError (Yap_local.CommittedError)
+#define REMOTE_CommittedError(wid) (REMOTE(wid)->CommittedError)
+
+#define LOCAL_delay (Yap_local.delay)
+#define REMOTE_delay(wid) (REMOTE(wid)->delay)
+
 /// pointer to an exception term, from throw
 #define LOCAL_IOBotch (Yap_local.IOBotch)
 #define REMOTE_IOBotch(wid) (REMOTE(wid)->IOBotch)
@@ -506,6 +513,9 @@
 
 #define LOCAL_mathstring (Yap_local.mathstring)
 #define REMOTE_mathstring(wid) (REMOTE(wid)->mathstring)
+
+#define LOCAL_ctx (Yap_local.ctx)
+#define REMOTE_ctx(wid) (REMOTE(wid)->ctx)
 
 // grow.c
 #define LOCAL_heap_overflows (Yap_local.heap_overflows)

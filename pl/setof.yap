@@ -19,10 +19,10 @@
  * @file   setof.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 10:45:32 2015
- * 
+ *
  * @brief  Setof and friends.
- * 
- * 
+ *
+ *
 */
 
 
@@ -36,6 +36,7 @@
 /**
 
 @defgroup Sets Collecting Solutions to a Goal
+@{
 @ingroup builtins
 
 When there are several solutions to a goal, if the user wants to collect all
@@ -46,10 +47,6 @@ YAP allows the programmer to choose from several system
 predicates instead of writing his own routines.  findall/3 gives you
 the fastest, but crudest solution. The other built-in predicates
 post-process the result of the query in several different ways:
-
-@{
-
-
 
 */
 
@@ -162,12 +159,12 @@ Similar to `bagof( _T_, _G_, _L_)` but sorts list
  _L_ and keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
-~~~~~
+~~~
 setof(X,a(X,Y),L).
-~~~~~
+~~~
 would be:
 
-~~~~~
+~~~
 X = _32
 Y = 1
 L = [1,2];
@@ -175,14 +172,14 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
+~~~
 
 
 
 
  */
 setof(Template, Generator, Set) :-
-    
+
 	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
@@ -205,7 +202,7 @@ For each set of possible instances of the free variables occurring in
  _T_ satisfying  _G_. Again, assuming the same clauses as in the
 examples above, the reply to the query
 
-~~~~~
+~~~
 bagof(X,a(X,Y),L).
 
 would be:
@@ -216,7 +213,7 @@ X = _32
 Y = 2
 L = [2];
 no
-~~~~~
+~~~
 
 
 */
@@ -275,17 +272,17 @@ Similar to `findall( _T_, _G_, _L_)` but eliminate
 repeated elements. Thus, assuming the same clauses as in the above
 example, the reply to the query
 
-~~~~~
+~~~
 all(X,a(X,Y),L).
-~~~~~
+~~~
 would be:
 
-~~~~~
+~~~
 X = _32
 Y = _33
 L = [2,1];
 no
-~~~~~
+~~~
 
 Note that all/3 will fail if no answers are found.
 

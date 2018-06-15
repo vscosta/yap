@@ -19,10 +19,9 @@
   @file boot.yap
   @brief YAP bootstrap
 
-  @defgroup YAPControl Control Predicates
+  @addtogroup YAPControl Control Predicates
   @ingroup builtins
-
-@{
+  @{
 
 */
 
@@ -312,6 +311,9 @@ call(G) :- '$execute'(G).
 
 /** @pred  incore( 0:P )
 
+  same as call/1.
+
+  */
 
 /** @pred  once( 0 G) is iso
 
@@ -332,6 +334,7 @@ once(G) :-
 	'$meta_call'(C, M),
 	!.
 
+
 (:- G) :- '$execute'(G), !.
 
 (?- G) :- '$execute'(G).
@@ -339,3 +342,5 @@ once(G) :-
 '$$!'(CP) :- '$cut_by'(CP).
 
 [] :- true.
+
+%% @}

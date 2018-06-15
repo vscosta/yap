@@ -77,7 +77,6 @@ static Int c_sqlite3_get_database(USES_REGS1);
 static Int c_sqlite3_change_database(USES_REGS1);
 
 static Int c_sqlite3_connect(USES_REGS1) {
-
   Term arg_file = Deref(ARG1);
   Term arg_db = ARG4;
 
@@ -85,12 +84,14 @@ static Int c_sqlite3_connect(USES_REGS1) {
   sqlite3 *db;
 
   const char *file = AtomName(AtomOfTerm(arg_file));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "connect sqlite3 %s",file);
 
   CALL_SQLITE(ARG1, open(file, &db));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "connect sqlite3 %p",db);
 
-  if (!Yap_unify(arg_db, MkAddressTerm(db)))
-    return FALSE;
-  else {
+  if (!Yap_unify(arg_db, MkAddressTerm(db))) {
+    return false;
+ } else {
     /* Criar um novo no na lista de ligacoes*/
     new = myddas_util_add_connection(db, NULL, API_SQLITE3);
 
@@ -98,9 +99,9 @@ static Int c_sqlite3_connect(USES_REGS1) {
 #ifdef DEBUG
       fprintf(stderr, "ERROR: ** c_db_my_connect ** Error allocating memory\n");
 #endif
-      return FALSE;
+      return false;
     }
-    return TRUE;
+    return true;
   }
 }
 
@@ -276,6 +277,7 @@ static Int c_sqlite3_number_of_fields(USES_REGS1) {
   const char *relation = AtomName(AtomOfTerm(arg_relation));
   sqlite3 *db = AddressOfTerm(arg_db);
   sqlite3_stmt *stmt;
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3 relation %s",relation);
 
   char sql[256];
 
@@ -288,7 +290,11 @@ static Int c_sqlite3_number_of_fields(USES_REGS1) {
 
   CALL_SQLITE(ARG1, finalize(stmt));
 
-  return Yap_unify(arg_fields, MkIntegerTerm(fields));
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  fields %d",fields);
+
+
+
+    return Yap_unify(arg_fields, MkIntegerTerm(fields));
 }
 
 /* db_get_attributes_types: RelName x connection -> TypesList */
@@ -301,6 +307,7 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
   sqlite3 *db = (sqlite3 *)IntegerOfTerm(arg_db);
   char sql[256];
   int row;
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  reelation %s get_attributes",relation);
 
   sqlite3_stmt *stmt;
 
@@ -341,7 +348,8 @@ static Int c_sqlite3_get_attributes_types(USES_REGS1) {
       tm = "?";
       break;
     }
-    list = Yap_MkNewPairTerm();
+      __android_log_print(ANDROID_LOG_INFO, "YAPDroid", " sqlite3  attributes %s:%s ",sqlite3_column_name(stmt, row),tm);
+      list = Yap_MkNewPairTerm();
     *tfp = list;
     RepPair(list)[0] = MkAtomTerm(Yap_LookupAtom(tm));
     tfp = RepPair(list) + 1;
@@ -664,18 +672,16 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 }
 
 X_API void init_sqlite3(void) {
- // Yap_InitMYDDAS_SQLITE3Preds();
- // Yap_InitBackMYDDAS_SQLITE3Preds();
+    Term cm = CurrentModule;
+    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
+
+ Yap_InitMYDDAS_SQLITE3Preds();
+
+ Yap_InitBackMYDDAS_SQLITE3Preds();
+
+    CurrentModule = cm;
 }
 
-#if _ANDROID_
-//JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env);
-
-// JNIEXPORT void JNICALL lib_yap_up_pt_init_sqlite(JNIEnv *env) {
-//  init_sqlite3();
-}
-
-#endif
 
 #ifdef _WIN32
 

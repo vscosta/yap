@@ -27,6 +27,16 @@ static char SccsId[] = "%W% %G%";
 #include "sysbits.h"
 #include "yapio.h"
 
+#if HAVE_DIRENT_H
+#include <dirent.h>
+#endif
+#if HAVE_DIRECT_H
+#include <direct.h>
+#endif
+#if defined(__MINGW32__) || _MSC_VER
+#include <io.h>
+#include <windows.h>
+#endif
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
@@ -624,6 +634,82 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
 }
 
+
+/* Return a list of files for a directory */
+static Int list_directory(USES_REGS1) {
+  Term tf = MkAtomTerm(Yap_LookupAtom("[]"));
+  yhandle_t sl = Yap_InitSlot(tf);
+
+  char *buf = (char *)AtomName(AtomOfTerm(ARG1));
+#if defined(__MINGW32__) || _MSC_VER
+  struct _finddata_t c_file;
+  char bs[BUF_SIZE];
+  long hFile;
+
+  bs[0] = '\0';
+#if HAVE_STRNCPY
+  strncpy(bs, buf, BUF_SIZE);
+#else
+  strcpy(bs, buf);
+#endif
+#if HAVE_STRNCAT
+  strncat(bs, "/*", BUF_SIZE);
+#else
+  strcat(bs, "/*");
+#endif
+  if ((hFile = _findfirst(bs, &c_file)) == -1L) {
+    return (Yap_Unify(ARD2, tf));
+  }
+  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
+                                   YAP_GetFromSlot(sl)));
+  while (_findnext(hFile, &c_file) == 0) {
+    YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
+    YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+  }
+  _findclose(hFile);
+#else
+#if __ANDROID__
+  {
+    const char *dirName = buf + strlen("/assets/");
+    AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
+    AAssetDir *de;
+    const char *dp;
+
+    if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+		strerror(errno));
+    }
+    while ((dp = AAssetDir_getNextFileName(de))) {
+      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
+      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+    }
+    AAssetDir_close(de);
+  }
+#endif
+#if HAVE_OPENDIR
+  {
+    DIR *de;
+    struct dirent *dp;
+
+    if ((de = opendir(buf)) == NULL) {
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+		strerror(errno));
+
+      return false;
+    }
+    while ((dp = readdir(de))) {
+      Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
+      Yap_PutInSlot(sl,     MkPairTerm(ti, Yap_GetFromSlot(sl)));
+    }
+    closedir(de);
+  }
+#endif /* HAVE_OPENDIR */
+#endif
+  tf = Yap_GetFromSlot(sl); 
+  return Yap_unify(ARG2, tf);
+}
+
+
 static Int same_file(USES_REGS1) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
@@ -714,4 +800,5 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension,
                 SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
 }

@@ -82,8 +82,8 @@
 
 
 @addtogroup YAPControl
-
-%% @{
+@ingroup builtins
+@{
 
 */
 
@@ -98,23 +98,6 @@ proven. The example verifies that all arithmetic statements in the list
 ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
                  Result =:= Formula).
 ~~~~~
-
-
-*/
-/** @pred forall(+ _Cond_,+ _Action_)
-
-
-
-
-For all alternative bindings of  _Cond_  _Action_ can be proven.
-The next example verifies that all arithmetic statements in the list
- _L_ are correct. It does not say which is wrong if one proves wrong.
-
-~~~~~
-?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
-                 Result =:= Formula).
-~~~~~
-
 
 
 */
@@ -136,26 +119,13 @@ ignore(_).
 */
 ignore(Goal) :- (Goal->true;true).
 
-notrace(G) :-
-	 strip_module(G, M, G1),
-	 ( '$$save_by'(CP),
-	   '$debug_stop'( State ),
-	   '$call'(G1, CP, G, M),
-	   '$$save_by'(CP2),
-	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
-	   '$debug_restart'( State )
-     ;
-	'$debug_restart'( State ),
-	fail
-    ).
-
 /** @pred  if(? _G_,? _H_,? _I_)
 
 Call goal  _H_ once per each solution of goal  _H_. If goal
  _H_ has no solutions, call goal  _I_.
 
 The built-in `if/3` is similar to `->/3`, with the difference
-that it will backtrack over the test goal. Consider the following
+that it will backtrack over the test https://wiki.python.org/moin/HandlingExceptionsgoal. Consider the following
 small data-base:
 
 ~~~~~{.prolog}
@@ -204,19 +174,79 @@ if(X,Y,Z) :-
 	 '$call'(Z,CP,if(X,Y,Z),M)
 	).
 
+/** @pred  call(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  Closure,...,? Ai,...) is iso
+
+
+Meta-call with extractpattern arguments, where _Closure_ is a closure
+that is converted into a goal by appending the _Ai_ additional
+arguments. YAP supports up to 10 extra arguments.
+
+*/
 call(X,A) :- '$execute'(X,A).
 
 call(X,A1,A2) :- '$execute'(X,A1,A2).
 
-/** @pred  call(+ _Closure_,...,? _Ai_,...) is iso
-
-
-Meta-call where  _Closure_ is a closure that is converted into a goal by
-appending the  _Ai_ additional arguments. The number of arguments varies
-between 0 and 10.
-
-
-*/
 call(X,A1,A2,A3) :- '$execute'(X,A1,A2,A3).
 
 call(X,A1,A2,A3,A4) :- '$execute'(X,A1,A2,A3,A4).
@@ -270,7 +300,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 	call_cleanup(Goal, Catcher, Cleanup).
 
 
-/** @pred  call_with_args(+ _Name_,...,? _Ai_,...)
+/** @pred  call_with_args(+ Name,...,? Ai,...)
 
 
 Meta-call where  _Name_ is the name of the procedure to be called and
@@ -588,7 +618,15 @@ break :-
 	'$break'( false ).
 
 
-at_halt(G) :-
+/**
+  * @pred at_halt( G )
+  *
+  * Hook predicate: _G_ must be called on exit.
+  *
+  * @param _G_: the hook
+  *
+  * @return succeeds with side-effect.
+*/at_halt(G) :-
 	recorda('$halt', G, _),
 	fail.
 at_halt(_).
@@ -619,7 +657,17 @@ halt(X) :-
 	set_value('$live','$false'),
 	'$halt'(X).
 
-prolog_current_frame(Env) :-
+/**
+  * @pred prolog_current_frame(-Env)
+  *
+  * reports a reference to the last execution environment _Env_.
+  * YAP creates an enviroment when a clause contains several sub-goals.
+  * Facts and simple recursion do not need an environment,
+  *
+  * @param Env
+  *
+  * @return
+*/prolog_current_frame(Env) :-
 	Env is '$env'.
 
 '$run_atom_goal'(GA) :-

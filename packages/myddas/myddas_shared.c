@@ -99,6 +99,7 @@ static bool myddas_initialised;
 /* Initialize all of the MYDDAS global structures */
 static Int c_db_initialize_myddas(USES_REGS1) {
   if (!myddas_initialised) {
+    myddas_initialised= true;
     init_myddas();
   }
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas();
@@ -680,9 +681,10 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 void init_myddas(void) {
   CACHE_REGS
   if (myddas_initialised)
-    return;
-    init_sqlite3();
-  myddas_initialised = TRUE;
+   return;
+#ifdef __ANDROID__
+  init_sqlite3();
+  #endif
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
@@ -710,6 +712,7 @@ void init_myddas(void) {
   Yap_MYDDAS_delete_all_myddas_structs();
 #endif
   c_db_initialize_myddas(PASS_REGS1);
+  myddas_initialised = TRUE;
 }
 
 #ifdef _WIN32
@@ -732,4 +735,3 @@ int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved) {
   return 1;
 }
 #endif
-

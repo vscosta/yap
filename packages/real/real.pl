@@ -14,7 +14,7 @@
  * @file real.pl
  * @brief Prolog component of r_interface
  * @defgroup realpl Prolog component of r_interface
- * @ingroup real
+ * @ingroup realmd
  * @{
  * Initialization code and key predicares for R-Prolog interface.
  *
@@ -950,4 +950,5 @@ prolog:message( r_root ) -->
 
 :- initialization( set_prolog_flag( double_quotes, string) ).
 
-%%% @}
+%% @}
+

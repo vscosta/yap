@@ -25,6 +25,20 @@
  *
 */
 
+:- system_module( '$_grammar', [!/2,
+         (',')/4,
+         (->)/4,
+         ('.')/4,
+         (;)/4,
+        'C'/3,
+        []/2,
+        []/4,
+        (\+)/3,
+        phrase/2,
+        phrase/3,
+        {}/3,
+        ('|')/4], ['$do_error'/2]).
+
 /**
 @defgroup Grammars Grammar Rules
 @ingroup builtins
@@ -67,20 +81,6 @@ right hand side of a grammar rule
 Grammar related built-in predicates:
 
 */
-:- system_module( '$_grammar', [!/2,
-         (',')/4,
-         (->)/4,
-         ('.')/4,
-         (;)/4,
-        'C'/3,
-        []/2,
-        []/4,
-        (\+)/3,
-        phrase/2,
-        phrase/3,
-        {}/3,
-        ('|')/4], ['$do_error'/2]).
-
 
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).

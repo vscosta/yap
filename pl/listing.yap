@@ -16,35 +16,39 @@
 *************************************************************************/
 
 /**
-  * @file   listing.yap
+  * @file   pl/listing.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 12:05:19 2017
-  * 
+  *
   * @brief  list predicates in a module
   *
-  * @defgroup Listing  list predicates in a module
-  * @ingroup builtins
-  * 
-*/
+  */
 
-:- system_module( '$_listing', [listing/0,
+
+/*:- system_module( '$_listing', [listing/0,
         listing/1,
         portray_clause/1,
         portray_clause/2], []).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$_preds', ['$clause'/4,
-        '$current_predicate'/4]).
-
-/* listing : Listing clauses in the database
-
 */
+
+/**
+  * @defgroup listingGroup  List predicates in a module
+  * 
+  * @ingroup builtins
+  *
+  * @{ 
+*/
+
+
+
+/** @brief listing : Listing clauses in the database
+ *
+ */
 
 /** @pred  listing
 
 
-vxuLists in the current output stream all the clauses for which source code
+Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 
@@ -341,3 +345,5 @@ portray_clause(Clause) :-
 	'$list_transform'(L,M).
 '$list_transform'([_|L],M) :-
 	'$list_transform'(L,M).
+
+%% @}

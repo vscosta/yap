@@ -11,6 +11,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% file python.pl
 %%%
 
 :- module(python,
@@ -29,13 +30,13 @@
 	   python/2,
 	   acquire_GIL/0,
 	   release_GIL/0,
-		 python_threaded/0,
-		 prolog_list_to_python_list/3,
-		   op(100,fy,$),
+	   python_threaded/0,
+	   prolog_list_to_python_list/3,
+	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
-	   op(950,fx,<-),
-	   op(950,yfx,<-),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
 	   op(50, yf, []),
 	   op(50, yf, '()'),
 	   op(100, xfy, '.'),
@@ -43,18 +44,19 @@
 	  ]).
 
 
-/** <module> python
+/** @defgroup Py4YAP A C-based  Prolog interface to python.
+    @ingroup python
 
-  A C-based  Prolog interface to python.
+@{
 
   @author               Vitor Santos Costa
   @version      0:0:5, 2012/10/8
   @license      Perl Artistic License
 
 This is an interface to allow calling Python from Prolog. Please look
-at the SWIG package if you want to embedd Prolog with Python.
+at the YAP4PY SWIG package if you want to embedd Prolog with Python.
 
-The interface should be activated by consulting the python lybrary. It
+The interface should be activated by consulting the python library. It
 immediately boots a Python image.
 
 To best define the interface, one has to address two opposite goals:
@@ -112,8 +114,9 @@ Data types are
 
 :- multifile user:(:=)/2,
         user:(:=)/1,
-        user:(<-)/1,
-        user:(<-)/2, user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
+				%        user:(<-)/1,
+				%        user:(<-)/2,
+	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).
@@ -134,16 +137,18 @@ user(P1,P2) :- !,
 	:= P1,
 	:= P2.
 
-user:(:= ) :- catch( python:python_proc(F), _, fail ).
+user:(:= F) :- catch( python:python_proc(F), _, fail ).
 
 user:( V := F ) :-
     python:python_assign(F, V).
 
+/*
 user:(<- F) :-
 	catch( python:python_proc(F), _, fail ).
 
 user:(V <- F) :-
 	V := F.
+*/
 
 python:python_import(Module) :-
     python:python_import(Module, _).
@@ -167,3 +172,5 @@ add_cwd_to_python :-
 	% done
 
 :- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).
+
+%% @}

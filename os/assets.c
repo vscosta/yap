@@ -60,15 +60,15 @@ Java_pt_up_yap_yapdroid_YAPDroid_loadAssetManager(JNIEnv *env, jclass clazz, job
 
 
 static void *
-open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
+open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
     int mode;
     const void *buf;
 
     AAsset *am = NULL;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode);
-    if (strchr(io_mode, 'B'))
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s-%s <%s>", fname, me->prefix,io_mode);
+    if (strchr(io_mode, 'B')) {
         mode = AASSET_MODE_BUFFER;
-    else {
+    } else {
         mode = AASSET_MODE_UNKNOWN;
     }
     GLOBAL_Stream[sno].name = Yap_LookupAtom(fname);
@@ -78,6 +78,7 @@ open_asset(VFS_t *me, int sno, const char *fname, const char *io_mode) {
 //    strcpy(dir, fname);
 //    char *d = basename(dir);
     am = AAssetManager_open(Yap_assetManager(), fname, mode);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode );
 //    while (dp) {
 //        char *f = AAssetDir_getNextFileName(dp);
 //        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", f, d);

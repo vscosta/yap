@@ -14,11 +14,15 @@
 * comments:	protecting the system functions				 *
 *									 *
 *************************************************************************/
-
-:- system_module( '$_protect', [], ['$protect'/0]).
 /**
  * @file protect.yap
- * @addgroup ProtectCore Freeze System Configuration
+*/
+
+:- system_module( '$_protect', [], ['$protect'/0]).
+
+/**
+ *  * @addtogroup ProtectCore Freeze System Configuration
+ * @{
  * @ingroup YAPControl
  *
  * This protects current code from further changes
@@ -30,15 +34,15 @@
  *  - fix system predicates
  *  - hide atoms with `$`
  */
- 
+
 
 '$protect' :-
     '$all_current_modules'(M),
     ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
-    new_system_module( M ),    
+    new_system_module( M ),
     fail.
 '$protect' :-
-    '$current_predicate'(Name,M,P,_),
+	'$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
@@ -48,7 +52,7 @@
     fail.
 '$protect' :-
     current_atom(Name),
-    sub_atom(Name,0,1,_, '$'),
+	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.
@@ -77,3 +81,5 @@
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
+
+%% @}

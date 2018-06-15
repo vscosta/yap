@@ -5,7 +5,7 @@
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
-NOTE: this version of YAP is still experimental, documentation may be missing or brout of date.
+NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
 ## Introduction
 
@@ -17,23 +17,21 @@ Porto.
 The manual is organised as follows:
 
 
-+ @subpage  install
++ @ref  INSTALL
 
-+ @subpage run
++ @ref run
 
-+ @subpage load_files
++ @ref builtins
 
-+ @subpage builtins
++ @ref extensions
 
-+ @subpage extensions
++ @ref library
 
-+ @subpage library
++ @ref packages
 
-+ @subpage packages
++ @ref YAPProgramming
 
-+ @subpage YAPProgramming
-
-+ @subpage fli_c_cxx
++ @ref fli_c_cxx
 
 
 \author Vitor Santos Costa,
@@ -59,44 +57,3 @@ from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
 
-
-@page Library YAP Library
-
-
- the library_directory path (set by the
-  `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library.
-
- 
-
-@page Extensions  YAP Extensions
-
-YAP includes a number of extensions over the original Prolog
-language.
-
-  + @subpage atts.md
-
-  + @ref Rational_Trees
-  
-  + @ref CohYroutining
-
-  + @ref  DepthLimited
-
-  + @ref  Tabling
-
-  + @ref Threads
-
-  + @ref Profiling
-
-  + @ref YAPArrays
-
-  + @ref Parallelism
-
-
-@page YAPProgramming Programming in YAP
-
-
-@page packages Packages for YAP
-
-
-  

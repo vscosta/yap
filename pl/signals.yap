@@ -212,10 +212,10 @@
 			( exists('~/.prologrc') -> [-'~/.prologrc'] ; true ),
 			( exists('~/prolog.ini') -> [-'~/prolog.ini'] ; true ))).
 				% die on signal default. %
-'$signal_def'(sig_usr1, throw(error(signal(usr1,[]),true))).
-'$signal_def'(sig_usr2, throw(error(signal(usr2,[]),true))).
-'$signal_def'(sig_pipe, throw(error(signal(pipe,[]),true))).
-'$signal_def'(sig_fpe, throw(error(signal(fpe,[]),true))).
+'$signal_def'(sig_usr1, throw(signal(usr1,[]))).
+'$signal_def'(sig_usr2, throw(signal(usr2,[]))).
+'$signal_def'(sig_pipe, throw(signal(pipe,[]))).
+'$signal_def'(sig_fpe, throw(signal(fpe,[]))).
 				% ignore sig_alarm by default %
 '$signal_def'(sig_alarm, true).
 
@@ -308,6 +308,5 @@ read_sig.
 :- '$set_no_trace'('$Error'(_), prolog).
 :- '$set_no_trace'('$LoopError'(_,_), prolog).
 :- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
-:- '$set_no_trace'('$run_catch'(_,_), prolog).
 
 %%! @}

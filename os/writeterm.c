@@ -291,21 +291,20 @@ end:
  *
  */
 bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
-  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
+
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -336,10 +335,9 @@ static Int write2(USES_REGS1) {
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0)
     return false;
-  args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                             DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -362,10 +360,9 @@ static Int write1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -389,10 +386,9 @@ static Int write_canonical1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -415,10 +411,9 @@ static Int write_canonical(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -445,10 +440,9 @@ static Int writeq1(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -475,10 +469,9 @@ static Int writeq(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -505,10 +498,9 @@ static Int print1(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -536,10 +528,9 @@ static Int print(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -569,7 +560,8 @@ static Int writeln1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
@@ -593,14 +585,15 @@ static Int writeln(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
-  fprintf(stderr,"writeln %d\n", output_stream);
+  fprintf(stderr, "writeln %d\n", output_stream);
   if (output_stream < 0) {
     free(args);
     return false;
@@ -679,8 +672,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    s = Yap_TermToBuffer(ARG1, LOCAL_encoding,
-                         Quote_illegal_f | Handle_vars_f);
+    s = Yap_TermToBuffer(ARG1, LOCAL_encoding, Quote_illegal_f | Handle_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_Error(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -715,7 +707,7 @@ static Int term_to_atom(USES_REGS1) {
     at = AtomOfTerm(t2);
   }
   ctl = TermNil;
-  return ((rc = Yap_BufferToTerm(RepAtom(at)->UStrOfAE, ctl))) &&
+  return ((rc = Yap_UBufferToTerm(RepAtom(at)->UStrOfAE, ctl))) &&
          Yap_unify(rc, ARG1);
 }
 

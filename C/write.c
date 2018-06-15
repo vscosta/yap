@@ -349,7 +349,7 @@ static void wrputf(Float f, struct write_globs *wglb) /* writes a float	 */
         found_dot = TRUE;
         wrputs(".0", stream);
       }
-      found_dot = TRUE;
+      found_dot = true;
     }
     wrputc(ch, stream);
     pt++;
@@ -748,6 +748,7 @@ static void write_var(CELL *t, struct write_globs *wglb,
 
       wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
+        yhandle_t h = Yap_InitHandle((CELL)t);
         attvar_record *attv = RepAttVar(t);
         CELL *l = &attv->Value; /* dirty low-level hack, check atts.h */
 
@@ -757,6 +758,10 @@ static void write_var(CELL *t, struct write_globs *wglb,
         writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
         l = restore_from_write(&nrwt, wglb);
         wrputc(',', wglb->stream);
+
+        attv = RepAttVar((CELL *)Yap_GetFromHandle(h));
+        l = &attv->Value;
+        ;
         l++;
         writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
         restore_from_write(&nrwt, wglb);
@@ -1206,6 +1211,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   struct write_globs wglb;
   struct rewind_term rwt;
   yhandle_t sls = Yap_CurrentSlot();
+  int lvl = push_text_stack();
 
   if (t == 0)
     return;
@@ -1230,10 +1236,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
-  yap_error_descriptor_t ne;
-  Yap_pushErrorContext(&ne);
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
-  Yap_popErrorContext(true);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1249,21 +1252,25 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   restore_from_write(&rwt, &wglb);
   Yap_CloseSlots(sls);
+  pop_text_stack(lvl);
 }
 
 char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
   CACHE_REGS
   int sno = Yap_open_buf_write_stream(enc, flags);
   const char *sf;
-  DBTerm *e = LOCAL_BallTerm;
 
   if (sno < 0)
     return NULL;
-  LOCAL_c_output_stream = sno;
+  if (t == 0)
+    return NULL;
+  else
+    t = Deref(t);
   if (enc)
     GLOBAL_Stream[sno].encoding = enc;
   else
     GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
 
   sf = Yap_MemExportStreamPtr(sno);
@@ -1271,7 +1278,5 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
   char *new = malloc(len + 1);
   strcpy(new, sf);
   Yap_CloseStream(sno);
-  if (e)
-    LOCAL_BallTerm = e;
   return new;
 }

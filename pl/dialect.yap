@@ -3,13 +3,9 @@
   * @file   dialect.yap
   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
   * @date   Thu Oct 19 10:50:33 2017
-  * 
-  * @brief  support Prolog dialects
   *
-  * @defgroup Dialects
-  * @ingroup builtins
-  * 
-*/
+  * @brief  support Prolog dialects
+  */
 
 
 :- module(dialect,
@@ -18,18 +14,27 @@
 	   source_exports/2
 	  ]).
 
+    /**
+     * @defgroup Dialects Compatibility with other Prolog dialects
+     * @ingroup extensions
+     * @{
+     * @brief Prolog dialects
+     *
+   */
+
+
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 
-				%
+
 %%
 %	@pred expects_dialect(+Dialect)
 %
-%	True if YAP can enable support for a different Prolog dialect.
+%	  True if YAP can enable support for a different Prolog dialect.
 %   Currently there is support for bprolog, hprolog and swi-prolog.
 %   Notice that this support may be incomplete.
 %
-%   The
+% 
 prolog:expects_dialect(yap) :- !,
 	eraseall('$dialect'),
 	recorda('$dialect',yap,_).
@@ -54,7 +59,7 @@ check_dialect(Dialect) :-
 check_dialect(Dialect) :-
 	'$do_error'(domain_error(dialect,Dialect),(:- expects_dialect(Dialect))).
 
-%%	exists_source(+Source) is semidet.
+%%	@pred exists_source(+Source) is semidet.
 %
 %	True if Source (a term  valid   for  load_files/2) exists. Fails
 %	without error if this is not the case. The predicate is intended
@@ -77,8 +82,8 @@ exists_source(Source, Path) :-
 			     file_errors(fail)
 			   ]).
 
-%%	source_exports(+Source, +Export) is semidet.
-%%	source_exports(+Source, -Export) is nondet.
+%%	@pred source_exports(+Source, +Export) is semidet.
+%%	@pred source_exports(+Source, -Export) is nondet.
 %
 %	True if Source exports Export. Fails   without  error if this is
 %	not the case.  See also exists_source/1.
@@ -93,7 +98,7 @@ source_exports(Source, Export) :-
 	;   lists:member(Export, Exports)
 	).
 
-%%	open_source(+Source, -In:stream) is semidet.
+%%	@pred open_source(+Source, -In:stream) is semidet.
 %
 %	Open a source location.
 
@@ -108,3 +113,5 @@ open_source(File, In) :-
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).
+
+%% @}

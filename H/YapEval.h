@@ -1,19 +1,18 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	@(#)YapEval.h	1.2
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		YapEval.h							 *
-* Last rev:								 *
-* mods:									 *
-* comments:	arithmetical functions info				 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	@(#)YapEval.h	1.2
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapEval.h
+ ** Last rev:								 * mods:
+ ** comments:	arithmetical functions info				 *
+ *									 *
+ *************************************************************************/
 
 /**
 
@@ -49,7 +48,7 @@ in YAP
 
 When YAP is built using the GNU multiple precision arithmetic library
 (GMP), integer arithmetic is unbounded, which means that the size of
-integers is only limited by available memory. The type of integer
+extern integers is only limited by available memory. The type of integer
 support can be detected using the Prolog flags bounded, min_integer
 and max_integer. As the use of GMP is default, most of the following
 descriptions assume unbounded integer arithmetic.
@@ -165,7 +164,7 @@ overflow
  * @addtogroup arithmetic_operators
  * @enum arith0_op constant operators
  * @brief specifies the available unary arithmetic operators
-*/
+ */
 typedef enum {
   /** pi [ISO]
 
@@ -259,25 +258,25 @@ typedef enum {
    */
   op_log,
   /** log10( _X_ ) [ISO]
-        *
-    * Decimal logarithm.
-    *
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
-    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
+   *
+   * Decimal logarithm.
+   *
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
    * == ~3g~n',[Delta]), fail.
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 0
-    *   0 == 2.22e-16
-    *   0 == 0
-    *   false.
-    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    */
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 0
+   *   0 == 2.22e-16
+   *   0 == 0
+   *   false.
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   */
   op_log10,
   op_sqrt,
   op_sin,
@@ -358,11 +357,11 @@ Functor EvalArg(Term);
 #define FlIsInt(X) (FALSE)
 #endif
 
-#ifdef M_WILLIAMS
+//#if defined(M_WILLIAMS)
 #define MkEvalFl(X) MkFloatTerm(X)
-#else
-#define MkEvalFl(X) (FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X))
-#endif
+//#else
+//#define MkEvalFl(X) (FlIsInt(X) ? MkIntTerm((Int)(X)) : MkFloatTerm(X))
+//#endif
 
 /* Macros used by some of the eval functions */
 #define REvalInt(I)                                                            \
@@ -391,28 +390,48 @@ void Yap_InitConstExps(void);
 void Yap_InitUnaryExps(void);
 void Yap_InitBinaryExps(void);
 
-int Yap_ReInitConstExps(void);
-int Yap_ReInitUnaryExps(void);
-int Yap_ReInitBinaryExps(void);
+extern int Yap_ReInitConstExps(void);
+extern int Yap_ReInitUnaryExps(void);
+extern int Yap_ReInitBinaryExps(void);
 
-Term Yap_eval_atom(Int);
-Term Yap_eval_unary(Int, Term);
-Term Yap_eval_binary(Int, Term, Term);
+extern Term Yap_eval_atom(Int);
+extern Term Yap_eval_unary(Int, Term);
+extern Term Yap_eval_binary(Int, Term, Term);
 
-Term Yap_InnerEval__(Term USES_REGS);
+typedef struct eval_context {
+  Functor f;
+  CELL *fp;
+  struct eval_context *p;
+} eval_context_t;
+
+extern Term Yap_InnerEval__(Term USES_REGS);
 
 #define Yap_EvalError(id, t, ...)                                              \
-  Yap_EvalError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
-                       ...);
+  {                                                                            \
+    eval_context_t *ctx = LOCAL_ctx;                                           \
+    LOCAL_ctx = NULL;                                                          \
+    while (ctx) {                                                              \
+      *ctx->fp = (CELL)(ctx->f);                                               \
+      ctx = ctx->p;                                                            \
+    }                                                                          \
+						    Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__); \
+							       }
 
 #define Yap_ArithError(id, t, ...)                                             \
-  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__)
-#define Yap_BinError(id)                                                       \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
-#define Yap_AbsmiError(id)                                                     \
-  Yap_Error__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+  {                                                                            \
+    eval_context_t *ctx = LOCAL_ctx;                                           \
+    LOCAL_ctx = NULL;                                                          \
+    while (ctx) {                                                              \
+      *ctx->fp = (CELL)(ctx->f);                                               \
+      ctx = ctx->p;                                                            \
+    }                                                                          \
+    Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, t, __VA_ARGS__);    \
+  }
 
+#define Yap_BinError(id)                                                       \
+  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, 0L, "")
+#define Yap_AbsmiError(id)                                                     \
+  Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, 0L, "")
 
 #include "inline-only.h"
 
@@ -420,7 +439,28 @@ void Yap_EvalError__(const char *, const char *, int, yap_error_number, Term,
 
 #define Yap_InnerEval(x) Yap_InnerEval__(x PASS_REGS)
 #define Yap_Eval(x) Yap_Eval__(x PASS_REGS)
-#define Yap_FoundArithError() Yap_FoundArithError__(PASS_REGS1)
+
+static inline bool Yap_CheckArithError(void)
+{
+  bool on = false;
+  yap_error_number err;
+  if (LOCAL_Error_TYPE== RESOURCE_ERROR_STACK) {    
+    LOCAL_Error_TYPE = YAP_NO_ERROR;                
+    if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {   
+      on = false; 
+      Yap_ThrowError(RESOURCE_ERROR_STACK, ARG2, "while running arithmetic"); 
+    } else {
+      on = true;
+    }
+  };						     
+  if (trueGlobalPrologFlag( 
+			   ARITHMETIC_EXCEPTIONS_FLAG) &&
+      (err = Yap_MathException())) {	
+    Yap_ThrowError(err,ARG2,"Math Error");
+  }
+     return on;
+     
+}
 
 INLINE_ONLY inline EXTERN Term Yap_Eval__(Term t USES_REGS);
 
@@ -436,14 +476,6 @@ inline static void Yap_ClearExs(void) { feclearexcept(FE_ALL_EXCEPT); }
 inline static void Yap_ClearExs(void) {}
 #endif
 
-inline static yap_error_number Yap_FoundArithError__(USES_REGS1) {
-  if (LOCAL_Error_TYPE != YAP_NO_ERROR)
-    return LOCAL_Error_TYPE;
-  if (trueGlobalPrologFlag(
-          ARITHMETIC_EXCEPTIONS_FLAG)) // test support for exception
-    return Yap_MathException();
-  return YAP_NO_ERROR;
-}
 
 static inline Term takeIndicator(Term t) {
   Term ts[2];
@@ -468,9 +500,7 @@ Atom Yap_NameOfBinaryOp(int i);
 #define RFLOAT(v) return (MkFloatTerm(v))
 #define RBIG(v) return (Yap_MkBigIntTerm(v))
 #define RERROR()                                                               \
-  {                                                                            \
-    return (0L);                                                               \
-  }
+  { return (0L); }
 
 static inline blob_type ETypeOfTerm(Term t) {
   if (IsIntTerm(t))
@@ -489,97 +519,97 @@ static inline blob_type ETypeOfTerm(Term t) {
 }
 
 #if USE_GMP
-char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
+extern char *Yap_mpz_to_string(MP_INT *b, char *s, size_t sz, int base);
 
-Term Yap_gmq_rdiv_int_int(Int, Int);
-Term Yap_gmq_rdiv_int_big(Int, Term);
-Term Yap_gmq_rdiv_big_int(Term, Int);
-Term Yap_gmq_rdiv_big_big(Term, Term);
+extern Term Yap_gmq_rdiv_int_int(Int, Int);
+extern Term Yap_gmq_rdiv_int_big(Int, Term);
+extern Term Yap_gmq_rdiv_big_int(Term, Int);
+extern Term Yap_gmq_rdiv_big_big(Term, Term);
 
-Term Yap_gmp_add_ints(Int, Int);
-Term Yap_gmp_sub_ints(Int, Int);
-Term Yap_gmp_mul_ints(Int, Int);
-Term Yap_gmp_sll_ints(Int, Int);
-Term Yap_gmp_add_int_big(Int, Term);
-Term Yap_gmp_sub_int_big(Int, Term);
-Term Yap_gmp_sub_big_int(Term, Int);
-Term Yap_gmp_mul_int_big(Int, Term);
-Term Yap_gmp_div_int_big(Int, Term);
-Term Yap_gmp_div_big_int(Term, Int);
-Term Yap_gmp_div2_big_int(Term, Int);
-Term Yap_gmp_fdiv_int_big(Int, Term);
-Term Yap_gmp_fdiv_big_int(Term, Int);
-Term Yap_gmp_and_int_big(Int, Term);
-Term Yap_gmp_ior_int_big(Int, Term);
-Term Yap_gmp_xor_int_big(Int, Term);
-Term Yap_gmp_sll_big_int(Term, Int);
-Term Yap_gmp_add_big_big(Term, Term);
-Term Yap_gmp_sub_big_big(Term, Term);
-Term Yap_gmp_mul_big_big(Term, Term);
-Term Yap_gmp_div_big_big(Term, Term);
-Term Yap_gmp_div2_big_big(Term, Term);
-Term Yap_gmp_fdiv_big_big(Term, Term);
-Term Yap_gmp_and_big_big(Term, Term);
-Term Yap_gmp_ior_big_big(Term, Term);
-Term Yap_gmp_xor_big_big(Term, Term);
-Term Yap_gmp_mod_big_big(Term, Term);
-Term Yap_gmp_mod_big_int(Term, Int);
-Term Yap_gmp_mod_int_big(Int, Term);
-Term Yap_gmp_rem_big_big(Term, Term);
-Term Yap_gmp_rem_big_int(Term, Int);
-Term Yap_gmp_rem_int_big(Int, Term);
-Term Yap_gmp_exp_int_int(Int, Int);
-Term Yap_gmp_exp_int_big(Int, Term);
-Term Yap_gmp_exp_big_int(Term, Int);
-Term Yap_gmp_exp_big_big(Term, Term);
-Term Yap_gmp_gcd_int_big(Int, Term);
-Term Yap_gmp_gcd_big_big(Term, Term);
+extern Term Yap_gmp_add_ints(Int, Int);
+extern Term Yap_gmp_sub_ints(Int, Int);
+extern Term Yap_gmp_mul_ints(Int, Int);
+extern Term Yap_gmp_sll_ints(Int, Int);
+extern Term Yap_gmp_add_int_big(Int, Term);
+extern Term Yap_gmp_sub_int_big(Int, Term);
+extern Term Yap_gmp_sub_big_int(Term, Int);
+extern Term Yap_gmp_mul_int_big(Int, Term);
+extern Term Yap_gmp_div_int_big(Int, Term);
+extern Term Yap_gmp_div_big_int(Term, Int);
+extern Term Yap_gmp_div2_big_int(Term, Int);
+extern Term Yap_gmp_fdiv_int_big(Int, Term);
+extern Term Yap_gmp_fdiv_big_int(Term, Int);
+extern Term Yap_gmp_and_int_big(Int, Term);
+extern Term Yap_gmp_ior_int_big(Int, Term);
+extern Term Yap_gmp_xor_int_big(Int, Term);
+extern Term Yap_gmp_sll_big_int(Term, Int);
+extern Term Yap_gmp_add_big_big(Term, Term);
+extern Term Yap_gmp_sub_big_big(Term, Term);
+extern Term Yap_gmp_mul_big_big(Term, Term);
+extern Term Yap_gmp_div_big_big(Term, Term);
+extern Term Yap_gmp_div2_big_big(Term, Term);
+extern Term Yap_gmp_fdiv_big_big(Term, Term);
+extern Term Yap_gmp_and_big_big(Term, Term);
+extern Term Yap_gmp_ior_big_big(Term, Term);
+extern Term Yap_gmp_xor_big_big(Term, Term);
+extern Term Yap_gmp_mod_big_big(Term, Term);
+extern Term Yap_gmp_mod_big_int(Term, Int);
+extern Term Yap_gmp_mod_int_big(Int, Term);
+extern Term Yap_gmp_rem_big_big(Term, Term);
+extern Term Yap_gmp_rem_big_int(Term, Int);
+extern Term Yap_gmp_rem_int_big(Int, Term);
+extern Term Yap_gmp_exp_int_int(Int, Int);
+extern Term Yap_gmp_exp_int_big(Int, Term);
+extern Term Yap_gmp_exp_big_int(Term, Int);
+extern Term Yap_gmp_exp_big_big(Term, Term);
+extern Term Yap_gmp_gcd_int_big(Int, Term);
+extern Term Yap_gmp_gcd_big_big(Term, Term);
 
-Term Yap_gmp_big_from_64bits(YAP_LONG_LONG);
+extern Term Yap_gmp_big_from_64bits(YAP_LONG_LONG);
 
-Term Yap_gmp_float_to_big(Float);
-Term Yap_gmp_float_to_rational(Float);
-Term Yap_gmp_float_rationalize(Float);
+extern Term Yap_gmp_float_to_big(Float);
+extern Term Yap_gmp_float_to_rational(Float);
+extern Term Yap_gmp_float_rationalize(Float);
 Float Yap_gmp_to_float(Term);
-Term Yap_gmp_add_float_big(Float, Term);
-Term Yap_gmp_sub_float_big(Float, Term);
-Term Yap_gmp_sub_big_float(Term, Float);
-Term Yap_gmp_mul_float_big(Float, Term);
-Term Yap_gmp_fdiv_float_big(Float, Term);
-Term Yap_gmp_fdiv_big_float(Term, Float);
+extern Term Yap_gmp_add_float_big(Float, Term);
+extern Term Yap_gmp_sub_float_big(Float, Term);
+extern Term Yap_gmp_sub_big_float(Term, Float);
+extern Term Yap_gmp_mul_float_big(Float, Term);
+extern Term Yap_gmp_fdiv_float_big(Float, Term);
+extern Term Yap_gmp_fdiv_big_float(Term, Float);
 
-int Yap_gmp_cmp_big_int(Term, Int);
-int Yap_gmp_cmp_int_big(Int, Term);
-int Yap_gmp_cmp_big_float(Term, Float);
+extern int Yap_gmp_cmp_big_int(Term, Int);
+extern int Yap_gmp_cmp_int_big(Int, Term);
+extern int Yap_gmp_cmp_big_float(Term, Float);
 #define Yap_gmp_cmp_float_big(D, T) (-Yap_gmp_cmp_big_float(T, D))
-int Yap_gmp_cmp_big_big(Term, Term);
+extern int Yap_gmp_cmp_big_big(Term, Term);
 
-int Yap_gmp_tcmp_big_int(Term, Int);
-int Yap_gmp_tcmp_int_big(Int, Term);
-int Yap_gmp_tcmp_big_float(Term, Float);
+extern int Yap_gmp_tcmp_big_int(Term, Int);
+extern int Yap_gmp_tcmp_int_big(Int, Term);
+extern int Yap_gmp_tcmp_big_float(Term, Float);
 #define Yap_gmp_tcmp_float_big(D, T) (-Yap_gmp_tcmp_big_float(T, D))
-int Yap_gmp_tcmp_big_big(Term, Term);
+extern int Yap_gmp_tcmp_big_big(Term, Term);
 
-Term Yap_gmp_neg_int(Int);
-Term Yap_gmp_abs_big(Term);
-Term Yap_gmp_neg_big(Term);
-Term Yap_gmp_unot_big(Term);
-Term Yap_gmp_floor(Term);
-Term Yap_gmp_ceiling(Term);
-Term Yap_gmp_round(Term);
-Term Yap_gmp_trunc(Term);
-Term Yap_gmp_float_fractional_part(Term);
-Term Yap_gmp_float_integer_part(Term);
-Term Yap_gmp_sign(Term);
-Term Yap_gmp_lsb(Term);
-Term Yap_gmp_msb(Term);
-Term Yap_gmp_popcount(Term);
+extern Term Yap_gmp_neg_int(Int);
+extern Term Yap_gmp_abs_big(Term);
+extern Term Yap_gmp_neg_big(Term);
+extern Term Yap_gmp_unot_big(Term);
+extern Term Yap_gmp_floor(Term);
+extern Term Yap_gmp_ceiling(Term);
+extern Term Yap_gmp_round(Term);
+extern Term Yap_gmp_trunc(Term);
+extern Term Yap_gmp_float_fractional_part(Term);
+extern Term Yap_gmp_float_integer_part(Term);
+extern Term Yap_gmp_sign(Term);
+extern Term Yap_gmp_lsb(Term);
+extern Term Yap_gmp_msb(Term);
+extern Term Yap_gmp_popcount(Term);
 
 char *Yap_gmp_to_string(Term, char *, size_t, int);
 size_t Yap_gmp_to_size(Term, int);
 
-int Yap_term_to_existing_big(Term, MP_INT *);
-int Yap_term_to_existing_rat(Term, MP_RAT *);
+extern int Yap_term_to_existing_big(Term, MP_INT *);
+extern int Yap_term_to_existing_rat(Term, MP_RAT *);
 
 void Yap_gmp_set_bit(Int i, Term t);
 #endif
@@ -601,15 +631,20 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
   }
 }
 
-#if __clang__ && FALSE /* not in OSX yet */
-#define DO_ADD()                                                               \
-  if (__builtin_sadd_overflow(i1, i2, &z)) {                                   \
-    goto overflow;                                                             \
-  }
-#endif
-
 inline static Term add_int(Int i, Int j USES_REGS) {
-#if USE_GMP
+#if defined(__clang__) || defined(__GNUC__)
+  Int w;
+  if (!__builtin_add_overflow(i, j, &w))
+    RINT(w);
+  return Yap_gmp_add_ints(i, j);
+  ;
+#elif defined(__GNUC__)
+  Int w;
+  if (!__builtin_add_overflow_p(i, j, w))
+    RINT(w);
+  return Yap_gmp_add_ints(i, j);
+  ;
+#elif USE_GMP
   UInt w = (UInt)i + (UInt)j;
   if (i > 0) {
     if (j > 0 && (Int)w < 0)
@@ -628,7 +663,7 @@ overflow:
 }
 
 /* calculate the most significant bit for an integer */
-Int Yap_msb(Int inp USES_REGS);
+extern Int Yap_msb(Int inp USES_REGS);
 
 static inline Term p_plus(Term t1, Term t2 USES_REGS) {
   switch (ETypeOfTerm(t1)) {

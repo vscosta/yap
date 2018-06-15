@@ -1,4 +1,4 @@
-s444444444444444444444444444444444444444444444444444444444444444444444444/*************************************************************************
+/*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
 *									 *
@@ -74,10 +74,24 @@ s444444444444444444444444444444444444444444444444444444444444444444444444/******
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
+
+:- '$system_meta_predicates'([
+	compile(:),
+	consult(:),
+	db_files(:),
+	ensure_loaded(:),
+	exo_files(:),
+  load_files(:,+),
+  reconsult(:),
+  use_module(:),
+  use_module(:,+),
+  use_module(?,:,+)
+		]	    ).
+
 /**
 
   @defgroup YAPConsulting Loading files into YAP
-  @ingroup consult
+  @ingroup load_files
 
   @{
 
@@ -428,12 +442,18 @@ load_files(Files,Opts) :-
 	  '$lf'(Fs, Mod, Call, TOpts), fail;
 	  true
 	).
-'$lf'(user, Mod, _, TOpts) :- !,
-	b_setval('$user_source_file', user),
-	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
-'$lf'(user_input, Mod, _, TOpts) :- !,
-	b_setval('$user_source_file', user_input),
-	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
+'$lf'(user, Mod, Call, TOpts) :-
+    !,
+    stream_property( S, alias( user_input )),
+    '$set_lf_opt'('$from_stream', TOpts, true),
+    '$set_lf_opt'( stream , TOpts, S),
+	'$lf'(S, Mod, Call, TOpts).
+'$lf'(user_input, Mod, Call,  TOpts ) :-
+ !,
+ stream_property( S, alias( user_input )),
+ '$set_lf_opt'('$from_stream', TOpts, true),
+ '$set_lf_opt'( stream , TOpts, S),
+ '$lf'(S, Mod, Call, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
 	'$lf_opt'(stream, TOpts, Stream),
 	b_setval('$user_source_file', File),
@@ -453,7 +473,7 @@ load_files(Files,Opts) :-
 	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
 	close(Stream).
 
-% consulting from a stre
+% consulting from a stream
 '$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
     '$lf_opt'('$from_stream', TOpts, true ),
     !,
@@ -650,7 +670,7 @@ db_files(Fs) :-
 	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
 
 
-'$csult'(Fs, M) :-
+'$csult'(Fs, _M) :-
 	 '$skip_list'(_, Fs ,L),
 	 L \== [],
 	 user:dot_qualified_goal(Fs),
@@ -660,7 +680,7 @@ db_files(Fs) :-
 	'$load_files'(M:MFs,[],[M:Fs]).
 '$csult'(Fs, M) :-
 	'$load_files'(M:Fs,[consult(consult)],[M:Fs]).
-	
+
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
@@ -1292,19 +1312,18 @@ account the following observations:
 
 <ul>
 
-  <li> The `reexport` declarations must be the first declarations to
+  + The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
 
-  <li> It is possible to use both `reexport` and `use_module`, but all
+  + It is possible to use both `reexport` and `use_module`, but all
   predicates reexported are automatically available for use in the
-  current module.  </li>
+  current module.
 
-  <li> In order to obtain efficient execution, YAP compiles
+  + In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.  </li>
+  the file may result in incorrect execution.
 
-</ul>
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
@@ -1632,7 +1651,7 @@ End of conditional compilation.
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
-:- '$add_multifile'(Name,Arity,Module).
+:- '$add_multifile'(dot_qualified_goal,2,user).
 
 /**
   @}
