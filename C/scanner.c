@@ -1351,6 +1351,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   p = NULL; /* Just to make lint happy */
   ch = getchr(st);
   while (chtype(ch) == BS) {
+    och=ch;
     ch = getchr(st);
   }
   *tposp = Yap_StreamPosition(st - GLOBAL_Stream);

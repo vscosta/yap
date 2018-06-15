@@ -20,28 +20,21 @@
 #ifndef YATOM_H
 #define YATOM_H 1
 
-#ifdef USE_OFFSETS
-
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p);
+INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
 
+
+#ifdef USE_OFFSETS
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) {
   return (Atom)(Addr(p) - AtomBase);
 }
-
-INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
 
 INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a) {
   return (AtomEntry *) (AtomBase + Unsigned (a);
 }
 
 #else
-
-INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p);
-
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
-
-INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
-
 INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a) {
   return (AtomEntry *)(a);
 }

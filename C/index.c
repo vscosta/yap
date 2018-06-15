@@ -633,6 +633,7 @@ type_of_verb(rest,passive).
 
  */
 
+#include <Yatom.h>
 #include "absmi.h"
 #include "YapCompile.h"
 #if DEBUG
@@ -2940,13 +2941,15 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   cint.cls = NULL;
   LOCAL_Error_Size = 0;
 
+  if (ap->cs.p_code.NOfClauses < 2)
+    return NULL;
   if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE + NSlots, ENV, next_pc)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres == 2) {
     restore_machine_regs();
