@@ -1,5 +1,6 @@
 :- '$mk_dynamic'('$parent_module'(_,_),prolog).
 
+
 '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).

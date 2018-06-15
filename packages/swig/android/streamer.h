@@ -9,10 +9,14 @@
 #include <string>
 #include <sstream>
 
+
 struct AndroidStreamer {
+    std::string *buff0;
+
     virtual void display(std::string text) const = 0;
     virtual ~AndroidStreamer() {}
-    void bind();
+     AndroidStreamer() {    buff0 = new std::string[256];
+    };
 };
 void setStreamer(AndroidStreamer* streamer);
 AndroidStreamer& getStreamer();

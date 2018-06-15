@@ -60,7 +60,11 @@ class YAPEngine;
       return NULL;
     }
     #endif
-  }
+     #ifdef SWIGJAVA0
+     %typemap(javapackage)  std::vector<YAPTerm>  "pt.up.yap.YAPTerm"
+      %template(VectorOfTerm) std::vector<YAPTerm>;
+     #endif
+      }
 %}
 
 #ifdef SWIGPYTHON

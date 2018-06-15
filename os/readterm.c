@@ -1385,9 +1385,8 @@ Term Yap_BufferToTerm(const unsigned char *s, Term opts) {
   return rval;
 }
 
-X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s, size_t len,
-                                            Term opts, int prio,
-                                            Term bindings) {
+X_API Term Yap_BufferToTermWithPrioBindings(const unsigned char *s, Term opts, Term bindings, size_t len,
+                                            int prio) {
   CACHE_REGS
   Term ctl;
 

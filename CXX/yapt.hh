@@ -76,7 +76,7 @@ public:
   YAPTerm(void *ptr);
   /// parse string s and construct a term.
   YAPTerm(char *s) {
-    Term tp;
+    Term tp = 0;
     mk(YAP_ReadBuffer(s, &tp));
   }
 

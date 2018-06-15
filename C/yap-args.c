@@ -146,7 +146,7 @@ static void init_globals(YAP_init_args *yap_init) {
 }
 
 const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
-    *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR, *Yap_STARTUP,
+    *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR,
     *Yap_INPUT_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 /* do initial boot by consulting the file boot.yap */
@@ -272,7 +272,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// DLLDIR: where libraries can find expicitely loaded DLLs
   Yap_DLLDIR = sel(true, iap->DLLDIR != NULL, iap->DLLDIR, true,
 #if __ANDROID__
-                   NULL
+                   NULL,
 #else
                    join(getenv("DESTDIR"), YAP_DLLDIR),
 #endif
@@ -312,12 +312,12 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// BOOTPLDIR: where we can find Prolog bootstrap files
   Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
 #if __ANDROID__
-                      "/assets/Yap/pl",
+                      "/assets/Yap/pl/boot,yap",
 #else
                       join(getenv("DESTDIR"), YAP_BOOTSTRAP),
 #endif
                       false);
-  /// BOOTFILE: where we can find the core Prolog bootstrap file
+  /// BOOTFILE: where we can find the core Prolog boot file
   Yap_BOOTFILE = sel(false, iap->BOOTFILE != NULL, iap->BOOTFILE, true,
 #if __ANDROID__
                      "/assets/Yap/pl/boot.yap",
@@ -453,7 +453,7 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
   memset(iap, 0, sizeof(YAP_init_args));
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
-  iap->SavedState = NULL;
+  iap->INPUT_STARTUP = NULL;
   iap->assetManager = NULL;
 #else
   iap->boot_file_type = YAP_QLY;
@@ -970,6 +970,7 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 static YAP_file_type_t end_init(YAP_init_args *yap_init, YAP_file_type_t rc) {
   YAP_initialized = true;
   LOCAL_PrologMode &= ~BootMode;
+  CurrentModule = USER_MODULE;
   return rc;
 }
 
@@ -1039,7 +1040,7 @@ X_API YAP_file_type_t YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
-    consult(Yap_BOOTSTRAP PASS_REGS);
+    consult(Yap_BOOTFILE PASS_REGS);
     if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),

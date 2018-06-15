@@ -681,24 +681,14 @@ void init_myddas(void) {
   CACHE_REGS
   if (myddas_initialised)
     return;
+    init_sqlite3();
   myddas_initialised = TRUE;
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
 #endif
-#if WIN32
-  Yap_InitBackMYDDAS_SQLITE3Preds();
-#endif
-#if defined USE_MYDDAS
-  Yap_InitBackMYDDAS_SharedPreds();
-#endif
-#if defined MYDDAS_MYSQL
-  Yap_InitMYDDAS_MySQLPreds();
 #endif
 #if defined MYDDAS_ODBC
   Yap_InitMYDDAS_ODBCPreds();
-#endif
-#if WIN32
-  Yap_InitMYDDAS_SQLITE3Preds();
 #endif
 #if defined USE_MYDDAS
   Yap_InitMYDDAS_SharedPreds();
@@ -743,4 +733,3 @@ int WINAPI win_myddas(HANDLE hinst, DWORD reason, LPVOID reserved) {
 }
 #endif
 
-#endif /* USE_MYDDAS*/

@@ -293,7 +293,7 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap'].
-:- stop_low_level_trace.
+%:- stop_low_level_trace.
 
 
 :- meta_predicate(log_event(+,:)).

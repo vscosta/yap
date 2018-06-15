@@ -1,7 +1,7 @@
 //
-// Created by vsc on 7/6/17.
+// Created by vsc on 7/6/17->
 //
-/* File : example.cxx */
+/* File : example->cxx */
 
 #include "streamer.h"
 
@@ -25,13 +25,12 @@ extern "C" {
 #include <yapio.h>
 #include <iopreds.h>
 
-extern void Java_pt_up_yap_streamerJNI_swig_1module_1init__(void);
+extern void Java_pt_up_yap_streamerJNI_swig_1module_1init(void);
 
-static VFS_t andstream;
 
-void Java_pt_up_yap_streamerJNI_swig_1module_1init__(void) {
- //   streamerInstance = 0;
-} ;
+
+static VFS_t *andstream;
+
 
 static std::string buff0;
 
@@ -83,21 +82,28 @@ streamerInstance->display(buff0);
 
 }
 
-void
-AndroidStreamer::bind() {
-    buff0 = *new std::string[256];
-    andstream.name = "/android/user_error";
-    andstream.vflags = VFS_CAN_WRITE | VFS_HAS_PREFIX;
-    andstream.prefix = "/android";
-    andstream.suffix = NULL;
-    andstream.open = and_open;
-    andstream.close = and_close;
-    andstream.get_char = and_get;
-    andstream.put_char = and_put;
-    andstream.flush = and_flush;
-    andstream.seek = and_seek;
-    andstream.next = GLOBAL_VFS;
-    GLOBAL_VFS = &andstream;
-    Yap_InitStdStream(StdOutStream, Output_Stream_f | Append_Stream_f, NULL, &andstream);
-    Yap_InitStdStream(StdErrStream, Output_Stream_f | Append_Stream_f, NULL, &andstream);
+
+extern "C" {
+
+
+void Java_pt_up_yap_streamerJNI_swig_1module_1init(void) {
+    andstream = new VFS_t();
+
+    andstream->name = "/android/user_error";
+    andstream->vflags = VFS_CAN_WRITE | VFS_HAS_PREFIX;
+    andstream->prefix = "/android";
+    andstream->suffix = NULL;
+    andstream->open = and_open;
+    andstream->close = and_close;
+    andstream->get_char = and_get;
+    andstream->put_char = and_put;
+    andstream->flush = and_flush;
+    andstream->seek = and_seek;
+    andstream->next = GLOBAL_VFS;
+    GLOBAL_VFS = andstream;
+    Yap_InitStdStream(StdOutStream, Output_Stream_f | Append_Stream_f, NULL, andstream);
+    Yap_InitStdStream(StdErrStream, Output_Stream_f | Append_Stream_f, NULL, andstream);    //streamerInstance = 0;
+} ;
+
+
 }
