@@ -94,7 +94,7 @@ public:
   /// should be a callable
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
     
     openQuery();
@@ -114,7 +114,7 @@ public:
   /// It i;
   ///};
   /// build a query from a term
-  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()),(nts=Yap_XREGS+1)) {
+  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), nts) {
     BACKUP_MACHINE_REGS();
     openQuery();
     names =  TermNil ;

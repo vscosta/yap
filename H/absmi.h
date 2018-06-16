@@ -58,7 +58,7 @@
 #define USE_PREFETCH 1
 #endif
 
-#ifdef i386
+#if defined(i386) &&  CELLSIZE == 4
 #define Y_IN_MEM 1
 #define S_IN_MEM 1
 #define TR_IN_MEM 1
@@ -86,7 +86,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define TR_IN_MEM 1
 #endif /* sparc_ */
 
-#ifdef __x86_64__
+#if defined(__x86_64__) &&  CELLSIZE == 8
 #define SHADOW_P 1
 #ifdef BP_FREE
 #undef BP_FREE
@@ -100,7 +100,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #endif /* __x86_64__ */
 
 #if defined(__arm__) || defined(__thumb__) || defined(mips) ||                 \
-    defined(__mips64) || defined(__aarch64__)
+    defined(__mips64) || defined(__arch64__)
 
 #define Y_IN_MEM 1
 #define S_IN_MEM 1
@@ -119,7 +119,7 @@ register struct yami *P1REG asm("bp"); /* can't use yamop before Yap.h */
 #define SHADOW_S 1
 #endif
 
-#ifdef i386
+#if defined(i386) &&  CELLSIZE == 4
 #define Y_IN_MEM 1
 #define S_IN_MEM 1
 #define TR_IN_MEM 1
@@ -305,30 +305,6 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #endif
 
-#if S_IN_MEM
-
-#define CACHE_A1()
-
-#define CACHED_A1() ARG1
-
-#else
-
-#ifndef _NATIVE
-
-#define CACHE_A1() (SREG = (CELL *)ARG1)
-
-#define CACHED_A1() ((CELL)SREG)
-
-#else
-
-#define CACHE_A1() ((*_SREG) = (CELL *)ARG1)
-
-#define CACHED_A1() ((CELL)(*_SREG))
-
-#endif /* _NATIVE */
-
-#endif /* S_IN_MEM */
-
 /***************************************************************
  * TR is usually, but not always, a register. This affects      *
  * backtracking                                                 *
@@ -374,11 +350,19 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 
 #define READ_IN_S() S_SREG = SREG
 
+#define CACHE_A1() (SREG = (CELL *)ARG1)
+
+#define CACHED_A1() ((CELL)SREG)
+
 #else
 
 #define READ_IN_S() S_SREG = *_SREG
 
-#endif
+#define CACHE_A1() ((*_SREG) = (CELL *)ARG1)
+
+#define CACHED_A1() ((CELL)(*_SREG))
+
+   #endif
 
 #else
 
@@ -389,6 +373,10 @@ INLINE_ONLY inline EXTERN void restore_absmi_regs(REGSTORE *old_regs) {
 #define ENDCACHE_S() }
 
 #define READ_IN_S()
+
+#define CACHE_A1()
+
+#define CACHED_A1() (ARG1)
 
 #define S_SREG SREG
 

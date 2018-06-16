@@ -78,6 +78,9 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
 //    strcpy(dir, fname);
 //    char *d = basename(dir);
     am = AAssetManager_open(Yap_assetManager(), fname, mode);
+    if (am==NULL)
+            __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed open %s <%s>", fname, strerror(errno) );
+
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode );
 //    while (dp) {
 //        char *f = AAssetDir_getNextFileName(dp);

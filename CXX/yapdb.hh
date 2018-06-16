@@ -6,6 +6,8 @@
 #ifndef _YAPDB_H
 #define _YAPDB_H
 
+#include <YapInterface.h>
+
 #define YAP_CPP_DB_INTERFACE 1
 
 
@@ -70,7 +72,7 @@ class X_API YAPModuleProp : public YAPProp {
 
 public:
   YAPModuleProp(YAPModule tmod) { m = Yap_GetModuleEntry(tmod.gt()); };
-  YAPModuleProp() { CACHE_REGS m = Yap_GetModuleEntry(Yap_CurrentModule()); };
+  YAPModuleProp() {  m = Yap_GetModuleEntry(YAP_CurrentModule()); };
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
 
@@ -99,7 +101,7 @@ protected:
   /// Just do nothing.
   inline YAPPredicate() {
   }
-  
+
   YAPPredicate(Term &to, Term &tmod, CELL * &ts, const char *pname);
 
   /// Term constructor for predicates
@@ -110,7 +112,7 @@ protected:
       ap = getPred(t, v);
     }
   }
-  
+
 inline YAPPredicate(Term t) {
     if (t) {
       CELL *v = nullptr;

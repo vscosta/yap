@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /** @file C/flags.c
-    
+
     @brief  Prolog parameter setting,
 */
 
@@ -221,7 +221,7 @@ static bool sqf(Term t2) {
   ModEntry *new = Yap_GetModuleEntry(CurrentModule);
   return sqf1(new, t2 PASS_REGS);
 }
- 
+
 static Term isaccess(Term inp) {
   if (inp == TermReadWrite || inp == TermReadOnly)
     return inp;
@@ -724,7 +724,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     flag_term *tarr = GLOBAL_Flags;
     if (!(fv->type(t2)))
       return false;
-    
+
     if (fv->helper && !(fv->helper(t2)))
       return false;
     Term tout = tarr[fv->FlagOfVE].at;
@@ -782,7 +782,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     return bqf1(me, t2 PASS_REGS);
   } else if (fv->FlagOfVE == SINGLE_QUOTES_FLAG) {
     return sqf1(me, t2 PASS_REGS);
-    
+
   }
   // bad key?
   return false;

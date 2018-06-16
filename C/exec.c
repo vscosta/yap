@@ -1576,14 +1576,15 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
   choiceptr saved_b = B;
   bool out;
-
   Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
-  CACHE_A1();
+  CACHE_S();
+    CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
   //    PredPropByFunc(Yap_MkFunctor(AtomCall, 1), 0))); /* A1 mishaps */
 
   out = exec_absmi(top, YAP_EXEC_ABSMI PASS_REGS);
+    ENDCACHE_S();
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }
