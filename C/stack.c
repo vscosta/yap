@@ -1867,9 +1867,7 @@ void Yap_dump_stack(void) {
     fprintf(stderr, "\% YAP ERROR: Global Collided against Local (%p--%p)\n",
             HR, ASP);
   } else if (HeapTop > (ADDR)LOCAL_GlobalBase) {
-    fprintf(stderr,
-            "\% YAP ERROR: Code Space Collided against Global (%p--%p)\n",
-            HeapTop, LOCAL_GlobalBase);
+    fprintf(stderr, HeapTop, LOCAL_GlobalBase);
   } else {
 #if !USE_SYSTEM_MALLOC
     fprintf(stderr, "\%ldKB of Code Space (%p--%p)\n",
