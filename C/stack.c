@@ -1932,7 +1932,7 @@ fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
       }
       if (b_ptr) {
         if (!max_count--) {
-          fprintf(stderr, "\**  .....\n");
+          fprintf(stderr, "//  .....\n");
           return;
         }
         if (b_ptr->cp_ap && /* tabling */

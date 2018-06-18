@@ -152,7 +152,7 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
  * consult loop in C: used to boot the system, butt supports goal execution and recursive consulting.
  *
  * */
-static void consult(const char *b_file USES_REGS) {
+static bool consult(const char *b_file USES_REGS) {
   Term t;
   int c_stream, osno, oactive;
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
@@ -175,7 +175,7 @@ static void consult(const char *b_file USES_REGS) {
   }
   if (!Yap_AddAlias(AtomLoopStream, c_stream)) {
     pop_text_stack(lvl);
-    return;
+    return false;
   }
 
   do {
@@ -187,13 +187,15 @@ static void consult(const char *b_file USES_REGS) {
     Term vs = MkVarTerm(), pos = MkVarTerm();
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);
+      if (t == TermEof)
+	break;
     if (t == 0) {
       fprintf(stderr, "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
               b_file, GLOBAL_Stream[c_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
       fprintf(stderr, "[ line: " Int_FORMAT ": term cannot be compiled ]",
               GLOBAL_Stream[c_stream].linecount);
-    } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
+   } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
@@ -204,16 +206,17 @@ static void consult(const char *b_file USES_REGS) {
     } else {
      YAP_CompileClause(t);
     }
+  } while (true);
     yap_error_descriptor_t *errd;
     if ((errd =
 	 Yap_GetException(LOCAL_ActiveError))) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
               errd->errorAsText);
     }
-  } while (t != TermEof);
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);
   pop_text_stack(lvl);
+  return true;
 }
 
 ///
@@ -1037,6 +1040,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
+  TermEof = MkAtomTerm( Yap_LookupAtom("end_of_file"));
     consult(Yap_BOOTSTRAP PASS_REGS);
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
@@ -1051,8 +1055,8 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
                               MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   }
+  }
   YAP_RunGoalOnce(TermInitProlog);
-
      if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
        Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
@@ -1060,7 +1064,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
 
       YAP_RunGoalOnce(g);
      }
-  }
+
     end_init(yap_init);
 }
 

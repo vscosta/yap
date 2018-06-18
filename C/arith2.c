@@ -1155,15 +1155,6 @@ p_binary_is( USES_REGS1 )
           Yap_ClearExs();
     t1 = Yap_Eval(Deref(ARG3));
   t2 = Yap_Eval(Deref(ARG4));
-  {
-    Atom name;
-    if (IsIntTerm(t)) {
-      Int i = IntOfTerm(t);
-      name = Yap_NameOfBinaryOp(i);
-    } else {
-      name = AtomOfTerm(Deref(ARG2));
-    }
-  }
   if (IsIntTerm(t)) {
     Int i = IntOfTerm(t);
     bool go;

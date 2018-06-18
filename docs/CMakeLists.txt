@@ -49,6 +49,7 @@ ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.2
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.1
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
+${CMAKE_SOURCE_DIR}/packages/problog
 ${CMAKE_SOURCE_DIR}/packages/gecode/dev
 ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
 ${CMAKE_SOURCE_DIR}/H/globals.h
