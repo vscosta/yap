@@ -132,13 +132,9 @@ static bool py_close(int sno) {
 static bool getLine(StreamDesc *rl_iostream, int sno) {
   char *myrl_line = NULL;
   term_t ctk = python_acquire_GIL();
-  Py_ssize_t size;
-  PyObject *prompt = PyUnicode_FromString("?- "),
-           *msg = PyUnicode_FromString(" **input** "),
-           *o = PyObject_GetAttrString(rl_iostream->u.private_data, "read");
+
   /* window of vulnerability opened */
-  myrl_line = PyUnicode_AsUTF8AndSize(
-      PyObject_CallFunctionObjArgs(o, msg, prompt, NULL), &size);
+  myrl_line = PyUnicode_AsUTF8(PyObject_CallFunctionObjArgs(rl_iostream->u.private_data, NULL));
   python_release_GIL(ctk);
   PyObject *err;
     if ((err = PyErr_Occurred())) {
@@ -147,6 +143,7 @@ static bool getLine(StreamDesc *rl_iostream, int sno) {
         "Error in getLine\n");
     Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
   }
+                                                        size_t size = strlen (myrl_line)+1;
 rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf =
       (const unsigned char *)malloc(size);
   memcpy((void *)rl_iostream->u.irl.buf, myrl_line, size);

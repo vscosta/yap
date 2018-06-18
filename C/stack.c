@@ -1796,7 +1796,7 @@ void Yap_dump_stack(void) {
   /* check if handled */
   if (handled_exception(PASS_REGS1))
     return;
-#if DEBUG
+#if DEBU
   fprintf(stderr, "%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",
           P, CP, ASP, HR, TR, HeapTop);
 #endif
@@ -1804,11 +1804,11 @@ void Yap_dump_stack(void) {
   fprintf(stderr, "%% \n%%  =====================================\n%%\n");
   fprintf(stderr, "%% \n%%  YAP Status:\n");
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  yap_error_number errnb = LOCAL_Error_TYPE;
-  yap_error_class_number classno = Yap_errorClass(errnb);
+  yap_error_number errnbr = LOCAL_Error_TYPE;
+  yap_error_class_number classno = Yap_errorClass(errnbr);
 
-  fprintf(stderr, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnb),
-          Yap_errorClassName(classno));
+  fprintf(stderr, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
+          Yap_errorName(classno));
 
   fprintf(stderr, "%% Execution mode\n");
   if (LOCAL_PrologMode & BootMode)
@@ -1846,22 +1846,24 @@ void Yap_dump_stack(void) {
   if (LOCAL_PrologMode & SystemMode)
     fprintf(stderr, "%%         Prolog Internals\n");
   if (LOCAL_PrologMode & AsyncIntMode)
-    fprintf(stderr, "%%         Async Interrupt mode\n");
+    fprintf(stderr, "%%         Async Interruot mode\n");
   if (LOCAL_PrologMode & InReadlineMode)
     fprintf(stderr, "%%         Readline Console\n");
   if (LOCAL_PrologMode & TopGoalMode)
     fprintf(stderr, "%%         Creating new query\n");
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% \n%%  YAP Program  :\n");
+  fprintf(stderr, "%% \n%%  YAP Program:\n");
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% Program Position\n\n");
-  Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
+  fprintf(stderr, "%% Program Position: %s\n\n", Yap_errorName(errno) );
   fprintf(stderr, "%%          PC: %s\n", (char *)HR);
   Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
-  fprintf(stderr, "%%   Continuation: %s\n", (char *)HR);
+  fprintf(stderr, "%%          Continuation: %s\n", (char *)HR);
   Yap_detect_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
-  fprintf(stderr, "%%   Alternative: %s\n", (char *)HR);
+  fprintf(stderr, "%%          Alternative: %s\n", (char *)HR);
 
+  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
+  fprintf(stderr, "%% \n%%  YAP Stack Usage:\n");
+  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
   if (HR > ASP || HR > LCL0) {
     fprintf(stderr, "%% YAP ERROR: Global Collided against Local (%p--%p)\n",
             HR, ASP);
@@ -1906,6 +1908,9 @@ void Yap_dump_stack(void) {
       }
     }
 #endif
+fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
+fprintf(stderr, "%% \n%%  YAP Stack:\n");
+fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
     fprintf(stderr, "%% All Active Calls and\n");
     fprintf(stderr, "%%         Goals With Alternatives Open  (Global In "
                     "Use--Local In Use)\n%%\n");
@@ -1927,7 +1932,7 @@ void Yap_dump_stack(void) {
       }
       if (b_ptr) {
         if (!max_count--) {
-          fprintf(stderr, "%% \\**  .....\n");
+          fprintf(stderr, "\**  .....\n");
           return;
         }
         if (b_ptr->cp_ap && /* tabling */
