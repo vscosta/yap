@@ -305,7 +305,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
 
   if (!IsVarTerm(t)) {
     if (t != TermNil) {
-      Yap_ThrowError(TYPE_ERROR_LIST, t0, "scanning list of codes");
+      Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
       return NULL;
     }
   }
@@ -508,6 +508,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     s = Malloc(2 * MaxTmp(PASS_REGS1));
     if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
+      pop_text_stack(lvl);
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
     }
     return pop_output_text_stack(lvl, s);
@@ -527,6 +528,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     char *s;
     s = Malloc(MaxTmp());
     if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), s, MaxTmp() - 1, 10)) {
+      pop_text_stack(lvl);
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     }
     return inp->val.uc = pop_output_text_stack(lvl, s);
@@ -766,7 +768,7 @@ void *write_buffer(unsigned char *s0, seq_tv_t *out USES_REGS) {
     pop_text_stack(l);
     return NULL;
   }
-  out->val.c = pop_output_text_stack__(l, out->val.c);
+  out->val.c = pop_output_text_stack(l, out->val.c);
   return out->val.c;
 }
 

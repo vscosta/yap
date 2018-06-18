@@ -24,7 +24,7 @@
 #define MaxTemps	512
 #define MaxArithms	32
 
-#ifdef i386
+#if defined(i386) &&  CELLSIZE == 4
 #define PUSH_REGS 1
 #undef  PUSH_X
 #endif
@@ -34,7 +34,7 @@
 #undef  PUSH_X
 #endif
 
-#ifdef __x86_64__
+#if defined(__x86_64__) &&  CELLSIZE == 8
 #define  PUSH_REGS 1
 #undef  PUSH_X
 #endif

@@ -109,7 +109,7 @@ typedef struct vfs {
   int (*writers)(int ch, int sno);
   /** VFS dep
       endent area */
-  cell_size_t priv[4];
+  void *priv;
   struct vfs *next;
 } VFS_t;
 

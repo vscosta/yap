@@ -1,5 +1,5 @@
 all:
-	python code-generator.py
+	python3 code-generator.py
 
 clean:
 	-rm -f *~ *.pyc

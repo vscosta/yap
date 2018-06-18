@@ -401,6 +401,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       *HR++ = oargs;
       *HR++ = otail;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+	pop_text_stack(l);
         Yap_Error(RESOURCE_ERROR_HEAP, otail, "format/2");
         return false;
       }
@@ -428,6 +429,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     return false;
   }
   if (IsVarTerm(args)) {
+    pop_text_stack(l);
     format_clean_up(sno0, sno, finfo);
     Yap_Error(INSTANTIATION_ERROR, args, "format/2");
     return FALSE;
@@ -437,16 +439,19 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     args = ArgOfTerm(2, args);
     if (IsVarTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
+      pop_text_stack(l);
       Yap_Error(INSTANTIATION_ERROR, fmod, "format/2");
       return false;
     }
     if (!IsAtomTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
+      pop_text_stack(l);
       Yap_Error(TYPE_ERROR_ATOM, fmod, "format/2");
       return false;
     }
     if (IsVarTerm(args)) {
       format_clean_up(sno0, sno, finfo);
+      pop_text_stack(l);
       Yap_Error(INSTANTIATION_ERROR, args, "format/2");
       return FALSE;
     }
@@ -460,6 +465,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       if (tnum == FORMAT_COPY_ARGS_ERROR ||
 	  tnum == FORMAT_COPY_ARGS_OVERFLOW) {
 	format_clean_up(sno0, sno, finfo);
+	pop_text_stack(l);
 	return false;
       }
       else if (tnum == tsz ) {
@@ -484,6 +490,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       fstr = NULL;
 
     format_clean_up(sno, sno0, finfo);
+    pop_text_stack(l);
     return false;
   }
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
@@ -801,6 +808,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 			      if (!alloc_fstr)
 				fstr = NULL;
 			      format_clean_up(sno, sno0, finfo);
+			      pop_text_stack(l);
 			      return false;
 			    }
 			    ARG1 = Yap_GetFromHandle(s1);
@@ -837,6 +845,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				targs = NULL;
 			      }
 			      format_clean_up(sno, sno0, finfo);
+			      pop_text_stack(l);
 			      Yap_RaiseException();
 			      return false;
 			    }
@@ -973,6 +982,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 					      }
 					      format_clean_up(sno, sno0, finfo);
 					      LOCAL_Error_TYPE = YAP_NO_ERROR;
+					      pop_text_stack(l);
 					      return false;
 	    }
       }
@@ -997,6 +1007,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   fstr = NULL;
   targs = NULL;
   format_clean_up(sno, sno0, finfo);
+  pop_text_stack(l);
   return true;
 }
 

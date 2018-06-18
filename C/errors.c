@@ -862,6 +862,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // reset_error_description();
   if (!throw) {
     Yap_JumpToEnv();
+    pop_text_stack(LOCAL_MallocDepth+1);
   }
   LOCAL_PrologMode = UserMode;
   return P;
@@ -962,10 +963,11 @@ yap_error_descriptor_t *Yap_GetException(yap_error_descriptor_t *i) {
 void Yap_PrintException(void) { printErr(LOCAL_ActiveError); }
 
 bool Yap_RaiseException(void) {
-  if (LOCAL_CommittedError == NULL ||
-      LOCAL_CommittedError->errorNo == YAP_NO_ERROR)
+  if (LOCAL_ActiveError == NULL ||
+      LOCAL_ActiveError->errorNo == YAP_NO_ERROR)
     return false;
-  return Yap_JumpToEnv();
+  Yap_RestartYap(5);
+  //return Yap_JumpToEnv();
 }
 
 bool Yap_ResetException(yap_error_descriptor_t *i) {

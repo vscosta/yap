@@ -633,7 +633,7 @@ type_of_verb(rest,passive).
 
  */
 
-#include "absmi.h"
+#include <absmi.h>
 
 #include <Yatom.h>
 

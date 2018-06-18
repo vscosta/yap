@@ -31,6 +31,7 @@ extern "C" {
 #include <yapio.h>
 #include <iopreds.h>
 
+extern void Java_pt_up_yap_streamerJNI_swig_1module_1init(void);
 
 
 
@@ -92,11 +93,9 @@ extern "C" {
 
 
 void Java_pt_up_yap_streamerJNI_swig_1module_1init(void) {
-    if (andstream)
-        return;
     andstream = new VFS_t();
 
-    andstream->name = "android output window";
+    andstream->name = "/android/user_error";
     andstream->vflags = VFS_CAN_WRITE | VFS_HAS_PREFIX;
     andstream->prefix = "/android";
     andstream->suffix = NULL;
@@ -108,13 +107,9 @@ void Java_pt_up_yap_streamerJNI_swig_1module_1init(void) {
     andstream->seek = and_seek;
     andstream->next = GLOBAL_VFS;
     GLOBAL_VFS = andstream;
-
-    YAP_Term ts[1], args[1], goal;
-    ts[0] = MkAtomTerm(Yap_LookupAtom("android"));
-    args[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("library"),1), 1, ts);
-    goal = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("compile"),1), 1, args);
-    YAP_RunGoalOnce(goal);
- }
+    Yap_InitStdStream(StdOutStream, Output_Stream_f | Append_Stream_f, NULL, andstream);
+    Yap_InitStdStream(StdErrStream, Output_Stream_f | Append_Stream_f, NULL, andstream);    //streamerInstance = 0;
+} ;
 
 
 }

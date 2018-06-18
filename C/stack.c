@@ -1854,7 +1854,7 @@ void Yap_dump_stack(void) {
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
   fprintf(stderr, "%% \n%%  YAP Program:\n");
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% Program Position\n\n", Yap_errorName(errno) );
+  fprintf(stderr, "%% Program Position: %s\n\n", Yap_errorName(errno) );
   fprintf(stderr, "%%          PC: %s\n", (char *)HR);
   Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
   fprintf(stderr, "%%          Continuation: %s\n", (char *)HR);
@@ -1932,7 +1932,7 @@ fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
       }
       if (b_ptr) {
         if (!max_count--) {
-          fprintf(stderr, "%%\**  .....\n");
+          fprintf(stderr, "\**  .....\n");
           return;
         }
         if (b_ptr->cp_ap && /* tabling */
@@ -1950,6 +1950,7 @@ fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
     }
   }
 }
+
 
 void DumpActiveGoals(USES_REGS1) {
   /* try to dump active goals */
@@ -2006,7 +2007,7 @@ void DumpActiveGoals(USES_REGS1) {
     op_numbers opnum;
     if (!ONLOCAL(b_ptr) || b_ptr->cp_b == NULL)
       break;
-    fprintf(stderr, "%%p ", b_ptr);
+    fprintf(stderr, "%% %p ", b_ptr);
     pe = Yap_PredForChoicePt(b_ptr, &opnum);
     if (opnum == _Nstop) {
       fprintf(stderr, "  ********** C-Code Interface Boundary ***********\n");
@@ -2094,15 +2095,15 @@ void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize) {
   if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity,
                             &pred_module)) == 0) {
     /* system predicate */
-    fprintf(stderr, "%%s", "meta-call");
+    fprintf(stderr, "%% %s", "meta-call");
   } else if (pred_module == 0) {
     fprintf(stderr, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
             (unsigned long int)pred_arity);
   } else if (cl < 0) {
-    fprintf(stderr, "%%s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+    fprintf(stderr, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
   } else {
-    fprintf(stderr, "%%s:%s/%lu at clause %lu",
+    fprintf(stderr, "%% %s:%s/%lu at clause %lu",
             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity,
             (unsigned long int)cl);

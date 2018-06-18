@@ -159,13 +159,15 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
-  char *full;
 
   /* consult in C */
   int lvl = push_text_stack();
+  char *full = Malloc(YAP_FILENAME_MAX + 1);
+  full[0] = '\0';
   /* the consult mode does not matter here, really */
-  if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
+  if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
     osno = 0;
+  }
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, &full, &oactive);
   if (c_stream < 0) {
     fprintf(stderr, "[ FATAL ERROR: could not open file %s ]\n", b_file);
@@ -977,7 +979,6 @@ static void end_init(YAP_init_args *iap) {
   if (iap->HaltAfterBoot) Yap_exit(0);
   LOCAL_PrologMode &= ~BootMode;
   CurrentModule = USER_MODULE;
-
 }
 
 static void start_modules(void) {
@@ -1046,10 +1047,16 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
-    consult(Yap_BOOTFILE PASS_REGS);
     if (yap_init->install && Yap_OUTPUT_STARTUP) {
+    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                              MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
+    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
+  }
+  YAP_RunGoalOnce(TermInitProlog);
+
+     if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
-      Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
+       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
                               1, &t);
 
       YAP_RunGoalOnce(g);

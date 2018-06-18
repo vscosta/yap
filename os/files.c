@@ -671,7 +671,7 @@ static Int list_directory(USES_REGS1) {
 #if __ANDROID__
   {
     const char *dirName = buf + strlen("/assets/");
-    AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
+    AAssetManager *mgr = GLOBAL_VFS->priv;
     AAssetDir *de;
     const char *dp;
 
@@ -680,8 +680,8 @@ static Int list_directory(USES_REGS1) {
 		strerror(errno));
     }
     while ((dp = AAssetDir_getNextFileName(de))) {
-      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
-      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+      YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
+      Yap_PutInHandle(sl, MkPairTerm(ti, Yap_GetFromHandle(sl)));
     }
     AAssetDir_close(de);
   }

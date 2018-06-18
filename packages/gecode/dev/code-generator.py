@@ -625,13 +625,13 @@ class YAPEnumProlog(object):
                 t = sp[1].rstrip(">")
         for x in self.ENUM:
             print("is_%s_('%s')." % (t, x))
-        print()
+        print("\n")
         for x in self.ENUM:
             print("is_%s_('%s','%s')." % (t, x, x))
-        print()
+        print("\n")
         print("is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t))
         print("is_%s(X) :- is_%s_(X,_)." % (t,t))
-        print()
+        print("\n")
 
 class YAPEnumPrologGenerator(object):
 

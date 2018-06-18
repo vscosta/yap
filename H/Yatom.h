@@ -20,6 +20,7 @@
 #ifndef YATOM_H
 #define YATOM_H 1
 
+
 INLINE_ONLY inline EXTERN Atom AbsAtom(AtomEntry *p);
 INLINE_ONLY inline EXTERN AtomEntry *RepAtom(Atom a);
 
