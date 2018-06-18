@@ -4504,12 +4504,15 @@ location( java_root, _, Home) :-
 location(java_root, _, JRE) :-
     % OS well-known
     member(Root, [
-		/System/Library/Frameworks/JavaVM.framework/Versions/A/JavaV '/usr/lib',
-		   '/usr/local/lib',
-                   '/opt/lib',
-  '/Library/Java/JavaVirtualMachines',
-  '/System/Library/Frameworks'
-		 ]),
+	       '/Library/Java/JavaVirtualMachines',
+	       '/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation',
+	       '/System/Library/PrivateFrameworks/JavaLaunching.framework/Versions/A/JavaLaunching',
+	       '/System/Library/Frameworks/JavaVM.framework/Versions/A/Java',
+	       '/usr/lib',
+	       '/usr/local/lib',
+               '/opt/lib',
+	       '/System/Library/Frameworks'
+	   ]),
     exists_directory(Root),
     jdk_jre( Root, JRE).
 

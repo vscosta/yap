@@ -121,6 +121,7 @@ LOCAL_INIT(Int, LastGcTime, 0L);
 LOCAL_INIT(Int, LastSSTime, 0L);
 LOCAL_INIT(CELL *, OpenArray, NULL);
 /* in a single gc */
+LOCAL_INIT(int, MallocDepth, 0L);
 LOCAL_INIT(Int, total_marked, 0L);
 LOCAL_INIT(Int, total_oldies, 0L);
 LOCAL_INIT(struct choicept *, current_B, NULL);

@@ -1,10 +1,11 @@
-set(CMAKE_MACOSX_RPATH 1)
+# set(CMAKE_MACOSX_RPATH 1)
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_lib(jplYap  jpl.h jpl.c hacks.h)
 
-include_directories (${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS} )
+include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} )
 
-  target_link_libraries(jplYap  libYap ${JNI_LIBRARIES} ${JAVA_LIBRARIES})
+  target_link_libraries(jplYap  libYap ${JAVA_JVM_LIBRARY}  ${JAVA_AWT_LIBRARY})
 
   set_target_properties(jplYap PROPERTIES
     OUTPUT_NAME jpl

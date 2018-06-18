@@ -717,12 +717,15 @@ static Int number_chars(USES_REGS1) {
       pop_text_stack(l);
       return Yap_unify(ARG1, tf);
     }
+      pop_text_stack(l);
 
     LOCAL_ActiveError->errorRawTerm = 0;
     Yap_ThrowExistingError();
 
     return false;
   }
+        pop_text_stack(l);
+
   return true;
 }
 

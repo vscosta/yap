@@ -862,6 +862,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // reset_error_description();
   if (!throw) {
     Yap_JumpToEnv();
+    pop_text_stack(LOCAL_MallocDepth+1);
   }
   LOCAL_PrologMode = UserMode;
   return P;

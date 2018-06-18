@@ -1423,11 +1423,12 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   Int OldBorder = LOCAL_CBorder;
   //   yap_error_descriptor_t *err_info= LOCAL_ActiveError;
   LOCAL_CBorder = LCL0 - ENV;
+  LOCAL_MallocDepth = AllocLevel();
   yhandle_t sls = Yap_CurrentSlot();
 
   sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
   LOCAL_RestartEnv = &signew;
-  int i = AllocLevel();
+  volatile int i = AllocLevel();
   if /* top &&*/ ((lval = sigsetjmp(signew, 1)) != 0) {
     switch (lval) {
     case 1: { /* restart */
@@ -1458,7 +1459,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
        */
       /* reset the registers so that we don't have trash in abstract
        * machine */
-      pop_text_stack(i);
+      pop_text_stack(i+1);
       Yap_set_fpu_exceptions(
           getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *)FAILCODE;
@@ -1467,7 +1468,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     } break;
     case 3: { /* saved state */
       // LOCAL_ActiveError = err_info;
-      pop_text_stack(i);
+      pop_text_stack(i+1);
       LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
@@ -1481,7 +1482,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       // LOCAL_ActiveError = err_info;
       while (B) {
         LOCAL_ActiveError->errorNo = ABORT_EVENT;
-        pop_text_stack(i);
+        pop_text_stack(i+1);
         Yap_CloseSlots(sls);
         Yap_JumpToEnv();
       }
@@ -1489,7 +1490,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       P = (yamop *)FAILCODE;
       LOCAL_RestartEnv = sighold;
       Yap_CloseSlots(sls);
-      pop_text_stack(i);
+      pop_text_stack(i+1);
       return false;
       break;
     case 5:
@@ -1512,13 +1513,15 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
           (CELL *)(B->cp_b) > LCL0 - LOCAL_CBorder) {
         LOCAL_RestartEnv = sighold;
         LOCAL_CBorder = OldBorder;
-        return false;
+	pop_text_stack(i+1);
+	return false;
       }
       P = FAILCODE;
     }
   }
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
+  pop_text_stack(i+1);
   out = Yap_absmi(0);
   /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
@@ -1526,6 +1529,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
   LOCAL_RestartEnv = sighold;
+  pop_text_stack(i+1);
   return out;
 }
 
@@ -2114,6 +2118,7 @@ static Int jump_env(USES_REGS1) {
       LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
   }
+  pop_text_stack(LOCAL_MallocDepth+1);
   return out;
 }
 
