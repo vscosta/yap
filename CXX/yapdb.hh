@@ -99,8 +99,8 @@ protected:
   /// Just do nothing.
   inline YAPPredicate() {
   }
-  
   YAPPredicate(Term &to, Term &tmod, CELL * &ts, const char *pname);
+
 
   /// Term constructor for predicates
   ///
@@ -110,7 +110,7 @@ protected:
       ap = getPred(t, v);
     }
   }
-  
+
 inline YAPPredicate(Term t) {
     if (t) {
       CELL *v = nullptr;

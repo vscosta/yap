@@ -34,9 +34,9 @@
 
 #endif
 
-#include <stddef.h>
 #include <stdlib.h>
 
+#include <stddef.h>
 #ifdef _MSC_VER /* Microsoft's Visual C++ Compiler */
 #ifdef HAVE_UNISTD_H
 #undef HAVE_UNISTD_H
@@ -160,7 +160,7 @@ static void consult(const char *b_file USES_REGS) {
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
   char *full;
-  
+
   /* consult in C */
   int lvl = push_text_stack();
   /* the consult mode does not matter here, really */
@@ -316,7 +316,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// BOOTPLDIR: where we can find Prolog bootstrap files
   Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
 #if __ANDROID__
-                      "/assets/Yap/pl/boot.yap",
+                      "/assets/Yap/pl/boot,yap",
 #else
                       join(getenv("DESTDIR"), YAP_BOOTSTRAP),
 #endif
@@ -976,6 +976,8 @@ static void end_init(YAP_init_args *iap) {
   YAP_initialized = true;
   if (iap->HaltAfterBoot) Yap_exit(0);
   LOCAL_PrologMode &= ~BootMode;
+  CurrentModule = USER_MODULE;
+
 }
 
 static void start_modules(void) {
@@ -1012,7 +1014,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   //
 
   CACHE_REGS
-    
+
     if (yap_init->QuietMode) {
       setVerbosity(TermSilent);
     }
@@ -1044,19 +1046,15 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
-    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                              MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
-    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
-  }
-  YAP_RunGoalOnce(TermInitProlog);
-
-     if (yap_init->install && Yap_OUTPUT_STARTUP) {
+    consult(Yap_BOOTFILE PASS_REGS);
+    if (yap_init->install && Yap_OUTPUT_STARTUP) {
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
                               1, &t);
 
       YAP_RunGoalOnce(g);
      }
+  }
     end_init(yap_init);
 }
 
