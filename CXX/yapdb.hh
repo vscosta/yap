@@ -152,10 +152,10 @@ public:
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s0, Term &tout, Term &tnames, CELL *&nts) {
+  YAPPredicate(const char *s0, Term &tout, YAPPairTerm &names, CELL *&nts) {
     CACHE_REGS
     const char *s = (const char *)s0;
-    tnames = MkVarTerm();
+    Term tnames = MkVarTerm();
     tout =
             Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
@@ -165,7 +165,7 @@ public:
   }
   ap = getPred(tout, nts);
   tout = Yap_SaveTerm(tout);
-  tnames = Yap_SaveTerm(tnames);
+  names = YAPPairTerm(tnames);
   }
 
 

@@ -12,6 +12,8 @@ main_ .
 
 init :-
     db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+
+db_open(sqlite3, '/assets/Yap/chinook.db', _, _),
     writeln('chinook has landed'),
 	db_import('Artist', artist),
 	db_import('Album', album),

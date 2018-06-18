@@ -137,7 +137,7 @@ extern bool Yap_flush(int sno);
 extern uint64_t HashFunction(const unsigned char *);
 extern uint64_t WideHashFunction(wchar_t *);
 
-INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
+INLINE_ONLY Term MkCharTerm(Int c);
 
 /**
  * MkCharTerm: convert a character into a single atom.
@@ -146,7 +146,7 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c);
  *
  * @return the term.
  */
-INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
+INLINE_ONLY Term MkCharTerm(Int c) {
   unsigned char cs[10];
   if (c < 0)
     return TermEof;
@@ -160,7 +160,7 @@ INLINE_ONLY inline EXTERN Term MkCharTerm(Int c) {
 extern char *GLOBAL_cwd;
 
 
-INLINE_ONLY inline EXTERN  char *Yap_VF(const char *path){
+INLINE_ONLY  char *Yap_VF(const char *path){
     char *out;
 
     out = (char *)malloc(YAP_FILENAME_MAX+1);
@@ -174,7 +174,7 @@ INLINE_ONLY inline EXTERN  char *Yap_VF(const char *path){
 }
 
 
-INLINE_ONLY inline EXTERN  char *Yap_VFAlloc(const char *path){
+INLINE_ONLY  char *Yap_VFAlloc(const char *path){
     char *out;
 
     out = (char *)malloc(YAP_FILENAME_MAX+1);

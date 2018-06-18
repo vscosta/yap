@@ -24,8 +24,8 @@
 
 #include "YapStreams.h"
 
-INLINE_ONLY EXTERN inline UInt PRED_HASH(FunctorEntry *, Term, UInt);
-INLINE_ONLY EXTERN inline bool IsStreamTerm(Term t) {
+INLINE_ONLY UInt PRED_HASH(FunctorEntry *, Term, UInt);
+INLINE_ONLY bool IsStreamTerm(Term t) {
   return !IsVarTerm(t) &&
          (IsAtomTerm(t) ||
           (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
@@ -210,11 +210,11 @@ extern void Yap_DeleteAliases(int sno);
 extern bool Yap_FindStreamForAlias(Atom al);
 extern bool Yap_FetchStreamAlias(int sno, Term t2 USES_REGS);
 
-INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s);
+INLINE_ONLY void count_output_char(int ch, StreamDesc *s);
 
 extern Term Yap_StreamUserName(int sno);
 
-INLINE_ONLY inline EXTERN void count_output_char(int ch, StreamDesc *s) {
+INLINE_ONLY void count_output_char(int ch, StreamDesc *s) {
   if (ch == '\n') {
 #if MPWSHELL
     if (mpwshell && (sno == StdOutStream || sno == StdErrStream) &&

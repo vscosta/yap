@@ -82,17 +82,17 @@ long int XTAG(TERM t)
 
 #include "inline-only.h"
 
-INLINE_ONLY extern inline TERM ADDTAG(void * t,int tag);
-INLINE_ONLY extern inline int is_UNIFIABLE(TERM t1, TERM t2);
-INLINE_ONLY extern inline int is_IDENTICAL(TERM t1, TERM t2);
-INLINE_ONLY extern inline char *bp_term_2_string(TERM t);
-INLINE_ONLY extern inline int bp_string_2_term(const char *s, TERM to, TERM tv);
-INLINE_ONLY extern inline SYM_REC_PTR insert(const char *name, int size, int arity);
-INLINE_ONLY extern inline int compare(TERM t1, TERM t2);
-INLINE_ONLY extern inline void write_term(TERM t);
-INLINE_ONLY extern inline void numberVarTermOpt(TERM t);
-INLINE_ONLY extern inline TERM unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2);
-INLINE_ONLY extern inline int unifyNumberedTerms(TERM t1, TERM t2);
+INLINE_ONLY TERM ADDTAG(void * t,int tag);
+INLINE_ONLY int is_UNIFIABLE(TERM t1, TERM t2);
+INLINE_ONLY int is_IDENTICAL(TERM t1, TERM t2);
+INLINE_ONLY char *bp_term_2_string(TERM t);
+INLINE_ONLY int bp_string_2_term(const char *s, TERM to, TERM tv);
+INLINE_ONLY SYM_REC_PTR insert(const char *name, int size, int arity);
+INLINE_ONLY int compare(TERM t1, TERM t2);
+INLINE_ONLY void write_term(TERM t);
+INLINE_ONLY void numberVarTermOpt(TERM t);
+INLINE_ONLY TERM unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2);
+INLINE_ONLY int unifyNumberedTerms(TERM t1, TERM t2);
 
 int bpx_call_term(TERM t);
 int bpx_call_string(const char *s);
@@ -103,7 +103,7 @@ void bpx_write(TERM t);
 int bpx_printf(const char *fmt, ...);
 
 
-INLINE_ONLY extern inline TERM ADDTAG(void * t,int tag) {
+INLINE_ONLY TERM ADDTAG(void * t,int tag) {
   if (tag == ATM) 
     return MkAtomTerm((Atom)t);
   if (tag == LST) 
@@ -133,12 +133,12 @@ TERM encodefloat1(double f USES_REGS)
   return MkFloatTerm((Float)f);
 }
 
-INLINE_ONLY extern inline int is_UNIFIABLE(TERM t1, TERM t2)
+INLINE_ONLY int is_UNIFIABLE(TERM t1, TERM t2)
 {
   return YAP_Unifiable(t1, t2);
 }
 
-INLINE_ONLY extern inline int is_IDENTICAL(TERM t1, TERM t2)
+INLINE_ONLY int is_IDENTICAL(TERM t1, TERM t2)
 {
   return YAP_ExactlyEqual(t1, t2);
 }
@@ -183,7 +183,7 @@ extern BPLONG toam_signal_vec;
 extern inline INLINE_ONLY int YAP_UnifyINT(YAP_Term t1, YAP_Term t2);
 extern inline INLINE_ONLY int YAP_UnifyINT(YAP_Term t1, YAP_Term t2) { return YAP_Unify(t1,t2); }
 
-INLINE_ONLY extern inline char *
+INLINE_ONLY char *
 bp_term_2_string(TERM t)
 {
   char *buf = malloc(256);
@@ -193,7 +193,7 @@ bp_term_2_string(TERM t)
 }
 
 // char *bp_get_name(TERM t)
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 bp_string_2_term(const char *s, TERM to, TERM tv)
 {
   TERM t0 = YAP_ReadBuffer(s, NULL);
@@ -201,7 +201,7 @@ bp_string_2_term(const char *s, TERM to, TERM tv)
   return unify(t0, to) && unify(t1,tv);
 }
 
-INLINE_ONLY extern inline SYM_REC_PTR
+INLINE_ONLY SYM_REC_PTR
 insert(const char *name, int size, int arity)
 {
   if (!arity) {
@@ -210,30 +210,30 @@ insert(const char *name, int size, int arity)
   return (SYM_REC_PTR)YAP_MkFunctor(YAP_LookupAtom(name), arity);
 }
 
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 compare(TERM t1, TERM t2)
 {
   // compare terms??
   return YAP_CompareTerms(t1,t2);
 }
 
-INLINE_ONLY extern inline void
+INLINE_ONLY void
 write_term(TERM t)
 {
   YAP_Write(t,NULL,0);
 }
 
-INLINE_ONLY inline EXTERN NORET quit(const char *s);
-INLINE_ONLY inline EXTERN NORET myquit(int i, const char *s);
+INLINE_ONLY NORET quit(const char *s);
+INLINE_ONLY NORET myquit(int i, const char *s);
 
-INLINE_ONLY inline EXTERN NORET quit(const char *s)
+INLINE_ONLY NORET quit(const char *s)
 {
   fprintf(stderr,"PRISM QUIT: %s\n",s);
   exit(0);
 }
 
 
-INLINE_ONLY inline EXTERN NORET myquit(int i, const char *s)
+INLINE_ONLY NORET myquit(int i, const char *s)
 {
   fprintf(stderr,"PRISM QUIT: %s\n",s);
   exit(i);
@@ -248,19 +248,19 @@ list_length(BPLONG t1, BPLONG t2)
 
 #define PRE_NUMBER_VAR(X) 
 
-INLINE_ONLY extern inline void
+INLINE_ONLY void
 numberVarTermOpt(TERM t)
 {
   YAP_NumberVars(t, 0);
 }
 
-INLINE_ONLY extern inline TERM
+INLINE_ONLY TERM
 unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2)
 {
   return YAP_UnNumberVars(t);
 }
 
-INLINE_ONLY extern inline int
+INLINE_ONLY int
 unifyNumberedTerms(TERM t1, TERM t2)
 {
   if (YAP_Unify(t1,t2))

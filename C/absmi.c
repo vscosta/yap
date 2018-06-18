@@ -1191,7 +1191,6 @@ Int Yap_absmi(int inp) {
 #ifdef SHADOW_S
   register CELL *SREG = Yap_REGS.S_;
 #else
-#define SREG S
 #endif /* SHADOW_S */
 
 /* The indexing register so that we will not destroy ARG1 without

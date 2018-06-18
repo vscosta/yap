@@ -1794,7 +1794,6 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
     choiceptr myB, handler;
-  bool backtrack = false;
 
   //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
@@ -2162,7 +2161,11 @@ X_API FILE *YAP_TermToStream(Term t) {
 X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
+#if __unix__
+    Yap_ChDir(dirname(full));
+#else
   Yap_ChDir(full);
+#endif
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();

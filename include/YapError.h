@@ -74,7 +74,7 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
   { if ( (TF = Yap_ensure_atom__(__FILE__, __FUNCTION__, __LINE__, T0  )  == 0L ) return false; \
   }
 
-INLINE_ONLY extern inline Term Yap_ensure_atom__(const char *fu, const char *fi,
+INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
                                                  int line, Term in) {
   Term t = Deref(in);
   // Term Context = Deref(ARG2);

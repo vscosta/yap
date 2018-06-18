@@ -1052,7 +1052,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       pop_text_stack(lvl);
       Yap_popErrorContext(err, true);
       if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-        Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
+        Yap_Error(LOCAL_Error_TYPE, Yap_MkStream(sno), LOCAL_ErrorMessage);
       }
       return fe.t;
     }

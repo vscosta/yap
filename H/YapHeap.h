@@ -230,9 +230,9 @@ static inline yamop *gc_P(yamop *p, yamop *cp) {
 
 #define Yap_CurrentModule() Yap_CurrentModule__(PASS_REGS1)
 
-INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1);
+INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1);
 
-INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
+INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1) {
   if (CurrentModule)
     return CurrentModule;
   return TermProlog;
@@ -259,9 +259,9 @@ extern ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 extern ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
-INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
+INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void);
 
-INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
+INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
     return AuxBase;
 }

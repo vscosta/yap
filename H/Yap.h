@@ -188,9 +188,9 @@ extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DL
 #endif
 
 #if !defined(HAVE_STRNLEN)
-INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen);
+INLINE_ONLY size_t strnlen(const char *s, size_t maxlen);
 
-INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
+INLINE_ONLY size_t strnlen(const char *s, size_t maxlen) {
   size_t i = 0;
   while (s[i]) {
     if (i == maxlen)

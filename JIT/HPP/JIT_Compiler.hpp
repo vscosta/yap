@@ -110,16 +110,16 @@ typedef struct jit_compiler JIT_Compiler;
 
 EXTERN void* (*Yap_JitCall)(JIT_Compiler* jc, yamop* p);
 
-INLINE_ONLY inline EXTERN void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p);
+INLINE_ONLY void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p);
 
-INLINE_ONLY inline EXTERN void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p) {
+INLINE_ONLY void* call_JIT_Compiler(JIT_Compiler* jc, yamop* p) {
   return Yap_JitCall (jc,p); }
 
-INLINE_ONLY inline EXTERN void shutdown_llvm(void ) ;
+INLINE_ONLY void shutdown_llvm(void ) ;
 
 EXTERN void (* Yap_llvmShutdown)(void ) ;
 
-INLINE_ONLY inline EXTERN void shutdown_llvm(void ) {  Yap_llvmShutdown (); }
+INLINE_ONLY void shutdown_llvm(void ) {  Yap_llvmShutdown (); }
 
 #endif
 

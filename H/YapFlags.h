@@ -25,7 +25,7 @@
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
-// INLINE_ONLY inline EXTERN  bool nat( Term inp );
+// INLINE_ONLY  bool nat( Term inp );
 
 #define SYSTEM_OPTION_0 "attributed_variables,rational_trees]"
 #if THREADS
@@ -103,7 +103,7 @@ static inline Term ro(Term inp) {
   return TermZERO;
 }
 
-INLINE_ONLY inline EXTERN Term aro(Term inp) {
+INLINE_ONLY Term aro(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
@@ -116,7 +116,7 @@ INLINE_ONLY inline EXTERN Term aro(Term inp) {
   return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN Term booleanFlag( Term inp );
+// INLINE_ONLY Term booleanFlag( Term inp );
 
 static inline Term booleanFlag(Term inp) {
   if (inp == TermTrue || inp == TermOn)
@@ -164,7 +164,7 @@ static inline Term list_filler(Term inp) {
   return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN  Term isatom( Term inp );
+// INLINE_ONLY  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
   if (IsVarTerm(inp)) {
@@ -186,7 +186,7 @@ static inline const char *                                                      
   return Yap_ROOTDIR;
 }
 
-// INLINE_ONLY inline EXTERN  Term ok( Term inp );
+// INLINE_ONLY  Term ok( Term inp );
 
 static inline Term ok(Term inp) { return inp; }
 

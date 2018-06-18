@@ -24,32 +24,31 @@
 #define MaxTemps	512
 #define MaxArithms	32
 
-#if defined(i386) &&  CELLSIZE == 4
-#define PUSH_REGS 1
-#undef  PUSH_X
-#endif
+#if defined(__x86_64__)
 
-#ifdef sparc
-#define PUSH_REGS 1
-#undef  PUSH_X
-#endif
-
-#if defined(__x86_64__) &&  CELLSIZE == 8
 #define  PUSH_REGS 1
 #undef  PUSH_X
-#endif
 
-#ifdef __alpha
+#elif defined(i386)
+
+#undef PUSH_REGS
+#undef  PUSH_X
+
+#elif defined(sparc)
+#define PUSH_REGS 1
+#undef  PUSH_X
+
+#elif defined(__alpha)
+
 #undef  PUSH_REGS
 #undef  PUSH_X
-#endif
 
-#if defined(_POWER) || defined(__POWERPC__)
+#elif defined(_POWER) || defined(__POWERPC__)
+
 #undef  PUSH_REGS
 #undef  PUSH_X
-#endif
 
-#ifdef hppa
+#elif defined( hppa )
 #undef  PUSH_REGS
 #undef  PUSH_X
 #endif
@@ -72,12 +71,12 @@
 
 #include "inline-only.h"
 
-INLINE_ONLY inline EXTERN void restore_machine_regs(void);
-INLINE_ONLY inline EXTERN void save_machine_regs(void);
-INLINE_ONLY inline EXTERN void restore_H(void);
-INLINE_ONLY inline EXTERN void save_H(void);
-INLINE_ONLY inline EXTERN void restore_B(void);
-INLINE_ONLY inline EXTERN void save_B(void);
+INLINE_ONLY void restore_machine_regs(void);
+INLINE_ONLY void save_machine_regs(void);
+INLINE_ONLY void restore_H(void);
+INLINE_ONLY void save_H(void);
+INLINE_ONLY void restore_B(void);
+INLINE_ONLY void save_B(void);
 
 #define CACHE_REGS
 #define REFRESH_CACHE_REGS
@@ -160,7 +159,7 @@ extern REGSTORE *Yap_regp;
 
 #ifdef PUSH_X
 
-#define XREGS  (Yap_REGS.XTERMS)
+#define XREGS  (Yapregp->XTERMS)
 
 #else
 
@@ -243,7 +242,7 @@ register CELL CreepFlag asm ("$15");
 
 /* Interface with foreign code, make sure the foreign code sees all the
    registers the way they used to be */
-INLINE_ONLY EXTERN inline void save_machine_regs(void) {
+INLINE_ONLY void save_machine_regs(void) {
   Yap_REGS.H_  = HR;
   Yap_REGS.HB_ = HB;
   Yap_REGS.B_   = B;
@@ -254,7 +253,7 @@ INLINE_ONLY EXTERN inline void save_machine_regs(void) {
   Yap_REGS.TR_  = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
+INLINE_ONLY void restore_machine_regs(void) {
   HR = Yap_REGS.H_;
   HB = Yap_REGS.HB_;
   B = Yap_REGS.B_;
@@ -283,11 +282,11 @@ INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
   CP = BK_CP;                           \
   TR = BK_TR
 
-INLINE_ONLY EXTERN inline void save_H(void) {
+INLINE_ONLY void save_H(void) {
   Yap_REGS.H_   = HR;
 }
 
-INLINE_ONLY EXTERN inline void restore_H(void) {
+INLINE_ONLY void restore_H(void) {
   HR = Yap_REGS.H_;
 }
 
@@ -295,11 +294,11 @@ INLINE_ONLY EXTERN inline void restore_H(void) {
 
 #define RECOVER_H()  save_H(); HR = BK_H
 
-INLINE_ONLY EXTERN inline void save_B(void) {
+INLINE_ONLY void save_B(void) {
   Yap_REGS.B_   = B;
 }
 
-INLINE_ONLY EXTERN inline void restore_B(void) {
+INLINE_ONLY void restore_B(void) {
   B = Yap_REGS.B_;
 }
 
@@ -310,11 +309,11 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 INLINE_ONLY EXTERN void restore_TR(void);
 INLINE_ONLY EXTERN void save_TR(void);
 
-INLINE_ONLY EXTERN inline void save_TR(void) {
+INLINE_ONLY void save_TR(void) {
   Yap_REGS.TR_ = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_TR(void) {
+INLINE_ONLY void restore_TR(void) {
   TR = Yap_REGS.TR_;
 }
 
@@ -330,7 +329,7 @@ register CELL *S asm ("r16");
 register CELL CreepFlag asm ("r17");
 register tr_fr_ptr TR asm ("r18");
 
-INLINE_ONLY EXTERN inline void save_machine_regs(void) {
+INLINE_ONLY void save_machine_regs(void) {
   Yap_REGS.H_   = HR;
   Yap_REGS.HB_ = HB;
   Yap_REGS.B_   = B;
@@ -339,7 +338,7 @@ INLINE_ONLY EXTERN inline void save_machine_regs(void) {
   Yap_REGS.TR_  = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
+INLINE_ONLY void restore_machine_regs(void) {
   HR = Yap_REGS.H_;
   HB = Yap_REGS.HB_;
   B = Yap_REGS.B_;
@@ -366,11 +365,11 @@ INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
   CP = BK_CP;                           \
   TR = BK_TR
 
-INLINE_ONLY EXTERN inline void save_H(void) {
+INLINE_ONLY void save_H(void) {
   Yap_REGS.H_   = HR;
 }
 
-INLINE_ONLY EXTERN inline void restore_H(void) {
+INLINE_ONLY void restore_H(void) {
   HR = Yap_REGS.H_;
 }
 
@@ -378,11 +377,11 @@ INLINE_ONLY EXTERN inline void restore_H(void) {
 
 #define RECOVER_H()  save_H(); HR = BK_H
 
-INLINE_ONLY EXTERN inline void save_B(void) {
+INLINE_ONLY void save_B(void) {
   Yap_REGS.B_ = B;
 }
 
-INLINE_ONLY EXTERN inline void restore_B(void) {
+INLINE_ONLY void restore_B(void) {
   B = Yap_REGS.B_;
 }
 
@@ -393,11 +392,11 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 INLINE_ONLY EXTERN void restore_TR(void);
 INLINE_ONLY EXTERN void save_TR(void);
 
-INLINE_ONLY EXTERN inline void save_TR(void) {
+INLINE_ONLY void save_TR(void) {
   Yap_REGS.TR_ = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_TR(void) {
+INLINE_ONLY void restore_TR(void) {
   TR = Yap_REGS.TR_;
 }
 
@@ -442,7 +441,7 @@ register CELL *YENV asm ("r19");
 
 
 
-INLINE_ONLY EXTERN inline void save_machine_regs(void) {
+INLINE_ONLY void save_machine_regs(void) {
   Yap_REGS.H_   = HR;
   Yap_REGS.HB_ = HB;
   Yap_REGS.B_   = B;
@@ -451,7 +450,7 @@ INLINE_ONLY EXTERN inline void save_machine_regs(void) {
   Yap_REGS.TR_  = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
+INLINE_ONLY void restore_machine_regs(void) {
   HR = Yap_REGS.H_;
   HB = Yap_REGS.HB_;
   B = Yap_REGS.B_;
@@ -476,11 +475,11 @@ INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
   CP = BK_CP;                           \
   TR = BK_TR
 
-INLINE_ONLY EXTERN inline void save_H(void) {
+INLINE_ONLY void save_H(void) {
   Yap_REGS.H_   = HR;
 }
 
-INLINE_ONLY EXTERN inline void restore_H(void) {
+INLINE_ONLY void restore_H(void) {
   HR = Yap_REGS.H_;
 }
 
@@ -488,11 +487,11 @@ INLINE_ONLY EXTERN inline void restore_H(void) {
 
 #define RECOVER_H()  save_H(); HR = BK_H
 
-INLINE_ONLY EXTERN inline void save_B(void) {
+INLINE_ONLY void save_B(void) {
   Yap_REGS.B_   = B;
 }
 
-INLINE_ONLY EXTERN inline void restore_B(void) {
+INLINE_ONLY void restore_B(void) {
   B = Yap_REGS.B_;
 }
 
@@ -503,11 +502,11 @@ INLINE_ONLY EXTERN inline void restore_B(void) {
 INLINE_ONLY EXTERN void restore_TR(void);
 INLINE_ONLY EXTERN void save_TR(void);
 
-INLINE_ONLY EXTERN inline void save_TR(void) {
+INLINE_ONLY void save_TR(void) {
   Yap_REGS.TR_ = TR;
 }
 
-INLINE_ONLY EXTERN inline void restore_TR(void) {
+INLINE_ONLY void restore_TR(void) {
   TR = Yap_REGS.TR_;
 }
 
@@ -524,30 +523,30 @@ INLINE_ONLY EXTERN inline void restore_TR(void) {
 #define HB         Yap_REGS.HB_	/* heap (global) stack top at time of latest c.p. */
 #define CreepFlag Yap_REGS.CreepFlag_
 
-INLINE_ONLY EXTERN inline void save_machine_regs(void) {
+INLINE_ONLY void save_machine_regs(void) {
 }
 
-INLINE_ONLY EXTERN inline void restore_machine_regs(void) {
+INLINE_ONLY void restore_machine_regs(void) {
 }
 
 #define BACKUP_MACHINE_REGS()
 
 #define RECOVER_MACHINE_REGS()
 
-INLINE_ONLY EXTERN inline void save_H(void) {
+INLINE_ONLY void save_H(void) {
 }
 
-INLINE_ONLY EXTERN inline void restore_H(void) {
+INLINE_ONLY void restore_H(void) {
 }
 
 #define BACKUP_H()
 
 #define RECOVER_H()
 
-INLINE_ONLY EXTERN inline void save_B(void) {
+INLINE_ONLY void save_B(void) {
 }
 
-INLINE_ONLY EXTERN inline void restore_B(void) {
+INLINE_ONLY void restore_B(void) {
 }
 
 #define BACKUP_B()

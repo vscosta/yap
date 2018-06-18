@@ -346,6 +346,7 @@ bool Yap_ChDir(const char *path) {
   bool rc = false;
   int lvl = push_text_stack();
 
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
   VFS_t *v;
   if ((v = vfs_owner(path))) {
     rc = v->chdir(v, path);
@@ -1134,7 +1135,9 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   }
   return (char *)cwd;
 #endif
-  return getcwd(cwd, FILENAME_MAX);
+  const char *rc = getcwd(cwd, FILENAME_MAX);
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", rc);
+return rc;
 }
 
 static Int working_directory(USES_REGS1) {

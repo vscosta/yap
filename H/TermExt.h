@@ -71,9 +71,9 @@ typedef enum {
 
 #define IsAttVar(pt) __IsAttVar((pt)PASS_REGS)
 
-INLINE_ONLY inline EXTERN int __IsAttVar(CELL *pt USES_REGS);
+INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS);
 
-INLINE_ONLY inline EXTERN int __IsAttVar(CELL *pt USES_REGS) {
+INLINE_ONLY int __IsAttVar(CELL *pt USES_REGS) {
 #ifdef YAP_H
   return (pt)[-1] == (CELL)attvar_e && pt < HR;
 #else
@@ -81,9 +81,9 @@ INLINE_ONLY inline EXTERN int __IsAttVar(CELL *pt USES_REGS) {
 #endif
 }
 
-INLINE_ONLY inline EXTERN int GlobalIsAttVar(CELL *pt);
+INLINE_ONLY int GlobalIsAttVar(CELL *pt);
 
-INLINE_ONLY inline EXTERN int GlobalIsAttVar(CELL *pt) {
+INLINE_ONLY int GlobalIsAttVar(CELL *pt) {
   return (pt)[-1] == (CELL)attvar_e;
 }
 
@@ -101,9 +101,9 @@ typedef enum {
   USER_BLOB_END = 0x0200    /* end of user defined blob */
 } big_blob_type;
 
-INLINE_ONLY inline EXTERN blob_type BlobOfFunctor(Functor f);
+INLINE_ONLY blob_type BlobOfFunctor(Functor f);
 
-INLINE_ONLY inline EXTERN blob_type BlobOfFunctor(Functor f) {
+INLINE_ONLY blob_type BlobOfFunctor(Functor f) {
   return (blob_type)((CELL)f);
 }
 
@@ -161,28 +161,28 @@ typedef struct special_functors_struct {
 } special_functors;
 #endif /* YAP_H */
 
-INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr);
+INLINE_ONLY Float CpFloatUnaligned(CELL *ptr);
 
 #define MkFloatTerm(fl) __MkFloatTerm((fl)PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __MkFloatTerm(Float USES_REGS);
+INLINE_ONLY Term __MkFloatTerm(Float USES_REGS);
 
-INLINE_ONLY inline EXTERN Float FloatOfTerm(Term t);
+INLINE_ONLY Float FloatOfTerm(Term t);
 
 #if SIZEOF_DOUBLE == SIZEOF_INT_P
 
-INLINE_ONLY inline EXTERN Term __MkFloatTerm(Float dbl USES_REGS) {
+INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((HR[0] = (CELL)FunctorDouble, *(Float *)(HR + 1) = dbl,
                  HR[2] = EndSpecials, HR += 3, AbsAppl(HR - 3)));
 }
 
-INLINE_ONLY inline EXTERN Float FloatOfTerm(Term t) {
+INLINE_ONLY Float FloatOfTerm(Term t) {
   return (Float)(*(Float *)(RepAppl(t) + 1));
 }
 
 #define InitUnalignedFloat()
 
-INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr) {
+INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
   return *((Float *)ptr);
 }
 
@@ -192,9 +192,9 @@ INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr) {
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR)&0x4)
 
-INLINE_ONLY EXTERN inline void AlignGlobalForDouble(USES_REGS1);
+INLINE_ONLY void AlignGlobalForDouble(USES_REGS1);
 
-INLINE_ONLY EXTERN inline void AlignGlobalForDouble(USES_REGS1) {
+INLINE_ONLY void AlignGlobalForDouble(USES_REGS1) {
   /* Force Alignment for floats. Note that garbage collector may
      break the alignment; */
   if (!DOUBLE_ALIGNED(HR)) {
@@ -204,13 +204,13 @@ INLINE_ONLY EXTERN inline void AlignGlobalForDouble(USES_REGS1) {
 }
 
 #ifdef i386
-INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr) {
+INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
   return *((Float *)(ptr + 1));
 }
 
 #else
 /* first, need to address the alignment problem */
-INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr) {
+INLINE_ONLY Float CpFloatUnaligned(CELL *ptr) {
   union {
     Float f;
     CELL d[2];
@@ -222,13 +222,13 @@ INLINE_ONLY inline EXTERN Float CpFloatUnaligned(CELL *ptr) {
 
 #endif
 
-INLINE_ONLY inline EXTERN Term __MkFloatTerm(Float dbl USES_REGS) {
+INLINE_ONLY Term __MkFloatTerm(Float dbl USES_REGS) {
   return (Term)((AlignGlobalForDouble(PASS_REGS1), HR[0] = (CELL)FunctorDouble,
                  *(Float *)(HR + 1) = dbl, HR[3] = EndSpecials, HR += 4,
                  AbsAppl(HR - 4)));
 }
 
-INLINE_ONLY inline EXTERN Float FloatOfTerm(Term t) {
+INLINE_ONLY Float FloatOfTerm(Term t) {
   return (Float)((DOUBLE_ALIGNED(RepAppl(t)) ? *(Float *)(RepAppl(t) + 1)
                                              : CpFloatUnaligned(RepAppl(t))));
 }
@@ -247,9 +247,9 @@ OOPS
 #include <stddef.h>
 #endif
 
-INLINE_ONLY inline EXTERN bool IsFloatTerm(Term);
+INLINE_ONLY bool IsFloatTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsFloatTerm(Term t) {
+INLINE_ONLY bool IsFloatTerm(Term t) {
   return (int)(IsApplTerm(t) && FunctorOfTerm(t) == FunctorDouble);
 }
 
@@ -257,9 +257,9 @@ INLINE_ONLY inline EXTERN bool IsFloatTerm(Term t) {
 
 #define MkLongIntTerm(i) __MkLongIntTerm((i)PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __MkLongIntTerm(Int USES_REGS);
+INLINE_ONLY Term __MkLongIntTerm(Int USES_REGS);
 
-INLINE_ONLY inline EXTERN Term __MkLongIntTerm(Int i USES_REGS) {
+INLINE_ONLY Term __MkLongIntTerm(Int i USES_REGS) {
   HR[0] = (CELL)FunctorLongInt;
   HR[1] = (CELL)(i);
   HR[2] = EndSpecials;
@@ -267,15 +267,15 @@ INLINE_ONLY inline EXTERN Term __MkLongIntTerm(Int i USES_REGS) {
   return AbsAppl(HR - 3);
 }
 
-INLINE_ONLY inline EXTERN Int LongIntOfTerm(Term t);
+INLINE_ONLY Int LongIntOfTerm(Term t);
 
-INLINE_ONLY inline EXTERN Int LongIntOfTerm(Term t) {
+INLINE_ONLY Int LongIntOfTerm(Term t) {
   return (Int)(RepAppl(t)[1]);
 }
 
-INLINE_ONLY inline EXTERN bool IsLongIntTerm(Term);
+INLINE_ONLY bool IsLongIntTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsLongIntTerm(Term t) {
+INLINE_ONLY bool IsLongIntTerm(Term t) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorLongInt;
 }
@@ -290,9 +290,9 @@ INLINE_ONLY inline EXTERN bool IsLongIntTerm(Term t) {
 
 #define MkStringTerm(i) __MkStringTerm((i)PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term __MkStringTerm(const char *s USES_REGS);
+INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS);
 
-INLINE_ONLY inline EXTERN Term __MkStringTerm(const char *s USES_REGS) {
+INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
   Term t = AbsAppl(HR);
   size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
   HR[0] = (CELL)FunctorString;
@@ -305,10 +305,10 @@ INLINE_ONLY inline EXTERN Term __MkStringTerm(const char *s USES_REGS) {
 
 #define MkUStringTerm(i) __MkUStringTerm((i)PASS_REGS)
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 __MkUStringTerm(const unsigned char *s USES_REGS);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 __MkUStringTerm(const unsigned char *s USES_REGS) {
   Term t = AbsAppl(HR);
   size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
@@ -320,21 +320,21 @@ __MkUStringTerm(const unsigned char *s USES_REGS) {
   return t;
 }
 
-INLINE_ONLY inline EXTERN const unsigned char *UStringOfTerm(Term t);
+INLINE_ONLY const unsigned char *UStringOfTerm(Term t);
 
-INLINE_ONLY inline EXTERN const unsigned char *UStringOfTerm(Term t) {
+INLINE_ONLY const unsigned char *UStringOfTerm(Term t) {
   return (const unsigned char *)(RepAppl(t) + 2);
 }
 
-INLINE_ONLY inline EXTERN const char *StringOfTerm(Term t);
+INLINE_ONLY const char *StringOfTerm(Term t);
 
-INLINE_ONLY inline EXTERN const char *StringOfTerm(Term t) {
+INLINE_ONLY const char *StringOfTerm(Term t) {
   return (const char *)(RepAppl(t) + 2);
 }
 
-INLINE_ONLY inline EXTERN bool IsStringTerm(Term);
+INLINE_ONLY bool IsStringTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsStringTerm(Term t) {
+INLINE_ONLY bool IsStringTerm(Term t) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorString;
 }
@@ -365,9 +365,9 @@ typedef struct {
 
 #endif
 
-INLINE_ONLY inline EXTERN bool IsBigIntTerm(Term);
+INLINE_ONLY bool IsBigIntTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsBigIntTerm(Term t) {
+INLINE_ONLY bool IsBigIntTerm(Term t) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorBigInt;
 }
@@ -380,25 +380,25 @@ MP_INT *Yap_BigIntOfTerm(Term);
 Term Yap_MkBigRatTerm(MP_RAT *);
 MP_RAT *Yap_BigRatOfTerm(Term);
 
-INLINE_ONLY inline EXTERN void MPZ_SET(mpz_t, MP_INT *);
+INLINE_ONLY void MPZ_SET(mpz_t, MP_INT *);
 
-INLINE_ONLY inline EXTERN void MPZ_SET(mpz_t dest, MP_INT *src) {
+INLINE_ONLY void MPZ_SET(mpz_t dest, MP_INT *src) {
   dest->_mp_size = src->_mp_size;
   dest->_mp_alloc = src->_mp_alloc;
   dest->_mp_d = src->_mp_d;
 }
 
-INLINE_ONLY inline EXTERN bool IsLargeIntTerm(Term);
+INLINE_ONLY bool IsLargeIntTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsLargeIntTerm(Term t) {
+INLINE_ONLY bool IsLargeIntTerm(Term t) {
   return IsApplTerm(t) &&
           ((FunctorOfTerm(t) <= FunctorBigInt) &&
            (FunctorOfTerm(t) >= FunctorLongInt));
 }
 
-INLINE_ONLY inline EXTERN UInt Yap_SizeOfBigInt(Term);
+INLINE_ONLY UInt Yap_SizeOfBigInt(Term);
 
-INLINE_ONLY inline EXTERN UInt Yap_SizeOfBigInt(Term t) {
+INLINE_ONLY UInt Yap_SizeOfBigInt(Term t) {
   CELL *pt = RepAppl(t) + 1;
   return 2 +
          (sizeof(MP_INT) + (((MP_INT *)pt)->_mp_alloc * sizeof(mp_limb_t))) /
@@ -407,9 +407,9 @@ INLINE_ONLY inline EXTERN UInt Yap_SizeOfBigInt(Term t) {
 
 #else
 
-INLINE_ONLY inline EXTERN int IsLargeIntTerm(Term);
+INLINE_ONLY int IsLargeIntTerm(Term);
 
-INLINE_ONLY inline EXTERN int IsLargeIntTerm(Term t) {
+INLINE_ONLY int IsLargeIntTerm(Term t) {
   return (int)(IsApplTerm(t) && FunctorOfTerm(t) == FunctorLongInt);
 }
 
@@ -417,59 +417,59 @@ INLINE_ONLY inline EXTERN int IsLargeIntTerm(Term t) {
 
 /* extern Functor FunctorLongInt; */
 
-INLINE_ONLY inline EXTERN bool IsLargeNumTerm(Term);
+INLINE_ONLY bool IsLargeNumTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsLargeNumTerm(Term t) {
+INLINE_ONLY bool IsLargeNumTerm(Term t) {
   return IsApplTerm(t) &&
           ((FunctorOfTerm(t) <= FunctorBigInt) &&
            (FunctorOfTerm(t) >= FunctorDouble));
 }
 
-INLINE_ONLY inline EXTERN bool IsExternalBlobTerm(Term, CELL);
+INLINE_ONLY bool IsExternalBlobTerm(Term, CELL);
 
-INLINE_ONLY inline EXTERN bool IsExternalBlobTerm(Term t, CELL tag) {
+INLINE_ONLY bool IsExternalBlobTerm(Term t, CELL tag) {
   return IsApplTerm(t) &&
           FunctorOfTerm(t) == FunctorBigInt &&
           RepAppl(t)[1] == tag;
 }
 
-INLINE_ONLY inline EXTERN void *ExternalBlobFromTerm(Term);
+INLINE_ONLY void *ExternalBlobFromTerm(Term);
 
-INLINE_ONLY inline EXTERN void *ExternalBlobFromTerm(Term t) {
+INLINE_ONLY void *ExternalBlobFromTerm(Term t) {
   MP_INT *base = (MP_INT *)(RepAppl(t) + 2);
   return (void *)(base + 1);
 }
 
-INLINE_ONLY inline EXTERN bool IsNumTerm(Term);
+INLINE_ONLY bool IsNumTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsNumTerm(Term t) {
+INLINE_ONLY bool IsNumTerm(Term t) {
   return (IsIntTerm(t) || IsLargeNumTerm(t));
 }
 
-INLINE_ONLY inline EXTERN bool IsAtomicTerm(Term);
+INLINE_ONLY bool IsAtomicTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsAtomicTerm(Term t) {
+INLINE_ONLY bool IsAtomicTerm(Term t) {
   return IsAtomOrIntTerm(t) ||
           IsLargeNumTerm(t) ||
           IsStringTerm(t);
 }
 
-INLINE_ONLY inline EXTERN bool IsExtensionFunctor(Functor);
+INLINE_ONLY bool IsExtensionFunctor(Functor);
 
-INLINE_ONLY inline EXTERN bool IsExtensionFunctor(Functor f) {
+INLINE_ONLY bool IsExtensionFunctor(Functor f) {
   return f <= FunctorString;
 }
 
-INLINE_ONLY inline EXTERN bool IsBlobFunctor(Functor);
+INLINE_ONLY bool IsBlobFunctor(Functor);
 
-INLINE_ONLY inline EXTERN bool IsBlobFunctor(Functor f) {
+INLINE_ONLY bool IsBlobFunctor(Functor f) {
   return (f <= FunctorString &&
           f >= FunctorDBRef);
 }
 
-INLINE_ONLY inline EXTERN bool IsPrimitiveTerm(Term);
+INLINE_ONLY bool IsPrimitiveTerm(Term);
 
-INLINE_ONLY inline EXTERN bool IsPrimitiveTerm(Term t) {
+INLINE_ONLY bool IsPrimitiveTerm(Term t) {
   return (IsAtomOrIntTerm(t) ||
           (IsApplTerm(t) &&
                   IsBlobFunctor(FunctorOfTerm(t))));
@@ -477,61 +477,61 @@ INLINE_ONLY inline EXTERN bool IsPrimitiveTerm(Term t) {
 
 #ifdef TERM_EXTENSIONS
 
-INLINE_ONLY inline EXTERN bool IsAttachFunc(Functor);
+INLINE_ONLY bool IsAttachFunc(Functor);
 
-INLINE_ONLY inline EXTERN bool IsAttachFunc(Functor f) { return (Int)(FALSE); }
+INLINE_ONLY bool IsAttachFunc(Functor f) { return (Int)(FALSE); }
 
 #define IsAttachedTerm(t) __IsAttachedTerm(t PASS_REGS)
 
-INLINE_ONLY inline EXTERN bool __IsAttachedTerm(Term USES_REGS);
+INLINE_ONLY bool __IsAttachedTerm(Term USES_REGS);
 
-INLINE_ONLY inline EXTERN bool __IsAttachedTerm(Term t USES_REGS) {
+INLINE_ONLY bool __IsAttachedTerm(Term t USES_REGS) {
   return (IsVarTerm(t) &&
           IsAttVar(VarOfTerm(t)));
 }
 
-INLINE_ONLY inline EXTERN bool GlobalIsAttachedTerm(Term);
+INLINE_ONLY bool GlobalIsAttachedTerm(Term);
 
-INLINE_ONLY inline EXTERN bool GlobalIsAttachedTerm(Term t) {
+INLINE_ONLY bool GlobalIsAttachedTerm(Term t) {
   return (IsVarTerm(t) &&
           GlobalIsAttVar(VarOfTerm(t)));
 }
 
 #define SafeIsAttachedTerm(t) __SafeIsAttachedTerm((t)PASS_REGS)
 
-INLINE_ONLY inline EXTERN bool __SafeIsAttachedTerm(Term USES_REGS);
+INLINE_ONLY bool __SafeIsAttachedTerm(Term USES_REGS);
 
-INLINE_ONLY inline EXTERN bool __SafeIsAttachedTerm(Term t USES_REGS) {
+INLINE_ONLY bool __SafeIsAttachedTerm(Term t USES_REGS) {
   return IsVarTerm(t) && IsAttVar(VarOfTerm(t));
 }
 
-INLINE_ONLY inline EXTERN exts ExtFromCell(CELL *);
+INLINE_ONLY exts ExtFromCell(CELL *);
 
-INLINE_ONLY inline EXTERN exts ExtFromCell(CELL *pt) { return attvars_ext; }
+INLINE_ONLY exts ExtFromCell(CELL *pt) { return attvars_ext; }
 
 #else
 
-INLINE_ONLY inline EXTERN Int IsAttachFunc(Functor);
+INLINE_ONLY Int IsAttachFunc(Functor);
 
-INLINE_ONLY inline EXTERN Int IsAttachFunc(Functor f) { return (Int)(FALSE); }
+INLINE_ONLY Int IsAttachFunc(Functor f) { return (Int)(FALSE); }
 
-INLINE_ONLY inline EXTERN Int IsAttachedTerm(Term);
+INLINE_ONLY Int IsAttachedTerm(Term);
 
-INLINE_ONLY inline EXTERN Int IsAttachedTerm(Term t) { return (Int)(FALSE); }
+INLINE_ONLY Int IsAttachedTerm(Term t) { return (Int)(FALSE); }
 
 #endif
 
-INLINE_ONLY inline EXTERN Int Yap_BlobTag(Term t);
+INLINE_ONLY Int Yap_BlobTag(Term t);
 
-INLINE_ONLY inline EXTERN Int Yap_BlobTag(Term t) {
+INLINE_ONLY Int Yap_BlobTag(Term t) {
   CELL *pt = RepAppl(t);
 
   return pt[1];
 }
 
-INLINE_ONLY inline EXTERN void *Yap_BlobInfo(Term t);
+INLINE_ONLY void *Yap_BlobInfo(Term t);
 
-INLINE_ONLY inline EXTERN void *Yap_BlobInfo(Term t) {
+INLINE_ONLY void *Yap_BlobInfo(Term t) {
   MP_INT *blobp;
   CELL *pt = RepAppl(t);
 
@@ -541,13 +541,13 @@ INLINE_ONLY inline EXTERN void *Yap_BlobInfo(Term t) {
 
 #ifdef YAP_H
 
-INLINE_ONLY inline EXTERN bool unify_extension(Functor, CELL, CELL *, CELL);
+INLINE_ONLY bool unify_extension(Functor, CELL, CELL *, CELL);
 
 EXTERN bool unify_extension(Functor, CELL, CELL *, CELL);
 
 int Yap_gmp_tcmp_big_big(Term, Term);
 
-INLINE_ONLY inline EXTERN bool unify_extension(Functor f, CELL d0, CELL *pt0,
+INLINE_ONLY bool unify_extension(Functor f, CELL d0, CELL *pt0,
                                               CELL d1) {
   switch (BlobOfFunctor(f)) {
   case db_ref_e:

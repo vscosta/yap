@@ -93,7 +93,7 @@ extern char_kind_t Yap_chtype0[];
 
 char_kind_t Yap_wide_chtype(int ch);
 
-INLINE_ONLY EXTERN inline char_kind_t Yap_wide_chtype(int ch) {
+INLINE_ONLY char_kind_t Yap_wide_chtype(int ch) {
   if (ch < 256)
     return Yap_chtype[ch];
   switch (utf8proc_category(ch)) {
@@ -164,7 +164,7 @@ INLINE_ONLY EXTERN inline char_kind_t Yap_wide_chtype(int ch) {
   return BS;
 }
 
-INLINE_ONLY EXTERN inline char_kind_t chtype(Int ch) {
+INLINE_ONLY char_kind_t chtype(Int ch) {
   if (ch < NUMBER_OF_CHARS)
     return Yap_chtype[ch];
   return Yap_wide_chtype(ch);

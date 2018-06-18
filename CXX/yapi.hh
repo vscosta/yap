@@ -32,9 +32,9 @@
 
 extern "C" {
 
-#include <stdlib.h>
 
-#include <string>
+
+#include <stdlib.h>
 
 // Bad export from Python
 
@@ -81,7 +81,6 @@ extern bool python_in_python;
 #if _MSC_VER || defined(__MINGW32__)
 //#include <windows.h>
 #endif
-
 // taken from yap_structs.h
 #include "iopreds.h"
 

@@ -15,12 +15,11 @@
  *									 *
  *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
-
+#include "config.h"
 #include "Yap.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
 #include "YapStreams.h"
-#include "config.h"
 #include "iopreds.h"
 
 #if HAVE_UNISTD_H
@@ -183,7 +182,7 @@ static void consult(const char *b_file USES_REGS) {
     Yap_StartSlots();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "read %s <%d>", b_file,
                         GLOBAL_Stream[c_stream].linecount);
-    Term vs = YAP_MkVarTerm(), pos = MkVarTerm();
+    Term vs = MkVarTerm(), pos = MkVarTerm();
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);
     if (t == 0) {
@@ -316,7 +315,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// BOOTPLDIR: where we can find Prolog bootstrap files
   Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
 #if __ANDROID__
-                      "/assets/Yap/pl/boot,yap",
+                      "/assets/Yap/pl/boot.yap",
 #else
                       join(getenv("DESTDIR"), YAP_BOOTSTRAP),
 #endif

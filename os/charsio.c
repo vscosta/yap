@@ -85,7 +85,7 @@ static Int flush_output(USES_REGS1);
  *
  * @return the char .
  */
-INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
+INLINE_ONLY Int CharOfAtom(Atom at) {
   int32_t val;
 
   get_utf8(at->UStrOfAE, 1, &val);

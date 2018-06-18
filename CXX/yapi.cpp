@@ -1,4 +1,6 @@
 
+
+#include "inline-only.h"
 #define _EXPORT_KERNEL 1
 
 #include "yapi.hh"
@@ -327,7 +329,7 @@ std::vector<Term> YAPPairTerm::listToArray() {
   if (l < 0) {
     throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
   }
-  std::vector<Term> o = std::vector<Term>(l);
+  std::vector<Term> o = * new std::vector<Term>(l);
   int i = 0;
   Term t = gt();
   while (t != TermNil) {
@@ -639,7 +641,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     goal = MkVarTerm();
   }
   openQuery();
-  names = TermNil;
+  names = YAPPairTerm(TermNil);
   RECOVER_MACHINE_REGS();
 }
 

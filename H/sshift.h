@@ -123,9 +123,9 @@
 #define IsOldTokenTrailPtr(ptr) IsOldTokenTrailPtr__(ptr PASS_REGS)
 
 #include "inline-only.h"
-INLINE_ONLY inline EXTERN int IsHeapP__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsHeapP__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsHeapP__ (CELL * ptr USES_REGS)
 {
 #if USE_SYSTEM_MALLOC
@@ -140,9 +140,9 @@ IsHeapP__ (CELL * ptr USES_REGS)
 
 /* Adjusting cells and pointers to cells */
 
-INLINE_ONLY inline EXTERN CELL *PtoGloAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *PtoGloAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 PtoGloAdjust__ (CELL * ptr USES_REGS)
 {
   if (ptr < LOCAL_GSplit) {
@@ -157,9 +157,9 @@ PtoGloAdjust__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL *PtoDelayAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *PtoDelayAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 PtoDelayAdjust__ (CELL * ptr USES_REGS)
 {
   if (!LOCAL_GSplit || ptr < LOCAL_GSplit)
@@ -168,9 +168,9 @@ PtoDelayAdjust__ (CELL * ptr USES_REGS)
     return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_GDiff0)));
 }
 
-INLINE_ONLY inline EXTERN CELL *PtoBaseAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *PtoBaseAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 PtoBaseAdjust__ (CELL * ptr USES_REGS)
 {
     return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_BaseDiff)));
@@ -178,9 +178,9 @@ PtoBaseAdjust__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN tr_fr_ptr PtoTRAdjust__ (tr_fr_ptr CACHE_TYPE);
+INLINE_ONLY tr_fr_ptr PtoTRAdjust__ (tr_fr_ptr CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN tr_fr_ptr
+INLINE_ONLY tr_fr_ptr
 PtoTRAdjust__ (tr_fr_ptr ptr USES_REGS)
 {
   return (tr_fr_ptr) (((tr_fr_ptr) (CharP (ptr) + LOCAL_TrDiff)));
@@ -188,9 +188,9 @@ PtoTRAdjust__ (tr_fr_ptr ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL *CellPtoTRAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *CellPtoTRAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 CellPtoTRAdjust__ (CELL * ptr USES_REGS)
 {
   return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_TrDiff)));
@@ -198,18 +198,18 @@ CellPtoTRAdjust__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL *PtoLocAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *PtoLocAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 PtoLocAdjust__ (CELL * ptr USES_REGS)
 {
   return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_LDiff)));
 }
 
 
-INLINE_ONLY inline EXTERN struct cut_c_str *CutCAdjust__ (struct cut_c_str * CACHE_TYPE);
+INLINE_ONLY struct cut_c_str *CutCAdjust__ (struct cut_c_str * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct cut_c_str *
+INLINE_ONLY struct cut_c_str *
 CutCAdjust__ (struct  cut_c_str * ptr USES_REGS)
 {
   return (struct cut_c_str *) (CharP (ptr) + LOCAL_LDiff);
@@ -217,9 +217,9 @@ CutCAdjust__ (struct  cut_c_str * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN choiceptr ChoicePtrAdjust__ (choiceptr CACHE_TYPE);
+INLINE_ONLY choiceptr ChoicePtrAdjust__ (choiceptr CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN choiceptr
+INLINE_ONLY choiceptr
 ChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 {
   return (choiceptr) (((choiceptr) (CharP (ptr) + LOCAL_LDiff)));
@@ -228,9 +228,9 @@ ChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 
 #ifdef TABLING
 
-INLINE_ONLY inline EXTERN choiceptr ConsumerChoicePtrAdjust__ (choiceptr CACHE_TYPE);
+INLINE_ONLY choiceptr ConsumerChoicePtrAdjust__ (choiceptr CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN choiceptr
+INLINE_ONLY choiceptr
 ConsumerChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 {
   return (choiceptr) (((choiceptr) (CharP (ptr) + LOCAL_LDiff)));
@@ -238,9 +238,9 @@ ConsumerChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN choiceptr GeneratorChoicePtrAdjust__ (choiceptr CACHE_TYPE);
+INLINE_ONLY choiceptr GeneratorChoicePtrAdjust__ (choiceptr CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN choiceptr
+INLINE_ONLY choiceptr
 GeneratorChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 {
   return (choiceptr) (((choiceptr) (CharP (ptr) + LOCAL_LDiff)));
@@ -250,9 +250,9 @@ GeneratorChoicePtrAdjust__ (choiceptr ptr USES_REGS)
 #endif /* TABLING */
 
 
-INLINE_ONLY inline EXTERN CELL GlobalAdjust__ (CELL CACHE_TYPE);
+INLINE_ONLY CELL GlobalAdjust__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL
+INLINE_ONLY CELL
 GlobalAdjust__ (CELL val USES_REGS)
 {
   if ((CELL *)val < LOCAL_GSplit) {
@@ -267,9 +267,9 @@ GlobalAdjust__ (CELL val USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL DelayAdjust__ (CELL CACHE_TYPE);
+INLINE_ONLY CELL DelayAdjust__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL
+INLINE_ONLY CELL
 DelayAdjust__ (CELL val USES_REGS)
 {
   if (!LOCAL_GSplit || (CELL *)val < LOCAL_GSplit)
@@ -279,9 +279,9 @@ DelayAdjust__ (CELL val USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN ADDR GlobalAddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR GlobalAddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 GlobalAddrAdjust__ (ADDR ptr USES_REGS)
 {
   if ((CELL *)ptr < LOCAL_GSplit) {
@@ -297,9 +297,9 @@ GlobalAddrAdjust__ (ADDR ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN ADDR DelayAddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR DelayAddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 DelayAddrAdjust__ (ADDR ptr USES_REGS)
 {
   if (!LOCAL_GSplit || (CELL *)ptr < LOCAL_GSplit)
@@ -309,9 +309,9 @@ DelayAddrAdjust__ (ADDR ptr USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN ADDR BaseAddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR BaseAddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 BaseAddrAdjust__ (ADDR ptr USES_REGS)
 {
   return (ADDR) ((ptr + LOCAL_BaseDiff));
@@ -319,9 +319,9 @@ BaseAddrAdjust__ (ADDR ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL LocalAdjust__ (CELL CACHE_TYPE);
+INLINE_ONLY CELL LocalAdjust__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL
+INLINE_ONLY CELL
 LocalAdjust__ (CELL val USES_REGS)
 {
   return (CELL) ((val + LOCAL_LDiff));
@@ -329,9 +329,9 @@ LocalAdjust__ (CELL val USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN ADDR LocalAddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR LocalAddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 LocalAddrAdjust__ (ADDR ptr USES_REGS)
 {
   return (ADDR) ((ptr + LOCAL_LDiff));
@@ -339,9 +339,9 @@ LocalAddrAdjust__ (ADDR ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL TrailAdjust__ (CELL CACHE_TYPE);
+INLINE_ONLY CELL TrailAdjust__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL
+INLINE_ONLY CELL
 TrailAdjust__ (CELL val USES_REGS)
 {
   return (CELL) ((val + LOCAL_TrDiff));
@@ -349,9 +349,9 @@ TrailAdjust__ (CELL val USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN ADDR TrailAddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR TrailAddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 TrailAddrAdjust__ (ADDR ptr USES_REGS)
 {
   return (ADDR) ((ptr + LOCAL_TrDiff));
@@ -359,9 +359,9 @@ TrailAddrAdjust__ (ADDR ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN TokEntry *TokEntryAdjust__ (TokEntry * CACHE_TYPE);
+INLINE_ONLY TokEntry *TokEntryAdjust__ (TokEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN TokEntry *
+INLINE_ONLY TokEntry *
 TokEntryAdjust__ (TokEntry * ptr USES_REGS)
 {
   return (TokEntry *) (((CELL) ptr + LOCAL_TrDiff));
@@ -369,9 +369,9 @@ TokEntryAdjust__ (TokEntry * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN VarEntry *VarEntryAdjust__ (VarEntry * CACHE_TYPE);
+INLINE_ONLY VarEntry *VarEntryAdjust__ (VarEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN VarEntry *
+INLINE_ONLY VarEntry *
 VarEntryAdjust__ (VarEntry * ptr USES_REGS)
 {
   return (VarEntry *) (((CELL) ptr + LOCAL_TrDiff));
@@ -380,9 +380,9 @@ VarEntryAdjust__ (VarEntry * ptr USES_REGS)
 
 /* heap data structures */
 
-INLINE_ONLY inline EXTERN Functor FuncAdjust__ (Functor CACHE_TYPE);
+INLINE_ONLY Functor FuncAdjust__ (Functor CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Functor
+INLINE_ONLY Functor
 FuncAdjust__ (Functor f USES_REGS)
 {
   if (!IsExtensionFunctor(f)) 
@@ -390,9 +390,9 @@ FuncAdjust__ (Functor f USES_REGS)
   return f;
 }
 
-INLINE_ONLY inline EXTERN CELL *CellPtoHeapAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *CellPtoHeapAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 CellPtoHeapAdjust__ (CELL * ptr USES_REGS)
 {
   if (!ptr)
@@ -400,17 +400,17 @@ CellPtoHeapAdjust__ (CELL * ptr USES_REGS)
   return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN HoldEntry *HoldEntryAdjust__ (HoldEntry * CACHE_TYPE);
+INLINE_ONLY HoldEntry *HoldEntryAdjust__ (HoldEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN HoldEntry *
+INLINE_ONLY HoldEntry *
 HoldEntryAdjust__ (HoldEntry * ptr USES_REGS)
 {
   return (HoldEntry *) (((HoldEntry *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN struct record_list *DBRecordAdjust__ (struct record_list * CACHE_TYPE);
+INLINE_ONLY struct record_list *DBRecordAdjust__ (struct record_list * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct record_list *
+INLINE_ONLY struct record_list *
 DBRecordAdjust__ (struct record_list * ptr USES_REGS)
 {
   if (!ptr)
@@ -421,17 +421,17 @@ DBRecordAdjust__ (struct record_list * ptr USES_REGS)
 
 #if	USE_OFFSETS
 
-INLINE_ONLY inline EXTERN Atom AtomAdjust__ (Atom CACHE_TYPE);
+INLINE_ONLY Atom AtomAdjust__ (Atom CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Atom
+INLINE_ONLY Atom
 AtomAdjust__ (Atom at USES_REGS)
 {
   return (Atom) ((at));
 }
 
-INLINE_ONLY inline EXTERN Atom NoAGCAtomAdjust__ (Atom CACHE_TYPE);
+INLINE_ONLY Atom NoAGCAtomAdjust__ (Atom CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Atom
+INLINE_ONLY Atom
 NoAGCAtomAdjust__ (Atom at USES_REGS)
 {
   return (Atom) ((at));
@@ -439,9 +439,9 @@ NoAGCAtomAdjust__ (Atom at USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN Prop PropAdjust__ (Prop CACHE_TYPE);
+INLINE_ONLY Prop PropAdjust__ (Prop CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Prop
+INLINE_ONLY Prop
 PropAdjust__ (Prop p USES_REGS)
 {
   return (Prop) ((p));
@@ -449,25 +449,25 @@ PropAdjust__ (Prop p USES_REGS)
 
 #else
 
-INLINE_ONLY inline EXTERN Atom AtomAdjust__ (Atom CACHE_TYPE);
+INLINE_ONLY Atom AtomAdjust__ (Atom CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Atom
+INLINE_ONLY Atom
 AtomAdjust__ (Atom at USES_REGS)
 {
   return (Atom) ((at == NULL ? (at) : (Atom) (CharP (at) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN Atom NoAGCAtomAdjust__ (Atom CACHE_TYPE);
+INLINE_ONLY Atom NoAGCAtomAdjust__ (Atom CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Atom
+INLINE_ONLY Atom
 NoAGCAtomAdjust__ (Atom at USES_REGS)
 {
   return (Atom) ((at == NULL ? (at) : (Atom) (CharP (at) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN Prop PropAdjust__ (Prop CACHE_TYPE);
+INLINE_ONLY Prop PropAdjust__ (Prop CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Prop
+INLINE_ONLY Prop
 PropAdjust__ (Prop p USES_REGS)
 {
   return (Prop) ((p == NULL ? (p) : (Prop) (CharP (p) + LOCAL_HDiff)));
@@ -476,49 +476,49 @@ PropAdjust__ (Prop p USES_REGS)
 
 #endif
 
-INLINE_ONLY inline EXTERN YAP_blob_t *BlobTypeAdjust__ (YAP_blob_t *CACHE_TYPE);
+INLINE_ONLY YAP_blob_t *BlobTypeAdjust__ (YAP_blob_t *CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN YAP_blob_t *
+INLINE_ONLY YAP_blob_t *
 BlobTypeAdjust__ ( YAP_blob_t *at USES_REGS)
 {
   return ( YAP_blob_t *) ((at == NULL ? (at) : ( YAP_blob_t *) (CharP (at) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN PredEntry *PredEntryAdjust__ (PredEntry * CACHE_TYPE);
+INLINE_ONLY PredEntry *PredEntryAdjust__ (PredEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN PredEntry *
+INLINE_ONLY PredEntry *
 PredEntryAdjust__ (PredEntry *p USES_REGS)
 {
   return (PredEntry *) ((p == NULL ? (p) : (PredEntry *) (CharP (p) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN struct mod_entry *ModEntryPtrAdjust__ (struct mod_entry * CACHE_TYPE);
+INLINE_ONLY struct mod_entry *ModEntryPtrAdjust__ (struct mod_entry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct mod_entry *
+INLINE_ONLY struct mod_entry *
 ModEntryPtrAdjust__ (struct mod_entry *p USES_REGS)
 {
   return (struct mod_entry *) ((p == NULL ? (p) : (struct mod_entry *) (CharP (p) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN COUNT ConstantAdjust__ (COUNT CACHE_TYPE);
+INLINE_ONLY COUNT ConstantAdjust__ (COUNT CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN COUNT
+INLINE_ONLY COUNT
 ConstantAdjust__ (COUNT val USES_REGS)
 {
   return val;
 }
 
-INLINE_ONLY inline EXTERN Int ArityAdjust__ (Int CACHE_TYPE);
+INLINE_ONLY Int ArityAdjust__ (Int CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Int
+INLINE_ONLY Int
 ArityAdjust__ (Int val USES_REGS)
 {
   return val;
 }
 
-INLINE_ONLY inline EXTERN OPCODE OpcodeAdjust__ (OPCODE CACHE_TYPE);
+INLINE_ONLY OPCODE OpcodeAdjust__ (OPCODE CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN OPCODE
+INLINE_ONLY OPCODE
 OpcodeAdjust__ (OPCODE val USES_REGS)
 {
   return Yap_opcode(Yap_op_from_opcode(val));
@@ -532,9 +532,9 @@ OpcodeAdjust__ (OPCODE val USES_REGS)
 
 #define ExternalFunctionAdjust(D) (D);
 
-INLINE_ONLY inline EXTERN Term AtomTermAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term AtomTermAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 AtomTermAdjust__ (Term at USES_REGS)
 {
   if (at == 0L)
@@ -542,17 +542,17 @@ AtomTermAdjust__ (Term at USES_REGS)
   return (Term)(CharP(at) + LOCAL_HDiff);
 }
 
-INLINE_ONLY inline EXTERN Term ModuleAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term ModuleAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 ModuleAdjust__ (Term t USES_REGS)
 {
   return AtomTermAdjust(t);
 }
 
-INLINE_ONLY inline EXTERN Term CodeVarAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term CodeVarAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 CodeVarAdjust__ (Term var USES_REGS)
 {
   if (var == 0L)
@@ -563,18 +563,18 @@ CodeVarAdjust__ (Term var USES_REGS)
 
 #if TAGS_FAST_OPS
 
-INLINE_ONLY inline EXTERN Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 BlobTermInCodeAdjust__ (Term t USES_REGS)
 {
   return (Term) (CharP(t) - LOCAL_HDiff);
 }
 
 
-INLINE_ONLY inline EXTERN Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 CodeComposedTermAdjust__ (Term t USES_REGS)
 {
   return (Term) (CharP(t) - LOCAL_HDiff);
@@ -583,17 +583,17 @@ CodeComposedTermAdjust__ (Term t USES_REGS)
 
 #else
 
-INLINE_ONLY inline EXTERN Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term BlobTermInCodeAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 BlobTermInCodeAdjust__ (Term t USES_REGS)
 {
   return (Term) (CharP(t) + LOCAL_HDiff);
 }
 
-INLINE_ONLY inline EXTERN Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term CodeComposedTermAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 CodeComposedTermAdjust__ (Term t USES_REGS)
 {
   return (Term) (CharP(t) + LOCAL_HDiff);
@@ -602,17 +602,17 @@ CodeComposedTermAdjust__ (Term t USES_REGS)
 
 #endif
 
-INLINE_ONLY inline EXTERN AtomEntry *AtomEntryAdjust__ (AtomEntry * CACHE_TYPE);
+INLINE_ONLY AtomEntry *AtomEntryAdjust__ (AtomEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN AtomEntry *
+INLINE_ONLY AtomEntry *
 AtomEntryAdjust__ (AtomEntry * at USES_REGS)
 {
   return (AtomEntry *) ((AtomEntry *) (CharP (at) + LOCAL_HDiff));
 }
 
-INLINE_ONLY inline EXTERN GlobalEntry *GlobalEntryAdjust__ (GlobalEntry * CACHE_TYPE);
+INLINE_ONLY GlobalEntry *GlobalEntryAdjust__ (GlobalEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN GlobalEntry *
+INLINE_ONLY GlobalEntry *
 GlobalEntryAdjust__ (GlobalEntry * at USES_REGS)
 {
   return (GlobalEntry *) ((GlobalEntry *) (CharP (at) + LOCAL_HDiff));
@@ -620,9 +620,9 @@ GlobalEntryAdjust__ (GlobalEntry * at USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN union CONSULT_OBJ *ConsultObjAdjust__ (union CONSULT_OBJ * CACHE_TYPE);
+INLINE_ONLY union CONSULT_OBJ *ConsultObjAdjust__ (union CONSULT_OBJ * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN union CONSULT_OBJ *
+INLINE_ONLY union CONSULT_OBJ *
 ConsultObjAdjust__ (union CONSULT_OBJ *co USES_REGS)
 {
   return (union CONSULT_OBJ *) ((union CONSULT_OBJ *) (CharP (co) + LOCAL_HDiff));
@@ -630,9 +630,9 @@ ConsultObjAdjust__ (union CONSULT_OBJ *co USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN DBRef DBRefAdjust__ (DBRef CACHE_TYPE);
+INLINE_ONLY DBRef DBRefAdjust__ (DBRef CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN DBRef
+INLINE_ONLY DBRef
 DBRefAdjust__ (DBRef dbr USES_REGS)
 {
   return (DBRef) ((DBRef) (CharP (dbr) + LOCAL_HDiff));
@@ -640,9 +640,9 @@ DBRefAdjust__ (DBRef dbr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN DBRef *DBRefPAdjust__ (DBRef * CACHE_TYPE);
+INLINE_ONLY DBRef *DBRefPAdjust__ (DBRef * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN DBRef *
+INLINE_ONLY DBRef *
 DBRefPAdjust__ (DBRef * dbrp USES_REGS)
 {
   return (DBRef *) ((DBRef *) (CharP (dbrp) + LOCAL_HDiff));
@@ -650,9 +650,9 @@ DBRefPAdjust__ (DBRef * dbrp USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN DBTerm *DBTermAdjust__ (DBTerm * CACHE_TYPE);
+INLINE_ONLY DBTerm *DBTermAdjust__ (DBTerm * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN DBTerm *
+INLINE_ONLY DBTerm *
 DBTermAdjust__ (DBTerm * dbtp USES_REGS)
 {
   return (DBTerm *) ((DBTerm *) (CharP (dbtp) + LOCAL_HDiff));
@@ -660,9 +660,9 @@ DBTermAdjust__ (DBTerm * dbtp USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN struct static_index *SIndexAdjust__ (struct static_index * CACHE_TYPE);
+INLINE_ONLY struct static_index *SIndexAdjust__ (struct static_index * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct static_index *
+INLINE_ONLY struct static_index *
 SIndexAdjust__ (struct static_index *si USES_REGS)
 {
   return (struct static_index
@@ -671,11 +671,11 @@ SIndexAdjust__ (struct static_index *si USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN
+INLINE_ONLY
 struct logic_upd_index *LUIndexAdjust__ (struct logic_upd_index
 					 *  CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct logic_upd_index *
+INLINE_ONLY struct logic_upd_index *
 LUIndexAdjust__ (struct logic_upd_index *lui USES_REGS)
 {
   return (struct logic_upd_index
@@ -684,9 +684,9 @@ LUIndexAdjust__ (struct logic_upd_index *lui USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN Term CodeAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term CodeAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 CodeAdjust__ (Term dbr USES_REGS)
 {
   return (Term) (CharP(dbr) + LOCAL_HDiff);
@@ -694,9 +694,9 @@ CodeAdjust__ (Term dbr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN ADDR AddrAdjust__ (ADDR CACHE_TYPE);
+INLINE_ONLY ADDR AddrAdjust__ (ADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ADDR
+INLINE_ONLY ADDR
 AddrAdjust__ (ADDR addr USES_REGS)
 {
   return (ADDR) ((ADDR) (CharP (addr) + LOCAL_HDiff));
@@ -704,18 +704,18 @@ AddrAdjust__ (ADDR addr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CODEADDR CodeAddrAdjust__ (CODEADDR CACHE_TYPE);
+INLINE_ONLY CODEADDR CodeAddrAdjust__ (CODEADDR CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CODEADDR
+INLINE_ONLY CODEADDR
 CodeAddrAdjust__ (CODEADDR addr USES_REGS)
 {
   return (CODEADDR) ((CODEADDR) (CharP (addr) + LOCAL_HDiff));
 }
 
 
-INLINE_ONLY inline EXTERN char * CodeCharPAdjust__ (char * CACHE_TYPE);
+INLINE_ONLY char * CodeCharPAdjust__ (char * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN char *
+INLINE_ONLY char *
 CodeCharPAdjust__ (char * addr USES_REGS)
 {
   if (!addr)
@@ -723,9 +723,9 @@ CodeCharPAdjust__ (char * addr USES_REGS)
   return addr + LOCAL_HDiff;
 }
 
-INLINE_ONLY inline EXTERN const char * CodeConstCharPAdjust__ (const char * CACHE_TYPE);
+INLINE_ONLY const char * CodeConstCharPAdjust__ (const char * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN const char *
+INLINE_ONLY const char *
 CodeConstCharPAdjust__ (const char * addr USES_REGS)
 {
   if (!addr)
@@ -733,9 +733,9 @@ CodeConstCharPAdjust__ (const char * addr USES_REGS)
   return addr + LOCAL_HDiff;
 }
 
-INLINE_ONLY inline EXTERN void * CodeVoidPAdjust__ (void * CACHE_TYPE);
+INLINE_ONLY void * CodeVoidPAdjust__ (void * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN void *
+INLINE_ONLY void *
 CodeVoidPAdjust__ (void * addr USES_REGS)
 {
   if (!addr)
@@ -743,9 +743,9 @@ CodeVoidPAdjust__ (void * addr USES_REGS)
   return (void *)((char *)addr + LOCAL_HDiff);
 }
 
-INLINE_ONLY inline EXTERN struct halt_hook *HaltHookAdjust__ (struct halt_hook * CACHE_TYPE);
+INLINE_ONLY struct halt_hook *HaltHookAdjust__ (struct halt_hook * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct halt_hook *
+INLINE_ONLY struct halt_hook *
 HaltHookAdjust__ (struct halt_hook * addr USES_REGS)
 {
   if (!addr)
@@ -753,17 +753,17 @@ HaltHookAdjust__ (struct halt_hook * addr USES_REGS)
   return  (struct halt_hook *) (CharP (addr) + LOCAL_HDiff);
 }
 
-INLINE_ONLY inline EXTERN BlockHeader *BlockAdjust__ (BlockHeader * CACHE_TYPE);
+INLINE_ONLY BlockHeader *BlockAdjust__ (BlockHeader * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN BlockHeader *
+INLINE_ONLY BlockHeader *
 BlockAdjust__ (BlockHeader * addr USES_REGS)
 {
   return (BlockHeader *) ((BlockHeader *) (CharP (addr) + LOCAL_HDiff));
 }
 
-INLINE_ONLY inline EXTERN yamop *PtoOpAdjust__ (yamop * CACHE_TYPE);
+INLINE_ONLY yamop *PtoOpAdjust__ (yamop * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN yamop *
+INLINE_ONLY yamop *
 PtoOpAdjust__ (yamop * ptr USES_REGS)
 {
   if (ptr)
@@ -771,9 +771,9 @@ PtoOpAdjust__ (yamop * ptr USES_REGS)
   return ptr;
 }
 
-INLINE_ONLY inline EXTERN struct operator_entry *OpListAdjust__ (struct operator_entry * CACHE_TYPE);
+INLINE_ONLY struct operator_entry *OpListAdjust__ (struct operator_entry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct operator_entry *
+INLINE_ONLY struct operator_entry *
 OpListAdjust__ (struct operator_entry * ptr USES_REGS)
 {
   if (!ptr)
@@ -782,17 +782,17 @@ OpListAdjust__ (struct operator_entry * ptr USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN struct logic_upd_clause *PtoLUClauseAdjust__ (struct logic_upd_clause * CACHE_TYPE);
+INLINE_ONLY struct logic_upd_clause *PtoLUClauseAdjust__ (struct logic_upd_clause * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct logic_upd_clause *
+INLINE_ONLY struct logic_upd_clause *
 PtoLUClauseAdjust__ (struct logic_upd_clause * ptr USES_REGS)
 {
   return (struct logic_upd_clause *) (CharP (ptr) + LOCAL_HDiff);
 }
 
-INLINE_ONLY inline EXTERN struct logic_upd_index *PtoLUIndexAdjust__ (struct logic_upd_index * CACHE_TYPE);
+INLINE_ONLY struct logic_upd_index *PtoLUIndexAdjust__ (struct logic_upd_index * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct logic_upd_index *
+INLINE_ONLY struct logic_upd_index *
 PtoLUIndexAdjust__ (struct logic_upd_index * ptr USES_REGS)
 {
   return (struct logic_upd_index *) (CharP (ptr) + LOCAL_HDiff);
@@ -800,25 +800,25 @@ PtoLUIndexAdjust__ (struct logic_upd_index * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN CELL *PtoHeapCellAdjust__ (CELL * CACHE_TYPE);
+INLINE_ONLY CELL *PtoHeapCellAdjust__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN CELL *
+INLINE_ONLY CELL *
 PtoHeapCellAdjust__ (CELL * ptr USES_REGS)
 {
   return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN AtomHashEntry *PtoAtomHashEntryAdjust__ (AtomHashEntry * CACHE_TYPE);
+INLINE_ONLY AtomHashEntry *PtoAtomHashEntryAdjust__ (AtomHashEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN AtomHashEntry *
+INLINE_ONLY AtomHashEntry *
 PtoAtomHashEntryAdjust__ (AtomHashEntry * ptr USES_REGS)
 {
   return (AtomHashEntry *) (((AtomHashEntry *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN Term TermToGlobalAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term TermToGlobalAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 TermToGlobalAdjust__ (Term t USES_REGS)
 {
   if (t == 0L)
@@ -826,9 +826,9 @@ TermToGlobalAdjust__ (Term t USES_REGS)
   return AbsAppl(PtoGloAdjust(RepAppl(t)));
 }
 
-INLINE_ONLY inline EXTERN Term TermToGlobalOrAtomAdjust__ (Term CACHE_TYPE);
+INLINE_ONLY Term TermToGlobalOrAtomAdjust__ (Term CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN Term
+INLINE_ONLY Term
 TermToGlobalOrAtomAdjust__ (Term t USES_REGS)
 {
   if (t == 0L)
@@ -844,9 +844,9 @@ TermToGlobalOrAtomAdjust__ (Term t USES_REGS)
 
 #if USE_THREADED_CODE
 
-INLINE_ONLY inline EXTERN op_entry *OpRTableAdjust__ (op_entry * CACHE_TYPE);
+INLINE_ONLY op_entry *OpRTableAdjust__ (op_entry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN op_entry *
+INLINE_ONLY op_entry *
 OpRTableAdjust__ (op_entry * ptr USES_REGS)
 {
   return (op_entry *) (((op_entry *) (CharP (ptr) + LOCAL_HDiff)));
@@ -854,25 +854,25 @@ OpRTableAdjust__ (op_entry * ptr USES_REGS)
 
 #endif // USE_THREADED_CODE
 
-INLINE_ONLY inline EXTERN OpEntry *OpEntryAdjust__ (OpEntry * CACHE_TYPE);
+INLINE_ONLY OpEntry *OpEntryAdjust__ (OpEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN OpEntry *
+INLINE_ONLY OpEntry *
 OpEntryAdjust__ (OpEntry * ptr USES_REGS)
 {
   return (OpEntry *) (((OpEntry *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN PredEntry *PtoPredAdjust__ (PredEntry * CACHE_TYPE);
+INLINE_ONLY PredEntry *PtoPredAdjust__ (PredEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN PredEntry *
+INLINE_ONLY PredEntry *
 PtoPredAdjust__ (PredEntry * ptr USES_REGS)
 {
   return (PredEntry *) (((PredEntry *) (CharP (ptr) + LOCAL_HDiff)));
 }
 
-INLINE_ONLY inline EXTERN PredEntry **PtoPtoPredAdjust__ (PredEntry ** CACHE_TYPE);
+INLINE_ONLY PredEntry **PtoPtoPredAdjust__ (PredEntry ** CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN PredEntry **
+INLINE_ONLY PredEntry **
 PtoPtoPredAdjust__ (PredEntry **ptr USES_REGS)
 {
   if (!ptr)
@@ -882,9 +882,9 @@ PtoPtoPredAdjust__ (PredEntry **ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN ArrayEntry *PtoArrayEAdjust__ (ArrayEntry * CACHE_TYPE);
+INLINE_ONLY ArrayEntry *PtoArrayEAdjust__ (ArrayEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN ArrayEntry *
+INLINE_ONLY ArrayEntry *
 PtoArrayEAdjust__ (ArrayEntry * ptr USES_REGS)
 {
   if (!ptr)
@@ -893,9 +893,9 @@ PtoArrayEAdjust__ (ArrayEntry * ptr USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN GlobalEntry *PtoGlobalEAdjust__ (GlobalEntry * CACHE_TYPE);
+INLINE_ONLY GlobalEntry *PtoGlobalEAdjust__ (GlobalEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN GlobalEntry *
+INLINE_ONLY GlobalEntry *
 PtoGlobalEAdjust__ (GlobalEntry * ptr USES_REGS)
 {
   if (!ptr)
@@ -904,9 +904,9 @@ PtoGlobalEAdjust__ (GlobalEntry * ptr USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN StaticArrayEntry *PtoArraySAdjust__ (StaticArrayEntry * CACHE_TYPE);
+INLINE_ONLY StaticArrayEntry *PtoArraySAdjust__ (StaticArrayEntry * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN StaticArrayEntry *
+INLINE_ONLY StaticArrayEntry *
 PtoArraySAdjust__ (StaticArrayEntry * ptr USES_REGS)
 {
   if (!ptr)
@@ -916,9 +916,9 @@ PtoArraySAdjust__ (StaticArrayEntry * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN struct logic_upd_clause *PtoLUCAdjust__ (struct logic_upd_clause* CACHE_TYPE);
+INLINE_ONLY struct logic_upd_clause *PtoLUCAdjust__ (struct logic_upd_clause* CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct logic_upd_clause *
+INLINE_ONLY struct logic_upd_clause *
 PtoLUCAdjust__ (struct logic_upd_clause *ptr USES_REGS)
 {
   return (struct logic_upd_clause
@@ -927,9 +927,9 @@ PtoLUCAdjust__ (struct logic_upd_clause *ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN struct static_clause *PtoStCAdjust__ (struct static_clause * CACHE_TYPE);
+INLINE_ONLY struct static_clause *PtoStCAdjust__ (struct static_clause * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct static_clause *
+INLINE_ONLY struct static_clause *
 PtoStCAdjust__ (struct static_clause *ptr USES_REGS)
 {
   return (struct static_clause
@@ -937,9 +937,9 @@ PtoStCAdjust__ (struct static_clause *ptr USES_REGS)
 }
 
 
-INLINE_ONLY inline EXTERN struct dbterm_list *PtoDBTLAdjust__ (struct dbterm_list * CACHE_TYPE);
+INLINE_ONLY struct dbterm_list *PtoDBTLAdjust__ (struct dbterm_list * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN struct dbterm_list *
+INLINE_ONLY struct dbterm_list *
 PtoDBTLAdjust__ (struct dbterm_list * addr USES_REGS)
 {
   return (struct dbterm_list *) ((ADDR) (CharP (addr) + LOCAL_HDiff));
@@ -948,9 +948,9 @@ PtoDBTLAdjust__ (struct dbterm_list * addr USES_REGS)
 
 #if PRECOMPUTE_REGADDRESS
 
-INLINE_ONLY inline EXTERN wamreg XAdjust__ (wamreg CACHE_TYPE);
+INLINE_ONLY wamreg XAdjust__ (wamreg CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN wamreg
+INLINE_ONLY wamreg
 XAdjust__ (wamreg reg USES_REGS)
 {
   return (wamreg) ((wamreg) ((reg) + LOCAL_XDiff));
@@ -959,9 +959,9 @@ XAdjust__ (wamreg reg USES_REGS)
 
 #else
 
-INLINE_ONLY inline EXTERN wamreg XAdjust__ (wamreg CACHE_TYPE);
+INLINE_ONLY wamreg XAdjust__ (wamreg CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN wamreg
+INLINE_ONLY wamreg
 XAdjust__ (wamreg reg USES_REGS)
 {
   return (wamreg) ((reg));
@@ -970,9 +970,9 @@ XAdjust__ (wamreg reg USES_REGS)
 
 #endif
 
-INLINE_ONLY inline EXTERN yslot YAdjust__ (yslot CACHE_TYPE);
+INLINE_ONLY yslot YAdjust__ (yslot CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN yslot
+INLINE_ONLY yslot
 YAdjust__ (yslot reg USES_REGS)
 {
   return (yslot) ((reg));
@@ -980,9 +980,9 @@ YAdjust__ (yslot reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldLocal__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldLocal__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldLocal__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldASP, reg, LOCAL_OldLCL0));
@@ -990,9 +990,9 @@ IsOldLocal__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldLocalPtr__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsOldLocalPtr__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldLocalPtr__ (CELL * ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldASP, ptr, LOCAL_OldLCL0));
@@ -1002,9 +1002,9 @@ IsOldLocalPtr__ (CELL * ptr USES_REGS)
 
 /* require because the trail might contain dangling pointers */
 
-INLINE_ONLY inline EXTERN int IsOldLocalInTR__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldLocalInTR__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldLocalInTR__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldH, reg, LOCAL_OldLCL0));
@@ -1012,9 +1012,9 @@ IsOldLocalInTR__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldLocalInTRPtr__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsOldLocalInTRPtr__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldLocalInTRPtr__ (CELL * ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldH, ptr, LOCAL_OldLCL0));
@@ -1023,9 +1023,9 @@ IsOldLocalInTRPtr__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldH__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldH__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldH__ (CELL reg USES_REGS)
 {
   return (int) ((CharP (reg) == CharP (LOCAL_OldH)));
@@ -1035,18 +1035,18 @@ IsOldH__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldGlobal__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldGlobal__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldGlobal__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldGlobalBase, reg, LOCAL_OldH));
 }
 
 
-INLINE_ONLY inline EXTERN int IsOldDelay__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldDelay__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldDelay__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldGlobalBase, reg, LOCAL_OldH0));
@@ -1054,9 +1054,9 @@ IsOldDelay__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldGlobalPtr__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsOldGlobalPtr__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldGlobalPtr__ (CELL * ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldGlobalBase, ptr, LOCAL_OldH));
@@ -1064,9 +1064,9 @@ IsOldGlobalPtr__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldTrail__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldTrail__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldTrail__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldTrailBase, reg, LOCAL_OldTR));
@@ -1074,9 +1074,9 @@ IsOldTrail__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldTrailPtr__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsOldTrailPtr__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldTrailPtr__ (CELL * ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldTrailBase, ptr, LOCAL_OldTR));
@@ -1084,9 +1084,9 @@ IsOldTrailPtr__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldVarTableTrailPtr__ (struct VARSTRUCT * CACHE_TYPE);
+INLINE_ONLY int IsOldVarTableTrailPtr__ (struct VARSTRUCT * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldVarTableTrailPtr__ (struct VARSTRUCT *ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldTrailBase, ptr, LOCAL_OldTR));
@@ -1094,9 +1094,9 @@ IsOldVarTableTrailPtr__ (struct VARSTRUCT *ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldTokenTrailPtr__ (struct TOKEN * CACHE_TYPE);
+INLINE_ONLY int IsOldTokenTrailPtr__ (struct TOKEN * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldTokenTrailPtr__ (struct TOKEN *ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldTrailBase, ptr, LOCAL_OldTR));
@@ -1104,9 +1104,9 @@ IsOldTokenTrailPtr__ (struct TOKEN *ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldCode__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsOldCode__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldCode__ (CELL reg USES_REGS)
 {
 #if USE_SYSTEM_MALLOC
@@ -1118,9 +1118,9 @@ IsOldCode__ (CELL reg USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsOldCodeCellPtr__ (CELL * CACHE_TYPE);
+INLINE_ONLY int IsOldCodeCellPtr__ (CELL * CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsOldCodeCellPtr__ (CELL * ptr USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_OldHeapBase, ptr, LOCAL_OldHeapTop));
@@ -1128,9 +1128,9 @@ IsOldCodeCellPtr__ (CELL * ptr USES_REGS)
 
 
 
-INLINE_ONLY inline EXTERN int IsGlobal__ (CELL CACHE_TYPE);
+INLINE_ONLY int IsGlobal__ (CELL CACHE_TYPE);
 
-INLINE_ONLY inline EXTERN int
+INLINE_ONLY int
 IsGlobal__ (CELL reg USES_REGS)
 {
   return (int) (IN_BETWEEN (LOCAL_GlobalBase, reg, HR));
