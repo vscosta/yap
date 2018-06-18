@@ -1,8 +1,0 @@
-# pack-refs with: peeled fully-peeled sorted 
-530246688c9a53b88506c19b1fc726d048fb6310 refs/heads/master
-5735b087937f7e088f03f2cab89db2fa88853a93 refs/tags/6.2
-11252cd0618d78032335dfe50812c370351ed73b refs/tags/6.3.0
-edb982cfffd2bb557afad1e32f88cbcaa4e1abb7 refs/tags/6.3.2
-93f8179b3b97e70fbc303b3095a02af97ad41e52 refs/tags/YAP-6.3.4
-c98e42f545082d09a510574fbfe51b6e13e79e2e refs/tags/yap-6.3.1
-0734b9fd3388fd4db53de0bab599ae528177ceb3 refs/tags/yap-6.3.3
