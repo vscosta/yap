@@ -2105,7 +2105,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
   CACHE_REGS
   int sno;
   BACKUP_MACHINE_REGS();
-  const char *fl = NULL;
+   char *fl = NULL;
   int lvl = push_text_stack();
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE; }
@@ -2118,8 +2118,14 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
       pop_text_stack(lvl);
       *full = NULL;
       return -1;
+    } else {
+      *full = pop_output_text_stack(lvl,fl);
     }
+  } else {
+          pop_text_stack(lvl);
   }
+  
+  lvl = push_text_stack();
   bool consulted = (mode == YAP_CONSULT_MODE);
   sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
     if (sno < 0 ||
@@ -2161,11 +2167,7 @@ X_API FILE *YAP_TermToStream(Term t) {
 X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
-#if __unix__
-    Yap_ChDir(dirname(full));
-#else
   Yap_ChDir(full);
-#endif
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
