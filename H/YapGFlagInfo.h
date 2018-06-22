@@ -56,12 +56,18 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
               ~~~
            */
 
-    /**<  `answer_format` how to present answers, default is `~p`. */
-    YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
-
 #if __APPLE__
     YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "true", NULL), /**<
     read-only boolean, a machine running an Apple Operating System */
+#endif
+
+
+    /**<  `answer_format` how to present answers, default is `~p`. */
+    YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
+
+#if __ANDROID__
+    YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "true", NULL), /**<
+    read-only boolean, a machine running an Google's Android version of the Linux Operating System */
 #endif
 
     YAP_FLAG(ARCH_FLAG, "arch", false, isatom, YAP_ARCH, NULL), /**<

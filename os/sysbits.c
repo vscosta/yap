@@ -92,29 +92,37 @@ bool Yap_isDirectory(const char *FileName) {
 #endif
 }
 
+Int exists_directory(USES_REGS1) {
+    int lvl = push_text_stack();
+    const char *path = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+    bool rc = Yap_isDirectory(path);
+    pop_text_stack(lvl);
+    return rc;
+}
+
 bool Yap_Exists(const char *f) {
-  VFS_t *vfs;
-  f = Yap_VFAlloc(f);
-  if ((vfs = vfs_owner(f))) {
-    return vfs->exists(vfs, f);
-  }
+    VFS_t *vfs;
+    f = Yap_VFAlloc(f);
+    if ((vfs = vfs_owner(f))) {
+        return vfs->exists(vfs, f);
+    }
 #if _WIN32
-  if (_access(f, 0) == 0)
+    if (_access(f, 0) == 0)
     return true;
   if (errno == EINVAL) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
   }
   return false;
 #elif HAVE_ACCESS
-  if (access(f, F_OK) == 0) {
-    return true;
-  }
-  if (errno == EINVAL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
-  }
-  return false;
+    if (access(f, F_OK) == 0) {
+        return true;
+    }
+    if (errno == EINVAL) {
+        Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
+    }
+    return false;
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
             "access not available in this configuration");
   return false;
 #endif
@@ -346,14 +354,14 @@ bool Yap_ChDir(const char *path) {
   bool rc = false;
   int lvl = push_text_stack();
 
+    const char *qpath = Yap_AbsoluteFile(path, true);
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
   VFS_t *v;
-  if ((v = vfs_owner(path))) {
-    rc = v->chdir(v, path);
+  if ((v = vfs_owner(qpath))) {
+    rc = v->chdir(v, (qpath));
     pop_text_stack(lvl);
     return rc;
   }
-  const char *qpath = Yap_AbsoluteFile(path, true);
 #if _WIN32
   rc = true;
   if (qpath != NULL && qpath[0] &&
@@ -615,6 +623,8 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
     }
     return tf;
   }
+#elif __ANDROID__
+     return MkPairTerm(MkAtomTerm(Yap_LookupAtom(spec)), TermNil);
 #elif HAVE_WORDEXP || HAVE_GLOB
   char u[YAP_FILENAME_MAX + 1];
   const char *espec = u;
@@ -1866,7 +1876,8 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred("$dir_separator", 1, p_dir_sp, SafePredFlag);
   Yap_InitCPred("libraries_directories", 2, libraries_directories, 0);
-  Yap_InitCPred("system_library", 1, system_library, 0);
+    Yap_InitCPred("system_library", 1, system_library, 0);
+    Yap_InitCPred("exists_directory", 1, exists_directory, 0);
   Yap_InitCPred("commons_library", 1, commons_library, 0);
   Yap_InitCPred("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred("$putenv", 2, p_putenv, SafePredFlag | SyncPredFlag);

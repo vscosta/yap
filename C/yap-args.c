@@ -182,8 +182,6 @@ static bool consult(const char *b_file USES_REGS) {
     CACHE_REGS
     YAP_Reset(YAP_FULL_RESET, false);
     Yap_StartSlots();
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "read %s <%d>", b_file,
-                        GLOBAL_Stream[c_stream].linecount);
     Term vs = MkVarTerm(), pos = MkVarTerm();
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);

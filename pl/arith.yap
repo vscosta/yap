@@ -55,8 +55,8 @@
      + specialise versions for some built-ins, if we are aware of the
       run-time execution mode
 
-  The user has some control over this process, through some
-  built-ins and through execution flsgs.
+  The user has  control over this process, through
+  built-ins and through prolog flags.
 
 */
 
@@ -93,7 +93,7 @@ compile_expressions :- set_value('$c_arith',true).
 
 After a call to this predicate, arithmetical expressions will not be compiled.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
 ?- source, do_not_compile_expressions.
 yes
 ?- [user].
@@ -111,8 +111,8 @@ p(A):-
 
 q(A):-
       A is 22.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+~~~~~~~
 */
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
@@ -132,6 +132,7 @@ do_c_built_in('$do_error'( Error, Goal), M, Head,
 	       throw(error(Error,M:(Head :- Goal)))
 	     ) :- !.
 do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
+        !,
        do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
@@ -149,8 +150,10 @@ do_c_built_in(X is Y, _, _, P) :-
 		'$drop_is'(X0, X, P0, P)
 	).
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
+    !,
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
+    !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
 
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
