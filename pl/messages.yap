@@ -29,7 +29,7 @@
 
 :- module(system('$messages'),
 	  [system_message/4,
-	   prefix/6,
+	   prefix/2,
 	   prefix/5,
 	   file_location/3]).
 
@@ -827,6 +827,12 @@ prefix(help,	      '~N'-[]).
 prefix(query,	      '~N'-[]).
 prefix(debug,	      '~N'-[]).
 prefix(warning,	      '~N'-[]).
+prefix(error,	      '~N'-[]).
+prefix(banner,	      '~N'-[]).
+prefix(informational, '~N~*| '-[]) :-
+	('$show_consult_level'(LC) -> true ; LC =  0).
+prefix(debug(_),      '~N'-[]).
+
 /*	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'warning, ' - [] ]
@@ -835,7 +841,7 @@ prefix(warning,	      '~N'-[]).
 	;   ['warning [Thread ~d ], ' - [Id] ]
 	).
 */
-prefix(error,	      '~N'-[]).
+
 /*
 	{ thread_self(Id) },
 	(   { Id == main }
@@ -853,11 +859,7 @@ prefix(error,	      '',   user_error) -->
 	;   [ 'error [ Thread ~d ] ' - [Id], nl ]
 	).
 */
-prefix(banner,	      '~N'-[]).
-prefix(informational, '~N~*|% '-[LC]) :-
-	'$show_consult_level'(LC).
-prefix(debug(_),      '~N% '-[]).
-prefix(information,   '~N% '-[]).
+
 
 
 clause_to_indicator(T, MNameArity) :-

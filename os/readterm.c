@@ -1545,8 +1545,8 @@ static Int read_term_from_string(USES_REGS1) {
 static Int atomic_to_term(USES_REGS1) {
   Term t1 = Deref(ARG1);
     int l = push_text_stack();
-   const char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
-  Int rc = Yap_BufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
+   const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
+  Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
     pop_text_stack(l);
     return rc;
 }

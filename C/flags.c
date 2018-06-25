@@ -1327,10 +1327,6 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
       tarr->at = MkIntTerm(atol(YAP_NUMERIC_VERSION));
       return true;
     }
-    if (!strcmp(ss, "YAP_NUMERIC_VERSION")) {
-      tarr->at = MkIntTerm(atol(YAP_NUMERIC_VERSION));
-      return true;
-    }
     Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
               "~s should be either true (on) or false (off)", s);
     return false;

@@ -65,7 +65,7 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
     const void *buf;
 
     AAsset *am = NULL;
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s-%s <%s>", fname, me->prefix,io_mode);
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s-%s <%s>", fname, me->prefix,io_mode);
     if (strchr(io_mode, 'B')) {
         mode = AASSET_MODE_BUFFER;
     } else {
@@ -78,10 +78,9 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
 //    strcpy(dir, fname);
 //    char *d = basename(dir);
     am = AAssetManager_open(Yap_assetManager(), fname, mode);
-    if (am==NULL)
-            __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed open %s <%s>", fname, strerror(errno) );
+    //if (am==NULL)
+    //        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed open %s <%s>", fname, strerror(errno) );
 
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode );
 //    while (dp) {
 //        char *f = AAssetDir_getNextFileName(dp);
 //        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", f, d);
@@ -189,7 +188,7 @@ bool is_dir_a(VFS_t *me, const char *dirName) {
     if (d == NULL || AAssetDir_getNextFileName(d) == NULL)
         return false;
      (AAssetDir_close(d));
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "isdir %s <%p>", dirName, d);
 
     return true;
 }
@@ -199,7 +198,7 @@ bool exists_a(VFS_t *me, const char *dirName) {
     dirName += strlen(me->prefix) + 1;
     // try not to use it as an asset
     AAsset *d = AAssetManager_open(Yap_assetManager(), dirName, AASSET_MODE_UNKNOWN);
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%p>", dirName, d);
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%p>", dirName, d);
     if (d == NULL)
         return false;
     AAsset_close(d);
@@ -219,7 +218,7 @@ static bool set_cwd(VFS_t *me, const char *dirName) {
         dirName = dirname(dirName);
     GLOBAL_cwd = malloc(strlen(dirName)+1);
     strcpy(GLOBAL_cwd, dirName);
-__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
+//__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
 return true;
 }
 

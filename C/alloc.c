@@ -76,12 +76,13 @@ void *my_malloc(size_t sz) {
 
   p = malloc(sz);
   //    Yap_DebugPuts(stderr,"gof\n");
-  if (Yap_do_low_level_trace)
+  if (Yap_do_low_level_trace) {
 #if __ANDROID__
-        __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,p);
+      //   __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "+ %d %p", write_malloc,p);
 #else
-    fprintf(stderr, "+s %p\n @%p %ld\n", p, TR, LCL0 - (CELL *)LCL0);
+      fprintf(stderr, "+s %p\n @%p %ld\n", p, TR, LCL0 - (CELL *)LCL0);
 #endif
+  }
   return p;
 }
 
@@ -89,12 +90,12 @@ void *my_realloc(void *ptr, size_t sz) {
   void *p;
 
   p = realloc(ptr, sz);
-  if (Yap_do_low_level_trace)
+  //if (Yap_do_low_level_trace)
     //  fprintf(stderr, "+ %p -> %p : " Sizet_F "\n", ptr, p, sz);
     //    Yap_DebugPuts(stderr,"gof\n");
-    if (sz > 500 && write_malloc++ > 0)
-      __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p",
-                          write_malloc, p);
+//    if (sz > 500 && write_malloc++ > 0)
+//      __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "* %d %p",
+//                          write_malloc, p);
   return p;
 }
 
@@ -102,9 +103,9 @@ void my_free(void *p) {
   // printf("f %p\n",p);
   if (Yap_do_low_level_trace)
     fprintf(stderr, "- %p\n @%p %ld\n", p, TR, (long int)(LCL0 - (CELL *)B) );
-  if (write_malloc && write_malloc++ > 0)
-    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "- %d %p", write_malloc,
-                        p);
+  //if (write_malloc && write_malloc++ > 0)
+//    __android_log_print(ANDROID_LOG_ERROR, "YAPDroid ", "- %d %p", write_malloc,
+//                        p);
 
   free(p);
   //    Yap_DebugPuts(stderr,"gof\n");

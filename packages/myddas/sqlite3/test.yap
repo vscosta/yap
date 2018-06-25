@@ -13,7 +13,7 @@ main_ .
 
 init :-
 
-    start_low_level_trace,
+    %start_low_level_trace,
     db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
     writeln('chinook has landed').
 
