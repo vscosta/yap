@@ -2105,7 +2105,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
   CACHE_REGS
   int sno;
   BACKUP_MACHINE_REGS();
-   char *fl = NULL;
+  const char *fl = NULL;
   int lvl = push_text_stack();
   if (mode == YAP_BOOT_MODE) {
     mode = YAP_CONSULT_MODE; }
@@ -2126,10 +2126,12 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
   }
   
   lvl = push_text_stack();
-  bool consulted = (mode == YAP_CONSULT_MODE);
+  char *d = Malloc(strlen(fl)+1);
+  strcpy(d,fl);
+ bool consulted = (mode == YAP_CONSULT_MODE);
   sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
-    if (sno < 0 ||
-	!Yap_ChDir(dirname((char *)fl))) {
+  if (sno < 0 ||
+      !Yap_ChDir(dirname((char *)d))) {
       pop_text_stack(lvl);
       *full = NULL;
       return -1;
@@ -2167,12 +2169,16 @@ X_API FILE *YAP_TermToStream(Term t) {
 X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
-  Yap_ChDir(dirname(full));
+  int lvl = push_text_stack();
+  char *d = Malloc(strlen(full)+1);
+  strcpy(d,full);
+  Yap_ChDir(dirname(d));
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s(%d), %d", full, *osnop, sno);
         // LOCAL_CurSlot);
+	    pop_text_stack(lvl);
   RECOVER_MACHINE_REGS();
 }
 

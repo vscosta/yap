@@ -437,7 +437,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
       }
     }
-    LOCAL_ActiveError->errorRawTerm = MkStringTerm(inp->val.uc);
+    LOCAL_ActiveError->errorRawTerm = MkUStringTerm(inp->val.uc);
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
     Yap_ThrowError(LOCAL_Error_TYPE, LOCAL_ActiveError->errorRawTerm, "Converting to text from term ");

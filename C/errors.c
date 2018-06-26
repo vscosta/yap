@@ -969,6 +969,7 @@ bool Yap_RaiseException(void) {
       LOCAL_ActiveError->errorNo == YAP_NO_ERROR)
     return false;
   Yap_RestartYap(5);
+  return false;
   //return Yap_JumpToEnv();
 }
 

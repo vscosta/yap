@@ -2115,8 +2115,8 @@ static Int jump_env(USES_REGS1) {
                    "throw/1 must be called instantiated");
   }
   // Yap_DebugPlWriteln(t);
-  char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
-                               Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+  // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
+  //                             Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
   LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
   bool out = JumpToEnv(PASS_REGS1);

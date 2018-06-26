@@ -1169,7 +1169,8 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
-    return true;
+  Yap_DefaultStreamOps(st);
+  return true;
 }
 
 static bool open_header(int sno, Atom open_mode) {
@@ -1667,7 +1668,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   // fname = Yap_VF(fname);
 
 
-  if (fill_stream(sno, st, tin,io_mode,user_name,enc)) 
+  if (fill_stream(sno, st, tin,io_mode,user_name,enc))
    return sno;
   return -1;
 }
