@@ -159,14 +159,13 @@ static bool consult(const char *b_file USES_REGS) {
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
-  char *full;
-
+\
   /* consult in C */
   int lvl = push_text_stack();
-  - char *full = Malloc(YAP_FILENAME_MAX + 1);
+  char *full = Malloc(YAP_FILENAME_MAX + 1);
   full[0] = '\0';
   /* the consult mode does not matter here, really */
-  vvvif ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
+  if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0)
     osno = 0;
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, &full, &oactive);
   if (c_stream < 0) {
@@ -321,7 +320,7 @@ static void Yap_set_locations(YAP_init_args *iap) {
   /// BOOTPLDIR: where we can find Prolog bootstrap files
   Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
 #if __ANDROID__
-                      "/assets/Yap/pl/boot,yap",
+                      "/assets/Yap/pl/boot.yap",
 #else
                       join(getenv("DESTDIR"), YAP_BOOTSTRAP),
 #endif
@@ -981,7 +980,7 @@ static void end_init(YAP_init_args *iap) {
   YAP_initialized = true;
   if (iap->HaltAfterBoot) Yap_exit(0);
   LOCAL_PrologMode &= ~BootMode;
-  CurrentModule = USER_MODULE
+  CurrentModule = USER_MODULE;
 }
 
 static void start_modules(void) {
@@ -1059,7 +1058,6 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   }
   YAP_RunGoalOnce(TermInitProlog);
      if (yap_init->install && Yap_OUTPUT_STARTUP) {
->>>>>>> ff2b867ec3c3831e10b8465e0a9e3c1a03e3d4d2
       Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
                               1, &t);

@@ -1130,7 +1130,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s  %s stream  <%d>",io_mode,name,
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s  stream  <%d>",io_mode,name,
                         sno);
     if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
@@ -2051,13 +2051,13 @@ void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
   if (argi->inp > 0)
     Yap_stdin = fdopen(argi->inp - 1, "r");
-  else if (argi->inp)
+  else if (argi->inp < 0)
     Yap_stdin = NULL;
   else
     Yap_stdin = stdin;
   if (argi->out > 0)
     Yap_stdout = fdopen(argi->out - 1, "a");
-  else if (argi->out)
+  else if (argi->out < 0)
     Yap_stdout = NULL;
   else
     Yap_stdout = stdout;

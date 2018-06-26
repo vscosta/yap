@@ -1036,6 +1036,7 @@ static void CloseStream(int sno) {
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   GLOBAL_Stream[sno].status = Free_Stream_f;
+ // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>", sno);
 
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
     Yap_CloseSocket();
