@@ -355,7 +355,7 @@ bool Yap_ChDir(const char *path) {
   int lvl = push_text_stack();
 
     const char *qpath = Yap_AbsoluteFile(path, true);
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
+  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
   VFS_t *v;
   if ((v = vfs_owner(qpath))) {
     rc = v->chdir(v, (qpath));
@@ -398,7 +398,7 @@ static char *clean_path(const char *path) {
   const char *p, *p0;
   int lvl = push_text_stack();
 
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " looking at %s", path);
+  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " looking at %s", path);
   char *o0 = Malloc(FILENAME_MAX + 1), *o = o0;
   int ch;
   char *b0 = Malloc(FILENAME_MAX + 1), *b = b0;
@@ -423,8 +423,8 @@ static char *clean_path(const char *path) {
   if (o == o0)
     *o++ = '/';
   *o = '\0';
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " %s at %s, %p-%p", p0, o0,
-                      o, o0);
+//  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " %s at %s, %p-%p", p0, o0,
+//                      o, o0);
   return pop_output_text_stack(lvl, o0);
 }
 
@@ -1146,7 +1146,7 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   return (char *)cwd;
 #endif
   const char *rc = getcwd(cwd, FILENAME_MAX);
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", rc);
+ // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", rc);
 return rc;
 }
 

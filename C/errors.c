@@ -321,6 +321,8 @@ bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " warning(%s)",
+                        Yap_TermToBuffer(twarning, ENC_ISO_UTF8,Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
   Term ts[2], err;
@@ -334,7 +336,6 @@ bool Yap_PrintWarning(Term twarning) {
     return false;
   }
   LOCAL_PrologMode |= InErrorMode;
-  LOCAL_DoingUndefp = true;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
     fprintf(stderr, "warning message:\n");
     Yap_DebugPlWrite(twarning);
@@ -854,6 +855,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   if (LOCAL_delay)
     return P;
   if (LOCAL_DoingUndefp) {
+      LOCAL_DoingUndefp = false;
     LOCAL_Signals = 0;
     Yap_PrintWarning(MkErrorTerm(Yap_GetException(LOCAL_ActiveError)));
     return P;
@@ -1061,14 +1063,22 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
 yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
   Term n = t;
   bool found = false, wellformed = true;
-  if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError) {
-    LOCAL_Error_TYPE = THROW_EVENT;
-    LOCAL_ActiveError->errorClass = EVENT;
-    LOCAL_ActiveError->errorAsText = Yap_errorName(THROW_EVENT);
-    LOCAL_ActiveError->classAsText =
-        Yap_errorClassName(Yap_errorClass(THROW_EVENT));
-    LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
-    LOCAL_ActiveError->culprit = NULL;
+    if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorError) {
+        LOCAL_Error_TYPE = THROW_EVENT;
+        LOCAL_ActiveError->errorClass = EVENT;
+        LOCAL_ActiveError->errorAsText = Yap_errorName(THROW_EVENT);
+        LOCAL_ActiveError->classAsText =
+                Yap_errorClassName(Yap_errorClass(THROW_EVENT));
+        LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
+        LOCAL_ActiveError->culprit = NULL;
+    } else     if (i->errorNo != YAP_NO_ERROR && i->errorNo != ERROR_EVENT) {
+            LOCAL_Error_TYPE = i->errorNo;
+            LOCAL_ActiveError->errorClass = Yap_errorClass(i->errorNo);
+            LOCAL_ActiveError->errorAsText = Yap_errorName(i->errorNo);
+            LOCAL_ActiveError->classAsText =
+                    Yap_errorClassName(Yap_errorClass(i->errorNo));
+            LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
+            LOCAL_ActiveError->culprit = NULL;
   } else {
     Term t1, t2;
     t1 = ArgOfTerm(1, t);

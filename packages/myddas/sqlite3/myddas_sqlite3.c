@@ -673,13 +673,13 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
 
 X_API void init_sqlite3(void) {
     Term cm = CurrentModule;
-    CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
+    //CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
 
  Yap_InitMYDDAS_SQLITE3Preds();
 
  Yap_InitBackMYDDAS_SQLITE3Preds();
 
-    CurrentModule = cm;
+    //CurrentModule = cm;
 }
 
 
