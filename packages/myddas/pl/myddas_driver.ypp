@@ -69,7 +69,7 @@
 				      '$make_a_list'/2,
 				      '$write_or_not'/1
 				     ]).
-:- load_foreign_files( [NAME()], [], INIT()).
+%   :- load_foreign_files( [NAME()], [], INIT()).
 
 %--------------------------------------------------------
 % Public Predicates

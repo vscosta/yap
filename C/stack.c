@@ -656,7 +656,7 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
 
   PELOCK(40, pp);
   /* check if the codeptr comes from the indexing code */
-  if (pp->PredFlags & IndexedPredFlag) {
+  if (pp->PredFlags & IndexedPredFlag  && pp->OpcodeOfPred != INDEX_OPCODE) {
     if (pp->PredFlags & LogUpdatePredFlag) {
       if (code_in_pred_lu_index(
               ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,

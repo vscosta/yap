@@ -2,7 +2,7 @@ message( "   * Sqlite3 Data-Base (http://www.sqlite3ql.org), distributed with MY
 
 set (SQLITE_EXTRA
   chinook.db
-  test.yap)
+  sqlitest.yap)
 
 set( YAPSQLITE3_SOURCES
   myddas_sqlite3.c
@@ -61,5 +61,3 @@ endif()
     install(FILES ${SQLITE_EXTRA}
      DESTINATION ${libpl}
         )
-
-  #  file (INSTALL  chinook.db test.yap DESTINATION ${libpl})

@@ -740,6 +740,7 @@ db_files(Fs) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
+
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),

@@ -188,7 +188,6 @@
 				%
 
 
-
 %% @pred db_open(+Interface,-Handle,+HostDb,+User,+Password)
 %% @pred db_open(+Interface,+HostDb,+User,+Password)
 %
@@ -243,7 +242,7 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
 	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
-	c_sqlite3_connect(File,User,Password,Con),
+	myddas_sqlite3:c_sqlite3_connect(File,User,Password,Con),
 	set_value(Connection,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -369,7 +368,7 @@ db_sql_(ConType, Con, SQL,LA):-
 	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
+	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
 	;
 	  c_odbc_query(SQL,ResultSet,Arity,LA,Con),
 	  c_odbc_number_of_fields_in_query(SQL,Con,Arity)
@@ -459,7 +458,7 @@ db_assert(Connection,PredName):-
 	  c_postgres_query(SQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,_,Con,Mode,_)
+	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(SQL,_,_,_,Con)
 	).
@@ -488,7 +487,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 	  c_postsgres_query(FinalSQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+	  myddas_myddas_sqlite3:c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -565,7 +564,7 @@ db_update(Connection,WherePred-SetPred):-
 	;
 	ConType == sqlite3 ->
 	sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,_,Conn,Mode,_)
+	 myddas_sqlite3:c_sqlite3_query(SQL,_,Conn,Mode,_)
 	;
 	  ConType == odbc ->
 	odbc_result_set(Mode),

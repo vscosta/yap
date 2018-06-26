@@ -1,5 +1,5 @@
-
-:- compile(library(maplist)).
+:- stop_low_level_trace.
+:- use_module(library(maplist)).
 :- use_module(library(myddas)).
 
 main :-
@@ -13,24 +13,23 @@ main_ .
 
 init :-
 
-    %start_low_level_trace,
+    start_low_level_trace,
     db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
     writeln('chinook has landed').
 
 go :-
-    stop_low_level_trace,
-	db_import('Artist', artist),
-    writeln(('Artist -> artist')),
-	db_import('Album', album),
-    writeln(('Album -> album')),
-	db_import('Track', track),
-    writeln(('Track -> track')).
+	db_import('artists', artist),
+    writeln(('artist -> artist')),
+	db_import('albums', album),
+    writeln(('albums -> album')),
+	db_import('track', track),
+    writeln(('track -> track')).
 
 	go :-
 		db_get_attributes_types(album,Als),
     format('~w -> ~w~n',[album,Als]),
 		db_get_attributes_types(track,Ts),
-  	    format('~w -> ~w~n',[track,Ts]),
+  	        format('~w -> ~w~n',[track,Ts]),
 	db_get_attributes_types(artist,As),
 	     format('~w -> ~w~n',[artist,As]).
 go :-

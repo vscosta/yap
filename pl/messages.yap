@@ -26,8 +26,7 @@
  *
 */
 
-
-:- module(system('$messages'),
+:- module(system('$messages',[]),
 	  [system_message/4,
 	   prefix/2,
 	   prefix/5,
@@ -221,7 +220,7 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a included in module ~a, ~d msec ~d bytes' -
 		     [AbsFileName,Mod,Time,Space] ].
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
-	[ '~a ~a in module ~a, ~d msec ~d bytes' -
+	[ '~a ~a in module ~a, ~d msec ~g bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
 compose_message(signal(SIG,_), _) -->
 	!,
@@ -829,8 +828,11 @@ prefix(debug,	      '~N'-[]).
 prefix(warning,	      '~N'-[]).
 prefix(error,	      '~N'-[]).
 prefix(banner,	      '~N'-[]).
-prefix(informational, '~N~*| '-[]) :-
-	('$show_consult_level'(LC) -> true ; LC =  0).
+prefix(informational, '~N~*|% '-[LC]) :-
+    '$show_consult_level'(LC),
+    LC > 0,
+	!.
+prefix(informational,	      '~N'-[]).
 prefix(debug(_),      '~N'-[]).
 
 /*	{ thread_self(Id) },
@@ -1017,15 +1019,15 @@ prolog:print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
 prolog:print_message(Severity, Term) :-
-	prolog:message( Term,Lines0, [ end(Id)]),
+    message( Term,Lines0, [ end(Id)]),
 	Lines = [begin(Severity, Id)| Lines0],
 	(
 	 user:message_hook(Term, Severity, Lines)
 	->
 	 true
 	;
-	 prefix( Severity, Prefix ),
-	 prolog:print_message_lines(user_error, Prefix, Lines)
+	 ignore((prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)))
 	),
 	!.
 prolog:print_message(Severity, Term) :-
@@ -1036,10 +1038,12 @@ prolog:print_message(Severity, Term) :-
 	->
 	 true
 	;
-	 prefix( Severity, Prefix ),
-	 prolog:print_message_lines(user_error, Prefix, Lines)
+	 ignore((	prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)))
 	),
 	!.
+prolog:print_message(_Severity, _Term) :-
+    format(user_error,'failed to print ~w: ~w~n` ,[ _Severity, _Term]).
 
 '$error_descriptor'( Info, Info ).
 /**
