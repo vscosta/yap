@@ -252,9 +252,9 @@ compose_message(Throw, _Leve) -->
 location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
 	[ '~a:~d:~d ' - [FileName,LN,0] ] .
-location(style_check(_,LN,FileName,_ ), Level , LC) -->
+location(style_check(A,LN,FileName,B ), Level , LC) -->
 	!,
-	display_consulting( FileName, Level, LC ),
+	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
 	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
@@ -266,7 +266,7 @@ location( error(_,Info), Level, LC ) -->
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
   !,
-  display_consulting( File, Level, LC ),
+  display_consulting( File, Level, Info, LC ),
 	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },

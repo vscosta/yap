@@ -217,8 +217,7 @@ void *Yap_InitTextAllocator(void) {
 
 static size_t MaxTmp(USES_REGS1) {
 
-  return ((char *)LOCAL_TextBuffer->buf + LOCAL_TextBuffer->sz) -
-         (char *)LOCAL_TextBuffer->ptr;
+  return 1025;
 }
 
 static Term Globalize(Term v USES_REGS) {
@@ -282,7 +281,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
         return NULL;
       }
       if (!IsAtomTerm(hd)) {
-        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
+        Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of texts");
         return NULL;
       }
       const char *code = RepAtom(AtomOfTerm(hd))->StrOfAE;
@@ -441,7 +440,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     LOCAL_ActiveError->errorRawTerm = inp->val.t;
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    pop_text_stack(lvl);
+    Yap_ThrowError(LOCAL_Error_TYPE, inp->val.t, "Converting to text from term ");
     return NULL;
   }
 
@@ -508,7 +507,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     s = Malloc(2 * MaxTmp(PASS_REGS1));
     if (snprintf(s, MaxTmp(PASS_REGS1) - 1, Int_FORMAT,
                  IntegerOfTerm(inp->val.t)) < 0) {
-      pop_text_stack(lvl);
       AUX_ERROR(inp->val.t, 2 * MaxTmp(PASS_REGS1), s, char);
     }
     return pop_output_text_stack(lvl, s);
@@ -528,7 +526,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     char *s;
     s = Malloc(MaxTmp());
     if (!Yap_mpz_to_string(Yap_BigIntOfTerm(inp->val.t), s, MaxTmp() - 1, 10)) {
-      pop_text_stack(lvl);
       AUX_ERROR(inp->val.t, MaxTmp(PASS_REGS1), s, char);
     }
     return inp->val.uc = pop_output_text_stack(lvl, s);

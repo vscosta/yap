@@ -351,18 +351,26 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   }
 }
 
+#define expand_stack(S0,SP,SF,TYPE)	       \
+  size_t sz = SF-S0, used = SP-S0;	       \
+  S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);               \
+  SP = S0+used; SF = S0+sz;
+
 static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                              int share, int copy_att_vars, CELL *ptf,
                              CELL *HLow USES_REGS) {
 
-  struct cp_frame *to_visit0,
-      *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
+  int lvl = push_text_stack();
+  struct cp_frame *to_visit0, *to_visit = Malloc(1024*sizeof(struct cp_frame));
+  struct cp_frame *to_visit_max;
+
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
 
   HB = HLow;
   to_visit0 = to_visit;
+  to_visit_max = to_visit+1024;
 loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -382,8 +390,8 @@ loop:
       *ptf = AbsPair(HR);
       ptf++;
 #ifdef RATIONAL_TREES
-      if (to_visit + 1 >= (struct cp_frame *)AuxSp) {
-        goto heap_overflow;
+      if (to_visit >= to_visit_max-32) {
+    	expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
@@ -395,8 +403,9 @@ loop:
       to_visit++;
 #else
       if (pt0 < pt0_end) {
-        if (to_visit + 1 >= (CELL **)AuxSp) {
-          goto heap_overflow;
+        if (to_visit + 32 >= to_visit_max - 32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+
         }
         to_visit->start_cp = pt0;
         to_visit->end_cp = pt0_end;
@@ -493,8 +502,8 @@ loop:
       ptf++;
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
-      if (to_visit + 1 >= (struct cp_frame *)AuxSp) {
-        goto heap_overflow;
+      if (to_visit + 1 >= to_visit_max) {
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
@@ -507,7 +516,7 @@ loop:
 #else
       if (pt0 < pt0_end) {
         if (to_visit++ >= (CELL **)AuxSp) {
-          goto heap_overflow;
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
         }
         to_visit->start_cp = pt0;
         to_visit->end_cp = pt0_end;
@@ -593,6 +602,7 @@ loop:
   HB = HB0;
   clean_dirty_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
+    pop_text_stack(lvl);
   return 0;
 
 overflow:
@@ -611,25 +621,8 @@ overflow:
   }
 #endif
   reset_trail(TR0);
+    pop_text_stack(lvl);
   return -1;
-
-heap_overflow:
-  /* oops, we're in trouble */
-  HR = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-#endif
-  reset_trail(TR0);
-  return -2;
 
 trail_overflow:
   /* oops, we're in trouble */
@@ -647,6 +640,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
+    pop_text_stack(lvl);
   return -4;
 }
 

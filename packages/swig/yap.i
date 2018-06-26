@@ -14,6 +14,14 @@
 %include std_string.i
 %include std_vector.i
 
+#if __ANDROID__
+%include "arrays_java.i";
+//    %inline %{
+static   YAPTerm Temp[1];
+//    %}
+// %typemap(javapackage)  std::vector<YAPTerm>  "pt.up.yap.YAPTerm"
+//%template(VectorOfTerm) std::vector<YAPTerm>;
+#endif
 
 %feature("novaluewrapper") std::vector<Term>;
 
@@ -33,10 +41,6 @@ class YAPEngine;
     #include "Yap.h"
 
 
-
-#if __ANDROID__
-
-#endif
 
     #ifdef SWIGPYTHON
     #include <py4yap.h>
@@ -60,10 +64,6 @@ class YAPEngine;
       return NULL;
     }
     #endif
-     #ifdef SWIGJAVA0
-     %typemap(javapackage)  std::vector<YAPTerm>  "pt.up.yap.YAPTerm"
-      %template(VectorOfTerm) std::vector<YAPTerm>;
-     #endif
       }
 %}
 

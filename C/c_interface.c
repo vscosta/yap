@@ -2167,7 +2167,7 @@ X_API FILE *YAP_TermToStream(Term t) {
 X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   BACKUP_MACHINE_REGS();
   Yap_CloseStream(sno);
-  Yap_ChDir(full);
+  Yap_ChDir(dirname(full));
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();

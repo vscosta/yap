@@ -114,7 +114,7 @@ public:
   /// It i;
   ///};
   /// build a query from a term
-  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), nts) {
+  YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), (nts = &ARG1)) {
     BACKUP_MACHINE_REGS();
     openQuery();
     names =  YAPPairTerm(TermNil) ;
