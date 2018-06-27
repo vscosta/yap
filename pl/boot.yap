@@ -303,8 +303,8 @@ initialize_prolog :-
      'qly.yap',
      'spy.yap',
      'udi.yap'].
-%:- stop_low_level_trace.
 
+%:- start_low_level_trace.
 
 :- meta_predicate(log_event(+,:)).
 
@@ -316,7 +316,7 @@ initialize_prolog :-
 
 :-	 ['protect.yap'].
 
-version(yap,[6,3]).
+version(yap,[6,4]).
 
 :- op(1150,fx,(mode)).
 
@@ -395,6 +395,7 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- set_value('$user_module',user), '$protect'.
 
 :- style_check([+discontiguous,+multiple,+single_var]).
+
 
 %
 % moved this to init_gc in gc.c to separate the alpha
@@ -475,6 +476,8 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- multifile user:exception/3.
 
 :- dynamic user:exception/3.
+
+:- start_low_level_trace.
 
 :- ensure_loaded('../pl/pathconf.yap').
 
