@@ -19,27 +19,28 @@
 #define DBMS(x) sqlite3_##x
 #define c_DBMS(x) c_sqlite3_##x
 #define NAME() 'libYapsqlite3'
-#define MODULE() myddas_sqlite3
+#define MODULE() user
 #define INIT() init_sqlite3
 #elif defined( odbc )
 #undef odbc
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
 #define NAME() 'libYapodbc'
-#define MODULE() myddas_odbc
+#define MODULE() user
 #define INIT() init_odbc
 #elif defined( postgres )
 #undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
 #define NAME() 'libYappostgres'
-#define MODULE() myddas_postgres
+#define MODULE() user
 #define INIT() init_odbc
 #endif
 
 #if defined(DBMS)
 
 :- module(MODULE(),[
+			  /*
 			  c_DBMS(change_database)/2,
 			  c_DBMS(connect)/4,
 			  c_DBMS(disconnect)/1,
@@ -49,6 +50,7 @@
 			  c_DBMS(get_next_result_set)/3,
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
+              */
               DBMS(describe)/3,
               DBMS(show_tables)/2,
               DBMS(row)/3

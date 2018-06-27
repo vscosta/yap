@@ -29,7 +29,7 @@
 :- module(system('$messages',[]),
 	  [system_message/4,
 	   prefix/2,
-	   prefix/5,
+	   %prefix/5,
 	   file_location/3]).
 
 /**
@@ -1043,9 +1043,11 @@ prolog:print_message(Severity, Term) :-
 	),
 	!.
 prolog:print_message(_Severity, _Term) :-
-    format(user_error,'failed to print ~w: ~w~n` ,[ _Severity, _Term]).
+    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
 '$error_descriptor'( Info, Info ).
+
+
 /**
   @}
 */

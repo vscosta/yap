@@ -874,6 +874,7 @@ static Int close_error(USES_REGS1) {
   if (!LOCAL_CommittedError)
     return true;
   LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
+  LOCAL_ErrorMessage = NULL;
   free(LOCAL_CommittedError);
   LOCAL_CommittedError = NULL;
   return true;

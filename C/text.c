@@ -92,7 +92,7 @@ void *pop_output_text_stack__(int i, const void *export) {
       struct mblock *np = p->next;
       if (p + 1 == export) {
         size_t sz = p->sz - sizeof(struct mblock);
-        memcpy(p, p + 1, sz);
+        memmove(p, p + 1, sz);
         export = p;
       } else {
         free(p);
@@ -458,7 +458,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       return at->UStrOfAE;
     }
     size_t sz = strlen(at->StrOfAE);
-    inp->type |= YAP_STRING_IN_TMP;
     void *o = Malloc(sz + 1);
     strcpy(o, at->StrOfAE);
     return pop_output_text_stack(lvl, o);

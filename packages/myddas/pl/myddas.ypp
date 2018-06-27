@@ -135,12 +135,12 @@
 
 :- use_module(myddas_sqlite3,[
 		  % myddas_mysql.ypp
-		  c_sqlite3_connect/4,
-		  c_sqlite3_disconnect/1,
-		  c_sqlite3_query/5,
+		  %c_sqlite3_connect/4,
+		  %c_sqlite3_disconnect/1,
+		  %c_sqlite3_query/5,
 		  sqlite3_result_set/1,
-		  c_sqlite3_number_of_fields/3,
-		  c_sqlite3_get_attributes_types/3,
+		  %c_sqlite3_number_of_fields/3,
+		  %c_sqlite3_get_attributes_types/3,
 		  sqlite3_describe/3,
 		  sqlite3_show_tables/2,
 		  sqlite3_row/3
@@ -242,7 +242,7 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
 	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
-	myddas_sqlite3:c_sqlite3_connect(File,User,Password,Con),
+	c_sqlite3_connect(File,User,Password,Con),
 	set_value(Connection,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
