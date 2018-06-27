@@ -923,12 +923,11 @@ bool Yap_LateInit(const char s[]) {
   return false;
 }
 
-/// whether Yap is under control of some other system
-bool Yap_embedded = true;
-
 struct ssz_t {
   size_t Heap, Stack, Trail;
 };
+
+bool Yap_Embedded;
 
 static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
   Yap_page_size = Yap_InitPageSize(); /* init memory page size, required by
@@ -936,14 +935,18 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-  if (!yap_init->Embedded) {
+  if (yap_init->Embedded) {
+    yap_init->install = false;
     GLOBAL_PrologShouldHandleInterrupts =
-        !yap_init->PrologCannotHandleInterrupts;
+yap_init->PrologCannotHandleInterrupts = true;
+  } else {
+    GLOBAL_PrologShouldHandleInterrupts =
+            !yap_init->PrologCannotHandleInterrupts;
+  }
     Yap_InitSysbits(0); /* init signal handling and time, required by later
                            functions */
     GLOBAL_argv = yap_init->Argv;
     GLOBAL_argc = yap_init->Argc;
-  }
 
 #if __ANDROID__
 
@@ -1005,7 +1008,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   if (!LOCAL_TextBuffer)
     LOCAL_TextBuffer = Yap_InitTextAllocator();
 
-  Yap_embedded = yap_init->Embedded;
+  Yap_Embedded = yap_init->Embedded;
 
   minfo.Trail = 0, minfo.Stack = 0, minfo.Trail = 0;
   init_hw(yap_init, &minfo);

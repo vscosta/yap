@@ -1,4 +1,4 @@
-/*************************************************************************
+    /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -11,7 +11,7 @@
 * mods:									 *
 * comments:	main header file for YAP				 *
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-*************************************************************************/
+**********                                                                                                      ***************************************************************/
 
 #ifndef YAP_H
 
@@ -826,7 +826,7 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 #include "GitSHA1.h"
 
-extern bool  Yap_embedded, Yap_Server;
+extern bool  Yap_Embedded, Yap_Server;
 
 #include "YapText.h"
 

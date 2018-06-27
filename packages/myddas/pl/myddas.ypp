@@ -176,7 +176,8 @@
 				]).
 
 :- use_module(library(lists),[
-		  append/3
+		  append/3,
+      member/2
 	      ]).
 
 

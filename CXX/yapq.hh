@@ -177,6 +177,7 @@ public:
   YAPEngineArgs() {
     // const std::string *s = new std::string("startup.yss");
     Embedded = true;
+      install = false;
     Yap_InitDefaults(this, nullptr, 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
@@ -202,9 +203,13 @@ public:
 
   inline void setMaxTrailSize(bool fl) { MaxTrailSize = fl; };
 
-  inline bool getMaxTrailSize() { return MaxTrailSize; };
+    inline bool getMaxTrailSize() { return MaxTrailSize; };
 
-  inline void setPLDIR(const char *fl) {
+    inline void createSavedState(bool fl) { install = fl; };
+
+    inline bool creatingSavedState() { return install; };
+
+    inline void setPLDIR(const char *fl) {
     LIBDIR = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)LIBDIR, fl);
   };

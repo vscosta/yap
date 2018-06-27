@@ -82,6 +82,9 @@
 			      c_odbc_row/3
                            ]).
 
+
+:- use_module( library(lists)).
+
 :- meta_predicate db_import(+,+,:), db_import(+,:).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,10 +99,9 @@ db_import(Connection,RelationName,PredName0) :-
 	table_arity( Con, ConType, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
-
 	R=..[relation,PredName,Arity,RelationName],
 	% assert relation fact
-	assert(myddas_prolog2sql:R),
+	assert(user:R),
 
 	Size is 2*Arity,
         length(TypesList, Size),
