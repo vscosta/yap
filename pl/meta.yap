@@ -309,6 +309,13 @@ meta_predicate(P) :-
 '$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
 	'$clean_cuts'(AOO, AO).
+'$expand_goals'(not(G),not(G),A\=B,_HM,_BM,_SM,_HVars) :-
+    nonvar(G),
+    G = (A = B),
+    !.
+'$expand_goals'(not(A),not(A1),(AO-> false;true),HM,SM,BM,HVars) :- !,
+	'$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
+	'$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
 	('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),

@@ -3575,7 +3575,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       cglobs.space_op->rnd1 = cglobs.space_used;
 
 #ifdef DEBUG
-    if (GLOBAL_Option['g' - 96])
+    if (GLOBAL_Option['g' - 96] )
       Yap_ShowCode(&cglobs.cint);
 #endif
   } else {

@@ -1130,7 +1130,9 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
-  if (io_mode == NULL)
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s  stream  <%d>",io_mode,name,
+                        sno);
+    if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
               "File opened with NULL Permissions");
   if (strchr(io_mode, 'a')) {
@@ -1315,8 +1317,6 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
   }
   Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
                  st->status, vfsp);
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exists %s <%d>", fname,
-                      sno);
   return true;
 }
 
@@ -1469,7 +1469,6 @@ if (args[OPEN_BOM].used) {
   // interactive streams do not have a start, so they probably don't have
   // a BOM
   avoid_bom = avoid_bom || (st->status & Tty_Stream_f);
-  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
   if (needs_bom && !write_bom(sno, st)) {
     return false;
   } else if (open_mode == AtomRead && !avoid_bom) {
@@ -1669,7 +1668,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   // fname = Yap_VF(fname);
 
 
-  if (fill_stream(sno, st, tin,io_mode,user_name,enc)) 
+  if (fill_stream(sno, st, tin,io_mode,user_name,enc))
    return sno;
   return -1;
 }
@@ -1865,17 +1864,13 @@ static Int always_prompt_user(USES_REGS1) {
   return (TRUE);
 }
 
-static Int close1 /** @pred  close(+ _S_) is iso
-
+ /** @pred  close(+ _S_) is iso
 
 Closes the stream  _S_. If  _S_ does not stand for a stream
 currently opened an error is reported. The streams user_input,
 user_output, and user_error can never be closed.
-
-
-                  */
-
-    (USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
+*/
+ static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   int sno = CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)
@@ -2057,13 +2052,13 @@ void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
   if (argi->inp > 0)
     Yap_stdin = fdopen(argi->inp - 1, "r");
-  else if (argi->inp)
+  else if (argi->inp < 0)
     Yap_stdin = NULL;
   else
     Yap_stdin = stdin;
   if (argi->out > 0)
     Yap_stdout = fdopen(argi->out - 1, "a");
-  else if (argi->out)
+  else if (argi->out < 0)
     Yap_stdout = NULL;
   else
     Yap_stdout = stdout;

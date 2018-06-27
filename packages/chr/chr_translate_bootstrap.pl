@@ -127,9 +127,7 @@
 %% SWI end
 :- use_module(library(dialect/hprolog)).
 :- use_module(pairlist).
-:- start_low_level_trace.
 :- include(chr_op).
-:- stop_low_level_trace.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%

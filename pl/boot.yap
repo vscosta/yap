@@ -323,7 +323,6 @@ version(yap,[6,4]).
 :- dynamic 'extensions_to_present_answer'/1.
 
 :- 	['arrays.yap'].
-%:- start_low_level_trace.
 
 :- multifile user:portray_message/2.
 
@@ -482,5 +481,4 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
-
 %% @}

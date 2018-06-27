@@ -1345,9 +1345,9 @@ static inline const unsigned char *Yap_TextToUTF8Buffer(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
-    YAP_STRING_ATOMS_CODES | YAP_STRING_MALLOC;
+    YAP_STRING_ATOMS_CODES;
   out.val.uc = NULL;
-  out.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CHARS | YAP_STRING_MALLOC;
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))

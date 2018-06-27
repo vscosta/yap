@@ -1435,6 +1435,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
               /* otherwise, SetDBForThrow will fail entering critical mode */
       // LOCAL_ActiveError = err_info;
       LOCAL_PrologMode = UserMode;
+      LOCAL_DoingUndefp = false;
       /* find out where to cut to */
       /* siglongjmp resets the TR hardware register */
       /* TR and B are crucial, they might have been changed, or not */
@@ -1464,6 +1465,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
           getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *)FAILCODE;
       LOCAL_PrologMode = UserMode;
+      LOCAL_DoingUndefp = false;
       Yap_CloseSlots(sls);
     } break;
     case 3: { /* saved state */
@@ -1472,7 +1474,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
-      Yap_CloseSlots(sls);
+            LOCAL_DoingUndefp = false;
+Yap_CloseSlots(sls);
       return false;
     }
     case 4:
@@ -1487,7 +1490,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
         Yap_JumpToEnv();
       }
       LOCAL_PrologMode = UserMode;
-      P = (yamop *)FAILCODE;
+           LOCAL_DoingUndefp = false;
+ P = (yamop *)FAILCODE;
       LOCAL_RestartEnv = sighold;
       Yap_CloseSlots(sls);
       pop_text_stack(i+1);
@@ -2092,6 +2096,7 @@ static Int JumpToEnv(USES_REGS1) {
 
   B = handler;
   P = FAILCODE;
+  LOCAL_DoingUndefp = false;
   return true;
 }
 
@@ -2110,6 +2115,9 @@ static Int jump_env(USES_REGS1) {
                    "throw/1 must be called instantiated");
   }
   // Yap_DebugPlWriteln(t);
+  // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
+  //                             Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
   LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
   bool out = JumpToEnv(PASS_REGS1);
   if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&

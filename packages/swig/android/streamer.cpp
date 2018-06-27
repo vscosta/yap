@@ -59,10 +59,9 @@ and_close(int sno) {
 static int
 and_put(int sno, int ch) {
 buff0 += ch;
- if (ch=='\n'  || buff0.length() == 128) { //buff0+= '\0';
      streamerInstance->display(buff0);
-     buff0.clear();
- }
+    buff0.clear();
+
  return ch;
  }
 

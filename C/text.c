@@ -92,7 +92,7 @@ void *pop_output_text_stack__(int i, const void *export) {
       struct mblock *np = p->next;
       if (p + 1 == export) {
         size_t sz = p->sz - sizeof(struct mblock);
-        memcpy(p, p + 1, sz);
+        memmove(p, p + 1, sz);
         export = p;
       } else {
         free(p);
@@ -437,10 +437,10 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
       }
     }
-    LOCAL_ActiveError->errorRawTerm = inp->val.t;
+    LOCAL_ActiveError->errorRawTerm = MkUStringTerm(inp->val.uc);
   }
   if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    Yap_ThrowError(LOCAL_Error_TYPE, inp->val.t, "Converting to text from term ");
+    Yap_ThrowError(LOCAL_Error_TYPE, LOCAL_ActiveError->errorRawTerm, "Converting to text from term ");
     return NULL;
   }
 
@@ -458,7 +458,6 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       return at->UStrOfAE;
     }
     size_t sz = strlen(at->StrOfAE);
-    inp->type |= YAP_STRING_IN_TMP;
     void *o = Malloc(sz + 1);
     strcpy(o, at->StrOfAE);
     return pop_output_text_stack(lvl, o);

@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 Yap Prolog 							 *
@@ -15,7 +16,6 @@
  *									 *
  *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
-#include "config.h"
 #include "Yap.h"
 #include "YapHeap.h"
 #include "YapInterface.h"
@@ -1038,6 +1038,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
+      CurrentModule = PROLOG_MODULE;
   TermEof = MkAtomTerm( Yap_LookupAtom("end_of_file"));
     consult(Yap_BOOTSTRAP PASS_REGS);
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,

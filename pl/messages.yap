@@ -26,11 +26,10 @@
  *
 */
 
-
-:- module(system('$messages'),
+:- module(system('$messages',[]),
 	  [system_message/4,
-	   prefix/6,
-	   prefix/5,
+	   prefix/2,
+	   %prefix/5,
 	   file_location/3]).
 
 /**
@@ -221,7 +220,7 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a included in module ~a, ~d msec ~d bytes' -
 		     [AbsFileName,Mod,Time,Space] ].
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
-	[ '~a ~a in module ~a, ~d msec ~d bytes' -
+	[ '~a ~a in module ~a, ~d msec ~g bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
 compose_message(signal(SIG,_), _) -->
 	!,
@@ -252,9 +251,9 @@ compose_message(Throw, _Leve) -->
 location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
 	[ '~a:~d:~d ' - [FileName,LN,0] ] .
-location(style_check(_,LN,FileName,_ ), Level , LC) -->
+location(style_check(A,LN,FileName,B ), Level , LC) -->
 	!,
-	display_consulting( FileName, Level, LC ),
+	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
 	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
@@ -266,7 +265,7 @@ location( error(_,Info), Level, LC ) -->
 	'$query_exception'(prologPredArity, Desc, Ar)
 	},
   !,
-  display_consulting( File, Level, LC ),
+  display_consulting( File, Level, Info, LC ),
 	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
@@ -827,6 +826,15 @@ prefix(help,	      '~N'-[]).
 prefix(query,	      '~N'-[]).
 prefix(debug,	      '~N'-[]).
 prefix(warning,	      '~N'-[]).
+prefix(error,	      '~N'-[]).
+prefix(banner,	      '~N'-[]).
+prefix(informational, '~N~*|% '-[LC]) :-
+    '$show_consult_level'(LC),
+    LC > 0,
+	!.
+prefix(informational,	      '~N'-[]).
+prefix(debug(_),      '~N'-[]).
+
 /*	{ thread_self(Id) },
 	(   { Id == main }
 	->  [ 'warning, ' - [] ]
@@ -835,7 +843,7 @@ prefix(warning,	      '~N'-[]).
 	;   ['warning [Thread ~d ], ' - [Id] ]
 	).
 */
-prefix(error,	      '~N'-[]).
+
 /*
 	{ thread_self(Id) },
 	(   { Id == main }
@@ -853,11 +861,7 @@ prefix(error,	      '',   user_error) -->
 	;   [ 'error [ Thread ~d ] ' - [Id], nl ]
 	).
 */
-prefix(banner,	      '~N'-[]).
-prefix(informational, '~N~*|% '-[LC]) :-
-	'$show_consult_level'(LC).
-prefix(debug(_),      '~N% '-[]).
-prefix(information,   '~N% '-[]).
+
 
 
 clause_to_indicator(T, MNameArity) :-
@@ -1015,15 +1019,15 @@ prolog:print_message(force(_Severity), Msg) :- !,
 	print(user_error,Msg).
 % This predicate has more hooks than a pirate ship!
 prolog:print_message(Severity, Term) :-
-	prolog:message( Term,Lines0, [ end(Id)]),
+    message( Term,Lines0, [ end(Id)]),
 	Lines = [begin(Severity, Id)| Lines0],
 	(
 	 user:message_hook(Term, Severity, Lines)
 	->
 	 true
 	;
-	 prefix( Severity, Prefix ),
-	 prolog:print_message_lines(user_error, Prefix, Lines)
+	 ignore((prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)))
 	),
 	!.
 prolog:print_message(Severity, Term) :-
@@ -1034,12 +1038,16 @@ prolog:print_message(Severity, Term) :-
 	->
 	 true
 	;
-	 prefix( Severity, Prefix ),
-	 prolog:print_message_lines(user_error, Prefix, Lines)
+	 ignore((	prefix( Severity, Prefix ),
+	 prolog:print_message_lines(user_error, Prefix, Lines)))
 	),
 	!.
+prolog:print_message(_Severity, _Term) :-
+    format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
 '$error_descriptor'( Info, Info ).
+
+
 /**
   @}
 */

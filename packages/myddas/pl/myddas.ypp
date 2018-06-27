@@ -15,7 +15,7 @@
   *									 *
   *************************************************************************/
 
-//:- load_foreign_files([myddas], [], init_myddas).
+%%:- load_foreign_files([myddas], [], init_myddas).
 
 /* Initialize MYDDAS GLOBAL STRUCTURES */
 :- c_db_initialize_myddas.
@@ -135,12 +135,12 @@
 
 :- use_module(myddas_sqlite3,[
 		  % myddas_mysql.ypp
-		  c_sqlite3_connect/4,
-		  c_sqlite3_disconnect/1,
-		  c_sqlite3_query/5,
+		  %c_sqlite3_connect/4,
+		  %c_sqlite3_disconnect/1,
+		  %c_sqlite3_query/5,
 		  sqlite3_result_set/1,
-		  c_sqlite3_number_of_fields/3,
-		  c_sqlite3_get_attributes_types/3,
+		  %c_sqlite3_number_of_fields/3,
+		  %c_sqlite3_get_attributes_types/3,
 		  sqlite3_describe/3,
 		  sqlite3_show_tables/2,
 		  sqlite3_row/3
@@ -186,7 +186,6 @@
 				% db_open/5
 				% db_open/4
 				%
-
 
 
 %% @pred db_open(+Interface,-Handle,+HostDb,+User,+Password)
@@ -369,7 +368,7 @@ db_sql_(ConType, Con, SQL,LA):-
 	  c_postgres_query(SQL,ResultSet,Con,Mode,Arity)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
+	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,ResultSet,Con,Mode,Arity)
 	;
 	  c_odbc_query(SQL,ResultSet,Arity,LA,Con),
 	  c_odbc_number_of_fields_in_query(SQL,Con,Arity)
@@ -459,7 +458,7 @@ db_assert(Connection,PredName):-
 	  c_postgres_query(SQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,_,Con,Mode,_)
+	  myddas_myddas_sqlite3:c_sqlite3_query(SQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(SQL,_,_,_,Con)
 	).
@@ -488,7 +487,7 @@ db_create_table(Connection,TableName,FieldsInf):-
 	  c_postsgres_query(FinalSQL,_,Con,Mode,_)
 	;ConType == sqlite3 ->
 	  sqlite3_result_set(Mode),
-	  c_sqlite3_query(FinalSQL,_,Con,Mode,_)
+	  myddas_myddas_sqlite3:c_sqlite3_query(FinalSQL,_,Con,Mode,_)
 	;
 	  c_odbc_query(FinalSQL,_,_,_,Con)
 	).
@@ -565,7 +564,7 @@ db_update(Connection,WherePred-SetPred):-
 	;
 	ConType == sqlite3 ->
 	sqlite3_result_set(Mode),
-	  c_sqlite3_query(SQL,_,Conn,Mode,_)
+	 myddas_sqlite3:c_sqlite3_query(SQL,_,Conn,Mode,_)
 	;
 	  ConType == odbc ->
 	odbc_result_set(Mode),

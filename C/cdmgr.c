@@ -2043,7 +2043,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
     Yap_addclause(t, code_adr, t1, mod, &ARG5);
     YAPLeaveCriticalSection();
   }
-  if (LOCAL_ErrorMessage) {
+  if (LOCAL_ErrorMessage ) {
     Yap_Error(LOCAL_Error_TYPE, ARG1, LOCAL_ErrorMessage);
     YAPLeaveCriticalSection();
     return false;

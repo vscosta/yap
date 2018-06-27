@@ -37,7 +37,7 @@ X_API bool do_init_python(void);
 static void YAPCatchError()
   {
     if (LOCAL_CommittedError != nullptr &&
-	LOCAL_CommittedError->errorNo != YAP_NO_ERROR  ) {
+	LOCAL_CommittedError->errorNo != YAP_NO_ERROR   ) {
       // Yap_PopTermFromDB(info->errorTerm);
       // throw  throw YAPError(  );
       Term es[2];
@@ -47,7 +47,18 @@ static void YAPCatchError()
       YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
       // Yap_PopTermFromDB(info->errorTerm);
       // throw  throw YAPError( SOURCE(), );
-  }
+  } else     if (LOCAL_ActiveError != nullptr &&
+                 LOCAL_ActiveError->errorNo != YAP_NO_ERROR   ) {
+      // Yap_PopTermFromDB(info->errorTerm);
+      // throw  throw YAPError(  );
+      Term es[2];
+      es[0] = TermError;
+      es[1] = MkErrorTerm(LOCAL_ActiveError);
+      Functor f = Yap_MkFunctor(Yap_LookupAtom("print_message"), 2);
+      YAP_RunGoalOnce(Yap_MkApplTerm(f, 2, es));
+      // Yap_PopTermFromDB(info->errorTerm);
+      // throw  throw YAPError( SOURCE(), );
+    }
 }
 
 YAPPredicate::YAPPredicate(Term &t, Term &tmod, CELL *&ts, const char *pname) {
@@ -549,7 +560,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
     bool result;
     // allow Prolog style exception handling
     // don't forget, on success these guys may create slots
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
+    //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
     result = (bool)YAP_EnterGoal(ap, nullptr, &q);
       YAP_LeaveGoal(result && !release, &q);
@@ -611,7 +622,7 @@ Term YAPEngine::fun(Term t) {
   q.cp = CP;
   // make sure this is safe
   // allow Prolog style exception handling
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
+  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   YAPCatchError();

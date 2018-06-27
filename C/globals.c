@@ -22,10 +22,10 @@ static char SccsId[] = "%W% %G%";
  * @file   globals.c
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Tue Nov 17 23:16:17 2015
- * 
+ *
  * @brief  support for backtrable and non-backtrackable variables in Prolog.
- * 
- * 
+ *
+ *
  */
 
 /**
@@ -351,6 +351,11 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   }
 }
 
+#define expand_stack(S0,SP,SF,TYPE)	       \
+  size_t sz = SF-S0, used = SP-S0;	       \
+  S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);               \
+  SP = S0+used; SF = S0+sz;
+
 static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                              int share, int copy_att_vars, CELL *ptf,
                              CELL *HLow USES_REGS) {
@@ -365,6 +370,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 
   HB = HLow;
   to_visit0 = to_visit;
+  to_visit_max = to_visit+1024;
 loop:
   while (pt0 < pt0_end) {
     register CELL d0;
@@ -384,8 +390,8 @@ loop:
       *ptf = AbsPair(HR);
       ptf++;
 #ifdef RATIONAL_TREES
-      if (to_visit >= to_visit_max) {
-        goto heap_overflow;
+      if (to_visit >= to_visit_max-32) {
+    	expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
@@ -397,8 +403,9 @@ loop:
       to_visit++;
 #else
       if (pt0 < pt0_end) {
-        if (to_visit + 1 >= (CELL **)AuxSp) {
-          goto heap_overflow;
+        if (to_visit + 32 >= to_visit_max - 32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+
         }
         to_visit->start_cp = pt0;
         to_visit->end_cp = pt0_end;
@@ -496,7 +503,7 @@ loop:
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
       if (to_visit + 1 >= to_visit_max) {
-        goto heap_overflow;
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
@@ -509,7 +516,7 @@ loop:
 #else
       if (pt0 < pt0_end) {
         if (to_visit++ >= (CELL **)AuxSp) {
-          goto heap_overflow;
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
         }
         to_visit->start_cp = pt0;
         to_visit->end_cp = pt0_end;
@@ -616,25 +623,6 @@ overflow:
   reset_trail(TR0);
     pop_text_stack(lvl);
   return -1;
-
-heap_overflow:
-  /* oops, we're in trouble */
-  HR = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-#endif
-  reset_trail(TR0);
-     pop_text_stack(lvl);
- return -2;
 
 trail_overflow:
   /* oops, we're in trouble */
@@ -2790,7 +2778,7 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb,
                     SafePredFlag);
-  /// @{ 
+  /// @{
   /// @addtogroup nb
   CurrentModule = GLOBALS_MODULE;
   Yap_InitCPred("nb_queue", 1, p_nb_queue, 0L);
