@@ -114,7 +114,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
 
 #define AUX_ERROR(t, n, s, TYPE)                                               \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
-    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
+          pop_text_stack(lvl);                                                \
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return NULL;                                                               \
   }

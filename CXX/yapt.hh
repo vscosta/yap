@@ -289,7 +289,7 @@ public:
 /**
  * @brief Compound Term
  */
-class X_API YAPApplTerm : public YAPTerm {
+          class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:

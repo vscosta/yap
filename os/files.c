@@ -639,72 +639,67 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 static Int list_directory(USES_REGS1) {
   Term tf = MkAtomTerm(Yap_LookupAtom("[]"));
   yhandle_t sl = Yap_InitSlot(tf);
-
+VFS_t *vfsp;
   char *buf = (char *)AtomName(AtomOfTerm(ARG1));
-#if defined(__MINGW32__) || _MSC_VER
-  struct _finddata_t c_file;
-  char bs[BUF_SIZE];
-  long hFile;
+    if ((vfsp = vfs_owner(buf))) {
+        void *de;
+      const char *dp;
 
-  bs[0] = '\0';
-#if HAVE_STRNCPY
-  strncpy(bs, buf, BUF_SIZE);
-#else
-  strcpy(bs, buf);
-#endif
-#if HAVE_STRNCAT
-  strncat(bs, "/*", BUF_SIZE);
-#else
-  strcat(bs, "/*");
-#endif
-  if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-    return (Yap_Unify(ARD2, tf));
-  }
-  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
-                                   YAP_GetFromSlot(sl)));
-  while (_findnext(hFile, &c_file) == 0) {
-    YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-    YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-  }
-  _findclose(hFile);
-#else
-#if __ANDROID__
-  {
-    const char *dirName = buf + strlen("/assets/");
-    AAssetManager *mgr = GLOBAL_VFS->priv;
-    AAssetDir *de;
-    const char *dp;
-
-    if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
+    if ((de = vfsp->opendir(vfsp, buf)) == NULL) {
       PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
 		strerror(errno));
     }
-    while ((dp = AAssetDir_getNextFileName(de))) {
+    while ((dp = vfsp->nextdir( de))) {
       YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
       Yap_PutInHandle(sl, MkPairTerm(ti, Yap_GetFromHandle(sl)));
     }
-    AAssetDir_close(de);
-  }
+    vfsp->closedir( de);
+ } else {
+#if defined(__MINGW32__) || _MSC_VER
+        struct _finddata_t c_file;
+        char bs[BUF_SIZE];
+        long hFile;
+
+        bs[0] = '\0';
+#if HAVE_STRNCPY
+        strncpy(bs, buf, BUF_SIZE);
+#else
+        strcpy(bs, buf);
 #endif
-#if HAVE_OPENDIR
-  {
-    DIR *de;
-    struct dirent *dp;
+#if HAVE_STRNCAT
+        strncat(bs, "/*", BUF_SIZE);
+#else
+        strcat(bs, "/*");
+#endif
+        if ((hFile = _findfirst(bs, &c_file)) == -1L) {
+          return (Yap_Unify(ARD2, tf));
+        }
+        YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
+                                         YAP_GetFromSlot(sl)));
+        while (_findnext(hFile, &c_file) == 0) {
+          YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
+          YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+        }
+        _findclose(hFile);
+#elif HAVE_OPENDIR
+        {
+            DIR *de;
+            struct dirent *dp;
 
-    if ((de = opendir(buf)) == NULL) {
-      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
-		strerror(errno));
+            if ((de = opendir(buf)) == NULL) {
+                PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+                          strerror(errno));
 
-      return false;
-    }
-    while ((dp = readdir(de))) {
-      Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
-      Yap_PutInSlot(sl,     MkPairTerm(ti, Yap_GetFromSlot(sl)));
-    }
-    closedir(de);
-  }
+                return false;
+            }
+            while ((dp = readdir(de))) {
+                Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
+                Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+            }
+            closedir(de);
+        }
 #endif /* HAVE_OPENDIR */
-#endif
+    }
   tf = Yap_GetFromSlot(sl); 
   return Yap_unify(ARG2, tf);
 }

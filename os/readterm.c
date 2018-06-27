@@ -1398,7 +1398,7 @@ Term Yap_BufferToTerm(const char *s, Term opts) {
   Term rval;
   int sno;
   encoding_t l = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
+  sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s)+1, &l,
                                  MEM_BUF_USER);
 
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
@@ -1544,17 +1544,11 @@ static Int read_term_from_string(USES_REGS1) {
 
 static Int atomic_to_term(USES_REGS1) {
   Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else if (!IsAtomicTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
-    return (FALSE);
-  } else {
-    Term t = Yap_AtomicToString(t1 PASS_REGS);
-    const unsigned char *us = UStringOfTerm(t);
-    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
-  }
+    int l = push_text_stack();
+   const char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
+  Int rc = Yap_BufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
+    pop_text_stack(l);
+    return rc;
 }
 
 static Int atom_to_term(USES_REGS1) {

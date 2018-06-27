@@ -355,8 +355,10 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                              int share, int copy_att_vars, CELL *ptf,
                              CELL *HLow USES_REGS) {
 
-  struct cp_frame *to_visit0,
-      *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
+  int lvl = push_text_stack();
+  struct cp_frame *to_visit0, *to_visit = Malloc(1024*sizeof(struct cp_frame));
+  struct cp_frame *to_visit_max;
+
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
@@ -382,7 +384,7 @@ loop:
       *ptf = AbsPair(HR);
       ptf++;
 #ifdef RATIONAL_TREES
-      if (to_visit + 1 >= (struct cp_frame *)AuxSp) {
+      if (to_visit >= to_visit_max) {
         goto heap_overflow;
       }
       to_visit->start_cp = pt0;
@@ -493,7 +495,7 @@ loop:
       ptf++;
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
-      if (to_visit + 1 >= (struct cp_frame *)AuxSp) {
+      if (to_visit + 1 >= to_visit_max) {
         goto heap_overflow;
       }
       to_visit->start_cp = pt0;
@@ -593,6 +595,7 @@ loop:
   HB = HB0;
   clean_dirty_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
+    pop_text_stack(lvl);
   return 0;
 
 overflow:
@@ -611,6 +614,7 @@ overflow:
   }
 #endif
   reset_trail(TR0);
+    pop_text_stack(lvl);
   return -1;
 
 heap_overflow:
@@ -629,7 +633,8 @@ heap_overflow:
   }
 #endif
   reset_trail(TR0);
-  return -2;
+     pop_text_stack(lvl);
+ return -2;
 
 trail_overflow:
   /* oops, we're in trouble */
@@ -647,6 +652,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
+    pop_text_stack(lvl);
   return -4;
 }
 

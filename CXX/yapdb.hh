@@ -161,6 +161,7 @@ public:
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
     if (tout == 0L) {
+        return;
       throw YAPError();
   }
   ap = getPred(tout, nts);

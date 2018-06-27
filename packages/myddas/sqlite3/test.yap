@@ -1,5 +1,6 @@
 
-:- compile(library(myddas)).
+:- compile(library(maplist)).
+:- use_module(library(myddas)).
 
 main :-
 		 init,
@@ -10,20 +11,23 @@ main_ :-
 	fail.
 main_ .
 
-init :-
+%init :-
     db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
-
-db_open(sqlite3, '/assets/Yap/chinook.db', _, _),
     writeln('chinook has landed'),
 	db_import('Artist', artist),
+    writeln('Artist -> artist'),
 	db_import('Album', album),
+    writeln('Album -> album'),
 	db_import('Track', track).
+    writeln('Track -> track').
 
 	go :-
 		db_get_attributes_types(album,Als),
+    format('~w -> ~w~n'.[album,Als]),
 		db_get_attributes_types(track,Ts),
-		db_get_attributes_types(artist,As),
-		writeln(As:Als:Ts).
+  	    format('~w -> ~w~n'.[track,Ts]),
+	db_get_attributes_types(artist,As),
+	     format('~w -> ~w~n'.[artist,As]).
 go :-
 	db_number_of_fields(album,Als),
 	db_number_of_fields(track,Ts),
@@ -31,11 +35,11 @@ go :-
 	writeln(As:Als:Ts).
 
 go :-
-		db_describe(album, Desc), writeln(Desc) ;
-		db_describe(track, Desc), writeln(Desc) ;
-			db_describe(artist, Desc), writeln(Desc).
+		db_describe(album, Desc), writeln(album:Desc) ;
+		db_describe(track, Desc), writeln(track:Desc) ;
+			db_describe(artist, Desc), writeln(artist:Desc).
 go :-
-				db_show_tables(Desc), writeln(Desc).
+				db_show_tables(Desc), writeln(tables:Desc).
 go :-
 					db_show_tables(table(T)),
 					db_describe(T,tableinfo(FieldID,Type,Null,Primary,Default,'')),

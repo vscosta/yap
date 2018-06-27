@@ -215,6 +215,8 @@ static bool set_cwd(VFS_t *me, const char *dirName) {
     if (GLOBAL_cwd) {
         free(GLOBAL_cwd);
     }
+    if (!is_dir_a(me,dirName))
+        dirName = dirname(dirName);
     GLOBAL_cwd = malloc(strlen(dirName)+1);
     strcpy(GLOBAL_cwd, dirName);
 __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", GLOBAL_cwd);
