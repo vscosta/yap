@@ -332,8 +332,6 @@ meta_predicate(P) :-
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
 	'$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
         '$clean_cuts'(AO0, AO).
-'$expand_goals'(not(A),not(A1),('$current_choice_point'(CP),AO,'$$cut_by'(CP) -> fail; true),HM,SM,BM,HVars) :- !,
-	'$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(if(A,B,C),if(A1,B1,C1),
 	('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
 	'$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),

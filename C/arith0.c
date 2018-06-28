@@ -191,7 +191,10 @@ eval0(Int fi) {
 #if YAPOR_SBA
     RINT((Int)B);
 #else
+      if (B)
     RINT(LCL0 - (CELL *)B);
+      else
+        RINT(0);
 #endif
   case op_env:
     /// - $env

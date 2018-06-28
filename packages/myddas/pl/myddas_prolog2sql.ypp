@@ -38,15 +38,16 @@
 % --------------------------------------------------------------------------------------
 
 
+:- use_module(lists,[
+		     append/3,
+		     member/2
+		     ]).
+
 :- module(myddas_prolog2sql,[
 			     translate/3,
 			     queries_atom/2
 			    ]).
 
-:- use_module(lists,[
-		     append/3,
-		     member/2
-		     ]).
  
 
 :- use_module(myddas_prolog2sql_optimizer,[

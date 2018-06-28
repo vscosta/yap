@@ -25,7 +25,6 @@ go :-
     writeln(('tracks -> tracks')).
 
 go :-
-    start_low_level_trace,
     		writeln(db_get_attributes_types),
     		db_get_attributes_types(albums,Als),
     format('~w -> ~w~n',[albums,Als]),
@@ -41,6 +40,7 @@ go :-
 	writeln(As:Als:Ts).
 
 go :-
+
 		db_describe(albums, Desc), writeln(albums:Desc).
 go :-
 		db_describe(tracks, Desc), writeln(tracks:Desc).
@@ -54,6 +54,7 @@ go :-
 					 writeln(T:tableinfo(FieldID,Type,Null,Primary,Default,'')).
 
 go :-
+    writeln(access),
 	go_cut0.
 
 
@@ -74,7 +75,7 @@ go :-
     writeln(X:Y).
 
 go_cut0 :-
-% start_low_level_trace,
+ start_low_level_trace,
     artists(X,Y),
     writeln(X:Y),
     !.

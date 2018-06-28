@@ -680,6 +680,8 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 
 void init_myddas(void) {
   CACHE_REGS
+  Term cm=CurrentModule;
+  CurrentModule = USER_MODULE;
   if (myddas_initialised)
    return;
 #ifdef __ANDROID__
@@ -713,6 +715,7 @@ void init_myddas(void) {
 #endif
   c_db_initialize_myddas(PASS_REGS1);
   myddas_initialised = TRUE;
+  CurrentModule = cm;
 }
 
 #ifdef _WIN32
