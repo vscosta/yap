@@ -20,18 +20,18 @@
       set_property(GLOBAL
               APPEND PROPERTY COMPILE_DEFINITIONS -DMYDDAS_MYSQL=1)
 	    if (WIN32)
-	      	    add_library(Yapmysql OBJECT ${MYSQL_SOURCES})
+	      	    add_library(YAPmysql OBJECT ${MYSQL_SOURCES})
 	      else()
-	    add_lib(Yapmysql  ${MYSQL_SOURCES})
-	    target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
-     install(TARGETS Yapmysql
+	    add_lib(YAPmysql  ${MYSQL_SOURCES})
+	    target_link_libraries(YAPmysql ${MYSQL_LIBRARIES} libYap)
+     install(TARGETS YAPmysql
               RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
              ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
              LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
               )
 	    endif()
       include_directories(${MYSQL_INCLUDE_DIR} ..)
-      set_target_properties(Yapmysql PROPERTIES
+      set_target_properties(YAPmysql PROPERTIES
               POSITION_INDEPENDENT_CODE ON
                   PREFIX ""
               )

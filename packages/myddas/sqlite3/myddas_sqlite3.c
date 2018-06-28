@@ -36,7 +36,7 @@
     int i;                                                                     \
     i = sqlite3_##f;                                                           \
     if (i != SQLITE_OK) {                                                      \
-      Yap_Error(EVALUATION_ERROR_DBMS, t, "%s failed with status %d: %s\n",    \
+      Yap_ThrowError(EVALUATION_ERROR_DBMS, MkStringTerm(#f), "%s failed with status %d: %s\n", \
                 #f, i, sqlite3_errmsg(db));                                    \
     }                                                                          \
   }
@@ -46,7 +46,7 @@
     int i;                                                                     \
     i = sqlite3_##f;                                                           \
     if (i != SQLITE_##x) {                                                     \
-      fprintf(stderr, "%s failed with status %d: %s\n", #f, i,                 \
+      Yap_ThrowError(EVALUATION_ERROR_DBMS, MkStringTerm(#f), "%s failed with status %d: %s\n", #f, i, \
               sqlite3_errmsg(db));                                             \
       exit(1);                                                                 \
     }                                                                          \
@@ -489,7 +489,7 @@ static Int c_sqlite3_row_terminate(USES_REGS1) {
   struct result_set *res_set = rs->res_set;
   sqlite3 *db = res_set->db;
   // no more data
-  CALL_SQLITE(ARG1, finalize(res_set->stmt));
+  CALL_SQLITE(Deref(ARG1), finalize(res_set->stmt));
   free(res_set);
   free(rs);
   return true;
@@ -667,7 +667,7 @@ static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
   // Yap_InitCPredBack("c_sqlite3_row", 3, 0, c_sqlite3_row_initialise,
   //                  c_sqlite3_row, c_sqlite3_row_terminate);
   Yap_InitCPred("c_sqlite3_row_initialise", 2, c_sqlite3_row_initialise, 0);
-  Yap_InitCPred("c_sqlite3_row_terminate", 1, c_sqlite3_row_terminate, 0);
+  Yap_InitCPred("c_sqlite3_row_terminate", 2, c_sqlite3_row_terminate, 0);
   Yap_InitCPredBack("c_sqlite3_row_get", 4, 0, c_sqlite3_row, c_sqlite3_row, 0);
 }
 

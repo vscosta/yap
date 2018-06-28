@@ -294,11 +294,19 @@ INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS);
 
 INLINE_ONLY Term __MkStringTerm(const char *s USES_REGS) {
   Term t = AbsAppl(HR);
-  size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
-  HR[0] = (CELL)FunctorString;
-  HR[1] = (CELL)sz;
-  strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials;
+  size_t sz;
+  if ((s[0] == '\0')) {
+      sz = sizeof(CELL);
+      HR[0] = (CELL)FunctorString;
+      HR[1] = (CELL)sz;
+      HR[2] = 0; 
+    } else {
+      sz =  ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
+      HR[0] = (CELL)FunctorString;
+      HR[1] = (CELL)sz;
+      strcpy((char *)(HR + 2), (const char *)s);
+    }
+      HR[2 + sz] = EndSpecials;
   HR += 3 + sz;
   return t;
 }
@@ -311,11 +319,19 @@ __MkUStringTerm(const unsigned char *s USES_REGS);
 INLINE_ONLY Term
 __MkUStringTerm(const unsigned char *s USES_REGS) {
   Term t = AbsAppl(HR);
-  size_t sz = ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
-  HR[0] = (CELL)FunctorString;
-  HR[1] = (CELL)sz;
-  strcpy((char *)(HR + 2), (const char *)s);
-  HR[2 + sz] = EndSpecials;
+  size_t sz;
+  if ((s[0] == '\0')) {
+      sz = sizeof(CELL);
+      HR[0] = (CELL)FunctorString;
+      HR[1] = (CELL)sz;
+      HR[2] = 0; 
+    } else {
+      sz =  ALIGN_BY_TYPE(strlen((char *)s) + 1, CELL);
+      HR[0] = (CELL)FunctorString;
+      HR[1] = (CELL)sz;
+      strcpy((char *)(HR + 2), (const char *)s);
+    }
+      HR[2 + sz] = EndSpecials;
   HR += 3 + sz;
   return t;
 }

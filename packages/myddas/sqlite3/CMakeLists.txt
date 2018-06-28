@@ -1,4 +1,4 @@
-message( "   * Sqlite3 Data-Base (http://www.sqlite3ql.org), distributed with MYDDAS" )
+message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
 
 set (SQLITE_EXTRA
   chinook.db
@@ -35,23 +35,27 @@ add_definitions(-DSQLITE_ENABLE_FTS5=1 )
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
 
-add_library(  Yapsqlite3 OBJECT
+if (ANDROID)
+add_library(  YAPsqlite3 OBJECT
   ${YAPSQLITE3_SOURCES} )
 
+else()
 
-if (NOT ANDROID)
-add_library(  sqlite4YAP SHARED
-   src/sqlite3.c)
+  list(APPEND YAPSQLITE3_SOURCES src/sqlite3.c)
 
-set_target_properties(sqlite4YAP
+  
+add_library(  YAPsqlite3 SHARED
+  ${YAPSQLITE3_SOURCES})
+
+ set_target_properties(YAPsqlite3
   PROPERTIES
   #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
   #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
-  POSITION_INDEPENDENT_CODE TRUE
-        )
+    POSITION_INDEPENDENT_CODE ON
+    PREFIX ""
+  )
 
-
-install(TARGETS sqlite4YAP
+install(TARGETS YAPsqlite3
         RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
         ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
         LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}

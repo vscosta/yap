@@ -138,7 +138,7 @@ undefined_query(G0, M0, Cut) :-
      '$handle_error'(Action,G0,M0)
     ).
 
-%:- '$undefp_handler'('$undefp'(_,_), prolog).
+:- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 

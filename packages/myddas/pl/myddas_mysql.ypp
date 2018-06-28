@@ -55,7 +55,7 @@
 				      ]).
 
 
-:- load_foreign_files( ['Yapmysql'], [], init_mysql).
+:- load_foreign_files( ['YAPmysql'], [], init_mysql).
 
 
 %--------------------------------------------------------

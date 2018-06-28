@@ -198,12 +198,13 @@ compose_message( halt, _Level) --> !,
 
 		% syntax error.
 compose_message(error(E, Exc), Level) -->
-    { '$show_consult_level'(LC) },
+    { '$show_consult_level'(LC), 	     '$print_exception'(Exc)
+ },
 	location(error(E, Exc), Level, LC),
 	main_message(error(E,Exc) , Level, LC ),
-	c_goal( Exc, Level ),
-	caller( Exc, Level ),
-	extra_info( Exc, Level ),
+	c_goal( error(E, Exc), Level ),
+	caller( error(E, Exc), Level ),
+	extra_info( error(E, Exc), Level ),
 	!,
 	[nl,nl].
 compose_message( false, _Level) --> !,
@@ -367,7 +368,7 @@ display_consulting( F, Level, _, LC) -->
 display_consulting(_F, _, _, _LC) -->
 	  [].
 
-caller( error(_,Info), _) -->
+caller( Info, _) -->
         { '$error_descriptor'(Info, Desc) },
         ({   '$query_exception'(errorGoal, Desc, Call),
          	Call = M:(H :- G)
@@ -381,7 +382,7 @@ caller( error(_,Info), _) -->
           ->
           ['~*|by ~w' - [10,Call]]
           ;
-          true
+          []
         ),
 	{ '$query_exception'(prologPredFile, Desc, File),
 	File \= [],
@@ -397,7 +398,7 @@ caller( error(_,Info), _) -->
 caller( _, _) -->
 	[].
 
-c_goal( error(_,Info), Level ) -->
+c_goal( Info, Level ) -->
 { '$error_descriptor'(Info, Desc) },
     { '$query_exception'(errorFile, Desc, File),
       Func \= [],
@@ -981,6 +982,17 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
+/*
+/*:- dynamic in/0.
+prolog:print_message(Severity, Msg) :-
+    \+ in,
+    assert(in),
+    start_low_level_trace,
+    ( prolog:print_message(Severity, Msg), fail;
+    stop_low_level_trace,
+      retract(in)
+    ).*/
+*/
 prolog:print_message(Severity, Msg) :-
 	(
 	 var(Severity)
@@ -995,7 +1007,7 @@ prolog:print_message(Severity, Msg) :-
  ;
 	 Severity == silent
  ->
-	 true
+	 []
 	;
 	 '$pred_exists'(portray_message(_,_),user),
 	 user:portray_message(Severity, Msg)
@@ -1045,7 +1057,7 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
-'$error_descriptor'( Info, Info ).
+'$error_descriptor'( error(_,Info), Info ).
 
 
 /**

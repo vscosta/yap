@@ -726,9 +726,6 @@ if (!result) {
 }
 
 PredEntry *YAPQuery::rewriteUndefQuery() {
-  Term ts[2];
-  ts[0] = CurrentModule;
-  ts[1] = goal;
   ARG1 = goal = Yap_SaveTerm(Yap_MkApplTerm(FunctorCall
 					    , 1, &goal));
   return ap = PredCall;

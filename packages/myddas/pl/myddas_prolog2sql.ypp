@@ -38,17 +38,19 @@
 % --------------------------------------------------------------------------------------
 
 
-:- use_module(lists,[
-		     append/3,
-		     member/2
-		     ]).
-
 :- module(myddas_prolog2sql,[
 			     translate/3,
 			     queries_atom/2
 			    ]).
 
  
+:- use_module(library(lists),[
+		     append/3,
+		     member/2
+		     ]).
+
+:- use_module(library(gensym)).
+
 
 :- use_module(myddas_prolog2sql_optimizer,[
 					   optimize_sql/2
@@ -1225,7 +1227,7 @@ column_atom(Number,List,Diff) :-
 	append(X1,Diff,List).	
 
 
-
+#if SEPIA
 % --- gensym(Root,Symbol) ----------------------------------------------------
 %
 % SEPIA 3.2. version - other Prolog implementations provide gensym/2
@@ -1246,7 +1248,7 @@ gensym(Atom,Var) :-
 	char_code(Var,NewCode),
         set_value(Atom,Var).
 
-
+#endif
 
 % --- auxiliary predicates (some of them may be built-in... --------------------
 

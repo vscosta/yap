@@ -18,23 +18,23 @@
 #undef sqlite3
 #define DBMS(x) sqlite3_##x
 #define c_DBMS(x) c_sqlite3_##x
-#define NAME() 'libYapsqlite3'
+#define NAME() 'YAPsqlite3'
 #define MODULE() user
 #define INIT() init_sqlite3
 #elif defined( odbc )
 #undef odbc
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
-#define NAME() 'libYapodbc'
+#define NAME() 'YAPodbc'
 #define MODULE() user
 #define INIT() init_odbc
 #elif defined( postgres )
 #undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
-#define NAME() 'libYappostgres'
+#define NAME() 'YAPpostgres'
 #define MODULE() user
-#define INIT() init_odbc
+#define INIT() init_postgres
 #endif
 
 #if defined(DBMS)
@@ -71,7 +71,9 @@
 				      '$make_a_list'/2,
 				      '$write_or_not'/1
 				     ]).
-%   :- load_foreign_files( [NAME()], [], INIT()).
+#ifndef __ANDROID__
+:- load_foreign_files( [NAME()], [], INIT()).
+#endif
 
 %--------------------------------------------------------
 % Public Predicates

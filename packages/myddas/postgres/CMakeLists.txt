@@ -14,10 +14,10 @@ if (PostgreSQL_FOUND)
 #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL
 #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
 #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
-  add_lib(Yappostgres  ${YAPPOSTGRES_SOURCES})
-  target_link_libraries(Yappostgres libYap   ${PostgreSQL_LIBRARIES})
+  add_lib(YAPpostgres  ${YAPPOSTGRES_SOURCES})
+  target_link_libraries(YAPpostgres libYap   ${PostgreSQL_LIBRARIES})
   include_directories (${PostgreSQL_INCLUDE_DIRS} ..)
- set_target_properties (Yappostgres PROPERTIES
+ set_target_properties (YAPpostgres PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     PREFIX ""
   )
@@ -27,7 +27,7 @@ set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
 set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
         -DMYDDAS_POSTGRES=1)
 
-install(TARGETS  Yappostgres
+install(TARGETS  YAPpostgres
     LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}

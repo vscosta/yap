@@ -280,7 +280,7 @@ bool Yap_ReadlineOps(StreamDesc *s) {
 
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  if (Yap_embedded)
+  if (Yap_Embedded)
     return false;
   if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
       getenv("INSIDE_EMACS") || enable != TermTrue) {
@@ -450,7 +450,7 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
-  if (!Yap_embedded) {
+  if (!Yap_Embedded) {
     return true;
   }
   return false;

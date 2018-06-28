@@ -1001,6 +1001,15 @@ static Int read_exception(USES_REGS1) {
   return Yap_unify(ARG2, rc);
 }
 
+static Int print_exception(USES_REGS1) {
+  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
+  printErr(t);
+  //      Yap_DebugPlWriteln(rc);
+  return true;
+}
+
+
+
 static Int query_exception(USES_REGS1) {
   const char *query;
   Term t;
@@ -1021,6 +1030,7 @@ static Int query_exception(USES_REGS1) {
     return setErr(query, y, t3);
   }
 }
+
 
 static Int drop_exception(USES_REGS1) {
   yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
@@ -1226,6 +1236,7 @@ static Int is_predicate_indicator(USES_REGS1) {
 
 void Yap_InitErrorPreds(void) {
   CACHE_REGS
+  Yap_InitCPred("$print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);

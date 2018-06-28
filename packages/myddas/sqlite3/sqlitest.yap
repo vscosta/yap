@@ -12,7 +12,8 @@ main_ :-
 main_ .
 
 init :-
-    db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+    %    db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+        db_open(sqlite3, 'chinook.db', _, _),
     writeln('chinook has landed').
 
 go :-
@@ -75,7 +76,6 @@ go :-
     writeln(X:Y).
 
 go_cut0 :-
- start_low_level_trace,
     artists(X,Y),
     writeln(X:Y),
     !.
