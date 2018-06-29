@@ -1,5 +1,8 @@
 :- stop_low_level_trace.
-:- use_module(library(maplist)).
+
+
+:- use_module(library(lists)).
+ :- use_module(library(maplist)).
 :- use_module(library(myddas)).
 
 main :-
@@ -12,8 +15,9 @@ main_ :-
 main_ .
 
 init :-
-    %    db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
-        db_open(sqlite3, 'chinook.db', _, _),
+       db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+
+    %   db_open(sqlite3, 'chinook.db', _, _),
     writeln('chinook has landed').
 
 go :-
@@ -91,3 +95,4 @@ close :-
 	db_close.
 
 :- main.
+:- stop_low_level_trace.
