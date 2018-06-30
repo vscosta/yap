@@ -253,7 +253,7 @@ IntervalUDIRefitIndex(struct index_t **ip, UInt b[] USES_REGS)
 	  qsort(s0+1, (size_t)*s0, sizeof(BITS32), compar); 
 	  it->links[offset0] = s0-sorted0;
 	  if (it->udi_free_args) {
-	    memcpy(sorted, s0+1, sizeof(BITS32)*(*s0));
+	    memmove(sorted, s0+1, sizeof(BITS32)*(*s0));
 	    qsort(sorted, (size_t)*s0, sizeof(BITS32), compar2); 
 	    sorted += *s0;
 	  }

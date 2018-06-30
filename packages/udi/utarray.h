@@ -95,7 +95,7 @@ typedef struct {
 #define utarray_push_back(a,p) do {                                           \
   utarray_reserve(a,1);                                                       \
   if ((a)->icd.copy) { (a)->icd.copy( _utarray_eltptr(a,(a)->i++), p); }      \
-  else { memcpy(_utarray_eltptr(a,(a)->i++), p, (a)->icd.sz); };              \
+  else { memmove(_utarray_eltptr(a,(a)->i++), p, (a)->icd.sz); };              \
 } while(0)
 
 #define utarray_pop_back(a) do {                                              \
@@ -123,7 +123,7 @@ typedef struct {
              ((a)->i - (j))*((a)->icd.sz));                                   \
   }                                                                           \
   if ((a)->icd.copy) { (a)->icd.copy( _utarray_eltptr(a,j), p); }             \
-  else { memcpy(_utarray_eltptr(a,j), p, (a)->icd.sz); };                     \
+  else { memmove(_utarray_eltptr(a,j), p, (a)->icd.sz); };                     \
   (a)->i++;                                                                   \
 } while(0)
 
@@ -142,7 +142,7 @@ typedef struct {
       (a)->icd.copy(_utarray_eltptr(a,j+_ut_i), _utarray_eltptr(w,_ut_i));    \
     }                                                                         \
   } else {                                                                    \
-    memcpy(_utarray_eltptr(a,j), _utarray_eltptr(w,0),                        \
+    memmove(_utarray_eltptr(a,j), _utarray_eltptr(w,0),                        \
            utarray_len(w)*((a)->icd.sz));                                     \
   }                                                                           \
   (a)->i += utarray_len(w);                                                   \

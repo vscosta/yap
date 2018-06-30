@@ -66,29 +66,29 @@ static void share_private_nodes(int worker_q);
 #endif
 
 #define P_COPY_GLOBAL_TO(Q)                                                         \
-        memcpy((void *) (worker_offset(Q) + REMOTE_start_global_copy(Q)),           \
+        memmove((void *) (worker_offset(Q) + REMOTE_start_global_copy(Q)),           \
                (void *) REMOTE_start_global_copy(Q),                                \
                (size_t) (REMOTE_end_global_copy(Q) - REMOTE_start_global_copy(Q)))
 #define Q_COPY_GLOBAL_FROM(P)                                                       \
-        memcpy((void *) LOCAL_start_global_copy,                                    \
+        memmove((void *) LOCAL_start_global_copy,                                    \
                (void *) (worker_offset(P) + LOCAL_start_global_copy),               \
                (size_t) (LOCAL_end_global_copy - LOCAL_start_global_copy))
 
 #define P_COPY_LOCAL_TO(Q)                                                          \
-        memcpy((void *) (worker_offset(Q) + REMOTE_start_local_copy(Q)),            \
+        memmove((void *) (worker_offset(Q) + REMOTE_start_local_copy(Q)),            \
                (void *) REMOTE_start_local_copy(Q),                                 \
                (size_t) (REMOTE_end_local_copy(Q) - REMOTE_start_local_copy(Q)))
 #define Q_COPY_LOCAL_FROM(P)                                                        \
-        memcpy((void *) LOCAL_start_local_copy,                                     \
+        memmove((void *) LOCAL_start_local_copy,                                     \
                (void *) (worker_offset(P) + LOCAL_start_local_copy),                \
                (size_t) (LOCAL_end_local_copy - LOCAL_start_local_copy))
 
 #define P_COPY_TRAIL_TO(Q)                                                          \
-        memcpy((void *) (worker_offset(Q) + REMOTE_start_trail_copy(Q)),            \
+        memmove((void *) (worker_offset(Q) + REMOTE_start_trail_copy(Q)),            \
                (void *) REMOTE_start_trail_copy(Q),                                 \
                (size_t) (REMOTE_end_trail_copy(Q) - REMOTE_start_trail_copy(Q)))
 #define Q_COPY_TRAIL_FROM(P)                                                        \
-        memcpy((void *) LOCAL_start_trail_copy,                                     \
+        memmove((void *) LOCAL_start_trail_copy,                                     \
                (void *) (worker_offset(P) + LOCAL_start_trail_copy),                \
                (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy))
 

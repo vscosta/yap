@@ -146,7 +146,7 @@ static bool getLine(StreamDesc *rl_iostream, int sno) {
                                                         size_t size = strlen (myrl_line)+1;
 rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf =
       (const unsigned char *)malloc(size);
-  memcpy((void *)rl_iostream->u.irl.buf, myrl_line, size);
+  memmove((void *)rl_iostream->u.irl.buf, myrl_line, size);
   return true;
 }
 

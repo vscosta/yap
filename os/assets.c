@@ -98,7 +98,7 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
     if ((buf = AAsset_getBuffer(am))) {
         // copy to memory
         char *bf = malloc(sz);
-        memcpy(bf, buf, sz);
+        memmove(bf, buf, sz);
         bool rc = Yap_set_stream_to_buf(st, bf, sz);
         if (rc) AAsset_close(am);
         st->vfs = NULL;
@@ -162,10 +162,10 @@ static bool stat_a(VFS_t *me, const char *fname, vfs_stat *out) {
         out->st_dev = bf.st_dev;
         out->st_uid = bf.st_uid;
         out->st_gid = bf.st_gid;
-        memcpy(&out->st_atimespec, (const void *) &bf.st_atim, sizeof(struct timespec));
-        memcpy(&out->st_mtimespec, (const void *) &bf.st_mtim, sizeof(struct timespec));
-        memcpy(&out->st_ctimespec, (const void *) &bf.st_ctim, sizeof(struct timespec));
-        memcpy(&out->st_birthtimespec, (const void *) &bf.st_ctim,
+        memmove(&out->st_atimespec, (const void *) &bf.st_atim, sizeof(struct timespec));
+        memmove(&out->st_mtimespec, (const void *) &bf.st_mtim, sizeof(struct timespec));
+        memmove(&out->st_ctimespec, (const void *) &bf.st_ctim, sizeof(struct timespec));
+        memmove(&out->st_birthtimespec, (const void *) &bf.st_ctim,
                sizeof(struct timespec));
     }
     AAsset *a = AAssetManager_open(Yap_assetManager(), fname, AASSET_MODE_UNKNOWN);

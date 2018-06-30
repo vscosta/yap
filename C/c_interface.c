@@ -1898,7 +1898,7 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
     return -1;
   }
   i = GLOBAL_OpaqueHandlersCount++;
-  memcpy(GLOBAL_OpaqueHandlers + i, f, sizeof(YAP_opaque_handler_t));
+  memmove(GLOBAL_OpaqueHandlers + i, f, sizeof(YAP_opaque_handler_t));
   return i;
 }
 
@@ -2176,7 +2176,8 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s(%d), %d", full, *osnop, sno);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%d), %d",
+                        CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,  full, *osnop, sno);
         // LOCAL_CurSlot);
 	    pop_text_stack(lvl);
   RECOVER_MACHINE_REGS();
@@ -3104,7 +3105,7 @@ X_API Int YAP_AtomToInt(YAP_Atom At) {
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
+    memmove(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
     TR_Atoms = nt;
     free(ot);
     MaxAtomTranslations *= 2;
@@ -3132,7 +3133,7 @@ X_API Int YAP_FunctorToInt(YAP_Functor f) {
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
+    memmove(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
     TR_Functors = nt;
     free(ot);
     MaxFunctorTranslations *= 2;

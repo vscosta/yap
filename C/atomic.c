@@ -2070,7 +2070,7 @@ static Int atom_split(USES_REGS1) {
   }
   size_t b_mid = skip_utf8(s0, u_mid) - s0;
   s1 = s10 = Malloc(b_mid + 1);
-  memcpy(s1, s, b_mid);
+  memmove(s1, s, b_mid);
   s1[b_mid] = '\0';
   to1 = MkAtomTerm(Yap_ULookupAtom(s10));
   to2 = MkAtomTerm(Yap_ULookupAtom(s0 + b_mid));

@@ -48,7 +48,7 @@ char *Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz) {
     size_t sz0 = strlcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
 #else
   size_t sz0;
-  char *f = (char *)memcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
+  char *f = (char *)memmove(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
   f[0] = '\0';
   sz0 = f - s;
 #endif
@@ -156,7 +156,7 @@ AtomEntry *Yap_lookupBlob(void *blob, size_t len, void *type0, int *new) {
   ae->PropsOfAE = AbsBlobProp(b);
   ae->NextOfAE = AbsAtom(Blobs);
   ae->rep.blob->length = len;
-  memcpy(ae->rep.blob->data, blob, len);
+  memmove(ae->rep.blob->data, blob, len);
   Blobs = ae;
   if (NOfBlobs > NOfBlobsMax) {
     Yap_signal(YAP_CDOVF_SIGNAL);

@@ -2225,7 +2225,7 @@ rlc_save_font_options(HFONT font, rlc_console_attr *attr)
   { LOGFONT lf;
 
     if ( GetObject(font, sizeof(lf), &lf) )
-    { memcpy(attr->face_name, lf.lfFaceName, sizeof(attr->face_name)-1);
+    { memmove(attr->face_name, lf.lfFaceName, sizeof(attr->face_name)-1);
 
       attr->font_family   = lf.lfPitchAndFamily;
       attr->font_size     = lf.lfHeight;
@@ -3803,7 +3803,7 @@ Dprint_lines(RlcData b, int from, int to)
   for( ; ; from = NextLine(b, from))
   { TextLine tl = &b->lines[from];
 
-    memcpy(buf, tl->text, tl->size);
+    memmove(buf, tl->text, tl->size);
     buf[tl->size] = EOS;
     Dprintf(_T("%03d: (0x%08x) \"%s\"\n"), from, tl->text, buf);
 

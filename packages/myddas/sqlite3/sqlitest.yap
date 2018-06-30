@@ -71,7 +71,7 @@ go :-
 	go_cut1.
 
 go :-
-	X=1,
+%	X=1,
     artists(X,Y),
     writeln(X:Y).
 
@@ -82,7 +82,7 @@ go_cut0 :-
 
 
 go_cut1 :-
-	X=1,
+%	X=1,
     artists(X,Y),
     writeln(X:Y),
     !.
@@ -90,4 +90,4 @@ go_cut1 :-
 close :-
 	db_close.
 
-:- main.
+:- initialization(main).

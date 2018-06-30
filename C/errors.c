@@ -49,7 +49,7 @@
     const char *s = IsAtomTerm(t) ? RepAtom(AtomOfTerm(t))->StrOfAE            \
                                   : IsStringTerm(t) ? StringOfTerm(t) : NULL;  \
     if (s) {                                                                   \
-      char *tmp = malloc(strlen(s) + 1);                                       \
+      char *tmp = calloc(1,strlen(s) + 1);                                       \
       strcpy(tmp, s);                                                          \
       i->k = tmp;                                                              \
     }                                                                          \
@@ -148,10 +148,10 @@ static void printErr(yap_error_descriptor_t *i) {
     return;
   }
   print_key_i("errorNo", i->errorNo);
-  print_key_i("errorClass", i->errorClass);
-  print_key_s("errorAsText", i->errorAsText);
+  print_key_i("errorClass", (i->errorClass = Yap_errorClass(i->errorNo)));
+  print_key_s("errorAsText", (i->errorAsText=Yap_errorName(i->errorNo) ) );
   print_key_s("errorGoal", i->errorGoal);
-  print_key_s("classAsText", i->classAsText);
+  print_key_s("classAsText", (i->classAsText=Yap_errorClassName(i->errorClass)));
   print_key_i("errorLine", i->errorLine);
   print_key_s("errorFunction", i->errorFunction);
   print_key_s("errorFile", i->errorFile);
@@ -589,7 +589,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
   LOCAL_ActiveError = e->top_error;
   if (e->errorNo) {
     if (!LOCAL_ActiveError->errorNo && pass) {
-      memcpy(LOCAL_ActiveError, e, sizeof(*LOCAL_ActiveError));
+      memmove(LOCAL_ActiveError, e, sizeof(*LOCAL_ActiveError));
     } else {
       return e;
     }
@@ -941,6 +941,7 @@ typedef struct c_error_info {
   ;
 
 #include <YapErrors.h>
+#include <iopreds.h>
 
 yap_error_class_number Yap_errorClass(yap_error_number e) {
   return c_error_list[e].class;
@@ -956,8 +957,8 @@ yap_error_descriptor_t *Yap_GetException(yap_error_descriptor_t *i) {
   CACHE_REGS
   if (i->errorNo != YAP_NO_ERROR) {
     yap_error_descriptor_t *t = LOCAL_ActiveError,
-                           *nt = malloc(sizeof(yap_error_descriptor_t));
-    memcpy(nt, t, sizeof(yap_error_descriptor_t));
+                           *nt = calloc(1,sizeof(yap_error_descriptor_t));
+    memmove(nt, t, sizeof(yap_error_descriptor_t));
     return nt;
   }
   return 0;
@@ -1002,8 +1003,13 @@ static Int read_exception(USES_REGS1) {
 }
 
 static Int print_exception(USES_REGS1) {
-  yap_error_descriptor_t *t = AddressOfTerm(Deref(ARG1));
-  printErr(t);
+    Term t1 = Deref(ARG1);
+    if (IsAddressTerm(t1)) {
+        yap_error_descriptor_t *t = AddressOfTerm(t1);
+        printErr(t);
+    } else {
+           return Yap_WriteTerm(LOCAL_c_error_stream,t1,TermNil PASS_REGS);
+        }
   //      Yap_DebugPlWriteln(rc);
   return true;
 }

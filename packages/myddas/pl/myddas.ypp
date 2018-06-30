@@ -168,6 +168,7 @@
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
+
 			    ]).
 
 :- use_module(myddas_prolog2sql,[

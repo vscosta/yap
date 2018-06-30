@@ -181,14 +181,14 @@ INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs);
 
 INLINE_ONLY void init_absmi_regs(REGSTORE *absmi_regs) {
   CACHE_REGS
-  memcpy(absmi_regs, Yap_regp, sizeof(REGSTORE));
+  memmove(absmi_regs, Yap_regp, sizeof(REGSTORE));
 }
 
 INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs);
 
 INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
   CACHE_REGS
-  memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
+  memmove(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (void *)old_regs);
   LOCAL_ThreadHandle.current_yaam_regs = old_regs;

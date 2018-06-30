@@ -221,7 +221,7 @@ typedef struct trie_hash {
         { YAP_Term *aux_stack;                                                     \
           YAP_Int aux_size = CURRENT_AUXILIARY_TERM_STACK_SIZE * sizeof(YAP_Term); \
 	  new_struct(aux_stack, YAP_Term, aux_size * 2);                           \
-	  memcpy(aux_stack, AUXILIARY_TERM_STACK, aux_size);                       \
+	  memmove(aux_stack, AUXILIARY_TERM_STACK, aux_size);                       \
 	  free_struct(AUXILIARY_TERM_STACK);                                       \
   	  AUXILIARY_TERM_STACK = aux_stack;                                        \
           CURRENT_AUXILIARY_TERM_STACK_SIZE *= 2;                                  \
