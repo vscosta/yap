@@ -593,7 +593,7 @@ Bfree
 		}
 	}
 
-#define Bcopy(x,y) memcpy((char *)&x->sign, (char *)&y->sign, \
+#define Bcopy(x,y) memmove((char *)&x->sign, (char *)&y->sign, \
 y->wds*sizeof(Long) + 2*sizeof(int))
 
  static Bigint *

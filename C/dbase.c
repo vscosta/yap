@@ -642,7 +642,7 @@ static CELL *copy_double(CELL *st, CELL *pt) {
 static CELL *copy_string(CELL *st, CELL *pt) {
   UInt sz = pt[1] + 3;
   /* first thing, store a link to the list before we move on */
-  memcpy(st, pt, sizeof(CELL) * sz);
+  memmove(st, pt, sizeof(CELL) * sz);
   /* now reserve space */
   return st + sz;
 }
@@ -656,7 +656,7 @@ static CELL *copy_big_int(CELL *st, CELL *pt) {
   st[0] = (CELL)FunctorBigInt;
   st[1] = pt[1];
   /* then the actual number */
-  memcpy((void *)(st + 2), (void *)(pt + 2), sz);
+  memmove((void *)(st + 2), (void *)(pt + 2), sz);
   st = st + 2 + sz / CellSize;
   /* then the tail for gc */
   st[0] = EndSpecials;
@@ -968,7 +968,7 @@ loop:
           if (HR + sz >= ASP) {
             goto error2;
           }
-          memcpy((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
+          memmove((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
           to_visit_base = (CELL **)HR;
           to_visit = to_visit_base + sz;
         }
@@ -1684,7 +1684,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         nar = ppt->Contents + Unsigned(NOfCells);
       }
       woar = (link_entry *)nar;
-      memcpy((void *)woar, (const void *)dbg->LinkAr,
+      memmove((void *)woar, (const void *)dbg->LinkAr,
              (size_t)(NOfLinks * sizeof(link_entry)));
       woar += NOfLinks;
 #ifdef ALIGN_LONGS

@@ -199,7 +199,7 @@ const void *MallocExportAsRO(const void *pt USES_REGS) {
     return NULL;
   size_t sz = o->sz;
   release_block(o);
-  memcpy((void *)o, pt, sz);
+  memmove((void *)o, pt, sz);
   return realloc((void *)o, sz);
 }
 
@@ -690,7 +690,7 @@ static Atom write_atom(void *s0, seq_tv_t *out USES_REGS) {
   } else {
     size_t n = get_utf8(s, -1, &ch);
     unsigned char *buf = Malloc(n + 1);
-    memcpy(buf, s0, n + 1);
+    memmove(buf, s0, n + 1);
     return Yap_ULookupAtom(buf);
   }
 }
@@ -921,7 +921,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
         const unsigned char *ptr = skip_utf8(buf, out->max);
         size_t diff = (ptr - buf);
         char *nbuf = Malloc(diff + 1);
-        memcpy(nbuf, buf, diff);
+        memmove(nbuf, buf, diff);
         nbuf[diff] = '\0';
         leng = diff;
       }

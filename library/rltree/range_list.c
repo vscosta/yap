@@ -153,8 +153,8 @@ RL_Tree *copy_rl(RL_Tree *tree) {
     free(new);
     return NULL;
   }
-  memcpy(new, tree, sizeof(RL_Tree));
-  memcpy(buf_ptr, &tree->root[0], tree->size * NODE_SIZE);
+  memmove(new, tree, sizeof(RL_Tree));
+  memmove(buf_ptr, &tree->root[0], tree->size * NODE_SIZE);
   new->root = buf_ptr;
   new->mem_alloc = tree->size *NODE_SIZE;
   return new;

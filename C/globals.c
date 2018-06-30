@@ -475,7 +475,7 @@ loop:
             goto overflow;
           }
           *ptf++ = AbsAppl(HR);
-          memcpy(HR, ap2, sizeof(CELL) * (3 + ap2[1]));
+          memmove(HR, ap2, sizeof(CELL) * (3 + ap2[1]));
           HR += ap2[1] + 3;
           break;
         default: {
@@ -756,7 +756,7 @@ restart:
           res = -1;
           goto error_handler;
         }
-        memcpy(HR, ap, sizeof(CELL) * (3 + ap[1]));
+        memmove(HR, ap, sizeof(CELL) * (3 + ap[1]));
         HR += ap[1] + 3;
         break;
       default: {

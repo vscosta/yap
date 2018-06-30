@@ -897,7 +897,7 @@ function. */
 #cmakedefine HAVE_MBSNRTOWCS ${HAVE_MBSNRTOWCS}
 #endif
 
-/* Define to 1 if you have the `memcpy' function. */
+/* Define to 1 if you have the `memmove' function. */
 #ifndef HAVE_MEMCPY
 #cmakedefine HAVE_MEMCPY ${HAVE_MEMCPY}
 #endif

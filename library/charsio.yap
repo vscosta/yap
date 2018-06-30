@@ -26,7 +26,7 @@
 */
 
 
-:- module(charsio, [
+:- module(system(charsio), [
 	format_to_chars/3,
 	format_to_chars/4,
 	write_to_chars/3,

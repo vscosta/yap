@@ -1978,7 +1978,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
           assert(ncopies >= 3);
           
           if (ncopies > 9)
-            memcpy(d, s, copysize);
+            memmove(d, s, copysize);
           
           else {
             *(d+0) = *(s+0);
@@ -2077,7 +2077,7 @@ Void_t* rEALLOc(oldmem, bytes) Void_t* oldmem; size_t bytes;
       /* Must alloc, copy, free. */
       newmem = mALLOc(nb - MALLOC_ALIGN_MASK);
       if (newmem != 0) {
-        memcpy(newmem, oldmem, oldsize - 2*SIZE_SZ);
+        memmove(newmem, oldmem, oldsize - 2*SIZE_SZ);
         fREe(oldmem);
       }
     }

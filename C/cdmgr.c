@@ -301,7 +301,7 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   mcl->ClLine = cl->usc.ClLine;
   ptr = mcl->ClCode;
   while (TRUE) {
-    memcpy((void *)ptr, (void *)cl->ClCode, sz);
+    memmove((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
       LOCAL_ClDiff = (char *)(ptr) - (char *)cl->ClCode;
       restore_opcodes(ptr, NULL PASS_REGS);
@@ -380,7 +380,7 @@ static void split_megaclause(PredEntry *ap) {
     new->ClSize = mcl->ClItemSize;
     new->usc.ClLine = Yap_source_line_no();
     new->ClNext = NULL;
-    memcpy((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
+    memmove((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
     if (prev) {
       prev->ClNext = new;
     } else {
@@ -1386,7 +1386,7 @@ static void expand_consult(void) {
   }
   new_cs = new_cl + InitialConsultCapacity;
   /* start copying */
-  memcpy((void *)new_cs, (void *)LOCAL_ConsultLow,
+  memmove((void *)new_cs, (void *)LOCAL_ConsultLow,
          OldConsultCapacity * sizeof(consult_obj));
   /* copying done, release old space */
   Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);

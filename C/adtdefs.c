@@ -221,7 +221,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     ptr = Yap_AllocCodeSpace(len0 + 1);
     if (!ptr)
       return NIL;
-    memcpy(ptr, atom, len0);
+    memmove(ptr, atom, len0);
     ptr[len0] = '\0';
     at = LookupAtom(ptr);
     Yap_FreeCodeSpace(ptr);
@@ -1010,7 +1010,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       if (IsApplTerm(t0)) {
 	Yap_FreeCodeSpace((char *)RepAppl(t0));
       }
-      memcpy((void *)pt, (void *)ap, sz);
+      memmove((void *)pt, (void *)ap, sz);
       p->ValueOfVE = AbsAppl(pt);
 #endif
     } else if (IsStringTerm(v)) {
@@ -1025,7 +1025,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       if (IsApplTerm(t0)) {
 	Yap_FreeCodeSpace((char *)RepAppl(t0));
       }
-      memcpy((void *)pt, (void *)ap, sz);
+      memmove((void *)pt, (void *)ap, sz);
       p->ValueOfVE = AbsAppl(pt);
     } else {
       if (IsApplTerm(t0)) {

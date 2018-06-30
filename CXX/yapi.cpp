@@ -914,7 +914,7 @@ PredEntry *YAPPredicate::getPred(Term &t, CELL *&out) {
   } else {
     ap = RepPredProp(PredPropByFunc(f, m));
     if (out)
-      memcpy( out, RepAppl(t) + 1, ap->ArityOfPE*sizeof(CELL) );
+      memmove( out, RepAppl(t) + 1, ap->ArityOfPE*sizeof(CELL) );
     else
       out = RepAppl(t) + 1;
   }

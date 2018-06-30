@@ -376,12 +376,12 @@ load_rule( void ) {
   pred->is_fact = FALSE;
 	x = (strlen(strname) + 1) * sizeof(char);
 	pred->predname = (char *)malloc(x);
-	memcpy(pred->predname, strname, x); 
+	memmove(pred->predname, strname, x);
   nvec = (int32_t *)malloc(sizeof(int32_t)*(ptr-vec));
-  memcpy(nvec, vec, sizeof(int32_t)*(ptr-vec));
+  memmove(nvec, vec, sizeof(int32_t)*(ptr-vec));
   pred->address_host_table =  nvec;
   pred->negatives = (int32_t *)malloc(sizeof(int32_t) * cont);
-  memcpy(pred->negatives, neg, sizeof(int32_t) * cont);
+  memmove(pred->negatives, neg, sizeof(int32_t) * cont);
   Cuda_NewRule( pred );
   return YAP_Unify(YAP_ARG4, YAP_MkIntTerm((YAP_Int)pred));
 }

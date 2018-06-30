@@ -491,7 +491,7 @@ Sread_readline(void *handle, char *buf, size_t size)
 	{ PL_warning("Input line too long");	/* must be tested! */
 	  l = size-1;
 	}
-	memcpy(buf, line, l);
+	memmove(buf, line, l);
 	buf[l++] = '\n';
 	rval = l;
 

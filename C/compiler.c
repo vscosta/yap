@@ -719,7 +719,7 @@ restart:
         dest = Yap_emit_extra_size(blob_op, sz / CellSize, sz, &cglobs->cint);
 
         /* copy the bignum */
-        memcpy(dest, src, sz);
+        memmove(dest, src, sz);
         /* note that we don't need to copy size info, unless we wanted
          to garbage collect clauses ;-) */
         cglobs->cint.icpc = cglobs->cint.cpc;
@@ -758,7 +758,7 @@ restart:
         dest = Yap_emit_extra_size(blob_op, sz / CellSize, sz, &cglobs->cint);
 
         /* copy the bignum */
-        memcpy(dest, src, sz);
+        memmove(dest, src, sz);
         /* note that we don't need to copy size info, unless we wanted
          to garbage collect clauses ;-) */
         cglobs->cint.icpc = cglobs->cint.cpc;

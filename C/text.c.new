@@ -85,7 +85,7 @@ void *protected_pop_text_stack(int i, void *protected, bool tmp,
           out = LOCAL_FileNameBuf;
         else
           out = p;
-        memcpy(out, protected, sz);
+        memmove(out, protected, sz);
       } else {
         free(p);
       }
@@ -661,7 +661,7 @@ static Atom write_atom(void *s0, seq_tv_t *out, size_t leng USES_REGS) {
     return Yap_LookupAtom(s0);
   } else {
     unsigned char *buf = Malloc(leng + 1);
-    memcpy(buf, s0, leng);
+    memmove(buf, s0, leng);
       buf[leng] =   \0;
     return Yap_ULookupAtom(buf);
   }
@@ -872,7 +872,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
     size_t max_s = skip_utf8( buf, out-> max )-buf;
     if (max_s < leng_s) {
       char *nbuf = Malloc(max_s + 1);
-      memcpy(nbuf, buf, max_s);
+      memmove(nbuf, buf, max_s);
       nbuf[max_s] = '\0';
       leng_s = out->max;
     }

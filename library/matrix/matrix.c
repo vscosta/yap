@@ -159,7 +159,7 @@ new_int_matrix(int ndims, int dims[], long int data[])
   }
   bdata = matrix_long_data(mat,ndims);
   if (data)
-    memcpy((void *)bdata,(void *)data,sizeof(double)*nelems);
+    memmove((void *)bdata,(void *)data,sizeof(double)*nelems);
   return blob;
 }
 
@@ -193,7 +193,7 @@ new_float_matrix(int ndims, int dims[], double data[])
   }
   bdata = matrix_double_data(mat,ndims);
   if (data)
-    memcpy((void *)bdata,(void *)data,sizeof(double)*nelems);
+    memmove((void *)bdata,(void *)data,sizeof(double)*nelems);
   return blob;
 }
 

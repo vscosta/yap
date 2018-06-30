@@ -346,7 +346,7 @@ int cargarcpu(int name, int num_rows, int num_columns, int is_fact, int *address
 		}
 		for(; x < numcpu; x++)
 		{
-			memcpy(temp + inc, temp_storage[x].dev_address, temp_storage[x].size);
+			memmove(temp + inc, temp_storage[x].dev_address, temp_storage[x].size);
 			inc += temp_storage[x].size / sizeof(int);
 			free(temp_storage[x].dev_address);
 		}

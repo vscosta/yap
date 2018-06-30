@@ -301,7 +301,7 @@ bool Yap_dup_op(OpEntry *op, ModEntry *she) {
   OpEntry *info = (OpEntry *)Yap_AllocAtomSpace(sizeof(OpEntry));
   if (!info)
     return false;
-  memcpy(info, op, sizeof(OpEntry));
+  memmove(info, op, sizeof(OpEntry));
   info->NextForME = she->OpForME;
   she->OpForME = info;
   info->OpModule = MkAtomTerm(she->AtomOfME);
@@ -1162,7 +1162,7 @@ void Yap_init_yapor_workers(void) {
       worker_id = proc;
       Yap_remap_yapor_memory();
       LOCAL = REMOTE(worker_id);
-      memcpy(REMOTE(worker_id), REMOTE(0), sizeof(struct worker_local));
+      memmove(REMOTE(worker_id), REMOTE(0), sizeof(struct worker_local));
       InitWorker(worker_id);
       break;
     } else

@@ -1539,7 +1539,7 @@ sopno finish; /* to this less one */
     return (ret);
   enlarge(p, p->ssize + len); /* this many unexpected additions */
   assert(p->ssize >= p->slen + len);
-  (void)memcpy((char *)(p->strip + p->slen), (char *)(p->strip + start),
+  (void)memmove((char *)(p->strip + p->slen), (char *)(p->strip + start),
                (size_t)len * sizeof(sop));
   p->slen += len;
   return (ret);

@@ -1130,7 +1130,9 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
   StreamDesc *st = &GLOBAL_Stream[sno];
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s  stream  <%d>",io_mode,name,
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>",
+                        io_mode, CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
+                        name,
                         sno);
     if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),

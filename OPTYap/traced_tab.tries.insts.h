@@ -77,7 +77,7 @@
 #define copy_aux_stack()                                                \
   { int size = 3 + heap_arity + subs_arity + vars_arity;		\
   TOP_STACK -= size;							\
-  memcpy(TOP_STACK, aux_stack, size * sizeof(CELL *));			\
+  memmove(TOP_STACK, aux_stack, size * sizeof(CELL *));			\
   aux_stack = TOP_STACK;						\
   }/* macros 'store_trie_node', 'restore_trie_node' and 'pop_trie_node'   **
    ** do not include 'set_cut' because trie instructions are cut safe     */
