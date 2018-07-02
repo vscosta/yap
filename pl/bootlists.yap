@@ -7,8 +7,6 @@
  * @{
 */
 
-:- system_module( '$_lists', [], []).
-
 :- set_prolog_flag(source, true). % source.
 
 %   memberchk(+Element, +Set)

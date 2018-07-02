@@ -56,6 +56,11 @@
               DBMS(row)/3
 			 ]).
 
+
+:- use_module(library(lists)).
+ :- use_module(library(maplist)).
+
+
 :- use_module(myddas,[
 		      db_sql/3
 		     ]).

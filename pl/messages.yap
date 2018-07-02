@@ -1033,7 +1033,6 @@ prolog:print_message(Severity, Term) :-
 	!.
 prolog:print_message(Severity, Term) :-
     translate_message( Term, Severity, Lines0, [ end(Id)]),
-    writeln(Lines0),
 	Lines = [begin(Severity, Id)| Lines0],
 	(
 	 user:message_hook(Term, Severity, Lines)

@@ -57,6 +57,7 @@
     with the `use_module(library(lists))` command.
 */
 
+:- include(pl/bootlists).
 
 /** @pred list_concat(+ _Lists_,? _List_)
 

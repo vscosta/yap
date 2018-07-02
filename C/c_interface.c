@@ -2129,20 +2129,17 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
   char *d = Malloc(strlen(fl)+1);
   strcpy(d,fl);
  bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
+  Term tat = MkAtomTerm(Yap_LookupAtom(d));
+  sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)), LOCAL_encoding);
   if (sno < 0 ||
       !Yap_ChDir(dirname((char *)d))) {
       pop_text_stack(lvl);
       *full = NULL;
       return -1;
-    }
-                    LOCAL_PrologMode = UserMode;
+    } LOCAL_PrologMode = UserMode;
 
   Yap_init_consult(consulted, fl);
-  GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
-  GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
-  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  *full = pop_output_text_stack(lvl, fl);
+  pop_text_stack(lvl);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;

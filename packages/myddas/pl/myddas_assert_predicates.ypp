@@ -101,7 +101,7 @@ db_import(Connection,RelationName,PredName0) :-
 	not c_db_check_if_exists_pred(PredName,Arity,Module),
 	R=..[relation,PredName,Arity,RelationName],
 	% assert relation fact
-	assert(user:R),
+	assert(Module:R),
 
 	Size is 2*Arity,
         length(TypesList, Size),
@@ -114,15 +114,15 @@ db_import(Connection,RelationName,PredName0) :-
 	% build PredName functor
 	functor(P,PredName,Arity),
 	P=..[PredName|LA],
-
-	M=myddas_assert_predicates,
 	%build PredName clause
-	table_access_predicate( ConType, Con, Arity, P, LA, M, Assert ),
-	assert(Module:Assert),
+	table_access_predicate( ConType, Con, Arity, P, LA, Modulelisting, Assert ),
+	assert_static(Module:Assert),
 	c_db_add_preds(PredName,Arity,Module,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+:- meta_predicate db_view(:,0).
+:- meta_predicate db_view(+,:,0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_view/3
@@ -289,8 +289,9 @@ table_attributes( sqlite3, Con, RelationName, TypesList ) :-
 
 % predicate for DB-> query
 
+
 table_access_predicate( mysql, Con, Arity, P, LA, M,
-			( P :- M:('$copy_term_nv'(P,[],G,_),
+			( P :- user:('$copy_term_nv'(P,[],G,_),
 				  translate(G,G,Code),
 				  queries_atom(Code,FinalSQL),
 				  db_my_result_set(Mode),
@@ -299,9 +300,9 @@ table_access_predicate( mysql, Con, Arity, P, LA, M,
 				  !,
 				  c_db_my_row(ResultSet,Arity,LA) ))).
 
-table_access_predicate( postgres, Con, Arity, P, LA, M,
-                        ( P :- M:('$copy_term_nv'(P,[],G,_),
-                                  translate(G,G,Code),
+table_access_predicate( postgres, Con, Arity, P, LA, _M,
+                        ( P :- '$copy_term_nv'(P,[],G,_),
+                                  translate(M:G,M:G,Code),
                                   queries_atom(Code,FinalSQL),
                                   db_my_result_set(Mode),
                                   '$write_or_not'(FinalSQL),
@@ -310,8 +311,8 @@ table_access_predicate( postgres, Con, Arity, P, LA, M,
                                   c_postgsres_row(ResultSet,Arity,LA) ))).
 
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
-                        ( P :- M:('$copy_term_nv'(P,[],G,_),
-                                      translate(G,G,Code),
+                        ( P :- ('$copy_term_nv'(P,[],G,_),
+                                      translate(M:G,M:G,Code),
                                       queries_atom(Code,FinalSQL),
 				      sqlite3_result_set(Mode),
                                       '$write_or_not'(FinalSQL),
