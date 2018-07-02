@@ -93,7 +93,7 @@ static Term readFromBuffer(const char *s, Term opts) {
   int sno;
   encoding_t enc = ENC_ISO_UTF8;
   sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s),
-                                 &enc, MEM_BUF_USER);
+                                 &enc, MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix((char *)s,16)), TermNone);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);

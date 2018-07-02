@@ -1808,7 +1808,7 @@ void Yap_dump_stack(void) {
   yap_error_class_number classno = Yap_errorClass(errnbr);
 
   fprintf(stderr, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
-          Yap_errorName(classno));
+          Yap_errorClassName(classno));
 
   fprintf(stderr, "%% Execution mode\n");
   if (LOCAL_PrologMode & BootMode)

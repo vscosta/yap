@@ -291,45 +291,45 @@ table_attributes( sqlite3, Con, RelationName, TypesList ) :-
 
 
 table_access_predicate( mysql, Con, Arity, P, LA, M,
-			( P :- user:('$copy_term_nv'(P,[],G,_),
-				  translate(G,G,Code),
+			( P :- user:(myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+				  myddas_prolog2sql:translate(G,G,Code),
 				  queries_atom(Code,FinalSQL),
 				  db_my_result_set(Mode),
-				  '$write_or_not'(FinalSQL),
+				  myddas_util_predicates:'$write_or_not'(FinalSQL),
 				  c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
 				  !,
 				  c_db_my_row(ResultSet,Arity,LA) ))).
 
 table_access_predicate( postgres, Con, Arity, P, LA, _M,
-                        ( P :- '$copy_term_nv'(P,[],G,_),
-                                  translate(M:G,M:G,Code),
-                                  queries_atom(Code,FinalSQL),
-                                  db_my_result_set(Mode),
-                                  '$write_or_not'(FinalSQL),
+                        ( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+                                  myddas_prolog2sql:translate(M:G,M:G,Code),
+                                  myddas_prolog2sql:queries_atom(Code,FinalSQL),
+                                  myddas_postgres:postgres_result_set(Mode),
+                                  myddas_util_predicates:'$write_or_not'(FinalSQL),
                                   c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
                                   !,
                                   c_postgsres_row(ResultSet,Arity,LA) ))).
 
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
-                        ( P :- ('$copy_term_nv'(P,[],G,_),
-                                      translate(M:G,M:G,Code),
-                                      queries_atom(Code,FinalSQL),
-				      sqlite3_result_set(Mode),
-                                      '$write_or_not'(FinalSQL),
-				      c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
+                        ( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+                                      myddas_prolog2sql:translate(G,G,Code),
+                                      myddas_prolog2sql:queries_atom(Code,FinalSQL),
+				      myddas_sqlite3:sqlite3_result_set(Mode),
+                                      myddas_util_predicates:'$write_or_not'(FinalSQL),
+				      user:c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
 				      !,
-				  sqlite3_row(ResultSet,Arity,LA)
+				  myddas_aqlite3:sqlite3_row(ResultSet,Arity,LA)
 				     ) )).
 
 table_access_predicate( odbc, Con, Arity, P, LA, M,
-                        ( P :- M:('$copy_term_nv'(P,[],G,_),
-				  translate(G,G,Code),
-				  queries_atom(Code,FinalSQL),
-				  c_odbc_result_set(Mode),
-				  '$write_or_not'(FinalSQL),
-				  c_odbc_query(FinalSQL,ResultSet,Con,Mode,_),
+                        ( P :- M:(myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
+				  myddas_prolog2sql:translate(G,G,Code),
+				  myddas_prolog2sql:queries_atom(Code,FinalSQL),
+				  myddas_odbc:odbc_result_set(Mode),
+				  'myddas_util_predicates:$write_or_not'(FinalSQL),
+				  myddas_odbc:c_odbc_query(FinalSQL,ResultSet,Con,Mode,_),
 				  !,
-				  c_odbc_row(ResultSet,Arity,LA)
+				  myddas_odbc:c_odbc_row(ResultSet,Arity,LA)
 				 ) )).
 
 table_insert( mysql, Con, RelationName, TypesList, Predicate, LA,

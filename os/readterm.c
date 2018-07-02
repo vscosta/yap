@@ -837,6 +837,8 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   LOCAL_ErrorMessage = NULL;
   fe->old_TR = TR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " open %s, %d",
+                      CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,   inp_stream);
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
   fe->tpos = StreamPosition(inp_stream);
@@ -1394,8 +1396,8 @@ static Int start_mega(USES_REGS1) {
       Term rval;
       int sno;
       encoding_t l = ENC_ISO_UTF8;
-      sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s)+1, &l,
-				     MEM_BUF_USER);
+      sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s+1), &l,
+				     MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix(s,16)), TermNone );
 
       GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
       rval = Yap_read_term(sno, opts, false);
@@ -1408,7 +1410,7 @@ static Int start_mega(USES_REGS1) {
       int sno;
       encoding_t l = ENC_ISO_UTF8;
       sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
-				     MEM_BUF_USER);
+				     MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix((char *)s,16)), TermNone);
       GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
       rval = Yap_read_term(sno, opts, false);
       Yap_CloseStream(sno);
@@ -1530,7 +1532,7 @@ static Int start_mega(USES_REGS1) {
 	}
       char *ss = (char *)s;
       encoding_t enc = ENC_ISO_UTF8;
-      int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER);
+      int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix(ss,16)), TermString);
       GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
       rc = Yap_read_term(sno, Deref(ARG3), 3);
       Yap_CloseStream(sno);

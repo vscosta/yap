@@ -1768,6 +1768,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     disc[2] = Yap_Module_Name(p);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
     sc[1] = MkIntegerTerm(Yap_source_line_no());
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "source %s ", RepAtom(LOCAL_SourceFileName)->StrOfAE);
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
@@ -2078,7 +2079,7 @@ void Yap_init_consult(int mode, const char *filenam) {
     expand_consult();
   }
   LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->f_name = (const unsigned char *)filenam;
+  LOCAL_ConsultSp->f_name = Yap_LookupAtom(filenam);
   LOCAL_ConsultSp--;
   LOCAL_ConsultSp->mode = mode;
   LOCAL_ConsultSp--;

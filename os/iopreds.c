@@ -1289,8 +1289,9 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
           return false;
         }
         buf = pop_output_text_stack(i, buf);
+        Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf,32));
         sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                       MEM_BUF_MALLOC);
+                                       MEM_BUF_MALLOC, nat, MkAtomTerm(NameOfFunctor(f)));
         return Yap_OpenBufWriteStream(PASS_REGS1);
       }
     } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {

@@ -103,7 +103,7 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
         if (rc) AAsset_close(am);
         st->vfs = NULL;
         st->vfs_handle = NULL;
-        st->status = InMemory_Stream_f|Seekable_Stream_f|Input_Stream_f;
+         st->status = InMemory_Stream_f|Seekable_Stream_f|Input_Stream_f;
          return st;
     } else if ((fd = AAsset_openFileDescriptor64(am, &sz0, &sz)) >= 0) {
         // can use it as read-only file

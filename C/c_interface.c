@@ -2138,8 +2138,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
       return -1;
     } LOCAL_PrologMode = UserMode;
 
-  Yap_init_consult(consulted, fl);
-  pop_text_stack(lvl);
+  Yap_init_consult(consulted, pop_output_text_stack__(lvl,fl));
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
