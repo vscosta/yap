@@ -198,10 +198,9 @@ compose_message( halt, _Level) --> !,
 
 		% syntax error.
 compose_message(error(E, Exc), Level) -->
-    { '$show_consult_level'(LC), 	     '$print_exception'(Exc)
- },
+    { '$show_consult_level'(LC) },
 	location(error(E, Exc), Level, LC),
-	main_message(error(E,Exc) , Level, LC ),
+    main_message(error(E,Exc) , Level, LC ),
 	c_goal( error(E, Exc), Level ),
 	caller( error(E, Exc), Level ),
 	extra_info( error(E, Exc), Level ),
@@ -257,7 +256,8 @@ location(style_check(A,LN,FileName,B ), Level , LC) -->
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
 	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
-	{ '$error_descriptor'(Info, Desc) },
+
+    { '$error_descriptor'(Info, Desc) },
    {
    '$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
@@ -267,19 +267,7 @@ location( error(_,Info), Level, LC ) -->
 	},
   !,
   display_consulting( File, Level, Info, LC ),
-	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
-location( error(_,Info), Level, LC ) -->
-	{ '$error_descriptor'(Info, Desc) },
-   {
-   '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
-	},
-  !,
-  display_consulting( File, Level, Info, LC ),
-  [  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+	[  '~a:~d:0 ~a in ~a:~a/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
    {
@@ -289,7 +277,7 @@ location( error(_,Info), Level, LC ) -->
 	},
   !,
   display_consulting( File, Level, Info,  LC ),
-  [  '~s:~d:0 ~a in ~s():'-[File, FilePos,Level,F] ].
+  [  '~a:~d:0 ~a in ~a():'-[File, FilePos,Level,F] ].
 location( _Ball, _Level, _LC ) --> [].
 
 
@@ -393,7 +381,7 @@ caller( Info, _) -->
 	},
 	!,
 	  [nl],
-	  ['~*|        raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
+	  ['~*|        ~q:~d:0 ~a:~q'-[10,File, FilePos,M,Na,Ar]],
 	[nl].
 caller( _, _) -->
 	[].
@@ -982,8 +970,9 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
+
+:- dynamic in/0.
 /*
-/*:- dynamic in/0.
 prolog:print_message(Severity, Msg) :-
     \+ in,
     assert(in),
@@ -991,7 +980,7 @@ prolog:print_message(Severity, Msg) :-
     ( prolog:print_message(Severity, Msg), fail;
     stop_low_level_trace,
       retract(in)
-    ).*/
+    ).
 */
 prolog:print_message(Severity, Msg) :-
 	(
@@ -1043,7 +1032,8 @@ prolog:print_message(Severity, Term) :-
 	),
 	!.
 prolog:print_message(Severity, Term) :-
-	translate_message( Term, Severity, Lines0, [ end(Id)]),
+    translate_message( Term, Severity, Lines0, [ end(Id)]),
+    writeln(Lines0),
 	Lines = [begin(Severity, Id)| Lines0],
 	(
 	 user:message_hook(Term, Severity, Lines)
@@ -1057,7 +1047,7 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
-'$error_descriptor'( error(_,Info), Info ).
+'$error_descriptor'( exception(Info), Info ).
 
 
 /**

@@ -90,21 +90,23 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
     return i->k ? TermTrue : TermFalse;                                        \
   }
 
-#define query_key_i(k, ks, q, i)                                               \
-  if (strcmp(ks, q) == 0) {                                                    \
+#define query_key_i(k, ks, q, i)                                             if (strcmp(ks, q) == 0) {                                                    \
     return MkIntegerTerm(i->k);                                                \
   }
 
-#define query_key_s(k, ks, q, i)                                               \
+#define query_key_s(k, ks, q, i)     \
   if (strcmp(ks, q) == 0) {                                                    \
-    return (i->k && i->k[0] ? MkStringTerm(i->k) : TermNil);                   \
-  }
+  return MkAtomTerm(Yap_LookupAtom(i->k)); }
+
+#define query_key_t(k, ks, q, i)     \
+  if (strcmp(ks, q) == 0) {                                                    \
+ Term t; if((t = Yap_BufferToTerm(i->k, TermNil) ) == 0 ) return TermNil; return t; }
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
   query_key_s(errorAsText, "errorAsText", q, i);
-  query_key_s(errorGoal, "errorGoal", q, i);
+  query_key_t(errorGoal, "errorGoal", q, i);
   query_key_s(classAsText, "classAsText", q, i);
   query_key_i(errorLine, "errorLine", q, i);
   query_key_s(errorFunction, "errorFunction", q, i);
@@ -123,7 +125,7 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_s(prologParserText, "prologParserText", q, i);
   query_key_s(prologParserFile, "prologParserFile", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
-  query_key_s(culprit, "culprit", q, i);
+  query_key_t(culprit, "culprit", q, i);
   query_key_s(errorMsg, "errorMsg", q, i);
   query_key_i(errorMsgLen, "errorMsgLen", q, i);
   return TermNil;
@@ -581,23 +583,17 @@ bool Yap_pushErrorContext(bool pass, yap_error_descriptor_t *new_error) {
 /*   if (Yap_HasException()) */
 /*   memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError)); */
 /*   LOCAL_ActiveError->top_error = bf; */
-
 /* } */
 yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
-  yap_error_descriptor_t *e = LOCAL_ActiveError;
+  yap_error_descriptor_t *e = LOCAL_ActiveError, *ep = LOCAL_ActiveError->top_error;
   // last block
-  LOCAL_ActiveError = e->top_error;
-  if (e->errorNo) {
-    if (!LOCAL_ActiveError->errorNo && pass) {
-      memmove(LOCAL_ActiveError, e, sizeof(*LOCAL_ActiveError));
-    } else {
-      return e;
-    }
-  } else {
-    if (e->errorNo)
-      return e;
+  LOCAL_ActiveError = ep;
+  if (e->errorNo && !ep->errorNo && pass) {
+    yap_error_descriptor_t *epp = ep->top_error;    
+    memmove(ep, e, sizeof(*e));
+    ep->top_error = epp;
   }
-  return NULL;
+  return LOCAL_ActiveError;
 }
 /**
  * Throw an error directly to the error handler
