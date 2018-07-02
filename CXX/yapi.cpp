@@ -189,14 +189,8 @@ YAPStringTerm::YAPStringTerm(char *s) { // build string
   BACKUP_H();
 
   CACHE_REGS
-  seq_tv_t inp, out;
-  inp.val.c = s;
-  inp.type = YAP_STRING_CHARS;
-  out.type = YAP_STRING_STRING;
-  if (Yap_CVT_Text(&inp, &out PASS_REGS))
-    mk(out.val.t);
-  else
-    t = 0L;
+  Term ts = MkStringTerm(s);
+  mk(ts);
   RECOVER_H();
 }
 
@@ -708,6 +702,7 @@ bool YAPQuery::next() {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   if (q_state == 0) {
+      //Yap_do_low_level_trace = 1;
     result = (bool)YAP_EnterGoal(ap, nullptr, &q_h);
   } else {
     LOCAL_AllowRestart = q_open;

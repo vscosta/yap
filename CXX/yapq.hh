@@ -178,6 +178,7 @@ public:
     // const std::string *s = new std::string("startup.yss");
     Embedded = true;
       install = false;
+
     Yap_InitDefaults(this, nullptr, 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
