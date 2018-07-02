@@ -288,13 +288,23 @@ X_API Term YAP_MkIntTerm(Int n) {
 }
 
 X_API Term YAP_MkStringTerm(const char *n) {
-  CACHE_REGS
-  Term I;
-  BACKUP_H();
+    CACHE_REGS
+    Term I;
+    BACKUP_H();
 
-  I = MkStringTerm(n);
-  RECOVER_H();
-  return I;
+    I = MkStringTerm(n);
+    RECOVER_H();
+    return I;
+}
+
+X_API Term YAP_MkCharPTerm( char *n) {
+    CACHE_REGS
+    Term I;
+    BACKUP_H();
+
+    I = MkStringTerm(n);
+    RECOVER_H();
+    return I;
 }
 
 X_API Term YAP_MkUnsignedStringTerm(const unsigned char *n) {

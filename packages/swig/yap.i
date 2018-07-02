@@ -40,6 +40,7 @@ class YAPEngine;
   extern "C"{
     #include "Yap.h"
 
+X_API extern Term YAP_MkCharPTerm( char *n);
 
 
     #ifdef SWIGPYTHON

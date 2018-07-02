@@ -27,6 +27,13 @@
 
 class YAPError;
 
+extern "C" {
+
+X_API extern Term YAP_MkCharPTerm( char *n);
+
+
+}
+
 /**
  * @brief Generic Prolog Term
  */
@@ -39,7 +46,7 @@ class X_API YAPTerm {
   friend class YAPApplTerm;
   friend class YAPListTerm;
 
-protected:
+ protected:
   yhandle_t t; /// handle to term, equivalent to term_t
 
 public:
@@ -315,12 +322,18 @@ public:
       RECOVER_MACHINE_REGS();
       return tf;
     };
-    void putArg(int i, YAPTerm t) {
-      BACKUP_MACHINE_REGS();
-      Term t0 = gt();
-      RepAppl(t0)[i] = t.term();
-      RECOVER_MACHINE_REGS();
-    };
+              void putArg(int i, Term targ) {
+                //BACKUP_MACHINE_REGS();
+                Term t0 = gt();
+                RepAppl(t0)[i] = Deref(targ);
+                //RECOVER_MACHINE_REGS();
+              };
+              void putArg(int i, YAPTerm t) {
+                //BACKUP_MACHINE_REGS();
+                Term t0 = gt();
+                RepAppl(t0)[i] = t.term();
+                //RECOVER_MACHINE_REGS();
+              };
     virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer
