@@ -48,7 +48,6 @@
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
     functor(P,Name,Arity),
-    writeln(M:P),
     '$hide_predicate'(P,M),
     fail.
 '$protect' :-

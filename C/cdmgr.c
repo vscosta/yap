@@ -2065,7 +2065,7 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_consult_level == 0) {
     return (AtomUser);
   } else {
-    return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
+    return LOCAL_ConsultBase[2].f_name;
   }
 }
 

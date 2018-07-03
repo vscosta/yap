@@ -82,7 +82,6 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
   int i = push_text_stack();
-char buf [16];
   Atom nat = Yap_LookupAtom(Yap_StrPrefix(s, 16));
   sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER, nat, MkAtomTerm(Yap_LookupAtom("eval")));
   if (sno < 0)

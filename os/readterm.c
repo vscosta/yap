@@ -1396,7 +1396,7 @@ static Int start_mega(USES_REGS1) {
       Term rval;
       int sno;
       encoding_t l = ENC_ISO_UTF8;
-      sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s+1), &l,
+      sno = Yap_open_buf_read_stream((char *)s, strlen(s)+1, &l,
 				     MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix(s,16)), TermNone );
 
       GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;

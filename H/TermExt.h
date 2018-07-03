@@ -345,7 +345,7 @@ INLINE_ONLY Term __MkCharPTerm(char *s USES_REGS);
 INLINE_ONLY Term __MkCharPTerm(char *s USES_REGS) {
   Term t = AbsAppl(HR);
   size_t sz;
-  if ((s[0] == '\0')) {
+  if (s[0] == '\0') {
     sz = sizeof(CELL);
     HR[0] = (CELL)FunctorString;
     HR[1] = (CELL)sz;

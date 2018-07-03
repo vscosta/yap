@@ -468,7 +468,7 @@ static bool typein(Term inp) {
                         return true;
                     }
 
-                    static bool list_atom( Term inp ) {
+x                    static bool list_atom( Term inp ) {
                         if (IsVarTerm(inp)) {
                             Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
                             return false;

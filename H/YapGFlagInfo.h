@@ -98,7 +98,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     It is `true` by default, but it is disabled by packages like CLP(BN) and
     ProbLog.
  */
-    YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "true", NULL),
+    YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "true", bqs),
     /**>
     If  _Value_ is unbound, tell whether a back quoted list of characters
     token is converted to a list of atoms, `chars`, to a list of integers,
@@ -155,7 +155,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
  */
     YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
-             "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
+	     "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
              NULL),
     YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
              booleanFlag, "false", NULL),
@@ -180,7 +180,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
              booleanFlag, "false", NULL),
     /**<
     If `off` (default)  consider the character `$` a control character, if
-    `on` consider `$` a lower case character.
+vxu    `on` consider `$` a lower case character.
  */
     YAP_FLAG(DOUBLE_QUOTES_FLAG, "double_quotes", true, isatom, "codes", dqs),
     /**<  iso
@@ -476,9 +476,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
  */
     YAP_FLAG(THREADS_FLAG, "threads", false, ro, "MAX_THREADS", NULL),
     YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
-    YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
-             "true", NULL),
-    YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true,
+   YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true,
              booleanFlag, "true",
              NULL),
     /**< `toplevel_hook `
@@ -489,6 +487,8 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     backtracked into.
 
  */
+  YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
+             "true", NULL),
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
              list_option, "[quoted(true),numbervars(true),portrayed(true)]",
              NULL),
