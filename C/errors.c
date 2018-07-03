@@ -95,8 +95,8 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   }
 
 #define query_key_s(k, ks, q, i)     \
-  if (strcmp(ks, q) == 0) {                                                    \
-  return MkAtomTerm(Yap_LookupAtom(i->k)); }
+  if (strcmp(ks, q) == 0 && i->k) {                                                    \
+  return MkAtomTerm(Yap_LookupAtom(i->k)); } else {return TermNil;}
 
 #define query_key_t(k, ks, q, i)     \
   if (strcmp(ks, q) == 0) {                                                    \
@@ -986,8 +986,11 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorClass == EVENT)
     return t->errorRawTerm;
+  Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
+  if (tc == 0)
+    tc = MkAtomTerm(Yap_LookupAtom(t->culprit));
   return mkerrort(t->errorNo,
-                  t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil,
+                  tc,
                   err2list(t));
 }
 
