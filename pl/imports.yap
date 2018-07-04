@@ -38,6 +38,9 @@
 '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
 	'$parent_module'(ImportingMod,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
+'$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
+	yap_flag(default_parent_module,ExportingModI),
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
 
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
     '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod),

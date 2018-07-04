@@ -117,7 +117,7 @@ public:
   /// numbervars ( int start, bool process=false )
   intptr_t numberVars(intptr_t start, bool skip_singletons = false);
   inline Term term() {
-    return gt();
+    return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)
     YAPTerm arg(int i) {
         BACKUP_MACHINE_REGS();

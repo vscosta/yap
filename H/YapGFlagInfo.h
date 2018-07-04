@@ -159,6 +159,12 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
              NULL),
     YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
              booleanFlag, "false", NULL),
+    YAP_FLAG(DEFAULT_PARENT_MODULE_FLAG, "default_parent_module", true, isatom, "user", NULL),
+    /**<
+     * A module to be inherited by all other modules. Default is user  that reexports prolog.
+     *
+     * Set it to `prolog` for SICStus Prolog like resolution, to `user` for SWI-like.
+     */
     YAP_FLAG(DIALECT_FLAG, "dialect", false, ro, "yap", NULL),
     /**<
 

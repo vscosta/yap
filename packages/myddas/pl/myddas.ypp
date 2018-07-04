@@ -181,6 +181,7 @@
       member/2
 	      ]).
 
+:- set(verbose,silent).
 
 
 
