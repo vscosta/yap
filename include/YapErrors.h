@@ -21,7 +21,7 @@ ECLASS(INSTANTIATION_ERROR_CLASS, "instantiation_error", 0)
 /// bad access, I/O
 ECLASS(PERMISSION_ERROR, "permission_error", 3)
 /// something that could not be represented into a type
-ECLASS(REPRESENTATION_ERROR, "representation_error", 1)
+ECLASS(REPRESENTATION_ERROR, "representation_error", 0)
 /// not enough ....
 ECLASS(RESOURCE_ERROR, "resource_error", 2)
 /// bad text

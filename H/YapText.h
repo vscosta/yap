@@ -543,6 +543,22 @@ static inline Term Yap_AtomToListOfCodes(Term t0 USES_REGS) {
   return out.val.t;
 }
 
+static inline Term Yap_AtomSWIToListOfCodes(Term t0 USES_REGS) {
+  seq_tv_t inp, out;
+
+  inp.val.t = t0;
+  inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
+    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES |YAP_STRING_ATOMS_CODES |YAP_STRING_ATOMS_CODES |
+    YAP_STRING_TERM;
+  out.val.uc = NULL;
+  out.type = YAP_STRING_CODES;
+
+  if (!Yap_CVT_Text(&inp, &out PASS_REGS))
+    return 0L;
+  return out.val.t;
+}
+
+
 static inline Term Yap_AtomToNumber(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;

@@ -231,7 +231,7 @@ static Term Globalize(Term v USES_REGS) {
   return v;
 }
 
-static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
+static void *codes2buf(Term t0, void *b0, bool get_codes, bool fixed USES_REGS) {
   unsigned char *st0, *st, ar[16];
   Term t = t0;
   size_t length = 0;
@@ -241,11 +241,18 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
     st0[0] = 0;
     return st0;
   }
-  if (!IsPairTerm(t))
-    return NULL;
+  if (!IsPairTerm(t)) {
+        Yap_ThrowError(TYPE_ERROR_LIST, t, "scanning list of codes");
+        return NULL;
+  }
   bool codes = IsIntegerTerm(HeadOfTerm(t));
-  if (get_codes)
-    *get_codes = codes;
+  if (get_codes !=codes && fixed) {
+    if (codes) {
+      Yap_ThrowError(TYPE_ERROR_INTEGER, HeadOfTerm(t), "scanning list of codes");
+    } else {
+      Yap_ThrowError(TYPE_ERROR_ATOM, HeadOfTerm(t), "scanning list of atoms");
+    }
+  }
   if (codes) {
     while (IsPairTerm(t)) {
       Term hd = HeadOfTerm(t);
@@ -259,7 +266,7 @@ static void *codes2buf(Term t0, void *b0, bool *get_codes USES_REGS) {
       }
       Int code = IntegerOfTerm(hd);
       if (code < 0) {
-        Yap_ThrowError(TYPE_ERROR_CHARACTER_CODE, hd, "scanning list of codes");
+        Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, hd, "scanning list of character codes, found %d", code);
         return NULL;
       }
       length += put_utf8(ar, code);
@@ -368,26 +375,21 @@ static void *slice(size_t min, size_t max, const unsigned char *buf USES_REGS);
 
 static unsigned char *Yap_ListOfCodesToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
-  bool codes;
-  unsigned char *nbuf = codes2buf(t, buf, &codes PASS_REGS);
-  if (!codes)
-    return NULL;
+  bool codes = true, fixed = true;
+  unsigned char *nbuf = codes2buf(t, buf, codes, fixed PASS_REGS);
   return nbuf;
 }
 
 static unsigned char *Yap_ListOfAtomsToBuffer(unsigned char *buf, Term t,
                                               seq_tv_t *inp USES_REGS) {
-  bool codes;
-  unsigned char *nbuf = codes2buf(t, buf, &codes PASS_REGS);
-  if (codes)
-    return NULL;
+  bool codes = false;
+  unsigned char *nbuf = codes2buf(t, buf, codes, true PASS_REGS);
   return nbuf;
 }
 
 static unsigned char *Yap_ListToBuffer(unsigned char *buf, Term t,
                                        seq_tv_t *inp USES_REGS) {
-  unsigned char *nbuf = codes2buf(t, buf, NULL PASS_REGS);
-  return nbuf;
+  return codes2buf(t, buf, NULL, false PASS_REGS);
 }
 
 #if USE_GEN_TYPE_ERROR
@@ -425,28 +427,24 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     if (!(inp->type & YAP_STRING_TERM)) {
       if (IsVarTerm(inp->val.t)) {
         LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	LOCAL_ActiveError->errorRawTerm = inp->val.t;
       } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
         LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+	LOCAL_ActiveError->errorRawTerm = inp->val.t;
       } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
         LOCAL_Error_TYPE = TYPE_ERROR_STRING;
+	LOCAL_ActiveError->errorRawTerm = inp->val.t;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  inp->type == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
+ 	LOCAL_ActiveError->errorRawTerm = inp->val.t;
         LOCAL_Error_TYPE = TYPE_ERROR_LIST;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  !IsAtomTerm(inp->val.t) && !(inp->type & YAP_STRING_DATUM)) {
         LOCAL_Error_TYPE = TYPE_ERROR_TEXT;
+	LOCAL_ActiveError->errorRawTerm = inp->val.t;
       }
     }
-  if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-    if (inp->val.uc != NULL) {
-	LOCAL_ActiveError->errorRawTerm = MkUStringTerm(inp->val.uc);
-	
-      }
-    Yap_ThrowError(LOCAL_Error_TYPE, LOCAL_ActiveError->errorRawTerm, "Converting to text from term ");
-    return NULL;
   }
-  }
-
   if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
@@ -681,10 +679,10 @@ static Term write_codes(void *s0, seq_tv_t *out USES_REGS) {
 static Atom write_atom(void *s0, seq_tv_t *out USES_REGS) {
   unsigned char *s = s0;
   int32_t ch;
-  size_t leng = strlen(s0);
-  if (leng == 0) {
+  if (s[0] == '\0') {
     return Yap_LookupAtom("");
   }
+  size_t leng = strlen(s0);
   if (strlen_utf8(s0) <= leng) {
     return Yap_LookupAtom(s0);
   } else {
