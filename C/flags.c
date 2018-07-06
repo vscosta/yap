@@ -112,7 +112,7 @@ static Term indexer(Term inp) {
     return TermZERO;
   }
   Yap_Error(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag in {dec10,error,fail,quiet}");
+            "set_prolog_flag index to an atom");
   return TermZERO;
 }
 
