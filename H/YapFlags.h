@@ -144,12 +144,12 @@ static Term synerr(Term inp) {
     return inp;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {dec10,error,fail,quiet}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag in {dec10,error,fail,quiet}");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp,
+            "syntax_error flag must be atom");
   return TermZERO;
 }
 

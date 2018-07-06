@@ -953,10 +953,12 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 
     if (!PL_get_arg(1, t, targ))
       return NULL;
+     // Yap_DebugPlWriteln(YAP_GetFromSlot(t));
     lhs = term_to_python(targ, true, NULL, true);
     AOK(PL_get_arg(2, t, targ), NULL);
     rhs = term_to_python(targ, true, NULL, true);
-    if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
+         Yap_DebugPlWriteln(YAP_GetFromSlot(targ));
+ if (PySequence_Check(lhs) && PySequence_Check(rhs)) {
       return PySequence_Concat(lhs, rhs);
     }
     if (!PyNumber_Check(lhs))
@@ -1034,11 +1036,11 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
           PyDict_SetItem(pyDict, key, val);
         } else {
           indict = false;
-          pArgs = PyTuple_New(i);
+           pArgs = PyTuple_New(i);
         }
       }
-      DebugPrintf("Tuple %p\n", pyDict);
-      if (!indict) {
+      fprintf(stderr,"Tuple %p: %s\n", pyDict, PyUnicode_AsUTF8(PyObject_Str(pyDict)));
+       if (!indict) {
         if (PL_is_variable(tleft)) {
           pArg = Py_None;
         } else {
