@@ -998,7 +998,8 @@ static void CloseStream(int sno) {
 //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
 //                      sno);
   VFS_t *me;
-  if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
+  fprintf( stderr, "- %d\n",sno);
+if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
       GLOBAL_Stream[sno].file == NULL) {
     if (me->close) {
       me->close(sno);

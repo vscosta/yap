@@ -1129,6 +1129,7 @@ static void check_bom(int sno, StreamDesc *st) {
 bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
+                      fprintf(stderr,"+ %s --> %d\n", name, sno);
   StreamDesc *st = &GLOBAL_Stream[sno];
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>",
                         io_mode, CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
