@@ -112,7 +112,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   //  Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
-    if (t == 0) {
+    if (yt == 0) {
       Yap_ThrowError(SYSTEM_ERROR_INTERNAL, yt, "in term_to_python");
     }
     PyObject *out = PyTuple_New(1);
@@ -148,21 +148,20 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     } else if (YAP_IsStringTerm(yt)) {
       s = YAP_StringOfTerm(yt);
     } else {
-      return CHECKNULL(t, NULL);
+     return CHECKNULL(t, NULL);
     }
+      PyObject *pobj = PyUnicode_FromString(s);
+ 
 #if PY_MAJOR_VERSION < 3
     if (proper_ascii_string(s)) {
       PyObject *o = PyString_FromStringAndSize(s, strlen(s));
       return CHECKNULL(t, o);
-    } else
+    } 
 #endif
-    {
       //      char *p = malloc(strlen(s)+1);
       // strcpy(p, s);
-      PyObject *pobj = PyUnicode_FromString(s);
       Py_IncRef(pobj);
       return CHECKNULL(t, pobj);
-    }
   } break;
   case PL_INTEGER: {
     int64_t j;
@@ -406,8 +405,8 @@ PyObject *deref_term_to_python(term_t t) {
   // am\n");
   YAP_Term yt = YAP_GetFromSlot(t);
   if (YAP_IsVarTerm(yt)) {
-    char s[32];
-    char *o = YAP_WriteBuffer(yt, s, 31, 0);
+    char b[1024];
+    char *o = YAP_WriteBuffer(yt, b, 1023, 0);
     PyObject *p = PyUnicode_FromString(o);
     return p;
   }
