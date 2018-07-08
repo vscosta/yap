@@ -23,8 +23,12 @@
 
 :- python_import(sys).
 
-jupyter_query(Caller, Cell, Line ) :-
-	jupyter_cell(Caller, Cell, Line).
+jupyter_query(Caller, Prog, Query ) :-
+	catch(
+	   jupyter_cell(Caller, Prog, Query),
+		 E,
+		 '$Error'(E, top)
+		 ).
 
 jupyter_cell(_Caller, Cell, _Line) :-
 	jupyter_consult(Cell),	%stack_dump,
@@ -33,8 +37,8 @@ jupyter_cell( _Caller, _, '' ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( Caller, _, Line ) :-
-	Self := Caller.query,
+jupyter_cell( Self, _, Line ) :-
+				%Self := Caller.query,
 		       python_query(Self,Line).
 
 restreams(call) :-
@@ -52,143 +56,77 @@ jupyter_consult(Text) :-
 	blank( Text ),
 	!.
 jupyter_consult(Cell) :-
-%	Name = 'Inp',
-%	stream_property(Stream, file_name(Name) ),
-%	setup_call_cleanup(
   open_mem_read_stream( Cell, Stream),
   load_files(user:'jupyter cell',[stream(Stream)]).
 
-blank(Text) :-
-	atom_codes(Text, L),
-	maplist( code_type(space), L).
+	blank(Text) :-
+		atom(Text),
+		!,
+		atom_codes(Text, L),
+		maplist( code_type(space), L).
+		blank(Text) :-
+			string(Text),
+			!,
+			string_codes(Text, L),
+			maplist( code_type(space), L).
 
-:- dynamic cell_stream/1.
 
-streams(false) :-
-    nb_setval(jupyter_cell, false),
-    retract(cell_stream(S)),
-	close(S),
-	fail.
-streams(false).
+	streams(false) :-
+	nb_setval(jupyter_cell, false),
+	close(user_input),
+	close(user_output),
+	close(user_error).
 streams(true) :-
-    streams( false ),
     nb_setval(jupyter_cell, true),
-%    \+ current_stream('/python/input',_,_),
-    open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
-    assert( cell_stream( Input) ),
-    set_prolog_flag(user_input,Input),
-    fail.
-streams(true) :-
-%    \+ current_stream('/python/sys.stdout',_,_),
-    open('/python/sys.stdout', append, Output, [alias(user_output)]),
-    set_prolog_flag(user_output, Output),
-    assert( cell_stream( Output) ),
-    fail.
-streams(true) :-
-    %    \+ current_stream('/python/sys.stderr',_,_),
-    open('/python/sys.stderr', append, Error, [alias(user_error)]),
-    assert( cell_stream( Error) ),
-    set_prolog_flag(user_error, Error),
-    fail.
-streams(true).
+    open('/python/input', read, _Input, [alias(user_input),bom(false),script(false)]),
+    open('/python/sys.stdout', append, _Output, [alias(user_output)]),
+    open('/python/sys.stderr', append, _Error, [alias(user_error)]).
 
-ready(_Self, Line ) :-
-            blank( Line ),
-            !.
-ready(Self, Line ) :-
-    errors( Self, Line ),
-    \+ syntax_error(_,_).
+ready(Self, Cell, P, Q ) :-
+	catch(
+	all_clear(Self, Cell, P, Q)
+ E,
+	 system_error(error,E).
 
-errors( Self, Text ) :-
+all_clear( Self, _Cell, P, Q) :-
+		no_errors( Self, P ),
+		yap_flag(singleton_variables, Old, false)
+		no_errors( Self, Q ).
+
+no_errors( _Self, Text ) :-
+    blank(Text),
+    no_errors( Self, Text ) :-
        	setup_call_cleanup(
-       			   open_events( Self, Text, Stream),
-       			   goals(Self, Stream),
-       			   close_events( Self )
+       			   open_esh( Self, Text, Stream),
+       			   esh(Self, Stream),
+       			   close_esh( Self, Stream )
        	 	   ).
 
-clauses(_Self, Stream) :-
+esh(Self, Stream) :-
     repeat,
-    read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
-%	command( Self, Cl ),
+    catch(
+			read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
+	    Error,
+			syntax(Self, Error)
+			),
     Cl == end_of_file,
     !.
 
-goals(_Self, Stream) :-
-    repeat,
-    read_term(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
-%	command( Self, Cl ),
-    Cl == end_of_file,
-    !.
 
-command(_, end_of_file) :- !.
+		syntax(_Self, E) :- writeln(user_error, E), fail.
+			syntax(Self, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
+				 Self.errors := [t(Cause,LN,CharPos,Details)] + Self.errors,
+				 !.
+			syntax(_Self, E) :- throw(E).
 
-command( _Self, ( :- op(Prio,Assoc,Name) ) ) :-
-	addop(Prio,Assoc,Name).
-
-command( _Self, ( :- module(Name, Exports) )) :-
-	retract( active_module( M0 ) ),
-	atom_concat( '__m0_', Name, M ),
-	assert( active_module(M) ),
-	assert( undo( active_module(M0) ) ),
-	maplist( addop2(M), Exports).
-
-
-addop(Prio,Assoc,Name) :-
-	(
-	current_op(OPrio, SimilarAssoc, Name),
-	op(Prio, Assoc, Name),
-	matched_op(Assoc, SimilarAssoc)
-	->
-		assertz( undo(op( OPrio, Assoc, Name ) ) )
-		;
-		assertz( undo(op( 0, Assoc, Name ) ) )
-		).
-
-addop2(M, op(Prio, Assoc, Name)) :-
-	addop( Prio, Assoc, M:Name ).
-
-matched_op(A, B) :-
-	optype( A, T),
-	optype( B, T).
-
-optype(fx,pre).
-optype(fy,pre).
-optype(xfx,in).
-optype(xfy,in).
-optype(yfx,in).
-optype(yfy,in).
-optype(xf,pos).
-optype(yf,pos).
-
-:- dynamic user:portray_message/2.
-:-  multifile user:portray_message/2.
-
-:- dynamic syntax_error/4, undo/1.
-
-user:portray_message(_Severity, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
-	nb_getval(jupyter_cell, on),
-        assert( syntax_error(Cause,LN,CharPos,Details) ).
-user:portray_message(_Severity, error(style_check(_),_) ) :-
-	nb_getval(jupyter_cell, on).
-
-open_events(Self, Text, Stream) :-
+open_esh(Self, Text, Stream) :-
 	Self.errors := [],
-	nb_setval( jupyter, on),
     open_mem_read_stream( Text, Stream ).
 
 :- initialization( nb_setval( jupyter, off ) ).
 
-close_events( _Self ) :-
-	nb_setval( jupyter, off ),
-	retract( undo(G) ),
-	call(G),
-	fail.
-close_events( Self ) :-
-	retract( syntax_error( C, L, N, A )),
-    Self.errors := [t(C,L,N,A)] + Self.errors,
-    fail.
-close_events( _ ).
-
+close_esh( _Self, Stream ) :-
+    close(Stream).
 
 :- if(  current_prolog_flag(apple, true) ).
 

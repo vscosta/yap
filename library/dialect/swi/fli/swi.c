@@ -70,7 +70,6 @@ Moyle.  All rights reserved.
 
 static atom_t ATOM_nil;
 
-extern int PL_unify_termv(term_t l, va_list args);
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);

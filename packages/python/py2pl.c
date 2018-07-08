@@ -46,11 +46,11 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
   PyObject *dic;
   if (!lookupPySymbol(s, NULL, &dic))
     dic = py_Main;
-                                                      Py_INCREF(e);
+  Py_INCREF(e);
   return PyObject_SetAttrString(dic, s, e) == 0;
 }
 
-foreign_t python_to_term(PyObject *pVal, term_t t) {
+static int python_to_term__(PyObject *pVal, term_t t) {
   bool rc = true;
   term_t to = PL_new_term_ref();
   // fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);
@@ -89,14 +89,17 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
-//    if (PyDict_GetItemString(py_Atoms, s))
-//      rc = rc && PL_unify_atom_chars(t, s);
-//    else
-      rc = rc && PL_unify_atom_chars(t, s);
-    } else if (PyByteArray_Check(pVal)) {
-      rc = rc && PL_unify_string_chars(t, PyByteArray_AsString(pVal));
-  #if PY_MAJOR_VERSION < 3
-    } else if (PyString_Check(pVal)) {
+    //    if (PyDict_GetItemString(py_Atoms, s))
+    //      rc = rc && PL_unify_atom_chars(t, s);
+    //    else
+    rc =
+        rc && (PL_is_string(t) ? PL_unify_string_chars(t, s)
+                               : PL_is_variable(t) ? PL_unify_atom_chars(t, s)
+                                                   : PL_unify_atom_chars(t, s));
+  } else if (PyByteArray_Check(pVal)) {
+    rc = rc && PL_unify_string_chars(t, PyByteArray_AsString(pVal));
+#if PY_MAJOR_VERSION < 3
+  } else if (PyString_Check(pVal)) {
     rc = rc && PL_unify_string_chars(t, PyString_AsString(pVal));
 #endif
   } else if (PyTuple_Check(pVal)) {
@@ -137,7 +140,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
             PyErr_Clear();
             p = Py_None;
           }
-          rc = rc && python_to_term(p, to);
+          rc = rc && python_to_term__(p, to);
         }
       } else {
         rc = false;
@@ -154,7 +157,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       if ((obj = PyList_GetItem(pVal, i)) == NULL) {
         obj = Py_None;
       }
-      rc = rc && python_to_term(obj, to);
+      rc = rc && python_to_term__(obj, to);
       if (!rc)
         return false;
     }
@@ -174,10 +177,10 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
         term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
                tnew = PL_new_term_ref();
         /* do something interesting with the values... */
-        if (!python_to_term(key, tkey)) {
+        if (!python_to_term__(key, tkey)) {
           continue;
         }
-        if (!python_to_term(value, tval)) {
+        if (!python_to_term__(value, tval)) {
           continue;
         }
         /* reuse */
@@ -209,17 +212,25 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
 
   term_t t = PL_new_term_ref();
-  if (pVal == NULL || !python_to_term(pVal, t)) {
+  if (pVal == NULL || !python_to_term__(pVal, t)) {
     PL_reset_term_refs(t);
     return 0;
   }
   YAP_Term tt = YAP_GetFromSlot(t);
   PL_reset_term_refs(t);
-  //Py_DECREF(pVal);
+  // Py_DECREF(pVal);
   return tt;
 }
 
 PyObject *py_Local, *py_Global;
+
+X_API foreign_t python_to_term(PyObject *pVal, term_t t) {
+  yap_error_descriptor_t *ctx = malloc(sizeof(yap_error_descriptor_t));
+  bool newxp = Yap_pushErrorContext(true, ctx);
+  int rc = python_to_term(pVal, t);
+  Yap_popErrorContext(newxp, true);
+  return rc;
+}
 
 /**
  *   assigns the Python RHS to a Prolog term LHS, ie LHS = RHS
@@ -317,7 +328,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         if (PySequence_Check(o) && PyInt_Check(i)) {
           long int j;
           j = PyInt_AsLong(i);
-  return PySequence_SetItem(o, i, exp) == 0;
+          return PySequence_SetItem(o, i, exp) == 0;
         }
 #endif
         if (PyDict_Check(o)) {
