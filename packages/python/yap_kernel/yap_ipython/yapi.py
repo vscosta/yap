@@ -23,11 +23,11 @@ library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
 python_query = namedtuple('python_query', 'query_mgr string')
-jupyter_query = namedtuple('jupyter_query', 'self text query')
+jupyter_query = namedtuple('jupyter_query', 'self text p q')
 enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
-errors = namedtuple('errors', 'self text' )
+errors = namedtuple('errors', 'self text p q' )
 streams = namedtuple('streams', ' text' )
 nostreams = namedtuple('nostreams', ' text' )
 
@@ -114,7 +114,7 @@ class YAPInputSplitter(InputSplitter):
         if not  line:
             line = text.rstrip()
         self.errors = []
-        engine.mgoal(errors(self, line),"user",True)
+        engine.mgoal(errors(self, text ,text,''),"user",True)
         return self.errors != []
 
 
@@ -520,7 +520,7 @@ class YAPRun:
         self.shell.yapeng = self.yapeng
         self._get_exc_info = shell._get_exc_info
 
-    def syntaxErrors(self, text):
+    def syntaxErrors(self, text,program,query):
         """Return whether a legal query
         """
         if not  text:
@@ -528,8 +528,7 @@ class YAPRun:
         if text == self.os:
             return self.errors
         self.errors=[]
-        (text,_,_,_) = self.clean_end(text)
-        self.yapeng.mgoal(errors(self,text),"user",True)
+        self.yapeng.mgoal(errors(self,text,program,query),"user",True)
         return self.errors
 
     def jupyter_query(self, s):
@@ -655,7 +654,8 @@ class YAPRun:
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
         cell = raw_cell  # cell has to exist so it can be stored/logged
-        for i in self.syntaxErrors(raw_cell):
+        (text,program,query,_) = self.clean_end(raw_cell)
+        for i in self.syntaxErrors(raw_cell,raw_cell,''):
             try:
                 (what,lin,_,text) = i
                 e = SyntaxError(what, ("<string>", lin, 1, text))

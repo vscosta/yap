@@ -592,8 +592,9 @@ restart_aux:
 
 
     The predicate holds when at least one of the arguments is
-    ground (otherwise, YAP will generate an error event.   _A_ must be unifiable with an atom, and the
-    argument  _L_ with the list of the character codes for string  _A_.
+    ground (otherwise, YAP will generate an error event.   _A_ must be unifiable
+   with an atom, and the argument  _L_ with the list of the character codes for
+   string  _A_.
 
 
 */
@@ -620,7 +621,7 @@ restart_aux:
     }
     /* error handling */
   } else {
-    Yap_ThrowError(   TYPE_ERROR_ATOM, t1, NULL);
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, NULL);
   }
   if (LOCAL_Error_TYPE && Yap_HandleError("atom_codes/2")) {
     goto restart_aux;
@@ -727,14 +728,14 @@ static Int number_chars(USES_REGS1) {
       pop_text_stack(l);
       return Yap_unify(ARG1, tf);
     }
-      pop_text_stack(l);
+    pop_text_stack(l);
 
     LOCAL_ActiveError->errorRawTerm = 0;
     Yap_ThrowExistingError();
 
     return false;
   }
-        pop_text_stack(l);
+  pop_text_stack(l);
 
   return true;
 }
@@ -1377,7 +1378,7 @@ restart_aux:
     LOCAL_Error_TYPE = TYPE_ERROR_LIST;
   } else {
     seq_tv_t *inpv = (seq_tv_t *)Malloc(n * sizeof(seq_tv_t));
-    seq_tv_t *out = (seq_tv_t *)Malloc( sizeof(seq_tv_t));
+    seq_tv_t *out = (seq_tv_t *)Malloc(sizeof(seq_tv_t));
     int i = 0;
     if (!inpv) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
@@ -1465,9 +1466,7 @@ error:
   if (LOCAL_Error_TYPE && Yap_HandleError("atom_concat/3")) {
     goto restart_aux;
   }
-  {
-    return FALSE;
-  }
+  { return FALSE; }
 }
 
 static Int atomics_to_string2(USES_REGS1) {
@@ -2766,6 +2765,8 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);
   Yap_InitCPred("upcase_atom", 2, upcase_text_to_atom, 0);
+  Yap_InitCPred("text_to_string", 2, downcase_text_to_string, 0);
+  Yap_InitCPred("text_to_atom", 2, downcase_text_to_string, 0);
   Yap_InitCPred("downcase_text_to_string", 2, downcase_text_to_string, 0);
   Yap_InitCPred("upcase_text_to_string", 2, upcase_text_to_string, 0);
   Yap_InitCPred("downcase_text_to_codes", 2, downcase_text_to_codes, 0);
