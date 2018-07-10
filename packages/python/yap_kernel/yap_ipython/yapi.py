@@ -23,11 +23,11 @@ library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
 python_query = namedtuple('python_query', 'query_mgr string')
-jupyter_query = namedtuple('jupyter_query', 'self text p q')
+jupyter_query = namedtuple('jupyter_query', 'self text query')
 enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
-errors = namedtuple('errors', 'self text p q' )
+errors = namedtuple('errors', 'self text' )
 streams = namedtuple('streams', ' text' )
 nostreams = namedtuple('nostreams', ' text' )
 
@@ -114,7 +114,7 @@ class YAPInputSplitter(InputSplitter):
         if not  line:
             line = text.rstrip()
         self.errors = []
-        engine.mgoal(errors(self, text ,text,''),"user",True)
+        engine.mgoal(errors(self, line),"user",True)
         return self.errors != []
 
 
@@ -510,17 +510,16 @@ class YAPRun:
 
     def __init__(self, shell):
         self.shell = shell
-        self.yapeng = Engine()
+        self.yapeng = JupyterEngine()
         global engine
         engine = self.yapeng
-        self.yapeng.goal(use_module(library("jupyter")),True)
         self.query = None
         self.os = None
         self.it = None
         self.shell.yapeng = self.yapeng
         self._get_exc_info = shell._get_exc_info
 
-    def syntaxErrors(self, text,program,query):
+    def syntaxErrors(self, text):
         """Return whether a legal query
         """
         if not  text:
@@ -528,7 +527,8 @@ class YAPRun:
         if text == self.os:
             return self.errors
         self.errors=[]
-        self.yapeng.mgoal(errors(self,text,program,query),"user",True)
+        (text,_,_,_) = self.clean_end(text)
+        self.yapeng.mgoal(errors(self,text),"user",True)
         return self.errors
 
     def jupyter_query(self, s):
@@ -572,7 +572,6 @@ class YAPRun:
         except Exception as e:
             sys.stderr.write('Exception after', self.bindings, '\n')
             has_raised = True
-            self.yapeng.mgoal(streams(False),"user", True)
             return False,[]
 
 
@@ -654,8 +653,7 @@ class YAPRun:
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
         cell = raw_cell  # cell has to exist so it can be stored/logged
-        (text,program,query,_) = self.clean_end(raw_cell)
-        for i in self.syntaxErrors(raw_cell,raw_cell,''):
+        for i in self.syntaxErrors(raw_cell):
             try:
                 (what,lin,_,text) = i
                 e = SyntaxError(what, ("<string>", lin, 1, text))
@@ -730,13 +728,13 @@ class YAPRun:
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
             self.result.result    = (True, dicts)
-            self.yapeng.mgoal(streams(False),"user", True)
 
         except Exception as e:
             has_raised = True
             self.result.result = False
             self.yapeng.mgoal(streams(False),"user", True)
 
+        self.yapeng.mgoal(streams(False),"user", True)
         self.shell.last_execution_succeeded = not has_raised
 
         # Reset this so later displayed values do not modify the

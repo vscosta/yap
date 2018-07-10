@@ -1298,7 +1298,7 @@ INLINE_ONLY bool IsFlagProperty(PropFlags flags) {
 /* Proto types */
 
 
-extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+extern char *Yap_TermToBuffer(Term t, int flags);
 
 extern Term Yap_BufferToTerm(const  char *s, Term opts);
 

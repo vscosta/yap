@@ -89,7 +89,7 @@ extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 extern int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc);
 extern int Yap_FileStream(FILE*, char *, Term, int, VFS_t *);
-extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+extern char *Yap_TermToBuffer(Term t, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);

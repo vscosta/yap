@@ -259,11 +259,11 @@ location( error(_,Info), Level, LC ) -->
 
     { '$error_descriptor'(Info, Desc) },
    {
-   '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
+   query_exception(prologPredFile, Desc, File),
+	query_exception(prologPredLine, Desc, FilePos),
+	query_exception(prologPredModule, Desc, M),
+	query_exception(prologPredName, Desc, Na),
+	query_exception(prologPredArity, Desc, Ar)
 	},
   !,
   display_consulting( File, Level, Info, LC ),
@@ -271,9 +271,9 @@ location( error(_,Info), Level, LC ) -->
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
    {
-   '$query_exception'(errorFile, Desc, File),
-	'$query_exception'(errorLine, Desc, FilePos),
-	'$query_exception'(errorFunction, Desc, F)
+   query_exception(errorFile, Desc, File),
+	query_exception(errorLine, Desc, FilePos),
+	query_exception(errorFunction, Desc, F)
 	},
   !,
   display_consulting( File, Level, Info,  LC ),
@@ -295,6 +295,10 @@ main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term
 	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
 	    [nl]
 	  ).
+main_message( error(syntax_error(_Msg), Info), Level, LC ) -->
+	!,
+	[' ~a: syntax error ~s' - [Level,Msg]],
+	[nl].
 main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
     !,
 %    {writeln(ci)},
@@ -342,8 +346,8 @@ main_message(error(uninstantiation_error(T),_), Level, _LC) -->
 display_consulting( F, Level, Info, LC) -->
     {  LC > 0,
        '$error_descriptor'(Info, Desc),
-       '$query_exception'(prologParserFile, Desc, F0),
-       '$query_exception'(prologarserLine, Desc, L),
+       query_exception(prologParserFile, Desc, F0),
+       query_exception(prologarserLine, Desc, L),
        F \= F0
     }, !,
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
@@ -358,7 +362,7 @@ display_consulting(_F, _, _, _LC) -->
 
 caller( Info, _) -->
         { '$error_descriptor'(Info, Desc) },
-        ({   '$query_exception'(errorGoal, Desc, Call),
+        ({   query_exception(errorGoal, Desc, Call),
          	Call = M:(H :- G)
           }
           ->
@@ -372,12 +376,12 @@ caller( Info, _) -->
           ;
           []
         ),
-	{ '$query_exception'(prologPredFile, Desc, File),
+	{ query_exception(prologPredFile, Desc, File),
 	File \= [],
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
+	query_exception(prologPredLine, Desc, FilePos),
+	query_exception(prologPredModule, Desc, M),
+	query_exception(prologPredName, Desc, Na),
+	query_exception(prologPredArity, Desc, Ar)
 	},
 	!,
 	  [nl],
@@ -388,10 +392,10 @@ caller( _, _) -->
 
 c_goal( Info, Level ) -->
 { '$error_descriptor'(Info, Desc) },
-    { '$query_exception'(errorFile, Desc, File),
+    { query_exception(errorFile, Desc, File),
       Func \= [],
-      '$query_exception'(errorFunction, Desc, File),
-      '$query_exception'(errorLine, Desc, Line)
+      query_exception(errorFunction, Desc, File),
+      query_exception(errorLine, Desc, Line)
       },
 	!,
 	['~*|~a raised at C-function ~a() in ~a:~d:0: '-[10, Level, Func, File, Line]],
@@ -620,7 +624,7 @@ domain_error(Domain, Opt) -->
 
 extra_info( error(_,Extra), _ ) -->
     {
-	 '$query_exception'(prologPredFile, Extra, Msg),
+	 query_exception(prologPredFile, Extra, Msg),
 	 Msg \= []
     },
     !,
@@ -1048,6 +1052,12 @@ prolog:print_message(_Severity, _Term) :-
 
 '$error_descriptor'( exception(Info), Info ).
 
+query_exception(K0,[H|L],V) :-
+    (atom(K0) -> atom_to_string(K0, K) ; K = K0),
+    !,
+    lists:member(K=V,[H|L]).
+query_exception(K,V) :-
+    '$query_exception'(K,V).
 
 /**
   @}

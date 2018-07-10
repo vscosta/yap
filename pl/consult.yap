@@ -221,7 +221,9 @@ SWI-compatible option where if _Autoload_ is `true` undefined
 % register(true, false) => implemented
 %
 load_files(Files,Opts) :-
-	'$load_files'(Files,Opts,load_files(Files,Opts)).
+    once( '$load_files'(Files,Opts,load_files(Files,Opts)) ),
+    fail.
+load_files(_Files,_Opts).
 
 '$lf_option'(autoload, 1, false).
 '$lf_option'(derived_from, 2, false).
@@ -272,13 +274,12 @@ load_files(Files,Opts) :-
 	setarg( Id, TOpts, Val ).
 
 '$load_files'(Files, Opts, Call) :-
-	( '__NB_getval__'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
-	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
+	( '__NB_getval__'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) -	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
 	;
 	   '$lf_option'(last_opt, LastOpt),
 	    functor( OldTOpts, opt, LastOpt ),
-       '$lf_opt'('$context_module', OldTOpts, user)
-     ),
+	    '$lf_opt'('$context_module', OldTOpts, user)
+	),
  	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),
 	( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
@@ -544,10 +545,10 @@ When the files are not module files, ensure_loaded/1 loads them
  _F_ must be a list containing the names of the files to load.
 */
 ensure_loaded(Fs) :-
-	'$load_files'(Fs, [if(not_loaded)],ensure_loaded(Fs)).
+	load_files(Fs, [if(not_loaded)]).
 
 compile(Fs) :-
-	'$load_files'(Fs, [], compile(Fs)).
+	load_files(Fs, []).
 
 /**
  @pred [ _F_ ]
@@ -581,9 +582,9 @@ consult(Fs) :-
 '$consult'(Fs,Module) :-
 	current_prolog_flag(language_mode, iso), % SICStus Prolog compatibility
 	!,
-	'$load_files'(Module:Fs,[],consult(Fs)).
+	load_files(Module:Fs,[]).
 '$consult'(Fs, Module) :-
-	'$load_files'(Module:Fs,[consult(consult)],consult(Fs)).
+    load_files(Module:Fs,[consult(consult)]).
 
 
 /**
@@ -616,7 +617,7 @@ Example:
 
 */
 reconsult(Fs) :-
-	'$load_files'(Fs, [], reconsult(Fs)).
+	load_files(Fs, []).
 
 
 /* exo_files(+ _Files_)
@@ -636,7 +637,7 @@ different forms of indexing, as shown in @cite x.
 */
 
 exo_files(Fs) :-
-	'$load_files'(Fs, [consult(exo), if(not_loaded)], exo_files(Fs)).
+	load_files(Fs, [consult(exo), if(not_loaded)]).
 
 /**
 
@@ -667,7 +668,7 @@ YAP implements load_db/1 as a two-step non-optimised process. First,
    db_files/1 itself is just a call to load_files/2.
 */
 db_files(Fs) :-
-	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
+    load_files(Fs, [consult(db), if(not_loaded)]).
 
 
 '$csult'(Fs, _M) :-
@@ -677,9 +678,9 @@ db_files(Fs) :-
 	 !.
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
-	'$load_files'(M:MFs,[],[M:Fs]).
+	load_files(M:MFs,[]).
 '$csult'(Fs, M) :-
-	'$load_files'(M:Fs,[consult(consult)],[M:Fs]).
+	load_files(M:Fs,[consult(consult)]).
 
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-

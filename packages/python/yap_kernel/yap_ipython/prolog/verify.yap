@@ -22,45 +22,41 @@ s  %           completion/2,
 
 :- python_import(sys).
 
-all_clear( Self, _Cell, P, Q) :-
-    no_errors( Self, P ),
-    yap_flag(singleton_variables, Old, false),
-    no_errors( Self, Q ),
-    yap_flag(singleton_variables, _, Old).
+p_errors( Errors, Cell) :-
+  blank( Cell ),
+  !.
+p_errors( Errors, Cell) :-
+    no_errors( Errors , Cell ).
 
-no_errors( _Self, Text ) :-
+no_errors( _Errors , Text ) :-
     blank(Text).
-no_errors( Self, Text ) :-
+no_errors( Errors , Text ) :-
     setup_call_cleanup(
-       	open_esh( Self, Text, Stream),
-       	esh(Self, Stream),
-       	close_esh( Self, Stream )
+       	open_esh( Errors , Text, Stream),
+       	esh(Errors , Stream),
+       	close_esh( Errors , Stream )
     ).
 
-syntax(_Self, E) :- writeln(user_error, E), fail.
-syntax(Self, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
-    Self.errors := [t(Cause,LN,CharPos,Details)] + Self.errors,
+syntax(_Errors , E) :- writeln(user_error, E), fail.
+syntax(Errors , error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
+    Errors.errors := [t(Cause,LN,CharPos,Details)] + Errors.errors,
 							!.
-syntax(_Self, E) :- throw(E).
+syntax(_Errors , E) :- throw(E).
 
-open_esh(Self, Text, Stream) :-
-	Self.errors := [],
+open_esh(_Errors , Text, Stream) :-
 	     open_mem_read_stream( Text, Stream ).
 
-esh(Self, Stream) :-
+esh(Errors , Stream) :-
     repeat,
-    catch(
+  catch(
 	read_clause(Stream, Cl, [term_position(_Pos), syntax_errors(fail)] ),
 	Error,
-	syntax(Self, Error)
+	syntax(Errors , Error)
     ),
     Cl == end_of_file,
-    !,
-    V := Self.errors,
-	      V == [].
+    !.
 
 
 
-close_esh( _Self, Stream ) :-
+close_esh( _Errors , Stream ) :-
     close(Stream).
-
