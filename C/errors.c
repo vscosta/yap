@@ -324,7 +324,7 @@ bool Yap_PrintWarning(Term twarning) {
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " warning(%s)",
-                        Yap_TermToBuffer(twarning, ENC_ISO_UTF8,Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f));
+                        Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
   Term ts[2], err;
@@ -332,7 +332,7 @@ bool Yap_PrintWarning(Term twarning) {
   if (LOCAL_PrologMode & InErrorMode && LOCAL_ActiveError &&
       (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
-            Yap_TermToBuffer(twarning, ENC_ISO_UTF8,
+            Yap_TermToBuffer(twarning,
                              Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f),
             Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
     return false;
@@ -648,7 +648,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->culprit = NULL;
   } else {
     r->culprit = Yap_TermToBuffer(
-        where, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+        where, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
   }
   if (LOCAL_consult_level > 0) {
     r->prologParserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
@@ -1149,7 +1149,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
       n = t2;
     }
     i->errorGoal = Yap_TermToBuffer(
-        n, ENC_ISO_UTF8, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+        n, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
   }
   Yap_prolog_add_culprit(i PASS_REGS);
   return i;

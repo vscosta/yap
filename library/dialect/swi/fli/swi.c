@@ -70,7 +70,6 @@ Moyle.  All rights reserved.
 
 static atom_t ATOM_nil;
 
-extern int PL_unify_termv(term_t l, va_list args);
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
@@ -818,6 +817,14 @@ X_API int PL_unify_bool(term_t t, int a) {
   return Yap_unify(Yap_GetFromSlot(t), iterm);
 }
 
+X_API int PL_put_bool(term_t t, int a) {
+  CACHE_REGS
+    CELL *pt = Yap_AddressFromHandle( t );
+  Term iterm = (a ? MkAtomTerm(AtomTrue) : MkAtomTerm(AtomFalse));
+  *pt = iterm;
+  return true;
+}
+
 #if USE_GMP
 
 /*******************************
@@ -1273,7 +1280,7 @@ YAP: NO EQUIVALENT */
 X_API int PL_raise_exception(term_t exception) {
   CACHE_REGS
   LOCAL_Error_TYPE = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(Yap_GetFromHandle(exception), LOCAL_encoding, TermNil);
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(Yap_GetFromHandle(exception), 0);
   //Yap_PutException(Yap_GetFromSlot(exception));
   Yap_RaiseException();
   return 0;
@@ -1321,7 +1328,7 @@ X_API int PL_unify_atom_chars(term_t t, const char *s) {
   Atom at;
   while ((at = Yap_CharsToAtom(s, ENC_ISO_LATIN1 PASS_REGS)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError("PL_unify_atom_nchars"))
-      return FALSE;
+      return true;
   }
   Yap_AtomIncreaseHold(at);
   return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(at));

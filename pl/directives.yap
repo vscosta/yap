@@ -176,23 +176,23 @@ considered.
 '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
 	set_prolog_flag(F,V).
 '$exec_directive'(ensure_loaded(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [if(changed)], ensure_loaded(Fs)).
+    load_files(M:Fs, [if(changed)]).
 '$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M, _, _) :-
 	'$public'(P, M).
 '$exec_directive'(compile(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [], compile(Fs)).
+    load_files(M:Fs, []).
 '$exec_directive'(reconsult(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [], reconsult(Fs)).
+	load_files(M:Fs, []).
 '$exec_directive'(consult(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [consult(consult)], consult(Fs)).
+	load_files(M:Fs, [consult(consult)]).
 '$exec_directive'(use_module(F), _, M, _, _) :-
 	use_module(M:F).
 '$exec_directive'(reexport(F), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)], reexport(F)).
+	load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
-	'$load_files'(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)], reexport(F, Spec)).
+	load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-

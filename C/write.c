@@ -1255,9 +1255,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   pop_text_stack(lvl);
 }
 
-char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
+char *Yap_TermToBuffer(Term t,  int flags) {
   CACHE_REGS
-  int sno = Yap_open_buf_write_stream(enc, flags);
+  int sno = Yap_open_buf_write_stream(LOCAL_encoding,flags);
   const char *sf;
 
   if (sno < 0)
@@ -1266,17 +1266,13 @@ char *Yap_TermToBuffer(Term t, encoding_t enc, int flags) {
     return NULL;
   else
     t = Deref(t);
-  if (enc)
-    GLOBAL_Stream[sno].encoding = enc;
-  else
-    GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
 
   sf = Yap_MemExportStreamPtr(sno);
   size_t len = strlen(sf);
-  char *new = malloc(len + 1);
-  strcpy(new, sf);
+  char *new = realloc((void*)sf,len + 1);
   Yap_CloseStream(sno);
   return new;
 }

@@ -41,6 +41,18 @@ class Engine( YAPEngine ):
             self.goal(release)
 
 
+class JupyterEngine( Engine ):
+
+    def __init__(self, args=None,self_contained=False,**kwargs):
+        # type: (object) -> object
+        if not args:
+            args = EngineArgs(**kwargs)
+        args.jupyter = True
+        Engine.__init__(self, args)
+        self.goal(set_prolog_flag('verbose', 'silent'),True)
+        self.goal(compile(library('jupyter')), True)
+        self.goal(set_prolog_flag('verbose', 'normal'), True)
+
 class EngineArgs( YAPEngineArgs ):
     """ Interface to Engine Options class"""
     def __init__(self, args=None,**kwargs):

@@ -35,6 +35,7 @@ extern int Yap_HasOp(Atom);
 extern struct operator_entry *
      Yap_GetOpPropForAModuleHavingALock(struct AtomEntryStruct *, Term);
 extern Atom Yap_LookupAtom(const char *);
+extern Atom Yap_AtomInUse(const char *atom);
 extern Atom Yap_ULookupAtom(const unsigned char *);
 extern Atom Yap_LookupAtomWithLength(const char *, size_t);
 extern Atom Yap_FullLookupAtom(const char *);

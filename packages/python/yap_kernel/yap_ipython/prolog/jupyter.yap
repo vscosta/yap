@@ -4,6 +4,7 @@
   * @brief JUpyter support.
   */
 
+:- yap_flag(gc_trace,verbose).
 
   % :- module( jupyter,
   %            [jupyter_query/3,
@@ -35,7 +36,12 @@ jupyter_cell( _Caller, _, Line ) :-
 	!.
 jupyter_cell( Caller, _, Line ) :-
 	Self := Caller.query,
-		       python_query(Self,Line).
+    catch(
+	python_query(Self,Line),
+	E=error(A,B),
+	 system_error(A,B)
+    ).
+jupyter_cell(_,_,_).
 
 restreams(call) :-
     streams(true).
@@ -55,43 +61,37 @@ jupyter_consult(Cell) :-
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),
 %	setup_call_cleanup(
-  open_mem_read_stream( Cell, Stream),
-  load_files(user:'jupyter cell',[stream(Stream)]),
-                     close(Stream).
+    catch(
+	(
+	    Options = [],
+	    open_mem_read_stream( Cell, Stream),
+	    load_files(user:'jupyter cell',[stream(Stream)| Options])
+	),
+	E=error(A,B),
+	(close(Stream), system_error(A,B))
+    ),
+    fail.
+jupyter_consult(_Cell).
 
 blank(Text) :-
+    atom(Text),
+    !,
 	atom_codes(Text, L),
 	maplist( code_type(space), L).
-
-:- dynamic cell_stream/1.
+blank(Text) :-
+    string(Text),
+    !,
+    string_codes(Text, L),
+    maplist( code_type(space), L).
 
 streams(false) :-
-    nb_setval(jupyter_cell, false),
-    retract(cell_stream(S)),
-	close(S),
-	fail.
-streams(false).
+    close(user_input),
+    close(user_output),
+    close(user_error).
 streams(true) :-
-    streams( false ),
-    nb_setval(jupyter_cell, true),
-%    \+ current_stream('/python/input',_,_),
     open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
-    assert( cell_stream( Input) ),
-    set_prolog_flag(user_input,Input),
-    fail.
-streams(true) :-
-%    \+ current_stream('/python/sys.stdout',_,_),
     open('/python/sys.stdout', append, Output, [alias(user_output)]),
-    set_prolog_flag(user_output, Output),
-    assert( cell_stream( Output) ),
-    fail.
-streams(true) :-
-    %    \+ current_stream('/python/sys.stderr',_,_),
-    open('/python/sys.stderr', append, Error, [alias(user_error)]),
-    assert( cell_stream( Error) ),
-    set_prolog_flag(user_error, Error),
-    fail.
-streams(true).
+    open('/python/sys.stderr', append, Error, [alias(user_error)]).
 
 ready(_Self, Line ) :-
             blank( Line ),
@@ -208,4 +208,3 @@ plot_inline :-
 :- endif.
 
 :- ( start_low_level_trace ).
-

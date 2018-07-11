@@ -672,7 +672,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    s = Yap_TermToBuffer(ARG1, LOCAL_encoding, Quote_illegal_f | Handle_vars_f);
+    s = Yap_TermToBuffer(t1, Quote_illegal_f | Handle_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_Error(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -692,7 +692,7 @@ static Int term_to_atom(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   Atom at;
   if (IsVarTerm(t2)) {
-    const char *s = Yap_TermToBuffer(Deref(ARG1), LOCAL_encoding,
+    const char *s = Yap_TermToBuffer(Deref(ARG1),
                                      Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s))) {
       Yap_Error(RESOURCE_ERROR_HEAP, t2,
