@@ -274,40 +274,44 @@ load_files(_Files,_Opts).
 	setarg( Id, TOpts, Val ).
 
 '$load_files'(Files, Opts, Call) :-
-	( '__NB_getval__'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) -	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
-	;
-	   '$lf_option'(last_opt, LastOpt),
-	    functor( OldTOpts, opt, LastOpt ),
-	    '$lf_opt'('$context_module', OldTOpts, user)
-	),
- 	'$lf_option'(last_opt, LastOpt),
-	functor( TOpts, opt, LastOpt ),
-	( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$lf_opt'('$files', TOpts, Files),
-	'$lf_opt'('$call', TOpts, Call),
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	'$process_lf_opts'(Opts,TOpts,Files,Call),
-	'$lf_default_opts'(1, LastOpt, TOpts),
-        '$lf_opt'(stream, TOpts, Stream),
-        (  nonvar(Stream) ->
-           '$set_lf_opt'('$from_stream', TOpts, true )
-       ;
-       '$check_files'(Files,load_files(Files,Opts))
-            ),
-	'$check_use_module'(Call,UseModule),
-	'$lf_opt'('$use_module', TOpts, UseModule),
-        '$current_module'(M0),
-        ( '$lf_opt'(autoload, TOpts, Autoload),
-          var(Autoload) ->
-          Autoload = OldAutoload
-       ;
-          true
-        ),
-        % make sure we can run consult
-	'$init_consult',
-	'$lf'(Files, M0, Call, TOpts).
+    '$lf_option'(last_opt, LastOpt),
+    ( '__NB_getval__'('$lf_status', OldTOpts, fail),
+      nonvar(OldTOpts)
+    ->
+      '$lf_opt'(autoload, OldTOpts, OldAutoload)
+    ;
+     current_prolog_flag(autoload, OldAutoload),
+     functor( OldTOpts, opt, LastOpt ),
+     '$lf_opt'(autoload, OldTOpts, OldAutoload),
+     '$lf_opt'('$context_module', OldTOpts, user)
+    ),
+    functor( TOpts, opt, LastOpt ),
+    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$lf_opt'('$files', TOpts, Files),
+    '$lf_opt'('$call', TOpts, Call),
+    '$lf_opt'('$options', TOpts, Opts),
+    '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+    '$process_lf_opts'(Opts,TOpts,Files,Call),
+    '$lf_default_opts'(1, LastOpt, TOpts),
+    '$lf_opt'(stream, TOpts, Stream),
+    (  nonvar(Stream) ->
+       '$set_lf_opt'('$from_stream', TOpts, true )
+    ;
+    '$check_files'(Files,load_files(Files,Opts))
+    ),
+    '$check_use_module'(Call,UseModule),
+    '$lf_opt'('$use_module', TOpts, UseModule),
+    '$current_module'(M0),
+    ( '$lf_opt'(autoload, TOpts, Autoload),
+      var(Autoload) ->
+      Autoload = OldAutoload
+    ;
+    true
+    ),
+    % make sure we can run consult
+    '$init_consult',
+    '$lf'(Files, M0, Call, TOpts).
 
 '$check_files'(Files, Call) :-
 	var(Files), !,
