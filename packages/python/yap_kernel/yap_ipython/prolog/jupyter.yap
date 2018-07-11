@@ -207,4 +207,4 @@ plot_inline :-
 
 :- endif.
 
-%:- ( start_low_level_trace ).
+:- ( start_low_level_trace ).
