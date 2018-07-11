@@ -56,7 +56,8 @@ jupyter_consult(Cell) :-
 %	stream_property(Stream, file_name(Name) ),
 %	setup_call_cleanup(
   open_mem_read_stream( Cell, Stream),
-  load_files(user:'jupyter cell',[stream(Stream)]).
+  load_files(user:'jupyter cell',[stream(Stream)]),
+                     close(Stream).
 
 blank(Text) :-
 	atom_codes(Text, L),
@@ -206,4 +207,5 @@ plot_inline :-
 
 :- endif.
 
-%:- ( start_low_level_trace ).
+:- ( start_low_level_trace ).
+

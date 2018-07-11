@@ -326,6 +326,8 @@ add_custom_target(YAP_KERNEL ALL
         COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
+        ERROR_VARIABLE setupErr
+        OUTPUT_VARIABLE setupOut
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
       install(FILES ${PL_SOURCES} DESTINATION ${libpl} )
