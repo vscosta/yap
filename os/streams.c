@@ -683,7 +683,7 @@ static xarg *generate_property(int sno, Term t2,
 }
 
 static Int cont_stream_property(USES_REGS1) { /* current_stream */
-  bool det;
+  bool det = false;
   xarg *args;
   int i = IntOfTerm(EXTRA_CBACK_ARG(2, 1));
   stream_property_choices_t p = STREAM_PROPERTY_END;
@@ -705,7 +705,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       if (LOCAL_Error_TYPE == DOMAIN_ERROR_GENERIC_ARGUMENT)
         LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM_PROPERTY_OPTION;
-      Yap_Error(LOCAL_Error_TYPE, t2, NULL);
+      Yap_ThrowError(LOCAL_Error_TYPE, t2, NULL);
       return false;
     }
     cut_fail();
@@ -714,16 +714,17 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
   if (IsAtomTerm(args[STREAM_PROPERTY_ALIAS].tvalue)) {
     // one solution only
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
-    free(args) UNLOCK(GLOBAL_Stream[i].streamlock);
+    UNLOCK(GLOBAL_Stream[i].streamlock);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
+    free(args);
       cut_fail();
     }
-    cut_succeed();
+    det = true;
   }
   LOCK(GLOBAL_Stream[i].streamlock);
   rc = do_stream_property(i, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[i].streamlock);
-  if (IsVarTerm(t1)) {
+  if (!det && IsVarTerm(t1)) {
     if (rc)
       rc = Yap_unify(ARG1, Yap_MkStream(i));
     if (p == STREAM_PROPERTY_END) {
@@ -743,7 +744,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     }
   } else {
     // done
-    det = (p == STREAM_PROPERTY_END);
+    det = det || (p == STREAM_PROPERTY_END);
   }
   free(args);
   if (rc) {

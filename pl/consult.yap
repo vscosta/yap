@@ -220,10 +220,10 @@ SWI-compatible option where if _Autoload_ is `true` undefined
 % compilation_mode(compact,source,assert_all) => implemented
 % register(true, false) => implemented
 %
-load_files(Files,Opts) :-
-    once( '$load_files'(Files,Opts,load_files(Files,Opts)) ),
-    fail.
-load_files(_Files,_Opts).
+load_files(Files0,Opts) :-
+    '$yap_strip_module'(Files0,M,Files),
+    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
+
 
 '$lf_option'(autoload, 1, false).
 '$lf_option'(derived_from, 2, false).
@@ -234,7 +234,14 @@ load_files(_Files,_Opts).
 '$lf_option'(qcompile, 7, Current) :-
     '__NB_getval__'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
-'$lf_option'(skip_unix_header, 9, true).
+'$lf_option'(skip_unix_header, 9, Skip) :-
+    stream_property(Stream,[alias(loop_stream),tty(TTy),reposition(Rep)]),
+    ( Rep == true
+    ->
+	     (TTy = true   -> Skip = false ; Skip = true)
+      ;
+      Skip = false
+      ).
 '$lf_option'(compilation_mode, 10, Flag) :-
 	current_prolog_flag(source, YFlag),
 	( YFlag == false -> Flag = compact ; Flag = source ).
@@ -273,17 +280,43 @@ load_files(_Files,_Opts).
 	'$lf_option'(Op, Id, _),
 	setarg( Id, TOpts, Val ).
 
-'$load_files'(Files, Opts, Call) :-
+'$load_files'([user], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [stream(S)|Opts], Call).
+'$load_files'(user, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [stream(S)|Opts], Call).
+'$load_files'([-user], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(-user, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'([user_input], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [stream(S)|Opts], Call).
+'$load_files'(user_input, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [stream(S)|Opts], Call).
+'$load_files'([-user_input], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(-user_input, M,Opts, Call) :-
+    '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(Files, M, Opts, Call) :-
+    '$load_files__'(Files, M, Opts, Call).
+'$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     ( '__NB_getval__'('$lf_status', OldTOpts, fail),
       nonvar(OldTOpts)
     ->
-      '$lf_opt'(autoload, OldTOpts, OldAutoload)
+    '$lf_opt'(autoload, OldTOpts, OldAutoload),
+         '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ;
      current_prolog_flag(autoload, OldAutoload),
      functor( OldTOpts, opt, LastOpt ),
      '$lf_opt'(autoload, OldTOpts, OldAutoload),
-     '$lf_opt'('$context_module', OldTOpts, user)
+     '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ),
     functor( TOpts, opt, LastOpt ),
     ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
@@ -302,7 +335,6 @@ load_files(_Files,_Opts).
     ),
     '$check_use_module'(Call,UseModule),
     '$lf_opt'('$use_module', TOpts, UseModule),
-    '$current_module'(M0),
     ( '$lf_opt'(autoload, TOpts, Autoload),
       var(Autoload) ->
       Autoload = OldAutoload
@@ -311,7 +343,7 @@ load_files(_Files,_Opts).
     ),
     % make sure we can run consult
     '$init_consult',
-    '$lf'(Files, M0, Call, TOpts).
+    '$lf'(Files, M, Call, TOpts).
 
 '$check_files'(Files, Call) :-
 	var(Files), !,
@@ -433,32 +465,12 @@ load_files(_Files,_Opts).
 '$lf'(V,_,Call, _ ) :-   var(V), !,
 	'$do_error'(instantiation_error,Call).
 '$lf'([], _, _, _) :- !.
-'$lf'(M:X, _, Call, TOpts) :- !,
-	(
-	  atom(M)
-	->
-	 '$lf'(X, M, Call, TOpts)
-	  ;
-	  '$do_error'(type_error(atom,M),Call)
-	).
 '$lf'([F|Fs], Mod, Call, TOpts) :- !,
 	% clean up after each consult
 	( '$lf'(F,Mod,Call, TOpts), fail;
 	  '$lf'(Fs, Mod, Call, TOpts), fail;
 	  true
 	).
-'$lf'(user, Mod, Call, TOpts) :-
-    !,
-    stream_property( S, alias( user_input )),
-    '$set_lf_opt'('$from_stream', TOpts, true),
-    '$set_lf_opt'( stream , TOpts, S),
-	'$lf'(S, Mod, Call, TOpts).
-'$lf'(user_input, Mod, Call,  TOpts ) :-
- !,
- stream_property( S, alias( user_input )),
- '$set_lf_opt'('$from_stream', TOpts, true),
- '$set_lf_opt'( stream , TOpts, S),
- '$lf'(S, Mod, Call, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
 	'$lf_opt'(stream, TOpts, Stream),
 	b_setval('$user_source_file', File),
@@ -1104,7 +1116,7 @@ just goes through every loaded file and verifies whether reloading is needed.
 
 make :-
 	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
-	'$load_files'(F1, [if(changed)],make),
+	load_files(F1, [if(changed)]),
 	fail.
 make.
 
@@ -1265,11 +1277,11 @@ use_module(M,F,Is) :-
 '$use_module'(M,M1,F,Is) :-
 	nonvar(F), !,
 	( var(M) ->
-    '$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
+	  load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)]),
 	   absolute_file_name( F, F1, [expand(true),file_type(prolog)] ),
 	  recorded('$module','$module'(F1,M,_,_,_),_)
 ;
-'$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
 	).
 '$use_module'(M,M1,F,Is) :-
 	nonvar(M), !,
@@ -1277,11 +1289,11 @@ use_module(M,F,Is) :-
 	(
 	    recorded('$module','$module'(F0,M,_,_,_),_)
 	->
-	    '$load_files'(M1:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+	    load_files(M1:F0, [if(not_loaded),must_be_module(true),imports(Is)])
       ;
       nonvar(F0)
       ->
-      '$load_files'(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
+      load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)])
       ;
       '$do_error'(instantiation_error,use_module(M,F,Is))
 	).

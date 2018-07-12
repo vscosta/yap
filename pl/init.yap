@@ -40,8 +40,13 @@
     nb_setval('$initialization_goals',off),
     nb_setval('$included_file',[]),
     nb_setval('$loop_streams',[]),
-    \+ '$undefined'('$init_preds',prolog),
-    '$init_preds'.
+    (
+	'$undefined'('$init_preds',prolog)
+    ->
+    true
+    ;
+    '$init_preds'
+	).
 
 '$init_win_graphics' :-
     '$undefined'(window_title(_,_), system), !.
