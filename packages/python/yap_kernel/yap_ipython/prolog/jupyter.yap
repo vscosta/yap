@@ -41,7 +41,6 @@ jupyter_cell( Caller, _, Line ) :-
 	E=error(A,B),
 	 system_error(A,B)
     ).
-jupyter_cell(_,_,_).
 
 restreams(call) :-
     streams(true).
@@ -207,4 +206,4 @@ plot_inline :-
 
 :- endif.
 
-:- ( start_low_level_trace ).
+%:- ( start_low_level_trace ).

@@ -519,7 +519,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
   // PyThreadState *_save;
 
-  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
@@ -553,7 +553,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
 
   YAP_LeaveGoal(result && !release, &q);
   //      PyEval_RestoreThread(_save);

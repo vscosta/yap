@@ -532,8 +532,10 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
   }
 #endif
   if (inp->type & YAP_STRING_TERM) {
-    // Yap_DebugPlWriteln(inp->val.t);
-    char *s = (char *)Yap_TermToBuffer(inp->val.t, 0);
+    // Yap_DebugPlWriteln(inp->val.t
+    return inp->val.c = (char *)Yap_TermToBuffer(inp->val.t, 0);
+    pop_text_stack(lvl);
+    return inp->val.c;
  }
   if (inp->type & YAP_STRING_CHARS) {
     pop_text_stack(lvl);

@@ -203,13 +203,13 @@ static bool consult(const char *b_file USES_REGS) {
     } else {
      YAP_CompileClause(t);
     }
-  } while (true);
     yap_error_descriptor_t *errd;
     if ((errd =
 	 Yap_GetException(LOCAL_ActiveError))) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
               errd->errorAsText);
     }
+  } while (true);
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);
   if (!Yap_AddAlias(AtomLoopStream, osno)) {

@@ -121,9 +121,11 @@ print_message(L,E) :-
 	).
 
 '$undefp0'([M|G], _Action) :-
-    stream_property( loop_stream, file_name(F)),
-    stream_property( loop_stream, line_number(L)),
-	format(user_error,'~a:~d error undefined: call to ~w~n',[F,L,M:G]),
+    stream_property( loop_stream, [file_name(F), line_number(L)]),
+    format(user_error,'~a:~d error undefined:',[F,L]),
+    fail
+    ;
+    format(user_error,' call to ~w~n',[M:G]),
 	fail.
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).
