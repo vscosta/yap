@@ -33,17 +33,20 @@
 	nb_setval('$chr_toplevel_show_store',false).
 
 '$init_consult' :-
-	set_value('$open_expands_filename',true),
-	nb_setval('$assert_all',off),
-	nb_setval('$if_level',0),
-	nb_setval('$endif',off),
- 	nb_setval('$initialization_goals',off),
-	nb_setval('$included_file',[]),
-	nb_setval('$loop_streams',[]),
-	\+ '$undefined'('$init_preds',prolog),
-	'$init_preds',
-	fail.
-'$init_consult'.
+    set_value('$open_expands_filename',true),
+    nb_setval('$assert_all',off),
+    nb_setval('$if_level',0),
+    nb_setval('$endif',off),
+    nb_setval('$initialization_goals',off),
+    nb_setval('$included_file',[]),
+    nb_setval('$loop_streams',[]),
+    (
+	'$undefined'('$init_preds',prolog)
+    ->
+    true
+    ;
+    '$init_preds'
+	).
 
 '$init_win_graphics' :-
     '$undefined'(window_title(_,_), system), !.

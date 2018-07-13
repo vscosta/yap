@@ -990,16 +990,11 @@ leaving the current stream position unaltered.
 */
 static Int peek_code(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
-  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
+  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek_code/2");
   Int ch;
 
   if (sno < 0)
     return FALSE;
-  if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_code/2");
-    return FALSE;
-  }
   if ((ch = Yap_peek(sno)) < 0) {
 #ifdef PEEK_EOF
     UNLOCK(GLOBAL_Stream[sno].streamlock);

@@ -70,13 +70,12 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 #endif
     YAP_FLAG(ARCH_FLAG, "arch", false, isatom, YAP_ARCH, NULL), /**<
       read-only atom, it describes the ISA used in this version of YAP.
-     Available from YAP_AEH.
+     Available from YAP_ARCH.
      */
-
     YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
     YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
              booleanFlag, "true", NULL),
-    /**< `arithmetic_exceptions`
+    /**<
 
     Read-write flag telling whether arithmetic exceptions generate
     Prolog exceptions. If enabled:
@@ -97,7 +96,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     ProbLog.
  */
     YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "true", bqs),
-    /**>
+    /**<
     If  _Value_ is unbound, tell whether a back quoted list of characters
     token is converted to a list of atoms, `chars`, to a list of integers,
     `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to

@@ -45,7 +45,6 @@
         '$include'/2,
         '$initialization'/1,
         '$initialization'/2,
-        '$load_files'/3,
         '$require'/2,
         '$set_encoding'/1,
         '$use_module'/3]).
