@@ -27,7 +27,6 @@
 	'$pred_exists'(G, user).
 % autoload
 '$get_undefined_predicates'(G, ImportingMod, G0, ExportingMod) :-
-    recorded('$dialect',swi,_),
     prolog_flag(autoload, true),
     prolog_flag(unknown, OldUnk, fail),
     (
@@ -67,4 +66,3 @@
 	 *
 	 * @}
 	 */
-

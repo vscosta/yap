@@ -36,12 +36,12 @@
  */
 
 
-'$protect' :-
+prolog:'$protect' :-
     '$all_current_modules'(M),
     ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
     new_system_module( M ),
     fail.
-'$protect' :-
+prolog:'$protect' :-
 	'$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
@@ -50,13 +50,13 @@
     functor(P,Name,Arity),
     '$hide_predicate'(P,M),
     fail.
-'$protect' :-
+prolog:'$protect' :-
     current_atom(Name),
 	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.
-'$protect'.
+prolog:'$protect'.
 
 
 % hide all atoms who start by '$'

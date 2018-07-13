@@ -711,6 +711,25 @@ static Int term_to_atom(USES_REGS1) {
          Yap_unify(rc, ARG1);
 }
 
+char *Yap_TermToBuffer(Term t,  int flags) {
+  CACHE_REGS
+  int sno = Yap_open_buf_write_stream(LOCAL_encoding,flags);
+
+  if (sno < 0)
+    return NULL;
+  if (t == 0)
+    return NULL;
+  else
+    t = Deref(t);
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+
+  char *new = Yap_MemExportStreamPtr(sno);
+  Yap_CloseStream(sno);
+  return new;
+}
+
 void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("write_term", 2, write_term2, SyncPredFlag);
   Yap_InitCPred("write_term", 3, write_term3, SyncPredFlag);

@@ -274,11 +274,14 @@ load_files(_Files,_Opts).
 	setarg( Id, TOpts, Val ).
 
 '$load_files'(Files, Opts, Call) :-
-	( '__NB_getval__'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) -	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
+(
+  '__NB_getval__'('$lf_status', OldTOpts, fail)
+    ->
+    '$lf_opt'('$context_module', OldTOpts, Context),
+    '$lf_opt'(autoload, OldTOpts, OldAutoload)
 	;
 	   '$lf_option'(last_opt, LastOpt),
-	    functor( OldTOpts, opt, LastOpt ),
-	    '$lf_opt'('$context_module', OldTOpts, user)
+	    functor( OldTOpts, opt, LastOpt )
 	),
  	'$lf_option'(last_opt, LastOpt),
 	functor( TOpts, opt, LastOpt ),

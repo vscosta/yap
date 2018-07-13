@@ -262,6 +262,7 @@ initialize_prolog :-
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
+:- c_compile( 'protect.yap' ).
 
 :- ['absf.yap'].
 
@@ -314,11 +315,7 @@ initialize_prolog :-
 
 :- multifile prolog:'$system_predicate'/2.
 
-:-	 ['protect.yap'].
-
-version(yap,[6,4]).
-
-:- op(1150,fx,(mode)).
+:- '$opdec'(1150,fx,(mode),prolog).
 
 :- dynamic 'extensions_to_present_answer'/1.
 

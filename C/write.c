@@ -384,9 +384,7 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   wglb.lw = separator;
   wglb.stream = GLOBAL_Stream + sno;
   wrputf(f, &wglb);
-  so = Yap_MemExportStreamPtr(sno);
-  *s = BaseMalloc(strlen(so) + 1);
-  strcpy(*s, so);
+  *s = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return true;
 }
@@ -1255,24 +1253,3 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   pop_text_stack(lvl);
 }
 
-char *Yap_TermToBuffer(Term t,  int flags) {
-  CACHE_REGS
-  int sno = Yap_open_buf_write_stream(LOCAL_encoding,flags);
-  const char *sf;
-
-  if (sno < 0)
-    return NULL;
-  if (t == 0)
-    return NULL;
-  else
-    t = Deref(t);
-  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
-
-  sf = Yap_MemExportStreamPtr(sno);
-  size_t len = strlen(sf);
-  char *new = realloc((void*)sf,len + 1);
-  Yap_CloseStream(sno);
-  return new;
-}
