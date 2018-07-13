@@ -186,7 +186,7 @@ int pc_mpm_alloc_occ_switches_0(void)
     occ_switches = MALLOC(sizeof(SW_INS_PTR) * sw_tab_size);
 
     occ_switch_tab_size = sw_tab_size;
-    memcpy(occ_switches, switches, sizeof(SW_INS_PTR) * sw_tab_size);
+    memmove(occ_switches, switches, sizeof(SW_INS_PTR) * sw_tab_size);
     if (fix_init_order) {
         sort_occ_switches();
     }

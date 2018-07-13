@@ -56,7 +56,7 @@
       CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
       PREG = NEXTOP(PREG, Osbpp);
       saveregs();
-      d0 = (f)(PASS_REGS1);
+      d0 = f(PASS_REGS1);
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;

@@ -447,7 +447,7 @@ static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
       if (s->status & Pipe_Stream_f)
     LOCAL_SourceFileName = AtomPipe;
   else if (s->status & InMemory_Stream_f)
-    LOCAL_SourceFileName = AtomCharsio;
+    LOCAL_SourceFileName = s->name;
   else
     LOCAL_SourceFileName = s->name;
   LOCAL_SourceFileLineno = s->linecount;

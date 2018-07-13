@@ -114,7 +114,7 @@ typedef struct itrie_data {
             YAP_Int i, new_num_buckets = DEPTH + BASE_TR_DATA_BUCKETS;           \
             bucket = TrEntry_buckets(TR_ENTRY);                                  \
             new_itrie_buckets(TR_ENTRY, new_num_buckets);                        \
-            memcpy(TrEntry_buckets(TR_ENTRY), bucket,                            \
+            memmove(TrEntry_buckets(TR_ENTRY), bucket,                            \
                    TrEntry_num_buckets(TR_ENTRY) * SIZEOF_TR_DATA_BUCKET);       \
             free_itrie_buckets(bucket, TrEntry_num_buckets(TR_ENTRY));           \
             bucket = TrEntry_buckets(TR_ENTRY);                                  \

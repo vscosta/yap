@@ -1329,7 +1329,7 @@ XX realloc(MALLOC_T ptr, size_t size) {
   MALLOC_T new = malloc(size);
 
   if (ptr)
-    memcpy(new, ptr, size);
+    memmove(new, ptr, size);
   free(ptr);
   return (new);
 }

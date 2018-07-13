@@ -554,7 +554,7 @@ IF (WITH_PYTHON)
 ENDIF (WITH_PYTHON)
 
 option(WITH_R
-        "Allow YAP->R" ON)
+        "Use R Interface" ON)
 
 IF (WITH_R)
     include_directories(packages/real )

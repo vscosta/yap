@@ -288,13 +288,23 @@ X_API Term YAP_MkIntTerm(Int n) {
 }
 
 X_API Term YAP_MkStringTerm(const char *n) {
-  CACHE_REGS
-  Term I;
-  BACKUP_H();
+    CACHE_REGS
+    Term I;
+    BACKUP_H();
 
-  I = MkStringTerm(n);
-  RECOVER_H();
-  return I;
+    I = MkStringTerm(n);
+    RECOVER_H();
+    return I;
+}
+
+X_API Term YAP_MkCharPTerm( char *n) {
+    CACHE_REGS
+    Term I;
+    BACKUP_H();
+
+    I = MkStringTerm(n);
+    RECOVER_H();
+    return I;
 }
 
 X_API Term YAP_MkUnsignedStringTerm(const unsigned char *n) {
@@ -1898,7 +1908,7 @@ X_API YAP_opaque_tag_t YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f) {
     return -1;
   }
   i = GLOBAL_OpaqueHandlersCount++;
-  memcpy(GLOBAL_OpaqueHandlers + i, f, sizeof(YAP_opaque_handler_t));
+  memmove(GLOBAL_OpaqueHandlers + i, f, sizeof(YAP_opaque_handler_t));
   return i;
 }
 
@@ -2129,20 +2139,16 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full, int *osnop) 
   char *d = Malloc(strlen(fl)+1);
   strcpy(d,fl);
  bool consulted = (mode == YAP_CONSULT_MODE);
-  sno = Yap_OpenStream(MkStringTerm(fl), "r", MkAtomTerm(Yap_LookupAtom(fl)), LOCAL_encoding);
+  Term tat = MkAtomTerm(Yap_LookupAtom(d));
+  sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)), LOCAL_encoding);
   if (sno < 0 ||
       !Yap_ChDir(dirname((char *)d))) {
       pop_text_stack(lvl);
       *full = NULL;
       return -1;
-    }
-                    LOCAL_PrologMode = UserMode;
+    } LOCAL_PrologMode = UserMode;
 
-  Yap_init_consult(consulted, fl);
-  GLOBAL_Stream[sno].name = Yap_LookupAtom(fl);
-  GLOBAL_Stream[sno].user_name = MkAtomTerm(Yap_LookupAtom(fname));
-  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
-  *full = pop_output_text_stack(lvl, fl);
+  Yap_init_consult(consulted, pop_output_text_stack__(lvl,fl));
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;
@@ -2176,7 +2182,8 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s(%d), %d", full, *osnop, sno);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%d), %d",
+                        CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,  full, *osnop, sno);
         // LOCAL_CurSlot);
 	    pop_text_stack(lvl);
   RECOVER_MACHINE_REGS();
@@ -2264,8 +2271,8 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToBuffer(t, enc, flags);
-  strncpy(buf, b, sze);
+  b = Yap_TermToBuffer(t, flags);
+  strncpy(buf, b, sze-1);
   buf[sze] = 0;
   RECOVER_MACHINE_REGS();
   return true;
@@ -2364,7 +2371,7 @@ X_API void YAP_FlushAllStreams(void) {
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv();
   RECOVER_MACHINE_REGS();
 }
@@ -2374,7 +2381,7 @@ X_API void YAP_AsyncThrow(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv();
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
@@ -3104,7 +3111,7 @@ X_API Int YAP_AtomToInt(YAP_Atom At) {
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
+    memmove(nt, ot, sizeof(atom_t) * MaxAtomTranslations);
     TR_Atoms = nt;
     free(ot);
     MaxAtomTranslations *= 2;
@@ -3132,7 +3139,7 @@ X_API Int YAP_FunctorToInt(YAP_Functor f) {
                 "No more room for translations");
       return -1;
     }
-    memcpy(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
+    memmove(nt, ot, sizeof(functor_t) * MaxFunctorTranslations);
     TR_Functors = nt;
     free(ot);
     MaxFunctorTranslations *= 2;

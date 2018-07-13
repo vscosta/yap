@@ -106,6 +106,7 @@ X_API extern void YAP_UserBackCutCPredicate(const char *name,
 
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
+extern YAP_Term YAP_MkcharPTerm(char *s);
 
 
 }

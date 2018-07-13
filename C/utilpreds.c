@@ -182,7 +182,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    if (HR+sz > ASP - 2048) {
 	      goto overflow;
 	    }
-	    memcpy((void *)HR, (void *)ap2, sz*sizeof(CELL));
+	    memmove((void *)HR, (void *)ap2, sz*sizeof(CELL));
 	    HR += sz;
 	  } else {
 	    *ptf++ = d0;  /* you can just copy other extensions. */
@@ -845,7 +845,7 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
   if (buf + len < (char *)((CELL *)td + (tf-t0))) {
     return FALSE;
   }
-  memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
+  memmove((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
   bf[0] = (td-buf);
   bf[1] = (tf-t0);
   bf[2] = inpt;
@@ -945,7 +945,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	  if (HR+sz > ASP - 2048) {
 	    goto overflow;
 	  }
-	  memcpy((void *)HR, (void *)ap2, sz*sizeof(CELL));
+	  memmove((void *)HR, (void *)ap2, sz*sizeof(CELL));
 	  HR += sz;
 	  continue;
 	}
@@ -1263,7 +1263,7 @@ Yap_ImportTerm(char * buf) {
       return 0L;
     }
   }
-  memcpy(HR, buf+bc[0], sizeof(CELL)*sz);
+  memmove(HR, buf+bc[0], sizeof(CELL)*sz);
   if (IsApplTerm(tinp)) {
     tret = AbsAppl(HR);
     import_compound(HR, (char *)HR, buf, HR);
@@ -3476,7 +3476,7 @@ hash_complex_term(register CELL *pt0,
 	    *st++ = LongIntOfTerm(d0);
 	    break;
 	  case (CELL)FunctorString:
-	    memcpy(st, RepAppl(d0), (3+RepAppl(d0)[1])*sizeof(CELL));
+	    memmove(st, RepAppl(d0), (3+RepAppl(d0)[1])*sizeof(CELL));
 	    st += 3+RepAppl(d0)[1];
 	    break;
 #ifdef USE_GMP
@@ -3491,7 +3491,7 @@ hash_complex_term(register CELL *pt0,
 		goto global_overflow;
 	      }
 	      /* then the actual number */
-	      memcpy((void *)(st+1), (void *)(pt+1), sz);
+	      memmove((void *)(st+1), (void *)(pt+1), sz);
 	      st = st+sz/CellSize;
 	    }
 	    break;

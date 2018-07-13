@@ -46,11 +46,12 @@ foreign_t assign_to_symbol(term_t t, PyObject *e) {
   PyObject *dic;
   if (!lookupPySymbol(s, NULL, &dic))
     dic = py_Main;
-                                                      Py_INCREF(e);
+  Py_INCREF(e);
   return PyObject_SetAttrString(dic, s, e) == 0;
 }
 
-foreign_t python_to_term(PyObject *pVal, term_t t) {
+foreign_t python_to_term(PyObject *pVal, term_t t)
+{
   bool rc = true;
   term_t to = PL_new_term_ref();
   // fputs(" <<***    ",stderr);  PyObject_Print(pVal,stderr,0);
@@ -89,14 +90,14 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
-//    if (PyDict_GetItemString(py_Atoms, s))
-//      rc = rc && PL_unify_atom_chars(t, s);
-//    else
+    if (Yap_AtomInUse(s))
       rc = rc && PL_unify_atom_chars(t, s);
-    } else if (PyByteArray_Check(pVal)) {
-      rc = rc && PL_unify_string_chars(t, PyByteArray_AsString(pVal));
-  #if PY_MAJOR_VERSION < 3
-    } else if (PyString_Check(pVal)) {
+    else
+      rc = rc && PL_unify_string_chars(t, s);
+  } else if (PyByteArray_Check(pVal)) {
+    rc = rc && PL_unify_string_chars(t, PyByteArray_AsString(pVal));
+#if PY_MAJOR_VERSION < 3
+  } else if (PyString_Check(pVal)) {
     rc = rc && PL_unify_string_chars(t, PyString_AsString(pVal));
 #endif
   } else if (PyTuple_Check(pVal)) {
@@ -130,15 +131,18 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       }
       if (PL_unify_functor(t, f)) {
         for (i = 0; i < sz; i++) {
-          if (!PL_get_arg(i + 1, t, to))
+	  term_t to = PL_new_term_ref();
+	  if (!PL_get_arg(i + 1, t, to))
             rc = false;
           PyObject *p = PyTuple_GetItem(pVal, i);
           if (p == NULL) {
             PyErr_Clear();
             p = Py_None;
-          }
-          rc = rc && python_to_term(p, to);
-        }
+          } else {
+	    rc = rc && python_to_term(p, to);
+	  }
+	  PL_reset_term_refs(to);
+	}
       } else {
         rc = false;
       }
@@ -150,11 +154,13 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
 
     for (i = 0; i < sz; i++) {
       PyObject *obj;
+       term_t to = PL_new_term_ref();
       rc = rc && PL_unify_list(t, to, t);
       if ((obj = PyList_GetItem(pVal, i)) == NULL) {
         obj = Py_None;
       }
       rc = rc && python_to_term(obj, to);
+      PL_reset_term_refs(to);
       if (!rc)
         return false;
     }
@@ -163,7 +169,6 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
     // Yap_DebugPlWrite(yt); fputs("[***]\n", stderr);
   } else if (PyDict_Check(pVal)) {
     Py_ssize_t pos = 0;
-    term_t to = PL_new_term_ref(), ti = to;
     int left = PyDict_Size(pVal);
     PyObject *key, *value;
 
@@ -173,6 +178,7 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
       while (PyDict_Next(pVal, &pos, &key, &value)) {
         term_t tkey = PL_new_term_ref(), tval = PL_new_term_ref(), tint,
                tnew = PL_new_term_ref();
+	term_t to = PL_new_term_ref();
         /* do something interesting with the values... */
         if (!python_to_term(key, tkey)) {
           continue;
@@ -191,20 +197,21 @@ foreign_t python_to_term(PyObject *pVal, term_t t) {
             PL_reset_term_refs(tkey);
           rc = false;
         }
-        if (!PL_unify(ti, tint)) {
+        if (!PL_unify(to, tint)) {
           rc = false;
         }
-        ti = tnew;
-        PL_reset_term_refs(tkey);
       }
       rc = rc && PL_unify(t, to);
     }
   } else {
     rc = rc && repr_term(pVal, t);
   }
-  PL_reset_term_refs(to);
+
   return rc;
 }
+
+
+
 
 X_API YAP_Term pythonToYAP(PyObject *pVal) {
 
@@ -215,11 +222,12 @@ X_API YAP_Term pythonToYAP(PyObject *pVal) {
   }
   YAP_Term tt = YAP_GetFromSlot(t);
   PL_reset_term_refs(t);
-  //Py_DECREF(pVal);
+  // Py_DECREF(pVal);
   return tt;
 }
 
 PyObject *py_Local, *py_Global;
+
 
 /**
  *   assigns the Python RHS to a Prolog term LHS, ie LHS = RHS
@@ -317,7 +325,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         if (PySequence_Check(o) && PyInt_Check(i)) {
           long int j;
           j = PyInt_AsLong(i);
-  return PySequence_SetItem(o, i, exp) == 0;
+          return PySequence_SetItem(o, i, exp) == 0;
         }
 #endif
         if (PyDict_Check(o)) {

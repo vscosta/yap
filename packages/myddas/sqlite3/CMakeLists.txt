@@ -29,7 +29,6 @@ add_definitions(-DSQLITE_ENABLE_JSON1=1 )
 add_definitions(-DSQLITE_ENABLE_RBU=1 )
 
 add_definitions(-DSQLITE_ENABLE_RTREE=1 )
-
 add_definitions(-DSQLITE_ENABLE_FTS5=1 )
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
@@ -46,6 +45,8 @@ else()
   
 add_library(  YAPsqlite3 SHARED
   ${YAPSQLITE3_SOURCES})
+
+  target_link_libraries(YAPsqlite3 libYap )
 
  set_target_properties(YAPsqlite3
   PROPERTIES

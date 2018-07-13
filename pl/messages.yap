@@ -198,10 +198,9 @@ compose_message( halt, _Level) --> !,
 
 		% syntax error.
 compose_message(error(E, Exc), Level) -->
-    { '$show_consult_level'(LC), 	     '$print_exception'(Exc)
- },
+    { '$show_consult_level'(LC) },
 	location(error(E, Exc), Level, LC),
-	main_message(error(E,Exc) , Level, LC ),
+    main_message(error(E,Exc) , Level, LC ),
 	c_goal( error(E, Exc), Level ),
 	caller( error(E, Exc), Level ),
 	extra_info( error(E, Exc), Level ),
@@ -257,39 +256,28 @@ location(style_check(A,LN,FileName,B ), Level , LC) -->
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
 	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
-	{ '$error_descriptor'(Info, Desc) },
+
+    { '$error_descriptor'(Info, Desc) },
    {
-   '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
+   query_exception(prologPredFile, Desc, File),
+	query_exception(prologPredLine, Desc, FilePos),
+	query_exception(prologPredModule, Desc, M),
+	query_exception(prologPredName, Desc, Na),
+	query_exception(prologPredArity, Desc, Ar)
 	},
   !,
   display_consulting( File, Level, Info, LC ),
-	[  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+	[  '~a:~d:0 ~a in ~a:~a/~d:'-[File, FilePos,Level,M,Na,Ar] ].
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
    {
-   '$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
-	},
-  !,
-  display_consulting( File, Level, Info, LC ),
-  [  '~s:~d:0 ~a in ~s:~s/~d:'-[File, FilePos,Level,M,Na,Ar] ].
-location( error(_,Info), Level, LC ) -->
-	{ '$error_descriptor'(Info, Desc) },
-   {
-   '$query_exception'(errorFile, Desc, File),
-	'$query_exception'(errorLine, Desc, FilePos),
-	'$query_exception'(errorFunction, Desc, F)
+   query_exception(errorFile, Desc, File),
+	query_exception(errorLine, Desc, FilePos),
+	query_exception(errorFunction, Desc, F)
 	},
   !,
   display_consulting( File, Level, Info,  LC ),
-  [  '~s:~d:0 ~a in ~s():'-[File, FilePos,Level,F] ].
+  [  '~a:~d:0 ~a in ~a():'-[File, FilePos,Level,F] ].
 location( _Ball, _Level, _LC ) --> [].
 
 
@@ -307,6 +295,10 @@ main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term
 	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
 	    [nl]
 	  ).
+main_message( error(syntax_error(_Msg), Info), Level, LC ) -->
+	!,
+	[' ~a: syntax error ~s' - [Level,Msg]],
+	[nl].
 main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
     !,
 %    {writeln(ci)},
@@ -354,8 +346,8 @@ main_message(error(uninstantiation_error(T),_), Level, _LC) -->
 display_consulting( F, Level, Info, LC) -->
     {  LC > 0,
        '$error_descriptor'(Info, Desc),
-       '$query_exception'(prologParserFile, Desc, F0),
-       '$query_exception'(prologarserLine, Desc, L),
+       query_exception(prologParserFile, Desc, F0),
+       query_exception(prologarserLine, Desc, L),
        F \= F0
     }, !,
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
@@ -370,7 +362,7 @@ display_consulting(_F, _, _, _LC) -->
 
 caller( Info, _) -->
         { '$error_descriptor'(Info, Desc) },
-        ({   '$query_exception'(errorGoal, Desc, Call),
+        ({   query_exception(errorGoal, Desc, Call),
          	Call = M:(H :- G)
           }
           ->
@@ -384,26 +376,26 @@ caller( Info, _) -->
           ;
           []
         ),
-	{ '$query_exception'(prologPredFile, Desc, File),
+	{ query_exception(prologPredFile, Desc, File),
 	File \= [],
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	'$query_exception'(prologPredModule, Desc, M),
-	'$query_exception'(prologPredName, Desc, Na),
-	'$query_exception'(prologPredArity, Desc, Ar)
+	query_exception(prologPredLine, Desc, FilePos),
+	query_exception(prologPredModule, Desc, M),
+	query_exception(prologPredName, Desc, Na),
+	query_exception(prologPredArity, Desc, Ar)
 	},
 	!,
 	  [nl],
-	  ['~*|        raised from ~a:~q:~d, ~a:~d:0: '-[10,M,Na,Ar,File, FilePos]],
+	  ['~*|        ~q:~d:0 ~a:~q'-[10,File, FilePos,M,Na,Ar]],
 	[nl].
 caller( _, _) -->
 	[].
 
 c_goal( Info, Level ) -->
 { '$error_descriptor'(Info, Desc) },
-    { '$query_exception'(errorFile, Desc, File),
+    { query_exception(errorFile, Desc, File),
       Func \= [],
-      '$query_exception'(errorFunction, Desc, File),
-      '$query_exception'(errorLine, Desc, Line)
+      query_exception(errorFunction, Desc, File),
+      query_exception(errorLine, Desc, Line)
       },
 	!,
 	['~*|~a raised at C-function ~a() in ~a:~d:0: '-[10, Level, Func, File, Line]],
@@ -632,7 +624,7 @@ domain_error(Domain, Opt) -->
 
 extra_info( error(_,Extra), _ ) -->
     {
-	 '$query_exception'(prologPredFile, Extra, Msg),
+	 query_exception(prologPredFile, Extra, Msg),
 	 Msg \= []
     },
     !,
@@ -982,8 +974,9 @@ confusing to YAP (who will process the error?). So we write this small
 stub to ensure everything os ok
 
 */
+
+:- dynamic in/0.
 /*
-/*:- dynamic in/0.
 prolog:print_message(Severity, Msg) :-
     \+ in,
     assert(in),
@@ -991,7 +984,7 @@ prolog:print_message(Severity, Msg) :-
     ( prolog:print_message(Severity, Msg), fail;
     stop_low_level_trace,
       retract(in)
-    ).*/
+    ).
 */
 prolog:print_message(Severity, Msg) :-
 	(
@@ -1043,7 +1036,7 @@ prolog:print_message(Severity, Term) :-
 	),
 	!.
 prolog:print_message(Severity, Term) :-
-	translate_message( Term, Severity, Lines0, [ end(Id)]),
+    translate_message( Term, Severity, Lines0, [ end(Id)]),
 	Lines = [begin(Severity, Id)| Lines0],
 	(
 	 user:message_hook(Term, Severity, Lines)
@@ -1057,8 +1050,14 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
-'$error_descriptor'( error(_,Info), Info ).
+'$error_descriptor'( exception(Info), Info ).
 
+query_exception(K0,[H|L],V) :-
+    (atom(K0) -> atom_to_string(K0, K) ; K = K0),
+    !,
+    lists:member(K=V,[H|L]).
+query_exception(K,V) :-
+    '$query_exception'(K,V).
 
 /**
   @}

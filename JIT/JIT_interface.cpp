@@ -95,7 +95,7 @@ typedef enum{
   t_createLowerExpectIntrinsicPass, //Removes llvm.expect intrinsics and creates "block_weights" metadata
   t_createLowerInvokePass, //Converts invoke and unwind instructions to use sjlj exception handling mechanisms
   t_createLowerSwitchPass, //Converts SwitchInst instructions into a sequence of chained binary branch instructions
-  t_createMemCpyOptPass, //Performs optimizations related to eliminating memcpy calls and/or combining multiple stores into memset's
+  t_createMemCpyOptPass, //Performs optimizations related to eliminating memmove calls and/or combining multiple stores into memset's
   t_createMergeFunctionsPass, //Discovers identical functions and collapses them
   t_createObjCARCAPElimPass, //ObjC ARC autorelease pool elimination
   t_createObjCARCContractPass, //Late ObjC ARC cleanups

@@ -110,19 +110,19 @@ static void clean_vars(VarEntry *p) {
 #ifdef O_QUASIQUOTATIONS
 /** '$qq_open'(+QQRange, -Stream) is det.
 
-Opens a quasi-quoted memory range.
+    Opens a quasi-quoted memory range.
 
-@arg QQRange is a term '$quasi_quotation'(ReadData, Start, Length)
-@arg Stream  is a UTF-8 encoded string, whose position indication
-reflects the location in the real file.
+    @arg QQRange is a term '$quasi_quotation'(ReadData, Start, Length)
+    @arg Stream  is a UTF-8 encoded string, whose position indication
+    reflects the location in the real file.
 */
 
 static Int qq_open(USES_REGS1) {
   PRED_LD
 
-  Term t = Deref(ARG1);
+    Term t = Deref(ARG1);
   if (!IsVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) =
-          FunctorDQuasiQuotation) {
+      FunctorDQuasiQuotation) {
     void *ptr;
     char *start;
     size_t l int s;
@@ -173,27 +173,27 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD) {
     } else
       return TRUE;
   } else if (_PL_rd->quasi_quotations) /* user option, but no quotes */
-  {
-    return PL_unify_nil(_PL_rd->quasi_quotations);
-  } else
+    {
+      return PL_unify_nil(_PL_rd->quasi_quotations);
+    } else
     return TRUE;
 }
 
 #endif /*O_QUASIQUOTATIONS*/
 
-#define READ_DEFS()                                                            \
-  PAR("comments", list_filler, READ_COMMENTS)                                  \
-  , PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY),   \
-      PAR("output", filler, READ_OUTPUT),                                      \
-      PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),                  \
-      PAR("term_position", filler, READ_TERM_POSITION),                        \
-      PAR("syntax_errors", isatom, READ_SYNTAX_ERRORS),                        \
-      PAR("singletons", filler, READ_SINGLETONS),                              \
-      PAR("variables", filler, READ_VARIABLES),                                \
-      PAR("variable_names", filler, READ_VARIABLE_NAMES),                      \
-      PAR("character_escapes", booleanFlag, READ_CHARACTER_ESCAPES),           \
-      PAR("backquoted_string", isatom, READ_BACKQUOTED_STRING),                \
-      PAR("cycles", ok, READ_CYCLES), PAR(NULL, ok, READ_END)
+#define READ_DEFS()							\
+  PAR("comments", list_filler, READ_COMMENTS)				\
+  , PAR("module", isatom, READ_MODULE), PAR("priority", nat, READ_PRIORITY), \
+    PAR("output", filler, READ_OUTPUT),					\
+    PAR("quasi_quotations", filler, READ_QUASI_QUOTATIONS),		\
+    PAR("term_position", filler, READ_TERM_POSITION),			\
+    PAR("syntax_errors", isatom, READ_SYNTAX_ERRORS),			\
+    PAR("singletons", filler, READ_SINGLETONS),				\
+    PAR("variables", filler, READ_VARIABLES),				\
+    PAR("variable_names", filler, READ_VARIABLE_NAMES),			\
+    PAR("character_escapes", booleanFlag, READ_CHARACTER_ESCAPES),	\
+    PAR("backquoted_string", isatom, READ_BACKQUOTED_STRING),		\
+    PAR("cycles", ok, READ_CYCLES), PAR(NULL, ok, READ_END)
 
 #define PAR(x, y, z) z
 
@@ -201,7 +201,7 @@ typedef enum open_enum_choices { READ_DEFS() } read_choices_t;
 
 #undef PAR
 
-#define PAR(x, y, z)                                                           \
+#define PAR(x, y, z)				\
   { x, y, z }
 
 static const param_t read_defs[] = {READ_DEFS()};
@@ -284,17 +284,17 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok) {
 }
 
 /**
-@pred scan_to_list( +Stream, -Tokens )
-Generate a list of tokens from a scan of the (input) stream, Tokens are of the
-form:
+   @pred scan_to_list( +Stream, -Tokens )
+   Generate a list of tokens from a scan of the (input) stream, Tokens are of the
+   form:
 
-+ `atom`(Atom)
-+ `<QQ>`(Text)
-+ `number`(Number)
-+ `var`(VarName)
-+ `string`(String)
-+ 'EOF''
-+ symbols, including `(`, `)`, `,`, `;`
+   + `atom`(Atom)
+   + `<QQ>`(Text)
+   + `number`(Number)
+   + `var`(VarName)
+   + `string`(String)
+   + 'EOF''
+   + symbols, including `(`, `)`, `,`, `;`
 
 */
 static Int scan_to_list(USES_REGS1) {
@@ -307,7 +307,7 @@ static Int scan_to_list(USES_REGS1) {
     return false;
   }
   TokEntry *tok = LOCAL_tokptr = LOCAL_toktide =
-      Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
+    Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   tout = scanToList(tok, NULL);
   if (tout == 0)
@@ -328,7 +328,7 @@ static Int scan_to_list(USES_REGS1) {
  */
 static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   CACHE_REGS
-  Term startline, errline, endline;
+    Term startline, errline, endline;
   Term tf[4];
   Term tm;
   Term *tailp = tf + 3;
@@ -436,7 +436,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos) {
   if (Yap_ExecutionMode == YAP_BOOT_MODE) {
     fprintf(stderr, "SYNTAX ERROR while booting: ");
     fe
-  }
+      }
 #endif
   return terr;
 }
@@ -476,11 +476,11 @@ static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re,
                               int inp_stream);
 static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
   CACHE_REGS
-  LOCAL_VarTable = NULL;
+    LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   fe->enc = GLOBAL_Stream[inp_stream].encoding;
   xarg *args =
-      Yap_ArgListToVector(opts, read_defs, READ_END, DOMAIN_ERROR_READ_OPTION);
+    Yap_ArgListToVector(opts, read_defs, READ_END, DOMAIN_ERROR_READ_OPTION);
   if (args == NULL) {
     return NULL;
   }
@@ -561,18 +561,18 @@ static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream) {
 }
 
 typedef enum {
-  YAP_START_PARSING,  /// initialization
-  YAP_SCANNING,       /// input to list of tokens
-  YAP_SCANNING_ERROR, /// serious error (eg oom); trying error handling, followd
-                      /// by either restart or failure
-  YAP_PARSING,        /// list of tokens to term
-  YAP_PARSING_ERROR,  /// oom or syntax error
-  YAP_PARSING_FINISHED /// exit parser
+	      YAP_START_PARSING,  /// initialization
+	      YAP_SCANNING,       /// input to list of tokens
+	      YAP_SCANNING_ERROR, /// serious error (eg oom); trying error handling, followd
+	      /// by either restart or failure
+	      YAP_PARSING,        /// list of tokens to term
+	      YAP_PARSING_ERROR,  /// oom or syntax error
+	      YAP_PARSING_FINISHED /// exit parser
 } parser_state_t;
 
 Int Yap_FirstLineInParse(void) {
   CACHE_REGS
-  return LOCAL_StartLineCount;
+    return LOCAL_StartLineCount;
 }
 
 #define PUSHFET(X) *HR++ = fe->X
@@ -581,7 +581,7 @@ Int Yap_FirstLineInParse(void) {
 static void reset_regs(TokEntry *tokstart, FEnv *fe) {
   CACHE_REGS
 
-  restore_machine_regs();
+    restore_machine_regs();
 
   /* restart global */
   PUSHFET(qq);
@@ -608,7 +608,7 @@ static void reset_regs(TokEntry *tokstart, FEnv *fe) {
 
 static Term get_variables(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
+    Term v;
 
   if (fe->vp) {
     while (true) {
@@ -628,7 +628,7 @@ static Term get_variables(FEnv *fe, TokEntry *tokstart) {
 
 static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
+    Term v;
   if (fe->np) {
     while (true) {
       fe->old_H = HR;
@@ -648,7 +648,7 @@ static Term get_varnames(FEnv *fe, TokEntry *tokstart) {
 
 static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
+    Term v;
   if (fe->sp) {
     while (TRUE) {
       fe->old_H = HR;
@@ -667,7 +667,7 @@ static Term get_singletons(FEnv *fe, TokEntry *tokstart) {
 
 static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
+    Term v;
   fe->sp = TermNil;
   v = get_singletons(fe, tokstart);
   if (v && v != TermNil) {
@@ -686,7 +686,7 @@ static void warn_singletons(FEnv *fe, TokEntry *tokstart) {
 
 static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v;
+    Term v;
   if (fe->tp) {
     while (true) {
       fe->old_H = HR;
@@ -705,7 +705,7 @@ static Term get_stream_position(FEnv *fe, TokEntry *tokstart) {
 
 static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v1, v2, v3, vc, tp;
+    Term v1, v2, v3, vc, tp;
 
   if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
     return false;
@@ -736,15 +736,15 @@ static bool complete_processing(FEnv *fe, TokEntry *tokstart) {
   // trail must be ok by now.]
   if (fe->t) {
     return (!v1 || Yap_unify(v1, fe->vp)) && (!v2 || Yap_unify(v2, fe->np)) &&
-           (!v3 || Yap_unify(v3, fe->sp)) && (!tp || Yap_unify(tp, fe->tp)) &&
-           (!vc || Yap_unify(vc, fe->tcomms));
+      (!v3 || Yap_unify(v3, fe->sp)) && (!tp || Yap_unify(tp, fe->tp)) &&
+      (!vc || Yap_unify(vc, fe->tcomms));
   }
   return true;
 }
 
 static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   CACHE_REGS
-  Term v_vp, v_vnames, v_comments, v_pos;
+    Term v_vp, v_vnames, v_comments, v_pos;
 
   if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
     return false;
@@ -772,9 +772,9 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
   // trail must be ok by now.]
   if (fe->t) {
     return (!v_vp || Yap_unify(v_vp, fe->vp)) &&
-           (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
-           (!v_pos || Yap_unify(v_pos, fe->tp)) &&
-           (!v_comments || Yap_unify(v_comments, fe->tcomms));
+      (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
+      (!v_pos || Yap_unify(v_pos, fe->tp)) &&
+      (!v_comments || Yap_unify(v_comments, fe->tcomms));
   }
   return true;
 }
@@ -792,8 +792,8 @@ static parser_state_t scan(REnv *re, FEnv *fe, int inp_stream);
 
 static parser_state_t scanEOF(FEnv *fe, int inp_stream) {
   CACHE_REGS
-  // bool store_comments = false;
-  TokEntry *tokstart = LOCAL_tokptr;
+    // bool store_comments = false;
+    TokEntry *tokstart = LOCAL_tokptr;
   // check for an user abort
   if (tokstart != NULL && tokstart->Tok != Ord(eot_tok)) {
     /* we got the end of file from an abort */
@@ -837,6 +837,8 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   LOCAL_ErrorMessage = NULL;
   fe->old_TR = TR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " open %s, %d",
+                      CurrentModule == 0? "prolog": RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,   inp_stream);
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
   fe->tpos = StreamPosition(inp_stream);
@@ -869,11 +871,11 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
 
 static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
   CACHE_REGS
-  /* preserve   value of H after scanning: otherwise we may lose strings
-     and floats */
-  LOCAL_tokptr = LOCAL_toktide =
+    /* preserve   value of H after scanning: otherwise we may lose strings
+       and floats */
+    LOCAL_tokptr = LOCAL_toktide =
 
-      Yap_tokenizer(GLOBAL_Stream + sno, false, &fe->tpos);
+    Yap_tokenizer(GLOBAL_Stream + sno, false, &fe->tpos);
 #if DEBUG
   if (GLOBAL_Option[2]) {
     TokEntry *t = LOCAL_tokptr;
@@ -900,7 +902,7 @@ static parser_state_t scan(REnv *re, FEnv *fe, int sno) {
 
 static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
-  fe->t = 0;
+    fe->t = 0;
   // running out of memory
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
     LOCAL_Error_TYPE = YAP_NO_ERROR;
@@ -943,7 +945,7 @@ static parser_state_t scanError(REnv *re, FEnv *fe, int inp_stream) {
 
 static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
-  fe->t = 0;
+    fe->t = 0;
   if (LOCAL_Error_TYPE != SYNTAX_ERROR && LOCAL_Error_TYPE != YAP_NO_ERROR) {
     return YAP_SCANNING_ERROR;
   }
@@ -972,7 +974,7 @@ static parser_state_t parseError(REnv *re, FEnv *fe, int inp_stream) {
 
 static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream) {
   CACHE_REGS
-  TokEntry *tokstart = LOCAL_tokptr;
+    TokEntry *tokstart = LOCAL_tokptr;
   fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
   fe->toklast = LOCAL_tokptr;
   LOCAL_tokptr = tokstart;
@@ -1008,8 +1010,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 #endif
 
   yap_error_descriptor_t *new = malloc(sizeof *new);
-
-  bool err = Yap_pushErrorContext(true, new);
+  bool  err = Yap_pushErrorContext(true, new);
   int lvl = push_text_stack();
   parser_state_t state = YAP_START_PARSING;
   while (true) {
@@ -1036,7 +1037,7 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
       break;
     case YAP_PARSING_FINISHED: {
       CACHE_REGS
-      bool done;
+	bool done;
       if (fe.reading_clause)
         done = complete_clause_processing(&fe, LOCAL_tokptr);
       else
@@ -1051,9 +1052,6 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 #endif /* EMACS */
       pop_text_stack(lvl);
       Yap_popErrorContext(err, true);
-      if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-        Yap_Error(LOCAL_Error_TYPE, Yap_MkStream(sno), LOCAL_ErrorMessage);
-      }
       return fe.t;
     }
     }
@@ -1064,13 +1062,13 @@ Term Yap_read_term(int sno, Term opts, bool clause) {
 }
 
 static Int
-    read_term2(USES_REGS1) { /* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err) */
+read_term2(USES_REGS1) { /* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err) */
   return Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, ARG2), false) !=
-         0;
+    0;
 }
 
 static Int read_term(
-    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
+		     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   int sno;
   Term out;
 
@@ -1085,25 +1083,25 @@ static Int read_term(
   return out != 0L;
 }
 
-#define READ_CLAUSE_DEFS()                                                     \
-  PAR("comments", list_filler, READ_CLAUSE_COMMENTS)                           \
-  , PAR("module", isatom, READ_CLAUSE_MODULE),                                 \
-      PAR("variable_names", filler, READ_CLAUSE_VARIABLE_NAMES),               \
-      PAR("variables", filler, READ_CLAUSE_VARIABLES),                         \
-      PAR("term_position", filler, READ_CLAUSE_TERM_POSITION),                 \
-      PAR("syntax_errors", isatom, READ_CLAUSE_SYNTAX_ERRORS),                 \
-      PAR("output", isatom, READ_CLAUSE_OUTPUT),                               \
-      PAR(NULL, ok, READ_CLAUSE_END)
+#define READ_CLAUSE_DEFS()					\
+  PAR("comments", list_filler, READ_CLAUSE_COMMENTS)		\
+  , PAR("module", isatom, READ_CLAUSE_MODULE),			\
+    PAR("variable_names", filler, READ_CLAUSE_VARIABLE_NAMES),	\
+    PAR("variables", filler, READ_CLAUSE_VARIABLES),		\
+    PAR("term_position", filler, READ_CLAUSE_TERM_POSITION),	\
+    PAR("syntax_errors", isatom, READ_CLAUSE_SYNTAX_ERRORS),	\
+    PAR("output", isatom, READ_CLAUSE_OUTPUT),			\
+    PAR(NULL, ok, READ_CLAUSE_END)
 
 #define PAR(x, y, z) z
 
 typedef enum read_clause_enum_choices {
-  READ_CLAUSE_DEFS()
+				       READ_CLAUSE_DEFS()
 } read_clause_choices_t;
 
 #undef PAR
 
-#define PAR(x, y, z)                                                           \
+#define PAR(x, y, z)				\
   { x, y, z }
 
 static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
@@ -1112,8 +1110,8 @@ static const param_t read_clause_defs[] = {READ_CLAUSE_DEFS()};
 static xarg *setClauseReadEnv(Term opts, FEnv *fe, struct renv *re, int sno) {
   CACHE_REGS
 
-  xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
-                                   DOMAIN_ERROR_READ_OPTION);
+    xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
+				     DOMAIN_ERROR_READ_OPTION);
   if (args == NULL) {
     return NULL;
   }
@@ -1209,7 +1207,7 @@ static Int read_clause2(USES_REGS1) {
  *   + The `singletons` option is set from the single var flag
  */
 static Int read_clause(
-    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
+		       USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   int sno;
   Term out;
 
@@ -1248,358 +1246,360 @@ static Int start_mega(USES_REGS1) {
   /* preserve   value of H after scanning: otherwise we may lose strings
      and floats */
   LOCAL_tokptr = LOCAL_toktide =
-      x Yap_tokenizer(GLOBAL_Stream + sno, false, &tpos);
+    x Yap_tokenizer(GLOBAL_Stream + sno, false, &tpos);
   if (tokptr->Tok == Name_tok && (next = tokptr->TokNext) != NULL &&
       next->Tok == Ponctuation_tok && next->TokInfo == TermOpenBracket) {
-          bool start = true;
-          while((tokptr = next->TokNext)) {
+    bool start = true;
+    while((tokptr = next->TokNext)) {
 
-            if (IsAtomOrIntTerm(t=*tp)) {
-                ip->opc = Yap_opcode(get_atom);
-                ip->y_u.x_c.c = t.
-            ip->y_u.x_c.x = tp++; /() c */
-                } else if (IsAtomOrIntTerm(t=*tp)) {
-                     (IsAtom(tok->Tokt)||IsIntTerm(XREGS+(i+1)))extra[arity]
-                    ]
-}
+      if (IsAtomOrIntTerm(t=*tp)) {
+	ip->opc = Yap_opcode(get_atom);
+	ip->y_u.x_c.c = t.
+	  ip->y_u.x_c.x = tp++; /() c */
+				   } else if (IsAtomOrIntTerm(t=*tp)) {
+	(IsAtom(tok->Tokt)||IsIntTerm(XREGS+(i+1)))extra[arity]
+	  ]
+	}
 #endif
-/**
- * @pred source_location( - _File_ , _Line_ )
- *
- * unify  _File_ and  _Line_ wuth the position of the last term read, if the
- *term
- * comes from a stream created by opening a file-system path with open/3 and
- *friends.>position
- * It ignores user_input or
- * sockets.
- *
- * @param - _File_
- * @param - _Line_
- *
- *
- *
- * @note SWI-Prolog built-in.
- */
-static Int source_location(USES_REGS1) {
-  return Yap_unify(ARG1, MkAtomTerm(LOCAL_SourceFileName)) &&
-         Yap_unify(ARG2, MkIntegerTerm(LOCAL_SourceFileLineno));
-}
-
-/**
- * @pred read(+ Stream, -Term ) is iso
- *
- * Reads term  _T_ from the stream  _S_ instead of from the current input
- * stream.
- *
- * @param - _Stream_
- * @param - _Term_
- *
- */
-static Int read2(
-    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  int sno;
-  Int out;
-
-  /* needs to change LOCAL_output_stream for write */
-  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
-  if (sno == -1) {
-    return (FALSE);
-  }
-  out = Yap_read_term(sno, add_output(ARG2, TermNil), false);
-  UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return out;
-}
-
-/** @pred  read(- T) is iso
-
-Reads the next term from the current input stream, and unifies it with
-_T_. The term must be followed by a dot (`.`) and any blank-character
-as previously defined. The syntax of the term must match the current
-declarations for operators (see op). If the end-of-stream is reached,
-_T_ is unified with the atom `end_of_file`. Further reads from of
-the same stream may cause an error failure (see open/3).
-
-*/
-static Int read1(
-    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  Term out = Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, TermNil), 1);
-  return out;
-}
-
-/**  @pred fileerrors
-
-Switches on the file_errors flag so that in certain error conditions
-Input/Output predicates will produce an appropriated message and abort.
-
-*/
-static Int fileerrors(USES_REGS1) {
-  return setYapFlag(TermFileErrors, TermTrue);
-}
-
-/**
-   @pred  nofileerrors
-
-   Switches off the `file_errors` flag, so that the predicates see/1,
-   tell/1, open/3 and close/1 just fail, instead of producing
-   an error message and aborting whenever the specified file cannot be
-   opened or closed.
-
-*/
-static Int nofileerrors(
-    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  return setYapFlag(TermFileerrors, TermFalse);
-}
-
-static Int style_checker(USES_REGS1) {
-  Term t = Deref(ARG1);
-
-  if (IsVarTerm(t)) {
-    Term t = TermNil;
-    if (getYapFlag(MkAtomTerm(AtomSingleVarWarnings)) == TermTrue) {
-      t = MkPairTerm(MkAtomTerm(AtomSingleVarWarnings), t);
+    /**
+     * @pred source_location( - _File_ , _Line_ )
+     *
+     * unify  _File_ and  _Line_ wuth the position of the last term read, if the
+     *term
+     * comes from a stream created by opening a file-system path with open/3 and
+     *friends.>position
+     * It ignores user_input or
+     * sockets.
+     *
+     * @param - _File_
+     * @param - _Line_
+     *
+     *
+     *
+     * @note SWI-Prolog built-in.
+     */
+    static Int source_location(USES_REGS1) {
+      return Yap_unify(ARG1, MkAtomTerm(LOCAL_SourceFileName)) &&
+	Yap_unify(ARG2, MkIntegerTerm(LOCAL_SourceFileLineno));
     }
-    if (getYapFlag(MkAtomTerm(AtomDiscontiguousWarnings)) == TermTrue) {
-      t = MkPairTerm(MkAtomTerm(AtomDiscontiguousWarnings), t);
-    }
-    if (getYapFlag(MkAtomTerm(AtomRedefineWarnings)) == TermTrue) {
-      t = MkPairTerm(MkAtomTerm(AtomRedefineWarnings), t);
-    }
-  } else {
-    while (IsPairTerm(t)) {
-      Term h = HeadOfTerm(t);
-      t = TailOfTerm(t);
 
-      if (IsVarTerm(h)) {
-        Yap_Error(INSTANTIATION_ERROR, t, "style_check/1");
-        return (FALSE);
-      } else if (IsAtomTerm(h)) {
-        Atom at = AtomOfTerm(h);
-        if (at == AtomSingleVarWarnings)
-          setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermTrue);
-        else if (at == AtomDiscontiguousWarnings)
-          setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermTrue);
-        else if (at == AtomRedefineWarnings)
-          setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermTrue);
+    /**
+     * @pred read(+ Stream, -Term ) is iso
+     *
+     * Reads term  _T_ from the stream  _S_ instead of from the current input
+     * stream.
+     *
+     * @param - _Stream_
+     * @param - _Term_
+     *
+     */
+    static Int read2(
+		     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
+      int sno;
+      Int out;
+
+      /* needs to change LOCAL_output_stream for write */
+      sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
+      if (sno == -1) {
+	return (FALSE);
+      }
+      out = Yap_read_term(sno, add_output(ARG2, TermNil), false);
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return out;
+    }
+
+    /** @pred  read(- T) is iso
+
+	Reads the next term from the current input stream, and unifies it with
+	_T_. The term must be followed by a dot (`.`) and any blank-character
+	as previously defined. The syntax of the term must match the current
+	declarations for operators (see op). If the end-of-stream is reached,
+	_T_ is unified with the atom `end_of_file`. Further reads from of
+	the same stream may cause an error failure (see open/3).
+
+    */
+    static Int read1(
+		     USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
+      Term out = Yap_read_term(LOCAL_c_input_stream, add_output(ARG1, TermNil), 1);
+      return out;
+    }
+
+    /**  @pred fileerrors
+
+	 Switches on the file_errors flag so that in certain error conditions
+	 Input/Output predicates will produce an appropriated message and abort.
+
+    */
+    static Int fileerrors(USES_REGS1) {
+      return setYapFlag(TermFileErrors, TermTrue);
+    }
+
+    /**
+       @pred  nofileerrors
+
+       Switches off the `file_errors` flag, so that the predicates see/1,
+       tell/1, open/3 and close/1 just fail, instead of producing
+       an error message and aborting whenever the specified file cannot be
+       opened or closed.
+
+    */
+    static Int nofileerrors(
+			    USES_REGS1) { /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
+      return setYapFlag(TermFileerrors, TermFalse);
+    }
+
+    static Int style_checker(USES_REGS1) {
+      Term t = Deref(ARG1);
+
+      if (IsVarTerm(t)) {
+	Term t = TermNil;
+	if (getYapFlag(MkAtomTerm(AtomSingleVarWarnings)) == TermTrue) {
+	  t = MkPairTerm(MkAtomTerm(AtomSingleVarWarnings), t);
+	}
+	if (getYapFlag(MkAtomTerm(AtomDiscontiguousWarnings)) == TermTrue) {
+	  t = MkPairTerm(MkAtomTerm(AtomDiscontiguousWarnings), t);
+	}
+	if (getYapFlag(MkAtomTerm(AtomRedefineWarnings)) == TermTrue) {
+	  t = MkPairTerm(MkAtomTerm(AtomRedefineWarnings), t);
+	}
       } else {
-        Atom at = AtomOfTerm(ArgOfTerm(1, h));
-        if (at == AtomSingleVarWarnings)
-          setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermFalse);
-        else if (at == AtomDiscontiguousWarnings)
-          setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermFalse);
-        else if (at == AtomRedefineWarnings)
-          setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermFalse);
+	while (IsPairTerm(t)) {
+	  Term h = HeadOfTerm(t);
+	  t = TailOfTerm(t);
+
+	  if (IsVarTerm(h)) {
+	    Yap_Error(INSTANTIATION_ERROR, t, "style_check/1");
+	    return (FALSE);
+	  } else if (IsAtomTerm(h)) {
+	    Atom at = AtomOfTerm(h);
+	    if (at == AtomSingleVarWarnings)
+	      setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermTrue);
+	    else if (at == AtomDiscontiguousWarnings)
+	      setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermTrue);
+	    else if (at == AtomRedefineWarnings)
+	      setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermTrue);
+	  } else {
+	    Atom at = AtomOfTerm(ArgOfTerm(1, h));
+	    if (at == AtomSingleVarWarnings)
+	      setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermFalse);
+	    else if (at == AtomDiscontiguousWarnings)
+	      setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermFalse);
+	    else if (at == AtomRedefineWarnings)
+	      setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermFalse);
+	  }
+	}
+      }
+      return TRUE;
+    }
+
+    Term Yap_BufferToTerm(const char *s, Term opts) {
+      Term rval;
+      int sno;
+      encoding_t l = ENC_ISO_UTF8;
+      sno = Yap_open_buf_read_stream((char *)s, strlen(s)+1, &l,
+				     MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix(s,16)), TermNone );
+
+      GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+      rval = Yap_read_term(sno, opts, false);
+      Yap_CloseStream(sno);
+      return rval;
+    }
+
+    Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
+      Term rval;
+      int sno;
+      encoding_t l = ENC_ISO_UTF8;
+      sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
+				     MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix((char *)s,16)), TermNone);
+      GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+      rval = Yap_read_term(sno, opts, false);
+      Yap_CloseStream(sno);
+      return rval;
+    }
+
+    X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
+						Term bindings, size_t len,
+						int prio) {
+      CACHE_REGS
+	Term ctl;
+
+      ctl = opts;
+      if (bindings) {
+	ctl = add_names(bindings, TermNil);
+      }
+      if (prio != 1200) {
+	ctl = add_priority(bindings, ctl);
+      }
+      return Yap_BufferToTerm(s, ctl);
+    }
+
+    /**
+     * @pred read_term_from_atom( +Atom , -T , +Options )
+     *
+     * read a term _T_ stored in constant _Atom_ according to  _Options_
+     *
+     * @param _Atom_ the source _Atom_
+     * @param _T_ the output term _T_, may be any term
+     * @param _Options_ read_term/3 options.
+     *
+     * @note Originally from SWI-Prolog, in YAP only works with internalised
+     *atoms
+     * Check  read_term_from_atomic/3 for the general version. Also, the built-in
+     *is
+     *supposed to
+     * use YAP's internal encoding, so please avoid the encoding/1 option.
+     */
+    static Int read_term_from_atom(USES_REGS1) {
+      Term t1 = Deref(ARG1);
+      Atom at;
+      const unsigned char *s;
+
+      if (IsVarTerm(t1)) {
+	Yap_Error(INSTANTIATION_ERROR, t1, "style_check/1");
+	return false;
+      } else if (!IsAtomTerm(t1)) {
+	Yap_Error(TYPE_ERROR_ATOM, t1, "style_check/1");
+	return false;
+      } else {
+	at = AtomOfTerm(t1);
+	s = at->UStrOfAE;
+      }
+      Term ctl = add_output(ARG2, ARG3);
+
+      return Yap_UBufferToTerm(s, ctl);
+    }
+
+    /**
+     *  @pred read_term_from_atomic( +Atomic , - T , +Options )
+     *
+     * read a term _T_ stored in text _Atomic_ according to  _Options_
+     *
+     * @param _Atomic_ the source may be an atom, string, list of codes, or list
+     *of
+     *chars.
+     * @param _T_ the output term _T_, may be any term
+     * @param _Options_ read_term/3 options.
+     *
+     * @notes Idea originally from SWI-Prolog, but in YAP we separate atomic and
+     *atom.
+     * Encoding is fixed in atoms and strings.
+     */
+    static Int read_term_from_atomic(USES_REGS1) {
+      Term t1 = Deref(ARG1);
+      const unsigned char *s;
+
+      if (IsVarTerm(t1)) {
+	Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_atomic/3");
+	return (FALSE);
+      } else if (!IsAtomicTerm(t1)) {
+	Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
+	return (FALSE);
+      } else {
+	Term t = Yap_AtomicToString(t1 PASS_REGS);
+	s = UStringOfTerm(t);
+      }
+      Term ctl = add_output(ARG2, ARG3);
+
+      return Yap_UBufferToTerm(s, ctl);
+    }
+
+    /**
+     * @pred read_term_from_string( +String , - T , + Options )
+     *
+     * read a term _T_ stored in constant _String_ according to  _Options_
+     *
+     * @param _String_ the source _String_
+     * @param _T_ the output term _T_, may be any term
+     * @param _Options_ read_term/3 options.
+     *
+     *  Idea from SWI-Prolog, in YAP only works with strings
+     * Check  read_term_from_atomic/3 for the general version.
+     */
+    static Int read_term_from_string(USES_REGS1) {
+      Term t1 = Deref(ARG1), rc;
+      const unsigned char *s;
+      size_t len;
+      BACKUP_H()
+	if (IsVarTerm(t1)) {
+	  Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+	  return (FALSE);
+	} else if (!IsStringTerm(t1)) {
+	  Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+	  return (FALSE);
+	} else {
+	  s = UStringOfTerm(t1);
+	  len = strlen_utf8(s);
+	}
+      char *ss = (char *)s;
+      encoding_t enc = ENC_ISO_UTF8;
+      int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix(ss,16)), TermString);
+      GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+      rc = Yap_read_term(sno, Deref(ARG3), 3);
+      Yap_CloseStream(sno);
+      RECOVER_H();
+      if (!rc)
+	return false;
+      return Yap_unify(rc, ARG2);
+    }
+
+    static Int atomic_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1);
+      int l = push_text_stack();
+      const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
+      Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
+      pop_text_stack(l);
+      return rc;
+    }
+
+    static Int atom_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1);
+      if (IsVarTerm(t1)) {
+	Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+	return (FALSE);
+      } else if (!IsAtomTerm(t1)) {
+	Yap_Error(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
+	return (FALSE);
+      } else {
+	Term t = Yap_AtomicToString(t1 PASS_REGS);
+	const unsigned char *us = UStringOfTerm(t);
+	return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
       }
     }
-  }
-  return TRUE;
-}
 
-Term Yap_BufferToTerm(const char *s, Term opts) {
-  Term rval;
-  int sno;
-  encoding_t l = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s)+1, &l,
-                                 MEM_BUF_USER);
+    static Int string_to_term(USES_REGS1) {
+      Term t1 = Deref(ARG1);
 
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  rval = Yap_read_term(sno, opts, false);
-  Yap_CloseStream(sno);
-  return rval;
-}
+      if (IsVarTerm(t1)) {
+	Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
+	return (FALSE);
+      } else if (!IsStringTerm(t1)) {
+	Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
+	return (FALSE);
+      } else {
+	const unsigned char *us = UStringOfTerm(t1);
+	return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
+      }
+    }
 
-Term Yap_UBufferToTerm(const unsigned char *s, Term opts) {
-  Term rval;
-  int sno;
-  encoding_t l = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen((const char *)s), &l,
-                                 MEM_BUF_USER);
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  rval = Yap_read_term(sno, opts, false);
-  Yap_CloseStream(sno);
-  return rval;
-}
+    void Yap_InitReadTPreds(void) {
+      Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
+      Yap_InitCPred("read_term", 3, read_term, SyncPredFlag);
 
-X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
-                                            Term bindings, size_t len,
-                                            int prio) {
-  CACHE_REGS
-  Term ctl;
+      Yap_InitCPred("scan_to_list", 2, scan_to_list, SyncPredFlag);
+      Yap_InitCPred("read", 1, read1, SyncPredFlag);
+      Yap_InitCPred("read", 2, read2, SyncPredFlag);
+      Yap_InitCPred("read_clause", 2, read_clause2, SyncPredFlag);
+      Yap_InitCPred("read_clause", 3, read_clause, 0);
+      Yap_InitCPred("read_term_from_atom", 3, read_term_from_atom, 0);
+      Yap_InitCPred("read_term_from_atomic", 3, read_term_from_atomic, 0);
+      Yap_InitCPred("read_term_from_string", 3, read_term_from_string, 0);
+      Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
+      Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
+      Yap_InitCPred("string_to_term", 3, string_to_term, 0);
 
-  ctl = opts;
-  if (bindings) {
-    ctl = add_names(bindings, TermNil);
-  }
-  if (prio != 1200) {
-    ctl = add_priority(bindings, ctl);
-  }
-  return Yap_BufferToTerm(s, ctl);
-}
-
-/**
- * @pred read_term_from_atom( +Atom , -T , +Options )
- *
- * read a term _T_ stored in constant _Atom_ according to  _Options_
- *
- * @param _Atom_ the source _Atom_
- * @param _T_ the output term _T_, may be any term
- * @param _Options_ read_term/3 options.
- *
- * @note Originally from SWI-Prolog, in YAP only works with internalised
- *atoms
- * Check  read_term_from_atomic/3 for the general version. Also, the built-in
- *is
- *supposed to
- * use YAP's internal encoding, so please avoid the encoding/1 option.
- */
-static Int read_term_from_atom(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  Atom at;
-  const unsigned char *s;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "style_check/1");
-    return false;
-  } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "style_check/1");
-    return false;
-  } else {
-    at = AtomOfTerm(t1);
-    s = at->UStrOfAE;
-  }
-  Term ctl = add_output(ARG2, ARG3);
-
-  return Yap_UBufferToTerm(s, ctl);
-}
-
-/**
- *  @pred read_term_from_atomic( +Atomic , - T , +Options )
- *
- * read a term _T_ stored in text _Atomic_ according to  _Options_
- *
- * @param _Atomic_ the source may be an atom, string, list of codes, or list
- *of
- *chars.
- * @param _T_ the output term _T_, may be any term
- * @param _Options_ read_term/3 options.
- *
- * @notes Idea originally from SWI-Prolog, but in YAP we separate atomic and
- *atom.
- * Encoding is fixed in atoms and strings.
- */
-static Int read_term_from_atomic(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  const unsigned char *s;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_atomic/3");
-    return (FALSE);
-  } else if (!IsAtomicTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOMIC, t1, "read_term_from_atomic/3");
-    return (FALSE);
-  } else {
-    Term t = Yap_AtomicToString(t1 PASS_REGS);
-    s = UStringOfTerm(t);
-  }
-  Term ctl = add_output(ARG2, ARG3);
-
-  return Yap_UBufferToTerm(s, ctl);
-}
-
-/**
- * @pred read_term_from_string( +String , - T , + Options )
- *
- * read a term _T_ stored in constant _String_ according to  _Options_
- *
- * @param _String_ the source _String_
- * @param _T_ the output term _T_, may be any term
- * @param _Options_ read_term/3 options.
- *
- *  Idea from SWI-Prolog, in YAP only works with strings
- * Check  read_term_from_atomic/3 for the general version.
- */
-static Int read_term_from_string(USES_REGS1) {
-  Term t1 = Deref(ARG1), rc;
-  const unsigned char *s;
-  size_t len;
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else if (!IsStringTerm(t1)) {
-    Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else {
-    s = UStringOfTerm(t1);
-    len = strlen_utf8(s);
-  }
-  char *ss = (char *)s;
-  encoding_t enc = ENC_ISO_UTF8;
-  int sno = Yap_open_buf_read_stream(ss, len, &enc, MEM_BUF_USER);
-  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
-  rc = Yap_read_term(sno, Deref(ARG3), 3);
-  Yap_CloseStream(sno);
-  if (!rc)
-    return false;
-  return Yap_unify(rc, ARG2);
-}
-
-static Int atomic_to_term(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-    int l = push_text_stack();
-   const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
-  Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
-    pop_text_stack(l);
-    return rc;
-}
-
-static Int atom_to_term(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "read_term_from_atomic/3");
-    return (FALSE);
-  } else {
-    Term t = Yap_AtomicToString(t1 PASS_REGS);
-    const unsigned char *us = UStringOfTerm(t);
-    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
-  }
-}
-
-static Int string_to_term(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else if (!IsStringTerm(t1)) {
-    Yap_Error(TYPE_ERROR_STRING, t1, "read_term_from_string/3");
-    return (FALSE);
-  } else {
-    const unsigned char *us = UStringOfTerm(t1);
-    return Yap_UBufferToTerm(us, add_output(ARG2, add_names(ARG3, TermNil)));
-  }
-}
-
-void Yap_InitReadTPreds(void) {
-  Yap_InitCPred("read_term", 2, read_term2, SyncPredFlag);
-  Yap_InitCPred("read_term", 3, read_term, SyncPredFlag);
-
-  Yap_InitCPred("scan_to_list", 2, scan_to_list, SyncPredFlag);
-  Yap_InitCPred("read", 1, read1, SyncPredFlag);
-  Yap_InitCPred("read", 2, read2, SyncPredFlag);
-  Yap_InitCPred("read_clause", 2, read_clause2, SyncPredFlag);
-  Yap_InitCPred("read_clause", 3, read_clause, 0);
-  Yap_InitCPred("read_term_from_atom", 3, read_term_from_atom, 0);
-  Yap_InitCPred("read_term_from_atomic", 3, read_term_from_atomic, 0);
-  Yap_InitCPred("read_term_from_string", 3, read_term_from_string, 0);
-  Yap_InitCPred("atom_to_term", 3, atom_to_term, 0);
-  Yap_InitCPred("atomic_to_term", 3, atomic_to_term, 0);
-  Yap_InitCPred("string_to_term", 3, string_to_term, 0);
-
-  Yap_InitCPred("fileerrors", 0, fileerrors, SyncPredFlag);
-  Yap_InitCPred("nofileeleerrors", 0, nofileerrors, SyncPredFlag);
-  Yap_InitCPred("source_location", 2, source_location, SyncPredFlag);
-  Yap_InitCPred("$style_checker", 1, style_checker,
-                SyncPredFlag | HiddenPredFlag);
-}
+      Yap_InitCPred("fileerrors", 0, fileerrors, SyncPredFlag);
+      Yap_InitCPred("nofileeleerrors", 0, nofileerrors, SyncPredFlag);
+      Yap_InitCPred("source_location", 2, source_location, SyncPredFlag);
+      Yap_InitCPred("$style_checker", 1, style_checker,
+		    SyncPredFlag | HiddenPredFlag);
+    }

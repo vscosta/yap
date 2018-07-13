@@ -35,6 +35,7 @@ extern int Yap_HasOp(Atom);
 extern struct operator_entry *
      Yap_GetOpPropForAModuleHavingALock(struct AtomEntryStruct *, Term);
 extern Atom Yap_LookupAtom(const char *);
+extern Atom Yap_AtomInUse(const char *atom);
 extern Atom Yap_ULookupAtom(const unsigned char *);
 extern Atom Yap_LookupAtomWithLength(const char *, size_t);
 extern Atom Yap_FullLookupAtom(const char *);
@@ -309,7 +310,6 @@ extern void Yap_DebugPlWriteln(Term t);
 extern void Yap_DebugErrorPutc(int n);
 extern void Yap_DebugErrorPuts(const char *s);
 extern void Yap_DebugWriteIndicator(struct pred_entry *ap);
-extern void Yap_PlWriteToStream(Term, int, int);
 extern void Yap_CloseReadline(void);
 /* depth_lim.c */
 extern bool Yap_InitReadline(Term t);

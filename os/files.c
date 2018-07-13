@@ -98,7 +98,7 @@ static Int file_name_extension(USES_REGS1) {
       ext = "";
     }
     base = Malloc(lenb_b + 1);
-    memcpy(base, f, lenb_b);
+    memmove(base, f, lenb_b);
     base[lenb_b] = '\0';
     if (IsVarTerm(t1 = Deref(ARG1))) {
       // should always succeed

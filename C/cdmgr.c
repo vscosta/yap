@@ -301,7 +301,7 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   mcl->ClLine = cl->usc.ClLine;
   ptr = mcl->ClCode;
   while (TRUE) {
-    memcpy((void *)ptr, (void *)cl->ClCode, sz);
+    memmove((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
       LOCAL_ClDiff = (char *)(ptr) - (char *)cl->ClCode;
       restore_opcodes(ptr, NULL PASS_REGS);
@@ -380,7 +380,7 @@ static void split_megaclause(PredEntry *ap) {
     new->ClSize = mcl->ClItemSize;
     new->usc.ClLine = Yap_source_line_no();
     new->ClNext = NULL;
-    memcpy((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
+    memmove((void *)new->ClCode, (void *)ptr, mcl->ClItemSize);
     if (prev) {
       prev->ClNext = new;
     } else {
@@ -1386,7 +1386,7 @@ static void expand_consult(void) {
   }
   new_cs = new_cl + InitialConsultCapacity;
   /* start copying */
-  memcpy((void *)new_cs, (void *)LOCAL_ConsultLow,
+  memmove((void *)new_cs, (void *)LOCAL_ConsultLow,
          OldConsultCapacity * sizeof(consult_obj));
   /* copying done, release old space */
   Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
@@ -1768,6 +1768,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     disc[2] = Yap_Module_Name(p);
     sc[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomDiscontiguous, 3), 3, disc);
     sc[1] = MkIntegerTerm(Yap_source_line_no());
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "source %s ", RepAtom(LOCAL_SourceFileName)->StrOfAE);
     sc[2] = MkAtomTerm(LOCAL_SourceFileName);
     sc[3] = t;
     t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, sc);
@@ -2064,7 +2065,7 @@ Atom Yap_ConsultingFile(USES_REGS1) {
   if (LOCAL_consult_level == 0) {
     return (AtomUser);
   } else {
-    return (Yap_ULookupAtom(LOCAL_ConsultBase[2].f_name));
+    return LOCAL_ConsultBase[2].f_name;
   }
 }
 
@@ -2078,7 +2079,7 @@ void Yap_init_consult(int mode, const char *filenam) {
     expand_consult();
   }
   LOCAL_ConsultSp--;
-  LOCAL_ConsultSp->f_name = (const unsigned char *)filenam;
+  LOCAL_ConsultSp->f_name = Yap_LookupAtom(filenam);
   LOCAL_ConsultSp--;
   LOCAL_ConsultSp->mode = mode;
   LOCAL_ConsultSp--;

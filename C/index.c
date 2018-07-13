@@ -825,7 +825,7 @@ static inline int smaller_or_eq(Term t1, Term t2) {
 }
 
 static inline void clcpy(ClauseDef *d, ClauseDef *s) {
-  memcpy((void *)d, (void *)s, sizeof(ClauseDef));
+  memmove((void *)d, (void *)s, sizeof(ClauseDef));
 }
 
 static void insort(ClauseDef base[], CELL *p, CELL *q, int my_p) {
@@ -2670,7 +2670,7 @@ static ClauseDef *copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top,
     save_machine_regs();
     siglongjmp(cint->CompilerBotch, 4);
   }
-  memcpy((void *)top, (void *)min0, sz);
+  memmove((void *)top, (void *)min0, sz);
   return (ClauseDef *)top;
 }
 

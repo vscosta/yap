@@ -588,13 +588,25 @@ restart_aux:
   }
 }
 
+/** @pred  atom_codes(?A, ?L) is iso
+
+
+    The predicate holds when at least one of the arguments is
+    ground (otherwise, YAP will generate an error event.   _A_ must be unifiable
+   with an atom, and the argument  _L_ with the list of the character codes for
+   string  _A_.
+
+
+*/
 static Int atom_codes(USES_REGS1) {
   Term t1;
-  t1 = Deref(ARG1);
+  LOCAL_MAX_SIZE = 1024;
   int l = push_text_stack();
+
 restart_aux:
+  t1 = Deref(ARG1);
   if (IsAtomTerm(t1)) {
-    Term tf = Yap_AtomToListOfCodes(t1 PASS_REGS);
+    Term tf = Yap_AtomSWIToListOfCodes(t1 PASS_REGS);
     if (tf) {
       pop_text_stack(l);
       return Yap_unify(ARG2, tf);
@@ -602,17 +614,16 @@ restart_aux:
   } else if (IsVarTerm(t1)) {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
-    Atom af = Yap_ListToAtom(t PASS_REGS);
+    Atom af = Yap_ListOfCodesToAtom(t PASS_REGS);
     if (af) {
       pop_text_stack(l);
       return Yap_unify(ARG1, MkAtomTerm(af));
     }
-  } else if (IsVarTerm(t1)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+    /* error handling */
+  } else {
+    Yap_ThrowError(TYPE_ERROR_ATOM, t1, NULL);
   }
-  /* error handling */
   if (LOCAL_Error_TYPE && Yap_HandleError("atom_codes/2")) {
-    t1 = Deref(ARG1);
     goto restart_aux;
   }
   {
@@ -717,14 +728,14 @@ static Int number_chars(USES_REGS1) {
       pop_text_stack(l);
       return Yap_unify(ARG1, tf);
     }
-      pop_text_stack(l);
+    pop_text_stack(l);
 
     LOCAL_ActiveError->errorRawTerm = 0;
     Yap_ThrowExistingError();
 
     return false;
   }
-        pop_text_stack(l);
+  pop_text_stack(l);
 
   return true;
 }
@@ -1367,7 +1378,7 @@ restart_aux:
     LOCAL_Error_TYPE = TYPE_ERROR_LIST;
   } else {
     seq_tv_t *inpv = (seq_tv_t *)Malloc(n * sizeof(seq_tv_t));
-    seq_tv_t *out = (seq_tv_t *)Malloc( sizeof(seq_tv_t));
+    seq_tv_t *out = (seq_tv_t *)Malloc(sizeof(seq_tv_t));
     int i = 0;
     if (!inpv) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_HEAP;
@@ -1455,9 +1466,7 @@ error:
   if (LOCAL_Error_TYPE && Yap_HandleError("atom_concat/3")) {
     goto restart_aux;
   }
-  {
-    return FALSE;
-  }
+  { return FALSE; }
 }
 
 static Int atomics_to_string2(USES_REGS1) {
@@ -2070,7 +2079,7 @@ static Int atom_split(USES_REGS1) {
   }
   size_t b_mid = skip_utf8(s0, u_mid) - s0;
   s1 = s10 = Malloc(b_mid + 1);
-  memcpy(s1, s, b_mid);
+  memmove(s1, s, b_mid);
   s1[b_mid] = '\0';
   to1 = MkAtomTerm(Yap_ULookupAtom(s10));
   to2 = MkAtomTerm(Yap_ULookupAtom(s0 + b_mid));
@@ -2756,6 +2765,8 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);
   Yap_InitCPred("upcase_atom", 2, upcase_text_to_atom, 0);
+  Yap_InitCPred("text_to_string", 2, downcase_text_to_string, 0);
+  Yap_InitCPred("text_to_atom", 2, downcase_text_to_string, 0);
   Yap_InitCPred("downcase_text_to_string", 2, downcase_text_to_string, 0);
   Yap_InitCPred("upcase_text_to_string", 2, upcase_text_to_string, 0);
   Yap_InitCPred("downcase_text_to_codes", 2, downcase_text_to_codes, 0);

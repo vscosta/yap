@@ -5,9 +5,12 @@ PyObject *py_Main;
 
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
-  fprintf(stderr, " Python error detcted at %s %s:%d\n\n", code, file, line);
-  PyErr_Print();
-}
+  //int lvl = push_text_stack();
+  PyObject *type, *val;
+  //   PyErr_Fetch(&type, &val, NULL);
+  //   PyErr_Print();
+  // Yap_ThrowError__(file,code,line,0, SYSTEM_ERROR_RUNTIME_PYTHON ,"Python Error %s: %s",PyUnicode_AsUTF8(PyObject_Str(type)), PyUnicode_AsUTF8(PyObject_Str(val)));
+	 	   };
 
 static foreign_t python_len(term_t tobj, term_t tf) {
   Py_ssize_t len;

@@ -1,4 +1,7 @@
 :- stop_low_level_trace.
+
+
+:- use_module(library(lists)).
 :- use_module(library(maplist)).
 :- use_module(library(myddas)).
 
@@ -7,13 +10,13 @@ main :-
 		 main_,
 		  close.
 main_ :-
-	go,
+	catch(go,E,writeln(E)),
 	fail.
 main_ .
 
 init :-
-    %    db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
-        db_open(sqlite3, 'chinook.db', _, _),
+       db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+    %   db_open(sqlite3, 'chinook.db', _, _),
     writeln('chinook has landed').
 
 go :-
@@ -25,6 +28,11 @@ go :-
 	db_import('tracks', tracks),
     writeln(('tracks -> tracks')).
 
+
+go :-
+%	X=1,
+    artists(X,Y),
+    writeln(X:Y).
 go :-
     		writeln(db_get_attributes_types),
     		db_get_attributes_types(albums,Als),
@@ -54,6 +62,7 @@ go :-
 					db_describe(T,tableinfo(FieldID,Type,Null,Primary,Default,'')),
 					 writeln(T:tableinfo(FieldID,Type,Null,Primary,Default,'')).
 
+
 go :-
     writeln(access),
 	go_cut0.
@@ -70,11 +79,6 @@ go :-
 go :-
 	go_cut1.
 
-go :-
-	X=1,
-    artists(X,Y),
-    writeln(X:Y).
-
 go_cut0 :-
     artists(X,Y),
     writeln(X:Y),
@@ -82,7 +86,7 @@ go_cut0 :-
 
 
 go_cut1 :-
-	X=1,
+%	X=1,
     artists(X,Y),
     writeln(X:Y),
     !.
@@ -90,4 +94,6 @@ go_cut1 :-
 close :-
 	db_close.
 
-:- main.
+
+
+:- initialization(main).

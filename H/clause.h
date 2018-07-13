@@ -24,7 +24,7 @@
 /* consulting files */
 
 typedef union CONSULT_OBJ {
-  const unsigned char *f_name;
+  Atom f_name;
   int mode;
   Prop p;
   UInt c;

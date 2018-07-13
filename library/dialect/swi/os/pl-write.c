@@ -137,7 +137,7 @@ format_float(double f, char *buf)
     { *o++ = s[0];
       *o++ = '.';
       if ( end-s > 1 )
-      { memcpy(o, s+1, end-s-1);
+      { memmove(o, s+1, end-s-1);
 	o += end-s-1;
       } else
 	*o++ = '0';
@@ -149,14 +149,14 @@ format_float(double f, char *buf)
       *o++ = '.';
       for(i=0; i < -decpt; i++)
 	*o++ = '0';
-      memcpy(o, s, end-s);
+      memmove(o, s, end-s);
       o[end-s] = 0;
     }
   } else if ( end-s > decpt )		/* decimal dot inside */
-  { memcpy(o, s, decpt);
+  { memmove(o, s, decpt);
     o += decpt;
     *o++ = '.';
-    memcpy(o, s+decpt, end-s-decpt);
+    memmove(o, s+decpt, end-s-decpt);
     o[end-s-decpt] = 0;
   } else				/* decimal dot after */
   { int i;
@@ -167,13 +167,13 @@ format_float(double f, char *buf)
       *o++ = '.';
       if ( end-s > 1 )
       { trailing += (int)(end-s)-1;
-	memcpy(o, s+1, end-s-1);
+	memmove(o, s+1, end-s-1);
 	o += end-s-1;
       } else
 	*o++ = '0';
       sprintf(o, "e+%d", trailing);
     } else				/* within precision trail with .0 */
-    { memcpy(o, s, end-s);
+    { memmove(o, s, end-s);
       o += end-s;
 
       for(i=(int)(end-s); i<decpt; i++)

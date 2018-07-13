@@ -496,7 +496,7 @@
 /* Define to 1 if you have the `mbsnrtowcs' function. */
 #undef HAVE_MBSNRTOWCS
 
-/* Define to 1 if you have the `memcpy' function. */
+/* Define to 1 if you have the `memmove' function. */
 #undef HAVE_MEMCPY
 
 /* Define to 1 if you have the `memmove' function. */

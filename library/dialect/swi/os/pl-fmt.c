@@ -1426,7 +1426,7 @@ localizeDecimalPoint(PL_locale *locale, Buffer b)
 
     if ( strncmp(e, ddp, ddplen) == 0 )
     { if ( dplen == ddplen )
-      { memcpy(e, dp, dplen);
+      { memmove(e, dp, dplen);
       } else
       { char *ob = baseBuffer(b, char);
 	if ( dplen > ddplen && !growBuffer(b, dplen-ddplen) )
@@ -1434,7 +1434,7 @@ localizeDecimalPoint(PL_locale *locale, Buffer b)
 	e += baseBuffer(b, char) - ob;
 
 	memmove(&e[dplen-ddplen], e, strlen(e)+1);
-	memcpy(e, dp, dplen);
+	memmove(e, dp, dplen);
       }
     }
   }
@@ -1477,7 +1477,7 @@ groupDigits(PL_locale *locale, Buffer b)
       { *o-- = *e--;
 	if ( --gsize == 0 && e>=s )
 	{ o -= thslen-1;
-	  memcpy(o, ths, thslen);
+	  memmove(o, ths, thslen);
 	  o--;
 	  if ( grouping[1] == 0 )
 	    gsize = grouping[0];

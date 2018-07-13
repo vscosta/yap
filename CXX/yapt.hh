@@ -27,6 +27,13 @@
 
 class YAPError;
 
+extern "C" {
+
+X_API extern Term YAP_MkCharPTerm( char *n);
+
+
+}
+
 /**
  * @brief Generic Prolog Term
  */
@@ -39,7 +46,7 @@ class X_API YAPTerm {
   friend class YAPApplTerm;
   friend class YAPListTerm;
 
-protected:
+ protected:
   yhandle_t t; /// handle to term, equivalent to term_t
 
 public:
@@ -110,7 +117,7 @@ public:
   /// numbervars ( int start, bool process=false )
   intptr_t numberVars(intptr_t start, bool skip_singletons = false);
   inline Term term() {
-    return gt();
+    return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)
     YAPTerm arg(int i) {
         BACKUP_MACHINE_REGS();
@@ -216,19 +223,15 @@ public:
   /// return a string with a textual representation of the term
   virtual const char *text() {
     CACHE_REGS
-    encoding_t enc = LOCAL_encoding;
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), enc, Handle_vars_f))) {
+    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t),  Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
     RECOVER_MACHINE_REGS();
-    size_t length = strlen(os);
-    char *sm = (char *)malloc(length + 1);
-    strcpy(sm, os);
-    return sm;
+    return os;
   };
 
   /// return a handle to the term
@@ -315,12 +318,18 @@ public:
       RECOVER_MACHINE_REGS();
       return tf;
     };
-    void putArg(int i, YAPTerm t) {
-      BACKUP_MACHINE_REGS();
-      Term t0 = gt();
-      RepAppl(t0)[i] = t.term();
-      RECOVER_MACHINE_REGS();
-    };
+              void putArg(int i, Term targ) {
+                //BACKUP_MACHINE_REGS();
+                Term t0 = gt();
+                RepAppl(t0)[i] = Deref(targ);
+                //RECOVER_MACHINE_REGS();
+              };
+              void putArg(int i, YAPTerm t) {
+                //BACKUP_MACHINE_REGS();
+                Term t0 = gt();
+                RepAppl(t0)[i] = t.term();
+                //RECOVER_MACHINE_REGS();
+              };
     virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer

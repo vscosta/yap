@@ -203,6 +203,8 @@ typedef struct yap_boot_params {
   const char *INPUT_STARTUP;
   //> bootstrapping mode: YAP is not properly installed
   bool install;
+  //> jupyter mode: YAP is in space
+  bool jupyter;
   //>  generats a saved space at this path
   const char *OUTPUT_STARTUP;
   //> if NON-0, minimal size for Heap or Code Area

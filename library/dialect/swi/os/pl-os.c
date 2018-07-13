@@ -953,7 +953,7 @@ getenv3(const char *name, char *buf, size_t len)
 
   if ( s )
   { if ( (l=strlen(s)) < len )
-      memcpy(buf, s, l+1);
+      memmove(buf, s, l+1);
     else if ( len > 0 )
       buf[0] = EOS;                     /* empty string if not fit */
 

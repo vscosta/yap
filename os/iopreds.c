@@ -1129,10 +1129,14 @@ static void check_bom(int sno, StreamDesc *st) {
 bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
+  // fprintf(stderr,"+ %s --> %d\n", name, sno);
   StreamDesc *st = &GLOBAL_Stream[sno];
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "init %s %s  stream  <%d>",io_mode,name,
-                        sno);
-    if (io_mode == NULL)
+  __android_log_print(
+      ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>", io_mode,
+      CurrentModule == 0 ? "prolog"
+                         : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
+      name, sno);
+  if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
               "File opened with NULL Permissions");
   if (strchr(io_mode, 'a')) {
@@ -1229,13 +1233,10 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
-
-static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, Term user_name,
-                   encoding_t enc)
-{
+static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
+                        Term user_name, encoding_t enc) {
   struct vfs *vfsp = NULL;
   const char *fname;
-  
 
   if (IsAtomTerm(tin))
     fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
@@ -1287,8 +1288,10 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
           return false;
         }
         buf = pop_output_text_stack(i, buf);
+        Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
         sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                       MEM_BUF_MALLOC);
+                                       MEM_BUF_MALLOC, nat,
+                                       MkAtomTerm(NameOfFunctor(f)));
         return Yap_OpenBufWriteStream(PASS_REGS1);
       }
     } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
@@ -1360,9 +1363,9 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   } else {
     open_mode = AtomOfTerm(t2);
   }
-  /* get options */ 
-  xarg *args = Yap_ArgListToVector(tlist, open_defs, OPEN_END,
-                                   DOMAIN_ERROR_OPEN_OPTION);
+  /* get options */
+  xarg *args =
+      Yap_ArgListToVector(tlist, open_defs, OPEN_END, DOMAIN_ERROR_OPEN_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
       Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
@@ -1371,7 +1374,7 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
   }
   /* done */
   st->status = 0;
-  const char *s_encoding; 
+  const char *s_encoding;
   if (args[OPEN_ENCODING].used) {
     tenc = args[OPEN_ENCODING].tvalue;
     s_encoding = RepAtom(AtomOfTerm(tenc))->StrOfAE;
@@ -1432,14 +1435,14 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
                 "type is ~a, must be one of binary or text", t);
     }
   }
-  
+
   st = &GLOBAL_Stream[sno];
 
-    if (!fill_stream(sno, st, file_name,io_mode,st->user_name,st->encoding)) {
+  if (!fill_stream(sno, st, file_name, io_mode, st->user_name, st->encoding)) {
     return false;
   }
 
-if (args[OPEN_BOM].used) {
+  if (args[OPEN_BOM].used) {
     if (args[OPEN_BOM].tvalue == TermTrue) {
       avoid_bom = false;
       needs_bom = true;
@@ -1667,9 +1670,8 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   st = GLOBAL_Stream + sno;
   // fname = Yap_VF(fname);
 
-
-  if (fill_stream(sno, st, tin,io_mode,user_name,enc))
-   return sno;
+  if (fill_stream(sno, st, tin, io_mode, user_name, enc))
+    return sno;
   return -1;
 }
 
@@ -1864,13 +1866,13 @@ static Int always_prompt_user(USES_REGS1) {
   return (TRUE);
 }
 
- /** @pred  close(+ _S_) is iso
+/** @pred  close(+ _S_) is iso
 
 Closes the stream  _S_. If  _S_ does not stand for a stream
 currently opened an error is reported. The streams user_input,
 user_output, and user_error can never be closed.
 */
- static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
+static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
   int sno = CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)

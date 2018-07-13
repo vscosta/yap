@@ -161,8 +161,7 @@ static bool consult(const char *b_file USES_REGS) {
 
   /* consult in C */
   int lvl = push_text_stack();
-  char *full = Malloc(YAP_FILENAME_MAX + 1);
-  full[0] = '\0';
+  char *full;
   /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
     osno = 0;
@@ -204,17 +203,21 @@ static bool consult(const char *b_file USES_REGS) {
     } else {
      YAP_CompileClause(t);
     }
-  } while (true);
     yap_error_descriptor_t *errd;
     if ((errd =
 	 Yap_GetException(LOCAL_ActiveError))) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
               errd->errorAsText);
     }
+  } while (true);
   BACKUP_MACHINE_REGS();
   YAP_EndConsult(c_stream, &osno, full);
-  pop_text_stack(lvl);
-  return true;
+  if (!Yap_AddAlias(AtomLoopStream, osno)) {
+    pop_text_stack(lvl);
+    return false;
+  }
+    pop_text_stack(lvl);
+    return true;
 }
 
 ///

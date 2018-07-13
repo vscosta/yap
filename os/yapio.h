@@ -89,7 +89,7 @@ extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 extern int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc);
 extern int Yap_FileStream(FILE*, char *, Term, int, VFS_t *);
-extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+extern char *Yap_TermToBuffer(Term t, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);
@@ -114,11 +114,14 @@ typedef enum mem_buf_source {
 
 extern char *Yap_MemStreamBuf(int sno);
 
+extern char *Yap_StrPrefix( const char *buf, size_t n) ;
+
 extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
                                    bool error_on);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
-                                    encoding_t *encp, memBufSource src);
+                                    encoding_t *encp, memBufSource src, Atom name,
+                                    Term uname);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const  char *s, Term opts);
 extern X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Term bindings, size_t sz,

@@ -510,10 +510,9 @@ class YAPRun:
 
     def __init__(self, shell):
         self.shell = shell
-        self.yapeng = Engine()
+        self.yapeng = JupyterEngine()
         global engine
         engine = self.yapeng
-        self.yapeng.goal(use_module(library("jupyter")),True)
         self.query = None
         self.os = None
         self.it = None
@@ -573,7 +572,6 @@ class YAPRun:
         except Exception as e:
             sys.stderr.write('Exception after', self.bindings, '\n')
             has_raised = True
-            self.yapeng.mgoal(streams(False),"user", True)
             return False,[]
 
 
@@ -709,6 +707,7 @@ class YAPRun:
         self.shell.displayhook.exec_result = self.result
         has_raised = False
         try:
+            self.yapeng.mgoal(streams(True),"user", True)
             self.bindings = dicts = []
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
@@ -725,17 +724,17 @@ class YAPRun:
                 # run the new command using the given tracer
                 #
                 # tracer.runfunc(f,self,cell,state)
-                self.yapeng.mgoal(streams(True),"user", True)
                 self.jupyter_query( cell )
-                self.yapeng.mgoal(streams(False),"user", True)
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
             self.result.result    = (True, dicts)
-            
+
         except Exception as e:
             has_raised = True
             self.result.result = False
+            self.yapeng.mgoal(streams(False),"user", True)
 
+        self.yapeng.mgoal(streams(False),"user", True)
         self.shell.last_execution_succeeded = not has_raised
 
         # Reset this so later displayed values do not modify the
@@ -771,7 +770,7 @@ class YAPRun:
         else:
             taken = l0-(i-1)
             n = s[i+1:].strip()
-            s = s[:i-1]
+            s = s[:i]
             if n:
                 its = 0
                 for ch in n:

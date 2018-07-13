@@ -2381,7 +2381,7 @@ re_buffer(IOSTREAM *s, const char *from, size_t len)
   { s->bufp = s->limitp = s->buffer;
   }
 
-  memcpy(s->bufp, from, len);
+  memmove(s->bufp, from, len);
   s->bufp += len;
 }
 
@@ -5846,7 +5846,7 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
     return p;
   }
 #if THREADS
-  memcpy(p, Yap_local[0]->PL_local_data_p_, sizeof(struct PL_local_data));
+  memmove(p, Yap_local[0]->PL_local_data_p_, sizeof(struct PL_local_data));
 #endif
   return p;
 }
