@@ -1460,7 +1460,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
        */
       /* reset the registers so that we don't have trash in abstract
        * machine */
-      pop_text_stack(i+1);
+      pop_text_stack(i + 1);
       Yap_set_fpu_exceptions(
           getAtomicGlobalPrologFlag(ARITHMETIC_EXCEPTIONS_FLAG));
       P = (yamop *)FAILCODE;
@@ -1470,12 +1470,12 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     } break;
     case 3: { /* saved state */
       // LOCAL_ActiveError = err_info;
-      pop_text_stack(i+1);
+      pop_text_stack(i + 1);
       LOCAL_CBorder = OldBorder;
       LOCAL_RestartEnv = sighold;
       LOCAL_PrologMode = UserMode;
-            LOCAL_DoingUndefp = false;
-Yap_CloseSlots(sls);
+      LOCAL_DoingUndefp = false;
+      Yap_CloseSlots(sls);
       return false;
     }
     case 4:
@@ -1485,16 +1485,16 @@ Yap_CloseSlots(sls);
       // LOCAL_ActiveError = err_info;
       while (B) {
         LOCAL_ActiveError->errorNo = ABORT_EVENT;
-        pop_text_stack(i+1);
+        pop_text_stack(i + 1);
         Yap_CloseSlots(sls);
         Yap_JumpToEnv();
       }
       LOCAL_PrologMode = UserMode;
-           LOCAL_DoingUndefp = false;
- P = (yamop *)FAILCODE;
+      LOCAL_DoingUndefp = false;
+      P = (yamop *)FAILCODE;
       LOCAL_RestartEnv = sighold;
       Yap_CloseSlots(sls);
-      pop_text_stack(i+1);
+      pop_text_stack(i + 1);
       return false;
       break;
     case 5:
@@ -1517,15 +1517,15 @@ Yap_CloseSlots(sls);
           (CELL *)(B->cp_b) > LCL0 - LOCAL_CBorder) {
         LOCAL_RestartEnv = sighold;
         LOCAL_CBorder = OldBorder;
-	pop_text_stack(i+1);
-	return false;
+        pop_text_stack(i + 1);
+        return false;
       }
       P = FAILCODE;
     }
   }
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
-  pop_text_stack(i+1);
+  pop_text_stack(i + 1);
   out = Yap_absmi(0);
   /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
@@ -1533,7 +1533,7 @@ Yap_CloseSlots(sls);
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
   LOCAL_RestartEnv = sighold;
-  pop_text_stack(i+1);
+  pop_text_stack(i + 1);
   return out;
 }
 
@@ -2116,7 +2116,8 @@ static Int jump_env(USES_REGS1) {
   }
   // Yap_DebugPlWriteln(t);
   // char *buf = Yap_TermToBuffer(t, ENC_ISO_UTF8,
-  //                             Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+  //                             Quote_illegal_f | Ignore_ops_f |
+  //                             Unfold_cyclics_f);
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
   LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
   bool out = JumpToEnv(PASS_REGS1);
@@ -2124,7 +2125,7 @@ static Int jump_env(USES_REGS1) {
       LCL0 - (CELL *)B > LOCAL_CBorder) {
     // we're failing up to the top layer
   }
-  pop_text_stack(LOCAL_MallocDepth+1);
+  pop_text_stack(LOCAL_MallocDepth + 1);
   return out;
 }
 

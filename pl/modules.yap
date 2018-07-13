@@ -201,8 +201,8 @@ The state of  the module system after this error is undefined.
 
 
 **/
-use_module(F) :- '$load_files'(F,
-			       [if(not_loaded),must_be_module(true)], use_module(F)).
+use_module(F) :- load_files(F,
+			       [if(not_loaded),must_be_module(true)]).
 
 
 /**
@@ -235,7 +235,7 @@ Unfortunately it is still not possible to change argument order.
 
 **/
 use_module(F,Is) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
+	load_files(F, [if(not_loaded),must_be_module(true),imports(Is)]).
 
 '$module'(O,N,P,Opts) :- !,
 	'$module'(O,N,P),

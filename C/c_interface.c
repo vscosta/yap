@@ -2271,8 +2271,8 @@ X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
   char *b;
 
   BACKUP_MACHINE_REGS();
-  b = Yap_TermToBuffer(t, enc, flags);
-  strncpy(buf, b, sze);
+  b = Yap_TermToBuffer(t, flags);
+  strncpy(buf, b, sze-1);
   buf[sze] = 0;
   RECOVER_MACHINE_REGS();
   return true;
@@ -2371,7 +2371,7 @@ X_API void YAP_FlushAllStreams(void) {
 X_API void YAP_Throw(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv();
   RECOVER_MACHINE_REGS();
 }
@@ -2381,7 +2381,7 @@ X_API void YAP_AsyncThrow(Term t) {
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode |= AsyncIntMode;
   LOCAL_ActiveError->errorNo = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, LOCAL_encoding, 0);
+  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(t, 0);
   Yap_JumpToEnv();
   LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();

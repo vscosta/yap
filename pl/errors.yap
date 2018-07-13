@@ -57,7 +57,7 @@ Errors are terms of the form:
  * Generate a system error _Error_, informing the possible cause _Cause_.
  *
  */
-system_error(Type,Goal) :-
+prolog:system_error(Type,Goal) :-
     '$do_error'(Type,Goal).
 
 

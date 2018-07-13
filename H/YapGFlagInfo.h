@@ -56,15 +56,13 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
               ~~~
            */
 
-
-
     YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
 /**<  how to present answers, default is `~p`. */
 #if __ANDROID__
     YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "true", NULL), /**<
-    read-only boolean, a machine running an Google's Android version of the Linux Operating System */
+    read-only boolean, a machine running an Google's Android version of the
+    Linux Operating System */
 #endif
-
 
 #if __APPLE__
     YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "true", NULL), /**<
@@ -72,13 +70,12 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 #endif
     YAP_FLAG(ARCH_FLAG, "arch", false, isatom, YAP_ARCH, NULL), /**<
       read-only atom, it describes the ISA used in this version of YAP.
-     Available from YAP_AEH.
+     Available from YAP_ARCH.
      */
-
     YAP_FLAG(ARGV_FLAG, "argv", false, argv, "@boot", NULL),
     YAP_FLAG(ARITHMETIC_EXCEPTIONS_FLAG, "arithmetic_exceptions", true,
              booleanFlag, "true", NULL),
-    /**< `arithmetic_exceptions`
+    /**<
 
     Read-write flag telling whether arithmetic exceptions generate
     Prolog exceptions. If enabled:
@@ -99,7 +96,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     ProbLog.
  */
     YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "true", bqs),
-    /**>
+    /**<
     If  _Value_ is unbound, tell whether a back quoted list of characters
     token is converted to a list of atoms, `chars`, to a list of integers,
     `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
@@ -132,20 +129,22 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
      Writable flag telling whether a character escapes are enabled,
      `true`, or disabled, `false`. The default value for this flag is
      `true`. */
-     YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context", true, booleanFlag, "true", NULL),
+    YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
+             true, booleanFlag, "true", NULL),
     /**< `compiled_at `
 
-     Read-only flag that gives the time when the main YAP binary was compiled. It
-     is obtained staight from the __TIME__ macro, as defined in the C99.
-  */  YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
+     Read-only flag that gives the time when the main YAP binary was compiled.
+     It is obtained staight from the __TIME__ macro, as defined in the C99.
+  */
+    YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
              NULL),
     YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL),
-     /**<
+    /**<
 
-    If  _Value_ is unbound, tell whether debugging is `true` or
-    `false`. If  _Value_ is bound to `true` enable debugging, and if
-    it is bound to `false` disable debugging.
- */
+   If  _Value_ is unbound, tell whether debugging is `true` or
+   `false`. If  _Value_ is bound to `true` enable debugging, and if
+   it is bound to `false` disable debugging.
+*/
     YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
     YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "true",
              NULL),
@@ -155,15 +154,18 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
  */
     YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
-	     "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
+             "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
              NULL),
     YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
              booleanFlag, "false", NULL),
-    YAP_FLAG(DEFAULT_PARENT_MODULE_FLAG, "default_parent_module", true, isatom, "user", NULL),
+    YAP_FLAG(DEFAULT_PARENT_MODULE_FLAG, "default_parent_module", true, isatom,
+             "user", NULL),
     /**<
-     * A module to be inherited by all other modules. Default is user  that reexports prolog.
+     * A module to be inherited by all other modules. Default is user  that
+     * reexports prolog.
      *
-     * Set it to `prolog` for SICStus Prolog like resolution, to `user` for SWI-like.
+     * Set it to `prolog` for SICStus Prolog like resolution, to `user` for
+     * SWI-like.
      */
     YAP_FLAG(DIALECT_FLAG, "dialect", false, ro, "yap", NULL),
     /**<
@@ -275,11 +277,11 @@ vxu    `on` consider `$` a lower case character.
  */
     YAP_FLAG(INDEX_SUB_TERM_SEARCH_DEPTH_FLAG, "index_sub_term_search_depth",
              true, nat, "0", NULL),
-     /**< `Index_sub_term_search_depth `
+    /**< `Index_sub_term_search_depth `
 
-    Maximum bound on searching sub-terms for indexing, if `0` (default) no
-    bound.
- */
+   Maximum bound on searching sub-terms for indexing, if `0` (default) no
+   bound.
+*/
     YAP_FLAG(INFORMATIONAL_MESSAGES_FLAG, "informational_messages", true,
              isatom, "normal", NULL),
     /**< `informational_messages `
@@ -297,6 +299,8 @@ vxu    `on` consider `$` a lower case character.
     value `toward_zero` for the current version of YAP.
  */
     YAP_FLAG(ISO_FLAG, "iso", true, booleanFlag, "false", NULL),
+    YAP_FLAG(JUPYTER_FLAG, "jupyter", false, booleanFlag, "true", NULL), /**<
+    read-only boolean, a machine running Jupyter */
     YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
     /**< `language `
 
@@ -322,7 +326,7 @@ vxu    `on` consider `$` a lower case character.
     Read-only flag telling the maximum arity of a functor. Takes the value
     `unbounded` for the current version of YAP.
  */
-     YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,
+    YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,
              "INT_MAX", NULL),
     YAP_FLAG(MAX_THREADS_FLAG, "max_threads", false, at2n, "MAX_THREADS", NULL),
     YAP_FLAG(MAX_WORKERS_FLAG, "max_workers", false, at2n, "MAX_WORKERS", NULL),
@@ -348,15 +352,14 @@ vxu    `on` consider `$` a lower case character.
      providing access to shared libraries (`.so` files) or to dynamic link
      libraries (`.DLL` files).
   */
-     /**< `module_independent_operators `
+    /**< `module_independent_operators `
 
-    If `true` an operator declaration will be valid for every module in the
-    program. This is for compatibility with old software that
-    might expect module-independent operators.
- */
-    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG,
-    "module_independent_operators", true, booleanFlag,
-    "false", NULL),
+   If `true` an operator declaration will be valid for every module in the
+   program. This is for compatibility with old software that
+   might expect module-independent operators.
+*/
+    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
+             true, booleanFlag, "false", NULL),
 
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
@@ -372,14 +375,14 @@ vxu    `on` consider `$` a lower case character.
   */
     YAP_FLAG(PROMPT_ALTERNATIVES_ON_FLAG, "prompt_alternatives_on", true,
              isatom, "determinism", NULL),
-     /**< `prompt_alternatives_on(atom,
-    changeable) `
+    /**< `prompt_alternatives_on(atom,
+   changeable) `
 
-    SWI-Compatible option, determines prompting for alternatives in the Prolog
-    toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if
-    and only if the query contains variables. The alternative, default in
-    SWI-Prolog is <tt>determinism</tt> which implies the system prompts for
-    alternatives if the goal succeeded while leaving choicepoints. */
+   SWI-Compatible option, determines prompting for alternatives in the Prolog
+   toplevel. Default is <tt>groundness</tt>, YAP prompts for alternatives if
+   and only if the query contains variables. The alternative, default in
+   SWI-Prolog is <tt>determinism</tt> which implies the system prompts for
+   alternatives if the goal succeeded while leaving choicepoints. */
     YAP_FLAG(QUASI_QUOTATIONS_FLAG, "quasi_quotations", true, booleanFlag,
              "true", NULL),
     YAP_FLAG(READLINE_FLAG, "readline", true, booleanFlag, "false",
@@ -389,6 +392,15 @@ vxu    `on` consider `$` a lower case character.
 
     enable the use of the readline library for console interactions, true by
     default if readline was found. */
+    YAP_FLAG(REDEFINE_WARNINGS_FLAG, "redefine_warnings", true, booleanFlag,
+             "true", NULL), /**<
+
+If  _Value_ is unbound, tell whether warnings for procedures defined
+in several different files are `on` or
+`off`. If  _Value_ is bound to `on` enable these warnings,
+and if it is bound to `off` disable them. The default for YAP is
+`off`, unless we are in `sicstus` or `iso` mode.
+*/
     YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
              NULL),
     YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,
@@ -424,6 +436,15 @@ vxu    `on` consider `$` a lower case character.
     /**< `single_quoted text is usuallly interpreted as atoms. This flagTerm
        allows other inerpretations such as strings_contains_strings */
 
+    YAP_FLAG(SINGLE_VAR_WARNINGS_FLAG, "single_var_warnings", true, booleanFlag,
+             "true", NULL), /**<
+                         If `true` (default `true`) YAP checks for singleton
+                         variables when loading files. A singleton variable is a
+                         variable that appears ony once in a clause. The name
+                         must start with a capital letter, variables whose name
+                         starts with underscore are never considered singleton.
+
+                         */
     YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true", NULL),
     /**< `signals`
 
@@ -482,8 +503,7 @@ vxu    `on` consider `$` a lower case character.
  */
     YAP_FLAG(THREADS_FLAG, "threads", false, ro, "MAX_THREADS", NULL),
     YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
-   YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true,
-             booleanFlag, "true",
+    YAP_FLAG(TOPLEVEL_HOOK_FLAG, "toplevel_hook", true, booleanFlag, "true",
              NULL),
     /**< `toplevel_hook `
 
@@ -493,7 +513,7 @@ vxu    `on` consider `$` a lower case character.
     backtracked into.
 
  */
-  YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
+    YAP_FLAG(TOPLEVEL_PRINT_ANON_FLAG, "toplevel_print_anon", true, booleanFlag,
              "true", NULL),
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
              list_option, "[quoted(true),numbervars(true),portrayed(true)]",
@@ -527,9 +547,9 @@ vxu    `on` consider `$` a lower case character.
      are `silent`, `warning` and `error`. The first two create the flag
      on-the-fly, with `warning` printing a message. The value `error` is
      consistent with ISO: it raises an existence error and does not create the
-     flag. See also `create_prolog_flag/3`. The default is`error`, and developers
-     are encouraged to use `create_prolog_flag/3` to create flags for their
-     library.
+     flag. See also `create_prolog_flag/3`. The default is`error`, and
+     developers are encouraged to use `create_prolog_flag/3` to create flags for
+     their library.
   */
     YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "error", Yap_unknown),
     /**< `unknown is iso`

@@ -147,6 +147,32 @@ static inline Atom SearchAtom(const unsigned char *p, Atom a) {
   return (NIL);
 }
 
+Atom
+Yap_AtomInUse(const  char *atom) { /* lookup atom in atom table */
+  uint64_t hash;
+  const unsigned char *p;
+  Atom a, na = NIL;
+  AtomEntry *ae;
+  size_t sz = AtomHashTableSize;
+
+  /* compute hash */
+  p =( const unsigned char *) atom;
+
+  hash = HashFunction(p);
+  hash = hash % sz;
+  /* we'll start by holding a read lock in order to avoid contention */
+  READ_LOCK(HashChain[hash].AERWLock);
+  a = HashChain[hash].Entry;
+  /* search atom in chain */
+  na = SearchAtom(p, a);
+  ae = RepAtom(na);  
+  if (na != NIL ) {
+    READ_UNLOCK(HashChain[hash].AERWLock);
+    return (na);
+  }
+  READ_UNLOCK(HashChain[hash].AERWLock);
+  return NIL;
+}
 
 static Atom
 LookupAtom(const unsigned char *atom) { /* lookup atom in atom table */

@@ -510,10 +510,9 @@ class YAPRun:
 
     def __init__(self, shell):
         self.shell = shell
-        self.yapeng = Engine()
+        self.yapeng = JupyterEngine()
         global engine
         engine = self.yapeng
-        self.yapeng.goal(use_module(library("jupyter")),True)
         self.query = None
         self.os = None
         self.it = None
@@ -573,7 +572,6 @@ class YAPRun:
         except Exception as e:
             sys.stderr.write('Exception after', self.bindings, '\n')
             has_raised = True
-            self.yapeng.mgoal(streams(False),"user", True)
             return False,[]
 
 
@@ -730,13 +728,13 @@ class YAPRun:
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
             self.result.result    = (True, dicts)
-            self.yapeng.mgoal(streams(False),"user", True)
 
         except Exception as e:
             has_raised = True
             self.result.result = False
             self.yapeng.mgoal(streams(False),"user", True)
 
+        self.yapeng.mgoal(streams(False),"user", True)
         self.shell.last_execution_succeeded = not has_raised
 
         # Reset this so later displayed values do not modify the

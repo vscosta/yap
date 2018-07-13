@@ -273,14 +273,15 @@ set (RESOURCES
    #yap_kernel/resources/logo-32x32.png
    #yap_kernel/resourcess/logo-64x64.png
    )
-		  
-set (RENAMED_RESOURCES               
+
+set (RENAMED_RESOURCES
   yap_kernel/resources/logo-32x32.png
   yap_kernel/resources/logo-64x64.png
   # yap_kernel/resources/codemirror/mode/prolog/prolog.js
 )
 
 set (PL_SOURCES yap_ipython/prolog/jupyter.yap yap_ipython/prolog/complete.yap
+  yap_ipython/prolog/verify.yap
   )
 
 set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})
@@ -321,11 +322,13 @@ add_custom_target(YAP_KERNEL ALL
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png yap.tgz ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz
 )
 
-	  
+
     install(CODE "execute_process(
         COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
+        ERROR_VARIABLE setupErr
+        OUTPUT_VARIABLE setupOut
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
       install(FILES ${PL_SOURCES} DESTINATION ${libpl} )

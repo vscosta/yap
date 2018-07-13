@@ -232,9 +232,9 @@ beautify_hidden_goal('$process_directive'(Gs,_Mode,_VL),prolog) -->
 	[(:- Gs)].
 beautify_hidden_goal('$loop'(Stream,Option),prolog) -->
 	[execute_load_file(Stream, consult=Option)].
-beautify_hidden_goal('$load_files'(Files,Opts,?),prolog) -->
-	[load_files(Files,Opts)].
-beautify_hidden_goal('$load_files'(_,_,Name),prolog) -->
+beautify_hidden_goal('$load_files'(Files,M,Opts,?),prolog) -->
+	[load_files(M:Files,Opts)].
+beautify_hidden_goal('$load_files'(_,_,_,Name),prolog) -->
 	[Name].
 beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
