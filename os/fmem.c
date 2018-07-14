@@ -259,11 +259,14 @@ open_mem_write_stream(USES_REGS1) /* $open_mem_write_stream(-Stream) */
  * by other writes..
  */
 char *Yap_MemExportStreamPtr(int sno) {
-
-  if (fflush(GLOBAL_Stream[sno].file) < 0) {
+FILE *f = GLOBAL_Stream[sno].file;
+  if (fflush(f) < 0) {
     return NULL;
   }
-  size_t len = fseek(GLOBAL_Stream[sno].file, 0, SEEK_END);
+  if (fseek(f, 0, SEEK_END) < 0) {
+    return NULL;
+  }
+  size_t len = ftell(f);
   char *buf = malloc(len+1);
 #if HAVE_OPEN_MEMSTREAM
   char *s = GLOBAL_Stream[sno].nbuf;
