@@ -557,7 +557,8 @@ option(WITH_R
         "Use R Interface" ON)
 
 IF (WITH_R)
-    include_directories(packages/real )
+    find_host_package(LibR)
+add_subDIRECTORY(packages/real)
 ENDIF (WITH_R)
 
 
@@ -776,7 +777,6 @@ if (WITH_GECODE)
     add_subDIRECTORY(packages/gecode)
 endif ()
 
-add_subDIRECTORY(packages/real)
 
 
 
@@ -795,16 +795,15 @@ if (Java_Development_FOUND)
 
     set (STD_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
   set (CMAKE_FIND_FRAMEWORK LAST) # CMake will find the Java returned by /usr/libexec/java_home.
-find_package(JNI)
+  
+  macro_optional_find_package(JNI ON)
+  
+
   set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
 
-  if (NOT JNI_FOUND)
-
-set (JAVA_HOME ${JAVA_INCLUDE_PATH}/..)
-
-endif()
-
   if (JNI_FOUND)
+
+get_filename_component(JAVA_HOME ${JAVA_INCLUDE_PATH} DIRECTORY)
 
   include(UseJava)
 
@@ -826,7 +825,8 @@ endif()
   # The Java_ADDITIONAL_VERSIONS variable can be used to specify a list
   # of version numbers that should be taken into account when searching
   # for Java.  You need to set this variable before calling
-          # find_package(JavaLibs).
+
+
   #
   #macro_optional_find_package(JNI ON)
   #   JNI_INCLUDE_DIRS      = the include dirs to use
@@ -837,6 +837,7 @@ endif()
   #   JAVA_INCLUDE_PATH     = the include path to jni.h
   #   JAVA_INCLUDE_PATH2    = the include path to jni_md.h
   #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
+
 
 endif (JNI_FOUND)
 
