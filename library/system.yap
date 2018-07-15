@@ -50,7 +50,6 @@
 	shell/0,
 	shell/1,
 	shell/2,
-	sleep/1,
 	system/0,
 	system/1,
 	system/2,
@@ -203,18 +202,6 @@ command completes. In Unix environments YAP uses the shell given by the
 environment variable `SHELL` with the option `" -c "`. In
 WIN32 environment YAP will use `COMSPEC` if `SHELL` is
 undefined, in this case with the option `" /c "`.
-
-
-*/
-/** @pred sleep(+ _Time_)
-
-
-Block the current thread for  _Time_ seconds. When YAP is compiled
-without multi-threading support, this predicate blocks the YAP process.
-The number of seconds must be a positive number, and it may an integer
-or a float. The Unix implementation uses `usleep` if the number of
-seconds is below one, and `sleep` if it is over a second. The WIN32
-implementation uses `Sleep` for both cases.
 
 
 */
