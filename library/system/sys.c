@@ -852,73 +852,6 @@ static YAP_Bool plwait(void) {
 #endif
 }
 
-static YAP_Bool p_sleep(void) {
-  YAP_Term ts = YAP_ARG1;
-#if defined(__MINGW32__) || _MSC_VER
-  {
-    unsigned long int secs = 0, usecs = 0, msecs, out;
-    if (YAP_IsIntTerm(ts)) {
-      secs = YAP_IntOfTerm(ts);
-    } else if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-      if (tfl > 1.0)
-        secs = tfl;
-      else
-        usecs = tfl * 1000000;
-    }
-    msecs = secs * 1000 + usecs / 1000;
-    Sleep(msecs);
-    /* no errors possible */
-    out = 0;
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_NANOSLEEP
-  {
-    struct timespec req;
-    int out;
-
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
-      req.tv_sec = rint(tfl);
-    } else {
-      req.tv_nsec = 0;
-      req.tv_sec = YAP_IntOfTerm(ts);
-    }
-    out = nanosleep(&req, NULL);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_USLEEP
-  {
-    useconds_t usecs;
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      usecs = rint(tfl * 1000000);
-    } else {
-      usecs = YAP_IntOfTerm(ts) * 1000000;
-    }
-    out = usleep(usecs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_SLEEP
-  {
-    unsigned int secs, out;
-    if (YAP_IsFloatTerm(ts)) {
-      secs = rint(YAP_FloatOfTerm(ts));
-    } else {
-      secs = YAP_IntOfTerm(ts);
-    }
-    out = sleep(secs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#else
-  YAP_Error(0, 0L, "sleep not available in this configuration");
-  return FALSE:
-#endif
-}
-
 /* host info */
 
 static YAP_Bool host_name(void) {
@@ -1066,7 +999,6 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
-  YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("read_link", read_link, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);
