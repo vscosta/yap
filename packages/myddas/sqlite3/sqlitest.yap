@@ -1,4 +1,3 @@
-:- stop_low_level_trace.
 
 
 :- use_module(library(lists)).
@@ -14,10 +13,17 @@ main_ :-
 	fail.
 main_ .
 
+:- if yap_flag(android,true).
 init :-
        db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
     %   db_open(sqlite3, 'chinook.db', _, _),
     writeln('chinook has landed').
+:- else.
+init :-
+       db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
+    %   db_open(sqlite3, 'chinook.db', _, _),
+    writeln('chinook has landed').
+:-endif
 
 go :-
     writeln(('db_import')),

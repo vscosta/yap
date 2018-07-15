@@ -550,10 +550,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       POPRET( (char*)latin2utf8(inp));
     }
 
-    if (inp->enc == ENC_ISO_UTF8) {
       pop_text_stack(lvl);
       return inp->val.c;
-    }
   }
   if (inp->type & YAP_STRING_WCHARS) {
     // printf("%S\n",inp->val.w);

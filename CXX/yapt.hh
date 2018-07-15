@@ -297,15 +297,19 @@ public:
 
 public:
   YAPApplTerm(Term t0) { mk(t0); }
-  YAPApplTerm(Functor f, Term ts[]) {
-    BACKUP_MACHINE_REGS();
-    Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
-    mk(t0);
-    RECOVER_MACHINE_REGS();
-  };
-  YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-    YAPApplTerm(const std::string s, unsigned int arity) { mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity), arity)); };
-    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+              YAPApplTerm(Functor f, Term ts[]) {
+                BACKUP_MACHINE_REGS();
+                Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
+                mk(t0);
+                RECOVER_MACHINE_REGS();
+              };
+                  YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
+    YAPApplTerm( std::string s, unsigned int arity) { mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity), arity)); };
+              YAPApplTerm( std::string s, std::vector<Term> v);
+              YAPApplTerm( std::string s, YAPTerm a1);
+              YAPApplTerm( std::string s, YAPTerm a1, YAPTerm a2);
+              YAPApplTerm( std::string s, YAPTerm a1, YAPTerm a2, YAPTerm a3);
+              YAPApplTerm( std::string s, YAPTerm a1, YAPTerm a2, YAPTerm a3, YAPTerm a4);
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
