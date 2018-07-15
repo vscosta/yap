@@ -283,3 +283,7 @@ void Yap_ReOpenLoadForeign(void) {
   }
   CurrentModule = OldModule;
 }
+
+X_API bool load_none(void)
+{
+}

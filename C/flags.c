@@ -1731,7 +1731,7 @@ void Yap_InitFlags(bool bootstrap) {
 
     Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2.
     */
-    Yap_InitCPredBack("prolog_flag", 3, 1, current_prolog_flag, cont_yap_flag,
+    Yap_InitCPredBack("prolog_flag", 3, 1, prolog_flag, cont_yap_flag,
                       0);
     Yap_InitCPredBack("yap_flag", 3, 1, yap_flag, cont_yap_flag, 0);
     Yap_InitCPredBack("prolog_flag", 2, 1, current_prolog_flag2,

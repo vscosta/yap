@@ -333,8 +333,8 @@ X_API extern Term YAP_MkCharPTerm( char *n);
                             %template(TermVector) vector<Term>;
                             %feature("novaluewrapper") vector<Term>;
 
-                            //%template(YAPTermVector) vector<YAPTerm>;
-                            //%feature("novaluewrapper") vector<YAPTerm>;
+                            %template(YAPTermVector) vector<YAPTerm>;
+                            %feature("novaluewrapper") vector<YAPTerm>;
 
 
 

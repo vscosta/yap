@@ -39,11 +39,6 @@
 
 */
 
-maplist_(_, [], []).
-maplist_(Pred, [A1|L1], [A2|L2]) :-
-    call(Pred, A1, A2),
-    maplist_(Pred, L1, L2).
-
 /** @pred load_foreign_files( _Files_, _Libs_, _InitRoutine_)
 
 should be used, from inside YAP, to load object files produced by the C
@@ -74,8 +69,8 @@ load_foreign_files(Objs,Libs,Entry) :-
 			     access(read),
 			     expand(true),
 			     file_errors(fail)], NewObjs),
-    maplist_( '$load_lib', Libs, NewLibs),
-   '$load_foreign_files'(NewObjs,NewLibs,Entry),
+    '$load_libs'( Libs ),
+   '$load_foreign_files'(NewObjs,[],Entry),
     !,
     prolog_load_context(file, F),
     ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
@@ -95,7 +90,10 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$name_object'(I, P, O) :-
     absolute_file_name(I, O, P).
 
-'$load_lib'(_,L,L).
+'$load_libs'([]).
+'$load_libs'([File|Files]) :-
+    open_shared_object(File, _Handle),
+    '$load_libs'(Files).
 
 /** @pred load_absolute_foreign_files( Files, Libs, InitRoutine)
 
