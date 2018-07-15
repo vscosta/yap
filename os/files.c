@@ -47,7 +47,13 @@ const char *Yap_GetFileName(Term t USES_REGS) {
   char *buf = Malloc(YAP_FILENAME_MAX + 1);
   if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
     snprintf(buf, YAP_FILENAME_MAX, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t)),
-             Yap_GetFileName(ArgOfTerm(1, t)));
+             Yap_GetFileName(ArgOfTerm(2, t)));
+  }
+  if (IsAtomTerm(t)) {
+    return RepAtom(AtomOfTerm(t))->StrOfAE;
+  }
+  if (IsStringTerm(t)) {
+    return StringOfTerm(t);
   }
   return Yap_TextTermToText(t PASS_REGS);
 }
@@ -90,7 +96,7 @@ static Int file_name_extension(USES_REGS1) {
     size_t len_b = strlen(f), lenb_b;
     char *candidate = strrchr(f, '.');
     char *file = strrchr(f, '/');
-    if (candidate && file && candidate > file) {
+    if (candidate  && candidate > file) {
       lenb_b = candidate - f;
       ext = candidate + 1;
     } else {

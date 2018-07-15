@@ -1827,6 +1827,7 @@ static Int p_win_registry_get_value(USES_REGS1) {
   return FALSE;
 }
 
+
 char *Yap_RegistryGetString(char *name) {
   DWORD type;
   BYTE data[MAXREGSTRLEN];
@@ -1865,6 +1866,74 @@ char *Yap_RegistryGetString(char *name) {
 
 #endif
 
+ 
+ 
+static Int p_sleep(USES_REGS1) {
+  Term ts = ARG1;
+#if defined(__MINGW32__) || _MSC_VER
+  {
+    unsigned long int secs = 0, usecs = 0, msecs, out;
+    if (IsIntegerTerm(ts)) {
+      secs = IntegerOfTerm(ts);
+    } else if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+      if (tfl > 1.0)
+        secs = tfl;
+      else
+        usecs = tfl * 1000000;
+    }
+    msecs = secs * 1000 + usecs / 1000;
+    Sleep(msecs);
+    /* no ers possible */
+    return true;
+  }
+#elif HAVE_NANOSLEEP
+  {
+    struct timespec req;
+    int out;
+
+    if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+
+      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
+      req.tv_sec = rint(tfl);
+    } else {
+      req.tv_nsec = 0;
+      req.tv_sec = IntOfTerm(ts);
+    }
+    out = nanosleep(&req, NULL);
+    return true;
+  }
+#elif HAVE_USLEEP
+  {
+    useconds_t usecs;
+    if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+
+      usecs = rint(tfl * 1000000);
+    } else {
+      usecs = IntegrOfTerm(ts) * 1000000;
+    }
+    out = usleep(usecs);
+    return;
+  }
+#elif HAVE_SLEEP
+  {
+    unsigned int secs, out;
+    if (IsFloatTerm(ts)) {
+      secs = rint(FloatOfTerm(ts));
+    } else {
+      secs = IntOfTerm(ts);
+    }
+    out = sleep(secs);
+    return (Yap_unify(ARG2, MkIntTerm(out)));
+  }
+#else
+  YAP_Error(SYSTEM_ERROR, 0L, "sleep not available in this configuration");
+  return FALSE:
+#endif
+}
+ 
 void Yap_InitSysPreds(void) {
   Yap_InitCPred("log_event", 1, p_log_event, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("sh", 0, p_sh, SafePredFlag | SyncPredFlag);
@@ -1901,5 +1970,6 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("win_registry_get_value", 3, p_win_registry_get_value, 0);
 #endif
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
+  Yap_InitCPred("sleep", 1, p_sleep, SyncPredFlag);
   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
 }
