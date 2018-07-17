@@ -519,7 +519,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
   // PyThreadState *_save;
 
-  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  // std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
@@ -529,6 +529,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   q.p = P;
   q.cp = CP;
   PredEntry *ap = nullptr;
+  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  std::cerr << "mgoal " << YAPTerm(tmod).text() << "\n";
   if (IsStringTerm(tmod))
     tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
   YAPPredicate *p = new YAPPredicate(t, tmod, ts, "C++");
@@ -553,7 +555,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  std::cerr << "mgoal " << YAPTerm(tmod).text() << "\n";
 
   YAP_LeaveGoal(result && !release, &q);
   //      PyEval_RestoreThread(_save);
@@ -574,7 +577,7 @@ void YAPEngine::release() {
 Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Term tmod = CurrentModule, *ts = nullptr;
+  Term tmod = Yap_CurrentModule(), *ts = nullptr;
   PredEntry *ap;
   arity_t arity;
   Functor f;
@@ -874,9 +877,8 @@ YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity) {
 }
 
 /// auxiliary routine to find a predicate in the current module.
-PredEntry *YAPPredicate::getPred(Term &t, CELL *&out) {
+PredEntry *YAPPredicate::getPred(Term &t, Term &m, CELL *&out) {
   CACHE_REGS
-  Term m = Yap_CurrentModule();
   t = Yap_StripModule(t, &m);
 
   if (IsVarTerm(t) || IsNumTerm(t)) {

@@ -2,7 +2,7 @@
 
 
 /* example.i */
-#if PYTHONSWIG
+#if defined(SWIGPYTHON)
 %module(directors = "1", package="yap4py") yap
 #else
 %module(directors = "1") yap
@@ -31,44 +31,13 @@ class YAPAtom;
 class YAPPredicate;
 class YAPEngine;
 
-%{
 
+#if defined(SWIGPYTHON)
 
-  #include <cmath>
-  #include <gmpxx.h>
-
-  extern "C"{
-    #include "Yap.h"
-
-X_API extern Term YAP_MkCharPTerm( char *n);
-
-
-    #ifdef SWIGPYTHON
-    #include <py4yap.h>
-
-    extern inline PyObject *AtomToPy(const char *s) {
-      if (strcmp(s, "true") == 0)
-      return Py_True;
-      if (strcmp(s, "false") == 0)
-      return Py_False;
-      if (strcmp(s, "none") == 0)
-      return Py_None;
-      if (strcmp(s, "[]") == 0)
-      return PyList_New(0);
-      else if (strcmp(s, "{}") == 0)
-      return PyDict_New();
-      /* return __main__,s */
-      else if (PyObject_HasAttrString(py_Main, s)) {
-        return PyObject_GetAttrString(py_Main, s);
-      }
-      // no way to translate
-      return NULL;
-    }
-    #endif
-      }
+%pythoncode %{
+YAPError = _yap.YAPError
 %}
 
-#ifdef SWIGPYTHON
   %typemap(typecheck) Term*  {
     $1 = PySequence_Check($input);
   }
@@ -135,135 +104,30 @@ X_API extern Term YAP_MkCharPTerm( char *n);
         }
         return $result;  }
 
-
-
         // Language independent exception handler
 
-        %exception next {
+%exception  {
           try {
             $action
             } catch (YAPError &e) {
-              yap_error_number en = e.getID();
-              PyObject *pyerr = PyExc_RuntimeError;
+	    YAPPycatch(e);
+		    SWIG_fail;
+	  }
+ }
 
-              LOCAL_Error_TYPE = YAP_NO_ERROR;
-              switch (e.getErrorClass()) {
-                case YAPC_NO_ERROR:
-                break;
-                /// bad domain, "first argument often is the predicate.
-                case DOMAIN_ERROR: {
-                  switch (en) {
-                    case DOMAIN_ERROR_OUT_OF_RANGE:
-                    pyerr = PyExc_GeneratorExit;
-                    break;
-                    case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
-                    pyerr = PyExc_IndexError;
-                    break;
-                    case DOMAIN_ERROR_CLOSE_OPTION:
-                    case DOMAIN_ERROR_ENCODING:
-                    case DOMAIN_ERROR_PROLOG_FLAG:
-                    case DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION:
-                    case DOMAIN_ERROR_READ_OPTION:
-                    case DOMAIN_ERROR_SET_STREAM_OPTION:
-                    pyerr = PyExc_KeyError;
-                    break;
-                    case DOMAIN_ERROR_FILE_ERRORS:
-                    case DOMAIN_ERROR_FILE_TYPE:
-                    case DOMAIN_ERROR_IO_MODE:
-                    case DOMAIN_ERROR_SOURCE_SINK:
-                    case DOMAIN_ERROR_STREAM_POSITION:
-                    pyerr = PyExc_IOError;
-                    break;
-                    default:
-                    pyerr = PyExc_ValueError;
-                  }
-                  } break;
-                  /// bad arithmetic
-                  case EVALUATION_ERROR: {
-                    switch (en) {
-                      case EVALUATION_ERROR_FLOAT_OVERFLOW:
-                      case EVALUATION_ERROR_INT_OVERFLOW:
-                      pyerr = PyExc_OverflowError;
-                      break;
-                      case EVALUATION_ERROR_FLOAT_UNDERFLOW:
-                      case EVALUATION_ERROR_UNDERFLOW:
-                      case EVALUATION_ERROR_ZERO_DIVISOR:
-                      pyerr = PyExc_ArithmeticError;
-                      break;
-                      default:
-                      pyerr = PyExc_RuntimeError;
-                    }
-                    } break;
-                    /// missing object (I/O mostly)
-                    case EXISTENCE_ERROR:
-                    pyerr = PyExc_NotImplementedError;
-                    break;
-                    /// should be bound
-                    case INSTANTIATION_ERROR_CLASS:
-                    pyerr = PyExc_RuntimeError;
-                    break;
-                    /// bad access, I/O
-                    case PERMISSION_ERROR: {
-                      switch (en) {
-                        case PERMISSION_ERROR_INPUT_BINARY_STREAM:
-                        case PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM:
-                        case PERMISSION_ERROR_INPUT_STREAM:
-                        case PERMISSION_ERROR_INPUT_TEXT_STREAM:
-                        case PERMISSION_ERROR_OPEN_SOURCE_SINK:
-                        case PERMISSION_ERROR_OUTPUT_BINARY_STREAM:
-                        case PERMISSION_ERROR_REPOSITION_STREAM:
-                        case PERMISSION_ERROR_OUTPUT_STREAM:
-                        case PERMISSION_ERROR_OUTPUT_TEXT_STREAM:
-                        pyerr = PyExc_OverflowError;
-                        break;
-                        default:
-                        pyerr = PyExc_RuntimeError;
-                      }
-                      } break;
-                      /// something that could not be represented into a type
-                      case REPRESENTATION_ERROR:
-                      pyerr = PyExc_RuntimeError;
-                      break;
-                      /// not enough ....
-                      case RESOURCE_ERROR:
-                      pyerr = PyExc_RuntimeError;
-                      break;
-                      /// bad text
-                      case SYNTAX_ERROR_CLASS:
-                      pyerr = PyExc_SyntaxError;
-                      break;
-                      /// OS or internal
-                      case SYSTEM_ERROR_CLASS:
-                      pyerr = PyExc_RuntimeError;
-                      break;
-                      /// bad typing
-                      case TYPE_ERROR:
-                      pyerr = PyExc_TypeError;
-                      break;
-                      /// should be unbound
-                      case UNINSTANTIATION_ERROR_CLASS:
-                      pyerr = PyExc_RuntimeError;
-                      break;
-                      /// escape hatch
-                      default:
-                      break;
-                    }
-                    PyErr_SetString(pyerr, e.text().c_str());
-                  }
-                }
+ %typecheck(2) Int { $1 = PyLong_Check($input); }
+ %typecheck(3) double { $1 = PyFloat_Check($input); }
+ %typecheck(2) const char * { $1 = PyUnicode_Check($input); }
 
-                #else
+ %typecheck(1) Term { $1 = !PyUnicode_Check($input); }
+ %typecheck(1) YAP_Term { $1 = PyUnicode_Check($input); }
+
+ %typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
+
+#else
 
                 %typemap(in) arity_t {   (jlong)($input); }
 
-                %typecheck(2) Int { $1 = PyLong_Check($input); }
-                %typecheck(3) double { $1 = PyFloat_Check($input); }
-                %typecheck(2) const char * { $1 = PyUnicode_Check($input); }
-
-                %typecheck(1) Term { $1 = !PyUnicode_Check($input); }
-                %typecheck(1) YAP_Term { $1 = PyUnicode_Check($input); }
-
-                %typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
 
 
                 %typemap(in) jlong %{
@@ -288,16 +152,16 @@ X_API extern Term YAP_MkCharPTerm( char *n);
                           }
                         }
 
+#endif
 
-                        #endif
 
-                        %{
-                          /* Put header files here or function declarations like below */
+    %{
+    /* Put header files here or function declarations like below */
 #include "yapi.hh"
 
 
-
                           extern "C" {
+                            extern void Yap_PrintException(yap_error_descriptor_t *i);
 
                             #if THREADS
                             #define Yap_regp regcache
@@ -310,9 +174,159 @@ X_API extern Term YAP_MkCharPTerm( char *n);
 
                           extern void init_sqlite();
 
-                          %}
 
           #define X_API
+
+
+  #include <cmath>
+  #include <gmpxx.h>
+
+  extern "C"{
+    #include "Yap.h"
+
+X_API extern Term YAP_MkCharPTerm( char *n);
+
+#if defined(SWIGPYTHON)
+
+    #include <py4yap.h>
+
+    X_API extern PyObject * pYAPError;
+
+    extern inline PyObject *AtomToPy(const char *s) {
+      if (strcmp(s, "true") == 0)
+      return Py_True;
+      if (strcmp(s, "false") == 0)
+      return Py_False;
+      if (strcmp(s, "none") == 0)
+      return Py_None;
+      if (strcmp(s, "[]") == 0)
+      return PyList_New(0);
+      else if (strcmp(s, "{}") == 0)
+      return PyDict_New();
+      /* return __main__,s */
+      else if (PyObject_HasAttrString(py_Main, s)) {
+        return PyObject_GetAttrString(py_Main, s);
+      }
+      // no way to translate
+      return NULL;
+    }
+
+static void
+  YAPPycatch(YAPError &e)
+{
+
+              yap_error_number en = e.getID();
+std::cerr << e.text() << "\n";
+
+
+return;
+              switch (e.getErrorClass()) {
+                case YAPC_NO_ERROR:
+                break;
+                /// bad domain, "first argument often is the predicate.
+                case DOMAIN_ERROR: {
+                  switch (en) {
+                    case DOMAIN_ERROR_OUT_OF_RANGE:
+                    pYAPError = PyExc_GeneratorExit;
+                    break;
+                    case DOMAIN_ERROR_NOT_LESS_THAN_ZERO:
+                    pYAPError = PyExc_IndexError;
+                    break;
+                    case DOMAIN_ERROR_CLOSE_OPTION:
+                    case DOMAIN_ERROR_ENCODING:
+                    case DOMAIN_ERROR_PROLOG_FLAG:
+                    case DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION:
+                    case DOMAIN_ERROR_READ_OPTION:
+                    case DOMAIN_ERROR_SET_STREAM_OPTION:
+                    pYAPError = PyExc_KeyError;
+                    break;
+                    case DOMAIN_ERROR_FILE_ERRORS:
+                    case DOMAIN_ERROR_FILE_TYPE:
+                    case DOMAIN_ERROR_IO_MODE:
+                    case DOMAIN_ERROR_SOURCE_SINK:
+                    case DOMAIN_ERROR_STREAM_POSITION:
+                    pYAPError = PyExc_IOError;
+                    break;
+                    default:
+                    pYAPError = PyExc_ValueError;
+                  }
+                  } break;
+                  /// bad arithmetic
+                  case EVALUATION_ERROR: {
+                    switch (en) {
+                      case EVALUATION_ERROR_FLOAT_OVERFLOW:
+                      case EVALUATION_ERROR_INT_OVERFLOW:
+                      pYAPError = PyExc_OverflowError;
+                      break;
+                      case EVALUATION_ERROR_FLOAT_UNDERFLOW:
+                      case EVALUATION_ERROR_UNDERFLOW:
+                      case EVALUATION_ERROR_ZERO_DIVISOR:
+                      pYAPError = PyExc_ArithmeticError;
+                      break;
+                      default:
+                      pYAPError = PyExc_RuntimeError;
+                    }
+                    } break;
+                    /// missing object (I/O mostly)
+                    case EXISTENCE_ERROR:
+                    pYAPError = PyExc_NotImplementedError;
+                    break;
+                    /// should be bound
+                    case INSTANTIATION_ERROR_CLASS:
+                    pYAPError = PyExc_RuntimeError;
+                    break;
+                    /// bad access, I/O
+                    case PERMISSION_ERROR: {
+                      switch (en) {
+                        case PERMISSION_ERROR_INPUT_BINARY_STREAM:
+                        case PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM:
+                        case PERMISSION_ERROR_INPUT_STREAM:
+                        case PERMISSION_ERROR_INPUT_TEXT_STREAM:
+                        case PERMISSION_ERROR_OPEN_SOURCE_SINK:
+                        case PERMISSION_ERROR_OUTPUT_BINARY_STREAM:
+                        case PERMISSION_ERROR_REPOSITION_STREAM:
+                        case PERMISSION_ERROR_OUTPUT_STREAM:
+                        case PERMISSION_ERROR_OUTPUT_TEXT_STREAM:
+                        pYAPError = PyExc_OverflowError;
+                        break;
+                        default:
+                        pYAPError = PyExc_RuntimeError;
+                      }
+                      } break;
+                      /// something that could not be represented into a type
+                      case REPRESENTATION_ERROR:
+                      pYAPError = PyExc_RuntimeError;
+                      break;
+                      /// not enough ....
+                      case RESOURCE_ERROR:
+                      pYAPError = PyExc_RuntimeError;
+                      break;
+                      /// bad text
+                      case SYNTAX_ERROR_CLASS:
+                      pYAPError = PyExc_SyntaxError;
+                      break;
+                      /// OS or internal
+                      case SYSTEM_ERROR_CLASS:
+                      pYAPError = PyExc_RuntimeError;
+                      break;
+                      /// bad typing
+                      case TYPE_ERROR:
+                      pYAPError = PyExc_TypeError;
+                      break;
+                      /// should be unbound
+                      case UNINSTANTIATION_ERROR_CLASS:
+			pYAPError = PyExc_RuntimeError;
+                      break;
+                      /// escape hatch
+                      default:
+                      break;
+                    }
+                    PyErr_SetString(pYAPError, e.text().c_str());
+                  }
+#endif
+  }
+
+			  %}
 
                           /* turn on director wrapping Callback */
                           //%feature("director") YAPCallback;
@@ -341,4 +355,8 @@ X_API extern Term YAP_MkCharPTerm( char *n);
                           };
 
 %init %{
+    PyObject *  pYAPError = PyErr_NewException("_yap.YAPError", NULL, NULL);
+    Py_INCREF(pYAPError);
+    PyModule_AddObject(m, "YAPError", pYAPError);
+
   %}

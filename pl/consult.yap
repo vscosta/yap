@@ -307,9 +307,12 @@ load_files(Files0,Opts) :-
     '$load_files__'(Files, M, Opts, Call).
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
-    ( '__NB_getval__'('$lf_status', OldTOpts, fail),
-      nonvar(OldTOpts)
+    '$show_consult_level'(LC),
+    writeln(user_error,innbbbbbb),
+    ( LC > 0
     ->
+      '__NB_getval__'('$lf_status', OldTOpts, fail),
+        nonvar(OldTOpts),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
          '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ;

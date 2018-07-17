@@ -49,6 +49,7 @@ class JupyterEngine( Engine ):
             args = EngineArgs(**kwargs)
         args.jupyter = True
         Engine.__init__(self, args)
+        self.errors = None
         self.goal(set_prolog_flag('verbose', 'silent'),True)
         self.goal(compile(library('jupyter')), True)
         self.goal(set_prolog_flag('verbose', 'normal'), True)

@@ -88,6 +88,7 @@ extensions = [Extension('_yap', native_sources,
                                        ('MINOR_VERSION', '0'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
+                                       ('PYTHONSWIG', '1'),
                                        ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=[
                                               abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'${CMAKE_INSTALL_FULL_LIBDIR}'],

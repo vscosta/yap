@@ -589,7 +589,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
   // last block
   LOCAL_ActiveError = ep;
   if (e->errorNo && !ep->errorNo && pass) {
-    yap_error_descriptor_t *epp = ep->top_error;    
+    yap_error_descriptor_t *epp = ep->top_error;
     memmove(ep, e, sizeof(*e));
     ep->top_error = epp;
   }
@@ -960,7 +960,9 @@ yap_error_descriptor_t *Yap_GetException(yap_error_descriptor_t *i) {
   return 0;
 }
 
-void Yap_PrintException(void) { printErr(LOCAL_ActiveError); }
+void Yap_PrintException(yap_error_descriptor_t *i) {
+  printErr(LOCAL_ActiveError);
+}
 
 bool Yap_RaiseException(void) {
   if (LOCAL_ActiveError == NULL ||

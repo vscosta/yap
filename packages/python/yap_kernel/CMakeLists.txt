@@ -95,7 +95,6 @@ set (PYTHON_SOURCES backcall.py yap_kernel_launcher.py docs/conf.py
       yap_ipython/lib/kernel.py yap_ipython/lib/latextools.py
       yap_ipython/lib/lexers.py yap_ipython/lib/pretty.py
       yap_ipython/lib/security.py yap_ipython/lib/tests
-      yap_ipython/prolog/jupyter.yap
       yap_ipython/sphinxext/custom_doctests.py
       yap_ipython/sphinxext/__init__.py
       yap_ipython/sphinxext/ipython_console_highlighting.py

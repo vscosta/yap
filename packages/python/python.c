@@ -22,6 +22,7 @@ X_API PyObject *py_Atoms;
 X_API PyObject *py_Builtin;
 X_API PyObject *py_Yapex;
 X_API PyObject *py_Sys;
+X_API PyObject * pYAPError;
 PyObject *py_Context;
 PyObject *py_ModDict;
 

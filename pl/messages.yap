@@ -244,7 +244,7 @@ compose_message(style_check(What,FILE,Line,Clause), Level)-->
 	main_message(style_check(What,FILE,Line,Clause) , Level, LC ).
 compose_message(yes, _Level) --> !,
 	[  'yes'- []  ].
-compose_message(Throw, _Leve) -->
+compose_message(Throw, _Level) -->
   	!,
   	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 

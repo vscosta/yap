@@ -114,7 +114,7 @@ class YAPInputSplitter(InputSplitter):
         if not  line:
             line = text.rstrip()
         self.errors = []
-        engine.mgoal(errors(self, line),"user",True)
+        engine.mgoal(errors(self, line),"verify",True)
         return self.errors != []
 
 
@@ -528,7 +528,7 @@ class YAPRun:
             return self.errors
         self.errors=[]
         (text,_,_,_) = self.clean_end(text)
-        self.yapeng.mgoal(errors(self,text),"user",True)
+        self.yapeng.mgoal(errors(self,text),"verify",True)
         return self.errors
 
     def jupyter_query(self, s):
@@ -653,6 +653,7 @@ class YAPRun:
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
         cell = raw_cell  # cell has to exist so it can be stored/logged
+        self.yapeng.mgoal(streams(True),"jupyter", True)
         for i in self.syntaxErrors(raw_cell):
             try:
                 (what,lin,_,text) = i
@@ -679,6 +680,7 @@ class YAPRun:
         # compiler
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
         cell_name = str( self.shell.execution_count)
+        engine.stream_name = cell_name
         if cell[0] == '%':
             if cell[1] == '%':
                 linec = False
@@ -707,7 +709,6 @@ class YAPRun:
         self.shell.displayhook.exec_result = self.result
         has_raised = False
         try:
-            self.yapeng.mgoal(streams(True),"user", True)
             self.bindings = dicts = []
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
@@ -732,9 +733,9 @@ class YAPRun:
         except Exception as e:
             has_raised = True
             self.result.result = False
-            self.yapeng.mgoal(streams(False),"user", True)
+            self.yapeng.mgoal(streams(False),"jupyter", True)
 
-        self.yapeng.mgoal(streams(False),"user", True)
+        self.yapeng.mgoal(streams(False),"jupyter", True)
         self.shell.last_execution_succeeded = not has_raised
 
         # Reset this so later displayed values do not modify the

@@ -491,39 +491,17 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-	strip_module(Pred, Mod, TruePred),
-	'$predicate_property2'(TruePred,Prop,Mod).
-
-'$predicate_property2'(Pred, Prop, Mod) :-
-	var(Mod), !,
-	'$all_current_modules'(Mod),
-	'$predicate_property2'(Pred, Prop, Mod).
-'$predicate_property2'(Pred,Prop,M0) :-
-	var(Pred), !,
-	(M = M0 ;
-	 M0 \= prolog, M = prolog ;
-	 M0 \= user, M = user), % prolog and user modules are automatically incorporate in every other module
-	'$generate_all_preds_from_mod'(Pred, SourceMod, M),
-	'$predicate_property'(Pred,SourceMod,M,Prop).
-'$predicate_property2'(M:Pred,Prop,_) :- !,
-	'$predicate_property2'(Pred,Prop,M).
-'$predicate_property2'(Pred,Prop,Mod) :-
-	'$pred_exists'(Pred,Mod), !,
-	'$predicate_property'(Pred,Mod,Mod,Prop).
-'$predicate_property2'(Pred,Prop,Mod) :-
-    '$get_undefined_pred'(Pred, Mod, NPred, M),
-	(
-	 Prop = imported_from(M)
-	;
-	 '$predicate_property'(NPred,M,M,Prop),
-	 Prop \= exported
-	).
-
-'$generate_all_preds_from_mod'(Pred, M, M) :-
-	'$current_predicate'(_Na,M,Pred,_).
-'$generate_all_preds_from_mod'(Pred, SourceMod, Mod) :-
-	recorded('$import','$import'(SourceMod, Mod, Orig, Pred,_,_),_),
-	'$pred_exists'(Orig, SourceMod).
+  current_predicate(_,Pred),
+	'$yap_strip_module'(Pred, Mod, TruePred),
+    (
+    '$pred_exists'(TruePred, Mod)
+    ->
+      M = Mod,
+      NPred = TruePred
+      ;
+    '$get_undefined_pred'(TruePred, Mod, NPred, M)
+	),
+  '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
 	'$is_system_predicate'(P,M).
@@ -551,6 +529,8 @@ predicate_property(Pred,Prop) :-
 	functor(P,N,A),
 	once(recorded('$module','$module'(_TFN,M,_S,Publics,_L),_)),
 	lists:memberchk(N/A,Publics).
+'$predicate_property'(P,M,M0,imported_from(M0)) :-
+  M \= M0.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
 	'$number_of_clauses'(P,Mod,NCl).
 '$predicate_property'(P,Mod,_,file(F)) :-
@@ -606,11 +586,22 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
 	'$yap_strip_module'(T0, M, T),
-	(nonvar(T) -> functor(T, A, _) ; true ),
+  (	var(Mod)
+  ->
+  	'$all_current_modules'(M)
+    ;
+  	true
+    ),
+(nonvar(T) -> functor(T, A, _) ; true ),
 	(
 	 '$current_predicate'(A,M, T, user)
     ;
-	 '$imported_predicate'(T, M, T1, M1),
+	 (nonvar(T)
+   ->
+     '$imported_predicate'(T, M, T1, M1)
+     ;
+   '$generate_imported_predicate'(T, M, T1, M1)
+   ),
 	 functor(T1, A, _),
 	 \+ '$is_system_predicate'(T1,M1)
     ).

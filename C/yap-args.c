@@ -145,11 +145,12 @@ static void init_globals(YAP_init_args *yap_init) {
 }
 
 const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
-    *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR,
-    *Yap_INPUT_STARTUP, *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
+    *Yap_PLDIR, *Yap_BOOTSTRAP, *Yap_COMMONSDIR, *Yap_INPUT_STARTUP,
+    *Yap_OUTPUT_STARTUP, *Yap_BOOTFILE, *Yap_INCLUDEDIR;
 
 /**
- * consult loop in C: used to boot the system, butt supports goal execution and recursive consulting.
+ * consult loop in C: used to boot the system, butt supports goal execution and
+ * recursive consulting.
  *
  * */
 static bool consult(const char *b_file USES_REGS) {
@@ -184,15 +185,15 @@ static bool consult(const char *b_file USES_REGS) {
     Term vs = MkVarTerm(), pos = MkVarTerm();
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);
-      if (t == TermEof)
-	break;
+    if (t == TermEof)
+      break;
     if (t == 0) {
       fprintf(stderr, "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
               b_file, GLOBAL_Stream[c_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
       fprintf(stderr, "[ line: " Int_FORMAT ": term cannot be compiled ]",
               GLOBAL_Stream[c_stream].linecount);
-   } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
+    } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
@@ -201,13 +202,12 @@ static bool consult(const char *b_file USES_REGS) {
         YAP_RunGoalOnce(t);
       }
     } else {
-     YAP_CompileClause(t);
+      YAP_CompileClause(t);
     }
     yap_error_descriptor_t *errd;
-    if ((errd =
-	 Yap_GetException(LOCAL_ActiveError))) {
-      fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile, (long int) errd->errorLine, errd->classAsText,
-              errd->errorAsText);
+    if ((errd = Yap_GetException(LOCAL_ActiveError))) {
+      fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile,
+              (long int)errd->errorLine, errd->classAsText, errd->errorAsText);
     }
   } while (true);
   BACKUP_MACHINE_REGS();
@@ -216,14 +216,14 @@ static bool consult(const char *b_file USES_REGS) {
     pop_text_stack(lvl);
     return false;
   }
-    pop_text_stack(lvl);
-    return true;
+  pop_text_stack(lvl);
+  return true;
 }
 
 ///
 ///
-static const char *sel(bool dir, bool ok1, const char *s1, bool ok2, const char *s2,
-                       ...) {
+static const char *sel(bool dir, bool ok1, const char *s1, bool ok2,
+                       const char *s2, ...) {
   if (ok1 && s1)
     return s1;
   if (ok2)
@@ -768,7 +768,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
           argv++;
           iap->PrologTopLevelGoal = add_end_dot(*argv);
         }
-	iap->HaltAfterBoot = true;
+        iap->HaltAfterBoot = true;
         break;
       case 'n':
         if (!strcmp("nosignals", p)) {
@@ -941,15 +941,15 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
   if (yap_init->Embedded) {
     yap_init->install = false;
     GLOBAL_PrologShouldHandleInterrupts =
-yap_init->PrologCannotHandleInterrupts = true;
+        yap_init->PrologCannotHandleInterrupts = true;
   } else {
     GLOBAL_PrologShouldHandleInterrupts =
-            !yap_init->PrologCannotHandleInterrupts;
+        !yap_init->PrologCannotHandleInterrupts;
   }
-    Yap_InitSysbits(0); /* init signal handling and time, required by later
-                           functions */
-    GLOBAL_argv = yap_init->Argv;
-    GLOBAL_argc = yap_init->Argc;
+  Yap_InitSysbits(0); /* init signal handling and time, required by later
+                         functions */
+  GLOBAL_argv = yap_init->Argv;
+  GLOBAL_argc = yap_init->Argc;
 
 #if __ANDROID__
 
@@ -982,7 +982,8 @@ yap_init->PrologCannotHandleInterrupts = true;
 
 static void end_init(YAP_init_args *iap) {
   YAP_initialized = true;
-  if (iap->HaltAfterBoot) Yap_exit(0);
+  if (iap->HaltAfterBoot)
+    Yap_exit(0);
   LOCAL_PrologMode &= ~BootMode;
   CurrentModule = USER_MODULE;
 }
@@ -1022,9 +1023,9 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
 
   CACHE_REGS
 
-    if (yap_init->QuietMode) {
-      setVerbosity(TermSilent);
-    }
+  if (yap_init->QuietMode) {
+    setVerbosity(TermSilent);
+  }
   if (yap_init->PrologRCFile != NULL) {
     /*
       This must be done before restore, otherwise
@@ -1037,15 +1038,15 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
 
-  if (do_bootstrap ||
-      !try_restore ||
+  if (do_bootstrap || !try_restore ||
       !Yap_SavedInfo(Yap_INPUT_STARTUP, &minfo.Trail, &minfo.Stack,
-		     &minfo.Heap) ) {
+                     &minfo.Heap)) {
     init_globals(yap_init);
 
     start_modules();
-      CurrentModule = PROLOG_MODULE;
-  TermEof = MkAtomTerm( Yap_LookupAtom("end_of_file"));
+    CurrentModule = PROLOG_MODULE;
+    TermEof = MkAtomTerm(Yap_LookupAtom("end_of_file"));
+    LOCAL_consult_level = -1;
     consult(Yap_BOOTSTRAP PASS_REGS);
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
@@ -1056,21 +1057,22 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
 
     start_modules();
     if (yap_init->install && Yap_OUTPUT_STARTUP) {
-    setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
-                              MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
-    setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
-  }
+      setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
+                                MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
+      setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
+    }
+    LOCAL_consult_level = -1;
   }
   YAP_RunGoalOnce(TermInitProlog);
-     if (yap_init->install && Yap_OUTPUT_STARTUP) {
-      Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
-       Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
-                              1, &t);
+  if (yap_init->install && Yap_OUTPUT_STARTUP) {
+    Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
+    Term g = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("qsave_program"), 1),
+                            1, &t);
 
-      YAP_RunGoalOnce(g);
-     }
+    YAP_RunGoalOnce(g);
+  }
 
-    end_init(yap_init);
+  end_init(yap_init);
 }
 
 #if (DefTrailSpace < MinTrailSpace)
