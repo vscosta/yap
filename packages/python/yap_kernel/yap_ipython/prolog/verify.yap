@@ -6,7 +6,7 @@
 
 
   :- module( verify,
-             [errors/2,
+             [errors/2,q
               ready/2]
                       ).
 :- use_module(library(hacks)).
@@ -22,7 +22,7 @@
 ready( Engine, Query) :-
      errors( Engine , Cell ),
      Es := Engine.errors,
-     Es == [].
+     not Es == [].
 
 
 
@@ -30,7 +30,7 @@ errors( _Engine , Text ) :-
     blank(Text).
     !.
 errors( Engine , Text ) :-
-  b_setval(jupyter, Engine),
+  jupyter..shell := Engine,
     setup_call_cleanup(
        	open_esh( Engine , Text, Stream, Name ),
        	 esh(Engine , Name, Stream),
@@ -46,23 +46,26 @@ open_esh(Engine , Text, Stream, Name) :-
     open_mem_read_stream( Text, Stream ).
 
 esh(Engine , Name, Stream) :-
+b_setval(code,python),
   repeat,
   catch(
-  read_clause(Stream, Cl,[]),
-  E=error(C,E),
-  p_message(C,E)
-  ),
+ (   read_clause(Stream, Cl, [ syntax_errors(fail)]),
+  writeln(cl:Cl),
+     error(C,E),
+     p_message(C,E)
+  
   Cl == end_of_file,
   !.
 
+user:print_message() :- p_message
 
 close_esh( _Engine , Stream ) :-
+ b_delete
   close(Stream).
 
 
   p_message(Severity, Error) :-
       writeln((Severity->Error)),
-      catch( b_getval(jupyter, Engine), _, fail ),
       p_message(Severity, Engine, Error).
 
 p_message( _Severity,  Engine, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-

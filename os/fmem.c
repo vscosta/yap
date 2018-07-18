@@ -204,7 +204,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 
   st = GLOBAL_Stream + sno;
   st->status = Output_Stream_f | InMemory_Stream_f;
-  if (st->nbuf)
+  if (src)
     st->status |= FreeOnClose_Stream_f;
   st->linepos = 0;
   st->charcount = 0;
@@ -224,6 +224,7 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 #else
   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
 #endif
+  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;

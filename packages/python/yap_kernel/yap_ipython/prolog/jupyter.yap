@@ -1,3 +1,4 @@
+
 /**
   * @file jupyter.yap4py
   *
@@ -16,10 +17,10 @@
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
-:-	 use_module(library(python)).
-:-	 use_module(library(yapi)).
-:-	 use_module(library(complete)).
-:-	 use_module(library(verify)).
+:-	 reexport(library(python)).
+:-	 reexport(library(yapi)).
+:-	 reexport(library(complete)).
+:-	 reexport(library(verify)).
 
 :- python_import(sys).
 

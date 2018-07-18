@@ -216,10 +216,6 @@ static void
 {
 
               yap_error_number en = e.getID();
-std::cerr << e.text() << "\n";
-
-
-return;
               switch (e.getErrorClass()) {
                 case YAPC_NO_ERROR:
                 break;
