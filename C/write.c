@@ -375,7 +375,6 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   CACHE_REGS
   struct write_globs wglb;
   int sno;
-  char *so;
 
   sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding,
                                   0);

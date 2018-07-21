@@ -308,7 +308,6 @@ load_files(Files0,Opts) :-
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     '$show_consult_level'(LC),
-    writeln(user_error,innbbbbbb),
     ( LC > 0
     ->
       '__NB_getval__'('$lf_status', OldTOpts, fail),
@@ -1671,6 +1670,11 @@ End of conditional compilation.
 '$fetch_comp_status'(compact).
 
 consult_depth(LV) :- '$show_consult_level'(LV).
+
+prolog_library(File) :-
+    yap_flag(verbose,Old,silent),
+    ensure_loaded(library(File)),
+    yap_flag(verbose,_,Old).
 
 :- '$add_multifile'(dot_qualified_goal,2,user).
 

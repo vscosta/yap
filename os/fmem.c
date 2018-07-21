@@ -213,18 +213,13 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
   st->vfs = NULL;
   st->buf.on = true;
   st->nbuf = NULL;
-  st->nsize = 0;
   st->status |= Seekable_Stream_f;
 #if HAVE_OPEN_MEMSTREAM
   st->file = open_memstream(&st->nbuf, &st->nsize);
   // setbuf(st->file, NULL);
-  if (!st->nbuf) {
-    return -1;
-  }
 #else
   st->file = fmemopen((void *)st->nbuf, st->nsize, "w+");
 #endif
-  st->vfs = NULL;
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
   return sno;

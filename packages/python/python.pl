@@ -32,6 +32,7 @@
 	   release_GIL/0,
 	   python_threaded/0,
 	   prolog_list_to_python_list/3,
+	   python_clear_errors/0,
 	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),

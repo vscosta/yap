@@ -86,6 +86,7 @@ aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :
 
 pred_name(Macro, Arity, _ , Name) :-
 	transformation_id(Id),
+
 	atomic_concat(['$$$__Auxiliary_predicate__ for',Macro,'/',Arity,'    ',Id], Name).
 
 transformation_id(Id) :-

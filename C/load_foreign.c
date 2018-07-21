@@ -286,4 +286,5 @@ void Yap_ReOpenLoadForeign(void) {
 
 X_API bool load_none(void)
 {
+  return true;
 }

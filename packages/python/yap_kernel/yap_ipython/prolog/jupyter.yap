@@ -6,36 +6,38 @@
   */
 
 :- yap_flag(gc_trace,verbose).
-
+/*
   :- module( jupyter,
               [jupyter_query/3,
-              blank/1
+               blank/1,
+	       streams/1
            ]
             ).
+*/
 :- use_module(library(hacks)).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
-:-	 reexport(library(python)).
-:-	 reexport(library(yapi)).
-:-	 reexport(library(complete)).
-:-	 reexport(library(verify)).
+%% :-	 reexport(library(python)).
+%% :-	 reexport(library(yapi)).
+%% :-	 reexport(library(complete)).
+%% :-	 reexport(library(verify)).
+
 
 :- python_import(sys).
 
 jupyter_query(Caller, Cell, Line ) :-
-	jupyter_cell(Caller, Cell, Line).
+    jupyter_cell(Caller, Cell, Line).
 
 jupyter_cell(_Caller, Cell, _Line) :-
 	jupyter_consult(Cell),	%stack_dump,
 	fail.
-jupyter_cell( _Caller, _, '' ) :- !.
+jupyter_cell( _Caller, _, `` ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell( Caller, _, Line ) :-
-	Self := Caller.query,
+jupyter_cell(Self, _, Line ) :-
     catch(
 	python_query(Self,Line),
 	E=error(A,B),
@@ -83,7 +85,8 @@ blank(Text) :-
     string_codes(Text, L),
     maplist( code_type(space), L).
 
-streams(false) :-
+
+ streams(false) :-
     close(user_input),
     close(user_output),
     close(user_error).
@@ -109,4 +112,4 @@ plot_inline :-
 
 :- endif.
 
-%:- ( start_low_level_trace ).
+%y:- ( start_low_level_trace ).

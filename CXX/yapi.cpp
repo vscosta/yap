@@ -517,6 +517,7 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
 bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
+  //  std::cerr << "mgoal(in) "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
   // PyThreadState *_save;
 
   // std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
@@ -529,8 +530,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   q.p = P;
   q.cp = CP;
   PredEntry *ap = nullptr;
-  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
-  std::cerr << "mgoal " << YAPTerm(tmod).text() << "\n";
   if (IsStringTerm(tmod))
     tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
   YAPPredicate *p = new YAPPredicate(t, tmod, ts, "C++");
@@ -554,9 +553,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   // don't forget, on success these guys may create slots
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
-  result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
-  std::cerr << "mgoal " << YAPTerm(tmod).text() << "\n";
+   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
+  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
 
   YAP_LeaveGoal(result && !release, &q);
   //      PyEval_RestoreThread(_save);

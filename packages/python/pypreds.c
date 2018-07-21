@@ -23,6 +23,11 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   len = PyObject_Length(o);
   pyErrorAndReturn(PL_unify_int64(tf, len));
 }
+static foreign_t python_clear_errors(void) {
+  PyErr_Clear();
+  return true;
+}
+
 
 static foreign_t python_dir(term_t tobj, term_t tf) {
   PyObject *dir;
@@ -701,6 +706,7 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_import", 2, python_import, 0);
   PL_register_foreign("python_access", 3, python_access, 0);
   PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
+  PL_register_foreign("python_clear_errors", 0, python_clear_errors, 0);
 
   init_python_vfs();
 }

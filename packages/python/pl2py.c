@@ -1,4 +1,5 @@
 
+#include  "Yap.h"
 
 #include "py4yap.h"
 
@@ -109,7 +110,7 @@ static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
 PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   // o≈
   YAP_Term yt = YAP_GetFromSlot(t);
-  //  Yap_DebugPlWriteln(yt);
+    Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
     if (yt == 0) {
@@ -186,31 +187,24 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   }
   default:
     if (PL_is_pair(t)) {
-      term_t tail = PL_new_term_ref();
-      term_t arg = PL_new_term_ref();
-      size_t len, i;
-      if (PL_skip_list(t, tail, &len) && PL_get_nil(tail)) {
+      Term t0 = Yap_GetFromHandle(t);
+      Term *tail;
+      size_t len,i;
+      if ((len = Yap_SkipList(&t0, &tail))>=0 && *tail ==  TermNil) {
         PyObject *out, *a;
 
         out = PyList_New(len);
-        if (!out) {
-          PL_reset_term_refs(tail);
-          YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-        }
 
         for (i = 0; i < len; i++) {
-          if (!PL_get_list(t, arg, t)) {
-            PL_reset_term_refs(tail);
-            YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-          }
-          a = term_to_python(arg, eval, o, cvt);
+	  Term ai = HeadOfTerm(t0);
+	  a = term_to_python(Yap_InitHandle(ai), eval, o, cvt);
           if (a) {
             if (PyList_SetItem(out, i, a) < 0) {
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
             }
           }
+	  t0 = TailOfTerm(t0);
         }
-        PL_reset_term_refs(tail);
         return out;
       } else {
         PyObject *no = find_obj(o, t, false);
@@ -343,7 +337,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           AOK(PL_get_arg(1, t, t), NULL);
           if (!(dict = PyDict_New()))
             return NULL;
-          Py_INCREF(dict);                                                                                                                            
+	  Py_INCREF(dict);
           DebugPrintf("Dict %p\n", dict);
 
           while (PL_is_functor(t, FUNCTOR_comma2)) {
@@ -360,6 +354,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           return dict;
         }
         AOK(PL_get_name_arity(t, &name, &arity), NULL);
+
         if (name == ATOM_t) {
           int i;
           rc = PyTuple_New(arity);

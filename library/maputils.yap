@@ -85,13 +85,16 @@ pred_name(Macro, Arity, _ , Name) :-
 	transformation_id(Id),
 	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,' ',Id], Name).
 pred_name(Macro, Arity, _ , Name) :-
-	transformation_id(Id),
+    transformation_id(Id),
+    stop_low_level_trace,
 	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,' ',Id], Name).
 
 transformation_id(Id) :-
-	retract(number_of_expansions(Id)),
-	Id1 is Id+1,
-	assert(number_of_expansions(Id1)).
+    retract(number_of_expansions(Id)),
+    !,
+    Id1 is Id+1,
+    assert(number_of_expansions(Id1)).
+transformation_id(0).
 
 %%	goal_expansion_allowed is semidet.
 %

@@ -6,16 +6,17 @@ import sys
 
 yap_lib_path = dirname(__file__)
 
-compile = namedtuple('compile', 'file')
 bindvars = namedtuple('bindvars', 'list')
-library = namedtuple('library', 'list')
+compile = namedtuple('compile', 'file')
+jupyter_query = namedtuple('jupyter_query', 'vars dict')
+library = namedtuple('library', 'listfiles')
+prolog_library = namedtuple('prolog_library', 'listfiles')
+python_query = namedtuple('python_query', 'vars dict')
+set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
+show_answer = namedtuple('show_answer', 'vars dict')
 v0 = namedtuple('v', 'slot')
 yap_query = namedtuple('yap_query', 'query owner')
-jupyter_query = namedtuple('jupyter_query', 'vars dict')
-python_query = namedtuple('python_query', 'vars dict')
 yapi_query = namedtuple('yapi_query', 'vars dict')
-show_answer = namedtuple('show_answer', 'vars dict')
-set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
 
 
 class Engine( YAPEngine ):
@@ -30,17 +31,18 @@ class Engine( YAPEngine ):
             args.setYapPLDIR(yap_lib_path)
             args.setSavedState(join(yap_lib_path, "startup.yss"))
         YAPEngine.__init__(self, args)
-        self.goal(set_prolog_flag('verbose', 'silent'),True)
-        self.goal(compile(library('yapi')), True)
-        self.goal(set_prolog_flag('verbose', 'normal'), True)
+        self.run(compile(library('yapi')),m="user",release=True)
 
     def run(self, g, m=None, release=False):
         if m:
             self.mgoal(g, m, release)
         else:
-            self.goal(release)
+            self.goal(g, release)
 
-
+    def prolog_library(self, file):
+        g = prolog_library(file)
+        self.run(g)
+            
 class JupyterEngine( Engine ):
 
     def __init__(self, args=None,self_contained=False,**kwargs):
@@ -50,11 +52,9 @@ class JupyterEngine( Engine ):
         args.jupyter = True
         Engine.__init__(self, args)
         self.errors = None
-        self.goal(set_prolog_flag('verbose', 'silent'),True)
-        self.goal(compile(library('verify')), True)
-        self.goal(compile(library('complete')), True)
-        self.goal(compile(library('jupyter')), True)
-        self.goal(set_prolog_flag('verbose', 'normal'), True)
+        self.run(compile(library('jupyter')),"user")
+        self.run(compile(library('complete')),"user")
+        self.run(compile(library('verify')),"user")
 
 class EngineArgs( YAPEngineArgs ):
     """ Interface to Engine Options class"""

@@ -6,7 +6,7 @@ set (PYTHON_HEADERS py4yap.h)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 include_directories( BEFORE ${PYTHON_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
-${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os )
+${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap )
 
 #talk to python.pl
 add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )

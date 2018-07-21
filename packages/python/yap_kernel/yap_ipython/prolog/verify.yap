@@ -5,19 +5,22 @@
   */
 
 
-  :- module( verify,
-             [errors/2,q
-              ready/2]
-                      ).
+ %%  :- module( verify,
+%%              [errors/2,
+%%               ready/2]
+%%                       ).
 :- use_module(library(hacks)).
-:- use_module(library(jupyter)).
+%% :- use_module(library(jupyter)).
+
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
-:-	 use_module(library(python)).
-:-	 use_module(library(yapi)).
+ :-	 use_module(library(python)).
+%% :-	 use_module(library(yapi)).
 
+:- dynamic jupyter/1.
+jupyter( []).
 
 ready( Engine, Query) :-
      errors( Engine , Cell ),
@@ -27,10 +30,10 @@ ready( Engine, Query) :-
 
 
 errors( _Engine , Text ) :-
-    blank(Text).
+    blank(Text),
     !.
 errors( Engine , Text ) :-
-  jupyter..shell := Engine,
+%start_low_level_trace,
     setup_call_cleanup(
        	open_esh( Engine , Text, Stream, Name ),
        	 esh(Engine , Name, Stream),
@@ -40,50 +43,55 @@ errors( Engine , Text ) :-
 errors( _Engine , _Text ).
 
 open_esh(Engine , Text, Stream, Name) :-
-  	Engine.errors := [],
+    Engine.errors := [],
+	   retractall(jupyter(_)),
+	   assertz(jupyter(Engine)),
     b_setval( jupyter, Engine),
     Name := Engine.stream_name,
     open_mem_read_stream( Text, Stream ).
 
 esh(Engine , Name, Stream) :-
-b_setval(code,python),
   repeat,
   catch(
- (   read_clause(Stream, Cl, [ syntax_errors(fail)]),
-  writeln(cl:Cl),
+   read_clause(Stream, Cl, [ syntax_errors(dec10)]),
      error(C,E),
-     p_message(C,E)
-  
+      p3_message(C,Engine,E)
+  ),
   Cl == end_of_file,
   !.
 
-user:print_message() :- p_message
+
+:- multifile user:portray_message/2.
+
+user:portray_message(S,E) :-
+jupyter(En),
+			   En \= [],
+			   python_clear_errors,
+			   p3_message(S,En,E).
 
 close_esh( _Engine , Stream ) :-
- b_delete
+	   retractall(jupyter(_)),
+	   assertz(jupyter([])),
   close(Stream).
 
 
-  p_message(Severity, Error) :-
-      writeln((Severity->Error)),
-      p_message(Severity, Engine, Error).
 
-p_message( _Severity,  Engine, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
-     %% 	nb_getval(jupyter_cell, on),
-     %%         assert( syntax_error(Cause,LN,CharPos,Details) ).
-     %% user:portray_message(_Severity, error(style_check(_),_) ) :-
-     %% 	nb_getval(jupyter_cell, on).
-    Engine.errors := [t(Cause,LN,CharPos,Details)] + Engine.errors,
-      !.
-      p_message(error, Engine, E) :-
-        writeln(E),
-        !.
-        p_message(warning, Engine, E) :-
+p3_message( _Severity,  Engine, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
+			   python_clear_errors,
+			   !,
           writeln(E),
+			   NE := [t(Cause,LN,CharPos,Details)]+Engine.errors,
+          writeln(E),
+          writeln(NE),
+				       Engine.errors := NE.
+p3_message(error, Engine, E) :-
+     python_clear_errors,
+     !.
+        p3_message(warning, Engine, E) :-
           !.
-        p_message(error, Engine, E) :-
+        p3_message(error, Engine, E) :-
           Engine.errors := [E] + Engine.errors.
-          p_message(warning, Engine, E) :-
+          p3_message(warning, Engine, E) :-
               Engine.errors := [E] + Engine.errors.
     %% ready(_Self, Line ) :-
 %%             blank( Line ),
@@ -173,3 +181,4 @@ p_message( _Severity,  Engine, error(syntax_error(Cause),info(between(_,LN,_), _
 %%     Self.errors := [t(C,L,N,A)] + Self.errors,
 %%     fail.
 %% close_events( _ ).
+

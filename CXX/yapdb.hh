@@ -53,6 +53,7 @@ public:
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   YAPModule() : YAPAtomTerm(curModule()){};
   YAPModule(YAPAtom t) : YAPAtomTerm(t){};
+  YAPModule(YAPStringTerm t) : YAPAtomTerm(t.getString()){};
   Term term() { return gt(); };
 };
 

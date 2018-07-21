@@ -251,9 +251,8 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       return NIL;
     memmove(ptr, atom, len0);
     ptr[len0] = '\0';
-    if (atom[0]  '\0') {
   at = LookupAtom(ptr);
-    Yap_FreeCodeSpace(ptr);
+        Yap_FreeCodeSpace(ptr);
     return at;
   }
 

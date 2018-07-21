@@ -3,20 +3,20 @@
 %% @brief support yap shell
 %%
 %:- start_low_level_trace.
- :- module(yapi, [
- 		 python_ouput/0,
- 		 show_answer/2,
- 		 show_answer/3,
- 		 yap_query/4,
- 		 python_query/2,
-		 python_query/3,
-		 python_import/1,
- 		 yapi_query/2
- 		 ]).
+ %% :- module(yapi, [
+ %% 		 python_ouput/0,
+ %% 		 show_answer/2,
+ %% 		 show_answer/3,
+ %% 		 yap_query/4,
+ %% 		 python_query/2,
+ %% 		 python_query/3,
+ %% 		 python_import/1,
+ %% 		 yapi_query/2
+ %% 		 ]).
 
 :- yap_flag(verbose, silent).
 
-:- use_module(library(python)).
+ :- use_module(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
@@ -88,3 +88,4 @@ in_dict(Dict, nonvar([V0|Vs],G)) :- !,
 	in_dict( Dict, nonvar(Vs, G) ).
 in_dict(_Dict, nonvar([],_G)) :- !.
 in_dict(_, _)
+
