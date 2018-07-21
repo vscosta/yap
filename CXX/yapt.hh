@@ -29,9 +29,7 @@ class YAPError;
 
 extern "C" {
 
-X_API extern Term YAP_MkCharPTerm( char *n);
-
-
+X_API extern Term YAP_MkCharPTerm(char *n);
 }
 
 /**
@@ -46,7 +44,7 @@ class X_API YAPTerm {
   friend class YAPApplTerm;
   friend class YAPListTerm;
 
- protected:
+protected:
   yhandle_t t; /// handle to term, equivalent to term_t
 
 public:
@@ -93,7 +91,7 @@ public:
       //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
       /*    if (!t)
             return;
-          Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
+          //          Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
           LOCAL_HandleBase[t] = TermFreeTerm;
           while (LOCAL_HandleBase[LOCAL_CurSlot - 1] == TermFreeTerm) {
             LOCAL_CurSlot--;
@@ -119,18 +117,18 @@ public:
   inline Term term() {
     return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)
-    YAPTerm arg(int i) {
-        BACKUP_MACHINE_REGS();
-        Term t0 = gt();
-        YAPTerm tf;
-        if (!IsApplTerm(t0) && !IsPairTerm(t))
-            return (Term)0;
-        tf = YAPTerm(ArgOfTerm(i, t0) );
-        RECOVER_MACHINE_REGS();
-        return tf;
-    };
+  YAPTerm arg(int i) {
+    BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    YAPTerm tf;
+    if (!IsApplTerm(t0) && !IsPairTerm(t))
+      return (Term)0;
+    tf = YAPTerm(ArgOfTerm(i, t0));
+    RECOVER_MACHINE_REGS();
+    return tf;
+  };
 
-    inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
+  inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
   inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
   /// fetch a sub-term
@@ -201,9 +199,10 @@ public:
   virtual bool isGround() { return Yap_IsGroundTerm(gt()); } /// term is ground
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
-  /// extract the argument i of the term, where i in 1...arityvoid *Yap_RepStreamFromId(int sno)
+  /// extract the argument i of the term, where i in 1...arityvoid
+  /// *Yap_RepStreamFromId(int sno)
   virtual Term getArg(arity_t i);
-  
+
   /// extract the arity of the term
   /// variables have arity 0
   virtual inline arity_t arity() {
@@ -226,7 +225,7 @@ public:
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t),  Handle_vars_f))) {
+    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
@@ -292,7 +291,7 @@ public:
 /**
  * @brief Compound Term
  */
-          class X_API YAPApplTerm : public YAPTerm {
+class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
@@ -304,33 +303,36 @@ public:
     RECOVER_MACHINE_REGS();
   };
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-    YAPApplTerm(const std::string s, unsigned int arity) { mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity), arity)); };
-    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+  YAPApplTerm(const std::string s, unsigned int arity) {
+    mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity),
+                         arity));
+  };
+  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
 
-    Term getArg(arity_t i) {
-      BACKUP_MACHINE_REGS();
-      Term t0 = gt();
-      Term tf;
-      tf = ArgOfTerm(i, t0);
-      RECOVER_MACHINE_REGS();
-      return tf;
-    };
-              void putArg(int i, Term targ) {
-                //BACKUP_MACHINE_REGS();
-                Term t0 = gt();
-                RepAppl(t0)[i] = Deref(targ);
-                //RECOVER_MACHINE_REGS();
-              };
-              void putArg(int i, YAPTerm t) {
-                //BACKUP_MACHINE_REGS();
-                Term t0 = gt();
-                RepAppl(t0)[i] = t.term();
-                //RECOVER_MACHINE_REGS();
-              };
-    virtual bool isVar() { return false; }     /// type check for unbound
+  Term getArg(arity_t i) {
+    BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    Term tf;
+    tf = ArgOfTerm(i, t0);
+    RECOVER_MACHINE_REGS();
+    return tf;
+  };
+  void putArg(int i, Term targ) {
+    // BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    RepAppl(t0)[i] = Deref(targ);
+    // RECOVER_MACHINE_REGS();
+  };
+  void putArg(int i, YAPTerm t) {
+    // BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    RepAppl(t0)[i] = t.term();
+    // RECOVER_MACHINE_REGS();
+  };
+  virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
   virtual bool isInteger() { return false; } /// type check for integer
   virtual bool isFloat() { return false; }   /// type check for floating-point
@@ -465,7 +467,7 @@ public:
  * Term Representation of an Atom
  */
 class X_API YAPAtomTerm : public YAPTerm {
-                                                                                                                                              friend class YAPModule;
+  friend class YAPModule;
   // Constructor: receives a C-atom;
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
 
@@ -479,11 +481,12 @@ public:
   YAPAtomTerm(char *s, size_t len);
   // Constructor: receives a sequence of wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s);
-    // Constructor: receives a sequence of n wchar_ts, whatever they may be;
-    YAPAtomTerm(wchar_t *s, size_t len);
-// Constructor: receives a std::string;
- //   YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str()))); };
-    bool isVar() { return false; }           /// type check for unbound
+  // Constructor: receives a sequence of n wchar_ts, whatever they may be;
+  YAPAtomTerm(wchar_t *s, size_t len);
+  // Constructor: receives a std::string;
+  //   YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str())));
+  //   };
+  bool isVar() { return false; }           /// type check for unbound
   bool isAtom() { return true; }           ///  type check for atom
   bool isInteger() { return false; }       /// type check for integer
   bool isFloat() { return false; }         /// type check for floating-point

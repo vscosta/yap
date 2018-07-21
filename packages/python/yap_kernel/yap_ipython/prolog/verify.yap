@@ -79,11 +79,7 @@ close_esh( _Engine , Stream ) :-
 p3_message( _Severity,  Engine, error(syntax_error(Cause),info(between(_,LN,_), _FileName, CharPos, Details))) :-
 			   python_clear_errors,
 			   !,
-          writeln(E),
-			   NE := [t(Cause,LN,CharPos,Details)]+Engine.errors,
-          writeln(E),
-          writeln(NE),
-				       Engine.errors := NE.
+			   Engine.errors := [t(Cause,LN,CharPos,Details)]+Engine.errors.
 p3_message(error, Engine, E) :-
      python_clear_errors,
      !.
@@ -181,4 +177,3 @@ p3_message(error, Engine, E) :-
 %%     Self.errors := [t(C,L,N,A)] + Self.errors,
 %%     fail.
 %% close_events( _ ).
-

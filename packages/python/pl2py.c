@@ -1,5 +1,5 @@
 
-#include  "Yap.h"
+#include "Yap.h"
 
 #include "py4yap.h"
 
@@ -51,7 +51,6 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
  */
 X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0) {
 
-  
   char *buf = malloc(strlen(s) + 1), *child;
   while ((child = strchr(s, '.')) != NULL) {
     size_t len = child - s;
@@ -108,9 +107,8 @@ static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
  * @return a Python object descriptor or NULL if failed
  */
 PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
-  // o≈
+  //
   YAP_Term yt = YAP_GetFromSlot(t);
-    Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
     if (yt == 0) {
@@ -137,7 +135,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
       o = PyUnicode_FromString(s);
     }
     if (o) {
-      //PyDict_SetItemString(py_Atoms, s, Py_None);
+      // PyDict_SetItemString(py_Atoms, s, Py_None);
       Py_INCREF(o);
       return o;
     }
@@ -149,20 +147,20 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     } else if (YAP_IsStringTerm(yt)) {
       s = YAP_StringOfTerm(yt);
     } else {
-     return CHECKNULL(t, NULL);
+      return CHECKNULL(t, NULL);
     }
-      PyObject *pobj = PyUnicode_FromString(s);
- 
+    PyObject *pobj = PyUnicode_FromString(s);
+
 #if PY_MAJOR_VERSION < 3
     if (proper_ascii_string(s)) {
       PyObject *o = PyString_FromStringAndSize(s, strlen(s));
       return CHECKNULL(t, o);
-    } 
+    }
 #endif
-      //      char *p = malloc(strlen(s)+1);
-      // strcpy(p, s);
-      Py_IncRef(pobj);
-      return CHECKNULL(t, pobj);
+    //      char *p = malloc(strlen(s)+1);
+    // strcpy(p, s);
+    Py_IncRef(pobj);
+    return CHECKNULL(t, pobj);
   } break;
   case PL_INTEGER: {
     int64_t j;
@@ -189,21 +187,21 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     if (PL_is_pair(t)) {
       Term t0 = Yap_GetFromHandle(t);
       Term *tail;
-      size_t len,i;
-      if ((len = Yap_SkipList(&t0, &tail))>=0 && *tail ==  TermNil) {
+      size_t len, i;
+      if ((len = Yap_SkipList(&t0, &tail)) >= 0 && *tail == TermNil) {
         PyObject *out, *a;
 
         out = PyList_New(len);
 
         for (i = 0; i < len; i++) {
-	  Term ai = HeadOfTerm(t0);
-	  a = term_to_python(Yap_InitHandle(ai), eval, o, cvt);
+          Term ai = HeadOfTerm(t0);
+          a = term_to_python(Yap_InitHandle(ai), eval, o, cvt);
           if (a) {
             if (PyList_SetItem(out, i, a) < 0) {
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
             }
           }
-	  t0 = TailOfTerm(t0);
+          t0 = TailOfTerm(t0);
         }
         return out;
       } else {
@@ -256,11 +254,11 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
             PyObject *ip = term_to_python(trhs, eval, o, cvt);
             if (PySequence_Check(v)) {
 #if PY_MAJOR_VERSION < 3
-	      if (PyLong_Check(ip)) {
+              if (PyLong_Check(ip)) {
                 min = PyLong_AsLong(ip);
-         } else if (PyInt_Check(ip)) {
+              } else if (PyInt_Check(ip)) {
                 min = PyInt_asInt(ip);
-           }
+              }
 #else
               if (PyLong_Check(ip)) {
                 PyObject *o = PySequence_GetItem(v, PyLong_AsLong(ip));
@@ -337,7 +335,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           AOK(PL_get_arg(1, t, t), NULL);
           if (!(dict = PyDict_New()))
             return NULL;
-	  Py_INCREF(dict);
+          Py_INCREF(dict);
           DebugPrintf("Dict %p\n", dict);
 
           while (PL_is_functor(t, FUNCTOR_comma2)) {
