@@ -158,9 +158,9 @@ else if (PyDict_Check(pVal)) {
       Term t0[2], to;
       t0[0] = python_to_term__(key);
       t0[1] = python_to_term__(value);
-      to = Yap_MkApplTerm(FunctorEq, 2, t0);
+      to = Yap_MkApplTerm(FunctorModule, 2, t0);
       if (left--) {
-        t = Yap_MkNewApplTerm(FunctorOr, 2);
+        t = Yap_MkNewApplTerm(FunctorComma, 2);
         *opt = t;
         CELL *pt = RepAppl(t) + 1;
         pt[0] = to;

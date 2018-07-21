@@ -72,7 +72,7 @@ python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	atom_to_string( Status, SStatus ),
-	Caller.port := SStatus,
+	% Caller.port := SStatus,
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.answer := {},

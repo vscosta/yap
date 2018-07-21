@@ -519,6 +519,10 @@ class YAPRun:
         self.shell.yapeng = self.yapeng
         self._get_exc_info = shell._get_exc_info
 
+
+    def showtraceback(self, tuple):
+        return None
+        
     def syntaxErrors(self, text):
         """Return whether a legal query
         """

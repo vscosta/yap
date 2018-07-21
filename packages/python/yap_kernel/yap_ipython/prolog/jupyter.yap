@@ -37,7 +37,8 @@ jupyter_cell( _Caller, _, `` ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
-jupyter_cell(Self, _, Line ) :-
+jupyter_cell(Caller, _, Line ) :-
+    Self := Caller.query,
     catch(
 	python_query(Self,Line),
 	E=error(A,B),

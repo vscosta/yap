@@ -130,14 +130,15 @@ static bool py_close(int sno) {
 static bool getLine(StreamDesc *rl_iostream, int sno) {
   char *myrl_line = NULL;
   // term_t ctk = python_acquire_GIL();
-  PyObject_Print(rl_iostream->u.private_data, stderr, 0);
-  /* window of vulnerability opened */
-  PyObject *readl =
-      PyObject_GetAttrString(rl_iostream->u.private_data, "readline");
-  PyObject_Print(readl, stderr, 0);
+    PyObject *readl =
+      PythonLookup("input", Py_None);
+  PyObject_Print(readl, stderr, 0);fprintf(stderr," input\n");
 
-  myrl_line = PyUnicode_AsUTF8(
-      PyObject_CallFunctionObjArgs(readl, rl_iostream->u.private_data, NULL));
+  
+      PyObject *user_inp = PyObject_CallFunction(readl,NULL);
+  PyObject_Print(user_inp, stderr, 0);fprintf(stderr," input\n");
+      myrl_line = PyUnicode_AsUTF8(user_inp);
+  //PyObject_Print(myrl_line, stderr, 0);fprintf(stderr," myrl_line\n");
   // python_release_GIL(ctk);
   PyObject *err;
   if ((err = PyErr_Occurred())) {
