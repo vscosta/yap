@@ -17,6 +17,7 @@
 
 #include "absmi.h"
 #include "yapio.h"
+#include "YapStreams.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif

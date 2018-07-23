@@ -16,6 +16,7 @@ from yap_ipython.core.interactiveshell import *
 from yap_ipython.core import interactiveshell
 
 from collections import namedtuple
+import traceback
 
 use_module = namedtuple('use_module', 'file')
 bindvars = namedtuple('bindvars', 'list')
@@ -516,13 +517,22 @@ class YAPRun:
         self.query = None
         self.os = None
         self.it = None
+        self.port = None
+        self.answers = None
+        self.bindings = dicts = []
         self.shell.yapeng = self.yapeng
         self._get_exc_info = shell._get_exc_info
 
 
-    def showtraceback(self, tuple):
-        return None
-        
+    def showtraceback(self, exc_info):
+        try:
+            (etype, value, tb) = e
+            traceback.print_exception(etype, value, tb)
+        except:
+            print(e)
+            pass
+
+
     def syntaxErrors(self, text):
         """Return whether a legal query
         """
@@ -545,28 +555,34 @@ class YAPRun:
             # sys.settrace(tracefunc)
             if self.query and self.os == program+squery:
                 howmany += self.iterations
+                found = howmany != 0
             else:
                 if self.query:
                     self.query.close()
+                    self.query = None
+                    self.port = None
+                    self.answers = None
                 self.os = program+squery
                 self.iterations = 0
-                self.bindings = []
                 pg = jupyter_query( self, program, squery)
                 self.query =  self.yapeng.query(pg)
-                self.query.answer = {}
+                self.answers = []
+                self.port =  "call"
+                self.answer =  {}
             while self.query.next():
-                answer = self.query.answer
+                #sys.stderr.write('B '+str( self.answer) +'\n')
+                #sys.stderr.write('C '+ str(self.port) +'\n'+'\n')
                 found = True
-                self.bindings += [answer]
+                self.answers += [self.answer]
                 self.iterations += 1
-                if self.query.port  == "exit":
+                if self.port  == "exit":
                     self.os = None
-                    sys.stderr.writeln('Done, with', self.bindings)
+                    sys.stderr.write('Done, with'+str(self.answers)+'\n')
                     return True,self.bindings
                 if stop or howmany == self.iterations:
-                    return True, self.bindings
+                    return True, self.answers
             if found:
-                sys.stderr.writeln('Done, with ', self.bindings)
+                sys.stderr.write('Done, with '+str(self.answers)+'\n')
             else:
                 self.os = None
                 self.query.close()
@@ -574,7 +590,7 @@ class YAPRun:
                 sys.stderr.write('Fail\n')
                 return True,self.bindings
         except Exception as e:
-            sys.stderr.write('Exception after', self.bindings, '\n')
+            sys.stderr.write('Exception '+str(e)+' after '+str( self.bindings)+ '\n')
             has_raised = True
             return False,[]
 
@@ -660,7 +676,7 @@ class YAPRun:
         for i in self.syntaxErrors(raw_cell):
             try:
                 (what,lin,_,text) = i
-                e = SyntaxError(what, ("<string>", lin, 1, text))
+                e = SyntaxError(what, ("<string>", lin, 1, text+'\n'))
                 raise e
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
@@ -712,7 +728,6 @@ class YAPRun:
         has_raised = False
         try:
             self.yapeng.mgoal(streams(True),"user", True)
-            self.bindings = dicts = []
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
                 # do tracing or line-counting or both.
@@ -731,14 +746,17 @@ class YAPRun:
                 self.jupyter_query( cell )
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
-            self.result.result    = (True, dicts)
 
         except Exception as e:
             has_raised = True
             self.result.result = False
-            self.yapeng.mgoal(streams(False),"user", True)
+            try:
+                (etype, value, tb) = e
+                traceback.print_exception(etype, value, tb)
+            except:
+                print(e)
+                pass
 
-        self.yapeng.mgoal(streams(False),"user", True)
         self.shell.last_execution_succeeded = not has_raised
 
         # Reset this so later displayed values do not modify the
@@ -755,6 +773,7 @@ class YAPRun:
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
+        self.yapeng.mgoal(streams(False),"user", True)
         return self.result
 
     def    clean_end(self,s):
@@ -796,7 +815,7 @@ class YAPRun:
         last line if the last line is non-empty and does not terminate
         on a dot. You can also finish with
 
-            - `;`: you request all solutions
+            - `*`: you request all solutions
             - ';'[N]: you want an answer; optionally you want N answers
 
             If the line terminates on a `*/` or starts on a `%` we assume the line

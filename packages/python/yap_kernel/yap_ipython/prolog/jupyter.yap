@@ -33,14 +33,14 @@ jupyter_query(Caller, Cell, Line ) :-
 jupyter_cell(_Caller, Cell, _Line) :-
 	jupyter_consult(Cell),	%stack_dump,
 	fail.
-jupyter_cell( _Caller, _, `` ) :- !.
+jupyter_cell( _Caller, _, ¨¨ ) :- !.
 jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
 jupyter_cell(Caller, _, Line ) :-
-    Self := Caller.query,
+  Query = Caller,
     catch(
-	python_query(Self,Line),
+	python_query(Query,Line),
 	E=error(A,B),
 	 system_error(A,B)
     ).

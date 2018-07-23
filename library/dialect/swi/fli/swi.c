@@ -221,8 +221,9 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   if (s) {
     size_t len = strlen(out.val.c);
     if (flags & (BUF_DISCARDABLE | BUF_RING)) {
-      strncpy(LOCAL_FileNameBuf, out.val.c, YAP_FILENAME_MAX);
+      if (!*s)
       *s = LOCAL_FileNameBuf;
+      strncpy(*s, out.val.c, YAP_FILENAME_MAX);
       pop_text_stack(lvl);
       return true;
     }

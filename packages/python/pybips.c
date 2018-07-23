@@ -710,10 +710,9 @@ static bool legal_symbol(const char *s) {
 }
 
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
-  PyObject *o, *d = NULL;
   if (legal_symbol(s)) {
     PyTypeObject *typp;
-    PyObject *key = PyUnicode_FromString(s);
+    PyObject *key = PyUnicode_FromString(s), *d;
     if (Py_f2p && (d = PyList_GetItem(Py_f2p, arity)) &&
         PyDict_Contains(d, key)) {
       typp = (PyTypeObject *)PyDict_GetItem(d, key);
@@ -737,10 +736,10 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
       // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
       if (d && !PyDict_Contains(d, key))
         PyDict_SetItem(d, key, (PyObject *)typp);
-      Py_DECREF(key);
+      Py_INCREF(key);
       Py_INCREF(typp);
     }
-    o = PyStructSequence_New(typp);
+    PyObject *o = PyStructSequence_New(typp);
     Py_INCREF(typp);
     arity_t i;
     for (i = 0; i < arity; i++) {

@@ -3,6 +3,8 @@
 #include "py4yap.h"
 #include <VFS.h>
 
+#define USES_REGS
+
 #include "YapStreams.h"
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,

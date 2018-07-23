@@ -287,12 +287,6 @@ set(FILES ${PYTHON_SOURCES} ${PL_SOURCES} ${EXTRAS} ${RESOURCES})
 
 set(SETUP_PY ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz
-  COMMAND ${CMAKE_COMMAND} -E tar czf ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz  ${FILES}
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS ${FILES}
-)
-
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png
   COMMAND ${CMAKE_COMMAND} -E make_directory yap_kernel/resources
@@ -315,16 +309,23 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolo
   DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/yap.js
   )
 
+foreach(f ${FILES})
+  add_custom_command(OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${f}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${f}  ${CMAKE_CURRENT_BINARY_DIR}/${f}
+    DEPENDS  ${CMAKE_CURRENT_SOURCE_DIR}/${f}
+    )
+  list(APPEND OUTS ${CMAKE_CURRENT_BINARY_DIR}/${f} )
+endforeach()
+
 add_custom_target(YAP_KERNEL ALL
-  COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz
+       COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png yap.tgz ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js ${CMAKE_CURRENT_BINARY_DIR}/yap.tgz
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js ${OUTS}
 )
 
 
     install(CODE "execute_process(
-        COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
-        COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
+         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr
         OUTPUT_VARIABLE setupOut

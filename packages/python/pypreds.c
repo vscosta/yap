@@ -1,4 +1,6 @@
 
+#include "Yap.h"
+
 #include "py4yap.h"
 
 PyObject *py_Main;
@@ -544,36 +546,46 @@ static int python_import(term_t mname, term_t mod) {
   PyObject *pName;
   bool do_as = false;
 
-  term_t arg = PL_new_term_ref();
-  char s0[MAXPATHLEN], *s = s0, *t;
-  functor_t f;
-  while (true) {
-    size_t len;
-    //PyErr_Clear();
-    len = (MAXPATHLEN - 1) - (s - s0);
-    if (PL_is_pair(mname)) {
-      char *sa = NULL;
-      if (!PL_get_arg(1, mname, arg) || !PL_get_chars(arg, &sa, CVT_ALL | CVT_EXCEPTION | REP_UTF8) ||
-          !PL_get_arg(2, mname, mname)) {
-          pyErrorAndReturn(false);
-      }
-      PL_get_chars(arg, &sa, CVT_ALL | CVT_EXCEPTION | REP_UTF8);
-      strcpy(s, sa);
-      s += strlen(s);
-      *s++ = '.';
-      s[0] = '\0';
-    } else if (PL_get_functor(mname, &f) && f == FUNCTOR_as2 && PL_get_arg(2, mname,arg) &&
-	       PL_get_chars(arg, &t, CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
-      do_as = true;
-      PL_get_arg(1, mname,mname);
-    } else if (!PL_get_nchars(mname, &len, &s,
-                              CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
-      pyErrorAndReturn(false);
-    } else {
-      break;
-    }
+   char s0[MAXPATHLEN], *s = s0;
+  const char*sn;
+  Term t = Deref(ARG1), sm;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f != Yap_MkFunctor(Yap_LookupAtom("as"),2))
+      return false;
+    do_as = true;
+     sm = ArgOfTerm(2,t);
+    if (IsAtomTerm(sm))
+      sn = RepAtom(AtomOfTerm(sm))->StrOfAE;
+    else if (IsStringTerm(sm))
+      sn = StringOfTerm(sm);
+    else
+      return false;
   }
-  term_t t0 = python_acquire_GIL();
+  while (IsPairTerm(t)) {
+   Term ti = HeadOfTerm(t);
+    Term t2 = TailOfTerm(t);
+   if (IsAtomTerm(ti))
+      sn = RepAtom(AtomOfTerm(ti))->StrOfAE;
+    else if (IsStringTerm(ti))
+      sn = StringOfTerm(ti);
+    else
+      return false;
+    strcat(s,sn);
+    if (IsPairTerm(t2)) {
+      strcat(s,".");
+      continue;
+    }
+     sm = ArgOfTerm(2,t);
+  }
+  sm = t;
+    if (IsAtomTerm(sm))
+      sn = RepAtom(AtomOfTerm(sm))->StrOfAE;
+    else if (IsStringTerm(sm))
+      sn = StringOfTerm(sm);
+    else
+      return false;
+ term_t t0 = python_acquire_GIL();
 #if PY_MAJOR_VERSION < 3
   pName = PyString_FromString(s0);
 #else
@@ -595,7 +607,7 @@ static int python_import(term_t mname, term_t mod) {
   {
     foreign_t rc = address_to_term(pModule, mod);
 
-      if (do_as && PyObject_SetAttrString(py_Main, t, pModule) <0)
+      if (do_as && PyObject_SetAttrString(py_Main, sn, pModule) <0)
           return false;
   python_release_GIL(t0);
     pyErrorAndReturn(rc);

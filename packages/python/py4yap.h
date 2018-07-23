@@ -1,6 +1,13 @@
 
+#undef PASS_REGS
+#undef USES_REGS
+
 #ifndef PY4YAP_H
 #define PY4YAP_H 1
+
+
+#define PASS_REGS
+#define USES_REGSg
 
 //@{
 
