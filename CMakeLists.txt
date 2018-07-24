@@ -688,7 +688,8 @@ set_target_properties(libYap
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
-    add_subdirectory(packages/python/swig)
+    set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+add_subdirectory(packages/python/swig)
 
     include(FindPythonModule)
 

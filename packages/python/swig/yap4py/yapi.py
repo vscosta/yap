@@ -52,9 +52,12 @@ class JupyterEngine( Engine ):
         args.jupyter = True
         Engine.__init__(self, args)
         self.errors = None
-        self.run(compile(library('jupyter')),"user")
-        self.run(compile(library('complete')),"user")
-        self.run(compile(library('verify')),"user")
+        try:
+            self.run(compile(library('jupyter')),"user")
+            self.run(compile(library('complete')),"user")
+            self.run(compile(library('verify')),"user")
+        except:
+            pass
 
 class EngineArgs( YAPEngineArgs ):
     """ Interface to Engine Options class"""

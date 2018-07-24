@@ -567,8 +567,8 @@ class YAPRun:
                 pg = jupyter_query( self, program, squery)
                 self.query =  self.yapeng.query(pg)
                 self.answers = []
-                self.port =  "call"
-                self.answer =  {}
+            self.port =  "call"
+            self.answer =  {}
             while self.query.next():
                 #sys.stderr.write('B '+str( self.answer) +'\n')
                 #sys.stderr.write('C '+ str(self.port) +'\n'+'\n')
@@ -578,9 +578,11 @@ class YAPRun:
                 if self.port  == "exit":
                     self.os = None
                     sys.stderr.write('Done, with'+str(self.answers)+'\n')
-                    return True,self.bindings
+                    self.result.result = True,self.bindings
+                    return self.result
                 if stop or howmany == self.iterations:
-                    return True, self.answers
+                    self.result.result = True, self.answers
+                    return self.result
             if found:
                 sys.stderr.write('Done, with '+str(self.answers)+'\n')
             else:
@@ -588,11 +590,13 @@ class YAPRun:
                 self.query.close()
                 self.query = None
                 sys.stderr.write('Fail\n')
-                return True,self.bindings
+                self.result.result = True,self.bindings
+                return self.result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+' after '+str( self.bindings)+ '\n')
             has_raised = True
-            return False,[]
+            self.result.result = False
+            return self.result
 
 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
@@ -720,8 +724,8 @@ class YAPRun:
                     cell = ""
                 else:
                     body = txt0[1]+'\n'+txt0[2]
-                self.shell.run_cell_magic(magic, line, body)
-                cell = ""
+                self.result = True, self.shell.run_cell_magic(magic, line, body)
+                return self.result
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = self.result

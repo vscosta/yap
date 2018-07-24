@@ -115,7 +115,7 @@ package_data = {
 
 data_files=[]
 
-version_ns = {'__version__': '6.3.5', 'minor-version': '6', 'minor-version': '3', 'patch': '5'}
+version_ns = {'__version__': '${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION}', 'major-version': '${YAP_MAJOR_VERSION}', 'minor-version': '${YAP_MINOR_VERSION}', 'patch': '${YAP_PATCH_VERSION}'}
 
 setup_args = dict(
     name=name,

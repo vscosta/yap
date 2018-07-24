@@ -546,8 +546,9 @@ static int python_import(term_t mname, term_t mod) {
   PyObject *pName;
   bool do_as = false;
 
-   char s0[MAXPATHLEN], *s = s0;
-  const char*sn;
+  char s0[MAXPATHLEN], *s = s0;
+  s[0] = '\0';
+  const char*sn, *as;
   Term t = Deref(ARG1), sm;
   if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -556,15 +557,16 @@ static int python_import(term_t mname, term_t mod) {
     do_as = true;
      sm = ArgOfTerm(2,t);
     if (IsAtomTerm(sm))
-      sn = RepAtom(AtomOfTerm(sm))->StrOfAE;
+      as = RepAtom(AtomOfTerm(sm))->StrOfAE;
     else if (IsStringTerm(sm))
-      sn = StringOfTerm(sm);
+      as = StringOfTerm(sm);
     else
       return false;
+         t = ArgOfTerm(1,t);
   }
   while (IsPairTerm(t)) {
    Term ti = HeadOfTerm(t);
-    Term t2 = TailOfTerm(t);
+    t = TailOfTerm(t);
    if (IsAtomTerm(ti))
       sn = RepAtom(AtomOfTerm(ti))->StrOfAE;
     else if (IsStringTerm(ti))
@@ -572,11 +574,7 @@ static int python_import(term_t mname, term_t mod) {
     else
       return false;
     strcat(s,sn);
-    if (IsPairTerm(t2)) {
-      strcat(s,".");
-      continue;
-    }
-     sm = ArgOfTerm(2,t);
+    strcat(s,".");
   }
   sm = t;
     if (IsAtomTerm(sm))
@@ -585,6 +583,7 @@ static int python_import(term_t mname, term_t mod) {
       sn = StringOfTerm(sm);
     else
       return false;
+    strcat(s,sn);
  term_t t0 = python_acquire_GIL();
 #if PY_MAJOR_VERSION < 3
   pName = PyString_FromString(s0);

@@ -338,8 +338,8 @@ live :-
 	  CP is '$last_choice_pt',
 	 '$current_choice_point'(NCP1),
 	 attributes:delayed_goals(G, V, NV, LGs),
-	 '$current_choice_point'(NCP2),
 	 '$clean_ifcp'(CP),
+	 '$current_choice_point'(NCP2),
 	 NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV),
