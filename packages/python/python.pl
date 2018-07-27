@@ -117,7 +117,7 @@ Data types are
         user:(:=)/1,
 				%        user:(<-)/1,
 				%        user:(<-)/2,
-	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
+	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/1, user:import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).

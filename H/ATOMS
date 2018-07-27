@@ -37,6 +37,7 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
+A As    N   "as"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -458,6 +459,7 @@ F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
 F	DoubleArrow		DoubleArrow	2
+F	As			As		2
 F	Assert1			Assert		1
 F	Assert			Assert		2
 F	AtFoundOne		FoundVar	2

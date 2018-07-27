@@ -514,6 +514,7 @@ class YAPRun:
         self.yapeng = JupyterEngine()
         global engine
         engine = self.yapeng
+        self.errors = []
         self.query = None
         self.os = None
         self.it = None
@@ -577,7 +578,7 @@ class YAPRun:
                 self.iterations += 1
                 if self.port  == "exit":
                     self.os = None
-                    sys.stderr.write('Done, with'+str(self.answers)+'\n')
+                    #sys.stderr.write('Done, with'+str(self.answers)+'\n')
                     self.result.result = True,self.bindings
                     return self.result
                 if stop or howmany == self.iterations:
@@ -658,7 +659,7 @@ class YAPRun:
         if store_history:
             self.result.execution_count = self.shell.execution_count+1
 
-        def error_before_exec(value):
+        def error_before_exec(self, value):
             self.result.error_before_exec = value
             self.shell.last_execution_succeeded = False
             return self.result
@@ -677,10 +678,10 @@ class YAPRun:
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
         cell = raw_cell  # cell has to exist so it can be stored/logged
-        for i in self.syntaxErrors(raw_cell):
+        for i in self.errors:
             try:
-                (what,lin,_,text) = i
-                e = SyntaxError(what, ("<string>", lin, 1, text+'\n'))
+                (_,lin,pos,text) = i
+                e = SyntaxError(what, (self.cell_name, lin, pos, text+'\n'))
                 raise e
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
@@ -696,13 +697,13 @@ class YAPRun:
             self.showtraceback(preprocessing_exc_tuple)
             if store_history:
                 self.shell.execution_count += 1
-            return error_before_exec(preprocessing_exc_tuple[2])
+            return self.error_before_exec(preprocessing_exc_tuple[2])
 
         # Our own compiler remembers the __future__ environment. If we want to
         # run code with a separate __future__ environment, use the default
         # compiler
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
-        cell_name = str( self.shell.execution_count)
+        self.cell_name = str( self.shell.execution_count)
         if cell[0] == '%':
             if cell[1] == '%':
                 linec = False
@@ -802,7 +803,7 @@ class YAPRun:
                 its = 0
                 for ch in n:
                     if not ch.isdigit():
-                        raise SyntaxError()
+                        raise SyntaxError("expected positive number", (self.cellname,s.strip.lines()+1,s.count('\n'),n))
                     its =  its*10+ (ord(ch) - ord('0'))
                 stop = False
             else:

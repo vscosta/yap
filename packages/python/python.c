@@ -47,8 +47,9 @@ static void add_modules(void) {
   if (py_Yapex)
     Py_INCREF(py_Yapex);
   Py_f2p = PythonLookup("f2p", NULL);
-  if (Py_f2p)
-    Py_INCREF(Py_f2p);
+  if (!Py_f2p)
+    Py_f2p = PyList_New(0);
+  Py_INCREF(Py_f2p);
   init_python_vfs();
 }
 

@@ -92,9 +92,9 @@ blank(Text) :-
     close(user_output),
     close(user_error).
 streams(true) :-
-    open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
-    open('/python/sys.stdout', append, Output, [alias(user_output)]),
-    open('/python/sys.stderr', append, Error, [alias(user_error)]).
+    open('/python/sys.stdin', read, _Input, [alias(user_input),bom(false),script(false)]),
+    open('/python/sys.stdout', append, _Output, [alias(user_output)]),
+    open('/python/sys.stderr', append, _Error, [alias(user_error)]).
 
 
 :- if(  current_prolog_flag(apple, true) ).

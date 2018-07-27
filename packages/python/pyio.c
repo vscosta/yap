@@ -127,28 +127,26 @@ static bool py_close(int sno) {
   return true;
 }
 
-static bool getLine(StreamDesc *rl_iostream, int sno) {
-  char *myrl_line = NULL;
-  // term_t ctk = python_acquire_GIL();
-    PyObject *readl =
-      PythonLookup("input", Py_None);
-  PyObject_Print(readl, stderr, 0);fprintf(stderr," input\n");
 
-  
-      PyObject *user_inp = PyObject_CallFunction(readl,NULL);
-  PyObject_Print(user_inp, stderr, 0);fprintf(stderr," input\n");
-      myrl_line = PyUnicode_AsUTF8(user_inp);
-  //PyObject_Print(myrl_line, stderr, 0);fprintf(stderr," myrl_line\n");
-  // python_release_GIL(ctk);
+static bool pygetLine(StreamDesc *rl_iostream, int sno) {
+  // term_t ctk = python_acquire_GIL();
+  const char *myrl_line;
+  StreamDesc *s = YAP_GetStreamFromId(sno);
+  //term_t tg = python_acquire_GIL();
+  PyObject *readl = PyObject_GetAttrString(s->u.private_data, "readline");
+  PyObject *user_inp = PyObject_CallFunction(readl, NULL);
+  myrl_line = PyUnicode_AsUTF8(user_inp);
+  if (myrl_line == NULL)
+    return NULL;
   PyObject *err;
   if ((err = PyErr_Occurred())) {
+
+    if (PyErr_GivenExceptionMatches(err, PyExc_EOFError))
+      return NULL;
     PyErr_SetString(err, "Error in getLine\n");
     Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
   }
-  size_t size = strlen(myrl_line) + 1;
-  rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf =
-      (const unsigned char *)malloc(size);
-  memmove((void *)rl_iostream->u.irl.buf, myrl_line, size);
+  rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf = myrl_line;
   return true;
 }
 
@@ -158,16 +156,14 @@ static int py_getc(int sno) {
   bool fetch = (s->u.irl.buf == NULL);
 
   if (fetch) {
-    if (!getLine(s, sno)) {
+    if (!pygetLine(s, sno)) {
       return EOF;
     }
   }
-  const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
+  const unsigned char *ttyptr = s->u.irl.ptr++;
   ch = *ttyptr;
   if (ch == '\0') {
-    ch = '\n';
-    free((void *)myrl_line);
-    s->u.irl.ptr = s->u.irl.buf = NULL;
+    ch = 10;
   }
   return ch;
 }
@@ -192,7 +188,7 @@ static int py_peek(int sno) {
     }
     return ch;
   }
-  if (getLine(s, sno)) {
+  if (pygetLine(s, sno)) {
     ch = s->u.irl.ptr[0];
     if (ch == '\0') {
       ch = '\n';

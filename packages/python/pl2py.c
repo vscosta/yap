@@ -14,7 +14,22 @@ PyObject *YE(term_t t, int line, const char *file, const char *code) {
   return NULL;
 }
 
-void YEM(const char *exp, int line, const char *file, const char *code) {
+PyObject *YEC(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  if (a)
+    PyObject_Print(a, stderr, 0);
+      fprintf(stderr,"\n");
+  return NULL;
+}
+  void YEM(const char *exp, int line, const char *file, const char *code) {
   fprintf(stderr, "**** Warning,%s@%s:%d: failed while executing %s\n", code,
           file, line, exp);
 }
@@ -188,7 +203,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
       Term t0 = Yap_GetFromHandle(t);
       Term *tail;
       size_t len, i;
-      if ((len = Yap_SkipList(&t0, &tail)) >= 0 && *tail == TermNil) {
+      if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
         PyObject *out, *a;
 
         out = PyList_New(len);
@@ -205,10 +220,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         }
         return out;
       } else {
-        PyObject *no = find_obj(o, t, false);
+        PyObject *no = find_term_obj(o, &t0, false);
         if (no == o)
           return NULL;
-        return term_to_python(t, eval, no, cvt);
+        return yap_to_python(t0, eval, no, cvt);
       }
     } else {
       {

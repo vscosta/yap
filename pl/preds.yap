@@ -491,8 +491,14 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-  current_predicate(_,Pred),
-	'$yap_strip_module'(Pred, Mod, TruePred),
+    (
+	current_predicate(_,Pred),
+	'$yap_strip_module'(Pred, Mod, TruePred)
+    ;
+    '$current_predicate'(_,M,Pred,system),
+    '$yap_strip_module'(M:Pred, Mod, TruePred)
+    ),
+					     
     (
     '$pred_exists'(TruePred, Mod)
     ->

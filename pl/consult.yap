@@ -692,8 +692,8 @@ db_files(Fs) :-
 '$csult'(Fs, _M) :-
 	 '$skip_list'(_, Fs ,L),
 	 L \== [],
-	 user:dot_qualified_goal(Fs),
-	 !.
+	 !,
+	 user:dot_qualified_goal(Fs).
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
 	load_files(M:MFs,[]).
@@ -1676,7 +1676,7 @@ prolog_library(File) :-
     ensure_loaded(library(File)),
     yap_flag(verbose,_,Old).
 
-:- '$add_multifile'(dot_qualified_goal,2,user).
+:- '$add_multifile'(dot_qualified_goal,1,user).
 
 /**
   @}
