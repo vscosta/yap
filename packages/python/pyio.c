@@ -131,11 +131,24 @@ static bool py_close(int sno) {
 static bool pygetLine(StreamDesc *rl_iostream, int sno) {
   // term_t ctk = python_acquire_GIL();
   const char *myrl_line;
+  PyObject *user_line;
   StreamDesc *s = YAP_GetStreamFromId(sno);
   //term_t tg = python_acquire_GIL();
+  if (1) { //!strcmp(RepAtom(s->name)->StrOfAE,"input")) {
+    // note that input may change
+    PyObject *pystream = PyDict_GetItemString( Py_B``, "input");
+    if (pystream == NULL) {
+      if ((err = PyErr_Occurred())) {
+	PyErr_Print();
+    Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
+  }
+    }
+    user_line = PyObject_CallFunctionObjArgs(pystream, NULL);
+  } else {    
   PyObject *readl = PyObject_GetAttrString(s->u.private_data, "readline");
-  PyObject *user_inp = PyObject_CallFunction(readl, NULL);
-  myrl_line = PyUnicode_AsUTF8(user_inp);
+  user_line = PyObject_CallFunction(readl, NULL);
+  }
+  myrl_line = PyUnicode_AsUTF8(user_line);
   if (myrl_line == NULL)
     return NULL;
   PyObject *err;

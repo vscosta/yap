@@ -552,6 +552,27 @@ static foreign_t python_export(term_t t, term_t pl) {
   pyErrorAndReturn(rc);
 }
 
+static bool get_mod(const char *s0)
+{
+   PyObject *pName;
+ term_t t0 = python_acquire_GIL();
+#if PY_MAJOR_VERSION < 3
+  pName = PyString_FromString(s0);
+#else
+  pName = PyUnicode_FromString(s0);
+#endif
+  if (pName == NULL) {
+    python_release_GIL(t0);
+  }
+
+  PyObject *pModule = PyImport_Import(pName);
+
+  Py_XDECREF(pName);
+      python_release_GIL(t0);
+
+      return pModule;
+}
+
 /**
  * @pred python_import(MName, Mod)
  *   Import a python module to the YAP environment.
@@ -593,6 +614,7 @@ static int python_import(term_t mname, term_t mod) {
     else
       return false;
     strcat(s, sn);
+    //get_mod(s);
     strcat(s, ".");
   }
   sm = t;
