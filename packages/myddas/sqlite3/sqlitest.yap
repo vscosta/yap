@@ -15,6 +15,9 @@ main_ :-
 main_ .
 
 init :-
+    catch(db_open(sqlite3,'chinook.db',_,_), _, fail),
+    !.
+init :-
        db_open(sqlite3, '/data/user/0/pt.up.yap.yapdroid/files/Yap/chinook.db', _, _),
     %   db_open(sqlite3, 'chinook.db', _, _),
     writeln('chinook has landed').

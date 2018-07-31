@@ -570,7 +570,7 @@ static int python_import(term_t mname, term_t mod) {
   const char *sn, *as = NULL;
   Term t = Deref(ARG1), sm;
   if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
+    Functor f = (Functor)*RepAppl(t);
     if (f != FunctorAs)
       return false;
     do_as = true;

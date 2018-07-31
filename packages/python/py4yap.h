@@ -6,7 +6,9 @@
 #define PY4YAP_H 1
 
 #define PASS_REGS
-#define USES_REGSg
+#define USES_REGS
+
+#include "Yap.h"
 
 //@{
 
