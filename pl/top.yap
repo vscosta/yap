@@ -699,11 +699,15 @@ write_query_answer( Bindings ) :-
 '$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
-'$call'(!, CP, _,_) :- !,
+'$call'(!, CP, CP,G0) :- !,
 	'$$cut_by'(CP).
-'$call'([A|B], _, _, M) :- !,
-	'$csult'([A|B], M).
-'$call'(G, _CP, _G0, CurMod) :-
+'$call'([X|Y], _, _, M) :-
+    (Y == [] ->
+    consult(M:X)
+    ;
+ 	 '$csult'([X|Y] ,M)
+ 	 ),
+ $call'(G, _CP, _G0, CurMod) :-
 % /*
 % 	(
 %      '$is_metapredicate'(G,CurMod)

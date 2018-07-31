@@ -681,6 +681,9 @@ db_files(Fs) :-
 '$csult'(Fs, M) :-
 	'$load_files'(M:Fs,[consult(consult)],[M:Fs]).
 
+	'$csult_in_mod'(M, -F ) :- $load_files'(M:F,[],[M:F])
+	'$csult_in_mod'(M, F ) :- $load_files'(M:F,[consult(consult)],[M:F])
+
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-
 	'$extract_minus'(Fs, MFs).
