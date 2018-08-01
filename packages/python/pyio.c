@@ -134,9 +134,9 @@ static bool pygetLine(StreamDesc *rl_iostream, int sno) {
   PyObject *user_line;
   StreamDesc *s = YAP_GetStreamFromId(sno);
   //term_t tg = python_acquire_GIL();
-  if (1) { //!strcmp(RepAtom(s->name)->StrOfAE,"input")) {
+  if (!strcmp(RepAtom(s->name)->StrOfAE,"input") && ) {
     // note that input may change
-    PyObject *pystream = PyDict_GetItemString( Py_B``, "input");
+    PyObject *pystream = PyDict_GetItemString( Py_Builtins, "input");
     if (pystream == NULL) {
       if ((err = PyErr_Occurred())) {
 	PyErr_Print();
