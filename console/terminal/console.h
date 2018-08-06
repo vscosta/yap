@@ -1,4 +1,4 @@
-l/****************************************************************************
+/****************************************************************************
 **
 ** Copyright (C) 2012 Denis Shienkov <denis.shienkov@gmail.com>
 ** Copyright (C) 2012 Laszlo Papp <lpapp@kde.org>
@@ -37,29 +37,27 @@ l/****************************************************************************
 
 #include <QPlainTextEdit>
 
-class Console : public QPlainTextEdit
-{
-    Q_OBJECT
+class Console : public QPlainTextEdit {
+  Q_OBJECT
 
 signals:
-    void getData(const QString &data);
+  void getData(const QString &data);
 
 public:
-    explicit Console(QWidget *parent = 0);
+  explicit Console(QWidget *parent = 0);
 
-    void putData(const QString &data);
+  void putData(const QString &data);
 
-    void setLocalEchoEnabled(bool set);
+  void setLocalEchoEnabled(bool set);
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *e);
-    virtual void mousePressEvent(QMouseEvent *e);
-    virtual void mouseDoubleClickEvent(QMouseEvent *e);
-    virtual void contextMenuEvent(QContextMenuEvent *e);
+  virtual void keyPressEvent(QKeyEvent *e);
+  virtual void mousePressEvent(QMouseEvent *e);
+  virtual void mouseDoubleClickEvent(QMouseEvent *e);
+  virtual void contextMenuEvent(QContextMenuEvent *e);
 
 private:
-    bool localEchoEnabled;
-
+  bool localEchoEnabled;
 };
 
 #endif // CONSOLE_H

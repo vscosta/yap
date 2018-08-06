@@ -374,7 +374,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 6)
 set(YAP_MINOR_VERSION 4)
-set(YAP_PATCH_VERSION 0)
+set(YAP_PATCH_VERSION 1)
 
 set(YAP_FULL_VERSION
         ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -688,7 +688,8 @@ set_target_properties(libYap
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
-    add_subdirectory(packages/python/swig)
+    set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+add_subdirectory(packages/python/swig)
 
     include(FindPythonModule)
 

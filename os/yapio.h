@@ -22,8 +22,6 @@
 #undef HAVE_LIBREADLINE
 #endif
 
-#include  "YapStreams.h"
-
 #include <stdio.h>
 #include <wchar.h>
 
@@ -194,10 +192,6 @@ INLINE_ONLY  char *Yap_VFAlloc(const char *path){
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
-
-
-extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
-                                  size_t nchars USES_REGS);
 
 
 

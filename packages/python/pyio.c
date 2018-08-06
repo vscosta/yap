@@ -8,7 +8,6 @@
 
 YAP_Term TermErrStream, TermOutStream;
 
-
 static void pyflush(StreamDesc *st) {
 #if 0
   st->u.w_irl.ptr[0] = '\0';
@@ -75,8 +74,7 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   }
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
-  if (strcmp(name, "sys.stdout") == 0 ||
-      strcmp(name, "sys.stderr") == 0 ||
+  if (strcmp(name, "sys.stdout") == 0 || strcmp(name, "sys.stderr") == 0 ||
       strcmp(name, "input") == 0) {
     st->status |= Tty_Stream_f;
   }
@@ -129,24 +127,39 @@ static bool py_close(int sno) {
   return true;
 }
 
-static bool getLine(StreamDesc *rl_iostream, int sno) {
-  char *myrl_line = NULL;
-  term_t ctk = python_acquire_GIL();
 
-  /* window of vulnerability opened */
-  myrl_line = PyUnicode_AsUTF8(PyObject_CallFunctionObjArgs(rl_iostream->u.private_data, NULL));
-  python_release_GIL(ctk);
-  PyObject *err;
-    if ((err = PyErr_Occurred())) {
-    PyErr_SetString(
-        err,
-        "Error in getLine\n");
+static bool pygetLine(StreamDesc *rl_iostream, int sno) {
+  // term_t ctk = python_acquire_GIL();
+  const char *myrl_line;
+  PyObject *user_line;
+  StreamDesc *s = YAP_GetStreamFromId(sno);
+  //term_t tg = python_acquire_GIL();
+  if (!strcmp(RepAtom(s->name)->StrOfAE,"input") && ) {
+    // note that input may change
+    PyObject *pystream = PyDict_GetItemString( Py_Builtins, "input");
+    if (pystream == NULL) {
+      if ((err = PyErr_Occurred())) {
+	PyErr_Print();
     Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
   }
-                                                        size_t size = strlen (myrl_line)+1;
-rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf =
-      (const unsigned char *)malloc(size);
-  memmove((void *)rl_iostream->u.irl.buf, myrl_line, size);
+    }
+    user_line = PyObject_CallFunctionObjArgs(pystream, NULL);
+  } else {    
+  PyObject *readl = PyObject_GetAttrString(s->u.private_data, "readline");
+  user_line = PyObject_CallFunction(readl, NULL);
+  }
+  myrl_line = PyUnicode_AsUTF8(user_line);
+  if (myrl_line == NULL)
+    return NULL;
+  PyObject *err;
+  if ((err = PyErr_Occurred())) {
+
+    if (PyErr_GivenExceptionMatches(err, PyExc_EOFError))
+      return NULL;
+    PyErr_SetString(err, "Error in getLine\n");
+    Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
+  }
+  rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf = myrl_line;
   return true;
 }
 
@@ -156,16 +169,14 @@ static int py_getc(int sno) {
   bool fetch = (s->u.irl.buf == NULL);
 
   if (fetch) {
-    if (!getLine(s, sno)) {
+    if (!pygetLine(s, sno)) {
       return EOF;
     }
   }
-  const unsigned char *ttyptr = s->u.irl.ptr++, *myrl_line = s->u.irl.buf;
+  const unsigned char *ttyptr = s->u.irl.ptr++;
   ch = *ttyptr;
   if (ch == '\0') {
-    ch = '\n';
-    free((void *)myrl_line);
-    s->u.irl.ptr = s->u.irl.buf = NULL;
+    ch = 10;
   }
   return ch;
 }
@@ -190,7 +201,7 @@ static int py_peek(int sno) {
     }
     return ch;
   }
-  if (getLine(s, sno)) {
+  if (pygetLine(s, sno)) {
     ch = s->u.irl.ptr[0];
     if (ch == '\0') {
       ch = '\n';

@@ -37,6 +37,7 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
+A As    N   "as"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -269,7 +270,7 @@ A	NotLessThanZero		N	"not_less_than_zero"
 A	NotNewline		N	"not_newline"
 A	NotZero			N	"not_zero"
 A	Number			N	"number"
-A	Obj			N	"o__bj__"
+A	Obj			N	"__obj__"
 A	Off			N	"off"
 A	Offline			N	"offline"
 A	On			N	"on"
@@ -458,6 +459,7 @@ F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
 F	DoubleArrow		DoubleArrow	2
+F	As			As		2
 F	Assert1			Assert		1
 F	Assert			Assert		2
 F	AtFoundOne		FoundVar	2

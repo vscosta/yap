@@ -1,4 +1,5 @@
 
+#include "Yap.h"
 
 #include "py4yap.h"
 
@@ -11,6 +12,59 @@ PyObject *YE(term_t t, int line, const char *file, const char *code) {
           file, line, buf);
 
   return NULL;
+}
+
+
+
+PyObject *YEC(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  if (d)
+    PyObject_Print(d, stderr, 0);
+      fprintf(stderr,"\n");
+  return NULL;
+}
+ 
+PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  fprintf(stderr,"(");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  fprintf(stderr,",");
+  if (d)
+    PyObject_Print(d, stderr, 0);
+  fprintf(stderr,")\n");
+  return NULL;
+
+}
+
+PyObject *YED1(PyObject *f, PyObject *a, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  fprintf(stderr,"(");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  fprintf(stderr,")\n");
+  return NULL;
+
 }
 
 void YEM(const char *exp, int line, const char *file, const char *code) {
@@ -50,7 +104,6 @@ static PyObject *s_to_python(const char *s, bool eval, PyObject *p0) {
  */
 X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0) {
 
-  
   char *buf = malloc(strlen(s) + 1), *child;
   while ((child = strchr(s, '.')) != NULL) {
     size_t len = child - s;
@@ -107,9 +160,8 @@ static bool copy_to_dictionary(PyObject *dict, term_t targ, term_t taux,
  * @return a Python object descriptor or NULL if failed
  */
 PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
-  // o≈
+  //
   YAP_Term yt = YAP_GetFromSlot(t);
-  //  Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
     if (yt == 0) {
@@ -136,7 +188,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
       o = PyUnicode_FromString(s);
     }
     if (o) {
-      //PyDict_SetItemString(py_Atoms, s, Py_None);
+      // PyDict_SetItemString(py_Atoms, s, Py_None);
       Py_INCREF(o);
       return o;
     }
@@ -148,20 +200,20 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     } else if (YAP_IsStringTerm(yt)) {
       s = YAP_StringOfTerm(yt);
     } else {
-     return CHECKNULL(t, NULL);
+      return CHECKNULL(t, NULL);
     }
-      PyObject *pobj = PyUnicode_FromString(s);
- 
+    PyObject *pobj = PyUnicode_FromString(s);
+
 #if PY_MAJOR_VERSION < 3
     if (proper_ascii_string(s)) {
       PyObject *o = PyString_FromStringAndSize(s, strlen(s));
       return CHECKNULL(t, o);
-    } 
+    }
 #endif
-      //      char *p = malloc(strlen(s)+1);
-      // strcpy(p, s);
-      Py_IncRef(pobj);
-      return CHECKNULL(t, pobj);
+    //      char *p = malloc(strlen(s)+1);
+    // strcpy(p, s);
+    Py_IncRef(pobj);
+    return CHECKNULL(t, pobj);
   } break;
   case PL_INTEGER: {
     int64_t j;
@@ -186,37 +238,30 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   }
   default:
     if (PL_is_pair(t)) {
-      term_t tail = PL_new_term_ref();
-      term_t arg = PL_new_term_ref();
+      Term t0 = Yap_GetFromHandle(t);
+      Term *tail;
       size_t len, i;
-      if (PL_skip_list(t, tail, &len) && PL_get_nil(tail)) {
+      if ((len = Yap_SkipList(&t0, &tail)) > 0 && *tail == TermNil) {
         PyObject *out, *a;
 
         out = PyList_New(len);
-        if (!out) {
-          PL_reset_term_refs(tail);
-          YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-        }
 
         for (i = 0; i < len; i++) {
-          if (!PL_get_list(t, arg, t)) {
-            PL_reset_term_refs(tail);
-            YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
-          }
-          a = term_to_python(arg, eval, o, cvt);
+          Term ai = HeadOfTerm(t0);
+          a = term_to_python(Yap_InitHandle(ai), eval, o, cvt);
           if (a) {
             if (PyList_SetItem(out, i, a) < 0) {
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
             }
           }
+          t0 = TailOfTerm(t0);
         }
-        PL_reset_term_refs(tail);
         return out;
       } else {
-        PyObject *no = find_obj(o, t, false);
+        PyObject *no = find_term_obj(o, &t0, false);
         if (no == o)
           return NULL;
-        return term_to_python(t, eval, no, cvt);
+        return yap_to_python(t0, eval, no, cvt);
       }
     } else {
       {
@@ -262,11 +307,11 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
             PyObject *ip = term_to_python(trhs, eval, o, cvt);
             if (PySequence_Check(v)) {
 #if PY_MAJOR_VERSION < 3
-	      if (PyLong_Check(ip)) {
+              if (PyLong_Check(ip)) {
                 min = PyLong_AsLong(ip);
-         } else if (PyInt_Check(ip)) {
+              } else if (PyInt_Check(ip)) {
                 min = PyInt_asInt(ip);
-           }
+              }
 #else
               if (PyLong_Check(ip)) {
                 PyObject *o = PySequence_GetItem(v, PyLong_AsLong(ip));
@@ -298,7 +343,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         }
         if (fun == FUNCTOR_brackets1) {
           AOK(PL_get_arg(1, t, t), NULL);
-          return term_to_python(t, true, NULL, true);
+          PyObject *ys = term_to_python(t, true, o, true), *rc;
+	  PyObject_Print(ys,stderr,0);fprintf(stderr, "---   \n");
+	  CHECK_CALL(ys, PyTuple_New(0), NULL);
+	  return rc;
         }
         if (fun == FUNCTOR_complex2) {
           term_t targ = PL_new_term_ref();
@@ -343,7 +391,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           AOK(PL_get_arg(1, t, t), NULL);
           if (!(dict = PyDict_New()))
             return NULL;
-          Py_INCREF(dict);                                                                                                                            
+          Py_INCREF(dict);
           DebugPrintf("Dict %p\n", dict);
 
           while (PL_is_functor(t, FUNCTOR_comma2)) {
@@ -360,6 +408,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
           return dict;
         }
         AOK(PL_get_name_arity(t, &name, &arity), NULL);
+
         if (name == ATOM_t) {
           int i;
           rc = PyTuple_New(arity);

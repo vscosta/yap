@@ -221,8 +221,9 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
   if (s) {
     size_t len = strlen(out.val.c);
     if (flags & (BUF_DISCARDABLE | BUF_RING)) {
-      strncpy(LOCAL_FileNameBuf, out.val.c, YAP_FILENAME_MAX);
+      if (!*s)
       *s = LOCAL_FileNameBuf;
+      strncpy(*s, out.val.c, YAP_FILENAME_MAX);
       pop_text_stack(lvl);
       return true;
     }
@@ -1326,7 +1327,7 @@ YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_chars(term_t t, const char *s) {
   CACHE_REGS
   Atom at;
-  while ((at = Yap_CharsToAtom(s, ENC_ISO_LATIN1 PASS_REGS)) == 0L) {
+  while ((at = Yap_LookupAtom(s)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError("PL_unify_atom_nchars"))
       return true;
   }
@@ -1451,16 +1452,28 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail) {
   }
   t = Deref(Yap_GetFromSlot(tt));
   if (IsVarTerm(t)) {
-    Term pairterm = Yap_MkNewPairTerm();
-    Yap_unify(t, pairterm);
-    /* avoid calling deref */
-    t = pairterm;
+    Term ttail =Yap_GetFromSlot(tail),
+      pairterm = MkPairTerm(Yap_GetFromSlot(h)
+				   , ttail);
+    if (tt == tail) {
+      Yap_PutInSlot(tt, pairterm);
+      return true;
+    } else {
+    return Yap_unify(t, pairterm);
+    }
   } else if (!IsPairTerm(t)) {
     return FALSE;
   }
-  Yap_PutInSlot(h, HeadOfTerm(t));
-  Yap_PutInSlot(tail, TailOfTerm(t));
-  return TRUE;
+  bool rc = Yap_unify(h, HeadOfTerm(t));
+  if (rc) {
+    if (tt == tail) {
+      Yap_PutInSlot(tail, TailOfTerm(t));
+      return true;
+    } else {
+      return Yap_unify(Yap_GetFromSlot(tail), TailOfTerm(t));
+    }
+  }
+  return false;
 }
 
 /*  int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1548,7 +1561,7 @@ YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_string_chars(term_t t, const char *chars) {
   CACHE_REGS
   Term chterm;
-  while ((chterm = Yap_CharsToString(chars, ENC_ISO_LATIN1 PASS_REGS)) == 0L) {
+  while ((chterm = MkStringTerm(chars)) == 0L) {
     if (LOCAL_Error_TYPE && !Yap_SWIHandleError("PL_unify_list_ncodes"))
       return FALSE;
   }

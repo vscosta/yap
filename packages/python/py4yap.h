@@ -1,6 +1,12 @@
 
+#undef PASS_REGS
+#undef USES_REGS
+
 #ifndef PY4YAP_H
 #define PY4YAP_H 1
+
+#define PASS_REGS
+#define USES_REGS
 
 //@{
 
@@ -16,6 +22,8 @@
 #endif
 
 #include <Python.h>
+
+#include <Yap.h>
 
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
@@ -35,7 +43,7 @@
 
 PyObject *find_obj(PyObject *ob, term_t lhs, bool eval);
 
-#if DEBUG_MEMORY||1
+#if DEBUG_MEMORY || 1
 #define DebugPrintf(s, op) fprintf(stderr, "%s:%d: " s, __FILE__, __LINE__, op)
 #else
 #define DebugPrintf(s, op)
@@ -56,15 +64,14 @@ extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o,
                                      bool cvt);
 extern X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
-extern  bool init_python_vfs(void);
+extern bool init_python_vfs(void);
 
-
-        extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
+extern atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
     ATOM_comma, ATOM_builtin, ATOM_V, ATOM_A, ATOM_self, ATOM_nil,
     ATOM_brackets, ATOM_curly_brackets;
 
-extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2,
-    FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
+extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
+    FUNCTOR_as2, FUNCTOR_bin1, FUNCTOR_brackets1, FUNCTOR_comma2, FUNCTOR_dir1,
     FUNCTOR_float1, FUNCTOR_int1, FUNCTOR_iter1, FUNCTOR_iter2, FUNCTOR_long1,
     FUNCTOR_len1, FUNCTOR_curly1, FUNCTOR_ord1, FUNCTOR_range1, FUNCTOR_range2,
     FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
@@ -140,11 +147,33 @@ static inline PyObject *atom_to_python_string(term_t t) {
   }
 }
 
-#define CHECK_CALL(rc, t, call)                                                \
+#define CHECK_CALL(ys, pArgs, pyDict)                                                \
   PyErr_Clear();                                                               \
-  rc = call;                                                                   \
+  rc = PyObject_Call(ys, pArgs, pyDict);                                                                   \
   if (rc == NULL || PyErr_Occurred()) {                                        \
-    YE(t, __LINE__, __FILE__, __FUNCTION__);                                   \
+    YEC(ys, pArgs, pyDict, __LINE__, __FILE__, __FUNCTION__);                                   \
+    PyErr_Print();                                                             \
+    PyErr_Clear();                                                             \
+  }
+
+extern PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code);
+
+static inline PyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2)				
+{ PyErr_Clear();							\
+  PyObject *rc = PyObject_CallFunctionObjArgs(ys, pArg1, pArg2, NULL);			\
+  if (rc == NULL || PyErr_Occurred()) {                                        \
+    YED2(ys, pArg1, pArg2, __LINE__, __FILE__, __FUNCTION__);                                   \
+    PyErr_Print();                                                             \
+    PyErr_Clear();                                                             \
+  }
+  return rc;
+}
+
+#define CALL_BIP1(ys, pArg1)                                                \
+  PyErr_Clear();                                                               \
+  rc = PyObject_CallFunctionObjArgs(ys, pArg1, NULL);                                                                   \
+  if (rc == NULL || PyErr_Occurred()) {                                        \
+    YED1(ys, pArg1, __LINE__, __FILE__, __FUNCTION__);                                   \
     PyErr_Print();                                                             \
     PyErr_Clear();                                                             \
   }
@@ -157,7 +186,10 @@ static inline PyObject *atom_to_python_string(term_t t) {
       YEM(#rc, __LINE__, __FILE__, __FUNCTION__);                              \
   }
 
-extern PyObject *YE(term_t t, int line, const char *file, const char *code);
+
+extern PyObject *YED1(PyObject *f, PyObject *a, int line, const char *file, const char *code);
+extern PyObject *YE(term_t  , int line, const char *file, const char *code);
+extern PyObject *YEC(PyObject *c,PyObject *a ,PyObject *d , int line, const char *file, const char *code);
 extern void YEM(const char *ex, int line, const char *file, const char *code);
 extern void pyErrorHandler__(int line, const char *file, const char *code);
 
@@ -202,6 +234,7 @@ X_API extern bool init_python(void);
 X_API extern bool loadt_python(void);
 X_API extern bool do_init_python(void);
 
+extern PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval);
 extern PyObject PyInit_yap(void);
 
 extern PyObject *PythonLookup(const char *s, PyObject *o);

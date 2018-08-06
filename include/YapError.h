@@ -1,16 +1,16 @@
 /*************************************************************************
-   *									 *
-   *	 YAP Prolog 	%W% %G% 					 *
-   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-   *									 *
-   * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-   *									 *
-   **************************************************************************
-   *									 *
-   * File:		YapError.h * mods:
-   ** comments:	error header file for YAP				 *
-   * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-   *************************************************************************/
+ *									 *
+ *	 YAP Prolog 	%W% %G% 					 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		YapError.h * mods:
+ ** comments:	error header file for YAP				 *
+ * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
+ *************************************************************************/
 
 #ifndef YAP_ERROR_H
 #define YAP_ERROR_H 1
@@ -38,13 +38,12 @@
 
 #define MAX_ERROR_MSG_SIZE 1024
 
-    extern void
-    Yap_InitError__(const char *file, const char *function, int lineno,
-                    yap_error_number e, YAP_Term g, ...);
+extern void Yap_InitError__(const char *file, const char *function, int lineno,
+                            yap_error_number e, YAP_Term g, ...);
 
-extern struct yami *Yap_Error__(bool thrw, const char *file, const char *function,
-                                int lineno, yap_error_number err,
-                                YAP_Term wheret, ...);
+extern struct yami *Yap_Error__(bool thrw, const char *file,
+                                const char *function, int lineno,
+                                yap_error_number err, YAP_Term wheret, ...);
 
 extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
                              yap_error_number err, YAP_Term wheret, ...)
@@ -54,13 +53,13 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
     ;
 
 #define Yap_NilError(id, ...)                                                  \
-  Yap_Error__(false,__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
+  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_Error(id, inp, ...)                                                \
-  Yap_Error__(false,__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 
 #define Yap_ThrowError(id, inp, ...)                                           \
   Yap_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
@@ -74,18 +73,18 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
   { if ( (TF = Yap_ensure_atom__(__FILE__, __FUNCTION__, __LINE__, T0  )  == 0L ) return false; \
   }
 
-INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
-                                                 int line, Term in) {
+INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
+                                   Term in) {
   Term t = Deref(in);
   // Term Context = Deref(ARG2);
   if (!IsVarTerm(t) && IsAtomTerm(t))
     return t;
   if (IsVarTerm(t)) {
-    Yap_Error__(false,fu, fi, line, INSTANTIATION_ERROR, t, NULL);
+    Yap_Error__(false, fu, fi, line, INSTANTIATION_ERROR, t, NULL);
   } else {
     if (IsAtomTerm(t))
       return t;
-    Yap_Error__(false,fu, fi, line, TYPE_ERROR_ATOM, t, NULL);
+    Yap_Error__(false, fu, fi, line, TYPE_ERROR_ATOM, t, NULL);
     return 0L;
   }
 
@@ -114,8 +113,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
 
 #define AUX_ERROR(t, n, s, TYPE)                                               \
   if (s + (n + 1) > (TYPE *)AuxSp) {                                           \
-          pop_text_stack(lvl);                                                \
-  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
+    pop_text_stack(lvl);                                                       \
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;                         \
     LOCAL_Error_Size = n * sizeof(TYPE);                                       \
     return NULL;                                                               \
   }
@@ -225,7 +224,7 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
     const char *prologParserText;
     const char *prologParserFile;
     bool prologConsulting;
-    const  char *culprit;
+    const char *culprit;
     YAP_Term errorRawTerm, rawExtraErrorTerm;
     char *errorMsg;
     size_t errorMsgLen;
@@ -243,20 +242,24 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi,
 
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
-  extern bool Yap_MkErrorRecord( yap_error_descriptor_t *r,
-				 const char *file, const char *function,
-                   int lineno, yap_error_number type, YAP_Term where,
-			const char *msg);
-  
-extern yap_error_descriptor_t * Yap_pc_add_location(yap_error_descriptor_t *t, void *pc0, void *b_ptr0, void *env0);
-extern yap_error_descriptor_t *Yap_env_add_location(yap_error_descriptor_t *t,void *cp0, void * b_ptr0, void *env0, YAP_Int ignore_first);
+  extern bool Yap_MkErrorRecord(
+      yap_error_descriptor_t * r, const char *file, const char *function,
+      int lineno, yap_error_number type, YAP_Term where, const char *msg);
 
-  extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *t);
+  extern yap_error_descriptor_t *Yap_pc_add_location(
+      yap_error_descriptor_t * t, void *pc0, void *b_ptr0, void *env0);
+  extern yap_error_descriptor_t *Yap_env_add_location(
+      yap_error_descriptor_t * t, void *cp0, void *b_ptr0, void *env0,
+      YAP_Int ignore_first);
+
+  extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *
+                                                        t);
   extern yap_error_class_number Yap_errorClass(yap_error_number e);
   extern const char *Yap_errorName(yap_error_number e);
   extern const char *Yap_errorClassName(yap_error_class_number e);
 
-  extern bool Yap_pushErrorContext(bool pass, yap_error_descriptor_t *new_error);
+  extern bool Yap_pushErrorContext(bool pass,
+                                   yap_error_descriptor_t *new_error);
   extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass);
 
 #endif

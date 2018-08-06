@@ -372,7 +372,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
   switch(res) {
   case -1:
     if (!Yap_gcl((ASP-HR)*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      Yap_Error(RESOURCE_ERROR_STACK, TermFoundVar, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -1349,7 +1349,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -1377,7 +1377,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -1683,7 +1683,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
         }
         {
           CELL *npt0 = RepPair(d0);
-          if(IsAtomicTerm(Deref(npt0[0]))) {
+          if(Deref(npt0[0]) == TermFoundVar) {
             pt0 = npt0;
             pt0_end = pt0 + 1;
             continue;
@@ -1694,7 +1694,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -1722,7 +1722,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -1741,7 +1741,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     derefa_body(d0, ptd0, attvars_in_term_unk, attvars_in_term_nvar);
     if (IsAttVar(ptd0)) {
       /* do or pt2 are unbound  */
-      *ptd0 = TermNil;
+      *ptd0 = TermFoundVar;
       /* next make sure noone will see this as a variable again */
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	/* Trail overflow */
@@ -1767,7 +1767,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
       if (pt0 < pt0_end) {
 	to_visit[0] = pt0;
@@ -1963,7 +1963,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2160,7 +2160,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2188,7 +2188,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2205,7 +2205,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
 
     derefa_body(d0, ptd0, vars_within_term_unk, vars_within_term_nvar);
     /* do or pt2 are unbound  */
-    *ptd0 = TermNil;
+    *ptd0 = TermFoundVar;
     /* leave an empty slot to fill in later */
     if (HR+1024 > ASP) {
       goto global_overflow;
@@ -2350,7 +2350,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2378,7 +2378,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2395,7 +2395,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 
     derefa_body(d0, ptd0, vars_within_term_unk, vars_within_term_nvar);
     /* do or pt2 are unbound  */
-    *ptd0 = TermNil;
+    *ptd0 = TermFoundVar;
     /* leave an empty slot to fill in later */
     if (HR+1024 > ASP) {
       goto global_overflow;
@@ -2507,7 +2507,7 @@ static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2535,7 +2535,7 @@ static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2706,7 +2706,7 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2735,7 +2735,7 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
@@ -2864,7 +2864,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -2892,7 +2892,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
@@ -3043,7 +3043,7 @@ static Int sz_ground_complex_term(register CELL *pt0, register CELL *pt0_end, in
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -3072,7 +3072,7 @@ static Int sz_ground_complex_term(register CELL *pt0, register CELL *pt0_end, in
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
@@ -3191,7 +3191,7 @@ static Int var_in_complex_term(register CELL *pt0,
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -3221,7 +3221,7 @@ static Int var_in_complex_term(register CELL *pt0,
 	to_visit[1] = pt0_end;
 	to_visit[2] = (CELL *)*pt0;
 	to_visit += 3;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	/* store the terms to visit */
 	if (pt0 < pt0_end) {
@@ -3251,7 +3251,7 @@ static Int var_in_complex_term(register CELL *pt0,
       return(TRUE);
     }
     /* do or pt2 are unbound  */
-    *ptd0 = TermNil;
+    *ptd0 = TermFoundVar;
     /* next make sure noone will see this as a variable again */
     TrailTerm(TR++) = (CELL)ptd0;
   }
@@ -4628,7 +4628,7 @@ loop:
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #else
 	if (pt0 < pt0_end) {
 	  to_visit[0] = pt0;
@@ -4661,7 +4661,7 @@ loop:
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
-	*pt0 = TermNil;
+	*pt0 = TermFoundVar;
 #endif
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;

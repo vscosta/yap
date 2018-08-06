@@ -132,7 +132,7 @@ ypp_file(File,PPFile):-
 	% Cmdline
 	defines2string(Defs),ypp_extcmd(Cmd),
 	atom_concat([Cmd,' ',PPFile,' ',Defs,' ',File],Cmdline),
-	write(Cmdline),nl,
+%	write(Cmdline),nl,
 %	current_module(M1,M2),
 %	write(M1:M2),nl,
 	system(Cmdline),

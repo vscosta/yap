@@ -156,10 +156,10 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
-#include "hglobals.h"
+#include "generated/hglobals.h"
 
-#include "dhstruct.h"
-#include "dglobals.h"
+#include "generated/dhstruct.h"
+#include "generated/dglobals.h"
 #else
 typedef struct various_codes {
   /* memory allocation and management */
@@ -169,15 +169,15 @@ typedef struct various_codes {
 } all_heap_codes;
 
 
-#include "tatoms.h"
+#include "generated/tatoms.h"
 
-#include "h0struct.h"
+#include "generated/h0struct.h"
 
-#include "h0globals.h"
+#include "generated/h0globals.h"
 
 #endif
 
-#include "hlocals.h"
+#include "generated/hlocals.h"
 
 #include "dlocals.h"
 

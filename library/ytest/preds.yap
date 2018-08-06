@@ -33,7 +33,7 @@
 '$is_metapredicate'( G, M) :-
     predicate_property(M:G, meta_predicate(_)).
 
-'$imported_predicate'(G,M,G,M0) :-
+'$is_imported_predicate'(G,M,G,M0) :-
     predicate_property(M:G, imported_from(M0)).
 
 '$is_system_predicate'( call(_), _M) :- !.
