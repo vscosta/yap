@@ -307,12 +307,17 @@ YAPApplTerm(Functor f, Term ts[]) {
     mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity),
                          arity));
   };
-  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+    YAPApplTerm(const std::string s, std::vector<Term> ts);
+    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
   inline Functor functor() { return FunctorOfTerm(gt()); }
   inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+    YAPApplTerm(const std::string f, YAPTerm a1);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4);
 
-  Term getArg(arity_t i) {
+    Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
     Term tf;

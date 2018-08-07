@@ -124,6 +124,19 @@ YAPError = _yap.YAPError
 
  %typecheck(0) YAPTerm { $1 = !PyUnicode_Check($input); }
 
+                  %exception {
+                    try {
+                      $action
+                      } catch (const std::out_of_range& e) {
+                        SWIG_exception(SWIG_IndexError, e.what());
+                        } catch (const std::exception& e) {
+                          SWIG_exception(SWIG_RuntimeError, e.what());
+                          } catch (...) {
+                            SWIG_exception(SWIG_RuntimeError, "unknown exception");
+                          }
+                        }
+
+
 #else
 
                 %typemap(in) arity_t {   (jlong)($input); }
@@ -139,19 +152,6 @@ YAPError = _yap.YAPError
                   // Language independent exception handler
                   // simplified version
                   %include <exception.i>
-
-                  %exception {
-                    try {
-                      $action
-                      } catch (const std::out_of_range& e) {
-                        SWIG_exception(SWIG_IndexError, e.what());
-                        } catch (const std::exception& e) {
-                          SWIG_exception(SWIG_RuntimeError, e.what());
-                          } catch (...) {
-                            SWIG_exception(SWIG_RuntimeError, "unknown exception");
-                          }
-                        }
-
 #endif
 
 
@@ -351,8 +351,9 @@ static void
                           };
 
 %init %{
-    PyObject *  pYAPError = PyErr_NewException("_yap.YAPError", NULL, NULL);
-    Py_INCREF(pYAPError);
-    PyModule_AddObject(m, "YAPError", pYAPError);
-
+#ifdef SWIGYTHON
+  PyObject *  pYAPError = PyErr_NewException("_yap.YAPError", NULL, NULL);
+  Py_INCREF(pYAPError);
+  PyModule_AddObject(m, "YAPError", pYAPError);
+#endif
   %}

@@ -15,12 +15,15 @@
 *									 *
 *************************************************************************/
 #include "Yap.h"
-#ifdef USE_MYDDAS
 
 #include "Yatom.h"
-#include "cut_c.h"
-#include "myddas.h"
 #include <stdlib.h>
+
+
+#ifdef USE_MYDDAS
+
+#include "myddas.h"
+
 #ifdef MYDDAS_STATS
 #include "myddas_statistics.h"
 #endif
@@ -678,6 +681,8 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 #endif
 }
 
+#endif
+
 void init_myddas(void) {
   CACHE_REGS
   if (myddas_initialised)
@@ -701,9 +706,6 @@ void init_myddas(void) {
   Yap_MYDDAS_delete_all_myddas_structs();
 #if defined MYDDAS_ODBC
   Yap_InitBackMYDDAS_ODBCPreds();
-#endif
-#endif
-#if defined MYDDAS_ODBC
   Yap_InitMYDDAS_ODBCPreds();
 #endif
 #if defined MYDDAS_TOP_LEVEL &&                                                \
@@ -711,9 +713,9 @@ void init_myddas(void) {
   Yap_InitMYDDAS_TopLevelPreds();
 #endif
   c_db_initialize_myddas(PASS_REGS1);
-#ifdef __ANDROiD__
+#ifdef __ANDROID__
  init_sqlite3();
- #endif
+#endif
 #endif
   myddas_initialised = true;
   CurrentModule = cm;

@@ -255,19 +255,31 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, std::vector<Term> ts) {
-  BACKUP_H();
-  arity_t arity = ts.size();
-  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
-  Term o = Yap_MkNewApplTerm(ff, arity);
-  Term *tt = RepAppl(o) + 1;
-  for (arity_t i = 0; i < arity; i++)
-    tt[i] = ts[i];
-  mk(o);
+YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
+    BACKUP_H();
+    arity_t arity = ts.size();
+    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+    Term o = Yap_MkNewApplTerm(ff, arity);
+    Term *tt = RepAppl(o) + 1;
+    for (arity_t i = 0; i < arity; i++)
+        tt[i] = ts[i];
+    mk(o);
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1) {
+YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
+    BACKUP_H();
+    arity_t arity = ts.size();
+    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+    Term o = Yap_MkNewApplTerm(ff, arity);
+    Term *tt = RepAppl(o) + 1;
+    for (arity_t i = 0; i < arity; i++)
+        tt[i] = ts[i].term();
+    mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1) {
   BACKUP_H();
   arity_t arity = 1;
   Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
@@ -278,7 +290,7 @@ YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1) {
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1, YAPTerm a2) {
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2) {
   BACKUP_H();
   arity_t arity = 2;
   Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
@@ -290,7 +302,7 @@ YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1, YAPTerm a2) {
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3) {
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3) {
   BACKUP_H();
   arity_t arity = 3;
   Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
@@ -303,7 +315,7 @@ YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3) {
     RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4) {
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4) {
   BACKUP_H();
   arity_t arity = 4;
   Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);

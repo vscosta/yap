@@ -835,11 +835,6 @@ static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
   LOCAL_ErrorMessage = NULL;
   fe->old_TR = TR;
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " open %s, %d",
-                      CurrentModule == 0
-                          ? "prolog"
-                          : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
-                      inp_stream);
   LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
   LOCAL_eot_before_eof = false;
   fe->tpos = StreamPosition(inp_stream);
