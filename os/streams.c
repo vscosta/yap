@@ -1551,11 +1551,7 @@ FILE *Yap_FileDescriptorFromStream(Term t) {
   return rc;
 }
 
-void
-
-Yap_InitBackIO (
-
-    void)
+void Yap_InitBackIO(void)
 {
   Yap_InitCPredBack("stream_property", 2, 2, stream_property,
                     cont_stream_property, SafePredFlag | SyncPredFlag);

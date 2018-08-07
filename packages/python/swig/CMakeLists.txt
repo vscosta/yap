@@ -54,8 +54,7 @@ endif()
     COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include
      -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python
       -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}
-    COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     DEPENDS  ${SWIG_SOURCES} Py4YAP YAP++ yap4py/yapi.cpp YAP4PY_PY
   )
 
@@ -70,7 +69,9 @@ endif()
   DEPENDS ${PYTHON_SOURCES}
   )
 
-      install(CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
+      install(CODE "execute_process(
+   COMMAND  ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}
+   COMMAND ${PYTHON_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})"
     DEPENDS Py4YAP ${CMAKE_BINARY_DIR}/${YAP_STARTUP} ${YAP_INSTALL_DLLDIR} )
 
