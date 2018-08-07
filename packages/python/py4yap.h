@@ -25,6 +25,8 @@
 
 #include <Python.h>
 
+#include <Yap.h>
+
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
 #undef HAVE_STATa
@@ -156,6 +158,28 @@ static inline PyObject *atom_to_python_string(term_t t) {
     PyErr_Clear();                                                             \
   }
 
+extern PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code);
+
+static inline PyObject *CALL_BIP2(PyObject *ys,PyObject * pArg1,PyObject * pArg2)				
+{ PyErr_Clear();							\
+  PyObject *rc = PyObject_CallFunctionObjArgs(ys, pArg1, pArg2, NULL);			\
+  if (rc == NULL || PyErr_Occurred()) {                                        \
+    YED2(ys, pArg1, pArg2, __LINE__, __FILE__, __FUNCTION__);                                   \
+    PyErr_Print();                                                             \
+    PyErr_Clear();                                                             \
+  }
+  return rc;
+}
+
+#define CALL_BIP1(ys, pArg1)                                                \
+  PyErr_Clear();                                                               \
+  rc = PyObject_CallFunctionObjArgs(ys, pArg1, NULL);                                                                   \
+  if (rc == NULL || PyErr_Occurred()) {                                        \
+    YED1(ys, pArg1, __LINE__, __FILE__, __FUNCTION__);                                   \
+    PyErr_Print();                                                             \
+    PyErr_Clear();                                                             \
+  }
+
 #define CHECKNULL(t, rc)                                                       \
   (rc != NULL ? rc : YE(t, __LINE__, __FILE__, __FUNCTION__))
 #define AOK(rc, err)                                                           \
@@ -164,6 +188,8 @@ static inline PyObject *atom_to_python_string(term_t t) {
       YEM(#rc, __LINE__, __FILE__, __FUNCTION__);                              \
   }
 
+
+extern PyObject *YED1(PyObject *f, PyObject *a, int line, const char *file, const char *code);
 extern PyObject *YE(term_t  , int line, const char *file, const char *code);
 extern PyObject *YEC(PyObject *c,PyObject *a ,PyObject *d , int line, const char *file, const char *code);
 extern void YEM(const char *ex, int line, const char *file, const char *code);

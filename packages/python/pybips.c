@@ -987,8 +987,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     }
     if (PyNumber_Check(lhs) && PyNumber_Check(rhs))
       return PyNumber_Add(lhs, rhs);
-    PyObject_Print(builtin("+"), stderr, 0);
-    return PyObject_CallFunctionObjArgs(builtin("+"), lhs, rhs, NULL);
+    return CALL_BIP2(builtin("+"), lhs, rhs);
   } else if (fun == FUNCTOR_sub2) {
     term_t targ = PL_new_term_ref();
     PyObject *lhs, *rhs;
@@ -1001,7 +1000,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     rhs = term_to_python(targ, true, NULL, true);
     if (PyNumber_Check(rhs) && PyNumber_Check(lhs))
       return PyNumber_Subtract(lhs, rhs);
-    return PyObject_CallFunctionObjArgs(builtin("-"), lhs, rhs, NULL);
+    return CALL_BIP2(builtin("-"), lhs, rhs);
   } else if (fun == FUNCTOR_mul2) {
     term_t targ = PL_new_term_ref();
     PyObject *lhs, *rhs;
@@ -1022,7 +1021,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     }
     if (PyNumber_Check(lhs) && PyNumber_Check(rhs))
       return PyNumber_Multiply(lhs, rhs);
-    return PyObject_CallFunctionObjArgs(builtin("*"), lhs, rhs, NULL);
+    return PyObject_CallFunctionObjArgs(builtin("*"), lhs, rhs);
   }
   if (!arity) {
     char *s = NULL;
@@ -1037,7 +1036,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     return pValue;
   } else {
     char *s = PL_atom_chars(name);
-    if (!strcmp(s,"t")) {
+    if (!strcmp(s,"t") || !strcmp(s,"tuple")) {
       YAP_Term tt = YAP_GetFromSlot(t), tleft;
       int i;
       PyObject *rc = PyTuple_New(arity);
@@ -1069,11 +1068,17 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
       /* ignore (_) */
       if (indict) {
         if (PL_get_functor(tleft, &fun) && fun == FUNCTOR_equal2) {
-          term_t tatt = PL_new_term_ref();
-          AOK(PL_get_arg(1, tleft, tatt), NULL);
-          PyObject *key = term_to_python(tatt, true, NULL, true);
-          AOK(PL_get_arg(2, tleft, tatt), NULL);
-          PyObject *val = term_to_python(tatt, true, NULL, true);
+	  Term tatt = ArgOfTerm(1,Yap_GetFromSlot(tleft));
+	  const char *sk;
+	  if (IsAtomTerm(tatt))
+	    sk = RepAtom(AtomOfTerm(tatt))->StrOfAE;
+	  else if (IsStringTerm(tatt))
+	    sk = StringOfTerm(tatt);
+	  else
+	    return NULL;
+	  PyObject *key = PyUnicode_FromString(sk);
+	  AOK(PL_get_arg(2, tleft, tleft), NULL);
+          PyObject *val = term_to_python(tleft, true, o, cvt);
           PyDict_SetItem(pyDict, key, val);
         } else {
           indict = false;
@@ -1086,7 +1091,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
         if (PL_is_variable(tleft)) {
           pArg = Py_None;
         } else {
-          pArg = term_to_python(tleft, true, NULL, true);
+          pArg = term_to_python(tleft, true, o, cvt);
           // PyObject_Print(pArg,fdopen(2,"w"),0);
           if (pArg == NULL) {
             pArg = Py_None;
@@ -1105,9 +1110,9 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 
     PyObject *rc;
     if (ys && PyCallable_Check(ys)) {
-      // PyObject_Print(ys, stderr, 0);
-      // PyObject_Print(pArgs, stderr, 0);
-      // PyObject_Print(pyDict, stderr, 0);
+      PyObject_Print(ys, stderr, 0);
+       PyObject_Print(pArgs, stderr, 0);
+       PyObject_Print(pyDict, stderr, 0);
 
       // PyObject_Print(pArgs, stderr, 0);
       // PyObject_Print(o, stderr, 0);

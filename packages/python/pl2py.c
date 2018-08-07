@@ -14,6 +14,8 @@ PyObject *YE(term_t t, int line, const char *file, const char *code) {
   return NULL;
 }
 
+
+
 PyObject *YEC(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code) {
   
   fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
@@ -24,12 +26,48 @@ PyObject *YEC(PyObject *f, PyObject *a, PyObject *d, int line, const char *file,
     fprintf(stderr,"<null>");
   if (a)
     PyObject_Print(a, stderr, 0);
-  if (a)
-    PyObject_Print(a, stderr, 0);
+  if (d)
+    PyObject_Print(d, stderr, 0);
       fprintf(stderr,"\n");
   return NULL;
 }
-  void YEM(const char *exp, int line, const char *file, const char *code) {
+ 
+PyObject *YED2(PyObject *f, PyObject *a, PyObject *d, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  fprintf(stderr,"(");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  fprintf(stderr,",");
+  if (d)
+    PyObject_Print(d, stderr, 0);
+  fprintf(stderr,")\n");
+  return NULL;
+
+}
+
+PyObject *YED1(PyObject *f, PyObject *a, int line, const char *file, const char *code) {
+  
+  fprintf(stderr, "**** Warning,%s@%s:%d: failed on Python call \n", code,
+          file, line);
+  if (f)
+    PyObject_Print(f, stderr, 0);
+  else
+    fprintf(stderr,"<null>");
+  fprintf(stderr,"(");
+  if (a)
+    PyObject_Print(a, stderr, 0);
+  fprintf(stderr,")\n");
+  return NULL;
+
+}
+
+void YEM(const char *exp, int line, const char *file, const char *code) {
   fprintf(stderr, "**** Warning,%s@%s:%d: failed while executing %s\n", code,
           file, line, exp);
 }
@@ -305,7 +343,10 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         }
         if (fun == FUNCTOR_brackets1) {
           AOK(PL_get_arg(1, t, t), NULL);
-          return term_to_python(t, true, NULL, true);
+          PyObject *ys = term_to_python(t, true, o, true), *rc;
+	  PyObject_Print(ys,stderr,0);fprintf(stderr, "---   \n");
+	  CHECK_CALL(ys, PyTuple_New(0), NULL);
+	  return rc;
         }
         if (fun == FUNCTOR_complex2) {
           term_t targ = PL_new_term_ref();

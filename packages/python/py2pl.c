@@ -131,7 +131,7 @@ else {
 else if (PyList_Check(pVal)) {
   Py_ssize_t i, sz = PyList_GET_SIZE(pVal);
   if (sz == 0)
-    return TermNil;
+    return repr_term(pVal);
   Term t = TermNil;
   for (i = sz; i > 0; --i) {
     PyObject *p = PyTuple_GetItem(pVal, i);
@@ -152,7 +152,7 @@ else if (PyDict_Check(pVal)) {
   PyObject *key, *value;
   Term f, *opt = &f, t;
   if (left == 0) {
-    return ATOM_curly_brackets;
+    return repr_term(pVal);
   } else {
     while (PyDict_Next(pVal, &pos, &key, &value)) {
       Term t0[2], to;
@@ -177,10 +177,8 @@ else if (PyDict_Check(pVal)) {
 }
 
 foreign_t python_to_term(PyObject *pVal, term_t t) {
-  term_t t0 = PL_new_term_ref();
-  bool rc = python_to_term__(pVal);
-  PL_reset_term_refs(t0);
-  return rc;
+  Term o = python_to_term__(pVal);
+  return YAP_Unify(o,YAP_GetFromSlot(t));
 }
 
 // extern bool Yap_do_low_level_trace;
@@ -228,6 +226,17 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       return python_to_term(exp, t);
   }
 
+  case PL_STRING: {
+    char *s = NULL;
+    size_t l;
+    PL_get_string_chars(t, &s,&l);
+    if (!context)
+      context = py_Main;
+    if (PyObject_SetAttrString(context, s, exp) == 0)
+      return true;
+    PyErr_Print();
+    return false;
+  }
   case PL_ATOM: {
     char *s = NULL;
     PL_get_atom_chars(t, &s);
@@ -238,7 +247,6 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     PyErr_Print();
     return false;
   }
-  case PL_STRING:
   case PL_INTEGER:
   case PL_FLOAT:
     // domain or type erro?
