@@ -265,4 +265,13 @@ typedef struct stream_desc {
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
 
+
+
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
+                                  size_t nchars
+                                  #ifdef USES_REGS
+                                   USES_REGS
+                                   #endif
+                                 );
+
 #endif

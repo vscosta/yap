@@ -20,15 +20,11 @@
 #ifndef YATOM_H
 #define YATOM_H 1
 
-
 INLINE_ONLY Atom AbsAtom(AtomEntry *p);
 INLINE_ONLY AtomEntry *RepAtom(Atom a);
 
-
 #ifdef USE_OFFSETS
-INLINE_ONLY Atom AbsAtom(AtomEntry *p) {
-  return (Atom)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Atom AbsAtom(AtomEntry *p) { return (Atom)(Addr(p) - AtomBase); }
 
 INLINE_ONLY AtomEntry *RepAtom(Atom a) {
   return (AtomEntry *) (AtomBase + Unsigned (a);
@@ -36,9 +32,7 @@ INLINE_ONLY AtomEntry *RepAtom(Atom a) {
 
 #else
 INLINE_ONLY Atom AbsAtom(AtomEntry *p) { return (Atom)(p); }
-INLINE_ONLY AtomEntry *RepAtom(Atom a) {
-  return (AtomEntry *)(a);
-}
+INLINE_ONLY AtomEntry *RepAtom(Atom a) { return (AtomEntry *)(a); }
 
 #endif
 
@@ -46,9 +40,7 @@ INLINE_ONLY AtomEntry *RepAtom(Atom a) {
 
 INLINE_ONLY Prop AbsProp(PropEntry *p);
 
-INLINE_ONLY Prop AbsProp(PropEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsProp(PropEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 INLINE_ONLY PropEntry *RepProp(Prop p);
 
@@ -64,9 +56,7 @@ INLINE_ONLY Prop AbsProp(PropEntry *p) { return (Prop)(p); }
 
 INLINE_ONLY PropEntry *RepProp(Prop p);
 
-INLINE_ONLY PropEntry *RepProp(Prop p) {
-  return (PropEntry *)(p);
-}
+INLINE_ONLY PropEntry *RepProp(Prop p) { return (PropEntry *)(p); }
 
 #endif
 
@@ -88,15 +78,11 @@ INLINE_ONLY Prop AbsFunctorProp(FunctorEntry *p) {
 
 INLINE_ONLY FunctorEntry *RepFunctorProp(Prop p);
 
-INLINE_ONLY FunctorEntry *RepFunctorProp(Prop p) {
-  return (FunctorEntry *)(p);
-}
+INLINE_ONLY FunctorEntry *RepFunctorProp(Prop p) { return (FunctorEntry *)(p); }
 
 INLINE_ONLY Prop AbsFunctorProp(FunctorEntry *p);
 
-INLINE_ONLY Prop AbsFunctorProp(FunctorEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsFunctorProp(FunctorEntry *p) { return (Prop)(p); }
 
 #endif
 
@@ -172,15 +158,11 @@ INLINE_ONLY Prop AbsGlobalProp(GlobalEntry *p) {
 
 INLINE_ONLY GlobalEntry *RepGlobalProp(Prop p);
 
-INLINE_ONLY GlobalEntry *RepGlobalProp(Prop p) {
-  return (GlobalEntry *)(p);
-}
+INLINE_ONLY GlobalEntry *RepGlobalProp(Prop p) { return (GlobalEntry *)(p); }
 
 INLINE_ONLY Prop AbsGlobalProp(GlobalEntry *p);
 
-INLINE_ONLY Prop AbsGlobalProp(GlobalEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsGlobalProp(GlobalEntry *p) { return (Prop)(p); }
 
 #endif
 
@@ -221,17 +203,13 @@ INLINE_ONLY ModEntry *RepModProp(Prop p) {
 
 INLINE_ONLY Prop AbsModProp(ModEntry *p);
 
-INLINE_ONLY Prop AbsModProp(ModEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsModProp(ModEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
 INLINE_ONLY ModEntry *RepModProp(Prop p);
 
-INLINE_ONLY ModEntry *RepModProp(Prop p) {
-  return (ModEntry *)(p);
-}
+INLINE_ONLY ModEntry *RepModProp(Prop p) { return (ModEntry *)(p); }
 
 INLINE_ONLY Prop AbsModProp(ModEntry *p);
 
@@ -245,9 +223,7 @@ INLINE_ONLY Prop AbsModProp(ModEntry *p) { return (Prop)(p); }
 
 INLINE_ONLY bool IsModProperty(int);
 
-INLINE_ONLY bool IsModProperty(int flags) {
-  return flags == ModProperty;
-}
+INLINE_ONLY bool IsModProperty(int flags) { return flags == ModProperty; }
 
 /* Flags on module.  Most of these flags are copied to the read context
    in pl-read.c.
@@ -273,10 +249,10 @@ INLINE_ONLY bool IsModProperty(int flags) {
 #define UNKNOWN_MASK                                                           \
   (UNKNOWN_ERROR | UNKNOWN_WARNING | UNKNOWN_FAIL | UNKNOWN_FAST_FAIL |        \
    UNKNOWN_ABORT | UNKNOWN_HALT)
-#define SNGQ_CHARS (0x10000)   /* 'ab' --> [a, b] */
-#define SNGQ_ATOM (0x20000)    /* 'ab' --> ab */
-#define SNGQ_STRING (0x40000)  /* 'ab' --> "ab" */
-#define SNGQ_CODES (0x80000)   /* 'ab' --> [0'a, 0'b] */
+#define SNGQ_CHARS (0x10000)  /* 'ab' --> [a, b] */
+#define SNGQ_ATOM (0x20000)   /* 'ab' --> ab */
+#define SNGQ_STRING (0x40000) /* 'ab' --> "ab" */
+#define SNGQ_CODES (0x80000)  /* 'ab' --> [0'a, 0'b] */
 #define SNGQ_MASK (BCKQ_CHARS | BCKQ_ATOM | BCKQ_STRING | BCKQ_CODES)
 
 Term Yap_getUnknownModule(ModEntry *m);
@@ -305,9 +281,7 @@ INLINE_ONLY OpEntry *RepOpProp(Prop p) {
 
 INLINE_ONLY Prop AbsOpProp(OpEntry *p);
 
-INLINE_ONLY Prop AbsOpProp(OpEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsOpProp(OpEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
@@ -324,9 +298,7 @@ INLINE_ONLY Prop AbsOpProp(OpEntry *p) { return (Prop)(p); }
 
 INLINE_ONLY bool IsOpProperty(PropFlags);
 
-INLINE_ONLY bool IsOpProperty(PropFlags flags) {
-  return flags == OpProperty;
-}
+INLINE_ONLY bool IsOpProperty(PropFlags flags) { return flags == OpProperty; }
 
 typedef enum { INFIX_OP = 0, POSFIX_OP = 1, PREFIX_OP = 2 } op_type;
 
@@ -365,17 +337,13 @@ INLINE_ONLY ExpEntry *RepExpProp(Prop p) {
 
 INLINE_ONLY Prop AbsExpProp(ExpEntry *p);
 
-INLINE_ONLY Prop AbsExpProp(ExpEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsExpProp(ExpEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
 INLINE_ONLY ExpEntry *RepExpProp(Prop p);
 
-INLINE_ONLY ExpEntry *RepExpProp(Prop p) {
-  return (ExpEntry *)(p);
-}
+INLINE_ONLY ExpEntry *RepExpProp(Prop p) { return (ExpEntry *)(p); }
 
 INLINE_ONLY Prop AbsExpProp(ExpEntry *p);
 
@@ -411,17 +379,13 @@ INLINE_ONLY ValEntry *RepValProp(Prop p) {
 
 INLINE_ONLY Prop AbsValProp(ValEntry *p);
 
-INLINE_ONLY Prop AbsValProp(ValEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsValProp(ValEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
 INLINE_ONLY ValEntry *RepValProp(Prop p);
 
-INLINE_ONLY ValEntry *RepValProp(Prop p) {
-  return (ValEntry *)(p);
-}
+INLINE_ONLY ValEntry *RepValProp(Prop p) { return (ValEntry *)(p); }
 
 INLINE_ONLY Prop AbsValProp(ValEntry *p);
 
@@ -592,10 +556,7 @@ INLINE_ONLY Prop AbsPredProp(PredEntry *p) {
 
 INLINE_ONLY PredEntry *RepPredProp(Prop p);
 
-INLINE_ONLY PredEntry *RepPredProp(Prop p) {
-
-  return (PredEntry *)(p);
-}
+INLINE_ONLY PredEntry *RepPredProp(Prop p) { return (PredEntry *)(p); }
 
 INLINE_ONLY Prop AbsPredProp(PredEntry *p);
 
@@ -717,8 +678,8 @@ typedef struct DB_STRUCT {
   struct DB_STRUCT *p, *n;       /* entry's age, negative if from recorda,
                                     positive if it was recordz  */
   CELL Mask;                     /* parts that should be cleared         */
-  CELL Key; /* A mask that can be used to check before
-               you unify */
+  CELL Key;                      /* A mask that can be used to check before
+                                    you unify */
   DBTerm DBT;
 } DBStruct;
 
@@ -755,9 +716,7 @@ INLINE_ONLY Term MkDBRefTerm(DBRef p) {
 
 INLINE_ONLY DBRef DBRefOfTerm(Term t);
 
-INLINE_ONLY DBRef DBRefOfTerm(Term t) {
-  return (DBRef)(((DBRef)(RepAppl(t))));
-}
+INLINE_ONLY DBRef DBRefOfTerm(Term t) { return (DBRef)(((DBRef)(RepAppl(t)))); }
 
 INLINE_ONLY int IsRefTerm(Term);
 
@@ -767,9 +726,7 @@ INLINE_ONLY int IsRefTerm(Term t) {
 
 INLINE_ONLY CODEADDR RefOfTerm(Term t);
 
-INLINE_ONLY CODEADDR RefOfTerm(Term t) {
-  return (CODEADDR)(DBRefOfTerm(t));
-}
+INLINE_ONLY CODEADDR RefOfTerm(Term t) { return (CODEADDR)(DBRefOfTerm(t)); }
 
 typedef struct struct_dbentry {
   Prop NextOfPE;          /* used to chain properties             */
@@ -822,9 +779,7 @@ INLINE_ONLY DBProp RepDBProp(Prop p) {
 
 INLINE_ONLY Prop AbsDBProp(DBProp p);
 
-INLINE_ONLY Prop AbsDBProp(DBProp p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsDBProp(DBProp p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
@@ -885,9 +840,7 @@ INLINE_ONLY BlackBoardEntry *RepBBProp(Prop p) {
 
 INLINE_ONLY Prop AbsBBProp(BlackBoardEntry *p);
 
-INLINE_ONLY Prop AbsBBProp(BlackBoardEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsBBProp(BlackBoardEntry *p) { return (Prop)(p); }
 
 #endif
 
@@ -924,9 +877,7 @@ INLINE_ONLY Prop AbsHoldProp(HoldEntry *p) {
 
 INLINE_ONLY HoldEntry *RepHoldProp(Prop p);
 
-INLINE_ONLY HoldEntry *RepHoldProp(Prop p) {
-  return (HoldEntry *)(p);
-}
+INLINE_ONLY HoldEntry *RepHoldProp(Prop p) { return (HoldEntry *)(p); }
 
 INLINE_ONLY Prop AbsHoldProp(HoldEntry *p);
 
@@ -968,9 +919,7 @@ INLINE_ONLY TranslationEntry *RepTranslationProp(Prop p) {
 
 INLINE_ONLY Prop AbsTranslationProp(TranslationEntry *p);
 
-INLINE_ONLY Prop AbsTranslationProp(TranslationEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsTranslationProp(TranslationEntry *p) { return (Prop)(p); }
 
 #endif
 #define TranslationProperty 0xfff4
@@ -1027,9 +976,7 @@ INLINE_ONLY Prop AbsMutexProp(MutexEntry *p) {
 
 INLINE_ONLY MutexEntry *RepMutexProp(Prop p);
 
-INLINE_ONLY MutexEntry *RepMutexProp(Prop p) {
-  return (MutexEntry *)(p);
-}
+INLINE_ONLY MutexEntry *RepMutexProp(Prop p) { return (MutexEntry *)(p); }
 
 INLINE_ONLY Prop AbsMutexProp(MutexEntry *p);
 
@@ -1151,9 +1098,7 @@ INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p) {
 
 INLINE_ONLY ArrayEntry *RepArrayProp(Prop p);
 
-INLINE_ONLY ArrayEntry *RepArrayProp(Prop p) {
-  return (ArrayEntry *)(p);
-}
+INLINE_ONLY ArrayEntry *RepArrayProp(Prop p) { return (ArrayEntry *)(p); }
 
 INLINE_ONLY Prop AbsArrayProp(ArrayEntry *p);
 
@@ -1167,9 +1112,7 @@ INLINE_ONLY StaticArrayEntry *RepStaticArrayProp(Prop p) {
 
 INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p);
 
-INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsStaticArrayProp(StaticArrayEntry *p) { return (Prop)(p); }
 
 #endif
 #define ArrayProperty ((PropFlags)0xfff7)
@@ -1217,9 +1160,7 @@ INLINE_ONLY YAP_BlobPropEntry *RepBlobProp(Prop p) {
 
 INLINE_ONLY Prop AbsBlobProp(YAP_BlobPropEntry *p);
 
-INLINE_ONLY Prop AbsBlobProp(YAP_BlobPropEntry *p) {
-  return (Prop)(p);
-}
+INLINE_ONLY Prop AbsBlobProp(YAP_BlobPropEntry *p) { return (Prop)(p); }
 
 #endif
 
@@ -1240,9 +1181,7 @@ INLINE_ONLY bool IsBlob(Atom at) {
 
 INLINE_ONLY bool IsValProperty(PropFlags);
 
-INLINE_ONLY bool IsValProperty(PropFlags flags) {
-  return flags == ValProperty;
-}
+INLINE_ONLY bool IsValProperty(PropFlags flags) { return flags == ValProperty; }
 
 /*		flag property entry structure				*/
 
@@ -1270,17 +1209,13 @@ INLINE_ONLY FlagEntry *RepFlagProp(Prop p) {
 
 INLINE_ONLY Prop AbsFlagProp(FlagEntry *p);
 
-INLINE_ONLY Prop AbsValProp(FlagEntry *p) {
-  return (Prop)(Addr(p) - AtomBase);
-}
+INLINE_ONLY Prop AbsValProp(FlagEntry *p) { return (Prop)(Addr(p) - AtomBase); }
 
 #else
 
 INLINE_ONLY FlagEntry *RepFlagProp(Prop p);
 
-INLINE_ONLY FlagEntry *RepFlagProp(Prop p) {
-  return (FlagEntry *)(p);
-}
+INLINE_ONLY FlagEntry *RepFlagProp(Prop p) { return (FlagEntry *)(p); }
 
 INLINE_ONLY Prop AbsFlagProp(FlagEntry *p);
 
@@ -1297,10 +1232,9 @@ INLINE_ONLY bool IsFlagProperty(PropFlags flags) {
 
 /* Proto types */
 
+extern char *Yap_TermToBuffer(Term t, int flags);
 
-extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
-
-extern Term Yap_BufferToTerm(const  char *s, Term opts);
+extern Term Yap_BufferToTerm(const char *s, Term opts);
 
 /* cdmgr.c */
 extern int Yap_RemoveIndexation(PredEntry *);
@@ -1337,17 +1271,14 @@ Prop Yap_GetAPropHavingLock(AtomEntry *, PropFlags);
 
 INLINE_ONLY UInt PRED_HASH(FunctorEntry *, Term, UInt);
 
-INLINE_ONLY UInt PRED_HASH(FunctorEntry *fe, Term cur_mod,
-                                         UInt size) {
+INLINE_ONLY UInt PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size) {
   return (((CELL)fe + cur_mod) >> 2) % size;
 }
 
-INLINE_ONLY Prop GetPredPropByFuncAndModHavingLock(FunctorEntry *,
-                                                                 Term);
+INLINE_ONLY Prop GetPredPropByFuncAndModHavingLock(FunctorEntry *, Term);
 INLINE_ONLY Prop PredPropByFuncAndMod(FunctorEntry *, Term);
 INLINE_ONLY Prop PredPropByAtomAndMod(Atom, Term);
-INLINE_ONLY Prop GetPredPropByFuncHavingLock(FunctorEntry *,
-                                                           Term);
+INLINE_ONLY Prop GetPredPropByFuncHavingLock(FunctorEntry *, Term);
 INLINE_ONLY Prop PredPropByFunc(Functor fe, Term cur_mod);
 INLINE_ONLY Prop PredPropByAtom(Atom at, Term cur_mod);
 
@@ -1355,8 +1286,7 @@ INLINE_ONLY Prop PredPropByAtom(Atom at, Term cur_mod);
 
 Prop Yap_NewThreadPred(struct pred_entry *CACHE_TYPE);
 Prop Yap_NewPredPropByFunctor(Functor, Term);
-INLINE_ONLY struct pred_entry *
-Yap_GetThreadPred(struct pred_entry *CACHE_TYPE);
+INLINE_ONLY struct pred_entry *Yap_GetThreadPred(struct pred_entry *CACHE_TYPE);
 
 INLINE_ONLY struct pred_entry *
 Yap_GetThreadPred(struct pred_entry *ap USES_REGS) {
@@ -1374,8 +1304,7 @@ Yap_GetThreadPred(struct pred_entry *ap USES_REGS) {
 }
 #endif
 
-INLINE_ONLY Prop GetPredPropByFuncHavingLock(FunctorEntry *fe,
-                                                           Term cur_mod) {
+INLINE_ONLY Prop GetPredPropByFuncHavingLock(FunctorEntry *fe, Term cur_mod) {
   PredEntry *p;
 
   if (!(p = RepPredProp(fe->PropsOfFE))) {
@@ -1428,8 +1357,8 @@ INLINE_ONLY Prop PredPropByFunc(Functor fe, Term cur_mod)
   return Yap_NewPredPropByFunctor(fe, cur_mod);
 }
 
-INLINE_ONLY Prop
-GetPredPropByFuncAndModHavingLock(FunctorEntry *fe, Term cur_mod) {
+INLINE_ONLY Prop GetPredPropByFuncAndModHavingLock(FunctorEntry *fe,
+                                                   Term cur_mod) {
   PredEntry *p;
 
   if (!(p = RepPredProp(fe->PropsOfFE))) {
@@ -1574,9 +1503,7 @@ INLINE_ONLY const char *AtomName(Atom at);
  *
  * @return a ponter to an immutable sequence of characters.
  */
-INLINE_ONLY const char *AtomName(Atom at) {
-  return RepAtom(at)->rep.uStrOfAE;
-}
+INLINE_ONLY const char *AtomName(Atom at) { return RepAtom(at)->rep.uStrOfAE; }
 
 INLINE_ONLY const char *AtomTermName(Term t);
 
@@ -1599,17 +1526,17 @@ extern Term MkErrorTerm(yap_error_descriptor_t *t);
 
 extern bool Yap_ResetException(yap_error_descriptor_t *i);
 extern bool Yap_HasException(void);
-extern yap_error_descriptor_t * Yap_GetException();
-extern void Yap_PrintException(void);
+extern yap_error_descriptor_t *Yap_GetException();
+extern void Yap_PrintException(yap_error_descriptor_t *i);
 INLINE_ONLY bool Yap_HasException(void) {
   return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
 
 INLINE_ONLY Term MkSysError(yap_error_descriptor_t *i) {
   Term et = MkAddressTerm(i);
-  return Yap_MkApplTerm( FunctorException, 1, &et);
+  return Yap_MkApplTerm(FunctorException, 1, &et);
 }
-yap_error_descriptor_t *Yap_UserError( Term t, yap_error_descriptor_t *i);
+yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i);
 
 extern bool Yap_RaiseException(void);
 

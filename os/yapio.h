@@ -22,8 +22,6 @@
 #undef HAVE_LIBREADLINE
 #endif
 
-#include  "YapStreams.h"
-
 #include <stdio.h>
 #include <wchar.h>
 
@@ -89,7 +87,7 @@ extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
 extern int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc);
 extern int Yap_FileStream(FILE*, char *, Term, int, VFS_t *);
-extern char *Yap_TermToBuffer(Term t, encoding_t encoding, int flags);
+extern char *Yap_TermToBuffer(Term t, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
 extern int Yap_GetFreeStreamD(void);
@@ -194,10 +192,6 @@ INLINE_ONLY  char *Yap_VFAlloc(const char *path){
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
-
-
-extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
-                                  size_t nchars USES_REGS);
 
 
 

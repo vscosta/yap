@@ -129,4 +129,10 @@ void Yap_ShutdownLoadForeign(void);
 #define EAGER_LOADING 1
 #define GLOBAL_LOADING 2
 
+/**
+ * stub can always be called at DLL loading.
+ *
+ */
+X_API bool load_none(void);
+
 #endif

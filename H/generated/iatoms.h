@@ -32,6 +32,7 @@
   AtomEndCurlyBracket = Yap_LookupAtom("}"); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = Yap_LookupAtom("()"); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = Yap_LookupAtom("[]"); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
+  AtomAs = Yap_LookupAtom("as"); TermAs = MkAtomTerm(AtomAs);
   AtomAsserta = Yap_LookupAtom("asserta"); TermAsserta = MkAtomTerm(AtomAsserta);
   AtomAssertaStatic = Yap_LookupAtom("asserta_static"); TermAssertaStatic = MkAtomTerm(AtomAssertaStatic);
   AtomAssertz = Yap_LookupAtom("assertz"); TermAssertz = MkAtomTerm(AtomAssertz);
@@ -264,7 +265,7 @@
   AtomNotNewline = Yap_LookupAtom("not_newline"); TermNotNewline = MkAtomTerm(AtomNotNewline);
   AtomNotZero = Yap_LookupAtom("not_zero"); TermNotZero = MkAtomTerm(AtomNotZero);
   AtomNumber = Yap_LookupAtom("number"); TermNumber = MkAtomTerm(AtomNumber);
-  AtomObj = Yap_LookupAtom("o__bj__"); TermObj = MkAtomTerm(AtomObj);
+  AtomObj = Yap_LookupAtom("__obj__"); TermObj = MkAtomTerm(AtomObj);
   AtomOff = Yap_LookupAtom("off"); TermOff = MkAtomTerm(AtomOff);
   AtomOffline = Yap_LookupAtom("offline"); TermOffline = MkAtomTerm(AtomOffline);
   AtomOn = Yap_LookupAtom("on"); TermOn = MkAtomTerm(AtomOn);
@@ -453,6 +454,7 @@
   FunctorArrayEntry = Yap_MkFunctor(AtomArrayAccess,3);
   FunctorArrow = Yap_MkFunctor(AtomArrow,2);
   FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
+  FunctorAs = Yap_MkFunctor(AtomAs,2);
   FunctorAssert1 = Yap_MkFunctor(AtomAssert,1);
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);

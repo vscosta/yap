@@ -1,3 +1,6 @@
+
+
+
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
@@ -11,7 +14,7 @@ else // Plain browser env
 })(function(CodeMirror) {
 "use strict";
 
-CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
+  CodeMirror.defineMode("prolog", function(conf, parserConfig) {
 
   function chain(stream, state, f) {
     state.tokenize = f;
@@ -19,18 +22,18 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   }
 
   /*******************************
-   *	   CONFIG DATA		*
+   *       CONFIG DATA           *
    *******************************/
 
-  var config = {
-    quasiQuotations : false, /* {|Syntax||Quotation|} */
-    dicts : false,           /* tag{k:v, ...} */
-    unicodeEscape : true,    /* \uXXXX and \UXXXXXXXX */
-    multiLineQuoted : true,  /* "...\n..." */
-    groupedIntegers : false  /* 10 000 or 10_000 */
-  };
-
-  var quoteType = {'"' : "string", "'" : "qatom", "`" : "bqstring"};
+  var quasiQuotations =
+          parserConfig.quasiQuotations || false; /* {|Syntax||Quotation|} */
+      var dicts = parserConfig.dicts || false;   /* tag{k:v, ...} */
+      var groupedIntegers = parserConfig.groupedIntegers || false;   /* tag{k:v, ...} */
+      var unicodeEscape =
+          parserConfig.unicodeEscape || true; /* \uXXXX and \UXXXXXXXX */
+      var multiLineQuoted = parserConfig.multiLineQuoted || true; /* "...\n..." */
+      var quoteType = parserConfig.quoteType ||
+                      {'"' : "string", "'" : "qatom", "`" : "bqstring"};
 
   var isSingleEscChar = /[abref\\'"nrtsv]/;
   var isOctalDigit = /[0-7]/;
@@ -42,7 +45,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   var isControlOp = /^(,|;|->|\*->|\\+|\|)$/;
 
   /*******************************
-   *	 CHARACTER ESCAPES	*
+   *     CHARACTER ESCAPES    *
    *******************************/
 
   function readDigits(stream, re, count) {
@@ -64,11 +67,11 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
       return true;
     switch (next) {
     case "u":
-      if (config.unicodeEscape)
-        return readDigits(stream, isHexDigit, 4); /* SWI */
+      if (unicodeEscape)
+        return readDigits(stream, isHexDigit, conf.indentUnit); /* SWI */
       return false;
     case "U":
-      if (config.unicodeEscape)
+      if (unicodeEscape)
         return readDigits(stream, isHexDigit, 8); /* SWI */
       return false;
     case null:
@@ -101,11 +104,11 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
           return false;
       }
     }
-    return config.multiLineQuoted;
+    return multiLineQuoted;
   }
 
   /*******************************
-   *	CONTEXT NESTING		*
+   *    CONTEXT NESTING        *
    *******************************/
 
   function nesting(state) { return state.nesting.slice(-1)[0]; }
@@ -126,7 +129,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     var nest = nesting(state);
     if (nest && !nest.alignment && nest.arg != undefined) {
       if (nest.arg == 0)
-        nest.alignment = nest.leftCol ? nest.leftCol + 4 : nest.column + 4;
+        nest.alignment = nest.leftCol ? nest.leftCol + conf.indentUnit : nest.column + conf.indentUnit;
       else
         nest.alignment = nest.column + 1;
     }
@@ -158,10 +161,10 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
 
   // Used as scratch variables to communicate multiple values without
   // consing up tons of objects.
-  var type, content;
+  var type;//, content;
   function ret(tp, style, cont) {
     type = tp;
-    content = cont;
+  //  content = cont;
     return style;
   }
 
@@ -172,7 +175,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   }
 
   /*******************************
-   *	   SUB TOKENISERS	*
+   *       SUB TOKENISERS    *
    *******************************/
 
   function plTokenBase(stream, state) {
@@ -192,7 +195,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
         state.nesting.push({
           type : "control",
           closeColumn : stream.column(),
-          alignment : stream.column() + 4
+          alignment : stream.column() + conf.indentUnit
         });
       }
       return ret("solo", null, "(");
@@ -258,7 +261,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
         return ret("list_open", "bracket");
         break;
       case "{":
-        if (config.quasiQuotations && stream.eat("|")) {
+        if (quasiQuotations && stream.eat("|")) {
           state.nesting.push(
               {type : "quasi-quotation", alignment : stream.column() + 1});
           return ret("qq_open", "bracket");
@@ -272,7 +275,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
         }
         break;
       case "|":
-        if (config.quasiQuotations) {
+        if (quasiQuotations) {
           if (stream.eat("|")) {
             state.tokenize = plTokenQuasiQuotation;
             return ret("qq_sep", "bracket");
@@ -314,7 +317,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     }
 
     if (/\d/.test(ch) || /[+-]/.test(ch) && stream.eat(/\d/)) {
-      if (config.groupedIntegers)
+      if (groupedIntegers)
         stream.match(/^\d*((_|\s+)\d+)*(?:\.\d+)?(?:[eE][+\-]?\d+)?/);
       else
         stream.match(/^\d*(?:\.\d+)?(?:[eE][+\-]?\d+)?/);
@@ -342,8 +345,9 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     }
 
     stream.eatWhile(/[\w_]/);
-    var word = stream.current(), extra = "";
-    if (stream.peek() == "{" && config.dicts) {
+    var word = stream.current();
+    var extra = "";
+     if (stream.peek() == "{" && dicts) {
       state.tagName = word; /* tmp state extension */
       state.tagColumn = stream.column();
       return ret("tag", "tag", word);
@@ -407,7 +411,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
           }
           return ret("functor", "atom", word);
         }
-        if (stream.peek() == "{" && config.dicts) { /* 'quoted tag'{} */
+        if (stream.peek() == "{" && dicts) { /* 'quoted tag'{} */
           var word = stream.current();
           state.tagName = word; /* tmp state extension */
           return ret("tag", "tag", word);
@@ -443,7 +447,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   }
 
   //   /*******************************
-  //    *	    ACTIVE KEYS		*
+  //    *        ACTIVE KEYS        *
   //    *******************************/
 
   //   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -451,7 +455,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   //      Support if-then-else layout like this:
 
   //      goal :-
-  //      (	Condition
+  //      (    Condition
   //      ->  IfTrue
   //      ;   IfFalse
   //      ).
@@ -464,7 +468,7 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
 
   //       if ( token.state.goalStart == true )
   //       { cm.replaceSelection("(   ", "end");
-  // 	return;
+  //     return;
   //       }
 
   //       return CodeMirror.Pass;
@@ -475,32 +479,32 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   //       var token = cm.getTokenAt(start, true);
 
   //       /* FIXME: These functions are copied from prolog.js.  How
-  // 	 can we reuse these?
+  //      can we reuse these?
   //       */
   //       function nesting(state) {
-  // 	  var len = state.nesting.length;
-  // 	  if ( len > 0 )
-  // 	      return state.nesting[len-1];
-  // 	  return null;
+  //       var len = state.nesting.length;
+  //       if ( len > 0 )
+  //           return state.nesting[len-1];
+  //       return null;
   //       }
 
-  //       function isControl(state) {		/* our terms are goals */
-  // 	  var nest = nesting(state);
-  // 	  if ( nest ) {
-  // 	      if ( nest.type == "control" ) {
-  // 		  return true;
-  // 	      }
-  // 	      return false;
-  // 	  } else
-  // 	      return state.inBody;
+  //       function isControl(state) {        /* our terms are goals */
+  //       var nest = nesting(state);
+  //       if ( nest ) {
+  //           if ( nest.type == "control" ) {
+  //           return true;
+  //           }
+  //           return false;
+  //       } else
+  //           return state.inBody;
   //       }
 
   //       if ( start.ch == token.end &&
-  // 	   token.type == "operator" &&
-  // 	   token.string == "-" &&
-  // 	   isControl(token.state) )
+  //        token.type == "operator" &&
+  //        token.string == "-" &&
+  //        isControl(token.state) )
   //       { cm.replaceSelection(">  ", "end");
-  // 	return;
+  //     return;
   //       }
 
   //       return CodeMirror.Pass;
@@ -511,9 +515,9 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   //       var token = cm.getTokenAt(start, true);
 
   //       if ( token.start == 0 && start.ch == token.end &&
-  // 	   !/\S/.test(token.string) )
+  //        !/\S/.test(token.string) )
   //       { cm.replaceSelection(";   ", "end");
-  // 	return;
+  //     return;
   //       }
 
   //       return CodeMirror.Pass;
@@ -521,15 +525,15 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
 
   //   CodeMirror.defineOption("prologKeys", null, function(cm, val, prev) {
   //       if (prev && prev != CodeMirror.Init)
-  // 	  cm.removeKeyMap("prolog");
+  //       cm.removeKeyMap("prolog");
   //       if ( val ) {
-  // 	  var map = { name:     "prolog",
-  // 		      "'('":    "prologStartIfThenElse",
-  // 		      "'>'":    "prologStartThen",
-  // 		      "';'":    "prologStartElse",
-  // 		      "Ctrl-L": "refreshHighlight"
-  // 		    };
-  // 	  cm.addKeyMap(map);
+  //       var map = { name:     "prolog",
+  //               "'('":    "prologStartIfThenElse",
+  //               "'>'":    "prologStartThen",
+  //               "';'":    "prologStartElse",
+  //               "Ctrl-L": "refreshHighlight"
+  //             };
+  //       cm.addKeyMap(map);
   //       }
   //   });
 
@@ -606,32 +610,6 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     "\\" : {p : 200, t : "fy"}
   };
 
-  var translType = {
-    "comment" : "comment",
-    "var" : "variable-2", /* JavaScript Types */
-    "atom" : "atom",
-    "qatom" : "atom",
-    "bqstring" : "string",
-    "symbol" : "keyword",
-    "functor" : "keyword",
-    "tag" : "tag",
-    "number" : "number",
-    "string" : "string",
-    "code" : "number",
-    "neg-number" : "number",
-    "pos-number" : "number",
-    "list_open" : "bracket",
-    "list_close" : "bracket",
-    "qq_open" : "bracket",
-    "qq_sep" : "operator",
-    "qq_close" : "bracket",
-    "dict_open" : "bracket",
-    "dict_close" : "bracket",
-    "brace_term_open" : "bracket",
-    "brace_term_close" : "bracket",
-    "neck" : "keyword",
-    "fullstop" : "keyword"
-  };
 
   var builtins = {
     "C" : "prolog",
@@ -1181,10 +1159,10 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
   };
 
   /*******************************
-   *	   RETURN OBJECT	*
+   *       RETURN OBJECT         *
    *******************************/
 
-  return {
+ var external = {
     startState : function() {
       return {
         tokenize : plTokenBase,
@@ -1232,30 +1210,32 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
 
       if (builtins[state.curToken] == "prolog")
         return "builtin";
-      //if (ops[state.curToken])
-      //  return "operator";
+      if (ops[state.curToken])
+        return "operator";
 
       //if (typeof(parserConfig.enrich) == "function")
       //  style = parserConfig.enrich(stream, state, type, content, style);
-
+      
       return style;
-
+      
     },
-
+    
     indent : function(state, textAfter) {
       if (state.tokenize == plTokenComment)
         return CodeMirror.Pass;
-
+              
       var nest;
       if ((nest = nesting(state))) {
         if (nest.closeColumn && !state.commaAtEOL)
           return nest.closeColumn;
+        if ( (textAfter === ']' || textAfter === ')') && nest.control)
+          return nest.alignment-1;
         return nest.alignment;
       }
-      if (!state.inBody)
-        return 0;
+              if (!state.inBody)
+                return 0;
 
-      return 4;
+      return conf.indentUnit;
     },
 
     //      theme: "prolog",
@@ -1264,7 +1244,9 @@ CodeMirror.defineMode("prolog", function(cm_config, parserConfig) {
     blockCommentEnd : "*/",
     blockCommentContinue : " * ",
     lineComment : "%",
+    fold : "indent"
   };
+  return external;
 
 });
 

@@ -558,7 +558,7 @@ term_t t0 = python_acquire_GIL();
       *s++ = '.';
       s[0] = '\0';
     } else if (!PL_get_nchars(mname, &len, &s,
-                              CVT_ATOM | CVT_EXCEPTION | REP_UTF8)) {
+                              CVT_ATOM | CVT_STRING| CVT_EXCEPTION | REP_UTF8)) {
       python_release_GIL(t0);
       pyErrorAndReturn(false, false);
     } else {

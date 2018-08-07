@@ -36,12 +36,12 @@ DEPENDS pllibpl ${pl_os_library}
     	)
 
     add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp
-         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -outdir ${CMAKE_SWIG_OUTDIR}  -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp -oh ${CMAKE_SWIG_OUTPUT}/swig_streamer.hh streamer.i
+         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O -outdir ${CMAKE_SWIG_OUTDIR}  -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp -oh ${CMAKE_SWIG_OUTPUT}/swig_streamer.hh streamer.i
          DEPENDS streamer.i
  	)
 
  	     add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp
-           COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -outdir ${CMAKE_SWIG_OUTDIR}  -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp -oh ${CMAKE_SWIG_OUTPUT}/yap_swig.hh ${SWIG_SOURCES}
+           COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O  -outdir ${CMAKE_SWIG_OUTDIR}  -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp -oh ${CMAKE_SWIG_OUTPUT}/yap_swig.hh ${SWIG_SOURCES}
 	   DEPENDS pllibos  ${SWIG_SOURCES} YAP++)
 
 

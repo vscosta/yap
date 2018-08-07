@@ -201,8 +201,8 @@ The state of  the module system after this error is undefined.
 
 
 **/
-use_module(F) :- '$load_files'(F,
-			       [if(not_loaded),must_be_module(true)], use_module(F)).
+use_module(F) :- load_files(F,
+			       [if(not_loaded),must_be_module(true)]).
 
 
 /**
@@ -235,7 +235,7 @@ Unfortunately it is still not possible to change argument order.
 
 **/
 use_module(F,Is) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
+	load_files(F, [if(not_loaded),must_be_module(true),imports(Is)]).
 
 '$module'(O,N,P,Opts) :- !,
 	'$module'(O,N,P),
@@ -339,52 +339,6 @@ system_module(Mod) :-
 	tell(F),fail.
 '$trace_module'(_,_).
 
-/**
-   *
-   * @pred '$continue_imported'(+ModIn, +ModOut, +PredIn ,+PredOut)
-   *
-   * @return
- */
-'$continue_imported'(Mod,Mod,Pred,Pred) :-
-	'$pred_exists'(Pred, Mod),
-    !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_),
-	'$continue_imported'(FM, IM, FPred, IPred), !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-	prolog:'$parent_module'(Mod,IM),
-	'$continue_imported'(FM, IM, FPred, Pred).
-
-
-'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
-    functor(G, Name, Arity),
-    '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
-    call(Dialect:index(Name,Arity,ExportingMod,_)),
-    !.
-'$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
-    functor(G, N, K),
-	functor(G0, N, K),
-	'$autoloader_find_predicate'(G0,ExportingMod),
-	ExportingMod \= ImportingMod,
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
-
-
-'$autoloader_find_predicate'(G,ExportingModI) :-
-	'__NB_getval__'('$autoloader_set', true, false), !,
-	autoloader:find_predicate(G,ExportingModI).
-'$autoloader_find_predicate'(G,ExportingModI) :-
-	yap_flag(autoload, true, false),
-    yap_flag( unknown, Unknown, fail),
-	yap_flag(debug, Debug, false), !,
-	load_files([library(autoloader),
-		    autoloader:library('INDEX'),
-		    swi:library('dialect/swi/INDEX')],
-		   [autoload(true),if(not_loaded)]),
-	nb_setval('$autoloader_set', true),
-	yap_flag(autoload, _, true),
-    yap_flag( unknown, _, Unknown),
-    yap_flag( debug, _, Debug),
-	autoloader:find_predicate(G,ExportingModI).
 
 
 /**

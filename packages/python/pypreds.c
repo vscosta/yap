@@ -1,13 +1,20 @@
 
+#include "Yap.h"
+
 #include "py4yap.h"
 
 PyObject *py_Main;
 
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
-  fprintf(stderr, " Python error detcted at %s %s:%d\n\n", code, file, line);
-  PyErr_Print();
-}
+  // int lvl = push_text_stack();
+  PyObject *type, *val;
+  //   PyErr_Fetch(&type, &val, NULL);
+  //   PyErr_Print();
+  // Yap_ThrowError__(file,code,line,0, SYSTEM_ERROR_RUNTIME_PYTHON ,"Python
+  // Error %s: %s",PyUnicode_AsUTF8(PyObject_Str(type)),
+  // PyUnicode_AsUTF8(PyObject_Str(val)));
+};
 
 static foreign_t python_len(term_t tobj, term_t tf) {
   Py_ssize_t len;
@@ -19,6 +26,10 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   }
   len = PyObject_Length(o);
   pyErrorAndReturn(PL_unify_int64(tf, len));
+}
+static foreign_t python_clear_errors(void) {
+  PyErr_Clear();
+  return true;
 }
 
 static foreign_t python_dir(term_t tobj, term_t tf) {
@@ -105,7 +116,9 @@ static foreign_t python_slice(term_t parent, term_t indx, term_t tobj) {
   p = term_to_python(parent, true, NULL, true);
   // Exp
   if (!pI || !p) {
-    { pyErrorAndReturn(false); }
+    {
+      pyErrorAndReturn(false);
+    }
   } else if ((pF = PySequence_GetSlice(p, 0, 0)) == NULL) {
     PyErr_Print();
     { pyErrorAndReturn(false); }
@@ -133,14 +146,18 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   pF = term_to_python(tin, true, NULL, true);
   PyErr_Clear();
   if (pF == NULL) {
-    { pyErrorAndReturn(false); }
+    {
+      pyErrorAndReturn(false);
+    }
   }
   if (PL_is_atom(targs)) {
     pArgs = NULL;
   } else {
 
     if (!PL_get_name_arity(targs, &aname, &arity)) {
-      { pyErrorAndReturn(false); }
+      {
+        pyErrorAndReturn(false);
+      }
     }
     if (arity == 1 && PL_get_arg(1, targs, targ) && PL_is_variable(targ)) {
       /* ignore (_) */
@@ -267,7 +284,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   Py_DECREF(pI);
   if (pOut == NULL) {
     PyErr_Print();
-   { pyErrorAndReturn(false); }
+    { pyErrorAndReturn(false); }
   }
   {
     foreign_t rc = address_to_term(pOut, out);
@@ -296,10 +313,12 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
       { pyErrorAndReturn(false); }
     }
     Py_INCREF(pValue);
-    { pyErrorAndReturn(python_to_term(pValue, out) ); }
+    { pyErrorAndReturn(python_to_term(pValue, out)); }
   }
   if (!PL_get_name_arity(f, &name, &arity)) {
-    { pyErrorAndReturn(false); }
+    {
+      pyErrorAndReturn(false);
+    }
   }
   s = PL_atom_chars(name);
   if (!s) {
@@ -332,7 +351,9 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
   Py_DECREF(pArgs);
   Py_DECREF(pF);
   if (pValue == NULL) {
-    { pyErrorAndReturn(false); }
+    {
+      pyErrorAndReturn(false);
+    }
   }
   { pyErrorAndReturn(python_to_term(pValue, out)); }
 }
@@ -344,7 +365,9 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
   int arity;
 
   if (!PL_get_name_arity(att, &name, &arity)) {
-    { pyErrorAndReturn(false); }
+    {
+      pyErrorAndReturn(false);
+    }
   } else {
     PyObject *p;
 
@@ -353,7 +376,9 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
     p = term_to_python(parent, true, NULL, true);
     // Exp
     if (!PL_get_name_arity(att, &name, &arity)) {
-      { pyErrorAndReturn(false); }
+      {
+        pyErrorAndReturn(false);
+      }
     }
     s = PL_atom_chars(name);
     if (arity == 1 && !strcmp(s, "()")) {
@@ -361,12 +386,16 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
         pyErrorAndReturn(false);
       }
       if (!PL_get_name_arity(att, &name, &arity)) {
-        { pyErrorAndReturn(false); }
+        {
+          pyErrorAndReturn(false);
+        }
       }
       s = PL_atom_chars(name);
     }
     if (!s || !p) {
-      { pyErrorAndReturn(false); }
+      {
+        pyErrorAndReturn(false);
+      }
     } else if ((pF = PyObject_GetAttrString(p, s)) == NULL) {
       PyErr_Clear();
       { pyErrorAndReturn(false); }
@@ -523,6 +552,27 @@ static foreign_t python_export(term_t t, term_t pl) {
   pyErrorAndReturn(rc);
 }
 
+static bool get_mod(const char *s0)
+{
+   PyObject *pName;
+ term_t t0 = python_acquire_GIL();
+#if PY_MAJOR_VERSION < 3
+  pName = PyString_FromString(s0);
+#else
+  pName = PyUnicode_FromString(s0);
+#endif
+  if (pName == NULL) {
+    python_release_GIL(t0);
+  }
+
+  PyObject *pModule = PyImport_Import(pName);
+
+  Py_XDECREF(pName);
+      python_release_GIL(t0);
+
+      return pModule;
+}
+
 /**
  * @pred python_import(MName, Mod)
  *   Import a python module to the YAP environment.
@@ -536,35 +586,45 @@ static int python_import(term_t mname, term_t mod) {
   PyObject *pName;
   bool do_as = false;
 
-  term_t arg = PL_new_term_ref();
-  char s0[MAXPATHLEN], *s = s0, *t;
-  functor_t f;
-  while (true) {
-    size_t len;
-    //PyErr_Clear();
-    len = (MAXPATHLEN - 1) - (s - s0);
-    if (PL_is_pair(mname)) {
-      char *sa = NULL;
-      if (!PL_get_arg(1, mname, arg) || !PL_get_chars(arg, &sa, CVT_ALL | CVT_EXCEPTION | REP_UTF8) ||
-          !PL_get_arg(2, mname, mname)) {
-          pyErrorAndReturn(false);
-      }
-      PL_get_chars(arg, &sa, CVT_ALL | CVT_EXCEPTION | REP_UTF8);
-      strcpy(s, sa);
-      s += strlen(s);
-      *s++ = '.';
-      s[0] = '\0';
-    } else if (PL_get_functor(mname, &f) && f == FUNCTOR_as2 && PL_get_arg(2, mname,arg) &&
-	       PL_get_chars(arg, &t, CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
-      do_as = true;
-      PL_get_arg(1, mname,mname);
-    } else if (!PL_get_nchars(mname, &len, &s,
-                              CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
-      pyErrorAndReturn(false);
-    } else {
-      break;
-    }
+  char s0[MAXPATHLEN], *s = s0;
+  s[0] = '\0';
+  const char *sn, *as = NULL;
+  Term t = Deref(ARG1), sm;
+  if (IsApplTerm(t)) {
+    Functor f = (Functor)*RepAppl(t);
+    if (f != FunctorAs)
+      return false;
+    do_as = true;
+    sm = ArgOfTerm(2, t);
+    if (IsAtomTerm(sm))
+      as = RepAtom(AtomOfTerm(sm))->StrOfAE;
+    else if (IsStringTerm(sm))
+      as = StringOfTerm(sm);
+    else
+      return false;
+    t = ArgOfTerm(1, t);
   }
+  while (IsPairTerm(t)) {
+    Term ti = HeadOfTerm(t);
+    t = TailOfTerm(t);
+    if (IsAtomTerm(ti))
+      sn = RepAtom(AtomOfTerm(ti))->StrOfAE;
+    else if (IsStringTerm(ti))
+      sn = StringOfTerm(ti);
+    else
+      return false;
+    strcat(s, sn);
+    //get_mod(s);
+    strcat(s, ".");
+  }
+  sm = t;
+  if (IsAtomTerm(sm))
+    sn = RepAtom(AtomOfTerm(sm))->StrOfAE;
+  else if (IsStringTerm(sm))
+    sn = StringOfTerm(sm);
+  else
+    return false;
+  strcat(s, sn);
   term_t t0 = python_acquire_GIL();
 #if PY_MAJOR_VERSION < 3
   pName = PyString_FromString(s0);
@@ -580,16 +640,17 @@ static int python_import(term_t mname, term_t mod) {
 
   Py_XDECREF(pName);
   if (pModule == NULL) {
-      python_release_GIL(t0);
+    python_release_GIL(t0);
 
     pyErrorAndReturn(false);
   }
   {
     foreign_t rc = address_to_term(pModule, mod);
 
-      if (do_as && PyObject_SetAttrString(py_Main, t, pModule) <0)
-          return false;
-  python_release_GIL(t0);
+    if (do_as) {
+      PyObject_SetAttrString(py_Main, as, pModule);
+    }
+    python_release_GIL(t0);
     pyErrorAndReturn(rc);
   }
 }
@@ -655,25 +716,24 @@ term_t python_acquire_GIL(void) {
 }
 
 bool python_release_GIL(term_t curBlock) {
- int gstateix;
- gstatei--;
-    PL_get_integer(curBlock, &gstateix);
-    PL_reset_term_refs(curBlock);
-    if (gstatei != gstateix) {
-      if (gstateix > gstatei) {
-	fprintf(stderr, "gstateix(%d) > gstatei(%d)\n", gstateix, gstatei);
-	return false;
-      } else {
-	fprintf(stderr, "gstateix(%d) < gstatei(%d)\n", gstateix, gstatei);
-  return false;
-      }
+  int gstateix;
+  gstatei--;
+  PL_get_integer(curBlock, &gstateix);
+  PL_reset_term_refs(curBlock);
+  if (gstatei != gstateix) {
+    if (gstateix > gstatei) {
+      fprintf(stderr, "gstateix(%d) > gstatei(%d)\n", gstateix, gstatei);
+      return false;
+    } else {
+      fprintf(stderr, "gstateix(%d) < gstatei(%d)\n", gstateix, gstatei);
+      return false;
     }
-    if (_threaded) {
+  }
+  if (_threaded) {
     PyGILState_Release(gstates[gstatei]);
   }
   pyErrorAndReturn(true);
 }
-
 
 install_t install_pypreds(void) {
   PL_register_foreign("python_builtin_eval", 3, python_builtin_eval, 0);
@@ -698,6 +758,7 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_import", 2, python_import, 0);
   PL_register_foreign("python_access", 3, python_access, 0);
   PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
+  PL_register_foreign("python_clear_errors", 0, python_clear_errors, 0);
 
   init_python_vfs();
 }

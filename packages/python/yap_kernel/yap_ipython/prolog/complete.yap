@@ -4,12 +4,12 @@
  *  @brief Prolog completer.
  */
 
-:- module( completer,
-	   [completions/2 ]).
+%% %% :- module( completer,
+%% %% 	   [completions/2 ]).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
-:-	 use_module(library(python)).
+ :-	 use_module(library(python)).
 
 %% completions( +Text, +PythonCell )
 %

@@ -32,6 +32,7 @@ X_API EXTERNAL Atom AtomBeginCurlyBracket; X_API EXTERNAL Term TermBeginCurlyBra
 X_API EXTERNAL Atom AtomEndCurlyBracket; X_API EXTERNAL Term TermEndCurlyBracket;
 X_API EXTERNAL Atom AtomEmptyBrackets; X_API EXTERNAL Term TermEmptyBrackets;
 X_API EXTERNAL Atom AtomEmptySquareBrackets; X_API EXTERNAL Term TermEmptySquareBrackets;
+X_API EXTERNAL Atom AtomAs; X_API EXTERNAL Term TermAs;
 X_API EXTERNAL Atom AtomAsserta; X_API EXTERNAL Term TermAsserta;
 X_API EXTERNAL Atom AtomAssertaStatic; X_API EXTERNAL Term TermAssertaStatic;
 X_API EXTERNAL Atom AtomAssertz; X_API EXTERNAL Term TermAssertz;
@@ -460,6 +461,8 @@ X_API EXTERNAL  Functor FunctorArrayEntry;
 X_API EXTERNAL  Functor FunctorArrow;
 
 X_API EXTERNAL  Functor FunctorDoubleArrow;
+
+X_API EXTERNAL  Functor FunctorAs;
 
 X_API EXTERNAL  Functor FunctorAssert1;
 

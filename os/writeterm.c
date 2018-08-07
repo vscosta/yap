@@ -92,8 +92,9 @@ static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
   encoding_t enc = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s),
-                                 &enc, MEM_BUF_USER, Yap_LookupAtom(Yap_StrPrefix((char *)s,16)), TermNone);
+  sno = Yap_open_buf_read_stream(
+      (char *)s, strlen_utf8((unsigned char *)s), &enc, MEM_BUF_USER,
+      Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);
@@ -593,7 +594,6 @@ static Int writeln(USES_REGS1) {
     return false;
   }
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "writeln/2");
-  fprintf(stderr, "writeln %d\n", output_stream);
   if (output_stream < 0) {
     free(args);
     return false;
@@ -672,7 +672,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    s = Yap_TermToBuffer(ARG1, LOCAL_encoding, Quote_illegal_f | Handle_vars_f);
+    s = Yap_TermToBuffer(t1, Quote_illegal_f | Handle_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_Error(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -692,8 +692,8 @@ static Int term_to_atom(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   Atom at;
   if (IsVarTerm(t2)) {
-    const char *s = Yap_TermToBuffer(Deref(ARG1), LOCAL_encoding,
-                                     Quote_illegal_f | Handle_vars_f);
+    const char *s =
+        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s))) {
       Yap_Error(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
@@ -709,6 +709,25 @@ static Int term_to_atom(USES_REGS1) {
   ctl = TermNil;
   return ((rc = Yap_UBufferToTerm(RepAtom(at)->UStrOfAE, ctl))) &&
          Yap_unify(rc, ARG1);
+}
+
+char *Yap_TermToBuffer(Term t, int flags) {
+  CACHE_REGS
+  int sno = Yap_open_buf_write_stream(LOCAL_encoding, flags);
+
+  if (sno < 0)
+    return NULL;
+  if (t == 0)
+    return NULL;
+  else
+    t = Deref(t);
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+
+  char *new = Yap_MemExportStreamPtr(sno);
+  Yap_CloseStream(sno);
+  return new;
 }
 
 void Yap_InitWriteTPreds(void) {

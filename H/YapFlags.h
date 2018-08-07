@@ -119,6 +119,9 @@ INLINE_ONLY Term aro(Term inp) {
 // INLINE_ONLY Term booleanFlag( Term inp );
 
 static inline Term booleanFlag(Term inp) {
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (inp == TermTrue || inp == TermOn)
     return TermTrue;
   if (inp == TermFalse || inp == TermOff)
@@ -139,17 +142,20 @@ static inline Term booleanFlag(Term inp) {
 }
 
 static Term synerr(Term inp) {
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (inp == TermDec10 || inp == TermFail || inp == TermError ||
       inp == TermQuiet)
     return inp;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {dec10,error,fail,quiet}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag in {dec10,error,fail,quiet}");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp,
+            "syntax_error flag must be atom");
   return TermZERO;
 }
 
@@ -171,6 +177,9 @@ static inline Term isatom(Term inp) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
     return TermZERO;
+  }
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
   if (IsAtomTerm(inp))
     return inp;

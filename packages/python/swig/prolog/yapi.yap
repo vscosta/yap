@@ -3,20 +3,20 @@
 %% @brief support yap shell
 %%
 %:- start_low_level_trace.
- :- module(yapi, [
- 		 python_ouput/0,
- 		 show_answer/2,
- 		 show_answer/3,
- 		 yap_query/4,
- 		 python_query/2,
-		 python_query/3,
-		 python_import/1,
- 		 yapi_query/2
- 		 ]).
+ %% :- module(yapi, [
+ %% 		 python_ouput/0,
+ %% 		 show_answer/2,
+ %% 		 show_answer/3,
+ %% 		 yap_query/4,
+ %% 		 python_query/2,
+ %% 		 python_query/3,
+ %% 		 python_import/1,
+ %% 		 yapi_query/2
+ %% 		 ]).
 
 :- yap_flag(verbose, silent).
 
-:- use_module(library(python)).
+ :- use_module(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
@@ -71,20 +71,20 @@ argi(N,I,I1) :-
 python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
-	atom_to_string( Status, SStatus ),
-	Caller.port := SStatus,
+	Caller.port := Status,
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.answer := {},
-		 maplist(in_dict(Caller.answer), Bindings).
-							     
+	maplist(in_dict(Caller.answer), Bindings).
+
 
 in_dict(Dict, var([V0,V|Vs])) :- !,
 	Dict[V] := V0,
 	in_dict( Dict, var([V0|Vs])).
 in_dict(_Dict, var([_],_G)) :- !.
 in_dict(Dict, nonvar([V0|Vs],G)) :- !,
-	Dict[V0] := G,
+term_to_atom(G,A,_),
+	Dict[V0] := A,
 	in_dict( Dict, nonvar(Vs, G) ).
 in_dict(_Dict, nonvar([],_G)) :- !.
 in_dict(_, _)

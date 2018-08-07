@@ -3,6 +3,8 @@
 #include "py4yap.h"
 #include <VFS.h>
 
+#define USES_REGS
+
 #include "YapStreams.h"
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
@@ -22,6 +24,7 @@ X_API PyObject *py_Atoms;
 X_API PyObject *py_Builtin;
 X_API PyObject *py_Yapex;
 X_API PyObject *py_Sys;
+X_API PyObject * pYAPError;
 PyObject *py_Context;
 PyObject *py_ModDict;
 
@@ -44,8 +47,9 @@ static void add_modules(void) {
   if (py_Yapex)
     Py_INCREF(py_Yapex);
   Py_f2p = PythonLookup("f2p", NULL);
-  if (Py_f2p)
-    Py_INCREF(Py_f2p);
+  if (!Py_f2p)
+    Py_f2p = PyList_New(0);
+  Py_INCREF(Py_f2p);
   init_python_vfs();
 }
 

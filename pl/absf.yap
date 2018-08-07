@@ -302,8 +302,7 @@ absolute_file_name(File0,File) :-
     !,
     F.
 '$cat_file_name'(File, S) -->
-    {string(File), string_to_codes(File, S) },
-    !,
+    {string(File), string_codes(File, S) },
     S.
 
 
