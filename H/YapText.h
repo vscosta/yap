@@ -179,19 +179,20 @@ extern Term Yap_tokRep(void *tokptr);
 
 // standard strings
 
-typedef enum {
-  YAP_STRING_STRING = 0x1,      /// target is a string term
-  YAP_STRING_CODES = 0x2,       /// target is a list of integer codes
-  YAP_STRING_ATOMS = 0x4,       /// target is a list of kength-1 atom
-  YAP_STRING_ATOMS_CODES = 0x6, /// targt is list of atoms or codes
-  YAP_STRING_CHARS = 0x8,       /// target is a buffer, with byte-sized units
-  YAP_STRING_WCHARS = 0x10,     /// target is a buffer of wide chars
-  YAP_STRING_ATOM = 0x20,       /// tarfet is an ayom
-  YAP_STRING_INT = 0x40,        /// target is an integer term
-  YAP_STRING_FLOAT = 0x80,      /// target is a floar term
-  YAP_STRING_BIG = 0x100,       /// target is an big num term
-  YAP_STRING_DATUM =  0x200, /// associated with previous 3, use actual object if type, not tern
-  YAP_STRING_LENGTH =  0x400, /// input: length is fixed; output: return integer with length
+typedef enum
+{
+  YAP_STRING_STRING = 0x1,          /// target is a string term
+  YAP_STRING_CODES = 0x2,           /// target is a list of integer codes
+  YAP_STRING_ATOMS = 0x4,           /// target is a list of kength-1 atom
+  YAP_STRING_ATOMS_CODES = 0x6,     /// targt is list of atoms or codes
+  YAP_STRING_CHARS = 0x8,           /// target is a buffer, with byte-sized units
+  YAP_STRING_WCHARS = 0x10,         /// target is a buffer of wide chars
+  YAP_STRING_ATOM = 0x20,           /// tarfet is an ayom
+  YAP_STRING_INT = 0x40,            /// target is an integer term
+  YAP_STRING_FLOAT = 0x80,          /// target is a floar term
+  YAP_STRING_BIG = 0x100,           /// target is an big num term
+  YAP_STRING_DATUM = 0x200,         /// associated with previous 3, use actual object if type, not tern
+  YAP_STRING_LENGTH = 0x400,        /// input: length is fixed; output: return integer with length
   YAP_STRING_NTH = 0x800,           ///  input: ignored; output: nth char
   YAP_STRING_TERM = 0x1000,         // Generic term, if nothing else given
   YAP_STRING_DIFF = 0x2000,         // difference list
@@ -204,7 +205,8 @@ typedef enum {
   YAP_STRING_UPCASE = 0x100000,     // output on malloced buffer
   YAP_STRING_DOWNCASE = 0x200000,   // output on malloced buffer
   YAP_STRING_IN_TMP = 0x400000,     // temporary space has been allocated
-  YAP_STRING_OUTPUT_TERM = 0x800000 // when we're not sure
+  YAP_STRING_OUTPUT_TERM = 0x800000, // when we're not sure
+  YAP_STRING_PREFER_LIST = 0x1000000 // when we're not sure
 } enum_seq_type_t;
 
 typedef UInt seq_type_t;
@@ -522,7 +524,7 @@ static inline Term Yap_AtomSWIToListOfAtoms(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
+             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
   out.val.uc = NULL;
   out.type = YAP_STRING_ATOMS;
 
@@ -547,8 +549,8 @@ static inline Term Yap_AtomSWIToListOfCodes(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES |YAP_STRING_ATOMS_CODES |YAP_STRING_ATOMS_CODES |
-    YAP_STRING_TERM;
+             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES | YAP_STRING_ATOMS_CODES |
+             YAP_STRING_TERM ;
   out.val.uc = NULL;
   out.type = YAP_STRING_CODES;
 
@@ -588,7 +590,7 @@ static inline Term Yap_AtomSWIToString(Term t0 USES_REGS) {
 
   inp.val.t = t0;
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_INT |
-    YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES;
+             YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_ATOMS_CODES ;
   out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;
@@ -958,7 +960,7 @@ static inline Term Yap_ListSWIToString(Term t0 USES_REGS) {
   inp.val.t = t0;
   inp.type = YAP_STRING_STRING | YAP_STRING_ATOM | YAP_STRING_ATOMS_CODES |
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG |
-    YAP_STRING_OUTPUT_TERM;
+    YAP_STRING_OUTPUT_TERM | YAP_STRING_PREFER_LIST;
   out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;

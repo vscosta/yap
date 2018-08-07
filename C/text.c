@@ -445,6 +445,13 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       Yap_ThrowError(LOCAL_Error_TYPE, inp->val.t, "while reading text in");
     }
   }
+
+  if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
+  {
+    out = Malloc(4);
+      memset(out, 0, 4);
+      POPRET( out );
+    }
   if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
