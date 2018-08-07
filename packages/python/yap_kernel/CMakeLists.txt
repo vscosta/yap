@@ -185,7 +185,6 @@ yap_ipython/sphinxext/ipython_console_highlighting.py
 yap_ipython/sphinxext/ipython_directive.py
 yap_ipython/nbformat.py
 yap_ipython/paths.py
-yap_ipython/_version.py
 yap_ipython/nbconvert.py
 yap_ipython/qt.py
 yap_ipython/html.py
@@ -413,20 +412,9 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kerne
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/kernel.js
   )
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/meta.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/
-  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/meta.js
-  )
-
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/yap.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
   DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/yap.js
-  )
-
-
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/mode.js
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/mode.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/
-  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/mode.js
   )
 
 
@@ -441,13 +429,13 @@ endforeach()
 
 
 add_custom_target(YAP_KERNEL ALL
-  COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/mode.js ${OUTS} YAP4PY
+  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
 )
 
 
     install(CODE "execute_process(
+  COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
          COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr

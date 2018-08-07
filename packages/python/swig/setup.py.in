@@ -84,8 +84,8 @@ native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
 
 extensions = [Extension('_yap', native_sources,
-                        define_macros=[('MAJOR_VERSION', '1'),
-                                       ('MINOR_VERSION', '0'),
+                    define_macros=[('MAJOR_VERSION', '@YAP_MAJOR_VERSION@'),
+                                       ('MINOR_VERSION', '@YAP_MINOR_VERSION@'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('PYTHONSWIG', '1'),
@@ -104,7 +104,7 @@ extensions = [Extension('_yap', native_sources,
                         '${CMAKE_SOURCE_DIR}/os',
                         '${CMAKE_SOURCE_DIR}/utf8proc',
                         '${CMAKE_SOURCE_DIR}/packages/python',
-                        '../../..',
+                        '${CMAKE_BINARY_DIR}',
                         '${CMAKE_SOURCE_DIR}/CXX' ]
                         )]
 

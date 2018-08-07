@@ -230,7 +230,7 @@ db_abolish(PredName,Arity):-
 %
 db_listing:-
 	c_db_connection(Con),
-	c_db_preds_conn(Con,Module,Name,Arity),
+	user:c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity),
 	fail.
 db_listing.
@@ -243,15 +243,15 @@ db_listing.
 %
 db_listing(Module:Name/Arity):-!,
 	c_db_connection(Con),
-	c_db_preds_conn(Con,Module,Name,Arity),
+	user:c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 db_listing(Name/Arity):-!,
 	c_db_connection(Con),
-	c_db_preds_conn(Con,Module,Name,Arity),
+	user:c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 db_listing(Name):-
 	c_db_connection(Con),
-	c_db_preds_conn(Con,Module,Name,Arity),
+	user:c_db_preds_conn(Con,Module,Name,Arity),
 	listing(Module:Name/Arity).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -260,13 +260,12 @@ db_listing(Name):-
 				%
 table_arity( Con, ConType, RelationName, Arity ) :-
 	c_db_connection_type(Con,ConType),
-	writeln( ConType ),
 	 % get relation arity
 	( ConType == mysql ->
 	  c_db_my_number_of_fields(RelationName,Con,Arity)
 	;
 	  ConType == postgres ->
-	  c_postgres_number_of_fields(RelationName,Con,Arity)
+	  c_postgres_number_of_fields(RelationName,Con,Arit)
 	;
         ConType == odbc ->
           c_odbc_number_of_fields(RelationName,Con,Arity)

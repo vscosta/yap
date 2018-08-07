@@ -1,7 +1,11 @@
 site_name: 'YAP'
 theme: 'readthedocs'
 markdown_extensions:
-use_directory_urls: false
+    - smarty
+    - toc:
+        permalink: True
+    - sane_lists
+                    use_directory_urls: false
 plugins:
   - search
   - awesome-pages:

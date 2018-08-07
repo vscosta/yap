@@ -8,6 +8,8 @@
 #define PASS_REGS
 #define USES_REGS
 
+#include "Yap.h"
+
 //@{
 
 /** @brief  Prolog to Python library

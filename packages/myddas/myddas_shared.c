@@ -680,28 +680,13 @@ void Yap_MYDDAS_delete_all_myddas_structs(void) {
 
 void init_myddas(void) {
   CACHE_REGS
+  if (myddas_initialised)
+  {
+    return;
+  }
+#if USE_MYDDAS
   Term cm=CurrentModule;
   CurrentModule = USER_MODULE;
-  if (myddas_initialised)
-   return;
-#ifdef __ANDROID__
-  init_sqlite3();
-  #endif
-#if defined MYDDAS_ODBC
-  Yap_InitBackMYDDAS_ODBCPreds();
-#endif
-#endif
-#if defined MYDDAS_ODBC
-  Yap_InitMYDDAS_ODBCPreds();
-#endif
-#if defined USE_MYDDAS
-  Yap_InitMYDDAS_SharedPreds();
-#endif
-#if defined MYDDAS_TOP_LEVEL &&                                                \
-    defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
-  Yap_InitMYDDAS_TopLevelPreds();
-#endif
-#if USE_MYDDAS
 #define stringify(X) _stringify(X)
 #define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
@@ -709,12 +694,28 @@ void init_myddas(void) {
                MkAtomTerm(Yap_LookupAtom(stringify(MYDDAS_VERSION))));
   Yap_HaltRegisterHook((HaltHookFunc)Yap_MYDDAS_delete_all_myddas_structs,
                        NULL);
+  Yap_InitMYDDAS_SharedPreds();
+  Yap_InitBackMYDDAS_SharedPreds();
 #undef stringify
 #undef _stringify
   Yap_MYDDAS_delete_all_myddas_structs();
+#if defined MYDDAS_ODBC
+  Yap_InitBackMYDDAS_ODBCPreds();
+#endif
+#endif
+#if defined MYDDAS_ODBC
+  Yap_InitMYDDAS_ODBCPreds();
+#endif
+#if defined MYDDAS_TOP_LEVEL &&                                                \
+    defined MYDDAS_MYSQL // && defined HAVE_LIBREADLINE
+  Yap_InitMYDDAS_TopLevelPreds();
 #endif
   c_db_initialize_myddas(PASS_REGS1);
-  myddas_initialised = TRUE;
+#ifdef __ANDROiD__
+ init_sqlite3();
+ #endif
+#endif
+  myddas_initialised = true;
   CurrentModule = cm;
 }
 
