@@ -134,10 +134,11 @@ static bool pygetLine(StreamDesc *rl_iostream, int sno) {
   PyObject *user_line;
   StreamDesc *s = YAP_GetStreamFromId(sno);
   //term_t tg = python_acquire_GIL();
-  if (!strcmp(RepAtom(s->name)->StrOfAE,"input") && ) {
+  if (!strcmp(RepAtom(s->name)->StrOfAE,"input") ) {
     // note that input may change
-    PyObject *pystream = PyDict_GetItemString( Py_Builtins, "input");
+    PyObject *pystream = PyDict_GetItemString( py_Builtin, "input");
     if (pystream == NULL) {
+      PyObject *err;
       if ((err = PyErr_Occurred())) {
 	PyErr_Print();
     Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
@@ -159,7 +160,7 @@ static bool pygetLine(StreamDesc *rl_iostream, int sno) {
     PyErr_SetString(err, "Error in getLine\n");
     Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
   }
-  rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf = myrl_line;
+  rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf = (unsigned char *)myrl_line;
   return true;
 }
 
