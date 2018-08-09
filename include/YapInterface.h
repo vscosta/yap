@@ -34,7 +34,7 @@ The following routines export the YAP internals and architecture.
 #define __YAP_PROLOG__ 1
 
 #ifndef YAPVERSION
-#define YAPVERSION 60000
+#define YAPVERSION YAP_NUMERIC_VERSION
 #endif
 
 #include "YapDefs.h"
