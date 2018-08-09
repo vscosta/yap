@@ -207,8 +207,6 @@
 
 :- module(learning,[do_learning/1,
 	            do_learning/2,
-		    set_problog_flag/2,
-		    problog_flag/2,
 		    reset_learning/0
 		    ]).
 
@@ -630,7 +628,7 @@ init_one_query(QueryID,Query,Type) :-
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
-%	  writeln(Dir:Tree:MapList),
+	  writeln(QueryID),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	 )

@@ -187,6 +187,7 @@ A	GlobalSp		N	"global_sp"
 A	GlobalTrie		N	"global_trie"
 A	GoalExpansion		N	"goal_expansion"
 A	Hat			N	"^"
+A	DoubleHat		N	"^^"
 A	HERE			N	"\n   <====HERE====>  \n"
 A	HandleThrow		F	"$handle_throw"
 A	Heap			N	"heap"
@@ -535,6 +536,7 @@ F	GoalExpansion2		GoalExpansion	2
 F	GoalExpansion		GoalExpansion	3
 F	HandleThrow		HandleThrow	3
 F	Hat			Hat		2
+F	DoubleHat		DoubleHat	1
 F	I			I		2
 F	Id			Id		1
 F   Info1       Info   1

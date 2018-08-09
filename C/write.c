@@ -687,9 +687,10 @@ static void putUnquotedString(Term string, struct write_globs *wglb)
 static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
                          struct write_globs *wglb) {
   CACHE_REGS
-  Term t;
+    Term t, ti;
   CELL *ptr = ptr0;
-
+  int i = 0;
+  
   while (IsVarTerm(*ptr) && !IsUnboundVar(ptr))
     ptr = (CELL *)*ptr;
   t = *ptr;
@@ -701,9 +702,13 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
 
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
-        if (Yap_GetDerefedFromSlot(x->u_sd.s.old) == t)
-          return TermFoundVar;
+	if (Yap_GetDerefedFromSlot(x->u_sd.s.old) == t) {
+	  ti = MkIntegerTerm(i);
+	  return Yap_MkApplTerm(FunctorDoubleHat, 1, &ti);
+	}
         x = x->parent;
+	i++;
+	
       }
     }
   } else {
@@ -713,9 +718,12 @@ static Term from_pointer(CELL *ptr0, struct rewind_term *rwt,
       struct rewind_term *x = rwt->parent;
 
       while (x) {
-        if (x->u_sd.d.old == t)
-          return TermFoundVar;
+	if (x->u_sd.d.old == t)  {
+	  ti = MkIntegerTerm(i);
+	  return Yap_MkApplTerm(FunctorDoubleHat, 1, &ti);
+	}
         x = x->parent;
+	i++;
       }
     }
   }
@@ -790,20 +798,23 @@ static void write_var(CELL *t, struct write_globs *wglb,
   }
 }
 
-static Term check_infinite_loop(Term t, struct rewind_term *x,
+static int check_infinite_loop(Term t, struct rewind_term *x,
                                 struct write_globs *wglb) {
   CACHE_REGS
-  if (wglb->Keep_terms) {
+    int i =0;
+    if (wglb->Keep_terms) {
     while (x) {
       if (Yap_GetFromSlot(x->u_sd.s.old) == t)
-        return TermFoundVar;
+	return i;
       x = x->parent;
+      i++;
     }
   } else {
     while (x) {
       if (x->u_sd.d.old == t)
-        return TermFoundVar;
+        return i;
       x = x->parent;
+      i++;
     }
   }
   return t;
@@ -826,9 +837,16 @@ static void write_list(Term t, int direction, int depth,
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
       break;
-    if (!IsPairTerm(ti) ||
-        !IsPairTerm((ti = check_infinite_loop(ti, rwt, wglb))))
+    if (!IsPairTerm(ti))
       break;
+    int i;
+    if ((i = check_infinite_loop(ti, rwt, wglb))>0) {
+      char s[1024];
+      snprintf(s, 1023, "%d", i);
+      wrputs(" ^^(", wglb->stream);
+      wrputs(s, wglb->stream);
+      wrputs(") ", wglb->stream);
+   }
     ndirection = RepPair(ti) - RepPair(t);
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {

@@ -182,6 +182,7 @@ X_API EXTERNAL Atom AtomGlobalSp; X_API EXTERNAL Term TermGlobalSp;
 X_API EXTERNAL Atom AtomGlobalTrie; X_API EXTERNAL Term TermGlobalTrie;
 X_API EXTERNAL Atom AtomGoalExpansion; X_API EXTERNAL Term TermGoalExpansion;
 X_API EXTERNAL Atom AtomHat; X_API EXTERNAL Term TermHat;
+X_API EXTERNAL Atom AtomDoubleHat; X_API EXTERNAL Term TermDoubleHat;
 X_API EXTERNAL Atom AtomHERE; X_API EXTERNAL Term TermHERE;
 X_API EXTERNAL Atom AtomHandleThrow; X_API EXTERNAL Term TermHandleThrow;
 X_API EXTERNAL Atom AtomHeap; X_API EXTERNAL Term TermHeap;
@@ -613,6 +614,8 @@ X_API EXTERNAL  Functor FunctorGoalExpansion;
 X_API EXTERNAL  Functor FunctorHandleThrow;
 
 X_API EXTERNAL  Functor FunctorHat;
+
+X_API EXTERNAL  Functor FunctorDoubleHat;
 
 X_API EXTERNAL  Functor FunctorI;
 

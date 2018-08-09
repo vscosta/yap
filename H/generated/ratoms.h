@@ -182,6 +182,7 @@
   AtomGlobalTrie = AtomAdjust(AtomGlobalTrie); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = AtomAdjust(AtomGoalExpansion); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
   AtomHat = AtomAdjust(AtomHat); TermHat = MkAtomTerm(AtomHat);
+  AtomDoubleHat = AtomAdjust(AtomDoubleHat); TermDoubleHat = MkAtomTerm(AtomDoubleHat);
   AtomHERE = AtomAdjust(AtomHERE); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = AtomAdjust(AtomHeap); TermHeap = MkAtomTerm(AtomHeap);
@@ -530,6 +531,7 @@
   FunctorGoalExpansion = FuncAdjust(FunctorGoalExpansion);
   FunctorHandleThrow = FuncAdjust(FunctorHandleThrow);
   FunctorHat = FuncAdjust(FunctorHat);
+  FunctorDoubleHat = FuncAdjust(FunctorDoubleHat);
   FunctorI = FuncAdjust(FunctorI);
   FunctorId = FuncAdjust(FunctorId);
   FunctorInfo1 = FuncAdjust(FunctorInfo1);

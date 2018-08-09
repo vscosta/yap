@@ -182,6 +182,7 @@
   AtomGlobalTrie = Yap_LookupAtom("global_trie"); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion"); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
   AtomHat = Yap_LookupAtom("^"); TermHat = MkAtomTerm(AtomHat);
+  AtomDoubleHat = Yap_LookupAtom("^^"); TermDoubleHat = MkAtomTerm(AtomDoubleHat);
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n"); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw"); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = Yap_LookupAtom("heap"); TermHeap = MkAtomTerm(AtomHeap);
@@ -530,6 +531,7 @@
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
   FunctorHat = Yap_MkFunctor(AtomHat,2);
+  FunctorDoubleHat = Yap_MkFunctor(AtomDoubleHat,1);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
   FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);
