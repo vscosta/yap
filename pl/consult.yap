@@ -1349,6 +1349,8 @@ account the following observations:
     ( Reexport == false -> true ;
 	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
 	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  ->
+	  true
 	  ;
 	  OldContextModule = user
 	  ),
