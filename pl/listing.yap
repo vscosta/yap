@@ -225,6 +225,7 @@ Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
 	copy_term_nat(Clause, CopiedClause),
+writeln(c:CopiedClause),
 	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
@@ -235,8 +236,8 @@ Write clause  _C_ as if written by listing/0.
 
 */
 portray_clause(Clause) :-
-        current_output(Stream),
-	portray_clause(Stream, Clause).
+            current_output(Stream),
+            portray_clause(Stream, Clause).
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
 	'$beautify_vars'(Pred),
@@ -256,8 +257,8 @@ portray_clause(Clause) :-
 '$write_body'((P,Q), I, T, Stream) :-
         !,
         '$write_body'(P,I,T, Stream),
-        put(Stream, 0',),
-        '$write_body'(Q,I,',',Stream).
+        put(Stream, 0',),  %'
+                      '$write_body'(Q,I,',',Stream).
 '$write_body'((P->Q;S),I,_, Stream) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
@@ -312,33 +313,43 @@ portray_clause(Clause) :-
 '$write_disj'(S,_,I,C,Stream) :-
 	'$write_body'(S,I,C,Stream).
 
-
 '$beforelit'('(',_,Stream) :-
     !,
     format(Stream,' ',[]).
-'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
+'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
+
 
 '$beautify_vars'(T) :-
-	'$list_get_vars'(T,[],L),
+                        var(T), 
+                        !,
+                        '$list_transform'([T],0).
+'$beautify_vars'(T) :-
+                        primitive(T), 
+                        !.
+'$beautify_vars'(T) :-
+                            T =.. [_|Vs0],
+	'$list_get_vars'(Vs0,[],L),
 	msort(L,SL),
 	'$list_transform'(SL,0).
 
+'$list_get_vars'([], Vs,  Vs).
+'$list_get_vars'([A|Args], Vs0, Vs) :-
+    '$list_get_vars_'(A, Vs0, Vs1 ),
+    '$list_get_vars'(Args, Vs1, Vs).
 
-'$list_get_vars'(V,L,[V|L] ) :- var(V), !.
-'$list_get_vars'(Atomic, M, M) :-
+'$list_get_vars_'(V,L,[V|L] ) :- 
+    var(V), !.
+'$list_get_vars_'(Atomic, Vs, Vs) :-
 	primitive(Atomic), !.
-'$list_get_vars'([Arg|Args], M, N) :-  !,
-	'$list_get_vars'(Arg, M, K),
-	'$list_get_vars'(Args, K, N).
-'$list_get_vars'(Term, M, N) :-
+'$list_get_vars_'(Term, Vs0, Vs) :-
 	Term =.. [_|Args],
-	'$list_get_vars'(Args, M, N).
+	'$list_get_vars'(Args, Vs0, Vs).
 
 '$list_transform'([],_) :- !.
 '$list_transform'([X,Y|L],M) :-
 	X == Y,
+    !,
 	X = '$VAR'(M),
-	!,
 	N is M+1,
 	'$list_transform'(L,N).
 '$list_transform'(['$VAR'(-1)|L],M) :- !,
