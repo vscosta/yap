@@ -1347,8 +1347,11 @@ account the following observations:
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  ;
+	  OldContextModule = user
+	  ),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
 	  '$extend_exports'(File, Imports, OldF )
 	).
