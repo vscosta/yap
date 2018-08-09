@@ -85,14 +85,27 @@ typedef struct write_globs {
 
 static bool callPortray(Term t, int sno USES_REGS) {
   PredEntry *pe;
-  Int b0 = LCL0 - (CELL *)B;
+  //Int b0 = LCL0 - (CELL *)B;
+  CELL *pt;
+  arity_t i, a;
+  Functor f;
+  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) == NULL ||
+      pe->OpcodeOfPred != FAIL_OPCODE || pe->OpcodeOfPred != UNDEF_OPCODE)
+    return false;
+  if (IsApplTerm(t)) {
+    f = FunctorOfTerm(t);
+    a = ArityOfFunctor(f);
+    pt = RepAppl(t)+1;
 
+  } else {
+    a = 2;
+    pt = RepPair(t);
+  }
+  for (i=0; i < a; i++) XREGS[i+1] = pt[i];
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorPortray, USER_MODULE))) &&
-      pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, &t, true PASS_REGS)) {
-    choiceptr B0 = (choiceptr)(LCL0 - b0);
-    Yap_fail_all(B0 PASS_REGS);
+  if (Yap_execute_pred(pe, NULL, true PASS_REGS)) {
+    //choiceptr B0 = (choiceptr)(LCL0 - b0);
+    //Yap_fail_all(B0 PASS_REGS);
     LOCK(GLOBAL_Stream[sno].streamlock);
     return true;
   }
@@ -716,10 +729,13 @@ static CELL *restore_from_write(struct rewind_term *rwt,
 
   if (wglb->Keep_terms) {
     ptr = Yap_GetPtrFromSlot(rwt->u_sd.s.ptr);
+    // restore original term.
+    *ptr = Yap_GetFromSlot(rwt->u_sd.s.old);
     Yap_RecoverSlots(2, rwt->u_sd.s.old);
     //      printf("leak=%d %d\n", LOCALCurSlot,rwt->u_sd.s.old) ;
   } else {
     ptr = rwt->u_sd.d.ptr;
+    *ptr = rwt->u_sd.d.old;
   }
   rwt->u_sd.s.ptr = 0;
   return ptr;
