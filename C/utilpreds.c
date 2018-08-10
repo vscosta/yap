@@ -1685,7 +1685,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
           CELL *npt0 = RepPair(d0);
           if(Deref(npt0[0]) == TermFoundVar) {
             pt0 = npt0;
-            pt0_end = pt0 + 1;
+            pt0_end = pt0;
             continue;
           }
         }
