@@ -2,6 +2,7 @@
   /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+X_API EXTERNAL Atom AtomAtSymbol; X_API EXTERNAL Term TermAtSymbol;
 X_API EXTERNAL Atom Atom3Dots;
 X_API EXTERNAL Atom AtomAbol; X_API EXTERNAL Term TermAbol;
 X_API EXTERNAL Atom AtomAccess; X_API EXTERNAL Term TermAccess;
@@ -468,6 +469,10 @@ X_API EXTERNAL  Functor FunctorAs;
 X_API EXTERNAL  Functor FunctorAssert1;
 
 X_API EXTERNAL  Functor FunctorAssert;
+
+X_API EXTERNAL  Functor FunctorAt;
+
+X_API EXTERNAL  Functor FunctorAtSymbol;
 
 X_API EXTERNAL  Functor FunctorAtFoundOne;
 

@@ -2,6 +2,7 @@
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+  AtomAtSymbol = Yap_LookupAtom("@"); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = Yap_LookupAtom("...");
   AtomAbol = Yap_FullLookupAtom("$abol"); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = Yap_LookupAtom("access"); TermAccess = MkAtomTerm(AtomAccess);
@@ -458,6 +459,8 @@
   FunctorAs = Yap_MkFunctor(AtomAs,2);
   FunctorAssert1 = Yap_MkFunctor(AtomAssert,1);
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
+  FunctorAt = Yap_MkFunctor(AtomAt,2);
+  FunctorAtSymbol = Yap_MkFunctor(AtomAtSymbol,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);
   FunctorAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);

@@ -334,7 +334,7 @@ bool Yap_PrintWarning(Term twarning) {
       (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
             Yap_TermToBuffer(twarning,
-                             Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f),
+                             Quote_illegal_f | Ignore_ops_f),
             Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
     return false;
   }
@@ -649,7 +649,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
     r->culprit = NULL;
   } else {
     r->culprit = Yap_TermToBuffer(
-        where, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+        where, Quote_illegal_f | Ignore_ops_f);
   }
   if (LOCAL_consult_level > 0) {
     r->prologParserFile = Yap_ConsultingFile(PASS_REGS1)->StrOfAE;
@@ -1152,7 +1152,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
       n = t2;
     }
     i->errorGoal = Yap_TermToBuffer(
-        n, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f);
+        n, Quote_illegal_f | Ignore_ops_f );
   }
   Yap_prolog_add_culprit(i PASS_REGS);
   return i;
@@ -1183,22 +1183,22 @@ static Int is_callable(USES_REGS1) {
   // Term Context = Deref(ARG2);
   while (true) {
     if (IsVarTerm(G)) {
-      Yap_Error(INSTANTIATION_ERROR, G, NULL);
+      Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
       return false;
     }
     if (IsApplTerm(G)) {
       Functor f = FunctorOfTerm(G);
       if (IsExtensionFunctor(f)) {
-        Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+        Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
       }
       if (f == FunctorModule) {
         Term tm = ArgOfTerm(1, G);
         if (IsVarTerm(tm)) {
-          Yap_Error(INSTANTIATION_ERROR, G, NULL);
+          Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
           return false;
         }
         if (!IsAtomTerm(tm)) {
-          Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+          Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
           return false;
         }
         G = ArgOfTerm(2, G);
@@ -1208,7 +1208,7 @@ static Int is_callable(USES_REGS1) {
     } else if (IsPairTerm(G) || IsAtomTerm(G)) {
       return true;
     } else {
-      Yap_Error(TYPE_ERROR_CALLABLE, G, NULL);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
       return false;
     }
   }

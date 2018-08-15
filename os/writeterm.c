@@ -232,7 +232,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
     }
   }
   if (args[WRITE_CYCLES].used && args[WRITE_CYCLES].tvalue == TermFalse) {
-    flags |= Unfold_cyclics_f;
+    flags |= Ignore_cyclics_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;

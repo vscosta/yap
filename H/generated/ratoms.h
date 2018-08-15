@@ -2,6 +2,7 @@
   /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+  AtomAtSymbol = AtomAdjust(AtomAtSymbol); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = AtomAdjust(Atom3Dots);
   AtomAbol = AtomAdjust(AtomAbol); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = AtomAdjust(AtomAccess); TermAccess = MkAtomTerm(AtomAccess);
@@ -458,6 +459,8 @@
   FunctorAs = FuncAdjust(FunctorAs);
   FunctorAssert1 = FuncAdjust(FunctorAssert1);
   FunctorAssert = FuncAdjust(FunctorAssert);
+  FunctorAt = FuncAdjust(FunctorAt);
+  FunctorAtSymbol = FuncAdjust(FunctorAtSymbol);
   FunctorAtFoundOne = FuncAdjust(FunctorAtFoundOne);
   FunctorAtom = FuncAdjust(FunctorAtom);
   FunctorAtt1 = FuncAdjust(FunctorAtt1);

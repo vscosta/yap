@@ -7,6 +7,7 @@
 // This is supported by YAP directly
 // A Dot			N	"."
 //
+A	AtSymbol		N	"@"
 A	3Dots			N	"..."
 A	Abol			F	"$abol"
 A	Access			N	"access"
@@ -463,6 +464,8 @@ F	DoubleArrow		DoubleArrow	2
 F	As			As		2
 F	Assert1			Assert		1
 F	Assert			Assert		2
+F	At			At		2
+F	AtSymbol		AtSymbol	2
 F	AtFoundOne		FoundVar	2
 F	Atom			Atom		1
 F	Att1			Att1		3

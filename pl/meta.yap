@@ -88,7 +88,7 @@ meta_predicate(P) :-
 %% new context module.
 '$is_mt'(H, B, HM, _SM, M, (context_module(CM),B), CM) :-
     '$yap_strip_module'(HM:H, M, NH),
-	'$module_transparent'(_, M, _, NH), !.
+    '$module_transparent'(_, M, _, NH), !.
 '$is_mt'(_H, B, _HM, _SM, BM, B, BM).
 
 
@@ -442,7 +442,7 @@ meta_predicate(P) :-
 	'$module_u_vars'(HM , H, UVars),	 % collect head variables in
                                 % expanded positions
                                 % support for SWI's meta primitive.
-    '$is_mt'(H, B, HM, SM, M, IB, BM),
+	'$is_mt'(H, B, HM, SM, M, IB, BM),
 	'$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
     (
      '$full_clause_optimisation'(H, BM, BO1, BO)

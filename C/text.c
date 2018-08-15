@@ -544,7 +544,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 #endif
   if (inp->type & YAP_STRING_TERM) {
     pop_text_stack(lvl);
-    return Yap_TermToBuffer(inp->val.t, 0);
+    return (unsigned char *)Yap_TermToBuffer(inp->val.t, 0);
   }
 
   if (inp->type & YAP_STRING_CHARS) { 
@@ -558,7 +558,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
 
       pop_text_stack(lvl);
-      return inp->val.c;
+      return inp->val.uc;
   }
   if (inp->type & YAP_STRING_WCHARS) {
     // printf("%S\n",inp->val.w);
