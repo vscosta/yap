@@ -648,6 +648,7 @@ class YAPRun:
             raw_cell, store_history, silent, shell_futures)
 
         self.result = interactiveshell.ExecutionResult(info)
+        self.result.error_before_exec = None
 
         if (raw_cell == "") or raw_cell.isspace():
             self.shell.last_execution_succeeded = True

@@ -648,7 +648,7 @@ static int python_import(term_t mname, term_t mod) {
     foreign_t rc = address_to_term(pModule, mod);
 
     if (do_as) {
-      PyObject_SetAttrString(py_Main, as, pModule);
+      PyModule_AddObject(py_Main, as, pModule);
     }
     python_release_GIL(t0);
     pyErrorAndReturn(rc);

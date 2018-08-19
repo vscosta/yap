@@ -35,7 +35,7 @@ class YAPEngine;
 #if defined(SWIGPYTHON)
 
 %pythoncode %{
-YAPError = _yap.YAPError
+# YAPError = _yap.YAPError
 %}
 
   %typemap(typecheck) Term*  {

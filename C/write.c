@@ -1137,7 +1137,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (!(flags & Ignore_cyclics_f) && Yap_do_low_level_trace) {
+  if (!(flags & Ignore_cyclics_f) && false) {
     Term ts[2];
     Yap_do_low_level_trace=false;
     Yap_DebugPlWriteln(t);
