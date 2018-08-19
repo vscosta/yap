@@ -12,21 +12,29 @@
 #include "py4yap.h"
 
 static PyObject *finalLookup(PyObject *i, const char *s) {
-  PyObject *rc;
+  PyObject *os = PyUnicode_FromString(s), *rc = NULL;
   if (i == NULL)
     return NULL;
+  
   if (strcmp(s, "none") == 0)
     return Py_None;
-  if (PyDict_Check(i)) {
-    if ((rc = PyDict_GetItemString(i, s)))
-      return rc;
-  }
   if (PyModule_Check(i)) {
-    if ((rc = PyDict_GetItemString(i, s)))
-      return rc;
+   i = PyModule_GetDict(i);
+   }  
+
+  if (PyDict_Check(i))
+  {
+    if (PyDict_Contains(i, os) == 1) {
+      rc = PyDict_GetItem(i, os);
   }
-  if (PyObject_HasAttrString(i, s)) {
-    return PyObject_GetAttrString(i, s);
+  }
+ if (!rc && PyObject_HasAttr(i, os)) {
+    rc = PyObject_GetAttr(i, os);
+  }
+  if (rc)
+  {
+      Py_IncRef(rc);
+      return rc;
   }
   return NULL;
 }
@@ -67,6 +75,10 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   }
   PyObject *py_Builtin = PyEval_GetBuiltins();
   if ((out = finalLookup(py_Builtin, sp))) {
+    return out;
+  }
+  if ((out = finalLookup(py_Atoms, sp)))
+  {
     return out;
   }
   PyObject *py_Local = PyEval_GetLocals();
@@ -479,7 +491,7 @@ static PyObject *bip_sum(term_t t) {
       }
 #if PY_MAJOR_VERSION < 3
       if (PyInt_CheckExact(item)) {
-        764PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter);
+          PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter);
                                return 0)f_result += (double)PyInt_AS_LONG(item);
         PyFPE_END_PROTECT(f_result) Py_DECREF(item);
         continue;
@@ -1079,6 +1091,8 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 	  PyObject *key = PyUnicode_FromString(sk);
 	  AOK(PL_get_arg(2, tleft, tleft), NULL);
           PyObject *val = term_to_python(tleft, true, o, cvt);
+          if (val == NULL)
+            return NULL;
           PyDict_SetItem(pyDict, key, val);
         } else {
           indict = false;
@@ -1110,9 +1124,9 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 
     PyObject *rc;
     if (ys && PyCallable_Check(ys)) {
-      PyObject_Print(ys, stderr, 0);
-       PyObject_Print(pArgs, stderr, 0);
-       PyObject_Print(pyDict, stderr, 0);
+      //PyObject_Print(ys, stderr, 0);
+      // PyObject_Print(pArgs, stderr, 0);
+      // PyObject_Print(pyDict, stderr, 0);
 
       // PyObject_Print(pArgs, stderr, 0);
       // PyObject_Print(o, stderr, 0);

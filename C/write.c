@@ -1136,7 +1136,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (false && !(flags & Ignore_cyclics_f)) {
+  if (!(flags & Ignore_cyclics_f) && false) {
     Term ts[2];
      ts[0] = Yap_BreakRational(t, 0, ts+1, TermNil PASS_REGS);
     //fprintf(stderr, "%lx %lx %lx\n", t, ts[0], ts[1]);

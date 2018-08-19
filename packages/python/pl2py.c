@@ -1,4 +1,5 @@
 
+
 #include "Yap.h"
 
 #include "py4yap.h"
@@ -259,8 +260,6 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
         return out;
       } else {
         PyObject *no = find_term_obj(o, &t0, false);
-        if (no == o)
-          return NULL;
         return yap_to_python(t0, eval, no, cvt);
       }
     } else {
@@ -418,7 +417,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
               PL_reset_term_refs(arg);
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "t(...)->python");
             }
-            PyObject *a = term_to_python(arg, eval, o, cvt);
+            PyObject *a = term_to_python(arg, eval, NULL, cvt);
             if (a) {
               if (PyTuple_SetItem(rc, i, a) < 0) {
                 PL_reset_term_refs(arg);

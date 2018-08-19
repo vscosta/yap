@@ -226,7 +226,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       return python_to_term(exp, t);
   }
 
-  case PL_STRING: {
+  case PL_STRING: {             
     char *s = NULL;
     size_t l;
     PL_get_string_chars(t, &s,&l);
