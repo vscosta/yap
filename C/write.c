@@ -784,7 +784,6 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
                       struct write_globs *wglb, struct rewind_term *rwt)
 /* term to write			 */
 /* context priority			 */
-
 {
   CACHE_REGS
   struct rewind_term nrwt;
@@ -1137,21 +1136,16 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (!(flags & Ignore_cyclics_f) && Yap_do_low_level_trace) {
+  if (false && !(flags & Ignore_cyclics_f)) {
     Term ts[2];
-    Yap_do_low_level_trace=false;
-    Yap_DebugPlWriteln(t);
-    ts[0] = Yap_BreakRational(t, 0, ts+1, TermNil PASS_REGS);
-    fprintf(stderr, "%lx %lx %lx\n", t, ts[0], ts[1]);
+     ts[0] = Yap_BreakRational(t, 0, ts+1, TermNil PASS_REGS);
+    //fprintf(stderr, "%lx %lx %lx\n", t, ts[0], ts[1]);
     //Yap_DebugPlWriteln(ts[0]);
     //ap_DebugPlWriteln(ts[1[);
     if (ts[1] != TermNil) {
       t = Yap_MkApplTerm( FunctorAtSymbol, 2, ts);
-   Yap_DebugPlWriteln(ts[0]);
-   Yap_DebugPlWriteln(ts[1]);
+    }
    }
-   Yap_do_low_level_trace = true;
-  }
   /* protect slots for portray */
   writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
   if (flags & New_Line_f) {
