@@ -389,6 +389,8 @@ reset_learning :-
 do_learning(Iterations) :-
 	do_learning(Iterations,-1).
 
+:- spy do_learning/2.
+
 do_learning(Iterations,Epsilon) :-
 	current_predicate(user:example/4),
 	!,
@@ -512,29 +514,31 @@ init_learning :-
 	% if yes, switch to problog_exact 
         % continuous facts are not supported yet.
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%% problog_flag(init_method,(_,_,_,_,OldCall)),
-	%% (
-	%%  (
-	%%   continuous_fact(_),
-	%%   OldCall\=problog_exact_save(_,_,_,_,_)
-	%%  )
-	%% ->
-	%%  (
-	%%   format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	%%   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
-	%%  );
-	%%  true
-	%% ),
+		problog_flag(continuous_facts, true), 
+		!,
+	 problog_flag(init_method,(_,_,_,_,OldCall)),
+	 (
+	  (
+	   continuous_fact(_),
+	   OldCall\=problog_exact_save(_,_,_,_,_)
+	  )
+	 ->
+	  (
+	   format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  );
+	  true
+	 ),
 
-	%% (
-	%%  problog_tabled(_)
-	%% ->
-	%%  (
-	%%   format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	%%   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
-	%%  );
-	%%  true
-	%% ),
+	 (
+	  problog_tabled(_)
+	 ->
+	  (
+	   format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  );
+	  true
+	 ),
 	
 
 	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
@@ -1001,6 +1005,7 @@ inv_sigmoid(T,InvSig) :-
 %========================================================================
 
 save_old_probabilities :-
+	problog_flag(continous_facts, true),
 	forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
@@ -1101,11 +1106,15 @@ gradient_descent :-
 	
 	save_old_probabilities,
 	update_values,
+	reset_gradients.
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start set gradient to zero
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	forall(tunable_fact(FactID,_),
+	reset_gradients :-
+		problog_flag(continous_facts, true),
+		!,
+		forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
 	       ->
@@ -1487,6 +1496,7 @@ init_flags :-
 	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
+	problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
 
 	problog_define_flag(learning_rate,problog_flag_validate_posnumber,'Default learning rate (If line_search=false)',examples,learning_line_search,flags:examples_handler),
 	problog_define_flag(line_search, problog_flag_validate_boolean,'estimate learning rate by line search',false,learning_line_search),

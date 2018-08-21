@@ -131,7 +131,7 @@ static bool py_close(int sno) {
 static bool pygetLine(StreamDesc *rl_iostream, int sno) {
   // term_t ctk = python_acquire_GIL();
   const char *myrl_line;
-  PyObject *user_line, *prompt;
+  PyObject *user_line;
   StreamDesc *s = YAP_GetStreamFromId(sno);
   //term_t tg = python_acquire_GIL();
   if (!strcmp(RepAtom(s->name)->StrOfAE,"input") ) {
@@ -147,7 +147,7 @@ static bool pygetLine(StreamDesc *rl_iostream, int sno) {
     user_line = PyObject_CallFunctionObjArgs(pystream, PyUnicode_FromString("?- ") , NULL);
   } else {    
   PyObject *readl = PyObject_GetAttrString(s->u.private_data, "readline");
-  user_line = PyObject_CallFunction(readl, PyUnicode_FromString("?- ")      , NULL);
+  user_line = PyObject_CallFunction(readl, "?- ");
   }
   myrl_line = PyUnicode_AsUTF8(user_line);
   if (myrl_line == NULL)

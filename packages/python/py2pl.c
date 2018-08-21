@@ -133,8 +133,9 @@ else if (PyList_Check(pVal)) {
   if (sz == 0)
     return repr_term(pVal);
   Term t = TermNil;
-  for (i = sz; i > 0; --i) {
-    PyObject *p = PyTuple_GetItem(pVal, i);
+  for (i = sz; i > 0; ) {
+    -- i;
+    PyObject *p = PyList_GetItem(pVal, i);
     if (p == NULL) {
       PyErr_Clear();
       return false;
@@ -147,33 +148,33 @@ else if (PyList_Check(pVal)) {
   return t;
 }
 else if (PyDict_Check(pVal)) {
-  Py_ssize_t pos = 0;
-  int left = PyDict_Size(pVal);
+  Py_ssize_t pos = 0, tot = PyDict_Size(pVal);
   PyObject *key, *value;
-  Term f, *opt = &f, t;
-  if (left == 0) {
-    return repr_term(pVal);
-  } else {
-    while (PyDict_Next(pVal, &pos, &key, &value)) {
-      Term t0[2], to;
+  Term f, *opt = &f, t, to;
+  while (PyDict_Next(pVal, &pos, &key, &value)) {
+      Term t0[2];
       t0[0] = python_to_term__(key);
       t0[1] = python_to_term__(value);
       to = Yap_MkApplTerm(FunctorModule, 2, t0);
-      if (left--) {
+      if (pos < tot) {
         t = Yap_MkNewApplTerm(FunctorComma, 2);
-        *opt = t;
         CELL *pt = RepAppl(t) + 1;
         pt[0] = to;
-        opt = pt + 1;
+        *opt = t;
+	opt = pt+1;
       } else {
-        *opt = t = to;
+	  if (pos == 0) {
+	    return repr_term(pVal);
+  } 
+
+        *opt = to;
+	break;
       }
     }
-    return Yap_MkApplTerm(FunctorBraces, 1, &t);
+    return Yap_MkApplTerm(FunctorBraces, 1, &f);
   }
- }else {
     return repr_term(pVal);
-  }
+
 }
 
 foreign_t python_to_term(PyObject *pVal, term_t t) {
@@ -218,6 +219,7 @@ PyObject *py_Local, *py_Global;
  *python_assign.
  */
 bool python_assign(term_t t, PyObject *exp, PyObject *context) {
+    PyErr_Print();
   context = find_obj(context, t, false);
   // Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
@@ -244,7 +246,6 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       context = py_Main;
     if (PyObject_SetAttrString(context, s, exp) == 0)
       return true;
-    PyErr_Print();
     return false;
   }
   case PL_INTEGER:

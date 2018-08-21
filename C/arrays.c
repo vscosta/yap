@@ -1025,8 +1025,39 @@ restart:
   return (FALSE);
 }
 
+
+#define CREATE_ARRAY_DEFS()                                                            \
+  PAR("type", isatom, CREATE_ARRAY_TYPE),                                              \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("int", isnull, CREATE_ARRAY_INT),                                     \
+  PAR("dbref", isnull, CREATE_ARRAY_DBREF),                                     \
+  PAR("float", isnull, CREATE_ARRAY_FLOAT),                                     \
+  PAR("ptr", isnull, CREATE_ARRAY_PTR),                                     \
+  PAR("atom", isnull, CREATE_ARRAY_ATOM),                                     \
+  PAR("char", isnull, CREATE_ARRAY_CHAR),                                     \
+  PAR("unsigned_char", isnull, CREATE_UNSIGNED_CHAR),                                     \
+  PAR("nb_term", isnull, CREATE_ARRAY_NB_TERM),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
+      PAR("close_on_abort", booleanFlag, OPEN_CLOSE_ON_ABORT),                 \
+      PAR("create", isatom, OPEN_CREATE),                                      \
+      PAR("encoding", isatom, OPEN_ENCODING),                                  \
+      PAR("eof_action", isatom, OPEN_EOF_ACTION),                              \
+      PAR("expand_filename", booleanFlag, OPEN_EXPAND_FILENAME),               \
+      PAR("file_name", isatom, OPEN_FILE_NAME), PAR("input", ok, OPEN_INPUT),  \
+      PAR("locale", isatom, OPEN_LOCALE), PAR("lock", isatom, OPEN_LOCK),      \
+      PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),          \
+      PAR("representation_errors", booleanFlag, OPEN_REPRESENTATION_ERRORS),   \
+      PAR("reposition", booleanFlag, OPEN_REPOSITION),                         \
+      PAR("script", booleanFlag, OPEN_SCRIPT), PAR("type", isatom, OPEN_TYPE), \
+      PAR("wait", booleanFlag, OPEN_WAIT), PAR(NULL, ok, OPEN_END)
+
 /* create an array (+Name, + Size, +Props) */
-static Int
     /** @pred  static_array(+ _Name_, + _Size_, + _Type_)
 
 
@@ -1035,6 +1066,7 @@ static Int
     integer.  The  _Type_ must be bound to one of types mentioned
     previously.
     */
+static Int
     create_static_array(USES_REGS1) {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);

@@ -8,7 +8,7 @@ PyObject *py_Main;
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
   // int lvl = push_text_stack();
-  PyObject *type, *val;
+  PyObject *type;
   //   PyErr_Fetch(&type, &val, NULL);
   //   PyErr_Print();
   // Yap_ThrowError__(file,code,line,0, SYSTEM_ERROR_RUNTIME_PYTHON ,"Python

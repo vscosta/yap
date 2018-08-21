@@ -154,7 +154,7 @@ yes
 */
 :- dynamic initialized/0.
 
-:- load_foreign_files(['yap_lbfgs'],[],'init_lbfgs_predicates').
+:- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
 
 /** @pred optimizer_initialize(+N,+Evaluate,+Progress)
 The same as before, except that the user module is the default
@@ -187,12 +187,12 @@ optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
 
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
-	EvalGoal =.. [Call_Evaluate,E1,E2,E3],
+	EvalGoal =.. lbfgs_callback_evaluate(e(E1,E2,E3)),
 	ProgressGoal =.. [Call_Progress,P1,P2,P3,P4,P5,P6,P7,P8],
-	retractall( user:'$lbfgs_callback_evaluate'(_E1,_E2,_E3) ),
-	retractall( user:'$lbfgs_callback_progress'(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
-	assert( (user:'$lbfgs_callback_evaluate'(E1,E2,E3) :- Module:EvalGoal, !) ),
-	assert( (user:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
+	retractall( lbfgs_callback_evaluate(_Step ),
+	retractall( lbfgs_callback_progress(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
+	assert( ( lbfgs_callback_evaluate(E1,E2,E3) :- Module:EvalGoal, !) ),
+	assert( ( lbfgs_callback_progress(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
 	assert(initialized).
 
 /** @pred  optimizer_finalize/0

@@ -16,11 +16,13 @@ ENDIF (NOT YAP_FOUND)
   INCLUDE_DIRECTORIES(
     ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/include
     ${CMAKE_CURRENT_BINARY_DIR}
+    ${CMAKE_SOURCE_DIR}/include
+
     )
 
   SET ( LBFGS_SOURCES
   
-  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_ansi.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_double.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_float.h ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/lbfgs.c yap_lbfgs.c)
+  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_ansi.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_double.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_float.h ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/lbfgs.c ${CMAKE_CURRENT_SOURCE_DIR}/yap_lbfgs.c)
 
   add_library(LBFGS
   ${LBFGS_SOURCES})
@@ -37,5 +39,5 @@ ENDIF (NOT YAP_FOUND)
 
     )
 
-  INSTALL(FILES lbfgs.yap DESTINATION ${libpl})
+  INSTALL(FILES lbfgs.pl DESTINATION ${libpl})
   

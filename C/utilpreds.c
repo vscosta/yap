@@ -568,7 +568,7 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 
   HB = HR;
   to_visit0 = to_visit;
- loop:
+  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
     register CELL *ptd0;
@@ -580,16 +580,18 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
     {
       if (IsPairTerm(d0)) {
 	CELL *ap2 = RepPair(d0);
-	if (IN_BETWEEN(HB, ap2[0],HR)) {
-	  RESET_VARIABLE(pt0);
-	  vin = add_to_list(vin,  (CELL)(pt0), *ap2 );
+	fprintf(stderr, "%ld \n", RepPair(ap2[0])- ptf);
+	if (IsVarTerm(ap2[0]) && IN_BETWEEN(HB, (ap2[0]),HR)) {
+	  Term v = MkVarTerm();
+	  *ptf = v;
+	  vin = add_to_list(vin,  (CELL)(ptf), AbsPair(ptf) );
+	  ptf++;
 	  continue;
 	}
-	*ptf = AbsPair(HR);
-	ptf++;
 	if (to_visit+1 >= (struct bp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
+	*ptf++ = (CELL)(HR);
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
@@ -610,30 +612,35 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 	  ptf++;
 	  continue;
 	}
-	deref_head(d0, copy_term_unk);
+	d0 = Deref(d0);
+	if (!IsVarTerm(d0)) {
+	  goto copy_term_nvar;
+	} else {
+	  *ptf++ = d0;
+	}
+	continue;
       } else if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2;
 	/* store the terms to visit */
-	ap2 = RepAppl(d0);
-	if (IN_BETWEEN(HB, ap2[1],HR)) {
-	  RESET_VARIABLE(pt0);
-	  vin = add_to_list(vin, (CELL)pt0, ap2[1] );
-	  continue;
-	}
-	f = (Functor)(*ap2);
-
+	ap2 = RepAppl(d0)+1;
+	f = (Functor)(ap2[-1]);
 	if (IsExtensionFunctor(f)) {
 	    *ptf++ = d0;  /* you can just copy other extensions. */
 	  continue;
 	}
+	if (IsApplTerm(ap2[0]) && IN_BETWEEN(HB, RepAppl(ap2[0]),HR)) {
+	  RESET_VARIABLE(ptf);
+	  vin = add_to_list(vin, (CELL)ptf, ap2[0] );
+	  ptf++;
+	  continue;
+	}
+
 	arity_t arity = ArityOfFunctor(f);
-	*ptf = AbsAppl(HR);
-	ptf++;
 	if (to_visit+1 >= (struct bp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
-	ap2++;
+	*ptf++ = AbsAppl(HR);
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
@@ -642,16 +649,26 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 	/* fool the system into thinking we had a variable there */
 	to_visit ++;
 	pt0 = ap2;
-	pt0_end = ap2 + arity;
+	pt0_end = ap2 + (arity-1);
+	ptf = HR;
 	if (HR > ASP - 2048) {
 	  goto overflow;
 	}
- 	if (IsVarTerm(d0) && d0 == (CELL)pt0) {
+	*ptf++ =(CELL)f;
+	*ap2  = AbsAppl(HR);
+	HR += (arity+1);
+	if (IsVarTerm(d0) && d0 == (CELL)(ap2)) {
 	  RESET_VARIABLE(ptf);
 	  ptf++;
 	  continue;
 	}
-	deref_head(d0, copy_term_unk);
+	d0 = Deref(d0);
+	if (!IsVarTerm(d0)) {
+	  goto copy_term_nvar;
+	} else {
+	  *ptf++ = d0;
+	}
+	continue;
       } else {
 	/* just copy atoms or integers */
 	*ptf++ = d0;
@@ -730,14 +747,12 @@ Yap_BreakRational(Term inp, UInt arity, Term *to, Term ti USES_REGS) {
         *to = ti;
     return t;
   } else if (IsPairTerm(t)) {
-    Term tf;
     CELL *ap;
     CELL *Hi;
 
   restart_list:
     ap = RepPair(t);
     Hi = HR;
-    tf = AbsPair(HR);
     HR += 2;
     {
       Int res;
@@ -755,7 +770,6 @@ Yap_BreakRational(Term inp, UInt arity, Term *to, Term ti USES_REGS) {
     }
   } else {
     Functor f;
-    Term tf;
     CELL *HB0;
     CELL *ap;
 
@@ -767,7 +781,6 @@ Yap_BreakRational(Term inp, UInt arity, Term *to, Term ti USES_REGS) {
     }
     HB0 = HR;
     ap = RepAppl(t);
-    tf = AbsAppl(HR);
     HR[0] = (CELL)f;
     arity = ArityOfFunctor(f);
     HR += 1+arity;

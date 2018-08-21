@@ -1,4 +1,4 @@
-o#include <string.h>
+#include <string.h>
 #include "YapInterface.h"
 #include <lbfgs.h>
 #include <stdio.h>
@@ -30,7 +30,7 @@ o#include <string.h>
 #define OPTIMIZER_STATUS_CB_EVAL     3
 #define OPTIMIZER_STATUS_CB_PROGRESS 4
 
-void init_lbfgs_predicates( void ) ;
+X_API void init_lbfgs_predicates( void ) ;
 
 int optimizer_status=OPTIMIZER_STATUS_NONE;   // the internal state
 int n;                                        // the size of the parameter vector
@@ -53,13 +53,13 @@ static lbfgsfloatval_t evaluate(
   YAP_Bool result;
   YAP_Int s1;
 
-  YAP_Term t[3];
+  YAP_Term t[4];
 
   t[0] = YAP_MkVarTerm();
   t[1] = YAP_MkIntTerm(n);
   t[2] = YAP_MkFloatTerm(step);
 
-  call = YAP_MkApplTerm(fcall3, 3, t);
+  call = YAP_MkApplTerm(fcall3, 4, t);
   g=g_tmp;
 
 
@@ -168,7 +168,7 @@ static YAP_Bool set_x_value(void) {
   } else if (YAP_IsIntTerm(t2)) {
     x[i]=(lbfgsfloatval_t) YAP_IntOfTerm(t2);
   } else {
-    return FALSE;
+    return false;
   }
 
 
@@ -322,7 +322,7 @@ static YAP_Bool optimizer_initialize(void) {
 
 
   if (! YAP_IsIntTerm(t1)) {
-    return FALSE;
+    return false;
   }
 
   temp_n=YAP_IntOfTerm(t1);
@@ -619,14 +619,14 @@ static YAP_Bool optimizer_get_parameter( void ) {
   }
 
   printf("ERROR: The parameter %s is unknown.\n",name);
-  return FALSE;
+  return false;
 }
 
 
 
 
 
-void init_lbfgs_predicates( void )
+X_API void init_lbfgs_predicates( void )
 {
   fcall3 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_evaluate"), 3);
   fprogress8 = YAP_MkFunctor(YAP_LookupAtom("$lbfgs_callback_progress"), 8);

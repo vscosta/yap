@@ -59,7 +59,6 @@ PyObject *PythonLookupSpecial(const char *s) {
 }
 
 static PyObject *builtin(const char *sp) {
-  PyObject *py_Builtin = PyEval_GetBuiltins();
   return PyDict_GetItemString(py_Builtin, sp);
 }
 
@@ -73,7 +72,6 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   if ((out = finalLookup(py_Context, sp))) {
     return out;
   }
-  PyObject *py_Builtin = PyEval_GetBuiltins();
   if ((out = finalLookup(py_Builtin, sp))) {
     return out;
   }
@@ -81,12 +79,10 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   {
     return out;
   }
-  PyObject *py_Local = PyEval_GetLocals();
   if ((out = finalLookup(py_Local, sp)) && out != Py_None) {
     return out;
   }
-  PyObject *py_Global = PyEval_GetGlobals();
-  if ((out = finalLookup(py_Global, sp))) {
+    if ((out = finalLookup(py_Global, sp))) {
     return out;
   }
   if ((out = finalLookup(py_ModDict, sp))) {
@@ -980,6 +976,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 
     AOK(PL_get_arg(1, t, targ), NULL);
     ptr = term_to_python(targ, true, NULL, true);
+    if (!ptr) return NULL;
     return PyObject_Dir(ptr);
     {}
   }
@@ -1123,7 +1120,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     }
 
     PyObject *rc;
-    if (ys && PyCallable_Check(ys)) {
+    if ( PyCallable_Check(ys)) {
       //PyObject_Print(ys, stderr, 0);
       // PyObject_Print(pArgs, stderr, 0);
       // PyObject_Print(pyDict, stderr, 0);
