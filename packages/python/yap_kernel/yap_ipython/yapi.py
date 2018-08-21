@@ -594,7 +594,8 @@ class YAPRun:
                 self.result.result = True,self.bindings
                 return self.result
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' after '+str( self.bindings)+ '\n')
+            sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
+                             ':'+pg+'\n  '+str( self.bindings)+ '\n')
             has_raised = True
             self.result.result = False
             return self.result
@@ -833,3 +834,6 @@ class YAPRun:
             return s,'',False,0
         (query, _,loop, sols) = self.clean_end(query)
         return (program, query, loop, sols)
+
+global
+globals = {}
