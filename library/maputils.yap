@@ -83,11 +83,10 @@ pred_name(Macro, Arity, _ , Name) :-
 	prolog_load_context(term_position, Pos),
 	stream_position_data( line_count, Pos, Line ), !,
 	transformation_id(Id),
-	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,' ',Id], Name).
-pred_name(Macro, Arity, _ , Name) :-
+	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,'(',P,') #',Id], Name).
+pred_name(Macro, Arity, P , Name) :-
     transformation_id(Id),
-    stop_low_level_trace,
-	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,' ',Id], Name).
+	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,'(',P,') #',Id], Name).
 
 transformation_id(Id) :-
     retract(number_of_expansions(Id)),
