@@ -855,7 +855,10 @@ nb_setval('$if_le1vel',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	lists:member(G, Answers),
+	'$process_init_goal'(Answers).
+'$exec_initialization_goals'.
+
+'$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
@@ -865,7 +868,8 @@ nb_setval('$if_le1vel',0).
     format(user_error,':- ~w:~w failed.~n',[M0,G0])
 	),
 	fail.
-'$exec_initialization_goals'.
+'$process_init_goal'([_|Gs]) :-
+    '$process_init_goal'(Gs).
 
 /**
   @pred include(+ _F_) is directive

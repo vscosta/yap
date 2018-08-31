@@ -136,3 +136,14 @@ prolog:length(L, M) :-
 
 %% @}
 
+%   reverse(List, Reversed)
+%   is true when List and Reversed are lists with the same elements
+%   but in opposite orders.  rev/2 is a synonym for reverse/2.
+
+lists:reverse(List, Reversed) :-
+	lists:reverse(List, [], Reversed).
+
+lists:reverse([], Reversed, Reversed).
+lists:reversae([Head|Tail], Sofar, Reversed) :-
+	lists:reverse(Tail, [Head|Sofar], Reversed).
+
