@@ -425,7 +425,6 @@ meta_predicate(P) :-
     ->
      O = G
     ;
-    stop_low_level_trace,
      O = M:G
     ).
 */
