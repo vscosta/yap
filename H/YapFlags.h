@@ -187,6 +187,18 @@ static inline Term isatom(Term inp) {
   return TermZERO;
 }
 
+static inline Term isadress(Term inp) {
+  if (IsVarTerm(inp)) {
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    return TermZERO;
+  }
+  if (IsAddressTerm(inp))
+    return inp;
+  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return TermZERO;
+}
+
 static inline Term options(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
 }

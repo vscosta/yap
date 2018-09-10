@@ -1056,8 +1056,8 @@ query_exception(K0,[H|L],V) :-
     (atom(K0) -> atom_to_string(K0, K) ; K = K0),
     !,
     lists:member(K=V,[H|L]).
-query_exception(K,V) :-
-    '$query_exception'(K,V).
+query_exception(M,K,V) :-
+    '$query_exception'(M,K,V).
 
 /**
   @}

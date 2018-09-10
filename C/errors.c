@@ -642,8 +642,8 @@ void Yap_ThrowExistingError(void) {
 
 bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
                        const char *function, int lineno, yap_error_number type,
-                       Term where, const char *s) {
-  if (!Yap_pc_add_location(r, CP, B, ENV))
+  Term where, const char *s) {
+  if (!Yap_pc_add_location(r, P, B, ENV))
     Yap_env_add_location(r, CP, B, ENV, 0);
   if (where == 0L || where == TermNil || type == INSTANTIATION_ERROR) {
     r->culprit = NULL;
@@ -739,7 +739,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     if (LOCAL_PrologMode & BootMode) {
       fprintf(stderr, "%% YAP crashed while booting %s\n", tmpbuf);
     } else {
-      Yap_detect_bug_location(P, FIND_PRED_FROM_ANYWHERE, YAP_BUF_SIZE);
+      Yap_output_bug_location(P, FIND_PRED_FROM_ANYWHERE, YAP_BUF_SIZE);
       if (tmpbuf[0]) {
         fprintf(stderr, "%% Bug found while executing %s\n", tmpbuf);
       }
