@@ -205,7 +205,8 @@ compose_message(error(E, Exc), Level) -->
 	caller( error(E, Exc), Level ),
 	extra_info( error(E, Exc), Level ),
 	!,
-	[nl,nl].
+	[nl],
+	[nl].
 compose_message( false, _Level) --> !,
 	[ 'false.'-[] ].
 compose_message( '$abort', _Level) --> !,
@@ -266,8 +267,9 @@ location( error(_,Info), Level, LC ) -->
 	query_exception(prologPredArity, Desc, Ar)
 	},
   !,
-  display_consulting( File, Level, Info, LC ),
-	[  '~a:~d:0 ~a in ~a:~a/~d:'-[File, FilePos,Level,M,Na,Ar] ].
+display_consulting( File, Level, Info, LC ),
+  {simplify_pred(M:Na/Ar,FF)},
+ 	[  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
 location( error(_,Info), Level, LC ) -->
 	{ '$error_descriptor'(Info, Desc) },
    {
@@ -277,13 +279,17 @@ location( error(_,Info), Level, LC ) -->
 	},
   !,
   display_consulting( File, Level, Info,  LC ),
-  [  '~a:~d:0 ~a in ~a():'-[File, FilePos,Level,F] ].
+  {simplify_pred(F,FF)},
+  [  '~a:~d:0 ~a while executing ~a():'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
 
+simplify_pred(user:F, F) :- !.
+simplify_pred(prolog:F, F) :- !.
+simplify_pred(F, F).
 
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
-	[  'ninstantiated message ~w~n.' - [error(Msg,In)], nl ].
+	[  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
 main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
 	!,
 	[' ~a: syntax error ~s' - [Level,Msg]],
@@ -303,45 +309,50 @@ main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
     !,
 %    {writeln(ci)},
 	{ clause_to_indicator(P, I) },
-	[  nl, '           singleton variable~*c ~w in ~q.' - [  NVs, 0's, SVsL, I] ],
+	[  nl, '~*|singleton variable~*c ~w in ~q.' - [ 10,  NVs, 0's, SVsL, I] ],
 	{ svs(SVs,SVs,SVsL),
 	  ( SVs = [_] -> NVs = 0 ; NVs = 1 )
 	}.
 main_message(style_check(multiple(N,A,Mod,I0),_Pos,File,_P), _Level, _LC) -->
     !,
-    [  '           ~a redefines ~q, originally defined in  ~a.' - [File, Mod:N/A, I0] ].
+    [  '~*|~a redefines ~q, originally defined in  ~a.' - [ 10,File, Mod:N/A, I0] ].
 main_message(style_check(discontiguous(N,A,Mod),_S,_W,_P) , _Level, _LC)-->
     !,
-    [  '           discontiguous definition for ~p.' - [Mod:N/A] ].
-main_message(error(consistency_error(Who)), Level, _LC) -->
-    !,
-    [ ' ~a: has argument ~a not consistent with type.'-[Level,Who] ].
-main_message(error(domain_error(Who , Type), _Where), Level, _LC) -->
-    !,
-    [ ' ~a:  ~q does not belong to domain ~a,' - [Level,Type,Who], nl ].
-main_message(error(evaluation_error(What), _Where), Level, _LC) -->
-    !,
-    [ ' ~a: ~w during evaluation of arithmetic expressions,' - [Level,What], nl ].
-main_message(error(evaluation_error(What, Who), _Where), Level, _LC) -->
-    !,
-    [ ' ~a: ~w caused ~a during evaluation of arithmetic expressions,' - [Level,Who,What], nl ].
-main_message(error(existence_error(Type , Who), _Where), Level, _LC) -->
-    !,
-    [  ' ~a:  ~q ~q could not be found,' - [Level,Type, Who], nl ].
-main_message(error(permission_error(Op, Type, Id), _Where), Level, _LC) -->
-	[ ' ~a:  ~q is not allowed in ~a ~q,' - [Level, Op, Type,Id], nl ].
-main_message(error(instantiation_error, _Where), Level, _LC) -->
-	[ ' ~a: unbound variable' - [Level], nl ].
-main_message(error(representation_error(Type)), Level, _LC) -->
-	[ ' ~a: ~a representation error ~a' - [Level, Type], nl ].
-main_message(error(type_error(Type,Who), _What), Level, _LC) -->
-	[ ' ~a: ~q should be of type ~a' - [Level,Who,Type]],
+    [  '~*|discontiguous definition for ~p.' - [ 10,Mod:N/A] ].
+main_message(error(ErrorInfo,_), _Level, _LC) -->
+	[nl],
+	main_error_message( ErrorInfo ),
+	[nl].
+
+
+main_error_message(consistency_error(Who)) -->
+    [ '~*|** argument ~a not consistent with type **'-[ 10,Who] ].
+main_error_message(domain_error(Who , Type)) -->
+    [ '~*|** ~q does not belong to domain ~a ** ' - [ 10,Type,Who], nl ].
+main_error_message(evaluation_error(What)) -->
+    [ '~*|** found ~w during evaluation of arithmetic expression **' - [ 10,What], nl ].
+main_error_message(evaluation_error(What, Who)) -->
+   [ '~*|** ~w caused ~a during evaluation of arithmetic expressions **' - [ 10,Who,What], nl ].
+main_error_message(existence_error(Type , Who)) -->
+ 	[nl],
+   [  '~*|** ~q ~q could not be found **' - [ 10,Type, Who], nl ].
+main_error_message(permission_error(Op, Type, Id)) -->	
+	[ '~*|** value ~q is not allowed in ~a ~q **' - [ 10, Op, Type,Id], nl ].
+main_error_message(instantiation_error) -->	
+	[ '~*|** unbound variable **' - [10], nl ].
+main_error_message(representation_error(Type)) -->
+	[ '~*|** YAP cannot represent ~w **' - [10, Type], nl ].
+main_error_message(resource_error(Who)) -->
+	[ '~*|** ~q **' - [10,Who]],
 	[ nl ].
-main_message(error(system_error(Who), _What), Level, _LC) -->
-	[ ' ~a: ~q' - [Level,Who]],
+main_error_message(type_error(Type,Who)) -->
+	[ '~*|** ~q should be of type ~a **' - [10,Who,Type]],
 	[ nl ].
-main_message(error(uninstantiation_error(T),_), Level, _LC) -->
-	[ ' ~a: found ~q, expected unbound variable ' - [Level,T], nl ].
+main_error_message(system_error(Who)) -->
+	[ '~*|** ~q **' - [10,Who]],
+	[ nl ].
+main_error_message(uninstantiation_error(T)) -->
+	[ '~*|** found ~q, expected unbound variable **' - [10,T], nl ].
 
 display_consulting( F, Level, Info, LC) -->
     {  LC > 0,
@@ -360,7 +371,7 @@ display_consulting( F, Level, _, LC) -->
 display_consulting(_F, _, _, _LC) -->
 	  [].
 
-caller( Info, _) -->
+c_goal( error(_,Info), _) -->
         { '$error_descriptor'(Info, Desc) },
         ({   query_exception(errorGoal, Desc, Call),
          	Call = M:(H :- G)
@@ -376,31 +387,34 @@ caller( Info, _) -->
           ;
           []
         ),
-	{ query_exception(prologPredFile, Desc, File),
-	File \= [],
-	query_exception(prologPredLine, Desc, FilePos),
-	query_exception(prologPredModule, Desc, M),
-	query_exception(prologPredName, Desc, Na),
-	query_exception(prologPredArity, Desc, Ar)
-	},
-	!,
-	  [nl],
-	  ['~*|        ~q:~d:0 ~a:~q'-[10,File, FilePos,M,Na,Ar]],
-	[nl].
-caller( _, _) -->
-	[].
+		!.
+c_goal(_,_) --> [].
 
-c_goal( Info, Level ) -->
+caller( error(_,Info), Level ) -->
 { '$error_descriptor'(Info, Desc) },
     { query_exception(errorFile, Desc, File),
+      File \= [],
+      query_exception(errorFunction, Desc, Func),
       Func \= [],
-      query_exception(errorFunction, Desc, File),
       query_exception(errorLine, Desc, Line)
       },
 	!,
-	['~*|~a raised at C-function ~a() in ~a:~d:0: '-[10, Level, Func, File, Line]],
+	['~*|~a raised by foreign-function ~a(), at ~a:~d:0: '-[10, Level, Func, File, Line]],
 	[nl].
-c_goal( _, _Level ) --> [].
+caller( _, _Level ) --> [].
+
+
+extra_info( error(_,Info), _ ) -->
+ { '$error_descriptor'(Info, Desc) },
+   {
+	 query_exception(errorMsg, Desc, Msg),
+	 Msg \= []
+    },
+    !,
+        ['~*|user provided data is: ~q' - [10,Msg]],
+        [nl].
+extra_info( _, _ ) -->
+	[].
 
 
 prolog_message(X) -->
@@ -621,17 +635,6 @@ domain_error(write_option, Opt) --> !,
 	[ '~w invalid write option' - [Opt] ].
 domain_error(Domain, Opt) -->
 	[ '~w not a valid element for ~w' - [Opt,Domain] ].
-
-extra_info( error(_,Extra), _ ) -->
-    {
-	 query_exception(prologPredFile, Extra, Msg),
-	 Msg \= []
-    },
-    !,
-        ['~*|user provided data is: ~q' - [10,Msg]],
-        [nl].
-extra_info( _, _ ) -->
-	[].
 
 object_name(array, array).
 object_name(atom, atom).

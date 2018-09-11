@@ -86,21 +86,24 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   return false;
 }
 
-#define query_key_b(k, ks, q, i)                                               \
-  if (strcmp(ks, q) == 0) {                                                    \
+#define query_key_b(k, ks, q, i)  \                                     
+if (strcmp(ks, q) == 0) { \
     return i->k ? TermTrue : TermFalse;                                        \
   }
 
-#define query_key_i(k, ks, q, i)                                             if (strcmp(ks, q) == 0) {                                                    \
+#define query_key_i(k, ks, q, i) \
+if (strcmp(ks, q) == 0) {                                                    \
     return MkIntegerTerm(i->k);                                                \
   }
 
-#define query_key_s(k, ks, q, i)     \
-  if (strcmp(ks, q) == 0 && i->k) {                                                    \
-  return MkAtomTerm(Yap_LookupAtom(i->k)); } else {return TermNil;}
+#define query_key_s(k, ks, q, i)  \
+if (strcmp(ks, q) == 0 ) \
+{  if (i->k) return MkAtomTerm(Yap_LookupAtom(i->k)); else return TermNil; }
+
 
 #define query_key_t(k, ks, q, i)     \
   if (strcmp(ks, q) == 0) {                                                    \
+  if (i->k == NULL) return TermNil; \
  Term t; if((t = Yap_BufferToTerm(i->k, TermNil) ) == 0 ) return TermNil; return t; }
 
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
@@ -645,7 +648,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   Term where, const char *s) {
   if (!Yap_pc_add_location(r, P, B, ENV))
     Yap_env_add_location(r, CP, B, ENV, 0);
-  if (where == 0L || where == TermNil || type == INSTANTIATION_ERROR) {
+  if (where == 0L || where == TermNil) {
     r->culprit = NULL;
   } else {
     r->culprit = Yap_TermToBuffer(
@@ -662,7 +665,6 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   r->errorLine = lineno;
   r->errorFunction = function;
   r->errorFile = file;
-  Yap_prolog_add_culprit(r PASS_REGS1);
   LOCAL_PrologMode |= InErrorMode;
   Yap_ClearExs();
   // first, obtain current location
