@@ -352,9 +352,9 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
 }
 
 #define expand_stack(S0,SP,SF,TYPE)	       \
-  size_t sz = SF-S0, used = SP-S0;	       \
+  { size_t sz = SF-S0, used = SP-S0;	       \
   S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);               \
-  SP = S0+used; SF = S0+sz;
+  SP = S0+used; SF = S0+sz; }
 
 static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                              int share, int copy_att_vars, CELL *ptf,
@@ -502,7 +502,7 @@ loop:
       ptf++;
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
-      if (to_visit + 1 >= to_visit_max) {
+      if (to_visit + 32 >= to_visit_max) {
           expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;

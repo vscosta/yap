@@ -176,14 +176,21 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
 }
 
 void *Realloc(void *pt, size_t sz USES_REGS) {
-  sz += sizeof(struct mblock);
   struct mblock *old = pt, *o;
   old--;
-  release_block(old);
+  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
   o = realloc(old, sz);
+  if (o->next) {
+    o->next->prev = o;
+  } else {
+    LOCAL_TextBuffer->last[o->lvl] = o;
+  }
+  if (o->prev) {
+    o->prev->next = o;
+  } else {
+    LOCAL_TextBuffer->first[o->lvl] = o;
+  }
   o->sz = sz;
-  insert_block(o);
-
   return o + 1;
 }
 

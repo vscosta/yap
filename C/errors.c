@@ -597,6 +597,7 @@ yap_error_descriptor_t *Yap_popErrorContext(bool mdnew, bool pass) {
     memmove(ep, e, sizeof(*e));
     ep->top_error = epp;
   }
+  free(e);
   return LOCAL_ActiveError;
 }
 /**
