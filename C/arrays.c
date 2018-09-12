@@ -1026,36 +1026,33 @@ restart:
 }
 
 
-#define CREATE_ARRAY_DEFS()                                                            \
-  PAR("type", isatom, CREATE_ARRAY_TYPE),                                              \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("int", isnull, CREATE_ARRAY_INT),                                     \
-  PAR("dbref", isnull, CREATE_ARRAY_DBREF),                                     \
-  PAR("float", isnull, CREATE_ARRAY_FLOAT),                                     \
-  PAR("ptr", isnull, CREATE_ARRAY_PTR),                                     \
-  PAR("atom", isnull, CREATE_ARRAY_ATOM),                                     \
-  PAR("char", isnull, CREATE_ARRAY_CHAR),                                     \
-  PAR("unsigned_char", isnull, CREATE_UNSIGNED_CHAR),                                     \
-  PAR("nb_term", isnull, CREATE_ARRAY_NB_TERM),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-  PAR("address", isaddress, CREATE_ARRAY_ADDRESS),                                     \
-      PAR("close_on_abort", booleanFlag, OPEN_CLOSE_ON_ABORT),                 \
-      PAR("create", isatom, OPEN_CREATE),                                      \
-      PAR("encoding", isatom, OPEN_ENCODING),                                  \
-      PAR("eof_action", isatom, OPEN_EOF_ACTION),                              \
-      PAR("expand_filename", booleanFlag, OPEN_EXPAND_FILENAME),               \
-      PAR("file_name", isatom, OPEN_FILE_NAME), PAR("input", ok, OPEN_INPUT),  \
-      PAR("locale", isatom, OPEN_LOCALE), PAR("lock", isatom, OPEN_LOCK),      \
-      PAR("mode", isatom, OPEN_MODE), PAR("output", ok, OPEN_OUTPUT),          \
-      PAR("representation_errors", booleanFlag, OPEN_REPRESENTATION_ERRORS),   \
-      PAR("reposition", booleanFlag, OPEN_REPOSITION),                         \
-      PAR("script", booleanFlag, OPEN_SCRIPT), PAR("type", isatom, OPEN_TYPE), \
-      PAR("wait", booleanFlag, OPEN_WAIT), PAR(NULL, ok, OPEN_END)
+#define CREATE_ARRAY_DEFS()     \
+  PAR("type", isatom, CREATE_ARRAY_TYPE),                             \
+  PAR("address", filler, CREATE_ARRAY_ADDRESS),                   \
+  PAR("int", filler, CREATE_ARRAY_INT),                     \
+  PAR("dbref", filler, CREATE_ARRAY_DBREF),                   \
+  PAR("float", filler, CREATE_ARRAY_FLOAT),                \
+  PAR("ptr", filler, CREATE_ARRAY_PTR),                            \
+  PAR("atom", filler, CREATE_ARRAY_ATOM),                    \
+  PAR("char", filler, CREATE_ARRAY_CHAR),                     \
+  PAR("unsigned_char", filler, CREATE_UNSIGNED_CHAR),      \
+  PAR("term", filler, CREATE_ARRAY_TERM),                          \
+  PAR("nb_term", filler, CREATE_ARRAY_NB_TERM)
+
+#define PAR(x, y, z) z
+
+
+typedef enum create_array_enum_choices { CREATE_ARRAY_DEFS() } create_array_choices_t;
+
+#undef PAR
+
+#define PAR(x, y, z)                                                           \
+  { x, y, z }
+
+static const param_t create_array_defs[] = {CREATE_ARRAY_DEFS()};
+#undef PAR
+
+
 
 /* create an array (+Name, + Size, +Props) */
     /** @pred  static_array(+ _Name_, + _Size_, + _Type_)
@@ -1087,7 +1084,9 @@ static Int
       return (FALSE);
     }
   }
-
+xarg *args =
+      Yap_ArgListToVector(tprops, create_array_defs, CREATE_ARRAY_NB_TERM, DOMAIN_ERROR_CREATE_ARRAY_OPTION);
+  
   if (IsVarTerm(tprops)) {
     Yap_Error(INSTANTIATION_ERROR, tprops, "create static array");
     return (FALSE);
