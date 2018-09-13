@@ -244,7 +244,7 @@ logger_define_variable(Name,Type) :-
 	->
 		write('redefining logger variable '),write(Name),write(' of type '), write(Type0), nl
 		;
-	throw(error(variable_redefined(logger_define_variable(Name,Type)))
+	throw(error(variable_redefined(logger_define_variable(Name,Type))))
 	).
 logger_define_variable(Name,Type) :-
 	ground(Type),
