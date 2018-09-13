@@ -3244,6 +3244,30 @@ is_matrix(void)
   return TRUE;
 }
 
+
+
+static YAP_Bool
+get_float_from_address(void)
+{
+  YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+  YAP_Int off = YAP_IntOfTerm(YAP_ARG2);
+
+  return YAP_Unify(YAP_ARG3, YAP_MkFloatTerm(fp[off]));
+}
+
+static YAP_Bool
+set_float_from_address(void)
+{
+  YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+  YAP_Int off = YAP_IntOfTerm(YAP_ARG2);
+  YAP_Float f = YAP_FloatOfTerm(YAP_ARG3 );
+
+  fp[off] = f;
+
+  return true;
+}
+
+
 X_API void init_matrix( void );
 
 X_API void
@@ -3302,7 +3326,9 @@ init_matrix(void)
   YAP_UserCPredicate("do_matrix_op_to_cols", matrix_op_to_cols, 4);
   YAP_UserCPredicate("matrix_m", matrix_m, 2);
   YAP_UserCPredicate("matrix", is_matrix, 1);
-}
+  YAP_UserCPredicate("get_float_from_address",get_float_from_address , 3);
+  YAP_UserCPredicate("set_float_from_address",set_float_from_address , 3);
+ }
 
 #ifdef _WIN32
 

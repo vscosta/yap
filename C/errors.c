@@ -86,7 +86,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   return false;
 }
 
-#define query_key_b(k, ks, q, i)  \                                     
+#define query_key_b(k, ks, q, i)  \
 if (strcmp(ks, q) == 0) { \
     return i->k ? TermTrue : TermFalse;                                        \
   }

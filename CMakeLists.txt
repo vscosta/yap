@@ -782,7 +782,7 @@ option(WITH_LBFGS
         "interface  with lbfgs" ON)
 
 if (WITH_LBFGS)
-#    add_subDIRECTORY(packages/yap-lbfgs)
+    add_subDIRECTORY(packages/yap-lbfgs)
 endif ()
 
 
