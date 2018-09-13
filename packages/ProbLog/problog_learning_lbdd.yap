@@ -549,7 +549,8 @@ init_learning :-
 	 (
 	  (user:example(_,_,P,_),P<1,P>0)
 	 ->
-	  set_problog_flag(alpha,1.0);
+	 set_problog_flag(alpha,1.0)
+	 ;
 	  (
 	   succeeds_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
 	   succeeds_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
@@ -557,6 +558,8 @@ init_learning :-
 	   set_problog_flag(alpha,Alpha)
 	  )
 	 )
+	;
+	true
 	),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -593,6 +596,9 @@ set_default_gradient_method :-
     format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
     set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
 set_default_gradient_method :-
+    problog_flag(init_method,(gene(X,Y),N,Bdd,graph2bdd(X,Y,N,Bdd))),
+    !.
+set_default_gradient_method :-
     set_problog_flag(init_method,(Query,1,BDD,
 	problog_kbest_as_bdd(user:Query,1,BDD))).
 
@@ -618,6 +624,7 @@ init_one_query(QueryID,Query,Type) :-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  trace,
 	(
 	 recorded(QueryID, _, _)
 	->
@@ -628,7 +635,6 @@ init_one_query(QueryID,Query,Type) :-
 	  Query =.. [_,X,Y]
 	  ->
 	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
 	  graph2bdd(X,Y,N,Bdd),
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
@@ -651,7 +657,6 @@ init_one_query(QueryID,Query,Type) :-
 	  writeln(QueryID),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 )
 	).
 init_one_query(_QueryID,_Query,_Type) :-
     throw(unsupported_init_method).
