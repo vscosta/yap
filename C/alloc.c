@@ -42,6 +42,12 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_FCNTL_H
 #include <fcntl.h>
 #endif
+#if HAVE_SYS_TIME_H
+#include <sys/time.h> 
+#endif
+#if HAVE_SYS_RESOURCE_H
+#include <sys/resource.h> 
+#endif
 #if HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
@@ -381,6 +387,16 @@ void Yap_InitHeap(void *heap_addr) {
   InitHeap();
   Yap_HoleSize = 0;
   HeapMax = 0;
+}
+
+// get an approximation to total memory data-base size.
+ size_t Yap_HeapUsed(void)
+{
+  #if HAVE_MALLINFO
+    struct mallinfo mi = mallinfo();
+    return mi.uordblks - (LOCAL_TrailTop-LOCAL_GlobalBase);
+#endif
+    return         Yap_ClauseSpace+Yap_IndexSpace_Tree+Yap_LUClauseSpace+Yap_LUIndexSpace_CP;
 }
 
 static void InitExStacks(int wid, int Trail, int Stack) {

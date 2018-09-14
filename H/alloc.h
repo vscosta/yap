@@ -96,10 +96,11 @@ typedef	struct FREEB {
 /* Operating system and architecture dependent page size */
 extern size_t Yap_page_size;
 
-void   Yap_InitHeap(void *);
-UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
-void   Yap_AllocHole(UInt, UInt);
-
+extern void   Yap_InitHeap(void *);
+extern UInt   Yap_ExtendWorkSpaceThroughHole(UInt);
+extern void   Yap_AllocHole(UInt, UInt);
+extern size_t Yap_HeapUsed(void);
+;
 #if USE_SYSTEM_MMAP && ! defined(__CYGWIN__)
 
 #include <sys/types.h>
@@ -107,7 +108,7 @@ void   Yap_AllocHole(UInt, UInt);
 
 #elif USE_SYSTEM_SHM
 
-
+ 
 
 #elif USE_SBRK
 
@@ -120,10 +121,10 @@ void *sbrk(caddr_t);
 
 typedef unsigned size_t;
 
-MALLOC_T malloc(size_t);
-void free(MALLOC_T);
-MALLOC_T realloc(MALLOC_T,size_t);
-MALLOC_T calloc(size_t,size_t);
+extern MALLOC_T malloc(size_t);
+extern void free(MALLOC_T);
+extern MALLOC_T realloc(MALLOC_T,size_t);
+extern MALLOC_T calloc(size_t,size_t);
 
 #endif
 

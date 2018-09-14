@@ -112,6 +112,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "YapEval.h"
+#include "alloc.h"
 
 
 
@@ -174,7 +175,7 @@ eval0(Int fi) {
     /// - heapused
     ///   Heap (data-base) space used, in bytes.
     ///
-    RINT(HeapUsed);
+    RINT(Yap_HeapUsed());
   case op_localsp:
     /// - local
     ///   Local stack in use, in bytes
