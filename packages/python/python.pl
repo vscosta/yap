@@ -28,6 +28,7 @@
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
 	   python/2,
+	   python_string_to/1,
 	   acquire_GIL/0,
 	   release_GIL/0,
 	   python_threaded/0,

@@ -28,6 +28,8 @@ PyObject *py_Context;
 
 X_API PyObject *Py_f2p;
 
+bool pyStringToString;
+
 extern X_API bool python_in_python;
 
 static void add_modules(void) {

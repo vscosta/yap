@@ -311,7 +311,7 @@ load_files(Files0,Opts) :-
     ( LC > 0
     ->
       '__NB_getval__'('$lf_status', OldTOpts, fail),
-        nonvar(OldTOpts),
+        nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
          '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ;

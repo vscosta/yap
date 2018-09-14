@@ -20,9 +20,11 @@ ENDIF (NOT YAP_FOUND)
 
     )
 
+  SET ( LBFGS_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_ansi.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_double.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_float.h )
+    
   SET ( LBFGS_SOURCES
   
-  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_ansi.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_double.h  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/arithmetic_sse_float.h ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/lbfgs.c ${CMAKE_CURRENT_SOURCE_DIR}/yap_lbfgs.c)
+  ${CMAKE_CURRENT_SOURCE_DIR}/${LBFGS_SRC}/lib/lbfgs.c ${CMAKE_CURRENT_SOURCE_DIR}/yap_lbfgs.c)
 
   add_library(LBFGS
   ${LBFGS_SOURCES})

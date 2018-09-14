@@ -90,7 +90,10 @@ else if (PyUnicode_Check(pVal)) {
       rc = rc && PL_unify_atom_chars(t, s);
     else
 #endif
+      if  (pyStringToString)
   return MkStringTerm(s);
+      else
+	return MkAtomTerm(Yap_LookupAtom(s));
 }
 else if (PyByteArray_Check(pVal)) {
   return MkStringTerm(PyByteArray_AsString(pVal));

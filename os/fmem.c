@@ -204,8 +204,6 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 
   st = GLOBAL_Stream + sno;
   st->status = Output_Stream_f | InMemory_Stream_f;
-  if (src)
-    st->status |= FreeOnClose_Stream_f;
   st->linepos = 0;
   st->charcount = 0;
   st->linecount = 1;
@@ -269,7 +267,7 @@ FILE *f = GLOBAL_Stream[sno].file;
   memcpy(buf, s, len);
   // s[fseek(GLOBAL_Stream[sno].file, 0, SEEK_END)] = '\0';
 #else
-  fread(buf, sz, 1, GLOBAL_Stream[sno].file);
+  fread(buf, len, 1, GLOBAL_Stream[sno].file);
 #endif
   buf[len] = '\0';
   return buf;

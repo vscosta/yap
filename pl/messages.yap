@@ -257,15 +257,14 @@ location(style_check(A,LN,FileName,B ), Level , LC) -->
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
 	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
-
     { '$error_descriptor'(Info, Desc) },
-   {
-   query_exception(prologPredFile, Desc, File),
+    {
+	query_exception(prologPredFile, Desc, File),
 	query_exception(prologPredLine, Desc, FilePos),
 	query_exception(prologPredModule, Desc, M),
 	query_exception(prologPredName, Desc, Na),
 	query_exception(prologPredArity, Desc, Ar)
-	},
+    },
   !,
 display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
@@ -358,7 +357,7 @@ display_consulting( F, Level, Info, LC) -->
     {  LC > 0,
        '$error_descriptor'(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
-       query_exception(prologarserLine, Desc, L),
+       query_exception(prologParserLine, Desc, L),
        F \= F0
     }, !,
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].

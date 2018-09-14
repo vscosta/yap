@@ -231,6 +231,24 @@ static foreign_t assign_python(term_t exp, term_t name) {
   pyErrorAndReturn(b);
 }
 
+
+static foreign_t python_string_to(term_t f) {
+  if (PL_is_atom(f)) {
+    char *s = NULL;
+    if (!PL_get_chars(f, &s, CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
+      pyErrorAndReturn(false);
+    }
+    if (!strcmp(s,"atom"))
+      pyStringToString = false;
+    if (!strcmp(s,"string"))
+      pyStringToString = true;
+    else
+      return false;
+    return true;
+  }
+  return true;
+}
+
 static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   PyErr_Clear();
   PyObject *pI, *pArgs, *pOut;
@@ -759,6 +777,7 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_access", 3, python_access, 0);
   PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
   PL_register_foreign("python_clear_errors", 0, python_clear_errors, 0);
+  PL_register_foreign("python_string_to", 0, python_string_to, 1);
 
   init_python_vfs();
 }

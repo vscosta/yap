@@ -239,17 +239,15 @@ meaning.
 static YAP_Bool optimizer_run(void) {
   int ret = 0;
   int n =  YAP_IntOfTerm(YAP_ARG1);
-  YAP_Term t2 = YAP_ARG2;
   YAP_Int s1, s2;
   lbfgsfloatval_t fx;
-  lbfgsfloatval_t *temp_x = ( lbfgsfloatval_t *) YAP_IntOfTerm(YAP_ARG2),
-    *temp_ox = ( lbfgsfloatval_t *) YAP_IntOfTerm(YAP_ARG4);
+  lbfgsfloatval_t *temp_x = ( lbfgsfloatval_t *)YAP_IntOfTerm( YAP_ArgOfTerm(1, YAP_ARG2)),
+    *temp_ox = ( lbfgsfloatval_t *)  YAP_IntOfTerm(YAP_ArgOfTerm(1,YAP_ARG4));
   lbfgs_parameter_t *temp_p = (lbfgs_parameter_t * ) YAP_IntOfTerm(YAP_ARG6);
-
-  //optimizer_status = OPTIMIZER_STATUS_RUNNING;
   ret = lbfgs(n, temp_x, &fx, evaluate, progress, temp_ox, temp_p);
 
-  return YAP_Unify(YAP_MkIntTerm(ret), YAP_ARG5);
+  return YAP_Unify(YAP_MkIntTerm(ret), YAP_ARG5) &&
+    YAP_Unify(YAP_MkFloatTerm(fx), YAP_ARG3);
 }
 
 

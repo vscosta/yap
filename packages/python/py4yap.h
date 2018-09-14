@@ -93,6 +93,7 @@ extern PyObject *py_Sys;
 #define py_Builtin PyEval_GetBuiltins()
 
 extern X_API bool python_in_python;
+extern bool pyStringToString;
 
 extern bool python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);
