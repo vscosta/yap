@@ -44,7 +44,7 @@ progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
 
 demo :-
 	format('Optimizing the function f(x0,x1) = (x0-2)^2 + (x1-1)^2~n',[]),
-	optimizer_initialize(2,X),
+	optimizer_initialize(2,X,Status),
 
 
 	StartX0 is random*1000-500,
@@ -55,7 +55,7 @@ demo :-
 	X[1] <== StartX1,
 
 	
-	optimizer_run(BestF,Status),
+	optimizer_run(Status,BestF,BestX0, O),
 	BestX0 <== X[0],
 	BestX1 <== X[1],
 	

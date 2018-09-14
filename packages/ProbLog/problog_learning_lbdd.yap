@@ -624,7 +624,7 @@ init_one_query(QueryID,Query,Type) :-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	  trace,
+	  writeln(QueryID),
 	(
 	 recorded(QueryID, _, _)
 	->
@@ -635,13 +635,18 @@ init_one_query(QueryID,Query,Type) :-
 	  Query =.. [_,X,Y]
 	  ->
 	  Bdd = bdd(Dir, Tree, MapList),
-	  graph2bdd(X,Y,N,Bdd),
+	  (
+	      graph2bdd(X,Y,N,Bdd)
+	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
-	  writeln(QueryID),
 	  tree_to_grad(Tree, Hash, [], Grad),
-	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
+	  ;
+	  Bdd = bdd(-1,[],[]),
+	  Grad=[]
+	  ),
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	 ;
 	  b_setval(problog_required_keep_ground_ids,false),
 	  rb_new(H0),

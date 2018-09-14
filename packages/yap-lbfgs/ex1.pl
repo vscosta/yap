@@ -40,7 +40,6 @@ progress(FX,X,G,X_Norm,G_Norm,Step,_N,Iteration,Ls, 0) :-
 
 
 demo :-
-start_low_level_trace,
     format('Optimizing the function f(x0) = sin(x0)~n',[]),
 	optimizer_initialize(1,X,Status),
 

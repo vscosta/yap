@@ -162,18 +162,16 @@ optimizer_initialize(1)
 */
 
 optimizer_initialize(N,X,t(N,X,XO,Params)) :-
-	\+ initialized,
 
 	integer(N),
 	N>0,
 
 	% check whether there are such call back functions
 
-	optimizer_reserve_memory(N,X,XO,Params),
+	optimizer_reserve_memory(N,X,XO,Params).
 
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
-	assert(initialized).
 
 /** @pred  optimizer_finalize/0
 Clean up the memory.
