@@ -54,6 +54,7 @@ load_mega_clause( Stream ) :-
  */
 prolog:load_db(Fs) :-
         '$current_module'(M0),
+	retractall(dbloading(_Na,_Arity,_M,_T,_NaAr,_)),
 	prolog_flag(agc_margin,Old,0),
 	dbload(Fs,M0,load_db(Fs)),
 	load_facts,
@@ -76,7 +77,7 @@ dbload(F, _, G) :-
 	'$do_error'(type_error(atom,F),G).
 
 do_dbload(F0, M0, G) :-
-	'$full_filename'(F0, F, G),
+	'$full_filename'(F0, F),
 	assert(dbprocess(F, M0)),
 	open(F, read, R),
 	check_dbload_stream(R, M0),
@@ -92,7 +93,7 @@ check_dbload_stream(R, M0) :-
 	).
 
 dbload_count(T0, M0) :-
-	get_module(T0,M0,T,M),
+	gemodule(T0,M0,T,M),
 	functor(T,Na,Arity),
 %	dbload_check_term(T),
 	(

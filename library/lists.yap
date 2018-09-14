@@ -358,17 +358,6 @@ remove_duplicates([Elem|L], [Elem|NL]) :-
 	delete(L, Elem, Temp),
 	remove_duplicates(Temp, NL).
 
-%   reverse(List, Reversed)
-%   is true when List and Reversed are lists with the same elements
-%   but in opposite orders.  rev/2 is a synonym for reverse/2.
-
-reverse(List, Reversed) :-
-	reverse(List, [], Reversed).
-
-reverse([], Reversed, Reversed).
-reverse([Head|Tail], Sofar, Reversed) :-
-	reverse(Tail, [Head|Sofar], Reversed).
-
 
 %   same_length(?List1, ?List2)
 %   is true when List1 and List2 are both lists and have the same number
