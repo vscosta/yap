@@ -640,39 +640,45 @@ void YAPEngine::release() {
 Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Term tmod = Yap_CurrentModule(), *ts = nullptr;
+  Term tmod = Yap_CurrentModule(), *ts = NULL;
   PredEntry *ap;
   arity_t arity;
   Functor f;
   Atom name;
 
+  RESET_VARIABLE(HR);
   if (IsApplTerm(t)) {
-    ts = RepAppl(t) + 1;
-    f = (Functor)ts[-1];
+    CELL *p =  RepAppl(t);
+    f = (Functor)*p;
     name = NameOfFunctor(f);
     arity = ArityOfFunctor(f);
+    p++;
     for (arity_t i = 0; i < arity; i++)
-      XREGS[i + 1] = ts[i];
+      XREGS[i+1] = p[i];
+    arity += 1;
+    XREGS[arity] = (CELL)HR;
+    HR+= 1;
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
-    f = nullptr;
-    arity = 0;
+    XREGS[1] = (CELL)HR;
+    HR+=1;
+    arity = 1;
   } else if (IsPairTerm(t)) {
     XREGS[1] = ts[0];
     XREGS[2] = ts[1];
-    arity = 2;
+    arity = 3;
     name = AtomDot;
-    f = FunctorDot;
+  arity++;
+  HR += arity;
   } else {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-  XREGS[arity + 1] = MkVarTerm();
-  arity++;
   f = Yap_MkFunctor(name, arity);
   ap = (PredEntry *)(PredPropByFunc(f, tmod));
+  yhandle_t k = Yap_InitHandle(HR[-1]);
   if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
-    Term g = (Yap_MkApplTerm(f, arity, ts));
+    Term g = Yap_MkApplTerm(f, arity, ts);
     ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
   }
   q.CurSlot = Yap_StartSlots();
@@ -681,15 +687,16 @@ Term YAPEngine::fun(Term t) {
   // make sure this is safe
   // allow Prolog style exception handling
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   YAPCatchError();
+  Term out = 0;
+  if (result) {
+  out  = Yap_GetFromHandle(k);
+  }
   {
     YAP_LeaveGoal(result, &q);
-    //      PyEval_RestoreThread(_save);
-    RECOVER_MACHINE_REGS();
-    return result;
   }
+  return out;
 }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])

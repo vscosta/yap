@@ -91,6 +91,18 @@ lists:delete([Head|List], Elem, Residue) :-
 lists:delete([Head|List], Elem, [Head|Residue]) :-
        lists:delete(List, Elem, Residue).
 
+
+%   reverse(List, Reversed)
+%   is true when List and Reversed are lists with the same elements
+%   but in opposite orders.  rev/2 is a synonym for reverse/2.
+
+lists:reverse(List, Reversed) :-
+	lists:reverse(List, [], Reversed).
+
+lists:reverse([], Reversed, Reversed).
+lists:reverse([Head|Tail], Sofar, Reversed) :-
+	lists:reverse(Tail, [Head|Sofar], Reversed).
+
 :- set_prolog_flag(source, false). % disable source.
 
 
@@ -135,15 +147,3 @@ prolog:length(L, M) :-
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
 %% @}
-
-%   reverse(List, Reversed)
-%   is true when List and Reversed are lists with the same elements
-%   but in opposite orders.  rev/2 is a synonym for reverse/2.
-
-lists:reverse(List, Reversed) :-
-	lists:reverse(List, [], Reversed).
-
-lists:reverse([], Reversed, Reversed).
-lists:reversae([Head|Tail], Sofar, Reversed) :-
-	lists:reverse(Tail, [Head|Sofar], Reversed).
-

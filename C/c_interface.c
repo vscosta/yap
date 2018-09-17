@@ -1801,67 +1801,16 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
-  CACHE_REGS
-    choiceptr myB, handler;
-
-  //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
-  BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b0);
-  handler = B;
-    while (handler
-	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
-	   //&& handler->cp_ap != NOCODE
-	 && handler->cp_b != NULL
-	   && handler != myB
-	 ) {
-    handler->cp_ap = TRUSTFAILCODE;
-    handler = handler->cp_b;
-  }
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
-  B = handler;
-  if (successful) {
-    Yap_TrimTrail();
-    CP = dgi->cp;
-    P = dgi->p;
-  } else {
-    Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-    LOCAL_CurSlot = dgi->CurSlot;
-    ENV = YENV = B->cp_env;
-    HR = B->cp_h;
-    TR = B->cp_tr;
-    // use the current choicepoint
-    //  B=B->cp_b;
-    ASP=(CELL*)B;
-  }
-  RECOVER_MACHINE_REGS();
-  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
-  return TRUE;
-}
-
-X_API Int YAP_RunGoal(Term t) {
-  CACHE_REGS
-  Term out;
-  yamop *old_CP = CP;
-  yhandle_t cslot = LOCAL_CurSlot;
-  BACKUP_MACHINE_REGS();
-
-  LOCAL_AllowRestart = FALSE;
-  LOCAL_PrologMode = UserMode;
-  out = Yap_RunTopGoal(t, true);
-  LOCAL_PrologMode = UserCCallMode;
-  // should we catch the exception or pass it through?
-  // We'll pass it through
-  Yap_RaiseException();
-  if (out) {
-    P = (yamop *)ENV[E_CP];
+static void completeInnerCall( bool on_cut, yamop *old_CP, yamop *old_P)
+{
+ if (on_cut) {
+    P = old_P;
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
     LOCAL_AllowRestart = TRUE;
     // we are back to user code again, need slots */
   } else {
+    P = old_P;
     ENV = B->cp_env;
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
@@ -1872,7 +1821,57 @@ X_API Int YAP_RunGoal(Term t) {
     SET_ASP(ENV, E_CB * sizeof(CELL));
     // make sure the slots are ok.
   }
+
+}
+
+X_API bool YAP_LeaveGoal(bool on_cut, YAP_dogoalinfo *dgi) {
+  CACHE_REGS
+    choiceptr myB, handler;
+
+  //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  BACKUP_MACHINE_REGS();
+  myB = (choiceptr)(LCL0 - dgi->b);
+ if (LOCAL_PrologMode & AsyncIntMode) {
+      Yap_signal(YAP_FAIL_SIGNAL);
+ }
+  handler = B;
+  while (handler
+	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
+	   //&& handler->cp_ap != NOCODE
+	   && handler <= myB
+	 ) {
+     if (handler < myB)
+    handler->cp_ap = TRUSTFAILCODE;
+    B = handler; 
+    handler = handler->cp_b;
+    RECOVER_MACHINE_REGS();
+   if (on_cut) {
+       Yap_TrimTrail();
+  } else if (!(LOCAL_PrologMode & AsyncIntMode)) {
+    P=FAILCODE;
+    Yap_exec_absmi(true, YAP_EXEC_ABSMI);
+  }
+   BACKUP_MACHINE_REGS();
+   }
+   completeInnerCall(  on_cut, dgi->cp, dgi->p);
   RECOVER_MACHINE_REGS();
+  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  return TRUE;
+}
+
+X_API Int YAP_RunGoal(Term t) {
+  CACHE_REGS
+  Term out;
+  yhandle_t cslot = LOCAL_CurSlot;
+  BACKUP_MACHINE_REGS();
+
+  LOCAL_AllowRestart = FALSE;
+  LOCAL_PrologMode = UserMode;
+  out = Yap_RunTopGoal(t, true);
+  LOCAL_PrologMode = UserCCallMode;
+  // should we catch the exception or pass it through?
+  // We'll pass it through
+   RECOVER_MACHINE_REGS();
   LOCAL_CurSlot = cslot;
   return out;
 }
