@@ -166,7 +166,7 @@ listing(Stream, [MV|MVs]) :- !,
     ->
       format( Stream, ':- dynamic ~q/~d.~n', [N,Ar])
     ;
-      format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
+\      format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-
@@ -224,8 +224,8 @@ listing(Stream, [MV|MVs]) :- !,
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
-	copy_term_nat(Clause, CopiedClause),
-writeln(c:CopiedClause),
+    copy_term_nat(Clause, CopiedClause),
+	'$beautify_vs'(CopiedClause),    
 	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
@@ -240,15 +240,12 @@ portray_clause(Clause) :-
             portray_clause(Stream, Clause).
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
-	'$beautify_vars'(Pred),
 	format(Stream, '~q.~n', [Pred]).
 '$portray_clause'(Stream, (Pred:-Body)) :- !,
-	'$beautify_vars'((Pred:-Body)),
 	format(Stream, '~q :-', [Pred]),
 	'$write_body'(Body, 3, ',', Stream),
 	format(Stream, '.~n', []).
 '$portray_clause'(Stream, Pred) :-
-	'$beautify_vars'(Pred),
 	format(Stream, '~q.~n', [Pred]).
 
 '$write_body'(X,I,T,Stream) :- var(X), !,
@@ -257,8 +254,8 @@ portray_clause(Clause) :-
 '$write_body'((P,Q), I, T, Stream) :-
         !,
         '$write_body'(P,I,T, Stream),
-        put(Stream, 0',),  %'
-                      '$write_body'(Q,I,',',Stream).
+        put(Stream, 0',),  %
+	'$write_body'(Q,I,',',Stream).
 '$write_body'((P->Q;S),I,_, Stream) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
@@ -319,42 +316,19 @@ portray_clause(Clause) :-
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
 
 
-'$beautify_vars'(T) :-
-                        var(T), 
-                        !,
-                        '$list_transform'([T],0).
-'$beautify_vars'(T) :-
-                        primitive(T), 
-                        !.
-'$beautify_vars'(T) :-
-                            T =.. [_|Vs0],
-	'$list_get_vars'(Vs0,[],L),
-	msort(L,SL),
-	'$list_transform'(SL,0).
+'$beautify_vs'(T) :-
+    '$non_singletons_in_term'(T,[],Fs),
+    '$vv_transform'(Fs,1),
+    term_variables(T, NFs),
+    '$v_transform'(NFs).
 
-'$list_get_vars'([], Vs,  Vs).
-'$list_get_vars'([A|Args], Vs0, Vs) :-
-    '$list_get_vars_'(A, Vs0, Vs1 ),
-    '$list_get_vars'(Args, Vs1, Vs).
+'$v_transform'([]).
+'$v_transform'(['$VAR'(-1)|L]) :-
+	'$v_transform'(L).
 
-'$list_get_vars_'(V,L,[V|L] ) :- 
-    var(V), !.
-'$list_get_vars_'(Atomic, Vs, Vs) :-
-	primitive(Atomic), !.
-'$list_get_vars_'(Term, Vs0, Vs) :-
-	Term =.. [_|Args],
-	'$list_get_vars'(Args, Vs0, Vs).
-
-'$list_transform'([],_) :- !.
-'$list_transform'([X,Y|L],M) :-
-	X == Y,
-    !,
-	X = '$VAR'(M),
+'$vv_transform'([],_) :- !.
+'$vv_transform'(['$VAR'(M)|L],M) :-
 	N is M+1,
-	'$list_transform'(L,N).
-'$list_transform'(['$VAR'(-1)|L],M) :- !,
-	'$list_transform'(L,M).
-'$list_transform'([_|L],M) :-
-	'$list_transform'(L,M).
+	'$vv_transform'(L,N).
 
 %% @}
