@@ -367,7 +367,6 @@ public:
   //> output.
   YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
   Term fun(Term t);
-  Term fun(YAPTerm t) { return fun(t.term()); };
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path) {

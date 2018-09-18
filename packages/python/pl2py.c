@@ -387,7 +387,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 	  if (entry_to_dictionary(dict, yt, eval, cvt))
 	    return dict;
 	  else
-	    return NULL;         
+	    return Py_None;         
         }
        atom_t name;
         int arity;
@@ -424,8 +424,8 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 }
 
 PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
-  if (t == 0)
-    return NULL;
+  if (t == 0 || t == TermNone)
+    return Py_None;
   term_t yt = YAP_InitSlot(t);
   o = term_to_python(yt, eval, o, cvt);
   PL_reset_term_refs(yt);

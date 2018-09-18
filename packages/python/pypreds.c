@@ -238,15 +238,16 @@ static foreign_t python_string_to(term_t f) {
     if (!PL_get_chars(f, &s, CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
       pyErrorAndReturn(false);
     }
-    if (!strcmp(s,"atom"))
+    if (!strcmp(s,"atom")) {
       pyStringToString = false;
-    if (!strcmp(s,"string"))
+      return true;
+    }
+    if (!strcmp(s,"string")) {
       pyStringToString = true;
-    else
-      return false;
-    return true;
+      return true;
+    }
   }
-  return true;
+  return false;
 }
 
 static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {

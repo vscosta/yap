@@ -55,8 +55,9 @@ static Term python_to_term__(PyObject *pVal) {
   if (pVal == Py_None) {
     // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
     // >>***\n",stderr);
-    return YAP_MkVarTerm();
+    //return YAP_MkVarTerm();
     // fputs("<<*** ",stderr);Yap_DebugPlWrite(YAP_GetFromSlot(t));   fputs("
+    return MkAtomTerm(Yap_LookupAtom("none"));
     // >>***\n",stderr);
   } else if (PyBool_Check(pVal)) {
     if(PyObject_IsTrue(pVal)) return TermTrue;

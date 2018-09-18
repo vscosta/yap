@@ -667,8 +667,10 @@ Term YAPEngine::fun(Term t) {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-  XREGS[arity + 1] = MkVarTerm();
+  Term ot = XREGS[arity + 1] = MkVarTerm();
+  yhandle_t h = Yap_InitHandle(ot); 
   arity++;
+  HR += arity;
   f = Yap_MkFunctor(name, arity);
   ap = (PredEntry *)(PredPropByFunc(f, tmod));
   if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
@@ -683,12 +685,16 @@ Term YAPEngine::fun(Term t) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  YAPCatchError();
+    if (result)
+      ot = Yap_GetFromHandle(h);
+    else
+      ot = TermNone;
+    YAPCatchError();
   {
     YAP_LeaveGoal(result, &q);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
-    return result;
+    return ot;
   }
 }
 
