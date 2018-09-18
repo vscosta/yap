@@ -479,7 +479,6 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- yap_flag(user:unknown,error).
 
-:- ensure_loaded('../android.yap').
 
 
 %% @}

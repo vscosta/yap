@@ -205,6 +205,17 @@ append_([L1,L2|[L3|LL]], L) :-
 	append(L1,L2,LI),
 	append_([LI|[L3|LL]],L).
 
+%   reverse(List, Reversed)
+%   is true when List and Reversed are lists with the same elements
+%   but in opposite orders.  rev/2 is a synonym for reverse/2.
+
+reverse(List, Reversed) :-
+	reverse(List, [], Reversed).
+
+reverse([], Reversed, Reversed).
+reverse([Head|Tail], Sofar, Reversed) :-
+	reverse(Tail, [Head|Sofar], Reversed).
+
 /** @pred last(+ _List_,? _Last_)
 
 
