@@ -1801,20 +1801,47 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
+static void completeInnerCall( bool on_cut, yamop *old_CP, yamop *old_P)
+{
+ if (on_cut) {
+    P = old_P;
+    ENV = (CELL *)ENV[E_E];
+    CP = old_CP;
+    LOCAL_AllowRestart = TRUE;
+    // we are back to user code again, need slots */
+  } else {
+    P = old_P;
+    ENV = B->cp_env;
+    ENV = (CELL *)ENV[E_E];
+    CP = old_CP;
+    HR = B->cp_h;
+    TR = B->cp_tr;
+    B = B->cp_b;
+    LOCAL_AllowRestart = FALSE;
+    SET_ASP(ENV, E_CB * sizeof(CELL));
+    // make sure the slots are ok.
+  }
+
+}
+
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
     choiceptr myB, handler;
 
   //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d P=%p CP=%p Slots=%d\n",   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b0);
+  myB = (choiceptr)(LCL0 - dgi->b);
+ if (LOCAL_PrologMode & AsyncIntMode) {
+      Yap_signal(YAP_FAIL_SIGNAL);
+ }
   handler = B;
-    while (handler
+  while (handler
 	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
 	   //&& handler->cp_ap != NOCODE
 	 && handler->cp_b != NULL
 	   && handler <= myB
 	 ) {
+     if (handler < myB)
     handler->cp_ap = TRUSTFAILCODE;
   B = handler;
     handler = handler->cp_b;
@@ -1851,7 +1878,6 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
 X_API Int YAP_RunGoal(Term t) {
   CACHE_REGS
   Term out;
-  yamop *old_CP = CP;
   yhandle_t cslot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
@@ -1861,25 +1887,7 @@ X_API Int YAP_RunGoal(Term t) {
   LOCAL_PrologMode = UserCCallMode;
   // should we catch the exception or pass it through?
   // We'll pass it through
-  Yap_RaiseException();
-  if (out) {
-    P = (yamop *)ENV[E_CP];
-    ENV = (CELL *)ENV[E_E];
-    CP = old_CP;
-    LOCAL_AllowRestart = TRUE;
-    // we are back to user code again, need slots */
-  } else {
-    ENV = B->cp_env;
-    ENV = (CELL *)ENV[E_E];
-    CP = old_CP;
-    HR = B->cp_h;
-    TR = B->cp_tr;
-    B = B->cp_b;
-    LOCAL_AllowRestart = FALSE;
-    SET_ASP(ENV, E_CB * sizeof(CELL));
-    // make sure the slots are ok.
-  }
-  RECOVER_MACHINE_REGS();
+   RECOVER_MACHINE_REGS();
   LOCAL_CurSlot = cslot;
   return out;
 }

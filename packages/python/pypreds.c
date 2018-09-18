@@ -8,7 +8,6 @@ PyObject *py_Main;
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
   // int lvl = push_text_stack();
-  PyObject *type;
   //   PyErr_Fetch(&type, &val, NULL);
   //   PyErr_Print();
   // Yap_ThrowError__(file,code,line,0, SYSTEM_ERROR_RUNTIME_PYTHON ,"Python
@@ -235,7 +234,7 @@ static foreign_t assign_python(term_t exp, term_t name) {
 static foreign_t python_string_to(term_t f) {
   if (PL_is_atom(f)) {
     char *s = NULL;
-    if (!PL_get_chars(f, &s, CVT_ALL | CVT_EXCEPTION | REP_UTF8)) {
+    if (!PL_get_chars(f, &s, CVT_ATOM |CVT_STRING | CVT_EXCEPTION | REP_UTF8)) {
       pyErrorAndReturn(false);
     }
     if (!strcmp(s,"atom")) {
@@ -569,27 +568,6 @@ static foreign_t python_export(term_t t, term_t pl) {
     rc = python_to_term((PyObject *)ptr, pl);
   }
   pyErrorAndReturn(rc);
-}
-
-static bool get_mod(const char *s0)
-{
-   PyObject *pName;
- term_t t0 = python_acquire_GIL();
-#if PY_MAJOR_VERSION < 3
-  pName = PyString_FromString(s0);
-#else
-  pName = PyUnicode_FromString(s0);
-#endif
-  if (pName == NULL) {
-    python_release_GIL(t0);
-  }
-
-  PyObject *pModule = PyImport_Import(pName);
-
-  Py_XDECREF(pName);
-      python_release_GIL(t0);
-
-      return pModule;
 }
 
 /**
