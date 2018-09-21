@@ -641,7 +641,7 @@ init_one_query(QueryID,Query,Type) :-
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
-	  tree_to_grad(Tree, Hash, [], Grad),
+	  tree_to_grad(Tree, Hash, [], Grad)
 	  ;
 	  Bdd = bdd(-1,[],[]),
 	  Grad=[]
@@ -669,7 +669,7 @@ init_one_query(_QueryID,_Query,_Type) :-
 
 
 %========================================================================
-%= updates all values of query_probability/2 and query_gradient/4
+%= Updates all values of query_probability/2 and query_gradient/4
 %= should be called always before these predicates are accessed
 %= if the old values are still valid, nothing happens
 %========================================================================

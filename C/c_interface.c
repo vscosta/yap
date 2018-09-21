@@ -1836,40 +1836,28 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
  }
   handler = B;
   while (handler
-	   //&& LOCAL_CBorder > LCL0 - (CELL *)handler
+	   && LCL0-LOCAL_CBorder >  (CELL *)handler
 	   //&& handler->cp_ap != NOCODE
 	 && handler->cp_b != NULL
-	   && handler <= myB
+	   && handler != myB
 	 ) {
-     if (handler < myB)
+    if (handler < myB ) {
     handler->cp_ap = TRUSTFAILCODE;
+    }
   B = handler;
     handler = handler->cp_b;
   if (successful) {
     Yap_TrimTrail();
-  } else {
+  } else if (!(LOCAL_PrologMode & AsyncIntMode)) {
     P=FAILCODE;
     Yap_exec_absmi(true, YAP_EXEC_ABSMI);
   }
   }
-    if (successful) {
-      CP = dgi->cp;
-      P = dgi->p;
-    
-  } else {
-    LOCAL_CurSlot = dgi->CurSlot;
-    ENV = YENV = B->cp_env;
-    HR = B->cp_h;
-    TR = B->cp_tr;
-    // use the current choicepoint
-    //  B=B->cp_b;
-    ASP=(CELL*)B;
-  }
-    if (B)
-      B = B->cp_b;
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
+  P=dgi->p;
+  CP = dgi->cp;
   RECOVER_MACHINE_REGS();
   //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   return TRUE;
