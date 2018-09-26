@@ -678,13 +678,13 @@ VFS_t *vfsp;
         strcat(bs, "/*");
 #endif
         if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-          return (Yap_Unify(ARD2, tf));
+          return (Yap_unify(ARG2, tf));
         }
-        YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
-                                         YAP_GetFromSlot(sl)));
+        Yap_PutInSlot(sl, MkPairTerm(MkAtomTerm(Yap_LookupAtom(c_file.name)),
+                                         Yap_GetFromSlot(sl)));
         while (_findnext(hFile, &c_file) == 0) {
-          YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-          YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
+          Term ti = MkAtomTerm(Yap_LookupAtom(c_file.name));
+          Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
         }
         _findclose(hFile);
 #elif HAVE_OPENDIR

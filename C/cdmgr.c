@@ -3082,48 +3082,23 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 void Yap_HidePred(PredEntry *pe) {
 
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
+  char newMod[1024];
+  strncpy(newMod, "$$$--hidden-module--",1023);
+  Term cmod = pe->ModuleOfPred;
+  if (cmod == PROLOG_MODULE)
+    strncat(newMod, "prolog", 1023-strlen(newMod));
+  else
+    strncat(newMod, RepAtom(AtomOfTerm(cmod))->StrOfAE, 1023-strlen(newMod));
+  pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(newMod));
 }
 
 static Int /* $system_predicate(P) */
 p_stash_predicate(USES_REGS1) {
   PredEntry *pe;
 
-  Term t1 = Deref(ARG1);
-  Term mod = Deref(ARG2);
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "stash_predicate/1");
 
-restart_system_pred:
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    Atom a = AtomOfTerm(t1);
-
-    pe = RepPredProp(Yap_GetPredPropByAtom(a, mod));
-  } else if (IsApplTerm(t1)) {
-    Functor funt = FunctorOfTerm(t1);
-    if (IsExtensionFunctor(funt)) {
-      return (FALSE);
-    }
-    if (funt == FunctorModule) {
-      Term nmod = ArgOfTerm(1, t1);
-      if (IsVarTerm(nmod)) {
-        Yap_Error(INSTANTIATION_ERROR, ARG1, "hide_predicate/1");
-        return (FALSE);
-      }
-      if (!IsAtomTerm(nmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, ARG1, "hide_predicate/1");
-        return (FALSE);
-      }
-      t1 = ArgOfTerm(2, t1);
-      goto restart_system_pred;
-    }
-    pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
-  } else if (IsPairTerm(t1)) {
-    return TRUE;
-  } else
-    return FALSE;
-  if (EndOfPAEntr(pe))
-    return FALSE;
-  Yap_HidePred(pe);
+  if (pe && !(pe->PredFlags & SystemPredFlags))  Yap_HidePred(pe);
   return TRUE;
 }
 
@@ -3131,43 +3106,10 @@ static Int /* $system_predicate(P) */
 hide_predicate(USES_REGS1) {
   PredEntry *pe;
 
-  Term t1 = Deref(ARG1);
-  Term mod = Deref(ARG2);
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "hide_predicate/1");
 
-restart_system_pred:
-  if (IsVarTerm(t1))
-    return (FALSE);
-  if (IsAtomTerm(t1)) {
-    Atom a = AtomOfTerm(t1);
-
-    pe = RepPredProp(Yap_GetPredPropByAtom(a, mod));
-  } else if (IsApplTerm(t1)) {
-    Functor funt = FunctorOfTerm(t1);
-    if (IsExtensionFunctor(funt)) {
-      return (FALSE);
-    }
-    if (funt == FunctorModule) {
-      Term nmod = ArgOfTerm(1, t1);
-      if (IsVarTerm(nmod)) {
-        Yap_Error(INSTANTIATION_ERROR, ARG1, "hide_predicate/1");
-        return (FALSE);
-      }
-      if (!IsAtomTerm(nmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, ARG1, "hide_predicate/1");
-        return (FALSE);
-      }
-      t1 = ArgOfTerm(2, t1);
-      goto restart_system_pred;
-    }
-    pe = RepPredProp(Yap_GetPredPropByFunc(funt, mod));
-  } else if (IsPairTerm(t1)) {
-    return true;
-  } else
-    return false;
-  if (EndOfPAEntr(pe))
-    return false;
-  pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
-  return true;
+  if (pe)  Yap_HidePred(pe);
+  return TRUE;
 }
 
 static Int /* $hidden_predicate(P) */

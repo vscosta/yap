@@ -126,7 +126,7 @@ extern X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Te
                                  int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
-extern char *Yap_guessFileName(FILE *f, int sno, char *nameb, size_t max);
+extern char *Yap_guessFileName(FILE *f, int sno, size_t max);
 extern void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth,
                         int flags, int priority);
 
