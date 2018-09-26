@@ -1652,7 +1652,7 @@ Atom Yap_source_file_name(void) {
 }
 
 /**
- * @brief we cannot add clauses to the proceduree
+ * @brief we cannot add clauses to the procedure
  *
  * @param p predicate
  *
@@ -3091,6 +3091,8 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 
 void Yap_HidePred(PredEntry *pe) {
 
+  if (pe->PredFlags & HiddenPredFlag)
+    return;
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
   if (pe->NextOfPE) {
     UInt hash = PRED_HASH(pe->FunctorOfPred, CurrentModule, PredHashTableSize);
@@ -3106,6 +3108,7 @@ void Yap_HidePred(PredEntry *pe) {
       op = &p->NextPredOfHash;
       p = p->NextPredOfHash;
     }
+    pe->NextPredOfHash = NULL;
   }
   {
     Prop *op, p;
@@ -3124,6 +3127,8 @@ void Yap_HidePred(PredEntry *pe) {
       op = &p->NextOfPE;
       p = p->NextOfPE;
     }
+    pe->NextOfPE = RepAtom(AtomFoundVar)->PropsOfAE;
+    RepAtom(AtomFoundVar)->PropsOfAE = AbsPredProp(pe);
   }
 
   {
@@ -3139,7 +3144,7 @@ void Yap_HidePred(PredEntry *pe) {
       op = &p->NextPredOfModule;
       p = p->NextPredOfModule;
     }
-
+pe->NextPredOfModule = NULL;
   }
 }
 
@@ -3160,6 +3165,13 @@ stash_predicate(USES_REGS1) {
       Yap_get_pred(Deref(ARG1), Deref(ARG2), "while checking for a procedure");
   if (pe) {
     pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
+    /*
+    char ns[1024];
+      const char *s = (pe->ModuleOfPred == PROLOG_MODULE ?
+		     "__prolog__stash__" :
+		     snprintf(sn,1023,"__%s__".RepAtom(AtomOfTerm( pe->ModuleOfPred ))));
+		     pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(s));
+    */
     return true;
   } else
     return false;
