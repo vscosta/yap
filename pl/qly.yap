@@ -135,32 +135,32 @@ qend_program :-
 	halt(0).
 
 '$save_program_status'(Flags, G) :-
-    findall(F-V, '$x_yap_flag'(F,V),L),
+                  findall(F-V, 'x_yap_flag'(F,V),L),
     recordz('$program_state',L,_),
-    '$cvt_qsave_flags'(Flags, G),
+    'cvt_qsave_flags'(Flags, G),
     fail.
 '$save_program_status'(_Flags, _G).
 
-'$cvt_qsave_flags'(Flags, G) :-
+'cvt_qsave_flags'(Flags, G) :-
     nonvar(Flags),
     strip_module(Flags, M, LFlags),
     '$skip_list'(_Len, LFlags, []),
-    '$cvt_qsave_lflags'(LFlags, G, M).
-'$cvt_qsave_flags'(Flags, G,_OFlags) :-
+    'cvt_qsave_lflags'(LFlags, G, M).
+'cvt_qsave_flags'(Flags, G,_OFlags) :-
     var(Flags),
     '$do_error'(instantiation_error,G).
-'$cvt_qsave_flags'(Flags, G,_OFlags) :-
+'cvt_qsave_flags'(Flags, G,_OFlags) :-
     '$do_error'(type_error(list,Flags),G).
 
-'$cvt_qsave_lflags'([], _, _).
-'$cvt_qsave_lflags'([Flag|Flags], G, M) :-
-    '$cvt_qsave_flag'(Flag, G, M),
-    '$cvt_qsave_lflags'(Flags, G, M).
+'cvt_qsave_lflags'([], _, _).
+'cvt_qsave_lflags'([Flag|Flags], G, M) :-
+    'cvt_qsave_flag'(Flag, G, M),
+    'cvt_qsave_lflags'(Flags, G, M).
 
-'$cvt_qsave_flag'(Flag, G, _) :-
+'cvt_qsave_flag'(Flag, G, _) :-
     var(Flag), !,
     '$do_error'(instantiation_error,G).
-'$cvt_qsave_flag'(local(B), G, _) :- !,
+'cvt_qsave_flag'(local(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',local(B),_) ;
@@ -169,7 +169,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
       ).
-'$cvt_qsave_flag'(global(B), G, _) :- !,
+'cvt_qsave_flag'(global(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',global(B),_) ;
@@ -178,7 +178,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'$cvt_qsave_flag'(stack(B), G, _) :- !,
+'cvt_qsave_flag'(stack(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',stack(B),_) ;
@@ -187,7 +187,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'$cvt_qsave_flag'(trail(B), G, _) :- !,
+'cvt_qsave_flag'(trail(B), G, _) :- !,
     ( number(B) ->
       (
        B > 0 -> recordz('$restore_flag',trail(B),_) ;
@@ -196,7 +196,7 @@ qend_program :-
     ;
       '$do_error'(type_error(integer,B),G)
     ).
-'$cvt_qsave_flag'(goal(B), G, M) :- !,
+'cvt_qsave_flag'(goal(B), G, M) :- !,
     ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',goal(M1:G1),_)
@@ -204,7 +204,7 @@ qend_program :-
        strip_module(M:B, M1, G1),
      '$do_error'(type_error(callable,G1),G)
     ).
-'$cvt_qsave_flag'(toplevel(B), G, M) :- !,
+'cvt_qsave_flag'(toplevel(B), G, M) :- !,
     ( callable(B) ->
       strip_module(M:B, M1, G1),
       recordz('$restore_flag',toplevel(M1:G1),_)
@@ -212,27 +212,27 @@ qend_program :-
        strip_module(M:B, M1, G1),
      '$do_error'(type_error(callable,G1),G)
     ).
-'$cvt_qsave_flag'(init_file(B), G, M) :- !,
+'cvt_qsave_flag'(init_file(B), G, M) :- !,
     ( atom(B) ->
       recordz('$restore_flag', init_file(M:B), _)
     ;
       '$do_error'(type_error(atom,B),G)
     ).
-%% '$cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
-%% '$cvt_qsave_flag'(op(_B), G, op(_B)).
-%% '$cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
-%% '$cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
-%% '$cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
-'$cvt_qsave_flag'(Opt, G, _M) :-
+%% 'cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
+%% 'cvt_qsave_flag'(op(_B), G, op(_B)).
+%% 'cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
+%% 'cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
+%% 'cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
+'cvt_qsave_flag'(Opt, G, _M) :-
     '$do_error'(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
-'$x_yap_flag'(language, V) :-
+'x_yap_flag'(language, V) :-
 	yap_flag(language, V).
-'$x_yap_flag'(M:P, V) :-
+'x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
-'$x_yap_flag'(X, V) :-
+'x_yap_flag'(X, V) :-
 	prolog_flag_property(X, [access(read_write)]),
 	atom(X),
 	yap_flag(X, V),

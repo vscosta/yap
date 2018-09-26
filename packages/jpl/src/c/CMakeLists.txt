@@ -5,7 +5,12 @@ add_lib(jplYap  jpl.h jpl.c hacks.h)
 
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} )
 
+if (MAC)
+  target_link_libraries(jplYap  libYap /System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation 
+	/System/Library/PrivateFrameworks/JavaLaunching.framework/Versions/A/JavaLaunching)
+else()
   target_link_libraries(jplYap  libYap ${JAVA_JVM_LIBRARY}  ${JAVA_AWT_LIBRARY})
+endif()
 
   set_target_properties(jplYap PROPERTIES
     OUTPUT_NAME jpl
