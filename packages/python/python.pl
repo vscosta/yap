@@ -28,10 +28,12 @@
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
 	   python/2,
+	   python_string_to/1,
 	   acquire_GIL/0,
 	   release_GIL/0,
 	   python_threaded/0,
 	   prolog_list_to_python_list/3,
+	   python_clear_errors/0,
 	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
@@ -116,7 +118,7 @@ Data types are
         user:(:=)/1,
 				%        user:(<-)/1,
 				%        user:(<-)/2,
-	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/2, user:import_arg/1.
+	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/1, user:import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).

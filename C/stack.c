@@ -1856,9 +1856,9 @@ void Yap_dump_stack(void) {
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
   fprintf(stderr, "%% Program Position: %s\n\n", Yap_errorName(errno) );
   fprintf(stderr, "%%          PC: %s\n", (char *)HR);
-  Yap_detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
+  Yap_output_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
   fprintf(stderr, "%%          Continuation: %s\n", (char *)HR);
-  Yap_detect_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
+  Yap_output_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
   fprintf(stderr, "%%          Alternative: %s\n", (char *)HR);
 
   fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
@@ -1916,7 +1916,7 @@ fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
                     "Use--Local In Use)\n%%\n");
     while (b_ptr != NULL) {
       while (env_ptr && env_ptr <= (CELL *)b_ptr) {
-        Yap_detect_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
+        Yap_output_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
         if (env_ptr == (CELL *)b_ptr && (choiceptr)env_ptr[E_CB] > b_ptr) {
           b_ptr = b_ptr->cp_b;
           fprintf(stderr, "%%  %s\n", tp);
@@ -1940,7 +1940,7 @@ fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
             b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
             b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
           /* we can safely ignore ; because there is always an upper env */
-          Yap_detect_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
+          Yap_output_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
           fprintf(stderr, "%%         %s (%luKB--%luKB)\n", tp,
                   (unsigned long int)((b_ptr->cp_h - H0) * sizeof(CELL) / 1024),
                   (unsigned long int)((ADDR)LCL0 - (ADDR)b_ptr) / 1024);
@@ -2086,7 +2086,12 @@ void DumpActiveGoals(USES_REGS1) {
   }
 }
 
-void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize) {
+
+/**
+ * Used for debugging.
+ * 
+ */
+void Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
   Atom pred_name;
   UInt pred_arity;
   Term pred_module;

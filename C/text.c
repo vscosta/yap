@@ -176,14 +176,21 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
 }
 
 void *Realloc(void *pt, size_t sz USES_REGS) {
-  sz += sizeof(struct mblock);
   struct mblock *old = pt, *o;
   old--;
-  release_block(old);
+  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
   o = realloc(old, sz);
+  if (o->next) {
+    o->next->prev = o;
+  } else {
+    LOCAL_TextBuffer->last[o->lvl] = o;
+  }
+  if (o->prev) {
+    o->prev->next = o;
+  } else {
+    LOCAL_TextBuffer->first[o->lvl] = o;
+  }
   o->sz = sz;
-  insert_block(o);
-
   return o + 1;
 }
 
@@ -445,6 +452,13 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       Yap_ThrowError(LOCAL_Error_TYPE, inp->val.t, "while reading text in");
     }
   }
+
+  if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
+  {
+    out = Malloc(4);
+      memset(out, 0, 4);
+      POPRET( out );
+    }
   if (IsAtomTerm(inp->val.t) && inp->type & YAP_STRING_ATOM) {
     // this is a term, extract to a buffer, and representation is wide
     // Yap_DebugPlWriteln(inp->val.t);
@@ -537,7 +551,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 #endif
   if (inp->type & YAP_STRING_TERM) {
     pop_text_stack(lvl);
-    return Yap_TermToBuffer(inp->val.t, 0);
+    return (unsigned char *)Yap_TermToBuffer(inp->val.t, 0);
   }
 
   if (inp->type & YAP_STRING_CHARS) { 
@@ -550,10 +564,8 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       POPRET( (char*)latin2utf8(inp));
     }
 
-    if (inp->enc == ENC_ISO_UTF8) {
       pop_text_stack(lvl);
-      return inp->val.c;
-    }
+      return inp->val.uc;
   }
   if (inp->type & YAP_STRING_WCHARS) {
     // printf("%S\n",inp->val.w);

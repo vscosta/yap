@@ -745,6 +745,11 @@ rhs(list(RHS), List) :- !,
 rhs(lists(RHS), List) :- !,
 	rhs(RHS, X1),
 	matrix_to_lists( X1, List ).
+rhs('[]'([Args], floats(RHS)), Val) :-
+    integer(RHS),
+    integer(Args),
+    !,
+    get_float_from_address(RHS,Args,Val).
 rhs('[]'(Args, RHS), Val) :-
 	!,
 	rhs(RHS, X1),
@@ -788,6 +793,11 @@ rhs(S, NS) :-
 
 set_lhs(V, R) :- var(V), !, V = R.
 set_lhs(V, R) :- number(V), !, V = R.
+set_lhs('[]'([Args], floats(RHS)), Val) :-
+    !,
+    integer(RHS),
+    integer(Args),
+    set_float_from_address(RHS,Args,Val).
 set_lhs('[]'(Args, M), Val) :-
 	matrix_dims( M, Dims, Bases),
 	maplist( index(Range), Args, Dims, Bases, NArgs),

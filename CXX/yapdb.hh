@@ -2,14 +2,12 @@
 ///
 /// @brief C++ Interface to generated code.
 
-
 #ifndef _YAPDB_H
 #define _YAPDB_H
 
 #include <YapInterface.h>
 
 #define YAP_CPP_DB_INTERFACE 1
-
 
 /**
  *
@@ -55,6 +53,7 @@ public:
   YAPModule(YAP_Term t) : YAPAtomTerm(t){};
   YAPModule() : YAPAtomTerm(curModule()){};
   YAPModule(YAPAtom t) : YAPAtomTerm(t){};
+  YAPModule(YAPStringTerm t) : YAPAtomTerm(t.getString()){};
   Term term() { return gt(); };
 };
 
@@ -72,10 +71,9 @@ class X_API YAPModuleProp : public YAPProp {
 
 public:
   YAPModuleProp(YAPModule tmod) { m = Yap_GetModuleEntry(tmod.gt()); };
-  YAPModuleProp() {  m = Yap_GetModuleEntry(YAP_CurrentModule()); };
+  YAPModuleProp() { m = Yap_GetModuleEntry(Yap_CurrentModule()); };
   virtual YAPModule module() { return YAPModule(m->AtomOfME); };
 };
-
 
 /**
  * @brief Predicates
@@ -91,32 +89,32 @@ protected:
 
   /// auxiliary routine to find a predicate in the current module.
 
-    /// auxiliary routine to find a predicate in the current module.
-    PredEntry *getPred(Term &t, CELL *& outp);
+  /// auxiliary routine to find a predicate in the current module.
+  PredEntry *getPred(Term &t, Term &tm, CELL *&outp);
 
   PredEntry *asPred() { return ap; };
 
-/// Empty constructor for predicates
+  /// Empty constructor for predicates
   ///
   /// Just do nothing.
-  inline YAPPredicate() {
-  }
-  YAPPredicate(Term &to, Term &tmod, CELL * &ts, const char *pname);
-
+  inline YAPPredicate() {}
+  YAPPredicate(Term &to, Term &tmod, CELL *&ts, const char *pname);
 
   /// Term constructor for predicates
   ///
   /// It is just a call to getPred
   inline YAPPredicate(Term t, CELL *&v) {
     if (t) {
-      ap = getPred(t, v);
+      Term tm = Yap_CurrentModule();
+      ap = getPred(t, tm, v);
     }
   }
 
-inline YAPPredicate(Term t) {
+  inline YAPPredicate(Term t) {
     if (t) {
       CELL *v = nullptr;
-      ap = getPred(t, v);
+      Term tm = Yap_CurrentModule();
+      ap = getPred(t, tm, v);
     }
   }
 
@@ -124,13 +122,14 @@ inline YAPPredicate(Term t) {
   ///
   /// It is just a call to getPred
   inline YAPPredicate(YAPTerm t, CELL *&v) {
-    Term tp = t.term();
-    ap = getPred(tp, v);
+    Term tp = t.term(), tm = Yap_CurrentModule();
+    ap = getPred(tp, tm, v);
   }
-inline YAPPredicate(YAPTerm t) {
-  CELL *v = nullptr;
-     Term tp = t.term();
- ap = getPred(tp, v);
+  inline YAPPredicate(YAPTerm t) {
+    CELL *v = nullptr;
+    Term tp = t.term();
+    Term tm = Yap_CurrentModule();
+    ap = getPred(tp, tm, v);
   }
 
   /// Cast constructor for predicates,
@@ -138,16 +137,14 @@ inline YAPPredicate(YAPTerm t) {
   ///
   inline YAPPredicate(PredEntry *pe) { ap = pe; }
 
- /// Functor constructor for predicates, is given a specific module.
+  /// Functor constructor for predicates, is given a specific module.
   /// This version avoids manufacturing objects
   inline YAPPredicate(Functor f, Term mod) {
     ap = RepPredProp(PredPropByFunc(f, mod));
   }
 
-
 public:
-
-    /// String constructor for predicates
+  /// String constructor for predicates
   ///
   /// It also communicates the array of arguments t[]
   /// and the array of variables
@@ -157,25 +154,25 @@ public:
     const char *s = (const char *)s0;
     Term tnames = MkVarTerm();
     tout =
-            Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
+        Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
     //  Yap_DebugPlWrite(out);
     if (tout == 0L) {
-        return;
+      return;
       throw YAPError();
+    }
+    Term tm = Yap_CurrentModule();
+    ap = getPred(tout, tm, nts);
+    tout = Yap_SaveTerm(tout);
+    names = YAPPairTerm(tnames);
   }
-  ap = getPred(tout, nts);
-  tout = Yap_SaveTerm(tout);
-  names = YAPPairTerm(tnames);
-  }
-
 
   /// Functor constructor for predicates
   ///
   /// Asssumes that we use the current module.
   YAPPredicate(YAPFunctor f) {
     CACHE_REGS
-      ap = RepPredProp(PredPropByFunc(f.f, Yap_CurrentModule()));
+    ap = RepPredProp(PredPropByFunc(f.f, Yap_CurrentModule()));
   }
 
   /// Functor constructor for predicates, is given a specific module.
@@ -193,7 +190,6 @@ public:
   /// Name/0 constructor for predicates.
   ///
   YAPPredicate(YAPAtom at);
-
 
   /// Mod:Name/Arity constructor for predicates.
   ///
@@ -214,14 +210,14 @@ public:
   ///
   inline YAPPredicate(const char *at, uintptr_t arity) {
     ap = RepPredProp(PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity),
-                                    CurrentModule));
+                                    Yap_CurrentModule()));
   };
 
   /// char */module constructor for predicates.
   ///
   inline YAPPredicate(const char *at, uintptr_t arity, YAPTerm mod) {
     ap = RepPredProp(
-		     PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.term()));
+        PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(at), arity), mod.term()));
   };
 
   /// char */module constructor for predicates.
@@ -256,7 +252,8 @@ public:
   YAPFunctor functor() {
     if (ap->ArityOfPE)
       return YAPFunctor(ap->FunctorOfPred);
-Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0), "YAPFunctor::functor");
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, MkIntTerm(0),
+                   "YAPFunctor::functor");
   }
 
   /// arity of predicate
@@ -279,7 +276,7 @@ public:
   YAPPrologPredicate(YAPAtom s, arity_t arity) : YAPPredicate(s, arity){};
   /// add a new clause
   bool assertClause(YAPTerm clause, bool last = true,
-		    YAPTerm source = YAPTerm());
+                    YAPTerm source = YAPTerm());
   /// add a new tuple
   bool assertFact(YAPTerm *tuple, bool last = true);
   /// retract at least the first clause matching the predicate.
@@ -300,10 +297,9 @@ public:
   YAPFLIP(YAP_UserCPred call, YAPAtom name, YAP_Arity arity,
           YAPModule module = YAPModule(), YAP_UserCPred retry = 0,
           YAP_UserCPred cut = 0, YAP_Arity extra = 0, bool test = false)
-    : YAPPredicate(name, arity, module) {
+      : YAPPredicate(name, arity, module) {
     if (retry) {
-      YAP_UserBackCutCPredicate(name.getName(), call, retry, cut, arity, extra
-      );
+      YAP_UserBackCutCPredicate(name.getName(), call, retry, cut, arity, extra);
     } else {
       if (test) {
         YAP_UserCPredicate(name.getName(), call, arity);
@@ -314,7 +310,7 @@ public:
   };
   YAPFLIP(const char *name, uintptr_t arity, YAPModule module = YAPModule(),
           bool backtrackable = false)
-    : YAPPredicate(YAPAtom(name), arity, module) {
+      : YAPPredicate(YAPAtom(name), arity, module) {
     if (backtrackable) {
       Yap_InitCPredBackCut(name, arity, 0, 0, 0, 0, UserCPredFlag);
     } else {

@@ -7,6 +7,7 @@
 // This is supported by YAP directly
 // A Dot			N	"."
 //
+A	AtSymbol		N	"@"
 A	3Dots			N	"..."
 A	Abol			F	"$abol"
 A	Access			N	"access"
@@ -37,6 +38,7 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
+A As    N   "as"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -186,6 +188,7 @@ A	GlobalSp		N	"global_sp"
 A	GlobalTrie		N	"global_trie"
 A	GoalExpansion		N	"goal_expansion"
 A	Hat			N	"^"
+A	DoubleHat		N	"^^"
 A	HERE			N	"\n   <====HERE====>  \n"
 A	HandleThrow		F	"$handle_throw"
 A	Heap			N	"heap"
@@ -269,7 +272,7 @@ A	NotLessThanZero		N	"not_less_than_zero"
 A	NotNewline		N	"not_newline"
 A	NotZero			N	"not_zero"
 A	Number			N	"number"
-A	Obj			N	"o__bj__"
+A	Obj			N	"__obj__"
 A	Off			N	"off"
 A	Offline			N	"offline"
 A	On			N	"on"
@@ -458,8 +461,11 @@ F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
 F	DoubleArrow		DoubleArrow	2
+F	As			As		2
 F	Assert1			Assert		1
 F	Assert			Assert		2
+F	At			At		2
+F	AtSymbol		AtSymbol	2
 F	AtFoundOne		FoundVar	2
 F	Atom			Atom		1
 F	Att1			Att1		3
@@ -533,6 +539,7 @@ F	GoalExpansion2		GoalExpansion	2
 F	GoalExpansion		GoalExpansion	3
 F	HandleThrow		HandleThrow	3
 F	Hat			Hat		2
+F	DoubleHat		DoubleHat	1
 F	I			I		2
 F	Id			Id		1
 F   Info1       Info   1

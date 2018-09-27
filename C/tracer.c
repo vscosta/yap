@@ -91,15 +91,19 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
                                           Quote_illegal_f | Handle_vars_f);
         size_t sz;
         if (sn == NULL) {
-          sn = "<* error *>";
+	  sn = malloc(strlen("<* error *>")+1);
+	  strcpy((char*)sn, "<* error *>");
         }
         sz = strlen(sn);
         if (max <= sz) {
           min = sz + 1024;
           expand = true;
+	  free((void*)sn);
           continue;
         }
         strcpy(s, sn);
+	free((void*)sn);
+	sn = NULL;
         s += sz;
         max -= sz;
       }

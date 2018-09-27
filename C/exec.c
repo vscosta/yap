@@ -1,4 +1,4 @@
-/*************************************************************************
+ /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -1615,6 +1615,8 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
+  if (B == bb)
+    return;
   while (B->cp_b && B->cp_b != bb && B->cp_ap != NOCODE) {
     B = B->cp_b;
 #ifdef YAPOR

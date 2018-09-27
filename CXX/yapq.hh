@@ -96,7 +96,7 @@ public:
   inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
-    
+
     openQuery();
   };
   // inline YAPQuery() : YAPPredicate(s, tgoal, tnames)
@@ -117,8 +117,8 @@ public:
   YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), (nts = &ARG1)) {
     BACKUP_MACHINE_REGS();
     openQuery();
-    names =  YAPPairTerm(TermNil) ;
-  RECOVER_MACHINE_REGS();
+    names = YAPPairTerm(TermNil);
+    RECOVER_MACHINE_REGS();
   }
   /// set flags for query execution, currently only for exception handling
   void setFlag(int flag) { q_flags |= flag; }
@@ -177,7 +177,7 @@ public:
   YAPEngineArgs() {
     // const std::string *s = new std::string("startup.yss");
     Embedded = true;
-      install = false;
+    install = false;
 
     Yap_InitDefaults(this, nullptr, 0, nullptr);
 #if YAP_PYTHON
@@ -204,13 +204,13 @@ public:
 
   inline void setMaxTrailSize(bool fl) { MaxTrailSize = fl; };
 
-    inline bool getMaxTrailSize() { return MaxTrailSize; };
+  inline bool getMaxTrailSize() { return MaxTrailSize; };
 
-    inline void createSavedState(bool fl) { install = fl; };
+  inline void createSavedState(bool fl) { install = fl; };
 
-    inline bool creatingSavedState() { return install; };
+  inline bool creatingSavedState() { return install; };
 
-    inline void setPLDIR(const char *fl) {
+  inline void setPLDIR(const char *fl) {
     LIBDIR = (const char *)malloc(strlen(fl) + 1);
     strcpy((char *)LIBDIR, fl);
   };
@@ -286,7 +286,7 @@ private:
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAP_dogoalinfo q;
   YAPError e;
-    PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
+  PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 
 public:
   /// construct a new engine; may use a variable number of arguments
@@ -326,23 +326,26 @@ public:
   /// build a query from a Prolog term (internal)
   YAPQuery *qt(Term t) { return new YAPQuery(YAPTerm(t)); };
   /// current module for the engine
-  YAPModule currentModule() { return YAPModule(); }
+  Term Yap_CurrentModule() { return CurrentModule; }
   /// given a handle, fetch a term from the engine
   inline YAPTerm getTerm(yhandle_t h) { return YAPTerm(h); }
   /// current directory for the engine
   bool call(YAPPredicate ap, YAPTerm ts[]);
   /// current directory for the engine
-  bool goal(YAPTerm Yt, YAPModule module, bool release=false)
-  { return mgoal(Yt.term(),module.term(), release); };
+  bool goal(YAPTerm Yt, YAPModule module, bool release = false) {
+    return mgoal(Yt.term(), module.term(), release);
+  };
   /// ru1n a goal in a module.
   ///
   /// By default, memory will only be fully
   /// recovered on backtracking. The release option ensures
   /// backtracking is called at the very end.
-  bool mgoal(Term t, Term tmod, bool release= false);
+  bool mgoal(Term t, Term tmod, bool release = false);
   /// current directory for the engine
 
-  bool goal(Term t, bool release=false) { return mgoal(t, CurrentModule, release); }
+  bool goal(Term t, bool release = false) {
+    return mgoal(t, Yap_CurrentModule(), release);
+  }
   /// reset Prolog state
   void reSet();
   /// assune that there are no stack pointers, just release memory
@@ -364,7 +367,7 @@ public:
   //> output.
   YAPTerm funCall(YAPTerm t) { return YAPTerm(fun(t.term())); };
   Term fun(Term t);
-  Term fun(YAPTerm t) { return fun(t.term()); };
+  //Term fun(YAPTerm t) { return fun(t.term()); };
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path) {

@@ -374,7 +374,7 @@ set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 6)
 set(YAP_MINOR_VERSION 4)
-set(YAP_PATCH_VERSION 0)
+set(YAP_PATCH_VERSION 1)
 
 set(YAP_FULL_VERSION
         ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -557,7 +557,8 @@ option(WITH_R
         "Use R Interface" ON)
 
 IF (WITH_R)
-    include_directories(packages/real )
+    find_host_package(LibR)
+add_subDIRECTORY(packages/real)
 ENDIF (WITH_R)
 
 
@@ -687,7 +688,8 @@ set_target_properties(libYap
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (PYTHONLIBS_FOUND AND SWIG_FOUND)
-    add_subdirectory(packages/python/swig)
+    set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+add_subdirectory(packages/python/swig)
 
     include(FindPythonModule)
 
@@ -776,7 +778,12 @@ if (WITH_GECODE)
     add_subDIRECTORY(packages/gecode)
 endif ()
 
-add_subDIRECTORY(packages/real)
+option(WITH_LBFGS
+        "interface  with lbfgs" ON)
+
+if (WITH_LBFGS)
+    add_subDIRECTORY(packages/yap-lbfgs)
+endif ()
 
 
 
@@ -795,16 +802,15 @@ if (Java_Development_FOUND)
 
     set (STD_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
   set (CMAKE_FIND_FRAMEWORK LAST) # CMake will find the Java returned by /usr/libexec/java_home.
-find_package(JNI)
+  
+  macro_optional_find_package(JNI ON)
+  
+
   set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
 
-  if (NOT JNI_FOUND)
-
-set (JAVA_HOME ${JAVA_INCLUDE_PATH}/..)
-
-endif()
-
   if (JNI_FOUND)
+
+get_filename_component(JAVA_HOME ${JAVA_INCLUDE_PATH} DIRECTORY)
 
   include(UseJava)
 
@@ -826,7 +832,8 @@ endif()
   # The Java_ADDITIONAL_VERSIONS variable can be used to specify a list
   # of version numbers that should be taken into account when searching
   # for Java.  You need to set this variable before calling
-          # find_package(JavaLibs).
+
+
   #
   #macro_optional_find_package(JNI ON)
   #   JNI_INCLUDE_DIRS      = the include dirs to use
@@ -837,6 +844,7 @@ endif()
   #   JAVA_INCLUDE_PATH     = the include path to jni.h
   #   JAVA_INCLUDE_PATH2    = the include path to jni_md.h
   #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
+
 
 endif (JNI_FOUND)
 

@@ -307,9 +307,11 @@ load_files(Files0,Opts) :-
     '$load_files__'(Files, M, Opts, Call).
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
-    ( '__NB_getval__'('$lf_status', OldTOpts, fail),
-      nonvar(OldTOpts)
+    '$show_consult_level'(LC),
+    ( LC > 0
     ->
+      '__NB_getval__'('$lf_status', OldTOpts, fail),
+        nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
          '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ;
@@ -690,8 +692,8 @@ db_files(Fs) :-
 '$csult'(Fs, _M) :-
 	 '$skip_list'(_, Fs ,L),
 	 L \== [],
-	 user:dot_qualified_goal(Fs),
-	 !.
+	 !,
+	 user:dot_qualified_goal(Fs).
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
 	load_files(M:MFs,[]).
@@ -853,7 +855,10 @@ nb_setval('$if_le1vel',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	lists:member(G, Answers),
+	'$process_init_goal'(Answers).
+'$exec_initialization_goals'.
+
+'$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
@@ -863,7 +868,8 @@ nb_setval('$if_le1vel',0).
     format(user_error,':- ~w:~w failed.~n',[M0,G0])
 	),
 	fail.
-'$exec_initialization_goals'.
+'$process_init_goal'([_|Gs]) :-
+    '$process_init_goal'(Gs).
 
 /**
   @pred include(+ _F_) is directive
@@ -1345,8 +1351,13 @@ account the following observations:
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  ->
+	  true
+	  ;
+	  OldContextModule = user
+	  ),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
 	  '$extend_exports'(File, Imports, OldF )
 	).
@@ -1669,7 +1680,12 @@ End of conditional compilation.
 
 consult_depth(LV) :- '$show_consult_level'(LV).
 
-:- '$add_multifile'(dot_qualified_goal,2,user).
+prolog_library(File) :-
+    yap_flag(verbose,Old,silent),
+    ensure_loaded(library(File)),
+    yap_flag(verbose,_,Old).
+
+:- '$add_multifile'(dot_qualified_goal,1,user).
 
 /**
   @}

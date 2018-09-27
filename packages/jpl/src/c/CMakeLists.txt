@@ -1,15 +1,20 @@
 # set(CMAKE_MACOSX_RPATH 1)
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_lib(jplYap  jpl.h jpl.c hacks.h)
 
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} )
 
-  target_link_libraries(jplYap  libYap ${JAVA_JVM_LIBRARY}  ${JAVA_AWT_LIBRARY})
+if (APPLE)
+get_filename_component ( JAVA_AWT_DIR ${JAVA_AWT_LIBRARY} DIRECTORY)
+find_library (JLI jli ${JAVA_AWT_DIR}/jli)
+endif()
+
+  target_link_libraries(jplYap  libYap ${JLI} ${JNI_LIBRARIES})
 
   set_target_properties(jplYap PROPERTIES
     OUTPUT_NAME jpl
-    INSTALL_RPATH_USE_LINK_PATH TRUE )
+    INSTALL_RPATH_USE_LINK_PATH TRUE
+    )
 
   # set(YAP_SYSTEM_OPTIONS "jpl " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
   install(TARGETS  jplYap

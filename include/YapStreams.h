@@ -194,7 +194,7 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define Handle_vars_f 0x04
 #define Use_portray_f 0x08
 #define To_heap_f 0x10
-#define Unfold_cyclics_f 0x20
+#define Ignore_cyclics_f 0x20
 #define Use_SWI_Stream_f 0x40
 #define BackQuote_String_f 0x80
 #define AttVar_None_f 0x100
@@ -264,5 +264,14 @@ typedef struct stream_desc {
     int (*stream_wpeek)(int);   /**  check if the next wide character is available. */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
+
+
+
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
+                                  size_t nchars
+                                  #ifdef USES_REGS
+                                   USES_REGS
+                                   #endif
+                                 );
 
 #endif

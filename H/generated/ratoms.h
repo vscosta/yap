@@ -2,6 +2,7 @@
   /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+  AtomAtSymbol = AtomAdjust(AtomAtSymbol); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = AtomAdjust(Atom3Dots);
   AtomAbol = AtomAdjust(AtomAbol); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = AtomAdjust(AtomAccess); TermAccess = MkAtomTerm(AtomAccess);
@@ -32,6 +33,7 @@
   AtomEndCurlyBracket = AtomAdjust(AtomEndCurlyBracket); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = AtomAdjust(AtomEmptyBrackets); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = AtomAdjust(AtomEmptySquareBrackets); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
+  AtomAs = AtomAdjust(AtomAs); TermAs = MkAtomTerm(AtomAs);
   AtomAsserta = AtomAdjust(AtomAsserta); TermAsserta = MkAtomTerm(AtomAsserta);
   AtomAssertaStatic = AtomAdjust(AtomAssertaStatic); TermAssertaStatic = MkAtomTerm(AtomAssertaStatic);
   AtomAssertz = AtomAdjust(AtomAssertz); TermAssertz = MkAtomTerm(AtomAssertz);
@@ -181,6 +183,7 @@
   AtomGlobalTrie = AtomAdjust(AtomGlobalTrie); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = AtomAdjust(AtomGoalExpansion); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
   AtomHat = AtomAdjust(AtomHat); TermHat = MkAtomTerm(AtomHat);
+  AtomDoubleHat = AtomAdjust(AtomDoubleHat); TermDoubleHat = MkAtomTerm(AtomDoubleHat);
   AtomHERE = AtomAdjust(AtomHERE); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = AtomAdjust(AtomHeap); TermHeap = MkAtomTerm(AtomHeap);
@@ -453,8 +456,11 @@
   FunctorArrayEntry = FuncAdjust(FunctorArrayEntry);
   FunctorArrow = FuncAdjust(FunctorArrow);
   FunctorDoubleArrow = FuncAdjust(FunctorDoubleArrow);
+  FunctorAs = FuncAdjust(FunctorAs);
   FunctorAssert1 = FuncAdjust(FunctorAssert1);
   FunctorAssert = FuncAdjust(FunctorAssert);
+  FunctorAt = FuncAdjust(FunctorAt);
+  FunctorAtSymbol = FuncAdjust(FunctorAtSymbol);
   FunctorAtFoundOne = FuncAdjust(FunctorAtFoundOne);
   FunctorAtom = FuncAdjust(FunctorAtom);
   FunctorAtt1 = FuncAdjust(FunctorAtt1);
@@ -528,6 +534,7 @@
   FunctorGoalExpansion = FuncAdjust(FunctorGoalExpansion);
   FunctorHandleThrow = FuncAdjust(FunctorHandleThrow);
   FunctorHat = FuncAdjust(FunctorHat);
+  FunctorDoubleHat = FuncAdjust(FunctorDoubleHat);
   FunctorI = FuncAdjust(FunctorI);
   FunctorId = FuncAdjust(FunctorId);
   FunctorInfo1 = FuncAdjust(FunctorInfo1);

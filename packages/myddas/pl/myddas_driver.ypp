@@ -28,7 +28,7 @@
 #define NAME() 'YAPodbc'
 #define MODULE() user
 #define INIT() init_odbc
-#elif defined( postgres )
+#elif defined( postrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrs )
 #undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
@@ -99,7 +99,6 @@ DBMS(result_set)(store_result):-
 %default value
 :- DBMS(result_set)(use_result).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

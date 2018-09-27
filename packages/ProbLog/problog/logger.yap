@@ -238,11 +238,16 @@
 
 logger_define_variable(Name,Type) :-
 	bb_get(logger_variables,Variables),
-	member((Name,_),Variables),
+	member((Name,Type0),Variables),
 	!,
-	throw(error(variable_redefined(logger_define_variable(Name,Type)))).
+	( Type == Type0
+	->
+		write('redefining logger variable '),write(Name),write(' of type '), write(Type0), nl
+		;
+	throw(error(variable_redefined(logger_define_variable(Name,Type))))
+	).
 logger_define_variable(Name,Type) :-
-	ground(Name),
+	ground(Type),
 	atomic(Name),
 	!,
 	logger_define_variable_intern(Type,Name).
@@ -301,7 +306,8 @@ logger_set_delimiter(Delimiter) :-
 %= +Name, +Value
 %========================================================================
 
-logger_set_variable(Name,Value) :-
+logger_set_variable(Name,Value) :- logger_set_variable_again(Name,Value).
+	/*
 	atom_concat(logger_data_,Name,Key),
 	(
 	    bb_get(Key,null)
@@ -312,11 +318,12 @@ logger_set_variable(Name,Value) :-
 	         bb_get(Key,_)
 	      ->
 	         (
-		     write('logger_set_variable, Variable '),
-		     write(Name),
-		     write(' is already set'),
-		     nl,
-		     fail
+				true
+		     % write('logger_set_variable, Variable '),
+		     % write(Name),
+		     % write(' is already set'),
+		     % nl %,
+		     % fail
 		 ) ; (
 		     write('logger_set_variable, unknown variable '),
 		     write(Name),
@@ -325,7 +332,7 @@ logger_set_variable(Name,Value) :-
 		     )
 		 )
 	),!.
-
+*/
 %========================================================================
 %= Set the value of the variable name. If the value is already set or
 %= the old value is overwritten. If the variable does not exists, an

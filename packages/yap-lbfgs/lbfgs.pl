@@ -21,19 +21,13 @@
 
 
 :- module(lbfgs,[optimizer_initialize/3,
-		 optimizer_initialize/4,
-		 optimizer_run/2,
-		 optimizer_get_x/2,
-		 optimizer_set_x/2,
+		 optimizer_run/4,
 
-		 optimizer_get_g/2,
-		 optimizer_set_g/2,
+		 optimizer_finalize/1,
 
-		 optimizer_finalize/0,
-
-		 optimizer_set_parameter/2,
-		 optimizer_get_parameter/2,
-		 optimizer_parameters/0]).
+		 optimizer_set_parameter/3,
+		 optimizer_get_parameter/3,
+		 optimizer_parameters/1]).
 
 % switch on all the checks to reduce bug searching time
 % :- yap_flag(unknown,error).
@@ -154,7 +148,8 @@ yes
 */
 :- dynamic initialized/0.
 
-:- load_foreign_files(['yap_lbfgs'],[],'init_lbfgs_predicates').
+:- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
+
 
 /** @pred optimizer_initialize(+N,+Evaluate,+Progress)
 The same as before, except that the user module is the default
@@ -162,51 +157,38 @@ value.
 
 Example
 ~~~~
-optimizer_initialize(1,evaluate,progress)
+optimizer_initialize(1)
 ~~~~~
 */
-optimizer_initialize(N,Call_Evaluate,Call_Progress) :-
-	optimizer_initialize(N,user,Call_Evaluate,Call_Progress).
 
-optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
-        optimizer_finalize,
-	!,
-	optimizer_initialize(N,Module,Call_Evaluate,Call_Progress).
-optimizer_initialize(N,Module,Call_Evaluate,Call_Progress) :-
-	\+ initialized,
+optimizer_initialize(N,X,t(N,X,XO,Params)) :-
 
 	integer(N),
 	N>0,
 
 	% check whether there are such call back functions
-	current_module(Module),
-	current_predicate(Module:Call_Evaluate/3),
-	current_predicate(Module:Call_Progress/8),
 
-	optimizer_reserve_memory(N),
+	optimizer_reserve_memory(N,X,XO,Params).
 
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments		
-	EvalGoal =.. [Call_Evaluate,E1,E2,E3],
-	ProgressGoal =.. [Call_Progress,P1,P2,P3,P4,P5,P6,P7,P8],
-	retractall( user:'$lbfgs_callback_evaluate'(_E1,_E2,_E3) ),
-	retractall( user:'$lbfgs_callback_progress'(_P1,_P2,_P3,_P4,_P5,_P6,_P7,_P8) ),
-	assert( (user:'$lbfgs_callback_evaluate'(E1,E2,E3) :- Module:EvalGoal, !) ),
-	assert( (user:'$lbfgs_callback_progress'(P1,P2,P3,P4,P5,P6,P7,P8) :- Module:ProgressGoal, !) ),
-	assert(initialized).
 
 /** @pred  optimizer_finalize/0
 Clean up the memory.
 */
-optimizer_finalize :-
+optimizer_finalize(t(N,X,XO,Params)) :-
 	initialized,
-	optimizer_free_memory,
-	retractall(user:'$lbfgs_callback_evaluate'(_,_,_)),
-	retractall(user:'$lbfgs_callback_progress'(_,_,_,_,_,_,_,_)),
+	optimizer_free_memory(X,XO,Params) ,
 	retractall(initialized).
+/** @pred  optimizer_run/3
+Do the work.
+*/
+optimizer_run(t(N,X,XO,Params),FX,XO,Status) :-
+    optimizer_run(N,X, FX, XO, Status, Params).
 
 
-/** @pred  optimizer_parameters/0
+
+/** @pred  optimizer_parameters/1
 Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
 of libLBFGS</a> for the meaning of each parameter.
 
@@ -233,41 +215,41 @@ int       orthantwise_end    -1             End index for computing the L1 norm 
 ==========================================================================================
 ~~~~ 
 */
-optimizer_parameters :-
-	optimizer_get_parameter(m,M),
-	optimizer_get_parameter(epsilon,Epsilon),
-	optimizer_get_parameter(past,Past),
-	optimizer_get_parameter(delta,Delta),
-	optimizer_get_parameter(max_iterations,Max_Iterations),
-	optimizer_get_parameter(linesearch,Linesearch),
-	optimizer_get_parameter(max_linesearch,Max_Linesearch),
-	optimizer_get_parameter(min_step,Min_Step),
-	optimizer_get_parameter(max_step,Max_Step),
-	optimizer_get_parameter(ftol,Ftol),
-	optimizer_get_parameter(gtol,Gtol),
-	optimizer_get_parameter(xtol,Xtol),
-	optimizer_get_parameter(orthantwise_c,Orthantwise_C),
-	optimizer_get_parameter(orthantwise_start,Orthantwise_Start),
-	optimizer_get_parameter(orthantwise_end,Orthantwise_End),
+optimizer_parameterse(t(X,XO,Params))  :-
+	optimizer_get_parameter(m,M ,Params),
+	optimizer_get_parameter(epsilon,Epsilon ,Params),
+	optimizer_get_parameter(past,Past ,Params),
+	optimizer_get_parameter(delta,Delta ,Params),
+	optimizer_get_parameter(max_iterations,Max_Iterations ,Params),
+	optimizer_get_parameter(linesearch,Linesearch ,Params),
+	optimizer_get_parameter(max_linesearch,Max_Linesearch ,Params),
+	optimizer_get_parameter(min_step,Min_Step ,Params),
+	optimizer_get_parameter(max_step,Max_Step ,Params),
+	optimizer_get_parameter(ftol,Ftol ,Params),
+	optimizer_get_parameter(gtol,Gtol ,Params),
+	optimizer_get_parameter(xtol,Xtol ,Params),
+	optimizer_get_parameter(orthantwise_c,Orthantwise_C ,Params),
+	optimizer_get_parameter(orthantwise_start,Orthantwise_Start ,Params),
+	optimizer_get_parameter(orthantwise_end,Orthantwise_End ,Params),
 
-	format('/******************************************************************************************~n',[]),
-	print_param('Name','Value','Description','Type'),
-	format('******************************************************************************************~n',[]),
-	print_param(m,M,'The number of corrections to approximate the inverse hessian matrix.',int),
-	print_param(epsilon,Epsilon,'Epsilon for convergence test.',float),
-	print_param(past,Past,'Distance for delta-based convergence test.',int),
-	print_param(delta,Delta,'Delta for convergence test.',float),
-	print_param(max_iterations,Max_Iterations,'The maximum number of iterations',int),
-	print_param(linesearch,Linesearch,'The line search algorithm.',int),
-	print_param(max_linesearch,Max_Linesearch,'The maximum number of trials for the line search.',int),
-	print_param(min_step,Min_Step,'The minimum step of the line search routine.',float),
-	print_param(max_step,Max_Step,'The maximum step of the line search.',float),
-	print_param(ftol,Ftol,'A parameter to control the accuracy of the line search routine.',float),
-	print_param(gtol,Gtol,'A parameter to control the accuracy of the line search routine.',float),
-	print_param(xtol,Xtol,'The machine precision for floating-point values.',float),
-	print_param(orthantwise_c,Orthantwise_C,'Coefficient for the L1 norm of variables',float),
-	print_param(orthantwise_start,Orthantwise_Start,'Start index for computing the L1 norm of the variables.',int),
-	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int),
+	format('/******************************************************************************************~n',[] ),
+	print_param('Name','Value','Description','Type' ,Params),
+	format('******************************************************************************************~n',[] ),
+	print_param(m,M,'The number of corrections to approximate the inverse hessian matrix.',int ,Params),
+	print_param(epsilon,Epsilon,'Epsilon for convergence test.',float ,Params),
+	print_param(past,Past,'Distance for delta-based convergence test.',int ,Params),
+	print_param(delta,Delta,'Delta for convergence test.',float ,Params),
+	print_param(max_iterations,Max_Iterations,'The maximum number of iterations',int ,Params),
+	print_param(linesearch,Linesearch,'The line search algorithm.',int ,Params),
+	print_param(max_linesearch,Max_Linesearch,'The maximum number of trials for the line search.',int ,Params),
+	print_param(min_step,Min_Step,'The minimum step of the line search routine.',float ,Params),
+	print_param(max_step,Max_Step,'The maximum step of the line search.',float ,Params),
+	print_param(ftol,Ftol,'A parameter to control the accuracy of the line search routine.',float ,Params),
+	print_param(gtol,Gtol,'A parameter to control the accuracy of the line search routine.',float ,Params),
+	print_param(xtol,Xtol,'The machine precision for floating-point values.',float ,Params),
+	print_param(orthantwise_c,Orthantwise_C,'Coefficient for the L1 norm of variables',float ,Params),
+	print_param(orthantwise_start,Orthantwise_Start,'Start index for computing the L1 norm of the variables.',int ,Params),
+	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int ,Params),
 	format('******************************************************************************************/~n',[]),
 	format(' use optimizer_set_paramater(Name,Value) to change parameters~n',[]),
 	format(' use optimizer_get_parameter(Name,Value) to see current parameters~n',[]),

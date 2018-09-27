@@ -48,7 +48,7 @@ prolog:'$protect' :-
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
     functor(P,Name,Arity),
-    '$hide_predicate'(P,M),
+    %'$hide_predicate'(P,M),
     fail.
 prolog:'$protect' :-
     current_atom(Name),
@@ -81,5 +81,5 @@ prolog:'$protect'.
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
-
+'$visible'('$x_yap_flag' ).
 %% @}

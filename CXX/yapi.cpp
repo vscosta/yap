@@ -125,6 +125,7 @@ YAPAtomTerm::YAPAtomTerm(char s[]) { // build string
 
   CACHE_REGS
   seq_tv_t inp, out;
+    inp.enc = LOCAL_encoding;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
   out.type = YAP_STRING_ATOM;
@@ -142,7 +143,8 @@ YAPAtomTerm::YAPAtomTerm(char *s, size_t len) { // build string
   seq_tv_t inp, out;
   inp.val.c = s;
   inp.type = YAP_STRING_CHARS;
-  out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
+    inp.enc = LOCAL_encoding;
+    out.type = YAP_STRING_ATOM | YAP_STRING_NCHARS | YAP_STRING_TRUNC;
   out.max = len;
   if (Yap_CVT_Text(&inp, &out PASS_REGS))
     mk(MkAtomTerm(out.val.a));
@@ -253,15 +255,78 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   RECOVER_H();
 }
 
-YAPApplTerm::YAPApplTerm(std::string f, std::vector<YAPTerm> ts) {
+YAPApplTerm::YAPApplTerm(const std::string f, std::vector<Term> ts) {
+    BACKUP_H();
+    arity_t arity = ts.size();
+    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+    Term o = Yap_MkNewApplTerm(ff, arity);
+    Term *tt = RepAppl(o) + 1;
+    for (arity_t i = 0; i < arity; i++)
+        tt[i] = ts[i];
+    mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, std::vector<YAPTerm> ts) {
+    BACKUP_H();
+    arity_t arity = ts.size();
+    Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+    Term o = Yap_MkNewApplTerm(ff, arity);
+    Term *tt = RepAppl(o) + 1;
+    for (arity_t i = 0; i < arity; i++)
+        tt[i] = ts[i].term();
+    mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1) {
   BACKUP_H();
-  arity_t arity = ts.size();
+  arity_t arity = 1;
   Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
   Term o = Yap_MkNewApplTerm(ff, arity);
   Term *tt = RepAppl(o) + 1;
-  for (arity_t i = 0; i < arity; i++)
-    tt[i] = ts[i].term();
+  tt[0] = a1.term();
   mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2) {
+  BACKUP_H();
+  arity_t arity = 2;
+  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+  Term o = Yap_MkNewApplTerm(ff, arity);
+  Term *tt = RepAppl(o) + 1;
+  tt[0] = a1.term();
+  tt[1] = a2.term();
+  mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3) {
+  BACKUP_H();
+  arity_t arity = 3;
+  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+  Term o = Yap_MkNewApplTerm(ff, arity);
+  Term *tt = RepAppl(o) + 1;
+  tt[0] = a1.term();
+  tt[2] = a2.term();
+  tt[3] = a3.term();
+  mk(o);
+    RECOVER_H();
+}
+
+YAPApplTerm::YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4) {
+  BACKUP_H();
+  arity_t arity = 4;
+  Functor ff = Yap_MkFunctor(Yap_LookupAtom(f.c_str()), arity);
+  Term o = Yap_MkNewApplTerm(ff, arity);
+  Term *tt = RepAppl(o) + 1;
+  tt[0] = a1.term();
+  tt[2] = a2.term();
+  tt[3] = a3.term();
+  tt[4] = a4.term();
+  mk(o);
+    RECOVER_H();
 }
 
 YAPApplTerm::YAPApplTerm(YAPFunctor f) : YAPTerm() {
@@ -517,14 +582,15 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
 
 bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #if YAP_PYTHON
+  //  std::cerr << "mgoal(in) "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
   // PyThreadState *_save;
 
-  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+  // std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Term *ts = nullptr;
+   Term *ts = nullptr;
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
@@ -552,8 +618,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   // don't forget, on success these guys may create slots
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
-  result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //std::cerr << "mgoal " << YAPTerm(t).text() << "\n";
+   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
+  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
 
   YAP_LeaveGoal(result && !release, &q);
   //      PyEval_RestoreThread(_save);
@@ -574,7 +640,7 @@ void YAPEngine::release() {
 Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Term tmod = CurrentModule, *ts = nullptr;
+  Term tmod = Yap_CurrentModule(), *ts = nullptr;
   PredEntry *ap;
   arity_t arity;
   Functor f;
@@ -601,8 +667,10 @@ Term YAPEngine::fun(Term t) {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-  XREGS[arity + 1] = MkVarTerm();
+  Term ot = XREGS[arity + 1] = MkVarTerm();
+  yhandle_t h = Yap_InitHandle(ot); 
   arity++;
+  HR += arity;
   f = Yap_MkFunctor(name, arity);
   ap = (PredEntry *)(PredPropByFunc(f, tmod));
   if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
@@ -617,12 +685,16 @@ Term YAPEngine::fun(Term t) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
   bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  YAPCatchError();
+    if (result)
+      ot = Yap_GetFromHandle(h);
+    else
+      ot = TermNone;
+    YAPCatchError();
   {
     YAP_LeaveGoal(result, &q);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
-    return result;
+    return ot;
   }
 }
 
@@ -874,9 +946,8 @@ YAPPredicate::YAPPredicate(YAPAtom at, uintptr_t arity) {
 }
 
 /// auxiliary routine to find a predicate in the current module.
-PredEntry *YAPPredicate::getPred(Term &t, CELL *&out) {
+PredEntry *YAPPredicate::getPred(Term &t, Term &m, CELL *&out) {
   CACHE_REGS
-  Term m = Yap_CurrentModule();
   t = Yap_StripModule(t, &m);
 
   if (IsVarTerm(t) || IsNumTerm(t)) {

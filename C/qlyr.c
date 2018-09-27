@@ -836,6 +836,7 @@ static void ReadHash(FILE *stream) {
     UInt sz = read_UInt(stream);
     UInt nrefs = read_UInt(stream);
     LogUpdClause *ncl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(sz);
+    Yap_LUClauseSpace += sz;
     if (!ncl) {
       QLYR_ERROR(OUT_OF_CODE_SPACE);
     }
@@ -874,6 +875,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         nrefs = cl->ClRefCount;
       } else {
         cl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_LUClauseSpace += size;
       }
       read_bytes(stream, cl, size);
       cl->ClFlags &= ~InUseMask;
@@ -887,6 +889,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     char *base = (void *)read_UInt(stream);
     UInt mask = read_UInt(stream);
     UInt size = read_UInt(stream);
+	Yap_ClauseSpace += size;
     MegaClause *cl = (MegaClause *)Yap_AlwaysAllocCodeSpace(size);
 
     if (nclauses) {
@@ -918,6 +921,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       DynamicClause *cl = (DynamicClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_LUClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);
@@ -948,6 +952,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       StaticClause *cl = (StaticClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_ClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);

@@ -203,7 +203,7 @@ class YAPKernel(KernelBase):
         self._forward_input(allow_stdin)
 
         reply_content = {}
-        import trace;
+        # import trace;
         try:
             res = shell.run_cell(code, store_history=store_history, silent=silent)
         finally:

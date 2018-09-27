@@ -66,6 +66,7 @@
 :- use_module(library(readutil)).
 :- use_module(library(debug)).
 :- use_module(library(system)).
+:- use_module(library(readutil)).
 
 :- dynamic( real:r_started/1 ).
 
@@ -111,6 +112,15 @@ init_r_env :-
 	install_in_ms_windows(ToR).
 :- endif.
 
+init_r_env :-
+    current_prolog_flag(unix, true),
+    open(popen('R RHOME'),read,S),
+    read_line_to_codes(S,Lc),
+    close(S),
+    Lc \= end_of_file,
+    !,
+    atom_codes(RH,Lc),
+    setenv('R_HOME',RH).
 init_r_env :-
         current_prolog_flag(unix, true),
 	% typical Linux 64 bit setup (fedora)

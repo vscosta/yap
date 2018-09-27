@@ -22,6 +22,7 @@
 
 #ifdef DEBUG
 :- yap_flag(single_var_warnings,on).
+:- yap_flag(write_strings,on).
 #endif
 
 #define SWITCH(Contype, G)     \
@@ -181,7 +182,7 @@
       member/2
 	      ]).
 
-:- set(verbose,silent).
+:- set_prolog_flag(verbose,silent).
 
 
 
@@ -230,108 +231,108 @@ db_open(postgres,Connection,Host/Db/Port,User,Password) :-
 	integer(Port),!,
 	db_open(postgres,Connection,Host/Db/Port/_,User,Password).  % Var to be NULL, the  default socket
 db_open(postgres,Connection,Host/Db/Socket,User,Password) :- !,
-	db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
+    db_open(postgres,Connection,Host/Db/0/Socket,User,Password). % 0 is default port
 db_open(postgres,Connection,Host/Db,User,Password) :-
-	db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socpket
+    db_open(postgres,Connection,Host/Db/0/_,User,Password).  % 0 is default port and Var to be NULL, the default socpket
 #endif
 
 #ifdef MYDDAS_ODBC
 db_open(odbc,Connection,ODBCEntry,User,Password) :-
-	'$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
-	c_odbc_connect(ODBCEntry,User,Password,Con),
-	set_value(Connection,Con).
+    '$error_checks'(db_open(odbc,Connection,ODBCEntry,User,Password)),
+    c_odbc_connect(ODBCEntry,User,Password,Con),
+    set_value(Connection,Con).
 #endif
 
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
-	'$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
-	c_sqlite3_connect(File,User,Password,Con),
-	set_value(Connection,Con).
+    '$error_checks'(db_open(sqlite3,Connection,File,User,Password)),
+    c_sqlite3_connect(File,User,Password,Con),
+    set_value(Connection,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				%% db_close/1
-				%% db_close/0
-				%
-				% close a connection _Con_: all its resources are returned, and all undefined
-				% predicates are abolished. Default is to close `myddas`.
+%% db_close/1
+%% db_close/0
+%
+% close a connection _Con_: all its resources are returned, and all undefined
+% predicates are abolished. Default is to close `myddas`.
 db_close:-
-	db_close(myddas).
+    db_close(myddas).
 db_close(Protocol):-
-	'$error_checks'(db_close(Protocol)),
-	get_value(Protocol,Con),
-	c_db_connection_type(Con,ConType),
-	( '$abolish_all'(Con) ;
-    set_value(Protocol,[]), % "deletes" atom
-	C_SWITCH( ConType, disconnect(Con) )
-	).
+    '$error_checks'(db_close(Protocol)),
+    get_value(Protocol,Con),
+    c_db_connection_type(Con,ConType),
+    ( '$abolish_all'(Con) ;
+      set_value(Protocol,[]), % "deletes" atom
+      C_SWITCH( ConType, disconnect(Con) )
+    ).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_verbose/1
-				%
-				%
+% db_verbose/1
+%
+%
 db_verbose(X):-
-	var(X),!,
-	get_value(db_verbose,X).
+    var(X),!,
+    get_value(db_verbose,X).
 db_verbose(N):-!,
-	set_value(db_verbose,N).
-				%default value
+    set_value(db_verbose,N).
+%default value
 :- set_value(db_verbose,0).
 :- set_value(db_verbose_filename,myddas_queries).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_module/1
-				%
-				%
+% db_module/1
+%
+%
 db_module(X):-
-	var(X),!,
-	get_value(db_module,X).
+    var(X),!,
+    get_value(db_module,X).
 db_module(ModuleName):-
-	set_value(db_module,ModuleName).
-				% default value
+    set_value(db_module,ModuleName).
+% default value
 :- db_module(user).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_is_database_predicate(+,+,+)
-				%
-				%
+% db_is_database_predicate(+,+,+)
+%
+%
 db_is_database_predicate(Module,PredName,Arity):-
-	'$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
-	c_db_check_if_exists_pred(PredName,Arity,Module).
+    '$error_checks'(db_is_database_predicate(PredName,Arity,Module)),
+    c_db_check_if_exists_pred(PredName,Arity,Module).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #ifdef MYDDAS_STATS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_stats(+,-)
-				%
-				%
+% db_stats(+,-)
+%
+%
 db_stats(List):-
-	db_stats(myddas,List).
+    db_stats(myddas,List).
 
 db_stats(Protocol,List):-
-	'$error_checks'(db_stats(Protocol,List)),
-	NumberOfStats = 10,
-	'$make_a_list'(NumberOfStats,ListX1),
-	( var(Protocol) ->
-	  c_db_stats(0,ListX1)
-	;
-	  get_value(Protocol,Conn),
-	  c_db_stats(Conn,ListX1)
-	),
-	'$make_stats_list'(ListX1,List).
+    '$error_checks'(db_stats(Protocol,List)),
+    NumberOfStats = 10,
+    '$make_a_list'(NumberOfStats,ListX1),
+    ( var(Protocol) ->
+      c_db_stats(0,ListX1)
+    ;
+    get_value(Protocol,Conn),
+    c_db_stats(Conn,ListX1)
+    ),
+    '$make_stats_list'(ListX1,List).
 
 #ifdef DEBUG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-				% db_stats_time(+,-)
-				% Reference is C pointer (memory reference)
+% db_stats_time(+,-)
+% Reference is C puuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;uuuuu;ointer (memory reference)
 				%
 db_stats_time(Reference,Time):-
 	'$error_checks'(db_stats_time(Reference,Time)),
@@ -449,7 +450,6 @@ db_assert(Connection,PredName):-
 	'$error_checks'(db_insert2(Connection,PredName,Code)),
 	'$get_values_for_insert'(Code,ValuesList,RelName),
 	'$make_atom'(['INSERT INTO `',RelName,'` VALUES '|ValuesList],SQL),
-
 	get_value(Connection,Con),
 	c_db_connection_type(Con,ConType),
 	'$write_or_not'(SQL),
@@ -685,17 +685,18 @@ db_describe(Connection,Y,Z)  :-
 
 db_datalog_show_tables  :-
 	db_datalog_show_tables(myddas).
+db_show_tables :-
+	'$error_checks'(db_datalog_show_tables),
+	get_value(myddas,Con),
+	c_db_connection_type(Con,DBMS),
+	DBMS:datalog_show_tables.
+
 db_datalog_show_tables(Connection)  :-
 	'$error_checks'(db_datalog_show_tables(Connection) ),
 	get_value(Connection,Con),
 	c_db_connection_type(Con,DBMS),
 	switch( DBMS, datalog_show_tables(Connection) ).
 
-db_datalog_show_tables :-
-	'$error_checks'(db_datalog_show_tables),
-	get_value(myddas,Con),
-	c_db_connection_type(Con,DBMS),
-	DBMS:datalog_show_tables.
 
 /**
 	@pred db_show_tables(+,?).

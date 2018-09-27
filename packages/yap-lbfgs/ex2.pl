@@ -18,45 +18,46 @@
 %  along with YAP-LBFGS.  If not, see <http://www.gnu.org/licenses/>.
 
 :- use_module(library(lbfgs)).
+:- use_module(library(matrix)).
 
 
 % This is the call back function which evaluates F and the gradient of F
-evaluate(FX,_N,_Step) :-
-	optimizer_get_x(0,X0),
-	optimizer_get_x(1,X1),
+evaluate(FX,X,G,_N,_Step) :-
+    X0 <== X[0],
+    X1 <== X[1],
 
 	FX is (X0-2)*(X0-2) + (X1-1)*(X1-1),
 	G0 is 2*(X0-2),
-	G1 is 2*(X1-1),
-	
-	optimizer_set_g(0,G0),
-	optimizer_set_g(1,G1).
-
+	G1 is 2*(X1-2),
+	G[0]  <==  G0,
+	G[1] <==  G1.
+    
 % This is the call back function which is invoked to report the progress
-% if the last argument is set to anywhting else than 0, the optimizer will
+% if the last argument is set to anything else than 0, the optimizer will
 % stop right now
-progress(FX,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
-	optimizer_get_x(0,X0),
-	optimizer_get_x(1,X1),
+progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
+    X0 <== X[0],
+    X1 <== X[1],
 	format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,X0,X1,FX,X_Norm,G_Norm,Step,Ls]).
 
 
 
 demo :-
 	format('Optimizing the function f(x0,x1) = (x0-2)^2 + (x1-1)^2~n',[]),
-	optimizer_initialize(2,evaluate,progress),
+	optimizer_initialize(2,X,Status),
 
 
 	StartX0 is random*1000-500,
 	StartX1 is random*1000-500,
 
 	format('We start the search at the random position (x0,x1)=(~5f,~5f)~2n',[StartX0,StartX1]),
-	optimizer_set_x(0,StartX0),
-	optimizer_set_x(1,StartX1),
+	X[0] <== StartX0,
+	X[1] <== StartX1,
+
 	
-	optimizer_run(BestF,Status),
-	optimizer_get_x(0,BestX0),
-	optimizer_get_x(1,BestX1),
+	optimizer_run(Status,BestF,BestX0, O),
+	BestX0 <== X[0],
+	BestX1 <== X[1],
 	
 	optimizer_finalize,
 	format('~2nOptimization done~nWe found a minimum at f(~f,~f)=~f~2nLBFGS Status=~w~n',[BestX0,BestX1,BestF,Status]).

@@ -3,9 +3,9 @@
 
 (function(mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
-	mod(require("../../lib/codemirror"));
+	mod(require("codemirror/lib/codemirror"));
     else if (typeof define == "function" && define.amd) // AMD
-	define(["../../lib/codemirror"], mod);
+	define(["codemirror/lib/codemirror"], mod);
     else // Plain browser env
 	mod(CodeMirror);
 })(function(CodeMirror) {
@@ -23,12 +23,13 @@
 	 *******************************/
 
 	var config = { quasiQuotations: false,		/* {|Syntax||Quotation|} */
+	               indot: true,			/* a.b */
 	               dicts: false,			/* tag{k:v, ...} */
 		       unicodeEscape: true,		/* \uXXXX and \UXXXXXXXX */
 		       multiLineQuoted: true,		/* "...\n..." */
 		       groupedIntegers: false		/* 10 000 or 10_000 */
 		     };
-
+v
 	var quoteType = { '"': "string",
 			  "'": "qatom",
 			  "`": "bqstring"
@@ -1216,8 +1217,7 @@
        token: function(stream, state) {
 	   var nest;
 
-	   if ( state.curTerm == null && mode
-       Config.metainfo ) {
+	   if ( state.curTerm == null && modeConfig.metainfo ) {
 	       state.curTerm = 0;
 	       state.curToken = 0;
 	   }

@@ -135,4 +135,3 @@ prolog:length(L, M) :-
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
 %% @}
-

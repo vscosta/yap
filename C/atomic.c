@@ -326,7 +326,7 @@ restart_aux:
       return false;
     }
     // verify if an atom, int, float or bi§gnnum
-    NewT = Yap_AtomicToListOfCodes(t1 PASS_REGS);
+    NewT = Yap_AtomSWIToListOfCodes(t1 PASS_REGS);
     if (NewT) {
       pop_text_stack(l);
       return Yap_unify(NewT, ARG2);

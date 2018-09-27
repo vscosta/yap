@@ -112,6 +112,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "YapEval.h"
+#include "alloc.h"
 
 
 
@@ -172,9 +173,11 @@ eval0(Int fi) {
     }
   case op_heapused:
     /// - heapused
-    ///   Heap (data-base) space used, in bytes.
+    ///   Heap (data-base) space used, in bytes. In fact YAP either reports
+    ///   the total memory malloced, or the amount of allocated space in
+    ///   predicates.
     ///
-    RINT(HeapUsed);
+    RINT(Yap_HeapUsed());
   case op_localsp:
     /// - local
     ///   Local stack in use, in bytes

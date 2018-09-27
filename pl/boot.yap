@@ -478,4 +478,8 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 :- ensure_loaded('../pl/pathconf.yap').
 
 :- yap_flag(user:unknown,error).
+
+%:- ensure_loaded('../android.yap').
+
+
 %% @}

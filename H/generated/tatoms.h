@@ -2,6 +2,7 @@
   /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+X_API EXTERNAL Atom AtomAtSymbol; X_API EXTERNAL Term TermAtSymbol;
 X_API EXTERNAL Atom Atom3Dots;
 X_API EXTERNAL Atom AtomAbol; X_API EXTERNAL Term TermAbol;
 X_API EXTERNAL Atom AtomAccess; X_API EXTERNAL Term TermAccess;
@@ -32,6 +33,7 @@ X_API EXTERNAL Atom AtomBeginCurlyBracket; X_API EXTERNAL Term TermBeginCurlyBra
 X_API EXTERNAL Atom AtomEndCurlyBracket; X_API EXTERNAL Term TermEndCurlyBracket;
 X_API EXTERNAL Atom AtomEmptyBrackets; X_API EXTERNAL Term TermEmptyBrackets;
 X_API EXTERNAL Atom AtomEmptySquareBrackets; X_API EXTERNAL Term TermEmptySquareBrackets;
+X_API EXTERNAL Atom AtomAs; X_API EXTERNAL Term TermAs;
 X_API EXTERNAL Atom AtomAsserta; X_API EXTERNAL Term TermAsserta;
 X_API EXTERNAL Atom AtomAssertaStatic; X_API EXTERNAL Term TermAssertaStatic;
 X_API EXTERNAL Atom AtomAssertz; X_API EXTERNAL Term TermAssertz;
@@ -181,6 +183,7 @@ X_API EXTERNAL Atom AtomGlobalSp; X_API EXTERNAL Term TermGlobalSp;
 X_API EXTERNAL Atom AtomGlobalTrie; X_API EXTERNAL Term TermGlobalTrie;
 X_API EXTERNAL Atom AtomGoalExpansion; X_API EXTERNAL Term TermGoalExpansion;
 X_API EXTERNAL Atom AtomHat; X_API EXTERNAL Term TermHat;
+X_API EXTERNAL Atom AtomDoubleHat; X_API EXTERNAL Term TermDoubleHat;
 X_API EXTERNAL Atom AtomHERE; X_API EXTERNAL Term TermHERE;
 X_API EXTERNAL Atom AtomHandleThrow; X_API EXTERNAL Term TermHandleThrow;
 X_API EXTERNAL Atom AtomHeap; X_API EXTERNAL Term TermHeap;
@@ -461,9 +464,15 @@ X_API EXTERNAL  Functor FunctorArrow;
 
 X_API EXTERNAL  Functor FunctorDoubleArrow;
 
+X_API EXTERNAL  Functor FunctorAs;
+
 X_API EXTERNAL  Functor FunctorAssert1;
 
 X_API EXTERNAL  Functor FunctorAssert;
+
+X_API EXTERNAL  Functor FunctorAt;
+
+X_API EXTERNAL  Functor FunctorAtSymbol;
 
 X_API EXTERNAL  Functor FunctorAtFoundOne;
 
@@ -610,6 +619,8 @@ X_API EXTERNAL  Functor FunctorGoalExpansion;
 X_API EXTERNAL  Functor FunctorHandleThrow;
 
 X_API EXTERNAL  Functor FunctorHat;
+
+X_API EXTERNAL  Functor FunctorDoubleHat;
 
 X_API EXTERNAL  Functor FunctorI;
 
