@@ -395,8 +395,9 @@ void Yap_InitHeap(void *heap_addr) {
   #if HAVE_MALLINFO
     struct mallinfo mi = mallinfo();
     return mi.uordblks - (LOCAL_TrailTop-LOCAL_GlobalBase);
-#endif
+#else
     return         Yap_ClauseSpace+Yap_IndexSpace_Tree+Yap_LUClauseSpace+Yap_LUIndexSpace_CP;
+#endif
 }
 
 static void InitExStacks(int wid, int Trail, int Stack) {

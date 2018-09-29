@@ -440,11 +440,15 @@ stash_predicate(P0) :-
 /** @pred hide_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to `current_predicate/2`,
 `listing`, and friends.
-
  **/
 hide_predicate(P0) :-
-    '$yap_strip_module'(P0, M, P),
-    must_be_of_type(callable, M:P),
+    strip_module(P0, M, P),
+    nonvar(P),
+    P = N/A,
+    !,
+    functor(S,N,A).
+hide_predicate(P0) :-
+    strip_module(P0, M, P),
     '$hide_predicate'(P, M).
 
 /** @pred  predicate_property( _P_, _Prop_) is iso
