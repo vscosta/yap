@@ -1126,7 +1126,7 @@ static void check_bom(int sno, StreamDesc *st) {
   }
 }
 
-bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
+bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
   // fprintf(stderr,"+ %s --> %d\n", name, sno);
@@ -1160,12 +1160,14 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
   } else {
     st->encoding = encoding;
   }
-
-  name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
   if (!name)
+    name = Yap_guessFileName(fd, sno);
+  if (!name) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, file_name,
-              "Yap_guessFileName failed: opening a file without a name");
-  st->name = Yap_LookupAtom(name);
+               "Yap_guessFileName failed: opening a file without a name");
+    return false;
+  }
+  st->name = name;
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
@@ -1314,7 +1316,7 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
   if (!strchr(io_mode, 'b') && binary_file(fname)) {
     st->status |= Binary_Stream_f;
   }
-  Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
+  Yap_initStream(sno, st->file, Yap_LookupAtom(fname), io_mode, user_name, LOCAL_encoding,
                  st->status, vfsp);
   return true;
 }

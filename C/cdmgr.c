@@ -3082,6 +3082,7 @@ static Int p_clean_up_dead_clauses(USES_REGS1) {
 void Yap_HidePred(PredEntry *pe) {
 
   pe->PredFlags |= (HiddenPredFlag | NoSpyPredFlag | NoTracePredFlag);
+  /*
   char newMod[1024];
   strncpy(newMod, "$$$--hidden-module--",1023);
   Term cmod = pe->ModuleOfPred;
@@ -3090,6 +3091,7 @@ void Yap_HidePred(PredEntry *pe) {
   else
     strncat(newMod, RepAtom(AtomOfTerm(cmod))->StrOfAE, 1023-strlen(newMod));
   pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(newMod));
+  */
 }
 
 static Int /* $system_predicate(P) */
