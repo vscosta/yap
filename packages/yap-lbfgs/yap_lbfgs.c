@@ -73,7 +73,7 @@ static lbfgsfloatval_t evaluate(
   if (result==FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
-   YAP_ShutdownGoal( TRUE );
+   YAP_ShutdownGoal( false );
    return FALSE;
   }
 
@@ -90,7 +90,7 @@ static lbfgsfloatval_t evaluate(
   
   }
 
-  YAP_ShutdownGoal( TRUE );
+  YAP_ShutdownGoal( false );
   return rc;
 }
 
@@ -112,7 +112,7 @@ static int progress(
   YAP_Bool result;
   YAP_Int s1;
 
-  YAP_Term t[9],t2[2], v;
+  YAP_Term t[10],t2[2], v;
   t[0] = YAP_MkFloatTerm(fx);
   t[1] = YAP_MkIntTerm((YAP_Int)local_x);
   t[1] = YAP_MkApplTerm(ffloats, 1, t+1);
@@ -137,21 +137,19 @@ static int progress(
   //optimizer_status=OPTIMIZER_STATUS_RUNNING;
 
   YAP_Term o = YAP_GetFromSlot( s1 );
+      YAP_ShutdownGoal( false );
 
   if (result==FALSE) {
    printf("ERROR:  the progress call failed in YAP.\n");
     // Goal did not succeed
-      YAP_ShutdownGoal( TRUE );
       return -1;
   }
 
   if (YAP_IsIntTerm(o)) {
     int v = YAP_IntOfTerm(o);
-    //YAP_ShutdownGoal( TRUE );
   return (int)v;
   }
 
-  YAP_ShutdownGoal( TRUE );
   fprintf(stderr, "ERROR: The progress call back function did not return an integer as last argument\n");
   return 1;
 }
