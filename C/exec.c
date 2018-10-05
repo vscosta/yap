@@ -327,7 +327,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
+    if (pen->PredFlags & (MetaPredFlag | UndefPredFlag | SpiedPredFlag)) {
       return CallMetaCall(t0, mod0 PASS_REGS);
     }
     pt = RepAppl(t) + 1;

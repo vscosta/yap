@@ -558,11 +558,11 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
-    ( current_prolog_flag(verbose_load, false)
+    ( current_prolog_flag(verbose_load, true)
       ->
-	Verbosity = silent
-	;
 	Verbosity = informational
+	;
+	Verbosity = silent
     ),
     StartMsg = loading_module,
     EndMsg = module_loaded,

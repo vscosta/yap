@@ -354,6 +354,7 @@ static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
+
 static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
 }
