@@ -24,11 +24,11 @@
 
 
 // These constants describe the internal state
-#define OPTIMIZER_STATUS_NONE        0
-#define OPTIMIZER_STATUS_INITIALIZED 1
-#define OPTIMIZER_STATUS_RUNNING     2
-#define OPTIMIZER_STATUS_CB_EVAL     3
-#define OPTIMIZER_STATUS_CB_PROGRESS 4
+#define LBFGS_STATUS_NONE        0
+#define LBFGS_STATUS_INITIALIZED 1
+#define LBFGS_STATUS_RUNNING     2
+#define LBFGS_STATUS_CB_EVAL     3
+#define LBFGS_STATUS_CB_PROGRESS 4
 
 X_API void init_lbfgs_predicates( void ) ;
 
@@ -44,53 +44,39 @@ static lbfgsfloatval_t evaluate(
     )
 {
   YAP_Term call;
-  YAP_Term v, a1;
   YAP_Bool result;
-  YAP_Int s1;
+  lbfgsfloatval_t  rc;
+  
+  YAP_Term t[6], t2[2];
 
-  YAP_Term t[5], t2[2];
-
-  t[0] = v = YAP_MkVarTerm();
+  t[0] = YAP_MkIntTerm((YAP_Int)&rc);
+  t[0] = YAP_MkApplTerm(ffloats, 1, t);
   t[1] = YAP_MkIntTerm((YAP_Int)x);
   t[1] = YAP_MkApplTerm(ffloats, 1, t+1);
   t[2] = YAP_MkIntTerm((YAP_Int)g_tmp);
   t[2] = YAP_MkApplTerm(ffloats, 1, t+2);
   t[3] = YAP_MkIntTerm(n);
   t[4] = YAP_MkFloatTerm(step);
+  t[5] = YAP_MkIntTerm((YAP_Int)instance);
 
   t2[0] = tuser;
-  t2[1] = YAP_MkApplTerm(fevaluate, 5, t); 
+  t2[1] = YAP_MkApplTerm(fevaluate, 6, t); 
 
 
   call = YAP_MkApplTerm( fmodule, 2, t2 );
 
 
-  s1 = YAP_InitSlot(v);
-  //optimizer_status=OPTIMIZER_STATUS_CB_EVAL;
-  result=YAP_RunGoal(call);
-  //optimizer_status=OPTIMIZER_STATUS_RUNNING;
+  // s1 = YAP_InitSlot(v);
+  //lbfgs_status=LBFGS_STATUS_CB_EVAL;
+  result=YAP_RunGoalOnce(call);
+  //lbfgs_status=LBFGS_STATUS_RUNNING;
 
   if (result==FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
-   YAP_ShutdownGoal( false );
    return FALSE;
   }
 
-  a1 = YAP_GetFromSlot( s1 );
-
-  lbfgsfloatval_t  rc;
-  if (YAP_IsFloatTerm(a1)) {
-      rc =  (lbfgsfloatval_t) YAP_FloatOfTerm(a1);
-  } else if (YAP_IsIntTerm(a1)) {
-    rc = (lbfgsfloatval_t) YAP_IntOfTerm(a1);
-  } else {
-    fprintf(stderr, "ERROR: The evaluate call back function did not return a number as first argument.\n");
-    rc = false;
-  
-  }
-
-  YAP_ShutdownGoal( false );
   return rc;
 }
 
@@ -132,15 +118,14 @@ static int progress(
   call = YAP_MkApplTerm( fmodule, 2, t2 );
   s1 = YAP_InitSlot(v);
 
-  //optimizer_status=OPTIMIZER_STATUS_CB_PROGRESS;
-  result=YAP_RunGoal(call);
-  //optimizer_status=OPTIMIZER_STATUS_RUNNING;
+  //lbfgs_status=LBFGS_STATUS_CB_PROGRESS;
+  result=YAP_RunGoalOnce(call);
+  //lbfgs_status=LBFGS_STATUS_RUNNING;
 
   YAP_Term o = YAP_GetFromSlot( s1 );
-      YAP_ShutdownGoal( false );
 
   if (result==FALSE) {
-   printf("ERROR:  the progress call failed in YAP.\n");
+    printf("ERROR:  the progress call failed in YAP.\n");
     // Goal did not succeed
       return -1;
   }
@@ -154,7 +139,7 @@ static int progress(
   return 1;
 }
 
-/** @pred optimizer_initialize(+N,+Module,+Evaluate,+Progress)
+/** @pred lbfgs_initialize(+N,+Module,+Evaluate,+Progress)
 Create space to optimize a function with _N_ variables (_N_ has to be
 integer).
 
@@ -169,7 +154,7 @@ to evaluate the function math <span class="math">_F</span>_,
 
 Example
 ~~~~
-optimizer_initialize(1,user,evaluate,progress,e,g)</span>
+lbfgs_initialize(1,user,evaluate,progress,e,g)</span>
 ~~~~
 
 
@@ -179,107 +164,227 @@ value _F_. _N_ is the
 size of the parameter vector (the value which was used to initialize
 LBFGS) and _Step_ is the current state of the
 line search. The call back predicate can access the current values of
-`x[i]` by calling `optimizer_get_x(+I,-Xi)`. Finally, the call back
+`x[i]` by calling `lbfgs_get_x(+I,-Xi)`. Finally, the call back
 predicate has to calculate the gradient of _F</span>_
-and set its value by calling `optimizer_set_g(+I,+Gi)` for every `1<=I<=N`.
+and set its value by calling `lbfgs_set_g(+I,+Gi)` for every `1<=I<=N`.
 
 
 The progress call back predicate has to be of the type
 `progress(+F,+X_Norm,+G_Norm,+Step,+N,+Iteration,+LS,-Continue)`. It
 is called after every iteration. The call back predicate can access
 the current values of _X_ and of the gradient by calling
-`optimizer_get_x(+I,-Xi)` and `optimizer_get_g`(+I,-Gi)`
+`lbfgs_get_x(+I,-Xi)` and `lbfgs_get_g`(+I,-Gi)`
 respectively. However, it must not call the setter predicates for <span
-class="code"_X_ or _G_. If it tries to do so, the optimizer will
+class="code"_X_ or _G_. If it tries to do so, the lbfgs will
 terminate with an error. If _Continue_ is set to 0 (int) the
 optimization process will continue for one more iteration, any other
 value will terminate the optimization process.
 */
-static YAP_Bool optimizer_initialize(void) {
+/**
+ * @pred lbfgs( N, X, U, FX )
+ *
+ * @Arg1 N: number of variables in problem
+ * @Arg[X0]: input vector
+ * @Arg[FX]: function value,
+ * @Arg[FX]: parameter
+ * @Arg[X0]: user data
+ * @Arg[FX]: status
+ */
+static YAP_Bool p_lbfgs(void)
+{
   YAP_Term t1 = YAP_ARG1;
-  int temp_n=0;
-  lbfgsfloatval_t *temp_x, *temp_ox;
-  lbfgs_parameter_t *temp_p;
-
+  int n;
+  lbfgsfloatval_t *x;
+  lbfgsfloatval_t fx;
 
   if (! YAP_IsIntTerm(t1)) {
     return false;
   }
 
-  temp_n=YAP_IntOfTerm(t1);
+  n=YAP_IntOfTerm(t1);
 
-  if (temp_n<1) {
+  if (n<1) {
     return FALSE;
   }
+  x = ( lbfgsfloatval_t*) YAP_IntOfTerm(YAP_ArgOfTerm(1,YAP_ARG2));
+  lbfgs_parameter_t* param = ( lbfgs_parameter_t*) YAP_IntOfTerm(YAP_ARG3);
+  void* ui = ( void*) YAP_IntOfTerm(YAP_ARG4);
+  {
+  YAP_Term t = YAP_MkIntTerm((YAP_Int)&fx);
+  if (!YAP_Unify(YAP_ARG5,YAP_MkApplTerm(ffloats,1,&t)))
+    return false;
+  }
+  signal(SIGFPE, SIG_IGN);
+  int ret = lbfgs(n, x, &fx, evaluate, progress, ui, param); 
+   if (ret == 0)
+     return true;
+   const char *s;
+   switch(ret) {
+   case LBFGS_CONVERGENCE:
+   case LBFGS_STOP:
+      return true;
+    /** The initial variables already minimize the objective function. */
+   case LBFGS_ALREADY_MINIMIZED:
+     s = "The initial variables already minimize the objective function.";
+     break;
+   case LBFGSERR_UNKNOWNERROR:
+     s = "Unknownerror";
+     break;
+   case LBFGSERR_LOGICERROR:
+     s = "logic error.";
+      break;
 
-  temp_n = 16*(temp_n/16+15);
-  lbfgs_parameter_init((temp_p=(lbfgs_parameter_t *)malloc(sizeof(lbfgs_parameter_t))));
-  temp_ox = lbfgs_malloc(temp_n);
-  YAP_Term tox = YAP_MkIntTerm((YAP_Int)temp_ox);
- temp_x = lbfgs_malloc(temp_n);
-  YAP_Term tx = YAP_MkIntTerm((YAP_Int)temp_x);
-  tx = YAP_MkApplTerm(ffloats, 1, &tx);
-  tox = YAP_MkApplTerm(ffloats, 1, &tox);
-  YAP_Term tp = YAP_MkIntTerm((YAP_Int)temp_p);
+   case LBFGSERR_OUTOFMEMORY:
+     s = "out of memory";
+      break;
+   case LBFGSERR_CANCELED:
+     s = "canceled.";
+      break;
+      case LBFGSERR_INVALID_N:
+      s = "Invalid number of variables specified.";
+      break;
+      
+   case LBFGSERR_INVALID_N_SSE:
+      s = "Invalid number of variables (for SSE) specified.";
+      break;
+      
+   case LBFGSERR_INVALID_X_SSE:
+          s = "The array x must be aligned to 16 (for SSE).";
+	  break;
+   case LBFGSERR_INVALID_EPSILON:
+    	  s = "Invalid parameter lbfgs_parameter_t::epsilon specified.";
+	  break;
+   case LBFGSERR_INVALID_TESTPERIOD:
+    	  s = "Invalid parameter lbfgs_parameter_t::past specified.";
+	  break;
+   case LBFGSERR_INVALID_DELTA:
+    	  s = "Invalid parameter lbfgs_parameter_t::delta specified.";
+	  break;
+   case LBFGSERR_INVALID_LINESEARCH:
+    	  s = "Invalid parameter lbfgs_parameter_t::linesearch specified.";
+	  break;
+   case LBFGSERR_INVALID_MINSTEP:
+    	  s = "Invalid parameter lbfgs_parameter_t::max_step specified.";
+	  break;
+   case LBFGSERR_INVALID_MAXSTEP:
+    	  s = "Invalid parameter lbfgs_parameter_t::max_step specified.";
+	  break;
+   case LBFGSERR_INVALID_FTOL:
+    	  s = "Invalid parameter lbfgs_parameter_t::ftol specified.";
+	  break;
+   case LBFGSERR_INVALID_WOLFE:
+    	  s = "Invalid parameter lbfgs_parameter_t::wolfe specified.";
+	  break;
+   case LBFGSERR_INVALID_GTOL:
+    	  s = "Invalid parameter lbfgs_parameter_t::gtol specified.";
+	  break;
+   case LBFGSERR_INVALID_XTOL:
+    	  s = "Invalid parameter lbfgs_parameter_t::xtol specified.";
+	  break;
+   case LBFGSERR_INVALID_MAXLINESEARCH:
+    	  s = "Invalid parameter lbfgs_parameter_t::max_linesearch specified.";
+	  break;
+   case LBFGSERR_INVALID_ORTHANTWISE:
+    	  s = "Invalid parameter lbfgs_parameter_t::orthantwise_c specified.";
+	  break;
+   case LBFGSERR_INVALID_ORTHANTWISE_START:
+    	  s = "Invalid parameter lbfgs_parameter_t::orthantwise_start specified.";
+	  break;
+   case LBFGSERR_INVALID_ORTHANTWISE_END:
+    	  s = "Invalid parameter lbfgs_parameter_t::orthantwise_end specified.";
+	  break;
+   case LBFGSERR_OUTOFINTERVAL:
+    	  s = "The line-search step went out of the interval of uncertainty.";
+	  break;
 
-  
-  return YAP_Unify(YAP_ARG2,tx) && YAP_Unify(YAP_ARG3,tox) &&  YAP_Unify(YAP_ARG4,tp) ;
+   case LBFGSERR_INCORRECT_TMINMAX:
+     s = "A logic error occurred; alternatively, the interval of uncertaity  became too small.";
+break;
+   case LBFGSERR_ROUNDING_ERROR:
+     s = "A rounding error occurred; alternatively, no line-search s";
+break;
+    case LBFGSERR_MINIMUMSTEP:
+        s = "The line-search step became smaller than lbfgs_parameter_t::min_step.";
+break;
+    case LBFGSERR_MAXIMUMSTEP:
+    s = "The line-search step became larger than lbfgs_parameter_t::max_step.";
+break;
+    case LBFGSERR_MAXIMUMLINESEARCH:
+    s = "The line-search routine reaches the maximum number of evaluations.";
+break;
+    case LBFGSERR_MAXIMUMITERATION:
+    s = "The algorithm routine reaches the maximum number of iterations lbfgs_parameter_t::xtol.";
+    break;
+    case LBFGSERR_WIDTHTOOSMALL:
+    s = "Relative width of the interval of uncertainty is at m";
+    break;
+   case LBFGSERR_INVALIDPARAMETERS:
+    s = "A logic error (negative line-search step) occurred.";
+    break;
+
+   }
+     fprintf(stderr, "optimization terminated with code %d: %s\n", ret, s);
+
+return true;
 }
 
 
 
-/** @pred optimizer_run(-F,-Status)
-Runs the optimization, _F is the best (minimal) function value and
-Status (int) is the status code returned by libLBFGS. Anything except
-0 indicates an error, see the documentation of libLBFGS for the
-meaning.
-*/
-static YAP_Bool optimizer_run(void) {
-  int ret = 0;
-  int n =  YAP_IntOfTerm(YAP_ARG1);
-  YAP_Int s1, s2;
-  lbfgsfloatval_t fx;
-  lbfgsfloatval_t *temp_x = ( lbfgsfloatval_t *)YAP_IntOfTerm( YAP_ArgOfTerm(1, YAP_ARG2)),
-    *temp_ox = ( lbfgsfloatval_t *)  YAP_IntOfTerm(YAP_ArgOfTerm(1,YAP_ARG4));
-  lbfgs_parameter_t *temp_p = (lbfgs_parameter_t * ) YAP_IntOfTerm(YAP_ARG6);
-  ret = lbfgs(n, temp_x, &fx, evaluate, progress, temp_ox, temp_p);
+static YAP_Bool lbfgs_grab (void)
+{
+  int n=YAP_IntOfTerm(YAP_ARG1);
 
-  return YAP_Unify(YAP_MkIntTerm(ret), YAP_ARG5) &&
-    YAP_Unify(YAP_MkFloatTerm(fx), YAP_ARG3);
-}
+  if (n<1) {
+    return FALSE;
+  }
+  lbfgsfloatval_t * x = lbfgs_malloc(n);
+  YAP_Term t = YAP_MkIntTerm((YAP_Int)x);
+  return YAP_Unify(YAP_ARG2,YAP_MkApplTerm(ffloats,1,&t));
+
+ }
 
 
+    
+    static YAP_Bool lbfgs_parameters( void )
+    {
+      lbfgs_parameter_t *x = malloc(sizeof(lbfgs_parameter_t));
+      lbfgs_parameter_init(x);
+      return YAP_Unify(YAP_ARG1,YAP_MkIntTerm((YAP_Int)x));
 
-static YAP_Bool optimizer_finalize( void ) {
-  /* if (optimizer_status == OPTIMIZER_STATUS_NONE) { */
-  /*    printf("Error: Optimizer is not initialized.\n"); */
+ }
+
+   static YAP_Bool lbfgs_release_parameters( void )
+    {
+ 	free((void *)YAP_IntOfTerm(YAP_ARG1));
+	return true;
+
+ }
+
+static YAP_Bool lbfgs_release( void ) {
+  /* if (lbfgs_status == LBFGS_STATUS_NONE) { */
+  /*    printf("Error: Lbfgs is not initialized.\n"); */
   /*    return FALSE; */
   /* } */
 
-  /* if (optimizer_status == OPTIMIZER_STATUS_INITIALIZED) { */
-  lbfgs_free((void *)YAP_IntOfTerm(YAP_ArgOfTerm(1,YAP_ARG1)));
-  lbfgs_free((void *)YAP_IntOfTerm(YAP_ArgOfTerm(1,YAP_ARG2)));
-    lbfgs_free((void *)YAP_IntOfTerm(YAP_ARG3));
-
+  /* if (lbfgs_status == LBFGS_STATUS_INITIALIZED) { */
+  lbfgs_free((lbfgsfloatval_t *)YAP_IntOfTerm(YAP_ArgOfTerm(1,(YAP_ARG1))));
+ 
       return TRUE;
-  /* } */
-
-  /* printf("ERROR: Optimizer is running right now. Please wait till it is finished.\n"); */
   /* return FALSE; */
  }
 
 
 
-/** @pred  optimizer_set_parameter(+Name,+Value,+Parameters)
-Set the parameter Name to Value. Only possible while the optimizer
+/** @pred  lbfgs_set_parameter(+Name,+Value,+Parameters)
+Set the parameter Name to Value. Only possible while the lbfgs
 is not running.
 */
-static YAP_Bool optimizer_set_parameter( void ) {
+static YAP_Bool lbfgs_set_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
   lbfgs_parameter_t *param = (lbfgs_parameter_t *) YAP_IntOfTerm(YAP_ARG3);
-  /* if (optimizer_status != OPTIMIZER_STATUS_NONE && optimizer_status != OPTIMIZER_STATUS_INITIALIZED){ */
-  /*   printf("ERROR: Optimizer is running right now. Please wait till it is finished.\n"); */
+  /* if (lbfgs_status != LBFGS_STATUS_NONE && lbfgs_status != LBFGS_STATUS_INITIALIZED){ */
+  /*   printf("ERROR: Lbfgs is running right now. Please wait till it is finished.\n"); */
   /*   return FALSE; */
   /* } */
 
@@ -430,11 +535,11 @@ static YAP_Bool optimizer_set_parameter( void ) {
 }
 
 
-/** @pred optimizer_get_parameter(+Name,-Value)</h3>
+/** @pred lbfgs_get_parameter(+Name,-Value)</h3>
 Get the current Value for Name
 */
 
-static YAP_Bool optimizer_get_parameter( void ) {
+static YAP_Bool lbfgs_get_parameter( void ) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
   lbfgs_parameter_t *param = (lbfgs_parameter_t *) YAP_IntOfTerm(YAP_ARG3);
@@ -465,7 +570,7 @@ static YAP_Bool optimizer_get_parameter( void ) {
     return YAP_Unify(t2,YAP_MkFloatTerm(param->max_step));
   } else if  ((strcmp(name, "ftol") == 0)) {
     return YAP_Unify(t2,YAP_MkFloatTerm(param->ftol));
-  } else if  ((strcmp(name, "gtol") == 0)) {
+       } else if  ((strcmp(name, "gtol") == 0)) {
     return YAP_Unify(t2,YAP_MkFloatTerm(param->gtol));
   } else if  ((strcmp(name, "xtol") == 0)) {
     return YAP_Unify(t2,YAP_MkFloatTerm(param->xtol));
@@ -487,7 +592,7 @@ static YAP_Bool optimizer_get_parameter( void ) {
 
 X_API void init_lbfgs_predicates( void )
 {
-  fevaluate = YAP_MkFunctor(YAP_LookupAtom("evaluate"), 5);
+  fevaluate = YAP_MkFunctor(YAP_LookupAtom("evaluate"), 6);
   fprogress = YAP_MkFunctor(YAP_LookupAtom("progress"), 10);
   fmodule = YAP_MkFunctor(YAP_LookupAtom(":"), 2);
   ffloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 1);
@@ -497,10 +602,12 @@ X_API void init_lbfgs_predicates( void )
   //  lbfgs_parameter_init(&param);
 
 
-  YAP_UserCPredicate("optimizer_reserve_memory",optimizer_initialize,4);
-  YAP_UserCPredicate("optimizer_run",optimizer_run,6);
-  YAP_UserCPredicate("optimizer_free_memory",optimizer_finalize,3);
+  YAP_UserCPredicate("lbfgs_grab",lbfgs_grab,2);
+  YAP_UserCPredicate("lbfgs",p_lbfgs, 5);
+  YAP_UserCPredicate("lbfgs_release",lbfgs_release,1);
 
-  YAP_UserCPredicate("optimizer_set_parameter",optimizer_set_parameter,3);
-  YAP_UserCPredicate("optimizer_get_parameter",optimizer_get_parameter,3);
+  YAP_UserCPredicate("lbfgs_defaults",lbfgs_parameters,1);
+  YAP_UserCPredicate("lbfgs_release_parameters",lbfgs_release_parameters,1);
+  YAP_UserCPredicate("lbfgs_set_parameter",lbfgs_set_parameter,3);
+  YAP_UserCPredicate("lbfgs_get_parameter",lbfgs_get_parameter,3);
 }
