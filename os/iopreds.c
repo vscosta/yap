@@ -340,7 +340,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
   st->stream_wgetc = get_wchar;
   if (st->vfs && !st->file) {
     st->stream_putc = st->vfs->put_char;
-    st->stream_wputc = st->vfs->put_char;
+    st->stream_wputc = st->vfs->put_wchar;
     st->stream_getc = st->vfs->get_char;
     st->stream_wgetc = st->vfs->get_char;
     default_peek(st);
@@ -1161,11 +1161,7 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
     st->encoding = encoding;
   }
 
-  if (name == NULL) {
-    char buf[YAP_FILENAME_MAX + 1];
-    memset(buf, 0, YAP_FILENAME_MAX + 1);
-    name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
-  }
+  name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
   if (!name)
     Yap_Error(SYSTEM_ERROR_INTERNAL, file_name,
               "Yap_guessFileName failed: opening a file without a name");
@@ -1233,11 +1229,11 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
-static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
-                        Term user_name, encoding_t enc) {
+static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,  Term user_name, encoding_t enc) {
   struct vfs *vfsp = NULL;
   const char *fname;
 
+  int i;
   if (IsAtomTerm(tin))
     fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
   else if (IsStringTerm(tin))
@@ -1279,7 +1275,7 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
       if (strchr(io_mode, 'r')) {
         return Yap_OpenBufWriteStream(PASS_REGS1);
       } else {
-        int i = push_text_stack();
+        i = push_text_stack();
         const char *buf;
 
         buf = Yap_TextTermToText(tin PASS_REGS);
@@ -1299,7 +1295,6 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
       int i = push_text_stack();
       buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
       if (buf == NULL) {
-        pop_text_stack(i);
         return false;
       }
 #if _WIN32
@@ -1312,7 +1307,8 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
       st->status |= Popen_Stream_f;
       pop_text_stack(i);
     } else {
-      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
+         pop_text_stack(i);
+   Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
     }
   }
   if (!strchr(io_mode, 'b') && binary_file(fname)) {

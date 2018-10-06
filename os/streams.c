@@ -315,36 +315,35 @@ bool Yap_SetCurInpPos(
   return true;
 }
 
-char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
-  size_t maxs = Yap_Max(1024, max);
-  if (!nameb) {
-    nameb = malloc(maxs + 1);
-  }
+char *Yap_guessFileName(FILE *file, int sno, size_t max) {
+  size_t maxs = Yap_Max(1023, max-1);
+  int i = push_text_stack();
+  char *nameb = Malloc(maxs + 1);
   if (!file) {
     strncpy(nameb, "memory buffer", maxs);
-    return nameb;
+
+    return pop_output_text_stack(i,nameb);
   }
   int f = fileno(file);
   if (f < 0) {
     strcpy(nameb, "???");
-    return nameb;
+    return pop_output_text_stack(i,nameb);
   }
 
 #if __linux__
-  char *path = malloc(1024);
+  char *path = Malloc(1024);
   if (snprintf(path, 1023, "/proc/self/fd/%d", f) &&
       readlink(path, nameb, maxs)) {
-    free(path);
-    return nameb;
+    return pop_output_text_stack(i,nameb);
   }
 #elif __APPLE__
   if (fcntl(f, F_GETPATH, nameb) != -1) {
-    return nameb;
+    return pop_output_text_stack(i,nameb);
   }
 #else
-  TCHAR path = malloc(MAX_PATH + 1);
+  TCHAR *path = Malloc(MAX_PATH + 1);
   if (!GetFullPathName(path, MAX_PATH, path, NULL)) {
-    free(path);
+    pop_text_stack(i);
     return NULL;
   } else {
     int i;
@@ -352,14 +351,14 @@ char *Yap_guessFileName(FILE *file, int sno, char *nameb, size_t max) {
     for (i = 0; i < strlen(path); i++)
       ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';
-    free(path);
-    return nameb;
+    return pop_output_text_stack(i,nameb);
   }
-  free(path);
 #endif
   if (!StreamName(sno)) {
+    pop_text_stack(i);
     return NULL;
   }
+  pop_text_stack(i);
   return RepAtom(AtomOfTerm(StreamName(sno)))->StrOfAE;
 }
 

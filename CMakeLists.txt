@@ -606,7 +606,7 @@ endif ()
 
 if (WIN32)
    target_link_libraries(libYap ${WINDLLS})
-     if (PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
+     if (WITH_PYTHON AND PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
         target_link_libraries(libYap ${PYTHON_LIBRARIES})
     endif ()
 endif (WIN32)
@@ -687,7 +687,7 @@ set_target_properties(libYap
 
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
-if (PYTHONLIBS_FOUND AND SWIG_FOUND)
+if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
     set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
 add_subdirectory(packages/python/swig)
 
@@ -927,7 +927,7 @@ if (WIN32)
         set(MSVC_RUNTIME "dynamic")
     ENDIF (MSVC)
 
-    target_link_libraries(libYap wsock32 ws2_32 Shlwapi)
+    target_link_libraries(libYap wsock32 ws2_32 shlwapi)
 
 endif (WIN32)
 

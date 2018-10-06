@@ -1872,7 +1872,7 @@ static Int p_sleep(USES_REGS1) {
   Term ts = ARG1;
 #if defined(__MINGW32__) || _MSC_VER
   {
-    unsigned long int secs = 0, usecs = 0, msecs, out;
+    unsigned long int secs = 0, usecs = 0, msecs;
     if (IsIntegerTerm(ts)) {
       secs = IntegerOfTerm(ts);
     } else if (IsFloatTerm(ts)) {
@@ -1902,7 +1902,7 @@ static Int p_sleep(USES_REGS1) {
       req.tv_sec = IntOfTerm(ts);
     }
     out = nanosleep(&req, NULL);
-    return true;
+    return out == 0;
   }
 #elif HAVE_USLEEP
   {
