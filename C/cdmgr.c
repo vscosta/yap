@@ -85,7 +85,7 @@ static void InitConsultStack(void) {
   LOCAL_ConsultCapacity = InitialConsultCapacity;
   LOCAL_ConsultBase = LOCAL_ConsultSp =
       LOCAL_ConsultLow + LOCAL_ConsultCapacity;
-s
+}
 
 void Yap_ResetConsultStack(void) {
   CACHE_REGS

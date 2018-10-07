@@ -298,24 +298,22 @@ be lost.
   * @param _Mod_:_Goal_ is the goal to be examined.
   * @return `call(Goal)`
 */
+%% '$trace'([Mod|G]) :-
+%%     '$stop_creeping'(_),
+%     set_prolog_flag(debug, true),
+%%     !,
+%%     '$execute_nonstop'(G,Mod).
 '$trace'([Mod|G]) :-
-    '$stop_creeping'(_),
-	current_prolog_flag(debug, false),
-	!,
-	'$execute_nonstop'(G,Mod).
-'$trace'([Mod|G]) :-
-	CP is '$last_choice_pt',
-	    '$trace_query'(G, Mod, CP, G, EG),
-	gated_call(
-		   '$debugger_input',
-		   EG,
-	     E,
-		'$continue_debugging'(E)
-		  ).
+    CP is '$last_choice_pt',
+    '$trace_query'(G, Mod, CP, G, EG),
+    gated_call(
+	'$debugger_input',
+	EG,
+	E,
+	'$continue_debugging'(E)
+    ).
 
 
-'$continue_debugging'(_) :- !,
-	current_prolog_flag(debug, false).
 '$continue_debugging'(exit) :- !, '$creep'.
 '$continue_debugging'(answer) :- !, '$creep'.
 '$continue_debugging'(fail) :- !, '$creep'.
@@ -694,9 +692,6 @@ be lost.
 	CP is '$last_choice_point',
 	Goal.
 
-'$port'(_P,_G,_Module,_L,_Determinic, _Info ) :-  %%> debugging done
-	current_prolog_flag(debug, false),
-	!.
 '$port'(_P, _G, _M,GoalNumber,_Determinic, _Info ) :-   %%> leap
         '__NB_getval__'('$debug_status',state(leap,Border,_), fail),
 	GoalNumber > Border,
