@@ -1233,7 +1233,6 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
   struct vfs *vfsp = NULL;
   const char *fname;
 
-  int i;
   if (IsAtomTerm(tin))
     fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
   else if (IsStringTerm(tin))
@@ -1275,19 +1274,21 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
       if (strchr(io_mode, 'r')) {
         return Yap_OpenBufWriteStream(PASS_REGS1);
       } else {
-        i = push_text_stack();
+	int j= push_text_stack();
         const char *buf;
 
         buf = Yap_TextTermToText(tin PASS_REGS);
         if (!buf) {
-          pop_text_stack(i);
+          pop_text_stack(j);
           return false;
         }
-        buf = pop_output_text_stack(i, buf);
+        buf = pop_output_text_stack(j, buf);
         Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1,
+				       &LOCAL_encoding,
                                        MEM_BUF_MALLOC, nat,
                                        MkAtomTerm(NameOfFunctor(f)));
+	pop_text_stack(j);
         return Yap_OpenBufWriteStream(PASS_REGS1);
       }
     } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
@@ -1307,8 +1308,7 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
       st->status |= Popen_Stream_f;
       pop_text_stack(i);
     } else {
-         pop_text_stack(i);
-   Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
+      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
     }
   }
   if (!strchr(io_mode, 'b') && binary_file(fname)) {
