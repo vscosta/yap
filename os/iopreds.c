@@ -1307,7 +1307,6 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
       st->status |= Popen_Stream_f;
       pop_text_stack(i);
     } else {
-         pop_text_stack(i);
    Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
     }
   }

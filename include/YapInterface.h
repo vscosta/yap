@@ -102,6 +102,9 @@ extern YAP_Term YAP_A(int);
 #define YAP_ARG15 YAP_A(15)
 #define YAP_ARG16 YAP_A(16)
 
+X_API
+extern YAP_Term YAP_SetA(int, YAP_Term);
+
 /*  YAP_Bool IsVarTerm(YAP_Term) */
 extern X_API YAP_Bool YAP_IsVarTerm(YAP_Term);
 
@@ -268,7 +271,6 @@ extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
 extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred,
                                          YAP_UserCPred, YAP_Arity, YAP_Arity);
 
-
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(),
    int
     arity, int extra) */
@@ -371,7 +373,7 @@ extern X_API YAP_Term YAP_CopyTerm(YAP_Term t);
 
 /* bool YAP_CompileClause(YAP_Term)
 
-@short compile the clause _Cl_; on failure it may call the exception handler.  */
+@short compile the clause _Cl_; on failure it may call the exception handler. */
 extern X_API bool YAP_CompileClause(YAP_Term Cl);
 
 extern X_API int YAP_NewExo(YAP_PredEntryPtr ap, size_t data, void *user_di);
@@ -383,8 +385,7 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
 extern X_API void YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API void YAP_FastInit(char saved_state[], int argc,
-                                          char *argv[]);
+extern X_API void YAP_FastInit(char saved_state[], int argc, char *argv[]);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the
@@ -402,7 +403,8 @@ extern X_API YAP_Term YAP_ReadFromStream(int s);
 
 /// read a Prolog clause from a Prolog opened stream $s$. Similar to
 /// YAP_ReadFromStream() but takes /// default options from read_clause/3.
-extern X_API YAP_Term YAP_ReadClauseFromStream(int s, YAP_Term varNames, YAP_Term);
+extern X_API YAP_Term YAP_ReadClauseFromStream(int s, YAP_Term varNames,
+                                               YAP_Term);
 
 extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
@@ -411,7 +413,8 @@ extern X_API FILE *YAP_TermToStream(YAP_Term t);
 extern X_API int YAP_InitConsult(int mode, const char *filename, char **buf,
                                  int *previous_sno);
 
-extern X_API void YAP_EndConsult(int s, int *previous_sno, const char *previous_cwd);
+extern X_API void YAP_EndConsult(int s, int *previous_sno,
+                                 const char *previous_cwd);
 
 extern X_API void YAP_Exit(int);
 
@@ -477,7 +480,6 @@ extern X_API void YAP_SetOutputMessage(void);
 
 extern X_API int YAP_StreamToFileNo(YAP_Term);
 
-
 /**
  * Utility routine to Obtain a pointer to the YAP representation of a stream.
  *
@@ -485,7 +487,6 @@ extern X_API int YAP_StreamToFileNo(YAP_Term);
  * @return data structure for stream
  */
 extern X_API void *YAP_RepStreamFromId(int sno);
-
 
 extern X_API void YAP_CloseAllOpenStreams(void);
 

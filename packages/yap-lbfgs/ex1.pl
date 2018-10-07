@@ -44,13 +44,11 @@ progress(FX,X,G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
 
 demo :-
 	format('Optimizing the function f(x0) = sin(x0)~n',[]),
-	lbfgs_initialize(1,X,0,Solver),
-
-
+	lbfgs_initialize(1,X,FX,Solver),
 	StartX is random*10,
 	format('We start the search at the random position x0=~5f~2n',[StartX]),
 	X[0] <== StartX,
-	lbfgs_run(Solver,BestF,Status),
+	lbfgs_run(Solver,BestF),
 	BestX0 <== X[0],
 	lbfgs_finalize(Solver),
 	format('~2nOptimization done~nWe found a minimum at

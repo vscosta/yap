@@ -19,61 +19,61 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Artistic License 2.0
-% 
+%
 % Copyright (c) 2000-2006, The Perl Foundation.
-% 
+%
 % Everyone is permitted to copy and distribute verbatim copies of this
 % license document, but changing it is not allowed.  Preamble
-% 
+%
 % This license establishes the terms under which a given free software
 % Package may be copied, modified, distributed, and/or
 % redistributed. The intent is that the Copyright Holder maintains some
 % artistic control over the development of that Package while still
 % keeping the Package available as open source and free software.
-% 
+%
 % You are always permitted to make arrangements wholly outside of this
 % license directly with the Copyright Holder of a given Package. If the
 % terms of this license do not permit the full use that you propose to
 % make of the Package, you should contact the Copyright Holder and seek
 % a different licensing arrangement.  Definitions
-% 
+%
 % "Copyright Holder" means the individual(s) or organization(s) named in
 % the copyright notice for the entire Package.
-% 
+%
 % "Contributor" means any party that has contributed code or other
 % material to the Package, in accordance with the Copyright Holder's
 % procedures.
-% 
+%
 % "You" and "your" means any person who would like to copy, distribute,
 % or modify the Package.
-% 
+%
 % "Package" means the collection of files distributed by the Copyright
 % Holder, and derivatives of that collection and/or of those files. A
 % given Package may consist of either the Standard Version, or a
 % Modified Version.
-% 
+%
 % "Distribute" means providing a copy of the Package or making it
 % accessible to anyone else, or in the case of a company or
 % organization, to others outside of your company or organization.
-% 
+%
 % "Distributor Fee" means any fee that you charge for Distributing this
 % Package or providing support for this Package to another party. It
 % does not mean licensing fees.
-% 
+%
 % "Standard Version" refers to the Package if it has not been modified,
 % or has been modified only in ways explicitly requested by the
 % Copyright Holder.
-% 
+%
 % "Modified Version" means the Package, if it has been changed, and such
 % changes were not explicitly requested by the Copyright Holder.
-% 
+%
 % "Original License" means this Artistic License as Distributed with the
 % Standard Version of the Package, in its current version or as it may
 % be modified by The Perl Foundation in the future.
-% 
+%
 % "Source" form means the source code, documentation source, and
 % configuration files for the Package.
-% 
+%
 % "Compiled" form means the compiled bytecode, object code, binary, or
 % any other form resulting from mechanical transformation or translation
 % of the Source form.
@@ -81,34 +81,34 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Permission for Use and Modification Without Distribution
-% 
+%
 % (1) You are permitted to use the Standard Version and create and use
 % Modified Versions for any purpose without restriction, provided that
 % you do not Distribute the Modified Version.
 %
 % Permissions for Redistribution of the Standard Version
-% 
+%
 % (2) You may Distribute verbatim copies of the Source form of the
 % Standard Version of this Package in any medium without restriction,
 % either gratis or for a Distributor Fee, provided that you duplicate
 % all of the original copyright notices and associated disclaimers. At
 % your discretion, such verbatim copies may or may not include a
 % Compiled form of the Package.
-% 
+%
 % (3) You may apply any bug fixes, portability changes, and other
 % modifications made available from the Copyright Holder. The resulting
 % Package will still be considered the Standard Version, and as such
 % will be subject to the Original License.
 %
 % Distribution of Modified Versions of the Package as Source
-% 
+%
 % (4) You may Distribute your Modified Version as Source (either gratis
 % or for a Distributor Fee, and with or without a Compiled form of the
 % Modified Version) provided that you clearly document how it differs
 % from the Standard Version, including, but not limited to, documenting
 % any non-standard features, executables, or modules, and provided that
 % you do at least ONE of the following:
-% 
+%
 % (a) make the Modified Version available to the Copyright Holder of the
 % Standard Version, under the Original License, so that the Copyright
 % Holder may include your modifications in the Standard Version.  (b)
@@ -127,7 +127,7 @@
 %
 % Distribution of Compiled Forms of the Standard Version or
 % Modified Versions without the Source
-% 
+%
 % (5) You may Distribute Compiled forms of the Standard Version without
 % the Source, provided that you include complete instructions on how to
 % get the Source of the Standard Version. Such instructions must be
@@ -138,13 +138,13 @@
 % within thirty days after you become aware that the instructions are
 % invalid, then you do not forfeit any of your rights under this
 % license.
-% 
+%
 % (6) You may Distribute a Modified Version in Compiled form without the
 % Source, provided that you comply with Section 4 with respect to the
 % Source of the Modified Version.
 %
 % Aggregating or Linking the Package
-% 
+%
 % (7) You may aggregate the Package (either the Standard Version or
 % Modified Version) with other packages and Distribute the resulting
 % aggregation provided that you do not charge a licensing fee for the
@@ -152,7 +152,7 @@
 % components in the aggregation are permitted. The terms of this license
 % apply to the use and Distribution of the Standard or Modified Versions
 % as included in the aggregation.
-% 
+%
 % (8) You are permitted to link Modified and Standard Versions with
 % other works, to embed the Package in a larger work of your own, or to
 % build stand-alone binary or bytecode versions of applications that
@@ -160,7 +160,7 @@
 % provided the result does not expose a direct interface to the Package.
 %
 % Items That are Not Considered Part of a Modified Version
-% 
+%
 % (9) Works (including, but not limited to, modules and scripts) that
 % merely extend or make use of the Package, do not, by themselves, cause
 % the Package to be a Modified Version. In addition, such works are not
@@ -168,21 +168,21 @@
 % terms of this license.
 %
 % General Provisions
-% 
+%
 % (10) Any use, modification, and distribution of the Standard or
 % Modified Versions is governed by this Artistic License. By using,
 % modifying or distributing the Package, you accept this license. Do not
 % use, modify, or distribute the Package, if you do not accept this
 % license.
-% 
+%
 % (11) If your Modified Version has been derived from a Modified Version
 % made by someone other than you, you are nevertheless required to
 % ensure that your Modified Version complies with the requirements of
 % this license.
-% 
+%
 % (12) This license does not grant you the right to use any trademark,
 % service mark, tradename, or logo of the Copyright Holder.
-% 
+%
 % (13) This license includes the non-exclusive, worldwide,
 % free-of-charge patent license to make, have made, use, offer to sell,
 % sell, import and otherwise transfer the Package with respect to any
@@ -192,7 +192,7 @@
 % that the Package constitutes direct or contributory patent
 % infringement, then this Artistic License to you shall terminate on the
 % date that such litigation is filed.
-% 
+%
 % (14) Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
 % HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
 % WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
@@ -308,7 +308,7 @@ check_examples :-
 	  throw(error(examples))
 	 ); true
 	),
-	
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Check example probabilities
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -342,7 +342,7 @@ check_examples :-
 	   user:example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  ) ;
-	  
+
 	  (
 	   user:test_example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
@@ -362,7 +362,7 @@ check_examples :-
 	 ); true
 	).
 %========================================================================
-%= 
+%=
 %========================================================================
 
 reset_learning :-
@@ -413,7 +413,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	NextIteration is CurrentIteration+1,
 	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
-	
+
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
@@ -422,7 +422,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	gradient_descent,
 
 	problog_flag(log_frequency,Log_Frequency),
-	
+
 	(
 	 ( Log_Frequency>0, 0 =:= CurrentIteration mod Log_Frequency)
 	->
@@ -431,7 +431,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	),
 
 %	update_values,
-	
+
 	(
 	 last_mse(Last_MSE)
 	->
@@ -443,7 +443,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	  MSE_Diff is abs(Last_MSE-Current_MSE)
 	 );  (
 	      logger_get_variable(mse_trainingset,Current_MSE),
-	      assertz(last_mse(Current_MSE)), 
+	      assertz(last_mse(Current_MSE)),
 	      MSE_Diff is Epsilon+1
 	     )
 	),
@@ -463,7 +463,7 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	!,
 	logger_stop_timer(duration),
-	
+
 
 	logger_write_data,
 
@@ -489,17 +489,17 @@ init_learning :-
 	!.
 init_learning :-
 	check_examples,
-	
+
 %	empty_output_directory,
 	logger_write_header,
 
 	format_learning(1,'Initializing everything~n',[]),
 
 
- 
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Check, if continuous facts are used.
-	% if yes, switch to problog_exact 
+	% if yes, switch to problog_exact
         % continuous facts are not supported yet.
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	set_default_gradient_method,
@@ -536,7 +536,7 @@ init_learning :-
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 
 
- 
+
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -560,7 +560,7 @@ empty_bdd_directory.
 
 
 set_default_gradient_method :-
-    problog_flag(continuous_facts, true), 
+    problog_flag(continuous_facts, true),
     !,
     problog_flag(init_method,OldMethod),
     format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
@@ -612,12 +612,12 @@ init_one_query(QueryID,Query,Type) :-
 	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
 	  tree_to_grad(Tree, Hash, [], Grad)
-	  ;
-	  Bdd = bdd(-1,[],[]),
-	  Grad=[]
+	  % ;
+	  % Bdd = bdd(-1,[],[]),
+	  % Grad=[]
 	  ),
+		write('.'),
 	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	 ;
 	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,NOf,Bdd))) ->
@@ -682,7 +682,7 @@ node_to_gradient_node(pn(P-G,X,L,R), H, gnoden(P,G,X,Id,PL,GL,PR,GR)) :-
 	rb_lookup(X,Id,H),
 	(L == 1 -> GL=0, PL=1 ; L == 0 -> GL = 0, PL=0 ; L = PL-GL),
 	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
-        
+
 run_sp([], _, P0, P0).
 run_sp(gnodep(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, _, PF) :-
 	P is EP*PL+ (1.0-EP)*PR,
@@ -793,7 +793,7 @@ mse_testset :-
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
-	
+
 	format_learning(2,'MSE_Test ',[]),
 	update_values,
 	bb_put(llh_test_queries,0.0),
@@ -888,10 +888,8 @@ gradient_descent :-
 	N1 is N-1,
 	forall(tunable_fact(FactID,GroundTruth), (X[FactID] <== 0.5)),
 	problog_flag(sigmoid_slope,Slope),
-	lbfgs_run(Solver,BestFA),
-	BestF <== BestFA[0],
-	format('~2nOptimization done~nWe found a minimum ~4f
-.~2n',[BestF]),
+	lbfgs_run(Solver,BestF),
+	format('~2nOptimization done~nWe found a minimum ~4f.~n',[BestF]),
 	forall(tunable_fact(FactID,GroundTruth), set_tunable(FactID,GroundTruth,X)),
 	lbfgs_finalize(Solver).
 
@@ -917,9 +915,12 @@ bind_maplist([Node-Theta|MapList], Slope, X) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(L, X,Grad,N,_,_) :-
+user:evaluate(L, X0,Grad,N,_,_) :-
     Handle = user_error,
     problog_flag(sigmoid_slope,Slope),
+		forall(between(0,N1,I),
+	   (V is random, X[I] <== V) %, sigmoid(X[I],Slope,Probs[I]) )
+	   )
     Probs = X, %<== array[N] of floats,
     N1 is N-1,
     forall(between(0,N1,I),
@@ -931,7 +932,7 @@ user:evaluate(L, X,Grad,N,_,_) :-
 	   ),
     sum_list(LLs,LLH_Training_Queries),
 	forall(tunable_fact(FactID,GroundTruth), (Z<==X[FactID],W<==Grad[FactID])),
-    L[0] <== LLH_Training_Queries.
+    L = LLH_Training_Queries.
 
 compute_grad(N, X, Grad, Probs, Slope, Handle, LL) :-
     user:example(QueryID,Query,QueryProb,Type),
@@ -957,7 +958,7 @@ gradientpair(_BDD,_Slope,_BDDProb, _Grad).
 user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
         problog_flag(sigmoid_slope,Slope),
     X0 <== X[0],
-    X1 <== X[1], 
+    X1 <== X[1],
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,X0                                               ,X1,FX,X_Norm,G_Norm,Step,Ls]).
 
 
@@ -973,7 +974,7 @@ init_flags :-
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
 	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
-	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
+	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
@@ -1009,4 +1010,3 @@ init_logger :-
 :- initialization(init_flags).
 
 :- initialization(init_logger).
-

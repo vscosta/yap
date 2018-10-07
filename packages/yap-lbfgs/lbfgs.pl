@@ -71,7 +71,7 @@ if you port it to another system, ... please send me an email.
 
 ### Usage</h2>
 The module lbfgs provides the following predicates after you loaded
-it by 
+it by
 ~~~~
 :-use_module(library(lbfgs)).
 ~~~~
@@ -119,7 +119,7 @@ demo :-
 	StartX is random*10,
 	format('We start the search at the random position x0=~5f~2n',[StartX]),
 	X[0] <== StartX,
-	
+
 	lbfgs_run(Solver,BestF,Status),
 	BestX0 <== X[0],
 	lbfgs_finalize(Solver),
@@ -151,7 +151,6 @@ yes
 @{
 
 */
-:- dynamic initialized/0.
 
 :- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
 
@@ -178,17 +177,15 @@ lbfgs_initialize(N,X,U,t(N,X,U,Params)) :-
 	lbfgs_grab(N,X).
 
 	% install call back predicates in the user module which call
-	% the predicates given by the arguments		
+	% the predicates given by the arguments
 
 
 /** @pred  lbfgs_finalize/0
 Clean up the memory.
 */
 lbfgs_finalize(t(N,X,U,Params)) :-
-	initialized,
 	lbfgs_release(X) ,
-	lbfgs_release_parameters(Params) ,
-	retractall(initialized).
+	lbfgs_release_parameters(Params) .
 
 /** @pred  lbfgs_run/2
 Do the work.
@@ -205,14 +202,14 @@ of libLBFGS</a> for the meaning of each parameter.
 ~~~~
    ?- lbfgs_parameters.
 ==========================================================================================
-Type      Name               Value          Description                   
+Type      Name               Value          Description
 ==========================================================================================
 int       m                  6              The number of corrections to approximate the inverse hessian matrix.
-float     epsilon            1e-05          Epsilon for convergence test. 
+float     epsilon            1e-05          Epsilon for convergence test.
 int       past               0              Distance for delta-based convergence test.
-float     delta              1e-05          Delta for convergence test.   
+float     delta              1e-05          Delta for convergence test.
 int       max_iterations     0              The maximum number of iterations
-int       linesearch         0              The line search algorithm.    
+int       linesearch         0              The line search algorithm.
 int       max_linesearch     40             The maximum number of trials for the line search.
 float     min_step           1e-20          The minimum step of the line search routine.
 float     max_step           1e+20          The maximum step of the line search.
@@ -223,12 +220,12 @@ float     orthantwise_c      0.0            Coefficient for the L1 norm of varia
 int       orthantwise_start  0              Start index for computing the L1 norm of the variables.
 int       orthantwise_end    -1             End index for computing the L1 norm of the variables.
 ==========================================================================================
-~~~~ 
+~~~~
 */
 lbfgs_parameters  :-
     lbfgs_defaults(Params),
     lbfgs_parameters(t(_X,_,_,Params)).
-    
+
 lbfgs_parameters(t(_,_,_,Params))  :-
 	lbfgs_get_parameter(m,M ,Params),
 	lbfgs_get_parameter(epsilon,Epsilon ,Params),
