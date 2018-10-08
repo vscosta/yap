@@ -1161,11 +1161,10 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
     st->encoding = encoding;
   }
 
-  name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
-  if (!name)
+  st->name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
+  if (!st->name)
     Yap_Error(SYSTEM_ERROR_INTERNAL, file_name,
               "Yap_guessFileName failed: opening a file without a name");
-  st->name = Yap_LookupAtom(name);
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;

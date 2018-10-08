@@ -156,10 +156,8 @@ yes
 
 
 /** @pred lbfgs_initialize(+N, -SolverInfo)
-The same as before, except that the user module is the default
-value.
 
-Example
+Do initial memory allocation and a reference to a descriptor.
 ~~~~
 lbfgs_initialize(1, Block)
 ~~~~~
@@ -169,26 +167,25 @@ lbfgs_initialize(N,X,t(N,X,U,Params)) :-
 
 lbfgs_initialize(N,X,U,t(N,X,U,Params)) :-
     lbfgs_defaults(Params),
-	integer(N),
-	N>0,
-
-	% check whether there are such call back functions
-
-	lbfgs_grab(N,X).
+    integer(N),
+    N>0,
+    lbfgs_grab(N,X).
 
 	% install call back predicates in the user module which call
 	% the predicates given by the arguments
 
 
-/** @pred  lbfgs_finalize/0
+/** @pred  lbfgs_finalize(+State)
+
 Clean up the memory.
 */
 lbfgs_finalize(t(N,X,U,Params)) :-
 	lbfgs_release(X) ,
 	lbfgs_release_parameters(Params) .
 
-/** @pred  lbfgs_run/2
-Do the work.
+/** @pred  lbfgs_run(+State, -FinalOutput)
+
+run the algorithm. output the final score of the function being optimised
 */
 lbfgs_run(t(N,X,U,Params),FX) :-
     lbfgs(N,X, Params, U, FX).

@@ -524,6 +524,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 
 #define BEGIN_ERRORS()                                                         \
   static Term mkerrort(yap_error_number e, Term culprit, Term info) {          \
+    if (!e || !info) return TermNil; \
     switch (e) {
 
 #define E0(A, B)                                                               \
@@ -1066,7 +1067,9 @@ static Int get_exception(USES_REGS1) {
         (i->errorClass == EVENT || i->errorNo == SYNTAX_ERROR)) {
       t = i->errorRawTerm;
     } else if (i->culprit != NULL) {
-      t = mkerrort(i->errorNo, Yap_BufferToTerm(i->culprit, TermNil),
+      Term culprit = Yap_BufferToTerm(i->culprit, TermNil);
+      if (culprit == 0) culprit = TermNil;
+      t = mkerrort(i->errorNo,culprit ,
                    MkSysError(i));
     } else {
       t = mkerrort(i->errorNo, TermNil, MkSysError(i));

@@ -1,4 +1,4 @@
-%xb%%% -*- Mode: Prolog; -*-
+%%% -*- Mode: Prolog; -*-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -284,6 +284,7 @@ save_model:-
 %= if so, complain and stop
 %=
 %========================================================================
+
 
 check_examples :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -602,7 +603,8 @@ init_one_query(QueryID,Query,Type) :-
 	->
 	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
 	 ;
-	  b_setval(problog_required_keep_ground_ids,false),
+	 b_setval(problog_required_keep_ground_ids,false),
+	 (QueryID mod 100 =:= 0 -> writeln(QueryID) ; true),
 	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
 	  Query =.. [_,X,Y]
 	  ->
@@ -915,13 +917,10 @@ bind_maplist([Node-Theta|MapList], Slope, X) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(L, X0,Grad,N,_,_) :-
+user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     Handle = user_error,
     problog_flag(sigmoid_slope,Slope),
-		forall(between(0,N1,I),
-	   (V is random, X[I] <== V) %, sigmoid(X[I],Slope,Probs[I]) )
-	   )
-    Probs = X, %<== array[N] of floats,
+    Probs = X,
     N1 is N-1,
     forall(between(0,N1,I),
 	   (Grad[I] <== 0.0) %, sigmoid(X[I],Slope,Probs[I]) )
@@ -931,12 +930,10 @@ user:evaluate(L, X0,Grad,N,_,_) :-
 	    LLs
 	   ),
     sum_list(LLs,LLH_Training_Queries),
-	forall(tunable_fact(FactID,GroundTruth), (Z<==X[FactID],W<==Grad[FactID])),
-    L = LLH_Training_Queries.
+	forall(tunable_fact(FactID,GroundTruth), (Z<==X[FactID],W<==Grad[FactID],writeln(FactID:(W->Z)))).
 
 compute_grad(N, X, Grad, Probs, Slope, Handle, LL) :-
     user:example(QueryID,Query,QueryProb,Type),
-    recorded(QueryID, BDD, _),
     BDD = bdd(Dir, GradTree, MapList),
     bind_maplist(MapList, Slope, Probs),
     qprobability(BDD,Slope,BDDProb),
@@ -947,8 +944,8 @@ gradientpair(BDD,Slope,BDDProb, QueryProb, Grad) :-
     qgradient(BDD, Slope, FactID, GradValue),
     % writeln(FactID),
     G0 <== Grad[FactID],
-    GN is G0-GradValue*(QueryProb-BDDProb),
-    %writeln(FactID:(G0->GN)),
+writeln(    GN is G0-GradValue*(QueryProb-BDDProb)),    GN is G0-GradValue*(QueryProb-BDDProb),
+    writeln(FactID:(G0->GN)),
     Grad[FactID] <== GN.
 gradientpair(_BDD,_Slope,_BDDProb, _Grad).
 
