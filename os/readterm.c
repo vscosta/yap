@@ -754,7 +754,7 @@ static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart) {
     v_vnames = get_varnames(fe, tokstart);
   else
     v_vnames = 0L;
-  if (fe->t && trueLocalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
+  if (fe->t && trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG)) {
     warn_singletons(fe, tokstart);
   }
   if (fe->t && fe->tcomms)
