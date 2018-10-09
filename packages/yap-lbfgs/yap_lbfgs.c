@@ -66,7 +66,11 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
     // Goal did not succeed
     return FALSE;
   }
-  rc = YAP_FloatOfTerm(YAP_GetFromSlot(sl));
+  YAP_Term o;
+  if (YAP_IsIntTerm((o = YAP_GetFromSlot(sl))))
+  rc = YAP_IntOfTerm(o);
+  else
+  rc = YAP_FloatOfTerm(o);
   YAP_RecoverSlots(1, sl);
   return rc;
 }

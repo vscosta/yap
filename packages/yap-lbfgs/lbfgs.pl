@@ -179,7 +179,7 @@ lbfgs_initialize(N,X,U,t(N,X,U,Params)) :-
 
 Clean up the memory.
 */
-lbfgs_finalize(t(N,X,U,Params)) :-
+lbfgs_finalize(t(_N,X,_U,Params)) :-
 	lbfgs_release(X) ,
 	lbfgs_release_parameters(Params) .
 
