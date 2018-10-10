@@ -442,7 +442,7 @@ Make predicate  _Pred_ invisible to `current_predicate/2`,
 `listing`, and friends.
  **/
 hide_predicate(P0) :-
-    strip_module(P0, M, P),
+    strip_module(P0, _M, P),
     nonvar(P),
     P = N/A,
     !,
@@ -539,7 +539,7 @@ predicate_property(Pred,Prop) :-
     functor(P,N,A),
     once(recorded('$module','$module'(_TFN,M,_S,Publics,_L),_)),
     lists:memberchk(N/A,Publics).
-'$predicate_property'(P,M,M0,imported_from(M)) :-
+'$predicate_property'(_P,M,M0,imported_from(M)) :-
   M \= M0.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,NCl).
@@ -598,7 +598,7 @@ current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
   (	var(Mod)
   ->
-      '$all_current_modules'(M)
+      '$all_current_modules'(Mod)
     ;
       true
     ),
@@ -821,4 +821,3 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 /**
 @}
 */
-

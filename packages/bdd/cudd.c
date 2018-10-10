@@ -811,7 +811,7 @@ static YAP_Bool p_cudd_print_with_names(void) {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
   const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  char **namesp;
+  char ** namesp;
   YAP_Term names = YAP_ARG4;
   FILE *f;
   YAP_Int len;
@@ -850,14 +850,14 @@ static YAP_Bool p_cudd_print_with_names(void) {
     names = YAP_TailOfTerm(names);
     namesp[i++] = f;
   }
-  Cudd_DumpDot(manager, 1, &n0, namesp, NULL, f);
+  Cudd_DumpDot(manager, 1, &n0, (const char * const*)namesp, NULL, f);
   if (f != stdout && f != stderr)
     fclose(f);
   while (i > 0) {
     i--;
     free((void *)namesp[i]);
   }
-  free(namesp);
+  free((void *)namesp);
   return TRUE;
 }
 

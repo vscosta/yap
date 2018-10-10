@@ -251,11 +251,11 @@ compose_message(Throw, _Level) -->
 
 location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
 		!,
-	[ '~a:~d:~d ' - [FileName,LN,0] ] .
+	[ '~a:~d:~d: ' - [FileName,LN,0] ] .
 location(style_check(A,LN,FileName,B ), Level , LC) -->
 	!,
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
-	[ '~a:~d:0 ~a ' - [FileName,LN,Level] ] .
+	[ '~a:~d:0: ~a: ' - [FileName,LN,Level] ] .
 location( error(_,Info), Level, LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
@@ -300,7 +300,7 @@ main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term
 	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
 	    [nl]
 	  ).
-main_message( error(syntax_error(_Msg), Info), Level, LC ) -->
+main_message( error(syntax_error(Msg), _Info), Level, _LC ) -->
 	!,
 	[' ~a: syntax error ~s' - [Level,Msg]],
 	[nl].
@@ -335,9 +335,9 @@ main_error_message(evaluation_error(What, Who)) -->
 main_error_message(existence_error(Type , Who)) -->
  	[nl],
    [  '~*|** ~q ~q could not be found **' - [ 10,Type, Who], nl ].
-main_error_message(permission_error(Op, Type, Id)) -->	
+main_error_message(permission_error(Op, Type, Id)) -->
 	[ '~*|** value ~q is not allowed in ~a ~q **' - [ 10, Op, Type,Id], nl ].
-main_error_message(instantiation_error) -->	
+main_error_message(instantiation_error) -->
 	[ '~*|** unbound variable **' - [10], nl ].
 main_error_message(representation_error(Type)) -->
 	[ '~*|** YAP cannot represent ~w **' - [10, Type], nl ].

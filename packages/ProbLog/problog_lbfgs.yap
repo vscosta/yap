@@ -833,7 +833,7 @@ gradient_descent :-
 	forall(tunable_fact(FactID,GroundTruth),
 	       (XZ is 0.5, X[FactID] <== XZ,set_fact_probability(FactID,XZ))),
 	problog_flag(sigmoid_slope,Slope),
-	%%% lbfgs_set_parameter(min_step, 2e-40, Solver),
+	lbfgs_set_parameter(min_step, Solver, 0.0),
 	lbfgs_run(Solver,BestF),
 	format('~2nOptimization done~nWe found a minimum ~4f.~n',[BestF]),
 	forall(tunable_fact(FactID,GroundTruth), set_tunable(FactID,X)),

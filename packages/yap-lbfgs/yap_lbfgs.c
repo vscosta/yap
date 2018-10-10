@@ -350,6 +350,12 @@ static YAP_Bool lbfgs_release(void) {
   /* return FALSE; */
 }
 
+static lbfgs_parameter_t * get_params(YAP_Term t) {
+  YAP_Int ar = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t));
+  YAP_Term arg = YAP_ArgOfTerm(ar, t);
+  return (lbfgs_parameter_t *)YAP_IntOfTerm(arg);
+}
+
 /** @pred  lbfgs_set_parameter(+Name,+Value,+Parameters)
 Set the parameter Name to Value. Only possible while the lbfgs
 is not running.
@@ -357,7 +363,7 @@ is not running.
 static YAP_Bool lbfgs_set_parameter(void) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
-  lbfgs_parameter_t *param = (lbfgs_parameter_t *)YAP_IntOfTerm(YAP_ARG3);
+  lbfgs_parameter_t *param = get_params(YAP_ARG3);
   /* if (lbfgs_status != LBFGS_STATUS_NONE && lbfgs_status !=
    * LBFGS_STATUS_INITIALIZED){ */
   /*   printf("ERROR: Lbfgs is running right now. Please wait till it is
@@ -510,6 +516,7 @@ static YAP_Bool lbfgs_set_parameter(void) {
   return TRUE;
 }
 
+
 /** @pred lbfgs_get_parameter(+Name,-Value)</h3>
 Get the current Value for Name
 */
@@ -517,7 +524,7 @@ Get the current Value for Name
 static YAP_Bool lbfgs_get_parameter(void) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
-  lbfgs_parameter_t *param = (lbfgs_parameter_t *)YAP_IntOfTerm(YAP_ARG3);
+  lbfgs_parameter_t *param = get_params(YAP_ARG3);
 
   if (!YAP_IsAtomTerm(t1)) {
     return FALSE;

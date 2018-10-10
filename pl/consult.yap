@@ -74,7 +74,6 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
-
 :- '$system_meta_predicates'([
 	compile(:),
 	consult(:),
@@ -235,7 +234,7 @@ load_files(Files0,Opts) :-
     '__NB_getval__'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, Skip) :-
-    stream_property(Stream,[alias(loop_stream),tty(TTy),reposition(Rep)]),
+    stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
     ->
 	     (TTy = true   -> Skip = false ; Skip = true)
@@ -302,6 +301,7 @@ load_files(Files0,Opts) :-
     current_input(S),
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(-user_input, M,Opts, Call) :-
+    current_input(S),
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).

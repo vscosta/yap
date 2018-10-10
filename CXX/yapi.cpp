@@ -18,6 +18,8 @@ extern "C" {
 #include "YapBlobs.h"
 #include "YapInterface.h"
 #include "iopreds.h"
+    
+#include "YapInit.h"
 
 X_API char *Yap_TermToBuffer(Term t, int flags);
 
