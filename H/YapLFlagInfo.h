@@ -30,10 +30,11 @@ START_LOCAL_FLAGS
 
 /** + `autoload`: set the system to look for undefined procedures */
 YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
-    /** + `read-only flag, that tells if Prolog is in an inner top-level */
+
+/** + `read-only flag, that tells if Prolog is in an inner top-level */
     YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0", NULL),
-    YAP_FLAG(CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true",
-             NULL), /** + `call_counting`
+
+ /** + `call_counting`
 
                      Predicates compiled with this flag set maintain a counter
                on the numbers of proceduree calls and of retries. These counters
@@ -51,18 +52,29 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
                If `on` `fileerrors` is `on`, if `off` (default)
                `fileerrors` is disabled.
                */
+  YAP_FLAG(CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true",
+             NULL),
+
+/** + support for coding systens, YAP relies on UTF-8 internally.
+ */
     YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
-    YAP_FLAG(FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true",
+
+/** + what to do if opening a file fails.
+
+ */
+  YAP_FLAG(FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true",
              NULL), /** +  `fileerrors`
 
                  If `on` `fileerrors` is `on`, if `off` (default)
                  `fileerrors` is disabled.
                  */
-    YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
-             NULL), /** +  `language_mode`
+ /** +  `language_mode`
 
-                 wweter native mode or trying to emulate a different Prolog.
+                 wweter native mode or trying to emulate a different
+                 Prolog.
                  */
+  YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
+             NULL),
     YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
              "true", NULL), /** +  `stack_dump_on_error `
 

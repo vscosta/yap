@@ -357,11 +357,11 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-    ( current_prolog_flag(verbose_load, false)
+    ( current_prolog_flag(verbose_load, true)
       ->
-	Verbosity = silent
-	;
 	Verbosity = informational
+    ;
+     current_prolog_flag(verbose_load, Verbosity)
     ),
     StartMsg = loading_module,
     EndMsg = module_loaded,

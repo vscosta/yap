@@ -1335,7 +1335,7 @@ lineSearch(Final_X,Final_Value) :-
 	line_search_evaluate_point(InitLeft,Value_InitLeft),
 
 
-	Parameters=ls(A,B,InitLeft,InitRight,Value_A,Value_B,Value_InitLeft,Value_InitRight,1),
+i	Parameters=ls(A,B,InitLeft,InitRight,Value_A,Value_B,Value_InitLeft,Value_InitRight,1),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%% BEGIN BACK TRACKING

@@ -2613,7 +2613,7 @@ compute_bounds(LP, UP, Status) :-
 % same as problog_threshold/5, but lower bound only (no stopped derivations stored)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-problog_low(Goal/Cond, Threshold, _, _) :-
+problog_low(Goal/Cond, Threshold, Status, P) :-
     !,
     problog_low((Cond,Goal), Threshold, P1, Status),
     problog_low( Cond, Threshold, P2, Status),

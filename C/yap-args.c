@@ -1056,6 +1056,9 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     init_globals(yap_init);
 
     start_modules();
+   if (yap_init->QuietMode) {
+    setVerbosity(TermSilent);
+  }
     if (yap_init->install && Yap_OUTPUT_STARTUP) {
       setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
                                 MkAtomTerm(Yap_LookupAtom(Yap_INPUT_STARTUP)));
