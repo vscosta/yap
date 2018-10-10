@@ -596,9 +596,9 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-  (	var(Mod)
+  (	var(M)
   ->
-      '$all_current_modules'(Mod)
+      '$all_current_modules'(M)
     ;
       true
     ),
