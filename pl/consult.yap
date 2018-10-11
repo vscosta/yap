@@ -411,8 +411,8 @@ load_files(Files0,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-	( Val == false -> yap_flag(verbose_load, full) ;
-	    Val == true -> yap_flag(verbose_load, silent) ;
+	( Val == false -> yap_flag(verbose_load, true) ;
+	    Val == true -> yap_flag(verbose_load, false) ;
 	    '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
 	( Val == false -> true ;
@@ -925,7 +925,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(false)]), Error, '$LoopError'(Error, consult)),
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).

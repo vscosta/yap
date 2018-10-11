@@ -357,6 +357,8 @@ static inline bool verboseMode(void) {
 
 static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
+  if (val == TermSilent)
+    GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
@@ -418,12 +420,12 @@ extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int 
 
 #define Yap_ArgListToVector(l, def, n, e)				\
   Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
-                                
+
 extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
 
 #define Yap_ArgList2ToVector(l, def, n, e)           \
   Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
-                                
+
 #endif // YAP_FLAGS_H
 
 /// @}

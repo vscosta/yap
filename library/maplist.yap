@@ -65,7 +65,7 @@
 	sumnodes_body(3,+,+,-,+,+),
 	include(1,+,-),
 	exclude(1,+,-),
-	partition(2,+,-,-),
+	partition(1,+,-,-),
 	partition(2,+,-,-,-),
 	foldl(3, +, +, -),
 	foldl2(5, +, +, -, +, -),

@@ -826,17 +826,17 @@ gradient_descent :-
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
 	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
-	format_learning(2,'Gradient ',[]),
 	findall(FactID,tunable_fact(FactID,GroundTruth),L), length(L,N),
 %	leash(0),trace,
 	lbfgs_initialize(N,X,0,Solver),
 	forall(tunable_fact(FactID,GroundTruth),
 	       (XZ is 0.5, X[FactID] <== XZ,set_fact_probability(FactID,XZ))),
 	problog_flag(sigmoid_slope,Slope),
-	lbfgs_set_parameter(min_step, Solver, 0.0),
+	lbfgs_set_parameter(min_step, 0.0, Solver),
 	lbfgs_run(Solver,BestF),
 	format('~2nOptimization done~nWe found a minimum ~4f.~n',[BestF]),
 	forall(tunable_fact(FactID,GroundTruth), set_tunable(FactID,X)),
+	set_problog_flag(mse_trainset, BestF),
 	lbfgs_finalize(Solver).
 
 set_tunable(I,P) :-

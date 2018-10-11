@@ -579,12 +579,12 @@ and if it is bound to `off` disable them. The default for YAP is
     is `false` by default except if YAP is booted with the `-L`
     flag.
  */
-    YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, isatom, "normal", NULL),
+    YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
     /**< `verbose_load `
 
      If `true` allow printing of informational messages when
      consulting files. If `false` disable printing these messages. It
-     is `normal` by default except if YAP is booted with the `-L`
+     is `true` by default except if YAP is booted with the `-L`
      flag.
   */
     YAP_FLAG(VERSION_FLAG, "version", false, nat, YAP_NUMERIC_VERSION, NULL),
