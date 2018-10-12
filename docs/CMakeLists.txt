@@ -26,8 +26,7 @@ SET( EXT
     ${DOCS_SOURCE_DIR}/custom/theme.css
     ${DOCS_SOURCE_DIR}/custom/yap.css
     )
-
-
+  
     foreach(i ${CMAKE_HTML_EXTRA_})
       string(APPEND CMAKE_HTML_EXTRA ${i} " ")
     endforeach(i ${CMAKE_HTML_EXTRA_})
@@ -87,10 +86,6 @@ endforeach(i ${DOCS_EXCLUDE_})
 
 
     set(doxyfile_in ${CMAKE_SOURCE_DIR}/docs/Doxyfile.in)
-
-
-
-
 
    add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 

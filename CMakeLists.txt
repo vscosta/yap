@@ -767,6 +767,8 @@ option(WITH_DOCS
         "generate YAP docs" OFF)
 
 IF (WITH_DOCS)
+get_target_property(YAP_SOURCES libYap SOURCES)
+
     add_subDIRECTORY(docs)
 ENDIF (WITH_DOCS)
 

@@ -1150,6 +1150,19 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
 return rc;
 }
 
+/** @pred  working_directory( ?_CurDir_,? _NextDir_)
+
+
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+Unifies  _Old_ with an absolute path to the current working directory
+and change working directory to  _New_.  Use the pattern
+`working_directory(CWD, CWD)` to get the current directory.  See
+also `absolute_file_name/2` and chdir/1.
+
+
+*/
 static Int working_directory(USES_REGS1) {
   char dir[YAP_FILENAME_MAX + 1];
   Term t1 = Deref(ARG1), t2;
