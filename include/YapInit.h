@@ -1,5 +1,12 @@
+ /**
+  * 
+  * @file YapInit.h
+  * 
+  * * Utilities for Booting YAP
+  */
+
 #ifndef YAPINIT_H
-#define YAPINIT_H 1
+#define YAPINIT_H
 
 #define YAP_BOOT_FROM_SAVED_CODE 1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
@@ -52,7 +59,7 @@ typedef struct yap_boot_params {
   //> if NON-0, minimal size for Local+Global Stack
   size_t StackSize;
   //> if NON-0, maximal size for Local+Global Stack
-size_t MaxStackSize;
+  size_t MaxStackSize;
   //*> deprecated
   size_t MaxGlobalSize;
   //> if NON-0, minimal size for Trail

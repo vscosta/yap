@@ -13,11 +13,11 @@ predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
-
+@}
 
 @defgroup  ChYInterface  YAP original C-interface
-@{
 @ingroup fli_c_cxx
+@{
 
 Before describing in full detail how to interface to C code, we will examine
 a brief example.
@@ -50,8 +50,8 @@ system.
 @}
 
 @defgroup CallYAP Using the compiler:
-@{
 @ingroup ChYInterface
+@{
 
 Under Linux you should use:
 

@@ -36,8 +36,8 @@
 /**
 
 @defgroup Sets Collecting Solutions to a Goal
-@{
 @ingroup builtins
+@{
 
 When there are several solutions to a goal, if the user wants to collect all
 the solutions he may be led to use the data base, because backtracking will
