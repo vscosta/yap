@@ -873,7 +873,7 @@ compute_grad(Grad, GradCount, Probs, Slope, LL) :-
 	bind_maplist(MapList, Slope, Probs),
 %writeln( MapList ),
     qprobability(BDD,Slope,BDDProb),
-    LL is (((BDDProb)-(QueryProb))**2),
+    LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
 %writeln( qprobability(BDD,Slope,BDDProb) ),
     forall(
 	    member(I-_, MapList),
