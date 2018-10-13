@@ -603,13 +603,13 @@ be lost.
 %   - redo resets the goal
 %   - fail gives up on the goal.
 '$re_trace_query'(abort, _G, _Module,  _GoalNumber, _H) :-
-	!,
+    !,
     abort.
 '$re_trace_query'(forward(fail,G0), _G, __Module, GoalNumber, _H) :-
     GoalNumber =< G0,
     !,
     fail.
-    '$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
+'$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
     GoalNumber > G0,
     !,
     catch(

@@ -1009,7 +1009,7 @@ prolog:print_message(Severity, Msg) :-
 	),
 	!.
 prolog:print_message(Level, _Msg) :-
-	current_prolog_flag(verbose_load, silent),
+	current_prolog_flag(verbose_load, false),
 	stream_property(_Stream, alias(loop_stream) ),
 	Level = informational,
 	!.

@@ -316,7 +316,7 @@ bool Yap_SetCurInpPos(
 }
 
 Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
-  size_t maxs = Yap_Max(1023, max-1);
+  size_t maxs = Yap_Max(1023, max - 1);
   if (!file) {
     Atom at = Yap_LookupAtom("mem");
     return at;
@@ -329,24 +329,26 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
 
   int i = push_text_stack();
 #if __linux__
-  char *path = Malloc(1024), *nameb =  Malloc(maxs+1);
+  char *path = Malloc(1024), *nameb = Malloc(maxs + 1);
   size_t len;
   if ((len = snprintf(path, 1023, "/proc/self/fd/%d", f)) >= 0 &&
       (len = readlink(path, nameb, maxs)) > 0) {
     nameb[len] = '\0';
     Atom at = Yap_LookupAtom(nameb);
-     pop_text_stack(i);
-     return at;
+    pop_text_stack(i);
+    return at;
   }
 #elif __APPLE__
+  char *nameb = Malloc(maxs + 1);
   if (fcntl(f, F_GETPATH, nameb) != -1) {
     Atom at = Yap_LookupAtom(nameb);
-     pop_text_stack(i);
-     return at;
+    pop_text_stack(i);
+    return at;
   }
 #else
-  TCHAR *path = Malloc(MAX_PATH + 1);
-  if (!GetFullPathName(path, MAX_PATH, path, NULL)) {
+  TCHAR *path = Malloc(MAX_PATH + 1), *nameb = Malloc(MAX_PATH + 1);
+
+  if (!GetFullPathName(path, MAX_PATH, nameb, NULL)) {
     pop_text_stack(i);
     return NULL;
   } else {
@@ -356,8 +358,8 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
       ptr += put_utf8(ptr, path[i]);
     *ptr = '\0';
     Atom at = Yap_LookupAtom(nameb);
-     pop_text_stack(i);
-     return at;
+    pop_text_stack(i);
+    return at;
   }
 #endif
   if (!StreamName(sno)) {
@@ -721,7 +723,7 @@ static Int cont_stream_property(USES_REGS1) { /* current_stream */
     i = Yap_CheckAlias(AtomOfTerm(args[STREAM_PROPERTY_ALIAS].tvalue));
     UNLOCK(GLOBAL_Stream[i].streamlock);
     if (i < 0 || !Yap_unify(ARG1, Yap_MkStream(i))) {
-    free(args);
+      free(args);
       cut_fail();
     }
     det = true;
@@ -1001,11 +1003,11 @@ static void CloseStream(int sno) {
   CACHE_REGS
 
   // fflush(NULL);
-//  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
-//                      sno);
+  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
+  //                      sno);
   VFS_t *me;
-  //fprintf( stderr, "- %d\n",sno);
-if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
+  // fprintf( stderr, "- %d\n",sno);
+  if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
       GLOBAL_Stream[sno].file == NULL) {
     if (me->close) {
       me->close(sno);
@@ -1043,7 +1045,8 @@ if ((me = GLOBAL_Stream[sno].vfs) != NULL &&
   GLOBAL_Stream[sno].vfs = NULL;
   GLOBAL_Stream[sno].file = NULL;
   GLOBAL_Stream[sno].status = Free_Stream_f;
- // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>", sno);
+  // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "close stream  <%d>",
+  // sno);
 
   /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
     Yap_CloseSocket();
@@ -1556,8 +1559,7 @@ FILE *Yap_FileDescriptorFromStream(Term t) {
   return rc;
 }
 
-void Yap_InitBackIO(void)
-{
+void Yap_InitBackIO(void) {
   Yap_InitCPredBack("stream_property", 2, 2, stream_property,
                     cont_stream_property, SafePredFlag | SyncPredFlag);
 }

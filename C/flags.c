@@ -1207,8 +1207,9 @@ Term Yap_UnknownFlag(Term mod) {
 
 Term getYapFlag(Term tflag) {
   FlagEntry *fv;
-  flag_term *tarr;
-  if (IsVarTerm(tflag)) {
+   flag_term *tarr;
+   tflag = Deref(tflag);
+   if (IsVarTerm(tflag)) {
     Yap_Error(INSTANTIATION_ERROR, tflag, "yap_flag/2");
     return (FALSE);
   }
@@ -1234,6 +1235,10 @@ Term getYapFlag(Term tflag) {
     Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
     return (FALSE);
   }
+  if (tflag == TermSilent)
+    {
+      Yap_DebugPlWriteln(TermSilent);
+    }
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv) {
     Term fl = GLOBAL_Flags[USER_FLAGS_FLAG].at;

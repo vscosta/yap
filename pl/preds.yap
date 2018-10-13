@@ -578,7 +578,6 @@ predicate_statistics(P0,NCls,Sz,ISz) :-
 
 Given predicate  _P_,  _NCls_ is the number of erased clauses for
  _P_ that could not be discarded yet,  _Sz_ is the amount of space
-taken to store those clauses (in bytes), and  _IndexSz_ is the amount
 of space required to store indices to those clauses (in bytes).
 
  */
@@ -596,9 +595,9 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-  (	var(Mod)
+  (	var(M)
   ->
-      '$all_current_modules'(Mod)
+      '$all_current_modules'(M)
     ;
       true
     ),
