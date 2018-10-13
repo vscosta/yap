@@ -27,13 +27,13 @@ ECLASS(RESOURCE_ERROR, "resource_error", 2)
 /// bad text
 ECLASS(SYNTAX_ERROR_CLASS, "syntax_error", 1)
 /// OS or internal
-ECLASS(SYSTEM_ERROR_CLASS, "system_error", 2)
+ECLASS(SYSTEM_ERROR_CLASS, "system_error", 1)
 /// bad typing
 ECLASS(TYPE_ERROR, "type_error", 2)
 /// should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
-/// escape hatch
-ECLASS(EVENT, "event", 2)
+/// user defined escape hatch
+ECLASS(EVENT, "event", 1)
 
 END_ERROR_CLASSES();
 
