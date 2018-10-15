@@ -788,15 +788,17 @@ path.
 The predicates performs a left-recursive traversal. It does not protect against file system errors and it does not check for symbolic links.
 
 */
-directory_map(D, P),
+directory_map(D, P) :-
         working_directory(_, D),
 	list_directory(D,L),
 	d_map(L, P).
 
 d_map([],_,_,_).
 d_map(['.'|Fs],D, P) :-
+    !,
     d_map(Fs,D, P).
 d_map(['..'|Fs],D, P) :-
+    !,
     d_map(Fs, D, P).
 d_map([D|Fs], D, P) :-
     absolute_file_name( F, File, [prefix(D)] ),

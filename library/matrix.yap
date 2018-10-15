@@ -775,6 +775,9 @@ rhs(log(RHS), Logs ) :- !,
 rhs(exp(RHS), Logs ) :- !,
 	rhs(RHS, X1),
 	matrix_to_exps( X1, Logs ).
+rhs(sum(RHS), Logs ) :- !,
+	rhs(RHS, X1),
+	matrix_sum( X1, Logs ).
 rhs(S, NS) :-
 	rhs_opaque( S ), !,
 	S = NS.
