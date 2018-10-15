@@ -116,7 +116,7 @@ class YAPInputSplitter(InputSplitter):
             line = text.rstrip()
         self.errors = []
         engine.mgoal(errors(self, line),"user",True)
-        return self.errors != []
+        return self.errors == []
 
 
     def reset(self):
@@ -496,12 +496,13 @@ class YAPCompleter(Completer):
             completions are coming from different sources this function does not
             ensure that each completion object will only be present once.
         """
+        if text[0] == '%' and text.find('\n') > offset:
+            magic_res = self.magic_matches(text)
+            return text,  magic_res
         self.matches = []
         prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
-        if self.matches:
-            return text, self.matches
-        magic_res = self.magic_matches(text)
-        return text,  magic_res
+        return text, self.matches
+        
 
 
 
@@ -643,6 +644,7 @@ class YAPRun:
         # variable names should match strings
         # ask = True
         # launch the query
+        cell = raw_cell  # cell has to exist so it can be stored/logged
 
 
         info = interactiveshell.ExecutionInfo(
@@ -679,7 +681,6 @@ class YAPRun:
         #     cell = self.shell.input_transformer_manager.transform_cell(raw_cell)
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
-        cell = raw_cell  # cell has to exist so it can be stored/logged
         for i in self.errors:
             try:
                 (_,lin,pos,text) = i
@@ -707,31 +708,23 @@ class YAPRun:
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
         self.cell_name = str( self.shell.execution_count)
         if cell[0] == '%':
+            txt0 = cell.split(maxsplit = 1, sep = '\n')
             if cell[1] == '%':
                 linec = False
-                mcell = cell.lstrip('%%')
+                magic = txt[0].lstrip('%%').strip()
+                body = txt[1]
+                self.result = True, self.shell.run_cell_magic(magic, line, body)
             else:
                 linec = True
-                mcell = cell.lstrip('%')
-            txt0 = mcell.split(maxsplit = 2, sep = '\n')
+                magic = cell.lstrip('%').strip()
             txt = txt0[0].split(maxsplit = 2)
             magic = txt[0]
-            if len(txt) == 2:
-                line = txt[1]
-            else:
-                line = ""
-            if linec:
-                self.shell.run_line_magic(magic, line)
-            else:
-                if len(txt0) == 1:
-                    cell = ""
-                else:
-                    body = txt0[1]+'\n'+txt0[2]
-                self.result = True, self.shell.run_cell_magic(magic, line, body)
-                return self.result
+            self.shell.run_line_magic(magic, line)
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = self.result
+        if syntaxErrors(self, text):
+            self.result.result = False
         has_raised = False
         try:
             self.yapeng.mgoal(streams(True),"user", True)
@@ -743,7 +736,7 @@ class YAPRun:
                 #     trace=1,
                 #     count=0)
                 #
-
+                
                 # def f(self, cell, state):
                 #     state = self.jupyter_query( cell )
 
