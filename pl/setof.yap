@@ -34,20 +34,21 @@
         setof/3], []).
 
 /**
-
-@defgroup Sets Collecting Solutions to a Goal
-@ingroup builtins
-@{
-
-When there are several solutions to a goal, if the user wants to collect all
-the solutions he may be led to use the data base, because backtracking will
-forget previous solutions.
-
-YAP allows the programmer to choose from several system
-predicates instead of writing his own routines.  findall/3 gives you
-the fastest, but crudest solution. The other built-in predicates
-post-process the result of the query in several different ways:
-
+ * 
+ * @defgroup Sets Collecting Solutions to a Goal
+ * @ingroup builtins
+ * @{
+ * 
+ * 
+ * When there are several solutions to a goal, if the user wants to collect all
+ * the solutions he may be led to use the data base, because backtracking will
+ * forget previous solutions.
+ * 
+ * YAP allows the programmer to choose from several system
+ * predicates instead of writing his own routines.  findall/3 gives you
+ * the fastest, but crudest solution. The other built-in predicates
+ * post-process the result of the query in several different ways:
+ * 
 */
 
 :- use_system_module( '$_boot', ['$catch'/3]).

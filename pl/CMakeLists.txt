@@ -95,5 +95,5 @@ endif()
 
 
 install(FILES ${PL_BOOT_SOURCES}
-        DESTINATION ${libpl}/pll
+        DESTINATION ${libpl}/pl
         )

@@ -446,7 +446,7 @@ hide_predicate(P0) :-
     nonvar(P),
     P = N/A,
     !,
-    functor(S,N,A).
+    functor(_S,N,A).
 hide_predicate(P0) :-
     strip_module(P0, M, P),
     '$hide_predicate'(P, M).

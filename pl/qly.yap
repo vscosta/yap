@@ -362,7 +362,7 @@ available it tries reconsulting the source file.
 qload_module(Mod) :-
   prolog_flag(verbose_load, OldF, false),
       prolog_flag(verbose, OldV, silent),
-	Verbosity = silent
+	Verbosity = silent,
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
