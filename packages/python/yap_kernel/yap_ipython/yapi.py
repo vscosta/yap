@@ -835,5 +835,5 @@ class YAPRun:
         (query, _,loop, sols) = self.clean_end(query)
         return (program, query, loop, sols)
 
-global
-globals = {}
+# global
+#globals = {}
