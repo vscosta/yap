@@ -832,10 +832,7 @@ gradient_descent :-
 	forall(tunable_fact(FactID,GroundTruth),
 	       (XZ is 0.0, X[FactID] <== XZ,sigmoid(XZ,Slope,Pr),set_fact_probability(FactID,Pr))),
 	problog_flag(sigmoid_slope,Slope),
-	lbfgs_run(Solver,BestF),
-	format('~2nOptimization done~nWe found a minimum ~4f.~n',[BestF]),
-	forall(tunable_fact(FactID,GroundTruth), set_tunable(FactID,Slope,X)),
-	set_problog_flag(mse_trainset, BestF),
+	lbfgs_run(Solver,_BestF),
 	lbfgs_finalize(Solver).
 
 set_tunable(I,Slope,P) :-
@@ -981,6 +978,13 @@ bind_maplist([Node-Pr|MapList], Slope, X) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
     problog_flag(sigmoid_slope,Slope),
+    forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
+    current_iteration(CurrentIteration),
+    retractall(current_iteration(_)),
+    NextIteration is CurrentIteration+1,
+    assertz(current_iteration(NextIteration)),
+    save_model,
+    set_problog_flag(mse_trainset, FX),
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).

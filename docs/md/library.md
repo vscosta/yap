@@ -6,4 +6,6 @@
   `LIBDIR` variable in the Makefile for YAP). Several files in the
   library are originally from the public-domain Edinburgh Prolog library.
 
+[TOC]
+
 @}
