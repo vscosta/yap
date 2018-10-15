@@ -427,6 +427,8 @@ ructions                                       *
 
       Op(deallocate, p);
       CACHE_Y_AS_ENV(YREG);
+      // do this before checking
+      SREG = YREG;
       check_trail(TR);
 #ifndef NO_CHECKING
       /* check stacks */
@@ -435,7 +437,6 @@ ructions                                       *
       PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
          :-( */
-      SREG = YREG;
       CPREG = (yamop *) ENV_YREG[E_CP];
       ENV = ENV_YREG = (CELL *) ENV_YREG[E_E];
 #ifdef DEPTH_LIMIT
