@@ -41,7 +41,7 @@ jupyter_cell(Caller, _, Line ) :-
   Query = Caller,
     catch(
 	python_query(Query,Line),
-	E=error(A,B),
+	error(A,B),
 	 system_error(A,B)
     ).
 
@@ -69,7 +69,7 @@ jupyter_consult(Cell) :-
 	    open_mem_read_stream( Cell, Stream),
 	    load_files(user:'jupyter cell',[stream(Stream)| Options])
 	),
-	E=error(A,B),
+	error(A,B),
 	(close(Stream), system_error(A,B))
     ),
     fail.
