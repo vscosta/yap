@@ -8,10 +8,19 @@
 
 #define YAP_CPP_INTERFACE 1
 
-#include <gmpxx.h>
 #include <iostream>
 #include <string>
 #include <vector>
+
+extern "C"{
+#include "config.h"
+}
+
+#if HAVE_GMPXX_H
+#include <gmpxx.h>
+#elif HAVE_GMP_H
+#include <gmp.h>
+#endif
 
 /*!
  *

@@ -334,9 +334,14 @@ find_package(GMP)
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
 
+
 if (GMP_FOUND)
     #config.h needs this (TODO: change in code latter)
     include_directories(${GMP_INCLUDE_DIRS})
+        check_include_file(gmp.h HAVE_GMP_H)
+        check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
+
+
 endif (GMP_FOUND)
 
     option(WITH_READLINE "use readline or libedit" ON)
@@ -416,7 +421,7 @@ set(DEF_TRAILSPACE 0)
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS DEPTH_LIMIT=1;COROUTINING=1;RATIONAL_TREES=1)
 
 # inform we are compiling YAP
-set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE")
+set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE=1")
 
 # Compilation model
 #  target_compile_definitions(libYap PUBLIC  _XOPEN_SOURCE=700 )

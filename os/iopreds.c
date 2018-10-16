@@ -342,7 +342,7 @@ void Yap_DefaultStreamOps(StreamDesc *st) {
     st->stream_putc = st->vfs->put_char;
     st->stream_wputc = st->vfs->put_wchar;
     st->stream_getc = st->vfs->get_char;
-    st->stream_wgetc = st->vfs->get_char;
+    st->stream_wgetc = st->vfs->get_wchar;
     default_peek(st);
     return;
   } else {
@@ -1126,7 +1126,7 @@ static void check_bom(int sno, StreamDesc *st) {
   }
 }
 
-bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode,
+bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
                     Term file_name, encoding_t encoding, stream_flags_t flags,
                     void *vfs) {
   // fprintf(stderr,"+ %s --> %d\n", name, sno);
@@ -1228,7 +1228,8 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
-static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,  Term user_name, encoding_t enc) {
+static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
+                        Term user_name, encoding_t enc) {
   struct vfs *vfsp = NULL;
   const char *fname;
 
@@ -1273,7 +1274,7 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
       if (strchr(io_mode, 'r')) {
         return Yap_OpenBufWriteStream(PASS_REGS1);
       } else {
-	int j= push_text_stack();
+        int j = push_text_stack();
         const char *buf;
 
         buf = Yap_TextTermToText(tin PASS_REGS);
@@ -1283,11 +1284,10 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
         }
         buf = pop_output_text_stack(j, buf);
         Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1,
-				       &LOCAL_encoding,
+        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
                                        MEM_BUF_MALLOC, nat,
                                        MkAtomTerm(NameOfFunctor(f)));
-	pop_text_stack(j);
+        pop_text_stack(j);
         return Yap_OpenBufWriteStream(PASS_REGS1);
       }
     } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
@@ -1313,8 +1313,8 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode, 
   if (!strchr(io_mode, 'b') && binary_file(fname)) {
     st->status |= Binary_Stream_f;
   }
-  Yap_initStream(sno, st->file, fname, io_mode, user_name, LOCAL_encoding,
-                 st->status, vfsp);
+  Yap_initStream(sno, st->file, Yap_LookupAtom(fname), io_mode, user_name,
+                 LOCAL_encoding, st->status, vfsp);
   return true;
 }
 
@@ -1670,7 +1670,7 @@ int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
   return -1;
 }
 
-int Yap_FileStream(FILE *fd, char *name, Term file_name, int flags,
+int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
                    VFS_t *vfsp) {
   CACHE_REGS
   int sno;

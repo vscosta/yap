@@ -363,7 +363,6 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
   }
 #endif
   if (!StreamName(sno)) {
-    pop_text_stack(i);
     return NULL;
   }
   pop_text_stack(i);

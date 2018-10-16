@@ -632,13 +632,13 @@ __Yap_Mk64IntegerTerm(YAP_LONG_LONG i USES_REGS) {
 }
 
 inline static Term add_int(Int i, Int j USES_REGS) {
-#if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ > 4)
   Int w;
   if (!__builtin_add_overflow(i, j, &w))
     RINT(w);
   return Yap_gmp_add_ints(i, j);
   ;
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && __GNUC__ > 4
   Int w;
   if (!__builtin_add_overflow_p(i, j, w))
     RINT(w);

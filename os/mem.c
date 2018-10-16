@@ -225,7 +225,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars, encoding_t *encp,  
   flags = Input_Stream_f | InMemory_Stream_f;
   st->vfs = NULL;
   st->name = name;
-  Yap_initStream(sno, f, "Memory Stream","wa", TermNil, encoding, flags, NULL);
+  Yap_initStream(sno, f, Yap_LookupAtom("Memory Stream"),"wa", TermNil, encoding, flags, NULL);
   // like any file stream.
   /* currently these streams are not seekable */
   st->status = Input_Stream_f | InMemory_Stream_f;
