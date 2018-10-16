@@ -1,7 +1,7 @@
 """Tests for pylab tools module.
 """
 #-----------------------------------------------------------------------------
-# Copyright (c) 2011, the yap_ipython Development Team.
+# Copyright (c) 2011, the IPython Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -19,7 +19,7 @@ import time
 import nose.tools as nt
 
 # Our own imports
-from yap_ipython.lib import backgroundjobs as bg
+from IPython.lib import backgroundjobs as bg
 
 #-----------------------------------------------------------------------------
 # Globals and constants

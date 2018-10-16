@@ -10,7 +10,7 @@
   :- module( jupyter,
               [jupyter_query/3,
                blank/1,
-	       streams/1
+	       streams/2
            ]
             ).
 */
@@ -91,7 +91,7 @@ blank(Text) :-
     close(user_input),
     close(user_output),
     close(user_error).
-streams(true) :-
+streams( true) :-
     open('/python/input', read, _Input, [alias(user_input),bom(false),script(false)]),
     open('/python/sys.stdout', append, _Output, [alias(user_output)]),
     open('/python/sys.stderr', append, _Error, [alias(user_error)]).

@@ -5,7 +5,7 @@ Enable Gtk3 to be used interacive by yap_ipython.
 Authors: Thomi Richards
 """
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012, the yap_ipython Development Team.
+# Copyright (c) 2012, the IPython Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #

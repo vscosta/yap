@@ -12,7 +12,7 @@ from traitlets import Instance
 from yap_ipython.core.inputsplitter import *
 from yap_ipython.core.inputtransformer import *
 from yap_ipython.core.interactiveshell import *
-
+from ipython_genutils.py3compat import builtin_mod
 from yap_ipython.core import interactiveshell
 
 from collections import namedtuple
@@ -29,7 +29,7 @@ enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
-streams = namedtuple('streams', ' text' )
+streams = namedtuple('streams', 'text' )
 nostreams = namedtuple('nostreams', ' text' )
 
 global  engine
@@ -727,6 +727,7 @@ class YAPRun:
             self.result.result = False
         has_raised = False
         try:
+            builtin_mod.input = self.shell.sys_raw_input
             self.yapeng.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to

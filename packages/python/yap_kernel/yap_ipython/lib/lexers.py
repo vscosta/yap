@@ -1,29 +1,29 @@
 # -*- coding: utf-8 -*-
 """
-Defines a variety of Pygments lexers for highlighting yap_ipython code.
+Defines a variety of Pygments lexers for highlighting IPython code.
 
 This includes:
 
     IPythonLexer, IPython3Lexer
-        Lexers for pure yap_ipython (python + magic/shell commands)
+        Lexers for pure IPython (python + magic/shell commands)
 
     IPythonPartialTracebackLexer, IPythonTracebackLexer
         Supports 2.x and 3.x via keyword `python3`.  The partial traceback
         lexer reads everything but the Python code appearing in a traceback.
-        The full lexer combines the partial lexer with an yap_ipython lexer.
+        The full lexer combines the partial lexer with an IPython lexer.
 
     IPythonConsoleLexer
-        A lexer for yap_ipython console sessions, with support for tracebacks.
+        A lexer for IPython console sessions, with support for tracebacks.
 
     IPyLexer
         A friendly lexer which examines the first line of text and from it,
-        decides whether to use an yap_ipython lexer or an yap_ipython console lexer.
+        decides whether to use an IPython lexer or an IPython console lexer.
         This is probably the only lexer that needs to be explicitly added
         to Pygments.
 
 """
 #-----------------------------------------------------------------------------
-# Copyright (c) 2013, the yap_ipython Development Team.
+# Copyright (c) 2013, the IPython Development Team.
 #
 # Distributed under the terms of the Modified BSD License.
 #
@@ -34,7 +34,9 @@ This includes:
 import re
 
 # Third party
-from pygments.lexers import BashLexer, PythonLexer, Python3Lexer
+from pygments.lexers import (
+    BashLexer, HtmlLexer, JavascriptLexer, RubyLexer, PerlLexer, PythonLexer,
+    Python3Lexer, TexLexer)
 from pygments.lexer import (
     Lexer, DelegatingLexer, RegexLexer, do_insertions, bygroups, using,
 )
@@ -51,36 +53,23 @@ __all__ = ['build_ipy_lexer', 'IPython3Lexer', 'IPythonLexer',
            'IPythonPartialTracebackLexer', 'IPythonTracebackLexer',
            'IPythonConsoleLexer', 'IPyLexer']
 
-ipython_tokens = [
-  (r"(?s)(\s*)(%%)(\w+)(.*)", bygroups(Text, Operator, Keyword, Text)),
-  (r'(?s)(^\s*)(%%!)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(BashLexer))),
-  (r"(%%?)(\w+)(\?\??)$",  bygroups(Operator, Keyword, Operator)),
-  (r"\b(\?\??)(\s*)$",  bygroups(Operator, Text)),
-  (r'(%)(sx|sc|system)(.*)(\n)', bygroups(Operator, Keyword,
-                                       using(BashLexer), Text)),
-  (r'(%)(\w+)(.*\n)', bygroups(Operator, Keyword, Text)),
-  (r'^(!!)(.+)(\n)', bygroups(Operator, using(BashLexer), Text)),
-  (r'(!)(?!=)(.+)(\n)', bygroups(Operator, using(BashLexer), Text)),
-  (r'^(\s*)(\?\??)(\s*%{0,2}[\w\.\*]*)', bygroups(Text, Operator, Text)),
-  (r'(\s*%{0,2}[\w\.\*]*)(\?\??)(\s*)$', bygroups(Text, Operator, Text)),
-]
 
 def build_ipy_lexer(python3):
-    """Builds yap_ipython lexers depending on the value of `python3`.
+    """Builds IPython lexers depending on the value of `python3`.
 
     The lexer inherits from an appropriate Python lexer and then adds
-    information about yap_ipython specific keywords (i.e. magic commands,
+    information about IPython specific keywords (i.e. magic commands,
     shell commands, etc.)
 
     Parameters
     ----------
     python3 : bool
-        If `True`, then build an yap_ipython lexer from a Python 3 lexer.
+        If `True`, then build an IPython lexer from a Python 3 lexer.
 
     """
-    # It would be nice to have a single yap_ipython lexer class which takes
+    # It would be nice to have a single IPython lexer class which takes
     # a boolean `python3`.  But since there are two Python lexer classes,
-    # we will also have two yap_ipython lexer classes.
+    # we will also have two IPython lexer classes.
     if python3:
         PyLexer = Python3Lexer
         name = 'IPython3'
@@ -88,9 +77,39 @@ def build_ipy_lexer(python3):
         doc = """IPython3 Lexer"""
     else:
         PyLexer = PythonLexer
-        name = 'yap_ipython'
+        name = 'IPython'
         aliases = ['ipython2', 'ipython']
-        doc = """yap_ipython Lexer"""
+        doc = """IPython Lexer"""
+
+    ipython_tokens = [
+       (r'(?s)(\s*)(%%capture)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%debug)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?is)(\s*)(%%html)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(HtmlLexer))),
+        (r'(?s)(\s*)(%%javascript)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(JavascriptLexer))),
+        (r'(?s)(\s*)(%%js)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(JavascriptLexer))),
+        (r'(?s)(\s*)(%%latex)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(TexLexer))),
+        (r'(?s)(\s*)(%%pypy)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PerlLexer))),
+        (r'(?s)(\s*)(%%prun)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%pypy)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%python)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%python2)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PythonLexer))),
+        (r'(?s)(\s*)(%%python3)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(Python3Lexer))),
+        (r'(?s)(\s*)(%%ruby)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(RubyLexer))),
+        (r'(?s)(\s*)(%%time)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%timeit)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r'(?s)(\s*)(%%writefile)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(PyLexer))),
+        (r"(?s)(\s*)(%%)(\w+)(.*)", bygroups(Text, Operator, Keyword, Text)),
+        (r'(?s)(^\s*)(%%!)([^\n]*\n)(.*)', bygroups(Text, Operator, Text, using(BashLexer))),
+        (r"(%%?)(\w+)(\?\??)$",  bygroups(Operator, Keyword, Operator)),
+        (r"\b(\?\??)(\s*)$",  bygroups(Operator, Text)),
+        (r'(%)(sx|sc|system)(.*)(\n)', bygroups(Operator, Keyword,
+                                                using(BashLexer), Text)),
+        (r'(%)(\w+)(.*\n)', bygroups(Operator, Keyword, Text)),
+        (r'^(!!)(.+)(\n)', bygroups(Operator, using(BashLexer), Text)),
+        (r'(!)(?!=)(.+)(\n)', bygroups(Operator, using(BashLexer), Text)),
+        (r'^(\s*)(\?\??)(\s*%{0,2}[\w\.\*]*)', bygroups(Text, Operator, Text)),
+        (r'(\s*%{0,2}[\w\.\*]*)(\?\??)(\s*)$', bygroups(Text, Operator, Text)),
+    ]
 
     tokens = PyLexer.tokens.copy()
     tokens['root'] = ipython_tokens + tokens['root']
@@ -107,12 +126,12 @@ IPythonLexer = build_ipy_lexer(python3=False)
 
 class IPythonPartialTracebackLexer(RegexLexer):
     """
-    Partial lexer for yap_ipython tracebacks.
+    Partial lexer for IPython tracebacks.
 
     Handles all the non-python output. This works for both Python 2.x and 3.x.
 
     """
-    name = 'yap_ipython Partial Traceback'
+    name = 'IPython Partial Traceback'
 
     tokens = {
         'root': [
@@ -156,7 +175,7 @@ class IPythonPartialTracebackLexer(RegexLexer):
 
 class IPythonTracebackLexer(DelegatingLexer):
     """
-    yap_ipython traceback lexer.
+    IPython traceback lexer.
 
     For doctests, the tracebacks can be snipped as much as desired with the
     exception to the lines that designate a traceback. For non-syntax error
@@ -165,12 +184,12 @@ class IPythonTracebackLexer(DelegatingLexer):
 
     """
     # The lexer inherits from DelegatingLexer.  The "root" lexer is an
-    # appropriate yap_ipython lexer, which depends on the value of the boolean
-    # `python3`.  First, we parse with the partial yap_ipython traceback lexer.
+    # appropriate IPython lexer, which depends on the value of the boolean
+    # `python3`.  First, we parse with the partial IPython traceback lexer.
     # Then, any code marked with the "Other" token is delegated to the root
     # lexer.
     #
-    name = 'yap_ipython Traceback'
+    name = 'IPython Traceback'
     aliases = ['ipythontb']
 
     def __init__(self, **options):
@@ -190,7 +209,7 @@ class IPythonTracebackLexer(DelegatingLexer):
 
 class IPythonConsoleLexer(Lexer):
     """
-    An yap_ipython console lexer for yap_ipython code-blocks and doctests, such as:
+    An IPython console lexer for IPython code-blocks and doctests, such as:
 
     .. code-block:: rst
 
@@ -207,7 +226,7 @@ class IPythonConsoleLexer(Lexer):
             In [4]: 1 / 0
 
 
-    Support is also provided for yap_ipython exceptions:
+    Support is also provided for IPython exceptions:
 
     .. code-block:: rst
 
@@ -217,18 +236,18 @@ class IPythonConsoleLexer(Lexer):
 
             ---------------------------------------------------------------------------
             Exception                                 Traceback (most recent call last)
-            <ipython-input-1-fca2ab0ca76b> in <module>()
+            <ipython-input-1-fca2ab0ca76b> in <module>
             ----> 1 raise Exception
 
             Exception:
 
     """
-    name = 'yap_ipython console session'
+    name = 'IPython console session'
     aliases = ['ipythonconsole']
     mimetypes = ['text/x-ipython-console']
 
     # The regexps used to determine what is input and what is output.
-    # The default prompts for yap_ipython are:
+    # The default prompts for IPython are:
     #
     #    in           = 'In [#]: '
     #    continuation = '   .D.: '
@@ -245,7 +264,7 @@ class IPythonConsoleLexer(Lexer):
     ipytb_start = re.compile(r'^(\^C)?(-+\n)|^(  File)(.*)(, line )(\d+\n)')
 
     def __init__(self, **options):
-        """Initialize the yap_ipython console lexer.
+        """Initialize the IPython console lexer.
 
         Parameters
         ----------
@@ -254,12 +273,12 @@ class IPythonConsoleLexer(Lexer):
             lexer. Otherwise, they are parsed using a Python 2 lexer.
         in1_regex : RegexObject
             The compiled regular expression used to detect the start
-            of inputs. Although the yap_ipython configuration setting may have a
+            of inputs. Although the IPython configuration setting may have a
             trailing whitespace, do not include it in the regex. If `None`,
             then the default input prompt is assumed.
         in2_regex : RegexObject
             The compiled regular expression used to detect the continuation
-            of inputs. Although the yap_ipython configuration setting may have a
+            of inputs. Although the IPython configuration setting may have a
             trailing whitespace, do not include it in the regex. If `None`,
             then the default input prompt is assumed.
         out_regex : RegexObject
@@ -475,11 +494,11 @@ class IPythonConsoleLexer(Lexer):
 
 class IPyLexer(Lexer):
     """
-    Primary lexer for all yap_ipython-like code.
+    Primary lexer for all IPython-like code.
 
     This is a simple helper lexer.  If the first line of the text begins with
-    "In \[[0-9]+\]:", then the entire text is parsed with an yap_ipython console
-    lexer. If not, then the entire text is parsed with an yap_ipython lexer.
+    "In \[[0-9]+\]:", then the entire text is parsed with an IPython console
+    lexer. If not, then the entire text is parsed with an IPython lexer.
 
     The goal is to reduce the number of lexers that are registered
     with Pygments.

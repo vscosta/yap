@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Test suite for the deepreload module."""
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import os
 
 import nose.tools as nt
 
-from yap_ipython.utils.syspathcontext import prepended_to_syspath
-from yap_ipython.utils.tempdir import TemporaryDirectory
-from yap_ipython.lib.deepreload import reload as dreload
+from IPython.utils.syspathcontext import prepended_to_syspath
+from IPython.utils.tempdir import TemporaryDirectory
+from IPython.lib.deepreload import reload as dreload
 
 def test_deepreload():
     "Test that dreload does deep reloads and skips excluded modules."
