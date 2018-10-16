@@ -197,7 +197,7 @@ Prints a table with the current parameters. See the <a href="http://www.chokkan.
 of libLBFGS</a> for the meaning of each parameter.
 
 ~~~~
-   ?- lbfgs_parameters.
+   ?- lbfgs_parameters(State).
 ==========================================================================================
 Type      Name               Value          Description
 ==========================================================================================

@@ -4,11 +4,10 @@
 /** @file preddyns.yap */
 
 /**
- * @addtogroup Database
- * @{
- *
+ * @addtogroup Internal_Database
  * @brief main operations on dynamic predicates.
-
+ *
+ * 
 */
 
 /** @pred  asserta(+ _C_) is iso

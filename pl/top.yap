@@ -7,8 +7,11 @@
   *
   *   @addtogroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
-  *   @{
-*/
+  * 
+  * [TOC]
+  * 
+  *    @{
+  * \*/
 
 :- '$system_meta_predicates'([
 	catch(0,?,0),
@@ -923,7 +926,7 @@ expand_term(Term,Expanded) :-
 
 %% @}
 
-%% @addto group YAPControl
+%% @addtogroup YAPControl
 
 %% @{
     

@@ -832,10 +832,7 @@ gradient_descent :-
 	forall(tunable_fact(FactID,GroundTruth),
 	       (XZ is 0.0, X[FactID] <== XZ,sigmoid(XZ,Slope,Pr),set_fact_probability(FactID,Pr))),
 	problog_flag(sigmoid_slope,Slope),
-	lbfgs_run(Solver,BestF),
-	format('~2nOptimization done~nWe found a minimum ~4f.~n',[BestF]),
-	forall(tunable_fact(FactID,GroundTruth), set_tunable(FactID,Slope,X)),
-	set_problog_flag(mse_trainset, BestF),
+	lbfgs_run(Solver,_BestF),
 	lbfgs_finalize(Solver).
 
 set_tunable(I,Slope,P) :-
@@ -848,38 +845,42 @@ set_tunable(I,Slope,P) :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     %Handle = user_error,
-    GradCount <== array[N] of ints,
+    example_count(TrainingExampleCount),
+    LLs <== array[TrainingExampleCount ] of floats,
     Probs  <== array[N] of floats,
     problog_flag(sigmoid_slope,Slope),
-    N1 is N-1,
-    
+    N1 is N-1,    
     forall(between(0,N1,I),
-	   (Grad[I] <== 0.0, S <== X[I], sigmoid(S,Slope, P), Probs[I] <== P) 
-	  ),
-    findall(LL,
-	    compute_grad(Grad, GradCount, Probs, Slope, LL),
-	    LLs
-	   ),
-    sum_list(LLs,LLH_Training_Queries).
+	   (Grad[I] <== 0.0, S <== X[I], sigmoid(S,Slope, P), Probs[I] <== P)
+	  ), nl,
+    forall( 
+	full_example(QueryID,QueryProb,BDD),	   
+	   compute_grad(QueryID, BDD, QueryProb,Grad, Probs, Slope,LLs)
+    ),
+    LLH_Training_Queries <== sum(LLs),
+    writeln(LLH_Training_Queries).
 %wrap(X, Grad, GradCount).
 
+full_example(QueryID,QueryProb,BDD) :-
+    user:example(QueryID,_Query,QueryProb,_),
+     recorded(QueryID,BDD,_),
+         BDD = bdd(_Dir, _GradTree, MapList),
+         MapList = [_|_].
 
-compute_grad(Grad, GradCount, Probs, Slope, LL) :-
-	user:example(QueryID,_Query,QueryProb,_),
-	recorded(QueryID,BDD,_),
-	BDD = bdd(_Dir, _GradTree, MapList),
-	MapList = [_|_],
-	bind_maplist(MapList, Slope, Probs),
-%writeln( MapList ),
+compute_grad(QueryID,BDD,QueryProb, Grad, Probs, Slope, LLs) :-
+    BDD = bdd(_Dir, _GradTree, MapList),
+    bind_maplist(MapList, Slope, Probs),
+    recorded(QueryID,BDD,_),
     qprobability(BDD,Slope,BDDProb),
     LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+    LLs[QueryID] <== LL,    
 %writeln( qprobability(BDD,Slope,BDDProb) ),
     forall(
 	    member(I-_, MapList),
-	gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs, GradCount)
+	gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs)
     ).
 
-gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs, 	GradCount) :-
+gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs) :-
     qgradient(I, BDD, Slope, FactID, GradValue),
     % writeln(FactID),
     G0 <== Grad[FactID],
@@ -887,10 +888,7 @@ gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs, 	GradCount) :-
 %writeln(    GN is G0-GradValue*(QueryProb-BDDProb)),
    GN is G0-GradValue*2*Prob*(1-Prob)*(QueryProb-BDDProb),
    %writeln(FactID:(G0->GN)),
-   GC <== GradCount[FactID],
-   GC1 is GC+1,
-   GradCount[FactID] <== GC1,
-    Grad[FactID] <== GN.
+Grad[FactID] <== GN.
 
 qprobability(bdd(Dir, Tree, _MapList), Slope, Prob) :-
 /*	query_probability(21,6.775948e-01). */
@@ -980,6 +978,13 @@ bind_maplist([Node-Pr|MapList], Slope, X) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
     problog_flag(sigmoid_slope,Slope),
+    forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
+    current_iteration(CurrentIteration),
+    retractall(current_iteration(_)),
+    NextIteration is CurrentIteration+1,
+    assertz(current_iteration(NextIteration)),
+    save_model,
+    set_problog_flag(mse_trainset, FX),
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).

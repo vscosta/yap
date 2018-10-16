@@ -90,8 +90,8 @@ endforeach(i ${DOCS_EXCLUDE_})
    add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
    SET(DOC_INPUT_FILES_
-     ${CMAKE_SOURCE_DIR}/pl
      ${CMAKE_SOURCE_DIR}/docs/md
+     ${CMAKE_SOURCE_DIR}/pl
      ${CMAKE_SOURCE_DIR}/CXX
      ${CMAKE_SOURCE_DIR}/OPTYap
      ${CMAKE_SOURCE_DIR}/C

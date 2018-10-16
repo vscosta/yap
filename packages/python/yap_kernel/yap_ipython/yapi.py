@@ -684,7 +684,7 @@ class YAPRun:
         for i in self.errors:
             try:
                 (_,lin,pos,text) = i
-                e = SyntaxError(what, (self.cell_name, lin, pos, text+'\n'))
+                e = self.SyntaxError( (self.cell_name, lin, pos, text+'\n'))
                 raise e
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
@@ -723,7 +723,7 @@ class YAPRun:
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = self.result
-        if syntaxErrors(self, text):
+        if self.syntaxErrors(cell):
             self.result.result = False
         has_raised = False
         try:
@@ -829,5 +829,5 @@ class YAPRun:
         (query, _,loop, sols) = self.clean_end(query)
         return (program, query, loop, sols)
 
-global
-globals = {}
+# global
+#globals = {}

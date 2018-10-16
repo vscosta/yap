@@ -101,6 +101,10 @@ files and to set-up the Prolog environment. We discuss
 
   + @ref YAPCompilerSettings
 
+    @}
+  */
+
+/**
 @defgroup YAPReadFiles The Predicates that Read Source Files
   @ingroup  YAPConsulting
 
@@ -1678,6 +1682,10 @@ End of conditional compilation.
 	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
+/** consult_depth(-int:_LV_)
+ *
+ * Unify _LV_ with the number of files being consulted.
+ */
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-

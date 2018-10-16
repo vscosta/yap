@@ -18,7 +18,7 @@ from traitlets.config.loader import Config
 from traitlets.config.application import boolean_flag, catch_config_error
 from yap_ipython.core import release
 from yap_ipython.core import usage
-from yap_ipython.yapi import YAPCompleter
+from yap_ipython.core.completer import IPCompleter
 from yap_ipython.core.crashhandler import CrashHandler
 from yap_ipython.core.formatters import PlainTextFormatter
 from yap_ipython.core.history import HistoryManager
@@ -106,7 +106,7 @@ addflag('simple-prompt', 'TerminalInteractiveShell.simple_prompt',
         "Use a rich interactive prompt with prompt_toolkit",
 )
 
-addflag('banner', 'TerminalIPythonApp.display_banner',
+addflag('banner', 'Terminalyap_ipythonApp.display_banner',
         "Display a banner upon starting yap_ipython.",
         "Don't display a banner upon starting yap_ipython."
 )
@@ -141,12 +141,12 @@ frontend_flags['classic']=(
 #
 # # quick is harder to implement
 frontend_flags['quick']=(
-    {'TerminalIPythonApp' : {'quick' : True}},
+    {'Terminalyap_ipythonApp' : {'quick' : True}},
     "Enable quick startup with no config files."
 )
 
 frontend_flags['i'] = (
-    {'TerminalIPythonApp' : {'force_interact' : True}},
+    {'Terminalyap_ipythonApp' : {'force_interact' : True}},
     """If running code from the command line, become interactive afterwards.
     It is often useful to follow this with `--` to treat remaining flags as
     script arguments.
@@ -162,7 +162,7 @@ aliases.update(shell_aliases)
 #-----------------------------------------------------------------------------
 
 
-class LocateIPythonApp(BaseYAPApplication):
+class Locateyap_ipythonApp(BaseYAPApplication):
     description = """print the path to the yap_ipython dir"""
     subcommands = dict(
         profile=('yap_ipython.core.profileapp.ProfileLocate',
@@ -176,8 +176,8 @@ class LocateIPythonApp(BaseYAPApplication):
             print(self.ipython_dir)
 
 
-class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
-    name = u'yap'
+class Terminalyap_ipythonApp(BaseYAPApplication, InteractiveShellApp):
+    name = u'ipython'
     description = usage.cl_usage
     crash_handler_class = IPAppCrashHandler
     examples = _examples
@@ -194,7 +194,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
 
     @default('classes')
     def _classes_default(self):
-        """This has to be in a method, for TerminalIPythonApp to be available."""
+        """This has to be in a method, for Terminalyap_ipythonApp to be available."""
         return [
             InteractiveShellApp, # ShellApp comes before TerminalApp, because
             self.__class__,      # it will also affect subclasses (e.g. QtConsole)
@@ -202,7 +202,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             HistoryManager,
             ProfileDir,
             PlainTextFormatter,
-            YAPCompleter,
+            IPCompleter,
             ScriptMagics,
             LoggingMagics,
             StoreMagics,
@@ -215,7 +215,7 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
         notebook=('notebook.notebookapp.NotebookApp',
             """DEPRECATED, Will be removed in yap_ipython 6.0 : Launch the Jupyter HTML Notebook Server."""
         ),
-        console=('jupyter_console.app.ZMQTerminalIPythonApp',
+        console=('jupyter_console.app.ZMQTerminalyap_ipythonApp',
             """DEPRECATED, Will be removed in yap_ipython 6.0 : Launch the Jupyter terminal-based Console."""
         ),
         nbconvert=('nbconvert.nbconvertapp.NbConvertApp',
@@ -232,11 +232,11 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
         profile = ("yap_ipython.core.profileapp.ProfileApp",
             "Create and manage yap_ipython profiles."
         ),
-        kernel = ("yap_kernel.kernelapp.YAPKernelApp",
+        kernel = ("ipykernel.kernelapp.IPKernelApp",
             "Start a kernel without an attached frontend."
         ),
-        locate=('yap_ipython.terminal.ipapp.LocateIPythonApp',
-            LocateIPythonApp.description
+        locate=('yap_ipython.terminal.ipapp.Locateyap_ipythonApp',
+            Locateyap_ipythonApp.description
         ),
         history=('yap_ipython.core.historyapp.HistoryApp',
             "Manage the yap_ipython history database."
@@ -300,12 +300,12 @@ class TerminalIPythonApp(BaseYAPApplication, InteractiveShellApp):
             "    Use `--matplotlib <backend>` and import pylab manually.")
             argv[idx] = '--pylab'
 
-        return super(TerminalIPythonApp, self).parse_command_line(argv)
-
+        return super(Terminalyap_ipythonApp, self).parse_command_line(argv)
+    
     @catch_config_error
     def initialize(self, argv=None):
         """Do actions after construct, but before starting the app."""
-        super(TerminalIPythonApp, self).initialize(argv)
+        super(Terminalyap_ipythonApp, self).initialize(argv)
         if self.subapp is not None:
             # don't bother initializing further, starting subapp
             return
@@ -368,12 +368,12 @@ def load_default_config(ipython_dir=None):
         ipython_dir = get_ipython_dir()
 
     profile_dir = os.path.join(ipython_dir, 'profile_default')
-    app = TerminalIPythonApp()
+    app = Terminalyap_ipythonApp()
     app.config_file_paths.append(profile_dir)
     app.load_config_file()
     return app.config
 
-launch_new_instance = TerminalIPythonApp.launch_instance
+launch_new_instance = Terminalyap_ipythonApp.launch_instance
 
 
 if __name__ == '__main__':

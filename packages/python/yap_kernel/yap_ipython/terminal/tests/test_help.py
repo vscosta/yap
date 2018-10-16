@@ -1,9 +1,9 @@
-"""Test help output of various yap_ipython entry points"""
+"""Test help output of various IPython entry points"""
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
-import yap_ipython.testing.tools as tt
+import IPython.testing.tools as tt
 
 
 def test_ipython_help():
