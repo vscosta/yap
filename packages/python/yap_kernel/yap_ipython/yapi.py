@@ -727,7 +727,6 @@ class YAPRun:
             self.result.result = False
         has_raised = False
         try:
-            builtin_mod.input = self.shell.sys_raw_input
             self.yapeng.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to

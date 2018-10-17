@@ -166,14 +166,14 @@ class YAPKernel(KernelBase):
         """
         self._allow_stdin = allow_stdin
 
-        # if PY3:
-        #     self._sys_raw_input = builtin_mod.input
-        #     builtin_mod.input = self.raw_input
-        # else:
-        #     self._sys_raw_input = builtin_mod.raw_input
-        #     self._sys_eval_input = builtin_mod.input
-        #     builtin_mod.raw_input = self.raw_input
-        # builtin_mod.input = lambda prompt='': eval(self.raw_input(prompt))
+        if PY3:
+            self._sys_raw_input = builtin_mod.input
+            builtin_mod.input = self.raw_input
+        else:
+            self._sys_raw_input = builtin_mod.raw_input
+            self._sys_eval_input = builtin_mod.input
+        builtin_mod.raw_input = self.raw_input
+        builtin_mod.input = lambda prompt='': eval(self._sys_input(prompt))
         self._save_getpass = getpass.getpass
         getpass.getpass = self.getpass
 
