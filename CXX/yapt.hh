@@ -525,8 +525,9 @@ public:
       mk(t);
     }
   }
+  /// type check for unbound
   bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
-  inline bool isVar() { return true; }       /// type check for unbound
+  inline bool isVar() { return true; }      
   inline bool isAtom() { return false; }     ///  type check for atom
   inline bool isInteger() { return false; }  /// type check for integer
   inline bool isFloat() { return false; }    /// type check for floating-point

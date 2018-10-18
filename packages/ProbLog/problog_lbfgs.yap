@@ -703,7 +703,7 @@ ground_truth_difference :-
 %= -Float
 %========================================================================
 
-mse_trainingset_only_for_linesearch(MSE) :-
+mse_trainingset_only_for_linesearch(MSE, FX) :-
 	update_values,
 
 	example_count(Example_Count),
@@ -712,21 +712,8 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	forall(user:example(QueryID,_Query,QueryProb,Type),
 	       (
 		once(update_query(QueryID,'.',probability)),
-		query_probability(QueryID,CurrentProb),
 		once(update_query_cleanup(QueryID)),
-		(
-		 (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
-		->
-		 (
-		  bb_get(error_train_line_search,Old_Error),
-		  New_Error is Old_Error + (CurrentProb-QueryProb)**2,
-		  bb_put(error_train_line_search,New_Error)
-		 );true
-		)
-	       )
-	      ),
-	bb_delete(error_train_line_search,Error),
-	MSE is Error/Example_Count,
+	       ),
 	format_learning(3,' (~8f)~n',[MSE]),
 	retractall(values_correct).
 
@@ -842,7 +829,7 @@ set_tunable(I,Slope,P) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     %Handle = user_error,
     example_count(TrainingExampleCount),
@@ -984,7 +971,7 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
     NextIteration is CurrentIteration+1,
     assertz(current_iteration(NextIteration)),
     save_model,
-    set_problog_flag(mse_trainset, FX),
+    set_problog_flag(mse_trainingset, FX),
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).
