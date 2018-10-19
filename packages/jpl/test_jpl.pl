@@ -1,4 +1,4 @@
-:- module(test_jpl,
+f:- module(test_jpl,
 	  [ run_tests/0,
 	    run_tests/1
 	  ]).
