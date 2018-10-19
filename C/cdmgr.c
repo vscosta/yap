@@ -3097,7 +3097,7 @@ void Yap_HidePred(PredEntry *pe) {
   if (pe->NextOfPE) {
     UInt hash = PRED_HASH(pe->FunctorOfPred, CurrentModule, PredHashTableSize);
     READ_LOCK(PredHashRWLock);
-    PredEntry *p, **op = PredHash+hash;
+    PredEntry *p, **op = PredHash + hash;
     p = *op;
 
     while (p) {
@@ -3144,7 +3144,7 @@ void Yap_HidePred(PredEntry *pe) {
       op = &p->NextPredOfModule;
       p = p->NextPredOfModule;
     }
-pe->NextPredOfModule = NULL;
+    pe->NextPredOfModule = NULL;
   }
 }
 
@@ -3168,15 +3168,14 @@ stash_predicate(USES_REGS1) {
     /*
     char ns[1024];
       const char *s = (pe->ModuleOfPred == PROLOG_MODULE ?
-		     "__prolog__stash__" :
-		     snprintf(sn,1023,"__%s__".RepAtom(AtomOfTerm( pe->ModuleOfPred ))));
-		     pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(s));
+                     "__prolog__stash__" :
+                     snprintf(sn,1023,"__%s__".RepAtom(AtomOfTerm(
+    pe->ModuleOfPred )))); pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(s));
     */
     return true;
   } else
     return false;
 }
-
 
 static Int /* $hidden_predicate(P) */
 hidden_predicate(USES_REGS1) {

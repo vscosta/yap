@@ -1529,6 +1529,11 @@ extern bool Yap_HasException(void);
 extern yap_error_descriptor_t *Yap_GetException();
 extern void Yap_PrintException(yap_error_descriptor_t *i);
 INLINE_ONLY bool Yap_HasException(void) {
+  extern yap_error_number Yap_MathException__(USES_REGS1);
+  yap_error_number me;
+  if ((me = Yap_MathException__(PASS_REGS1)) && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
+    LOCAL_ActiveError->errorNo = me;
+  }
   return LOCAL_ActiveError->errorNo != YAP_NO_ERROR;
 }
 

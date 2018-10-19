@@ -26,8 +26,8 @@
 #include <wchar.h>
 
 #include "YapIOConfig.h"
-#include <Yatom.h>
 #include <VFS.h>
+#include <Yatom.h>
 
 #ifndef _PL_WRITE_
 
@@ -51,7 +51,7 @@ typedef struct AliasDescS {
  * @return a new VFS that will support /assets
  */
 
-extern struct vfs *Yap_InitAssetManager( void );
+extern struct vfs *Yap_InitAssetManager(void);
 
 /* routines in parser.c */
 extern VarEntry *Yap_LookupVar(const char *);
@@ -85,8 +85,9 @@ extern int Yap_PlGetWchar(void);
 extern int Yap_PlFGetchar(void);
 extern int Yap_GetCharForSIGINT(void);
 extern Int Yap_StreamToFileNo(Term);
-extern int Yap_OpenStream(Term tin, const char* io_mode, Term user_name, encoding_t enc);
-extern int Yap_FileStream(FILE*, char *, Term, int, VFS_t *);
+extern int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
+                          encoding_t enc);
+extern int Yap_FileStream(FILE *, Atom, Term, int, VFS_t *);
 extern char *Yap_TermToBuffer(Term t, int flags);
 extern char *Yap_HandleToString(yhandle_t l, size_t sz, size_t *length,
                                 encoding_t *encoding, int flags);
@@ -112,18 +113,19 @@ typedef enum mem_buf_source {
 
 extern char *Yap_MemStreamBuf(int sno);
 
-extern char *Yap_StrPrefix( const char *buf, size_t n) ;
+extern char *Yap_StrPrefix(const char *buf, size_t n);
 
 extern Term Yap_StringToNumberTerm(const char *s, encoding_t *encp,
                                    bool error_on);
 extern int Yap_FormatFloat(Float f, char **s, size_t sz);
 extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
-                                    encoding_t *encp, memBufSource src, Atom name,
-                                    Term uname);
+                                    encoding_t *encp, memBufSource src,
+                                    Atom name, Term uname);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
-extern Term Yap_BufferToTerm(const  char *s, Term opts);
-extern X_API Term Yap_BufferToTermWithPrioBindings(const  char *s, Term opts, Term bindings, size_t sz,
-                                 int prio);
+extern Term Yap_BufferToTerm(const char *s, Term opts);
+extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
+                                                   Term bindings, size_t sz,
+                                                   int prio);
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
 extern Atom Yap_guessFileName(FILE *f, int sno, size_t max);
@@ -156,43 +158,39 @@ INLINE_ONLY Term MkCharTerm(Int c) {
   return MkAtomTerm(Yap_ULookupAtom(cs));
 }
 
-
-
 extern char *GLOBAL_cwd;
 
+INLINE_ONLY char *Yap_VF(const char *path) {
+  char *out;
 
-INLINE_ONLY  char *Yap_VF(const char *path){
-    char *out;
-
-    out = (char *)malloc(YAP_FILENAME_MAX+1);
-    if ( GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
-        return (char *) path;
-    }
-    strcpy(out, GLOBAL_cwd);
-    strcat(out, "/" );
-    strcat(out, path);
-    return out;
+  out = (char *)malloc(YAP_FILENAME_MAX + 1);
+  if (GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 ||
+      !Yap_IsAbsolutePath(path, false)) {
+    return (char *)path;
+  }
+  strcpy(out, GLOBAL_cwd);
+  strcat(out, "/");
+  strcat(out, path);
+  return out;
 }
 
+INLINE_ONLY char *Yap_VFAlloc(const char *path) {
+  char *out;
 
-INLINE_ONLY  char *Yap_VFAlloc(const char *path){
-    char *out;
-
-    out = (char *)malloc(YAP_FILENAME_MAX+1);
-    if ( GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 || !Yap_IsAbsolutePath(path, false)) {
-        return (char *) path;
-    }
-    strcpy(out, GLOBAL_cwd);
-    strcat(out, "/" );
-    strcat(out, path);
-    return out;
+  out = (char *)malloc(YAP_FILENAME_MAX + 1);
+  if (GLOBAL_cwd == NULL || GLOBAL_cwd[0] == 0 ||
+      !Yap_IsAbsolutePath(path, false)) {
+    return (char *)path;
+  }
+  strcpy(out, GLOBAL_cwd);
+  strcat(out, "/");
+  strcat(out, path);
+  return out;
 }
 
 /// UT when yap started
 extern uint64_t Yap_StartOfWTimes;
 
 extern bool Yap_HandleSIGINT(void);
-
-
 
 #endif

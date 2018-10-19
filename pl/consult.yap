@@ -695,7 +695,7 @@ db_files(Fs) :-
 
 '$csult'(Fs, _M) :-
 	 '$skip_list'(_, Fs ,L),
-	 L \== [],
+vz	 L \== [],
 	 !,
 	 user:dot_qualified_goal(Fs).
 '$csult'(Fs, M) :-

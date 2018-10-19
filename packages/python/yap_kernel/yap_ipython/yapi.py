@@ -12,7 +12,7 @@ from traitlets import Instance
 from yap_ipython.core.inputsplitter import *
 from yap_ipython.core.inputtransformer import *
 from yap_ipython.core.interactiveshell import *
-
+from ipython_genutils.py3compat import builtin_mod
 from yap_ipython.core import interactiveshell
 
 from collections import namedtuple
@@ -29,7 +29,7 @@ enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
-streams = namedtuple('streams', ' text' )
+streams = namedtuple('streams', 'text' )
 nostreams = namedtuple('nostreams', ' text' )
 
 global  engine
@@ -684,7 +684,7 @@ class YAPRun:
         for i in self.errors:
             try:
                 (_,lin,pos,text) = i
-                e = SyntaxError(what, (self.cell_name, lin, pos, text+'\n'))
+                e = self.SyntaxError( (self.cell_name, lin, pos, text+'\n'))
                 raise e
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
@@ -723,7 +723,7 @@ class YAPRun:
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = self.result
-        if syntaxErrors(self, text):
+        if self.syntaxErrors(cell):
             self.result.result = False
         has_raised = False
         try:

@@ -221,7 +221,7 @@ compose_message( loaded(included,AbsFileName,Mod,Time,Space), _Level) --> !,
 	[ '~a included in module ~a, ~d msec ~d bytes' -
 		     [AbsFileName,Mod,Time,Space] ].
 compose_message( loaded(What,AbsoluteFileName,Mod,Time,Space), _Level) --> !,
-	[ '~a ~a in module ~a, ~d msec ~g bytes' -
+	[ '~a ~a in module ~a, ~d msec ~d bytes' -
 		     [What, AbsoluteFileName,Mod,Time,Space] ].
 compose_message(signal(SIG,_), _) -->
 	!,
@@ -347,8 +347,8 @@ main_error_message(resource_error(Who)) -->
 main_error_message(type_error(Type,Who)) -->
 	[ '~*|** ~q should be of type ~a **' - [10,Who,Type]],
 	[ nl ].
-main_error_message(system_error(Who)) -->
-	[ '~*|** ~q **' - [10,Who]],
+main_error_message(system_error(Who, In)) -->
+	[ '~*|** ~q ~q **' - [10,Who, In]],
 	[ nl ].
 main_error_message(uninstantiation_error(T)) -->
 	[ '~*|** found ~q, expected unbound variable **' - [10,T], nl ].
@@ -689,11 +689,11 @@ list_of_preds([P|L]) -->
 	['~q' - [P]],
 	list_of_preds(L).
 
-syntax_error_term(between(_I,J,_L),S,_LC) -->
+syntax_error_term(between(_I,J,_L),[S|T],_LC) -->
 	{string(S)},
 	!,
 	[ '~s' - [S] ],
-	[' <<<< at line ~d ' - [J], nl ].
+	[' <<<< at line ~d >>>> ~s' - [J,T], nl ].
 syntax_error_term(between(_I,J,_L),LTaL,LC) -->
 	syntax_error_tokens(LTaL, J, LC).
 

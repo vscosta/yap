@@ -49,6 +49,7 @@ prolog:'$protect' :-
     sub_atom(Name,0,1,_, '$'),
     functor(P,Name,Arity),
     '$stash_predicate'(P,M),
+%    '$hide_predicate'(P,M),
     fail.
 prolog:'$protect' :-
     current_atom(Name),

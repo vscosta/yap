@@ -1,5 +1,5 @@
 """
-Password generation for the yap_ipython notebook.
+Password generation for the IPython notebook.
 """
 #-----------------------------------------------------------------------------
 # Imports
