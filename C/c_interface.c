@@ -1811,27 +1811,6 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   return out;
 }
 
-static void completeInnerCall(bool on_cut, yamop *old_CP, yamop *old_P) {
-  if (on_cut) {
-    P = old_P;
-    ENV = (CELL *)ENV[E_E];
-    CP = old_CP;
-    LOCAL_AllowRestart = TRUE;
-    // we are back to user code again, need slots */
-  } else {
-    P = old_P;
-    ENV = B->cp_env;
-    ENV = (CELL *)ENV[E_E];
-    CP = old_CP;
-    HR = B->cp_h;
-    TR = B->cp_tr;
-    B = B->cp_b;
-    LOCAL_AllowRestart = FALSE;
-    SET_ASP(ENV, E_CB * sizeof(CELL));
-    // make sure the slots are ok.
-  }
-}
-
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB, handler;

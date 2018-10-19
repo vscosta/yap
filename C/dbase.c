@@ -25,7 +25,7 @@ static char SccsId[] = "%W% %G%";
  * 
  * @brief  record and other forms of storing terms.
  *
- * /
+ */
 
 
 /** @defgroup Internal_Database Internal Data Base

@@ -24,6 +24,7 @@ problog_low_lbdd(_, _, Prob, ok, bdd(Dir, Tree, MapList)) :-
 	bind_maplist(MapList, BoundVars),
 	bdd_tree(BDD, bdd(Dir, Tree, _Vars)),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
+	bdd_close(BDD),
 	(problog_flag(verbose, true)->
 	 problog_statistics
 	;
@@ -37,7 +38,8 @@ problog_low_lbdd(_, _, Prob, ok, bdd(Dir, Tree, MapList)) :-
 problog_kbest_bdd(Goal, K, Prob, ok) :-
 	problog_kbest_to_bdd(Goal, K, BDD, MapList),
 	bind_maplist(MapList, BoundVars),
-	bdd_to_probability_sum_product(BDD, BoundVars, Prob).
+	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
+bdd_close(BDD).
 
 problog_kbest_as_bdd(Goal, K, bdd(Dir, Tree, MapList)) :-
 	problog_kbest_to_bdd(Goal, K, BDD, MapList),
@@ -70,6 +72,7 @@ problog_fl_bdd(_,Prob) :-
 	bind_maplist(MapList, BoundVars),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
 	(problog_flag(retain_tables, true) -> retain_tabling; true),
+	bdd_close(BDD),
 	clear_tabling.
 
 problog_full_bdd(Goal,_K,  _) :-
@@ -86,6 +89,7 @@ problog_full_bdd(_,Prob) :-
 	tabled_trie_to_bdd(Trie_Completed_Proofs, BDD, MapList),
 	bind_maplist(MapList, BoundVars),
 	bdd_to_probability_sum_product(BDD, BoundVars, Prob),
+	bdd_close(BDD),
 	(problog_flag(retain_tables, true) -> retain_tabling; true),
 	clear_tabling.
 

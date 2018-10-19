@@ -591,7 +591,8 @@ static long get_len_of_range(long lo, long hi, long step) {
 }
 
 #if PY_MAJOR_VERSION >= 3
-static PyStructSequence_Field pnull[] = {
+/*
+ static PyStructSequence_Field pnull[] = {
     {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},  {"A5", NULL},
     {"A6", NULL},  {"A7", NULL},  {"A8", NULL},  {"A9", NULL},  {"A9", NULL},
     {"A10", NULL}, {"A11", NULL}, {"A12", NULL}, {"A13", NULL}, {"A14", NULL},
@@ -600,7 +601,8 @@ static PyStructSequence_Field pnull[] = {
     {"A24", NULL}, {"A25", NULL}, {"A26", NULL}, {"A27", NULL}, {"A28", NULL},
     {"A29", NULL}, {"A29", NULL}, {"A30", NULL}, {"A31", NULL}, {"A32", NULL},
     {NULL, NULL}};
-
+*/
+ 
 static PyObject *structseq_str(PyObject *iobj) {
 
 /* buffer and type size were chosen well considered. */
@@ -763,7 +765,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
       PyStructSequence_Desc *desc = calloc(sizeof(PyStructSequence_Desc), 1);
       desc->name = PyMem_Malloc(strlen(s) + 1);
       desc->doc = "YAPTerm";
-      desc->fields = pnull;
+      desc->fields = NULL;
       desc->n_in_sequence = arity;
       if (PyStructSequence_InitType2(typp, desc) < 0)
         return NULL;

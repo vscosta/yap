@@ -863,6 +863,9 @@ static YAP_Bool p_cudd_print_with_names(void) {
 
 static YAP_Bool p_cudd_die(void) {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
+  //Cudd_FreeTree(manager);
+  //cuddFreeTable(manager);
+  Cudd_CheckZeroRef(manager);
   Cudd_Quit(manager);
   return TRUE;
 }

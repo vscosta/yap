@@ -6,14 +6,14 @@ from traitlets import Bool
 
 
 from yap4py.yapi import *
-from yap_ipython.core.completer import Completer
-# import yap_ipython.core
+from IPython.core.completer import Completer
+# import IPython.core
 from traitlets import Instance
-from yap_ipython.core.inputsplitter import *
-from yap_ipython.core.inputtransformer import *
-from yap_ipython.core.interactiveshell import *
+from IPython.core.inputsplitter import *
+from IPython.core.inputtransformer import *
+from IPython.core.interactiveshell import *
 from ipython_genutils.py3compat import builtin_mod
-from yap_ipython.core import interactiveshell
+from IPython.core import interactiveshell
 
 from collections import namedtuple
 import traceback
@@ -198,11 +198,11 @@ class YAPInputSplitter(InputSplitter):
             self.reset()
 
     def push(self, lines):
-        """Push one or more lines of yap_ipython input.
+        """Push one or more lines of IPython input.
 
         This stores the given lines and returns a status code indicating
         whether the code forms a complete Python block or not, after processing
-        all input lines for special yap_ipython syntax.
+        all input lines for special IPython syntax.
 
         Any exceptions generated in compilation are swallowed, but if an
         exception was produced, the method returns True.
@@ -488,7 +488,7 @@ class YAPCompleter(Completer):
 
             If ``IPCompleter.debug`` is :any:`True` will yield a ``--jedi/ipython--``
             fake Completion token to distinguish completion returned by Jedi
-            and usual yap_ipython completion.
+            and usual IPython completion.
 
         .. note::
 
@@ -507,7 +507,7 @@ class YAPCompleter(Completer):
 
 
 
-class YAPRun:
+class YAPRun(InteractiveShell):
     """An enhanced, interactive shell for YAP."""
 
     def __init__(self, shell):
@@ -602,28 +602,29 @@ class YAPRun:
             return self.result
 
 
+ 
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
-                 shell_futures=True):
-        """Run a complete IPython cell.
-
-        Parameters
-                   ----------
-                   raw_cell : str
-                   The code (including IPython code such as
-                   %magic functions) to run.
-                   store_history : bool
-          If True, the raw and translated cell will be stored in IPython's
-                   history. For user code calling back into
-                   IPython's machinery, this
-                   should be set to False.
-                   silent : bool
-          If True, avoid side-effects, such as implicit displayhooks and
-                   and logging.  silent=True forces store_history=False.
-                   shell_futures : bool
-          If True, the code will share future statements with the interactive
-                   shell. It will both be affected by previous
-                    __future__ imports, and any __future__ imports in the code
-                     will affect the shell. If False,
+                  shell_futures=True):
+         """Run a complete IPython cell.
+-
+       Parameters
+                  ----------
+                  raw_cell : str
+                  The code (including IPython code such as
+                  %magic functions) to run.
+                  store_history : bool
+         If True, the raw and translated cell will be stored in IPython's
+                  history. For user code calling back into
+                  IPython's machinery, this
+                  should be set to False.
+                  silent : bool
+         If True, avoid side-effects, such as implicit displayhooks and
+                  and logging.  silent=True forces store_history=False.
+                  shell_futures : bool
+         If True, the code will share future statements with the interactive
+                  shell. It will both be affected by previous
+                  __future__ imports, and any __future__ imports in the code
+                        will affect the shell. If False,
                    __future__ imports are not shared in either direction.
 
         Returns
@@ -727,6 +728,7 @@ class YAPRun:
             self.result.result = False
         has_raised = False
         try:
+            builtin_mod.input = self.shell.sys_raw_input
             self.yapeng.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to

@@ -165,7 +165,7 @@ print_help() {
   --mandir=DIR            man documentation [DATAROOTDIR/man]
   --docdir=DIR            documentation root [DATAROOTDIR/doc/PROJECT_NAME]
 
-  --generator=Generator	  Specify the tool used to send callss
+  --generator=GENERATOR	  Specify the tool used to send callss
 EOF
 
     first=y
@@ -219,6 +219,8 @@ EOF
 
     exit 0
 }
+
+
 
 while [ $# != 0 ]; do
     case "$1" in
@@ -291,10 +293,10 @@ while [ $# != 0 ]; do
         "--docdir")
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_INSTALL_DOCDIR=$(quote "$2")"; shift;;
 
-        "-G="|"--generator="*)
-            CMAKE_ARGS+="-G"${1#*=};;
-        "-G"|"--generator")
-            CMAKE_ARGS+="-G$"$2; shift;;
+        "--generator="*)
+            CMAKE_ARGS="$CMAKE_ARGS -G ${1#*=}";;
+        "-G")
+            CMAKE_ARGS="$CMAKE_ARGS -G $2"; shift;;
 
         "CC="*)
             CMAKE_ARGS="$CMAKE_ARGS -DCMAKE_C_COMPILER=$(quote "${1#*=}")";;
