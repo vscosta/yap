@@ -1,4 +1,6 @@
 
+if (WITH_MYSQL)
+
   set(MYSQL_SOURCES
           myddas_mysql.c
           myddas_util.c
@@ -51,3 +53,5 @@
           "enable the MYDDAS top-level (REPL) support for MySQL" OFF
           'USE_MYDDAS AND MYSQL_FOUND' OFF)
   #TODO:
+
+endif()

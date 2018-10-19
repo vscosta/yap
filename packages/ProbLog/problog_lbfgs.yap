@@ -431,7 +431,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	 true
 	),
 
-%	update_values,
+	update_values,
 
 	(
 	 last_mse(Last_MSE)
@@ -450,15 +450,11 @@ do_learning_intern(Iterations,Epsilon) :-
 	),
 
 	(
-	 (problog_flag(rebuild_bdds,BDDFreq),BDDFreq>0,0 =:= CurrentIteration mod BDDFreq)
-	->
-	 (
 	  retractall(values_correct),
 	  retractall(query_is_similar(_,_)),
 	  retractall(query_md5(_,_,_)),
 	  empty_bdd_directory,
 	  init_queries
-	 ); true
 	),
 
 
@@ -491,10 +487,47 @@ init_learning :-
 init_learning :-
 	check_examples,
 
+	retractall(current_iteration(_)),
+	assert(current_iteration(0)),
 %	empty_output_directory,
 	logger_write_header,
-
 	format_learning(1,'Initializing everything~n',[]),
+	
+	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
+	format_learning(3,'~q test examples~n',[TestExampleCount]),
+
+	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
+	assertz(example_count(TrainingExampleCount)),
+	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
+
+
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% build BDD script for every example
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	once(init_queries),
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% done
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	assertz(current_iteration(-1)),
+	assertz(learning_initialized),
+
+	format_learning(1,'~n',[]).
+
+%========================================================================
+%= Updates all values of query_probability/2 and query_gradient/4
+%= should be called always before these predicates are accessed
+%= if the old values are still valid, nothing happens
+%========================================================================
+
+update_values :-
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% delete old values
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	retractall(query_probability_intern(_,_)),
+	retractall(query_gradient_intern(_,_,_,_)).	
+
 
 
 
@@ -502,8 +535,8 @@ init_learning :-
 	% Check, if continuous facts are used.
 	% if yes, switch to problog_exact
         % continuous facts are not supported yet.
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	set_default_gradient_method,
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+set_default_gradient_method :-
 	(	problog_flag(continuous_facts, true )
 	->
 	 problog_flag(init_method,(_,_,_,_,OldCall)),
@@ -527,31 +560,11 @@ init_learning :-
 	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
 	  );
 	  true
-	 ),
-
-	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
-	format_learning(3,'~q test examples~n',[TestExampleCount]),
-
-	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
-	assertz(example_count(TrainingExampleCount)),
-	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
+	 ).
+  
 
 
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% build BDD script for every example
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	once(init_queries),
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% done
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	assertz(current_iteration(0)),
-	assertz(learning_initialized),
-
-	format_learning(1,'~n',[]).
-
- empty_bdd_directory :-
+empty_bdd_directory :-
 	current_key(_,I),
 	integer(I),
 	recorded(I,bdd(_,_,_),R),
@@ -560,21 +573,6 @@ init_learning :-
 empty_bdd_directory.
 
 
-set_default_gradient_method :-
-    problog_flag(continuous_facts, true),
-    !,
-    % problog_flag(init_method,OldMethod),
-    format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
-    set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
-set_default_gradient_method :-
-    problog_tabled(_), problog_flag(fast_proofs,false),
-    !,
-    format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
-    set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
-%set_default_gradient_method :-
-%    problog_flag(init_method,(gene(X,Y),N,Bdd,graph2bdd(X,Y,N,Bdd))),
-%    !.
-set_default_gradient_method.
 
 %========================================================================
 %= This predicate goes over all training and test examples,
@@ -584,6 +582,7 @@ set_default_gradient_method.
 
 
 init_queries :-
+    empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
@@ -703,41 +702,56 @@ ground_truth_difference :-
 %= -Float
 %========================================================================
 
-mse_trainingset_only_for_linesearch(MSE) :-
+mse_trainingset :-
+	current_iteration(Iteration),
+	create_training_predictions_file_name(Iteration,File_Name),
+	open(File_Name, write,Handle),
+	format_learning(2,'MSE_Training ',[]),
 	update_values,
+	findall(t(LogCurrentProb,SquaredError),
+		(user:training_example(QueryID,Query,TrueQueryProb,_Type),
+		 once(update_query(QueryID,'+',probability)),
+		 query_probability(QueryID,CurrentProb),
+ 		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
 
-	example_count(Example_Count),
+		 once(update_query_cleanup(QueryID)),
+		  SquaredError is (CurrentProb-TrueQueryProb)**2,
+		 LogCurrentProb is log(CurrentProb)
+		),
+		All),
+	maplist(tuple, All, AllLogs, AllSquaredErrors),
+	sum_list( AllLogs, LLH_Training_Queries),
+        close(Handle),
 
-	bb_put(error_train_line_search,0.0),
-	forall(user:example(QueryID,_Query,QueryProb,Type),
-	       (
-		once(update_query(QueryID,'.',probability)),
-		query_probability(QueryID,CurrentProb),
-		once(update_query_cleanup(QueryID)),
-		(
-		 (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
-		->
-		 (
-		  bb_get(error_train_line_search,Old_Error),
-		  New_Error is Old_Error + (CurrentProb-QueryProb)**2,
-		  bb_put(error_train_line_search,New_Error)
-		 );true
-		)
-	       )
-	      ),
-	bb_delete(error_train_line_search,Error),
-	MSE is Error/Example_Count,
-	format_learning(3,' (~8f)~n',[MSE]),
-	retractall(values_correct).
+	length(AllSquaredErrors,Length),
+
+	(
+	 Length>0
+	->
+	 (
+	  sum_list(AllSquaredErrors,SumAllSquaredErrors),
+	  min_list(AllSquaredErrors,MinError),
+	  max_list(AllSquaredErrors,MaxError),
+	  MSE is SumAllSquaredErrors/Length
+	 );(
+	    MSE=0.0,
+	    MinError=0.0,
+	    MaxError=0.0
+	   )
+	),
+
+	logger_set_variable(mse_trainingset,MSE),
+	logger_set_variable(mse_min_trainingset,MinError),
+	logger_set_variable(mse_max_trainingset,MaxError),
+	logger_set_variable(llh_training_queries,LLH_Training_Queries),
+	format_learning(2,' (~8f)~n',[MSE]).
+
+tuple(t(X,Y),X,Y).
 
 mse_testset :-
 	current_iteration(Iteration),
 	create_test_predictions_file_name(Iteration,File_Name),
-	open(File_Name,'write',Handle),
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
-	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
-
+  	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Test ',[]),
 	update_values,
 	bb_put(llh_test_queries,0.0),
@@ -745,7 +759,7 @@ mse_testset :-
 		(user:test_example(QueryID,Query,TrueQueryProb,Type),
 		 once(update_query(QueryID,'+',probability)),
 		 query_probability(QueryID,CurrentProb),
-		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
+ 		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
 
 		 once(update_query_cleanup(QueryID)),
 		 (
@@ -821,11 +835,6 @@ save_old_probabilities :-
 gradient_descent :-
     problog_flag(sigmoid_slope,Slope),
 %	current_iteration(Iteration),
-	% create_training_predictions_file_name(Iteration,File_Name),
-	Handle = user_error,
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
-	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
 	findall(FactID,tunable_fact(FactID,GroundTruth),L), length(L,N),
 %	leash(0),trace,
 	lbfgs_initialize(N,X,0,Solver),
@@ -842,7 +851,7 @@ set_tunable(I,Slope,P) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     %Handle = user_error,
     example_count(TrainingExampleCount),
@@ -852,20 +861,20 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     N1 is N-1,    
     forall(between(0,N1,I),
 	   (Grad[I] <== 0.0, S <== X[I], sigmoid(S,Slope, P), Probs[I] <== P)
-	  ), nl,
+	  ),
     forall( 
 	full_example(QueryID,QueryProb,BDD),	   
 	   compute_grad(QueryID, BDD, QueryProb,Grad, Probs, Slope,LLs)
     ),
-    LLH_Training_Queries <== sum(LLs),
-    writeln(LLH_Training_Queries).
+    LLH_Training_QueriesSum <== sum(LLs),
+LLH_Training_Queries is LLH_Training_QueriesSum/TrainingExampleCount .
 %wrap(X, Grad, GradCount).
 
 full_example(QueryID,QueryProb,BDD) :-
     user:example(QueryID,_Query,QueryProb,_),
      recorded(QueryID,BDD,_),
-         BDD = bdd(_Dir, _GradTree, MapList),
-         MapList = [_|_].
+     BDD = bdd(_Dir, _GradTree, MapList),
+     MapList = [_|_].
 
 compute_grad(QueryID,BDD,QueryProb, Grad, Probs, Slope, LLs) :-
     BDD = bdd(_Dir, _GradTree, MapList),
@@ -876,7 +885,7 @@ compute_grad(QueryID,BDD,QueryProb, Grad, Probs, Slope, LLs) :-
     LLs[QueryID] <== LL,    
 %writeln( qprobability(BDD,Slope,BDDProb) ),
     forall(
-	    member(I-_, MapList),
+	member(I-_, MapList),
 	gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs)
     ).
 
@@ -984,7 +993,7 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,Iteration,Ls,0) :-
     NextIteration is CurrentIteration+1,
     assertz(current_iteration(NextIteration)),
     save_model,
-    set_problog_flag(mse_trainset, FX),
+    logger_set_variable(mse_trainingset, FX),
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).

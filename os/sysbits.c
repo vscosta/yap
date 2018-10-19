@@ -769,11 +769,11 @@ static Int real_path(USES_REGS1) {
   int lvl = push_text_stack();
   rc0 = myrealpath(cmd PASS_REGS);
   if (!rc0) {
+    pop_text_stack(lvl);
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
   }
   bool out = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
-  pop_output_text_stack(lvl, rc0);
-
+  pop_text_stack(lvl);
   return out;
 }
 

@@ -166,7 +166,7 @@ listing(Stream, [MV|MVs]) :- !,
     ->
       format( Stream, ':- dynamic ~q/~d.~n', [N,Ar])
     ;
-\      format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
+      format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
      ),
      fail.
 '$list_clauses'(Stream, M, Pred) :-

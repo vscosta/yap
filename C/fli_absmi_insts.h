@@ -623,6 +623,10 @@
 
       BOp(undef_p, e);
       /* save S for module name */
+      if (LOCAL_DoingUndefp) {
+	PREG=FAILCODE;
+	JMPNext();
+      }
         LOCAL_DoingUndefp = true;
 	saveregs();
       undef_goal(PASS_REGS1);
