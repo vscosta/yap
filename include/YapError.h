@@ -200,33 +200,51 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
 
   /// all we need to know about an error/throw
   typedef struct s_yap_error_descriptor {
+    /// error identifier
     yap_error_number errorNo;
+    /// kind of error: derived from errorNo;
     yap_error_class_number errorClass;
+    /// if non-NULL: goal who caused error;
     const char *errorGoal;
+    ///  errorNo as text
     const char *errorAsText;
+    ///  errorClass as text
     const char *classAsText;
+    /// c-code that generated the error
+    /// C-line
     intptr_t errorLine;
+    /// C-function
     const char *errorFunction;
+    /// C-file
     const char *errorFile;
     // struct error_prolog_source *errorSource;
-    intptr_t prologPredCl;
-    uintptr_t prologPredLine;
-    uintptr_t prologPredFirstLine;
-    uintptr_t prologPredLastLine;
+    /// Prolog predicate that caused the error: name
     const char *prologPredName;
+    /// Prolog predicate that caused the error:arity
     uintptr_t prologPredArity;
+    /// Prolog predicate that caused the error:module    
     const char *prologPredModule;
+    /// Prolog predicate that caused the error:line    
     const char *prologPredFile;
-    uintptr_t prologParserPos;
-    uintptr_t prologParserLine;
-    uintptr_t prologParserFirstLine;
-    uintptr_t prologParserLastLine;
-    const char *prologParserText;
-    const char *prologParserFile;
+    /// line where error clause defined
+    uintptr_t prologPredLine;
+    /// syntax and other parsing errors
+    uintptr_t parserPos;
+    uintptr_t parserFirstPos;
+    uintptr_t parserLastPos;
+    uintptr_t parserLine;
+    uintptr_t parserFirstLine;
+    uintptr_t parserLastLine;
+    const char *parserTextA;
+    const char *parserTextB;
+    const char *parserFile;
+    /// reading a clause, or called from read?
+    bool parserReadingCode;
+    ///  whether we are consulting
     bool prologConsulting;
     const char *culprit;
     YAP_Term errorRawTerm, rawExtraErrorTerm;
-    char *errorMsg;
+     char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;
   } yap_error_descriptor_t;
@@ -242,6 +260,7 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
 
   extern void Yap_CatchError(void);
   extern void Yap_ThrowExistingError(void);
+  extern YAP_Term Yap_MkFullError(void);
   extern bool Yap_MkErrorRecord(
       yap_error_descriptor_t * r, const char *file, const char *function,
       int lineno, yap_error_number type, YAP_Term where, const char *msg);

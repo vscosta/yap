@@ -32,6 +32,8 @@ ECLASS(SYSTEM_ERROR_CLASS, "system_error", 1)
 ECLASS(TYPE_ERROR, "type_error", 2)
 /// should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
+/// not quite an error, but almost
+ECLASS(WARNING, "warning", 1)
 /// user defined escape hatch
 ECLASS(EVENT, "event", 1)
 
@@ -196,7 +198,11 @@ E(TYPE_ERROR_REFERENCE, TYPE_ERROR, "reference")
 E(TYPE_ERROR_STRING, TYPE_ERROR, "string")
 E(TYPE_ERROR_TEXT, TYPE_ERROR, "text")
 E(TYPE_ERROR_UBYTE, TYPE_ERROR, "ubyte")
-E(TYPE_ERROR_UCHAR, TYPE_ERROR, "uchar")
+E(TYPE_ERROR_UCHAR, TYPE_ERROR, "unsigned char")
+
+E(WARNING_DISCONTIGUOUS, WARNING, "discontiguous")
+E(WARNING_SINGLETONS, WARNING, "singletons")
+E(WARNING_SYNTAX_ERROR, WARNING, "syntax_error")
 
 E1(UNINSTANTIATION_ERROR, UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error")
 

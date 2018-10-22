@@ -990,7 +990,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
         else
         fprintf(stderr, "%s", out->val.c);
         fprintf(stderr, "\n]\n"); */
-  pop_text_stack(l);
+  out->val.uc = pop_output_text_stack(l,out->val.uc);
   return rc;
 }
 
