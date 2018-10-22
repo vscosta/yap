@@ -175,7 +175,10 @@ INLINE_ONLY char_kind_t chtype(Int ch) {
 #endif
 
 extern const char *Yap_tokText(void *tokptr);
-extern Term Yap_tokRep(void *tokptr);
+/// represent  token *_tokptr_ in string s, maxlength is sz-1
+///
+/// conversion is based on token type.
+extern Term Yap_tokRep(void *tokptrXS);
 
 // standard strings
 

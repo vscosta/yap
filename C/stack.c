@@ -1124,7 +1124,7 @@ static Term clause_info(yamop *codeptr, PredEntry *pp) {
 yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
                                         yamop *codeptr, PredEntry *pp) {
   CACHE_REGS
-  Term ts[2];
+
   void *begin;
   if (pp->ArityOfPE == 0) {
     t->prologPredName = AtomName((Atom)pp->FunctorOfPred);
@@ -1138,36 +1138,18 @@ yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
                         : "prolog");
   t->prologPredFile = RepAtom(pp->src.OwnerFile)->StrOfAE;
   if (codeptr->opc == UNDEF_OPCODE) {
-    t->prologPredFirstLine = 0;
     t->prologPredLine = 0;
-    t->prologPredLastLine = 0;
     return t;
   } else if (pp->cs.p_code.NOfClauses) {
-    if ((t->prologPredCl = find_code_in_clause(pp, codeptr, &begin, NULL)) <=
+    if ((t->prologPredLine = find_code_in_clause(pp, codeptr, &begin, NULL)) <=
         0) {
       t->prologPredLine = 0;
     } else {
       t->prologPredLine = IntegerOfTerm(clause_loc(begin, pp));
     }
-    if (pp->PredFlags & LogUpdatePredFlag) {
-      t->prologPredFirstLine =
-          clause_loc(ClauseCodeToLogUpdClause(pp->cs.p_code.FirstClause), pp);
-      t->prologPredLastLine =
-          clause_loc(ClauseCodeToLogUpdClause(pp->cs.p_code.LastClause), pp);
-
-    } else {
-      t->prologPredFirstLine = IntegerOfTerm(
-          ts[0] = clause_loc(
-              ClauseCodeToStaticClause(pp->cs.p_code.FirstClause), pp));
-      t->prologPredLastLine = IntegerOfTerm(
-          ts[1] = clause_loc(ClauseCodeToStaticClause(pp->cs.p_code.LastClause),
-                             pp));
-    }
     return t;
   } else {
-    t->prologPredFirstLine = 0;
     t->prologPredLine = t->errorLine;
-    t->prologPredLastLine = 0;
     t->prologPredFile = t->errorFile;
     return t;
   }

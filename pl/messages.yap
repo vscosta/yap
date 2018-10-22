@@ -197,16 +197,22 @@ compose_message( halt, _Level) --> !,
 	[ 'YAP execution halted.'-[] ].
 
 		% syntax error.
+compose_message(error(warning(syntax_error,Info), Exc), Level) -->
+    !,
+    compose_message(error(syntax_error(Info), Exc), Level).
 compose_message(error(E, Exc), Level) -->
-    { '$show_consult_level'(LC) },
-	location(error(E, Exc), Level, LC),
+    {
+%	start_low_level_trace,
+	'$show_consult_level'(LC)
+    },
+    location(error(E, Exc), Level, LC),
     main_message(error(E,Exc) , Level, LC ),
-	c_goal( error(E, Exc), Level ),
-	caller( error(E, Exc), Level ),
-	extra_info( error(E, Exc), Level ),
-	!,
-	[nl],
-	[nl].
+    c_goal( error(E, Exc), Level ),
+    caller( error(E, Exc), Level ),
+    extra_info( error(E, Exc), Level ),
+    !,
+    [nl],
+    [nl].
 compose_message( false, _Level) --> !,
 	[ 'false.'-[] ].
 compose_message( '$abort', _Level) --> !,
@@ -249,9 +255,16 @@ compose_message(Throw, _Level) -->
   	!,
   	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
-location(error(syntax_error(_),info(between(_,LN,_), FileName, _ChrPos, _Err)), _ , _) -->
-		!,
-	[ '~a:~d:~d: ' - [FileName,LN,0] ] .
+location(error(syntax_error(_),Info), _Level , LC) -->
+    { '$error_descriptor'(Info, Desc) },
+    {	query_exception(parserReadingCode, Desc, true) }, 
+    {LC > 0},
+    !,
+    {
+	query_exception(parserFile, Desc, FileName),
+	query_exception(parserLine, Desc, LN)
+    },
+    [ '~a:~d:~d: ' - [FileName,LN,0] ] .
 location(style_check(A,LN,FileName,B ), Level , LC) -->
 	!,
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
@@ -289,21 +302,17 @@ simplify_pred(F, F).
 %message(loaded(Past,AbsoluteFileName,user,Msec,Bytes), Prefix, Suffix) :- !,
 main_message(error(Msg,In), _, _) --> {var(Msg)}, !,
 	[  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message( error(syntax_error(Msg),info(between(L0,LM,LF),_Stream, _Pos, Term)), Level, LC ) -->
-	!,
+main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
+    !,
+        {  
+       '$error_descriptor'(Info, Desc),
+       query_exception(parserTextA, Desc, J),
+       query_exception(parserTextB, Desc, T),
+       query_exception(parserLine, Desc, L)
+	},
 	[' ~a: syntax error ~s' - [Level,Msg]],
 	[nl],
-	  ( syntax_error_term( between(L0,LM,LF), Term, LC )
-	  ->
-	    []
-	  ;
-	    [' ~a: failed_processing syntax error term ~q' - [Level,Term]],
-	    [nl]
-	  ).
-main_message( error(syntax_error(Msg), _Info), Level, _LC ) -->
-	!,
-	[' ~a: syntax error ~s' - [Level,Msg]],
-	[nl].
+	[' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
 main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
     !,
 %    {writeln(ci)},
@@ -370,6 +379,7 @@ display_consulting( F, Level, _, LC) -->
 display_consulting(_F, _, _, _LC) -->
 	  [].
 
+c_goal( error(syntax_error(_),Info), _) --> !.
 c_goal( error(_,Info), _) -->
         { '$error_descriptor'(Info, Desc) },
         ({   query_exception(errorGoal, Desc, Call),
@@ -711,7 +721,7 @@ syntax_error_token(var(_,S), _, _LC)  --> !,
 syntax_error_token(string(S), _, _LC) --> !,
 					  [ '`~s`' - [S] ].
 syntax_error_token(error, L, _LC) --> !,
-	[ ' <<<< at line %d' - [L] ].
+	[ ' <<<< at line ~d >>>> ' - [L] ].
 syntax_error_token('EOT',_,  _LC) --> !,
 	[ '.' - [], nl  ].
 syntax_error_token('(',_,  _LC) --> !,

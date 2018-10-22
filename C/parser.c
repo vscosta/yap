@@ -60,12 +60,12 @@ static void syntax_msg(const char *msg, ...) {
   va_list ap;
   if (!LOCAL_ErrorMessage ||
       (LOCAL_Error_TYPE == SYNTAX_ERROR &&
-       LOCAL_tokptr->TokPos < LOCAL_ActiveError->prologParserPos)) {
+       LOCAL_tokptr->TokPos < LOCAL_ActiveError->parserPos)) {
     if (!LOCAL_ErrorMessage) {
       LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
     }
-    LOCAL_ActiveError->prologParserLine = LOCAL_tokptr->TokLine;
-    LOCAL_ActiveError->prologParserPos = LOCAL_tokptr->TokPos;
+    LOCAL_ActiveError->parserLine = LOCAL_tokptr->TokLine;
+    LOCAL_ActiveError->parserPos = LOCAL_tokptr->TokPos;
     va_start(ap, msg);
     vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
     va_end(ap);
@@ -911,12 +911,17 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   CACHE_REGS
   // ensure that if we throw an exception
   // t will be 0.
+    LOCAL_ActiveError->errorMsg=NULL;
+    LOCAL_ActiveError->errorMsgLen=0;
   Volatile Term t = 0;
   JMPBUFF FailBuff;
   yhandle_t sls = Yap_StartSlots();
+  LOCAL_ErrorMessage = NULL;
   LOCAL_toktide = LOCAL_tokptr;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
+    LOCAL_ActiveError->errorMsg=NULL;
+    LOCAL_ActiveError->errorMsgLen=0;
 
     t = ParseTerm(prio, &FailBuff, enc, cmod PASS_REGS);
 #if DEBUG
@@ -936,9 +941,13 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
     LOCAL_Error_TYPE = SYNTAX_ERROR;
     if (LOCAL_tokptr->TokNext) {
-      LOCAL_ErrorMessage = "bracket or operator expected.";
+      size_t sz = strlen("bracket or operator expected.");
+      LOCAL_ErrorMessage =malloc(sz+1);
+      strncpy(LOCAL_ErrorMessage, "bracket or operator expected.", sz  );
     } else {
-      LOCAL_ErrorMessage = "term  must end with . or EOF.";
+      size_t sz = strlen("term  must end with . or EOF.");
+      LOCAL_ErrorMessage =malloc(sz+1);
+      strncpy(LOCAL_ErrorMessage,"term  must end with . or EOF.", sz  );
     }
     t = 0;
   }

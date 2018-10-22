@@ -219,12 +219,12 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
 }
 
 static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
-                          arity_t nargs USES_REGS) {
+			  arity_t nargs USES_REGS) {
   if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
     if (!Yap_locked_gc(nargs, env, cp)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
       return 0;
     }
     return 1;
@@ -239,7 +239,7 @@ static int code_overflow(CELL *yenv USES_REGS) {
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
       Yap_NilError(RESOURCE_ERROR_HEAP, "YAP failed to grow heap: %s",
-                   LOCAL_ErrorMessage);
+		   "malloc/mmap failed");
       return 0;
     }
     CACHE_A1();
@@ -689,7 +689,7 @@ static int interrupt_deallocate(USES_REGS1) {
       return rc;
     }
     if (!Yap_locked_gc(0, ENV, YESCODE)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
     }
     S = ASP;
     S[E_CB] = (CELL)(LCL0 - cut_b);
