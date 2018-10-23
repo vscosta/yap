@@ -16,6 +16,19 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   eam.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 11:50:05 2017
+  * 
+  * @brief  Extended Abstract Machine
+  * @defgroup EAM Extended Abstract Machine
+  * @{
+  * @ingroup extensions
+  * 
+  * 
+*/
+
 :- system_module( '$_eam', [eamconsult/1,
         eamtrans/2], []).
 
@@ -42,3 +55,5 @@ eamconsult(File):- eam, eam,                    %fails if eam is disable
                 assert((user:term_expansion((A :- B),(A :- C)):- eamtrans(B,C))),
                 eam, ( consult(File) ; true), eam,
 		abolish(user:term_expansion,2).
+
+%% @}

@@ -719,7 +719,7 @@ restart:
         dest = Yap_emit_extra_size(blob_op, sz / CellSize, sz, &cglobs->cint);
 
         /* copy the bignum */
-        memcpy(dest, src, sz);
+        memmove(dest, src, sz);
         /* note that we don't need to copy size info, unless we wanted
          to garbage collect clauses ;-) */
         cglobs->cint.icpc = cglobs->cint.cpc;
@@ -758,7 +758,7 @@ restart:
         dest = Yap_emit_extra_size(blob_op, sz / CellSize, sz, &cglobs->cint);
 
         /* copy the bignum */
-        memcpy(dest, src, sz);
+        memmove(dest, src, sz);
         /* note that we don't need to copy size info, unless we wanted
          to garbage collect clauses ;-) */
         cglobs->cint.icpc = cglobs->cint.cpc;
@@ -3513,14 +3513,20 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     LOCAL_ErrorMessage = "clause head should be atom or compound term";
     return (0);
   } else {
-
+  loop:
     /* find out which predicate we are compiling for */
     if (IsAtomTerm(head)) {
       Atom ap = AtomOfTerm(head);
       cglobs.cint.CurrentPred = RepPredProp(PredPropByAtom(ap, mod));
     } else {
+      Functor f = FunctorOfTerm(head);
+      if (f == FunctorModule) {
+	mod = ArgOfTerm(1,head);
+	head = ArgOfTerm(2,head);
+	goto loop;
+      }
       cglobs.cint.CurrentPred =
-          RepPredProp(PredPropByFunc(FunctorOfTerm(head), mod));
+          RepPredProp(PredPropByFunc(f, mod));
     }
     /* insert extra instructions to count calls */
     PELOCK(52, cglobs.cint.CurrentPred);
@@ -3569,7 +3575,7 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
       cglobs.space_op->rnd1 = cglobs.space_used;
 
 #ifdef DEBUG
-    if (GLOBAL_Option['g' - 96])
+    if (GLOBAL_Option['g' - 96] )
       Yap_ShowCode(&cglobs.cint);
 #endif
   } else {

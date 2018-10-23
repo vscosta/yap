@@ -1,8 +1,24 @@
 
+/**
+ * @file   real.c
+ * @date   Sat May 19 13:44:04 2018
+ * 
+ * @brief  Prolog  to R interface
+ * 
+ * 
+ */
+
+/**
+ * @defgroup realI Interface Prolog to R
+ * @ brief How to call R from YAP
+ * @ingroup realm
+ * @{
+ */
 #define CSTACK_DEFNS
 #include "rconfig.h"
 #if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
 #include <SWI-Prolog.h>
+#undef ERROR
 #if HAVE_R_EMBEDDED_H
 #include <Rembedded.h>
 #endif
@@ -479,7 +495,7 @@ static int term_to_S_el(term_t t, int objtype, size_t index, SEXP ans) {
   switch (objtype) {
   case PL_R_CHARS:
   case PL_R_PLUS: {
-    char *s;
+    char *s = NULL;
 
     if (PL_get_chars(t, &s, CVT_ATOM | CVT_STRING | CVT_LIST | BUF_DISCARDABLE |
                                 REP_UTF8)) {
@@ -781,7 +797,7 @@ static SEXP list_to_sexp(term_t t, int objtype) {
 
 static int slot_to_sexp(term_t t, SEXP *ansP) {
   term_t tslot = PL_new_term_ref();
-  char *s;
+  char *s = NULL;
   SEXP tmp_R, name_R;
   int nprotect = 0;
 
@@ -813,7 +829,7 @@ static int slot_to_sexp(term_t t, SEXP *ansP) {
 
 static int set_slot_to_sexp(term_t t, SEXP sexp) {
   term_t tslot = PL_new_term_ref();
-  char *s;
+  char *s = NULL;
   SEXP tmp_R, name_R;
   int nprotect = 0;
 
@@ -844,7 +860,7 @@ static int set_slot_to_sexp(term_t t, SEXP sexp) {
 
 static int listEl_to_sexp(term_t t, SEXP *ansP) {
   term_t tslot = PL_new_term_ref();
-  char *s;
+  char *s = NULL;
   SEXP tmp_R;
   int nprotect = 0;
 
@@ -875,7 +891,7 @@ static SEXP pl_to_func(term_t t, bool eval) {
   term_t a1 = PL_new_term_ref(), a;
   int i, ierror;
   SEXP c_R, call_R, res_R;
-  char *sf;
+  char *sf = NULL;
   int nprotect = 0;
 
   if (!PL_get_name_arity(t, &name, &arity)) {
@@ -1873,7 +1889,9 @@ static foreign_t init_R(void) {
   R_SignalHandlers = 0;
 #endif
   Rf_initEmbeddedR(argc, argv);
+#ifndef WIN32
   R_CStackLimit = -1;
+#endif
   return TRUE;
 }
 
@@ -2025,7 +2043,7 @@ static foreign_t send_c_vector(term_t tvec, term_t tout) {
 }
 
 static foreign_t rexpr_to_pl_term(term_t in, term_t out) {
-  char *s;
+  char *s = NULL;
 
   if (PL_get_chars(in, &s, CVT_ALL | BUF_MALLOC | REP_UTF8)) {
     SEXP sexp;
@@ -2047,7 +2065,7 @@ static foreign_t rexpr_to_pl_term(term_t in, term_t out) {
 }
 
 static foreign_t robj_to_pl_term(term_t name, term_t out) {
-  char *plname;
+  char *plname = NULL;
   int nprotect = 0;
 
   if (PL_get_chars(name, &plname, CVT_ALL | BUF_DISCARDABLE | REP_UTF8)) {
@@ -2138,7 +2156,7 @@ static foreign_t execute_R(term_t rvar, term_t value) {
 
 static foreign_t is_R_variable(term_t t) {
   SEXP name, o;
-  char *s;
+  char *s = NULL;
   int nprotect = 0;
 
   /* is this variable defined in R?.  */
@@ -2208,3 +2226,5 @@ install_real(void) { /* FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2); */
 }
 
 #endif /* R_H */
+/// @}
+

@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		iopreds.c						 *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		iopreds.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -25,10 +25,10 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
@@ -92,8 +92,9 @@ static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
   int sno;
   encoding_t enc = ENC_ISO_UTF8;
-  sno = Yap_open_buf_read_stream((char *)s, strlen_utf8((unsigned char *)s),
-                                 &enc, MEM_BUF_USER);
+  sno = Yap_open_buf_read_stream(
+      (char *)s, strlen_utf8((unsigned char *)s), &enc, MEM_BUF_USER,
+      Yap_LookupAtom(Yap_StrPrefix((char *)s, 16)), TermNone);
 
   rval = Yap_read_term(sno, opts, 3);
   Yap_CloseStream(sno);
@@ -231,7 +232,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
     }
   }
   if (args[WRITE_CYCLES].used && args[WRITE_CYCLES].tvalue == TermFalse) {
-    flags |= Unfold_cyclics_f;
+    flags |= Ignore_cyclics_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;
@@ -291,21 +292,20 @@ end:
  *
  */
 bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
-  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(opts, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
+
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, t, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
-  Yap_RaiseException();
   return (TRUE);
 }
 
@@ -336,10 +336,9 @@ static Int write2(USES_REGS1) {
   int output_stream = Yap_CheckTextStream(ARG1, Output_Stream_f, "write/2");
   if (output_stream < 0)
     return false;
-  args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                             DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -362,10 +361,9 @@ static Int write1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -389,10 +387,9 @@ static Int write_canonical1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -415,10 +412,9 @@ static Int write_canonical(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -445,10 +441,9 @@ static Int writeq1(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -475,10 +470,9 @@ static Int writeq(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -505,10 +499,9 @@ static Int print1(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -536,10 +529,9 @@ static Int print(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
-    if (LOCAL_Error_TYPE == DOMAIN_ERROR_OUT_OF_RANGE)
-      LOCAL_Error_TYPE = DOMAIN_ERROR_WRITE_OPTION;
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
     return false;
@@ -569,7 +561,8 @@ static Int writeln1(USES_REGS1) {
   int output_stream = LOCAL_c_output_stream;
   if (output_stream == -1)
     output_stream = 1;
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
@@ -593,7 +586,8 @@ static Int writeln(USES_REGS1) {
 
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END);
+  xarg *args = Yap_ArgListToVector(TermNil, write_defs, WRITE_END,
+                                   DOMAIN_ERROR_WRITE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE)
       Yap_Error(LOCAL_Error_TYPE, TermNil, NULL);
@@ -678,9 +672,7 @@ static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
   if (IsVarTerm(t2)) {
-    size_t length;
-    s = Yap_TermToString(ARG1, &length, LOCAL_encoding,
-                         Quote_illegal_f | Handle_vars_f);
+    s = Yap_TermToBuffer(t1, Quote_illegal_f | Handle_vars_f);
     if (!s || !MkStringTerm(s)) {
       Yap_Error(RESOURCE_ERROR_HEAP, t1,
                 "Could not get memory from the operating system");
@@ -700,9 +692,8 @@ static Int term_to_atom(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   Atom at;
   if (IsVarTerm(t2)) {
-    size_t length;
-    const char *s = Yap_TermToString(Deref(ARG1), &length, LOCAL_encoding,
-                                     Quote_illegal_f | Handle_vars_f);
+    const char *s =
+        Yap_TermToBuffer(Deref(ARG1), Quote_illegal_f | Handle_vars_f);
     if (!s || !(at = Yap_UTF8ToAtom((const unsigned char *)s))) {
       Yap_Error(RESOURCE_ERROR_HEAP, t2,
                 "Could not get memory from the operating system");
@@ -716,9 +707,27 @@ static Int term_to_atom(USES_REGS1) {
     at = AtomOfTerm(t2);
   }
   ctl = TermNil;
-  return (rc = Yap_BufferToTerm(RepAtom(at)->UStrOfAE,
-                                strlen(RepAtom(at)->StrOfAE), ctl)) &&
+  return ((rc = Yap_UBufferToTerm(RepAtom(at)->UStrOfAE, ctl))) &&
          Yap_unify(rc, ARG1);
+}
+
+char *Yap_TermToBuffer(Term t, int flags) {
+  CACHE_REGS
+  int sno = Yap_open_buf_write_stream(LOCAL_encoding, flags);
+
+  if (sno < 0)
+    return NULL;
+  if (t == 0)
+    return NULL;
+  else
+    t = Deref(t);
+  GLOBAL_Stream[sno].encoding = LOCAL_encoding;
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+
+  char *new = Yap_MemExportStreamPtr(sno);
+  Yap_CloseStream(sno);
+  return new;
 }
 
 void Yap_InitWriteTPreds(void) {

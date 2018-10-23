@@ -22,25 +22,49 @@
 
 @file absmi.c
 
-@defgroup Efficiency Efficiency Considerations
-@ingroup YAPProgramming
+@{
 
 We next discuss several issues on trying to make Prolog programs run
 fast in YAP. We assume two different programming styles:
 
-+ Execution of <em>deterministic</em> programs ofte
-n
++ Execution of <em>deterministic</em> programs often
 boils down to a recursive loop of the form:
 
 ~~~~~
+loop(Done).
 loop(Env) :-
         do_something(Env,NewEnv),
         loop(NewEnv).
 ~~~~~
+
+or to the repeat-fail loop:
+
+~~~~~
+loop(Inp) :-
+        do_something(Inp,Out),
+        out_and_fail(Out).
+~~~~~
+
+
+@}
+
+@defgroup Implementation Implementation Considerations
+@ingroup YAPProgramming
+
+This section is about the YAP implementation, and is mostly of
+interest to hackers.
+
+@{
+
+@defgroup Emulator The Abstract Machine Emulator
+@ingroup Implementation
+
  */
 
+/// code belongs to the emulator
 #define IN_ABSMI_C 1
 #define _INATIVE 1
+/// use tmp variables that are placed in registers
 #define HAS_CACHE_REGS 1
 
 #include "absmi.h"
@@ -195,12 +219,12 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
 }
 
 static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
-                          arity_t nargs USES_REGS) {
+			  arity_t nargs USES_REGS) {
   if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
     if (!Yap_locked_gc(nargs, env, cp)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
       return 0;
     }
     return 1;
@@ -215,7 +239,7 @@ static int code_overflow(CELL *yenv USES_REGS) {
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
       Yap_NilError(RESOURCE_ERROR_HEAP, "YAP failed to grow heap: %s",
-                   LOCAL_ErrorMessage);
+		   "malloc/mmap failed");
       return 0;
     }
     CACHE_A1();
@@ -502,8 +526,8 @@ static int interrupt_execute(USES_REGS1) {
   }
   if (PP)
     UNLOCKPE(1, PP);
-  PP = P->y_u.pp.p0;
-  if ((P->y_u.pp.p->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
+  PP = P->y_u.Osbpp.p0;
+  if ((P->y_u.Osbpp.p->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
@@ -511,11 +535,11 @@ static int interrupt_execute(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.pp.p, ENV, CP,
-                          P->y_u.pp.p->ArityOfPE PASS_REGS)) >= 0) {
+  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, CP,
+                          P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
-  return interrupt_handler(P->y_u.pp.p PASS_REGS);
+  return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
 }
 
 static int interrupt_call(USES_REGS1) {
@@ -665,7 +689,7 @@ static int interrupt_deallocate(USES_REGS1) {
       return rc;
     }
     if (!Yap_locked_gc(0, ENV, YESCODE)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
     }
     S = ASP;
     S[E_CB] = (CELL)(LCL0 - cut_b);
@@ -840,8 +864,8 @@ static int interrupt_dexecute(USES_REGS1) {
 #endif
   if (PP)
     UNLOCKPE(1, PP);
-  PP = P->y_u.pp.p0;
-  pe = P->y_u.pp.p;
+  PP = P->y_u.Osbpp.p0;
+  pe = P->y_u.Osbpp.p;
   if ((pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) &&
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
@@ -853,8 +877,8 @@ static int interrupt_dexecute(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.pp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
-                          P->y_u.pp.p->ArityOfPE PASS_REGS)) >= 0) {
+  if ((v = stack_overflow(P->y_u.Osbpp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
+                          P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
   /* first, deallocate */
@@ -892,7 +916,6 @@ static int interrupt_dexecute(USES_REGS1) {
 
 static void undef_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
-
   BEGD(d0);
 /* avoid trouble with undefined dynamic procedures */
 /* I assume they were not locked beforehand */
@@ -902,12 +925,26 @@ static void undef_goal(USES_REGS1) {
     PP = pe;
   }
 #endif
-  if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ||
-      pe == UndefCode) {
+    if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
+#if defined(YAPOR) || defined(THREADS)
+      UNLOCKPE(19, PP);
+    PP = NULL;
+#endif
+      CalculateStackGap(PASS_REGS1);
+      P = FAILCODE;
+      return;
+    }
+  if (UndefCode == NULL || UndefCode->OpcodeOfPred == UNDEF_OPCODE) {
+    fprintf(stderr,"call to undefined Predicates %s ->", IndicatorOfPred(pe));
+    Yap_DebugPlWriteln(ARG1);
+    fputc(':', stderr);
+    Yap_DebugPlWriteln(ARG2);
+    fprintf(stderr,"  error handler not available, failing\n");
 #if defined(YAPOR) || defined(THREADS)
     UNLOCKPE(19, PP);
     PP = NULL;
 #endif
+    CalculateStackGap(PASS_REGS1);
     P = FAILCODE;
     return;
   }
@@ -915,16 +952,16 @@ static void undef_goal(USES_REGS1) {
   UNLOCKPE(19, PP);
   PP = NULL;
 #endif
-  d0 = pe->ArityOfPE;
-  if (d0 == 0) {
-    HR[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+  if (pe->ArityOfPE == 0) {
+    d0 = MkAtomTerm((Atom)(pe->FunctorOfPred));
   } else {
-    HR[d0 + 2] = AbsAppl(HR);
-    *HR = (CELL)pe->FunctorOfPred;
-    HR++;
+    d0 = AbsAppl(HR);
+    *HR++ = (CELL)pe->FunctorOfPred;
+    CELL *ip=HR, *imax = HR+pe->ArityOfPE;
+    HR = imax;
     BEGP(pt1);
     pt1 = XREGS + 1;
-    for (; d0 > 0; --d0) {
+    for (; ip < imax; ip++) {
       BEGD(d1);
       BEGP(pt0);
       pt0 = pt1++;
@@ -932,18 +969,17 @@ static void undef_goal(USES_REGS1) {
       deref_head(d1, undef_unk);
     undef_nonvar:
       /* just copy it to the heap */
-      *HR++ = d1;
+      *ip = d1;
       continue;
 
       derefa_body(d1, pt0, undef_unk, undef_nonvar);
       if (pt0 <= HR) {
         /* variable is safe */
-        *HR++ = (CELL)pt0;
+        *ip = (CELL)pt0;
       } else {
         /* bind it, in case it is a local variable */
-        d1 = Unsigned(HR);
-        RESET_VARIABLE(HR);
-        HR += 1;
+        d1 = Unsigned(ip);
+        RESET_VARIABLE(ip);
         Bind_Local(pt0, d1);
       }
       ENDP(pt0);
@@ -951,11 +987,20 @@ static void undef_goal(USES_REGS1) {
     }
     ENDP(pt1);
   }
-  ENDD(d0);
-  HR[0] = Yap_Module_Name(pe);
-  ARG1 = (Term)AbsPair(HR);
+  ARG1 = AbsPair(HR);
+  HR[1] = d0;
+ENDD(d0);
+  if (pe->ModuleOfPred == PROLOG_MODULE) {
+    if (CurrentModule == PROLOG_MODULE)
+      HR[0] = TermProlog;
+    else
+      HR[0] = CurrentModule;
+  } else {
+    HR[0] = Yap_Module_Name(pe);
+  }
   ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
   HR += 2;
+
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
@@ -1146,7 +1191,6 @@ Int Yap_absmi(int inp) {
 #ifdef SHADOW_S
   register CELL *SREG = Yap_REGS.S_;
 #else
-#define SREG S
 #endif /* SHADOW_S */
 
 /* The indexing register so that we will not destroy ARG1 without
@@ -1420,3 +1464,7 @@ default:
 
 /* dummy function that is needed for profiler */
 int Yap_absmiEND(void) { return 1; }
+
+/// @}
+
+/// @}

@@ -729,7 +729,15 @@ static YAP_Bool execute_command(void) {
 #endif /* UNIX code */
 }
 
-/* execute a command as a detached process */
+/** @pred  system(+ _S_)
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+
+Note that it executes them command as a detached process. It requires
+`system` to be implemented by the system library.
+
+*/
 static YAP_Bool do_system(void) {
   char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_SYSTEM
@@ -841,73 +849,6 @@ static YAP_Bool plwait(void) {
              YAP_Unify(YAP_ARG4, YAP_MkIntTerm(WSTOPSIG(status)));
     }
   } while (TRUE);
-#endif
-}
-
-static YAP_Bool p_sleep(void) {
-  YAP_Term ts = YAP_ARG1;
-#if defined(__MINGW32__) || _MSC_VER
-  {
-    unsigned long int secs = 0, usecs = 0, msecs, out;
-    if (YAP_IsIntTerm(ts)) {
-      secs = YAP_IntOfTerm(ts);
-    } else if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-      if (tfl > 1.0)
-        secs = tfl;
-      else
-        usecs = tfl * 1000000;
-    }
-    msecs = secs * 1000 + usecs / 1000;
-    Sleep(msecs);
-    /* no errors possible */
-    out = 0;
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_NANOSLEEP
-  {
-    struct timespec req;
-    int out;
-
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
-      req.tv_sec = rint(tfl);
-    } else {
-      req.tv_nsec = 0;
-      req.tv_sec = YAP_IntOfTerm(ts);
-    }
-    out = nanosleep(&req, NULL);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_USLEEP
-  {
-    useconds_t usecs;
-    if (YAP_IsFloatTerm(ts)) {
-      double tfl = YAP_FloatOfTerm(ts);
-
-      usecs = rint(tfl * 1000000);
-    } else {
-      usecs = YAP_IntOfTerm(ts) * 1000000;
-    }
-    out = usleep(usecs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#elif HAVE_SLEEP
-  {
-    unsigned int secs, out;
-    if (YAP_IsFloatTerm(ts)) {
-      secs = rint(YAP_FloatOfTerm(ts));
-    } else {
-      secs = YAP_IntOfTerm(ts);
-    }
-    out = sleep(secs);
-    return (YAP_Unify(YAP_ARG2, YAP_MkIntTerm(out)));
-  }
-#else
-  YAP_Error(0, 0L, "sleep not available in this configuration");
-  return FALSE:
 #endif
 }
 
@@ -1040,7 +981,6 @@ X_API void init_sys(void) {
 #endif
   YAP_UserCPredicate("datime", datime, 2);
   YAP_UserCPredicate("mktime", sysmktime, 8);
-  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("file_property", file_property, 7);
   YAP_UserCPredicate("unlink", p_unlink, 2);
   YAP_UserCPredicate("rmdir", p_rmdir, 2);
@@ -1055,10 +995,10 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("pid", pid, 2);
   YAP_UserCPredicate("kill", p_kill, 3);
   YAP_UserCPredicate("mktemp", p_mktemp, 3);
+  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);
-  YAP_UserCPredicate("sleep", p_sleep, 2);
   YAP_UserCPredicate("read_link", read_link, 2);
   YAP_UserCPredicate("error_message", error_message, 2);
   YAP_UserCPredicate("win", win, 0);

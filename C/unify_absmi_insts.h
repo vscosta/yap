@@ -2,6 +2,8 @@
  *    Get Instructions                                                  *
 \************************************************************************/
 
+#include <amiops.h>
+
 #ifdef INDENT_CODE
 {
   {

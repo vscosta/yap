@@ -15,6 +15,19 @@
  *									 *
  *************************************************************************/
 
+/**
+  * @file   pl/utils.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:21:01 2017
+  * 
+  * @brief  Utilities
+  *
+  * @defgroup MixBag Diverse Utilities
+  * @ingroup builtin
+  * 
+  * 
+*/
+
 :- system_module( '$_utils', [callable/1,
         current_op/3,
         nb_current/2,
@@ -331,7 +344,7 @@ enumeration is undefined.
 */
 nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
-	'$nb_getval'(GlobalVariable, Val, _).
+	'__NB_getval__'(GlobalVariable, Val, _).
 
 '$getval_exception'(GlobalVariable, _Val, Caller) :-
 	user:exception(undefined_global_variable, GlobalVariable, Action),

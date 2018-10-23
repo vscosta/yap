@@ -1468,12 +1468,12 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     hash = (TrHash) node;
     first_bucket = TrHash_buckets(hash);
     bucket = first_bucket + TrHash_num_buckets(hash);
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*--bucket) {
         node = *bucket;
         traverse_and_print(node, arity, str, str_index, mode);
-        memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+        memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
         if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
           /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
           if (str_index > 0 && str[str_index - 1] != '[')
@@ -1490,9 +1490,9 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
 
   if (TrNode_next(node)) {
     int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     traverse_and_print(TrNode_next(node), arity, str, str_index, mode);
-    memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+    memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
     if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
       /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
       if (str_index > 0 && str[str_index - 1] != '[')

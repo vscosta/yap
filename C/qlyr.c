@@ -1,20 +1,20 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V. Santos Costa and Universidade do Porto 1985--	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		qlyr.c							 *
-* comments:	quick saver/loader					 *
-*									 *
-* Last rev:     $Date: 2011-08-29$,$Author: vsc $			 *
-* $Log: not supported by cvs2svn $					 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V. Santos Costa and Universidade do Porto 1985--	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		qlyr.c *
+ * comments:	quick saver/loader					 *
+ *									 *
+ * Last rev:     $Date: 2011-08-29$,$Author: vsc $			 *
+ * $Log: not supported by cvs2svn $					 *
+ *									 *
+ *************************************************************************/
 /**
  *
  * @file qlyr.c
@@ -79,11 +79,18 @@ static char *Yap_AlwaysAllocCodeSpace(UInt size) {
   return out;
 }
 
-static void QLYR_ERROR(qlfr_err_t my_err) {
+
+#define QLYR_ERROR(err)                                                  \
+  QLYR_ERROR__(__FILE__, __FUNCTION__, __LINE__, err)
+
+
+
+static void QLYR_ERROR__(const char *file, const char *function, int lineno,
+                       qlfr_err_t my_err) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "error %s in saved state
   // %s",GLOBAL_RestoreFile, qlyr_error[my_err]);
-  Yap_Error(SYSTEM_ERROR_SAVED_STATE, TermNil, "error %s in saved state %s",
-            GLOBAL_RestoreFile, qlyr_error[my_err]);
+    Yap_Error__(false, file, function, lineno, SYSTEM_ERROR_SAVED_STATE, TermNil, "error %s in saved state %s",
+              GLOBAL_RestoreFile, qlyr_error[my_err]);
   Yap_exit(1);
 }
 
@@ -590,8 +597,32 @@ static void RestoreHashPreds(USES_REGS1) {}
 
 static void RestoreAtomList(Atom atm USES_REGS) {}
 
+static bool maybe_read_bytes(FILE *stream, void *ptr, size_t sz) {
+  do {
+    size_t count;
+    if ((count = fread(ptr, 1, sz, stream)) == sz)
+      return true;
+    if (feof(stream) || ferror(stream))
+      return false;
+    sz -= count;
+    ptr += count;
+  } while (true);
+}
+    
 static size_t read_bytes(FILE *stream, void *ptr, size_t sz) {
-  return fread(ptr, sz, 1, stream);
+  do {
+    size_t count = fread(ptr, 1, sz, stream);
+    if (count == sz)
+      return  sz;
+    if (feof(stream)) {
+        PlIOError(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, TermNil, "read_qly/3: expected %ld bytes got %ld", sz, count);
+        return 0;
+      } else if (ferror(stream)) {
+        PlIOError(PERMISSION_ERROR_INPUT_STREAM, TermNil, "read_qly/3: expected %ld bytes got error %s", sz, strerror(errno));
+        return 0;
+      }
+    sz -= count;
+    } while(true);
 }
 
 static unsigned char read_byte(FILE *stream) { return getc(stream); }
@@ -625,34 +656,26 @@ static pred_flags_t read_predFlags(FILE *stream) {
   return v;
 }
 
-static bool checkChars(FILE *stream, char s[]) {
-  int ch, c;
-  char *p = s;
-
-  while ((ch = *p++)) {
-    if ((c = read_byte(stream)) != ch) {
-      return false;
-    }
-  }
-  return TRUE;
-}
 
 static Atom do_header(FILE *stream) {
-  char s[256], *p = s, ch;
+  char s[2049], *p = s, *q;
+  char h0[] = "#!/bin/sh\nexec_dir=${YAPBINDIR:-";
+  char h1[] = "exec $exec_dir/yap $0 \"$@\"\nsaved ";
   Atom at;
 
-  if (!checkChars(stream, "#!/bin/sh\nexec_dir=${YAPBINDIR:-"))
+  if (!maybe_read_bytes( stream, s, 2048) )
     return NIL;
-  while ((ch = read_byte(stream)) != '\n')
-    ;
-  if (!checkChars(stream, "exec $exec_dir/yap $0 \"$@\"\nsaved "))
+  if (strstr(s, h0)!= s)
     return NIL;
-  while ((ch = read_byte(stream)) != ',')
-    *p++ = ch;
-  *p++ = '\0';
-  at = Yap_LookupAtom(s);
-  while ((ch = read_byte(stream)))
-    ;
+  if ((p=strstr(s, h1)) == NULL) {
+    return NIL;
+  }
+  p += strlen(h1);
+  q = strchr(p,',');
+  if (!q)
+    return NIL;
+  q[0] = '\0';
+  at = Yap_LookupAtom(p);
   return at;
 }
 
@@ -667,13 +690,22 @@ static Int get_header(USES_REGS1) {
     return FALSE;
   }
   if (!(stream = Yap_GetInputStream(t1, "header scanning in qload"))) {
-    return FALSE;
+    return false;
   }
-  if ((at = do_header(stream)) == NIL)
-    rc = FALSE;
-  else
+    sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
+  LOCAL_RestartEnv = &signew;
+
+  if (sigsetjmp(signew, 1) != 0) {
+      LOCAL_RestartEnv = sighold;
+      return false;
+    }
+  if ((at = do_header(stream)) == NIL) 
+    rc = false;
+  else {
     rc = Yap_unify(ARG2, MkAtomTerm(at));
-  return rc;
+  }
+    LOCAL_RestartEnv = sighold;
+    return rc;
 }
 
 static void ReadHash(FILE *stream) {
@@ -696,7 +728,7 @@ static void ReadHash(FILE *stream) {
     Atom at;
     qlf_tag_t tg = read_tag(stream);
 
-  if (tg == QLY_ATOM) {
+    if (tg == QLY_ATOM) {
       char *rep = (char *)AllocTempSpace();
       UInt len;
 
@@ -804,6 +836,7 @@ static void ReadHash(FILE *stream) {
     UInt sz = read_UInt(stream);
     UInt nrefs = read_UInt(stream);
     LogUpdClause *ncl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(sz);
+    Yap_LUClauseSpace += sz;
     if (!ncl) {
       QLYR_ERROR(OUT_OF_CODE_SPACE);
     }
@@ -842,6 +875,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         nrefs = cl->ClRefCount;
       } else {
         cl = (LogUpdClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_LUClauseSpace += size;
       }
       read_bytes(stream, cl, size);
       cl->ClFlags &= ~InUseMask;
@@ -855,6 +889,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     char *base = (void *)read_UInt(stream);
     UInt mask = read_UInt(stream);
     UInt size = read_UInt(stream);
+	Yap_ClauseSpace += size;
     MegaClause *cl = (MegaClause *)Yap_AlwaysAllocCodeSpace(size);
 
     if (nclauses) {
@@ -886,6 +921,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       DynamicClause *cl = (DynamicClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_LUClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);
@@ -916,6 +952,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       char *base = (void *)read_UInt(stream);
       UInt size = read_UInt(stream);
       StaticClause *cl = (StaticClause *)Yap_AlwaysAllocCodeSpace(size);
+	Yap_ClauseSpace += size;
 
       LOCAL_HDiff = (char *)cl - base;
       read_bytes(stream, cl, size);
@@ -1044,6 +1081,8 @@ static void ReInitProlog(void) {
 
 static Int qload_program(USES_REGS1) {
   FILE *stream;
+
+
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1)) {
@@ -1053,7 +1092,7 @@ static Int qload_program(USES_REGS1) {
   if ((stream = Yap_GetInputStream(t1, "from read_program"))) {
     return FALSE;
   }
-  Yap_Reset(YAP_RESET_FROM_RESTORE);
+  Yap_Reset(YAP_RESET_FROM_RESTORE, true);
   if (do_header(stream) == NIL)
     return FALSE;
   read_module(stream);
@@ -1063,10 +1102,10 @@ static Int qload_program(USES_REGS1) {
   return true;
 }
 
-YAP_file_type_t Yap_Restore(const char *s, const char *lib_dir) {
+YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-  FILE *stream = Yap_OpenRestore(s, lib_dir);
+  FILE *stream = Yap_OpenRestore(s);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;

@@ -83,7 +83,6 @@
 #ifdef EUROTRA
 #define TermDollarU Yap_heap_regs->TermDollarU_
 #endif
-#define TermAnswer Yap_heap_regs->TermAnswer_
 
 #define USER_MODULE Yap_heap_regs->USER_MODULE_
 #define IDB_MODULE Yap_heap_regs->IDB_MODULE_
@@ -142,6 +141,7 @@
 #define PredLogUpdClause Yap_heap_regs->PredLogUpdClause_
 #define PredLogUpdClauseErase Yap_heap_regs->PredLogUpdClauseErase_
 #define PredLogUpdClause0 Yap_heap_regs->PredLogUpdClause0_
+#define PredCall Yap_heap_regs->PredCall_
 #define PredMetaCall Yap_heap_regs->PredMetaCall_
 #define PredProtectStack Yap_heap_regs->PredProtectStack_
 #define PredRecordedWithKey Yap_heap_regs->PredRecordedWithKey_
@@ -152,6 +152,7 @@
 #define PredTraceMetaCall Yap_heap_regs->PredTraceMetaCall_
 #define PredCommentHook Yap_heap_regs->PredCommentHook_
 #define PredProcedure Yap_heap_regs->PredProcedure_
+#define PredUndefinedQuery Yap_heap_regs->PredUndefinedQuery_
 
 #ifdef LOW_LEVEL_TRACER
 #define Yap_do_low_level_trace Yap_heap_regs->Yap_do_low_level_trace_
@@ -269,6 +270,8 @@
 
 #define Yap_AttsSize Yap_heap_regs->Yap_AttsSize_
 #endif
+
+#define setup_call_catcher_cleanup_tag Yap_heap_regs->setup_call_catcher_cleanup_tag_
 
 #define OpList Yap_heap_regs->OpList_
 

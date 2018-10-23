@@ -8,9 +8,9 @@
     switch (op) {
 #ifdef YAP_JIT
     case _jit_handler:
-#endif
       cl = NEXTOP(cl,J);
       break;
+      #endif
     case _ensure_space:
       cl = NEXTOP(cl,Osbpa);
       break;
@@ -215,13 +215,13 @@
       } else {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
 	Term t = lcl->lusl.ClSource->Entry;
-      
+
         if (!(lcl->ClFlags & FactMask)) {
 	  if (IsVarTerm(t)) {
 	    clause->Tag = (CELL)NULL;
 	  } else if (IsApplTerm(t)) {
 	    CELL *pt = RepAppl(t);
-	
+
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
 	       if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	      clause->ucd.t_ptr = t;
@@ -250,13 +250,13 @@
       } else {
 	LogUpdClause *lcl = ClauseCodeToLogUpdClause(cl);
 	Term t = lcl->lusl.ClSource->Entry;
-      
+
         if (!(lcl->ClFlags & FactMask)) {
 	  if (IsVarTerm(t)) {
 	    clause->Tag = (CELL)NULL;
 	  } else if (IsApplTerm(t)) {
 	    CELL *pt = RepAppl(t);
-	
+
 	    clause->Tag = AbsAppl((CELL *)pt[0]);
 	       if (IsExtensionFunctor(FunctorOfTerm(t))) {
 	      clause->ucd.t_ptr = t;

@@ -1,4 +1,4 @@
-/*************************************************************************
+    /*************************************************************************
 *									 *
 *	 YAP Prolog 	%W% %G% 					 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -11,7 +11,7 @@
 * mods:									 *
 * comments:	main header file for YAP				 *
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
-*************************************************************************/
+**********                                                                                                      ***************************************************************/
 
 #ifndef YAP_H
 
@@ -50,7 +50,7 @@
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
 // Bad export from Python
-#include "config.h"
+#include "YapConfig.h"
 
 #ifndef COROUTINING
 #define COROUTINING 1
@@ -74,6 +74,28 @@
 #include <stdint.h>
 #endif
 
+typedef YAP_Int Int;
+typedef YAP_UInt UInt;
+typedef YAP_Short Short;
+typedef YAP_UShort UShort;
+
+typedef uint16_t BITS16;
+typedef int16_t SBITS16;
+typedef uint32_t BITS32;
+
+typedef YAP_CELL CELL;
+
+typedef YAP_Term Term;
+
+#define WordSize sizeof(BITS16)
+#define CellSize sizeof(CELL)
+#define SmallSize sizeof(SMALLUNSGN)
+
+typedef YAP_Int Int;
+typedef YAP_Float Float;
+typedef YAP_handle_t yhandle_t;
+
+#define TermZERO ((Term)0)
 /*
 
 #define RATIONAL_TREES 1
@@ -151,6 +173,11 @@ typedef void *(*fptr_t)(void);
                               main exports in YapInterface.h
 *************************************************************************************************/
 
+extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
+        *Yap_PLDIR, *Yap_COMMONSDIR, *Yap_STARTUP,*Yap_INPUT_STARTUP,*Yap_OUTPUT_STARTUP,
+        *Yap_BOOTFILE, *Yap_INCLUDEDIR;
+
+
 /* Basic exports */
 
 #include "YapDefs.h"
@@ -183,9 +210,9 @@ typedef void *(*fptr_t)(void);
 #endif
 
 #if !defined(HAVE_STRNLEN)
-INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen);
+INLINE_ONLY size_t strnlen(const char *s, size_t maxlen);
 
-INLINE_ONLY inline EXTERN size_t strnlen(const char *s, size_t maxlen) {
+INLINE_ONLY size_t strnlen(const char *s, size_t maxlen) {
   size_t i = 0;
   while (s[i]) {
     if (i == maxlen)
@@ -258,6 +285,7 @@ extern size_t Yap_page_size;
 #define M1 ((CELL)(1024 * 1024))
 #define M2 ((CELL)(2048 * 1024))
 
+typedef YAP_UInt CELL;
 #if ALIGN_LONGS
 typedef CELL SFLAGS;
 #else
@@ -447,7 +475,7 @@ extern int Yap_output_msg;
 #include <android/log.h>
 #include <jni.h>
 
-extern AAssetManager *Yap_assetManager;
+extern AAssetManager *Yap_assetManager(void);
 
 extern void *Yap_openAssetFile(const char *path);
 extern bool Yap_isAsset(const char *path);
@@ -820,8 +848,10 @@ inline static void LOG0(const char *f, int l, const char *fmt, ...) {
 
 #include "GitSHA1.h"
 
-extern bool  Yap_embedded, Yap_Server;
+extern bool  Yap_Embedded, Yap_Server;
+
+#include "YapText.h"
 
 #endif /* YAP_H */
 
-#include "YapText.h"
+

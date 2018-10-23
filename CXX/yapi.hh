@@ -1,24 +1,33 @@
+
 /**
-   @file yapi,hh
+   @file yapi.hh
 
    @brief entry file for the YAP C++ interface
 
 */
 
-
 #define YAP_CPP_INTERFACE 1
 
-#include <gmpxx.h>
-#include <vector>
-#include <string>
 #include <iostream>
+#include <string>
+#include <vector>
+
+extern "C"{
+#include "config.h"
+}
+
+#if HAVE_GMPXX_H
+#include <gmpxx.h>
+#elif HAVE_GMP_H
+#include <gmp.h>
+#endif
 
 /*!
  *
- *   @ingroup fli_c_cx
+ *   @ingroup fli_c_cxx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
- *   @{         
+ *   @{
  *
  *
  * @brief C++ wrapper to terms, predicates and queries
@@ -29,17 +38,26 @@
  * interface.
  *
  */
-#include <stdlib.h>
 
-#include <string>
+extern "C" {
+
+
+
+#include <stdlib.h>
 
 // Bad export from Python
 
 #include <config.h>
 
-extern "C" {
-
 #include <stddef.h>
+
+
+#if YAP_PYTHON
+
+#include <Python.h>
+
+extern bool python_in_python;
+#endif
 
 #include "Yap.h"
 
@@ -70,21 +88,35 @@ extern "C" {
 #endif
 
 #if _MSC_VER || defined(__MINGW32__)
-  //#include <windows.h>
+//#include <windows.h>
 #endif
-
-  // taken from yap_structs.h
+// taken from yap_structs.h
 #include "iopreds.h"
 
-  X_API void YAP_UserCPredicate(const char *, YAP_UserCPred, YAP_Arity arity);
+X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
+                                     YAP_Arity arity);
 
-  /*  void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int arity)
-   */
-  X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred, YAP_Arity,
-					YAP_Term);
+/*  extern void UserCPredicateWithArgs(const char *name, int *fn(), unsigned int
+ * arity)
+ */
+X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
+                                             YAP_Arity, YAP_Term);
 
-  X_API  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
-				 arity, int extra);
+X_API extern void YAP_UserBackCPredicate(const char *name,
+                                         YAP_UserCPred init,
+                                         YAP_UserCPred cont,
+                                         YAP_Arity arity, YAP_Arity extra);
+
+X_API extern void YAP_UserBackCutCPredicate(const char *name,
+                                         YAP_UserCPred init,
+                                            YAP_UserCPred cont,
+                                            YAP_UserCPred cut,
+                                            YAP_Arity arity, YAP_Arity extra);
+
+X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
+
+extern YAP_Term YAP_MkcharPTerm(char *s);
+
 
 }
 
@@ -97,6 +129,7 @@ class YAPQuery;
 class YAPModule;
 class YAPError;
 class YAPPredicate;
+
 
 #include "yapa.hh"
 

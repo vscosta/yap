@@ -180,7 +180,7 @@ void postgresRead(PGconn **ret, vector<gpunode> *L, int *inpquery, char *names, 
 				{
 					numt = (strlen(tok) + 1) * sizeof(char);
 					qrs[x] = (char *)malloc(numt);
-					memcpy(qrs[x], tok, numt);
+					memmove(qrs[x], tok, numt);
 				}
 				x += 2;
 			}
@@ -264,7 +264,7 @@ void postgresRead(PGconn **ret, vector<gpunode> *L, int *inpquery, char *names, 
 			L->at(z).address_host_table = mat;
 			numc = (strlen(tok) + 1) * sizeof(char);
 			L->at(z).predname = (char *)malloc(numc);
-			memcpy(L->at(z).predname, tok, numc);
+			memmove(L->at(z).predname, tok, numc);
 			PQclear(pgr);
 			tok = strtok(NULL, " ");
 			z++;

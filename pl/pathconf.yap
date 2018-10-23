@@ -1,11 +1,17 @@
 /**
+ * @file pathconf.yap
+ * 
+ */
+
+/**
  @defgroup pathconf Configuration of the Prolog file search path
+
+ @{
  @ingroup AbsoluteFileName
 
   Prolog systems search follow a complex search on order to track down files.
-
-@{
 **/
+:- module(user).
 
 /**
 @pred library_directory(?Directory:atom) is nondet, dynamic
@@ -26,6 +32,9 @@ system_library/1.
 %%  Specifies the set of directories where
 % one can find Prolog libraries.
 %
+library_directory(Home) :-
+    current_prolog_flag(prolog_library_directory, Home),
+    Home \= ''.
 % 1. honor YAPSHAREDIR
 library_directory( Dir ) :-
         getenv( 'YAPSHAREDIR', Dir).
@@ -44,7 +53,10 @@ library_directory( Dir ) :-
 
   This directory is initialized as a rule that calls the system predicate
   library_directories/2.
+  */
 :- dynamic commons_directory/1.
+
+:- multifile commons_directory/1.
 
 
 commons_directory( Path ):-
@@ -63,8 +75,17 @@ commons_directory( Path ):-
 
 :- dynamic foreign_directory/1.
 
-foreign_directory( Path ):-
-    system_foreign( Path ).
+%foreign_directory( Path ):-
+foreign_directory(Home) :-
+    current_prolog_flag(prolog_foreign_directory, Home),
+    Home \= ''.
+foreign_directory(C) :-
+    current_prolog_flag(windows, true),
+    file_search_path(path, C).
+foreign_directory( '.').
+foreign_directory(yap('lib/Yap')).
+%foreign_directory( Path ):-
+%    system_foreign( Path ).
 
 /**
   @pred prolog_file_type(?Suffix:atom, ?Handler:atom) is nondet, dynamic
@@ -105,7 +126,7 @@ prolog_file_type(qly, qly).
 prolog_file_type(A, executable) :-
 	current_prolog_flag(shared_object_extension, A).
   	prolog_file_type(pyd, executable).
-  
+
 /**
   @pred file_search_path(+Name:atom, -Directory:atom) is nondet
 
@@ -126,6 +147,8 @@ file_search_path(system, Dir) :-
   prolog_flag(host_type, Dir).
 file_search_path(foreign, Dir) :-
   foreign_directory(Dir).
+file_search_path(executable, Dir) :-
+  foreign_directory(Dir).
 file_search_path(path, C) :-
     (   getenv('PATH', A),
         (   current_prolog_flag(windows, true)
@@ -142,10 +165,10 @@ file_search_path(path, C) :-
   whereas 'compile(system(A))` would look at the `host_type` flag.
 
 */
-:- module(user).
 :- multifile file_search_path/2.
 
 :- dynamic file_search_path/2.
+
 
 file_search_path(library, Dir) :-
 	library_directory(Dir).
@@ -157,8 +180,10 @@ file_search_path(yap, Home) :-
     current_prolog_flag(home, Home).
 file_search_path(system, Dir) :-
 	prolog_flag(host_type, Dir).
-file_search_path(foreign, '.').
-file_search_path(foreign, yap('lib/Yap')).
+file_search_path(foreign, Dir) :-
+  foreign_directory(Dir).
+file_search_path(executable, Dir) :-
+  foreign_directory(Dir).
 file_search_path(path, C) :-
     (   getenv('PATH', A),
 	(   current_prolog_flag(windows, true)

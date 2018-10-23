@@ -15,7 +15,11 @@
 *									 *
 *************************************************************************/
 
-
+/**
+ * @file load_foreign.yap
+ *
+ * @brief load predicates written in C (also C++, Java, Python, R)
+ */
 :- system_module( '$_load_foreign', [load_foreign_files/3,
         open_shared_object/2,
         open_shared_object/3], ['$import_foreign'/3]).
@@ -24,10 +28,12 @@
 
 :- use_system_module( '$_modules', ['$do_import'/3]).
 
+
+
 /**
 
 @defgroup LoadForeign Access to Foreign Language Programs
-@ingroup fli_c_cx
+@ingroup fli_c_cxx
 
 @{
 
@@ -50,99 +56,56 @@ variable:
 + YAPLIBDIR
 
 if defined, or in the default library.
-
+available as
 YAP supports the SWI-Prolog interface to loading foreign code, the shlib package.
 
 */
+
+
 load_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
-    '$check_objs_for_load_foreign_files'(Objs,NewObjs,load_foreign_files(Objs,Libs,Entry)),
-'$check_libs_for_load_foreign_files'(Libs,NewLibs,load_foreign_files(Objs,Libs,Entry)),
-'$check_entry_for_load_foreign_files'(Entry,load_foreign_files(Objs,Libs,Entry)),
-    (
-	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
-	->
+    %G = load_foreign_files(Objs,Libs,Entry),
+    '$absfs'( Objs, [file_type(executable),
+			     access(read),
+			     expand(true),
+			     file_errors(fail)], NewObjs),
+    '$load_libs'( Libs ),
+   '$load_foreign_files'(NewObjs,[],Entry),
+    !,
+    prolog_load_context(file, F),
+    ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
 
-'$load_foreign_files'(NewObjs,NewLibs,Entry),
-        (
-	    prolog_load_context(file, F)
-	->
-	    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
-	;
-	    true
-        )
-	;
-	true
-   ),
-   !.
+'$absfs'([],_P,[]).
+'$absfs'([F|Fs],P,[NF|NFs]) :-
+    '$name_object'(F, P, NF),
+    !,
+    '$absfs'(Fs,P,NFs).
+'$absfs'([F|Fs],P,[F|NFs]) :-
+    '$absfs'(Fs,P,NFs).
 
-/** @pred load_absolute_foreign_files( _Files_, _Libs_, _InitRoutine_)
+'$name_object'(I, P, O) :-
+    atom(I),
+    !,
+    absolute_file_name(foreign(I), O, P).
+'$name_object'(I, P, O) :-
+    absolute_file_name(I, O, P).
+
+'$load_libs'([]).
+'$load_libs'([File|Files]) :-
+    open_shared_object(File, _Handle),
+    '$load_libs'(Files).
+
+/** @pred load_absolute_foreign_files( Files, Libs, InitRoutine)
 
 Loads object files produced by the C compiler. It is useful when no search should be performed and instead one has the full paths to the _Files_ and _Libs_.
 
 */
 load_absolute_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
-    (
-	recordzifnot( '$foreign', M:'$foreign'(Objs,Libs,Entry), _)
-	->
-	'$load_foreign_files'(Objs,Libs,Entry),
-        (
-	    prolog_load_context(file, F)
-	->
-	    ignore( recordzifnot( '$load_foreign_done', [F, M], _) )
-	;
-	    true
-        )
-	;
-	true
-   ),
-   !.
-
-'$check_objs_for_load_foreign_files'(V,_,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_objs_for_load_foreign_files'([],[],_) :- !.
-'$check_objs_for_load_foreign_files'([Obj|Objs],[NObj|NewObjs],G) :- !,
-	'$check_obj_for_load_foreign_files'(Obj,NObj,G),
-	'$check_objs_for_load_foreign_files'(Objs,NewObjs,G).
-'$check_objs_for_load_foreign_files'(Objs,_,G) :-
-	'$do_error'(type_error(list,Objs),G).
-
-'$check_obj_for_load_foreign_files'(V,_,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_obj_for_load_foreign_files'(Obj,NewObj,_) :- atom(Obj), !,
-        ( atom(Obj), Obj1 = foreign(Obj) ; Obj1 = Obj ),
-	absolute_file_name(foreign(Obj),[file_type(executable),
-					 access(read),
-					 expand(true),
-					 file_errors(fail)
-					], NewObj).
-'$check_obj_for_load_foreign_files'(Obj,_,G) :-
-	'$do_error'(type_error(atom,Obj),G).
-
-'$check_libs_for_load_foreign_files'(V,_,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_libs_for_load_foreign_files'([],[],_) :- !.
-'$check_libs_for_load_foreign_files'([Lib|Libs],[NLib|NLibs],G) :- !,
-	'$check_lib_for_load_foreign_files'(Lib,NLib,G),
-	'$check_libs_for_load_foreign_files'(Libs,NLibs,G).
-'$check_libs_for_load_foreign_files'(Libs,_,G) :-
-	'$do_error'(type_error(list,Libs),G).
-
-'$check_lib_for_load_foreign_files'(V,_,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_lib_for_load_foreign_files'(Lib,NLib,_) :- atom(Lib), !,
-	'$process_obj_suffix'(Lib,NewLib),
-	'$checklib_prefix'(NewLib,NLib).
-'$check_lib_for_load_foreign_files'(Lib,_,G) :-
-	'$do_error'(type_error(atom,Lib),G).
-
-'$process_obj_suffix'(Obj,Obj) :-
-	current_prolog_flag(shared_object_extension, ObjSuffix),
-	sub_atom(Obj, _, _, 0, ObjSuffix), !.
-'$process_obj_suffix'(Obj,NewObj) :-
-	current_prolog_flag(shared_object_extension, ObjSuffix),
-	atom_concat([Obj,'.',ObjSuffix],NewObj).
+   '$load_foreign_files'(Objs,Libs,Entry),
+    !,
+    prolog_load_context(file, F),
+    ignore( recordzifnot( '$load_foreign_done', [F, M], _) ).
 
 '$checklib_prefix'(F,F) :- is_absolute_file_name(F), !.
 '$checklib_prefix'(F, F) :-
@@ -158,12 +121,6 @@ load_absolute_foreign_files(Objs,Libs,Entry) :-
     '$do_import'(N/K-N/K, M0, M),
     fail.
 '$import_foreign'(_F, _M0, _M).
-
-'$check_entry_for_load_foreign_files'(V,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_entry_for_load_foreign_files'(Entry,_) :- atom(Entry), !.
-'$check_entry_for_load_foreign_files'(Entry,G) :-
-	'$do_error'(type_error(atom,Entry),G).
 
 /** @pred open_shared_object(+ _File_, - _Handle_)
 

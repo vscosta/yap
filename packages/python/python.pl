@@ -11,6 +11,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% file python.pl
 %%%
 
 :- module(python,
@@ -27,19 +28,17 @@
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
 	   python/2,
+	   python_string_to/1,
 	   acquire_GIL/0,
 	   release_GIL/0,
-		 python_threaded/0,
-		 prolog_list_to_python_list/3,
-	   (:=)/2,
-	   (:=)/1,
-	%   (<-)/2,
-	%   (<-)/1,
+	   python_threaded/0,
+	   prolog_list_to_python_list/3,
+	   python_clear_errors/0,
 	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
-	   op(950,fx,<-),
-	   op(950,yfx,<-),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
 	   op(50, yf, []),
 	   op(50, yf, '()'),
 	   op(100, xfy, '.'),
@@ -47,18 +46,19 @@
 	  ]).
 
 
-/** <module> python
+/** @defgroup Py4YAP A C-based  Prolog interface to python.
+    @ingroup python
 
-  A C-based  Prolog interface to python.
+@{
 
   @author               Vitor Santos Costa
   @version      0:0:5, 2012/10/8
   @license      Perl Artistic License
 
 This is an interface to allow calling Python from Prolog. Please look
-at the SWIG package if you want to embedd Prolog with Python.
+at the YAP4PY SWIG package if you want to embedd Prolog with Python.
 
-The interface should be activated by consulting the python lybrary. It
+The interface should be activated by consulting the python library. It
 immediately boots a Python image.
 
 To best define the interface, one has to address two opposite goals:
@@ -109,49 +109,70 @@ Data types are
 *************************************************************************************************************/
 
 
-:- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(apply_macros)).
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
+:- multifile user:(:=)/2,
+        user:(:=)/1,
+				%        user:(<-)/1,
+				%        user:(<-)/2,
+	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/1, user:import_arg/1.
+
+
+import( F ) :- catch( python:python_import(F), _, fail ).
+
+user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
+
+user:F() :-
+	catch( python:python_proc(F() ), _, fail ).
+
+
+user(P1,P2) :- !,
+	:= P1,
+	:= P2.
+
+:= F :- catch( python:python_proc(F), _, fail ).
+
 := (P1,P2) :- !,
 	:= P1,
 	:= P2.
-:= import( F ) :- !, python_import(F).
-:= F :- python_proc(F).
 
-V <- F :-
+user:(:= F) :- catch( python:python_proc(F), _, fail ).
+
+user:( V := F ) :-
+    python:python_assign(F, V).
+
+/*
+user:(<- F) :-
+	catch( python:python_proc(F), _, fail ).
+
+user:(V <- F) :-
 	V := F.
+*/
 
-( V := F ) :-
-    python_assign(F, V).
-
-((<- F)) :-
-	:= F.
-
-python_import(Module) :-
-    python_import(Module, _).
+python:python_import(Module) :-
+    python:python_import(Module, _).
 
 
 python(Exp, Out) :-
 	Out := Exp.
 
 python_command(Cmd) :-
-       python_run_command(Cmd).
-
+       python:python_run_command(Cmd).
 
 start_python :-
-	python_import('inspect', _),
+	python:python_import('inspect', _),
 	at_halt(end_python).
 
 add_cwd_to_python :-
 	unix(getcwd(Dir)),
 	atom_concat(['sys.path.append(\"',Dir,'\")'], Command),
-	python_command(Command),
-	python_command("sys.argv = [\"yap\"]").
+	python:python_command(Command),
+	python:python_command("sys.argv = [\"yap\"]").
 	% done
 
-:- initialization( load_foreign_files([libYAPPython], [], init_python), now ).
+:- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).
 
-:- initialization( load_foreign_library(foreign(libYAPPython), init_python), now ).
+%% @}

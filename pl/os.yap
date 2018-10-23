@@ -8,7 +8,9 @@
  *									 *
  *************************************************************************/
 
-
+/**
+ * @file os.yap
+ */
 :- system_module( '$os', [
 	       cd/0,
 	       cd/1,
@@ -24,12 +26,12 @@
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
+
+%% @{
 @ingroup builtins
 
 The following built-in predicates allow access to underlying
 Operating System functionality.
-
-%% @{
 
  */
 
@@ -72,16 +74,8 @@ Prints a list of all files in the current directory.
 */
 ls :-
 	getcwd(X),
-	'$load_system_ls'(X,L),
+	list_directory(X, L),
 	'$do_print_files'(L).
-
-'$load_system_ls'(X,L) :-
-	'$undefined'(directory_files(X, L), system),
-	load_files(library(system),[silent(true)]),
-	fail.
-'$load_system_ls'(X,L) :-
-	system:directory_files(X, L).
-
 
 '$do_print_files'([]) :-
 	nl.

@@ -15,7 +15,7 @@
     @file swi.h
 
   @defgroup swi-c-interface SWI-Prolog Foreign Language Interface
-  @ingroup fli_c_cx
+  @ingroup fli_c_cxx
 
  *
  *    @tableofcontents
@@ -42,6 +42,7 @@
 
 void Yap_swi_install(void);
 void Yap_install_blobs(void);
+
 
 static inline Term
 SWIModuleToModule(module_t m)

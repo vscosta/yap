@@ -1,4 +1,7 @@
+/**
+ * @file autoloader.yap
 
+ */
 :- module(autoloader,[make_library_index/0]).
 
 :- use_module(library(lists),[append/3]).
@@ -60,7 +63,7 @@ scan_exports(Library, CallName) :-
 	close(W).
 scan_exports(Library) :-
 	format(user_error,'[ warning: library ~w not defined ]~n',[Library]).
-	
+
 %
 % SWI is the only language that uses autoload.
 %
@@ -74,7 +77,7 @@ scan_swi_exports :-
 	open(Path, read, O),
 	get_exports(O, Exports, Module),
 	get_reexports(O, Reexports, Exports),
-	close(O),	
+	close(O),
 	open('dialect/swi/INDEX.pl', write, W),
 	publish_exports(Reexports, W, library(dialect/swi), Module),
 	close(W).
@@ -115,7 +118,7 @@ find_predicate(G,ExportingModI) :-
 	ensure_file_loaded(File).
 find_predicate(G,ExportingModI) :-
         var(G),
-	index(Name,Arity,ExportingModI,File),   
+	index(Name,Arity,ExportingModI,File),
 	functor(G, Name, Arity),
 	ensure_file_loaded(File).
 
@@ -124,4 +127,3 @@ ensure_file_loaded(File) :-
 ensure_file_loaded(File) :-
 	load_files(autoloader:File,[silent(true),if(not_loaded)]),
 	assert(loaded(File)).
-

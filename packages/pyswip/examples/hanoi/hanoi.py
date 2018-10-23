@@ -6,6 +6,7 @@ from pyswip.easy import getList, registerForeign
 
 class Notifier:
     def __init__(self, fun):
+        # type: (object) -> object
         self.fun = fun
         
     def notify(self, t):
@@ -15,6 +16,7 @@ class Notifier:
     
 class Tower:
     def __init__(self, N=3, interactive=False):
+        # type: (object, object) -> object
         """N is the number of disks
         """
         self.N = N

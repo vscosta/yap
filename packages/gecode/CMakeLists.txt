@@ -1,12 +1,8 @@
 
-#TODO: change macro_log_feature to check both WITH_{$name} and ${name}_FOUND
 #TODO: improve FindGecode.cmake to be similar to other Find*.cmake
 #CHECK: GECODE
 
 macro_optional_find_package (Gecode ON)
-macro_log_feature (GECODE_FOUND "libgecode"
-  "Use Generic Constraint Development Environment (GECODE) library"
-  "http://www.gecode.org" FALSE)
 
 if (GECODE_FOUND)
   #DEFINES:
@@ -36,18 +32,19 @@ if (GECODE_FOUND)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-  add_library (gecode_yap SHARED ${GECODE_SOURCES})
+  add_lib(gecode_yap  ${GECODE_SOURCES})
 
   target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
 
-  set_target_properties (gecode_yap  PROPERTIES PREFIX "")
+  set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
+
 
   include_directories (${GECODE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
 
   install(TARGETS  gecode_yap
-          LIBRARY DESTINATION ${dlls}
-       RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+       RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES ${CMAKE_CURRENT_BINARY_DIR}/gecode.yap

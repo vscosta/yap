@@ -287,7 +287,8 @@ Instead of probabilities every fact has a t( ) prefix. The t stands for tunable 
 ~~~~
 t(0.5)::heads(_).
 ~~~~
-*
+
+*/
 
 /** @defgroup ProbLogPredicates ProbLog Predicates
 @ingroup ProbLog1
@@ -300,7 +301,6 @@ In the description of the arguments of functors the following notation will be u
 + a preceding minus sign will denote an "output argument"
 + an argument with no preceding symbol can be used in both ways
 
-@{
 
 /**
  * @pred problog_max(+G, -Prob, -FactsUsed)
@@ -344,7 +344,6 @@ This predicate returns the lower and upper bound of the probability of achieving
 This predicate returns the lower bound of the probability of achieving the goal G obtained by cutting the sld tree at the given probability for each branch.
 */
 
-%% @}
 
 /**
 @defgroup ProbLogParameterLearning ProbLog Parameter Learning Predicates
@@ -2614,7 +2613,7 @@ compute_bounds(LP, UP, Status) :-
 % same as problog_threshold/5, but lower bound only (no stopped derivations stored)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-problog_low(Goal/Cond, Threshold, _, _) :-
+problog_low(Goal/Cond, Threshold, Status, P) :-
     !,
     problog_low((Cond,Goal), Threshold, P1, Status),
     problog_low( Cond, Threshold, P2, Status),
@@ -4188,3 +4187,4 @@ user:term_expansion(Term,ExpandedTerm) :-
 	problog:term_expansion_intern(Term,Mod,ExpandedTerm).
 
 %% @}
+

@@ -12,7 +12,7 @@
 #endif
 
 #if defined(TABLING) || defined(YAPOR_SBA)
-typedef struct trail_frame {
+            typedef struct trail_frame {
   Term term;
   CELL value;
 } *tr_fr_ptr;

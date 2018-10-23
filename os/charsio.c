@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		charcodes.c						 *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Character codes and character conversion		 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		charcodes.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Character codes and character conversion		 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -77,7 +77,6 @@ static Int put_code(USES_REGS1);
 static Int put_byte(USES_REGS1);
 static Int skip(USES_REGS1);
 static Int flush_output(USES_REGS1);
-static Int flush_all_streams(USES_REGS1);
 
 /**
  * CharOfAtom: convert an atom  into a single character.
@@ -86,132 +85,135 @@ static Int flush_all_streams(USES_REGS1);
  *
  * @return the char .
  */
-INLINE_ONLY inline EXTERN Int CharOfAtom(Atom at) {
+INLINE_ONLY Int CharOfAtom(Atom at) {
   int32_t val;
 
   get_utf8(at->UStrOfAE, 1, &val);
   return val;
 }
 
-Int Yap_peek(int sno) {
-  CACHE_REGS
-  Int ocharcount, olinecount, olinepos;
+int Yap_peekWideWithGetwc(int sno) {
   StreamDesc *s;
-  uint32_t ch;
-
   s = GLOBAL_Stream + sno;
-#if USE_READLINE
-  if (s->status & Readline_Stream_f && trueGlobalPrologFlag(READLINE_FLAG)) {
-    ch = Yap_ReadlinePeekChar(sno);
-    if (ch == EOFCHAR) {
-      s->stream_getc = EOFPeek;
-      s->stream_wgetc = EOFWPeek;
-      s->status |= Push_Eof_Stream_f;
-    }
-    return ch;
-  }
-#endif
-#if !HAVE_FMEMOPEN
-  if (s->status & InMemory_Stream_f) {
-    return Yap_MemPeekc(sno);
-  }
-#endif
-  /* buffer the character */
-  if (s->encoding == Yap_SystemEncoding() && 0) {
-    ch = fgetwc(s->file);
-    ungetwc(ch, s->file);
-    return ch;
-  } else {
-    ocharcount = s->charcount;
-    olinecount = s->linecount;
-    olinepos = s->linepos;
-    ch = s->stream_wgetc(sno);
-    if (ch == EOFCHAR) {
-      s->stream_getc = EOFPeek;
-      s->stream_wgetc = EOFWPeek;
-      s->status |= Push_Eof_Stream_f;
-      return ch;
-    }
-  }
-  if (s->encoding == ENC_OCTET || s->encoding == ENC_ISO_LATIN1 ||
-      s->encoding == ENC_ISO_ASCII) {
-    ungetc(ch, s->file);
-  } else if (s->encoding == ENC_ISO_UTF8) {
-    unsigned char cs[8];
-    size_t n = put_utf8(cs, ch);
-    while (n--) {
-      ungetc(cs[n], s->file);
-    }
-  } else if (s->encoding == ENC_UTF16_BE) {
-    /* do the ungetc as if a write .. */
-    // computations
-    if (ch < 0x10000) {
-      ungetc(ch % 256, s->file);
-      ungetc(ch / 256, s->file);
-    } else {
-      uint16_t lead = LEAD_OFFSET + (ch >> 10);
-      uint16_t trail = 0xDC00 + (ch & 0x3FF);
-
-      ungetc(lead % 256, s->file);
-      ungetc(lead / 256, s->file);
-      ungetc(trail % 256, s->file);
-      ungetc(trail / 256, s->file);
-    }
-  } else if (s->encoding == ENC_UTF16_LE) {
-    if (ch < 0x10000) {
-      ungetc(ch / 256, s->file);
-      ungetc(ch % 256, s->file);
-    } else {
-      uint16_t lead = LEAD_OFFSET + (ch >> 10);
-      uint16_t trail = 0xDC00 + (ch & 0x3FF);
-
-      ungetc(trail / 256, s->file);
-      ungetc(trail % 256, s->file);
-      ungetc(lead / 256, s->file);
-      ungetc(lead % 256, s->file);
-    }
-  } else if (s->encoding == ENC_ISO_UTF32_LE) {
-    ungetc((ch >> 24) & 0xff, s->file);
-    ungetc((ch >> 16) & 0xff, s->file);
-    ungetc((ch >> 8) & 0xff, s->file);
-    ungetc(ch & 0xff, s->file);
-  } else if (s->encoding == ENC_ISO_UTF32_BE) {
-    ungetc(ch & 0xff, s->file);
-    ungetc((ch >> 8) & 0xff, s->file);
-    ungetc((ch >> 16) & 0xff, s->file);
-    ungetc((ch >> 24) & 0xff, s->file);
-  } else if (s->encoding == ENC_UCS2_BE) {
-    /* do the ungetc as if a write .. */
-    // computations
-    ungetc(ch % 256, s->file);
-    ungetc(ch / 256, s->file);
-  } else if (s->encoding == ENC_UCS2_LE) {
-    ungetc(ch / 256, s->file);
-    ungetc(ch % 256, s->file);
-  }
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
+  int ch = fgetwc(s->file);
+  ungetwc(ch, s->file);
   return ch;
 }
 
-static Int dopeek_byte(int sno) {
-  Int ocharcount, olinecount, olinepos;
+int Yap_peekWithGetc(int sno) {
   StreamDesc *s;
-  Int ch;
-
   s = GLOBAL_Stream + sno;
-  ocharcount = s->charcount;
-  olinecount = s->linecount;
-  olinepos = s->linepos;
-  ch = GLOBAL_Stream[sno].stream_getc(sno);
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
-  /* buffer the character */
+  int ch = fgetc(s->file);
   ungetc(ch, s->file);
   return ch;
 }
+
+int Yap_peekWideWithSeek(int sno) {
+  StreamDesc *s;
+  s = GLOBAL_Stream + sno;
+  Int pos = IntegerOfTerm(Yap_StreamPosition(sno));
+  Int line = s->linecount;
+  Int lpos = s->linepos;
+  int ch = s->stream_wgetc(sno);
+  if (ch == EOF) {
+    if (s->file)
+      clearerr(s->file);
+    s->status &= ~Eof_Error_Stream_f;
+    // do not try doing error processing
+  } else {
+    Yap_SetCurInpPos(sno, pos);
+    s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
+  }
+  return ch;
+}
+
+int Yap_peekWithSeek(int sno) {
+  StreamDesc *s;
+  s = GLOBAL_Stream + sno;
+  Int pos = IntegerOfTerm(Yap_StreamPosition(sno));
+  Int line = s->linecount;
+  Int lpos = s->linepos;
+  int ch = s->stream_getc(sno);
+  if (ch == EOF) {
+    if (s->file)
+      clearerr(s->file);
+    s->status &= ~Eof_Error_Stream_f;
+    // do not try doing error processing
+  } else {
+    Yap_SetCurInpPos(sno, pos);
+    s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
+  }
+  return ch;
+}
+
+int Yap_popChar(int sno) {
+  StreamDesc *s = GLOBAL_Stream + sno;
+  s->buf.on = false;
+  Yap_DefaultStreamOps(s);
+  return s->buf.ch;
+}
+
+int Yap_peekWide(int sno) {
+  StreamDesc *s = GLOBAL_Stream + sno;
+  Int pos = s->charcount;
+  Int line = s->linecount;
+  Int lpos = s->linepos;
+  int ch = s->stream_wgetc(sno);
+  if (ch == EOF) {
+    if (s->file)
+      clearerr(s->file);
+    s->status &= ~Eof_Error_Stream_f;
+    // do not try doing error processing
+  } else {
+    s->buf.on = true;
+    s->buf.ch = ch;
+    s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
+    s->stream_wgetc = Yap_popChar;
+    s->stream_getc = NULL;
+    s->stream_peek = NULL;
+    s->stream_wpeek = NULL;
+    s->stream_getc = Yap_popChar;
+    s->stream_wgetc = Yap_popChar;
+    //  Yap_SetCurInpPos(sno, pos);
+  }
+  return ch;
+}
+
+int Yap_peekChar(int sno) {
+  StreamDesc *s = GLOBAL_Stream + sno;
+  Int pos = s->charcount;
+  Int line = s->linecount;
+  Int lpos = s->linepos;
+  int ch = s->stream_getc(sno);
+  if (ch == EOF) {
+    if (s->file)
+      clearerr(s->file);
+    s->status &= ~Eof_Error_Stream_f;
+    // do not try doing error processing
+  } else {
+    s->buf.on = true;
+    s->buf.ch = ch;
+    s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
+    s->stream_getc = Yap_popChar;
+    s->stream_wgetc = NULL;
+    s->stream_peek = NULL;
+    s->stream_wpeek = NULL;
+    // Yap_SetCurInpPos(sno, pos);
+  }
+  return ch;
+}
+
+int Yap_peek(int sno) { return GLOBAL_Stream[sno].stream_wpeek(sno); }
+
+static int dopeek_byte(int sno) { return GLOBAL_Stream[sno].stream_peek(sno); }
 
 bool store_code(int ch, Term t USES_REGS) {
   Term t2 = Deref(t);
@@ -469,16 +471,22 @@ static Int get0_line_codes(USES_REGS1) { /* '$get0'(Stream,-N) */
 
 /** @pred  get_byte(+ _S_,- _C_) is iso
 
-If  _C_ is unbound, or is a character code, and the stream  _S_ is a
+If  _C_ is unbound, or is a byte, and the stream  _S_ is a
 binary stream, read the next byte from that stream and unify its
-code with  _C_.
+code with  _C_. A byte is represented as either a number between 1 and 255, or as -1 for EOF.
 
 
 */
-static Int get_byte(USES_REGS1) { /* '$get_byte'(Stream,-N) */
-  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
-  Term out;
+static Int get_byte(USES_REGS) { /* '$get_byte'(Stream,-N) */
+  Term out = Deref(ARG2);
 
+  if (!IsVarTerm(out)) {
+    if (!IsIntegerTerm(out)) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
+    Int ch = IntegerOfTerm(out);
+    if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG1, " bad type");
+  }
+
+  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "get_byte/2");
   if (sno < 0)
     return (FALSE);
   out = MkIntTerm(GLOBAL_Stream[sno].stream_getc(sno));
@@ -498,13 +506,18 @@ code with  _C_.
 static Int get_byte_1(USES_REGS1) { /* '$get_byte'(Stream,-N) */
   int sno = LOCAL_c_input_stream;
   Int status;
-  Term out;
+  Term out = Deref(ARG1);
 
+  if (!IsVarTerm(out)) {
+    if (!IsIntegerTerm(out)) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG2, " bad type");
+    Int ch = IntegerOfTerm(out);
+    if (ch < -1 || ch > 255) Yap_ThrowError(TYPE_ERROR_IN_BYTE, ARG2, " bad type");
+  }
   LOCK(GLOBAL_Stream[sno].streamlock);
   status = GLOBAL_Stream[sno].status;
   if (!(status & Binary_Stream_f)
       // &&strictISOFlag()
-      ) {
+  ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/1");
     return (FALSE);
@@ -843,7 +856,7 @@ static Int put_byte_1(USES_REGS1) { /* '$put_byte'(Stream,N)                 */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)
       //&& strictISOFlag()
-      ) {
+  ) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "get0/2");
     return (FALSE);
@@ -864,27 +877,24 @@ as those for `put` (see 6.11).
 */
 static Int skip_1(USES_REGS1) { /* 'skip'(N)                     */
   Int n;
-  Term t2;
-  int sno;
+  Term t1;
+  int sno = LOCAL_c_output_stream;
   int ch;
 
-  if (IsVarTerm(t2 = Deref(ARG2))) {
-    Yap_Error(INSTANTIATION_ERROR, t2, "skip/2");
+  if (IsVarTerm(t1 = Deref(ARG1))) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "skip/1");
     return FALSE;
-  } else if (!IsIntegerTerm(t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t2, "skip/2");
+  } else if (!IsIntegerTerm(t1)) {
+    Yap_Error(TYPE_ERROR_INTEGER, t1, "skip/1");
     return FALSE;
-  } else if ((n = IntegerOfTerm(t2)) < 0) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2, "skip/2");
-    return FALSE;
+  } else if ((n = IntegerOfTerm(t1)) < 0) {
+    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t1, "skip/1");
+    return false;
   }
-  sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "skip/2");
-  if (sno < 0)
-    return (FALSE);
   while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != n && ch != -1)
     ;
   UNLOCK(GLOBAL_Stream[sno].streamlock);
-  return (TRUE);
+  return true;
 }
 
 /** @pred  skip(+ _S_,- _C_)
@@ -980,16 +990,11 @@ leaving the current stream position unaltered.
 */
 static Int peek_code(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
-  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
+  int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek_code/2");
   Int ch;
 
   if (sno < 0)
     return FALSE;
-  if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_code/2");
-    return FALSE;
-  }
   if ((ch = Yap_peek(sno)) < 0) {
 #ifdef PEEK_EOF
     UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -1039,11 +1044,11 @@ code with  _C_, while leaving the current stream position unaltered.
 */
 static Int peek_byte(USES_REGS1) { /* at_end_of_stream */
   /* the next character is a EOF */
-  int sno = Yap_CheckStream(ARG1, Input_Stream_f, "peek_byte/2");
+  int sno = Yap_CheckBinaryStream(ARG1, Input_Stream_f, "peek_byte/2");
   Int ch;
 
   if (sno < 0)
-    return (FALSE);
+    return false;
   if (!(GLOBAL_Stream[sno].status & Binary_Stream_f)) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek_byte/2");
@@ -1099,22 +1104,21 @@ atom with  _C_, while leaving the  stream position unaltered.
 static Int peek_char(USES_REGS1) {
   /* the next character is a EOF */
   int sno = Yap_CheckTextStream(ARG1, Input_Stream_f, "peek/2");
-  unsigned char sinp[10];
+  unsigned char sinp[16];
   Int ch;
 
   if (sno < 0)
     return false;
-  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
-    UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek_byte/2");
-    return (FALSE);
-  }
-  if ((ch = Yap_peek(sno)) < 0) {
+  ch = Yap_peek(sno);
+  if (ch < 0) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   int off = put_utf8(sinp, ch);
+  if (off < 0) {
+    return false;
+  }
   sinp[off] = '\0';
   return Yap_unify_constant(ARG2, MkAtomTerm(Yap_ULookupAtom(sinp)));
 }
@@ -1165,7 +1169,7 @@ leaving the current stream position unaltered.
 
 */
 
-void Yap_flush(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
+void Yap_flush_all(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
 void Yap_FlushStreams(void) { CACHE_REGS(void) flush_all_streams(PASS_REGS1); }
 
@@ -1216,7 +1220,7 @@ void Yap_InitCharsio(void) {
   Yap_InitCPred("peek_char", 1, peek_char_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("peek_byte", 1, peek_byte_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("skip", 2, skip, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("skip1", 1, skip_1, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("skip", 1, skip_1, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 2, tab, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("tab", 1, tab_1, SafePredFlag | SyncPredFlag);
 }

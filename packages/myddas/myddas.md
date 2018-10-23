@@ -1,11 +1,15 @@
-The MYDDAS Data-base interface {#myddas}
-===============================
 
-  The MYDDAS database project was developed within a FCT project aiming at
-  the development of a highly efficient deductive database system, based
-  on the coupling of the MySQL relational database system with the YAP
-  Prolog system. MYDDAS was later expanded to support the ODBC interface.
-###  Requirements and Installation Guide                       {#Requirements_and_Installation_Guide}
+@defgroup myddas The MYDDAS Data-base interface
+@ingroup packages
+
+  The MYDDAS database project was developed within a FCT project
+  aiming at the development of a highly efficient deductive database
+  system, based on the coupling of the MySQL relational database
+  system with the YAP Prolog system. MYDDAS was later expanded to
+  support the ODBC interface, postgres and sqlite3.
+
+@defgroup  Requirements_and_Installation_Guide  Requirements and Installation Guide        
+@ingroup myddas @{
 
   Next, we describe how to usen of the YAP with the MYDDAS System.  The
   use of this system is entirely depend of the MySQL development libraries
@@ -21,22 +25,25 @@ The MYDDAS Data-base interface {#myddas}
   tested yet.  MYDDAS must be enabled at configure time. This can be done
   with the following options:
 
-  + --enable-myddas
+     + `--enable-myddas`
 
   This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
 
-  + --enable-myddas-stats
+      + `--enable-myddas-stats`
 
   This option is only available in MySQL. It includes code to get
   statistics from the MYDDAS system;
 
 
-  + --enable-top-level
+      + `--enable-top-level`
 
   This option is only available in MySQL.  It enables the option to interact with the MySQL server in
   two different ways. As if we were on the MySQL Client Shell, and as if
   we were using Datalog.
-###  MYDDAS Architecture                    {#MYDDAS_Architecture}
+
+@}
+@defgroup  MYDDAS_Architecture  MYDDAS Architecture                    
+@ingroup myddas @{
 
   The system includes four main blocks that are put together through the
   MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
@@ -61,8 +68,8 @@ The MYDDAS Data-base interface {#myddas}
   Prolog cut operator, which has exactly the same behaviour from
   predicates defined in the Prolog program source code, or from predicates
   defined in database as relations.
+ 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
   Name = 'John Doe',
   Number = 123456789 ?
   yes
@@ -85,13 +92,12 @@ The MYDDAS Data-base interface {#myddas}
   FROM 'phonebook' A
   WHERE A.Name = 'John Doe';
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  View Level Interface                       {#View_Level_Interface}
 
+@}
+@defgroup  View_Level_Interface  View Level Interface                       
+@ingroup myddas @{
 
   @pred db view(+,+,+).
-
-
-
   @pred db view(+,+).
 
 
@@ -178,13 +184,11 @@ The MYDDAS Data-base interface {#myddas}
 
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
-###  Accessing Tables in Data Sources Using SQL                       {#Accessing_Tables_in_Data_Sources_Using_SQL}
+
+@defgroup  Accessing_Tables_in_Data_Sources_Using_SQL  Accessing Tables in Data Sources Using SQL                       
 
 
   @pred db_sql(+,+,?).
-
-
-
   @pred db_sql(+,?).
 
 
@@ -205,8 +209,9 @@ The MYDDAS Data-base interface {#myddas}
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Insertion of Rows                       {#Insertion_of_Rows}
-
+@}
+@defgroup  Insertion_of_Rows  Insertion of Rows                       
+@ingroup myddas @{
  @pred db_assert(+,+).
   @pred db_assert(+).
 
@@ -274,19 +279,12 @@ The MYDDAS Data-base interface {#myddas}
   ?- helloWorldInsert('A',NULL,31).
   yes
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Types of AttributesL                       {#Types_of_Attributes}
+
+@defgroup  Types_of_Attributes  Types of Attributes                       
 
 
  @pred db_get_attributes_types(+,+,?).
-
-
-
-  @pred db_get_attributes_types(+,?).
-
-
-
-
-  The prototype for this predicate is the following:
+otype for this predicate is the following:
 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- db_get_attributes_types(Conn,RelationName,ListOfFields).
@@ -305,7 +303,8 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
-###  Number of Fields                       {#Number_of_Fields}
+
+@defgroup  Number_of_Fields  Number of Fields                       
 
 
   @pred db_number_of_fields(+,?).
@@ -331,7 +330,8 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
-###  Describing a Relation                       {#Describing_a_Relation}
+
+@defgroup  Describing_a_Relation  Describing a Relation                       
 
   @pred db_datalog_describe(+,+).
   @pred db_datalog_describe(+).
@@ -372,10 +372,10 @@ The MYDDAS Data-base interface {#myddas}
   Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Enumeration Relations Describing_a_Relation Describing a Relation                       {#Enumerating_Relations}
+@defgroup  Enumerating_Relations  Enumeration Relations Describing_a_Relation Describing a Relation                       
 
 
-/@pred db_datalog_show_tables(+).
+@pred db_datalog_show_tables(+).
   @pred db_datalog_show_tables
 
 
@@ -411,7 +411,9 @@ The MYDDAS Data-base interface {#myddas}
   Table = table('Hello World') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  The MYDDAS MySQL Top Level                       {#The_MYDDAS_MySQL_Top_Level}
+
+@}
+@defgroup  The_MYDDAS_MySQL_Top_Level  The MYDDAS MySQL Top Level              @ingroup myddas @{
 
   @pred db_top_level(+,+,+,+,+).
   @pred db_top_level(+,+,+,+).
@@ -461,8 +463,9 @@ The MYDDAS Data-base interface {#myddas}
   yes
   ?-
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-###  Other MYDDAS Properties              {#Other_MYDDAS_Properties}
-
+@}
+@defgroup  Other_MYDDAS_Properties  Other MYDDAS Properties              
+@ingroup myddas @{ 
   @pred db_verbose(+).
 
 
@@ -542,9 +545,6 @@ The MYDDAS Data-base interface {#myddas}
   this by doing again `db_my_result_set(store_result)`.
 
  @pred db_my_sql_mode(+Conn,?SQL_Mode).
-
-
-
   @pred db_my_sql_mode(?SQL_Mode).
 
 
@@ -560,5 +560,7 @@ The MYDDAS Data-base interface {#myddas}
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
-
-@}
+ 
+ @]
+ @}
+ 

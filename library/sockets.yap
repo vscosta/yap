@@ -1,6 +1,28 @@
+/**
+  * @fileChunkSize library/sockets.yap
+*/
+
+:- module(yap_sockets,
+	  [ ip_socket/2,		% +Domain, -Socket
+	    ip_socket/4,		% +Domain, +Type, +Protocol, -Socket
+	    socket_close/1,		% +Socket
+	    socket_bind/2,		% +Socket, 'AF_INET'(+Host,+Port)
+	    tcp_socket_connect/3,	% +Socket, 'AF_INET'(+Host,+Port), -Stream
+	    socket_listen/2,		% +Socket, +Length
+	    socket_accept/2,		% +Socket, -Stream
+	    socket_accept/3,		% +Socket, -Client, -Stream
+%	    socket_select/5,		% +TermsSockets, -NewTermsStreams,
+	    				% +TimeOut, +Streams, -ReadStreams
+	    current_host/1,		% ?HostName
+	    hostname_address/2		% ?HostName, ?HostAddress
+	  ]).
+:- use_module(library(socket)).
+:- use_module(library(error)).
+:- use_module(library(apply)).
+
 /** uses SWI code
 
-<module> SICStus compatible socket library
+@aaddtogroup SICStus compatible socket library
 
 @ingroup builtins
 
@@ -97,23 +119,6 @@ must be of type `SOCK_STREAM` or `SOCK_SEQPACKET`.
 
  
 */
-:- module(yap_sockets,
-	  [ ip_socket/2,		% +Domain, -Socket
-	    ip_socket/4,		% +Domain, +Type, +Protocol, -Socket
-	    socket_close/1,		% +Socket
-	    socket_bind/2,		% +Socket, 'AF_INET'(+Host,+Port)
-	    tcp_socket_connect/3,	% +Socket, 'AF_INET'(+Host,+Port), -Stream
-	    socket_listen/2,		% +Socket, +Length
-	    socket_accept/2,		% +Socket, -Stream
-	    socket_accept/3,		% +Socket, -Client, -Stream
-%	    socket_select/5,		% +TermsSockets, -NewTermsStreams,
-	    				% +TimeOut, +Streams, -ReadStreams
-	    current_host/1,		% ?HostName
-	    hostname_address/2		% ?HostName, ?HostAddress
-	  ]).
-:- use_module(library(socket)).
-:- use_module(library(error)).
-:- use_module(library(apply)).
 
 %socket(+@var{DOMAIN},+@var{TYPE},+@var{PROTOCOL},-@var{SOCKET})
 

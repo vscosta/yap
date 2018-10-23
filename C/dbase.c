@@ -18,83 +18,94 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file   dbase.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:36:46 2018
+ * 
+ * @brief  record and other forms of storing terms.
+ *
+ */
+
+
 /** @defgroup Internal_Database Internal Data Base
-@ingroup builtins
-@{
-
-Some programs need global information for, e.g. counting or collecting
-data obtained by backtracking. As a rule, to keep this information, the
-internal data base should be used instead of asserting and retracting
-clauses (as most novice programmers  do), .
-In YAP (as in some other Prolog systems) the internal data base (i.d.b.
-for short) is faster, needs less space and provides a better insulation of
-program and data than using asserted/retracted clauses.
-The i.d.b. is implemented as a set of terms, accessed by keys that
-unlikely what happens in (non-Prolog) data bases are not part of the
-term. Under each key a list of terms is kept. References are provided so that
-terms can be identified: each term in the i.d.b. has a unique reference
-(references are also available for clauses of dynamic predicates).
-
-There is a strong analogy between the i.d.b. and the way dynamic
-predicates are stored. In fact, the main i.d.b. predicates might be
-implemented using dynamic predicates:
-
-~~~~~
-recorda(X,T,R) :- asserta(idb(X,T),R).
-recordz(X,T,R) :- assertz(idb(X,T),R).
-recorded(X,T,R) :- clause(idb(X,T),R).
-~~~~~
-We can take advantage of this, the other way around, as it is quite
-easy to write a simple Prolog interpreter, using the i.d.b.:
-
-~~~~~
-asserta(G) :- recorda(interpreter,G,_).
-assertz(G) :- recordz(interpreter,G,_).
-retract(G) :- recorded(interpreter,G,R), !, erase(R).
-call(V) :- var(V), !, fail.
-call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
-call(G) :- recorded(interpreter,G,_).
-~~~~~
-In YAP, much attention has been given to the implementation of the
-i.d.b., especially to the problem of accelerating the access to terms kept in
-a large list under the same key. Besides using the key, YAP uses an internal
-lookup function, transparent to the user, to find only the terms that might
-unify. For instance, in a data base containing the terms
-
-~~~~~
-b
-b(a)
-c(d)
-e(g)
-b(X)
-e(h)
-~~~~~
-
-stored under the key k/1, when executing the query
-
-~~~~~
-:- recorded(k(_),c(_),R).
-~~~~~
-
-`recorded` would proceed directly to the third term, spending almost the
-time as if `a(X)` or `b(X)` was being searched.
-The lookup function uses the functor of the term, and its first three
-arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
-directly to the last term, while `recorded(k(_),e(_),_)` would find
-first the fourth term, and then, after backtracking, the last one.
-
-This mechanism may be useful to implement a sort of hierarchy, where
-the functors of the terms (and eventually the first arguments) work as
-secondary keys.
-
-In the YAP's i.d.b. an optimized representation is used for
-terms without free variables. This results in a faster retrieval of terms
-and better space usage. Whenever possible, avoid variables in terms in terms
-stored in the  i.d.b.
-
-
-
-*/
+ * 
+ *     @ingroup builtins
+ *     @{
+ * 
+ * Some programs need global information for, e.g. counting or collecting
+ * data obtained by backtracking. As a rule, to keep this information, the
+ * internal data base should be used instead of asserting and retracting
+ * clauses (as most novice programmers  do), .
+ * In YAP (as in some other Prolog systems) the internal data base (i.d.b.
+ * for short) is faster, needs less space and provides a better insulation of
+ * program and data than using asserted/retracted clauses.
+ * The i.d.b. is implemented as a set of terms, accessed by keys that
+ * unlikely what happens in (non-Prolog) data bases are not part of the
+ * term. Under each key a list of terms is kept. References are provided so that
+ * terms can be identified: each term in the i.d.b. has a unique reference
+ * (references are also available for clauses of dynamic predicates).
+ * 
+ * There is a strong analogy between the i.d.b. and the way dynamic
+ * predicates are stored. In fact, the main i.d.b. predicates might be
+ * implemented using dynamic predicates:
+ * 
+ * ~~~~~
+ * recorda(X,T,R) :- asserta(idb(X,T),R).
+ * recordz(X,T,R) :- assertz(idb(X,T),R).
+ * recorded(X,T,R) :- clause(idb(X,T),R).
+ * ~~~~~
+ * We can take advantage of this, the other way around, as it is quite
+ * easy to write a simple Prolog interpreter, using the i.d.b.:
+ * 
+ * ~~~~~
+ * asserta(G) :- recorda(interpreter,G,_).
+ * assertz(G) :- recordz(interpreter,G,_).
+ * retract(G) :- recorded(interpreter,G,R), !, erase(R).
+ * call(V) :- var(V), !, fail.
+ * call((H :- B)) :- !, recorded(interpreter,(H :- B),_), call(B).
+ * call(G) :- recorded(interpreter,G,_).
+ * ~~~~~
+ * In YAP, much attention has been given to the implementation of the
+ * i.d.b., especially to the problem of accelerating the access to terms kept in
+ * a large list under the same key. Besides using the key, YAP uses an internal
+ * lookup function, transparent to the user, to find only the terms that might
+ * unify. For instance, in a data base containing the terms
+ * 
+ * ~~~~~
+ * b
+ * b(a)
+ * c(d)
+ * e(g)
+ * b(X)
+ * e(h)
+ * ~~~~~
+ * 
+ * stored under the key k/1, when executing the query
+ * 
+ * ~~~~~
+ * :- recorded(k(_),c(_),R).
+ * ~~~~~
+ * 
+ * `recorded` would proceed directly to the third term, spending almost the
+ * time as if `a(X)` or `b(X)` was being searched.
+ * The lookup function uses the functor of the term, and its first three
+ * arguments (when they exist). So, `recorded(k(_),e(h),_)` would go
+ * directly to the last term, while `recorded(k(_),e(_),_)` would find
+ * first the fourth term, and then, after backtracking, the last one.
+ * 
+ * This mechanism may be useful to implement a sort of hierarchy, where
+ * the functors of the terms (and eventually the first arguments) work as
+ * secondary keys.
+ * 
+ * In the YAP's i.d.b. an optimized representation is used for
+ * terms without free variables. This results in a faster retrieval of terms
+ * and better space usage. Whenever possible, avoid variables in terms in terms
+ * stored in the  i.d.b.
+ * 
+ * 
+ * 
+ */
 
 #include "Yap.h"
 #include "attvar.h"
@@ -259,7 +270,7 @@ static Int p_rcdz(USES_REGS1);
 static Int p_rcdzp(USES_REGS1);
 static Int p_drcdap(USES_REGS1);
 static Int p_drcdzp(USES_REGS1);
-static Term GetDBTerm(DBTerm *, int src CACHE_TYPE);
+static Term GetDBTerm(const DBTerm *, int src CACHE_TYPE);
 static DBProp FetchDBPropFromKey(Term, int, int, char *);
 static Int i_recorded(DBProp, Term CACHE_TYPE);
 static Int c_recorded(int CACHE_TYPE);
@@ -267,8 +278,8 @@ static Int co_rded(USES_REGS1);
 static Int in_rdedp(USES_REGS1);
 static Int co_rdedp(USES_REGS1);
 static Int p_first_instance(USES_REGS1);
-static void ErasePendingRefs(DBTerm *CACHE_TYPE);
-static void RemoveDBEntry(DBRef CACHE_TYPE);
+static void ErasePendingRefs(const DBTerm *CACHE_TYPE);
+static void RemoveDBEntry(const DBRef CACHE_TYPE);
 static void EraseLogUpdCl(LogUpdClause *);
 static void MyEraseClause(DynamicClause *CACHE_TYPE);
 static void PrepareToEraseClause(DynamicClause *, DBRef);
@@ -292,10 +303,10 @@ static void sf_include(SFKeep *);
 #endif
 static Int p_init_queue(USES_REGS1);
 static Int p_enqueue(USES_REGS1);
-static void keepdbrefs(DBTerm *CACHE_TYPE);
+static void keepdbrefs(const DBTerm *ref USES_REGS);
 static Int p_dequeue(USES_REGS1);
 static void ErDBE(DBRef CACHE_TYPE);
-static void ReleaseTermFromDB(DBTerm *CACHE_TYPE);
+static void ReleaseTermFromDB(const DBTerm *ref USES_REGS);
 static PredEntry *new_lu_entry(Term);
 static PredEntry *new_lu_int_key(Int);
 static PredEntry *find_lu_entry(Term);
@@ -417,12 +428,6 @@ static Int cmpclls(CELL *a, CELL *b, Int n) {
   }
   return TRUE;
 }
-
-#if !THREADS
-int Yap_DBTrailOverflow() {
-  return ((CELL *)LOCAL_s_dbg->lr > (CELL *)LOCAL_s_dbg->tofref - 2048);
-}
-#endif
 
 /* get DB entry for ap/arity; */
 static Prop FindDBPropHavingLock(AtomEntry *ae, int CodeDB, unsigned int arity,
@@ -633,7 +638,7 @@ static CELL *copy_double(CELL *st, CELL *pt) {
 static CELL *copy_string(CELL *st, CELL *pt) {
   UInt sz = pt[1] + 3;
   /* first thing, store a link to the list before we move on */
-  memcpy(st, pt, sizeof(CELL) * sz);
+  memmove(st, pt, sizeof(CELL) * sz);
   /* now reserve space */
   return st + sz;
 }
@@ -647,7 +652,7 @@ static CELL *copy_big_int(CELL *st, CELL *pt) {
   st[0] = (CELL)FunctorBigInt;
   st[1] = pt[1];
   /* then the actual number */
-  memcpy((void *)(st + 2), (void *)(pt + 2), sz);
+  memmove((void *)(st + 2), (void *)(pt + 2), sz);
   st = st + 2 + sz / CellSize;
   /* then the tail for gc */
   st[0] = EndSpecials;
@@ -959,7 +964,7 @@ loop:
           if (HR + sz >= ASP) {
             goto error2;
           }
-          memcpy((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
+          memmove((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
           to_visit_base = (CELL **)HR;
           to_visit = to_visit_base + sz;
         }
@@ -1402,12 +1407,14 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
   SMALLUNSGN flag;
   int NOfLinks = 0;
   /* place DBRefs in ConsultStack */
-  DBRef *TmpRefBase = (DBRef *)LOCAL_TrailTop;
+  DBRef *TmpRefBase;
   CELL *CodeAbs; /* how much code did we find	 */
   int vars_found = FALSE;
   yap_error_number oerr = LOCAL_Error_TYPE;
-  LOCAL_Error_TYPE = YAP_NO_ERROR;
 
+ retry_record:
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
+  TmpRefBase = (DBRef *)LOCAL_TrailTop;
   if (p == NULL) {
     if (IsVarTerm(Tm)) {
 #ifdef COROUTINING
@@ -1481,7 +1488,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     /* attachment */
     if (IsVarTerm(Tm)) {
       tt = (CELL)(ppt0->Contents);
-      ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0 + 1, ntp0 - 1,
+       ntp = MkDBTerm(VarOfTerm(Tm), VarOfTerm(Tm), ntp0, ntp0 + 1, ntp0 - 1,
                      &attachments, &vars_found, dbg);
       if (ntp == NULL) {
         Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
@@ -1506,7 +1513,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
     } else {
       unsigned int arity;
       Functor fun;
-
+      vars_found = true;
       tt = AbsAppl(ppt0->Contents);
       /* we need to store the functor manually */
       fun = FunctorOfTerm(Tm);
@@ -1516,13 +1523,37 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
           ntp = copy_double(ntp0, RepAppl(Tm));
           break;
         case (CELL)FunctorString:
-          ntp = copy_string(ntp0, RepAppl(Tm));
+	  {
+	    UInt sz = 1024+sizeof(CELL)*(3 + RepAppl(Tm)[1]);
+	    if (sz >
+		(char*)AuxSp-(char*)ppt0) {
+	      LOCAL_Error_Size = sz;
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		return NULL;
+	      }
+	      goto retry_record;
+	    }
+	  }
+	    ntp = copy_string(ntp0, RepAppl(Tm));
           break;
         case (CELL)FunctorDBRef:
           Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
           return CreateDBWithDBRef(Tm, p, dbg);
 #ifdef USE_GMP
         case (CELL)FunctorBigInt:
+	  {
+	    UInt sz = 1024+sizeof(CELL)*Yap_SizeOfBigInt(Tm);
+	    if (sz >
+		(char*)AuxSp-(char*)ppt0) {
+	      LOCAL_Error_Size = sizeof(CELL)*(3 + RepAppl(Tm)[1]);
+	      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+		Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
+		return NULL;
+	      }
+	      goto retry_record;
+	    }
+	  }
           ntp = copy_big_int(ntp0, RepAppl(Tm));
           break;
 #endif
@@ -1649,7 +1680,7 @@ static DBRef CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat,
         nar = ppt->Contents + Unsigned(NOfCells);
       }
       woar = (link_entry *)nar;
-      memcpy((void *)woar, (const void *)dbg->LinkAr,
+      memmove((void *)woar, (const void *)dbg->LinkAr,
              (size_t)(NOfLinks * sizeof(link_entry)));
       woar += NOfLinks;
 #ifdef ALIGN_LONGS
@@ -1709,7 +1740,6 @@ static DBRef record(int Flag, Term key, Term t_data, Term t_code USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
   dbg.found_one = NULL;
 #ifdef SFUNC
   FathersPlace = NIL;
@@ -1785,7 +1815,6 @@ static DBRef record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
 #ifdef SFUNC
   FathersPlace = NIL;
 #endif
@@ -1870,7 +1899,6 @@ static LogUpdClause *new_lu_db_entry(Term t, PredEntry *pe) {
   if (!pe || !(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
 #endif
-  LOCAL_s_dbg = &dbg;
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode, e);
   if ((x = (DBTerm *)CreateDBStruct(t, NULL, d_flag, &needs_vars, (UInt)ipc,
                                     &dbg)) == NULL) {
@@ -2502,7 +2530,7 @@ Int Yap_unify_immediate_ref(DBRef ref USES_REGS) {
   }
 }
 
-static Term GetDBTerm(DBTerm *DBSP, int src USES_REGS) {
+static Term GetDBTerm(const DBTerm *DBSP, int src USES_REGS) {
   Term t = DBSP->Entry;
 
   if (IsVarTerm(t)
@@ -3762,7 +3790,7 @@ static Int p_heap_space_info(USES_REGS1) {
  * This is called when we are erasing a data base clause, because we may have
  * pending references
  */
-static void ErasePendingRefs(DBTerm *entryref USES_REGS) {
+static void ErasePendingRefs(const DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -3923,11 +3951,11 @@ static void complete_lu_erase(LogUpdClause *clau) {
 
 static void EraseLogUpdCl(LogUpdClause *clau) {
   PredEntry *ap;
-
   ap = clau->ClPred;
   /* no need to erase what has been erased */
   if (!(clau->ClFlags & ErasedMask)) {
-    /* get ourselves out of the list */
+    clau->ClFlags |= ErasedMask;
+/* get ourselves out of the list */
     if (clau->ClNext != NULL) {
       clau->ClNext->ClPrev = clau->ClPrev;
     }
@@ -3951,7 +3979,6 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
       }
       ap->cs.p_code.NOfClauses--;
     }
-    clau->ClFlags |= ErasedMask;
 #ifndef THREADS
     {
       LogUpdClause *er_head = DBErasedList;
@@ -4894,17 +4921,21 @@ static Int cont_current_key_integer(USES_REGS1) {
   return Yap_unify(term, ARG1) && Yap_unify(term, ARG2);
 }
 
-Term Yap_FetchTermFromDB(DBTerm *ref) {
+Term Yap_FetchTermFromDB(const void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, FALSE PASS_REGS);
 }
 
-Term Yap_FetchClauseTermFromDB(DBTerm *ref) {
+Term Yap_FetchClauseTermFromDB(const void *ref) {
   CACHE_REGS
+    if (ref == NULL)
+      return 0;
   return GetDBTerm(ref, TRUE PASS_REGS);
 }
 
-Term Yap_PopTermFromDB(DBTerm *ref) {
+Term Yap_PopTermFromDB(const void *ref) {
   CACHE_REGS
 
   Term t = GetDBTerm(ref, FALSE PASS_REGS);
@@ -4918,7 +4949,6 @@ static DBTerm *StoreTermInDB(Term t, int nargs USES_REGS) {
   int needs_vars;
   struct db_globs dbg;
 
-  LOCAL_s_dbg = &dbg;
   LOCAL_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars, 0,
                                        &dbg)) == NULL) {
@@ -4949,7 +4979,6 @@ DBTerm *Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
   struct db_globs dbg;
   DBTerm *o;
 
-  LOCAL_s_dbg = &dbg;
   o = (DBTerm *)CreateDBStruct(t, (DBProp)NULL, InQueue, &needs_vars,
                                extra_size, &dbg);
   *sz = dbg.sz;
@@ -5122,7 +5151,7 @@ static Int p_enqueue_unlocked(USES_REGS1) {
    entry itself is still accessible from a trail entry, so we could not remove
    the target entry,
  */
-static void keepdbrefs(DBTerm *entryref USES_REGS) {
+static void keepdbrefs (const DBTerm *entryref USES_REGS) {
   DBRef *cp;
   DBRef ref;
 
@@ -5281,7 +5310,7 @@ static Int p_resize_int_keys(USES_REGS1) {
   return resize_int_keys(IntegerOfTerm(t1));
 }
 
-static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
+static void ReleaseTermFromDB(const DBTerm *ref USES_REGS) {
   if (!ref)
     return;
   keepdbrefs(ref PASS_REGS);
@@ -5289,7 +5318,7 @@ static void ReleaseTermFromDB(DBTerm *ref USES_REGS) {
   FreeDBSpace((char *)ref);
 }
 
-void Yap_ReleaseTermFromDB(DBTerm *ref) {
+void Yap_ReleaseTermFromDB(const void *ref) {
   CACHE_REGS
   ReleaseTermFromDB(ref PASS_REGS);
 }

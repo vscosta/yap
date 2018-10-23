@@ -574,9 +574,9 @@ typedef enum {
         SuspFr_global_size(SUSP_FR) = H_SIZE;                                          \
         SuspFr_local_size(SUSP_FR) = B_SIZE;                                           \
         SuspFr_trail_size(SUSP_FR) = TR_SIZE;                                          \
-        memcpy(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);      \
-        memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);        \
-        memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
+        memmove(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);      \
+        memmove(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);        \
+        memmove(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 #define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_SUBGOAL_TRIE_NODE(NODE);                           \

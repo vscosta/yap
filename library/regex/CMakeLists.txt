@@ -17,7 +17,7 @@ set ( REGEX_SOURCES
 
 
 
-add_library (regexp SHARED regexp.c  ${REGEX_SOURCES})
+add_lib(regexp regexp.c  ${REGEX_SOURCES})
 
 target_link_libraries(regexp libYap)
 
@@ -26,6 +26,6 @@ TARGET_INCLUDE_DIRECTORIES (regexp PUBLIC BEFORE
   ${CMAKE_TOP_SOURCE_DIR}/include;${CMAKE_CURRENT_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR} )
 
 install(TARGETS  regexp
-        LIBRARY DESTINATION ${libdir}
-        RUNTIME DESTINATION ${dlls}
-  ARCHIVE DESTINATION ${dlls} )
+        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )

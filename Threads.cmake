@@ -1,9 +1,7 @@
 
 
 macro_optional_find_package (Threads OFF)
-macro_log_feature (THREADS_FOUND "Threads Support"
-  "GNU Threads Library (or similar)"
-  "http://www.gnu.org/software/threads")
+
 if (WITH_Threads)
   #
   #   CMAKE_THREAD_LIBS_INIT     - the thread library

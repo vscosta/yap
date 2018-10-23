@@ -14,7 +14,8 @@ set_target_properties (Problogbdd PROPERTIES
   )
 
 target_link_libraries(Problogbdd
-  ${CUDD_LIBRARIES}    
+  ${CUDD_LIBRARIES}
+        m
   libYap    
  )
 
@@ -24,7 +25,7 @@ target_link_libraries(Problogbdd
     )
  
   install(TARGETS Problogbdd
-    RUNTIME DESTINATION ${bindir}
-    LIBRARY DESTINATION ${dlls}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 

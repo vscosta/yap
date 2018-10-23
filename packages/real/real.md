@@ -1,14 +1,15 @@
-The R Prolog Progrmming Interface      {#real}
-===================================
 
-@file real.pl
+@file real.md
 @author	Nicos Angelopoulos
 @author	Vitor Santos Costa
 @version	1:0:4, 2013/12/25, sinter_class
 @license	Perl Artistic License
 
+@defgroup real The R Prolog Programming Interface
 @ingroup packages
+@{
 
+  + @tableofcontents
 
 This library enables the communication with an R process started as a shared library.
 It is the result of the efforts of two research groups that have worked in parallel.
@@ -43,9 +44,12 @@ The main modes for utilising the interface are
 
 Pass Prolog data to R, pass R data to Prolog or assign an R expression to
 an assignable R expression.
-###  Testing Real              {#TestingR}
 
-There is a raft of examples packed in a singl```e file that test the library.
+@defgroup TestingR Testing Real 
+@ingroup realmd
+@{
+
+There is a raft of examples packed in a single file that tests the library.
 
 ~~~~
 	?- [pack(real/examples/for_real)].
@@ -54,7 +58,10 @@ There is a raft of examples packed in a singl```e file that test the library.
 
 	?- edit( pack(real/examples/for_real) ).
 ~~~~
-###  Prolog and R Syntax              {#RSyntax}
+@}
+@defgroup RSyntax Prolog and R Syntax
+@ingroup real
+@{
 
 There are syntactic conventions in R that make unparsable prolog code.
 Notably function and variable names are allowed to contain dots, square brackets are used
@@ -121,7 +128,7 @@ However, not all possible "corrections" are currently supported. For instance,
 
 ~~~~
 ?- c <- [a,b,c,1].
-ERROR: real:set_R_variable/2: Type error: `boolean' expected, found `a'
+ERROR: real:set_R_variable/2: Type error: `boolean` expected, found `a`
 ~~~~
 
 In the data passing mode we map Prolog atoms to R strings-
@@ -156,7 +163,11 @@ This is only advisable for short data structures. For instance,
 
 Through this interface it is more convenient to be explicit about R chars by Prolog prepending
 atoms or codes with + as in the above example.
-###  Examples              {#RealExamples}
+
+@}
+@defgroup RealExamples Examples
+@ingroup  real
+@{
 
 ~~~~
 
@@ -203,7 +214,12 @@ logical :-
 
 ~~~~
 
-#### Info
+
+@}
+@defgroup RealInfo Real Information
+@ingroup  real
+@{
+
 
 @see		http://stoics.org.uk/~nicos/sware/real
 @see		pack(real/examples/for_real)
@@ -212,10 +228,12 @@ logical :-
 @see		pack(real/doc/padl2013-real.pdf)
 @see		http://www.r-project.org/
 
-Also @subpaage yap-real describes the YAP specfic details in real.
+Also @ref yap-real describes the YAP specfic details in real.
 
-*/Development of real in YAP   (#yap-real)
----------------------------
+@}
+@defgroup yap_real Development of real in YAP
+@ingroup  real 
+@{
 
 
 YAP includes a development version of real, designed to experiment
@@ -223,7 +241,7 @@ with the internals of the implementation of R. It includes major
 changes and is likely to be much less stable than the version
 maintained by Nicos ANgelopoulos. We refer to the version herein as
 'realC' and describe the main novelties vs the version described
-in~\cite{}. Their major differences:
+in~\cite . Their major differences:
 
    - Most of realC is written in `C`, instead of aa a Prolog string
    generator. The `C` code respects the SWI-Prolog fli interface and
@@ -240,7 +258,7 @@ in~\cite{}. Their major differences:
      prefer reading double-quote strings as Prolog string.
 
    - Free variables can be used to represent missing
-     arguments,ie. `a[_,"G23"] would represent the column "G23".
+     arguments,ie. `a[_,"G23"]` would represent the column "G23".
 
    - All recent versions of real support the common syntax extensions
      for [], (), thus realC allows writing `a[[2]] <- f().
@@ -259,14 +277,13 @@ in~\cite{}. Their major differences:
    ?- [examples/for_real].
    ?- for_real.
 
+@}
 
 ---
-Nicos Angelopoulos and Vitor Santos Costa
-December, 2012.
+ - Nicos Angelopoulos and Vitor Santos Costa, December, 2012.
 
-Updates: Nicos Angelopoulos
-Dec. 2013,
-March, 2014
+ - Updates: Nicos Angelopoulos, Dec. 2013, March, 2014
 
-Updates: Vitor Santos Costa
-Dec. 2015
+ - Updates: Vitor Santos Costa Dec. 2015
+
+@}

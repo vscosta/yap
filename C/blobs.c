@@ -17,11 +17,7 @@
 /* for freeBSD9.1 */
 #define _WITH_DPRINTF
 
-#ifdef __APPLE__
-#include "fmemopen.h"
-#endif
-
-#include "blobs.h"
+#include "YapBlobs.h"
 
 static blob_type_t unregistered_blob_atom = {
     YAP_BLOB_MAGIC_B, PL_BLOB_NOCOPY | PL_BLOB_TEXT, "unregistered"};
@@ -52,7 +48,7 @@ char *Yap_blob_to_string(AtomEntry *ref, const char *s0, size_t sz) {
     size_t sz0 = strlcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
 #else
   size_t sz0;
-  char *f = (char *)memcpy(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
+  char *f = (char *)memmove(s, (char *)RepAtom(AtomSWIStream)->StrOfAE, sz);
   f[0] = '\0';
   sz0 = f - s;
 #endif
@@ -160,7 +156,7 @@ AtomEntry *Yap_lookupBlob(void *blob, size_t len, void *type0, int *new) {
   ae->PropsOfAE = AbsBlobProp(b);
   ae->NextOfAE = AbsAtom(Blobs);
   ae->rep.blob->length = len;
-  memcpy(ae->rep.blob->data, blob, len);
+  memmove(ae->rep.blob->data, blob, len);
   Blobs = ae;
   if (NOfBlobs > NOfBlobsMax) {
     Yap_signal(YAP_CDOVF_SIGNAL);
@@ -209,8 +205,8 @@ bool YAP_get_blob(Term t, void **blob, size_t *len, blob_type_t **type) {
   return TRUE;
 }
 
-void *YAP_blob_data(Atom x, size_t *len, blob_type_t **type) {
-
+void *YAP_blob_data(YAP_Atom at, size_t *len, blob_type_t **type) {
+Atom x = at;
   if (!IsBlob(x)) {
 
     if (len)

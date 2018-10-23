@@ -948,9 +948,10 @@ static Int current_predicate(USES_REGS1) {
 
 static OpEntry *NextOp(Prop pp USES_REGS) {
 
-  while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
-         (RepOpProp(pp)->OpModule != PROLOG_MODULE
-	  || RepOpProp(pp)->OpModule != CurrentModule) )
+  while (!EndOfPAEntr(pp) && 
+    pp->KindOfPE != OpProperty &&
+    (RepOpProp(pp)->OpModule != PROLOG_MODULE || RepOpProp(pp)->OpModule != CurrentModule)
+   )
 	 pp = pp->NextOfPE;
   return RepOpProp(pp);
 }
@@ -1348,13 +1349,17 @@ static Int p_statistics_lu_db_size(USES_REGS1) {
 }
 
 static Int p_executable(USES_REGS1) {
-  if (GLOBAL_argv && GLOBAL_argv[0])
-    Yap_findFile(GLOBAL_argv[0], NULL, NULL, LOCAL_FileNameBuf, true, YAP_EXE,
-                 true, true);
-  else
-    strncpy(LOCAL_FileNameBuf, Yap_FindExecutable(), YAP_FILENAME_MAX - 1);
+  int lvl = push_text_stack();
+  const char *tmp =
 
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)), ARG1);
+    Yap_AbsoluteFile(GLOBAL_argv[0], true);
+    if (!tmp || tmp[0] == '\0' ) {
+      tmp = Malloc(YAP_FILENAME_MAX + 1);
+      strncpy((char *)tmp, Yap_FindExecutable(), YAP_FILENAME_MAX);
+    }
+  Atom at = Yap_LookupAtom(tmp);
+  pop_text_stack(lvl);
+  return Yap_unify(MkAtomTerm(at), ARG1);
 }
 
 static Int p_system_mode(USES_REGS1) {

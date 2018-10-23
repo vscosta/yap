@@ -15,6 +15,22 @@
 *									 *
 *************************************************************************/
 
+/**
+  * @file   directives.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 11:47:38 2017
+  *
+  * @brief  Control File Loading
+  %/
+
+/**
+  * @defgroup Directives Prolog Directives
+  * @ingroup YAPConsulting
+  * @{
+  *
+  *
+*/
+
 
 :- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
         '$exec_directives'/5]).
@@ -29,7 +45,6 @@
         '$include'/2,
         '$initialization'/1,
         '$initialization'/2,
-        '$load_files'/3,
         '$require'/2,
         '$set_encoding'/1,
         '$use_module'/3]).
@@ -56,7 +71,9 @@
 	'$directive'(G).
 
 %:- '$multifile'( '$directive'/1, prolog ).
-:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
+%:- multifile prolog:'$exec_directive'/5, prolog:'$directive'/1.
+:- '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
+:- '$new_multifile'('$directive'(_), prolog).
 
 
 
@@ -115,11 +132,14 @@
 	'$discontiguous'(D,M).
 /** @pred initialization
 
+
 Execute the goals defined by initialization/1. Only the first answer is
 considered.
 
 
 */
+'$exec_directive'(M:A, Status, _M, VL, Pos) :-
+	'$exec_directives'(A, Status, M, VL, Pos).
 '$exec_directive'(initialization(D), _, M, _, _) :-
 	'$initialization'(M:D).
 '$exec_directive'(initialization(D,OPT), _, M, _, _) :-
@@ -138,8 +158,7 @@ considered.
 '$exec_directive'(module(N,P,Op), Status, _, _, _) :-
 	'$module'(Status,N,P,Op).
 '$exec_directive'(meta_predicate(P), _, M, _, _) :-
-    strip_module(M:P,M0,P0),
-	'$meta_predicate'(M0:P0).
+    '$meta_predicate'(P,M).
 '$exec_directive'(module_transparent(P), _, M, _, _) :-
 	'$module_transparent'(P, M).
 '$exec_directive'(noprofile(P), _, M, _, _) :-
@@ -156,27 +175,27 @@ considered.
 '$exec_directive'(set_prolog_flag(F,V), _, _, _, _) :-
 	set_prolog_flag(F,V).
 '$exec_directive'(ensure_loaded(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [if(changed)], ensure_loaded(Fs)).
+    load_files(M:Fs, [if(changed)]).
 '$exec_directive'(char_conversion(IN,OUT), _, _, _, _) :-
 	char_conversion(IN,OUT).
 '$exec_directive'(public(P), _, M, _, _) :-
 	'$public'(P, M).
 '$exec_directive'(compile(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [], compile(Fs)).
+    load_files(M:Fs, []).
 '$exec_directive'(reconsult(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [], reconsult(Fs)).
+	load_files(M:Fs, []).
 '$exec_directive'(consult(Fs), _, M, _, _) :-
-	'$load_files'(M:Fs, [consult(consult)], consult(Fs)).
+	load_files(M:Fs, [consult(consult)]).
 '$exec_directive'(use_module(F), _, M, _, _) :-
 	use_module(M:F).
 '$exec_directive'(reexport(F), _, M, _, _) :-
-	'$load_files'(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)], reexport(F)).
+	load_files(M:F, [if(not_loaded), silent(true), reexport(true),must_be_module(true)]).
 '$exec_directive'(reexport(F,Spec), _, M, _, _) :-
-	'$load_files'(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)], reexport(F, Spec)).
+	load_files(M:F, [if(changed), silent(true), imports(Spec), reexport(true),must_be_module(true)]).
 '$exec_directive'(use_module(F, Is), _, M, _, _) :-
 	use_module(M:F, Is).
 '$exec_directive'(use_module(Mod,F,Is), _, _, _, _) :-
-	'$use_module'(Mod,F,Is).
+	use_module(Mod,F,Is).
 '$exec_directive'(block(BlockSpec), _, _, _, _) :-
 	'$block'(BlockSpec).
 '$exec_directive'(wait(BlockSpec), _, _, _, _) :-
@@ -221,6 +240,7 @@ user_defined_directive(Dir,Action) :-
 
 '$thread_initialization'(M:D) :-
 	eraseall('$thread_initialization'),
+	%writeln(M:D),
 	recorda('$thread_initialization',M:D,_),
 	fail.
 '$thread_initialization'(M:D) :-
@@ -256,8 +276,10 @@ user_defined_directive(Dir,Action) :-
  %
  % but YAP and SICStus do.
  %
- '$process_directive'(G, _Mode, M, _VL, _Pos) :-
+'$process_directive'(G, _Mode, M, _VL, _Pos) :-
       '$execute'(M:G),
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-
       format(user_error,':- ~w:~w failed.~n',[M,G]).
+
+%% @}

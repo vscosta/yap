@@ -60,12 +60,14 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#define COMPILER_NAMES 1
+#include "YapCompile.h"
+#undef COMPILER_NAMES 
 #include "YapCompile.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-
 
 /*
  * The compiler creates an instruction chain which will be assembled after
@@ -545,7 +547,6 @@ write_functor(Functor f)
   }
 }
 
-char *opDesc[] = { mklist(f_arr) };
 
 static void send_pred(PredEntry *p)
 {
@@ -720,7 +721,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    Yap_DebugPlWrite (MkIntTerm (rn & 1));
 	    break;
 	  case 'w':
-	    Yap_DebugPlWrite (arg);
+	    Yap_DebugPlWrite (MkIntTerm(arg));
 	    break;
 	  case 'o':
 	    Yap_DebugPlWrite ((Term) * cptr++);

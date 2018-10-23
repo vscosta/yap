@@ -29,12 +29,12 @@ main :-
 	file_filter_with_initialization('H/GLOBALS','H/generated/h0globals.h',gen_0struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
-	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
+	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
 %%	file_filter_with_initialization('H/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
-	file_filter_with_initialization('H/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-	file_filter_with_initialization('H/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-	file_filter_with_initialization('H/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-	file_filter_with_initialization('H/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+%	file_filter_with_initialization('H/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
+%	file_filter_with_initialization('H/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
+%	file_filter_with_initialization('H/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
+%	file_filter_with_initialization('H/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update H/~a instead */~n~n').
 

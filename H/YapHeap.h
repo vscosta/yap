@@ -18,6 +18,9 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
+#include "Atoms.h"
+#include "Yap.h"
+
 #if LOW_PROF
 #include <stdio.h>
 #endif
@@ -30,24 +33,6 @@ typedef int (*SWI_CloseFunction)(void *);
 typedef int (*SWI_FlushFunction)(void *);
 typedef int (*SWI_PLGetStreamFunction)(void *);
 typedef int (*SWI_PLGetStreamPositionFunction)(void *);
-
-typedef int (*Opaque_CallOnFail)(void *);
-typedef int (*Opaque_CallOnWrite)(FILE *, int, void *, int);
-typedef Int (*Opaque_CallOnGCMark)(int, void *, Term *, Int);
-typedef int (*Opaque_CallOnGCRelocate)(int, void *, Term *, Int);
-
-typedef struct opaque_handler_struct {
-  Opaque_CallOnFail fail_handler;
-  Opaque_CallOnWrite write_handler;
-  Opaque_CallOnGCMark gc_mark_handler;
-  Opaque_CallOnGCRelocate gc_relocate_handler;
-} opaque_handler_t;
-
-extern Opaque_CallOnWrite Yap_blob_write_handler_from_slot(Int slot);
-extern Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t);
-extern Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(Term t);
-extern Int Yap_blob_tag_from_slot(Int slot);
-extern void *Yap_blob_info_from_slot(Int slot);
 
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
@@ -171,10 +156,10 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
-#include "hglobals.h"
+#include "generated/hglobals.h"
 
-#include "dhstruct.h"
-#include "dglobals.h"
+#include "generated/dhstruct.h"
+#include "generated/dglobals.h"
 #else
 typedef struct various_codes {
   /* memory allocation and management */
@@ -184,17 +169,15 @@ typedef struct various_codes {
 } all_heap_codes;
 
 
-#include "tatoms.h"
+#include "generated/tatoms.h"
 
-#include "h0struct.h"
+#include "generated/h0struct.h"
 
-#include "h0globals.h"
+#include "generated/h0globals.h"
 
 #endif
 
-#include "hlocals.h"
-
-
+#include "generated/hlocals.h"
 
 #include "dlocals.h"
 
@@ -231,7 +214,13 @@ extern struct various_codes *Yap_heap_regs;
  */
 
 static inline yamop *gc_P(yamop *p, yamop *cp) {
-  return (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+  yamop *n= (p && p->opc == EXECUTE_CPRED_OPCODE ? cp : p);
+ if (p->opc == Yap_opcode(_try_c) ||
+      p->opc == Yap_opcode(_try_userc) ||
+      p->opc == Yap_opcode(_retry_c) ||
+      p->opc == Yap_opcode(_retry_userc))
+    return cp;
+  return n;
 }
 
 /**
@@ -241,9 +230,9 @@ static inline yamop *gc_P(yamop *p, yamop *cp) {
 
 #define Yap_CurrentModule() Yap_CurrentModule__(PASS_REGS1)
 
-INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1);
+INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1);
 
-INLINE_ONLY inline EXTERN Term Yap_CurrentModule__(USES_REGS1) {
+INLINE_ONLY Term Yap_CurrentModule__(USES_REGS1) {
   if (CurrentModule)
     return CurrentModule;
   return TermProlog;
@@ -270,11 +259,11 @@ extern ADDR Yap_ExpandPreAllocCodeSpace(UInt, void *, int);
 extern ADDR Yap_InitPreAllocCodeSpace(int);
 
 #include "inline-only.h"
-INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void);
+INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void);
 
-INLINE_ONLY EXTERN inline ADDR Yap_PreAllocCodeSpace(void) {
+INLINE_ONLY ADDR Yap_PreAllocCodeSpace(void) {
   CACHE_REGS
-  return AuxBase;
+    return AuxBase;
 }
 
 #endif /* HEAP_H */

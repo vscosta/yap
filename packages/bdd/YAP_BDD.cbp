@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="YAP_BDD"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;CMake Files\cmake\;CMake Files\.git\;CMake Files\.git\refs\;CMake Files\.git\refs\heads\;CMake Files\os\;CMake Files\packages\;CMake Files\packages\python\;CMake Files\packages\python\swig\;CMake Files\packages\python\swig\yap4py\;CMake Files\packages\python\yap_kernel\;CMake Files\packages\myddas\;CMake Files\packages\myddas\sqlite3\;CMake Files\packages\myddas\mysql\;CMake Files\packages\myddas\odbc\;CMake Files\packages\myddas\postgres\;CMake Files\packages\myddas\pl\;CMake Files\packages\raptor\;CMake Files\packages\raptor\cmake\;CMake Files\packages\raptor\doc\;CMake Files\packages\xml\;CMake Files\packages\CLPBN\;CMake Files\packages\CLPBN\horus\;CMake Files\packages\cplint\;CMake Files\packages\gecode\;CMake Files\packages\real\;CMake Files\packages\jpl\;CMake Files\packages\bdd\;CMake Files\packages\ProbLog\;CMake Files\packages\swi-minisat2\;CMake Files\packages\swi-minisat2\C\;CMake Files\packages\clpqr\;CMake Files\OPTYap\;CMake Files\utf8proc\;CMake Files\library\;CMake Files\library\dialect\;CMake Files\library\dialect\swi\;CMake Files\library\dialect\swi\fli\;CMake Files\library\clp\;CMake Files\library\matlab\;CMake Files\library\matrix\;CMake Files\library\random\;CMake Files\library\regex\;CMake Files\library\rltree\;CMake Files\library\system\;CMake Files\library\tries\;CMake Files\library\ytest\;CMake Files\library\lammpi\;CMake Files\CXX\;CMake Files\H\;CMake Files\pl\;CMake Files\swi\;CMake Files\swi\library\;CMake Files\docs\;CMake Files\docs\source\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/vsc/github/yap-6.3/packages/bdd"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/bdd/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/bdd/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/bdd/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -f &quot;/home/vsc/github/yap-6.3/packages/bdd/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/vsc/github/yap-6.3/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/GitSHA1.c.in">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/Threads.cmake">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/YapTermConfig.h.cmake">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/config.h.cmake">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/CheckPrototypeExists.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/Config.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindCUDD.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindGMP.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindGecode.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindMySQL.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindODBC.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindPythonModule.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindR.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/FindReadline.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/GetGitRevisionDescription.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/GetGitRevisionDescription.cmake.in">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/MacroLogFeature.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/MacroOptionalAddSubdirectory.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/MacroOptionalFindPackage.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/PackageDocs.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/Sources.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/TestForHighBitCharacters.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/TestSTDC.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/UseSWIG.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/cudd.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/disallow.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/java.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/cmake/python.cmake">
+			<Option virtualFolder="CMake Files\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/.git/HEAD">
+			<Option virtualFolder="CMake Files\.git\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/.git/refs/heads/master">
+			<Option virtualFolder="CMake Files\.git\refs\heads\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/os/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\os\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/os/YapIOConfig.h.cmake">
+			<Option virtualFolder="CMake Files\os\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\python\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/swig/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\python\swig\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/swig/MANIFEST.in">
+			<Option virtualFolder="CMake Files\packages\python\swig\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/swig/YAP4PY.md">
+			<Option virtualFolder="CMake Files\packages\python\swig\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/swig/setup.py.in">
+			<Option virtualFolder="CMake Files\packages\python\swig\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/swig/yap4py/__init__.py.in">
+			<Option virtualFolder="CMake Files\packages\python\swig\yap4py\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/python/yap_kernel/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\python\yap_kernel\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/sqlite3/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\sqlite3\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/mysql/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\mysql\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/odbc/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\odbc\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/postgres/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\postgres\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/myddas/pl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\myddas\pl\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\raptor\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/raptor_config.h.cmake">
+			<Option virtualFolder="CMake Files\packages\raptor\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/cmake/FindRAPTOR.cmake">
+			<Option virtualFolder="CMake Files\packages\raptor\cmake\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/raptor/doc/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\raptor\doc\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/xml/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\xml\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/CLPBN/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\CLPBN\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/CLPBN/horus/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\CLPBN\horus\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/cplint/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\cplint\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/gecode/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\gecode\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/real/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\real\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/real/rconfig.h.cmake">
+			<Option virtualFolder="CMake Files\packages\real\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/jpl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\jpl\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/bdd/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\bdd\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/ProbLog/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\ProbLog\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/swi-minisat2/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\swi-minisat2\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/swi-minisat2/C/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\swi-minisat2\C\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/packages/clpqr/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\packages\clpqr\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/OPTYap/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\OPTYap\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/utf8proc/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\utf8proc\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/utf8proc/utils.cmake">
+			<Option virtualFolder="CMake Files\utf8proc\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/dialect/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\dialect\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/dialect/swi/fli/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\dialect\swi\fli\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/clp/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\clp\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/matlab/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\matlab\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/matrix/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\matrix\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/random/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\random\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/regex/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\regex\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/rltree/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\rltree\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/system/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\system\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/system/sys_config.h.cmake">
+			<Option virtualFolder="CMake Files\library\system\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/tries/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\tries\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/ytest/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\ytest\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/library/lammpi/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\library\lammpi\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/CXX/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\CXX\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/H/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\H\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/pl/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\pl\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/swi/library/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\swi\library\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/docs/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\docs\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/docs/Doxyfile.in">
+			<Option virtualFolder="CMake Files\docs\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/docs/source/conf.py.in">
+			<Option virtualFolder="CMake Files\docs\source\"/>
+		</Unit>
+		<Unit filename="/home/vsc/github/yap-6.3/docs/source/index.rst">
+			<Option virtualFolder="CMake Files\docs\source\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

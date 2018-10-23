@@ -31,6 +31,8 @@
 #endif
 #endif
 
+#include <encoding.h>
+
 typedef struct {
   dev_t st_dev;                     /* ID of device containing file */
   mode_t st_mode;                   /* Mode of file (see below) */
@@ -48,12 +50,13 @@ typedef struct {
 } vfs_stat;
 
 typedef enum vfs_flags {
-  VFS_CAN_WRITE = 0x1,     /// we can write to files in this space
-  VFS_CAN_EXEC = 0x2,      /// we can execute files in this space
-  VFS_CAN_SEEK = 0x4,      /// we can seek within files in this space
-  VFS_HAS_PREFIX = 0x8,    /// has a prefix that identifies a file in this space
-  VFS_HAS_SUFFIX = 0x10,   /// has a suffix that describes the file.
-  VFS_HAS_FUNCTION = 0x10, /// has a suffix that describes the file.
+    VFS_CAN_READ = 0x1,    /// we can write to files in this space
+    VFS_CAN_WRITE = 0x2,    /// we can write to files in this space
+  VFS_CAN_EXEC = 0x4,     /// we can execute files in this space
+  VFS_CAN_SEEK = 0x8,     /// we can seek within files in this space
+  VFS_HAS_PREFIX = 0x10,   /// has a prefix that identifies a file in this space
+  VFS_HAS_SUFFIX = 0x20,  /// has a suffix that describes the file.
+  VFS_HAS_FUNCTION = 0x40 /// has a suffix that describes the file.
 } vfs_flags_t;
 
 typedef union {
@@ -62,7 +65,7 @@ typedef union {
   size_t sz;
   void *pt;
   uintptr_t scalar;
-#if __ANDROID__
+#if __ANDROID__0
   AAssetManager *mgr;
   AAsset *asset;
 #endif
@@ -74,59 +77,64 @@ typedef struct vfs {
   /// a way to identify a file in this VFS: two special cases, prefix and suffix
   const char *prefix;
   const char *suffix;
-  bool (*id)(struct vfs *me, const char *s);
+  bool (*chDir)(struct vfs *me, const char *s);
   /** operations */
-  bool (*open)(struct vfs *me, struct stream_desc *st, const char *s,
-               const char *io_mode);
-  ; /// open an object
+  void *(*open)(struct vfs *, const char *fname,
+                const char *io_mode,
+		int sno); /// open an object
   /// in this space, usual w,r,a,b flags plus B (store in a buffer)
-  bool (*close)(struct stream_desc *stream);   /// close the object
-  int (*get_char)(struct stream_desc *stream); /// get an octet to the stream
-  int (*putc)(int ch,
-              struct stream_desc *stream); /// output an octet to the stream
-  int64_t (*seek)(struct stream_desc *stream, int64_t offset,
+  bool (*close)(int sno);           /// close the object
+  int (*get_char)(int sno);         /// get an octet from the stream
+  int (*get_wchar)(int sno);         /// get an octet from the stream
+    int (*peek_char)(int sno);        /// unget an octet from the stream
+    int (*peek_wchar)(int sno);        /// unget an octet from the stream
+  int (*put_char)(int sno, int ch); /// output an octet to the stream
+  int (*put_wchar)(int sno, int ch); /// output a character to the stream
+  void (*flush)(int sno);           /// flush a stream
+  int64_t (*seek)(int sno, int64_t offset,
                   int whence); /// jump around the stream
-  void *(*opendir)(struct vfs *me,
+  void *(*opendir)(struct vfs *,
                    const char *s); /// open a directory object, if one exists
   const char *(*nextdir)(
       void *d); /// walk to the next entry in a directory object
-  void (*closedir)(void *d);
+  bool (*closedir)(void *d);
   ; /// close access a directory object
-  bool (*stat)(struct vfs *me, const char *s,
+  bool (*stat)(struct vfs *, const char *s,
                vfs_stat *); /// obtain size, age, permissions of a file.
-  bool (*isdir)(struct vfs *me, const char *s); /// verify whether is directory.
-  bool (*exists)(struct vfs *me,
-                 const char *s); /// verify whether a file exists.
-  bool (*chdir)(struct vfs *me,
-                const char *s);      /// set working directory (may be virtual).
-  encoding_t enc;                    /// how the file is encoded.
-  YAP_Term (*parsers)(void *stream); // a set of parsers that can read the
-                                     // stream and generate a YAP_Term
-  int (*writers)(int ch, void *stream);
-  ; /// convert a YAP_Term into this space
-  const char *virtual_cwd;
+  bool (*isdir)(struct vfs *, const char *s);  /// verify whether is directory.
+  bool (*exists)(struct vfs *, const char *s); /// verify whether a file exists.
+  bool (*chdir)(struct vfs *,
+                const char *s); /// set working directory (may be virtual).
+  encoding_t enc;               /// default file encoded.
+  YAP_Term (*parsers)(int sno); // a set of parsers that can read the
+                                // stream and generate a YAP_Term
+  int (*writers)(int ch, int sno);
   /** VFS dep
       endent area */
-  cell_size_t priv[4];
+  void *priv;
   struct vfs *next;
 } VFS_t;
 
 extern VFS_t *GLOBAL_VFS;
 
+extern void init_android_stream(void);
+
+extern void Yap_InitStdStream(int sno, unsigned int flags, FILE *file,
+                              VFS_t *vfsp);
+
 static inline VFS_t *vfs_owner(const char *fname) {
-  return NULL;
   VFS_t *me = GLOBAL_VFS;
   int d;
-  size_t sz0 = strlen(fname);
+  size_t sz0 = strlen(fname), sz;
 
   while (me) {
-    if (me->vflags & VFS_HAS_PREFIX && strstr(fname, me->prefix))
-      return me;
-    size_t sz = strlen(me->suffix);
-    if (me->vflags & VFS_HAS_SUFFIX && (d = (sz0 - sz)) >= 0 &&
-        strcmp(fname + d, me->suffix) == 0)
-      return me;
-    if (me->vflags & VFS_HAS_FUNCTION && (me->id(me, fname))) {
+    bool p = true;
+    if ((me->vflags & VFS_HAS_PREFIX) && p) {
+      if (strstr(fname,me->prefix)==fname)
+        return me;
+    }
+    if (me->vflags & VFS_HAS_SUFFIX && (sz = strlen(me->suffix)) &&
+        (d = (sz0 - sz)) >= 0 && strcmp(fname + d, me->suffix) == 0) {
       return me;
     }
     me = me->next;

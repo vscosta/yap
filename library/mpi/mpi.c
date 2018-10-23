@@ -88,7 +88,7 @@ expand_buffer( int space )
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "out of memory" );
     Yap_exit( EXIT_FAILURE );
   }
-  memcpy( tmp, buf, bufsize );
+  memmove( tmp, buf, bufsize );
   free( buf );
   buf = tmp;
 #else /* use realloc */

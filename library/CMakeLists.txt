@@ -11,6 +11,7 @@ set (LIBRARY_PL
   charsio.yap
   clauses.yap
   coinduction.yap
+  completer.yap
   dbqueues.yap
   dbusage.yap
   dgraphs.yap
@@ -55,7 +56,6 @@ set (LIBRARY_PL
   wgraphs.yap
   wundgraphs.yap
   lam_mpi.yap
-  ypp.yap
    ytest.yap
    c_alarms.yap
   flags.yap
@@ -74,10 +74,12 @@ MY_add_subdirectory(system)
 MY_add_subdirectory(tries)
 MY_add_subdirectory(ytest)
 
-add_to_group( pl_library LIBRARY_PL )
+add_to_group( LIBRARY_PL  pl_library)
 
-if (0)
-    	file(COPY ${LIBRARY_PL}  DESTINATION ${libpl})
-else()
-    install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+
+if (ANDROID)
+file( INSTALL  ${LIBRARY_PL} DESTINATION ${libpl} )
 endif()
+
+include_directories("dialect/swi")

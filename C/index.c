@@ -633,7 +633,10 @@ type_of_verb(rest,passive).
 
  */
 
-#include "absmi.h"
+#include <absmi.h>
+
+#include <Yatom.h>
+
 #include "YapCompile.h"
 #if DEBUG
 #include "yapio.h"
@@ -822,7 +825,7 @@ static inline int smaller_or_eq(Term t1, Term t2) {
 }
 
 static inline void clcpy(ClauseDef *d, ClauseDef *s) {
-  memcpy((void *)d, (void *)s, sizeof(ClauseDef));
+  memmove((void *)d, (void *)s, sizeof(ClauseDef));
 }
 
 static void insort(ClauseDef base[], CELL *p, CELL *q, int my_p) {
@@ -2667,7 +2670,7 @@ static ClauseDef *copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top,
     save_machine_regs();
     siglongjmp(cint->CompilerBotch, 4);
   }
-  memcpy((void *)top, (void *)min0, sz);
+  memmove((void *)top, (void *)min0, sz);
   return (ClauseDef *)top;
 }
 
@@ -2940,13 +2943,15 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   cint.cls = NULL;
   LOCAL_Error_Size = 0;
 
+  if (ap->cs.p_code.NOfClauses < 2)
+    return NULL;
   if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE + NSlots, ENV, next_pc)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres == 2) {
     restore_machine_regs();
@@ -2954,7 +2959,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres == 4) {
     restore_machine_regs();
@@ -2962,7 +2967,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       CleanCls(&cint);
       Yap_Error(RESOURCE_ERROR_TRAIL, TermNil, LOCAL_ErrorMessage);
-      return FAILCODE;
+      return NULL;
     }
   } else if (setjres != 0) {
     restore_machine_regs();
@@ -2970,7 +2975,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
-      return FAILCODE;
+      return NULL;
     }
   }
 restart_index:
@@ -2983,7 +2988,7 @@ restart_index:
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
-    return FAILCODE;
+    return NULL;
   }
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {

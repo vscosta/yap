@@ -7,7 +7,7 @@ if (YAP_ROOT)
   set( YAP_INCLUDE_DIR ../../include )  
   set( YAP_PL_LIBRARY_DIR ${libpl} )  
   set( YAP_LIBRARY libYap )  
-  set( YAP_DLLS ${dlls} )    
+  set( YAP_DLLS ${YAP_INSTALL_DLLDIR} )
 
 else()
 

@@ -12,6 +12,7 @@ URL = "http://www.sudoku.org.uk/daily.asp"
 
 class DailySudokuPuzzle(HTMLParser):
     def __init__(self):
+        # type: () -> object
         self.puzzle = []
         self.__in_td = False
         HTMLParser.__init__(self)

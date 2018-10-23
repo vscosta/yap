@@ -1,9 +1,6 @@
 #CHECK: CUDA
 
 macro_optional_find_package (CUDA ON)
-macro_log_feature (CUDA_FOUND "CUDA"
-  "CUDA GGPU Programming "
-  "http://www.nvidia.com/object/cuda_home_new.html" FALSE)
 
 if (CUDA_FOUND)
   #   CUDA_VERSION_MAJOR    -- The major version of cuda as reported by nvcc.
@@ -80,7 +77,7 @@ cuda.c
     cuda.yap
     )
 
-  cuda_add_library (libcuda SHARED  ${CUDA_SOURCES})
+  cuda_add_lib(libcuda   ${CUDA_SOURCES})
 
   target_link_libraries(libcuda  libYap
     ${CUDA_LIBRARIES} ${CUDA_npp_LIBRARY} # ${CUDA_nppc_LIBRARY}
@@ -106,8 +103,8 @@ endif( THRUST_INCLUDE_DIR )
     )
 
   install(TARGETS  libcuda
-    RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   install(FILES ${PL_SOURCES}

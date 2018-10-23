@@ -205,13 +205,13 @@ CopyLocalAndTrail( USES_REGS1 )
 static void
 IncrementalCopyStacksFromWorker( USES_REGS1 )
 {
-  memcpy((void *) PtoGloAdjust((CELL *)LOCAL_start_global_copy),
+  memmove((void *) PtoGloAdjust((CELL *)LOCAL_start_global_copy),
 	 (void *) (LOCAL_start_global_copy),
 	 (size_t) (LOCAL_end_global_copy - LOCAL_start_global_copy));
-  memcpy((void *) PtoLocAdjust((CELL *)LOCAL_start_local_copy),
+  memmove((void *) PtoLocAdjust((CELL *)LOCAL_start_local_copy),
 	 (void *) LOCAL_start_local_copy,
 	 (size_t) (LOCAL_end_local_copy - LOCAL_start_local_copy));
-  memcpy((void *) PtoTRAdjust((tr_fr_ptr)LOCAL_start_trail_copy),
+  memmove((void *) PtoTRAdjust((tr_fr_ptr)LOCAL_start_trail_copy),
 	 (void *) (LOCAL_start_trail_copy),
 	 (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy));
 }
@@ -586,8 +586,8 @@ AdjustGlobal(Int sz, bool thread_copying USES_REGS)
 	      (sizeof(MP_INT)+
 	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
 	    //printf("sz *%ld* at @%ld@\n", sz, pt-H0);
-	    Opaque_CallOnGCMark f;
-	    Opaque_CallOnGCRelocate f2;
+	    YAP_Opaque_CallOnGCMark f;
+	    YAP_Opaque_CallOnGCRelocate f2;
 	    Term t = AbsAppl(pt);
 
 	    if ( (f = Yap_blob_gc_mark_handler(t)) ) {

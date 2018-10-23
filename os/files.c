@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		iopreds.c						 *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		iopreds.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -25,110 +25,147 @@ static char SccsId[] = "%W% %G%";
  */
 
 #include "sysbits.h"
+#include "yapio.h"
 
+#if HAVE_DIRENT_H
+#include <dirent.h>
+#endif
+#if HAVE_DIRECT_H
+#include <direct.h>
+#endif
+#if defined(__MINGW32__) || _MSC_VER
+#include <io.h>
+#include <windows.h>
+#endif
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
 #else
 #define SYSTEM_STAT stat
 #endif
 
-bool Yap_GetFileName(Term t, char *buf, size_t len, encoding_t enc) {
-  while (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
-    if (!Yap_GetFileName(ArgOfTerm(1, t), buf, len, enc))
-      return false;
-    size_t szl = strlen(buf);
-    buf += szl;
-    *buf++ = '/';
-    t = ArgOfTerm(2, t);
-    len -= (szl + 1);
+const char *Yap_GetFileName(Term t USES_REGS) {
+  char *buf = Malloc(YAP_FILENAME_MAX + 1);
+  if (IsApplTerm(t) && FunctorOfTerm(t) == FunctorSlash) {
+    snprintf(buf, YAP_FILENAME_MAX, "%s/%s", Yap_GetFileName(ArgOfTerm(1, t)),
+             Yap_GetFileName(ArgOfTerm(2, t)));
   }
-  return Yap_TextTermToText(t, buf, len, enc);
+  if (IsAtomTerm(t)) {
+    return RepAtom(AtomOfTerm(t))->StrOfAE;
+  }
+  if (IsStringTerm(t)) {
+    return StringOfTerm(t);
+  }
+  return Yap_TextTermToText(t PASS_REGS);
 }
 
+/**
+ * @pred file_name_extension( ? BaseFile, ?Extension, ?FullNameO)
+ *
+ * Relate a file name with an extension. The extension is the filename's suffix
+ * and indicates the kind of the file.
+ *
+ * The predicate can be used to:
+ * - Given __FullName__, extract the extension as _Extension_, and the remainder
+ * as _BaseFile_. - Given _BaseFile_ and _?Extension_ obtain a _FullNameO_.
+ * ~~~~
+ * ~~~~
+ *   Notice that:
+ *   + if no suffix is found, file_name_extension/3 generates the empty
+ * suffu]kx, `''`. + the extension does not include the `,` separator; + the
+ * suffix may be longer thsn 3 characters + case should not matter in Windows
+ * and MacOS + paths may not correspond to valid file names.
+ *
+ * @return G
+ */
 static Int file_name_extension(USES_REGS1) {
-  Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
+  Term t1;
+  Term t2;
   Term t3 = Deref(ARG3);
-  char f[YAP_FILENAME_MAX + 1];
-#if __APPLE__ || _WIN32
-  bool lowcase = true;
-#endif
-
-  if (!IsVarTerm((t3))) {
-    char *f2;
-    if (!Yap_GetFileName(t3, f, YAP_FILENAME_MAX, ENC_ISO_UTF8)) {
+  int l = push_text_stack();
+  if (!IsVarTerm(t3)) {
+    // full path is given.
+    const char *f = Yap_GetFileName(t3);
+    const char *ext;
+    char *base;
+    bool rc = true;
+    seq_type_t typ = Yap_TextType(t3);
+    if (!f) {
+      pop_text_stack(l);
       return false;
     }
-    char *pts = strrchr(f, '/');
-#if WIN32_
-    char *pts1 = strrchr(f, '\\');
-    if (pts11 > pts)
-      pts = pts1;
-#endif
-    char *ss = strrchr(f, '.');
-    if (pts > ss) {
-      ss = f + strlen(f);
-    } else if (ss == NULL) {
-      ss = "";
+    size_t len_b = strlen(f), lenb_b;
+    char *candidate = strrchr(f, '.');
+    char *file = strrchr(f, '/');
+    if (candidate  && candidate > file) {
+      lenb_b = candidate - f;
+      ext = candidate + 1;
     } else {
-      ss++;
+      lenb_b = len_b;
+      ext = "";
     }
-    if (IsVarTerm(t2)) {
-      Term t = Yap_MkTextTerm(ss, ENC_ISO_UTF8, t3);
-      Yap_unify(t2, t);
+    base = Malloc(lenb_b + 1);
+    memmove(base, f, lenb_b);
+    base[lenb_b] = '\0';
+    if (IsVarTerm(t1 = Deref(ARG1))) {
+      // should always succeed
+      rc = Yap_unify(t1, Yap_MkTextTerm(base, typ));
     } else {
-      f2 = ss + (strlen(ss) + 1);
-      if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 1 - (f2 - f),
-                              ENC_ISO_UTF8))
-        return false;
+      char *f_a = (char *)Yap_GetFileName(t1 PASS_REGS);
 #if __APPLE__ || _WIN32
-      Yap_OverwriteUTF8BufferToLowCase(f2);
-      lowcase = true;
+      rc = strcasecmp(f_a, base) == 0;
+#else
+      rc = strcmp(f_a, base) == 0;
 #endif
-      if (strcmp(f2, ss) != 0 && (ss > f && strcmp(f2, ss - 1) != 0)) {
-        return false;
+    }
+    if (rc) {
+      if (IsVarTerm(t2 = Deref(ARG2))) {
+        // should always succeed
+        rc = Yap_unify(t2, Yap_MkTextTerm(ext, typ));
+      } else {
+        char *f_a = (char *)Yap_TextTermToText(t2 PASS_REGS);
+        if (f_a[0] == '.') {
+          f_a += 1;
+        }
+#if __APPLE__ || _WIN32
+        rc = strcasecmp(f_a, ext) == 0;
+#else
+        rc = strcmp(f_a, ext) == 0;
+#endif
       }
     }
-    if (f[0] && ss[0] && ss[0] != '.') {
-      ss[-1] = '\0';
-    }
-    if (IsVarTerm(t1)) {
-      Term t = Yap_MkTextTerm(f, ENC_ISO_UTF8, t3);
-      Yap_unify(t1, t);
-    } else {
-      char f1[YAP_FILENAME_MAX + 1];
-#if __APPLE || _WIN32
-      Yap_OverwriteUTF8BufferToLowCase(f);
-#endif
-      if (!Yap_GetFileName(t2, f1, YAP_FILENAME_MAX, ENC_ISO_UTF8))
-        return false;
-#if __APPLE__ || _WIN32
-      if (!lowcase)
-        Yap_OverwriteUTF8BufferToLowCase(f2);
-#endif
-      if (strcmp(f1, f) != 0) {
-        return false;
-      }
-    }
-    return true;
+    pop_text_stack(l);
+    return rc;
   } else {
+    const char *f;
     char *f2;
-    if (!Yap_TextTermToText(t1, f, YAP_FILENAME_MAX - 2, ENC_ISO_UTF8)) {
+    seq_type_t typ, typ1 = Yap_TextType((t1 = Deref(ARG1))),
+                    typ2 = Yap_TextType((t2 = Deref(ARG2)));
+    if (typ1 == typ2) {
+      typ = typ1;
+    } else if (typ1 == YAP_STRING_ATOM || typ2 == YAP_STRING_ATOM) {
+      typ = YAP_STRING_ATOM;
+    } else {
+      typ = YAP_STRING_STRING;
+    }
+    if (!(f = Yap_TextTermToText(t1 PASS_REGS))) {
+      pop_text_stack(l);
       return false;
     }
-    f2 = f + strlen(f);
-    if (!Yap_TextTermToText(t2, f2, YAP_FILENAME_MAX - 2 - (f2 - f),
-                            ENC_ISO_UTF8)) {
+    if (!(f2 = (char *)Yap_TextTermToText(t2 PASS_REGS))) {
+      pop_text_stack(l);
       return false;
     }
-    if (f2[0] != '.') {
-      memmove(f2 + 1, f2, strlen(f2) + 1);
-      f2[0] = '.';
+    if (f2[0] == '.') {
+      f2++;
     }
-    Term t = Yap_MkTextTerm(f, ENC_ISO_UTF8, t1);
-    if (!t)
-      return false;
-    return Yap_unify(t, t3);
+
+    size_t lenb_b = strlen(f);
+    char *o = Realloc((void *)f, lenb_b + strlen(f2) + 2);
+    o[lenb_b] = '.';
+    o += lenb_b + 1;
+    pop_text_stack(l);
+    return strcpy(o, f2) && (t3 = Yap_MkTextTerm(o, typ)) &&
+           Yap_unify(t3, ARG3);
   }
 }
 
@@ -142,6 +179,15 @@ static Int access_path(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "access");
     return false;
   } else {
+          VFS_t *vfs;
+          char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
+          if (!s) return false;
+          if ((vfs = vfs_owner(s))) {
+              vfs_stat st;
+              bool rc = vfs->stat(vfs, s, &st);
+              UNLOCK(GLOBAL_Stream[sno].streamlock);
+              return rc;
+          }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
     char *file_name;
@@ -169,6 +215,15 @@ static Int exists_file(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "access");
     return FALSE;
   } else {
+      VFS_t *vfs;
+      char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
+      if (!s) return false;
+      if ((vfs = vfs_owner(s))) {
+          vfs_stat st;
+          bool rc = vfs->stat(vfs, s, &st);
+          UNLOCK(GLOBAL_Stream[sno].streamlock);
+return rc;
+      }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 
@@ -228,6 +283,12 @@ static Int time_file(USES_REGS1) {
     return FALSE;
   } else {
     const char *n = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(n))) {
+      vfs_stat s;
+      vfs->stat(vfs, n, &s);
+      return Yap_unify(ARG2, MkIntegerTerm(s.st_mtimespec.tv_sec));
+    }
 #if __WIN32
     FILETIME ft;
     HANDLE hdl;
@@ -283,6 +344,15 @@ static Int file_size(USES_REGS1) {
       "file_size/2");
   if (sno < 0)
     return (FALSE);
+  VFS_t *vfs;
+  char *s = RepAtom(GLOBAL_Stream[sno].name)->StrOfAE;
+  if (!s) return false;
+  if ((vfs = vfs_owner(s))) {
+    vfs_stat st;
+    vfs->stat(vfs, s, &st);
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return Yap_unify_constant(ARG2, MkIntegerTerm(st.st_size));
+  }
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f &&
       !(GLOBAL_Stream[sno].status &
         (InMemory_Stream_f | Socket_Stream_f | Pipe_Stream_f))) {
@@ -352,6 +422,32 @@ static Int access_file(USES_REGS1) {
     if (!(ares = RepAtom(AtomOfTerm(tname))->StrOfAE))
       return FALSE;
   }
+    VFS_t *vfs;
+    if ((vfs = vfs_owner(ares))) {
+        vfs_stat o;
+        if (vfs->stat(vfs, ares, &o)) {
+            if (atmode == AtomExist)
+                return true;
+            else if (atmode == AtomExists)
+                return true;
+            else if (atmode == AtomWrite)
+                return o.st_mode & VFS_CAN_WRITE;
+            else if (atmode == AtomRead)
+                return o.st_mode & VFS_CAN_READ;
+            else if (atmode == AtomAppend)
+                return o.st_mode & VFS_CAN_WRITE;
+            else if (atmode == AtomCsult)
+                return o.st_mode & VFS_CAN_READ;
+            else if (atmode == AtomExecute)
+                return o.st_mode & VFS_CAN_EXEC;
+            else {
+                Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
+                return FALSE;
+            }
+        } else {
+            return false;
+        }
+    }
 #if HAVE_ACCESS
 #if _WIN32
   {
@@ -436,10 +532,20 @@ static Int exists_directory(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "exists_directory/1");
     return FALSE;
   } else {
+    VFS_t *vfs;
+    char *s = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
+    if (!s) return false;
+    if ((vfs = vfs_owner(s))) {
+bool rc = true;
+      return vfs->isdir(vfs, s);
+
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return rc;
+    }
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 
-    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    file_name = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
     if (SYSTEM_STAT(file_name, &ss) != 0) {
       /* ignore errors while checking a file */
       return false;
@@ -455,14 +561,14 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
   Term t = Deref(ARG1);
   Atom at;
   bool rc;
-
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
     return false;
   }
-  const char *buf = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
+  int l = push_text_stack();
+  const char *buf = Yap_TextTermToText(t PASS_REGS);
   if (buf) {
-    rc = Yap_IsAbsolutePath(buf);
+    rc = Yap_IsAbsolutePath(buf, true);
   } else {
     at = AtomOfTerm(t);
 #if _WIN32
@@ -470,8 +576,8 @@ static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
 #else
     rc = RepAtom(at)->StrOfAE[0] == '/';
 #endif
-    freeBuffer(buf);
   }
+  pop_text_stack(l);
   return rc;
 }
 
@@ -525,10 +631,85 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
     if (Yap_dir_separator((int)c[i]))
       break;
   }
+  if (i == 0) {
+    s[0] = '.';
+    i = 1;
+  }
   s[i] = '\0';
 #endif
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
 }
+
+
+/* Return a list of files for a directory */
+static Int list_directory(USES_REGS1) {
+  Term tf = MkAtomTerm(Yap_LookupAtom("[]"));
+  yhandle_t sl = Yap_InitSlot(tf);
+VFS_t *vfsp;
+  char *buf = (char *)AtomName(AtomOfTerm(ARG1));
+    if ((vfsp = vfs_owner(buf))) {
+        void *de;
+      const char *dp;
+
+    if ((de = vfsp->opendir(vfsp, buf)) == NULL) {
+      PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+		strerror(errno));
+    }
+    while ((dp = vfsp->nextdir( de))) {
+      YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
+      Yap_PutInHandle(sl, MkPairTerm(ti, Yap_GetFromHandle(sl)));
+    }
+    vfsp->closedir( de);
+ } else {
+#if defined(__MINGW32__) || _MSC_VER
+        struct _finddata_t c_file;
+        char bs[BUF_SIZE];
+        long hFile;
+
+        bs[0] = '\0';
+#if HAVE_STRNCPY
+        strncpy(bs, buf, BUF_SIZE);
+#else
+        strcpy(bs, buf);
+#endif
+#if HAVE_STRNCAT
+        strncat(bs, "/*", BUF_SIZE);
+#else
+        strcat(bs, "/*");
+#endif
+        if ((hFile = _findfirst(bs, &c_file)) == -1L) {
+          return (Yap_unify(ARG2, tf));
+        }
+        Yap_PutInSlot(sl, MkPairTerm(MkAtomTerm(Yap_LookupAtom(c_file.name)),
+                                         Yap_GetFromSlot(sl)));
+        while (_findnext(hFile, &c_file) == 0) {
+          Term ti = MkAtomTerm(Yap_LookupAtom(c_file.name));
+          Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+        }
+        _findclose(hFile);
+#elif HAVE_OPENDIR
+        {
+            DIR *de;
+            struct dirent *dp;
+
+            if ((de = opendir(buf)) == NULL) {
+                PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+                          strerror(errno));
+
+                return false;
+            }
+            while ((dp = readdir(de))) {
+                Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
+                Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+            }
+            closedir(de);
+        }
+#endif /* HAVE_OPENDIR */
+    }
+  tf = Yap_GetFromSlot(sl); 
+  return Yap_unify(ARG2, tf);
+}
+
 
 static Int same_file(USES_REGS1) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
@@ -588,13 +769,12 @@ static Int same_file(USES_REGS1) {
     }
     out = (b1->st_ino == b2->st_ino
 #ifdef __LCC__
-           &&
-           memcmp((const void *)&(b1->st_dev), (const void *)&(b2->st_dev),
-                  sizeof(buf1.st_dev)) == 0
+           && memcmp((const void *)&(b1->st_dev), (const void *)&(b2->st_dev),
+                     sizeof(buf1.st_dev)) == 0
 #else
            && b1->st_dev == b2->st_dev
 #endif
-           );
+    );
     return out;
   }
 #else
@@ -621,4 +801,5 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension,
                 SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
 }

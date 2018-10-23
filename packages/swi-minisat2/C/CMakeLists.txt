@@ -24,7 +24,7 @@ pl-minisat.C
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    ADD_LIBRARY(minisat2 SHARED ${MINISAT2_SOURCES} ${MINISAT2_HEADERS} )
+    ADD_LIB(minisat2  ${MINISAT2_SOURCES} ${MINISAT2_HEADERS} )
 
     set_target_properties (minisat2 PROPERTIES OUTPUT_NAME pl-minisat)
     set_target_properties (minisat2 PROPERTIES PREFIX   "")
@@ -43,9 +43,9 @@ pl-minisat.C
 
   install (
     TARGETS minisat2
-    RUNTIME DESTINATION ${bindir}
-    ARCHIVE  DESTINATION ${dlls}
-    LIBRARY  DESTINATION ${dlls}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BIINDIR}
+    ARCHIVE  DESTINATION ${YAP_INSTALL_DLLDIR}
+    LIBRARY  DESTINATION ${YAP_INSTALL_DLLDIR}
   )
 
 

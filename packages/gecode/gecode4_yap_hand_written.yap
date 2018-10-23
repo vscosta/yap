@@ -16,7 +16,7 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
-/** @defgroup Gecode Gecode Interface
+/** @addtogroup Gecode4 Gecode 4 Interface
 
 @ingroup packages
 @{

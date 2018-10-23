@@ -57,10 +57,13 @@ NOTICE_PROLOG="""%% -*- prolog -*-
 """
 
 def prolog_print_notice():
-    print NOTICE_PROLOG
+    print(NOTICE_PROLOG)
 
 def cc_print_notice():
-    print NOTICE_CC
+    print(NOTICE_CC)
+
+def islegal(a):
+    return a[0].islower() and a.replace("_","a").isalnum() or a[0] == '\'' and a[len(a)-1] == '\''
 
 class Type(object):
 
@@ -70,6 +73,7 @@ class Type(object):
     REFERENCE = re.compile("""^(.+)&$""")
 
     def __init__(self, text):
+        # type: (object) -> object
         if isinstance(text, Type):
             self.clone_from(text)
             return
@@ -128,6 +132,7 @@ class Constraint(object):
     ARG  = re.compile("""((?:[^,<(]|<[^>]*>|\([^)]*\))+),?""")
 
     def __init__(self, line):
+        # type: (object) -> object
         if isinstance(line, Constraint):
             self.clone_from(line)
             return
@@ -182,24 +187,28 @@ def load_decls(filename):
 class DeclsLoader(object):
 
     def __init__(self, filename):
+        # type: (object) -> object
         self.decls = load_decls(filename)
 
     def print_decls(self):
         for con in self.decls:
-            print str(con)
+            print(str(con))
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = ("VarBranchOptions",
-            "ValBranchOptions",
-            "TieBreakVarBranch<IntVarBranch>",
-            "TieBreak<IntVarBranch>",
-            "TieBreak<FloatVarBranch>",
-            "TieBreak<SetVarBranch>",
-            "TieBreakVarBranchOptions",
-            "TieBreakVarBranch<SetVarBranch>")
+    OMIT = ()
+        # "VarBranchOptions",
+        #     "ValBranchOptions",
+        #     "TieBreakVarBranch<IntVarBranch>",
+        #     "TieBreak<IntVarBranch>",
+        #     "TieBreak<FloatVarBranch>",
+        #     "TieBreak<SetVarBranch>",
+        #     "TieBreak<BoolVarBranch>",
+        #     "TieBreakVarBranchOptions",
+        #     "TieBreakVarBranch<SetVarBranch>")
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(PredGenerator, self).__init__(filename)
         self._change_home_to_space()
         self._change_intsharedarray_to_intargs()
@@ -285,11 +294,12 @@ class PredGenerator(DeclsLoader):
 
     def print_preds(self):
         for p in self.preds:
-            print str(p)
+            print(str(p))
 
 class Cluster(object):
 
     def __init__(self, name, arity):
+        # type: (object, object) -> object
         self.name = name
         self.arity = arity
         self.preds = []
@@ -298,6 +308,7 @@ class Cluster(object):
 class DTree(object):
 
     def __init__(self, i, preds, cluster):
+        # type: (object, object, object) -> object
         self.index = i
         self.cluster = cluster
         if len(preds) == 1 and len(preds[0].argtypes) == i:
@@ -316,7 +327,7 @@ class DTree(object):
                 dispatch[t.type] = d
             d.append(p)
         self.subtrees = tuple((t2,DTree(i+1,p2,cluster))
-                              for t2,p2 in dispatch.iteritems())
+                              for t2,p2 in dispatch.items())
 
     def _generate_body(self, user_vars, lib_vars):
         if self.is_leaf:
@@ -327,20 +338,27 @@ class DTree(object):
 
     def _generate_dispatch(self, i, user_vars, lib_vars):
         if i == len(self.subtrees):
-            return PrologLiteral("throw(gecode_argument_error(%s(%s),arg=%d))" \
-                                     % (self.cluster.name, ",".join(user_vars),
-                                        self.index+1))
+            ty = self.subtrees[i-1][0]
+            name = self.cluster.name
+            if not islegal(ty):
+                ty = "\'"+ty+"\'"
+            return PrologLiteral("throw(error(type_error(%s(X%d)),gecode_argument_error(%s(%s),arg=%d)))"  % (ty, self.index, name, ",".join(user_vars), self.index+1))
         typ, dtree = self.subtrees[i]
         idx = self.index
         X = user_vars[idx]
         Y = lib_vars[idx]
-        # hack for disjunctor support
         if typ=="Space":
             typ = "Space_or_Clause"
+        elif typ.startswith("std::function") and typ.endswith(")>"):
+            typ = "std_function"
+        elif typ.endswith(">"):
+            sp = typ.split("<")
+            if len(sp) > 1:
+                typ = sp[1].rstrip(">")
         return PrologIF(
-            PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
-            dtree._generate_body(user_vars, lib_vars),
-            self._generate_dispatch(i+1, user_vars, lib_vars))
+                    PrologLiteral("is_%s(%s,%s)" % (typ,X,Y)),
+                    dtree._generate_body(user_vars, lib_vars),
+                    self._generate_dispatch(i+1, user_vars, lib_vars))
 
     def _cc_descriptors(self, name, argtypes):
         if self.is_leaf:
@@ -353,6 +371,7 @@ class DTree(object):
 class YAPConstraintGeneratorBase(PredGenerator):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintGeneratorBase, self).__init__(filename)
         self._classify()
         self._dtreefy()
@@ -374,7 +393,7 @@ class YAPConstraintGeneratorBase(PredGenerator):
     # for each cluster, create a dtree
     def _dtreefy(self):
         dtrees = {}
-        for key, cluster in self.clusters.iteritems():
+        for key, cluster in self.clusters.items():
             dtree = DTree(0, cluster.preds, cluster)
             dtrees[key] = dtree
         self.dtrees = dtrees
@@ -388,11 +407,12 @@ class YAPConstraintGeneratorBase(PredGenerator):
 class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintPrologGenerator, self).__init__(filename)
 
     def _prolog_clauses(self):
         clauses = []
-        for (name, arity), dtree in self.dtrees.iteritems():
+        for (name, arity), dtree in self.dtrees.items():
             user_vars = self._user_vars(arity)
             lib_vars = self._lib_vars(arity)
             head = "%s(%s)" % (name, ",".join(user_vars))
@@ -409,11 +429,12 @@ class YAPConstraintPrologGenerator(YAPConstraintGeneratorBase):
 class YAPConstraintCCGenerator(YAPConstraintGeneratorBase):
 
     def __init__(self, filename):
+        # type: (object) -> object
         super(YAPConstraintCCGenerator, self).__init__(filename)
 
     def _cc_descriptors(self):
         descriptors = []
-        for (name, arity), dtree in self.dtrees.iteritems():
+        for (name, arity), dtree in self.dtrees.items():
             descriptors.extend(dtree._cc_descriptors(name,()))
         return descriptors
 
@@ -433,6 +454,7 @@ import sys
 class OStream(object):
 
     def __init__(self, fd=sys.stdout):
+        # type: (object) -> object
         self.file = fd
         self.column = 0
 
@@ -471,6 +493,7 @@ class PrologObject(object):
 class PrologClause(PrologObject):
 
     def __init__(self, head, body):
+        # type: (object, object) -> object
         self.head = head
         self.body = body
 
@@ -485,6 +508,7 @@ class PrologClause(PrologObject):
 class PrologLiteral(PrologObject):
 
     def __init__(self, lit):
+        # type: (object) -> object
         self.literal = lit
 
     def pp(self, out, offset):
@@ -494,6 +518,7 @@ class PrologLiteral(PrologObject):
 class PrologIF(PrologObject):
 
     def __init__(self, cond, left, right):
+        # type: (object, object, object) -> object
         self.cond = cond
         self.left = left
         self.right = right
@@ -536,24 +561,27 @@ class YAPEnumImpl(object):
 
     def _generate_atoms(self):
         for x in self.ENUM:
-            print "static YAP_Term gecode_%s;" % x
-        print
+            print("static YAP_Term gecode_%s;" % x)
+        print()
 
     def _generate_from_term(self):
-        print "static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,self.TYPE)
-        print "{"
+        t2 = self.TYPE
+        print("static %s gecode_%s_from_term(YAP_Term X)" % (self.TYPE,t2))
+        print("{")
         for x in self.ENUM:
-            print "  if (X==gecode_%s) return %s;" % (x,x)
-        print '  cerr << "this should never happen" << endl; exit(1);'
-        print "}"
-        print
+            print("  if (X==gecode_%s) return %s;" % (x,x))
+        print('  cerr << "this should never happen" << endl; exit(1);')
+        print("}")
+        print()
 
     def _generate_from_term_forward_decl(self):
-        print "static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,self.TYPE)
+        t2 =  self.TYPE
+        print("static %s gecode_%s_from_term(YAP_Term);" % (self.TYPE,t2))
 
 class YAPEnumImplGenerator(object):
 
     def generate(self):
+        # generate_space_function_forward()
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -562,6 +590,7 @@ class YAPEnumImplGenerator(object):
 class YAPEnumForwardGenerator(object):
 
     def generate(self):
+        # gsenerate_space_function_forward()
         for c in enum_classes():
             class C(c,YAPEnumImpl): pass
             o = C()
@@ -571,10 +600,10 @@ class YAPEnumInit(object):
 
     def generate(self):
         for x in self.ENUM:
-            print '{ YAP_Atom X= YAP_LookupAtom("%s");' % x
-            print '  gecode_%s = YAP_MkAtomTerm(X);' % x
-            print '  YAP_AtomGetHold(X); }'
-        print
+            print('{ YAP_Atom X= YAP_LookupAtom("%s");' % x)
+            print('  gecode_%s = YAP_MkAtomTerm(X);' % x)
+            print('  YAP_AtomGetHold(X); }')
+        print()
 
 class YAPEnumInitGenerator(object):
 
@@ -587,15 +616,22 @@ class YAPEnumInitGenerator(object):
 class YAPEnumProlog(object):
 
     def generate(self):
+        t = self.TYPE
+        if t.startswith("std::function") and t.endswith(")>"):
+            t = "std_function"
+        elif t.endswith(">"):
+            sp = t.split("<")
+            if len(sp) > 1:
+                t = sp[1].rstrip(">")
         for x in self.ENUM:
-            print "is_%s_('%s')." % (self.TYPE, x)
-        print
+            print("is_%s_('%s')." % (t, x))
+        print("\n")
         for x in self.ENUM:
-            print "is_%s_('%s','%s')." % (self.TYPE, x, x)
-        print
-        print "is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (self.TYPE,self.TYPE)
-        print "is_%s(X) :- is_%s(X,_)." % (self.TYPE,self.TYPE)
-        print
+            print("is_%s_('%s','%s')." % (t, x, x))
+        print("\n")
+        print("is_%s(X,Y) :- nonvar(X), is_%s_(X,Y)." % (t,t))
+        print("is_%s(X) :- is_%s_(X,_)." % (t,t))
+        print("\n")
 
 class YAPEnumPrologGenerator(object):
 
@@ -608,45 +644,60 @@ class YAPEnumPrologGenerator(object):
 class CCDescriptor(object):
 
     def __init__(self, name, argtypes, api):
+        # type: (object, object, object) -> object
         self.name = name
         self.argtypes = argtypes
         self.api = api
 
     def generate_impl(self):
-        print "static YAP_Bool gecode_constraint_%s(void)" % self.api
-        print "{"
+        print("static YAP_Bool gecode_constraint_%s(void)" % self.api)
+        print("{")
         i = 1
         args = []
         has_space = False
         for t in self.argtypes:
             v = "X%d" % i
+            v2 = v
             a = "YAP_ARG%d" % i
             if t=="Space":
                 v = "*space"
-                print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                print("  GenericSpace* space = gecode_Space_from_term(%s);" % (a))
                 has_space = True
+                v2 = v
             else:
+                t2 = t
+                if t.startswith("std::function") and t.endswith(")>"):
+                    sp = t.split("&")
+                    if len(sp) > 1:
+                        t2 = "std_function"
+                        v2 = v #sp[0]+"("+v+")"
+                elif t.endswith(">"):
+                    sp = t.split("<")
+                    if len(sp) > 1:
+                        t2 = sp[1].rstrip(">")
+                        v2 = v #sp[0]+"("+v+")"
                 extra = ""
-                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs"):
+                if t in ("IntVar","BoolVar","SetVar","FloatVar","IntVarArgs","BoolVarArgs","SetVarArgs","FloatVarArgs","std_function"):
                     extra = "space,"
                     if has_space == False:
-                        print "  GenericSpace* space = gecode_Space_from_term(%s);" % a
+                        print("  GenericSpace* space = gecode_Space_from_term(%s);" % a)
                         has_space = True
-                print "  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t,extra,a)
+                print("  %s %s = gecode_%s_from_term(%s%s);" % (t,v,t2,extra,a))
             args.append(v)
             i += 1
-        print "  %s(%s);" % (self.name, ",".join(args))
-        print "  return TRUE;"
-        print "}"
-        print
+        print("  %s(%s);" % (self.name, ",".join(args)))
+        print("  return TRUE;")
+        print("}")
+        print()
 
     def generate_init(self):
-        print 'YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
-            % (self.api, self.api, len(self.argtypes))
+        print('YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
+            % (self.api, self.api, len(self.argtypes)))
 
 GECODE_VERSION = None
 
 def gecode_version():
+    #import pdb; pdb.set_trace()
     global GECODE_VERSION
     if GECODE_VERSION is not None:
         return GECODE_VERSION
@@ -661,7 +712,7 @@ def gecode_version():
     pid = os.getpid()
     file_hh = "_gecode_version_%d.hh" % pid
     file_txt = "_gecode_version_%d.txt" % pid
-    f = file(file_hh,"w")
+    f = open(file_hh,"w")
     f.write("""#include "gecode/support/config.hpp"
 @@GECODE_VERSION""")
     f.close()
@@ -677,39 +728,39 @@ def gecode_version():
         os.remove(file_hh)
         os.remove(file_txt)
     else:
-        version = "5.0.0" 
+        version = "6.0.0"
     GECODE_VERSION = version
     return version
 
 def generate_files():
-    DIR = "../%s" % gecode_version()
+    DIR = "../" + gecode_version()
     import os, os.path
     DIR = os.path.abspath(DIR)
     if not os.path.exists(DIR):
         os.mkdir(DIR)
-    filename = "gecode-prototypes-%s.hh" % gecode_version()
+    filename = "gecode-prototypes-" + gecode_version() + ".hh"
     import sys
     stdout = sys.stdout
     try:
-        sys.stdout = file(os.path.join(DIR,"gecode-version.txt"),"w")
-        print gecode_version()
+        sys.stdout = open(os.path.join(DIR,"gecode-version.txt"),"w")
+        print(gecode_version())
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_auto_generated.yap"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_auto_generated.yap"),"w")
         prolog_print_notice()
         YAPEnumPrologGenerator().generate()
         YAPConstraintPrologGenerator(filename).generate()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_impl_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_impl_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumImplGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_impl()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_init_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_init_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumInitGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_init()
         sys.stdout.close()
-        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_forward_auto_generated.icc"),"w")
+        sys.stdout = open(os.path.join(DIR,"gecode_yap_cc_forward_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumForwardGenerator().generate()
         sys.stdout.close()

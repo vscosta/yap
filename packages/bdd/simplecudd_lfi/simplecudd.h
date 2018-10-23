@@ -185,6 +185,7 @@
 \******************************************************************************/
 
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -208,6 +209,9 @@
 #include "cudd/cuddInt.h"
 #elif HAVE_CUDDINT_H
 #include "cuddInt.h"
+#endif
+#ifdef VERSION
+#undef VERSION
 #endif
 
 #include "general.h"

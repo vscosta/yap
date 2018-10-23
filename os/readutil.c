@@ -109,7 +109,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
     max_inp -= (buf_sz - 1);
     if (max_inp <= 0) {
       UNLOCK(GLOBAL_Stream[sno].streamlock);
-      Yap_Error(RESOURCE_ERROR_STACK, ARG1, "read_line_to_codes/%d", arity);
+      PlIOError(RESOURCE_ERROR_STACK, ARG1, "read_line_to_codes/%d", arity);
       return FALSE;
     }
   }

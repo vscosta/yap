@@ -77,21 +77,23 @@ aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
 aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
-pred_name(Macro, Arity, _ , Name) :-
+pred_name(Macro, Arity, P , Name) :-
         prolog_load_context(file, FullFileName),
 	file_base_name( FullFileName, File ),
 	prolog_load_context(term_position, Pos),
 	stream_position_data( line_count, Pos, Line ), !,
 	transformation_id(Id),
-	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,' ',Id], Name).
-pred_name(Macro, Arity, _ , Name) :-
-	transformation_id(Id),
-	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,' ',Id], Name).
+	atomic_concat(['$$$ for ',Macro,'/',Arity,', line ',Line,' in ',File,'(',P,') #',Id], Name).
+pred_name(Macro, Arity, P , Name) :-
+    transformation_id(Id),
+	atomic_concat(['$$$__expansion__ for ',Macro,'/',Arity,'(',P,') #',Id], Name).
 
 transformation_id(Id) :-
-	retract(number_of_expansions(Id)),
-	Id1 is Id+1,
-	assert(number_of_expansions(Id1)).
+    retract(number_of_expansions(Id)),
+    !,
+    Id1 is Id+1,
+    assert(number_of_expansions(Id1)).
+transformation_id(0).
 
 %%	goal_expansion_allowed is semidet.
 %

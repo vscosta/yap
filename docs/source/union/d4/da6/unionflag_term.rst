@@ -1,0 +1,4 @@
+Union flagTerm
+==============
+
+.. doxygenunion:: flagTerm

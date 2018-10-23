@@ -15,15 +15,17 @@
 *									 *
 *************************************************************************/
 
-/** @file YapFlags.h
+/**
+ @file YapFlags.h
 
-    @addtogroup Flags
+@{
+    @addtogroup YAPFlags
 */
 
 #ifndef YAP_FLAGS_H
 #define YAP_FLAGS_H 1
 
-// INLINE_ONLY inline EXTERN  bool nat( Term inp );
+// INLINE_ONLY  bool nat( Term inp );
 
 #define SYSTEM_OPTION_0 "attributed_variables,rational_trees]"
 #if THREADS
@@ -101,7 +103,7 @@ static inline Term ro(Term inp) {
   return TermZERO;
 }
 
-INLINE_ONLY inline EXTERN Term aro(Term inp) {
+INLINE_ONLY Term aro(Term inp) {
   if (IsVarTerm(inp)) {
     Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
               "value must be bound");
@@ -114,9 +116,12 @@ INLINE_ONLY inline EXTERN Term aro(Term inp) {
   return TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN Term booleanFlag( Term inp );
+// INLINE_ONLY Term booleanFlag( Term inp );
 
 static inline Term booleanFlag(Term inp) {
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (inp == TermTrue || inp == TermOn)
     return TermTrue;
   if (inp == TermFalse || inp == TermOff)
@@ -137,17 +142,20 @@ static inline Term booleanFlag(Term inp) {
 }
 
 static Term synerr(Term inp) {
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (inp == TermDec10 || inp == TermFail || inp == TermError ||
       inp == TermQuiet)
     return inp;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag in {dec10,error,fail,quiet}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
-            "set_prolog_flag in {dec10,error,fail,quiet}");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp,
+            "syntax_error flag must be atom");
   return TermZERO;
 }
 
@@ -162,20 +170,7 @@ static inline Term list_filler(Term inp) {
   return TermZERO;
 }
 
-static Term bqs(Term inp) {
-  if (inp == TermCodes || inp == TermString || inp == TermSymbolChar)
-    return inp;
-
-  if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
-              "set_prolog_flag in {codes,string}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag in {codes,string}");
-  return TermZERO;
-}
-
-// INLINE_ONLY inline EXTERN  Term isatom( Term inp );
+// INLINE_ONLY  Term isatom( Term inp );
 
 static inline Term isatom(Term inp) {
   if (IsVarTerm(inp)) {
@@ -183,7 +178,22 @@ static inline Term isatom(Term inp) {
               "value must be bound");
     return TermZERO;
   }
+  if (IsStringTerm(inp)) {
+    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+  }
   if (IsAtomTerm(inp))
+    return inp;
+  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return TermZERO;
+}
+
+static inline Term isadress(Term inp) {
+  if (IsVarTerm(inp)) {
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    return TermZERO;
+  }
+  if (IsAddressTerm(inp))
     return inp;
   Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
   return TermZERO;
@@ -193,7 +203,11 @@ static inline Term options(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
 }
 
-// INLINE_ONLY inline EXTERN  Term ok( Term inp );
+static inline const char *                                                                                    rootdir(Term inp) {
+  return Yap_ROOTDIR;
+}
+
+// INLINE_ONLY  Term ok( Term inp );
 
 static inline Term ok(Term inp) { return inp; }
 
@@ -237,16 +251,35 @@ typedef union flagTerm {
 
 void Yap_InitFlags(bool);
 
-#define YAP_FLAG(x, NAME, WRITABLE, DEF, INIT, HELPER) x
+/**
+ @pred  yap_flag( ?Param, ?Value)
 
-typedef enum {
+
+Set or read system properties for  _Param_:
+*/
+
+
+#define YAP_FLAG(ITEM, NAME, WRITABLE, DEF, INIT, HELPER) ITEM
+#define START_LOCAL_FLAGS  enum THREAD_LOCAL_FLAGS {
+#define END_LOCAL_FLAGS };
+#define START_GLOBAL_FLAGS  enum GLOBAL_FLAGS {
+#define END_GLOBAL_FLAGS };
+
+/*  */
 #include "YapGFlagInfo.h"
-} global_flag_t;
 
-typedef enum {
+  /* Local flags */
 #include "YapLFlagInfo.h"
-} local_flag_t;
+
+#ifndef DOXYGEN
+
 #undef YAP_FLAG
+#undef START_LOCAL_FLAGS
+#undef END_LOCAL_FLAGS
+#undef START_GLOBAL_FLAGS
+#undef END_GLOBAL_FLAGS
+
+#endif
 
 bool setYapFlag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
@@ -300,7 +333,7 @@ static inline bool trueLocalPrologFlag(int id) {
   return LOCAL_Flags[id].at == TermTrue;
 }
 
-static inline bool falsePrologFlag(int id) {
+static inline bool falseLocalPrologFlag(int id) {
   CACHE_REGS
   return LOCAL_Flags[id].at == TermFalse;
 }
@@ -317,8 +350,15 @@ static inline bool silentMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at == TermSilent;
 }
 
+static inline bool verboseMode(void) {
+  return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
+}
+
+
 static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
+  if (val == TermSilent)
+    GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
@@ -334,17 +374,26 @@ static inline Term getSyntaxErrorsFlag(void) {
   return LOCAL_Flags[SYNTAX_ERRORS_FLAG].at;
 }
 
-static inline bool setBackQuotesFlag(Term val) {
-  if (!bqs(val))
-    return false;
-  if (val == TermSymbolChar)
-    val = TermString;
-  GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at = val;
+// used to overwrite singletons quoteFunc flag
+static inline bool setReadTermBackQuotesFlag(Term val) {
+
+  GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
   return true;
 }
 
-static inline Term getBackQuotesFlag(void) {
-  return GLOBAL_Flags[BACKQUOTED_STRING_FLAG].at;
+static inline Term getReadTermBackQuotesFlag(void) {
+  Term val;
+  unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+  if (flags & BCKQ_ATOM) {
+    val = TermAtom;
+  } else if (flags & BCKQ_STRING) {
+    val = TermString;
+  } else if (flags & BCKQ_CHARS) {
+    val = TermChars;
+  } else {
+    val = TermCodes;
+  }
+return GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
 }
 
 static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }
@@ -363,8 +412,20 @@ Term Yap_UnknownFlag(Term mod);
 
 bool rmdot(Term inp);
 
-xarg *Yap_ArgListToVector(Term listl, const param_t *def, int n);
+#define Yap_ArgListToVector(l, def, n, e)           \
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
-xarg *Yap_ArgList2ToVector(Term listl, const param2_t *def, int n);
+extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int lineno,Term listl, const param_t *def, int n,
+                          yap_error_number e);
+
+#define Yap_ArgListToVector(l, def, n, e)				\
+  Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
+
+extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
+
+#define Yap_ArgList2ToVector(l, def, n, e)           \
+  Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
 
 #endif // YAP_FLAGS_H
+
+/// @}

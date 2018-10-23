@@ -130,7 +130,7 @@ static int nope = 0; /* for use in asserts; shuts lint up */
 #define SET0(v, n) ((v)[n] = 0)
 #define SET1(v, n) ((v)[n] = 1)
 #define ISSET(v, n) ((v)[n])
-#define ASSIGN(d, s) memcpy(d, s, m->g->nstates)
+#define ASSIGN(d, s) memmove(d, s, m->g->nstates)
 #define EQ(a, b) (memcmp(a, b, m->g->nstates) == 0)
 #define STATEVARS                                                              \
   long vn;                                                                     \

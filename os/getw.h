@@ -11,7 +11,7 @@ static int post_process_f_weof(StreamDesc *st)
   } else {
     return post_process_weof(st);
   }
-    
+
 }
 
 /// compose a wide char from a sequence of getchars
@@ -89,7 +89,7 @@ extern int get_wchar(int sno) {
       if ( !utf_cont(c1) || !utf_cont(c2)) {
 	return encoding_error(ch, 2, st);
 	// Check for surrogate chars
-    
+
       }
       wch = ((ch & 0xf) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
       return post_process_read_wchar(wch, 3, st);
@@ -129,6 +129,7 @@ extern int get_wchar(int sno) {
         wch = wch + (((c3 << 8) + c2) << wch) + SURROGATE_OFFSET;
         return post_process_read_wchar(wch, 4, st);
       }
+    printf("%d %C\n", wch, wch);
       return post_process_read_wchar(wch, 2, st);
     }
 

@@ -466,7 +466,7 @@ int joincpu(int *p1, int *p2, int rLen, int sLen, int of1, int of2, list<rulenod
 	temp = fres;
 	for(x = 0; x < NUM_T; x++)
 	{
-		memcpy(temp, res[x].data(), ini[x] * sizeof(int));
+		memmove(temp, res[x].data(), ini[x] * sizeof(int));
 		temp += ini[x];
 	}
 

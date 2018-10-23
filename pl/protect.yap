@@ -14,12 +14,16 @@
 * comments:	protecting the system functions				 *
 *									 *
 *************************************************************************/
-
-:- system_module( '$_protect', [], ['$protect'/0]).
 /**
  * @file protect.yap
- * @addgroup ProtectCore Freeze System Configuration
- * @ingroup CoreUtilities
+*/
+
+:- system_module( '$_protect', [], ['$protect'/0]).
+
+/**
+ *  * @addtogroup ProtectCore Freeze System Configuration
+ * @{
+ * @ingroup YAPControl
  *
  * This protects current code from further changes
  *  and also makes it impossible for some predicates to be seen
@@ -30,29 +34,30 @@
  *  - fix system predicates
  *  - hide atoms with `$`
  */
- 
 
-'$protect' :-
+
+prolog:'$protect' :-
     '$all_current_modules'(M),
     ( sub_atom(M,0,1,_, '$') ; M= prolog; M= system ),
-    new_system_module( M ),    
+    new_system_module( M ),
     fail.
-'$protect' :-
+prolog:'$protect' :-
 	'$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
     sub_atom(Name,0,1,_, '$'),
     functor(P,Name,Arity),
-    '$hide_predicate'(P,M),
+%    '$hide_predicate'(P,M),
+    '$stash_predicate'(P,M),
     fail.
-'$protect' :-
+prolog:'$protect' :-
     current_atom(Name),
-    sub_atom(Name,0,1,_, '$'),
+	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.
-'$protect'.
+prolog:'$protect'.
 
 
 % hide all atoms who start by '$'
@@ -77,3 +82,5 @@
 '$visible'('$qq_open').
 '$visible'('$live').
 '$visible'('$init_prolog').
+'$visible'('$x_yap_flag' ).
+%% @}

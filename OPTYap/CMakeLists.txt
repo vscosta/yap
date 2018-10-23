@@ -1,22 +1,5 @@
 
-set (OPTYap_HEADERS
-	opt.config.h
-	opt.proto.h
-	opt.structs.h
-	opt.macros.h
-	or.macros.h
-	or.sba_amiops.h
-	or.sba_unify.h
-	tab.structs.h
-	locks_x86.h
-	locks_sparc.h
-	locks_mips.h
-	locks_mips_funcs.h
-	locks_alpha.h
-	locks_alpha_funcs.h
-	locks_pthread.h
 
-  )
   set (OPTYap_SOURCES
       	or.memory.c
     	opt.init.c
@@ -82,7 +65,7 @@ endif ()
 set (POSITION_INDEPENDENT_CODE TRUE)
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
-add_component (libOPTYap  
+add_component (libOPTYap
 		${OPTYap_SOURCES} )
 
 

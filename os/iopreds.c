@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		iopreds.c *
-* Last rev:	5/2/88							 *
-* mods: *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		iopreds.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -28,53 +28,69 @@ static char SccsId[] = "%W% %G%";
  */
 /*
  * This file includes the definition of a miscellania of standard predicates *
- *for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
+ *for yap refering to: Files and GLOBAL_1588
+ *ams, Simple Input/Output,
  *
  */
 
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 #include <stdlib.h>
+
 #if HAVE_UNISTD_H
+
 #include <unistd.h>
+
 #endif
 #if HAVE_STDARG_H
+
 #include <stdarg.h>
+
 #endif
 #if HAVE_CTYPE_H
-#include <ctype.h>
 #endif
 #if HAVE_WCTYPE_H
-#include <wctype.h>
 #endif
 #if HAVE_SYS_TIME_H
+
 #include <sys/time.h>
+
 #endif
 #if HAVE_SYS_TYPES_H
+
 #include <sys/types.h>
+
 #endif
 #ifdef HAVE_SYS_STAT_H
+
 #include <sys/stat.h>
+
 #endif
 #if HAVE_SYS_SELECT_H && !_MSC_VER && !defined(__MINGW32__)
+
 #include <sys/select.h>
+
 #endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
 #endif
 #if HAVE_STRING_H
+
 #include <string.h>
+
 #endif
 #if HAVE_SIGNAL_H
+
 #include <signal.h>
+
 #endif
 #if HAVE_FCNTL_H
 /* for O_BINARY and O_TEXT in WIN32 */
 #include <fcntl.h>
+
 #endif
 #ifdef _WIN32
 #if HAVE_IO_H
@@ -184,6 +200,62 @@ static Term is_file_errors(Term t) {
   return TermZERO;
 }
 
+int ResetEOF(StreamDesc *s) {
+  if (s->status & Eof_Error_Stream_f) {
+    Atom name = s->name;
+    // Yap_CloseStream(s - GLOBAL_Stream);
+    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
+              "GetC");
+    return FALSE;
+  } else if (s->status & Reset_Eof_Stream_f) {
+    s->status &= ~Push_Eof_Stream_f;
+    /* reset the eof indicator on file */
+    if (feof(s->file))
+      clearerr(s->file);
+    /* reset our function for reading input */
+    Yap_DefaultStreamOps(s);
+    /* next, reset our own error indicator */
+    s->status &= ~Eof_Stream_f;
+    /* try reading again */
+    return TRUE;
+  } else {
+    s->status |= Past_Eof_Stream_f;
+    return FALSE;
+  }
+}
+
+/* handle reading from a stream after having found an EOF */
+static int EOFWGetc(int sno) {
+  register StreamDesc *s = &GLOBAL_Stream[sno];
+
+  if (s->status & Push_Eof_Stream_f) {
+    /* ok, we have pushed an EOF, send it away */
+    s->status &= ~Push_Eof_Stream_f;
+    return EOF;
+  }
+  if (ResetEOF(s)) {
+    Yap_DefaultStreamOps(s);
+    return (s->stream_wgetc(sno));
+  }
+  return EOF;
+}
+
+static int EOFGetc(int sno) {
+  register StreamDesc *s = &GLOBAL_Stream[sno];
+
+  if (s->status & Push_Eof_Stream_f) {
+    /* ok, we have pushed an EOF, send it away */
+    s->status &= ~Push_Eof_Stream_f;
+    ResetEOF(s);
+    return EOF;
+  }
+  if (ResetEOF(s)) {
+    Yap_DefaultStreamOps(s);
+    return s->stream_getc(sno);
+  }
+  return EOF;
+}
+
 static void unix_upd_stream_info(StreamDesc *s) {
   if (s->status & InMemory_Stream_f) {
     s->status |= Seekable_Stream_f;
@@ -211,7 +283,7 @@ static void unix_upd_stream_info(StreamDesc *s) {
 #if HAVE_ISATTY
 #if __simplescalar__
   /* isatty does not seem to work with simplescar. I'll assume the first
-   three streams will probably be ttys (pipes are not thatg different) */
+     three streams will probably be ttys (pipes are not thatg different) */
   if (s - Stream < 3) {
     s->name = AtomTty;
     s->status |= Tty_Stream_f | Reset_Eof_Stream_f | Promptable_Stream_f;
@@ -244,33 +316,79 @@ static void unix_upd_stream_info(StreamDesc *s) {
   s->status |= Seekable_Stream_f;
 }
 
-void Yap_DefaultStreamOps(StreamDesc *st) {
-  CACHE_REGS
-  st->stream_wputc = put_wchar;
-  st->stream_wgetc = get_wchar_UTF8;
-  st->stream_putc = FilePutc;
-  st->stream_getc = PlGetc;
-  if (st->status & (Promptable_Stream_f)) {
-    Yap_ConsoleOps(st);
+static void default_peek(StreamDesc *st) {
+  {
+    st->stream_peek = Yap_peekChar;
+    st->stream_wpeek = Yap_peekWide;
   }
-#ifndef _WIN32
-  else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
-    st->stream_wgetc = get_wchar_from_file;
+  if (st->status & Eof_Stream_f) {
+    st->stream_peek = EOFPeek;
+    st->stream_wpeek = EOFPeek;
+    st->stream_getc = EOFGetc;
+    st->stream_wgetc = EOFWGetc;
   }
-#endif
   if (GLOBAL_CharConversionTable != NULL)
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc;
-  if (st->status & Pipe_Stream_f) {
-    Yap_PipeOps(st);
-  } else if (st->status & InMemory_Stream_f) {
-    Yap_MemOps(st);
-  } else if (st->status & Tty_Stream_f) {
-    Yap_ConsoleOps(st);
+}
+
+void Yap_DefaultStreamOps(StreamDesc *st) {
+  CACHE_REGS
+
+  st->stream_wputc = put_wchar;
+  st->stream_wgetc = get_wchar;
+  if (st->vfs && !st->file) {
+    st->stream_putc = st->vfs->put_char;
+    st->stream_wputc = st->vfs->put_wchar;
+    st->stream_getc = st->vfs->get_char;
+    st->stream_wgetc = st->vfs->get_wchar;
+    default_peek(st);
+    return;
   } else {
-    unix_upd_stream_info(st);
+    if (st->encoding == ENC_ISO_UTF8)
+      st->stream_wgetc = get_wchar_UTF8;
+    st->stream_putc = FilePutc;
+    st->stream_getc = PlGetc;
+    if (st->status & Pipe_Stream_f) {
+      Yap_PipeOps(st);
+    } else if (st->status & InMemory_Stream_f) {
+      Yap_MemOps(st);
+    } else if (st->status & Tty_Stream_f) {
+      Yap_ConsoleOps(st);
+    } else {
+      unix_upd_stream_info(st);
+    }
+    if (st->status & (Promptable_Stream_f)) {
+      Yap_ConsoleOps(st);
+    }
+#ifndef _WIN32
+    else if (st->file != NULL && 0 && !(st->status & InMemory_Stream_f)) {
+      st->stream_wgetc = get_wchar_from_file;
+    }
+#endif
+    if (st->buf.on) {
+      st->stream_getc = Yap_popChar;
+      st->stream_wgetc = Yap_popChar;
+    }
   }
+#if USE_READLINE
+  if (st->status & Readline_Stream_f) {
+    st->stream_peek = Yap_ReadlinePeekChar;
+    st->stream_wpeek = Yap_ReadlinePeekChar;
+  }
+
+  /* else {
+     st->stream_peek = Yap_peekWithGetc;
+     st->stream_wpeek = Yap_peekWideWithGetwc;
+     }
+     } else if (st->status & Seekable_Stream_f) {
+     st->stream_peek = Yap_peekWithSeek;
+     st->stream_wpeek = Yap_peekWideWithSeek;
+     } */
+  else
+#endif
+    default_peek(st);
 }
 
 static void InitFileIO(StreamDesc *s) {
@@ -278,19 +396,23 @@ static void InitFileIO(StreamDesc *s) {
   Yap_DefaultStreamOps(s);
 }
 
-static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
+static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file, VFS_t *vfsp) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   s->file = file;
   s->status = flags;
   s->linepos = 0;
   s->linecount = 1;
-  s->charcount = 0.;
+  s->charcount = 0;
+  s->vfs = vfsp;
+  s->buf.on = false;
   s->encoding = ENC_ISO_UTF8;
   INIT_LOCK(s->streamlock);
-  unix_upd_stream_info(s);
+  if (vfsp == NULL) {
+    unix_upd_stream_info(s);
+  }
   /* Getting streams to prompt is a mess because we need for cooperation
-   between readers and writers to the stream :-(
-   */
+     between readers and writers to the stream :-(
+  */
   InitFileIO(s);
   switch (sno) {
   case 0:
@@ -307,15 +429,20 @@ static void InitStdStream(int sno, SMALLUNSGN flags, FILE *file) {
 #if LIGHT
   s->status |= Tty_Stream_f | Promptable_Stream_f;
 #endif
+  s->buf.on = false;
   Yap_DefaultStreamOps(s);
 #if HAVE_SETBUF
   if (s->status & Tty_Stream_f && sno == 0) {
     /* make sure input is unbuffered if it comes from stdin, this
-     makes life simpler for interrupt handling */
+       makes life simpler for interrupt handling */
     setbuf(stdin, NULL);
     //    fprintf(stderr,"here I am\n");
   }
 #endif /* HAVE_SETBUF */
+}
+
+void Yap_InitStdStream(int sno, unsigned int flags, FILE *file, VFS_t *vfsp) {
+  InitStdStream(sno, flags, file, vfsp);
 }
 
 Term Yap_StreamUserName(int sno) {
@@ -332,13 +459,13 @@ Term Yap_StreamUserName(int sno) {
 static void InitStdStreams(void) {
   CACHE_REGS
   if (LOCAL_sockets_io) {
-    InitStdStream(StdInStream, Input_Stream_f, NULL);
-    InitStdStream(StdOutStream, Output_Stream_f, NULL);
-    InitStdStream(StdErrStream, Output_Stream_f, NULL);
+    InitStdStream(StdInStream, Input_Stream_f, NULL, NULL);
+    InitStdStream(StdOutStream, Output_Stream_f, NULL, NULL);
+    InitStdStream(StdErrStream, Output_Stream_f, NULL, NULL);
   } else {
-    InitStdStream(StdInStream, Input_Stream_f, stdin);
-    InitStdStream(StdOutStream, Output_Stream_f, stdout);
-    InitStdStream(StdErrStream, Output_Stream_f, stderr);
+    InitStdStream(StdInStream, Input_Stream_f, stdin, NULL);
+    InitStdStream(StdOutStream, Output_Stream_f, stdout, NULL);
+    InitStdStream(StdErrStream, Output_Stream_f, stderr, NULL);
   }
   GLOBAL_Stream[StdInStream].name = Yap_LookupAtom("user_input");
   GLOBAL_Stream[StdOutStream].name = Yap_LookupAtom("user_output");
@@ -346,8 +473,7 @@ static void InitStdStreams(void) {
 #if USE_READLINE
   if (GLOBAL_Stream[StdInStream].status & Tty_Stream_f &&
       GLOBAL_Stream[StdOutStream].status & Tty_Stream_f &&
-      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f &&
-      ! Yap_embedded) {
+      GLOBAL_Stream[StdErrStream].status & Tty_Stream_f && !Yap_Embedded) {
     Yap_InitReadline(TermTrue);
   }
 #endif
@@ -374,10 +500,12 @@ Int PlIOError__(const char *file, const char *function, int lineno,
       who[0] = '\0';
     }
     va_end(args);
-    Yap_Error__(file, function, lineno, type, culprit, who);
+    Yap_Error__(false, file, function, lineno, type, culprit, who);
     /* and fail */
     return false;
   } else {
+    pop_text_stack(0);
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
     return false;
   }
 }
@@ -443,13 +571,13 @@ int Yap_DebugGetc() {
 int Yap_DebugPutc(FILE *s, wchar_t ch) {
   if (Yap_Option['l' - 96])
     (void)putc(ch, Yap_logfile);
-  return (putc(ch, s));
+  return (putc(ch, stderr));
 }
 
 int Yap_DebugPuts(FILE *s, const char *sch) {
   if (Yap_Option['l' - 96])
     (void)fputs(sch, Yap_logfile);
-  return fputs(sch, s);
+  return fputs(sch, stderr);
 }
 
 void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
@@ -545,62 +673,6 @@ static int NullPutc(int sno, int ch) {
   return ((int)ch);
 }
 
-int ResetEOF(StreamDesc *s) {
-  if (s->status & Eof_Error_Stream_f) {
-    Atom name = s->name;
-    // Yap_CloseStream(s - GLOBAL_Stream);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, MkAtomTerm(name),
-              "GetC");
-    return FALSE;
-  } else if (s->status & Reset_Eof_Stream_f) {
-    s->status &= ~Push_Eof_Stream_f;
-    /* reset the eof indicator on file */
-    if (feof(s->file))
-      clearerr(s->file);
-    /* reset our function for reading input */
-    Yap_DefaultStreamOps(s);
-    /* next, reset our own error indicator */
-    s->status &= ~Eof_Stream_f;
-    /* try reading again */
-    return TRUE;
-  } else {
-    s->status |= Past_Eof_Stream_f;
-    return FALSE;
-  }
-}
-
-/* handle reading from a stream after having found an EOF */
-static int EOFWGetc(int sno) {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
-    return (s->stream_wgetc(sno));
-  }
-  return EOF;
-}
-
-static int EOFGetc(int sno) {
-  register StreamDesc *s = &GLOBAL_Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    ResetEOF(s);
-    return EOF;
-  }
-  if (ResetEOF(s)) {
-    Yap_DefaultStreamOps(s);
-    return s->stream_getc(sno);
-  }
-  return EOF;
-}
-
 /* check if we read a LOCAL_newline or an EOF */
 int console_post_process_eof(StreamDesc *s) {
   CACHE_REGS
@@ -648,6 +720,8 @@ int post_process_weof(StreamDesc *s) {
   return EOFCHAR;
 }
 
+void *Yap_RepStreamFromId(int sno) { return GLOBAL_Stream + (sno); }
+
 /**
  * caled after EOF found a peek, it just calls console_post_process to
  *conclude
@@ -662,8 +736,8 @@ int EOFPeek(int sno) { return EOFCHAR; }
 int EOFWPeek(int sno) { return EOFCHAR; }
 
 /* standard routine, it should read from anything pointed by a FILE *.
- It could be made more efficient by doing our own buffering and avoiding
- post_process_read_char, something to think about */
+   It could be made more efficient by doing our own buffering and avoiding
+   post_process_read_char, something to think about */
 int PlGetc(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   return fgetc(s->file);
@@ -889,7 +963,7 @@ static int binary_file(const char *file_name) {
 #endif
   {
     /* ignore errors while checking a file */
-    return (FALSE);
+    return false;
   }
   return (S_ISDIR(ss.st_mode));
 #else
@@ -954,24 +1028,28 @@ static int write_bom(int sno, StreamDesc *st) {
 
 static void check_bom(int sno, StreamDesc *st) {
   int ch1, ch2, ch3, ch4;
-
-  ch1 = fgetc(st->file);
+  if (st->file == NULL) {
+    PlIOError(SYSTEM_ERROR_INTERNAL, Yap_MkStream(sno),
+              "YAP does not support BOM n %x type of files", st->status);
+    return;
+  }
+  ch1 = st->stream_getc(sno);
   switch (ch1) {
   case 0x00: {
-    ch2 = fgetc(st->file);
+    ch2 = st->stream_getc(sno);
     if (ch2 != 0x00) {
       ungetc(ch1, st->file);
       ungetc(ch2, st->file);
       return;
     } else {
-      ch3 = fgetc(st->file);
+      ch3 = st->stream_getc(sno);
       if (ch3 == EOFCHAR || ch3 != 0xFE) {
         ungetc(ch1, st->file);
         ungetc(ch2, st->file);
         ungetc(ch3, st->file);
         return;
       } else {
-        ch4 = fgetc(st->file);
+        ch4 = st->stream_getc(sno);
         if (ch4 == EOFCHAR || ch3 != 0xFF) {
           ungetc(ch1, st->file);
           ungetc(ch2, st->file);
@@ -1048,11 +1126,33 @@ static void check_bom(int sno, StreamDesc *st) {
   }
 }
 
-bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
-                    encoding_t encoding, stream_flags_t flags, Atom open_mode) {
+bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
+                    Term file_name, encoding_t encoding, stream_flags_t flags,
+                    void *vfs) {
+  // fprintf(stderr,"+ %s --> %d\n", name, sno);
   StreamDesc *st = &GLOBAL_Stream[sno];
-  st->status = flags;
+  __android_log_print(
+      ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>", io_mode,
+      CurrentModule == 0 ? "prolog"
+                         : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
+      name, sno);
+  if (io_mode == NULL)
+    Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
+              "File opened with NULL Permissions");
+  if (strchr(io_mode, 'a')) {
+    st->status = Append_Stream_f | Output_Stream_f | flags;
+  } else if (strchr(io_mode, 'w')) {
+    st->status = Output_Stream_f | flags;
+  }
+  if (strchr(io_mode, 'r')) {
+    st->status = Input_Stream_f | flags;
+  }
+  if (strchr(io_mode, 'b')) {
+    st->status = Binary_Stream_f | flags;
+  }
 
+  // st->vfs = vfs;
+  st->buf.on = false;
   st->charcount = 0;
   st->linecount = 1;
   if (flags & Binary_Stream_f) {
@@ -1061,12 +1161,10 @@ bool Yap_initStream(int sno, FILE *fd, const char *name, Term file_name,
     st->encoding = encoding;
   }
 
-  if (name == NULL) {
-    char buf[YAP_FILENAME_MAX + 1];
-    name = Yap_guessFileName(fd, sno, buf, YAP_FILENAME_MAX);
-    if (name)
-      st->name = Yap_LookupAtom(name);
-  }
+  st->name = Yap_guessFileName(fd, sno, YAP_FILENAME_MAX);
+  if (!st->name)
+    Yap_Error(SYSTEM_ERROR_INTERNAL, file_name,
+              "Yap_guessFileName failed: opening a file without a name");
   st->user_name = file_name;
   st->file = fd;
   st->linepos = 0;
@@ -1130,93 +1228,148 @@ typedef enum open_enum_choices { OPEN_DEFS() } open_choices_t;
 static const param_t open_defs[] = {OPEN_DEFS()};
 #undef PAR
 
-static Int
-do_open(Term file_name, Term t2,
-        Term tlist USES_REGS) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
-  Atom open_mode;
-  int sno;
-  SMALLUNSGN s;
-  char io_mode[8];
-  StreamDesc *st;
-  bool avoid_bom = false, needs_bom = false;
+static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
+                        Term user_name, encoding_t enc) {
+  struct vfs *vfsp = NULL;
   const char *fname;
-  char fbuf[FILENAME_MAX];
-  stream_flags_t flags;
-  FILE *fd;
-  const char *s_encoding;
-  encoding_t encoding;
-  Term tenc;
-  // original file name
-  if (IsVarTerm(file_name)) {
-    Yap_Error(INSTANTIATION_ERROR, file_name, "open/3");
-    return FALSE;
-  }
-  if (!IsAtomTerm(file_name)) {
-    if (IsStringTerm(file_name)) {
-      fname = (char *)StringOfTerm(file_name);
+
+  if (IsAtomTerm(tin))
+    fname = RepAtom(AtomOfTerm(tin))->StrOfAE;
+  else if (IsStringTerm(tin))
+    fname = StringOfTerm(tin);
+  else
+    fname = NULL;
+
+  st->file = NULL;
+  if (fname) {
+    if ((vfsp = vfs_owner(fname)) != NULL &&
+        vfsp->open(vfsp, fname, io_mode, sno)) {
+      // read, write, append
+      user_name = st->user_name;
+      st->vfs = vfsp;
+      UNLOCK(st->streamlock);
     } else {
-      Yap_Error(DOMAIN_ERROR_SOURCE_SINK, file_name, "open/3");
-      return FALSE;
+      st->file = fopen(fname, io_mode);
+      if (st->file == NULL) {
+        UNLOCK(st->streamlock);
+        if (errno == ENOENT && !strchr(io_mode, 'r')) {
+          PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        } else {
+          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
+                    strerror(errno));
+        }
+      }
+      st->vfs = NULL;
     }
-  } else {
-    fname = RepAtom(AtomOfTerm(file_name))->StrOfAE;
+    if (!st->file && !st->vfs) {
+      PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
+      /* extract BACK info passed through the stream descriptor */
+      return false;
+    }
+  } else if (IsApplTerm(tin)) {
+    Functor f = FunctorOfTerm(tin);
+    if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
+      if (strchr(io_mode, 'r')) {
+        return Yap_OpenBufWriteStream(PASS_REGS1);
+      } else {
+        int j = push_text_stack();
+        const char *buf;
+
+        buf = Yap_TextTermToText(tin PASS_REGS);
+        if (!buf) {
+          pop_text_stack(j);
+          return false;
+        }
+        buf = pop_output_text_stack(j, buf);
+        Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
+        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+                                       MEM_BUF_MALLOC, nat,
+                                       MkAtomTerm(NameOfFunctor(f)));
+        pop_text_stack(j);
+        return Yap_OpenBufWriteStream(PASS_REGS1);
+      }
+    } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
+      const char *buf;
+      int i = push_text_stack();
+      buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
+      if (buf == NULL) {
+        return false;
+      }
+#if _WIN32
+      st->file = _popen(buf, io_mode);
+#else
+      st->file = popen(buf, io_mode);
+#endif
+      fname = "popen";
+      user_name = tin;
+      st->status |= Popen_Stream_f;
+      pop_text_stack(i);
+    } else {
+      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
+    }
+  }
+  if (!strchr(io_mode, 'b') && binary_file(fname)) {
+    st->status |= Binary_Stream_f;
+  }
+  Yap_initStream(sno, st->file, Yap_LookupAtom(fname), io_mode, user_name,
+                 LOCAL_encoding, st->status, vfsp);
+  return true;
+}
+
+static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
+  Atom open_mode;
+  bool avoid_bom = false, needs_bom = false;
+  Term tenc;
+  char io_mode[8];
+  int sno = GetFreeStreamD();
+  if (sno < 0)
+    return (PlIOError(RESOURCE_ERROR_MAX_STREAMS, file_name,
+                      "new stream not available for opening"));
+  StreamDesc *st = GLOBAL_Stream + sno;
+  memset(st, 0, sizeof(*st));
+  // user requested encoding?
+  // BOM mess
+  st->encoding = LOCAL_encoding;
+  if (st->encoding == ENC_UTF16_BE || st->encoding == ENC_UTF16_LE ||
+      st->encoding == ENC_UCS2_BE || st->encoding == ENC_UCS2_LE ||
+      st->encoding == ENC_ISO_UTF32_BE || st->encoding == ENC_ISO_UTF32_LE) {
+    st->status |= HAS_BOM_f;
+  }
+
+  st->user_name = Deref(file_name);
+  if (IsVarTerm(file_name)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, file_name,
+                   "while opening a list of options");
   }
   // open mode
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "open/3");
-    return FALSE;
+    return false;
   }
   if (!IsAtomTerm(t2)) {
     if (IsStringTerm(t2)) {
       open_mode = Yap_LookupAtom(StringOfTerm(t2));
     } else {
       Yap_Error(TYPE_ERROR_ATOM, t2, "open/3");
-      return (FALSE);
+      return false;
     }
   } else {
     open_mode = AtomOfTerm(t2);
   }
-  // read, write, append
-  if (open_mode == AtomRead) {
-    strncpy(io_mode, "rb", 8);
-    s = Input_Stream_f;
-  } else if (open_mode == AtomWrite) {
-    strncpy(io_mode, "w", 8);
-    s = Output_Stream_f;
-  } else if (open_mode == AtomAppend) {
-    strncpy(io_mode, "a", 8);
-    s = Append_Stream_f | Output_Stream_f;
-  } else {
-    Yap_Error(DOMAIN_ERROR_IO_MODE, t2, "open/3");
-    return (FALSE);
-  }
   /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, open_defs, OPEN_END);
+  xarg *args =
+      Yap_ArgListToVector(tlist, open_defs, OPEN_END, DOMAIN_ERROR_OPEN_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_OPEN_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, "option handling in open/3");
     }
     return false;
   }
   /* done */
-  sno = GetFreeStreamD();
-  if (sno < 0) {
-    free(args);
-    return PlIOError(RESOURCE_ERROR_MAX_STREAMS, TermNil, "open/3");
-  }
-  st = &GLOBAL_Stream[sno];
-  st->user_name = file_name;
-  flags = s;
-  // user requested encoding?
-  if (args[OPEN_ALIAS].used) {
-    Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
-    if (!Yap_AddAlias(al, sno)) {
-      free(args);
-      return false;
-    }
-  }
+  st->status = 0;
+  const char *s_encoding;
   if (args[OPEN_ENCODING].used) {
     tenc = args[OPEN_ENCODING].tvalue;
     s_encoding = RepAtom(AtomOfTerm(tenc))->StrOfAE;
@@ -1224,23 +1377,37 @@ do_open(Term file_name, Term t2,
     s_encoding = "default";
   }
   // default encoding, no bom yet
-  encoding = enc_id(s_encoding, ENC_OCTET);
+  st->encoding = enc_id(s_encoding, ENC_OCTET);
   // only set encoding after getting BOM
+  char const *fname0;
   bool ok = (args[OPEN_EXPAND_FILENAME].used
                  ? args[OPEN_EXPAND_FILENAME].tvalue == TermTrue
                  : false) ||
             trueGlobalPrologFlag(OPEN_EXPANDS_FILENAME_FLAG);
-  // expand file name?
-  fname = Yap_AbsoluteFile(fname, fbuf, ok);
-  if (fname) {
-    st->name = Yap_LookupAtom(fname);
-  } else {
-    PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
+  if (ok) {
+    if (((IsAtomTerm(file_name) &&
+          (fname0 = RepAtom(AtomOfTerm(file_name))->StrOfAE))) ||
+        (IsStringTerm(file_name) && (fname0 = StringOfTerm(file_name)))) {
+      int lvl = push_text_stack();
+      const char *fname = Yap_AbsoluteFile(fname0, ok);
+      file_name = MkAtomTerm(Yap_LookupAtom(fname));
+      if (!fname) {
+        pop_text_stack(lvl);
+        PlIOError(EXISTENCE_ERROR_SOURCE_SINK, ARG1, NULL);
+      }
+    }
   }
-
   // Skip scripts that start with !#/.. or similar
-  bool script =
-      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
+
+  if (open_mode == AtomRead) {
+    strncpy(io_mode, "r", 8);
+  } else if (open_mode == AtomWrite) {
+    strncpy(io_mode, "w", 8);
+  } else if (open_mode == AtomAppend) {
+    strncpy(io_mode, "a", 8);
+  } else {
+    return false;
+  }
   // binary type
   if (args[OPEN_TYPE].used) {
     Term t = args[OPEN_TYPE].tvalue;
@@ -1249,8 +1416,8 @@ do_open(Term file_name, Term t2,
 #ifdef _WIN32
       strncat(io_mode, "b", 8);
 #endif
-      flags |= Binary_Stream_f;
-      encoding = ENC_OCTET;
+      st->status |= Binary_Stream_f;
+      st->encoding = ENC_OCTET;
       avoid_bom = true;
       needs_bom = false;
     } else if (t == TermText) {
@@ -1259,16 +1426,17 @@ do_open(Term file_name, Term t2,
 #endif
       /* note that this matters for UNICODE style  conversions */
     } else {
-      Yap_Error(DOMAIN_ERROR_STREAM, tlist,
+      Yap_Error(DOMAIN_ERROR_STREAM_OPTION, t,
                 "type is ~a, must be one of binary or text", t);
     }
   }
-  // BOM mess
-  if (encoding == ENC_UTF16_BE || encoding == ENC_UTF16_LE ||
-      encoding == ENC_UCS2_BE || encoding == ENC_UCS2_LE ||
-      encoding == ENC_ISO_UTF32_BE || encoding == ENC_ISO_UTF32_LE) {
-    needs_bom = true;
+
+  st = &GLOBAL_Stream[sno];
+
+  if (!fill_stream(sno, st, file_name, io_mode, st->user_name, st->encoding)) {
+    return false;
   }
+
   if (args[OPEN_BOM].used) {
     if (args[OPEN_BOM].tvalue == TermTrue) {
       avoid_bom = false;
@@ -1278,50 +1446,40 @@ do_open(Term file_name, Term t2,
       needs_bom = false;
     }
   }
-  if (st - GLOBAL_Stream < 3) {
-    flags |= RepError_Prolog_f;
-  }
-  if ((fd = fopen(fname, io_mode)) == NULL ||
-      (!(flags & Binary_Stream_f) && binary_file(fname))) {
-    strncpy(LOCAL_FileNameBuf, fname, MAXPATHLEN);
-    if (fname != fbuf)
-      freeBuffer((void *)fname);
-    fname = LOCAL_FileNameBuf;
-    UNLOCK(st->streamlock);
-    if (errno == ENOENT) {
+  bool script =
+      (args[OPEN_SCRIPT].used ? args[OPEN_SCRIPT].tvalue == TermTrue : false);
+
+  if (args[OPEN_ALIAS].used) {
+    Atom al = AtomOfTerm(args[OPEN_ALIAS].tvalue);
+    if (!Yap_AddAlias(al, sno)) {
       free(args);
-      return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name, "%s: %s", fname,
-                        strerror(errno)));
-    } else {
-      return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, file_name, "%s: %s",
-                        fname, strerror(errno)));
+      return false;
     }
+  }
+  if (st - GLOBAL_Stream < 3) {
+    st->status |= RepError_Prolog_f;
   }
 #if MAC
   if (open_mode == AtomWrite) {
     Yap_SetTextFile(RepAtom(AtomOfTerm(file_name))->StrOfAE);
   }
 #endif
-  //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s", fname);
-  flags &= ~(Free_Stream_f);
-  if (!Yap_initStream(sno, fd, fname, file_name, encoding, flags, open_mode))
+  // interactive streams do not have a start, so they probably don't have
+  // a BOM
+  avoid_bom = avoid_bom || (st->status & Tty_Stream_f);
+  if (needs_bom && !write_bom(sno, st)) {
     return false;
-  if (open_mode == AtomWrite) {
-    if (needs_bom && !write_bom(sno, st))
-      return false;
   } else if (open_mode == AtomRead && !avoid_bom) {
     check_bom(sno, st); // can change encoding
+    // follow declaration unless there is v
+    if (st->status & HAS_BOM_f) {
+      st->encoding = enc_id(s_encoding, st->encoding);
+    }
   }
-  // follow declaration unless there is v
-  if (st->status & HAS_BOM_f)
-    st->encoding = enc_id(s_encoding, st->encoding);
-  else
-    st->encoding = encoding;
   Yap_DefaultStreamOps(st);
-  if (script)
+  if (script) {
     open_header(sno, open_mode);
-  if (fname != fbuf)
-    freeBuffer(fname);
+  }
 
   free(args);
   UNLOCK(st->streamlock);
@@ -1334,96 +1492,97 @@ do_open(Term file_name, Term t2,
 /** @pred  open(+ _F_,+ _M_,- _S_) is iso
 
 
-Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
-`append`), returning  _S_ unified with the stream name.
+    Opens the file with name  _F_ in mode  _M_ (`read`, `write` or
+    `append`), returning  _S_ unified with the stream name.
 
-Yap allows 64 streams opened at the same time. If you need more,
- redefine the MaxStreams constant.  Each stream is either an input or
- an output stream but not both. There are always 3 open streams:
- user_input for reading, user_output for writing and user_error for
- writing. If there is no ambiguity, the atoms user_input and
- user_output may be referred to as `user`.
+    Yap allows 64 streams opened at the same time. If you need more,
+    redefine the MaxStreams constant.  Each stream is either an input or
+    an output stream but not both. There are always 3 open streams:
+    user_input for reading, user_output for writing and user_error for
+    writing. If there is no ambiguity, the atoms user_input and
+    user_output may be referred to as `user`.
 
-The `file_errors` flag controls whether errors are reported when in
-mode `read` or `append` the file  _F_ does not exist or is not
-readable, and whether in mode `write` or `append` the file is not
-writable.
+    The `file_errors` flag controls whether errors are reported when in
+    mode `read` or `append` the file  _F_ does not exist or is not
+    readable, and whether in mode `write` or `append` the file is not
+    writable.
 
 */
 
-static Int open3(USES_REGS1) { /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
+static Int open3(USES_REGS1) {
+  /* '$open'(+File,+Mode,?Stream,-ReturnCode) */
   return do_open(Deref(ARG1), Deref(ARG2), TermNil PASS_REGS);
 }
 
 /** @pred open(+ _F_,+ _M_,- _S_,+ _Opts_) is iso
 
-Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
-`append`), returning  _S_ unified with the stream name, and following
-these options:
+   Opens the file with name  _F_ in mode  _M_ (`read`,  `write` or
+  `append`), returning  _S_ unified with the stream name, and following
+   these options:
 
 
 
-+ `type(+ _T_)` is iso
+  + `type(+ _T_)` is iso
 
   Specify whether the stream is a `text` stream (default), or a
-`binary` stream.
+  `binary` stream.
 
-+ `reposition(+ _Bool_)` is iso
+  + `reposition(+ _Bool_)` is iso
   Specify whether it is possible to reposition the stream (`true`), or
-not (`false`). By default, YAP enables repositioning for all
-files, except terminal files and sockets.
+  not (`false`). By default, YAP enables repositioning for all
+  files, except terminal files and sockets.
 
-+ `eof(+ _Action_)` is iso
+  + `eof(+ _Action_)` is iso
 
   Specify the action to take if attempting to input characters from a
-stream where we have previously found an `end_of_file`. The possible
-actions are `error`, that raises an error, `reset`, that tries to
-reset the stream and is used for `tty` type files, and `eof_code`,
-which generates a new `end_of_file` (default for non-tty files).
+  stream where we have previously found an `end_of_file`. The possible
+  actions are `error`, that raises an error, `reset`, that tries to
+  reset the stream and is used for `tty` type files, and `eof_code`,
+  which generates a new `end_of_file` (default for non-tty files).
 
-+ `alias(+ _Name_)` is iso
+  + `alias(+ _Name_)` is iso
 
   Specify an alias to the stream. The alias <tt>Name</tt> must be an atom.
-The
-alias can be used instead of the stream descriptor for every operation
-concerning the stream.
+  The
+  alias can be used instead of the stream descriptor for every operation
+  concerning the stream.
 
-    The operation will fail and give an error if the alias name is already
-in use. YAP allows several aliases for the same file, but only
-one is returned by stream_property/2
+  The operation will fail and give an error if the alias name is already
+  in use. YAP allows several aliases for the same file, but only
+  one is returned by stream_property/2
 
-+ `bom(+ _Bool_)`
+  + `bom(+ _Bool_)`
 
   If present and `true`, a BOM (<em>Byte Order Mark</em>) was
-detected while opening the file for reading or a BOM was written while
-opening the stream. See BOM for details.
+  detected while opening the file for reading or a BOM was written while
+  opening the stream. See BOM for details.
 
-+ `encoding(+ _Encoding_)`
+  + `encoding(+ _Encoding_)`
 
-Set the encoding used for text.  See Encoding for an overview of
-wide character and encoding issues.
+  Set the encoding used for text.  See Encoding for an overview of
+  wide character and encoding issues.
 
-+ `representation_errors(+ _Mode_)`
+  + `representation_errors(+ _Mode_)`
 
   Change the behaviour when writing characters to the stream that cannot
-be represented by the encoding.  The behaviour is one of `error`
-(throw and Input/Output error exception), `prolog` (write `\u...\`
-escape code or `xml` (write `\&#...;` XML character entity).
-The initial mode is `prolog` for the user streams and
-`error` for all other streams. See also Encoding.
+  be represented by the encoding.  The behaviour is one of `error`
+  (throw and Input/Output error exception), `prolog` (write `\u...\`
+  escape code or `xml` (write `\&#...;` XML character entity).
+  The initial mode is `prolog` for the user streams and
+  `error` for all other streams. See also Encoding.
 
-+ `expand_filename(+ _Mode_)`
+  + `expand_filename(+ _Mode_)`
 
   If  _Mode_ is `true` then do filename expansion, then ask Prolog
-to do file name expansion before actually trying to opening the file:
-this includes processing `~` characters and processing `$`
-environment variables at the beginning of the file. Otherwise, just try
-to open the file using the given name.
+  to do file name expansion before actually trying to opening the file:
+  this includes processing `~` characters and processing `$`
+  environment variables at the beginning of the file. Otherwise, just try
+  to open the file using the given name.
 
   The default behavior is given by the Prolog flag
-open_expands_filename.
+  open_expands_filename.
 
-+ `script( + _Boolean_ )` YAP extension.
+  + `script( + _Boolean_ )` YAP extension.
 
   The file may be a Prolog script. In `read` mode just check for
   initial lines if they start with the hash symbol, and skip them. In
@@ -1445,11 +1604,17 @@ static Int p_file_expansion(USES_REGS1) { /* '$file_expansion'(+File,-Name) */
     PlIOError(INSTANTIATION_ERROR, file_name, "absolute_file_name/3");
     return (FALSE);
   }
-  if (!Yap_findFile(RepAtom(AtomOfTerm(file_name))->StrOfAE, NULL, NULL,
-                    LOCAL_FileNameBuf, true, YAP_ANY_FILE, true, false))
+  int lvl = push_text_stack();
+  const char *tmp;
+  if ((tmp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(file_name))->StrOfAE,
+                              false)) == NULL) {
+    pop_text_stack(lvl);
     return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK, file_name,
                       "absolute_file_name/3"));
-  return (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))));
+  }
+  bool rc = (Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(tmp))));
+  pop_text_stack(lvl);
+  return rc;
 }
 
 static Int p_open_null_stream(USES_REGS1) {
@@ -1485,10 +1650,31 @@ static Int p_open_null_stream(USES_REGS1) {
   return (Yap_unify(ARG1, t));
 }
 
-int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
+int Yap_OpenStream(Term tin, const char *io_mode, Term user_name,
+                   encoding_t enc) {
   CACHE_REGS
   int sno;
-  Atom at;
+  StreamDesc *st;
+
+  sno = GetFreeStreamD();
+  if (sno < 0) {
+    PlIOError(RESOURCE_ERROR_MAX_STREAMS, tin,
+              "new stream not available for opening");
+    return -1;
+  }
+  st = GLOBAL_Stream + sno;
+  // fname = Yap_VF(fname);
+
+  if (fill_stream(sno, st, tin, io_mode, user_name, enc))
+    return sno;
+  return -1;
+}
+
+int Yap_FileStream(FILE *fd, Atom name, Term file_name, int flags,
+                   VFS_t *vfsp) {
+  CACHE_REGS
+  int sno;
+  const char *mode;
 
   sno = GetFreeStreamD();
   if (sno < 0)
@@ -1496,12 +1682,13 @@ int Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags) {
                       "new stream not available for opening"));
   if (flags & Output_Stream_f) {
     if (flags & Append_Stream_f)
-      at = AtomAppend;
+      mode = "a";
     else
-      at = AtomWrite;
-  } else
-    at = AtomRead;
-  Yap_initStream(sno, fd, name, file_name, LOCAL_encoding, flags, at);
+      mode = "w";
+  } else {
+    mode = "r";
+  }
+  Yap_initStream(sno, fd, name, mode, file_name, LOCAL_encoding, flags, vfsp);
   return sno;
 }
 
@@ -1590,6 +1777,42 @@ int Yap_CheckTextStream__(const char *file, const char *f, int line, Term arg,
   return sno;
 }
 
+int Yap_CheckTextWriteStream__(const char *file, const char *f, int line,
+                               Term arg, const char *msg) {
+  int sno, kind = Output_Stream_f;
+  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (kind & Output_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+                  msg);
+    return -1;
+  }
+  return sno;
+}
+
+int Yap_CheckTextReadStream__(const char *file, const char *f, int line,
+                              Term arg, const char *msg) {
+  int sno, kind = Input_Stream_f;
+  if ((sno = CheckStream__(file, f, line, arg, kind, msg)) < 0)
+    return -1;
+  if ((GLOBAL_Stream[sno].status & Binary_Stream_f)) {
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    if (kind & Input_Stream_f)
+      PlIOError__(file, f, line, PERMISSION_ERROR_INPUT_BINARY_STREAM, arg,
+                  msg);
+    else
+      PlIOError__(file, f, line, PERMISSION_ERROR_OUTPUT_BINARY_STREAM, arg,
+                  msg);
+    return -1;
+  }
+  return sno;
+}
+
 int Yap_CheckBinaryStream__(const char *file, const char *f, int line, Term arg,
                             int kind, const char *msg) {
   int sno;
@@ -1629,7 +1852,7 @@ int Yap_GetFreeStreamDForReading(void) {
  * Ensure that the stream always prompts before asking the standard input
  stream for data.
 
- */
+*/
 static Int always_prompt_user(USES_REGS1) {
   StreamDesc *s = GLOBAL_Stream + StdInStream;
 
@@ -1638,24 +1861,20 @@ static Int always_prompt_user(USES_REGS1) {
   return (TRUE);
 }
 
-static Int close1 /** @pred  close(+ _S_) is iso
+/** @pred  close(+ _S_) is iso
 
-
- Closes the stream  _S_. If  _S_ does not stand for a stream
- currently opened an error is reported. The streams user_input,
- user_output, and user_error can never be closed.
-
-
- */
-
-    (USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
-  Int sno = CheckStream(
+Closes the stream  _S_. If  _S_ does not stand for a stream
+currently opened an error is reported. The streams user_input,
+user_output, and user_error can never be closed.
+*/
+static Int close1(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
+  int sno = CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)
-    return (FALSE);
+    return false;
   if (sno <= StdErrStream) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    return TRUE;
+    return true;
   }
   Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
@@ -1679,10 +1898,10 @@ static const param_t close_defs[] = {CLOSE_DEFS()};
 
 /** @pred  close(+ _S_,+ _O_) is iso
 
-Closes the stream  _S_, following options  _O_.
+    Closes the stream  _S_, following options  _O_.
 
-The only valid options are `force(true)` and `force(false)`.
-YAP currently ignores these options.
+    The only valid options are `force(true)` and `force(false)`.
+    YAP currently ignores these options.
 
 
 */
@@ -1696,16 +1915,13 @@ static Int close2(USES_REGS1) { /* '$close'(+GLOBAL_Stream) */
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return TRUE;
   }
-  xarg *args =
-      Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END);
+  xarg *args = Yap_ArgListToVector((tlist = Deref(ARG2)), close_defs, CLOSE_END,
+                                   DOMAIN_ERROR_CLOSE_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_CLOSE_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
-    return FALSE;
   }
   // if (args[CLOSE_FORCE].used) {
   // }
@@ -1759,11 +1975,10 @@ static Int abs_file_parameters(USES_REGS1) {
   Term tlist = Deref(ARG1), tf;
   /* get options */
   xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END);
+                                   ABSOLUTE_FILE_NAME_END,
+                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
   if (args == NULL) {
     if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      if (LOCAL_Error_TYPE == DOMAIN_ERROR_PROLOG_FLAG)
-        LOCAL_Error_TYPE = DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION;
       Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
     }
     return false;
@@ -1819,7 +2034,7 @@ static Int abs_file_parameters(USES_REGS1) {
 }
 
 static Int get_abs_file_parameter(USES_REGS1) {
-  Term t = Deref(ARG1), topts = ARG2;
+  Term t = Deref(ARG1), topts = Deref(ARG2);
   /* get options */
   /* done */
   int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
@@ -1829,12 +2044,27 @@ static Int get_abs_file_parameter(USES_REGS1) {
   Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
   return false;
 }
-void Yap_InitPlIO(void) {
-  Int i;
 
-  Yap_stdin = stdin;
-  Yap_stdout = stdout;
-  Yap_stderr = stderr;
+void Yap_InitPlIO(struct yap_boot_params *argi) {
+  Int i;
+  if (argi->inp > 0)
+    Yap_stdin = fdopen(argi->inp - 1, "r");
+  else if (argi->inp < 0)
+    Yap_stdin = NULL;
+  else
+    Yap_stdin = stdin;
+  if (argi->out > 0)
+    Yap_stdout = fdopen(argi->out - 1, "a");
+  else if (argi->out < 0)
+    Yap_stdout = NULL;
+  else
+    Yap_stdout = stdout;
+  if (argi->err > 0)
+    Yap_stderr = fdopen(argi->err - 1, "a");
+  else if (argi->out)
+    Yap_stdout = NULL;
+  else
+    Yap_stderr = stderr;
   GLOBAL_Stream =
       (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc) * MaxStreams);
   for (i = 0; i < MaxStreams; ++i) {
@@ -1861,6 +2091,7 @@ void Yap_InitIOPreds(void) {
   Yap_InitCPred("$open_null_stream", 1, p_open_null_stream,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitIOStreams();
+  Yap_InitAliases();
   Yap_InitCharsio();
   Yap_InitChtypes();
   Yap_InitConsole();

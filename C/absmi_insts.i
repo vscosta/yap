@@ -1102,7 +1102,7 @@
 	  PP = NULL;
 #endif
 	    if (!Yap_gc(3, ENV, CP)) {
-	      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
 	      FAIL();
 	    }
 #if defined(YAPOR) || defined(THREADS)
@@ -1226,7 +1226,7 @@
 	  PREG = NEXTOP(PREG,Osbpa);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	    setregs();
 	    FAIL();
 	  } else {
@@ -10927,7 +10927,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11044,7 +11044,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11154,7 +11154,7 @@
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11261,7 +11261,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11388,7 +11388,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxc),Osbpp))) {
-	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	      setregs();
 	      JMPNext();
 	    } else {
@@ -11516,7 +11516,7 @@
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	    Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	    Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed");
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11892,7 +11892,7 @@
 	    /* make sure we have something to show for our trouble */
 	    saveregs();
 	    if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	      Yap_NilError(RESOURCE_ERROR_STACK,LOCAL_ErrorMessage);
+	      Yap_NilError(RESOURCE_ERROR_STACK,"stack overflow: gc failed" );
 	      setregs();
 	      JMPNext();
 	    } else {

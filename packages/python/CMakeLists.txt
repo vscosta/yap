@@ -1,52 +1,58 @@
 
 #CHECK: PythonLibs, changed to work in WIN32
 
-if (PYTHONLIBS_FOUND)
+set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c pyio.c)
+set (PYTHON_HEADERS py4yap.h)
+set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-  include(FindPythonModule)
+include_directories( BEFORE ${PYTHON_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap )
 
-  set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c)
+#talk to python.pl
+add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )
 
-  set (PYTHON_HEADERS  python.h)
 
-  set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+if (WIN32)
+add_library (Py4YAP OBJECT ${PYTHON_SOURCES} ${PYTHON_HEADERS})
+else()
+add_library(Py4YAP SHARED  ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 
-  add_library (YAPPython SHARED ${PYTHON_SOURCES})
+set_target_properties(
+    Py4YAP
+PROPERTIES VERSION ${YAP_FULL_VERSION}
+SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
+)
 
-  target_link_libraries(YAPPython libYap ${PYTHON_LIBRARY}  ${WINDLLS}  ${GMP_LIBRARIES})
+# arithmetic hassle.
+target_link_libraries(Py4YAP  libYap ${PYTHON_LIBRARIES})
 
-  set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1)
 
-  set (PYTHON_PL python.pl)
+install(TARGETS  Py4YAP 
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  )
 
-  install(FILES python.pl DESTINATION ${libpl} )
 
-  add_to_group( pl_library PYTHON_PL )
-  
-#  configure_file ("setup.py.cmake"  "setup.py" )
+ endif()
 
-  set(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+target_link_libraries(YAPPython Py4YAP libYap)
 
-  #set_target_properties (YAPPython PROPERTIES PREFIX "")
+# arithmetic hassle.
+set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)
 
-  find_python_module( jupyter )
 
-  if (PY_JUPYTER)
+set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YAP_KERNEL=1 _GNU_SOURCE=1)
 
-    add_subdirectory(yap_kernel)
+set (PYTHON_PL python.pl)
 
-  ENDIF()
+install(FILES python.pl DESTINATION ${libpl} )
 
-  IF(WIN32)
+add_to_group(  PYTHON_PL pl_library )
+
+set_target_properties (YAPPython PROPERTIES PREFIX "")
+
     install(TARGETS  YAPPython
-      LIBRARY DESTINATION ${libdir}
-      RUNTIME DESTINATION ${bindir}
-      ARCHIVE DESTINATION ${libdir} )
-  else()
-    install(TARGETS  YAPPython
-      LIBRARY DESTINATION ${libdir}
-      RUNTIME DESTINATION ${libdir}
-      ARCHIVE DESTINATION ${libdir} )
-endif()
-
-endif (PYTHONLIBS_FOUND)
+      LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+      RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+      ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )

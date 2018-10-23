@@ -202,7 +202,7 @@ void Yap_init_socks(char *host, long interface_port) {
   soadr.sin_port = htons((short)interface_port);
 
   if (he != NULL) {
-    memcpy((char *)&adr, (char *)he->h_addr_list[0], (size_t)he->h_length);
+    memmove((char *)&adr, (char *)he->h_addr_list[0], (size_t)he->h_length);
   } else {
     adr.s_addr = inet_addr(host);
   }
@@ -635,7 +635,7 @@ static Int p_socket_bind(USES_REGS1) {
 #endif
         return (FALSE);
       }
-      memcpy((void *)&saddr.sin_addr, (void *)he->h_addr_list[0], he->h_length);
+      memmove((void *)&saddr.sin_addr, (void *)he->h_addr_list[0], he->h_length);
     }
     if (IsVarTerm(tport)) {
       port = 0;
@@ -774,7 +774,7 @@ static Int p_socket_connect(USES_REGS1) {
 #endif
         return (FALSE);
       }
-      memcpy((void *)&saddr.sin_addr, (void *)he->h_addr_list[0], he->h_length);
+      memmove((void *)&saddr.sin_addr, (void *)he->h_addr_list[0], he->h_length);
     }
     if (IsVarTerm(tport)) {
       Yap_Error(INSTANTIATION_ERROR, tport, "socket_connect/3");
@@ -1239,7 +1239,7 @@ static Int p_hostname_address(USES_REGS1) {
 #endif
 	  return false;
     }
-    memcpy((char *)&adr, (char *)he->h_addr_list[0], (size_t)he->h_length);
+    memmove((char *)&adr, (char *)he->h_addr_list[0], (size_t)he->h_length);
     out = MkAtomTerm(Yap_LookupAtom(inet_ntoa(adr)));
     return (Yap_unify(out, ARG2));
   }

@@ -21,10 +21,11 @@
 
     @file inlines.c
 
+    @{
+
     @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
 
     @ingroup builtins
-    @{
 
 
 */
@@ -51,6 +52,57 @@ static Int    p_dif( USES_REGS1 );
 static Int    p_eq( USES_REGS1 );
 static Int    p_arg( USES_REGS1 );
 static Int    p_functor( USES_REGS1 );
+static Int    p_fail( USES_REGS1 );
+static Int    p_true( USES_REGS1 );
+
+/** @pred  fail is iso
+
+Always fails. Defined as if by:
+
+ ~~~~~
+ fail :- 2=1.
+ ~~~~~
+*/
+
+/** @pred  false is iso
+
+The same as fail. Defined as if by:
+
+ ~~~~~
+ false :- 2=1.
+ ~~~~~
+*/
+
+static Int    p_fail( USES_REGS1 )
+{
+    return false;
+}
+
+/** @pred true is iso
+Succeed.
+
+Succeeds once. Defined as if by:
+
+ ~~~~~
+ true :- true.
+ ~~~~~
+*/
+
+/** @pred otherwise is iso
+Succeed.
+
+Succeeds once. Defined as if by:
+
+ ~~~~~
+ otherwise.
+ ~~~~~
+*/
+
+
+static Int    p_true( USES_REGS1 )
+{
+    return true;
+}
 
 
 /** @pred  atom( _T_) is iso
@@ -1150,6 +1202,11 @@ cont_genarg( USES_REGS1 )
    CurrentModule = ARG_MODULE;
    Yap_InitCPredBack("genarg", 3, 3, genarg, cont_genarg,SafePredFlag);
    CurrentModule = cm;
- }
+     Yap_InitCPred("true", 0, p_true, SafePredFlag);
+     Yap_InitCPred("otherwise", 0, p_true, SafePredFlag);
+     Yap_InitCPred("false", 0, p_fail, SafePredFlag);
+     Yap_InitCPred("fail", 0, p_fail, SafePredFlag);
+}
 
 
+// @}

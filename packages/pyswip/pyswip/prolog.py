@@ -53,6 +53,7 @@ class Prolog:
         __slots__ = "swipl_fid","swipl_qid","error"
         
         def __init__(self):
+            # type: () -> object
             self.error = False
     
         def __call__(self, query, maxresult, catcherrors, normalize):

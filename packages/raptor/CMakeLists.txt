@@ -15,9 +15,6 @@ IF (NOT YAP_FOUND)
 ENDIF (NOT YAP_FOUND)
 
 macro_optional_find_package (LibXml2 ON)
-macro_log_feature (LIBXML2_FOUND "LIBXML2"
-  "Use XML2 Library"
-  "http://www.xmlsoft.org" FALSE)
 IF (LIBXML2_FOUND)
   #   LIBXML2_FOUND - System has LibXml2
 #   LIBXML2_INCLUDE_DIR - The LibXml2 include directory
@@ -42,7 +39,7 @@ if (WIN32)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBXML2_LIBRARIES} )
   
 else (WIN32)
-  ADD_LIBRARY(libxml2 SHARED ${LIBXML2_SOURCES} )
+  ADD_LIB(libxml2  ${LIBXML2_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(libxml2
@@ -57,9 +54,9 @@ else (WIN32)
   endif()
   
    install(TARGETS  libxml2
-           LIBRARY DESTINATION ${libdir}
-    RUNTIME DESTINATION ${dlls}
-     ARCHIVE DESTINATION ${dlls}
+           LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+     ARCHIVE DESTINATION ${libdir}
    )
 endif(WIN32)
 
@@ -75,9 +72,7 @@ endif(WIN32)
 ENDIF (LIBXML2_FOUND)
 
 macro_optional_find_package (RAPTOR ON)
-macro_log_feature (RAPTOR_FOUND "RAPTOR"
-  "Use RAPTOR Library"
-  "http://www.librdf.org" FALSE)
+
 IF (RAPTOR_FOUND)
   #  RAPTOR_FOUND       - system has Raptor
   #  RAPTOR_LIBRARIES   - Link these to use Raptor
@@ -93,7 +88,7 @@ IF (RAPTOR_FOUND)
     raptor_yap.c
     )
 
-  ADD_LIBRARY(raptor SHARED ${RAPTOR_SOURCES} )
+  ADD_LIB(raptor  ${RAPTOR_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(raptor
@@ -114,9 +109,9 @@ IF (RAPTOR_FOUND)
   set_target_properties (raptor PROPERTIES PREFIX "")
 
   install(TARGETS  raptor
-          LIBRARY DESTINATION ${dlls}
-          RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${libdir}
 
     )
 

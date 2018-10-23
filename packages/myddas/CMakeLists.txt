@@ -37,10 +37,11 @@ set_property(GLOBAL
 include_directories(. sqlite3)
 add_subdirectory(sqlite3)
 
-MY_add_subdirectory(mysql)
-MY_add_subdirectory(odbc)
-MY_add_subdirectory(postgres)
-
+if (NOT ANDROID)
+add_subdirectory(mysql)
+add_subdirectory(odbc)
+add_subdirectory(postgres)
+endif()
 
 add_component(myddas
         ${MYDDAS_SOURCES}
@@ -54,6 +55,7 @@ SET_PROPERTY(SOURCE ${MYDDAS_SOURCES}
 
 MY_add_dependencies(myddas plmyddas)
 add_subdirectory(pl)
+
 
 MY_set_target_properties(myddas PROPERTIES
         POSITION_INDEPENDENT_CODE ON

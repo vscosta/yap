@@ -1,3 +1,12 @@
+
+// play nice
+#ifndef HAVE_PYTHON
+#cmakedefine HAVE_PYTHON  ${HAVE_PYTHON}
+#endif
+#if HAVE_PYTHON
+#include <Python.h>
+#endif
+
 /* Define if you have libreadline */
 #ifndef HAVE_LIBREADLINE
 #cmakedefine HAVE_LIBREADLINE  ${HAVE_LIBREADLINE}
@@ -13,7 +22,7 @@
 #cmakedefine HAVE_READLINE_READLINE_H  ${HAVE_READLINE_READLINE_H}
 #endif
 
-#if  defined(HAVE_LIBREADLINE) && defined(HAVE_READLINE_READLINE_H)
+#if  defined(HAVE_READLINE_READLINE_H) && defined(HAVE_LIBREADLINE)
 #define USE_READLINE 1
 #endif
 
@@ -41,7 +50,7 @@ you don't. */
 #cmakedefine HAVE_DECL_RL_READLINE_STATE ${HAVE_DECL_RL_READLINE_STATE}
 #endif
 
-/* Define to 1 if you have the `rl_begin_undo_group' function. */
+        /* Define to 1 if you have the `rl_begin_undo_group' function. */
 #ifndef HAVE_RL_BEGIN_UNDO_GROUP
 #cmakedefine HAVE_RL_BEGIN_UNDO_GROUP ${HAVE_RL_BEGIN_UNDO_GROUP}
 #endif
@@ -51,9 +60,9 @@ you don't. */
 #cmakedefine HAVE_RL_CLEAR_PENDING_INPUT ${HAVE_RL_CLEAR_PENDING_INPUT}
 #endif
 
-/* Define to 1 if the system has the type `rl_completion_func_t'). */
-#ifndef HAVE_RL_COMPLETION_FUNC_T
-#cmakedefine HAVE_RL_COMPLETION_FUNC_T ${HAVE_RL_COMPLETION_FUNC_T}
+/* Define to 1 if the system has the type `rl_completion_entry_function'). */
+#ifndef HAVE_RL_COMPLETION_ENTRY_FUNCTION
+#cmakedefine HAVE_RL_COMPLETION_ENTRY_FUNCTION ${HAVE_RL_COMPLETION_ENTRY_FUNCTION}
 #endif
 
 /* Define to 1 if the system has the type `rl_completion_func_t'. */
@@ -109,4 +118,9 @@ you don't. */
 /* Define to 1 if you have the `rl_set_prompt' function. */
 #ifndef HAVE_RL_SET_PROMPT
 #cmakedefine HAVE_RL_SET_PROMPT ${HAVE_RL_SET_PROMPT}
+#endif
+
+/* Define to 1 if you have the `rl_set_signals' function. */
+#ifndef HAVE_RL_SET_SIGNALS
+#cmakedefine HAVE_RL_SET_SIGNALS ${HAVE_RL_SET_SIGNALS}
 #endif

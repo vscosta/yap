@@ -253,7 +253,7 @@ static void growToBuffer(int c, ReadData _PL_rd) {
   if (rb.base == rb.fast) /* intptr_t clause: jump to use malloc() */
   {
     rb.base = PL_malloc(FASTBUFFERSIZE * 2);
-    memcpy(rb.base, rb.fast, FASTBUFFERSIZE);
+    memmove(rb.base, rb.fast, FASTBUFFERSIZE);
   } else
     rb.base = PL_realloc(rb.base, rb.size * 2);
 

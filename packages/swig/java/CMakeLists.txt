@@ -33,7 +33,7 @@ if (JNI_FOUND)
     endif()
     #SET(CMAKE_SWIG_FLAGS "${CMAKE_SWIG_FLAGS} ")
 
-    SWIG_ADD_MODULE(Native java ${SWIG_SOURCES}
+    SWIG_ADD_LIBRARY(Native LANGUAGE java SOURCES                                         ${SWIG_SOURCES}
 	   )
 
 
@@ -64,7 +64,7 @@ if (JNI_FOUND)
      INCLUDE_JARS NativeJar )
    SET(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
 install(    TARGETS Native
-    RUNTIME DESTINATION ${bindir}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BIINDIR}
     ARCHIVE  DESTINATION ${libdir}
     LIBRARY  DESTINATION ${libdir}
 )

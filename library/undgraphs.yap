@@ -3,14 +3,10 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
  *
- * @brief  Directed Graph Processing Utilities.
+ * @brief  Undirected Graph Processing Utilities.
  * 
  * 
 */
-%   File   : dgraphs.yap
-%   Author : Vitor Santos Costa
-%   Updated: 2006
-%   Purpose: 
 
 :- module( undgraphs,
 	   [
@@ -35,33 +31,8 @@ The following graph manipulation routines use the red-black tree graph
 library to implement undirected graphs. Mostly, this is done by having
 two directed edges per undirected edge.
 
-
-
- @pred undgraph_new(+ _Graph_) 
-
-
-Create a new directed graph. This operation must be performed before
-trying to use the graph.
-
- 
 */
 
-
-/** @pred undgraph_complement(+ _Graph_, - _NewGraph_) 
-
-
-Unify  _NewGraph_ with the graph complementary to  _Graph_.
-
- 
-*/
-/** @pred undgraph_vertices(+ _Graph_, - _Vertices_) 
-
-
-Unify  _Vertices_ with all vertices appearing in graph
- _Graph_.
-
- 
-*/
 :- reexport( library(dgraphs),
 	   [
 	    dgraph_new/1 as undgraph_new,
@@ -105,6 +76,28 @@ Unify  _Vertices_ with all vertices appearing in graph
 	   rb_in/3,
 	   rb_partial_map/4
 	]).
+
+/**
+
+ @pred undgraph_new(+ _Graph_) 
+
+Create a new directed graph. This operation must be performed before
+trying to use the graph.
+ 
+*/
+
+/** @pred undgraph_complement(+ _Graph_, - _NewGraph_) 
+
+Unify  _NewGraph_ with the graph complementary to  _Graph_.
+
+*/
+
+/** @pred undgraph_vertices(+ _Graph_, - _Vertices_) 
+
+Unify  _Vertices_ with all vertices appearing in graph
+ _Graph_.
+
+ */
 
 undgraph_add_edge(Vs0,V1,V2,Vs2) :-
 	dgraphs:dgraph_new_edge(V1,V2,Vs0,Vs1),

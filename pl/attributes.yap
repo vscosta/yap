@@ -1,4 +1,4 @@
-pattr/*************************************************************************
+/*************************************************************************
 *									 *
   *	 YAP Prolog 							 *
 *									 *
@@ -19,20 +19,14 @@ pattr/*************************************************************************
   @file attributes.yap
 
 @defgroup New_Style_Attribute_Declarations SWI Compatible attributes
-@{
 @ingroup attributes
+
+  @{
 
 */
 
-:- module('attributes', [delayed_goals/4]).
-
-:- use_system_module( '$_boot', ['$undefp'/1]).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$coroutining', [attr_unify_hook/2]).
-
-:- use_system_module( attributes, [all_attvars/1,
+:- module( attributes, [delayed_goals/4,
+all_attvars/1,
         bind_attvar/1,
         del_all_atts/1,
         del_all_module_atts/2,
@@ -42,7 +36,13 @@ pattr/*************************************************************************
         put_att_term/2,
         put_module_atts/2,
         unbind_attvar/1,
-        woken_att_do/4]).
+        woken_att_do/4]) .
+
+:- use_system_module( '$_boot', ['$undefp'/1]).
+
+:- use_system_module( '$_errors', ['$do_error'/2]).
+
+:- use_system_module( '$coroutining', [attr_unify_hook/2]).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.
@@ -56,7 +56,7 @@ pattr/*************************************************************************
 :- dynamic attributed_module/3.
 
 
-/** @pred get_attr(+ _Var_,+ _Module_,- _Value_)
+/** @pred get_attr( + Var,+ Module,- Value)
 
 Request the current  _value_ for the attribute named  _Module_.  If
  _Var_ is not an attributed variable or the named attribute is not
@@ -340,7 +340,7 @@ printing and other special purpose operations.
 
 */
 
-/** @pred _Module_:attribute_goal( _-Var_,  _-Goal_)
+/** @pred Module:attribute_goal( -Var, Goal)
 
 User-defined procedure, called to convert the attributes in  _Var_ to
 a  _Goal_. Should fail when no interpretation is available.
@@ -470,11 +470,11 @@ att_vars([_|LGs], AttVars) :-
 % make sure we set the suspended goal list to its previous state!
 % make sure we have installed a SICStus like constraint solver.
 
-/** @pred _Module_:project_attributes(+AttrVars, +Goal)
+/** @pred Module:project_attributes( +AttrVars, +Goal)
 
 
 
-Given a goal _Goa]l_ with variables  _QueryVars_ and list of attributed
+Given a goal _Goal_ with variables  _QueryVars_ and list of attributed
 variables  _AttrVars_, project all attributes in  _AttrVars_ to
  _QueryVars_. Although projection is constraint system dependent,
 typically this will involve expressing all constraints in terms of

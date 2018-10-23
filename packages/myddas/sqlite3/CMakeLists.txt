@@ -1,58 +1,72 @@
-message( "   * Sqlite3 Data-Base (http://www.sqlite3ql.org), distributed with MYDDAS" )
+if (WITH_SQLITE3)
 
-set( YAPSQLITE3_SOURCES
-  myddas_sqlite3.c
-  src/sqlite3.c
-  src/sqlite3.h
-  src/sqlite3ext.h
- )
+  message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
 
-#sqlite3 is now in the system
+  set (SQLITE_EXTRA
+    chinook.db
+    sqlitest.yap)
 
-set (SQLITE3_FOUND ON CACHE PRIVATE "")
-
-include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..)
-
-add_definitions(-DSQLITE_ENABLE_COLUMN_METADATA=1 )
-
-add_definitions(-DSQLITE_ENABLE_JSON1=1 )
-
-add_definitions(-DSQLITE_ENABLE_RBU=1 )
-
-add_definitions(-DSQLITE_ENABLE_RTREE=1 )
-
-add_definitions(-DSQLITE_ENABLE_FTS5=1 )
-
-SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
-
-if (ANDROID)
-
-       include_directories( .. src/Android/jni/sqlite src/Android/jni/sqlite/nativehelper )
+  set( YAPSQLITE3_SOURCES
+    myddas_sqlite3.c
+    src/sqlite3.h
+    src/sqlite3ext.h
+    )
 
 
-set(YAPSQLITE3_SOURCES
-${YAPSQLITE3_SOURCES}
-src/Android/jni/sqlite/JNIHelp.cpp
-src/Android/jni/sqlite/JniConstants.cpp
-src/Android/jni/sqlite/android_database_SQLiteCommon.cpp
-src/Android/jni/sqlite/android_database_SQLiteCommon.h
-src/Android/jni/sqlite/android_database_SQLiteConnection.cpp
-src/Android/jni/sqlite/android_database_SQLiteDebug.cpp
-src/Android/jni/sqlite/android_database_SQLiteGlobal.cpp
-src/Android/jni/sqlite/nativehelper/jni.h
-src/Android/jni/sqlite/nativehelper/jniConstants.h
-src/Android/jni/sqlite/nativehelper/JNIHelp.h
-src/Android/jni/sqlite/nativehelper/ScopedLocalRef.h
-)
+  #sqlite3 is now in the system
 
-endif (ANDROID)
+  set (SQLITE3_FOUND ON CACHE PRIVATE "")
 
-add_component(  Yapsqlite3
-    ${YAPSQLITE3_SOURCES} )
+  include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..)
 
-    MY_set_target_properties(Yapsqlite3
+  if (ANDROID)
+    add_definitions(-DSQLITE_FCNTL_MMAP_SIZE=0 )
+
+  endif()
+
+  add_definitions(-DSQLITE_ENABLE_COLUMN_METADATA=1 )
+
+  add_definitions(-DSQLITE_ENABLE_JSON1=1 )
+
+  add_definitions(-DSQLITE_ENABLE_RBU=1 )
+
+  add_definitions(-DSQLITE_ENABLE_RTREE=1 )
+  add_definitions(-DSQLITE_ENABLE_FTS5=1 )
+
+  SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
+
+
+  if (ANDROID )
+    add_library(  YAPsqlite3 OBJECT
+      ${YAPSQLITE3_SOURCES} )
+
+  else()
+
+    list(APPEND YAPSQLITE3_SOURCES src/sqlite3.c)
+
+    
+    add_library(  YAPsqlite3 SHARED
+      ${YAPSQLITE3_SOURCES})
+
+    target_link_libraries(YAPsqlite3 libYap )
+
+    set_target_properties(YAPsqlite3
       PROPERTIES
       #  RPATH ${libdir} VERSION ${LIBYAPTAI_FULL_VERSION}
       #  SOVERSION ${LIBYAPTAI_MAJOR_VERSION}.${LIBYAPTAI_MINOR_VERSION}
-      POSITION_INDEPENDENT_CODE TRUE
+      POSITION_INDEPENDENT_CODE ON
+      PREFIX ""
       )
+
+    install(TARGETS YAPsqlite3
+      RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+      ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+      LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+      )
+  endif()
+
+  install(FILES ${SQLITE_EXTRA}
+    DESTINATION ${libpl}
+    )
+
+endif()

@@ -132,13 +132,14 @@ IF (CUDD_FOUND)
     ${CMAKE_CURRENT_BINARY_DIR}/../bdd
     )
 
-  add_library (bddem  SHARED
+  add_lib(bddem
     ${BDDEM_SOURCES}
     )
 
   TARGET_LINK_LIBRARIES(bddem
     ${CUDD_LIBRARIES}
     libYap
+          m
     )
 
   set_target_properties (bddem  PROPERTIES
@@ -147,13 +148,13 @@ IF (CUDD_FOUND)
     )
 
   install(TARGETS  bddem
-          LIBRARY DESTINATION ${libdir}
-          RUNTIME DESTINATION ${dlls}
-      ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+      ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
   )
 
 
-  add_library (cplint SHARED
+  add_lib(cplint
     ${CPLINT_SOURCES}
    )
 
@@ -170,9 +171,9 @@ IF (CUDD_FOUND)
     add_subDIRECTORY ( approx/simplecuddLPADs )
 
   install(TARGETS  cplint
-          LIBRARY DESTINATION ${libdir}
-    RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 
   INSTALL(FILES ${CPLINT_PROGRAMS} DESTINATION ${libpl})

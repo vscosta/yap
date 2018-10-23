@@ -8,6 +8,7 @@
  * 
 */
 :- module(gensym, [
+	      init_gensym/1,
 	gensym/2,
 	reset_gensym/1,
 	reset_gensym/0
@@ -25,6 +26,9 @@
 
 
 :- dynamic gensym_key/2.
+
+init_gensym(Key) :-
+    assert(gensym_key(Atom,0) ).
 
 gensym(Atom, New) :-
 	retract(gensym_key(Atom,Id)), !,

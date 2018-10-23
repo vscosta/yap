@@ -388,7 +388,7 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
     perror(filename);
     return -1;
   }
-  const char **vs = varmap.vars;
+  char * const*vs = varmap.vars;
   ret = Cudd_DumpDot(manager, 1, f, vs, NULL, fd);
   fclose(fd);
   return ret;

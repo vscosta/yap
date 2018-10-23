@@ -26,7 +26,7 @@
  * @brief  Get to know what is in your stack.
  * 
  * 
- */
+` */
 
 #include "Yap.h"
 #include "clause.h"

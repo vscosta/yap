@@ -56,7 +56,7 @@
         '$set_encoding'/1,
         '$use_module'/3]).
 
-:- use_system_module( '$_absf', ['$full_filename'/3]).
+:- use_system_module( '$_absf', ['$full_filename'/2]).
 
 :- use_system_module( '$_boot', ['$clear_reconsulting'/0,
         '$init_system'/0,
@@ -74,10 +74,23 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
+:- '$system_meta_predicates'([
+	compile(:),
+	consult(:),
+	db_files(:),
+	ensure_loaded(:),
+	exo_files(:),
+  load_files(:,+),
+  reconsult(:),
+  use_module(:),
+  use_module(:,+),
+  use_module(?,:,+)
+		]	    ).
+
 /**
 
   @defgroup YAPConsulting Loading files into YAP
-  @ingroup consult
+  @ingroup load_files
 
   @{
 
@@ -88,6 +101,10 @@ files and to set-up the Prolog environment. We discuss
 
   + @ref YAPCompilerSettings
 
+    @}
+  */
+
+/**
 @defgroup YAPReadFiles The Predicates that Read Source Files
   @ingroup  YAPConsulting
 
@@ -163,7 +180,7 @@ following flags:
 + must_be_module(+ _Bool_)
 
     If true, raise an error if the file is not a module file. Used by
-    ` use_module/1 and use_module/2.
+    use_module/1 and use_module/2.
 
 + qcompile(+ _Value_)
 
@@ -181,11 +198,10 @@ following flags:
 
   `part`, not supported in YAP.
 
-
 + autoload(+ _Autoload_)
 
-  SWI-compatible option where if _Autoload_ is `true` undefined
-    predicates are loaded on first call.
+SWI-compatible option where if _Autoload_ is `true` undefined
+  predicates are loaded on first call.
 
 + derived_from(+ _File_)
 
@@ -207,8 +223,10 @@ following flags:
 % compilation_mode(compact,source,assert_all) => implemented
 % register(true, false) => implemented
 %
-load_files(Files,Opts) :-
-	'$load_files'(Files,Opts,load_files(Files,Opts)).
+load_files(Files0,Opts) :-
+    '$yap_strip_module'(Files0,M,Files),
+    '$load_files'(Files,M,Opts,M:load_files(Files,Opts)).
+
 
 '$lf_option'(autoload, 1, false).
 '$lf_option'(derived_from, 2, false).
@@ -217,9 +235,16 @@ load_files(Files,Opts) :-
 '$lf_option'(if, 5, true).
 '$lf_option'(imports, 6, all).
 '$lf_option'(qcompile, 7, Current) :-
-    '$nb_getval'('$qcompile', Current, Current = never).
+    '__NB_getval__'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
-'$lf_option'(skip_unix_header, 9, true).
+'$lf_option'(skip_unix_header, 9, Skip) :-
+    stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
+    ( Rep == true
+    ->
+	     (TTy = true   -> Skip = false ; Skip = true)
+      ;
+      Skip = false
+      ).
 '$lf_option'(compilation_mode, 10, Flag) :-
 	current_prolog_flag(source, YFlag),
 	( YFlag == false -> Flag = compact ; Flag = source ).
@@ -244,10 +269,11 @@ load_files(Files,Opts) :-
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
 '$lf_option'('$source_pos', 30, _).
-'$lf_option'(initialization, 31, Ref) :-
+'$lf_option'('$from_stream', 31, false).
+'$lf_option'(initialization, 32, Ref) :-
       nb:nb_queue(Ref).
 
-'$lf_option'(last_opt, 31).
+'$lf_option'(last_opt, 32).
 
 '$lf_opt'( Op, TOpts, Val) :-
 	'$lf_option'(Op, Id, _),
@@ -257,37 +283,73 @@ load_files(Files,Opts) :-
 	'$lf_option'(Op, Id, _),
 	setarg( Id, TOpts, Val ).
 
-'$load_files'(Files, Opts, Call) :-
-	( '$nb_getval'('$lf_status', OldTOpts, fail), nonvar(OldTOpts) ->
-	  '$lf_opt'(autoload, OldTOpts, OldAutoload)
-	;
-	   '$lf_option'(last_opt, LastOpt),
-	    functor( OldTOpts, opt, LastOpt ),
-       '$lf_opt'('$context_module', OldTOpts, user)
-     ),
-	'$check_files'(Files,load_files(Files,Opts)),
-	'$lf_option'(last_opt, LastOpt),
-	functor( TOpts, opt, LastOpt ),
-	( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
-	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$lf_opt'('$files', TOpts, Files),
-	'$lf_opt'('$call', TOpts, Call),
-	'$lf_opt'('$options', TOpts, Opts),
-	'$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	'$process_lf_opts'(Opts,TOpts,Files,Call),
-	'$lf_default_opts'(1, LastOpt, TOpts),
-	'$check_use_module'(Call,UseModule),
-	'$lf_opt'('$use_module', TOpts, UseModule),
-        '$current_module'(M0),
-	( '$lf_opt'(autoload, TOpts, Autoload),
-	  var(Autoload) ->
-	  Autoload = OldAutoload
-	;
-	  true
-	),
-	% make sure we can run consult
-	'$init_consult',
-	'$lf'(Files, M0, Call, TOpts).
+'$load_files'([user], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [stream(S)|Opts], Call).
+'$load_files'(user, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [stream(S)|Opts], Call).
+'$load_files'([-user], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(-user, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'([user_input], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [stream(S)|Opts], Call).
+'$load_files'(user_input, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [stream(S)|Opts], Call).
+'$load_files'([-user_input], M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(-user_input, M,Opts, Call) :-
+    current_input(S),
+    '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
+'$load_files'(Files, M, Opts, Call) :-
+    '$load_files__'(Files, M, Opts, Call).
+'$load_files__'(Files, M, Opts, Call) :-
+    '$lf_option'(last_opt, LastOpt),
+    '$show_consult_level'(LC),
+    ( LC > 0
+    ->
+      '__NB_getval__'('$lf_status', OldTOpts, fail),
+        nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
+    '$lf_opt'(autoload, OldTOpts, OldAutoload),
+         '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+    ;
+     current_prolog_flag(autoload, OldAutoload),
+     functor( OldTOpts, opt, LastOpt ),
+     '$lf_opt'(autoload, OldTOpts, OldAutoload),
+     '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+    ),
+    functor( TOpts, opt, LastOpt ),
+    ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
+    '$lf_opt'('$location', TOpts, ParentF:Line),
+    '$lf_opt'('$files', TOpts, Files),
+    '$lf_opt'('$call', TOpts, Call),
+    '$lf_opt'('$options', TOpts, Opts),
+    '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+    '$process_lf_opts'(Opts,TOpts,Files,Call),
+    '$lf_default_opts'(1, LastOpt, TOpts),
+    '$lf_opt'(stream, TOpts, Stream),
+    (  nonvar(Stream) ->
+       '$set_lf_opt'('$from_stream', TOpts, true )
+    ;
+    '$check_files'(Files,load_files(Files,Opts))
+    ),
+    '$check_use_module'(Call,UseModule),
+    '$lf_opt'('$use_module', TOpts, UseModule),
+    ( '$lf_opt'(autoload, TOpts, Autoload),
+      var(Autoload) ->
+      Autoload = OldAutoload
+    ;
+    true
+    ),
+    % make sure we can run consult
+    '$init_consult',
+    '$lf'(Files, M, Call, TOpts).
 
 '$check_files'(Files, Call) :-
 	var(Files), !,
@@ -353,8 +415,8 @@ load_files(Files,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-	( Val == false -> yap_flag(verbose_load, full) ;
-	    Val == true -> yap_flag(verbose_load, silent) ;
+	( Val == false -> yap_flag(verbose_load, true) ;
+	    Val == true -> yap_flag(verbose_load, false) ;
 	    '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
 	( Val == false -> true ;
@@ -406,35 +468,21 @@ load_files(Files,Opts) :-
 '$check_use_module'(use_module(M,_,_), use_module(M)) :- !.
 '$check_use_module'(_, load_files) :- !.
 
-'$lf'(V,_,Call, _ ) :- var(V), !,
+'$lf'(V,_,Call, _ ) :-   var(V), !,
 	'$do_error'(instantiation_error,Call).
 '$lf'([], _, _, _) :- !.
-'$lf'(M:X, _, Call, TOpts) :- !,
-	(
-	  atom(M)
-	->
-	 '$lf'(X, M, Call, TOpts)
-	  ;
-	  '$do_error'(type_error(atom,M),Call)
-	).
 '$lf'([F|Fs], Mod, Call, TOpts) :- !,
 	% clean up after each consult
-	( '$lf'(F,Mod,Call, TOpts), fail ;
+	( '$lf'(F,Mod,Call, TOpts), fail;
 	  '$lf'(Fs, Mod, Call, TOpts), fail;
 	  true
 	).
-'$lf'(user, Mod, _, TOpts) :- !,
-	b_setval('$user_source_file', user),
-	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
-'$lf'(user_input, Mod, _, TOpts) :- !,
-	b_setval('$user_source_file', user_input),
-	'$do_lf'(Mod, user_input, user_input, user_input, TOpts).
 '$lf'(File, Mod, Call, TOpts) :-
 	'$lf_opt'(stream, TOpts, Stream),
 	b_setval('$user_source_file', File),
-	( var(Stream) ->
+	( '$lf_opt'('$from_stream', TOpts, false ) ->
 	  /* need_to_open_file */
-	  ( '$full_filename'(File, Y, Call) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
+	  ( '$full_filename'(File, Y) -> true ; '$do_error'(existence_error(source_sink,File),Call) ),
 	  ( open(Y, read, Stream) -> true ; '$do_error'(permission_error(input,stream,Y),Call) )
         ;
 	  stream_property(Stream, file_name(Y))
@@ -448,23 +496,28 @@ load_files(Files,Opts) :-
 	'$start_lf'(If, Mod, Stream, TOpts, File, Y, Reexport, Imports),
 	close(Stream).
 
-
+% consulting from a stream
+'$start_lf'(_not_loaded, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
+    '$lf_opt'('$from_stream', TOpts, true ),
+    !,
+    '$do_lf'(Mod, Stream, UserFile, File, TOpts).
 '$start_lf'(not_loaded, Mod, _Stream, TOpts, UserFile, File, Reexport,Imports) :-
 	'$file_loaded'(File, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, Opts),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, not_loaded, _, _Dir, TOpts, Opts),
         '$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(changed, Mod, _Stream, TOpts, UserFile, File, Reexport, Imports) :-
 	'$file_unchanged'(File, Mod, Imports, TOpts), !,
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
-	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, Opts),
+	'$loaded'(File, UserFile, Mod, ParentF, Line, changed, _, _Dir, TOpts, Opts),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ).
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
-%	start_low_level_trace,
-	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F,qload_file(File)),
+				%	start_low_level_trace,
+	'$pred_exists'('$absolute_file_name'(File,[],F),prolog),
+	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
@@ -514,10 +567,10 @@ When the files are not module files, ensure_loaded/1 loads them
  _F_ must be a list containing the names of the files to load.
 */
 ensure_loaded(Fs) :-
-	'$load_files'(Fs, [if(not_loaded)],ensure_loaded(Fs)).
+	load_files(Fs, [if(not_loaded)]).
 
 compile(Fs) :-
-	'$load_files'(Fs, [], compile(Fs)).
+	load_files(Fs, []).
 
 /**
  @pred [ _F_ ]
@@ -551,9 +604,9 @@ consult(Fs) :-
 '$consult'(Fs,Module) :-
 	current_prolog_flag(language_mode, iso), % SICStus Prolog compatibility
 	!,
-	'$load_files'(Module:Fs,[],consult(Fs)).
+	load_files(Module:Fs,[]).
 '$consult'(Fs, Module) :-
-	'$load_files'(Module:Fs,[consult(consult)],consult(Fs)).
+    load_files(Module:Fs,[consult(consult)]).
 
 
 /**
@@ -586,7 +639,7 @@ Example:
 
 */
 reconsult(Fs) :-
-	'$load_files'(Fs, [], reconsult(Fs)).
+	load_files(Fs, []).
 
 
 /* exo_files(+ _Files_)
@@ -606,7 +659,7 @@ different forms of indexing, as shown in @cite x.
 */
 
 exo_files(Fs) :-
-	'$load_files'(Fs, [consult(exo), if(not_loaded)], exo_files(Fs)).
+	load_files(Fs, [consult(exo), if(not_loaded)]).
 
 /**
 
@@ -637,14 +690,19 @@ YAP implements load_db/1 as a two-step non-optimised process. First,
    db_files/1 itself is just a call to load_files/2.
 */
 db_files(Fs) :-
-	'$load_files'(Fs, [consult(db), if(not_loaded)], exo_files(Fs)).
+    load_files(Fs, [consult(db), if(not_loaded)]).
 
 
+'$csult'(Fs, _M) :-
+	 '$skip_list'(_, Fs ,L),
+	 L \== [],
+	 !,
+	 user:dot_qualified_goal(Fs).
 '$csult'(Fs, M) :-
 	'$extract_minus'(Fs, MFs), !,
-	'$load_files'(M:MFs,[],[M:Fs]).
+	load_files(M:MFs,[]).
 '$csult'(Fs, M) :-
-	'$load_files'(M:Fs,[consult(consult)],[M:Fs]).
+	load_files(M:Fs,[consult(consult)]).
 
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-
@@ -652,7 +710,7 @@ db_files(Fs) :-
 
 '$do_lf'(_ContextModule, Stream, _UserFile, _File, _TOpts) :-
 	stream_property(Stream, file_name(Y)),
-	'$nb_getval'('$loop_streams',Sts0, Sts0 = []),
+	'__NB_getval__'('$loop_streams',Sts0, Sts0 = []),
 	lists:member(Stream0, Sts0),
 	stream_property(Stream0, file_name(Y)),
 	!.
@@ -661,12 +719,12 @@ db_files(Fs) :-
 	stream_property(OldStream, alias(loop_stream) ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
-	'$nb_getval'('$loop_streams',Sts0, Sts0=[]),
+	'__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
 	nb_setval('$loop_streams',[Stream|Sts0]),
  	'$lf_opt'('$context_module', TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(qcompile, TOpts, QCompiling),
-	'$nb_getval'('$qcompile', ContextQCompiling, ContextQCompiling = never),
+	'__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
 	nb_setval('$qcompile', QCompiling),
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
 	% export to process
@@ -677,7 +735,7 @@ db_files(Fs) :-
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
- 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, Opts),
+ 	'$loaded'(File, UserFile, SourceModule, ParentF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts),
         working_directory(OldD, Dir),
 	H0 is heapused, '$cputime'(T0,_),
 	current_prolog_flag(generate_debug_info, GenerateDebug),
@@ -705,6 +763,7 @@ db_files(Fs) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
+
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
@@ -740,20 +799,21 @@ db_files(Fs) :-
 '$q_do_save_file'(File, UserF, TOpts ) :-
     '$lf_opt'(qcompile, TOpts, QComp),
     '$lf_opt'('$source_pos', TOpts, Pos),
+    '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F,load_files(File)),
+    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
 
 '$reset_if'(OldIfLevel) :-
-	'$nb_getval'('$if_level', OldIfLevel, fail), !,
+	'__NB_getval__'('$if_level', OldIfLevel, fail), !,
 	nb_setval('$if_level',0).
 '$reset_if'(0) :-
 nb_setval('$if_le1vel',0).
 
 '$get_if'(Level0) :-
-	'$nb_getval'('$if_level', Level, fail), !,
+	'__NB_getval__'('$if_level', Level, fail), !,
 	Level0 = Level.
 '$get_if'(0).
 
@@ -796,21 +856,24 @@ nb_setval('$if_le1vel',0).
 	),
    fail.
 '$exec_initialization_goals' :-
-	'$current_module'(M),
-	'$nb_getval'('$lf_status', TOpts, fail),
+	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	lists:member(G, Answers),
-    strip_module( M:G, M0, G0),
+	'$process_init_goal'(Answers).
+'$exec_initialization_goals'.
+
+'$process_init_goal'([G|_]) :-
+	'$yap_strip_module'( G, M0, G0),
 	(
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	 true
 	;
-    format(user_error,':- ~w:~w failed.~n',[M,G])
+    format(user_error,':- ~w:~w failed.~n',[M0,G0])
 	),
 	fail.
-'$exec_initialization_goals'.
+'$process_init_goal'([_|Gs]) :-
+    '$process_init_goal'(Gs).
 
 /**
   @pred include(+ _F_) is directive
@@ -831,7 +894,7 @@ nb_setval('$if_le1vel',0).
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
 	b_getval('$lf_status', TOpts),
-	'$full_filename'(X, Y , ( :- include(X)) ),
+	'$full_filename'(X, Y ),
 	'$including'(Old, Y),
 	'$lf_opt'(stream, TOpts, OldStream),
 	'$current_module'(Mod),
@@ -844,8 +907,8 @@ nb_setval('$if_le1vel',0).
 	working_directory(Dir0, Dir),
 	'$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
-    '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, []),
-    ( '$nb_getval'('$included_file', OY, fail ) -> true ; OY = [] ),
+    '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, TOpts,[]),
+    ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
 	print_message(informational, loading(including, Y)),
 	'$loop'(Stream,Status),
@@ -955,7 +1018,7 @@ prolog_load_context(file, FileName) :-
           FileName = user_input
         ).
 prolog_load_context(module, X) :-
-        '$nb_getval'('$consulting_file', _, fail),
+        '__NB_getval__'('$consulting_file', _, fail),
         '$current_module'(X).
 prolog_load_context(source, F0) :-
         ( source_location(F0, _) /*,
@@ -976,12 +1039,13 @@ prolog_load_context(stream, Stream) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
 	    atom_concat(Prefix, '.qly', F0 ),
-	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F,load_files(Prefix))
+	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
         ;
            F0 = F
 				   ),
 	'$ensure_file_loaded'(F, M),
 	!,
+  %format( 'IU=~w~n', [(F:Imports->M)] ),
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 '$ensure_file_loaded'(F, M) :-
@@ -994,7 +1058,7 @@ prolog_load_context(stream, Stream) :-
 % be imported from any module.
 '$file_unchanged'(F, M, Imports, TOpts) :-
 	'$ensure_file_unchanged'(F, M),
-%	format( 'IU=~w~n', [(F1:Imports->M)] ),
+	%format( 'IU=~w~n', [(F:Imports->M)] ),
 	'$import_to_current_module'(F, M, Imports, _, TOpts).
 
 % module can be reexported.
@@ -1012,10 +1076,9 @@ prolog_load_context(stream, Stream) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
-
 				% inform the file has been loaded and is now available.
-'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, Opts) :-
-	( F == user_input -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
+'$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
+	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),
 	(
 	 % if we are reconsulting, always start from scratch
@@ -1044,7 +1107,7 @@ prolog_load_context(stream, Stream) :-
 	    ;
 	    Reconsult = Reconsult0
 	),
-	( F == user_input -> Age = 0 ; time_file64(F, Age) ),
+	( '$lf_opt'('$from_stream',TOpts,true) -> Age = 0 ; time_file64(F, Age) ),
 				% modules are logically loaded only once
 
 	( recorded('$module','$module'(F,_DonorM,_SourceF, _AllExports, _Line),_) -> true  ;
@@ -1063,7 +1126,7 @@ just goes through every loaded file and verifies whether reloading is needed.
 
 make :-
 	recorded('$lf_loaded','$lf_loaded'(F1,_M,reconsult,_,_,_,_),_),
-	'$load_files'(F1, [if(changed)],make),
+	load_files(F1, [if(changed)]),
 	fail.
 make.
 
@@ -1079,7 +1142,19 @@ make_library_index(_Directory).
 
 
 exists_source(File) :-
-	'$full_filename'(File, _AbsFile, exists_source(File)).
+	'$full_filename'(File, _AbsFile).
+
+
+'$full_filename'(F0, F) :-
+	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
+	!,
+	absolute_file_system_path(F0, F).
+'$full_filename'(F0, F) :-
+	'$absolute_file_name'(F0,[access(read),
+                              file_type(prolog),
+                              file_errors(fail),
+                              solutions(first),
+                              expand(true)],F).
 
 % reload_file(File) :-
 %         ' $source_base_name'(File, Compile),
@@ -1202,30 +1277,37 @@ current module. Otherwise, operate as use_module/2, and load the files
 specified by _F_, importing the predicates specified in the list _L_.
 */
 
-use_module(M,F,Is) :- '$use_module'(M,F,Is).
+use_module(M,F,Is) :-
+'$yap_strip_module'(F,M1,F1),
+'$use_module'(M,M1,F1,Is).
 
-'$use_module'(M,F,Is) :-
+'$use_module'(M,M1,F,Is) :-
 	var(Is), !,
-	'$use_module'(M,F,all).
-'$use_module'(M,F,Is) :-
+	'$use_module'(M,M1,F,all).
+'$use_module'(M,M1,F,Is) :-
 	nonvar(F), !,
-        strip_module(F, M0, F0),
-	'$load_files'(M0:F0, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is)),
-	( var(M) -> true
-	;
-	   absolute_file_name( F0, F1, [expand(true),file_type(prolog)] ),
+	( var(M) ->
+	  load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)]),
+	   absolute_file_name( F, F1, [expand(true),file_type(prolog)] ),
 	  recorded('$module','$module'(F1,M,_,_,_),_)
+;
+load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
 	).
-'$use_module'(M,F,Is) :-
+'$use_module'(M,M1,F,Is) :-
 	nonvar(M), !,
-	strip_module(F, M0, F0),
+   (var(F) -> F0 = F ;  absolute_file_name( F, F0, [expand(true),file_type(prolog)] ) ),
 	(
-	    recorded('$module','$module'(F1,M,_,_,_),_)
+	    recorded('$module','$module'(F0,M,_,_,_),_)
 	->
-	    '$load_files'(M0:F1, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
-	),
-        (var(F0) -> F0 = F1 ; absolute_file_name( F1, F2, [expand(true),file_type(prolog)] ) -> F2 = F0 ).
-'$use_module'(M,F,Is) :-
+	    load_files(M1:F0, [if(not_loaded),must_be_module(true),imports(Is)])
+      ;
+      nonvar(F0)
+      ->
+      load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)])
+      ;
+      '$do_error'(instantiation_error,use_module(M,F,Is))
+	).
+'$use_module'(M,_,F,Is) :-
 	'$do_error'(instantiation_error,use_module(M,F,Is)).
 
 /**
@@ -1258,24 +1340,28 @@ account the following observations:
 
 <ul>
 
-  <li> The `reexport` declarations must be the first declarations to
+  + The `reexport` declarations must be the first declarations to
   follow the `module` declaration.  </li>
 
-  <li> It is possible to use both `reexport` and `use_module`, but all
+  + It is possible to use both `reexport` and `use_module`, but all
   predicates reexported are automatically available for use in the
-  current module.  </li>
+  current module.
 
-  <li> In order to obtain efficient execution, YAP compiles
+  + In order to obtain efficient execution, YAP compiles
   dependencies between re-exported predicates. In practice, this means
   that changing a `reexport` declaration and then *just* recompiling
-  the file may result in incorrect execution.  </li>
+  the file may result in incorrect execution.
 
-</ul>
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  ->
+	  true
+	  ;
+	  OldContextModule = user
+	  ),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
 	  '$extend_exports'(File, Imports, OldF )
 	).
@@ -1382,16 +1468,17 @@ Similar to initialization/1, but allows for specifying when
       Do not execute  _Goal_ while loading the program, but only when restoring a state (not implemented yet).
 
 */
-initialization(G0,OPT) :-
-    expand_goal(G0, G),
+initialization(G,OPT) :-
    catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
     fail.
 initialization(_G,_OPT).
 
-'$initialization'(G,OPT) :-
-    must_be_of_type(callable, G, initialization(G,OPT)),
+'$initialization'(G0,OPT) :-
+    must_be_of_type(callable, G0, initialization(G0,OPT)),
     must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G,OPT)),
+                OPT, initialization(G0,OPT)),
+                '$yap_strip_module'(G0,M,G1),
+              '$expand_term'((M:G1), G),
    (
 	 OPT == now
 	->
@@ -1405,7 +1492,7 @@ initialization(_G,_OPT).
 	->
     recordz('$call_at_restore', G, _ )
     ).
-:- .
+
 /**
 
 @}
@@ -1471,20 +1558,20 @@ If an error occurs, the error is printed and processing proceeds as if
 	'$get_if'(Level0),
 	Level is Level0 + 1,
 	nb_setval('$if_level',Level),
-	( '$nb_getval'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-	( '$nb_getval'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
+	( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
+	( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
 	nb_setval('$endif',elif(Level,OldEndif,Mode)),
 	fail.
 % we are in skip mode, ignore....
 '$if'(_Goal,_) :-
-	'$nb_getval'('$endif',elif(Level, OldEndif, skip), fail), !,
+	'__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
 	nb_setval('$endif',endif(Level, OldEndif, skip)).
 % we are in non skip mode, check....
 '$if'(Goal,_) :-
 	('$if_call'(Goal)
 	    ->
 	 % we will execute this branch, and later enter skip
-	 '$nb_getval'('$endif', elif(Level,OldEndif,Mode), fail),
+	 '__NB_getval__'('$endif', elif(Level,OldEndif,Mode), fail),
 	 nb_setval('$endif',endif(Level,OldEndif,Mode))
 
 	;
@@ -1530,7 +1617,7 @@ no test succeeds the else branch is processed.
 % we can try the elif
 '$elif'(Goal,_) :-
 	'$get_if'(Level),
-	'$nb_getval'('$endif',elif(Level,OldEndif,Mode),fail),
+	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
 	('$if_call'(Goal)
 	    ->
 % we will not skip, and we will not run any more branches.
@@ -1567,7 +1654,7 @@ End of conditional compilation.
 	catch('$eval_if'(G), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-	expand_term(Goal,TrueGoal),
+	'$expand_term'(Goal,TrueGoal),
 	once(TrueGoal).
 
 '$if_directive'((:- if(_))).
@@ -1590,12 +1677,23 @@ End of conditional compilation.
 	set_prolog_flag(source, false).
 
 '$fetch_comp_status'(assert_all) :-
-	'$nb_getval'('$assert_all',on, fail), !.
+	'__NB_getval__'('$assert_all',on, fail), !.
 '$fetch_comp_status'(source) :-
 	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
+/** consult_depth(-int:_LV_)
+ *
+ * Unify _LV_ with the number of files being consulted.
+ */
 consult_depth(LV) :- '$show_consult_level'(LV).
+
+prolog_library(File) :-
+    yap_flag(verbose,Old,silent),
+    ensure_loaded(library(File)),
+    yap_flag(verbose,_,Old).
+
+:- '$add_multifile'(dot_qualified_goal,1,user).
 
 /**
   @}

@@ -177,7 +177,7 @@ else()
         llvm_set(SYSTEM_LIBS system-libs)
         string(REPLACE "\n" " " LLVM_LDFLAGS "${LLVM_LDFLAGS} ${LLVM_SYSTEM_LIBS}")
     endif()
-    llvm_set(LIBRARY_DIRS libdir true)
+    llvm_set(LIBRARY_DIRS CMAKE_INSTALL_LIBDIR true)
     llvm_set_libs(LIBRARIES libfiles "${LLVM_LIBRARY_DIRS}")
 endif()
 

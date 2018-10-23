@@ -87,7 +87,6 @@ EXTERNAL  AtomHashEntry  *HashChain;
 #ifdef EUROTRA
 EXTERNAL  Term  TermDollarU;
 #endif
-EXTERNAL  Term  TermAnswer;
 //modules
 EXTERNAL  Term  USER_MODULE;
 EXTERNAL  Term  IDB_MODULE;
@@ -146,6 +145,7 @@ EXTERNAL    struct pred_entry  *PredIs;
 EXTERNAL    struct pred_entry  *PredLogUpdClause;
 EXTERNAL    struct pred_entry  *PredLogUpdClauseErase;
 EXTERNAL    struct pred_entry  *PredLogUpdClause0;
+EXTERNAL    struct pred_entry  *PredCall;
 EXTERNAL    struct pred_entry  *PredMetaCall;
 EXTERNAL    struct pred_entry  *PredProtectStack;
 EXTERNAL    struct pred_entry  *PredRecordedWithKey;
@@ -156,6 +156,7 @@ EXTERNAL    struct pred_entry  *PredThrow;
 EXTERNAL    struct pred_entry  *PredTraceMetaCall;
 EXTERNAL    struct pred_entry  *PredCommentHook;
 EXTERNAL    struct pred_entry  *PredProcedure;
+EXTERNAL    struct pred_entry  *PredUndefinedQuery;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
 EXTERNAL  int  Yap_do_low_level_trace;
@@ -273,6 +274,8 @@ EXTERNAL  int  NUM_OF_ATTS;
 /* initialised by memory allocator */
 EXTERNAL  UInt  Yap_AttsSize;
 #endif
+/** opaque terms used to wake up on cut of call catcher meta-goal */
+EXTERNAL  UInt  setup_call_catcher_cleanup_tag;
 /* Operators */
 EXTERNAL    struct operator_entry  *OpList;
 /* foreign code loaded */
@@ -285,7 +288,7 @@ EXTERNAL    struct record_list  *Yap_Records;
 EXTERNAL  Atom  EmptyWakeups[MAX_EMPTY_WAKEUPS];
 EXTERNAL  int  MaxEmptyWakeups;
 /* SWI blobs */
-EXTERNAL    struct YAP_blob_t  *BlobTypes;
+EXTERNAL    struct _PL_blob_t  *BlobTypes;
 EXTERNAL    struct AtomEntryStruct  *Blobs;
 EXTERNAL  UInt  NOfBlobs;
 EXTERNAL  UInt  NOfBlobsMax;

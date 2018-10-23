@@ -15,24 +15,40 @@
 *									 *
 *************************************************************************/
 
-:- system_module( '$_listing', [listing/0,
+/**
+  * @file   pl/listing.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:05:19 2017
+  *
+  * @brief  list predicates in a module
+  *
+  */
+
+
+/*:- system_module( '$_listing', [listing/0,
         listing/1,
         portray_clause/1,
         portray_clause/2], []).
-
-:- use_system_module( '$_errors', ['$do_error'/2]).
-
-:- use_system_module( '$_preds', ['$clause'/4,
-        '$current_predicate'/4]).
-
-/* listing : Listing clauses in the database
-
 */
+
+/**
+  * @defgroup listingGroup  List predicates in a module
+  * 
+  * @ingroup builtins
+  *
+  * @{ 
+*/
+
+
+
+/** @brief listing : Listing clauses in the database
+ *
+ */
 
 /** @pred  listing
 
 
-vxuLists in the current output stream all the clauses for which source code
+Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
 clauses for static predicates compiled when source mode was `on`).
 
@@ -109,6 +125,7 @@ listing(Stream, [MV|MVs]) :- !,
 
 '$do_listing'(Stream, M, Name/Arity) :-
     ( current_predicate(Name, M:Pred),
+      \+ '$is_opaque_predicate'(Pred,M),
       functor( Pred, Name, Arity),
       \+ '$undefined'(Pred, M),
       '$listing'(Name,Arity,M,Stream),
@@ -207,7 +224,8 @@ listing(Stream, [MV|MVs]) :- !,
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
-	copy_term_nat(Clause, CopiedClause),
+    copy_term_nat(Clause, CopiedClause),
+	'$beautify_vs'(CopiedClause),    
 	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
@@ -218,19 +236,16 @@ Write clause  _C_ as if written by listing/0.
 
 */
 portray_clause(Clause) :-
-        current_output(Stream),
-	portray_clause(Stream, Clause).
+            current_output(Stream),
+            portray_clause(Stream, Clause).
 
 '$portray_clause'(Stream, (Pred :- true)) :- !,
-	'$beautify_vars'(Pred),
 	format(Stream, '~q.~n', [Pred]).
 '$portray_clause'(Stream, (Pred:-Body)) :- !,
-	'$beautify_vars'((Pred:-Body)),
 	format(Stream, '~q :-', [Pred]),
 	'$write_body'(Body, 3, ',', Stream),
 	format(Stream, '.~n', []).
 '$portray_clause'(Stream, Pred) :-
-	'$beautify_vars'(Pred),
 	format(Stream, '~q.~n', [Pred]).
 
 '$write_body'(X,I,T,Stream) :- var(X), !,
@@ -239,8 +254,8 @@ portray_clause(Clause) :-
 '$write_body'((P,Q), I, T, Stream) :-
         !,
         '$write_body'(P,I,T, Stream),
-        put(Stream, 0',),
-        '$write_body'(Q,I,',',Stream).
+        put(Stream, 0',),  %
+	'$write_body'(Q,I,',',Stream).
 '$write_body'((P->Q;S),I,_, Stream) :-
 	!,
 	format(Stream, '~n~*c(',[I,0' ]),
@@ -295,36 +310,25 @@ portray_clause(Clause) :-
 '$write_disj'(S,_,I,C,Stream) :-
 	'$write_body'(S,I,C,Stream).
 
-
 '$beforelit'('(',_,Stream) :-
     !,
     format(Stream,' ',[]).
-'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]).
-
-'$beautify_vars'(T) :-
-	'$list_get_vars'(T,[],L),
-	msort(L,SL),
-	'$list_transform'(SL,0).
+'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
 
 
-'$list_get_vars'(V,L,[V|L] ) :- var(V), !.
-'$list_get_vars'(Atomic, M, M) :-
-	primitive(Atomic), !.
-'$list_get_vars'([Arg|Args], M, N) :-  !,
-	'$list_get_vars'(Arg, M, K),
-	'$list_get_vars'(Args, K, N).
-'$list_get_vars'(Term, M, N) :-
-	Term =.. [_|Args],
-	'$list_get_vars'(Args, M, N).
+'$beautify_vs'(T) :-
+    '$non_singletons_in_term'(T,[],Fs),
+    '$vv_transform'(Fs,1),
+    term_variables(T, NFs),
+    '$v_transform'(NFs).
 
-'$list_transform'([],_) :- !.
-'$list_transform'([X,Y|L],M) :-
-	X == Y,
-	X = '$VAR'(M),
-	!,
+'$v_transform'([]).
+'$v_transform'(['$VAR'(-1)|L]) :-
+	'$v_transform'(L).
+
+'$vv_transform'([],_) :- !.
+'$vv_transform'(['$VAR'(M)|L],M) :-
 	N is M+1,
-	'$list_transform'(L,N).
-'$list_transform'(['$VAR'(-1)|L],M) :- !,
-	'$list_transform'(L,M).
-'$list_transform'([_|L],M) :-
-	'$list_transform'(L,M).
+	'$vv_transform'(L,N).
+
+%% @}

@@ -87,7 +87,6 @@
 #ifdef EUROTRA
   Term  TermDollarU_;
 #endif
-  Term  TermAnswer_;
 //modules
   Term  USER_MODULE_;
   Term  IDB_MODULE_;
@@ -146,6 +145,7 @@
   struct pred_entry  *PredLogUpdClause_;
   struct pred_entry  *PredLogUpdClauseErase_;
   struct pred_entry  *PredLogUpdClause0_;
+  struct pred_entry  *PredCall_;
   struct pred_entry  *PredMetaCall_;
   struct pred_entry  *PredProtectStack_;
   struct pred_entry  *PredRecordedWithKey_;
@@ -156,6 +156,7 @@
   struct pred_entry  *PredTraceMetaCall_;
   struct pred_entry  *PredCommentHook_;
   struct pred_entry  *PredProcedure_;
+  struct pred_entry  *PredUndefinedQuery_;
 /* low-level tracer */
 #ifdef LOW_LEVEL_TRACER
   int  Yap_do_low_level_trace_;
@@ -273,6 +274,8 @@
 /* initialised by memory allocator */
   UInt  Yap_AttsSize_;
 #endif
+/** opaque terms used to wake up on cut of call catcher meta-goal */
+  UInt  setup_call_catcher_cleanup_tag_;
 /* Operators */
   struct operator_entry  *OpList_;
 /* foreign code loaded */
@@ -285,7 +288,7 @@
   Atom  EmptyWakeups_[MAX_EMPTY_WAKEUPS];
   int  MaxEmptyWakeups_;
 /* SWI blobs */
-  struct YAP_blob_t  *BlobTypes_;
+  struct _PL_blob_t  *BlobTypes_;
   struct AtomEntryStruct  *Blobs_;
   UInt  NOfBlobs_;
   UInt  NOfBlobsMax_;

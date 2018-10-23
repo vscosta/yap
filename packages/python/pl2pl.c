@@ -1,5 +1,5 @@
 
-#include "python.h"
+#include "py4yap.h"
 
 static foreign_t array_to_python_list(term_t addr, term_t type, term_t szt,
                                       term_t py) {
@@ -115,23 +115,23 @@ static foreign_t array_to_python_view(term_t addr, term_t type, term_t szt,
 static foreign_t prolog_list_to_python_list(term_t plist, term_t pyt, term_t tlen) {
   size_t sz, i;
    PyErr_Clear();
-   PyObject *pyl = term_to_python(pyt, true, NULL);
+   PyObject *pyl = term_to_python(pyt, true, NULL, true);
   term_t targ = PL_new_term_ref();
 
   if (PL_skip_list(plist, targ, &sz) <0 || ! PL_get_nil(targ)) {
-    pyErrorAndReturn( false, false);
+    pyErrorAndReturn( false);
 }
   if (!PyList_Check(pyl))
     {
-      pyErrorAndReturn( false, false);
+      pyErrorAndReturn( false);
     }
   if (sz > PyList_GET_SIZE(pyl))
-    pyErrorAndReturn( false, false);
+    pyErrorAndReturn( false);
   for  (i=0; i < sz; i++) {
     if (!PL_get_list(plist, targ, plist)) {
-      pyErrorAndReturn( false, false);
+      pyErrorAndReturn( false);
     }
-    PyObject *t = term_to_python(targ, true, NULL);
+    PyObject *t = term_to_python(targ, true, NULL, true);
     PyList_SET_ITEM(pyl, i, t);
   }
   if (PL_is_variable(tlen)) {
@@ -139,7 +139,7 @@ static foreign_t prolog_list_to_python_list(term_t plist, term_t pyt, term_t tle
 } else {
 python_assign(tlen, PyLong_FromUnsignedLong(sz), NULL);
 }
-  pyErrorAndReturn( true, false);
+  pyErrorAndReturn( true);
 }
 
 install_t install_pl2pl(void) {

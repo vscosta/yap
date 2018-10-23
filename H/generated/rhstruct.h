@@ -83,7 +83,6 @@
 #ifdef EUROTRA
   TermDollarU = AtomTermAdjust(TermDollarU);
 #endif
-  TermAnswer = AtomTermAdjust(TermAnswer);
 
   USER_MODULE = AtomTermAdjust(USER_MODULE);
   IDB_MODULE = AtomTermAdjust(IDB_MODULE);
@@ -142,6 +141,7 @@
   PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);
   PredLogUpdClauseErase = PtoPredAdjust(PredLogUpdClauseErase);
   PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
+  PredCall = PtoPredAdjust(PredCall);
   PredMetaCall = PtoPredAdjust(PredMetaCall);
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
@@ -152,6 +152,7 @@
   PredTraceMetaCall = PtoPredAdjust(PredTraceMetaCall);
   PredCommentHook = PtoPredAdjust(PredCommentHook);
   PredProcedure = PtoPredAdjust(PredProcedure);
+  PredUndefinedQuery = PtoPredAdjust(PredUndefinedQuery);
 
 #ifdef LOW_LEVEL_TRACER
 
@@ -269,6 +270,8 @@
 
 
 #endif
+
+
 
   OpList = OpListAdjust(OpList);
 

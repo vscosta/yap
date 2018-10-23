@@ -44,6 +44,14 @@
  * of code.
  */
 
+/**
+ * @file engine.c
+ *
+ * regex interpeter.
+ *
+ * @namespace regexp
+ */
+
 #include "config.h"
 
 #ifndef HAVE_REGEXEC

@@ -15,17 +15,22 @@
 *									 *
 *************************************************************************/
 
-%% @{
-
 /**
-@addtogroup YAPArrays
+
+@file arrays.yap
+
+@addtogroup YAPArraysPl Prolog Support for seeing terms as arrays and for data-base arrays of objects
+
+  @ingroup YAPArrays
+  
+@{
 */
 %
 % These are the array built-in predicates. They will only work if
 % YAP_ARRAYS is defined in Yap.h
 %
 
-/** @pred  array(+ _Name_, + _Size_)
+/** @pred  array( +Name, +Size )
 
 
 Creates a new dynamic array. The  _Size_ must evaluate to an

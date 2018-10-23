@@ -25,16 +25,17 @@
 #ifndef YAPT_HH
 #define YAPT_HH 1
 
-extern "C" {
-  Term YAP_ReadBuffer(const char *s, Term *tp);
-}
-
 class YAPError;
+
+extern "C" {
+
+X_API extern Term YAP_MkCharPTerm(char *n);
+}
 
 /**
  * @brief Generic Prolog Term
  */
-class YAPTerm {
+class X_API YAPTerm {
   friend class YAPPredicate;
   friend class YAPPrologPredicate;
   friend class YAPQuery;
@@ -49,9 +50,9 @@ protected:
 public:
   Term gt() {
     CACHE_REGS
-      // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
-      // Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
-      return Yap_GetFromSlot(t);
+    // fprintf(stderr,"?%d,%lx,%p\n",t,LOCAL_HandleBase[t], HR);
+    // Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
+    return Yap_GetFromSlot(t);
   };
 
   void mk(Term t0) {
@@ -66,36 +67,36 @@ public:
 
   YAPTerm(Term tn) { mk(tn); };
 #ifdef SWIGPYTHON
-  //   YAPTerm(struct _object *inp) {
-  // Term tinp = pythonToYAP(inp);
-  //  t = Yap_InitSlot(tinp);
-  //}
+//   YAPTerm(struct _object *inp) {
+// Term tinp = pythonToYAP(inp);
+//  t = Yap_InitSlot(tinp);
+//}
 #endif
   /// private method to convert from Term (internal YAP representation) to
   /// YAPTerm
   // do nothing constructor
-  YAPTerm() { t=0; };
+  YAPTerm() { t = 0; };
   // YAPTerm(yhandle_t i) { t = i; };
   /// pointer to term
   YAPTerm(void *ptr);
   /// parse string s and construct a term.
   YAPTerm(char *s) {
-    Term tp;
+    Term tp = 0;
     mk(YAP_ReadBuffer(s, &tp));
   }
 
 #if 1
   /// Term destructor, tries to recover slot
-  virtual ~YAPTerm() {
-    //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
-/*    if (!t)
-      return;
-    Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
-    LOCAL_HandleBase[t] = TermFreeTerm;
-    while (LOCAL_HandleBase[LOCAL_CurSlot - 1] == TermFreeTerm) {
-      LOCAL_CurSlot--;
-    }
-    */
+  virtual ~YAPTerm(){
+      //  fprintf(stderr,"-%d,%lx,%p ",t,LOCAL_HandleBase[t] ,HR);
+      /*    if (!t)
+            return;
+          //          Yap_DebugPlWriteln(LOCAL_HandleBase[t]);
+          LOCAL_HandleBase[t] = TermFreeTerm;
+          while (LOCAL_HandleBase[LOCAL_CurSlot - 1] == TermFreeTerm) {
+            LOCAL_CurSlot--;
+          }
+          */
   };
 #endif
 
@@ -114,8 +115,19 @@ public:
   /// numbervars ( int start, bool process=false )
   intptr_t numberVars(intptr_t start, bool skip_singletons = false);
   inline Term term() {
-    return gt();
+    return Deref(gt());
   } /// from YAPTerm to Term (internal YAP representation)
+  YAPTerm arg(int i) {
+    BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    YAPTerm tf;
+    if (!IsApplTerm(t0) && !IsPairTerm(t))
+      return (Term)0;
+    tf = YAPTerm(ArgOfTerm(i, t0));
+    RECOVER_MACHINE_REGS();
+    return tf;
+  };
+
   inline void bind(Term b) { LOCAL_HandleBase[t] = b; }
   inline void bind(YAPTerm *b) { LOCAL_HandleBase[t] = b->term(); }
   /// from YAPTerm to Term (internal YAP representation)
@@ -187,28 +199,9 @@ public:
   virtual bool isGround() { return Yap_IsGroundTerm(gt()); } /// term is ground
   virtual bool isList() { return Yap_IsListTerm(gt()); }     /// term is a list
 
-  /// extract the argument i of the term, where i in 1...arity
-  virtual Term getArg(arity_t i) {
-    BACKUP_MACHINE_REGS();
-    Term tf = 0;
-    Term t0 = gt();
-
-    if (IsApplTerm(t0)) {
-        if (i > t) YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
-      tf = (ArgOfTerm(i, t0));
-  } else if (IsPairTerm(t0)) {
-      if (i == 1)
-        tf = (HeadOfTerm(t0));
-      else if (i == 2)
-        tf = (TailOfTerm(t0));
-        else
-        YAPError(DOMAIN_ERROR_OUT_OF_RANGE, t0, "t0.getArg()");
-    } else {
-        YAPError(TYPE_ERROR_COMPOUND , t0, "t0.getArg()");
-    }
-    RECOVER_MACHINE_REGS();
-    return tf;
-  }
+  /// extract the argument i of the term, where i in 1...arityvoid
+  /// *Yap_RepStreamFromId(int sno)
+  virtual Term getArg(arity_t i);
 
   /// extract the arity of the term
   /// variables have arity 0
@@ -229,21 +222,15 @@ public:
   /// return a string with a textual representation of the term
   virtual const char *text() {
     CACHE_REGS
-      size_t length = 0;
-    encoding_t enc = LOCAL_encoding;
     char *os;
 
     BACKUP_MACHINE_REGS();
-    if (!(os = Yap_TermToString(Yap_GetFromSlot(t), &length, enc,
-                                Handle_vars_f))) {
+    if (!(os = Yap_TermToBuffer(Yap_GetFromSlot(t), Handle_vars_f))) {
       RECOVER_MACHINE_REGS();
       return 0;
     }
     RECOVER_MACHINE_REGS();
-    length = strlen(os) + 1;
-    char *sm = (char *)malloc(length + 1);
-    strcpy(sm, os);
-    return sm;
+    return os;
   };
 
   /// return a handle to the term
@@ -254,59 +241,101 @@ public:
 };
 
 /**
- * @brief Variable Term
+ * @brief YAPFunctor represents Prolog functors Name/Arity
  */
-class YAPVarTerm : public YAPTerm {
-  YAPVarTerm(Term t) {
-    if (IsVarTerm(t)) {
-      mk(t);
-    }
-  }
+class X_API YAPFunctor : public YAPProp {
+  friend class YAPApplTerm;
+  friend class YAPTerm;
+  friend class YAPPredicate;
+  friend class YAPQuery;
+  Functor f;
+  /// Constructor: receives Prolog functor and casts it to YAPFunctor
+  ///
+  /// Notice that this is designed for internal use only.
+  inline YAPFunctor(Functor ff) { f = ff; }
 
 public:
-  /// constructor
-  YAPVarTerm();
-  /// get the internal representation
-  CELL *getVar() { return VarOfTerm(gt()); }
-  /// is the variable bound to another one
-  bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
-  virtual bool isVar() { return true; }      /// type check for unbound
-  virtual bool isAtom() { return false; }    ///  type check for atom
-  virtual bool isInteger() { return false; } /// type check for integer
-  virtual bool isFloat() { return false; }   /// type check for floating-point
-  virtual bool isString() { return false; }  /// type check for a string " ... "
-  virtual bool isCompound() { return false; } /// is a primitive term
-  virtual bool isAppl() { return false; }     /// is a structured term
-  virtual bool isPair() { return false; }     /// is a pair term
-  virtual bool isGround() { return false; }   /// term is ground
-  virtual bool isList() { return false; }     /// term is a list
+  /// Constructor: receives name as an atom, plus arity
+  ///
+  /// This is the default method, and the most popular
+  YAPFunctor(YAPAtom at, uintptr_t arity) { f = Yap_MkFunctor(at.a, arity); }
+
+  /// Constructor: receives name as a string plus arity
+  ///
+  /// Notice that this is designed for ISO-LATIN-1 right now
+  /// Note: Python confuses the 3 constructors,
+  /// use YAPFunctorFromString
+  inline YAPFunctor(const char *s, uintptr_t arity, bool isutf8 = true) {
+    f = Yap_MkFunctor(Yap_LookupAtom(s), arity);
+  }
+  /// Constructor: receives name as a  wide string plus arity
+  ///
+  /// Notice that this is designed for UNICODE right now
+  ///
+  /// Note: Python confuses the 3 constructors,
+  /// use YAPFunctorFromWideString
+  inline YAPFunctor(const wchar_t *s, uintptr_t arity) {
+    CACHE_REGS f = Yap_MkFunctor(UTF32ToAtom(s PASS_REGS), arity);
+  }
+  /// Getter: extract name of functor as an atom
+  ///
+  /// this is for external usage.
+  YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
+
+  /// Getter: extract arity of functor as an unsigned integer
+  ///
+  /// this is for external usage.
+  uintptr_t arity(void) { return ArityOfFunctor(f); }
 };
 
 /**
  * @brief Compound Term
  */
-class YAPApplTerm : public YAPTerm {
+class X_API YAPApplTerm : public YAPTerm {
   friend class YAPTerm;
 
 public:
-    YAPApplTerm(Term t0) { mk(t0); }
-  YAPApplTerm(Functor f, Term ts[]) {
+YAPApplTerm(Term t0) { mk(t0); }
+YAPApplTerm(Functor f, Term ts[]) {
     BACKUP_MACHINE_REGS();
     Term t0 = Yap_MkApplTerm(f, f->ArityOfFE, ts);
     mk(t0);
     RECOVER_MACHINE_REGS();
   };
   YAPApplTerm(YAPFunctor f, YAPTerm ts[]);
-  YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
+  YAPApplTerm(const std::string s, unsigned int arity) {
+    mk(Yap_MkNewApplTerm(Yap_MkFunctor(Yap_LookupAtom(s.c_str()), arity),
+                         arity));
+  };
+    YAPApplTerm(const std::string s, std::vector<Term> ts);
+    YAPApplTerm(const std::string s, std::vector<YAPTerm> ts);
   YAPApplTerm(YAPFunctor f);
-  YAPFunctor getFunctor();
-  Term getArg(arity_t i) {
+  inline Functor functor() { return FunctorOfTerm(gt()); }
+  inline YAPFunctor getFunctor() { return YAPFunctor(FunctorOfTerm(gt())); }
+    YAPApplTerm(const std::string f, YAPTerm a1);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3);
+    YAPApplTerm(const std::string f, YAPTerm a1, YAPTerm a2, YAPTerm a3,  YAPTerm a4);
+
+    Term getArg(arity_t i) {
     BACKUP_MACHINE_REGS();
     Term t0 = gt();
     Term tf;
     tf = ArgOfTerm(i, t0);
     RECOVER_MACHINE_REGS();
     return tf;
+  };
+  void putArg(int i, Term targ) {
+    // BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    RepAppl(t0)[i] = Deref(targ);
+    // RECOVER_MACHINE_REGS();
+  };
+  void putArg(int i, YAPTerm t) {
+    // BACKUP_MACHINE_REGS();
+    Term t0 = gt();
+    RepAppl(t0)[i] = t.term();
+    // RECOVER_MACHINE_REGS();
   };
   virtual bool isVar() { return false; }     /// type check for unbound
   virtual bool isAtom() { return false; }    ///  type check for atom
@@ -323,45 +352,32 @@ public:
 /**
  * @brief List Constructor Term
  */
-class YAPPairTerm : public YAPTerm {
+class X_API YAPPairTerm : public YAPTerm {
   friend class YAPTerm;
 
-
 public:
-    YAPPairTerm(Term t0) {
-        t0 = Deref(t0);
-      if (IsPairTerm(t0) || t0 == TermNil)
-        mk(t0);
-      else
-        Yap_ThrowError(TYPE_ERROR_LIST, t0, "YAPPairTerms");
-    }
-    YAPPairTerm(YAPTerm hd, YAPTerm tl);
+  YAPPairTerm(Term t0) {
+    t0 = Deref(t0);
+    if (IsPairTerm(t0) || t0 == TermNil)
+      mk(t0);
+    else
+      Yap_ThrowError(TYPE_ERROR_LIST, t0, "YAPPairTerms");
+  }
+  YAPPairTerm(YAPTerm hd, YAPTerm tl);
   YAPPairTerm();
   Term getHead() { return (HeadOfTerm(gt())); }
   Term getTail() { return (TailOfTerm(gt())); }
-  std::vector<Term> listToArray() {
-      Term *tailp;
-      Term t1 = gt();
-      Int l = Yap_SkipList(&t1, &tailp);
-      if (l < 0) {
-            throw YAPError(TYPE_ERROR_LIST, YAPTerm(t), "");
-  }
-  std::vector<Term> o = std::vector<Term>(l);
-  int i = 0;
-  Term t = gt();
-  while (t != TermNil) {
-      o[i++] = HeadOfTerm(t);
-      t = TailOfTerm(t);
-  }
-  return o;
-  }
+  YAPTerm car() { return YAPTerm(HeadOfTerm(gt())); }
+  bool nil() { return gt() == TermNil; }
+  YAPPairTerm cdr() { return YAPPairTerm(TailOfTerm(gt())); }
+  std::vector<Term> listToArray();
 };
 
 /**
  * @brief Number Term
  */
 
-class YAPNumberTerm : public YAPTerm {
+class X_API YAPNumberTerm : public YAPTerm {
 public:
   YAPNumberTerm(){};
   bool isTagged() { return IsIntTerm(gt()); }
@@ -371,7 +387,7 @@ public:
  * @brief Integer Term
  */
 
-class YAPIntegerTerm : public YAPNumberTerm {
+class X_API YAPIntegerTerm : public YAPNumberTerm {
 public:
   YAPIntegerTerm(intptr_t i);
   intptr_t getInteger() { return IntegerOfTerm(gt()); };
@@ -381,14 +397,14 @@ public:
  * @brief Floating Point Term
  */
 
-class YAPFloatTerm : public YAPNumberTerm {
+class X_API YAPFloatTerm : public YAPNumberTerm {
 public:
   YAPFloatTerm(double dbl) { mk(MkFloatTerm(dbl)); };
 
   double getFl() { return FloatOfTerm(gt()); };
 };
 
-class YAPListTerm : public YAPTerm {
+class X_API YAPListTerm : public YAPTerm {
 public:
   /// Create a list term out of a standard term. Check if a valid operation.
   ///
@@ -419,15 +435,7 @@ public:
   /// Extract the tail elements of a list.
   ///
   /// @param[in] the list
-  Term cdr() {
-    Term to = gt();
-    if (IsPairTerm(to))
-      return (TailOfTerm(to));
-    else if (to == TermNil)
-      return TermNil;
-    /* error */
-    throw YAPError(TYPE_ERROR_LIST, YAPTerm(to), "");
-  }
+  Term cdr();
   /// copy a list.
   ///
   /// @param[in] the list
@@ -446,7 +454,7 @@ public:
 /**
  * @brief String Term
  */
-class YAPStringTerm : public YAPTerm {
+class X_API YAPStringTerm : public YAPTerm {
 public:
   /// your standard constructor
   YAPStringTerm(char *s);
@@ -463,23 +471,26 @@ public:
  * @brief Atom Term
  * Term Representation of an Atom
  */
-class YAPAtomTerm : public YAPTerm {
+class X_API YAPAtomTerm : public YAPTerm {
   friend class YAPModule;
   // Constructor: receives a C-atom;
-  YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
   YAPAtomTerm(Term t) : YAPTerm(t) { IsAtomTerm(t); }
 
 public:
-  // Constructor: receives an atom;
+  YAPAtomTerm(Atom a) { mk(MkAtomTerm(a)); }
+  //> Constructor: receives an atom;
   YAPAtomTerm(YAPAtom a) : YAPTerm() { mk(MkAtomTerm(a.a)); }
-  // Constructor: receives a sequence of ISO-LATIN1 codes;
+  //> Constructor: receives a sequence of UTF-8 codes;
   YAPAtomTerm(char s[]);
-  // Constructor: receives a sequence of up to n ISO-LATIN1 codes;
+  // Constructor: receives a sequence of up to n UTF-8 codes;
   YAPAtomTerm(char *s, size_t len);
   // Constructor: receives a sequence of wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s);
   // Constructor: receives a sequence of n wchar_ts, whatever they may be;
   YAPAtomTerm(wchar_t *s, size_t len);
+  // Constructor: receives a std::string;
+  //   YAPAtomTerm(std::string s) { mk(MkAtomTerm(Yap_LookupAtom(s.c_str())));
+  //   };
   bool isVar() { return false; }           /// type check for unbound
   bool isAtom() { return true; }           ///  type check for atom
   bool isInteger() { return false; }       /// type check for integer
@@ -496,5 +507,36 @@ public:
   const char *text() { return (const char *)AtomOfTerm(gt())->StrOfAE; }
 };
 #endif /* YAPT_HH */
+
+/**
+ * @brief Variable Term
+ */
+class X_API YAPVarTerm : public YAPTerm {
+  friend class YAPTerm;
+
+public:
+  /// constructor
+  YAPVarTerm() { mk(MkVarTerm()); };
+  /// get the internal representation
+  CELL *getVar() { return VarOfTerm(gt()); }
+  /// is the variable bound to another one
+  YAPVarTerm(Term t) {
+    if (IsVarTerm(t)) {
+      mk(t);
+    }
+  }
+  /// type check for unbound
+  bool unbound() { return IsUnboundVar(VarOfTerm(gt())); }
+  inline bool isVar() { return true; }      
+  inline bool isAtom() { return false; }     ///  type check for atom
+  inline bool isInteger() { return false; }  /// type check for integer
+  inline bool isFloat() { return false; }    /// type check for floating-point
+  inline bool isString() { return false; }   /// type check for a string " ... "
+  inline bool isCompound() { return false; } /// is a primitive term
+  inline bool isAppl() { return false; }     /// is a structured term
+  inline bool isPair() { return false; }     /// is a pair term
+  inline bool isGround() { return false; }   /// term is ground
+  inline bool isList() { return false; }     /// term is a list
+};
 
 /// @}

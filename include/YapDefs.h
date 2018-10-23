@@ -1,153 +1,67 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 	@(#)c_interface.h	2.2			 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		yap_structs.h						 *
-* Last rev:	15/5/2000						 *
-* mods:									 *
-* comments:	Data structures and defines used in the Interface	 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 	@(#)c_interface.h	2.2			 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		yap_structs.h *
+ * Last rev:	15/5/2000						 *
+ * mods: *
+ * comments:	Data structures and defines used in the Interface	 *
+ *									 *
+ *************************************************************************/
 
 #ifndef _YAPDEFS_H
 
 #define _YAPDEFS_H 1
 
+/**
+ * X_API macro
+ *
+ * @brief Linux exports all symbols by default, but WIN32 does
+ * not. cmake can enable exports, using CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
+ *
+ * @param _WIN32
+ *
+ * @return
+ */
+#if _WIN32
+#if defined(_EXPORT_KERNEL)
+// __declspec(dllexport)
+#define X_API
+#else
+// __declspec(dllimport)
+#define X_API
+#endif
+// __declspec(dllexport)
+#define O_API
+// __declspec(dllimport)
+#define I_API
+#else
+#define O_API
+#define I_API
+#define X_API
+#endif
+
 #include <setjmp.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef YAP_H
-
-/* The YAP main types */
-#include "YapTerm.h"
-
-/**
-  This term can never be constructed as a valid term, so it is
-  used as a "BAD" term
-*/
-#define TermZERO ((Term)0)
-
-#else
 
 #include "YapConfig.h"
 
-#endif /* YAP_H */
-
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-
-/* truth-values */
-/* stdbool defines the booleam type, bool,
-   and the constants false and true */
-#if HAVE_STDBOOL_H
-#include <stdbool.h>
-#else
-#ifndef true
-typedef int _Bool;
-#define bool _Bool;
-
-#define false 0
-#define true 1
-#endif
-#endif /* HAVE_STDBOOL_H */
-
-/**
-   FALSE and TRUE are the pre-standard versions,
-   still widely used.
-*/
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
-#ifndef YAP_Bool
-typedef bool YAP_Bool;
-#endif
-
-#ifdef YAP_H
-
-/* if Yap.h is available, just reexport */
-
-#define YAP_CELL CELL
-
-#define YAP_Term Term
-
-#define YAP_Arity arity_t
-
-#define YAP_Module Term
-
-#define YAP_Functor Functor
-
-#define YAP_Atom Atom
-
-#define YAP_Int Int
-
-#define YAP_UInt UInt
-
-#define YAP_Float Float
-
-#define YAP_handle_t yhandle_t
-
-#define YAP_PredEntryPtr struct pred_entry *
-
-#define YAP_UserCPred CPredicate
-
-#define YAP_agc_hook Agc_hook
-
-#define YAP_encoding_t encoding_t
-
-#else
-
-/* Type definitions */
-#if defined(PRIdPTR)
-typedef uintptr_t YAP_UInt;
-typedef intptr_t YAP_Int;
-#elif _WIN64
-typedef int64_t YAP_Int;
-typedef uint64_t YAP_UInt;
-#elif _WIN32
-typedef int32_t YAP_Int;
-typedef uint32_t YAP_UInt;
-#else
-typedef long int YAP_Int;
-typedef unsigned long int YAP_UInt;
-#endif
-
-typedef YAP_UInt YAP_CELL;
-
-typedef YAP_CELL YAP_Term;
+typedef void *YAP_PredEntryPtr;
 
 typedef size_t YAP_Arity;
 
 typedef YAP_Term YAP_Module;
 
-typedef struct FunctorEntry *YAP_Functor;
-
-typedef struct AtomEntry *YAP_Atom;
-
-typedef double YAP_Float;
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-#ifndef FALSE
-#define FALSE 0
-#endif
-
 typedef YAP_Int YAP_handle_t;
 
-typedef struct YAP_pred_entry *YAP_PredEntryPtr;
+typedef void *YAP_PredEntryPtr;
 
 typedef YAP_Bool (*YAP_UserCPred)(void);
 
@@ -159,6 +73,9 @@ typedef int (*YAP_agc_hook)(void *_Atom);
 
 typedef encoding_t YAP_encoding_t;
 
+#if __ANDROID__
+#include <android/asset_manager.h>
+#include <android/native_activity.h>
 #endif
 
 typedef struct YAP_thread_attr_struct {
@@ -182,7 +99,8 @@ typedef enum {
   YAP_BOOT_PL = 0x0030,
   YAP_QLY = 0x0040,
   YAP_EXE = 0x0080,
-  YAP_FOUND_BOOT_ERROR = 0x0100
+  YAP_FOUND_BOOT_ERROR = 0x0100,
+  YAP_DIR = 0x0200
 } YAP_file_type_t;
 
 #define YAP_ANY_FILE (0x00ff)
@@ -205,10 +123,6 @@ typedef enum {
   YAP_TAG_ARRAY = 0x4000
 } YAP_tag_t;
 
-#define YAP_BOOT_FROM_SAVED_CODE 1
-#define YAP_BOOT_FROM_SAVED_STACKS 2
-#define YAP_BOOT_ERROR -1
-
 #define YAP_WRITE_QUOTED 1
 #define YAP_WRITE_IGNORE_OPS 2
 #define YAP_WRITE_HANDLE_VARS 4
@@ -220,113 +134,17 @@ typedef enum {
 #define YAP_WRITE_ATTVAR_PORTRAY 0x400
 #define YAP_WRITE_BLOB_PORTRAY 0x800
 
-#define YAP_CONSULT_MODE 0
-#define YAP_RECONSULT_MODE 1
-#define YAP_BOOT_MODE 2
-
-typedef struct yap_boot_params {
-  //> boot type as suggested by the user 
-  YAP_file_type_t boot_file_type;
-  //> if NON-NULL, path where we can find the saved state 
-  const char *SavedState;
-  //> if NON-0, minimal size for Heap or Code Area 
-  size_t HeapSize;
-  //> if NON-0, maximal size for Heap or Code Area 
-  size_t MaxHeapSize;
-  //> if NON-0, minimal size for Local+Global Stack 
-  size_t StackSize;
-  //> if NON-0, maximal size for Local+Global Stack 
-  size_t MaxStackSize;
-    //*> deprecated
-  size_t MaxGlobalSize;
-  //> if NON-0, minimal size for Trail 
-  size_t TrailSize;
-  //> if NON-0, maximal size for Trail
-  size_t MaxTrailSize;
-  //> if NON-0, minimal size for AttributeVarStack 
-  size_t AttsSize;
-  //> if NON-0, maximal size for AttributeVarStack 
-  size_t MaxAttsSize;
-    //> if NON-NULL, value for YAPLIBDIR 
-    const char *YapLibDir;
-    //> if NON-NULL, value for YAPSSHAREDIR, that is, default value for libraries 
-    const char *YapShareDir;
-    //> if NON-NULL, name for a Prolog file to use when booting  
-  const char *YapPrologBootFile;
-  //> if NON-NULL, name for a Prolog file to use when initializing  
-  const char *YapPrologInitGoal;
-  //> if NON-NULL, name for a Prolog file to consult before entering top-level 
-  const char *YapPrologRCFile;
-  //> if NON-NULL, a goal to run before top-level  
-  const char *YapPrologGoal;
-  //> if NON-NULL, a goal to run as top-level  
-  const char *YapPrologTopLevelGoal;
-  //> if NON-NULL, a path to extend file-search-path   
-  const char *YapPrologAddPath;
-  //> if previous NON-NULL and TRUE, halt after consulting that file  
-  bool HaltAfterConsult;
-  //> ignore .yaprc, .prolog.ini, etc. files.  
-  bool FastBoot;
-  //> the next field only interest YAPTAB 
-  //> if NON-0, maximum size for Table Space 
-  size_t MaxTableSpaceSize;
-  /* the next three fields only interest YAPOR, but we keep them so that
-     users don't need to recompile DLL in order to use YAPOR */
-  //> if NON-0, number of workers we want to have (default=1) 
-  unsigned long int NumberWorkers;
-  //> if NON-0, manage the inner scheduler loop (default = 10) 
-  unsigned long int SchedulerLoop;
-  //> if NON-0, say how long to keep nodes (default = 3) 
-  unsigned long int DelayedReleaseLoad;
-  //> end of YAPOR fields 
-  /* whether Prolog should handle interrupts. Note that
-    interrupts will always be disabled in embedded mode. */
-  bool PrologCannotHandleInterrupts;
-  //> flag for JIT mode 
-  int ExecutionMode;
-  //> number of arguments that Prolog will see 
-  int Argc;
-  //> array of arguments as seen by Prolog 
-  char **Argv;
-  //> embedded in some other system: no signals, readline, etc 
-  bool Embedded;
-  //> QuietMode 
-  int QuietMode;
-
-/* nf: Begin ypp preprocessor code */
-#define YAP_MAX_YPP_DEFS 100
-  char *def_var[YAP_MAX_YPP_DEFS];
-  char *def_value[YAP_MAX_YPP_DEFS];
-  int def_c;
-/* End preprocessor code */
-
-#ifdef MYDDAS_MYSQL
-  //> If any myddas option was given 
-  short myddas;
-  //> MYDDAS Fields 
-  char *myddas_user;
-  char *myddas_pass;
-  char *myddas_db;
-  char *myddas_host;
-#endif
-  /* errornumber */
-  int ErrorNo;
-  //> errorstring 
-  char *ErrorCause;
-} YAP_init_args;
-
-#ifdef YAP_H
-YAP_file_type_t Yap_InitDefaults(YAP_init_args *init_args, char saved_state[],
-                                 int Argc, char *Argv[]);
-#endif
+#include "YapInit.h"
 
 /* this should be opaque to the user */
 typedef struct {
-  unsigned long b;      //> choice-point at entry
+  unsigned long b, b0;      //> choice-point at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
+  int lvl;
+  unsigned long tr, h;
 } YAP_dogoalinfo;
 
 // query manipulation support
@@ -345,22 +163,37 @@ typedef struct open_query_struct {
 
 typedef void (*YAP_halt_hook)(int exit_code, void *closure);
 
+/** Interface to opaque variables */
+
+/* each type has a tag */
 typedef YAP_Int YAP_opaque_tag_t;
 
-typedef YAP_Bool (*YAP_Opaque_CallOnFail)(void *);
+typedef YAP_Bool (*YAP_Opaque_CallOnFail)(YAP_Term);
+typedef YAP_Bool (*YAP_Opaque_CallOnCut)(YAP_Term);
 typedef YAP_Bool (*YAP_Opaque_CallOnWrite)(FILE *, YAP_opaque_tag_t, void *,
                                            int);
 typedef YAP_Int (*YAP_Opaque_CallOnGCMark)(YAP_opaque_tag_t, void *, YAP_Term *,
                                            YAP_Int);
 typedef YAP_Bool (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *,
                                                 YAP_Term *, YAP_Int);
-
+/// opaque variables can interact with the system
 typedef struct YAP_opaque_handler_struct {
-  YAP_Opaque_CallOnFail fail_handler;
-  YAP_Opaque_CallOnWrite write_handler;
-  YAP_Opaque_CallOnGCMark mark_handler;
-  YAP_Opaque_CallOnGCRelocate relocate_handler;
+  YAP_Opaque_CallOnCut cut_handler; //< called at cut, which may be a forward
+                                    // cut or an exception.
+  YAP_Opaque_CallOnFail
+      fail_handler; //< called at exit, it can be used to cleanup resources
+  YAP_Opaque_CallOnWrite write_handler; //< text representation
+  YAP_Opaque_CallOnGCMark
+      mark_handler; //< useful if you include pointers to stack
+  YAP_Opaque_CallOnGCRelocate
+      relocate_handler; //< useful if you include pointers to stack
 } YAP_opaque_handler_t;
+
+extern YAP_Opaque_CallOnWrite Yap_blob_write_handler_from_slot(YAP_Int slot);
+extern YAP_Opaque_CallOnGCMark Yap_blob_gc_mark_handler(YAP_Term t);
+extern YAP_Opaque_CallOnGCRelocate Yap_blob_gc_relocate_handler(YAP_Term t);
+extern YAP_Int Yap_blob_tag_from_slot(YAP_Int slot);
+extern void *Yap_blob_info_from_slot(YAP_Int slot);
 
 /********* execution mode ***********************/
 
@@ -406,7 +239,9 @@ typedef enum stream_f {
       0x1000000, /**< do not close the stream after an abort event */
   Readline_Stream_f = 0x2000000, /**< the stream is a readline stream */
   FreeOnClose_Stream_f =
-      0x4000000 /**< the stream buffer should be releaed on close */
+  0x4000000, /**< the stream buffer should be releaed on close */
+  CloseOnException_Stream_f =
+      0x8000000 /**< the stream closed by Yap_Error and friends */
 } estream_f;
 
 typedef uint64_t stream_flags_t;

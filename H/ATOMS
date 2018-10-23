@@ -7,6 +7,7 @@
 // This is supported by YAP directly
 // A Dot			N	"."
 //
+A	AtSymbol		N	"@"
 A	3Dots			N	"..."
 A	Abol			F	"$abol"
 A	Access			N	"access"
@@ -20,7 +21,7 @@ A	AltNot			N	"not"
 A	Answer			N	"answer"
 A	Any             N	"any"
 A	Append			N	"append"
-A	Arg			N	"arg"
+A	Arg			    N	"arg"
 A	Array			F	"$array"
 A	ArrayAccess		F	"$array_arg"
 A	ArrayOverflow		N	"array_overflow"
@@ -37,6 +38,7 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
+A As    N   "as"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -134,6 +136,7 @@ A	Eq			N	"="
 A	Error			N	"error"
 A	Exception		N	"exception"
 A	Extensions		N	"extensions"
+A	ExternalException		N	"external_exception"
 A	Evaluable		N	"evaluable"
 A	EvaluationError		N	"evaluation_error"
 A	Executable		N	"executable"
@@ -170,6 +173,7 @@ A	Full			N	"full"
 A	Functor			N	"functor"
 A	GT			N	">"
 A	GVar			N	"var"
+A	g			N	"g"
 A	Gc			F	"$gc"
 A	GcMargin		F	"$gc_margin"
 A	GcTrace			F	"$gc_trace"
@@ -184,6 +188,7 @@ A	GlobalSp		N	"global_sp"
 A	GlobalTrie		N	"global_trie"
 A	GoalExpansion		N	"goal_expansion"
 A	Hat			N	"^"
+A	DoubleHat		N	"^^"
 A	HERE			N	"\n   <====HERE====>  \n"
 A	HandleThrow		F	"$handle_throw"
 A	Heap			N	"heap"
@@ -221,7 +226,7 @@ A	Least			N	"least"
 A	Length			F	"length"
 A	List			N	"list"
 A	Line			N	"line"
-A	Live			F	"$live"
+A	Live			F	"live"
 A	LoadAnswers		N	"load_answers"
 A	Local			N	"local"
 A	LocalSp			N	"local_sp"
@@ -267,7 +272,7 @@ A	NotLessThanZero		N	"not_less_than_zero"
 A	NotNewline		N	"not_newline"
 A	NotZero			N	"not_zero"
 A	Number			N	"number"
-A	Obj			N	"o__bj__"
+A	Obj			N	"__obj__"
 A	Off			N	"off"
 A	Offline			N	"offline"
 A	On			N	"on"
@@ -288,15 +293,15 @@ A	OutOfStackError		N	"out_of_stack_error"
 A	OutOfTrailError		N	"out_of_trail_error"
 A	Output			N	"output"
 A	Parameter		N	"parameter"
-A	PrologCommonsDir	N	"prolog_commons_directory"
 A	Past			N	"past"
 A	PastEndOfStream		N	"past_end_of_stream"
 A	PermissionError		N	"permission_error"
 A	Pi			N	"pi"
 A	Pipe			N	"pipe"
-A   Priority		N   "priority"
+A	Priority		N   "priority"
 A	Plus			N	"+"
 A	Pointer			N	"pointer"
+A	Popen			N	"popen"
 A	Portray			F	"portray"
 A	PredicateIndicator	N	"predicate_indicator"
 A	Primitive		N	"primitive"
@@ -305,6 +310,7 @@ A	PrivateProcedure	N	"private_procedure"
 A	Procedure		N	"procedure"
 A	Profile			F	"$profile"
 A	Prolog			N	"prolog"
+A	PrologCommonsDir	N	"prolog_commons_directory"
 A	ProtectStack	F	"$protect_stack"
 A	Qly			    N	"qly"
 A	Query			N	"?-"
@@ -322,6 +328,7 @@ A	Reconsult		N	"reconsult"
 A	RecordedP		F	"$recordep"
 A	RecordedWithKey		F	"$recorded_with_key"
 A	RedefineWarnings	N	"redefine_warnings"
+A	Redo      		F	"redo"
 A	RedoFreeze		F	"$redo_freeze"
 A	RefoundVar		F	"$I_FOUND_THE_VARIABLE_AGAIN"
 A	RelativeTo		F	"relative_to"
@@ -395,6 +402,7 @@ A	SystemLibraryDir	N	"system_library_directory"
 A 	T			N	"t"
 A 	Term			N	"term"
 A	TermExpansion		N	"term_expansion"
+A	TermPosition		N	"term_position"
 A	Terms			N	"terms"
 A	Text			N	"text"
 A	TextStream		N	"text_stream"
@@ -414,6 +422,7 @@ A 	Tuple			N	"tuple"
 A	Txt			N	"txt"
 A	TypeError		N	"type_error"
 A	Undefined		N	"undefined"
+A	UndefinedQuery	N	"undefined_query"
 A	Undefp			F	"$undefp"
 A	Undefp0			F	"$undefp0"
 A	Underflow		N	"underflow"
@@ -425,6 +434,7 @@ A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
+A	UTF8			N	"utf8"
 A	DollarVar	    N	"$VAR"
 A	VBar			N	"|"
 A	VarBranches		N	"var_branches"
@@ -451,8 +461,11 @@ F	Arg			    Arg		3
 F	ArrayEntry		ArrayAccess	3
 F	Arrow			Arrow		2
 F	DoubleArrow		DoubleArrow	2
+F	As			As		2
 F	Assert1			Assert		1
 F	Assert			Assert		2
+F	At			At		2
+F	AtSymbol		AtSymbol	2
 F	AtFoundOne		FoundVar	2
 F	Atom			Atom		1
 F	Att1			Att1		3
@@ -500,6 +513,7 @@ F	Dot9			Dot		9
 F	DoubleArrow			DoubleArrow		2
 F	DoubleSlash			DoubleSlash		2
 F	EmptySquareBrackets	EmptySquareBrackets	2
+F	Encoding		Encoding	1
 F	Eq			Eq		2
 F	Error			Error		2
 F	EvaluationError		EvaluationError	1
@@ -509,6 +523,7 @@ F	ExecuteInMod		ExecuteInMod	2
 F	ExecuteWithin		ExecuteWithin	1
 F	ExistenceError		ExistenceError	2
 F	ExoClause		ExoClause	2
+F	ExternalException		ExternalException  1
 F	Functor			Functor		3
 F	GAtom			Atom		1
 F	GAtomic			Atomic		1
@@ -524,6 +539,7 @@ F	GoalExpansion2		GoalExpansion	2
 F	GoalExpansion		GoalExpansion	3
 F	HandleThrow		HandleThrow	3
 F	Hat			Hat		2
+F	DoubleHat		DoubleHat	1
 F	I			I		2
 F	Id			Id		1
 F   Info1       Info   1
@@ -550,6 +566,7 @@ F	Or			Semic		2
 F   Output      Output      1
 F	PermissionError		PermissionError	3
 F	Plus			Plus		2
+F	Popen			Popen		1
 F	Portray			Portray		1
 F	PrintMessage		PrintMessage	2
 F   Procedure       Procedure       5
@@ -583,6 +600,7 @@ F	TimeoutError		TimeoutError	2
 F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
+F   	UndefinedQuery  	UndefinedQuery  3
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	WriteTerm		WriteTerm	2

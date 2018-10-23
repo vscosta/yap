@@ -69,7 +69,7 @@ PL_save_text(PL_chars_t *text, int flags)
   { size_t bl = bufsize_text(text, text->length+1);
     void *new = PL_malloc(bl);
 
-    memcpy(new, text->text.t, bl);
+    memmove(new, text->text.t, bl);
     text->text.t = new;
     text->storage = PL_CHARS_MALLOC;
   } else if ( text->storage == PL_CHARS_LOCAL )
@@ -104,7 +104,7 @@ PL_from_stack_text(PL_chars_t *text)
   { size_t bl = bufsize_text(text, text->length+1);
 
     if ( bl < sizeof(text->buf) )
-    { memcpy(text->buf, text->text.t, bl);
+    { memmove(text->buf, text->text.t, bl);
       text->text.t = text->buf;
       text->storage = PL_CHARS_LOCAL;
     } else
@@ -135,7 +135,7 @@ ui64toa(uint64_t val, char *out)
   } while ( val );
 
   nbDigs = ptrOrg - ptr;
-  memcpy(out, ptr, nbDigs);
+  memmove(out, ptr, nbDigs);
   out += nbDigs;
   *out = '\0';
 
@@ -610,7 +610,7 @@ PL_promote_text(PL_chars_t *text)
       unsigned char *e = &buf[text->length];
       pl_wchar_t *t = (pl_wchar_t*)text->buf;
 
-      memcpy(buf, text->buf, text->length*sizeof(char));
+      memmove(buf, text->buf, text->length*sizeof(char));
       while(f<e)
       { *t++ = *f++;
       }
@@ -663,7 +663,7 @@ PL_demote_text(PL_chars_t *text)
       pl_wchar_t *e = &buf[text->length];
       char *t = text->buf;
 
-      memcpy(buf, text->buf, text->length*sizeof(pl_wchar_t));
+      memmove(buf, text->buf, text->length*sizeof(pl_wchar_t));
       while(f<e)
       { if ( *f > 0xff )
 	  return FALSE;
@@ -1021,7 +1021,7 @@ PL_canonise_text(PL_chars_t *text)
 	    text->encoding = ENC_WCHAR;
 	    if ( len+1 < sizeof(text->buf)/sizeof(wchar_t) )
 	    { if ( text->text.t == text->buf )
-	      { memcpy(b2, text->buf, sizeof(text->buf));
+	      { memmove(b2, text->buf, sizeof(text->buf));
 		from = b2;
 	      }
 	      text->text.w = (wchar_t*)text->buf;
@@ -1239,7 +1239,7 @@ PL_concat_text(int n, PL_chars_t **text, PL_chars_t *result)
     }
 
     for(to=result->text.t, i=0; i<n; i++)
-    { memcpy(to, text[i]->text.t, text[i]->length);
+    { memmove(to, text[i]->text.t, text[i]->length);
       to += text[i]->length;
     }
     *to = EOS;
@@ -1257,7 +1257,7 @@ PL_concat_text(int n, PL_chars_t **text, PL_chars_t *result)
 
     for(to=result->text.w, i=0; i<n; i++)
     { if ( text[i]->encoding == ENC_WCHAR )
-      { memcpy(to, text[i]->text.w, text[i]->length*sizeof(pl_wchar_t));
+      { memmove(to, text[i]->text.w, text[i]->length*sizeof(pl_wchar_t));
 	to += text[i]->length;
       } else
       { const unsigned char *f = (const unsigned char *)text[i]->text.t;

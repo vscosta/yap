@@ -80,7 +80,7 @@ int bpredscpu(int *dop1, int rows, int *bin, int3 numpreds, int **ret)
 	ptr = fres;
 	for(x = 0; x < NUM_T; x++)
 	{
-		memcpy(ptr, vec[x].data(), ini[x] * sizeof(int));
+		memmove(ptr, vec[x].data(), ini[x] * sizeof(int));
 		ptr += ini[x];
 	}
 	*ret = fres;

@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		sysbits.c *
-* Last rev:	4/03/88							 *
-* mods: *
-* comments:	very much machine dependent routines			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		sysbits.c *
+ * Last rev:	4/03/88							 *
+ * mods: *
+ * comments:	very much machine dependent routines			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -34,14 +34,6 @@ static void FileError(yap_error_number type, Term where, const char *format,
   }
 }
 
-/// Allocate a temporary buffer
-static char *getFileNameBuffer(void) {
-
-  return Yap_AllocAtomSpace(YAP_FILENAME_MAX);
-}
-
-static void freeFileNameBuffer(char *s) { Yap_FreeCodeSpace(s); }
-
 static Int p_sh(USES_REGS1);
 static Int p_shell(USES_REGS1);
 static Int p_system(USES_REGS1);
@@ -52,7 +44,6 @@ static Int p_putenv(USES_REGS1);
 static Term do_glob(const char *spec, bool ok_to);
 #ifdef MACYAP
 
-static int chdir(char *);
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 static const char *expandVars(const char *spec, char *u);
@@ -75,7 +66,7 @@ void Yap_WinError(char *yap_error) {
 
 /// is_directory: verifies whether an expanded file name
 /// points at a readable directory
-static bool is_directory(const char *FileName) {
+bool Yap_isDirectory(const char *FileName) {
 
   VFS_t *vfs;
   if ((vfs = vfs_owner(FileName))) {
@@ -101,28 +92,37 @@ static bool is_directory(const char *FileName) {
 #endif
 }
 
-bool Yap_Exists(const char *f) {
-  VFS_t *vfs;
+Int exists_directory(USES_REGS1) {
+    int lvl = push_text_stack();
+    const char *path = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+    bool rc = Yap_isDirectory(path);
+    pop_text_stack(lvl);
+    return rc;
+}
 
-  if ((vfs = vfs_owner(f))) {
-    return vfs->exists(vfs, f);
-  }
+bool Yap_Exists(const char *f) {
+    VFS_t *vfs;
+    f = Yap_VFAlloc(f);
+    if ((vfs = vfs_owner(f))) {
+        return vfs->exists(vfs, f);
+    }
 #if _WIN32
-  if (_access(f, 0) == 0)
+    if (_access(f, 0) == 0)
     return true;
   if (errno == EINVAL) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
   }
   return false;
 #elif HAVE_ACCESS
-  if (access(f, F_OK) == 0)
-    return true;
-  if (errno == EINVAL) {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
-  }
-  return false;
+    if (access(f, F_OK) == 0) {
+        return true;
+    }
+    if (errno == EINVAL) {
+        Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "bad flags to access");
+    }
+    return false;
 #else
-  Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
+    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
             "access not available in this configuration");
   return false;
 #endif
@@ -148,10 +148,13 @@ int Yap_dir_separator(int ch) { return dir_separator(ch); }
 char *libdir = NULL;
 #endif
 
-bool Yap_IsAbsolutePath(const char *p0) {
+bool Yap_IsAbsolutePath(const char *p0, bool expand) {
   // verify first if expansion is needed: ~/ or $HOME/
-  const char *p = expandVars(p0, LOCAL_FileNameBuf);
+  const char *p = p0;
   bool nrc;
+  if (expand) {
+    p = expandVars(p0, LOCAL_FileNameBuf);
+  }
 #if _WIN32 || __MINGW32__
   nrc = !PathIsRelative(p);
 #else
@@ -166,12 +169,11 @@ bool Yap_IsAbsolutePath(const char *p0) {
 // this is necessary because
 // support for ~expansion at the beginning
 // systems like Android do not do this.
-static const char *PlExpandVars(const char *source, const char *root,
-                                char *result) {
+static const char *PlExpandVars(const char *source, const char *root) {
   CACHE_REGS
+  int lvl = push_text_stack();
   const char *src = source;
-  if (!result)
-    result = malloc(YAP_FILENAME_MAX + 1);
+  char *result = Malloc(YAP_FILENAME_MAX + 1);
 
   if (strlen(source) >= YAP_FILENAME_MAX) {
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
@@ -194,6 +196,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       if (s != NULL)
         strncpy(result, s, YAP_FILENAME_MAX);
       strcat(result, src);
+      result = pop_output_text_stack(lvl, result);
       return result;
     } else {
 #if HAVE_GETPWNAM
@@ -208,6 +211,7 @@ static const char *PlExpandVars(const char *source, const char *root,
         FileError(SYSTEM_ERROR_OPERATING_SYSTEM,
                   MkAtomTerm(Yap_LookupAtom(source)),
                   "User %s does not exist in %s", result, source);
+        pop_text_stack(lvl);
         return NULL;
       }
       strncpy(result, user_passwd->pw_dir, YAP_FILENAME_MAX);
@@ -219,6 +223,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       return NULL;
 #endif
     }
+    result = pop_output_text_stack(lvl, result);
     return result;
   }
   // do VARIABLE expansion
@@ -260,9 +265,10 @@ static const char *PlExpandVars(const char *source, const char *root,
     if (tocp > YAP_FILENAME_MAX) {
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
                 "path too long");
+      pop_text_stack(lvl);
       return NULL;
     }
-    if (root && !Yap_IsAbsolutePath(source)) {
+    if (root && !Yap_IsAbsolutePath(source, false)) {
       strncpy(result, root, YAP_FILENAME_MAX);
       if (root[strlen(root) - 1] != '/')
         strncat(result, "/", YAP_FILENAME_MAX);
@@ -271,6 +277,7 @@ static const char *PlExpandVars(const char *source, const char *root,
       strncpy(result, source, strlen(src) + 1);
     }
   }
+  result = pop_output_text_stack(lvl, result);
   return result;
 }
 
@@ -341,14 +348,19 @@ static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 #define HAVE_REALPATH 1
 #endif
 
-static bool ChDir(const char *path) {
-  bool rc = false;
-  char qp[FILENAME_MAX + 1];
-  const char *qpath = Yap_AbsoluteFile(path, qp, true);
+extern char *virtual_cwd;
 
+bool Yap_ChDir(const char *path) {
+  bool rc = false;
+  int lvl = push_text_stack();
+
+    const char *qpath = Yap_AbsoluteFile(path, true);
+  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
   VFS_t *v;
-  if ((v = vfs_owner(path))) {
-    return v->chdir(v, path);
+  if ((v = vfs_owner(qpath))) {
+    rc = v->chdir(v, (qpath));
+    pop_text_stack(lvl);
+    return rc;
   }
 #if _WIN32
   rc = true;
@@ -359,46 +371,126 @@ static bool ChDir(const char *path) {
 #else
   rc = (chdir(qpath) == 0);
 #endif
-  if (qpath != qp && qpath != path && qpath != LOCAL_FileNameBuf &&
-      qpath != LOCAL_FileNameBuf2)
-    free((char *)qpath);
+  pop_text_stack(lvl);
   return rc;
 }
 
-static const char *myrealpath(const char *path, char *out) {
-  if (!out)
-    out = LOCAL_FileNameBuf;
+static char *close_path(char *b0, char *o0, char *o) {
+
+  if (b0[0] == '\0') {
+    return o;
+  } else if (!strcmp(b0, "..")) {
+    while (o-- > o0) {
+      if (dir_separator(*o)) {
+        break;
+      }
+    }
+
+  } else if (strcmp(b0, ".") != 0) {
+    *o++ = '/';
+    strcpy(o, b0);
+    o += strlen(b0);
+  }
+  return o;
+}
+
+static char *clean_path(const char *path) {
+  const char *p, *p0;
+  int lvl = push_text_stack();
+
+  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " looking at %s", path);
+  char *o0 = Malloc(FILENAME_MAX + 1), *o = o0;
+  int ch;
+  char *b0 = Malloc(FILENAME_MAX + 1), *b = b0;
+  p = p0 = path;
+  while ((ch = *p++)) {
+    if (dir_separator(ch)) {
+      if (b == b0) {
+        o = o0;
+      } else {
+        b[0] = '\0';
+        o = close_path(b0, o0, o);
+        b = b0;
+      }
+    } else {
+      *b++ = ch;
+    }
+  }
+  if (!dir_separator(p[-1])) {
+    b[0] = '\0';
+    o = close_path(b0, o0, o);
+  }
+  if (o == o0)
+    *o++ = '/';
+  *o = '\0';
+//  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " %s at %s, %p-%p", p0, o0,
+//                      o, o0);
+  return pop_output_text_stack(lvl, o0);
+}
+
+static const char *myrealpath(const char *path USES_REGS) {
+
+  int lvl = push_text_stack();
+  VFS_t *v;
+  char *out, *o;
+  if (Yap_IsAbsolutePath(path, true)) {
+    o = clean_path(path);
+    return pop_output_text_stack(lvl, o);
+
+  } else {
+    out = Malloc(FILENAME_MAX + 1);
+    Yap_getcwd(out, FILENAME_MAX);
+    strcat(out, "/");
+    strcat(out, path);
+    o = clean_path(out);
+    if ((v = vfs_owner(o))) {
+      return pop_output_text_stack(lvl, o);
+    }
+  }
 #if _WIN32
   DWORD retval = 0;
 
   // notice that the file does not need to exist
-  retval = GetFullPathName(path, YAP_FILENAME_MAX, out, NULL);
+  retval = GetFullPathName(path, YAP_FILENAME_MAX, o, NULL);
   if (retval == 0) {
+    pop_text_stack(lvl);
     Yap_WinError("Generating a full path name for a file");
     return NULL;
   }
-  return out;
+  return pop_output_text_stack(lvl, o);
 #elif HAVE_REALPATH
   {
-    char *rc = realpath(path, NULL);
+    char *rc = realpath(path, o);
 
     if (rc) {
-      return rc;
+      return pop_output_text_stack(lvl, rc);
     }
     // rc = NULL;
     if (errno == ENOENT || errno == EACCES) {
-      char base[YAP_FILENAME_MAX + 1];
-      strncpy(base, path, YAP_FILENAME_MAX - 1);
-      rc = realpath(dirname(base), out);
+      char *base = Malloc(FILENAME_MAX + 1);
+      strncpy(base, path, FILENAME_MAX);
+      char *p = base + strlen(base);
+      while (p > base && !dir_separator(*--p))
+        ;
+      if (p == base)
+        p[1] = '\0';
+      else
+        p[0] = '\0';
+      char *tmp = Malloc(FILENAME_MAX + 1);
+      rc = realpath(base, tmp);
 
       if (rc) {
-        // base may haave been destroyed
-        const char *b = basename((char *)path);
+        // base may have been destroyed
+        char *b = base + strlen(base);
+        while (b > base && !dir_separator(*--b))
+          ;
+        if (b[0] && !dir_separator(b[0]))
+          b++;
         size_t e = strlen(rc);
         size_t bs = strlen(b);
 
         if (rc != out && rc != base) {
-          rc = realloc(rc, e + bs + 2);
+          rc = Realloc(rc, e + bs + 2);
         }
 #if _WIN32
         if (rc[e - 1] != '\\' && rc[e - 1] != '/') {
@@ -412,14 +504,14 @@ static const char *myrealpath(const char *path, char *out) {
         }
 #endif
         strcat(rc, b);
+        rc = pop_output_text_stack(lvl, rc);
         return rc;
       }
     }
   }
 #endif
-  out = malloc(strlen(path) + 1);
-  strcpy(out, path);
-  return out;
+  pop_text_stack(lvl);
+  return path;
 }
 
 static const char *expandVars(const char *spec, char *u) {
@@ -428,7 +520,7 @@ static const char *expandVars(const char *spec, char *u) {
   char *out;
 
   // first pass, remove Unix style stuff
-  if ((out = unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
+  if (spec == NULL || (out = unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
     return NULL;
   spec = u;
 #endif
@@ -450,17 +542,17 @@ static const char *expandVars(const char *spec, char *u) {
  *
  * @return tmp, or NULL, in malloced memory
  */
-const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
+const char *Yap_AbsoluteFile(const char *spec, bool ok) {
   const char *rc;
   const char *spec1;
   const char *spec2;
-  char rc1[YAP_FILENAME_MAX + 1];
+  int lvl = push_text_stack();
 
-/// spec gothe original spec;
-/// rc0 may be an outout buffer
-/// rc1 the internal buffer
-///
-/// PlExpandVars
+  /// spec gothe original spec;
+  /// rc0 may be an outout buffer
+  /// rc1 the internal buffer
+  ///
+  /// PlExpandVars
 
 #if _WIN32
   char rc2[YAP_FILENAME_MAX];
@@ -474,7 +566,7 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   /// spec gothe original spec;
   /// rc1 the internal buffer
   if (ok) {
-    const char *q = PlExpandVars(spec1, NULL, rc1);
+    const char *q = PlExpandVars(spec1, NULL);
     if (!q)
       spec2 = spec1;
     else
@@ -482,13 +574,13 @@ const char *Yap_AbsoluteFile(const char *spec, char *rc0, bool ok) {
   } else {
     spec2 = spec1;
   }
-  rc = myrealpath(spec2, rc0);
-  return rc;
+  rc = myrealpath(spec2 PASS_REGS);
+  return pop_output_text_stack(lvl, rc);
 }
 
 static Term
-    /* Expand the string for the program to run.  */
-    do_glob(const char *spec, bool glob_vs_wordexp) {
+/* Expand the string for the program to run.  */
+do_glob(const char *spec, bool glob_vs_wordexp) {
   CACHE_REGS
   if (spec == NULL) {
     return TermNil;
@@ -531,6 +623,8 @@ static Term
     }
     return tf;
   }
+#elif __ANDROID__
+     return MkPairTerm(MkAtomTerm(Yap_LookupAtom(spec)), TermNil);
 #elif HAVE_WORDEXP || HAVE_GLOB
   char u[YAP_FILENAME_MAX + 1];
   const char *espec = u;
@@ -672,13 +766,14 @@ static Int real_path(USES_REGS1) {
   }
   cmd = rc;
 #endif
-
-  rc0 = myrealpath(cmd, NULL);
+  int lvl = push_text_stack();
+  rc0 = myrealpath(cmd PASS_REGS);
   if (!rc0) {
+    pop_text_stack(lvl);
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
   }
   bool out = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
-  freeBuffer(rc0);
+  pop_text_stack(lvl);
   return out;
 }
 
@@ -730,7 +825,9 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   spec = rc;
 #endif
 
-  args = Yap_ArgListToVector(opts, expand_filename_defs, EXPAND_FILENAME_END);
+  args = Yap_ArgListToVector(
+      opts, expand_filename_defs,
+      EXPAND_FILENAME_END,DOMAIN_ERROR_EXPAND_FILENAME_OPTION);
   if (args == NULL) {
     return TermNil;
   }
@@ -787,7 +884,7 @@ static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
 #if _WIN32
       && tmpe != cmd2
 #endif
-      ) {
+  ) {
     freeBuffer(tmpe);
   }
   return tf;
@@ -844,19 +941,21 @@ static Int expand_file_name3(USES_REGS1) {
 
 static Int absolute_file_system_path(USES_REGS1) {
   Term t = Deref(ARG1);
+  int l = push_text_stack();
+  const char *text = Yap_TextTermToText(t);
   const char *fp;
   bool rc;
-  char s[MAXPATHLEN + 1];
-  const char *text = Yap_TextTermToText(t, s, MAXPATHLEN, LOCAL_encoding);
 
   if (text == NULL) {
+    pop_text_stack(l);
     return false;
   }
-  if (!(fp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, true)))
+  if (!(fp = Yap_AbsoluteFile(text, true))) {
+    pop_text_stack(l);
     return false;
-  rc = Yap_unify(Yap_MkTextTerm(fp, LOCAL_encoding, t), ARG2);
-  if (fp != s)
-    freeBuffer((void *)fp);
+  }
+  rc = Yap_unify(Yap_MkTextTerm(fp, Yap_TextType(t)), ARG2);
+  pop_text_stack(l);
   return rc;
 }
 
@@ -922,7 +1021,7 @@ static Int make_directory(USES_REGS1) {
 #if defined(__MINGW32__) || _MSC_VER
   if (_mkdir(fd) == -1) {
 #else
-  if (mkdir(fd, 0777) == -1) {
+  if (mkdir(Yap_VFAlloc(fd), 0777) == -1) {
 #endif
     /* return an error number */
     return false; // errno?
@@ -931,7 +1030,7 @@ static Int make_directory(USES_REGS1) {
 }
 
 static Int p_rmdir(USES_REGS1) {
-  const char *fd = AtomName(AtomOfTerm(ARG1));
+  const char *fd = Yap_VFAlloc(AtomName(AtomOfTerm(ARG1)));
 #if defined(__MINGW32__) || _MSC_VER
   if (_rmdir(fd) == -1) {
 #else
@@ -946,106 +1045,11 @@ static Int p_rmdir(USES_REGS1) {
 static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
-  int len;
 
-#if __WINDOWS__
-  {
-    char *dir;
-    if ((dir = Yap_RegistryGetString("library")) && is_directory(dir)) {
-      dir_done = true;
-      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(dir))))
-        return FALSE;
-    }
-    if ((dir = Yap_RegistryGetString("prolog_commons")) && is_directory(dir)) {
-      if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(dir))))
-        return FALSE;
-      commons_done = true;
-    }
-  }
-  if (dir_done && commons_done)
-    return TRUE;
-#endif
-  strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
-  strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  if (!dir_done) {
-    strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) {
-      if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-        return FALSE;
-      dir_done = true;
-    }
-  }
-  if (!commons_done) {
-    LOCAL_FileNameBuf[len] = '\0';
-    strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-    if (is_directory(LOCAL_FileNameBuf)) {
-      if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-        return FALSE;
-    }
-    commons_done = true;
-  }
-  if (dir_done && commons_done)
-    return TRUE;
+  if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
+    return false;
 
-#if __WINDOWS__
-  {
-    size_t buflen;
-    char *pt;
-    /* couldn't find it where it was supposed to be,
-   let's try using the executable */
-    if (!GetModuleFileName(NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
-      Yap_WinError("could not find executable name");
-      /* do nothing */
-      return FALSE;
-    }
-    buflen = strlen(LOCAL_FileNameBuf);
-    pt = LOCAL_FileNameBuf + buflen;
-    while (*--pt != '\\') {
-      /* skip executable */
-      if (pt == LOCAL_FileNameBuf) {
-        FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-                  "could not find executable name");
-        /* do nothing */
-        return FALSE;
-      }
-    }
-    while (*--pt != '\\') {
-      /* skip parent directory "bin\\" */
-      if (pt == LOCAL_FileNameBuf) {
-        FileError(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-                  "could not find executable name");
-        /* do nothing */
-        return FALSE;
-      }
-    }
-    /* now, this is a possible location for the ROOT_DIR, let's look for a share
-     * directory here */
-    pt[1] = '\0';
-    /* grosse */
-    strncat(LOCAL_FileNameBuf, "lib\\Yap", YAP_FILENAME_MAX);
-    libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf) + 1);
-    strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf) + 1);
-    pt[1] = '\0';
-    strncat(LOCAL_FileNameBuf, "share", YAP_FILENAME_MAX);
-  }
-  strncat(LOCAL_FileNameBuf, "\\", YAP_FILENAME_MAX);
-  len = strlen(LOCAL_FileNameBuf);
-  strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
-  if (!dir_done && is_directory(LOCAL_FileNameBuf)) {
-    if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-      return FALSE;
-  }
-  dir_done = true;
-  LOCAL_FileNameBuf[len] = '\0';
-  strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
-  if (!commons_done && is_directory(LOCAL_FileNameBuf)) {
-    if (!Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf))))
-      return FALSE;
-  }
-  commons_done = true;
-#endif
-  return dir_done && commons_done;
+  return Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(Yap_COMMONSDIR)));
 }
 
 static Int libraries_directories(USES_REGS1) {
@@ -1129,7 +1133,11 @@ static int volume_header(char *file) {
 
 int Yap_volume_header(char *file) { return volume_header(file); }
 
-const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
+const char *Yap_getcwd(char *cwd, size_t cwdlen) {
+  if (GLOBAL_cwd && GLOBAL_cwd[0]) {
+    strcpy(cwd, GLOBAL_cwd);
+    return cwd;
+  }
 #if _WIN32 || defined(__MINGW32__)
   if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0) {
     Yap_WinError("GetCurrentDirectory failed");
@@ -1137,9 +1145,24 @@ const char *Yap_getcwd(const char *cwd, size_t cwdlen) {
   }
   return (char *)cwd;
 #endif
-  return getcwd((char *)cwd, cwdlen);
+  const char *rc = getcwd(cwd, FILENAME_MAX);
+ // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", rc);
+return rc;
 }
 
+/** @pred  working_directory( ?_CurDir_,? _NextDir_)
+
+
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+Unifies  _Old_ with an absolute path to the current working directory
+and change working directory to  _New_.  Use the pattern
+`working_directory(CWD, CWD)` to get the current directory.  See
+also `absolute_file_name/2` and chdir/1.
+
+
+*/
 static Int working_directory(USES_REGS1) {
   char dir[YAP_FILENAME_MAX + 1];
   Term t1 = Deref(ARG1), t2;
@@ -1159,173 +1182,7 @@ static Int working_directory(USES_REGS1) {
   }
   if (t2 == TermEmptyAtom || t2 == TermDot)
     return true;
-  return ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
-}
-
-/** Yap_findFile(): tries to locate a file, no expansion should be performed/
-   *
-   *
-   * @param isource the proper file
-   * @param idef the default name fothe file, ie, startup.yss
-   * @param root the prefix
-   * @param result the output
-   * @param access verify whether the file has access permission
-   * @param ftype saved state, object, saved file, prolog file
-   * @param expand_root expand $ ~, etc
-   * @param in_lib library file
-   *
-   * @return
-   */
-const char *Yap_findFile(const char *isource, const char *idef,
-                         const char *iroot, char *result, bool access,
-                         YAP_file_type_t ftype, bool expand_root, bool in_lib) {
-
-  char *save_buffer = NULL;
-  const char *root = iroot, *source = isource;
-  int rc = FAIL_RESTORE;
-  int try
-    = 0;
-  bool abspath = false;
-  //__android_log_print(ANDROID_LOG_ERROR,  "YAPDroid " __FUNCTION__,
-  // "try=%d %s %s", try, isource, iroot) ; }
-  while (rc == FAIL_RESTORE) {
-    // means we failed this iteration
-    bool done = false;
-    // { CACHE_REGS
-    switch (try ++) {
-    case 0: // path or file name is given;
-      root = iroot;
-      if (idef || isource) {
-        source = (isource ? isource : idef);
-      }
-      if (source) {
-          abspath = Yap_IsAbsolutePath(source);
-      }
-      if (!abspath && !root && ftype == YAP_BOOT_PL) {
-        root = YAP_PL_SRCDIR;
-      }
-      break;
-    case 1: // library directory is given in command line
-      if (in_lib && ftype == YAP_SAVED_STATE) {
-        root = iroot;
-        source = (isource ? isource : idef);
-      } else {
-        done = true;
-      }
-      break;
-    case 2: // use environment variable YAPLIBDIR
-#if HAVE_GETENV
-      if (in_lib) {
-        if (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ) {
-          root = getenv("YAPLIBDIR");
-        } else if (ftype == YAP_BOOT_PL) {
-          root = getenv("YAPSHAREDIR"
-                        "/pl");
-          if (root == NULL) {
-            continue;
-          } else {
-            save_buffer = getFileNameBuffer();
-            strncpy(save_buffer, root, YAP_FILENAME_MAX);
-            strncat(save_buffer, "/pl", YAP_FILENAME_MAX);
-          }
-        }
-        source = (isource ? isource : idef);
-      } else
-#endif
-        done = true;
-      break;
-    case 3: // use compilation variable YAPLIBDIR
-      if (in_lib) {
-        source = (isource ? isource : idef);
-        if (ftype == YAP_PL) {
-          root = YAP_SHAREDIR;
-        } else if (ftype == YAP_BOOT_PL) {
-          root = YAP_SHAREDIR "/pl";
-        } else {
-          root = YAP_LIBDIR;
-        }
-      } else
-        done = true;
-      break;
-
-    case 4: // WIN stuff: registry
-#if __WINDOWS
-      if (in_lib) {
-        source = (ftype == YAP_PL || ftype == YAP_QLY ? "library" : "startup");
-        source = Yap_RegistryGetString(source);
-        root = NULL;
-      } else
-#endif
-        done = true;
-      break;
-
-    case 5: // search from the binary
-#ifndef __ANDROID__
-    {
-      done = true;
-    } break;
-#endif
-      {
-        const char *pt = Yap_FindExecutable();
-
-        if (pt) {
-          if (ftype == YAP_BOOT_PL) {
-#if __ANDROID__
-            root = "../../../files/Yap/pl";
-#else
-          root = "../../share/Yap/pl";
-#endif
-          } else {
-            root = (ftype == YAP_SAVED_STATE || ftype == YAP_OBJ
-                        ? "../../lib/Yap"
-                        : "../../share/Yap");
-          }
-          if (root == iroot) {
-            done = true;
-            continue;
-          }
-          if (!save_buffer)
-            save_buffer = getFileNameBuffer();
-          if (Yap_findFile(source, NULL, root, save_buffer, access, ftype,
-                           expand_root, in_lib))
-            root = save_buffer;
-          else
-            done = true;
-        } else {
-          done = true;
-        }
-        source = (isource ? isource : idef);
-      }
-      break;
-    case 6: // default, try current directory
-      if (!isource && ftype == YAP_SAVED_STATE)
-        source = idef;
-      root = NULL;
-      break;
-    default:
-      if (save_buffer)
-        freeFileNameBuffer(save_buffer);
-
-      return false;
-    }
-
-    if (done)
-      continue;
-    //    { CACHE_REGS __android_log_print(ANDROID_LOG_ERROR,  __FUNCTION__,
-    //    "root= %s %s ", root, source) ; }
-    const char *work = PlExpandVars(source, root, result);
-
-    if (save_buffer)
-      freeFileNameBuffer(save_buffer);
-
-    // expand names in case you have
-    // to add a prefix
-    if (!access || Yap_Exists(work)) {
-      return work; // done
-    } else if (abspath)
-      return NULL;
-  }
-  return NULL;
+  return Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
 }
 
 static Int true_file_name(USES_REGS1) {
@@ -1344,10 +1201,11 @@ static Int true_file_name(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
     return FALSE;
   }
-  if (!(s = Yap_AbsoluteFile(s, LOCAL_FileNameBuf, true)))
+  int l = push_text_stack();
+  if (!(s = Yap_AbsoluteFile(s, true)))
     return false;
   bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
-  freeBuffer(s);
+  pop_text_stack(l);
   return rc;
 }
 
@@ -1359,20 +1217,23 @@ static Int p_expand_file_name(USES_REGS1) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
     return FALSE;
   }
-  text = Yap_TextTermToText(t, NULL, 0, LOCAL_encoding);
-  if (!text)
+  int l = push_text_stack();
+  text = Yap_TextTermToText(t);
+  if (!text) {
+    pop_text_stack(l);
     return false;
-  if (!(text2 = PlExpandVars(text, NULL, NULL)))
+  }
+  if (!(text2 = PlExpandVars(text, NULL))) {
+    pop_text_stack(l);
     return false;
-  freeBuffer(text);
-  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, LOCAL_encoding, t));
-  freeBuffer(text2);
+  }
+  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, Yap_TextType(t)));
+  pop_text_stack(l);
   return rc;
 }
 
 static Int true_file_name3(USES_REGS1) {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
-  char *root = NULL;
 
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
@@ -1387,12 +1248,14 @@ static Int true_file_name3(USES_REGS1) {
       Yap_Error(TYPE_ERROR_ATOM, t2, "argument to true_file_name");
       return FALSE;
     }
-    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
+    //    root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
-  if (!Yap_findFile(RepAtom(AtomOfTerm(t))->StrOfAE, NULL, root,
-                    LOCAL_FileNameBuf, false, YAP_PL, false, false))
-    return FALSE;
-  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
+  int lvl = push_text_stack();
+  const char *tmp = Yap_AbsoluteFile(RepAtom(AtomOfTerm(t))->StrOfAE, true);
+  Atom at = NULL;
+  bool rc = (tmp != NULL && (at = Yap_LookupAtom(tmp)) != NULL);
+  pop_text_stack(lvl);
+  return rc && Yap_unify(ARG3, MkAtomTerm(at));
 }
 
 /* Executes $SHELL under Prolog */
@@ -1409,7 +1272,7 @@ static Int p_sh(USES_REGS1) { /* sh				 */
   shell = (char *)getenv("SHELL");
   if (shell == NULL)
     shell = "/bin/sh";
-  if (system(shell) < 0) {
+  if (system(Yap_VFAlloc(shell)) < 0) {
 #if HAVE_STRERROR
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil, "%s in sh/0",
               strerror(errno));
@@ -1554,7 +1417,7 @@ static Int p_system(USES_REGS1) { /* '$system'(+SystCommand)	       */
                        NULL,       // Use parent's starting directory
                        &si,        // Pointer to STARTUPINFO structure
                        &pi)        // Pointer to PROCESS_INFORMATION structure
-        ) {
+    ) {
       Yap_Error(SYSTEM_ERROR_INTERNAL, ARG1, "CreateProcess failed (%d).\n",
                 GetLastError());
       return FALSE;
@@ -1615,8 +1478,8 @@ static Int p_mv(USES_REGS1) { /* rename(+OldName,+NewName)   */
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second argument to rename/2 not atom");
   } else {
-    oldname = (RepAtom(AtomOfTerm(t1)))->StrOfAE;
-    newname = (RepAtom(AtomOfTerm(t2)))->StrOfAE;
+    oldname = RepAtom(AtomOfTerm(t1))->StrOfAE;
+    newname = RepAtom(AtomOfTerm(t2))->StrOfAE;
     if ((r = link(oldname, newname)) == 0 && (r = unlink(oldname)) != 0)
       unlink(newname);
     if (r != 0) {
@@ -1744,36 +1607,19 @@ static Int p_host_type(USES_REGS1) {
 }
 
 static Int p_yap_home(USES_REGS1) {
-  Term out = MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
-  return (Yap_unify(out, ARG1));
+  Term out;
+
+  out = MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR));
+  return Yap_unify(out, ARG1);
 }
 
 static Int p_yap_paths(USES_REGS1) {
   Term out1, out2, out3;
-  const char *env_destdir = getenv("DESTDIR");
-  char destdir[YAP_FILENAME_MAX + 1];
 
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_LIBDIR, YAP_FILENAME_MAX);
-    out1 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out1 = MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR));
-  }
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_SHAREDIR, YAP_FILENAME_MAX);
-    out2 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out2 = MkAtomTerm(Yap_LookupAtom(YAP_SHAREDIR));
-  }
-  if (env_destdir) {
-    strncat(destdir, env_destdir, YAP_FILENAME_MAX);
-    strncat(destdir, "/" YAP_BINDIR, YAP_FILENAME_MAX);
-    out3 = MkAtomTerm(Yap_LookupAtom(destdir));
-  } else {
-    out3 = MkAtomTerm(Yap_LookupAtom(YAP_BINDIR));
-  }
+  out1 = MkAtomTerm(Yap_LookupAtom(Yap_LIBDIR));
+  out2 = MkAtomTerm(Yap_LookupAtom(Yap_SHAREDIR));
+  out3 = MkAtomTerm(Yap_LookupAtom(Yap_BINDIR));
+
   return (Yap_unify(out1, ARG1) && Yap_unify(out2, ARG2) &&
           Yap_unify(out3, ARG3));
 }
@@ -1808,9 +1654,9 @@ static Int p_env_separator(USES_REGS1) {
 }
 
 /*
-   * This is responsable for the initialization of all machine dependant
-   * predicates
-   */
+ * This is responsable for the initialization of all machine dependant
+ * predicates
+ */
 void Yap_InitSysbits(int wid) {
   CACHE_REGS
 #if __simplescalar__
@@ -1854,7 +1700,7 @@ static Int p_win32(USES_REGS1) {
 }
 
 static Int p_ld_path(USES_REGS1) {
-  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR)));
+  return Yap_unify(ARG1, MkAtomTerm(Yap_LookupAtom(Yap_DLLDIR)));
 }
 
 static Int p_address_bits(USES_REGS1) {
@@ -1925,7 +1771,7 @@ static HKEY reg_open_key(const wchar_t *which, int create) {
 #define MAXREGSTRLEN 1024
 
 static wchar_t *WideStringFromAtom(Atom KeyAt USES_REGS) {
-    return Yap_AtomToWide( KeyAt );
+  return Yap_AtomToWide(KeyAt);
 }
 
 static Int p_win_registry_get_value(USES_REGS1) {
@@ -1942,24 +1788,24 @@ static Int p_win_registry_get_value(USES_REGS1) {
   if (IsVarTerm(Key)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   if (!IsAtomTerm(Key)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   KeyAt = AtomOfTerm(Key);
   if (IsVarTerm(Name)) {
     Yap_Error(INSTANTIATION_ERROR, Key,
               "argument to win_registry_get_value unbound");
- pop_text_stack(l);
-   return FALSE;
+    pop_text_stack(l);
+    return FALSE;
   }
   if (!IsAtomTerm(Name)) {
     Yap_Error(TYPE_ERROR_ATOM, Key, "argument to win_registry_get_value");
-pop_text_stack(l);
+    pop_text_stack(l);
     return FALSE;
   }
   NameAt = AtomOfTerm(Name);
@@ -1967,7 +1813,7 @@ pop_text_stack(l);
   k = WideStringFromAtom(KeyAt PASS_REGS);
   if (!(key = reg_open_key(k, FALSE))) {
     Yap_Error(EXISTENCE_ERROR_KEY, Key, "argument to win_registry_get_value");
-pop_text_stack(l);
+    pop_text_stack(l);
     return FALSE;
   }
   name = WideStringFromAtom(NameAt PASS_REGS);
@@ -1979,21 +1825,21 @@ pop_text_stack(l);
       ((wchar_t *)data)[len] = '\0';
       Atom at = Yap_NWCharsToAtom((wchar_t *)data, len PASS_REGS);
       pop_text_stack(l);
-      return Yap_unify(MkAtomTerm(at),ARG3);
-    case REG_DWORD:
-       {
-        DWORD *d = (DWORD *)data;
-pop_text_stack(l);
-        return Yap_unify(MkIntegerTerm((Int)d[0]), ARG3);
-      }
+      return Yap_unify(MkAtomTerm(at), ARG3);
+    case REG_DWORD: {
+      DWORD *d = (DWORD *)data;
+      pop_text_stack(l);
+      return Yap_unify(MkIntegerTerm((Int)d[0]), ARG3);
+    }
     default:
- pop_text_stack(l);
-       return FALSE;
+      pop_text_stack(l);
+      return FALSE;
     }
   }
-pop_text_stack(l);
+  pop_text_stack(l);
   return FALSE;
 }
+
 
 char *Yap_RegistryGetString(char *name) {
   DWORD type;
@@ -2033,6 +1879,74 @@ char *Yap_RegistryGetString(char *name) {
 
 #endif
 
+ 
+ 
+static Int p_sleep(USES_REGS1) {
+  Term ts = ARG1;
+#if defined(__MINGW32__) || _MSC_VER
+  {
+    unsigned long int secs = 0, usecs = 0, msecs;
+    if (IsIntegerTerm(ts)) {
+      secs = IntegerOfTerm(ts);
+    } else if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+      if (tfl > 1.0)
+        secs = tfl;
+      else
+        usecs = tfl * 1000000;
+    }
+    msecs = secs * 1000 + usecs / 1000;
+    Sleep(msecs);
+    /* no ers possible */
+    return true;
+  }
+#elif HAVE_NANOSLEEP
+  {
+    struct timespec req;
+    int out;
+
+    if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+
+      req.tv_nsec = (tfl - floor(tfl)) * 1000000000;
+      req.tv_sec = rint(tfl);
+    } else {
+      req.tv_nsec = 0;
+      req.tv_sec = IntOfTerm(ts);
+    }
+    out = nanosleep(&req, NULL);
+    return out == 0;
+  }
+#elif HAVE_USLEEP
+  {
+    useconds_t usecs;
+    if (IsFloatTerm(ts)) {
+      double tfl = FloatOfTerm(ts);
+
+      usecs = rint(tfl * 1000000);
+    } else {
+      usecs = IntegrOfTerm(ts) * 1000000;
+    }
+    out = usleep(usecs);
+    return;
+  }
+#elif HAVE_SLEEP
+  {
+    unsigned int secs, out;
+    if (IsFloatTerm(ts)) {
+      secs = rint(FloatOfTerm(ts));
+    } else {
+      secs = IntOfTerm(ts);
+    }
+    out = sleep(secs);
+    return (Yap_unify(ARG2, MkIntTerm(out)));
+  }
+#else
+  YAP_Error(SYSTEM_ERROR, 0L, "sleep not available in this configuration");
+  return FALSE:
+#endif
+}
+ 
 void Yap_InitSysPreds(void) {
   Yap_InitCPred("log_event", 1, p_log_event, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("sh", 0, p_sh, SafePredFlag | SyncPredFlag);
@@ -2044,7 +1958,8 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("$yap_paths", 3, p_yap_paths, SafePredFlag);
   Yap_InitCPred("$dir_separator", 1, p_dir_sp, SafePredFlag);
   Yap_InitCPred("libraries_directories", 2, libraries_directories, 0);
-  Yap_InitCPred("system_library", 1, system_library, 0);
+    Yap_InitCPred("system_library", 1, system_library, 0);
+    Yap_InitCPred("exists_directory", 1, exists_directory, 0);
   Yap_InitCPred("commons_library", 1, commons_library, 0);
   Yap_InitCPred("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred("$putenv", 2, p_putenv, SafePredFlag | SyncPredFlag);
@@ -2068,5 +1983,7 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("win_registry_get_value", 3, p_win_registry_get_value, 0);
 #endif
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
+  Yap_InitCPred("sleep", 1, p_sleep, SyncPredFlag);
   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
 }
+   

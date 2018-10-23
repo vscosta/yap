@@ -701,7 +701,29 @@ wint_t = c_uint
 #  } __value;            /* Value so far.  */
 #} __mbstate_t;
 
-class _mbstate_t_value(Union):
+class lK_mbstate_t_value(Union):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     _fields_ = [("__wch",wint_t),
                 ("__wchb",c_char*4)]
 

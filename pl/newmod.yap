@@ -1,6 +1,20 @@
 /**
+
+  @file newmod.yap
+  @brief support for creating a new module.
+  */
+
+ /**
+
+  @addtogroup ModuleBuiltins
+@{
+  */
+
+
+  /**
   @pred module(+M) is det
-   set the type-in module
+
+  set the type-in module
 
 
 Defines  _M_ to be the current working or type-in module. All files
@@ -22,8 +36,6 @@ module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 
 /**
- \pred	module(+ Module:atom, +ExportList:list) is directive
-  define a new module
 
 This directive defines the file where it appears as a _module file_;
 it must be the first declaration in the file.  _Module_ must be an
@@ -52,7 +64,7 @@ name with the `:/2` operator.
     '$module_dec'(N, Ps).
 '$module_dec'(N, Ps) :-
    source_location(F,Line),
-  '$nb_getval'( '$user_source_file', F0 , fail),
+  '__NB_getval__'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, Line,F0, Ps),
 	'$current_module'(_M0,N).
 
@@ -119,7 +131,7 @@ set_module_property(Mod, class(Class)) :-
         ( recorded('$module','$module'( HostF, HostM, _, _, _, _),_) -> true ; HostF = user_input ),
         % first build the initial export table
         '$convert_for_export'(all, Exports, DonorM, HostM, TranslationTab, AllExports0, load_files),
-        sort( AllExports0, AllExports ),
+        '$sort'( AllExports0, AllExports ),
         '$add_to_imports'(TranslationTab, DonorM, DonorM), % insert ops, at least for now
         % last, export everything to the host: if the loading crashed you didn't actually do
         % no evil.
@@ -244,3 +256,5 @@ set_module_property(Mod, class(Class)) :-
           	).
           '$clean_conversion'([P|_], _List, _, _, _, Goal) :-
           	'$do_error'(domain_error(module_export_predicates,P), Goal).
+
+%% @}

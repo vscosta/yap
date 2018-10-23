@@ -78,6 +78,9 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _call:
     case _call_cpred:
     case _call_usercpred:
+    case _dexecute:
+    case _execute:
+    case _execute_cpred:
     case _fcall:
     case _p_execute2:
       OrArgAdjust(pc->y_u.Osbpp.or_arg);
@@ -255,10 +258,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     case _jump:
     case _jump_if_var:
     case _move_back:
-#if INLINE_BIG_COMPARISONS
-    case _p_dif:
-    case _p_eq:
-#endif
     case _retry2:
     case _retry3:
     case _retry4:
@@ -482,14 +481,6 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->y_u.plyys.y2 = YAdjust(pc->y_u.plyys.y2);
       pc->y_u.plyys.flags = ConstantAdjust(pc->y_u.plyys.flags);
       pc = NEXTOP(pc,plyys);
-      break;
-      /* instructions type pp */
-    case _dexecute:
-    case _execute:
-    case _execute_cpred:
-      pc->y_u.pp.p = PtoPredAdjust(pc->y_u.pp.p);
-      pc->y_u.pp.p0 = PtoPredAdjust(pc->y_u.pp.p0);
-      pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
     case _cut:

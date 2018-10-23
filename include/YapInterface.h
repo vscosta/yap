@@ -7,9 +7,9 @@
  *									 *
  **************************************************************************
  *									 *
- * File:		YapInterface.h						 *
+ * File:		YapInterface.h *
  * Last rev:	19/2/88							 *
- * mods:									 *
+ * mods: *
  * comments:	c_interface header file for YAP				 *
  *									 *
  *************************************************************************/
@@ -21,10 +21,9 @@
 @addtogroup ChYInterface
    @{
 
-\
-   @brief Core interface to YAP.
+   @brief C-Interface to YAP.
 
-   @toc
+The following routines export the YAP internals and architecture.
 
 */
 
@@ -35,7 +34,7 @@
 #define __YAP_PROLOG__ 1
 
 #ifndef YAPVERSION
-#define YAPVERSION 60000
+#define YAPVERSION YAP_NUMERIC_VERSION
 #endif
 
 #include "YapDefs.h"
@@ -70,18 +69,18 @@ __BEGIN_DECLS
 /**
  * X_API macro
  *
- * brif
+ * @brief declares the symbol as to be exported/imported from a
+ * DLL. It is mostly ignored in Linux, but honored in WIN32.
  *
- * @param _WIN32
- *
+
  * @return
  */
 
 #include "YapFormat.h"
 
-
 /* Primitive Functions */
 
+// Basic operation that follows a pointer chain.
 #define YAP_Deref(t) (t)
 
 X_API
@@ -102,6 +101,9 @@ extern YAP_Term YAP_A(int);
 #define YAP_ARG14 YAP_A(14)
 #define YAP_ARG15 YAP_A(15)
 #define YAP_ARG16 YAP_A(16)
+
+X_API
+extern YAP_Term YAP_SetA(int, YAP_Term);
 
 /*  YAP_Bool IsVarTerm(YAP_Term) */
 extern X_API YAP_Bool YAP_IsVarTerm(YAP_Term);
@@ -269,17 +271,17 @@ extern X_API void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
 extern X_API void YAP_UserBackCPredicate(const char *, YAP_UserCPred,
                                          YAP_UserCPred, YAP_Arity, YAP_Arity);
 
+/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(),
+   int
+    arity, int extra) */
+extern X_API void YAP_UserBackCutCPredicate(const char *name, YAP_UserCPred,
+                                            YAP_UserCPred, YAP_UserCPred,
+                                            YAP_Arity, YAP_Arity);
+
 /*   YAP_Int      YAP_ListLength(YAP_Term t) */
 extern X_API YAP_Int YAP_ListLength(YAP_Term);
 
 extern X_API size_t YAP_UTF8_TextLength(YAP_Term t);
-
-/*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(),
-   int
-    arity, int extra) */
-extern X_API void YAP_UserBackCutCPredicate(const char *, YAP_UserCPred,
-                                            YAP_UserCPred, YAP_UserCPred,
-                                            YAP_Arity, YAP_Arity);
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Int YAP_CallProlog(YAP_Term t);
@@ -356,7 +358,7 @@ extern X_API YAP_Bool YAP_GoalHasException(YAP_Term *);
 /*  void YAP_ClearExceptions(void) */
 extern X_API void YAP_ClearExceptions(void);
 
-extern X_API int YAP_Reset(yap_reset_t reset);
+extern X_API int YAP_Reset(yap_reset_t reset, bool reset_global);
 
 extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
 
@@ -367,10 +369,12 @@ extern X_API int YAP_WriteDynamicBuffer(YAP_Term t, char *buf, size_t sze,
                                         int flags);
 
 /*  void YAP_Term(YAP_Term) */
-extern X_API YAP_Term YAP_CopyTerm(YAP_Term);
+extern X_API YAP_Term YAP_CopyTerm(YAP_Term t);
 
-/*  char *YAP_CompileClause(YAP_Term) */
-extern X_API char *YAP_CompileClause(YAP_Term);
+/* bool YAP_CompileClause(YAP_Term)
+
+@short compile the clause _Cl_; on failure it may call the exception handler. */
+extern X_API bool YAP_CompileClause(YAP_Term Cl);
 
 extern X_API int YAP_NewExo(YAP_PredEntryPtr ap, size_t data, void *user_di);
 
@@ -378,11 +382,10 @@ extern X_API int YAP_AssertTuples(YAP_PredEntryPtr pred, const YAP_Term *ts,
                                   size_t offset, size_t sz);
 
 /*  int YAP_Init(YAP_init_args *) */
-extern X_API YAP_file_type_t YAP_Init(YAP_init_args *);
+extern X_API void YAP_Init(YAP_init_args *);
 
 /*  int YAP_FastInit(const char *) */
-extern X_API YAP_file_type_t YAP_FastInit(char saved_state[], int argc,
-                                          char *argv[]);
+extern X_API void YAP_FastInit(char saved_state[], int argc, char *argv[]);
 
 #ifndef _PL_STREAM_H
 // if we don't know what a stream is, just don't assume nothing about the
@@ -400,16 +403,18 @@ extern X_API YAP_Term YAP_ReadFromStream(int s);
 
 /// read a Prolog clause from a Prolog opened stream $s$. Similar to
 /// YAP_ReadFromStream() but takes /// default options from read_clause/3.
-extern X_API YAP_Term YAP_ReadFromStream(int s);
+extern X_API YAP_Term YAP_ReadClauseFromStream(int s, YAP_Term varNames,
+                                               YAP_Term);
 
 extern X_API void YAP_Write(YAP_Term t, FILE *s, int);
 
 extern X_API FILE *YAP_TermToStream(YAP_Term t);
 
-extern X_API int YAP_InitConsult(int mode, const char *filename, char *buf,
+extern X_API int YAP_InitConsult(int mode, const char *filename, char **buf,
                                  int *previous_sno);
 
-extern X_API void YAP_EndConsult(int s, int *previous_sno);
+extern X_API void YAP_EndConsult(int s, int *previous_sno,
+                                 const char *previous_cwd);
 
 extern X_API void YAP_Exit(int);
 
@@ -474,6 +479,14 @@ extern X_API YAP_Term MkSFTerm();
 extern X_API void YAP_SetOutputMessage(void);
 
 extern X_API int YAP_StreamToFileNo(YAP_Term);
+
+/**
+ * Utility routine to Obtain a pointer to the YAP representation of a stream.
+ *
+ * @param sno Stream Id
+ * @return data structure for stream
+ */
+extern X_API void *YAP_RepStreamFromId(int sno);
 
 extern X_API void YAP_CloseAllOpenStreams(void);
 
@@ -661,20 +674,22 @@ extern X_API int YAP_RequiresExtraStack(size_t);
  *
  * @return
  */ /*
-   * proccess command line arguments: valid switches are:
-   *  -b    boot file
-   *  -l    load file
-   *  -L    load file, followed by exit.
-   *  -s    stack area size (K)
-   *  -h    heap area size
-   *  -a    aux stack size
-   *  -e    emacs_mode -m
-   *  -DVar=Value
-   *  reserved memory for alloc IF DEBUG
-   *  -P    only in development versions
-   */
+     * proccess command line arguments: valid switches are:
+     *  -b    boot file
+     *  -l    load file
+     *  -L    load file, followed by exit.
+     *  -s    stack area size (K)
+     *  -h    heap area size
+     *  -a    aux stack size
+     *  -e    emacs_mode -m
+     *  -DVar=Value
+     *  reserved memory for alloc IF DEBUG
+     *  -P    only in development versions
+     */
 extern X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[],
                                                      YAP_init_args *iap);
+
+extern X_API void *YAP_foreign_stream(int sno);
 
 extern X_API YAP_Int YAP_AtomToInt(YAP_Atom At);
 
@@ -683,6 +698,10 @@ extern X_API YAP_Atom YAP_IntToAtom(YAP_Int i);
 extern X_API YAP_Int YAP_FunctorToInt(YAP_Functor At);
 
 extern X_API YAP_Functor YAP_IntToFunctor(YAP_Int i);
+
+extern X_API YAP_PredEntryPtr YAP_TopGoal(void);
+
+extern X_API void *YAP_GetStreamFromId(int no);
 
 #define YAP_InitCPred(N, A, F) YAP_UserCPredicate(N, F, A)
 

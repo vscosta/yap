@@ -19,7 +19,7 @@ for the relative license.
 
 
 
-FILE *open_file (char *filename, const char *mode);
+FILE *open_file (char *file_name, const char *mode);
 static YAP_Bool compute_prob(void);
 
 variables  createVars(YAP_Term t,DdManager * mgr, int create_dot,  char inames[1000][20])
@@ -134,7 +134,7 @@ static YAP_Bool compute_prob(void)
   expr expression; 
   DdNode * function;
   DdManager * mgr;
-  int nBVar,i,intBits,create_dot;
+  int nBVar,i,create_dot;
   FILE * file;
   DdNode * array[1];
   double prob;
@@ -184,11 +184,10 @@ static YAP_Bool compute_prob(void)
     array[0]=function;
     onames[0]="Out";
     file = open_file("cpl.dot", "w");
-    Cudd_DumpDot(mgr,1,array,names,onames,file);
+    Cudd_DumpDot(mgr,1,array,names,( char * const*)onames,file);
     fclose(file);
   }
   nodes=init_table(vars.nBVar);
-  intBits=sizeof(unsigned int)*8;
   prob=Prob(function,vars,nodes);
   out=YAP_MkFloatTerm(prob);
   destroy_table(nodes,vars.nBVar);
@@ -215,14 +214,14 @@ void init_my_predicates()
      YAP_UserCPredicate("compute_prob",compute_prob,4);
 }
 
-FILE * open_file(char *filename, const char *mode)
+FILE * open_file(char *file_name, const char *mode)
 /* opens a file */
 {
   FILE *fp;
 
-  if ((fp = fopen(filename, mode)) == NULL) 
+  if ((fp = fopen(file_name, mode)) == NULL)
   {
-    perror(filename);
+    perror(file_name);
     exit(1);
   }
   return fp;

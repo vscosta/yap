@@ -2,6 +2,7 @@
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+  AtomAtSymbol = Yap_LookupAtom("@"); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = Yap_LookupAtom("...");
   AtomAbol = Yap_FullLookupAtom("$abol"); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = Yap_LookupAtom("access"); TermAccess = MkAtomTerm(AtomAccess);
@@ -32,6 +33,7 @@
   AtomEndCurlyBracket = Yap_LookupAtom("}"); TermEndCurlyBracket = MkAtomTerm(AtomEndCurlyBracket);
   AtomEmptyBrackets = Yap_LookupAtom("()"); TermEmptyBrackets = MkAtomTerm(AtomEmptyBrackets);
   AtomEmptySquareBrackets = Yap_LookupAtom("[]"); TermEmptySquareBrackets = MkAtomTerm(AtomEmptySquareBrackets);
+  AtomAs = Yap_LookupAtom("as"); TermAs = MkAtomTerm(AtomAs);
   AtomAsserta = Yap_LookupAtom("asserta"); TermAsserta = MkAtomTerm(AtomAsserta);
   AtomAssertaStatic = Yap_LookupAtom("asserta_static"); TermAssertaStatic = MkAtomTerm(AtomAssertaStatic);
   AtomAssertz = Yap_LookupAtom("assertz"); TermAssertz = MkAtomTerm(AtomAssertz);
@@ -129,6 +131,7 @@
   AtomError = Yap_LookupAtom("error"); TermError = MkAtomTerm(AtomError);
   AtomException = Yap_LookupAtom("exception"); TermException = MkAtomTerm(AtomException);
   AtomExtensions = Yap_LookupAtom("extensions"); TermExtensions = MkAtomTerm(AtomExtensions);
+  AtomExternalException = Yap_LookupAtom("external_exception"); TermExternalException = MkAtomTerm(AtomExternalException);
   AtomEvaluable = Yap_LookupAtom("evaluable"); TermEvaluable = MkAtomTerm(AtomEvaluable);
   AtomEvaluationError = Yap_LookupAtom("evaluation_error"); TermEvaluationError = MkAtomTerm(AtomEvaluationError);
   AtomExecutable = Yap_LookupAtom("executable"); TermExecutable = MkAtomTerm(AtomExecutable);
@@ -165,6 +168,7 @@
   AtomFunctor = Yap_LookupAtom("functor"); TermFunctor = MkAtomTerm(AtomFunctor);
   AtomGT = Yap_LookupAtom(">"); TermGT = MkAtomTerm(AtomGT);
   AtomGVar = Yap_LookupAtom("var"); TermGVar = MkAtomTerm(AtomGVar);
+  Atomg = Yap_LookupAtom("g"); Termg = MkAtomTerm(Atomg);
   AtomGc = Yap_FullLookupAtom("$gc"); TermGc = MkAtomTerm(AtomGc);
   AtomGcMargin = Yap_FullLookupAtom("$gc_margin"); TermGcMargin = MkAtomTerm(AtomGcMargin);
   AtomGcTrace = Yap_FullLookupAtom("$gc_trace"); TermGcTrace = MkAtomTerm(AtomGcTrace);
@@ -179,6 +183,7 @@
   AtomGlobalTrie = Yap_LookupAtom("global_trie"); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion"); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
   AtomHat = Yap_LookupAtom("^"); TermHat = MkAtomTerm(AtomHat);
+  AtomDoubleHat = Yap_LookupAtom("^^"); TermDoubleHat = MkAtomTerm(AtomDoubleHat);
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n"); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw"); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = Yap_LookupAtom("heap"); TermHeap = MkAtomTerm(AtomHeap);
@@ -216,7 +221,7 @@
   AtomLength = Yap_FullLookupAtom("length"); TermLength = MkAtomTerm(AtomLength);
   AtomList = Yap_LookupAtom("list"); TermList = MkAtomTerm(AtomList);
   AtomLine = Yap_LookupAtom("line"); TermLine = MkAtomTerm(AtomLine);
-  AtomLive = Yap_FullLookupAtom("$live"); TermLive = MkAtomTerm(AtomLive);
+  AtomLive = Yap_FullLookupAtom("live"); TermLive = MkAtomTerm(AtomLive);
   AtomLoadAnswers = Yap_LookupAtom("load_answers"); TermLoadAnswers = MkAtomTerm(AtomLoadAnswers);
   AtomLocal = Yap_LookupAtom("local"); TermLocal = MkAtomTerm(AtomLocal);
   AtomLocalSp = Yap_LookupAtom("local_sp"); TermLocalSp = MkAtomTerm(AtomLocalSp);
@@ -262,7 +267,7 @@
   AtomNotNewline = Yap_LookupAtom("not_newline"); TermNotNewline = MkAtomTerm(AtomNotNewline);
   AtomNotZero = Yap_LookupAtom("not_zero"); TermNotZero = MkAtomTerm(AtomNotZero);
   AtomNumber = Yap_LookupAtom("number"); TermNumber = MkAtomTerm(AtomNumber);
-  AtomObj = Yap_LookupAtom("o__bj__"); TermObj = MkAtomTerm(AtomObj);
+  AtomObj = Yap_LookupAtom("__obj__"); TermObj = MkAtomTerm(AtomObj);
   AtomOff = Yap_LookupAtom("off"); TermOff = MkAtomTerm(AtomOff);
   AtomOffline = Yap_LookupAtom("offline"); TermOffline = MkAtomTerm(AtomOffline);
   AtomOn = Yap_LookupAtom("on"); TermOn = MkAtomTerm(AtomOn);
@@ -283,7 +288,6 @@
   AtomOutOfTrailError = Yap_LookupAtom("out_of_trail_error"); TermOutOfTrailError = MkAtomTerm(AtomOutOfTrailError);
   AtomOutput = Yap_LookupAtom("output"); TermOutput = MkAtomTerm(AtomOutput);
   AtomParameter = Yap_LookupAtom("parameter"); TermParameter = MkAtomTerm(AtomParameter);
-  AtomPrologCommonsDir = Yap_LookupAtom("prolog_commons_directory"); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomPast = Yap_LookupAtom("past"); TermPast = MkAtomTerm(AtomPast);
   AtomPastEndOfStream = Yap_LookupAtom("past_end_of_stream"); TermPastEndOfStream = MkAtomTerm(AtomPastEndOfStream);
   AtomPermissionError = Yap_LookupAtom("permission_error"); TermPermissionError = MkAtomTerm(AtomPermissionError);
@@ -292,6 +296,7 @@
   AtomPriority = Yap_LookupAtom("priority"); TermPriority = MkAtomTerm(AtomPriority);
   AtomPlus = Yap_LookupAtom("+"); TermPlus = MkAtomTerm(AtomPlus);
   AtomPointer = Yap_LookupAtom("pointer"); TermPointer = MkAtomTerm(AtomPointer);
+  AtomPopen = Yap_LookupAtom("popen"); TermPopen = MkAtomTerm(AtomPopen);
   AtomPortray = Yap_FullLookupAtom("portray"); TermPortray = MkAtomTerm(AtomPortray);
   AtomPredicateIndicator = Yap_LookupAtom("predicate_indicator"); TermPredicateIndicator = MkAtomTerm(AtomPredicateIndicator);
   AtomPrimitive = Yap_LookupAtom("primitive"); TermPrimitive = MkAtomTerm(AtomPrimitive);
@@ -300,6 +305,7 @@
   AtomProcedure = Yap_LookupAtom("procedure"); TermProcedure = MkAtomTerm(AtomProcedure);
   AtomProfile = Yap_FullLookupAtom("$profile"); TermProfile = MkAtomTerm(AtomProfile);
   AtomProlog = Yap_LookupAtom("prolog"); TermProlog = MkAtomTerm(AtomProlog);
+  AtomPrologCommonsDir = Yap_LookupAtom("prolog_commons_directory"); TermPrologCommonsDir = MkAtomTerm(AtomPrologCommonsDir);
   AtomProtectStack = Yap_FullLookupAtom("$protect_stack"); TermProtectStack = MkAtomTerm(AtomProtectStack);
   AtomQly = Yap_LookupAtom("qly"); TermQly = MkAtomTerm(AtomQly);
   AtomQuery = Yap_LookupAtom("?-"); TermQuery = MkAtomTerm(AtomQuery);
@@ -317,6 +323,7 @@
   AtomRecordedP = Yap_FullLookupAtom("$recordep"); TermRecordedP = MkAtomTerm(AtomRecordedP);
   AtomRecordedWithKey = Yap_FullLookupAtom("$recorded_with_key"); TermRecordedWithKey = MkAtomTerm(AtomRecordedWithKey);
   AtomRedefineWarnings = Yap_LookupAtom("redefine_warnings"); TermRedefineWarnings = MkAtomTerm(AtomRedefineWarnings);
+  AtomRedo = Yap_FullLookupAtom("redo"); TermRedo = MkAtomTerm(AtomRedo);
   AtomRedoFreeze = Yap_FullLookupAtom("$redo_freeze"); TermRedoFreeze = MkAtomTerm(AtomRedoFreeze);
   AtomRefoundVar = Yap_FullLookupAtom("$I_FOUND_THE_VARIABLE_AGAIN"); TermRefoundVar = MkAtomTerm(AtomRefoundVar);
   AtomRelativeTo = Yap_FullLookupAtom("relative_to"); TermRelativeTo = MkAtomTerm(AtomRelativeTo);
@@ -390,6 +397,7 @@
   AtomT = Yap_LookupAtom("t"); TermT = MkAtomTerm(AtomT);
   AtomTerm = Yap_LookupAtom("term"); TermTerm = MkAtomTerm(AtomTerm);
   AtomTermExpansion = Yap_LookupAtom("term_expansion"); TermTermExpansion = MkAtomTerm(AtomTermExpansion);
+  AtomTermPosition = Yap_LookupAtom("term_position"); TermTermPosition = MkAtomTerm(AtomTermPosition);
   AtomTerms = Yap_LookupAtom("terms"); TermTerms = MkAtomTerm(AtomTerms);
   AtomText = Yap_LookupAtom("text"); TermText = MkAtomTerm(AtomText);
   AtomTextStream = Yap_LookupAtom("text_stream"); TermTextStream = MkAtomTerm(AtomTextStream);
@@ -409,6 +417,7 @@
   AtomTxt = Yap_LookupAtom("txt"); TermTxt = MkAtomTerm(AtomTxt);
   AtomTypeError = Yap_LookupAtom("type_error"); TermTypeError = MkAtomTerm(AtomTypeError);
   AtomUndefined = Yap_LookupAtom("undefined"); TermUndefined = MkAtomTerm(AtomUndefined);
+  AtomUndefinedQuery = Yap_LookupAtom("undefined_query"); TermUndefinedQuery = MkAtomTerm(AtomUndefinedQuery);
   AtomUndefp = Yap_FullLookupAtom("$undefp"); TermUndefp = MkAtomTerm(AtomUndefp);
   AtomUndefp0 = Yap_FullLookupAtom("$undefp0"); TermUndefp0 = MkAtomTerm(AtomUndefp0);
   AtomUnderflow = Yap_LookupAtom("underflow"); TermUnderflow = MkAtomTerm(AtomUnderflow);
@@ -420,6 +429,7 @@
   AtomUserErr = Yap_LookupAtom("user_error"); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);
   AtomUserOut = Yap_LookupAtom("user_output"); TermUserOut = MkAtomTerm(AtomUserOut);
+  AtomUTF8 = Yap_LookupAtom("utf8"); TermUTF8 = MkAtomTerm(AtomUTF8);
   AtomDollarVar = Yap_LookupAtom("$VAR"); TermDollarVar = MkAtomTerm(AtomDollarVar);
   AtomVBar = Yap_LookupAtom("|"); TermVBar = MkAtomTerm(AtomVBar);
   AtomVarBranches = Yap_LookupAtom("var_branches"); TermVarBranches = MkAtomTerm(AtomVarBranches);
@@ -446,8 +456,11 @@
   FunctorArrayEntry = Yap_MkFunctor(AtomArrayAccess,3);
   FunctorArrow = Yap_MkFunctor(AtomArrow,2);
   FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
+  FunctorAs = Yap_MkFunctor(AtomAs,2);
   FunctorAssert1 = Yap_MkFunctor(AtomAssert,1);
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
+  FunctorAt = Yap_MkFunctor(AtomAt,2);
+  FunctorAtSymbol = Yap_MkFunctor(AtomAtSymbol,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);
   FunctorAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);
@@ -495,6 +508,7 @@
   FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
   FunctorDoubleSlash = Yap_MkFunctor(AtomDoubleSlash,2);
   FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
+  FunctorEncoding = Yap_MkFunctor(AtomEncoding,1);
   FunctorEq = Yap_MkFunctor(AtomEq,2);
   FunctorError = Yap_MkFunctor(AtomError,2);
   FunctorEvaluationError = Yap_MkFunctor(AtomEvaluationError,1);
@@ -504,6 +518,7 @@
   FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,1);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
   FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);
+  FunctorExternalException = Yap_MkFunctor(AtomExternalException,1);
   FunctorFunctor = Yap_MkFunctor(AtomFunctor,3);
   FunctorGAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorGAtomic = Yap_MkFunctor(AtomAtomic,1);
@@ -519,6 +534,7 @@
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
   FunctorHat = Yap_MkFunctor(AtomHat,2);
+  FunctorDoubleHat = Yap_MkFunctor(AtomDoubleHat,1);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
   FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);
@@ -545,6 +561,7 @@
   FunctorOutput = Yap_MkFunctor(AtomOutput,1);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
   FunctorPlus = Yap_MkFunctor(AtomPlus,2);
+  FunctorPopen = Yap_MkFunctor(AtomPopen,1);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrintMessage = Yap_MkFunctor(AtomPrintMessage,2);
   FunctorProcedure = Yap_MkFunctor(AtomProcedure,5);
@@ -578,6 +595,7 @@
   FunctorTraceMetaCall = Yap_MkFunctor(AtomTraceMetaCall,3);
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
+  FunctorUndefinedQuery = Yap_MkFunctor(AtomUndefinedQuery,3);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);

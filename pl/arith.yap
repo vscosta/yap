@@ -22,7 +22,7 @@
 :- system_module( '$_arith', [compile_expressions/0,
         expand_exprs/2,
         plus/3,
-        succ/2], ['$c_built_in'/3]).
+        succ/2], ['$c_built_in'/4]).
 
 :- private( [do_c_built_in/3,
 	     do_c_built_metacall/3,
@@ -36,6 +36,7 @@
 
 /** @defgroup CompilerAnalysis Internal Clause Rewriting
     @ingroup YAPCompilerSettings
+    @{
 
   YAP supports several clause optimisation mechanisms, that
   are designed to improve execution of arithmetic
@@ -54,12 +55,11 @@
      + specialise versions for some built-ins, if we are aware of the
       run-time execution mode
 
-  The user has some control over this process, through some
-  built-ins and through execution flsgs.
+  The user has  control over this process, through
+  built-ins and through prolog flags.
 
 */
 
-%% @{
 
 /** @pred expand_exprs(- _O_,+ _N_)
 	Control term expansion during compilation.
@@ -86,7 +86,6 @@ expand_exprs(Old,New) :-
 After a call to this predicate, arithmetical expressions will be compiled.
 (see example below). This is the default behavior.
 */
-
 compile_expressions :- set_value('$c_arith',true).
 
 /**  @pred do_not_compile_expressions
@@ -94,7 +93,7 @@ compile_expressions :- set_value('$c_arith',true).
 
 After a call to this predicate, arithmetical expressions will not be compiled.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
 ?- source, do_not_compile_expressions.
 yes
 ?- [user].
@@ -112,8 +111,8 @@ p(A):-
 
 q(A):-
       A is 22.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+~~~~~~~
 */
 do_not_compile_expressions :- set_value('$c_arith',[]).
 
@@ -130,14 +129,11 @@ do_c_built_in(Mod:G, _, H, OUT) :-
 	var(G1), !,
 	do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      (clause_location(Call, Caller),
-	       strip_module(M:Goal,M1,NGoal),
-	       throw(error(Error,
-                       [[g|g(M1:NGoal)],[p|Call],[e|Caller],[h|g(Head)]]
-                      )
-                )
-	      )
+	       throw(error(Error,M:(Head :- Goal)))
 	     ) :- !.
+do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
+        !,
+       do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).
 do_c_built_in(X is Y, M, H,  P) :-
         primitive(X), !,
 	do_c_built_in(X =:= Y, M, H, P).
@@ -154,8 +150,10 @@ do_c_built_in(X is Y, _, _, P) :-
 		'$drop_is'(X0, X, P0, P)
 	).
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
+    !,
 	'$_arith':do_c_built_in(phrase(NT,Xs,[]), Mod, H, NTXsNil).
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
+    !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
 
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
@@ -343,7 +341,7 @@ expand_expr(Op, X, Y, O, Q, P) :-
 %%	contains_illegal_dcgnt(+Term) is semidet.
 %
 %	True if Term contains a non-terminal   we cannot deal with using
-%	goal-expansion. The test is too general approximation, but safe.
+%	goal-expansion. The test is too general an approximation, but safe.
 
 '$contains_illegal_dcgnt'(NT) :-
     functor(NT, _, A),
@@ -356,7 +354,6 @@ expand_expr(Op, X, Y, O, Q, P) :-
 
 '$harmless_dcgexception'(instantiation_error).	% ex: phrase(([1],x:X,[3]),L)
 '$harmless_dcgexception'(type_error(callable,_)).	% ex: phrase(27,L)
-
 
 :- set_value('$c_arith',true).
 /**

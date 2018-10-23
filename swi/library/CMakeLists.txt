@@ -39,10 +39,10 @@ set (LIBRARY_PL
 
   if (ANDROID)
       file(INSTALL ${LIBRARY_PL}  DESTINATION ${libpl})
-  else()
+  endif()
 
 install(FILES ${LIBRARY_PL}
   DESTINATION ${libpl}
   )
 
-  endif()
+  add_to_group( LIBRARY_PL pl_library )

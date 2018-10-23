@@ -58,8 +58,8 @@
 #include <ieeefp.h>
 #endif
 
-static void do_top_goal(YAP_Term Goal);
-static void exec_top_level(int BootMode, YAP_init_args *iap);
+static bool do_top_goal(YAP_Term Goal);
+static bool exec_top_level(int BootMode, YAP_init_args *iap);
 
 #ifdef lint
 /* VARARGS1 */
@@ -69,7 +69,7 @@ static void exec_top_level(int BootMode, YAP_init_args *iap);
 long _stksize = 32000;
 #endif
 
-static void do_top_goal(YAP_Term Goal) { YAP_RunGoalOnce(Goal); }
+static bool do_top_goal(YAP_Term Goal) { return YAP_RunGoalOnce(Goal); }
 
 static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
 
@@ -78,7 +78,8 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   BootMode = YAP_parse_yap_arguments(argc, argv, iap);
   iap->Embedded = false;
   /* init memory */
-  iap->boot_file_type = BootMode = YAP_Init(iap);
+  iap->boot_file_type = BootMode;
+  YAP_Init(iap);
   if (iap->ErrorNo) {
     /* boot failed */
     YAP_Error(iap->ErrorNo, 0L, iap->ErrorCause);
@@ -86,32 +87,39 @@ static int init_standard_system(int argc, char *argv[], YAP_init_args *iap) {
   return BootMode;
 }
 
-static void exec_top_level(int BootMode, YAP_init_args *iap) {
+static bool exec_top_level(int BootMode, YAP_init_args *iap) {
   YAP_Term atomfalse;
   YAP_Atom livegoal;
 
+  if (iap->install)
+    return true;
   if (BootMode == YAP_BOOT_FROM_SAVED_STACKS) {
     /* continue executing from the frozen stacks */
     YAP_ContinueGoal();
   }
-  livegoal = YAP_FullLookupAtom("$live");
+  livegoal = YAP_FullLookupAtom("live");
   /* the top-level is now ready */
 
   /* read it before case someone, that is, Ashwin, hides
      the atom false away ;-).
   */
-  atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("$false"));
+  atomfalse = YAP_MkAtomTerm(YAP_FullLookupAtom("false"));
   while (YAP_GetValue(livegoal) != atomfalse) {
-    YAP_Reset(YAP_FULL_RESET);
-    do_top_goal(YAP_MkAtomTerm(livegoal));
-    livegoal = YAP_FullLookupAtom("$live");
+    YAP_Reset(YAP_FULL_RESET, false);
+    if (!do_top_goal(YAP_MkAtomTerm(livegoal))) {
+      return false;
+    };
+    livegoal = YAP_FullLookupAtom("live");
   }
-  YAP_Exit(EXIT_SUCCESS);
-}
+  return true;
+   //YAP_Exit(EXIT_SUCCESS);
+
+  }
 
 // FILE *debugf;
 
 #ifdef LIGHT
+    
 int _main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -121,6 +129,7 @@ int main(int argc, char **argv)
   int i;
   YAP_init_args init_args;
   BootMode = init_standard_system(argc, argv, &init_args);
+  
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr, "[ FATAL ERROR: could not find saved state ]\n");
     exit(1);
@@ -138,10 +147,11 @@ int main(int argc, char **argv)
     }
   }
 
-  YAP_Reset(YAP_FULL_RESET);
+  YAP_Reset(YAP_FULL_RESET, false);
   /* End preprocessor code */
 
-  exec_top_level(BootMode, &init_args);
-
-  return (0);
+  bool rc = exec_top_level(BootMode, &init_args);
+  if (!rc)
+    return 1;
+  return 0;
 }

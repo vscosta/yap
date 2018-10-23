@@ -92,7 +92,10 @@ class JavaYAP {
 
   public static void main(String args[])
   {
-    System.loadLibrary("Native");
+    System.loadLibrary("gmp");
+    System.loadLibrary("Yap");
+    System.loadLibrary("YAP++");
+    System.loadLibrary("JAVAYap");
 
     JavaYAP y = new JavaYAP();
 

@@ -83,7 +83,6 @@
 #ifdef EUROTRA
   TermDollarU = MkAtomTerm(AtomDollarU);
 #endif
-  TermAnswer = MkAtomTerm(AtomAnswer);
 
   USER_MODULE = MkAtomTerm(AtomUser);
   IDB_MODULE = MkAtomTerm(AtomIDB);
@@ -111,7 +110,7 @@
   HIDDEN_PREDICATES = NULL;
 
 
-  Yap_InitPlIO();
+  Yap_InitPlIO(yapi);
   GLOBAL_Flags = 0;
   Yap_InitFlags(true);
 
@@ -125,7 +124,7 @@
 #endif
 
   CreepCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
-  UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp0,2),PROLOG_MODULE));
+  UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp,2),PROLOG_MODULE));
   SpyCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomSpy,1),PROLOG_MODULE));
   PredFail = RepPredProp(PredPropByAtom(AtomFail,PROLOG_MODULE));
   PredTrue = RepPredProp(PredPropByAtom(AtomTrue,PROLOG_MODULE));
@@ -142,6 +141,7 @@
   PredLogUpdClause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
   PredLogUpdClauseErase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
   PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  PredCall = RepPredProp(PredPropByFunc(FunctorCall,PROLOG_MODULE));
   PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
   PredProtectStack = RepPredProp(PredPropByFunc(FunctorProtectStack,PROLOG_MODULE));
   PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
@@ -152,6 +152,7 @@
   PredTraceMetaCall = RepPredProp(PredPropByFunc(FunctorTraceMetaCall,PROLOG_MODULE));
   PredCommentHook = RepPredProp(PredPropByFunc(FunctorCommentHook,PROLOG_MODULE));
   PredProcedure = Yap_MkLogPred(RepPredProp(PredPropByFunc(FunctorProcedure,PROLOG_MODULE)));
+  PredUndefinedQuery = RepPredProp(PredPropByFunc(FunctorUndefinedQuery,PROLOG_MODULE));
 
 #ifdef LOW_LEVEL_TRACER
   Yap_do_low_level_trace = FALSE;
@@ -269,6 +270,8 @@
 
 
 #endif
+
+
 
   OpList = NULL;
 

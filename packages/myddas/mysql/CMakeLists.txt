@@ -1,4 +1,6 @@
 
+if (WITH_MYSQL)
+
   set(MYSQL_SOURCES
           myddas_mysql.c
           myddas_util.c
@@ -12,10 +14,6 @@
 
   macro_optional_find_package(MySQL ON)
 
-  macro_log_feature(MYSQL_FOUND "MySQL"
-          "MYSQL Driver for MYDDAS Data-Base Interface "
-          "http://www.mysql.org" FALSE)
-
   if (MYSQL_FOUND)
       #  MYSQL_INCLUDE_DIR - where to find mysql.h, etc.
       #  MYSQL_LIBRARIES   - List of libraries when using MySQL.
@@ -24,18 +22,18 @@
       set_property(GLOBAL
               APPEND PROPERTY COMPILE_DEFINITIONS -DMYDDAS_MYSQL=1)
 	    if (WIN32)
-	      	    add_library(Yapmysql OBJECT ${MYSQL_SOURCES})
+	      	    add_library(YAPmysql OBJECT ${MYSQL_SOURCES})
 	      else()
-	    add_library(Yapmysql SHARED ${MYSQL_SOURCES})
-	    target_link_libraries(Yapmysql ${MYSQL_LIBRARIES} libYap)
-     install(TARGETS Yapmysql
-              RUNTIME DESTINATION ${dlls}
-             ARCHIVE DESTINATION ${dlls}
-             LIBRARY DESTINATION ${libdir}
+	    add_lib(YAPmysql  ${MYSQL_SOURCES})
+	    target_link_libraries(YAPmysql ${MYSQL_LIBRARIES} libYap)
+     install(TARGETS YAPmysql
+              RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+             ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
+             LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
               )
 	    endif()
       include_directories(${MYSQL_INCLUDE_DIR} ..)
-      set_target_properties(Yapmysql PROPERTIES
+      set_target_properties(YAPmysql PROPERTIES
               POSITION_INDEPENDENT_CODE ON
                   PREFIX ""
               )
@@ -55,3 +53,5 @@
           "enable the MYDDAS top-level (REPL) support for MySQL" OFF
           'USE_MYDDAS AND MYSQL_FOUND' OFF)
   #TODO:
+
+endif()

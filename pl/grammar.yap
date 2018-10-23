@@ -25,6 +25,20 @@
  *
 */
 
+:- system_module( '$_grammar', [!/2,
+         (',')/4,
+         (->)/4,
+         ('.')/4,
+         (;)/4,
+        'C'/3,
+        []/2,
+        []/4,
+        (\+)/3,
+        phrase/2,
+        phrase/3,
+        {}/3,
+        ('|')/4], ['$do_error'/2]).
+
 /**
 @defgroup Grammars Grammar Rules
 @ingroup builtins
@@ -68,20 +82,6 @@ Grammar related built-in predicates:
 
 */
 
-:- system_module( '$_grammar', [!/2,
-         (',')/4,
-         (->)/4,
-         ('.')/4,
-         (;)/4,
-        'C'/3,
-        []/2,
-        []/4,
-        (\+)/3,
-        phrase/2,
-        phrase/3,
-        {}/3,
-        ('|')/4], ['$do_error'/2]).
-
 % :- meta_predicate ^(?,0,?).
 % ^(Xs, Goal, Xs) :- call(Goal).
 
@@ -120,7 +120,7 @@ t_hgoal(V, _, _, _, G0) :- var(V), !,
 t_hgoal(M:H, M:NH, S, SR, G0) :- !,
 	t_hgoal(H, NH, S, SR, G0).
 t_hgoal(H, NH, S, SR, _) :-
-	extend([S,SR],H,NH).
+	dcg_extend([S,SR],H,NH).
 
 t_hlist(V, _, _, _, G0) :- var(V), !,
 	'$do_error'(instantiation_error,G0).
@@ -173,10 +173,10 @@ t_body((T|R), _ToFill, _, S, SR, (Tt;Rt)) :- !,
 t_body(M:G, ToFill, Last, S, SR, M:NG) :- !,
 	t_body(G, ToFill, Last, S, SR, NG).
 t_body(T, filled_in, _, S, SR, Tt) :-
-	extend([S,SR], T, Tt).
+	dcg_extend([S,SR], T, Tt).
 
 
-extend(More, OldT, NewT) :-
+dcg_extend(More, OldT, NewT) :-
 	OldT =.. OldL,
 	lists:append(OldL, More, NewL),
 	NewT =.. NewL.
@@ -231,7 +231,7 @@ prolog:phrase(V, S0, S) :-
     '$do_error'(instantiation_error,phrase(V,S0,S)).
 prolog:phrase([H|T], S0, S) :-
     !,
-    S0 = [H|S1],	      
+    S0 = [H|S1],
     '$phrase_list'(T, S1, S).
 prolog:phrase([], S0, S) :-
     !,
@@ -276,11 +276,11 @@ prolog:'\\+'(A, S0, S) :-
 	 t_body(\+ A, _, last, S0, S, Goal),
 	 '$execute'(Goal).
 
-:- multifile system:goal_expansion/2.
-
-:- dynamic system:goal_expansion/2.
+:- '$new_multifile'( goal_expansion(_,_), prolog).
+:- '$mk_dynamic'( goal_expansion(_,_), prolog).
 
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
+	nonvar(NT),
     catch(prolog:'$translate_rule'(
           (pseudo_nt --> Mod:NT), Rule),
      	  error(Pat,ImplDep),
@@ -312,10 +312,10 @@ prolog:'\\+'(A, S0, S) :-
 
 do_c_built_in('C'(A,B,C), _, _, (A=[B|C])) :- !.
 
-do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :- 
+do_c_built_in(phrase(NT,Xs0, Xs),Mod, _, NewGoal) :-
     nonvar(NT), nonvar(Mod), !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal).
-    
+
 do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
     nonvar(NT), nonvar(Mod),
     '$c_built_in_phrase'(NT, Xs, [], Mod, NewGoal).

@@ -665,12 +665,12 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str,
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
         traverse_subgoal_trie(*bucket, str, str_index, arity, mode,
                               TRAVERSE_POSITION_FIRST PASS_REGS);
-        memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+        memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
         if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
           str[str_index - 1] = ',';
@@ -687,7 +687,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str,
   /* save current state if first sibling node */
   if (position == TRAVERSE_POSITION_FIRST) {
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     current_str_index = str_index;
     current_mode = mode;
   }
@@ -737,7 +737,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str,
     mode = current_mode;
     current_node = TrNode_next(current_node);
     while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+      memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
         str[str_index - 1] = ',';
@@ -768,12 +768,12 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str,
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
         traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode,
                              TRAVERSE_POSITION_FIRST PASS_REGS);
-        memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+        memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
         if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
           str[str_index - 1] = ',';
@@ -790,7 +790,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str,
   /* save current state if first sibling node */
   if (position == TRAVERSE_POSITION_FIRST) {
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     current_str_index = str_index;
     current_var_index = var_index;
     current_mode = mode;
@@ -832,7 +832,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str,
     mode = current_mode;
     current_node = TrNode_next(current_node);
     while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+      memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
         str[str_index - 1] = ',';
@@ -863,12 +863,12 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str,
     bucket = Hash_buckets(hash);
     last_bucket = bucket + Hash_num_buckets(hash);
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
         traverse_global_trie(*bucket, str, str_index, arity, mode,
                              TRAVERSE_POSITION_FIRST PASS_REGS);
-        memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+        memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
         if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
           str[str_index - 1] = ',';
@@ -885,7 +885,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str,
   /* save current state if first sibling node */
   if (position == TRAVERSE_POSITION_FIRST) {
     current_arity = (int *)malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    memmove(current_arity, arity, sizeof(int) * (arity[0] + 1));
     current_str_index = str_index;
     current_mode = mode;
   }
@@ -913,7 +913,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str,
     mode = current_mode;
     current_node = TrNode_next(current_node);
     while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+      memmove(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
       if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
         str[str_index - 1] = ',';
@@ -1200,7 +1200,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #ifdef MODE_DIRECTED_TABLING
     if (subs_pos) {
       ALLOC_BLOCK(mode_directed, subs_pos * sizeof(int), int);
-      memcpy((void *)mode_directed, (void *)aux_mode_directed,
+      memmove((void *)mode_directed, (void *)aux_mode_directed,
              subs_pos * sizeof(int));
     } else
       mode_directed = NULL;

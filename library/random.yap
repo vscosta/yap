@@ -35,9 +35,11 @@
 	setrand/1
     ]).
 
-/** @defgroup random Random Number Generator
-@ingroup library
-@{
+/**
+
+  @{
+  @defgroup random Random Number Generator
+  @ingroup library
 
  Since YAP-4.3.19 YAP uses
 the O'Keefe public-domain algorithm, based on the "Applied Statistics"
@@ -218,5 +220,7 @@ setrand(rand(X,Y,Z)) :-
 
 getrand(rand(X,Y,Z)) :-
 	getrand(X,Y,Z).
+
+/** @} */
 /** @} */
 

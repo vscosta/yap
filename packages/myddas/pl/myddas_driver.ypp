@@ -18,43 +18,29 @@
 #undef sqlite3
 #define DBMS(x) sqlite3_##x
 #define c_DBMS(x) c_sqlite3_##x
-#define NAME() 'Yapsqlite3'
-#define MODULE() myddas_sqlite3
+#define NAME() 'YAPsqlite3'
+#define MODULE() user
 #define INIT() init_sqlite3
 #elif defined( odbc )
 #undef odbc
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
-#define NAME() 'Yapodbc'
-#define MODULE() myddas_odbc
+#define NAME() 'YAPodbc'
+#define MODULE() user
 #define INIT() init_odbc
-#elif defined( postgres )
-#undef postgres 
+#elif defined( postrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrs )
+#undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
-#define NAME() 'Yappostgres'
-#define MODULE() myddas_postgres
-#define INIT() init_odbc
+#define NAME() 'YAPpostgres'
+#define MODULE() user
+#define INIT() init_postgres
 #endif
 
 #if defined(DBMS)
 
 :- module(MODULE(),[
-			  DBMS(result_set)/1,
-			  DBMS(datalog_describe)/1,
-			  DBMS(datalog_describe)/2,
-			  DBMS(describe)/3,
-			  DBMS(describe)/2,
-			  DBMS(datalog_show_tables)/1,
-			  DBMS(datalog_show_tables)/0,
-			  DBMS(show_tables)/2,
-			  DBMS(show_tables)/1,
-			  DBMS(show_database)/2,
-			  DBMS(show_databases)/2,
-			  DBMS(show_databases)/1,
-			  DBMS(change_database)/2,
-			  DBMS(call_procedure)/4,
-			  DBMS(call_procedure)/3,
+			  /*
 			  c_DBMS(change_database)/2,
 			  c_DBMS(connect)/4,
 			  c_DBMS(disconnect)/1,
@@ -64,8 +50,16 @@
 			  c_DBMS(get_next_result_set)/3,
 			  c_DBMS(query)/5,
 			  c_DBMS(number_of_fields)/3,
-			  c_DBMS(row)/3
+              */
+              DBMS(describe)/3,
+              DBMS(show_tables)/2,
+              DBMS(row)/3
 			 ]).
+
+
+:- use_module(library(lists)).
+ :- use_module(library(maplist)).
+
 
 :- use_module(myddas,[
 		      db_sql/3
@@ -82,7 +76,9 @@
 				      '$make_a_list'/2,
 				      '$write_or_not'/1
 				     ]).
+#ifndef __ANDROID__
 :- load_foreign_files( [NAME()], [], INIT()).
+#endif
 
 %--------------------------------------------------------
 % Public Predicates
@@ -98,16 +94,15 @@ DBMS(result_set)(X):-
 	get_value(DBMS(result_set),X).
 DBMS(result_set)(use_result):-
 	set_value(DBMS(result_set),use_result).
-DBMS(result_set)(store_result):- 
+DBMS(result_set)(store_result):-
 	set_value(DBMS(result_set),store_result).
 %default value
 :- DBMS(result_set)(use_result).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% DBMS(describe)/2
+% DBMS(db_datalog_describe)/2
 %
 %
 DBMS(datalog_describe)(Relation):-
@@ -125,20 +120,18 @@ DBMS(datalog_describe)(Connection,Relation) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(describe)/3
-% DBMS(describe)/2
 % gives the results of the DESCRIBE statement
 % by backtracking
-DBMS(describe)(Relation,TableInfo) :-
-	DBMS(describe)(myddas,Relation,TableInfo).
-DBMS(describe)(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
-	'$error_checks'(DBMS(describe)(Relation,Connection,_)),
+%#if sqlite3
+DBMS(describe)(Connection,Relation,tableinfo(FieldID,Type,Null,Primary,Default,'')) :-
 	'$get_value'(Connection,Conn),
-	'$make_atom'(['DESCRIBE ',Relation],SQL),
+	'$make_atom'(['PRAGMA table_info(\'',Relation,'\')'],SQL),
 	DBMS(result_set)(Mode),
 	'$write_or_not'(SQL),
 	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
 	!,
-	c_DBMS(row)(ResultSet,6,[A1,A2,A3,A4,A5,A6]).
+	DBMS(row)(ResultSet,6,[_A1,FieldID,Type,Null,Default,Primary]).
+%#endif
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -150,7 +143,6 @@ DBMS(describe)(Connection,Relation,tableinfo(A1,A2,A3,A4,A5,A6)) :-
 DBMS(datalog_show_tables):-
 	DBMS(datalog_show_tables)(myddas).
 DBMS(datalog_show_tables)(Connection) :-
-	'$error_checks'(DBMS(show_tables)(Connection)),
 	'$get_value'(Connection,Conn),
 	DBMS(result_set)(Mode),
 	'$write_or_not'('.tables'),
@@ -162,24 +154,24 @@ DBMS(datalog_show_tables)(Connection) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(show_tables)/2
-% DBMS(show_tables)/1
 % gives the results of the SHOW TABLES statement
 % by backtracking
-DBMS(show_tables)(Table) :-
-	DBMS(show_tables)(myddas,Table).
+%#if sqlite3
 DBMS(show_tables)(Connection,table(Table)) :-
-	'$error_checks'(DBMS(show_tables)(Connection)),
 	'$get_value'(Connection,Conn),
+	SQL = 'SELECT name FROM sqlite_master WHERE type=\'table\' ORDER BY name',
 	DBMS(result_set)(Mode),
-	'$write_or_not'('.tables'),
-	c_DBMS(query)('.tables',ResultSet,Conn,Mode,_),
-	!,c_DBMS(row)(ResultSet,1,[Table]).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	'$write_or_not'(SQL),
+	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
+	!,
+	DBMS(row)(ResultSet,1,[Table]).
+%#endif
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(show_database)/2
-% 
+%
 %
 DBMS(show_database)(Connection,Database) :-
 	'$error_checks'(DBMS(show_database)(Connection,Database)),
@@ -190,7 +182,7 @@ DBMS(show_database)(Connection,Database) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(show_databases)/2
-% 
+%
 %
 DBMS(show_databases)(Connection,database(Databases)) :-
 	%'$error_checks'(DBMS(show_databases)(Connection,Database)),
@@ -198,7 +190,7 @@ DBMS(show_databases)(Connection,database(Databases)) :-
 	DBMS(result_set)(Mode),
 	'$write_or_not'('SHOW DATABASES'),
 	c_DBMS(query)('SHOW DATABASES',ResultSet,Conn,Mode,_),
-	!,c_DBMS(row)(ResultSet,1,[Databases]).
+	!,DBMS(row)(ResultSet,1,[Databases]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -219,7 +211,7 @@ DBMS(show_databases)(Connection) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(change_database)/2
-% 
+%
 %
 DBMS(change_database)(Connection,Database) :-
 	'$error_checks'(DBMS(change_database)(Connection,Database)),
@@ -233,7 +225,7 @@ DBMS(change_database)(Connection,Database) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DBMS(call_procedure)/4
 % DBMS(call_procedure)/3
-% DBMS(call_procedure)(+,+,+,?)				
+% DBMS(call_procedure)(+,+,+,?)
 % Only support in MySQL 5.0 an above
 % Called procedure must return results via MySQL result set
 DBMS(call_procedure)(Procedure,Args,Result) :-
@@ -244,6 +236,14 @@ DBMS(call_procedure)(Connection,Procedure,Args,LA) :-
 	'$make_atom'(['CALL ',Procedure,'(',ArgsSQL,')'],SQL),
 	DBMS(sql)(Connection,SQL,LA).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+DBMS(row)(ResultSet,Arity,Args) :-
+    setup_call_catcher_cleanup(
+        c_DBMS(row_initialise)(ResultSet,State),
+        c_DBMS(row_get)(ResultSet,Arity,Args,State),
+	Caught,
+        c_DBMS(row_terminate)(State, Caught)
+        ).
 
 
 #endif /* MYDDAS_DBMS */

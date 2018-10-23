@@ -10,8 +10,6 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
-
-
 #ifndef YAPSTREAMS_H
 #define YAPSTREAMS_H 1
 
@@ -21,7 +19,6 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
-
 
 #define YAP_ERROR NIL
 
@@ -42,7 +39,6 @@ static char SccsId[] = "%W% %G%";
 #define HAVE_SOCKET 1
 #endif
 
-
 //#include "Atoms.h"
 //#include "Yap.h"
 #include <stdlib.h>
@@ -60,7 +56,6 @@ static char SccsId[] = "%W% %G%";
 
 #include <wchar.h>
 
-
 /************ SWI compatible support for unicode representations  ************/
 typedef struct yap_io_position {
   int64_t byteno;       /* byte-position in file */
@@ -70,9 +65,19 @@ typedef struct yap_io_position {
   intptr_t reserved[2]; /* future extensions */
 } yapIOPOS;
 
+typedef struct yapchlookahead {
+    intptr_t charcount;       /* character position in file */
+    intptr_t linecount;      /* lineno in file */
+    intptr_t linepos;     /* position in line */
+    intptr_t ch; /* future extensions */
+    struct yapchlookahead *next;
+} yapStreamLookahead;
+
+extern int PopCode(int sno);
+
 #ifndef _PL_STREAM_H
 typedef struct {
-  YAP_Atom file;         /* current source file */
+  YAP_Atom file;     /* current source file */
   yapIOPOS position; /* Line, line pos, char and byte */
 } yapSourceLocation;
 #endif
@@ -99,12 +104,12 @@ typedef struct read_data_t {
 
   int magic; /* RD_MAGIC */
   struct stream_desc *stream;
-  FILE *f;       /* file. of known */
+  FILE *f;           /* file. of known */
   YAP_Term position; /* Line, line pos, char and byte */
-  void *posp;    /* position pointer */
-  size_t posi;   /* position number */
+  void *posp;        /* position pointer */
+  size_t posi;       /* position number */
 
-  YAP_Term subtpos;                    /* Report Subterm positions */
+  YAP_Term subtpos;                /* Report Subterm positions */
   bool cycles;                     /* Re-establish cycles */
   yapSourceLocation start_of_term; /* Position of start of term */
   struct mod_entry *module;        /* Current source module */
@@ -114,14 +119,14 @@ typedef struct read_data_t {
 
   int *char_conversion_table; /* active conversion table */
 
-  YAP_Atom on_error;     /* Handling of syntax errors */
+  YAP_Atom on_error; /* Handling of syntax errors */
   int has_exception; /* exception is raised */
 
   YAP_Term exception; /* raised exception */
   YAP_Term variables; /* report variables */
   YAP_Term singles;   /* Report singleton variables */
   YAP_Term varnames;  /* Report variables+names */
-  int strictness; /* Strictness level */
+  int strictness;     /* Strictness level */
 
 #ifdef O_QUASIQUOTATIONS
   YAP_Term quasi_quotations; /* User option quasi_quotations(QQ) */
@@ -133,8 +138,7 @@ typedef struct read_data_t {
 
 } read_data, *ReadData;
 
-
-#if __APPLE__
+#if __APPLE__ && !PY4YAP_H
 #include "fmemopen.h"
 #define HAVE_FMEMOPEN 1
 #define HAVE_OPEN_MEMSTREAM 1
@@ -142,9 +146,9 @@ FILE *open_memstream(char **buf, size_t *len);
 #endif
 
 #if __ANDROID__
-
-#undef HAVE_FMEMOPEN
-#undef HAVE_OPEN_MEMSTREAM
+//extern FILE * fmemopen(void *buf, size_t size, const char *mode);
+#define HAVE_FMEMOPEN 1
+#define HAVE_OPEN_MEMSTREAM 1
 #endif
 
 #if HAVE_FMEMOPEN
@@ -162,8 +166,8 @@ FILE *open_memstream(char **buf, size_t *len);
 #endif
 
 typedef struct mem_desc {
-  char *buf;    /* where the file is being read from/written to */
-  int src;      /* where the space comes from, 0 code space, 1 malloc */
+  char *buf;        /* where the file is being read from/written to */
+  int src;          /* where the space comes from, 0 code space, 1 malloc */
   YAP_Int max_size; /* maximum buffer size (may be changed dynamically) */
   YAP_UInt pos;     /* cursor */
   volatile void *error_handler;
@@ -171,16 +175,16 @@ typedef struct mem_desc {
 
 #if HAVE_SOCKET
 typedef enum { /* in YAP, sockets may be in one of 4 possible status */
-            new_socket,
-    server_socket,
-    client_socket,
-    server_session_socket,
-    closed_socket
+               new_socket,
+               server_socket,
+               client_socket,
+               server_session_socket,
+               closed_socket
 } socket_info;
 
 typedef enum { /* we accept two domains for the moment, IPV6 may follow */
-            af_inet, /* IPV4 */
-            af_unix  /* or AF_FILE */
+               af_inet, /* IPV4 */
+               af_unix  /* or AF_FILE */
 } socket_domain;
 
 #endif
@@ -190,7 +194,7 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define Handle_vars_f 0x04
 #define Use_portray_f 0x08
 #define To_heap_f 0x10
-#define Unfold_cyclics_f 0x20
+#define Ignore_cyclics_f 0x20
 #define Use_SWI_Stream_f 0x40
 #define BackQuote_String_f 0x80
 #define AttVar_None_f 0x100
@@ -209,7 +213,7 @@ typedef struct stream_desc {
   // useful in memory streams
   char *nbuf;
   size_t nsize;
-  union {
+  struct {
     struct {
 #define PLGETC_BUF_SIZE 4096
       unsigned char *buf, *ptr;
@@ -226,10 +230,19 @@ typedef struct stream_desc {
       int fd;
     } socket;
 #endif
-    struct {
+     struct {
       const unsigned char *buf, *ptr;
     } irl;
+     struct {
+       unsigned char *buf, *ptr;
+    } w_irl;
+    void *private_data;
   } u;
+    struct {
+        bool on;
+        int ch;
+        intptr_t pos, line, lpos;
+    } buf;
 
   YAP_Int charcount, linecount, linepos;
   stream_flags_t status;
@@ -245,43 +258,20 @@ typedef struct stream_desc {
       int);         /** function the stream uses for reading a character. */
   struct vfs *vfs;  /** stream belongs to a space */
   void *vfs_handle; /** direct handle to stream in that space. */
-  int (*stream_wgetc_for_read)(
-      int); /* function the stream uses for parser. It may be different
-               from above if the ISO  character conversion is on */
+    int (*stream_wgetc_for_read)(int);   /** function the stream uses for parser. It may be different
+                          from above if the ISO  character conversion is on */
+    int (*stream_peek)(int);   /** check if the next character is available. */
+    int (*stream_wpeek)(int);   /**  check if the next wide character is available. */
   encoding_t encoding; /** current encoding for stream */
 } StreamDesc;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+extern bool Yap_set_stream_to_buf(StreamDesc *st, const char *bufi,
+                                  size_t nchars
+                                  #ifdef USES_REGS
+                                   USES_REGS
+                                   #endif
+                                 );
 
 #endif

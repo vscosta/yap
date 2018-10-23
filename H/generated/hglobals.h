@@ -100,7 +100,7 @@ typedef struct global_data {
   char  Executable_[YAP_FILENAME_MAX];
 #endif
   int  OpaqueHandlersCount_;
-  struct opaque_handler_struct*  OpaqueHandlers_;
+  struct YAP_opaque_handler_struct*  OpaqueHandlers_;
 #if  __simplescalar__
   char  pwd_[YAP_FILENAME_MAX];
 #endif
@@ -141,4 +141,5 @@ const char*  RestoreFile_;
   int  NOfFileAliases_;
   int  SzOfFileAliases_;
   struct vfs*  VFS_;
+  char*  cwd_;
 } w_shared;

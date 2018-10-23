@@ -25,10 +25,18 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
+
+:- '$system_meta_predicates'([
+			      discontiguous(:),
+			      multifile(:)
+			     ]
+			    ).
+
 '$log_upd'(1).
 
 /**
   @defgroup YAPPredDecls Declaring Properties of Predicates
+  @{
   @ingroup YAPCompilerSettings
 
 The YAP Compiler allows the programmer to include declarations with
@@ -93,7 +101,7 @@ dynamic(X) :-
 	'$dynamic'(A/N1,Mod).
 '$dynamic'(A/N,Mod) :-
   functor(G, A, N),
-  '$mk_d'(G,Mod).
+  '$mk_dynamic'(G,Mod).
 
 /** @pred public(  _P_ ) is iso
 
@@ -176,9 +184,7 @@ multifile(P) :-
 	fail.
 '$multifile'(N/A, M) :-
     functor(S,N,A),
-	'$is_multifile'(S, M), !.
-'$multifile'(N/A, M) :- !,
-	'$new_multifile'(N,A,M).
+	'$new_multifile'(S, M), !.
 '$multifile'([H|T], M) :- !,
 	'$multifile'(H,M),
 	'$multifile'(T,M).
@@ -268,3 +274,6 @@ its caller.
 	'$predicate_flags'(P, M, Fl, Fl),
 	NFlags is Fl \/ 0x200004,
 	'$predicate_flags'(P, M, Fl, NFlags).
+  /**
+   * @}
+   */

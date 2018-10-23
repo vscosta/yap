@@ -1,19 +1,19 @@
 /*************************************************************************
-  *									 *
-  *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
-  *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-  *									 *
-  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-  *									 *
-  **************************************************************************
-  *									 *
-  * File:		tracer.h *
-  * Last rev:								 *
-  * mods: *
-  * comments:	definitions for low level tracer			 *
-  *									 *
-  *************************************************************************/
+ *									 *
+ *	 YAP Prolog    @(#)amidefs.h	1.3 3/15/90
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		tracer.h *
+ * Last rev:								 *
+ * mods: *
+ * comments:	definitions for low level tracer			 *
+ *									 *
+ *************************************************************************/
 
 #include "Yap.h"
 
@@ -48,7 +48,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
       s = s1;
       expand = false;
     }
-  min = 1024;
+    min = 1024;
     if (name == NULL) {
 #ifdef YAPOR
       d = snprintf(s, max, "(%d)%s", worker_id, start);
@@ -81,32 +81,36 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           if (max > 16) {
             *s++ = ',';
             *s++ = ' ';
-            max-=2;
+            max -= 2;
           } else {
             expand = true;
             continue;
           }
         }
-        const char *sn = Yap_TermToString(args[i], NULL, LOCAL_encoding,
+        const char *sn = Yap_TermToBuffer(args[i],
                                           Quote_illegal_f | Handle_vars_f);
         size_t sz;
         if (sn == NULL) {
-          sn = "<* error *>";
+	  sn = malloc(strlen("<* error *>")+1);
+	  strcpy((char*)sn, "<* error *>");
         }
         sz = strlen(sn);
         if (max <= sz) {
-	  min = sz + 1024;
+          min = sz + 1024;
           expand = true;
+	  free((void*)sn);
           continue;
         }
         strcpy(s, sn);
+	free((void*)sn);
+	sn = NULL;
         s += sz;
-	max -= sz;
+        max -= sz;
       }
       if (arity) {
         *s++ = ' ';
         *s++ = ')';
-	max -= 2;
+        max -= 2;
       }
     }
   } while (expand);
@@ -114,7 +118,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
   return s;
 }
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__clang__)
 unsigned long long vsc_count;
 #else
 unsigned long vsc_count;
@@ -159,7 +163,7 @@ void jmp_deb2(void) { fprintf(stderr, "Here\n"); }
 
 void jmp_deb(int i) {
   if (i)
-    printf("Here we go %ld\n", old_value++);
+    printf("Here we go " Int_FORMAT "\n", old_value++);
   if (old_value == 716)
     jmp_deb2();
 }
@@ -202,6 +206,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   int l = push_text_stack();
   /*  extern int gc_calls; */
   vsc_count++;
+  //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
@@ -346,7 +351,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
       if (p == pe) {
         UNLOCK(Yap_heap_regs->low_level_trace_lock);
         pop_text_stack(l);
-        ReleaseAndReturn(true);
+        return (true);
       }
       if (env_ptr != NULL)
         env_ptr = (CELL *)(env_ptr[E_E]);
@@ -354,8 +359,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%lld %ld ", vsc_count, LCL0 - (CELL *)B);
-  b += snprintf(b, top - b, "%ld ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
+  b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
+                LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif
@@ -363,12 +369,13 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   if (pred == NULL) {
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
-    ReleaseAndReturn(true);
+    return (true);
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
       UNLOCK(Yap_low_level_trace_lock);
-      ReleaseAndReturn(true);
+      pop_text_stack(l);
+      return (true);
     }
     mname = "prolog";
   } else {
@@ -453,14 +460,14 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   }
   UNLOCK(Yap_low_level_trace_lock);
 #if __ANDROID__
-  __android_log_print(ANDROID_LOG_DEBUG, "YAPDroid", "%s\n", buf);
+  __android_log_print(ANDROID_LOG_ERROR, "YAPDroid", "%s\n", buf);
 #else
   *b++ = '\n';
   *b = '\0';
   fputs(buf, stderr);
 #endif
   pop_text_stack(l);
-  ReleaseAndReturn(true);
+  return (true);
 }
 
 void toggle_low_level_trace(void) {
@@ -482,7 +489,7 @@ static Int reset_total_choicepoints(USES_REGS1) {
 }
 
 static Int show_low_level_trace(USES_REGS1) {
-  fprintf(stderr, "Call counter=%llu\n", vsc_count);
+  fprintf(stderr, "Call counter=%lld\n", vsc_count);
   return (TRUE);
 }
 
@@ -508,7 +515,7 @@ not being output.
 static Int stop_low_level_trace(USES_REGS1) {
   Yap_do_low_level_trace = FALSE;
   LOCAL_do_trace_primitives = TRUE;
-#if DEBUG_LOCKS
+#if DEBUG_LOCKS////
   debug_locks = TRUE;
 #endif
   return (TRUE);

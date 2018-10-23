@@ -1,24 +1,26 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		readline.c *
-* Last rev:	5/2/88							 *
-* mods:									 *
-* comments:	Input/Output C implemented predicates			 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		readline.c *
+ * Last rev:	5/2/88							 *
+ * mods: *
+ * comments:	Input/Output C implemented predicates			 *
+ *									 *
+ *************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
 
-/*
+/** @file readline.c
+ *
+ *
  * This file includes the interface to the readline library, if installed in the
  *system.
  *
@@ -51,7 +53,7 @@ static char SccsId[] = "%W% %G%";
 
 #include "iopreds.h"
 
-#if USE_READLINE
+#if defined(HAVE_LIBREADLINE)
 
 #include <readline/history.h>
 #include <readline/readline.h>
@@ -216,7 +218,7 @@ static char **prolog_completion(const char *text, int start, int end) {
   } else if (start == 0) {
     int i = 0;
     const char *p;
-    while (isblank(text[i++]) && i <= end)
+    while (isspace(text[i++]) && i <= end)
       ;
     p = text + i;
 
@@ -251,48 +253,34 @@ void Yap_ReadlineFlush(int sno) {
   }
 }
 
-bool Yap_readline_clear_pending_input(StreamDesc *s) { 
+bool Yap_readline_clear_pending_input(StreamDesc *s) {
+#if HAVE_RL_CLEAR_PENDING_INPUT
   rl_clear_pending_input();
+#endif
   if (s->u.irl.buf) {
-    free( ( void *)s->u.irl.buf ); 
-}
-    s->u.irl.ptr = s->u.irl.buf = NULL;
-    return true;
+    free((void *)s->u.irl.buf);
+  }
+  s->u.irl.ptr = s->u.irl.buf = NULL;
+  return true;
 }
 
 bool Yap_ReadlineOps(StreamDesc *s) {
   if (s->status & Tty_Stream_f) {
     if (GLOBAL_Stream[0].status & (Input_Stream_f | Tty_Stream_f) &&
-        is_same_tty(s->file, GLOBAL_Stream[0].file))
+        is_same_tty(s->file, GLOBAL_Stream[0].file)) {
       s->stream_getc = ReadlineGetc;
-    s->status |= Readline_Stream_f;
+      s->stream_peek = Yap_ReadlinePeekChar;
+      s->stream_wpeek = Yap_ReadlinePeekChar;
+      s->status |= Readline_Stream_f;
+    }
     return true;
   }
   return false;
 }
 
-static int prolog_complete(int ignore, int key) {
-  if (rl_point > 0 && rl_line_buffer[rl_point - 1] != ' ') {
-#if HAVE_DECL_RL_CATCH_SIGNALS   /* actually version >= 1.2, or true readline   \
-                                   */
-    rl_begin_undo_group();
-    rl_complete(ignore, key);
-    if (rl_point > 0 && rl_line_buffer[rl_point - 1] == ' ') {
-      rl_delete_text(rl_point - 1, rl_point);
-      rl_point -= 1;
-      rl_delete(-1, key);
-    }
-    rl_end_undo_group();
-#endif
-  } else
-    rl_complete(ignore, key);
-
-  return 0;
-}
-
 bool Yap_InitReadline(Term enable) {
   // don't call readline within emacs
-  if (Yap_embedded)
+  if (Yap_Embedded)
     return false;
   if (!(GLOBAL_Stream[StdInStream].status & Tty_Stream_f) ||
       getenv("INSIDE_EMACS") || enable != TermTrue) {
@@ -308,7 +296,7 @@ bool Yap_InitReadline(Term enable) {
 #endif
   // rl_outstream = stderr;
   using_history();
-  const char *s = Yap_AbsoluteFile("~/.YAP.history", NULL, true);
+  const char *s = Yap_AbsoluteFile("~/.YAP.history", true);
   history_file = s;
   if (read_history(s) != 0) {
     FILE *f = fopen(s, "a");
@@ -318,17 +306,16 @@ bool Yap_InitReadline(Term enable) {
   }
   rl_readline_name = "YAP Prolog";
   rl_attempted_completion_function = prolog_completion;
-#ifdef HAVE_RL_FILENAME_COMPLETION_FUNCTION
-  rl_add_defun("prolog-complete", prolog_complete, '\t');
-#else
-  rl_add_defun("prolog-complete", (void *)prolog_complete, '\t');
-#endif
-  // does not work
   // rl_prep_terminal(1);
   if (GLOBAL_Flags)
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   return Yap_ReadlineOps(GLOBAL_Stream + StdInStream);
 }
+
+#if !HAVE_RL_SET_SIGNALS
+#define rl_clear_signals()
+#define rl_set_signals()
+#endif
 
 static bool getLine(int inp) {
   CACHE_REGS
@@ -339,22 +326,24 @@ static bool getLine(int inp) {
   /* window of vulnerability opened */
   LOCAL_PrologMode |= ConsoleGetcMode;
   if (Yap_DoPrompt(s)) { // no output so far
+    rl_set_signals();
     myrl_line = (unsigned char *)readline(LOCAL_Prompt);
-    s->stream_getc = ReadlineGetc;
+    rl_clear_signals();
   } else {
+    rl_set_signals();
     myrl_line = (unsigned char *)readline(NULL);
+    rl_clear_signals();
   }
   /* Do it the gnu way */
+  LOCAL_PrologMode &= ~ConsoleGetcMode;
+#if HAVE_RL_PENDING_SIGNAL
+  if (rl_pending_signal()) {
+    LOCAL_PrologMode |= InterruptMode;
+  }
+#endif
   if (LOCAL_PrologMode & InterruptMode) {
-    Yap_external_signal(0, YAP_INT_SIGNAL);
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
-    if (LOCAL_PrologMode & AbortMode) {
-      Yap_Error(ABORT_EVENT, TermNil, "");
-      LOCAL_ErrorMessage = "Abort";
-      return console_post_process_eof(s);
-    }
+    Yap_HandleSIGINT();
   } else {
-    LOCAL_PrologMode &= ~ConsoleGetcMode;
     LOCAL_newline = true;
   }
   strncpy(LOCAL_Prompt, RepAtom(LOCAL_AtPrompt)->StrOfAE, MAX_PROMPT);
@@ -363,6 +352,7 @@ static bool getLine(int inp) {
     return false;
   if (myrl_line[0] != '\0' && myrl_line[1] != '\0') {
     add_history((char *)myrl_line);
+    write_history(history_file);
     fflush(NULL);
   }
   s->u.irl.ptr = s->u.irl.buf = myrl_line;
@@ -403,7 +393,7 @@ static int ReadlineGetc(int sno) {
   with EOF, though.
 
 */
-Int Yap_ReadlinePeekChar(int sno) {
+int Yap_ReadlinePeekChar(int sno) {
   StreamDesc *s = &GLOBAL_Stream[sno];
   int ch;
 
@@ -437,7 +427,6 @@ int Yap_ReadlineForSIGINT(void) {
   int ch;
   StreamDesc *s = &GLOBAL_Stream[StdInStream];
   const unsigned char *myrl_line = s->u.irl.buf;
-
   if ((LOCAL_PrologMode & ConsoleGetcMode) && myrl_line != NULL) {
     ch = myrl_line[0];
     free((void *)myrl_line);
@@ -461,10 +450,10 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
- if (!Yap_embedded) {
-  return true;
- }
- return false;
+  if (!Yap_Embedded) {
+    return true;
+  }
+  return false;
 #else
   return false;
 #endif

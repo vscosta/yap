@@ -1,4 +1,3 @@
-CMAKE_MINIMUM_REQUIRED ( VERSION 2.8 )
 
 PROJECT ( YAP_BDD C )
 
@@ -35,25 +34,27 @@ IF (CUDD_FOUND)
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
+            m
       libYap
       )
   else()
     TARGET_LINK_LIBRARIES(cudd
       ${CUDD_LIBRARIES}
+            m
       ${YAP_LIBRARY}
       )
   endif()
 
-  set_target_properties (cudd PROPERTIES PREFIX "")
-
-  add_subdirectory(simplecudd)
+   add_subdirectory(simplecudd)
   add_subdirectory(simplecudd_lfi)
   set(YAP_SYSTEM_OPTIONS "cudd " ${YAP_SYSTEM_OPTIONS} PARENT_SCOPE)
 
-  install(TARGETS  cudd
-          LIBRARY DESTINATION ${dlls}
-          RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+  INSTALL(FILES ${CMAKE_BINARY_DIR}/cudd_config.h DESTINATION ${includedir})
+
+install(TARGETS  cudd
+          LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+          RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
 
     )
 

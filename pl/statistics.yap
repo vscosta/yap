@@ -14,6 +14,20 @@
 * comments:	statistics on Prolog status				 *
 *									 *
 *************************************************************************/
+
+/**
+  * @file   statistics.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:13:51 2017
+  * 
+  * @brief  System Status
+  *
+  * @defgroup Statistics System Status
+  * @ingroup builtins
+  * 
+  * 
+*/
+
 :- system_module( '$_statistics', [key_statistics/3,
         statistics/0,
         statistics/2,

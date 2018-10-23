@@ -400,7 +400,7 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd,
   //	Cudd_AutodynEnable(mana, CUDD_REORDER_EXACT);
   //	Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT, 1);
 
-  ret = Cudd_DumpDot(manager, 1, f, varmap.vars, NULL, fd);
+  ret = Cudd_DumpDot(manager, 1, f, (const char *const *)varmap.vars, NULL, fd);
   fclose(fd);
   return ret;
 }
@@ -916,7 +916,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
   int i;
   temp.varcnt = varcnt;
   temp.varstart = varstart;
-  temp.vars = (const char **)malloc(sizeof(char *) * varcnt);
+  temp.vars = (char **)malloc(sizeof(char *) * varcnt);
   temp.loaded = (int *)malloc(sizeof(int) * varcnt);
   temp.dvalue = (double *)malloc(sizeof(double) * varcnt);
   temp.ivalue = (int *)malloc(sizeof(int) * varcnt);
@@ -933,7 +933,7 @@ namedvars InitNamedVars(int varcnt, int varstart) {
 
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt) {
   int i;
-  varmap->vars = (const char **)realloc(varmap->vars, sizeof(const char *) * newvarcnt);
+  varmap->vars = (char **)realloc(varmap->vars, sizeof(const char *) * newvarcnt);
   varmap->loaded = (int *)realloc(varmap->loaded, sizeof(int) * newvarcnt);
   varmap->dvalue =
       (double *)realloc(varmap->dvalue, sizeof(double) * newvarcnt);

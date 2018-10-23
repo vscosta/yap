@@ -18,7 +18,7 @@
 
 /**
 @file modules.yap
-**/
+*/
 :- system_module( '$_modules', [abolish_module/1,
         add_import_module/3,
         current_module/1,
@@ -52,6 +52,13 @@
         '$module_transparent'/2,
         '$module_transparent'/4]).
 
+        /**
+          @defgroup ModuleBuiltins Module Support
+
+          @ingroup YAPModules
+          @{
+
+          **/
 
 
 :- use_system_module( '$_arith', ['$c_built_in'/3]).
@@ -77,8 +84,8 @@
 %
 
 /**
-   \pred use_module( +Files ) is directive
-   @load a module file
+   @pred use_module( +Files ) is directive
+   @brief load a module file
 
 This predicate loads the file specified by _Files_, importing all
 their public predicates into the current type-in module. It is
@@ -194,8 +201,8 @@ The state of  the module system after this error is undefined.
 
 
 **/
-use_module(F) :- '$load_files'(F,
-			       [if(not_loaded),must_be_module(true)], use_module(F)).
+use_module(F) :- load_files(F,
+			       [if(not_loaded),must_be_module(true)]).
 
 
 /**
@@ -228,7 +235,7 @@ Unfortunately it is still not possible to change argument order.
 
 **/
 use_module(F,Is) :-
-	'$load_files'(F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(F,Is)).
+	load_files(F, [if(not_loaded),must_be_module(true),imports(Is)]).
 
 '$module'(O,N,P,Opts) :- !,
 	'$module'(O,N,P),
@@ -279,7 +286,7 @@ use_module(F,Is) :-
     recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
     lists:append( AllReExports, AllExports, Everything0 ),
-    sort( Everything0, Everything ),
+    '$sort'( Everything0, Everything ),
     ( source_location(_, Line) -> true ; Line = 0 ),
     recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 
@@ -317,10 +324,9 @@ system_module(Mod) :-
 	'$is_system_module'(Mod).
 
 '$trace_module'(X) :-
-	telling(F),
-	tell('P0:debug'),
-	write(X),nl,
-	tell(F), fail.
+	open('P0:debug', append, S),
+	fornat(S, '~w~n', [X]),
+	close(S).
 '$trace_module'(_).
 
 '$trace_module'(X,Y) :- X==Y, !.
@@ -334,88 +340,6 @@ system_module(Mod) :-
 '$trace_module'(_,_).
 
 
-'$continue_imported'(Mod,Mod,Pred,Pred) :-
-	'$pred_exists'(Pred, Mod),
-    !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-	recorded('$import','$import'(IM,Mod,IPred,Pred,_,_),_), 
-	'$continue_imported'(FM, IM, FPred, IPred), !.
-'$continue_imported'(FM,Mod,FPred,Pred) :-
-	prolog:'$parent_module'(Mod,IM),
-	'$continue_imported'(FM, IM, FPred, Pred).
-
-
-
-% be careful here not to generate an undefined exception.
-'$imported_predicate'(G, _ImportingMod, G, prolog) :-
-	nonvar(G), '$is_system_predicate'(G, prolog), !.
-'$imported_predicate'(G, ImportingMod, G0, ExportingMod) :-
-	( var(G) -> true ;
-	  var(ImportingMod) -> true ;
-	  '$undefined'(G, ImportingMod)
-	),
-	'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod),
-	ExportingMod \= ImportingMod,
-    !.
-
-'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
-	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I),
-    !.
-% SWI builtin
-'$get_undefined_pred'(G, _ImportingMod, G, user) :-
-	nonvar(G),
-	'$pred_exists'(G, user), !.
-'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
-    recorded('$dialect',swi,_),
-    prolog_flag(autoload, true),
-    prolog_flag(unknown, OldUnk, fail),
-    (
-     '$autoload'(G, ImportingMod, ExportingModI, swi)
-    ->
-     prolog_flag(unknown, _, OldUnk)
-     ;
-     prolog_flag(unknown, _, OldUnk),
-     fail
-     ),
-    '$continue_imported'(ExportingMod, ExportingModI, G0, G).
-% autoload
-
-% parent module mechanism
-'$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
-	'$parent_module'(ImportingMod,ExportingModI),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
-
-'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
-    functor(G, Name, Arity),
-    '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
-    call(Dialect:index(Name,Arity,ExportingMod,_)),
-    !.
-'$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
-    functor(G, N, K),
-	functor(G0, N, K),
-	'$autoloader_find_predicate'(G0,ExportingMod),
-	ExportingMod \= ImportingMod,
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
-
-
-'$autoloader_find_predicate'(G,ExportingModI) :-
-	'$nb_getval'('$autoloader_set', true, false), !,
-	autoloader:find_predicate(G,ExportingModI).
-'$autoloader_find_predicate'(G,ExportingModI) :-
-	yap_flag(autoload, true, false),
-    yap_flag( unknown, Unknown, fail),
-	yap_flag(debug, Debug, false), !,
-	load_files([library(autoloader),
-		    autoloader:library('INDEX'),
-		    swi:library('dialect/swi/INDEX')],
-		   [autoload(true),if(not_loaded)]),
-	nb_setval('$autoloader_set', true),
-	yap_flag(autoload, _, true),
-    yap_flag( unknown, _, Unknown),
-    yap_flag( debug, _, Debug),
-	autoloader:find_predicate(G,ExportingModI).
-
 
 /**
 be associated to a new file.
@@ -423,16 +347,16 @@ be associated to a new file.
 \param[in]	_Module_ is the name of the module to declare
 \param[in]	_MSuper_ is the name of the context module. Use `prolog`or `system`
                 if you do not need a context.
-\param[in]	_File_ is the canonical name of the file from which the module is loaded
+\param[in]	_File_ is the canonical name of the file from which the modulvvvvve is loaded
 \param[in]  Line is the line-number of the :- module/2 directive.
 \param[in]	 If _Redefine_ `true`, allow associating the module to a new file
 */
 
 '$declare_module'(Name, _Super, Context, _File, _Line) :-
-	add_import_module(Name, Context, start).
+	addi_mport_module(Name, Context, start).
 
 /**
- \pred abolish_module( + Mod) is det
+ @pred abolish_module( + Mod) is det
  get rid of a module and of all predicates included in the module.
 */
 abolish_module(Mod) :-
@@ -483,9 +407,15 @@ export_resource(P0) :-
 	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
 	).
 export_resource(op(Prio,Assoc,Name)) :- !,
-  op(Prio,Assoc,prolog:Name).
-export_resource(op(Prio,Assoc,Name)) :- !,
-  op(Prio,Assoc,user:Name).
+'$current_module'(Mod),
+op(Prio,Assoc,Mod:Name),
+(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
+  erase(R),
+  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|ExportedPreds],Line ),_)
+;	prolog_load_context(file, File) ->
+  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
+;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
+).
 export_resource(Resource) :-
 	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
@@ -499,6 +429,7 @@ export_list(Module, List) :-
 	'$do_import'(T, Module, ContextModule),
 	'$add_to_imports'(Tab, Module, ContextModule).
 
+%'$do_import'(K, _, _) :- writeln(K), fail.
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
@@ -516,7 +447,7 @@ export_list(Module, List) :-
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod == prolog ->
-	    recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
+      recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
         fail
 	  ;
 	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
@@ -545,7 +476,7 @@ export_list(Module, List) :-
 '$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
-	'$nb_getval'('$lf_status', TOpts, fail),
+	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'(redefine_module, TOpts, Action), !,
 	'$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
@@ -573,9 +504,10 @@ export_list(Module, List) :-
 	(C == y -> true; C == n).
 
 /**
-  @pred  set_base_module( +ExportingModule ) is det
-All exported predicates from _ExportingModule_ are automatically available to the
-current source  module.
+  @pred set_base_module( +ExportingModule ) is det
+  @brief All
+predicates exported from _ExportingModule_ are automatically available to the
+other source modules.
 
 This built-in was introduced by SWI-Prolog. In YAP, by default, modules only
 inherit from `prolog`. This extension allows predicates in the current
@@ -783,3 +715,5 @@ module_state :-
     format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
 	fail.
 module_state.
+
+%% @}

@@ -116,8 +116,8 @@ debugging(Topic) :-
 debugging(Topic, Bool) :-
 	debugging(Topic, Bool, _To).
 
-%%	debug(+Topic) is det.
-%%	nodebug(+Topic) is det.
+%%	@pred debug(+Topic) is det.
+%%	@pred nodebug(+Topic) is det.
 %
 %	Add/remove a topic from being   printed.  nodebug(_) removes all
 %	topics. Gives a warning if the topic is not defined unless it is

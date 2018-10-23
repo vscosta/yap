@@ -409,13 +409,13 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
   sg_fr_ptr sg_frame;
 
   /* copy suspended stacks */
-  memcpy(SuspFr_global_reg(resume_fr),
+  memmove(SuspFr_global_reg(resume_fr),
          SuspFr_global_start(resume_fr),
          SuspFr_global_size(resume_fr));
-  memcpy(SuspFr_local_reg(resume_fr),
+  memmove(SuspFr_local_reg(resume_fr),
          SuspFr_local_start(resume_fr),
          SuspFr_local_size(resume_fr));
-  memcpy(SuspFr_trail_reg(resume_fr),
+  memmove(SuspFr_trail_reg(resume_fr),
          SuspFr_trail_start(resume_fr),
          SuspFr_trail_size(resume_fr));
 

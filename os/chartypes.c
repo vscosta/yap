@@ -81,9 +81,9 @@ static Int p_change_type_of_char(USES_REGS1);
 Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   CACHE_REGS
   int sno;
-  Term t;
-
-  sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER);
+  int i = push_text_stack();
+  Atom nat = Yap_LookupAtom(Yap_StrPrefix(s, 16));
+  sno = Yap_open_buf_read_stream(s, strlen(s), encp, MEM_BUF_USER, nat, MkAtomTerm(Yap_LookupAtom("eval")));
   if (sno < 0)
     return FALSE;
   if (encp)
@@ -94,11 +94,11 @@ Term Yap_StringToNumberTerm(const char *s, encoding_t *encp, bool error_on) {
   while (*s && isblank(*s) && Yap_wide_chtype(*s) == BS)
     s++;
 #endif
-  t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
-  if (LOCAL_Error_TYPE == SYNTAX_ERROR)
-    LOCAL_Error_TYPE = YAP_NO_ERROR;
-  Yap_CloseStream(sno);
+  GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
+  Term t = Yap_scan_num(GLOBAL_Stream + sno, error_on);
+    Yap_CloseStream(sno);
   UNLOCK(GLOBAL_Stream[sno].streamlock);
+    pop_text_stack(i);
   return t;
 }
 

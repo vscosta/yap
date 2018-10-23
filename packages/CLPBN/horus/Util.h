@@ -190,7 +190,7 @@ Util::apply_n_times (
 template <typename T> void
 Util::log (std::vector<T>& v)
 {
-  std::transform (v.begin(), v.end(), v.begin(), ::log);
+  std::transform (v.begin(), v.end(), v.begin(),  (double (*)(double))std::log);
 }
 
 
@@ -198,7 +198,7 @@ Util::log (std::vector<T>& v)
 template <typename T> void
 Util::exp (std::vector<T>& v)
 {
-  std::transform (v.begin(), v.end(), v.begin(), ::exp);
+  std::transform (v.begin(), v.end(), v.begin(),  (double (*)(double))std::exp);
 }
 
 

@@ -1434,10 +1434,12 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no,
       if (Flags & CPredFlag) {
         code_p->opc = emit_op(_execute_cpred);
       }
-      code_p->y_u.pp.p = RepPredProp(fe);
-      code_p->y_u.pp.p0 = clinfo->CurrentPred;
+      code_p->y_u.Osbpp.p = RepPredProp(fe);
+      code_p->y_u.Osbpp.p0 = clinfo->CurrentPred;
+      code_p->y_u.Osbpp.s = 0;
+        code_p->y_u.Osbpp.bmap = NULL;
     }
-    GONEXT(pp);
+    GONEXT(Osbpp);
   } else {
     if (pass_no)
       code_p->y_u.p.p = RepPredProp(fe);
@@ -3901,7 +3903,7 @@ yamop *Yap_InitCommaContinuation(PredEntry *pe) {
   GONEXT(Osbmp);
   for (i = 0; i < arity; i++)
     GONEXT(yx);
-  GONEXT(pp);
+  GONEXT(Osbmp);
 pe->MetaEntryOfPred = code_p =
 Yap_AllocCodeSpace((size_t)code_p);
   code_p->opc = opcode(_call);
@@ -3917,8 +3919,8 @@ Yap_AllocCodeSpace((size_t)code_p);
     GONEXT(yx);
   }
   code_p->opc = opcode(_dexecute);
-  code_p->y_u.pp.p0 = PredMetaCall;
-  code_p->y_u.pp.p = pe;
-  GONEXT(pp);
+  code_p->y_u.Osbpp.p0 = PredMetaCall;
+  code_p->y_u.Osbpp.p = pe;
+  GONEXT(Osbpp);
     return pe->MetaEntryOfPred;
 }

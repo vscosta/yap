@@ -243,7 +243,7 @@
   problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false, nested_tries),
   problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list, nested_tries)
 )).
-
+:- stop_low_level_trace.
 
 trie_replace_entry(_Trie, Entry, E, false):-
   trie_get_entry(Entry, Proof),

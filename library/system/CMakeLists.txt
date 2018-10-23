@@ -2,7 +2,7 @@ set( LIBSYSTEM_SOURCES sys.c crypto/md5.c )
 set( LIBSYSTEM_HEADERS  crypto/md5.h)
 
 
-add_external (sys ${LIBSYSTEM_SOURCES})
+add_lib(sys ${LIBSYSTEM_SOURCES})
 if (ANDROID)
 set (TARGET libYap)
 else()
@@ -16,10 +16,8 @@ if (NOT ANDROID AND WITH_OPENSSL)
 # but right now Open SSL is not supported enough.
 #
 find_package (OpenSSL)
-  macro_log_feature (OPENSSL_FOUND
-      OpenSLL
-      "Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols"
-      "https://www.openssl.org/")
+
+
 if (OPENSSL_FOUND)
   include_directories (${OPENSSL_INCLUDE_DIR})
   target_link_libraries(${TARGET} ${OPENSSL_LIBRARIES})
@@ -41,8 +39,8 @@ set_target_properties (sys PROPERTIES  PREFIX "")
 endif()
 
 MY_install(TARGETS  sys
-        LIBRARY DESTINATION ${dlls}
-        RUNTIME DESTINATION ${dlls}
-        ARCHIVE DESTINATION ${dlls} )
+        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+        ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
 
 configure_file ("sys_config.h.cmake" "sys_config.h" )

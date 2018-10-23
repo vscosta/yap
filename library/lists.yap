@@ -2,17 +2,8 @@
  * @file   library/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
- *
- * @addtogroup lists The Prolog Library
- *
- * @ingroup library
- *
- * @{
- *
- * @brief  List Manipulation Predicates
- *
- *
 */
+
 % This file has been included as an YAP library by Vitor Santos Costa, 1999
 
 :- module(lists,
@@ -54,14 +45,19 @@
 	  ]).
 
 
-/** @defgroup lists List Manipulation
-@ingroup library
-@{
-
-The following list manipulation routines are available once included
-with the `use_module(library(lists))` command.
-
+/**  
+ * @{
+ *
+ * @addtogroup lists List Predicates in the Prolog Library
+ * @ingroup library  
+ *
+ * @brief  List Manipulation Predicates
+ *
+ * The following list manipulation routines are available once included
+    with the `use_module(library(lists))` command.
 */
+
+%:- include(pl/bootlists).
 
 /** @pred list_concat(+ _Lists_,? _List_)
 
@@ -208,6 +204,17 @@ append_([L1,L2], L) :-
 append_([L1,L2|[L3|LL]], L) :-
 	append(L1,L2,LI),
 	append_([LI|[L3|LL]],L).
+
+%   reverse(List, Reversed)
+%   is true when List and Reversed are lists with the same elements
+%   but in opposite orders.  rev/2 is a synonym for reverse/2.
+
+reverse(List, Reversed) :-
+	reverse(List, [], Reversed).
+
+reverse([], Reversed, Reversed).
+reverse([Head|Tail], Sofar, Reversed) :-
+	reverse(Tail, [Head|Sofar], Reversed).
 
 /** @pred last(+ _List_,? _Last_)
 
@@ -361,17 +368,6 @@ remove_duplicates([], []).
 remove_duplicates([Elem|L], [Elem|NL]) :-
 	delete(L, Elem, Temp),
 	remove_duplicates(Temp, NL).
-
-%   reverse(List, Reversed)
-%   is true when List and Reversed are lists with the same elements
-%   but in opposite orders.  rev/2 is a synonym for reverse/2.
-
-reverse(List, Reversed) :-
-	reverse(List, [], Reversed).
-
-reverse([], Reversed, Reversed).
-reverse([Head|Tail], Sofar, Reversed) :-
-	reverse(Tail, [Head|Sofar], Reversed).
 
 
 %   same_length(?List1, ?List2)

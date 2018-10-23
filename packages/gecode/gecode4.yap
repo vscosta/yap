@@ -16,7 +16,7 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
-/** @defgroup Gecode Gecode Interface
+/** @addtogroup Gecode4 Gecode Interface
 
 @ingroup packages
 @{
@@ -27,8 +27,8 @@ Duchier, with recent work by Vítor Santos Costa to port it to version 4
 of gecode and to have an higher level interface,
 
 
- @defgroup The_Gecode_Interface The Gecode Interface
-@ingroup Gecode
+ @addtogroup TheGecode4Interface The Gecode Interface
+@ingroup Gecode4
 @{
 
 This text is due to Denys Duchier. The gecode interface requires

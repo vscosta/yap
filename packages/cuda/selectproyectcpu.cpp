@@ -117,7 +117,7 @@ int selectproyectcpu(int *dop1, int rows, int cols, int head_size, int *select, 
 	ptr = fres;
 	for(x = 0; x < NUM_T; x++)
 	{
-		memcpy(ptr, vec[x].data(), ini[x] * sizeof(int));
+		memmove(ptr, vec[x].data(), ini[x] * sizeof(int));
 		ptr += ini[x];
 	}
 	*ret = fres;
@@ -237,7 +237,7 @@ int selectproyectcpu2(int *dop1, int rows, int cols, int *select, int numselect,
 	ptr = lres;
 	for(x = 0; x < NUM_T; x++)
 	{
-		memcpy(ptr, lis[x], cont[x] * sizeof(int));
+		memmove(ptr, lis[x], cont[x] * sizeof(int));
 		ptr += cont[x];
 	}
 	if(list != NULL)
@@ -246,7 +246,7 @@ int selectproyectcpu2(int *dop1, int rows, int cols, int *select, int numselect,
 		ptr = fres;
 		for(x = 0; x < NUM_T; x++)
 		{
-			memcpy(ptr, vec[x], cont[x] * sizeof(int));
+			memmove(ptr, vec[x], cont[x] * sizeof(int));
 			ptr += cont[x];
 		}
 		*ret = fres;	
@@ -373,7 +373,7 @@ int selectproyectcpu3(int *dop1, int rows, int cols, int *select, int numselect,
 	ptr = lres;
 	for(x = 0; x < NUM_T; x++)
 	{
-		memcpy(ptr, lis[x].data(), ini[x] * sizeof(int));
+		memmove(ptr, lis[x].data(), ini[x] * sizeof(int));
 		ptr += ini[x];
 	}
 	if(list != NULL)
@@ -382,7 +382,7 @@ int selectproyectcpu3(int *dop1, int rows, int cols, int *select, int numselect,
 		ptr = fres;
 		for(x = 0; x < NUM_T; x++)
 		{
-			memcpy(ptr, vec[x].data(), ini[x] * sizeof(int));
+			memmove(ptr, vec[x].data(), ini[x] * sizeof(int));
 			ptr += ini[x];
 		}
 		*ret = fres;	

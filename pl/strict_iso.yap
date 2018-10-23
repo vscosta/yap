@@ -1,3 +1,14 @@
+/**
+  * @file   strict_iso.yap
+  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+  * @date   Thu Oct 19 12:15:33 2017
+  * 
+  * @brief  StrictISO Mode
+  *
+  * @addtogroup YAPCompilerSettings
+  * 
+  * 
+*/
 :- system_module( '$_strict_iso', [], ['$check_iso_strict_clause'/1,
         '$iso_check_goal'/2]).
 

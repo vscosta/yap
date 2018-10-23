@@ -25,18 +25,32 @@
 		      context_variables/1
                      ]).
 
+
 /**
-* @defgroup yap_hacks YAP hacking
-* @ingroup library
-*
-* Manipulate the Prolog stacks, including setting and resetting
-* choice-points.
-*
-*/
+  * @addtogroup Hacks
+  * @{
+  * @brief Manipulate the Prolog stacks, including setting and resetting
+  * choice-points.
+  *
+**/
 
-
+/**
+ * @pred stack_dump
+ *
+ * Write the current ancestor stack to the outout. Ancestors may have:
+ * - terminated
+ * - still have sub-goals to execute, if so, they left an _environment_
+ * - still have clauses they may nacktrack to; if so, they left a _choice point_
+ *
+ */
 stack_dump :-
 	stack_dump(-1).
+
+/**
+ * @pred stack_dump(+N)
+ *
+ * Report the last _N_ entries in the stack (see stack_dump/0)
+ */
 
 stack_dump(Max) :-
 	current_choicepoints(CPs),
@@ -53,6 +67,14 @@ run_formats([Com-Args|StackInfo], Stream) :-
 	format(Stream, Com, Args),
 	run_formats(StackInfo, user_error).
 
+/**
+ * @pred virtual_alarm(+Interval, 0:Goal, -Left)
+ *
+ * Activate  an alarm to execute _Goal_ in _Interval_ seconds. If the alarm was active,
+ * bind _Left_ to the previous value.
+ *
+ * If _Interval_ is 0, disable the current alarm.
+ */
 virtual_alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
 	virtual_alarm(0, 0, Left0, _),
@@ -68,3 +90,6 @@ virtual_alarm(Interval.USecs, Goal, Left.LUSecs) :-
 
 fully_strip_module(T,M,S) :-
     '$hacks':fully_strip_module(T,M,S).
+
+
+    %% @}

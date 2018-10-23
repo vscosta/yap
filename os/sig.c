@@ -1,4 +1,3 @@
-
 #include "sysbits.h"
 
 #if HAVE_SIGINFO_H
@@ -317,8 +316,10 @@ static bool set_fpu_exceptions(Term flag) {
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
-  printf("11ooo\n");
-  my_signal(s, ReceiveSignal);
+  if (s == SIGINT && (LOCAL_PrologMode & ConsoleGetcMode)) {
+    return;
+  }
+    my_signal(s, ReceiveSignal);
   switch (s) {
   case SIGINT:
     // always direct SIGINT to console
@@ -858,5 +859,6 @@ void Yap_InitSignalPreds(void) {
   Yap_InitCPred("virtual_alarm", 4, virtual_alarm, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("enable_interrupts", 0, enable_interrupts, SafePredFlag);
   Yap_InitCPred("disable_interrupts", 0, disable_interrupts, SafePredFlag);
+  my_signal_info(SIGSEGV, HandleSIGSEGV);
   CurrentModule = cm;
 }

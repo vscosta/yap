@@ -78,6 +78,9 @@
     case _call:
     case _call_cpred:
     case _call_usercpred:
+    case _dexecute:
+    case _execute:
+    case _execute_cpred:
     case _fcall:
     case _p_execute2:
 #ifdef YAPOR
@@ -273,8 +276,6 @@
     case _jump:
     case _jump_if_var:
     case _move_back:
-    case _p_dif:
-    case _p_eq:
     case _retry2:
     case _retry3:
     case _retry4:
@@ -497,14 +498,6 @@
       CHECK(save_Y(stream, pc->y_u.plyys.y2));
       CHECK(save_Constant(stream, pc->y_u.plyys.flags));
       pc = NEXTOP(pc,plyys);
-      break;
-      /* instructions type pp */
-    case _dexecute:
-    case _execute:
-    case _execute_cpred:
-      CHECK(save_PtoPred(stream, pc->y_u.pp.p));
-      CHECK(save_PtoPred(stream, pc->y_u.pp.p0));
-      pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
     case _cut:

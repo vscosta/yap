@@ -45,31 +45,31 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    ADD_LIBRARY(horus SHARED ${HORUS_SOURCES} HorusYap.cpp )
+    ADD_LIB(horus ${HORUS_SOURCES} HorusYap.cpp )
 
    if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(horus
       libYap
       )
   else()
-    ADD_LIBRARY(horus SHARED ${HORUS_SOURCES} )
+    ADD_LIB(horus ${HORUS_SOURCES} )
   endif()
 
 #set_property(TARGET horus PROPERTY CXX_STANDARD 11)
   #set_property(TARGET horus PROPERTY CXX_STANDARD_REQUIRED ON)
 
-  set_target_properties (horus PROPERTIES PREFIX "" CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
+  set_target_properties (horus PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 
   add_executable (HorusCli HorusCli.cpp)
 
   set_target_properties (HorusCli PROPERTIES OUTPUT_NAME hcli CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON)
 
-  target_link_libraries(HorusCli horus )
+  target_link_libraries(HorusCli m horus )
 
 
   install(TARGETS  horus HorusCli
-    RUNTIME DESTINATION ${bindir}
-    LIBRARY DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
     )
 endif()

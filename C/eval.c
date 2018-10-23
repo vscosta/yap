@@ -17,8 +17,19 @@
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
-
-//! @file eval.c
+/**
+ * @file   eval.c
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Mon Apr 30 09:37:59 2018
+ * 
+ * @brief  is/2
+ *
+ *
+ * @namespace prolog
+ * 
+ * 
+ * 
+ */
 
 //! @{
 
@@ -91,6 +102,8 @@ static Term get_matrix_element(Term t1, Term t2 USES_REGS) {
 }
 
 static Term Eval(Term t USES_REGS) {
+  eval_context_t ctx;
+  ctx.p = LOCAL_ctx;
 
   if (IsVarTerm(t)) {
     Yap_ArithError(INSTANTIATION_ERROR, t, "in arithmetic");
@@ -134,20 +147,19 @@ static Term Eval(Term t USES_REGS) {
           return get_matrix_element(ArgOfTerm(1, t), t2 PASS_REGS);
         }
       }
+      ctx.f = fun;
+      ctx.fp = RepAppl(t);
+      LOCAL_ctx = &ctx;
       *RepAppl(t) = (CELL)AtomFoundVar;
       t1 = Eval(ArgOfTerm(1, t) PASS_REGS);
-      if (t1 == 0L) {
-        *RepAppl(t) = (CELL)fun;
-        return FALSE;
-      }
       if (n == 1) {
         *RepAppl(t) = (CELL)fun;
+        LOCAL_ctx = ctx.p;
         return Yap_eval_unary(p->FOfEE, t1);
       }
       t2 = Eval(ArgOfTerm(2, t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
-      if (t2 == 0L)
-        return FALSE;
+      LOCAL_ctx = ctx.p;
       return Yap_eval_binary(p->FOfEE, t1, t2);
     }
   } /* else if (IsPairTerm(t)) */
@@ -161,7 +173,9 @@ static Term Eval(Term t USES_REGS) {
   }
 }
 
-Term Yap_InnerEval__(Term t USES_REGS) { return Eval(t PASS_REGS); }
+Term Yap_InnerEval__(Term t USES_REGS) {
+  return Eval(t PASS_REGS);
+ }
 
 #ifdef BEAM
 Int BEAM_is(void);
@@ -196,30 +210,18 @@ arithmetic_operators
 
 /// @memberof is/2
 static Int p_is(USES_REGS1) { /* X is Y	 */
-  Term out;
-  yap_error_number err;
-
+  Term out = TermNil;
+  bool go;
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
-    Yap_EvalError(INSTANTIATION_ERROR, t, "X is Y");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "var(Y) in X is Y");
     return (FALSE);
   }
-  Yap_ClearExs();
   do {
-    out = Yap_InnerEval(Deref(ARG2));
-    if ((err = Yap_FoundArithError()) == YAP_NO_ERROR)
-      break;
-    if (err == RESOURCE_ERROR_STACK) {
-      LOCAL_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
-        Yap_EvalError(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
-        return FALSE;
-      }
-    } else {
-      Yap_EvalError(err, takeIndicator(ARG2), "X is Exp");
-      return FALSE;
-    }
-  } while (TRUE);
+    go = false;
+    out = Yap_Eval(t PASS_REGS);
+    go = Yap_CheckArithError();
+  } while (go);
   return Yap_unify_constant(ARG1, out);
 }
 
@@ -257,7 +259,7 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
 }
 
 /**
-   @pred isinf(? X:float) is det</b>
+   @pred isinf(? X:float) is det
 
    Interface to the IEE754 `isinf` test.
 */
@@ -387,7 +389,7 @@ void Yap_EvalError__(const char *file, const char *function, int lineno,
     buf[0] = '\0';
   }
   va_end(ap);
-  Yap_ThrowError__(file, function, lineno, type, where, buf);
+  Yap_Error__(false, file, function, lineno, type, where, buf);
 }
 
 /**

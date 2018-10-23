@@ -1,4 +1,8 @@
-:- system_module( '$_debug', [debug/0,
+/**
+ * @file spy.yap
+ * @brief debugger operation.
+ */
+  :- system_module( '$_debug', [debug/0,
         debugging/0,
         leash/1,
         nodebug/0,
@@ -27,8 +31,9 @@
 
 -----------------------------------------------------------------------------*/
 
-/** @defgroup Deb_Preds Debugging Predicates
-@ingroup builtins
+/**
+ * @defgroup DebSet Debugger Control
+ * @ingroup Deb_Interaction
 
 @{
 The
@@ -39,17 +44,13 @@ programs:
 
     Switches the debugger on.
 
-+ debuggi=
-r
-
-g
++ debugging
 
 
     Outputs status information about the debugger which includes the leash
 mode and the existing spy-points, when the debugger is on.
 
 + nodebug
-
 
     Switches the debugger off.
 
@@ -67,8 +68,7 @@ mode and the existing spy-points, when the debugger is on.
 	'__NB_setval__'('$if_skip_mode',no_skip),
 	'__NB_setval__'('$spy_glist',[]),
 	'__NB_setval__'('$spy_gn',1),
-	'__NB_setval__'('$debug_run',off),
-	'__NB_setval__'('$debug_jump',false).
+	'__NB_setval__'('$debug_state', state(creep,0,stop)).
 
 
  % First part : setting and reseting spy points
@@ -92,17 +92,9 @@ mode and the existing spy-points, when the debugger is on.
 
  '$suspy_predicates_by_name'(A,S,M) :-
 	 % just check one such predicate exists
-	 (
-	   current_predicate(A,M:_)
-	 ->
-	  M = EM,
-	  A = NA
-	 ;
-	  recorded('$import','$import'(EM,M,GA,_,A,_),_),
-	  functor(GA,NA,_)
-	 ),
+	 current_predicate(A,M:_),
 	 !,
-	 '$do_suspy_predicates_by_name'(NA,S,EM).
+	 '$do_suspy_predicates_by_name'(A,S,M).
 '$suspy_predicates_by_name'(A,spy,M) :- !,
 	 print_message(warning,no_match(spy(M:A))).
 '$suspy_predicates_by_name'(A,nospy,M) :-
@@ -111,10 +103,9 @@ mode and the existing spy-points, when the debugger is on.
 '$do_suspy_predicates_by_name'(A,S,M) :-
 	 current_predicate(A,M:T),
 	 functor(T,A,N),
-	 '$do_suspy'(S, A, N, T, M).
-'$do_suspy_predicates_by_name'(A, S, M) :-
-	 recorded('$import','$import'(EM,M,_,T,A,N),_),
-	 '$do_suspy'(S, A, N, T, EM).
+	 '$do_suspy'(S, A, N, T, M),
+	 fail.
+'$do_suspy_predicates_by_name'(_A, _S, _M).
 
 
  %
@@ -229,8 +220,7 @@ debug :-
 	 ;
 	  set_prolog_flag(debug, false)
 	 ),
-	 '__NB_setval__'('$debug_run',off),
-	 '__NB_setval__'('$debug_jump',false).
+	 '__NB_setval__'('$debug_state',state(creep,0,stop) ).
 
 nodebug :-
 	 '$init_debugger',
@@ -251,13 +241,13 @@ Switches on the debugger and enters tracing mode.
 
 */
 trace :-
-	 '$init_debugger',
+    '$init_debugger',
      fail.
 trace :-
-	'__NB_setval__'('$trace',on),
-	'$start_debugging'(on),
-	print_message(informational,debug(trace)),
-	'$creep'.
+    '__NB_setval__'('$trace',on),
+    '$start_debugging'(on),
+    print_message(informational,debug(trace)),
+    '$creep'.
 
 /** @pred notrace
 
@@ -387,6 +377,20 @@ debugging :-
 	print_message(help,breakpoints(L)),
 	get_value('$leash',Leash),
 	'$show_leash'(help,Leash).
+
+notrace(G) :-
+	 strip_module(G, M, G1),
+	 ( '$$save_by'(CP),
+	   '$debug_stop'( State ),
+	   '$call'(G1, CP, G, M),
+	   '$$save_by'(CP2),
+	   (CP == CP2 -> ! ; '$debug_state'( NState ), ( true ; '$debug_restart'(NState), fail ) ),
+	   '$debug_restart'( State )
+     ;
+	'$debug_restart'( State ),
+	fail
+    ).
+
 
 /*
 

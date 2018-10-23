@@ -12,9 +12,6 @@ if (QTCONSOLE)
 
     macro_optional_find_package(Qt5Core on)
 
-    macro_log_feature (Qt5Widgets_FOUND "QT GUI Libraries"
-  "The QT Project" "http://www.qt-project.org")
-
 endif(QTCONSOLE)
 
 
@@ -61,7 +58,7 @@ include_directories(../../CXX)
 
 
   install(TARGETS  qtyap
-     RUNTIME DESTINATION ${bindir}
+     RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BIINDIR}
     )
 
 ENDIF(Qt5Widgets_FOUND)

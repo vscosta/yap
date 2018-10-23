@@ -1,7 +1,5 @@
 macro_optional_find_package (Matlab OFF)
-macro_log_feature (MATLAB_FOUND "matlab" 
-  "MATLAB A Language for Technical Computing" 
-  "http://matlab.com")
+
 if (MATLAB_FOUND)
   #   MATLAB_INCLUDE_DIR: include path for mex.h, engine.h
   #   MATLAB_LIBRARIES:   required libraries: libmex, etc
@@ -9,7 +7,7 @@ if (MATLAB_FOUND)
   #   MATLAB_MX_LIBRARY:  path to libmx.lib
   #   MATLAB_ENG_LIBRARY: path to libeng.lib
 
-  add_library (matlab SHARED matlab.c)
+  add_li (matlab matlab.c)
 
   set_target_properties (matlab PROPERTIES prefix "")
   
@@ -17,8 +15,8 @@ if (MATLAB_FOUND)
   target_link_libraries(matlab libYap $(MATLAB_LIBRARIES) )
 
   install(TARGETS  matlab
-    RUNTIME DESTINATION ${dlls}
-    ARCHIVE DESTINATION ${dlls} )
+    RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
+    ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
 
 endif (MATLAB_FOUND)
 

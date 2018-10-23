@@ -239,7 +239,7 @@ void lbfgs_free(lbfgsfloatval_t *x)
 
 void lbfgs_parameter_init(lbfgs_parameter_t *param)
 {
-    memcpy(param, &_defparam, sizeof(*param));
+    memmove(param, &_defparam, sizeof(*param));
 }
 
 int lbfgs(

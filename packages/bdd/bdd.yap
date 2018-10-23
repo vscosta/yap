@@ -1,4 +1,8 @@
-@defgroup BDDsPL Binary Decision Diagrams and Friends
+/**
+
+  @file bdd/bdd.yap
+  
+  @defgroup BDDsPL Binary Decision Diagrams and Friends
 @ingroup BDDs
 @{
 
@@ -48,7 +52,7 @@ The following predicates construct a BDD:
 tell_warning :-
 	print_message(warning,functionality(cudd)).
 
-:- catch(load_foreign_files([cudd], [], init_cudd),_,fail) -> true ; tell_warning.
+:- catch(load_foreign_files([libcudd], [], init_cudd),_,fail) -> true ; tell_warning.
 
 /**
 @pred bdd_new(? _Exp_, - _BddHandle_)
