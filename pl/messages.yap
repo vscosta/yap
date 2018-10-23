@@ -210,6 +210,7 @@ compose_message(error(E, Exc), Level) -->
     c_goal( error(E, Exc), Level ),
     caller( error(E, Exc), Level ),
     extra_info( error(E, Exc), Level ),
+ %   { stop_low_level_trace },
     !,
     [nl],
     [nl].
@@ -255,16 +256,16 @@ compose_message(Throw, _Level) -->
   	!,
   	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
-location(error(syntax_error(_),Info), _Level , LC) -->
+location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
-    {	query_exception(parserReadingCode, Desc, true) }, 
-    {LC > 0},
+    {	query_exception(prologConsulting, Desc, true) },
+    {	query_exception(parserReadingCode, Desc, true)}, 
     !,
     {
 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
     },
-    [ '~a:~d:~d: ' - [FileName,LN,0] ] .
+    [ '~a:~d:~d: ~a:' - [FileName,LN,0,Level] ] .
 location(style_check(A,LN,FileName,B ), Level , LC) -->
 	!,
 	display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
@@ -310,7 +311,7 @@ main_message( error(syntax_error(Msg),Info), Level, _LC ) -->
        query_exception(parserTextB, Desc, T),
        query_exception(parserLine, Desc, L)
 	},
-	[' ~a: syntax error ~s' - [Level,Msg]],
+	[' syntax error ~s' - [Level,Msg]],
 	[nl],
 	[' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
 main_message(style_check(singleton(SVs),_Pos,_File,P), _Level, _LC) -->
@@ -379,7 +380,6 @@ display_consulting( F, Level, _, LC) -->
 display_consulting(_F, _, _, _LC) -->
 	  [].
 
-c_goal( error(syntax_error(_),Info), _) --> !.
 c_goal( error(_,Info), _) -->
         { '$error_descriptor'(Info, Desc) },
         ({   query_exception(errorGoal, Desc, Call),
@@ -399,6 +399,7 @@ c_goal( error(_,Info), _) -->
 		!.
 c_goal(_,_) --> [].
 
+caller( error(syntax_error(_),_Info), _Level ) --> !.
 caller( error(_,Info), Level ) -->
 { '$error_descriptor'(Info, Desc) },
     { query_exception(errorFile, Desc, File),

@@ -128,6 +128,7 @@ extern X_API Int YAP_RunGoalOnce(Term);
 /* cdmgr.c */
 extern Term Yap_all_calls(void);
 extern Atom Yap_ConsultingFile(USES_REGS1);
+extern bool Yap_Consulting(USES_REGS1);
 extern struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 extern void Yap_InitCdMgr(void);
 extern struct pred_entry *Yap_PredFromClause(Term t USES_REGS);

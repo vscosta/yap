@@ -77,7 +77,7 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) *
-                                                       InitialConsultCapacity);
+						       InitialConsultCapacity);
   if (LOCAL_ConsultLow == NULL) {
     Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitCodes");
     return;
@@ -94,20 +94,32 @@ void Yap_ResetConsultStack(void) {
   LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
+/**
+ * Are we compiling a file?
+ *
+ */
+bool Yap_Consulting(USES_REGS1) {
+  return LOCAL_ConsultBase != NULL
+    &&  LOCAL_ConsultSp != LOCAL_ConsultLow+LOCAL_ConsultCapacity;
+}
+
 /******************************************************************
 
                 ADDING AND REMOVE INFO TO A PROCEDURE
 
 ******************************************************************/
 
-/*
- * we have three kinds of predicates: dynamic		DynamicPredFlag
- * static 		CompiledPredFlag fast		FastPredFlag all the
+/**
+ * we have three kinds of predicates: 
+ * + dynamic		DynamicPredFlag
+ * + static	CompiledPredFlag fast
+ * + fast		FastPredFlag.
+ *
+ * all the
  * database predicates are supported for dynamic predicates only abolish and
  * assertz are supported for static predicates no database predicates are
  * supportted for fast predicates
  */
-
 PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
@@ -251,9 +263,9 @@ void Yap_BuildMegaClause(PredEntry *ap) {
 
   if (ap->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MegaClausePredFlag
 #ifdef TABLING
-                       | TabledPredFlag
+		       | TabledPredFlag
 #endif /* TABLING */
-                       | UDIPredFlag) ||
+		       | UDIPredFlag) ||
       ap->cs.p_code.FirstClause == NULL || ap->cs.p_code.NOfClauses < 16) {
     return;
   }
