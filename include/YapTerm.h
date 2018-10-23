@@ -13,17 +13,11 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
-#ifndef YAP_H
-#include "YapTermConfig.h"
-#include "config.h"
+#include <stddef.h>
 
-#endif
 
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
+#if HAVE_STDTYPES_H
+#include <stdtypes.h>
 #endif
 
 /* truth-values */
@@ -41,6 +35,13 @@ typedef int _Bool;
 #endif
 #endif /* HAVE_STDBOOL_H */
 
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
+#if HAVE_INTTYPES_H
+#include <inttypes.h>
+#endif
 
 #define ALIGN_BY_TYPE(X, TYPE)                                                 \
   (((CELL)(X) + (sizeof(TYPE) - 1)) & ~(sizeof(TYPE) - 1))
@@ -112,31 +113,6 @@ typedef double YAP_Float;
 typedef void *YAP_Atom;
 
 typedef void *YAP_Functor;
-
-#ifdef YAP_H
-
-typedef YAP_Int Int;
-typedef YAP_UInt UInt;
-typedef YAP_Short Short;
-typedef YAP_UShort UShort;
-
-typedef uint16_t BITS16;
-typedef int16_t SBITS16;
-typedef uint32_t BITS32;
-
-typedef YAP_CELL CELL;
-
-typedef YAP_Term Term;
-
-#define WordSize sizeof(BITS16)
-#define CellSize sizeof(CELL)
-#define SmallSize sizeof(SMALLUNSGN)
-
-typedef YAP_Int Int;
-typedef YAP_Float Float;
-typedef YAP_handle_t yhandle_t;
-
-#endif
 
 #include "YapError.h"
 

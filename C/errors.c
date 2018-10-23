@@ -679,6 +679,7 @@ bool Yap_MkErrorRecord(yap_error_descriptor_t *r, const char *file,
   r->errorLine = lineno;
   r->errorFunction = function;
   r->errorFile = file;
+  r->prologConsulting = Yap_Consulting();
   LOCAL_PrologMode |= InErrorMode;
   Yap_ClearExs();
   // first, obtain current location
@@ -1034,7 +1035,7 @@ static Int print_exception(USES_REGS1) {
 
 
 static Int query_exception(USES_REGS1) {
-  const char *query;
+  const char *query = NULL;
   Term t;
 
   if (IsAtomTerm((t = Deref(ARG1))))
@@ -1045,13 +1046,13 @@ static Int query_exception(USES_REGS1) {
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
   Term t3 = Deref(ARG3);
-  if (IsVarTerm(t3)) {
+  //if (IsVarTerm(t3)) {
     Term rc = queryErr(query, y);
     //      Yap_DebugPlWriteln(rc);
     return Yap_unify(ARG3, rc);
-  } else {
-    return setErr(query, y, t3);
-  }
+    // } else {
+    // return setErr(query, y, t3);
+    // }
 }
 
 
@@ -1261,7 +1262,7 @@ static Int is_predicate_indicator(USES_REGS1) {
 
 void Yap_InitErrorPreds(void) {
   CACHE_REGS
-  Yap_InitCPred("$print_exception", 1, print_exception, 0);
+  Yap_InitCPred("$print_exception<", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);
