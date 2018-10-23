@@ -50,35 +50,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* The YAP main types */
-#include "YapTerm.h"
-
-#if HAVE_STDINT_H
-#include <stdint.h>
-#endif
-#if HAVE_INTTYPES_H
-#include <inttypes.h>
-#endif
-
-/**
-   FALSE and TRUE are the pre-standard versions,
-   still widely used.
-*/
-#ifndef TRUE
-#define TRUE true
-#endif
-#ifndef FALSE
-#define FALSE false
-#endif
-#ifndef YAP_Bool
-typedef bool YAP_Bool;
-#endif
-
-/**
-  This term can never be constructed as a valid term, so it is
-  used as a "BAD" term
-*/
-#define TermZERO ((Term)0)
 
 #include "YapConfig.h"
 
