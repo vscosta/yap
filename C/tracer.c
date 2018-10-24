@@ -98,11 +98,9 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
         if (max <= sz) {
           min = sz + 1024;
           expand = true;
-	  free((void*)sn);
           continue;
         }
         strcpy(s, sn);
-	free((void*)sn);
 	sn = NULL;
         s += sz;
         max -= sz;
