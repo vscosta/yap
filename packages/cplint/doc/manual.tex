@@ -632,7 +632,7 @@ SLIPCOVER and LEMUR): maximum number of distinct variables in a clause
 \item \verb|beamsize|  (values: integer, default value: 20, valid for SLIPCASE and SLIPCOVER): size of the beam 
 \item \verb|mcts_beamsize|  (values: integer, default value: 3, valid for LEMUR): size of the MCTS beam
 
-\item \verb|mcts_visits|  (values: integer, default value: +inf, valid for LEMUR): maximum number of visits (Nicola controlla)
+\item \verb|mcts_visits|  (values: integer, default value: +inf, valid for LEMUR): maximum number of visits 
 
 \item \verb|megaex_bottom| (values: integer, default value: 1, valid for SLIPCOVER): number of mega-examples on which to build the bottom clauses
 \item \verb|initial_clauses_per_megaex| (values: integer, default value: 1, valid for SLIPCOVER): 
@@ -701,7 +701,7 @@ where \verb|depth| (integer) is the maximum number
 of random specialization steps in the default policy, \verb|C| (real) is the value of the MCTS $C$ constant, \verb|iter| (integer) is  the number of UCT rounds, \verb|rules| (integer) is
 the maximum number  of clauses to be
 learned and \verb|covering| (Boolean) dentoes whether the search is peformed in
-the space of clauses (true) or theories (false) (Nicola controlla).
+the space of clauses (true) or theories (false).
 
 \subsection{Testing}
 To test the theories learned, load \texttt{test.pl} with 
