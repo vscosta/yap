@@ -751,7 +751,7 @@ static int interrupt_cut_e(USES_REGS1) {
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
-  if (!Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
+  if (Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
     return 2;
   }
   /* find something to fool S */

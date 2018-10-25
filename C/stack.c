@@ -1776,9 +1776,9 @@ void Yap_dump_stack(void) {
   int max_count = 200;
 
   /* check if handled */
-  if (handled_exception(PASS_REGS1))
-    return;
-#if DEBU
+  //if (handled_exception(PASS_REGS1))
+  //  return;
+#if DEBUG
   fprintf(stderr, "%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",
           P, CP, ASP, HR, TR, HeapTop);
 #endif

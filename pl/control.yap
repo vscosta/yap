@@ -164,8 +164,8 @@ ignore(Goal) :- (Goal->true;true).
  * 
  */
 if(X,Y,Z) :-
-	(
-	 CP is '$last_choice_pt',
+    (
+	'$$save_by'(CP),
 	 '$call'(X,CP,if(X,Y,Z),M),
 	 '$execute'(X),
 	 '$clean_ifcp'(CP),

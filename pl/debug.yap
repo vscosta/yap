@@ -284,7 +284,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-	'$trace'([Mod|G]).
+	'$trace'(Mod:G).
 
 /**
   * @pred $trace( +Goal )
@@ -298,13 +298,13 @@ be lost.
   * @param _Mod_:_Goal_ is the goal to be examined.
   * @return `call(Goal)`
 */
-%% '$trace'([Mod|G]) :-
-%%     '$stop_creeping'(_),
-%     set_prolog_flag(debug, true),
-%%     !,
-%%     '$execute_nonstop'(G,Mod).
-'$trace'([Mod|G]) :-
-    CP is '$last_choice_pt',
+'$trace'(Mod:G) :-
+     '$stop_creeping'(_),
+     ( prolog_flag(debug, false) ; '__NB_getval__'('$debug_status',state(zip,_Border,_Spy), fail) ),
+     !,
+     '$execute_nonstop'(G,Mod).
+'$trace'(Mod:G) :-
+    '$$save_by'(CP),
     '$trace_query'(G, Mod, CP, G, EG),
     gated_call(
 	'$debugger_input',
@@ -323,47 +323,47 @@ be lost.
 
 
 
-'$trace'([Mod|G], A1) :-
+'$trace'(Mod:G, A1) :-
 	G =.. L,
 	lists:append( L, [A1], NL),
 	NG =.. NL,
-	'$trace'([Mod|NG]).
+	'$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2) :-
+'$trace'(Mod:G, A1, A2) :-
 	G =.. L,
 	lists:append( L, [A1, A2], NL),
 	NG =.. NL,
-	'$trace'([Mod|NG]).
+	'$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2, A3) :-
+'$trace'(Mod:G, A1, A2, A3) :-
     G =.. L,
     lists:append( L, [A1, A2, A3], NL),
     NG =.. NL,
-    '$trace'([Mod|NG]).
+    '$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2, A3, A4) :-
+'$trace'(Mod:G, A1, A2, A3, A4) :-
     G =.. L,
     lists:append( L, [A1,A2,A3,A4], NL),
     NG =.. NL,
-    '$trace'([Mod|NG]).
+    '$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2, A3, A4, A5) :-
+'$trace'(Mod:G, A1, A2, A3, A4, A5) :-
     G =.. L,
     lists:append( L, [A1, A2, A3, A4, A5], NL),
     NG =.. NL,
-    '$trace'([Mod|NG]).
+    '$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2, A3, A4, A5, A6) :-
+'$trace'(Mod:G, A1, A2, A3, A4, A5, A6) :-
 	G =.. L,
 	lists:append( L, [A1, A2, A3, A4, A5, A6], NL),
 	NG =.. NL,
-	'$trace'([Mod|NG]).
+	'$trace'(Mod:NG).
 
-'$trace'([Mod|G], A1, A2, A3, A4, A5, A6, A7) :-
+'$trace'(Mod:G, A1, A2, A3, A4, A5, A6, A7) :-
 	G =.. L,
 	lists:append( L, [A1, A2, A3, A4, A5, A6, A7 ], NL),
 	NG =.. NL,
-	'$trace'([Mod|NG]).
+	'$trace'(Mod:NG).
 
 /**
   * @pred debugger_input.
@@ -573,8 +573,8 @@ be lost.
  *
  */
 '$trace_go'(GoalNumber, G, M, Info) :-
-		X=marker(_,M,G),
-        CP is '$last_choice_pt',
+    X=marker(_,M,G),
+    	 '$$save_by'(CP),
         clause(M:G, Cl, _),
 		'$retry_clause'(GoalNumber, G, M, Info, X),
 		'$trace_query'(Cl, M, CP, Cl, ECl),
@@ -651,12 +651,8 @@ be lost.
 
 
 %%% - abort: forward throw while the call is newer than goal
-'$TraceError'( abort, _, _, _, _).
-'$TraceError'(forward(redo,_G0), _, _, _, _).
-%%% - backtrack long distance
-'$TraceError'(forward(fail,_G0),GoalNumber, _, _, _) :- !,
-	throw(debugger(fail,GoalNumber)).
-%%%
+'$TraceError'( error(Id,Info), _, _, _, _) :-
+    throw( error(Id, Info) ).
 %%% - forward through the debugger
 '$TraceError'(forward('$wrapper',Event), _, _, _, _) :-
 	!,
@@ -689,8 +685,9 @@ be lost.
 %
 
 '$gg'(CP,Goal) :-
-	CP is '$last_choice_point',
-	Goal.
+    '$$save_by'(CP0),
+    CP = CP0,
+    Goal.
 
 '$port'(_P, _G, _M,GoalNumber,_Determinic, _Info ) :-   %%> leap
         '__NB_getval__'('$debug_status',state(leap,Border,_), fail),
@@ -1008,8 +1005,7 @@ be lost.
 
 
 '$cps'([CP|CPs]) :-
-    yap_hacks:choicepoint(CP,A,B,C,D,E,F),
-    write(A:B:C:D:E:F),nl,
+    yap_hacks:choicepoint(CP,_A_,_B,_C,_D,_E,_F),
     '$cps'(CPs).
 '$cps'([]).
 
@@ -1050,7 +1046,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'([M1|G1])|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$user_call'(G1,M1)|BG1s]) :-
     number(N),
     N >= 0,
 	'$yap_strip_module'( M:G, M1, G1 ),

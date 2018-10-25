@@ -197,6 +197,9 @@ compose_message( halt, _Level) --> !,
 	[ 'YAP execution halted.'-[] ].
 
 		% syntax error.
+compose_message( error(event(Type),Info), _Level ) -->
+    !,
+    event(Type, Info).
 compose_message(error(warning(syntax_error,Info), Exc), Level) -->
     !,
     compose_message(error(syntax_error(Info), Exc), Level).
@@ -239,7 +242,7 @@ compose_message(trace_command(C), _Leve) -->
 compose_message(trace_help, _Leve) -->
 	!,
 	[ '   Please enter a valid debugger command (h for help).'  ].
-compose_message(version(Version), _Leve) -->
+compose_message(version(Version), _Level) -->
 	!,
 	[ '~a' - [Version] ].
 compose_message(myddas_version(Version), _Leve) -->
@@ -295,6 +298,10 @@ location( error(_,Info), Level, LC ) -->
   {simplify_pred(F,FF)},
   [  '~a:~d:0 ~a while executing ~a():'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
+
+event(redo, _Info) --> {fail}.
+event(fail, _Info) --> {fail}.
+event(abort, Info) --> { throw(event(abort, Info)) }.
 
 simplify_pred(user:F, F) :- !.
 simplify_pred(prolog:F, F) :- !.
