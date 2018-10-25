@@ -178,7 +178,7 @@
 	debug,
 	'$execute'(M:G).
 '$start_creep'([Mod|G], _WhereFrom) :-
-	'$trace'([Mod|G]).
+	'$trace'(Mod:G).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
         '$enable_debugging',

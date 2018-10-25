@@ -1095,8 +1095,8 @@ setup(_,_,_).
 %	Call Goal in Module after applying goal expansion.
 
 call_ex(Module, Goal) :-
-	Module:(expand_goal(Goal, GoalEx),
-		GoalEx).
+	(expand_goal(Goal,Module: GoalEx),
+		Module:GoalEx).
 
 %%	cleanup(+Module, +Options) is det.
 %

@@ -13,7 +13,8 @@
   *    @{
   * \*/
 
-:- '$system_meta_predicates'([
+  :- '$system_meta_predicates'([
+	gated_call(0,0,?,0),
 	catch(0,?,0),
   log_event(+,:)]).
 
@@ -338,11 +339,10 @@ live :-
 %
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
-	  CP is '$last_choice_pt',
-	 '$current_choice_point'(NCP1),
+	 '$$save_by'(NCP1),
 	 attributes:delayed_goals(G, V, NV, LGs),
-	 '$clean_ifcp'(CP),
-	 '$current_choice_point'(NCP2),
+	 '$clean_ifcp'(NCP1),
+	 '$$save_by'(NCP2),
 	 NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV),
@@ -830,6 +830,7 @@ Command = (H --> B) ->
 
 /* General purpose predicates				*/
 
+'$head_and_body'(M:(H:-B),M:H,M:B) :- !.
 '$head_and_body'((H:-B),H,B) :- !.
 '$head_and_body'(H,H,true).
 
