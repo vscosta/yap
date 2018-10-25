@@ -399,7 +399,7 @@ be lost.
 %
 % debug a complex query
 %
-'$trace_query'(V, M, CP, _, '$trace'([M|V],CP)) :-
+'$trace_query'(V, M, CP, _, call(M:V) :-
 	var(V), !.
 '$trace_query'(!, _, CP, _, '$$cut_by'(CP)) :-
 	!.
@@ -605,11 +605,11 @@ be lost.
 '$re_trace_query'(abort, _G, _Module,  _GoalNumber, _H) :-
     !,
     abort.
-'$re_trace_query'(forward(fail,G0), _G, __Module, GoalNumber, _H) :-
+'$re_trace_query'(error(event(fail),G0), _G, __Module, GoalNumber, _H) :-
     GoalNumber =< G0,
     !,
     fail.
-'$re_trace_query'(forward(redo,G0), G, M, GoalNumber, H) :-
+'$re_trace_query'(error(event(redo),G0), G, M, GoalNumber, H) :-
     GoalNumber > G0,
     !,
     catch(
@@ -617,8 +617,8 @@ be lost.
             E,
             '$re_trace_query'(E, G,M, GoalNumber, H)
             ).
-'$re_trace_query'(forward(C,G0), _G, _Module, _GoalNumber, _H) :-
-            throw(forward(C,G0)).
+'$re_trace_query'(Throw, _G, _Module, _GoalNumber, _H) :-
+            throw(Throw).
 
 '$trace_port'(Port, GoalNumber, G, Module, _CalledFromDebugger, Info) :-
 	'$stop_creeping'(_) ,
@@ -791,7 +791,7 @@ be lost.
 	halt.
 '$action'(f,_,_,_,_,_) :- !,		% 'f		fail
 	'$scan_number'( GoalId),    %'f
-	throw(forward(fail,GoalId)).
+	throw(error(event(fail),GoalId)).
 '$action'(h,_,_,_,_,_) :- !,			% 'h		help
 	'$action_help',
 	skip( debugger_input, 10),
@@ -837,7 +837,7 @@ be lost.
 '$action'(r,_,_,_,_,_) :- !,		        % 'r		retry
     '$scan_number'(ScanNumber),		% '
 %	set_prolog_flag(debug, true),
-    throw(forward(redo,ScanNumber)).
+    throw(error(event(redo,ScanNumber)).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
 	skip( debugger_input, 10),				% '
 	( (P=call; P=redo) ->
@@ -869,7 +869,7 @@ be lost.
         '$show_ancestors'(HowMany),
 	fail.
 '$action'('T',exception(G),_,_,_,_) :- !,	% 'T		throw
-	throw( forward('$wrapper',G)).
+	throw( G ).
 '$action'(C,_,_,_,_,_) :-
 	skip( debugger_input, 10),
 	'$ilgl'(C),
