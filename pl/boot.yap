@@ -394,13 +394,12 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- style_check([+discontiguous,+multiple,+single_var]).
 
-
 %
-% moved this to init_gc in gc.c to separate the alpha
+% moved this to init_gc in sgc.c to separate the alpha
 %
 % :- yap_flag(gc,on).
-
-% :- yap_flag(gc_trace,verbose).
+%
+% :- yap_flag(gc_trace,verbose`
 
 :- multifile
 	prolog:comment_hook/3.
