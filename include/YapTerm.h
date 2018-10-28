@@ -100,10 +100,10 @@ typedef YAP_UInt YAP_Term;
 #define TRUE true
 #endif
 #ifndef FALSE
+#define FALSE false
 #endif
 
 typedef bool YAP_Bool;
-#define FALSE false
 
 typedef YAP_Int YAP_handle_t;
 

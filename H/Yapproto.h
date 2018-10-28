@@ -391,7 +391,6 @@ extern void Yap_InitSortPreds(void);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern void Yap_dump_stack(void);
 extern void Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
 
 #if !defined(YAPOR) && !defined(THREADS)
