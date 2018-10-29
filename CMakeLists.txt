@@ -88,34 +88,71 @@ option(WITH_READLINE "use readline or libedit" ON)
 option(WITH_JIT  "just in Time Clause Compilation" OFF)
 
 if (APPLE)
+  set(MACOSX_RPATH ON)
+
   option(WITH_BREW "brew" ON)
-  if (not WITH_BREW)
-    option(WITH_MACPORTS "mac-ports" ON)
+  if (WITH_BREW)
+    EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    IF (${DETECT_BREW} EQUAL 0)
+
+      # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+      LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
+
+      list(INSERT CMAKE_PREFIX_PATH pos
+        ${BREW_PREFIX}/opt/gmp
+        ${BREW_PREFIX}/opt/libxml2
+        ${BREW_PREFIX}/opt/openmpi
+        ${BREW_PREFIX}/opt/openssl
+        ${BREW_PREFIX}/opt/postgresql
+        ${BREW_PREFIX}/opt/python3
+        ${BREW_PREFIX}/opt/readline
+        ${BREW_PREFIX}/opt/swig
+        )
+    else()
+      option(WITH_MACPORTS "mac-ports" ON)
+      if (WITH_MACPORTS)
+	# Add MacPorts
+	# Detect if the "port" command is valid on this system; if so, return full path
+	EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	IF (${DETECT_MACPORTS} EQUAL 0)
+ 	  # "/opt/local/bin/port" doesn't have libs, so we get the parent directory
+ 	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+
+ 	  # "/opt/local/bin" doesn't have libs, so we get the parent directory
+ 	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+
+ 	  # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
+ 	  LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
+	endif()
+      endif()
+    endif()
   endif()
 endif()
 
-option (WITH_EXTENSIONS "packages and libraries  that add value to YAP" ON)
+option (WITH_PACKAGES "packages and liaries  that add value to YAP" ON)
 
-OPTION(WITH_MYDDAS " Enable MYDDAS  driver" ${WITH_EXTENSIONS})
+OPTION(WITH_MYDDAS " Enable MYDDAS  driver" ${WITH_PACKAGES})
 OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_MYDDAS})
 OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS})
 OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
 OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
 OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_MYDDAS})
-OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_EXTENSIONS})
-OPTION(WITH_RAPTOR " Enable the RAPTOR RDF library" ${WITH_EXTENSIONS})
-OPTION(WITH_XML2 " Enable the RAPTOR XML2 library" ${WITH_EXTENSIONS})
-OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_EXTENSIONS})
-OPTION(WITH_CLPBN" Enable the CLPBN and PFL probabilistic languages" ${WITH_EXTENSIONS})
+OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
+OPTION(WITH_RAPTOR " Enable the RAPTOR RDF library" ${WITH_PACKAGES})
+OPTION(WITH_XML2 " Enable the RAPTOR XML2 library" ${WITH_PACKAGES})
+OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
+OPTION(WITH_CLPBN" Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
-option(WITH_PROBLOG "include Problog-I." ${WITH_EXTENSIONS})
-OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_EXTENSIONS})
-option(WITH_GECODE "interface gecode constraint solver" ${WITH_EXTENSIONS})
-option(WITH_LBFGS    "interface  with lbfgs" ${WITH_EXTENSIONS})
-option(WITH_PRISM    "use PRISM system in YAP" ${WITH_EXTENSIONS})
-option(WITH_PYTHON  "Allow Python->YAP  and YAP->Python" ${WITH_EXTENSIONS})
-option(WITH_R  "Use R Interface" ${WITH_EXTENSIONS})
-option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ${WITH_EXTENSIONS})
+option(WITH_PROBLOG "include Problog-I." ${WITH_PACKAGES})
+OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_PACKAGES})
+option(WITH_GECODE "interface gecode constraint solver" ${WITH_PACKAGES})
+option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
+option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
+option(WITH_PYTHON  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
+option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
+option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ${WITH_PACKAGES})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -273,58 +310,6 @@ endif()
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
 
-if (APPLE)
-  set(MACOSX_RPATH ON)
-
-  if (NOT $ENV{CONDA_BUILD}x STREQUAL "1x")
-
-    set(PATH $ENV{PATH})
-
-    if (WITH_MACPORTS)
-      # Add MacPorts
-      # Detect if the "port" command is valid on this system; if so, return full path
-      EXECUTE_PROCESS(COMMAND which port RESULT_VARIABLE DETECT_MACPORTS OUTPUT_VARIABLE MACPORTS_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-      IF (${DETECT_MACPORTS} EQUAL 0)
-	# "/opt/local/bin/port" doesn't have libs, so we get the parent directory
-	GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
-
-	# "/opt/local/bin" doesn't have libs, so we get the parent directory
-	GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
-
-	# "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-	LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
-
-	MESSAGE("WINNING!: ${MACPORTS_PREFIX}/lib")
-      ENDIF()
-    ENDIF()
-
-
-    if (WITH_BREW)
-      EXECUTE_PROCESS(COMMAND brew --prefix RESULT_VARIABLE DETECT_BREW OUTPUT_VARIABLE BREW_PREFIX ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-      IF (${DETECT_BREW} EQUAL 0)
-
-	# "/opt/local" is where MacPorts lives, add `/lib` suffix and link
-	LINK_DIRECTORIES( ${BREW_PREFIX}/lib)
-
-	MESSAGE("BREW!: ${BREW_PREFIX}/lib")
-      ENDIF()
-
-
-      list(INSERT CMAKE_PREFIX_PATH pos
-        ${BREW_PREFIX}/opt/gmp
-        ${BREW_PREFIX}/opt/libxml2
-        ${BREW_PREFIX}/opt/openmpi
-        ${BREW_PREFIX}/opt/openssl
-        ${BREW_PREFIX}/opt/postgresql
-        ${BREW_PREFIX}/opt/python3
-        ${BREW_PREFIX}/opt/readline
-        ${BREW_PREFIX}/opt/swig
-        )
-    endif ()
-  endif()
-endif ()
 
 
 set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
@@ -837,9 +822,9 @@ if (WITH_JAVA)
 
     set (STD_CMAKE_FIND_FRAMEWORK ${CMAKE_FIND_FRAMEWORK})
     set (CMAKE_FIND_FRAMEWORK LAST) # CMake will find the Java returned by /usr/libexec/java_home.
-    
+
     macro_optional_find_package(JNI ON)
-    
+
 
     set (CMAKE_FIND_FRAMEWORK ${STD_CMAKE_FIND_FRAMEWORK})
 

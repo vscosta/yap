@@ -284,10 +284,10 @@ location( error(_,Info), Level, LC ) -->
       query_exception(prologStack, Desc, St)
     },
   !,
-display_consulting( File, Level, Info, LC ),
+  display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
-   [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ],
-  [  'Execution stack is: ~a' - [St]].
+  [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ],
+  ( { Stack == [] } -> [] ; [ nl, '~s'- [] ]).
 location( error(_,Info), Level, LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {

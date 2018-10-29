@@ -343,6 +343,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   Yap_local.ActiveError->parserFile =
     RepAtom(AtomOfTerm((GLOBAL_Stream+sno)->user_name))->StrOfAE;
   Yap_local.ActiveError->parserReadingCode = code;
+  int lvl = push_text_stack();
+  if (GLOBAL_Stream[sno].status & Seekable_Stream_f) {
+    char *o, *o2;
 #if HAVE_FTELLO
       fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
@@ -358,6 +361,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         }
    err_line = tok->TokLine;
     errpos = tok->TokPos;
+
     if (errpos <= startpos) {
       o  = malloc(1);
       o[0] = '\0';

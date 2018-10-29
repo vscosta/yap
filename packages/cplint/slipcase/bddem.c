@@ -333,7 +333,7 @@ so that it is not recomputed
       BChild1 = pt * p;
       mVarIndex = bVar2mVar_ex[ex][index];
       v = vars_ex[ex][mVarIndex];
-      index - v.firstBoolVar;
+      index = v.firstBoolVar;
       res = BChild0 + BChild1;
       add_node(table, nodekey, res);
       return res;

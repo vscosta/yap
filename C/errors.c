@@ -81,6 +81,7 @@ static bool setErr(const char *q, yap_error_descriptor_t *i, Term t) {
   set_key_b(parserReadingCode, "parserReadingcode", q, i, t);
   set_key_b(prologConsulting, "prologConsulting", q, i, t);
   set_key_s(culprit, "culprit", q, i, t);
+  set_key_s(prologStack, "prologStack", q, i, t);
   set_key_s(errorMsg, "errorMsg", q, i, t);
   set_key_i(errorMsgLen, "errorMsgLen", q, i, t);
   return false;
@@ -129,7 +130,8 @@ static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_s(parserFile, "parserFile", q, i);
   query_key_b(parserReadingCode, "parserReadingCode", q, i);
   query_key_b(prologConsulting, "prologConsulting", q, i);
-  query_key_t(culprit, "culprit", q, i);
+  query_key_s(prologStack, "prologStack", q, i);
+  query_key_s(culprit, "culprit", q, i);
   query_key_s(errorMsg, "errorMsg", q, i);
   query_key_i(errorMsgLen, "errorMsgLen", q, i);
   return TermNil;
@@ -176,6 +178,7 @@ static void printErr(yap_error_descriptor_t *i) {
   print_key_b("parserReadingCode", i->parserReadingCode);
   print_key_b("prologConsulting", i->prologConsulting);
   print_key_s("culprit", i->culprit);
+  print_key_s("prologStack", i->prologStack);
   if (i->errorMsgLen) {
     print_key_s("errorMsg", i->errorMsg);
     print_key_i("errorMsgLen", i->errorMsgLen);
@@ -234,6 +237,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_b("parserReadingCode", i->parserReadingCode, o);
   o = add_key_b("prologConsulting", i->prologConsulting, o);
   o = add_key_s("culprit", i->culprit, o);
+  o = add_key_s("prologStack", i->prologStack, o);
   if (i->errorMsgLen) {
     o = add_key_s("errorMsg", i->errorMsg, o);
     o = add_key_i("errorMsgLen", i->errorMsgLen, o);
@@ -858,7 +862,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
 #ifdef DEBUG
   // DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
-
+  if (LOCAL_ActiveError->errorNo!= SYNTAX_ERROR)
+    LOCAL_ActiveError->prologStack=Yap_dump_stack();
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   //    DumpActiveGoals( PASS_REGS1 );
