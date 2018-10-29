@@ -1925,7 +1925,7 @@ const char *Yap_dump_stack(void) {
         }
         if (!max_count--) {
           ADDBUF(snprintf(lbuf, lbufsz , "%%  .....~n"));
-          return pop_output_text_stack(lvl, lbuf);
+          return pop_output_text_stack(lvl, buf);
         }
         ipc = (yamop *)(env_ptr[E_CP]);
         env_ptr = (CELL *)(env_ptr[E_E]);
@@ -1933,7 +1933,7 @@ const char *Yap_dump_stack(void) {
       if (b_ptr) {
         if (!max_count--) {
           ADDBUF(snprintf(lbuf, lbufsz , "//  .....~n"));
-          return pop_output_text_stack(lvl, lbuf);
+          return pop_output_text_stack(lvl, buf);
         }
         if (b_ptr->cp_ap && /* tabling */
             b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
@@ -1949,7 +1949,7 @@ const char *Yap_dump_stack(void) {
       }
     }
   }
-    return pop_output_text_stack(lvl, lbuf);
+    return pop_output_text_stack(lvl, buf);
 }
 
 void DumpActiveGoals(USES_REGS1) {

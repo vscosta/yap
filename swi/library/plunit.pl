@@ -422,7 +422,7 @@ valid_test_mode(Options0, Options) :-
 test_mode(true(_)).
 test_mode(all(_)).
 test_mode(set(_)).
-test_mode(fail).
+test_mode(fail(_)).
 test_mode(throws(_)).
 
 
@@ -509,7 +509,7 @@ verify_options([H|T], Pred) :-
 test_option(Option) :-
 	test_set_option(Option), !.
 test_option(true(_)).
-test_option(fail).
+test_option(fail(_)).
 test_option(throws(_)).
 test_option(all(_)).
 test_option(set(_)).
@@ -889,7 +889,7 @@ run_test_6(Unit, Name, Line, Options, Body, Result) :-
 	option(set(Answer), Options), !,		% set(Bindings)
 	nondet_test(set(Answer), Unit, Name, Line, Options, Body, Result).
 run_test_6(Unit, Name, Line, Options, Body, Result) :-
-	option(fail, Options), !,			% fail
+	option(fail(true), Options), !,			% fail
 	unit_module(Unit, Module),
 	(   setup(Module, test(Unit,Name,Line), Options)
 	->  statistics(runtime, [T0,_]),

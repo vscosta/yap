@@ -131,10 +131,8 @@ prolog:message_to_string(Event, Message) :-
 %	The first is used for errors and warnings that can be related
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
-compose_message( Term, Level ) -->
-  ['   ~w:'- [Level]
-  ],
-  prolog:message(Term), !.
+compose_message( Term, _Level ) -->
+  message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
   [].
 compose_message( absolute_file_path(File), _Level) -->
@@ -281,13 +279,13 @@ location( error(_,Info), Level, LC ) -->
   query_exception(prologPredModule, Desc, M),
   query_exception(prologPredName, Desc, Na),
   query_exception(prologPredArity, Desc, Ar),
-      query_exception(prologStack, Desc, St)
+      query_exception(prologStack, Desc, Stack)
     },
   !,
   display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
   [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ],
-  ( { Stack == [] } -> [] ; [ nl, '~s'- [] ]).
+  ( { Stack == [] } -> [] ; [ nl, Stack- [] ]).
 location( error(_,Info), Level, LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
