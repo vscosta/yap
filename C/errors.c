@@ -1045,7 +1045,6 @@ static Int query_exception(USES_REGS1) {
   if (!IsAddressTerm(Deref(ARG2)))
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
-  Term t3 = Deref(ARG3);
   //if (IsVarTerm(t3)) {
     Term rc = queryErr(query, y);
     //      Yap_DebugPlWriteln(rc);

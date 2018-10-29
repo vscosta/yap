@@ -885,7 +885,7 @@ static PredEntry *ClauseInfoForCode(yamop *codeptr, void **startp,
   if (codeptr >= COMMA_CODE && codeptr < FAILCODE) {
     pp = RepPredProp(Yap_GetPredPropByFunc(FunctorComma, CurrentModule));
     *startp = (CODEADDR)COMMA_CODE;
-    *endp = (CODEADDR)(FAILCODE - 1);
+    *endp = (CODEADDR)(FAILCODE);
     return pp;
   }
   pc = codeptr;
