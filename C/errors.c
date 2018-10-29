@@ -863,7 +863,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   // DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
   if (LOCAL_ActiveError->errorNo!= SYNTAX_ERROR)
-    LOCAL_ActiveError->prologStack=Yap_dump_goals();
+    LOCAL_ActiveError->prologStack=Yap_dump_stack();
   CalculateStackGap(PASS_REGS1);
 #if DEBUG
   //    DumpActiveGoals( PASS_REGS1 );
@@ -1050,7 +1050,6 @@ static Int query_exception(USES_REGS1) {
   if (!IsAddressTerm(Deref(ARG2)))
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
-  Term t3 = Deref(ARG3);
   //if (IsVarTerm(t3)) {
     Term rc = queryErr(query, y);
     //      Yap_DebugPlWriteln(rc);
