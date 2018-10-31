@@ -1266,7 +1266,7 @@ static Int is_predicate_indicator(USES_REGS1) {
 
 void Yap_InitErrorPreds(void) {
   CACHE_REGS
-  Yap_InitCPred("$print_exception<", 1, print_exception, 0);
+  Yap_InitCPred("$print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);

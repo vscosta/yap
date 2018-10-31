@@ -108,6 +108,10 @@ option(Opt, _, Default) :-
 %	@param Option	Term of the form Name(?Value).
 
 option(Opt, Options) :-			% make option processing stead-fast
+    atom(Opt),
+    !,
+    get_option(Opt, Options).
+option(Opt, Options) :-			% make option processing stead-fast
 	arg(1, Opt, OptVal),
 	nonvar(OptVal), !,
 	functor(Opt, OptName, 1),
@@ -132,6 +136,10 @@ get_option(Opt, Options) :-
 %	the matching option from  Options   and  unifying  the remaining
 %	options with RestOptions.
 
+select_option(Opt, Options0, Options) :-	% stead-fast
+    atom(Opt),
+    !,
+    select_option(Opt, Options0, Options).
 select_option(Opt, Options0, Options) :-	% stead-fast
 	arg(1, Opt, OptVal),
 	nonvar(OptVal), !,

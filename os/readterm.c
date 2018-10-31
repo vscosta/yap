@@ -392,25 +392,25 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f)
     {
       char *o, *o2;
+      if (startpos)
+	startpos--;
 #if HAVE_FTELLO
       fseeko(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #else
       fseek(GLOBAL_Stream[sno].file, startpos, SEEK_SET);
 #endif
-      int lvl = push_text_stack();
       if (GLOBAL_Stream[sno].status & Seekable_Stream_f)
         {
-          char *o, *o2;
           while (tok)
             {
               if (tok->Tok != Error_tok)
                 {
                   tok = tok->TokNext;
                 }
-            }
+	      break;
+	    }
           err_line = tok->TokLine;
-          errpos = tok->TokPos;
-
+          errpos = tok->TokPos -1;
           if (errpos <= startpos)
             {
               o = malloc(1);
@@ -421,24 +421,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
               Int sza = (errpos - startpos) + 1, tot = sza;
               o = malloc(sza);
               char *p = o;
-              while (true)
                 {
                   size_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
                   if (siz < 0)
                     Yap_Error(EVALUATION_ERROR_READ_STREAM, GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-                  if (siz < tot - 1)
-                    {
-                      p += siz;
-                      tot -= siz;
-                    }
-                  else
-                    {
-                      break;
-                    }
-                }
               o[sza - 1] = '\0';
             }
-        }
           Yap_local.ActiveError->parserTextA = o;
           if (endpos <= errpos)
             {
@@ -450,25 +438,17 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
               Int sza = (endpos - errpos) + 1, tot = sza;
               o2 = malloc(sza);
               char *p = o2;
-              while (true)
                 {
                   size_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
                   if (siz < 0)
                     Yap_Error(EVALUATION_ERROR_READ_STREAM, GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
-                  if (siz < tot - 1)
-                    {
-                      p += siz;
-                      tot -= siz;
-                    }
-                  else
-                    {
-                      break;
-                    }
-                }
+                 
               o2[sza - 1] = '\0';
             }
           Yap_local.ActiveError->parserTextB = o2;
-        }
+	    }
+	    }
+	}
       else
         {
           size_t sz = 1024, e;
@@ -506,7 +486,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
           o = realloc(o, strlen(o) + 1);
           Yap_local.ActiveError->parserTextB = o;
         }
-      Yap_local.ActiveError->parserPos = errpos;
+    }
+  Yap_local.ActiveError->parserPos = errpos;
       Yap_local.ActiveError->parserLine = err_line;
       /* 0:  strat, error, end line */
       /*2 msg */
@@ -1182,7 +1163,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     LOCAL_Error_TYPE = WARNING_SYNTAX_ERROR;
     t = Yap_MkFullError();
     Yap_PrintWarning(t);
-    LOCAL_Error_TYPE = YAPC_NO_ERROR;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (ParserErrorStyle == TermDec10)
       {
         return YAP_SCANNING;

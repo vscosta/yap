@@ -203,15 +203,15 @@ compose_message(error(warning(syntax_error,Info), Exc), Level) -->
     compose_message(error(syntax_error(Info), Exc), Level).
 compose_message(error(E, Exc), Level) -->
     {
-%	start_low_level_trace,
-  '$show_consult_level'(LC)
+	'$show_consult_level'(LC)
     },
     location(error(E, Exc), Level, LC),
     main_message(error(E,Exc) , Level, LC ),
     c_goal( error(E, Exc), Level ),
     caller( error(E, Exc), Level ),
     extra_info( error(E, Exc), Level ),
- %   { stop_low_level_trace },
+    stack_info( error(E, Exc), Level ),
+%   { stop_low_level_trace },
     !,
     [nl],
     [nl].
@@ -278,14 +278,13 @@ location( error(_,Info), Level, LC ) -->
   query_exception(prologPredLine, Desc, FilePos),
   query_exception(prologPredModule, Desc, M),
   query_exception(prologPredName, Desc, Na),
-  query_exception(prologPredArity, Desc, Ar),
-      query_exception(prologStack, Desc, Stack)
+  query_exception(prologPredArity, Desc, Ar)
     },
   !,
   display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
-  [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ],
-  ( { Stack == [] } -> [] ; [ nl, Stack- [] ]).
+  [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
+
 location( error(_,Info), Level, LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
@@ -432,6 +431,21 @@ extra_info( error(_,Info), _ ) -->
         [nl].
 extra_info( _, _ ) -->
   [].
+
+stack_info( error(_,Info), _ ) -->
+ { '$error_descriptor'(Info, Desc) },
+   {
+   query_exception(prologStack, Desc, Stack),
+   Stack \= []
+
+    },
+    !,
+    ['~*|Prolog execution stack is:' - [10]],
+    [nl],
+    [Stack - []].
+stack_info( _, _ ) -->
+  [].
+
 
 
 prolog_message(X) -->
@@ -1028,7 +1042,8 @@ prolog:print_message(Severity, Msg) :-
   !.
 prolog:print_message(Level, _Msg) :-
   current_prolog_flag(verbose_load, false),
-  stream_property(_Stream, alias(loop_stream) ),
+    '$show_consult_level'(LC),
+    LC > 0,
   Level = informational,
   !.
 prolog:print_message(Level, _Msg) :-
@@ -1070,6 +1085,7 @@ prolog:print_message(Severity, Term) :-
 prolog:print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
+'$error_descriptor'( V, Info ) :- var(V), !, Info = [].
 '$error_descriptor'( exception(Info), Info ).
 
 query_exception(K0,[H|L],V) :-
