@@ -1340,7 +1340,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
-  int32_t ch, och;
+  int32_t ch, och = ' ';
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
 
@@ -1423,12 +1423,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 
     case UC:
     case UL:
-    case LC: {
-      int32_t och = ch;
+    case LC:
+      och = ch;
       ch = getchr(st);
-      size_t sz = 512;
-      TokImage = Malloc(sz PASS_REGS);
     scan_name:
+        {
+      size_t sz = 1024;
+      TokImage = Malloc(sz PASS_REGS);
       charp = (unsigned char *)TokImage;
       isvar = (chtype(och) != LC);
       add_ch_to_buff(och);
@@ -1514,8 +1515,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         case 'e':
         case 'E':
           och = cherr;
-          TokImage = Malloc(1024 PASS_REGS);
-          goto scan_name;
+           goto scan_name;
           break;
         case '=':
         case '_':
@@ -1981,6 +1981,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       return l;
 
     default: {
+      kind = Error_tok;
       char err[1024];
       snprintf(err, 1023, "\n++++ token: unrecognised char %c (%d), type %c\n",
                ch, ch, chtype(ch));

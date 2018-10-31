@@ -728,20 +728,18 @@ return GLOBAL_DIRNAME;
 
 char *profile_names(int);
 char *profile_names(int k) {
-  static char *FNAME=NULL;
+  char *FNAME=NULL;
   int size=200;
    
   if (GLOBAL_DIRNAME==NULL) set_profile_dir(NULL);
   size=strlen(GLOBAL_DIRNAME)+40;
-  if (FNAME!=NULL) free(FNAME);
   FNAME=malloc(size);
   if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-  strcpy(FNAME,GLOBAL_DIRNAME);
 
   if (k==PROFILING_FILE) {
-    sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
+    sprintf(FNAME,"%s/PROFILING_%d",GLOBAL_DIRNAME,getpid());
   } else { 
-    sprintf(FNAME,"%s/PROFPREDS_%d",FNAME,getpid());
+    sprintf(FNAME,"%s/PROFPREDS_%d",GLOBAL_DIRNAME,getpid());
   }
 
   //  printf("%s\n",FNAME);

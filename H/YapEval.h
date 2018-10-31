@@ -205,7 +205,6 @@ typedef enum {
   op_heapused,
   op_localsp,
   op_globalsp,
-  op_b,
   op_env,
   op_tr,
   op_stackfree

@@ -23,6 +23,7 @@
 % start a Prolog engine.
 live :-
     repeat,
+    yap_flag(verbose,normal),
     '$current_module'(Module),
     ( Module==user ->
       true % '$compile_mode'(_,0)
@@ -581,6 +582,15 @@ write_query_answer( Bindings ) :-
 '$meta_call'(G, M) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
+
+'$user_call'(G, CP, G0, M) :-
+        gated_call(
+                '$enable_debugging',
+                '$call'(G, CP, G0, M),
+	         Port,
+  	         '$disable_debugging_on_port'(Port)
+       ).
+    
 
 '$user_call'(G, M) :-
         gated_call(

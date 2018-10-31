@@ -243,6 +243,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
     ///  whether we are consulting
     bool prologConsulting;
     const char *culprit;
+    /// Prolog stack at the time
+    const char *prologStack;
     YAP_Term errorRawTerm, rawExtraErrorTerm;
      char *errorMsg;
     size_t errorMsgLen;
@@ -270,6 +272,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
   extern yap_error_descriptor_t *Yap_env_add_location(
       yap_error_descriptor_t * t, void *cp0, void *b_ptr0, void *env0,
       YAP_Int ignore_first);
+
+  extern const char *Yap_dump_stack(void);
 
   extern yap_error_descriptor_t *Yap_prolog_add_culprit(yap_error_descriptor_t *
                                                         t);
