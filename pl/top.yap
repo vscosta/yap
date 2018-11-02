@@ -76,7 +76,7 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	catch('$sys':command(Command,Varnames,Pos,top),E,loop_error(E)),
+	catch('$sys':command(Command,Varnames,Pos,top),E,error_handler(E)),
 	current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
@@ -785,7 +785,7 @@ write_query_answer( Bindings ) :-
     format(user_error, ':- ~w failed.~n', [Goal]).
 
 '$boot_dcg'( H, B, Where ) :-
-  '$_grammar':translate_rule((H --> B), (NH :- NB) ),
+  '$translate_rule'((H --> B), (NH :- NB) ),
   '$$compile'((NH :- NB), Where, ( H --> B), _R),
   !.
 '$boot_dcg'( H, B, _ ) :-
@@ -810,7 +810,7 @@ write_query_answer( Bindings ) :-
     ;
       read_clause(Stream, Command, Options)
     ),
-    catch('$sys':command(Command,Vars,Pos, Status), Error, loop_error(Error,top)).
+    catch('$sys':command(Command,Vars,Pos, Status), Error, error_handler(Error,top)).
 
 /** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 
@@ -909,7 +909,7 @@ expand_term(Term,Expanded) :-
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
-	'$_grammar':translate_rule((A-->B),C), !.
+	'$translate_rule'((A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %

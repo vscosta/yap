@@ -834,7 +834,7 @@ nb_setval('$if_le1vel',0).
 	erase(R),
 	G \= '$',
     strip_module(user:G, M0, G0),
-	( catch(M0:G0, Error, loop_error(Error, top))
+	( catch(M0:G0, Error, error_handler(Error, top))
 	->
 	  true
 	;
@@ -851,7 +851,7 @@ nb_setval('$if_le1vel',0).
 '$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
-	 catch(M0:G0, Error, loop_error(Error, top))
+	 catch(M0:G0, Error, error_handler(Error, top))
 	->
 	 true
 	;
@@ -915,7 +915,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), Error, loop_error(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), Error, error_handler(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1463,7 +1463,7 @@ initialization(G,OPT) :-
     (
 	OPT == now
     ->
-    ( catch(G,E,loop_error(E)) -> true ; format(user_error,':- ~w failed.~n',[G]) )
+    ( catch(G,E,error_handler(E)) -> true ; format(user_error,':- ~w failed.~n',[G]) )
     ;
     OPT == after_load
     ->

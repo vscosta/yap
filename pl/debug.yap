@@ -497,7 +497,7 @@ be lost.
     ).
 
 '$debugger':execute_nonstop(G,M) :-
-    '$execute_nonstop'(G,M)
+    '$execute_nonstop'(G,M).
 
 /**
  * @pred '$sys':enter_trace(+L, 0:G, +Module, +Info)

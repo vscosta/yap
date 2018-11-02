@@ -181,7 +181,7 @@ display(Stream, T) :-
 /* interface to user portray	*/
 '$portray'(T) :-
 	\+ '$undefined'(portray(_),user),
-	catch(user:portray(T),Error,loop_error(Error)), !,
+	catch(user:portray(T),Error,error_handler(Error)), !,
 	set_value('$portray',true), fail.
 '$portray'(_) :- set_value('$portray',false), fail.
 

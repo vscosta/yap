@@ -599,7 +599,7 @@ halt(X) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	catch(once(Module:G), Error,loop_error(Error)).
+	catch(once(Module:G), Error,error_handler(Error)).
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.

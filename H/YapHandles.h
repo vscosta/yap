@@ -218,9 +218,9 @@ INLINE_ONLY yhandle_t Yap_InitHandle__(Term t USES_REGS) {
   ensure_slots(1 PASS_REGS);
   if (t==0) {
     t = MkVarTerm();
-  } else if (IsVarTerm(t) ) {
+  } else if (IsVarTerm(t) && VarOfTerm(t) > HR ) {
     Term tg = MkVarTerm();
-    Bind_Global( VarOfTerm(t), tg);
+    Bind_Local(VarOfTerm(t), tg);
 }
   LOCAL_HandleBase[old_slots] = t;
   LOCAL_CurHandle++;

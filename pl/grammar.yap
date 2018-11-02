@@ -94,6 +94,9 @@ Grammar related built-in predicates:
     Also, phrase/2-3 check their first argument.
 */
 
+prolog:'$translate_rule'(Rule, T) :-
+    translate_rule(Rule, T ).
+
 translate_rule(Rule, (NH :- B) ) :-
     source_module( SM ),
     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
