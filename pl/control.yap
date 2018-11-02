@@ -390,19 +390,19 @@ version(T) :-
 '$set_toplevel_hook'(_).
 
 query_to_answer(G, V, Status, Bindings) :-
-	gated_call( true, (G,'$delayed_goals'(G, V, Vs, LGs, _DCP)), Status, '$answer'( Status, LGs, Vs, Bindings) ).
+	gated_call( true, (G,'$sys':delayed_goals(G, V, Vs, LGs, _DCP)), Status, '$sys':answer( Status, LGs, Vs, Bindings) ).
 
-  '$answer'( exit, LGs, Vs, Bindings) :-
+  '$sys':answer( exit, LGs, Vs, Bindings) :-
       !,
       '$process_answer'(Vs, LGs, Bindings).
-      '$answer'( answer, LGs, Vs, Bindings) :-
+      '$sys':answer( answer, LGs, Vs, Bindings) :-
           !,
           '$process_answer'(Vs, LGs, Bindings).
-'$answer'(!, _, _, _).
-'$answer'(fail,_,_,_).
-'$answer'(exception(E),_,_,_) :-
+'$sys':answer(!, _, _, _).
+'$sys':answer(fail,_,_,_).
+'$sys':answer(exception(E),_,_,_) :-
         '$LoopError'(E,error).
-'$answer'(external_exception(_),_,_,_).
+'$sys':answer(external_exception(_),_,_,_).
 
 
 %% @}
@@ -599,7 +599,7 @@ halt(X) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	catch(once(Module:G), Error,user:'$Error'(Error)).
+	catch(once(Module:G), Error,loop_error(Error)).
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.

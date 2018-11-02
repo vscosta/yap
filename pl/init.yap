@@ -114,7 +114,7 @@
     fail.
 '$startup_goals' :-
     recorded('$startup_goal',G,_),
-    catch(once(user:G),Error,user:'$Error'(Error)),
+    catch(once(user:G),Error,loop_error(Error)),
     fail.
 '$startup_goals' :-
 	get_value('$init_goal',GA),
@@ -125,7 +125,7 @@
 '$startup_goals' :-
     recorded('$restore_flag', goal(Module:GA), R),
     erase(R),
-    catch(once(Module:GA),Error,user:'$Error'(Error)),
+    catch(once(Module:GA),Error,loop_error(Error)),
     fail.
 '$startup_goals' :-
 	get_value('$myddas_goal',GA), GA \= [],
@@ -204,7 +204,7 @@
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
-	catch(once(user:G),Error,user:'$Error'(Error)),
+	catch(once(user:G),Error,loop_error(Error)),
 	fail.
 
 '$init_path_extensions' :-

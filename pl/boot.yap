@@ -87,11 +87,6 @@ private(_).
 
 % be careful here not to generate an undefined exception..
 
-'$setup_call_catcher_cleanup'(Setup, Goal, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'('$h'(Setup)),
-    '$gated_call'( false , '$h'(Goal), Catcher, '$h'(Cleanup))  .
-
-
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),
 	!,
@@ -194,11 +189,11 @@ print_message(L,E) :-
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
-'$command'(C,VL,Pos,Con) :-
+'$sys':command(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
 	 '$yap_strip_module'(C, EM, EG),
    '$execute_command'(EG,EM,VL,Pos,Con,_Source).
-'$command'(C,VL,Pos,Con) :-
+'$sys':command(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;

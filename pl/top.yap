@@ -30,7 +30,7 @@ live :-
     ;
     format(user_error,'[~w]~n', [Module])
     ),
-    '$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
+    '$enter_top_level'.
 
 % Start file for yap
 
@@ -46,18 +46,9 @@ live :-
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings, Pos) :-
 	'$prompt',
-	catch(read_term(user_input,
+	read_term(user_input,
 			Goal,
-			[variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]),
-			 E, '$handle_toplevel_error'( E) ).
-
-'$handle_toplevel_error'( syntax_error(_)) :-
-	!,
-	fail.
-'$handle_toplevel_error'( error(io_error(read,user_input),_)) :-
-	!.
-'$handle_toplevel_error'(_, E) :-
-	throw(E).
+			[variable_names(Bindings), syntax_errors(dec10), term_position(Pos)]).
 
 
 /** @pred  stream_property( Stream, Prop )
@@ -85,7 +76,7 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	'$command'(Command,Varnames,Pos,top),
+	catch('$sys':command(Command,Varnames,Pos,top),E,loop_error(E)),
 	current_prolog_flag(break_level, BreakLevel),
 	(
 	 BreakLevel \= 0
@@ -125,7 +116,7 @@ live :-
 '$execute_commands'([C|Cs],M,VL,Pos,Con,Source) :-
     !,
     (
-	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
+	'$execute_command'(C,M,VL,Pos,Con,Source),
 	fail
     ;
     '$execute_commands'(Cs,M,VL,Pos,Con,Source)
@@ -140,20 +131,20 @@ live :-
 '$execute_command'(C,_,_,_,_,Source) :-
     var(C),
     !,
-	'$do_error'(instantiation_error,meta_call(Source)).
+    '$do_error'(instantiation_error,meta_call(Source)).
 '$execute_command'(C,_,_,_,_top,Source) :-
     number(C),
     !,
-	'$do_error'(type_error(callable,C),meta_call(Source)).
+    '$do_error'(type_error(callable,C),meta_call(Source)).
  '$execute_command'(R,_,_,_,_top,Source) :-
      db_reference(R),
      !,
-	 '$do_error'(type_error(callable,R),meta_call(Source)).
+     '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
-	 '__NB_getval__'('$if_skip_mode', skip, fail),
-	 \+ '$if_directive'(Command),
-	 !.
+     '__NB_getval__'('$if_skip_mode', skip, fail),
+     \+ '$if_directive'(Command),
+     !.
 '$execute_command'((:-G),M,VL,Pos,Option,_) :-
     Option \= top,
     !,			% allow user expansion
@@ -162,29 +153,29 @@ live :-
     (
             NO = (:- G1)
         ->
-	      '$process_directive'(G1, Option, NM, VL, Pos)
+	'$process_directive'(G1, Option, NM, VL, Pos)
      ;
-           '$execute_commands'(G1,NM,VL,Pos,Option,O)
-        ).
+     '$execute_commands'(G1,NM,VL,Pos,Option,O)
+    ).
 '$execute_command'((?-G), M, VL, Pos, Option, Source) :-
-	 Option \= top,
-	 !,
-	 '$execute_command'(G, M, VL, Pos, top, Source).
+    Option \= top,
+    !,
+    '$execute_command'(G, M, VL, Pos, top, Source).
  '$execute_command'(G, M, VL, Pos, Option, Source) :-
-	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
+     '$continue_with_command'(Option, VL, Pos, M:G, Source).
 
 '$expand_term'(T,O) :-
-	 '$expand_term'(T,top,O).
+    '$expand_term'(T,top,O).
 
 '$expand_term'(T,Con,O) :-
-	catch( '$expand_term0'(T,Con,O), _,( '$disable_debugging', fail) ),
+	 '$expand_term0'(T,Con,O),
       	!.
 
-		'$expand_term0'(T,consult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,reconsult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,top,O) :-
+'$expand_term0'(T,consult,O) :-
+    expand_term( T,  O).
+'$expand_term0'(T,reconsult,O) :-
+    expand_term( T,  O).
+'$expand_term0'(T,top,O) :-
 	expand_term( T,  T1),
 	!,
  	'$expand_term1'(T1,O).
@@ -197,16 +188,16 @@ live :-
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
-	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
+    '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
 %    writeln(G),
-	'$go_compile_clause'(G,V,Pos,reconsult,Source),
-	fail.
+    '$go_compile_clause'(G,V,Pos,reconsult,Source),
+    fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
-	'$go_compile_clause'(G,V,Pos,consult,Source),
-	fail.
+    '$go_compile_clause'(G,V,Pos,consult,Source),
+    fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	'$query'(G,V).
+    '$query'(G,V).
 
  %%
  % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -291,31 +282,31 @@ live :-
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
-     '$current_module'(M),
-     '$current_choice_point'(CP),
-     '$user_call'(G, M),
-     '$current_choice_point'(NCP),
-     '$delayed_goals'(G, V, Vs, LGs, DCP),
-     '$write_answer'(Vs, LGs, Written),
-	  '$write_query_answer_true'(Written),
-	  (
-	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
-	   ->
-	   format(user_error, '.~n', []),
-	   !
-	  ;
-	   '$another',
-	   !
-	  ),
-	  fail
+	     '$current_module'(M),
+	     '$current_choice_point'(CP),
+	     '$user_call'(G, M),
+	     '$current_choice_point'(NCP),
+	     '$sys':delayed_goals(G, V, Vs, LGs, DCP),
+	     '$write_answer'(Vs, LGs, Written),
+	     '$write_query_answer_true'(Written),
+	     (
+		 '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
+	     ->
+	     format(user_error, '.~n', []),
+	     !
+	     ;
+	     '$another',
+	     !
+	     ),
+	     fail
 	 ;
-	  '$out_neg_answer'
+	 '$out_neg_answer'
 	 ).
 
- '$yes_no'(G,C) :-
+'$yes_no'(G,C):-
 	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
-	 '$delayed_goals'(G, [], NV, LGs, _),
+	 '$sys':delayed_goals(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
 	 ( Written = [] ->
 	   !,'$present_answer'(C, true)
@@ -330,15 +321,15 @@ live :-
 
 
 '$process_answer'(Vs, LGs, Bindings) :-
-'$purge_dontcares'(Vs,IVs),
-'$sort'(IVs, NVs),
-'$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-'$name_vars_in_goals'(LAnsw, Vs, Bindings).
+    '$purge_dontcares'(Vs,IVs),
+    '$sort'(IVs, NVs),
+    '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
+    '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
 % *-> at this point would require compiler support, which does not exist.
 %
-'$delayed_goals'(G, V, NV, LGs, NCP) :-
+'$sys':delayed_goals(G, V, NV, LGs, NCP) :-
 	(
 	 '$$save_by'(NCP1),
 	 attributes:delayed_goals(G, V, NV, LGs),
@@ -643,10 +634,11 @@ write_query_answer( Bindings ) :-
 
 '$call'(M:_,_,G0,_) :- var(M), !,
 	'$do_error'(instantiation_error,call(G0)).
-'$call'(M:G,CP,G0,_M0) :- !,
+/*'$call'(M:G,CP,G0,_M0) :- !,
 '$expand_meta_call'(M:G, [], NG),
 '$yap_strip_module'(NG,NM,NC),
         '$call'(NC,CP,G0,NM).
+*/
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).
@@ -748,8 +740,7 @@ write_query_answer( Bindings ) :-
     prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
+	dbload_from_stream(Stream, OldModule, exo),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,db) :-
@@ -757,17 +748,13 @@ write_query_answer( Bindings ) :-
     prompt1(': '), prompt(_,'     '),
 	'$current_module'(OldModule),
 	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
+	dbload_from_stream(Stream, OldModule, db),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
  	repeat,
-  '$current_module'( OldModule, OldModule ),
-	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
-                     OldModule, Error,
-			         user:'$LoopError'(Error, Status)
-                   ),
+	'$current_module'( OldModule, OldModule ),
+	 '$enter_command'(Stream,OldModule,Status),
 	!.
 
 '$boot_loop'(Stream,Where) :-
@@ -775,22 +762,19 @@ write_query_answer( Bindings ) :-
 	'$current_module'( OldModule, OldModule ),
 	read_clause(Stream, Command, [module(OldModule), syntax_errors(dec10),variable_names(_Vars), term_position(_Pos)]),
 	(Command == end_of_file
-  ->
-    !
+	->
+	    !
 	;
-   Command = (:- Goal) ->
-     '$system_catch'('$boot_execute'(Goal),   prolog, Error,
-        user:'$LoopError'(Error, consult) ),
-    fail
-   ;
-Command = (H --> B) ->
-     '$system_catch'('$boot_dcg'(H,B, Where),   prolog, Error,
-        user:'$LoopError'(Error, consult) ),
+	Command = (:- Goal) ->
+	'$boot_execute'(Goal),
+	fail
+	;
+	Command = (H --> B) ->
+     '$boot_dcg'(H,B, Where),
 
   fail
  ;
-     '$system_catch'('$boot_clause'( Command, Where ),  prolog, Error,
-        user:'$LoopError'(Error, consult) ),
+     '$boot_clause'( Command, Where ),
   fail
  ).
 
@@ -801,7 +785,7 @@ Command = (H --> B) ->
     format(user_error, ':- ~w failed.~n', [Goal]).
 
 '$boot_dcg'( H, B, Where ) :-
-  '$translate_rule'((H --> B), (NH :- NB) ),
+  '$_grammar':translate_rule((H --> B), (NH :- NB) ),
   '$$compile'((NH :- NB), Where, ( H --> B), _R),
   !.
 '$boot_dcg'( H, B, _ ) :-
@@ -816,8 +800,9 @@ Command = (H --> B) ->
 
 
 '$enter_command'(Stream, Mod, Status) :-
-    prompt1(': '), prompt(_,'     '),
-	Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
+    prompt1(': '),
+    prompt(_,'     '),
+    Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     (
       Status == top
     ->
@@ -825,7 +810,7 @@ Command = (H --> B) ->
     ;
       read_clause(Stream, Command, Options)
     ),
-	'$command'(Command,Vars,Pos, Status).
+    catch('$sys':command(Command,Vars,Pos, Status), Error, loop_error(Error,top)).
 
 /** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 
@@ -924,7 +909,7 @@ expand_term(Term,Expanded) :-
 % Grammar Rules expansion
 %
 '$expand_term_grammar'((A-->B), C) :-
-	prolog:'$translate_rule'((A-->B),C), !.
+	'$_grammar':translate_rule((A-->B),C), !.
 '$expand_term_grammar'(A, A).
 
 %
@@ -1035,7 +1020,8 @@ a matching catch/3, or until reaching top-level.
 	current_prolog_flag(break_level, 0 ),
 	recorded('$toplevel_hooks',H,_),
 	H \= fail, !,
-	( call(user:H) -> true ; true).
+	ignore(user:H),
+	fail.
 '$run_toplevel_hooks'.
 
 '$run_at_thread_start' :-

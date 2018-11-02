@@ -834,7 +834,7 @@ nb_setval('$if_le1vel',0).
 	erase(R),
 	G \= '$',
     strip_module(user:G, M0, G0),
-	( catch(M0:G0, Error, user:'$LoopError'(Error, top))
+	( catch(M0:G0, Error, loop_error(Error, top))
 	->
 	  true
 	;
@@ -851,7 +851,7 @@ nb_setval('$if_le1vel',0).
 '$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
-	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
+	 catch(M0:G0, Error, loop_error(Error, top))
 	->
 	 true
 	;
@@ -915,7 +915,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+    catch(load_files(user:X, [silent(true)]), Error, loop_error(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1455,7 +1455,24 @@ Similar to initialization/1, but allows for specifying when
 
 */
 initialization(G,OPT) :-
-   catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
+    must_be_of_type(callable, G0, initialization(G0,OPT)),
+    must_be_of_type(oneof([after_load, now, restore]),
+                OPT, initialization(G0,OPT)),
+    '$yap_strip_module'(G0,M,G1),
+    '$expand_term'((M:G1), G),
+    (
+	OPT == now
+    ->
+    ( catch(G,E,loop_error(E)) -> true ; format(user_error,':- ~w failed.~n',[G]) )
+    ;
+    OPT == after_load
+    ->
+    '$initialization_queue'(G)
+    ;
+    OPT == restore
+    ->
+    recordz('$call_at_restore', G, _ )
+    ),
     fail.
 initialization(_G,_OPT).
 
@@ -1641,7 +1658,8 @@ End of conditional compilation.
 	catch(once(TrueGoal), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-		once(TrueGoal).
+	'$expand_term'(Goal,TrueGoal),
+	once(TrueGoal).
 
 '$if_directive'((:- if(_))).
 '$if_directive'((:- else)).

@@ -94,7 +94,7 @@ Grammar related built-in predicates:
     Also, phrase/2-3 check their first argument.
 */
 
-prolog:'$translate_rule'(Rule, (NH :- B) ) :-
+translate_rule(Rule, (NH :- B) ) :-
     source_module( SM ),
     '$yap_strip_module'( SM:Rule,  M0, (LP-->RP) ),
     t_head(LP, NH0, NGs, S, SR, (LP-->SM:RP)),
@@ -281,7 +281,7 @@ prolog:'\\+'(A, S0, S) :-
 
 '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal) :-
 	nonvar(NT),
-    catch(prolog:'$translate_rule'(
+    catch('$_grammar':translate_rule(
           (pseudo_nt --> Mod:NT), Rule),
      	  error(Pat,ImplDep),
      	  ( \+ '$harmless_dcgexception'(Pat),
@@ -323,3 +323,4 @@ do_c_built_in(phrase(NT,Xs),Mod,_,NewGoal) :-
 /**
 @}
 */
+

@@ -307,17 +307,17 @@ be lost.
     '$$save_by'(CP),
     '$trace_query'(G, Mod, CP, G, EG),
     gated_call(
-	'$debugger_input',
+	'$debugger':d_input,
 	EG,
 	E,
-	'$continue_debugging'(E)
+	'$debugger':d_continue(E)
     ).
 
 
-'$continue_debugging'(exit) :- !, '$creep'.
-'$continue_debugging'(answer) :- !, '$creep'.
-'$continue_debugging'(fail) :- !, '$creep'.
-'$continue_debugging'(_).
+'$debugger':d_continue(exit) :- !, '$creep'.
+'$debugger':d_continue(answer) :- !, '$creep'.
+'$debugger':d_continue(fail) :- !, '$creep'.
+'$debugger':d_continue(_).
 
 
 
@@ -374,19 +374,19 @@ be lost.
   *   user_input is bound to a file.
   *
 */
-'$debugger_input' :-
+'$debugger':d_input :-
 	stream_property(_,alias(debugger_input)),
 	!.
-'$debugger_input' :-
+'$debugger':d_input :-
         S = user_input,
         stream_property(S,tty(true)),
     %    stream_property(S,input),
 	!,
 	set_stream(S,alias(debugger_input)).
-'$debugger_input' :-
+'$debugger':d_input :-
 	current_prolog_flag(unix, true ), !,
         open('/dev/tty', read, _S, [alias(debugger_input),bom(false)]).
-'$debugger_input' :-
+'$debugger':d_input :-
         current_prolog_flag(windows, true ), !,
         open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
 
@@ -469,10 +469,10 @@ be lost.
         '$debugger_expand_meta_call'(M:G, [], G1),
 	strip_module(G1, MF, NG),
 	gated_call(
-		   '$enter_trace'(GoalNumber, G, M, H),
-		   '$execute_nonstop'(NG,MF),
+		   '$sys':enter_trace(GoalNumber, G, M, H),
+		   '$debugger':execute_nonstop(NG,MF),
 		   Port,
-		   '$trace_port'(Port, GoalNumber, G, M, true, H)
+		   '$sys':trace_port(Port, GoalNumber, G, M, true, H)
                   ).
 % system_
 '$trace_goal'(G, M, GoalNumber, H) :-
@@ -483,22 +483,24 @@ be lost.
     ),
     !,
     gated_call(
-	'$enter_trace'(GoalNumber, G, M, H),
-	'$execute_nonstop'(G,M),
+	'$sys':enter_trace(GoalNumber, G, M, H),
+	'$debugger':execute_nonstop(G,M),
 	Port,
-	'$trace_port'(Port, GoalNumber, G, M, true, H)
+	'$sys':trace_port(Port, GoalNumber, G, M, true, H)
     ).
 '$trace_goal'(G, M, GoalNumber, H) :-
     gated_call(
-	'$enter_trace'(GoalNumber, G, M, H),
-	'$debug'( GoalNumber, G, M, H),
+	'$sys':enter_trace(GoalNumber, G, M, H),
+	'$sys':debug( GoalNumber, G, M, H),
 	Port,
-	'$trace_port'(Port, GoalNumber, G, M, true, H)
+	'$sys':trace_port(Port, GoalNumber, G, M, true, H)
     ).
 
+'$debugger':execute_nonstop(G,M) :-
+    '$execute_nonstop'(G,M)
 
 /**
- * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * @pred '$sys':enter_trace(+L, 0:G, +Module, +Info)
  *
  * call goal: prelims
  *
@@ -507,7 +509,7 @@ be lost.
  * @parameter _Info_ describes the goal
  *
  */
-'$enter_trace'(L, G, Module, Info) :-
+'$sys':enter_trace(L, G, Module, Info) :-
         /* get goal no.	*/
         ( var(L) ->
         '__NB_getval__'('$spy_gn',L,fail),
@@ -535,7 +537,7 @@ be lost.
         '__NB_setval__'('$spy_gn',L1).
 
 /**
- * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * @pred '$sys':enter_trace(+L, 0:G, +Module, +Info)
  *
  * call goal: setup the diferrent cases
  *  - zip, just run through
@@ -548,16 +550,16 @@ be lost.
  *
  */
 
-'$debug'(_, G, M, _H) :-
+'$sys':debug(_, G, M, _H) :-
     '__NB_getval__'('$debug_status',state(zip,_Border,Spy), fail),
     ( Spy == stop -> \+ '$pred_being_spied'(G,M) ; true ),
 	!,
 	'$execute_nonstop'( G, M ).
-'$debug'(GoalNumber, G, M, Info) :-
+'$sys':debug(GoalNumber, G, M, Info) :-
 	'$is_source'(G,M),
 	!,
 	'$trace_go'(GoalNumber, G, M, Info).
-'$debug'(GoalNumber, G, M, Info) :-
+'$sys':debug(GoalNumber, G, M, Info) :-
 	'$creep_step'(GoalNumber, G, M, Info).
 
 
@@ -598,7 +600,7 @@ be lost.
 '$retry_clause'(GoalNumber, G, Module, Info, _X) :-
     '$trace_port_'(redo, GoalNumber, G, Module, Info).
 
-'$trace_port'(Port, GoalNumber, G, Module, _CalledFromDebugger, Info) :-
+'$sys':trace_port(Port, GoalNumber, G, Module, _CalledFromDebugger, Info) :-
     '$stop_creeping'(_) ,
     current_prolog_flag(debug, true),
     '__NB_getval__'('$debug_status',state(Skip,Border,_), fail),
@@ -606,7 +608,7 @@ be lost.
     !,
     '__NB_setval__'('$debug_status', state(creep, 0, stop)),
     '$trace_port_'(Port, GoalNumber, G, Module, Info).
-'$trace_port'(_Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info).
+'$sys':trace_port(_Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info).
 
 '$trace_port_'(call, GoalNumber, G, Module, Info) :-
     '$port'(call,G,Module,GoalNumber,deterministic, Info).
