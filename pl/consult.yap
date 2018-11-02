@@ -40,21 +40,7 @@
         source_file/2,
         source_file_property/2,
         use_module/3],
-	['$add_multifile'/3,
-        '$csult'/2,
-        '$do_startup_reconsult'/1,
-        '$elif'/2,
-        '$else'/1,
-        '$endif'/1,
-        '$if'/2,
-        '$include'/2,
-        '$initialization'/1,
-        '$initialization'/2,
-        '$lf_opt'/3,
-        '$load_files'/3,
-        '$require'/2,
-        '$set_encoding'/1,
-        '$use_module'/3]).
+	['$initialization'/2]).
 
 :- use_system_module( '$_absf', ['$full_filename'/2]).
 
@@ -1650,12 +1636,12 @@ End of conditional compilation.
 	nb_setval('$if_skip_mode',OldMode).
 
 
-'$if_call'(G) :-
-	catch('$eval_if'(G), E, (print_message(error, E), fail)).
+'$if_call'(Goal) :-
+	'$expand_term'(Goal,TrueGoal),
+	catch(once(TrueGoal), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
-	'$expand_term'(Goal,TrueGoal),
-	once(TrueGoal).
+		once(TrueGoal).
 
 '$if_directive'((:- if(_))).
 '$if_directive'((:- else)).

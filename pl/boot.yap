@@ -50,30 +50,7 @@ private(_).
         (not)/1,
         repeat/0,
         throw/1,
-        true/0], ['$$compile'/4,
-        '$call'/4,
-        '$catch'/3,
-        '$check_callable'/2,
-        '$check_head_and_body'/4,
-        '$check_if_reconsulted'/2,
-        '$clear_reconsulting'/0,
-        '$command'/4,
-        '$cut_by'/1,
-        '$disable_debugging'/0,
-        '$do_live'/0,
-        '$'/0,
-        '$find_goal_definition'/4,
-        '$head_and_body'/3,
-        '$inform_as_reconsulted'/2,
-        '$init_system'/0,
-        '$init_win_graphics'/0,
-        '$loop'/2,
-        '$meta_call'/2,
-        '$prompt_alternatives_on'/1,
-        '$run_at_thread_start'/0,
-        '$system_catch'/4,
-        '$undefp'/1,
-		  '$version'/0]).
+        true/0], []).
 
 :- use_system_module( '$_absf', ['$system_library_directories'/2]).
 
@@ -109,6 +86,11 @@ private(_).
         '$iso_check_goal'/2]).
 
 % be careful here not to generate an undefined exception..
+
+'$setup_call_catcher_cleanup'(Setup, Goal, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'('$h'(Setup)),
+    '$gated_call'( false , '$h'(Goal), Catcher, '$h'(Cleanup))  .
+
 
 print_message(L,E) :-
 	'$number_of_clauses'(print_message(L,E), prolog_complete, 1),

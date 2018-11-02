@@ -780,7 +780,7 @@ be lost.
 	skip( debugger_input, 10),
 	break,
 	fail.
-'$action'('A',_,_,_,_,_) :- !,			% 'b		break
+'$action'('A',_,_,_,_,_) :- !,			% A		ancestors
 	skip( debugger_input, 10),
 	'$stack_dump',
 	fail.

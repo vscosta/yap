@@ -125,11 +125,13 @@
 
 
 '$exec_directive'(multifile(D), _, M, _, _) :-
-	'$system_catch'('$multifile'(D, M), M,
+    catch(multifile(M:D),
 	      Error,
-	      user:'$LoopError'(Error, top)).
+	      loop_Error(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
-	'$discontiguous'(D,M).
+    catch(discontiguous(M:D),
+	      Error,
+	      loop_Error(Error, top)).
 /** @pred initialization
 
 
