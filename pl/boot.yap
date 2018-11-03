@@ -50,7 +50,30 @@ private(_).
         (not)/1,
         repeat/0,
         throw/1,
-        true/0], []).
+        true/0], ['$$compile'/4,
+        '$call'/4,
+        '$catch'/3,
+        '$check_callable'/2,
+        '$check_head_and_body'/4,
+        '$check_if_reconsulted'/2,
+        '$clear_reconsulting'/0,
+        '$command'/4,
+        '$cut_by'/1,
+        '$disable_debugging'/0,
+        '$do_live'/0,
+        '$'/0,
+        '$find_goal_definition'/4,
+        '$head_and_body'/3,
+        '$inform_as_reconsulted'/2,
+        '$init_system'/0,
+        '$init_win_graphics'/0,
+        '$loop'/2,
+        '$meta_call'/2,
+        '$prompt_alternatives_on'/1,
+        '$run_at_thread_start'/0,
+        '$system_catch'/4,
+        '$undefp'/1,
+		  '$version'/0]).
 
 :- use_system_module( '$_absf', ['$system_library_directories'/2]).
 
@@ -189,11 +212,11 @@ print_message(L,E) :-
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
-'$sys':command(C,VL,Pos,Con) :-
+'$command'(C,VL,Pos,Con) :-
 	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
 	 '$yap_strip_module'(C, EM, EG),
    '$execute_command'(EG,EM,VL,Pos,Con,_Source).
-'$sys':command(C,VL,Pos,Con) :-
+'$command'(C,VL,Pos,Con) :-
 	( (Con = top ; var(C) ; C = [_|_])  ->
 	 '$yap_strip_module'(C, EM, EG),
 	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;

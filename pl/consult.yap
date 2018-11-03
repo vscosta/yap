@@ -40,7 +40,21 @@
         source_file/2,
         source_file_property/2,
         use_module/3],
-	['$initialization'/2]).
+	['$add_multifile'/3,
+        '$csult'/2,
+        '$do_startup_reconsult'/1,
+        '$elif'/2,
+        '$else'/1,
+        '$endif'/1,
+        '$if'/2,
+        '$include'/2,
+        '$initialization'/1,
+        '$initialization'/2,
+        '$lf_opt'/3,
+        '$load_files'/3,
+        '$require'/2,
+        '$set_encoding'/1,
+        '$use_module'/3]).
 
 :- use_system_module( '$_absf', ['$full_filename'/2]).
 
@@ -834,7 +848,7 @@ nb_setval('$if_le1vel',0).
 	erase(R),
 	G \= '$',
     strip_module(user:G, M0, G0),
-	( catch(M0:G0, Error, error_handler(Error, top))
+	( catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	  true
 	;
@@ -851,7 +865,7 @@ nb_setval('$if_le1vel',0).
 '$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
-	 catch(M0:G0, Error, error_handler(Error, top))
+	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
 	->
 	 true
 	;
@@ -915,7 +929,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-    catch(load_files(user:X, [silent(true)]), Error, error_handler(Error, consult)),
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1455,24 +1469,7 @@ Similar to initialization/1, but allows for specifying when
 
 */
 initialization(G,OPT) :-
-    must_be_of_type(callable, G0, initialization(G0,OPT)),
-    must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G0,OPT)),
-    '$yap_strip_module'(G0,M,G1),
-    '$expand_term'((M:G1), G),
-    (
-	OPT == now
-    ->
-    ( catch(G,E,error_handler(E)) -> true ; format(user_error,':- ~w failed.~n',[G]) )
-    ;
-    OPT == after_load
-    ->
-    '$initialization_queue'(G)
-    ;
-    OPT == restore
-    ->
-    recordz('$call_at_restore', G, _ )
-    ),
+   catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
     fail.
 initialization(_G,_OPT).
 
@@ -1653,9 +1650,8 @@ End of conditional compilation.
 	nb_setval('$if_skip_mode',OldMode).
 
 
-'$if_call'(Goal) :-
-	'$expand_term'(Goal,TrueGoal),
-	catch(once(TrueGoal), E, (print_message(error, E), fail)).
+'$if_call'(G) :-
+	catch('$eval_if'(G), E, (print_message(error, E), fail)).
 
 '$eval_if'(Goal) :-
 	'$expand_term'(Goal,TrueGoal),

@@ -390,19 +390,19 @@ version(T) :-
 '$set_toplevel_hook'(_).
 
 query_to_answer(G, V, Status, Bindings) :-
-	gated_call( true, (G,'$sys':delayed_goals(G, V, Vs, LGs, _DCP)), Status, '$sys':answer( Status, LGs, Vs, Bindings) ).
+	gated_call( true, (G,'$delayed_goals'(G, V, Vs, LGs, _DCP)), Status, '$answer'( Status, LGs, Vs, Bindings) ).
 
-  '$sys':answer( exit, LGs, Vs, Bindings) :-
+  '$answer'( exit, LGs, Vs, Bindings) :-
       !,
       '$process_answer'(Vs, LGs, Bindings).
-      '$sys':answer( answer, LGs, Vs, Bindings) :-
+      '$answer'( answer, LGs, Vs, Bindings) :-
           !,
           '$process_answer'(Vs, LGs, Bindings).
-'$sys':answer(!, _, _, _).
-'$sys':answer(fail,_,_,_).
-'$sys':answer(exception(E),_,_,_) :-
+'$answer'(!, _, _, _).
+'$answer'(fail,_,_,_).
+'$answer'(exception(E),_,_,_) :-
         '$LoopError'(E,error).
-'$sys':answer(external_exception(_),_,_,_).
+'$answer'(external_exception(_),_,_,_).
 
 
 %% @}
@@ -471,13 +471,14 @@ b_getval(GlobalVariable, Val) :-
 	it saves the importante data about current streams and
 	debugger state */
 
-'$debug_state'(state(Trace, Debug, State, SPY_GN, GList)) :-
+'$debug_state'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
 	'$init_debugger',
 	nb_getval('$trace',Trace),
 	nb_getval('$debug_state',State),
 	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList).
+	b_getval('$spy_glist',GList),
+	b_getval('$spy_depth',GDList).
 
 
 '$debug_stop' :-
@@ -485,15 +486,17 @@ b_getval(GlobalVariable, Val) :-
 	b_setval('$trace',off),
 	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
-	b_setval('$spy_gdlist',[]).
+	b_setval('$spy_gdlist',[]),
+	'$disable_debugging'.
 
-
-'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList)) :-
+'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
 	b_setval('$spy_glist',GList),
+	b_setval('$spy_gdlist',GDList),
 	b_setval('$spy_gn',SPY_GN),
 	set_prolog_flag(debug, Debug),
-	nb_setval('$debug_state',State),
-	b_setval('$trace',Trace).
+    nb_setval('$debug_state',State),
+	b_setval('$trace',Trace),
+	'$enable_debugging'.
 
 /** @pred  break
 
@@ -512,34 +515,20 @@ debugging.
 
 */
 break :-
-    '$e_setup_call_cleanup'(
-	prolog:'$enter_break'(Dstate,StdStreams,BL,NBL),
-	prolog:'$do_break'(NBL),
-	prolog:'$leave_break'(Dstate,StdStreams,BL)
-    ).	
-
-'$enter_break'(DState,streams(InpStream,OutStream,ErrStream),BL,NBL),
         '$debug_state'(DState),
+        '$debug_start',
 	'$break'( true ),
-	yap_flag( user_input, InpStream ),
-	yap_flag( user_output, OutStream ),
-	yap_flag( user_error, ErrStream ),
+	current_output(OutStream), current_input(InpStream),
 	current_prolog_flag(break_level, BL ),
         NBL is BL+1,
-	set_prolog_flag(break_level, NBL ).
-
-
-'$do_break'(NBL) :-
-    format(user_error, '% Break (level ~w)~n', [NBL]),
+	set_prolog_flag(break_level, NBL ),
+	format(user_error, '% Break (level ~w)~n', [NBL]),
 	'$do_live',
-	!.
-
-'$leave_break'(DState,streams(InpStream,OutStream,ErrStream),BL) :-
+	!,
 	set_value('$live','$true'),
         '$debug_restore'(DState),
-	yap_flag( user_input, InpStream ),
-	yap_flag( user_output, OutStream ),
-	yap_flag( user_error, ErrStream ),
+	set_input(InpStream),
+	set_output(OutStream),
 	set_prolog_flag(break_level, BL ),
 	'$break'( false ).
 
@@ -599,7 +588,7 @@ halt(X) :-
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
 	atom_to_term(GA, G, _),
-	catch(once(Module:G), Error,error_handler(Error)).
+	catch(once(Module:G), Error,user:'$Error'(Error)).
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'
 '$add_dot_to_atom_goal'([0'.],[0'.]) :- !.

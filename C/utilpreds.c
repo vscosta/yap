@@ -3002,9 +3002,9 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
 	CELL *pt2 = pt0;
 	while(IsVarTerm(*pt2))
 	  pt2 = (CELL *)(*pt2);
-	HR[1] = AbsPair(HR+2);
+	HR[0] = AbsPair(HR+2);
 	HR += 2;
-	HR[-2] = (CELL)pt2;
+	HR[-1] = (CELL)pt2;
 	*pt2 = TermRefoundVar;
       }
       continue;
@@ -3035,8 +3035,8 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
   clean_tr(TR0 PASS_REGS);
   if (HR != InitialH) {
     /* close the list */
-    RESET_VARIABLE(HR-1);
-    Yap_unify((CELL)(HR-1),ARG2);
+    RESET_VARIABLE(HR-2);
+    Yap_unify((CELL)(HR-2),ARG2);
     return output;
   } else {
     return ARG2;
@@ -3067,7 +3067,7 @@ p_non_singletons_in_term( USES_REGS1 )	/* non_singletons in term t		 */
   while (TRUE) {
     t = Deref(ARG1);
     if (IsVarTerm(t)) {
-      out = MkPairTerm(t,ARG2);
+      out = ARG2;
     }  else if (IsPrimitiveTerm(t)) {
       out = ARG2;
     } else if (IsPairTerm(t)) {

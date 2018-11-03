@@ -132,11 +132,11 @@ volatile(P) :-
 	'$current_module'(Module),
 	'$run_at_thread_start',
 	% always finish with a throw to make sure we clean stacks.
-	catch((Module:G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Exception,'$threads´:close_thread'(Exception,Detached)),
+	'$system_catch'((G -> throw('$thread_finished'(true)) ; throw('$thread_finished'(false))),Module,Exception,'$close_thread'(Exception,Detached)),
 	% force backtracking and handling exceptions
 	fail.
 
-'$threads´:close_thread'(Status, _Detached) :-
+'$close_thread'(Status, _Detached) :-
 	'$thread_zombie_self'(Id0), !,
 	'$record_thread_status'(Id0,Status),
 	'$run_at_thread_exit'(Id0),

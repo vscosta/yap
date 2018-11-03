@@ -113,7 +113,7 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
  * @return              did we fiid it?
  */
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
-  // we have a creep requesr waiting
+   // we have a creep requesr waiting
 
   ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
@@ -1009,7 +1009,6 @@ static bool complete_ge(bool out, Term omod, yhandle_t sl, bool creeping) {
 }
 
 static Int _user_expand_goal(USES_REGS1) {
-  BACKUP_MACHINE_REGS();
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
@@ -1056,15 +1055,12 @@ static Int _user_expand_goal(USES_REGS1) {
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL PASS_REGS, false)) {
-    RECOVER_MACHINE_REGS();
     return complete_ge(true, omod, sl, creeping);
   }
-   RECOVER_MACHINE_REGS();
   return complete_ge(false, omod, sl, creeping);
 }
 
 static Int do_term_expansion(USES_REGS1) {
-  BACKUP_MACHINE_REGS();
   yhandle_t sl = Yap_StartSlots();
   Int creeping = Yap_get_signal(YAP_CREEP_SIGNAL);
   PredEntry *pe;
@@ -1079,7 +1075,6 @@ static Int do_term_expansion(USES_REGS1) {
            Yap_GetPredPropByFunc(FunctorTermExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-   RECOVER_MACHINE_REGS();
     return complete_ge(true, omod, sl, creeping);
   }
   /* CurMod:term_expansion(A,B) */
@@ -1088,7 +1083,6 @@ static Int do_term_expansion(USES_REGS1) {
       (pe = RepPredProp(Yap_GetPredPropByFunc(FunctorTermExpansion, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-   RECOVER_MACHINE_REGS();
     return complete_ge(true, omod, sl, creeping);
   }
   /* system:term_expansion(A,B) */
@@ -1100,10 +1094,8 @@ static Int do_term_expansion(USES_REGS1) {
            Yap_GetPredPropByFunc(FunctorTermExpansion, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
-   RECOVER_MACHINE_REGS();
     return complete_ge(true, omod, sl, creeping);
   }
-   RECOVER_MACHINE_REGS();
   return complete_ge(false, omod, sl, creeping);
 }
 
@@ -1667,6 +1659,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
   yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
+
   saved_p = P;
   saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
