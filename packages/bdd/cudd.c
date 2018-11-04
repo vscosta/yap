@@ -41,7 +41,6 @@ CUDD will generate better/faster code.
 #include <stdio.h>
 
 #include "YapInterface.h"
-#include "config.h"
 #include "cudd_config.h"
 
 #if HAVE_STRING_H
@@ -811,7 +810,7 @@ static YAP_Bool p_cudd_print_with_names(void) {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
   const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
-  char ** namesp;
+  char **namesp;
   YAP_Term names = YAP_ARG4;
   FILE *f;
   YAP_Int len;
@@ -850,7 +849,7 @@ static YAP_Bool p_cudd_print_with_names(void) {
     names = YAP_TailOfTerm(names);
     namesp[i++] = f;
   }
-  Cudd_DumpDot(manager, 1, &n0, (const char * const*)namesp, NULL, f);
+  Cudd_DumpDot(manager, 1, &n0, (const char *const *)namesp, NULL, f);
   if (f != stdout && f != stderr)
     fclose(f);
   while (i > 0) {
@@ -863,8 +862,8 @@ static YAP_Bool p_cudd_print_with_names(void) {
 
 static YAP_Bool p_cudd_die(void) {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
-  //Cudd_FreeTree(manager);
-  //cuddFreeTable(manager);
+  // Cudd_FreeTree(manager);
+  // cuddFreeTable(manager);
   Cudd_CheckZeroRef(manager);
   Cudd_Quit(manager);
   return TRUE;

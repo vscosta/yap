@@ -13,8 +13,8 @@
  *									 *
  *************************************************************************/
 
+#include "YapConfig.h"
 #include "YapInterface.h"
-#include "config.h"
 #include <math.h>
 #if defined(__MINGW32__) || _MSC_VER
 #include <windows.h>
@@ -1281,7 +1281,7 @@ static YAP_Bool matrix_sum(void) {
           y; // Alas, sum is big, y small, so low-order digits of y are lost.
       c = (t - sum) - y; // (t - sum) cancels the high-order part of y;
                          // subtracting y recovers negative (low part of y)
-      sum = t;            // Algebraically, c should always be zero. Beware
+      sum = t;           // Algebraically, c should always be zero. Beware
                          // overly-aggressive optimizing compilers!
     }
     tf = YAP_MkFloatTerm(sum);

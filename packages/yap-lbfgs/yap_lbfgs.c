@@ -68,9 +68,9 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   }
   YAP_Term o;
   if (YAP_IsIntTerm((o = YAP_GetFromSlot(sl))))
-  rc = YAP_IntOfTerm(o);
+    rc = YAP_IntOfTerm(o);
   else
-  rc = YAP_FloatOfTerm(o);
+    rc = YAP_FloatOfTerm(o);
   YAP_RecoverSlots(1, sl);
   return rc;
 }
@@ -350,7 +350,7 @@ static YAP_Bool lbfgs_release(void) {
   /* return FALSE; */
 }
 
-static lbfgs_parameter_t * get_params(YAP_Term t) {
+static lbfgs_parameter_t *get_params(YAP_Term t) {
   YAP_Int ar = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t));
   YAP_Term arg = YAP_ArgOfTerm(ar, t);
   return (lbfgs_parameter_t *)YAP_IntOfTerm(arg);
@@ -515,7 +515,6 @@ static YAP_Bool lbfgs_set_parameter(void) {
 
   return TRUE;
 }
-
 
 /** @pred lbfgs_get_parameter(+Name,-Value)</h3>
 Get the current Value for Name
