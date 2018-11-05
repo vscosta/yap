@@ -33,7 +33,6 @@
         remove_from_path/1], ['$full_filename'/2,
         '$system_library_directories'/2]).
 
-
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).

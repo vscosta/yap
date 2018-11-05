@@ -556,7 +556,7 @@ add_to_list( Term inp, Term v, Term t PASS_REGS)
   ta[1] = t;
   return MkPairTerm(Yap_MkApplTerm( FunctorEq, 2, ta ), inp);
 }
-                                                                                                                                       
+
 
 static int
 break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Term vin,CELL *HLow USES_REGS)
@@ -784,7 +784,7 @@ Yap_BreakRational(Term inp, UInt arity, Term *to, Term ti USES_REGS) {
     HR[0] = (CELL)f;
     arity = ArityOfFunctor(f);
     HR += 1+arity;
-    
+
    {
       Int res;
       if ((res = break_rationals_complex_term(ap, ap+(arity), HB0+1, to, ti, HB0 PASS_REGS)) < 0) {
@@ -989,7 +989,7 @@ Yap_BreakTerm(Term inp, UInt arity, Term *to, Term ti USES_REGS) {
   }
 }
 
- 
+
 static Int
 p_break_rational( USES_REGS1 )
 {
@@ -2013,7 +2013,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
 	goto aux_overflow;
       }
 #ifdef RATIONAL_TREES
-      
+
 	to_visit->beg = pt0;
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
@@ -4874,19 +4874,11 @@ loop:
 	if (to_visit + 32 >= to_visit_max) {
 	  goto aux_overflow;
 	}
-#ifdef RATIONAL_TREES
 	to_visit->beg = pt0;
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
 	*pt0 = TermNil;
-#else
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit += 2;
-	}
-#endif
 	pt0 = RepPair(d0) - 1;
 	pt0_end = RepPair(d0) + 1;
       } else if (IsApplTerm(d0)) {
@@ -4906,14 +4898,11 @@ loop:
       if (to_visit + 32 >= to_visit_max) {
 	goto aux_overflow;
       }
-#ifdef RATIONAL_TREES
-#else
 	to_visit->beg = pt0;
 	to_visit->end = pt0_end;
 	to_visit->oval = *pt0;
 	to_visit ++;
 	*pt0 = TermNil;
-#endif
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
