@@ -50,7 +50,7 @@ static char sccsid[] = "@(#)regcomp.c	8.5 (Berkeley) 3/20/94";
 #endif /* LIBC_SCCS and not lint */
 
 #include "YapInterface.h"
-#include "config.h"
+
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif

@@ -12,8 +12,8 @@
 #include <string>
 #include <vector>
 
-extern "C"{
-#include "config.h"
+extern "C" {
+#include "YapConfig.h"
 }
 
 #if HAVE_GMPXX_H
@@ -41,16 +41,13 @@ extern "C"{
 
 extern "C" {
 
-
-
 #include <stdlib.h>
 
 // Bad export from Python
 
-#include <config.h>
+#include <YapConfig.h>
 
 #include <stddef.h>
-
 
 #if YAP_PYTHON
 
@@ -102,22 +99,19 @@ X_API extern void YAP_UserCPredicate(const char *, YAP_UserCPred,
 X_API extern void YAP_UserCPredicateWithArgs(const char *, YAP_UserCPred,
                                              YAP_Arity, YAP_Term);
 
-X_API extern void YAP_UserBackCPredicate(const char *name,
-                                         YAP_UserCPred init,
-                                         YAP_UserCPred cont,
-                                         YAP_Arity arity, YAP_Arity extra);
+X_API extern void YAP_UserBackCPredicate(const char *name, YAP_UserCPred init,
+                                         YAP_UserCPred cont, YAP_Arity arity,
+                                         YAP_Arity extra);
 
 X_API extern void YAP_UserBackCutCPredicate(const char *name,
-                                         YAP_UserCPred init,
+                                            YAP_UserCPred init,
                                             YAP_UserCPred cont,
-                                            YAP_UserCPred cut,
-                                            YAP_Arity arity, YAP_Arity extra);
+                                            YAP_UserCPred cut, YAP_Arity arity,
+                                            YAP_Arity extra);
 
 X_API extern YAP_Term YAP_ReadBuffer(const char *s, YAP_Term *tp);
 
 extern YAP_Term YAP_MkcharPTerm(char *s);
-
-
 }
 
 class YAPEngine;
@@ -129,7 +123,6 @@ class YAPQuery;
 class YAPModule;
 class YAPError;
 class YAPPredicate;
-
 
 #include "yapa.hh"
 

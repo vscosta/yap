@@ -13,7 +13,7 @@
  *
  */
 
-#include "config.h"
+#include "YapConfig.h"
 
 #if _WIN32 || defined(__MINGW32__)
 #if !defined(MINGW_HAS_SECURE_API)
@@ -22,10 +22,10 @@
 //#undef _POSIX_
 #endif
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 
 // Win32 InputOutput Support
@@ -45,7 +45,6 @@
 #define BUF_SIZE MAX_PATH
 #endif
 #endif
-
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -120,7 +119,6 @@
 
 /* windows.h does not like absmi.h, this
    should fix it for now */
-#include <math.h>
 #include <math.h>
 #if HAVE_TIME_H
 #include <time.h>
