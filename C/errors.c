@@ -632,7 +632,7 @@ void Yap_ThrowError__(const char *file, const char *function, int lineno,
     // fprintf(stderr, "warning: ");
     Yap_Error__(true, file, function, lineno, type, where, tmpbuf);
   } else {
-    Yap_Error__(true, file, function, lineno, type, where);
+    Yap_Error__(true, file, function, lineno, type, where, NULL);
   }
   if (LOCAL_RestartEnv && !LOCAL_delay) {
     Yap_RestartYap(5);
