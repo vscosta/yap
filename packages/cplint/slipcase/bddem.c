@@ -9,7 +9,6 @@ for the relative license.
 
 */
 
-#include "config.h"
 #include "cudd_config.h"
 #include <math.h>
 #include <stdio.h>
@@ -366,7 +365,7 @@ static YAP_Bool add_var(void) {
   probTerm = arg2;
   p0 = 1;
   for (i = 0; i < v->nVal - 1; i++) {
-    //node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
+    // node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
     p = YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
     bVar2mVar_ex[ex][boolVars_ex[ex] + i] = nVars_ex[ex] - 1;
     probs_ex[ex][boolVars_ex[ex] + i] = p / p0;

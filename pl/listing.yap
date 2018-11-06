@@ -33,10 +33,10 @@
 
 /**
   * @defgroup listingGroup  List predicates in a module
-  * 
+  *
   * @ingroup builtins
   *
-  * @{ 
+  * @{
 */
 
 
@@ -144,7 +144,7 @@ listing(Stream, [MV|MVs]) :- !,
 '$listing'(_,_,_,_).
 
 '$funcspec'(Name/Arity,Name,Arity) :- !, atom(Name).
-'$funcspec'(Name,Name,_) :- atom(Name), !.
+'$funcspec'(Name,Name,0) :- atom(Name), !.
 '$funcspec'(Name,_,_) :-
 	'$do_error'(domain_error(predicate_spec,Name),listing(Name)).
 
@@ -216,7 +216,7 @@ listing(Stream, [MV|MVs]) :- !,
 	'$clause'(Pred, M, Body, _),
 	'$current_module'(Mod),
 	( M \= Mod -> H = M:Pred ; H = Pred ),
-	'$portray_clause'(Stream,(H:-Body)),
+	portray_clause(Stream,(H:-Body)),
         fail.
 
 /** @pred  portray_clause(+ _S_,+ _C_)
@@ -225,7 +225,7 @@ Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
     copy_term_nat(Clause, CopiedClause),
-	'$beautify_vs'(CopiedClause),    
+	'$beautify_vs'(CopiedClause),
 	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
@@ -318,6 +318,7 @@ portray_clause(Clause) :-
 
 '$beautify_vs'(T) :-
     '$non_singletons_in_term'(T,[],Fs),
+writeln(Fs),
     '$vv_transform'(Fs,1),
     term_variables(T, NFs),
     '$v_transform'(NFs).

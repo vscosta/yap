@@ -19,7 +19,7 @@ extern "C" {
 
 //=== includes ===============================================================
 #ifdef YAP_KERNEL
-#include "config.h"
+#include "YapConfig.h"
 
 #ifdef __cplusplus
 }
@@ -40,8 +40,8 @@ extern "C" {
 #include "YapInterface.h"
 #else
 #if _YAP_NOT_INSTALLED_
+#include <YapConfig.h>
 #include <YapInterface.h>
-#include <config.h>
 #else
 #include <Yap/YapInterface.h>
 #endif

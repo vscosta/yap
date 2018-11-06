@@ -31,6 +31,8 @@ The following routines export the YAP internals and architecture.
 
 #define _yap_c_interface_h 1
 
+#include "YapConfig.h"
+
 #define __YAP_PROLOG__ 1
 
 #ifndef YAPVERSION

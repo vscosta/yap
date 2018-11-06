@@ -113,7 +113,7 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
  * @return              did we fiid it?
  */
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
-  // we have a creep requesr waiting
+   // we have a creep requesr waiting
 
   ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */

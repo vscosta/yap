@@ -957,15 +957,14 @@ static void undef_goal(USES_REGS1) {
   } else {
     d0 = AbsAppl(HR);
     *HR++ = (CELL)pe->FunctorOfPred;
-    CELL *ip=HR, *imax = HR+pe->ArityOfPE;
-    HR = imax;
-    BEGP(pt1);
-    pt1 = XREGS + 1;
-    for (; ip < imax; ip++) {
+    CELL *ip=HR;
+    UInt imax = pe->ArityOfPE;
+    HR += imax;
+    UInt i = 1;
+    for (; i <= imax; ip++, i++) {
       BEGD(d1);
       BEGP(pt0);
-      pt0 = pt1++;
-      d1 = *pt0;
+      d1 = XREGS[i];
       deref_head(d1, undef_unk);
     undef_nonvar:
       /* just copy it to the heap */
@@ -973,19 +972,17 @@ static void undef_goal(USES_REGS1) {
       continue;
 
       derefa_body(d1, pt0, undef_unk, undef_nonvar);
-      if (pt0 <= HR) {
+      if (pt0 < HR) {
         /* variable is safe */
         *ip = (CELL)pt0;
       } else {
         /* bind it, in case it is a local variable */
-        d1 = Unsigned(ip);
         RESET_VARIABLE(ip);
-        Bind_Local(pt0, d1);
+        Bind_Local(pt0, Unsigned(ip));
       }
       ENDP(pt0);
       ENDD(d1);
     }
-    ENDP(pt1);
   }
   ARG1 = AbsPair(HR);
   HR[1] = d0;
