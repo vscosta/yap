@@ -502,7 +502,7 @@ class YAPCompleter(Completer):
         self.matches = []
         prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
         return text, self.matches
-        
+
 
 
 
@@ -602,12 +602,12 @@ class YAPRun(InteractiveShell):
             return self.result
 
 
- 
+
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
                   shell_futures=True):
-         """Run a complete IPython cell.
--
-       Parameters
+        """Run a complete IPython cell.
+
+        Parameters
                   ----------
                   raw_cell : str
                   The code (including IPython code such as
@@ -630,9 +630,8 @@ class YAPRun(InteractiveShell):
         Returns
 
                    -------
-
-`self.result : :class:`Executionself.result`
-                   """
+            `self.result : :class:`Executionself.result`
+        """
 
         # construct a query from a one-line string
         # q is opaque to Python
@@ -646,7 +645,6 @@ class YAPRun(InteractiveShell):
         # ask = True
         # launch the query
         cell = raw_cell  # cell has to exist so it can be stored/logged
-
 
         info = interactiveshell.ExecutionInfo(
             raw_cell, store_history, silent, shell_futures)
@@ -738,7 +736,7 @@ class YAPRun(InteractiveShell):
                 #     trace=1,
                 #     count=0)
                 #
-                
+
                 # def f(self, cell, state):
                 #     state = self.jupyter_query( cell )
 
@@ -830,5 +828,5 @@ class YAPRun(InteractiveShell):
         (query, _,loop, sols) = self.clean_end(query)
         return (program, query, loop, sols)
 
-# global
-#globals = {}
+    # global
+    #globals = {}
