@@ -2643,7 +2643,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
-  if (HR != InitialH+1) {
+  if (HR != InitialH) {
     InitialH[0] = (CELL)Yap_MkFunctor(AtomDollar, (HR-InitialH)-1);
     return AbsAppl(InitialH);
   } else {
@@ -2983,24 +2983,28 @@ static Term non_singletons_in_complex_term(register CELL *pt0, register CELL *pt
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-#ifdef RATIONAL_TREES
     to_visit -= 3;
     pt0 = to_visit[0];
     pt0_end = to_visit[1];
     *pt0 = (CELL)to_visit[2];
-#else
-    to_visit -= 2;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-#endif
     goto loop;
   }
 
   clean_tr(TR0 PASS_REGS);
   if (HR != InitialH) {
-    /* close the list */
-    RESET_VARIABLE(HR-2);
-    Yap_unify((CELL)(HR-2),ARG2);
+		CELL *pt0 = InitialH, *pt1 = pt0;
+		while (pt0 < InitialH) {
+			if(Deref(pt0[0]) == TermFoundVar) {
+				pt1[0] = pt0[0];
+				pt1[1] = AbsAppl(pt1+2);
+				pt1 += 2;
+			}
+			pt0 += 2;
+		}
+	}
+  if (HR != InitialH) {
+		    /* close the list */
+    HR[-1] = Deref(ARG2);
     return output;
   } else {
     return ARG2;

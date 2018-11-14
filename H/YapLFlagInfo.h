@@ -1,5 +1,3 @@
-
-
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -28,14 +26,13 @@
 
 START_LOCAL_FLAGS
 
-/** + `autoload`: set the system to look for undefined procedures */
+/**< set the system to look for undefined procedures */
 YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
 
-/** + `read-only flag, that tells if Prolog is in an inner top-level */
+/**<`read-only flag, that tells if Prolog is in an inner top-level */
     YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0", NULL),
 
- /** + `call_counting`
-
+ /**<
                      Predicates compiled with this flag set maintain a counter
                on the numbers of proceduree calls and of retries. These counters
                are  decreasing counters, and they can be used as timers. Three
@@ -55,7 +52,7 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
   YAP_FLAG(CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true",
              NULL),
 
-/** + support for coding systens, YAP relies on UTF-8 internally.
+/**< support for coding systens, YAP relies on UTF-8 internally.
  */
     YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
 
@@ -63,28 +60,25 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
 
  */
   YAP_FLAG(FILEERRORS_FLAG, "fileerrors", true, booleanFlag, "true",
-             NULL), /** +  `fileerrors`
+             NULL),
 
-                 If `on` `fileerrors` is `on`, if `off` (default)
-                 `fileerrors` is disabled.
-                 */
- /** +  `language_mode`
+              /**<
 
-                 wweter native mode or trying to emulate a different
+                 whether native mode or trying to emulate a different
                  Prolog.
                  */
   YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
              NULL),
     YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
-             "true", NULL), /** +  `stack_dump_on_error `
+             "true", NULL),
+             /**<`
 
-If `true` show a stack dump when YAP finds an error. The default is
-`off`.
-*/
-    YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
+        If `true` show a stack dump when YAP finds an error. The default is
+        `off`.
+        */
+        YAP_FLAG(STREAM_TYPE_CHECK_FLAG, "stream_type_check", true, isatom, "loose",
              NULL),
-    YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
-             NULL), /** +  `syntax_errors`
+             /** +  `syntax_errors`
 
 Control action to be taken after syntax errors while executing read/1,
 `read/2`, or `read_term/3`:
@@ -97,16 +91,18 @@ Report the syntax error and generate an error (default).
 + `quiet`
 Just fail
 */
-    YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
-             typein), /** +  `typein_module `
+    YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
+             NULL),
+             /**<
+           If bound, set the current working or type-in module to the argument,
+           which must be an atom. If unbound, unify the argument with the current
+           working module.
 
-If bound, set the current working or type-in module to the argument,
-which must be an atom. If unbound, unify the argument with the current
-working module.
-
-*/
+           */
+             YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
+             typein),
     YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",
-             set_error_stream), /** +  `user_error1`
+             set_error_stream), /**<
 
 If the second argument is bound to a stream, set user_error to
 this stream. If the second argument is unbound, unify the argument with
@@ -140,7 +136,7 @@ automatically redirects the user_error alias to the original
     YAP_FLAG(USER_INPUT_FLAG, "user_input", true, stream, "user_input",
              set_input_stream),
     YAP_FLAG(USER_OUTPUT_FLAG, "user_output", true, stream, "user_output",
-             set_output_stream),
+             set_output_stream)
 
     END_LOCAL_FLAGS
 

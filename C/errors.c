@@ -348,9 +348,10 @@ bool Yap_PrintWarning(Term twarning) {
   }
   LOCAL_PrologMode |= InErrorMode;
   if (pred->OpcodeOfPred == UNDEF_OPCODE || pred->OpcodeOfPred == FAIL_OPCODE) {
-    fprintf(stderr, "warning message:\n");
-    Yap_DebugPlWrite(twarning);
-    fprintf(stderr, "\n");
+    fprintf(stderr, "%s:%ld/* d:%d warning */:\n",
+	    LOCAL_ActiveError->errorFile,
+	    LOCAL_ActiveError->errorLine, 0 );
+    Yap_DebugPlWriteln(twarning);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     CurrentModule = cmod;
@@ -1050,7 +1051,7 @@ static Int query_exception(USES_REGS1) {
   if (!IsAddressTerm(Deref(ARG2)))
     return false;
   yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
-  //if (IsVarTerm(t3)) {
+  // if (IsVarTerm(t3)) {
     Term rc = queryErr(query, y);
     //      Yap_DebugPlWriteln(rc);
     return Yap_unify(ARG3, rc);
@@ -1058,6 +1059,26 @@ static Int query_exception(USES_REGS1) {
     // return setErr(query, y, t3);
     // }
 }
+
+static Int set_exception(USES_REGS1) {
+  const char *query = NULL;
+  Term t;
+
+  if (IsAtomTerm((t = Deref(ARG1))))
+    query = RepAtom(AtomOfTerm(t))->StrOfAE;
+  if (IsStringTerm(t))
+    query = StringOfTerm(t);
+  if (!IsAddressTerm(Deref(ARG2)))
+    return false;
+  yap_error_descriptor_t *y = AddressOfTerm(Deref(ARG2));
+  Term t3 = Deref(ARG3);
+  if (IsVarTerm(t3)) {
+    return false;
+  } else {
+    return setErr(query, y, t3);
+  }
+}
+
 
 
 static Int drop_exception(USES_REGS1) {
@@ -1270,6 +1291,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);
+  Yap_InitCPred("$set_exception", 3, set_exception, 0);
   Yap_InitCPred("$read_exception", 2, read_exception, 0);
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
