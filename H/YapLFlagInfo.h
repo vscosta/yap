@@ -101,8 +101,7 @@ Just fail
            */
              YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
              typein),
-    YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",
-             set_error_stream), /**<
+ /**<
 
 If the second argument is bound to a stream, set user_error to
 this stream. If the second argument is unbound, unify the argument with
@@ -133,11 +132,13 @@ prompts from the system were redirected to the stream
 automatically redirects the user_error alias to the original
 `stderr`.
 */
-    YAP_FLAG(USER_INPUT_FLAG, "user_input", true, stream, "user_input",
-             set_input_stream),
-    YAP_FLAG(USER_OUTPUT_FLAG, "user_output", true, stream, "user_output",
-             set_output_stream)
-
+  YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",
+	   set_error_stream),
+  YAP_FLAG(USER_INPUT_FLAG, "user_input", true, stream, "user_input",
+	   set_input_stream),
+  YAP_FLAG(USER_OUTPUT_FLAG, "user_output", true, stream, "user_output",
+	   set_output_stream),
+  
     END_LOCAL_FLAGS
 
     /// @}
