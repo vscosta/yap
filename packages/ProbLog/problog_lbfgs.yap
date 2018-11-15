@@ -473,7 +473,6 @@ init_learning :-
 	!.
 init_learning :-
 	check_examples,
-
 	retractall(current_iteration(_)),
 	assert(current_iteration(0)),
 %	empty_output_directory,
@@ -486,7 +485,7 @@ init_learning :-
 	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
 	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
-	forall(tunable_fact(FactID,GroundTruth),
+	forall(tunable_fact(FactID,_GroundTruth),
 	       set_fact_probability(FactID,0.5)
 	      ),
 
@@ -988,7 +987,7 @@ bind_maplist([Node-Pr|MapList], Slope, X) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % stop calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:progress(FX,_X,_G,X_Norm,_G_Norm,_Step,_N,_Iteration,_Ls,-1) :-
+user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Iteration,_Ls,-1) :-
     FX < 0, !,
     format('stopped on bad FX=~4f~n',[FX]).
 user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,_Iteration,Ls,0) :-
