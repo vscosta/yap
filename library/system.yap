@@ -791,16 +791,16 @@ The predicates performs a left-recursive traversal. It does not protect against 
 directory_map(D, P) :-
         working_directory(_, D),
 	list_directory(D,L),
-	d_map(L, P).
+	d_map(L,D, P).
 
-d_map([],_,_,_).
+d_map([],_,_).
 d_map(['.'|Fs],D, P) :-
     !,
     d_map(Fs,D, P).
 d_map(['..'|Fs],D, P) :-
     !,
     d_map(Fs, D, P).
-d_map([D|Fs], D, P) :-
+d_map([F|Fs], D, P) :-
     absolute_file_name( F, File, [prefix(D)] ),
     f_map(File, P),
     d_map(Fs, D, P).
