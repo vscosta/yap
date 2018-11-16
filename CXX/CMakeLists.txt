@@ -5,27 +5,27 @@ set(SO_MINOR 0)
 set(SO_PATCH 0)
 
 set (CXX_SOURCES
-    yapi.cpp
-)
+  yapi.cpp
+  )
 list(APPEND LIBYAP_SOURCES ${CXX_SOURCES} PARENT_SCOPE)
 
 if ( WIN32 OR ANDROID)
-   add_component (YAP++ ${CXX_SOURCES} )
+  add_component (YAP++ ${CXX_SOURCES} )
 
   set_property( DIRECTORY  APPEND PROPERTY COMPILE_DEFINITIONS  "_YAP_NOT_INSTALLED_=1;HAVE_CONFIG_H=1;_GNU_SOURCE;YAP_KERNEL=1" )
 else()
-   add_lib(YAP++ ${CXX_SOURCES} )
-   if (WITH_PYTHON)
-     target_link_libraries(YAP++ Py4YAP )
-   endif()
-    target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
+  add_lib(YAP++ ${CXX_SOURCES} )
+  if (WITH_PYTHON)
+    target_link_libraries(YAP++ Py4YAP )
+  endif()
+  target_link_libraries(YAP++ ${CMAKE_DL_LIBS} libYap)
   
 
-   MY_install(TARGETS  YAP++
-     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-           RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-           ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-   )
+  MY_install(TARGETS  YAP++
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    )
 endif()
 
 

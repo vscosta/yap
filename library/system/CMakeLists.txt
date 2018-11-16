@@ -39,8 +39,8 @@ set_target_properties (sys PROPERTIES  PREFIX "")
 endif()
 
 MY_install(TARGETS  sys
-        LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
-        RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-        ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR} )
+        LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
 
 configure_file ("sys_config.h.cmake" "sys_config.h" )

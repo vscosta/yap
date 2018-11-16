@@ -18,20 +18,20 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/jni)
 
 
       add_custom_target (pllib
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}
-         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${pllib}
-         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${pllib}
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}
+         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${YAP_INSTALL_DATADIR}
+         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${YAP_INSTALL_DATADIR}
  DEPENDS  ${pl_library}
 )
 
  	      add_custom_target (pllibpl
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}/pl
-         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${pllib}/pl
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/pl
+         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${YAP_INSTALL_DATADIR}/pl
 DEPENDS pllib ${pl_boot_library}
  	)
  	      add_custom_target (pllibos ALL
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${pllib}/os
-         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${pllib}/os
+         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/os
+         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${YAP_INSTALL_DATADIR}/os
 DEPENDS pllibpl ${pl_os_library}
     	)
 

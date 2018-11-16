@@ -16,7 +16,7 @@ if (Java_Development_FOUND)
   add_subdirectory (src/java)
 
   install(FILES jpl.pl
-    DESTINATION ${libpl}
+    DESTINATION ${YAP_INSTALL_DATADIR}
     )
 
 endif (Java_Development_FOUND)

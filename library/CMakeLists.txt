@@ -76,10 +76,10 @@ MY_add_subdirectory(ytest)
 
 add_to_group( LIBRARY_PL  pl_library)
 
-install(FILES ${LIBRARY_PL} DESTINATION ${libpl})
+install(FILES ${LIBRARY_PL} DESTINATION ${YAP_INSTALL_DATADIR})
 
 if (ANDROID)
-file( INSTALL  ${LIBRARY_PL} DESTINATION ${libpl} )
+file( INSTALL  ${LIBRARY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
 endif()
 
 include_directories("dialect/swi")
