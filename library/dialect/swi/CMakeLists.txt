@@ -7,5 +7,5 @@ set (SDIALECTS_PL
 add_SubDirectory( fli )
 
 install(FILES ${SDIALECTS_PL}
-  DESTINATION ${libpl}/dialect/swi
+  DESTINATION ${YAP_INSTALL_DATADIR}/dialect/swi
   )

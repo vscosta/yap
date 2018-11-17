@@ -20,4 +20,6 @@ notation will be used:
 
 + an argument with no preceding symbol can be used in both ways.
 
-@{
+[TOC]
+
+@}

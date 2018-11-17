@@ -81,4 +81,4 @@ add_jar(jpl
   SOURCES ${JPLJAVA}
   OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR})
 
-install_jar(jpl ${libpl} )
+install_jar(jpl ${YAP_INSTALL_DATADIR} )

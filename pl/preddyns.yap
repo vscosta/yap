@@ -4,11 +4,10 @@
 /** @file preddyns.yap */
 
 /**
- * @addtogroup Database
- * @{
- *
+ * @addtogroup Internal_Database
  * @brief main operations on dynamic predicates.
-
+ *
+ * 
 */
 
 /** @pred  asserta(+ _C_) is iso
@@ -250,56 +249,66 @@ Retract all the clauses whose head matches the goal  _G_. Goal
  _G_ must be a call to a dynamic predicate.
 
 */
-retractall(M:V) :- !,
-	'$retractall'(V,M).
 retractall(V) :-
-	'$current_module'(M),
-	'$retractall'(V,M).
+    '$yap_strip_module'(V,M,P),
+    is_callable(M,P),
+    '$retractall'(P,M).
 
-'$retractall'(V,M) :- var(V), !,
-	'$do_error'(instantiation_error,retract(M:V)).
-'$retractall'(M:V,_) :- !,
-	'$retractall'(V,M).
 '$retractall'(T,M) :-
-     functor(T,Na,Ar),
-	(
-     '$is_log_updatable'(T, M) ->
-	 ( '$is_multifile'(T, M) ->
-	   '$retractall_lu_mf'(T,M,Na,Ar)
-	 ;
-	   '$retractall_lu'(T,M)
-	 )
-	;
-     \+ callable(T) ->
-     '$do_error'(type_error(callable,T),retractall(T))
-	;
-     '$undefined'(T,M) ->
-     '$dynamic'(Na/Ar,M), !
-	;
-     '$is_dynamic'(T,M) ->
+    functor(T,Na,Ar),
+    (
+	'$is_log_updatable'(T, M)
+    ->
+    '$retractall_lu_pred'(T, M, Na, Ar)
+    ;
+    '$undefined'(T,M)
+    ->
+     '$dynamic'(Na/Ar,M)
+    ;
+    '$is_dynamic'(T,M)
+    ->
      '$erase_all_clauses_for_dynamic'(T, M)
-	;
-     '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
-	).
+    ;
+    '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
+    ).
+
+'$retractall_lu_pred'(T, M, Na, Ar) :-
+    (
+	'$is_multifile'(T, M)
+    ->
+    '$retractall_lu_mf'(T,M,Na,Ar)
+    ;
+    '$retractall_lu'(T,M)
+    ).
 
 '$retractall_lu'(T,M) :-
-	'$free_arguments'(T), !,
-	( '$purge_clauses'(T,M), fail ; true ).
+    '$free_arguments'(T), !,
+    ( '$purge_clauses'(T,M), fail ; true ).
 '$retractall_lu'(T,M) :-
-	'$log_update_clause'(T,M,_,R),
-	erase(R),
-	fail.
+    '$log_update_clause'(T,M,_,R),
+    erase(R),
+    fail.
 '$retractall_lu'(_,_).
 
 '$retractall_lu_mf'(T,M,Na,Ar) :-
-	'$log_update_clause'(T,M,_,R),
-	( recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR), erase(MR), fail ; true),
+    '$log_update_clause'(T,M,_,R),
+    '$erase_lu_mf_clause'(Na,Ar,M,R),
+    fail.
+'$retractall_lu_mf'(_T,_M,_Na,_Ar).
+
+'$erase_lu_mf_clause'(Na,Ar,M,R) :-
+	recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR),
+	erase(MR),
+	fail.
+'$erase_lu_mf_clause'(_Na,_Ar,_M,R) :-
 	erase(R),
 	fail.
 '$retractall_lu_mf'(_,_,_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
-	'$recordedp'(M:T,(T :- _),R), erase(R), fail.
+    '$recordedp'(M:T,(T :- _),R),
+    erase(R),
+    fail.
 '$erase_all_clauses_for_dynamic'(T,M) :-
 	'$recordedp'(M:T,_,_), fail.
 '$erase_all_clauses_for_dynamic'(_,_).

@@ -1052,6 +1052,9 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
                               MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
+    if (yap_init->QuietMode) {
+     setVerbosity(TermSilent);
+   }
     Yap_Restore(Yap_INPUT_STARTUP);
     init_globals(yap_init);
 

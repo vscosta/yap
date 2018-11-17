@@ -48,11 +48,10 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
  * macros that code uses.  This lets the same code operate on two different
  * representations for state sets.
  */
-#include "config.h"
+#include "YapInterface.h"
 
 #ifndef HAVE_REGEXEC
 
-#include "YapInterface.h"
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
@@ -68,8 +67,8 @@ static char sccsid[] = "@(#)regexec.c	8.3 (Berkeley) 3/20/94";
 #include <limits.h>
 #endif
 
-#include "utils.h"
 #include "regex2.h"
+#include "utils.h"
 #include "yapregex.h"
 
 #if used

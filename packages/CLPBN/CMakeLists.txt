@@ -100,15 +100,15 @@ ENDIF()
 
 install(FILES
   ${CLPBN_TOP}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 install(FILES
   ${CLPBN_PL}
-  DESTINATION ${libpl}/clpbn
+  DESTINATION ${YAP_INSTALL_DATADIR}/clpbn
   )
 
 install(FILES
   ${CLPBN_LEARNING_PROGRAMS}
-  DESTINATION ${libpl}/clpbn/learning
+  DESTINATION ${YAP_INSTALL_DATADIR}/clpbn/learning
   )

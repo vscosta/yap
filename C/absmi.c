@@ -219,12 +219,12 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
 }
 
 static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
-                          arity_t nargs USES_REGS) {
+			  arity_t nargs USES_REGS) {
   if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
     if (!Yap_locked_gc(nargs, env, cp)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
       return 0;
     }
     return 1;
@@ -239,7 +239,7 @@ static int code_overflow(CELL *yenv USES_REGS) {
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
       Yap_NilError(RESOURCE_ERROR_HEAP, "YAP failed to grow heap: %s",
-                   LOCAL_ErrorMessage);
+		   "malloc/mmap failed");
       return 0;
     }
     CACHE_A1();
@@ -689,7 +689,7 @@ static int interrupt_deallocate(USES_REGS1) {
       return rc;
     }
     if (!Yap_locked_gc(0, ENV, YESCODE)) {
-      Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
     }
     S = ASP;
     S[E_CB] = (CELL)(LCL0 - cut_b);
@@ -751,7 +751,7 @@ static int interrupt_cut_e(USES_REGS1) {
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
-  if (!Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
+  if (Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
     return 2;
   }
   /* find something to fool S */
@@ -957,35 +957,32 @@ static void undef_goal(USES_REGS1) {
   } else {
     d0 = AbsAppl(HR);
     *HR++ = (CELL)pe->FunctorOfPred;
-    CELL *ip=HR, *imax = HR+pe->ArityOfPE;
-    HR = imax;
-    BEGP(pt1);
-    pt1 = XREGS + 1;
-    for (; ip < imax; ip++) {
+    CELL *ip=HR;
+    UInt imax = pe->ArityOfPE;
+    HR += imax;
+    UInt i = 1;
+    for (; i <= imax; ip++, i++) {
       BEGD(d1);
       BEGP(pt0);
-      pt0 = pt1++;
-      d1 = *pt0;
+      d1 = XREGS[i];
       deref_head(d1, undef_unk);
     undef_nonvar:
       /* just copy it to the heap */
       *ip = d1;
       continue;
 
-      derefa_body(d1, pt0, undef_unk, undef_nonvar);
-      if (pt0 <= HR) {
+      deref_body(d1, pt0, undef_unk, undef_nonvar);
+      if (pt0 < HR) {
         /* variable is safe */
         *ip = (CELL)pt0;
       } else {
         /* bind it, in case it is a local variable */
-        d1 = Unsigned(ip);
         RESET_VARIABLE(ip);
-        Bind_Local(pt0, d1);
+        Bind_Local(pt0, Unsigned(ip));
       }
       ENDP(pt0);
       ENDD(d1);
     }
-    ENDP(pt1);
   }
   ARG1 = AbsPair(HR);
   HR[1] = d0;

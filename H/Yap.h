@@ -50,7 +50,7 @@
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
 // Bad export from Python
-#include "config.h"
+#include "YapConfig.h"
 
 #ifndef COROUTINING
 #define COROUTINING 1
@@ -74,6 +74,28 @@
 #include <stdint.h>
 #endif
 
+typedef YAP_Int Int;
+typedef YAP_UInt UInt;
+typedef YAP_Short Short;
+typedef YAP_UShort UShort;
+
+typedef uint16_t BITS16;
+typedef int16_t SBITS16;
+typedef uint32_t BITS32;
+
+typedef YAP_CELL CELL;
+
+typedef YAP_Term Term;
+
+#define WordSize sizeof(BITS16)
+#define CellSize sizeof(CELL)
+#define SmallSize sizeof(SMALLUNSGN)
+
+typedef YAP_Int Int;
+typedef YAP_Float Float;
+typedef YAP_handle_t yhandle_t;
+
+#define TermZERO ((Term)0)
 /*
 
 #define RATIONAL_TREES 1

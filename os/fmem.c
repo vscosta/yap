@@ -23,6 +23,9 @@ static char SccsId[] = "%W% %G%";
  *
  */
 
+#define _GNU_SOURCE
+
+
 #include "YapText.h"
 #include "format.h"
 #include "sysbits.h"
@@ -163,7 +166,7 @@ int Yap_open_buf_read_stream(const char *buf, size_t nchars,
   f = st->file = fmemopen((void *)buf, nchars, "r");
   st->vfs = NULL;
   flags = Input_Stream_f | InMemory_Stream_f | Seekable_Stream_f;
-  Yap_initStream(sno, f, RepAtom(fname)->StrOfAE, "r", uname, encoding, flags, NULL);
+  Yap_initStream(sno, f, fname, "r", uname, encoding, flags, NULL);
   // like any file stream.
   Yap_DefaultStreamOps(st);
   UNLOCK(st->streamlock);
@@ -204,8 +207,6 @@ int Yap_open_buf_write_stream(encoding_t enc, memBufSource src) {
 
   st = GLOBAL_Stream + sno;
   st->status = Output_Stream_f | InMemory_Stream_f;
-  if (src)
-    st->status |= FreeOnClose_Stream_f;
   st->linepos = 0;
   st->charcount = 0;
   st->linecount = 1;
@@ -269,7 +270,7 @@ FILE *f = GLOBAL_Stream[sno].file;
   memcpy(buf, s, len);
   // s[fseek(GLOBAL_Stream[sno].file, 0, SEEK_END)] = '\0';
 #else
-  fread(buf, sz, 1, GLOBAL_Stream[sno].file);
+  fread(buf, len, 1, GLOBAL_Stream[sno].file);
 #endif
   buf[len] = '\0';
   return buf;

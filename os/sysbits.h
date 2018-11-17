@@ -13,7 +13,7 @@
  *
  */
 
-#include "config.h"
+#include "YapConfig.h"
 
 #if _WIN32 || defined(__MINGW32__)
 #if !defined(MINGW_HAS_SECURE_API)
@@ -22,22 +22,27 @@
 //#undef _POSIX_
 #endif
 #include "Yap.h"
+#include "YapEval.h"
 #include "YapHeap.h"
 #include "YapText.h"
 #include "Yatom.h"
-#include "YapEval.h"
 #include "yapio.h"
 
 // Win32 InputOutput Support
 #if _WIN32 || defined(__MINGW32__)
 #include <winsock2.h>
 /* Windows */
-#include "Shlwapi.h"
+#include "shlwapi.h"
 #include <direct.h>
 #include <io.h>
 #include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR) == _S_IFDIR)
+#endif
+#endif
+#ifndef BUF_SIZE
+#ifdef MAX_PATH
+#define BUF_SIZE MAX_PATH
 #endif
 #endif
 
@@ -115,6 +120,9 @@
 /* windows.h does not like absmi.h, this
    should fix it for now */
 #include <math.h>
+#if HAVE_TIME_H
+#include <time.h>
+#endif
 #if HAVE_SYS_TIME_H && !_MSC_VER
 #include <sys/time.h>
 #endif

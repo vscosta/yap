@@ -6,7 +6,7 @@
 
  /**
 
-  @ingroup ModuleBuiltins
+  @addtogroup ModuleBuiltins
 @{
   */
 

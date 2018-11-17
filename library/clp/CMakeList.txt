@@ -5,7 +5,7 @@ set (LIBRARY_PL_VLP
 	)
 
 install(FILES ${LIBRARY_PL_CLP}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 

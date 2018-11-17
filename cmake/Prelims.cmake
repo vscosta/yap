@@ -137,10 +137,8 @@ endif()
     set ( libpl  ${datarootdir}/Yap)
 set ( includedir "${prefix}/include")
 set ( exec_prefix "${prefix}")
-set ( libdir "${exec_prefix}/lib")
 set ( datadir "${datarootdir}")
 set ( mandir "${datarootdir}/man")
-set ( bindir "${exec_prefix}/bin")
 set ( docdir "${datarootdir}/doc/Yap")
 set ( dlls "${exec_prefix}/lib/Yap")
 
@@ -149,10 +147,10 @@ set(YAP_ROOTDIR ${prefix})
 # erootdir -> rootdir
 # bindir defined above
 # libdir defined above
-set(YAP_LIBDIR "${dlls}")
+set(YAP_LIBDIR "${YAP_INSTALL_LIBDIR}")
 set(YAP_SHAREDIR "${datarootdir}")
-set(YAP_BINDIR "${bindir}")
-set(YAP_INCLUDEDIR "${includedir}")
+set(YAP_BINDIR "${CMAKE_INSTALL_BINDIR}")
+set(YAP_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}")
 set(YAP_ROOTDIR "${prefix}")
 
 #

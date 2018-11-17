@@ -193,7 +193,7 @@ static void WakeAttVar(CELL *pt1, CELL reg2 USES_REGS) {
   if (!IsVarTerm(attv->Value) || !IsUnboundVar(&attv->Value)) {
     /* oops, our goal is on the queue to be woken */
     if (!Yap_unify(attv->Value, reg2)) {
-      AddFailToQueue(PASS_REGS1);
+     AddFailToQueue(PASS_REGS1);
     }
     return;
   }

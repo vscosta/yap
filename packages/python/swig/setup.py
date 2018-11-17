@@ -58,18 +58,18 @@ here = path.abspath(path.dirname(__file__))
 
 sys.path.insert(0, "/home/vsc/github/yap-6.3/packages/python/swig")
 
-python_libdir = path.abspath(path.dirname("/usr/lib/x86_64-linux-gnu/libpython3.6m.so"))
+python_libdir = path.abspath(path.dirname("/usr/lib/libpython3.7m.so"))
 
 if platform.system() == 'Windows':
     local_libs = []
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/lib','-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/lib','-Wl,-rpath,'+join('/lib','..'),'-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,'+join('/usr/local/lib','..'),'-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 
@@ -78,22 +78,23 @@ elif platform.system() == 'Linux':
 
 native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
-#gmp_dir = path.abspath(path.dirname("/usr/lib/x86_64-linux-gnu/libgmp.so"))
+#gmp_dir = path.abspath(path.dirname("/lib/libgmp.so"))
 # Get the long description from the README file
 
 
 
 extensions = [Extension('_yap', native_sources,
-                        define_macros=[('MAJOR_VERSION', '1'),
-                                       ('MINOR_VERSION', '0'),
+                    define_macros=[('MAJOR_VERSION', '6'),
+                                       ('MINOR_VERSION', '4'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
+                                       ('PYTHONSWIG', '1'),
                                        ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=[
-                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/lib'],
+                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/usr/local/lib'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=[".",'../../..','/lib'],
+                        library_dirs=[".",'../../..','/usr/local/lib'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
                         include_dirs=['/home/vsc/github/yap-6.3/H',
@@ -103,7 +104,7 @@ extensions = [Extension('_yap', native_sources,
                         '/home/vsc/github/yap-6.3/os',
                         '/home/vsc/github/yap-6.3/utf8proc',
                         '/home/vsc/github/yap-6.3/packages/python',
-                        '../../..',
+                        '/home/vsc/github/yap-6.3',
                         '/home/vsc/github/yap-6.3/CXX' ]
                         )]
 
@@ -114,7 +115,7 @@ package_data = {
 
 data_files=[]
 
-version_ns = {'__version__': '6.3.5', 'minor-version': '6', 'minor-version': '3', 'patch': '5'}
+version_ns = {'__version__': '6.4.1', 'major-version': '6', 'minor-version': '4', 'patch': '1'}
 
 setup_args = dict(
     name=name,

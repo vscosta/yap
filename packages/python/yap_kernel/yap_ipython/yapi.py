@@ -6,14 +6,14 @@ from traitlets import Bool
 
 
 from yap4py.yapi import *
-from yap_ipython.core.completer import Completer
-# import yap_ipython.core
+from IPython.core.completer import Completer
+# import IPython.core
 from traitlets import Instance
-from yap_ipython.core.inputsplitter import *
-from yap_ipython.core.inputtransformer import *
-from yap_ipython.core.interactiveshell import *
-
-from yap_ipython.core import interactiveshell
+from IPython.core.inputsplitter import *
+from IPython.core.inputtransformer import *
+from IPython.core.interactiveshell import *
+from ipython_genutils.py3compat import builtin_mod
+from IPython.core import interactiveshell
 
 from collections import namedtuple
 import traceback
@@ -29,7 +29,7 @@ enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
 errors = namedtuple('errors', 'self text' )
-streams = namedtuple('streams', ' text' )
+streams = namedtuple('streams', 'text' )
 nostreams = namedtuple('nostreams', ' text' )
 
 global  engine
@@ -116,7 +116,7 @@ class YAPInputSplitter(InputSplitter):
             line = text.rstrip()
         self.errors = []
         engine.mgoal(errors(self, line),"user",True)
-        return self.errors != []
+        return self.errors == []
 
 
     def reset(self):
@@ -198,11 +198,11 @@ class YAPInputSplitter(InputSplitter):
             self.reset()
 
     def push(self, lines):
-        """Push one or more lines of yap_ipython input.
+        """Push one or more lines of IPython input.
 
         This stores the given lines and returns a status code indicating
         whether the code forms a complete Python block or not, after processing
-        all input lines for special yap_ipython syntax.
+        all input lines for special IPython syntax.
 
         Any exceptions generated in compilation are swallowed, but if an
         exception was produced, the method returns True.
@@ -488,7 +488,7 @@ class YAPCompleter(Completer):
 
             If ``IPCompleter.debug`` is :any:`True` will yield a ``--jedi/ipython--``
             fake Completion token to distinguish completion returned by Jedi
-            and usual yap_ipython completion.
+            and usual IPython completion.
 
         .. note::
 
@@ -496,17 +496,18 @@ class YAPCompleter(Completer):
             completions are coming from different sources this function does not
             ensure that each completion object will only be present once.
         """
+        if text[0] == '%' and text.find('\n') > offset:
+            magic_res = self.magic_matches(text)
+            return text,  magic_res
         self.matches = []
         prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
-        if self.matches:
-            return text, self.matches
-        magic_res = self.magic_matches(text)
-        return text,  magic_res
+        return text, self.matches
 
 
 
 
-class YAPRun:
+
+class YAPRun(InteractiveShell):
     """An enhanced, interactive shell for YAP."""
 
     def __init__(self, shell):
@@ -594,42 +595,43 @@ class YAPRun:
                 self.result.result = True,self.bindings
                 return self.result
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+' after '+str( self.bindings)+ '\n')
+            sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
+                             ':'+pg+'\n  '+str( self.bindings)+ '\n')
             has_raised = True
             self.result.result = False
             return self.result
 
 
+
     def _yrun_cell(self, raw_cell, store_history=True, silent=False,
-                 shell_futures=True):
+                  shell_futures=True):
         """Run a complete IPython cell.
 
         Parameters
-                   ----------
-                   raw_cell : str
-                   The code (including IPython code such as
-                   %magic functions) to run.
-                   store_history : bool
-          If True, the raw and translated cell will be stored in IPython's
-                   history. For user code calling back into
-                   IPython's machinery, this
-                   should be set to False.
-                   silent : bool
-          If True, avoid side-effects, such as implicit displayhooks and
-                   and logging.  silent=True forces store_history=False.
-                   shell_futures : bool
-          If True, the code will share future statements with the interactive
-                   shell. It will both be affected by previous
-                    __future__ imports, and any __future__ imports in the code
-                     will affect the shell. If False,
+                  ----------
+                  raw_cell : str
+                  The code (including IPython code such as
+                  %magic functions) to run.
+                  store_history : bool
+         If True, the raw and translated cell will be stored in IPython's
+                  history. For user code calling back into
+                  IPython's machinery, this
+                  should be set to False.
+                  silent : bool
+         If True, avoid side-effects, such as implicit displayhooks and
+                  and logging.  silent=True forces store_history=False.
+                  shell_futures : bool
+         If True, the code will share future statements with the interactive
+                  shell. It will both be affected by previous
+                  __future__ imports, and any __future__ imports in the code
+                        will affect the shell. If False,
                    __future__ imports are not shared in either direction.
 
         Returns
 
                    -------
-
-`self.result : :class:`Executionself.result`
-                   """
+            `self.result : :class:`Executionself.result`
+        """
 
         # construct a query from a one-line string
         # q is opaque to Python
@@ -642,12 +644,13 @@ class YAPRun:
         # variable names should match strings
         # ask = True
         # launch the query
-
+        cell = raw_cell  # cell has to exist so it can be stored/logged
 
         info = interactiveshell.ExecutionInfo(
             raw_cell, store_history, silent, shell_futures)
 
         self.result = interactiveshell.ExecutionResult(info)
+        self.result.error_before_exec = None
 
         if (raw_cell == "") or raw_cell.isspace():
             self.shell.last_execution_succeeded = True
@@ -677,11 +680,10 @@ class YAPRun:
         #     cell = self.shell.input_transformer_manager.transform_cell(raw_cell)
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
-        cell = raw_cell  # cell has to exist so it can be stored/logged
         for i in self.errors:
             try:
                 (_,lin,pos,text) = i
-                e = SyntaxError(what, (self.cell_name, lin, pos, text+'\n'))
+                e = self.SyntaxError( (self.cell_name, lin, pos, text+'\n'))
                 raise e
             except SyntaxError:
                 self.shell.showsyntaxerror(  )
@@ -705,33 +707,26 @@ class YAPRun:
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
         self.cell_name = str( self.shell.execution_count)
         if cell[0] == '%':
+            txt0 = cell.split(maxsplit = 1, sep = '\n')
             if cell[1] == '%':
                 linec = False
-                mcell = cell.lstrip('%%')
+                magic = txt[0].lstrip('%%').strip()
+                body = txt[1]
+                self.result = True, self.shell.run_cell_magic(magic, line, body)
             else:
                 linec = True
-                mcell = cell.lstrip('%')
-            txt0 = mcell.split(maxsplit = 2, sep = '\n')
+                magic = cell.lstrip('%').strip()
             txt = txt0[0].split(maxsplit = 2)
             magic = txt[0]
-            if len(txt) == 2:
-                line = txt[1]
-            else:
-                line = ""
-            if linec:
-                self.shell.run_line_magic(magic, line)
-            else:
-                if len(txt0) == 1:
-                    cell = ""
-                else:
-                    body = txt0[1]+'\n'+txt0[2]
-                self.result = True, self.shell.run_cell_magic(magic, line, body)
-                return self.result
+            self.shell.run_line_magic(magic, line)
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = self.result
+        if self.syntaxErrors(cell):
+            self.result.result = False
         has_raised = False
         try:
+            builtin_mod.input = self.shell.sys_raw_input
             self.yapeng.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
@@ -832,3 +827,6 @@ class YAPRun:
             return s,'',False,0
         (query, _,loop, sols) = self.clean_end(query)
         return (program, query, loop, sols)
+
+    # global
+    #globals = {}

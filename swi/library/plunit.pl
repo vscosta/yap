@@ -108,7 +108,7 @@ sicstus :- catch(current_prolog_flag(system_type, _), _, fail).
 
 :- if(swi).
 throw_error(Error_term,Impldef) :-
-	throw(error(Error_term,context(Impldef,_))).
+	throw(error(Error_term,Impldef)).
 
 :- set_prolog_flag(generate_debug_info, false).
 :- use_module(library(option)).
@@ -126,9 +126,9 @@ set_test_flag(Name, Value) :-
 throw_error(Error_term,Impldef) :-
 	throw(error(Error_term,i(Impldef))). % SICStus 3 work around
 
-:- use_module(swi).			% SWI-Compatibility
+%:- use_module(swi).			% SWI-Compatibility
 :- use_module(library(terms)).
-:- op(700, xfx, =@=).
+%:- op(700, xfx, =@=).
 
 '$set_source_module'( In, Out) :-
 	current_source_module(In, Out).
@@ -159,7 +159,7 @@ set_test_flag( Name, Val ) :-
 	retractall(test_flag(Name,_)),
 	asserta(test_flag(Name, Val)).
 
-:- op(1150, fx, thread_local).
+%:- op(1150, fx, thread_local).
 
 user:term_expansion((:- thread_local(PI)), (:- dynamic(PI))) :-
 	prolog_load_context(module, plunit).
@@ -255,7 +255,6 @@ loading_tests :-
 %	unit is ended by :- end_tests(UnitName).
 
 begin_tests(Unit) :-
-	trace,
 	begin_tests(Unit, []).
 
 begin_tests(Unit, Options) :-
@@ -267,30 +266,31 @@ begin_tests(Unit, Options) :-
 
 :- if(swi).
 begin_tests(Unit, Name, File:Line, Options) :-
-	loading_tests, !,
-	'$set_source_module'(Context, Context),
-	(   current_unit(Unit, Name, Context, Options)
-	->  true
-	;   retractall(current_unit(Unit, Name, _, _)),
-	    assert(current_unit(Unit, Name, Context, Options))
-	),
-	'$set_source_module'(Old, Name),
-	'$declare_module'(Name, test, Context, File, Line, false),
-	discontiguous(Name:'unit test'/4),
-%	'$set_predicate_attribute'(Name:'unit test'/4, trace, 0),
-	discontiguous(Name:'unit body'/2),
-	asserta(loading_unit(Unit, Name, File, Old)).
+    loading_tests, !,
+    prolog_flag(typein_module,Context, Context),
+    (   current_unit(Unit, Name, Context, Options)
+    ->  true
+    ;   retractall(current_unit(Unit, Name, _, _)),
+	assert(current_unit(Unit, Name, Context, Options))
+    ),
+    prolog_flag(typein_module,Old, Name),
+    declare_module(Name, test, Context, File, Line, false),
+    discontiguous(Name:'unit test'/4),
+		 discontiguous(Name:'unit body'/2),
+    multifile(Name:'unit test'/4),
+		 multifile(Name:'unit body'/2),
+			      asserta(loading_unit(Unit, Name, File, Old)).
 begin_tests(Unit, Name, File:_Line, _Options) :-
-	'$set_source_module'(Old, Old),
+	prolog_flag(typein_module,Old, Old),
 	asserta(loading_unit(Unit, Name, File, Old)).
 
-'$declare_module'( Name, Class, Context, File, Line, _AllowFile ) :-
+declare_module( Name, Class, Context, File, Line, _AllowFile ) :-
 	Name \= Context,
 	!,
 	set_module_property( Name, base(Context) ),
 	set_module_property( Name, class(Class) ),
 	set_module_property( Name, exports([], File, Line) ).
-'$declare_module'( Name, _Class, Name, _File, _Line, _AllowFile ) .
+declare_module( Name, _Class, Name, _File, _Line, _AllowFile ) .
 
 :- else.
 
@@ -327,7 +327,7 @@ end_tests(Unit) :-
 	loading_unit(StartUnit, _, _, _), !,
 	(   Unit == StartUnit
 	->  once(retract(loading_unit(StartUnit, _, _, Old))),
-	    '$set_source_module'(_, Old)
+	    prolog_flag(typein_module,_, Old)
 	;   throw_error(context_error(plunit_close(Unit, StartUnit)), _)
 	).
 end_tests(Unit) :-
@@ -463,7 +463,7 @@ user:term_expansion(Term, Expanded) :-
 		 *******************************/
 
 :- if(swi).
-%:- use_module(library(error)).
+:- use_module(library(error)).
 :- else.
 must_be(list, X) :- !,
 	(   is_list(X)
@@ -689,7 +689,7 @@ make_run_tests(Files) :-
 
 :- if(swi).
 
-unification_capability(sto_error_incomplete).
+%unification_capability(sto_error_incomplete).
 % can detect some (almost all) STO runs
 unification_capability(rational_trees).
 unification_capability(finite_trees).
@@ -701,6 +701,7 @@ set_unification_capability(Cap) :-
 current_unification_capability(Cap) :-
 	current_prolog_flag(occurs_check, Flag),
 	cap_to_flag(Cap, Flag), !.
+current_unification_capability(false).
 
 cap_to_flag(sto_error_incomplete, error).
 cap_to_flag(rational_trees, false).
@@ -1033,7 +1034,7 @@ cmp(Var =@= Value, Var, variant, Value). % variant/2 is the same =@=
 %	True if Goal succeeded.  Det is unified to =true= if Goal left
 %	no choicepoints and =false= otherwise.
 
-:- if((swi|sicstus)).
+:- if((swi)).
 call_det(Goal, Det) :-
 	call_cleanup(Goal,Det0=true),
 	( var(Det0) -> Det = false ; Det = true ).
@@ -1094,8 +1095,8 @@ setup(_,_,_).
 %	Call Goal in Module after applying goal expansion.
 
 call_ex(Module, Goal) :-
-	Module:(expand_goal(Goal, GoalEx),
-		GoalEx).
+    expand_goal(Module:Goal, GoalEx),
+		call(GoalEx).
 
 %%	cleanup(+Module, +Options) is det.
 %

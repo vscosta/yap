@@ -207,8 +207,6 @@
 
 :- module(learning,[do_learning/1,
 	            do_learning/2,
-		    set_problog_flag/2,
-		    problog_flag/2,
 		    reset_learning/0
 		    ]).
 
@@ -495,49 +493,37 @@ init_learning :-
 	format_learning(1,'Initializing everything~n',[]),
 
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Delete the BDDs from the previous run if they should
-	% not be reused
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 (
-	  problog_flag(reuse_initialized_bdds,true),
-	  problog_flag(rebuild_bdds,0)
-	 )
-	->
-	 true;
-	 empty_bdd_directory
-	),
-
+ 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Check, if continuous facts are used.
 	% if yes, switch to problog_exact 
         % continuous facts are not supported yet.
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	%% problog_flag(init_method,(_,_,_,_,OldCall)),
-	%% (
-	%%  (
-	%%   continuous_fact(_),
-	%%   OldCall\=problog_exact_save(_,_,_,_,_)
-	%%  )
-	%% ->
-	%%  (
-	%%   format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	%%   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
-	%%  );
-	%%  true
-	%% ),
-
-	%% (
-	%%  problog_tabled(_)
-	%% ->
-	%%  (
-	%%   format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
-	%%   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
-	%%  );
-	%%  true
-	%% ),
-	
+	set_default_gradient_method,
+	(	problog_flag(continuous_facts, true )
+	->
+	 problog_flag(init_method,(_,_,_,_,OldCall)),
+	 (
+	  (
+	   continuous_fact(_),
+	   OldCall\=problog_exact_save(_,_,_,_,_)
+	  )
+	 ->
+	  (
+	   format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  );
+	  true
+	 )
+	;
+	  problog_tabled(_)
+	 ->
+	  (
+	   format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	   set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	  );
+	  true
+	 ),
 
 	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
 	format_learning(3,'~q test examples~n',[TestExampleCount]),
@@ -563,7 +549,8 @@ init_learning :-
 	 (
 	  (user:example(_,_,P,_),P<1,P>0)
 	 ->
-	  set_problog_flag(alpha,1.0);
+	 set_problog_flag(alpha,1.0)
+	 ;
 	  (
 	   succeeds_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
 	   succeeds_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
@@ -571,6 +558,8 @@ init_learning :-
 	   set_problog_flag(alpha,Alpha)
 	  )
 	 )
+	;
+	true
 	),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -594,6 +583,24 @@ init_learning :-
 	fail.
 empty_bdd_directory.
 
+
+set_default_gradient_method :-
+    problog_flag(continuous_facts, true), 
+    !,
+    problog_flag(init_method,OldMethod),
+    format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
+    set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
+set_default_gradient_method :-
+    problog_tabled(_), problog_flag(fast_proofs,false),
+    !,
+    format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
+    set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
+set_default_gradient_method :-
+    problog_flag(init_method,(gene(X,Y),N,Bdd,graph2bdd(X,Y,N,Bdd))),
+    !.
+set_default_gradient_method :-
+    set_problog_flag(init_method,(Query,1,BDD,
+	problog_kbest_as_bdd(user:Query,1,BDD))).
 
 %========================================================================
 %= This predicate goes over all training and test examples,
@@ -620,37 +627,47 @@ init_one_query(QueryID,Query,Type) :-
 	(
 	 recorded(QueryID, _, _)
 	->
-	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID]);
-	 (
+	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
+	 ;
 	  b_setval(problog_required_keep_ground_ids,false),
-	  problog_flag(libbdd_init_method,(Query,Bdd,Call)),
+	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
+	  Query =.. [_,X,Y]
+	  ->
 	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
-	  once(Call),
+	  (
+	      graph2bdd(X,Y,N,Bdd)
+	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
-%	  writeln(Dir:Tree:MapList),
+	  tree_to_grad(Tree, Hash, [], Grad)
+	  ;
+	  Bdd = bdd(-1,[],[]),
+	  Grad=[]
+	  ),
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
+	 ;
+	  b_setval(problog_required_keep_ground_ids,false),
+	  rb_new(H0),
+	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,1,Bdd))),
+	  strip_module(Call,_,gene(X,Y)),
+	  !,
+	  Bdd = bdd(Dir, Tree, MapList),
+%	  trace,
+	  problog:problog_kbest_as_bdd(user:gene(X,Y),1,Bdd),
+	  maplist_to_hash(MapList, H0, Hash),
+	  Tree \= [],
+	  %put_code(0'.),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 )
-	),
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% check wether this BDD is similar to another BDD
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 problog_flag(check_duplicate_bdds,true)
-	->
-	  true /* ignore this flag for now */
-        ;
-	 true
-	),!.
-init_one_query(_QueryID,_Query,_Type).
+	).
+init_one_query(_QueryID,_Query,_Type) :-
+    throw(unsupported_init_method).
 
 
 
 %========================================================================
-%= updates all values of query_probability/2 and query_gradient/4
+%= Updates all values of query_probability/2 and query_gradient/4
 %= should be called always before these predicates are accessed
 %= if the old values are still valid, nothing happens
 %========================================================================
@@ -720,7 +737,6 @@ gradient(QueryID, l, Slope) :-
 	bind_maplist(MapList),
 	run_sp(Tree, Slope, 1.0, Prob0),
 	(Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0),
-%writeln(QueryID:Prob),
 	assert(query_probability_intern(QueryID,Prob)),
 	fail.
 gradient(_QueryID, l, _).
@@ -1003,6 +1019,8 @@ inv_sigmoid(T,InvSig) :-
 %========================================================================
 
 save_old_probabilities :-
+	problog_flag(continous_facts, true),
+	!,
 	forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
@@ -1021,10 +1039,28 @@ save_old_probabilities :-
 		)
 	       )
 	      ).
+save_old_probabilities :-
+	forall(tunable_fact(FactID,_),
+	       (
+		   get_fact_probability(FactID,OldProbability),
+		   atomic_concat(['old_prob_',FactID],Key),
+		   bb_put(Key,OldProbability)
+	       )
+	      ).
 
+save_old_probabilities :-
+	forall(tunable_fact(FactID,_),
+	       (
+		   get_fact_probability(FactID,OldProbability),
+		   atomic_concat(['old_prob_',FactID],Key),
+		   bb_put(Key,OldProbability)
+	       )
+	      ).
 
 
 forget_old_probabilities :-
+    problog_flag(continous_facts, true),
+    !,
 	forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
@@ -1048,7 +1084,20 @@ forget_old_probabilities :-
 	       )
 	      ).
 
+forget_old_probabilities :-
+	forall(tunable_fact(FactID,_),
+	       (
+		 atomic_concat(['old_prob_',FactID],Key),
+		 atomic_concat(['grad_',FactID],Key2),
+		 bb_delete(Key,_),
+		 bb_delete(Key2,_)
+		)
+	      ).
+
+
 add_gradient(Learning_Rate) :-
+    problog_flag(continous_facts, true),
+    !,
 	forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
@@ -1088,6 +1137,26 @@ add_gradient(Learning_Rate) :-
 	       )
 	      ),
 	retractall(values_correct).
+add_gradient(Learning_Rate) :-
+	forall(tunable_fact(FactID,_),
+	  	(
+		 atomic_concat(['old_prob_',FactID],Key),
+		 atomic_concat(['grad_',FactID],Key2),
+		 
+		 bb_get(Key,OldProbability),
+		 bb_get(Key2,GradValue),
+
+		 inv_sigmoid(OldProbability,OldValue),
+		 %writeln(FactID:OldValue +Learning_Rate*GradValue),
+		 NewValue is OldValue +Learning_Rate*GradValue,
+		 sigmoid(NewValue,NewProbability),
+
+				% Prevent "inf" by using values too close to 1.0
+		 Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
+		 set_fact_probability(FactID,Prob_Secure)
+		)
+	       ),
+	retractall(values_correct).
 
 
 % vsc: avoid silly search
@@ -1103,11 +1172,16 @@ gradient_descent :-
 	
 	save_old_probabilities,
 	update_values,
+	reset_gradients,
+	compute_gradients(Handle).
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start set gradient to zero
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	forall(tunable_fact(FactID,_),
+	reset_gradients :-
+		problog_flag(continous_facts, true),
+		!,
+		forall(tunable_fact(FactID,_),
 	       (
 		continuous_fact(FactID)
 	       ->
@@ -1123,7 +1197,14 @@ gradient_descent :-
 		 bb_put(Key,0.0)
 		)
 	       )
-	      ),
+		      ).
+	reset_gradients :-
+	    forall(tunable_fact(FactID,_),
+	       (
+		 atomic_concat(['grad_',FactID],Key),
+		 bb_put(Key,0.0)
+	       )
+	      ).
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop gradient to zero
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1131,6 +1212,7 @@ gradient_descent :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+compute_gradients(Handle) :-
 	bb_put(mse_train_sum, 0.0),
 	bb_put(mse_train_min, 0.0),
 	bb_put(mse_train_max, 0.0),
@@ -1478,28 +1560,28 @@ my_5_min(V1,V2,V3,V4,V5,F1,F2,F3,F4,F5,VMin,FMin) :-
 %========================================================================
 
 init_flags :-
-	prolog_file_name('queries',Queries_Folder), % get absolute file name for './queries'
-	prolog_file_name('output',Output_Folder), % get absolute file name for './output'
+	prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
+	prolog_file_name(output,Output_Folder), % get absolute file name for './output'
 	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
 	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
-	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
+	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
-
+	% problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
 	problog_define_flag(learning_rate,problog_flag_validate_posnumber,'Default learning rate (If line_search=false)',examples,learning_line_search,flags:examples_handler),
 	problog_define_flag(line_search, problog_flag_validate_boolean,'estimate learning rate by line search',false,learning_line_search),
 	problog_define_flag(line_search_never_stop, problog_flag_validate_boolean,'make tiny step if line search returns 0',true,learning_line_search),
 	problog_define_flag(line_search_tau, problog_flag_validate_indomain_0_1_open,'tau value for line search',0.618033988749,learning_line_search),
+	    writeln(1),
 	problog_define_flag(line_search_tolerance,problog_flag_validate_posnumber,'tolerance value for line search',0.05,learning_line_search),
 	problog_define_flag(line_search_interval, problog_flag_validate_dummy,'interval for line search',(0,100),learning_line_search,flags:linesearch_interval_handler).
-	
 
 init_logger :-
-	logger_define_variable(iteration, int),
+    logger_define_variable(iteration, int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
 	logger_define_variable(mse_min_trainingset,float),
@@ -1519,5 +1601,7 @@ init_logger :-
 	logger_define_variable(llh_test_queries,float).
 
 :- initialization(init_flags).
+
 :- initialization(init_logger).
+
 

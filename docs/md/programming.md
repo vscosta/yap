@@ -141,7 +141,7 @@ We present the main predicates and directives available to load
   their public predicates into the current type-in module. It is
   implemented as if by:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.yap}
   use_module(F) :-
   	load_files(F, [if(not_loaded),must_be_module(true)]).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

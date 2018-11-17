@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Tests for the TerminalInteractiveShell and related pieces."""
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 import sys
 import unittest
 
-from yap_ipython.core.inputtransformer import InputTransformer
-from yap_ipython.testing import tools as tt
-from yap_ipython.utils.capture import capture_output
+from IPython.core.inputtransformer import InputTransformer
+from IPython.testing import tools as tt
+from IPython.utils.capture import capture_output
 
-from yap_ipython.terminal.ptutils import _elide, _adjust_completion_text_based_on_context
+from IPython.terminal.ptutils import _elide, _adjust_completion_text_based_on_context
 import nose.tools as nt
 
 class TestElide(unittest.TestCase):
@@ -67,7 +67,7 @@ class mock_input_helper(object):
 def mock_input(testfunc):
     """Decorator for tests of the main interact loop.
 
-    Write the test as a generator, yield-ing the input strings, which yap_ipython
+    Write the test as a generator, yield-ing the input strings, which IPython
     will see as if they were typed in at the prompt.
     """
     def test_method(self):
@@ -96,9 +96,7 @@ class InteractiveShellTestCase(unittest.TestCase):
     @mock_input
     def test_inputtransformer_syntaxerror(self):
         ip = get_ipython()
-        transformer = SyntaxErrorTransformer()
-        ip.input_splitter.python_line_transforms.append(transformer)
-        ip.input_transformer_manager.python_line_transforms.append(transformer)
+        ip.input_transformers_post.append(syntax_error_transformer)
 
         try:
             #raise Exception
@@ -112,8 +110,7 @@ class InteractiveShellTestCase(unittest.TestCase):
                 yield u'print(4*4)'
 
         finally:
-            ip.input_splitter.python_line_transforms.remove(transformer)
-            ip.input_transformer_manager.python_line_transforms.remove(transformer)
+            ip.input_transformers_post.remove(syntax_error_transformer)
 
     def test_plain_text_only(self):
         ip = get_ipython()
@@ -135,7 +132,7 @@ class InteractiveShellTestCase(unittest.TestCase):
 
         class Test2(Test):
             def _ipython_display_(self):
-                from yap_ipython.display import display
+                from IPython.display import display
                 display('<custom>')
 
         # verify that _ipython_display_ shortcut isn't called
@@ -146,20 +143,17 @@ class InteractiveShellTestCase(unittest.TestCase):
         self.assertEqual(data, {'text/plain': repr(obj)})
         assert captured.stdout == ''
 
-
-
-class SyntaxErrorTransformer(InputTransformer):
-    def push(self, line):
+def syntax_error_transformer(lines):
+    """Transformer that throws SyntaxError if 'syntaxerror' is in the code."""
+    for line in lines:
         pos = line.find('syntaxerror')
         if pos >= 0:
             e = SyntaxError('input contains "syntaxerror"')
             e.text = line
             e.offset = pos + 1
             raise e
-        return line
+    return lines
 
-    def reset(self):
-        pass
 
 class TerminalMagicsTestCase(unittest.TestCase):
     def test_paste_magics_blankline(self):

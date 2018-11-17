@@ -187,6 +187,18 @@ static inline Term isatom(Term inp) {
   return TermZERO;
 }
 
+static inline Term isadress(Term inp) {
+  if (IsVarTerm(inp)) {
+    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag %s",
+              "value must be bound");
+    return TermZERO;
+  }
+  if (IsAddressTerm(inp))
+    return inp;
+  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+  return TermZERO;
+}
+
 static inline Term options(Term inp) {
   return Yap_IsGroundTerm(inp) ? inp : TermZERO;
 }
@@ -342,8 +354,11 @@ static inline bool verboseMode(void) {
   return GLOBAL_Flags[VERBOSE_FLAG].at != TermSilent;
 }
 
+
 static inline void setVerbosity(Term val) {
   GLOBAL_Flags[VERBOSE_FLAG].at = val;
+  if (val == TermSilent)
+    GLOBAL_Flags[VERBOSE_LOAD_FLAG].at = TermFalse;
 }
 
 static inline bool setSyntaxErrorsFlag(Term val) {
@@ -405,12 +420,12 @@ extern  xarg *Yap_ArgListToVector__(const char *file, const char *function, int 
 
 #define Yap_ArgListToVector(l, def, n, e)				\
   Yap_ArgListToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
-                                
+
 extern xarg *Yap_ArgList2ToVector__(const char *file, const char *function, int lineno, Term listl, const param2_t *def, int n, yap_error_number e);
 
 #define Yap_ArgList2ToVector(l, def, n, e)           \
   Yap_ArgList2ToVector__(__FILE__, __FUNCTION__, __LINE__, l, def, n, e)
-                                
+
 #endif // YAP_FLAGS_H
 
 /// @}

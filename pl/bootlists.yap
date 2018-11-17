@@ -3,7 +3,7 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Thu Nov 19 09:54:00 2015
  *
- * @addtogroup lists 
+ * @addtogroup lists
  * @{
 */
 
@@ -77,20 +77,6 @@ lists:append([H|T], L, [H|R]) :-
 
 /** @pred delete(+ _List_, ? _Element_, ? _Residue_)
 
-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-True when  _List_ is a list, in which  _Element_ may or may not
-occur, and  _Residue_ is a copy of  _List_ with all elements
-identical to  _Element_ deleted.
-
-eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-*/
-lists:delete([], _, []).
-lists:delete([Head|List], Elem, Residue) :-
-       Head = Elem,
-       lists:delete(List, Elem, Residue).
-lists:delete([Head|List], Elem, [Head|Residue]) :-
-       lists:delete(List, Elem, Residue).
-
 :- set_prolog_flag(source, false). % disable source.
 
 
@@ -135,4 +121,3 @@ prolog:length(L, M) :-
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
 %% @}
-

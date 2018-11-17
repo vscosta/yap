@@ -12,21 +12,29 @@
 #include "py4yap.h"
 
 static PyObject *finalLookup(PyObject *i, const char *s) {
-  PyObject *rc;
+  PyObject *os = PyUnicode_FromString(s), *rc = NULL;
   if (i == NULL)
     return NULL;
+  
   if (strcmp(s, "none") == 0)
     return Py_None;
-  if (PyDict_Check(i)) {
-    if ((rc = PyDict_GetItemString(i, s)))
-      return rc;
-  }
   if (PyModule_Check(i)) {
-    if ((rc = PyDict_GetItemString(i, s)))
-      return rc;
+   i = PyModule_GetDict(i);
+   }  
+
+  if (PyDict_Check(i))
+  {
+    if (PyDict_Contains(i, os) == 1) {
+      rc = PyDict_GetItem(i, os);
   }
-  if (PyObject_HasAttrString(i, s)) {
-    return PyObject_GetAttrString(i, s);
+  }
+ if (!rc && PyObject_HasAttr(i, os)) {
+    rc = PyObject_GetAttr(i, os);
+  }
+  if (rc)
+  {
+      Py_IncRef(rc);
+      return rc;
   }
   return NULL;
 }
@@ -51,7 +59,6 @@ PyObject *PythonLookupSpecial(const char *s) {
 }
 
 static PyObject *builtin(const char *sp) {
-  PyObject *py_Builtin = PyEval_GetBuiltins();
   return PyDict_GetItemString(py_Builtin, sp);
 }
 
@@ -65,16 +72,17 @@ PyObject *lookupPySymbol(const char *sp, PyObject *pContext, PyObject **duc) {
   if ((out = finalLookup(py_Context, sp))) {
     return out;
   }
-  PyObject *py_Builtin = PyEval_GetBuiltins();
   if ((out = finalLookup(py_Builtin, sp))) {
     return out;
   }
-  PyObject *py_Local = PyEval_GetLocals();
+  if ((out = finalLookup(py_Atoms, sp)))
+  {
+    return out;
+  }
   if ((out = finalLookup(py_Local, sp)) && out != Py_None) {
     return out;
   }
-  PyObject *py_Global = PyEval_GetGlobals();
-  if ((out = finalLookup(py_Global, sp))) {
+    if ((out = finalLookup(py_Global, sp))) {
     return out;
   }
   if ((out = finalLookup(py_ModDict, sp))) {
@@ -479,7 +487,7 @@ static PyObject *bip_sum(term_t t) {
       }
 #if PY_MAJOR_VERSION < 3
       if (PyInt_CheckExact(item)) {
-        764PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter);
+          PyFPE_START_PROTECT("add", Py_DECREF(item); Py_DECREF(iter);
                                return 0)f_result += (double)PyInt_AS_LONG(item);
         PyFPE_END_PROTECT(f_result) Py_DECREF(item);
         continue;
@@ -583,7 +591,8 @@ static long get_len_of_range(long lo, long hi, long step) {
 }
 
 #if PY_MAJOR_VERSION >= 3
-static PyStructSequence_Field pnull[] = {
+/*
+ static PyStructSequence_Field pnull[] = {
     {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},  {"A5", NULL},
     {"A6", NULL},  {"A7", NULL},  {"A8", NULL},  {"A9", NULL},  {"A9", NULL},
     {"A10", NULL}, {"A11", NULL}, {"A12", NULL}, {"A13", NULL}, {"A14", NULL},
@@ -592,7 +601,8 @@ static PyStructSequence_Field pnull[] = {
     {"A24", NULL}, {"A25", NULL}, {"A26", NULL}, {"A27", NULL}, {"A28", NULL},
     {"A29", NULL}, {"A29", NULL}, {"A30", NULL}, {"A31", NULL}, {"A32", NULL},
     {NULL, NULL}};
-
+*/
+ 
 static PyObject *structseq_str(PyObject *iobj) {
 
 /* buffer and type size were chosen well considered. */
@@ -755,7 +765,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
       PyStructSequence_Desc *desc = calloc(sizeof(PyStructSequence_Desc), 1);
       desc->name = PyMem_Malloc(strlen(s) + 1);
       desc->doc = "YAPTerm";
-      desc->fields = pnull;
+      desc->fields = NULL;
       desc->n_in_sequence = arity;
       if (PyStructSequence_InitType2(typp, desc) < 0)
         return NULL;
@@ -968,6 +978,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 
     AOK(PL_get_arg(1, t, targ), NULL);
     ptr = term_to_python(targ, true, NULL, true);
+    if (!ptr) return NULL;
     return PyObject_Dir(ptr);
     {}
   }
@@ -1079,6 +1090,8 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 	  PyObject *key = PyUnicode_FromString(sk);
 	  AOK(PL_get_arg(2, tleft, tleft), NULL);
           PyObject *val = term_to_python(tleft, true, o, cvt);
+          if (val == NULL)
+            return NULL;
           PyDict_SetItem(pyDict, key, val);
         } else {
           indict = false;
@@ -1109,10 +1122,10 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
     }
 
     PyObject *rc;
-    if (ys && PyCallable_Check(ys)) {
-      PyObject_Print(ys, stderr, 0);
-       PyObject_Print(pArgs, stderr, 0);
-       PyObject_Print(pyDict, stderr, 0);
+    if ( PyCallable_Check(ys)) {
+      //PyObject_Print(ys, stderr, 0);
+      // PyObject_Print(pArgs, stderr, 0);
+      // PyObject_Print(pyDict, stderr, 0);
 
       // PyObject_Print(pArgs, stderr, 0);
       // PyObject_Print(o, stderr, 0);

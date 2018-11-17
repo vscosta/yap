@@ -41,7 +41,7 @@ rdir( FRoot ) :-
         absolute_file_name( FRoot, [glob(*), solutions(all), file_errors(fail)], File ),
         \+ doskip( File ),
          (
-             catch( file_property( File, type(directory) ), _, fail )
+             cat                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    zzch( file_property( File, type(directory) ), _, fail )
              ->
          assert_new( dir( File ) ),
          assert_new( sub_dir( FRoot, File ) ),

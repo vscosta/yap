@@ -1469,6 +1469,7 @@ int Yap_SavedInfo(const char *FileName, CELL *ATrail,
   mode = OpenRestore(FileName, &MyState, &MyTrail, &MyStack, &MyHeap,
                      NULL);
   if (mode == FAIL_RESTORE) {
+    fprintf(stderr, "restore failed to open %s as a valid state\n", FileName);
     return -1;
   }
   close_file();

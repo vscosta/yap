@@ -7,7 +7,7 @@ set (LIBRARY_PL_CLP
 add_to_group(   LIBRARY_PL_CLP pl_library  )
 
 install(FILES ${LIBRARY_PL_CLP}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 

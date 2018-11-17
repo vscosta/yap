@@ -128,6 +128,7 @@ extern X_API Int YAP_RunGoalOnce(Term);
 /* cdmgr.c */
 extern Term Yap_all_calls(void);
 extern Atom Yap_ConsultingFile(USES_REGS1);
+extern bool Yap_Consulting(USES_REGS1);
 extern struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 extern void Yap_InitCdMgr(void);
 extern struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
@@ -390,8 +391,7 @@ extern void Yap_InitSortPreds(void);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern void Yap_dump_stack(void);
-extern void Yap_detect_bug_location(yamop *yap_pc, int where_from, int psize);
+extern char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
 
 #if !defined(YAPOR) && !defined(THREADS)
 extern bool Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
@@ -493,7 +493,10 @@ extern Int Yap_TermHash(Term, Int, Int, int);
 extern Int Yap_NumberVars(Term, Int, bool);
 extern Term Yap_TermVariables(Term t, UInt arity USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
-extern Int Yap_SkipList(Term *, Term **);
+extern  Int Yap_SkipList(Term *, Term **);
+extern Term Yap_BreakRational(Term inp, UInt arity, Term *of, Term oi USES_REGS);
+extern Term Yap_BreakTerml(Term inp, UInt arity, Term *of, Term oi USES_REGS);
+
 /* yap.c */
 
 /* write.c */

@@ -2,29 +2,29 @@ set(LIBJIT_MAJOR_VERSION 0)
 set(LIBJIT_MINOR_VERSION 1)
 set(LIBJIT_PATCH_VERSION 0)
 set(LIBJIT_FULL_VERSION
-  ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}.${LIBJIT_PATCH_VERSION})
+${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}.${LIBJIT_PATCH_VERSION})
 
-  set(LIBJIT_SOURCES
-    jit_analysispreds.c
-    jit_configpreds.c
-    jit_statisticpreds.c
-    jit_codegenpreds.c
-    jit_debugpreds.c
-    jit_traced.c
-    jit_transformpreds.c
-    JIT_Compiler.cpp
-    JIT_Init.cpp
-  )
+set(LIBJIT_SOURCES
+  jit_analysispreds.c
+  jit_configpreds.c
+  jit_statisticpreds.c
+  jit_codegenpreds.c
+  jit_debugpreds.c
+  jit_traced.c
+  jit_transformpreds.c
+  JIT_Compiler.cpp
+  JIT_Init.cpp
+)
 
-    set(LIBJIT_HEADERS
-      HPP/JIT.hpp
-      HPP/JIT_Compiler.hpp
-      HPP/jit_predicates.hpp
-      ../OPTYap/traced_or.insts.h
-      ../OPTYap/traced_tab.insts.h
-      ../OPTYap/traced_tab.tries.insts.h
-      ../C/traced_absmi_insts.h
-    )
+set(LIBJIT_HEADERS
+  HPP/JIT.hpp
+  HPP/JIT_Compiler.hpp
+  HPP/jit_predicates.hpp
+  ../OPTYap/traced_or.insts.h
+  ../OPTYap/traced_tab.insts.h
+  ../OPTYap/traced_tab.tries.insts.h
+  ../C/traced_absmi_insts.h
+)
 
 # The following variables are defined:
 #  LLVM_FOUND          - true if LLVM was found
@@ -59,18 +59,17 @@ set (POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${LLVM_CXXFLAGS})
 
 add_lib (libyapjit
-    ${LIBJIT_SOURCES}
-    ${LIBJIT_HEADERS}
+  ${LIBJIT_SOURCES}
+  ${LIBJIT_HEADERS}
 )
 
 set_target_properties(libyapjit
   PROPERTIES
-  #  RPATH ${libdir} VERSION ${LIBJIT_FULL_VERSION}
   SOVERSION ${LIBJIT_MAJOR_VERSION}.${LIBJIT_MINOR_VERSION}
   POSITION_INDEPENDENT_CODE TRUE
   OUTPUT_NAME YapJIT
-  )
+)
 
-target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES} z)
+target_link_libraries(libyapjit libYap ${LLVM_LIBRARIES})
 
 set ( YAP_YAPJITLIB $<TARGET_FILE_NAME:libyapjit> )

@@ -21,34 +21,32 @@ functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2
     FUNCTOR_dot2, FUNCTOR_brackets1;
 
 X_API PyObject *py_Atoms;
-X_API PyObject *py_Builtin;
 X_API PyObject *py_Yapex;
 X_API PyObject *py_Sys;
 X_API PyObject * pYAPError;
 PyObject *py_Context;
-PyObject *py_ModDict;
 
 X_API PyObject *Py_f2p;
+
+bool pyStringToString;
 
 extern X_API bool python_in_python;
 
 static void add_modules(void) {
-  py_Main = PyImport_AddModule("__main__");
+  py_Atoms= PyDict_New();
+
+  if ( PyDict_Contains(PyImport_GetModuleDict(), PyUnicode_FromString("__main__"))) {
+      py_Main = PyDict_GetItemString(PyImport_GetModuleDict(),"__main__");
+    } else {
+      py_Main = PyImport_ImportModule("__main__");
+  }
   Py_INCREF(py_Main);
-  py_Sys = PyImport_AddModule("sys");
-  py_Atoms = PyDict_New();
-  Py_INCREF(py_Sys);
-  py_Builtin = PyImport_AddModule("__builtin__");
-  Py_INCREF(py_Builtin);
-  py_ModDict = PyObject_GetAttrString(py_Sys, "modules");
-  // py_Yapex = PyImport_ImportModule("yap4py.yapi");
-  // PyObject *py_Yap =
-  py_Yapex = PyImport_AddModule("yap4py.yapi");
+  py_Yapex = PyImport_ImportModule("yap4py.yapi");
   if (py_Yapex)
     Py_INCREF(py_Yapex);
   Py_f2p = PythonLookup("f2p", NULL);
   if (!Py_f2p)
-    Py_f2p = PyList_New(0);
+    Py_f2p = PyDict_New();
   Py_INCREF(Py_f2p);
   init_python_vfs();
 }
@@ -119,7 +117,7 @@ X_API bool do_init_python(void) {
 
   //  PyGILState_STATE gstate = PyGILState_Ensure();
   term_t t = PL_new_term_ref();
-  if (!python_in_python)
+  if (!Py_IsInitialized())
     Py_Initialize();
   install_py_constants();
   PL_reset_term_refs(t);

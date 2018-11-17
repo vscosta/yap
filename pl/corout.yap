@@ -41,7 +41,7 @@
 
 
 /**
- *  @ingroup AttributedVariables_Builtins
+ *  @addtogroup AttributedVariables_Builtins
  *  @{
  *
  *
@@ -141,48 +141,48 @@ freeze_goal(V,G) :-
 	'$current_module'(M),
 	internal_freeze(V, redo_freeze(_Done,V,M:G)).
 
-%
-%
-% Dif is tricky because we need to wake up on the two variables being
-% bound together, or on any variable of the term being bound to
-% another. Also, the day YAP fully supports infinite rational trees,
-% dif should work for them too. Hence, term comparison should not be
-% implemented in Prolog.
-%
-% This is the way dif works. The '$can_unify' predicate does not know
-% anything about dif semantics, it just compares two terms for
-% equaility and is based on compare. If it succeeds without generating
-% a list of variables, the terms are equal and dif fails. If it fails,
-% dif succeeds.
-%
-% If it succeeds but it creates a list of variables, dif creates
-% suspension records for all these variables on the '$redo_dif'(V,
-% X, Y) goal. V is a flag that says whether dif has completed or not,
-% X and Y are the original goals. Whenever one of these variables is
-% bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
-% was bound. If it was, dif has succeeded and redo_dif just
-% exits. Otherwise, '$redo_dif' will call dif again to see what happened.
-%
-% Dif needs two extensions from the suspension engine:
-%
-% First, it needs
-% for the engine to be careful when binding two suspended
-% variables. Basically, in this case the engine must be sure to wake
-% up one of the goals, as they may make dif fail. The way the engine
-% does so is by searching the list of suspended variables, and search
-% whether they share a common suspended goal. If they do, that
-% suspended goal is added to the WokenList.
-%
-% Second, thanks to dif we may try to suspend on the same variable
-% several times. dif calls a special version of freeze that checks
-% whether that is in fact the case.
-%
 /** @pred dif( _X_, _Y_)
 
 
 Succeed if the two arguments do not unify. A call to dif/2 will
 suspend if unification may still succeed or fail, and will fail if they
 always unify.
+
+
+
+ Dif is tricky because we need to wake up on the two variables being
+ bound together, or on any variable of the term being bound to
+ another. Also, the day YAP fully supports infinite rational trees,
+ dif should work for them too. Hence, term comparison should not be
+ implemented in Prolog.
+
+ This is the way dif works. The '$can_unify' predicate does not know
+ anything about dif semantics, it just compares two terms for
+ equaility and is based on compare. If it succeeds without generating
+ a list of variables, the terms are equal and dif fails. If it fails,
+ dif succeeds.
+
+ If it succeeds but it creates a list of variables, dif creates
+ suspension records for all these variables on the '$redo_dif'(V,
+ X, Y) goal. V is a flag that says whether dif has completed or not,
+ X and Y are the original goals. Whenever one of these variables is
+ bound, it calls '$redo_dif' again. '$redo_dif' will then check whether V
+ was bound. If it was, dif has succeeded and redo_dif just
+ exits. Otherwise, '$redo_dif' will call dif again to see what happened.
+
+ Dif needs two extensions from the suspension engine:
+
+ First, it needs
+ for the engine to be careful when binding two suspended
+ variables. Basically, in this case the engine must be sure to wake
+ up one of the goals, as they may make dif fail. The way the engine
+ does so is by searching the list of suspended variables, and search
+ whether they share a common suspended goal. If they do, that
+ suspended goal is added to the WokenList.
+
+ Second, thanks to dif we may try to suspend on the same variable
+ several times. dif calls a special version of freeze that checks
+ whether that is in fact the case.
 
 
 */
@@ -198,6 +198,7 @@ dif_suspend_on_lvars([H|T], G) :-
 	internal_freeze(H, G),
 	dif_suspend_on_lvars(T, G).
 
+%% @pred redo_dif(_Done_, _X_, _Y_)
 %
 % This predicate is called whenever a variable dif was suspended on is
 % bound. Note that dif may have already executed successfully.
@@ -263,7 +264,7 @@ redo_ground('$done', _, Goal) :-
 %
 % support for when/2 built-in
 %
-/** @pred when(+ _C_,: _G_)
+/** @pred when(+ _C_, 0:_G_)
 
 
 Delay execution of goal  _G_ until the conditions  _C_ are

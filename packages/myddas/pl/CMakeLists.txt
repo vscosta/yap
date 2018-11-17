@@ -14,7 +14,7 @@ set(MYDDAS_DRIVERS
 
 
         if (ANDROID)
-    set (MYDDAS_PREFIX ${libpl} )
+    set (MYDDAS_PREFIX ${YAP_INSTALL_DATADIR} )
 else()
     set (MYDDAS_PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
@@ -78,5 +78,5 @@ add_to_group(MYDDAS_YAP pl_library )
 add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
 
     install(FILES ${MYDDAS_YAP}
-     DESTINATION ${libpl}
+     DESTINATION ${YAP_INSTALL_DATADIR}
         )

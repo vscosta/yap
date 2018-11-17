@@ -24,13 +24,13 @@ inline static int sub_overflow(Int x, Int i, Int j) {
 }
 
 inline static Term sub_int(Int i, Int j USES_REGS) {
-#if defined(__clang__ ) || defined(__GNUC__)
+#if defined(__clang__ ) || (defined(__GNUC__) && __GNUC__ > 4)
     Int k;
     if (__builtin_sub_overflow(i,j,&k)) {
       return Yap_gmp_sub_ints(i, j);
     }
     RINT(k);
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && __GNUC__ >4
     Int w;
     if (!__builtin_sub_overflow_p(i,j,w))
          RINT(w);
@@ -64,7 +64,7 @@ inline static int mul_overflow(Int z, Int i1, Int i2) {
   return (i2 && z / i2 != i1);
 }
 
-#if defined(__clang__) || defined(__GNUC__)
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ > 4)
 #define DO_MULTI()                                                             \
   if (__builtin_mul_overflow(i1, i2, &z)) {                                   \
     goto overflow;                                                             \

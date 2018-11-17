@@ -264,6 +264,9 @@
 #define REMOTE_OpenArray(wid) (REMOTE(wid)->OpenArray)
 
 /* in a single gc */
+#define LOCAL_MallocDepth (Yap_local.MallocDepth)
+#define REMOTE_MallocDepth(wid) (REMOTE(wid)->MallocDepth)
+
 #define LOCAL_total_marked (Yap_local.total_marked)
 #define REMOTE_total_marked(wid) (REMOTE(wid)->total_marked)
 

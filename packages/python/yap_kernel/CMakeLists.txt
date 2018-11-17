@@ -1,4 +1,4 @@
-set (PYTHON_SOURCES backcall/__init__.py
+set (PYTHON_SOURCES 
 core/yap_kernel/__init__.py
 core/yap_kernel/getipython.py
 core/__init__.py
@@ -65,7 +65,6 @@ kernelspec.py
 __init__.py
 yap_kernel_launcher.py
 docs/conf.py
-backcall.py
 setup.py
 interactiveshell.py
 examples/embedding/internal_ipkernel.py
@@ -154,7 +153,6 @@ yap_ipython/core/logger.py
 yap_ipython/core/excolors.py
 yap_ipython/core/completer.py
 yap_ipython/core/ultratb.py
-yap_ipython/core/backcall.py
 yap_ipython/core/display.py
 yap_ipython/core/prompts.py
 yap_ipython/core/debugger.py
@@ -442,4 +440,4 @@ add_custom_target(YAP_KERNEL ALL
         OUTPUT_VARIABLE setupOut
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
-    install(FILES ${PL_SOURCES} DESTINATION ${libpl} )
+    install(FILES ${PL_SOURCES} DESTINATION ${YAP_INSTALL_DATADIR} )

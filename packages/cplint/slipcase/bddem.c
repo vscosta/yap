@@ -9,7 +9,6 @@ for the relative license.
 
 */
 
-#include "config.h"
 #include "cudd_config.h"
 #include <math.h>
 #include <stdio.h>
@@ -298,7 +297,7 @@ table is used to store nodeB for which the probability has alread been computed
 so that it is not recomputed
  */
 {
-  int index, mVarIndex, comp, pos;
+  int index, mVarIndex, comp;
   variable v;
   double res;
   double p, pt, pf, BChild0, BChild1;
@@ -333,7 +332,7 @@ so that it is not recomputed
       BChild1 = pt * p;
       mVarIndex = bVar2mVar_ex[ex][index];
       v = vars_ex[ex][mVarIndex];
-      pos = index - v.firstBoolVar;
+      index = v.firstBoolVar;
       res = BChild0 + BChild1;
       add_node(table, nodekey, res);
       return res;
@@ -345,7 +344,6 @@ static YAP_Bool add_var(void) {
   YAP_Term arg1, arg2, arg3, arg4, out, probTerm, probTerm_temp;
   variable *v;
   int i;
-  DdNode *node;
   double p, p0;
 
   arg1 = YAP_ARG1;
@@ -367,7 +365,7 @@ static YAP_Bool add_var(void) {
   probTerm = arg2;
   p0 = 1;
   for (i = 0; i < v->nVal - 1; i++) {
-    node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
+    // node = Cudd_bddIthVar(mgr_ex[ex], boolVars_ex[ex] + i);
     p = YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
     bVar2mVar_ex[ex][boolVars_ex[ex] + i] = nVars_ex[ex] - 1;
     probs_ex[ex][boolVars_ex[ex] + i] = p / p0;

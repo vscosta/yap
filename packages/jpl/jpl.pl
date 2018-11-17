@@ -4701,11 +4701,11 @@ java_home(Home) :-
 setup_jvm :-
 	jvm_ready, !.
 setup_jvm :-
-    check_java_libs(JVM, Java),
+    check_java_libs(_JVM, _Java),
     add_jpl_to_classpath,
     libjpl(JPL),
     add_jpl_to_ldpath(JPL,FullJPL),
-    catch(load_absolute_foreign_files([FullJPL],[Java,JVM],install), E, report_java_setup_problem(E)),
+    catch(load_absolute_foreign_files([FullJPL],[],install), E, report_java_setup_problem(E)),
     assert(jvm_ready).
 
 report_java_setup_problem(E) :-

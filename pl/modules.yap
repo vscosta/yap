@@ -429,6 +429,7 @@ export_list(Module, List) :-
 	'$do_import'(T, Module, ContextModule),
 	'$add_to_imports'(Tab, Module, ContextModule).
 
+%'$do_import'(K, _, _) :- writeln(K), fail.
 '$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
 	op(Prio,Assoc,ContextMod:Name).
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.

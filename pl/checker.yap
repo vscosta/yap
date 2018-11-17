@@ -15,6 +15,10 @@
 *									 *
 *************************************************************************/
 
+/**
+ * @file 	checker.yap
+ *
+ */
 :- system_module( style_checker, [no_style_check/1,
         style_check/1], ['$check_term'/5,
         '$sv_warning'/2,
@@ -24,7 +28,7 @@
 
 /**
 
-   @defgroup   YAPStyle Checker
+   @defgroup   YAPStyleChecker Style Checker
    @ingroup  YAPCompilerSettings
    @{
 
@@ -167,6 +171,6 @@ separated by clauses from other procedures.
 
 discontiguous(P) :- '$discontiguous'(P).
 
-/*
+/**
 @}
 */

@@ -20,8 +20,6 @@
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   Wed Nov 18 01:23:45 2015
  *
- * @brief interaction with the OS, be it Unix, Linux, or Windows.
- *
  *
 */
 
@@ -33,6 +31,7 @@
      delete_file/1,
      delete_file/2,
 	directory_files/2,
+	directory_map/2,
 	environ/2,
 	exec/3,
      file_exists/2,
@@ -61,7 +60,11 @@
 	working_directory/2
           ]).
 
-/** @defgroup operating_system_support, Operating System Functionality
+
+
+/** @defgroup operating_system_support Operating System Functionality
+ * @brief Portable Interaction with the OS, be it Unix, Linux, OSX, or Windows.
+ *
 @ingroup library
 @{
 
@@ -74,13 +77,6 @@ are available through the `use_module(library(system))` command.
 */
 
 
-/** @pred file_exists(+ _File_)
-
-
-The atom  _File_ corresponds to an existing file.
-
-
-*/
 /** @pred file_property(+ _File_,? _Property_)
 
 
@@ -213,13 +209,6 @@ WIN32.
 
 
 */
-/** @pred system(+ _Command_,- _Res_)
-
-Interface to `system`: execute command  _Command_ and unify
- _Res_ with the result.
-
-
-*/
 /** @pred tmp_file(+_Base_, - _File_)
 
 Create a name for a temporary file.  _Base_ is an user provided
@@ -234,21 +223,6 @@ temporary files.
 
 
 Interface with  _tmpnam_: obtain a new, unique file name  _File_.
-
-
-*/
-/** @pred working_directory(- _Old_,+ _New_)
-
-/** @pred  working_directory(- _CurDir_,? _NextDir_)
-
-
-Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
-to an atom, make its value the current working directory.
-
-Unifies  _Old_ with an absolute path to the current working directory
-and change working directory to  _New_.  Use the pattern
-`working_directory(CWD, CWD)` to get the current directory.  See
-also `absolute_file_name/2` and chdir/1.
 
 
 */
@@ -451,15 +425,11 @@ if there is one. This predicate is backtrackable in Unix systems, but
 not currently in Win32 configurations.
 
 ~~~~~
-   ?- environ('HOME',X).
+   ?- environ('HOME',V).
 
-X = 'C:\\cygwin\\home\\administrator' ?
+V = 'C:\\cygwin\\home\\administrator' ?
 ~~~~~
-*/
-/** @pred  environ(+E, -S)
-
-  Given an environment variable _E_ this predicate unifies the second
-  argument _S_ with its value. _E_ may be bound to an atom, or just be
+_EnvVar_ may be bound to an atom, or just be
   unbound. In the latter case environ/2 will enumerate over all
   environment variables.
 
@@ -666,6 +636,19 @@ get_shell(Shell, '/c') :-
 	getenv('COMSPEC', Shell).
 get_shell('/bin/sh','-c').
 
+/**
+  * @pred  system(+ _S_)
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+*/
+
+/**
+  * @pred  system
+
+Passes command  _S_ to the Bourne shell (on UNIX environments) or the
+current command interpreter in WIN32 environments.
+*/
 system :-
 	default_shell(Command),
 	do_system(Command, _Status, Error),
@@ -676,6 +659,13 @@ default_shell(Shell) :- win, !,
 default_shell('/bin/sh').
 
 
+/** @pred system(+ _Command_,- _Res_)
+
+Interface to `system`: execute command  _Command_ and unify
+ _Res_ with the result.
+
+
+n*/
 system(Command, Status) :-
 	G = system(Command, Status),
 	check_command(Command, G),
@@ -764,13 +754,6 @@ rename_file(F0, F) :-
 	rename_file(F0, F, Error),
 	handle_system_internal(Error, off, rename_file(F0, F)).
 
-/**
-  * @pred  system(+ _S_)
-
-Passes command  _S_ to the Bourne shell (on UNIX environments) or the
-current command interpreter in WIN32 environments.
-*/
-
 /** @pred directory_files(+ _Dir_,+ _List_)
 
 
@@ -787,5 +770,47 @@ environments, and `findfirst` in WIN32 through the system_library buil
 */
 directory_files(X,Y) :-
      list_directory(X,Y).
+
+:- meta_predicate directory_map(+,1,-),
+	rb_apply(+,+,2,-).
+
+/** @pred directory_map(+ _Dir_, 1:_P_)
+
+
+Given a directory _Dir_, directory_map/2 visits all files in _Dir_,
+and verifies whether `P(F)` holds, where _F_ is the file's absolute
+path.
+
+~~~~~
+    ?- directory_map('.', process).
+~~~~~
+
+The predicates performs a left-recursive traversal. It does not protect against file system errors and it does not check for symbolic links.
+
+*/
+directory_map(D, P) :-
+        working_directory(_, D),
+	list_directory(D,L),
+	d_map(L,D, P).
+
+d_map([],_,_).
+d_map(['.'|Fs],D, P) :-
+    !,
+    d_map(Fs,D, P).
+d_map(['..'|Fs],D, P) :-
+    !,
+    d_map(Fs, D, P).
+d_map([F|Fs], D, P) :-
+    absolute_file_name( F, File, [prefix(D)] ),
+    f_map(File, P),
+    d_map(Fs, D, P).
+
+f_map(File, P) :-
+     catch( file_property( File, type(directory) ), _, fail ),
+     directory_map( File, P).
+f_map(File, P) :-
+     call(P,File).
+
+
 
 /** @} */

@@ -82,17 +82,18 @@ extern functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1,
     FUNCTOR_dot2;
 
 extern X_API PyObject *py_Main;
-extern X_API PyObject *py_Builtin;
 extern X_API PyObject *py_Yapex;
-extern X_API PyObject *py_Local;
 extern X_API PyObject *py_Atoms;
-extern X_API PyObject *py_Global;
 extern X_API PyObject *py_Context;
 extern PyObject *Py_f2p;
 extern PyObject *py_Sys;
-extern PyObject *py_ModDict;
+#define py_ModDict PyImport_GetModuleDict()
+#define py_Local   PyEval_GetLocals()
+#define py_Global  PyEval_GetGlobals()
+#define py_Builtin PyEval_GetBuiltins()
 
 extern X_API bool python_in_python;
+extern bool pyStringToString;
 
 extern bool python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);
@@ -133,8 +134,13 @@ static inline int proper_ascii_string(const char *s) {
 static inline PyObject *atom_to_python_string(term_t t) {
   // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
   // am\n");
-  char *s = NULL;
-  if (!PL_get_atom_chars(t, &s))
+  const char *s = NULL;
+  Term yapt = Yap_GetFromSlot(t);
+  if (IsStringTerm(yapt))
+    s = StringOfTerm(yapt);
+  else if (IsAtomTerm(yapt))
+    s = RepAtom(AtomOfTerm(yapt))->StrOfAE;
+  else
     return NULL;
 /* return __main__,s */
 #if PY_MAJOR_VERSION < 3

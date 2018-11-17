@@ -15,6 +15,7 @@
     maplist/3,
     maplist/4,
     maplist/5,
+    maplist/6,
     checklist/2,
   checknodes/2,
   convlist/3,
@@ -52,6 +53,7 @@
 	maplist(2,+,-),
 	maplist(3,+,+,-),
 	maplist(4,+,+,+,-),
+	maplist(5,+,+,+,+,-),
 	convlist(2,+,-),
 	convlist(3,?,?,?),
 	mapnodes(2,+,-),
@@ -63,7 +65,7 @@
 	sumnodes_body(3,+,+,-,+,+),
 	include(1,+,-),
 	exclude(1,+,-),
-	partition(2,+,-,-),
+	partition(1,+,-,-),
 	partition(2,+,-,-,-),
 	foldl(3, +, +, -),
 	foldl2(5, +, +, -, +, -),
@@ -287,7 +289,8 @@ checklist(Pred, [In|ListIn]) :-
     checklist(Pred, ListIn).
 
 /**
-  @pred  maplist(: Pred, ? ListIn)
+  @pred  
+  ist(: Pred, ? ListIn)
 
   Applies predicate  _Pred_( _El_ ) to all
   elements _El_ of  _ListIn_.
@@ -338,6 +341,18 @@ maplist(_, [], [], [], []).
 maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4]) :-
     call(Pred, A1, A2, A3, A4),
     maplist(Pred, L1, L2, L3, L4).
+
+/**
+  @pred  maplist(: Pred, ? L1, ? L2, ? L3, ? L4, ? L5)
+
+  _L1_,  _L2_,  _L3_, _L4_ and  _L5_ are such that
+  `call( _Pred_, _A1_, _A2_, _A3_, _A4_,_A5_)` holds
+  for every corresponding element in lists  _L1_,  _L2_,  _L3_, _L4_ and  _L5_.
+*/
+maplist(_, [], [], [], [], []).
+maplist(Pred, [A1|L1], [A2|L2], [A3|L3], [A4|L4], [A5|L5]) :-
+    call(Pred, A1, A2, A3, A4, A5),
+    maplist(Pred, L1, L2, L3, L4, L5).
 
 /**
   @pred convlist(: Pred, + ListIn, ? ListOut)
@@ -788,6 +803,27 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s]], RecursionHead),
 	append_args(Pred, [A1, A2, A3, A4], Apply),
 	append_args(HeadPrefix, [A1s, A2s, A3s, A4s], RecursiveCall),
+	compile_aux([
+		     Base,
+		     (RecursionHead :- Apply, RecursiveCall)
+		    ], Mod).
+
+goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
+	goal_expansion_allowed,
+	callable(Meta),
+	prolog_load_context(module, Mod),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
+	% the new goal
+	pred_name(maplist, 6, Proto, GoalName),
+	append(MetaVars, [L1, L2, L3, L4, L5], GoalArgs),
+	Goal =.. [GoalName|GoalArgs],
+	% the new predicate declaration
+	HeadPrefix =.. [GoalName|PredVars],
+	append_args(HeadPrefix, [[], [], [], [], []], Base),
+	append_args(HeadPrefix, [[A1|A1s], [A2|A2s], [A3|A3s], [A4|A4s], [A5|A5s]], RecursionHead),
+	append_args(Pred, [A1, A2, A3, A4, A5], Apply),
+	append_args(HeadPrefix, [A1s, A2s, A3s, A4s, A5s], RecursiveCall),
 	compile_aux([
 		     Base,
 		     (RecursionHead :- Apply, RecursiveCall)

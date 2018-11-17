@@ -113,7 +113,7 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
  * @return              did we fiid it?
  */
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
-  // we have a creep requesr waiting
+   // we have a creep requesr waiting
 
   ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
@@ -327,7 +327,7 @@ inline static bool do_execute(Term t, Term mod USES_REGS) {
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    if (pen->PredFlags & (MetaPredFlag | UndefPredFlag)) {
+    if (pen->PredFlags & (MetaPredFlag | UndefPredFlag | SpiedPredFlag)) {
       return CallMetaCall(t0, mod0 PASS_REGS);
     }
     pt = RepAppl(t) + 1;
@@ -1615,6 +1615,8 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   saved_p = P;
   saved_cp = CP;
   /* prune away choicepoints */
+  if (B == bb)
+    return;
   while (B->cp_b && B->cp_b != bb && B->cp_ap != NOCODE) {
     B = B->cp_b;
 #ifdef YAPOR

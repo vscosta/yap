@@ -2,6 +2,7 @@
   /* This file, iatoms.h, was generated automatically by "yap -L misc/buildatoms"
      {lease do not update, update misc/ATOMS instead */
 
+  AtomAtSymbol = Yap_LookupAtom("@"); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = Yap_LookupAtom("...");
   AtomAbol = Yap_FullLookupAtom("$abol"); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = Yap_LookupAtom("access"); TermAccess = MkAtomTerm(AtomAccess);
@@ -182,6 +183,7 @@
   AtomGlobalTrie = Yap_LookupAtom("global_trie"); TermGlobalTrie = MkAtomTerm(AtomGlobalTrie);
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion"); TermGoalExpansion = MkAtomTerm(AtomGoalExpansion);
   AtomHat = Yap_LookupAtom("^"); TermHat = MkAtomTerm(AtomHat);
+  AtomDoubleHat = Yap_LookupAtom("^^"); TermDoubleHat = MkAtomTerm(AtomDoubleHat);
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n"); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw"); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = Yap_LookupAtom("heap"); TermHeap = MkAtomTerm(AtomHeap);
@@ -457,6 +459,8 @@
   FunctorAs = Yap_MkFunctor(AtomAs,2);
   FunctorAssert1 = Yap_MkFunctor(AtomAssert,1);
   FunctorAssert = Yap_MkFunctor(AtomAssert,2);
+  FunctorAt = Yap_MkFunctor(AtomAt,2);
+  FunctorAtSymbol = Yap_MkFunctor(AtomAtSymbol,2);
   FunctorAtFoundOne = Yap_MkFunctor(AtomFoundVar,2);
   FunctorAtom = Yap_MkFunctor(AtomAtom,1);
   FunctorAtt1 = Yap_MkFunctor(AtomAtt1,3);
@@ -530,6 +534,7 @@
   FunctorGoalExpansion = Yap_MkFunctor(AtomGoalExpansion,3);
   FunctorHandleThrow = Yap_MkFunctor(AtomHandleThrow,3);
   FunctorHat = Yap_MkFunctor(AtomHat,2);
+  FunctorDoubleHat = Yap_MkFunctor(AtomDoubleHat,1);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
   FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);

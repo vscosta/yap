@@ -15,7 +15,7 @@ Computational Science, by H. P. Langtangen:
 
 http://folk.uio.no/hpl/scripting
 
-(although ultimately no code from this text was used, as yap_ipython's system is a
+(although ultimately no code from this text was used, as IPython's system is a
 separate implementation).
 
 An example notebook is provided in our documentation illustrating interactive

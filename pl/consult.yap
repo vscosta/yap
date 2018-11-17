@@ -74,7 +74,6 @@
 
 :- use_system_module( '$_preds', ['$current_predicate'/4]).
 
-
 :- '$system_meta_predicates'([
 	compile(:),
 	consult(:),
@@ -102,6 +101,10 @@ files and to set-up the Prolog environment. We discuss
 
   + @ref YAPCompilerSettings
 
+    @}
+  */
+
+/**
 @defgroup YAPReadFiles The Predicates that Read Source Files
   @ingroup  YAPConsulting
 
@@ -235,7 +238,7 @@ load_files(Files0,Opts) :-
     '__NB_getval__'('$qcompile', Current, Current = never).
 '$lf_option'(silent, 8, _).
 '$lf_option'(skip_unix_header, 9, Skip) :-
-    stream_property(Stream,[alias(loop_stream),tty(TTy),reposition(Rep)]),
+    stream_property(loop_stream,[tty(TTy),reposition(Rep)]),
     ( Rep == true
     ->
 	     (TTy = true   -> Skip = false ; Skip = true)
@@ -302,6 +305,7 @@ load_files(Files0,Opts) :-
     current_input(S),
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(-user_input, M,Opts, Call) :-
+    current_input(S),
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
@@ -311,7 +315,7 @@ load_files(Files0,Opts) :-
     ( LC > 0
     ->
       '__NB_getval__'('$lf_status', OldTOpts, fail),
-        nonvar(OldTOpts),
+        nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
          '$lf_opt'('$context_module', OldTOpts, OldContextModule)
     ;
@@ -411,8 +415,8 @@ load_files(Files0,Opts) :-
 	    Val == large -> true ;
 	    '$do_error'(domain_error(unknown_option,qcompile(Val)),Call) ).
 '$process_lf_opt'(silent, Val, Call) :-
-	( Val == false -> yap_flag(verbose_load, full) ;
-	    Val == true -> yap_flag(verbose_load, silent) ;
+	( Val == false -> yap_flag(verbose_load, true) ;
+	    Val == true -> yap_flag(verbose_load, false) ;
 	    '$do_error'(domain_error(out_of_domain_option,silent(Val)),Call) ).
 '$process_lf_opt'(skip_unix_header, Val, Call) :-
 	( Val == false -> true ;
@@ -858,7 +862,10 @@ nb_setval('$if_le1vel',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	lists:member(G, Answers),
+	'$process_init_goal'(Answers).
+'$exec_initialization_goals'.
+
+'$process_init_goal'([G|_]) :-
 	'$yap_strip_module'( G, M0, G0),
 	(
 	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
@@ -868,7 +875,8 @@ nb_setval('$if_le1vel',0).
     format(user_error,':- ~w:~w failed.~n',[M0,G0])
 	),
 	fail.
-'$exec_initialization_goals'.
+'$process_init_goal'([_|Gs]) :-
+    '$process_init_goal'(Gs).
 
 /**
   @pred include(+ _F_) is directive
@@ -924,7 +932,7 @@ nb_setval('$if_le1vel',0).
 	'$init_win_graphics',
 	fail.
 '$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(false)]), Error, '$LoopError'(Error, consult)),
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,
 	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
 '$do_startup_reconsult'(_).
@@ -1350,8 +1358,13 @@ account the following observations:
 */
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
-	  '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule),
+	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
+	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  ->
+	  true
+	  ;
+	  OldContextModule = user
+	  ),
 	  '$import_to_current_module'(File, OldContextModule, Imports, _, TOpts),
 	  '$extend_exports'(File, Imports, OldF )
 	).
@@ -1672,6 +1685,10 @@ End of conditional compilation.
 	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
+/** consult_depth(-int:_LV_)
+ *
+ * Unify _LV_ with the number of files being consulted.
+ */
 consult_depth(LV) :- '$show_consult_level'(LV).
 
 prolog_library(File) :-

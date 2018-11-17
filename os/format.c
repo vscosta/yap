@@ -282,29 +282,51 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
 	f_putc(sno, ch);
       }	
     }
+  } else if (IsAtomTerm(args)) {
+    const unsigned char *pt =  RepAtom(AtomOfTerm(args))->UStrOfAE;
+    while (*pt && (!has_size || size > 0)) {
+      utf8proc_int32_t ch;
+      
+      if ((pt += get_utf8(pt, -1, &ch)) > 0) {
+	f_putc(sno, ch);
+      }	
+    }
   } else {
     while (!has_size || size > 0) {
+      bool maybe_chars = true, maybe_codes = true;
       if (IsVarTerm(args)) {
-        Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+        Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
         return FALSE;
       } else if (args == TermNil) {
         return TRUE;
       } else if (!IsPairTerm(args)) {
-        Yap_Error(TYPE_ERROR_LIST, args, "format/2");
+        Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
         return FALSE;
       }
       arghd = HeadOfTerm(args);
       args = TailOfTerm(args);
       if (IsVarTerm(arghd)) {
-        Yap_Error(INSTANTIATION_ERROR, arghd, "format/2");
+        Yap_ThrowError(INSTANTIATION_ERROR, arghd, "~s expects a bound argument");
         return FALSE;
-      } else if (!IsIntTerm(arghd)) {
-        Yap_Error(TYPE_ERROR_LIST, arghd, "format/2");
+      } else if (maybe_codes && IsIntTerm(arghd)) {
+	f_putc(sno, (int)IntOfTerm(arghd));
+	size--;
+	maybe_chars = false;
+      } else if (maybe_chars && IsAtomTerm(arghd)) {
+	unsigned char *fptr = RepAtom(AtomOfTerm(arghd))->UStrOfAE;
+	int ch;
+	fptr += get_utf8(fptr, -1, &ch);
+	if (fptr[0] != '\0') {
+	  Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects a list of chars ");
+	}
+	f_putc(sno, ch);
+	size--;
+	maybe_codes = false;
+      }  else  {
+	Yap_ThrowError(TYPE_ERROR_TEXT, arghd, "~s expects an atom, string, or list of codes or chars ");
         return FALSE;
       }
-      f_putc(sno, (int)IntOfTerm(arghd));
-      size--;
-    }
+     }
   }
   return TRUE;
 }
@@ -313,11 +335,11 @@ static Int format_copy_args(Term args, Term *targs, Int tsz) {
   Int n = 0;
   while (args != TermNil) {
     if (IsVarTerm(args)) {
-      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
       return FORMAT_COPY_ARGS_ERROR;
     }
     if (!IsPairTerm(args)) {
-      Yap_Error(TYPE_ERROR_LIST, args, "format/2");
+      Yap_ThrowError(TYPE_ERROR_LIST, args, "format/2");
       return FORMAT_COPY_ARGS_ERROR;
     }
     if (n == tsz)
@@ -402,7 +424,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
       *HR++ = otail;
       if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
 	pop_text_stack(l);
-        Yap_Error(RESOURCE_ERROR_HEAP, otail, "format/2");
+        Yap_ThrowError(RESOURCE_ERROR_HEAP, otail, "format/2");
         return false;
       }
       oargs = HR[-2];
@@ -418,20 +440,20 @@ static Int doformat(volatile Term otail, volatile Term oargs,
   targ = 0;
   if (IsVarTerm(tail)) {
     format_clean_up(sno0, sno, finfo );
-    Yap_Error(INSTANTIATION_ERROR, tail, "format/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, tail, "format/2");
     return (FALSE);
   } else if ((fstr = Yap_TextToUTF8Buffer(tail))) {
     fptr = fstr;
     alloc_fstr = true;
   } else {
     format_clean_up(sno0, sno, finfo);
-    Yap_Error(TYPE_ERROR_TEXT, tail, "format/2");
+    Yap_ThrowError(TYPE_ERROR_TEXT, tail, "format/2");
     return false;
   }
   if (IsVarTerm(args)) {
     pop_text_stack(l);
     format_clean_up(sno0, sno, finfo);
-    Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
     return FALSE;
   }
   while (IsApplTerm(args) && FunctorOfTerm(args) == FunctorModule) {
@@ -440,19 +462,19 @@ static Int doformat(volatile Term otail, volatile Term oargs,
     if (IsVarTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
       pop_text_stack(l);
-      Yap_Error(INSTANTIATION_ERROR, fmod, "format/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, fmod, "format/2");
       return false;
     }
     if (!IsAtomTerm(fmod)) {
       format_clean_up(sno0, sno, finfo);
       pop_text_stack(l);
-      Yap_Error(TYPE_ERROR_ATOM, fmod, "format/2");
+      Yap_ThrowError(TYPE_ERROR_ATOM, fmod, "format/2");
       return false;
     }
     if (IsVarTerm(args)) {
       format_clean_up(sno0, sno, finfo);
       pop_text_stack(l);
-      Yap_Error(INSTANTIATION_ERROR, args, "format/2");
+      Yap_ThrowError(INSTANTIATION_ERROR, args, "format/2");
       return FALSE;
     }
   }
@@ -968,7 +990,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 						Term ta[2];
 						ta[0] = otail;
 						ta[1] = oargs;
-						Yap_Error(LOCAL_Error_TYPE,
+						Yap_ThrowError(LOCAL_Error_TYPE,
 							  Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
 							  "arguments to format");
 					      }
@@ -1028,7 +1050,7 @@ static Term memStreamToTerm(int output_stream, Functor f, Term inp) {
   } else if (f == FunctorString1) {
     return Yap_CharsToString(s, enc PASS_REGS);
   }
-  Yap_Error(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
+  Yap_ThrowError(DOMAIN_ERROR_FORMAT_OUTPUT, inp, NULL);
   return 0L;
 }
 
@@ -1088,7 +1110,7 @@ static Int with_output_to(USES_REGS1) {
   bool mem_stream = false;
   yhandle_t hdl = Yap_PushHandle(tin);
   if (IsVarTerm(tin)) {
-    Yap_Error(INSTANTIATION_ERROR, tin, "with_output_to/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, tin, "with_output_to/3");
     return false;
   }
   if (IsApplTerm(tin) && (f = FunctorOfTerm(tin))) {
@@ -1129,7 +1151,7 @@ static Int format(Term tf, Term tas, Term tout USES_REGS) {
   bool mem_stream = false;
 
   if (IsVarTerm(tout)) {
-    Yap_Error(INSTANTIATION_ERROR, tout, "format/3");
+    Yap_ThrowError(INSTANTIATION_ERROR, tout, "format/3");
     return false;
   }
   yhandle_t hl = Yap_StartHandles(), yo = Yap_PushHandle(tout);

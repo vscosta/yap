@@ -45,5 +45,5 @@ def get_inputhook_name_and_func(gui):
         os.environ['QT_API'] = 'pyqt5'
         gui_mod = 'qt'
 
-    mod = importlib.import_module('yap_ipython.terminal.pt_inputhooks.'+gui_mod)
+    mod = importlib.import_module('IPython.terminal.pt_inputhooks.'+gui_mod)
     return gui, mod.inputhook

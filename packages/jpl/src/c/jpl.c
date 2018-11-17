@@ -640,7 +640,7 @@ static JNIEnv*
 jni_env(void) /* economically gets a JNIEnv pointer, valid for this thread */
 { JNIEnv	*env;
 
-  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_8) )
+  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4) )
   { case JNI_OK:
       return env;
     case JNI_EDETACHED:
@@ -5675,7 +5675,7 @@ static foreign_t
 	int			i;
 	term_t		head;
 	term_t		list;
-	char		*s;
+	char		*s = NULL;
 
 	if ( jvm_dia == NULL )  /* presumably, JVM is already started, so default options cannot now be set */
 		{

@@ -1,14 +1,14 @@
 # encoding: utf-8
-"""Tests for yap_ipython.utils.path.py"""
+"""Tests for IPython.utils.path.py"""
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 from unittest.mock import patch
 import nose.tools as nt
 
-from yap_ipython.lib import latextools
-from yap_ipython.testing.decorators import onlyif_cmds_exist, skipif_not_matplotlib
-from yap_ipython.utils.process import FindCmdError
+from IPython.lib import latextools
+from IPython.testing.decorators import onlyif_cmds_exist, skipif_not_matplotlib
+from IPython.utils.process import FindCmdError
 
 
 def test_latex_to_png_dvipng_fails_when_no_cmd():

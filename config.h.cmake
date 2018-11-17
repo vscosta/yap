@@ -2115,4 +2115,6 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #endif
 #endif
 
+#include "YapTermConfig.h"
+
 #endif

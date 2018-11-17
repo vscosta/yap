@@ -10,7 +10,7 @@ Authors
 """
 
 #-----------------------------------------------------------------------------
-#  Copyright (C) 2008-2011  The yap_ipython Development Team
+#  Copyright (C) 2008-2011  The IPython Development Team
 #
 #  Distributed under the terms of the BSD License.  The full license is in
 #  the file COPYING, distributed as part of this software.
@@ -73,7 +73,7 @@ def inputhook_pyglet():
     needed, otherwise, CPU usage is at 100%.  This sleep time should be tuned
     though for best performance.
     """
-    # We need to protect against a user pressing Control-C when yap_ipython is
+    # We need to protect against a user pressing Control-C when IPython is
     # idle and this is running. We trap KeyboardInterrupt and pass.
     try:
         t = clock()

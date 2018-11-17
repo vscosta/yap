@@ -1,19 +1,20 @@
 # coding: utf-8
-"""Tests for yap_ipython.lib.pretty."""
+"""Tests for IPython.lib.pretty."""
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 
 from collections import Counter, defaultdict, deque, OrderedDict
+import os
 import types
 import string
 import unittest
 
 import nose.tools as nt
 
-from yap_ipython.lib import pretty
-from yap_ipython.testing.decorators import skip_without
+from IPython.lib import pretty
+from IPython.testing.decorators import skip_without
 
 from io import StringIO
 
@@ -406,6 +407,15 @@ def test_mappingproxy():
     for obj, expected in cases:
         nt.assert_equal(pretty.pretty(obj), expected)
 
+
+def test_pretty_environ():
+    dict_repr = pretty.pretty(dict(os.environ))
+    # reindent to align with 'environ' prefix
+    dict_indented = dict_repr.replace('\n', '\n' + (' ' * len('environ')))
+    env_repr = pretty.pretty(os.environ)
+    nt.assert_equals(env_repr, 'environ' + dict_indented)
+
+
 def test_function_pretty():
     "Test pretty print of function"
     # posixpath is a pure python module, its interface is consistent
@@ -420,4 +430,24 @@ def test_function_pretty():
         return "Don't panic"
 
     nt.assert_in('meaning_of_life(question=None)', pretty.pretty(meaning_of_life))
-    
+
+
+class OrderedCounter(Counter, OrderedDict):
+    'Counter that remembers the order elements are first encountered'
+
+    def __repr__(self):
+        return '%s(%r)' % (self.__class__.__name__, OrderedDict(self))
+
+    def __reduce__(self):
+        return self.__class__, (OrderedDict(self),)
+
+class MySet(set):  # Override repr of a basic type
+    def __repr__(self):
+        return 'mine'
+
+def test_custom_repr():
+    """A custom repr should override a pretty printer for a parent type"""
+    oc = OrderedCounter("abracadabra")
+    nt.assert_in("OrderedCounter(OrderedDict", pretty.pretty(oc))
+
+    nt.assert_equal(pretty.pretty(MySet()), 'mine')

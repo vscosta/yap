@@ -376,7 +376,7 @@ int simpleBDDtoDot(DdManager *manager, DdNode *bdd, char *filename) {
   return ret;
 }
 
-int simpleNamedBDDtoDot(DdManager *manager, const namedvars varmap, DdNode *bdd, char *filename) {
+int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char *filename) {
   DdNode *f[1];
   int ret;
   FILE *fd;

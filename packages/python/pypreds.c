@@ -8,7 +8,6 @@ PyObject *py_Main;
 void pyErrorHandler__(int line, const char *file, const char *code) {
   // this code is called if a Python error is found.
   // int lvl = push_text_stack();
-  PyObject *type, *val;
   //   PyErr_Fetch(&type, &val, NULL);
   //   PyErr_Print();
   // Yap_ThrowError__(file,code,line,0, SYSTEM_ERROR_RUNTIME_PYTHON ,"Python
@@ -229,6 +228,25 @@ static foreign_t assign_python(term_t exp, term_t name) {
   bool b = python_assign(name, e, NULL);
   python_release_GIL(stackp);
   pyErrorAndReturn(b);
+}
+
+
+static foreign_t python_string_to(term_t f) {
+  if (PL_is_atom(f)) {
+    char *s = NULL;
+    if (!PL_get_chars(f, &s, CVT_ATOM |CVT_STRING | CVT_EXCEPTION | REP_UTF8)) {
+      pyErrorAndReturn(false);
+    }
+    if (!strcmp(s,"atom")) {
+      pyStringToString = false;
+      return true;
+    }
+    if (!strcmp(s,"string")) {
+      pyStringToString = true;
+      return true;
+    }
+  }
+  return false;
 }
 
 static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
@@ -552,27 +570,6 @@ static foreign_t python_export(term_t t, term_t pl) {
   pyErrorAndReturn(rc);
 }
 
-static bool get_mod(const char *s0)
-{
-   PyObject *pName;
- term_t t0 = python_acquire_GIL();
-#if PY_MAJOR_VERSION < 3
-  pName = PyString_FromString(s0);
-#else
-  pName = PyUnicode_FromString(s0);
-#endif
-  if (pName == NULL) {
-    python_release_GIL(t0);
-  }
-
-  PyObject *pModule = PyImport_Import(pName);
-
-  Py_XDECREF(pName);
-      python_release_GIL(t0);
-
-      return pModule;
-}
-
 /**
  * @pred python_import(MName, Mod)
  *   Import a python module to the YAP environment.
@@ -648,7 +645,7 @@ static int python_import(term_t mname, term_t mod) {
     foreign_t rc = address_to_term(pModule, mod);
 
     if (do_as) {
-      PyObject_SetAttrString(py_Main, as, pModule);
+      PyModule_AddObject(py_Main, as, pModule);
     }
     python_release_GIL(t0);
     pyErrorAndReturn(rc);
@@ -759,6 +756,7 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_access", 3, python_access, 0);
   PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
   PL_register_foreign("python_clear_errors", 0, python_clear_errors, 0);
+  PL_register_foreign("python_string_to", 1, python_string_to, 0);
 
   init_python_vfs();
 }

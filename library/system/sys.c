@@ -1,20 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-                                                                         *
-* comments:	regular expression interpreter                           *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ *
+ * comments:	regular expression interpreter                           *
+ *									 *
+ *************************************************************************/
 
 #include "YapInterface.h"
-#include "config.h"
 
 #include <stdlib.h>
 
@@ -312,22 +311,20 @@ static YAP_Bool rename_file(void) {
   return (TRUE);
 }
 
-
- static YAP_Bool read_link(void) {
+static YAP_Bool read_link(void) {
   char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_READLINK
   char buf[MAXPATHLEN + 1];
 
   if (readlink(s1, buf, MAXPATHLEN) < 0)
     return false;
-  
-  
-    /* return an error number */
+
+  /* return an error number */
   if (!YAP_Unify(YAP_ARG2, YAP_MkAtomTerm(YAP_LookupAtom(buf)))) {
-      return false;
+    return false;
   }
 #endif
-# if _WIN32
+#if _WIN32
   return false;
 #endif
   return true;
