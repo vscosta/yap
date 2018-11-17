@@ -159,8 +159,8 @@ target_link_libraries(yap-bin libYap )
 
         install(TARGETS  libYap yap-bin
          RUNTIME DESTINATION ${bindir}
-         LIBRARY DESTINATION ${libdir}
-          ARCHIVE DESTINATION ${libdir}
+         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
        )
 
 

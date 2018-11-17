@@ -56,11 +56,11 @@ set (LIBRARY_PL
  )
 
 install(FILES ${PROGRAMS}
-  DESTINATION ${libpl}
+  DESTINATION ${YAP_INSTALL_DATADIR}
   )
 
 install(FILES ${PROBLOG_PROGRAMS}
-  DESTINATION ${libpl}/problog
+  DESTINATION ${YAP_INSTALL_DATADIR}/problog
   )
 
 

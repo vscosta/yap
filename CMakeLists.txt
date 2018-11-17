@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.4)
 
 # Sets the version of CMake required to build the native
 # library. You should either keep the default value or  pass a
-# value of 3.4.0 or lower.
+# value of 3.4.0 or lower.fg
 include(CMakeToolsHelpers OPTIONAL)
 
 include(FeatureSummary)
@@ -313,21 +313,7 @@ ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
 
 set(prefix ${CMAKE_INSTALL_PREFIX}) #BINDIR})
-set(bindir ${CMAKE_INSTALL_PREFIX}/bin) #BINDIR})
-set(includedir ${CMAKE_INSTALL_PREFIX}/include) #INCLUDEDIR})
-set(libdir ${CMAKE_INSTALL_PREFIX}/lib) #LIBDIR})
-set(exec_prefix ${CMAKE_INSTALL_PREFIX}/libexec) #LIBEXECDIR})
-set(datarootdir ${CMAKE_INSTALL_PREFIX}/share) #DATAROOTDIR})
-if (ANDROID)
-  set(datarootdir ${YAP_APP_DIR}/src/generated/assets)
-endif ()
-set(datadir ${CMAKE_INSTALL_PREFIX}/share) #DATADIR})
-set(mandir ${CMAKE_INSTALL_PREFIX}/share/man) #MANDIR})
 set(docdir ${CMAKE_INSTALL_PREFIX}/share/docs) #MANDIR})
-
-set(libpl ${datadir}/Yap)
-
-set(dlls ${libdir}/Yap)
 
 set(YAP_ROOTDIR ${prefix})
 # erootdir -> rootdir
@@ -338,10 +324,8 @@ set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
 set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
 set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
 
-set(YAP_INSTALL_DLLDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
-set(YAP_INSTALL_PLDIR ${CMAKE_INSTALL_DATADIR}/Yap)
-
-set(libpl ${YAP_INSTALL_PLDIR})
+set(YAP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
+set(YAP_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR}/Yap)
 
 #
 #
@@ -499,9 +483,9 @@ endif ()
 #
 #
 ## the RPATH to be used when installing, but only if it's not a system directory
-#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${libdir}" isSystemDir)
+#LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${YAP_INSTALL_LIBDIR}" isSystemDir)
 # IF("${isSystemDir}" STREQUAL "-1")
-#    SET(CMAKE_INSTALL_RPATH  ${libdir})
+#    SET(CMAKE_INSTALL_RPATH  ${YAP_INSTALL_LIBDIR})
 #ENDIF("${isSystemDir}" STREQUAL "-1")
 #
 IF(NOT WIN32 AND NOT APPLE)
@@ -866,6 +850,19 @@ if (WITH_JAVA)
       #   JAVA_AWT_INCLUDE_PATH = the include path to jawt.h
 
 
+
+  get_filename_component ( JAVA_AWT_DIR ${JAVA_AWT_LIBRARY} DIRECTORY)
+  get_filename_component ( JAVA_JNI_DIR ${JAVA_JVM_LIBRARY} DIRECTORY)
+  list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR};${JAVA_JNI_DIR})
+if (APPLE)
+  set(CMAKE_MACOSX_RPATH 1)
+  find_library (JLI jli ${JAVA_AWT_DIR}/jli)
+  find_library (JAL JavaApplicationLauncher FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
+  find_library (JL JavaLaunching FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
+  list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR}/jli)
+list(APPEND JNI_LIBRARIES  ${JLI};${JAL};${JL})
+endif()
+
     endif (JNI_FOUND)
 
 
@@ -958,8 +955,8 @@ target_link_libraries(yap-bin libYap)
 
 install(TARGETS libYap yap-bin
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
   )
 
 
@@ -990,7 +987,7 @@ endif(WITH_MPI)
 
 #
 
-install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${includedir}/Yap )
+install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
 
 
 
