@@ -68,12 +68,16 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
     read-only boolean, a machine running an Google's Android version of the
     Linux Operating System */
   YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "true", NULL),
+  #else
+  YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "false", NULL),
 #endif
 
 #if __APPLE__
  /**<
     read-only boolean, a machine running an Apple Operating System */
   YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "true", NULL),
+  #else
+    YAP_FLAG(APPLE_FLAG, "apple", false, booleanFlag, "false", NULL),
 #endif
  /**<
       read-only atom, it describes the ISA used in this version of YAP.

@@ -401,14 +401,13 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 #endif
       if (GLOBAL_Stream[sno].status & Seekable_Stream_f)
         {
-          while (tok)
-            {
-              if (tok->Tok != Error_tok)
+          while (tok && tok->Tok != Error_tok && tok != errtok)
                 {
-                  tok = tok->TokNext;
+		  if (tok->TokNext)
+		    tok = tok->TokNext;
+		  else
+		    break;
                 }
-	      break;
-	    }
           err_line = tok->TokLine;
           errpos = tok->TokPos -1;
           if (errpos <= startpos)

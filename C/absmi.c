@@ -971,7 +971,7 @@ static void undef_goal(USES_REGS1) {
       *ip = d1;
       continue;
 
-      derefa_body(d1, pt0, undef_unk, undef_nonvar);
+      deref_body(d1, pt0, undef_unk, undef_nonvar);
       if (pt0 < HR) {
         /* variable is safe */
         *ip = (CELL)pt0;
