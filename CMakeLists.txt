@@ -351,14 +351,10 @@ list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
 
 
-if (GMP_FOUND)
+if (GMP_INCLUDE_DIRS)
   #config.h needs this (TODO: change in code latter)
   include_directories(${GMP_INCLUDE_DIRS})
-  check_include_file(gmp.h HAVE_GMP_H)
-  check_include_file_cxx(gmpxx.h HAVE_GMPXX_H)
-
-
-endif (GMP_FOUND)
+ endif ()
 
 
 if (WITH_READLINE)

@@ -470,7 +470,7 @@ extern void Yap_InitAbsmi(void);
 extern void Yap_InitUnify(void);
 extern void Yap_TrimTrail(void);
 extern int Yap_Unifiable(Term d0, Term d1);
-extern int Yap_IUnify(register CELL d0, register CELL d1);
+extern int Yap_IUnify( CELL d0,  CELL d1);
 
 /* userpreds.c */
 extern void Yap_InitUserCPreds(void);
