@@ -776,7 +776,7 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid) (&Yap_local)
 #endif
 
-#include "encoding.h"
+#include "YapEncoding.h"
 
 #include <stdio.h>
 #define YP_FILE FILE

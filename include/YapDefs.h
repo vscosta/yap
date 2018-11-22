@@ -69,7 +69,7 @@ typedef int (*YAP_agc_hook)(void *_Atom);
 
 #include "YapError.h"
 
-#include "../os/encoding.h"
+#include "YapEncoding.h"
 
 typedef encoding_t YAP_encoding_t;
 

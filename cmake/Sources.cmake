@@ -253,8 +253,6 @@ set (OPTYap_HEADERS
   )
 
 set (YAPOS_HEADERS
-	${CMAKE_SOURCE_DIR}/os/encoding.h
-	${CMAKE_SOURCE_DIR}/os/fmemopen.h
 	${CMAKE_SOURCE_DIR}/os/format.h
 	${CMAKE_SOURCE_DIR}/os/getw.h
 	${CMAKE_SOURCE_DIR}/os/iopreds.h

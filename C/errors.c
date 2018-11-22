@@ -332,7 +332,7 @@ bool Yap_PrintWarning(Term twarning) {
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " warning(%s)",
-                        Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f | Unfold_cyclics_f));
+                        Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f | Ignore_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
   Term ts[2], err;
