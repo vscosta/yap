@@ -704,8 +704,8 @@ db_files(Fs) :-
 '$csult'(Fs, M) :-
 	load_files(M:Fs,[consult(consult)]).
 
-	'$csult_in_mod'(M, -F ) :- $load_files'(M:F,[],[M:F])
-	'$csult_in_mod'(M, F ) :- $load_files'(M:F,[consult(consult)],[M:F])
+	'$csult_in_mod'(M, -F ) :- '$load_files'(M:F,[],[M:F]).
+	'$csult_in_mod'(M, F ) :- '$load_files'(M:F,[consult(consult)],[M:F]).
 
 '$extract_minus'([], []).
 '$extract_minus'([-F|Fs], [F|MFs]) :-
@@ -813,7 +813,7 @@ db_files(Fs) :-
 	'__NB_getval__'('$if_level', OldIfLevel, fail), !,
 	nb_setval('$if_level',0).
 '$reset_if'(0) :-
-nb_setval('$if_le1vel',0).
+nb_setval('$if_level',0).
 
 '$get_if'(Level0) :-
 	'__NB_getval__'('$if_level', Level, fail), !,
@@ -930,7 +930,7 @@ nb_setval('$if_le1vel',0).
 %
 '$do_startup_reconsult'(_X) :-
 	'$init_win_graphics',
-	fail.
+	fail.../
 '$do_startup_reconsult'(X) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,

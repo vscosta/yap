@@ -476,9 +476,12 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- ensure_loaded('../pl/pathconf.yap').
 
-:- yap_flag(user:unknown,error).
+:- ( get_prolog_flag(android,true)  -> ensure_loaded(library(android)) ; true ).
 
-%:- ensure_loaded('../android.yap').
+
+
+:- set_prolog_flag(unknown,error).
 
 
 %% @}
+

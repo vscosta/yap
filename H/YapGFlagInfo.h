@@ -22,6 +22,13 @@
     @brief global flags and their values.
 */
 
+#ifdef __ANDROID__
+#define IN_ANDROID "true"
+#else
+#define IN_ANDROID "false"
+#endif
+
+
 START_GLOBAL_FLAGS
 
  /**<
@@ -63,14 +70,10 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 
 /**<  how to present answers, default is `~p`. */
   YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
-#if __ANDROID__
  /**<
     read-only boolean, a machine running an Google's Android version of the
     Linux Operating System */
-  YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "true", NULL),
-  #else
-  YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, "false", NULL),
-#endif
+  YAP_FLAG(ANDROID_FLAG, "android", false, booleanFlag, IN_ANDROID, NULL),
 
 #if __APPLE__
  /**<
