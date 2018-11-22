@@ -16,7 +16,7 @@ extern "C" {
 #include "YapConfig.h"
 }
 
-#if HAVE_GMPXX_H
+#if HAVE_GMPXX_H || defined(__ANDROID__)
 #include <gmpxx.h>
 #elif HAVE_GMP_H
 #include <gmp.h>

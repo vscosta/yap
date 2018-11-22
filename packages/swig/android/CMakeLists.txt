@@ -1,6 +1,7 @@
 
   # This is a CMake file for SWIG and Android
 
+  set (SWIG_CXX_DIR ${YAP_APP_DIR}/src/generated/jni)
 FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
 FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
 FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/jni)
@@ -16,42 +17,43 @@ FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/jni)
    set (GMP_INCLUDE_DIRS ${GMP_ROOT})
    set (GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
 
-
-      add_custom_target (pllib
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}
-         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${YAP_INSTALL_DATADIR}
-         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${YAP_INSTALL_DATADIR}
- DEPENDS  ${pl_library}
-)
-
- 	      add_custom_target (pllibpl
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/pl
-         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${YAP_INSTALL_DATADIR}/pl
-DEPENDS pllib ${pl_boot_library}
- 	)
- 	      add_custom_target (pllibos ALL
-         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/os
-         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${YAP_INSTALL_DATADIR}/os
-DEPENDS pllibpl ${pl_os_library}
-    	)
-
-    add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp
-         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O -outdir ${CMAKE_SWIG_OUTDIR}  -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp -oh ${CMAKE_SWIG_OUTPUT}/swig_streamer.hh streamer.i
-         DEPENDS streamer.i
- 	)
-
- 	     add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp
-           COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O  -outdir ${CMAKE_SWIG_OUTDIR}  -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp -oh ${CMAKE_SWIG_OUTPUT}/yap_swig.hh ${SWIG_SOURCES}
-	   DEPENDS pllibos  ${SWIG_SOURCES} YAP++)
-
+#
+#      add_custom_target (pllib
+#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}
+#         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${YAP_INSTALL_DATADIR}
+#         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${YAP_INSTALL_DATADIR}
+# DEPENDS  ${pl_library}
+#)
+#
+# 	      add_custom_target (pllibpl
+#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/pl
+#         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${YAP_INSTALL_DATADIR}/pl
+#DEPENDS pllib ${pl_boot_library}
+# 	)
+# 	      add_custom_target (pllibos ALL
+#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/os
+#         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${YAP_INSTALL_DATADIR}/os
+#DEPENDS pllibpl ${pl_os_library}
+#    	)
+#
+#    add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp
+#         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O -outdir ${CMAKE_SWIG_OUTDIR}  -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp -oh ${CMAKE_SWIG_OUTPUT}/swig_streamer.hh streamer.i
+#         DEPENDS streamer.i
+# 	)
+#
+# 	     add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp
+#           COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O  -outdir ${CMAKE_SWIG_OUTDIR}  -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp -oh ${CMAKE_SWIG_OUTPUT}/yap_swig.hh ${SWIG_SOURCES}
+#	   DEPENDS pllibos  ${SWIG_SOURCES} YAP++)
+#
 
 
          add_library(YAPJava OBJECT
-    	${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp
-    	${CMAKE_SWIG_OUTPUT}/yap_swig.cpp
+    	${SWIG_CXX_DIR}/streamer_swig.cxx
+    	${SWIG_CXX_DIR}/yapi_swig.cxx
     	streamer.cpp
-    	)
+	 	)
 
+ set_target_properties(YAPJava PROPERTIES LINKER_LANGUAGE CXX)
 
       # GMP_FOUND         - true if GMP/MPIR was found
       # GMP_INCLUDE_DIRS  - include search path

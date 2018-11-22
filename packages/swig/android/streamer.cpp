@@ -77,15 +77,6 @@ static int64_t  and_seek(int sno, int64_t where, int how) {
 static void
 and_flush(int sno) {
 
-buff0 += '\0';
-streamerInstance->display(buff0);
-
-
-
-//
-// Created by vsc on 11-07-2017.
-//
-
 }
 
 
