@@ -116,7 +116,7 @@ typedef void *YAP_Functor;
 
 #include "YapError.h"
 
-#include "../os/encoding.h"
+#include "YapEncoding.h"
 
 typedef encoding_t YAP_encoding_t;
 
