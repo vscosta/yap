@@ -2,9 +2,10 @@ if (WITH_SQLITE3)
 
   message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
 
-  set (SQLITE_EXTRA
-    chinook.db
+  set (SQLITE_TEST
     sqlitest.yap)
+
+  set (SQLITE_DB    chinook.db)
 
   set( YAPSQLITE3_SOURCES
     myddas_sqlite3.c
@@ -65,8 +66,12 @@ if (WITH_SQLITE3)
       )
   endif()
 
-  install(FILES ${SQLITE_EXTRA}
+  install(FILES ${SQLITE_DB}
     DESTINATION ${YAP_PLDIR}/data
+    )
+
+  install(FILES ${SQLITE_TEST}
+    DESTINATION ${YAP_PLDIR}/test
     )
 
 endif()

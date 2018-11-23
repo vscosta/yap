@@ -112,6 +112,8 @@ foreign_directory(yap('lib/Yap')).
 ~~~~~~~~~~~~~~~~~~~~~
 */
 
+:- multifile prolog_file_type/2.
+:- discontiguous prolog_file_type/2.
 :- dynamic prolog_file_type/2.
 
 prolog_file_type(yap, prolog).

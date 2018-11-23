@@ -198,7 +198,7 @@ static bool consult(const char *b_file USES_REGS) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
         consult(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
-	Yap_PopException();
+	Yap_ResetException(LOCAL_ActiveError);
       } else {
         YAP_RunGoalOnce(t);
       }

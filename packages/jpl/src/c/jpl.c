@@ -640,7 +640,7 @@ static JNIEnv*
 jni_env(void) /* economically gets a JNIEnv pointer, valid for this thread */
 { JNIEnv	*env;
 
-  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_4) )
+  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_8) )
   { case JNI_OK:
       return env;
     case JNI_EDETACHED:
