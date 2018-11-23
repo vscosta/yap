@@ -2,26 +2,26 @@
 """
 Support for creating GUI apps and starting event loops.
 
-yap_ipython's GUI integration allows interative plotting and GUI usage in yap_ipython
-session. yap_ipython has two different types of GUI integration:
+IPython's GUI integration allows interactive plotting and GUI usage in IPython
+session. IPython has two different types of GUI integration:
 
-1. The terminal based yap_ipython supports GUI event loops through Python's
+1. The terminal based IPython supports GUI event loops through Python's
    PyOS_InputHook. PyOS_InputHook is a hook that Python calls periodically
    whenever raw_input is waiting for a user to type code. We implement GUI
    support in the terminal by setting PyOS_InputHook to a function that
    iterates the event loop for a short while. It is important to note that
    in this situation, the real GUI event loop is NOT run in the normal
    manner, so you can't use the normal means to detect that it is running.
-2. In the two process yap_ipython kernel/frontend, the GUI event loop is run in
+2. In the two process IPython kernel/frontend, the GUI event loop is run in
    the kernel. In this case, the event loop is run in the normal manner by
    calling the function or method of the GUI toolkit that starts the event
    loop.
 
-In addition to starting the GUI event loops in one of these two ways, yap_ipython
+In addition to starting the GUI event loops in one of these two ways, IPython
 will *always* create an appropriate GUI application object when GUi
 integration is enabled.
 
-If you want your GUI apps to run in yap_ipython you need to do two things:
+If you want your GUI apps to run in IPython you need to do two things:
 
 1. Test to see if there is already an existing main application object. If
    there is, you should use it. If there is not an existing application object
@@ -57,7 +57,7 @@ so you don't have to depend on yap_ipython.
 
 """
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 from yap_ipython.core.getipython import get_ipython

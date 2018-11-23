@@ -7,7 +7,6 @@ This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
 
 */
-#include "config.h"
 #include "cudd_config.h"
 #include <stdio.h>
 #if HAVE_CUDDINT_H
@@ -18,7 +17,9 @@ for the relative license.
 
 #include "YapInterface.h"
 
-typedef struct { int var, value; } factor;
+typedef struct {
+  int var, value;
+} factor;
 
 typedef struct {
   int nFact;

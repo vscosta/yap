@@ -7,10 +7,14 @@
   *
   *   @addtogroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
-  *   @{
-*/
+  * 
+  * [TOC]
+  * 
+  *    @{
+  * \*/
 
-:- '$system_meta_predicates'([
+  :- '$system_meta_predicates'([
+	gated_call(0,0,?,0),
 	catch(0,?,0),
   log_event(+,:)]).
 
@@ -19,6 +23,7 @@
 % start a Prolog engine.
 live :-
     repeat,
+    yap_flag(verbose,normal),
     '$current_module'(Module),
     ( Module==user ->
       true % '$compile_mode'(_,0)
@@ -335,11 +340,10 @@ live :-
 %
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
-	  CP is '$last_choice_pt',
-	 '$current_choice_point'(NCP1),
+	 '$$save_by'(NCP1),
 	 attributes:delayed_goals(G, V, NV, LGs),
-	 '$clean_ifcp'(CP),
-	 '$current_choice_point'(NCP2),
+	 '$clean_ifcp'(NCP1),
+	 '$$save_by'(NCP2),
 	 NCP is NCP2-NCP1
 	  ;
 	   copy_term_nat(V, NV),
@@ -579,6 +583,15 @@ write_query_answer( Bindings ) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
+'$user_call'(G, CP, G0, M) :-
+        gated_call(
+                '$enable_debugging',
+                '$call'(G, CP, G0, M),
+	         Port,
+  	         '$disable_debugging_on_port'(Port)
+       ).
+    
+
 '$user_call'(G, M) :-
         gated_call(
                 '$enable_debugging',
@@ -699,10 +712,14 @@ write_query_answer( Bindings ) :-
 '$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
-'$call'(!, CP, _,_) :- !,
+'$call'(!, CP, CP,_G0) :- !,
 	'$$cut_by'(CP).
-'$call'([A|B], _, _, M) :- !,
-	'$csult'([A|B], M).
+'$call'([X|Y], _, _, M) :-
+    (Y == [] ->
+    consult(M:X)
+    ;
+ 	 '$csult'([X|Y] ,M)
+ 	 ).
 '$call'(G, _CP, _G0, CurMod) :-
 % /*
 % 	(
@@ -827,6 +844,7 @@ Command = (H --> B) ->
 
 /* General purpose predicates				*/
 
+'$head_and_body'(M:(H:-B),M:H,M:B) :- !.
 '$head_and_body'((H:-B),H,B) :- !.
 '$head_and_body'(H,H,true).
 
@@ -923,7 +941,7 @@ expand_term(Term,Expanded) :-
 
 %% @}
 
-%% @addto group YAPControl
+%% @addtogroup YAPControl
 
 %% @{
     

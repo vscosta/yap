@@ -105,6 +105,8 @@ restart:
     return NULL;
 }
 
+  extern char * Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
+
 static PredEntry *PredForChoicePt(yamop *p_code, op_numbers *opn) {
   while (TRUE) {
     op_numbers opnum;
@@ -656,7 +658,7 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
 
   PELOCK(40, pp);
   /* check if the codeptr comes from the indexing code */
-  if (pp->PredFlags & IndexedPredFlag  && pp->OpcodeOfPred != INDEX_OPCODE) {
+  if (pp->PredFlags & IndexedPredFlag && pp->OpcodeOfPred != INDEX_OPCODE) {
     if (pp->PredFlags & LogUpdatePredFlag) {
       if (code_in_pred_lu_index(
               ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
@@ -885,7 +887,7 @@ static PredEntry *ClauseInfoForCode(yamop *codeptr, void **startp,
   if (codeptr >= COMMA_CODE && codeptr < FAILCODE) {
     pp = RepPredProp(Yap_GetPredPropByFunc(FunctorComma, CurrentModule));
     *startp = (CODEADDR)COMMA_CODE;
-    *endp = (CODEADDR)(FAILCODE - 1);
+    *endp = (CODEADDR)(FAILCODE);
     return pp;
   }
   pc = codeptr;
@@ -1124,7 +1126,7 @@ static Term clause_info(yamop *codeptr, PredEntry *pp) {
 yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
                                         yamop *codeptr, PredEntry *pp) {
   CACHE_REGS
-  Term ts[2];
+
   void *begin;
   if (pp->ArityOfPE == 0) {
     t->prologPredName = AtomName((Atom)pp->FunctorOfPred);
@@ -1138,36 +1140,18 @@ yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
                         : "prolog");
   t->prologPredFile = RepAtom(pp->src.OwnerFile)->StrOfAE;
   if (codeptr->opc == UNDEF_OPCODE) {
-    t->prologPredFirstLine = 0;
     t->prologPredLine = 0;
-    t->prologPredLastLine = 0;
     return t;
   } else if (pp->cs.p_code.NOfClauses) {
-    if ((t->prologPredCl = find_code_in_clause(pp, codeptr, &begin, NULL)) <=
+    if ((t->prologPredLine = find_code_in_clause(pp, codeptr, &begin, NULL)) <=
         0) {
       t->prologPredLine = 0;
     } else {
       t->prologPredLine = IntegerOfTerm(clause_loc(begin, pp));
     }
-    if (pp->PredFlags & LogUpdatePredFlag) {
-      t->prologPredFirstLine =
-          clause_loc(ClauseCodeToLogUpdClause(pp->cs.p_code.FirstClause), pp);
-      t->prologPredLastLine =
-          clause_loc(ClauseCodeToLogUpdClause(pp->cs.p_code.LastClause), pp);
-
-    } else {
-      t->prologPredFirstLine = IntegerOfTerm(
-          ts[0] = clause_loc(
-              ClauseCodeToStaticClause(pp->cs.p_code.FirstClause), pp));
-      t->prologPredLastLine = IntegerOfTerm(
-          ts[1] = clause_loc(ClauseCodeToStaticClause(pp->cs.p_code.LastClause),
-                             pp));
-    }
     return t;
   } else {
-    t->prologPredFirstLine = 0;
     t->prologPredLine = t->errorLine;
-    t->prologPredLastLine = 0;
     t->prologPredFile = t->errorFile;
     return t;
   }
@@ -1720,8 +1704,6 @@ parent_pred(USES_REGS1) {
          Yap_unify(ARG2, MkAtomTerm(at)) && Yap_unify(ARG3, MkIntTerm(arity));
 }
 
-void Yap_dump_stack(void);
-
 void DumpActiveGoals(CACHE_TYPE1);
 
 static int hidden(Atom);
@@ -1763,6 +1745,7 @@ static int legal_env(CELL *ep USES_REGS) {
   return (TRUE);
 }
 
+#if 0
 static bool handled_exception(USES_REGS1) {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred, l);
   bool found_handler = false;
@@ -1785,172 +1768,192 @@ static bool handled_exception(USES_REGS1) {
   return !found_handler;
 }
 
-void Yap_dump_stack(void) {
+#endif
+
+#define ADDBUF( CMD ) { \
+while (true) {          \
+  size_t sz = CMD;          \
+  if (sz < lbufsz-256) {     \
+    lbuf += sz;              \
+    lbufsz -= sz;              \
+    break;                       \
+  }             \
+  char *nbuf = Realloc(buf, bufsize += 1024); \
+  lbuf = nbuf + (lbuf-buf); \
+  buf  = nbuf;              \
+  lbufsz += 1024;           \
+ }                         \
+}
+
+const char *Yap_dump_stack(void) {
   CACHE_REGS
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
-  char tp[256];
+  char *tp;
   yamop *ipc = CP;
   int max_count = 200;
-
+  int lvl = push_text_stack();
+  char *buf = Malloc(4096), *lbuf = buf;
+  size_t bufsize = 4096, lbufsz = bufsize-256;
   /* check if handled */
-  if (handled_exception(PASS_REGS1))
-    return;
-#if DEBU
-  fprintf(stderr, "%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",
-          P, CP, ASP, HR, TR, HeapTop);
-#endif
+  // if (handled_exception(PASS_REGS1))
+  //  return;
+#if DEBUG
+  ADDBUF(snprintf(lbuf, lbufsz ,
+              "%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p~n", P,
+		  CP, ASP, HR, TR, HeapTop));
 
-  fprintf(stderr, "%% \n%%  =====================================\n%%\n");
-  fprintf(stderr, "%% \n%%  YAP Status:\n");
-  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  =====================================~n%%~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  YAP Status:~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
   yap_error_number errnbr = LOCAL_Error_TYPE;
   yap_error_class_number classno = Yap_errorClass(errnbr);
 
-  fprintf(stderr, "%% Error STATUS: %s/%s\n\n", Yap_errorName(errnbr),
-          Yap_errorClassName(classno));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% Error STATUS: %s/%s~n~n", Yap_errorName(errnbr),
+		  Yap_errorClassName(classno)));
 
-  fprintf(stderr, "%% Execution mode\n");
+  ADDBUF(snprintf(lbuf, lbufsz , "%% Execution mode~n"));
   if (LOCAL_PrologMode & BootMode)
-    fprintf(stderr, "%%         Bootstrap\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Bootstrap~n"));
   if (LOCAL_PrologMode & UserMode)
-    fprintf(stderr, "%%         User Prolo\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         User Prolo~n"));
   if (LOCAL_PrologMode & CritMode)
-    fprintf(stderr, "%%         Exclusive Access Mode\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Exclusive Access Mode~n"));
   if (LOCAL_PrologMode & AbortMode)
-    fprintf(stderr, "%%         Abort\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Abort~n"));
   if (LOCAL_PrologMode & InterruptMode)
-    fprintf(stderr, "%%         Interrupt\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Interrupt~n"));
   if (LOCAL_PrologMode & InErrorMode)
-    fprintf(stderr, "%%         Error\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Error~n"));
   if (LOCAL_PrologMode & ConsoleGetcMode)
-    fprintf(stderr, "%%         Prompt Console\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Prompt Console~n"));
   if (LOCAL_PrologMode & ExtendStackMode)
-    fprintf(stderr, "%%         Stack expansion \n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Stack expansion ~n"));
   if (LOCAL_PrologMode & GrowHeapMode)
-    fprintf(stderr, "%%         Data Base Expansion\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Data Base Expansion~n"));
   if (LOCAL_PrologMode & GrowStackMode)
-    fprintf(stderr, "%%         User Prolog\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         User Prolog~n"));
   if (LOCAL_PrologMode & GCMode)
-    fprintf(stderr, "%%         Garbage Collection\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Garbage Collection~n"));
   if (LOCAL_PrologMode & ErrorHandlingMode)
-    fprintf(stderr, "%%         Error handler\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Error handler~n"));
   if (LOCAL_PrologMode & CCallMode)
-    fprintf(stderr, "%%         System Foreign Code\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         System Foreign Code~n"));
   if (LOCAL_PrologMode & UnifyMode)
-    fprintf(stderr, "%%         Off-line Foreign Code\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Off-line Foreign Code~n"));
   if (LOCAL_PrologMode & UserCCallMode)
-    fprintf(stderr, "%%         User Foreig C\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         User Foreig C~n"));
   if (LOCAL_PrologMode & MallocMode)
-    fprintf(stderr, "%%         Heap Allocaror\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Heap Allocaror~n"));
   if (LOCAL_PrologMode & SystemMode)
-    fprintf(stderr, "%%         Prolog Internals\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Prolog Internals~n"));
   if (LOCAL_PrologMode & AsyncIntMode)
-    fprintf(stderr, "%%         Async Interruot mode\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Async Interruot mode~n"));
   if (LOCAL_PrologMode & InReadlineMode)
-    fprintf(stderr, "%%         Readline Console\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Readline Console~n"));
   if (LOCAL_PrologMode & TopGoalMode)
-    fprintf(stderr, "%%         Creating new query\n");
-  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% \n%%  YAP Program:\n");
-  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% Program Position: %s\n\n", Yap_errorName(errno) );
-  fprintf(stderr, "%%          PC: %s\n", (char *)HR);
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Creating new query~n"));
+#endif
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  YAP Program:~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
+  ADDBUF(snprintf(lbuf, lbufsz ,  "%% Program Position: %s~n~n", Yap_errorName(errno)));
+  ADDBUF(snprintf(lbuf, lbufsz , "%%          PC: %s~n", (char *)HR));
   Yap_output_bug_location(CP, FIND_PRED_FROM_ANYWHERE, 256);
-  fprintf(stderr, "%%          Continuation: %s\n", (char *)HR);
+  ADDBUF(snprintf(lbuf, lbufsz , "%%          Continuation: %s~n", (char *)HR));
   Yap_output_bug_location(B->cp_ap, FIND_PRED_FROM_ANYWHERE, 256);
-  fprintf(stderr, "%%          Alternative: %s\n", (char *)HR);
+  ADDBUF(snprintf(lbuf, lbufsz , "%%          Alternative: %s~n", (char *)HR));
 
-  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-  fprintf(stderr, "%% \n%%  YAP Stack Usage:\n");
-  fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  YAP Stack Usage:~n"));
+  ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
   if (HR > ASP || HR > LCL0) {
-    fprintf(stderr, "%% YAP ERROR: Global Collided against Local (%p--%p)\n",
-            HR, ASP);
+    ADDBUF(snprintf(lbuf, lbufsz , "%% YAP ERROR: Global Collided against Local (%p--%p)~n",
+		    HR, ASP));
   } else if (HeapTop > (ADDR)LOCAL_GlobalBase) {
-    fprintf(stderr,
-            "%% YAP ERROR: Code Space Collided against Global (%p--%p)\n",
-            HeapTop, LOCAL_GlobalBase);
+    ADDBUF(snprintf(lbuf, lbufsz ,
+            "%% YAP ERROR: Code Space Collided against Global (%p--%p)~n",
+		    HeapTop, LOCAL_GlobalBase));
   } else {
 #if !USE_SYSTEM_MALLOC
-    fprintf(stderr, "%%ldKB of Code Space (%p--%p)\n",
+    ADDBUF(snprintf(lbuf, lbufsz , "%%ldKB of Code Space (%p--%p)~n",
             (long int)((CELL)HeapTop - (CELL)Yap_HeapBase) / 1024, Yap_HeapBase,
-            HeapTop);
+		    HeapTop));
 #if USE_DL_MALLOC
     if (Yap_NOfMemoryHoles) {
       UInt i;
 
       for (i = 0; i < Yap_NOfMemoryHoles; i++)
-        fprintf(stderr, "  Current hole: %p--%p\n", Yap_MemoryHoles[i].start,
-                Yap_MemoryHoles[i].end);
+        ADDBUF(snprintf(lbuf, lbufsz , "  Current hole: %p--%p~n", Yap_MemoryHoles[i].start,
+			Yap_MemoryHoles[i].end));
     }
 #endif
 #endif
-    fprintf(stderr, "%%    %luKB of Global Stack (%p--%p)\n",
-            (unsigned long int)(sizeof(CELL) * (HR - H0)) / 1024, H0, HR);
-    fprintf(stderr, "%%    %luKB of Local Stack (%p--%p)\n",
-            (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)) / 1024, ASP, LCL0);
-    fprintf(stderr, "%%    %luKB of Trail (%p--%p)\n",
+    ADDBUF(snprintf(lbuf, lbufsz , "%%    %luKB of Global Stack (%p--%p)~n",
+		    (unsigned long int)(sizeof(CELL) * (HR - H0)) / 1024, H0, HR));
+    ADDBUF(snprintf(lbuf, lbufsz , "%%    %luKB of Local Stack (%p--%p)~n",
+		    (unsigned long int)(sizeof(CELL) * (LCL0 - ASP)) / 1024, ASP, LCL0));
+    ADDBUF(snprintf(lbuf, lbufsz , "%%    %luKB of Trail (%p--%p)~n",
             (unsigned long int)((ADDR)TR - LOCAL_TrailBase) / 1024,
-            LOCAL_TrailBase, TR);
-    fprintf(stderr, "%%    Performed %ld garbage collections\n",
-            (unsigned long int)LOCAL_GcCalls);
+		    LOCAL_TrailBase, TR));
+    ADDBUF(snprintf(lbuf, lbufsz , "%%    Performed %ld garbage collections~n",
+		    (unsigned long int)LOCAL_GcCalls));
 #if LOW_LEVEL_TRACER
     {
       extern long long vsc_count;
 
       if (vsc_count) {
 #if _WIN32
-        fprintf(stderr, "Trace Counter at %I64d\n", vsc_count);
+        ADDBUF(snprintf(lbuf, lbufsz , "Trace Counter at %I64d~n", vsc_count));
 #else
-        fprintf(stderr, "Trace Counter at %lld\n", vsc_count);
+        ADDBUF(snprintf(lbuf, lbufsz , "Trace Counter at %lld~n", vsc_count));
 #endif
       }
     }
 #endif
-fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-fprintf(stderr, "%% \n%%  YAP Stack:\n");
-fprintf(stderr, "%% \n%%  -------------------------------------\n%%\n");
-    fprintf(stderr, "%% All Active Calls and\n");
-    fprintf(stderr, "%%         Goals With Alternatives Open  (Global In "
-                    "Use--Local In Use)\n%%\n");
+    ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
+    ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  YAP Stack:~n"));
+    ADDBUF(snprintf(lbuf, lbufsz , "%% ~n%%  -------------------------------------~n%%~n"));
+    ADDBUF(snprintf(lbuf, lbufsz , "%% All Active Calls and~n"));
+    ADDBUF(snprintf(lbuf, lbufsz , "%%         Goals With Alternatives Open  (Global In "
+                    "Use--Local In Use)~n%%~n"));
     while (b_ptr != NULL) {
       while (env_ptr && env_ptr <= (CELL *)b_ptr) {
-        Yap_output_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
+        tp = Yap_output_bug_location(ipc, FIND_PRED_FROM_ENV, 256);
         if (env_ptr == (CELL *)b_ptr && (choiceptr)env_ptr[E_CB] > b_ptr) {
           b_ptr = b_ptr->cp_b;
-          fprintf(stderr, "%%  %s\n", tp);
+          ADDBUF(snprintf(lbuf, lbufsz , "%%  %s~n", tp));
         } else {
-          fprintf(stderr, "%%  %s\n", tp);
+          ADDBUF(snprintf(lbuf, lbufsz , "%%  %s~n", tp));
         }
         if (!max_count--) {
-          fprintf(stderr, "%%  .....\n");
-          return;
+          ADDBUF(snprintf(lbuf, lbufsz , "%%  .....~n"));
+          return pop_output_text_stack(lvl, buf);
         }
         ipc = (yamop *)(env_ptr[E_CP]);
         env_ptr = (CELL *)(env_ptr[E_E]);
       }
       if (b_ptr) {
         if (!max_count--) {
-          fprintf(stderr, "//  .....\n");
-          return;
+          ADDBUF(snprintf(lbuf, lbufsz , "//  .....~n"));
+          return pop_output_text_stack(lvl, buf);
         }
         if (b_ptr->cp_ap && /* tabling */
             b_ptr->cp_ap->opc != Yap_opcode(_or_else) &&
             b_ptr->cp_ap->opc != Yap_opcode(_or_last) &&
             b_ptr->cp_ap->opc != Yap_opcode(_Nstop)) {
           /* we can safely ignore ; because there is always an upper env */
-          Yap_output_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
-          fprintf(stderr, "%%         %s (%luKB--%luKB)\n", tp,
+          tp = Yap_output_bug_location(b_ptr->cp_ap, FIND_PRED_FROM_CP, 256);
+          ADDBUF(snprintf(lbuf, lbufsz , "%%         %s (%luKB--%luKB)~n", tp,
                   (unsigned long int)((b_ptr->cp_h - H0) * sizeof(CELL) / 1024),
-                  (unsigned long int)((ADDR)LCL0 - (ADDR)b_ptr) / 1024);
+			  (unsigned long int)((ADDR)LCL0 - (ADDR)b_ptr) / 1024));   
         }
         b_ptr = b_ptr->cp_b;
       }
     }
   }
+    return pop_output_text_stack(lvl, buf);
 }
-
 
 void DumpActiveGoals(USES_REGS1) {
   /* try to dump active goals */
@@ -2065,7 +2068,7 @@ void DumpActiveGoals(USES_REGS1) {
             if (i > 0)
               fputc(',', stderr);
             fputc('_', stderr);
-          }
+	  }
           fputs(") :- ... ( _  ; _ ", stderr);
         } else {
           Term *args = &(b_ptr->cp_a1);
@@ -2086,33 +2089,34 @@ void DumpActiveGoals(USES_REGS1) {
   }
 }
 
-
 /**
  * Used for debugging.
- * 
+ *
  */
-void Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
+char * Yap_output_bug_location(yamop *yap_pc, int where_from, int psize) {
   Atom pred_name;
   UInt pred_arity;
   Term pred_module;
   Int cl;
 
+  char *o = Malloc(256);
   if ((cl = Yap_PredForCode(yap_pc, where_from, &pred_name, &pred_arity,
                             &pred_module)) == 0) {
     /* system predicate */
-    fprintf(stderr, "%% %s", "meta-call");
+    snprintf(o, 255, "%% %s", "meta-call");
   } else if (pred_module == 0) {
-    fprintf(stderr, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
+    snprintf(o, 255, "in prolog:%s/%lu", RepAtom(pred_name)->StrOfAE,
             (unsigned long int)pred_arity);
   } else if (cl < 0) {
-    fprintf(stderr, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
+    snprintf(o, 255, "%% %s:%s/%lu", RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity);
   } else {
-    fprintf(stderr, "%% %s:%s/%lu at clause %lu",
+    snprintf(o, 255, "%% %s:%s/%lu at clause %lu",
             RepAtom(AtomOfTerm(pred_module))->StrOfAE,
             RepAtom(pred_name)->StrOfAE, (unsigned long int)pred_arity,
             (unsigned long int)cl);
   }
+  return o;
 }
 
 static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,

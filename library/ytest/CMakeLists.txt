@@ -8,5 +8,5 @@ add_custom_target (ytest_helpers SOURCES ${HELPER_PL} ) # WORKING_DIRECTORY ${CM
 
 
 install(FILES ${HELPER_PL}
-  DESTINATION ${libpl}/ytest
+  DESTINATION ${YAP_INSTALL_DATADIR}/ytest
   )

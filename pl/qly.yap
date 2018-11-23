@@ -229,6 +229,9 @@ qend_program :-
 % there is some ordering between flags.
 'x_yap_flag'(language, V) :-
 	yap_flag(language, V).
+  %if silent keep silent, otherwise use the saved state.
+  'x_yap_flag'(verbose, _) :- !.
+  'x_yap_flag'(verbose_load, _) :- !.
 'x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
@@ -357,12 +360,9 @@ available it tries reconsulting the source file.
 
 */
 qload_module(Mod) :-
-    ( current_prolog_flag(verbose_load, false)
-      ->
-	Verbosity = silent
-	;
-	Verbosity = informational
-    ),
+  prolog_flag(verbose_load, OldF, false),
+      prolog_flag(verbose, OldV, silent),
+	Verbosity = silent,
     StartMsg = loading_module,
     EndMsg = module_loaded,
     '$current_module'(SourceModule, Mod),
@@ -375,6 +375,8 @@ qload_module(Mod) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
+  prolog_flag(verbose_load, _, OldF),
+      prolog_flag(verbose, _, OldV),
     working_directory(_, OldD).
 
 '$qload_module'(Mod, S, SourceModule) :-
@@ -562,7 +564,7 @@ qload_file( F0 ) :-
       ->
 	Verbosity = silent
 	;
-	Verbosity = informational
+	current_prolog_flag(verbose, Verbosity)
     ),
     StartMsg = loading_module,
     EndMsg = module_loaded,

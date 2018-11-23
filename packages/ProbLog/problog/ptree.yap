@@ -263,7 +263,7 @@
 
 % this is a test to determine whether YAP provides the needed trie library
 :- initialization(
-        (       predicate_property(trie_disable_hash, imported_from(M)) ->
+        (       predicate_property(trie_disable_hash, imported_from(_M)) ->
                 trie_disable_hash
         ;       print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
         )

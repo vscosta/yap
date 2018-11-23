@@ -138,9 +138,9 @@ static YAP_Bool compute_prob(void)
   FILE * file;
   DdNode * array[1];
   double prob;
-  char * onames[1];
+  char const * onames[1];
   char inames[1000][20];
-  char * names[1000];
+  char const * names[1000];
   tablerow * nodes;
   
   arg1=YAP_ARG1;
@@ -184,7 +184,7 @@ static YAP_Bool compute_prob(void)
     array[0]=function;
     onames[0]="Out";
     file = open_file("cpl.dot", "w");
-    Cudd_DumpDot(mgr,1,array,names,( char * const*)onames,file);
+    Cudd_DumpDot(mgr,1,array,names,onames,file);
     fclose(file);
   }
   nodes=init_table(vars.nBVar);

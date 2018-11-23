@@ -2811,7 +2811,7 @@ erroris
  
 supported:a
 781 ^ :
-#include "encoding.h"
+#include "YapEncoding.h"
 #includeIn file included from 
 
 /Users/vsc/github/yap-6.3/H/YapHandles.h ^      :

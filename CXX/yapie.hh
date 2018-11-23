@@ -29,7 +29,7 @@ class X_API YAPPPredicate;
 
 /// take information on a Prolog error:
 class X_API YAPError {
-  int swigcode;
+		      //int swigcode;
   yap_error_descriptor_t *info;
 
 public:

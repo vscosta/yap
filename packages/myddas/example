@@ -1,4 +1,4 @@
-
+	
 sqlite3 side:
 create table test (id integer, x integer, y integer);
 .separator ","

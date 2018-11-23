@@ -187,18 +187,6 @@ eval0(Int fi) {
 #else
     RINT(LCL0 - ASP);
 #endif
-  case op_b:
-    /// - $b
-    ///   current choicepoint
-    ///
-#if YAPOR_SBA
-    RINT((Int)B);
-#else
-      if (B)
-    RINT(LCL0 - (CELL *)B);
-      else
-        RINT(0);
-#endif
   case op_env:
     /// - $env
     ///   Environment
@@ -257,7 +245,6 @@ static InitConstEntry InitConstTab[] = {
   {"heapused", op_heapused},
   {"local_sp", op_localsp},
   {"global_sp", op_globalsp},
-  {"$last_choice_pt", op_b},
   {"$env", op_env},
   {"$tr", op_tr},
   {"stackfree", op_stackfree},

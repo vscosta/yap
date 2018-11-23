@@ -5675,7 +5675,7 @@ static foreign_t
 	int			i;
 	term_t		head;
 	term_t		list;
-	char		*s;
+	char		*s = NULL;
 
 	if ( jvm_dia == NULL )  /* presumably, JVM is already started, so default options cannot now be set */
 		{

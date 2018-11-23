@@ -1,7 +1,10 @@
 
+extern "C" {
+
 
 #include "inline-only.h"
 #define _EXPORT_KERNEL 1
+}
 
 #include "yapi.hh"
 
@@ -18,6 +21,8 @@ extern "C" {
 #include "YapBlobs.h"
 #include "YapInterface.h"
 #include "iopreds.h"
+    
+#include "YapInit.h"
 
 X_API char *Yap_TermToBuffer(Term t, int flags);
 
@@ -975,7 +980,7 @@ PredEntry *YAPPredicate::getPred(Term &t, Term &m, CELL *&out) {
   } else {
     ap = RepPredProp(PredPropByFunc(f, m));
     if (out)
-      memmove(out, RepAppl(t) + 1, ap->ArityOfPE * sizeof(CELL));
+      memmove(out, (const CELL *)RepAppl(t) + 1, ap->ArityOfPE * sizeof(CELL));
     else
       out = RepAppl(t) + 1;
   }

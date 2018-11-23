@@ -35,7 +35,7 @@
 * Revision 1.3  2006/01/17 14:10:40  vsc
 * YENV may be an HW register (breaks some tabling code)
 * All YAAM instructions are now brackedted, so Op introduced an { and EndOp introduces an }. This is because Ricardo assumes that.
-* Fix attvars when COROUTING is undefined.
+* Fix attvars 
 *
 * Revision 1.2  2005/12/23 00:20:13  vsc
 * updates to gprof
@@ -47,40 +47,40 @@
 *									 *
 *************************************************************************/
 
+/// @file gprof.c
 
-/** @defgroup Tick_Profiler Tick Profiler
-@ingroup Profiling
-@{
-
-The tick profiler works by interrupting the Prolog code every so often
-and checking at each point the code was. The profiler must be able to
-retrace the state of the abstract machine at every moment. The major
-advantage of this approach is that it gives the actual amount of time
-being spent per procedure, or whether garbage collection dominates
-execution time. The major drawback is that tracking down the state of
-the abstract machine may take significant time, and in the worst case
-may slow down the whole execution.
-
-The following procedures are available:
-
-+ profinit 
-
-
-Initialise the data-structures for the profiler. Unnecessary for
-dynamic profiler.
-
-+ profon 
-
-
-Start profiling.
-
-+ profoff 
-
-
-Stop profiling.
-
- 
-*/
+/** @addtogroup Tick_Profiler
+ * @ingroup Profiling@{
+ * 
+ * The tick profiler works by interrupting the Prolog code every so often
+ * and checking at each point the code was. The pro/filer must be able to
+ * retrace the state of the abstract machine at every moment. The major
+ * advantage of this approach is that it gives the actual amount of time
+ * being spent per procedure, or whether garbage collection dominates
+ * execution time. The major drawback is that tracking down the state of
+ * the abstract machine may take significant time, and in the worst case
+ * may slow down the whole execution.
+ * 
+ * The following procedures are available:
+ * 
+ * + profinit/0 
+ *   Initialise the data-structures for the profiler. Unnecessary for
+ *   dynamic profiler.
+ * 
+ * + profon/0
+ *   Start profiling.
+ * 
+ * +  profoff/0
+ *    Stop profiling.
+ * 
+ * +  profoff/0
+ *    Stop profiling.
+ * 
+ * +  showprofres/0 and showprofres/1
+ *    Stop tick counts per predicate.
+ * 
+ *  
+  */
 
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
@@ -728,20 +728,18 @@ return GLOBAL_DIRNAME;
 
 char *profile_names(int);
 char *profile_names(int k) {
-  static char *FNAME=NULL;
+  char *FNAME=NULL;
   int size=200;
    
   if (GLOBAL_DIRNAME==NULL) set_profile_dir(NULL);
   size=strlen(GLOBAL_DIRNAME)+40;
-  if (FNAME!=NULL) free(FNAME);
   FNAME=malloc(size);
   if (FNAME==NULL) { printf("Profiler Out of Mem\n"); exit(1); }
-  strcpy(FNAME,GLOBAL_DIRNAME);
 
   if (k==PROFILING_FILE) {
-    sprintf(FNAME,"%s/PROFILING_%d",FNAME,getpid());
+    sprintf(FNAME,"%s/PROFILING_%d",GLOBAL_DIRNAME,getpid());
   } else { 
-    sprintf(FNAME,"%s/PROFPREDS_%d",FNAME,getpid());
+    sprintf(FNAME,"%s/PROFPREDS_%d",GLOBAL_DIRNAME,getpid());
   }
 
   //  printf("%s\n",FNAME);
@@ -841,7 +839,7 @@ static void RemoveCode(CODEADDR clau)
   }  
 }
 
-static int
+static Int
 showprofres( USES_REGS1 ) { 
   buf_ptr buf;
 

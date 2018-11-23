@@ -1,4 +1,6 @@
 
+if (WITH_MYSQL)
+
   set(MYSQL_SOURCES
           myddas_mysql.c
           myddas_util.c
@@ -25,9 +27,9 @@
 	    add_lib(YAPmysql  ${MYSQL_SOURCES})
 	    target_link_libraries(YAPmysql ${MYSQL_LIBRARIES} libYap)
      install(TARGETS YAPmysql
-              RUNTIME DESTINATION ${YAP_INSTALL_DLLDIR}
-             ARCHIVE DESTINATION ${YAP_INSTALL_DLLDIR}
-             LIBRARY DESTINATION ${YAP_INSTALL_DLLDIR}
+              RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
+             ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
+             LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
               )
 	    endif()
       include_directories(${MYSQL_INCLUDE_DIR} ..)
@@ -51,3 +53,5 @@
           "enable the MYDDAS top-level (REPL) support for MySQL" OFF
           'USE_MYDDAS AND MYSQL_FOUND' OFF)
   #TODO:
+
+endif()

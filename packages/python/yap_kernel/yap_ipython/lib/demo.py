@@ -1,7 +1,7 @@
 """Module for interactive demos using yap_ipython.
 
 This module implements a few classes for running Python scripts interactively
-in yap_ipython for demonstrations.  With very simple markup (a few tags in
+in IPython for demonstrations.  With very simple markup (a few tags in
 comments), you can control points where the script stops executing and returns
 control to yap_ipython.
 
@@ -13,15 +13,15 @@ The classes are (see their docstrings for further details):
 
  - Demo: pure python demos
 
- - IPythonDemo: demos with input to be processed by yap_ipython as if it had been
+ - IPythonDemo: demos with input to be processed by IPython as if it had been
    typed interactively (so magics work, as well as any other special syntax you
    may have added via input prefilters).
 
  - LineDemo: single-line version of the Demo class.  These demos are executed
    one line at a time, and require no markup.
 
- - IPythonLineDemo: yap_ipython version of the LineDemo class (the demo is
-   executed a line at a time, but processed via yap_ipython).
+ - IPythonLineDemo: IPython version of the LineDemo class (the demo is
+   executed a line at a time, but processed via IPython).
 
  - ClearMixin: mixin to make Demo classes with less visual clutter.  It
    declares an empty marquee and a pre_cmd that clears the screen before each
@@ -58,7 +58,7 @@ Operation
 
 The file is run in its own empty namespace (though you can pass it a string of
 arguments as if in a command line environment, and it will see those as
-sys.argv).  But at each stop, the global yap_ipython namespace is updated with the
+sys.argv).  But at each stop, the global IPython namespace is updated with the
 current internal demo namespace, so you can work interactively with the data
 accumulated so far.
 
@@ -72,7 +72,7 @@ The supported tags are:
 
 # <demo> stop
 
-  Defines block boundaries, the points where yap_ipython stops execution of the
+  Defines block boundaries, the points where IPython stops execution of the
   file and returns to the interactive prompt.
 
   You can optionally mark the stop tag with extra dashes before and after the
@@ -120,7 +120,7 @@ and back().  It can be reset for a new run via reset() or reloaded from disk
 
 Note: To make this simpler to explore, a file called "demo-exercizer.py" has
 been added to the "docs/examples/core" directory.  Just cd to this directory in
-an yap_ipython session, and type::
+an IPython session, and type::
 
   %run demo-exercizer.py
 
@@ -134,11 +134,11 @@ The following is a very simple example of a valid demo file.
 ::
 
     #################### EXAMPLE DEMO <ex_demo.py> ###############################
-    '''A simple interactive demo to illustrate the use of yap_ipython's Demo class.'''
+    '''A simple interactive demo to illustrate the use of IPython's Demo class.'''
 
-    print 'Hello, welcome to an interactive yap_ipython demo.'
+    print 'Hello, welcome to an interactive IPython demo.'
 
-    # The mark below defines a block boundary, which is a point where yap_ipython will
+    # The mark below defines a block boundary, which is a point where IPython will
     # stop execution and return to the interactive prompt. The dashes are actually
     # optional and used only as a visual aid to clearly separate blocks while
     # editing the demo code.
@@ -188,7 +188,7 @@ import pygments
 from yap_ipython.utils.text import marquee
 from yap_ipython.utils import openpy
 from yap_ipython.utils import py3compat
-__all__ = ['Demo','IPythonDemo','LineDemo','IPythonLineDemo','DemoError']
+__all__ = ['Demo','yap_ipythonDemo','LineDemo','yap_ipythonLineDemo','DemoError']
 
 class DemoError(Exception): pass
 
@@ -536,10 +536,10 @@ class Demo(object):
 
 
 class IPythonDemo(Demo):
-    """Class for interactive demos with yap_ipython's input processing applied.
+    """Class for interactive demos with IPython's input processing applied.
 
     This subclasses Demo, but instead of executing each block by the Python
-    interpreter (via exec), it actually calls yap_ipython on it, so that any input
+    interpreter (via exec), it actually calls IPython on it, so that any input
     filters which may be in place are applied to the input block.
 
     If you have an interactive environment which exposes special input

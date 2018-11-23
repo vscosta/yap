@@ -77,7 +77,7 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) *
-                                                       InitialConsultCapacity);
+						       InitialConsultCapacity);
   if (LOCAL_ConsultLow == NULL) {
     Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitCodes");
     return;
@@ -94,20 +94,32 @@ void Yap_ResetConsultStack(void) {
   LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
+/**
+ * Are we compiling a file?
+ *
+ */
+bool Yap_Consulting(USES_REGS1) {
+  return LOCAL_ConsultBase != NULL
+    &&  LOCAL_ConsultSp != LOCAL_ConsultLow+LOCAL_ConsultCapacity;
+}
+
 /******************************************************************
 
                 ADDING AND REMOVE INFO TO A PROCEDURE
 
 ******************************************************************/
 
-/*
- * we have three kinds of predicates: dynamic		DynamicPredFlag
- * static 		CompiledPredFlag fast		FastPredFlag all the
+/**
+ * we have three kinds of predicates: 
+ * + dynamic		DynamicPredFlag
+ * + static	CompiledPredFlag fast
+ * + fast		FastPredFlag.
+ *
+ * all the
  * database predicates are supported for dynamic predicates only abolish and
  * assertz are supported for static predicates no database predicates are
  * supportted for fast predicates
  */
-
 PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
   Term t0 = t;
 
@@ -251,9 +263,9 @@ void Yap_BuildMegaClause(PredEntry *ap) {
 
   if (ap->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MegaClausePredFlag
 #ifdef TABLING
-                       | TabledPredFlag
+		       | TabledPredFlag
 #endif /* TABLING */
-                       | UDIPredFlag) ||
+		       | UDIPredFlag) ||
       ap->cs.p_code.FirstClause == NULL || ap->cs.p_code.NOfClauses < 16) {
     return;
   }
@@ -1207,8 +1219,8 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
   ncp = NEXTOP(ncp, e);
   ncp->opc = Yap_opcode(_Ystop);
   ncp->y_u.l.l = cl->ClCode;
-  // if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
-  //  p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+   if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
+   p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
 }
 
 /* p is already locked */
@@ -2417,7 +2429,7 @@ static Int
 }
 
 /*  @pred '$new_multifile'(+G,+Mod)
- *  sets the multi-file flag
+ *  declares rgi///////                                                                                                                                                                   the multi-file flag
  * */
 static Int new_multifile(USES_REGS1) {
   PredEntry *pe;
@@ -3097,7 +3109,7 @@ void Yap_HidePred(PredEntry *pe) {
   if (pe->NextOfPE) {
     UInt hash = PRED_HASH(pe->FunctorOfPred, CurrentModule, PredHashTableSize);
     READ_LOCK(PredHashRWLock);
-    PredEntry *p, **op = PredHash+hash;
+    PredEntry *p, **op = PredHash + hash;
     p = *op;
 
     while (p) {
@@ -3144,7 +3156,7 @@ void Yap_HidePred(PredEntry *pe) {
       op = &p->NextPredOfModule;
       p = p->NextPredOfModule;
     }
-pe->NextPredOfModule = NULL;
+    pe->NextPredOfModule = NULL;
   }
 }
 
@@ -3168,15 +3180,14 @@ stash_predicate(USES_REGS1) {
     /*
     char ns[1024];
       const char *s = (pe->ModuleOfPred == PROLOG_MODULE ?
-		     "__prolog__stash__" :
-		     snprintf(sn,1023,"__%s__".RepAtom(AtomOfTerm( pe->ModuleOfPred ))));
-		     pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(s));
+                     "__prolog__stash__" :
+                     snprintf(sn,1023,"__%s__".RepAtom(AtomOfTerm(
+    pe->ModuleOfPred )))); pe->ModuleOfPred = MkAtomTerm(Yap_LookupAtom(s));
     */
     return true;
   } else
     return false;
 }
-
 
 static Int /* $hidden_predicate(P) */
 hidden_predicate(USES_REGS1) {

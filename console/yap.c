@@ -1,23 +1,21 @@
 /*************************************************************************
-*									 *
-*	 Yap Prolog 							 *
-*									 *
-*	Yap Prolog Was Developed At Nccup - Universidade Do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa And Universidade Do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		Yap.C							 *
-* Last Rev:								 *
-* Mods:									 *
-* Comments:	Yap's Main File						 *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 Yap Prolog 							 *
+ *									 *
+ *	Yap Prolog Was Developed At Nccup - Universidade Do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa And Universidade Do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		Yap.C * Last Rev:
+ ** Mods: * Comments:	Yap's Main File *
+ *									 *
+ *************************************************************************/
 /* static char SccsId[] = "X 4.3.3"; */
 
+#include "YapConfig.h"
 #include "YapInterface.h"
-#include "config.h"
 
 #include "cut_c.h"
 
@@ -112,14 +110,13 @@ static bool exec_top_level(int BootMode, YAP_init_args *iap) {
     livegoal = YAP_FullLookupAtom("live");
   }
   return true;
-   //YAP_Exit(EXIT_SUCCESS);
-
-  }
+  // YAP_Exit(EXIT_SUCCESS);
+}
 
 // FILE *debugf;
 
 #ifdef LIGHT
-    
+
 int _main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
@@ -129,7 +126,7 @@ int main(int argc, char **argv)
   int i;
   YAP_init_args init_args;
   BootMode = init_standard_system(argc, argv, &init_args);
-  
+
   if (BootMode == YAP_BOOT_ERROR) {
     fprintf(stderr, "[ FATAL ERROR: could not find saved state ]\n");
     exit(1);

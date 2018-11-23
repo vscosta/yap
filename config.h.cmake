@@ -1884,7 +1884,9 @@ signal. */
 #endif
 
 /* use bignums/rationals in YAP code. */
-#ifndef USE_GMP
+#if defined( __ANDROID__ ) && !defined(USE_GMP)
+#define USE_GMP 1
+#elif !defined(USE_GMP)
 #define USE_GMP ${GMP_FOUND}
 #endif
 
@@ -2114,5 +2116,7 @@ calls it, or to nothing if 'inline' is not supported under any name.  */
 #define __WINDOWS__ 1
 #endif
 #endif
+
+#include "YapTermConfig.h"
 
 #endif

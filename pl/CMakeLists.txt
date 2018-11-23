@@ -68,7 +68,7 @@ if (ANDROID)
     add_custom_target(STARTUP
        DEPENDS ${PL_BOOT_SOURCES}
             )
-    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${libpl}/pl)
+    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${YAP_INSTALL_DATADIR}/pl)
 elseif(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
@@ -89,11 +89,11 @@ else ()
 
 
     install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${YAP_INSTALL_DLLDIR}
+        DESTINATION ${YAP_INSTALL_LIBDIR}
         )
 endif()
 
 
 install(FILES ${PL_BOOT_SOURCES}
-        DESTINATION ${libpl}/pll
+        DESTINATION ${YAP_INSTALL_DATADIR}/pl
         )

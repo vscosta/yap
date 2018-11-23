@@ -27,7 +27,7 @@ This directory is initialized by a rule that calls  the system predicate
 system_library/1.
 */
 :- multifile library_directory/1.
-
+:- discontiguous library_directory/1.
 :- dynamic library_directory/1.
 %%  Specifies the set of directories where
 % one can find Prolog libraries.
@@ -55,7 +55,7 @@ library_directory( Dir ) :-
   library_directories/2.
   */
 :- dynamic commons_directory/1.
-
+:- discontiguous commons_directory/1.
 :- multifile commons_directory/1.
 
 
@@ -72,7 +72,7 @@ commons_directory( Path ):-
 */
 
 :- multifile foreign_directory/1.
-
+:- discontiguous foreign_directory/1.
 :- dynamic foreign_directory/1.
 
 %foreign_directory( Path ):-
@@ -112,6 +112,8 @@ foreign_directory(yap('lib/Yap')).
 ~~~~~~~~~~~~~~~~~~~~~
 */
 
+:- multifile prolog_file_type/2.
+:- discontiguous prolog_file_type/2.
 :- dynamic prolog_file_type/2.
 
 prolog_file_type(yap, prolog).
@@ -134,7 +136,7 @@ prolog_file_type(A, executable) :-
   _DIRECTORY_ must be atoms. The predicate may generate multiple
   solutions. The predicate is originally defined as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~prolog
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
 file_search_path(library, Dir) :-
   library_directory(Dir).
 file_search_path(commons, Dir) :-
@@ -146,6 +148,8 @@ file_search_path(yap, Home) :-
 file_search_path(system, Dir) :-
   prolog_flag(host_type, Dir).
 file_search_path(foreign, Dir) :-
+  foreign_directory(Dir).
+file_search_path(executable, Dir) :-
   foreign_directory(Dir).
 file_search_path(executable, Dir) :-
   foreign_directory(Dir).
@@ -168,7 +172,7 @@ file_search_path(path, C) :-
 :- multifile file_search_path/2.
 
 :- dynamic file_search_path/2.
-
+:- discontiguous file_search_path/2.
 
 file_search_path(library, Dir) :-
 	library_directory(Dir).

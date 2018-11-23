@@ -77,7 +77,7 @@ aux_args([Arg|Args], MVars, [Arg|PArgs], PVars, [Arg|ProtoArgs]) :-
 aux_args([Arg|Args], [Arg|MVars], [PVar|PArgs], [PVar|PVars], ['_'|ProtoArgs]) :-
 	aux_args(Args, MVars, PArgs, PVars, ProtoArgs).
 
-pred_name(Macro, Arity, _ , Name) :-
+pred_name(Macro, Arity, P , Name) :-
         prolog_load_context(file, FullFileName),
 	file_base_name( FullFileName, File ),
 	prolog_load_context(term_position, Pos),

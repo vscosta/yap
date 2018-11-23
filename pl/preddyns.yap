@@ -4,11 +4,10 @@
 /** @file preddyns.yap */
 
 /**
- * @addtogroup Database
- * @{
- *
+ * @addtogroup Internal_Database
  * @brief main operations on dynamic predicates.
-
+ *
+ * 
 */
 
 /** @pred  asserta(+ _C_) is iso
@@ -295,7 +294,7 @@ retractall(V) :-
     '$log_update_clause'(T,M,_,R),
     '$erase_lu_mf_clause'(Na,Ar,M,R),
     fail.
-'$retractall_lu_mf'(_T,_M,_Na,Ar).
+'$retractall_lu_mf'(_T,_M,_Na,_Ar).
 
 '$erase_lu_mf_clause'(Na,Ar,M,R) :-
 	recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR),

@@ -4,8 +4,8 @@ from unittest import mock
 
 import nose.tools as nt
 
-from yap_ipython import get_ipython
-from yap_ipython.lib import editorhooks
+from IPython import get_ipython
+from IPython.lib import editorhooks
 
 def test_install_editor():
     called = []

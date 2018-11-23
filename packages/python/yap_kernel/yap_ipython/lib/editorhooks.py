@@ -11,25 +11,25 @@ import shlex
 import subprocess
 import sys
 
-from yap_ipython import get_ipython
+from IPython import get_ipython
 from yap_ipython.core.error import TryNext
 from yap_ipython.utils import py3compat
 
 
 def install_editor(template, wait=False):
-    """Installs the editor that is called by yap_ipython for the %edit magic.
+    """Installs the editor that is called by IPython for the %edit magic.
 
     This overrides the default editor, which is generally set by your EDITOR
     environment variable or is notepad (windows) or vi (linux). By supplying a
     template string `run_template`, you can control how the editor is invoked
-    by yap_ipython -- (e.g. the format in which it accepts command line options)
+    by IPython -- (e.g. the format in which it accepts command line options)
 
     Parameters
     ----------
     template : basestring
         run_template acts as a template for how your editor is invoked by
         the shell. It should contain '{filename}', which will be replaced on
-        invokation with the file name, and '{line}', $line by line number
+        invocation with the file name, and '{line}', $line by line number
         (or 0) to invoke the file with.
     wait : bool
         If `wait` is true, wait until the user presses enter before returning,

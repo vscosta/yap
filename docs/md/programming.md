@@ -1,22 +1,19 @@
-Programming in YAP            {#YAPProgramming}
-====================
+@defgroup YAPProgramming Programming in YAP
 
-+ @ref load_files
+@{
 
-+ @ref YAPSyntax
+[TOC]
 
-+ @ref YAPCompilerSettings
-
-+ @ref Indexing
-
-+ @ref Deb_Interaction
-
+@}
 
 @defgroup load_files Loading and Organizing YAP Programs
+
 @{
 
 We present the main predicates and directives available to load
     files and to control the Prolog environment.
+
+[TOC]
 
 @}
 
@@ -141,7 +138,7 @@ We present the main predicates and directives available to load
   their public predicates into the current type-in module. It is
   implemented as if by:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.yap}
   use_module(F) :-
   	load_files(F, [if(not_loaded),must_be_module(true)]).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

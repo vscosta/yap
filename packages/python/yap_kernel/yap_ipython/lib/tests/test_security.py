@@ -1,6 +1,6 @@
 # coding: utf-8
-from yap_ipython.lib import passwd
-from yap_ipython.lib.security import passwd_check, salt_len
+from IPython.lib import passwd
+from IPython.lib.security import passwd_check, salt_len
 import nose.tools as nt
 
 def test_passwd_structure():

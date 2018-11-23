@@ -22,30 +22,32 @@
 
 
 /**
-*
-
-@defgroup args Term Argument Manipulation.
-
-@ingroup @library
-
-@{
-
-Extends arg/3 by including backtracking through arguments and access
-to sub-arguments,
-
-  - arg0/3
-  - args/3
-  - args0/3
-  - genarg/3
-  - genarg0/3
-  - path_arg/3
-
-
-It is based on the Quintus Prolog arg library. Except for project, all
-predicates use the arg/3 argument pattern.
-This file has been included in the YAP library by Vitor Santos Costa, 2008. No error checking is actuallly performed within the package: this left to the C-code thaat implements arg``/3 and
-genarg/3.
-*/
+ *
+ *
+ * @defgroup args Term Argument Manipulation.
+ *
+ * @ingroup library
+ *
+ * @{
+ *
+ *This library extends arg/3 by supporting backtracking through
+ *arguments and access to sub-arguments,
+ *
+ *  - arg0/3
+ *  - args/3
+ *  - args0/3
+ *  - genarg/3
+ *  - genarg0/3
+ *  - path_arg/3
+ *
+ *
+ *It is based on the Quintus Prolog public domain library. Except for
+ *project, all predicates use the arg/3 argument pattern.  This file has
+ *been included in the YAP library by Vitor Santos Costa, 2008.
+ *
+ * No error checking is actuallly performed within the package: this
+ *left to the C-code that implements arg/3 and genarg/3.
+ */
 
 /**
  * @pred arg0( +_Index_, +_Term_ , -_Arg_ )

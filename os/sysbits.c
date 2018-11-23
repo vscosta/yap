@@ -769,11 +769,11 @@ static Int real_path(USES_REGS1) {
   int lvl = push_text_stack();
   rc0 = myrealpath(cmd PASS_REGS);
   if (!rc0) {
+    pop_text_stack(lvl);
     PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, NULL);
   }
   bool out = Yap_unify(MkAtomTerm(Yap_LookupAtom(rc0)), ARG2);
-  pop_output_text_stack(lvl, rc0);
-
+  pop_text_stack(lvl);
   return out;
 }
 
@@ -1150,6 +1150,19 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
 return rc;
 }
 
+/** @pred  working_directory( ?_CurDir_,? _NextDir_)
+
+
+Fetch the current directory at  _CurDir_. If  _NextDir_ is bound
+to an atom, make its value the current working directory.
+
+Unifies  _Old_ with an absolute path to the current working directory
+and change working directory to  _New_.  Use the pattern
+`working_directory(CWD, CWD)` to get the current directory.  See
+also `absolute_file_name/2` and chdir/1.
+
+
+*/
 static Int working_directory(USES_REGS1) {
   char dir[YAP_FILENAME_MAX + 1];
   Term t1 = Deref(ARG1), t2;
@@ -1872,7 +1885,7 @@ static Int p_sleep(USES_REGS1) {
   Term ts = ARG1;
 #if defined(__MINGW32__) || _MSC_VER
   {
-    unsigned long int secs = 0, usecs = 0, msecs, out;
+    unsigned long int secs = 0, usecs = 0, msecs;
     if (IsIntegerTerm(ts)) {
       secs = IntegerOfTerm(ts);
     } else if (IsFloatTerm(ts)) {
@@ -1902,7 +1915,7 @@ static Int p_sleep(USES_REGS1) {
       req.tv_sec = IntOfTerm(ts);
     }
     out = nanosleep(&req, NULL);
-    return true;
+    return out == 0;
   }
 #elif HAVE_USLEEP
   {

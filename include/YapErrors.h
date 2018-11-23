@@ -27,13 +27,15 @@ ECLASS(RESOURCE_ERROR, "resource_error", 2)
 /// bad text
 ECLASS(SYNTAX_ERROR_CLASS, "syntax_error", 1)
 /// OS or internal
-ECLASS(SYSTEM_ERROR_CLASS, "system_error", 2)
+ECLASS(SYSTEM_ERROR_CLASS, "system_error", 1)
 /// bad typing
 ECLASS(TYPE_ERROR, "type_error", 2)
 /// should be unbound
 ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
-/// escape hatch
-ECLASS(EVENT, "event", 2)
+/// not quite an error, but almost
+ECLASS(WARNING, "warning", 1)
+/// user defined escape hatch
+ECLASS(EVENT, "event", 1)
 
 END_ERROR_CLASSES();
 
@@ -88,6 +90,7 @@ E(DOMAIN_ERROR_WRITE_OPTION, DOMAIN_ERROR, "write_option")
     E(EVALUATION_ERROR_FLOAT_OVERFLOW, EVALUATION_ERROR, "float_overflow")
 E(EVALUATION_ERROR_FLOAT_UNDERFLOW, EVALUATION_ERROR, "float_underflow")
 E(EVALUATION_ERROR_INT_OVERFLOW, EVALUATION_ERROR, "int_overflow")
+E(EVALUATION_ERROR_READ_STREAM, EVALUATION_ERROR, "read_from_stream")
 E(EVALUATION_ERROR_UNDEFINED, EVALUATION_ERROR, "undefined")
 E(EVALUATION_ERROR_UNDERFLOW, EVALUATION_ERROR, "underflow")
     E(EVALUATION_ERROR_ZERO_DIVISOR, EVALUATION_ERROR, "zero_divisor")
@@ -196,7 +199,11 @@ E(TYPE_ERROR_REFERENCE, TYPE_ERROR, "reference")
 E(TYPE_ERROR_STRING, TYPE_ERROR, "string")
 E(TYPE_ERROR_TEXT, TYPE_ERROR, "text")
 E(TYPE_ERROR_UBYTE, TYPE_ERROR, "ubyte")
-E(TYPE_ERROR_UCHAR, TYPE_ERROR, "uchar")
+E(TYPE_ERROR_UCHAR, TYPE_ERROR, "unsigned char")
+
+E(WARNING_DISCONTIGUOUS, WARNING, "discontiguous")
+E(WARNING_SINGLETONS, WARNING, "singletons")
+E(WARNING_SYNTAX_ERROR, WARNING, "syntax_error")
 
 E1(UNINSTANTIATION_ERROR, UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error")
 

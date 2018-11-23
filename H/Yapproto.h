@@ -128,6 +128,7 @@ extern X_API Int YAP_RunGoalOnce(Term);
 /* cdmgr.c */
 extern Term Yap_all_calls(void);
 extern Atom Yap_ConsultingFile(USES_REGS1);
+extern bool Yap_Consulting(USES_REGS1);
 extern struct pred_entry *Yap_PredForChoicePt(choiceptr bptr, op_numbers *op);
 extern void Yap_InitCdMgr(void);
 extern struct pred_entry *Yap_PredFromClause(Term t USES_REGS);
@@ -390,8 +391,7 @@ extern void Yap_InitSortPreds(void);
 
 /* stack.c */
 extern void Yap_InitStInfo(void);
-extern void Yap_dump_stack(void);
-extern void Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
+extern char *Yap_output_bug_location(yamop *yap_pc, int where_from, int psize);
 
 #if !defined(YAPOR) && !defined(THREADS)
 extern bool Yap_search_for_static_predicate_in_use(struct pred_entry *, bool);
@@ -470,7 +470,7 @@ extern void Yap_InitAbsmi(void);
 extern void Yap_InitUnify(void);
 extern void Yap_TrimTrail(void);
 extern int Yap_Unifiable(Term d0, Term d1);
-extern int Yap_IUnify(register CELL d0, register CELL d1);
+extern int Yap_IUnify( CELL d0,  CELL d1);
 
 /* userpreds.c */
 extern void Yap_InitUserCPreds(void);

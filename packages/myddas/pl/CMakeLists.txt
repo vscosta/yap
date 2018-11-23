@@ -14,7 +14,7 @@ set(MYDDAS_DRIVERS
 
 
         if (ANDROID)
-    set (MYDDAS_PREFIX ${libpl} )
+    set (MYDDAS_PREFIX ${YAP_INSTALL_DATADIR} )
 else()
     set (MYDDAS_PREFIX ${CMAKE_CURRENT_BINARY_DIR} )
 endif()
@@ -66,7 +66,7 @@ endfunction()
 set(MYDDAS_DBMS sqlite3 postgres odbc)
 
 foreach (file ${MYDDAS_YPP})
-    cpp_compile(MYDDAS_YAP ${file})
+  cpp_compile(MYDDAS_YAP ${file})
 endforeach ()
 foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)
@@ -78,5 +78,5 @@ add_to_group(MYDDAS_YAP pl_library )
 add_custom_target(plmyddas ALL DEPENDS  ${MYDDAS_YAP} )
 
     install(FILES ${MYDDAS_YAP}
-     DESTINATION ${libpl}
+     DESTINATION ${YAP_INSTALL_DATADIR}
         )

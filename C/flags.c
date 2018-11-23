@@ -25,9 +25,11 @@
  */
 
 /**
-    @{
-    @defgroup YAPFlags_Impl C-code to handle Prolog flags.
+
+    @defgroup YAPFlags C-code to handle Prolog flags.
     @ingroup YAPFlags
+
+    @{
 
 @brief Low-level code to support flags.
 
@@ -313,7 +315,7 @@ static bool mkprompt(Term inp) {
   CACHE_REGS
   if (IsVarTerm(inp)) {
     return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(LOCAL_Prompt)));
-  } 
+  }
   if (IsStringTerm(inp)) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
@@ -1207,8 +1209,9 @@ Term Yap_UnknownFlag(Term mod) {
 
 Term getYapFlag(Term tflag) {
   FlagEntry *fv;
-  flag_term *tarr;
-  if (IsVarTerm(tflag)) {
+   flag_term *tarr;
+   tflag = Deref(tflag);
+   if (IsVarTerm(tflag)) {
     Yap_Error(INSTANTIATION_ERROR, tflag, "yap_flag/2");
     return (FALSE);
   }
@@ -1234,6 +1237,10 @@ Term getYapFlag(Term tflag) {
     Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
     return (FALSE);
   }
+  if (tflag == TermSilent)
+    {
+      Yap_DebugPlWriteln(TermSilent);
+    }
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv) {
     Term fl = GLOBAL_Flags[USER_FLAGS_FLAG].at;
@@ -1792,10 +1799,6 @@ void Yap_InitFlags(bool bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);
     TR = tr0;
-    /** @pred prolog_flag( ?Flag, - Value)
-
-    Obtain the value for a YAP Prolog flag, same as current_prolog_flag/2.
-    */
     Yap_InitCPredBack("prolog_flag", 3, 1, prolog_flag, cont_yap_flag,
                       0);
     Yap_InitCPredBack("yap_flag", 3, 1, yap_flag, cont_yap_flag, 0);

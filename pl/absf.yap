@@ -33,7 +33,6 @@
         remove_from_path/1], ['$full_filename'/2,
         '$system_library_directories'/2]).
 
-
 :- use_system_module( '$_boot', ['$system_catch'/4]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
@@ -235,8 +234,8 @@ absolute_file_name(File0,File) :-
     '$absf_trace'('  after name/library unfolding: ~w', [Name]),
     '$variable_expansion'(CorePath, Opts,ExpandedPath),
     '$absf_trace'('   after environment variable expansion: ~s', [ExpandedPath]),
-    '$prefix'(ExpandedPath, Opts, Path , []),
-    '$absf_trace'('    after prefix expansion: ~s', [Path]),
+    '$file_prefix'(ExpandedPath, Opts, Path , []),
+    '$absf_trace'('    after file_prefix expansion: ~s', [Path]),
     atom_codes( APath, Path ),
     (
 	   Expand = true
@@ -366,11 +365,12 @@ absolute_file_name(File0,File) :-
     '$absf_trace'(' try no suffix', []).
 
 '$add_suffix'(Cs) -->
-    { Cs = [0'. |_Codes] }
+    (
+	{ Cs = [0'. |_Codes] }
 	->
 	    Cs
 	;
-	".", Cs.
+	".", Cs ).
 
 '$glob'(Opts) -->
     {
@@ -392,32 +392,32 @@ absolute_file_name(File0,File) :-
     Base \= '.',
     Base \='..'.
 
-'$prefix'( CorePath, _Opts) -->
+'$file_prefix'( CorePath, _Opts) -->
     { is_absolute_file_name( CorePath ) },
     !,
     CorePath.
-'$prefix'( CorePath, Opts) -->
-    {  get_abs_file_parameter( relative_to, Opts, Prefix ),
-       Prefix \= '',
-       '$absf_trace'('    relative_to ~a', [Prefix]),
-       sub_atom(Prefix, _, 1, 0, Last),
-       atom_codes(Prefix, S)
+'$file_prefix'( CorePath, Opts) -->
+    {  get_abs_file_parameter( relative_to, Opts, File_Prefix ),
+       File_Prefix \= '',
+       '$absf_trace'('    relative_to ~a', [File_Prefix]),
+       sub_atom(File_Prefix, _, 1, 0, Last),
+       atom_codes(File_Prefix, S)
     },
     !,
     S,
     '$dir'(Last),
     CorePath.
-'$prefix'( CorePath,  _) -->
+'$file_prefix'( CorePath,  _) -->
     {
-	recorded('$path',Prefix,_),
-       '$absf_trace'('    try YAP path database ~a', [Prefix]),
-       sub_atom(Prefix, _, _, 1, Last),
-	atom_codes(Prefix, S)    },
+	recorded('$path',File_Prefix,_),
+       '$absf_trace'('    try YAP path database ~a', [File_Prefix]),
+       sub_atom(File_Prefix, _, _, 1, Last),
+	atom_codes(File_Prefix, S)    },
     S,
     '$dir'(Last),
     CorePath.
-'$prefix'(CorePath, _ ) -->
-    '$absf_trace'('    empty prefix', []),
+'$file_prefix'(CorePath, _ ) -->
+    '$absf_trace'('    empty file_prefix                  ', []),
     CorePath.
 
 

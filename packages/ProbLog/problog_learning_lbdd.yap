@@ -624,7 +624,6 @@ init_one_query(QueryID,Query,Type) :-
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	  writeln(QueryID),
 	(
 	 recorded(QueryID, _, _)
 	->
@@ -659,7 +658,6 @@ init_one_query(QueryID,Query,Type) :-
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
 	  %put_code(0'.),
-	  writeln(QueryID),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	).
@@ -739,7 +737,6 @@ gradient(QueryID, l, Slope) :-
 	bind_maplist(MapList),
 	run_sp(Tree, Slope, 1.0, Prob0),
 	(Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0),
-%writeln(QueryID:Prob),
 	assert(query_probability_intern(QueryID,Prob)),
 	fail.
 gradient(_QueryID, l, _).

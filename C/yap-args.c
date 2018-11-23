@@ -191,13 +191,14 @@ static bool consult(const char *b_file USES_REGS) {
       fprintf(stderr, "[ SYNTAX ERROR: while parsing stream %s at line %ld ]\n",
               b_file, GLOBAL_Stream[c_stream].linecount);
     } else if (IsVarTerm(t) || t == TermNil) {
-      fprintf(stderr, "[ line: " Int_FORMAT ": term cannot be compiled ]",
+                                                                                                                                                                                                                              fprintf(stderr, "[ line: " Int_FORMAT ": term cannot be compiled ]",
               GLOBAL_Stream[c_stream].linecount);
     } else if (IsApplTerm(t) && (FunctorOfTerm(t) == functor_query ||
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
         consult(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
+	Yap_ResetException(LOCAL_ActiveError);
       } else {
         YAP_RunGoalOnce(t);
       }
@@ -1052,6 +1053,9 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
                               MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
   } else {
+    if (yap_init->QuietMode) {
+     setVerbosity(TermSilent);
+   }
     Yap_Restore(Yap_INPUT_STARTUP);
     init_globals(yap_init);
 

@@ -442,11 +442,11 @@ Make predicate  _Pred_ invisible to `current_predicate/2`,
 `listing`, and friends.
  **/
 hide_predicate(P0) :-
-    strip_module(P0, M, P),
+    strip_module(P0, _M, P),
     nonvar(P),
     P = N/A,
     !,
-    functor(S,N,A).
+    functor(_S,N,A).
 hide_predicate(P0) :-
     strip_module(P0, M, P),
     '$hide_predicate'(P, M).
@@ -539,7 +539,7 @@ predicate_property(Pred,Prop) :-
     functor(P,N,A),
     once(recorded('$module','$module'(_TFN,M,_S,Publics,_L),_)),
     lists:memberchk(N/A,Publics).
-'$predicate_property'(P,M,M0,imported_from(M)) :-
+'$predicate_property'(_P,M,M0,imported_from(M)) :-
   M \= M0.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,NCl).
@@ -578,7 +578,6 @@ predicate_statistics(P0,NCls,Sz,ISz) :-
 
 Given predicate  _P_,  _NCls_ is the number of erased clauses for
  _P_ that could not be discarded yet,  _Sz_ is the amount of space
-taken to store those clauses (in bytes), and  _IndexSz_ is the amount
 of space required to store indices to those clauses (in bytes).
 
  */
@@ -596,7 +595,7 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-  (	var(Mod)
+  (	var(M)
   ->
       '$all_current_modules'(M)
     ;
@@ -821,4 +820,3 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 /**
 @}
 */
-

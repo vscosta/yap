@@ -31,7 +31,7 @@ INLINE_ONLY bool IsStreamTerm(Term t) {
           (IsApplTerm(t) && (FunctorOfTerm(t) == FunctorStream)));
 }
 
-extern bool Yap_initStream(int sno, FILE *fd, const char *name, const char *io_mode, Term file_name, encoding_t encoding,
+extern bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode, Term file_name, encoding_t encoding,
                            stream_flags_t flags, void *vfs);
 
 #define Yap_CheckStream(arg, kind, msg)                                        \
@@ -176,7 +176,7 @@ extern int Yap_peekWide(int sno);
 extern int Yap_peekChar(int sno);
 
 
-extern Term Yap_syntax_error(TokEntry *tokptr, int sno);
+extern Term Yap_syntax_error(TokEntry *tokptr, int sno, const char *msg);
 
 extern int console_post_process_read_char(int, StreamDesc *);
 extern int console_post_process_eof(StreamDesc *);

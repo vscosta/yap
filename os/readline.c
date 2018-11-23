@@ -218,7 +218,7 @@ static char **prolog_completion(const char *text, int start, int end) {
   } else if (start == 0) {
     int i = 0;
     const char *p;
-    while (isblank(text[i++]) && i <= end)
+    while (isspace(text[i++]) && i <= end)
       ;
     p = text + i;
 

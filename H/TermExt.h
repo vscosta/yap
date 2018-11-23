@@ -388,26 +388,6 @@ INLINE_ONLY bool IsStringTerm(Term t) {
 
 #include <stdio.h>
 
-#if !defined(__cplusplus)
-#include <gmp.h>
-#endif
-
-#else
-
-typedef UInt mp_limb_t;
-
-typedef struct {
-  Int _mp_size, _mp_alloc;
-  mp_limb_t *_mp_d;
-} MP_INT;
-
-typedef struct {
-  MP_INT _mp_num;
-  MP_INT _mp_den;
-} MP_RAT;
-
-#endif
-
 INLINE_ONLY bool IsBigIntTerm(Term);
 
 INLINE_ONLY bool IsBigIntTerm(Term t) {
@@ -415,7 +395,13 @@ INLINE_ONLY bool IsBigIntTerm(Term t) {
           FunctorOfTerm(t) == FunctorBigInt;
 }
 
-#ifdef USE_GMP
+
+#if !defined(__cplusplus)
+#include <gmp.h>
+#else
+#include <gmpxx.h>
+#endif
+
 
 Term Yap_MkBigIntTerm(MP_INT *);
 MP_INT *Yap_BigIntOfTerm(Term);

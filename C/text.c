@@ -59,54 +59,6 @@ typedef struct TextBuffer_manager {
 } text_buffer_t;
 
 int AllocLevel(void) { return LOCAL_TextBuffer->lvl; }
-int push_text_stack__(USES_REGS1) {
-  int i = LOCAL_TextBuffer->lvl;
-  i++;
-  LOCAL_TextBuffer->lvl = i;
-
-  return i;
-}
-
-int pop_text_stack__(int i) {
-  int lvl = LOCAL_TextBuffer->lvl;
-  while (lvl >= i) {
-    struct mblock *p = LOCAL_TextBuffer->first[lvl];
-    while (p) {
-      struct mblock *np = p->next;
-      free(p);
-      p = np;
-    }
-    LOCAL_TextBuffer->first[lvl] = NULL;
-    LOCAL_TextBuffer->last[lvl] = NULL;
-    lvl--;
-  }
-  LOCAL_TextBuffer->lvl = lvl;
-  return lvl;
-}
-
-void *pop_output_text_stack__(int i, const void *export) {
-  int lvl = LOCAL_TextBuffer->lvl;
-  while (lvl >= i) {
-    struct mblock *p = LOCAL_TextBuffer->first[lvl];
-    while (p) {
-      struct mblock *np = p->next;
-      if (p + 1 == export) {
-        size_t sz = p->sz - sizeof(struct mblock);
-        memmove(p, p + 1, sz);
-        export = p;
-      } else {
-        free(p);
-      }
-      p = np;
-    }
-    LOCAL_TextBuffer->first[lvl] = NULL;
-    LOCAL_TextBuffer->last[lvl] = NULL;
-    lvl--;
-  }
-  LOCAL_TextBuffer->lvl = lvl;
-  return (void *)export;
-}
-
 //	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }
 void insert_block(struct mblock *o) {
   int lvl = o->lvl;
@@ -136,6 +88,68 @@ void release_block(struct mblock *o) {
     o->prev->next = o->next;
   if (o->next)
     o->next->prev = o->prev;
+}
+
+int push_text_stack__(USES_REGS1) {
+  int i = LOCAL_TextBuffer->lvl;
+  i++;
+  LOCAL_TextBuffer->lvl = i;
+
+  return i;
+}
+
+int pop_text_stack__(int i) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  while (lvl >= i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      free(p);
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  return lvl;
+}
+
+void *pop_output_text_stack__(int i, const void *export) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  bool found = false;
+  while (lvl >= i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      if (p + 1 == export) {
+	found = true;
+      } else {
+        free(p);
+      }
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  if (found) {
+  if (lvl) {
+    struct mblock *o = (struct mblock *)export-1;
+    o->lvl = lvl;
+    o->prev = o->next = 0;
+    insert_block(o);
+
+  } else {
+        struct mblock *p = (struct mblock *)export-1;
+	size_t sz = p->sz - sizeof(struct mblock);
+        memmove(p, p + 1, sz);
+        export = p;
+    
+  }
+  }
+  return (void *)export;
 }
 
 void *Malloc(size_t sz USES_REGS) {
@@ -976,7 +990,7 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
         else
         fprintf(stderr, "%s", out->val.c);
         fprintf(stderr, "\n]\n"); */
-  pop_text_stack(l);
+  out->val.uc = pop_output_text_stack(l,out->val.uc);
   return rc;
 }
 
@@ -1027,10 +1041,11 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
   void **bufv;
   unsigned char *buf;
   int i, j;
-  // int lvl = push_text_stack();
+
+  int lvl = push_text_stack();
   bufv = Malloc(tot * sizeof(unsigned char *));
   if (!bufv) {
-    // pop_text_stack(lvl);
+     pop_text_stack(lvl);
     return NULL;
   }
   for (i = 0, j = 0; i < tot; i++) {
@@ -1038,7 +1053,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     unsigned char *nbuf = Yap_readText(inp + i PASS_REGS);
 
     if (!nbuf) {
-      // pop_text_stack(lvl);
+       pop_text_stack(lvl);
       return NULL;
     }
     //      if (!nbuf[0])
@@ -1054,7 +1069,7 @@ bool Yap_Concat_Text(int tot, seq_tv_t inp[], seq_tv_t *out USES_REGS) {
     buf = concat(tot, bufv PASS_REGS);
   }
   bool rc = write_Text(buf, out PASS_REGS);
-  // pop_text_stack( lvl );
+   pop_text_stack( lvl );
 
   return rc;
 }
