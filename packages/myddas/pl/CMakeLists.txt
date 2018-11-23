@@ -66,7 +66,7 @@ endfunction()
 set(MYDDAS_DBMS sqlite3 postgres odbc)
 
 foreach (file ${MYDDAS_YPP})
-    cpp_compile(MYDDAS_YAP ${file})
+  cpp_compile(MYDDAS_YAP ${file})
 endforeach ()
 foreach (driver ${MYDDAS_DBMS})
     cpp_driver(MYDDAS_YAP ${driver} myddas_driver.ypp)

@@ -1,101 +1,23 @@
 
-@defgroup myddas The MYDDAS Data-base interface
-@ingroup packages
 
+@defgroup myddas The MYDDAS Data-base interface
+
+@ingroup packages
+@{
   The MYDDAS database project was developed within a FCT project
   aiming at the development of a highly efficient deductive database
   system, based on the coupling of the MySQL relational database
   system with the YAP Prolog system. MYDDAS was later expanded to
   support the ODBC interface, postgres and sqlite3.
 
-@defgroup  Requirements_and_Installation_Guide  Requirements and Installation Guide        
-@ingroup myddas @{
-
-  Next, we describe how to usen of the YAP with the MYDDAS System.  The
-  use of this system is entirely depend of the MySQL development libraries
-  or the ODBC development libraries. At least one of the this development
-  libraries must be installed on the computer system, otherwise MYDDAS
-  will not compile. The MySQL development libraries from MySQL 3.23 an
-  above are know to work. We recommend the usage of MySQL versus ODBC,
-  but it is possible to have both options installed
-
-  At the same time, without any problem. The MYDDAS system automatically
-  controls the two options. Currently, MYDDAS is know to compile without
-  problems in Linux. The usage of this system on Windows has not been
-  tested yet.  MYDDAS must be enabled at configure time. This can be done
-  with the following options:
-
-     + `--enable-myddas`
-
-  This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
-
-      + `--enable-myddas-stats`
-
-  This option is only available in MySQL. It includes code to get
-  statistics from the MYDDAS system;
-
-
-      + `--enable-top-level`
-
-  This option is only available in MySQL.  It enables the option to interact with the MySQL server in
-  two different ways. As if we were on the MySQL Client Shell, and as if
-  we were using Datalog.
-
 @}
-@defgroup  MYDDAS_Architecture  MYDDAS Architecture                    
-@ingroup myddas @{
 
-  The system includes four main blocks that are put together through the
-  MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
-  ODBC level and a Prolog to SQL compiler. Current effort is put on the
-  MySQL interface rather than on the ODBC interface. If you want to use
-  the full power of the MYDDAS interface we recommend you to use a MySQL
-  database. Other databases, such as Oracle, PostGres or Microsoft SQL
-  Server, can be interfaced through the ODBC layer, but with limited
-  performance and features support.
+@defgroup MYDDAS_ABI MYDDAS Predicates
+@ingroup myddas
 
-  The main structure of the MYDDAS interface is simple. Prolog queries
-  involving database goals are translated to SQL using the Prolog to SQL
-  compiler; then the SQL expression is sent to the database system, which
-  returns the set of tuples satisfying the query; and finally those tuples
-  are made available to the Prolog engine as terms. For recursive queries
-  involving database goals, the YapTab tabling engine provides the
-  necessary support for an efficient evaluation of such queries.
+[TOC]
 
-  An important aspect of the MYDDAS interface is that for the programmer
-  the use of predicates which are defined in database relations is
-  completely transparent. An example of this transparent support is the
-  Prolog cut operator, which has exactly the same behaviour from
-  predicates defined in the Prolog program source code, or from predicates
-  defined in database as relations.
- 
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Name = 'John Doe',
-  Number = 123456789 ?
-  yes
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Backtracking can then be used to retrieve the next row
-  of the relation phonebook.  Records with particular field values may be
-  selected in the same way as in Prolog. (In particular, no mode
-  specification for database predicates is required). For instance:
-
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ?- phonebook(Letter,'John Doe',Letter).
-  Letter = 'D',
-  Number = 123456789 ?
-  yes
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  generates the query
-
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  SELECT A.Letter , 'John Doe' , A.Number
-  FROM 'phonebook' A
-  WHERE A.Name = 'John Doe';
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@}
-@defgroup  View_Level_Interface  View Level Interface                       
-@ingroup myddas @{
+@{
 
   @pred db view(+,+,+).
   @pred db view(+,+).
@@ -185,9 +107,6 @@
   To know how to use db `view/3`, please refer to Draxler's Prolog to
   SQL Compiler Manual.
 
-@defgroup  Accessing_Tables_in_Data_Sources_Using_SQL  Accessing Tables in Data Sources Using SQL                       
-
-
   @pred db_sql(+,+,?).
   @pred db_sql(+,?).
 
@@ -209,10 +128,10 @@
   ?- db_sql('SELECT * FROM phonebook',LA).
   LA = ['D','John Doe',123456789] ?
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@}
-@defgroup  Insertion_of_Rows  Insertion of Rows                       
-@ingroup myddas @{
- @pred db_assert(+,+).
+
+
+
+@pred db_assert(+,+).
   @pred db_assert(+).
 
 
@@ -280,9 +199,6 @@
   yes
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@defgroup  Types_of_Attributes  Types of Attributes                       
-
-
  @pred db_get_attributes_types(+,+,?).
 otype for this predicate is the following:
 
@@ -303,9 +219,6 @@ otype for this predicate is the following:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where <tt>Hello World</tt> is the name of the relation and <tt>myddas</tt> is the
   connection identifier.
-
-@defgroup  Number_of_Fields  Number of Fields                       
-
 
   @pred db_number_of_fields(+,?).
   @pred db_number_of_fields(+,+,?).
@@ -330,8 +243,6 @@ otype for this predicate is the following:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   where `Hello World` is the name of the
   relation and `myddas` is the connection identifier.
-
-@defgroup  Describing_a_Relation  Describing a Relation                       
 
   @pred db_datalog_describe(+,+).
   @pred db_datalog_describe(+).
@@ -372,7 +283,6 @@ otype for this predicate is the following:
   Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@defgroup  Enumerating_Relations  Enumeration Relations Describing_a_Relation Describing a Relation                       
 
 
 @pred db_datalog_show_tables(+).
@@ -412,8 +322,8 @@ otype for this predicate is the following:
   no
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@}
-@defgroup  The_MYDDAS_MySQL_Top_Level  The MYDDAS MySQL Top Level              @ingroup myddas @{
+
+
 
   @pred db_top_level(+,+,+,+,+).
   @pred db_top_level(+,+,+,+).
@@ -463,9 +373,7 @@ otype for this predicate is the following:
   yes
   ?-
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@}
-@defgroup  Other_MYDDAS_Properties  Other MYDDAS Properties              
-@ingroup myddas @{ 
+
   @pred db_verbose(+).
 
 
@@ -560,7 +468,97 @@ otype for this predicate is the following:
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   You can see the available SQL Modes at the MySQL homepage at
   <http://www.mysql.org>.
+
+@}
+@defgroup MYDDAS_INSTall  Requirements and Installation Guide        
+@ingroup myddas
+@{
+
+  Next, we describe how to use YAP plus the MYDDAS System.  MYDDAS
+  includes its own copy of SQLite3, a popular DBMS that is highky
+  portable. It can also them interface to the MySQL development
+  libraries, Postgres or the ODBC development libraries. At least one
+  of the this development libraries must be installed on the computer
+  system, otherwise MYDDAS will not compile. The MySQL development
+  libraries from MySQL 3.23 an above are know to work. We recommend
+  the usage of MySQL versus ODBC, but it is possible to have both
+  options installed
+
+  At the same time, without any problem. The MYDDAS system automatically
+  controls the two options. Currently, MYDDAS is know to compile without
+  problems in Linux. The usage of this system on Windows has not been
+  tested yet.  MYDDAS must be enabled at configure time. This can be done
+  with the following options:
+
+     + `--enable-myddas`
+
+  This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
+
+      + `--enable-myddas-stats`
+
+  This option is only available in MySQL. It includes code to get
+  statistics from the MYDDAS system;
+
+
+      + `--enable-top-level`
+
+  This option is only available in MySQL.  It enables the option to interact with the MySQL server in
+  two different ways. As if we were on the MySQL Client Shell, and as if
+  we were using Datalog.
+
+@}
+
+@defgroup myddasarch  MYDDAS Architecture
+@ingroup myddas
+
+@{
+
+  The system includes four main blocks that are put together through the
+  MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
+  ODBC level and a Prolog to SQL compiler. Current effort is put on the
+  MySQL interface rather than on the ODBC interface. If you want to use
+  the full power of the MYDDAS interface we recommend you to use a MySQL
+  database. Other databases, such as Oracle, PostGres or Microsoft SQL
+  Server, can be interfaced through the ODBC layer, but with limited
+  performance and features support.
+
+  The main structure of the MYDDAS interface is simple. Prolog queries
+  involving database goals are translated to SQL using the Prolog to SQL
+  compiler; then the SQL expression is sent to the database system, which
+  returns the set of tuples satisfying the query; and finally those tuples
+  are made available to the Prolog engine as terms. For recursive queries
+  involving database goals, the YapTab tabling engine provides the
+  necessary support for an efficient evaluation of such queries.
+
+  An important aspect of the MYDDAS interface is that for the programmer
+  the use of predicates which are defined in database relations is
+  completely transparent. An example of this transparent support is the
+  Prolog cut operator, which has exactly the same behaviour from
+  predicates defined in the Prolog program source code, or from predicates
+  defined in database as relations.
  
- @]
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Name = 'John Doe',
+  Number = 123456789 ?
+  yes
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Backtracking can then be used to retrieve the next row
+  of the relation phonebook.  Records with particular field values may be
+  selected in the same way as in Prolog. (In particular, no mode
+  specification for database predicates is required). For instance:
+
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ?- phonebook(Letter,'John Doe',Letter).
+  Letter = 'D',
+  Number = 123456789 ?
+  yes
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  generates the query
+
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SELECT A.Letter , 'John Doe' , A.Number
+  FROM 'phonebook' A
+  WHERE A.Name = 'John Doe';
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
  @}
- 

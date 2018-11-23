@@ -26,7 +26,7 @@
  *
  * @defgroup args Term Argument Manipulation.
  *
- * @ingroup @library
+ * @ingroup library
  *
  * @{
  *

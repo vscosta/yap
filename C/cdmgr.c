@@ -1219,8 +1219,8 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
   ncp = NEXTOP(ncp, e);
   ncp->opc = Yap_opcode(_Ystop);
   ncp->y_u.l.l = cl->ClCode;
-  // if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
-  //  p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
+   if (!(p->PredFlags & MultiFileFlag) && p->src.OwnerFile == AtomNil)
+   p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
 }
 
 /* p is already locked */
@@ -2429,7 +2429,7 @@ static Int
 }
 
 /*  @pred '$new_multifile'(+G,+Mod)
- *  sets the multi-file flag
+ *  declares rgi///////                                                                                                                                                                   the multi-file flag
  * */
 static Int new_multifile(USES_REGS1) {
   PredEntry *pe;

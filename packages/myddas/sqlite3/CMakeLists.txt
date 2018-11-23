@@ -66,7 +66,7 @@ if (WITH_SQLITE3)
   endif()
 
   install(FILES ${SQLITE_EXTRA}
-    DESTINATION ${YAP_INSTALL_DATADIR}
+    DESTINATION ${YAP_PLDIR}/data
     )
 
 endif()

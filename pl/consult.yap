@@ -930,7 +930,7 @@ nb_setval('$if_level',0).
 %
 '$do_startup_reconsult'(_X) :-
 	'$init_win_graphics',
-	fail.../
+	fail.
 '$do_startup_reconsult'(X) :-
 	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
 	!,

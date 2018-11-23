@@ -471,14 +471,13 @@ b_getval(GlobalVariable, Val) :-
 	it saves the importante data about current streams and
 	debugger state */
 
-'$debug_state'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
+'$debug_state'(state(Trace, Debug, State, SPY_GN, GList)) :-
 	'$init_debugger',
 	nb_getval('$trace',Trace),
 	nb_getval('$debug_state',State),
 	current_prolog_flag(debug, Debug),
 	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList),
-	b_getval('$spy_depth',GDList).
+	b_getval('$spy_glist',GList).
 
 
 '$debug_stop' :-
@@ -486,15 +485,13 @@ b_getval(GlobalVariable, Val) :-
 	b_setval('$trace',off),
 	set_prolog_flag(debug, false),
 	b_setval('$spy_glist',[]),
-	b_setval('$spy_gdlist',[]),
 	'$disable_debugging'.
 
-'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList, GDList)) :-
+'$debug_restart'(state(Trace, Debug, State, SPY_GN, GList)) :-
 	b_setval('$spy_glist',GList),
-	b_setval('$spy_gdlist',GDList),
 	b_setval('$spy_gn',SPY_GN),
 	set_prolog_flag(debug, Debug),
-    nb_setval('$debug_state',State),
+	nb_setval('$debug_state',State),
 	b_setval('$trace',Trace),
 	'$enable_debugging'.
 
@@ -517,7 +514,7 @@ debugging.
 break :-
         '$debug_state'(DState),
         '$debug_start',
-	'$break'( true ),
+        '$break'( true ),
 	current_output(OutStream), current_input(InpStream),
 	current_prolog_flag(break_level, BL ),
         NBL is BL+1,

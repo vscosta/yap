@@ -7,13 +7,12 @@
 
 :- begin_tests(sqlite3).
 
-
 :- if( yap_flag(android,true) ).
 test(open) :-
     db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
 :- else.
 test(open) :-
-    db_open(sqlite3,'chinook.db',_,_).
+    db_open(sqlite3,dataset('chinook'),_,_).
 :-endif.
 
 test(schema0, all((Tables ==[(table albums),
