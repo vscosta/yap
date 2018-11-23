@@ -846,16 +846,12 @@ be lost.
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     '__NB_setval__'('$debug_status', state(leap, Goal, stop)).
-'$action'(z,_,CallNumber,_,_,_H) :- !,		% 'z		zip, fast leap
-     '$scan_number'(ScanNumber),		
-     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    '__NB_setval__'('$debug_status', state(zip, Goal, stop)).
+'$action'(z,_,_allNumber,_,_,_H) :- !,		% 'z		zip, fast leap
+    '__NB_setval__'('$debug_status', state(zip, 0, stop)).
         % skip first call (for current goal),
 	% stop next time.
-'$action'(k,_,CallNumber,_,_,_) :- !,		% 'k		zip, fast leap
-     '$scan_number'(ScanNumber),		
-     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-         '__NB_setval__'('$debug_status', state(zip, Goal, ignore)).
+'$action'(k,_,_CallNumber,_,_,_) :- !,		% 'k		zip, fast leap
+         '__NB_setval__'('$debug_status', state(zip, 0, stop)).
         % skip first call (for current goal),
 	% stop next time.
 '$action'(n,_,_,_,_,_) :- !,			% 'n		nodebug

@@ -398,6 +398,8 @@ INLINE_ONLY bool IsBigIntTerm(Term t) {
 
 #if !defined(__cplusplus)
 #include <gmp.h>
+#else
+#include <gmpxx.h>
 #endif
 
 

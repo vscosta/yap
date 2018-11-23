@@ -7,13 +7,13 @@
 
 :- begin_tests(sqlite3).
 
-:- if( yap_flag(android,true) ).
-test(open) :-
-    db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
-:- else.
+%:- if( yap_flag(android,true) ).
+%test(open) :-
+%    db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
+%:- else.
 test(open) :-
     db_open(sqlite3,dataset('chinook'),_,_).
-:-endif.
+%:-endif.
 
 test(schema0, all((Tables ==[(table albums),
 		   (table artists),
@@ -40,7 +40,7 @@ test(all_artists, all((
 273-'C. Monteverdi, Nigel Rogers - Chiaroscuro; London Baroque; London Cornett & Sackbu',
 274-'Nash Ensemble',
 275-'Philip Glass Ensemble'] ))) :-
-	 artists(X,Y).
+	 findall(X-Y,artists(X,Y),L).
 
 test(cut_artists, true((X-Y == 1-'AC/DC'))) :-
     artists(X, Y),

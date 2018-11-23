@@ -1745,6 +1745,7 @@ static int legal_env(CELL *ep USES_REGS) {
   return (TRUE);
 }
 
+#if 0
 static bool handled_exception(USES_REGS1) {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred, l);
   bool found_handler = false;
@@ -1766,6 +1767,8 @@ static bool handled_exception(USES_REGS1) {
   /* handled by Top c-code? */
   return !found_handler;
 }
+
+#endif
 
 #define ADDBUF( CMD ) { \
 while (true) {          \

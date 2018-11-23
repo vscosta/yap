@@ -102,7 +102,8 @@ user:term_expansion(In, Out) :-
 	if_expansion(In, Out).
 
 swi     :- catch(current_prolog_flag(dialect, swi), _, fail), !.
-swi     :- catch(current_prolog_flag(dialect, yap), _, fail).
+swi     :- catch(current_prolog_flag(dialect, yap), _, fail), !.
+yap     :- catch(current_prolog_flag(dialect, yap), _, fail), !.
 sicstus :- catch(current_prolog_flag(system_type, _), _, fail).
 
 
