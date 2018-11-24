@@ -586,7 +586,7 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_BINARY_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
 

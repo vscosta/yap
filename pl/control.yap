@@ -513,7 +513,7 @@ debugging.
 */
 break :-
         '$debug_state'(DState),
-        '$debug_start',
+        '$debug_stop',
         '$break'( true ),
 	current_output(OutStream), current_input(InpStream),
 	current_prolog_flag(break_level, BL ),

@@ -7,27 +7,27 @@
 
 :- begin_tests(sqlite3).
 
-%:- if( yap_flag(android,true) ).
-%test(open) :-
-%    db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
-%:- else.
-test(open) :-
-    db_open(sqlite3,dataset('chinook'),_,_).
-%:-endif.
+:- if( current_prolog_flag(android,true) ).
+test(db_open) :-
+    db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
+:- else.
+test(db_open) :-
+	 db_open(sqlite3,con,dataset('chinook.db'),_,_).
+:-endif.
 
-test(schema0, all((Tables ==[(table albums),
-		   (table artists),
-		   (table customers),
-		   (table employees),
-		   (table genres),
-		   (table invoice_items),
-		   (table invoices),
-		   (table media_types),
-		   (table playlist_track),
-		   (table playlists),
-		   (table sqlite_sequence),
-		   (table sqlite_stat1),(table tracks)]))) :-
-    findall( Desc, db_show_tables(Desc), Tables).
+test(schema0, all((Desc ==[(albums),
+		   (artists),
+		   (customers),
+		   (employees),
+		   (genres),
+		   (invoice_items),
+		   (invoices),
+		   (media_types),
+		   (playlist_track),
+		   (playlists),
+		   (sqlite_sequence),
+		   (sqlite_stat1),(tracks)]))) :-
+     db_show_tables(con,Desc).
 
 test(import) :-
     db_import('artists', artists),

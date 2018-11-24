@@ -476,7 +476,7 @@ If this hook preodicate succeeds it must instantiate the  _Action_ argument to t
 
 :- ensure_loaded('../pl/pathconf.yap').
 
-:-  ensure_loaded('../pl/android.yap').
+:-  current_prolog_fkag(android,true), ensure_loaded('../pl/android.yap').
 
 
 
