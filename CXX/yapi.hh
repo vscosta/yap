@@ -13,21 +13,22 @@
 #include <vector>
 
 extern "C" {
+
 #include "YapConfig.h"
+
 }
 
-#if HAVE_GMPXX_H || defined(__ANDROID__)
 #include <gmpxx.h>
-#elif HAVE_GMP_H
-#include <gmp.h>
-#endif
+
+
+
 
 /*!
  *
  *   @ingroup fli_c_cxx
  *   @defgroup yap-cplus-interface An object oriented interface for YAP.
  *
- *   @{
+1 *   @{
  *
  *
  * @brief C++ wrapper to terms, predicates and queries

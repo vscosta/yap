@@ -1,7 +1,10 @@
 
+extern "C" {
+
 
 #include "inline-only.h"
 #define _EXPORT_KERNEL 1
+}
 
 #include "yapi.hh"
 
