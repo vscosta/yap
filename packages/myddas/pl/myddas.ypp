@@ -225,7 +225,7 @@ user:prolog_file_type( db, dataset ).
 %
 db_open(Interface,HostDb,User,Password):-
 	db_open(Interface,myddas,HostDb,User,Password).
-	
+
 #ifdef MYDDAS_MYSQL
 db_open(mysql,Connection,Host/Db/Port/Socket,User,Password) :- !,
 	'$error_checks'(db_open(mysql,Connection,Host/Db/Port/Socket,User,Password)),
@@ -263,7 +263,7 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
-    absolute_file_name(File,Db,[,access(write),file_type(myddas),expand(true)]),
+    absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
     c_sqlite3_connect(Db,User,Password,Con),
     set_value(Connection,Con).
