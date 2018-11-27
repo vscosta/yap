@@ -412,7 +412,7 @@ namespace generic_gecode
 	  break;
 	case Optimizing::OPT_RATIO:
 	  {
-	    IntArgs c(2, sol.ivars[optim.den].val(),
+	    IntArgs c = Gecode::IntArgs::create(2, sol.ivars[optim.den].val(),
 		      -  sol.ivars[optim.num].val());
 	    IntVarArgs v(2);
 	    v[0] = ivars[optim.num];
