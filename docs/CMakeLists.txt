@@ -39,6 +39,10 @@ ${CMAKE_SOURCE_DIR}/packages/swig
         ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/output
          ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/queries
 ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
+${CMAKE_SOURCE_DIR}/packages/gecode/6.0.1
+${CMAKE_SOURCE_DIR}/packages/gecode/6.0.0
+${CMAKE_SOURCE_DIR}/packages/gecode/5.1.0
+${CMAKE_SOURCE_DIR}/packages/gecode/5.0.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.4.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.1
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.0
@@ -52,14 +56,19 @@ ${CMAKE_SOURCE_DIR}/packages/problog
 ${CMAKE_SOURCE_DIR}/packages/gecode/dev
 ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
 ${CMAKE_SOURCE_DIR}/H/globals.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_alpha_funcs.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_mips_funcs.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_sparc.h
 ${CMAKE_SOURCE_DIR}/packages/cplint
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
+${CMAKE_SOURCE_DIR}/packages/cuda
 ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
 ${CMAKE_SOURCE_DIR}/packages/python/yap_kernel
 ${CMAKE_SOURCE_DIR}/packages/python/swig
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
+${CMAKE_SOURCE_DIR}/packages/swi-minisat2
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
 ${CMAKE_SOURCE_DIR}/*/bprolog/* 
                          ${CMAKE_SOURCE_DIR}/*/prism/* 
@@ -75,6 +84,7 @@ ${CMAKE_SOURCE_DIR}/*/bprolog/*
 			 ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
    */CMakeFiles/* *~ */#*
 )
+
 
 
 foreach(i ${DOCS_EXCLUDE_})
