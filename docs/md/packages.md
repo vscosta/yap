@@ -13,7 +13,7 @@ YAP packages              {#packages}
 
   + @ref PFL
 
-  + @ref ProbLogI
+  + @subpage problog
 
   + @ref python
 
