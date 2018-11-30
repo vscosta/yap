@@ -833,7 +833,7 @@ static inline Term Yap_CharsToTBQ(const char *s, Term mod,
 static inline Atom Yap_ListOfAtomsToAtom(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOMS;
+  inp.type = YAP_STRING_ATOMS|YAP_STRING_CODES;
   out.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
@@ -845,7 +845,7 @@ static inline Atom Yap_ListOfAtomsToAtom(Term t0 USES_REGS) {
 static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOMS;
+  inp.type = YAP_STRING_ATOMS|YAP_STRING_CODES;
   out.type =
     YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG | YAP_STRING_TERM;
   out.val.uc = NULL;
@@ -858,7 +858,7 @@ static inline Term Yap_ListOfAtomsToNumber(Term t0 USES_REGS) {
 static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_ATOMS;
+  inp.type = YAP_STRING_ATOMS|YAP_STRING_CODES;
   out.type = YAP_STRING_STRING;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
@@ -870,7 +870,7 @@ static inline Term Yap_ListOfAtomsToString(Term t0 USES_REGS) {
 static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_CODES;
+  inp.type = YAP_STRING_CODES|YAP_STRING_ATOMS;
   out.type = YAP_STRING_ATOM;
   out.val.uc = NULL;
   out.enc = ENC_ISO_UTF8;
@@ -882,7 +882,7 @@ static inline Atom Yap_ListOfCodesToAtom(Term t0 USES_REGS) {
 static inline Term Yap_ListOfCodesToNumber(Term t0 USES_REGS) {
   seq_tv_t inp, out;
   inp.val.t = t0;
-  inp.type = YAP_STRING_CODES;
+  inp.type = YAP_STRING_CODES|YAP_STRING_ATOMS;
   out.type = YAP_STRING_INT | YAP_STRING_FLOAT | YAP_STRING_BIG;
   out.enc = ENC_ISO_UTF8;
   out.val.uc = NULL;
@@ -895,7 +895,7 @@ static inline Term Yap_ListOfCodesToString(Term t0 USES_REGS) {
   seq_tv_t inp, out;
 
   inp.val.t = t0;
-  inp.type = YAP_STRING_CODES;
+  inp.type = YAP_STRING_CODES|YAP_STRING_ATOMS;
   out.val.uc = NULL;
   out.type = YAP_STRING_STRING;
   out.enc = ENC_ISO_UTF8;

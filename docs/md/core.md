@@ -1,10 +1,14 @@
+
 @defgroup builtins Core Built-ins
-@{
+
+[TOC]
 
 
-@brief This chapter describes the core built-in predicates  that control the execution of
+This chapter describes the core built-in predicates  that control the execution of
 Prolog programs, provide fundamental functionality such as termm manipulation or arithmetic, and support interaction with external
-resources,
+resources.
+
+@{
 
 Many of the predicates described here have been standardised by the International Standard Organization.
  The corresponding standartised subset of Prolog also known as ISO-Prolog.    
@@ -20,6 +24,8 @@ notation will be used:
 
 + an argument with no preceding symbol can be used in both ways.
 
-[TOC]
+
+
 
 @}
+	

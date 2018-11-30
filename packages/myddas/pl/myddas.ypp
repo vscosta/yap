@@ -132,7 +132,10 @@
 					db_abolish/2,
 					db_listing/0,
 					db_listing/1
-				       ]).
+	      ]).
+
+:- meta_predicate db_import(+,+,:), db_import(+,:).
+
 
 :- use_module(myddas_sqlite3,[
 		  % myddas_mysql.ypp
@@ -202,7 +205,7 @@ user:file_search_path(dataset, '.').
 
 :- dynamic user:prolog_file_type/2.
 
-user:prolog_file_type( db, myddas ).
+user:prolog_file_type( db, dataset ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 				% db_open/5
@@ -213,7 +216,7 @@ user:prolog_file_type( db, myddas ).
 %% @pred db_open(+Interface,-Handle,+HostDb,+User,+Password)
 %% @pred db_open(+Interface,+HostDb,+User,+Password)
 %
-% Connect to a database-server, or open a file as a database, Paraameters are:
+% Connect to a database-server, or open a file as a database, Parameters are:
 %
 % _Interface_ : a supported server, it may be one of mysql, odbc, postgres, sqlite3.
 % _Handle_ : a name that refers to the database-conectionn. By default is `myddas`,
@@ -263,7 +266,7 @@ db_open(odbc,Connection,ODBCEntry,User,Password) :-
 
 %% sqlite3
 db_open(sqlite3,Connection,File,User,Password) :-
-    absolute_file_name(File,Db,[extensions(db),access(write),file_type(myddas),expand(true)]),
+    absolute_file_name(File,Db,[access(write),file_type(myddas),expand(true)]),
     '$error_checks'(db_open(sqlite3,Connection,Db,User,Password)),
     c_sqlite3_connect(Db,User,Password,Con),
     set_value(Connection,Con).
@@ -351,7 +354,7 @@ db_stats(Protocol,List):-
 #ifdef DEBUG
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_stats_time(+,-)
-% Reference is C puuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;uuuuu;ointer (memory reference)
+% Reference is C pointer (memory reference)
 				%
 db_stats_time(Reference,Time):-
 	'$error_checks'(db_stats_time(Reference,Time)),

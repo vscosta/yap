@@ -586,7 +586,7 @@ static Int put_code(USES_REGS1) { /* '$put'(Stream,N)                      */
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
 
@@ -626,7 +626,7 @@ static Int put_char_1(USES_REGS1) { /* '$put'(,N)                      */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_wputc(sno, ch);
@@ -664,7 +664,7 @@ static Int put_char(USES_REGS1) { /* '$put'(Stream,N)                      */
     return (FALSE);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "put/2");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
     return (FALSE);
   }
   GLOBAL_Stream[sno].stream_wputc(sno, (int)IntegerOfTerm(Deref(ARG2)));
@@ -698,7 +698,7 @@ static Int tab_1(USES_REGS1) { /* nl                      */
   LOCK(GLOBAL_Stream[sno].streamlock);
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "user_output");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "user_output");
     return (FALSE);
   }
 
@@ -738,7 +738,7 @@ static Int tab(USES_REGS1) { /* nl(Stream)                      */
 
   if (GLOBAL_Stream[sno].status & Binary_Stream_f) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "nl/0");
+    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "nl/0");
     return (FALSE);
   }
 

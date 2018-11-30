@@ -98,7 +98,7 @@ db_import(Connection,RelationName,PredName0) :-
         get_value(Connection,Con),
 	table_arity( Con, ConType, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
-	not c_db_check_if_exists_pred(PredName,Arity,Module),
+	\+ c_db_check_if_exists_pred(PredName,Arity,Module),
 	R=..[relation,PredName,Arity,RelationName],
 	% assert relation fact
 	assert(Module:R),

@@ -156,7 +156,6 @@ DBMS(datalog_show_tables)(Connection) :-
 % DBMS(show_tables)/2
 % gives the results of the SHOW TABLES statement
 % by backtracking
-%#if sqlite3
 DBMS(show_tables)(Connection,table(Table)) :-
 	'$get_value'(Connection,Conn),
 	SQL = 'SELECT name FROM sqlite_master WHERE type=\'table\' ORDER BY name',
@@ -165,8 +164,7 @@ DBMS(show_tables)(Connection,table(Table)) :-
 	c_DBMS(query)(SQL,ResultSet,Conn,Mode,_),
 	!,
 	DBMS(row)(ResultSet,1,[Table]).
-%#endif
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

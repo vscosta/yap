@@ -31,14 +31,18 @@ SET( EXT
       string(APPEND CMAKE_HTML_EXTRA ${i} " ")
     endforeach(i ${CMAKE_HTML_EXTRA_})
 
-set(DOCS_EXCLUDE_
+
+set(DOC_DIRS_EXCLUDE_
 ${CMAKE_SOURCE_DIR}/build
 ${CMAKE_SOURCE_DIR}/Debug
 ${CMAKE_SOURCE_DIR}/packages/jpl
-${CMAKE_SOURCE_DIR}/packages/swig
-        ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/output
-         ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples/queries
+${CMAKE_SOURCE_DIR}/packages/swi
+${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples
 ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
+${CMAKE_SOURCE_DIR}/packages/gecode/6.0.1
+${CMAKE_SOURCE_DIR}/packages/gecode/6.0.0
+${CMAKE_SOURCE_DIR}/packages/gecode/5.1.0
+${CMAKE_SOURCE_DIR}/packages/gecode/5.0.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.4.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.1
 ${CMAKE_SOURCE_DIR}/packages/gecode/4.2.0
@@ -48,22 +52,30 @@ ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.2
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.1
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.7.0
 ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
-${CMAKE_SOURCE_DIR}/packages/problog
 ${CMAKE_SOURCE_DIR}/packages/gecode/dev
-${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
-${CMAKE_SOURCE_DIR}/H/globals.h
 ${CMAKE_SOURCE_DIR}/packages/cplint
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
 ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
+${CMAKE_SOURCE_DIR}/packages/cuda
 ${CMAKE_SOURCE_DIR}/packages/prosqlite
 ${CMAKE_SOURCE_DIR}/packages/pyswip
 ${CMAKE_SOURCE_DIR}/packages/python/yap_kernel
 ${CMAKE_SOURCE_DIR}/packages/python/swig
 ${CMAKE_SOURCE_DIR}/packages/yap-lbfgs/liblbfgs-1.10
+${CMAKE_SOURCE_DIR}/packages/swi-minisat2
 ${CMAKE_SOURCE_DIR}/library/dialect/swi/os
+)
+
+
+set(DOCS_EXCLUDE_
+${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
+${CMAKE_SOURCE_DIR}/H/globals.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_alpha_funcs.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_mips_funcs.h
+${CMAKE_SOURCE_DIR}/OPTYap/locks_sparc.h
 ${CMAKE_SOURCE_DIR}/*/bprolog/* 
                          ${CMAKE_SOURCE_DIR}/*/prism/* 
-                         ${CMAKE_SOURCE_DIR}/*/gecodde/[345]*
+                         ${CMAKE_SOURCE_DIR}/*/gecode/[345]*
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap.cc 
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap.cc 
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap.cc 
@@ -73,13 +85,19 @@ ${CMAKE_SOURCE_DIR}/*/bprolog/*
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap  
                          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
 			 ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
-   */CMakeFiles/* *~ */#*
+   */CMakeFiles/*
 )
+
 
 
 foreach(i ${DOCS_EXCLUDE_})
   string(APPEND DOCS_EXCLUDE ${i} " ")
 endforeach(i ${DOCS_EXCLUDE_})
+
+
+foreach(i ${DOCS_DIR_EXCLUDE_})
+  string(APPEND DOCS_DIR_EXCLUDE ${i} " ")
+endforeach(i ${DOCS_DIR_EXCLUDE_})
 
 
 # add a target to generate API documentation with Doxygen
@@ -92,6 +110,7 @@ endforeach(i ${DOCS_EXCLUDE_})
    SET(DOC_INPUT_FILES_
      ${CMAKE_SOURCE_DIR}/docs/md
      ${CMAKE_SOURCE_DIR}/pl
+     ${CMAKE_SOURCE_DIR}/packages/ProbLog
      ${CMAKE_SOURCE_DIR}/CXX
      ${CMAKE_SOURCE_DIR}/OPTYap
      ${CMAKE_SOURCE_DIR}/C
@@ -100,7 +119,8 @@ endforeach(i ${DOCS_EXCLUDE_})
      ${CMAKE_SOURCE_DIR}/os
      ${CMAKE_SOURCE_DIR}/library
      ${CMAKE_SOURCE_DIR}/swi/library
-     ${CMAKE_SOURCE_DIR}/packages
+     #${CMAKE_SOURCE_DIR}/packages
+     ${CMAKE_SOURCE_DIR}/BEAM
      )
 
 foreach(i ${DOC_INPUT_FILES_})
