@@ -9,11 +9,14 @@ from yap4py.yapi import *
 from IPython.core.completer import Completer
 # import IPython.core
 from traitlets import Instance
+from IPython.core import interactiveshell
+from IPython.core.displayhook import DisplayHook
 from IPython.core.inputsplitter import *
 from IPython.core.inputtransformer import *
 from IPython.core.interactiveshell import *
 from ipython_genutils.py3compat import builtin_mod
-from IPython.core import interactiveshell
+
+from yap_kernel.displayhook import ZMQShellDisplayHook
 
 from collections import namedtuple
 import traceback
@@ -280,7 +283,7 @@ class YAPCompleter(Completer):
                   help="""Activate greedy completion
         PENDING DEPRECTION. this is now mostly taken care of with Jedi.
 
-        This will enable completion on elements of lists, self.results of function calls, etc.,
+        This will enable completion on elements of lists, results of function calls, etc.,
         but can be unsafe because the code is actually evaluated on TAB.
         """
                   ).tag(config=True)
@@ -398,7 +401,7 @@ class YAPCompleter(Completer):
 
         return comp
 
-    def magic_config_matches(self, text:str) -> List[str]:
+    def magic_config_matches(self, text:str) -> List:
         """ Match class names and attributes for %config magic """
         texts = text.strip().split()
 
@@ -434,7 +437,7 @@ class YAPCompleter(Completer):
         return []
 
 
-    def magic_color_matches(self, text:str) -> List[str] :
+    def magic_color_matches(self, text:str) -> List:
         """ Match color schemes for %colors magic"""
         texts = text.split()
         if text.endswith(' '):
@@ -580,11 +583,11 @@ class YAPRun(InteractiveShell):
                 if self.port  == "exit":
                     self.os = None
                     #sys.stderr.write('Done, with'+str(self.answers)+'\n')
-                    self.result.result = True,self.bindings
-                    return self.result
+                    result.result = True,self.bindings
+                    return result
                 if stop or howmany == self.iterations:
-                    self.result.result = True, self.answers
-                    return self.result
+                    result.result = True, self.answers
+                    return result
             if found:
                 sys.stderr.write('Done, with '+str(self.answers)+'\n')
             else:
@@ -592,18 +595,18 @@ class YAPRun(InteractiveShell):
                 self.query.close()
                 self.query = None
                 sys.stderr.write('Fail\n')
-                self.result.result = True,self.bindings
-                return self.result
+                result.result = True,self.bindings
+                return result
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
                              ':'+pg+'\n  '+str( self.bindings)+ '\n')
             has_raised = True
-            self.result.result = False
-            return self.result
+            result.result = False
+            return result
 
 
 
-    def _yrun_cell(self, raw_cell, store_history=True, silent=False,
+    def _yrun_cell(self, raw_cell, result, store_history=True, silent=False,
                   shell_futures=True):
         """Run a complete IPython cell.
 
@@ -630,7 +633,7 @@ class YAPRun(InteractiveShell):
         Returns
 
                    -------
-            `self.result : :class:`Executionself.result`
+            `result : :class:`ExecutionResult`
         """
 
         # construct a query from a one-line string
@@ -640,37 +643,7 @@ class YAPRun(InteractiveShell):
         # the right side wraps a handle to a variable
         #import pdb; pdb.set_trace()
         #     #pdb.set_trace()
-        # atom match either symbols, or if no symbol exists, strings, In this case
-        # variable names should match strings
-        # ask = True
-        # launch the query
-        cell = raw_cell  # cell has to exist so it can be stored/logged
-
-        info = interactiveshell.ExecutionInfo(
-            raw_cell, store_history, silent, shell_futures)
-
-        self.result = interactiveshell.ExecutionResult(info)
-        self.result.error_before_exec = None
-
-        if (raw_cell == "") or raw_cell.isspace():
-            self.shell.last_execution_succeeded = True
-            return self.result
-
-        if silent:
-            store_history = False
-
-        if store_history:
-            self.result.execution_count = self.shell.execution_count+1
-
-        def error_before_exec(self, value):
-            self.result.error_before_exec = value
-            self.shell.last_execution_succeeded = False
-            return self.result
-
-        self.shell.events.trigger('pre_execute')
-        if not silent:
-            self.shell.events.trigger('pre_run_cell')
-        # If any of our input transformation (input_transformer_manager or
+        # atom match either symbols, or if no symbol exists, strings, In this case        # If any of our input transformation (input_transformer_manager or
         # prefilter_manager) raises an exception, we store it in this variable
         # so that we can display the error after logging the input and storing
         # it in the history.
@@ -680,6 +653,7 @@ class YAPRun(InteractiveShell):
         #     cell = self.shell.input_transformer_manager.transform_cell(raw_cell)
         # except SyntaxError:
         #     preprocessing_exc_tuple = self.shell.syntax_error() # sys.exc_info()
+        cell = raw_cell
         for i in self.errors:
             try:
                 (_,lin,pos,text) = i
@@ -706,27 +680,53 @@ class YAPRun(InteractiveShell):
         # compiler
         # compiler = self.shell.compile if shell_futures else CachingCompiler()
         self.cell_name = str( self.shell.execution_count)
-        if cell[0] == '%':
-            txt0 = cell.split(maxsplit = 1, sep = '\n')
+        self.shell.displayhook.exec_result= result
+        cell = raw_cell.strip()
+        while cell[0] == '%':
             if cell[1] == '%':
+                ## cell magic
+                txt0 = cell[2:].split(maxsplit = 1, sep = '\n')
+                try:
+                    body = txt0[1][1:]
+                    magic = txt0[0].strip()    
+                except:
+                    magic = cell[2:].strip()
+                    body = ""
                 linec = False
-                magic = txt[0].lstrip('%%').strip()
-                body = txt[1]
-                self.result = True, self.shell.run_cell_magic(magic, line, body)
+                try:
+                    [magic,line] = magic.split(maxsplit=1)
+                except:
+                    line = ""
+                self.shell.last_execution_succeeded = True
+                self.shell.run_cell_magic(magic, line, body)
+                result.result = True
+                return
             else:
                 linec = True
-                magic = cell.lstrip('%').strip()
-            txt = txt0[0].split(maxsplit = 2)
-            magic = txt[0]
-            self.shell.run_line_magic(magic, line)
+                rcell = cell[1:].strip()
+                print(cell)
+                try:
+                    [magic,cell] = rcell.split(maxsplit = 1, sep = '\n')
+                except:
+                    magic = rcell.strip()
+                    cell = ""
+                try:
+                    [magic,line] = magic.split(maxsplit=1)
+                except:
+                    line = ""
+                self.shell.last_execution_succeeded = True
+                self.shell.run_line_magic(magic, line)
+                # go execute the body
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
-        self.shell.displayhook.exec_result = self.result
+        self.shell.displayhook.exec_result = result
         if self.syntaxErrors(cell):
-            self.result.result = False
+            result.result = False
+            return
         has_raised = False
         try:
-            builtin_mod.input = self.shell.sys_raw_input
+            builtin_mod.input = input
+            self.shell.input = input
             self.yapeng.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
@@ -746,10 +746,10 @@ class YAPRun(InteractiveShell):
                 self.jupyter_query( cell )
                 # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
-
+            result.result = True
         except Exception as e:
             has_raised = True
-            self.result.result = False
+            result.result = False
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)
@@ -774,7 +774,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
 
         self.yapeng.mgoal(streams(False),"user", True)
-        return self.result
+        return result
 
     def    clean_end(self,s):
         """

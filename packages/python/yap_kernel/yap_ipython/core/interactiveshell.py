@@ -2660,8 +2660,12 @@ class InteractiveShell(SingletonConfigurable):
         -------
         result : :class:`ExecutionResult`
         """
+        info =  ExecutionInfo(
+            raw_cell, store_history, silent, shell_futures)
 
-        result = None
+        result = ExecutionResult(info)
+        result.error_before_exec = None
+
         try:
             # import trace
             # tracer = trace.Trace(
@@ -2675,8 +2679,8 @@ class InteractiveShell(SingletonConfigurable):
             #                        raw_cell, store_history,
             #                        silent, shell_futures)
 
-            result = self._yrun_cell(
-                       raw_cell, store_history, silent, shell_futures)
+            self._yrun_cell(
+                raw_cell, result, store_history, silent, shell_futures)
         finally:
             self.events.trigger('post_execute')
             if not silent:
