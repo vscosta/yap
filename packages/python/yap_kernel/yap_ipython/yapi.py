@@ -704,7 +704,6 @@ class YAPRun(InteractiveShell):
             else:
                 linec = True
                 rcell = cell[1:].strip()
-                print(cell)
                 try:
                     [magic,cell] = rcell.split(maxsplit = 1, sep = '\n')
                 except:

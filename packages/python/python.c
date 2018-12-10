@@ -1,4 +1,16 @@
+/**
+ * @file python.c
+ *
+ * @brief data structures and init for Py4YAP library
+ *
+ */
 
+/**
+ * @defgroup PY4YAP
+ * @ingroup python
+ * @brief make Python talk to YAP
+ * @{
+ */
 
 #include "py4yap.h"
 #include <VFS.h>
@@ -127,3 +139,5 @@ X_API bool do_init_python(void) {
   //    python_output();
   return true;
 }
+
+// @}
