@@ -78,13 +78,17 @@ python_query( Caller, String ) :-
 	maplist(in_dict(Caller.answer), Bindings).
 
 
-in_dict(Dict, var([V0,V|Vs])) :- !,
-	Dict[V] := V0,
+in_dict(Dict, var([V0,V|Vs])) :- 
+	!,
+	atom_string(V0,S0),
+	atom_string(V,S),
+	Dict[S] := S0,
 	in_dict( Dict, var([V0|Vs])).
-in_dict(_Dict, var([_],_G)) :- !.
-in_dict(Dict, nonvar([V0|Vs],G)) :- !,
-term_to_atom(G,A,_),
-	Dict[V0] := A,
-	in_dict( Dict, nonvar(Vs, G) ).
-in_dict(_Dict, nonvar([],_G)) :- !.
-in_dict(_, _)
+in_dict(Dict, nonvar([V0|Vs], T)) :- 
+	!,
+	atom_string(V0,S0),
+	atom_string(T,S),
+	Dict[S0] := S,
+	in_dict( Dict, var([V0|Vs])).
+in_dict(_,_).
+
