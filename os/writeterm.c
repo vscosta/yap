@@ -680,12 +680,13 @@ static Int term_to_string(USES_REGS1) {
     }
     return Yap_unify(ARG2, MkStringTerm(s));
   } else if (!IsStringTerm(t2)) {
-    Yap_Error(TYPE_ERROR_STRING, t2, "string_to_ter®m/2");
+    Yap_Error(TYPE_ERROR_STRING, t2, "term_to_string/3");
     return false;
   } else {
     s = StringOfTerm(t2);
   }
-  return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, ARG1);
+  yhandle_t y1 = Yap_InitHandle( t1 );
+  return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, Yap_PopHandle(y1));
 }
 
 static Int term_to_atom(USES_REGS1) {

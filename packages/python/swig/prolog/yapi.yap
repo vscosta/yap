@@ -75,20 +75,24 @@ python_query( Caller, String ) :-
 	write_query_answer( Bindings ),
 	nl(user_error),
 	Caller.answer := {},
-	maplist(in_dict(Caller.answer), Bindings).
+	maplist(in_dict(Caller.answer, Bindings), Bindings).
 
-
-in_dict(Dict, var([V0,V|Vs])) :- 
+/**
+ *
+ */
+in_dict(_Dict, _, var([_V0])) :- 
+	!.
+in_dict(Dict, Bindings, var([V0,V|Vs])) :- 
 	!,
-	atom_string(V0,S0),
-	atom_string(V,S),
+	atom_to_string(V0,S0),
+	atom_to_string(V,S),
 	Dict[S] := S0,
-	in_dict( Dict, var([V0|Vs])).
-in_dict(Dict, nonvar([V0|Vs], T)) :- 
+	in_dict( Dict, Bindings, var([V0|Vs])).
+in_dict(Dict, Bindings, nonvar([V0|Vs], T)) :- 
 	!,
-	atom_string(V0,S0),
-	atom_string(T,S),
+	atom_to_string(V0,S0),
+	term_to_string(T, S, _Bindings),
 	Dict[S0] := S,
-	in_dict( Dict, var([V0|Vs])).
-in_dict(_,_).
+	in_dict( Dict, Bindings, var([V0|Vs])).
+in_dict(_, _, _).
 

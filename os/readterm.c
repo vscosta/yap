@@ -904,7 +904,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       v_vnames = get_varnames(fe, tokstart);
     else
       v_vnames = 0L;
-    if (fe->t && trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG))
+    if (fe->t && fe->reading_clause && trueGlobalPrologFlag(SINGLE_VAR_WARNINGS_FLAG))
       {
         warn_singletons(fe, tokstart);
       }

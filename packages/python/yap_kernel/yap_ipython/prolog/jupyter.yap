@@ -38,7 +38,7 @@ jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
 jupyter_cell(Caller, _, Line ) :-
-  Query = Caller,
+    Query = Caller,
     catch(
 	python_query(Query,Line),
 	error(A,B),
@@ -67,7 +67,7 @@ jupyter_consult(Cell) :-
 	(
 	    Options = [],
 	    open_mem_read_stream( Cell, Stream),
-	    load_files(user:'jupyter cell',[stream(Stream)| Options])
+	    load_files(Stream,[stream(Stream)| Options])
 	),
 	error(A,B),
 	(close(Stream), system_error(A,B))
@@ -88,11 +88,11 @@ blank(Text) :-
 
 
  streams(false) :-
-    %close(user_input),
+    close(user_input),
     close(user_output),
     close(user_error).
 streams( true) :-
-    %open('/python/input', read, _Input, [alias(user_input),bom(false),script(false)]),
+    open('/python/input', read, _Input, [alias(user_input),bom(false),script(false)]),
     open('/python/sys.stdout', append, _Output, [alias(user_output)]),
     open('/python/sys.stderr', append, _Error, [alias(user_error)]).
 

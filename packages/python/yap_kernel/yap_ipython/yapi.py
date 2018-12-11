@@ -739,12 +739,13 @@ class YAPRun(InteractiveShell):
                 # def f(self, cell, state):
                 #     state = self.jupyter_query( cell )
 
-                # run the new command using the given tracer
-                #
-                # tracer.runfunc(f,self,cell,state)
-                self.jupyter_query( cell )
-                # state = tracer.runfunc(jupyter_query( self, cell ) )
+            # run the new command using the given tracer
+            #
+            # tracer.runfunc(f,self,cell,state)
+            self.jupyter_query( cell )
+            # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
+            result.info += [self.answer]
             result.result = True
         except Exception as e:
             has_raised = True
@@ -773,7 +774,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
 
         self.yapeng.mgoal(streams(False),"user", True)
-        return result
+        return result.result
 
     def    clean_end(self,s):
         """
