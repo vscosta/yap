@@ -11,7 +11,7 @@ YAP_Term TermErrStream, TermOutStream;
 static void pyflush(StreamDesc *st) {
 #if 0
   st->u.w_irl.ptr[0] = '\0';
-  fprintf(stderr,"%s\n", st->u.w_irl.buf);
+  //  fprintf(stderr,"%s\n", st->u.w_irl.buf);
   term_t tg = python_acquire_GIL();
   if (st->user_name == TermOutStream){
     PySys_WriteStdout("%s", st->u.w_irl.buf);
@@ -103,7 +103,7 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   if (pystream == NULL || pystream == Py_None) {
     python_release_GIL(ctk);
     return NULL;
-  }
+  } 
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
   if (strcmp(name, "sys.stdout") == 0 || strcmp(name, "sys.stderr") == 0 ||

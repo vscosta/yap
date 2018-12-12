@@ -522,7 +522,7 @@ class YAPRun(InteractiveShell):
         self.query = None
         self.os = None
         self.it = None
-        self.port = None
+        self.port = "None"
         self.answers = None
         self.bindings = dicts = []
         self.shell.yapeng = self.yapeng
@@ -566,42 +566,37 @@ class YAPRun(InteractiveShell):
                     self.query.close()
                     self.query = None
                     self.port = None
-                    self.answers = None
+                    self.answers = []
                 self.os = program+squery
                 self.iterations = 0
                 pg = jupyter_query( self, program, squery)
                 self.query =  self.yapeng.query(pg)
                 self.answers = []
-            self.port =  "call"
+                self.port =  "call"
+                found = False
             self.answer =  {}
             while self.query.next():
                 #sys.stderr.write('B '+str( self.answer) +'\n')
                 #sys.stderr.write('C '+ str(self.port) +'\n'+'\n')
                 found = True
+                print( "uek",self.answer )
                 self.answers += [self.answer]
+                print( "ek",self.answers )
                 self.iterations += 1
-                if self.port  == "exit":
+                if self.port  == "exit" or stop or howmany == self.iterations:
                     self.os = None
-                    #sys.stderr.write('Done, with'+str(self.answers)+'\n')
-                    result.result = True,self.bindings
+                    self.query.close()
+                    self.query = None
+                    if found:
+                        sys.stderr.write('Completed, with '+str(self.answers)+'\n')
+                    result.result = self.answers
                     return result
-                if stop or howmany == self.iterations:
-                    result.result = True, self.answers
-                    return result
-            if found:
-                sys.stderr.write('Done, with '+str(self.answers)+'\n')
-            else:
-                self.os = None
-                self.query.close()
-                self.query = None
-                sys.stderr.write('Fail\n')
-                result.result = True,self.bindings
-                return result
+     
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
                              ':'+pg+'\n  '+str( self.bindings)+ '\n')
             has_raised = True
-            result.result = False
+            result.result = []
             return result
 
 
@@ -698,8 +693,7 @@ class YAPRun(InteractiveShell):
                 except:
                     line = ""
                 self.shell.last_execution_succeeded = True
-                self.shell.run_cell_magic(magic, line, body)
-                result.result = True
+                result.result = self.shell.run_cell_magic(magic, line, body)
                 return
             else:
                 linec = True
@@ -720,7 +714,7 @@ class YAPRun(InteractiveShell):
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
         if self.syntaxErrors(cell):
-            result.result = False
+            result.result = []
             return
         has_raised = False
         try:
@@ -745,11 +739,10 @@ class YAPRun(InteractiveShell):
             self.jupyter_query( cell )
             # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
-            result.info += [self.answer]
-            result.result = True
+            result.result = []
         except Exception as e:
             has_raised = True
-            result.result = False
+            result.result = []
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)
@@ -774,7 +767,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
 
         self.yapeng.mgoal(streams(False),"user", True)
-        return result.result
+        return
 
     def    clean_end(self,s):
         """
@@ -809,7 +802,7 @@ class YAPRun(InteractiveShell):
 
 
 
-    def    prolog_cell(self,s):
+    def prolog_cell(self,s):
         """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate

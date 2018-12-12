@@ -494,9 +494,6 @@ write_query_answer( Bindings ) :-
 	'$write_goal_output'(G1, First, NG, Next, IG),
 	'$write_vars_and_goals'(LG, Next, IG).
 
-'$goal_to_string'(Format, G, String) :-
-	format(codes(String),Format,G).
-
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
     ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
@@ -516,14 +513,14 @@ write_query_answer( Bindings ) :-
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually
 	% had any output from the solver.
-	'$goal_to_string'(Format, G, String),
-	( String == [] ->
+	term_to_string( G, String),
+	( String == `` ->
 	    % we didn't
 	    IG = NG, First = Next
 	;
 	    % we did
 	    ( First = first -> true ; format(user_error,',~n',[]) ),
-	    format(user_error, '~s', [String]),
+	    format(user_error, '~N~s', [String]),
 	    NG = [G|IG]
 	).
 '$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
