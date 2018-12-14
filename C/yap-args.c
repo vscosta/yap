@@ -463,15 +463,14 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
   memset(iap, 0, sizeof(YAP_init_args));
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
-  iap->INPUT_STARTUP = NULL;
-  iap->assetManager = NULL;
+  return YAP_B
 #else
   iap->boot_file_type = YAP_QLY;
   iap->INPUT_STARTUP = saved_state;
-#endif
   iap->Argc = argc;
   iap->Argv = argv;
   return YAP_QLY;
+#endif
 }
 
 /**
