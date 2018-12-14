@@ -320,6 +320,7 @@ set(YAP_ROOTDIR ${prefix})
 # libdir defined above
 set(YAP_DATADIR  ${CMAKE_INSTALL_FULL_DATADIR})
 set(YAP_INCLUDEDIR  ${CMAKE_INSTALL_FULL_INCLUDEDIR}/Yap)
+set(YAP_BINDIR  ${CMAKE_INSTALL_FULL_BINDIR})
 set(YAP_LIBDIR  ${CMAKE_INSTALL_FULL_LIBDIR})
 set(YAP_DLLDIR  ${CMAKE_INSTALL_FULL_LIBDIR}/Yap)
 set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
@@ -532,8 +533,16 @@ include_directories(utf8proc packages/myddas packages/myddas/sqlite3/src )
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
 
 
+IF (WITH_SWIG)
+  find_host_package(SWIG)
+  # macro_log_feature (SWIG_FOUND "Swig"
+  #         "Use SWIG Interface Generator "
+  #         "http://www.swig.org" ON)
+ENDIF (WITH_SWIG)
+
 IF (WITH_MYDDAS)
   if (ANDROID)
+  include_directories (packages/swig/android)
   else()
 
     add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
@@ -551,14 +560,6 @@ IF (WITH_MYDDAS)
     endif ()
   endif(ANDROID)
 endif(WITH_MYDDAS)
-
-
-IF (WITH_SWIG)
-  find_host_package(SWIG)
-  # macro_log_feature (SWIG_FOUND "Swig"
-  #         "Use SWIG Interface Generator "
-  #         "http://www.swig.org" ON)
-ENDIF (WITH_SWIG)
 
 
 

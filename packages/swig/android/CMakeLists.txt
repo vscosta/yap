@@ -1,84 +1,68 @@
 
-  # This is a CMake file for SWIG and Android
+      # This is a CMake file for SWIG and Android
 
-  set (SWIG_CXX_DIR ${YAP_APP_DIR}/src/generated/jni)
-FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
-FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/assets)
-FILE( MAKE_DIRECTORY ${YAP_APP_DIR}/src/generated/jni)
-  set ( pllib ${YAP_APP_DIR}/src/generated/assets/Yap )
+      set(JAVA_SWIG_OUTDIR ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/java/pt/up/yap/lib)
+      set(SWIG_CXX_DIR ${CMAKE_BINARY_DIR}/src/generated/jni)
+      FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src/generated/java/pt/up/yap/lib)
+      FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src/generated/assets/Yap/pl)
+      FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src/generated/assets/so)
+      FILE(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src/generated/jni)
+      set(YAP_ASSETS ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/assets/Yap)
 
-    set ( SWIG_SOURCES ${CMAKE_SOURCE_DIR}/packages/swig/yap.i )
-    SET_SOURCE_FILES_PROPERTIES(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
+      set(SWIG_SOURCES ${CMAKE_SOURCE_DIR}/packages/swig/yap.i)
+      SET_SOURCE_FILES_PROPERTIES(${SWIG_SOURCES} PROPERTIES CPLUSPLUS ON)
 
-  include_directories (
-    ${CMAKE_SOURCE_DIR}/CXX
-       )
- set( GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI} )
-   set (GMP_INCLUDE_DIRS ${GMP_ROOT})
-   set (GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
-
-#
-#      add_custom_target (pllib
-#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}
-#         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_library} ${YAP_INSTALL_DATADIR}
-#         COMMAND ${CMAKE_COMMAND} -E  copy ${CMAKE_CURRENT_SOURCE_DIR}/android.yap  ${YAP_INSTALL_DATADIR}
-# DEPENDS  ${pl_library}
-#)
-#
-# 	      add_custom_target (pllibpl
-#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/pl
-#         COMMAND ${CMAKE_COMMAND} -E  copy ${pl_boot_library} ${YAP_INSTALL_DATADIR}/pl
-#DEPENDS pllib ${pl_boot_library}
-# 	)
-# 	      add_custom_target (pllibos ALL
-#         	COMMAND ${CMAKE_COMMAND} -E  make_directory  ${YAP_INSTALL_DATADIR}/os
-#         COMMAND ${CMAKE_COMMAND} -E   copy ${pl_os_library} ${YAP_INSTALL_DATADIR}/os
-#DEPENDS pllibpl ${pl_os_library}
-#    	)
-#
-#    add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp
-#         COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O -outdir ${CMAKE_SWIG_OUTDIR}  -addextern  -I${CMAKE_CURRENT_SOURCE_DIR} -o ${CMAKE_SWIG_OUTPUT}/swig_streamer.cpp -oh ${CMAKE_SWIG_OUTPUT}/swig_streamer.hh streamer.i
-#         DEPENDS streamer.i
-# 	)
-#
-# 	     add_custom_command (OUTPUT  ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp
-#           COMMAND ${SWIG_EXECUTABLE} -c++  -java -package ${SWIG_MODULE_NAME} -O  -outdir ${CMAKE_SWIG_OUTDIR}  -addextern -I${CMAKE_SOURCE_DIR}/CXX  -I${CMAKE_SOURCE_DIR}/include  -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR}  -I${GMP_INCLUDE_DIRS} -DX_API=""  -o ${CMAKE_SWIG_OUTPUT}/yap_swig.cpp -oh ${CMAKE_SWIG_OUTPUT}/yap_swig.hh ${SWIG_SOURCES}
-#	   DEPENDS pllibos  ${SWIG_SOURCES} YAP++)
-#
+      include_directories(
+              ${CMAKE_SOURCE_DIR}/CXX
+      )
+      set(GMP_ROOT ${CMAKE_SOURCE_DIR}/../gmp/${ANDROID_ABI})
+      set(GMP_INCLUDE_DIRS ${GMP_ROOT})
+      set(GMP_LIBRARIES ${GMP_ROOT}/libgmp.so)
 
 
-         add_library(YAPJava OBJECT
-    	${SWIG_CXX_DIR}/streamer_swig.cxx
-    	${SWIG_CXX_DIR}/yapi_swig.cxx
-    	streamer.cpp
-	 	)
+      file(INSTALL ${pl_library} DESTINATION ${YAP_ASSETS})
+      file(INSTALL ${CMAKE_CURRENT_SOURCE_DIR}/android.yap DESTINATION ${YAP_ASSETS})
 
- set_target_properties(YAPJava PROPERTIES LINKER_LANGUAGE CXX)
+      file(INSTALL ${pl_boot_library} DESTINATION ${YAP_ASSETS}/pl)
+      file(INSTALL ${pl_os_library} DESTINATION ${YAP_ASSETS}/os)
+
+
+      execute_process(COMMAND swig -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR} -addextern -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_BINARY_DIR} -I${GMP_INCLUDE_DIRS} -DX_API -o ${SWIG_CXX_DIR}/yapi_swig.cxx ${SWIG_SOURCES}
+              )
+
+      execute_process(COMMAND ${SWIG_EXECUTABLE} -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR} -addextern -I${CMAKE_CURRENT_SOURCE_DIR} -o ${SWIG_CXX_DIR}/streamer_swig.cxx streamer.i
+              )
+
+
+      add_library(YAPJava OBJECT
+              ${CMAKE_BINARY_DIR}/src/generated/jni/streamer_swig.cxx
+              ${CMAKE_BINARY_DIR}/src/generated/jni/yapi_swig.cxx
+              streamer.cpp
+              )
+
+      set_target_properties(YAPJava PROPERTIES LINKER_LANGUAGE CXX)
 
       # GMP_FOUND         - true if GMP/MPIR was found
       # GMP_INCLUDE_DIRS  - include search path
       # GMP_LIBRARIES      - libraries to link with
       #config.h needs this (TODO: change in code latter)
-      include_directories(  .;${GMP_INCLUDE_DIRS};${CMAKE_SOURCE_DIR}/include;${CMAKE_SOURCE_DIR}/H;${CMAKE_SOURCE_DIR}/H/generated;${CMAKE_SOURCE_DIR}/os;${CMAKE_SOURCE_DIR}/OPTYap;${CMAKE_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR} )
-
-
-
+      include_directories(.;${GMP_INCLUDE_DIRS};${CMAKE_SOURCE_DIR}/include;${CMAKE_SOURCE_DIR}/H;${CMAKE_SOURCE_DIR}/H/generated;${CMAKE_SOURCE_DIR}/os;${CMAKE_SOURCE_DIR}/OPTYap;${CMAKE_BINARY_DIR};${CMAKE_CURRENT_SOURCE_DIR})
 
 
       if (FALSE)
 
-	set (SWIG_ADD_MODULE YAPJava SHARED  CPLUSPLUS ${SWIG_SOURCES} )
-	# Define swig module with given name and specified language
+          set(SWIG_ADD_MODULE YAPJava SHARED CPLUSPLUS ${SWIG_SOURCES})
+          # Define swig module with given name and specified language
 
 
-	set (SWIG_LINK_LIBRARIES YAPJava YAP++ libYAP )
-	#- Link libraries to swig module
+          set(SWIG_LINK_LIBRARIES YAPJava YAP++ libYAP)
+          #- Link libraries to swig module
 
 
-	add_library (YAPJavaTop SHARED
-	  main.cpp main.h
-	  )
+          add_library(YAPJavaTop SHARED
+                  main.cpp main.h
+                  )
 
-	target_link_libraries( YAPJavaTop ${SWIG_MODULE_${YAPJava}_REAL_NAME} YAP++ libYap android)
+          target_link_libraries(YAPJavaTop ${SWIG_MODULE_${YAPJava}_REAL_NAME} YAP++ libYap android)
 
-      endif()
+      endif ()

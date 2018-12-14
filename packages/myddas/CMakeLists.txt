@@ -53,7 +53,6 @@ SET_PROPERTY(SOURCE ${MYDDAS_SOURCES}
         ${MYDDAS_UTIL_SOURCES}
         ${MYDDAS_HEADERS}  PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
-MY_add_dependencies(myddas plmyddas)
 add_subdirectory(pl)
 
 
