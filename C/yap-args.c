@@ -211,7 +211,7 @@ static bool load_file(const char *b_file USES_REGS) {
       YAP_CompileClause(t);
     }
     yap_error_descriptor_t *errd;
-    if ((errd = Yap_GetException(LOCAL_ActiveError))) {
+    if ((errd = Yap_GetException(LOCAL_ActiveError)) && (errd->errorNo != YAP_NO_ERROR)) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile,
               (long int)errd->errorLine, errd->classAsText, errd->errorAsText);
     }
@@ -327,7 +327,6 @@ static void Yap_set_locations(YAP_init_args *iap) {
   //  --_not useful in Android, WIN32;
   /// -- DESTDIR/ in Anaconda
   /// -- /usr/locall in most Unix style systems
-#if 0
  Yap_ROOTDIR = sel( is_dir, NULL,
       iap->ROOTDIR,
       getenv("YAPROOTDIR"),
@@ -427,7 +426,6 @@ const char *  Yap_PLBOOTDIR = sel(  is_dir, Yap_PLDIR,
 		       join(Yap_PLBOOTDIR, "/boot.yap"),
 #endif
                        EOLIST);
-#endif
   /// STARTUP: where we can find the core Prolog bootstrap file
   Yap_OUTPUT_STARTUP =
     sel( is_wfile, Yap_AbsoluteFile(".",false), iap->OUTPUT_STARTUP,
@@ -440,14 +438,16 @@ EOLIST,
 EOLIST);
 
   Yap_INPUT_STARTUP =
-    sel( is_wfile, Yap_DLLDIR, iap->INPUT_STARTUP,
+    sel( is_file, Yap_DLLDIR, iap->INPUT_STARTUP,
+	   "startup.yss",
 #if __ANDROID__
 EOLIST,
 #else
          join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
 #endif
-	   "startup.yss",
 	   join(Yap_DLLDIR, "/startup.yss"),
+     "/usr/local/lib/Yap/startup.yss",
+     "/usr/lib/Yap/startup.yss",
 	   EOLIST);
 
     if (Yap_ROOTDIR)

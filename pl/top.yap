@@ -494,6 +494,7 @@ write_query_answer( Bindings ) :-
 	'$write_goal_output'(G1, First, NG, Next, IG),
 	'$write_vars_and_goals'(LG, Next, IG).
 
+ 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
     ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
@@ -513,13 +514,12 @@ write_query_answer( Bindings ) :-
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually
 	% had any output from the solver.
-	term_to_string( G, String),
+	format(string(String),Format,G),
 	( String == `` ->
 	    % we didn't
 	    IG = NG, First = Next
 	;
 	    % we did
-	    ( First = first -> true ; format(user_error,',~n',[]) ),
 	    format(user_error, '~N~s', [String]),
 	    NG = [G|IG]
 	).
