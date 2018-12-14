@@ -77,18 +77,20 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
 //    AAssetDir *dp = AAssetManager_openDir( Yap_assetManager(), dirname(dir) );
 //    strcpy(dir, fname);
 //    char *d = basename(dir);
-    am = AAssetManager_open(Yap_assetManager(), fname, mode);
+    am = AAssetManager_open(Yap_assetManager(), fname, io_mode);
     //if (am==NULL)
     //        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed open %s <%s>", fname, strerror(errno) );
-
+ __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, io_mode);
 //    while (dp) {
 //        char *f = AAssetDir_getNextFileName(dp);
-//        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", f, d);
+//        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "open %s <%s>", fname, mode);
 //        if (f && strcasecmp(d,f) == 0) {
 //
 //        }
 //    }
     if (!am) {
+        __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "failed %s <%s>", fname, io_mode);
+
         return NULL;
     }
     // try not to use it as an asset
@@ -111,7 +113,7 @@ open_asset(VFS_t *me,  const char *fname, const char *io_mode, int sno) {
         st->vfs = NULL;
         st->vfs_handle = NULL;
         st->status = Seekable_Stream_f|Input_Stream_f;
-        return st;
+        return st->file;
     } else {
         // should be done, but if not
         GLOBAL_Stream[sno].vfs_handle = am;

@@ -355,7 +355,7 @@ bool Yap_ChDir(const char *path) {
   int lvl = push_text_stack();
 
     const char *qpath = Yap_AbsoluteFile(path, true);
-  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", path);
   VFS_t *v;
   if ((v = vfs_owner(qpath))) {
     rc = v->chdir(v, (qpath));
