@@ -968,7 +968,7 @@ source_file(Mod:Pred, FileName) :-
 
   + directory  (prolog_load_context/2 option)
 
-  Full name for the directory where YAP is currently consulting the
+  Full name for the directory where YAP 									is currently consulting the
   file.
 
   + file  (prolog_load_context/2 option)

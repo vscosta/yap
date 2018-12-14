@@ -2030,7 +2030,7 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 /* name of Commons library */
 #ifndef YAP_COMMONSDIR
-#define YAP COMMONSDIR "${YAP_DATADIR}/PrologCommmons"
+#define YAP_COMMONSDIR "${YAP_DATADIR}/PrologCommmons"
 #endif
 
 

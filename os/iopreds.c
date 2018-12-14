@@ -1135,7 +1135,7 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
       ANDROID_LOG_INFO, "YAPDroid", "init %s %s:%s  stream  <%d>", io_mode,
       CurrentModule == 0 ? "prolog"
                          : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
-      name, sno);
+      RepAtom(name)->StrOfAE, sno);
   if (io_mode == NULL)
     Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, MkIntegerTerm(sno),
               "File opened with NULL Permissions");
@@ -1242,74 +1242,80 @@ static bool fill_stream(int sno, StreamDesc *st, Term tin, const char *io_mode,
 
   st->file = NULL;
   if (fname) {
-    if ((vfsp = vfs_owner(fname)) != NULL &&
-        vfsp->open(vfsp, fname, io_mode, sno)) {
-      // read, write, append
-      user_name = st->user_name;
-      st->vfs = vfsp;
-      UNLOCK(st->streamlock);
-    } else {
-      st->file = fopen(fname, io_mode);
-      if (st->file == NULL) {
-        UNLOCK(st->streamlock);
-        if (errno == ENOENT && !strchr(io_mode, 'r')) {
-          PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
-                    strerror(errno));
-        } else {
-          PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
-                    strerror(errno));
-        }
-      }
-      st->vfs = NULL;
-    }
-    if (!st->file && !st->vfs) {
-      PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s", fname);
-      /* extract BACK info passed through the stream descriptor */
-      return false;
-    }
-  } else if (IsApplTerm(tin)) {
-    Functor f = FunctorOfTerm(tin);
-    if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
-        f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
-      if (strchr(io_mode, 'r')) {
-        return Yap_OpenBufWriteStream(PASS_REGS1);
-      } else {
-        int j = push_text_stack();
-        const char *buf;
+      if ((vfsp = vfs_owner(fname)) != NULL) {
+          if (vfsp->open(vfsp, fname, io_mode, sno)) {
+              // read, write, append
+              user_name = st->user_name;
+              st->vfs = vfsp;
+              UNLOCK(st->streamlock);
+              __android_log_print(
+                      ANDROID_LOG_INFO, "YAPDroid", "got  %d ", sno);
+          } else {
+              UNLOCK(st->streamlock);
+              __android_log_print(
+                      ANDROID_LOG_INFO, "YAPDroid", "failed  %s ",fname);
+return false;
+          }
+     } else {
+          st->file = fopen(fname, io_mode);
+          if (st->file == NULL) {
+                 __android_log_print(
+                     ANDROID_LOG_INFO, "YAPDroid", "failed  %s ",fname);
+            UNLOCK(st->streamlock);
+              if (errno == ENOENT && !strchr(io_mode, 'r')) {
+                  PlIOError(EXISTENCE_ERROR_SOURCE_SINK, tin, "%s: %s", fname,
+                            strerror(errno));
+              } else {
+                  PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK, tin, "%s: %s", fname,
+                            strerror(errno));
+              }
+              return false;
+          }
 
-        buf = Yap_TextTermToText(tin PASS_REGS);
-        if (!buf) {
-          pop_text_stack(j);
-          return false;
-        }
-        buf = pop_output_text_stack(j, buf);
-        Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
-        sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
-                                       MEM_BUF_MALLOC, nat,
-                                       MkAtomTerm(NameOfFunctor(f)));
-        pop_text_stack(j);
-        return Yap_OpenBufWriteStream(PASS_REGS1);
       }
-    } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
-      const char *buf;
-      int i = push_text_stack();
-      buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
-      if (buf == NULL) {
-        return false;
-      }
+  } else if (IsApplTerm(tin)) {
+            Functor f = FunctorOfTerm(tin);
+            if (f == FunctorAtom || f == FunctorString || f == FunctorCodes1 ||
+                f == FunctorCodes || f == FunctorChars1 || f == FunctorChars) {
+                if (strchr(io_mode, 'r')) {
+                    return Yap_OpenBufWriteStream(PASS_REGS1);
+                } else {
+                    int j = push_text_stack();
+                    const char *buf;
+
+                    buf = Yap_TextTermToText(tin PASS_REGS);
+                    if (!buf) {
+                        pop_text_stack(j);
+                        return false;
+                    }
+                    buf = pop_output_text_stack(j, buf);
+                    Atom nat = Yap_LookupAtom(Yap_StrPrefix(buf, 32));
+                    sno = Yap_open_buf_read_stream(buf, strlen(buf) + 1, &LOCAL_encoding,
+                                                   MEM_BUF_MALLOC, nat,
+                                                   MkAtomTerm(NameOfFunctor(f)));
+                    pop_text_stack(j);
+                    return Yap_OpenBufWriteStream(PASS_REGS1);
+                }
+            } else if (!strcmp(RepAtom(NameOfFunctor(f))->StrOfAE, "popen")) {
+                const char *buf;
+                int i = push_text_stack();
+                buf = Yap_TextTermToText(ArgOfTerm(1, tin) PASS_REGS);
+                if (buf == NULL) {
+                    return false;
+                }
 #if _WIN32
-      st->file = _popen(buf, io_mode);
+                st->file = _popen(buf, io_mode);
 #else
-      st->file = popen(buf, io_mode);
+                st->file = popen(buf, io_mode);
 #endif
-      fname = "popen";
-      user_name = tin;
-      st->status |= Popen_Stream_f;
-      pop_text_stack(i);
-    } else {
-      Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
-    }
-  }
+                fname = "popen";
+                user_name = tin;
+                st->status |= Popen_Stream_f;
+                pop_text_stack(i);
+            } else {
+                Yap_ThrowError(DOMAIN_ERROR_SOURCE_SINK, tin, "open");
+            }
+        }
   if (!strchr(io_mode, 'b') && binary_file(fname)) {
     st->status |= Binary_Stream_f;
   }

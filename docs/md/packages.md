@@ -1,6 +1,8 @@
 YAP packages              {#packages}
 ============
 
+[TOC]
+
   + @ref real
 
   + @subpage BDDs 
@@ -11,7 +13,7 @@ YAP packages              {#packages}
 
   + @ref PFL
 
-  + @subpage ProbLog1
+  + @subpage problog
 
   + @ref python
 

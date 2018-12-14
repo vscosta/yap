@@ -204,6 +204,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% @file problog/flags
+
 :-module(flags, [problog_define_flag/4,
                          problog_define_flag/5,
                          problog_define_flag/6,
@@ -217,6 +219,314 @@
 :- use_module(os).
 :- use_module(logger).
 :- use_module(library(system), [file_exists/1, delete_file/1]).
+
+
+/** @defgroup ProbLogMiscellaneous ProbLog Miscellaneous Predicates
+@ingroup problog
+@{
+
+
+Both the learning and the inference module have various parameters, or flags, that can be adjusted by the user.
+The following predicates are defined by ProbLog to access and set these flags.
+
+*/
+
+/**
+ * @pred problog_flags
+ *
+This predicate lists all the flags name, value, domain and description.
+*/
+
+
+/**  @pred problog_flag(+Name, -Value)
+
+This predicate gives the value of the flag with the specified name. The supported flags are:
+
++ use_db_trie
+
+    Flag telling whether to use the builtin trie to trie transformation.
+The possible values for this flag are true or false.
+
++ db_trie_opt_lvl
+
+    Sets the optimization level for the trie to trie transformation
+The possible values for this flag are any integer
+
++ compare_opt_lvl
+
+    Flag telling whether to use comparison mode for the optimization level.
+The possible values for this flag are true or false.
+
++ db_min_prefix
+
+    Sets the minimum size of the prefix for dbtrie to optimize.
+The possible values for this flag are any integer
+
++ use_naive_trie
+
+    Flag telling whether to use the naive algorithm to generate bdd scripts.
+The possible values for this flag are true or false.
+
++ use_old_trie
+
+    Flag telling whether to use the old not nested trie to trie transformation.
+The possible values for this flag are true or false.
+
++ use_dec_trie
+
+    Flag telling whether to use the decomposition method.
+The possible values for this flag are true or false.
+
++ subset_check
+
+    Flag telling whether to perform subset check in nested tries.
+The possible values for this flag are true or false.
+
++ deref_terms
+
+    Flag telling whether to dereference BDD terms after their last use.
+The possible values for this flag are true or false.
+
++ trie_preprocess
+
+    Flag telling whether to perform a preprocess step to nested tries.
+The possible values for this flag are true or false.
+
++ refine_anclst
+
+    Flag telling whether to refine the ancestor list with their children.
+The possible values for this flag are true or false.
+
++ anclst_represent
+
+    Flag that sets the representation of the ancestor list.
+The possible values for this flag are list or integer
+
++ max_depth
+
+    Sets the maximum proof depth.
+The possible values for this flag are any integer.
+
++ retain_tables
+
+    Flag telling whether to retain tables after the query.
+The possible values for this flag are true or false.
+
++ mc_batchsize
+
+    Flag related to Monte Carlo Sampling that sets the number of samples before update.
+The possible values for this flag are any integer greater than zero.
+
++ min_mc_samples
+
+    Flag related to Monte Carlo Sampling that sets the minimum number of samples before convergence. The possible values for this flag are any integer greater than or equal to zero.
+
++ max_mc_samples
+
+    Flag related to Monte Carlo Sampling that sets the maximum number of samples waiting to converge.
+The possible values for this flag are any integer greater than or equal to zero.
+
++ randomizer
+
+    Flag related to Monte Carlo Sampling telling whether the random numbers are repeatable or not.
+The possible values for this flag are repeatable or nonrepeatable.
+
++ search_method
+
+    Flag related to DNF Monte Carlo Sampling that sets the search method for picking the proof.
+The possible values for this flag are linear or binary.
+
++ represent_world
+
+    Flag related to Monte Carlo Sampling that sets the structure that represents sampled world.
+The possible values for this flag are list, record, array or hash_table
+
++ first_threshold
+
+    Flag related to inference that sets the starting threshold of iterative deepening.
+The possible values for this flag are a number in the interval (0,1).
+
++ last_threshold
+
+    Flag related to inference that sets the stopping threshold of iterative deepening.
+The possible values for this flag are a number in the interval (0,1).
+
++ id_stepsize
+
+    Flag related to inference that sets the threshold shrinking factor of iterative deepening.
+The possible values for this flag are a number in the interval [0,1].
+
++ prunecheck
+
+    Flag related to inference telling whether to stop derivations including all facts of known proofs.
+The possible values for this flag are on or off.
+
++ maxsteps
+
+    Flag related to inference that sets the max. number of prob. steps per derivation.
+The possible values for this flag are any integer greater than zero.
+
++ mc_logfile
+
+    Flag related to MCMC that sets the logfile for montecarlo.
+The possible values for this flag are any valid filename.
+
++ bdd_time
+
+    Flag related to BDD that sets the BDD computation timeout in seconds.
+The possible values for this flag are any integer greater than zero.
+
++ bdd_par_file
+
+    Flag related to BDD that sets the file for BDD variable parameters.
+The possible values for this flag are any valid filename.
+
++ bdd_result
+
+    Flag related to BDD that sets the file to store result calculated from BDD.
+The possible values for this flag are any valid filename.
+
++ bdd_file
+
+    Flag related to BDD that sets the file for the BDD script.
+The possible values for this flag are any valid filename.
+
++ save_bdd
+
+    Flag related to BDD telling whether to save BDD files for (last) lower bound.
+The possible values for this flag are true or false.
+
++ dynamic_reorder
+
+    Flag related to BDD telling whether to use dynamic re-ordering for BDD.
+The possible values for this flag are true or false.
+
++ bdd_static_order
+
+    Flag related to BDD telling whether to use static order.
+The possible values for this flag are true or false.
+
++ static_order_file
+
+    Flag related to BDD that sets the file for BDD static order.
+The possible values for this flag are any valid filename.
+
++ verbose
+
+    Flag telling whether to output intermediate information.
+The possible values for this flag are true or false.
+
++ show_proofs
+
+    Flag telling whether to output proofs.
+The possible values for this flag are true or false.
+
++ triedump
+
+    Flag telling whether to generate the file: trie_file containing the trie structure.
+The possible values for this flag are true or false.
+
++ dir
+
+    Flag telling the location of the output files directory.
+The possible values for this flag are any valid directory name.
+
+*/
+
+/** @pred set_problog_flag(+Name, +Value)
+
+the predicate sets the value of the given flag. The supported flags are the ones listed in above
+*/
+
+/** @pred learning_flags
+
+the predicate sets the value of the given flag. The supported flags are the ones listed in above
+*/
+
+/** @pred learning_flag(+Name, -Value)
+
+This predicate gives the value of the learning flag with the specified name. The supported flags are:
+
++ output_directory
+
+    Flag setting the directory where to store results.
+The possible values for this flag are any valid path name.
+
++ query_directory
+
+    Flag setting the directory where to store BDD files.
+The possible values for this flag are any valid path name.
+
++ verbosity_level
+
+    Flag telling how much output shall be given.
+The possible values for this flag are an integer between 0 and 5 (0=nothing, 5=all).
+
++ reuse_initialized_bdds
+
+    Flag telling whether to reuse BDDs from previous runs.
+The possible values for this flag are true or false.
+
++ rebuild_bdds
+
+    Flag telling whether to rebuild BDDs every nth iteration.
+The possible values for this flag are any integer greater or equal to zero (0=never).
+
++ check_duplicate_bdds
+
+    Flag telling whether to store intermediate results in hash table.
+The possible values for this flag are true or false.
+
++ init_method
+
+    Flag setting the ProbLog predicate to search proofs.
+The possible values for this flag are of the form: (+Query,-P,+BDDFile,+ProbFile,+Call). For example: A,B,C,D,problog_kbest_save(A,100,B,E,C,D)
+
++ probability_initializer
+
+    Flag setting the ProbLog predicate to initialize probabilities.
+The possible values for this flag are of the form: (+FactID,-P,+Call). For example: A,B,random_probability(A,B)
+
++ log_frequency
+
+    Flag telling whether to log results every nth iteration.
+The possible values for this flag are any integer greater than zero.
+
++ alpha
+
+    Flag setting the weight of negative examples.
+The possible values for this flag are number or "auto" (auto=n_p/n_n).
+
++ slope
+
+    Flag setting the slope of the sigmoid function.
+The possible values for this flag are any real number greater than zero.
+
++ learning_rate
+
+    Flag setting the default Learning rate (if line_search=false)
+The possible values for this flag are any number greater than zero or "examples``
+
++ line_search
+
+    Flag telling whether to use line search to estimate the learning rate.
+The possible values for this flag are true or false.
+
++ line_search_tau
+
+    Flag setting the Tau value for line search.
+The possible values for this flag are a number in the interval (0,1).
+
++ line_search_tolerance
+
+    Flag setting the tolerance value for line search.
+The possible values for this flag are any number greater than zero.
+
++ line_search_interval
+
+    Flag setting the interval for line search.
+
+*/
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).
@@ -405,3 +715,5 @@ problog_flag_validate_interval( (V1,V2) ) :-
   V1<V2.
 
 */
+
+%% @}

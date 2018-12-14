@@ -2106,45 +2106,42 @@ X_API void YAP_ClearExceptions(void) {
 
 X_API int YAP_InitConsult(int mode, const char *fname, char **full,
                           int *osnop) {
-  CACHE_REGS
-  int sno;
-  BACKUP_MACHINE_REGS();
-  const char *fl = NULL;
-  int lvl = push_text_stack();
-  if (mode == YAP_BOOT_MODE) {
-    mode = YAP_CONSULT_MODE;
-  }
-  if (fname == NULL || fname[0] == '\0') {
-    fl = Yap_BOOTFILE;
-  }
-  if (fname) {
-    fl = Yap_AbsoluteFile(fname, true);
-    if (!fl || !fl[0]) {
-      pop_text_stack(lvl);
-      *full = NULL;
-      return -1;
-    } else {
-      *full = pop_output_text_stack(lvl, fl);
+    CACHE_REGS
+    int sno;
+    BACKUP_MACHINE_REGS();
+    const char *fl = NULL;
+    if (mode == YAP_BOOT_MODE) {
+        mode = YAP_CONSULT_MODE;
     }
-  } else {
-    pop_text_stack(lvl);
+    if (fname == NULL || fname[0] == '\0') {
+        fl = Yap_BOOTFILE;
+    }
+    if (!fname || !(fl = Yap_AbsoluteFile(fname, true)) || !fl[0]) {
+            __android_log_print(
+                    ANDROID_LOG_INFO, "YAPDroid", "failed ABSOLUTEFN %s ", fl);
+            *full = NULL;
+          return -1;
   }
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
 
-  lvl = push_text_stack();
+int   lvl = push_text_stack();
   char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
   Term tat = MkAtomTerm(Yap_LookupAtom(d));
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
                        LOCAL_encoding);
-  if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
     pop_text_stack(lvl);
+    if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     *full = NULL;
     return -1;
   }
   LOCAL_PrologMode = UserMode;
-
-  Yap_init_consult(consulted, pop_output_text_stack__(lvl, fl));
+*full = pop_output_text_stack__(lvl, fl);
+  Yap_init_consult(consulted,*full);
   RECOVER_MACHINE_REGS();
   UNLOCK(GLOBAL_Stream[sno].streamlock);
   return sno;

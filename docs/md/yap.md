@@ -21,7 +21,7 @@ The manual is organised as follows:
 
 + @ref run
 
-+ @ref builtins
++ @subpage builtins
 
 + @ref extensions
 
