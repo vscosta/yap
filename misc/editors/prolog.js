@@ -749,7 +749,7 @@ IfTrue
               CodeMirror.defineOption(
                   "prologKeys", true, function(cm, editor, prev) {
                     document = cm.getDoc();
-                    if (nnprev && prev != CodeMirror.Init)
+                    if (prev && prev != CodeMirror.Init)
                       cm.removeKeyMap("prolog");
                     if (true) {
                       var map = {

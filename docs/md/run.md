@@ -7,8 +7,8 @@ We next describe how to invoke YAP in Unix systems.
 
 [TOC]
 
-Running YAP Interactively      {#Running_YAP_Interactively}
---------------------------
+@section Running_YAP_Interactively Running YAP Interactively
+
 
 Most often you will want to use YAP in interactive mode. Assuming that
 YAP is in the user's search path, the top-level can be invoked under
@@ -87,7 +87,7 @@ the environment variable YAPBINDIR.
 
 + YAP will try to find library files from the YAPSHAREDIR/library directory.
 
-Running Prolog Files                           {#Running_Prolog_Files}
+@section RunningScripts Running Prolog Files
 --------------------
 
 YAP can also be used to run Prolog files as scripts, at least in

@@ -558,7 +558,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals1'([], I, I).
 '$name_vars_in_goals1'([V|NGVL], I0, IF) :-
-	I is I0+1,
+	I is I0+1, 
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
 	V = '$VAR'(Name),

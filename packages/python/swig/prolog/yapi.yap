@@ -74,7 +74,7 @@ python_query( Caller, String ) :-
 	Caller.port := Status,
 	write_query_answer( Bindings ),
 		nl(user_error),
-	maplist(in_dict(Caller.answer, Bindings), Bindings).
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        maplist(in_dict(Caller.answer, Bindings), Bindings).
 
 /**
  *

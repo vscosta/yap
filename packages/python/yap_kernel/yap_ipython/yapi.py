@@ -27,7 +27,7 @@ library = namedtuple('library', 'list')
 v = namedtuple('_', 'slot')
 load_files = namedtuple('load_files', 'file ofile args')
 python_query = namedtuple('python_query', 'query_mgr string')
-jupyter_query = namedtuple('jupyter_query', 'self text query')
+jupyter_call = namedtuple('jupyter_call', 'self program query')
 enter_cell = namedtuple('enter_cell', 'self' )
 exit_cell = namedtuple('exit_cell', 'self' )
 completions = namedtuple('completions', 'txt self' )
@@ -569,7 +569,7 @@ class YAPRun(InteractiveShell):
                     self.answers = []
                 self.os = program+squery
                 self.iterations = 0
-                pg = jupyter_query( self, program, squery)
+                pg = jupyter_call( self, program, squery)
                 self.query =  self.yapeng.query(pg)
                 self.answers = []
                 self.port =  "call"
@@ -580,7 +580,7 @@ class YAPRun(InteractiveShell):
                 #sys.stderr.write('C '+ str(self.port) +'\n'+'\n')
                 found = True
                 print( "uek",self.answer )
-                self.answers += [self.answer]
+                #self.answers += [self.answer]
                 print( "ek",self.answers )
                 self.iterations += 1
                 if self.port  == "exit" or stop or howmany == self.iterations:
