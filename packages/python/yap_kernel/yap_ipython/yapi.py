@@ -550,7 +550,7 @@ class YAPRun(InteractiveShell):
         self.yapeng.mgoal(errors(self,text),"user",True)
         return self.errors
 
-    def jupyter_query(self, s):
+    def prolog(self, s):
         #
         # construct a self.queryuery from a one-line string
         # self.query is opaque to Python
@@ -590,7 +590,7 @@ class YAPRun(InteractiveShell):
                     if found:
                         sys.stderr.write('Completed, with '+str(self.answers)+'\n')
                     result.result = self.answers
-                    return result
+                    return result.results
      
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
@@ -736,7 +736,7 @@ class YAPRun(InteractiveShell):
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
-            self.jupyter_query( cell )
+            self.prolog( cell )
             # state = tracer.runfunc(jupyter_query( self, cell ) )
             self.shell.last_execution_succeeded = True
             result.result = []
@@ -814,12 +814,15 @@ class YAPRun(InteractiveShell):
             If the line terminates on a `*/` or starts on a `%` we assume the line
         is a comment.
         """
-        s0 = s.rstrip(' \n\t\i')
-        [program,x,query] = s0.rpartition('\n')
-        if query[-1] == '.':
-            return s,'',False,0
-        (query, _,loop, sols) = self.clean_end(query)
-        return (program, query, loop, sols)
+        try:
+            s0 = s.rstrip(' \n\t\i')
+            [program,x,query] = s0.rpartition('\n')
+            if query[-1] == '.':
+                return s,'',False,0
+            (query, _,loop, sols) = self.clean_end(query)
+            return (program, query, loop, sols)
+        except:
+            return (s,'',true,1)    
 
     # global
     #globals = {}

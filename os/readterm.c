@@ -376,10 +376,10 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   TokEntry *tok = LOCAL_tokptr;
   Int start_line = tok->TokLine;
   Int err_line = errtok->TokLine;
-  Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
-  Int startpos = tok->TokPos;
+   Int startpos = tok->TokPos;
   Int errpos = errtok->TokPos;
-  Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
+  Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
+ Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
 
   Yap_local.ActiveError->errorNo = SYNTAX_ERROR;
   Yap_local.ActiveError->parserFirstLine = start_line;
