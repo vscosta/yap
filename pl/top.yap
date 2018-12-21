@@ -330,10 +330,10 @@ live :-
 
 
 '$process_answer'(Vs, LGs, Bindings) :-
-'$purge_dontcares'(Vs,IVs),
-'$sort'(IVs, NVs),
-'$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-'$name_vars_in_goals'(LAnsw, Vs, Bindings).
+    '$purge_dontcares'(Vs,IVs),
+    '$sort'(IVs, NVs),
+    '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
+    '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
 % *-> at this point would require compiler support, which does not exist.

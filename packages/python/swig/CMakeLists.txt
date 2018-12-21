@@ -6,7 +6,9 @@ INCLUDE(UseSWIG)
 include(FindPythonModule)
 
 list (APPEND pl_library ${CMAKE_CURRENT_SOURCE_DIR}/prolog/yapi.yap )
-set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
+set (PYTHON_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/yapi.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/systuples.py
+    ${CMAKE_CURRENT_SOURCE_DIR}/yap4py/__main__.py)
 
 
 SET_SOURCE_FILES_PROPERTIES(../../swig/yap.i PROPERTIES CPLUSPLUS ON)

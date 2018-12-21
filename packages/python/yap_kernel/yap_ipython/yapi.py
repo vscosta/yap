@@ -5,6 +5,7 @@ from typing import  List
 from traitlets import Bool
 
 
+from yap4py.systuples import *
 from yap4py.yapi import *
 from IPython.core.completer import Completer
 # import IPython.core
@@ -18,22 +19,7 @@ from ipython_genutils.py3compat import builtin_mod
 
 from yap_kernel.displayhook import ZMQShellDisplayHook
 
-from collections import namedtuple
 import traceback
-
-use_module = namedtuple('use_module', 'file')
-bindvars = namedtuple('bindvars', 'list')
-library = namedtuple('library', 'list')
-v = namedtuple('_', 'slot')
-load_files = namedtuple('load_files', 'file ofile args')
-python_query = namedtuple('python_query', 'query_mgr string')
-jupyter_call = namedtuple('jupyter_call', 'self program query')
-enter_cell = namedtuple('enter_cell', 'self' )
-exit_cell = namedtuple('exit_cell', 'self' )
-completions = namedtuple('completions', 'txt self' )
-errors = namedtuple('errors', 'self text' )
-streams = namedtuple('streams', 'text' )
-nostreams = namedtuple('nostreams', ' text' )
 
 global  engine
 
@@ -70,7 +56,7 @@ class YAPInputSplitter(InputSplitter):
                     logical_line_transforms=None):
         self._buffer_raw = []
         self._validate = True
-        self.yapeng = engine
+        self.engine = engine
         self.shell = shell
 
         if physical_line_transforms is not None:
@@ -392,7 +378,7 @@ class YAPCompleter(Completer):
                 return ( magic.startswith(bare_text) and
                          magic not in global_matches )
         else:
-            def matches(magic):
+            def matches(magic): 
                 return magic.startswith(bare_text)
 
         comp = [ pre2+m for m in cell_magics if matches(m)]
@@ -503,7 +489,7 @@ class YAPCompleter(Completer):
             magic_res = self.magic_matches(text)
             return text,  magic_res
         self.matches = []
-        prolog_res = self.shell.yapeng.mgoal(completions(text, self), "user",True)
+        prolog_res = self.shell.engine.mgoal(completions(text, self), "user",True)
         return text, self.matches
 
 
@@ -515,9 +501,9 @@ class YAPRun(InteractiveShell):
 
     def __init__(self, shell):
         self.shell = shell
-        self.yapeng = JupyterEngine()
+        self.engine = JupyterEngine()
         global engine
-        engine = self.yapeng
+        engine = self.engine
         self.errors = []
         self.query = None
         self.os = None
@@ -525,8 +511,9 @@ class YAPRun(InteractiveShell):
         self.port = "None"
         self.answers = None
         self.bindings = dicts = []
-        self.shell.yapeng = self.yapeng
+        self.shell.engine = self.engine
         self._get_exc_info = shell._get_exc_info
+        self.iterations = 0
 
 
     def showtraceback(self, exc_info):
@@ -547,57 +534,46 @@ class YAPRun(InteractiveShell):
             return self.errors
         self.errors=[]
         (text,_,_,_) = self.clean_end(text)
-        self.yapeng.mgoal(errors(self,text),"user",True)
+        self.engine.mgoal(errors(self,text),"user",True)
         return self.errors
 
-    def prolog(self, s):
+    def prolog(self, s, result):
         #
         # construct a self.queryuery from a one-line string
         # self.query is opaque to Python
         try:
-            program,squery,stop,howmany = self.prolog_cell(s)
-            found = False
+            program,squery,_                                                                                                                                                                                                                                                                                                                                                                                                    ,howmany = self.prolog_cell(s)
             # sys.settrace(tracefunc)
-            if self.query and self.os == program+squery:
+            if self.query and self.os == (program,squery):
                 howmany += self.iterations
-                found = howmany != 0
             else:
                 if self.query:
                     self.query.close()
                     self.query = None
-                    self.port = None
                     self.answers = []
-                self.os = program+squery
+                self.os = (program,squery)
                 self.iterations = 0
-                pg = jupyter_call( self, program, squery)
-                self.query =  self.yapeng.query(pg)
+                pg = jupyter_query(self.engine,program,squery)
+                self.query = Query(self.engine, pg)
                 self.answers = []
-                self.port =  "call"
-                found = False
-            self.answer =  {}
-            while self.query.next():
-                #sys.stderr.write('B '+str( self.answer) +'\n')
-                #sys.stderr.write('C '+ str(self.port) +'\n'+'\n')
-                found = True
-                print( "uek",self.answer )
-                #self.answers += [self.answer]
-                print( "ek",self.answers )
+            for answer in self.query:
+                self.answers += [answer]
                 self.iterations += 1
-                if self.port  == "exit" or stop or howmany == self.iterations:
-                    self.os = None
-                    self.query.close()
-                    self.query = None
-                    if found:
-                        sys.stderr.write('Completed, with '+str(self.answers)+'\n')
-                    result.result = self.answers
-                    return result.results
+                
+            self.os = None
+            self.query.close()
+            self.query = None
+            if self.answers:
+                sys.stderr.write('Completed, with '+str(self.answers)+'\n')
+            result.result = self.answers
+            return result.result
      
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
-                             ':'+pg+'\n  '+str( self.bindings)+ '\n')
+                             '\n  '+str( self.bindings)+ '\n')
             has_raised = True
             result.result = []
-            return result
+            return result.result
 
 
 
@@ -720,7 +696,7 @@ class YAPRun(InteractiveShell):
         try:
             builtin_mod.input = input
             self.shell.input = input
-            self.yapeng.mgoal(streams(True),"user", True)
+            self.engine.mgoal(streams(True),"user", True)
             if cell.strip('\n \t'):
                 #create a Trace object, telling it what to ignore, and whether to
                 # do tracing or line-counting or both.
@@ -736,10 +712,11 @@ class YAPRun(InteractiveShell):
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
-            self.prolog( cell )
-            # state = tracer.runfunc(jupyter_query( self, cell ) )
-            self.shell.last_execution_succeeded = True
-            result.result = []
+                answers = self.prolog( cell, result )
+                # state = tracer.runfunc(hist
+                # er_query( self, cell ) )
+                self.shell.last_execution_succeeded = True
+                result.result = answers
         except Exception as e:
             has_raised = True
             result.result = []
@@ -766,7 +743,7 @@ class YAPRun(InteractiveShell):
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
-        self.yapeng.mgoal(streams(False),"user", True)
+        self.engine.mgoal(streams(False),"user", True)
         return
 
     def    clean_end(self,s):

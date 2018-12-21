@@ -155,6 +155,8 @@ else if (PyDict_Check(pVal)) {
   Py_ssize_t pos = 0, tot = PyDict_Size(pVal);
   PyObject *key, *value;
   Term f, *opt = &f, t, to;
+  if (tot == 0)
+    return MkAtomTerm( Yap_LookupAtom("{}"));
   while (PyDict_Next(pVal, &pos, &key, &value)) {
       Term t0[2];
       t0[0] = python_to_term__(key);
