@@ -78,16 +78,20 @@ class Query (YAPQuery):
         super().__init__(g)
         self.engine = engine
         self.port = "call"
-        self.bindings = None
-        self.answer = {}
 
     def __iter__(self):
         return self
 
+    def done(self):
+        return self.port == "fail" or self.port == "exit"
+
     def __next__(self):
-        if self.port == "fail":
-            raise IndexError()
-        return self.next()
+        self.answer = {}
+        if self.port == "fail" or self.port == "exit":
+            raise StopIteration()
+        if self.next():
+            return self.answer
+        raise StopIteration()
  
 def name( name, arity):
     try:
@@ -141,7 +145,7 @@ class YAPShell:
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
         # the right side wraps a handle to a variable
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         #     #pdb.set_trace()
         # atom match either symbols, or if no symbol exists, sttrings, In this case
         # variable names should match strings
@@ -151,14 +155,13 @@ class YAPShell:
         #        return
         try:
             engine = self.engine
-            bindings   = []
+            bindings   = [] 
             loop = False
-            g = python_query(self, query)
-            self.q = Query( engine, g )
-            while self.q.next():
-                bindings += [self.q.answer]
-                if self.q.port == "exit":
-                    break
+            q = Query( engine,   python_query( engine, query) )
+            for answer in q:
+                bindings += [answer]
+                if g.done():
+                    return bindings
                 if loop:
                     continue
                 s = input("more(;), all(*), no(\\n), python(#)?  ").lstrip()
@@ -177,10 +180,8 @@ class YAPShell:
             if self.q:
                 self.q.close()
                 self.q = None
-            if bindings:
-                return True,bindings
             print("No (more) answers")
-            return False, None
+            return bindings
         except Exception as e:
             if not self.q:
                 return False, None

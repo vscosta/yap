@@ -73,8 +73,9 @@ python_query( Caller, String ) :-
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	Caller.port := Status,
 	write_query_answer( Bindings ),
-		nl(user_error),
-	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        maplist(in_dict(Caller.answer, Bindings), Bindings).
+	nl(user_error),
+	maplist(in_dict(Caller.answer, Bindings), Bindings).
+>>>>>>> 37d5dcedc17b8c63cd9fa213454edb37816a130f
 
 /**
  *

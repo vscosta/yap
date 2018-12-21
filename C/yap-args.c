@@ -153,22 +153,25 @@ const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
  * recursive consulting.
  *
  * */
-static bool consult(const char *b_file USES_REGS) {
+static bool load_file(const char *b_file USES_REGS) {
   Term t;
   int c_stream, osno, oactive;
-  Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
+
+ Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"), 1);
   Functor functor_command1 = Yap_MkFunctor(Yap_LookupAtom(":-"), 1);
   Functor functor_compile2 = Yap_MkFunctor(Yap_LookupAtom("c_compile"), 1);
 
   /* consult in C */
   int lvl = push_text_stack();
   char *full;
-  /* the consult mode does not matter here, really */
+ /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
     osno = 0;
   }
   c_stream = YAP_InitConsult(YAP_BOOT_MODE, b_file, &full, &oactive);
-  if (c_stream < 0) {
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",b_file);
+    if (c_stream < 0) {
     fprintf(stderr, "[ FATAL ERROR: could not open file %s ]\n", b_file);
     pop_text_stack(lvl);
     exit(1);
@@ -177,6 +180,8 @@ static bool consult(const char *b_file USES_REGS) {
     pop_text_stack(lvl);
     return false;
   }
+  __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "do reset %s ",b_file);
 
   do {
     CACHE_REGS
@@ -197,7 +202,7 @@ static bool consult(const char *b_file USES_REGS) {
                                  FunctorOfTerm(t) == functor_command1)) {
       t = ArgOfTerm(1, t);
       if (IsApplTerm(t) && FunctorOfTerm(t) == functor_compile2) {
-        consult(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
+        load_file(RepAtom(AtomOfTerm(ArgOfTerm(1, t)))->StrOfAE);
 	Yap_ResetException(LOCAL_ActiveError);
       } else {
         YAP_RunGoalOnce(t);
@@ -206,7 +211,7 @@ static bool consult(const char *b_file USES_REGS) {
       YAP_CompileClause(t);
     }
     yap_error_descriptor_t *errd;
-    if ((errd = Yap_GetException(LOCAL_ActiveError))) {
+    if ((errd = Yap_GetException(LOCAL_ActiveError)) && (errd->errorNo != YAP_NO_ERROR)) {
       fprintf(stderr, "%s:%ld:0: Error %s %s Found\n", errd->errorFile,
               (long int)errd->errorLine, errd->classAsText, errd->errorAsText);
     }
@@ -221,16 +226,82 @@ static bool consult(const char *b_file USES_REGS) {
   return true;
 }
 
+static const char * EOLIST ="EOLINE";
+ 
+
+ static bool is_dir( const char *path, const void  *info) {
+
+   if (Yap_isDirectory( path ))
+     return true;
+   char s[YAP_FILENAME_MAX + 1];
+   Int i = strlen(path);
+   strncpy(s, path, YAP_FILENAME_MAX);
+  while (--i) {
+    if (Yap_dir_separator((int)path[i]))
+	break;
+  }
+  if (i == 0) {
+    s[0] = '.';
+    i = 1;
+  }
+  s[i] = '\0';
+  return
+    strcmp(info,s) == 0 ||
+    Yap_isDirectory( s );
+ }
+ 
+ static bool is_file( const char *path, const void  *info) {
+   
+   return Yap_Exists( path );
+ }
+ 
+ static bool is_wfile( const char *path, const void  *info) {
+   
+   return true;
+ }
+
+ typedef bool testf(const char *s, const void *info);
+
+
 ///
 ///
-static const char *sel(bool dir, bool ok1, const char *s1, bool ok2,
-                       const char *s2, ...) {
-  if (ok1 && s1)
-    return s1;
-  if (ok2)
-    return s2;
-  return NULL;
-}
+ static const char *sel(
+			testf test, const void *info, const char *s1, ...) {
+    const char *fmt = s1;
+va_list ap;
+    char *buf = malloc(FILENAME_MAX + 1);
+__android_log_print(
+                        ANDROID_LOG_INFO, "YAPDroid", "try  %s", s1);
+
+    va_start(ap, s1);
+    while (fmt != EOLIST) {
+        __android_log_print(       ANDROID_LOG_INFO, "YAPDroid", "loop  %s", fmt);
+
+       if (fmt == NULL || fmt[0]=='\0') {
+              fmt = va_arg(ap, const char *);
+	      continue;
+	}
+            strncpy(buf, fmt, FILENAME_MAX); // Yap_AbsoluteFile(fmt,true), FILENAME_MAX);
+                        __android_log_print(     ANDROID_LOG_INFO, "YAPDroid", "triyimh %s", buf);
+    if (test(buf,info)) {
+                __android_log_print(
+                        ANDROID_LOG_INFO, "YAPDroid", "got  %s", buf);
+                buf = realloc(buf, strlen(buf) + 1);
+                va_end(ap);
+                return buf;
+            }
+            __android_log_print(
+                    ANDROID_LOG_INFO, "YAPDroid", "tried %s, failed", buf);
+          fmt = va_arg(ap, const char *);
+        }
+
+            __android_log_print(
+                    ANDROID_LOG_INFO, "YAPDroid", "failed search ");
+            va_end(ap);
+            free(buf);
+return NULL;
+    }
+
 
 static const char *join(const char *s0, const char *s1) {
   CACHE_REGS
@@ -256,103 +327,130 @@ static void Yap_set_locations(YAP_init_args *iap) {
   //  --_not useful in Android, WIN32;
   /// -- DESTDIR/ in Anaconda
   /// -- /usr/locall in most Unix style systems
-  Yap_ROOTDIR = sel(true, iap->ROOTDIR != NULL, iap->ROOTDIR, true,
+ Yap_ROOTDIR = sel( is_dir, NULL,
+      iap->ROOTDIR,
+      getenv("YAPROOTDIR"),
 #if __ANDROID__
-                    NULL,
+      "/",
 #else
-                    join(getenv("DESTDIR"), YAP_ROOTDIR),
+      join(getenv("DESTDIR"), YAP_ROOTDIR),
+      join(getenv("DESTDIR"), join(getenv("ḦOME"),".local")),
+      join(getenv("DESTDIR"), "/usr/local"),
+      join(getenv("DESTDIR"), "/usr"),
+      join(getenv("DESTDIR"), "/opt"),
 #endif
-                    false);
-  /// BINDIR: where the OS stores header files, namely libYap...
-  Yap_BINDIR = sel(true, iap->BINDIR != NULL, iap->BINDIR, true,
-#if __ANDROID__
-                   NULL,
-#else
+      EOLIST
+		    );
+
+ /// BINDIR: where the OS stores header files, namely libYap...
+ Yap_BINDIR = sel( is_dir, Yap_ROOTDIR, iap->BINDIR,
+		   getenv("YAPBINDIR"),
+#if !defined(__ANDROID__)
                    join(getenv("DESTDIR"), YAP_BINDIR),
 #endif
-                   false);
+                   join(Yap_ROOTDIR, "/bin"),
+                   EOLIST);
+
   /// LIBDIR: where the OS stores dynamic libraries, namely libYap...
-  Yap_LIBDIR = sel(true, iap->LIBDIR != NULL, iap->LIBDIR, true,
-#if __ANDROID__
-                   NULL,
-#else
+ Yap_LIBDIR = sel( is_dir, Yap_ROOTDIR, iap->LIBDIR,
+#if !defined(__ANDROID__)
                    join(getenv("DESTDIR"), YAP_LIBDIR),
 #endif
-                   false);
+		   join(Yap_ROOTDIR, "/lib"),
+                   EOLIST);
+
   /// DLLDIR: where libraries can find expicitely loaded DLLs
-  Yap_DLLDIR = sel(true, iap->DLLDIR != NULL, iap->DLLDIR, true,
-#if __ANDROID__
-                   NULL,
-#else
-                   join(getenv("DESTDIR"), YAP_DLLDIR),
+ Yap_DLLDIR = sel(is_dir, Yap_LIBDIR, iap->DLLDIR,
+		  getenv("YAPLIBDIR"),
+#if !defined(__ANDROID__)
+	 join(getenv("DESTDIR"), YAP_DLLDIR),
+		  join(Yap_LIBDIR, "/yap"),
 #endif
-                   false);
+                   EOLIST);
+
   /// INCLUDEDIR: where the OS stores header files, namely libYap...
-  Yap_INCLUDEDIR = sel(true, iap->INCLUDEDIR != NULL, iap->INCLUDEDIR, true,
-#if __ANDROID__
-                       NULL,
-#else
-                       join(getenv("DESTDIR"), YAP_INCLUDEDIR),
+ Yap_INCLUDEDIR = sel(is_dir, Yap_ROOTDIR, iap->INCLUDEDIR,
+#if !defined(__ANDROID__)
+        join(getenv("DESTDIR"), YAP_INCLUDEDIR),
 #endif
-                       false);
+		       join(Yap_ROOTDIR, "/include"),
+		       EOLIST);
+
   /// SHAREDIR: where OS & ARCH independent files live
-  Yap_SHAREDIR = sel(true, iap->SHAREDIR != NULL, iap->SHAREDIR, true,
-#if __ANDROID__
-                     "/assets",
-#else
-                     join(getenv("DESTDIR"), YAP_SHAREDIR),
+ Yap_SHAREDIR = sel( is_dir, Yap_ROOTDIR, iap->SHAREDIR,
+		   getenv("YAPSHAREDIR"),
+#if !defined(__ANDROID__)
+		      join(getenv("DESTDIR"), YAP_SHAREDIR),
+		      join(Yap_ROOTDIR, "/share"),
+		     "/assets",
 #endif
-                     false);
+ 		      join(Yap_ROOTDIR, "/files"),
+                    EOLIST);
   /// PLDIR: where we can find Prolog files
-  Yap_PLDIR = sel(true, iap->PLDIR != NULL, iap->PLDIR, true,
+  Yap_PLDIR = sel( is_dir, Yap_SHAREDIR, iap->PLDIR,
 #if __ANDROID__
+                  YAP_PLDIR,
                   "/assets/Yap",
 #else
                   join(getenv("DESTDIR"), YAP_PLDIR),
+		   join(Yap_SHAREDIR, "/Yap"),
 #endif
-                  false);
+                  EOLIST);
   /// ``COMMONSDIR: Prolog Commons
-  Yap_COMMONSDIR = sel(true, iap->COMMONSDIR != NULL, iap->COMMONSDIR, true,
+  Yap_COMMONSDIR = sel(is_dir, Yap_SHAREDIR, iap->COMMONSDIR,
 #if __ANDROID__
                        "/assets/PrologCommons",
 #else
                        join(getenv("DESTDIR"), YAP_SHAREDIR "/PrologCommons"),
+		      join(Yap_SHAREDIR, "PrologCommons"),
 #endif
-                       false);
+                       EOLIST);
   /// BOOTPLDIR: where we can find Prolog bootstrap files
-  Yap_BOOTSTRAP = sel(true, iap->BOOTSTRAP != NULL, iap->BOOTSTRAP, true,
-#if __ANDROID__
-                      "/assets/Yap/pl/boot.yap",
-#else
-                      join(getenv("DESTDIR"), YAP_BOOTSTRAP),
-#endif
-                      false);
+  Yap_BOOTSTRAP = sel( is_file, NULL, iap->BOOTSTRAP,
+                      YAP_BOOTSTRAP,
+                      EOLIST);
   /// BOOTFILE: where we can find the core Prolog boot file
-  Yap_BOOTFILE = sel(false, iap->BOOTFILE != NULL, iap->BOOTFILE, true,
+
+const char *  Yap_PLBOOTDIR = sel(  is_dir, Yap_PLDIR,
 #if __ANDROID__
-                     "/assets/Yap/pl/boot.yap",
+                       "/assets/Yap/pl",
 #else
-                     join(getenv("DESTDIR"), YAP_BOOTFILE),
+		       join(Yap_PLDIR, "/pl"),
 #endif
-                     false);
+                       EOLIST);
+
+ Yap_BOOTFILE = sel(  is_wfile, Yap_PLBOOTDIR, iap->BOOTFILE,
+#if __ANDROID__
+                       "/assets/Yap/pl/boot.yap",
+#else
+		       join(Yap_PLBOOTDIR, "/boot.yap"),
+#endif
+                       EOLIST);
   /// STARTUP: where we can find the core Prolog bootstrap file
   Yap_OUTPUT_STARTUP =
-      sel(false, iap->OUTPUT_STARTUP != NULL, iap->OUTPUT_STARTUP, true,
-#if __ANDROID__
-          NULL,
+    sel( is_wfile, Yap_AbsoluteFile(".",false), iap->OUTPUT_STARTUP,
+#if defined(__ANDROID__)
+EOLIST,
 #else
-          join(getenv("DESTDIR"), YAP_OUTPUT_STARTUP),
+	 YAP_OUTPUT_STARTUP,
 #endif
-          false);
+	 "startup.yss",
+EOLIST);
+
   Yap_INPUT_STARTUP =
-      sel(false, iap->INPUT_STARTUP != NULL, iap->INPUT_STARTUP, true,
+    sel( is_file, Yap_DLLDIR, iap->INPUT_STARTUP,
+	   "startup.yss",
 #if __ANDROID__
-          NULL,
+EOLIST,
 #else
-          join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
+         join(getenv("DESTDIR"), YAP_INPUT_STARTUP),
 #endif
-          false);
-  if (Yap_ROOTDIR)
+	   join(Yap_DLLDIR, "/startup.yss"),
+     "/usr/local/lib/Yap/startup.yss",
+     "/usr/lib/Yap/startup.yss",
+	   EOLIST);
+
+    if (Yap_ROOTDIR)
     setAtomicGlobalPrologFlag(HOME_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_ROOTDIR)));
   if (Yap_PLDIR)
@@ -461,17 +559,18 @@ X_API YAP_file_type_t Yap_InitDefaults(void *x, char *saved_state, int argc,
     LOCAL_TextBuffer = Yap_InitTextAllocator();
   YAP_init_args *iap = x;
   memset(iap, 0, sizeof(YAP_init_args));
+    iap->Argc = argc;
+    iap->Argv = argv;
 #if __ANDROID__
   iap->boot_file_type = YAP_BOOT_PL;
   iap->INPUT_STARTUP = NULL;
   iap->assetManager = NULL;
+  return YAP_BOOT_PL;
 #else
   iap->boot_file_type = YAP_QLY;
   iap->INPUT_STARTUP = saved_state;
-#endif
-  iap->Argc = argc;
-  iap->Argv = argv;
   return YAP_QLY;
+#endif
 }
 
 /**
@@ -1006,7 +1105,8 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   bool try_restore = yap_init->boot_file_type == YAP_QLY;
   bool do_bootstrap = yap_init->boot_file_type == YAP_BOOT_PL;
   struct ssz_t minfo;
-
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "start init  ");
   if (YAP_initialized)
     /* ignore repeated calls to YAP_Init */
     return;
@@ -1039,16 +1139,20 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
   Yap_ExecutionMode = yap_init->ExecutionMode;
   Yap_set_locations(yap_init);
 
-  if (do_bootstrap || !try_restore ||
+  if (Yap_INPUT_STARTUP==NULL)
+    try_restore = false;
+  if (do_bootstrap || !try_restore || 
       !Yap_SavedInfo(Yap_INPUT_STARTUP, &minfo.Trail, &minfo.Stack,
                      &minfo.Heap)) {
     init_globals(yap_init);
 
     start_modules();
     CurrentModule = PROLOG_MODULE;
-    TermEof = MkAtomTerm(Yap_LookupAtom("end_of_file"));
+      TermEof = MkAtomTerm(Yap_LookupAtom("end_of_file"));
     LOCAL_consult_level = -1;
-    consult(Yap_BOOTSTRAP PASS_REGS);
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "init %s ", Yap_BOOTSTRAP);
+    load_file(Yap_BOOTSTRAP PASS_REGS);
     setAtomicGlobalPrologFlag(RESOURCE_DATABASE_FLAG,
                               MkAtomTerm(Yap_LookupAtom(Yap_BOOTFILE)));
     setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, false);
@@ -1056,6 +1160,8 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     if (yap_init->QuietMode) {
      setVerbosity(TermSilent);
    }
+    __android_log_print(
+            ANDROID_LOG_INFO, "YAPDroid", "restore %s ",Yap_INPUT_STARTUP );
     Yap_Restore(Yap_INPUT_STARTUP);
     init_globals(yap_init);
 

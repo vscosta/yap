@@ -42,7 +42,7 @@ jupyter_cell(Caller, _, Line ) :-
     catch(
 	python_query(Query,Line),
 	error(A,B),
-	 system_error(A,B)
+	 (writeln(A,B),system_error(A,B))
     ).
 
 restreams(call) :-

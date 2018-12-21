@@ -270,6 +270,8 @@ public:
   inline void setArgv(char **fl) { Argv = fl; };
 
   inline char **getArgv() { return Argv; };
+
+    inline void setROOTDIR(char *fl) { ROOTDIR = fl; };
 };
 
 /**
@@ -293,7 +295,14 @@ public:
   YAPEngine(YAPEngineArgs *cargs) {
     engine_args = cargs;
     // doInit(cargs->boot_file_type);
+      __android_log_print(
+    ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
+#ifdef __ANDROID__
+    doInit(YAP_BOOT_PL, cargs);
+
+#else
     doInit(YAP_QLY, cargs);
+#endif
   }; /// construct a new engine, including aaccess to callbacks
   /// construct a new engine using argc/argv list of arguments
   YAPEngine(int argc, char *argv[],
