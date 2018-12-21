@@ -1,22 +1,12 @@
 import readline
 from yap4py.yap import *
+from yap4py.systuples import *
 from os.path import join, dirname
-from collections import namedtuple
+
 import sys
 
 yap_lib_path = dirname(__file__)
 
-bindvars = namedtuple('bindvars', 'list')
-compile = namedtuple('compile', 'file')
-jupyter_query = namedtuple('jupyter_query', 'vars dict')
-library = namedtuple('library', 'listfiles')
-prolog_library = namedtuple('prolog_library', 'listfiles')
-python_query = namedtuple('python_query', 'vars dict')
-set_prolog_flag = namedtuple('set_prolog_flag', 'flag new_value')
-show_answer = namedtuple('show_answer', 'vars dict')
-v0 = namedtuple('v', 'slot')
-yap_query = namedtuple('yap_query', 'query owner')
-yapi_query = namedtuple('yapi_query', 'vars dict')
 
 
 class Engine( YAPEngine ):
@@ -140,7 +130,7 @@ class YAPShell:
         # construct a query from a one-line string
         # q is opaque to Python
         #
-        #q = engine.query(python_query(self, s))
+        # q = engine.query(python_query(self, s))
         #
         #        # vs is the list of variables
         # you can print it out, the left-side is the variable name,
@@ -160,7 +150,7 @@ class YAPShell:
             q = Query( engine,   python_query( engine, query) )
             for answer in q:
                 bindings += [answer]
-                if g.done():
+                if q.done():
                     return bindings
                 if loop:
                     continue

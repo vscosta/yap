@@ -26,6 +26,23 @@ static foreign_t python_len(term_t tobj, term_t tf) {
   len = PyObject_Length(o);
   pyErrorAndReturn(PL_unify_int64(tf, len));
 }
+
+static foreign_t python_represent( term_t name, term_t tobj) {
+  term_t stackp = python_acquire_GIL();
+  PyObject *e;
+
+  e = term_to_python(tobj, false, NULL, true);
+  if (e == NULL) {
+    python_release_GIL(stackp);
+    pyErrorAndReturn(false);
+  }
+  bool b = python_assign(name, e, NULL);
+  python_release_GIL(stackp);
+  pyErrorAndReturn(b);
+}
+
+
+
 static foreign_t python_clear_errors(void) {
   PyErr_Clear();
   return true;
@@ -744,6 +761,7 @@ install_t install_pypreds(void) {
   PL_register_foreign("python_index", 3, python_index, 0);
   PL_register_foreign("python_field", 3, python_field, 0);
   PL_register_foreign("python_assign", 2, assign_python, 0);
+  PL_register_foreign("python_represents", 2, python_represent, 0);
   PL_register_foreign("python_export", 2, python_export, 0);
   PL_register_foreign("python_function", 1, python_function, 0);
   PL_register_foreign("python_slice", 4, python_slice, 0);

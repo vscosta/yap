@@ -5,7 +5,7 @@ This text includes instructions to download and install YAP.
 
 [TOC]
 
-## Downloading YAP           {#Download}
+@section Download Downloading YAP
 
 The latest development version of Yap-6 is available source-only
 through GIT repositories. The main reference repository is at
@@ -26,7 +26,7 @@ The first argument is the repository, the last argument is the (optional) target
 
  There are a variety of graphical interfaces to `git`, including GitHub's own [GitHub Desktop](https://desktop.github.com/) that supports Microsoft Windows and Apple OSX. A list with GUI applications, editor integration,  and much more can be found at the  [git Wiki](https://git.wiki.kernel.org/index.php/InterfacesFrontendsAndTools),
 
-### Download Options
+@subsection DownloadOptions Download Options
 
 It may be useful to know:
 
@@ -43,8 +43,8 @@ to only include the last `XX` commits.
    including [doxygen-yap](https://github.com/vscosta/doxygen-yap), a
    version of doxygen adapted to Prolog that was used to generate
    these documents.
-
-## CompilingYAP Compiling YAP
+   
+@section CompilingYAP Compiling YAP
 
 
 YAP-6.3.4 is a [cmake](www.cmake.org) based
@@ -53,7 +53,7 @@ generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
 to install core YAP under `cmake` are presented in detail next.
 
-### Compilation The compiler
+@subsubsection Compilation The compiler
 
   *Status as of early 2017*
 
@@ -70,7 +70,7 @@ to install core YAP under `cmake` are presented in detail next.
 	YAP compiles cleanly under cross-compilers, and we have used the
     crosss-compilation system [mxe](http://mxe.cc/) system with good results.
 
-###  cmake
+@subsection cmake  cmake
 
 All Linux and BSD distributions include `cmake`, so
 does [Homebrew](https://brew.sh/)
@@ -85,7 +85,7 @@ the [CMake site](https://www.cmake.org).
 If you have an older Linux you may need to compile from source,
 available at GitHub.
 
-### Ensure that you have other necessary packages installed:
+@subsection extrapacks Ensure that you have other necessary packages installed:
 
 + YAP requires [gmp]{https://gmplib.org/} for infinite precision
           integer and rational. Please ensure the development pacakage
@@ -106,7 +106,7 @@ available at GitHub.
 
 	+ make sure to install Python-3, and not Python-2,
 
-### Compiling Compile and Install
+@subsection Compiling2 Compile and Install
 
 1: Create a directory, say `Build` and `cd` to the directory (`cd Build`).
 	*YAP should not be compiled at its rootxo directory, some packages do not allow for that.
@@ -120,7 +120,7 @@ available at GitHub.
 5: If you feel satisfied with the result, do `make install`.
 	* In most systems you will need to be superuser in order to do `make install` and `make info` on the standard directories.
 
-#### Tuning the Functionality of YAP
+@subsection TuningYAP the Functionality of YAP
 
 By default, YAP supports tabling, depth first search, and most features found in
 modern Prologs. In some cases, you may want to suport extra features, or reduce system size.
@@ -181,7 +181,7 @@ You can also use `xcodebuild` from the command line.
 
 Bext follow instructions to fully compile YAP:
 
-### Compilation Notes for OSX/Brew
+@subsection TuningBrew Compilation Notes for OSX/Brew
 
 Next follows a detailed description of a full install of YAP, including all the packages that YAP can use:
 
@@ -214,7 +214,7 @@ brew install cudd
 cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
 ~~~~~
 
-### Compilation Notes for Android
+@sususbsection TuningDroid Compilation Notes for Android
 
  Next we present the compilation process for Android. The environment is an OSX, but steps
  should be similar for Linux machines. We assume you have downloaded both the Android NDK and the Android SDK.

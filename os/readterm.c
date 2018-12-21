@@ -402,15 +402,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 #endif
       if (GLOBAL_Stream[sno].status & Seekable_Stream_f)
         {
-          while (tok && tok->Tok != Error_tok && tok != errtok)
-                {
-		  if (tok->TokNext)
-		    tok = tok->TokNext;
-		  else
-		    break;
-                }
-          err_line = tok->TokLine;
-          errpos = tok->TokPos -1;
+          err_line = LOCAL_ActiveError->parserLine;
+          errpos = LOCAL_ActiveError->parserPos -1;
           if (errpos <= startpos)
             {
               o = malloc(1);
@@ -457,7 +450,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
           o[0] = '\0';
           while (tok)
             {
-              if (tok->Tok == Error_tok)
+              if (tok->Tok == Error_tok || tok == LOCAL_toktide )
                 {
                   o = realloc(o, strlen(o) + 1);
                   Yap_local.ActiveError->parserTextA = o;
@@ -488,15 +481,17 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         }
     }
   Yap_local.ActiveError->parserPos = errpos;
-      Yap_local.ActiveError->parserLine = err_line;
-      /* 0:  strat, error, end line */
-      /*2 msg */
-      /* 1: file */
-      if (!msg)
-        msg = "unspecified";
+  Yap_local.ActiveError->parserLine = err_line;
+  /* 0:  strat, error, end line */
+  /*2 msg */
+  /* 1: file */
       Yap_local.ActiveError->culprit =
+	(char*)msg;
+      if (Yap_local.ActiveError->errorMsg) {
         Yap_local.ActiveError->errorMsg = (char*)msg;
-      Yap_local.ActiveError->errorMsgLen = strlen(msg);
+	Yap_local.ActiveError->errorMsgLen = strlen(Yap_local.ActiveError->errorMsg);
+      }
+      
       clean_vars(LOCAL_VarTable);
       clean_vars(LOCAL_AnonVarTable);
       if (Yap_ExecutionMode == YAP_BOOT_MODE)

@@ -389,20 +389,20 @@ version(T) :-
 	fail.
 '$set_toplevel_hook'(_).
 
-query_to_answer(G, V, Status, Bindings) :-
-	gated_call( true, (G,'$delayed_goals'(G, V, Vs, LGs, _DCP)), Status, '$answer'( Status, LGs, Vs, Bindings) ).
+query_to_answer(G, V, Status, Vs) :-
+	gated_call( true, (G,'$delayed_goals'(G, V, Vs, LGs, _DCP)), Status, '$answer'( Status, LGs, Vs ) ).
 
-  '$answer'( exit, LGs, Vs, Bindings) :-
-      !,
-      '$process_answer'(Vs, LGs, Bindings).
-      '$answer'( answer, LGs, Vs, Bindings) :-
-          !,
-          '$process_answer'(Vs, LGs, Bindings).
-'$answer'(!, _, _, _).
-'$answer'(fail,_,_,_).
+'$answer'( exit, LGs, Vs) :-
+    !. %,
+%'$process_answer'(Vs, LGs).
+'$answer'( answer, LGs, Vs) :-
+    !. %,
+% '$process_answer'(Vs, LGs, Bindings).
+'$answer'(!, _, _).
+'$answer'(fail,_,_).
 '$answer'(exception(E),_,_,_) :-
         '$LoopError'(E,error).
-'$answer'(external_exception(_),_,_,_).
+'$answer'(external_exception(_),_,_).
 
 
 %% @}

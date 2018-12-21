@@ -25,18 +25,19 @@
 
 
 :- python_import(yap4py.yapi).
+:- python_import(json).
 %:- python_import(gc).
 
 :- meta_predicate( yapi_query(:,+) ).
 
 %:- start_low_level_trace.
 
-	%% @pred yapi_query( + VarList, - Dictionary)
-	%%
-	%% dictionary, Examples
-	%%
-	%%
-	yapi_query( VarNames, Self ) :-
+%% @pred yapi_query( + VarList, - Dictionary)
+%%
+%% dictionary, Examples
+%%
+%%
+yapi_query( VarNames, Self ) :-
 		show_answer(VarNames, Dict),
 		Self.bindings := Dict.
 
@@ -47,6 +48,9 @@ set_preds :-
 fail,
 	current_predicate(P, Q),
 	functor(Q,P,A),
+
+ 	current_predicate(P, Q),
+ 	functor(Q,P,A),
 	atom_string(P,S),
 	catch(
 	      := yap4py.yapi.named( S, A),
@@ -72,26 +76,46 @@ python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
 	Caller.port := Status,
-	write_query_answer( Bindings ),
-	nl(user_error),
-	maplist(in_dict(Caller.answer, Bindings), Bindings).
+	       write_query_answer( Bindings ),
+	       answer := {},
+	foldl(ground_dict(answer), Bindings, [], Ts),
+	term_variables( Ts, Hidden),
+	foldl(bv, Hidden , 0, _),
+    maplist(into_dict(answer),Ts),
+    Caller.answer := json.dumps(answer),
+			  S := Caller.answer,
+format(user_error, '~nor ~s~n~n',S).
 
+
+bv(V,I,I1) :-
+    atomic_concat(['__',I],V),
+    I1 is I+1.
+
+into_dict(D,V0=T) :-
+    D[V0] := T.
+    
 /**
  *
  */
-in_dict(_Dict, _, var([_V0])) :- 
-	!.
-in_dict(Dict, Bindings, var([V0,V|Vs])) :- 
-	!,
-	atom_to_string(V0,S0),
-	atom_to_string(V,S),
-	Dict[S] := S0,
-	in_dict( Dict, Bindings, var([V0|Vs])).
-in_dict(Dict, Bindings, nonvar([V0|Vs], T)) :- 
-	!,
-	atom_to_string(V0,S0),
-	term_to_string(T, S, _Bindings),
-	Dict[S0] := S,
-	in_dict( Dict, Bindings, var([V0|Vs])).
-in_dict(_, _, _).
+ground_dict(_Dict, var([V,V]), I, I) :- 
+    !.
+ground_dict(Dict, nonvar([V0|Vs], T),I0, [V0=T| I0]) :- 
+    !,
+    ground_dict( Dict, var([V0|Vs]), I0, I0).
+ground_dict(Dict, var([V0,V|Vs]), I, I) :- 
+    !,
+    Dict[V]=V0,
+    ground_dict( Dict, var([V0|Vs]), I, I).
+ground_dict(_, _, _, _).
+
+
+bound_dict(Dict, nonvar([V0|Vs], T)) :- 
+    !,
+    Dict[V0] := T,
+    bound_dict( Dict, var([V0|Vs])).
+bound_dict(Dict, var([V0,V|Vs])) :- 
+    !,
+    Dict[V] := V0,
+    bound_dict( Dict, var([V0|Vs])).
+bound_dict(_, _).
 

@@ -8,7 +8,7 @@
 :- yap_flag(gc_trace,verbose).
 /*
   :- module( jupyter,
-              [jupyter_query/3,
+              [jupyter_queryl/3,
                blank/1,
 	       streams/2
            ]
@@ -27,6 +27,8 @@
 
 :- python_import(sys).
 
+
+
 jupyter_query(Caller, Cell, Line ) :-
     jupyter_cell(Caller, Cell, Line).
 
@@ -42,7 +44,7 @@ jupyter_cell(Caller, _, Line ) :-
     catch(
 	python_query(Query,Line),
 	error(A,B),
-	 (writeln(A,B),system_error(A,B))
+	 system_error(A,B)
     ).
 
 restreams(call) :-

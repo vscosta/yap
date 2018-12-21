@@ -330,10 +330,10 @@ live :-
 
 
 '$process_answer'(Vs, LGs, Bindings) :-
-'$purge_dontcares'(Vs,IVs),
-'$sort'(IVs, NVs),
-'$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-'$name_vars_in_goals'(LAnsw, Vs, Bindings).
+    '$purge_dontcares'(Vs,IVs),
+    '$sort'(IVs, NVs),
+    '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
+    '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
 % *-> at this point would require compiler support, which does not exist.
@@ -558,7 +558,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals1'([], I, I).
 '$name_vars_in_goals1'([V|NGVL], I0, IF) :-
-	I is I0+1,
+	I is I0+1, 
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
 	V = '$VAR'(Name),

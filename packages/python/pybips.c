@@ -591,7 +591,6 @@ static long get_len_of_range(long lo, long hi, long step) {
 }
 
 #if PY_MAJOR_VERSION >= 3
-/*
  static PyStructSequence_Field pnull[] = {
     {"A1", NULL},  {"A2", NULL},  {"A3", NULL},  {"A4", NULL},  {"A5", NULL},
     {"A6", NULL},  {"A7", NULL},  {"A8", NULL},  {"A9", NULL},  {"A9", NULL},
@@ -601,17 +600,16 @@ static long get_len_of_range(long lo, long hi, long step) {
     {"A24", NULL}, {"A25", NULL}, {"A26", NULL}, {"A27", NULL}, {"A28", NULL},
     {"A29", NULL}, {"A29", NULL}, {"A30", NULL}, {"A31", NULL}, {"A32", NULL},
     {NULL, NULL}};
-*/
  
-static PyObject *structseq_str(PyObject *iobj) {
+   static PyObject *structseq_str(PyStructSequence *obj ) {
 
 /* buffer and type size were chosen well considered. */
 #define REPR_BUFFER_SIZE 512
 #define TYPE_MAXSIZE 100
 
-  PyStructSequence *obj = (PyStructSequence *)iobj;
-  PyTypeObject *typ = Py_TYPE(obj);
   bool removelast = false;
+  PyTypeObject *typ = Py_TYPE(obj);
+  const char *type_name = typ->tp_name;
   Py_ssize_t len, i;
   char buf[REPR_BUFFER_SIZE];
   char *endofbuf, *pbuf = buf;
@@ -620,8 +618,8 @@ static PyObject *structseq_str(PyObject *iobj) {
 
   /* "typename(", limited to  TYPE_MAXSIZE */
   len =
-      strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE : strlen(typ->tp_name);
-  strncpy(pbuf, typ->tp_name, len);
+    strnlen(type_name, TYPE_MAXSIZE);
+  strncpy(pbuf, type_name, len);
   pbuf += len;
   *pbuf++ = '(';
 
@@ -666,7 +664,7 @@ static PyObject *structseq_str(PyObject *iobj) {
   return PyUnicode_FromString(buf);
 }
 
-static PyObject *structseq_repr(PyObject *iobj) {
+   static PyObject *structseq_repr(PyObject *iobj) {
 
 /* buffer and type size were chosen well considered. */
 #define REPR_BUFFER_SIZE 512
@@ -674,6 +672,7 @@ static PyObject *structseq_repr(PyObject *iobj) {
 
   PyStructSequence *obj = (PyStructSequence *)iobj;
   PyTypeObject *typ = Py_TYPE(obj);
+  const char *type_name = typ->tp_name;
   bool removelast = false;
   Py_ssize_t len, i;
   char buf[REPR_BUFFER_SIZE];
@@ -683,8 +682,8 @@ static PyObject *structseq_repr(PyObject *iobj) {
 
   /* "typename(", limited to  TYPE_MAXSIZE */
   len =
-      strlen(typ->tp_name) > TYPE_MAXSIZE ? TYPE_MAXSIZE : strlen(typ->tp_name);
-  strncpy(pbuf, typ->tp_name, len);
+    strnlen(type_name, TYPE_MAXSIZE);
+  strncpy(pbuf, type_name, len);
   pbuf += len;
   *pbuf++ = '(';
 
@@ -743,7 +742,7 @@ static bool legal_symbol(const char *s) {
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyTypeObject *typp;
   PyObject *key = PyUnicode_FromString(s), *d;
-  if (!legal_symbol(s)) {
+  if (legal_symbol(s)) {
 
     if (!Py_f2p) {
       PyObject *o1;
@@ -761,32 +760,42 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     if ((d = PyList_GetItem(Py_f2p, arity - 1)) && PyDict_Contains(d, key)) {
       typp = (PyTypeObject *)d;
     } else {
-      typp = calloc(sizeof(PyTypeObject), 1);
-      PyStructSequence_Desc *desc = calloc(sizeof(PyStructSequence_Desc), 1);
+      PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
       desc->name = PyMem_Malloc(strlen(s) + 1);
+      strcpy(desc->name, s);
       desc->doc = "YAPTerm";
-      desc->fields = NULL;
+      desc->fields = pnull;
       desc->n_in_sequence = arity;
+      typp = PyStructSequence_NewType(desc);
+      typp->tp_name = desc->name;
+      
       if (PyStructSequence_InitType2(typp, desc) < 0)
         return NULL;
-      //    typp->tp_flags &= ~Py_TPFLAGS_HEAPTYPE;
-      // typp->tp_flags &= ~Py_TPFLAGS_HAVE_GC;
-      // typp->tp_str = structseq_str;
-      typp->tp_repr = structseq_repr;
-      //     typp = PyStructSequence_NewType(desc);
+      typp->tp_traverse = NULL;
+      typp->tp_flags |=
+	Py_TPFLAGS_TUPLE_SUBCLASS|
+	Py_TPFLAGS_BASETYPE|
+	Py_TPFLAGS_HEAPTYPE;
       // don't do this: we cannot add a type as an atribute.
       // PyModule_AddGObject(py_Main, s, (PyObject *)typp);
-      if (d && !PyDict_Contains(d, key))
-        PyDict_SetItem(d, key, (PyObject*)typp);
+      if (d && !PyDict_Contains(d, key)) {
+        PyDict_SetItem(d, key, (void*)typp);
+    Py_INCREF(key);
+    Py_INCREF(typp);
+      }
+      typp->tp_repr = structseq_repr;
+      typp->tp_str = structseq_str;
     }
     PyObject *o = PyStructSequence_New(typp);
     Py_INCREF(typp);
     arity_t i;
     for (i = 0; i < arity; i++) {
       PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
+      if (pArg) {
       Py_INCREF(pArg);
-      if (pArg)
         PyStructSequence_SET_ITEM(o, i, pArg);
+
+      }
       // PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
     }
     //((PyStructSequence *)o)->ob_base.ob_size = arity;
@@ -860,6 +869,9 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
   atom_t name;
   int arity;
 
+  if (PL_is_variable(t)) {
+    return term_to_python(t, false, context, cvt);
+  }
   o = find_obj(context, t, false);
   AOK(PL_get_name_arity(t, &name, &arity), NULL);
   if (arity == 0)
@@ -876,27 +888,26 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
     if (!(s = PL_atom_chars(name))) {
       return NULL;
     }
-    term_t tleft;
+    Term tleft;
     int i;
 
     PyObject *out = PyTuple_New(arity);
-    DebugPrintf("Tuple %p\n", o);
-    tleft = PL_new_term_ref();
+    if (CHECKNULL(t, out) == NULL) {
+      PyErr_Print();
+      return NULL;
+    }
+    //DebugPrintf("Tuple %s/%d = %p\n", name, arity, out);
     for (i = 0; i < arity; i++) {
       PyObject *pArg;
-      AOK(PL_get_arg(i + 1, t, tleft), NULL);
-      pArg = term_to_python(tleft, false, NULL, cvt);
+      tleft = ArgOfTerm(i + 1, Yap_GetFromSlot(t));
+      pArg = yap_to_python(tleft, false, NULL, cvt);
       if (pArg) {
         /* pArg reference stolen here: */
         PyTuple_SET_ITEM(out, i, pArg);
         Py_INCREF(pArg);
       }
     }
-    if (CHECKNULL(t, out) == NULL) {
-      PyErr_Print();
-      return NULL;
-    }
-    PyObject *c = lookupPySymbol(s, o, NULL);
+    PyObject *c = lookupPySymbol(s, out, NULL);
 
     if (c && PyCallable_Check(c)) {
       PyObject *n = PyTuple_New(arity);
