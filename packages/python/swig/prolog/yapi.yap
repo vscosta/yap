@@ -74,48 +74,46 @@ argi(N,I,I1) :-
 
 python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, VarNames, Status, Bindings),
+	query_to_answer( Goal, _, Status, VarNames, Bindings),
 	Caller.port := Status,
-	       write_query_answer( Bindings ),
-	       answer := {},
-	foldl(ground_dict(answer), Bindings, [], Ts),
-	term_variables( Ts, Hidden),
-	foldl(bv, Hidden , 0, _),
+	       output(Caller, Bindings).
+
+output( _, Bindings ) :-
+    write_query_answer( Bindings ),
+    fail.
+output( Caller, Bindings ) :-
+    answer := {},
+    foldl(ground_dict(answer), Bindings, [], Ts),
+    term_variables( Ts, Hidden),
+    foldl(bv, Hidden , 0, _),
     maplist(into_dict(answer),Ts),
     Caller.answer := json.dumps(answer),
-			  S := Caller.answer,
-format(user_error, '~nor ~s~n~n',S).
-
+    S := Caller.answer,
+		format(user_error, '~nor ~s~n~n',S),
+		fail.
+output(_Caller, _Bindings).
 
 bv(V,I,I1) :-
     atomic_concat(['__',I],V),
     I1 is I+1.
 
 into_dict(D,V0=T) :-
-    D[V0] := T.
+    python_represents(D[V0], T).
     
 /**
  *
  */
-ground_dict(_Dict, var([V,V]), I, I) :- 
+ground_dict(_Dict,var([_V]), I, I) :-
     !.
-ground_dict(Dict, nonvar([V0|Vs], T),I0, [V0=T| I0]) :- 
+ground_dict(_Dict,var([V,V]), I, I) :- 
+    !.
+ground_dict(Dict, nonvar([V0|Vs],T),I0, [V0=T| I0]) :-
     !,
-    ground_dict( Dict, var([V0|Vs]), I0, I0).
-ground_dict(Dict, var([V0,V|Vs]), I, I) :- 
+    ground_dict(Dict, var([V0|Vs]),I0, I0).
+ground_dict(Dict, var([V0,V1|Vs]), I, I) :- 
     !,
-    Dict[V]=V0,
-    ground_dict( Dict, var([V0|Vs]), I, I).
-ground_dict(_, _, _, _).
+		Dict[V1] := V0,
+		ground_dict(Dict, var([V0|Vs]), I, I).
 
 
-bound_dict(Dict, nonvar([V0|Vs], T)) :- 
-    !,
-    Dict[V0] := T,
-    bound_dict( Dict, var([V0|Vs])).
-bound_dict(Dict, var([V0,V|Vs])) :- 
-    !,
-    Dict[V] := V0,
-    bound_dict( Dict, var([V0|Vs])).
-bound_dict(_, _).
 

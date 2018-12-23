@@ -113,7 +113,6 @@ undefined_query(G0, M0, Cut) :-
 
 % undef handler
 '$undefp'([M0|G0],_) :-
-start_low_level_trace,
     % make sure we do not loop on undefined predicates
     setup_call_catcher_cleanup(
         '$undef_set'(Action,Debug,Current),
