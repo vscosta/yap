@@ -9,7 +9,7 @@ include_directories( BEFORE ${PYTHON_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap )
 
 #talk to python.pl
-add_lib(YAPPython  pyload.c ${PYTHON_HEADERS} )
+add_library(YAPPython  pyload.c ${PYTHON_HEADERS} )
 
 
 if (WIN32)
@@ -47,8 +47,6 @@ set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YA
 set (PYTHON_PL python.pl)
 
 install(FILES python.pl DESTINATION ${YAP_INSTALL_DATADIR} )
-
-add_to_group(  PYTHON_PL pl_library )
 
 set_target_properties (YAPPython PROPERTIES PREFIX "")
 

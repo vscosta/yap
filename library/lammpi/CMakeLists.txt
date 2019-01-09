@@ -67,7 +67,7 @@ set (MPI_YAP_SOURCES
   # program, EXECUTABLE is the MPI program, and ARGS are the arguments to
   # pass to the MPI program.
   #
-add_lib(yap_mpi ${MPI_YAP_SOURCES})
+add_library(yap_mpi ${MPI_YAP_SOURCES})
 
  target_link_libraries(yap_mpi libYap ${MPI_C_LIBRARIES})
 

@@ -37,3 +37,4 @@
 
 udi(Pred) :-
    '$udi_init'(Pred).
+

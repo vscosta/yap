@@ -20,6 +20,8 @@ X_API YAP_file_type_t Yap_InitDefaults(void *init_args, char saved_state[],
                                        int Argc, char *Argv[]);
 
 typedef struct yap_boot_params {
+    //> struct marker
+    void *start;
   //> boot type as suggested by the user
   YAP_file_type_t boot_file_type;
   //> how files are organised: NULL is GNU/Linux way
@@ -40,9 +42,11 @@ typedef struct yap_boot_params {
   const char *PLDIR;
   //> if NON-NULL, Prolog library, sets Yap_COMMONSDIR
   const char *COMMONSDIR;
-  //> if NON-NULL, name for a Prolog file to use when booting at run-time
-  const char *BOOTFILE;
-  //> if NON-NULL, name for a Prolog file to use when booting at compile-time
+    //> if NON-NULL, name for a Prolog file to use when booting at run-time
+    const char *BOOTDIR;
+    //> if NON-NULL, name for a Prolog directory that we shall use to start booting
+    const char *SOURCEBOOT;
+    //> if NON-NULL, name for a Prolog file to use when booting at compile-time
   const char *BOOTSTRAP;
   //> if NON-NULL, path where we can find the saved state
   const char *INPUT_STARTUP;

@@ -42,7 +42,7 @@
         '$do_import'/3,
         '$extend_exports'/3,
         '$get_undefined_pred'/4,
-        '$imported_predicate'/4,
+        '$imported_predicate'/2,
         '$meta_expand'/6,
         '$meta_predicate'/2,
         '$meta_predicate'/4,
@@ -296,6 +296,29 @@ use_module(F,Is) :-
 	recorded('$import','$import'(MI,M0,G1,_,N,K),_),
 	functor(G1, N1, K1),
 	'$module_produced by'(M,MI,N1,K1).
+
+%
+% check if current module redefines an imported predicate.
+% and remove import.
+%
+'$not_imported'(H, Mod) :-
+    recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+    NM \= Mod,
+    functor(NH,N,Ar),
+    print_message(warning,redefine_imported(Mod,NM,N/Ar)),
+    erase(R),
+    fail.
+'$not_imported'(_, _).
+
+
+'$verify_import'(_M:G, prolog:G) :-
+    '$is_system_predicate'(G, prolog).
+'$verify_import'(M:G, NM:NG) :-
+    '$get_undefined_pred'(G, M, NG, NM),
+    !.
+'$verify_import'(MG, MG).
+
+
 
 
 /** @pred current_module( ? Mod:atom) is nondet

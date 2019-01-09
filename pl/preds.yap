@@ -19,44 +19,44 @@
  * @file preds.yap
  */
 :- system_module( '$_preds', [abolish/1,
-        abolish/2,
-        assert/1,
-        assert/2,
-        assert_static/1,
-        asserta/1,
-        asserta/2,
-        asserta_static/1,
-        assertz/1,
-        assertz/2,
-        assertz_static/1,
-        clause/2,
-        clause/3,
-        clause_property/2,
-        compile_predicates/1,
-        current_key/2,
-        current_predicate/1,
-        current_predicate/2,
-        dynamic_predicate/2,
-        hide_predicate/1,
-        nth_clause/3,
-        predicate_erased_statistics/4,
-        predicate_property/2,
-        predicate_statistics/4,
-        retract/1,
-        retract/2,
-        retractall/1,
-        stash_predicate/1,
-        system_predicate/1,
-        system_predicate/2,
-        unknown/2], ['$assert_static'/5,
-        '$assertz_dynamic'/4,
-        '$clause'/4,
-        '$current_predicate'/4,
-        '$init_preds'/0,
-        '$noprofile'/2,
-        '$public'/2,
-        '$unknown_error'/1,
-        '$unknown_warning'/1]).
+			      abolish/2,
+			      assert/1,
+			      assert/2,
+			      assert_static/1,
+			      asserta/1,
+			      asserta/2,
+			      asserta_static/1,
+			      assertz/1,
+			      assertz/2,
+			      assertz_static/1,
+			      clause/2,
+			      clause/3,
+			      clause_property/2,
+			      compile_predicates/1,
+			      current_key/2,
+			      current_predicate/1,
+			      current_predicate/2,
+			      dynamic_predicate/2,
+			      hide_predicate/1,
+			      nth_clause/3,
+			      predicate_erased_statistics/4,
+			      predicate_property/2,
+			      predicate_statistics/4,
+			      retract/1,
+			      retract/2,
+			      retractall/1,
+			      stash_predicate/1,
+			      system_predicate/1,
+			      system_predicate/2,
+			      unknown/2], ['$assert_static'/5,
+					   '$assertz_dynamic'/4,
+					   '$clause'/4,
+					   '$current_predicate'/4,
+					   '$init_preds'/0,
+					   '$noprofile'/2,
+					   '$public'/2,
+					   '$unknown_error'/1,
+					   '$unknown_warning'/1]).
 
 /**
  * @defgroup Database The Clausal Data Base
@@ -80,23 +80,23 @@ and therefore he should try to avoid them whenever possible.
 */
 
 :- use_system_module( '$_boot', ['$check_head_and_body'/4,
-        '$check_if_reconsulted'/2,
-        '$head_and_body'/3,
-        '$inform_as_reconsulted'/2]).
+				 '$check_if_reconsulted'/2,
+				 '$head_and_body'/3,
+				 '$inform_as_reconsulted'/2]).
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 :- use_system_module( '$_init', ['$do_log_upd_clause'/6,
-        '$do_log_upd_clause0'/6,
-        '$do_log_upd_clause_erase'/6,
-        '$do_static_clause'/5]).
+				 '$do_log_upd_clause0'/6,
+				 '$do_log_upd_clause_erase'/6,
+				 '$do_static_clause'/5]).
 
 :- use_system_module( '$_modules', ['$imported_pred'/4,
-        '$meta_predicate'/4,
-        '$module_expansion'/5]).
+				    '$meta_predicate'/4,
+				    '$module_expansion'/5]).
 
 :- use_system_module( '$_preddecls', ['$check_multifile_pred'/3,
-        '$dynamic'/2]).
+				      '$dynamic'/2]).
 
 :- use_system_module( '$_strict_iso', ['$check_iso_strict_clause'/1]).
 
@@ -176,11 +176,11 @@ clause(P,Q,R) :-
     '$yap_strip_module'(P, M, T),
     '$yap_strip_module'(M0:H, M1, H1),
     (
-     M == M1
+	M == M1
     ->
-     H1 = T
+    H1 = T
     ;
-     M1:H1 = T
+    M1:H1 = T
     ).
 clause(V0,Q,R) :-
     '$yap_strip_module'(V0, M, V),
@@ -188,13 +188,13 @@ clause(V0,Q,R) :-
     '$clause'(V,M,Q,R).
 
 '$clause'(P,M,Q,R) :-
+    '$is_log_updatable'(P, M), !,
+    '$log_update_clause'(P,M,Q,R).
+'$clause'(P,M,Q,R) :-
     '$is_exo'(P, M), !,
     Q = true,
     R = '$exo_clause'(M,P),
     '$execute0'(P, M).
-'$clause'(P,M,Q,R) :-
-    '$is_log_updatable'(P, M), !,
-    '$log_update_clause'(P,M,Q,R).
 '$clause'(P,M,Q,R) :-
     '$is_source'(P, M), !,
     '$static_clause'(P,M,Q,R).
@@ -204,10 +204,10 @@ clause(V0,Q,R) :-
 '$clause'(P,M,Q,R) :-
     \+ '$undefined'(P,M),
     ( '$is_system_predicate'(P,M) -> true ;
-        '$number_of_clauses'(P,M,N), N > 0 ),
+      '$number_of_clauses'(P,M,N), N > 0 ),
     functor(P,Name,Arity),
     '$do_error'(permission_error(access,private_procedure,Name/Arity),
-          clause(M:P,Q,R)).
+		clause(M:P,Q,R)).
 
 '$init_preds' :-
     once('$do_static_clause'(_,_,_,_,_)),
@@ -260,15 +260,15 @@ abolish(N0,A) :-
     '$abolish'(N,A,Mod).
 
 '$abolish'(N,A,M) :- var(N), !,
-    '$do_error'(instantiation_error,abolish(M:N,A)).
+		     '$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :- var(A), !,
-    '$do_error'(instantiation_error,abolish(M:N,A)).
+		     '$do_error'(instantiation_error,abolish(M:N,A)).
 '$abolish'(N,A,M) :-
     ( recorded('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
     fail.
 '$abolish'(N,A,M) :- functor(T,N,A),
-        ( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
-               /* else */	      '$abolishs'(T,M) ).
+		     ( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
+		       /* else */	      '$abolishs'(T,M) ).
 
 /** @pred  abolish(+ _PredSpec_) is iso
 
@@ -293,9 +293,9 @@ abolish(X0) :-
     '$old_abolish'(X,M).
 
 '$new_abolish'(V,M) :- var(V), !,
-    '$abolish_all_in_module'(M).
+		       '$abolish_all_in_module'(M).
 '$new_abolish'(A/V,M) :- atom(A), var(V), !,
-    '$abolish_all_atoms'(A,M).
+			 '$abolish_all_atoms'(A,M).
 '$new_abolish'(Na//Ar1, M) :-
     integer(Ar1),
     !,
@@ -314,15 +314,15 @@ abolish(X0) :-
     '$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all_in_module'(M) :-
-        '$current_predicate'(Na, M, S, _),
-        functor(S, Na, Ar),
+    '$current_predicate'(Na, M, S, _),
+    functor(S, Na, Ar),
     '$new_abolish'(Na/Ar, M),
     fail.
 '$abolish_all_in_module'(_).
 
 '$abolish_all_atoms'(Na, M) :-
-        '$current_predicate'(Na,M,S,_),
-        functor(S, Na, Ar),
+    '$current_predicate'(Na,M,S,_),
+    functor(S, Na, Ar),
     '$new_abolish'(Na/Ar, M),
     fail.
 '$abolish_all_atoms'(_,_).
@@ -365,41 +365,41 @@ abolish(X0) :-
     '$do_error'(type_error(atom,M), Msg).
 
 '$old_abolish'(V,M) :- var(V), !,
-    ( true -> % current_prolog_flag(language, sicstus) ->
-        '$do_error'(instantiation_error,abolish(M:V))
-    ;
-        '$abolish_all_old'(M)
-    ).
+		       ( true -> % current_prolog_flag(language, sicstus) ->
+			 '$do_error'(instantiation_error,abolish(M:V))
+		       ;
+		       '$abolish_all_old'(M)
+		       ).
 '$old_abolish'(N/A, M) :- !,
     '$abolish'(N, A, M).
 '$old_abolish'(A,M) :- atom(A), !,
-    ( current_prolog_flag(language, iso) ->
-      '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
-    ;
-        '$abolish_all_atoms_old'(A,M)
-    ).
+		       ( current_prolog_flag(language, iso) ->
+			 '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
+		       ;
+		       '$abolish_all_atoms_old'(A,M)
+		       ).
 '$old_abolish'([], _) :- !.
 '$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
 '$old_abolish'(T, M) :-
     '$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
 
 '$abolish_all_old'(M) :-
-        '$current_predicate'(Na, M, S, _),
+    '$current_predicate'(Na, M, S, _),
     functor( S, Na, Ar ),
     '$abolish'(Na, Ar, M),
     fail.
 '$abolish_all_old'(_).
 
 '$abolish_all_atoms_old'(Na, M) :-
-        '$current_predicate'(Na, M, S, _),
+    '$current_predicate'(Na, M, S, _),
     functor(S, Na, Ar),
     '$abolish'(Na, Ar, M),
     fail.
 '$abolish_all_atoms_old'(_,_).
 
 '$abolishs'(G, M) :- '$system_predicate'(G,M), !,
-    functor(G,Name,Arity),
-    '$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
+		     functor(G,Name,Arity),
+		     '$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
 '$abolishs'(G, Module) :-
     current_prolog_flag(language, sicstus), % only do this in sicstus mode
     '$undefined'(G, Module),
@@ -410,7 +410,7 @@ abolish(X0) :-
     functor(G,Name,Arity),
     recorded('$mf','$mf_clause'(_,Name,Arity,M,_Ref),R),
     erase(R),
-% no need	erase(Ref),
+    % no need	erase(Ref),
     fail.
 '$abolishs'(T, M) :-
     recorded('$import','$import'(_,M,_,_,T,_,_),R),
@@ -430,7 +430,7 @@ stash_predicate(P0) :-
     '$stash_predicate2'(P, M).
 
 '$stash_predicate2'(V, M) :- var(V), !,
-    '$do_error'(instantiation_error,stash_predicate(M:V)).
+			     '$do_error'(instantiation_error,stash_predicate(M:V)).
 '$stash_predicate2'(N/A, M) :- !,
     functor(S,N,A),
     '$stash_predicate'(S, M) .
@@ -496,22 +496,22 @@ or built-in.
 */
 predicate_property(Pred,Prop) :-
     (
-    current_predicate(_,Pred),
-    '$yap_strip_module'(Pred, Mod, TruePred)
+	current_predicate(_,Pred),
+	'$yap_strip_module'(Pred, Mod, TruePred)
     ;
     '$current_predicate'(_,M,Pred,system),
     '$yap_strip_module'(M:Pred, Mod, TruePred)
     ),
 
     (
-    '$pred_exists'(TruePred, Mod)
+	'$pred_exists'(TruePred, Mod)
     ->
-      M = Mod,
-      NPred = TruePred
-      ;
+    M = Mod,
+    NPred = TruePred
+    ;
     '$get_undefined_pred'(TruePred, Mod, NPred, M)
     ),
-  '$predicate_property'(NPred,M,Mod,Prop).
+    '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
     '$is_system_predicate'(P,M).
@@ -540,7 +540,7 @@ predicate_property(Pred,Prop) :-
     once(recorded('$module','$module'(_TFN,M,_S,Publics,_L),_)),
     lists:memberchk(N/A,Publics).
 '$predicate_property'(_P,M,M0,imported_from(M)) :-
-  M \= M0.
+    M \= M0.
 '$predicate_property'(P,Mod,_,number_of_clauses(NCl)) :-
     '$number_of_clauses'(P,Mod,NCl).
 '$predicate_property'(P,Mod,_,file(F)) :-
@@ -556,7 +556,7 @@ Given predicate  _P_,  _NCls_ is the number of clauses for
 indices to those clauses (in bytes).
 */
 predicate_statistics(V,NCls,Sz,ISz) :- var(V), !,
-    '$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
+				       '$do_error'(instantiation_error,predicate_statistics(V,NCls,Sz,ISz)).
 predicate_statistics(P0,NCls,Sz,ISz) :-
     strip_module(P0, M, P),
     '$predicate_statistics'(P,M,NCls,Sz,ISz).
@@ -582,7 +582,7 @@ of space required to store indices to those clauses (in bytes).
 
  */
 predicate_erased_statistics(P,NCls,Sz,ISz) :-
-        var(P), !,
+    var(P), !,
     current_predicate(_,P),
     predicate_erased_statistics(P,NCls,Sz,ISz).
 predicate_erased_statistics(P0,NCls,Sz,ISz) :-
@@ -595,24 +595,24 @@ Defines the relation:  _P_ is a currently defined predicate whose name is the at
 */
 current_predicate(A,T0) :-
     '$yap_strip_module'(T0, M, T),
-  (	var(M)
-  ->
-      '$all_current_modules'(M)
+    (	var(M)
+    ->
+    '$all_current_modules'(M)
     ;
-      true
+    true
     ),
-(nonvar(T) -> functor(T, A, _) ; true ),
+    (nonvar(T) -> functor(T, A, _) ; true ),
     (
-     '$current_predicate'(A,M, T, user)
+	'$current_predicate'(A,M, T, user)
     ;
-     (nonvar(T)
-   ->
-     '$imported_predicate'(T, M, T1, M1)
-     ;
-   '$generate_imported_predicate'(T, M, T1, M1)
-   ),
-     functor(T1, A, _),
-     \+ '$is_system_predicate'(T1,M1)
+    (nonvar(T)
+    ->
+	'$imported_predicate'(M:T,  M1:T1)
+    ;
+    '$imported_predicate'(M:T, M1:T1)
+    ),
+    functor(T1, A, _),
+    \+ '$is_system_predicate'(T1,M1)
     ).
 
 /** @pred  system_predicate( ?_P_ )
@@ -623,39 +623,39 @@ system_predicate(P0) :-
     '$yap_strip_module'(P0, M0, P),
     ( M= M0 ; M0 \= user, M = user ; M0 \= prolog, M = prolog ),
     (
-      var(P)
+	var(P)
     ->
-      P = A/Arity,
-     '$current_predicate'(A, M, T, system),
-     functor(T, A, Arity),
-     '$is_system_predicate'( T,  M)
+    P = A/Arity,
+    '$current_predicate'(A, M, T, system),
+    functor(T, A, Arity),
+    '$is_system_predicate'( T,  M)
     ;
-      ground(P), P = A/Arity
+    ground(P), P = A/Arity
     ->
-     functor(T, A, Arity),
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T, M)
+    functor(T, A, Arity),
+    '$current_predicate'(A, M, T, system),
+    '$is_system_predicate'( T, M)
     ;
-      ground(P), P = A//Arity2
+    ground(P), P = A//Arity2
     ->
-     Arity is Arity2+2,
-     functor(T, A, Arity),
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T, M)
+    Arity is Arity2+2,
+    functor(T, A, Arity),
+    '$current_predicate'(A, M, T, system),
+    '$is_system_predicate'( T, M)
     ;
-     P = A/Arity
+    P = A/Arity
     ->
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T,  M),
-     functor(T, A, Arity)
+    '$current_predicate'(A, M, T, system),
+    '$is_system_predicate'( T,  M),
+    functor(T, A, Arity)
     ;
-     P = A//Arity2
+    P = A//Arity2
     ->
-     '$current_predicate'(A, M, T, system),
-     '$is_system_predicate'( T,  M),
-     functor(T, A, Arity),
-     Arity >= 2,
-     Arity2 is Arity-2
+    '$current_predicate'(A, M, T, system),
+    '$is_system_predicate'( T,  M),
+    functor(T, A, Arity),
+    Arity >= 2,
+    Arity2 is Arity-2
     ;
     '$do_error'(type_error(predicate_indicator,P),
                 system_predicate(P0))
@@ -673,12 +673,12 @@ system_predicate(P0) :-
 system_predicate(A, P0) :-
     '$yap_strip_module'(P0, M, P),
     (
-      nonvar(P)
+	nonvar(P)
     ->
-     '$current_predicate'(A, M, P, system),
-     '$is_system_predicate'( P,  M)
+    '$current_predicate'(A, M, P, system),
+    '$is_system_predicate'( P,  M)
     ;
-     '$current_predicate'(A, M, P, system)
+    '$current_predicate'(A, M, P, system)
     ).
 
 
@@ -698,27 +698,27 @@ current_predicate(F0) :-
 '$c_i_predicate'( A/N, M ) :-
     !,
     (
-     ground(A/N)
+	ground(A/N)
     ->
-     atom(A), integer(N),
-     functor(S, A, N),
-     current_predicate(A, M:S)
+    atom(A), integer(N),
+    functor(S, A, N),
+    current_predicate(A, M:S)
     ;
-     current_predicate(A, M:S),
-     functor(S, A, N)
-     ).
+    current_predicate(A, M:S),
+    functor(S, A, N)
+    ).
 '$c_i_predicate'( A//N, M ) :-
     (
-     ground(A)
+	ground(A)
     ->
-     atom(A), integer(N),
-     N2 is N+2,
-     functor(S, A, N2),
-     current_predicate(A, M:S)
+    atom(A), integer(N),
+    N2 is N+2,
+    functor(S, A, N2),
+    current_predicate(A, M:S)
     ;
-     current_predicate(A, M:S),
-     functor(S, A, N2),
-     N is N2-2
+    current_predicate(A, M:S),
+    functor(S, A, N2),
+    N is N2-2
     ).
 
 /** @pred  current_key(? _A_,? _K_)
@@ -736,10 +736,10 @@ current_key(A,K) :-
 
 '$ifunctor'(Pred,Na,Ar) :-
     (Ar > 0 ->
-        functor(Pred, Na, Ar)
+         functor(Pred, Na, Ar)
     ;
-         Pred = Na
-     ).
+    Pred = Na
+    ).
 
 
 /** @pred  compile_predicates(: _ListOfNameArity_)
@@ -814,7 +814,7 @@ clause_property(ClauseRef, predicate(PredicateIndicator)) :-
 %
 '$set_flag'(P, M, trace, off) :-
     '$predicate_flags'(P,M,F,F),
-  FN is F \/ 0x400000000,
+    FN is F \/ 0x400000000,
     '$predicate_flags'(P,M,F,FN).
 
 /**

@@ -1618,9 +1618,6 @@ void Yap_InitCPreds(void) {
     while (*p)
       (*(*p++))();
   }
-#if USE_MYDDAS
-  init_myddas();
-#endif
 #if CAMACHO
   {
     extern void InitForeignPreds(void);

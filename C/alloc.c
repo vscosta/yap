@@ -378,16 +378,6 @@ ADDR Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe) {
 
 struct various_codes *Yap_heap_regs;
 
-static void InitHeap(void) {
-  Yap_heap_regs =
-      (struct various_codes *)calloc(1, sizeof(struct various_codes));
-}
-
-void Yap_InitHeap(void *heap_addr) {
-  InitHeap();
-  Yap_HoleSize = 0;
-  HeapMax = 0;
-}
 
 // get an approximation to total memory data-base size.
  size_t Yap_HeapUsed(void)
@@ -400,9 +390,9 @@ void Yap_InitHeap(void *heap_addr) {
 #endif
 }
 
-static void InitExStacks(int wid, int Trail, int Stack) {
+static void InitExStacks(int wid, size_t Trail, size_t Stack) {
   CACHE_REGS
-  UInt pm, sa;
+  size_t pm, sa;
 
   /* sanity checking for data areas */
   if (Trail < MinTrailSpace)
@@ -428,7 +418,7 @@ static void InitExStacks(int wid, int Trail, int Stack) {
 
 #if DEBUG
   if (Yap_output_msg) {
-    UInt ta;
+    size_t ta;
 
     fprintf(stderr,
             "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
@@ -443,7 +433,7 @@ static void InitExStacks(int wid, int Trail, int Stack) {
 #endif /* DEBUG */
 }
 
-void Yap_InitExStacks(int wid, int Trail, int Stack) {
+void Yap_InitExStacks(int wid, size_t Trail, size_t Stack) {
   InitExStacks(wid, Trail, Stack);
 }
 
@@ -464,7 +454,12 @@ void Yap_KillStacks(int wid) {
 }
 #endif
 
-void Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack) { InitHeap(); }
+void Yap_InitMemory(size_t Trail, size_t Heap, size_t Stack) {
+      Yap_HoleSize = 0;
+  HeapMax = 0;
+        Yap_heap_regs =
+                (struct various_codes *)calloc(1, sizeof(struct various_codes));
+    }
 
 int Yap_ExtendWorkSpace(Int s) {
   CACHE_REGS

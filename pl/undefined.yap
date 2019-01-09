@@ -67,8 +67,8 @@ followed by the failure of that call.
 :- multifile user:unknown_predicate_handler/3.
 
 undefined_query(G0, M0, Cut) :-
-	recorded('$import','$import'(M,M0,G,G0,_,_),_),
-	'$call'(G, Cut, G, M).
+  recorded('$import','$import'(M,M0,G,G0,_,_),_),
+  '$call'(G, Cut, G, M).
 
 '$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),
@@ -104,50 +104,41 @@ undefined_query(G0, M0, Cut) :-
     '$yap_strip_module'(M0:G0,  EM0, GM0),
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
-'$undefp_search'(M0:G0, M:G) :-
-'$get_undefined_predicates'(G, M0, G0, M), !.
-
-
-:- abolish('$undefp'/2).
-
+'$undefp_search'(M0:G0, MG) :-
+'$get_undefined_predicates'(M0:G0, MG), !.
 
 % undef handler
-'$undefp'([M0|G0],_) :-
+'$undefp'([M0|G0],MG) :-
     % make sure we do not loop on undefined predicates
-    setup_call_catcher_cleanup(
         '$undef_set'(Action,Debug,Current),
-        '$search_def'(M0,G0,MG),
-        Port,
-        '$undef_reset'(Port,M0:G0,MG,Action,Debug,Current)
-    ).
+        '$search_def'(M0:G0,MG,Action,Debug,Current).
 
 '$undef_set'(Action,Debug,Current) :-
   yap_flag( unknown, Action, fail),
     yap_flag( debug, Debug, false),
     '$stop_creeping'(Current).
 
-'$search_def'(M0,G0,NG:NM) :-
-    '$undefp_search'(M0:G0, NM:NG),
-    !,
-    '$pred_exists'(NG,NM).
 
-'$undef_reset'(exit,_G0,NG:NM,Action,Debug,Current) :-
+'$search_def'(M0:G0,NM:NG,Action,Debug,Current) :-
+    '$undefp_search'(M0:G0, NM:NG),
+    '$pred_exists'(NG,NM),
+    !,
     yap_flag( unknown, _, Action),
     yap_flag( debug, _, Debug),
     nonvar(NG),
     nonvar(NM),
-	 (
-	     Current == true
-	  ->
-	      % carry on signal processing
-	      '$start_creep'([NM|NG], creep)
-	  ;
-	  '$execute0'(NG, NM)
-	 ).
-'$undef_reset'(_,M0:G0,_NG,Action,Debug,_Current) :-
+   (
+       Current == true
+    ->
+        % carry on signal processing
+        '$start_creep'([NM|NG], creep)
+    ;
+    '$execute0'(NG, NM)
+   ).
+'$search_def'(M0:G0,_,Action,Debug,_Current) :-
     yap_flag( unknown, _, Action),
     yap_flag( debug, _, Debug),
-'$start_creep'([prolog|true], creep), 
+'$start_creep'([prolog|true], creep),
 '$handle_error'(Action,G0,M0).
 
 :- '$undefp_handler'('$undefp'(_,_), prolog).
@@ -155,11 +146,11 @@ undefined_query(G0, M0, Cut) :-
 /** @pred  unknown(- _O_,+ _N_)
 
 The unknown predicate, informs about what the user wants to be done
-	when there are no clauses for a predicate. Using unknown/3 is
-	strongly deprecated. We recommend setting the `unknown` prolog
-	flag for generic behaviour, and calling the hook
-	user:unknown_predicate_handler/3 to fine-tune specific cases
-	undefined goals.
+  when there are no clauses for a predicate. Using unknown/3 is
+  strongly deprecated. We recommend setting the `unknown` prolog
+  flag for generic behaviour, and calling the hook
+  user:unknown_predicate_handler/3 to fine-tune specific cases
+  undefined goals.
 
 */
 

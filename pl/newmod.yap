@@ -31,7 +31,7 @@ module(N) :-
 module(N) :-
 	atom(N), !,
 	% set it as current module.
-	'$current_module'(_,N).
+	'$change_module'(N).
 module(N) :-
 	'$do_error'(type_error(atom,N),module(N)).
 

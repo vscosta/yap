@@ -75,12 +75,12 @@ extern void Yap_FreeCodeSpace(void *);
 extern void *Yap_AllocAtomSpace(size_t);
 extern void *Yap_AllocCodeSpace(size_t);
 extern void *Yap_ReallocCodeSpace(void *, size_t);
-extern ADDR Yap_AllocFromForeignArea(Int);
+extern ADDR Yap_AllocFromForeignArea(size_t);
 extern int Yap_ExtendWorkSpace(Int);
 extern void Yap_FreeAtomSpace(void *);
 extern int Yap_FreeWorkSpace(void);
-extern void Yap_InitMemory(UInt, UInt, UInt);
-extern void Yap_InitExStacks(int, int, int);
+extern void Yap_InitMemory(size_t, size_t, size_t);
+extern void Yap_InitExStacks(int, size_t, size_t);
 
 /* amasm.c */
 extern OPCODE Yap_opcode(op_numbers);
@@ -239,20 +239,20 @@ extern void Yap_inform_profiler_of_clause__(void *, void *, struct pred_entry *,
 extern void Yap_tell_gprof(yamop *);
 
 /* globals.c */
-extern Term Yap_NewArena(UInt, CELL *);
-extern CELL *Yap_GetFromArena(Term *, UInt, UInt);
+extern Term Yap_NewArena(size_t, CELL *);
+extern CELL *Yap_GetFromArena(Term *, size_t, UInt);
 extern void Yap_InitGlobals(void);
 extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
-extern void Yap_AllocateDefaultArena(Int, Int, int);
+extern void Yap_AllocateDefaultArena(size_t gsize, int wid);
 extern CELL *Yap_ArenaLimit(Term arena);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
 extern void Yap_InitGrowPreds(void);
-extern UInt Yap_InsertInGlobal(CELL *, UInt);
+extern size_t Yap_InsertInGlobal(CELL *, size_t);
 extern int Yap_growheap(bool, size_t, void *);
 extern int Yap_growstack(size_t);
 extern int Yap_growtrail(size_t, bool);

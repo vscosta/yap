@@ -15,10 +15,7 @@
   *									 *
   *************************************************************************/
 
-%%:- load_foreign_files([myddas], [], init_myddas).
-
-/* Initialize MYDDAS GLOBAL STRUCTURES */
-:- c_db_initialize_myddas.
+:- load_foreign_files([myddas], [], init_myddas).
 
 #ifdef DEBUG
 :- yap_flag(single_var_warnings,on).
@@ -113,6 +110,10 @@
 		  db_listing/1
 				% myddas_mysql.ypp
 ]).
+
+
+/* Initialize MYDDAS GLOBAL STRUCTURES */
+:- c_db_initialize_myddas.
 
 #ifdef MYDDAS_TOP_LEVEL
 :- use_module(myddas_top_level,[

@@ -98,7 +98,7 @@ def live():
     args = yap.YAPEngineArgs()
     args.setYapShareDir(os.path.join(yap_lib_path,"prolog"))
     args.setYapLibDir(yap_lib_path)
-    #args.setYapPrologBootFile(os.path.join(yap_lib_path."startup.yss"))
+    #args.setYapPrologSOURCEBOOT(os.path.join(yap_lib_path."startup.yss"))
     engine = yap.YAPEngine(args)
     engine.goal( use_module(library('yapi') ) )
     loop = True

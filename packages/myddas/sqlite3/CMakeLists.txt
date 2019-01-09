@@ -1,6 +1,6 @@
-if (WITH_SQLITE3)
+if (MYDDAS_SQLITE3)
 
-  message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
+  # message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
 
   set (SQLITE_TEST
     sqlitest.yap)
@@ -13,12 +13,18 @@ if (WITH_SQLITE3)
     src/sqlite3ext.h
     )
 
+  add_to_dir(SQLITE_DB ${YAP_INSTALL_DATADIR})
+  add_to_dir( SQLITE_TEST ${YAP_INSTALL_DATADIR})
+
 
   #sqlite3 is now in the system
 
   set (SQLITE3_FOUND ON CACHE PRIVATE "")
 
-  include_directories ( ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..)
+set_property(DIRECTORY
+        APPEND PROPERTY
+       INCLUDE_DIRECTORIES ${ODBC_INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_BINARY_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}   )
+ 
 
   if (ANDROID)
     add_definitions(-DSQLITE_FCNTL_MMAP_SIZE=0 )
@@ -37,13 +43,12 @@ if (WITH_SQLITE3)
   SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 
 
-  if (ANDROID )
+  list(APPEND YAPSQLITE3_SOURCES src/sqlite3.c)
+
+  if (XXANDROID )
     add_library(  YAPsqlite3 OBJECT
       ${YAPSQLITE3_SOURCES} )
-
   else()
-
-    list(APPEND YAPSQLITE3_SOURCES src/sqlite3.c)
 
     
     add_library(  YAPsqlite3 SHARED
@@ -67,11 +72,11 @@ if (WITH_SQLITE3)
   endif()
 
   install(FILES ${SQLITE_DB}
-    DESTINATION ${YAP_PLDIR}/data
+    DESTINATION ${YAP_INSTALL_DATADIR}/data
     )
 
   install(FILES ${SQLITE_TEST}
-    DESTINATION ${YAP_PLDIR}/test
+    DESTINATION ${YAP_INSTALL_DATADIR}/test
     )
 
 endif()

@@ -16,7 +16,7 @@ set_package_properties(R PROPERTIES
         DESCRIPTION "The R Project for Statistical Computing."
  
        URL "https://www.r-project.org/")
-add_lib(real  ${REAL_SOURCES})
+add_library(real  ${REAL_SOURCES})
   target_link_libraries (real ${LIBR_LIBRARIES}   libYap)
 include_directories (
   ${CMAKE_CURRENT_BINARY_DIR}

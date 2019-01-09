@@ -24,7 +24,7 @@ pl-minisat.C
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
 
-    ADD_LIB(minisat2  ${MINISAT2_SOURCES} ${MINISAT2_HEADERS} )
+    add_library(minisat2  ${MINISAT2_SOURCES} ${MINISAT2_HEADERS} )
 
     set_target_properties (minisat2 PROPERTIES OUTPUT_NAME pl-minisat)
     set_target_properties (minisat2 PROPERTIES PREFIX   "")

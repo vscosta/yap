@@ -1,5 +1,7 @@
 /*  Part of SWI-Prolog
 
+    @file plunit.pl
+    
     Author:        Jan Wielemaker
     E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
@@ -43,7 +45,8 @@
 	    test_report/1		% +What
 	  ]).
 
-/** <module> Unit Testing
+/** @defgroup  PlUnit Unit Testing
+@ingroup library
 
 Unit testing environment for SWI-Prolog and   SICStus Prolog. For usage,
 please visit http://www.swi-prolog.org/pldoc/package/plunit.html.

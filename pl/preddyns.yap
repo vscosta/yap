@@ -1,5 +1,5 @@
-                                % The next predicates are applicable only
-                                % to dynamic code
+% The next predicates are applicable only
+% to dynamic code
 
 /** @file preddyns.yap */
 
@@ -50,7 +50,7 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-'$yap_strip_clause'(Clause, _, _Clause0),
+    '$yap_strip_clause'(Clause, _, _Clause0),
     '$expand_clause'(Clause,C0,C),
     '$$compile'(C, Where, C0, R).
 
@@ -99,72 +99,72 @@ assert(Clause, Ref) :-
     '$head_and_body'(C,H,B),
     '$assertat_d'(assertz,H,B,C0,Mod,_).
 '$assertz_dynamic'(X,C,C0,Mod) :-
-	'$head_and_body'(C,H,B),
-	functor(H,N,A),
-	('$check_if_reconsulted'(N,A) ->
-     true
+    '$head_and_body'(C,H,B),
+    functor(H,N,A),
+    ('$check_if_reconsulted'(N,A) ->
+	 true
     ;
-     (X/\8)=:=0 ->
-     '$inform_as_reconsulted'(N,A),
-     '$remove_all_d_clauses'(H,Mod)
+    (X/\8)=:=0 ->
+    '$inform_as_reconsulted'(N,A),
+    '$remove_all_d_clauses'(H,Mod)
     ;
-     true
-	),
-	'$assertat_d'(assertz,H,B,C0,Mod,_).
+    true
+    ),
+    '$assertat_d'(assertz,H,B,C0,Mod,_).
 
 
 '$remove_all_d_clauses'(H,M) :-
-	'$is_multifile'(H, M), !,
-	functor(H, Na, A),
-	'$erase_all_mf_dynamic'(Na,A,M).
+    '$is_multifile'(H, M), !,
+    functor(H, Na, A),
+    '$erase_all_mf_dynamic'(Na,A,M).
 '$remove_all_d_clauses'(H,M) :-
-	'$recordedp'(M:H,_,R), erase(R), fail.
+    '$recordedp'(M:H,_,R), erase(R), fail.
 '$remove_all_d_clauses'(_,_).
 
 '$erase_all_mf_dynamic'(Na,A,M) :-
-	source_location( F , _),
-	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
-	erase(R1),
-	erase(R),
-	fail.
+    source_location( F , _),
+    recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
+    erase(R1),
+    erase(R),
+    fail.
 '$erase_all_mf_dynamic'(_,_,_).
 
 '$assertat_d'(asserta,Head,Body,C0,Mod,R) :- !,
-	'$compile_dynamic'((Head:-Body), asserta, C0, Mod, CR),
+    '$compile_dynamic'((Head:-Body), asserta, C0, Mod, CR),
     ( get_value('$abol',true)
     ->
-      '$predicate_flags'(Head,Mod,Fl,Fl),
-      ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
+    '$predicate_flags'(Head,Mod,Fl,Fl),
+    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
     ;
-      true
+    true
     ),
-	'$head_and_body'(C0, H0, B0),
-	'$recordap'(Mod:Head,(H0 :- B0),R,CR),
-	( '$is_multifile'(Head, Mod) ->
+    '$head_and_body'(C0, H0, B0),
+    '$recordap'(Mod:Head,(H0 :- B0),R,CR),
+    ( '$is_multifile'(Head, Mod) ->
       source_location(F, _),
       functor(H0, Na, Ar),
       recorda('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
-	;
-      true
-	).
+    ;
+    true
+    ).
 '$assertat_d'(assertz,Head,Body,C0,Mod,R) :-
-	'$compile_dynamic'((Head:-Body), assertz, C0, Mod, CR),
+    '$compile_dynamic'((Head:-Body), assertz, C0, Mod, CR),
     ( get_value('$abol',true)
     ->
-      '$predicate_flags'(Head,Mod,Fl,Fl),
-      ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
+    '$predicate_flags'(Head,Mod,Fl,Fl),
+    ( Fl /\ 0x20000000 =\= 0 -> '$check_multifile_pred'(Head,Mod,Fl) ; true )
     ;
-      true
+    true
     ),
-	'$head_and_body'(C0, H0, B0),
-	'$recordzp'(Mod:Head,(H0 :- B0),R,CR),
-	( '$is_multifile'(H0, Mod) ->
+    '$head_and_body'(C0, H0, B0),
+    '$recordzp'(Mod:Head,(H0 :- B0),R,CR),
+    ( '$is_multifile'(H0, Mod) ->
       source_location(F, _),
       functor(H0, Na, Ar),
       recordz('$multifile_dynamic'(_,_,_), '$mf'(Na,Ar,Mod,F,R), _)
-	;
-      true
-	).
+    ;
+    true
+    ).
 
 /** @pred  retract(+ _C_) is iso
 
@@ -178,39 +178,36 @@ source/0 ( (see Setting the Compiler)).
 */
 retract( C ) :-
     strip_module( C, M, C0),
-	'$check_head_and_body'(M:C0,M1,H,B,retract(M:C)),
-	'$predicate_flags'(H, M1, F, F),
-	'$retract2'(F, H, M1, B,_).
+    '$check_head_and_body'(M:C0,M1,H,B,retract(M:C)),
+    '$predicate_flags'(H, M1, F, F),
+    '$retract2'(F, H, M1, B,_).
 
 '$retract2'(F, H, M, B, R) :-
-	F /\ 0x08000000 =:= 0x08000000, !,
-                                %	'$is_log_updatable'(H, M), !,
-	'$log_update_clause'(H,M,B,R),
-	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
-	erase(R).
+    F /\ 0x08000000 =:= 0x08000000, !,
+    %	'$is_log_updatable'(H, M), !,
+    '$log_update_clause'(H,M,B,R),
+    ( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
+    erase(R).
 '$retract2'(F, H, M, B, R) :-
-                                %	'$is_dynamic'(H,M), !,
-	F /\ 0x00002000 =:= 0x00002000, !,
-	'$recordedp'(M:H,(H:-B),R),
-	( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), erase(MRef), fail ; true),
-	erase(R).
+    %	'$is_dynamic'(H,M), !,
+    F /\ 0x00002000 =:= 0x00002000, !,
+    '$recordedp'(M:H,(H:-B),R),
+    ( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,MRef),MR), erase(MR), erase(MRef), fail ; true),
+    erase(R).
 '$retract2'(_, H,M,_,_) :-
-	'$undefined'(H,M), !,
-	functor(H,Na,Ar),
-	'$dynamic'(Na/Ar,M),
-	fail.
+    '$undefined'(H,M), !,
+    functor(H,Na,Ar),
+    '$dynamic'(Na/Ar,M),
+    fail.
 '$retract2'(_, H,M,B,_) :-
-	functor(H,Na,Ar),
-	\+ '$dynamic'(Na/Ar,M),
-	'$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
+    functor(H,Na,Ar),
+    \+ '$dynamic'(Na/Ar,M),
+    '$do_error'(permission_error(modify,static_procedure,Na/Ar),retract(M:(H:-B))).
 
 /** @pred  retract(+ _C_,- _R_)
 
 Erases from the program the clause  _C_ whose
 database reference is  _R_. The predicate must be dynamic.
-
-
-
 
 */
 retract(M:C,R) :- !,
@@ -218,28 +215,28 @@ retract(M:C,R) :- !,
     '$retract'(H0, M, R).
 
 '$retract'(C, M0, R) :-
-	db_reference(R),
-    	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
-	dynamic(H,M),
-	!,
-	instance(R,(H:-B)),
-    erase(R).
+    db_reference(R),
+    '$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
+    dynamic(H,M),
+	   !,
+	   instance(R,(H:-B)),
+	   erase(R).
 '$retract'(C,M0,R) :-
-	'$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
-	var(R), !,
-	'$retract2'(H, M, B, R).
+    '$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
+    var(R), !,
+    '$retract2'(H, M, B, R).
 '$retract'(C,M,_) :-
-	'$fetch_predicate_indicator_from_clause'(C, M, PI),
+    '$fetch_predicate_indicator_from_clause'(C, M, PI),
     \+ '$dynamic'(PI),
-	'$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
+    '$do_error'(permission_error(modify,static_procedure,PI),retract(M:C)).
 
 '$fetch_predicate_indicator_from_clause'((C :- _), M:Na/Ar) :-
-!,
+    !,
     '$yap_strip_module'(C, M, C1),
     functor(C1, Na, Ar).
 '$fetch_predicate_indicator_from_clause'(C, M:Na/Ar) :-
     '$yap_strip_module'(C, M, C1),
-	functor(C1, Na, Ar).
+    functor(C1, Na, Ar).
 
 
 /** @pred  retractall(+ _G_) is iso
@@ -263,11 +260,11 @@ retractall(V) :-
     ;
     '$undefined'(T,M)
     ->
-     '$dynamic'(Na/Ar,M)
+    '$dynamic'(Na/Ar,M)
     ;
     '$is_dynamic'(T,M)
     ->
-     '$erase_all_clauses_for_dynamic'(T, M)
+    '$erase_all_clauses_for_dynamic'(T, M)
     ;
     '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
     ).
@@ -297,12 +294,12 @@ retractall(V) :-
 '$retractall_lu_mf'(_T,_M,_Na,_Ar).
 
 '$erase_lu_mf_clause'(Na,Ar,M,R) :-
-	recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR),
-	erase(MR),
-	fail.
+    recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR),
+    erase(MR),
+    fail.
 '$erase_lu_mf_clause'(_Na,_Ar,_M,R) :-
-	erase(R),
-	fail.
+    erase(R),
+    fail.
 '$retractall_lu_mf'(_,_,_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
@@ -310,25 +307,25 @@ retractall(V) :-
     erase(R),
     fail.
 '$erase_all_clauses_for_dynamic'(T,M) :-
-	'$recordedp'(M:T,_,_), fail.
+    '$recordedp'(M:T,_,_), fail.
 '$erase_all_clauses_for_dynamic'(_,_).
 
 /* support for abolish/1 */
 '$abolishd'(T, M) :-
-	'$is_multifile'(T,M),
-	functor(T,Name,Arity),
-	recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
-	erase(R),
-	erase(Ref),
-	fail.
+    '$is_multifile'(T,M),
+    functor(T,Name,Arity),
+    recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
+    erase(R),
+    erase(Ref),
+    fail.
 '$abolishd'(T, M) :-
-	recorded('$import','$import'(_,M,_,T,_,_),R),
-	erase(R),
-	fail.
+    recorded('$import','$import'(_,M,_,T,_,_),R),
+    erase(R),
+    fail.
 '$abolishd'(T, M) :-
-	'$purge_clauses'(T,M), fail.
+    '$purge_clauses'(T,M), fail.
 '$abolishd'(T, M) :-
-	'$kill_dynamic'(T,M), fail.
+    '$kill_dynamic'(T,M), fail.
 '$abolishd'(_, _).
 
 
@@ -342,19 +339,19 @@ as a dynamic predicate following either `logical` or
 
 */
 dynamic_predicate(P,Sem) :-
-	'$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
+    '$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
 dynamic_predicate(P,Sem) :-
-	'$log_upd'(OldSem),
-	( Sem = logical -> '$switch_log_upd'(1) ; '$switch_log_upd'(0) ),
-	'$current_module'(M),
-	'$dynamic'(P, M),
-	'$switch_log_upd'(OldSem).
+    '$log_upd'(OldSem),
+    ( Sem = logical -> '$switch_log_upd'(1) ; '$switch_log_upd'(0) ),
+    '$current_module'(M),
+    '$dynamic'(P, M),
+    '$switch_log_upd'(OldSem).
 
 '$bad_if_is_semantics'(Sem, Goal) :-
-	var(Sem), !,
-	'$do_error'(instantiation_error,Goal).
+    var(Sem), !,
+    '$do_error'(instantiation_error,Goal).
 '$bad_if_is_semantics'(Sem, Goal) :-
-	Sem \= immediate, Sem \= logical, !,
-	'$do_error'(domain_error(semantics_indicator,Sem),Goal).
+    Sem \= immediate, Sem \= logical, !,
+    '$do_error'(domain_error(semantics_indicator,Sem),Goal).
 
 %% @}

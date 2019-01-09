@@ -101,37 +101,68 @@ Just fail
            */
              YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
              typein),
- /**<
 
-If the second argument is bound to a stream, set user_error to
-this stream. If the second argument is unbound, unify the argument with
-the current user_error stream.
-By default, the user_error stream is set to a stream
-corresponding to the Unix `stderr` stream.
-The next example shows how to use this flag:
 
-~~~{.prolog}
-?- open( '/dev/null', append, Error,
-[alias(mauri_tripa)] ).
 
-Error = '$stream'(3) ? ;
+/**<
 
-no
-?- set_prolog_flag(user_error, mauri_tripa).
+    If `normal` allow printing of informational and banner messages,
+    such as the ones that are printed when consulting. If `silent`
+    disable printing these messages. It is `normal` by default except if
+    YAP is booted with the `-q` or `-L` flag.
 
-close(mauri_tripa).
+ */
+	YAP_FLAG(VERBOSE_FLAG, "verbose", true, isatom, "normal", NULL),
 
-yes
-?-
-~~~
-We execute three commands. First, we open a stream in write mode and
-give it an alias, in this case `mauri_tripa`. Next, we set
-user_error to the stream via the alias. Note that after we did so
-prompts from the system were redirected to the stream
-`mauri_tripa`. Last, we close the stream. At this point, YAP
-automatically redirects the user_error alias to the original
-`stderr`.
-*/
+	/**<
+
+       If `true` allow printing of informational messages when
+       searching for file names. If `false` disable printing these messages. It
+       is `false` by default except if YAP is booted with the `-L`
+       flag.
+    */
+	YAP_FLAG(VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, booleanFlag,
+			 "false", NULL),
+
+	/**<
+
+        If `true` allow printing of informational messages when
+        consulting files. If `false` disable printing these messages. It
+        is `true` by default except if YAP is booted with the `-L`
+        flag.
+     */
+	YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
+	/**<
+
+  If the second argument is bound to a stream, set user_error to
+  this stream. If the second argument is unbound, unify the argument with
+  the current user_error stream.
+  By default, the user_error stream is set to a stream
+  corresponding to the Unix `stderr` stream.
+  The next example shows how to use this flag:
+
+  ~~~{.prolog}
+  ?- open( '/dev/null', append, Error,
+  [alias(mauri_tripa)] ).
+
+  Error = '$stream'(3) ? ;
+
+  no
+  ?- set_prolog_flag(user_error, mauri_tripa).
+
+  close(mauri_tripa).
+
+  yes
+  ?-
+  ~~~
+  We execute three commands. First, we open a stream in write mode and
+  give it an alias, in this case `mauri_tripa`. Next, we set
+  user_error to the stream via the alias. Note that after we did so
+  prompts from the system were redirected to the stream
+  `mauri_tripa`. Last, we close the stream. At this point, YAP
+  automatically redirects the user_error alias to the original
+  `stderr`.
+  */
   YAP_FLAG(USER_ERROR_FLAG, "user_error", true, stream, "user_error",
 	   set_error_stream),
   YAP_FLAG(USER_INPUT_FLAG, "user_input", true, stream, "user_input",

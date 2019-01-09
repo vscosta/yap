@@ -45,9 +45,6 @@ Int p_load_foreign(USES_REGS1) {
   StringList new;
   bool returncode = FALSE;
   yhandle_t CurSlot = Yap_StartSlots();
-#if __ANDROID__
-return true;
-#endif
 
   //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
   // Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
@@ -246,7 +243,28 @@ static Int p_open_shared_objects(USES_REGS1) {
 #endif
 }
 
+static Int check_embedded(USES_REGS1)
+{
+  const char *s = Yap_TextTermToText(Deref(ARG1));
+  if (!s)
+    return false;
+#if EMBEDDED_MYDDAS
+  if (!strcmp("init_myddas",s)) {
+          init_myddas();
+return true;
+  }
+#endif
+#if EMBEDDED_SQLITE3
+  if (!strcmp("init_sqlite3",s)) {
+      init_sqlite3();
+return true;
+  }
+#endif
+return false;
+}
+
 void Yap_InitLoadForeign(void) {
+  Yap_InitCPred("$check_embedded", 1, check_embedded, SafePredFlag);
   Yap_InitCPred("$load_foreign_files", 3, p_load_foreign,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag);

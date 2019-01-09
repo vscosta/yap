@@ -1,18 +1,21 @@
+
 %:- start_low_level_trace.
 
-:- module(user).
-:- yap_flag(verbose,normal).
+%:- module(android,
+%	[text_to_query/2]).
+	
+:- initialization(yap_flag(verbose,_,normal)).
 
-query( String ) :-
- 	yap_flag(typein_module, Mod),
+:- meta_predicate( text_to_query( :, - ) ).
+
+text_to_query( MString, Status ) :-
+	strip_module( MString, Mod, String ),
   	atomic_to_term( String, Goal, VarNames ),
- 	query_to_answer( Mod:Goal, VarNames, Status, Bindings),
- 	output( Bindings, Status) .
-
-output( Bindings, Status) :-
-	(Status == answer -> true ;
-	 Status == exit ->true
-	),
+	(
+	is_list(Goal) -> G = ensure_loaded( Goal ) ; G = Goal ),
+ 	catch(query_to_answer( Mod:G, VarNames, Status, Bindings),
+	      H,error_handler(H,error)
+	     ), 
 	write_query_answer( Bindings ),
 	nl(user_error).
 

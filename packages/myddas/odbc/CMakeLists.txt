@@ -14,20 +14,16 @@ if (WITH_ODBC)
     # ODBC_INCLUDE_DIRECTORIES, where to find sql.h
     # ODBC_LIBRARIES, the libraries to link against to use ODBC
     # ODBC_FOUND.  If false, you cannot build anything that requires Odbc.
-    add_lib(YAPodbc  ${YAPODBC_SOURCES})
+    add_library(YAPodbc  ${YAPODBC_SOURCES})
     target_link_libraries(YAPodbc libYap ${ODBC_LIBRARIES})
-    include_directories (${ODBC_INCLUDE_DIRECTORIES} ..)
-
+set_property(DIRECTORY
+        APPEND PROPERTY
+       INCLUDE_DIRECTORIES ${ODBC_INCLUDE_DIRECTORIES} ${CMAKE_CURRENT_BINARY_DIR}/.. ${CMAKE_CURRENT_BINARY_DIR}  )
+ 
     set_target_properties (YAPodbc PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       PREFIX ""
       )
-
-    list (APPEND MYDDAS_FLAGS -DMYDDAS_ODBC=1)
-    set (MYDDAS_FLAGS ${MYDDAS_FLAGS} ON PARENT_SCOPE)
-    set_property(GLOBAL APPEND PROPERTY COMPILE_DEFINITIONS
-      -DMYDDAS_ODBC=1)
-
 
     install(TARGETS  YAPodbc
       LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}

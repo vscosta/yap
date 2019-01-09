@@ -1,12 +1,14 @@
 set(PL_BOOT_SOURCES
-        absf.yap
+  absf.yap
+  android.yap
         arith.yap
         arithpreds.yap
         arrays.yap
         atoms.yap
         attributes.yap
         boot.yap
-        bootlists.yap
+            boot2.yap
+    bootlists.yap
 	bootutils.yap
 	builtins.yap
         callcount.yap
@@ -62,13 +64,12 @@ set(PL_BOOT_SOURCES
         ypp.yap
         )
 
-add_to_group(PL_BOOT_SOURCES pl_boot_library)
+add_to_dir(PL_BOOT_SOURCES ${YAP_INSTALL_DATADIR}/pl)
 
 if (ANDROID)
     add_custom_target(STARTUP
        DEPENDS ${PL_BOOT_SOURCES}
             )
-    file (INSTALL  ${PL_BOOT_SOURCES} DESTINATION ${YAP_INSTALL_DATADIR}/pl)
 elseif(CMAKE_CROSSCOMPILING)
     add_custom_target(STARTUP ALL SOURCES
             DEPENDS ${PL_BOOT_SOURCES}
@@ -89,8 +90,8 @@ else ()
 
 
     install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${YAP_INSTALL_LIBDIR}
-        )
+        DESTINATION ${YAP_INSTALL_DATADIR}/pl)
+
 endif()
 
 

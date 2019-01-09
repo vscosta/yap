@@ -13,7 +13,9 @@ set(MYDDAS_SOURCES
         myddas_top_level.c
         )
 
-include_directories(. sqlite3)
+set_property(DIRECTORY
+        APPEND PROPERTY
+       INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}    ${CMAKE_CURRENT_SOURCE_DIR}/sqlite3)
 
 
 set(MYDDAS_HEADERS
@@ -21,27 +23,23 @@ set(MYDDAS_HEADERS
         myddas_statistics.h
         myddas_statistics_structs.h
         myddas_structs.h
-        myddas_top_level.c
         myddas_types.h)
 
 set(MYDDAS_UTIL_SOURCES
         myddas_util.c
         myddas_initialization.c)
 
-set (MYDDAS_FLAGS -DUSE_MYDDAS=1)
+
 set_property(GLOBAL
         APPEND PROPERTY
         COMPILE_DEFINITIONS
-        -DUSE_MYDDAS=1)
+        -DMYDDAS=1)
 
-include_directories(. sqlite3)
 add_subdirectory(sqlite3)
 
-if (NOT ANDROID)
 add_subdirectory(mysql)
 add_subdirectory(odbc)
 add_subdirectory(postgres)
-endif()
 
 add_component(myddas
         ${MYDDAS_SOURCES}
