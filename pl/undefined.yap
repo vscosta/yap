@@ -102,29 +102,40 @@ undefined_query(G0, M0, Cut) :-
 '$undefp_search'(M0:G0, MG) :-
     '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
     '$yap_strip_module'(M0:G0,  EM0, GM0),
-    user:unknown_predicate_handler(GM0,EM0,M1:G1),
-    !,
-    expand_goal(M1:G1, MG).
-'$undefp_search'(MG, FMG) :-
-    expand_goal(MG, FMG).
+    user:unknown_predicate_handler(GM0,EM0,MG),
+    !.
+'$undefp_search'(M0:G0, M:G) :-
+'$get_undefined_predicates'(G, M0, G0, M), !.
 
 
 :- abolish('$undefp'/2).
 
 
 % undef handler
-'$undefp'([M0|G0], Action) :-
+'$undefp'([M0|G0],_) :-
     % make sure we do not loop on undefined predicates
-    yap_flag( unknown, Action, fail),
-    '$stop_creeping'(Current),
- %   yap_flag( debug, Debug, false),
-    (
-     '$undefp_search'(M0:G0, NM:NG),
-     ( M0 \== NM -> true  ; G0 \== NG ),
-     NG \= fail
-     ->
-	 yap_flag( unknown, _, Action),
-	 %   yap_flag( debug, _, Debug),
+    setup_call_catcher_cleanup(
+        '$undef_set'(Action,Debug,Current),
+        '$search_def'(M0,G0,MG),
+        Port,
+        '$undef_reset'(Port,M0:G0,MG,Action,Debug,Current)
+    ).
+
+'$undef_set'(Action,Debug,Current) :-
+  yap_flag( unknown, Action, fail),
+    yap_flag( debug, Debug, false),
+    '$stop_creeping'(Current).
+
+'$search_def'(M0,G0,NG:NM) :-
+    '$undefp_search'(M0:G0, NM:NG),
+    !,
+    '$pred_exists'(NG,NM).
+
+'$undef_reset'(exit,_G0,NG:NM,Action,Debug,Current) :-
+    yap_flag( unknown, _, Action),
+    yap_flag( debug, _, Debug),
+    nonvar(NG),
+    nonvar(NM),
 	 (
 	     Current == true
 	  ->
@@ -132,11 +143,12 @@ undefined_query(G0, M0, Cut) :-
 	      '$start_creep'([NM|NG], creep)
 	  ;
 	  '$execute0'(NG, NM)
-	 )
-     ;
-     yap_flag( unknown, _, Action),
-     '$handle_error'(Action,G0,M0)
-    ).
+	 ).
+'$undef_reset'(_,M0:G0,_NG,Action,Debug,_Current) :-
+    yap_flag( unknown, _, Action),
+    yap_flag( debug, _, Debug),
+'$start_creep'([prolog|true], creep), 
+'$handle_error'(Action,G0,M0).
 
 :- '$undefp_handler'('$undefp'(_,_), prolog).
 

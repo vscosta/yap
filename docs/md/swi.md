@@ -56,7 +56,7 @@ Please do refer to the SWI-Prolog home page:
 
 for more information on SWI-Prolog and the SWI packages.
 
-#### Compatibility with the C-Prolog interpreter {#ChYProlog}
+@section ChYProlog Compatibility with the C-Prolog interpreter 
 
 
 YAP was designed so that most C-Prolog programs should run under YAP
@@ -97,8 +97,7 @@ or by using:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Compatibility with the Quintus and SICStus Prolog systems
----------------------------------------------------------
+@section QuiSics Compatibility with the Quintus and SICStus Prolog systems
 
 The Quintus Prolog system was the first Prolog compiler to use Warren's
 Abstract Machine. This system was very influential in the Prolog
@@ -130,8 +129,9 @@ SICStus Prolog or SWI-Prolog.
 
   + This list is incomplete.
 
-Compatibility with the ISO Prolog standard
-------------------------------------------
+
+@section ISOCompat Compatibility with the ISO Prolog standard
+
 
 The Prolog standard was developed by ISO/IEC JTC1/SC22/WG17, the
 international standardization working group for the programming language

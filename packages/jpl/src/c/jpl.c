@@ -48,6 +48,8 @@ refactoring (trivial):
 #define	JPL_C_LIB_VERSION_PATCH	 4
 #define	JPL_C_LIB_VERSION_STATUS "alpha"
 
+#define JPL_DEBUG
+
 #ifndef JPL_DEBUG
 /*#define DEBUG(n, g) ((void)0) */
 #define DEBUG_LEVEL 4
@@ -640,7 +642,7 @@ static JNIEnv*
 jni_env(void) /* economically gets a JNIEnv pointer, valid for this thread */
 { JNIEnv	*env;
 
-  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_8) )
+  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_9) )
   { case JNI_OK:
       return env;
     case JNI_EDETACHED:
@@ -1819,20 +1821,20 @@ jni_create_jvm_c(
 	char				*cpoptp;
     JavaVMOption	opt[MAX_JVM_OPTIONS];
     int			r;
-    jint		n;
+    jint		n = 1;
     int			optn = 0;
     JNIEnv		*env;
 
     JPL_DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
-    vm_args.version = JNI_VERSION_1_6;	    /* "Java 1.2 please" */
+    vm_args.version = JNI_VERSION_1_6zzzz;	    /* "Java 1.2 please" */
     if ( classpath )
 		{
-		cpoptp = (char *)malloc(strlen(classpath)+20);
-		strcpy( cpoptp, "-Djava.class.path="); /* was cpopt */
-		strcat( cpoptp, classpath);					/* oughta check length... */
-      vm_args.options = opt;
-		opt[optn].optionString = cpoptp; /* was cpopt */
-      optn++;
+			cpoptp = (char *)malloc(strlen(classpath) + strlen("-Djava.class.path=")+1);
+			strcpy(cpoptp, "-Djava.class.path="); /* was cpopt */
+			strcat(cpoptp, classpath);			  /* oughta check length... */
+			vm_args.options = opt;
+			opt[optn].optionString = cpoptp; /* was cpopt */
+			optn++;
     }
  /* opt[optn++].optionString = "-Djava.compiler=NONE"; */
  /* opt[optn].optionString = "exit";	    // I don't understand this yet... */
@@ -1841,10 +1843,12 @@ jni_create_jvm_c(
  /* opt[optn++].extraInfo = jvm_abort;		// this function has been moved to jpl_extras.c */
  /* opt[optn++].optionString = "-Xcheck:jni";    // extra checking of JNI calls */
 #if __YAP_PROLOG__
-    opt[optn++].optionString = "-Xmx512m";    // give java enough space
+    opt[optn].optionString = malloc(strlen("-Xmx512m")+1);    // give java enough space
+	strcpy(opt[optn++].optionString,"-Xmx512m");  // give java enough space
 #if defined(__APPLE__)
-    // I can't make jpl work with AWT graphics, without creating the extra thread.
-    opt[optn++].optionString = "-Djava.awt.headless=true";
+	// I can't make jpl work with AWT graphics, without creating the extra thread.
+	opt[optn].optionString = malloc(strlen("-Djava.awt.headless=true") + 1); // give java enough space
+	strcpy(opt[optn++].optionString, "-Djava.awt.headless=true");			 // give java enough space
 #endif
     // opt[optn++].optionString = "-XstartOnFirstThread";
 #endif
@@ -1853,6 +1857,7 @@ jni_create_jvm_c(
  /* opt[optn++].extraInfo = fprintf;		    // no O/P, then SEGV */
  /* opt[optn++].extraInfo = xprintf;		    // one message, then SEGV */
  /* opt[optn++].optionString = "-verbose:jni"; */
+	opt[optn].optionString = NULL;
 
 	if ( jvm_dia != NULL )
 		{

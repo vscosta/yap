@@ -1,4 +1,16 @@
+/**
+ * @file python.c
+ *
+ * @brief data structures and init for Py4YAP library
+ *
+ */
 
+/**
+ * @defgroup PY4YAP
+ * @ingroup python
+ * @brief make Python talk to YAP
+ * @{
+ */
 
 #include "py4yap.h"
 #include <VFS.h>
@@ -18,7 +30,7 @@ functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2
     FUNCTOR_range3, FUNCTOR_sum1, FUNCTOR_pointer1, FUNCTOR_complex2,
     FUNCTOR_plus2, FUNCTOR_sub2, FUNCTOR_mul2, FUNCTOR_div2, FUNCTOR_hat2,
     FUNCTOR_colon2, FUNCTOR_comma2, FUNCTOR_equal2, FUNCTOR_sqbrackets2,
-    FUNCTOR_dot2, FUNCTOR_brackets1;
+  FUNCTOR_dot2, FUNCTOR_brackets1, FUNCTOR_var1;
 
 X_API PyObject *py_Atoms;
 X_API PyObject *py_Yapex;
@@ -98,6 +110,7 @@ static void install_py_constants(void) {
   FUNCTOR_comma2 = PL_new_functor(PL_new_atom(","), 2);
   FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
   FUNCTOR_sqbrackets2 = PL_new_functor(PL_new_atom("[]"), 2);
+  FUNCTOR_var1 = PL_new_functor(PL_new_atom("$VAR"), 1);
 }
 
 foreign_t end_python(void) {
@@ -127,3 +140,5 @@ X_API bool do_init_python(void) {
   //    python_output();
   return true;
 }
+
+// @}

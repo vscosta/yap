@@ -156,11 +156,10 @@ static bool entry_to_dictionary(PyObject *dict, Term targ,
  */
 PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   //
-  YAP_Term yt = YAP_GetFromSlot(t);
   switch (PL_term_type(t)) {
   case PL_VARIABLE: {
-    if (yt == 0) {
-      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, yt, "in term_to_python");
+    if (t == 0) {
+      Yap_ThrowError(SYSTEM_ERROR_INTERNAL, t, "in term_to_python");
     }
     PyObject *out = PyTuple_New(1);
     PyTuple_SET_ITEM(out, 0, PyLong_FromLong((YAP_Int)YAP_GetFromSlot(t)));
@@ -169,6 +168,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     return term_to_nametuple("v", 1, out);
   };
   case PL_ATOM: {
+  YAP_Term yt = YAP_GetFromSlot(t);
     YAP_Atom at = YAP_AtomOfTerm(yt);
     const char *s;
 
@@ -189,6 +189,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     }
   }
   case PL_STRING: {
+  YAP_Term yt = YAP_GetFromSlot(t);
     const char *s = NULL;
     if (YAP_IsAtomTerm(yt)) {
       s = YAP_AtomName(YAP_AtomOfTerm(yt));
@@ -388,6 +389,9 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 	    return dict;
 	  else
 	    return Py_None;         
+        }
+        if (fun == FUNCTOR_var1) {
+	  return Py_None;
         }
        atom_t name;
         int arity;

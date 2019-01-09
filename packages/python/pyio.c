@@ -8,10 +8,16 @@
 
 YAP_Term TermErrStream, TermOutStream;
 
-static void pyflush(StreamDesc *st) {
+static void py_flush(int sno) {
+  StreamDesc *st = YAP_GetStreamFromId(sno);
+  PyObject *fl = 
+    PyObject_GetAttrString(st->u.private_data, "flush");
+  if (fl) {
+    PyObject_CallFunctionObjArgs(fl,
+				 NULL);
+  }
 #if 0
-  st->u.w_irl.ptr[0] = '\0';
-  fprintf(stderr,"%s\n", st->u.w_irl.buf);
+  //  fprintf(stderr,"%s\n", st->u.w_irl.buf);
   term_t tg = python_acquire_GIL();
   if (st->user_name == TermOutStream){
     PySys_WriteStdout("%s", st->u.w_irl.buf);
@@ -31,13 +37,13 @@ static int py_putc(int sno, int ch) {
   StreamDesc *st = YAP_GetStreamFromId(sno);
 #if 0
   if (false && (st->user_name == TermOutStream || st->user_name == TermErrStream)) {
-     size_t sz = put_utf8(st->u.w_irl.ptr, ch);
-     if (sz > 0) {
-	st->u.w_irl.ptr += sz;
-      if (ch == '\n' ||  st->u.w_irl.ptr - st->u.w_irl.buf > 256)
-	{pyflush(st); }
-     }
-        return ch;
+    size_t sz = put_utf8(st->u.w_irl.ptr, ch);
+    if (sz > 0) {
+      st->u.w_irl.ptr += sz;
+      if (  st->u.w_irl.ptr - st->u.w_irl.buf > 256)
+	{py_flush(sno); }
+    }
+    return ch;
   }
 #endif
   unsigned char s[2];
@@ -50,8 +56,8 @@ static int py_putc(int sno, int ch) {
   python_release_GIL(g0);
   if ((err = PyErr_Occurred())) {
     PyErr_SetString(
-        err,
-        "Error in put\n"); // %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
+		    err,
+		    "Error in put\n"); // %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
   }
   return ch;
 }
@@ -63,13 +69,13 @@ static int py_wputc(int sno, int ch) {
   StreamDesc *st = YAP_GetStreamFromId(sno);
 #if 0
   if (false && (st->user_name == TermOutStream || st->user_name == TermErrStream)) {
-     size_t sz = put_utf8(st->u.w_irl.ptr, ch);
-     if (sz > 0) {
-	st->u.w_irl.ptr += sz;
-      if (ch == '\n' ||  st->u.w_irl.ptr - st->u.w_irl.buf > 256)
-	{pyflush(st); }
-     }
-        return ch;
+    size_t sz = put_utf8(st->u.w_irl.ptr, ch);
+    if (sz > 0) {
+      st->u.w_irl.ptr += sz;
+      if (  st->u.w_irl.ptr - st->u.w_irl.buf > 256)
+	{py_flush(sno); }
+    }
+    return ch;
   }
 #endif
   unsigned char s[8];
@@ -82,8 +88,8 @@ static int py_wputc(int sno, int ch) {
   python_release_GIL(g0);
   if ((err = PyErr_Occurred())) {
     PyErr_SetString(
-        err,
-        "Error in put\n"); // %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
+		    err,
+		    "Error in put\n"); // %s:%s:%d!\n", __FILE__, __FUNCTION__, __LINE__);
   }
   return ch;
 }
@@ -103,7 +109,7 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   if (pystream == NULL || pystream == Py_None) {
     python_release_GIL(ctk);
     return NULL;
-  }
+  } 
   StreamDesc *st = YAP_RepStreamFromId(sno);
   st->name = YAP_LookupAtom(name);
   if (strcmp(name, "sys.stdout") == 0 || strcmp(name, "sys.stderr") == 0 ||
@@ -112,16 +118,16 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   }
   /*
     if (!outbuf)
-       outbuf =   ( unsigned char *)malloc(1024);
+    outbuf =   ( unsigned char *)malloc(1024);
     st->u.w_irl.ptr = st->u.w_irl.buf = outbuf;
 
 
-]\]
+    ]\]
     st->user_name = TermOutStream;
-  } else if (strcmp(name, "sys.stderr") == 0) {
+    } else if (strcmp(name, "sys.stderr") == 0) {
     st->user_name = TermErrStream;
     if (!errbuf)
-     errbuf = ( unsigned char *)malloc(1024);
+    errbuf = ( unsigned char *)malloc(1024);
     st->u.w_irl.ptr = st->u.w_irl.buf = errbuf;
     //  } else if (strcmp(name, "input") == 0) {
     //pystream = PyObject_Call(pystream, PyTuple_New(0), NULL);
@@ -131,16 +137,9 @@ static void *py_open(VFS_t *me, const char *name, const char *io_mode,
   st->vfs = me;
   st->file = NULL;
   python_release_GIL(ctk);
+  if (st->status & (Output_Stream_f | Append_Stream_f))
+    py_flush(sno);
   return st;
-}
-
-static void py_flush(int sno) {
-  StreamDesc *s = YAP_GetStreamFromId(sno);
-  term_t tg = python_acquire_GIL();
-  PyObject *flush = PyObject_GetAttrString(s->u.private_data, "flush");
-  pyflush(s);
-  PyObject_CallFunction(flush, NULL);
-  python_release_GIL(tg);
 }
 
 static bool py_close(int sno) {
@@ -158,49 +157,36 @@ static bool py_close(int sno) {
 }
 
 static bool pygetLine(StreamDesc *rl_iostream, int sno) {
-  // term_t ctk = python_acquire_GIL();
   const char *myrl_line;
-  PyObject *user_line, *readl = NULL;
+  PyObject *user_line;
   PyObject *err;
   StreamDesc *s = YAP_GetStreamFromId(sno);
-  // term_t tg = python_acquire_GIL();
-  PyObject_Print(s->u.private_data,stderr,0);
+  term_t tg = python_acquire_GIL();
+  //  PyObject_Print(s->u.private_data,stderr,0);
   if (PyFunction_Check( s->u.private_data )) {
-    readl =  s->u.private_data;
+    user_line = PyObject_CallFunctionObjArgs( s->u.private_data ,
+					      NULL);
+  } else if ( s->u.private_data == NULL) {
+    PyObject *readl = 
+      PyObject_GetAttrString(s->u.private_data, "readline");
+    if (!readl) {
+      readl = 
+	PyObject_GetAttrString(s->u.private_data, "read");
     }
-  if (!strcmp(RepAtom(s->name)->StrOfAE, "user_input")) {
-    // note that input may change
-    readl =  PythonLookupSpecial("input");
+    if (readl)
+      user_line = PyObject_CallFunctionObjArgs(readl,
+					       NULL);
   }
-  if (readl == NULL) {
-      readl = PythonLookup("readline", s->u.private_data);
+  python_release_GIL(tg);
+  if ((err = PyErr_Occurred())) {
+    if (PyErr_GivenExceptionMatches(err, PyExc_EOFError))
+      return NULL;
+    PyErr_Print();
+    Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), NULL);
   }
-    if (readl == NULL) {
-      readl = PythonLookup("read", s->u.private_data);
-    }
-    if (readl == NULL) {
-      if ((err = PyErr_Occurred())) {
-        PyErr_Print();
-        Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), NULL);
-      }
-    }
-  user_line = PyObject_CallFunctionObjArgs(readl,
-                                    NULL);
-      if ((err = PyErr_Occurred())) {
-           PyErr_Print();
-      Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
-      }
   myrl_line = PyUnicode_AsUTF8(user_line);
   if (myrl_line == NULL)
     return NULL;
-  if ((err = PyErr_Occurred())) {
-
-    if (PyErr_GivenExceptionMatches(err, PyExc_EOFError))
-      return NULL;
-        PyErr_Print();
-    Yap_ThrowError(SYSTEM_ERROR_GET_FAILED, YAP_MkIntTerm(sno), err);
-
-  }
   rl_iostream->u.irl.ptr = rl_iostream->u.irl.buf = (unsigned char *)myrl_line;
   return true;
 }
@@ -247,11 +233,11 @@ static int py_wgetc(int sno) {
 }
 
 /**
-  @brief  Yap_ReadlinePeekChar peeks the next char from the
-  readline buffer, but does not actually grab it.
+   @brief  Yap_ReadlinePeekChar peeks the next char from the
+   readline buffer, but does not actually grab it.
 
-  The idea is to take advantage of the buffering. Special care must be taken
-  with EOF, though.
+   The idea is to take advantage of the buffering. Special care must be taken
+   with EOF, though.
 
 */
 static int py_peek(int sno) {
@@ -280,7 +266,7 @@ static int py_peek(int sno) {
 static int64_t py_seek(int sno, int64_t where, int how) {
   StreamDesc *g0 = YAP_RepStreamFromId(sno);
   term_t s0 = python_acquire_GIL();
-  PyObject *fseek = PyObject_GetAttrString(g0->u.private_data, "seek");
+  PyObject *fseek =  PyObject_GetAttrString(g0->u.private_data, "seek");
   PyObject *pyr = PyObject_CallFunctionObjArgs(fseek, PyLong_FromLong(where),
                                                PyLong_FromLong(how), NULL);
   python_release_GIL(s0);
@@ -311,7 +297,7 @@ bool init_python_vfs(void) {
   initialized = true;
   pystream.name = "python stream";
   pystream.vflags =
-      VFS_CAN_WRITE | VFS_CAN_EXEC | VFS_CAN_READ | VFS_HAS_PREFIX;
+    VFS_CAN_WRITE | VFS_CAN_EXEC | VFS_CAN_READ | VFS_HAS_PREFIX;
   pystream.prefix = "/python/";
   pystream.suffix = NULL;
   pystream.open = py_open;

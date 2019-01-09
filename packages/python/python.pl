@@ -23,6 +23,7 @@
 	   python_run_command/1,
 	   python_run_script/2,
 	   python_assign/3,
+	   python_represents/2,
 	   python_import/1,
 	   array_to_python_list/4,
 	   array_to_python_tuple/4,

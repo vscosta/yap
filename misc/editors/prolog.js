@@ -2,14 +2,14 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
-if (typeof exports == "object" && typeof module == "object") // CommonJS
-  mod(require("codemirror/lib/codemirror"));
-else if (typeof define == "function" && define.amd) // AMD
-  define([ "codemirror/lib/codemirror" ], mod);
-else // Plain browser env
-  mod(CodeMirror);
+ if (typeof exports == "object" && typeof module == "object") // CommonJS
+    mod(require("../../lib/codemirror"));
+  else if (typeof define == "function" && define.amd) // AMD
+    define(["../../lib/codemirror"], mod);
+  else // Plain browser env
+    mod(CodeMirror);
 })(function(CodeMirror) {
-"use strict";
+  "use strict";
 
 CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   function chain(stream, state, f) {
@@ -17,7 +17,8 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
     return f(stream, state);
   }
 
-  var cm_;
+  var cm_ = null;
+var document = CodeMirror.doc;
   var curLine;
 
   /*******************************
@@ -34,9 +35,26 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       parserConfig.groupedIntegers || false; /* tag{k:v, ...} */
   var unicodeEscape =
       parserConfig.unicodeEscape || true; /* \uXXXX and \UXXXXXXXX */
-  var multiLineQuoted = parserConfig.multiLineQuoted || true; /* "...\n..." */
-  var quoteType = parserConfig.quoteType ||
-                  {'"' : "string", "'" : "qatom", "`" : "bqstring"};
+  var multiLineQuoted = parserConfig.multiLineQuotedd || true;
+  var singleQuoted = "atom";
+  if (parserConfig.singleQuote === "string" ||
+parserConfig.singleQuote === "codes" ||
+parserConfig.singleQuote === "chars")
+    singleQuoted = parserConfig.singleQuote;
+  var doubleQuoted = "string";
+  if (parserConfig.doubleQuote === "atom" ||
+parserConfig.doubleQuote === "codes" ||
+parserConfig.doubleQuote === "chars")
+    doubleQuoted = parserConfig.doubleQuote;
+  var backQuoted = "atom";
+  if (parserConfig.backQuote === "string" ||
+parserConfig.backQuote === "codes" ||
+parserConfig.backQuote === "chars")
+    backQuoted = parserConfig.backQuote;
+
+  var quoteType = {"\"" : doubleQuoted, "`" : backQuoted, "'" : singleQuoted};
+
+  var singletonVars = new Map();
 
   var isSingleEscChar = /[abref\\'"nrtsv]/;
   var isOctalDigit = /[0-7]/;
@@ -55,25 +73,23 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   var exportedMsgs = [];
 
   function getLine(stream) {
+if (stream)
     return stream.lineOracle.line;
-    //  return cm_.getDoc().getCursor().line;
+    if (document == null)
+      return 0;
+    return document.getCursor().line;
   }
 
   // var ed =
   // window.document.getElementsByClassName("CodeMirror")[0].CodeMirror.doc.getEditor();
 
-  function rmError(stream) {
-    if (cm_ == null)
-    return;
-    var doc = cm_.getDoc();
+  function rmError(document,stream) {
     var l = getLine(stream);
-    // stream.lineOracle.line;
     for (var i = 0; i < errorFound.length; i++) {
-      var elLine = doc.getLineNumber(errorFound[i].line);
+      var elLine = errorFound[i].document.getLineNumber(errorFound[i].line);
       if (elLine == null || l === elLine) {
         errorFound.splice(i, 1);
         i -= 1;
-        console.log(-elLine);
       }
     }
   }
@@ -81,30 +97,29 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   function mkError(stream, severity, msg) {
     if (stream.pos == 0)
       return;
-    var l = cm_.getDoc().getLineHandle(getLine(stream));
+    var l = getLine(stream);
     var found = errorFound.find(function(
         element) { return element.line === l && element.to == stream.pos; });
     if (!found) {
-      console.log( getLine(stream) );
-    errorFound.push({
+      //console.log(getLine(stream));
+      errorFound.push({
         "line" : l,
         "from" : stream.start,
         "to" : stream.pos,
         severity : severity,
-        message : msg
+        message : msg,
+document: document
       });
     }
   }
 
   function exportErrors(text) {
-    if (cm_ == null)
+    if (document == null)
       return;
-    var doc = cm_.getDoc();
-
     exportedMsgs.length = 0;
     for (var i = 0; i < errorFound.length; i += 1) {
       var e = errorFound[i];
-      var l = doc.getLineNumber(e.line);
+      var l = document.getLineNumber(e.line);
       if (l == null) {
         errorFound.splice(i, 1);
         i -= 1;
@@ -118,6 +133,30 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       });
     }
     return exportedMsgs;
+  }
+
+  function maybeSingleton(stream, key) {
+    //console.log(key);
+    var v = singletonVars.get(key);
+    if (v != undefined) {
+      v.singleton = false;
+    } else {
+      singletonVars.set(
+          key, {'singleton' : true, 'from' : stream.start, to : stream.pos});
+    }
+    //console.log(singletonVars);
+  }
+
+  function outputSingletonVars(stream) {
+    var key, v;
+    for (var key in singletonVars.keys()) {
+      var v = singletonVars[key];
+ if (v != undefined && v.singleton) {
+        mkError(stream, "warning", key + " singleton variable");
+      }
+    }
+    singletonVars.clear();
+  // console.log("reset");
   }
 
   CodeMirror.registerHelper("lint", "prolog", exportErrors);
@@ -260,6 +299,8 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   function plTokenBase(stream, state) {
     var ch = stream.next();
 
+    state.curToken = ch;
+
     if (ch == "(") {
       if (state.lastType == "functor") {
         state.nesting.push({
@@ -282,6 +323,7 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
 
     if (ch == "{" && state.lastType == "tag") {
       state.nesting.push({
+        marker: ch,
         tag : state.tagName,
         column : stream.column(),
         leftCol : state.tagColumn,
@@ -292,8 +334,12 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       return ret("dict_open", "bracket");
     }
 
-    if (ch == "/" && stream.eat("*"))
-      return chain(stream, state, plTokenComment);
+    if (ch == "/") {
+var next = stream.peek();
+if (next == '*') {
+     return chain(stream, state, plTokenComment);
+    }
+    }
 
     if (ch == "%") {
       stream.skipToEnd();
@@ -305,14 +351,22 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
     if (isSoloChar.test(ch)) {
       switch (ch) {
       case ")": {
+if (state.nesting.marker != "(") {
+          mkError(stream, "error", state.nesting.marker + " closed by )");
+}
         state.nesting.pop();
       } break;
       case "]":
-
+if (state.nesting.marker != "[") {
+          mkError(stream, "error", state.nesting.marker + " closed by ]");
+}
         state.nesting.pop();
         return ret("list_close", "bracket");
       case "}": {
-        var nest = nesting(state);
+ if (state.nesting.marker != "{") {
+          mkError(stream, "error", state.nesting.marker + " closed by }");
+}
+       var nest = nesting(state);
         var type = (nest && nest.tag) ? "dict_close" : "brace_term_close";
 
         state.nesting.pop();
@@ -323,22 +377,38 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
           state.commaAtEOL = true;
         nextArg(state);
         /*FALLTHROUGH*/
+        if (!state.commaAtEOL)
+          stream.eatSpace();
+        var nch = stream.peek();
+        if (nch == ';' || nch == ',') {
+          mkError(stream, "error", "\",\" followed by " + stream.peek());
+          return ret("solo", "error", ",");
+        }
         if (isControl(state)) {
-          if (!state.commaAtEOL)
-            stream.eatSpace();
-          if (!stream.peek("[")) {
+          if ("[" != ch) {
             if (state.inBody) {
               state.goalStart = true;
             } else {
+              mkError(stream, "error", "\",\" followed by " + stream.peek());
               return ret("solo", "error", ",");
             }
           }
         }
+        return ret('solo', 'tag', ",");
       } break;
       case ";":
+        if (!state.commaAtEOL)
+          stream.eatSpace();
+        ch = stream.peek();
+        if (ch == ';' || ch == ',') {
+          mkError(stream, "error", "\",\" followed by " + stream.peek());
+          return ret("solo", "error", ";");
+        }
         if (isControl(state)) {
-          if (!state.inBody)
+          if (!state.inBody) {
+            mkError(stream, "error", "unexpected ;");
             return ret("solo", "error", ";");
+          }
           state.goalStart = true;
         }
         break;
@@ -399,8 +469,10 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       if (stream.eat(/'/)) { /* 0' */
         var next = stream.next();
         if (next == "\\") {
-          if (!readEsc(stream))
+          if (!readEsc(stream)) {
+            mkError(stream, "error", "bad escape");
             return ret("error", "error");
+          }
         }
         return ret("code", "number");
       }
@@ -423,22 +495,27 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
           mkError(stream, "error", "Clause over before closing all brackets");
           state.nesting = [];
         }
-  //  var start = cm_.getCursor("end");
-    //cm_.setBookmark(start, {"widget" : document.createTextNode("&bull;")});
+        //  var start = cm_.getCursor("end");
+        // cm_.setBookmark(start, {"widget" :
+        // document.createTextNode("&bull;")});
         state.inBody = false;
         state.goalStart = true;
+        outputSingletonVars(stream);
         stream.eat(ch);
+state.headStart = true;
         return ret("fullstop", "def", atom);
 
       } else {
         if (atom === ":-" && state.headStart) {
-
+          state.headStart = false;
+          state.inBody = true;
+          state.goalStart = true;
           return ret("directive", "attribute", atom);
 
         } else if (isNeck.test(atom)) {
           state.inBody = true;
           state.goalStart = true;
-          return ret("neck", "property", atom);
+          return ret("neck", "def", atom);
         } else if (isControl(state) && isControlOp.test(atom)) {
           state.goalStart = true;
           return ret("symbol", "meta", atom);
@@ -446,7 +523,7 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
           return ret("symbol", "meta", atom);
       }
     }
-    stream.eatWhile(/[\w_]/);
+    stream.eatWhile(/\w/);
     if (composeGoalWithDots) {
       while (stream.peek() == ".") {
         stream.eat('.');
@@ -455,20 +532,22 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
           stream.backUp(1);
           break;
 
-        } else if (/[\w_]/.test(ch)) {
-          stream.eatWhile(/[\w_]/);
+        } else if (/\w/.test(ch)) {
+          stream.eatWhile(/\w/);
         } else if (ch == "'") {
 
           stream.eat();
 
           stream.eatWhile(/[\w_]/);
           if (ch == ".") {
+            mkError(stream, "error", "bad dotted name");
             return ret("atom", "error");
           }
         }
       }
     }
     var word = stream.current();
+    state.curToken = word;
     var extra = "";
     if (stream.peek() == "{" && dicts) {
       state.tagName = word; /* tmp state extension */
@@ -478,24 +557,26 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       if (word.length == 1) {
         return ret("var", "variable-2", word);
       } else {
-        var sec = word.charAt(1);
-        if (sec == sec.toUpperCase())
-          return ret("var", "variable-2", word);
+        return ret("var", "variable-2", word);
       }
-      return ret("var", "variable-2", word);
-    } else if (ch == ch.toUpperCase()) {
+    } else if (ch.match(/[A-Z]/)) {
+      maybeSingleton(stream, word);
       return ret("var", "variable-1", word);
-    } else if (stream.peek() == "(") {
-      state.functorName = word; /* tmp state extension */
-      state.functorColumn = stream.column();
-      if (state.headStart) {
+    }
+if (state.headStart) {
         state.headStart = false;
-        if (state.headFunctor != word) {
+        if (state.headFunctor !== word) {
           state.headFunctor = word;
           return ret("functor", "def", word);
         }
+return ret("functor", "atom", word);
+
       }
-      if (builtins[word] && isControl(state))
+     
+    if (stream.peek() == "(") {
+      state.functorName = word; /* tmp state extension */
+      state.functorColumn = stream.column();
+       if (builtins[word] && isControl(state))
         return ret("functor", "keyword", word);
       return ret("functor", "atom", word);
     } else if ((extra = stream.eatSpace())) {
@@ -519,8 +600,9 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
       if (builtins[word] && isControl(state))
         return ret("functor", "keyword", w);
       return ret("functor", "atom", w);
-    } else if (builtins[word] && isControl(state))
+    } else if (builtins[word] && isControl(state)) {
       return ret("atom", "keyword", word);
+    }
     return ret("atom", "atom", word);
   }
 
@@ -666,7 +748,7 @@ IfTrue
 
               CodeMirror.defineOption(
                   "prologKeys", true, function(cm, editor, prev) {
-                    cm_ = cm;
+                    document = cm.getDoc();
                     if (prev && prev != CodeMirror.Init)
                       cm.removeKeyMap("prolog");
                     if (true) {
@@ -1336,10 +1418,9 @@ IfTrue
           setArgAlignment(state);
         return null;
       }
-      if (state.curLine == null || state.pos == 0)
-        rmError(stream);
 
       var style = state.tokenize(stream, state);
+      //console.log(state.curToken);
 
       if (stream.eol()) {
         if (stream.pos > 0)
@@ -1386,7 +1467,7 @@ IfTrue
     blockCommentEnd : "*/",
     blockCommentContinue : " * ",
     comment : "%",
-    fold : "indent"
+    matchBrackets : true
   };
   return external;
 });

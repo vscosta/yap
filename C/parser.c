@@ -58,14 +58,14 @@ extern const char *Yap_tokText(void *tokptr);
 static void syntax_msg(const char *msg, ...) {
   CACHE_REGS
   va_list ap;
-  if (!LOCAL_ErrorMessage ||
+  if (!LOCAL_Error_TYPE ||
       (LOCAL_Error_TYPE == SYNTAX_ERROR &&
-       LOCAL_tokptr->TokPos < LOCAL_ActiveError->parserPos)) {
+       LOCAL_toktide->TokPos < LOCAL_ActiveError->parserPos)) {
     if (!LOCAL_ErrorMessage) {
       LOCAL_ErrorMessage = malloc(MAX_ERROR_MSG_SIZE + 1);
     }
-    LOCAL_ActiveError->parserLine = LOCAL_tokptr->TokLine;
-    LOCAL_ActiveError->parserPos = LOCAL_tokptr->TokPos;
+    LOCAL_ActiveError->parserLine = LOCAL_toktide->TokLine;
+    LOCAL_ActiveError->parserPos = LOCAL_toktide->TokPos;
     va_start(ap, msg);
     vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, msg, ap);
     va_end(ap);
@@ -939,7 +939,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
     Yap_CloseSlots(sls);
   }
   if (LOCAL_tokptr != NULL && LOCAL_tokptr->Tok != Ord(eot_tok)) {
-    LOCAL_Error_TYPE = SYNTAX_ERROR;
+    LOCAL_Error_TYPE =SYNTAX_ERROR; 
     if (LOCAL_tokptr->TokNext) {
       size_t sz = strlen("bracket or operator expected.");
       LOCAL_ErrorMessage =malloc(sz+1);

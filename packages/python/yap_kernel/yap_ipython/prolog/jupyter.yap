@@ -8,7 +8,7 @@
 :- yap_flag(gc_trace,verbose).
 /*
   :- module( jupyter,
-              [jupyter_query/3,
+              [jupyter_queryl/3,
                blank/1,
 	       streams/2
            ]
@@ -27,6 +27,8 @@
 
 :- python_import(sys).
 
+
+
 jupyter_query(Caller, Cell, Line ) :-
     jupyter_cell(Caller, Cell, Line).
 
@@ -38,7 +40,7 @@ jupyter_cell( _Caller, _, Line ) :-
 	blank( Line ),
 	!.
 jupyter_cell(Caller, _, Line ) :-
-  Query = Caller,
+    Query = Caller,
     catch(
 	python_query(Query,Line),
 	error(A,B),
@@ -67,7 +69,7 @@ jupyter_consult(Cell) :-
 	(
 	    Options = [],
 	    open_mem_read_stream( Cell, Stream),
-	    load_files(user:'jupyter cell',[stream(Stream)| Options])
+	    load_files(Stream,[stream(Stream)| Options])
 	),
 	error(A,B),
 	(close(Stream), system_error(A,B))

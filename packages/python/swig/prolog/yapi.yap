@@ -25,18 +25,19 @@
 
 
 :- python_import(yap4py.yapi).
+:- python_import(json).
 %:- python_import(gc).
 
 :- meta_predicate( yapi_query(:,+) ).
 
 %:- start_low_level_trace.
 
-	%% @pred yapi_query( + VarList, - Dictionary)
-	%%
-	%% dictionary, Examples
-	%%
-	%%
-	yapi_query( VarNames, Self ) :-
+%% @pred yapi_query( + VarList, - Dictionary)
+%%
+%% dictionary, Examples
+%%
+%%
+yapi_query( VarNames, Self ) :-
 		show_answer(VarNames, Dict),
 		Self.bindings := Dict.
 
@@ -47,6 +48,9 @@ set_preds :-
 fail,
 	current_predicate(P, Q),
 	functor(Q,P,A),
+
+ 	current_predicate(P, Q),
+ 	functor(Q,P,A),
 	atom_string(P,S),
 	catch(
 	      := yap4py.yapi.named( S, A),
@@ -70,21 +74,46 @@ argi(N,I,I1) :-
 
 python_query( Caller, String ) :-
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, VarNames, Status, Bindings),
+	query_to_answer( Goal, _, Status, VarNames, Bindings),
 	Caller.port := Status,
-	write_query_answer( Bindings ),
-	nl(user_error),
-	Caller.answer := {},
-	maplist(in_dict(Caller.answer), Bindings).
+	       output(Caller, Bindings).
+
+output( _, Bindings ) :-
+    write_query_answer( Bindings ),
+    fail.
+output( Caller, Bindings ) :-
+    answer := {},
+    foldl(ground_dict(answer), Bindings, [], Ts),
+    term_variables( Ts, Hidden),
+    foldl(bv, Hidden , 0, _),
+    maplist(into_dict(answer),Ts),
+    Caller.answer := json.dumps(answer),
+    S := Caller.answer,
+		format(user_error, '~nor ~s~n~n',S),
+		fail.
+output(_Caller, _Bindings).
+
+bv(V,I,I1) :-
+    atomic_concat(['__',I],V),
+    I1 is I+1.
+
+into_dict(D,V0=T) :-
+    python_represents(D[V0], T).
+    
+/**
+ *
+ */
+ground_dict(_Dict,var([_V]), I, I) :-
+    !.
+ground_dict(_Dict,var([V,V]), I, I) :- 
+    !.
+ground_dict(Dict, nonvar([V0|Vs],T),I0, [V0=T| I0]) :-
+    !,
+    ground_dict(Dict, var([V0|Vs]),I0, I0).
+ground_dict(Dict, var([V0,V1|Vs]), I, I) :- 
+    !,
+		Dict[V1] := V0,
+		ground_dict(Dict, var([V0|Vs]), I, I).
 
 
-in_dict(Dict, var([V0,V|Vs])) :- !,
-	Dict[V] := V0,
-	in_dict( Dict, var([V0|Vs])).
-in_dict(_Dict, var([_],_G)) :- !.
-in_dict(Dict, nonvar([V0|Vs],G)) :- !,
-term_to_atom(G,A,_),
-	Dict[V0] := A,
-	in_dict( Dict, nonvar(Vs, G) ).
-in_dict(_Dict, nonvar([],_G)) :- !.
-in_dict(_, _)
+

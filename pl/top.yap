@@ -330,10 +330,10 @@ live :-
 
 
 '$process_answer'(Vs, LGs, Bindings) :-
-'$purge_dontcares'(Vs,IVs),
-'$sort'(IVs, NVs),
-'$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-'$name_vars_in_goals'(LAnsw, Vs, Bindings).
+    '$purge_dontcares'(Vs,IVs),
+    '$sort'(IVs, NVs),
+    '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
+    '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
 % *-> at this point would require compiler support, which does not exist.
@@ -494,9 +494,7 @@ write_query_answer( Bindings ) :-
 	'$write_goal_output'(G1, First, NG, Next, IG),
 	'$write_vars_and_goals'(LG, Next, IG).
 
-'$goal_to_string'(Format, G, String) :-
-	format(codes(String),Format,G).
-
+ 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
     ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
@@ -516,14 +514,13 @@ write_query_answer( Bindings ) :-
 	G = [_|_], !,
 	% dump on string first so that we can check whether we actually
 	% had any output from the solver.
-	'$goal_to_string'(Format, G, String),
-	( String == [] ->
+	format(string(String),Format,G),
+	( String == `` ->
 	    % we didn't
 	    IG = NG, First = Next
 	;
 	    % we did
-	    ( First = first -> true ; format(user_error,',~n',[]) ),
-	    format(user_error, '~s', [String]),
+	    format(user_error, '~N~s', [String]),
 	    NG = [G|IG]
 	).
 '$write_goal_output'(_-G, First, [G|NG], next, NG) :- !,
@@ -561,7 +558,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals1'([], I, I).
 '$name_vars_in_goals1'([V|NGVL], I0, IF) :-
-	I is I0+1,
+	I is I0+1, 
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
 	V = '$VAR'(Name),

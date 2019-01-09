@@ -1,11 +1,12 @@
-The Problog-I Language and Learning System   {#problog}
-=====================================
+@defgroup problog The Problog-I Language and Learning System 
 
-[TOC]
+@{
 
 This document is intended as a user guide for the users of ProbLog-I.
 ProbLog is a probabilistic Prolog, a probabilistic logic programming
 language, which is integrated in YAP-Prolog. Most of the work in ProbLog is now based on(Prolog-II), but we still maintain ProbLog-I in order to experiment with close integration of probabilistic nd logical systems.
+
+[TOC]
 
 @section InstallingProbLog Installing ProbLog
 

@@ -1,23 +1,21 @@
-@defgroup YAPProgramming Programming in YAP
-
-@{
+Programming in YAP   {#YAPProgramming}
+=================
 
 [TOC]
 
-@}
 
 @defgroup load_files Loading and Organizing YAP Programs
-
+@ingroup YAPProgramming
 @{
 
 We present the main predicates and directives available to load
     files and to control the Prolog environment.
-
-[TOC]
+	[TOC]
 
 @}
 
-@defgroup YAPModules The YAP Module system
+@section YAPModules The YAP Module system
+@ingroup YAPProgramming
 
 @{
     The YAP module system is based on the Quintus/SISCtus module
@@ -57,7 +55,7 @@ We present the main predicates and directives available to load
     it starts consulting a file, and resets it at the end.  One can set
   the type-in module permanently by using the built-in `module/1`.
 
-  ### Explicit Naming                         {#ExplicitNaming}
+  @subsection ExplicitNaming Explicit Naming 
 
   The module system allows one to _explicitly_ specify the source mode for
   a clause by prefixing a clause with its module, say:
@@ -245,9 +243,9 @@ We present the main predicates and directives available to load
 
   The state of  the module system after this error is undefined.
 
-  ### Built-In predicates               {#ModuleBuiltins)
+@subsection  ModuleBuiltins Built-In predicates
 
-  @\pred module(+ M:atom,+ L:list ) is directive
+  @pred module(+ M:atom,+ L:list ) is directive
     the current file defines module _M_ with exports _L_. The list may include
 
     + predicate indicators
@@ -337,7 +335,7 @@ We present the main predicates and directives available to load
 
       + <b>library( +File )</b>
          a library file to import into the current module.
-
+ 
       + <b>hide( +Opt)</b>
           if  _Opt_ is `false`, keep source code for current module, if `true`, disable.
 
