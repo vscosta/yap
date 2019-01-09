@@ -690,6 +690,8 @@ void init_myddas(void) {
     return;
   }
 #if MYDDAS
+Yap_InitMYDDAS_SharedPreds();
+  Yap_InitBackMYDDAS_SharedPreds();
 #define stringify(X) _stringify(X)
 #define _stringify(X) #X
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;

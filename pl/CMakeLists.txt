@@ -79,7 +79,7 @@ else ()
             DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
             )
     add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND yap-bin -B
+            COMMAND yap-bin -b
             VERBATIM
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )

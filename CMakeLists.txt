@@ -83,8 +83,9 @@ endif ()
 
 ## options: libraries
 option(WITH_THREADED_CODE "threaded code" ON)
+if (NOT ANDROID)
 option(WITH_MPI "Interface to OpenMPI/MPICH" ON)
-option(WITH_READLINE "use readline or libedit" ON)
+  endif()
 option(WITH_JIT  "just in Time Clause Compilation" OFF)
 
 if (APPLE)
@@ -540,6 +541,7 @@ endif (HAVE_GCC)
 #option (YAP_SWI_IO ON)
 
 #TODO:
+#TODO:
 if (WITH_CALL_TRACER)
   list(APPEND YAP_SYSTEM_OPTIONS "call_tracer " ${YAP_SYSTEM_OPTIONS})
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
@@ -560,6 +562,47 @@ IF (WITH_R)
   add_subDIRECTORY(packages/real)
 ENDIF (WITH_R)
 
+
+include(Sources)
+
+
+ADD_SUBDIRECTORY(OPTYap)
+ADD_SUBDIRECTORY(os)
+ADD_SUBDIRECTORY(library/dialect/swi/fli)
+ADD_SUBDIRECTORY(CXX)
+
+add_subDIRECTORY(utf8proc )
+
+   if(ANDROID)
+
+       set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
+       add_subdirectory(packages/swig/android)
+       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
+       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${CMAKE_ANDROID_ARCH_ABI})
+
+   else()
+       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
+
+endif()
+    if (MYSQL_FOUND)
+      add_definitions( -DMYDDAS_MYSQL=1)
+    endif ()
+
+    if (ODBC_FOUND)
+      add_definitions( -DMYDDAS_ODBC=1)
+    endif ()
+
+    if (POSTGRES_FOUND)
+      add_definitions( -DMYDDAS_POSTGRES=1)
+  endif()
+#utf-8 is not aPconn option
+# we use the nice UTF-8 package
+#available at the Julia project
+
+
+add_subDIRECTORY( packages/myddas )
+
+
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
 List(APPEND YLIBS $<TARGET_OBJECTS:utf8proc>)
@@ -572,46 +615,10 @@ if (WIN32 OR ANDROID)
   endif ()
   if (ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAPsqlite3>)
-   List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
+    List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
 
   endif ()
 endif ()
-
-include(Sources)
-
-
-   if(ANDROID)
-
-       set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
-       add_subdirectory(packages/swig/android)
-       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
-
-   else()
-       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
-
-endif()
-    if (WITH_MYSQL)
-      add_definitions( -DMYDDAS_MYSQL=1)
-    endif ()
-
-    if (WITH_ODBC)
-      add_definitions( -DMYDDAS_ODBC=1)
-    endif ()
-
-    if (WITH_POSTGRES)
-      add_definitions( -DMYDDAS_POSTGRES=1)
-  endif()
-#utf-8 is not aPconn option
-# we use the nice UTF-8 package
-#available at the Julia project
-
-ADD_SUBDIRECTORY(OPTYap)
-ADD_SUBDIRECTORY(os)
-ADD_SUBDIRECTORY(library/dialect/swi/fli)
-ADD_SUBDIRECTORY(CXX)
-
-add_subDIRECTORY(utf8proc )
-add_subDIRECTORY( packages/myddas )
 
 
 add_library( # Sets the name of the library.
@@ -637,7 +644,7 @@ if (READLINE_FOUND)
 endif ()
 
 if (ANDROID)
-  target_link_libraries(libYap  android log)
+  target_link_libraries(libYap sqliteX  android log)
 endif()
 
 if (WIN32)

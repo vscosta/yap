@@ -29,17 +29,13 @@ set(MYDDAS_UTIL_SOURCES
         myddas_util.c
         myddas_initialization.c)
 
-
-set_property(GLOBAL
-        APPEND PROPERTY
-        COMPILE_DEFINITIONS
-        -DMYDDAS=1)
-
 add_subdirectory(sqlite3)
 
 add_subdirectory(mysql)
 add_subdirectory(odbc)
 add_subdirectory(postgres)
+
+       set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
 
 add_component(myddas
         ${MYDDAS_SOURCES}
