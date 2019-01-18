@@ -1,4 +1,4 @@
-set(PL_BOOT_SOURCES
+set(11PL_BOOT_SOURCES
   absf.yap
   android.yap
         arith.yap
@@ -76,21 +76,21 @@ elseif(CMAKE_CROSSCOMPILING)
             )
 else ()
     add_custom_target(STARTUP ALL
-            DEPENDS  ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
+            DEPENDS  ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
             )
-    add_custom_command(OUTPUT ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-            COMMAND yap-bin -b
+    add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
+            COMMAND yap-bin -B ${CMAKE_SOURCE_DIR}/pl/boot.yap
             VERBATIM
             DEPENDS ${PL_BOOT_SOURCES} yap-bin
             )
 
 #    install(CODE "execute_process(COMMAND ./yap -B
-#      WORKING_DIRECTORY ${CMAKE_TOP_BINARY_DIR})"
+#      WORKING_DIRECTORY ${CMAKE_BINARY_DIR})"
 #            DEPENDS Py4YAP ${PL_BOOT_SOURCES} yap-bin )
 
 
-    install(FILES ${CMAKE_TOP_BINARY_DIR}/${YAP_STARTUP}
-        DESTINATION ${YAP_INSTALL_DATADIR}/pl)
+    install(FILES ${CMAKE_BINARY_DIR}/${YAP_STARTUP}
+        DESTINATION ${YAP_INSTALL_LIBDIR})
 
 endif()
 
