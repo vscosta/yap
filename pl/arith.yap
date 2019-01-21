@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -118,19 +119,21 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 
 '$c_built_in'(IN, M, H, OUT) :-
 	get_value('$c_arith',true), !,
-	do_c_built_in(IN, M, H, OUT).
+	'$yap_strip_module'(M:IN, M1,  G1),
+	do_c_built_in(G1, M1, H, OUT).
 '$c_built_in'(IN, _, _H, IN).
 
 
-do_c_built_in(G, M, H, OUT) :- var(G), !,
-	do_c_built_metacall(G, M, H, OUT).
-do_c_built_in(Mod:G, _, H, OUT) :-
-	'$yap_strip_module'(Mod:G, M1,  G1),
-	var(G1), !,
-	do_c_built_metacall(G1, M1, H, OUT).
+do_c_built_in(G1, M1, H, OUT) :-
+    var(G1), !,
+    do_c_built_metacall(G1, M1, H, OUT).
+do_c_built_in(G1, M1, H, OUT) :-
+    var(M1), !,
+    do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	       throw(error(Error,M:(Head :- Goal)))
-	     ) :- !.
+	      throw(error(Error,M:(Head :- Goal)))
+	     ) :-
+    !.
 do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
         !,
        do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).
@@ -144,10 +147,10 @@ do_c_built_in(X is Y, _, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
-		number(Y) ->
-		P = ( X = Y); % This case reduces to an unification
-		expand_expr(Y, P0, X0),
-		'$drop_is'(X0, X, P0, P)
+	    number(Y) ->
+	    P = ( X = Y); % This case reduces to an unification
+	    expand_expr(Y, P0, X0),
+	    '$drop_is'(X0, X, P0, P)
 	).
 do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
     !,
@@ -155,7 +158,6 @@ do_c_built_in(phrase(NT,Xs),  Mod, H, NTXsNil) :-
 do_c_built_in(phrase(NT,Xs0,Xs), Mod, _,  NewGoal) :-
     !,
     '$c_built_in_phrase'(NT, Xs0, Xs, Mod, NewGoal ).
-
 do_c_built_in(Comp0, _, _, R) :-		% now, do it for comparisons
 	'$compop'(Comp0, Op, E, F),
 	!,
@@ -239,8 +241,10 @@ expand_expr(T, E, V) :-
 %	after having expanded into Q
 %	and giving as result P (the last argument)
 expand_expr(Op, X, O, Q, Q) :-
-	number(X),
-	catch(is( O, Op, X),_,fail), !. % do not do error handling at compile time
+    number(X),
+    !,
+    catch(is( O, Op, X),Error,bad_expr(Error,[Op, X])), !.
+ % do not do error handling at compile time
 expand_expr(Op, X, O, Q, P) :-
 	'$unary_op_as_integer'(Op,IOp),
 	'$do_and'(Q, is( O, IOp, X), P).
@@ -254,7 +258,7 @@ expand_expr(Op, X, O, Q, P) :-
 %		the elementar arithmetic operations [+,-,*,//]
 expand_expr(Op, X, Y, O, Q, Q) :-
 	number(X), number(Y),
-	catch(is( O, Op, X, Y),_,fail), !.
+	catch(is( O, Op, X, Y),Error,bad_expr(Error,[Op, X, Y  ])), !.
 expand_expr(+, X, Y, O, Q, P) :- !,
 	'$preprocess_args_for_commutative'(X, Y, X1, Y1, E),
 	'$do_and'(E, '$plus'(X1,Y1,O), F),

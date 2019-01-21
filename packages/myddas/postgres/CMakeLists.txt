@@ -16,9 +16,12 @@ if (WITH_POSTGRES)
     #  PostgreSQL_INCLUDE_DIRS  - Include directories for PostgreSQL
     #  PostgreSQL_LIBRARY_DIRS  - Link directories for PostgreSQL libraries
     #  PostgreSQL_LIBRARIES     - The PostgreSQL libraries.
-    add_lib(YAPpostgres  ${YAPPOSTGRES_SOURCES})
+    add_library(YAPpostgres  ${YAPPOSTGRES_SOURCES})
     target_link_libraries(YAPpostgres libYap   ${PostgreSQL_LIBRARIES})
-    include_directories (${PostgreSQL_INCLUDE_DIRS} ..)
+    set_property(DIRECTORY
+        APPEND PROPERTY
+       INCLUDE_DIRECTORIES ${PostgreSQL_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/..  )
+ 
     set_target_properties (YAPpostgres PROPERTIES
       POSITION_INDEPENDENT_CODE ON
       PREFIX ""

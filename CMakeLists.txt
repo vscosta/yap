@@ -65,6 +65,9 @@ if (POLICY CMP0003)
 endif ()
 if (POLICY CMP0068)
   cmake_policy(SET CMP0068 NEW)
+  endif()
+if (POLICY CMP0075)
+cmake_policy(SET CMP0075 NEW)
 endif ()
 
 ## options: compilation flags
@@ -83,8 +86,9 @@ endif ()
 
 ## options: libraries
 option(WITH_THREADED_CODE "threaded code" ON)
+if (NOT ANDROID)
 option(WITH_MPI "Interface to OpenMPI/MPICH" ON)
-option(WITH_READLINE "use readline or libedit" ON)
+  endif()
 option(WITH_JIT  "just in Time Clause Compilation" OFF)
 
 if (APPLE)
@@ -121,7 +125,7 @@ if (APPLE)
  	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
 
  	  # "/opt/local/bin" doesn't have libs, so we get the parent directory
- 	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PREFIX} DIRECTORY)
+ 	  GET_FILENAME_COMPONENT(MACPORTS_PREFIX ${MACPORTS_PssREFIX} DIRECTORY)
 
  	  # "/opt/local" is where MacPorts lives, add `/lib` suffix and link
  	  LINK_DIRECTORIES(${LINK DIRECTORIES} ${MACPORTS_PREFIX}/lib)
@@ -131,19 +135,35 @@ if (APPLE)
   endif()
 endif()
 
-option (WITH_PACKAGES "packages and liaries  that add value to YAP" ON)
+OPTION(WITH_MYDDAS " Enable MYDDAS DBMS interface" ON)
 
-OPTION(WITH_MYDDAS " Enable MYDDAS  driver" ${WITH_PACKAGES})
-OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_MYDDAS})
-OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS})
+if (ANDROID)
+option (WITH_PACKAGES "packages and libraries  that add value to YAP" OFF)
+OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ON)
+OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ON)
+else()
+ option (WITH_PACKAGES "packages and libraries  that add value to YAP" ON)
+ OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
+  OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_PACKAGES})
+endif()
+  OPTION(WITH_MYSQL " Enable MYDDAS MYSQL driver" ${WITH_MYDDAS}})
 OPTION(WITH_ODBC " Enable MYDDAS ODBC driver" ${WITH_MYDDAS})
 OPTION(WITH_POSTGRES " Enable MYDDAS POSTGRES driver" ${WITH_MYDDAS})
-OPTION(WITH_SQLITE3 " Enable MYDDAS SQLITE3 driver" ${WITH_MYDDAS})
-OPTION(WITH_SWIG " Enable SWIG interfaces to foreign languages" ${WITH_PACKAGES})
+
+
+
+IF (WITH_SWIG)
+  find_host_package(SWIG)
+  # macro_log_feature (SWIG_FOUND "Swig"
+  #         "Use SWIG Interface Generator "
+  #         "http://www.swig.org" ON)
+
+ENDIF (WITH_SWIG)
+
 OPTION(WITH_RAPTOR " Enable the RAPTOR RDF library" ${WITH_PACKAGES})
 OPTION(WITH_XML2 " Enable the RAPTOR XML2 library" ${WITH_PACKAGES})
 OPTION(WITH_XML " Enable the Prolog XML library" ${WITH_PACKAGES})
-OPTION(WITH_CLPBN" Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
+OPTION(WITH_CLPBN " Enable the CLPBN and PFL probabilistic languages" ${WITH_PACKAGES})
 OPTION(WITH_HORUS " Enable the HORUS inference libraray for CLPBN and PFL" ${WITH_CLPBN})
 option(WITH_PROBLOG "include Problog-I." ${WITH_PACKAGES})
 OPTION(WITH_CPLINT " Enable the cplint probabilistic language" ${WITH_PACKAGES})
@@ -152,7 +172,7 @@ option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_PYTHON  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
-option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ${WITH_PACKAGES})
+option(WITH_JAVA "Try to use Java (currently Java )" ${WITH_PACKAGES})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -165,21 +185,16 @@ if (POLICY CMP0042)
   cmake_policy(SET CMP0042 NEW)
 endif ()
 
-function(add_to_group list output)
-  set(tmp ${${output}})
-  foreach (path ${${list}})
-    get_source_file_property(path ${path} LOCATION)
-    list(APPEND tmp ${path})
-  endforeach ()
-  set(${output} ${tmp} CACHE INTERNAL "prolog library files")
-endfunction(add_to_group list output)
+if (ANDROID)
+function(add_to_dir list output)
+  endfunction(add_to_dir list output)
 
 function(add_to_libgroup el list)
   # add_custom_command(  TARGET ${el} POST_BUILD
   #   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${el}>  ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py
   #   DEPENDS   ${el} )
-  list(APPEND ${list} ${${el}})
-  set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
+  #list(APPEND ${list} ${${el}})
+  #set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
 endfunction(add_to_libgroup el list)
 
 
@@ -191,6 +206,11 @@ function(add_to_corelibgroup el list)
   set(${list} ${${list}} CACHE INTERNAL "prolog dll files")
 endfunction(add_to_corelibgroup el list)
 
+else()
+  function(add_to_dir list output)
+ endfunction(add_to_dir list output)
+
+endif()
 
 if (ANDROID_OLD)
   macro(MY_add_custom_target)
@@ -210,10 +230,6 @@ else ()
     add_library(${arg1} OBJECT ${ARGN})
   endmacro()
 endif ()
-macro(add_lib arg1)
-  add_library(${arg1} SHARED ${ARGN})
-  add_to_libgroup(${arg1} YAP_DLLS)
-endmacro()
 macro(add_corelib arg1)
   add_library(${arg1} SHARED ${ARGN})
   add_to_corelibgroup(${arg1} YAP_DLLS)
@@ -294,21 +310,21 @@ disallow_intree_builds()
 
 # set(CMAKE_BUILD_TYPE  Debug)
 
-if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
+  if ($ENV{CONDA_BUILD}x STREQUAL "1x" )
   set(CMAKE_LIBRARY_ARCHITECTURE $ENV{PREFIX})
   set(CMAKE_PREFIX_PATH $ENV{PREFIX})
   set( R_COMMAND "$ENV{R}")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
-  list (APPEND CMAKE_REQUIRED_INCLUDES
-    ${PREFIX}/include
-    ${SYS_PREFIX}/include
-    )
   set(YAP_IS_MOVABLE 1)
 
 endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
 
+  list (APPEND CMAKE_REQUIRED_INCLUDES
+    ${PREFIX}/include
+    ${SYS_PREFIX}/include
+    )
 
 
 
@@ -327,8 +343,11 @@ set(YAP_PLDIR  ${CMAKE_INSTALL_FULL_DATADIR}/Yap)
 
 set(YAP_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_INCLUDEDIR}/Yap)
 set(YAP_INSTALL_LIBDIR ${CMAKE_INSTALL_LIBDIR}/Yap)
+if (ANDROID)
+set(YAP_INSTALL_DATADIR ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/assets/Yap)
+  else()
 set(YAP_INSTALL_DATADIR ${CMAKE_INSTALL_DATADIR}/Yap)
-
+endif()
 #
 #
 # include( Sources  )
@@ -350,30 +369,43 @@ find_package(GMP)
 
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
-
-
 if (GMP_INCLUDE_DIRS)
   #config.h needs this (TODO: change in code latter)
   include_directories(${GMP_INCLUDE_DIRS})
  endif ()
 
 
-if (WITH_READLINE)
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
   include(FindReadline)
 
-  List(APPEND YAP_SYSTEM_OPTIONS readline)
+ option (WITH_READLINE "use Readline" ON)
   # include subdirectories configuration
   ## after we have all functionality in
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
   if (READLINE_FOUND)
-    include_directories(${READLINE_INCLUDE_DIR})
+  List(APPEND YAP_SYSTEM_OPTIONS readline)
     # required for configure
-    list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
+    include_directories( ${READLINE_INCLUDE_DIR}
+      ${READLINE_INCLUDE_DIR}/readline
+      )
   endif ()
-endif()
+
+include_directories(H
+  H/generated
+  include os OPTYap utf8proc JIT/HPP)
+include_directories(BEFORE ${CMAKE_BINARY_DIR})
+
+add_subdirectory( H )
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
@@ -426,7 +458,6 @@ set(DEF_STACKSPACE 0)
 set(DEF_HEAPSPACE 0)
 set(DEF_TRAILSPACE 0)
 
-# option (RATIONAL_TREES "support infinite rational trees" ON)
 # dd_definitions (-D)
 
 ## don't touch these opts
@@ -473,7 +504,7 @@ endif ()
 ## (but later on when installing)
 #SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 #
-## SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
+## SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_BINARY_DIR})
 #
 ## add the automatically determined parts of the RPATH
 ## which point to directories outside the build tree to the install RPATH
@@ -498,6 +529,9 @@ ELSE()
   LIST(APPEND CMAKE_INSTALL_RPATH @loader_path/../../../lib)
 ENDIF()
 
+set(YAP_STARTUP startup.yss)
+set(YAP_SOURCEBOOT boot.yap   )
+
 # Model Specific
 if (HAVE_GCC)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wall)
@@ -521,6 +555,7 @@ endif (HAVE_GCC)
 #option (YAP_SWI_IO ON)
 
 #TODO:
+#TODO:
 if (WITH_CALL_TRACER)
   list(APPEND YAP_SYSTEM_OPTIONS "call_tracer " ${YAP_SYSTEM_OPTIONS})
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:LOW_LEVEL_TRACER=1>)
@@ -528,39 +563,7 @@ endif (WITH_CALL_TRACER)
 
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS UTF8PROC=1)
 
-include_directories(utf8proc packages/myddas packages/myddas/sqlite3/src )
-
 set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1)
-
-
-IF (WITH_SWIG)
-  find_host_package(SWIG)
-  # macro_log_feature (SWIG_FOUND "Swig"
-  #         "Use SWIG Interface Generator "
-  #         "http://www.swig.org" ON)
-ENDIF (WITH_SWIG)
-
-IF (WITH_MYDDAS)
-  if (ANDROID)
-  include_directories (packages/swig/android)
-  else()
-
-    add_definitions(-DUSE_MYDDAS=1 -DMYDDAS_SQLITE3=1)
-
-    if (MYSQL_FOUND)
-      add_definitions(= -DMYDDAS_MYSQL=1)
-    endif ()
-
-    if (ODBC_FOUND)
-      add_definitions(= -DMYDDAS_ODBC=1)
-    endif ()
-
-    if (MYSQL_POSTGRES)
-      add_definitions(= -DMYDDAS_POSTGRES=1)
-    endif ()
-  endif(ANDROID)
-endif(WITH_MYDDAS)
-
 
 
 IF (WITH_PYTHON)
@@ -574,6 +577,55 @@ IF (WITH_R)
 ENDIF (WITH_R)
 
 
+include(Sources)
+
+
+ADD_SUBDIRECTORY(OPTYap)
+ADD_SUBDIRECTORY(os)
+ADD_SUBDIRECTORY(library/dialect/swi/fli)
+ADD_SUBDIRECTORY(CXX)
+
+ADD_SUBDIRECTORY(pl)
+
+ADD_SUBDIRECTORY(library)
+
+ADD_SUBDIRECTORY(swi/library)
+
+add_subDIRECTORY(utf8proc )
+
+
+
+   if(ANDROID)
+
+       set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
+       add_subdirectory(packages/swig/android)
+       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
+       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${CMAKE_ANDROID_ARCH_ABI})
+
+   else()
+       add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
+
+endif()
+    if (MYSQL_FOUND)
+      add_definitions( -DMYDDAS_MYSQL=1)
+    endif ()
+
+    if (ODBC_FOUND)
+      add_definitions( -DMYDDAS_ODBC=1)
+    endif ()
+
+    if (POSTGRES_FOUND)
+      add_definitions( -DMYDDAS_POSTGRES=1)
+  endif()
+#utf-8 is not aPconn option
+# we use the nice UTF-8 package
+#available at the Julia project
+
+
+add_subDIRECTORY( packages/myddas )
+add_subDIRECTORY( packages/clpqr )
+
+
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libYAPOs>)
 List(APPEND YLIBS $<TARGET_OBJECTS:utf8proc>)
@@ -583,51 +635,43 @@ if (WIN32 OR ANDROID)
   List(APPEND YLIBS $<TARGET_OBJECTS:YAP++>)
   if (WIN32 AND WITH_PYTHON)
     List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
+    list (APPEND WINDLLS ${PYTHON_LIBRARIES})
   endif ()
   if (ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAPsqlite3>)
-    List(APPEND YLIBS $<TARGET_OBJECTS:YAPJava>)
+    List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
+  set(ANDROID_LIBRARIES sqliteX  android log)
+
   endif ()
 endif ()
 
-include(Sources)
 
-
-add_corelib( # Sets the name of the library.
+add_library( # Sets the name of the library.
   libYap
 
   # Sets the library as a shared library.
   SHARED
-
   ${ENGINE_SOURCES}
   ${C_INTERFACE_SOURCES}
-  //${STATIC_SOURCES}
+  ${STATIC_SOURCES}
   # cmake object libraries
   ${YLIBS}
   )
 
-if (GMP_FOUND)
-  target_link_libraries(libYap ${GMP_LIBRARIES})
-endif (GMP_FOUND)
+  target_link_libraries(libYap
+    m
+    ${GMP_LIBRARIES}
+    ${READLINE_LIBRARIES}
+    ${ANDROID_LIBRARIES}
+    ${WINDLLS}
+    ${PYTHON_LIBRARIES}
+    )
 
-if (READLINE_FOUND)
-  target_link_libraries(libYap ${READLINE_LIBRARIES})
-  # required for configure
-
-endif ()
-
-if (WIN32)
-  target_link_libraries(libYap ${WINDLLS})
-  if (WITH_PYTHON AND PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
-    target_link_libraries(libYap ${PYTHON_LIBRARIES})
-  endif ()
-endif (WIN32)
-
-target_link_libraries(libYap m)
+  set_target_properties(libYap
+  PROPERTIES OUTPUT_NAME Yap
+  )
 
 
-set(YAP_STARTUP startup.yss)
-set(YAP_BOOTFILE boot.yap                                                                                                                                                                                                                                                                                                                           )
 ## define system
 
 # Optional libraries that affect compilation
@@ -646,13 +690,8 @@ string(SUBSTRING ${CMAKE_SHARED_LIBRARY_SUFFIX} 1 -1 SO_EXT)
 set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 
-include_directories(H
-  H/generated
-  include os OPTYap utf8proc JIT/HPP)
-include_directories(BEFORE ${CMAKE_BINARY_DIR} ${CMAKE_TOP_BINARY_DIR})
-
 if (ANDROID)
-  include_directories(CXX ${CMAKE_SOURCE_DIR}/../generated/src/jni)
+  include_directories(CXX ${CMAKE_SOURCE_DIR}/../yaplib/generated/src/jni)
 endif ()
 include(Threads)
 #
@@ -672,30 +711,6 @@ MY_set_target_properties(libYap
   )
 
 
-#utf-8 is not aPconn option
-# we use the nice UTF-8 package
-#available at the Julia project
-
-ADD_SUBDIRECTORY(OPTYap)
-ADD_SUBDIRECTORY(os)
-ADD_SUBDIRECTORY(packages/myddas)
-ADD_SUBDIRECTORY(utf8proc)
-ADD_SUBDIRECTORY(library/dialect/swi/fli)
-ADD_SUBDIRECTORY(CXX)
-
-
-add_subDIRECTORY(H)
-
-#bootstrap and saved state
-add_subDIRECTORY(pl)
-
-ADD_SUBDIRECTORY(library)
-
-ADD_SUBDIRECTORY(swi/library "swiLibrary")
-
-set_target_properties(libYap
-  PROPERTIES OUTPUT_NAME Yap
-  )
 
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
@@ -716,20 +731,6 @@ if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
 
 endif ()
 
-
-IF ( ANDROID)
-  set(CMAKE_SWIG_OUTDIR    ${YAP_APP_DIR}/src/generated/java/pt/up/yap/lib )
-  set(CMAKE_SWIG_OUTPUT    ${YAP_APP_DIR}/src/generated/jni )
-  set( SWIG_MODULE_NAME pt.up.yap.lib )
-
-  add_subDIRECTORY(packages/swig )
-
-
-
-
-  target_link_libraries(libYap ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so android log )
-
-ENDIF ()
 
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")
@@ -897,7 +898,7 @@ endif()
 
 #todo: use cmake target builds
 # option (USE_MAXPERFORMANCE
-#   "try using the best flags for specific architecture" OFF)
+#   "try using the best flags for specific architecture" ON)
 
 # option (USE_MAXMEMORY
 #   "try using the best flags for using the memory to the most" ON)
@@ -905,11 +906,11 @@ endif()
 
 #TODO: use cmake target builds
 # option (USE_DEBUGYAP
-#   "enable C-debugging for YAP" OFF)
+#   "enable C-debugging for YAP" ON)
 
 #TODO: use cmake arch/compiler
 # option (USE_CYGWIN
-#   "use cygwin library in WIN32" OFF)
+#   "use cygwin library in WIN32" ON)
 
 #TODO:
 
@@ -986,8 +987,6 @@ endif(WITH_MPI)
 #
 
 install(FILES ${INCLUDE_HEADERS} ${CONFIGURATION_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Yap )
-
-
 
 macro_display_feature_log()
 if (POLICY CMP0058)

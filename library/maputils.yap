@@ -1,3 +1,4 @@
+
 /**
  * @file   maputils.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
@@ -26,6 +27,14 @@
   *@{
 */
 :- use_module(library(lists), [append/3]).
+
+%%	goal_expansion_allowed is semidet.
+%
+%	`True` if we can use
+%	goal-expansion.
+goal_expansion_allowed :-
+	once( prolog_load_context(_, _) ), % make sure we are compiling.
+	\+ current_prolog_flag(xref, true).
 
 :- dynamic number_of_expansions/1.
 
@@ -94,14 +103,6 @@ transformation_id(Id) :-
     Id1 is Id+1,
     assert(number_of_expansions(Id1)).
 transformation_id(0).
-
-%%	goal_expansion_allowed is semidet.
-%
-%	`True` if we can use
-%	goal-expansion.
-goal_expansion_allowed :-
-	once( prolog_load_context(_, _) ), % make sure we are compiling.
-	\+ current_prolog_flag(xref, true).
 
 /**
   @}

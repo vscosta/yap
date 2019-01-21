@@ -10,8 +10,6 @@
 
 set (SOURCES yap.i)
 
-INCLUDE(${SWIG_USE_FILE})
-
 if (ANDROID)
   add_subdirectory(android)
 else(ANDROID)

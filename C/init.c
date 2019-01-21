@@ -1321,8 +1321,8 @@ const char *Yap_version(void) {
 }
 
 void Yap_InitWorkspace(struct yap_boot_params *yapi,
-          UInt Heap, UInt Stack, UInt Trail, UInt Atts,
-                       UInt max_table_size, int n_workers, int sch_loop,
+          UInt Heap, size_t Stack, size_t Trail, size_t Atts,
+                       size_t max_table_size, int n_workers, int sch_loop,
                        int delay_load)
 {
   CACHE_REGS
@@ -1364,11 +1364,7 @@ void Yap_InitWorkspace(struct yap_boot_params *yapi,
     Stack = MinStackSpace;
   Stack = AdjustPageSize(Stack * K);
   Stack /= (K);
-  if (!Atts)
-    Atts = 2048 * sizeof(CELL);
-  else
-    Atts = AdjustPageSize(Atts * K);
-  Atts /= (K);
+  Atts = 0;
 #if defined(THREADS) || defined(YAPOR)
   worker_id = 0;
 #endif /* YAPOR || THREADS */

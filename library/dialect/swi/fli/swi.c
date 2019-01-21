@@ -2216,7 +2216,7 @@ X_API int PL_initialise(int myargc, char **myargv) {
   init_args.INPUT_STARTUP = NULL;
 #endif
   init_args.LIBDIR = NULL;
-  init_args.BOOTFILE = NULL;
+  init_args.SOURCEBOOT = NULL;
   init_args.HaltAfterBoot = true;
   init_args.FastBoot = FALSE;
   init_args.MaxTableSpaceSize = 0;

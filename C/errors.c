@@ -41,8 +41,8 @@
 
 #define set_key_i(k, ks, q, i, t)                                              \
   if (strcmp(ks, q) == 0) {                                                    \
-    i->k = IsIntegerTerm(t) ? IntegerOfTerm(t) : 0;                            \
-    return IsIntegerTerm(t);                                                   \
+    i->k = IsIntegerTerm(t) ? IntegerOfTerm(t) : 0;   \
+    return IsIntegerTerm(t);			      \
   }
 
 #define set_key_s(k, ks, q, i, t)                                              \
@@ -99,7 +99,7 @@ if (strcmp(ks, q) == 0) {                                                    \
 
 #define query_key_s(k, ks, q, i)  \
 if (strcmp(ks, q) == 0 ) \
-{  if (i->k) return MkAtomTerm(Yap_LookupAtom(i->k)); else return TermNil; }
+{  if (i->k) return MkAtomTerm(Yap_LookupAtom(i->k)); else return TermEmptyAtom; }
 
 
 #define query_key_t(k, ks, q, i)     \
@@ -1258,15 +1258,25 @@ static Int is_callable(USES_REGS1) {
   return false;
 }
 
-static Int is_predicate_indicator(USES_REGS1) {
+/**
+ * @pred  is_predicate_indicator( Term, Module, Name, Arity )
+ *
+ *   This predicates can be used to verify if Term is a predicate indicator, that is of the form:
+ *   + Name/Arity
+ *   + Name//Arity-2
+ *   + Module:Name/Arity
+ *   + Module:Name//Arity-2
+ *
+ *   if it is, it will extract the predicate's module, name, and arity.
+ */
+static Int get_predicate_indicator(USES_REGS1) {
   Term G = Deref(ARG1);
   // Term Context = Deref(ARG2);
   Term mod = CurrentModule;
 
   G = Yap_YapStripModule(G, &mod);
   if (IsVarTerm(G)) {
-    Yap_Error(INSTANTIATION_ERROR, G, NULL);
-    return false;
+    Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
   }
   if (!IsVarTerm(mod) && !IsAtomTerm(mod)) {
     Yap_Error(TYPE_ERROR_ATOM, G, NULL);
@@ -1275,13 +1285,34 @@ static Int is_predicate_indicator(USES_REGS1) {
   if (IsApplTerm(G)) {
     Functor f = FunctorOfTerm(G);
     if (IsExtensionFunctor(f)) {
-      Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+      Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
     }
     if (f == FunctorSlash || f == FunctorDoubleSlash) {
-      return true;
+      Term name = ArgOfTerm(1,G), arity = ArgOfTerm(2,G);
+      if (IsVarTerm(name)) {
+	Yap_ThrowError(INSTANTIATION_ERROR, name, NULL);
+      } else if (!IsAtomTerm(name)) {
+	Yap_ThrowError(TYPE_ERROR_ATOM, name, NULL);
+      }
+      if (IsVarTerm(arity)) {
+	Yap_ThrowError(INSTANTIATION_ERROR, arity, NULL);
+      } else if (!IsIntegerTerm(arity)) {
+	Yap_ThrowError(TYPE_ERROR_INTEGER, arity, NULL);
+      } else {
+	Int ar = IntegerOfTerm(arity);
+	if (ar < 0) {
+	  Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arity, NULL);
+	}
+	if ( f == FunctorDoubleSlash) {
+	  arity = MkIntegerTerm(ar+2);
+	}
+      return Yap_unify(mod, ARG2) &&
+	Yap_unify(name, ARG3) &&
+	Yap_unify(arity, ARG4);
+	}
+      }
     }
-  }
-  Yap_Error(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+  Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
   return false;
 }
 
@@ -1296,9 +1327,8 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$query_exception", 3, query_exception, 0);
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 0, close_error, HiddenPredFlag);
-  Yap_InitCPred("is_boolean", 2, is_boolean, TestPredFlag);
-  Yap_InitCPred("is_callable", 2, is_callable, TestPredFlag);
-  Yap_InitCPred("is_atom", 2, is_atom, TestPredFlag);
-  Yap_InitCPred("is_predicate_indicator", 2, is_predicate_indicator,
-                TestPredFlag);
+  Yap_InitCPred("is_boolean", 1, is_boolean, TestPredFlag);
+  Yap_InitCPred("is_callable", 1, is_callable, TestPredFlag);
+  Yap_InitCPred("is_atom", 1, is_atom, TestPredFlag);
+  Yap_InitCPred("get_predicate_indicator", 4, get_predicate_indicator, 0);
 }

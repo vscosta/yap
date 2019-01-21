@@ -1,11 +1,9 @@
 set (LIBRARY_PL
-  INDEX.pl
   apply.yap
   apply_macros.yap
   arg.yap
   assoc.yap
   atts.yap
-  autoloader.yap
   avl.yap
   bhash.yap
   charsio.yap
@@ -63,23 +61,19 @@ set (LIBRARY_PL
   )
 
 
-MY_add_subdirectory(dialect)
-MY_add_subdirectory(clp)
+add_subdirectory(dialect)
+# add_subdirectory(clp)
 MY_add_subdirectory(matlab)
-MY_add_subdirectory(matrix)
-MY_add_subdirectory(random)
-MY_add_subdirectory(regex)
-MY_add_subdirectory(rltree)
-MY_add_subdirectory(system)
-MY_add_subdirectory(tries)
+add_subdirectory(matrix)
+add_subdirectory(random)
+add_subdirectory(regex)
+add_subdirectory(rltree)
+add_subdirectory(system)
+add_subdirectory(tries)
 MY_add_subdirectory(ytest)
 
-add_to_group( LIBRARY_PL  pl_library)
+add_to_dir(LIBRARY_PL ${YAP_INSTALL_DATADIR})
 
 install(FILES ${LIBRARY_PL} DESTINATION ${YAP_INSTALL_DATADIR})
-
-if (ANDROID)
-file( INSTALL  ${LIBRARY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
-endif()
 
 include_directories("dialect/swi")

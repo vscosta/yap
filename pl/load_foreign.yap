@@ -62,6 +62,9 @@ YAP supports the SWI-Prolog interface to loading foreign code, the shlib package
 */
 
 
+load_foreign_files(_Objs,_Libs,Entry) :-
+    '$check_embedded'(Entry),
+    !.
 load_foreign_files(Objs,Libs,Entry) :-
     source_module(M),
     %G = load_foreign_files(Objs,Libs,Entry),

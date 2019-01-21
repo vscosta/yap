@@ -24,7 +24,7 @@ if (WITH_MYSQL)
 	    if (WIN32)
 	      	    add_library(YAPmysql OBJECT ${MYSQL_SOURCES})
 	      else()
-	    add_lib(YAPmysql  ${MYSQL_SOURCES})
+	    add_library(YAPmysql  ${MYSQL_SOURCES})
 	    target_link_libraries(YAPmysql ${MYSQL_LIBRARIES} libYap)
      install(TARGETS YAPmysql
               RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
@@ -32,7 +32,7 @@ if (WITH_MYSQL)
              LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
               )
 	    endif()
-      include_directories(${MYSQL_INCLUDE_DIR} ..)
+      include_directories(${MYSQL_INCLUDE_DIR}  ${CMAKE_CURRENT_SOURCE_DIR}/..)
       set_target_properties(YAPmysql PROPERTIES
               POSITION_INDEPENDENT_CODE ON
                   PREFIX ""

@@ -175,7 +175,7 @@ typedef void *(*fptr_t)(void);
 
 extern const char *Yap_BINDIR, *Yap_ROOTDIR, *Yap_SHAREDIR, *Yap_LIBDIR, *Yap_DLLDIR,
         *Yap_PLDIR, *Yap_COMMONSDIR, *Yap_STARTUP,*Yap_INPUT_STARTUP,*Yap_OUTPUT_STARTUP,
-        *Yap_BOOTFILE, *Yap_INCLUDEDIR;
+        *Yap_SOURCEBOOT, *Yap_INCLUDEDIR;
 
 
 /* Basic exports */

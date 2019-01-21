@@ -139,17 +139,8 @@ class YAPEngine;
 
 #else
 
-                %typemap(in) arity_t {   (jlong)($input); }
 
-
-
-                %typemap(in) jlong %{
-                  $1 = (jlong)$input;
-                  %}
-
-                  %typemap(out) arity_t {  *(jlong *)&$result = $1;    }
-
-                  // Language independent exception handler
+// Language independent exception handler
                   // simplified version
                   %include <exception.i>
 #endif

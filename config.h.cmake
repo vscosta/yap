@@ -2035,13 +2035,13 @@ significant byte first (like Motorola and SPARC, unlike Intel). */
 
 
 /* run-time boot */
-#ifndef YAP_BOOTFILE
-#define YAP_BOOTFILE "${YAP_PLDIR}/pl/boot.yap"
+#ifndef YAP_SOURCEBOOT
+#define YAP_SOURCEBOOT "${CMAKE_SOURCE_DIR}/pl/boot.yap"
 #endif
 
 /* init-time boot */
 #ifndef YAP_BOOTSTRAP
-#define YAP_BOOTSTRAP "${CMAKE_SOURCE_DIR}/pl/boot.yap"
+#define YAP_BOOTSTRAP "${YAP_PLDIR}/pl/boot.yap"
 #endif
 
 

@@ -2536,7 +2536,7 @@ static Int
   // pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
   // if (!pe)
   pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
-  // if (!pe) pe = Yap_get_pred(t1, USER_MODULE, "system_predicate");
+  // if (!pe) pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
   return (pe->ModuleOfPred == 0);

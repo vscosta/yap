@@ -265,7 +265,7 @@ load_files(Files0,Opts) :-
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, _).
-'$lf_option'('$context_module', 27, _).
+'$lf_option'(source_module, 27, _).
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
 '$lf_option'('$source_pos', 30, _).
@@ -317,12 +317,12 @@ load_files(Files0,Opts) :-
       '__NB_getval__'('$lf_status', OldTOpts, fail),
         nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
-         '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+         '$lf_opt'(source_module, OldTOpts, OldContextModule)
     ;
      current_prolog_flag(autoload, OldAutoload),
      functor( OldTOpts, opt, LastOpt ),
      '$lf_opt'(autoload, OldTOpts, OldAutoload),
-     '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+     '$lf_opt'(source_module, OldTOpts, OldContextModule)
     ),
     functor( TOpts, opt, LastOpt ),
     ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
@@ -448,7 +448,7 @@ load_files(Files0,Opts) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,register(Val)),Call) ).
-'$process_lf_opt'('$context_module', Mod, Call) :-
+'$process_lf_opt'(source_module, Mod, Call) :-
 	( atom(Mod) -> true ;  '$do_error'(type_error(atom,Mod),Call) ).
 
 
@@ -724,7 +724,7 @@ db_files(Fs) :-
 	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
 	nb_setval('$loop_streams',[Stream|Sts0]),
- 	'$lf_opt'('$context_module', TOpts, ContextModule),
+ 	'$lf_opt'(source_module, TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(qcompile, TOpts, QCompiling),
 	'__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
@@ -1359,7 +1359,7 @@ account the following observations:
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
 	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  '$lf_opt'(source_module, OldTOpts, OldContextModule)
 	  ->
 	  true
 	  ;

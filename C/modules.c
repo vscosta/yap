@@ -6,7 +6,7 @@
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
-***************************************************************   f***********
+**************************************************************************
 *									 *
  File:		modules.c						 *
 * Last rev:								 *
@@ -24,7 +24,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "Yatom.h"
 
-static Int current_module(USES_REGS1);
+static Int currgent_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 static ModEntry *LookupSystemModule(Term a);
@@ -197,6 +197,7 @@ Term Yap_Module(Term tmod) {
 
 ModEntry *Yap_GetModuleEntry(Term mod) {
   ModEntry *me;
+
   if (!(me = LookupModule(mod)))
     return NULL;
   return me;
