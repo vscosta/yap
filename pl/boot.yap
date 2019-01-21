@@ -53,7 +53,6 @@ private(_).
         true/0], ['$$compile'/4,
         '$call'/4,
         '$catch'/3,
-        '$check_callable'/2,
         '$check_head_and_body'/4,
         '$check_if_reconsulted'/2,
         '$clear_reconsulting'/0,
@@ -118,7 +117,7 @@ print_message(L,E) :-
 	->
 	 true
 	;
-	error(_,Info),	
+	system_error(_,Info),	
 	'$error_descriptor'(Info, Desc),
   query_exception(prologPredFile, Desc, File),
   query_exception(prologPredLine, Desc, FilePos),
@@ -132,7 +131,7 @@ print_message(L,E) :-
     format(user_error,'~a:~d:  error: undefined ~w~n:',[F,L,M:G]),
     fail
     ;
-    format(user_error,' call to ~w~n',[M:G]),
+    format(user_error,' call to undefined procedure ~w~n',[M:G]),
 	fail.
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).

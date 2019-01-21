@@ -1,6 +1,6 @@
 # set(CMAKE_MACOSX_RPATH 1)
 
-add_lib(jplYap  jpl.h jpl.c hacks.h)
+add_library(jplYap jpl.c)
 
 include_directories (${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2} ${JAVA_AWT_PATH} )
 

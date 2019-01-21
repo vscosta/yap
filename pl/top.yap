@@ -731,19 +731,6 @@ write_query_answer( Bindings ) :-
 % 	*/
     '$execute0'(G, CurMod).
 
-'$check_callable'(V,G) :- var(V), !,
-	'$do_error'(instantiation_error,G).
-'$check_callable'(M:_G1,G) :- var(M), !,
-	'$do_error'(instantiation_error,G).
-'$check_callable'(_:G1,G) :- !,
-	'$check_callable'(G1,G).
-'$check_callable'(A,G) :- number(A), !,
-	'$do_error'(type_error(callable,A),G).
-'$check_callable'(R,G) :- db_reference(R), !,
-	'$do_error'(type_error(callable,R),G).
-'$check_callable'(_,_).
-
-
 '$loop'(Stream,exo) :-
 	prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
@@ -861,16 +848,16 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 %
 % split head and body, generate an error if body is unbound.
 %
-'$check_head_and_body'(C,M,H,B,P) :-
+'$check_head_and_body'(C,M,H,B,_P) :-
     '$yap_strip_module'(C,M1,(MH:-B0)),
     !,
     '$yap_strip_module'(M1:MH,M,H),
     ( M == M1 -> B = B0 ; B = M1:B0),
-    is_callable(M:H,P).
+    is_callable(M:H).
 
-'$check_head_and_body'(MH, M, H, true, P) :-
+'$check_head_and_body'(MH, M, H, true, _XsP) :-
     '$yap_strip_module'(MH,M,H),
-    is_callable(M:H,P).
+    is_callable(M:H).
                                 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.

@@ -354,23 +354,12 @@ vxu    `on` consider `$` a lower case character.
  */
   YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
    
- /**< if defined, first location where YAP expects to find the YAP Prolog
-        library. Takes precedence over library_directory */
-  YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
-             isatom, "", NULL),
-   
- /**< if defined, first location where YAP expects to find the YAP Prolog
-       shared libraries (DLLS). Takes precedence over executable_directory/2. */
  /**< `max_arity is iso `
-   YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
 
     Read-only flag telling the maximum arity of a functor. Takes the value
     `unbounded` for the current version of YAP.
  */
-  YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
-             isatom, "", NULL),
-   
-
+   YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
    
     YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,
              "INT_MAX", NULL),
@@ -378,7 +367,14 @@ vxu    `on` consider `$` a lower case character.
     YAP_FLAG(MAX_WORKERS_FLAG, "max_workers", false, at2n, "MAX_WORKERS", NULL),
     YAP_FLAG(MIN_TAGGED_INTEGER_FLAG, "min_tagged_integer", false, at2n,
              "INT_MIN", NULL),
-    YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
+
+
+    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
+             true, booleanFlag, "false", NULL),
+
+
+
+  YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
              "256", NULL),
     YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false",
              NULL),
@@ -407,8 +403,16 @@ vxu    `on` consider `$` a lower case character.
              "true", NULL),
    
    
-    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
-             true, booleanFlag, "false", NULL),
+ /**< if defined, first location where YAP expects to find the YAP Prolog
+        library. Takes precedence over library_directory */
+  YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
+             isatom, "", NULL),
+   
+ /**< if defined, first location where YAP expects to find the YAP Prolog
+       shared libraries (DLLS). Takes precedence over executable_directory/2. */
+  YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
+             isatom, "", NULL),
+   
 
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
@@ -566,7 +570,6 @@ and if it is bound to `off` disable them. The default for YAP is
  */
   YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]", NULL),
    
-    YAP_FLAG(THREADS_FLAG, "threads", false, ro, "MAX_THREADS", NULL),
     YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
  /**< `toplevel_hook `
 

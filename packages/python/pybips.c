@@ -762,7 +762,7 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     } else {
       PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
       desc->name = PyMem_Malloc(strlen(s) + 1);
-      strcpy(desc->name, s);
+      strcpy((char *)desc->name, s);
       desc->doc = "YAPTerm";
       desc->fields = pnull;
       desc->n_in_sequence = arity;

@@ -1,5 +1,7 @@
 set (LIBRARY_PL
+INDEX.pl
   aggregate.pl
+  autoloader.yap
   base64.pl
   broadcast.pl
   ctypes.pl

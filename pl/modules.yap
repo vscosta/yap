@@ -302,7 +302,7 @@ use_module(F,Is) :-
 % and remove import.
 %
 '$not_imported'(H, Mod) :-
-    recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
     NM \= Mod,
     functor(NH,N,Ar),
     print_message(warning,redefine_imported(Mod,NM,N/Ar)),
@@ -470,10 +470,14 @@ export_list(Module, List) :-
 	G1=..[N1|Args],
 	( '$check_import'(M0,ContextMod,N1,K) ->
 	  ( ContextMod == prolog ->
-      recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
-        fail
+	    recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
+	    \+ '$is_system_predicate'(G1, prolog),
+	    '$compile'((G1:-M0:G0), reconsult,(user:G1:-M0:G0) , user, R),
+	    fail
 	  ;
 	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+	    \+ '$is_system_predicate'(G1, prolog),
+	    '$compile'((G1:-M0:G0), reconsult,(ContextMod:G1:-M0:G0) , ContextMod, R),
         fail
         ;
         true
@@ -535,7 +539,7 @@ other source modules.
 This built-in was introduced by SWI-Prolog. In YAP, by default, modules only
 inherit from `prolog`. This extension allows predicates in the current
 module (see module/2 and module/1) to inherit from `user` or other modules.
-
+  x2
 */
 set_base_module(ExportingModule) :-
 	var(ExportingModule),

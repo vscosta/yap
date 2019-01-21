@@ -375,22 +375,30 @@ if (GMP_INCLUDE_DIRS)
  endif ()
 
 
-if (WITH_READLINE)
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
   include(FindReadline)
 
-  List(APPEND YAP_SYSTEM_OPTIONS readline)
+ option (WITH_READLINE "use Readline" ON)
   # include subdirectories configuration
   ## after we have all functionality in
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
   if (READLINE_FOUND)
+  List(APPEND YAP_SYSTEM_OPTIONS readline)
     # required for configure
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR}
+    include_directories( ${READLINE_INCLUDE_DIR}
       ${READLINE_INCLUDE_DIR}/readline
       )
   endif ()
-endif()
 
 include_directories(H
   H/generated
@@ -450,7 +458,6 @@ set(DEF_STACKSPACE 0)
 set(DEF_HEAPSPACE 0)
 set(DEF_TRAILSPACE 0)
 
-# option (RATIONAL_TREES "support infinite rational trees" ON)
 # dd_definitions (-D)
 
 ## don't touch these opts
@@ -582,7 +589,11 @@ ADD_SUBDIRECTORY(pl)
 
 ADD_SUBDIRECTORY(library)
 
+ADD_SUBDIRECTORY(swi/library)
+
 add_subDIRECTORY(utf8proc )
+
+
 
    if(ANDROID)
 
@@ -612,6 +623,7 @@ endif()
 
 
 add_subDIRECTORY( packages/myddas )
+add_subDIRECTORY( packages/clpqr )
 
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
