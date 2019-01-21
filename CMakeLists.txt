@@ -65,6 +65,9 @@ if (POLICY CMP0003)
 endif ()
 if (POLICY CMP0068)
   cmake_policy(SET CMP0068 NEW)
+  endif()
+if (POLICY CMP0075)
+cmake_policy(SET CMP0075 NEW)
 endif ()
 
 ## options: compilation flags
@@ -169,7 +172,7 @@ option(WITH_LBFGS    "interface  with lbfgs" ${WITH_PACKAGES})
 option(WITH_PRISM    "use PRISM system in YAP" ${WITH_PACKAGES})
 option(WITH_PYTHON  "Allow Python->YAP  and YAP->Python" ${WITH_PACKAGES})
 option(WITH_R  "Use R Interface" ${WITH_PACKAGES})
-option(WITH_JAVA "Try to use Java (currently Java 6,7,8)" ${WITH_PACKAGES})
+option(WITH_JAVA "Try to use Java (currently Java )" ${WITH_PACKAGES})
 
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
@@ -312,15 +315,16 @@ disallow_intree_builds()
   set(CMAKE_PREFIX_PATH $ENV{PREFIX})
   set( R_COMMAND "$ENV{R}")
   set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS CONDA_BUILD=1)
-  list (APPEND CMAKE_REQUIRED_INCLUDES
-    ${PREFIX}/include
-    ${SYS_PREFIX}/include
-    )
   set(YAP_IS_MOVABLE 1)
 
 endif()
 
 ADD_CUSTOM_TARGET(run_install COMMAND ${CMAKE_MAKE_PROGRAM} install)
+
+  list (APPEND CMAKE_REQUIRED_INCLUDES
+    ${PREFIX}/include
+    ${SYS_PREFIX}/include
+    )
 
 
 
@@ -365,20 +369,43 @@ find_package(GMP)
 
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
+if (GMP_INCLUDE_DIRS)
+  #config.h needs this (TODO: change in code latter)
+  include_directories(${GMP_INCLUDE_DIRS})
+ endif ()
 
 
-if (WITH_READLINE)
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
   include(FindReadline)
 
-  List(APPEND YAP_SYSTEM_OPTIONS readline)
+ option (WITH_READLINE "use Readline" ON)
   # include subdirectories configuration
   ## after we have all functionality in
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
-    target_link_libraries(libYap   android log)
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
-endif()
+  if (READLINE_FOUND)
+  List(APPEND YAP_SYSTEM_OPTIONS readline)
+    # required for configure
+    include_directories( ${READLINE_INCLUDE_DIR}
+      ${READLINE_INCLUDE_DIR}/readline
+      )
+  endif ()
+
+include_directories(H
+  H/generated
+  include os OPTYap utf8proc JIT/HPP)
+include_directories(BEFORE ${CMAKE_BINARY_DIR})
+
+add_subdirectory( H )
 
 set_directory_properties( PROPERTIES INCLUDE_DIRECTORIES
   H
@@ -445,7 +472,6 @@ set(DEF_STACKSPACE 0)
 set(DEF_HEAPSPACE 0)
 set(DEF_TRAILSPACE 0)
 
-# option (RATIONAL_TREES "support infinite rational trees" ON)
 # dd_definitions (-D)
 
 ## don't touch these opts
@@ -492,7 +518,7 @@ endif ()
 ## (but later on when installing)
 #SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 #
-## SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_TOP_BINARY_DIR})
+## SET(CMAKE_INSTALL_FULL_RPATH ${CMAKE_BINARY_DIR})
 #
 ## add the automatically determined parts of the RPATH
 ## which point to directories outside the build tree to the install RPATH
@@ -516,6 +542,9 @@ ELSE()
   LIST(APPEND CMAKE_INSTALL_RPATH @loader_path/../lib)
   LIST(APPEND CMAKE_INSTALL_RPATH @loader_path/../../../lib)
 ENDIF()
+
+set(YAP_STARTUP startup.yss)
+set(YAP_SOURCEBOOT boot.yap   )
 
 # Model Specific
 if (HAVE_GCC)
@@ -570,7 +599,15 @@ ADD_SUBDIRECTORY(os)
 ADD_SUBDIRECTORY(library/dialect/swi/fli)
 ADD_SUBDIRECTORY(CXX)
 
+ADD_SUBDIRECTORY(pl)
+
+ADD_SUBDIRECTORY(library)
+
+ADD_SUBDIRECTORY(swi/library)
+
 add_subDIRECTORY(utf8proc )
+
+
 
    if(ANDROID)
 
@@ -600,6 +637,7 @@ endif()
 
 
 add_subDIRECTORY( packages/myddas )
+add_subDIRECTORY( packages/clpqr )
 
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
@@ -611,10 +649,12 @@ if (WIN32 OR ANDROID)
   List(APPEND YLIBS $<TARGET_OBJECTS:YAP++>)
   if (WIN32 AND WITH_PYTHON)
     List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
+    list (APPEND WINDLLS ${PYTHON_LIBRARIES})
   endif ()
   if (ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAPsqlite3>)
     List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
+  set(ANDROID_LIBRARIES sqliteX  android log)
 
   endif ()
 endif ()
@@ -632,40 +672,20 @@ add_library( # Sets the name of the library.
   ${YLIBS}
   )
 
-if (GMP_FOUND)
-  target_link_libraries(libYap )
-endif (GMP_FOUND)
-
-if (READLINE_FOUND)
-  target_link_libraries(libYap ${READLINE_LIBRARIES})
-  # required for configure
-
-endif ()
-
-if (ANDROID)
-  target_link_libraries(libYap sqliteX  android log)
-endif()
-
-if (WIN32)
-  target_link_libraries(libYap ${WINDLLS})
-  if (WITH_PYTHON AND PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
-    target_link_libraries(libYap ${PYTHON_LIBRARIES})
-  endif ()
-
-  if (WITH_PYTHON AND PYTHON_INCLUDE_DIRS AND PYTHON_LIBRARIES)
-    target_link_libraries(libYap ${PYTHON_LIBRARIES})
-  endif ()
-endif (WIN32)
-
-target_link_libraries(libYap m)
+  target_link_libraries(libYap
+    m
+    ${GMP_LIBRARIES}
+    ${READLINE_LIBRARIES}
+    ${ANDROID_LIBRARIES}
+    ${WINDLLS}
+    ${PYTHON_LIBRARIES}
+    )
 
   set_target_properties(libYap
   PROPERTIES OUTPUT_NAME Yap
   )
 
 
-set(YAP_STARTUP startup.yss)
-set(YAP_SOURCEBOOT boot.yap                                                                                                                                                                                                                                                                                                                           )
 ## define system
 
 # Optional libraries that affect compilation
@@ -685,7 +705,7 @@ set_property(DIRECTORY PROPERTY CXX_STANDARD 11)
 
 
 if (ANDROID)
-  include_directories(CXX ${CMAKE_SOURCE_DIR}/yaplib/../generated/src/jni)
+  include_directories(CXX ${CMAKE_SOURCE_DIR}/../yaplib/generated/src/jni)
 endif ()
 include(Threads)
 #

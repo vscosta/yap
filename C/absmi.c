@@ -916,24 +916,26 @@ static int interrupt_dexecute(USES_REGS1) {
 
 static void undef_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
-  BEGD(d0);
-/* avoid trouble with undefined dynamic procedures */
-/* I assume they were not locked beforehand */
-#if defined(YAPOR) || defined(THREADS)
+  /* avoid trouble with undefined dynamic procedures */
+  /* I assume they were not locked beforehand */
+  #if defined(YAPOR) || defined(THREADS)
   if (!PP) {
     PELOCK(19, pe);
     PP = pe;
   }
 #endif
-    if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
+  BACKUP_MACHINE_REGS();
+if (pe->PredFlags & (DynamicPredFlag | LogUpdatePredFlag | MultiFileFlag) ) {
 #if defined(YAPOR) || defined(THREADS)
       UNLOCKPE(19, PP);
     PP = NULL;
 #endif
       CalculateStackGap(PASS_REGS1);
       P = FAILCODE;
+      RECOVER_MACHINE_REGS();
       return;
     }
+#if DEBUG
   if (UndefCode == NULL || UndefCode->OpcodeOfPred == UNDEF_OPCODE) {
     fprintf(stderr,"call to undefined Predicates %s ->", IndicatorOfPred(pe));
     Yap_DebugPlWriteln(ARG1);
@@ -946,16 +948,28 @@ static void undef_goal(USES_REGS1) {
 #endif
     CalculateStackGap(PASS_REGS1);
     P = FAILCODE;
+    RECOVER_MACHINE_REGS();
     return;
   }
+#endif
 #if defined(YAPOR) || defined(THREADS)
   UNLOCKPE(19, PP);
   PP = NULL;
-#endif
-  if (pe->ArityOfPE == 0) {
-    d0 = MkAtomTerm((Atom)(pe->FunctorOfPred));
+  #endif
+  CELL o = AbsPair(HR);
+  if (pe->ModuleOfPred == PROLOG_MODULE) {
+    if (CurrentModule == PROLOG_MODULE)
+      HR[0] = TermProlog;
+    else
+      HR[0] = CurrentModule;
   } else {
-    d0 = AbsAppl(HR);
+    HR[0] = Yap_Module_Name(pe);
+  }
+  HR += 2;
+  if (pe->ArityOfPE == 0) {
+    HR[-1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+  } else {
+    HR[-1] = AbsAppl(HR);
     *HR++ = (CELL)pe->FunctorOfPred;
     CELL *ip=HR;
     UInt imax = pe->ArityOfPE;
@@ -984,30 +998,20 @@ static void undef_goal(USES_REGS1) {
       ENDD(d1);
     }
   }
-  ARG1 = AbsPair(HR);
-  HR[1] = d0;
-ENDD(d0);
-  if (pe->ModuleOfPred == PROLOG_MODULE) {
-    if (CurrentModule == PROLOG_MODULE)
-      HR[0] = TermProlog;
-    else
-      HR[0] = CurrentModule;
-  } else {
-    HR[0] = Yap_Module_Name(pe);
-  }
-  ARG2 = Yap_getUnknownModule(Yap_GetModuleEntry(HR[0]));
-  HR += 2;
+  ARG1 = o;
+  ARG2 = MkVarTerm();
 
 #ifdef LOW_LEVEL_TRACER
   if (Yap_do_low_level_trace)
     low_level_trace(enter_pred, UndefCode, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */
   P = UndefCode->CodeOfPred;
+  RECOVER_MACHINE_REGS();
 }
 
 static void spy_goal(USES_REGS1) {
   PredEntry *pe = PredFromDefCode(P);
-
+  BACKUP_MACHINE_REGS();
 #if defined(YAPOR) || defined(THREADS)
   if (!PP) {
     PELOCK(14, pe);
@@ -1027,6 +1031,7 @@ static void spy_goal(USES_REGS1) {
         PP = NULL;
       }
 #endif
+      RECOVER_MACHINE_REGS();
       return;
     }
   }
@@ -1044,6 +1049,7 @@ static void spy_goal(USES_REGS1) {
       }
 #endif
       Yap_NilError(CALL_COUNTER_UNDERFLOW_EVENT, "");
+      RECOVER_MACHINE_REGS();
       return;
     }
     LOCAL_PredEntriesCounter--;
@@ -1055,6 +1061,7 @@ static void spy_goal(USES_REGS1) {
       }
 #endif
       Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW_EVENT, "");
+      RECOVER_MACHINE_REGS();
       return;
     }
     if ((pe->PredFlags & (CountPredFlag | ProfiledPredFlag | SpiedPredFlag)) ==
@@ -1066,6 +1073,7 @@ static void spy_goal(USES_REGS1) {
       }
 #endif
       P = pe->cs.p_code.TrueCodeOfPred;
+      RECOVER_MACHINE_REGS();
       return;
     }
   }
@@ -1084,6 +1092,7 @@ static void spy_goal(USES_REGS1) {
         PP = NULL;
       }
 #endif
+      RECOVER_MACHINE_REGS();
       return;
     }
   }
@@ -1153,6 +1162,7 @@ static void spy_goal(USES_REGS1) {
       low_level_trace(enter_pred, pt0, XREGS + 1);
 #endif /* LOW_LEVEL_TRACE */
   }
+      RECOVER_MACHINE_REGS();
 }
 
 Int Yap_absmi(int inp) {

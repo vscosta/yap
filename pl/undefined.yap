@@ -72,9 +72,7 @@ undefined_query(G0, M0, Cut) :-
 
 '$handle_error'(error,Goal,Mod) :-
     functor(Goal,Name,Arity),
-    'program_continuation'(PMod,PName,PAr),
-    '$do_error'(existence_error(procedure,Name/Arity),
-           context(Mod:Goal,PMod:PName/PAr)).
+    '$do_error'(existence_error(procedure,Name/Arity), Mod:Goal).
 '$handle_error'(warning,Goal,Mod) :-
     functor(Goal,Name,Arity),
     'program_continuation'(PMod,PName,PAr),

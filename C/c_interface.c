@@ -1725,6 +1725,7 @@ X_API YAP_PredEntryPtr YAP_AtomToPredInModule(YAP_Atom at, Term mod) {
   return RepPredProp(PredPropByAtom(at, mod));
 }
 
+/*
 static int run_emulator(USES_REGS1) {
   int out;
 
@@ -1732,6 +1733,7 @@ static int run_emulator(USES_REGS1) {
   LOCAL_PrologMode |= UserCCallMode;
   return out;
 }
+*/
 
 X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
@@ -2210,8 +2212,10 @@ X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
   BACKUP_MACHINE_REGS();
   Term t = Yap_read_term(
       sno,
-      MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &vs),
-                 MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomTermPosition, 1),
+      MkPairTerm(
+		 Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &vs),
+                 MkPairTerm(
+			    Yap_MkApplTerm(Yap_MkFunctor(AtomTermPosition, 1),
                                            1, &pos),
                             TermNil)),
       true);
@@ -2268,6 +2272,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
        }
     }
   }
+  return out.val.c = pop_output_text_stack(l,buf);
 }
 
 /// write a a term to n user-provided buffer: make sure not tp

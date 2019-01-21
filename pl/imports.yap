@@ -60,7 +60,7 @@ fail.
 
 %
 '$get_undefined_pred'(ImportingMod:G, ExportingMod:G0) :-
-    must_be_callablle( ImportingMod:G ),
+    must_be_callable( ImportingMod:G ),
     '$get_undefined_predicates'(ImportingMod:G, ExportingMod:G0).
 
 % be careful here not to generate an undefined exception.
@@ -94,7 +94,7 @@ fail.
 '$verify_import'(_M:G, prolog:G) :-
     '$is_system_predicate'(G, prolog).
 '$verify_import'(M:G, NM:NG) :-
-    '$get_undefined_pred'(G, M, NG, NM),
+    '$get_undefined_predicates'(M:G, M, NM:NG),
     !.
 '$verify_import'(MG, MG).
 
@@ -111,8 +111,13 @@ fail.
     functor(G0, N, K),
     '$autoloader_find_predicate'(G0,ExportingMod),
     ExportingMod \= ImportingMod,
-%    assert_static(ExportingMod:G0 :- ImportingMod:G0),
-    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_) -> true ; true ).
+    (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_),
+     \+ '$system_predicate'(G0,prolog)
+    ->
+     '$compile'((G:-ExportingMod:G0), reconsult ,(ImportingMod:G:-ExportingMod:G0), ImportingMod, _)
+    ;
+     true
+    ).
 
 
 '$autoloader_find_predicate'(G,ExportingMod) :-
@@ -122,10 +127,7 @@ fail.
     yap_flag(autoload, true, false),
     yap_flag( unknown, Unknown, fail),
     yap_flag(debug, Debug, false), !,
-    load_files([library(autoloader),
-		autoloader:library('NDEX'),
-		swi:library('dialect/swi/NDEX')],
-	       [autoload(true),if(not_loaded)]),
+    load_files([library(autoloader)],[silent(true)]),
     nb_setval('$autoloader_set', true),
     yap_flag(autoload, _, true),
     yap_flag( unknown, _, Unknown),

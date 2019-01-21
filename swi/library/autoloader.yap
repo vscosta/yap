@@ -120,7 +120,13 @@ find_predicate(G,ExportingModI) :-
         var(G),
 	index(Name,Arity,ExportingModI,File),
 	functor(G, Name, Arity),
-	ensure_loaded(File).
+	ensure_file_loaded(File).
 
-:- ensure_loaded('INDEX').
+ensure_file_loaded(File) :-
+	loaded(File), !.
+ensure_file_loaded(File) :-
+	load_files(autoloader:File,[silent(true),if(not_loaded)]),
+	assert(loaded(File)).
+
+:- include('INDEX').
 
