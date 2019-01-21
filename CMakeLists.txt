@@ -365,17 +365,6 @@ find_package(GMP)
 
 list(APPEND YAP_SYSTEM_OPTIONS big_numbers)
 
-include_directories(H
-  H/generated
-  include os OPTYap utf8proc JIT/HPP)
-include_directories(BEFORE ${CMAKE_BINARY_DIR} ${CMAKE_TOP_BINARY_DIR})
-
-add_subdirectory( H )
-
-if (GMP_INCLUDE_DIRS)
-  #config.h needs this (TODO: change in code latter)
-  include_directories(${GMP_INCLUDE_DIRS})
- endif ()
 
 
 if (WITH_READLINE)
@@ -387,13 +376,23 @@ if (WITH_READLINE)
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
-  if (READLINE_FOUND)
-    include_directories(${READLINE_INCLUDE_DIR})
-    # required for configure
-    list(APPEND CMAKE_REQUIRED_LIBRARIES ${READLINE_LIBRARIES})
+    target_link_libraries(libYap   android log)
     list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR})
-  endif ()
 endif()
+
+set_directory_properties( PROPERTIES INCLUDE_DIRECTORIES
+  H
+  H/generated
+  include
+  os
+  OPTYap
+  utf8proc
+  JIT/HPP
+  ${GMP_INCLUDE_DIRS}
+  ${READLINE_LIBRARIES}
+  ${SQLITE_LIBRARIES}
+  ${ANDROID_LIBRARIES}
+  ) 
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
@@ -410,8 +409,8 @@ endif()
 set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 6)
-set(YAP_MINOR_VERSION 4)
-set(YAP_PATCH_VERSION 1)
+set(YAP_MINOR_VERSION 5)
+set(YAP_PATCH_VERSION 0)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -634,7 +633,7 @@ add_library( # Sets the name of the library.
   )
 
 if (GMP_FOUND)
-  target_link_libraries(libYap ${GMP_LIBRARIES})
+  target_link_libraries(libYap )
 endif (GMP_FOUND)
 
 if (READLINE_FOUND)
