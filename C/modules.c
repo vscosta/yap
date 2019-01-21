@@ -197,6 +197,7 @@ Term Yap_Module(Term tmod) {
 
 ModEntry *Yap_GetModuleEntry(Term mod) {
   ModEntry *me;
+
   if (!(me = LookupModule(mod)))
     return NULL;
   return me;

@@ -145,13 +145,13 @@ threads that are created <em>after</em> the registration.
 
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
 
-static UInt big2arena_sz(CELL *arena_base) {
+static size_t big2arena_sz(CELL *arena_base) {
   return (((MP_INT *)(arena_base + 2))->_mp_alloc * sizeof(mp_limb_t) +
           sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) /
          sizeof(CELL);
 }
 
-static UInt arena2big_sz(UInt sz) {
+static size_t arena2big_sz(size_t sz) {
   return sz -
          (sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) / sizeof(CELL);
 }
@@ -159,7 +159,7 @@ static UInt arena2big_sz(UInt sz) {
 /* pointer to top of an arena */
 static inline CELL *ArenaLimit(Term arena) {
   CELL *arena_base = RepAppl(arena);
-  UInt sz = big2arena_sz(arena_base);
+  size_t sz = big2arena_sz(arena_base);
   return arena_base + sz;
 }
 
@@ -171,9 +171,9 @@ CELL *Yap_ArenaLimit(Term arena) {
 /* pointer to top of an arena */
 static inline CELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
 
-static inline UInt ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
+static inline size_t ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
 
-static Term CreateNewArena(CELL *ptr, UInt size) {
+static Term CreateNewArena(CELL *ptr, size_t size) {
   Term t = AbsAppl(ptr);
   MP_INT *dst;
 
@@ -186,9 +186,9 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
   return t;
 }
 
-static Term NewArena(UInt size, int wid, UInt arity, CELL *where) {
+static Term NewArena(size_t size, int wid, UInt arity, CELL *where) {
   Term t;
-  UInt new_size;
+  size_t new_size;
   WORKER_REGS(wid)
 
   if (where == NULL || where == HR) {
@@ -228,11 +228,11 @@ static Int p_default_arena_size(USES_REGS1) {
   return Yap_unify(ARG1, MkIntegerTerm(ArenaSz(LOCAL_GlobalArena)));
 }
 
-void Yap_AllocateDefaultArena(Int gsize, Int attsize, int wid) {
+void Yap_AllocateDefaultArena(size_t gsize, int wid) {
   REMOTE_GlobalArena(wid) = NewArena(gsize, wid, 2, NULL);
 }
 
-static void adjust_cps(UInt size USES_REGS) {
+static void adjust_cps(size_t size USES_REGS) {
   /* adjust possible back pointers in choice-point stack */
   choiceptr b_ptr = B;
   while (b_ptr->cp_h == HR) {
@@ -290,14 +290,14 @@ static int GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
   return TRUE;
 }
 
-CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
+CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {
   CACHE_REGS
 restart : {
   Term arena = *arenap;
   CELL *max = ArenaLimit(arena);
   CELL *base = ArenaPt(arena);
   CELL *newH;
-  UInt old_sz = ArenaSz(arena), new_size;
+  size_t old_sz = ArenaSz(arena), new_size;
 
   if (IN_BETWEEN(base, HR, max)) {
     base = HR;
@@ -319,8 +319,8 @@ restart : {
 }
 
 static void CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP,
-                       UInt old_size USES_REGS) {
-  UInt new_size;
+                       size_t old_size USES_REGS) {
+  size_t new_size;
 
   if (HR == oldH)
     return;
@@ -357,7 +357,7 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   SP = S0+used; SF = S0+sz; }
 
 static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
-                             int share, int copy_att_vars, CELL *ptf,
+                             bool share, bool copy_att_vars, CELL *ptf,
                              CELL *HLow USES_REGS) {
 
   int lvl = push_text_stack();
@@ -480,7 +480,7 @@ loop:
           break;
         default: {
           /* big int */
-          UInt sz = (sizeof(MP_INT) + 3 * CellSize +
+          size_t sz = (sizeof(MP_INT) + 3 * CellSize +
                      ((MP_INT *)(ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
                     CellSize,
                i;

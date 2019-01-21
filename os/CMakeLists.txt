@@ -1,5 +1,6 @@
 set (YAPOS_HEADERS
         getw.h
+
         iopreds.h
         yapio.h
         YapEncoding.h
@@ -62,12 +63,7 @@ set (POSITION_INDEPENDENT_CODE TRUE)
       yio.yap
   )
 
-add_to_group( YAPOS_PL_SOURCES  pl_os_library)
+add_to_dir(YAPOS PL_SOURCES ${YAP_INSTALL_DATADIR}/os)
 
-
-  if (ANDROID)
-      file(INSTALL ${YAPOS_PL_SOURCES}  DESTINATION ${YAP_INSTALL_DATADIR}/os)
-else()
-    install (FILES ${YAPOS_PL_SOURCES}
+   install (FILES ${YAPOS_PL_SOURCES}
     DESTINATION ${YAP_INSTALL_DATADIR}/os )
-endif()

@@ -599,11 +599,12 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
+  Term omod = CurrentModule;
   PredEntry *ap = nullptr;
   if (IsStringTerm(tmod))
     tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
-  YAPPredicate *p = new YAPPredicate(t, tmod, ts, "C++");
-  if (p == nullptr || (ap = p->ap) == nullptr ||
+  ap =  Yap_get_pred(t, tmod, "C++");
+  if (ap == nullptr ||
       ap->OpcodeOfPred == UNDEF_OPCODE) {
     ap = rewriteUndefEngineQuery(ap, t, tmod);
   }
@@ -627,6 +628,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
 
   YAP_LeaveGoal(result && !release, &q);
+  CurrentModule = LOCAL_SourceModule = omod;
   //      PyEval_RestoreThread(_save);
   RECOVER_MACHINE_REGS();
   return result;
@@ -801,6 +803,7 @@ PredEntry *YAPQuery::rewriteUndefQuery() {
 PredEntry *YAPEngine::rewriteUndefEngineQuery(PredEntry *a, Term &tgoal,
                                               Term mod) {
   tgoal = Yap_MkApplTerm(FunctorCall, 1, &tgoal);
+  LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   return PredCall;
 
   // return YAPApplTerm(FunctorUndefinedQuery, ts);
@@ -919,6 +922,7 @@ void YAPEngine::doInit(YAP_file_type_t BootMode, YAPEngineArgs *engineArgs) {
   //   initq.cut();
   // }
   CurrentModule = TermUser;
+  LOCAL_SourceModule = TermUser;
 }
 
 YAPEngine::YAPEngine(int argc, char *argv[],

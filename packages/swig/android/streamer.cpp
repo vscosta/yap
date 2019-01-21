@@ -58,15 +58,39 @@ and_close(int sno) {
 
 static int
 and_put(int sno, int ch) {
-buff0 += ch;
-     streamerInstance->display(buff0);
-    buff0.clear();
+    buff0 += ch;
+    if (ch == '\n') {
+        streamerInstance->display(buff0);
+        buff0.clear();
+    }
 
  return ch;
  }
 
+
+static int
+and_wput(int sno, int ch) {
+    unsigned char b0[8];
+
+    size_t extra = put_utf8(b0, ch);
+    if (extra < 0)
+        PlIOError(DOMAIN_ERROR_ENCODING, MkIntegerTerm(ch), "ch %C found at putw", ch);
+    else if(extra==0)
+        return false;
+    for (int i=0; i < extra; i++) {
+        buff0 += b0[i];
+    }
+    if (ch == '\n') {
+        streamerInstance->display(buff0);
+        buff0.clear();
+    }
+
+    return ch;
+}
+
 static int
 and_get(int sno) {
+    PlIOError(PERMISSION_ERROR_OUTPUT_STREAM, MkIntTerm(sno), "streamer is just for writing");
   return EOF;
 }
 
@@ -86,14 +110,16 @@ extern "C" {
 void Java_pt_up_yap_streamerJNI_swig_1module_1init(void) {
     andstream = new VFS_t();
 
-    andstream->name = "/android/user_error";
+    andstream->name = "/android/user";
     andstream->vflags = VFS_CAN_WRITE | VFS_HAS_PREFIX;
     andstream->prefix = "/android";
     andstream->suffix = NULL;
     andstream->open = and_open;
     andstream->close = and_close;
     andstream->get_char = and_get;
+    andstream->get_wchar = and_get;
     andstream->put_char = and_put;
+    andstream->put_wchar = and_wput;
     andstream->flush = and_flush;
     andstream->seek = and_seek;
     andstream->next = GLOBAL_VFS;

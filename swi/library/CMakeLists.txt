@@ -37,12 +37,8 @@ set (LIBRARY_PL
   )
 
 
-  if (ANDROID)
-      file(INSTALL ${LIBRARY_PL}  DESTINATION ${YAP_INSTALL_DATADIR})
-  endif()
-
 install(FILES ${LIBRARY_PL}
   DESTINATION ${YAP_INSTALL_DATADIR}      
   )
 
-  add_to_group( LIBRARY_PL pl_library )
+  add_to_dir (LIBRARY_PL YAP_INSTALL_DATADIR )

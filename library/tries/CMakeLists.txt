@@ -6,7 +6,7 @@ set ( TRIES_SOURCES
   tries.c
   )
 
-add_lib(tries ${TRIES_SOURCES})
+add_library(tries ${TRIES_SOURCES})
 
 target_link_libraries(tries libYap)
 
@@ -27,7 +27,7 @@ set ( ITRIES_SOURCES
 if (ANDROID OR WIN32)
    add_component ( otries ${TRIES_SOURCES} )
 endif()
-add_lib(itries ${ITRIES_SOURCES})
+add_library(itries ${ITRIES_SOURCES})
 
 target_link_libraries(itries libYap)
 

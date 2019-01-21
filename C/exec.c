@@ -2174,7 +2174,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 #endif
   STATIC_PREDICATES_MARKED = FALSE;
   if (full_reset) {
-    HR = H0 + 1;
+    HB = HR = H0 + 1;
     h0var = MkVarTerm();
     REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
     REMOTE_GcCurrentPhase(myworker_id) = 0L;
@@ -2185,7 +2185,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     h0var = MkVarTerm();
     REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
-    Yap_AllocateDefaultArena(128 * 1024, 2, myworker_id);
+    size_t defsz = 128*1024;
+    Yap_AllocateDefaultArena(defsz, myworker_id);
   } else {
     HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
   }

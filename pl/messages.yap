@@ -1014,9 +1014,7 @@ stub to ensure everything os ok
 prolog:print_message(Severity, Msg) :-
     \+ in,
     assert(in),
-    start_low_level_trace,
     ( prolog:print_message(Severity, Msg), fail;
-    stop_low_level_trace,
       retract(in)
     ).
 */

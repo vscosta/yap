@@ -39,7 +39,7 @@ if (WIN32)
   set( CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} ${LIBXML2_LIBRARIES} )
   
 else (WIN32)
-  ADD_LIB(libxml2  ${LIBXML2_SOURCES} )
+  add_library(libxml2  ${LIBXML2_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(libxml2
@@ -88,7 +88,7 @@ IF (RAPTOR_FOUND)
     raptor_yap.c
     )
 
-  ADD_LIB(raptor  ${RAPTOR_SOURCES} )
+  add_library(raptor  ${RAPTOR_SOURCES} )
 
   if(DEFINED YAP_MAJOR_VERSION)
     TARGET_LINK_LIBRARIES(raptor

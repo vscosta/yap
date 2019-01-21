@@ -1110,7 +1110,7 @@ YAP_file_type_t Yap_Restore(const char *s) {
     return -1;
   GLOBAL_RestoreFile = s;
   if (do_header(stream) == NIL)
-    return YAP_BOOT_PL;
+    return YAP_PL;
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);

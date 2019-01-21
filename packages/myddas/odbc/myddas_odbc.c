@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-#if defined MYDDAS_ODBC
+#if MYDDAS_ODBC
 
 #if !defined(ODBCVER)
 typedef void *SQLHDBC;

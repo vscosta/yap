@@ -5,17 +5,6 @@
 
 set (ABSMI_SOURCES
   C/absmi.c
-  C/absmi_insts.h
-  C/fli_absmi_insts.h
-  C/or_absmi_insts.h
-  C/control_absmi_insts.h
-  C/index_absmi_insts.h
-  C/prim_absmi_insts.h
-  C/cp_absmi_insts.h
-  C/lu_absmi_insts.h
-  C/unify_absmi_insts.h
-  C/fail_absmi_insts.h
-  C/meta_absmi_insts.h
   )
 
 set (ENGINE_SOURCES

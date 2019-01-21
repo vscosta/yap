@@ -101,7 +101,7 @@ X_API int YAP_Reset(yap_reset_t mode, bool reset_global);
 #define X_API __declspec(dllexport)
 #endif
 
-#define BootFilePath NULL
+#define SOURCEBOOTPath NULL
 #if __ANDROID__
 #define BOOT_FROM_SAVED_STATE true
 #endif
@@ -1799,7 +1799,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   /* make sure we didn't leave live slots when we backtrack */
   ASP = (CELL *)B;
   LOCAL_CurSlot = dgi->EndSlot;
-  out = run_emulator(PASS_REGS1);
+  out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     dgi->b = LCL0 - (CELL *)B;
@@ -2114,7 +2114,7 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full,
         mode = YAP_CONSULT_MODE;
     }
     if (fname == NULL || fname[0] == '\0') {
-        fl = Yap_BOOTFILE;
+        fl = Yap_SOURCEBOOT;
     }
     if (!fname || !(fl = Yap_AbsoluteFile(fname, true)) || !fl[0]) {
             __android_log_print(
@@ -2249,7 +2249,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   inp.val.t = t;
   inp.type = YAP_STRING_TERM | YAP_STRING_DATUM;
   out.type = YAP_STRING_CHARS;
-  out.val.c = buf;
+  out.val.c = NULL;
   out.max = sze - 1;
   out.enc = LOCAL_encoding;
   if (!Yap_CVT_Text(&inp, &out PASS_REGS)) {
@@ -2261,7 +2261,11 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
     if (buf == out.val.c) {
       return buf;
     } else {
-      return pop_output_text_stack(l, out.val.c);
+        if ( strlen(out.val.c ) < sze) {
+        strcpy( buf, out.val.c);
+        pop_text_stack(l);
+        return    buf;
+       }
     }
   }
 }

@@ -79,9 +79,7 @@ endif()
 
 
 install(FILES ${YAP4PY_PL} DESTINATION ${YAP_INSTALL_DATADIR} )
-
-add_to_group(  YAP4PY_PL pl_library )
-
+    
   if (WITH_DOCS AND DOXYGEN_FOUND)
 
     set(CMAKE_SWIG_FLAGS -DDOXYGEN=${DOXYGEN_FOUND})

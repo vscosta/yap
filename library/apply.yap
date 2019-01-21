@@ -7,7 +7,6 @@
  * 
 */
 
-
 :- module(apply_stub,[]).
 
 

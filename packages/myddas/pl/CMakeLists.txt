@@ -23,6 +23,7 @@ foreach (filename ${MYDDAS_YPP})
     get_filename_component(base ${filename} NAME_WE)
     set(base_abs ${MYDDAS_PL_OUTDIR}/${base})
     set(outfile ${base_abs}.yap)
+    list(APPEND MYDDAS_YAP_FILES ${outfile})
     execute_process(
                 COMMAND ${CMAKE_C_COMPILER} ${MYDDAS_FLAGS} -x c -E -P -w ${CMAKE_CURRENT_SOURCE_DIR}/${filename} -o ${outfile}
                    )
@@ -30,6 +31,7 @@ foreach (filename ${MYDDAS_YPP})
 endforeach  ()
 foreach (dbms ${MYDDAS_DBMS} )
     set(outfile ${MYDDAS_PL_OUTDIR}/myddas_${dbms}.yap)
+    list(APPEND MYDDAS_YAP_FILES ${outfile})
   execute_process(
                 COMMAND ${CMAKE_C_COMPILER} -D${dbms} -x c -E -P -w   ${CMAKE_CURRENT_SOURCE_DIR}/myddas_driver.ypp -o ${outfile}
                  )
@@ -37,8 +39,6 @@ foreach (dbms ${MYDDAS_DBMS} )
     set_source_files_properties(outfile PROPERTIES GENERATED TRUE)
 
 endforeach()
+    list(APPEND MYDDAS_YAP_FILES  ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/sqlitest.yap ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/chinook.db)
 
-        set( MYDDAS_YAP ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/sqlitest.yap ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/chinook.db)
-        add_to_group(MYDDAS_YAP pl_library )
-        file(INSTALL ${MYDDAS_YAP}
-               DESTINATION ${MYDDAS_PL_OUTDIR} )
+        install(FILES ${MYDDAS_YAP_FILES} DESTINATION ${YAP_INSTALL_DATADIR})

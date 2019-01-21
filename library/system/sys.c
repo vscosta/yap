@@ -237,8 +237,10 @@ static YAP_Bool list_directory(void) {
 #else
 #if __ANDROID__
   {
+    extern  AAssetManager *Yap_assetManager(void);
+
     const char *dirName = buf + strlen("/assets/");
-    AAssetManager *mgr = GLOBAL_VFS->priv[0].mgr;
+    AAssetManager *mgr = Yap_assetManager();
     AAssetDir *de;
     const char *dp;
 

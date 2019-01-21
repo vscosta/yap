@@ -799,6 +799,7 @@ static const param_t expand_filename_defs[] = {EXPAND_FILENAME_DEFS()};
 static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
   xarg *args;
   expand_filename_enum_choices_t i;
+
   bool use_system_expansion = true;
   const char *tmpe = NULL;
   const char *spec;
@@ -1046,10 +1047,10 @@ static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
 
-  if (!Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
+  if (!Yap_PLDIR || !Yap_unify(tlib, MkAtomTerm(Yap_LookupAtom(Yap_PLDIR))))
     return false;
 
-  return Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(Yap_COMMONSDIR)));
+  return Yap_COMMONSDIR && Yap_unify(tcommons, MkAtomTerm(Yap_LookupAtom(Yap_COMMONSDIR)));
 }
 
 static Int libraries_directories(USES_REGS1) {
@@ -1057,21 +1058,7 @@ static Int libraries_directories(USES_REGS1) {
 }
 
 static Int system_library(USES_REGS1) {
-#if __ANDROID__
-  static Term dir = 0;
-  Term t;
-  if (IsVarTerm(t = Deref(ARG1))) {
-    if (dir == 0)
-      return false;
-    return Yap_unify(dir, ARG1);
-  }
-  if (!IsAtomTerm(t))
-    return false;
-  dir = t;
-  return true;
-#else
   return initSysPath(ARG1, MkVarTerm(), false, true);
-#endif
 }
 
 static Int commons_library(USES_REGS1) {

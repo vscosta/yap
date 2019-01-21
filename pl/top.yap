@@ -14,7 +14,7 @@
   * \*/
 
   :- '$system_meta_predicates'([
-	gated_call(0,0,?,0),
+				     gated_call(0,0,?,0),
 	catch(0,?,0),
   log_event(+,:)]).
 

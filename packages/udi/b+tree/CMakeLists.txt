@@ -11,7 +11,7 @@ SET ( SOURCES
 	b+tree_udi.c
   )
 
-ADD_LIB(udi_b+tree  ${SOURCES})
+add_library(udi_b+tree  ${SOURCES})
 
 INSTALL(TARGETS udi_b+tree DESTINATION ${YAP_PL_LIBRARY_DIR})
 INSTALL(FILES b+tree.yap DESTINATION ${YAP_PL_LIBRARY_DIR})

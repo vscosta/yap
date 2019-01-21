@@ -631,35 +631,7 @@ and if it is bound to `off` disable them. The default for YAP is
     YAP_FLAG(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG,
              "variable_names_may_end_with_quotes", true, booleanFlag, "false",
              NULL),
- /**< 
 
-    If `normal` allow printing of informational and banner messages,
-    such as the ones that are printed when consulting. If `silent`
-    disable printing these messages. It is `normal` by default except if
-    YAP is booted with the `-q` or `-L` flag.
-
- */
-  YAP_FLAG(VERBOSE_FLAG, "verbose", true, isatom, "normal", NULL),
-   
- /**< 
-
-    If `true` allow printing of informational messages when
-    searching for file names. If `false` disable printing these messages. It
-    is `false` by default except if YAP is booted with the `-L`
-    flag.
- */
-  YAP_FLAG(VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, booleanFlag,
-             "false", NULL),
-   
- /**<
-
-     If `true` allow printing of informational messages when
-     consulting files. If `false` disable printing these messages. It
-     is `true` by default except if YAP is booted with the `-L`
-     flag.
-  */
-  YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
-   
  /**<
      Read-only flag that returns a compound term with the
     current version of YAP. The term will have the name `yap` and arity 4, the

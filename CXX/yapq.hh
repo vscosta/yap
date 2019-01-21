@@ -94,7 +94,7 @@ public:
   /// should be a callable
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
                         LOCAL_CurSlot);
 
     openQuery();
@@ -175,11 +175,11 @@ struct X_API YAPEngineArgs : YAP_init_args {
 
 public:
   YAPEngineArgs() {
+    memset(this,0,sizeof(YAPEngineArgs));
     // const std::string *s = new std::string("startup.yss");
     Embedded = true;
     install = false;
-
-    Yap_InitDefaults(this, nullptr, 0, nullptr);
+    Yap_InitDefaults(&this->start, nullptr, 0, nullptr);
 #if YAP_PYTHON
     Embedded = true;
     python_in_python = Py_IsInitialized();
@@ -231,12 +231,12 @@ public:
 
   inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
-  inline void setBOOTFILE(const char *fl) {
-    BOOTFILE = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BOOTFILE, fl);
+  inline void setSOURCEBOOT(const char *fl) {
+    SOURCEBOOT = (const char *)malloc(strlen(fl) + 1);
+    strcpy((char *)SOURCEBOOT, fl);
   };
 
-  inline const char *getBOOTFILE() { return BOOTFILE; };
+  inline const char *getSOURCEBOOT() { return SOURCEBOOT; };
 
   inline void setPrologBOOTSTRAP(const char *fl) {
     BOOTSTRAP = (const char *)malloc(strlen(fl) + 1);
@@ -298,7 +298,7 @@ public:
       __android_log_print(
     ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
 #ifdef __ANDROID__
-    doInit(YAP_BOOT_PL, cargs);
+    doInit(YAP_PL, cargs);
 
 #else
     doInit(YAP_QLY, cargs);
@@ -352,7 +352,8 @@ public:
   bool mgoal(Term t, Term tmod, bool release = false);
   /// current directory for the engine
 
-  bool goal(Term t, bool release = false) {
+    bool goal(YAPTerm t, bool release = false) { return goal(t.term(), release); }
+    bool goal(Term t, bool release = false) {
     return mgoal(t, Yap_CurrentModule(), release);
   }
   /// reset Prolog state
