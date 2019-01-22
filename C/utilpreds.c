@@ -45,92 +45,92 @@ typedef struct non_single_struct_t {
   CELL *pt0, *pt0_end;
 } non_singletons_t;
 
-#define WALK_COMPLEX_TERM__(LIST0, STRUCT0)		\
-      if (IsPairTerm(d0)) {\
-	if (to_visit +  32 >= to_visit_max) {\
-	  goto aux_overflow;\
-	}\
-	LIST0;\
-	ptd0 = RepPair(d0);\
-	if (*ptd0 == TermFreeTerm) continue;\
-	to_visit->pt0 = pt0;\
-	to_visit->pt0_end = pt0_end;\
-	to_visit->ptd0 = ptd0;\
-	to_visit->d0 = *ptd0;\
-	to_visit ++;\
-	d0 = ptd0[0];\
-	pt0 = ptd0;\
-	*ptd0 = TermFreeTerm;\
-	pt0_end = pt0 + 1;\
-	goto   list_loop;\
-      } else if (IsApplTerm(d0)) {\
-	register Functor f;\
-	register CELL *ap2;\
-	/* store the terms to visit */\
-	ap2 = RepAppl(d0);\
-	f = (Functor)(*ap2);\
-\
-	if (IsExtensionFunctor(f)) {\
-\
-	  continue;\
-	}\
-	STRUCT0;\
-	if (to_visit  + 32 >= to_visit_max) {\
-	  goto aux_overflow;\
-	}\
-	to_visit->pt0 = pt0;\
-	to_visit->pt0_end = pt0_end;\
-	to_visit->ptd0 = ap2;\
-	to_visit->d0 = *ap2;\
-	to_visit ++;\
-\
-	*ap2 = TermNil;\
-	d0 = ArityOfFunctor(f);\
-	pt0 = ap2;\
-	pt0_end = ap2 + d0;\
-      }
+#define WALK_COMPLEX_TERM__(LIST0, STRUCT0)	\
+  if (IsPairTerm(d0)) {				\
+    if (to_visit +  32 >= to_visit_max) {	\
+      goto aux_overflow;			\
+    }						\
+    LIST0;					\
+    ptd0 = RepPair(d0);				\
+    if (*ptd0 == TermFreeTerm) continue;	\
+    to_visit->pt0 = pt0;			\
+    to_visit->pt0_end = pt0_end;		\
+    to_visit->ptd0 = ptd0;			\
+    to_visit->d0 = *ptd0;			\
+    to_visit ++;				\
+    d0 = ptd0[0];				\
+    pt0 = ptd0;					\
+    *ptd0 = TermFreeTerm;			\
+    pt0_end = pt0 + 1;				\
+    goto   list_loop;				\
+  } else if (IsApplTerm(d0)) {			\
+    register Functor f;				\
+    register CELL *ap2;				\
+    /* store the terms to visit */		\
+    ap2 = RepAppl(d0);				\
+    f = (Functor)(*ap2);			\
+						\
+    if (IsExtensionFunctor(f)) {		\
+						\
+      continue;					\
+    }						\
+    STRUCT0;					\
+    if (to_visit  + 32 >= to_visit_max) {	\
+      goto aux_overflow;			\
+    }						\
+    to_visit->pt0 = pt0;			\
+    to_visit->pt0_end = pt0_end;		\
+    to_visit->ptd0 = ap2;			\
+    to_visit->d0 = *ap2;			\
+    to_visit ++;				\
+						\
+    *ap2 = TermNil;				\
+    d0 = ArityOfFunctor(f);			\
+    pt0 = ap2;					\
+    pt0_end = ap2 + d0;				\
+  }
 
 #define WALK_COMPLEX_TERM()  WALK_COMPLEX_TERM__({}, {}) 
 
-#define def_trail_overflow() \
-  trail_overflow:{	      \
-  while (to_visit > to_visit0) {\
-    to_visit --;\
-    CELL *ptd0 = to_visit->ptd0;\
-    *ptd0 = to_visit->d0;\
-  }\
-  pop_text_stack(lvl);\
-  LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;\
-  LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);\
-  clean_tr(TR0 PASS_REGS);\
-  HR = InitialH;\
-  return 0L;\
-}
+#define def_trail_overflow()				\
+  trail_overflow:{					\
+    while (to_visit > to_visit0) {			\
+      to_visit --;					\
+      CELL *ptd0 = to_visit->ptd0;			\
+      *ptd0 = to_visit->d0;				\
+    }							\
+    pop_text_stack(lvl);				\
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;		\
+    LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);	\
+    clean_tr(TR0 PASS_REGS);				\
+    HR = InitialH;					\
+    return 0L;						\
+  }
 
-#define def_aux_overflow() \
-  aux_overflow:{				\
-     size_t d1 = to_visit-to_visit0;\
-    size_t d2 = to_visit_max-to_visit0;\
-to_visit0 = Realloc(to_visit0,(d2+128)*sizeof(struct non_single_struct_t)); \
-    to_visit = to_visit0+d1;\
-to_visit_max = to_visit0+(d2+128);		\
-  pt0--;\
-  goto restart;\
- }
+#define def_aux_overflow()						\
+  aux_overflow:{							\
+    size_t d1 = to_visit-to_visit0;					\
+    size_t d2 = to_visit_max-to_visit0;					\
+    to_visit0 = Realloc(to_visit0,(d2+128)*sizeof(struct non_single_struct_t)); \
+    to_visit = to_visit0+d1;						\
+    to_visit_max = to_visit0+(d2+128);					\
+    pt0--;								\
+    goto restart;							\
+  }
 
-#define def_global_overflow()  \
+#define def_global_overflow()			\
   global_overflow:{				\
-  while (to_visit > to_visit0) {		\
-    to_visit --;\
-    CELL *ptd0 = to_visit->ptd0;\
-    *ptd0 = to_visit->d0;\
-  }\
-  pop_text_stack(lvl);\
-  clean_tr(TR0 PASS_REGS);\
-  HR = InitialH;\
-  LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;\
-  LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);\
-  return false; }
+    while (to_visit > to_visit0) {		\
+      to_visit --;				\
+      CELL *ptd0 = to_visit->ptd0;		\
+      *ptd0 = to_visit->d0;			\
+    }						\
+    pop_text_stack(lvl);			\
+    clean_tr(TR0 PASS_REGS);			\
+    HR = InitialH;				\
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;	\
+    LOCAL_Error_Size = (ASP-HR)*sizeof(CELL);	\
+    return false; }
 
 
 static Int   p_non_singletons_in_term( USES_REGS1);
@@ -140,7 +140,6 @@ static Int   ground_complex_term(CELL *, CELL * CACHE_TYPE);
 static Int   p_ground( USES_REGS1 );
 static Int   p_copy_term( USES_REGS1 );
 static Int   var_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
-static int   copy_complex_term(CELL *, CELL *, int, int, CELL *, CELL * CACHE_TYPE);
 static CELL  vars_in_complex_term(CELL *, CELL *, Term CACHE_TYPE);
 
 #ifdef DEBUG
@@ -159,145 +158,191 @@ clean_tr(tr_fr_ptr TR0 USES_REGS) {
 
 static inline void
 clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
-  if (TR != TR0) {
-    tr_fr_ptr pt = TR0;
-
-    do {
-      Term p = TrailTerm(pt++);
+  tr_fr_ptr pt0 = TR;
+  while (pt0 != TR0) {
+    Term p = TrailTerm(--pt0);
+    if (IsApplTerm(p)) {
+      CELL *pt = RepAppl(p);
+#ifdef FROZEN_STACKS
+      pt[0] = TrailVal(pt0);
+#else
+      pt[0] = TrailTerm(pt0 - 1);
+      pt0 --;
+#endif /* FROZEN_STACKS */
+    } else {
       RESET_VARIABLE(p);
-    } while (pt != TR);
-    TR = TR0;
-  }
+    }
+  } 
+  TR = TR0;
 }
 
-static int
-copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, CELL *HLow USES_REGS)
-{
+#define expand_stack(S0,SP,SF,TYPE)				\
+  { size_t sz = SF-S0, used = SP-S0;				\
+    S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
+    SP = S0+used; SF = S0+sz; }
 
-  struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace() ;
+#define MIN_ARENA_SIZE (1048L)
+
+int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
+			  bool share, bool copy_att_vars, CELL *ptf,
+			  CELL *HLow USES_REGS) {
+  //  fprintf(stderr,"+++++++++\n");
+  //CELL *x = pt0; while(x != pt0_end) Yap_DebugPlWriteln(*++ x);
+
+  int lvl = push_text_stack();
+
+  struct cp_frame *to_visit0,
+    *to_visit = Malloc(1024*sizeof(struct cp_frame));
+  struct cp_frame *to_visit_max;
+
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
-  int ground = TRUE;
+  int ground = true;
 
-  HB = HR;
+  HB = HLow;
   to_visit0 = to_visit;
+  to_visit_max = to_visit+1024;
  loop:
   while (pt0 < pt0_end) {
     register CELL d0;
     register CELL *ptd0;
-    ++ pt0;
-    ptd0 = pt0;
+    
+    ptd0 = ++pt0;
     d0 = *ptd0;
+  deref:
     deref_head(d0, copy_term_unk);
-  copy_term_nvar:
-    {
+  copy_term_nvar : {
       if (IsPairTerm(d0)) {
-	CELL *ap2 = RepPair(d0);
-	if (ap2 >= HB && ap2 < HR) {
+	CELL *headp = RepPair(d0);
+	if (//(share && headp < HB) ||
+	    (IsPairTerm(*headp) && RepPair(*headp) >= HB && RepPair(*headp) < HR)) {
 	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
+	  *ptf++ = *headp;
 	  continue;
+	}
+	if (to_visit >= to_visit_max-32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
 	}
 	*ptf = AbsPair(HR);
 	ptf++;
-	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
-	  goto heap_overflow;
-	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldv = *pt0;
 	to_visit->ground = ground;
-	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsPair(HR);
-	to_visit ++;
-	ground = true;
-	pt0 = ap2 - 1;
-	pt0_end = ap2 + 1;
+	to_visit++;
+	// move to new list
+	d0 = *headp;
+	TrailedMaBind(headp, AbsPair(HR));
+	pt0 = headp;
+	pt0_end = headp + 1;
 	ptf = HR;
+	ground = true;
 	HR += 2;
-	if (HR > ASP - 2048) {
+	if (HR > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
+	ptd0 = pt0;
+	goto deref;
       } else if (IsApplTerm(d0)) {
 	register Functor f;
-	register CELL *ap2;
+	register CELL *headp;
 	/* store the terms to visit */
-	ap2 = RepAppl(d0);
-	if (ap2 >= HB && ap2 <= HR) {
+	headp = RepAppl(d0);
+	if (IsApplTerm(*headp)//(share && headp < HB) ||
+	    ) {
 	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
+	  *ptf++ = *headp;
 	  continue;
 	}
-	f = (Functor)(*ap2);
+	f = (Functor)(*headp);
 
 	if (IsExtensionFunctor(f)) {
-#if MULTIPLE_STACKS
-	  if (f == FunctorDBRef) {
-	    DBRef  entryref = DBRefOfTerm(d0);
-	    if (entryref->Flags & LogUpdMask) {
-	      LogUpdClause *luclause = (LogUpdClause *)entryref;
-	      PELOCK(100,luclause->ClPred);
-	      UNLOCK(luclause->ClPred->PELock);
-	    } else {
-	      LOCK(entryref->lock);
-	      TRAIL_REF(entryref);	/* So that fail will erase it */
-	      INC_DBREF_COUNT(entryref);
-	      UNLOCK(entryref->lock);
+	  switch ((CELL)f) {
+	  case (CELL) FunctorDBRef:
+	  case (CELL) FunctorAttVar:
+	    *ptf++ = d0;
+	    break;
+	  case (CELL) FunctorLongInt:
+	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
+	      goto overflow;
 	    }
-	    *ptf++ = d0;  /* you can just copy other extensions. */
-	  } else
+	    *ptf++ = AbsAppl(HR);
+	    HR[0] = (CELL)f;
+	    HR[1] = headp[1];
+	    HR[2] = EndSpecials;
+	    HR += 3;
+	    if (HR > ASP - MIN_ARENA_SIZE) {
+	      goto overflow;
+	    }
+	    break;
+	  case (CELL) FunctorDouble:
+	    if (HR >
+		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
+	      goto overflow;
+	    }
+	    *ptf++ = AbsAppl(HR);
+	    HR[0] = (CELL)f;
+	    HR[1] = headp[1];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	    HR[2] = headp[2];
+	    HR[3] = EndSpecials;
+	    HR += 4;
+#else
+	    HR[2] = EndSpecials;
+	    HR += 3;
 #endif
-	    if (!share) {
-	      UInt sz;
-
-	      *ptf++ = AbsAppl(HR);  /* you can just copy other extensions. */
-	      /* make sure to copy floats */
-	      if (f== FunctorDouble) {
-		sz = sizeof(Float)/sizeof(CELL)+2;
-	      } else if (f== FunctorLongInt) {
-		sz = 3;
-	      } else if (f== FunctorString) {
-		sz = 3+ap2[1];
-	      } else {
-		CELL *pt = ap2+1;
-		sz = 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
-	      }
-	      if (HR+sz > ASP - 2048) {
-		goto overflow;
-	      }
-	      memmove((void *)HR, (void *)ap2, sz*sizeof(CELL));
-	      HR += sz;
-	    } else {
-	      *ptf++ = d0;  /* you can just copy other extensions. */
+	    break;
+	  case (CELL) FunctorString:
+	    if (ASP - HR < MIN_ARENA_SIZE + 3 + headp[1]) {
+	      goto overflow;
 	    }
+	    *ptf++ = AbsAppl(HR);
+	    memmove(HR, headp, sizeof(CELL) * (3 + headp[1]));
+	    HR += headp[1] + 3;
+	    break;
+	  default: {
+	    /* big int */
+	    size_t sz = (sizeof(MP_INT) + 3 * CellSize +
+			 ((MP_INT *)(headp + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+	      CellSize,
+	      i;
+
+	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
+	      goto overflow;
+	    }
+	    *ptf++ = AbsAppl(HR);
+	    HR[0] = (CELL)f;
+	    for (i = 1; i < sz; i++) {
+	      HR[i] = headp[i];
+
+	    }
+	    HR += sz;
+	  }
+	  }
 	  continue;
-	}
-	*ptf = AbsAppl(HR);
+        }
+       	*ptf = AbsAppl(HR);
 	ptf++;
 	/* store the terms to visit */
-	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
-	  goto heap_overflow;
-	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldv = *pt0;
 	to_visit->ground = ground;
-	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsAppl(HR);
-	to_visit ++;
-	ground = (f != FunctorMutable);
-	d0 = ArityOfFunctor(f);
-	pt0 = ap2;
-	pt0_end = ap2 + d0;
-	/* store the functor for the new term */
-	HR[0] = (CELL)f;
-	ptf = HR+1;
-	HR += 1+d0;
-	if (HR > ASP - 2048) {
+	if (++to_visit >= to_visit_max-32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+	}
+	TrailedMaBind(headp,AbsAppl(HR));
+	ptf = HR;
+	*ptf++ = (CELL)f;
+	ground = true;
+	arity_t a = ArityOfFunctor(f); 
+	HR = ptf+a;
+	if (HR > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
+	pt0 = headp;
+	pt0_end = headp+a;
+	ground = (f != FunctorMutable);
       } else {
 	/* just copy atoms or integers */
 	*ptf++ = d0;
@@ -306,66 +351,60 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
     }
 
     derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
-    ground = FALSE;
-    if (ptd0 >= HLow && ptd0 < HR) {
+    ground = false;
+    /* don't need to copy variables if we want to share the global term */
+    if (//(share && ptd0 < HB && ptd0 > H0) ||
+	(ptd0 >= HLow && ptd0 < HR)) {
       /* we have already found this cell */
-      *ptf++ = (CELL) ptd0;
-    } else
-#if COROUTINING
-      if (newattvs && IsAttachedTerm((CELL)ptd0)) {
-	/* if unbound, call the standard copy term routine */
-	struct cp_frame *bp;
+      *ptf++ = (CELL)ptd0;
+    } else {
+      if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
+        /* if unbound, call the standard copy term routine */
+        struct cp_frame *bp;
+        CELL new;
 
-	CELL new;
-
-	bp = to_visit;
-	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
-	  goto overflow;
-	}
-	to_visit = bp;
-	new = *ptf;
-	Bind_NonAtt(ptd0, new);
-	ptf++;
+        bp = to_visit;
+        if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
+                                                          ptf PASS_REGS)) {
+          goto overflow;
+        }
+        to_visit = bp;
+        new = *ptf;
+        if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+          /* Trail overflow */
+          if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
+            goto trail_overflow;
+          }
+        }
+        TrailedMaBind(ptd0, new);
+        ptf++;
       } else {
-#endif
-	/* first time we met this term */
-	RESET_VARIABLE(ptf);
-	if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-	  /* Trail overflow */
-	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-	    goto trail_overflow;
-	  }
-	}
-	Bind_NonAtt(ptd0, (CELL)ptf);
-	ptf++;
+        /* first time we met this term */
+        RESET_VARIABLE(ptf);
+        if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+          goto trail_overflow;
+        TrailedMaBind(ptd0, (CELL)ptf);
+        ptf++;
       }
+    }
   }
+
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-    to_visit --;
-    if (ground && share) {
-      CELL old = to_visit->oldv;
-      CELL *newp = to_visit->to-1;
-      CELL new = *newp;
-
-      *newp = old;
-      if (IsApplTerm(new))
-	HR = RepAppl(new);
-      else
-	HR = RepPair(new);
-    }
+    to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
     ground = (ground && to_visit->ground);
     goto loop;
   }
 
   /* restore our nice, friendly, term to its original state */
   clean_dirty_tr(TR0 PASS_REGS);
-  HB = HB0;
-  return ground;
+  /* follow chain of multi-assigned variables */
+  pop_text_stack(lvl);
+  return 0;
+        
 
  overflow:
   /* oops, we're in trouble */
@@ -374,14 +413,13 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   while (to_visit > to_visit0) {
-    to_visit --;
+    to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
   }
   reset_trail(TR0);
-  /* follow chain of multi-assigned variables */
+  pop_text_stack(lvl);
   return -1;
 
  trail_overflow:
@@ -391,37 +429,14 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   while (to_visit > to_visit0) {
-    to_visit --;
+    to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-  {
-    tr_fr_ptr oTR =  TR;
-    reset_trail(TR0);
-    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-      return -4;
-    }
-    return -2;
-  }
-
- heap_overflow:
-  /* oops, we're in trouble */
-  HR = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-  while (to_visit > to_visit0) {
-    to_visit --;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
   }
   reset_trail(TR0);
-  LOCAL_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
-  return -3;
+  pop_text_stack(lvl);
+  return -4;
 }
 
 
@@ -477,7 +492,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
       *HR = t;
       Hi = HR+1;
       HR += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, share, newattvs, Hi, Hi PASS_REGS)) < 0) {
+      if ((res = Yap_copy_complex_term(Hi-2, Hi-1, share, newattvs, Hi, Hi PASS_REGS)) < 0) {
 	HR = Hi-1;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
@@ -501,7 +516,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
     HR += 2;
     {
       int res;
-      if ((res = copy_complex_term(ap-1, ap+1, share, newattvs, Hi, Hi PASS_REGS)) < 0) {
+      if ((res = Yap_copy_complex_term(ap-1, ap+1, share, newattvs, Hi, Hi PASS_REGS)) < 0) {
 	HR = Hi;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
@@ -533,7 +548,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
     } else {
       int res;
 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, newattvs, HB0+1, HB0 PASS_REGS)) < 0) {
+      if ((res = Yap_copy_complex_term(ap, ap+ArityOfFunctor(f), share, newattvs, HB0+1, HB0 PASS_REGS)) < 0) {
 	HR = HB0;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
@@ -640,9 +655,9 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
   copy_term_nvar:
     {
       if (IsPairTerm(d0)) {
-	CELL *ap2 = RepPair(d0);
-	//fprintf(stderr, "%d \n", RepPair(ap2[0])- ptf);
-	if (IsVarTerm(ap2[0]) && IN_BETWEEN(HB, (ap2[0]),HR)) {
+	CELL *headp = RepPair(d0);
+	//fprintf(stderr, "%d \n", RepPair(headp[0])- ptf);
+	if (IsVarTerm(headp[0]) && IN_BETWEEN(HB, (headp[0]),HR)) {
 	  Term v = MkVarTerm();
 	  *ptf = v;
 	  vin = add_to_list(vin,  (CELL)(ptf), AbsPair(ptf) );
@@ -656,19 +671,19 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldp = ap2;
-	d0 = to_visit->oldv = ap2[0];
+	to_visit->oldp = headp;
+	d0 = to_visit->oldv = headp[0];
 	/* fool the system into thinking we had a variable there */
 	to_visit ++;
-	pt0 = ap2;
-	pt0_end = ap2 + 1;
+	pt0 = headp;
+	pt0_end = headp + 1;
 	ptf = HR;
-	*ap2 = AbsPair(HR);
+	*headp = AbsPair(HR);
 	HR += 2;
 	if (HR > ASP - 2048) {
 	  goto overflow;
 	}
-	if (IsVarTerm(d0) && d0 == (CELL)ap2) {
+	if (IsVarTerm(d0) && d0 == (CELL)headp) {
 	  RESET_VARIABLE(ptf);
 	  ptf++;
 	  continue;
@@ -682,17 +697,17 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 	continue;
       } else if (IsApplTerm(d0)) {
 	register Functor f;
-	register CELL *ap2;
+	register CELL *headp;
 	/* store the terms to visit */
-	ap2 = RepAppl(d0)+1;
-	f = (Functor)(ap2[-1]);
+	headp = RepAppl(d0)+1;
+	f = (Functor)(headp[-1]);
 	if (IsExtensionFunctor(f)) {
 	  *ptf++ = d0;  /* you can just copy other extensions. */
 	  continue;
 	}
-	if (IsApplTerm(ap2[0]) && IN_BETWEEN(HB, RepAppl(ap2[0]),HR)) {
+	if (IsApplTerm(headp[0]) && IN_BETWEEN(HB, RepAppl(headp[0]),HR)) {
 	  RESET_VARIABLE(ptf);
-	  vin = add_to_list(vin, (CELL)ptf, ap2[0] );
+	  vin = add_to_list(vin, (CELL)ptf, headp[0] );
 	  ptf++;
 	  continue;
 	}
@@ -705,24 +720,19 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *vout, Te
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldp = ap2;
-	d0 = to_visit->oldv = ap2[0];
+	to_visit->oldp = headp;
+	d0 = to_visit->oldv = headp[0];
 	/* fool the system into thinking we had a variable there */
 	to_visit ++;
-	pt0 = ap2;
-	pt0_end = ap2 + (arity-1);
+	pt0 = headp;
+	pt0_end = headp + (arity-1);
 	ptf = HR;
 	if (HR > ASP - 2048) {
 	  goto overflow;
 	}
 	*ptf++ =(CELL)f;
-	*ap2  = AbsAppl(HR);
+	*headp  = AbsAppl(HR);
 	HR += (arity+1);
-	if (IsVarTerm(d0) && d0 == (CELL)(ap2)) {
-	  RESET_VARIABLE(ptf);
-	  ptf++;
-	  continue;
-	}
 	d0 = Deref(d0);
 	if (!IsVarTerm(d0)) {
 	  goto copy_term_nvar;
@@ -884,7 +894,7 @@ break_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, Term *of, Term oi, CELL 
     if (new) {
       /* mark cell as pointing to new copy */
       /* we can only mark after reading the value of the first argument */
-      MaBind(pt0, new);
+      TrailedMaBind(pt0, new);
       new = 0L;
     }
     deref_head(d0, break_rationals_unk);
@@ -1642,7 +1652,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *to_visit = Malloc(1024*sizeof( struct non_single_struct_t)),
     *to_visit0 = to_visit,
     *to_visit_max = to_visit+1024;
- register tr_fr_ptr TR0 = TR;
+  register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
   CELL output = AbsPair(HR);
 
@@ -1657,8 +1667,8 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   list_loop:
     deref_head(d0, vars_in_term_unk);
   vars_in_term_nvar:
-   WALK_COMPLEX_TERM();
-   continue ;
+    WALK_COMPLEX_TERM();
+    continue ;
 
     derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
     /* do or pt2 are unbound  */
@@ -1681,14 +1691,14 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-  to_visit--;
+    to_visit--;
 
     pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
     CELL *ptd0 = to_visit->ptd0;
     *ptd0 = to_visit->d0;
     goto loop;
- }
+  }
 
   clean_tr(TR0 PASS_REGS);
   pop_text_stack(lvl);
@@ -1885,63 +1895,63 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     *to_visit = Malloc(1024*sizeof( struct non_single_struct_t)),
     *to_visit0 = to_visit,
     *to_visit_max = to_visit+1024;
- register tr_fr_ptr TR0 = TR;
+  register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
   CELL output = AbsPair(HR);
 
  restart:
-    while (pt0 < pt0_end) {
-      register CELL d0;
-      register CELL *ptd0;
-      ++ pt0;
-      ptd0 = pt0;
-      d0 = *ptd0;
-    list_loop:
-      deref_head(d0, attvars_in_term_unk);
-    attvars_in_term_nvar:
-      {
-	  WALK_COMPLEX_TERM();
-	continue;
-      }
-
-
-      derefa_body(d0, ptd0, attvars_in_term_unk, attvars_in_term_nvar);
-      if (IsAttVar(ptd0)) {
-	/* do or pt2 are unbound  */
-	attvar_record *a0 = RepAttVar(ptd0);
-	if (a0->AttFunc ==(Functor) TermNil) continue;
-	/* leave an empty slot to fill in later */
-	if (HR+1024 > ASP) {
-	  goto global_overflow;
-	}
-	HR[1] = AbsPair(HR+2);
-	HR += 2;
-	HR[-2] = (CELL)&(a0->Done);
-	/* store the terms to visit */
-	if (to_visit + 32 >= to_visit_max) {
-	  goto aux_overflow;
-	}
-	ptd0 = (CELL*)a0;
-	to_visit->pt0 = pt0;
-	to_visit->pt0_end = pt0_end;
-	to_visit->d0 = *ptd0;
-	to_visit->ptd0 = ptd0;
-	to_visit ++;
-	*ptd0 = TermNil;
-	pt0 = ptd0;
-	pt0_end = &RepAttVar(ptd0)->Atts;
-      }
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+  list_loop:
+    deref_head(d0, attvars_in_term_unk);
+  attvars_in_term_nvar:
+    {
+      WALK_COMPLEX_TERM();
+      continue;
     }
-   /* Do we still have compound terms to visit */
-    if (to_visit > to_visit0) {
-  to_visit--;
+
+
+    derefa_body(d0, ptd0, attvars_in_term_unk, attvars_in_term_nvar);
+    if (IsAttVar(ptd0)) {
+      /* do or pt2 are unbound  */
+      attvar_record *a0 = RepAttVar(ptd0);
+      if (a0->AttFunc ==(Functor) TermNil) continue;
+      /* leave an empty slot to fill in later */
+      if (HR+1024 > ASP) {
+	goto global_overflow;
+      }
+      HR[1] = AbsPair(HR+2);
+      HR += 2;
+      HR[-2] = (CELL)&(a0->Done);
+      /* store the terms to visit */
+      if (to_visit + 32 >= to_visit_max) {
+	goto aux_overflow;
+      }
+      ptd0 = (CELL*)a0;
+      to_visit->pt0 = pt0;
+      to_visit->pt0_end = pt0_end;
+      to_visit->d0 = *ptd0;
+      to_visit->ptd0 = ptd0;
+      to_visit ++;
+      *ptd0 = TermNil;
+      pt0 = ptd0;
+      pt0_end = &RepAttVar(ptd0)->Atts;
+    }
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit--;
 
     pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
     CELL *ptd0 = to_visit->ptd0;
     *ptd0 = to_visit->d0;
     goto restart;
-    }
+  }
 
  
   clean_tr(TR0 PASS_REGS);
@@ -2089,7 +2099,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-  to_visit--;
+    to_visit--;
 
     pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
@@ -2182,7 +2192,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     deref_head(d0, vars_within_term_unk);
   vars_within_term_nvar:
     {
-   WALK_COMPLEX_TERM();
+      WALK_COMPLEX_TERM();
 
       continue;
     }
@@ -2208,7 +2218,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-  to_visit--;
+    to_visit--;
 
     pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
@@ -2285,7 +2295,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   vars_within_term_nvar:
     {
       WALK_COMPLEX_TERM();
-       continue;
+      continue;
     }
 
     derefa_body(d0, ptd0, vars_within_term_unk, vars_within_term_nvar);
@@ -2334,7 +2344,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 static Term bind_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, tr_fr_ptr TR0 USES_REGS)
 {
   register CELL **to_visit0, 
-  **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+    **to_visit = (CELL **)Yap_PreAllocCodeSpace();
   CELL *InitialH = HR;
 
   to_visit0 = to_visit;
@@ -2676,7 +2686,7 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
   return true;
 
   def_aux_overflow();
- }
+}
 
 bool Yap_IsGroundTerm(Term t)
 {
@@ -4328,11 +4338,11 @@ extern int vsc;
 
 int vsc;
 
-#define RENUMBER_SINGLES\
-	if (singles && ap2 >= InitialH && ap2 < HR) {\
-	  renumbervar(d0, numbv++ PASS_REGS);\
-	  continue;\
-	}
+#define RENUMBER_SINGLES			\
+  if (singles && ap2 >= InitialH && ap2 < HR) {	\
+    renumbervar(d0, numbv++ PASS_REGS);		\
+    continue;					\
+  }
 
 
 static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv, int singles USES_REGS)

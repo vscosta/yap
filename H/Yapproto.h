@@ -477,6 +477,9 @@ extern void Yap_InitUserCPreds(void);
 extern void Yap_InitUserBacks(void);
 
 /* utilpreds.c */
+int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
+                             bool share, bool copy_att_vars, CELL *ptf,
+			  CELL *HLow USES_REGS);
 extern Term Yap_CopyTerm(Term);
 extern bool Yap_Variant(Term, Term);
 extern size_t Yap_ExportTerm(Term, char *, size_t, UInt);

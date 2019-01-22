@@ -67,11 +67,9 @@ followed by the failure of that call.
 :- multifile user:unknown_predicate_handler/3.
 
 undefined_query(G0, M0, Cut) :-
-  recorded('$import','$import'(M,M0,G,G0,_,_),_),
-  '$call'(G, Cut, G, M).
+    recorded('$import','$import'(M,M0,G,G0,_,_),_),
+    '$call'(G, Cut, G, M).
 
-
-:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 /**
  * @pred '$undefp_search'(+ M0:G0, -MG)
@@ -97,23 +95,22 @@ undefined_query(G0, M0, Cut) :-
 
 % undef handler
 '$undefp'([M0|G0],MG) :-
-x    % make sure we do not loop on undefined predicates
-        '$undef_setup'(Action,Debug,Current),
-        ('$get_undefined_predicates'(M0:G0, MG) 
-        ->
+    % make sure we do not loop on undefined predicates
+    '$undef_setup'(Action,Debug,Current),
+    ('$get_undefined_predicates'(M0:G0, MG) 
+    ->
         true
-        ;
-        '$undef_error'(M0:G0, MG)
-        ),
-        '$undef_cleanup'(Action,Debug,Current)
-    ).
+    ;
+    '$undef_error'(M0:G0, MG)
+    ),
+    '$undef_cleanup'(Action,Debug,Current).
 
 '$undef_error'(M0:G0, MG) :-
     '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
     '$yap_strip_module'(M0:G0,  EM0, GM0),
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
- '$handle_error'(Mod:Goal,_) :-
+'$handle_error'(Mod:Goal,_) :-
     functor(Goal,Name,Arity),
     '$do_error'(existence_error(procedure,Name/Arity), Mod:Goal).
 '$handle_error'(warning,Goal,Mod) :-
@@ -123,9 +120,6 @@ x    % make sure we do not loop on undefined predicates
     fail.
 '$handle_error'(fail,_Goal,_Mod) :-
     fail.
-  
-
-    '$undefp'([M0|G0],MG) 
 
 '$undef_setup'(Action,Debug,Current) :-
     yap_flag( unknown, Action, fail),
@@ -133,29 +127,12 @@ x    % make sure we do not loop on undefined predicates
     '$stop_creeping'(Current).
 
 
-'$undef_cleanup'(fail,M0:G0,NM:NG,Action,Debug,Current) :-
-    '$undefp_search'(M0:G0, NM:NG),
-    '$pred_exists'(NG,NM),
-    !,
+'$undef_cleanup'(Action,Debug,_Current) :-
     yap_flag( unknown, _, Action),
     yap_flag( debug, _, Debug),
-    nonvar(NG),
-    nonvar(NM),
-   (
-       Current == true
-    ->
-        % carry on signal processing
-        '$start_creep'([NM|NG], creep)
-    ;
-    '$execute0'(NG, NM)
-   ).
-'$search_def'(M0:G0,_,Action,Debug,_Current) :-
-    yap_flag( unknown, _, Action),
-    yap_flag( debug, _, Debug),
-'$start_creep'([prolog|true], creep),
-'$handle_error'(Action,G0,M0).
+    '$start_creep'([prolog|true], creep).
 
-:- '$undefp_handler'('$undefp'(_,_), prolog).
+    :- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 

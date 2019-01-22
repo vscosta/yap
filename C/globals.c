@@ -352,263 +352,6 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   }
 }
 
-#define expand_stack(S0,SP,SF,TYPE)				\
-  { size_t sz = SF-S0, used = SP-S0;				\
-    S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
-    SP = S0+used; SF = S0+sz; }
-
-static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
-                             bool share, bool copy_att_vars, CELL *ptf,
-                             CELL *HLow USES_REGS) {
-
-  int lvl = push_text_stack();
-  struct cp_frame *to_visit0,
-    *to_visit = Malloc(1024*sizeof(struct cp_frame));
-  struct cp_frame *to_visit_max;
-
-  CELL *HB0 = HB;
-  tr_fr_ptr TR0 = TR;
-  int ground = TRUE;
-
-  HB = HLow;
-  to_visit0 = to_visit;
-  to_visit_max = to_visit+1024;
- loop:
-  while (pt0 < pt0_end) {
-    register CELL d0;
-    register CELL *ptd0;
-    
-    ptd0 = ++pt0;
-    d0 = *pt0;
-    if (d0 != TermNil)
-      Yap_DebugPlWriteln(d0);
-  deref:
-    deref_head(d0, copy_term_unk);
-  copy_term_nvar : {
-      if (IsPairTerm(d0)) {
-	CELL *ap2 = RepPair(d0);
-	if (//(share && ap2 < HB) ||
-	    (ap2 >= HB && ap2 < HR)) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
-	  continue;
-	}
-	if (to_visit >= to_visit_max-32) {
-	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
-	}
-	pt0 = ap2;
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end = pt0+2;
-	to_visit->to = ptf;
-        d0 = *pt0;
-	to_visit->ground = ground;
-	/* fool the system into thinking we had a variable there */
-	MaBind(pt0,AbsPair(HR));
-	to_visit++;
-	ground = true;
-	HR += 2;
-	if (HR > ASP - MIN_ARENA_SIZE) {
-	  goto overflow;
-	}
-	ptd0 = pt0;
-	goto deref;
-      } else if (IsApplTerm(d0)) {
-	register Functor f;
-	register CELL *ap2;
-	/* store the terms to visit */
-	ap2 = RepAppl(d0);
-	if (//(share && ap2 < HB) ||
-	    (ap2 >= HB && ap2 < HR)) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = d0;
-	  continue;
-	}
-	f = (Functor)(*ap2);
-
-	if (IsExtensionFunctor(f)) {
-	  switch ((CELL)f) {
-	  case (CELL) FunctorDBRef:
-	  case (CELL) FunctorAttVar:
-	    *ptf++ = d0;
-	    break;
-	  case (CELL) FunctorLongInt:
-	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-	      goto overflow;
-	    }
-	    *ptf++ = AbsAppl(HR);
-	    HR[0] = (CELL)f;
-	    HR[1] = ap2[1];
-	    HR[2] = EndSpecials;
-	    HR += 3;
-	    if (HR > ASP - MIN_ARENA_SIZE) {
-	      goto overflow;
-	    }
-	    break;
-	  case (CELL) FunctorDouble:
-	    if (HR >
-		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-	      goto overflow;
-	    }
-	    *ptf++ = AbsAppl(HR);
-	    HR[0] = (CELL)f;
-	    HR[1] = ap2[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	    HR[2] = ap2[2];
-	    HR[3] = EndSpecials;
-	    HR += 4;
-#else
-	    HR[2] = EndSpecials;
-	    HR += 3;
-#endif
-	    break;
-	  case (CELL) FunctorString:
-	    if (ASP - HR < MIN_ARENA_SIZE + 3 + ap2[1]) {
-	      goto overflow;
-	    }
-	    *ptf++ = AbsAppl(HR);
-	    memmove(HR, ap2, sizeof(CELL) * (3 + ap2[1]));
-	    HR += ap2[1] + 3;
-	    break;
-	  default: {
-	    /* big int */
-	    size_t sz = (sizeof(MP_INT) + 3 * CellSize +
-			 ((MP_INT *)(ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	      CellSize,
-	      i;
-
-	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-	      goto overflow;
-	    }
-	    *ptf++ = AbsAppl(HR);
-	    HR[0] = (CELL)f;
-	    for (i = 1; i < sz; i++) {
-	      HR[i] = ap2[i];
-	    }
-	    HR += sz;
-	  }
-	  }
-	  continue;
-        }
-	/* store the terms to visit */
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
-	to_visit->ground = ground;
-	if (++to_visit >= to_visit_max-32) {
-	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
-	}
-	/* fool the system into thinking we had a variable there */
-	ptf = HR;
-	*ptf++ = d0 = *ap2;
-	MaBind(ap2++,AbsAppl(HR));
-	to_visit++;
-	ground = true;
-	arity_t a = ArityOfFunctor((Functor)d0); 
-	HR = ptf+a;
-	if (HR > ASP - MIN_ARENA_SIZE) {
-	  goto overflow;
-	}
-	pt0 = ap2;
-	pt0_end = ap2+a;
-	ground = (f != FunctorMutable);
-      } else {
-	/* just copy atoms or integers */
-	*ptf++ = d0;
-      }
-      continue;
-    }
-
-    derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
-    ground = false;
-    /* don't need to copy variables if we want to share the global term */
-    if (//(share && ptd0 < HB && ptd0 > H0) ||
-	(ptd0 >= HLow && ptd0 < HR)) {
-      /* we have already found this cell */
-      *ptf++ = (CELL)ptd0;
-    } else {
-      if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
-        /* if unbound, call the standard copy term routine */
-        struct cp_frame *bp;
-        CELL new;
-
-        bp = to_visit;
-        if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
-                                                          ptf PASS_REGS)) {
-          goto overflow;
-        }
-        to_visit = bp;
-        new = *ptf;
-        if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-          /* Trail overflow */
-          if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
-            goto trail_overflow;
-          }
-        }
-        Bind_and_Trail(ptd0, new);
-        ptf++;
-      } else {
-        /* first time we met this term */
-        RESET_VARIABLE(ptf);
-        if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
-          goto trail_overflow;
-        MaBind(ptd0, (CELL)ptf);
-        ptf++;
-      }
-    }
-  }
-
-  /* Do we still have compound terms to visit */
-  if (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    ground = (ground && to_visit->ground);
-    goto loop;
-  }
-
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-  clean_dirty_tr(TR0 PASS_REGS);
-  /* follow chain of multi-assigned variables */
-  pop_text_stack(lvl);
-  return 0;
-
- overflow:
-  /* oops, we're in trouble */
-  HR = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-  while (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-  reset_trail(TR0);
-  pop_text_stack(lvl);
-  return -1;
-
- trail_overflow:
-  /* oops, we're in trouble */
-  HR = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-  while (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-  reset_trail(TR0);
-  pop_text_stack(lvl);
-  return -4;
-}
-
 static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                             UInt arity, Term *newarena,
                             size_t min_grow USES_REGS) {
@@ -631,7 +374,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
       *HR = t;
       Hi = HR + 1;
       HR += 2;
-      if ((res = copy_complex_term(Hi - 2, Hi - 1, share, copy_att_vars, Hi,
+      if ((res = Yap_copy_complex_term(Hi - 2, Hi - 1, share, copy_att_vars, Hi,
                                    Hi PASS_REGS)) < 0)
         goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
@@ -665,7 +408,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
     Hi = HR;
     tf = AbsPair(HR);
     HR += 2;
-    if ((res = copy_complex_term(ap - 1, ap + 1, share, copy_att_vars, Hi,
+    if ((res = Yap_copy_complex_term(ap - 1, ap + 1, share, copy_att_vars, Hi,
                                  Hi PASS_REGS)) < 0) {
       goto error_handler;
     }
@@ -743,7 +486,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         res = -1;
         goto error_handler;
       }
-      if ((res = copy_complex_term(ap, ap + ArityOfFunctor(f), share,
+      if ((res = Yap_copy_complex_term(ap, ap + ArityOfFunctor(f), share,
                                    copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
           0) {
         goto error_handler;
