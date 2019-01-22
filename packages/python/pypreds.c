@@ -31,7 +31,7 @@ static foreign_t python_represent( term_t name, term_t tobj) {
   term_t stackp = python_acquire_GIL();
   PyObject *e;
 
-  e = term_to_python(tobj, false, NULL, true);
+  e = term_to_python(tobj, false, NULL, false);
   if (e == NULL) {
     python_release_GIL(stackp);
     pyErrorAndReturn(false);
