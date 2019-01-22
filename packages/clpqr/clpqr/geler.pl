@@ -43,6 +43,10 @@
 	    project_nonlin/3,
 	    collect_nonlin/3
 	]).
+:- use_module(library(maplist),
+	      [
+	       maplist/2
+	      ]).
 
 % l2conj(List,Conj)
 %

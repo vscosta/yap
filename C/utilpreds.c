@@ -52,6 +52,7 @@ typedef struct non_single_struct_t {
 	}\
 	LIST0;\
 	ptd0 = RepPair(d0);\
+	if (*ptd0 == TermFreeTerm) continue;\
 	to_visit->pt0 = pt0;\
 	to_visit->pt0_end = pt0_end;\
 	to_visit->ptd0 = ptd0;\
@@ -59,7 +60,7 @@ typedef struct non_single_struct_t {
 	to_visit ++;\
 	d0 = ptd0[0];\
 	pt0 = ptd0;\
-	*ptd0 = TermNil;\
+	*ptd0 = TermFreeTerm;\
 	pt0_end = pt0 + 1;\
 	goto   list_loop;\
       } else if (IsApplTerm(d0)) {\
@@ -2269,9 +2270,8 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *to_visit = Malloc(1024*sizeof( struct non_single_struct_t)),
     *to_visit0 = to_visit,
     *to_visit_max = to_visit+1024;
+  Term o = TermNil;
   CELL *InitialH = HR;
-  *HR++ = MkAtomTerm(AtomDollar);
-
   to_visit0 = to_visit;
  restart:
   while (pt0 < pt0_end) {
@@ -2284,7 +2284,7 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     deref_head(d0, vars_within_term_unk);
   vars_within_term_nvar:
     {
-      WALK_COMPLEX_TERM()
+      WALK_COMPLEX_TERM();
        continue;
     }
 
@@ -2293,10 +2293,13 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     *ptd0 = TermNil;
     /* leave an empty slot to fill in later */
     if (HR+1024 > ASP) {
+      o = TermNil;
       goto global_overflow;
     }
     HR[0] =  (CELL)ptd0;
-    HR ++;
+    HR[1] = o;
+    o = AbsPair(HR);
+    HR += 2;
     /* next make sure noone will see this as a variable again */
     if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
       /* Trail overflow */
@@ -2318,13 +2321,8 @@ static Term free_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end
   }
 
   clean_tr(TR0 PASS_REGS);
-pop_text_stack(lvl);
- if (HR > InitialH+1) {
-    InitialH[0] = (CELL)Yap_MkFunctor(AtomDollar, (HR-InitialH)-1);
-    return AbsAppl(InitialH);
-  } else {
-    return MkAtomTerm(AtomDollar);
-  }
+  pop_text_stack(lvl);
+  return o;
 
  
   def_trail_overflow();
