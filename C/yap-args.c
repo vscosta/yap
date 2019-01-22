@@ -175,7 +175,7 @@ static bool load_file(const char *b_file USES_REGS) {
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid", "done init_consult %s ",b_file);
   if (c_stream < 0) {
-    fprintf(stderr, "[ FATAL ERROR: could not open file %s ]\n", b_file);
+    fprintf(stderr, "[ FATAL ERROR: could not open file %s\n", b_file);
     pop_text_stack(lvl);
     exit(1);
   }
@@ -185,7 +185,7 @@ static bool load_file(const char *b_file USES_REGS) {
   }
   __android_log_print(
 		      ANDROID_LOG_INFO, "YAPDroid", "do reset %s ",b_file);
-
+  t = 0;
   while (t != TermEof) {
     CACHE_REGS
           YAP_Reset(YAP_FULL_RESET, false);

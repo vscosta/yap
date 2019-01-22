@@ -1,8 +1,6 @@
 
-%:- start_low_level_trace.
-
-%:- module(android,
-%	[text_to_query/2]).
+:- module(android,
+	[text_to_query/2]).
 	
 :- initialization(yap_flag(verbose,_,normal)).
 
