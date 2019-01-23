@@ -111,10 +111,9 @@ typedef struct cp_frame {
   CELL *start_cp;
   CELL *end_cp;
   CELL *to;
-#ifdef RATIONAL_TREES
+  CELL *curp;
   CELL oldv;
   int ground;
-#endif
 } copy_frame;
 
 #ifdef COROUTINING

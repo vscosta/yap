@@ -374,7 +374,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
       *HR = t;
       Hi = HR + 1;
       HR += 2;
-      if ((res = Yap_copy_complex_term(Hi - 2, Hi - 1, share, copy_att_vars, Hi,
+      if ((res = Yap_copy_complex_term(Hi - 2, Hi - 1, share, NULL, copy_att_vars, Hi,
                                    Hi PASS_REGS)) < 0)
         goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
@@ -408,7 +408,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
     Hi = HR;
     tf = AbsPair(HR);
     HR += 2;
-    if ((res = Yap_copy_complex_term(ap - 1, ap + 1, share, copy_att_vars, Hi,
+    if ((res = Yap_copy_complex_term(ap - 1, ap + 1, share, NULL, copy_att_vars, Hi,
                                  Hi PASS_REGS)) < 0) {
       goto error_handler;
     }
@@ -487,7 +487,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         goto error_handler;
       }
       if ((res = Yap_copy_complex_term(ap, ap + ArityOfFunctor(f), share,
-                                   copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
+				       NULL, copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
           0) {
         goto error_handler;
       }
