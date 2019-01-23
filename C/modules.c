@@ -24,7 +24,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "Yatom.h"
 
-static Int currgent_module(USES_REGS1);
+static Int current_module(USES_REGS1);
 static Int current_module1(USES_REGS1);
 static ModEntry *LookupModule(Term a);
 static ModEntry *LookupSystemModule(Term a);

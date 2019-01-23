@@ -48,12 +48,12 @@ refactoring (trivial):
 #define	JPL_C_LIB_VERSION_PATCH	 4
 #define	JPL_C_LIB_VERSION_STATUS "alpha"
 
-#define JPL_DEBUG
+//#define JPL_DEBUG
 
 #ifndef JPL_DEBUG
 /*#define DEBUG(n, g) ((void)0) */
 #define DEBUG_LEVEL 4
-#define JPL_DEBUG(n, g) ( n >= DEBUG_LEVEL ? g : (void)0 )
+#define JPL_DEBUG(n, g) ( false && n >= DEBUG_LEVEL ? g : (void)0 )
 #endif
 
 /* disable type-of-ref caching (at least until GC issues are resolved) */
@@ -642,7 +642,7 @@ static JNIEnv*
 jni_env(void) /* economically gets a JNIEnv pointer, valid for this thread */
 { JNIEnv	*env;
 
-  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_9) )
+  switch( (*jvm)->GetEnv(jvm, (void**)&env, JNI_VERSION_1_2) )
   { case JNI_OK:
       return env;
     case JNI_EDETACHED:
@@ -1826,7 +1826,7 @@ jni_create_jvm_c(
     JNIEnv		*env;
 
     JPL_DEBUG(1, Sdprintf( "[creating JVM with 'java.class.path=%s']\n", classpath));
-    vm_args.version = JNI_VERSION_1_6zzzz;	    /* "Java 1.2 please" */
+    vm_args.version = JNI_VERSION_1_2;	    /* "Java 1.2 please" */
     if ( classpath )
 		{
 			cpoptp = (char *)malloc(strlen(classpath) + strlen("-Djava.class.path=")+1);
