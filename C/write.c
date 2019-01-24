@@ -101,20 +101,22 @@ static bool callPortray(Term t, int sno USES_REGS) {
   return false;
 }
 
-#define PROTECT(t, F)  \
-  {  \
-    yhandle_t yt = Yap_InitHandle(t); \
-    if (wglb->Write_Loops) { \
-      yhandle_t i;			       \
-      for (i=wglb->sl0;i<yt;i++) {             \
-        if (Yap_GetFromHandle(i) == t)  {      \
-	  char buf[63]; snprintf(buf, 63, " @( ^^^%ld^^^ ) ",yt-i);	\
-          wrputs(buf,wglb->stream ); return;				      	\
-	}								\
-      }	\
-    } \
-    F;            \
-    t = Yap_PopHandle(yt);\
+#define PROTECT(t, F)                                                          \
+  {                                                                            \
+    yhandle_t yt = Yap_InitHandle(t);                                          \
+    if (wglb->Write_Loops) {                                                   \
+      yhandle_t i;                                                             \
+      for (i = yt - 1; i >= wglb->sl0; i--) {                                  \
+        if (Yap_GetFromHandle(i) == t) {                                       \
+          char buf[63];                                                        \
+          snprintf(buf, 63, " @{ ^^%ld } ", yt - i);                           \
+          wrputs(buf, wglb->stream);                                           \
+          return;                                                              \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+    F;                                                                         \
+    t = Yap_PopHandle(yt);                                                     \
   }
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
@@ -711,11 +713,11 @@ static void write_var(CELL *t, struct write_globs *wglb,
         wrputs("$AT(", wglb->stream);
         write_var(t, wglb, rwt);
         wrputc(',', wglb->stream);
-        PROTECT(t, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+        PROTECT(*l, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
         attv = RepAttVar(t);
         wrputc(',', wglb->stream);
         l++;
-        PROTECT(t, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+        PROTECT(*l, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
         wrclose_bracket(wglb, TRUE);
       }
       wglb->Portray_delays = TRUE;

@@ -2453,8 +2453,8 @@ uses local dynamic predicates max_probability/1 and max_proof/1
 problog_max(Goal, Prob, Facts) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
-	problog_control(off,up),
-	problog_max_id(Goal, Prob, FactIDs),theo todo
+	problog_control(off,up), %
+	problog_max_id(Goal, Prob, FactIDs), %theo todo
 	( FactIDs = [_|_] -> get_fact_list(FactIDs, Facts);
 	    Facts = FactIDs).
 

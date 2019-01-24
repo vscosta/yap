@@ -400,26 +400,22 @@ if (GMP_INCLUDE_DIRS)
       )
   endif ()
 
-include_directories(H
-  H/generated
-  include os OPTYap utf8proc JIT/HPP)
-include_directories(BEFORE ${CMAKE_BINARY_DIR})
-
-add_subdirectory( H )
-
-set_directory_properties( PROPERTIES INCLUDE_DIRECTORIES
-  H
-  H/generated
-  include
-  os
-  OPTYap
-  utf8proc
-  JIT/HPP
+include_directories(
+${CMAKE_SOURCE_DIR}/H
+${CMAKE_SOURCE_DIR}/H/generated
+${CMAKE_SOURCE_DIR}/include
+${CMAKE_SOURCE_DIR}/os
+${CMAKE_SOURCE_DIR}/OPTYap
+${CMAKE_SOURCE_DIR}/utf8proc
+  ${CMAKE_SOURCE_DIR}/JIT/HPP
   ${GMP_INCLUDE_DIRS}
   ${READLINE_LIBRARIES}
   ${SQLITE_LIBRARIES}
   ${ANDROID_LIBRARIES}
+  ${CMAKE_BINARY_DIR}
   ) 
+
+  add_subdirectory( H )
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
