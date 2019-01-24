@@ -407,6 +407,20 @@ include_directories(BEFORE ${CMAKE_BINARY_DIR})
 
 add_subdirectory( H )
 
+set_directory_properties( PROPERTIES INCLUDE_DIRECTORIES
+  H
+  H/generated
+  include
+  os
+  OPTYap
+  utf8proc
+  JIT/HPP
+  ${GMP_INCLUDE_DIRS}
+  ${READLINE_LIBRARIES}
+  ${SQLITE_LIBRARIES}
+  ${ANDROID_LIBRARIES}
+  ) 
+
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
 # library/lammpi/yap_mpi.c library/lammpi/hash.c library/lammpi/prologterms2c.c
@@ -422,8 +436,8 @@ add_subdirectory( H )
 set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 6)
-set(YAP_MINOR_VERSION 4)
-set(YAP_PATCH_VERSION 1)
+set(YAP_MINOR_VERSION 5)
+set(YAP_PATCH_VERSION 0)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
