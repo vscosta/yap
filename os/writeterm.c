@@ -573,6 +573,8 @@ static Int writeln1(USES_REGS1) {
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
+  args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -603,6 +605,8 @@ static Int writeln(USES_REGS1) {
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
+ args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);

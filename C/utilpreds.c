@@ -176,6 +176,42 @@ clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   TR = TR0;
 }
 
+/// @brief recover original term while fixing direct refs.
+///
+/// @param USES_REGS 
+///
+static inline void
+clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
+  tr_fr_ptr pt0 = TR;
+  while (pt0 != TR0) {
+    Term p = TrailTerm(--pt0);
+    if (IsApplTerm(p)) {
+      /// pt: points to the address of the new term we may want to fix.
+      CELL *pt = RepAppl(p);
+      if (pt >= HB && pt < HR) { /// is it new?
+	Term v = pt[0];
+	if (IsApplTerm(v)) {
+	  /// yes, more than a single ref
+	  *pt = (CELL)RepAppl(v);
+	}
+#ifndef FROZEN_STACKS
+      pt0 --;
+#endif /* FROZEN_STACKS */
+      continue;
+      } 
+#ifdef FROZEN_STACKS
+      pt[0] = TrailVal(pt0);
+#else
+      pt[0] = TrailTerm(pt0 - 1);
+      pt0 --;
+#endif /* FROZEN_STACKS */
+    } else {
+      RESET_VARIABLE(p);
+    }
+  } 
+  TR = TR0;
+}
+
 #define expand_stack(S0,SP,SF,TYPE)				\
   { size_t sz = SF-S0, used = SP-S0;				\
     S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
@@ -214,69 +250,79 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   copy_term_nvar : {
       if (IsPairTerm(d0)) {
 	CELL *headp = RepPair(d0);
-	if (IsPairTerm(*headp) && RepPair(*headp) >= HB && RepPair(*headp) < HR) {
+	Term head = *headp;
+	if (IsPairTerm(head) && RepPair(head) >= HB && RepPair(head) < HR) {
 	  if (split) {
 	    Term v = Yap_MkNewApplTerm(FunctorEq, 2);
-	    RepAppl(v)[1] = *headp;
+	    RepAppl(v)[1] = AbsPair(ptf);
 	    *headp = *ptf++ = RepAppl(v)[0];
 	    o = MkPairTerm( v, o );
 	  } else {
-	    /* If this is newer than the current term, just reuse */
-	    *ptf++ = (CELL)RepAppl(*headp);
+	    *ptf++ = head;
 	  }
-	}
-	else if (IsApplTerm(*headp) && RepAppl(*headp) >= HB && RepAppl(*headp) < HR) {
+	  continue;
+	} else if (IsApplTerm(*headp) && RepAppl(*headp) >= HB && RepAppl(*headp) < HR) {
 	  *ptf++ = AbsPair(RepAppl(*headp));
-	continue;
-      }
-      if (to_visit >= to_visit_max-32) {
-	expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
-      }
-      *ptf = AbsPair(HR);
-      ptf++;
-      to_visit->start_cp = pt0;
-      to_visit->end_cp = pt0_end;
-      to_visit->to = ptf;
-      to_visit->curp = headp;
-      d0 = *headp;
-      to_visit->oldv = d0;
-      to_visit->ground = ground;
-      to_visit++;
-      // move to new list
-      if (share) {
-	TrailedMaBind(headp,AbsPair(HR));
-      } else {
-	*headp = AbsPair(HR);
-      }
-      pt0 = headp;
-      pt0_end = headp + 1;
-      ptf = HR;
-      ground = true;
-      HR += 2;
-      if (HR > ASP - MIN_ARENA_SIZE) {
-	goto overflow;
-      }
-      ptd0 = pt0;
-      goto deref;
-    } else if (IsApplTerm(d0)) {
+	  continue;
+	}
+	if (to_visit >= to_visit_max-32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+	}
+	*ptf = AbsPair(HR);
+	ptf++;
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->curp = headp;
+	to_visit->oldv = head;
+	to_visit->ground = ground;
+	to_visit++;
+	// move to new list
+	if (share) {
+	  TrailedMaBind(headp,AbsPair(HR));
+	} else {
+	  /* If this is newer than the current term, just reuse */
+	  *headp = AbsPair(HR);
+	}
+	if (split) {
+	  TrailedMaBind(ptf,AbsPair(HR));
+	}
+	pt0 = headp;
+	pt0_end = headp + 1;
+	ptf = HR;
+	ground = true;
+	HR += 2;
+	if (HR > ASP - MIN_ARENA_SIZE) {
+	  goto overflow;
+	}
+	ptd0 = pt0;
+	goto deref;
+      } else if (IsApplTerm(d0)) {
       register Functor f;
-      register CELL *headp;
+      register CELL *headp, head;
       /* store the terms to visit */
       headp = RepAppl(d0);
-      if (IsPairTerm(*headp)//(share && headp < HB) ||
+      head = *headp;
+      
+      if (IsPairTerm(head)//(share && headp < HB) ||
 	  ) {
 	if (split) {
 	  Term v = Yap_MkNewApplTerm(FunctorEq, 2);
-	  RepAppl(v)[1] = *headp;
+	  RepAppl(v)[1] = head;
 	  *headp = *ptf++ = RepAppl(v)[0];
 	  o = MkPairTerm( v, o );
 	} else {
 	  /* If this is newer than the current term, just reuse */
-	  *ptf++ = AbsPair(RepAppl(*headp));
+	  *ptf++ = AbsAppl(RepPair(head));
 	}
 	continue;
       }
-      f = (Functor)(*headp);
+       if (IsApplTerm(head)//(share && headp < HB) ||
+	  ) {
+	 *ptf++ = head;
+	 continue;
+       }
+     f = (Functor)(head);
 
       if (IsExtensionFunctor(f)) {
 	if (share) {
@@ -365,6 +411,11 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       } else {
 	*headp = AbsPair(HR);
       }
+      if (split) {
+	// must be after trailing source term, so that we can check the source
+	// term and confirm it is still ok.
+	TrailedMaBind(ptf,AbsAppl(HR));
+      }
       ptf = HR;
       ptf[-1] = (CELL)f;
       ground = true;
@@ -435,10 +486,10 @@ if (to_visit > to_visit0) {
  }
 
 /* restore our nice, friendly, term to its original state */
-clean_dirty_tr(TR0 PASS_REGS);
-/* follow chain of multi-assigned variables */
-pop_text_stack(lvl);
-return 0;
+ clean_complex_tr(TR0 PASS_REGS);
+ /* follow chain of multi-assigned variables */
+ pop_text_stack(lvl);
+ return 0;
         
 
 overflow:
