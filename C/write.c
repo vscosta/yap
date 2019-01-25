@@ -77,7 +77,8 @@ typedef struct write_globs {
   int last_atom_minus;
   UInt MaxDepth, MaxArgs;
   wtype lw;
-  int sl0;
+  yhandle_t sl0, sl;
+  bool protectedEntry;
 } wglbs;
 
 #define lastw wglb->lw
@@ -101,22 +102,9 @@ static bool callPortray(Term t, int sno USES_REGS) {
   return false;
 }
 
-#define PROTECT(t, F)                                                          \
-  {                                                                            \
-    yhandle_t yt = Yap_InitHandle(t);                                          \
-    if (wglb->Write_Loops) {                                                   \
-      yhandle_t i;                                                             \
-      for (i = yt - 1; i >= wglb->sl0; i--) {                                  \
-        if (Yap_GetFromHandle(i) == t) {                                       \
-          char buf[63];                                                        \
-          snprintf(buf, 63, " @{ ^^%ld } ", yt - i);                           \
-          wrputs(buf, wglb->stream);                                           \
-          return;                                                              \
-        }                                                                      \
-      }                                                                        \
-    }                                                                          \
-    F;                                                                         \
-    t = Yap_PopHandle(yt);                                                     \
+#define PROTECT(t, F)  \
+  {  \
+    F;            \
   }
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
@@ -128,6 +116,9 @@ static wtype AtomIsSymbols(unsigned char *);
 static void putAtom(Atom, int, struct write_globs *);
 static void writeTerm(Term, int, int, int, struct write_globs *,
                       struct rewind_term *);
+
+static void write_list(Term t, int direction, int depth,
+                       struct write_globs *wglb, struct rewind_term *rwt);
 
 #define wrputc(WF, X)                                                          \
   (X)->stream_wputc(X - GLOBAL_Stream, WF) /* writes a character */
@@ -279,7 +270,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     return;
   } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
-    PROTECT(t,writeTerm(trat, p, depth, rinfixarg, wglb, rwt));
+    writeTerm(trat, p, depth, rinfixarg, wglb, rwt);
     return;
 #endif
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
@@ -393,8 +384,7 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
   struct write_globs wglb;
   int sno;
 
-  sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding,
-                                  0);
+  sno = Yap_open_buf_write_stream(GLOBAL_Stream[LOCAL_c_output_stream].encoding, 0);
   if (sno < 0)
     return false;
   wglb.lw = separator;
@@ -713,11 +703,11 @@ static void write_var(CELL *t, struct write_globs *wglb,
         wrputs("$AT(", wglb->stream);
         write_var(t, wglb, rwt);
         wrputc(',', wglb->stream);
-        PROTECT(*l, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+        PROTECT(*t, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
         attv = RepAttVar(t);
         wrputc(',', wglb->stream);
         l++;
-        PROTECT(*l, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+        writeTerm(*l, 999, 1, FALSE, wglb, &nrwt);
         wrclose_bracket(wglb, TRUE);
       }
       wglb->Portray_delays = TRUE;
@@ -730,12 +720,31 @@ static void write_var(CELL *t, struct write_globs *wglb,
   }
 }
 
-static void write_list(Term t, int direction, int depth,
+static bool check_for_loops(Term t, struct write_globs *wglb)
+{
+  yhandle_t i, sl = wglb->sl;
+  if ((wglb->Write_Loops)) {
+    return false;
+  }
+  for (i=sl-1; i>wglb->sl0;i--) {	 
+    if (Yap_GetFromHandle(i) == t)  {
+      char buf[64];
+      snprintf(buf,63," @{ ^^%ld } " ,sl-i);
+      wrputs(buf, wglb->stream);
+      return true;
+    } 
+  }
+  return false;
+}
+
+
+static void write_list__(Term t, yhandle_t sl, int direction, int depth,
                        struct write_globs *wglb, struct rewind_term *rwt) {
   Term ti;
   struct rewind_term nrwt;
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
+
 
   while (1) {
     int ndirection;
@@ -751,12 +760,12 @@ static void write_list(Term t, int direction, int depth,
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {
       do_jump = (direction <= 0);
-    } else if (ndirection == 0) {
+    } /*else if (ndirection == 0) {
       wrputc(',', wglb->stream);
       putAtom(AtomFoundVar, wglb->Quote_illegal, wglb);
       lastw = separator;
       return;
-    } else {
+      } */ else {
       do_jump = (direction >= 0);
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
@@ -779,27 +788,34 @@ static void write_list(Term t, int direction, int depth,
     /* we found an infinite loop */
     /* keep going on the list */
     wrputc(',', wglb->stream);
-    PROTECT(t,write_list(ti, direction, depth, wglb, &nrwt));
+    write_list(ti, direction, depth, wglb, &nrwt);
   } else if (ti != MkAtomTerm(AtomNil)) {
     if (lastw == symbol || lastw == separator) {
       wrputc(' ', wglb->stream);
     }
     wrputc('|', wglb->stream);
     lastw = separator;
-    PROTECT(ti,writeTerm(ti, 999, depth, FALSE, wglb, &nrwt));
+    writeTerm(ti, 999, depth, FALSE, wglb, &nrwt);
   }
 }
 
-static void writeTerm(Term t, int p, int depth, int rinfixarg,
-                      struct write_globs *wglb, struct rewind_term *rwt)
+static void write_list(Term t, int direction, int depth,
+                       struct write_globs *wglb, struct rewind_term *rwt) {
+  if (check_for_loops(t,wglb)) return;
+  yhandle_t sl = wglb->sl = Yap_InitHandle(t);
+    write_list__(t, sl,  direction, depth,
+	       wglb, rwt);
+     Yap_PopHandle(sl);	
+}
+
+
+static void writeTerm__(Term t, yhandle_t sl, int p, int depth, int rinfixarg,
+                      struct write_globs *wglb, struct rewind_term *rwt) 
 /* term to write			 */
 /* context priority			 */
 {
   CACHE_REGS
-  struct rewind_term nrwt;
-  nrwt.parent = rwt;
-  nrwt.u_sd.s.ptr = 0;
-
+    struct rewind_term nrwt;
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
@@ -819,7 +835,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
 
       PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
       wrputs(",", wglb->stream);
-      PROTECT(t, writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
+      writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       wrclose_bracket(wglb, TRUE);
       return;
     }
@@ -885,7 +901,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         *p++;
         lastw = separator;
         /* cannot use the term directly with the SBA */
-        PROTECT(t, writeTerm(*p, 999, depth + 1, FALSE, wglb, &nrwt));
+        writeTerm(*p, 999, depth + 1, FALSE, wglb, &nrwt);
         if (*p)
           wrputc(',', wglb->stream);
         argno++;
@@ -913,7 +929,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       } else if (atom == AtomMinus) {
         last_minus = TRUE;
       }
-      PROTECT(t,writeTerm(tright, rp, depth + 1, TRUE, wglb, &nrwt));
+      writeTerm(tright, rp, depth + 1, TRUE, wglb, &nrwt);
       if (bracket_right) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -946,7 +962,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_left) {
         wropen_bracket(wglb, TRUE);
       }
-      PROTECT(t,writeTerm(ArgOfTerm(offset, t), lp, depth + 1, rinfixarg, wglb, &nrwt));
+      writeTerm(ArgOfTerm(offset, t), lp, depth + 1, rinfixarg, wglb, &nrwt);
       if (bracket_left) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -1011,7 +1027,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_right) {
         wropen_bracket(wglb, TRUE);
       }
-      PROTECT(t,writeTerm(ArgOfTerm(2, t), rp, depth + 1, TRUE, wglb, &nrwt));
+      writeTerm(ArgOfTerm(2, t), rp, depth + 1, TRUE, wglb, &nrwt);
       if (bracket_right) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -1051,14 +1067,14 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       } else {
         wrputs("'$VAR'(", wglb->stream);
         lastw = separator;
-        PROTECT(t,writeTerm(ArgOfTerm(1, t), 999, depth + 1, FALSE, wglb, &nrwt));
+        writeTerm(ArgOfTerm(1, t), 999, depth + 1, FALSE, wglb, &nrwt);
         wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      PROTECT(t,writeTerm(ArgOfTerm(1, t), GLOBAL_MaxPriority, depth + 1, FALSE, wglb,
-			  &nrwt));
+      writeTerm(ArgOfTerm(1, t), GLOBAL_MaxPriority, depth + 1, FALSE, wglb,
+                &nrwt);
       wrputc('}', wglb->stream);
       lastw = separator;
     } else if (atom == AtomArray) {
@@ -1069,7 +1085,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputs("...", wglb->stream);
           break;
         }
-        PROTECT(t,writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt));
+        writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
         if (op != Arity) {
           PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb,
                                &nrwt));
@@ -1077,7 +1093,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           lastw = separator;
         }
       }
-	  PROTECT(t,writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt));
+      writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
       wrputc('}', wglb->stream);
       lastw = separator;
     } else {
@@ -1096,10 +1112,20 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         wrputc(',', wglb->stream);
         lastw = separator;
       }
-      PROTECT(t,writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt));
+      writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
       wrclose_bracket(wglb, TRUE);
     }
   }
+}
+
+static void writeTerm(Term t, int p, int depth, int rinfixarg,
+                      struct write_globs *wglb, struct rewind_term *rwt)
+{
+  if (check_for_loops(t,wglb)) return;
+   yhandle_t sl = wglb->sl = Yap_InitHandle(t);
+    writeTerm__(t, sl,  p, depth, rinfixarg,
+	       wglb, rwt);
+     Yap_PopHandle(sl);				
 }
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
@@ -1114,7 +1140,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   yhandle_t sls = Yap_CurrentSlot();
   int lvl = push_text_stack();
 
-  wglb.sl0 = sls;
   if (t == 0)
     return;
   if (!mywrite) {
@@ -1137,7 +1162,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  wglb.Write_Loops = !(flags &Ignore_cyclics_f);
+  wglb.Write_Loops = flags & YAP_WRITE_HANDLE_CYCLES;
   if (!(flags & Ignore_cyclics_f) && false) {
     Term ts[2];
     ts[0] = Yap_BreakRational(t, 0, ts + 1, TermNil PASS_REGS);
@@ -1149,7 +1174,11 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
     }
   }
   /* protect slots for portray */
+  yhandle_t sl;
+  wglb.sl0 = (sl = wglb.sl = Yap_InitHandle(t)) -1;
+  wglb.protectedEntry = false;				\
   writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
+    t = Yap_PopHandle(sl);				\
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

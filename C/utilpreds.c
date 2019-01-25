@@ -60,6 +60,7 @@ typedef struct non_single_struct_t {
     pt0 = ptd0;					\
     *ptd0 = TermFreeTerm;			\
     pt0_end = pt0 + 1;				\
+    if (pt0 <= pt0_end)                         \
     goto   list_loop;				\
   } else if (IsApplTerm(d0)) {			\
     register Functor f;				\
@@ -293,7 +294,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	if (HR > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
-	ptd0 = pt0;
 	goto deref;
       } else if (IsApplTerm(d0)) {
 	Functor f;
@@ -337,7 +337,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	}
 	*ptf = AbsAppl(HR);
 	ptf++;
-	ptf = HR;
       
 	if (IsExtensionFunctor(f)) {
 	  switch ((CELL)f) {
@@ -415,15 +414,16 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  TrailedMaBind(ptf,AbsAppl(HR));
 	}
 	ptf = HR;
-	ptf[-1] = (CELL)f;
+	ptf[0] = (CELL)f;
 	ground = true;
 	arity_t a = ArityOfFunctor(f); 
-	HR = ptf+a;
-	if (HR > ASP - MIN_ARENA_SIZE) {
+ 	if (HR > ASP - MIN_ARENA_SIZE) {
 	  goto overflow;
 	}
-	pt0 = headp;
-	pt0_end = headp+a;
+ ptf++;
+  HR = ptf+a;
+  pt0_end = headp+(a);
+  pt0 = headp;
 	ground = (f != FunctorMutable);
       } else {
 	/* just copy atoms or integers */
@@ -436,10 +436,10 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     ground = false;
     /* don't need to copy variables if we want to share the global term */
     if (//(share && ptd0 < HB && ptd0 > H0) ||
-	(ptd0 >= HLow && ptd0 < HR)) {
+	(ptd0 >= HB && ptd0 < HR)) {
       /* we have already found this cell */
       *ptf++ = (CELL)ptd0;
-    } else {
+    } else
       if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
@@ -463,12 +463,12 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       } else {
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+	if ((ADDR)TR > LOCAL_TrailTop - 16)
 	  goto trail_overflow;
 	DO_TRAIL(ptd0, (CELL)ptf);
 	*ptd0 = (CELL)ptf;
 	ptf++;
-      }
+  continue;
     }
   }
   
@@ -2069,7 +2069,7 @@ p_term_attvars( USES_REGS1 )	/* variables in term t		 */
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
       out = attvars_in_complex_term(VarOfTerm(t)-1,
-				    VarOfTerm(t)+1, TermNil PASS_REGS);
+				    VarOfTerm(t), TermNil PASS_REGS);
     }  else if (IsPrimitiveTerm(t)) {
       return Yap_unify(TermNil, ARG2);
     } else if (IsPairTerm(t)) {
@@ -2080,9 +2080,11 @@ p_term_attvars( USES_REGS1 )	/* variables in term t		 */
       Functor f = FunctorOfTerm(t);
       if (IsExtensionFunctor(f))
 	return Yap_unify(TermNil, ARG2);
+      RepAppl(t)[0] = TermNil;
       out = attvars_in_complex_term(RepAppl(t),
 				    RepAppl(t)+
 				    ArityOfFunctor(f), TermNil PASS_REGS);
+      RepAppl(t)[0] = (CELL)f;
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
