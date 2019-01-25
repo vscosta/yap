@@ -105,6 +105,7 @@ static bool callPortray(Term t, int sno USES_REGS) {
 #define PROTECT(t, F)  \
   {  \
     F;            \
+    t = Yap_GetFromSlot(wglb->sl); \
   }
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
@@ -703,7 +704,9 @@ static void write_var(CELL *t, struct write_globs *wglb,
         wrputs("$AT(", wglb->stream);
         write_var(t, wglb, rwt);
         wrputc(',', wglb->stream);
-        PROTECT(*t, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+	CELL tt = (CELL)t;
+        PROTECT(tt, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+	t = (CELL *)tt;
         attv = RepAttVar(t);
         wrputc(',', wglb->stream);
         l++;
@@ -756,6 +759,8 @@ static void write_list__(Term t, yhandle_t sl, int direction, int depth,
       break;
     if (!IsPairTerm(ti))
       break;
+  if (check_for_loops(ti,wglb)) return;
+  wglb->sl = Yap_InitHandle(ti);
     ndirection = RepPair(ti) - RepPair(t);
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {
@@ -806,6 +811,7 @@ static void write_list(Term t, int direction, int depth,
     write_list__(t, sl,  direction, depth,
 	       wglb, rwt);
      Yap_PopHandle(sl);	
+    wglb->sl = sl-1;
 }
 
 
@@ -849,7 +855,7 @@ static void writeTerm__(Term t, yhandle_t sl, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, 0, depth, wglb, rwt);
+      write_list__(t, wglb->sl, 0, depth, wglb, rwt);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
@@ -1125,7 +1131,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
    yhandle_t sl = wglb->sl = Yap_InitHandle(t);
     writeTerm__(t, sl,  p, depth, rinfixarg,
 	       wglb, rwt);
-     Yap_PopHandle(sl);				
+    Yap_PopHandle(sl);				
+    wglb->sl = sl-1;
 }
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
@@ -1176,9 +1183,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   /* protect slots for portray */
   yhandle_t sl;
   wglb.sl0 = (sl = wglb.sl = Yap_InitHandle(t)) -1;
-  wglb.protectedEntry = false;				\
+  wglb.protectedEntry = false;		
   writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
-    t = Yap_PopHandle(sl);				\
+    t = Yap_PopHandle(sl);	
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

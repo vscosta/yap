@@ -1,11 +1,13 @@
 :- X = [], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X = [_A], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
-:- X = [a,A], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
+:- X = [a,_A], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X = [X], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X = [_|X], copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X= f(X), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X= f(X,X), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X= f(_,X), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
+:- X= f(A,A,X), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
+:- X= f(A,g(X,[A|A]),X), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X= f(X,[X,X]), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X= f(X,[X,g(X)]), copy_term(X,Y), writeln('....'), writeln(X), writeln(Y).
 :- X=f(_,X/[X]),copy_term(X,Y), writeln('....'),writeln(X),writeln(Y).
