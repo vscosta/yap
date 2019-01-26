@@ -331,27 +331,6 @@ static void CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP,
   ASP = oldASP;
 }
 
-static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
-  if (TR != TR0) {
-    tr_fr_ptr pt = TR0;
-
-    do {
-      Term p = TrailTerm(pt++);
-      if (IsVarTerm(p)) {
-        RESET_VARIABLE(p);
-      } else {
-
-        /* copy downwards */
-        TrailTerm(TR0 + 1) = TrailTerm(pt);
-        TrailTerm(TR0) = TrailTerm(TR0 + 2) = p;
-        pt += 2;
-        TR0 += 3;
-      }
-    } while (pt != TR);
-    TR = TR0;
-  }
-}
-
 static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                             UInt arity, Term *newarena,
                             size_t min_grow USES_REGS) {
@@ -394,106 +373,20 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
     return tn;
   } else if (IsAtomOrIntTerm(t)) {
     return t;
-  } else if (IsPairTerm(t)) {
-    Term tf;
-    CELL *ap;
+  } else  {
     CELL *Hi;
 
-    if (share && ArenaPt(arena) > RepPair(t)) {
-      return t;
-    }
+   Hi = HR;
+    HR++;
+    oldH = HR;
     HR = HB = ArenaPt(arena);
     ASP = ArenaLimit(arena);
-    ap = RepPair(t);
-    Hi = HR;
-    tf = AbsPair(HR);
-    HR += 2;
-    if ((res = Yap_copy_complex_term(ap - 1, ap + 1, share, NULL, copy_att_vars, Hi,
-                                 Hi PASS_REGS)) < 0) {
+    if ((res = Yap_copy_complex_term(&t - 1, &t, share, NULL, copy_att_vars, Hi,
+                                 HR PASS_REGS)) < 0) {
       goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-    return tf;
-  } else {
-    Functor f;
-    Term tf;
-    CELL *HB0;
-    CELL *ap;
-
-    if (share && ArenaPt(arena) > RepAppl(t)) {
-      return t;
-    }
-    HR = HB = ArenaPt(arena);
-    ASP = ArenaLimit(arena);
-    f = FunctorOfTerm(t);
-    HB0 = HR;
-    ap = RepAppl(t);
-    tf = AbsAppl(HR);
-    HR[0] = (CELL)f;
-    if (IsExtensionFunctor(f)) {
-      switch ((CELL)f) {
-      case (CELL) FunctorDBRef:
-        CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-        return t;
-      case (CELL) FunctorLongInt:
-        if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-          res = -1;
-          goto error_handler;
-        }
-        HR[1] = ap[1];
-        HR[2] = EndSpecials;
-        HR += 3;
-        break;
-      case (CELL) FunctorDouble:
-        if (HR > ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-          res = -1;
-          goto error_handler;
-        }
-        HR[1] = ap[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-        HR[2] = ap[2];
-        HR[3] = EndSpecials;
-        HR += 4;
-#else
-        HR[2] = EndSpecials;
-        HR += 3;
-#endif
-        break;
-      case (CELL) FunctorString:
-        if (HR > ASP - (MIN_ARENA_SIZE + 3 + ap[1])) {
-          res = -1;
-          goto error_handler;
-        }
-        memmove(HR, ap, sizeof(CELL) * (3 + ap[1]));
-        HR += ap[1] + 3;
-        break;
-      default: {
-        UInt sz = ArenaSz(t), i;
-
-        if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-          res = -1;
-          goto error_handler;
-        }
-        for (i = 1; i < sz; i++) {
-          HR[i] = ap[i];
-        }
-        HR += sz;
-      }
-      }
-    } else {
-      HR += 1 + ArityOfFunctor(f);
-      if (HR > ASP - MIN_ARENA_SIZE) {
-        res = -1;
-        goto error_handler;
-      }
-      if ((res = Yap_copy_complex_term(ap, ap + ArityOfFunctor(f), share,
-				       NULL, copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
-          0) {
-        goto error_handler;
-      }
-    }
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-    return tf;
+    return Hi[0];
   }
  error_handler:
   HR = HB;

@@ -266,7 +266,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  continue;
 	}
 	*ptf = AbsPair(HR);
-	ptf++;
 	if (to_visit >= to_visit_max-32) {
 	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
 	}
@@ -274,7 +273,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
 	to_visit->curp = headp;
-	to_visit->oldv = head;
+	d0 = to_visit->oldv = head;
 	to_visit->ground = ground;
 	to_visit++;
 	// move to new list
@@ -469,7 +468,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	DO_TRAIL(ptd0, (CELL)ptf);
 	*ptd0 = (CELL)ptf;
 	ptf++;
-  continue;
     }
   }
   
@@ -567,85 +565,27 @@ static Term
 CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
   Term t = Deref(inp);
   tr_fr_ptr TR0 = TR;
-
-  if (IsVarTerm(t)) {
-#if COROUTINING
-    if (newattvs && IsAttachedTerm(t)) {
-      CELL *Hi;
-      int res;
-    restart_attached:
-
-      *HR = t;
-      Hi = HR+1;
-      HR += 2;
-      if ((res = Yap_copy_complex_term(Hi-2, Hi-1, share, NULL, newattvs, Hi, Hi PASS_REGS)) < 0) {
-	HR = Hi-1;
-	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
-	  return FALSE;
-	goto restart_attached;
-      }
-      return Hi[0];
-    }
-#endif
-    return MkVarTerm();
-  } else if (IsPrimitiveTerm(t)) {
-    return t;
-  } else if (IsPairTerm(t)) {
-    Term tf;
-    CELL *ap;
     CELL *Hi;
 
-  restart_list:
-    ap = RepPair(t);
+  if (IsPrimitiveTerm(t)) {
+    return t;
+  }
+  while( true ) {
+     int res;
     Hi = HR;
-    tf = AbsPair(HR);
-    HR += 2;
-    {
-      int res;
-      if ((res = Yap_copy_complex_term(ap-1, ap+1, share, NULL, newattvs, Hi, Hi PASS_REGS)) < 0) {
+    HR ++;
+    
+      if ((res = Yap_copy_complex_term((&t)-1, &t, share, NULL, newattvs, Hi, HR PASS_REGS)) < 0) {
 	HR = Hi;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
-	goto restart_list;
       } else if (res && share) {
 	HR = Hi;
 	return t;
       }
+  return Hi[0];
     }
-    return tf;
-  } else {
-    Functor f = FunctorOfTerm(t);
-    Term tf;
-    CELL *HB0;
-    CELL *ap;
-
-  restart_appl:
-    f = FunctorOfTerm(t);
-    HB0 = HR;
-    ap = RepAppl(t);
-    tf = AbsAppl(HR);
-    HR[0] = (CELL)f;
-    HR += 1+ArityOfFunctor(f);
-    if (HR > ASP-128) {
-      HR = HB0;
-      if ((t = handle_cp_overflow(-1, TR0, arity, t))== 0L)
-	return FALSE;
-      goto restart_appl;
-    } else {
-      int res;
-
-      if ((res = Yap_copy_complex_term(ap, ap+ArityOfFunctor(f), share, NULL, newattvs, HB0+1, HB0 PASS_REGS)) < 0) {
-	HR = HB0;
-	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
-	  return FALSE;
-	goto restart_appl;
-      } else if (res && share && FunctorOfTerm(t) != FunctorMutable) {
-	HR = HB0;
-	return t;
-      }
-    }
-    return tf;
-  }
+  return 0;
 }
 
 Term
@@ -1870,25 +1810,9 @@ p_variables_in_term( USES_REGS1 )	/* variables in term t		 */
   }
   do {
     Term t = Deref(ARG1);
-    if (IsVarTerm(t)) {
-      out = AbsPair(HR);
-      HR += 2;
-      RESET_VARIABLE(HR-2);
-      RESET_VARIABLE(HR-1);
-      Yap_unify((CELL)(HR-2),ARG1);
-      Yap_unify((CELL)(HR-1),ARG2);
-    }  else if (IsPrimitiveTerm(t))
-      out = ARG2;
-    else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(&t-1,
-				 &(t), ARG2 PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_in_complex_term(RepAppl(t),
-				 RepAppl(t)+
-				 ArityOfFunctor(f), ARG2 PASS_REGS);
-    }
+    out = vars_in_complex_term(&(t)-1,
+			       &(t),
+			       ARG2 PASS_REGS);
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
 	return FALSE;
@@ -1902,6 +1826,7 @@ p_variables_in_term( USES_REGS1 )	/* variables in term t		 */
 static Int
 p_term_variables( USES_REGS1 )	/* variables in term t		 */
 {
+    Term t = Deref(ARG1);
   Term out;
 
   if (!Yap_IsListOrPartialListTerm(ARG2)) {
@@ -1937,17 +1862,11 @@ Yap_TermVariables( Term t, UInt arity USES_REGS )	/* variables in term t		 */
     t = Deref(t);
     if (IsVarTerm(t)) {
       return MkPairTerm(t, TermNil);
-    }  else if (IsPrimitiveTerm(t)) {
+    } else if (IsPrimitiveTerm(t)) {
       return TermNil;
-    } else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(RepPair(t)-1,
-				 RepPair(t)+1, TermNil PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_in_complex_term(RepAppl(t),
-				 RepAppl(t)+
-				 ArityOfFunctor(f), TermNil PASS_REGS);
+    } else {
+      out = vars_in_complex_term(&(t)-1,
+				 &(t), TermNil PASS_REGS);
     }
     if (out == 0L) {
       if (!expand_vts( arity PASS_REGS ))
@@ -2064,8 +1983,8 @@ p_term_attvars( USES_REGS1 )	/* variables in term t		 */
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
-	return FALSE;
-    }
+	return false;
+     }
   } while (out == 0L);
   return Yap_unify(ARG2,out);
 }
@@ -2085,15 +2004,9 @@ p_term_variables3( USES_REGS1 )	/* variables in term t		 */
 	Yap_unify(out, ARG2);
     }  else if (IsPrimitiveTerm(t)) {
       return Yap_unify(ARG2, ARG3);
-    } else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(RepPair(t)-1,
-				 RepPair(t)+1, ARG3 PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_in_complex_term(RepAppl(t),
-				 RepAppl(t)+
-				 ArityOfFunctor(f), ARG3 PASS_REGS);
+    } else {
+      out = vars_in_complex_term(&(t)-1,
+				 &(t), ARG3 PASS_REGS);
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
@@ -2193,21 +2106,11 @@ p_variables_within_term( USES_REGS1 )	/* variables within term t		 */
 
   do {
     Term t = Deref(ARG2);
-    if (IsVarTerm(t)) {
-      out = vars_within_complex_term(VarOfTerm(t)-1,
-				     VarOfTerm(t), Deref(ARG1) PASS_REGS);
-
-    }  else if (IsPrimitiveTerm(t))
+ if (IsPrimitiveTerm(t))
       out = TermNil;
-    else if (IsPairTerm(t)) {
-      out = vars_within_complex_term(RepPair(t)-1,
-				     RepPair(t)+1, Deref(ARG1) PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_within_complex_term(RepAppl(t),
-				     RepAppl(t)+
-				     ArityOfFunctor(f), Deref(ARG1) PASS_REGS);
+ else {
+   out = vars_within_complex_term(&(t)-1,
+				     &(t), Deref(ARG1) PASS_REGS);
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
@@ -2311,21 +2214,11 @@ p_new_variables_in_term( USES_REGS1 )	/* variables within term t		 */
 
   do {
     Term t = Deref(ARG2);
-    if (IsVarTerm(t)) {
-      out = new_vars_in_complex_term(VarOfTerm(t)-1,
-				     VarOfTerm(t), Deref(ARG1) PASS_REGS);
-
-    }  else if (IsPrimitiveTerm(t))
+   if (IsPrimitiveTerm(t))
       out = TermNil;
-    else if (IsPairTerm(t)) {
-      out = new_vars_in_complex_term(RepPair(t)-1,
-				     RepPair(t)+1, Deref(ARG1) PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = new_vars_in_complex_term(RepAppl(t),
-				     RepAppl(t)+
-				     ArityOfFunctor(f), Deref(ARG1) PASS_REGS);
+    else  {
+      out = new_vars_in_complex_term(&(t)-1,
+				     &(t), Deref(ARG1) PASS_REGS);
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
@@ -2568,21 +2461,11 @@ p_free_variables_in_term( USES_REGS1 )	/* variables within term t		 */
       }
       t = ArgOfTerm(2,t);
     }
-    if (IsVarTerm(t)) {
-      out = free_vars_in_complex_term(VarOfTerm(t)-1,
-				      VarOfTerm(t), TR0 PASS_REGS);
-
-    }  else if (IsPrimitiveTerm(t))
+     if (IsPrimitiveTerm(t))
       out = TermNil;
-    else if (IsPairTerm(t)) {
-      out = free_vars_in_complex_term(RepPair(t)-1,
-				      RepPair(t)+1, TR0 PASS_REGS);
-    }
     else {
-      Functor f = FunctorOfTerm(t);
-      out = free_vars_in_complex_term(RepAppl(t),
-				      RepAppl(t)+
-				      ArityOfFunctor(f), TR0 PASS_REGS);
+      out = free_vars_in_complex_term(&(t)-1,
+				      &(t), TR0 PASS_REGS);
     }
     if (out == 0L) {
     trail_overflow:
@@ -2681,13 +2564,9 @@ p_non_singletons_in_term( USES_REGS1 )	/* non_singletons in term t		 */
       out = ARG2;
     }  else if (IsPrimitiveTerm(t)) {
       out = ARG2;
-    } else if (IsPairTerm(t)) {
-      out = non_singletons_in_complex_term(RepPair(t)-1,
-					   RepPair(t)+1 PASS_REGS);
     } else {
-      out = non_singletons_in_complex_term(RepAppl(t),
-					   RepAppl(t)+
-					   ArityOfFunctor(FunctorOfTerm(t)) PASS_REGS);
+     out = non_singletons_in_complex_term(&(t)-1,
+					   &(t) PASS_REGS);
     }
     if (out != 0L) {
       return Yap_unify(ARG3,out);
@@ -2761,22 +2640,11 @@ bool Yap_IsGroundTerm(Term t)
 	return FALSE;
       }  else if (IsPrimitiveTerm(t)) {
 	return TRUE;
-      } else if (IsPairTerm(t)) {
-	if ((out =ground_complex_term(RepPair(t)-1,
-				      RepPair(t)+1 PASS_REGS)) >= 0) {
-	  return out != 0;
-	}
       } else {
-	Functor fun = FunctorOfTerm(t);
-
-	if (IsExtensionFunctor(fun))
-	  return TRUE;
-	else if ((out = ground_complex_term(RepAppl(t),
-					    RepAppl(t)+
-					    ArityOfFunctor(fun) PASS_REGS)) >= 0) {
+	if ((out =ground_complex_term(&(t)-1,
+				      &(t) PASS_REGS)) >= 0) {
 	  return out != 0;
 	}
-      }
       if (out < 0) {
 	*HR++ = t;
 	if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
@@ -2785,6 +2653,7 @@ bool Yap_IsGroundTerm(Term t)
 	}
 	t = *--HR;
       }
+    }
     }
 }
 
