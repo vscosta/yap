@@ -69,7 +69,8 @@ typedef struct non_single_struct_t {
     ap2 = RepAppl(d0);				\
     f = (Functor)(*ap2);			\
 						\
-    if (IsExtensionFunctor(f)) {		\
+    if (IsExtensionFunctor(f) ||  \
+  IsAtomTerm((CELL)f)) {			\
 						\
       continue;					\
     }						\
@@ -1746,12 +1747,14 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     register CELL d0;
     register CELL *ptd0;
   restart:
+
     ++ pt0;
     ptd0 = pt0;
     d0 = *ptd0;
   list_loop:
     deref_head(d0, vars_in_term_unk);
   vars_in_term_nvar:
+
     WALK_COMPLEX_TERM();
     continue ;
 
@@ -1784,6 +1787,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *ptd0 = to_visit->d0;
     goto loop;
   }
+
 
   clean_tr(TR0 PASS_REGS);
   pop_text_stack(lvl);
@@ -1876,8 +1880,8 @@ p_variables_in_term( USES_REGS1 )	/* variables in term t		 */
     }  else if (IsPrimitiveTerm(t))
       out = ARG2;
     else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(RepPair(t)-1,
-				 RepPair(t)+1, ARG2 PASS_REGS);
+      out = vars_in_complex_term(&t-1,
+				 &(t), ARG2 PASS_REGS);
     }
     else {
       Functor f = FunctorOfTerm(t);
@@ -1907,24 +1911,9 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
 
   do {
     Term t = Deref(ARG1);
-    if (IsVarTerm(t)) {
-      Term out = Yap_MkNewPairTerm();
-      return
-	Yap_unify(t,HeadOfTerm(out)) &&
-	Yap_unify(TermNil, TailOfTerm(out)) &&
-	Yap_unify(out, ARG2);
-    }  else if (IsPrimitiveTerm(t)) {
-      return Yap_unify(TermNil, ARG2);
-    } else if (IsPairTerm(t)) {
-      out = vars_in_complex_term(RepPair(t)-1,
-				 RepPair(t)+1, TermNil PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      out = vars_in_complex_term(RepAppl(t),
-				 RepAppl(t)+
-				 ArityOfFunctor(f), TermNil PASS_REGS);
-    }
+    
+    out = vars_in_complex_term(&(t)-1,
+				 &(t), TermNil PASS_REGS);
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
 	return FALSE;
@@ -2023,8 +2012,8 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
       to_visit->ptd0 = ptd0;
       to_visit ++;
       *ptd0 = TermNil;
-      pt0 = ptd0;
       pt0_end = &RepAttVar(ptd0)->Atts;
+      pt0 = pt0_end-1;
     }
   }
   /* Do we still have compound terms to visit */
@@ -2067,24 +2056,11 @@ p_term_attvars( USES_REGS1 )	/* variables in term t		 */
 
   do {
     Term t = Deref(ARG1);
-    if (IsVarTerm(t)) {
-      out = attvars_in_complex_term(VarOfTerm(t)-1,
-				    VarOfTerm(t), TermNil PASS_REGS);
-    }  else if (IsPrimitiveTerm(t)) {
+    if (IsPrimitiveTerm(t)) {
       return Yap_unify(TermNil, ARG2);
-    } else if (IsPairTerm(t)) {
-      out = attvars_in_complex_term(RepPair(t)-1,
-				    RepPair(t)+1, TermNil PASS_REGS);
-    }
-    else {
-      Functor f = FunctorOfTerm(t);
-      if (IsExtensionFunctor(f))
-	return Yap_unify(TermNil, ARG2);
-      RepAppl(t)[0] = TermNil;
-      out = attvars_in_complex_term(RepAppl(t),
-				    RepAppl(t)+
-				    ArityOfFunctor(f), TermNil PASS_REGS);
-      RepAppl(t)[0] = (CELL)f;
+    } else {
+      out = attvars_in_complex_term(&(t)-1,
+				    &(t), TermNil PASS_REGS);
     }
     if (out == 0L) {
       if (!expand_vts( 3 PASS_REGS ))
