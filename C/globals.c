@@ -335,61 +335,24 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                             UInt arity, Term *newarena,
                             size_t min_grow USES_REGS) {
   size_t old_size = ArenaSz(arena);
-  CELL *oldH = HR;
+  CELL *Hi;
+  int res = 0;
+
+  t = Deref(t);      Yap_DebugPlWriteln(t);
+
+   CELL *oldH = HR;
   CELL *oldHB = HB;
   CELL *oldASP = ASP;
-  int res = 0;
-  Term tn;
-
- restart:
-  t = Deref(t);
-  if (IsVarTerm(t)) {
     ASP = ArenaLimit(arena);
     HR = HB = ArenaPt(arena);
-#if COROUTINING
-    if (GlobalIsAttachedTerm(t)) {
-      CELL *Hi;
-
-      *HR = t;
-      Hi = HR + 1;
-      HR += 2;
-      if ((res = Yap_copy_complex_term(Hi - 2, Hi - 1, share, NULL, copy_att_vars, Hi,
-                                   Hi PASS_REGS)) < 0)
-        goto error_handler;
+  Term o = MkVarTerm();
+    while (true) {
+      if ((res = Yap_copy_complex_term(&t-1, &t, share, NULL, copy_att_vars, 
+				       VarOfTerm(o),      HB PASS_REGS)) == 0) {
       CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-      return Hi[0];
+      Yap_DebugPlWriteln(o);
+      return o;
     }
-#endif
-    if (share && VarOfTerm(t) > ArenaPt(arena)) {
-      CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-      return t;
-    }
-    tn = MkVarTerm();
-    if (HR > ASP - MIN_ARENA_SIZE) {
-      res = -1;
-      goto error_handler;
-    }
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-    return tn;
-  } else if (IsAtomOrIntTerm(t)) {
-    return t;
-  } else  {
-    CELL *Hi;
-
-   Hi = HR;
-    HR++;
-    oldH = HR;
-    HR = HB = ArenaPt(arena);
-    ASP = ArenaLimit(arena);
-    if ((res = Yap_copy_complex_term(&t - 1, &t, share, NULL, copy_att_vars, Hi,
-                                 HR PASS_REGS)) < 0) {
-      goto error_handler;
-    }
-    CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-    return Hi[0];
-  }
- error_handler:
-  HR = HB;
   CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
   XREGS[arity + 1] = t;
   XREGS[arity + 2] = arena;
@@ -422,7 +385,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
   arena = Deref(XREGS[arity + 2]);
   t = XREGS[arity + 1];
   old_size = ArenaSz(arena);
-  goto restart;
+}
 }
 
 static Term CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity,
@@ -513,7 +476,7 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
 {
   Prop p0;
   AtomEntry *ae = RepAtom(at);
-  GlobalEntry *new;
+  GlobalEntry *nx;
 
   WRITE_LOCK(ae->ARWLock);
   p0 = ae->PropsOfAE;
@@ -529,19 +492,19 @@ inline static GlobalEntry *GetGlobalEntry(Atom at USES_REGS)
     }
     p0 = pe->NextOfPE;
   }
-  new = (GlobalEntry *)Yap_AllocAtomSpace(sizeof(*new));
-  INIT_RWLOCK(new->GRWLock);
-  new->KindOfPE = GlobalProperty;
+  nx = (GlobalEntry *)Yap_AllocAtomSpace(sizeof(*nx));
+  INIT_RWLOCK(nx->GRWLock);
+  nx->KindOfPE = GlobalProperty;
 #if THREADS
-  new->owner_id = worker_id;
+  nx->owner_id = worker_id;
 #endif
-  new->NextGE = LOCAL_GlobalVariables;
-  LOCAL_GlobalVariables = new;
-  new->AtomOfGE = ae;
-  AddPropToAtom(ae, (PropEntry *)new);
-  RESET_VARIABLE(&new->global);
+  nx->NextGE = LOCAL_GlobalVariables;
+  LOCAL_GlobalVariables = nx;
+  nx->AtomOfGE = ae;
+  AddPropToAtom(ae, (PropEntry *)nx);
+  RESET_VARIABLE(&nx->global);
   WRITE_UNLOCK(ae->ARWLock);
-  return new;
+  return nx;
 }
 
 static UInt garena_overflow_size(CELL *arena USES_REGS) {

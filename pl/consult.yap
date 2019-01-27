@@ -862,6 +862,7 @@ nb_setval('$if_level',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
+	writeln(init:Answers),
 	'$process_init_goal'(Answers).
 '$exec_initialization_goals'.
 
@@ -1449,7 +1450,9 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization_queue'(G) :-
 	b_getval('$lf_status', TOpts),
 	'$lf_opt'( initialization, TOpts, Ref),
+	writeln(G),
 	nb:nb_queue_enqueue(Ref, G),
+	writeln(Ref),
 	fail.
 '$initialization_queue'(_).
 

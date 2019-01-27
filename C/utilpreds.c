@@ -258,6 +258,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    *headp = *ptf++ = RepAppl(v)[0];
 	    o = MkPairTerm( v, o );
 	  } else {
+	    *headp = RepAppl(ptf);
 	    *ptf++ = head;
 	  }
 	  continue;
@@ -326,6 +327,8 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  continue;
 	}
 	/* store the terms to visit */
+	*ptf = AbsAppl(HR);
+	ptf++;
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
@@ -335,8 +338,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	if (++to_visit >= to_visit_max-32) {
 	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
 	}
-	*ptf = AbsAppl(HR);
-	ptf++;
       
 	if (IsExtensionFunctor(f)) {
 	  switch ((CELL)f) {
@@ -393,11 +394,10 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	      goto overflow;
 	    }
 	    *ptf++ = AbsAppl(HR);
-	    HR[0] = (CELL)f;
-	    for (i = 1; i < sz; i++) {
-	      HR[i] = headp[i];
-
-	    }
+	    memmove(HR, headp, sz*sizeof(CELL));
+ MP_INT *new = (MP_INT *)(HR + 2);	    
+  new->_mp_d = (mp_limb_t *)(new + 1);
+ 
 	    HR += sz;
 	  }
 	  }
@@ -462,7 +462,6 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     } else {
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	DO_TRAIL(ptd0, (CELL)ptf);
 	*ptd0 = (CELL)ptf;
 	ptf++;
 	if ((ADDR)TR > LOCAL_TrailTop - 16)
