@@ -439,7 +439,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	(ptd0 >= HB && ptd0 < HR)) {
       /* we have already found this cell */
       *ptf++ = (CELL)ptd0;
-    } else
+    } else 
       if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
@@ -458,16 +458,16 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    goto trail_overflow;
 	  }
 	}
-	TrailedMaBind(ptd0, new);
-	ptf++;
-      } else {
+      
+    } else {
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	if ((ADDR)TR > LOCAL_TrailTop - 16)
-	  goto trail_overflow;
 	DO_TRAIL(ptd0, (CELL)ptf);
 	*ptd0 = (CELL)ptf;
 	ptf++;
+	if ((ADDR)TR > LOCAL_TrailTop - 16)
+	  goto trail_overflow;
+
     }
   }
   

@@ -2109,7 +2109,9 @@ X_API void YAP_ClearExceptions(void) {
 X_API int YAP_InitConsult(int mode, const char *fname, char **full,
                           int *osnop) {
     CACHE_REGS
-    int sno;
+
+int sno;
+int   lvl = push_text_stack();
     BACKUP_MACHINE_REGS();
     const char *fl = NULL;
     if (mode == YAP_BOOT_MODE) {
@@ -2126,8 +2128,6 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full,
   }
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
-
-int   lvl = push_text_stack();
   char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
@@ -2136,9 +2136,9 @@ int   lvl = push_text_stack();
                        LOCAL_encoding);
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
-    pop_text_stack(lvl);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     *full = NULL;
+    pop_text_stack(lvl);
     return -1;
   }
   LOCAL_PrologMode = UserMode;

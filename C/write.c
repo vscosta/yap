@@ -117,6 +117,8 @@ static wtype AtomIsSymbols(unsigned char *);
 static void putAtom(Atom, int, struct write_globs *);
 static void writeTerm(Term, int, int, int, struct write_globs *,
                       struct rewind_term *);
+static void writeTerm__(Term t, yhandle_t sl, int p, int depth, int rinfixarg,
+                      struct write_globs *wglb, struct rewind_term *rwt);
 
 static void write_list(Term t, int direction, int depth,
                        struct write_globs *wglb, struct rewind_term *rwt);
@@ -760,7 +762,7 @@ static void write_list__(Term t, yhandle_t sl, int direction, int depth,
     if (!IsPairTerm(ti))
       break;
   if (check_for_loops(ti,wglb)) return;
-  wglb->sl = Yap_InitHandle(ti);
+  sl = wglb->sl = Yap_InitHandle(ti);
     ndirection = RepPair(ti) - RepPair(t);
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {
@@ -793,14 +795,14 @@ static void write_list__(Term t, yhandle_t sl, int direction, int depth,
     /* we found an infinite loop */
     /* keep going on the list */
     wrputc(',', wglb->stream);
-    write_list(ti, direction, depth, wglb, &nrwt);
+    write_list__(ti, sl, direction, depth, wglb, &nrwt);
   } else if (ti != MkAtomTerm(AtomNil)) {
     if (lastw == symbol || lastw == separator) {
       wrputc(' ', wglb->stream);
     }
     wrputc('|', wglb->stream);
     lastw = separator;
-    writeTerm(ti, 999, depth, FALSE, wglb, &nrwt);
+    writeTerm__(ti, sl, 999, depth, FALSE, wglb, &nrwt);
   }
 }
 

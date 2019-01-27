@@ -11,7 +11,8 @@
   * [TOC]
   * 
   *    @{
-  * \*/
+  *
+  */
 
   :- '$system_meta_predicates'([
 				     gated_call(0,0,?,0),
@@ -330,8 +331,8 @@ live :-
 
 
 '$process_answer'(Vs, LGs, Bindings) :-
-    '$purge_dontcares'(Vs,IVs),
-    '$sort'(IVs, NVs),
+    %'$purge_dontcares'(Vs,IVs),
+    '$sort'(Vs, NVs),
     '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
     '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
