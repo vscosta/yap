@@ -273,7 +273,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     return;
   } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
-    writeTerm(trat, p, depth, rinfixarg, wglb, rwt);
+    writeTerm__(trat,wglb->sl, p, depth, rinfixarg, wglb, rwt);
     return;
 #endif
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
@@ -762,7 +762,7 @@ static void write_list__(Term t, yhandle_t sl, int direction, int depth,
     if (!IsPairTerm(ti))
       break;
   if (check_for_loops(ti,wglb)) return;
-  sl = wglb->sl = Yap_InitHandle(ti);
+    wglb->sl = Yap_InitHandle(ti);
     ndirection = RepPair(ti) - RepPair(t);
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {
@@ -795,14 +795,14 @@ static void write_list__(Term t, yhandle_t sl, int direction, int depth,
     /* we found an infinite loop */
     /* keep going on the list */
     wrputc(',', wglb->stream);
-    write_list__(ti, sl, direction, depth, wglb, &nrwt);
+    write_list(ti, direction, depth, wglb, &nrwt);
   } else if (ti != MkAtomTerm(AtomNil)) {
     if (lastw == symbol || lastw == separator) {
       wrputc(' ', wglb->stream);
     }
     wrputc('|', wglb->stream);
     lastw = separator;
-    writeTerm__(ti, sl, 999, depth, FALSE, wglb, &nrwt);
+    writeTerm(ti, 999, depth, FALSE, wglb, &nrwt);
   }
 }
 
@@ -1183,11 +1183,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
     }
   }
   /* protect slots for portray */
-  yhandle_t sl;
-  wglb.sl0 = (sl = wglb.sl = Yap_InitHandle(t)) -1;
-  wglb.protectedEntry = false;		
-  writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
-    t = Yap_PopHandle(sl);	
+  wglb.sl0  = (wglb.sl = Yap_InitHandle(t))-1;
+  writeTerm__(t,wglb.sl, priority, 1, FALSE, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

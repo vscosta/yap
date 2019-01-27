@@ -2429,7 +2429,7 @@ static Int
 }
 
 /*  @pred '$new_multifile'(+G,+Mod)
- *  declares rgi///////                                                                                                                                                                   the multi-file flag
+ *  declares   the multi-file flag
  * */
 static Int new_multifile(USES_REGS1) {
   PredEntry *pe;
@@ -2734,7 +2734,7 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return (out);
 }
 
-/*  @pred '$new_multifile'(+G,+Mod)
+/*  @pred '$new_meta'(+G,+Mod)
  *  sets the multi-file flag
  * */
 static Int new_meta_pred(USES_REGS1) {
