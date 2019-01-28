@@ -228,7 +228,7 @@ static Int p_default_arena_size(USES_REGS1) {
   return Yap_unify(ARG1, MkIntegerTerm(ArenaSz(LOCAL_GlobalArena)));
 }
 
-void Yap_AllocateDefaultArena(size_t gsize, int wid) {
+void Yap_AllocateDefaultArena(Int gsize, Int attsize, int wid) {
   REMOTE_GlobalArena(wid) = NewArena(gsize, wid, 2, NULL);
 }
 
