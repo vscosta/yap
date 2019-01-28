@@ -1,19 +1,19 @@
 /*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		non backtrackable term support				 *
- * Last rev:	2/8/06							 *
- * mods:									 *
- * comments:	non-backtrackable term support				 *
- *									 *
- *************************************************************************/
+*									 *
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		non backtrackable term support				 *
+* Last rev:	2/8/06							 *
+* mods:									 *
+* comments:	non-backtrackable term support				 *
+*									 *
+*************************************************************************/
 #ifdef SCCS
 static char SccsId[] = "%W% %G%";
 #endif
@@ -30,82 +30,82 @@ static char SccsId[] = "%W% %G%";
 
 /**
 
-   @defgroup Global_Variables Global Variables
-   @ingroup builtins
-   @{
+ @defgroup Global_Variables Global Variables
+@ingroup builtins
+@{
 
-   Global variables are associations between names (atoms) and
-   terms. They differ in various ways from storing information using
-   assert/1 or recorda/3.
+Global variables are associations between names (atoms) and
+terms. They differ in various ways from storing information using
+assert/1 or recorda/3.
 
-   + The value lives on the Prolog (global) stack. This implies that
-   lookup time is independent from the size of the term. This is
-   particularly interesting for large data structures such as parsed XML
-   documents or the CHR global constraint store.
++ The value lives on the Prolog (global) stack. This implies that
+lookup time is independent from the size of the term. This is
+particularly interesting for large data structures such as parsed XML
+documents or the CHR global constraint store.
 
-   + They support both global assignment using nb_setval/2 and
-   backtrackable assignment using b_setval/2.
++ They support both global assignment using nb_setval/2 and
+backtrackable assignment using b_setval/2.
 
-   + Only one value (which can be an arbitrary complex Prolog term)
-   can be associated to a variable at a time.
++ Only one value (which can be an arbitrary complex Prolog term)
+can be associated to a variable at a time.
 
-   + Their value cannot be shared among threads. Each thread has its own
-   namespace and values for global variables.
-
-
-   Currently global variables are scoped globally. We may consider module
-   scoping in future versions.   Both b_setval/2 and
-   nb_setval/2 implicitly create a variable if the referenced name
-   does not already refer to a variable.
-
-   Global variables may be initialized from directives to make them
-   available during the program lifetime, but some considerations are
-   necessary for saved-states and threads. Saved-states to not store
-   global variables, which implies they have to be declared with
-   initialization/1 to recreate them after loading the saved
-   state. Each thread has its own set of global variables, starting with
-   an empty set. Using `thread_initialization/1` to define a global
-   variable it will be defined, restored after reloading a saved state
-   and created in all threads that are created after the
-   registration. Finally, global variables can be initialized using the
-   exception hook called exception/3. The latter technique is used
-   by CHR.
-
-   SWI-Prolog global variables are associations between names (atoms) and
-   terms.  They differ in various ways from storing information using
-   assert/1 or recorda/3.
-
-   + The value lives on the Prolog (global) stack.  This implies
-   that lookup time is independent from the size of the term.
-   This is particulary interesting for large data structures
-   such as parsed XML documents or the CHR global constraint
-   store.
-
-   They support both global assignment using nb_setval/2 and
-   backtrackable assignment using b_setval/2.
-
-   + Only one value (which can be an arbitrary complex Prolog
-   term) can be associated to a variable at a time.
-
-   + Their value cannot be shared among threads.  Each thread
-   has its own namespace and values for global variables.
-
-   + Currently global variables are scoped globally.  We may
-   consider module scoping in future versions.
++ Their value cannot be shared among threads. Each thread has its own
+namespace and values for global variables.
 
 
-   Both b_setval/2 and nb_setval/2 implicitly create a variable if the
-   referenced name does not already refer to a variable.
+Currently global variables are scoped globally. We may consider module
+scoping in future versions.   Both b_setval/2 and
+nb_setval/2 implicitly create a variable if the referenced name
+does not already refer to a variable.
 
-   Global variables may be initialized from directives to make them
-   available during the program lifetime, but some considerations are
-   necessary for saved-states and threads. Saved-states to not store global
-   variables, which implies they have to be declared with initialization/1
-   to recreate them after loading the saved state.  Each thread has
-   its own set of global variables, starting with an empty set.  Using
-   `thread_inititialization/1` to define a global variable it will be
-   defined, restored after reloading a saved state and created in all
-   threads that are created <em>after</em> the registration.
+Global variables may be initialized from directives to make them
+available during the program lifetime, but some considerations are
+necessary for saved-states and threads. Saved-states to not store
+global variables, which implies they have to be declared with
+initialization/1 to recreate them after loading the saved
+state. Each thread has its own set of global variables, starting with
+an empty set. Using `thread_initialization/1` to define a global
+variable it will be defined, restored after reloading a saved state
+and created in all threads that are created after the
+registration. Finally, global variables can be initialized using the
+exception hook called exception/3. The latter technique is used
+by CHR.
+
+SWI-Prolog global variables are associations between names (atoms) and
+terms.  They differ in various ways from storing information using
+assert/1 or recorda/3.
+
++ The value lives on the Prolog (global) stack.  This implies
+that lookup time is independent from the size of the term.
+This is particulary interesting for large data structures
+such as parsed XML documents or the CHR global constraint
+store.
+
+They support both global assignment using nb_setval/2 and
+backtrackable assignment using b_setval/2.
+
++ Only one value (which can be an arbitrary complex Prolog
+term) can be associated to a variable at a time.
+
++ Their value cannot be shared among threads.  Each thread
+has its own namespace and values for global variables.
+
++ Currently global variables are scoped globally.  We may
+consider module scoping in future versions.
+
+
+Both b_setval/2 and nb_setval/2 implicitly create a variable if the
+referenced name does not already refer to a variable.
+
+Global variables may be initialized from directives to make them
+available during the program lifetime, but some considerations are
+necessary for saved-states and threads. Saved-states to not store global
+variables, which implies they have to be declared with initialization/1
+to recreate them after loading the saved state.  Each thread has
+its own set of global variables, starting with an empty set.  Using
+`thread_inititialization/1` to define a global variable it will be
+defined, restored after reloading a saved state and created in all
+threads that are created <em>after</em> the registration.
 
 
 */
@@ -123,7 +123,7 @@ static char SccsId[] = "%W% %G%";
    special term on the heap. Arenas automatically contract as we add terms to
    the front.
 
-*/
+ */
 
 #define QUEUE_FUNCTOR_ARITY 4
 
@@ -145,21 +145,21 @@ static char SccsId[] = "%W% %G%";
 
 #define Global_MkIntegerTerm(I) MkIntegerTerm(I)
 
-static size_t big2arena_sz(CELL *arena_base) {
+static UInt big2arena_sz(CELL *arena_base) {
   return (((MP_INT *)(arena_base + 2))->_mp_alloc * sizeof(mp_limb_t) +
           sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) /
-    sizeof(CELL);
+         sizeof(CELL);
 }
 
-static size_t arena2big_sz(size_t sz) {
+static UInt arena2big_sz(UInt sz) {
   return sz -
-    (sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) / sizeof(CELL);
+         (sizeof(MP_INT) + sizeof(Functor) + 2 * sizeof(CELL)) / sizeof(CELL);
 }
 
 /* pointer to top of an arena */
 static inline CELL *ArenaLimit(Term arena) {
   CELL *arena_base = RepAppl(arena);
-  size_t sz = big2arena_sz(arena_base);
+  UInt sz = big2arena_sz(arena_base);
   return arena_base + sz;
 }
 
@@ -171,9 +171,9 @@ CELL *Yap_ArenaLimit(Term arena) {
 /* pointer to top of an arena */
 static inline CELL *ArenaPt(Term arena) { return (CELL *)RepAppl(arena); }
 
-static inline size_t ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
+static inline UInt ArenaSz(Term arena) { return big2arena_sz(RepAppl(arena)); }
 
-static Term CreateNewArena(CELL *ptr, size_t size) {
+static Term CreateNewArena(CELL *ptr, UInt size) {
   Term t = AbsAppl(ptr);
   MP_INT *dst;
 
@@ -186,29 +186,29 @@ static Term CreateNewArena(CELL *ptr, size_t size) {
   return t;
 }
 
-static Term NewArena(size_t size, int wid, UInt arity, CELL *where) {
+static Term NewArena(UInt size, int wid, UInt arity, CELL *where) {
   Term t;
-  size_t new_size;
+  UInt new_size;
   WORKER_REGS(wid)
 
-    if (where == NULL || where == HR) {
-      while (HR + size > ASP - 1024) {
-	if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
-	  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-	  return TermNil;
-	}
+  if (where == NULL || where == HR) {
+    while (HR + size > ASP - 1024) {
+      if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
+        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        return TermNil;
       }
-      t = CreateNewArena(HR, size);
-      HR += size;
-    } else {
-      if ((new_size = Yap_InsertInGlobal(where, size * sizeof(CELL))) == 0) {
-	Yap_Error(RESOURCE_ERROR_STACK, TermNil,
-		  "No Stack Space for Non-Backtrackable terms");
-	return TermNil;
-      }
-      size = new_size / sizeof(CELL);
-      t = CreateNewArena(where, size);
     }
+    t = CreateNewArena(HR, size);
+    HR += size;
+  } else {
+    if ((new_size = Yap_InsertInGlobal(where, size * sizeof(CELL))) == 0) {
+      Yap_Error(RESOURCE_ERROR_STACK, TermNil,
+                "No Stack Space for Non-Backtrackable terms");
+      return TermNil;
+    }
+    size = new_size / sizeof(CELL);
+    t = CreateNewArena(where, size);
+  }
   return t;
 }
 
@@ -232,7 +232,7 @@ void Yap_AllocateDefaultArena(size_t gsize, int wid) {
   REMOTE_GlobalArena(wid) = NewArena(gsize, wid, 2, NULL);
 }
 
-static void adjust_cps(size_t size USES_REGS) {
+static void adjust_cps(UInt size USES_REGS) {
   /* adjust possible back pointers in choice-point stack */
   choiceptr b_ptr = B;
   while (b_ptr->cp_h == HR) {
@@ -290,37 +290,37 @@ static int GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
   return TRUE;
 }
 
-CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {
+CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
   CACHE_REGS
-    restart : {
-    Term arena = *arenap;
-    CELL *max = ArenaLimit(arena);
-    CELL *base = ArenaPt(arena);
-    CELL *newH;
-    size_t old_sz = ArenaSz(arena), new_size;
+restart : {
+  Term arena = *arenap;
+  CELL *max = ArenaLimit(arena);
+  CELL *base = ArenaPt(arena);
+  CELL *newH;
+  UInt old_sz = ArenaSz(arena), new_size;
 
-    if (IN_BETWEEN(base, HR, max)) {
-      base = HR;
-      HR += cells;
-      return base;
-    }
-    if (base + cells > max - 1024) {
-      if (!GrowArena(arena, max, old_sz, old_sz + sizeof(CELL) * 1024,
-		     arity PASS_REGS))
-	return NULL;
-      goto restart;
-    }
-
-    newH = base + cells;
-    new_size = old_sz - cells;
-    *arenap = CreateNewArena(newH, new_size);
+  if (IN_BETWEEN(base, HR, max)) {
+    base = HR;
+    HR += cells;
     return base;
   }
+  if (base + cells > max - 1024) {
+    if (!GrowArena(arena, max, old_sz, old_sz + sizeof(CELL) * 1024,
+                   arity PASS_REGS))
+      return NULL;
+    goto restart;
+  }
+
+  newH = base + cells;
+  new_size = old_sz - cells;
+  *arenap = CreateNewArena(newH, new_size);
+  return base;
+}
 }
 
 static void CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP,
-                       size_t old_size USES_REGS) {
-  size_t new_size;
+                       UInt old_size USES_REGS) {
+  UInt new_size;
 
   if (HR == oldH)
     return;
@@ -329,6 +329,319 @@ static void CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP,
   HR = oldH;
   HB = oldHB;
   ASP = oldASP;
+}
+
+static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
+  if (TR != TR0) {
+    tr_fr_ptr pt = TR0;
+
+    do {
+      Term p = TrailTerm(pt++);
+      if (IsVarTerm(p)) {
+        RESET_VARIABLE(p);
+      } else {
+        /* copy downwards */
+        TrailTerm(TR0 + 1) = TrailTerm(pt);
+        TrailTerm(TR0) = TrailTerm(TR0 + 2) = p;
+        pt += 2;
+        TR0 += 3;
+      }
+    } while (pt != TR);
+    TR = TR0;
+  }
+}
+
+#define expand_stack(S0,SP,SF,TYPE)	       \
+  { size_t sz = SF-S0, used = SP-S0;	       \
+  S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);               \
+  SP = S0+used; SF = S0+sz; }
+
+static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
+                             int share, int copy_att_vars, CELL *ptf,
+                             CELL *HLow USES_REGS) {
+
+  int lvl = push_text_stack();
+  struct cp_frame *to_visit0, *to_visit = Malloc(1024*sizeof(struct cp_frame));
+  struct cp_frame *to_visit_max;
+
+  CELL *HB0 = HB;
+  tr_fr_ptr TR0 = TR;
+  int ground = TRUE;
+
+  HB = HLow;
+  to_visit0 = to_visit;
+  to_visit_max = to_visit+1024;
+loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, copy_term_unk);
+  copy_term_nvar : {
+    if (IsPairTerm(d0)) {
+      CELL *ap2 = RepPair(d0);
+      if ((share && ap2 < HB) || (ap2 >= HB && ap2 < HR)) {
+        /* If this is newer than the current term, just reuse */
+        *ptf++ = d0;
+        continue;
+      }
+      *ptf = AbsPair(HR);
+      ptf++;
+#ifdef RATIONAL_TREES
+      if (to_visit >= to_visit_max-32) {
+    	expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+      }
+      to_visit->start_cp = pt0;
+      to_visit->end_cp = pt0_end;
+      to_visit->to = ptf;
+      to_visit->oldv = *pt0;
+      to_visit->ground = ground;
+      /* fool the system into thinking we had a variable there */
+      *pt0 = AbsPair(HR);
+      to_visit++;
+#else
+      if (pt0 < pt0_end) {
+        if (to_visit + 32 >= to_visit_max - 32) {
+	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+
+        }
+        to_visit->start_cp = pt0;
+        to_visit->end_cp = pt0_end;
+        to_visit->to = ptf;
+        to_visit->ground = ground;
+        to_visit++;
+      }
+#endif
+      ground = TRUE;
+      pt0 = ap2 - 1;
+      pt0_end = ap2 + 1;
+      ptf = HR;
+      HR += 2;
+      if (HR > ASP - MIN_ARENA_SIZE) {
+        goto overflow;
+      }
+    } else if (IsApplTerm(d0)) {
+      register Functor f;
+      register CELL *ap2;
+      /* store the terms to visit */
+      ap2 = RepAppl(d0);
+      if ((share && ap2 < HB) || (ap2 >= HB && ap2 < HR)) {
+        /* If this is newer than the current term, just reuse */
+        *ptf++ = d0;
+        continue;
+      }
+      f = (Functor)(*ap2);
+
+      if (IsExtensionFunctor(f)) {
+        switch ((CELL)f) {
+        case (CELL) FunctorDBRef:
+        case (CELL) FunctorAttVar:
+          *ptf++ = d0;
+          break;
+        case (CELL) FunctorLongInt:
+          if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
+            goto overflow;
+          }
+          *ptf++ = AbsAppl(HR);
+          HR[0] = (CELL)f;
+          HR[1] = ap2[1];
+          HR[2] = EndSpecials;
+          HR += 3;
+          if (HR > ASP - MIN_ARENA_SIZE) {
+            goto overflow;
+          }
+          break;
+        case (CELL) FunctorDouble:
+          if (HR >
+              ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
+            goto overflow;
+          }
+          *ptf++ = AbsAppl(HR);
+          HR[0] = (CELL)f;
+          HR[1] = ap2[1];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+          HR[2] = ap2[2];
+          HR[3] = EndSpecials;
+          HR += 4;
+#else
+          HR[2] = EndSpecials;
+          HR += 3;
+#endif
+          break;
+        case (CELL) FunctorString:
+          if (ASP - HR < MIN_ARENA_SIZE + 3 + ap2[1]) {
+            goto overflow;
+          }
+          *ptf++ = AbsAppl(HR);
+          memmove(HR, ap2, sizeof(CELL) * (3 + ap2[1]));
+          HR += ap2[1] + 3;
+          break;
+        default: {
+          /* big int */
+          UInt sz = (sizeof(MP_INT) + 3 * CellSize +
+                     ((MP_INT *)(ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+                    CellSize,
+               i;
+
+          if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
+            goto overflow;
+          }
+          *ptf++ = AbsAppl(HR);
+          HR[0] = (CELL)f;
+          for (i = 1; i < sz; i++) {
+            HR[i] = ap2[i];
+          }
+          HR += sz;
+        }
+        }
+        continue;
+      }
+      *ptf = AbsAppl(HR);
+      ptf++;
+/* store the terms to visit */
+#ifdef RATIONAL_TREES
+      if (to_visit + 32 >= to_visit_max) {
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+      }
+      to_visit->start_cp = pt0;
+      to_visit->end_cp = pt0_end;
+      to_visit->to = ptf;
+      to_visit->oldv = *pt0;
+      to_visit->ground = ground;
+      /* fool the system into thinking we had a variable there */
+      *pt0 = AbsAppl(HR);
+      to_visit++;
+#else
+      if (pt0 < pt0_end) {
+        if (to_visit++ >= (CELL **)AuxSp) {
+          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+        }
+        to_visit->start_cp = pt0;
+        to_visit->end_cp = pt0_end;
+        to_visit->to = ptf;
+        to_visit->ground = ground;
+        to_visit++;
+      }
+#endif
+      ground = (f != FunctorMutable);
+      d0 = ArityOfFunctor(f);
+      pt0 = ap2;
+      pt0_end = ap2 + d0;
+      /* store the functor for the new term */
+      HR[0] = (CELL)f;
+      ptf = HR + 1;
+      HR += 1 + d0;
+      if (HR > ASP - MIN_ARENA_SIZE) {
+        goto overflow;
+      }
+    } else {
+      /* just copy atoms or integers */
+      *ptf++ = d0;
+    }
+    continue;
+  }
+
+    derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
+    ground = FALSE;
+    /* don't need to copy variables if we want to share the global term */
+    if ((share && ptd0 < HB && ptd0 > H0) || (ptd0 >= HLow && ptd0 < HR)) {
+      /* we have already found this cell */
+      *ptf++ = (CELL)ptd0;
+    } else {
+#if COROUTINING
+      if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
+        /* if unbound, call the standard copy term routine */
+        struct cp_frame *bp;
+        CELL new;
+
+        bp = to_visit;
+        if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
+                                                          ptf PASS_REGS)) {
+          goto overflow;
+        }
+        to_visit = bp;
+        new = *ptf;
+        if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+          /* Trail overflow */
+          if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
+            goto trail_overflow;
+          }
+        }
+        Bind_and_Trail(ptd0, new);
+        ptf++;
+      } else {
+#endif
+        /* first time we met this term */
+        RESET_VARIABLE(ptf);
+        if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+          goto trail_overflow;
+        Bind_and_Trail(ptd0, (CELL)ptf);
+        ptf++;
+#ifdef COROUTINING
+      }
+#endif
+    }
+  }
+
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+#ifdef RATIONAL_TREES
+    *pt0 = to_visit->oldv;
+#endif
+    ground = (ground && to_visit->ground);
+    goto loop;
+  }
+
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+  clean_dirty_tr(TR0 PASS_REGS);
+  /* follow chain of multi-assigned variables */
+    pop_text_stack(lvl);
+  return 0;
+
+overflow:
+  /* oops, we're in trouble */
+  HR = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+    pop_text_stack(lvl);
+  return -1;
+
+trail_overflow:
+  /* oops, we're in trouble */
+  HR = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+    pop_text_stack(lvl);
+  return -4;
 }
 
 static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
@@ -341,7 +654,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
   int res = 0;
   Term tn;
 
- restart:
+restart:
   t = Deref(t);
   if (IsVarTerm(t)) {
     ASP = ArenaLimit(arena);
@@ -353,7 +666,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
       *HR = t;
       Hi = HR + 1;
       HR += 2;
-      if ((res = Yap_copy_complex_term(Hi - 2, Hi - 1, share, NULL, copy_att_vars, Hi,
+      if ((res = copy_complex_term(Hi - 2, Hi - 1, share, copy_att_vars, Hi,
                                    Hi PASS_REGS)) < 0)
         goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
@@ -373,22 +686,108 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
     return tn;
   } else if (IsAtomOrIntTerm(t)) {
     return t;
-  } else  {
+  } else if (IsPairTerm(t)) {
+    Term tf;
+    CELL *ap;
     CELL *Hi;
 
-   Hi = HR;
-    HR++;
-    oldH = HR;
+    if (share && ArenaPt(arena) > RepPair(t)) {
+      return t;
+    }
     HR = HB = ArenaPt(arena);
     ASP = ArenaLimit(arena);
-    if ((res = Yap_copy_complex_term(&t - 1, &t, share, NULL, copy_att_vars, Hi,
-                                 HR PASS_REGS)) < 0) {
+    ap = RepPair(t);
+    Hi = HR;
+    tf = AbsPair(HR);
+    HR += 2;
+    if ((res = copy_complex_term(ap - 1, ap + 1, share, copy_att_vars, Hi,
+                                 Hi PASS_REGS)) < 0) {
       goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
-    return Hi[0];
+    return tf;
+  } else {
+    Functor f;
+    Term tf;
+    CELL *HB0;
+    CELL *ap;
+
+    if (share && ArenaPt(arena) > RepAppl(t)) {
+      return t;
+    }
+    HR = HB = ArenaPt(arena);
+    ASP = ArenaLimit(arena);
+    f = FunctorOfTerm(t);
+    HB0 = HR;
+    ap = RepAppl(t);
+    tf = AbsAppl(HR);
+    HR[0] = (CELL)f;
+    if (IsExtensionFunctor(f)) {
+      switch ((CELL)f) {
+      case (CELL) FunctorDBRef:
+        CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
+        return t;
+      case (CELL) FunctorLongInt:
+        if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
+          res = -1;
+          goto error_handler;
+        }
+        HR[1] = ap[1];
+        HR[2] = EndSpecials;
+        HR += 3;
+        break;
+      case (CELL) FunctorDouble:
+        if (HR > ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
+          res = -1;
+          goto error_handler;
+        }
+        HR[1] = ap[1];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+        HR[2] = ap[2];
+        HR[3] = EndSpecials;
+        HR += 4;
+#else
+        HR[2] = EndSpecials;
+        HR += 3;
+#endif
+        break;
+      case (CELL) FunctorString:
+        if (HR > ASP - (MIN_ARENA_SIZE + 3 + ap[1])) {
+          res = -1;
+          goto error_handler;
+        }
+        memmove(HR, ap, sizeof(CELL) * (3 + ap[1]));
+        HR += ap[1] + 3;
+        break;
+      default: {
+        UInt sz = ArenaSz(t), i;
+
+        if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
+          res = -1;
+          goto error_handler;
+        }
+        for (i = 1; i < sz; i++) {
+          HR[i] = ap[i];
+        }
+        HR += sz;
+      }
+      }
+    } else {
+      HR += 1 + ArityOfFunctor(f);
+      if (HR > ASP - MIN_ARENA_SIZE) {
+        res = -1;
+        goto error_handler;
+      }
+      if ((res = copy_complex_term(ap, ap + ArityOfFunctor(f), share,
+                                   copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
+          0) {
+        goto error_handler;
+      }
+    }
+    CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
+    return tf;
   }
- error_handler:
+error_handler:
   HR = HB;
   CloseArena(oldH, oldHB, oldASP, newarena, old_size PASS_REGS);
   XREGS[arity + 1] = t;
@@ -436,7 +835,7 @@ static Term CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity,
   Functor f = Yap_MkFunctor(Na, Nar);
   UInt i;
 
- restart:
+restart:
   HR = HB = ArenaPt(arena);
   ASP = ArenaLimit(arena);
   HB0 = HR;
@@ -585,8 +984,8 @@ static Int p_nb_setarg(USES_REGS1) {
 
   to = Deref(ARG3);
   to = CopyTermToArena(
-		       ARG3, LOCAL_GlobalArena, FALSE, TRUE, 3, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      ARG3, LOCAL_GlobalArena, FALSE, TRUE, 3, &LOCAL_GlobalArena,
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
 
@@ -629,8 +1028,8 @@ static Int p_nb_set_shared_arg(USES_REGS1) {
   if (pos < 1 || pos > arity)
     return FALSE;
   to = CopyTermToArena(
-		       ARG3, LOCAL_GlobalArena, TRUE, TRUE, 3, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      ARG3, LOCAL_GlobalArena, TRUE, TRUE, 3, &LOCAL_GlobalArena,
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   if (IsPairTerm(dest)) {
@@ -711,8 +1110,8 @@ static Int p_nb_create_accumulator(USES_REGS1) {
     return FALSE;
   }
   to = CopyTermToArena(
-		       t, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      t, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   t2 = Deref(ARG2);
@@ -765,9 +1164,9 @@ static Int p_nb_add_to_accumulator(USES_REGS1) {
       } else {
         /* we need to create a new long int */
         new = CopyTermToArena(
-			      new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
-			      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS)
-			      PASS_REGS);
+            new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+            garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS)
+                PASS_REGS);
         destp = RepAppl(Deref(ARG1));
         destp[1] = new;
       }
@@ -795,8 +1194,8 @@ static Int p_nb_add_to_accumulator(USES_REGS1) {
 
     new = Yap_Eval(new);
     new = CopyTermToArena(
-			  new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
-			  garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+        new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+        garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     destp = RepAppl(Deref(ARG1));
     destp[1] = new;
 
@@ -826,12 +1225,12 @@ static Int p_nb_accumulator_value(USES_REGS1) {
 
 Term Yap_SetGlobalVal(Atom at, Term t0) {
   CACHE_REGS
-    Term to;
+  Term to;
   GlobalEntry *ge;
   ge = GetGlobalEntry(at PASS_REGS);
   to = CopyTermToArena(
-		       t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   WRITE_LOCK(ge->GRWLock);
@@ -842,10 +1241,10 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
 
 Term Yap_SaveTerm(Term t0) {
   CACHE_REGS
-    Term to;
+  Term to;
   to = CopyTermToArena(
 		       Deref(t0), LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   return to;
@@ -875,8 +1274,8 @@ static Int p_nb_set_shared_val(USES_REGS1) {
   }
   ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
   to = CopyTermToArena(
-		       ARG2, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
-		       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+      ARG2, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+      garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -960,7 +1359,7 @@ static Int p_nb_getval(USES_REGS1) {
 
 Term Yap_GetGlobal(Atom at) {
   CACHE_REGS
-    GlobalEntry *ge;
+  GlobalEntry *ge;
   Term to;
 
   ge = FindGlobalEntry(at PASS_REGS);
@@ -1018,7 +1417,7 @@ static Int nbdelete(Atom at USES_REGS) {
 
 Int Yap_DeleteGlobal(Atom at) {
   CACHE_REGS
-    return nbdelete(at PASS_REGS);
+  return nbdelete(at PASS_REGS);
 }
 
 
@@ -1153,7 +1552,7 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
     return (FunctorOfTerm(t) == FunctorNBQueue);
   }
   ar[QUEUE_ARENA] = ar[QUEUE_HEAD] = ar[QUEUE_TAIL] = ar[QUEUE_SIZE] =
-    MkIntTerm(0);
+      MkIntTerm(0);
   queue = Yap_MkApplTerm(FunctorNBQueue, QUEUE_FUNCTOR_ARITY, ar);
   if (!Yap_unify(queue, ARG1))
     return FALSE;
@@ -1461,8 +1860,8 @@ static Int p_nb_heap(USES_REGS1) {
   }
 
   while ((heap = MkZeroApplTerm(
-				Yap_MkFunctor(AtomHeap, 2 * hsize + HEAP_START + 1),
-				2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
+              Yap_MkFunctor(AtomHeap, 2 * hsize + HEAP_START + 1),
+              2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
     if (!Yap_gcl((2 * hsize + HEAP_START + 1) * sizeof(CELL), 2, ENV, P)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
@@ -1560,7 +1959,7 @@ static Int p_nb_heap_add_to_heap(USES_REGS1) {
 
   if (!qd)
     return FALSE;
- restart:
+restart:
   hsize = IntegerOfTerm(qd[HEAP_SIZE]);
   hmsize = IntegerOfTerm(qd[HEAP_MAX]);
   if (hsize == hmsize) {
@@ -1728,8 +2127,8 @@ static Int p_nb_beam(USES_REGS1) {
     hsize = IntegerOfTerm(tsize);
   }
   while ((beam = MkZeroApplTerm(
-				Yap_MkFunctor(AtomHeap, 5 * hsize + HEAP_START + 1),
-				5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
+              Yap_MkFunctor(AtomHeap, 5 * hsize + HEAP_START + 1),
+              5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
     if (!Yap_gcl((4 * hsize + HEAP_START + 1) * sizeof(CELL), 2, ENV, P)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
@@ -1760,7 +2159,7 @@ static Int p_nb_beam_close(USES_REGS1) { return p_nb_heap_close(PASS_REGS1); }
 */
 static void PushBeam(CELL *pt, CELL *npt, UInt hsize, Term key, Term to) {
   CACHE_REGS
-    UInt off = hsize, off2 = hsize;
+  UInt off = hsize, off2 = hsize;
   Term toff, toff2;
 
   /* push into first queue */
@@ -1804,7 +2203,7 @@ static void PushBeam(CELL *pt, CELL *npt, UInt hsize, Term key, Term to) {
 
 static void DelBeamMax(CELL *pt, CELL *pt2, UInt sz) {
   CACHE_REGS
-    UInt off = IntegerOfTerm(pt2[1]);
+  UInt off = IntegerOfTerm(pt2[1]);
   UInt indx = 0;
   Term tk, ti, tv;
 
@@ -1878,7 +2277,7 @@ static void DelBeamMax(CELL *pt, CELL *pt2, UInt sz) {
 
 static Term DelBeamMin(CELL *pt, CELL *pt2, UInt sz) {
   CACHE_REGS
-    UInt off2 = IntegerOfTerm(pt[1]);
+  UInt off2 = IntegerOfTerm(pt[1]);
   Term ov = pt2[3 * off2 + 2]; /* return value */
   UInt indx = 0;
   Term tk, tv;
@@ -2098,7 +2497,7 @@ static Int p_nb_beam_keys(USES_REGS1) {
   CELL *pt, *ho;
   UInt i;
 
- restart:
+restart:
   qd = GetHeap(ARG1, "beam_keys");
   if (!qd)
     return FALSE;
@@ -2199,7 +2598,7 @@ static Int init_current_nb(USES_REGS1) { /* current_atom(?Atom)		 */
 
 void Yap_InitGlobals(void) {
   CACHE_REGS
-    Term cm = CurrentModule;
+  Term cm = CurrentModule;
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
@@ -2207,22 +2606,22 @@ void Yap_InitGlobals(void) {
   /** @pred  b_setval(+ _Name_, + _Value_)
 
 
-      Associate the term  _Value_ with the atom  _Name_ or replaces
-      the currently associated value with  _Value_. If  _Name_ does
-      not refer to an existing global variable a variable with initial value
-      [] is created (the empty list). On backtracking the assignment is
-      reversed.
+  Associate the term  _Value_ with the atom  _Name_ or replaces
+  the currently associated value with  _Value_. If  _Name_ does
+  not refer to an existing global variable a variable with initial value
+  [] is created (the empty list). On backtracking the assignment is
+  reversed.
 
 
   */
   /** @pred b_setval(+ _Name_,+ _Value_)
 
 
-      Associate the term  _Value_ with the atom  _Name_ or replaces
-      the currently associated value with  _Value_.  If  _Name_ does
-      not refer to an existing global variable a variable with initial value
-      `[]` is created (the empty list).  On backtracking the
-      assignment is reversed.
+  Associate the term  _Value_ with the atom  _Name_ or replaces
+  the currently associated value with  _Value_.  If  _Name_ does
+  not refer to an existing global variable a variable with initial value
+  `[]` is created (the empty list).  On backtracking the
+  assignment is reversed.
 
 
   */
@@ -2231,18 +2630,18 @@ void Yap_InitGlobals(void) {
   /** @pred  nb_setval(+ _Name_, + _Value_)
 
 
-      Associates a copy of  _Value_ created with duplicate_term/2 with
-      the atom  _Name_. Note that this can be used to set an initial
-      value other than `[]` prior to backtrackable assignment.
+  Associates a copy of  _Value_ created with duplicate_term/2 with
+  the atom  _Name_. Note that this can be used to set an initial
+  value other than `[]` prior to backtrackable assignment.
 
 
   */
   /** @pred nb_setval(+ _Name_,+ _Value_)
 
 
-      Associates a copy of  _Value_ created with duplicate_term/2
-      with the atom  _Name_.  Note that this can be used to set an
-      initial value other than `[]` prior to backtrackable assignment.
+  Associates a copy of  _Value_ created with duplicate_term/2
+  with the atom  _Name_.  Note that this can be used to set an
+  initial value other than `[]` prior to backtrackable assignment.
 
 
   */
@@ -2250,25 +2649,25 @@ void Yap_InitGlobals(void) {
   /** @pred  nb_set_shared_val(+ _Name_, + _Value_)
 
 
-      Associates the term  _Value_ with the atom  _Name_, but sharing
-      non-backtrackable terms. This may be useful if you want to rewrite a
-      global variable so that the new copy will survive backtracking, but
-      you want to share structure with the previous term.
+  Associates the term  _Value_ with the atom  _Name_, but sharing
+  non-backtrackable terms. This may be useful if you want to rewrite a
+  global variable so that the new copy will survive backtracking, but
+  you want to share structure with the previous term.
 
-      The next example shows the differences between the three built-ins:
+  The next example shows the differences between the three built-ins:
 
-      ~~~~~
-      ?- nb_setval(a,a(_)),nb_getval(a,A),nb_setval(b,t(C,A)),nb_getval(b,B).
-      A = a(_A),
-      B = t(_B,a(_C)) ?
+  ~~~~~
+  ?- nb_setval(a,a(_)),nb_getval(a,A),nb_setval(b,t(C,A)),nb_getval(b,B).
+  A = a(_A),
+  B = t(_B,a(_C)) ?
 
-      ?-
-      nb_setval(a,a(_)),nb_getval(a,A),nb_set_shared_val(b,t(C,A)),nb_getval(b,B).
+  ?-
+  nb_setval(a,a(_)),nb_getval(a,A),nb_set_shared_val(b,t(C,A)),nb_getval(b,B).
 
-      ?- nb_setval(a,a(_)),nb_getval(a,A),nb_linkval(b,t(C,A)),nb_getval(b,B).
-      A = a(_A),
-      B = t(C,a(_A)) ?
-      ~~~~~
+  ?- nb_setval(a,a(_)),nb_getval(a,A),nb_linkval(b,t(C,A)),nb_getval(b,B).
+  A = a(_A),
+  B = t(C,a(_A)) ?
+  ~~~~~
 
 
   */
@@ -2276,26 +2675,26 @@ void Yap_InitGlobals(void) {
   /** @pred  nb_linkval(+ _Name_, + _Value_)
 
 
-      Associates the term  _Value_ with the atom  _Name_ without
-      copying it. This is a fast special-purpose variation of nb_setval/2
-      intended for expert users only because the semantics on backtracking
-      to a point before creating the link are poorly defined for compound
-      terms. The principal term is always left untouched, but backtracking
-      behaviour on arguments is undone if the original assignment was
-      trailed and left alone otherwise, which implies that the history that
-      created the term affects the behaviour on backtracking. Please
-      consider the following example:
+  Associates the term  _Value_ with the atom  _Name_ without
+  copying it. This is a fast special-purpose variation of nb_setval/2
+  intended for expert users only because the semantics on backtracking
+  to a point before creating the link are poorly defined for compound
+  terms. The principal term is always left untouched, but backtracking
+  behaviour on arguments is undone if the original assignment was
+  trailed and left alone otherwise, which implies that the history that
+  created the term affects the behaviour on backtracking. Please
+  consider the following example:
 
-      ~~~~~
-      demo_nb_linkval :-
-      T = nice(N),
-      (   N = world,
-      nb_linkval(myvar, T),
-      fail
-      ;   nb_getval(myvar, V),
-      writeln(V)
-      ).
-      ~~~~~
+  ~~~~~
+  demo_nb_linkval :-
+          T = nice(N),
+          (   N = world,
+              nb_linkval(myvar, T),
+              fail
+          ;   nb_getval(myvar, V),
+              writeln(V)
+          ).
+  ~~~~~
 
 
   */
@@ -2307,31 +2706,31 @@ void Yap_InitGlobals(void) {
 
 
 
-      Assigns the  _Arg_-th argument of the compound term  _Term_ with
-      the given  _Value_ as setarg/3, but on backtracking the assignment
-      is not reversed. If  _Term_ is not atomic, it is duplicated using
-      duplicate_term/2. This predicate uses the same technique as
-      nb_setval/2. We therefore refer to the description of
-      nb_setval/2 for details on non-backtrackable assignment of
-      terms. This predicate is compatible to GNU-Prolog
-      `setarg(A,T,V,false)`, removing the type-restriction on
-      _Value_. See also nb_linkarg/3. Below is an example for
-      counting the number of solutions of a goal. Note that this
-      implementation is thread-safe, reentrant and capable of handling
-      exceptions. Realising these features with a traditional implementation
-      based on assert/retract or flag/3 is much more complicated.
+  Assigns the  _Arg_-th argument of the compound term  _Term_ with
+  the given  _Value_ as setarg/3, but on backtracking the assignment
+  is not reversed. If  _Term_ is not atomic, it is duplicated using
+  duplicate_term/2. This predicate uses the same technique as
+  nb_setval/2. We therefore refer to the description of
+  nb_setval/2 for details on non-backtrackable assignment of
+  terms. This predicate is compatible to GNU-Prolog
+  `setarg(A,T,V,false)`, removing the type-restriction on
+   _Value_. See also nb_linkarg/3. Below is an example for
+  counting the number of solutions of a goal. Note that this
+  implementation is thread-safe, reentrant and capable of handling
+  exceptions. Realising these features with a traditional implementation
+  based on assert/retract or flag/3 is much more complicated.
 
-      ~~~~~
+  ~~~~~
       succeeds_n_times(Goal, Times) :-
-      Counter = counter(0),
-      (   Goal,
-      arg(1, Counter, N0),
-      N is N0 + 1,
-      nb_setarg(1, Counter, N),
-      fail
-      ;   arg(1, Counter, Times)
-      ).
-      ~~~~~
+              Counter = counter(0),
+              (   Goal,
+                  arg(1, Counter, N0),
+                  N is N0 + 1,
+                  nb_setarg(1, Counter, N),
+                  fail
+              ;   arg(1, Counter, Times)
+              ).
+  ~~~~~
 
 
   */
@@ -2340,9 +2739,9 @@ void Yap_InitGlobals(void) {
 
 
 
-      As nb_setarg/3, but like nb_linkval/2 it does not
-      duplicate the global sub-terms in  _Value_. Use with extreme care
-      and consult the documentation of nb_linkval/2 before use.
+  As nb_setarg/3, but like nb_linkval/2 it does not
+  duplicate the global sub-terms in  _Value_. Use with extreme care
+  and consult the documentation of nb_linkval/2 before use.
 
 
   */
@@ -2351,9 +2750,9 @@ void Yap_InitGlobals(void) {
 
 
 
-      As nb_setarg/3, but like nb_linkval/2 it does not
-      duplicate  _Value_. Use with extreme care and consult the
-      documentation of nb_linkval/2 before use.
+  As nb_setarg/3, but like nb_linkval/2 it does not
+  duplicate  _Value_. Use with extreme care and consult the
+  documentation of nb_linkval/2 before use.
 
 
   */
@@ -2361,20 +2760,20 @@ void Yap_InitGlobals(void) {
   /** @pred  nb_delete(+ _Name_)
 
 
-      Delete the named global variable.
+  Delete the named global variable.
 
 
-      Global variables have been introduced by various Prolog
-      implementations recently. We follow the implementation of them in
-      SWI-Prolog, itself based on hProlog by Bart Demoen.
+  Global variables have been introduced by various Prolog
+  implementations recently. We follow the implementation of them in
+  SWI-Prolog, itself based on hProlog by Bart Demoen.
 
-      GNU-Prolog provides a rich set of global variables, including
-      arrays. Arrays can be implemented easily in YAP and SWI-Prolog using
-      functor/3 and `setarg/3` due to the unrestricted arity of
-      compound terms.
+  GNU-Prolog provides a rich set of global variables, including
+  arrays. Arrays can be implemented easily in YAP and SWI-Prolog using
+  functor/3 and `setarg/3` due to the unrestricted arity of
+  compound terms.
 
 
-      @}  */
+  @}  */
   Yap_InitCPred("nb_create", 3, p_nb_create, 0L);
   Yap_InitCPred("nb_create", 4, p_nb_create2, 0L);
   Yap_InitCPredBack("$nb_current", 1, 1, init_current_nb, cont_current_nb,
@@ -2418,5 +2817,5 @@ void Yap_InitGlobals(void) {
 }
 
 /**
-   @}
+@}
 */

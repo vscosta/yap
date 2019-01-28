@@ -97,7 +97,7 @@ undefined_query(G0, M0, Cut) :-
 '$undefp'([M0|G0],MG) :-
     % make sure we do not loop on undefined predicates
     '$undef_setup'(M0:G0, Action,Debug,Current, MGI),
-    ('$get_undefined_predicates'(Current, MGI, MG )                                                  , MG) 
+    ('$get_undefined_predicates'( MGI, MG )                                                  , MG) 
     ->
         true
     ;
@@ -119,10 +119,11 @@ undefined_query(G0, M0, Cut) :-
 '$handle_error'(fail,_Goal,_Mod) :-
     fail.
 
-'$undef_setup'(Action,Debug,Current) :-
+'$undef_setup'(G0,Action,Debug,Current,GI) :-
     yap_flag( unknown, Action, fail),
     yap_flag( debug, Debug, false),
-    '$stop_creeping'(Current).
+    '$stop_creeping'(Current),
+    '$g2i'(G0,GI).
 
 '$g2i'(user:G, Na/Ar ) :-
         !,

@@ -108,7 +108,8 @@ In YAP, the info field describes:
 :- use_system_module( user, [message_hook/3]).
 
 %:- start_low_level_trace.
-:- multifile prolog:message/3.
+:- dynamic  prolog:message//1.
+:- multifile prolog:message//1.
 %:- stop_low_level_trace.
 :- multifile user:message_hook/3.
 
@@ -374,7 +375,8 @@ display_consulting( F, Level, Info, LC) -->
        '$error_descriptor'(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
-       F \= F0
+       integer(L)
+,       F \= F0
     }, !,
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
 display_consulting( F, Level, _, LC) -->

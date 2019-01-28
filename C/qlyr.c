@@ -863,6 +863,9 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       } while (cl != NULL);
     }
     if (!nclauses) {
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->OpcodeOfPred = FAIL_OPCODE;
+
       return;
     }
     while ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
@@ -947,6 +950,10 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         Yap_EraseStaticClause(cl, pp, CurrentModule);
         cl = ncl;
       } while (cl != NULL);
+    } else if (flags & MultiFileFlag) {
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->OpcodeOfPred = FAIL_OPCODE;
+
     }
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_UInt(stream);
