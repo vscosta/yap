@@ -149,14 +149,14 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
   YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes", true, booleanFlag,
              "true", NULL),
    
- /**< `compiled_at `
+  YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
+             true, booleanFlag, "true", NULL),
+   
+ /**<
 
      Read-only flag that gives the time when the main YAP binary was compiled.
      It is obtained staight from the __TIME__ macro, as defined in the C99.
   */
-  YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
-             true, booleanFlag, "true", NULL),
-   
     YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
              NULL),
  /**<
@@ -167,18 +167,25 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL),
    
-    YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
- /**<
+		    //    YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
+  /**<
+    
+Says whether to call the debUgger on an exception. False in YAP..
+ */
+  YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "false",
+             NULL),
+   
+  /**<
     If bound, set the argument to the `write_term/3` options the
     debugger uses to write terms. If unbound, show the current options.
  */
-  YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "true",
-             NULL),
-   
     YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
              "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
              NULL),
+		    /**<
+Show their ancestors while debuggIng
+		    */
     YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
              booleanFlag, "false", NULL),
  /**<

@@ -1273,6 +1273,7 @@ module(Mod, Decls) :-
 
 
 % prevent modules within the kernel module...
+
 /** @pred use_module(? _M_,? _F_,+ _L_) is directive
     SICStus compatible way of using a module
 
@@ -1504,15 +1505,15 @@ initialization(_G,_OPT).
 @}
 */
 
-%%   @{
-
-
 
 /**
 
 @defgroup Conditional_Compilation Conditional Compilation
 
 @ingroup  YAPCompilerSettings
+
+%%   @{
+
 
   Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
@@ -1636,6 +1637,7 @@ no test succeeds the else branch is processed.
 '$elif'(_,_).
 
 /** @pred    endif
+
 End of conditional compilation.
 
 */
@@ -1688,7 +1690,7 @@ End of conditional compilation.
 	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
-/** consult_depth(-int:_LV_)
+/** @pred consult_depth(-int:_LV_)
  *
  * Unify _LV_ with the number of files being consulted.
  */

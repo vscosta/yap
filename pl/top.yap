@@ -15,7 +15,7 @@
   */
 
   :- '$system_meta_predicates'([
-				     gated_call(0,0,?,0),
+				      gated_call(0,0,?,0),
 	catch(0,?,0),
   log_event(+,:)]).
 
@@ -60,10 +60,6 @@ live :-
 '$handle_toplevel_error'(_, E) :-
 	throw(E).
 
-
-/** @pred  stream_property( Stream, Prop )
-
-*/
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
@@ -926,9 +922,9 @@ expand_term(Term,Expanded) :-
 
 %% @}
 
-%% @addtogroup YAPControl
-
-%% @{
+%% @addtogroup CathThrow Catch and Throw
+%  @ingroup YAPControl
+%  @{
     
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
@@ -936,7 +932,9 @@ expand_term(Term,Expanded) :-
 % at each catch point I need to know:
 % what is ball;
 % where was the previous catch
-/** @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso
+
+/** 
+@pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso
 
 
 The goal `catch( _Goal_, _Exception_, _Action_)` tries to
@@ -948,7 +946,6 @@ again throws the exception.
 
 The top-level of YAP maintains a default exception handler that
 is responsible to capture uncaught exceptions.
-
 
 */
 catch(G, C, A) :-

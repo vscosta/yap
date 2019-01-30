@@ -488,6 +488,13 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 /**
   @pred oldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
 
+  The foldl family of predicates is defined
+	  ==
+	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
+		P(X11, V0, V1, W0, W1),
+		...
+		P(X1n, Vn1, Vn, Wn1, Wn).
+	  ==
   Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
   foldr/3.
 */
@@ -506,13 +513,6 @@ foldl_([H|T], Goal, V0, V) :-
   _List2_ and collects a result in  _Accumulator_. Same as
   foldr/4.
 
-  The foldl family of predicates is defined
-	  ==
-	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
-		P(X11, V0, V1, W0, W1),
-		...
-		P(X1n, Vn1, Vn, Wn1, Wn).
-	  ==
 */
 foldl(Goal, List1, List2, V0, V) :-
     foldl_(List1, List2, Goal, V0, V).
@@ -523,6 +523,11 @@ foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
     foldl_(T1, T2, Goal, V1, V).
 
 /**
+
+@pred foldl(Goal, List1, List2, List3, V0, V)
+
+Apply _Goal_ plus five arguuments, three map to lists,
+two can be used as a difference_type.
 
 */
 foldl(Goal, List1, List2, List3, V0, V) :-

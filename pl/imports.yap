@@ -7,7 +7,7 @@
  */
 
 /**
- *   @ingroup ModuleBuiltins
+ *   @addtogroup ModuleBuiltins
  *   @{
  *
  * YAP follows the following protovol:
@@ -15,10 +15,17 @@
  *     - predicate is in user
  *     - predicate will be autoloaded, SWI style.
  */
+
 :- '$mk_dynamic'('$parent_module'(_,_),prolog).
 
+/** @pred mimp
+
+debug import table
+
+*/
 mimp :-
-    recorded('$import',I,_), %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
+    recorded('$import',I,_),
+    %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
 writeln(I),
 %(ImportingMod:G :- ExportingMod:G0)),
 fail.
@@ -45,12 +52,6 @@ fail.
     ->
     '$get_undefined_predicates'(NewImportingMod:G, ExportingMod:G0).
 
-/**
- *
- * @pred '$continue_imported'(+Modn, +ModOut, +Predn ,+PredOut)
-		   *
-		   * @return
-		 */
 '$continue_imported'(Mod:Pred,Mod,Pred) :-
     '$pred_exists'(Pred, Mod),
     !.

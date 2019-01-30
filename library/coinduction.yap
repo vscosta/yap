@@ -80,6 +80,8 @@ regardless of the cycle-length.
 @see    "Co-Logic Programming: Extending Logic  Programming with Coinduction"
         by Luke Somin et al.
 
+@addtogroup coinduction Co-induction
+@ingroup library
 @{
 
 */

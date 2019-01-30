@@ -88,7 +88,7 @@ the environment variable YAPBINDIR.
 + YAP will try to find library files from the YAPSHAREDIR/library directory.
 
 @section RunningScripts Running Prolog Files
---------------------
+
 
 YAP can also be used to run Prolog files as scripts, at least in
 Unix-like environments. A simple example is shown next (do not forget

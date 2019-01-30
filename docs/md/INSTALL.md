@@ -53,21 +53,19 @@ generate Makefiles, Ninja, Apple's XCode, VisualStudio and ANdroid
 Studio, and because it includes packaging suppport, The steps required
 to install core YAP under `cmake` are presented in detail next.
 
-@subsubsection Compilation The compiler
+@subsection Compilation The compiler: *Status as of early 2017*
 
-  *Status as of early 2017*
+YAP should compile well under the [GNU-CC](https://gcc.gnu.org/) and
+    the [C-LANG](https://clang.llvm.org/) families, that are available
+    across most configurations. It sshould also compile well undder
+    Intel `icc`.
 
-	YAP should compile well under the [GNU-CC](https://gcc.gnu.org/)
-    and the [C-LANG](https://clang.llvm.org/) families, that are
-    available across most configurations. It sshould also compile well
-    undder Intel `icc`.
-
-	We do not recommend using Microoft's VC++. To the best of our
+We do not recommend using Microoft's VC++. To the best of our
     knowledge MSC does not support threaded emulation, which YAP recquires
     for performance, You can still use the IDE, and experiment with
     the c-lang plugin.
 
-	YAP compiles cleanly under cross-compilers, and we have used the
+YAP compiles cleanly under cross-compilers, and we have used the
     crosss-compilation system [mxe](http://mxe.cc/) system with good results.
 
 @subsection cmake  cmake
@@ -214,7 +212,7 @@ brew install cudd
 cmake -DOPENSSL_ROOT_DIR=/usr/local/opt/openssl ..
 ~~~~~
 
-@sususbsection TuningDroid Compilation Notes for Android
+@subsection TuningDroid Compilation Notes for Android
 
  Next we present the compilation process for Android. The environment is an OSX, but steps
  should be similar for Linux machines. We assume you have downloaded both the Android NDK and the Android SDK.
