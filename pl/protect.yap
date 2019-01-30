@@ -42,7 +42,7 @@ prolog:'$protect' :-
     new_system_module( M ),
     fail.
 prolog:'$protect' :-
-	'$current_predicate'(Name,M,P,_),
+    '$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
@@ -84,3 +84,4 @@ prolog:'$protect'.
 '$visible'('$init_prolog').
 '$visible'('$x_yap_flag' ).
 %% @}
+

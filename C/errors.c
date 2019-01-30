@@ -1030,6 +1030,13 @@ static Int print_exception(USES_REGS1) {
     Term t1 = Deref(ARG1);
     if (IsAddressTerm(t1)) {
         yap_error_descriptor_t *t = AddressOfTerm(t1);
+	if (t->parserFile && t->parserLine) {
+	  fprintf(stderr,"\n%s:%ld:0 error: while parsing %s\n\n", t->parserFile,  t->parserLine,t->errorAsText);
+	} else if (t->prologPredFile && t->prologPredLine) {
+	  fprintf(stderr,"\n%s:%ld:0 error: while running %s\n\n", t->prologPredFile,  t->prologPredLine,t->errorAsText);
+	} else if (t->errorFile && t->errorLine) {
+	  fprintf(stderr,"\n%s:%ld:0 error: while executing %s\n\n", t->errorFile,  t->errorLine,t->errorAsText);
+	}
         printErr(t);
     } else {
            return Yap_WriteTerm(LOCAL_c_error_stream,t1,TermNil PASS_REGS);
