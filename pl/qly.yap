@@ -82,8 +82,8 @@ Saves an image of the current state of the YAP database in file
 trying goal  _G_.
 **/
 qsave_program(File) :-
-    '$save_program_status'([], qsave_program(File)),
-open(File, write, S, [type(binary)]),
+	'$save_program_status'([], qsave_program(File)),
+	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	  close(S).
 

@@ -29,7 +29,7 @@
 */
 
 /**
-* @pred system_module( +_Mod_, +_ListOfPublicPredicates, +ListOfPrivatePredicates * 
+* @pred system_module( _Mod_, _ListOfPublicPredicates, ListOfPrivatePredicates * 
  * Define a system module _Mod_. _ListOfPublicPredicates_ . Currentlt, all
  * predicates are in the 'prolog' module. The first
  * are visible outside the Prolog module, all others are hidden at the end of booting.
@@ -37,21 +37,26 @@
 */
 system_module(Mod, SysExps) :-
     system_module(Mod, SysExps, []).
+ 
+
+use_system_module(_Module, _SysExps).
 
 system_module(_Mod, SysExps, _Decls) :-
+      % '$new_system_predicates'(SysExps),
+       fail.
+ system_module(_Mod, _SysExps, _Decls) :-
     (
-	'$new_system_predicates'(SysExps),
-	fail
-    ;
     stream_property(loop_stream,file_name(File))
     ->
     recordz(system_file, File, _ )
     ;
     recordz(system_file, loop_stream, _ )
     ).
+ 
+private(_).
 
-'$new_system_predicates'([P|_Ps]) :-
-    functor(P, N, Ar),
+'$new_system_predicates'([]).
+'$new_system_predicates'([N/Ar|_Ps])  :-
     '$new_system_predicate'(N, Ar, prolog).
 '$new_system_predicates'([_P|Ps]) :-
     '$new_system_predicates'(Ps).
@@ -76,9 +81,6 @@ system_module(_Mod, SysExps, _Decls) :-
         true/0]).
 
 % be careful here not to generate an undefined exception..
-
-use_system_module(_,_).
-private(_).
 
 print_message(L,E) :-
 	(L = informational
@@ -247,7 +249,7 @@ initialize_prolog :-
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
-:- c_compile( 'protect.yap' ).
+%:- c_compile( 'protect.yap' ).
 
 :- ['absf.yap'].
 

@@ -97,9 +97,10 @@
     set_prolog_flag(debug, false),
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
-    '$init_from_saved_state_and_args', %start_low_level_trace,
+ 	writeln(ok),
+   '$init_from_saved_state_and_args', %start_low_level_trace,
 
-    '$db_clean_queues'(0),
+    '$db_clean_queues'(_),
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
     set_input(user_input),
@@ -186,7 +187,7 @@
 	get_value('$consult_on_boot',X), X \= [],
 	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X),
-	fail.
+	!.
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', init_file(M:B), R),
 	erase(R),

@@ -1592,6 +1592,7 @@ void Yap_InitCPreds(void) {
   Yap_udi_init();
   Yap_udi_Interval_init();
   Yap_InitSignalCPreds();
+  Yap_InitTermCPreds();
   Yap_InitUserCPreds();
   Yap_InitUtilCPreds();
   Yap_InitSortPreds();

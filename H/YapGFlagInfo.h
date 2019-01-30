@@ -167,7 +167,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL),
    
-		    //    YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
+  YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
   /**<
     
 Says whether to call the debUgger on an exception. False in YAP..
