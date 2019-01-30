@@ -726,8 +726,6 @@ static void write_list(Term t, int direction, int depth,
   nrwt.u_sd.s.ptr = 0;
 
   while (1) {
-    int ndirection;
-    int do_jump;
 
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
     ti = TailOfTerm(t);
@@ -735,18 +733,6 @@ static void write_list(Term t, int direction, int depth,
       break;
     if (!IsPairTerm(ti))
       break;
-    ndirection = RepPair(ti) - RepPair(t);
-    /* make sure we're not trapped in loops */
-    if (ndirection > 0) {
-      do_jump = (direction <= 0);
-    } else if (ndirection == 0) {
-      wrputc(',', wglb->stream);
-      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb);
-      lastw = separator;
-      return;
-    } else {
-      do_jump = (direction >= 0);
-    }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
@@ -756,10 +742,7 @@ static void write_list(Term t, int direction, int depth,
       return;
     }
     lastw = separator;
-    direction = ndirection;
     depth++;
-    if (do_jump)
-      break;
     wrputc(',', wglb->stream);
     t = ti;
   }

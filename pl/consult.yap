@@ -516,8 +516,8 @@ load_files(Files0,Opts) :-
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
 				%	start_low_level_trace,
-	'$pred_exists'('$absolute_file_name'(File,[],F),prolog),
-	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
+	'$pred_exists'(absolute_file_name__(File,[],F),prolog),
+	absolute_file_name__(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
@@ -804,7 +804,7 @@ db_files(Fs) :-
     '$lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
+    absolute_file_name__(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
@@ -1043,7 +1043,7 @@ prolog_load_context(stream, Stream) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
 	    atom_concat(Prefix, '.qly', F0 ),
-	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
+	 absolute_file_name__(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
         ;
            F0 = F
 				   ),
@@ -1150,11 +1150,11 @@ exists_source(File) :-
 
 
 '$full_filename'(F0, F) :-
-	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
+	'$undefined'(absolute_file_name__(F0,[],F),prolog_complete),
 	!,
 	absolute_file_system_path(F0, F).
 '$full_filename'(F0, F) :-
-	'$absolute_file_name'(F0,[access(read),
+	absolute_file_name__(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
