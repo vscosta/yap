@@ -38,6 +38,7 @@
 system_module(Mod, SysExps) :-
     system_module(Mod, SysExps, []).
 
+system_module(_Mod, _SysExps, _Decls) :- !.
 system_module(_Mod, _SysExps, _Decls) :-
       % '$new_system_predicates'(SysExps),
        fail.
@@ -75,7 +76,28 @@ private(_).
         (not)/1,
         repeat/0,
         throw/1,
-        true/0]).
+			     true/0]).
+
+:- system_module( '$_init', [!/0,
+        ':-'/1,
+        '?-'/1,
+        []/0,
+        extensions_to_present_answer/1,
+        fail/0,
+        false/0,
+        goal_expansion/2,
+        goal_expansion/3,
+        otherwise/0,
+        term_expansion/2,
+        version/2],
+	[
+	'$do_log_upd_clause'/6,
+        '$do_log_upd_clause0'/6,
+        '$do_log_upd_clause_erase'/6,
+        '$do_static_clause'/5],
+        '$system_module'/1]).
+
+:- use_system_module( '$_boot', ['$cut_by'/1]).
 
 % be careful here not to generate an undefined exception..
 
@@ -143,26 +165,6 @@ print_boot_message(Type,Error,Desc) :-
 :-  '$new_multifile'('$full_clause_optimisation'(_H, _M, _B0, _BF), prolog).
 :-  '$new_multifile'('$exec_directive'(_,_,_,_,_), prolog).
 
-:- system_module( '$_init', [!/0,
-        ':-'/1,
-        '?-'/1,
-        []/0,
-        extensions_to_present_answer/1,
-        fail/0,
-        false/0,
-        goal_expansion/2,
-        goal_expansion/3,
-        otherwise/0,
-        term_expansion/2,
-        version/2],
-	[
-	'$do_log_upd_clause'/6,
-        '$do_log_upd_clause0'/6,
-        '$do_log_upd_clause_erase'/6,
-        '$do_static_clause'/5], [
-        '$system_module'/1]).
-
-:- use_system_module( '$_boot', ['$cut_by'/1]).
 
 
 %:- start_low_level_trace.
@@ -216,7 +218,7 @@ print_boot_message(Type,Error,Desc) :-
 	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
 	  % do term expansion
 	  '$expand_term'(C, Con, EC),
-	  ( var(EC) ->
+	  ( nonvar(EC) ->
 	    '$yap_strip_module'(EC, EM2, EG2)
 	  ;
 	    '$yap_strip_module'(C, EM2, EG2)
