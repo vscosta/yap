@@ -1366,7 +1366,6 @@ renumbervar(Term t, Int id USES_REGS)
     continue;					\
   }
 
-
 static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv, int singles USES_REGS)
 {
 
@@ -1465,21 +1464,17 @@ Yap_NumberVars( Term inp, Int numbv, bool handle_singles )	/*
     }
   }  else if (IsPrimitiveTerm(t)) {
     return numbv;
-  } else if (IsPairTerm(t)) {
-    out = numbervars_in_complex_term(RepPair(t)-1,
-				     RepPair(t)+1, numbv, handle_singles PASS_REGS);
   } else {
-    Functor f = FunctorOfTerm(t);
 
-    out = numbervars_in_complex_term(RepAppl(t),
-				     RepAppl(t)+
-				     ArityOfFunctor(f), numbv, handle_singles PASS_REGS);
+    out = numbervars_in_complex_term(&(t)-1,
+				     &(t), numbv, handle_singles PASS_REGS);
   }
   if (out < numbv) {
     if (!expand_vts( 3 PASS_REGS ))
       return FALSE;
     goto restart;
   }
+  return true;
 }
 
   /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
@@ -1508,6 +1503,84 @@ p_numbervars( USES_REGS1 )
     return FALSE;
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
+
+
+#define MAX_NUMBERED			\
+  if (FunctorOfTerm(d0) == FunctorDollarVar) {\
+  Term t1 = ArgOfTerm(1, d0); \
+  Int i; \
+  if (IsIntegerTerm(t1) && ((i = IntegerOfTerm(t1)) > *maxp)) *maxp = i; \
+    continue;		\
+  }
+
+static int
+max_numbered_var(CELL *pt0, CELL *pt0_end, Int *maxp USES_REGS)
+{
+
+
+  int lvl = push_text_stack();
+
+  struct non_single_struct_t  
+    *to_visit = Malloc(1024*sizeof( struct non_single_struct_t)),
+    *to_visit0 = to_visit,
+    *to_visit_max = to_visit+1024;
+ 
+  to_visit0 = to_visit;
+  to_visit_max = to_visit0+1024;
+ restart:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+  list_loop:
+    deref_head(d0, vars_in_term_unk);
+  vars_in_term_nvar:
+    {
+      WALK_COMPLEX_TERM__({},MAX_NUMBERED);
+
+      continue;
+    }
+
+
+    derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit--;
+
+    pt0 = to_visit->pt0;
+    pt0_end = to_visit->pt0_end;
+    CELL *ptd0 = to_visit->ptd0;
+    *ptd0 = to_visit->d0;
+    goto restart;
+  }
+
+  prune(B PASS_REGS);
+  pop_text_stack(lvl);
+  return 0;
+
+  def_aux_overflow();
+}
+
+
+static Int
+MaxNumberedVar(Term inp, UInt arity_REGS) {
+  Term t = Deref(inp);
+
+  if (IsPrimitiveTerm(t)) {
+    return MkIntegerTerm(0);
+  } else {
+    Int res;
+    Int max;
+      res = max_numbered_var(&t-1, &t, &max  PASS_REGS)-1;
+      if (res < 0) return -1;
+    return MkIntegerTerm(max);
+  }
+}
+
+
 
 void Yap_InitTermCPreds(void)
 {
