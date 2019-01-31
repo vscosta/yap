@@ -166,6 +166,7 @@ static bool load_file(const char *b_file USES_REGS) {
 
   /* consult in C */
   int lvl = push_text_stack();
+  
   char *full;
   /* the consult mode does not matter here, really */
   if ((osno = Yap_CheckAlias(AtomLoopStream)) < 0) {
@@ -191,6 +192,7 @@ static bool load_file(const char *b_file USES_REGS) {
           YAP_Reset(YAP_FULL_RESET, false);
      Yap_StartSlots();
     Term vs = MkVarTerm(), pos = MkVarTerm();
+
     t = YAP_ReadClauseFromStream(c_stream, vs, pos);
     // Yap_GetNèwSlot(t);
     if (t == TermEof || t == TermNil) {

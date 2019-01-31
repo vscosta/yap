@@ -37,29 +37,26 @@
 */
 system_module(Mod, SysExps) :-
     system_module(Mod, SysExps, []).
- 
-
-use_system_module(_Module, _SysExps).
 
 system_module(_Mod, _SysExps, _Decls) :-
       % '$new_system_predicates'(SysExps),
        fail.
- system_module(_Mod, _SysExps, _Decls) :-
-    (
-    stream_property(loop_stream,file_name(File))
-    ->
-    recordz(system_file, File, _ )
-    ;
-    recordz(system_file, loop_stream, _ )
-    ).
- 
-private(_).
+system_module(_Mod, _SysExps, _Decls) :-
+    stream_property(loop_stream,[file_name(File)]),
+    !,
+    recordz(system_file, File, _ ).
+system_module(_Mod, _SysExps, _Decls) :-
+    recordz(system_file, loop_stream, _ ).
 
 '$new_system_predicates'([]).
 '$new_system_predicates'([N/Ar|_Ps])  :-
     '$new_system_predicate'(N, Ar, prolog).
 '$new_system_predicates'([_P|Ps]) :-
     '$new_system_predicates'(Ps).
+
+use_system_module(_Module, _SysExps).
+
+private(_).
 
 %
 % boootstrap predicates.
@@ -82,22 +79,38 @@ private(_).
 
 % be careful here not to generate an undefined exception..
 
-print_message(L,E) :-
-	(L = informational
-	->
-	'$query_exception'(prologPredFile, Desc, File),
-	'$query_exception'(prologPredLine, Desc, FilePos),
-	format(user_error,'~a:~d:  error:', [File,FilePos])
-	;
-	
-	%throw(error(error, print_message(['while calling goal = ~w'-E,nl]))).
+print_message(informational,_) :-
+	yap_flag(verbose, silent),
+	!.
+print_message(informational,E) :-
+	format('informational message ~q.~n',[E]),
+	!.
+%%
+% boot:print_message( Type, Error )
+%
+print_message(Type,error(_,exception(Desc))) :-
 	'$get_exception'(Desc),
+	print_boot_message(Type,Error,Desc),
+	'$print_exception'(Desc),
+	!.
+print_message(Type,Error) :-
+	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
+
+
+
+print_boot_message(Type,Error,Desc) :-		
+	'$query_exception'(parserFile, Desc, File),
+	'$query_exception'(parserLine, Desc, FilePos),
+	!,
+	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
+print_boot_message(Type,Error,Desc) :-		
 	'$query_exception'(prologPredFile, Desc, File),
 	'$query_exception'(prologPredLine, Desc, FilePos),
-	format(user_error,'~a:~d:  error:', [File,FilePos]),
-	'$print_exception'(Desc),
-	format( user_error, '~w from bootstrap: got ~w~n',[L,E])
-	).
+	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
+print_boot_message(Type,Error,Desc) :-
+	'$query_exception'(errorFile, Desc, File),
+	'$query_exception'(errorLine, Desc, FilePos),
+	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
 '$undefp0'([M|G], _Action) :-
 	functor(G,N,A),
@@ -141,7 +154,7 @@ print_message(L,E) :-
         goal_expansion/3,
         otherwise/0,
         term_expansion/2,
-        version/2,
+        version/2],
 	[
 	'$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
@@ -249,7 +262,7 @@ initialize_prolog :-
 :- c_compile( 'preds.yap' ).
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
-%:- c_compile( 'protect.yap' ).
+:- c_compile( 'protect.yap' ).
 
 :- ['absf.yap'].
 

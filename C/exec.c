@@ -1734,6 +1734,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     // should we catch the exception or pass it through?
     // We'll pass it through
     if (pass_ex && Yap_HasException()) {
+        if ((LOCAL_PrologMode & BootMode) || !CurrentModule ) {
+	  Yap_ResetException(LOCAL_ActiveError);
+      return false;
+    }
+
       Yap_RaiseException();
       return false;
     }
@@ -1756,6 +1761,10 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     // should we catch the exception or pass it through?
     // We'll pass it through
     if (pass_ex) {
+        if ((LOCAL_PrologMode & BootMode) || !CurrentModule ) {
+	  Yap_ResetException(LOCAL_ActiveError);
+      return false;
+    }
       Yap_RaiseException();
     }
     return false;

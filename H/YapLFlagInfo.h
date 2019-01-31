@@ -117,9 +117,9 @@ Just fail
 	/**<
 
        If `true` allow printing of informational messages when
-       searching for file names. If `false` disable printing these messages. It
-       is `false` by default except if YAP is booted with the `-L`
-       flag.
+       searching for file names. If `false` disable printing these
+       messages. It is `false` by default except if YAP is booted with
+       the `-L` flag.
     */
 	YAP_FLAG(VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, booleanFlag,
 			 "false", NULL),

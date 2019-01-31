@@ -243,6 +243,7 @@ live :-
     functor(NH,N,Ar),
     print_message(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
     erase(RI),
+    clause(Mod:H,_,R), erase(R),
     fail.
 '$init_pred'(H, Mod, Where ) :-
     '$init_as_dynamic'(Where),
