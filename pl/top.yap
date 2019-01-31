@@ -177,11 +177,11 @@ live :-
 	catch( '$expand_term0'(T,Con,O), _,( '$disable_debugging', fail) ),
       	!.
 
-		'$expand_term0'(T,consult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,reconsult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,top,O) :-
+'$expand_term0'(T,consult,O) :-
+	expand_term( T,  O).
+'$expand_term0'(T,reconsult,O) :-
+	expand_term( T,  O).
+'$expand_term0'(T,top,O) :-
 	expand_term( T,  T1),
 	!,
  	'$expand_term1'(T1,O).
@@ -879,8 +879,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    source_module(SM),
-    '$yap_strip_clause'(SM:InputCl, M, ICl),
+    '$yap_strip_clause'(InputCl, M, ICl),
     '$expand_a_clause'( M:ICl, SM, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).

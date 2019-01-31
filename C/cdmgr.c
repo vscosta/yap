@@ -2852,10 +2852,14 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
-  if (EndOfPAEntr(pe))
-    return false;
   PELOCK(59, pe);
+  if (EndOfPAEntr(pe)) {
+    UndefCode = FAILCODE;
+    UNLOCKPE(59, pe);
+    return false;
+  }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+    UndefCode = FAILCODE;
     UNLOCKPE(59, pe);
     return false;
   }

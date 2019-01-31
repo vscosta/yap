@@ -189,11 +189,10 @@ static bool CallError(yap_error_number err, Term t, Term mod USES_REGS) {
 
 /** @pred current_choice_point( -CP )
  *
- * unify the logic variable _CP_ with a number that gives the offset of the
- * current choice-point. This number is only valid as long as we do not
- *backtrack by or cut
- * _CP_, and is safe in the presence of stack shifting and/or garbage
- *collection.
+ * unify the logic variable _CP_ with a number that identifies the
+ * last alternative taken, or current choice-point. This number is
+ * only valid as long as we do not backtrack by or cut _CP_, and is
+ * safe in the presence of stack shifting and/or garbage collection.
  */
 static Int current_choice_point(USES_REGS1) {
   Term t = Deref(ARG1);
@@ -204,6 +203,29 @@ static Int current_choice_point(USES_REGS1) {
   if (!IsVarTerm(t))
     return (FALSE);
   td = cp_as_integer(B PASS_REGS);
+  YapBind((CELL *)t, td);
+  return TRUE;
+}
+
+/** @pred parent_choice_point( +CP, -PCP )
+ *
+ * given that _CP_  identifies an
+ *  alternative taken, or  choice-point, _PCP_ identifies its parent.
+ *
+ * The call will fail if _CP_ is topmost in the search tree. 
+ */
+static Int parent_choice_point(USES_REGS1) {
+  Term t = Deref(ARG1);
+  Term td;
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+  if (!IsVarTerm(t))
+    return (FALSE);
+  choiceptr cp =  cp_from_integer(t);
+  if (cp == NULL || cp->cp_b == NULL)
+    return false;
+  td = cp_as_integer(cp->cp_b PASS_REGS);
   YapBind((CELL *)t, td);
   return TRUE;
 }
@@ -2302,6 +2324,7 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
+  Yap_InitCPred("parent_choice_point", 1, parent_choice_point, 0);
   Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,

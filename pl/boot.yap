@@ -41,7 +41,7 @@ system_module(Mod, SysExps) :-
 
 use_system_module(_Module, _SysExps).
 
-system_module(_Mod, SysExps, _Decls) :-
+system_module(_Mod, _SysExps, _Decls) :-
       % '$new_system_predicates'(SysExps),
        fail.
  system_module(_Mod, _SysExps, _Decls) :-
@@ -100,9 +100,9 @@ print_message(L,E) :-
 	).
 
 '$undefp0'([M|G], _Action) :-
- functor(G,N,A),
-    print_message( error, error(error(unknown, M:N/A),M:G)),
-    fail.
+	functor(G,N,A),
+	print_message( error, error(error(unknown, M:N/A),M:G)),
+	fail.
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).
 

@@ -113,8 +113,8 @@
 '$startup_goals' :-
     module(user),
     fail.
-'$startup_goals' :-
-    recorded('$startup_goal',G,_),
+'$startup_goals' :- 
+   recorded('$startup_goal',G,_),
     catch(once(user:G),Error,user:'$Error'(Error)),
     fail.
 '$startup_goals' :-
@@ -187,7 +187,7 @@
 	get_value('$consult_on_boot',X), X \= [],
 	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X),
-	!.
+	fail.
 '$init_from_saved_state_and_args' :-
 	recorded('$restore_flag', init_file(M:B), R),
 	erase(R),

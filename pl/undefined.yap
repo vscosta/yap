@@ -97,26 +97,27 @@ undefined_query(G0, M0, Cut) :-
 '$undefp'([M0|G0],MG) :-
     % make sure we do not loop on undefined predicates
     '$undef_setup'(M0:G0, Action,Debug,Current, MGI),
-    ('$get_undefined_predicates'( MGI, MG )                                                  , MG) 
+    ('$get_undefined_predicates'( MGI, MG )                                  
     ->
         true
     ;
     '$undef_error'(Current, M0:G0, MGI,  MG)
     ,
-    '$undef_cleanup'(Action,Debug,Current).
+     '$undef_cleanup'(Action,Debug,Current)
+    ).
 
 '$undef_error'(_, M0:G0, _, MG) :-
     '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
     '$yap_strip_module'(M0:G0,  EM0, GM0),
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
-'$handle_error'(error,  Mod:Goal, I,_) :-
+'$undef_error'(error,  Mod:Goal, I,_) :-
     '$do_error'(existence_error(procedure,I), Mod:Goal).
-'$handle_error'(warning,Mod:Goal,I,_) :-
+'$undef_error'(warning,Mod:Goal,I,_) :-
     'program_continuation'(PMod,PName,PAr),
     print_message(warning,error(existence_error(procedure,I), context(Mod:Goal,PMod:PName/PAr))),
     fail.
-'$handle_error'(fail,_Goal,_Mod) :-
+'$undef_error'(fail,_Goal,_Mod) :-
     fail.
 
 '$undef_setup'(G0,Action,Debug,Current,GI) :-
@@ -127,20 +128,20 @@ undefined_query(G0, M0, Cut) :-
 
 '$g2i'(user:G, Na/Ar ) :-
         !,
-functor(G, Na, Ar).
+	functor(G, Na, Ar).
 '$g2i'(prolog:G, Na/Ar ) :-
         !,
-            functor(G, Na, Ar).
+	functor(G, Na, Ar).
 '$g2i'(M:G, M:Na/Ar ) :-
         !,
-functor(G, Na, Ar).
+	functor(G, Na, Ar).
 
 '$undef_cleanup'(Action,Debug,_Current) :-
     yap_flag( unknown, _, Action),
     yap_flag( debug, _, Debug),
     '$start_creep'([prolog|true], creep).
 
-    :- '$undefp_handler'('$undefp'(_,_), prolog).
+:- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 
@@ -154,7 +155,7 @@ The unknown predicate, informs about what the user wants to be done
 */
 
 unknown(P, NP) :-
-    prolog_flag( unknown, P, NP ).
+    yap_flag( unknown, P, NP ).
 
 /**
 @}

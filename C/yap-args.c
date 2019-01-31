@@ -1206,6 +1206,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
     }
     LOCAL_consult_level = -1;
   }
+  Yap_do_low_level_trace=1;
   YAP_RunGoalOnce(TermInitProlog);
   if (yap_init->install && Yap_OUTPUT_STARTUP) {
     Term t = MkAtomTerm(Yap_LookupAtom(Yap_OUTPUT_STARTUP));
@@ -1214,6 +1215,7 @@ X_API void YAP_Init(YAP_init_args *yap_init) {
 
     YAP_RunGoalOnce(g);
   }
+  Yap_do_low_level_trace=0;
 
   end_init(yap_init);
 }
