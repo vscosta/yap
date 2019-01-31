@@ -30,14 +30,13 @@
         add_to_path/1,
         add_to_path/2,
         path/1,
-        remove_from_path/1]).
+        remove_from_path/1], []).
 
 
 absolute_file_name__(File,LOpts,TrueFileName) :-
 				%   must_be_of_type( atom, File ),
      % look for solutions
      gated_call(
-
         '$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ),
          '$find_in_path'(File, Opts,TrueFileName, HasSol, TakeFirst),
          Port,
@@ -91,12 +90,12 @@ absolute_file_name__(File,LOpts,TrueFileName) :-
     '$absf_port'(fail,  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
 
 
-
-core_file_name(Name, Opts) -->
+:- start_low_level_trace.
+prolog:core_file_name(Name, Opts) -->
     '$file_name'(Name, Opts, E),
     '$suffix'(E, Opts),
     '$glob'(Opts).
-
+:- stop_low_level_trace.
 				%
 % handle library(lists) or foreign(jpl)
 %
@@ -416,7 +415,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
     get_abs_file_parameter( access, Opts, Access ),
     get_abs_file_parameter( expand, Opts, Expand ),
     absf_trace('start with ~w', [Name]),
-    core_file_name(Name, Opts, CorePath, []),
+    prolog:core_file_name(Name, Opts, CorePath, []),
     absf_trace('  after name/library unfolding: ~w', [Name]),
     '$variable_expansion'(CorePath, Opts,ExpandedPath),
     absf_trace('   after environment variable expansion: ~s', [ExpandedPath]),

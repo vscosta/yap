@@ -363,6 +363,7 @@ bool Yap_PrintWarning(Term twarning) {
   LOCAL_within_print_message = false;
   LOCAL_PrologMode &= ~InErrorMode;
   return rc;
+   
 }
 
 bool Yap_HandleError__(const char *file, const char *function, int lineno,
@@ -415,7 +416,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
       return false;
     }
   default:
-
+  
     if (LOCAL_PrologMode == UserMode)
       Yap_ThrowError__(file, function, lineno, err, LOCAL_RawTerm, serr);
     else

@@ -2202,7 +2202,15 @@ X_API Term YAP_ReadFromStream(int sno) {
   Term o;
 
   BACKUP_MACHINE_REGS();
+  
+  sigjmp_buf signew;
+  if (sigsetjmp(signew, 0)) {
+    Yap_syntax_error(LOCAL_toktide, sno, "ReadFromStream");
+  RECOVER_MACHINE_REGS();
+  return 0;
+  } else { 
   o = Yap_read_term(sno, TermNil, false);
+  }
   RECOVER_MACHINE_REGS();
   return o;
 }

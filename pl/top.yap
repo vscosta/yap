@@ -177,11 +177,11 @@ live :-
 	catch( '$expand_term0'(T,Con,O), _,( '$disable_debugging', fail) ),
       	!.
 
-		'$expand_term0'(T,consult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,reconsult,O) :-
-		expand_term( T,  O).
-		'$expand_term0'(T,top,O) :-
+'$expand_term0'(T,consult,O) :-
+    expand_term( T,  O).
+'$expand_term0'(T,reconsult,O) :-
+    expand_term( T,  O).
+'$expand_term0'(T,top,O) :-
 	expand_term( T,  T1),
 	!,
  	'$expand_term1'(T1,O).
@@ -243,6 +243,7 @@ live :-
     functor(NH,N,Ar),
     print_message(warning,redefine_imported(Mod,NM,Mod:N/Ar)),
     erase(RI),
+    clause(Mod:H,_,R), erase(R),
     fail.
 '$init_pred'(H, Mod, Where ) :-
     '$init_as_dynamic'(Where),
