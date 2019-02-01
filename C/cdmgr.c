@@ -2854,12 +2854,12 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   PELOCK(59, pe);
   if (EndOfPAEntr(pe)) {
-    UndefCode = FAILCODE;
+    UndefCode = Yap_get_pred(TermFail, MkIntTerm(0), "no def");
     UNLOCKPE(59, pe);
     return false;
   }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
-    UndefCode = FAILCODE;
+    UndefCode = Yap_get_pred(TermFail, MkIntTerm(0), "no def");
     UNLOCKPE(59, pe);
     return false;
   }

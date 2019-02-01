@@ -482,6 +482,9 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=
 # Model Specific
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:DEBUG=1>)
 
+# debug across macros
+set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3>)
+
 #ensure cells are properly aligned in code
 set(ALIGN_LONGS 1)
 

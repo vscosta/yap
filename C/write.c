@@ -1107,17 +1107,11 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (!(flags & Ignore_cyclics_f) && false) {
-    Term ts[2];
-    ts[0] = Yap_BreakRational(t, 0, ts + 1, TermNil PASS_REGS);
-    // fprintf(stderr, "%lx %lx %lx\n", t, ts[0], ts[1]);
-    // Yap_DebugPlWriteln(ts[0]);
-    // ap_DebugPlWriteln(ts[1[);
-    if (ts[1] != TermNil) {
-      t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
-    }
+  //  if (!(flags & Ignore_cyclics_f) && false)
+  {
+   t = Yap_CheckLoops(t, 1);
   }
-  /* protect slots for portray */
+/* protect slots for portray */
   writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
@@ -1134,4 +1128,5 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   Yap_CloseSlots(sls);
   pop_text_stack(lvl);
-}
+  }
+

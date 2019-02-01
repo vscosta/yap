@@ -285,4 +285,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
                                    yap_error_descriptor_t *new_error);
   extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass);
 
+#define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL) 
+  
 #endif
+
+  
