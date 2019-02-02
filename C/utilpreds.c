@@ -3847,19 +3847,6 @@ void Yap_InitUtilCPreds(void)
   */
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("rational_term_to_tree", 4, p_break_rational, 0);
-  /** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms)
-
-
-      The term _TF_ is a forest representation (without cycles and repeated
-      terms) for the Prolog term _TI_. The term _TF_ is the main term.  The
-      difference list _SubTerms_-_MoreSubterms_ stores terms of the form
-      _V=T_, where _V_ is a new variable occuring in _TF_, and _T_ is a copy
-      of a sub-term from _TI_.
-
-
-  */
-  Yap_InitCPred("term_factorized", 3, p_break_rational3, 0);
   /** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
 
 

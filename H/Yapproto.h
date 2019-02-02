@@ -445,7 +445,7 @@ bool Yap_isDirectory(const char *FileName);
 extern bool Yap_Exists(const char *f);
 
 /* terms.c */
-extern Term Yap_CheckLoops(Term inp, UInt arity USES_REGS);
+extern Term Yap_CheckLoops(Term inp, UInt arity, Term *listp, Term *endp USES_REGS);
 extern void  Yap_InitTermCPreds(void);
 
 /* threads.c */

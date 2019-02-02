@@ -1084,7 +1084,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   struct rewind_term rwt;
   yhandle_t sls = Yap_CurrentSlot();
   int lvl = push_text_stack();
-
+  
   if (t == 0)
     return;
   if (!mywrite) {
@@ -1109,9 +1109,9 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Write_strings = flags & BackQuote_String_f;
   //  if (!(flags & Ignore_cyclics_f) && false)
   {
-   t = Yap_CheckLoops(t, 1);
+    t = Yap_CheckLoops(t, 1, NULL, NULL PASS_REGS);
   }
-/* protect slots for portray */
+  /* protect slots for portray */
   writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {

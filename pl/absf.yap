@@ -90,12 +90,10 @@ absolute_file_name__(File,LOpts,TrueFileName) :-
     '$absf_port'(fail,  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
 
 
-:- start_low_level_trace.
 prolog:core_file_name(Name, Opts) -->
     '$file_name'(Name, Opts, E),
     '$suffix'(E, Opts),
     '$glob'(Opts).
-:- stop_low_level_trace.
 				%
 % handle library(lists) or foreign(jpl)
 %
