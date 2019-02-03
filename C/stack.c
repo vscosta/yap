@@ -2134,7 +2134,7 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
   void DumpActiveGoals(USES_REGS1) {
     /* try to dump active goals */
     void *ep = YENV; /* and current environment		  */
-    void *cp ;
+    void *cp = B;
     PredEntry *pe;
     struct buf_struct_t buf0, *bufp = &buf0;
 

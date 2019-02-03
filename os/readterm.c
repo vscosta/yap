@@ -389,7 +389,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   Yap_local.ActiveError->parserFile =
     RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
   Yap_local.ActiveError->parserReadingCode = code;
-  int lvl = push_text_stack();
+
   if (GLOBAL_Stream[sno].status & Seekable_Stream_f)
     {
       char *o, *o2;
@@ -415,7 +415,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
               o = malloc(sza);
               char *p = o;
                 {
-                  size_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
+                  ssize_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
                   if (siz < 0)
                     Yap_Error(EVALUATION_ERROR_READ_STREAM, GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
               o[sza - 1] = '\0';
@@ -432,7 +432,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
               o2 = malloc(sza);
               char *p = o2;
                 {
-                  size_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
+                  ssize_t siz = fread(p, tot - 1, 1, GLOBAL_Stream[sno].file);
                   if (siz < 0)
                     Yap_Error(EVALUATION_ERROR_READ_STREAM, GLOBAL_Stream[sno].user_name, "%s", strerror(errno));
                  
@@ -498,7 +498,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         {
           fprintf(stderr, "SYNTAX ERROR while booting: ");
         }
-      pop_text_stack(lvl);
       return Yap_MkFullError();
     }
 

@@ -69,7 +69,7 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
     } while (TR != TR0);
   }
 }
-
+#if 0
 static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
   tr_fr_ptr pt0 = TR;
   while (pt0 != TR0) {
@@ -93,6 +93,7 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
 ///
 /// @param USES_REGS
 ///
+
 static inline void clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
   tr_fr_ptr pt0 = TR;
   while (pt0 != TR0) {
@@ -123,7 +124,7 @@ static inline void clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
   }
   TR = TR0;
 }
-
+#endif
 typedef struct {
   Term old_var;
   Term new_var;
@@ -225,12 +226,7 @@ typedef struct non_single_struct_t {
 
 #define def_trail_overflow()                                                   \
   trail_overflow : {                                                           \
-    while (to_visit > to_visit0) {                                             \
-      to_visit--;                                                              \
-      CELL *ptd0 = to_visit->ptd0;                                             \
-      *ptd0 = to_visit->d0;                                                    \
-    }                                                                          \
-    pop_text_stack(lvl);                                                       \
+      pop_text_stack(lvl);                                                       \
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;                                   \
     LOCAL_Error_Size = (TR - TR0) * sizeof(tr_fr_ptr *);                       \
     clean_tr(TR0 PASS_REGS);                                                   \
@@ -619,20 +615,26 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   CELL *InitialH = HR;
   CELL output = AbsPair(HR);
 
+  {
+    int lvl = push_text_stack();
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
       *ptr = TermFoundVar;
       TrailTerm(TR++) = t;
-      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-        if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true)) {
+      if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
+         if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true))
+        {
+	  pop_text_stack(lvl);
           goto trail_overflow;
         }
       }
     }
     inp = TailOfTerm(inp);
   }
+  pop_text_stack(lvl);
+}
 
   WALK_COMPLEX_TERM();
 
@@ -648,6 +650,12 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
+    while (to_visit > to_visit0)
+    {
+      to_visit--;
+      CELL *ptd0 = to_visit->ptd0;
+      *ptd0 = to_visit->d0;
+    }
     if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true)) {
       goto trail_overflow;
     }
@@ -862,6 +870,12 @@ static Term bind_vars_in_complex_term(CELL *pt0, CELL *pt0_end,
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
     if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true)) {
+      while (to_visit > to_visit0)
+      {
+        to_visit--;
+        CELL *ptd0 = to_visit->ptd0;
+        *ptd0 = to_visit->d0;
+      }
       goto trail_overflow;
     }
   }
@@ -1259,23 +1273,20 @@ static Term BREAK_LOOP(int ddep ) {
   return Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("@^"), 1), 1, &t0);
 }
 
-static Term UNFOLD_LOOP( Term t, Term *b, Term *l) {
+static Term UNFOLD_LOOP( Term t, Term *b, Term l) {
   Term ti = Yap_MkNewApplTerm(FunctorEq, 2);
   RepAppl(ti)[2] = t;
   Term o = RepAppl(ti)[1];
   HR[0] = ti;
-  HR[1] = *l;
-  l[0] = AbsPair(HR);
-  if (b!=NULL && *b==TermNil)
-    b = l;
-  l = HR+1;
-  
+  HR[1] = l;
+  *b = AbsPair(HR);
+  b = HR+1;
   HR+=2;
   return o;
 }
 
 
-static int loops_in_complex_term(CELL *pt0, CELL *pt0_end, Term *listp, Term *endp USES_REGS) {
+static int loops_in_complex_term(CELL *pt0, CELL *pt0_end, Term *listp, Term tail USES_REGS) {
   int lvl = push_text_stack();
 
   struct non_single_struct_t *to_visit = Malloc(
@@ -1308,7 +1319,7 @@ restart:
       //   LIST0;
       struct non_single_struct_t *v0 = (struct non_single_struct_t *)AtomOfTerm(d0);
       if (listp) {
-	*ptd0 = UNFOLD_LOOP(AbsPair(headp), listp, endp);
+	*ptd0 = UNFOLD_LOOP(AbsPair(headp), listp, tail);
       } else {
 	*ptd0 = BREAK_LOOP(to_visit-v0);
       }
@@ -1320,8 +1331,8 @@ restart:
     to_visit->ptd0 = headp;                                               
     to_visit->d0 = d0;
     *headp = MkAtomTerm((AtomEntry*)to_visit);					
-    to_visit++;                                                                
-    pt0 = headp;                                                               
+    to_visit++;
+    pt0 = headp;
     pt0_end = pt0 + 1;
     ptd0 = pt0;
     goto list_loop;                                        
@@ -1335,23 +1346,21 @@ restart:
     if (IsAtomTerm((CELL)f)) {						
                                                                                
       if (listp) {
-	*ptd0 = UNFOLD_LOOP(AbsAppl(ap2), listp, endp);
+	*ptd0 = UNFOLD_LOOP(AbsAppl(ap2), listp, tail);
       } else {
 	*ptd0 = BREAK_LOOP(to_visit-(struct non_single_struct_t *)AtomOfTerm(*ap2));
       }
-      goto restart;                                                            
-    }                                                                          
-// STRUCT0;                                                                   
-    if (to_visit + 32 >= to_visit_max) {                                       
-      goto aux_overflow;                                                       
-    }                                                                          
-    to_visit->pt0 = pt0;                                                       
-    to_visit->pt0_end = pt0_end;                                               
-    to_visit->ptd0 = ap2;                                                      
-    to_visit->d0 = *ap2;                                                       
+      goto restart;                                                                }                                                                   
+// STRUCT0;                                                                 
+    if (to_visit + 32 >= to_visit_max) {                                   
+      goto aux_overflow;                                                    
+    }                                                                       
+    to_visit->pt0 = pt0;
+    to_visit->pt0_end = pt0_end;
+    to_visit->ptd0 = ap2;
+    to_visit->d0 = *ap2;
     *ap2 = MkAtomTerm((AtomEntry*)to_visit);
-    to_visit++;                                                                
-                                                                               
+    to_visit++;
     pt0 = ap2;
     pt0_end = ap2 + (ArityOfFunctor(f));
   }
@@ -1379,7 +1388,7 @@ restart:
   def_aux_overflow();
 }
 
-Term Yap_CheckLoops(Term inp, UInt arity, Term *listp, Term *endp USES_REGS) {
+Term Yap_CheckCycles(Term inp, UInt arity, Term *listp, Term tail USES_REGS) {
   Term t = Deref(inp);
 
   if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
@@ -1387,7 +1396,7 @@ Term Yap_CheckLoops(Term inp, UInt arity, Term *listp, Term *endp USES_REGS) {
   } else {
     Int res;
 
-    res = loops_in_complex_term((&t) - 1,  &t, listp, endp PASS_REGS);
+    res = loops_in_complex_term((&t) - 1,  &t, listp, tail PASS_REGS);
     if (res < 0)
       return -1;
     return t;
@@ -1410,7 +1419,8 @@ static Int p_break_rational(USES_REGS1)
 {
   Term t = Yap_CopyTerm(Deref(ARG1));
   Term l = Deref(ARG4), k;
-  return Yap_unify(Yap_CheckLoops(t, 4, &k, &l PASS_REGS), ARG2) &&  Yap_unify(k, ARG3);
+  if (IsVarTerm(l)) Yap_unify(l, MkVarTerm());
+  return Yap_unify(Yap_CheckCycles(t, 4, &k, l PASS_REGS), ARG2) &&  Yap_unify(k, ARG3);
 }
 
 void Yap_InitTermCPreds(void) {

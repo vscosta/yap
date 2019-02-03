@@ -1080,39 +1080,22 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 /* write options			 */
 {
   CACHE_REGS
+
+  yhandle_t lvl = push_text_stack();
   struct write_globs wglb;
   struct rewind_term rwt;
-  yhandle_t sls = Yap_CurrentSlot();
-  int lvl = push_text_stack();
-  
-  if (t == 0)
-    return;
-  if (!mywrite) {
-    CACHE_REGS
-    wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;
-  } else
-    wglb.stream = mywrite;
-  wglb.lw = start;
-  wglb.last_atom_minus = FALSE;
-  wglb.Quote_illegal = flags & Quote_illegal_f;
-  wglb.Handle_vars = flags & Handle_vars_f;
-  wglb.Use_portray = flags & Use_portray_f;
-  wglb.Portray_delays = flags & AttVar_Portray_f;
-  wglb.MaxDepth = max_depth;
-  wglb.MaxArgs = max_depth;
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  wglb.Keep_terms = (flags & (Use_portray_f | To_heap_f));
-  /* initialize wglb */
   rwt.parent = NULL;
+  wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  //  if (!(flags & Ignore_cyclics_f) && false)
-  {
-    t = Yap_CheckLoops(t, 1, NULL, NULL PASS_REGS);
-  }
-  /* protect slots for portray */
-  writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
+   if (!(flags & Ignore_cyclics_f)) {
+     Term t1 = Yap_CopyTerm(t);
+     t1 = Yap_CheckCycles(t1, 1, NULL, TermNil PASS_REGS);
+     writeTerm(t1, priority, 1, false, &wglb, &rwt);
+   } else {
+     /* protect slots for portray */
+     writeTerm(t, priority, 1, false, &wglb, &rwt);
+   }
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1126,7 +1109,5 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
       wrputc(' ', wglb.stream);
     }
   }
-  Yap_CloseSlots(sls);
   pop_text_stack(lvl);
-  }
-
+ }

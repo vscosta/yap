@@ -592,7 +592,7 @@ void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
   if (t == 0)
     fprintf(stderr, "NULL");
-  Yap_plwrite(t, NULL, 15, 0, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , 0, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }
