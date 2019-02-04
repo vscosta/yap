@@ -1088,10 +1088,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-   if (!(flags & Ignore_cyclics_f)) {
-     Term t1 = Yap_CopyTerm(t);
-     t1 = Yap_CheckCycles(t1, 1, NULL, TermNil PASS_REGS);
-     writeTerm(t1, priority, 1, false, &wglb, &rwt);
+  if (!(flags & Ignore_cyclics_f) &&  Yap_IsCyclicTerm(t)) {
+    writeTerm(Yap_BreakCycles(t, 1, NULL, TermNil PASS_REGS), priority, 1, false, &wglb, &rwt);
    } else {
      /* protect slots for portray */
      writeTerm(t, priority, 1, false, &wglb, &rwt);
