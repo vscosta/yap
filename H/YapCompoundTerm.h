@@ -54,6 +54,21 @@ restart:
     goto restart;
   }
 }
+INLINE_ONLY Term *pDerefa(CELL *b);
+
+INLINE_ONLY Term *pDerefa(CELL *b) {
+  Term a = *b;
+restart:
+  if (!IsVarTerm(a)) {
+    return b;
+  } else if (a == (CELL)b) {
+    return b;
+  } else {
+    b = (CELL *)a;
+    a = *b;
+    goto restart;
+  }
+}
 
 INLINE_ONLY Term ArgOfTerm(int i, Term t);
 

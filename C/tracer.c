@@ -88,7 +88,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           }
         }
         const char *sn = Yap_TermToBuffer(args[i],
-                                          Quote_illegal_f | Handle_vars_f);
+                                          Handle_cyclics_f|Quote_illegal_f | Handle_vars_f);
         size_t sz;
         if (sn == NULL) {
 	  sn = malloc(strlen("<* error *>")+1);

@@ -164,20 +164,20 @@ typedef struct non_single_struct_t {
         goto restart;                                                          \
       to_visit->pt0 = pt0;                                                     \
       to_visit->pt0_end = pt0_end;                                             \
-      to_visit->ptd0 = ptd0;                                                   \
+      to_visit->ptd0 = ptd0;			\
       to_visit->d0 = *ptd0;                                                    \
       to_visit++;                                                              \
       d0 = ptd0[0];                                                            \
+      *ptd0 = TermFreeTerm;						\
       pt0 = ptd0;                                                              \
-      *pt0 = TermFreeTerm;						\
       pt0_end = pt0 + 1;                                                       \
         goto list_loop;                                                        \
     } else if (IsApplTerm(d0)) {                                               \
       register Functor f;                                                      \
       register CELL *ap2;                                                      \
       /* store the terms to visit */                                           \
-      ap2 = RepAppl(d0);                                                       \
-      f = (Functor)(*ap2);                                                     \
+      ptd0 = RepAppl(d0);                                                       \
+      f = (Functor)(d0 = *ptd0);                                                     \
                                                                                \
       if (to_visit + 32 >= to_visit_max) {                                     \
         goto aux_overflow;                                                     \
@@ -189,14 +189,14 @@ typedef struct non_single_struct_t {
       }                                                                        \
       to_visit->pt0 = pt0;                                                     \
       to_visit->pt0_end = pt0_end;                                             \
-      to_visit->ptd0 = ap2;                                                    \
-      to_visit->d0 = (CELL)f;                                                  \
+       to_visit->ptd0 = ptd0;                                                    \
+      to_visit->d0 = d0;                                                  \
       to_visit++;                                                              \
                                                                                \
-      *ap2 = TermNil;                                                          \
-      d0 = ArityOfFunctor(f);                                                  \
-      pt0 = ap2;                                                               \
-      pt0_end = ap2 + d0;                                                      \
+      *ptd0 = TermNil;                                                          \
+      Term d1 = ArityOfFunctor(f);                                                  \
+      pt0 = ptd0;                                                               \
+      pt0_end = ptd0 + d1;                                                      \
       goto restart;                                                            \
     } else {                                                                   \
       PRIMI0;                                                                  \
@@ -468,9 +468,9 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   END_WALK();
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-    to_visit--;
 
-    pt0 = to_visit->pt0;
+        to_visit--;
+	pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
     CELL *ptd0 = to_visit->ptd0;
     *ptd0 = to_visit->d0;
@@ -1089,13 +1089,12 @@ p_free_variables_in_term(USES_REGS1) /* variables within term t		 */
 static Term non_singletons_in_complex_term(CELL *pt0, CELL *pt0_end USES_REGS) {
   tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
+  HB = (CELL *)ASP;
   CELL output = AbsPair(HR);
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
   /* do or pt2 are unbound  */
-  *ptd0 = TermFoundVar;
-  /* next make sure we can recover the variable again */
-  TrailTerm(TR++) = (CELL)ptd0;
+  YapBind(ptd0,TermFoundVar);
   END_WALK();
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
@@ -1111,6 +1110,7 @@ static Term non_singletons_in_complex_term(CELL *pt0, CELL *pt0_end USES_REGS) {
   clean_tr(TR0 PASS_REGS);
 
   pop_text_stack(lvl);
+  HB = (CELL*)B->cp_b;
   if (HR != InitialH) {
     /* close the list */
     HR[-1] = Deref(ARG2);
@@ -1161,7 +1161,7 @@ static void renumbervar(Term t, Int id USES_REGS) {
 }
 
 #define RENUMBER_SINGLES                                                       \
-  if (singles && ap2 >= InitialH && ap2 < HR) {                                \
+  if (singles ) {                                \
     renumbervar(d0, numbv++ PASS_REGS);                                        \
     goto restart;                                                              \
   }
@@ -1174,42 +1174,37 @@ static Int numbervars_in_complex_term(CELL *pt0, CELL *pt0_end, Int numbv,
 
   WALK_COMPLEX_TERM__({}, RENUMBER_SINGLES, {});
 
+  if (IsAttVar(pt0))
+      continue;
   /* do or pt2 are unbound  */
-  if (singles||false)
-    *ptd0 = numbervar_singleton(PASS_REGS1);
+  if (singles)
+    d0 = numbervar_singleton(PASS_REGS1);
   else
-    *ptd0 = numbervar(numbv++ PASS_REGS);
+    d0 = numbervar(numbv++ PASS_REGS);
   /* leave an empty slot to fill in later */
   if (HR + 1024 > ASP) {
     goto global_overflow;
   }
   /* next make sure noone will see this as a variable again */
-  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-    /* Trail overflow */
-    if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true)) {
-      goto trail_overflow;
-    }
-  }
+  YapBind(ptd0, d0);
 
-#if defined(TABLING) || defined(YAPOR_SBA)
-  TrailVal(TR) = (CELL)ptd0;
-#endif
-  TrailTerm(TR++) = (CELL)ptd0;
-
+  continue;
+  
   END_WALK();
 
   /* Do we still have compound terms to visit */
-  if (to_visit > to_visit0) {
+  while (to_visit > to_visit0) {
     to_visit--;
 
     pt0 = to_visit->pt0;
     pt0_end = to_visit->pt0_end;
     CELL *ptd0 = to_visit->ptd0;
     *ptd0 = to_visit->d0;
+    if (pt0 >= pt0_end)
+      continue;
     goto restart;
   }
 
-  prune(B PASS_REGS);
   pop_text_stack(lvl);
   return numbv;
 
@@ -1369,14 +1364,14 @@ restart:
       if (to_visit + 32 >= to_visit_max) {
         goto aux_overflow;
       }
-      CELL *headp = RepPair(d0);
-      d0 = headp[0];
+      CELL *ptd0 = RepPair(d0);
+      d0 = ptd0[0];
       if (IsAtomTerm(d0) && (CELL *)AtomOfTerm(d0) >= (CELL *)to_visit0 &&
-          (CELL *)AtomOfTerm(d0) < (CELL *)to_visit_max) {
+          (CELL *)AtomOfTerm(d0) < (CELL *)to_visit) {
         //   LIST0;
         struct non_single_struct_t *v0 =
             (struct non_single_struct_t *)AtomOfTerm(d0);
-        if (listp) {
+	if (listp) {
           *ptf = UNFOLD_LOOP(AbsPair(v0->ptf-1), listp);
 	  ptf++;
         } else {
@@ -1387,12 +1382,12 @@ restart:
       *ptf++ = AbsPair(HR);
       to_visit->pt0 = pt0;
       to_visit->pt0_end = pt0_end;
-      to_visit->ptd0 = headp;
+      to_visit->ptd0 = ptd0;
       to_visit->ptf = ptf;
-      to_visit->d0 = d0;
-      *headp = MkAtomTerm((AtomEntry *)to_visit);
+      to_visit->d0 = d0 = *ptd0;
+      *ptd0 = MkAtomTerm((AtomEntry *)to_visit);
       to_visit++;
-      pt0 = headp;
+      pt0 = ptd0;
       pt0_end = pt0 + 1;
       ptd0 = pt0;
       ptf = HR;
@@ -1400,16 +1395,16 @@ restart:
       goto list_loop;
     } else if (IsApplTerm(d0)) {
       register Functor f;
-      register CELL *ap2;
+
       /* store the terms to visit */
-      ap2 = RepAppl(d0);
-      f = (Functor)(*ap2);
+      ptd0 = RepAppl(d0);
+      f = (Functor)(*ptd0);
       if (IsExtensionFunctor(f)) {
 	*ptf++ = d0;
         continue;
       }
       if (IsAtomTerm((CELL)f)) {
-	struct non_single_struct_t *v0 =  (struct non_single_struct_t *)AtomOfTerm(*ap2);
+	struct non_single_struct_t *v0 =  (struct non_single_struct_t *)AtomOfTerm(*ptd0);
         if (listp) {
           *ptf = UNFOLD_LOOP(AbsAppl(v0->ptf-1), listp);
 	  ptf++;
@@ -1425,13 +1420,13 @@ restart:
       *ptf++ = AbsAppl(HR);
       to_visit->pt0 = pt0;
       to_visit->pt0_end = pt0_end;
-      to_visit->ptd0 = ap2;
-      to_visit->d0 = *ap2;
+      to_visit->ptd0 = ptd0;
+      to_visit->d0 = *ptd0;
       to_visit->ptf = ptf;
-      *ap2 = MkAtomTerm((AtomEntry *)to_visit);
+      *ptd0 = MkAtomTerm((AtomEntry *)to_visit);
       to_visit++;
-      pt0 = ap2;
-      pt0_end = ap2 + (ArityOfFunctor(f));
+      pt0 = ptd0;
+      pt0_end = ptd0 + (ArityOfFunctor(f));
       HR[0] = (CELL)f;
       ptf = HR+1;
       HR = ptf +ArityOfFunctor(f);
