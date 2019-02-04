@@ -169,9 +169,8 @@ typedef struct non_single_struct_t {
       to_visit++;                                                              \
       d0 = ptd0[0];                                                            \
       pt0 = ptd0;                                                              \
-      *ptd0 = TermFreeTerm;                                                    \
+      *pt0 = TermFreeTerm;						\
       pt0_end = pt0 + 1;                                                       \
-      if (pt0 <= pt0_end)                                                      \
         goto list_loop;                                                        \
     } else if (IsApplTerm(d0)) {                                               \
       register Functor f;                                                      \
@@ -651,7 +650,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
                                     Term inp USES_REGS) {
   register tr_fr_ptr TR0 = TR;
   CELL *InitialH = HR;
-  CELL output = AbsPair(HR);
+  CELL output = inp;
 
   WALK_COMPLEX_TERM();
 
@@ -664,9 +663,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     if (HR + 1024 > ASP) {
       goto global_overflow;
     }
-    HR[1] = AbsPair(HR + 2);
-    HR += 2;
-    HR[-2] = (CELL) & (a0->Done);
+    output = MkPairTerm( (CELL) & (a0->Done), output);
     /* store the terms to visit */
     if (to_visit + 32 >= to_visit_max) {
       goto aux_overflow;
@@ -704,10 +701,9 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     } else {
       HR[-1] = t2; /* don't need to trail */
     }
-    return (output);
-  } else {
-    return (inp);
+
   }
+    return (output);
 
   def_aux_overflow();
   def_global_overflow();
@@ -1179,7 +1175,7 @@ static Int numbervars_in_complex_term(CELL *pt0, CELL *pt0_end, Int numbv,
   WALK_COMPLEX_TERM__({}, RENUMBER_SINGLES, {});
 
   /* do or pt2 are unbound  */
-  if (singles)
+  if (singles||false)
     *ptd0 = numbervar_singleton(PASS_REGS1);
   else
     *ptd0 = numbervar(numbv++ PASS_REGS);
@@ -1336,15 +1332,13 @@ static Term BREAK_LOOP(int ddep) {
   return Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("@^"), 1), 1, &t0);
 }
 
-static Term UNFOLD_LOOP(Term t, Term *b, Term l) {
-  Term ti = Yap_MkNewApplTerm(FunctorEq, 2);
-  RepAppl(ti)[2] = t;
-  Term o = RepAppl(ti)[1];
-  HR[0] = ti;
-  HR[1] = l;
-  *b = AbsPair(HR);
-  b = HR + 1;
-  HR += 2;
+static Term UNFOLD_LOOP(Term t, Term *b) {
+  Term os[2], o;
+  os[0] = o = MkVarTerm();
+  os[1] = t;
+  Term ti = Yap_MkApplTerm(FunctorEq, 2, os);
+  *b = MkPairTerm(ti, *b);
+
   return o;
 }
 
@@ -1358,13 +1352,13 @@ static int loops_in_complex_term(CELL *pt0, CELL *pt0_end,
                              *to_visit0 = to_visit,
                              *to_visit_max = to_visit + 1024;
 
-  to_visit0 = to_visit;
-  to_visit_max = to_visit0 + 1024;
-  CELL *ptf = HR-1;
+  CELL *ptf = HR;
+    CELL *ptd0;
+    if (listp)
+  *listp = tail;
 restart:
   while (pt0 < pt0_end) {
     CELL d0;
-    CELL *ptd0;
     ++pt0;
     ptd0 = pt0;
     d0 = *ptd0;
@@ -1383,7 +1377,7 @@ restart:
         struct non_single_struct_t *v0 =
             (struct non_single_struct_t *)AtomOfTerm(d0);
         if (listp) {
-          *ptf = UNFOLD_LOOP(AbsPair(v0->ptf-1), listp, tail);
+          *ptf = UNFOLD_LOOP(AbsPair(v0->ptf-1), listp);
 	  ptf++;
         } else {
           *ptf++ = BREAK_LOOP(to_visit - v0);
@@ -1417,7 +1411,7 @@ restart:
       if (IsAtomTerm((CELL)f)) {
 	struct non_single_struct_t *v0 =  (struct non_single_struct_t *)AtomOfTerm(*ap2);
         if (listp) {
-          *ptf = UNFOLD_LOOP(AbsAppl(v0->ptf-1), listp, tail);
+          *ptf = UNFOLD_LOOP(AbsAppl(v0->ptf-1), listp);
 	  ptf++;
         } else {
           *ptf++ = BREAK_LOOP(to_visit - v0);
@@ -1429,7 +1423,6 @@ restart:
         goto aux_overflow;
       }
       *ptf++ = AbsAppl(HR);
-      HR[0] = (CELL)f;
       to_visit->pt0 = pt0;
       to_visit->pt0_end = pt0_end;
       to_visit->ptd0 = ap2;
@@ -1439,6 +1432,7 @@ restart:
       to_visit++;
       pt0 = ap2;
       pt0_end = ap2 + (ArityOfFunctor(f));
+      HR[0] = (CELL)f;
       ptf = HR+1;
       HR = ptf +ArityOfFunctor(f);
     } else {
@@ -1457,7 +1451,7 @@ restart:
     pt0 = to_visit->pt0;
     ptf = to_visit->ptf;
     pt0_end = to_visit->pt0_end;
-    CELL *ptd0 = to_visit->ptd0;
+    ptd0 = to_visit->ptd0;
     *ptd0 = to_visit->d0;
     goto restart;
   }
@@ -1475,7 +1469,6 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term *listp, Term tail USES_REGS) {
   } else {
     Int res;
     CELL *op = HR;
-    HR++;
     res = loops_in_complex_term((&t) - 1, &t, listp, tail PASS_REGS);
     if (res < 0)
       return -1;

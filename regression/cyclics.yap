@@ -18,7 +18,8 @@ main :-
 	writeln('-----------------------'),
 	fail.
 main :-
-	main((rational_term_to_tree(X,A,B,[]),writeln(A:B)), X).
+	main((rational_term_to_tree(X,A,B,[]), numbervars(A+B,1,_),
+	      writeln((A->B))), X).
 main.
 
 main(G, X) :-
@@ -51,6 +52,8 @@ d(X) :- X= f(X,[X,X]).
 d(X) :- X= f(X,[X,g(X)]).
 d(X) :- X= f(_,X/[X]).
 d(X) :- X= f(_,A/[A]), A= f(X,[X,g(X)]).
+d(X) :- X= f(_,A/[A]), A= f(X,[A,g(X)]).
+d(X) :- X= f(_,A/[A]), A= f(B,[X,g(A)]), B=[C|B], C=[X].
 
 end :- writeln('....'), fail.
 
