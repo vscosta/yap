@@ -231,8 +231,9 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
       goto end;
     }
   }
-  if (args[WRITE_CYCLES].used && args[WRITE_CYCLES].tvalue == TermFalse) {
-    flags |= Ignore_cyclics_f;
+  if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
+				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
+    flags |= Handle_cyclics_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;

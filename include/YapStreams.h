@@ -194,7 +194,7 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define Handle_vars_f 0x04
 #define Use_portray_f 0x08
 #define To_heap_f 0x10
-#define Ignore_cyclics_f 0x20
+#define Handle_cyclics_f 0x20
 #define Use_SWI_Stream_f 0x40
 #define BackQuote_String_f 0x80
 #define AttVar_None_f 0x100

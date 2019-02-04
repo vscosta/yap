@@ -14,6 +14,11 @@ main :-
 	fail.
 main :-
 	main( writeln(X), X).
+main :-
+	writeln('-----------------------'),
+	fail.
+main :-
+	main((rational_term_to_tree(X,A,B,[]),writeln(A:B)), X).
 main.
 
 main(G, X) :-

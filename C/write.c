@@ -1084,16 +1084,16 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   yhandle_t lvl = push_text_stack();
   struct write_globs wglb;
   struct rewind_term rwt;
+  t = Deref(t);
   rwt.parent = NULL;
   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (!(flags & Ignore_cyclics_f) &&  Yap_IsCyclicTerm(t)) {
-    writeTerm(Yap_BreakCycles(t, 1, NULL, TermNil PASS_REGS), priority, 1, false, &wglb, &rwt);
-   } else {
-     /* protect slots for portray */
-     writeTerm(t, priority, 1, false, &wglb, &rwt);
+  if ((flags & Handle_cyclics_f) &&  Yap_IsCyclicTerm(t) ){
+      t = Yap_BreakCycles(t, 3, NULL, TermNil PASS_REGS);
    }
+  /* protect slots for portray */
+  writeTerm(t, priority, 1, false, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
