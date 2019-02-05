@@ -34,7 +34,7 @@
 % grounds all free variables
 % as terms of the form '$VAR'(N)
 */
-numbervars(Term, M, N) :-
+_numbervars(Term, M, N) :-
 	'$variables_in_term'(Term, [], L),
 	'$numbermarked_vars'(L, M, N).
 
