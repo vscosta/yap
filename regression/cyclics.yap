@@ -13,7 +13,17 @@ main :-
 	writeln('-----------------------'),
 	fail.
 main :-
+    main2( (terms:variables_in_term(X, O), writeln(X=O) ), X, L, O).
+main :-
+	writeln('-----------------------'),
+	fail.
+main :-
     main2( (terms:new_variables_in_term(L,X, O), writeln(X+L=O) ), X, L, O).
+main :-
+	writeln('-----------------------'),
+	fail.
+main :-
+    main2( (terms:variables_within_term(L,X, O), writeln(X+L=O) ), X, L, O).
 main :-
 	writeln('-----------------------'),
 	fail.
@@ -69,7 +79,9 @@ end :- writeln('....'), fail.
 
 e(X,Y) :- X = t(_A,B,_C,D), Y = [B,E].
 e(X,Y) :- X = t(_A,_B,_C,_D), Y = [_,_E].
-e(X,Y) :- X = t(A,_B,C,_D), Y = [A,C].
+e(X,Y) :- X = t(A,_B,C,_D), Y = [ A,C].
+e(X,Y) :- X = t(A,[X,_D]), Y = [A,_C,_E].
+e(X,Y) :- X = t(A,[X,C]), Y = [A,C,_E].
 e(X,Y) :- X = t(A,X,_B,[X,C,_D]), Y = [A,C,E].
 
 
