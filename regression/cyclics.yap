@@ -95,13 +95,11 @@ d(X) :- X:=: f(_,A/[A]), A:=: f(B,[X,g(A)]), B:=:[C|B], C:=:[X].
 
 end :- writeln('....'), fail.
 
- /*
 e(X,Y) :- X :=: t(_A,B,_C,D), Y :=: [B,E].
 e(X,Y) :- X :=: t(_A,_B,_C,_D), Y :=: [_,_E].
 e(X,Y) :- X :=: t(A,_B,C,_D), Y :=: [ A,C].
 e(X,Y) :- X :=: t(A,[X,_D]), Y :=: [A,_C,_E].
 e(X,Y) :- X :=: t(A,[X,C]), Y :=: [A,C,_E].
-*/
 e(X,Y) :- X :=: t(A,X,_B,[X,C,_D]), Y :=: [A,C,_E].
 
 a(no,   no).
