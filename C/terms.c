@@ -28,6 +28,8 @@
 
 #include "YapHeap.h"
 
+#define debug_pop_text_stack(l) [ if (to_visit != to_visit0) printf("%d\n",__LINE__); pop_text_stack(l) }
+
 #include "attvar.h"
 #include "yapio.h"
 #ifdef HAVE_STRING_H
@@ -155,8 +157,9 @@ typedef struct non_single_struct_t {
     ++pt0;                                                                     \
     ptd0 = pt0;					\
     d0 = *ptd0;                                                                \
-  list_loop:                                                                   \
-    deref_head(d0, var_in_term_unk);                                           \
+  list_loop:                                                                   \ 
+  fprintf(stderr,"%ld at %s\n", to_visit-to_visit0, __FUNCTION__);\
+   deref_head(d0, var_in_term_unk);                                           \
   var_in_term_nvar : {                                                         \
     if (IsPairTerm(d0)) {                                                      \
       if (to_visit + 32 >= to_visit_max) {                                     \
@@ -256,19 +259,19 @@ typedef struct non_single_struct_t {
       CELL *ptd0 = to_visit->ptd0;                                             \
       *ptd0 = to_visit->d0;                                                    \
     }                                                                          \
-    pop_text_stack(lvl);                                                       \
+    pop_text_stack(lvl);  fprintf(stderr,"<%ld at %s\n", to_visit-to_visit0, __FUNCTION__);\
     return true;                                                               \
   }
 
 #define CYC_APPL                                                               \
-  if (IsAtomTerm((CELL)f)) {                                                   \
+    if (IsAtomTerm((CELL)f)) {                                                   \
     while (to_visit > to_visit0) {                                             \
       to_visit--;                                                              \
       CELL *ptd0 = to_visit->ptd0;                                             \
       *ptd0 = to_visit->d0;                                                    \
     }                                                                          \
-    pop_text_stack(lvl);                                                       \
-    return true;                                                               \
+    pop_text_stack(lvl);  fprintf(stderr,"<%d at %s\n", to_visit-to_visit0, __FUNCTION__);\
+                   return true;                                                               \
   }
 
 /**
@@ -697,6 +700,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
 
   clean_tr(TR0 PASS_REGS);
   pop_text_stack(lvl);
+  fprintf(stderr,"<%ld at %s\n", to_visit-to_visit0, __FUNCTION__);
   if (HR != InitialH) {
     /* close the list */
     Term t2 = Deref(inp);
@@ -1000,7 +1004,7 @@ static Term bind_vars_in_complex_term(CELL *pt0, CELL *pt0_end,
   if (to_visit > to_visit0) {
     to_visit--;
     pt0 = to_visit->ptd0;
-    *pt0 = to_visit0->d0;
+    *pt0 = to_visit->d0;
     goto list_loop;
   }
 
@@ -1311,7 +1315,7 @@ static Int largest_numbervar(USES_REGS1) {
   return Yap_unify(MaxNumberedVar(Deref(ARG1), 2 PASS_REGS), ARG2);
 }
 
-static Term BREAK_LOOP(int ddep) {
+static Term BREAK_LOOP(Int ddep) {
   Term t0 = MkIntegerTerm(ddep);
   return Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("@^"), 1), 1, &t0);
 }
@@ -1326,28 +1330,26 @@ static Term UNFOLD_LOOP(Term t, Term *b) {
   return o;
 }
 
-static int loops_in_complex_term(CELL *pt0, CELL *pt0_end, 
-				 Term *listp,
-                                 Term tail USES_REGS) {
+static Term *loops_in_complex_term(CELL *pt0, CELL *pt0_end, 
+				 Term *listp USES_REGS) {
   int lvl = push_text_stack();
 
   struct non_single_struct_t *to_visit = Malloc(
                                  1024 * sizeof(struct non_single_struct_t)),
                              *to_visit0 = to_visit,
                              *to_visit_max = to_visit + 1024;
-
-  CELL *ptf = HR;
-    CELL *ptd0;
-    if (listp)
-  *listp = tail;
-restart:
+  CELL *ptd0;
+  CELL *ptf0 = HR,
+    *ptf = HR;
+ restart:
   while (pt0 < pt0_end) {
     CELL d0;
     ++pt0;
     ptd0 = pt0;
     d0 = *ptd0;
   list_loop:
-    deref_head(d0, vars_in_term_unk);
+   fprintf(stderr,"%d at %s\n", to_visit-to_visit0, __FUNCTION__);
+   deref_head(d0, vars_in_term_unk);
   vars_in_term_nvar:
     if (IsPairTerm(d0)) {
       if (to_visit + 32 >= to_visit_max) {
@@ -1361,8 +1363,7 @@ restart:
         struct non_single_struct_t *v0 =
             (struct non_single_struct_t *)AtomOfTerm(d0);
 	if (listp) {
-          *ptf = UNFOLD_LOOP(AbsPair(v0->ptf-1), listp);
-	  ptf++;
+	  *ptf++ = UNFOLD_LOOP(AbsPair(v0->ptf-1), listp);
         } else {
           *ptf++ = BREAK_LOOP(to_visit - v0);
         }
@@ -1395,8 +1396,7 @@ restart:
       if (IsAtomTerm((CELL)f)) {
 	struct non_single_struct_t *v0 =  (struct non_single_struct_t *)AtomOfTerm(*ptd0);
         if (listp) {
-          *ptf = UNFOLD_LOOP(AbsAppl(v0->ptf-1), listp);
-	  ptf++;
+          *ptf++ = UNFOLD_LOOP(AbsAppl(v0->ptf-1), listp);
         } else {
           *ptf++ = BREAK_LOOP(to_visit - v0);
         }
@@ -1425,7 +1425,7 @@ restart:
     goto restart;
 
     derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
-    *ptf++ = (CELL)ptd0;
+    *ptf++ = *ptd0;
     goto restart;
   }
   /* Do we still have compound terms to visit */
@@ -1439,28 +1439,24 @@ restart:
     *ptd0 = to_visit->d0;
     goto restart;
   }
+  fprintf(stderr,"exit %d at %s\n", to_visit-to_visit0, __FUNCTION__);
 
   pop_text_stack(lvl);
-  return 0;
+  return ptf0;
+  
   def_aux_overflow();
 }
 
-Term Yap_BreakCycles(Term inp, UInt arity, Term *listp, Term tail USES_REGS) {
+Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS) {
   Term t = Deref(inp);
 
   if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
     return t;
-  } else {
-    Int res;
-    CELL *op = HR;
-    res = loops_in_complex_term((&t) - 1, &t, listp, tail PASS_REGS);
-    if (res < 0)
-      return -1;
-    if (IsPairTerm(t))
-      return AbsPair(op);
-    else
-      return AbsAppl(op);
+  } else if (IsPairTerm(t)) {
+    return AbsPair(loops_in_complex_term((&t) - 1, &t, listp PASS_REGS));
   }
+  return AbsAppl(loops_in_complex_term((&t) - 1, &t, listp PASS_REGS));
+
 }
 
 /** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms)
@@ -1476,11 +1472,11 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term *listp, Term tail USES_REGS) {
 */
 static Int p_break_rational(USES_REGS1) {
   Term t = (ARG1);
-  Term l = Deref(ARG4), k;
+  Term l = Deref(ARG4);
   if (IsVarTerm(l))
     Yap_unify(l, MkVarTerm());
-  return Yap_unify(Yap_BreakCycles(t, 4, &k, l PASS_REGS), ARG2) &&
-         Yap_unify(k, ARG3);
+  return Yap_unify(Yap_BreakCycles(t, 4, &l PASS_REGS), ARG2) &&
+         Yap_unify(l, ARG3) ;
 }
 
 void Yap_InitTermCPreds(void) {

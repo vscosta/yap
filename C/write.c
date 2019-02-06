@@ -70,11 +70,11 @@ typedef struct rewind_term {
 
 typedef struct write_globs {
   StreamDesc *stream;
-  int Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
-  int Keep_terms;
-  int Write_Loops;
-  int Write_strings;
-  int last_atom_minus;
+  bool Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
+  bool Keep_terms;
+  bool Write_Loops;
+  bool Write_strings;
+  UInt  last_atom_minus;
   UInt MaxDepth, MaxArgs;
   wtype lw;
 } wglbs;
@@ -1089,8 +1089,21 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
+  wglb.Use_portray = false;
+  wglb.Handle_vars = true;
+  wglb.Use_portray = false;
+  wglb.Portray_delays = false;
+  wglb.Keep_terms = false;
+  wglb.Write_Loops = false;
+  wglb.Write_strings = false;
+  wglb.Quote_illegal = false;
+  wglb.Ignore_ops = false;
+  wglb.MaxDepth = false;
+  wglb.MaxArgs = false;
+  wglb.lw = separator;
+
   if ((flags & Handle_cyclics_f) &&  Yap_IsCyclicTerm(t) ){
-      t = Yap_BreakCycles(t, 3, NULL, TermNil PASS_REGS);
+      t = Yap_BreakCycles(t, 3, NULL PASS_REGS);
    }
   /* protect slots for portray */
   writeTerm(t, priority, 1, false, &wglb, &rwt);
