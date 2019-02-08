@@ -1098,8 +1098,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Write_strings = false;
   wglb.Quote_illegal = false;
   wglb.Ignore_ops = false;
-  wglb.MaxDepth = false;
-  wglb.MaxArgs = false;
+  wglb.MaxDepth = 0;
+  wglb.MaxArgs = 0;
   wglb.lw = separator;
 
   if ((flags & Handle_cyclics_f) &&  Yap_IsCyclicTerm(t) ){

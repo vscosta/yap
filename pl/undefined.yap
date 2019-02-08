@@ -102,9 +102,9 @@ undefined_query(G0, M0, Cut) :-
         true
     ;
     '$undef_error'(Current, M0:G0, MGI,  MG)
-    ,
+    ),
      '$undef_cleanup'(Action,Debug,Current)
-    ).
+    .
 
 '$undef_error'(_, M0:G0, _, MG) :-
     '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
