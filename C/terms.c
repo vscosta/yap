@@ -131,8 +131,8 @@ while (pt0 < pt0_end) {							\
       to_visit->ptd0 = ptd0;                                                   \
       to_visit->d0 = d0;                                                       \
       to_visit++;                                                              \
-      *ptd0 = TermFreeTerm;                                                    \
-      pt0 = ptd0;                                                              \
+      *ptd0 = TermFreeTerm; \
+      pt0 = ptd0;							\
       pt0_end = pt0 + 1;                                                       \
       goto list_loop;                                                          \
     } else if (IsApplTerm(d0)) {                                               \
@@ -1022,9 +1022,9 @@ static Int p_non_singletons_in_term(
   }
 }
 
-static Term numbervar(Int id USES_REGS) {
+static Term numbervar(Int me USES_REGS) {
   Term ts[1];
-  ts[0] = MkIntegerTerm(id);
+  ts[0] = MkIntegerTerm(me);
   return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
 }
 
@@ -1034,9 +1034,9 @@ static Term numbervar_singleton(USES_REGS1) {
   return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
 }
 
-static void renumbervar(Term t, Int id USES_REGS) {
+static void renumbervar(Term t, Int me USES_REGS) {
   Term *ts = RepAppl(t);
-  ts[1] = MkIntegerTerm(id);
+  ts[1] = MkIntegerTerm(me);
 }
 
 #define RENUMBER_SINGLES                                                       \
@@ -1205,30 +1205,27 @@ static Term UNFOLD_LOOP(Term t, Term *b) {
 
 
 typedef struct block_connector {
-  Int id;          //> index in the array;
+  Int me;          //> index in the array;
   Term source;    //> source; 
   CELL *copy;      //> copy;
   CELL header;     //> backup of first word of the source data;
   CELL reference;  //> term used to refer the copy.
 } cl_connector;
 
-Int cp_link(Term t,Int i, Int j, cl_connector *q, Int max, CELL *tailp)
+
+static Int
+create_entry(Term t, Int i, Int j, cl_connector *q, Int max)
 {
   Term ref, h, *s, *ostart;
   bool pair = false;
   ssize_t n;
-  
-  if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
-    q[i].copy[j] = t;
-    return max;
-  }
-    ostart = HR;
+  // first time, create a new term
+  ostart = HR;
   if (IsPairTerm(t)) {
-     h = HeadOfTerm(t);
-     s = RepPair(t);
+    s = RepPair(t);
      n = 2;
-     pair = true;
-     ref = AbsPair(ostart);
+    pair = true;
+    ref = AbsPair(ostart);
   } else {
     h = (CELL)FunctorOfTerm(t);
     s = RepAppl(t);
@@ -1236,24 +1233,41 @@ Int cp_link(Term t,Int i, Int j, cl_connector *q, Int max, CELL *tailp)
     ref = AbsAppl(ostart);
     *ostart++ = s[0];
   }
-  if (HR > s && H0 < s) {
-      // first time, create a new term
-    q[max].id = max;
-    q[max].source = t;
-    q[max].copy = ostart;
-    q[max].header = s[0];
-    q[max].reference = ref;
-    s[0] = max*sizeof(CELL);
-    HR += n;
-    max++;
-  } else  {
-    Int id = h/sizeof(CELL);
-    if (q[id].reference == ref) {
-      q[id].reference = UNFOLD_LOOP(t, tailp);
-    }
-    q[i].copy[j] = q[id].reference;
+   if (H0 > s) {
+     return (s[0]-EndSpecials)/sizeof(CELL);
   }
+  q[max].me = max;
+  q[max].source = t;
+  q[max].copy = ostart;
+  q[max].header = s[0];
+  q[max].reference = ref;
+  s[0] = max*sizeof(CELL)+EndSpecials;
+  HR += n;
+  max++;
   return max;
+}
+
+
+Int cp_link(Term t,Int i, Int j, cl_connector *q, Int max, CELL *tailp)
+{
+  Int me;
+
+  t = Deref(t);
+  if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
+    q[i].copy[j] = t;
+    return max;
+  }
+  if ((me = create_entry(t, i, j, q, max)) < max) {
+    Term  ref = Deref(q[me].reference);
+
+    if (IsVarTerm(ref)) {
+      q[i].copy[j] = ref;
+    } else {
+      q[i].copy[j] = q[me].reference = UNFOLD_LOOP(ref, tailp);
+    }
+    return max;
+  }
+  return max+1;
 }
 
 
@@ -1263,20 +1277,25 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS) {
 
   Term t = Deref(inp);
   ssize_t qsize = 2048, qlen=0;
-  cl_connector *q = Malloc(qsize * sizeof(cl_connector)), *q0 = q;
+  cl_connector *q = Malloc(qsize * sizeof(cl_connector));
   Term *s;
+    Int i=0;
+    qlen = 0;
   
+  HB=HR;
   if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
     return t;
   } else {
-    Int i=0;
-    qlen = cp_link(t, 0, 0, q, qlen, listp);
-    while (i < qlen) {
+    // initialization
+    qlen = cp_link(t, i++, 1, q, qlen, listp);
+    while(i < qlen) {
       arity_t n, j;
       if (IsPairTerm( q[i].source )) {
 	s = RepPair( q[i].source );
 	n = 2;
+	// fetch using header field.
 	qlen =  cp_link(q[i].header, i, 0, q, qlen, listp);
+	// fetch using standard access
 	qlen =  cp_link(s[1], i, 1, q, qlen, listp);
       } else {
 	s = RepAppl( q[i].source )+1;
@@ -1288,7 +1307,7 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS) {
       i++;
     }
   }
-  Int i;
+
   for (i =0; i < qlen; i++) {
   if (IsPairTerm(t)) {
 
@@ -1296,12 +1315,12 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS) {
   } else {
 
     RepAppl(q[i].source)[0] = q[i].header;
-
   }
   }
   pop_text_stack(lvl);
 
 
+    HB = B->cp_h;
       return q[0].reference;
 }
 
