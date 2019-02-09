@@ -1099,13 +1099,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Quote_illegal = false;
   wglb.Ignore_ops = false;
   wglb.MaxDepth = 0;
-  wglb.MaxArgs = 0;
+  wglb.MaxArgs = 0 ;
   wglb.lw = separator;
 
-  if ((flags & Handle_cyclics_f) &&  Yap_IsCyclicTerm(t) ){
-      t = Yap_BreakCycles(t, 3, NULL PASS_REGS);
+   if ((flags & Handle_cyclics_f) ){
+      t = Yap_CyclesInTerm(t, 3, NULL PASS_REGS);
    }
-  /* protect slots for portray */
+
+   /* protect slots for portray */
   writeTerm(t, priority, 1, false, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
