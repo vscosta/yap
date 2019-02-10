@@ -88,25 +88,11 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
   TR = TR0;
 }
 
-//#define  CELL *pt0, *pt0_end, *ptf;
-//} non_singletons_t;
-
-#define IS_VISIT_MARKER						\
-  (IsPairTerm(d0) && RepPair(d0)>=(CELL*)to_visit0 && RepPair(d0) <= (CELL*)to_visit) 
+static inline bool IS_VISIT_MARKER(Term d0, void *to_visit, void *to_visit0)		{
+  return IsPairTerm(d0) && RepPair(d0)>=(CELL*)to_visit0 && RepPair(d0) <= (CELL*)to_visit;
+}
 
 #define VISIT_MARKER	AbsPair((CELL*)to_visit)
-
-#define CYC_MARK_LIST							\
-  if (IsPairTerm(d0) && RepPair(d0)>=(CELL*)to_visit0 && RepPair(d0) <= (CELL*)to_visit) { \
-    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
-    MaBind(ptd0, BREAK_LOOP(*RepPair(d0)));	\
-    }                                                                          \
-
-#define CYC_MARK_APPL							\
-  if (IsApplTerm(d0) && RepAppl(d0)>=(Term*)to_visit0 && RepAppl(d0) <= (Term*)to_visit) { \
-    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
-  MaBind(ptd0, BREAK_LOOP(*RepAppl(d0)));	\
-    }                                                                          \
 
 
 typedef struct {
@@ -127,6 +113,7 @@ typedef struct non_single_struct_t {
                              *to_visit0 = to_visit,                            \
                              *to_visit_max = to_visit + 1024;                  \
                                                                                \
+  /*fprintf(stderr, "%ld at %s\n", to_visit - to_visit0, __FUNCTION__);*/ \
   while (to_visit >= to_visit0) {					\
      CELL d0;                                                          \
      CELL *ptd0;                                                       \
@@ -136,7 +123,6 @@ while (pt0 < pt0_end) {							\
     ptd0 = pt0;                                                                \
     d0 = *ptd0;                                                                \
 list_loop:								\
-  /*fprintf(stderr, "%ld at %s\n", to_visit - to_visit0, __FUNCTION__);*/ \
     deref_head(d0, var_in_term_unk);                                           \
   var_in_term_nvar : {                                                         \
   if (IsPairTerm(d0)) {							\
@@ -146,7 +132,7 @@ list_loop:								\
       ptd0 = RepPair(d0);                                                      \
       d0 = ptd0[0];                                                            \
       LIST0;                                                                   \
-      if (IS_VISIT_MARKER)                                                  \
+      if (IS_VISIT_MARKER(d0,to_visit,to_visit0))			\
         goto restart;                                                          \
       to_visit->pt0 = pt0;                                                     \
       to_visit->pt0_end = pt0_end;                                             \
@@ -158,16 +144,16 @@ list_loop:								\
       pt0_end = pt0 + 1;                                                       \
       goto list_loop;                                                          \
     } else if (IsApplTerm(d0)) {                                               \
-      register Functor f;                                                      \
+       Functor f;                                                      \
       /* store the terms to visit */                                           \
       ptd0 = RepAppl(d0);						\
       f = (Functor)(d0 = *ptd0);                                               \
-                                                                               \
-      if (to_visit + 32 >= to_visit_max) {                                     \
+      if (IsExtensionFunctor(f)) continue;				\
+      if (to_visit + 32 >= to_visit_max) {				\
         goto aux_overflow;                                                     \
       }                                                                        \
       STRUCT0;                                                                 \
-      if (IS_VISIT_MARKER) {                      \
+      if ( IS_VISIT_MARKER(d0,to_visit,to_visit0)) {	\
                                                                                \
         continue;                                                          \
       }                                                                        \
@@ -241,7 +227,7 @@ list_loop:								\
   }
 
 #define CYC_LIST                                                               \
-  if (d0 == TermFreeTerm) {						\
+  if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) {						\
     /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
 while (to_visit > to_visit0) {                                             \
       to_visit--;                                                              \
@@ -253,7 +239,7 @@ while (to_visit > to_visit0) {                                             \
   }
 
 #define CYC_APPL                                                               \
-      if (IsAtomTerm((CELL)f)) {                                         \
+      if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) {                                         \
     while (to_visit > to_visit0) {                                             \
       to_visit--;                            \
        to_visit->ptd0[0] =                                             \
@@ -281,11 +267,11 @@ cyclic_complex_term( CELL *pt0, CELL *pt0_end USES_REGS) {
 bool Yap_IsCyclicTerm(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    return false;
+    return t;
   } else if (IsPrimitiveTerm(t)) {
-    return false;
+    return t;
   } else {
-    return cyclic_complex_term(&(t)-1, &(t)PASS_REGS);
+    return cyclic_complex_term(&(t)-1, &(t) PASS_REGS);
   }
 }
 
@@ -314,11 +300,24 @@ static Term BREAK_LOOP(Int ddep) {
 /**
    @brief routine to locate all variables in a term, and its applications */
 
+#define CYC_MARK_LIST(d0)			\
+  if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) {				\
+    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
+    MaBind(ptd0, BREAK_LOOP(d0));	\
+    }                                                                          \
+
+#define CYC_MARK_APPL(d0)						\
+  if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) { \
+    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
+    MaBind(ptd0, BREAK_LOOP(d0));				\
+}  \
+ 
+
 static Term cycles_in_complex_term(register CELL *pt0,
                                 register CELL *pt0_end USES_REGS) {
 
   int lvl = push_text_stack();                                                 \
-  WALK_COMPLEX_TERM__(CYC_MARK_LIST, CYC_MARK_APPL, {});
+  WALK_COMPLEX_TERM__(CYC_MARK_LIST(d0), CYC_MARK_APPL(d0), {});
   /* leave an empty slot to fill in later */
   END_WALK();
 
@@ -331,9 +330,9 @@ static Term cycles_in_complex_term(register CELL *pt0,
 bool Yap_CyclesInTerm(Term t USES_REGS) {
 
   if (IsVarTerm(t)) {
-    return false;
+    return t;
   } else if (IsPrimitiveTerm(t)) {
-    return false;
+    return t;
   } else {
     return cycles_in_complex_term(&(t)-1, &(t) PASS_REGS);
   }
@@ -1324,7 +1323,6 @@ Int cp_link(Term t,Int i, Int j, cl_connector *q, Int max, CELL *tailp)
 {
   Int me;
 
-  printf("%lx i=%ld,max=%ld,H=%p\n", t, i, max, HR),
   t = Deref(t);
   if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
     if (IsIntegerTerm(t) &&  dataid(t,q)) {

@@ -581,12 +581,14 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   unsigned char *s;
   wtype atom_or_symbol;
   wrf stream = wglb->stream;
-
+  if (atom == NULL) return;
+  s = RepAtom(atom)->UStrOfAE;
+  if (s[0] ==  '\0')
+    return;
   if (IsBlob(atom)) {
     wrputblob(RepAtom(atom), Quote_illegal, wglb);
     return;
   }
-  s = RepAtom(atom)->UStrOfAE;
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (Yap_GetValue(AtomCryptAtoms) != TermNil &&
@@ -1103,7 +1105,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.lw = separator;
 
    if ((flags & Handle_cyclics_f) ){
-      t = Yap_CyclesInTerm(t, 3, NULL PASS_REGS);
+      Yap_CyclesInTerm(t, 3, NULL PASS_REGS);
    }
 
    /* protect slots for portray */
@@ -1123,3 +1125,4 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   pop_text_stack(lvl);
  }
+

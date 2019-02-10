@@ -378,11 +378,8 @@ live :-
 	current_prolog_flag(break_level, BL ),
 	( BL \= 0 -> 	format(user_error, '[~p] ',[BL]) ;
 			true ),
-        ( current_prolog_flag(toplevel_print_options, Opts) ->
-	   write_term(user_error,Answ,Opts) ;
-	   format(user_error,'~w',[Answ])
-        ),
-	format(user_error,'.~n', []).
+        current_prolog_flag(toplevel_print_options, Opts),
+	write_term(user_error,Answ,Opts).
 
 '$another' :-
 	format(user_error,' ? ',[]),
