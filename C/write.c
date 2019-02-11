@@ -1103,13 +1103,16 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.MaxDepth = 0;
   wglb.MaxArgs = 0 ;
   wglb.lw = separator;
-
+  Term tp;
+  
    if ((flags & Handle_cyclics_f) ){
-     t = Yap_CyclesInTerm(t PASS_REGS);
+     tp = Yap_CyclesInTerm(t PASS_REGS);
+   } else {
+     tp = t;
    }
 
    /* protect slots for portray */
-  writeTerm(t, priority, 1, false, &wglb, &rwt);
+  writeTerm(tp, priority, 1, false, &wglb, &rwt);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

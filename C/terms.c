@@ -243,24 +243,22 @@ var_in_term_nvar : {							\
   }
 
 #define CYC_LIST							\
-  if (d0 == TermFreeTerm) {						\
-    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
+  if (IS_VISIT_MARKER) {						\
     while (to_visit > to_visit0) {					\
       to_visit--;							\
       to_visit->ptd0[0] = to_visit->d0;					\
     }									\
-    pop_text_stack(lvl); /*fprintf(stderr,"<%ld at %s\n", to_visit-to_visit0, \
-			   __FUNCTION__);*/				\
+    pop_text_stack(lvl); \
     return true;							\
   }
 
 #define CYC_APPL							\
-  if (IsAtomTerm((CELL)f)) {						\
+  if (IS_VISIT_MARKER) {						\
     while (to_visit > to_visit0) {					\
       to_visit--;							\
       to_visit->ptd0[0] = to_visit->d0;					\
-    }									\
-    /*fprintf(stderr,"<%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
+    }\
+pop_text_stack(lvl);							\
     return true;							\
   }
 
@@ -323,6 +321,7 @@ static int cycles_in_complex_term(register CELL *pt0,
     *to_visit0 = to_visit,
     *to_visit_max = to_visit + 1024;
     ptf = HR;
+    HR++;
   while (to_visit >= to_visit0) {
     CELL d0;
     CELL *ptd0;
@@ -405,6 +404,7 @@ static int cycles_in_complex_term(register CELL *pt0,
     if (to_visit >= to_visit0) {
       pt0 = to_visit->pt0;
       pt0_end = to_visit->pt0_end;
+      ptf = to_visit->ptf;
       *to_visit->ptd0 = to_visit->d0;
     }
   }
@@ -425,7 +425,7 @@ Term Yap_CyclesInTerm(Term t USES_REGS) {
   } else {
     CELL *Hi = HR;
     if ( cycles_in_complex_term(&(t)-1, &(t)PASS_REGS) >0) {
-      return IsPairTerm(t) ? AbsPair(Hi) : AbsAppl(Hi);
+      return Hi[0];
     } else {
       HR = Hi;
       return t;
@@ -1373,15 +1373,19 @@ typedef struct block_connector {
   CELL reference; //> term used to refer the copy.
 } cl_connector;
 
-static bool dataid(Term t, cl_connector * q) {
-  Int i = IntegerOfTerm(t);
-  cl_connector *d = q + i;
-  return d->me == i; //&& d->source == (void *;
+static bool dataid(Term t, cl_connector * q, int max) {
+  if (!IsPrimitiveTerm(t)) return 0;
+  if (!IsAtomTerm(t)) return max;
+  cl_connector *d = (cl_connector *)AtomOfTerm(t);
+  if (d > q && d < q+max)
+    return d-q;
+  return max; //&& d->source == (void *;
 }
 
 static Int create_entry(Term t, Int i, Int j, cl_connector * q, Int max) {
   Term ref, h, *s, *ostart;
   bool pair = false;
+  Int k;
   ssize_t n;
   // first time, create a new term
   ostart = HR;
@@ -1390,23 +1394,25 @@ static Int create_entry(Term t, Int i, Int j, cl_connector * q, Int max) {
     n = 2;
     pair = true;
     ref = AbsPair(ostart);
-  } else {
+  } else if (IsApplTerm(t)) {
     h = (CELL)FunctorOfTerm(t);
     s = RepAppl(t);
     n = ArityOfFunctor(FunctorOfTerm(t));
     ref = AbsAppl(ostart);
     *ostart++ = s[0];
+  } else if ((k = dataid(t, q, max))) {
+    return k;
+  } else {
+    return max;
   }
-  if (IsIntegerTerm(s[0]) && dataid(s[0], q)) {
-    return IntegerOfTerm(s[0]);
-  }
-
+  
+  
   q[max].me = max;
   q[max].source = t;
   q[max].copy = ostart;
   q[max].header = s[0];
   q[max].reference = ref;
-  s[0] = MkIntegerTerm(max);
+  s[0] = MkAtomTerm((void*)q);
   HR += n;
   return max;
 }
@@ -1414,14 +1420,6 @@ static Int create_entry(Term t, Int i, Int j, cl_connector * q, Int max) {
 Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
   Int me;
 
-  printf("%lx i=%ld,max=%ld,H=%p\n", t, i, max, HR), t = Deref(t);
-  if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
-    if (IsIntegerTerm(t) && dataid(t, q)) {
-      t = q[IntegerOfTerm(t)].header;
-    }
-    q[i].copy[j] = t;
-    return max;
-  }
   if ((me = create_entry(t, i, j, q, max)) < max) {
     Term ref = Deref(q[me].reference);
 
@@ -1446,7 +1444,7 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
   Int i = 0;
 
   HB = HR;
-  if (IsVarTerm(t) || (IsIntegerTerm(t) && !dataid(t, q))) {
+  if (IsVarTerm(t) || dataid(t, q, qlen) == 0) {
     return t;
   } else {
     // initialization
