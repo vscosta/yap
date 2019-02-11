@@ -1105,7 +1105,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.lw = separator;
 
    if ((flags & Handle_cyclics_f) ){
-      Yap_CyclesInTerm(t, 3, NULL PASS_REGS);
+     t = Yap_CyclesInTerm(t PASS_REGS);
    }
 
    /* protect slots for portray */
