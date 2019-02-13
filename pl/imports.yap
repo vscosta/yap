@@ -1,5 +1,5 @@
 /**
- ** @file imports.yapi
+ ** @file imports.yap
  *
  * @brief Module systemm code to import predicates
  *

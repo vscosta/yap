@@ -862,7 +862,6 @@ nb_setval('$if_level',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	writeln(init:Answers),
 	'$process_init_goal'(Answers).
 '$exec_initialization_goals'.
 

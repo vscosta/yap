@@ -1,6 +1,6 @@
 
 /**
-  * @file jupyter.yap4py
+  * @file jupyter.yap
   *
   * @brief JUpyter support.
   */

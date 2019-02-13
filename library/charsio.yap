@@ -24,7 +24,10 @@
  * @{
  * 
 */
-
+%%  @file charsio.yap
+%%
+%%
+%%  @brief Input/Output to characters.
 
 :- module(system(charsio), [
 	format_to_chars/3,
@@ -52,7 +55,7 @@ You can use the following directive to load the files.
 
 
 ~~~~~~~
-:- use_module(library(avl)).
+:- use_module(library(charsio)).
 ~~~~~~~
 
 It includes the following predicates:

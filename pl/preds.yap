@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /**
- * @file preds.yap
+ * @file pl/preds.yap
  */
 :- system_module( '$_preds', [abolish/1,
 			      abolish/2,

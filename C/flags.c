@@ -26,7 +26,7 @@
 
 /**
 
-    @defgroup YAPFlags C-code to handle Prolog flags.
+    @defgroup YAPFlagsC C-code to handle Prolog flags.
     @ingroup YAPFlags
 
     @{

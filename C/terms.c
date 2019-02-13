@@ -242,24 +242,24 @@ var_in_term_nvar : {							\
     return false;					\
   }
 
-#define CYC_LIST							\
-  if (IS_VISIT_MARKER) {						\
-    while (to_visit > to_visit0) {					\
-      to_visit--;							\
-      to_visit->ptd0[0] = to_visit->d0;					\
-    }									\
-    pop_text_stack(lvl); \
-    return true;							\
+#define CYC_LIST				\
+  if (IS_VISIT_MARKER) {			\
+    while (to_visit > to_visit0) {		\
+      to_visit--;				\
+      to_visit->ptd0[0] = to_visit->d0;		\
+    }						\
+    pop_text_stack(lvl);			\
+    return true;				\
   }
 
-#define CYC_APPL							\
-  if (IS_VISIT_MARKER) {						\
-    while (to_visit > to_visit0) {					\
-      to_visit--;							\
-      to_visit->ptd0[0] = to_visit->d0;					\
-    }\
-pop_text_stack(lvl);							\
-    return true;							\
+#define CYC_APPL				\
+  if (IS_VISIT_MARKER) {			\
+    while (to_visit > to_visit0) {		\
+      to_visit--;				\
+      to_visit->ptd0[0] = to_visit->d0;		\
+    }						\
+    pop_text_stack(lvl);			\
+    return true;				\
   }
 
 /**
@@ -311,7 +311,7 @@ static Term BREAK_LOOP(Int ddep) {
    @brief routine to locate all variables in a term, and its applications */
 
 static int cycles_in_complex_term(register CELL *pt0,
-                                   register CELL *pt0_end USES_REGS) {
+				  register CELL *pt0_end USES_REGS) {
 
   int lvl = push_text_stack();
   int rc = 0;
@@ -320,8 +320,8 @@ static int cycles_in_complex_term(register CELL *pt0,
 						1024 * sizeof(struct non_single_struct_t)),
     *to_visit0 = to_visit,
     *to_visit_max = to_visit + 1024;
-    ptf = HR;
-    HR++;
+  ptf = HR;
+  HR++;
   while (to_visit >= to_visit0) {
     CELL d0;
     CELL *ptd0;
@@ -363,17 +363,17 @@ static int cycles_in_complex_term(register CELL *pt0,
           /* store the terms to visit */
           ptd0 = RepAppl(d0);
           f = (Functor)(d0 = *ptd0);
+          if (IS_VISIT_MARKER) {
+	    rc++;
+            *ptf++ = BREAK_LOOP(to_visit - to_visit0);
+	    continue;
+          }
           if (IsExtensionFunctor(f)) {
             *ptf++ = d0;
 	    continue;
           }
           if (to_visit + 32 >= to_visit_max) {
             goto aux_overflow;
-          }
-          if (IS_VISIT_MARKER) {
-	    rc++;
-            *ptf++ = BREAK_LOOP(to_visit - to_visit0);
-	    continue;
           }
 	  *ptf++ = AbsAppl(HR);
           to_visit->pt0 = pt0;
@@ -1359,78 +1359,95 @@ static Term UNFOLD_LOOP(Term t, Term * b) {
   Term os[2], o;
   os[0] = o = MkVarTerm();
   os[1] = t;
-  Term ti = Yap_MkApplTerm(FunctorEq, 2, os);
-  *b = MkPairTerm(ti, *b);
-
+  Term ti = Yap_MkApplTerm(FunctorEq, 2, os), t0 = *b;
+  *b = MkPairTerm(ti, t0);
   return o;
 }
 
 typedef struct block_connector {
-  Int me;         //> index in the array;
+  CELL * parent;         //> index in the array;
   Term source;    //> source;
   CELL *copy;     //> copy;
   CELL header;    //> backup of first word of the source data;
   CELL reference; //> term used to refer the copy.
 } cl_connector;
 
-static bool dataid(Term t, cl_connector * q, int max) {
-  if (!IsPrimitiveTerm(t)) return 0;
-  if (!IsAtomTerm(t)) return max;
-  cl_connector *d = (cl_connector *)AtomOfTerm(t);
-  if (d > q && d < q+max)
+static Int t_ref(cl_connector *d, cl_connector * q, int max) {
+  if ( d >= q && d < q+max)
     return d-q;
-  return max; //&& d->source == (void *;
+  return -1; //&& d->source == (void *;
 }
 
-static Int create_entry(Term t, Int i, Int j, cl_connector * q, Int max) {
+static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   Term ref, h, *s, *ostart;
   bool pair = false;
-  Int k;
   ssize_t n;
   // first time, create a new term
-  ostart = HR;
+  if (IsVarTerm(t)) {
+    return -1;
+  }
   if (IsPairTerm(t)) {
     s = RepPair(t);
+    h = s[0];
+    if (IsAtomTerm(h)) {
+      return t_ref((cl_connector*)AtomOfTerm(h),q,max);
+    }
     n = 2;
     pair = true;
+    ostart = HR;
     ref = AbsPair(ostart);
+    HR += 2;
+    q[max].header = Deref(s[0]);
   } else if (IsApplTerm(t)) {
     h = (CELL)FunctorOfTerm(t);
+    n = ArityOfFunctor((Functor)h);
+    if (IsExtensionFunctor((Functor)h)) {
+      return -1;
+    }
+    if (IsAtomTerm(h)) {
+      return t_ref((cl_connector*)AtomOfTerm(h),q,max);
+    }
     s = RepAppl(t);
-    n = ArityOfFunctor(FunctorOfTerm(t));
+    q[max].header = s[0];
+    ostart = HR;
     ref = AbsAppl(ostart);
     *ostart++ = s[0];
-  } else if ((k = dataid(t, q, max))) {
-    return k;
-  } else {
+    HR=ostart+n;
+  } else if (IsAtomTerm(t) &&
+	     (max = t_ref((cl_connector*)AtomOfTerm(t),q,max)) >= 0) {
     return max;
+  } else {
+    return -1;
   }
-  
-  
-  q[max].me = max;
+
+  q[max].parent = q[i].copy+j;
   q[max].source = t;
   q[max].copy = ostart;
-  q[max].header = s[0];
   q[max].reference = ref;
-  s[0] = MkAtomTerm((void*)q);
-  HR += n;
-  return max;
+  s[0] = MkAtomTerm((void*)(q+max));
+  return max+1;
 }
 
 Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
   Int me;
-
+  t = Deref(t);
   if ((me = create_entry(t, i, j, q, max)) < max) {
+    if (me < 0) {
+      q[i].copy[j] = t;
+      return max;
+    }
     Term ref = Deref(q[me].reference);
-
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
     } else {
-      q[i].copy[j] = q[me].reference = UNFOLD_LOOP(ref, tailp);
+      q[i].copy[j] =
+	q[me].parent[0] =
+	UNFOLD_LOOP(ref, tailp);
     }
     return max;
   }
-  return max + 1;
+  q[i].copy[j] = t;
+  return me;
 }
 
 Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
@@ -1444,12 +1461,13 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
   Int i = 0;
 
   HB = HR;
-  if (IsVarTerm(t) || dataid(t, q, qlen) == 0) {
+  qlen = 0;
+  if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
     return t;
   } else {
     // initialization
-    qlen = cp_link(t, 0, 0, q, qlen, listp);
-    while (i < qlen) {
+    qlen = create_entry(Deref(t), i, 0, q, qlen);
+    while(i<qlen) {
       arity_t n, j;
       if (IsPairTerm(q[i].source)) {
 	s = RepPair(q[i].source);
@@ -1469,15 +1487,6 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
     }
   }
 
-  for (i = 0; i < qlen; i++) {
-    if (IsPairTerm(t)) {
-
-      RepPair(q[i].source)[0] = q[i].header;
-    } else {
-
-      RepAppl(q[i].source)[0] = q[i].header;
-    }
-  }
   pop_text_stack(lvl);
 
   HB = B->cp_h;
@@ -1495,7 +1504,7 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
 
 
 */
-static Int p_break_rational(USES_REGS1) {
+static Int rational_term_to_tree(USES_REGS1) {
   Term t = Deref(ARG1);
   Term l = Deref(ARG4);
   if (IsVarTerm(l))
@@ -1505,7 +1514,7 @@ static Int p_break_rational(USES_REGS1) {
 }
 
 void Yap_InitTermCPreds(void) {
-  Yap_InitCPred("rational_term_to_tree", 4, p_break_rational, 0);
+  Yap_InitCPred("cycles_in_term", 2, cycles_in_term, 0);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
@@ -1518,8 +1527,8 @@ void Yap_InitTermCPreds(void) {
   Yap_InitCPred("variable_in_term", 2, variable_in_term, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
-  Yap_InitCPred("cyles_in_term", 4, cycles_in_term, 0);
   CurrentModule = PROLOG_MODULE;
+  Yap_InitCPred("rational_term_to_tree", 4, rational_term_to_tree, 0);
 
   Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
 
@@ -1529,3 +1538,4 @@ void Yap_InitTermCPreds(void) {
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
   Yap_InitCPred("largest_numbervar", 2, largest_numbervar, 0);
 }
+//@}

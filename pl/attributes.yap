@@ -18,7 +18,7 @@
 /**
   @file attributes.yap
 
-@defgroup New_Style_Attribute_Declarations SWI Compatible attributes
+@defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
 @ingroup attributes
 
   @{

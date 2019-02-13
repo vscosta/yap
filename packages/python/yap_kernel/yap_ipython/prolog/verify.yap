@@ -1,5 +1,5 @@
 /**
-  * @file jupyter.yap4py
+  * @file verify.yap
   *
   * @brief JUpyter support.
   */

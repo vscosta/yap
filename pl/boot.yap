@@ -114,6 +114,10 @@ print_message(Type,error(_,exception(Desc))) :-
 	'$get_exception'(Desc),
 	print_boot_message(Type,Error,Desc),
 	'$print_exception'(Desc),
+print_message(Type,warning(_,exception(Desc))) :-
+	'$get_exception'(Desc),
+	print_boot_message(Type,Error,Desc),
+	'$print_exception'(Desc),
 	!.
 print_message(Type,Error) :-
 	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).

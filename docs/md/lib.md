@@ -1,5 +1,5 @@
 
-@file LIBRARY.md
+@file lib.md
 
 @defgroup library   YAP Prolog Library
 

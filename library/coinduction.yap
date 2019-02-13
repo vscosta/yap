@@ -154,6 +154,10 @@ co_term_expansion((H :- B), M, (NH :- B)) :- !,
 co_term_expansion(H, M, NH) :-
 	coinductive(H, M, NH), !.
 
+/** user:term_expansion(+M:Cl,-M:NCl ) 
+
+rule preprocessor
+*/
 user:term_expansion(M:Cl,M:NCl ) :- !,
 	co_term_expansion(Cl, M, NCl).
 

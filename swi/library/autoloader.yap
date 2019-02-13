@@ -1,5 +1,5 @@
 /**
- * @file autoloader.yap
+ * @file swi/library/autoloader.yap
 
  */
 :- module(autoloader,[make_library_index/0]).
