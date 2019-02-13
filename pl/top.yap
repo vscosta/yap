@@ -878,7 +878,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 
 '$expand_clause'(InputCl, C1, CO) :-
     '$yap_strip_clause'(InputCl, M, ICl),
-    '$expand_a_clause'( M:ICl, SM, C1, CO),
+    '$expand_a_clause'( M:ICl, M, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
 

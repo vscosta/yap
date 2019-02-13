@@ -28,6 +28,25 @@
 
 */
 
+print_message(informational,_) :-
+	yap_flag(verbose, silent),
+	!.
+print_message(informational,E) :-
+	format('informational message ~q.~n',[E]),
+	!.
+%%
+% boot:print_message( Type, Error )
+%
+print_message(Type,error(error(_,_),exception(Desc))) :-
+    !,
+    '$print_exception'(Desc).
+print_message(Type,error(warning(_,_),exception(Desc))) :-
+	!,
+	'$print_exception'(Desc).
+print_message(Type,Error) :-
+	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
+
+
 /**
 * @pred system_module( _Mod_, _ListOfPublicPredicates, ListOfPrivatePredicates * 
  * Define a system module _Mod_. _ListOfPublicPredicates_ . Currentlt, all
@@ -63,6 +82,10 @@ private(_).
 % boootstrap predicates.
 %
 :- system_module( '$_boot', [
+	!/0,
+        ':-'/1,
+        '?-'/1,
+        []/0,
         bootstrap/1,
         call/1,
         catch/3,
@@ -76,12 +99,7 @@ private(_).
         (not)/1,
         repeat/0,
         throw/1,
-			     true/0]).
-
-:- system_module( '$_init', [!/0,
-        ':-'/1,
-        '?-'/1,
-        []/0,
+	true/0,
         extensions_to_present_answer/1,
         fail/0,
         false/0,
@@ -94,33 +112,11 @@ private(_).
 	'$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
         '$do_log_upd_clause_erase'/6,
-        '$do_static_clause'/5],
+        '$do_static_clause'/5,
         '$system_module'/1]).
 
-:- use_system_module( '$_boot', ['$cut_by'/1]).
 
 % be careful here not to generate an undefined exception..
-
-print_message(informational,_) :-
-	yap_flag(verbose, silent),
-	!.
-print_message(informational,E) :-
-	format('informational message ~q.~n',[E]),
-	!.
-%%
-% boot:print_message( Type, Error )
-%
-print_message(Type,error(_,exception(Desc))) :-
-	'$get_exception'(Desc),
-	print_boot_message(Type,Error,Desc),
-	'$print_exception'(Desc),
-print_message(Type,warning(_,exception(Desc))) :-
-	'$get_exception'(Desc),
-	print_boot_message(Type,Error,Desc),
-	'$print_exception'(Desc),
-	!.
-print_message(Type,Error) :-
-	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
 
 
 

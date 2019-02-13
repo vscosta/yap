@@ -1450,9 +1450,7 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization_queue'(G) :-
 	b_getval('$lf_status', TOpts),
 	'$lf_opt'( initialization, TOpts, Ref),
-	writeln(G),
 	nb:nb_queue_enqueue(Ref, G),
-	writeln(Ref),
 	fail.
 '$initialization_queue'(_).
 

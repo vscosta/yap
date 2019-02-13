@@ -1380,9 +1380,10 @@ static Int t_ref(cl_connector *d, cl_connector * q, int max) {
 
 static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   Term ref, h, *s, *ostart;
-  bool pair = false;
   ssize_t n;
   // first time, create a new term
+  if (i==0)
+    return 0;
   if (IsVarTerm(t)) {
     return -1;
   }
@@ -1393,7 +1394,6 @@ static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
       return t_ref((cl_connector*)AtomOfTerm(h),q,max);
     }
     n = 2;
-    pair = true;
     ostart = HR;
     ref = AbsPair(ostart);
     HR += 2;
@@ -1439,12 +1439,19 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     Term ref = Deref(q[me].reference);
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
-    } else {
-      q[i].copy[j] =
-	q[me].parent[0] =
-	UNFOLD_LOOP(ref, tailp);
+    }  else if (i == 0){
+	Term p = TermNil;
+        Term v =	UNFOLD_LOOP(ref,&p);
+	q[i].reference = HeadOfTerm(p);
+        q[i].copy[j] = v;
     }
-    return max;
+    else if (tailp && q[me].parent) {
+      Term v = 	UNFOLD_LOOP(ref, tailp);
+      q[i].copy[j] = v;
+	q[me].parent[0] = v;
+	q[i].reference = v;
+      }
+  return max;
   }
   q[i].copy[j] = t;
   return me;
