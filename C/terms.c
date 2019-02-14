@@ -1443,14 +1443,14 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
 	Term p = TermNil;
         Term v =	UNFOLD_LOOP(ref,&p);
 	q[i].reference = HeadOfTerm(p);
-        q[i].copy[j] = v;
-    }
-    else if (tailp && q[me].parent) {
+	q[i].copy[j] = v;
+
+    } else if (tailp && q[me].parent) {
       Term v = 	UNFOLD_LOOP(ref, tailp);
       q[i].copy[j] = v;
 	q[me].parent[0] = v;
 	q[i].reference = v;
-      }
+	fprintf(stderr,"C i=%ld  me=%ld %lx\n",  i, me, q[i].copy[j]);      }
   return max;
   }
   q[i].copy[j] = t;
@@ -1473,7 +1473,8 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
     return t;
   } else {
     // initialization
-    qlen = create_entry(Deref(t), i, 0, q, qlen);
+    fprintf(stderr,"C i=%ld,%ld   %lx\n",  i, 0, q[i].copy[0]);      }
+  qlen = create_entry(Deref(t), i, 0, q, qlen);
     while(i<qlen) {
       arity_t n, j;
       if (IsPairTerm(q[i].source)) {
@@ -1481,9 +1482,12 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
 	n = 2;
 	// fetch using header field.
 	qlen = cp_link(q[i].header, i, 0, q, qlen, listp);
+    fprintf(stderr,"C q[0].reference\n",  q[0].reference);      
+    fprintf(stderr,"C i=%ld,%ld--%ld   %lx\n",  i, 0, q[i].copy[j]);      }
 	// fetch using standard access
 	qlen = cp_link(s[1], i, 1, q, qlen, listp);
-      } else {
+    fprintf(stderr,"C i=%ld,%ld--%ld   %lx\n",  i, j, q[i].copy[j]);
+    } 1else {
 	s = RepAppl(q[i].source) + 1;
 	n = ArityOfFunctor((Functor)q[i].header);
 	for (j = 0; j < n; j++) {
@@ -1494,6 +1498,12 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
     }
   }
 
+  for (i=0;i<qlen;i++) {
+    CELL *p = IsPairTerm(q[i].source) ? RepPair(q[i].source) : RepAppl(q[i].source);
+    p[0] = q[i].header;
+
+  }
+    
   pop_text_stack(lvl);
 
   HB = B->cp_h;
