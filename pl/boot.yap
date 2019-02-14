@@ -28,8 +28,6 @@
 
 */
 
-% be careful here not to generate an undefined exception..
-
 print_message(informational,_) :-
 	yap_flag(verbose, silent),
 	!.
@@ -40,14 +38,14 @@ print_message(informational,E) :-
 % boot:print_message( Type, Error )
 %
 print_message(Type,error(error(_,_),exception(Desc))) :-
-	!,
-	'$print_exception'(Desc).
+    !,
+    '$print_exception'(Desc).
 print_message(Type,error(warning(_,_),exception(Desc))) :-
 	!,
-	'$print_exception'(Desc),
-	!.
+	'$print_exception'(Desc).
 print_message(Type,Error) :-
 	format( user_error, '~w while bootstraping: event is ~q~n',[Type,Error]).
+
 
 /**
 * @pred system_module( _Mod_, _ListOfPublicPredicates, ListOfPrivatePredicates * 
@@ -83,25 +81,25 @@ private(_).
 %
 % boootstrap predicates.
 %
-:- system_module( '$_boot',
-		  [
-		   !/0,
-		   ':-'/1,
-		   '?-'/1,
-		   []/0,
-		   bootstrap/1,
-		   call/1,
-		   catch/3,
-		   catch_ball/2,
-		   expand_term/2,
-		   print_message/2,
-		   import_system_module/2,
-		   system_module/2,
-		   private/1,
-		   incore/1,
-		   (not)/1,
-		   repeat/0,
-		   throw/1,
+:- system_module( '$_boot', [
+	!/0,
+        ':-'/1,
+        '?-'/1,
+        []/0,
+        bootstrap/1,
+        call/1,
+        catch/3,
+        catch_ball/2,
+        expand_term/2,
+	print_message/2,
+        import_system_module/2,
+	system_module/2,
+	private/1,
+        incore/1,
+        (not)/1,
+        repeat/0,
+        throw/1,
+	true/0,
         extensions_to_present_answer/1,
         fail/0,
         false/0,
@@ -109,16 +107,16 @@ private(_).
         goal_expansion/3,
         otherwise/0,
         term_expansion/2,
-		   version/2,
-		   true/0],
-		  [
+        version/2],
+	[
 	'$do_log_upd_clause'/6,
         '$do_log_upd_clause0'/6,
         '$do_log_upd_clause_erase'/6,
         '$do_static_clause'/5,
         '$system_module'/1]).
 
-:- use_system_module( '$_boot', ['$cut_by'/1]).
+
+% be careful here not to generate an undefined exception..
 
 
 
@@ -135,6 +133,13 @@ print_boot_message(Type,Error,Desc) :-
 	'$query_exception'(errorFile, Desc, File),
 	'$query_exception'(errorLine, Desc, FilePos),
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
+
+'$undefp0'([M|G], _Action) :-
+	functor(G,N,A),
+	print_message( error, error(error(unknown, M:N/A),M:G)),
+	fail.
+
+:- '$undefp_handler'('$undefp0'(_,_),prolog).
 
 /**
   * @pred $system_meta_predicates'( +L )

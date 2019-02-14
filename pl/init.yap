@@ -97,7 +97,6 @@
     set_prolog_flag(debug, false),
     % simple trick to find out if this is we are booting from Prolog.
     % boot from a saved state
- 	writeln(ok),
    '$init_from_saved_state_and_args', %start_low_level_trace,
 
     '$db_clean_queues'(_),
