@@ -1403,10 +1403,10 @@ static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   } else if (IsApplTerm(t)) {
     Int me;
     h = (CELL)FunctorOfTerm(t);
-    n = ArityOfFunctor((Functor)h);
     if (IsExtensionFunctor((Functor)h)) {
       return -1;
     }
+    n = ArityOfFunctor((Functor)h);
      if (IsAtomTerm(h) &&
       (me = t_ref((cl_connector*)AtomOfTerm(h),q,max)) >= 0) {
         return me;
