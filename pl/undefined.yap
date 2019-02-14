@@ -94,7 +94,7 @@ undefined_query(G0, M0, Cut) :-
     '$get_undefined_predicates'(M0:G0, MG), !.
 
 % undef handler
-'$undefp_'([M0|G0],MG) :-
+'$undefp'([M0|G0],MG) :-
     % make sure we do not loop on undefined predicates
     '$undef_setup'(M0:G0, Action,Debug,Current, MGI),
     ('$get_undefined_predicates'( MGI, MG )                                  
