@@ -29,7 +29,7 @@ live :-
     ( Module==user ->
       true % '$compile_mode'(_,0)
     ;
-    format(user_error,'[~w]~n', [Module])
+      format(user_error,'[~w]~n', [Module])
     ),
     '$system_catch'('$enter_top_level',Module,Error,'$Error'(Error)).
 

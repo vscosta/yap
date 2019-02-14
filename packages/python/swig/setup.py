@@ -85,7 +85,7 @@ native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
 extensions = [Extension('_yap', native_sources,
                     define_macros=[('MAJOR_VERSION', '6'),
-                                       ('MINOR_VERSION', '4'),
+                                       ('MINOR_VERSION', '5'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('PYTHONSWIG', '1'),
@@ -115,7 +115,7 @@ package_data = {
 
 data_files=[]
 
-version_ns = {'__version__': '6.4.1', 'major-version': '6', 'minor-version': '4', 'patch': '1'}
+version_ns = {'__version__': '6.5.0', 'major-version': '6', 'minor-version': '5', 'patch': '0'}
 
 setup_args = dict(
     name=name,

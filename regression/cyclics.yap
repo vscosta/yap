@@ -72,6 +72,7 @@ d(X, (  X= f(A,A,X)) ).
 d(X, (  X= f(A,A,g(A))) ).
 d(X, (  X= f(A,g(X,[A|A]),X)) ).
 d(X, (  X= f(X,[X,X])) ).
+d(X, (  X= f(3.14,[22.3,X])) ).
 d(X, (  X= f(X,[X,g(X)])) ).
 d(X, (  X= f(_,X/[X])) ).
 d(X, (  X= f(_,A/[A]), A= f(X,[X,g(X)])) ).
