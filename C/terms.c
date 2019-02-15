@@ -1448,18 +1448,13 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     Term ref = Deref(q[me].reference);
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
-    }  else if (i == 0){
-
-     Term p = TermNil;
-     Term v =	UNFOLD_LOOP(ref,&p);
-     q[i].reference = HeadOfTerm(p);
-     q[i].copy[j] = v;
-   }
-   else if (tailp && q[me].parent) {
+    }  
+   else {
     Term v = 	UNFOLD_LOOP(ref, tailp);
     q[i].copy[j] = v;
+    if (me)
     q[me].parent[0] = v;
-    q[i].reference = v;
+    q[me].reference = v;
 
   }
   return max;
