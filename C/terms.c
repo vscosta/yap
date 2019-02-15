@@ -1403,10 +1403,10 @@ static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   } else if (IsApplTerm(t)) {
     Int me;
     h = (CELL)FunctorOfTerm(t);
-    n = ArityOfFunctor((Functor)h);
     if (IsExtensionFunctor((Functor)h)) {
       return -1;
     }
+    n = ArityOfFunctor((Functor)h);
      if (IsAtomTerm(h) &&
       (me = t_ref((cl_connector*)AtomOfTerm(h),q,max)) >= 0) {
         return me;
@@ -1447,6 +1447,7 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
     }  else if (i == 0){
+
      Term p = TermNil;
      Term v =	UNFOLD_LOOP(ref,&p);
      q[i].reference = HeadOfTerm(p);
@@ -1457,6 +1458,7 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     q[i].copy[j] = v;
     q[me].parent[0] = v;
     q[i].reference = v;
+
   }
   return max;
 }
@@ -1480,7 +1482,8 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
     return t;
   } else {
     // initialization
-    qlen = create_entry(Deref(t), i, 0, q, qlen);
+    fprintf(stderr,"C i=%ld,%ld   %lx\n",  i, 0, q[i].copy[0]);      }
+  qlen = create_entry(Deref(t), i, 0, q, qlen);
     while(i<qlen) {
       arity_t n, j;
       if (IsPairTerm(q[i].source)) {
