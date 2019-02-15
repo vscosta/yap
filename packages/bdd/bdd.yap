@@ -419,4 +419,6 @@ fetch(pp(P,_,_,_)._Tree, -1, N) :- N is 1-P.
 fetch(pn(P,_,_,_)._Tree, 1, P).
 fetch(pn(P,_,_,_)._Tree, -1, N) :- N is 1-P.
 
+
 %% @}
+

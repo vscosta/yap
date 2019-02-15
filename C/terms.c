@@ -367,7 +367,7 @@ static int cycles_in_complex_term(register CELL *pt0,
         ptd0 = RepAppl(d0);
         f = (Functor)(d0 = *ptd0);
         if (IsExtensionFunctor(f)) {
-        *ptf++ = d0;
+	  *ptf++ = AbsAppl(ptd0);
         continue;
       }
        if (IS_VISIT_MARKER) {
@@ -1228,7 +1228,7 @@ static Int numbervars_in_complex_term(CELL * pt0, CELL * pt0_end, Int numbv,
   if (IsAttVar(pt0))
     continue;
   /* do or pt2 are unbound  */
-  if (singles || 0)
+  if (singles)
     d0 = numbervar_singleton(PASS_REGS1);
   else
     d0 = numbervar(numbv++ PASS_REGS);
@@ -1384,6 +1384,8 @@ static Int t_ref(cl_connector *d, cl_connector * q, int max) {
 static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   Term ref, h, *s, *ostart;
   ssize_t n;
+  //  fprintf(stderr,"[%ld,%ld]/%ld, %lx\n",i,j,max,t);
+
   // first time, create a new term
   if (IsVarTerm(t)) {
     return -1;
@@ -1482,7 +1484,6 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
     return t;
   } else {
     // initialization
-    fprintf(stderr,"C i=%ld,%ld   %lx\n",  i, 0, q[i].copy[0]);      }
   qlen = create_entry(Deref(t), i, 0, q, qlen);
     while(i<qlen) {
       arity_t n, j;

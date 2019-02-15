@@ -1103,6 +1103,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Write_Loops = flags & Handle_cyclics_f;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.MaxArgs = 0 ;
+  wglb.MaxDepth = 0 ;
   wglb.lw = separator;
   Term tp;
   

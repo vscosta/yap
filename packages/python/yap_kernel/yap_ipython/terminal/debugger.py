@@ -8,11 +8,11 @@ from .ptutils import IPythonPTCompleter
 from .shortcuts import suspend_to_bg, cursor_in_leading_ws
 
 from prompt_toolkit.enums import DEFAULT_BUFFER
-from prompt_toolkit.filters import (Condition, has_focus, has_selection,
-    vi_insert_mode, emacs_insert_mode)
-from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.filters import (Condition, HasFocus, HasSelection,
+    ViInsertMode, EmacsInsertMode)
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.key_binding.manager import KeyBindingManager
 from prompt_toolkit.key_binding.bindings.completion import display_completions_like_readline
-from pygments.token import Token
 from prompt_toolkit.shortcuts.prompt import PromptSession
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.formatted_text import PygmentsTokens
