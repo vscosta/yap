@@ -42,7 +42,6 @@
         use_module/3],
 	['$add_multifile'/3,
         '$csult'/2,
-        '$do_startup_reconsult'/1,
         '$elif'/2,
         '$else'/1,
         '$endif'/1,
@@ -928,14 +927,6 @@ nb_setval('$if_level',0).
 %
 % reconsult at startup...
 %
-'$do_startup_reconsult'(_X) :-
-	'$init_win_graphics',
-	fail.
-'$do_startup_reconsult'(X) :-
-	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
-	!,
-	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
-'$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#

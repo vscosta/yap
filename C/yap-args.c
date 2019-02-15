@@ -834,6 +834,7 @@ X_API YAP_file_type_t YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_a
 	iap->HaltAfterBoot = true;
       case 'l':
 	p++;
+	iap->QuietMode = TRUE;
 	if (!*++argv) {
 	  fprintf(stderr,
 		  "%% YAP unrecoverable error: missing load file name\n");

@@ -222,7 +222,7 @@ Show their ancestors while debuggIng
 vxu    `on` consider `$` a lower case character.
  */
   YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true,
-             booleanFlag, "false", NULL),
+             booleanFlag, "false", dollar_to_lc),
    
  /**<  iso
 

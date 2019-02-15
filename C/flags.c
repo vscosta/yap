@@ -77,6 +77,7 @@ static bool sqf(Term t2);
 static bool set_error_stream(Term inp);
 static bool set_input_stream(Term inp);
 static bool set_output_stream(Term inp);
+static bool dollar_to_lc(Term inp);
 
 static void newFlag(Term fl, Term val);
 static Int current_prolog_flag(USES_REGS1);
@@ -119,11 +120,11 @@ static Term indexer(Term inp) {
     return inp;
 
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag index in {off,single,compact,multi,on,max}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag index to an atom");
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag index to an atom");
   return TermZERO;
 }
 
@@ -147,14 +148,14 @@ static bool dqf1(ModEntry *new, Term t2 USES_REGS) {
       return true;
     }
     /* bad argument, but still an atom */
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2,
               "bad option %s for backquoted "
               "string flag, use one string, "
               "atom, codes or chars",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t2,
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2,
               "set_prolog_flag(double_quotes, %s), should "
               "be {string,atom,codes,chars}",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
@@ -187,14 +188,14 @@ static bool bqf1(ModEntry *new, Term t2 USES_REGS) {
       new->flags |= BCKQ_CHARS;
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2,
               "bad option %s for backquoted "
               "string flag, use one string, "
               "atom, codes or chars",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t2, "flag  %s is not module-scoped",
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2, "flag  %s is not module-scoped",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   }
@@ -225,14 +226,14 @@ static bool sqf1(ModEntry *new, Term t2 USES_REGS) {
       new->flags |= SNGQ_CHARS;
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2,
               "bad option %s for backquoted "
               "string flag, use one string, "
               "atom, codes or chars",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   } else {
-    Yap_Error(TYPE_ERROR_ATOM, t2, "flag  %s is not module-scoped",
+    Yap_ThrowError(TYPE_ERROR_ATOM, t2, "flag  %s is not module-scoped",
               RepAtom(AtomOfTerm(t2))->StrOfAE);
     return false;
   }
@@ -244,6 +245,20 @@ static bool sqf(Term t2) {
   return sqf1(new, t2 PASS_REGS);
 }
 
+static bool dollar_to_lc(Term inp) {
+  if (inp == TermTrue || inp == TermOn) {
+    Yap_chtype0['$'+1] = LC;
+    return true;
+  }
+  if (inp == TermFalse || inp == TermOff) {
+    Yap_chtype0['$'+1] = CC;
+    return false;
+  }
+    Yap_ThrowError(TYPE_ERROR_BOOLEAN, inp,
+              "dollar_to_lower_case is a boolean flag");
+    return TermZERO;
+  }
+
 static Term isaccess(Term inp) {
   if (inp == TermReadWrite || inp == TermReadOnly)
     return inp;
@@ -252,11 +267,11 @@ static Term isaccess(Term inp) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag access in {read_write,read_only}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp,
             "set_prolog_flag access in {read_write,read_only}");
   return TermZERO;
 }
@@ -302,11 +317,11 @@ static Term flagscope(Term inp) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
   if (IsAtomTerm(inp)) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, inp,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, inp,
               "set_prolog_flag access in {global,module,thread}");
     return TermZERO;
   }
-  Yap_Error(TYPE_ERROR_ATOM, inp,
+  Yap_ThrowError(TYPE_ERROR_ATOM, inp,
             "set_prolog_flag access in {global,module,thread}");
   return TermZERO;
 }
@@ -320,7 +335,7 @@ static bool mkprompt(Term inp) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
  if (!IsAtomTerm(inp)) {
-    Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
     return false;
   }
   strncpy(LOCAL_Prompt, (const char *)RepAtom(AtomOfTerm(inp))->StrOfAE,
@@ -334,7 +349,7 @@ static bool getenc(Term inp) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
   if (!IsVarTerm(inp) && !IsAtomTerm(inp)) {
-    Yap_Error(TYPE_ERROR_ATOM, inp, "get_encoding");
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "get_encoding");
     return false;
   }
   return Yap_unify(inp, MkAtomTerm(Yap_LookupAtom(enc_name(LOCAL_encoding))));
@@ -348,7 +363,7 @@ return Yap_unify( inp, MkAtomTerm( Yap_LookupAtom( enc_name(LOCAL_encoding)
 )) );
 }
 if (!IsAtomTerm(inp) ) {
-Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
 return false;
 }
 enc_id( RepAtom( AtomOfTerm( inp ) )->StrOfAE, ENC_OCTET );
@@ -368,7 +383,7 @@ static bool typein(Term inp) {
     inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
   }
   if (!IsAtomTerm(inp)) {
-    Yap_Error(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
+    Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
     return false;
   }
   CurrentModule = inp;
@@ -466,7 +481,7 @@ static bool typein(Term inp) {
 
                     static bool string( Term inp ) {
                         if (IsVarTerm(inp)) {
-                            Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
+                            Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
                             return false;
                         }
                         if (IsStringTerm( inp ))
@@ -481,7 +496,7 @@ static bool typein(Term inp) {
     hd = MkStringTerm(RepAtom(AtomOfTerm(hd))->StrOfAE);
   }
                                     if (!IsAtomTerm(hd)) {
-                                        Yap_Error(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
+                                        Yap_ThrowError(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
                                         return false;
                                     }
                                 } while (IsPairTerm( inp ) );
@@ -489,21 +504,21 @@ static bool typein(Term inp) {
                                 do {
                                     Term hd = HeadOfTerm(inp);
                                     if (!IsIntTerm(hd)) {
-                                        Yap_Error(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
+                                        Yap_ThrowError(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
                                         return false;
                                     }
                                     if (IntOfTerm(hd) < 0) {
-                                        Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp0, "set_prolog_flag in 0...");
+                                        Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, inp0, "set_prolog_flag in 0...");
                                         return false;
                                     }
                                 } while (IsPairTerm( inp ) );
                             } else {
-                                Yap_Error(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
+                                Yap_ThrowError(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
                                 return false;
                             }
                         }
                         if ( inp != TermNil ) {
-                            Yap_Error(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
+                            Yap_ThrowError(TYPE_ERROR_TEXT, inp0, "set_prolog_flag in \"...\"");
                             return false;
                         }
                         return true;
@@ -511,7 +526,7 @@ static bool typein(Term inp) {
 
 x                    static bool list_atom( Term inp ) {
                         if (IsVarTerm(inp)) {
-                            Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
+                            Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
                             return false;
                         }
                         Term inp0  = inp;
@@ -523,13 +538,13 @@ x                    static bool list_atom( Term inp ) {
   }
 
                                 if (!IsAtomTerm(hd)) {
-                                    Yap_Error(TYPE_ERROR_ATOM, inp0, "set_prolog_flag in \"...\"");
+                                    Yap_ThrowError(TYPE_ERROR_ATOM, inp0, "set_prolog_flag in \"...\"");
                                     return false;
                                 }
                             } while (IsPairTerm( inp ) );
                         }
                         if ( inp != TermNil ) {
-                            Yap_Error(TYPE_ERROR_LIST, inp0, "set_prolog_flag in [...]");
+                            Yap_ThrowError(TYPE_ERROR_LIST, inp0, "set_prolog_flag in [...]");
                             return false;
                         }
                         return true;
@@ -538,7 +553,7 @@ x                    static bool list_atom( Term inp ) {
 
 static Term list_option(Term inp) {
   if (IsVarTerm(inp)) {
-    Yap_Error(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
+    Yap_ThrowError(INSTANTIATION_ERROR, inp, "set_prolog_flag in \"...\"");
     return inp;
   }
   Term inp0 = inp;
@@ -559,14 +574,14 @@ static Term list_option(Term inp) {
           continue;
         }
         if (!Yap_IsGroundTerm(hd))
-          Yap_Error(INSTANTIATION_ERROR, hd, "set_prolog_flag in \"...\"");
+          Yap_ThrowError(INSTANTIATION_ERROR, hd, "set_prolog_flag in \"...\"");
         return TermZERO;
       }
     } while (IsPairTerm(inp));
     if (inp == TermNil) {
       return inp0;
     }
-    Yap_Error(TYPE_ERROR_LIST, inp0, "set_prolog_flag in [...]");
+    Yap_ThrowError(TYPE_ERROR_LIST, inp0, "set_prolog_flag in [...]");
     return TermZERO;
   } else /* lone option */ {
   if (IsStringTerm(inp)) {
@@ -591,12 +606,12 @@ static bool agc_threshold(Term t) {
     CACHE_REGS
     return Yap_unify(t, MkIntegerTerm(GLOBAL_AGcThreshold));
   } else if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t, "prolog_flag/2 agc_margin");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t, "prolog_flag/2 agc_margin");
     return FALSE;
   } else {
     Int i = IntegerOfTerm(t);
     if (i < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "prolog_flag/2 agc_margin");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "prolog_flag/2 agc_margin");
       return FALSE;
     } else {
       GLOBAL_AGcThreshold = i;
@@ -610,12 +625,12 @@ static bool gc_margin(Term t) {
   if (IsVarTerm(t)) {
     return Yap_unify(t, Yap_GetValue(AtomGcMargin));
   } else if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER, t, "prolog_flag/2 agc_margin");
+    Yap_ThrowError(TYPE_ERROR_INTEGER, t, "prolog_flag/2 agc_margin");
     return FALSE;
   } else {
     Int i = IntegerOfTerm(t);
     if (i < 0) {
-      Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "prolog_flag/2 gc_margin");
+      Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t, "prolog_flag/2 gc_margin");
       return FALSE;
     } else {
       CACHE_REGS
@@ -710,7 +725,7 @@ static void initFlag(flag_info *f, int fnum, bool global) {
     fprop = (FlagEntry *)Yap_AllocAtomSpace(sizeof(FlagEntry));
     if (fprop == NULL) {
       WRITE_UNLOCK(ae->ARWLock);
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
                 "not enough space for new Flag %s", ae->StrOfAE);
       return;
     }
@@ -766,7 +781,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     return false;
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv && !fv->global) {
-    Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, tflag,
+    Yap_ThrowError(DOMAIN_ERROR_PROLOG_FLAG, tflag,
               "trying to set unknown module flag");
     return false;
   }
@@ -783,7 +798,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
       Term t;
       while ((t = Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
         if (!Yap_gc(2, ENV, gc_P(P, CP))) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }
       }
@@ -810,7 +825,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
       me->flags |= (UNKNOWN_FAST_FAIL);
       return true;
     }
-    Yap_Error(
+    Yap_ThrowError(
         DOMAIN_ERROR_OUT_OF_RANGE, t2,
         "bad option  %s  for unknown flag, use one of error, fail or warning.",
         RepAtom(AtomOfTerm(tflag))->StrOfAE);
@@ -825,7 +840,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
       me->flags &= ~(M_CHARESCAPE);
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, t2,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, t2,
               "bad option %s for character_escapes flag, use true or false",
               RepAtom(AtomOfTerm(tflag))->StrOfAE);
     return false;
@@ -845,7 +860,7 @@ static Term getYapFlagInModule(Term tflag, Term mod) {
     return false;
   fv = GetFlagProp(AtomOfTerm(tflag));
   if (!fv && !fv->global) {
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "trying to set unknown flag");
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "trying to set unknown flag");
     return 0L;
   }
   // module specific stuff now
@@ -884,7 +899,7 @@ static Term getYapFlagInModule(Term tflag, Term mod) {
       return TermAtom;
     return TermString;
   }
-  Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "flag  %s is not module-scoped",
+  Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, tflag, "flag  %s is not module-scoped",
             RepAtom(AtomOfTerm(tflag))->StrOfAE);
   return 0L;
 }
@@ -1081,7 +1096,7 @@ static Int current_prolog_flag2(USES_REGS1) {
     tflag = MkStringTerm(RepAtom(AtomOfTerm(tflag))->StrOfAE);
   }
   if (!IsAtomTerm(tflag)) {
-    Yap_Error(TYPE_ERROR_ATOM, tflag, "current_prolog_flag/3");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "current_prolog_flag/3");
     return (FALSE);
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
@@ -1126,7 +1141,7 @@ bool setYapFlag(Term tflag, Term t2) {
   FlagEntry *fv;
   flag_term *tarr;
   if (IsVarTerm(tflag)) {
-    Yap_Error(INSTANTIATION_ERROR, tflag, "yap_flag/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, tflag, "yap_flag/2");
     return (FALSE);
   }
     if (IsStringTerm(tflag)) {
@@ -1143,7 +1158,7 @@ bool setYapFlag(Term tflag, Term t2) {
     return setYapFlagInModule(tflag, t2, modt);
   }
   if (!IsAtomTerm(tflag)) {
-    Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
     return (FALSE);
   }
   fv = GetFlagProp(AtomOfTerm(tflag));
@@ -1156,7 +1171,7 @@ bool setYapFlag(Term tflag, Term t2) {
     } else if (fl == TermWarning) {
       Yap_Warning("Flag %s does not exist", RepAtom(AtomOfTerm(fl))->StrOfAE);
     } else {
-      Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, tflag,
+      Yap_ThrowError(DOMAIN_ERROR_PROLOG_FLAG, tflag,
                 "trying to set unknown flag \"%s\"",
                 AtomName(AtomOfTerm(tflag)));
     }
@@ -1212,7 +1227,7 @@ Term getYapFlag(Term tflag) {
    flag_term *tarr;
    tflag = Deref(tflag);
    if (IsVarTerm(tflag)) {
-    Yap_Error(INSTANTIATION_ERROR, tflag, "yap_flag/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, tflag, "yap_flag/2");
     return (FALSE);
   }
   if (IsStringTerm(tflag)) {
@@ -1234,7 +1249,7 @@ Term getYapFlag(Term tflag) {
     return getYapFlagInModule(tflag, modt);
   }
   if (!IsAtomTerm(tflag)) {
-    Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
+    Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
     return (FALSE);
   }
   if (tflag == TermSilent)
@@ -1250,7 +1265,7 @@ Term getYapFlag(Term tflag) {
       Yap_Warning("Flag ~s does not exist",
                   RepAtom(AtomOfTerm(tflag))->StrOfAE);
     } else {
-      Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, tflag,
+      Yap_ThrowError(DOMAIN_ERROR_PROLOG_FLAG, tflag,
                 "trying to use  unknown flag %s",
                 RepAtom(AtomOfTerm(tflag))->StrOfAE);
     }
@@ -1353,7 +1368,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
       tarr->at = TermFalse;
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
               "~s should be either true (on) or false (off)", s);
     return false;
   } else if (f == nat) {
@@ -1363,7 +1378,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     UInt r = strtoul(ss, NULL, 10);
     Term t;
     if (errno) {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
+      Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
                 "~s should be a positive integer)", s);
       return false;
     }
@@ -1399,7 +1414,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
       tarr->at = MkIntTerm(atol(YAP_NUMERIC_VERSION));
       return true;
     }
-    Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
+    Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
               "~s should be either true (on) or false (off)", s);
     return false;
   } else if (f == isatom) {
@@ -1408,7 +1423,7 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
     }
     Atom r = Yap_LookupAtom(s);
     if (errno) {
-      Yap_Error(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
+      Yap_ThrowError(DOMAIN_ERROR_OUT_OF_RANGE, TermNil,
                 "~s should be a positive integer)", s);
       tarr->at = TermNil;
     }
@@ -1519,7 +1534,7 @@ do_prolog_flag_property(Term tflag,
       Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                            PROLOG_FLAG_PROPERTY_END, DOMAIN_ERROR_PROLOG_FLAG);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
+    Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   if (IsStringTerm(tflag)) {
@@ -1531,7 +1546,7 @@ do_prolog_flag_property(Term tflag,
       tflag = Yap_YapStripModule(tflag, &modt);
     } else {
       free(args);
-      Yap_Error(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
+      Yap_ThrowError(TYPE_ERROR_ATOM, tflag, "yap_flag/2");
       return (FALSE);
     }
   }
@@ -1584,7 +1599,7 @@ do_prolog_flag_property(Term tflag,
         break;
       case PROLOG_FLAG_PROPERTY_END:
         /* break; */
-        Yap_Error(DOMAIN_ERROR_PROLOG_FLAG, opts, "Flag not supported by YAP");
+        Yap_ThrowError(DOMAIN_ERROR_PROLOG_FLAG, opts, "Flag not supported by YAP");
       }
     }
   }
@@ -1660,7 +1675,7 @@ static Int prolog_flag_property(USES_REGS1) { /* Init current_prolog_flag */
       do_cut(0);
       return do_prolog_flag_property(t1, Deref(ARG2) PASS_REGS);
     } else {
-      Yap_Error(TYPE_ERROR_ATOM, t1, "prolog_flag_property/2");
+      Yap_ThrowError(TYPE_ERROR_ATOM, t1, "prolog_flag_property/2");
     }
   }
   return false;
@@ -1693,7 +1708,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
       Yap_ArgList2ToVector(opts, prolog_flag_property_defs,
                            PROLOG_FLAG_PROPERTY_END, DOMAIN_ERROR_PROLOG_FLAG);
   if (args == NULL) {
-    Yap_Error(LOCAL_Error_TYPE, opts, NULL);
+    Yap_ThrowError(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
   fv = GetFlagProp(AtomOfTerm(tflag));

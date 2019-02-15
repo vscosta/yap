@@ -583,8 +583,13 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   wrf stream = wglb->stream;
   if (atom == NULL) return;
   s = RepAtom(atom)->UStrOfAE;
-  if (s[0] ==  '\0')
+  if (s[0] ==  '\0') {
+    if (Quote_illegal) {
+    wrputc('\'', stream);
+    wrputc('\'', stream);
+    }
     return;
+  }
   if (IsBlob(atom)) {
     wrputblob(RepAtom(atom), Quote_illegal, wglb);
     return;
@@ -1091,16 +1096,12 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  wglb.Use_portray = false;
-  wglb.Handle_vars = true;
-  wglb.Use_portray = false;
-  wglb.Portray_delays = false;
-  wglb.Keep_terms = false;
-  wglb.Write_Loops = false;
-  wglb.Write_strings = false;
-  wglb.Quote_illegal = false;
-  wglb.Ignore_ops = false;
-  wglb.MaxDepth = 0;
+  wglb.Use_portray = flags & Use_portray_f;
+  wglb.Handle_vars = flags & Handle_vars_f;
+  wglb.Portray_delays = flags & AttVar_Portray_f;
+  wglb.Keep_terms = flags & To_heap_f;
+  wglb.Write_Loops = flags & Handle_cyclics_f;
+  wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.MaxArgs = 0 ;
   wglb.lw = separator;
   Term tp;

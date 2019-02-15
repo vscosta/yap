@@ -1042,9 +1042,8 @@ prolog:print_message(Severity, Msg) :-
   !.
 prolog:print_message(Level, _Msg) :-
   current_prolog_flag(verbose_load, false),
-    '$show_consult_level'(LC),
-    LC > 0,
-  Level = informational,
+  prolog_load_context(file, _FileName),
+  Level \= warning,
   !.
 prolog:print_message(Level, _Msg) :-
   current_prolog_flag(verbose, silent),

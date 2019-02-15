@@ -600,7 +600,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'.
+    '$init_prolog'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

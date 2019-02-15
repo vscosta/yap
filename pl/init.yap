@@ -75,7 +75,8 @@
       current_prolog_flag(version_data, yap(Mj, Mi,  Patch, _) ),
       current_prolog_flag(resource_database, Saved ),
       format(user_error, '% YAP ~d.~d.~d-~a (compiled  ~a)~n', [Mj,Mi, Patch, VERSIONGIT,  AT]),
-      format(user_error, '% database loaded from ~a~n', [Saved]).
+      format(user_error, '% database loaded from ~a~n', [Saved]),
+      fail.
 '$version'.
 
 /**
@@ -84,24 +85,33 @@
   * Must be called after restoring.
   */
 '$init_prolog' :-
-    % do catch as early as possible
-	'$version',
-	yap_flag(file_name_variables, _OldF, true),
-    '$init_consult',
-    %set_prolog_flag(file_name_variables, OldF),
-    '$init_globals',
-    set_prolog_flag(fileerrors, true),
-    set_value('$gc',on),
-    ('$exit_undefp' -> true ; true),
-    prompt1(' ?- '),
-    set_prolog_flag(debug, false),
-    % simple trick to find out if this is we are booting from Prolog.
-    % boot from a saved state
-   '$init_from_saved_state_and_args', %start_low_level_trace,
+	'$init_step'(_),
+	fail.
+'$init_prolog'.
+				% do catch as early as possible
+'$init_step'(1) :-
+	'$version'.
+'$init_step'(2) :-
+	set_prolog_flag(file_name_variables, _OldF, true),
+	'$init_consult'.
+				%set_prolog_flag(file_name_variables, OldF),
+'$init_step'(3) :-
+	'$init_globals',
+	set_prolog_flag(fileerrors, true),
+	set_value('$gc',on),
+	('$exit_undefp' -> true ; true),
+	prompt1(' ?- '),
+	set_prolog_flag(debug, false).
+				% simple trick to find out if this is we are booting from Prolog.
+				% boot from a saved state
+'$init_step'(4) :-
+	'$init_from_saved_state_and_args'.
 
-    '$db_clean_queues'(_),
+'$init_step'(5) :-
+    '$db_clean_queues'(_).
 				% this must be executed from C-code.
 				%	'$startup_saved_state',
+'$init_step'(6) :-
     set_input(user_input),
     set_output(user_output),
     '$init_or_threads',
@@ -110,24 +120,24 @@
 
 % then we can execute the programs.
 '$startup_goals' :-
-    module(user),
-    fail.
-'$startup_goals' :- 
-   recorded('$startup_goal',G,_),
-    catch(once(user:G),Error,user:'$Error'(Error)),
-    fail.
-'$startup_goals' :-
+	'$startup_step',
+	fail.
+
+'$startup_step' :-
+    module(user).
+'$startup_step' :- 
+	recorded('$startup_goal',G,_),
+	catch(once(user:G),Error,user:'$Error'(Error)).
+'$startup_step' :-
 	get_value('$init_goal',GA),
 	GA \= [],
 	set_value('$init_goal',[]),
-	'$run_atom_goal'(GA),
-	fail.
-'$startup_goals' :-
-    recorded('$restore_flag', goal(Module:GA), R),
-    erase(R),
-    catch(once(Module:GA),Error,user:'$Error'(Error)),
-    fail.
-'$startup_goals' :-
+	'$run_atom_goal'(GA).
+'$startup_step' :-
+	recorded('$restore_flag', goal(Module:GA), R),
+	erase(R),
+	catch(once(Module:GA),Error,user:'$Error'(Error)).
+'$startup_step' :-
 	get_value('$myddas_goal',GA), GA \= [],
 	set_value('$myddas_goal',[]),
 	get_value('$myddas_user',User), User \= [],
@@ -150,9 +160,8 @@
 	),
 	use_module(library(myddas)),
 	call(db_open(mysql,myddas,Host/Db,User,Pass)),
-	'$myddas_import_all',
-	fail.
-'$startup_goals'.
+	'$myddas_import_all'.
+'$startup_step'.
 
  %
  % MYDDAS: Import all the tables from one database
@@ -166,46 +175,48 @@
 
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
-	current_prolog_flag(hwnd, _HWND),
-	load_files(library(win_menu), [silent(true)]),
+	'$rebuild',
 	fail.
-'$init_from_saved_state_and_args' :-
+'$init_from_saved_state_and_args'.
+
+'$rebuild' :-	
+	current_prolog_flag(hwnd, _HWND),
+	load_files(library(win_menu), [silent(true)]).
+'$rebuild' :-
 	recorded('$reload_foreign_libraries',_G,R),
 	erase(R),
-	shlib:reload_foreign_libraries,
-	fail.
+	shlib:reload_foreign_libraries.
 % this should be done before -l kicks in.
-'$init_from_saved_state_and_args' :-
+'$rebuild' :-
 	current_prolog_flag(fast_boot, false),
 	  ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
 	  ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
 	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
 	  fail.
 % use if we come from a save_program and we have a goal to execute
-'$init_from_saved_state_and_args' :-
+'$rebuild' :-
 	get_value('$consult_on_boot',X), X \= [],
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X),
-	fail.
-'$init_from_saved_state_and_args' :-
+	load_files(X, [silent(true)]),
+	set_value('$consult_on_boot',[]).
+'$rebuild' :-
 	recorded('$restore_flag', init_file(M:B), R),
 	erase(R),
-	'$do_startup_reconsult'(M:B),
-	fail.
-'$init_from_saved_state_and_args' :-
+	load_files(M:B, [silent(true)]).
+'$rebuild' :-
 	recorded('$restore_flag', unknown(M:B), R),
 	erase(R),
-	yap_flag(M:unknown,B),
-	fail.
-'$init_from_saved_state_and_args' :-
-	'$startup_goals',
-	fail.
-'$init_from_saved_state_and_args' :-
+	load_files(M:B, [silent(true)]),
+	yap_flag(M:unknown,B).
+'$rebuild' :-
+	'$startup_step'.
+'$rebuild' :-
+	current_prolog_flag(halt_after_consult, true),
+	halt.
+'$rebuild' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
-	catch(once(user:G),Error,user:'$Error'(Error)),
-	fail.
+	catch(once(user:G),Error,user:'$Error'(Error)).
 
 '$init_path_extensions' :-
 	get_value('$extend_file_search_path',P), !,
