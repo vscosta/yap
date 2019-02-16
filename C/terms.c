@@ -1375,17 +1375,19 @@ typedef struct block_connector {
   CELL reference; //> term used to refer the copy.
 } cl_connector;
 
-static Int t_ref(cl_connector *d, cl_connector * q, int max) {
-  if ( d >= q && d < q+max)
-    return d-q;
-  return -1; //&& d->source == (void *;
+static Int t_ref(cl_connector *d, cl_connector * q, Int *mep, Int max) {
+  if ( d >= q && d < q+max) {
+    *mep = d-q;
+    return true;
+  }
+  return false; //&& d->source == (void *;
 }
 
 static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
   Term ref, h, *s, *ostart;
   ssize_t n;
   //  fprintf(stderr,"[%ld,%ld]/%ld, %lx\n",i,j,max,t);
-
+ restart:
   // first time, create a new term
   if (IsVarTerm(t)) {
     return -1;
@@ -1394,9 +1396,8 @@ static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
     Int me;
     s = RepPair(t);
     h = s[0];
-    if (IsAtomTerm(h) &&
-      (me = t_ref((cl_connector*)AtomOfTerm(h),q,max)) >= 0 ) {
-        return me;
+    if (IsAtomTerm(h) && t_ref((cl_connector *)AtomOfTerm(h), q, &me, max)) {
+      return me;
     }
     n = 2;
     ostart = HR;
@@ -1408,28 +1409,28 @@ static Int create_entry(Term t, Int i, Int j,  cl_connector * q, Int max) {
     if (IsExtensionFunctor((Functor)h)) {
       return -1;
     }
-    n = ArityOfFunctor((Functor)h);
      if (IsAtomTerm(h) &&
-      (me = t_ref((cl_connector*)AtomOfTerm(h),q,max)) >= 0) {
+        t_ref((cl_connector*)AtomOfTerm(h),q,&me,max)) {
         return me;
     }
-   s = RepAppl(t);
-    q[max].header = s[0];
+    n = ArityOfFunctor((Functor)h);
+     s = RepAppl(t);
     ostart = HR;
     ref = AbsAppl(ostart);
     *ostart++ = s[0];
     HR=ostart+n;
   } else {
     Int me;
-    if (IsAtomTerm(t) &&
-    (me = t_ref((cl_connector*)AtomOfTerm(t),q,max)) >= 0 ) {
-    return me;
-  } else {
+    if (IsAtomTerm(t) && t_ref((cl_connector*)AtomOfTerm(t),q,&me,max)) {
+      t = q[me].source;
+      goto restart;
+    } else {
     return -1;
-  }
-}
+    }
+      }
   q[max].header = h;
   q[max].parent = q[i].copy+j;
+  q[i].copy[j] = ref;
   q[max].source = t;
   q[max].copy = ostart;
   q[max].reference = ref;
@@ -1445,9 +1446,10 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
       q[i].copy[j] = t;
       return max;
     }
-    Term ref = Deref(q[me].reference);
+    Term ref = q[me].reference;
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
+      // fprintf(stderr," - %p\n", ref);
     }  
    else {
     Term v = 	UNFOLD_LOOP(ref, tailp);
@@ -1455,11 +1457,10 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     if (me)
     q[me].parent[0] = v;
     q[me].reference = v;
-
+      fprintf(stderr," + %p\n", v);
   }
   return max;
 }
-q[i].copy[j] = t;
 return me;
 }
 
@@ -1475,11 +1476,14 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
 
   HB = HR;
   qlen = 0;
+  Term t0 = MkPairTerm(t,  TermNil);
+  q[0].copy = HR;
+    HR+=2;
   if (IsVarTerm(t) || IsPrimitiveTerm(t)) {
     return t;
   } else {
     // initialization
-  qlen = create_entry(Deref(t), i, 0, q, qlen);
+    qlen = create_entry(Deref(t0), i, 0, q, qlen);
     while(i<qlen) {
       arity_t n, j;
       if (IsPairTerm(q[i].source)) {
@@ -1502,13 +1506,13 @@ Term Yap_BreakCycles(Term inp, UInt arity, Term * listp USES_REGS) {
 
  for (i=0; i< qlen; i++) {
   CELL *p = IsPairTerm(q[i].source) ? RepPair(q[i].source) : RepAppl(q[i].source);
-  p[0] = q[i].header;
+  p[0] = (q[i].header);
 }
 
 pop_text_stack(lvl);
 
 HB = B->cp_h;
-return q[0].reference;
+ return HeadOfTerm( q[0].reference );
 }
 
 /** @pred  rational_term_to_tree(? _TI_,- _TF_, ?SubTerms, ?MoreSubterms)
