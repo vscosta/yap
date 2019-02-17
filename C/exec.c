@@ -214,7 +214,7 @@ static Int current_choice_point(USES_REGS1) {
  *
  * The call will fail if _CP_ is topmost in the search tree. 
  */
-static Int parent_choice_point2(USES_REGS1) {
+static Int parent_choice_point(USES_REGS1) {
   Term t = Deref(ARG1);
   Term td;
 #if SHADOW_HB
@@ -238,7 +238,7 @@ static Int parent_choice_point2(USES_REGS1) {
  *
  * The call will fail if _CP_ is topmost in the search tree. 
  */
-static Int parent_choice_point(USES_REGS1) {
+static Int parent_choice_point1(USES_REGS1) {
   Term t = Deref(ARG1);
   Term td;
 #if SHADOW_HB
@@ -2355,8 +2355,8 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
-  Yap_InitCPred("parent_choice_point", 1, parent_choice_point, 0);
-  Yap_InitCPred("parent_choice_point", 2, parent_choice_point2, 0);
+  Yap_InitCPred("parent_choice_point", 1, parent_choice_point1, 0);
+  Yap_InitCPred("parent_choice_point", 2, parent_choice_point, 0);
   Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,

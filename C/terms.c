@@ -40,6 +40,10 @@
 #define Malloc malloc
 #define Realloc realloc
 
+extern int cs[10];
+
+int cs[10];
+
 static int expand_vts(int args USES_REGS) {
   UInt expand = LOCAL_Error_Size;
   yap_error_number yap_errno = LOCAL_Error_TYPE;
@@ -90,26 +94,10 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 //} non_singletons_t;
 
 #define IS_VISIT_MARKER						\
-(IsPairTerm(d0) && RepPair(d0) >= (CELL *)to_visit0 &&	\
- RepPair(d0) <= (CELL *)to_visit)
+(IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&	\
+ AtomOfTerm(d0) <= (Atom)to_visit)
 
-#define VISIT_MARKER AbsPair((CELL *)to_visit)
-
-#define CYC_MARK_LIST							\
-if (IsPairTerm(d0) && RepPair(d0) >= (CELL *)to_visit0 &&		\
-  RepPair(d0) <= (CELL *)to_visit) {				\
-    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
-  *ptf++ = BREAK_LOOP(to_visit - to_visit0);				\
-continue;								\
-}
-
-#define CYC_MARK_APPL							\
-if (IsApplTerm(d0) && RepAppl(d0) >= (Term *)to_visit0 &&		\
-  RepAppl(d0) <= (Term *)to_visit) {				\
-    /*fprintf(stderr,"+%ld at %s\n", to_visit-to_visit0, __FUNCTION__);*/ \
-  *ptf++ = BREAK_LOOP(to_visit - to_visit0);				\
-continue;								\
-}
+#define VISIT_MARKER MkAtomTerm((Atom)to_visit)
 
 typedef struct {
   Term old_var;
@@ -188,6 +176,10 @@ while (to_visit >= to_visit0) {					\
        pt0_end = ptd0 + d1;							\
        continue;								\
      } else {								\
+     if (IS_VISIT_MARKER) {						\
+         \
+         continue;								\
+       }									\
        PRIMI0;								\
        continue;								\
      }									\
@@ -280,6 +272,7 @@ static Term cyclic_complex_term(CELL *pt0, CELL *pt0_end USES_REGS) {
 }
 
 bool Yap_IsCyclicTerm(Term t USES_REGS) {
+  cs[2]++;
 
   if (IsVarTerm(t)) {
     return false;
@@ -304,9 +297,9 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
   return Yap_IsCyclicTerm(Deref(ARG1));
 }
 
-static Term BREAK_LOOP(Int ddep) {
+static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
   char buf[64];
-  snprintf(buf, 63, "@^[" Int_FORMAT "]", ddep);
+  snprintf(buf, 63, "@^[" Int_FORMAT "]", to_visit-(struct non_single_struct_t*)AtomOfTerm(d0));
   return MkAtomTerm(Yap_LookupAtom(buf));
 }
 
@@ -344,7 +337,7 @@ static int cycles_in_complex_term(register CELL *pt0,
          d0 = ptd0[0];
          if (IS_VISIT_MARKER) {
            rc++;
-           *ptf++ = BREAK_LOOP(to_visit - to_visit0);
+           *ptf++ = BREAK_LOOP(d0, to_visit);
            continue;
          }
          *ptf++ = AbsPair(HR);
@@ -372,7 +365,7 @@ static int cycles_in_complex_term(register CELL *pt0,
       }
        if (IS_VISIT_MARKER) {
          rc++;
-         *ptf++ = BREAK_LOOP(to_visit - to_visit0);
+         *ptf++ = BREAK_LOOP(d0, to_visit);
          continue;
        }
       if (to_visit + 32 >= to_visit_max) {
@@ -395,6 +388,11 @@ static int cycles_in_complex_term(register CELL *pt0,
       HR+=d1;
       continue;
     } else {
+        if (IS_VISIT_MARKER) {
+           rc++;
+           *ptf++ = BREAK_LOOP(d0, to_visit);
+           continue;
+         }
      *ptf++ = d0;
      continue;
    }
@@ -420,7 +418,8 @@ return -1;
 }
 
 Term Yap_CyclesInTerm(Term t USES_REGS) {
-
+  cs[3]++;
+  t = Deref(t);
   if (IsVarTerm(t)) {
     return t;
   } else if (IsPrimitiveTerm(t)) {
@@ -674,11 +673,11 @@ return Yap_unify(ARG3, out);
 
 
 */
-static Int p_term_variables3(
+static Int term_variables3(
 			     USES_REGS1) /* variables in term t		 */
 {
   Term out;
-
+  cs[0]++;
   do {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
@@ -738,11 +737,11 @@ Term Yap_TermVariables(
 
 
 */
-static Int p_term_variables(
+static Int term_variables(
 			    USES_REGS1) /* variables in term t		 */
 {
   Term out;
-
+  cs[1]++;
   if (!Yap_IsListOrPartialListTerm(ARG2)) {
     Yap_Error(TYPE_ERROR_LIST, ARG2, "term_variables/2");
     return false;
@@ -815,7 +814,7 @@ static Term attvars_in_complex_term(
     }
 
   }
-  /*fprintf(stderr,"<%ld at %s\n", to_visit-to_visit0, __FUNCTION__)*/;
+  /*fprintf(stderr,"<%ld at %s\n", d0, __FUNCTION__)*/;
   return (output);
 
   def_aux_overflow();
@@ -1457,7 +1456,6 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     if (me)
     q[me].parent[0] = v;
     q[me].reference = v;
-      fprintf(stderr," + %p\n", v);
   }
   return max;
 }
@@ -1537,8 +1535,8 @@ static Int rational_term_to_tree(USES_REGS1) {
 
 void Yap_InitTermCPreds(void) {
   Yap_InitCPred("cycles_in_term", 2, cycles_in_term, 0);
-  Yap_InitCPred("term_variables", 2, p_term_variables, 0);
-  Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
+  Yap_InitCPred("term_variables", 2, term_variables, 0);
+  Yap_InitCPred("term_variables", 3, term_variables3, 0);
   Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
 
   Yap_InitCPred("$free_variables_in_term", 3, p_free_variables_in_term, 0);

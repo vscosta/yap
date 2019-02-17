@@ -68,15 +68,6 @@ run_formats([], _).
 run_formats([Com-Args|StackInfo], Stream) :-
 	format(Stream, Com, Args),
 	run_formats(StackInfo, user_error).
-/**
- * @pred parent_choicepoint(+_ChoicePoint_)
- *
- * _ChoicePoint_ is the parent of the current choice-point.
- *
- */
-parent_choicepoint(BP) :-
-	current_choicepoint(B),
-	parent_choicepoint(B, BP).
 
 
 /**

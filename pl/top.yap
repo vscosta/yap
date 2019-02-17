@@ -636,7 +636,7 @@ write_query_answer( Bindings ) :-
 '$call'(M:_,_,G0,_) :- var(M), !,
 	'$do_error'(instantiation_error,call(G0)).
 '$call'(M:G,CP,G0,_M0) :- !,
-'$expand_meta_call'(M:G, [], NG),
+	'$expand_meta_call'(M:G, [], NG),
 '$yap_strip_module'(NG,NM,NC),
         '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
@@ -704,7 +704,7 @@ write_query_answer( Bindings ) :-
 '$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
-'$call'(!, CP, CP,_G0) :- !,
+'$call'(!, CP, _G0, _m) :- !,
 	'$$cut_by'(CP).
 '$call'([X|Y], _, _, M) :-
     (Y == [] ->

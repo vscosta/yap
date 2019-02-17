@@ -965,7 +965,7 @@ INLINE_ONLY void restore_absmi_regs(REGSTORE *old_regs) {
   _##Label : {                                                                 \
     START_PREFETCH(Type)
 
-#define OpW(Label, Type)                                                       \
+#define OpW(Label, Type)						\
   _##Label : {                                                                 \
     START_PREFETCH_W(Type)
 
