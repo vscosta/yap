@@ -135,7 +135,7 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
  * Transfer control to a meta-call in ARG1, cut up to B.
  *
  * @param  g                     goal
- * @param  mod                     current module
+ * @param  mod                     curre1nt module
  * @return                         su
  */
 Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
@@ -214,14 +214,15 @@ static Int current_choice_point(USES_REGS1) {
  *
  * The call will fail if _CP_ is topmost in the search tree. 
  */
-static Int parent_choice_point(USES_REGS1) {
+static Int parent_choice_point2(USES_REGS1) {
   Term t = Deref(ARG1);
   Term td;
 #if SHADOW_HB
   register CELL *HBREG = HB;
 #endif
-  if (!IsVarTerm(t))
-    return (FALSE);
+  if (!IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "child choicr-point missing");
+  }
   choiceptr cp =  cp_from_integer(t);
   if (cp == NULL || cp->cp_b == NULL)
     return false;
@@ -229,6 +230,27 @@ static Int parent_choice_point(USES_REGS1) {
   YapBind((CELL *)t, td);
   return TRUE;
 }
+
+/** @pred parent_choice_point( -PB )
+ *
+ *  PB is a number identifying the parent of the current choice-point.
+ *  It storing the offset of the current ch
+ *
+ * The call will fail if _CP_ is topmost in the search tree. 
+ */
+static Int parent_choice_point(USES_REGS1) {
+  Term t = Deref(ARG1);
+  Term td;
+#if SHADOW_HB
+  register CELL *HBREG = HB;
+#endif
+  if (B == NULL || B->cp_b == NULL)
+    return false;
+  td = cp_as_integer(B->cp_b PASS_REGS);
+  YapBind((CELL *)t, td);
+  return true;
+}
+
 
 static Int save_env_b(USES_REGS1) {
   Term t = Deref(ARG1);
@@ -2334,6 +2356,7 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
   Yap_InitCPred("env_choice_point", 1, save_env_b, 0);
   Yap_InitCPred("parent_choice_point", 1, parent_choice_point, 0);
+  Yap_InitCPred("parent_choice_point", 2, parent_choice_point2, 0);
   Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
   CurrentModule = cm;
   Yap_InitCPred("$restore_regs", 1, restore_regs,
