@@ -1065,7 +1065,7 @@ static Int _user_expand_goal(USES_REGS1) {
   ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
+      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
   /* system:goal_expansion(A,B) */
@@ -1076,7 +1076,7 @@ static Int _user_expand_goal(USES_REGS1) {
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
+      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
   ARG1 = Yap_GetFromSlot(h1);
@@ -1086,7 +1086,7 @@ static Int _user_expand_goal(USES_REGS1) {
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS, false)) {
+      Yap_execute_pred(pe, NULL, true  PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
   mg_args[0] = cmod;
@@ -1098,7 +1098,7 @@ static Int _user_expand_goal(USES_REGS1) {
       (pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL PASS_REGS, false)) {
+      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
   return complete_ge(false, omod, sl, creeping);
@@ -1719,13 +1719,6 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     /* restore the old environment */
     /* get to previous environment */
     cut_B = (choiceptr)ENV[E_CB];
-    {
-      /* Note that
-         cut_B == (choiceptr)ENV[E_CB] */
-      while (POP_CHOICE_POINT(ENV[E_CB])) {
-        POP_EXECUTE();
-      }
-    }
 #ifdef YAPOR
     CUT_prune_to(cut_B);
 #endif /* YAPOR */
@@ -1750,21 +1743,20 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
-
       HB = B->cp_h;
     YENV = ENV;
     // should we catch the exception or pass it through?
-    // We'll pass it through
-    if (pass_ex && Yap_HasException()) {
-        if ((LOCAL_PrologMode & BootMode) || !CurrentModule ) {
-	  Yap_ResetException(LOCAL_ActiveError);
+    // We'll pass it through 
+    if ( Yap_HasException()) {
+      if (pass_ex &&
+	  ((LOCAL_PrologMode & BootMode) || !CurrentModule )) {
+	Yap_ResetException(LOCAL_ActiveError);
+      } else {
+	Yap_RaiseException();
+      }
       return false;
     }
-
-      Yap_RaiseException();
-      return false;
-    }
-    return true;
+   return true;
   } else if (out == 0) {
     P = saved_p;
     CP = saved_cp;
@@ -1782,12 +1774,13 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     HB = PROTECT_FROZEN_H(B);
     // should we catch the exception or pass it through?
     // We'll pass it through
-    if (pass_ex) {
-        if ((LOCAL_PrologMode & BootMode) || !CurrentModule ) {
-	  Yap_ResetException(LOCAL_ActiveError);
-      return false;
-    }
-      Yap_RaiseException();
+    if ( Yap_HasException()) {
+      if (pass_ex &&
+	  ((LOCAL_PrologMode & BootMode) || !CurrentModule )) {
+	Yap_ResetException(LOCAL_ActiveError);
+      } else {
+	Yap_RaiseException();
+      }
     }
     return false;
   } else {
