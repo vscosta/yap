@@ -296,10 +296,11 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
   va_list ap;
   va_start(ap, t);
   const char *fmt;
-  char tmpbuf[MAXPATHLEN];
+  char *tmpbuf=NULL;
 
   fmt = va_arg(ap, char *);
   if (fmt != NULL) {
+    tmpbuf = malloc(MAXPATHLEN);
 #if HAVE_VSNPRINTF
     vsnprintf(tmpbuf, MAXPATHLEN - 1, fmt, ap);
 #else
@@ -318,7 +319,7 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
   LOCAL_ActiveError->errorFile = NULL;
   LOCAL_ActiveError->errorFunction = NULL;
   LOCAL_ActiveError->errorLine = 0;
-  if (fmt) {
+  if (fmt && tmpbuf) {
     LOCAL_Error_Size = strlen(tmpbuf);
     LOCAL_ActiveError->errorMsg = malloc(LOCAL_Error_Size + 1);
     strcpy((char *)LOCAL_ActiveError->errorMsg, tmpbuf);
@@ -752,7 +753,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   CACHE_REGS
   va_list ap;
   char *fmt;
-  char s[MAXPATHLEN];
+  char *s = NULL;
+  
 
   switch (type) {
   case SYSTEM_ERROR_INTERNAL: {
@@ -828,6 +830,7 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
     va_start(ap, where);
     fmt = va_arg(ap, char *);
     if (fmt != NULL) {
+    s = malloc(MAXPATHLEN);
 #if HAVE_VSNPRINTF
       (void)vsnprintf(s, MAXPATHLEN - 1, fmt, ap);
 #else
@@ -1000,7 +1003,7 @@ bool Yap_RaiseException(void) {
 bool Yap_ResetException(yap_error_descriptor_t *i) {
   // reset error descriptor
   if (!i)
-    return true;
+    i = LOCAL_ActiveError;
   yap_error_descriptor_t *bf = i->top_error;
   memset(i, 0, sizeof(*i));
   i->top_error = bf;

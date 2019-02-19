@@ -1079,6 +1079,7 @@ static Int _user_expand_goal(USES_REGS1) {
       Yap_execute_pred(pe, NULL, true PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
+    Yap_ResetException(NULL);
   ARG1 = Yap_GetFromSlot(h1);
   ARG2 = cmod;
   ARG3 = Yap_GetFromSlot(h2);
@@ -1089,6 +1090,8 @@ static Int _user_expand_goal(USES_REGS1) {
       Yap_execute_pred(pe, NULL, true  PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
+    Yap_ResetException(NULL);
+
   mg_args[0] = cmod;
   mg_args[1] = Yap_GetFromSlot(h1);
   ARG1 = Yap_MkApplTerm(FunctorModule, 2, mg_args);
@@ -1101,6 +1104,7 @@ static Int _user_expand_goal(USES_REGS1) {
       Yap_execute_pred(pe, NULL, true PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
+  Yap_ResetException(NULL);
   return complete_ge(false, omod, sl, creeping);
 }
 

@@ -72,6 +72,10 @@ static StaticIndex *find_owner_static_index(StaticIndex *, yamop *);
 #define IN_BLOCK(P, B, SZ)						\
   ((CODEADDR)(P) >= (CODEADDR)(B) && (CODEADDR)(P) < (CODEADDR)(B) + (SZ))
 
+
+
+  
+
 static PredEntry *get_pred(Term t, Term tmod, char *pname) {
   Term t0 = t;
 

@@ -950,7 +950,8 @@ restart_aux:
     ot = ARG1;
   } else if (g3) {
     Int len = Yap_AtomToUnicodeLength(t3 PASS_REGS);
-    if (len <= 0) {
+    if (len < 0) {
+      Yap_ThrowError(-len,ARG3,"atom_concat(-X,-Y,+atom:Z");
       cut_fail();
     }
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);
