@@ -41,7 +41,6 @@
 :- '$opdec'(1150,fx,(mode),prolog).
 
 :- dynamic 'extensions_to_present_answer'/1.
-
 :- 	['arrays.yap'].
 
 :- multifile user:portray_message/2.

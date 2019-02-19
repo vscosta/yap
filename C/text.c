@@ -192,7 +192,7 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
 void *Realloc(void *pt, size_t sz USES_REGS) {
   struct mblock *old = pt, *o;
   old--;
-  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
+  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), Yap_Max(CELLSIZE,sizeof(struct mblock)));
   o = realloc(old, sz);
   if (o->next) {
     o->next->prev = o;
@@ -447,15 +447,16 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
   yap_error_number err0 = LOCAL_Error_TYPE;
   /* we know what the term is */
   if (!(inp->type & (YAP_STRING_CHARS | YAP_STRING_WCHARS))) {
-    if (!(inp->type & YAP_STRING_TERM)) {
+    seq_type_t inpt = inp->type & (YAP_STRING_TERM|YAP_STRING_ATOM|YAP_STRING_ATOMS_CODES);
+    if (!(inpt & YAP_STRING_TERM)) {
       if (IsVarTerm(inp->val.t)) {
         LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-      } else if (!IsAtomTerm(inp->val.t) && inp->type == YAP_STRING_ATOM) {
+      } else if (!IsAtomTerm(inp->val.t) && inpt == YAP_STRING_ATOM) {
         LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-      } else if (!IsStringTerm(inp->val.t) && inp->type == YAP_STRING_STRING) {
+      } else if (!IsStringTerm(inp->val.t) && inpt == YAP_STRING_STRING) {
         LOCAL_Error_TYPE = TYPE_ERROR_STRING;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
-                 inp->type == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
+                 inpt == (YAP_STRING_ATOMS_CODES | YAP_STRING_STRING)) {
         LOCAL_ActiveError->errorRawTerm = inp->val.t;
       } else if (!IsPairOrNilTerm(inp->val.t) && !IsStringTerm(inp->val.t) &&
                  !IsAtomTerm(inp->val.t) && !(inp->type & YAP_STRING_DATUM)) {

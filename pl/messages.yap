@@ -261,7 +261,7 @@ compose_message(Throw, _Level) -->
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {	query_exception(prologConsulting, Desc, true) },
-    {	query_exception(parserReadingCode, Desc, true)}, 
+%    {	query_exception(parserReadingCode, Desc, true)}, 
     !,
     {
   query_exception(parserFile, Desc, FileName),

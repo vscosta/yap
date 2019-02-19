@@ -1447,7 +1447,7 @@ static inline Term Yap_WCharsToString(const wchar_t *s USES_REGS) {
 static inline Atom Yap_ConcatAtoms(Term t1, Term t2 USES_REGS) {
   seq_tv_t inpv[2], out;
   inpv[0].val.t = t1;
-  inpv[0].type = YAP_STRING_ATOM | YAP_STRING_TERM;
+  inpv[0].type = YAP_STRING_ATOM ;
   inpv[1].val.t = t2;
   inpv[1].type = YAP_STRING_ATOM;
   out.type = YAP_STRING_ATOM;

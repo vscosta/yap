@@ -13,7 +13,7 @@ main :-
 
 test( cyclic_term(X), [X]).
 test( ground(X), [X]).
-test( (variables_in_term(X, O), writeln(X=O) ), [X, [], O]).
+test( (term_variables(X, O), writeln(X=O) ), [X, [], O]).
 test( (new_variables_in_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
 test( (variables_within_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
 test( writeln(X), [X]).

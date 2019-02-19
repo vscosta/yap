@@ -663,6 +663,7 @@ static Atom do_header(FILE *stream) {
   char h1[] = "exec $exec_dir/yap $0 \"$@\"\nsaved ";
   Atom at;
 
+  memset(s,0,2049);
   if (!maybe_read_bytes( stream, s, 2048) )
     return NIL;
   if (strstr(s, h0)!= s)

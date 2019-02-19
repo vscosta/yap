@@ -188,9 +188,7 @@ live :-
 '$expand_term0'(T,_,T).
 
 '$expand_term1'(T,O) :-
-        '$expand_meta_call'(T, [], O),
-	!.
-'$expand_term1'(O,O).
+        '$expand_meta_call'(T, none, O).
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
@@ -637,7 +635,7 @@ write_query_answer( Bindings ) :-
 	'$do_error'(instantiation_error,call(G0)).
 '$call'(M:G,CP,G0,_M0) :- !,
 	'$expand_meta_call'(M:G, [], NG),
-'$yap_strip_module'(NG,NM,NC),
+	'$yap_strip_module'(NG,NM,NC),
         '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
