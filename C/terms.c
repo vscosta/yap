@@ -981,16 +981,8 @@ static Term bind_vars_in_complex_term(CELL * pt0_, CELL * pt0_end_ USES_REGS) {
   *ptd0 = TermFoundVar;
   /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-    /* Trail overflow */
-    if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), true)) {
-      while (to_visit > to_visit0) {
-       to_visit--;
-       CELL *ptd0 = to_visit->ptd0;
-       *ptd0 = to_visit->d0;
-     }
      goto trail_overflow;
    }
- }
  TrailTerm(TR++) = (CELL)ptd0;
 
  END_WALK();
@@ -1043,41 +1035,42 @@ if (found_module && t != t0) {
 return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
-#define FOUND_VAR_AGAIN()			\
-if (d0 == TermFoundVar) {			\
-  CELL *pt2 = pt0;				\
-  while (IsVarTerm(*pt2))			\
-    pt2 = (CELL *)(*pt2);			\
-  HR[1] = AbsPair(HR + 2);			\
-  HR[0] = (CELL)pt2;				\
-  HR += 2;					\
-  *pt2 = TermRefoundVar;			\
-}
+#define FOUND_VAR_AGAIN()   \
+  if (d0 == TermFoundVar)   \
+  {                         \
+    HR[0] = (CELL)ptd0;     \
+    HR[1] = AbsPair(HR + 2); \
+    HR += 2;                \
+    *ptd0 = TermRefoundVar; \
+  }
 
 static Term non_singletons_in_complex_term(CELL * pt0_,
   CELL * pt0_end_ USES_REGS) {
-  HB = (CELL *)ASP;
-  CELL output = AbsPair(HR);
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
   /* do or pt2 are unbound  */
-  YapBind(ptd0, TermFoundVar);
-  goto restart;
+  *ptd0 = TermFoundVar;
+  /* next make sure noone will see this as a variable again */
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256)
+  {
+    goto trail_overflow;
+  }
+  TrailTerm(TR++) = (CELL)ptd0;
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
 
   pop_text_stack(lvl);
-  HB = (CELL *)B->cp_b;
   if (HR != InitialH) {
     /* close the list */
     HR[-1] = Deref(ARG2);
-    return output;
+    return AbsPair(InitialH);
   } else {
     return ARG2;
   }
 
   def_aux_overflow();
+  def_trail_overflow();
 }
 
 static Int p_non_singletons_in_term(
@@ -1094,7 +1087,7 @@ static Int p_non_singletons_in_term(
     } else {
       out = non_singletons_in_complex_term(&(t)-1, &(t)PASS_REGS);
     }
-    return out;
+    return Yap_unify(ARG3,out);
  }
 
 static Term numbervar(Int me USES_REGS) {

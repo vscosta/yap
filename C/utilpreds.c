@@ -395,9 +395,9 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	RESET_VARIABLE(ptf);
 	*ptd0 = (CELL)ptf;
 	ptf++;
-	if ((ADDR)TR > LOCAL_TrailTop - 16)
+  TrailTerm(TR++) = (CELL)ptd0;
+  if ((ADDR)TR > LOCAL_TrailTop - 16)
 	  goto trail_overflow;
-
     }
   }
   
@@ -521,7 +521,7 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
 Term
 Yap_CopyTerm(Term inp) {
   CACHE_REGS
-    return CopyTerm(inp, 0, TRUE, TRUE PASS_REGS);
+    return CopyTerm(inp, 0, false, TRUE PASS_REGS);
 }
 
 Term
@@ -533,7 +533,7 @@ Yap_CopyTermNoShare(Term inp) {
 static Int
 p_copy_term( USES_REGS1 )		/* copy term t to a new instance  */
 {
-  Term t = CopyTerm(ARG1, 2, TRUE, TRUE PASS_REGS);
+  Term t = CopyTerm(ARG1, 2, false, TRUE PASS_REGS);
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */

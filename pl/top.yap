@@ -295,7 +295,7 @@ live :-
      '$write_answer'(Vs, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP == NCP, DCP = 0
+	   yap_flag(prompt_alternatives_on,determinism), CP == NCP, DCP = 0
 	   ->
 	   format(user_error, '.~n', []),
 	   !
