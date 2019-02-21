@@ -230,6 +230,7 @@ bagof(Template, Generator, Bag) :-
 '$bagof'(Template, Generator, Bag) :-
 	'$free_variables_in_term'(Template^Generator, StrippedGenerator, Key),
 	%format('TemplateV=~w v=~w ~w~n',[TemplateV,Key, StrippedGenerator]),
+
 	( Key \== '$' ->
 		'$findall_with_common_vars'(Key-Template, StrippedGenerator, Bags0),
 		'$keysort'(Bags0, Bags),
