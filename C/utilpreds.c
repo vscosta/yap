@@ -152,7 +152,7 @@ clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
 
 #define expand_stack(S0,SP,SF,TYPE)				\
   { size_t sz = SF-S0, used = SP-S0;				\
-    S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
+    S0  = Realxbloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
     SP = S0+used; SF = S0+sz; }
 
 #define MIN_ARENA_SIZE (1048L)

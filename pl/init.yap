@@ -92,7 +92,7 @@
 '$init_step'(1) :-
 	'$version'.
 '$init_step'(2) :-
-	set_prolog_flag(file_name_variables, _OldF, true),
+	set_prolog_flag(file_name_variables, true),
 	'$init_consult'.
 				%set_prolog_flag(file_name_variables, OldF),
 '$init_step'(3) :-
