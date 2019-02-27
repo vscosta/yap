@@ -783,6 +783,7 @@ static Int stream_property(USES_REGS1) { /* Init current_stream */
                         "current_stream/3");
     if (i < 0) {
       UNLOCK(GLOBAL_Stream[i].streamlock);
+      Yap_ThrowError(LOCAL_Error_TYPE, t1, "bad stream descriptor");
       return false; // error...
     }
     EXTRA_CBACK_ARG(2, 1) = MkIntTerm(i);

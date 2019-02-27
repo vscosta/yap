@@ -349,7 +349,7 @@ static void split_megaclause(PredEntry *ap) {
 
   mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
   if (mcl->ClFlags & ExoMask) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil,
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(CurrentModule,ap),
               "while deleting clause from exo predicate %s/%d\n",
               RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,
               ap->ArityOfPE);
@@ -1465,34 +1465,30 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
 }
 
 static yamop *addcl_permission_error(const char *file, const char *function,
-                                     int lineno, AtomEntry *ap, Int Arity,
+                                     int lineno, PredEntry *ap,
                                      int in_use) {
   CACHE_REGS
-  Term culprit;
-  if (Arity == 0)
-    culprit = MkAtomTerm(AbsAtom(ap));
-  else
-    culprit = Yap_MkNewApplTerm(Yap_MkFunctor(AbsAtom(ap), Arity), Arity);
-  return (in_use
-              ? (Arity == 0
+    Term culprit = Yap_PredicateIndicator(CurrentModule, ap);
+  return in_use
+              ? (ap->ArityOfPE == 0
                      ? Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "static predicate %s is in use",
-                                   ap->StrOfAE)
+                                   NameOfPred(ap)->StrOfAE)
                      : Yap_Error__(
                            false, file, function, lineno,
                            PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
                            "static predicate %s/" Int_FORMAT " is in use",
-                           ap->StrOfAE, Arity))
-              : (Arity == 0
+                           NameOfPred(ap), ap->ArityOfPE))
+              : (ap->ArityOfPE == 0
                      ? Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "system predicate %s is in use",
-                                   ap->StrOfAE)
+                                   NameOfPred(ap)->StrOfAE)
                      : Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "system predicate %s/" Int_FORMAT,
-                                   ap->StrOfAE, Arity)));
+                                   NameOfPred(ap)->StrOfAE,  ap->ArityOfPE));
 }
 
 PredEntry *Yap_PredFromClause(Term t USES_REGS) {
@@ -1752,7 +1748,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), Arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, p,
                            FALSE);
     UNLOCKPE(30, p);
     return false;
@@ -2189,7 +2185,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PELOCK(21, pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, pred), "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
@@ -2452,13 +2448,13 @@ static Int new_multifile(USES_REGS1) {
   }
   if (pe->PredFlags & (TabledPredFlag | ForeignPredFlags)) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2693,7 +2689,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
       (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
     UNLOCKPE(30, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2707,7 +2703,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   }
   if (pe->cs.p_code.NOfClauses != 0) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2758,7 +2754,7 @@ static Int new_meta_pred(USES_REGS1) {
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -4106,7 +4102,7 @@ static Int
                        | TabledPredFlag
 #endif /* TABLING */
                        )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t,
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, ap),
               "dbload_get_space/4");
     return FALSE;
   }

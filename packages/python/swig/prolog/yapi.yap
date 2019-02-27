@@ -79,6 +79,7 @@ python_query( Caller, String, Bindings ) :-
 	       output(Caller, Bindings).
 
 output( Caller, Bindings ) :-
+fail,
     Answer := {},
    % start_low_level_trace,
     foldl(ground_dict(answer), Bindings, [], Ts),
