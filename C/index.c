@@ -4152,7 +4152,7 @@ restart_index:
   }
 #if DEBUG
   if (GLOBAL_Option['i' - 'a' + 1]) {
-    Yap_DebugWriteIndicator(ap);
+    Yap_DebugWritexozoIndicator(ap);
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {

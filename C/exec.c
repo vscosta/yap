@@ -151,7 +151,7 @@ Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   return Yap_MkApplTerm(PredMetaCall->FunctorOfPred, 4, ts);
 }
 
-Term Yap_PredicateIndicator(Term t, Term mod) {
+Term Yap_TermToIndicator(Term t, Term mod) {
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
@@ -168,6 +168,27 @@ Term Yap_PredicateIndicator(Term t, Term mod) {
   }
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   if (mod != CurrentModule) {
+    ti[0] = mod;
+    ti[1] = t;
+    return Yap_MkApplTerm(FunctorModule, 2, ti);
+  }
+  return t;
+}
+
+Term Yap_PredicateToIndicator(PredEntry *pe) {
+  CACHE_REGS
+  // generate predicate indicator in this case
+  Term ti[2];
+  if (pe->ArityOfPE) {
+    ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+    ti[1] = MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred));
+  } else  {
+    ti[0] = t;
+    ti[1] = MkIntTerm(0);
+  }
+  t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+  Term mod
+  if (mod != TermUser and mod!= TermProlog) {
     ti[0] = mod;
     ti[1] = t;
     return Yap_MkApplTerm(FunctorModule, 2, ti);
@@ -280,9 +301,9 @@ restart:
   } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
     return Yap_FindLUIntKey(IntegerOfTerm(t));
   } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
+    Functor fun = pe->FunctorOfPred;
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
@@ -1897,7 +1918,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     pt = RepAppl(t) + 1;
     arity = ArityOfFunctor(f);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), "call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }

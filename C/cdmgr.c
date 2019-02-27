@@ -120,48 +120,7 @@ bool Yap_Consulting(USES_REGS1) {
  * assertz are supported for static predicates no database predicates are
  * supportted for fast predicates
  */
-PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
-  Term t0 = t;
-
-restart:
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
-    return NULL;
-  } else if (IsAtomTerm(t)) {
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
-    return ap;
-  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-    return Yap_FindLUIntKey(IntegerOfTerm(t));
-  } else if (IsPairTerm(t)) {
-    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
-    goto restart;
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
-      return NULL;
-    }
-    if (fun == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-      }
-      if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
-        return NULL;
-      }
-      t = ArgOfTerm(2, t);
-      goto restart;
-    }
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
-    return ap;
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
-  }
-  return NULL;
-}
-
+1
 /** Look for a predicate with same functor as t,
      create a new one of it cannot find it.
  */
@@ -179,7 +138,7 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
@@ -349,7 +308,7 @@ static void split_megaclause(PredEntry *ap) {
 
   mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
   if (mcl->ClFlags & ExoMask) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateIndicator(CurrentModule,ap),
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(ap),
               "while deleting clause from exo predicate %s/%d\n",
               RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,
               ap->ArityOfPE);
@@ -1468,7 +1427,7 @@ static yamop *addcl_permission_error(const char *file, const char *function,
                                      int lineno, PredEntry *ap,
                                      int in_use) {
   CACHE_REGS
-    Term culprit = Yap_PredicateIndicator(CurrentModule, ap);
+    Term culprit = Yap_PredicateToIndicator( ap);
   return in_use
               ? (ap->ArityOfPE == 0
                      ? Yap_Error__(false, file, function, lineno,
@@ -2185,7 +2144,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PELOCK(21, pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, pred), "assert/1");
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateToIndicator(pred), "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
@@ -4102,7 +4061,7 @@ static Int
                        | TabledPredFlag
 #endif /* TABLING */
                        )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, ap),
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateToIndicator(ap),
               "dbload_get_space/4");
     return FALSE;
   }
