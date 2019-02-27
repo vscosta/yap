@@ -444,11 +444,10 @@ be lost.
 '$trace_plan'((A|B), M, CP, S, (EA|EB)) :- !,
 	'$trace_plan'(A, M, CP, S, EA),
 	'$trace_plan'(B, M, CP, S, EB).
-	'$trace_plan'(C, M, CP, S, EC),
-'$trace_plan'((A->*B), M, CP, S, (EA->EB)) :- !,
+'$trace_plan'((A*->B), M, CP, S, (EA->EB)) :- !,
 	'$trace_plan'(A, M, CP, S, EA),
 	'$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A->*B;C), M, CP, S, (EA->EB;EC)) :- !,
+'$trace_plan'((A*->B;C), M, CP, S, (EA->EB;EC)) :- !,
 	'$trace_plan'(A, M, CP, S, EA),
 	'$trace_plan'(B, M, CP, S, EB),
 	'$trace_plan'(C, M, CP, S, EC).
@@ -473,7 +472,7 @@ be lost.
 
 %% @pred $trace_goal( +Goal, +Module, +CallId, +CallInfo)
 %%
-%% Actuallb sy debugs a
+%% Actually debugs a
 %% goal!
 '$trace_goal'(G, M, GoalNumber, _H) :-
 	(

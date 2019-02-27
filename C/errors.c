@@ -107,6 +107,9 @@ if (strcmp(ks, q) == 0 ) \
   if (i->k == NULL) return TermNil; \
  Term t; if((t = Yap_BufferToTerm(i->k, TermNil) ) == 0 ) return TermNil; return t; }
 
+static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t);
+  
+
 static Term queryErr(const char *q, yap_error_descriptor_t *i) {
   query_key_i(errorNo, "errorNo", q, i);
   query_key_i(errorClass, "errorClass", q, i);
@@ -332,15 +335,17 @@ bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
+  if (twarning)
     __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " warning(%s)",
                         Yap_TermToBuffer(twarning, Quote_illegal_f | Ignore_ops_f | Ignore_cyclics_f));
   Term cmod = (CurrentModule == PROLOG_MODULE ? TermProlog : CurrentModule);
   bool rc;
   Term ts[2], err;
 
-  if (LOCAL_PrologMode & InErrorMode && LOCAL_ActiveError &&
+  
+  if (twarning && LOCAL_PrologMode & InErrorMode &&
       LOCAL_ActiveError->errorClass != WARNING &&
-      (err = LOCAL_ActiveError->errorNo)) {
+      (err = LOCAL_ActiveError->errorNo)  ) {
     fprintf(stderr, "%% Warning %s while processing error: %s %s\n",
             Yap_TermToBuffer(twarning,
                              Quote_illegal_f | Ignore_ops_f),
@@ -352,12 +357,16 @@ bool Yap_PrintWarning(Term twarning) {
     fprintf(stderr, "%s:%ld/* d:%d warning */:\n",
 	    LOCAL_ActiveError->errorFile,
 	    LOCAL_ActiveError->errorLine, 0 );
+    if (!twarning)
+      twarning =  Yap_MkFullError();
     Yap_DebugPlWriteln(twarning);
     LOCAL_DoingUndefp = false;
     LOCAL_PrologMode &= ~InErrorMode;
     CurrentModule = cmod;
     return false;
   }
+    if (!twarning)
+      twarning =  Yap_MkFullError();
   ts[1] = twarning;
   ts[0] = MkAtomTerm(AtomWarning);
   rc = Yap_execute_pred(pred, ts, true PASS_REGS);
@@ -656,7 +665,7 @@ void Yap_ThrowExistingError(void) {
 
 Term Yap_MkFullError(void)
 {
-  yap_error_descriptor_t *i =  Yap_local.ActiveError;
+  yap_error_descriptor_t *i =  CopyException(Yap_local.ActiveError);
   i->errorAsText = Yap_errorName( i->errorNo );
   i->errorClass = Yap_errorClass( i-> errorNo );
   i->classAsText = Yap_errorClassName(i->errorClass);
@@ -880,7 +889,8 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   if (LOCAL_DoingUndefp) {
       LOCAL_DoingUndefp = false;
     LOCAL_Signals = 0;
-    Yap_PrintWarning(MkErrorTerm(Yap_GetException(LOCAL_ActiveError)));
+    yap_error_descriptor_t *co = CopyException( LOCAL_ActiveError );
+    Yap_PrintWarning(MkErrorTerm(Yap_GetException( co )));
     return P;
   }
   // LOCAL_ActiveError = Yap_GetException();
@@ -1012,6 +1022,7 @@ bool Yap_ResetException(yap_error_descriptor_t *i) {
 
 static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
+
 Term MkErrorTerm(yap_error_descriptor_t *t) {
   if (t->errorClass == EVENT)
     return t->errorRawTerm;
@@ -1021,6 +1032,13 @@ Term MkErrorTerm(yap_error_descriptor_t *t) {
   return mkerrort(t->errorNo,
                   tc,
                   err2list(t));
+}
+
+
+static yap_error_descriptor_t *CopyException(yap_error_descriptor_t *t) {
+  yap_error_descriptor_t *n = malloc( sizeof( yap_error_descriptor_t ));
+  memcpy(n, t, sizeof( yap_error_descriptor_t ) );
+  return n;
 }
 
 static Int read_exception(USES_REGS1) {

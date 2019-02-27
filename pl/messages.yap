@@ -133,7 +133,7 @@ prolog:message_to_string(Event, Message) :-
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
 compose_message( Term, _Level ) -->
-  message(Term), !.
+    message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
   [].
 compose_message( absolute_file_path(File), _Level) -->
@@ -426,14 +426,17 @@ extra_info( error(_,Info), _ ) -->
  { '$error_descriptor'(Info, Desc) },
    {
    query_exception(errorMsg, Desc, Msg),
+   Msg \= '',
+   Msg \= "",
    Msg \= []
-    },
+   },
     !,
         ['~*|user provided data is: ~q' - [10,Msg]],
         [nl].
 extra_info( _, _ ) -->
   [].
 
+stack_info( _, _ ) --> !.
 stack_info( error(_,Info), _ ) -->
  { '$error_descriptor'(Info, Desc) },
    {

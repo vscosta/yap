@@ -5,44 +5,75 @@
   * @brief JUpyter support.
   */
 
-:- yap_flag(gc_trace,verbose).
-/*
+%:- yap_flag(gc_trace,verbose).
   :- module( jupyter,
-              [jupyter_queryl/3,
+              [jupyter_query/3,
+	       jupyter_query/4,
+	        op(100,fy,('$')),
+	   op(950,fy,:=),
+	   op(950,yfx,:=),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
+	   op(50, yf, []),
+	   op(50, yf, '()'),
+	   op(100, xfy, '.'),
+	   op(100, fy, '.'),
                blank/1,
-	       streams/2
+	       streams/1
            ]
             ).
-*/
+
 :- use_module(library(hacks)).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
-%% :-	 reexport(library(python)).
-%% :-	 reexport(library(yapi)).
-%% :-	 reexport(library(complete)).
-%% :-	 reexport(library(verify)).
+
+ :-	 use_module(library(python)).
+ :-	 use_module(library(yapi)).
+ :-	 use_module(library(complete)).
+ :-	 use_module(library(verify)).
 
 
 :- python_import(sys).
 
 
+jupyter_query(Caller, Cell, Line, Bindings ) :-
+    gated_call(
+	streams(true),
+	jupyter_cell(Caller, Cell, Line, Bindings),
+	Port,
+	next_streams( Caller, Port, Bindings )
+    ).
 
 jupyter_query(Caller, Cell, Line ) :-
-    jupyter_cell(Caller, Cell, Line).
+    jupyter_query( Caller, Cell, Line, _Bindings ).
 
-jupyter_cell(_Caller, Cell, _Line) :-
-	jupyter_consult(Cell),	%stack_dump,
+next_streams( _Caller, exit, _Bindings ) :-
+%    Caller.answer := Bindings,
+    !.
+next_streams( _Caller, answer, _Bindings ) :-
+%    Caller.answer := Bindings,
+    !.
+next_streams(_, redo, _ ) :-
+    streams(true),
+    !.
+next_streams( _, _, _ ) :-
+    streams(false).
+
+    
+
+jupyter_cell(_Caller, Cell, _Line, _) :-
+    jupyter_consult(Cell),	%stack_dump,
 	fail.
-jupyter_cell( _Caller, _, ¨¨ ) :- !.
-jupyter_cell( _Caller, _, Line ) :-
+jupyter_cell( _Caller, _, ¨¨ , _) :- !.
+jupyter_cell( _Caller, _, Line , _) :-
 	blank( Line ),
 	!.
-jupyter_cell(Caller, _, Line ) :-
+jupyter_cell(Caller, _, Line, Bindings ) :-
     Query = Caller,
     catch(
-	python_query(Query,Line),
+	python_query(Query,Line, Bindings),
 	error(A,B),
 	 system_error(A,B)
     ).
@@ -57,6 +88,8 @@ restreams(exit) :-
 restreams(!).
 restreams(external_exception(_)).
 restreams(exception).
+
+%:- meta_predicate
 
 jupyter_consult(Text) :-
 	blank( Text ),
@@ -89,7 +122,7 @@ blank(Text) :-
     maplist( code_type(space), L).
 
 
- streams(false) :-
+streams(false) :-
     close(user_input),
     close(user_output),
     close(user_error).

@@ -1,4 +1,4 @@
-/*************************************************************************
+                                                                                                                                                                                                                                                                                                           /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -57,9 +57,17 @@ prolog:'$protect' :-
     \+ '$visible'(Name),
     hide_atom(Name),
     fail.
+
+prolog:'$protect' :-
+    recorded('$module','$module'(_F,_DonorM,_SourceF, _AllExports, _Line), R),erase(R), fail.
+prolog:'$protect' :-
+    recorded('$source_file','$source_file'( _F, _Age, _M), R),erase(R), fail.
+prolog:'$protect' :-
+    recorded('$lf_loaded','$lf_loaded'( _F, _M, _Reconsult, _UserFile, _OldF, _Line, _Opts), R),erase(R), fail. 
+
 prolog:'$protect'.
 
-
+/*
 % hide all atoms who start by '$'
 '$visible'('$').			/* not $VAR */
 '$visible'('$VAR').			/* not $VAR */

@@ -3,7 +3,7 @@
 from pygments.token import Token
 import sys
 
-from yap_ipython.core.displayhook import DisplayHook
+from IPython.core.displayhook import DisplayHook
 
 from prompt_toolkit.formatted_text import fragment_list_width, PygmentsTokens
 from prompt_toolkit.shortcuts import print_formatted_text
@@ -14,9 +14,8 @@ class Prompts(object):
         self.shell = shell
 
     def vi_mode(self):
-        if not hasattr(self.shell.pt_app, 'editing_mode'):
-            return ''
-        if self.shell.pt_app.editing_mode == 'VI':
+        if (getattr(self.shell.pt_app, 'editing_mode', None) == 'VI'
+                and self.shell.prompt_includes_vi_mode):
             return '['+str(self.shell.pt_app.app.vi_state.input_mode)[3:6]+'] '
         return ''
 

@@ -2539,7 +2539,7 @@ static Int
   // if (!pe) pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
-  return (pe->ModuleOfPred == 0);
+  return (pe->ModuleOfPred == 0 || pe-> PredFlags & UserCPredFlag);
   //   return true;
   // PELOCK(27, pe);
   // out = (pe->PredFlags & SystemPredFlags);

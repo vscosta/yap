@@ -1,15 +1,15 @@
-"""yap_ipython terminal interface using prompt_toolkit"""
+"""IPython terminal interface using prompt_toolkit"""
 
 import os
 import sys
 import warnings
 from warnings import warn
 
-from yap_ipython.core.interactiveshell import InteractiveShell, InteractiveShellABC
-from yap_ipython.utils import io
-from yap_ipython.utils.py3compat import input
-from yap_ipython.utils.terminal import toggle_set_term_title, set_term_title
-from yap_ipython.utils.process import abbrev_cwd
+from IPython.core.interactiveshell import InteractiveShell, InteractiveShellABC
+from IPython.utils import io
+from IPython.utils.py3compat import input
+from IPython.utils.terminal import toggle_set_term_title, set_term_title
+from IPython.utils.process import abbrev_cwd
 from traitlets import (
     Bool, Unicode, Dict, Integer, observe, Instance, Type, default, Enum, Union,
     Any, validate
@@ -98,8 +98,8 @@ class TerminalInteractiveShell(InteractiveShell):
     simple_prompt = Bool(_use_simple_prompt,
         help="""Use `raw_input` for the REPL, without completion and prompt colors.
 
-            Useful when controlling yap_ipython as a subprocess, and piping STDIN/OUT/ERR. Known usage are:
-            yap_ipython own testing machinery, and emacs inferior-shell integration through elpy.
+            Useful when controlling IPython as a subprocess, and piping STDIN/OUT/ERR. Known usage are:
+            IPython own testing machinery, and emacs inferior-shell integration through elpy.
 
             This mode default to `True` if the `IPY_TEST_SIMPLE_PROMPT`
             environment variable is set, or the current terminal is not a tty."""
@@ -111,7 +111,7 @@ class TerminalInteractiveShell(InteractiveShell):
 
     confirm_exit = Bool(True,
         help="""
-        Set to confirm when you try to exit yap_ipython with an EOF (Control-D
+        Set to confirm when you try to exit IPython with an EOF (Control-D
         in Unix, Control-Z/Enter in Windows). By typing 'exit' or 'quit',
         you can force a direct exit without any confirmation.""",
     ).tag(config=True)
@@ -147,7 +147,8 @@ class TerminalInteractiveShell(InteractiveShell):
     @observe('editing_mode')
     def _editing_mode(self, change):
         u_mode = change.new.upper()
-        self.pt_app.editing_mode = u_mode
+        if self.pt_app:
+            self.pt_app.editing_mode = u_mode
 
     @observe('highlighting_style')
     @observe('colors')
@@ -170,7 +171,7 @@ class TerminalInteractiveShell(InteractiveShell):
     ).tag(config=True)
 
     editor = Unicode(get_default_editor(),
-        help="Set the editor used by yap_ipython (default to $EDITOR/vi/notepad)."
+        help="Set the editor used by IPython (default to $EDITOR/vi/notepad)."
     ).tag(config=True)
 
     prompts_class = Type(Prompts, help='Class used to generate Prompt token for prompt_toolkit').tag(config=True)
@@ -193,7 +194,7 @@ class TerminalInteractiveShell(InteractiveShell):
         help="Automatically set the terminal title"
     ).tag(config=True)
 
-    term_title_format = Unicode("yap_ipython: {cwd}",
+    term_title_format = Unicode("IPython: {cwd}",
         help="Customize the terminal title format.  This is a python format string. " +
              "Available substitutions are: {cwd}."
     ).tag(config=True)
@@ -222,6 +223,10 @@ class TerminalInteractiveShell(InteractiveShell):
 
     enable_history_search = Bool(True,
         help="Allows to enable/disable the prompt toolkit history search"
+    ).tag(config=True)
+
+    prompt_includes_vi_mode = Bool(True,
+        help="Display the current vi mode (when using vi editing mode)."
     ).tag(config=True)
 
     @observe('term_title')
@@ -257,7 +262,7 @@ class TerminalInteractiveShell(InteractiveShell):
         # Set up keyboard shortcuts
         key_bindings = create_ipython_shortcuts(self)
 
-        # Pre-populate history from yap_ipython's history database
+        # Pre-populate history from IPython's history database
         history = InMemoryHistory()
         last_cell = u""
         for __, ___, cell in self.history_manager.get_tail(self.history_load_length,
@@ -283,12 +288,12 @@ class TerminalInteractiveShell(InteractiveShell):
                             include_default_pygments_style=False,
                             mouse_support=self.mouse_support,
                             enable_open_in_editor=self.extra_open_editor_shortcuts,
-                            color_depth=(ColorDepth.TRUE_COLOR if self.true_color else None),
+                            color_depth=self.color_depth,
                             **self._extra_prompt_options())
 
     def _make_style_from_name_or_cls(self, name_or_cls):
         """
-        Small wrapper that make an yap_ipython compatible style from a style name
+        Small wrapper that make an IPython compatible style from a style name
 
         We need that to add style for prompt ... etc.
         """
@@ -359,6 +364,10 @@ class TerminalInteractiveShell(InteractiveShell):
             'column': CompleteStyle.COLUMN,
             'readlinelike': CompleteStyle.READLINE_LIKE,
         }[self.display_completions]
+
+    @property
+    def color_depth(self):
+        return (ColorDepth.TRUE_COLOR if self.true_color else None)
 
     def _extra_prompt_options(self):
         """
@@ -442,7 +451,7 @@ class TerminalInteractiveShell(InteractiveShell):
         # need direct access to the console in a way that we can't emulate in
         # GUI or web frontend
         if os.name == 'posix':
-            for cmd in ['clear', 'more', 'less', 'man']:
+            for cmd in ('clear', 'more', 'less', 'man'):
                 self.alias_manager.soft_define_alias(cmd, cmd)
 
 
@@ -462,7 +471,7 @@ class TerminalInteractiveShell(InteractiveShell):
     def interact(self, display_banner=DISPLAY_BANNER_DEPRECATED):
 
         if display_banner is not DISPLAY_BANNER_DEPRECATED:
-            warn('interact `display_banner` argument is deprecated since yap_ipython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
+            warn('interact `display_banner` argument is deprecated since IPython 5.0. Call `show_banner()` if needed.', DeprecationWarning, stacklevel=2)
 
         self.keep_running = True
         while self.keep_running:

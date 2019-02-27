@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog							 *
@@ -381,10 +382,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
  Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
 
-  Yap_local.ActiveError->errorNo = SYNTAX_ERROR;
+  Yap_local.ActiveError->prologConsulting = Yap_Consulting();
   Yap_local.ActiveError->parserFirstLine = start_line;
+  Yap_local.ActiveError->parserLine = err_line;
   Yap_local.ActiveError->parserLastLine = end_line;
   Yap_local.ActiveError->parserFirstPos = startpos;
+  Yap_local.ActiveError->parserPos = errpos;
   Yap_local.ActiveError->parserLastPos = endpos;
   Yap_local.ActiveError->parserFile =
     RepAtom(AtomOfTerm((GLOBAL_Stream + sno)->user_name))->StrOfAE;
@@ -811,7 +814,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         else
           singls[1] = TermTrue;
         Term t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
-        Yap_PrintWarning(t);
+	  Yap_PrintWarning(t);
       }
   }
 
@@ -1155,8 +1158,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         re->cpos = GLOBAL_Stream[inp_stream].charcount;
       }
     LOCAL_Error_TYPE = WARNING_SYNTAX_ERROR;
-    t = Yap_MkFullError();
-    Yap_PrintWarning(t);
+    Yap_PrintWarning(0);
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (ParserErrorStyle == TermDec10)
       {

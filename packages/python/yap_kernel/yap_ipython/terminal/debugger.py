@@ -1,18 +1,18 @@
 import signal
 import sys
 
-from yap_ipython.core.debugger import Pdb
+from IPython.core.debugger import Pdb
 
-from yap_ipython.core.completer import IPCompleter
+from IPython.core.completer import IPCompleter
 from .ptutils import IPythonPTCompleter
 from .shortcuts import suspend_to_bg, cursor_in_leading_ws
 
 from prompt_toolkit.enums import DEFAULT_BUFFER
-from prompt_toolkit.filters import (Condition, HasFocus, HasSelection,
-    ViInsertMode, EmacsInsertMode)
-from prompt_toolkit.keys import Keys
-from prompt_toolkit.key_binding.manager import KeyBindingManager
+from prompt_toolkit.filters import (Condition, has_focus, has_selection,
+    vi_insert_mode, emacs_insert_mode)
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.key_binding.bindings.completion import display_completions_like_readline
+from pygments.token import Token
 from prompt_toolkit.shortcuts.prompt import PromptSession
 from prompt_toolkit.enums import EditingMode
 from prompt_toolkit.formatted_text import PygmentsTokens
@@ -58,6 +58,7 @@ class TerminalPdb(Pdb):
                             complete_style=self.shell.pt_complete_style,
                             style=self.shell.style,
                             inputhook=self.shell.inputhook,
+                            color_depth=self.shell.color_depth,
         )
 
     def cmdloop(self, intro=None):
@@ -107,7 +108,7 @@ def set_trace(frame=None):
 
 if __name__ == '__main__':
     import pdb
-    # yap_ipython.core.debugger.Pdb.trace_dispatch shall not catch
+    # IPython.core.debugger.Pdb.trace_dispatch shall not catch
     # bdb.BdbQuit. When started through __main__ and an exception
     # happened after hitting "c", this is needed in order to
     # be able to quit the debugging session (see #9950).

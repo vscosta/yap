@@ -29,7 +29,7 @@
 %%
 %%  @brief Input/Output to characters.
 
-:- module(system(charsio), [
+:- module(charsio, [
 	format_to_chars/3,
 	format_to_chars/4,
 	write_to_chars/3,

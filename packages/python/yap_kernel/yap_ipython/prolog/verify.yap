@@ -16,7 +16,7 @@
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
- :-	 use_module(library(python)).
+%% :-	 use_module(library(python)).
 %% :-	 use_module(library(yapi)).
 
 :- dynamic jupyter/1.
@@ -25,7 +25,7 @@ jupyter( []).
 ready( Engine, Query) :-
      errors( Engine , Query ),
      Es := Engine.errors,
-     not Es == [].
+      Es \== [].
 
 
 

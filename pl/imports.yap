@@ -26,7 +26,7 @@ debug import table
 mimp :-
     recorded('$import',I,_),
     %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
-writeln(I),
+    writeln(I),
 %(ImportingMod:G :- ExportingMod:G0)),
 fail.
 
@@ -39,7 +39,7 @@ fail.
     true
     ;
         %% this should have been caught before 
-	'$is_system_predicate'(G, prolog)
+	'$is_system_predicate'(G, ImportingMod)
     ->
     true
     ;
@@ -113,7 +113,7 @@ fail.
     '$autoloader_find_predicate'(G0,ExportingMod),
     ExportingMod \= ImportingMod,
     (recordzifnot('$import','$import'(ExportingMod,ImportingMod,G0,G0, N  ,K),_),
-     \+ '$system_predicate'(G0,prolog)
+     \+ '$is_system_predicate'(G0, ExportingMod)
     ->
      '$compile'((G:-ExportingMod:G0), reconsult ,(ImportingMod:G:-ExportingMod:G0), ImportingMod, _)
     ;
@@ -133,7 +133,7 @@ fail.
     yap_flag(autoload, _, true),
     yap_flag( unknown, _, Unknown),
     yap_flag( debug, _, Debug),
-    autoloader:find_predicate(G,ExportingMod).
+    setup_autoloader:find_predicate(G,ExportingMod).
 
 
 

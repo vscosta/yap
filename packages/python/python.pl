@@ -43,13 +43,18 @@
 	   op(50, yf, []),
 	   op(50, yf, '()'),
 	   op(100, xfy, '.'),
-	   op(100, fy, '.')
+	   op(100, fy, '.'), 
+	   (:=)/2,
+        (:=)/1,
+	%        (<-)/1,
+	%        (<-)/2,
+	'()'/1, '{}'/1, dot_qualified_goal/1, import_arg/1
 	  ]).
 
 
 /** @defgroup Py4YAP A C-based  Prolog interface to python.
     @ingroup python
-
+b
 @{
 
   @author               Vitor Santos Costa
@@ -96,7 +101,7 @@ similar as possible.
 
 Python interface
 
-Data types are
+Data types arebb
 
      Python                Prolog
      string                atoms
@@ -115,34 +120,38 @@ Data types are
 :- use_module(library(charsio)).
 :- dynamic python_mref_cache/2, python_obj_cache/2.
 
-:- multifile user:(:=)/2,
-        user:(:=)/1,
-				%        user:(<-)/1,
-				%        user:(<-)/2,
-	user:'()'/1, user:'{}'/1, user:dot_qualified_goal/1, user:import_arg/1.
+:-	   op(100,fy,'$'),
+	   op(950,fy,:=),
+	   op(950,yfx,:=),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
+	   op(50, yf, []),
+	   op(50, yf, '()'),
+	   op(100, xfy, '.'),
+	   op(100, fy, '.').
+
+	   :-  multifile (<-)/1, (<-)/2,
+			 '()'/1, '{}'/1,
+			 dot_qualified_goal/1,
+			 import_arg/1.
 
 
 import( F ) :- catch( python:python_import(F), _, fail ).
 
-user:dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
+dot_qualified_goal(Fs) :- catch( python:python_proc(Fs), _, fail ).
 
-user:F() :-
-	catch( python:python_proc(F() ), _, fail ).
+'()'(F) :-
+	catch( python_proc(()(F) ), _, fail ).
 
 
-user(P1,P2) :- !,
+ := (P1,P2) :- !,
 	:= P1,
 	:= P2.
 
 := F :- catch( python:python_proc(F), _, fail ).
 
-:= (P1,P2) :- !,
-	:= P1,
-	:= P2.
 
-user:(:= F) :- catch( python:python_proc(F), _, fail ).
-
-user:( V := F ) :-
+ V := F :-
     python:python_assign(F, V).
 
 /*
@@ -153,15 +162,15 @@ user:(V <- F) :-
 	V := F.
 */
 
-python:python_import(Module) :-
-    python:python_import(Module, _).
+python_import(Module) :-
+    python_import(Module, _).
 
 
 python(Exp, Out) :-
 	Out := Exp.
 
 python_command(Cmd) :-
-       python:python_run_command(Cmd).
+       python_run_command(Cmd).
 
 start_python :-
 	python:python_import('inspect', _),

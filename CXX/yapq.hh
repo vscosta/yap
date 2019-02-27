@@ -158,7 +158,8 @@ public:
   };
 };
 
-// Java support
+
+
 
 /// This class implements a callback Prolog-side. It will be inherited by the
 /// Java or Python
@@ -211,46 +212,56 @@ public:
   inline bool creatingSavedState() { return install; };
 
   inline void setPLDIR(const char *fl) {
-    LIBDIR = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)LIBDIR, fl);
+    std::string *s = new std::string(fl);
+    LIBDIR = s->c_str();
   };
 
   inline const char *getPLDIR() { return PLDIR; };
 
   inline void setINPUT_STARTUP(const char *fl) {
-    INPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)INPUT_STARTUP, fl);
+    std::string *s = new std::string(fl);
+    INPUT_STARTUP = s->c_str();
   };
 
   inline const char *getINPUT_STARTUP() { return INPUT_STARTUP; };
 
+  inline void setOUTPUT_STARTUP(const char *fl) {
+    std::string *s = new std::string(fl);
+    OUTPUT_STARTUP = s->c_str();
+  };
+
   inline void setOUTPUT_RESTORE(const char *fl) {
-    OUTPUT_STARTUP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)OUTPUT_STARTUP, fl);
+    std::string *s = new std::string(fl);
+    OUTPUT_STARTUP = s->c_str();
   };
 
   inline const char *getOUTPUT_STARTUP() { return OUTPUT_STARTUP; };
 
   inline void setSOURCEBOOT(const char *fl) {
-    SOURCEBOOT = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)SOURCEBOOT, fl);
+    std::string *s = new std::string(fl);
+    SOURCEBOOT = s->c_str();
   };
 
   inline const char *getSOURCEBOOT() { return SOURCEBOOT; };
 
   inline void setPrologBOOTSTRAP(const char *fl) {
-    BOOTSTRAP = (const char *)malloc(strlen(fl) + 1);
-    strcpy((char *)BOOTSTRAP, fl);
+  std::string *s = new std::string(fl);
+    BOOTSTRAP = s->c_str();
   };
 
   inline const char *getBOOTSTRAP() { return BOOTSTRAP; };
 
-  inline void setPrologGoal(const char *fl) { PrologGoal = fl; };
+  inline void setPrologGoal(const char *fl) {
+    std::string *s = new std::string(fl);
+    PrologGoal = s->c_str();
+
+  }
 
   inline const char *getPrologGoal() { return PrologGoal; };
 
   inline void setPrologTopLevelGoal(const char *fl) {
-    PrologTopLevelGoal = fl;
+    std::string *s = new std::string(fl);
+    PrologTopLevelGoal = s->c_str() ;
   };
 
   inline const char *getPrologTopLevelGoal() { return PrologTopLevelGoal; };
@@ -271,7 +282,27 @@ public:
 
   inline char **getArgv() { return Argv; };
 
-    inline void setROOTDIR(char *fl) { ROOTDIR = fl; };
+  inline void setBOOTDIR(const char *fl) {
+    std::string *s = new std::string(fl);
+    BOOTDIR = s->c_str() ;
+  }
+  
+   inline const char *getBOOTDIR() { return BOOTDIR; };
+
+   inline const char *getBOOTFILE() { return BOOTSTRAP; };
+
+   inline void setBOOTFILE(const char *fl) {
+    std::string *s = new std::string(fl);
+    BOOTSTRAP = s->c_str() ;
+
+   }
+   
+   inline void setROOTDIR(const char *fl) {
+    std::string *s = new std::string(fl);
+    ROOTDIR = s->c_str() ;
+
+   }
+
 };
 
 /**
@@ -295,7 +326,7 @@ public:
   YAPEngine(YAPEngineArgs *cargs) {
     engine_args = cargs;
     // doInit(cargs->boot_file_type);
-      __android_log_print(
+    __android_log_print(
     ANDROID_LOG_INFO, "YAPDroid", "start engine  ");
 #ifdef __ANDROID__
     doInit(YAP_PL, cargs);

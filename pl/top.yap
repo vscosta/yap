@@ -743,13 +743,13 @@ write_query_answer( Bindings ) :-
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
- 	repeat,
-  '$current_module'( OldModule, OldModule ),
-	'$system_catch'( '$enter_command'(Stream,OldModule,Status),
+    repeat,
+    '$current_module'( OldModule, OldModule ),
+    '$system_catch'( '$enter_command'(Stream,OldModule,Status),
                      OldModule, Error,
-			         user:'$LoopError'(Error, Status)
+		     user:'$LoopError'(Error, Status)
                    ),
-	!.
+    !.
 
 '$boot_loop'(Stream,Where) :-
 	repeat,
@@ -806,7 +806,7 @@ Command = (H --> B) ->
     ;
       read_clause(Stream, Command, Options)
     ),
-	'$command'(Command,Vars,Pos, Status).
+    '$command'(Command,Vars,Pos, Status) .
 
 /** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 

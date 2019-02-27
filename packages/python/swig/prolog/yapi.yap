@@ -2,27 +2,27 @@
 %% @file yapi.yap
 %% @brief support yap shell
 %%
-%:- start_low_level_trace.
- %% :- module(yapi, [
- %% 		 python_ouput/0,
- %% 		 show_answer/2,
- %% 		 show_answer/3,
- %% 		 yap_query/4,
- %% 		 python_query/2,
- %% 		 python_query/3,
- %% 		 python_import/1,
- %% 		 yapi_query/2
- %% 		 ]).
 
-:- yap_flag(verbose, silent).
+ :- module(yapi, [
+ 		 python_ouput/0,
+ 		 show_answer/2,
+ 		 show_answer/3,
+ 		 yap_query/4,
+ 		 python_query/2,
+ 		 python_query/3,
+ 		 python_import/1,
+ 		 yapi_query/2
+		 ]).
 
- :- use_module(library(python)).
+%:- yap_flag(verbose, silent).
+
+ :- reexport(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
-
+ 
 
 :- python_import(yap4py.yapi).
 :- python_import(json).
@@ -46,9 +46,6 @@ yapi_query( VarNames, Self ) :-
 
 set_preds :-
 fail,
-	current_predicate(P, Q),
-	functor(Q,P,A),
-
  	current_predicate(P, Q),
  	functor(Q,P,A),
 	atom_string(P,S),
@@ -69,36 +66,55 @@ fail,
 set_preds.
 
 argi(N,I,I1) :-
-    atomic_concat(`A`,I,N),
+    atomic_concat('A',I,N),
 	I1 is I+1.
 
-python_query( Caller, String ) :-
+python_query( Caller, String		) :-
+	      python_query( Caller, String, _Bindings).
+
+python_query( Caller, String, Bindings ) :-
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, _, Status, VarNames, Bindings),
+	query_to_answer( Goal, VarNames, Status, Bindings),
 	Caller.port := Status,
 	       output(Caller, Bindings).
 
-output( _, Bindings ) :-
-    write_query_answer( Bindings ),
-    fail.
 output( Caller, Bindings ) :-
-    answer := {},
+    Answer := {},
+   % start_low_level_trace,
     foldl(ground_dict(answer), Bindings, [], Ts),
     term_variables( Ts, Hidden),
     foldl(bv, Hidden , 0, _),
-    maplist(into_dict(answer),Ts),
-    Caller.answer := json.dumps(answer),
-    S := Caller.answer,
-		format(user_error, '~nor ~s~n~n',S),
-		fail.
+    maplist(into_dict(Answer),Ts),
+    Caller.answer := Answer,
+    fail.
+    
+    
+output( _, Bindings ) :-
+    write_query_answer( Bindings ),
+    fail.
 output(_Caller, _Bindings).
-
+    
 bv(V,I,I1) :-
     atomic_concat(['__',I],V),
     I1 is I+1.
 
 into_dict(D,V0=T) :-
-    python_represents(D[V0], T).
+    atom(T),
+    !,
+    D[V0] := T.
+into_dict(D,V0=T) :-
+  integer(T),
+writeln((D[V0]:=T)),
+!,
+    D[V0] := T,
+    := print(D).
+into_dict(D,V0=T) :-
+    string(T),
+    !,
+    D[V0] := T.
+into_dict(D,V0=T) :-
+    python_represents(T1,T),
+    D[V0] := T1.
     
 /**
  *

@@ -17,6 +17,9 @@ from IPython.core.inputtransformer import *
 from IPython.core.interactiveshell import *
 from ipython_genutils.py3compat import builtin_mod
 
+import copy
+import json
+
 from yap_kernel.displayhook import ZMQShellDisplayHook
 
 import traceback
@@ -229,6 +232,7 @@ class YAPInputSplitter(InputSplitter):
                 transformed_lines_list.append(transformed)
         if transformed_lines_list:
             transformed_lines = '\n'.join(transformed_lines_list)
+
         else:
             # Got nothing back from transformers - they must be waiting for
             # more input.
@@ -542,7 +546,7 @@ class YAPRun(InteractiveShell):
         # construct a self.queryuery from a one-line string
         # self.query is opaque to Python
         try:
-            program,squery,_                                                                                                                                                                                                                                                                                                                                                                                                    ,howmany = self.prolog_cell(s)
+            program,squery,_                                                                                                                                                                                                                                                                                                                                                                               ,howmany = self.prolog_cell(s)
             # sys.settrace(tracefunc)
             if self.query and self.os == (program,squery):
                 howmany += self.iterations
@@ -551,22 +555,29 @@ class YAPRun(InteractiveShell):
                     self.query.close()
                     self.query = None
                     self.answers = []
+                    result.result = []
                 self.os = (program,squery)
                 self.iterations = 0
                 pg = jupyter_query(self.engine,program,squery)
                 self.query = Query(self.engine, pg)
                 self.answers = []
             for answer in self.query:
-                self.answers += [answer]
+                print( answer )
+                self.answers += [copy.deepcopy(answer)]
                 self.iterations += 1
                 
             self.os = None
             self.query.close()
             self.query = None
             if self.answers:
-                sys.stderr.write('Completed, with '+str(self.answers)+'\n')
-            result.result = self.answers
+                sys.stderr.write('\n'+'[ ' +str(len(self.answers))+' answer(s): ]\n[ ')
+                print( self.answers )
+                result.result = json.dumps(self.answers)
+                sys.stderr.write(result.result+' ]\n\n')
+            else:
+                result.result = []
             return result.result
+            
      
         except Exception as e:
             sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+

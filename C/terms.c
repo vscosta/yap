@@ -89,10 +89,10 @@ typedef struct non_single_struct_t {
  CELL *pt0, *pt0_end; \
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);\
  struct non_single_struct_t *to_visit0=NULL, *to_visit,* to_visit_max;\
- to_visit0 = Realloc(to_visit0,auxsz);				    \
   CELL *InitialH = HR;\
   tr_fr_ptr TR0 = TR;\
 reset:\
+ to_visit0 = Realloc(to_visit0,auxsz);				    \
 pt0 = pt0_; pt0_end = pt0_end_;						\
 to_visit = to_visit0,							\
     to_visit_max = to_visit +  auxsz/sizeof(struct non_single_struct_t);\
@@ -306,8 +306,10 @@ static int cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
   
  reset:
   pt0 = pt0_, pt0_end = pt0_end_;
-  to_visit= to_visit0,
-    to_visit_max = to_visit0 + auxsz/sizeof(struct non_single_struct_t);
+    to_visit0 = Realloc(to_visit0,auxsz);
+  to_visit= to_visit0;
+  to_visit_max = to_visit0 + auxsz/sizeof(struct non_single_struct_t);
+  auxsz *= 2;
   int rc = 0;
   CELL *ptf;
   ptf = HR;
@@ -811,8 +813,8 @@ static Term new_vars_in_complex_term(
   CELL output = TermNil;
   {
     tr_fr_ptr myTR0 = TR;
-    while (!IsVarTerm(inp) && IsPairTerm(inp)) {
       int lvl = push_text_stack();
+    while (!IsVarTerm(inp) && IsPairTerm(inp)) {
       Term t = HeadOfTerm(inp);
       if (IsVarTerm(t)) {
 	n++;
@@ -827,6 +829,7 @@ static Term new_vars_in_complex_term(
      }
      inp = TailOfTerm(inp);
    }
+    pop_text_stack(lvl);  
  }
  WALK_COMPLEX_TERM();
  output = MkPairTerm((CELL)ptd0, output);
@@ -958,14 +961,14 @@ static Int free_variables_in_term(
   Term out;
   Term t, t0;
   Term found_module = 0L;
-  Term vlist = TermNil;
+  Term bounds = TermNil;
 
   t = t0 = Deref(ARG1);
   Int delta = 0;
   while (!IsVarTerm(t) && IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorHat) {
-      vlist = Yap_TermAddVariables(ArgOfTerm(1,t), vlist PASS_REGS);
+      bounds = MkPairTerm(ArgOfTerm(1,t),bounds);
     } else if (f == FunctorModule) {
       found_module = ArgOfTerm(1, t);
     } else if (f == FunctorCall) {
@@ -981,7 +984,7 @@ static Int free_variables_in_term(
    if (IsPrimitiveTerm(t))
     out = TermNil;
   else {
-    out = new_vars_in_complex_term(&(t)-1, &(t), vlist PASS_REGS);
+    out = new_vars_in_complex_term(&(t)-1, &(t), Yap_TermVariables(bounds, 3) PASS_REGS);
   }
   
 if (found_module && t != t0) {

@@ -1065,8 +1065,8 @@ static Int _user_expand_goal(USES_REGS1) {
   ARG1 = g;
   if ((pe = RepPredProp(Yap_GetPredPropByFunc(FunctorGoalExpansion2, cmod))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
-    return complete_ge(true, omod, sl, creeping);
+      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
+    return complete_ge(true  , omod, sl, creeping);
   }
   /* system:goal_expansion(A,B) */
   mg_args[0] = cmod;
@@ -1076,7 +1076,7 @@ static Int _user_expand_goal(USES_REGS1) {
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, SYSTEM_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
+      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
     Yap_ResetException(NULL);
@@ -1087,7 +1087,7 @@ static Int _user_expand_goal(USES_REGS1) {
   if ((pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, true  PASS_REGS)) {
+      Yap_execute_pred(pe, NULL, false  PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
     Yap_ResetException(NULL);
@@ -1101,7 +1101,7 @@ static Int _user_expand_goal(USES_REGS1) {
       (pe = RepPredProp(
            Yap_GetPredPropByFunc(FunctorGoalExpansion2, USER_MODULE))) &&
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
-      Yap_execute_pred(pe, NULL, true PASS_REGS)) {
+      Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true, omod, sl, creeping);
   }
   Yap_ResetException(NULL);
@@ -1164,6 +1164,12 @@ restart_exec:
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
     pe = PredPropByAtom(a, mod);
+  } else  if (IsPairTerm(t)) {
+    Term ts[2];
+    ts[0] = t;
+    ts[1] = (CurrentModule == 0 ? TermProlog : CurrentModule);
+    t = Yap_MkApplTerm(FunctorCsult, 2, ts);
+    goto restart_exec;
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register unsigned int i;
@@ -1207,8 +1213,9 @@ restart_exec:
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
-    return false;
+    //Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    //return false;
+    return CallMetaCall(t, mod);
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
@@ -1264,8 +1271,7 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
-    return FALSE;
+    return CallMetaCall(t, mod);
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
