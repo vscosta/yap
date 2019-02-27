@@ -354,7 +354,7 @@ static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
 #define expand_stack(S0,SP,SF,TYPE)	       \
   { size_t sz = SF-S0, used = SP-S0;	       \
   S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);               \
-  SP = S0+used; SF = S0+sz; }
+  SP = S0+used; SF = S0+(1024+sz); }
 
 static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                              int share, int copy_att_vars, CELL *ptf,
@@ -808,10 +808,8 @@ error_handler:
       }
       break;
     default: /* temporary space overflow */
-      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
-        Yap_Error(RESOURCE_ERROR_AUXILIARY_STACK, TermNil, LOCAL_ErrorMessage);
-        return 0L;
-      }
+      return 0;
+      
     }
   }
   oldH = HR;
