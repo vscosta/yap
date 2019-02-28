@@ -120,7 +120,7 @@ bool Yap_Consulting(USES_REGS1) {
  * assertz are supported for static predicates no database predicates are
  * supportted for fast predicates
  */
-1
+
 /** Look for a predicate with same functor as t,
      create a new one of it cannot find it.
  */

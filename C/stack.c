@@ -90,7 +90,7 @@ static PredEntry *get_pred(Term t, Term tmod, char *pname) {
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
