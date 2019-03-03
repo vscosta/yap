@@ -477,7 +477,7 @@ be lost.
 '$trace_goal'(G, M, GoalNumber, H) :-
 	'$undefined'(G, M),
 	!,
-	'$get_undefined_pred'(M:G,  NM:Goal),
+	'$get_undefined_predicates'(M:G,  NM:Goal),
 	( ( M == NM ; NM == prolog), G == Goal
 	->
 	  yap_flag( unknown, Action ),

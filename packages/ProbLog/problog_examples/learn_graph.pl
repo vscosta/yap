@@ -15,7 +15,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module(library(matrix)).
-:- use_module(('../problog_lbfgs')).
+:- use_module('../problog_learning').
 
 %%%%
 % background knowledge

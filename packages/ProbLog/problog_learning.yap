@@ -220,7 +220,7 @@
 :- use_module(library(system), [file_exists/1, shell/2]).
 
 % load our own modules
-:- use_module(problog).
+:- reexport(problog).
 :- use_module('problog/logger').
 :- use_module('problog/flags').
 :- use_module('problog/os').
@@ -1335,7 +1335,7 @@ lineSearch(Final_X,Final_Value) :-
 	line_search_evaluate_point(InitLeft,Value_InitLeft),
 
 
-i	Parameters=ls(A,B,InitLeft,InitRight,Value_A,Value_B,Value_InitLeft,Value_InitRight,1),
+	Parameters=ls(A,B,InitLeft,InitRight,Value_A,Value_B,Value_InitLeft,Value_InitRight,1),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%% BEGIN BACK TRACKING
