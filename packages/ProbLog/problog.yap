@@ -517,13 +517,14 @@ every 5th iteration only.
 % directory where simplecudd executable is located
 % automatically set during loading -- assumes it is in /usr/local/bin or same place where YAP has
 % been installed.)
+
 :- getcwd(PD0),
 	atom_concat(PD0, '../../bin', PD),
 	set_problog_path(PD).
 
 :- PD = '/usr/local/bin',
 	set_problog_path(PD).
-
+%:-     stop_low_level_trace.
 
 
 %%%%%%%%%%%%
@@ -623,6 +624,7 @@ every 5th iteration only.
 %%%%%%%%%%%%
 
 :- initialization(problog_define_flag(tunable_fact_start_value,problog_flag_validate_dummy,'How to initialize tunable probabilities',uniform(0.1,0.9),learning_general,flags:learning_prob_init_handler)).
+
 
 
 

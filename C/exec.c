@@ -115,14 +115,18 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
    // we have a creep requesr waiting
 
-  ARG1 = t;
+   if (IsVarTerm(t))
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "meta-call");
+ if (IsIntTerm(t) || (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))))
+    Yap_ThrowError(TYPE_ERROR_CALLABLE,  Yap_TermToIndicator(t, mod), "meta-call");
+ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
   ARG3 = t;
   if (mod) {
     ARG4 = mod;
   } else {
     ARG4 = TermProlog;
-  }
+}
   if (Yap_GetGlobal(AtomDebugMeta) == TermOn) {
     return CallPredicate(PredTraceMetaCall, B,
                          PredTraceMetaCall->CodeOfPred PASS_REGS);
@@ -141,6 +145,10 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
 Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   CACHE_REGS
   Term ts[4];
+  if (IsVarTerm(g))
+    Yap_ThrowError(INSTANTIATION_ERROR, g, "meta-call");
+ if (IsIntTerm(g) || (IsApplTerm(g) && IsExtensionFunctor(FunctorOfTerm(g))))
+    Yap_ThrowError(TYPE_ERROR_CALLABLE,   Yap_TermToIndicator(g, mod), "meta-call");
   ts[0] = g;
   ts[1] = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
   ts[2] = g;
@@ -210,7 +218,7 @@ Term Yap_TermToIndicator(Term t, Term mod) {
     ti[1] = MkIntTerm(0);
   }
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-  if (mod != CurrentModule) {
+  if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
     ti[0] = mod;
     ti[1] = t;
     return Yap_MkApplTerm(FunctorModule, 2, ti);
@@ -231,7 +239,7 @@ Term Yap_PredicateToIndicator(PredEntry *pe) {
   }
   Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   Term mod = pe->ModuleOfPred;
-  if (mod != TermUser && mod!= PROLOG_MODULE) {
+  if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
     ti[0] = mod;
     ti[1] = t;
     return Yap_MkApplTerm(FunctorModule, 2, ti);
