@@ -376,9 +376,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   Yap_MkErrorRecord(LOCAL_ActiveError, __FILE__, __FUNCTION__, __LINE__, SYNTAX_ERROR, 0, NULL);
   TokEntry *tok = LOCAL_tokptr;
   Int start_line = tok->TokLine;
-  Int err_line = errtok->TokLine;
+  Int err_line = LOCAL_toktide->TokLine;
    Int startpos = tok->TokPos;
-  Int errpos = errtok->TokPos;
+  Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
  Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
 
