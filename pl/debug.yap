@@ -16,7 +16,7 @@
 *************************************************************************/
 
 
-:- system_module( '$_debug', [], ['$trace_plan'/4,
+:- system_module( '$_debug', [], ['$trace_query'/4,
         '$init_debugger'/0,
         '$skipeol'/1]).
 
@@ -254,7 +254,7 @@ be lost.
    *
    * The debugger is an interpreter. with main predicates:
    * - $trace: this is the API
-   * - $trace_plan: reduce a query to a goal
+   * - $trace_query: reduce a query to a goal
    * - $trace_goal: execute:
    *    + using the source, Luke
    *    + hooking into the WAM procedure call mechanism
@@ -308,7 +308,7 @@ be lost.
      '$execute_nonstop'(G,Mod).
 '$trace'(Mod:G) :-
     '$$save_by'(CP),
-    '$trace_plan'(G, Mod, CP, G, EG),
+    '$trace_query'(G, Mod, CP, G, EG),
     gated_call(
 	'$debugger_io',
 	EG,
@@ -415,53 +415,42 @@ be lost.
 
 
 '$trace_meta_call'( G, M, CP ) :-
-    '$trace_plan'(G, M, CP, G, EG ),
+    '$trace_query'(G, M, CP, G, EG ),
     call(EG).
 
-%% @pred '$trace_plan'( +G, +M, +CP, +Expanded)
+%% @pred '$trace_query'( +G, +M, +CP, +Expanded)
 %
 % debug a complex query
 %
-'$trace_plan'(V, M, _CP, _, call(M:V)) :-
+'$trace_query'(V, M, _CP, _, call(M:V)) :-
     var(V), !.
-'$trace_plan'(!, _, CP, _, '$$cut_by'(CP)) :-
+'$trace_query'(!, _, CP, _, '$$cut_by'(CP)) :-
     !.
-'$trace_plan'('$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
+'$trace_query'('$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
     !.
-'$trace_plan'('$$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
+'$trace_query'('$$cut_by'(M), _, _, _, '$$cut_by'(M)) :-
     !.
-'$trace_plan'(true, _, _, _, true) :- !.
-'$trace_plan'(fail, _, _, _, '$trace'(fail)) :- !.
-'$trace_plan'((A,B), M, CP, S, (EA,EB)) :- !,
-    '$trace_plan'(A, M, CP, S, EA),
-    '$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A->B), M, CP, S, (EA->EB)) :- !,
-    '$trace_plan'(A, M, CP, S, EA),
-    '$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A;B), M, CP, S, (EA;EB)) :- !,
-	'$trace_plan'(A, M, CP, S, EA),
-	'$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A|B), M, CP, S, (EA|EB)) :- !,
-	'$trace_plan'(A, M, CP, S, EA),
-	'$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A*->B), M, CP, S, (EA->EB)) :- !,
-	'$trace_plan'(A, M, CP, S, EA),
-	'$trace_plan'(B, M, CP, S, EB).
-'$trace_plan'((A*->B;C), M, CP, S, (EA->EB;EC)) :- !,
-	'$trace_plan'(A, M, CP, S, EA),
-	'$trace_plan'(B, M, CP, S, EB),
-	'$trace_plan'(C, M, CP, S, EC).
-'$trace_plan'(if(A,B,C), M, CP, S, (EA->EB;EC)) :- !,
-	'$trace_plan'(A, M, CP, S, EA),
-	'$trace_plan'(B, M, CP, S, EB),
-	'$trace_plan'(C, M, CP, S, EC).
-'$trace_plan'((\+ A), M, CP, S, ( EA -> fail ; true)) :- !,
-	'$trace_plan'(A, M, CP, S, EA).
-'$trace_plan'(once(A), M, CP, S, ( EA ->  true)) :- !,
-	'$trace_plan'(A, M, CP, S, EA).
-'$trace_plan'(ignore(A), M, CP, S, ( EA -> true; true)) :- !,
-	'$trace_plan'(A, M, CP, S, EA).
-'$trace_plan'(G, M, _CP, _, (
+'$trace_query'(true, _, _, _, true) :- !.
+'$trace_query'(fail, _, _, _, '$trace'(fail)) :- !.
+'$trace_query'(M:G, _, CP,S, Expanded) :-
+    !,
+    '$yap_strip_module'(M:G, M0, G0),
+    '$trace_query'(G0, M0, CP,S, Expanded ).
+'$trace_query'((A,B), M, CP, S, (EA,EB)) :- !,
+    '$trace_query'(A, M, CP, S, EA),
+    '$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A->B), M, CP, S, (EA->EB)) :- !,
+    '$trace_query'(A, M, CP, S, EA),
+    '$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A;B), M, CP, S, (EA;EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
+'$trace_query'((A|B), M, CP, S, (EA|EB)) :- !,
+	'$trace_query'(A, M, CP, S, EA),
+	'$trace_query'(B, M, CP, S, EB).
+'$trace_query'((\+ A), M, CP, S, (\+ EA)) :- !,
+	'$trace_query'(A, M, CP, S, EA).
+'$trace_query'(G, M, _CP, _, (
         % spy a literal
 	'$id_goal'(L),
         catch(
@@ -472,7 +461,7 @@ be lost.
 
 %% @pred $trace_goal( +Goal, +Module, +CallId, +CallInfo)
 %%
-%% Actually debugs a
+%% Actuallb sy debugs a
 %% goal!
 '$trace_goal'(G, M, GoalNumber, _H) :-
 	(
@@ -498,9 +487,9 @@ be lost.
 	).
 % meta system
 '$trace_goal'(G, M, GoalNumber, H) :-
-    '$is_metapredicate'(G, prolog),
-    !,
-    '$debugger_expand_meta_call'(M:G, [], G1),
+        '$is_metapredicate'(G, prolog),
+        !,
+        '$debugger_expand_meta_call'(M:G, [], G1),
 	strip_module(G1, MF, NG),
 	gated_call(
 		   '$enter_trace'(GoalNumber, G, M, H),
@@ -615,7 +604,7 @@ be lost.
     '$$save_by'(CP),
     clause(M:G, Cl, _),
     '$retry_clause'(GoalNumber, G, M, Info, X),
-    '$trace_plan'(Cl, M, CP, Cl, ECl),
+    '$trace_query'(Cl, M, CP, Cl, ECl),
     '$execute0'(ECl,M).
 
 '$creep_step'(GoalNumber, G, M, Info) :-
@@ -665,7 +654,7 @@ be lost.
 
 
 %%% - abort: forward throw while the call is newer than goal
-%% @pred '$re_trace_plan'( Exception, +Goal, +Mod, +GoalID )
+%% @pred '$re_trace_query'( Exception, +Goal, +Mod, +GoalID )
 %
 % debugger code for exceptions. Recognised cases are:
 %   - abort always forwarded
@@ -1057,10 +1046,10 @@ be lost.
 '$cps'([]).
 
 
-'$debugger_skip_trace_plan'([CP|CPs],CPs1) :-
-	yap_hacks:choicepoint(CP,_,prolog,'$trace_plan',4,(_;_),_), !,
-	'$debugger_skip_trace_plan'(CPs,CPs1).
-'$debugger_skip_trace_plan'(CPs,CPs).
+'$debugger_skip_trace_query'([CP|CPs],CPs1) :-
+	yap_hacks:choicepoint(CP,_,prolog,'$trace_query',4,(_;_),_), !,
+	'$debugger_skip_trace_query'(CPs,CPs1).
+'$debugger_skip_trace_query'(CPs,CPs).
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
 	yap_hacks:choicepoint(CP,_,prolog,'$port',4,(_;_),_), !,
