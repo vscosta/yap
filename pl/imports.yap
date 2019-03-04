@@ -33,50 +33,75 @@ fail.
 
 %:- start_low_level_trace.
 % parent module mechanism
-'$get_undefined_predicates'(ImportingMod:G,ExportingMod:G0) :-
-	recorded('$import','$import'(ExportingMod,ImportingMod,G,G0,_,_),_)
-    ->
-    true
-    ;
-        %% this should have been caught before 
-	'$is_system_predicate'(G, ImportingMod)
-    ->
-    true
-    ;
-% autoload
-    current_prolog_flag(autoload, true)
-->
-    '$autoload'(G, ImportingMod, ExportingMod, swi)
-;
-    '$parent_module'(ImportingMod, NewImportingMod)
-    ->
-    '$get_undefined_predicates'(NewImportingMod:G, ExportingMod:G0).
+%% system has priority
+'$get_predicate_definition'(_ImportingMod:G,prolog:G) :-
+    '$pred_exists'(G,prolog).
+%% I am there, no need to import
+'$get_predicate_definition'(Mod:Pred,Mod:Pred) :-
+    '$pred_exists'(Pred, Mod).
+%% export table
+'$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
+    recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
+%% parent/user
+'$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
+    ( '$parent_module'(ImportingMod, PMod) ), %; PMod = user),
+    ('$pred_exists'(PMod,G0), PMod:G0 = ExportingMod:G;
+     recorded('$import','$import'(ExportingMod,PMod,G0,G,_,_),_)
+    ).
+%% autoload`
+'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
+    current_prolog_flag(autoload, true),
+    '$autoload'(G, ImportingMod, ExportingMod, swi).
 
-'$continue_imported'(Mod:Pred,Mod,Pred) :-
-    '$pred_exists'(Pred, Mod),
+
+'$predicate_definition'(Imp:Pred,Exp:NPred) :-
+    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
+%writeln((Imp:Pred -> Exp:NPred )).
     !.
-'$continue_imported'(FM:FPred,Mod:Pred) :-
-    '$get_undefined_predicates'(FM:FPred, ModI:PredI),
-    '$continue_imported'(ModI:PredI,Mod:Pred).
+
+'$one_predicate_definition'(Imp:Pred,Exp:NPred) :-
+    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
+%writeln((Imp:Pred -> Exp:NPred )).
+    !.
+'$one_predicate_definition'(Exp:Pred,Exp:Pred).
+    
+'$predicate_definition'(M0:Pred0,Path,ModF:PredF) :-
+    '$get_predicate_definition'(M0:Pred0, Mod:Pred),
+    \+ lists:member(Mod:Pred,Path),
+    (
+	'$predicate_definition'(Mod:Pred,[Mod:Pred|Path],ModF:PredF)
+    ;
+    Mod = ModF, Pred = PredF
+    ).
 
 %
-'$get_undefined_pred'(ImportingMod:G, ExportingMod:G0) :-
-    must_be_callable( ImportingMod:G ),
-    '$get_undefined_predicates'(ImportingMod:G, ExportingMod:G0).
+'$get_undefined_predicate'(ImportingMod:G, ExportingMod:G0) :-
+    is_callable( ImportingMod:G ),
+    '$predicate_definition'(ImportingMod:G,[], ExportingMod:G0),
+    ImportingMod:G \= ExportingMod:G0,
+    !.
 
 % be careful here not to generate an undefined exception.
 '$imported_predicate'(ImportingMod:G, ExportingMod:G0) :-
-   var(G) ->
-    '$current_predicate'(_,G,ImportingMod,_),
-    '$imported_predicate'(ImportingMod:G, ExportingMod:G0)
-    ;
-      var(ImportingMod) ->
-      current_module(ImportingMod),
-      '$imported_predicate'(ImportingMod:G, ExportingMod:G0)
-      ;
-      '$undefined'(G, ImportingMod),
-      '$get_undefined_predicates'(ImportingMod:G, ExportingMod:G0),
-      ExportingMod \= ImportingMod.
+   ( var(ImportingMod) ->
+	current_module(ImportingMod)
+   ;
+   true
+   ),
+    (
+	var(G) ->
+       '$current_predicate'(_,G,ImportingMod,_)
+   ;
+   true
+   ),
+   (
+       '$undefined'(G, ImportingMod)
+   ->
+      '$predicate_definition'(ImportingMod:G, ExportingMod:G0),
+      ExportingMod \= ImportingMod
+   ;
+   ExportingMod = ImportingMod, G = G0
+   ).
  
     
 % check if current module redefines an imported predicate.
@@ -90,16 +115,6 @@ fail.
     erase(R),
     fail.
 '$not_imported'(_, _).
-
-
-'$verify_import'(_M:G, prolog:G) :-
-    '$is_system_predicate'(G, prolog).
-'$verify_import'(M:G, NM:NG) :-
-    '$get_undefined_predicates'(M:G, M, NM:NG),
-    !.
-'$verify_import'(MG, MG).
-
-
 
 
 '$autoload'(G, _mportingMod, ExportingMod, Dialect) :-

@@ -218,22 +218,23 @@ live :-
 '$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
      '$precompile_term'(G, Source, G1),
      !,
-     '$$compile'(G1, Where, Source, _).
+     '$$compile'(G1, M, Where, Source, _).
  '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
      throw(error(system, compilation_failed(G))).
 
 '$$compile'(C, Where, C0, R) :-
-    '$head_and_body'( C, MH, B ),
-    strip_module( MH, Mod, H),
+    '$head_and_body'( M0:C, MH, B ),
+    '$yap_strip_module'( MH, Mod, H),
+    '$yap_strip_module'( MB, ModB, BF),
    (
      '$undefined'(H, Mod)
     ->
      '$init_pred'(H, Mod, Where)
 	;
-     true
+     trueq
     ),
 %    writeln(Mod:((H:-B))),
-    '$compile'((H:-B), Where, C0, Mod, R).
+    '$compile'((H:-ModB:BF), Where, C0, Mod, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
@@ -783,7 +784,8 @@ Command = (H --> B) ->
 
 '$boot_dcg'( H, B, Where ) :-
   '$translate_rule'((H --> B), (NH :- NB) ),
-  '$$compile'((NH :- NB), Where, ( H --> B), _R),
+  '$yap_strip_module'((NH :- NB), M, G),
+  '$$compile'(G, M, Where, ( H --> B), _R),
   !.
 '$boot_dcg'( H, B, _ ) :-
   format(user_error, ' ~w --> ~w failed.~n', [H,B]).
@@ -875,7 +877,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    '$yap_strip_clause'(InputCl, M, ICl),
+    '$yap_strip_module'(InputCl, M, ICl),
     '$expand_a_clause'( M:ICl, M, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).

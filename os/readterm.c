@@ -1185,8 +1185,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     return YAP_PARSING_FINISHED;
   }
 
-        static int count;
-
 /**
  * @brief generic routine to read terms from a stream
  *
@@ -1208,6 +1206,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     int emacs_cares = FALSE;
 #endif
     int lvl = push_text_stack();
+    Term rc;
     yap_error_descriptor_t *new = malloc(sizeof *new);
     FEnv *fe = Malloc(sizeof *fe);
     REnv *re = Malloc(sizeof *re);
@@ -1256,16 +1255,17 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
             if (!done)
               {
                 state = YAP_PARSING_ERROR;
-                fe->t = 0;
+                rc = fe->t = 0;
                 break;
               }
 #if EMACS
             first_char = tokstart->TokPos;
 #endif /* EMACS */
+	    rc = fe->t;
             pop_text_stack(lvl);
             Yap_popErrorContext(err, true);
 	    Yap_PopHandle(yopts);
-            return fe->t;
+            return rc;
           }
           }
       }

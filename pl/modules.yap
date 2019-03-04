@@ -41,7 +41,6 @@
         '$convert_for_export'/7,
         '$do_import'/3,
         '$extend_exports'/3,
-        '$get_undefined_pred'/4,
         '$imported_predicate'/2,
         '$meta_expand'/6,
         '$meta_predicate'/2,
@@ -85,6 +84,8 @@
 
 /**
    @pred use_module( +Files ) is directive
+
+
    @brief load a module file
 
 This predicate loads the file specified by _Files_, importing all
@@ -311,16 +312,6 @@ use_module(F,Is) :-
 '$not_imported'(_, _).
 
 
-'$verify_import'(_M:G, prolog:G) :-
-    '$is_system_predicate'(G, prolog).
-'$verify_import'(M:G, NM:NG) :-
-    '$get_undefined_pred'(G, M, NG, NM),
-    !.
-'$verify_import'(MG, MG).
-
-
-
-
 /** @pred current_module( ? Mod:atom) is nondet
 
 
@@ -453,8 +444,10 @@ export_list(Module, List) :-
 	'$add_to_imports'(Tab, Module, ContextModule).
 
 %'$do_import'(K, _, _) :- writeln(K), fail.
-'$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
-	op(Prio,Assoc,ContextMod:Name).
+'$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
+	op(Prio,Assoc,Mod:Name),
+	op(Prio,Assoc,ContextMod:Name),
+!.
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
 '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
@@ -465,26 +458,17 @@ export_list(Module, List) :-
        \+ '$undefined'(S,ContextMod), !.
 '$do_import'( N/K-N1/K, Mod, ContextMod) :-
 	functor(G,N,K),
-	'$follow_import_chain'(Mod,G,M0,G0),
+	'$one_predicate_definition'(Mod:G,M0:G0),
+	M0\=prolog,
+	(Mod\=M0->N\=N1;true),
 	G0=..[_N0|Args],
 	G1=..[N1|Args],
-	( '$check_import'(M0,ContextMod,N1,K) ->
-	  ( ContextMod == prolog ->
-	    recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
-	    \+ '$is_system_predicate'(G1, prolog),
-	    '$compile'((G1:-M0:G0), reconsult,(user:G1:-M0:G0) , user, R),
-	    fail
-	  ;
-	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-	    \+ '$is_system_predicate'(G1, prolog),
-	    '$compile'((G1:-M0:G0), reconsult,(ContextMod:G1:-M0:G0) , ContextMod, R),
-        fail
-        ;
-        true
-	  )
-	;
-	  true
-	).
+	recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+	    %\+ '$is_system_predicate'(G1, prolog),
+	    %'$compile'((G1:-M0:G0), reconsult,(ContextMod:G1:-M0:G0) , ContextMod, R),
+        fail.
+% always succeed.
+'$do_import'(_,_,_).
 
 '$follow_import_chain'(M,G,M0,G0) :-
 	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,

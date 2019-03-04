@@ -18,6 +18,7 @@
 #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"
+#include "YapStreams.h"
 #include "YapText.h"
 #include "Yatom.h"
 #include "yapio.h"
@@ -191,6 +192,8 @@ void *MallocAtLevel(size_t sz, int atL USES_REGS) {
 
 void *Realloc(void *pt, size_t sz USES_REGS) {
   struct mblock *old = pt, *o;
+  if (!pt)
+    return Malloc(sz PASS_REGS);
   old--;
   sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), Yap_Max(CELLSIZE,sizeof(struct mblock)));
   o = realloc(old, sz);
@@ -464,10 +467,11 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
       }
     }
     if (err0 != LOCAL_Error_TYPE) {
-      Yap_ThrowError(LOCAL_Error_TYPE, inp->val.t, "while reading text in");
+      Yap_ThrowError(LOCAL_Error_TYPE,
+       inp->val.t, "while converting term %s", Yap_TermToBuffer(
+         inp->val.t, Handle_cyclics_f|Quote_illegal_f | Handle_vars_f));
     }
   }
-
   if ((inp->val.t == TermNil) && inp->type & YAP_STRING_PREFER_LIST )
   {
     out = Malloc(4);
@@ -580,6 +584,7 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
     }
 
       pop_text_stack(lvl);
+
       return inp->val.uc;
   }
   if (inp->type & YAP_STRING_WCHARS) {
@@ -591,7 +596,10 @@ unsigned char *Yap_readText(seq_tv_t *inp USES_REGS) {
 }
 
 static Term write_strings(unsigned char *s0, seq_tv_t *out USES_REGS) {
-  size_t min = 0, max = strlen((char *)s0);
+  size_t min = 0, max;
+
+  if (s0 && s0[0]) max = strlen((char *)s0);
+  else max = 0;
 
   if (out->type & (YAP_STRING_NCHARS | YAP_STRING_TRUNC)) {
     if (out->type & YAP_STRING_NCHARS)
@@ -962,7 +970,6 @@ bool Yap_CVT_Text(seq_tv_t *inp, seq_tv_t *out USES_REGS) {
       // else if (out->type & YAP_STRING_NCHARS &&
       // const unsigned char *ptr = skip_utf8(buf)
     }
-
     if (out->type & (YAP_STRING_UPCASE | YAP_STRING_DOWNCASE)) {
       if (out->type & YAP_STRING_UPCASE) {
         if (!upcase(buf, out)) {

@@ -524,7 +524,9 @@ every 5th iteration only.
 
 :- PD = '/usr/local/bin',
 	set_problog_path(PD).
-%:-     stop_low_level_trace.
+:- PD = '$HOME/,local/bin',
+	set_problog_path(PD).
+
 
 
 %%%%%%%%%%%%
@@ -552,10 +554,7 @@ every 5th iteration only.
 %%%%%%%%%%%%
 % max number of calls to probabilistic facts per derivation (to ensure termination)
 %%%%%%%%%%%%
-
-:- initialization(
-	problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference)
-).
+:- initialization(   problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference) ).
 
 %%%%%%%%%%%%
 % BDD timeout in seconds, used as option in BDD tool
@@ -1826,7 +1825,7 @@ eval_dnf(OriTrie1, Prob, Status) :-
   ;
     Trie = OriTrie
   ),
-  (problog_flag(bdd_static_order, true) ->
+   (problog_flag(bdd_static_order, true) ->
     get_order(Trie, Order),
     problog_flag(static_order_file, SOFName),
     convert_filename_to_working_path(SOFName, SOFileName),

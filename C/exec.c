@@ -164,7 +164,7 @@ PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
 
 restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
@@ -177,7 +177,7 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
       return NULL;
     }
     if (fun == FunctorModule) {

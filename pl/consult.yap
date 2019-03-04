@@ -862,7 +862,6 @@ nb_setval('$if_level',0).
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
-	writeln(init:Answers),
 	'$process_init_goal'(Answers).
 '$exec_initialization_goals'.
 
@@ -1150,11 +1149,11 @@ exists_source(File) :-
 
 
 '$full_filename'(F0, F) :-
-	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
+	'$undefined'(absolute_file_name(F0,[],F),prolog),
 	!,
 	absolute_file_system_path(F0, F).
 '$full_filename'(F0, F) :-
-	'$absolute_file_name'(F0,[access(read),
+	absolute_file_name(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
@@ -1450,9 +1449,7 @@ environment. Use initialization/2 for more flexible behavior.
 '$initialization_queue'(G) :-
 	b_getval('$lf_status', TOpts),
 	'$lf_opt'( initialization, TOpts, Ref),
-	writeln(G),
 	nb:nb_queue_enqueue(Ref, G),
-	writeln(Ref),
 	fail.
 '$initialization_queue'(_).
 

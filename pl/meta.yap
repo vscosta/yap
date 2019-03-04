@@ -201,7 +201,7 @@ meta_predicate(P) :-
     '$yap_strip_module'(CM:G, NCM, NG).
 
 '$match_mod'(G, _HMod, _SMod, M, O) :-
-    '$is_system_predicate'(G,M),
+    M = prolog,
     !,
     O = G.
 '$match_mod'(G, M, M, M, G) :-    !.

@@ -37,9 +37,6 @@
 #include "string.h"
 #endif
 
-#define Malloc malloc
-#define Realloc realloc
-
 extern int cs[10];
 
 int cs[10];

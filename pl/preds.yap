@@ -395,15 +395,7 @@ predicate_property(Pred,Prop) :-
     '$current_predicate'(_,M,Pred,system),
     '$yap_strip_module'(M:Pred, Mod, TruePred)
     ),
-
-    (
-	'$pred_exists'(TruePred, Mod)
-    ->
-    M = Mod,
-    NPred = TruePred
-    ;
-    '$get_undefined_pred'(Mod:TruePred, M:NPred)
-    ),
+    '$predicate_definition'(Mod:TruePred, M:NPred),
     '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
