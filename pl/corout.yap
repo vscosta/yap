@@ -305,7 +305,7 @@ prolog:when(_,Goal) :-
 %
 '$declare_when'(Cond, G) :-
     generate_code_for_when(Cond, G, Code),
-    '$$compile'(Code, Module, assertz, Code, _), fail.
+    '$$compile'(Code, assertz, Code, _), fail.
 '$declare_when'(_,_).
 
 %
@@ -433,7 +433,6 @@ suspend_when_goals([_|_], _).
 %
 prolog:'$block'(Conds) :-
 	generate_blocking_code(Conds, _, Code),
-	'$yap_strip_module'(Code, Module, NCode),
 	'$$compile'(Code, assertz, Code, _), fail.
 prolog:'$block'(_).
 

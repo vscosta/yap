@@ -517,14 +517,11 @@ every 5th iteration only.
 % directory where simplecudd executable is located
 % automatically set during loading -- assumes it is in /usr/local/bin or same place where YAP has
 % been installed.)
-
 :- getcwd(PD0),
 	atom_concat(PD0, '../../bin', PD),
 	set_problog_path(PD).
 
 :- PD = '/usr/local/bin',
-	set_problog_path(PD).
-:- PD = '$HOME/,local/bin',
 	set_problog_path(PD).
 
 
@@ -554,7 +551,10 @@ every 5th iteration only.
 %%%%%%%%%%%%
 % max number of calls to probabilistic facts per derivation (to ensure termination)
 %%%%%%%%%%%%
-:- initialization(   problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference) ).
+
+:- initialization(
+	problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference)
+).
 
 %%%%%%%%%%%%
 % BDD timeout in seconds, used as option in BDD tool
@@ -623,7 +623,6 @@ every 5th iteration only.
 %%%%%%%%%%%%
 
 :- initialization(problog_define_flag(tunable_fact_start_value,problog_flag_validate_dummy,'How to initialize tunable probabilities',uniform(0.1,0.9),learning_general,flags:learning_prob_init_handler)).
-
 
 
 
@@ -1825,7 +1824,7 @@ eval_dnf(OriTrie1, Prob, Status) :-
   ;
     Trie = OriTrie
   ),
-   (problog_flag(bdd_static_order, true) ->
+  (problog_flag(bdd_static_order, true) ->
     get_order(Trie, Order),
     problog_flag(static_order_file, SOFName),
     convert_filename_to_working_path(SOFName, SOFileName),
@@ -2445,7 +2444,7 @@ and the facts used in achieving this explanation.
 explanation probability - returns list of facts used or constant 'unprovable' as third argument
 problog_max(+Goal,-Prob,-Facts)
 
-uses iterative deepening with samw parameters as bounding algorithm
+uses iterative deepening with same parameters as bounding algorithm
 threshold gets adapted whenever better proof is found
 
 uses local dynamic predicates max_probability/1 and max_proof/1
@@ -2454,8 +2453,8 @@ uses local dynamic predicates max_probability/1 and max_proof/1
 problog_max(Goal, Prob, Facts) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
-	problog_control(off,up), %
-	problog_max_id(Goal, Prob, FactIDs), %theo todo
+	problog_control(off,up),
+	problog_max_id(Goal, Prob, FactIDs),% theo todo
 	( FactIDs = [_|_] -> get_fact_list(FactIDs, Facts);
 	    Facts = FactIDs).
 

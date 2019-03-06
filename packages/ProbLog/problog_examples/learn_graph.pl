@@ -15,31 +15,32 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module(library(matrix)).
-:- use_module('../problog_learning').
 
+:- use_module(('../problog_learning')).
+:- stop_low_level_trace.
 %%%%
 % background knowledge
-%%%% 
+%%%%
 % definition of acyclic path using list of visited nodes
 path(X,Y) :- path(X,Y,[X],_).
 
 path(X,X,A,A).
-path(X,Y,A,R) :- 
-  X\==Y, 
-  edge(X,Z), 
-  absent(Z,A), 
+path(X,Y,A,R) :-
+  X\==Y,
+  edge(X,Z),
+  absent(Z,A),
   path(Z,Y,[Z|A],R).
 
 % using directed edges in both directions
-edge(X,Y) :- dir_edge(Y,X).
-edge(X,Y) :- dir_edge(X,Y).
+edge(X,Y) :- problog:dir_edge(Y,X).
+edge(X,Y) :- problog:dir_edge(X,Y).
 
 % checking whether node hasn't been visited before
 absent(_,[]).
 absent(X,[Y|Z]):-X \= Y, absent(X,Z).
 
 %%%%
-% probabilistic facts 
+% probabilistic facts
 % - probability represented by t/1 term means learnable parameter
 % - argument of t/1 is real value (used to compare against in evaluation when known), use t(_) if unknown
 %%%%
@@ -53,7 +54,7 @@ t(0.7)::dir_edge(5,3).
 t(0.2)::dir_edge(5,4).
 
 %%%%%%%%%%%%%%
-% training examples of form example(ID,Query,DesiredProbability) 
+% training examples of form example(ID,Query,DesiredProbability)
 %%%%%%%%%%%%%%
 
 example(1,path(1,2),0.94).
@@ -79,7 +80,7 @@ example(19,(dir_edge(2,6),dir_edge(6,5)),0.2).
 example(20,(dir_edge(1,2),dir_edge(2,3),dir_edge(3,4)),0.432).
 
 %%%%%%%%%%%%%%
-% test examples of form test_example(ID,Query,DesiredProbability) 
+% test examples of form test_example(ID,Query,DesiredProbability)
 % note: ID namespace is shared with training example IDs
 %%%%%%%%%%%%%%
 
@@ -99,7 +100,7 @@ test_example(33,path(5,4),0.57).
 test_example(34,path(6,4),0.51).
 test_example(35,path(6,5),0.69).
 
-:-     set_problog_flag(init_method,(Query,_,BDD,
-	problog_exact_lbdd(user:Query,BDD))).
+%:-     set_problog_flag(init_method,(Query,_,BDD,
+%	problog_exact(user:Query,_,BDD))).
 
 

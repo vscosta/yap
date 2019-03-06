@@ -770,6 +770,7 @@ db_files(Fs) :-
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
+	%`writeln((       ContextModule/Mod  )),
 	set_prolog_flag(verbose_load, VerboseLoad),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(informational, loaded(EndMsg, File, Mod, T, H)),

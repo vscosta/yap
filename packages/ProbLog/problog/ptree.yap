@@ -265,7 +265,7 @@
 :- initialization(
         (       predicate_property(trie_disable_hash, imported_from(_M)) ->
                 trie_disable_hash
-        ; true %    stop_low_level_trace,  print_message(warning,'The predicate trie_disable_hash/0 does not exist. Please update trie library.')
+        ;       print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
         )
 ).
 
@@ -276,7 +276,7 @@
 :- initialization((
 	problog_define_flag(use_db_trie,     problog_flag_validate_boolean, 'use the builtin trie 2 trie transformation', false),
 	problog_define_flag(db_trie_opt_lvl, problog_flag_validate_integer, 'optimization level for the trie 2 trie transformation', 0),
-	problog_define_flag(compare_opt_lvl, problog_flag_validate_boolean, 'comparison mode for optimizatione level', false),
+	problog_define_flag(compare_opt_lvl, problog_flag_validate_boolean, 'comparison mode for optimization level', false),
 	problog_define_flag(db_min_prefix,   problog_flag_validate_integer, 'minimum size of prefix for dbtrie to optimize', 2),
 	problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false),
 	problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true),

@@ -388,13 +388,8 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-    (
-	current_predicate(_,Pred),
-	'$yap_strip_module'(Pred, Mod, TruePred)
-    ;
-    '$current_predicate'(_,M,Pred,system),
-    '$yap_strip_module'(M:Pred, Mod, TruePred)
-    ),
+    '$yap_strip_module'(Pred, Mod, TruePred),
+    (var(Mod) -> current_module(Mod) ; true ),
     '$predicate_definition'(Mod:TruePred, M:NPred),
     '$predicate_property'(NPred,M,Mod,Prop).
 

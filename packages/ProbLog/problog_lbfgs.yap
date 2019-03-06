@@ -581,8 +581,7 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
-writeln(init_one_query(QueryID,Query,_Type)),
-    %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+%	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
@@ -593,15 +592,13 @@ writeln(init_one_query(QueryID,Query,_Type)),
 	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
 	 ;
 	 b_setval(problog_required_keep_ground_ids,false),
-
 	 (QueryID mod 100 =:= 0 -> writeln(QueryID) ; true),
-
-	 problog_flag(init_method,(Query,N,Bdd,G)),
+	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
 	  Query =.. [_,X,Y]
 	  ->
 	  Bdd = bdd(Dir, Tree, MapList),
 	  (
-	      G
+	      graph2bdd(X,Y,N,Bdd)
 	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
@@ -611,9 +608,8 @@ writeln(init_one_query(QueryID,Query,_Type)),
 	  % Grad=[]
 	  ),
 		write('.'),
-		recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 ).
-/*	 ;
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
+	 ;
 	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,NOf,Bdd))) ->
 	  b_setval(problog_required_keep_ground_ids,false),
 	  rb_new(H0),
@@ -628,20 +624,20 @@ writeln(init_one_query(QueryID,Query,_Type)),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
 	 ;
-	 
-	 problog_flag(init_method,(Query,NOf,Bdd,_Call)) ,
-	 Query = gene(X,Y),
+	  problog_flag(init_method,(Query,NOf,Bdd,Call)) ->
 	  b_setval(problog_required_keep_ground_ids,false),
 	  rb_new(H0),
 	  Bdd = bdd(Dir, Tree, MapList),
-	 user:graph2bdd(X,Y,1,Bdd),
+%	  trace,
+	  problog:Call,
 	  maplist_to_hash(MapList, H0, Hash),
 	  Tree \= [],
 	  %put_code(0'.),
 	  tree_to_grad(Tree, Hash, [], Grad),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
+	).
 
-*/
+
 
 
 %========================================================================

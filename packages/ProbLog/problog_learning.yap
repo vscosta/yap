@@ -1487,10 +1487,12 @@ my_5_min(V1,V2,V3,V4,V5,F1,F2,F3,F4,F5,VMin,FMin) :-
 %========================================================================
 
 init_flags :-
+    writeln(10),
 	prolog_file_name('queries',Queries_Folder), % get absolute file name for './queries'
 	prolog_file_name('output',Output_Folder), % get absolute file name for './output'
 	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
+    writeln(10),
 	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
@@ -1529,3 +1531,4 @@ init_logger :-
 
 :- initialization(init_flags).
 :- initialization(init_logger).
+

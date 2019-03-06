@@ -463,8 +463,9 @@ meta_predicate(P) :-
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
 % has to be last!!!
-'$expand_a_clause'(MHB, SM0, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
-    '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
+'$expand_a_clause'(MHB, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+    source_module(SM0),
+    '$yap_strip_module'(MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
     '$not_imported'(NH, HM),

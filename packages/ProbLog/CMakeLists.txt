@@ -4,8 +4,8 @@ set (PROGRAMS
   problog_lfi.yap 
   dtproblog.yap 
   aproblog.yap 
-  problog_lbfgs.yap
   problog_learning.yap
+  problog_lbfgs.yap
   problog_learning_lbdd.yap
   )
 

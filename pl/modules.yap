@@ -450,25 +450,29 @@ export_list(Module, List) :-
 !.
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
-'$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
-       recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
-       once(lists:member(N1/K, MyExports)),
-       functor(S, N1, K),
-       %  reexport predicates if they are undefined in the current module.
-       \+ '$undefined'(S,ContextMod), !.
-'$do_import'( N/K-N1/K, Mod, ContextMod) :-
-	functor(G,N,K),
-	'$one_predicate_definition'(Mod:G,M0:G0),
-	M0\=prolog,
-	(Mod\=M0->N\=N1;true),
-	G0=..[_N0|Args],
+% '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
+%        recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
+%        once(lists:member(N1/K, MyExports)),
+%        functor(S, N1, K),
+%        %  reexport predicates if they are undefined in the current module.
+%        \+ '$undefined'(S,ContextMod), !.
+'$do_import'( N0/K-N1/K, M0, ContextMod) :-
+	%'$one_predicate_definition'(Mod:G,M0:G0),
+%	M0\=prolog,
+	(M0==ContextMod->N0\=N1;true),
+	functor(G1,N1,K),
+	(N0 == N1
+	->
+	G0=G1
+	;
 	G1=..[N1|Args],
-	recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-	    %\+ '$is_system_predicate'(G1, prolog),
-	    %'$compile'((G1:-M0:G0), reconsult,(ContextMod:G1:-M0:G0) , ContextMod, R),
-        fail.
-% always succeed.
-'$do_import'(_,_,_).
+	G0=..[N0|Args]
+	),
+	%writeln((ContextMod:G1:-M0:G0)),
+		recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+	!.
+'$do_import'( _,_,_ ).
+
 
 '$follow_import_chain'(M,G,M0,G0) :-
 	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
@@ -480,7 +484,7 @@ export_list(Module, List) :-
 	recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
 	% dereference MI to M1, in order to find who
 	% is actually generating
-	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 ),
+	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 	),
 	( '$module_produced by'(M2, Mod, N, K) -> true ; Mod = M2 ),
 	M2 \= M1,  !,
     '$redefine_import'( M1, M2, Mod, ContextM, N/K).
@@ -727,4 +731,5 @@ module_state :-
 	fail.
 module_state.
 
-%% @}
+%% @}imports
+
