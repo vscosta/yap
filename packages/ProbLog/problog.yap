@@ -521,7 +521,12 @@ every 5th iteration only.
 	atom_concat(PD0, '../../bin', PD),
 	set_problog_path(PD).
 
-:- PD = '/usr/local/bin',
+:- yap_flag(executable, Bin),
+   file_directory_name(Bin, PD),
+   set_problog_path(PD).
+
+
+:- PD = '/usxor/local/bin',
 	set_problog_path(PD).
 
 
