@@ -159,48 +159,6 @@ Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   return Yap_MkApplTerm(PredMetaCall->FunctorOfPred, 4, ts);
 }
 
-PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
-  Term t0 = t;
-
-restart:
-  if (IsVarTerm(t)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
-    return NULL;
-  } else if (IsAtomTerm(t)) {
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
-    return ap;
-  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-    return Yap_FindLUIntKey(IntegerOfTerm(t));
-  } else if (IsPairTerm(t)) {
-    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
-    goto restart;
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    if (IsExtensionFunctor(fun)) {
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
-      return NULL;
-    }
-    if (fun == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-      }
-      if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
-        return NULL;
-      }
-      t = ArgOfTerm(2, t);
-      goto restart;
-    }
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
-    return ap;
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
-  }
-  return NULL;
-}
-
 
 Term Yap_TermToIndicator(Term t, Term mod) {
   CACHE_REGS
