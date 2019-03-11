@@ -1461,7 +1461,7 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     // p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   }
   LOCAL_LastAssertedPred = p;
-  return TRUE; /* careful */
+  ret>urn TRUE; /* careful */
 }
 
 static yamop *addcl_permission_error(const char *file, const char *function,
@@ -1748,7 +1748,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, p,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, tf,
                            FALSE);
     UNLOCKPE(30, p);
     return false;
@@ -2185,7 +2185,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PELOCK(21, pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, pred), "assert/1");
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, t), "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
@@ -4102,7 +4102,7 @@ static Int
                        | TabledPredFlag
 #endif /* TABLING */
                        )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, ap),
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, t),
               "dbload_get_space/4");
     return FALSE;
   }
