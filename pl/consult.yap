@@ -42,6 +42,7 @@
         use_module/3],
 	['$add_multifile'/3,
         '$csult'/2,
+        '$do_startup_reconsult'/1,
         '$elif'/2,
         '$else'/1,
         '$endif'/1,
@@ -515,8 +516,8 @@ load_files(Files0,Opts) :-
 '$start_lf'(_, Mod, PlStream, TOpts, _UserFile, File, Reexport, ImportList) :-
     % check if there is a qly file
 				%	start_low_level_trace,
-	'$pred_exists'(absolute_file_name__(File,[],F),prolog),
-	absolute_file_name__(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
+	'$pred_exists'('$absolute_file_name'(File,[],F),prolog),
+	'$absolute_file_name'(File,[access(read),file_type(qly),file_errors(fail),solutions(first),expand(true)],F),
     open( F, read, Stream , [type(binary)] ),
 	(
 	 '$q_header'( Stream, Type ),
@@ -769,6 +770,7 @@ db_files(Fs) :-
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
+	%`writeln((       ContextModule/Mod  )),
 	set_prolog_flag(verbose_load, VerboseLoad),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(informational, loaded(EndMsg, File, Mod, T, H)),
@@ -803,7 +805,7 @@ db_files(Fs) :-
     '$lf_opt'('$source_pos', TOpts, Pos),
     '$lf_opt'('$from_stream', TOpts, false),
     ( QComp ==  auto ; QComp == large, Pos > 100*1024),
-    absolute_file_name__(UserF,[file_type(qly),solutions(first),expand(true)],F),
+    '$absolute_file_name'(UserF,[file_type(qly),solutions(first),expand(true)],F),
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
@@ -927,6 +929,14 @@ nb_setval('$if_level',0).
 %
 % reconsult at startup...
 %
+'$do_startup_reconsult'(_X) :-
+	'$init_win_graphics',
+	fail.
+'$do_startup_reconsult'(X) :-
+	catch(load_files(user:X, [silent(true)]), Error, '$LoopError'(Error, consult)),
+	!,
+	( current_prolog_flag(halt_after_consult, false) -> true ; halt).
+'$do_startup_reconsult'(_).
 
 '$skip_unix_header'(Stream) :-
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
@@ -1033,7 +1043,7 @@ prolog_load_context(stream, Stream) :-
 				%format( 'L=~w~n', [(F0)] ),
 	(
 	    atom_concat(Prefix, '.qly', F0 ),
-	 absolute_file_name__(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
+	 '$absolute_file_name'(Prefix,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],F)
         ;
            F0 = F
 				   ),
@@ -1140,11 +1150,11 @@ exists_source(File) :-
 
 
 '$full_filename'(F0, F) :-
-	'$undefined'(absolute_file_name__(F0,[],F),prolog_complete),
+	'$undefined'(absolute_file_name(F0,[],F),prolog),
 	!,
 	absolute_file_system_path(F0, F).
 '$full_filename'(F0, F) :-
-	absolute_file_name__(F0,[access(read),
+	absolute_file_name(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
@@ -1263,7 +1273,6 @@ module(Mod, Decls) :-
 
 
 % prevent modules within the kernel module...
-
 /** @pred use_module(? _M_,? _F_,+ _L_) is directive
     SICStus compatible way of using a module
 
@@ -1493,15 +1502,15 @@ initialization(_G,_OPT).
 @}
 */
 
+%%   @{
+
+
 
 /**
 
 @defgroup Conditional_Compilation Conditional Compilation
 
 @ingroup  YAPCompilerSettings
-
-%%   @{
-
 
   Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
@@ -1625,7 +1634,6 @@ no test succeeds the else branch is processed.
 '$elif'(_,_).
 
 /** @pred    endif
-
 End of conditional compilation.
 
 */
@@ -1678,7 +1686,7 @@ End of conditional compilation.
 	 current_prolog_flag(source, true), !.
 '$fetch_comp_status'(compact).
 
-/** @pred consult_depth(-int:_LV_)
+/** consult_depth(-int:_LV_)
  *
  * Unify _LV_ with the number of files being consulted.
  */

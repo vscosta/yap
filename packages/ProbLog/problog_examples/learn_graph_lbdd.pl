@@ -14,8 +14,7 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(problog)).
-:- use_module(library(problog_learning_lbdd)).
+:- use_module(library(problog_learning)).
 
 %%%%
 % background knowledge
@@ -99,3 +98,4 @@ test_example(33,path(5,4),0.57).
 test_example(34,path(6,4),0.51).
 test_example(35,path(6,5),0.69).
 
+:- set_problog_flag(init_method,([Query,X,Y],N,Bdd,graph2bdd(X,Y,N,Bdd))).

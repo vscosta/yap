@@ -115,14 +115,18 @@ static inline bool CallPredicate(PredEntry *pen, choiceptr cut_pt,
 inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
    // we have a creep requesr waiting
 
-  ARG1 = t;
+   if (IsVarTerm(t))
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "meta-call");
+ if (IsIntTerm(t) || (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))))
+    Yap_ThrowError(TYPE_ERROR_CALLABLE,  Yap_TermToIndicator(t, mod), "meta-call");
+ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
   ARG3 = t;
   if (mod) {
     ARG4 = mod;
   } else {
     ARG4 = TermProlog;
-  }
+}
   if (Yap_GetGlobal(AtomDebugMeta) == TermOn) {
     return CallPredicate(PredTraceMetaCall, B,
                          PredTraceMetaCall->CodeOfPred PASS_REGS);
@@ -141,6 +145,10 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
 Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   CACHE_REGS
   Term ts[4];
+  if (IsVarTerm(g))
+    Yap_ThrowError(INSTANTIATION_ERROR, g, "meta-call");
+ if (IsIntTerm(g) || (IsApplTerm(g) && IsExtensionFunctor(FunctorOfTerm(g))))
+    Yap_ThrowError(TYPE_ERROR_CALLABLE,   Yap_TermToIndicator(g, mod), "meta-call");
   ts[0] = g;
   ts[1] = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
   ts[2] = g;
@@ -151,7 +159,8 @@ Term Yap_ExecuteCallMetaCall(Term g, Term mod) {
   return Yap_MkApplTerm(PredMetaCall->FunctorOfPred, 4, ts);
 }
 
-Term Yap_PredicateIndicator(Term t, Term mod) {
+
+Term Yap_TermToIndicator(Term t, Term mod) {
   CACHE_REGS
   // generate predicate indicator in this case
   Term ti[2];
@@ -167,7 +176,28 @@ Term Yap_PredicateIndicator(Term t, Term mod) {
     ti[1] = MkIntTerm(0);
   }
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-  if (mod != CurrentModule) {
+  if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
+    ti[0] = mod;
+    ti[1] = t;
+    return Yap_MkApplTerm(FunctorModule, 2, ti);
+  }
+  return t;
+}
+
+Term Yap_PredicateToIndicator(PredEntry *pe) {
+  CACHE_REGS
+  // generate predicate indicator in this case
+  Term ti[2];
+  if (pe->ArityOfPE) {
+    ti[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+    ti[1] = MkIntegerTerm(ArityOfFunctor(pe->FunctorOfPred));
+  } else  {
+    ti[0] = MkAtomTerm((Atom)(pe->FunctorOfPred));
+    ti[1] = MkIntTerm(0);
+  }
+  Term t = Yap_MkApplTerm(FunctorSlash, 2, ti);
+  Term mod = pe->ModuleOfPred;
+  if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
     ti[0] = mod;
     ti[1] = t;
     return Yap_MkApplTerm(FunctorModule, 2, ti);
@@ -282,7 +312,7 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
@@ -1897,7 +1927,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     pt = RepAppl(t) + 1;
     arity = ArityOfFunctor(f);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), "call/1");
+    Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }

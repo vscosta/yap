@@ -95,8 +95,9 @@ INLINE_ONLY int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
 
 INLINE_ONLY int VALID_TIMESTAMP(UInt timestamp,
                                               struct logic_upd_clause *cl) {
+  //  printf("%lu %lu %lu\n",cl->ClTimeStart, timestamp, cl->ClTimeEnd);
   return IN_BETWEEN(cl->ClTimeStart, timestamp, cl->ClTimeEnd);
-}
+	 }
 
 typedef struct dynamic_clause {
   /* A set of flags describing info on the clause */

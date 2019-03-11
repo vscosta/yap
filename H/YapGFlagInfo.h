@@ -434,7 +434,7 @@ vxu    `on` consider `$` a lower case character.
   */
   YAP_FLAG(PROFILING_FLAG, "profiling", true, booleanFlag, "false", NULL),
    
- /**< `prompt_alternatives_on(atom,
+ /**< `  pt_alternatives_on(atom,
    changeable) `
 
    SWI-Compatible option, determines prompting for alternatives in the Prolog

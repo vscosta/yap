@@ -69,7 +69,7 @@ elif platform.system() == 'Darwin':
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/lib','-Wl,-rpath,'+join('/lib','..'),'-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-L','/lib','-Wl,-rpath,/lib','-Wl,-rpath,'+join('/lib','..'),'-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 

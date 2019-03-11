@@ -521,7 +521,12 @@ every 5th iteration only.
 	atom_concat(PD0, '../../bin', PD),
 	set_problog_path(PD).
 
-:- PD = '/usr/local/bin',
+:- yap_flag(executable, Bin),
+   file_directory_name(Bin, PD),
+   set_problog_path(PD).
+
+
+:- PD = '/usxor/local/bin',
 	set_problog_path(PD).
 
 
@@ -2444,7 +2449,7 @@ and the facts used in achieving this explanation.
 explanation probability - returns list of facts used or constant 'unprovable' as third argument
 problog_max(+Goal,-Prob,-Facts)
 
-uses iterative deepening with samw parameters as bounding algorithm
+uses iterative deepening with same parameters as bounding algorithm
 threshold gets adapted whenever better proof is found
 
 uses local dynamic predicates max_probability/1 and max_proof/1
@@ -2453,8 +2458,8 @@ uses local dynamic predicates max_probability/1 and max_proof/1
 problog_max(Goal, Prob, Facts) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_max(InitT),
-	problog_control(off,up), %
-	problog_max_id(Goal, Prob, FactIDs), %theo todo
+	problog_control(off,up),
+	problog_max_id(Goal, Prob, FactIDs),% theo todo
 	( FactIDs = [_|_] -> get_fact_list(FactIDs, Facts);
 	    Facts = FactIDs).
 

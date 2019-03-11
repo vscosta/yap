@@ -507,7 +507,7 @@ init_learning :-
 %========================================================================
 %= Updates all values of query_probability/2 and query_gradient/4
 %= should be called always before these predicates are accessed
-%= if the old values are still valid, nothing happens
+%= if the old values are still valid, nothing happensv
 %========================================================================
 
 update_values :-
@@ -516,8 +516,6 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	retractall(query_probability_intern(_,_)),
 	retractall(query_gradient_intern(_,_,_,_)).
-
-
 
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -573,7 +571,7 @@ empty_bdd_directory.
 init_queries :-
     empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
-	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
+	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),	
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
 bdd_input_file(Filename) :-
@@ -581,63 +579,70 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
-%	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+        %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 recorded(QueryID, _, _)
-	->
-	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
-	 ;
 	 b_setval(problog_required_keep_ground_ids,false),
 	 (QueryID mod 100 =:= 0 -> writeln(QueryID) ; true),
-	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
-	  Query =.. [_,X,Y]
-	  ->
-	  Bdd = bdd(Dir, Tree, MapList),
-	  (
-	      graph2bdd(X,Y,N,Bdd)
-	  ->
+	 Query =.. [_|Args],
+	 % problog_flag(init_method,(Query,N,Bdd,M:graph2bdd(Args,N,Bdd))),
+	 Bdd = bdd(Dir, Tree,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		   u3777777777/....777;;;;;;;;;;;;;;;;;;;666666666MapList),
+	  user:graph2bdd(Args,N,Bdd),
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
-	  tree_to_grad(Tree, Hash, [], Grad)
+	  tree_to_grad(Tree, Hash, [], Grad),
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
-	  ),
 		write('.'),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 ;
-	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,NOf,Bdd))) ->
-	  b_setval(problog_required_keep_ground_ids,false),
-	  rb_new(H0),
-	  strip_module(Call,_,Goal),
-	  !,
-	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
-	  problog:problog_kbest_as_bdd(Goal,NOf,Bdd),
-	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
-	  %put_code(0'.),
-	  tree_to_grad(Tree, Hash, [], Grad),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 ;
-	  problog_flag(init_method,(Query,NOf,Bdd,Call)) ->
-	  b_setval(problog_required_keep_ground_ids,false),
-	  rb_new(H0),
-	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
-	  problog:Call,
-	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
-	  %put_code(0'.),
-	  tree_to_grad(Tree, Hash, [], Grad),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	).
-
-
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
 
 
 %========================================================================
@@ -1010,7 +1015,7 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,_Iteration,Ls,0) :-
 %========================================================================
 
 init_flags :-
-	prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
+%	prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
 	prolog_file_name(output,Output_Folder), % get absolute file name for './output'
 	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),

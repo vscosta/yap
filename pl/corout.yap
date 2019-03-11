@@ -304,9 +304,8 @@ prolog:when(_,Goal) :-
 %
 %
 '$declare_when'(Cond, G) :-
-	generate_code_for_when(Cond, G, Code),
-	'$current_module'(Module),
-	'$$compile'(Code, Code, 5, Module), fail.
+    generate_code_for_when(Cond, G, Code),
+    '$$compile'(Code, assertz, Code, _), fail.
 '$declare_when'(_,_).
 
 %
@@ -434,8 +433,7 @@ suspend_when_goals([_|_], _).
 %
 prolog:'$block'(Conds) :-
 	generate_blocking_code(Conds, _, Code),
-	'$current_module'(Module),
-	'$$compile'(Code, Code, 5, Module), fail.
+	'$$compile'(Code, assertz, Code, _), fail.
 prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
@@ -515,8 +513,7 @@ generate_for_each_arg_in_block([V|L], (var(V),If), (nonvar(V);Whens)) :-
 prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	arg(1, S, A),
-	'$current_module'(M),
-	'$$compile'((S :- var(A), !, freeze(A, S)), (S :- var(A), !, freeze(A, S)), 5, M), fail.
+	'$$compile'((S :- var(A), !, freeze(A, S)), assertz, (S :- var(A), !, freeze(A, S)), _), fail.
 prolog:'$wait'(_).
 
 /** @pred frozen( _X_, _G_)

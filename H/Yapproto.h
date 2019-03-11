@@ -212,7 +212,8 @@ extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
 extern int Yap_dogc(int extra_args, Term *tp USES_REGS);
-extern Term Yap_PredicateIndicator(Term t, Term mod);
+extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
+extern Term Yap_TermToIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
 
 /* exo.c */

@@ -388,22 +388,9 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-    (
-	current_predicate(_,Pred),
-	'$yap_strip_module'(Pred, Mod, TruePred)
-    ;
-    '$current_predicate'(_,M,Pred,system),
-    '$yap_strip_module'(M:Pred, Mod, TruePred)
-    ),
-
-    (
-	'$pred_exists'(TruePred, Mod)
-    ->
-    M = Mod,
-    NPred = TruePred
-    ;
-    '$get_undefined_pred'(Mod:TruePred, M:NPred)
-    ),
+    '$yap_strip_module'(Pred, Mod, TruePred),
+    (var(Mod) -> current_module(Mod) ; true ),
+    '$predicate_definition'(Mod:TruePred, M:NPred),
     '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
@@ -486,27 +473,26 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
-current_predicate(A,T0) :-
-    '$yap_strip_module'(T0, M, T),
-    (	var(M)
-    ->
-    '$all_current_modules'(M)
-    ;
-    true
-    ),
-    (nonvar(T) -> functor(T, A, _) ; true ),
+current_predicate(A0,T0) :-
+    
+    ( nonvar(T0) -> '$yap_strip_module'(T0, M, T) ; T0 = T ),
+    ( nonvar(A0) -> '$yap_strip_module'(A0, MA0, A) ; A0 = A ),
+    M = MA0,
     (
-	'$current_predicate'(A,M, T, user)
-    ;
-    (nonvar(T)
+	var(M)
     ->
-	'$imported_predicate'(M:T,  M1:T1)
+    true
     ;
-    '$imported_predicate'(M:T, M1:T1)
+    '$all_current_modules'(M)
     ),
-    functor(T1, A, _),
-    \+ '$is_system_predicate'(T1,M1)
-    ).
+    % M is bound
+    (
+    '$current_predicate'(A,M,T,user)
+    ;
+    '$imported_predicate'(M:T, M1T1), M1T1 \= M:T
+    ),
+    functor(T, A, _).
+
 
 /** @pred  system_predicate( ?_P_ )
 

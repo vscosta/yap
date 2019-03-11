@@ -91,33 +91,22 @@ undefined_query(G0, M0, Cut) :-
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
 '$undefp_search'(M0:G0, MG) :-
-    '$get_undefined_predicates'(M0:G0, MG), !.
+    '$predicate_definition'(M0:G0, MG), !.
 
 % undef handler
-'$undefp'([M0|G0],MG) :-
+'$undefp'([M0|G0],true) :-
 	% make sure we do not loop on undefined predicates
 	setup_call_cleanup(
-			   '$undef_setup'(M0:G0, Action,Debug,Current, MGI),
-			   ignore('$get_undefined_predicates'( MGI, MG )),   
+			   '$undef_setup'(Action,Debug,Current),
+			   '$get_undefined_predicate'( M0:G0, MG ),
 			   '$undef_cleanup'(Action,Debug,Current)
 	),
-	'$undef_error'(Action, M0:G0, MGI,  MG).
+	'$undef_error'(Action, M0:G0,  MG).
 
-'$undef_setup'(G0,Action,Debug,Current,GI) :-
+'$undef_setup'(Action,Debug,Current) :-
     yap_flag( unknown, Action, fail),
     yap_flag( debug, Debug, false),
-    '$stop_creeping'(Current),
-    '$g2i'(G0,GI).
-
-'$g2i'(user:G, Na/Ar ) :-
-        !,
-	functor(G, Na, Ar).
-'$g2i'(prolog:G, Na/Ar ) :-
-        !,
-	functor(G, Na, Ar).
-'$g2i'(M:G, M:Na/Ar ) :-
-        !,
-	functor(G, Na, Ar).
+    '$stop_creeping'(Current).
 
 '$undef_cleanup'(Action,Debug, _Current) :-
     yap_flag( unknown, _, Action),
@@ -137,26 +126,26 @@ The unknown predicate, informs about what the user wants to be done
 
 */
 
-'$undef_error'(_, _, _,  M:G) :-
+'$undef_error'(_, _,  M:G) :-
 	nonvar(M),
 	nonvar(G),
 	!,
-	'$start_creep'([prolog|true], creep).
-'$undef_error'(_, M0:G0, _, MG) :-
+	'$start_creep'([M|G], creep).
+'$undef_error'(_, M0:G0, M:G) :-
     '$pred_exists'(unknown_predicate_handler(_,_,_,_), user),
     '$yap_strip_module'(M0:G0,  EM0, GM0),
-    user:unknown_predicate_handler(GM0,EM0,MG),
+    user:unknown_predicate_handler(GM0,EM0,M:G),
     !,
-    '$start_creep'([prolog|true], creep).
-'$undef_error'(error,  Mod:Goal, I,_) :-
-    '$do_error'(existence_error(procedure,I), Mod:Goal).
-'$undef_error'(warning,Mod:Goal,I,_) :-
-    'program_continuation'(PMod,PName,PAr),
-    print_message(warning,error(existence_error(procedure,I), context(Mod:Goal,PMod:PName/PAr))),
-    '$start_creep'([fail|true], creep),
+    '$start_creep'([M|G], creep).
+'$undef_error'(error,  Mod:Goal,_) :-
+    '$do_error'(existence_error(procedure,Mod:Goal), Mod:Goal).
+'$undef_error'(warning,Mod:Goal,_) :-
+    '$program_continuation'(PMod,PName,PAr),
+    print_message(warning,error(existence_error(procedure,Mod:Goal), context(Mod:Goal,PMod:PName/PAr))),
+    %'$start_creep'([prolog|fail], creep),
     fail.
 '$undef_error'(fail,_Goal,_,_Mod) :-
-    '$start_creep'([fail|true], creep),
+   % '$start_creep'([prolog|fail], creep),
     fail.
 
 unknown(P, NP) :-

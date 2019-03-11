@@ -376,9 +376,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   Yap_MkErrorRecord(LOCAL_ActiveError, __FILE__, __FUNCTION__, __LINE__, SYNTAX_ERROR, 0, NULL);
   TokEntry *tok = LOCAL_tokptr;
   Int start_line = tok->TokLine;
-  Int err_line = errtok->TokLine;
+  Int err_line = LOCAL_toktide->TokLine;
    Int startpos = tok->TokPos;
-  Int errpos = errtok->TokPos;
+  Int errpos = LOCAL_toktide->TokPos;
   Int end_line = GetCurInpLine(GLOBAL_Stream + sno);
  Int endpos = GetCurInpPos(GLOBAL_Stream + sno);
 
@@ -1144,7 +1144,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         LOCAL_Error_TYPE = YAP_NO_ERROR;
         return YAP_PARSING_FINISHED;
       }
-    Term t = syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause, fe->msg);
+
+    syntax_error(fe->toklast, inp_stream, fe->cmod, re->cpos, fe->reading_clause, fe->msg);
     if (ParserErrorStyle == TermException)
       {
         if (LOCAL_RestartEnv && !LOCAL_delay)
@@ -1162,7 +1163,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (ParserErrorStyle == TermDec10)
       {
-        return YAP_SCANNING;
+        return YAP_START_PARSING;
       }
     return YAP_PARSING_FINISHED;
   }
@@ -1201,69 +1202,74 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
  */
   Term Yap_read_term(int sno, Term opts, bool clause)
   {
-    FEnv fe;
-    REnv re;
-
 #if EMACS
     int emacs_cares = FALSE;
 #endif
-
-    yap_error_descriptor_t *new = malloc(sizeof *new);
-    bool err = Yap_pushErrorContext(true, new);
     int lvl = push_text_stack();
+    Term rc;
+    yap_error_descriptor_t *new = malloc(sizeof *new);
+    FEnv *fe = Malloc(sizeof *fe);
+    REnv *re = Malloc(sizeof *re);
+    bool err = Yap_pushErrorContext(true, new);
     parser_state_t state = YAP_START_PARSING;
+    yhandle_t yopts = Yap_InitHandle(opts);
     while (true)
       {
         switch (state)
           {
           case YAP_START_PARSING:
-            state = initParser(opts, &fe, &re, sno, clause);
+	    opts = Yap_GetFromHandle(yopts);
+            state = initParser(opts, fe, re, sno, clause);
             if (state == YAP_PARSING_FINISHED)
               {
-                pop_text_stack(lvl);
+                Yap_PopHandle(yopts);
+		pop_text_stack(lvl);
                 Yap_popErrorContext(err, true);
                 return 0;
               }
             break;
 
           case YAP_SCANNING:
-            state = scan(&re, &fe, sno);
+            state = scan(re, fe, sno);
             break;
 
           case YAP_SCANNING_ERROR:
-            state = scanError(&re, &fe, sno);
+            state = scanError(re, fe, sno);
             break;
 
           case YAP_PARSING:
-            state = parse(&re, &fe, sno);
+            state = parse(re, fe, sno);
             break;
 
           case YAP_PARSING_ERROR:
-            state = parseError(&re, &fe, sno);
+            state = parseError(re, fe, sno);
             break;
 
           case YAP_PARSING_FINISHED: {
             CACHE_REGS
             bool done;
-            if (fe.reading_clause)
-              done = complete_clause_processing(&fe, LOCAL_tokptr);
+            if (fe->reading_clause)
+              done = complete_clause_processing(fe, LOCAL_tokptr);
             else
-              done = complete_processing(&fe, LOCAL_tokptr);
+              done = complete_processing(fe, LOCAL_tokptr);
             if (!done)
               {
                 state = YAP_PARSING_ERROR;
-                fe.t = 0;
+                rc = fe->t = 0;
                 break;
               }
 #if EMACS
             first_char = tokstart->TokPos;
 #endif /* EMACS */
+	    rc = fe->t;
             pop_text_stack(lvl);
             Yap_popErrorContext(err, true);
-            return fe.t;
+	    Yap_PopHandle(yopts);
+            return rc;
           }
           }
       }
+    Yap_PopHandle(yopts);
     Yap_popErrorContext(err, true);
     pop_text_stack(lvl);
     return 0;

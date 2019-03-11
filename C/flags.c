@@ -1772,6 +1772,8 @@ void Yap_InitFlags(bool bootstrap) {
   CACHE_REGS
   tr_fr_ptr tr0 = TR;
   flag_info *f = global_flags_setup;
+  int lvl = push_text_stack();
+  char *buf = Malloc(4098);
   GLOBAL_flagCount = 0;
   if (bootstrap) {
     GLOBAL_Flags = (union flagTerm *)Yap_AllocCodeSpace(
@@ -1794,7 +1796,16 @@ void Yap_InitFlags(bool bootstrap) {
         (union flagTerm *)Yap_AllocCodeSpace(sizeof(union flagTerm) * nflags);
   f = local_flags_setup;
   while (f->name != NULL) {
-    bool itf = setInitialValue(bootstrap, f->def, f->init,
+     char *s;
+    if (f->init == NULL || f->init[0] == '\0') s = NULL;
+    else if (strlen(f->init) < 4096) {
+      s = buf;
+      strcpy(buf, f->init);
+    } else {
+      s = Malloc(strlen(f->init)+1);
+      strcpy(s, f->init);
+    }
+    bool itf = setInitialValue(bootstrap, f->def, s,
                                LOCAL_Flags + LOCAL_flagCount);
     //    Term itf = Yap_BufferToTermWithPrioBindings(f->init,
     //    strlen(f->init)+1,
@@ -1809,7 +1820,7 @@ void Yap_InitFlags(bool bootstrap) {
   if (GLOBAL_Stream[StdInStream].status & Readline_Stream_f) {
     setBooleanGlobalPrologFlag(READLINE_FLAG, true);
   }
-
+  pop_text_stack(lvl);
   if (!bootstrap) {
     Yap_InitCPredBack("current_prolog_flag", 2, 1, current_prolog_flag,
                       cont_yap_flag, 0);

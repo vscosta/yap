@@ -82,7 +82,7 @@ restart:
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
       throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE,
-                     Yap_PredicateIndicator(t, tmod), pname);
+                     Yap_TermToIndicator(t, tmod), pname);
     }
     if (fun == FunctorModule) {
       tmod = ArgOfTerm(1, t);

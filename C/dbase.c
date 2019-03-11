@@ -3977,6 +3977,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
           ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
         }
       }
+      clau->ClTimeEnd = ap->TimeStampOfPred;
       ap->cs.p_code.NOfClauses--;
     }
 #ifndef THREADS

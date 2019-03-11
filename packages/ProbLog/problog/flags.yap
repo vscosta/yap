@@ -204,7 +204,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%% @file problog/flags.yap
+%% @file problog/flags
 
 :-module(flags, [problog_define_flag/4,
                          problog_define_flag/5,

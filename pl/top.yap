@@ -223,17 +223,17 @@ live :-
      throw(error(system, compilation_failed(G))).
 
 '$$compile'(C, Where, C0, R) :-
-    '$head_and_body'( C, MH, B ),
-    strip_module( MH, Mod, H),
+    '$head_and_body'( C, H, B ),
+    '$yap_strip_module'(H,Mod,H0),
    (
-     '$undefined'(H, Mod)
+     '$undefined'(H0, Mod)
     ->
-     '$init_pred'(H, Mod, Where)
+     '$init_pred'(H0, Mod, Where)
 	;
      true
     ),
 %    writeln(Mod:((H:-B))),
-    '$compile'((H:-B), Where, C0, Mod, R).
+    '$compile'((H0:-B), Where, C0, Mod, R).
 
 '$init_pred'(H, Mod, _Where ) :-
     recorded('$import','$import'(NM,Mod,NH,H,_,_),RI),
@@ -875,8 +875,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    '$yap_strip_clause'(InputCl, M, ICl),
-    '$expand_a_clause'( M:ICl, M, C1, CO),
+    '$expand_a_clause'( InputCl, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
 
