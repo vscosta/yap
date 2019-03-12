@@ -122,5 +122,6 @@ find_predicate(G,ExportingModI) :-
 	functor(G, Name, Arity),
 	ensure_loaded(File).
 
-:- ensure_loaded('INDEX').
+
+:-       ensure_loaded('INDEX').
 

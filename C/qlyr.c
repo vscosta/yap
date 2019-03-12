@@ -1113,17 +1113,23 @@ static Int qload_program(USES_REGS1) {
 YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-  FILE *stream = Yap_OpenRestore(s);
+      int lvl = push_text_stack();
+  const char *tmp = Yap_AbsoluteFile(s, true);
+
+  FILE *stream = Yap_OpenRestore(tmp);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;
-  if (do_header(stream) == NIL)
+  if (do_header(stream) == NIL) {
+    pop_text_stack(lvl);
     return YAP_PL;
+  }
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);
   GLOBAL_RestoreFile = NULL;
   LOCAL_SourceModule = CurrentModule = USER_MODULE;
+  pop_text_stack(lvl);
   return YAP_QLY;
 }
 

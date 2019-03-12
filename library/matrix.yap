@@ -667,6 +667,10 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
 	matrix_new( floats , Dims, X ),
 	matrix_base(X, Bases).
+( X <== '[]'(Dims0, static.array) of floats ) :-
+    atom(X), !,
+	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
+	static_array( Size, floats, X ).
 ( X <== '[]'(Dims0, array) of (I:J) ) :- !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	matrix_seq(I, J, Dims, X),
@@ -759,6 +763,23 @@ rhs('[]'(Args, RHS), Val) :-
 	 var(Range)
 	->
 	  matrix_get( X1, NArgs, Val )
+	;
+	  matrix_get_range( X1, NArgs, Val )
+	).
+rhs('[]'([Args], floats(RHS)), Val) :-
+    atom(RHS),
+    integer(Args),
+    !,
+    array_element(RHS,Args,Val).
+rhs('[]'(Args, RHS), Val) :-
+	!,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims, Bases),
+	maplist( index(Range), Args, Dims, Bases, NArgs),
+	(
+	 var(Range)
+	->
+	  array_element( X1, NArgs, Val )
 	;
 	  matrix_get_range( X1, NArgs, Val )
 	).
@@ -952,19 +973,25 @@ mtimes(I1, I2, V) :-
 % three types of matrix: integers, floats and general terms.
 %
 
-matrix_new(terms,Dims, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
+matrix_new(terms.terms,Dims, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	length(Dims,NDims),
 	foldl(size, Dims, 1, Size),
 	maplist(zero, Dims, Offsets),
 	functor( Matrix, c, Size).
-matrix_new(ints,Dims,Matrix) :-
+matrix_new(opaque.ints,Dims,Matrix) :-
 	length(Dims,NDims),
 	new_ints_matrix_set(NDims, Dims, 0, Matrix).
-matrix_new(floats,Dims,Matrix) :-
+matrix_new(opaque.floats,Dims,Matrix) :-
 	length(Dims,NDims),
 	new_floats_matrix_set(NDims, Dims, 0.0, Matrix).
 
 
+matrix_new(array.Type(Size), Dims, Data, '$array'(Id) ) :-
+	length(Dims,NDims),
+	foldl(size, Dims, 1, Size),
+	maplist(zero, Dims, Offsets),
+	functor( Matrix, c, Size),
+	new_array(Size,Type,Dims,Data),
 matrix_new(terms, Dims, Data, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	length(Dims,NDims),
 	foldl(size, Dims, 1, Size),

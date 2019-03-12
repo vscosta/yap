@@ -17,7 +17,7 @@
 :- use_module(library(matrix)).
 
 :- use_module(('../problog_learning')).
-:- stop_low_level_trace.
+
 %%%%
 % background knowledge
 %%%%

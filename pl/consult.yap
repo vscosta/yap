@@ -309,6 +309,7 @@ load_files(Files0,Opts) :-
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
+
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     '$show_consult_level'(LC),
@@ -545,6 +546,7 @@ load_files(Files0,Opts) :-
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
+       set_prolog_flag(compiling,false),
        '$exec_initialization_goals',
        '$current_module'(_M, Mod).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-

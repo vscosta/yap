@@ -602,16 +602,18 @@ write_query_answer( Bindings ) :-
 '$enable_debugging':-
     current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-	'__NB_setval__'('$debug_status', state(creep, 0, stop)),
+	nb_setval('$debug_status', state(false,creep, 0, stop)),
     '$trace_on', !,
     '$creep'.
 '$enable_debugging'.
 
 '$trace_on' :-
-    '__NB_getval__'('$trace', on, fail).
+    '__NB_getval__'('$debug_status', state(_,Creep, GN, Spy), fail),
+    nb_setval('$debug_status', state(true,Creep, GN, Spy)).
 
 '$trace_off' :-
-    '__NB_getval__'('$trace', off, fail).
+    '__NB_getval__'('$debug_status', state(_,Creep, GN, Spy), fail),
+    nb_setval('$debug_status', state(false,Creep, GN, Spy)).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 

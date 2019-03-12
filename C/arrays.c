@@ -1066,6 +1066,7 @@ static Int create_static_array(USES_REGS1) {
   Int size;
   static_array_types props;
   void *address = NULL;
+  
 
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR, ti, "create static array");

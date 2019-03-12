@@ -474,12 +474,11 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
 current_predicate(A0,T0) :-
-    
     ( nonvar(T0) -> '$yap_strip_module'(T0, M, T) ; T0 = T ),
-    ( nonvar(A0) -> '$yap_strip_module'(A0, MA0, A) ; A0 = A ),
+    ( nonvar(A0) -> '$yap_strip_module'(M:A0, MA0, A) ; A0 = A ),
     M = MA0,
     (
-	var(M)
+	nonvar(M)
     ->
     true
     ;
@@ -487,11 +486,13 @@ current_predicate(A0,T0) :-
     ),
     % M is bound
     (
-    '$current_predicate'(A,M,T,user)
+    '$current_predicate'(A,M,T,user),
+    functor(T, A, _)
     ;
-    '$imported_predicate'(M:T, M1T1), M1T1 \= M:T
-    ),
-    functor(T, A, _).
+    '$get_predicate_definition'(M:T,M1:_T1),
+    M\=M1,
+    functor(T, A, _)
+    ).
 
 
 /** @pred  system_predicate( ?_P_ )

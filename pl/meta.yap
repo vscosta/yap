@@ -478,15 +478,14 @@ meta_predicate(P) :-
 expand_goal(Input, Output) :-
     '$expand_meta_call'(Input, none, Output ).
 
-'$expand_meta_call'(G, HVars, MF:GF ) :- 
-	source_module(SM),
-	'$yap_strip_module'(SM:G, M, IG),
-	'$is_metapredicate'(IG, M),
-	'$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
-	!,
-	'$yap_strip_module'(M:GF0, MF, GF).
+'$expand_meta_call'(G, HVars, MF:GF ) :-
+    source_module(SM),
+    '$yap_strip_module'(G, M, IG),
+    '$is_metapredicate'(IG, M),
+    '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
+    !,
+    '$yap_strip_module'(M:GF0, MF, GF).
 '$expand_meta_call'(G, _HVars, M:IG ) :- 
-	source_module(SM),
-	'$yap_strip_module'(SM:G, M, IG).
+    '$yap_strip_module'(G, M, IG).
 
 %% @}

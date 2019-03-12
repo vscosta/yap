@@ -14,12 +14,21 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(problog_learning)).
+:- use_module('../problog_lbfgs').
+
+
+%:- set_problog_flag(init_method,(Query,K,Bdd,problog:problog_exact_lbdd(Query,Bdd))).
+
+%:- if(true).
+:- use_module('kbgraph').
 
 %%%%
 % background knowledge
 %%%% 
 % definition of acyclic path using list of visited nodes
+
+/*:- else. 
+
 path(X,Y) :- path(X,Y,[X],_).
 
 path(X,X,A,A).
@@ -37,6 +46,8 @@ edge(X,Y) :- dir_edge(X,Y).
 absent(_,[]).
 absent(X,[Y|Z]):-X \= Y, absent(X,Z).
 
+:- endif.
+*/   
 %%%%
 % probabilistic facts 
 % - probability represented by t/1 term means learnable parameter
@@ -71,11 +82,11 @@ example(13,path(4,5),0.57).
 example(14,path(4,6),0.51).
 example(15,path(5,6),0.69).
 % some examples for learning from proofs:
-example(16,(dir_edge(2,3),dir_edge(2,6),dir_edge(6,5),dir_edge(5,4)),0.032).
-example(17,(dir_edge(1,6),dir_edge(2,6),dir_edge(2,3),dir_edge(3,4)),0.168).
-example(18,(dir_edge(5,3),dir_edge(5,4)),0.14).
-example(19,(dir_edge(2,6),dir_edge(6,5)),0.2).
-example(20,(dir_edge(1,2),dir_edge(2,3),dir_edge(3,4)),0.432).
+%example(16,(dir_edge(2,3),dir_edge(2,6),dir_edge(6,5),dir_edge(5,4)),0.032).
+%example(17,(dir_edge(1,6),dir_edge(2,6),dir_edge(2,3),dir_edge(3,4)),0.168).
+%example(18,(dir_edge(5,3),dir_edge(5,4)),0.14).
+%example(19,(dir_edge(2,6),dir_edge(6,5)),0.2).
+%example(20,(dir_edge(1,2),dir_edge(2,3),dir_edge(3,4)),0.432).
 
 %%%%%%%%%%%%%%
 % test examples of form test_example(ID,Query,DesiredProbability) 
@@ -97,4 +108,5 @@ test_example(32,path(6,3),0.75).
 test_example(33,path(5,4),0.57).
 test_example(34,path(6,4),0.51).
 test_example(35,path(6,5),0.69).
+
 

@@ -421,8 +421,25 @@ X_API void *YAP_BlobOfTerm(Term t) {
 
   if (IsVarTerm(t))
     return NULL;
-  if (!IsBigIntTerm(t))
+  if (!IsBigIntTerm(t)) {
+    if (IsAtomTerm(t)) {
+         AtomEntry *ae = RepAtom(AtomOfTerm(t));
+    StaticArrayEntry *pp;
+
+    READ_LOCK(ae->ARWLock);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      READ_UNLOCK(ae->ARWLock);
+      return NULL;
+    } else {
+      READ_UNLOCK(ae->ARWLock);
+      return pp->ValueOfVE.ints;
+   }
+    }
     return NULL;
+  }
   src = (MP_INT *)(RepAppl(t) + 2);
   return (void *)(src + 1);
 }

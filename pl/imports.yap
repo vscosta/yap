@@ -35,9 +35,11 @@ fail.
 % parent module mechanism
 %% system has priority
 '$get_predicate_definition'(_ImportingMod:G,prolog:G) :-
+    nonvar(G),
     '$pred_exists'(G,prolog).
 %% I am there, no need to import
 '$get_predicate_definition'(Mod:Pred,Mod:Pred) :-
+    nonvar(Pred),
     '$pred_exists'(Pred, Mod).
 %% export table
 '$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
@@ -45,13 +47,13 @@ fail.
 %% parent/user
 '$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
     ( '$parent_module'(ImportingMod, PMod) ), %; PMod = user),
-    ('$pred_exists'(PMod,G0), PMod:G0 = ExportingMod:G;
+    (nonvar(G0),'$pred_exists'(G0,PMod), PMod:G0 = ExportingMod:G;
      recorded('$import','$import'(ExportingMod,PMod,G0,G,_,_),_)
     ).
 %% autoload`
-'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
-    current_prolog_flag(autoload, true),
-    '$autoload'(G, ImportingMod, ExportingMod, swi).
+%'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
+%    current_prolog_flag(autoload, true),
+%    '$autoload'(G, ImportingMod, ExportingMod, swi).
 
 
 '$predicate_definition'(Imp:Pred,Exp:NPred) :-

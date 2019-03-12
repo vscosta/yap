@@ -70,7 +70,7 @@
 % "Original License" means this Artistic License as Distributed with the
 % Standard Version of the Package, in its current version or as it may
 % be modified by The Perl Foundation in the future.
-% 
+ 
 % "Source" form means the source code, documentation source, and
 % configuration files for the Package.
 % 
@@ -587,7 +587,7 @@ empty_bdd_directory.
 set_default_gradient_method :-
     problog_flag(continuous_facts, true), 
     !,
-    problog_flag(init_method,OldMethod),
+    problog_flag(init_method,_OldMethod),
     format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
     set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
 set_default_gradient_method :-
@@ -595,9 +595,10 @@ set_default_gradient_method :-
     !,
     format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
     set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
-set_default_gradient_method :-
-    problog_flag(init_method,(gene(X,Y),N,Bdd,graph2bdd(X,Y,N,Bdd))),
+/*set_default_gradient_method :-
+    problog_flag(init_method,(Goal,N,Bdd,graph2bdd(X,Y,N,Bdd))),
     !.
+*/
 set_default_gradient_method :-
     set_problog_flag(init_method,(Query,1,BDD,
 	problog_kbest_as_bdd(user:Query,1,BDD))).
@@ -618,24 +619,36 @@ bdd_input_file(Filename) :-
 	problog_flag(output_directory,Dir),
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
+init_one_query(QueryID,Query,_Type) :-
+    %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% if BDD file does not exist, call ProbLog
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  b_setval(problog_required_keep_ground_ids,false),
+	  problog_flag(libbdd_init_method,(Query,Bdd,Call)),
+	  !,
+	  Bdd = bdd(Dir, Tree, MapList),
+%	  trace,
+	  once(Call),
+	  rb_new(H0),
+	  maplist_to_hash(MapList, H0, Hash),
+	  Tree \= [],
+%	  writeln(Dir:Tree:MapList),
+	  tree_to_grad(Tree, Hash, [], Grad).
+
 init_one_query(QueryID,Query,Type) :-
 %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 recorded(QueryID, _, _)
-	->
-	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
-	 ;
 	  b_setval(problog_required_keep_ground_ids,false),
-	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
-	  Query =.. [_,X,Y]
-	  ->
+	  problog_flag(init_method,(Query,N,Bdd,_)),
+	  !,
 	  Bdd = bdd(Dir, Tree, MapList),
 	  (
-	      graph2bdd(X,Y,N,Bdd)
+	      user:graph2bdd(Query,N,Bdd)
 	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
@@ -645,22 +658,7 @@ init_one_query(QueryID,Query,Type) :-
 	  Bdd = bdd(-1,[],[]),
 	  Grad=[]
 	  ),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 ;
-	  b_setval(problog_required_keep_ground_ids,false),
-	  rb_new(H0),
-	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,1,Bdd))),
-	  strip_module(Call,_,gene(X,Y)),
-	  !,
-	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
-	  problog:problog_kbest_as_bdd(user:gene(X,Y),1,Bdd),
-	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
-	  %put_code(0'.),
-	  tree_to_grad(Tree, Hash, [], Grad),
-	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	).
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
 init_one_query(_QueryID,_Query,_Type) :-
     throw(unsupported_init_method).
 
@@ -1568,6 +1566,7 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
+	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),

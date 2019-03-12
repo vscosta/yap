@@ -1,4 +1,5 @@
 set (LIBRARY_PL
+INDEX.yap
   apply.yap
   apply_macros.yap
   arg.yap

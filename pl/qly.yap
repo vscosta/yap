@@ -229,9 +229,9 @@ qend_program :-
 % there is some ordering between flags.
 'x_yap_flag'(language, V) :-
 	yap_flag(language, V).
-  %if silent keep silent, otherwise use the saved state.
-  'x_yap_flag'(verbose, _) :- !.
-  'x_yap_flag'(verbose_load, _) :- !.
+%if silent keep silent, otherwise use the saved state.
+'x_yap_flag'(verbose, _) :- !.
+'x_yap_flag'(verbose_load, _) :- !.
 'x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).

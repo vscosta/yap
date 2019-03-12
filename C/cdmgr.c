@@ -2069,6 +2069,7 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   char *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   int mode;
 
+  setBooleanLocalPrologFlag(COMPILING_FLAG, AtomTrue);
   mode = strcmp("consult", (char *)smode);
   Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
@@ -2092,6 +2093,7 @@ static void end_consult(USES_REGS1) {
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
 #endif
+  setBooleanLocalPrologFlag(COMPILING_FLAG, AtomFalse);
 }
 
 void Yap_end_consult(void) {
@@ -2388,19 +2390,12 @@ static Int
  * */
 static Int new_multifile(USES_REGS1) {
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
-
+ 
   if (pe->PredFlags & MultiFileFlag) {
     UNLOCKPE(26, pe);
     return true;
@@ -2631,18 +2626,11 @@ static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
 
 static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags &
       (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
@@ -2694,18 +2682,11 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
  * */
 static Int new_meta_pred(USES_REGS1) {
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags & MetaPredFlag) {
     UNLOCKPE(26, pe);

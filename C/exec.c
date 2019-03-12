@@ -183,11 +183,11 @@ restart:
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
         return NULL;
       }
       if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
         return NULL;
       }
       t = ArgOfTerm(2, t);
@@ -196,7 +196,7 @@ restart:
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
   }
   return NULL;
 }
@@ -214,8 +214,7 @@ Term Yap_TermToIndicator(Term t, Term mod) {
     ti[0] = MkAtomTerm(AtomDot);
     ti[1] = MkIntTerm(2);
   } else {
-    ti[0] = t;
-    ti[1] = MkIntTerm(0);
+      return  t;
   }
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
   if (mod != PROLOG_MODULE && mod != USER_MODULE && mod != TermProlog) {
@@ -254,7 +253,7 @@ static bool CallError(yap_error_number err, Term t, Term mod USES_REGS) {
     if (err == TYPE_ERROR_CALLABLE) {
       t = Yap_YapStripModule(t, &mod);
     }
-    Yap_Error(err, t, "call/1");
+    Yap_ThrowError(err, t, "call/1");
     return false;
   }
 }
@@ -345,7 +344,7 @@ static PredEntry *new_pred(Term t, Term tmod, char *pname) {
 
 restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
     return RepPredProp(PredPropByAtom(AtomOfTerm(t), tmod));
@@ -354,17 +353,17 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
       Term tmod = ArgOfTerm(1, t);
       if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
         return NULL;
       }
       if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
         return NULL;
       }
       t = ArgOfTerm(2, t);
@@ -601,7 +600,7 @@ static bool EnterCreepMode(Term t, Term mod USES_REGS) {
   if (Yap_get_signal(YAP_CDOVF_SIGNAL)) {
     ARG1 = t;
     if (!Yap_locked_growheap(FALSE, 0, NULL)) {
-      Yap_Error(RESOURCE_ERROR_HEAP, TermNil,
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil,
                 "YAP failed to grow heap at meta-call");
     }
     if (!Yap_has_a_signal()) {
@@ -780,7 +779,7 @@ static Int execute_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
 
 restart_exec:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG3, "call/1");
     return FALSE;
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -852,9 +851,11 @@ static void prune_inner_computation(choiceptr parent) {
   Int oENV = LCL0 - ENV;
 
   cut_pt = B;
-  while (cut_pt->cp_b < parent) {
+  while (cut_pt && cut_pt->cp_b < parent) {
     cut_pt = cut_pt->cp_b;
   }
+  if (!cut_pt)
+    return;
 #ifdef YAPOR
   CUT_prune_to(cut_pt);
 #endif
@@ -1231,7 +1232,7 @@ static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
   t = Yap_YapStripModule(t, &mod);
 restart_exec:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG3, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG3, "call/1");
     return false;
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -1285,7 +1286,7 @@ restart_exec:
 #endif
     }
   } else {
-    //Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    //Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
     //return false;
     return CallMetaCall(t, mod);
   }
@@ -1306,11 +1307,11 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
   if (IsVarTerm(mod)) {
     mod = CurrentModule;
   } else if (!IsAtomTerm(mod)) {
-    Yap_Error(TYPE_ERROR_ATOM, ARG2, "call/1");
+    Yap_ThrowError(TYPE_ERROR_ATOM, ARG2, "call/1");
     return FALSE;
   }
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG1, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "call/1");
     return FALSE;
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -1388,11 +1389,11 @@ static Int execute_nonstop(USES_REGS1) {
   if (IsVarTerm(mod)) {
     mod = CurrentModule;
   } else if (!IsAtomTerm(mod)) {
-    Yap_Error(TYPE_ERROR_ATOM, ARG2, "call/1");
+    Yap_ThrowError(TYPE_ERROR_ATOM, ARG2, "call/1");
     return FALSE;
   }
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, ARG1, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "call/1");
     return FALSE;
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
@@ -1425,7 +1426,7 @@ static Int execute_nonstop(USES_REGS1) {
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
     return FALSE;
   }
   /*	N = arity; */
@@ -1528,13 +1529,13 @@ static Int execute_10(USES_REGS1) { /* '$execute_10'(Goal)	 */
 static Int execute_depth_limit(USES_REGS1) {
   Term d = Deref(ARG2);
   if (IsVarTerm(d)) {
-    Yap_Error(INSTANTIATION_ERROR, d, "depth_bound_call/2");
+    Yap_ThrowError(INSTANTIATION_ERROR, d, "depth_bound_call/2");
     return false;
   } else if (!IsIntegerTerm(d)) {
     if (IsFloatTerm(d) && isinf(FloatOfTerm(d))) {
       DEPTH = RESET_DEPTH();
     } else {
-      Yap_Error(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
+      Yap_ThrowError(TYPE_ERROR_INTEGER, d, "depth_bound_call/2");
       return false;
     }
   } else {
@@ -1866,7 +1867,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     }
     return false;
   } else {
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
     return false;
   }
 }
@@ -1889,7 +1890,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
       return false;
     }
     /* I cannot use the standard macro here because
@@ -1898,7 +1899,7 @@ bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
     pt = RepAppl(t) + 1;
     pe = PredPropByFunc(f, mod);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
     return false;
   }
   ppe = RepPredProp(pe);
@@ -1939,7 +1940,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
 
   t = Yap_YapStripModule(t, &tmod);
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "call/1");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }
@@ -1958,7 +1959,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     Functor f = FunctorOfTerm(t);
 
     if (IsBlobFunctor(f)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, t, "call/1");
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, "call/1");
       LOCAL_PrologMode &= ~TopGoalMode;
       return (FALSE);
     }
@@ -1969,7 +1970,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     pt = RepAppl(t) + 1;
     arity = ArityOfFunctor(f);
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), "call/1");
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), "call/1");
     LOCAL_PrologMode &= ~TopGoalMode;
     return (FALSE);
   }
@@ -2001,7 +2002,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
 
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048) {
-    Yap_Error(RESOURCE_ERROR_TRAIL, TermNil,
+    Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil,
               "unable to boot because of too little Trail space");
   }
 #endif
@@ -2031,7 +2032,7 @@ static void do_restore_regs(Term t, int restore_all USES_REGS) {
 static Int restore_regs(USES_REGS1) {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
   }
   if (IsAtomTerm(t))
@@ -2050,7 +2051,7 @@ static Int restore_regs2(USES_REGS1) {
   Int d;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
     return (FALSE);
   }
   d0 = Deref(ARG2);
@@ -2058,7 +2059,7 @@ static Int restore_regs2(USES_REGS1) {
     do_restore_regs(t, TRUE PASS_REGS);
   }
   if (IsVarTerm(d0)) {
-    Yap_Error(INSTANTIATION_ERROR, d0, "support for coroutining");
+    Yap_ThrowError(INSTANTIATION_ERROR, d0, "support for coroutining");
     return (FALSE);
   }
   if (!IsIntegerTerm(d0)) {

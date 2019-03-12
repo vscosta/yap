@@ -221,6 +221,7 @@
 :- use_module(library(system), [file_exists/1, shell/2]).
 :- use_module(library(rbtrees)).
 :- use_module(library(lbfgs)).
+:- reexport(library(matrix)).
 
 % load our own modules
 :- reexport(problog).
@@ -485,6 +486,8 @@ init_learning :-
 	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
 	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
+	current_probs <== array[TrainingExampleCount ] of floats,
+	current_lls <== array[TrainingExampleCount ] of floats,
 	forall(tunable_fact(FactID,_GroundTruth),
 	       set_fact_probability(FactID,0.5)
 	      ),
@@ -514,9 +517,7 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)).
-
+    qp <== current_probs.
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Check, if continuous facts are used.
@@ -579,71 +580,40 @@ bdd_input_file(Filename) :-
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,_Type) :-
-        %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% if BDD file does not exist, call ProbLog
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	 b_setval(problog_required_keep_ground_ids,false),
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % if BDD file does not exist, call ProbLog
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
+    !,
+    b_setval(problog_required_keep_ground_ids,false),
 	 (QueryID mod 100 =:= 0 -> writeln(QueryID) ; true),
-	 Query =.. [_|Args],
-	 % problog_flag(init_method,(Query,N,Bdd,M:graph2bdd(Args,N,Bdd))),
-	 Bdd = bdd(Dir, Tree,
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-		   u3777777777/....777;;;;;;;;;;;;;;;;;;;666666666MapList),
-	  user:graph2bdd(Args,N,Bdd),
-	  rb_new(H0),
+	 Bdd = bdd(Dir, Tree,MapList),
+	  user:graph2bdd(Query,N,Bdd),
+ 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  tree_to_grad(Tree, Hash, [], Grad),
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
-		write('.'),
+	  write('.'),
 	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
-
+init_one_query(QueryID,Query,_Type) :-
+    %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% if BDD file does not exist, call ProbLog
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  b_setval(problog_required_keep_ground_ids,false),
+	  problog_flag(init_method,(Query,_K,Bdd,Call)),
+	  !,
+	  Bdd = bdd(Dir, Tree, MapList),
+	  %	  trace,
+ 	  once(Call),
+	  rb_new(H0),
+	  maplist_to_hash(MapList, H0, Hash),
+	  %Tree \= [],
+%	  writeln(Dir:Tree:MapList),
+	  tree_to_grad(Tree, Hash, [], Grads),
+	  recordz(QueryID,bdd(Dir, Grads, MapList),_).
 
 %========================================================================
 %=
@@ -738,6 +708,7 @@ mse_trainingset :-
 	logger_set_variable(mse_min_trainingset,MinError),
 	logger_set_variable(mse_max_trainingset,MaxError),
 	logger_set_variable(llh_training_queries,LLH_Training_Queries),
+%%%%%	format(' (~8f)~n',[MSE]).
 	format_learning(2,' (~8f)~n',[MSE]).
 
 tuple(t(X,Y),X,Y).
@@ -831,7 +802,6 @@ gradient_descent :-
 %	current_iteration(Iteration),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
-%	leash(0),trace,
     lbfgs_initialize(N,X,0,Solver),
     forall(tunable_fact(FactID,_GroundTruth),
 	   set_fact( FactID, Slope, X)
@@ -861,59 +831,55 @@ set_tunable(I,Slope,P) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
-    %Handle = user_error,
-    example_count(TrainingExampleCount),
-    LLs <== array[TrainingExampleCount ] of floats,
-    Probs  <== array[N] of floats,
+user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :- 
+  %Handle = user_error,
+    LLs = current_lls,
+    Probs  = current_probs,
     problog_flag(sigmoid_slope,Slope),
     N1 is N-1,
     forall(between(0,N1,I),
 	   (Grad[I] <== 0.0, S <== X[I], sigmoid(S,Slope, P), Probs[I] <== P)
 	  ),
+    writeln(e0),
+        leash(0),trace,
     forall(
-	full_example(QueryID,QueryProb,BDD),
-	   compute_grad(QueryID, BDD, QueryProb,Grad, Probs, Slope,LLs)
+    user:example(QueryID,_Query,QueryProb),
+	compute_grad(QueryID, QueryProb,Grad, Probs, Slope,LLs)
     ),
+writeln(Grad),
     LLH_Training_Queries <== sum(LLs).
 
-full_example(QueryID,QueryProb,BDD) :-
-    user:example(QueryID,_Query,QueryProb,_),
-     recorded(QueryID,BDD,_),
-     BDD = bdd(_Dir, _GradTree, MapList),
-     MapList = [_|_].
 
-compute_grad(QueryID,BDD,QueryProb, Grad, Probs, Slope, LLs) :-
+
+compute_grad(QueryID,QueryProb, Grad, Probs, Slope, LLs) :-
+     recorded(QueryID,BDD,_),
     BDD = bdd(_Dir, _GradTree, MapList),
     bind_maplist(MapList, Slope, Probs),
-    recorded(QueryID,BDD,_),
     qprobability(BDD,Slope,BDDProb),
     LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
     LLs[QueryID] <== LL,
-%writeln( qprobability(BDD,Slope,BDDProb) ),
     forall(
-	member(I-_, MapList),
-	gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs)
-    ).
+	member(I-_,MapList),
+	gradientpair(Slope,BDDProb, QueryProb,Grad,Probs,BDD,I)
+	),
+writeln(LL).
 
-gradientpair(I, BDD,Slope,BDDProb, QueryProb, Grad, Probs) :-
-    qgradient(I, BDD, Slope, FactID, GradValue),
-    % writeln(FactID),
+
+gradientpair(Slope,BDDProb, QueryProb, Grad, Probs,BDD,I) :-
+   qgradient(I, BDD, Slope, FactID, GradValue),
     G0 <== Grad[FactID],
     Prob <== Probs[FactID],
-%writeln(    GN is G0-GradValue*(QueryProb-BDDProb)),
-   GN is G0-GradValue*2*Prob*(1-Prob)*(QueryProb-BDDProb),
-   %writeln(FactID:(G0->GN)),
-Grad[FactID] <== GN.
+    GN is G0-GradValue*2*Prob*(1-Prob)*(QueryProb-BDDProb),
+   Grad[FactID] <== GN.
 
 qprobability(bdd(Dir, Tree, _MapList), Slope, Prob) :-
 /*	query_probability(21,6.775948e-01). */
-	run_sp(Tree, Slope, 1.0, Prob0),
+	run_sp(Tree, Slope, 1, Prob0),
 	(Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
 
 
-qgradient(I, bdd(Dir, Tree, _MapList), Slope, I, Grad) :-
-	run_grad(Tree, I, Slope, 0.0, Grad0),
+qgradient(I, bdd(Dir,Tree,_), Slope, I, Grad) :-
+	run_grad(Tree, I, Slope, 1.0, 0.0, Grad0),
 	( Dir = 1 -> Grad = Grad0 ; Grad is -Grad0).
 
 wrap( X, Grad, GradCount) :-
@@ -954,25 +920,25 @@ node_to_gradient_node(pn(P-G,X,L,R), H, gnoden(P,G,X,Id,PL,GL,PR,GR)) :-
 	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
 
 run_sp([], _, P0, P0).
-run_sp(gnodep(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, _, PF) :-
+run_sp(gnodep(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, PL, PF) :-
 	P is EP*PL+ (1.0-EP)*PR,
 	run_sp(Tree, Slope, P, PF).
-run_sp(gnoden(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, _, PF) :-
-	P is EP*PL + (1.0-EP)*(1.0 - PR),
+run_sp(gnoden(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, PL, PF) :-
+    P is EP*PL + (1.0-EP)*(1.0 - PR),
 	run_sp(Tree, Slope, P, PF).
 
-run_grad([], _I, _, G0, G0).
-run_grad([gnodep(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, _, GF) :-
+run_grad([], _I, _, _, G0, G0).
+run_grad([gnodep(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, PL, GL, GF) :-
 	P is EP*PL+ (1.0-EP)*PR,
 	G0 is EP*GL + (1.0-EP)*GR,
 	% don' t forget the -X
 	( I == Id -> G is PL-PR ; G = G0 ),
-	run_grad(Tree, I, Slope, G, GF).
-run_grad([gnoden(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, _, GF) :-
+	run_grad(Tree, I, Slope, P, G, GF).
+run_grad([gnoden(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, PL, GL, GF) :-
 	P is EP*PL + (1.0-EP)*(1.0 - PR),
 	G0 is EP*GL  - (1.0 - EP) * GR,
 	( I == Id -> G is PL-(1.0-PR) ; G = G0 ),
-	run_grad(Tree, I, Slope, G, GF).
+	run_grad(Tree, I, Slope, P, G, GF).
 
 
 
@@ -986,7 +952,7 @@ log2prob(X,Slope,FactID,V) :-
 
 bind_maplist([], _Slope, _X).
 bind_maplist([Node-Pr|MapList], Slope, X) :-
-	Pr <== X[Node],
+    Pr <== X[Node],
 	bind_maplist(MapList, Slope, X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -996,7 +962,7 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Iteration,_Ls,-1) :-
     FX < 0, !,
     format('stopped on bad FX=~4f~n',[FX]).
 user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,_Iteration,Ls,0) :-
-    problog_flag(sigmoid_slope,Slope),
+    roblog_flag(sigmoid_slope,Slope),
     forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
     current_iteration(CurrentIteration),
     retractall(current_iteration(_)),
@@ -1015,14 +981,14 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,_Iteration,Ls,0) :-
 %========================================================================
 
 init_flags :-
-%	prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
-	prolog_file_name(output,Output_Folder), % get absolute file name for './output'
-	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
-	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
-	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
-	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
-	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
-	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
+    % prolog_file_name(queries,Queries_Folder), % get absolute file name for './queries'
+    prolog_file_name(output,Output_Folder), % get absolute file name for './output'
+    %	problog_define_flag(bdd_directory, problog_flag_validate_directory, 'directory for BDD scripts', Queries_Folder,learning_general),
+    problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
+    problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
+%	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
+%	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),
+%	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
@@ -1057,3 +1023,4 @@ init_logger :-
 :- initialization(init_flags).
 
 :- initialization(init_logger).
+
