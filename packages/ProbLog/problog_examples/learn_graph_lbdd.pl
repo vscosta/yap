@@ -109,4 +109,3 @@ test_example(33,path(5,4),0.57).
 test_example(34,path(6,4),0.51).
 test_example(35,path(6,5),0.69).
 
-

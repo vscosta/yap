@@ -363,7 +363,7 @@ reset_learning :-
 	retractall(current_iteration(_)),
 	retractall(example_count(_)),
 	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_)),
+	retractall(query_gradient_intern(_,_,_,_)),
 	retractall(last_mse(_)),
 	retractall(query_is_similar(_,_)),
 	retractall(query_md5(_,_,_)),
@@ -392,7 +392,7 @@ do_learning(Iterations,Epsilon) :-
 	Iterations>0,
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
-	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
+	format(user_error,'~n~Error: Not raining examples specified.~n~n',[]).
 
 
 do_learning_intern(0,_) :-
@@ -430,6 +430,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	 (
 	  retractall(last_mse(_)),
 	  logger_get_variable(mse_trainingset,Current_MSE),
+	  writeln(Current_MSE:Last_MSE),
 	  assertz(last_mse(Current_MSE)),
 	  !,
 	  MSE_Diff is abs(Last_MSE-Current_MSE)
@@ -444,7 +445,6 @@ do_learning_intern(Iterations,Epsilon) :-
 	 (problog_flag(rebuild_bdds,BDDFreq),BDDFreq>0,0 =:= CurrentIteration mod BDDFreq)
 	->
 	 (
-	  retractall(values_correct),
 	  retractall(query_is_similar(_,_)),
 	  retractall(query_md5(_,_,_)),
 	  empty_bdd_directory,
@@ -627,12 +627,13 @@ init_one_query(QueryID,Query,Type) :-
 	% check wether this BDD is similar to another BDD
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 problog_flag(check_duplicate_bdds,true)
+listing(query_md5),
+	    problog_flag(check_duplicate_bdds,true)
 	->
 	 (
-	  calc_md5(Filename,Query_MD5),
+	     calc_md5(Filename,Query_MD5),
 	  (
-	    query_md5(OtherQueryID,Query_MD5,Type)
+	      query_md5(OtherQueryID,Query_MD5,Type)
 	  ->
 	    (
 	      assertz(query_is_similar(QueryID,OtherQueryID)),
@@ -682,7 +683,7 @@ update_values :-
         problog:dynamic_probability_fact_extract(Term, Prob2),
         inv_sigmoid(Prob2,Value),
         format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
-    ; non_ground_fact(ID) ->
+		; non_ground_fact(ID) ->
       inv_sigmoid(Prob,Value),
 		 format(Handle,'@x~q_*~n~10f~n',[ID,Value])
     ;
@@ -699,7 +700,6 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 	assertz(values_correct).
 
 
@@ -710,7 +710,7 @@ update_values :-
 %=
 %========================================================================
 
-update_query_cleanup(QueryID) :-
+    listing(
 	(
 	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
 	->
@@ -734,7 +734,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	 (
 	  problog_flag(sigmoid_slope,Slope),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-      convert_filename_to_problog_path('simplecudd', Simplecudd),
+	  convert_filename_to_problog_path('simplecudd', Simplecudd),
 	  atomic_concat([Simplecudd,
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
@@ -744,7 +744,6 @@ update_query(QueryID,Symbol,What_To_Update) :-
 			 ' > "',
 			 Output_Directory,
 			 'values.pl"'],Command),
-
 	  shell(Command,Error),
 %shell('cat /home/vsc/Yap/bins/devel/outputvalues.pl',_),
 
@@ -816,7 +815,7 @@ my_load_intern(query_gradient(QueryID,XFactID,Type,Value),Handle,QueryID) :-
 	!,
 	atomic_concat(x,FactID,XFactID),
 %	atom_number(StringFactID,FactID),
-	assertz(query_gradient_intern(QueryID,FactID,Type,Value)),
+	assertz(query_gradient_intern(QueryID,XFactID,Type,Value)),
 	read(Handle,X),
 	my_load_intern(X,Handle,QueryID).
 my_load_intern(X,Handle,QueryID) :-

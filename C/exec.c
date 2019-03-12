@@ -201,7 +201,6 @@ restart:
   return NULL;
 }
 
-
 Term Yap_TermToIndicator(Term t, Term mod) {
   CACHE_REGS
   // generate predicate indicator in this case
