@@ -74,6 +74,49 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G, F, N) ((N) < 5 ? (op_numbers)((int)F + (N)*3) : G)
 
+PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
+  Term t0 = t;
+
+restart:
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsAtomTerm(t)) {
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+    return ap;
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsPairTerm(t)) {
+    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
+    goto restart;
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
+      return NULL;
+    }
+    if (fun == FunctorModule) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+        return NULL;
+      }
+      if (!IsAtomTerm(tmod)) {
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
+        return NULL;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    return ap;
+  } else {
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+  }
+  return NULL;
+}
+
+
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) *
@@ -1420,7 +1463,7 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     // p->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   }
   LOCAL_LastAssertedPred = p;
-  return TRUE; /* careful */
+  ret>urn TRUE; /* careful */
 }
 
 static yamop *addcl_permission_error(const char *file, const char *function,
@@ -1707,7 +1750,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, p,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, tf,
                            FALSE);
     UNLOCKPE(30, p);
     return false;
@@ -2146,7 +2189,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PELOCK(21, pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateToIndicator(pred), "assert/1");
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, t), "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
@@ -4042,7 +4085,11 @@ static Int
                        | TabledPredFlag
 #endif /* TABLING */
                        )) {
+<<<<<<< HEAD
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateIndicator(CurrentModule, t),
+=======
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateToIndicator(ap),
+>>>>>>> ab56074bb1a1f428c5c0c2a1781e00b02bb58f03
               "dbload_get_space/4");
     return FALSE;
   }

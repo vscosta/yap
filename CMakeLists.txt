@@ -384,6 +384,10 @@ if (GMP_INCLUDE_DIRS)
 # READLINE_readline_LIBRARY, where to find the READLINE library.
 # READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
 
+if (ANDROID)
+ option (WITH_READLINE "use Readline" OFF)
+ else()
+
   include(FindReadline)
 
  option (WITH_READLINE "use Readline" ON)
@@ -392,13 +396,14 @@ if (GMP_INCLUDE_DIRS)
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
-  if (READLINE_FOUND)
+  if (READLINE_FOUND AND READLINE_INCLUDE_DIR)
   List(APPEND YAP_SYSTEM_OPTIONS readline)
     # required for configure
     include_directories( ${READLINE_INCLUDE_DIR}
       ${READLINE_INCLUDE_DIR}/readline
       )
   endif ()
+endif()
 
 include_directories(
 ${CMAKE_SOURCE_DIR}/H

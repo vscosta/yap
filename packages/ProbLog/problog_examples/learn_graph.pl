@@ -32,8 +32,8 @@ path(X,Y,A,R) :-
   path(Z,Y,[Z|A],R).
 
 % using directed edges in both directions
-edge(X,Y) :- problog:dir_edge(Y,X).
-edge(X,Y) :- problog:dir_edge(X,Y).
+edge(X,Y) :- dir_edge(Y,X).
+edge(X,Y) :- dir_edge(X,Y).
 
 % checking whether node hasn't been visited before
 absent(_,[]).
