@@ -320,13 +320,15 @@ static YAP_Bool new_ints_matrix(void) {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
   YAP_Term tl = YAP_ARG2, out;
   int dims[MAX_DIMS];
+  YAP_Term data;
 
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_int_matrix(ndims, dims, NULL);
   if (out == YAP_TermNil())
     return FALSE;
-  if (!cp_int_matrix(YAP_ARG3, out))
+  data = YAP_ARG3;
+  if (!YAP_IsVarTerm(data) && !cp_int_matrix(data, out))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
 }
@@ -351,14 +353,15 @@ static YAP_Bool new_ints_matrix_set(void) {
 
 static YAP_Bool new_floats_matrix(void) {
   int ndims = YAP_IntOfTerm(YAP_ARG1);
-  YAP_Term tl = YAP_ARG2, out;
+  YAP_Term tl = YAP_ARG2, out, data;
   int dims[MAX_DIMS];
   if (!scan_dims(ndims, tl, dims))
     return FALSE;
   out = new_float_matrix(ndims, dims, NULL);
   if (out == YAP_TermNil())
     return FALSE;
-  if (!cp_float_matrix(YAP_ARG3, out))
+  data = YAP_ARG3;
+  if (!YAP_IsVarTerm(data) && !cp_float_matrix(data, out))
     return FALSE;
   return YAP_Unify(YAP_ARG4, out);
 }

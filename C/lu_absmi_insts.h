@@ -470,7 +470,6 @@
     LogUpdClause *lcl = PREG->y_u.OtILl.d;
     UInt timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[ap->ArityOfPE]);
 
-    fprintf(stderr,"- %p/%p %lu/%lu %lu-%lu\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->y_u.OtILl.d->ClTimeStart,PREG->y_u.OtILl.d->ClTimeEnd);
 #if defined(YAPOR) || defined(THREADS)
     if (PP != ap) {
       if (PP) UNLOCKPE(16,PP);

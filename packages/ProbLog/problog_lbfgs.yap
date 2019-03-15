@@ -421,6 +421,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_start_timer(duration),
 %	mse_testset,
 	%	ground_truth_difference,
+	%leash(0),trace,
 	gradient_descent,
 
 	once(save_model),
@@ -486,8 +487,8 @@ init_learning :-
 	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
 	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
-	current_probs <== array[TrainingExampleCount ] of floats,
-	current_lls <== array[TrainingExampleCount ] of floats,
+	%current_probs <== array[TrainingExampleCount ] of floats,
+	%current_lls <== array[TrainingExampleCount ] of floats,
 	forall(tunable_fact(FactID,_GroundTruth),
 	       set_fact_probability(FactID,0.5)
 	      ),
@@ -506,18 +507,6 @@ init_learning :-
 	assertz(learning_initialized),
 
 	format_learning(1,'~n',[]).
-
-%========================================================================
-%= Updates all values of query_probability/2 and query_gradient/4
-%= should be called always before these predicates are accessed
-%= if the old values are still valid, nothing happensv
-%========================================================================
-
-update_values :-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% delete old values
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    qp <== current_probs.
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% Check, if continuous facts are used.
@@ -586,7 +575,7 @@ init_one_query(QueryID,Query,_Type) :-
     problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
     !,
     b_setval(problog_required_keep_ground_ids,false),
-	 (QueryID mod 100 =:= 0 -> writeln(QueryID) ; true),
+	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
 	 Bdd = bdd(Dir, Tree,MapList),
 	  user:graph2bdd(Query,N,Bdd),
  	  rb_new(H0),
@@ -792,8 +781,7 @@ inv_sigmoid(T,Slope,InvSig) :-
 %= probabilities of the examples have to be recalculated
 %========================================================================
 
-save_old_probabilities :-
-    old_prob <== p.
+save_old_probabilities.
 
 
 % vsc: avoid silly search
@@ -828,59 +816,56 @@ set_tunable(I,Slope,P) :-
     sigmoid(X,Slope,Pr),
     set_fact_probability(I,Pr).
 
+:- include(problog/lbdd).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :- 
-  %Handle = user_error,
-    LLs = current_lls,
-    Probs  = current_probs,
+    %Handle = user_error,
+    example_count(TrainingExampleCount),
+ExProbs <== array[TrainingExampleCount] of floats,
+    LLs <== array[N] of floats,
+    Probs <== array[N] of floats,
     problog_flag(sigmoid_slope,Slope),
     N1 is N-1,
     forall(between(0,N1,I),
 	   (Grad[I] <== 0.0, S <== X[I], sigmoid(S,Slope, P), Probs[I] <== P)
 	  ),
-    writeln(e0),
-        leash(0),trace,
     forall(
-    user:example(QueryID,_Query,QueryProb),
-	compute_grad(QueryID, QueryProb,Grad, Probs, Slope,LLs)
+	recorded(QueryID,BDD,_),
+	compute_probability(BDD,Slope,QueryID,ExProbs)
     ),
-writeln(Grad),
+   forall(
+	user:example(QueryID,_Query,QueryProb),
+	compute_gradient(QueryID, QueryProb,Grad, Probs, Slope,LLs)
+    ),
+    trace,
     LLH_Training_Queries <== sum(LLs).
 
+compute_probability( BDD, Slope, Id, Probs) :-
+    query_probability( BDD, Slope, Prob),
+    Probs[Id] <== Prob.
+    
 
 
-compute_grad(QueryID,QueryProb, Grad, Probs, Slope, LLs) :-
-     recorded(QueryID,BDD,_),
-    BDD = bdd(_Dir, _GradTree, MapList),
-    bind_maplist(MapList, Slope, Probs),
-    qprobability(BDD,Slope,BDDProb),
+compute_gradient(QueryID,QueryProb, Grad, Probs, ExProbs, Slope, LLs) :-
+    recorded(QueryID,BDD,_),
+     BDDProb <== ExProbs[QueryID],
+     forall(
+	query_gradients(BDD,Slope,I,GradValue), 
+	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Probs)
+    ),
     LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
-    LLs[QueryID] <== LL,
-    forall(
-	member(I-_,MapList),
-	gradientpair(Slope,BDDProb, QueryProb,Grad,Probs,BDD,I)
-	),
-writeln(LL).
+    writeln(LL),
+    LLs[QueryID] <== LL.
 
-
-gradientpair(Slope,BDDProb, QueryProb, Grad, Probs,BDD,I) :-
-   qgradient(I, BDD, Slope, FactID, GradValue),
-    G0 <== Grad[FactID],
-    Prob <== Probs[FactID],
+gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Probs) :-
+    G0 <== Grad[I],
+    Prob <== Probs[I],
     GN is G0-GradValue*2*Prob*(1-Prob)*(QueryProb-BDDProb),
-   Grad[FactID] <== GN.
-
-qprobability(bdd(Dir, Tree, _MapList), Slope, Prob) :-
-/*	query_probability(21,6.775948e-01). */
-	run_sp(Tree, Slope, 1, Prob0),
-	(Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
-
-
-qgradient(I, bdd(Dir,Tree,_), Slope, I, Grad) :-
-	run_grad(Tree, I, Slope, 1.0, 0.0, Grad0),
-	( Dir = 1 -> Grad = Grad0 ; Grad is -Grad0).
+    writeln(G0),
+   Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
     tunable_fact(FactID,GroundTruth),
@@ -893,52 +878,6 @@ wrap( X, Grad, GradCount) :-
 	       fail.
 wrap( _X, _Grad, _GradCount).
 
-
-%	writeln(grad(QueryID:I:Grad)),
-%	assert(query_gradient_intern(QueryID,I,p,Grad)),
-% fail.
-%gradient(QueryID, g, Slope) :-
-%	gradient(QueryID, l, Slope).
-
-maplist_to_hash([], H0, H0).
-maplist_to_hash([I-V|MapList], H0, Hash) :-
-	rb_insert(H0, V, I, H1),
-	maplist_to_hash(MapList, H1, Hash).
-
-tree_to_grad([], _, Grad, Grad).
-tree_to_grad([Node|Tree], H, Grad0, Grad) :-
-	node_to_gradient_node(Node, H, GNode),
-	tree_to_grad(Tree, H, [GNode|Grad0], Grad).
-
-node_to_gradient_node(pp(P-G,X,L,R), H, gnodep(P,G,X,Id,PL,GL,PR,GR)) :-
-	rb_lookup(X,Id,H),
-	(L == 1 -> GL=0, PL=1 ; L == 0 -> GL = 0, PL=0 ; L = PL-GL),
-	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
-node_to_gradient_node(pn(P-G,X,L,R), H, gnoden(P,G,X,Id,PL,GL,PR,GR)) :-
-	rb_lookup(X,Id,H),
-	(L == 1 -> GL=0, PL=1 ; L == 0 -> GL = 0, PL=0 ; L = PL-GL),
-	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
-
-run_sp([], _, P0, P0).
-run_sp(gnodep(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, PL, PF) :-
-	P is EP*PL+ (1.0-EP)*PR,
-	run_sp(Tree, Slope, P, PF).
-run_sp(gnoden(P,_G, EP, _Id, PL, _GL, PR, _GR).Tree, Slope, PL, PF) :-
-    P is EP*PL + (1.0-EP)*(1.0 - PR),
-	run_sp(Tree, Slope, P, PF).
-
-run_grad([], _I, _, _, G0, G0).
-run_grad([gnodep(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, PL, GL, GF) :-
-	P is EP*PL+ (1.0-EP)*PR,
-	G0 is EP*GL + (1.0-EP)*GR,
-	% don' t forget the -X
-	( I == Id -> G is PL-PR ; G = G0 ),
-	run_grad(Tree, I, Slope, P, G, GF).
-run_grad([gnoden(P,G, EP, Id, PL, GL, PR, GR)|Tree], I, Slope, PL, GL, GF) :-
-	P is EP*PL + (1.0-EP)*(1.0 - PR),
-	G0 is EP*GL  - (1.0 - EP) * GR,
-	( I == Id -> G is PL-(1.0-PR) ; G = G0 ),
-	run_grad(Tree, I, Slope, P, G, GF).
 
 
 
@@ -1023,4 +962,3 @@ init_logger :-
 :- initialization(init_flags).
 
 :- initialization(init_logger).
-

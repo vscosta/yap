@@ -25,8 +25,7 @@ graph2bdd(Query,1,bdd(D,T,Vs)) :-
     graph(X,Y, TrieList, Vs),
     bdd_new(TrieList, C),
     bdd_tree(C, BDD),
-    BDD = bdd(D,T,_Vs0),
-    writeln(BDD).
+    BDD = bdd(D,T,_Vs0).
 
 
 :- set_problog_flag(init_method,(Q,N,Bdd,user:graph2bdd(Q,N,Bdd))).

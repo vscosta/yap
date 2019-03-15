@@ -88,7 +88,14 @@ typedef struct non_single_struct_t {
  struct non_single_struct_t *to_visit0=NULL, *to_visit,* to_visit_max;\
   CELL *InitialH = HR;\
   tr_fr_ptr TR0 = TR;\
-reset:\
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) { \
+    /* Trail overflow */\
+      goto trail_overflow;\
+  }\
+    if (HR + 1024 > ASP) { \
+      goto global_overflow;\
+    }\
+ reset:\
  to_visit0 = Realloc(to_visit0,auxsz);				    \
 pt0 = pt0_; pt0_end = pt0_end_;						\
 to_visit = to_visit0,							\
@@ -189,7 +196,7 @@ aux_overflow : {							\
      goto reset; }
 
 #define def_trail_overflow()					\
-trail_overflow : {						\
+     trail_overflow: {					\
   while (to_visit > to_visit0) {			\
     to_visit--;					\
     CELL *ptd0 = to_visit->ptd0;			\
@@ -234,6 +241,12 @@ if (IS_VISIT_MARKER) {			\
   return true;				\
 }
 
+#define def_overflow() 				\
+  def_aux_overflow(); \
+  def_global_overflow();			\
+  def_trail_overflow() 
+
+       
 #define CYC_APPL				\
 if (IS_VISIT_MARKER) {			\
   while (to_visit > to_visit0) {		\
@@ -254,7 +267,7 @@ static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
 
   return false;
 
-  def_aux_overflow();
+  def_overflow();
 }
 
 bool Yap_IsCyclicTerm(Term t USES_REGS) {
@@ -300,6 +313,10 @@ static int cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
  struct non_single_struct_t *to_visit0=NULL, *to_visit, *to_visit_max;
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) { \
+    /* Trail overflow */\
+      goto trail_overflow;\
+  }\
   
  reset:
   pt0 = pt0_, pt0_end = pt0_end_;
@@ -341,6 +358,9 @@ static int cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
          to_visit->ptf = ptf;
          to_visit++;
          ptf = HR;
+    if (HR + 1024 > ASP) { \
+      goto global_overflow;\
+    }\
          HR += 2;
          *ptd0 = VISIT_MARKER;
          pt0 = ptd0;
@@ -406,7 +426,7 @@ pop_text_stack(lvl);
 
 return rc;
 
-def_aux_overflow();
+def_overflow();
 
  
 }
@@ -466,7 +486,7 @@ static bool ground_complex_term(CELL * pt0_, CELL * pt0_end_ USES_REGS) {
 
   return true;
 
-  def_aux_overflow();
+  def_overflow();
 }
 
 bool Yap_IsGroundTerm(Term t) {
@@ -523,7 +543,7 @@ if (to_visit > to_visit0) {
 pop_text_stack(lvl);
 return false;
 
-def_aux_overflow();
+def_overflow();
 }
 
 static Int var_in_term(
@@ -610,11 +630,8 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
   } else {
     return (inp);
   }
-  def_trail_overflow();
+  def_overflow();
 
-  def_aux_overflow();
-
-  def_global_overflow();
 }
 
 /**
@@ -774,9 +791,7 @@ static Term attvars_in_complex_term(
   /*fprintf(stderr,"<%ld at %s\n", d0, __FUNCTION__)*/;
   return output;
 
-  def_aux_overflow();
-  def_global_overflow();
-  def_trail_overflow();
+  def_overflow();
 }
 
 /** @pred term_attvars(+ _Term_,- _AttVars_)
@@ -809,7 +824,6 @@ static Term new_vars_in_complex_term(
   Int n=0;
   CELL output = TermNil;
   {
-    tr_fr_ptr myTR0 = TR;
       int lvl = push_text_stack();
     while (!IsVarTerm(inp) && IsPairTerm(inp)) {
       Term t = HeadOfTerm(inp);
@@ -830,8 +844,8 @@ static Term new_vars_in_complex_term(
  }
  WALK_COMPLEX_TERM();
  output = MkPairTerm((CELL)ptd0, output);
-    TrailTerm(TR++) = *ptd0;
-    *ptd0 = TermFoundVar;
+ TrailTerm(TR++) = *ptd0;
+ *ptd0 = TermFoundVar;
  if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
     goto trail_overflow;
 }
@@ -846,11 +860,7 @@ pop_text_stack(lvl);
 
 return output;
 
-def_aux_overflow();
-
-def_trail_overflow();
-
-def_global_overflow();
+def_overflow();
 }
 
 /** @pred  new_variables_in_term(+_CurrentVariables_, ? _Term_, -_Variables_)
@@ -896,7 +906,6 @@ static Term vars_within_complex_term(
   CELL output = AbsPair(HR);
  
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-    tr_fr_ptr myTR0;
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
@@ -923,9 +932,8 @@ static Term vars_within_complex_term(
   return TermNil;
 }
 
-def_aux_overflow();
+def_overflow();
 
-def_global_overflow();
 }
 
 /** @pred  variables_within_term(+_CurrentVariables_, ? _Term_, -_Variables_)
@@ -961,7 +969,7 @@ static Int free_variables_in_term(
   Term bounds = TermNil;
 
   t = t0 = Deref(ARG1);
-  Int delta = 0;
+
   while (!IsVarTerm(t) && IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorHat) {
@@ -1027,8 +1035,7 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
     return ARG2;
   }
 
-  def_aux_overflow();
-  def_trail_overflow();
+  def_overflow();
 }
 
 static Int p_non_singletons_in_term(
@@ -1095,9 +1102,8 @@ static Int numbervars_in_complex_term(CELL * pt0_, CELL * pt0_end_, Int numbv,
   pop_text_stack(lvl);
   return numbv;
 
-  def_aux_overflow();
+  def_overflow();
 
-  def_global_overflow();
 }
 
 Int Yap_NumberVars(Term inp, Int numbv,
@@ -1173,7 +1179,7 @@ static int max_numbered_var(CELL * pt0_, CELL * pt0_end_,
   pop_text_stack(lvl);
   return 0;
 
-  def_aux_overflow();
+  def_overflow();
 }
 
 static Int MaxNumberedVar(Term inp, UInt arity PASS_REGS) {
