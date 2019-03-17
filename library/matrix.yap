@@ -654,40 +654,44 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 
-( X <== '[]'(Dims0, array) of V ) :-
-	var(V), !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	length( L, Size ),
-	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X <== '[]'(Dims0, array) of ints ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
-	matrix_new( ints , Dims, _, X ),
-	matrix_base(X, Bases).
-( X <== '[]'(Dims0, array) of floats ) :-
-    atom(X), !,
-	foldl( norm_dim, Dims0, _Dims, _Bases, 1, Size ),
-	static_array( X, Size, [float] ).
-( X <== '[]'(Dims0, array) of floats ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
-	matrix_new( floats , Dims,_, X ),
-	matrix_base(X, Bases).
-( X <== '[]'(Dims0, array) of (I:J) ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	matrix_seq(I, J, Dims, X),
-	matrixn_size(X, Size),
-	matrix_base(X, Bases).
+( X <== '[]'(Dims0, array) of T ) :-
+    var(X),
+    (  T== ints -> true ; T== floats),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
+    matrix_new( T , Dims, _, X ),
+    matrix_base(X, Bases).
+( X <== '[]'(Dims0, array) of T ) :-
+    atom(X),
+    (  T== ints -> true ; T== floats),
+    !,
+    foldl( norm_dim, Dims0, _Dims, _Bases, 1, Size ),
+    static_array( X, Size, [float] ).
+( X <== '[]'(Dims0, array) of (I:J) ) :-
+    var(X),
+    integer(I),
+    integer(J),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
+    matrix_seq(I, J, Dims, X),
+    matrixn_size(X, Size),
+    matrix_base(X, Bases).
+
 ( X <== '[]'(Dims0, array) of L ) :-
-	length( L, Size ), !,
+    is_list(L),
+    !,
+    length( L, Size ), !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X <== '[]'(Dims0, array) of Pattern ) :- !,
-	array_extension(Pattern, Goal),
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	call(Goal, Pattern, Dims, Size, L),
-	X <== matrix( L, [dim=Dims,base=Bases] ).
+( X <== '[]'(Dims0, array) of Pattern ) :-
+    array_extension(Pattern, Goal),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
+    call(Goal, Pattern, Dims, Size, L),
+    X <== matrix( L, [dim=Dims,base=Bases] ).
 ( LHS <== RHS ) :-
-	rhs(RHS, R),
-	set_lhs( LHS, R).
+    rhs(RHS, R),
+    set_lhs( LHS, R).
 
 
 

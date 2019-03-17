@@ -63,11 +63,19 @@ maplist_to_hash([I-V|MapList], H0, Hash) :-
 	rb_insert(H0, V, I, H1),
 	maplist_to_hash(MapList, H1, Hash).
 
-bind_maplist([]).
-bind_maplist([Node-Theta|MapList]) :-
-	get_prob(Node, ProbFact),
-	inv_sigmoid(ProbFact, Theta),
-	bind_maplist(MapList).
+
+prob2log(_X,Slope,FactID,V) :-
+    get_fact_probability(FactID, V0),
+    inv_sigmoid(V0, Slope, V).
+
+log2prob(X,Slope,FactID,V) :-
+    V0 <== X[FactID],
+    sigmoid(V0, Slope, V).
+
+bind_maplist([], _Slope, _X).
+bind_maplist([Node-Pr|MapList], Slope, X) :-
+    Pr <== X[Node],
+	bind_maplist(MapList, Slope, X).
 
 tree_to_grad([], _, Grad, Grad).
 tree_to_grad([Node|Tree], H, Grad0, Grad) :-
@@ -95,15 +103,15 @@ gradient(QueryID, g, Slope) :-
 gradient(QueryID, g, Slope) :-
 	gradient(QueryID, l, Slope).
 
-query_probability( DBDD, Slope, Prob) :-
+query_probability( DBDD, Slope, X, Prob) :-
     DBDD = bdd(Dir, Tree, MapList),
-    bind_maplist(MapList),
+    bind_maplist(MapList, Slope, X),
     run_sp(Tree, Slope, 1.0, Prob0),
     (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
 
     
-query_gradients(bdd(Dir, Tree, MapList),Slope,I,Grad) :-
-	bind_maplist(MapList),
+query_gradients(bdd(Dir, Tree, MapList),Slope,X,I,Grad) :-
+	bind_maplist(MapList, Slope, X),
         member(I-_, MapList),
 	run_grad(Tree, I, Slope, 0.0, Grad0),
 	( Dir = 1 -> Grad = Grad0 ; Grad is -Grad0).
