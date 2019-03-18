@@ -590,7 +590,7 @@ ENDIF (WITH_PYTHON)
 IF (WITH_R)
   find_host_package(LibR)
   add_subDIRECTORY(packages/real)
-ENDIF (WITH_R)
+ ENDIF (WITH_R)
 
 
 include(Sources)
@@ -811,7 +811,7 @@ endif ()
 if (WITH_JAVA)
   #detect java setup, as it is shared between different installations.
 
-  find_package(Java COMPONENTS Runtime Development)
+  find_package(Java COMPONENTS Development Runtime)
   # find_package(Java COMPONENTS Development)
   # find_package(Java COMPONENTS Runtime)
   #find_package(JavaLibs)

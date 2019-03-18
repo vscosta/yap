@@ -411,6 +411,23 @@ std::vector<Term> YAPPairTerm::listToArray() {
   return o;
 }
 
+std::vector<YAPTerm> YAPPairTerm::listToVector() {
+  Term *tailp;
+  Term t1 = gt();
+  Int l = Yap_SkipList(&t1, &tailp);
+  if (l < 0) {
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+  }
+  std::vector<YAPTerm> o = *new std::vector<YAPTerm>(l);
+  int i = 0;
+  Term t = gt();
+  while (t != TermNil) {
+    o[i++] = YAPTerm(HeadOfTerm(t));
+    t = TailOfTerm(t);
+  }
+  return o;
+}
+
 YAP_tag_t YAPTerm::tag() {
   Term tt = gt();
   if (IsVarTerm(tt)) {

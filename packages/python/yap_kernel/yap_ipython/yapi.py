@@ -563,7 +563,8 @@ class YAPRun(InteractiveShell):
                 self.answers = []
             for answer in self.query:
                 print( answer )
-                self.answers += [copy.deepcopy(answer)]
+                self.answers += [answer]
+                print( self.answers)
                 self.iterations += 1
                 
             self.os = None

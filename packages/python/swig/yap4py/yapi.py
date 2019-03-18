@@ -1,4 +1,5 @@
 import readline
+import copy
 from yap4py.yap import *
 from yap4py.systuples import *
 from os.path import join, dirname
@@ -76,11 +77,10 @@ class Query (YAPQuery):
         return self.port == "fail" or self.port == "exit"
 
     def __next__(self):
-        self.answer = {}
         if self.port == "fail" or self.port == "exit":
             raise StopIteration()
         if self.next():
-            return self.answer
+            return copy.deepcopy(self.answer)
         raise StopIteration()
  
 def name( name, arity):

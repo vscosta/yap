@@ -79,16 +79,14 @@ python_query( Caller, String, Bindings ) :-
 	       output(Caller, Bindings).
 
 output( Caller, Bindings ) :-
-fail,
-    Answer := {},
-   % start_low_level_trace,
+    Caller.answer := {},
+ /*  % start_low_level_trace,
     foldl(ground_dict(answer), Bindings, [], Ts),
     term_variables( Ts, Hidden),
     foldl(bv, Hidden , 0, _),
-    maplist(into_dict(Answer),Ts),
-    Caller.answer := Answer,
-    fail.
-    
+  */  maplist(into_dict(answer),Bindings),
+  := print(answer)},
+    Caller.answer := answer.
     
 output( _, Bindings ) :-
     write_query_answer( Bindings ),

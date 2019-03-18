@@ -825,10 +825,10 @@ return BOOL_VAL_RND(Rnd());
     int GlbMin = YAP_IntOfTerm(YAP_ARG3);
     int GlbMax = YAP_IntOfTerm(YAP_ARG4);
     int LubMin = YAP_IntOfTerm(YAP_ARG5);
-    int LubMax = YAP_IntOfTerm(YAP_ARG6);
+    int LubMax = YAP_IntOfTerm(YAP_ARG6); //ignore
     int CardMin= YAP_IntOfTerm(YAP_ARG7);
     int CardMax= YAP_IntOfTerm(YAP_ARG8);
-    int idx = space->new_svar(GlbMin,GlbMax,LubMin,LubMax,CardMin,CardMax);
+    int idx = space->new_svar(GlbMin,GlbMax,LubMin,CardMin,CardMax);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -839,9 +839,9 @@ return BOOL_VAL_RND(Rnd());
     int GlbMin = YAP_IntOfTerm(YAP_ARG3);
     int GlbMax = YAP_IntOfTerm(YAP_ARG4);
     int LubMin = YAP_IntOfTerm(YAP_ARG5);
-    int LubMax = YAP_IntOfTerm(YAP_ARG6);
+    int LubMax = YAP_IntOfTerm(YAP_ARG6); //ignore
     int CardMin= YAP_IntOfTerm(YAP_ARG7);
-    int idx = space->new_svar(GlbMin,GlbMax,LubMin,LubMax,CardMin);
+    int idx = space->new_svar(GlbMin,GlbMax,LubMin,CardMin);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -852,8 +852,8 @@ return BOOL_VAL_RND(Rnd());
     int GlbMin = YAP_IntOfTerm(YAP_ARG3);
     int GlbMax = YAP_IntOfTerm(YAP_ARG4);
     int LubMin = YAP_IntOfTerm(YAP_ARG5);
-    int LubMax = YAP_IntOfTerm(YAP_ARG6);
-    int idx = space->new_svar(GlbMin,GlbMax,LubMin,LubMax);
+    int LubMax = YAP_IntOfTerm(YAP_ARG6); //ignore?
+    int idx = space->new_svar(GlbMin,GlbMax,LubMin);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -863,10 +863,10 @@ return BOOL_VAL_RND(Rnd());
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     IntSet Glb = gecode_IntSet_from_term(YAP_ARG3);
     int LubMin = YAP_IntOfTerm(YAP_ARG4);
-    int LubMax = YAP_IntOfTerm(YAP_ARG5);
+    int LubMax = YAP_IntOfTerm(YAP_ARG5);//
     int CardMin = YAP_IntOfTerm(YAP_ARG6);
     int CardMax = YAP_IntOfTerm(YAP_ARG7);
-    int idx = space->new_ssvar(Glb,LubMin,LubMax,CardMin,CardMax);
+    int idx = space->new_ssvar(Glb,LubMin/* ,lubmax */,CardMin,CardMax);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -890,7 +890,7 @@ return BOOL_VAL_RND(Rnd());
     IntSet Glb = gecode_IntSet_from_term(YAP_ARG3);
     int LubMin = YAP_IntOfTerm(YAP_ARG4);
     int LubMax = YAP_IntOfTerm(YAP_ARG5);
-    int idx = space->new_ssvar(Glb,LubMin,LubMax);
+    int idx = space->new_ssvar(Glb,LubMin/* ,lubmax */);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -903,7 +903,7 @@ return BOOL_VAL_RND(Rnd());
     IntSet Lub = gecode_IntSet_from_term(YAP_ARG5);
     int CardMin = YAP_IntOfTerm(YAP_ARG6);
     int CardMax = YAP_IntOfTerm(YAP_ARG7);
-    int idx = space->new_ssvar(GlbMin,GlbMax,Lub,Lub,CardMin,CardMax);
+    int idx = space->new_ssvar(GlbMin,GlbMax,Lub,CardMin,CardMax);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
@@ -915,7 +915,7 @@ return BOOL_VAL_RND(Rnd());
     int GlbMax = YAP_IntOfTerm(YAP_ARG4);
     IntSet Lub = gecode_IntSet_from_term(YAP_ARG5);
     int CardMin = YAP_IntOfTerm(YAP_ARG6);
-    int idx = space->new_ssvar(GlbMin,GlbMax,Lub,Lub,CardMin);
+    int idx = space->new_ssvar(GlbMin,GlbMax,Lub,CardMin);
     return YAP_Unify(result, YAP_MkIntTerm(idx));
   }
 
