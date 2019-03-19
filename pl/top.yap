@@ -741,7 +741,6 @@ write_query_answer( Bindings ) :-
 	'$current_module'(OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
 	prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-

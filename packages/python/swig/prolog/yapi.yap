@@ -42,6 +42,8 @@ yapi_query( VarNames, Self ) :-
 		Self.bindings := Dict.
 
 
+
+
 %:- initialization set_preds.
 
 set_preds :-
@@ -70,51 +72,31 @@ argi(N,I,I1) :-
 	I1 is I+1.
 
 python_query( Caller, String		) :-
-	      python_query( Caller, String, _Bindings).
+    python_query( Caller, String, _Bindings).
+
+user:user_python_query( Caller, String, Bindings ) :-
+    python_query( Caller, String, _Bindings).
 
 python_query( Caller, String, Bindings ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( Goal, VarNames, Status, Bindings),
-	Caller.port := Status,
-	       output(Caller, Bindings).
+	Caller.q.port := Status,
+	output(Caller, Bindings).
 
-output( Caller, Bindings ) :-
-    Caller.answer := {},
- /*  % start_low_level_trace,
-    foldl(ground_dict(answer), Bindings, [], Ts),
-    term_variables( Ts, Hidden),
-    foldl(bv, Hidden , 0, _),
-  */  maplist(into_dict(answer),Bindings),
-  := print(answer)},
-    Caller.answer := answer.
-    
 output( _, Bindings ) :-
     write_query_answer( Bindings ),
     fail.
-output(_Caller, _Bindings).
-    
+output( Caller, Bindings) :-
+     maplist(into_dict(Caller),Bindings).
+
 bv(V,I,I1) :-
     atomic_concat(['__',I],V),
     I1 is I+1.
 
 into_dict(D,V0=T) :-
-    atom(T),
-    !,
-    D[V0] := T.
-into_dict(D,V0=T) :-
-  integer(T),
-writeln((D[V0]:=T)),
-!,
-    D[V0] := T,
-    := print(D).
-into_dict(D,V0=T) :-
-    string(T),
-    !,
-    D[V0] := T.
-into_dict(D,V0=T) :-
-    python_represents(T1,T),
-    D[V0] := T1.
-    
+	 D.q.answer[V0] := T.
+
+
 /**
  *
  */

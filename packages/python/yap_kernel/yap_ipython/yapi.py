@@ -1,6 +1,5 @@
 import sys
 
-
 from typing import  List
 from traitlets import Bool
 
@@ -509,7 +508,7 @@ class YAPRun(InteractiveShell):
         global engine
         engine = self.engine
         self.errors = []
-        self.query = None
+        self.q = None
         self.os = None
         self.it = None
         self.port = "None"
@@ -542,51 +541,53 @@ class YAPRun(InteractiveShell):
         return self.errors
 
     def prolog(self, s, result):
+
         #
-        # construct a self.queryuery from a one-line string
-        # self.query is opaque to Python
+        # construct a self.query from a one-line string
+        # self.q is opaque to Python
         try:
-            program,squery,_                                                                                                                                                                                                                                                                                                                                                                               ,howmany = self.prolog_cell(s)
+            program,squery,_ ,howmany = self.prolog_cell(s)
             # sys.settrace(tracefunc)
-            if self.query and self.os == (program,squery):
+            if self.q and self.os == (program,squery):
                 howmany += self.iterations
             else:
-                if self.query:
-                    self.query.close()
-                    self.query = None
-                    self.answers = []
-                    result.result = []
+                if self.q:
+                    self.q.close()
+                    self.q = None
+                self.answers = []
+                result.result = []
                 self.os = (program,squery)
                 self.iterations = 0
-                pg = jupyter_query(self.engine,program,squery)
-                self.query = Query(self.engine, pg)
-                self.answers = []
-            for answer in self.query:
-                print( answer )
-                self.answers += [answer]
-                print( self.answers)
+                pg = jupyter_query(self,program,squery)
+                self.q = Query(self.engine, pg)
+            while self.q.next():
                 self.iterations += 1
-                
-            self.os = None
-            self.query.close()
-            self.query = None
+                o = '[ '
+                o += str(self.iterations )
+                o += '    '
+                o += json.dumps(self.q.answer)
+                o += ' ]\n\n'
+                sys.stderr.write( o )
+                self.answers += [self.q.answer]
+                if self.q.port == "exit":
+                    break
+                if self.iterations == howmany:
+                    break
+            if self.q.port != "answer" and self.iterations == howmany:
+                self.q.close()
+                self.q = None
             if self.answers:
-                sys.stderr.write('\n'+'[ ' +str(len(self.answers))+' answer(s): ]\n[ ')
-                print( self.answers )
-                result.result = json.dumps(self.answers)
-                sys.stderr.write(result.result+' ]\n\n')
+               return self.answers
             else:
-                result.result = []
-            return result.result
+                return None
             
      
         except Exception as e:
-            sys.stderr.write('Exception '+str(e)+'in query '+ str(self.query)+
-                             '\n  '+str( self.bindings)+ '\n')
-            has_raised = True
-            result.result = []
-            return result.result
+            sys.stderr.write('Exception '+str(e)+' in query '+ str(self.q)+
+                             '\n  Answers'+ json.dumps( self.answers)+ '\n')
 
+            has_raised = True
+            return result.result
 
 
     def _yrun_cell(self, raw_cell, result, store_history=True, silent=False,
@@ -728,10 +729,8 @@ class YAPRun(InteractiveShell):
                 # state = tracer.runfunc(hist
                 # er_query( self, cell ) )
                 self.shell.last_execution_succeeded = True
-                result.result = answers
         except Exception as e:
             has_raised = True
-            result.result = []
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)

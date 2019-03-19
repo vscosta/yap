@@ -1,4 +1,4 @@
-
+u
 /**
   * @file jupyter.yap
   *
@@ -30,7 +30,7 @@
 
 
  :-	 use_module(library(python)).
- :-	 use_module(library(yapi)).
+:-	 use_module(library(yapi)).
  :-	 use_module(library(complete)).
  :-	 use_module(library(verify)).
 
@@ -73,7 +73,7 @@ jupyter_cell( _Caller, _, Line , _) :-
 jupyter_cell(Caller, _, Line, Bindings ) :-
     Query = Caller,
     catch(
-	python_query(Query,Line, Bindings),
+	user:user_python_query(Query,Line, Bindings),
 	error(A,B),
 	 system_error(A,B)
     ).

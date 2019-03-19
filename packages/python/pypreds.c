@@ -1,15 +1,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
 #include "Yap.h"
 
 #include "py4yap.h"

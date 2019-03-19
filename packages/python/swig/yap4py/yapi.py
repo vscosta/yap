@@ -1,7 +1,7 @@
 import readline
 import copy
 from yap4py.yap import *
-from yap4py.systuples import *
+from yap4py.systuples import python_query, show_answer, library, prolog_library, v0, compile, namedtuple
 from os.path import join, dirname
 
 import sys
@@ -52,7 +52,7 @@ class JupyterEngine( Engine ):
             pass
 
 class EngineArgs( YAPEngineArgs ):
-    """ Interface to Engine Options class"""
+    """ Interface to EngneOptions class"""
     def __init__(self, args=None,**kwargs):
         super().__init__()
 
@@ -69,6 +69,7 @@ class Query (YAPQuery):
         super().__init__(g)
         self.engine = engine
         self.port = "call"
+        self.answer = {}
 
     def __iter__(self):
         return self
@@ -80,7 +81,7 @@ class Query (YAPQuery):
         if self.port == "fail" or self.port == "exit":
             raise StopIteration()
         if self.next():
-            return copy.deepcopy(self.answer)
+            return True
         raise StopIteration()
  
 def name( name, arity):
@@ -125,7 +126,7 @@ class YAPShell:
 
     def query_prolog(self, query):
         g = None
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python
@@ -147,9 +148,11 @@ class YAPShell:
             engine = self.engine
             bindings   = [] 
             loop = False
-            q = Query( engine,   python_query( engine, query) )
+            self.q = Query( engine, python_query( self, query) )
+            q = self.q
             for answer in q:
-                bindings += [answer]
+                bindings += [q.answer]
+                print(q.answer)
                 if q.done():
                     return bindings
                 if loop:
@@ -170,7 +173,7 @@ class YAPShell:
             if self.q:
                 self.q.close()
                 self.q = None
-            print("No (more) answers")
+            print("No (more) answers, found", bindings)
             return bindings
         except Exception as e:
             if not self.q:
@@ -182,34 +185,41 @@ class YAPShell:
             raise
 
     def live(self, engine, **kwargs):
-        loop = True
-        self.q = None
-        while loop:
-            try:
-                s = input("?- ")
-                if not s:
+        try:
+            loop = True
+            self.q = None
+            while loop:
+                try:
+                    s = input("?- ")
+                    if not s:
+                        continue
+                    else:
+                        self.query_prolog(s)
+                except SyntaxError as err:
+                    print("Syntax Error error: {0}".format(err))
                     continue
-                else:
-                    self.query_prolog(s)
-            except SyntaxError as err:
-                print("Syntax Error error: {0}".format(err))
-                continue
-            except EOFError:
-                return
-            except RuntimeError as err:
-                print("YAP Execution Error: {0}".format(err))
-            except ValueError:
-                print("Could not convert data to an integer.")
-            except:
-                print("Unexpected error:", sys.exc_info()[0])
-                raise
-        engine.close()
+                except EOFError:
+                    return
+                except RuntimeError as err:
+                    print("YAP Execution Error: {0}".format(err))
+                except ValueError:
+                   print("Could not convert data to an integer.")
+                except:
+                    print("Unexpected error:", sys.exc_info()[0])
+                    raise
+            engine.close()
+        except Exception as e:
+            print("Exception",e)
+            e.errorNo = 0
+            raise
+
     #
     # initialize engine
     # engine = yap.YAPEngine();
     # engine = yap.YAPEngine(yap.YAPParams());
     #
     def __init__(self, engine, **kwargs):
+        #import pdb; pdb.set_trace()
         self.engine = engine
 
         self.live(engine)

@@ -477,14 +477,7 @@ be lost.
 '$trace_goal'(G, M, GoalNumber, H) :-
 	'$undefined'(G, M),
 	!,
-	'$get_predicate_definition'(M:G,  NM:Goal),
-	( ( M == NM ; NM == prolog), G == Goal
-	->
-	  yap_flag( unknown, Action ),
-	  '$undefp'([M|G], Action )
-	;
-	 '$trace_goal'(Goal, NM, GoalNumber, H)
-	).
+	  '$undefp'([M|G], _ ).
 % meta system
 '$trace_goal'(G, M, GoalNumber, H) :-
         '$is_metapredicate'(G, prolog),
