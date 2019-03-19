@@ -2,14 +2,14 @@
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
- if (typeof exports == "object" && typeof module == "object") // CommonJS
-    mod(require("../../lib/codemirror"));
-  else if (typeof define == "function" && define.amd) // AMD
-    define(["../../lib/codemirror"], mod);
-  else // Plain browser env
-    mod(CodeMirror);
+if (typeof exports == "object" && typeof module == "object") // CommonJS
+  mod(require(["codemirror/lib/codemirror","codemirror/addon/lint/lint"]));
+else if (typeof define == "function" && define.amd) // AMD
+  define([ "codemirror/lib/codemirror","codemirror/addon/lint/lint" ], mod);
+else // Plain browser env
+  mod(CodeMirror);
 })(function(CodeMirror) {
-  "use strict";
+"use strict";
 
 CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   function chain(stream, state, f) {
@@ -17,8 +17,7 @@ CodeMirror.defineMode("prolog", function(conf, parserConfig) {
     return f(stream, state);
   }
 
-  var cm_ = null;
-var document = CodeMirror.doc;
+  var cm_;
   var curLine;
 
   /*******************************
@@ -35,25 +34,9 @@ var document = CodeMirror.doc;
       parserConfig.groupedIntegers || false; /* tag{k:v, ...} */
   var unicodeEscape =
       parserConfig.unicodeEscape || true; /* \uXXXX and \UXXXXXXXX */
-  var multiLineQuoted = parserConfig.multiLineQuotedd || true;
-  var singleQuoted = "atom";
-  if (parserConfig.singleQuote === "string" ||
-parserConfig.singleQuote === "codes" ||
-parserConfig.singleQuote === "chars")
-    singleQuoted = parserConfig.singleQuote;
-  var doubleQuoted = "string";
-  if (parserConfig.doubleQuote === "atom" ||
-parserConfig.doubleQuote === "codes" ||
-parserConfig.doubleQuote === "chars")
-    doubleQuoted = parserConfig.doubleQuote;
-  var backQuoted = "atom";
-  if (parserConfig.backQuote === "string" ||
-parserConfig.backQuote === "codes" ||
-parserConfig.backQuote === "chars")
-    backQuoted = parserConfig.backQuote;
-
-  var quoteType = {"\"" : doubleQuoted, "`" : backQuoted, "'" : singleQuoted};
-
+  var multiLineQuoted = parserConfig.multiLineQuoted || true; /* "...\n..." */
+  var quoteType = parserConfig.quoteType ||
+                  {'"' : "string", "'" : "qatom", "`" : "bqstring"};
   var singletonVars = new Map();
 
   var isSingleEscChar = /[abref\\'"nrtsv]/;
@@ -73,20 +56,21 @@ parserConfig.backQuote === "chars")
   var exportedMsgs = [];
 
   function getLine(stream) {
-if (stream)
     return stream.lineOracle.line;
-    if (document == null)
-      return 0;
-    return document.getCursor().line;
+    //  return cm_.getDoc().getCursor().line;
   }
 
   // var ed =
   // window.document.getElementsByClassName("CodeMirror")[0].CodeMirror.doc.getEditor();
 
-  function rmError(document,stream) {
+  function rmError(stream) {
+    if (cm_ == null)
+    return;
+    var doc = cm_.getDoc();
     var l = getLine(stream);
+    // stream.lineOracle.line;
     for (var i = 0; i < errorFound.length; i++) {
-      var elLine = errorFound[i].document.getLineNumber(errorFound[i].line);
+      var elLine = doc.getLineNumber(errorFound[i].line);
       if (elLine == null || l === elLine) {
         errorFound.splice(i, 1);
         i -= 1;
@@ -97,29 +81,30 @@ if (stream)
   function mkError(stream, severity, msg) {
     if (stream.pos == 0)
       return;
-    var l = getLine(stream);
+    var l = cm_.getDoc().getLineHandle(getLine(stream));
     var found = errorFound.find(function(
         element) { return element.line === l && element.to == stream.pos; });
     if (!found) {
-      //console.log(getLine(stream));
-      errorFound.push({
+      console.log( getLine(stream) );
+    errorFound.push({
         "line" : l,
         "from" : stream.start,
         "to" : stream.pos,
         severity : severity,
-        message : msg,
-document: document
+        message : msg
       });
     }
   }
 
   function exportErrors(text) {
-    if (document == null)
+    if (cm_ == null)
       return;
+    var doc = cm_.getDoc();
+
     exportedMsgs.length = 0;
     for (var i = 0; i < errorFound.length; i += 1) {
       var e = errorFound[i];
-      var l = document.getLineNumber(e.line);
+      var l = doc.getLineNumber(e.line);
       if (l == null) {
         errorFound.splice(i, 1);
         i -= 1;
@@ -135,28 +120,29 @@ document: document
     return exportedMsgs;
   }
 
-  function maybeSingleton(stream, key) {
-    //console.log(key);
+  function maybeSingleton( stream, key ) {
+    console.log(key);
     var v = singletonVars.get(key);
-    if (v != undefined) {
-      v.singleton = false;
-    } else {
-      singletonVars.set(
-          key, {'singleton' : true, 'from' : stream.start, to : stream.pos});
-    }
-    //console.log(singletonVars);
-  }
-
-  function outputSingletonVars(stream) {
-    var key, v;
-    for (var key in singletonVars.keys()) {
-      var v = singletonVars[key];
- if (v != undefined && v.singleton) {
-        mkError(stream, "warning", key + " singleton variable");
+    if (v!= undefined) {
+        v.singleton = false;
+      
+      } else {
+        singletonVars.set(key, { 'singleton': true, 
+        'from': stream.start, to: stream.pos } );
+         
       }
+      console.log(singletonVars);
+    }
+
+    function outputSingletonVars(stream) {
+var key,v;
+for ( [key,v] of singletonVars.entries()) {
+ if (v!=undefined && v.singleton) {
+   mkError(stream,"warning", key+" singleton variable");
+ }
     }
     singletonVars.clear();
-  // console.log("reset");
+    console.log("reset");
   }
 
   CodeMirror.registerHelper("lint", "prolog", exportErrors);
@@ -323,7 +309,6 @@ document: document
 
     if (ch == "{" && state.lastType == "tag") {
       state.nesting.push({
-        marker: ch,
         tag : state.tagName,
         column : stream.column(),
         leftCol : state.tagColumn,
@@ -334,12 +319,8 @@ document: document
       return ret("dict_open", "bracket");
     }
 
-    if (ch == "/") {
-var next = stream.peek();
-if (next == '*') {
-     return chain(stream, state, plTokenComment);
-    }
-    }
+    if (ch == "/" && stream.eat("*"))
+      return chain(stream, state, plTokenComment);
 
     if (ch == "%") {
       stream.skipToEnd();
@@ -351,60 +332,53 @@ if (next == '*') {
     if (isSoloChar.test(ch)) {
       switch (ch) {
       case ")": {
-if (state.nesting.marker != "(") {
-          mkError(stream, "error", state.nesting.marker + " closed by )");
-}
         state.nesting.pop();
       } break;
       case "]":
-if (state.nesting.marker != "[") {
-          mkError(stream, "error", state.nesting.marker + " closed by ]");
-}
+
         state.nesting.pop();
         return ret("list_close", "bracket");
       case "}": {
- if (state.nesting.marker != "{") {
-          mkError(stream, "error", state.nesting.marker + " closed by }");
-}
-       var nest = nesting(state);
+        var nest = nesting(state);
         var type = (nest && nest.tag) ? "dict_close" : "brace_term_close";
 
         state.nesting.pop();
         return ret(type, null);
       } break;
-      case ",": {
+      case ",": 
+      {
         if (stream.eol())
           state.commaAtEOL = true;
         nextArg(state);
         /*FALLTHROUGH*/
-        if (!state.commaAtEOL)
-          stream.eatSpace();
-        var nch = stream.peek();
-        if (nch == ';' || nch == ',') {
-          mkError(stream, "error", "\",\" followed by " + stream.peek());
-          return ret("solo", "error", ",");
-        }
-        if (isControl(state)) {
-          if ("[" != ch) {
-            if (state.inBody) {
+          if (!state.commaAtEOL)
+            stream.eatSpace();
+            var nch = stream.peek();
+             if ( nch == ';' || nch == ',') {
+              mkError(stream, "error", "\",\" followed by "+stream.peek());
+              return ret("solo", "error", ",");
+            }
+            if (isControl(state)) {
+              if ("[" != ch ) {
+            if (state.inBody ) {
               state.goalStart = true;
             } else {
-              mkError(stream, "error", "\",\" followed by " + stream.peek());
+              mkError(stream, "error", "\",\" followed by "+stream.peek());
               return ret("solo", "error", ",");
             }
           }
         }
-        return ret('solo', 'tag', ",");
+        return ret('solo','tag', ",");
       } break;
       case ";":
-        if (!state.commaAtEOL)
-          stream.eatSpace();
-        ch = stream.peek();
-        if (ch == ';' || ch == ',') {
-          mkError(stream, "error", "\",\" followed by " + stream.peek());
-          return ret("solo", "error", ";");
-        }
-        if (isControl(state)) {
+      if (!state.commaAtEOL)
+            stream.eatSpace();
+           ch = stream.peek();
+      if ( ch == ';' || ch == ',') {
+        mkError(stream, "error", "\",\" followed by "+stream.peek());
+        return ret("solo", "error", ";");
+      }
+  if (isControl(state)) {
           if (!state.inBody) {
             mkError(stream, "error", "unexpected ;");
             return ret("solo", "error", ";");
@@ -495,27 +469,25 @@ if (state.nesting.marker != "[") {
           mkError(stream, "error", "Clause over before closing all brackets");
           state.nesting = [];
         }
-        //  var start = cm_.getCursor("end");
-        // cm_.setBookmark(start, {"widget" :
-        // document.createTextNode("&bull;")});
+  //  var start = cm_.getCursor("end");
+    //cm_.setBookmark(start, {"widget" : document.createTextNode("&bull;")});
         state.inBody = false;
         state.goalStart = true;
         outputSingletonVars(stream);
         stream.eat(ch);
-state.headStart = true;
         return ret("fullstop", "def", atom);
 
       } else {
         if (atom === ":-" && state.headStart) {
-          state.headStart = false;
-          state.inBody = true;
+	    state.headStart = false;
+	     state.inBody = true;
           state.goalStart = true;
           return ret("directive", "attribute", atom);
 
         } else if (isNeck.test(atom)) {
           state.inBody = true;
           state.goalStart = true;
-          return ret("neck", "def", atom);
+          return ret("neck", "property", atom);
         } else if (isControl(state) && isControlOp.test(atom)) {
           state.goalStart = true;
           return ret("symbol", "meta", atom);
@@ -523,7 +495,7 @@ state.headStart = true;
           return ret("symbol", "meta", atom);
       }
     }
-    stream.eatWhile(/\w/);
+    stream.eatWhile(/[\w_]/);
     if (composeGoalWithDots) {
       while (stream.peek() == ".") {
         stream.eat('.');
@@ -532,8 +504,8 @@ state.headStart = true;
           stream.backUp(1);
           break;
 
-        } else if (/\w/.test(ch)) {
-          stream.eatWhile(/\w/);
+        } else if (/[\w_]/.test(ch)) {
+          stream.eatWhile(/[\w_]/);
         } else if (ch == "'") {
 
           stream.eat();
@@ -557,26 +529,23 @@ state.headStart = true;
       if (word.length == 1) {
         return ret("var", "variable-2", word);
       } else {
-        return ret("var", "variable-2", word);
+      return ret("var", "variable-2", word);
       }
-    } else if (ch.match(/[A-Z]/)) {
-      maybeSingleton(stream, word);
+    } else if (ch.match(/[A-Z]/) ) {
+        maybeSingleton(stream,word);
       return ret("var", "variable-1", word);
     }
-if (state.headStart) {
+      if (stream.peek() == "(") {
+      state.functorName = word; /* tmp state extension */
+      state.functorColumn = stream.column();
+      if (state.headStart) {
         state.headStart = false;
-        if (state.headFunctor !== word) {
+        if (state.headFunctor != word) {
           state.headFunctor = word;
           return ret("functor", "def", word);
         }
-return ret("functor", "atom", word);
-
       }
-     
-    if (stream.peek() == "(") {
-      state.functorName = word; /* tmp state extension */
-      state.functorColumn = stream.column();
-       if (builtins[word] && isControl(state))
+      if (builtins[word] && isControl(state))
         return ret("functor", "keyword", word);
       return ret("functor", "atom", word);
     } else if ((extra = stream.eatSpace())) {
@@ -604,6 +573,7 @@ return ret("functor", "atom", word);
       return ret("atom", "keyword", word);
     }
     return ret("atom", "atom", word);
+
   }
 
   function plTokenString(quote) {
@@ -748,7 +718,7 @@ IfTrue
 
               CodeMirror.defineOption(
                   "prologKeys", true, function(cm, editor, prev) {
-                    document = cm.getDoc();
+                    cm_ = cm;
                     if (prev && prev != CodeMirror.Init)
                       cm.removeKeyMap("prolog");
                     if (true) {
@@ -1418,9 +1388,11 @@ IfTrue
           setArgAlignment(state);
         return null;
       }
+      if (state.curLine == null || state.pos == 0)
+        rmError(stream);
 
       var style = state.tokenize(stream, state);
-      //console.log(state.curToken);
+      console.log(state.curToken);
 
       if (stream.eol()) {
         if (stream.pos > 0)
@@ -1467,7 +1439,7 @@ IfTrue
     blockCommentEnd : "*/",
     blockCommentContinue : " * ",
     comment : "%",
-    matchBrackets : true
+    matchBrackets: true
   };
   return external;
 });
