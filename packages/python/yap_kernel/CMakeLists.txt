@@ -411,8 +411,13 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kerne
   )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/yap.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
-  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/yap.js
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/prolog.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
+  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/prolog.js
+  )
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/meta.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js
+  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/meta.js
   )
 
 

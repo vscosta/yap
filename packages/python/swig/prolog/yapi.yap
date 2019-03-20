@@ -83,9 +83,9 @@ python_query( Caller, String, Bindings ) :-
 	Caller.q.port := Status,
 	output(Caller, Bindings).
 
-output( _, Bindings ) :-
-    write_query_answer( Bindings ),
-    fail.
+%% output( _, Bindings ) :-
+%%     write_query_answer( Bindings ),
+%%     fail.
 output( Caller, Bindings) :-
      maplist(into_dict(Caller),Bindings).
 
@@ -95,22 +95,4 @@ bv(V,I,I1) :-
 
 into_dict(D,V0=T) :-
 	 D.q.answer[V0] := T.
-
-
-/**
- *
- */
-ground_dict(_Dict,var([_V]), I, I) :-
-    !.
-ground_dict(_Dict,var([V,V]), I, I) :- 
-    !.
-ground_dict(Dict, nonvar([V0|Vs],T),I0, [V0=T| I0]) :-
-    !,
-    ground_dict(Dict, var([V0|Vs]),I0, I0).
-ground_dict(Dict, var([V0,V1|Vs]), I, I) :- 
-    !,
-		Dict[V1] := V0,
-		ground_dict(Dict, var([V0|Vs]), I, I).
-
-
 

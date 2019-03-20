@@ -299,11 +299,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$trace'(Mod:G) :-
-     '$stop_creeping'(_),
-     ( prolog_flag(debug, false) ;
-       '__NB_getval__'('$debug_status',state(zip,_Border,Spy),fail),
-       ( Spy == ignore ; \+ '$pred_being_spied'(G, Mod) )
-     ),
+    '$trace_is_off'(Mod:G,_GN0),
      !,
      '$execute_nonstop'(G,Mod).
 '$trace'(Mod:G) :-
@@ -464,14 +460,7 @@ be lost.
 %% Actuallb sy debugs a
 %% goal!
 '$trace_goal'(G, M, GoalNumber, _H) :-
-	(
-	 current_prolog_flag(debug, false)
-	;
-	 '__NB_getval__'('$debug_status',state(zip,Border,Spy), fail),
-	 Border < GoalNumber,
-	 ( Spy == ignore ; \+ '$pred_being_spied'(G, M) )
-	),
-	%writeln(go:G:M),
+    '$trace_is_off'(M:G,GoalNumber),
 	!,
 	'$execute_nonstop'(G,M).
 '$trace_goal'(G, M, GoalNumber, H) :-

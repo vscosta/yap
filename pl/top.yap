@@ -82,6 +82,7 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
+	nb_setval('$debug_status', state(zip, 0, stop), fail)
 	'$command'(Command,Varnames,Pos,top),
 	current_prolog_flag(break_level, BreakLevel),
 	(
@@ -590,31 +591,6 @@ write_query_answer( Bindings ) :-
   	         '$disable_debugging_on_port'(Port)
        ).
 
-'$disable_debugging_on_port'(retry) :-
-    !,
-    '$enable_debugging'.
-'$disable_debugging_on_port'(_Port) :-
-    '$disable_debugging'.
-
-
-
-% enable creeping
-'$enable_debugging':-
-    current_prolog_flag(debug, false), !.
-'$enable_debugging' :-
-	nb_setval('$debug_status', state(false,creep, 0, stop)),
-    '$trace_on', !,
-    '$creep'.
-'$enable_debugging'.
-
-'$trace_on' :-
-    '__NB_getval__'('$debug_status', state(_,Creep, GN, Spy), fail),
-    nb_setval('$debug_status', state(true,Creep, GN, Spy)).
-
-'$trace_off' :-
-    '__NB_getval__'('$debug_status', state(_,Creep, GN, Spy), fail),
-    nb_setval('$debug_status', state(false,Creep, GN, Spy)).
-
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
 %
@@ -727,21 +703,21 @@ write_query_answer( Bindings ) :-
     '$execute0'(G, CurMod).
 
 '$loop'(Stream,exo) :-
-	prolog_flag(agc_margin,Old,0),
+    prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
-	'$current_module'(OldModule),
-	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
-			 user:'$LoopError'(Error, top)),
-	prolog_flag(agc_margin,_,Old),
-	!.
+    '$current_module'(OldModule),
+    repeat,
+    '$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
+		    user:'$LoopError'(Error, top)),
+    prolog_flag(agc_margin,_,Old),
+    !.
 '$loop'(Stream,db) :-
-	prolog_flag(agc_margin,Old,0),
+    prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
-	'$current_module'(OldModule),
-	repeat,
-		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-	prolog_flag(agc_margin,_,Old),
+    '$current_module'(OldModule),
+    repeat,
+    '$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
+		    prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
     repeat,

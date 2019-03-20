@@ -391,6 +391,48 @@ notrace(G) :-
 	fail
     ).
 
+'$disable_debugging_on_port'(retry) :-
+    !,
+    '$enable_debugging'.
+'$disable_debugging_on_port'(_Port) :-
+    '$disable_debugging'.
+
+
+
+% enable creeping
+'$enable_debugging':-
+    current_prolog_flag(debug, false), !.
+'$enable_debugging' :-
+	nb_setval('$debug_status', state(creep, 0, stop)),
+    '$trace_on', !,
+    '$creep'.
+'$enable_debugging'.
+
+'$trace_on' :-
+    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy), fail),
+    nb_setval('$debug_status', state(zip, GN, Spy)).
+
+'$trace_off' :-
+    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy), fail),
+    nb_setval('$debug_status', state(zip, GN, Spy)).
+
+'$trace_is_off'(_,_) :-
+    current_prolog_flag(debug, false), !.
+'$trace_is_off'(Module:G, GN0) :-
+    '__NB_getval__'('$debug_status',state(zip, GN, Spy), fail),
+    (
+	
+    '$pred_being_spied'(G,Module)
+    ->
+    Spy == ignore
+    ;
+    var(GN0)
+    ->
+    true
+    ;
+    GN > G0
+   ). 
+
 
 /*
 

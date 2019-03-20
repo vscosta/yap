@@ -25,7 +25,7 @@ output for a aline such as:
 fs.ensureDirSync('node_modules/codemirror/mode/prolog');
 fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/prolog.js'), 'node_modules/codemirror/mode/prolog/prolog.js');
 fs.copySync(path.join(path.resolve(jlab.buildDir),'../../../kernels/yap_kernel/meta.js'), 'node_modules/codemirror/mode/meta.js');
-~~~~~~~~
+..~~~~~~~~
 These lines should copy YAP's prolog.js and a new version of the mode directory, meta.js. whenever you rebuild jlab, eg, if you add a new plugin.
 
 Next, please check the lines in context.
