@@ -37,7 +37,8 @@ u
 
 :- python_import(sys).
 
-
+:- meta_predicate jupyter_query(+,:,+,-), jupyter_query(+,:,+).
+	   
 jupyter_query(Caller, Cell, Line, Bindings ) :-
     gated_call(
 	streams(true),

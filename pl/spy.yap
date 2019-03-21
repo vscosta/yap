@@ -430,7 +430,7 @@ notrace(G) :-
     ->
     true
     ;
-    GN > G0
+    GN > GN0
    ). 
 
 

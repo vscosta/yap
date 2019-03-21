@@ -1851,9 +1851,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   {
     Term t1 = Deref(ARG1);
     int l = push_text_stack();
+    Term cm = CurrentModule;
+    if (IsApplTerm(t1)) {
+      Term tmod = LOCAL_SourceModule;
+      t1 = Yap_YapStripModule(t1, &tmod);
+      CurrentModule = tmod;
+    }
     const unsigned char *s = Yap_TextToUTF8Buffer(t1 PASS_REGS);
     Int rc = Yap_UBufferToTerm(s, add_output(ARG2, add_names(ARG3, TermNil)));
-
+    CurrentModule = cm;
     pop_text_stack(l);
     return rc;
   }

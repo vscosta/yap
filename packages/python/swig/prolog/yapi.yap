@@ -28,7 +28,7 @@
 :- python_import(json).
 %:- python_import(gc).
 
-:- meta_predicate( yapi_query(:,+) ).
+:- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
 
 %:- start_low_level_trace.
 

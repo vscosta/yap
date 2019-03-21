@@ -463,7 +463,7 @@ be lost.
     '$trace_is_off'(M:G,GoalNumber),
 	!,
 	'$execute_nonstop'(G,M).
-'$trace_goal'(G, M, GoalNumber, H) :-
+'$trace_goal'(G, M, _GoalNumber, _H) :-
 	'$undefined'(G, M),
 	!,
 	  '$undefp'([M|G], _ ).
@@ -848,7 +848,7 @@ be lost.
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
      '$scan_number'(ScanNumber),		
      ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-	( (P=call; P=redo) ->
+	( (P==call; P==redo) ->
              '__NB_setval__'('$debug_status', state(leap, Goal, ignore) ) ;
 	    '$ilgl'(s)				% '
 	).

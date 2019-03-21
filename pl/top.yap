@@ -82,7 +82,7 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	nb_setval('$debug_status', state(zip, 0, stop), fail)
+	nb_setval('$debug_status', state(zip, 0, stop), fail),
 	'$command'(Command,Varnames,Pos,top),
 	current_prolog_flag(break_level, BreakLevel),
 	(
@@ -715,9 +715,10 @@ write_query_answer( Bindings ) :-
     prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
     '$current_module'(OldModule),
-    repeat,
-    '$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error,
-		    prolog_flag(agc_margin,_,Old),
+	repeat,
+		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error, user:'$LoopError'(Error, db)
+                   ),
+		prolog_flag(agc_margin,_,Old),
 	!.
 '$loop'(Stream,Status) :-
     repeat,
