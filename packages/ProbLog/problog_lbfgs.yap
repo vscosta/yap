@@ -238,7 +238,7 @@
 :- dynamic(learning_initialized/0).
 :- dynamic(current_iteration/1).
 :- dynamic(example_count/1).
-%:- dynamic(query_probability_intern/2).
+:- dynamic(query_probability_intern/2).
 %:- dynamic(query_gradient_intern/4).
 :- dynamic(last_mse/1).
 :- dynamic(query_is_similar/2).
@@ -372,7 +372,7 @@ reset_learning :-
 	retractall(values_correct),
 	retractall(current_iteration(_)),
 	retractall(example_count(_)),
-%	retractall(query_probability_intern(_,_)),%
+	retractall(query_probability_intern(_,_)),
 %	retractall(query_gradient_intern(_,_,_,_)),
 	retractall(last_mse(_)),
 	retractall(query_is_similar(_,_)),
@@ -610,7 +610,7 @@ init_one_query(QueryID,Query,_Type) :-
 %=
 %========================================================================
 query_probability(QueryID,Prob) :-
-	Prob <== qp[QueryID].
+    query_probability_intern(QueryID,Prob).
 
 %========================================================================
 %=
@@ -663,7 +663,6 @@ mse_trainingset :-
 	update_values,
 	findall(t(LogCurrentProb,SquaredError),
 		(user:example(QueryID,Query,TrueQueryProb,_Type),
-%		 once(update_query(QueryID,'+',probability)),
 		 query_probability(QueryID,CurrentProb),
  		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
 
@@ -781,11 +780,22 @@ inv_sigmoid(T,Slope,InvSig) :-
 %= probabilities of the examples have to be recalculated
 %========================================================================
 
+:- dynamic index/2.
+
 save_old_probabilities.
 
+mkindex :-
+    retractall(index(_,_)),
+    findall(FactID,tunable_fact(FactID,_GroundTruth),L),
+    foldl(mkindex, L, 0, Count),
+    assert(count_tunables(Count)).
 
+mkindex(Key,I,I1) :-
+    I1 is I+1,
+    assert(index(Key,I),I1).
 % vsc: avoid silly search
 gradient_descent :-
+mkindex,
     problog_flag(sigmoid_slope,Slope),
 %	current_iteration(Iteration),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
@@ -798,7 +808,8 @@ gradient_descent :-
     lbfgs_finalize(Solver).
 
 set_fact(FactID, Slope, P ) :-
-    X <== P[FactID],
+    index(FactID, I),
+    X <== P[I],
     sigmoid(X, Slope, Pr),
     (Pr > 0.99
 	    ->
@@ -824,7 +835,15 @@ set_tunable(I,Slope,P) :-
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :- 
     %Handle = user_error,
     go( X,Grad, LLs),
-    sum_list( LLs, LLH_Training_Queries).
+    sum_list( LLs, LLH_Training_Queries),
+    writeln(LLH_Training_Queries).
+
+
+update_tunables(X) :-
+    tunable_fact(FactID,GroundTruth),
+    set_fact_probability(ID,Prob),
+    fail.
+update_tunables.
 
 go( X,Grad, LLs) :-
     problog_flag(sigmoid_slope,Slope),
@@ -832,14 +851,19 @@ go( X,Grad, LLs) :-
 	LL,
 	compute_gradient(Grad, X, Slope,LL),
 	LLs
-  ).
+  ),
+    forall(tunable_fact(FactID,_GroundTruth),
+	   set_fact( FactID, Slope, X)
+	   ).
  
 
 compute_gradient( Grad, X, Slope, LL) :-
   	user:example(QueryID,_Query,QueryProb),
 	recorded(QueryID,BDD,_),
 	query_probability( BDD, Slope, X, BDDProb),
-    LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+	retractall( query_probability_intern( QueryID, _) ),
+	assert( query_probability_intern( QueryID,BDDProb )),
     forall(
 	query_gradients(BDD,Slope,X,I,GradValue), 
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, Slope, X, I)
@@ -848,7 +872,8 @@ compute_gradient( Grad, X, Slope, LL) :-
 gradient_pair(BDDProb, QueryProb, Grad, GradValue, Slope,  X, I) :-
     G0 <== Grad[I],
     log2prob(X,Slope,I,Prob),
-    GN is G0-GradValue*2*Prob*(1-Prob)*(QueryProb-BDDProb),
+    %writeln(Prob=BDDProb),
+    GN is G0+GradValue*BDDProb*(1-BDDProb)*2*(QueryProb-BDDProb),
     Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
@@ -865,16 +890,13 @@ wrap( _X, _Grad, _GradCount).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % stop calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_Iteration,_Ls,-1) :-
+user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,CurrentIteration,_Ls,-1) :-
     FX < 0, !,
     format('stopped on bad FX=~4f~n',[FX]).
-user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N,_Iteration,Ls,0) :-
+user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, CurrentIteration,Ls,0) :-
+    assertz(current_iteration(Iteration)),
     problog_flag(sigmoid_slope,Slope),
     forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
-    current_iteration(CurrentIteration),
-    retractall(current_iteration(_)),
-    NextIteration is CurrentIteration+1,
-    assertz(current_iteration(NextIteration)),
     logger_set_variable(mse_trainingset, FX),
     save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),

@@ -82,7 +82,7 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	nb_setval('$debug_status', state(zip, 0, stop), fail),
+	nb_setval('$debug_status', state(zip, 0, stop)),
 	'$command'(Command,Varnames,Pos,top),
 	current_prolog_flag(break_level, BreakLevel),
 	(

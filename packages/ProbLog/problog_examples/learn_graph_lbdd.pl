@@ -17,17 +17,19 @@
 :- use_module('../problog_lbfgs').
 
 
-%:- set_problog_flag(init_method,(Query,K,Bdd,problog:problog_exact_lbdd(Query,Bdd))).
+%% :- if(true).
 
-%:- if(true).
-:- use_module('kbgraph').
+ :- use_module('kbgraph').
+
 
 %%%%
 % background knowledge
 %%%% 
 % definition of acyclic path using list of visited nodes
 
-/*:- else. 
+%:- else. 
+/*
+:- set_problog_flag(init_method,(Query,K,Bdd,problog:problog_exact_lbdd(Query,Bdd))).
 
 path(X,Y) :- path(X,Y,[X],_).
 
@@ -46,8 +48,8 @@ edge(X,Y) :- dir_edge(X,Y).
 absent(_,[]).
 absent(X,[Y|Z]):-X \= Y, absent(X,Z).
 
-:- endif.
-*/   
+%:- endif.
+*/
 %%%%
 % probabilistic facts 
 % - probability represented by t/1 term means learnable parameter

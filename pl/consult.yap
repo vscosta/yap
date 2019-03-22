@@ -734,7 +734,9 @@ db_files(Fs) :-
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
 	% export to process
 	b_setval('$lf_status', TOpts),
-	'$reset_if'(OldIfLevel),
+	'__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
+	nb_setval('$if_level',0),
+	writeln(ln(OldIfLevel)),
 	% take care with [a:f], a is the ContextModule
 	'$current_module'(SourceModule, ContextModule),
 	'$lf_opt'(consult, TOpts, Reconsult0),
@@ -768,7 +770,6 @@ db_files(Fs) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
-
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
@@ -785,14 +786,14 @@ db_files(Fs) :-
 	    ;
 	    true
 	),
+		writeln(out(OldIfLevel)),
+	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
 	set_prolog_flag(generate_debug_info, GenerateDebug),
 	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
-	nb_setval('$if_skip_mode',run),
 	% back to include mode!
-	nb_setval('$if_level',OldIfLevel),
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(Mod, UseModule),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
@@ -811,17 +812,6 @@ db_files(Fs) :-
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
-
-'$reset_if'(OldIfLevel) :-
-	'__NB_getval__'('$if_level', OldIfLevel, fail), !,
-	nb_setval('$if_level',0).
-'$reset_if'(0) :-
-nb_setval('$if_level',0).
-
-'$get_if'(Level0) :-
-	'__NB_getval__'('$if_level', Level, fail), !,
-	Level0 = Level.
-'$get_if'(0).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -1561,29 +1551,30 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 '$if'(_,top) :- !, fail.
 '$if'(_Goal,_) :-
-	'$get_if'(Level0),
-	Level is Level0 + 1,
-	nb_setval('$if_level',Level),
-	( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-	( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
-	nb_setval('$endif',elif(Level,OldEndif,Mode)),
-	fail.
+   '__NB_getval__'('$if_level',Level0,Level=0),
+   Level is Level0 + 1,
+writeln(Level),
+   nb_setval('$if_level',Level),
+   ( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
+   ( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
+   nb_setval('$endif',elif(Level,OldEndif,Mode)),
+   fail.
 % we are in skip mode, ignore....
 '$if'(_Goal,_) :-
-	'__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
-	nb_setval('$endif',endif(Level, OldEndif, skip)).
+    '__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
+    nb_setval('$endif',endif(Level, OldEndif, skip)).
 % we are in non skip mode, check....
 '$if'(Goal,_) :-
-	('$if_call'(Goal)
-	    ->
-	 % we will execute this branch, and later enter skip
+    (
+	'$if_call'(Goal)
+    ->
+    % we will execute this branch, and later enter skip
 	 '__NB_getval__'('$endif', elif(Level,OldEndif,Mode), fail),
 	 nb_setval('$endif',endif(Level,OldEndif,Mode))
-
 	;
 	 % we are now in skip, but can start an elif.
 	 nb_setval('$if_skip_mode',skip)
-	).
+    ).
 
 /**
 @pred    else
@@ -1592,18 +1583,19 @@ Start `else' branch.
 */
 '$else'(top) :- !, fail.
 '$else'(_) :-
-	'$get_if'(0), !,
-	'$do_error'(context_error(no_if),(:- else)).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+    '$do_error'(context_error(no_if),(:- else)).
 % we have done an if, so just skip
 '$else'(_) :-
-	nb_getval('$endif',endif(_Level,_,_)), !,
-	nb_setval('$if_skip_mode',skip).
+    nb_getval('$endif',endif(_Level,_,_)), !,
+    nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$else'(_) :-
-	'$get_if'(Level),
-	nb_getval('$endif',elif(Level,OldEndif,Mode)),
-	nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	nb_setval('$if_skip_mode',run).
+   '__NB_getval__'('$if_level',Level,Level=0),
+   nb_getval('$endif',elif(Level,OldEndif,Mode)),
+   nb_setval('$endif',endif(Level,OldEndif,Mode)),
+   nb_setval('$if_skip_mode',run).
 
 /** @pred   elif(+ _Goal_)
 
@@ -1614,24 +1606,25 @@ no test succeeds the else branch is processed.
 */
 '$elif'(_,top) :- !, fail.
 '$elif'(Goal,_) :-
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- elif(Goal))).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+    '$do_error'(context_error(no_if),(:- elif(Goal))).
 % we have done an if, so just skip
 '$elif'(_,_) :-
-	 nb_getval('$endif',endif(_,_,_)), !,
-	 nb_setval('$if_skip_mode',skip).
+    nb_getval('$endif',endif(_,_,_)), !,
+    nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$elif'(Goal,_) :-
-	'$get_if'(Level),
+  '__NB_getval__'('$if_level',Level,fail),
 	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
 	('$if_call'(Goal)
 	    ->
 % we will not skip, and we will not run any more branches.
-	 nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	 nb_setval('$if_skip_mode',run)
+		nb_setval('$endif',endif(Level,OldEndif,Mode)),
+		nb_setval('$if_skip_mode',run)
 	;
 % we will (keep) on skipping
-	 nb_setval('$if_skip_mode',skip)
+	nb_setval('$if_skip_mode',skip)
 	).
 '$elif'(_,_).
 
@@ -1642,18 +1635,19 @@ End of conditional compilation.
 '$endif'(top) :- !, fail.
 '$endif'(_) :-
 % unmmatched endif.
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- endif)).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+   '$do_error'(context_error(no_if),(:- endif)).
 '$endif'(_) :-
 % back to where you belong.
-	'$get_if'(Level),
-	nb_getval('$endif',Endif),
-	Level0 is Level-1,
-	nb_setval('$if_level',Level0),
-	arg(2,Endif,OldEndif),
-	arg(3,Endif,OldMode),
-	nb_setval('$endif',OldEndif),
-	nb_setval('$if_skip_mode',OldMode).
+    '__NB_getval__'('$if_level',Level,Level=0),
+    nb_getval('$endif',Endif),
+    Level0 is Level-1,
+    nb_setval('$if_level',Level0),
+    arg(2,Endif,OldEndif),
+    arg(3,Endif,OldMode),
+    nb_setval('$endif',OldEndif),
+    nb_setval('$if_skip_mode',OldMode).
 
 
 '$if_call'(G) :-

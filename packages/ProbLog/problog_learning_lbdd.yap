@@ -462,18 +462,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_stop_timer(duration),
 	
 
-	logger_write_data,
-
-
-
-	RemainingIterations is Iterations-1,
-
-	(
-	 MSE_Diff>Epsilon
-	->
-	 do_learning_intern(RemainingIterations,Epsilon);
-	 true
-	).
+	logger_write_data.
 
 
 %========================================================================
