@@ -8,9 +8,6 @@ from yap4py.systuples import *
 from yap4py.yapi import *
 from IPython.core.completer import Completer
 # import IPython.core
-from traitlets import Instance
-from IPython.core import interactiveshell
-from IPython.core.displayhook import DisplayHook
 from IPython.core.inputsplitter import *
 from IPython.core.inputtransformer import *
 from IPython.core.interactiveshell import *
@@ -536,18 +533,17 @@ class YAPRun(InteractiveShell):
         if text == self.os:
             return self.errors
         self.errors=[]
-        (text,_,_,_) = self.clean_end(text)
         self.engine.mgoal(errors(self,text),"user",True)
         return self.errors
 
-    def prolog(self, s, result):
+    def prolog(self, ccell, result):
 
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
         try:
-            program,squery,_ ,howmany = self.prolog_cell(s)
             # sys.settrace(tracefunc)
+            (program, squery, _, howmany) = ccell
             if self.q and self.os == (program,squery):
                 howmany += self.iterations
             else:
@@ -557,7 +553,6 @@ class YAPRun(InteractiveShell):
                 self.answers = []
                 result.result = []
                 self.os = (program,squery)
-                self.iterations = 0
                 pg = jupyter_query(self,program,squery)
                 self.q = Query(self.engine, pg)
             for v in self.q:
@@ -702,13 +697,15 @@ class YAPRun(InteractiveShell):
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
-        if self.syntaxErrors(cell):
+        ccell = self.prolog_cell(cell)
+        (program,squery,_ ,howmany) = ccell
+        if howmany == 0 and not program:
+            return result
+        if self.syntaxErrors(program+squery+".\n") :
             result.result = []
             return result
         has_raised = False
         try:
-            if not cell.strip('\n \t'):
-                return result
             builtin_mod.input = input
             self.shell.input = input
             self.engine.mgoal(streams(True),"user", True)
@@ -726,7 +723,7 @@ class YAPRun(InteractiveShell):
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
-            answers = self.prolog( cell, result )
+            answers = self.prolog( ccell, result )
             # state = tracer.runfunc(hist
             # er_query( self, cell ) )
         except Exception as e:
@@ -734,7 +731,6 @@ class YAPRun(InteractiveShell):
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)
-                self.engine.mgoal(streams(False),"user", True)
             except:
                 print(e)
 
@@ -757,40 +753,9 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(streams(False),"user", True)
         return
 
-    def    clean_end(self,s):
-        """
-        Look at the query suffix and return
-            - whatever is left
-            - how much was taken
-            - whether to stop
-            - when to stop
-        """
-        l0 = len(s)
-        i = s.rfind(";")
-        if i < 0:
-            its = 1
-            stop = True
-            taken = 0
-        else:
-            taken = l0-(i-1)
-            n = s[i+1:].strip()
-            s = s[:i]
-            if n:
-                its = 0
-                for ch in n:
-                    if not ch.isdigit():
-                        raise SyntaxError("expected positive number", (self.cellname,s.strip.lines()+1,s.count('\n'),n))
-                    its =  its*10+ (ord(ch) - ord('0'))
-                stop = False
-            else:
-                stop = False
-                its = -1
-                # one solution, stop
-        return s, taken, stop, its
 
 
-
-    def prolog_cell(self,s):
+    def prolog_cell(self, s):
         """
         Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate
@@ -803,14 +768,63 @@ class YAPRun(InteractiveShell):
         is a comment.
         """
         try:
-            s0 = s.rstrip(' \n\t\i')
-            [program,x,query] = s0.rpartition('\n')
-            if query[-1] == '.':
-                return s,'',False,0
-            (query, _,loop, sols) = self.clean_end(query)
-            return (program, query, loop, sols)
-        except:
-            return (s,'',true,1)    
+            sl = s.splitlines()
+            l = len(sl)
+            i = 0
+            while i<l:
+                line = sl[-i-1]
+                if line.strip() != '' and  line[0] != '':
+                    break
+                i+=1
+            if i == l:
+                return ('','','',0)
+            if line[-1] == '.':
+                return (s,'','.',0)
+            query = ''
+            while i<l:
+                line = sl[-i-1]
+                if line.strip() == '':
+                    break
+                query = line+'\n\n'+query
+                i+=1
+            reps = 1
+            if query:
+                q = query.strip()
+                c= q.rpartition('*')
+                c2 = c[2].strip()
+                if c[1] != '*' or (c2!='' and not c2.isdecimal()):
+                    c = q.rpartition('?')
+                    c2 = c[2].strip()
+                    if c[1] == '?' and(c2=='' or c2.isdecimal()):
+                        c = q.rpartition(';')
+                        c2 = c[2].strip()
+                    else:
+                        c=('','',query)
+                [q,loop,repeats] = c
+                if q:
+                    query=q
+                    if repeats.strip().isdecimal():
+                        reps = int(repeats)
+                        sep = sepator
+                    elif loop == '*':
+                        reps = -1
+                    elif loop == '?':
+                        reps = 10
+            while i<l:
+                line = sl[-i-1]
+                if line.strip() != '':
+                    break
+                i+=1
+            program = ''
+            while i<l:
+                line = sl[-i-1]
+                program = line+'\n\n'+program
+                i+=1
+            return (program, query, loop, reps)
+        except Exception as e:
+            try:
+                (etype, value, tb) = e
+                traceback.print_exception(etype, value, tb)
+            except:
+                print(e)
 
-    # global
-    #globals = {}
