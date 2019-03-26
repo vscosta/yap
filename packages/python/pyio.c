@@ -171,7 +171,7 @@ static bool pygetLine(StreamDesc *rl_iostream, int sno) {
       PyObject_GetAttrString(s->u.private_data, "readline");
     if (!readl) {
       readl = 
-	PyObject_GetAttrString(s->u.private_data, "read");
+	PyObject_GetAttrString(s->u.private_data, "input");
     }
     if (readl)
       user_line = PyObject_CallFunctionObjArgs(readl,

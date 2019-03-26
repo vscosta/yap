@@ -13,7 +13,6 @@ from IPython.core.inputtransformer import *
 from IPython.core.interactiveshell import *
 from ipython_genutils.py3compat import builtin_mod
 
-import copy
 import json
 
 from yap_kernel.displayhook import ZMQShellDisplayHook
@@ -536,14 +535,13 @@ class YAPRun(InteractiveShell):
         self.engine.mgoal(errors(self,text),"user",True)
         return self.errors
 
-    def prolog(self, ccell, result):
+    def prolog(self, program, squery, howmany, result):
 
         #
         # construct a self.query from a one-line string
         # self.q is opaque to Python
         try:
             # sys.settrace(tracefunc)
-            (program, squery, _, howmany) = ccell
             if self.q and self.os == (program,squery):
                 howmany += self.iterations
             else:
@@ -553,6 +551,7 @@ class YAPRun(InteractiveShell):
                 self.answers = []
                 result.result = []
                 self.os = (program,squery)
+                self.iterations = 0
                 pg = jupyter_query(self,program,squery)
                 self.q = Query(self.engine, pg)
             for v in self.q:
@@ -671,7 +670,6 @@ class YAPRun(InteractiveShell):
                 except:
                     magic = cell[2:].strip()
                     body = ""
-                linec = False
                 try:
                     [magic,line] = magic.split(maxsplit=1)
                 except:
@@ -680,7 +678,6 @@ class YAPRun(InteractiveShell):
                 result.result = self.shell.run_cell_magic(magic, line, body)
                 return
             else:
-                linec = True
                 rcell = cell[1:].strip()
                 try:
                     [magic,cell] = rcell.split(maxsplit = 1, sep = '\n')
@@ -697,9 +694,9 @@ class YAPRun(InteractiveShell):
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
-        ccell = self.prolog_cell(cell)
-        (program,squery,_ ,howmany) = ccell
-        if howmany == 0 and not program:
+        (program,squery,_ ,howmany) = self.prolog_cell(cell)
+        print(program, squery, howmany)
+        if howmany <= 0 and not program:
             return result
         if self.syntaxErrors(program+squery+".\n") :
             result.result = []
@@ -723,7 +720,7 @@ class YAPRun(InteractiveShell):
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
-            answers = self.prolog( ccell, result )
+            answers = self.prolog( program, squery, howmany, result )
             # state = tracer.runfunc(hist
             # er_query( self, cell ) )
         except Exception as e:
@@ -731,6 +728,7 @@ class YAPRun(InteractiveShell):
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)
+                self.engine.mgoal(streams(False),"user", True)
             except:
                 print(e)
 
@@ -781,6 +779,7 @@ class YAPRun(InteractiveShell):
             if line[-1] == '.':
                 return (s,'','.',0)
             query = ''
+            loop = ''
             while i<l:
                 line = sl[-i-1]
                 if line.strip() == '':
@@ -790,26 +789,22 @@ class YAPRun(InteractiveShell):
             reps = 1
             if query:
                 q = query.strip()
-                c= q.rpartition('*')
+                c= q.rpartition('?')
+                if not c[1]:                       
+                    c= q.rpartition(';')
                 c2 = c[2].strip()
-                if c[1] != '*' or (c2!='' and not c2.isdecimal()):
-                    c = q.rpartition('?')
+                if len(c[1]) == 1 and c[0].strip():
                     c2 = c[2].strip()
-                    if c[1] == '?' and(c2=='' or c2.isdecimal()):
-                        c = q.rpartition(';')
-                        c2 = c[2].strip()
+                    query = c[0]
+                    if c2.isdecimal():
+                        reps = int(c2)
+                    elif c2:
+                        return ('',c[1]+c[2],c[1],-1)
+                    elif c[1] == '?':
+                        reps = 1
                     else:
-                        c=('','',query)
-                [q,loop,repeats] = c
-                if q:
-                    query=q
-                    if repeats.strip().isdecimal():
-                        reps = int(repeats)
-                        sep = sepator
-                    elif loop == '*':
-                        reps = -1
-                    elif loop == '?':
-                        reps = 10
+                        reps = 10000000000
+                    loop = c[1]
             while i<l:
                 line = sl[-i-1]
                 if line.strip() != '':
@@ -828,3 +823,4 @@ class YAPRun(InteractiveShell):
             except:
                 print(e)
 
+                
