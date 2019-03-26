@@ -560,7 +560,7 @@ class YAPRun(InteractiveShell):
                 self.iterations = 0
                 pg = jupyter_query(self,program,squery)
                 self.q = Query(self.engine, pg)
-            while self.q.next():
+            for v in self.q:
                 self.iterations += 1
                 o = '[ '
                 o += str(self.iterations )
@@ -704,39 +704,39 @@ class YAPRun(InteractiveShell):
         self.shell.displayhook.exec_result = result
         if self.syntaxErrors(cell):
             result.result = []
-            return
+            return result
         has_raised = False
         try:
+            if not cell.strip('\n \t'):
+                return result
             builtin_mod.input = input
             self.shell.input = input
             self.engine.mgoal(streams(True),"user", True)
-            if cell.strip('\n \t'):
-                #create a Trace object, telling it what to ignore, and whether to
-                # do tracing or line-counting or both.
-                # tracer = trace.Trace(
-                #     ignoredirs=[sys.prefix, sys.exec_prefix],
-                #     trace=1,
-                #     count=0)
-                #
+            #create a Trace object, telling it what to ignore, and whether to
+            # do tracing or line-counting or both.
+            # tracer = trace.Trace(
+            #     ignoredirs=[sys.prefix, sys.exec_prefix],
+            #     trace=1,
+            #     count=0)
+            #
 
-                # def f(self, cell, state):
-                #     state = self.jupyter_query( cell )
+            # def f(self, cell, state):
+            #     state = self.jupyter_query( cell )
 
             # run the new command using the given tracer
             #
             # tracer.runfunc(f,self,cell,state)
-                answers = self.prolog( cell, result )
-                # state = tracer.runfunc(hist
-                # er_query( self, cell ) )
-                self.shell.last_execution_succeeded = True
+            answers = self.prolog( cell, result )
+            # state = tracer.runfunc(hist
+            # er_query( self, cell ) )
         except Exception as e:
             has_raised = True
             try:
                 (etype, value, tb) = e
                 traceback.print_exception(etype, value, tb)
+                self.engine.mgoal(streams(False),"user", True)
             except:
                 print(e)
-                pass
 
         self.shell.last_execution_succeeded = not has_raised
 

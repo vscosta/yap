@@ -206,6 +206,7 @@ compose_message(error(E, Exc), Level) -->
     {
 	'$show_consult_level'(LC)
     },
+    print_exception(Exc),
     location(error(E, Exc), Level, LC),
     main_message(error(E,Exc) , Level, LC ),
     c_goal( error(E, Exc), Level ),
@@ -282,10 +283,8 @@ location( error(_,Info), Level, LC ) -->
   query_exception(prologPredArity, Desc, Ar)
     },
   !,
-  display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
   [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
-
 location( error(_,Info), Level, LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
@@ -294,7 +293,6 @@ location( error(_,Info), Level, LC ) -->
   query_exception(errorFunction, Desc, F)
   },
   !,
-  display_consulting( File, Level, Info,  LC ),
   {simplify_pred(F,FF)},
   [  '~a:~d:0 ~a while executing ~a().'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
@@ -351,7 +349,7 @@ main_error_message(evaluation_error(What, Who)) -->
    [ '~*|** ~w caused ~a during evaluation of arithmetic expressions **' - [ 10,Who,What], nl ].
 main_error_message(existence_error(Type , Who)) -->
    [nl],
-   [  '~*|** ~q ~q could not be found **' - [ 10,Type, Who], nl ].
+   [  '~*|** ~q ~q does not exist **' - [ 10,Type, Who], nl ].
 main_error_message(permission_error(Op, Type, Id)) -->
   [ '~*|** value ~q is not allowed in ~a ~q **' - [ 10, Op, Type,Id], nl ].
 main_error_message(instantiation_error) -->

@@ -1,4 +1,4 @@
-u
+
 /**
   * @file jupyter.yap
   *
@@ -57,7 +57,6 @@ next_streams( _Caller, answer, _Bindings ) :-
 %    Caller.answer := Bindings,
     !.
 next_streams(_, redo, _ ) :-
-    streams(true),
     !.
 next_streams( _, _, _ ) :-
     streams(false).
@@ -74,7 +73,7 @@ jupyter_cell( _Caller, _, Line , _) :-
 jupyter_cell(Caller, _, Line, Bindings ) :-
     Query = Caller,
     catch(
-	user:user_python_query(Query,Line, Bindings),
+	python_query(Query,Line, Bindings),
 	error(A,B),
 	 system_error(A,B)
     ).
@@ -103,11 +102,12 @@ jupyter_consult(Cell) :-
 	(
 	    Options = [],
 	    open_mem_read_stream( Cell, Stream),
-	    load_files(Stream,[stream(Stream)| Options])
+	    load_files(user:Stream,[stream(Stream)| Options])
 	),
 	error(A,B),
-	(close(Stream), system_error(A,B))
+	(close(Stream),  system_error(A,B))
     ),
+    close(Stream),
     fail.
 jupyter_consult(_Cell).
 
@@ -124,7 +124,7 @@ blank(Text) :-
 
 
 streams(false) :-
-    close(user_input),
+   close(user_input),
     close(user_output),
     close(user_error).
 streams( true) :-

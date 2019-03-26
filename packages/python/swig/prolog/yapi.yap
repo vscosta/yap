@@ -37,9 +37,9 @@
 %% dictionary, Examples
 %%
 %%
-yapi_query( VarNames, Self ) :-
+yapi_query( VarNames, Caller ) :-
 		show_answer(VarNames, Dict),
-		Self.bindings := Dict.
+		Caller.bindings := Dict.
 
 
 
@@ -74,12 +74,9 @@ argi(N,I,I1) :-
 python_query( Caller, String		) :-
     python_query( Caller, String, _Bindings).
 
-user:user_python_query( Caller, String, Bindings ) :-
-    python_query( Caller, String, _Bindings).
-
 python_query( Caller, String, Bindings ) :-
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, VarNames, Status, Bindings),
+	query_to_answer( user:Goal, VarNames, Status, Bindings),
 	Caller.q.port := Status,
 	output(Caller, Bindings).
 
@@ -87,12 +84,84 @@ python_query( Caller, String, Bindings ) :-
 %%     write_query_answer( Bindings ),
 %%     fail.
 output( Caller, Bindings) :-
-     maplist(into_dict(Caller),Bindings).
+    copy_term( Bindings, Bs),
+    simplify(Bs, 1, Bss),
+    numbervars(Bss, 0, _),
+    maplist(into_dict(Caller),Bss).
+
+simplify([],_,[]).
+simplify([X=V|Xs], [X=V|NXs]) :-
+	var(V),
+	!,
+	X=V,
+	simplify(Xs,NXs).
+simplify([X=V|Xs], I, NXs) :-
+	var(V),
+	!,
+	X=V,
+	simplify(Xs,I,NXs).
+simplify([X=V|Xs], I, [X=V|NXs]) :-
+	!,
+	simplify(Xs,I,NXs).
+simplify([G|Xs],I, [D=G|NXs]) :-
+	I1 is I+1,
+	atomic_concat(['__delay_',I,'__'],D),
+	simplify(Xs,I1,NXs).
+
 
 bv(V,I,I1) :-
     atomic_concat(['__',I],V),
     I1 is I+1.
 
 into_dict(D,V0=T) :-
-	 D.q.answer[V0] := T.
+    listify(T,L),
+    D.q.answer[V0] := L.
+
+listify('$VAR'(Bnd), V)  :-
+    !,
+    listify_var(Bnd, V).
+listify([A|As], V)  :-
+    !,
+    maplist(listify,[A|As], V).
+listify(A:As, A:Vs)  :-
+    (atom(A);string(A)),
+    !,
+    maplist(listify,As, Vs).
+listify(WellKnown, V)  :-
+    WellKnown=..[N|As],
+    length(As,Sz),
+    well_known(N,Sz),
+    !,
+    maplist(listify,As, Vs),
+    V =.. [N|Vs].
+
+listify('$VAR'(Bnd), V)  :-
+    !,
+    listify_var(Bnd, V).
+listify(T, t(S,V))  :-
+    T =.. [S,A|As],
+    !,
+    maplist(listify, [A|As], Vs),
+    V =.. [t|Vs].
+listify(S, S).
+
+listify_var(I, S) :-
+    I >= 0,
+    I =< 26,
+    !,
+    V is 0'A+I,
+    string_codes(S, [V]).
+listify_var(I, S) :-
+    I < 0,
+    I >= -26,
+    !,
+    V is 0'A+I,
+    string_codes(S, [0'_+V]).
+listify_var(S, S).
+
+well_known(+,2).
+well_known(-,2).
+well_known(*,2).
+well_known(/,2).
+well_known((','),2).
 

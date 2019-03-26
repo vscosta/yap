@@ -348,8 +348,6 @@ load_files(Files0,Opts) :-
     ;
     true
     ),
-    % make sure we can run consult
-    '$init_consult',
     '$lf'(Files, M, Call, TOpts).
 
 '$check_files'(Files, Call) :-
@@ -736,7 +734,6 @@ db_files(Fs) :-
 	b_setval('$lf_status', TOpts),
 	'__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
 	nb_setval('$if_level',0),
-	writeln(ln(OldIfLevel)),
 	% take care with [a:f], a is the ContextModule
 	'$current_module'(SourceModule, ContextModule),
 	'$lf_opt'(consult, TOpts, Reconsult0),
@@ -786,7 +783,6 @@ db_files(Fs) :-
 	    ;
 	    true
 	),
-		writeln(out(OldIfLevel)),
 	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
 	set_prolog_flag(generate_debug_info, GenerateDebug),
@@ -1553,7 +1549,6 @@ If an error occurs, the error is printed and processing proceeds as if
 '$if'(_Goal,_) :-
    '__NB_getval__'('$if_level',Level0,Level=0),
    Level is Level0 + 1,
-writeln(Level),
    nb_setval('$if_level',Level),
    ( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
    ( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),

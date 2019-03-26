@@ -72,7 +72,8 @@ jupyter(En),
 close_esh( _Engine , Stream ) :-
 	   retractall(jupyter(_)),
 	   assertz(jupyter([])),
-  close(Stream).
+	   close(Stream),
+	   python_clear_errors.
 
 
 

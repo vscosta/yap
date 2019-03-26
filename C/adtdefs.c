@@ -1296,7 +1296,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
 	at = NameOfFunctor(pe->FunctorOfPred);
       }
     }
-    if (mods == PROLOG_MODULE || mods == USER_MODULE)
+    if (pe->ModuleOfPred == PROLOG_MODULE || pe->ModuleOfPred == USER_MODULE)
     snprintf(LOCAL_FileNameBuf, YAP_FILENAME_MAX, "%s/" UInt_FORMAT, 
 	     RepAtom(at)->StrOfAE, arity);
     else 

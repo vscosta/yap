@@ -262,7 +262,7 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
 
-  if (check_everything && P) {
+  if (check_everything && P && ENV) {
     PredEntry *pe = EnvPreg(P);
     if (p == pe)
       return true;
@@ -284,7 +284,7 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
         PredEntry *pe;
 
         if (!cp)
-	  return true;
+	  return false;
         pe = EnvPreg(cp);
         if (p == pe)
           return true;
@@ -296,38 +296,12 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
       }
     }
     /* now mark the choicepoint */
-
     if (b_ptr) {
       pe = PredForChoicePt(b_ptr->cp_ap, NULL);
     } else
       return false;
     if (pe == p) {
-      if (check_everything)
-        return true;
-      PELOCK(38, p);
-      if (p->PredFlags & IndexedPredFlag) {
-        yamop *code_p = b_ptr->cp_ap;
-        yamop *code_beg = p->cs.p_code.TrueCodeOfPred;
-
-        /* FIX ME */
-
-        if (p->PredFlags & LogUpdatePredFlag) {
-          LogUpdIndex *cl = ClauseCodeToLogUpdIndex(code_beg);
-          if (find_owner_log_index(cl, code_p))
-            b_ptr->cp_ap = cur_log_upd_clause(pe, b_ptr->cp_ap->y_u.Otapl.d);
-        } else if (p->PredFlags & MegaClausePredFlag) {
-          StaticIndex *cl = ClauseCodeToStaticIndex(code_beg);
-          if (find_owner_static_index(cl, code_p))
-            b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->y_u.Otapl.d);
-        } else {
-          /* static clause */
-          StaticIndex *cl = ClauseCodeToStaticIndex(code_beg);
-          if (find_owner_static_index(cl, code_p)) {
-            b_ptr->cp_ap = cur_clause(pe, b_ptr->cp_ap->y_u.Otapl.d);
-          }
-        }
-      }
-      UNLOCKPE(63, pe);
+      return true;
     }
     env_ptr = b_ptr->cp_env;
     b_ptr = b_ptr->cp_b;

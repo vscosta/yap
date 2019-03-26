@@ -990,6 +990,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 						Term ta[2];
 						ta[0] = otail;
 						ta[1] = oargs;
+						format_clean_up(sno, sno0, finfo);
 						Yap_ThrowError(LOCAL_Error_TYPE,
 							  Yap_MkApplTerm(Yap_MkFunctor(AtomFormat, 2), 2, ta),
 							  "arguments to format");
