@@ -661,7 +661,7 @@ class YAPRun(InteractiveShell):
         self.cell_name = str( self.shell.execution_count)
         self.shell.displayhook.exec_result= result
         cell = raw_cell.strip()
-        while cell[0] == '%':
+        while cell and cell[0] == '%':
             if cell[1] == '%':
                 ## cell magic
                 txt0 = cell[2:].split(maxsplit = 1, sep = '\n')
@@ -756,75 +756,75 @@ class YAPRun(InteractiveShell):
 
 
     def prolog_cell(self, s):
-        """
-        Trasform a text into program+query. A query is the
-        last line if the last line is non-empty and does not terminate
-        on a dot. You can also finish with
+        return pcell(s)
 
-            - `*`: you request all solutions
-            - ';'[N]: you want an answer; optionally you want N answers
 
-            If the line terminates on a `*/` or starts on a `%` we assume the line
-        is a comment.
-        """
-        try:
-            sl = s.splitlines()
-            l = len(sl)
-            i = 0
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() != '' and  line[0] != '':
-                    break
-                i+=1
-            if i == l:
-                return ('','','',0)
-            if line[-1] == '.':
-                return (s,'','.',0)
-            query = ''
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() == '':
-                    break
-                query = line+'\n\n'+query
-                i+=1
-            reps = 1
-            if query:
-                q = query.strip()
-                c= q.rpartition('*')
+def pcell(s):
+    """
+    Trasform a text into program+query. A query is the
+    last line if the last line is non-empty and does not terminate
+    on a dot. You can also finish with
+
+        - `*`: you request all solutions
+        - ';'[N]: you want an answer; optionally you want N answers
+
+        If the line terminates on a `*/` or starts on a `%` we assume the line
+    is a comment.
+    """
+    try:
+        sl = s.splitlines()
+        l = len(sl)
+        i = 0
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() != '' and  line[0] != '':
+                break
+            i+=1
+        if i == l:
+            return ('','','',0)
+        if line[-1] == '.':
+            return (s,'','.',0)
+        query = ''
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() == '':
+                break
+            query = line+'\n\n'+query
+            i+=1
+        reps = 1
+        loop = ''
+        if query:
+            q = query.strip()
+            c = q.rpartition('?')
+            c2 = c[2].strip()
+            if c[1] == '?' and(c2=='' or c2.isdecimal()):
+                c = q.rpartition(';')
                 c2 = c[2].strip()
-                if c[1] != '*' or (c2!='' and not c2.isdecimal()):
-                    c = q.rpartition('?')
-                    c2 = c[2].strip()
-                    if c[1] == '?' and(c2=='' or c2.isdecimal()):
-                        c = q.rpartition(';')
-                        c2 = c[2].strip()
-                    else:
-                        c=('','',query)
-                [q,loop,repeats] = c
-                if q:
-                    query=q
-                    if repeats.strip().isdecimal():
-                        reps = int(repeats)
-                        sep = sepator
-                    elif loop == '*':
-                        reps = -1
-                    elif loop == '?':
-                        reps = 10
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() != '':
-                    break
-                i+=1
-            program = ''
-            while i<l:
-                line = sl[-i-1]
-                program = line+'\n\n'+program
-                i+=1
-            return (program, query, loop, reps)
-        except Exception as e:
-            try:
-                (etype, value, tb) = e
-                traceback.print_exception(etype, value, tb)
-            except:
-                print(e)
+            else:
+                c=(query,'','')
+            [q,loop,repeats] = c
+            if q:
+                query=q
+            if repeats.strip().isdecimal():
+                reps = int(repeats)
+            elif loop == '?':
+                reps = 10000000
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() != '':
+                break
+            i+=1
+        program = ''
+        while i<l:
+            line = sl[-i-1]
+            program = line+'\n'+program
+            i+=1
+        return (program, query, loop, reps)
+    except Exception as e:
+        try:
+            (etype, value, tb) = e
+            traceback.print_exception(etype, value, tb)
+        except:
+            print(e)
 
+            
