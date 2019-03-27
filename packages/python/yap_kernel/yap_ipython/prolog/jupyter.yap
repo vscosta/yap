@@ -6,22 +6,22 @@
   */
 
 %:- yap_flag(gc_trace,verbose).
-  :- module( jupyter,
-              [jupyter_query/3,
-	       jupyter_query/4,
-	        op(100,fy,('$')),
-	   op(950,fy,:=),
-	   op(950,yfx,:=),
-%	   op(950,fx,<-),
-%	   op(950,yfx,<-),
-	   op(50, yf, []),
-	   op(50, yf, '()'),
-	   op(100, xfy, '.'),
-	   op(100, fy, '.'),
-               blank/1,
-	       streams/1
-           ]
-            ).
+%%   :- module( jupyter,
+%%               [jupyter_query/3,
+%% 	       jupyter_query/4,
+%% 	        op(100,fy,('$')),
+%% 	   op(950,fy,:=),
+%% 	   op(950,yfx,:=),
+%% %	   op(950,fx,<-),
+%% %	   op(950,yfx,<-),
+%% 	   op(50, yf, []),
+%% 	   op(50, yf, '()'),
+%% 	   op(100, xfy, '.'),
+%% 	   op(100, fy, '.'),
+%%                blank/1,
+%% 	       streams/1
+%%            ]
+%%             ).
 
 :- use_module(library(hacks)).
 
@@ -37,15 +37,10 @@
 
 :- python_import(sys).
 
-:- meta_predicate jupyter_query(+,:,+,-), jupyter_query(+,:,+).
+%:- meta_predicate jupyter_query(+,:,+,-), jupyter_query(+,:,+).
 	   
 jupyter_query(Caller, Cell, Line, Bindings ) :-
-    gated_call(
-	streams(true),
-	jupyter_cell(Caller, Cell, Line, Bindings),
-	Port,
-	next_streams( Caller, Port, Bindings )
-    ).
+	jupyter_cell(Caller, Cell, Line, Bindings).
 
 jupyter_query(Caller, Cell, Line ) :-
     jupyter_query( Caller, Cell, Line, _Bindings ).
@@ -58,8 +53,8 @@ next_streams( _Caller, answer, _Bindings ) :-
     !.
 next_streams(_, redo, _ ) :-
     !.
-next_streams( _, _, _ ) :-
-    streams(false).
+next_streams( _, _, _ ). % :-
+   % streams(false).
 
     
 
@@ -105,9 +100,8 @@ jupyter_consult(Cell) :-
 	    load_files(user:Stream,[stream(Stream)| Options])
 	),
 	error(A,B),
-	(close(Stream),  system_error(A,B))
+  system_error(A,B)
     ),
-    close(Stream),
     fail.
 jupyter_consult(_Cell).
 

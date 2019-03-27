@@ -3,16 +3,16 @@
 %% @brief support yap shell
 %%
 
- :- module(yapi, [
- 		 python_ouput/0,
- 		 show_answer/2,
- 		 show_answer/3,
- 		 yap_query/4,
- 		 python_query/2,
- 		 python_query/3,
- 		 python_import/1,
- 		 yapi_query/2
-		 ]).
+ %% :- module(yapi, [
+ %% 		 python_ouput/0,
+ %% 		 show_answer/2,
+ %% 		 show_answer/3,
+ %% 		 yap_query/4,
+ %% 		 python_query/2,
+ %% 		 python_query/3,
+ %% 		 python_import/1,
+ %% 		 yapi_query/2
+ %% 		 ]).
 
 %:- yap_flag(verbose, silent).
 

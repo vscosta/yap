@@ -614,6 +614,13 @@ class YAPRun(InteractiveShell):
             `result : :class:`ExecutionResult`
         """
 
+        if store_history:
+            # Write output to the database. Does nothing unless
+            # history output logging is enabled.
+            self.shell.history_manager.store_output(self.shell.execution_count)
+            # Each cell is a *single* input, regardless of how many lines it has
+            self.shell.execution_count += 1
+
         # construct a query from a one-line string
         # q is opaque to Python
         # vs is the list of variables
@@ -649,8 +656,6 @@ class YAPRun(InteractiveShell):
         # # Display the exception if input processing failed.
         if preprocessing_exc_tuple is not None:
             self.showtraceback(preprocessing_exc_tuple)
-            if store_history:
-                self.shell.execution_count += 1
             return self.error_before_exec(preprocessing_exc_tuple[2])
 
         # Our own compiler remembers the __future__ environment. If we want to
@@ -695,7 +700,7 @@ class YAPRun(InteractiveShell):
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
         (program,squery,_ ,howmany) = self.prolog_cell(cell)
-        print(program, squery, howmany)
+        print("program",program, "q", squery, "h",howmany)
         if howmany <= 0 and not program:
             return result
         if self.syntaxErrors(program+squery+".\n") :
@@ -741,13 +746,6 @@ class YAPRun(InteractiveShell):
         if not silent:
             self.shell.events.trigger('post_run_cell')
 
-        if store_history:
-            # Write output to the database. Does nothing unless
-            # history output logging is enabled.
-            self.shell.history_manager.store_output(self.shell.execution_count)
-            # Each cell is a *single* input, regardless of how many lines it has
-            self.shell.execution_count += 1
-
         self.engine.mgoal(streams(False),"user", True)
         return
 
@@ -758,8 +756,8 @@ class YAPRun(InteractiveShell):
 
 
 def pcell(s):
-        """
-        Trasform a text into program+query. A query is the
+    """
+      Trasform a text into program+query. A query is the
         last line if the last line is non-empty and does not terminate
         on a dot. You can also finish with
 
@@ -768,64 +766,66 @@ def pcell(s):
 
             If the line terminates on a `*/` or starts on a `%` we assume the line
         is a comment.
-        """
-        try:
-            sl = s.splitlines()
-            l = len(sl)
-            i = 0
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() != '' and  line[0] != '':
-                    break
-                i+=1
-            if i == l:
-                return ('','','',0)
-            if line[-1] == '.':
-                return (s,'','.',0)
-            query = ''
-            loop = ''
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() == '':
-                    break
-                query = line+'\n\n'+query
-                i+=1
+    """
+    try:
+        sl = s.splitlines()
+        l = len(sl)
+        i = 0
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() != '' and  line[0] != '':
+                break
+            i+=1
+        if i == l:
+            return ('','','',0)
+        if line[-1] == '.':
+            return (s,'','.',0)
+        query = ''
+        loop = ''
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() == '':
+                break
+            query = line+'\n'+query
+            i+=1
             reps = 1
-            if query:
-                q = query.strip()
-                c= q.rpartition('?')
-                if not c[1]:                       
-                    c= q.rpartition(';')
+        if query:
+            q = query.strip()
+            c= q.rpartition('?')
+            if not c[1]:                       
+                c= q.rpartition(';')
                 c2 = c[2].strip()
-                if len(c[1]) == 1 and c[0].strip():
-                    c2 = c[2].strip()
-                    query = c[0]
-                    if c2.isdecimal():
-                        reps = int(c2)
-                    elif c2:
-                        return ('',c[1]+c[2],c[1],-1)
-                    elif c[1] == '?':
-                        reps = 1
-                    else:
-                        reps = 10000000000
+            if len(c[1]) == 1 and c[0].strip():
+                c2 = c[2].strip()
+                query = c[0]
+                if c2.isdecimal():
+                    reps = int(c2)
+                elif c2:
+                    return ('',c[1]+c[2],c[1],-1)
+                elif c[1] == '?':
+                    reps = 1
+                else:
+                    reps = 10000000000
                     loop = c[1]
-            while i<l:
-                line = sl[-i-1]
-                if line.strip() != '':
-                    break
-                i+=1
-            program = ''
-            while i<l:
-                line = sl[-i-1]
-                program = line+'\n\n'+program
-                i+=1
-            return (program, query, loop, reps)
-        except Exception as e:
-            try:
-                (etype, value, tb) = e
-                traceback.print_exception(etype, value, tb)
-            except:
-                print(e)
+        while i<l:
+            line = sl[-i-1]
+            if line.strip() != '':
+                break
+            i+=1
+        program = ''
+        while i<l:
+            line = sl[-i-1]
+            program = line+'\n'+program
+            i+=1
+        return (program, query, loop, reps)
+    except Exception as e:
+        try:
+            (etype, value, tb) = e
+            traceback.print_exception(etype, value, tb)
+            return ('','','',-1)
+        except:
+            print(e)
+            return ('','','',-1)
 
-                
+
 
