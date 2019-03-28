@@ -403,23 +403,26 @@ notrace(G) :-
 '$enable_debugging':-
     current_prolog_flag(debug, false), !.
 '$enable_debugging' :-
-	nb_setval('$debug_status', state(creep, 0, stop)),
-    '$trace_on', !,
+   '__NB_getval__'('$trace',Trace,fail),
+	nb_setval('$debug_status', state(creep, 0, stop,Trace)),
+    Trace =  on, !,
     '$creep'.
 '$enable_debugging'.
 
 '$trace_on' :-
-    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy), fail),
-    nb_setval('$debug_status', state(zip, GN, Spy)).
+    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy,_), fail),
+  '__NB_setval__'('$trace',on),
+    nb_setval('$debug_status', state(creep, GN, Spy, on)).
 
 '$trace_off' :-
     '__NB_getval__'('$debug_status', state(_Creep, GN, Spy), fail),
-    nb_setval('$debug_status', state(zip, GN, Spy)).
+    '__NB_setval__'('$trace',off),
+   nb_setval('$debug_status', state(zip, GN, Spy,off)).
 
-'$trace_is_off'(_,_) :-
+'$creep_is_off'(_,_) :-
     current_prolog_flag(debug, false), !.
-'$trace_is_off'(Module:G, GN0) :-
-    '__NB_getval__'('$debug_status',state(zip, GN, Spy), fail),
+'$creep_is_off'(Module:G, GN0) :-
+    '__NB_getval__'('$debug_status',state(zip, GN, Spy,_), fail),
     (
 	
     '$pred_being_spied'(G,Module)

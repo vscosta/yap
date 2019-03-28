@@ -93,6 +93,9 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 #include "iopreds.h"
+#if HAVE_EXECINFO_H
+#include <execinfo.h>
+#endif
 
 #if _MSC_VER || defined(__MINGW32__)
 #define SYSTEM_STAT _stat
@@ -128,6 +131,7 @@ FILE *Yap_GetOutputStream(Term t, const char *msg) {
   return rc;
 }
 
+cmax =7;
 int GetFreeStreamD(void) {
   CACHE_REGS
   LOCK(GLOBAL_StreamDescLock);
@@ -137,6 +141,23 @@ int GetFreeStreamD(void) {
       break;
     }
   }
+#if HAVE_BACKTRACEX
+      void *callstack[256];
+      int i;
+      if (sno > cmax) {
+	cmax++;
+	for (i=7; i< sno; i++)
+	  fprintf(stderr,"     %d %x\n", i,GLOBAL_Stream[i].status);
+      }
+      fprintf(stderr, "++++ got %d\n", sno);
+      int frames = backtrace(callstack, 256);
+      char **strs = backtrace_symbols(callstack, frames);
+      fprintf(stderr, "Execution stack:\n");
+      for (i = 0; i < 5; ++i) {
+        fprintf(stderr, "       %s\n", strs[i]);
+      }
+      free(strs);
+#endif
   if (sno == MaxStreams) {
     UNLOCK(GLOBAL_StreamDescLock);
     return -1;

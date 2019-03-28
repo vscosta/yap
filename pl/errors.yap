@@ -94,7 +94,6 @@ error_handler(Error, Level) :-
     '$LoopError'(Error, Level).
 
 '$LoopError'(_, _) :-
-    stop_low_level_trace,
     flush_output(user_output),
 	flush_output(user_error),
 	fail.

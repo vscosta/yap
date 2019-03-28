@@ -82,7 +82,8 @@ live :-
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	nb_setval('$debug_status', state(zip, 0, stop)),
+	'__NB_setval__'('$trace',off),
+	nb_setval('$debug_status', state(zip, 0, stop,off)),
 	'$command'(Command,Varnames,Pos,top),
 	current_prolog_flag(break_level, BreakLevel),
 	(
@@ -1016,28 +1017,29 @@ log_event( String, Args ) :-
 	  LF = ['Break (level ', BreakLevel, ')'|LD]
 	),
     current_prolog_flag(debug, DBON),
+    (
+	DBON = true
+	->
 	(
-	 '$trace_on'
-	->
-     (
-      var(LF)
-     ->
-      LD  = ['trace'|LP]
-     ;
-      LD  = [', trace '|LP]
-     )
+	    '__NB_getval__'('$debug_status',state(_, _, _,on), fail),
+	    (
+		var(LF)
+	    ->
+	    LD  = ['trace'|LP]
+	    ;
+	    LD  = [', trace '|LP]
+	    )
 	;
-	 DBON == true
+	(var(LF)
 	->
-     (var(LF)
-     ->
-      LD  = ['debug'|LP]
-     ;
-      LD  = [', debug'|LP]
-     )
+	    LD  = ['debug'|LP]
+	;
+	LD  = [', debug'|LP]
+	)
+	)
 	;
 	 LD = LP
-	),
+    ),
     (
      var(LF)
     ->

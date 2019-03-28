@@ -206,7 +206,6 @@ compose_message(error(E, Exc), Level) -->
     {
 	'$show_consult_level'(LC)
     },
-    print_exception(Exc),
     location(error(E, Exc), Level, LC),
     main_message(error(E,Exc) , Level, LC ),
     c_goal( error(E, Exc), Level ),
@@ -273,7 +272,7 @@ location(style_check(A,LN,FileName,B ), Level , LC) -->
   !,
   display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
   [ '~a:~d:0: ~a: ' - [FileName,LN,Level] ] .
-location( error(_,Info), Level, LC ) -->
+location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
   query_exception(prologPredFile, Desc, File),
@@ -285,7 +284,7 @@ location( error(_,Info), Level, LC ) -->
   !,
   {simplify_pred(M:Na/Ar,FF)},
   [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
-location( error(_,Info), Level, LC ) -->
+location( error(_,Info), Level, _LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
    query_exception(errorFile, Desc, File),

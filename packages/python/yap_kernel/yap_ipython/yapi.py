@@ -700,7 +700,6 @@ class YAPRun(InteractiveShell):
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
         (program,squery,_ ,howmany) = self.prolog_cell(cell)
-        print("program",program, "q", squery, "h",howmany)
         if howmany <= 0 and not program:
             return result
         if self.syntaxErrors(program+squery+".\n") :
