@@ -217,7 +217,7 @@
 :- yap_flag(unknown,error).
 
 % load modules from the YAP library
-:- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2]).
+:- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2, reverse/2]).
 :- use_module(library(system), [file_exists/1, shell/2]).
 :- use_module(library(rbtrees)).
 :- use_module(library(lbfgs)).
@@ -572,20 +572,22 @@ init_one_query(QueryID,Query,_Type) :-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    fail,
     problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
     !,
     b_setval(problog_required_keep_ground_ids,false),
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
-	 Bdd = bdd(Dir, Tree,MapList),
-	  user:graph2bdd(Query,N,Bdd),
- 	  rb_new(H0),
-	  maplist_to_hash(MapList, H0, Hash),
-	  tree_to_grad(Tree, Hash, [], Grad),
+	 Bdd = bdd(Dir, Tree0,MapList),
+	 user:graph2bdd(Query,N,Bdd),
+	 reverse(Tree0,Tree),
+ 	  %rb_new(H0),
+	  %maplist_to_hash(MapList, H0, Hash),
+	  %tree_to_grad(Tree, Hash, [], Grad),
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
 	  write('.'),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
+	  recordz(QueryID,bdd(Dir, Tree, MapList),_).
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -594,15 +596,16 @@ init_one_query(QueryID,Query,_Type) :-
 	  b_setval(problog_required_keep_ground_ids,false),
 	  problog_flag(init_method,(Query,_K,Bdd,Call)),
 	  !,
-	  Bdd = bdd(Dir, Tree, MapList),
+	  Bdd = bdd(Dir, Tree0, MapList),
 	  %	  trace,
  	  once(Call),
-	  rb_new(H0),
-	  maplist_to_hash(MapList, H0, Hash),
+	  reverse(Tree0,Tree),
+	  %rb_new(H0),
+	  %maplist_to_hash(MapList, H0, Hash),
 	  %Tree \= [],
 %	  writeln(Dir:Tree:MapList),
-	  tree_to_grad(Tree, Hash, [], Grads),
-	  recordz(QueryID,bdd(Dir, Grads, MapList),_).
+	  %tree_to_grad(Tree, Hash, [], Grads),
+	  recordz(QueryID,bdd(Dir, Tree, MapList),_).
 
 %========================================================================
 %=
@@ -780,22 +783,11 @@ inv_sigmoid(T,Slope,InvSig) :-
 %= probabilities of the examples have to be recalculated
 %========================================================================
 
-:- dynamic index/2.
 
 save_old_probabilities.
 
-mkindex :-
-    retractall(index(_,_)),
-    findall(FactID,tunable_fact(FactID,_GroundTruth),L),
-    foldl(mkindex, L, 0, Count),
-    assert(count_tunables(Count)).
-
-mkindex(Key,I,I1) :-
-    I1 is I+1,
-    assert(index(Key,I),I1).
 % vsc: avoid silly search
 gradient_descent :-
-mkindex,
     problog_flag(sigmoid_slope,Slope),
 %	current_iteration(Iteration),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
@@ -808,8 +800,7 @@ mkindex,
     lbfgs_finalize(Solver).
 
 set_fact(FactID, Slope, P ) :-
-    index(FactID, I),
-    X <== P[I],
+    X <== P[FactID],
     sigmoid(X, Slope, Pr),
     (Pr > 0.99
 	    ->
@@ -834,16 +825,26 @@ set_tunable(I,Slope,P) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :- 
     %Handle = user_error,
+    N1 is N-1,
+    forall(between(0,N1,I),(Grad[I]<==0.0)),
     go( X,Grad, LLs),
-    sum_list( LLs, LLH_Training_Queries),
-    writeln(LLH_Training_Queries).
+    sum_list( LLs, LLH_Training_Queries).
+
+test :-
+    S =.. [f,0-0.9,1-0.8,2-0.6,3-0.7,4-0.5,5-0.4,6-0.7,7-0.2],
+    functor(S,_,N), N1 is N-1,
+     problog_flag(sigmoid_slope,Slope),
+   X <== array[N] of floats,
+Grad <== array[N] of floats,
+          forall(between(0,N1,I),(Grad[I]<==0.0)),
+	  forall(between(1,N,I),(arg(I,S,_-V),inv_sigmoid(V,Slope,V0),I1 is I-1,X[I1]<==V0)),
+ findall(
+	LL,
+	compute_gradient(Grad, X, Slope,LL),
+	LLs
+ ), sum_list( LLs, LLH_Training_Queries), writeln(LLH_Training_Queries:LLs ),forall(between(0,N1,I),(G<==Grad[I],writeln(I=G))).
 
 
-update_tunables(X) :-
-    tunable_fact(FactID,GroundTruth),
-    set_fact_probability(ID,Prob),
-    fail.
-update_tunables.
 
 go( X,Grad, LLs) :-
     problog_flag(sigmoid_slope,Slope),
@@ -851,29 +852,27 @@ go( X,Grad, LLs) :-
 	LL,
 	compute_gradient(Grad, X, Slope,LL),
 	LLs
-  ),
-    forall(tunable_fact(FactID,_GroundTruth),
-	   set_fact( FactID, Slope, X)
-	   ).
+  ).
  
 
 compute_gradient( Grad, X, Slope, LL) :-
+    
   	user:example(QueryID,_Query,QueryProb),
 	recorded(QueryID,BDD,_),
-	query_probability( BDD, Slope, X, BDDProb),
+	BDD = bdd(_,_,MapList),
+	bind_maplist(MapList, Slope, X),
+	query_probabilities( BDD, BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
 	retractall( query_probability_intern( QueryID, _) ),
 	assert( query_probability_intern( QueryID,BDDProb )),
     forall(
-	query_gradients(BDD,Slope,X,I,GradValue), 
-	gradient_pair(BDDProb, QueryProb, Grad, GradValue, Slope, X, I)
+	query_gradients(BDD,I,IProb,GradValue), 
+	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
     ).
 
-gradient_pair(BDDProb, QueryProb, Grad, GradValue, Slope,  X, I) :-
+gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
     G0 <== Grad[I],
-    log2prob(X,Slope,I,Prob),
-    %writeln(Prob=BDDProb),
-    GN is G0+GradValue*BDDProb*(1-BDDProb)*2*(QueryProb-BDDProb),
+    GN is G0-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
     Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
@@ -890,10 +889,10 @@ wrap( _X, _Grad, _GradCount).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % stop calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,CurrentIteration,_Ls,-1) :-
+user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
     FX < 0, !,
     format('stopped on bad FX=~4f~n',[FX]).
-user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, CurrentIteration,Ls,0) :-
+user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, Iteration,Ls,0) :-
     assertz(current_iteration(Iteration)),
     problog_flag(sigmoid_slope,Slope),
     forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
@@ -901,7 +900,7 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, CurrentIteration,Ls,0) :-
     save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
-    format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[CurrentIteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).
+    format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).
 
 
 %========================================================================
