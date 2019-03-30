@@ -46,10 +46,9 @@ fail.
     recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
 %% parent/user
 '$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
-    ( '$parent_module'(ImportingMod, PMod) ), %; PMod = user),
-    (nonvar(G0),'$pred_exists'(G0,PMod), PMod:G0 = ExportingMod:G;
-     recorded('$import','$import'(ExportingMod,PMod,G0,G,_,_),_)
-    ).
+    ( '$parent_module'(ImportingMod, PMod) ; PMod = user ),
+    ImportingMod \= PMod,
+    '$get_predicate_definition'(PMod:G, ExportingMod:G0).
 %% autoload`
 %'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
 %    current_prolog_flag(autoload, true),

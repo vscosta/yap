@@ -29,7 +29,8 @@
 
 
 :- use_module(myddas,[
-		      db_module/1
+		  db_module/1,
+		  c_db_connection_type/2
 		     ]).
 
 :- use_module(myddas_errors,[

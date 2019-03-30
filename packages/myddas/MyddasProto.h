@@ -75,8 +75,6 @@ extern void Yap_InitBackMYDDAS_PostgresPreds(void);
 /* myddas_sqlite3.c */
 #if defined MYDDAS_SQLITE3
 extern void init_sqlite3( void );
-extern void Yap_InitMYDDAS_SQLITE3Preds(void);
-extern void Yap_InitBackMYDDAS_SQLITE3Preds(void);
 #endif
 
 /* Myddas_shared.c */

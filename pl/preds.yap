@@ -485,8 +485,9 @@ current_predicate(A0,T0) :-
     '$all_current_modules'(M)
     ),
     % M is bound
+    M \= prolog,
     (
-    '$current_predicate'(A,M,T,user),
+    '$current_predicate'(A,M,T,_),
     functor(T, A, _)
     ;
     '$get_predicate_definition'(M:T,M1:_T1),

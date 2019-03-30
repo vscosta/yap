@@ -630,6 +630,8 @@ static Int c_sqlite3_row(USES_REGS1) {
 }
 
 static void Yap_InitMYDDAS_SQLITE3Preds(void) {
+   Term cm = CurrentModule;
+   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_dbect: Host x User x Passwd x Database x dbection x ERROR_CODE */
   Yap_InitCPred("c_sqlite3_connect", 4, c_sqlite3_connect, 0);
 
@@ -661,23 +663,24 @@ static void Yap_InitMYDDAS_SQLITE3Preds(void) {
 
   /* c_sqlite3_change_database: connection x DataBaseName */
   Yap_InitCPred("c_sqlite3_change_database", 2, c_sqlite3_change_database, 0);
+  CurrentModule = cm;
 }
 static void Yap_InitBackMYDDAS_SQLITE3Preds(void) {
+   Term cm = CurrentModule;
+   CurrentModule = MkAtomTerm(Yap_LookupAtom("myddas_sqlite3"));
   /* db_row: ResultSet x Arity x ListOfArgs */
   // Yap_InitCPredBack("c_sqlite3_row", 3, 0, c_sqlite3_row_initialise,
   //                  c_sqlite3_row, c_sqlite3_row_terminate);
   Yap_InitCPred("c_sqlite3_row_initialise", 2, c_sqlite3_row_initialise, 0);
   Yap_InitCPred("c_sqlite3_row_terminate", 2, c_sqlite3_row_terminate, 0);
   Yap_InitCPredBack("c_sqlite3_row_get", 4, 0, c_sqlite3_row, c_sqlite3_row, 0);
+  CurrentModule = cm;
 }
 
 X_API void init_sqlite3(void) {
-  Term cm = CurrentModule;
-
  Yap_InitMYDDAS_SQLITE3Preds();
 
  Yap_InitBackMYDDAS_SQLITE3Preds();
-  CurrentModule = cm;
 }
 
 

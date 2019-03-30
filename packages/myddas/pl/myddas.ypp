@@ -97,15 +97,6 @@
 		  #endif
 				% myddas_assert_predicates.ypp
 				,
-		 db_import/2,
-		  db_import/3,
-		  db_view/2,
-		  db_view/3,
-		  db_insert/2,
-		  db_insert/3,
-		  db_abolish/2,
-		  db_listing/0,
-		  db_listing/1
 				% myddas_mysql.ypp
 ]).
 
@@ -123,7 +114,7 @@
 			       ]).
 #endif
 
-:- use_module(myddas_assert_predicates,[
+:- reexport(myddas_assert_predicates,[
 					db_import/2,
 					db_import/3,
 					db_view/2,
@@ -140,12 +131,12 @@
 
 :- use_module(myddas_sqlite3,[
 		  % myddas_mysql.ypp
-		  %c_sqlite3_connect/4,
-		  %c_sqlite3_disconnect/1,
-		  %c_sqlite3_query/5,
+		  c_sqlite3_connect/4,
+		  c_sqlite3_disconnect/1,
+		  c_sqlite3_query/5,
+		  c_sqlite3_number_of_fields/3,
+		  c_sqlite3_get_attributes_types/3,
 		  sqlite3_result_set/1,
-		  %c_sqlite3_number_of_fields/3,
-		  %c_sqlite3_get_attributes_types/3,
 		  sqlite3_describe/3,
 		  sqlite3_show_tables/2,
 		  sqlite3_row/3
