@@ -1296,6 +1296,9 @@ static Int is_callable(USES_REGS1) {
  *   + Module:Name//Arity-2
  *
  *   if it is, it will extract the predicate's module, name, and arity.
+ *
+ * Note: this will now accept both mod:(a/n) and
+ * (mod:a)/n as valid.
  */
 static Int get_predicate_indicator(USES_REGS1) {
   Term G = Deref(ARG1);
@@ -1317,6 +1320,7 @@ static Int get_predicate_indicator(USES_REGS1) {
     }
     if (f == FunctorSlash || f == FunctorDoubleSlash) {
       Term name = ArgOfTerm(1,G), arity = ArgOfTerm(2,G);
+      name = Yap_YapStripModule (name, &mod);
       if (IsVarTerm(name)) {
 	Yap_ThrowError(INSTANTIATION_ERROR, name, NULL);
       } else if (!IsAtomTerm(name)) {
