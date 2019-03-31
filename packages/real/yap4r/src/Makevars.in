@@ -1,0 +1,2 @@
+PKG_LIBS=-L/home/vsc/.local/lib/Yap/ -lreal
+PKG_CPPFLAGS=-I../../../../CXX -I../../../../build -I../../../../include -I../../../../H -I../../../../OPTYap -I../../../../os -I../..
