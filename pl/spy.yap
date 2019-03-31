@@ -220,7 +220,8 @@ debug :-
 	 ;
 	  set_prolog_flag(debug, false)
 	 ),
-	 '__NB_setval__'('$debug_state',state(creep,0,stop) ).
+'__NB_getval__'('$trace',Trace, fail),
+	 '__NB_setval__'('$debug_state',state(creep,0,stop,Trace) ).
 
 nodebug :-
 	 '$init_debugger',

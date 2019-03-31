@@ -222,6 +222,7 @@
 :- use_module(library(rbtrees)).
 :- use_module(library(lbfgs)).
 :- reexport(library(matrix)).
+:- reexport(library(terms)).
 
 % load our own modules
 :- reexport(problog).
@@ -237,17 +238,13 @@
 :- dynamic(values_correct/0).
 :- dynamic(learning_initialized/0).
 :- dynamic(current_iteration/1).
+:- dynamic(solver_iteration/1).
 :- dynamic(example_count/1).
 :- dynamic(query_probability_intern/2).
 %:- dynamic(query_gradient_intern/4).
 :- dynamic(last_mse/1).
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/2).
-
-
-% used to identify queries which have identical proofs
-:- dynamic(query_is_similar/2).
-:- dynamic(query_md5/3).
 
 % used to identify queries which have identical proofs
 :- dynamic(query_is_similar/2).
@@ -266,7 +263,7 @@ user:test_example(A,B,C,=) :-
 	user:test_example(A,B,C),
 	\+  user:problog_discard_example(B).
 
-
+solver_iteration(0).
 
 %========================================================================
 %= store the facts with the learned probabilities to a file
@@ -274,7 +271,9 @@ user:test_example(A,B,C,=) :-
 
 save_model:-
 	current_iteration(Iteration),
-	create_factprobs_file_name(Iteration,Filename),
+	solver_iteration(LBFGSIteration),
+	Id is Iteration*100+LBFGSIteration,
+	create_factprobs_file_name(Id,Filename),
 	export_facts(Filename).
 
 
@@ -559,7 +558,7 @@ empty_bdd_directory.
 
 
 init_queries :-
-    empty_bdd_directory,
+    %empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),	
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
@@ -572,11 +571,9 @@ init_one_query(QueryID,Query,_Type) :-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    fail,
-    problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
+problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
     !,
     b_setval(problog_required_keep_ground_ids,false),
-	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
 	 Bdd = bdd(Dir, Tree0,MapList),
 	 user:graph2bdd(Query,N,Bdd),
 	 reverse(Tree0,Tree),
@@ -586,8 +583,7 @@ init_one_query(QueryID,Query,_Type) :-
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
-	  write('.'),
-	  recordz(QueryID,bdd(Dir, Tree, MapList),_).
+	  store_bdd(QueryID, Dir, Tree, MapList).
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -600,12 +596,22 @@ init_one_query(QueryID,Query,_Type) :-
 	  %	  trace,
  	  once(Call),
 	  reverse(Tree0,Tree),
-	  %rb_new(H0),
-	  %maplist_to_hash(MapList, H0, Hash),
-	  %Tree \= [],
-%	  writeln(Dir:Tree:MapList),
-	  %tree_to_grad(Tree, Hash, [], Grads),
-	  recordz(QueryID,bdd(Dir, Tree, MapList),_).
+	  store_bdd(QueryID, Dir, Tree, MapList).
+
+
+store_bdd(QueryID, Dir, Tree, MapList) :-
+	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
+	  (
+	    recorded(QueryID, Bdd0, R),
+	    arg(3, Bdd0, MapList0),  				variant(MapList0,MapList)
+	    ->
+	    put_char('.')
+	    ;
+	    (nonvar(R) -> erase(R);true),
+	    recorda(QueryID,bdd(Dir, Tree, MapList),_),
+	    put_char('.')
+	).
+
 
 %========================================================================
 %=
@@ -668,7 +674,6 @@ mse_trainingset :-
 		(user:example(QueryID,Query,TrueQueryProb,_Type),
 		 query_probability(QueryID,CurrentProb),
  		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-
 		 once(update_query_cleanup(QueryID)),
 		  SquaredError is (CurrentProb-TrueQueryProb)**2,
 		 LogCurrentProb is log(CurrentProb)
@@ -784,7 +789,6 @@ inv_sigmoid(T,Slope,InvSig) :-
 %========================================================================
 
 
-save_old_probabilities.
 
 % vsc: avoid silly search
 gradient_descent :-
@@ -797,7 +801,9 @@ gradient_descent :-
 	   set_fact( FactID, Slope, X)
 	   ),
     lbfgs_run(Solver,_BestF),
-    lbfgs_finalize(Solver).
+    lbfgs_finalize(Solver),
+    mse_trainingset,
+    mse_testset.
 
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
@@ -842,7 +848,7 @@ Grad <== array[N] of floats,
 	LL,
 	compute_gradient(Grad, X, Slope,LL),
 	LLs
- ), sum_list( LLs, LLH_Training_Queries), writeln(LLH_Training_Queries:LLs ),forall(between(0,N1,I),(G<==Grad[I],writeln(I=G))).
+ ), sum_list( LLs, _LLH_Training_Queries).
 
 
 
@@ -856,15 +862,12 @@ go( X,Grad, LLs) :-
  
 
 compute_gradient( Grad, X, Slope, LL) :-
-    
   	user:example(QueryID,_Query,QueryProb),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
 	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
-	retractall( query_probability_intern( QueryID, _) ),
-	assert( query_probability_intern( QueryID,BDDProb )),
     forall(
 	query_gradients(BDD,I,IProb,GradValue), 
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
@@ -892,15 +895,17 @@ wrap( _X, _Grad, _GradCount).
 user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
     FX < 0, !,
     format('stopped on bad FX=~4f~n',[FX]).
-user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, Iteration,Ls,0) :-
-    assertz(current_iteration(Iteration)),
-    problog_flag(sigmoid_slope,Slope),
-    forall(tunable_fact(FactID,_GroundTruth), set_tunable(FactID,Slope,X)),
+user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
+     problog_flag(sigmoid_slope,Slope),
+    forall(
+    tunable_fact(FactID,_GroundTruth), 		set_tunable(FactID,Slope,X)),
     logger_set_variable(mse_trainingset, FX),
+    retractall(solver_iterations(_)),
+    assert(solver_iterations(LBFGSIteration)),
     save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
-    format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[Iteration,P0                                               ,P1,FX,X_Norm,G_Norm,Step,Ls]).
+    format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).
 
 
 %========================================================================
