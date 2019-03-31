@@ -75,7 +75,7 @@ test(att_types, true((Als == ['AlbumId','','Title','','ArtistId',''],
 		      As == ['ArtistId','','Name',''],
 		      Ts == ['TrackId','','Name','','AlbumId','','MediaTypeId','','GenreId','',
 			     'Composer','','Milliseconds','','Bytes','','UnitPrice','']))) :-
-    db_get_attributes_types(albums,Als),
+    .,
     db_get_attributes_types(tracks,Ts),
     db_get_attributes_types(artists,As).
 

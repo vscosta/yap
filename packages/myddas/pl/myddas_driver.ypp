@@ -10,7 +10,7 @@
 *									 *
 * File:		myddas_mysql.yap					 *
 * Last rev:								 *
-* mods:									 *
+* mods:									 *show
 * comments:	MySQL Predicates                 			 *
 *									 *
 *************************************************************************/
@@ -151,7 +151,7 @@ DBMS(datalog_show_tables)(Connection) :-
 % DBMS(show_tables)/2
 % gives the results of the SHOW TABLES statement
 % by backtracking
-DBMS(showq_tables)(Connection,table(Table)) :-
+DBMS(show_tables)(Connection,table(Table)) :-
 	'$get_value'(Connection,Conn),
 	SQL = 'SELECT name FROM sqlite_master WHERE type=\'table\' ORDER BY name',
 	DBMS(result_set)(Mode),
