@@ -81,7 +81,7 @@ To start debugging, the user will either call `trace` or spy the
 relevant procedures, entering debug mode, and start execution of the
 program. When finding the first spy-point, YAP's debugger will take
 control and show a message of the form:
-
+v
 ~~~~~
 * (1)  call:  quicksort([1,2,3],_38) ?
 ~~~~~
@@ -167,7 +167,7 @@ the argument, the command fails all the way to the goal. If goal  _GoalId_ has c
 side effects of the goal cannot be undone. This command is not available
 at the call port.  If <tt>f</tt> receives a goal number as the argument, the
 command retries goal  _GoalId_ instead. If goal  _GoalId_ has
-completed execution, YAP fails until meeting the first active ancestor.
+vcompleted execution, YAP fails until meeting the first active ancestor.
 
 + `a` - abort
 
@@ -525,10 +525,10 @@ be lost.
         true
         ),
         /* get goal list		*/
-        '__NB_getval__'('$spy_glist',History,true),
+        '__NB_getval__'('$spy_glist',History,History=[]),
 	H  = [Info|History],
 	Info = info(L,Module,G,_Retry,_Det,_HasFoundAnswers),
-	'__B_setval__'('$spy_glist',H),
+	b_setval('$spy_glist',H),
 	/* and update it		*/
 	'$port'(call,G,Module,L,deterministic, Info).
 
@@ -610,7 +610,10 @@ be lost.
     '$stop_creeping'(_) ,
     current_prolog_flag(debug, true),
     '__NB_getval__'('$debug_status',state(Skip,Border,_,Trace), fail),
-    ( Skip == creep -> true; '$id_goal'(GoalNumber), GoalNumber =< Border),
+    ( Skip == creep -> true;
+      '$stop_creeping'(_) ,
+      '$id_goal'(GoalNumber),
+      GoalNumber =< Border),
     !,
     '__NB_setval__'('$debug_status', state(creep, 0, stop,Trace)),
     '$trace_port_'(Port, GoalNumber, G, Module, Info).
@@ -624,15 +627,18 @@ be lost.
 '$trace_port_'(answer, GoalNumber, G, Module, Info) :-
     '$port'(exit,G,Module,GoalNumber,nondeterministic, Info).
 '$trace_port_'(redo, GoalNumber, G, Module, Info) :-
-    '$port'(redo,G,Module,GoalNumber,nondeterministic, Info), /* inform user_error	*/
-    '$stop_creeping'(_ ).
+    '$stop_creeping'(_ ),
+    '$port'(redo,G,Module,GoalNumber,nondeterministic, Info). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module, Info) :-
+    '$stop_creeping'(_ ),
     '$port'(fail,G,Module,GoalNumber,deterministic, Info). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_Imfo) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(E), GoalNumber, G, Module, Info) :-
+        '$stop_creeping'(_ ),
     '$TraceError'(E, GoalNumber, G, Module, Info).
 '$trace_port_'(external_exception(E), GoalNumber, G, Module, Info) :-
+    '$stop_creeping'(_ ),
     '$TraceError'(E, GoalNumber, G, Module, Info).
 
 
@@ -754,7 +760,7 @@ be lost.
 	'$action'(C,P,CallNumber,G,Module,H).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
     '__NB_getval__'('$trace',Trace,fail),
-    '__Nb_setval__'('$debug_status', state(creep, 0, stop, Trace)).
+    '__NB_setval__'('$debug_status', state(creep, 0, stop, Trace)).
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
@@ -1075,7 +1081,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$user_call'(G1,M1)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1)|BG1s]) :-
     number(N),
     N >= 0,
 	'$yap_strip_module'( M:G, M1, G1 ),

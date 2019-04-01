@@ -68,7 +68,7 @@ mode and the existing spy-points, when the debugger is on.
 	'__NB_setval__'('$if_skip_mode',no_skip),
 	'__NB_setval__'('$spy_glist',[]),
 	'__NB_setval__'('$spy_gn',1),
-	'__NB_setval__'('$debug_state', state(creep,0,stop)).
+	'__NB_setval__'('$debug_state', state(zip,0,stop,off)).
 
 
  % First part : setting and reseting spy points
@@ -220,8 +220,9 @@ debug :-
 	 ;
 	  set_prolog_flag(debug, false)
 	 ),
-'__NB_getval__'('$trace',Trace, fail),
-	 '__NB_setval__'('$debug_state',state(creep,0,stop,Trace) ).
+	 '__NB_getval__'('$trace',Trace, fail),
+	 ( Trace == on -> Creep = crep; Creep = zip ),
+	 '__NB_setval__'('$debug_state',state(Creep,0,stop,Trace) ).
 
 nodebug :-
 	 '$init_debugger',

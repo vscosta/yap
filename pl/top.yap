@@ -1021,7 +1021,7 @@ log_event( String, Args ) :-
 	DBON = true
 	->
 	(
-	    '__NB_getval__'('$debug_status',state(_, _, _,on), fail),
+	    '__NB_getval__'('$debug_status',state(_, _, _, _,on), fail),
 	    (
 		var(LF)
 	    ->

@@ -1,2 +1,2 @@
-PKG_LIBS=-L/home/vsc/.local/lib/Yap/ -lreal
-PKG_CPPFLAGS=-I../../../../CXX -I../../../../build -I../../../../include -I../../../../H -I../../../../OPTYap -I../../../../os -I../..
+PKG_LIBS=-L${YAP_LIBDIR} -L${YAP_DLLDIR} -L ../../.. -lreal -lYap
+PKG_CPPFLAGS=-I${YAP_SOURCE_DIR}/CXX -I${YAP_BINARY_DIR} -I${YAP_SOURCE_DIR}/include -I${YAP_SOURCE_DIR}/H -I${YAP_SOURCE_DIR}/OPTYap -I${YAP_SOURCE_DIR}/os -I../..

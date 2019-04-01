@@ -269,13 +269,22 @@ solver_iteration(0).
 %= store the facts with the learned probabilities to a file
 %========================================================================
 
-save_model:-
+save_model(X):-
+    problog_flag(sigmoid_slope,Slope),
 	current_iteration(Iteration),
 	solver_iteration(LBFGSIteration),
 	Id is Iteration*100+LBFGSIteration,
 	create_factprobs_file_name(Id,Filename),
+	retractall( query_probability_intern(_,_)),
+	forall(
+	    user:example(QueryID,_Query,_QueryProb),
+	    (recorded(QueryID,BDD,_),
+	    BDD = bdd(_,_,MapList),
+	    bind_maplist(MapList, Slope, X),
+	    query_probabilities( BDD, BDDProb),
+	    assert( query_probability_intern(QueryID,BDDProb)))
+	),
 	export_facts(Filename).
-
 
 
 
@@ -423,8 +432,6 @@ do_learning_intern(Iterations,Epsilon) :-
 	%leash(0),trace,
 	gradient_descent,
 
-	once(save_model),
-	update_values,
 	mse_trainingset,
 	(
 	 last_mse(Last_MSE)
@@ -669,7 +676,6 @@ mse_trainingset :-
 	create_training_predictions_file_name(Iteration,File_Name),
 	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Training ',[]),
-	update_values,
 	findall(t(LogCurrentProb,SquaredError),
 		(user:example(QueryID,Query,TrueQueryProb,_Type),
 		 query_probability(QueryID,CurrentProb),
@@ -714,7 +720,6 @@ mse_testset :-
 	create_test_predictions_file_name(Iteration,File_Name),
   	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Test ',[]),
-	update_values,
 	bb_put(llh_test_queries,0.0),
 	findall(SquaredError,
 		(user:test_example(QueryID,Query,TrueQueryProb,Type),
@@ -902,7 +907,7 @@ user:progress(FX,X,_G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
     logger_set_variable(mse_trainingset, FX),
     retractall(solver_iterations(_)),
     assert(solver_iterations(LBFGSIteration)),
-    save_model,
+    save_model(X),
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).
