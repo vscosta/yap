@@ -17,7 +17,7 @@
 :- use_module('../problog_lbfgs').
 
 
- :- if(true).
+ :- if(false).
 
  :- use_module('kbgraph').
 

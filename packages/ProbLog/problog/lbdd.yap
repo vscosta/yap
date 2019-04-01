@@ -79,10 +79,7 @@ bind_maplist([Node-(Node-Pr)|MapList], Slope, X) :-
 get_prob(Node, Prob) :-
 	get_fact_probability(Node,Prob).
 
-gradient(QueryID, l, Slope) :-
-    probability( QueryID, Slope, Prob),
-	assert(query_probability_intern(QueryID,Prob)),
-	fail.
+
 gradient(_QueryID, l, _).
 
 /*	query_probability(21,6.775948e-01). */
