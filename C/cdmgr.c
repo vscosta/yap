@@ -785,6 +785,10 @@ static void kill_children(LogUpdIndex *c, PredEntry *ap) {
   ncl = c->ChildIndex;
   /* kill children */
   while (ncl) {
+    if (ncl->ClRefCount>0) {
+  c->ClRefCount--;
+}return;
+    }
     kill_first_log_iblock(ncl, c, ap);
     ncl = c->ChildIndex;
   }
@@ -860,7 +864,7 @@ static void kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent,
   if (DBErasedIList)
     DBErasedIList->PrevSiblingIndex = c;
   DBErasedIList = c;
-  if (!((c->ClFlags & InUseMask) || c->ClRefCount)) {
+  if (!(c->ClFlags & InUseMask || c->ClRefCount)) {
     kill_off_lu_block(c, parent, ap);
   } else {
     if (c->ClFlags & ErasedMask)
