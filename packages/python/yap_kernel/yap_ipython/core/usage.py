@@ -333,9 +333,9 @@ The following magic functions are currently available:
 
 """
 
-default_banner_parts = ["Python %s\n"%sys.version.split("\n")[0],
+default_banner_parts = ["YAP %s\n"%sys.version.split("\n")[0],
     "Type 'copyright', 'credits' or 'license' for more information\n" ,
-    "yap_ipython {version} -- An enhanced Interactive Python. Type '?' for help.\n".format(version=release.version),
+    "yap_ipython {version} -- An enhanced Interactive Prolog for Jupyter. Type '?' for help.\n".format(version=release.version),
 ]
 
 default_banner = ''.join(default_banner_parts)

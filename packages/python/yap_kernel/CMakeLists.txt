@@ -411,8 +411,13 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kerne
   )
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
-  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/yap.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
-  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/yap.js
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/prolog.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js
+  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/prolog.js
+  )
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/meta.js  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/meta.js
+  DEPENDS ${CMAKE_SOURCE_DIR}/misc/editors/codemirror/meta.js
   )
 
 
@@ -428,12 +433,14 @@ endforeach()
 
 add_custom_target(YAP_KERNEL ALL
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
+   COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
+ DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
 )
 
 
+set(REAL_SOURCES real.c)
+
     install(CODE "execute_process(
-  COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
          COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr

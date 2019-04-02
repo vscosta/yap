@@ -24,7 +24,7 @@
               )
 
   add_custom_command( OUTPUT yapi_swig.cxx yapi_swig.hh
-  COMMAND swig -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR}
+  COMMAND  ${SWIG_EXECUTABLE} -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR}
       -addextern -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/include
       -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/OPTYap
       -I${CMAKE_BINARY_DIR}
@@ -33,7 +33,7 @@
           )
 
   add_custom_command( OUTPUT  streamer_swig.cxx streamer_swig.hh
-   COMMAND swig -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR} -addextern -I${CMAKE_CURRENT_SOURCE_DIR} -o streamer_swig.cxx streamer.i
+    COMMAND ${SWIG_EXECUTABLE} -c++ -java -package pt.up.yap.lib -O -outdir ${JAVA_SWIG_OUTDIR} -addextern -I${CMAKE_CURRENT_SOURCE_DIR} -o streamer_swig.cxx streamer.i
  DEPENDS  ${CMAKE_SOURCE_DIR}/CXX/yapi.hh ${CMAKE_CURRENT_SOURCE_DIR}/streamer.i
  )
 

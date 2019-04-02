@@ -2,7 +2,7 @@
 %% @file yapi.yap
 %% @brief support yap shell
 %%
-%:- start_low_level_trace.
+
  %% :- module(yapi, [
  %% 		 python_ouput/0,
  %% 		 show_answer/2,
@@ -14,21 +14,21 @@
  %% 		 yapi_query/2
  %% 		 ]).
 
-:- yap_flag(verbose, silent).
+%:- yap_flag(verbose, silent).
 
- :- use_module(library(python)).
+ :- reexport(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
-
+ 
 
 :- python_import(yap4py.yapi).
 :- python_import(json).
 %:- python_import(gc).
 
-:- meta_predicate( yapi_query(:,+) ).
+:- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
 
 %:- start_low_level_trace.
 
@@ -37,18 +37,17 @@
 %% dictionary, Examples
 %%
 %%
-yapi_query( VarNames, Self ) :-
+yapi_query( VarNames, Caller ) :-
 		show_answer(VarNames, Dict),
-		Self.bindings := Dict.
+		Caller.bindings := Dict.
+
+
 
 
 %:- initialization set_preds.
 
 set_preds :-
 fail,
-	current_predicate(P, Q),
-	functor(Q,P,A),
-
  	current_predicate(P, Q),
  	functor(Q,P,A),
 	atom_string(P,S),
@@ -69,22 +68,45 @@ fail,
 set_preds.
 
 argi(N,I,I1) :-
-    atomic_concat(`A`,I,N),
+    atomic_concat('A',I,N),
 	I1 is I+1.
 
-python_query( Caller, String ) :-
+python_query( Caller, String		) :-
+    python_query( Caller, String, _Bindings).
+
+python_query( Caller, String, Bindings ) :-
 	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( Goal, VarNames, Status, Bindings),
-	Caller.port := Status,
-	       write_query_answer( Bindings ),
-	       answer := {},
-	foldl(ground_dict(answer), Bindings, [], Ts),
-	term_variables( Ts, Hidden),
-	foldl(bv, Hidden , 0, _),
-    maplist(into_dict(answer),Ts),
-    Caller.answer := json.dumps(answer),
-			  S := Caller.answer,
-format(user_error, '~nor ~s~n~n',S).
+	query_to_answer( user:Goal, VarNames, Status, Bindings),
+	Caller.q.port := Status,
+	output(Caller, Bindings).
+
+%% output( _, Bindings ) :-
+%%     write_query_answer( Bindings ),
+%%     fail.
+output( Caller, Bindings) :-
+    copy_term( Bindings, Bs),
+    simplify(Bs, 1, Bss),
+    numbervars(Bss, 0, _),
+    maplist(into_dict(Caller),Bss).
+
+simplify([],_,[]).
+simplify([X=V|Xs], [X=V|NXs]) :-
+	var(V),
+	!,
+	X=V,
+	simplify(Xs,NXs).
+simplify([X=V|Xs], I, NXs) :-
+	var(V),
+	!,
+	X=V,
+	simplify(Xs,I,NXs).
+simplify([X=V|Xs], I, [X=V|NXs]) :-
+	!,
+	simplify(Xs,I,NXs).
+simplify([G|Xs],I, [D=G|NXs]) :-
+	I1 is I+1,
+	atomic_concat(['__delay_',I,'__'],D),
+	simplify(Xs,I1,NXs).
 
 
 bv(V,I,I1) :-
@@ -92,30 +114,54 @@ bv(V,I,I1) :-
     I1 is I+1.
 
 into_dict(D,V0=T) :-
-    D[V0] := T.
-    
-/**
- *
- */
-ground_dict(_Dict, var([V,V]), I, I) :- 
-    !.
-ground_dict(Dict, nonvar([V0|Vs], T),I0, [V0=T| I0]) :- 
-    !,
-    ground_dict( Dict, var([V0|Vs]), I0, I0).
-ground_dict(Dict, var([V0,V|Vs]), I, I) :- 
-    !,
-    Dict[V]=V0,
-    ground_dict( Dict, var([V0|Vs]), I, I).
-ground_dict(_, _, _, _).
+    listify(T,L),
+    D.q.answer[V0] := L.
 
+listify('$VAR'(Bnd), V)  :-
+    !,
+    listify_var(Bnd, V).
+listify([A|As], V)  :-
+    !,
+    maplist(listify,[A|As], V).
+listify(A:As, A:Vs)  :-
+    (atom(A);string(A)),
+    !,
+    maplist(listify,As, Vs).
+listify(WellKnown, V)  :-
+    WellKnown=..[N|As],
+    length(As,Sz),
+    well_known(N,Sz),
+    !,
+    maplist(listify,As, Vs),
+    V =.. [N|Vs].
 
-bound_dict(Dict, nonvar([V0|Vs], T)) :- 
+listify('$VAR'(Bnd), V)  :-
     !,
-    Dict[V0] := T,
-    bound_dict( Dict, var([V0|Vs])).
-bound_dict(Dict, var([V0,V|Vs])) :- 
+    listify_var(Bnd, V).
+listify(T, t(S,V))  :-
+    T =.. [S,A|As],
     !,
-    Dict[V] := V0,
-    bound_dict( Dict, var([V0|Vs])).
-bound_dict(_, _).
+    maplist(listify, [A|As], Vs),
+    V =.. [t|Vs].
+listify(S, S).
+
+listify_var(I, S) :-
+    I >= 0,
+    I =< 26,
+    !,
+    V is 0'A+I,
+    string_codes(S, [V]).
+listify_var(I, S) :-
+    I < 0,
+    I >= -26,
+    !,
+    V is 0'A+I,
+    string_codes(S, [0'_+V]).
+listify_var(S, S).
+
+well_known(+,2).
+well_known(-,2).
+well_known(*,2).
+well_known(/,2).
+well_known((','),2).
 

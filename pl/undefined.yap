@@ -67,23 +67,9 @@ followed by the failure of that call.
 :- multifile user:unknown_predicate_handler/3.
 
 undefined_query(G0, M0, Cut) :-
-  recorded('$import','$import'(M,M0,G,G0,_,_),_),
-  '$call'(G, Cut, G, M).
+    recorded('$import','$import'(M,M0,G,G0,_,_),_),
+    '$call'(G, Cut, G, M).
 
-'$handle_error'(error,Goal,Mod) :-
-    functor(Goal,Name,Arity),
-    'program_continuation'(PMod,PName,PAr),
-    '$do_error'(existence_error(procedure,Name/Arity),
-           context(Mod:Goal,PMod:PName/PAr)).
-'$handle_error'(warning,Goal,Mod) :-
-    functor(Goal,Name,Arity),
-    'program_continuation'(PMod,PName,PAr),
-    print_message(warning,error(existence_error(procedure,Name/Arity), context(Mod:Goal,PMod:PName/PAr))),
-    fail.
-'$handle_error'(fail,_Goal,_Mod) :-
-    fail.
-
-:- '$set_no_trace'('$handle_error'(_,_,_), prolog).
 
 /**
  * @pred '$undefp_search'(+ M0:G0, -MG)
@@ -105,42 +91,53 @@ undefined_query(G0, M0, Cut) :-
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
 '$undefp_search'(M0:G0, MG) :-
-'$get_undefined_predicates'(M0:G0, MG), !.
+    '$predicate_definition'(M0:G0, MG), !.
 
-% undef handler
-'$undefp'([M0|G0],MG) :-
-    % make sure we do not loop on undefined predicates
-        '$undef_set'(Action,Debug,Current),
-        '$search_def'(M0:G0,MG,Action,Debug,Current).
-
-'$undef_set'(Action,Debug,Current) :-
-  yap_flag( unknown, Action, fail),
+'$undef_error'(error,  Mod:Goal) :-
+    '$do_error'(existence_error(procedure,Mod:Goal), Mod:Goal).
+'$undef_error'(warning,Mod:Goal) :-
+    '$program_continuation'(PMod,PName,PAr),
+    print_message(warning,error(existence_error(procedure,Mod:Goal), context(Mod:Goal,PMod:PName/PAr))).
+'$undef_error'(fail,_).
+ 
+'$undef_setup'(Action,Debug,Current) :-
+    yap_flag( unknown, Action, fail),
     yap_flag( debug, Debug, false),
     '$stop_creeping'(Current).
 
-
-'$search_def'(M0:G0,NM:NG,Action,Debug,Current) :-
-    '$undefp_search'(M0:G0, NM:NG),
-    '$pred_exists'(NG,NM),
-    !,
+'$undef_cleanup'(Action,Debug, _Current) :-
     yap_flag( unknown, _, Action),
-    yap_flag( debug, _, Debug),
-    nonvar(NG),
-    nonvar(NM),
-   (
-       Current == true
-    ->
-        % carry on signal processing
-        '$start_creep'([NM|NG], creep)
-    ;
-    '$execute0'(NG, NM)
-   ).
-'$search_def'(M0:G0,_,Action,Debug,_Current) :-
-    yap_flag( unknown, _, Action),
-    yap_flag( debug, _, Debug),
-'$start_creep'([prolog|true], creep),
-'$handle_error'(Action,G0,M0).
+    yap_flag( debug, _, Debug).
 
+'$found_undefined_predicate'( M0:G0, M:G ) :-
+    '$pred_exists'(unknown_predicate_handler(_,_,_), user),
+    '$yap_strip_module'(M0:G0,  EM0, GM0),
+    user:unknown_predicate_handler(GM0,EM0,M:G),
+    !.
+'$found_undefined_predicate'( M0:G0, _ ) :-
+    yap_flag( unknown, _, Action),
+    '$undef_error'(Action,  M0:G0 ).
+
+'$search_undef'(M0:G0, M:G) :-
+% make sure we do not loop on undefined predicates
+	setup_call_cleanup(
+			   '$undef_setup'(Action,Debug,Current),
+			   '$get_undefined_predicate'( M0:G0, M:G ),
+			   '$undef_cleanup'(Action,Debug,Current)
+	),
+	!.
+'$search_undef'(M0:G0, M:G) :-
+    '$found_undefined_predicate'( M0:G0, M:G ).
+
+%%  undef handler:
+%  we found an import, and call again
+%  we have user code in the unknown_predicate
+%  we fail, output a message, and just generate an exception.
+'$undefp'([M0|G0],ok) :-
+    '$search_undef'(M0:G0, M:G),
+	'$trace'(M:G).
+
+:- abolish(prolog:'$undefp0'/2).
 :- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
@@ -155,7 +152,7 @@ The unknown predicate, informs about what the user wants to be done
 */
 
 unknown(P, NP) :-
-    prolog_flag( unknown, P, NP ).
+    yap_flag( unknown, P, NP ).
 
 /**
 @}

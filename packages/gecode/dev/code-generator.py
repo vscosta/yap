@@ -694,7 +694,7 @@ class CCDescriptor(object):
         print('YAP_UserCPredicate("gecode_constraint_%s", gecode_constraint_%s, %d);' \
             % (self.api, self.api, len(self.argtypes)))
 
-GECODE_VERSION = None
+GECODE_VERSION = "6.1.1"
 
 def gecode_version():
     #import pdb; pdb.set_trace()

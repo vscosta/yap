@@ -1,0 +1,5 @@
+exportPattern("^[[:alpha:]]+")
+import(Rcpp)
+useDynLib(yap4r, .registration=TRUE)
+
+

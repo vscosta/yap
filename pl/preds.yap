@@ -16,7 +16,7 @@
 *************************************************************************/
 
 /**
- * @file preds.yap
+ * @file pl/preds.yap
  */
 :- system_module( '$_preds', [abolish/1,
 			      abolish/2,
@@ -248,163 +248,55 @@ nth_clause(V,I,R) :-
 '$nth_clause'(P,M,I,R) :-
     '$fetch_nth_clause'(P,M,I,R).
 
+
+/**
+   @pred  abolish(+ _PredSpec_) is iso
+
+
+Deletes the predicate given by _PredSpec_ from the database.  All
+state on the predicate, including whether it is dynamic or static,
+multifile, or meta-predicate, will be lost. The specification must
+include the name and arity, and it may include module
+information. Under <tt>iso</tt> language mode this built-in will only
+abolish dynamic procedures. Under other modes it will abolish any
+procedures.
+
+Older versions of YAP would accept unbound arguments; please use
+current_predicate/2 to enumerate the predicates you want to discard.
+
+*/
+abolish(X) :-
+    get_predicate_indicator(X, M, Na, Ar),
+    functor(H, Na, Ar),
+    ( '$is_dynamic'(H, M) -> '$abolishd'(H, M) ;
+      '$undefined'(H, M) -> true ;
+      current_prolog_flag(language, iso) -> '$do_error'(permission_error(modify,static_procedure,Na/Ar),abolish(X)) ;
+      '$abolishs'(H,M)
+      ).
+    
 /** @pred  abolish(+ _P_,+ _N_)
 
 Completely delete the predicate with name _P_ and arity _N_. It will
 remove both static and dynamic predicates. All state on the predicate,
 including whether it is dynamic or static, multifile, or
 meta-predicate, will be lost.
-*/
-abolish(N0,A) :-
-    strip_module(N0, Mod, N), !,
-    '$abolish'(N,A,Mod).
 
-'$abolish'(N,A,M) :- var(N), !,
-		     '$do_error'(instantiation_error,abolish(M:N,A)).
-'$abolish'(N,A,M) :- var(A), !,
-		     '$do_error'(instantiation_error,abolish(M:N,A)).
-'$abolish'(N,A,M) :-
-    ( recorded('$predicate_defs','$predicate_defs'(N,A,M,_),R) -> erase(R) ),
-    fail.
-'$abolish'(N,A,M) :- functor(T,N,A),
-		     ( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
-		       /* else */	      '$abolishs'(T,M) ).
-
-/** @pred  abolish(+ _PredSpec_) is iso
-
-
-Deletes the predicate given by  _PredSpec_ from the database. If
-§§ _PredSpec_ is an unbound variable, delete all predicates for the
-current module. The
-specification must include the name and arity, and it may include module
-information. Under <tt>iso</tt> language mode this built-in will only abolish
-dynamic procedures. Under other modes it will abolish any procedures.
-
+abolish/2 is similar to abolish/1, but it always tries to erase static properties. It should not be confused with SICStus Prolog abolish/2, which is abolish/1 plus a list of options.
 
 */
-abolish(X0) :-
-    strip_module(X0,M,X),
-    '$abolish'(X,M).
-
-'$abolish'(X,M) :-
-    current_prolog_flag(language, sicstus), !,
-    '$new_abolish'(X,M).
-'$abolish'(X, M) :-
-    '$old_abolish'(X,M).
-
-'$new_abolish'(V,M) :- var(V), !,
-		       '$abolish_all_in_module'(M).
-'$new_abolish'(A/V,M) :- atom(A), var(V), !,
-			 '$abolish_all_atoms'(A,M).
-'$new_abolish'(Na//Ar1, M) :-
-    integer(Ar1),
-    !,
-    Ar is Ar1+2,
-    '$new_abolish'(Na//Ar, M).
-'$new_abolish'(Na/Ar, M) :-
+abolish(N,A) :-
+    get_predicate_indicator(N/A, M, Na, Ar),
     functor(H, Na, Ar),
-    '$is_dynamic'(H, M), !,
-    '$abolishd'(H, M).
-'$new_abolish'(Na/Ar, M) :- % succeed for undefined procedures.
-    functor(T, Na, Ar),
-    '$undefined'(T, M), !.
-'$new_abolish'(Na/Ar, M) :-
-    '$do_error'(permission_error(modify,static_procedure,Na/Ar),abolish(M:Na/Ar)).
-'$new_abolish'(T, M) :-
-    '$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
+    ( '$is_dynamic'(H, M) -> '$abolishd'(H, M) ;
+      '$undefined'(H, M) -> true ;
+      '$abolishs'(H,M)
+    ).
 
-'$abolish_all_in_module'(M) :-
-    '$current_predicate'(Na, M, S, _),
-    functor(S, Na, Ar),
-    '$new_abolish'(Na/Ar, M),
-    fail.
-'$abolish_all_in_module'(_).
 
-'$abolish_all_atoms'(Na, M) :-
-    '$current_predicate'(Na,M,S,_),
-    functor(S, Na, Ar),
-    '$new_abolish'(Na/Ar, M),
-    fail.
-'$abolish_all_atoms'(_,_).
-
-'$check_error_in_predicate_indicator'(V, Msg) :-
-    var(V), !,
-    '$do_error'(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(M:S, Msg) :- !,
-    '$check_error_in_module'(M, Msg),
-    '$check_error_in_predicate_indicator'(S, Msg).
-'$check_error_in_predicate_indicator'(S, Msg) :-
-    S \= _/_,
-    S \= _//_, !,
-    '$do_error'(type_error(predicate_indicator,S), Msg).
-'$check_error_in_predicate_indicator'(Na/_, Msg) :-
-    var(Na), !,
-    '$do_error'(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(Na/_, Msg) :-
-    \+ atom(Na), !,
-    '$do_error'(type_error(atom,Na), Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-    var(Ar), !,
-    '$do_error'(instantiation_error, Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-    \+ integer(Ar), !,
-    '$do_error'(type_error(integer,Ar), Msg).
-'$check_error_in_predicate_indicator'(_/Ar, Msg) :-
-    Ar < 0, !,
-    '$do_error'(domain_error(not_less_than_zero,Ar), Msg).
-% not yet implemented!
-%'$check_error_in_predicate_indicator'(Na/Ar, Msg) :-
-%	Ar < maxarity, !,
-%	'$do_error'(type_error(representation_error(max_arity),Ar), Msg).
-
-'$check_error_in_module'(M, Msg) :-
-    var(M), !,
-    '$do_error'(instantiation_error, Msg).
-'$check_error_in_module'(M, Msg) :-
-    \+ atom(M), !,
-    '$do_error'(type_error(atom,M), Msg).
-
-'$old_abolish'(V,M) :- var(V), !,
-		       ( true -> % current_prolog_flag(language, sicstus) ->
-			 '$do_error'(instantiation_error,abolish(M:V))
-		       ;
-		       '$abolish_all_old'(M)
-		       ).
-'$old_abolish'(N/A, M) :- !,
-    '$abolish'(N, A, M).
-'$old_abolish'(A,M) :- atom(A), !,
-		       ( current_prolog_flag(language, iso) ->
-			 '$do_error'(type_error(predicate_indicator,A),abolish(M:A))
-		       ;
-		       '$abolish_all_atoms_old'(A,M)
-		       ).
-'$old_abolish'([], _) :- !.
-'$old_abolish'([H|T], M) :- !,  '$old_abolish'(H, M), '$old_abolish'(T, M).
-'$old_abolish'(T, M) :-
-    '$do_error'(type_error(predicate_indicator,T),abolish(M:T)).
-
-'$abolish_all_old'(M) :-
-    '$current_predicate'(Na, M, S, _),
-    functor( S, Na, Ar ),
-    '$abolish'(Na, Ar, M),
-    fail.
-'$abolish_all_old'(_).
-
-'$abolish_all_atoms_old'(Na, M) :-
-    '$current_predicate'(Na, M, S, _),
-    functor(S, Na, Ar),
-    '$abolish'(Na, Ar, M),
-    fail.
-'$abolish_all_atoms_old'(_,_).
-
-'$abolishs'(G, M) :- '$system_predicate'(G,M), !,
-		     functor(G,Name,Arity),
-		     '$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
-'$abolishs'(G, Module) :-
-    current_prolog_flag(language, sicstus), % only do this in sicstus mode
-    '$undefined'(G, Module),
+'$abolishs'(G, M) :-
+    '$system_predicate'(G,M), !,
     functor(G,Name,Arity),
-    print_message(warning,no_match(abolish(Module:Name/Arity))).
+    '$do_error'(permission_error(modify,static_procedure,Name/Arity),abolish(M:G)).
 '$abolishs'(G, M) :-
     '$is_multifile'(G,M),
     functor(G,Name,Arity),
@@ -419,6 +311,7 @@ abolish(X0) :-
 '$abolishs'(G, M) :-
     '$purge_clauses'(G, M), fail.
 '$abolishs'(_, _).
+
 
 /**  @pred stash_predicate(+ _Pred_)
 Make predicate  _Pred_ invisible to new code, and to `current_predicate/2`,
@@ -495,22 +388,9 @@ or built-in.
 
 */
 predicate_property(Pred,Prop) :-
-    (
-	current_predicate(_,Pred),
-	'$yap_strip_module'(Pred, Mod, TruePred)
-    ;
-    '$current_predicate'(_,M,Pred,system),
-    '$yap_strip_module'(M:Pred, Mod, TruePred)
-    ),
-
-    (
-	'$pred_exists'(TruePred, Mod)
-    ->
-    M = Mod,
-    NPred = TruePred
-    ;
-    '$get_undefined_pred'(TruePred, Mod, NPred, M)
-    ),
+    '$yap_strip_module'(Pred, Mod, TruePred),
+    (var(Mod) -> current_module(Mod) ; true ),
+    '$predicate_definition'(Mod:TruePred, M:NPred),
     '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
@@ -593,27 +473,28 @@ predicate_erased_statistics(P0,NCls,Sz,ISz) :-
 
 Defines the relation:  _P_ is a currently defined predicate whose name is the atom  _A_.
 */
-current_predicate(A,T0) :-
-    '$yap_strip_module'(T0, M, T),
-    (	var(M)
-    ->
-    '$all_current_modules'(M)
-    ;
-    true
-    ),
-    (nonvar(T) -> functor(T, A, _) ; true ),
+current_predicate(A0,T0) :-
+    ( nonvar(T0) -> '$yap_strip_module'(T0, M, T) ; T0 = T ),
+    ( nonvar(A0) -> '$yap_strip_module'(M:A0, MA0, A) ; A0 = A ),
+    M = MA0,
     (
-	'$current_predicate'(A,M, T, user)
-    ;
-    (nonvar(T)
+	nonvar(M)
     ->
-	'$imported_predicate'(M:T,  M1:T1)
+    true
     ;
-    '$imported_predicate'(M:T, M1:T1)
+    '$all_current_modules'(M)
     ),
-    functor(T1, A, _),
-    \+ '$is_system_predicate'(T1,M1)
+    % M is bound
+    M \= prolog,
+    (
+    '$current_predicate'(A,M,T,_),
+    functor(T, A, _)
+    ;
+    '$get_predicate_definition'(M:T,M1:_T1),
+    M\=M1,
+    functor(T, A, _)
     ).
+
 
 /** @pred  system_predicate( ?_P_ )
 

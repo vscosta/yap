@@ -346,11 +346,12 @@ Yap_FindStreamForAlias (Atom al)
 
   while (aliasp < aliasp_max) {
     if (aliasp->name == al) {
-      return aliasp->alias_stream;
+      return aliasp->alias_stream > 0;
     }
     aliasp++;
   }
-  return true;
+  LOCAL_Error_TYPE = DOMAIN_ERROR_STREAM;
+  return false;
 }
 
 /* create a new alias arg for stream sno */

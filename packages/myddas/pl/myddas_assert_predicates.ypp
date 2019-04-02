@@ -29,8 +29,16 @@
 
 
 :- use_module(myddas,[
-		      db_module/1
-		     ]).
+		  db_module/1,
+    c_db_check_if_exists_pred/3,
+       c_db_preds_conn/4,
+      c_db_connection_type/2,
+      c_db_add_preds/4,
+      c_db_preds_conn/4,
+      c_db_connection/1,
+      c_db_check_if_exists_pred/3,
+      c_db_delete_predicate/2
+              ]).
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1
@@ -57,6 +65,7 @@
 
 :- use_module(myddas_sqlite3,[
 			      sqlite3_result_set/1,
+			      sqlite3_show_tables/1,
 			      c_sqlite3_change_database/2,
 			      c_sqlite3_connect/4,
 			      c_sqlite3_disconnect/1,
@@ -91,8 +100,8 @@
 % db_import/3
 % db_import/2
 %
-db_import(RelationName,PredName):-
-	db_import(myddas,RelationName,PredName).
+db_import(RelationName,PredName0):-
+	db_import(myddas,RelationName,PredName0).
 db_import(Connection,RelationName,PredName0) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName0)),
         get_value(Connection,Con),
@@ -318,9 +327,9 @@ table_access_predicate( sqlite3, Con, Arity, P, LA, M,
                                       myddas_prolog2sql:queries_atom(Code,FinalSQL),
 				      myddas_sqlite3:sqlite3_result_set(Mode),
                                       myddas_util_predicates:'$write_or_not'(FinalSQL),
-				      user:c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
+				      myddas_sqlite3:c_sqlite3_query(FinalSQL,ResultSet,Con,Mode,_),
 				      !,
-				  myddas_aqlite3:sqlite3_row(ResultSet,Arity,LA)
+				  myddas_sqlite3:sqlite3_row(ResultSet,Arity,LA)
 				     ) )).
 
 table_access_predicate( odbc, Con, Arity, P, LA, M,
@@ -415,6 +424,6 @@ table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
               translate(ProjT,NG,Code),
               queries_atom(Code,FinalSQL),
               '$write_or_not'(FinalSQL),
-              c_sqlite3_query(FinalSQL,ResultSet,Con,_,_),
+              myddas_sqlite3:c_sqlite3_query(FinalSQL,ResultSet,Con,_,_),
               !,
-              c_sqlite3_row(ResultSet,Arity,LA) ))).
+              myddas_sqlite3:sqlite3_row(ResultSet,Arity,LA) ))).

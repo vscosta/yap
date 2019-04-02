@@ -1,5 +1,5 @@
 /**
- * @file autoloader.yap
+ * 
 
  */
 :- module(autoloader,[make_library_index/0]).
@@ -120,10 +120,8 @@ find_predicate(G,ExportingModI) :-
         var(G),
 	index(Name,Arity,ExportingModI,File),
 	functor(G, Name, Arity),
-	ensure_file_loaded(File).
+	ensure_loaded(File).
 
-ensure_file_loaded(File) :-
-	loaded(File), !.
-ensure_file_loaded(File) :-
-	load_files(autoloader:File,[silent(true),if(not_loaded)]),
-	assert(loaded(File)).
+
+:-       ensure_loaded('INDEX').
+

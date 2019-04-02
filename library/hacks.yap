@@ -10,6 +10,8 @@
 
 :- module(yap_hacks, [
 		      current_choicepoint/1,
+		      parent_choicepoint/1,
+		      parent_choicepoint/2,
 		      cut_by/1,
 		      cut_at/1,
 		      current_choicepoints/1,
@@ -66,6 +68,7 @@ run_formats([], _).
 run_formats([Com-Args|StackInfo], Stream) :-
 	format(Stream, Com, Args),
 	run_formats(StackInfo, user_error).
+
 
 /**
  * @pred virtual_alarm(+Interval, 0:Goal, -Left)

@@ -4,8 +4,17 @@
   Comments: Tries module for Yap Prolog
   version:  $ID$
 ****************************************/
+/**
+ @file tries.c
+ @brief yap-C wrapper for tries.
+*/
 
 
+/**
+@addtogroup tries
+
+@{
+*/
 
 /* -------------------------- */
 /*          Includes          */
@@ -164,6 +173,15 @@ static YAP_Bool p_close_all_tries(void) {
 
 
 /* put_trie_entry(+Mode,+Trie,+Entry,-Ref) */
+/** @pred trie_put_entry(+Mode,+ _Trie_,+ _Term_,- _Ref_) 
+
+
+
+Add term  _Term_ to trie  _Trie_. The handle  _Ref_ gives
+a reference to the term.
+
+ 
+*/
 #define arg_mode  YAP_ARG1
 #define arg_trie  YAP_ARG2
 #define arg_entry YAP_ARG3
@@ -198,6 +216,13 @@ static YAP_Bool p_put_trie_entry(void) {
 
 
 /* get_trie_entry(+Mode,+Ref,-Entry) */
+/** @pred trie_get_entry(+ _Ref_,- _Term_) 
+
+
+Unify  _Term_ with the entry for handle  _Ref_.
+
+ 
+*/
 #define arg_mode  YAP_ARG1
 #define arg_ref   YAP_ARG2
 #define arg_entry YAP_ARG3
@@ -227,7 +252,6 @@ static YAP_Bool p_get_trie_entry(void) {
 #undef arg_mode
 #undef arg_ref
 #undef arg_entry
-
 
 /* remove_trie_entry(+Ref) */
 static YAP_Bool p_remove_trie_entry(void) {
@@ -263,6 +287,14 @@ static YAP_Bool p_trie_open(void) {
 
 
 /* trie_close(+Trie) */
+/** @pred trie_close(+ _Id_) 
+
+
+
+Close trie with identifier  _Id_.
+
+ 
+*/
 #define arg_trie YAP_ARG1
 static YAP_Bool p_trie_close(void) {
   /* check arg */
@@ -277,6 +309,14 @@ static YAP_Bool p_trie_close(void) {
 
 
 /* trie_close_all() */
+/** @pred trie_close_all 
+
+
+
+Close all available tries.
+
+ 
+*/
 static YAP_Bool p_trie_close_all(void) {
   trie_close_all();
   return TRUE;
@@ -284,6 +324,15 @@ static YAP_Bool p_trie_close_all(void) {
 
 
 /* trie_mode(?Mode) */
+/** @pred trie_mode(? _Mode_) 
+
+
+
+Unify  _Mode_ with trie operation mode. Allowed values are either
+`std` (default) or `rev`.
+
+ 
+*/
 #define arg_mode YAP_ARG1
 static YAP_Bool p_trie_mode(void) {
   YAP_Term mode_term;
@@ -337,6 +386,15 @@ static YAP_Bool p_trie_put_entry(void) {
 
 
 /* trie_check_entry(+Trie,+Entry,-Ref) */
+/** @pred trie_check_entry(+ _Trie_,+ _Term_,- _Ref_) 
+
+
+
+Succeeds if a variant of term  _Term_ is in trie  _Trie_. An handle
+ _Ref_ gives a reference to the term.
+
+ 
+*/
 #define arg_trie  YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
@@ -458,6 +516,14 @@ static YAP_Bool p_trie_traverse_cont(void) {
 
 
 /* trie_remove_entry(+Ref) */
+/** @pred trie_remove_entry(+ _Ref_) 
+
+
+
+Remove entry for handle  _Ref_.
+
+ 
+*/
 #define arg_ref YAP_ARG1
 static YAP_Bool p_trie_remove_entry(void) {
   /* check arg */
@@ -472,6 +538,14 @@ static YAP_Bool p_trie_remove_entry(void) {
 
 
 /* trie_remove_subtree(+Ref) */
+/** @pred trie_remove_subtree(+ _Ref_) 
+
+
+
+Remove subtree rooted at handle  _Ref_.
+
+ 
+*/
 #define arg_ref YAP_ARG1
 static YAP_Bool p_trie_remove_subtree(void) {
   /* check arg */
@@ -564,8 +638,13 @@ static YAP_Bool p_trie_count_intersect(void) {
 #undef arg_trie2
 #undef arg_entries
 
+/** @pred trie_save(+ _Trie_,+ _FileName_) 
 
-/* trie_save(+Trie,+FileName) */
+
+Dump trie  _Trie_ into file  _FileName_.
+
+ 
+*/
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
 static YAP_Bool p_trie_save(void) {
@@ -594,6 +673,13 @@ static YAP_Bool p_trie_save(void) {
 
 
 /* trie_load(-Trie,+FileName) */
+/** @pred trie_load(- _Trie_,+ _FileName_) 
+
+
+Load trie  _Trie_ from the contents of file  _FileName_.
+
+ 
+*/
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
 static YAP_Bool p_trie_load(void) {
@@ -622,6 +708,15 @@ static YAP_Bool p_trie_load(void) {
 #undef arg_trie
 #undef arg_file
 
+/** @pred trie_stats(- _Memory_,- _Tries_,- _Entries_,- _Nodes_) 
+
+
+Give generic statistics on tries, including the amount of memory,
+ _Memory_, the number of tries,  _Tries_, the number of entries,
+ _Entries_, and the total number of nodes,  _Nodes_.
+
+ 
+*/
 
 /* trie_stats(-Memory,-Tries,-Entries,-Nodes) */
 #define arg_memory  YAP_ARG1
@@ -650,6 +745,15 @@ static YAP_Bool p_trie_stats(void) {
 
 
 /* trie_max_stats(-Memory,-Tries,-Entries,-Nodes) */
+/** @pred trie_max_stats(- _Memory_,- _Tries_,- _Entries_,- _Nodes_) 
+
+
+Give maximal statistics on tries, including the amount of memory,
+ _Memory_, the number of tries,  _Tries_, the number of entries,
+ _Entries_, and the total number of nodes,  _Nodes_.
+
+ 
+*/
 #define arg_memory  YAP_ARG1
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
@@ -675,6 +779,15 @@ static YAP_Bool p_trie_max_stats(void) {
 #undef arg_nodes
 
 
+/** @pred trie_usage(+ _Trie_,- _Entries_,- _Nodes_,- _VirtualNodes_) 
+
+
+Give statistics on trie  _Trie_, the number of entries,
+ _Entries_, and the total number of nodes,  _Nodes_, and the
+number of  _VirtualNodes_.
+
+ 
+*/
 /* trie_usage(+Trie,-Entries,-Nodes,-VirtualNodes) */
 #define arg_trie         YAP_ARG1
 #define arg_entries      YAP_ARG2
@@ -704,6 +817,15 @@ static YAP_Bool p_trie_usage(void) {
 
 
 /* trie_print(+Trie) */
+/** @pred trie_print(+ _Trie_) 
+
+
+Print trie  _Trie_ on standard output.
+
+
+
+
+ */
 #define arg_trie YAP_ARG1
 static YAP_Bool p_trie_print(void) {
   /* check arg */
@@ -979,3 +1101,5 @@ int WINAPI win_tries(HANDLE hinst, DWORD reason, LPVOID reserved)
   return 1;
 }
 #endif
+
+/// @}

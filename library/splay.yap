@@ -147,13 +147,9 @@ will fail if  _Key_ is not present.
 
  
 */
-/** @pred splay_init(- _NewTree_) 
+splay_access(V, Item, Val, Tree, NewTree):-
+	bst(access(V), Item, Val, Tree, NewTree).
 
-
-Initialize a new splay tree.
-
- 
-*/
 /** @pred splay_insert(+ _Key_,? _Val_,+ _Tree_,- _NewTree_) 
 
 
@@ -165,6 +161,13 @@ already there: rather it is unified with the item already in the tree.
 
  
 */
+splay_insert(Item, Val,Tree, NewTree):-
+	bst(insert, Item, Val, Tree, NewTree).
+
+splay_del(Item, Tree, NewTree):-
+	bst(access(true), Item, Val, Tree, n(Item, Val, Left, Right)),
+	splay_join(Left, Right, NewTree).
+
 /** @pred splay_join(+ _LeftTree_,+ _RighTree_,- _NewTree_) 
 
 
@@ -175,25 +178,16 @@ assumes that all items in  _LeftTree_ are less than all those in
 
  
 */
-/** @pred splay_split(+ _Key_,? _Val_,+ _Tree_,- _LeftTree_,- _RightTree_) 
+splay_join(Left, Right, New):-
+    join(L-L, Left, Right, New).
 
+/** @pred splay_split(+ _Key_,? _Val_,+ _Tree_,- _LeftTree_,- _RightTree_) 
 
 Construct and return two trees  _LeftTree_ and  _RightTree_,
 where  _LeftTree_ contains all items in  _Tree_ less than
  _Key_, and  _RightTree_ contains all items in  _Tree_
 greater than  _Key_. This operations destroys  _Tree_.
 */
-
- 
-splay_access(V, Item, Val, Tree, NewTree):-
-	bst(access(V), Item, Val, Tree, NewTree).
-splay_insert(Item, Val,Tree, NewTree):-
-	bst(insert, Item, Val, Tree, NewTree).
-splay_del(Item, Tree, NewTree):-
-	bst(access(true), Item, Val, Tree, n(Item, Val, Left, Right)),
-	splay_join(Left, Right, NewTree).
-splay_join(Left, Right, New):-
-	join(L-L, Left, Right, New).
 splay_split(Item, Val, Tree, Left, Right):-
 	bst(access(true), Item, Val, Tree, n(Item, Val, Left, Right)).
 
@@ -272,6 +266,13 @@ join(Left-n(Y, VY, n(X, VX, C, B), NL), n(X, VX, C, n(Y, VY, B, n(Z, VZ, A1, A2)
 	join(Left-NL, n(Z, VZ,A1, A2), Right, New).
  
 
+/** @pred splay_init(- _NewTree_) 
+
+
+Initialize a new splay tree.
+
+ 
+*/
 splay_init(_).
 
 /** @} */

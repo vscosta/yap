@@ -70,7 +70,7 @@
 % "Original License" means this Artistic License as Distributed with the
 % Standard Version of the Package, in its current version or as it may
 % be modified by The Perl Foundation in the future.
-% 
+ 
 % "Source" form means the source code, documentation source, and
 % configuration files for the Package.
 % 
@@ -462,18 +462,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_stop_timer(duration),
 	
 
-	logger_write_data,
-
-
-
-	RemainingIterations is Iterations-1,
-
-	(
-	 MSE_Diff>Epsilon
-	->
-	 do_learning_intern(RemainingIterations,Epsilon);
-	 true
-	).
+	logger_write_data.
 
 
 %========================================================================
@@ -587,7 +576,7 @@ empty_bdd_directory.
 set_default_gradient_method :-
     problog_flag(continuous_facts, true), 
     !,
-    problog_flag(init_method,OldMethod),
+    problog_flag(init_method,_OldMethod),
     format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
     set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
 set_default_gradient_method :-
@@ -595,9 +584,10 @@ set_default_gradient_method :-
     !,
     format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
     set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile))).
-set_default_gradient_method :-
-    problog_flag(init_method,(gene(X,Y),N,Bdd,graph2bdd(X,Y,N,Bdd))),
+/*set_default_gradient_method :-
+    problog_flag(init_method,(Goal,N,Bdd,graph2bdd(X,Y,N,Bdd))),
     !.
+*/
 set_default_gradient_method :-
     set_problog_flag(init_method,(Query,1,BDD,
 	problog_kbest_as_bdd(user:Query,1,BDD))).
@@ -618,24 +608,36 @@ bdd_input_file(Filename) :-
 	problog_flag(output_directory,Dir),
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
+init_one_query(QueryID,Query,_Type) :-
+    %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% if BDD file does not exist, call ProbLog
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	  b_setval(problog_required_keep_ground_ids,false),
+	  problog_flag(libbdd_init_method,(Query,Bdd,Call)),
+	  !,
+	  Bdd = bdd(Dir, Tree, MapList),
+%	  trace,
+	  once(Call),
+	  rb_new(H0),
+	  maplist_to_hash(MapList, H0, Hash),
+	  Tree \= [],
+%	  writeln(Dir:Tree:MapList),
+	  tree_to_grad(Tree, Hash, [], Grad).
+
 init_one_query(QueryID,Query,Type) :-
 %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% if BDD file does not exist, call ProbLog
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(
-	 recorded(QueryID, _, _)
-	->
-	 format_learning(3,' Reuse existing BDD ~q~n~n',[QueryID])
-	 ;
 	  b_setval(problog_required_keep_ground_ids,false),
-	  problog_flag(init_method,(Query,N,Bdd,graph2bdd(X,Y,N,Bdd))),
-	  Query =.. [_,X,Y]
-	  ->
+	  problog_flag(init_method,(Query,N,Bdd,_)),
+	  !,
 	  Bdd = bdd(Dir, Tree, MapList),
 	  (
-	      graph2bdd(X,Y,N,Bdd)
+	      user:graph2bdd(Query,N,Bdd)
 	  ->
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
@@ -645,156 +647,9 @@ init_one_query(QueryID,Query,Type) :-
 	  Bdd = bdd(-1,[],[]),
 	  Grad=[]
 	  ),
-	  recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	 ;
-	  b_setval(problog_required_keep_ground_ids,false),
-	  rb_new(H0),
-	  problog_flag(init_method,(Query,NOf,Bdd,problog_kbest_as_bdd(Call,1,Bdd))),
-	  strip_module(Call,_,gene(X,Y)),
-	  !,
-	  Bdd = bdd(Dir, Tree, MapList),
-%	  trace,
-	  problog:problog_kbest_as_bdd(user:gene(X,Y),1,Bdd),
-	  maplist_to_hash(MapList, H0, Hash),
-	  Tree \= [],
-	  %put_code(0'.),
-	  tree_to_grad(Tree, Hash, [], Grad),
-	 recordz(QueryID,bdd(Dir, Grad, MapList),_)
-	).
+	  recordz(QueryID,bdd(Dir, Grad, MapList),_).
 init_one_query(_QueryID,_Query,_Type) :-
     throw(unsupported_init_method).
-
-
-
-%========================================================================
-%= Updates all values of query_probability/2 and query_gradient/4
-%= should be called always before these predicates are accessed
-%= if the old values are still valid, nothing happens
-%========================================================================
-
-update_values :-
-	values_correct,
-	!.
-update_values :-
-	\+ values_correct,
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% delete old values
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),	
-
-
-	assertz(values_correct).
-
-
-
-%========================================================================
-%=
-%=
-%=
-%========================================================================
-
-update_query_cleanup(QueryID) :-
-	(
-	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
-	->
-	    % either this query is similar to another or vice versa,
-	    % therefore we don't delete anything
-	 true;
-	 retractall(query_gradient_intern(QueryID,_,_,_))
-	).
-
-
-update_query(QueryID,Symbol,What_To_Update) :-
-	(
-	 query_is_similar(QueryID,_)
-	->
-				% we don't have to evaluate the BDD
-	 format_learning(4,'#',[]);
-	 (
-	  problog_flag(sigmoid_slope,Slope),
-	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-	  gradient(QueryID, Method, Slope),
-	  format_learning(4,'~w',[Symbol])
-	 )
-	).
-
-bind_maplist([]).
-bind_maplist([Node-Theta|MapList]) :-
-	get_prob(Node, ProbFact),
-	inv_sigmoid(ProbFact, Theta),
-	bind_maplist(MapList).
-
-%get_prob(Node, Prob) :-
-%	query_probability(Node,Prob), !.
-get_prob(Node, Prob) :-
-	get_fact_probability(Node,Prob).
-
-gradient(QueryID, l, Slope) :-
-/*	query_probability(21,6.775948e-01). */
-        recorded(QueryID, bdd(Dir, Tree, MapList), _),
-	bind_maplist(MapList),
-	run_sp(Tree, Slope, 1.0, Prob0),
-	(Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0),
-	assert(query_probability_intern(QueryID,Prob)),
-	fail.
-gradient(_QueryID, l, _).
-gradient(QueryID, g, Slope) :-
-        recorded(QueryID, bdd(Dir, Tree, MapList), _),
-	bind_maplist(MapList),
-        member(I-_, MapList),
-	run_grad(Tree, I, Slope, 0.0, Grad0),
-	( Dir = 1 -> Grad = Grad0 ; Grad is -Grad0),
-%	writeln(grad(QueryID:I:Grad)),
-	assert(query_gradient_intern(QueryID,I,p,Grad)),
-	fail.
-gradient(QueryID, g, Slope) :-
-	gradient(QueryID, l, Slope).
-
-maplist_to_hash([], H0, H0).
-maplist_to_hash([I-V|MapList], H0, Hash) :-
-	rb_insert(H0, V, I, H1),
-	maplist_to_hash(MapList, H1, Hash).
-
-tree_to_grad([], _, Grad, Grad).
-tree_to_grad([Node|Tree], H, Grad0, Grad) :-
-	node_to_gradient_node(Node, H, GNode),
-	tree_to_grad(Tree, H, [GNode|Grad0], Grad).
-
-node_to_gradient_node(pp(P-G,X,L,R), H, gnodep(P,G,X,Id,PL,GL,PR,GR)) :-
-	rb_lookup(X,Id,H),
-	(L == 1 -> GL=0, PL=1 ; L == 0 -> GL = 0, PL=0 ; L = PL-GL),
-	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
-node_to_gradient_node(pn(P-G,X,L,R), H, gnoden(P,G,X,Id,PL,GL,PR,GR)) :-
-	rb_lookup(X,Id,H),
-	(L == 1 -> GL=0, PL=1 ; L == 0 -> GL = 0, PL=0 ; L = PL-GL),
-	(R == 1 -> GR=0, PR=1 ; R == 0 -> GR = 0, PR=0 ; R = PR-GR).
-        
-run_sp([], _, P0, P0).
-run_sp(gnodep(P,_G, X, _Id, PL, _GL, PR, _GR).Tree, Slope, _, PF) :-
-	EP = 1.0 / (1.0 + exp(-X * Slope) ),
-	P is EP*PL+ (1.0-EP)*PR,
-	run_sp(Tree, Slope, P, PF).
-run_sp(gnoden(P,_G, X, _Id, PL, _GL, PR, _GR).Tree, Slope, _, PF) :-
-	EP is 1.0 / (1.0 + exp(-X * Slope) ),
-	P is EP*PL + (1.0-EP)*(1.0 - PR),
-	run_sp(Tree, Slope, P, PF).
-
-run_grad([], _I, _, G0, G0).
-run_grad([gnodep(P,G, X, Id, PL, GL, PR, GR)|Tree], I, Slope, _, GF) :-
-	EP is 1.0/(1.0 + exp(-X * Slope)),
-	P is EP*PL+ (1.0-EP)*PR,
-	G0 is EP*GL + (1.0-EP)*GR,
-	% don' t forget the -X
-	( I == Id -> G is G0+(PL-PR)* EP*(1-EP)*Slope ; G = G0 ),
-	run_grad(Tree, I, Slope, G, GF).
-run_grad([gnoden(P,G, X, Id, PL, GL, PR, GR)|Tree], I, Slope, _, GF) :-
-	EP is 1.0 / (1.0 + exp(-X * Slope) ),
-	P is EP*PL + (1.0-EP)*(1.0 - PR),
-	G0 is EP*GL  - (1.0 - EP) * GR,
-	( I == Id -> G is G0+(PL+PR-1)*EP*(1-EP)*Slope ; G = G0 ),
-	run_grad(Tree, I, Slope, G, GF).
 
 
 
@@ -1568,6 +1423,7 @@ init_flags :-
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
+	problog_define_flag(libbdd_init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),

@@ -1,4 +1,4 @@
-qqqqq/*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -30,14 +30,410 @@ qqqqq/*************************************************************************
         add_to_path/1,
         add_to_path/2,
         path/1,
-        remove_from_path/1], ['$full_filename'/2,
-        '$system_library_directories'/2]).
+        remove_from_path/1], []).
 
-:- use_system_module( '$_boot', ['$system_catch'/4]).
 
-:- use_system_module( '$_errors', ['$do_error'/2]).
+absolute_file_name__(File,LOpts,TrueFileName) :-
+				%   must_be_of_type( atom, File ),
+     % look for solutions
+     gated_call(
+        '$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ),
+         '$find_in_path'(File, Opts,TrueFileName, HasSol, TakeFirst),
+         Port,
+     '$absf_port'(Port, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors )
+	).
 
-:- use_system_module( '$_lists', [member/2]).
+'$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+	( var(File) -> instantiation_error(File) ; true),
+	abs_file_parameters(LOpts,Opts),
+	current_prolog_flag(open_expands_filename, OldF),
+	current_prolog_flag( fileerrors, PreviousFileErrors ),
+	current_prolog_flag( verbose_file_search, PreviousVerbose ),
+	get_abs_file_parameter( verbose_file_search, Opts,Verbose ),
+	get_abs_file_parameter( expand, Opts, Expand ),
+	set_prolog_flag( verbose_file_search,  Verbose ),
+	get_abs_file_parameter( file_errors, Opts, FErrors ),
+	get_abs_file_parameter( solutions, Opts, TakeFirst ),
+	(  FErrors == fail -> FileErrors = false ; FileErrors = true ),
+	set_prolog_flag( fileerrors, FileErrors ),
+	set_prolog_flag(file_name_variables, Expand),
+	absf_trace(File),
+	'$absf_trace_options'(LOpts),
+    HasSol = t(no).
+
+'$absf_port'(answer, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+            '$absf_port'(exit, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
+'$absf_port'(exit, _File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, TakeFirst, _FileErrors ) :-
+    (TakeFirst == first -> ! ; nb_setarg(1, HasSol, yes) ),
+    set_prolog_flag( fileerrors, PreviousFileErrors ),
+    set_prolog_flag( open_expands_filename, OldF),
+    set_prolog_flag( verbose_file_search, PreviousVerbose ),
+    absf_trace(' |------- found  ~a', [TrueFileName]).
+'$absf_port'(redo, File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, Expand, Verbose, _TakeFirst, FileErrors ) :-
+    set_prolog_flag( fileerrors, FileErrors ),
+    set_prolog_flag( verbose_file_search, Verbose ),
+    set_prolog_flag( file_name_variables, Expand ),
+    absf_trace(' |------- restarted search for  ~a', [File]).
+'$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, _TakeFirst, FileErrors ) :-
+    absf_trace(' !------- failed.', []),
+    set_prolog_flag( fileerrors, PreviousFileErrors ),
+    set_prolog_flag( verbose_file_search, PreviousVerbose ),
+    set_prolog_flag(file_name_variables, OldF),
+    % check if no solution
+    arg(1,HasSol,no),
+    FileErrors = error,
+    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, ['...'])).
+'$absf_port'(!, _File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, _Expand, _Verbose, _TakeFirst, _FileErrors ).
+'$absf_port'(exception(_), File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+    '$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
+'$absf_port'(external_exception(_),  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
+    '$absf_port'(fail,  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
+
+
+prolog:core_file_name(Name, Opts) -->
+    '$file_name'(Name, Opts, E),
+    '$suffix'(E, Opts),
+    '$glob'(Opts).
+				%
+% handle library(lists) or foreign(jpl)
+%
+'$file_name'(Name, Opts, E) -->
+    { Name =.. [Lib, P0] },
+    !,
+    { user:file_search_path(Lib, IDirs) },
+    { '$paths'(IDirs, Dir ) },
+    absf_trace('  ~w first', [Dir]),
+    '$file_name'(Dir, Opts, _),
+    '$dir',
+    { absf_trace('  ~w next', [P0]) },
+    '$cat_file_name'(P0, E).
+'$file_name'(Name, _Opts, E) -->
+    '$cat_file_name'(Name, E ).
+    /*
+    (
+     {
+	get_abs_file_parameter( file_type, _Opts, Lib ),
+       nonvar(Lib)
+     }
+     ->
+     { user:file_search_path(Lib, IDirs) },
+    { '$paths'(IDirs, Dir ) },
+    absf_trace('  ~w first', [Dir]),
+    '$file_name'(Dir, Opts, _),
+    '$dir',
+    { absf_trace('  ~w next', [P0]) }
+    ;
+    []
+    ).
+   */
+
+
+'$cat_file_name'(A/B, E	) -->
+    '$cat_file_name'(A, _),
+    '$dir',
+    '$cat_file_name'(B, E).
+'$cat_file_name'(File, F) -->
+    { atom(File), atom_codes(File, F) },
+    !,
+    F.
+'$cat_file_name'(File, S) -->
+    {string(File), string_codes(File, S) },
+    S.
+
+
+'$variable_expansion'( Path, Opts, APath ) :-
+    get_abs_file_parameter( expand, Opts, true ),
+    !,
+    '$expand_file_name'( Path, APath ).
+'$variable_expansion'( Path, _, Path ).
+
+
+'$var'(S) -->
+    "{", !, '$id'(S), "}".
+'$var'(S) -->
+    '$id'(S).
+
+'$drive'(C) -->
+    '$id'(C),
+    ":\\\\".
+
+'$id'([C|S]) --> [C],
+	     { C >= "a", C =< "z" ;  C >= "A", C =< "Z" ;
+	       C >= "0", C =< "9" ;  C =:= "_" },
+	     !,
+	     '$id'(S).
+'$id'([]) --> [].
+
+
+% always verify if a directory
+'$check_file'(F, directory, _) :-
+	!,
+	exists_directory(F).
+'$check_file'(_F, _Type, none) :- !.
+'$check_file'(F, _Type, exist) :-
+    '$access_file'(F, exist). % if it has a type cannot be a directory..
+'$check_file'(F, _Type, Access) :-
+    '$access_file'(F, Access),
+    \+ exists_directory(F). % if it has a type cannot be a directory..
+
+'$suffix'(Last, _Opts) -->
+    { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },
+    absf_trace(' suffix in ~s', [Alphas]),
+    !.
+'$suffix'(_, Opts) -->
+    {
+ 	(
+	    get_abs_file_parameter( extensions, Opts, Exts ),
+	    Exts \= []
+	 ->
+	     lists:member(Ext, Exts),
+	    absf_trace(' trying suffix ~a from ~w', [Ext,Exts])
+	 ;
+	 get_abs_file_parameter( file_type, Opts, Type ),
+	 ( Type == source -> NType = prolog ; NType = Type ),
+	 user:prolog_file_type(Ext, NType)
+	),
+	absf_trace(' trying suffix ~a from type ~a', [Ext, NType]),
+	atom_codes(Ext, Cs)
+    },
+    '$add_suffix'(Cs).
+'$suffix'(_,_Opts) -->
+    absf_trace(' try no suffix', []).
+
+'$add_suffix'(Cs) -->
+    (
+	{ Cs = [0'. |_Codes] }
+	->
+	    Cs
+	;
+	".", Cs ).
+
+'$glob'(Opts) -->
+    {
+	get_abs_file_parameter( glob, Opts, G ),
+	G \= '',
+	atom_codes( G, Gs )
+    },
+    !,
+    '$dir',
+    Gs.
+'$glob'(_Opts) -->
+	[].
+
+'$enumerate_glob'(_File1, [ExpFile], ExpFile) :-
+    !.
+'$enumerate_glob'(_File1, ExpFiles, ExpFile) :-
+    lists:member(ExpFile, ExpFiles),
+    file_base_name( ExpFile, Base ),
+    Base \= '.',
+    Base \='..'.
+
+'$file_prefix'( CorePath, _Opts) -->
+    { is_absolute_file_name( CorePath ) },
+    !,
+    CorePath.
+'$file_prefix'( CorePath, Opts) -->
+    {  get_abs_file_parameter( relative_to, Opts, File_Prefix ),
+       File_Prefix \= '',
+       absf_trace('    relative_to ~a', [File_Prefix]),
+       sub_atom(File_Prefix, _, 1, 0, Last),
+       atom_codes(File_Prefix, S)
+    },
+    !,
+    S,
+    '$dir'(Last),
+    CorePath.
+'$file_prefix'( CorePath,  _) -->
+    {
+	recorded('$path',File_Prefix,_),
+       absf_trace('    try YAP path database ~a', [File_Prefix]),
+       sub_atom(File_Prefix, _, _, 1, Last),
+	atom_codes(File_Prefix, S)    },
+    S,
+    '$dir'(Last),
+    CorePath.
+'$file_prefix'(CorePath, _ ) -->
+    absf_trace('    empty file_prefix                  ', []),
+    CorePath.
+
+
+'$dir' --> { current_prolog_flag(windows, true) },
+	   "\\",
+	   !.
+'$dir' --> "/".
+
+'$dir'('/') --> !.
+'$dir'('\\') --> { current_prolog_flag(windows, true) },
+	   !.
+'$dir'(_) --> '$dir'.
+
+%
+%
+%
+'$system_library_directories'(library, Dir) :-
+	user:library_directory( Dir ).
+%	'$split_by_sep'(0, 0, Dirs, Dir).
+'$system_library_directories'(foreign, Dir) :-
+    user:foreign_directory( Dir ).
+% compatibility with old versions
+%
+% search the current directory  first.
+'$system_library_directories'(commons, Dir) :-
+	user:commons_directory( Dir ).
+
+
+% enumerate all paths separated by a path_separator.
+'$paths'(Cs, C) :-
+    atom(Cs),
+    (	current_prolog_flag(windows, true) -> Sep = ';' ; Sep = ':' ),
+    sub_atom(Cs, N0, 1, N, Sep),
+    !,
+    (
+	     sub_atom(Cs,0,N0,_,C)
+     ;
+        sub_atom(Cs,_,N,0,RC),
+        '$paths'(RC, C)
+    ).
+'$paths'(S, S).
+
+absf_trace(Msg, Args ) -->
+    { current_prolog_flag( verbose_file_search, true ) },
+    { print_message( informational, absolute_file_path( Msg, Args ) ) },
+    !.
+absf_trace(_Msg, _Args ) --> [].
+
+absf_trace(Msg, Args ) :-
+    current_prolog_flag( verbose_file_search, true ),
+    print_message( informational, absolute_file_path( Msg, Args ) ),
+    !.
+absf_trace(_Msg, _Args ).
+
+absf_trace( File ) :-
+	current_prolog_flag( verbose_file_search, true ),
+	print_message( informational, absolute_file_path( File ) ),
+	!.
+absf_trace( _File ).
+
+'$absf_trace_options'(Args ) :-
+	current_prolog_flag( verbose_file_search, true ),
+	print_message( informational, arguments( Args ) ),
+	!.
+'$absf_trace_options'( _Args ).
+
+/** @pred prolog_file_name( +File, -PrologFileaNme)
+
+Unify _PrologFileName_ with the Prolog file associated to _File_.
+
+*/
+prolog_file_name(File, PrologFileName) :-
+	var(File), !,
+	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+	atom(File), !,
+	system:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+	'$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
+
+/**
+  @pred path(-Directories:list) is det,deprecated
+
+ YAP specific procedure that returns a list of user-defined directories
+ in the library search-path.We suggest using user:file_search_path/2 for
+ compatibility with other Prologs.
+*/
+path(Path) :-
+	findall(X,'$in_path'(X),Path).
+
+'$in_path'(X) :-
+	recorded('$path',Path,_),
+	atom_codes(Path,S),
+	( S = []  -> X = '.' ;
+	  atom_codes(X,S) ).
+
+/**
+  @pred add_to_path(+Directory:atom) is det,deprecated
+
+  YAP-specific predicate to include directory in library search path.
+  We suggest using user:file_search_path/2 for
+  compatibility with other Prologs.
+*/
+add_to_path(New) :-
+	add_to_path(New,last).
+
+/**
+  @pred add_to_path(+Directory:atom, +Position:atom) is det,deprecated
+
+  YAP-specific predicate to include directory in front or back of
+  library search path. We suggest using user:file_search_path/2 for
+  compatibility with other Prologs and more extensive functionality.
+*/
+add_to_path(New,Pos) :-
+	atom(New), !,
+	'$check_path'(New,Str),
+	atom_codes(Path,Str),
+	'$add_to_path'(Path,Pos).
+
+'$add_to_path'(New,_) :-
+	recorded('$path',New,R),
+	erase(R),
+	fail.
+'$add_to_path'(New,last) :-
+	!,
+	recordz('$path',New,_).
+'$add_to_path'(New,first) :-
+	recorda('$path',New,_).
+
+/**  @pred   remove_from_path(+Directory:atom) is det,deprecated
+
+@}
+
+*/
+remove_from_path(New) :- '$check_path'(New,Path),
+			recorded('$path',Path,R), erase(R).
+
+'$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
+'$check_path'([],[]).
+'$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
+'$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
+'$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
+
+% This sequence must be followed:
+% user and user_input are special;
+% library(F) must check library_directories
+% T(F) must check file_search_path
+% all must try search in path
+'$find_in_path'(user,_,user_input,  _, _) :- !.
+'$find_in_path'(user_input,_,user_input, _, _) :- !.
+'$find_in_path'(user_output,_,user_ouput, _, _) :- !.
+'$find_in_path'(user_error,_,user_error, _, _) :- !.
+'$find_in_path'(Name, Opts, File, _, First) :-
+    %    (	atom(Name) -> true ; start_low_level_trace ),
+	get_abs_file_parameter( file_type, Opts, Type ),
+    get_abs_file_parameter( access, Opts, Access ),
+    get_abs_file_parameter( expand, Opts, Expand ),
+    absf_trace('start with ~w', [Name]),
+    prolog:core_file_name(Name, Opts, CorePath, []),
+    absf_trace('  after name/library unfolding: ~w', [Name]),
+    '$variable_expansion'(CorePath, Opts,ExpandedPath),
+    absf_trace('   after environment variable expansion: ~s', [ExpandedPath]),
+    '$file_prefix'(ExpandedPath, Opts, Path , []),
+    absf_trace('    after file_prefix expansion: ~s', [Path]),
+    atom_codes( APath, Path ),
+    (
+	   Expand = true
+     ->
+	    expand_file_name( APath, EPaths),
+	     absf_trace('     after shell globbing: ~w', [EPaths]),
+	      lists:member(EPath, EPaths)
+     ;
+         EPath = APath
+    ),
+    real_path( EPath, File),
+    absf_trace('      after canonical path name: ~a', [File]),
+    '$check_file'( File, Type, Access ),
+    absf_trace('       after testing ~a for ~a and ~a', [File,Type,Access]),
+    (First == first -> ! ; true ).
 
 /**
 
@@ -144,7 +540,7 @@ absolute_file_name(File,TrueFileName,Opts) :-
     !,
     absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
-    '$absolute_file_name'(File,Opts,TrueFileName).
+    absolute_file_name__(File,Opts,TrueFileName).
 
 /**
   @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
@@ -156,408 +552,4 @@ absolute_file_name(V,Out) :- var(V),
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
 absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
-	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File).
-
-'$absolute_file_name'(File,LOpts,TrueFileName) :-
-				%   must_be_of_type( atom, File ),
-     % look for solutions
-     gated_call(
-
-        '$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ),
-         '$find_in_path'(File, Opts,TrueFileName, HasSol, TakeFirst),
-         Port,
-     '$absf_port'(Port, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors )
-	).
-
-'$enter_absf'( File, LOpts, Opts, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
-	( var(File) -> instantiation_error(File) ; true),
-	abs_file_parameters(LOpts,Opts),
-	current_prolog_flag(open_expands_filename, OldF),
-	current_prolog_flag( fileerrors, PreviousFileErrors ),
-	current_prolog_flag( verbose_file_search, PreviousVerbose ),
-	get_abs_file_parameter( verbose_file_search, Opts,Verbose ),
-	get_abs_file_parameter( expand, Opts, Expand ),
-	set_prolog_flag( verbose_file_search,  Verbose ),
-	get_abs_file_parameter( file_errors, Opts, FErrors ),
-	get_abs_file_parameter( solutions, Opts, TakeFirst ),
-	(  FErrors == fail -> FileErrors = false ; FileErrors = true ),
-	set_prolog_flag( fileerrors, FileErrors ),
-	set_prolog_flag(file_name_variables, Expand),
-	'$absf_trace'(File),
-	'$absf_trace_options'(LOpts),
-    HasSol = t(no).
-
-'$absf_port'(answer, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
-            '$absf_port'(exit, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
-'$absf_port'(exit, _File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, TakeFirst, _FileErrors ) :-
-    (TakeFirst == first -> ! ; nb_setarg(1, HasSol, yes) ),
-    set_prolog_flag( fileerrors, PreviousFileErrors ),
-    set_prolog_flag( open_expands_filename, OldF),
-    set_prolog_flag( verbose_file_search, PreviousVerbose ),
-    '$absf_trace'(' |------- found  ~a', [TrueFileName]).
-'$absf_port'(redo, File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, Expand, Verbose, _TakeFirst, FileErrors ) :-
-    set_prolog_flag( fileerrors, FileErrors ),
-    set_prolog_flag( verbose_file_search, Verbose ),
-    set_prolog_flag( file_name_variables, Expand ),
-    '$absf_trace'(' |------- restarted search for  ~a', [File]).
-'$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, _Expand, _Verbose, _TakeFirst, FileErrors ) :-
-    '$absf_trace'(' !------- failed.', []),
-    set_prolog_flag( fileerrors, PreviousFileErrors ),
-    set_prolog_flag( verbose_file_search, PreviousVerbose ),
-    set_prolog_flag(file_name_variables, OldF),
-    % check if no solution
-    arg(1,HasSol,no),
-    FileErrors = error,
-    '$do_error'(existence_error(file,File),absolute_file_name(File, TrueFileName, ['...'])).
-'$absf_port'(!, _File, _TrueFileName, _HasSol, _OldF, _PreviousFileErrors, _PreviousVerbose, _Expand, _Verbose, _TakeFirst, _FileErrors ).
-'$absf_port'(exception(_), File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
-    '$absf_port'(fail, File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
-'$absf_port'(external_exception(_),  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ) :-
-    '$absf_port'(fail,  File, TrueFileName, HasSol, OldF, PreviousFileErrors, PreviousVerbose, Expand, Verbose, TakeFirst, FileErrors ).
-
-% This sequence must be followed:
-% user and user_input are special;
-% library(F) must check library_directories
-% T(F) must check file_search_path
-% all must try search in path
-'$find_in_path'(user,_,user_input,  _, _) :- !.
-'$find_in_path'(user_input,_,user_input, _, _) :- !.
-'$find_in_path'(user_output,_,user_ouput, _, _) :- !.
-'$find_in_path'(user_error,_,user_error, _, _) :- !.
-'$find_in_path'(Name, Opts, File, _, First) :-
-    %    (	atom(Name) -> true ; start_low_level_trace ),
-	get_abs_file_parameter( file_type, Opts, Type ),
-    get_abs_file_parameter( access, Opts, Access ),
-    get_abs_file_parameter( expand, Opts, Expand ),
-    '$absf_trace'('start with ~w', [Name]),
-    '$core_file_name'(Name, Opts, CorePath, []),
-    '$absf_trace'('  after name/library unfolding: ~w', [Name]),
-    '$variable_expansion'(CorePath, Opts,ExpandedPath),
-    '$absf_trace'('   after environment variable expansion: ~s', [ExpandedPath]),
-    '$file_prefix'(ExpandedPath, Opts, Path , []),
-    '$absf_trace'('    after file_prefix expansion: ~s', [Path]),
-    atom_codes( APath, Path ),
-    (
-	   Expand = true
-     ->
-	    expand_file_name( APath, EPaths),
-	     '$absf_trace'('     after shell globbing: ~w', [EPaths]),
-	      lists:member(EPath, EPaths)
-     ;
-         EPath = APath
-    ),
-    real_path( EPath, File),
-    '$absf_trace'('      after canonical path name: ~a', [File]),
-    '$check_file'( File, Type, Access ),
-    '$absf_trace'('       after testing ~a for ~a and ~a', [File,Type,Access]),
-    (First == first -> ! ; true ).
-
-				% allow paths in File Name
-'$core_file_name'(Name, Opts) -->
-    '$file_name'(Name, Opts, E),
-    '$suffix'(E, Opts),
-    '$glob'(Opts).
-
-				%
-% handle library(lists) or foreign(jpl)
-%
-'$file_name'(Name, Opts, E) -->
-    { Name =.. [Lib, P0] },
-    !,
-    { user:file_search_path(Lib, IDirs) },
-    { '$paths'(IDirs, Dir ) },
-    '$absf_trace'('  ~w first', [Dir]),
-    '$file_name'(Dir, Opts, _),
-    '$dir',
-    { '$absf_trace'('  ~w next', [P0]) },
-    '$cat_file_name'(P0, E).
-'$file_name'(Name, _Opts, E) -->
-    '$cat_file_name'(Name, E ).
-    /*
-    (
-     {
-	get_abs_file_parameter( file_type, _Opts, Lib ),
-       nonvar(Lib)
-     }
-     ->
-     { user:file_search_path(Lib, IDirs) },
-    { '$paths'(IDirs, Dir ) },
-    '$absf_trace'('  ~w first', [Dir]),
-    '$file_name'(Dir, Opts, _),
-    '$dir',
-    { '$absf_trace'('  ~w next', [P0]) }
-    ;
-    []
-    ).
-   */
-
-
-'$cat_file_name'(A/B, E	) -->
-    '$cat_file_name'(A, _),
-    '$dir',
-    '$cat_file_name'(B, E).
-'$cat_file_name'(File, F) -->
-    { atom(File), atom_codes(File, F) },
-    !,
-    F.
-'$cat_file_name'(File, S) -->
-    {string(File), string_codes(File, S) },
-    S.
-
-
-'$variable_expansion'( Path, Opts, APath ) :-
-    get_abs_file_parameter( expand, Opts, true ),
-    !,
-    '$expand_file_name'( Path, APath ).
-'$variable_expansion'( Path, _, Path ).
-
-
-'$var'(S) -->
-    "{", !, '$id'(S), "}".
-'$var'(S) -->
-    '$id'(S).
-
-'$drive'(C) -->
-    '$id'(C),
-    ":\\\\".
-
-'$id'([C|S]) --> [C],
-	     { C >= "a", C =< "z" ;  C >= "A", C =< "Z" ;
-	       C >= "0", C =< "9" ;  C =:= "_" },
-	     !,
-	     '$id'(S).
-'$id'([]) --> [].
-
-
-% always verify if a directory
-'$check_file'(F, directory, _) :-
-	!,
-	exists_directory(F).
-'$check_file'(_F, _Type, none) :- !.
-'$check_file'(F, _Type, exist) :-
-    '$access_file'(F, exist). % if it has a type cannot be a directory..
-'$check_file'(F, _Type, Access) :-
-    '$access_file'(F, Access),
-    \+ exists_directory(F). % if it has a type cannot be a directory..
-
-'$suffix'(Last, _Opts) -->
-    { lists:append(_, [0'.|Alphas], Last), '$id'(Alphas, _, [] ) },
-    '$absf_trace'(' suffix in ~s', [Alphas]),
-    !.
-'$suffix'(_, Opts) -->
-    {
- 	(
-	    get_abs_file_parameter( extensions, Opts, Exts ),
-	    Exts \= []
-	 ->
-	     lists:member(Ext, Exts),
-	    '$absf_trace'(' trying suffix ~a from ~w', [Ext,Exts])
-	 ;
-	 get_abs_file_parameter( file_type, Opts, Type ),
-	 ( Type == source -> NType = prolog ; NType = Type ),
-	 user:prolog_file_type(Ext, NType)
-	),
-	'$absf_trace'(' trying suffix ~a from type ~a', [Ext, NType]),
-	atom_codes(Ext, Cs)
-    },
-    '$add_suffix'(Cs).
-'$suffix'(_,_Opts) -->
-    '$absf_trace'(' try no suffix', []).
-
-'$add_suffix'(Cs) -->
-    (
-	{ Cs = [0'. |_Codes] }
-	->
-	    Cs
-	;
-	".", Cs ).
-
-'$glob'(Opts) -->
-    {
-	get_abs_file_parameter( glob, Opts, G ),
-	G \= '',
-	atom_codes( G, Gs )
-    },
-    !,
-    '$dir',
-    Gs.
-'$glob'(_Opts) -->
-	[].
-
-'$enumerate_glob'(_File1, [ExpFile], ExpFile) :-
-    !.
-'$enumerate_glob'(_File1, ExpFiles, ExpFile) :-
-    lists:member(ExpFile, ExpFiles),
-    file_base_name( ExpFile, Base ),
-    Base \= '.',
-    Base \='..'.
-
-'$file_prefix'( CorePath, _Opts) -->
-    { is_absolute_file_name( CorePath ) },
-    !,
-    CorePath.
-'$file_prefix'( CorePath, Opts) -->
-    {  get_abs_file_parameter( relative_to, Opts, File_Prefix ),
-       File_Prefix \= '',
-       '$absf_trace'('    relative_to ~a', [File_Prefix]),
-       sub_atom(File_Prefix, _, 1, 0, Last),
-       atom_codes(File_Prefix, S)
-    },
-    !,
-    S,
-    '$dir'(Last),
-    CorePath.
-'$file_prefix'( CorePath,  _) -->
-    {
-	recorded('$path',File_Prefix,_),
-       '$absf_trace'('    try YAP path database ~a', [File_Prefix]),
-       sub_atom(File_Prefix, _, _, 1, Last),
-	atom_codes(File_Prefix, S)    },
-    S,
-    '$dir'(Last),
-    CorePath.
-'$file_prefix'(CorePath, _ ) -->
-    '$absf_trace'('    empty file_prefix                  ', []),
-    CorePath.
-
-
-'$dir' --> { current_prolog_flag(windows, true) },
-	   "\\",
-	   !.
-'$dir' --> "/".
-
-'$dir'('/') --> !.
-'$dir'('\\') --> { current_prolog_flag(windows, true) },
-	   !.
-'$dir'(_) --> '$dir'.
-
-%
-%
-%
-'$system_library_directories'(library, Dir) :-
-	user:library_directory( Dir ).
-%	'$split_by_sep'(0, 0, Dirs, Dir).
-'$system_library_directories'(foreign, Dir) :-
-    user:foreign_directory( Dir ).
-% compatibility with old versions
-%
-% search the current directory  first.
-'$system_library_directories'(commons, Dir) :-
-	user:commons_directory( Dir ).
-
-
-% enumerate all paths separated by a path_separator.
-'$paths'(Cs, C) :-
-    atom(Cs),
-    (	current_prolog_flag(windows, true) -> Sep = ';' ; Sep = ':' ),
-    sub_atom(Cs, N0, 1, N, Sep),
-    !,
-    (
-	     sub_atom(Cs,0,N0,_,C)
-     ;
-        sub_atom(Cs,_,N,0,RC),
-        '$paths'(RC, C)
-    ).
-'$paths'(S, S).
-
-'$absf_trace'(Msg, Args ) -->
-    { current_prolog_flag( verbose_file_search, true ) },
-    { print_message( informational, absolute_file_path( Msg, Args ) ) },
-    !.
-'$absf_trace'(_Msg, _Args ) --> [].
-
-'$absf_trace'(Msg, Args ) :-
-    current_prolog_flag( verbose_file_search, true ),
-    print_message( informational, absolute_file_path( Msg, Args ) ),
-    !.
-'$absf_trace'(_Msg, _Args ).
-
-'$absf_trace'( File ) :-
-	current_prolog_flag( verbose_file_search, true ),
-	print_message( informational, absolute_file_path( File ) ),
-	!.
-'$absf_trace'( _File ).
-
-'$absf_trace_options'(Args ) :-
-	current_prolog_flag( verbose_file_search, true ),
-	print_message( informational, arguments( Args ) ),
-	!.
-'$absf_trace_options'( _Args ).
-
-/** @pred prolog_file_name( +File, -PrologFileaNme)
-
-Unify _PrologFileName_ with the Prolog file associated to _File_.
-
-*/
-prolog_file_name(File, PrologFileName) :-
-	var(File), !,
-	'$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
-prolog_file_name(user, Out) :- !, Out = user.
-prolog_file_name(File, PrologFileName) :-
-	atom(File), !,
-	system:true_file_name(File, PrologFileName).
-prolog_file_name(File, PrologFileName) :-
-	'$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
-
-/**
-  @pred path(-Directories:list) is det,deprecated
-
- YAP specific procedure that returns a list of user-defined directories
- in the library search-path.We suggest using user:file_search_path/2 for
- compatibility with other Prologs.
-*/
-path(Path) :-
-	findall(X,'$in_path'(X),Path).
-
-'$in_path'(X) :-
-	recorded('$path',Path,_),
-	atom_codes(Path,S),
-	( S = []  -> X = '.' ;
-	  atom_codes(X,S) ).
-
-/**
-  @pred add_to_path(+Directory:atom) is det,deprecated
-
-  YAP-specific predicate to include directory in library search path.
-  We suggest using user:file_search_path/2 for
-  compatibility with other Prologs.
-*/
-add_to_path(New) :-
-	add_to_path(New,last).
-
-/**
-  @pred add_to_path(+Directory:atom, +Position:atom) is det,deprecated
-
-  YAP-specific predicate to include directory in front or back of
-  library search path. We suggest using user:file_search_path/2 for
-  compatibility with other Prologs and more extensive functionality.
-*/
-add_to_path(New,Pos) :-
-	atom(New), !,
-	'$check_path'(New,Str),
-	atom_codes(Path,Str),
-	'$add_to_path'(Path,Pos).
-
-'$add_to_path'(New,_) :-
-	recorded('$path',New,R),
-	erase(R),
-	fail.
-'$add_to_path'(New,last) :-
-	!,
-	recordz('$path',New,_).
-'$add_to_path'(New,first) :-
-	recorda('$path',New,_).
-
-/**  @pred   remove_from_path(+Directory:atom) is det,deprecated
-
-@}
-
-*/
-remove_from_path(New) :- '$check_path'(New,Path),
-			recorded('$path',Path,R), erase(R).
-
-'$check_path'(At,SAt) :- atom(At), !, atom_codes(At,S), '$check_path'(S,SAt).
-'$check_path'([],[]).
-'$check_path'([Ch],[Ch]) :- '$dir_separator'(Ch), !.
-'$check_path'([Ch],[Ch,A]) :- !, integer(Ch), '$dir_separator'(A).
-'$check_path'([N|S],[N|SN]) :- integer(N), '$check_path'(S,SN).
+	absolute_file_name__(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File).

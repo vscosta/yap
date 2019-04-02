@@ -41,7 +41,6 @@
         '$convert_for_export'/7,
         '$do_import'/3,
         '$extend_exports'/3,
-        '$get_undefined_pred'/4,
         '$imported_predicate'/2,
         '$meta_expand'/6,
         '$meta_predicate'/2,
@@ -85,6 +84,8 @@
 
 /**
    @pred use_module( +Files ) is directive
+
+
    @brief load a module file
 
 This predicate loads the file specified by _Files_, importing all
@@ -302,23 +303,13 @@ use_module(F,Is) :-
 % and remove import.
 %
 '$not_imported'(H, Mod) :-
-    recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
     NM \= Mod,
     functor(NH,N,Ar),
     print_message(warning,redefine_imported(Mod,NM,N/Ar)),
     erase(R),
     fail.
 '$not_imported'(_, _).
-
-
-'$verify_import'(_M:G, prolog:G) :-
-    '$is_system_predicate'(G, prolog).
-'$verify_import'(M:G, NM:NG) :-
-    '$get_undefined_pred'(G, M, NG, NM),
-    !.
-'$verify_import'(MG, MG).
-
-
 
 
 /** @pred current_module( ? Mod:atom) is nondet
@@ -453,34 +444,35 @@ export_list(Module, List) :-
 	'$add_to_imports'(Tab, Module, ContextModule).
 
 %'$do_import'(K, _, _) :- writeln(K), fail.
-'$do_import'(op(Prio,Assoc,Name), _Mod, ContextMod) :-
-	op(Prio,Assoc,ContextMod:Name).
+'$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
+	op(Prio,Assoc,Mod:Name),
+	op(Prio,Assoc,ContextMod:Name),
+!.
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
-'$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
-       recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
-       once(lists:member(N1/K, MyExports)),
-       functor(S, N1, K),
-       %  reexport predicates if they are undefined in the current module.
-       \+ '$undefined'(S,ContextMod), !.
-'$do_import'( N/K-N1/K, Mod, ContextMod) :-
-	functor(G,N,K),
-	'$follow_import_chain'(Mod,G,M0,G0),
-	G0=..[_N0|Args],
-	G1=..[N1|Args],
-	( '$check_import'(M0,ContextMod,N1,K) ->
-	  ( ContextMod == prolog ->
-      recordzifnot('$import','$import'(M0,user,G0,G1,N1,K),_),
-        fail
-	  ;
-	    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-        fail
-        ;
-        true
-	  )
+% '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
+%        recorded('$module','$module'(_F, ContextMod, _SourceF, MyExports,_),_),
+%        once(lists:member(N1/K, MyExports)),
+%        functor(S, N1, K),
+%        %  reexport predicates if they are undefined in the current module.
+%        \+ '$undefined'(S,ContextMod), !.
+'$do_import'( N0/K-N1/K, M0, ContextMod) :-
+	%'$one_predicate_definition'(Mod:G,M0:G0),
+%	M0\=prolog,
+	(M0==ContextMod->N0\=N1;true),
+	functor(G1,N1,K),
+	(N0 == N1
+	->
+	G0=G1
 	;
-	  true
-	).
+	G1=..[N1|Args],
+	G0=..[N0|Args]
+	),
+	%writeln((ContextMod:G1:-M0:G0)),
+		recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+	!.
+'$do_import'( _,_,_ ).
+
 
 '$follow_import_chain'(M,G,M0,G0) :-
 	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
@@ -492,7 +484,7 @@ export_list(Module, List) :-
 	recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
 	% dereference MI to M1, in order to find who
 	% is actually generating
-	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 ),
+	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 	),
 	( '$module_produced by'(M2, Mod, N, K) -> true ; Mod = M2 ),
 	M2 \= M1,  !,
     '$redefine_import'( M1, M2, Mod, ContextM, N/K).
@@ -535,7 +527,7 @@ other source modules.
 This built-in was introduced by SWI-Prolog. In YAP, by default, modules only
 inherit from `prolog`. This extension allows predicates in the current
 module (see module/2 and module/1) to inherit from `user` or other modules.
-
+  x2
 */
 set_base_module(ExportingModule) :-
 	var(ExportingModule),
@@ -739,4 +731,5 @@ module_state :-
 	fail.
 module_state.
 
-%% @}
+%% @}imports
+

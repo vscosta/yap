@@ -74,6 +74,49 @@ static void kill_first_log_iblock(LogUpdIndex *, LogUpdIndex *, PredEntry *);
 #define PredArity(p) (p->ArityOfPE)
 #define TRYCODE(G, F, N) ((N) < 5 ? (op_numbers)((int)F + (N)*3) : G)
 
+PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
+  Term t0 = t;
+
+restart:
+  if (IsVarTerm(t)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+    return NULL;
+  } else if (IsAtomTerm(t)) {
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
+    return ap;
+  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
+    return Yap_FindLUIntKey(IntegerOfTerm(t));
+  } else if (IsPairTerm(t)) {
+    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
+    goto restart;
+  } else if (IsApplTerm(t)) {
+    Functor fun = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, t, pname);
+      return NULL;
+    }
+    if (fun == FunctorModule) {
+      Term tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
+        return NULL;
+      }
+      if (!IsAtomTerm(tmod)) {
+        Yap_ThrowError(TYPE_ERROR_ATOM, t0, pname);
+        return NULL;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
+    return ap;
+  } else {
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+  }
+  return NULL;
+}
+
+
 static void InitConsultStack(void) {
   CACHE_REGS
   LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj) *
@@ -120,47 +163,6 @@ bool Yap_Consulting(USES_REGS1) {
  * assertz are supported for static predicates no database predicates are
  * supportted for fast predicates
  */
-PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
-  Term t0 = t;
-
-restart:
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t0, pname);
-    return NULL;
-  } else if (IsAtomTerm(t)) {
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByAtom(AtomOfTerm(t), tmod));
-    return ap;
-  } else if (IsIntegerTerm(t) && tmod == IDB_MODULE) {
-    return Yap_FindLUIntKey(IntegerOfTerm(t));
-  } else if (IsPairTerm(t)) {
-    t = Yap_MkApplTerm(FunctorCsult, 1, &t);
-    goto restart;
-  } else if (IsApplTerm(t)) {
-    Functor fun = FunctorOfTerm(t);
-    if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
-      return NULL;
-    }
-    if (fun == FunctorModule) {
-      Term tmod = ArgOfTerm(1, t);
-      if (IsVarTerm(tmod)) {
-        Yap_Error(INSTANTIATION_ERROR, t0, pname);
-        return NULL;
-      }
-      if (!IsAtomTerm(tmod)) {
-        Yap_Error(TYPE_ERROR_ATOM, t0, pname);
-        return NULL;
-      }
-      t = ArgOfTerm(2, t);
-      goto restart;
-    }
-    PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
-    return ap;
-  } else {
-    Yap_Error(TYPE_ERROR_CALLABLE, t0, pname);
-  }
-  return NULL;
-}
 
 /** Look for a predicate with same functor as t,
      create a new one of it cannot find it.
@@ -179,7 +181,7 @@ restart:
   } else if (IsApplTerm(t)) {
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
-      Yap_Error(TYPE_ERROR_CALLABLE, Yap_PredicateIndicator(t, tmod), pname);
+      Yap_Error(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, tmod), pname);
       return NULL;
     }
     if (fun == FunctorModule) {
@@ -349,7 +351,7 @@ static void split_megaclause(PredEntry *ap) {
 
   mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
   if (mcl->ClFlags & ExoMask) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil,
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(ap),
               "while deleting clause from exo predicate %s/%d\n",
               RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE,
               ap->ArityOfPE);
@@ -1469,34 +1471,30 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
 }
 
 static yamop *addcl_permission_error(const char *file, const char *function,
-                                     int lineno, AtomEntry *ap, Int Arity,
+                                     int lineno, PredEntry *ap,
                                      int in_use) {
   CACHE_REGS
-  Term culprit;
-  if (Arity == 0)
-    culprit = MkAtomTerm(AbsAtom(ap));
-  else
-    culprit = Yap_MkNewApplTerm(Yap_MkFunctor(AbsAtom(ap), Arity), Arity);
-  return (in_use
-              ? (Arity == 0
+    Term culprit = Yap_PredicateToIndicator( ap);
+  return in_use
+              ? (ap->ArityOfPE == 0
                      ? Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "static predicate %s is in use",
-                                   ap->StrOfAE)
+                                   NameOfPred(ap)->StrOfAE)
                      : Yap_Error__(
                            false, file, function, lineno,
                            PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, culprit,
                            "static predicate %s/" Int_FORMAT " is in use",
-                           ap->StrOfAE, Arity))
-              : (Arity == 0
+                           NameOfPred(ap), ap->ArityOfPE))
+              : (ap->ArityOfPE == 0
                      ? Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "system predicate %s is in use",
-                                   ap->StrOfAE)
+                                   NameOfPred(ap)->StrOfAE)
                      : Yap_Error__(false, file, function, lineno,
                                    PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,
                                    culprit, "system predicate %s/" Int_FORMAT,
-                                   ap->StrOfAE, Arity)));
+                                   NameOfPred(ap)->StrOfAE,  ap->ArityOfPE));
 }
 
 PredEntry *Yap_PredFromClause(Term t USES_REGS) {
@@ -1756,7 +1754,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   PELOCK(20, p);
   /* we are redefining a prolog module predicate */
   if (Yap_constPred(p)) {
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), Arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, p,
                            FALSE);
     UNLOCKPE(30, p);
     return false;
@@ -2118,6 +2116,7 @@ static Int p_startconsult(USES_REGS1) { /* '$start_consult'(+Mode)	 */
   char *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   int mode;
 
+  setBooleanLocalPrologFlag(COMPILING_FLAG, AtomTrue);
   mode = strcmp("consult", (char *)smode);
   Yap_init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
   t = MkIntTerm(LOCAL_consult_level);
@@ -2141,6 +2140,7 @@ static void end_consult(USES_REGS1) {
 /*  if (LOCAL_consult_level == 0)
     do_toggle_static_predicates_in_use(FALSE);*/
 #endif
+  setBooleanLocalPrologFlag(COMPILING_FLAG, AtomFalse);
 }
 
 void Yap_end_consult(void) {
@@ -2193,7 +2193,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   PELOCK(21, pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCKPE(33, pred);
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_TermToIndicator(CurrentModule, t), "assert/1");
     return (FALSE);
   }
   purge_clauses(pred);
@@ -2433,36 +2433,29 @@ static Int
 }
 
 /*  @pred '$new_multifile'(+G,+Mod)
- *  declares rgi///////                                                                                                                                                                   the multi-file flag
+ *  declares   the multi-file flag
  * */
 static Int new_multifile(USES_REGS1) {
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
-
+ 
   if (pe->PredFlags & MultiFileFlag) {
     UNLOCKPE(26, pe);
     return true;
   }
   if (pe->PredFlags & (TabledPredFlag | ForeignPredFlags)) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2543,7 +2536,7 @@ static Int
   // if (!pe) pe = Yap_get_pred(t1, Deref(ARG2), "system_predicate");
   if (EndOfPAEntr(pe))
     return FALSE;
-  return (pe->ModuleOfPred == 0);
+  return (pe->ModuleOfPred == 0 || pe-> PredFlags & UserCPredFlag);
   //   return true;
   // PELOCK(27, pe);
   // out = (pe->PredFlags & SystemPredFlags);
@@ -2680,24 +2673,17 @@ static Int p_set_owner_file(USES_REGS1) { /* '$owner_file'(+P,M,F)	 */
 
 static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "dynamic");
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags &
       (UserCPredFlag | CArgsPredFlag | NumberDBPredFlag | AtomDBPredFlag |
        TestPredFlag | AsmPredFlag | CPredFlag | BinaryPredFlag)) {
     UNLOCKPE(30, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2711,7 +2697,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
   }
   if (pe->cs.p_code.NOfClauses != 0) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2738,23 +2724,16 @@ static Int p_is_dynamic(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   return (out);
 }
 
-/*  @pred '$new_multifile'(+G,+Mod)
+/*  @pred '$new_meta'(+G,+Mod)
  *  sets the multi-file flag
  * */
 static Int new_meta_pred(USES_REGS1) {
   PredEntry *pe;
-  Atom at;
-  arity_t arity;
 
   pe = new_pred(Deref(ARG1), Deref(ARG2), "meta_predicate");
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(30, pe);
-  arity = pe->ArityOfPE;
-  if (arity == 0)
-    at = (Atom)pe->FunctorOfPred;
-  else
-    at = NameOfFunctor(pe->FunctorOfPred);
 
   if (pe->PredFlags & MetaPredFlag) {
     UNLOCKPE(26, pe);
@@ -2762,7 +2741,7 @@ static Int new_meta_pred(USES_REGS1) {
   }
   if (pe->cs.p_code.NOfClauses) {
     UNLOCKPE(26, pe);
-    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, RepAtom(at), arity,
+    addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe,
                            FALSE);
     return false;
   }
@@ -2856,10 +2835,14 @@ static Int undefp_handler(USES_REGS1) { /* '$undefp_handler'(P,Mod)	 */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
-  if (EndOfPAEntr(pe))
-    return false;
   PELOCK(59, pe);
+  if (EndOfPAEntr(pe)) {
+    UndefCode = Yap_get_pred(TermFail, MkIntTerm(0), "no def");
+    UNLOCKPE(59, pe);
+    return false;
+  }
   if (pe->OpcodeOfPred == UNDEF_OPCODE) {
+    UndefCode = Yap_get_pred(TermFail, MkIntTerm(0), "no def");
     UNLOCKPE(59, pe);
     return false;
   }
@@ -4106,7 +4089,7 @@ static Int
                        | TabledPredFlag
 #endif /* TABLING */
                        )) {
-    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t,
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,  Yap_PredicateToIndicator(ap),
               "dbload_get_space/4");
     return FALSE;
   }

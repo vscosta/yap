@@ -488,6 +488,13 @@ sumnodes_body(Pred, Term, A1, A3, N0, Ar) :-
 /**
   @pred oldl(: _Pred_, + _List1_, + _List2_, ? _AccIn_, ? _AccOut_)
 
+  The foldl family of predicates is defined
+	  ==
+	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
+		P(X11, V0, V1, W0, W1),
+		...
+		P(X1n, Vn1, Vn, Wn1, Wn).
+	  ==
   Calls  _Pred_ on all elements of `List1` and collects a result in  _Accumulator_. Same as
   foldr/3.
 */
@@ -506,13 +513,6 @@ foldl_([H|T], Goal, V0, V) :-
   _List2_ and collects a result in  _Accumulator_. Same as
   foldr/4.
 
-  The foldl family of predicates is defined
-	  ==
-	  foldl(P, [X11,...,X1n],V0, Vn, W0, WN) :-
-		P(X11, V0, V1, W0, W1),
-		...
-		P(X1n, Vn1, Vn, Wn1, Wn).
-	  ==
 */
 foldl(Goal, List1, List2, V0, V) :-
     foldl_(List1, List2, Goal, V0, V).
@@ -523,6 +523,11 @@ foldl_([H1|T1], [H2|T2], Goal, V0, V) :-
     foldl_(T1, T2, Goal, V1, V).
 
 /**
+
+@pred foldl(Goal, List1, List2, List3, V0, V)
+
+Apply _Goal_ plus five arguuments, three map to lists,
+two can be used as a difference_type.
 
 */
 foldl(Goal, List1, List2, List3, V0, V) :-
@@ -705,7 +710,7 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
 
 goal_expansion(checklist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -726,7 +731,7 @@ goal_expansion(checklist(Meta, List), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -747,7 +752,7 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -768,7 +773,7 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -789,7 +794,7 @@ goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -810,7 +815,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -831,7 +836,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
 
 goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -854,7 +859,7 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -877,7 +882,7 @@ goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
 
 goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -901,7 +906,7 @@ goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) 
 % same as selectlist
 goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -924,7 +929,7 @@ goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -947,7 +952,7 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -970,7 +975,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 
 goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1010,7 +1015,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 
 goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1033,7 +1038,7 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1056,7 +1061,7 @@ goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
 
 goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1077,7 +1082,7 @@ goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1098,7 +1103,7 @@ goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1119,7 +1124,7 @@ goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1140,7 +1145,7 @@ goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1161,7 +1166,7 @@ goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1182,7 +1187,7 @@ goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1203,7 +1208,7 @@ goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal
 
 goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1224,7 +1229,7 @@ goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
 
 goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1245,7 +1250,7 @@ goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal)
 
 goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1277,7 +1282,7 @@ goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 
 goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1307,7 +1312,7 @@ goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
 
 goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    callable(Meta),
+    is_callable(Meta),
     prolog_load_context(module, Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,

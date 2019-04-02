@@ -272,12 +272,14 @@ user_defined_directive(Dir,Action) :-
 '$process_directive'(D, _, M, _VL, _Pos) :-
 	current_prolog_flag(language_mode, iso),
     !, % ISO Prolog mode, go in and do it,
-	'$do_error'(context_error((:- M:D),query),directive).
+    
+    '$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus do.
  %
 '$process_directive'(G, _Mode, M, _VL, _Pos) :-
-      '$execute'(M:G),
+	'$yap_strip_module'(M:G,M1,G1),
+	'$execute'(M1:G1),
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-
       format(user_error,':- ~w:~w failed.~n',[M,G]).

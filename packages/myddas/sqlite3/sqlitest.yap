@@ -1,5 +1,4 @@
 
-
 :- use_module(library(plunit)).
 
 :- begin_tests(sqlite3).
@@ -13,7 +12,7 @@ test(db_open) :-
     db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
 :- else.
 test(db_open) :-
-	 db_open(sqlite3,myddas,dataset('chinook.db'),_,_).
+    db_open(sqlite3,myddas,dataset('chinook.db'),_,_).
 :-endif.
 
 test(schema0, all((Desc ==[(table albums),
@@ -76,7 +75,7 @@ test(att_types, true((Als == ['AlbumId','','Title','','ArtistId',''],
 		      As == ['ArtistId','','Name',''],
 		      Ts == ['TrackId','','Name','','AlbumId','','MediaTypeId','','GenreId','',
 			     'Composer','','Milliseconds','','Bytes','','UnitPrice','']))) :-
-    db_get_attributes_types(albums,Als),
+    .,
     db_get_attributes_types(tracks,Ts),
     db_get_attributes_types(artists,As).
 
@@ -98,3 +97,4 @@ test(close) :-
 :- end_tests(sqlite3).
 
 :- run_tests.
+

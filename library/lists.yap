@@ -360,7 +360,7 @@ prefix([], _).
 prefix([Elem | Rest_of_part], [Elem | Rest_of_whole]) :-
   prefix(Rest_of_part, Rest_of_whole).
 
-%   remove_duplicates(List, Pruned)
+%%   remove_duplicates(+List, Pruned)
 %   removes duplicated elements from List.  Beware: if the List has
 %   non-ground elements, the result may surprise you.
 
@@ -368,6 +368,23 @@ remove_duplicates([], []).
 remove_duplicates([Elem|L], [Elem|NL]) :-
 	delete(L, Elem, Temp),
 	remove_duplicates(Temp, NL).
+
+%%   remove_identical_duplicates(List, Pruned)
+%   removes duplicated elements from List.  
+remove_identical_duplicates([], []).
+remove_identical_duplicates([Elem|L], [Elem|NL]) :-
+	delete_identical(L, Elem, Temp),
+	remove_identical_duplicates(Temp, NL).
+
+
+delete_identical([],_, []).
+delete_identical([H|L],Elem,Temp)  :-
+    H == Elem,
+    !,
+	delete_identical(L, Elem, Temp).
+delete_identical([H|L], Elem, [H|Temp]) :-
+	delete_identical(L, Elem, Temp).
+
 
 
 %   same_length(?List1, ?List2)

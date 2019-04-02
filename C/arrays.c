@@ -1066,6 +1066,7 @@ static Int create_static_array(USES_REGS1) {
   Int size;
   static_array_types props;
   void *address = NULL;
+  
 
   if (IsVarTerm(ti)) {
     Yap_Error(INSTANTIATION_ERROR, ti, "create static array");
@@ -1134,7 +1135,15 @@ static Int create_static_array(USES_REGS1) {
     props = array_of_terms;
   if (args[CREATE_ARRAY_NB_TERM].used)
     props = array_of_nb_terms;
-
+  /*  if (args[CREATE_ARRAY_MATRIX].used) {
+    tprops = args[CREATE_ARRAY_TYPE].tvalue;
+    
+    if (tprops == TermTrue) {
+        in_matrix = true;
+	size += sizeof(MP_INT)/sizeof(CELL);
+    }
+    }
+  */
   StaticArrayEntry *pp;
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "create static array");

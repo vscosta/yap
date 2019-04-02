@@ -1,5 +1,7 @@
 /*  $Id$
 
+@file clpfd/clpfd.pl
+
     Part of SWI-Prolog
 
     Author:        Markus Triska
@@ -91,7 +93,7 @@ used in modes that can also be handled by built-in arithmetic. To
    currently, let us define a new custom constraint "oneground(X,Y,Z)",
    where Z shall be 1 if at least one of X and Y is instantiated:
 
-   ==
+   ~~ 
    :- use_module(library(clpfd)).
 
    :- multifile clpfd:run_propagator/2.
@@ -107,7 +109,7 @@ used in modes that can also be handled by built-in arithmetic. To
    ;   integer(Y) -> clpfd:kill(MState), Z = 1
    ;   true
    ).
-   ==
+   ~~~
 
    First, clpfd:make_propagator/2 is used to transform a user-defined
    representation of the new constraint to an internal form. With
@@ -124,12 +126,12 @@ used in modes that can also be handled by built-in arithmetic. To
    the constraint has become entailed, by using clpfd:kill/1. An example
    of using the new constraint:
 
-   ==
+   ~~~
    ?- oneground(X, Y, Z), Y = 5.
    Y = 5,
    Z = 1,
    X in inf..sup.
-   ==
+   ~~~
 
    @author Markus Triska
 */
@@ -192,7 +194,7 @@ used in modes that can also be handled by built-in arithmetic. To
                  ]).
 
 
-:- expects_dialect(swi).
+% :- expects_dialect(swi).
 
 :- use_module(library(assoc)).
 :- use_module(library(apply)).

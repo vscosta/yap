@@ -212,7 +212,8 @@ extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
 extern int Yap_dogc(int extra_args, Term *tp USES_REGS);
-extern Term Yap_PredicateIndicator(Term t, Term mod);
+extern Term Yap_PredicateToIndicator(struct pred_entry *pe);
+extern Term Yap_TermToIndicator(Term t, Term mod);
 extern bool Yap_Execute(Term t USES_REGS);
 
 /* exo.c */
@@ -444,6 +445,12 @@ extern bool Yap_ChDir(const char *path);
 bool Yap_isDirectory(const char *FileName);
 extern bool Yap_Exists(const char *f);
 
+/* terms.c */
+extern Term Yap_CyclesInTerm(Term t USES_REGS);
+extern bool Yap_IsCyclicTerm(Term inp USES_REGS);
+extern Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS);
+extern void  Yap_InitTermCPreds(void);
+
 /* threads.c */
 extern void Yap_InitThreadPreds(void);
 extern void Yap_InitFirstWorkerThreadHandle(void);
@@ -477,6 +484,9 @@ extern void Yap_InitUserCPreds(void);
 extern void Yap_InitUserBacks(void);
 
 /* utilpreds.c */
+int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
+			  bool share, bool copy_att_vars, CELL *ptf,
+			  CELL *HLow USES_REGS);
 extern Term Yap_CopyTerm(Term);
 extern bool Yap_Variant(Term, Term);
 extern size_t Yap_ExportTerm(Term, char *, size_t, UInt);

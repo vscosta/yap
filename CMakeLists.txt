@@ -375,29 +375,50 @@ if (GMP_INCLUDE_DIRS)
  endif ()
 
 
-if (WITH_READLINE)
+# - Find the readline library
+# This module defines
+#  READLINE_INCLUDE_DIR, path to readline/readline.h, etc.
+#  READLINE_LIBRARIES, the libraries required to use READLINE.
+#  READLINE_FOUND, If false, do not try to use READLINE.
+# also defined, but not for general use are
+# READLINE_readline_LIBRARY, where to find the READLINE library.
+# READLINE_ncurses_LIBRARY, where to find the ncurses library [might not be defined]
+
+if (ANDROID)
+ option (WITH_READLINE "use Readline" OFF)
+ else()
+
   include(FindReadline)
 
-  List(APPEND YAP_SYSTEM_OPTIONS readline)
+ option (WITH_READLINE "use Readline" ON)
   # include subdirectories configuration
   ## after we have all functionality in
   #
   # ADD_SUBDIRECTORY(console/terminal)
 
-  if (READLINE_FOUND)
+  if (READLINE_FOUND AND READLINE_INCLUDE_DIR)
+  List(APPEND YAP_SYSTEM_OPTIONS readline)
     # required for configure
-    list(APPEND CMAKE_REQUIRED_INCLUDES ${READLINE_INCLUDE_DIR}
+    include_directories( ${READLINE_INCLUDE_DIR}
       ${READLINE_INCLUDE_DIR}/readline
       )
   endif ()
 endif()
 
-include_directories(H
-  H/generated
-  include os OPTYap utf8proc JIT/HPP)
-include_directories(BEFORE ${CMAKE_BINARY_DIR})
+include_directories(
+${CMAKE_SOURCE_DIR}/H
+${CMAKE_SOURCE_DIR}/H/generated
+${CMAKE_SOURCE_DIR}/include
+${CMAKE_SOURCE_DIR}/os
+${CMAKE_SOURCE_DIR}/OPTYap
+${CMAKE_SOURCE_DIR}/utf8proc
+  ${CMAKE_SOURCE_DIR}/JIT/HPP
+  ${GMP_INCLUDE_DIRS}
+  ${READLINE_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}
+  ) 
 
-add_subdirectory( H )
+  add_subdirectory( H )
 
 #MPI STUFF
 # library/mpi/mpi.c library/mpi/mpe.c
@@ -414,8 +435,8 @@ add_subdirectory( H )
 set(YAP_FOUND ON)
 
 set(YAP_MAJOR_VERSION 6)
-set(YAP_MINOR_VERSION 4)
-set(YAP_PATCH_VERSION 1)
+set(YAP_MINOR_VERSION 5)
+set(YAP_PATCH_VERSION 0)
 
 set(YAP_FULL_VERSION
   ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}.${YAP_PATCH_VERSION})
@@ -450,7 +471,6 @@ set(DEF_STACKSPACE 0)
 set(DEF_HEAPSPACE 0)
 set(DEF_TRAILSPACE 0)
 
-# option (RATIONAL_TREES "support infinite rational trees" ON)
 # dd_definitions (-D)
 
 ## don't touch these opts
@@ -466,6 +486,9 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=
 
 # Model Specific
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:DEBUG=1>)
+
+# debug across macros
+set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3>)
 
 #ensure cells are properly aligned in code
 set(ALIGN_LONGS 1)
@@ -567,7 +590,7 @@ ENDIF (WITH_PYTHON)
 IF (WITH_R)
   find_host_package(LibR)
   add_subDIRECTORY(packages/real)
-ENDIF (WITH_R)
+ ENDIF (WITH_R)
 
 
 include(Sources)
@@ -582,7 +605,11 @@ ADD_SUBDIRECTORY(pl)
 
 ADD_SUBDIRECTORY(library)
 
+ADD_SUBDIRECTORY(swi/library)
+
 add_subDIRECTORY(utf8proc )
+
+
 
    if(ANDROID)
 
@@ -612,6 +639,7 @@ endif()
 
 
 add_subDIRECTORY( packages/myddas )
+add_subDIRECTORY( packages/clpqr )
 
 
 List(APPEND YLIBS $<TARGET_OBJECTS:libOPTYap>)
@@ -783,7 +811,7 @@ endif ()
 if (WITH_JAVA)
   #detect java setup, as it is shared between different installations.
 
-  find_package(Java COMPONENTS Runtime Development)
+  find_package(Java COMPONENTS Development Runtime)
   # find_package(Java COMPONENTS Development)
   # find_package(Java COMPONENTS Runtime)
   #find_package(JavaLibs)
@@ -844,8 +872,8 @@ if (WITH_JAVA)
 if (APPLE)
   set(CMAKE_MACOSX_RPATH 1)
   find_library (JLI jli ${JAVA_AWT_DIR}/jli)
-  find_library (JAL JavaApplicationLauncher FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
-  find_library (JL JavaLaunching FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
+  #find_library (JAL JavaApplicationLauncher FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
+  #find_library (JL JavaLaunching FRAMEWORK ONLY PATH /System/Library/PrivateFrameworks)
   list(APPEND CMAKE_INSTALL_RPATH ${JAVA_AWT_DIR}/jli)
 list(APPEND JNI_LIBRARIES  ${JLI};${JAL};${JL})
 endif()

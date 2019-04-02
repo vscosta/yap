@@ -70,11 +70,11 @@ typedef struct rewind_term {
 
 typedef struct write_globs {
   StreamDesc *stream;
-  int Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
-  int Keep_terms;
-  int Write_Loops;
-  int Write_strings;
-  int last_atom_minus;
+  bool Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
+  bool Keep_terms;
+  bool Write_Loops;
+  bool Write_strings;
+  UInt  last_atom_minus;
   UInt MaxDepth, MaxArgs;
   wtype lw;
 } wglbs;
@@ -581,12 +581,19 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   unsigned char *s;
   wtype atom_or_symbol;
   wrf stream = wglb->stream;
-
+  if (atom == NULL) return;
+  s = RepAtom(atom)->UStrOfAE;
+  if (s[0] ==  '\0') {
+    if (Quote_illegal) {
+    wrputc('\'', stream);
+    wrputc('\'', stream);
+    }
+    return;
+  }
   if (IsBlob(atom)) {
     wrputblob(RepAtom(atom), Quote_illegal, wglb);
     return;
   }
-  s = RepAtom(atom)->UStrOfAE;
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
   if (Yap_GetValue(AtomCryptAtoms) != TermNil &&
@@ -726,8 +733,6 @@ static void write_list(Term t, int direction, int depth,
   nrwt.u_sd.s.ptr = 0;
 
   while (1) {
-    int ndirection;
-    int do_jump;
 
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
     ti = TailOfTerm(t);
@@ -735,18 +740,6 @@ static void write_list(Term t, int direction, int depth,
       break;
     if (!IsPairTerm(ti))
       break;
-    ndirection = RepPair(ti) - RepPair(t);
-    /* make sure we're not trapped in loops */
-    if (ndirection > 0) {
-      do_jump = (direction <= 0);
-    } else if (ndirection == 0) {
-      wrputc(',', wglb->stream);
-      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb);
-      lastw = separator;
-      return;
-    } else {
-      do_jump = (direction >= 0);
-    }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
@@ -756,10 +749,7 @@ static void write_list(Term t, int direction, int depth,
       return;
     }
     lastw = separator;
-    direction = ndirection;
     depth++;
-    if (do_jump)
-      break;
     wrputc(',', wglb->stream);
     t = ti;
   }
@@ -1097,46 +1087,35 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 /* write options			 */
 {
   CACHE_REGS
+
+  yhandle_t lvl = push_text_stack();
   struct write_globs wglb;
   struct rewind_term rwt;
-  yhandle_t sls = Yap_CurrentSlot();
-  int lvl = push_text_stack();
-
-  if (t == 0)
-    return;
-  if (!mywrite) {
-    CACHE_REGS
-    wglb.stream = GLOBAL_Stream + LOCAL_c_error_stream;
-  } else
-    wglb.stream = mywrite;
-  wglb.lw = start;
-  wglb.last_atom_minus = FALSE;
-  wglb.Quote_illegal = flags & Quote_illegal_f;
-  wglb.Handle_vars = flags & Handle_vars_f;
-  wglb.Use_portray = flags & Use_portray_f;
-  wglb.Portray_delays = flags & AttVar_Portray_f;
-  wglb.MaxDepth = max_depth;
-  wglb.MaxArgs = max_depth;
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  wglb.Keep_terms = (flags & (Use_portray_f | To_heap_f));
-  /* initialize wglb */
+  t = Deref(t);
   rwt.parent = NULL;
+  wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
-  if (!(flags & Ignore_cyclics_f) && false) {
-    Term ts[2];
-    ts[0] = Yap_BreakRational(t, 0, ts + 1, TermNil PASS_REGS);
-    // fprintf(stderr, "%lx %lx %lx\n", t, ts[0], ts[1]);
-    // Yap_DebugPlWriteln(ts[0]);
-    // ap_DebugPlWriteln(ts[1[);
-    if (ts[1] != TermNil) {
-      t = Yap_MkApplTerm(FunctorAtSymbol, 2, ts);
-    }
-  }
-  /* protect slots for portray */
-  writeTerm(t, priority, 1, FALSE, &wglb, &rwt);
-  if (flags & New_Line_f) {
+  wglb.Use_portray = flags & Use_portray_f;
+  wglb.Handle_vars = flags & Handle_vars_f;
+  wglb.Portray_delays = flags & AttVar_Portray_f;
+  wglb.Keep_terms = flags & To_heap_f;
+  wglb.Write_Loops = flags & Handle_cyclics_f;
+  wglb.Quote_illegal = flags & Quote_illegal_f;
+  wglb.MaxArgs = 0 ;
+  wglb.MaxDepth = 0 ;
+  wglb.lw = separator;
+  Term tp;
+  
+   if ((flags & Handle_cyclics_f) ){
+     tp = Yap_CyclesInTerm(t PASS_REGS);
+   } else {
+     tp = t;
+   }
+
+   /* protect slots for portray */
+  writeTerm(tp, priority, 1, false, &wglb, &rwt);
+     if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
       wrputc('\n', wglb.stream);
@@ -1149,6 +1128,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
       wrputc(' ', wglb.stream);
     }
   }
-  Yap_CloseSlots(sls);
   pop_text_stack(lvl);
-}
+ }
+

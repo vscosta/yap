@@ -663,6 +663,7 @@ static Atom do_header(FILE *stream) {
   char h1[] = "exec $exec_dir/yap $0 \"$@\"\nsaved ";
   Atom at;
 
+  memset(s,0,2049);
   if (!maybe_read_bytes( stream, s, 2048) )
     return NIL;
   if (strstr(s, h0)!= s)
@@ -863,6 +864,9 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       } while (cl != NULL);
     }
     if (!nclauses) {
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->OpcodeOfPred = FAIL_OPCODE;
+
       return;
     }
     while ((read_tag(stream) == QLY_START_LU_CLAUSE)) {
@@ -947,6 +951,10 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
         Yap_EraseStaticClause(cl, pp, CurrentModule);
         cl = ncl;
       } while (cl != NULL);
+    } else if (flags & MultiFileFlag) {
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->OpcodeOfPred = FAIL_OPCODE;
+
     }
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_UInt(stream);
@@ -1105,17 +1113,23 @@ static Int qload_program(USES_REGS1) {
 YAP_file_type_t Yap_Restore(const char *s) {
   CACHE_REGS
 
-  FILE *stream = Yap_OpenRestore(s);
+      int lvl = push_text_stack();
+  const char *tmp = Yap_AbsoluteFile(s, true);
+
+  FILE *stream = Yap_OpenRestore(tmp);
   if (!stream)
     return -1;
   GLOBAL_RestoreFile = s;
-  if (do_header(stream) == NIL)
+  if (do_header(stream) == NIL) {
+    pop_text_stack(lvl);
     return YAP_PL;
+  }
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);
   GLOBAL_RestoreFile = NULL;
   LOCAL_SourceModule = CurrentModule = USER_MODULE;
+  pop_text_stack(lvl);
   return YAP_QLY;
 }
 

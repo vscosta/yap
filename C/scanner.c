@@ -1592,10 +1592,12 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 
       while (TRUE) {
         if (charp > TokImage + (sz - 1)) {
+	  size_t sz = charp-TokImage;
           TokImage = Realloc(TokImage, Yap_Min(sz * 2, sz + MBYTE));
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
+	  charp = TokImage+sz;
           break;
         }
         if (ch == 10 && trueGlobalPrologFlag(ISO_FLAG)) {

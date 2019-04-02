@@ -265,7 +265,7 @@ load_files(Files0,Opts) :-
 '$lf_option'(sandboxed, 24, false).
 '$lf_option'(scope_settings, 25, false).
 '$lf_option'(modified, 26, _).
-'$lf_option'('$context_module', 27, _).
+'$lf_option'(source_module, 27, _).
 '$lf_option'('$parent_topts', 28, _).
 '$lf_option'(must_be_module, 29, false).
 '$lf_option'('$source_pos', 30, _).
@@ -309,6 +309,7 @@ load_files(Files0,Opts) :-
     '$load_files__'(user_input, M, [consult(reconsult),stream(S)|Opts], Call).
 '$load_files'(Files, M, Opts, Call) :-
     '$load_files__'(Files, M, Opts, Call).
+
 '$load_files__'(Files, M, Opts, Call) :-
     '$lf_option'(last_opt, LastOpt),
     '$show_consult_level'(LC),
@@ -317,12 +318,12 @@ load_files(Files0,Opts) :-
       '__NB_getval__'('$lf_status', OldTOpts, fail),
         nonvar(OldTOpts),  functor( OldTOpts, opt, LastOpt ),
     '$lf_opt'(autoload, OldTOpts, OldAutoload),
-         '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+         '$lf_opt'(source_module, OldTOpts, OldContextModule)
     ;
      current_prolog_flag(autoload, OldAutoload),
      functor( OldTOpts, opt, LastOpt ),
      '$lf_opt'(autoload, OldTOpts, OldAutoload),
-     '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+     '$lf_opt'(source_module, OldTOpts, OldContextModule)
     ),
     functor( TOpts, opt, LastOpt ),
     ( source_location(ParentF, Line) -> true ; ParentF = user_input, Line = -1 ),
@@ -347,8 +348,6 @@ load_files(Files0,Opts) :-
     ;
     true
     ),
-    % make sure we can run consult
-    '$init_consult',
     '$lf'(Files, M, Call, TOpts).
 
 '$check_files'(Files, Call) :-
@@ -448,7 +447,7 @@ load_files(Files0,Opts) :-
 	( Val == false -> true ;
 	    Val == true -> true ;
 	    '$do_error'(domain_error(unimplemented_option,register(Val)),Call) ).
-'$process_lf_opt'('$context_module', Mod, Call) :-
+'$process_lf_opt'(source_module, Mod, Call) :-
 	( atom(Mod) -> true ;  '$do_error'(type_error(atom,Mod),Call) ).
 
 
@@ -545,6 +544,7 @@ load_files(Files0,Opts) :-
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
        print_message(informational, loaded( loaded, F, M, T, H)),
        working_directory( _, OldD),
+       set_prolog_flag(compiling,false),
        '$exec_initialization_goals',
        '$current_module'(_M, Mod).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
@@ -724,7 +724,7 @@ db_files(Fs) :-
 	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
 	'__NB_getval__'('$loop_streams',Sts0, Sts0=[]),
 	nb_setval('$loop_streams',[Stream|Sts0]),
- 	'$lf_opt'('$context_module', TOpts, ContextModule),
+ 	'$lf_opt'(source_module, TOpts, ContextModule),
 	'$lf_opt'(reexport, TOpts, Reexport),
 	'$lf_opt'(qcompile, TOpts, QCompiling),
 	'__NB_getval__'('$qcompile', ContextQCompiling, ContextQCompiling = never),
@@ -732,7 +732,8 @@ db_files(Fs) :-
 %	format( 'I=~w~n', [Verbosity=UserFile] ),
 	% export to process
 	b_setval('$lf_status', TOpts),
-	'$reset_if'(OldIfLevel),
+	'__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
+	nb_setval('$if_level',0),
 	% take care with [a:f], a is the ContextModule
 	'$current_module'(SourceModule, ContextModule),
 	'$lf_opt'(consult, TOpts, Reconsult0),
@@ -766,10 +767,10 @@ db_files(Fs) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
-
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
 	'$current_module'(Mod, SourceModule),
+	%`writeln((       ContextModule/Mod  )),
 	set_prolog_flag(verbose_load, VerboseLoad),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(informational, loaded(EndMsg, File, Mod, T, H)),
@@ -782,14 +783,13 @@ db_files(Fs) :-
 	    ;
 	    true
 	),
+	nb_setval('$if_level',OldIfLevel),
 	set_stream( OldStream, alias(loop_stream) ),
 	set_prolog_flag(generate_debug_info, GenerateDebug),
 	'$comp_mode'(_CompMode, OldCompMode),
 	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
-	nb_setval('$if_skip_mode',run),
 	% back to include mode!
-	nb_setval('$if_level',OldIfLevel),
 	'$lf_opt'('$use_module', TOpts, UseModule),
 	'$bind_module'(Mod, UseModule),
 	'$reexport'( TOpts, ParentF, Reexport, Imports, File ),
@@ -808,17 +808,6 @@ db_files(Fs) :-
     !,
     '$qsave_file_'( File, UserF, F ).
 '$q_do_save_file'(_File, _, _TOpts ).
-
-'$reset_if'(OldIfLevel) :-
-	'__NB_getval__'('$if_level', OldIfLevel, fail), !,
-	nb_setval('$if_level',0).
-'$reset_if'(0) :-
-nb_setval('$if_level',0).
-
-'$get_if'(Level0) :-
-	'__NB_getval__'('$if_level', Level, fail), !,
-	Level0 = Level.
-'$get_if'(0).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -1149,11 +1138,11 @@ exists_source(File) :-
 
 
 '$full_filename'(F0, F) :-
-	'$undefined'('$absolute_file_name'(F0,[],F),prolog_complete),
+	'$undefined'(absolute_file_name(F0,[],F),prolog),
 	!,
 	absolute_file_system_path(F0, F).
 '$full_filename'(F0, F) :-
-	'$absolute_file_name'(F0,[access(read),
+	absolute_file_name(F0,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
@@ -1359,7 +1348,7 @@ account the following observations:
 '$reexport'( TOpts, File, Reexport, Imports, OldF ) :-
     ( Reexport == false -> true ;
 	  ( '$lf_opt'('$parent_topts', TOpts, OldTOpts),
-	  '$lf_opt'('$context_module', OldTOpts, OldContextModule)
+	  '$lf_opt'(source_module, OldTOpts, OldContextModule)
 	  ->
 	  true
 	  ;
@@ -1558,29 +1547,29 @@ If an error occurs, the error is printed and processing proceeds as if
 %
 '$if'(_,top) :- !, fail.
 '$if'(_Goal,_) :-
-	'$get_if'(Level0),
-	Level is Level0 + 1,
-	nb_setval('$if_level',Level),
-	( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
-	( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
-	nb_setval('$endif',elif(Level,OldEndif,Mode)),
-	fail.
+   '__NB_getval__'('$if_level',Level0,Level=0),
+   Level is Level0 + 1,
+   nb_setval('$if_level',Level),
+   ( '__NB_getval__'('$endif', OldEndif, fail) -> true ; OldEndif=top),
+   ( '__NB_getval__'('$if_skip_mode', Mode, fail) -> true ; Mode = run ),
+   nb_setval('$endif',elif(Level,OldEndif,Mode)),
+   fail.
 % we are in skip mode, ignore....
 '$if'(_Goal,_) :-
-	'__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
-	nb_setval('$endif',endif(Level, OldEndif, skip)).
+    '__NB_getval__'('$endif',elif(Level, OldEndif, skip), fail), !,
+    nb_setval('$endif',endif(Level, OldEndif, skip)).
 % we are in non skip mode, check....
 '$if'(Goal,_) :-
-	('$if_call'(Goal)
-	    ->
-	 % we will execute this branch, and later enter skip
+    (
+	'$if_call'(Goal)
+    ->
+    % we will execute this branch, and later enter skip
 	 '__NB_getval__'('$endif', elif(Level,OldEndif,Mode), fail),
 	 nb_setval('$endif',endif(Level,OldEndif,Mode))
-
 	;
 	 % we are now in skip, but can start an elif.
 	 nb_setval('$if_skip_mode',skip)
-	).
+    ).
 
 /**
 @pred    else
@@ -1589,18 +1578,19 @@ Start `else' branch.
 */
 '$else'(top) :- !, fail.
 '$else'(_) :-
-	'$get_if'(0), !,
-	'$do_error'(context_error(no_if),(:- else)).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+    '$do_error'(context_error(no_if),(:- else)).
 % we have done an if, so just skip
 '$else'(_) :-
-	nb_getval('$endif',endif(_Level,_,_)), !,
-	nb_setval('$if_skip_mode',skip).
+    nb_getval('$endif',endif(_Level,_,_)), !,
+    nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$else'(_) :-
-	'$get_if'(Level),
-	nb_getval('$endif',elif(Level,OldEndif,Mode)),
-	nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	nb_setval('$if_skip_mode',run).
+   '__NB_getval__'('$if_level',Level,Level=0),
+   nb_getval('$endif',elif(Level,OldEndif,Mode)),
+   nb_setval('$endif',endif(Level,OldEndif,Mode)),
+   nb_setval('$if_skip_mode',run).
 
 /** @pred   elif(+ _Goal_)
 
@@ -1611,24 +1601,25 @@ no test succeeds the else branch is processed.
 */
 '$elif'(_,top) :- !, fail.
 '$elif'(Goal,_) :-
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- elif(Goal))).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+    '$do_error'(context_error(no_if),(:- elif(Goal))).
 % we have done an if, so just skip
 '$elif'(_,_) :-
-	 nb_getval('$endif',endif(_,_,_)), !,
-	 nb_setval('$if_skip_mode',skip).
+    nb_getval('$endif',endif(_,_,_)), !,
+    nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$elif'(Goal,_) :-
-	'$get_if'(Level),
+  '__NB_getval__'('$if_level',Level,fail),
 	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
 	('$if_call'(Goal)
 	    ->
 % we will not skip, and we will not run any more branches.
-	 nb_setval('$endif',endif(Level,OldEndif,Mode)),
-	 nb_setval('$if_skip_mode',run)
+		nb_setval('$endif',endif(Level,OldEndif,Mode)),
+		nb_setval('$if_skip_mode',run)
 	;
 % we will (keep) on skipping
-	 nb_setval('$if_skip_mode',skip)
+	nb_setval('$if_skip_mode',skip)
 	).
 '$elif'(_,_).
 
@@ -1639,18 +1630,19 @@ End of conditional compilation.
 '$endif'(top) :- !, fail.
 '$endif'(_) :-
 % unmmatched endif.
-	'$get_if'(0),
-	'$do_error'(context_error(no_if),(:- endif)).
+    '__NB_getval__'('$if_level',0,true),
+    !,
+   '$do_error'(context_error(no_if),(:- endif)).
 '$endif'(_) :-
 % back to where you belong.
-	'$get_if'(Level),
-	nb_getval('$endif',Endif),
-	Level0 is Level-1,
-	nb_setval('$if_level',Level0),
-	arg(2,Endif,OldEndif),
-	arg(3,Endif,OldMode),
-	nb_setval('$endif',OldEndif),
-	nb_setval('$if_skip_mode',OldMode).
+    '__NB_getval__'('$if_level',Level,Level=0),
+    nb_getval('$endif',Endif),
+    Level0 is Level-1,
+    nb_setval('$if_level',Level0),
+    arg(2,Endif,OldEndif),
+    arg(3,Endif,OldMode),
+    nb_setval('$endif',OldEndif),
+    nb_setval('$if_skip_mode',OldMode).
 
 
 '$if_call'(G) :-

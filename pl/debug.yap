@@ -1,3 +1,4 @@
+
 /**********************************************************************a***
 *									 *
   *	 YAP Prolog 							 *
@@ -80,7 +81,7 @@ To start debugging, the user will either call `trace` or spy the
 relevant procedures, entering debug mode, and start execution of the
 program. When finding the first spy-point, YAP's debugger will take
 control and show a message of the form:
-
+v
 ~~~~~
 * (1)  call:  quicksort([1,2,3],_38) ?
 ~~~~~
@@ -166,7 +167,7 @@ the argument, the command fails all the way to the goal. If goal  _GoalId_ has c
 side effects of the goal cannot be undone. This command is not available
 at the call port.  If <tt>f</tt> receives a goal number as the argument, the
 command retries goal  _GoalId_ instead. If goal  _GoalId_ has
-completed execution, YAP fails until meeting the first active ancestor.
+vcompleted execution, YAP fails until meeting the first active ancestor.
 
 + `a` - abort
 
@@ -299,11 +300,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$trace'(Mod:G) :-
-     '$stop_creeping'(_),
-     ( prolog_flag(debug, false) ;
-       '__NB_getval__'('$debug_status',state(zip,_Border,Spy),fail),
-       ( Spy == ignore ; \+ '$pred_being_spied'(G, Mod) )
-     ),
+    '$creep_is_off'(Mod:G,_GN0),
      !,
      '$execute_nonstop'(G,Mod).
 '$trace'(Mod:G) :-
@@ -464,27 +461,13 @@ be lost.
 %% Actuallb sy debugs a
 %% goal!
 '$trace_goal'(G, M, GoalNumber, _H) :-
-	(
-	 current_prolog_flag(debug, false)
-	;
-	 '__NB_getval__'('$debug_status',state(zip,Border,Spy), fail),
-	 Border < GoalNumber,
-	 ( Spy == ignore ; \+ '$pred_being_spied'(G, M) )
-	),
-	%writeln(go:G:M),
+    '$creep_is_off'(M:G,GoalNumber),
 	!,
 	'$execute_nonstop'(G,M).
-'$trace_goal'(G, M, GoalNumber, H) :-
+'$trace_goal'(G, M, _GoalNumber, _H) :-
 	'$undefined'(G, M),
 	!,
-	'$get_undefined_pred'(G, M,  Goal, NM),
-	( ( M == NM ; NM == prolog), G == Goal
-	->
-	  yap_flag( unknown, Action ),
-	  '$undefp'([M|G], Action )
-	;
-	 '$trace_goal'(Goal, NM, GoalNumber, H)
-	).
+	  '$undefp'([M|G], _ ).
 % meta system
 '$trace_goal'(G, M, GoalNumber, H) :-
         '$is_metapredicate'(G, prolog),
@@ -542,10 +525,10 @@ be lost.
         true
         ),
         /* get goal list		*/
-        '__NB_getval__'('$spy_glist',History,true),
+        '__NB_getval__'('$spy_glist',History,History=[]),
 	H  = [Info|History],
 	Info = info(L,Module,G,_Retry,_Det,_HasFoundAnswers),
-	'__B_setval__'('$spy_glist',H),
+	b_setval('$spy_glist',H),
 	/* and update it		*/
 	'$port'(call,G,Module,L,deterministic, Info).
 
@@ -574,7 +557,7 @@ be lost.
  */
 
 '$debug'(_, G, M, _H) :-
-    '__NB_getval__'('$debug_status',state(zip,_Border,Spy), fail),
+    '__NB_getval__'('$debug_status',state(zip,_Border,Spy,_Trace), fail),
     ( Spy == stop -> \+ '$pred_being_spied'(G,M) ; true ),
 	!,
 	'$execute_nonstop'( G, M ).
@@ -626,10 +609,13 @@ be lost.
 '$trace_port'(Port, GoalNumber, G, Module, _CalledFromDebugger, Info) :-
     '$stop_creeping'(_) ,
     current_prolog_flag(debug, true),
-    '__NB_getval__'('$debug_status',state(Skip,Border,_), fail),
-    ( Skip == creep -> true; '$id_goal'(GoalNumber), GoalNumber =< Border),
+    '__NB_getval__'('$debug_status',state(Skip,Border,_,Trace), fail),
+    ( Skip == creep -> true;
+      '$stop_creeping'(_) ,
+      '$id_goal'(GoalNumber),
+      GoalNumber =< Border),
     !,
-    '__NB_setval__'('$debug_status', state(creep, 0, stop)),
+    '__NB_setval__'('$debug_status', state(creep, 0, stop,Trace)),
     '$trace_port_'(Port, GoalNumber, G, Module, Info).
 '$trace_port'(_Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info).
 
@@ -641,15 +627,18 @@ be lost.
 '$trace_port_'(answer, GoalNumber, G, Module, Info) :-
     '$port'(exit,G,Module,GoalNumber,nondeterministic, Info).
 '$trace_port_'(redo, GoalNumber, G, Module, Info) :-
-    '$port'(redo,G,Module,GoalNumber,nondeterministic, Info), /* inform user_error	*/
-    '$stop_creeping'(_ ).
+    '$stop_creeping'(_ ),
+    '$port'(redo,G,Module,GoalNumber,nondeterministic, Info). /* inform user_error	*/
 '$trace_port_'(fail, GoalNumber, G, Module, Info) :-
+    '$stop_creeping'(_ ),
     '$port'(fail,G,Module,GoalNumber,deterministic, Info). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_Imfo) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(E), GoalNumber, G, Module, Info) :-
+        '$stop_creeping'(_ ),
     '$TraceError'(E, GoalNumber, G, Module, Info).
 '$trace_port_'(external_exception(E), GoalNumber, G, Module, Info) :-
+    '$stop_creeping'(_ ),
     '$TraceError'(E, GoalNumber, G, Module, Info).
 
 
@@ -715,7 +704,7 @@ be lost.
     Goal.
 
 '$port'(_P, _G, _M,GoalNumber,_Determinic, _Info ) :-   %%> leap
-        '__NB_getval__'('$debug_status',state(leap,Border,_), fail),
+        '__NB_getval__'('$debug_status',state(leap,Border,_,_), fail),
 	GoalNumber > Border,
 	!.
 '$port'(P,G,Module,L,Deterministic, Info) :-
@@ -770,7 +759,8 @@ be lost.
 	get_char( debugger_input,C),
 	'$action'(C,P,CallNumber,G,Module,H).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
-        '__NB_setval__'('$debug_status', state(creep, 0, stop)).
+    '__NB_getval__'('$trace',Trace,fail),
+    '__NB_setval__'('$debug_status', state(creep, 0, stop, Trace)).
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
@@ -790,7 +780,8 @@ be lost.
         lists:memberchk( call_tracer, Opts),
 	!,			% <'Depth
 	skip( debugger_input, 10),
-        '__NB_setval__'('$debug_status', state(creep, 0, stop)).
+	'__NB_getval__'('$trace',Trace,fail),
+        '__NB_setval__'('$debug_status', state(creep, 0, stop,Trace)).
 '$action'(^,_,_,G,_,_) :- !,			% '
 	'$print_deb_sterm'(G),
 	skip( debugger_input, 10),
@@ -811,7 +802,8 @@ be lost.
 	fail.
 '$action'(c,_,_,_,_,_) :- !,			% 'c		creep
 	skip( debugger_input, 10),
-	'__NB_setval__'('$debug_status',status(creep,0,stop)).
+	'__NB_getval__'('$trace',Trace,fail),
+	'__NB_setval__'('$debug_status',status(creep,0,stop,Trace)).
 '$action'(e,_,_,_,_,_) :- !,			% 'e		exit
 	halt.
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
@@ -845,19 +837,23 @@ be lost.
 '$action'(l,_,CallNumber,_,_,_) :- !,			% 'l		leap
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-    '__NB_setval__'('$debug_status', state(leap, Goal, stop)).
+   '__NB_getval__'('$trace',Trace,fail),
+    '__NB_setval__'('$debug_status', state(leap, Goal, stop,Trace)).
 '$action'(z,_,_allNumber,_,_,_H) :- !,		% 'z		zip, fast leap
-    '__NB_setval__'('$debug_status', state(zip, 0, stop)).
+   '__NB_getval__'('$trace',Trace,fail),
+    '__NB_setval__'('$debug_status', state(zip, 0, stop, Trace)).
         % skip first call (for current goal),
 	% stop next time.
 '$action'(k,_,_CallNumber,_,_,_) :- !,		% 'k		zip, fast leap
-         '__NB_setval__'('$debug_status', state(zip, 0, stop)).
+   '__NB_getval__'('$trace',Trace,fail),
+         '__NB_setval__'('$debug_status', state(zip, 0, stop, Trace)).
         % skip first call (for current goal),
 	% stop next time.
 '$action'(n,_,_,_,_,_) :- !,			% 'n		nodebug
 	skip( debugger_input, 10),				% '
 	% tell debugger never to stop.
-        '__NB_setval__'('$debug_status', state(zip, 0, ignore)),
+   '__NB_getval__'('$trace',Trace,fail),
+        '__NB_setval__'('$debug_status', state(zip, 0, ignore, Trace)),
  	nodebug.
 '$action'(r,_,CallNumber,_,_,_) :- !,	        % r		retry
     '$scan_number'(ScanNumber),		
@@ -866,22 +862,25 @@ be lost.
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
      '$scan_number'(ScanNumber),		
      ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-	( (P=call; P=redo) ->
-             '__NB_setval__'('$debug_status', state(leap, Goal, ignore) ) ;
+	( (P==call; P==redo) ->
+    '__NB_getval__'('$trace',Trace,fail),
+            '__NB_setval__'('$debug_status', state(leap, Goal, ignore,Trace) ) ;
 	    '$ilgl'(s)				% '
 	).
 '$action'(t,P,CallNumber,_,_,_) :- !,		% 't		fast skip
      '$scan_number'(ScanNumber),		
      ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-	( (P=call; P=redo) ->
-            '__NB_setval__'('$debug_status', state(zip, Goal, ignore))	;
+     ( (P=call; P=redo) ->
+          '__NB_getval__'('$trace',Trace,fail),
+            '__NB_setval__'('$debug_status', state(zip, Goal, ignore,Trace))	;
 	    '$ilgl'(t)				% '
 	).
 '$action'(q,P,CallNumber,_,_,_) :- !,		% 'qst skip
      '$scan_number'(ScanNumber),		
      ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
 	( (P=call; P=redo) ->
-            '__NB_setval__'('$debug_status', state(leap, Goal, stop))	;
+            '__NB_getval__'('$trace',Trace,fail),
+	    '__NB_setval__'('$debug_status', state(leap, Goal, stop, Trace))	;
 	    '$ilgl'(t)				% '
 	).
 '$action'(+,_,_,G,M,_) :- !,			%%		spy this
@@ -1082,7 +1081,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$user_call'(G1,M1)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1)|BG1s]) :-
     number(N),
     N >= 0,
 	'$yap_strip_module'( M:G, M1, G1 ),

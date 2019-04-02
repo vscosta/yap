@@ -1,6 +1,6 @@
 """Extra magics for terminal use."""
 
-# Copyright (c) yap_ipython Development Team.
+# Copyright (c) IPython Development Team.
 # Distributed under the terms of the Modified BSD License.
 
 
@@ -8,11 +8,11 @@ from logging import error
 import os
 import sys
 
-from yap_ipython.core.error import TryNext, UsageError
-from yap_ipython.core.magic import Magics, magics_class, line_magic
-from yap_ipython.lib.clipboard import ClipboardEmpty
-from yap_ipython.utils.text import SList, strip_email_quotes
-from yap_ipython.utils import py3compat
+from IPython.core.error import TryNext, UsageError
+from IPython.core.magic import Magics, magics_class, line_magic
+from IPython.lib.clipboard import ClipboardEmpty
+from IPython.utils.text import SList, strip_email_quotes
+from IPython.utils import py3compat
 
 def get_pasted_lines(sentinel, l_input=py3compat.input, quiet=False):
     """ Yield pasted lines until the user enters the given sentinel value.
@@ -109,7 +109,7 @@ class TerminalMagics(Magics):
         Just press enter and type -- (and press enter again) and the block
         will be what was just pasted.
 
-        yap_ipython statements (magics, shell escapes) are not supported (yet).
+        IPython statements (magics, shell escapes) are not supported (yet).
 
         See also
         --------
@@ -162,7 +162,7 @@ class TerminalMagics(Magics):
 
           -q: quiet mode: do not echo the pasted text back to the terminal.
 
-        yap_ipython statements (magics, shell escapes) are not supported (yet).
+        IPython statements (magics, shell escapes) are not supported (yet).
 
         See also
         --------

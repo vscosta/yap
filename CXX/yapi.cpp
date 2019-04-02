@@ -82,7 +82,7 @@ restart:
     Functor fun = FunctorOfTerm(t);
     if (IsExtensionFunctor(fun)) {
       throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE,
-                     Yap_PredicateIndicator(t, tmod), pname);
+                     Yap_TermToIndicator(t, tmod), pname);
     }
     if (fun == FunctorModule) {
       tmod = ArgOfTerm(1, t);
@@ -406,6 +406,23 @@ std::vector<Term> YAPPairTerm::listToArray() {
   Term t = gt();
   while (t != TermNil) {
     o[i++] = HeadOfTerm(t);
+    t = TailOfTerm(t);
+  }
+  return o;
+}
+
+std::vector<YAPTerm> YAPPairTerm::listToVector() {
+  Term *tailp;
+  Term t1 = gt();
+  Int l = Yap_SkipList(&t1, &tailp);
+  if (l < 0) {
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+  }
+  std::vector<YAPTerm> o = *new std::vector<YAPTerm>(l);
+  int i = 0;
+  Term t = gt();
+  while (t != TermNil) {
+    o[i++] = YAPTerm(HeadOfTerm(t));
     t = TailOfTerm(t);
   }
   return o;

@@ -1,39 +1,43 @@
-
-
-
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: http://codemirror.net/LICENSE
 
 (function(mod) {
 if (typeof exports == "object" && typeof module == "object") // CommonJS
-  mod(require("codemirror/lib/codemirror"));
+  mod(require(["codemirror/lib/codemirror","codemirror/addon/lint/lint"]));
 else if (typeof define == "function" && define.amd) // AMD
-  define([ "codemirror/lib/codemirror" ], mod);
+  define([ "codemirror/lib/codemirror","codemirror/addon/lint/lint" ], mod);
 else // Plain browser env
   mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
 
-  CodeMirror.defineMode("prolog", function(conf, parserConfig) {
-
+CodeMirror.defineMode("prolog", function(conf, parserConfig) {
   function chain(stream, state, f) {
     state.tokenize = f;
     return f(stream, state);
   }
+
+  var cm_;
+  var curLine;
 
   /*******************************
    *       CONFIG DATA           *
    *******************************/
 
   var quasiQuotations =
-          parserConfig.quasiQuotations || false; /* {|Syntax||Quotation|} */
-      var dicts = parserConfig.dicts || false;   /* tag{k:v, ...} */
-      var groupedIntegers = parserConfig.groupedIntegers || false;   /* tag{k:v, ...} */
-      var unicodeEscape =
-          parserConfig.unicodeEscape || true; /* \uXXXX and \UXXXXXXXX */
-      var multiLineQuoted = parserConfig.multiLineQuoted || true; /* "...\n..." */
-      var quoteType = parserConfig.quoteType ||
-                      {'"' : "string", "'" : "qatom", "`" : "bqstring"};
+      parserConfig.quasiQuotations || false;   /* {|Syntax||Quotation|} */
+  var dialect = parserConfig.dialect || "yap"; /* {|Syntax||Quotation|} */
+  var composeGoalWithDots =
+      parserConfig.composeGoalWithDots || true; /* {|Syntax||Quotation|} */
+  var dicts = parserConfig.dicts || false;      /* tag{k:v, ...} */
+  var groupedIntegers =
+      parserConfig.groupedIntegers || false; /* tag{k:v, ...} */
+  var unicodeEscape =
+      parserConfig.unicodeEscape || true; /* \uXXXX and \UXXXXXXXX */
+  var multiLineQuoted = parserConfig.multiLineQuoted || true; /* "...\n..." */
+  var quoteType = parserConfig.quoteType ||
+                  {'"' : "string", "'" : "qatom", "`" : "bqstring"};
+  var singletonVars = new Map();
 
   var isSingleEscChar = /[abref\\'"nrtsv]/;
   var isOctalDigit = /[0-7]/;
@@ -43,6 +47,105 @@ else // Plain browser env
   var isSoloChar = /[[\]{}(),;|!]/;          /* Prolog solo chars */
   var isNeck = /^(:-|-->)$/;
   var isControlOp = /^(,|;|->|\*->|\\+|\|)$/;
+
+  /*******************************
+   *        Linter Support        *
+   *******************************/
+
+  var errorFound = [];
+  var exportedMsgs = [];
+
+  function getLine(stream) {
+    return stream.lineOracle.line;
+    //  return cm_.getDoc().getCursor().line;
+  }
+
+  // var ed =
+  // window.document.getElementsByClassName("CodeMirror")[0].CodeMirror.doc.getEditor();
+
+  function rmError(stream) {
+    if (cm_ == null)
+    return;
+    var doc = cm_.getDoc();
+    var l = getLine(stream);
+    // stream.lineOracle.line;
+    for (var i = 0; i < errorFound.length; i++) {
+      var elLine = doc.getLineNumber(errorFound[i].line);
+      if (elLine == null || l === elLine) {
+        errorFound.splice(i, 1);
+        i -= 1;
+      }
+    }
+  }
+
+  function mkError(stream, severity, msg) {
+    if (stream.pos == 0)
+      return;
+    var l = cm_.getDoc().getLineHandle(getLine(stream));
+    var found = errorFound.find(function(
+        element) { return element.line === l && element.to == stream.pos; });
+    if (!found) {
+      console.log( getLine(stream) );
+    errorFound.push({
+        "line" : l,
+        "from" : stream.start,
+        "to" : stream.pos,
+        severity : severity,
+        message : msg
+      });
+    }
+  }
+
+  function exportErrors(text) {
+    if (cm_ == null)
+      return;
+    var doc = cm_.getDoc();
+
+    exportedMsgs.length = 0;
+    for (var i = 0; i < errorFound.length; i += 1) {
+      var e = errorFound[i];
+      var l = doc.getLineNumber(e.line);
+      if (l == null) {
+        errorFound.splice(i, 1);
+        i -= 1;
+        continue;
+      }
+      exportedMsgs.push({
+        "from" : CodeMirror.Pos(l, e.from),
+        "to" : CodeMirror.Pos(l, e.to),
+        "severity" : e.severity,
+        "message" : e.message
+      });
+    }
+    return exportedMsgs;
+  }
+
+  function maybeSingleton( stream, key ) {
+    console.log(key);
+    var v = singletonVars.get(key);
+    if (v!= undefined) {
+        v.singleton = false;
+      
+      } else {
+        singletonVars.set(key, { 'singleton': true, 
+        'from': stream.start, to: stream.pos } );
+         
+      }
+      console.log(singletonVars);
+    }
+
+    function outputSingletonVars(stream) {
+var key,v;
+for ( [key,v] of singletonVars.entries()) {
+ if (v!=undefined && v.singleton) {
+   mkError(stream,"warning", key+" singleton variable");
+ }
+    }
+    singletonVars.clear();
+    console.log("reset");
+  }
+
+  CodeMirror.registerHelper("lint", "prolog", exportErrors);
 
   /*******************************
    *     CHARACTER ESCAPES    *
@@ -129,7 +232,8 @@ else // Plain browser env
     var nest = nesting(state);
     if (nest && !nest.alignment && nest.arg != undefined) {
       if (nest.arg == 0)
-        nest.alignment = nest.leftCol ? nest.leftCol + conf.indentUnit : nest.column + conf.indentUnit;
+        nest.alignment = nest.leftCol ? nest.leftCol + conf.indentUnit
+                                      : nest.column + conf.indentUnit;
       else
         nest.alignment = nest.column + 1;
     }
@@ -161,10 +265,10 @@ else // Plain browser env
 
   // Used as scratch variables to communicate multiple values without
   // consing up tons of objects.
-  var type;//, content;
+  var type; //, content;
   function ret(tp, style, cont) {
     type = tp;
-  //  content = cont;
+    //  content = cont;
     return style;
   }
 
@@ -181,6 +285,8 @@ else // Plain browser env
   function plTokenBase(stream, state) {
     var ch = stream.next();
 
+    state.curToken = ch;
+
     if (ch == "(") {
       if (state.lastType == "functor") {
         state.nesting.push({
@@ -195,10 +301,10 @@ else // Plain browser env
         state.nesting.push({
           type : "control",
           closeColumn : stream.column(),
-          alignment : stream.column() + conf.indentUnit
+          alignment : stream.column() + 3
         });
       }
-      return ret("solo", null, "(");
+      return ret("solo", "tag", "(");
     }
 
     if (ch == "{" && state.lastType == "tag") {
@@ -225,10 +331,11 @@ else // Plain browser env
 
     if (isSoloChar.test(ch)) {
       switch (ch) {
-      case ")":
+      case ")": {
         state.nesting.pop();
-        break;
+      } break;
       case "]":
+
         state.nesting.pop();
         return ret("list_close", "bracket");
       case "}": {
@@ -237,18 +344,45 @@ else // Plain browser env
 
         state.nesting.pop();
         return ret(type, null);
-      }; break;
-      case ",":
+      } break;
+      case ",": 
+      {
         if (stream.eol())
           state.commaAtEOL = true;
         nextArg(state);
         /*FALLTHROUGH*/
-        if (isControl(state)) {
-          state.goalStart = true;
+          if (!state.commaAtEOL)
+            stream.eatSpace();
+            var nch = stream.peek();
+             if ( nch == ';' || nch == ',') {
+              mkError(stream, "error", "\",\" followed by "+stream.peek());
+              return ret("solo", "error", ",");
+            }
+            if (isControl(state)) {
+              if ("[" != ch ) {
+            if (state.inBody ) {
+              state.goalStart = true;
+            } else {
+              mkError(stream, "error", "\",\" followed by "+stream.peek());
+              return ret("solo", "error", ",");
+            }
+          }
         }
-        break;
+        return ret('solo','tag', ",");
+      } break;
       case ";":
-        if (isControl(state)) {
+      if (!state.commaAtEOL)
+            stream.eatSpace();
+           ch = stream.peek();
+      if ( ch == ';' || ch == ',') {
+        mkError(stream, "error", "\",\" followed by "+stream.peek());
+        return ret("solo", "error", ";");
+      }
+  if (isControl(state)) {
+          if (!state.inBody) {
+            mkError(stream, "error", "unexpected ;");
+            return ret("solo", "error", ";");
+          }
           state.goalStart = true;
         }
         break;
@@ -256,7 +390,7 @@ else // Plain browser env
         state.nesting.push({
           type : "list",
           closeColumn : stream.column(),
-          alignment : stream.column() + 2
+          alignment : stream.column() + 3
         });
         return ret("list_open", "bracket");
         break;
@@ -288,8 +422,8 @@ else // Plain browser env
           state.goalStart = true;
         }
         break;
+        return ret("solo", "tag", ch);
       }
-      return ret("solo", null, ch);
     }
 
     if (ch == '"' || ch == "'" || ch == "`") {
@@ -309,8 +443,10 @@ else // Plain browser env
       if (stream.eat(/'/)) { /* 0' */
         var next = stream.next();
         if (next == "\\") {
-          if (!readEsc(stream))
+          if (!readEsc(stream)) {
+            mkError(stream, "error", "bad escape");
             return ret("error", "error");
+          }
         }
         return ret("code", "number");
       }
@@ -321,48 +457,85 @@ else // Plain browser env
         stream.match(/^\d*((_|\s+)\d+)*(?:\.\d+)?(?:[eE][+\-]?\d+)?/);
       else
         stream.match(/^\d*(?:\.\d+)?(?:[eE][+\-]?\d+)?/);
-      return ret(ch == "-" ? "neg-number"
-                           : ch == "+" ? "pos-number" : "number");
+      return ret(ch == "-" ? "neg-number" : ch == "+" ? "-number" : "number",
+                 "number");
     }
 
     if (isSymbolChar.test(ch)) {
       stream.eatWhile(isSymbolChar);
       var atom = stream.current();
-      if (atom == "." && peekSpace(stream)) {
+      if (atom == "." && (stream.eol() || peekSpace(stream))) {
         if (nesting(state)) {
-          return ret("fullstop", "meta", atom);
-        } else {
-          state.headStart = true;
+          mkError(stream, "error", "Clause over before closing all brackets");
+          state.nesting = [];
         }
-        return ret("fullstop", null, atom);
-      } else if (isNeck.test(atom)) {
-        return ret("neck", "property", atom);
-      } else if (isControl(state) && isControlOp.test(atom)) {
+  //  var start = cm_.getCursor("end");
+    //cm_.setBookmark(start, {"widget" : document.createTextNode("&bull;")});
+        state.inBody = false;
         state.goalStart = true;
-        return ret("symbol", "meta", atom);
-      } else
-        return ret("symbol", "meta", atom);
-    }
+        outputSingletonVars(stream);
+        stream.eat(ch);
+        return ret("fullstop", "def", atom);
 
+      } else {
+        if (atom === ":-" && state.headStart) {
+	    state.headStart = false;
+	     state.inBody = true;
+          state.goalStart = true;
+          return ret("directive", "attribute", atom);
+
+        } else if (isNeck.test(atom)) {
+          state.inBody = true;
+          state.goalStart = true;
+          return ret("neck", "property", atom);
+        } else if (isControl(state) && isControlOp.test(atom)) {
+          state.goalStart = true;
+          return ret("symbol", "meta", atom);
+        } else
+          return ret("symbol", "meta", atom);
+      }
+    }
     stream.eatWhile(/[\w_]/);
+    if (composeGoalWithDots) {
+      while (stream.peek() == ".") {
+        stream.eat('.');
+        // a.b() and friends
+        if ((ch = stream.peek()) == ' ' || stream.eol()) {
+          stream.backUp(1);
+          break;
+
+        } else if (/[\w_]/.test(ch)) {
+          stream.eatWhile(/[\w_]/);
+        } else if (ch == "'") {
+
+          stream.eat();
+
+          stream.eatWhile(/[\w_]/);
+          if (ch == ".") {
+            mkError(stream, "error", "bad dotted name");
+            return ret("atom", "error");
+          }
+        }
+      }
+    }
     var word = stream.current();
+    state.curToken = word;
     var extra = "";
-     if (stream.peek() == "{" && dicts) {
+    if (stream.peek() == "{" && dicts) {
       state.tagName = word; /* tmp state extension */
       state.tagColumn = stream.column();
       return ret("tag", "tag", word);
-    } else if (ch == "_") {
+    } else if ((ch = word[0]) == "_") {
       if (word.length == 1) {
-        return ret("var", "variable-3", word);
+        return ret("var", "variable-2", word);
       } else {
-        var sec = word.charAt(1);
-        if (sec == sec.toUpperCase())
-          return ret("var", "variable-3", word);
-      }
-      return ret("var", "variable-3", word);
-    } else if (ch == ch.toUpperCase()) {
       return ret("var", "variable-2", word);
-    } else if (stream.peek() == "(") {
+      }
+    } else if (ch.match(/[A-Z]/) ) {
+        maybeSingleton(stream,word);
+      return ret("var", "variable-1", word);
+    }
+      if (stream.peek() == "(") {
       state.functorName = word; /* tmp state extension */
       state.functorColumn = stream.column();
       if (state.headStart) {
@@ -371,28 +544,36 @@ else // Plain browser env
           state.headFunctor = word;
           return ret("functor", "def", word);
         }
-          }
-      if (builtins[word])
+      }
+      if (builtins[word] && isControl(state))
         return ret("functor", "keyword", word);
       return ret("functor", "atom", word);
-    } else if ((extra = stream.eat(/\/(\/)?\d\d?/)!="")) {
+    } else if ((extra = stream.eatSpace())) {
+      if (state.headStart && (stream.peek() == ":" || stream.peek() == "-")) {
+        state.headStart = false;
+        if (state.headFunctor != word) {
+          state.headFunctor = word;
+          return ret("functor", "def", word);
+        }
+      }
       state.functorName = word; /* tmp state extension */
       state.functorColumn = stream.column();
       var w = stream.current();
-      if (builtins[word])
+      if (builtins[word] && isControl(state))
         return ret("functor", "keyword", w);
       return ret("functor", "atom", w);
-    } else
-      if (state.headStart) {
-        state.headStart = false;
-        if (state.headFunctor != word) {
-          state.headFunctor = word;
-          return ret("functor", "def", word);
-        }
-          }
-      if (builtins[word])
-        return ret("functor", "keyword", word);
-      return ret("atom", "atom", word);
+    } else if ((extra = stream.eat(/\/(\/)?\d\d?/) != "")) {
+      state.functorName = word; /* tmp state extension */
+      state.functorColumn = stream.column();
+      var w = stream.current();
+      if (builtins[word] && isControl(state))
+        return ret("functor", "keyword", w);
+      return ret("functor", "atom", w);
+    } else if (builtins[word] && isControl(state)) {
+      return ret("atom", "keyword", word);
+    }
+    return ret("atom", "atom", word);
+
   }
 
   function plTokenString(quote) {
@@ -402,12 +583,12 @@ else // Plain browser env
         if (stream.peek() == "(") { /* 'quoted functor'() */
           var word = stream.current();
           state.functorName = word; /* tmp state extension */
-      if (state.headStart) {
-        state.headStart = false;
-        if (state.headFunctor != word) {
-          state.headFunctor = word;
-          return ret("functor", "def", word);
-        }
+          if (state.headStart) {
+            state.headStart = false;
+            if (state.headFunctor != word) {
+              state.headFunctor = word;
+              return ret("functor", "def", word);
+            }
           }
           return ret("functor", "atom", word);
         }
@@ -446,100 +627,115 @@ else // Plain browser env
     return ret("comment", "comment");
   }
 
-  //   /*******************************
-  //    *        ACTIVE KEYS        *
-  //    *******************************/
+  /*******************************
+   *        ACTIVE KEYS        *
+   *******************************/
 
-  //   /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  //   - -
-  //      Support if-then-else layout like this:
+  /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                                                                     - -
+Support if-then-else layout like this:
 
-  //      goal :-
-  //      (    Condition
-  //      ->  IfTrue
-  //      ;   IfFalse
-  //      ).
-  //      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  //      - - */
+goal :-
+(
+                                                             Condition
+->
+IfTrue
+;
+   IfFalse
+).
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+- - */
 
-  //   CodeMirror.commands.prologStartIfThenElse = function(cm) {
-  //       var start = cm.getCursor("start");
-  //       var token = cm.getTokenAt(start, true);
+  CodeMirror.commands.prologStartIfThenElse = function(cm) {
+    var start = cm.getCursor("start");
+    var token = cm.getTokenAt(start, true);
 
-  //       if ( token.state.goalStart == true )
-  //       { cm.replaceSelection("(   ", "end");
-  //     return;
-  //       }
+    if (token.state.goalStart == true) {
+      cm.replaceSelection("(\n", "end");
+      return;
+    }
 
-  //       return CodeMirror.Pass;
-  //   }
+    return CodeMirror.Pass;
+  };
 
-  //   CodeMirror.commands.prologStartThen = function(cm) {
-  //       var start = cm.getCursor("start");
-  //       var token = cm.getTokenAt(start, true);
+  CodeMirror.commands.prologStartThen =
+      function(cm) {
+    var start = cm.getCursor("start");
+    var token = cm.getTokenAt(start, true);
 
-  //       /* FIXME: These functions are copied from prolog.js.  How
-  //      can we reuse these?
-  //       */
-  //       function nesting(state) {
-  //       var len = state.nesting.length;
-  //       if ( len > 0 )
-  //           return state.nesting[len-1];
-  //       return null;
-  //       }
+    /* FIXME: These functions are copied from prolog.js.  How
+                                                    can we reuse these?
+             */
+    function nesting(state) {
+      var len = state.nesting.length;
+      if (len > 0)
+        return state.nesting[len - 1];
+      return null;
+    }
 
-  //       function isControl(state) {        /* our terms are goals */
-  //       var nest = nesting(state);
-  //       if ( nest ) {
-  //           if ( nest.type == "control" ) {
-  //           return true;
-  //           }
-  //           return false;
-  //       } else
-  //           return state.inBody;
-  //       }
+    function isControl(state) { /* our terms are goals */
+      var nest = nesting(state);
+      if (nest) {
+        if (nest.type == "control") {
+          return true;
+        }
+        return false;
+      } else
+        return state.inBody;
+    }
 
-  //       if ( start.ch == token.end &&
-  //        token.type == "operator" &&
-  //        token.string == "-" &&
-  //        isControl(token.state) )
-  //       { cm.replaceSelection(">  ", "end");
-  //     return;
-  //       }
+    if (start.ch == token.end && token.type == "operator" &&
+        token.string == "-" && isControl(token.state)) {
+      cm.replaceSelection("\n->\n", "end");
+      return;
+    }
 
-  //       return CodeMirror.Pass;
-  //   }
+    return CodeMirror.Pass;
+  }
 
-  //   CodeMirror.commands.prologStartElse = function(cm) {
-  //       var start = cm.getCursor("start");
-  //       var token = cm.getTokenAt(start, true);
+      CodeMirror.commands.prologStartElse =
+          function(cm) {
+    var start = cm.getCursor("start");
+    var token = cm.getTokenAt(start, true);
 
-  //       if ( token.start == 0 && start.ch == token.end &&
-  //        !/\S/.test(token.string) )
-  //       { cm.replaceSelection(";   ", "end");
-  //     return;
-  //       }
+    if (token.start == 0 && start.ch == token.end && !/\S/.test(token.string)) {
+      cm.replaceSelection("\n;\n", "end");
+      return;
+    }
 
-  //       return CodeMirror.Pass;
-  //   }
+    return CodeMirror.Pass;
+  }
 
-  //   CodeMirror.defineOption("prologKeys", null, function(cm, val, prev) {
-  //       if (prev && prev != CodeMirror.Init)
-  //       cm.removeKeyMap("prolog");
-  //       if ( val ) {
-  //       var map = { name:     "prolog",
-  //               "'('":    "prologStartIfThenElse",
-  //               "'>'":    "prologStartThen",
-  //               "';'":    "prologStartElse",
-  //               "Ctrl-L": "refreshHighlight"
-  //             };
-  //       cm.addKeyMap(map);
-  //       }
-  //   });
+          CodeMirror.commands.prologEndClause =
+              function(cm) {
+    if (!cm.state.nesting() && !isControl(cm.state)) {
+      var start = cm.getCursor("end");
+      cm.setBookmark(start, {widget : document.createTextNode("&para;")});
+      return;
+    }
+    return CodeMirror.Pass;
+  }
 
-  //  });
-  // Default (SWI-)Prolog operator table.   To be used later to enhance the
-  // offline experience.
+              CodeMirror.defineOption(
+                  "prologKeys", true, function(cm, editor, prev) {
+                    cm_ = cm;
+                    if (prev && prev != CodeMirror.Init)
+                      cm.removeKeyMap("prolog");
+                    if (true) {
+                      var map = {
+                        name : "prolog",
+                        "Enter '('" : "prologStartIfThenElse",
+                        "Enter '-' '>'" : "prologStartThen",
+                        "Enter ';'" : "prologStartElse",
+                        "Ctrl-L" : "refreshHighlight",
+                        "Tab" : "indent"
+                      };
+                      cm.addKeyMap(map);
+                    }
+                  });
+
+  // Default (SWI-)Prolog operator table.   To be used later to enhance
+  // the offline experience.
 
   var ops = {
     "-->" : {p : 1200, t : "xfx"},
@@ -609,7 +805,6 @@ else // Plain browser env
 
     "\\" : {p : 200, t : "fy"}
   };
-
 
   var builtins = {
     "C" : "prolog",
@@ -890,9 +1085,6 @@ else // Plain browser env
     "number_atom" : "prolog",
     "number_chars" : "prolog",
     "number_codes" : "prolog",
-    "number_string" : "prolog",
-    "numbervars" : "prolog",
-    "on_exception" : "prolog",
     "on_signal" : "prolog",
     "once" : "prolog",
     "op" : "prolog",
@@ -1162,7 +1354,7 @@ else // Plain browser env
    *       RETURN OBJECT         *
    *******************************/
 
- var external = {
+  var external = {
     startState : function() {
       return {
         tokenize : plTokenBase,
@@ -1179,31 +1371,32 @@ else // Plain browser env
     token : function(stream, state) {
       // var nest;
 
-      if (state.curTerm == null && parserConfig.metainfo) {
-        state.curTerm = 0;
-        state.curToken = 0;
+      if (state.curTerm == null) {
+        if (parserConfig.metainfo) {
+          state.curTerm = 0;
+          state.curToken = 0;
+        }
       }
 
-      if (stream.sol())
+      if (stream.eol()) {
+        curLine++;
         delete state.commaAtEOL;
+      }
 
       if (state.tokenize == plTokenBase && stream.eatSpace()) {
         if (stream.eol())
           setArgAlignment(state);
         return null;
       }
+      if (state.curLine == null || state.pos == 0)
+        rmError(stream);
 
       var style = state.tokenize(stream, state);
+      console.log(state.curToken);
 
-      if (stream.eol())
-        setArgAlignment(state);
-
-      if (type == "neck") {
-        state.inBody = true;
-        state.goalStart = true;
-      } else if (type == "fullstop") {
-        state.inBody = false;
-        state.goalStart = true;
+      if (stream.eol()) {
+        if (stream.pos > 0)
+          setArgAlignment(state);
       }
 
       state.lastType = type;
@@ -1211,45 +1404,45 @@ else // Plain browser env
       if (builtins[state.curToken] == "prolog")
         return "builtin";
       if (ops[state.curToken])
-        return "operator";
+        return "keyword";
 
-      //if (typeof(parserConfig.enrich) == "function")
-      //  style = parserConfig.enrich(stream, state, type, content, style);
-      
+      // if (typeof(parserConfig.enrich) == "function")
+      //  style = parserConfig.enrich(stream, state, type, content,
+      //  style);
+
       return style;
-      
     },
-    
+
     indent : function(state, textAfter) {
       if (state.tokenize == plTokenComment)
         return CodeMirror.Pass;
-              
+
       var nest;
+      if (!state.inBody)
+        return 0;
+      var ctl = isControl(state);
       if ((nest = nesting(state))) {
-        if (nest.closeColumn && !state.commaAtEOL)
+        if (!ctl && nest.closeColumn && !state.commaAtEOL)
           return nest.closeColumn;
-        if ( (textAfter === ']' || textAfter === ')') && nest.control)
-          return nest.alignment-1;
+        if ((textAfter === ']' || textAfter === ')' || textAfter === ').' ||
+             textAfter === '->' || textAfter === ';' || textAfter === '*->') &&
+            ctl)
+          return nest.alignment - 3;
         return nest.alignment;
       }
-              if (!state.inBody)
-                return 0;
 
       return conf.indentUnit;
     },
 
-    //      theme: "prolog",
-
+    electricInput : /^\s*([\}\]\)\;]|\-\>}\*\-\>|\)\.)$/,
     blockCommentStart : "/*", /* continuecomment.js support */
     blockCommentEnd : "*/",
     blockCommentContinue : " * ",
-    lineComment : "%",
-    fold : "indent"
+    comment : "%",
+    matchBrackets: true
   };
   return external;
-
 });
 
 CodeMirror.defineMIME("text/x-prolog", "prolog");
-
 });

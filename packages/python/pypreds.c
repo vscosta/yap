@@ -1,4 +1,6 @@
 
+
+
 #include "Yap.h"
 
 #include "py4yap.h"
@@ -31,7 +33,7 @@ static foreign_t python_represent( term_t name, term_t tobj) {
   term_t stackp = python_acquire_GIL();
   PyObject *e;
 
-  e = term_to_python(tobj, false, NULL, true);
+  e = term_to_python(tobj, false, NULL, false);
   if (e == NULL) {
     python_release_GIL(stackp);
     pyErrorAndReturn(false);
@@ -750,31 +752,33 @@ bool python_release_GIL(term_t curBlock) {
 }
 
 install_t install_pypreds(void) {
-  PL_register_foreign("python_builtin_eval", 3, python_builtin_eval, 0);
-  PL_register_foreign("python_builtin", 1, python_builtin, 0);
-  PL_register_foreign("python_import", 2, python_import, 0);
-  PL_register_foreign("python_to_rhs", 2, python_to_rhs, 0);
-  PL_register_foreign("python_len", 2, python_len, 0);
-  PL_register_foreign("python_is", 2, python_is, 0);
-  PL_register_foreign("python_dir", 2, python_dir, 0);
-  PL_register_foreign("python_apply", 4, python_apply, 0);
-  PL_register_foreign("python_index", 3, python_index, 0);
-  PL_register_foreign("python_field", 3, python_field, 0);
-  PL_register_foreign("python_assign", 2, assign_python, 0);
-  PL_register_foreign("python_represents", 2, python_represent, 0);
-  PL_register_foreign("python_export", 2, python_export, 0);
-  PL_register_foreign("python_function", 1, python_function, 0);
-  PL_register_foreign("python_slice", 4, python_slice, 0);
-  PL_register_foreign("python_run_file", 1, python_run_file, 0);
-  PL_register_foreign("python_proc", 1, python_proc, 0);
-  PL_register_foreign("python_run_command", 1, python_run_command, 0);
-  PL_register_foreign("python_run_script", 2, python_run_script, 0);
-  PL_register_foreign("python_main_module", 1, python_main_module, 0);
-  PL_register_foreign("python_import", 2, python_import, 0);
-  PL_register_foreign("python_access", 3, python_access, 0);
-  PL_register_foreign("python_threaded", 0, p_python_threaded, 0);
-  PL_register_foreign("python_clear_errors", 0, python_clear_errors, 0);
-  PL_register_foreign("python_string_to", 1, python_string_to, 0);
 
+  PL_register_foreign_in_module("python", "python_builtin_eval", 3, python_builtin_eval, 0);
+  PL_register_foreign_in_module("python", "python_builtin", 1, python_builtin, 0);
+  PL_register_foreign_in_module("python", "python_import", 2, python_import, 0);
+  PL_register_foreign_in_module("python", "python_to_rhs", 2, python_to_rhs, 0);
+  PL_register_foreign_in_module("python", "python_len", 2, python_len, 0);
+  PL_register_foreign_in_module("python", "python_is", 2, python_is, 0);
+  PL_register_foreign_in_module("python", "python_dir", 2, python_dir, 0);
+  PL_register_foreign_in_module("python", "python_apply", 4, python_apply, 0);
+  PL_register_foreign_in_module("python", "python_index", 3, python_index, 0);
+  PL_register_foreign_in_module("python", "python_field", 3, python_field, 0);
+  PL_register_foreign_in_module("python", "python_assign", 2, assign_python, 0);
+  PL_register_foreign_in_module("python", "python_represents", 2, python_represent, 0);
+  PL_register_foreign_in_module("python", "python_export", 2, python_export, 0);
+  PL_register_foreign_in_module("python", "python_function", 1, python_function, 0);
+  PL_register_foreign_in_module("python", "python_slice", 4, python_slice, 0);
+  PL_register_foreign_in_module("python", "python_run_file", 1, python_run_file, 0);
+  PL_register_foreign_in_module("python", "python_proc", 1, python_proc, 0);
+  PL_register_foreign_in_module("python", "python_run_command", 1, python_run_command, 0);
+  PL_register_foreign_in_module("python", "python_run_script", 2, python_run_script, 0);
+  PL_register_foreign_in_module("python", "python_main_module", 1, python_main_module, 0);
+  PL_register_foreign_in_module("python", "python_import", 2, python_import, 0);
+  PL_register_foreign_in_module("python", "python_access", 3, python_access, 0);
+  PL_register_foreign_in_module("python", "python_threaded", 0, p_python_threaded, 0);
+  PL_register_foreign_in_module("python", "python_clear_errors", 0, python_clear_errors, 0);
+  PL_register_foreign_in_module("python", "python_string_to", 1, python_string_to, 0);
+
+  
   init_python_vfs();
 }

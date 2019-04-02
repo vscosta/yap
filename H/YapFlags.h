@@ -230,12 +230,15 @@ typedef struct struct_param2 {
   const char *scope;
 } param2_t;
 
+/// @brief prolog_flag/2 support, notice flag is initialized as text.
+/// 
+/// 
 typedef struct {
-  char *name;
-  bool writable;
-  flag_func def;
-  const char *init;
-  flag_helper_func helper;
+  char *name;                 //< user visible name
+  bool writable;              //< read-write or read-only
+  flag_func def;              //< call on definition
+  const char *init;           //< initial value as string
+  flag_helper_func helper;    //< operations triggered by writing the flag.
 } flag_info;
 
 typedef struct {
@@ -244,6 +247,8 @@ typedef struct {
   const char *init;
 } arg_info;
 
+/// @brief
+///  a flag is represented as a Prolog term.
 typedef union flagTerm {
   Term at;
   struct DB_TERM *DBT;

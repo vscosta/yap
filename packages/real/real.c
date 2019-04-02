@@ -16,59 +16,24 @@
  */
 #define CSTACK_DEFNS
 #include "rconfig.h"
-#if HAVE_R_H || !defined(_YAP_NOT_INSTALLED_)
+
 #include <SWI-Prolog.h>
 #undef ERROR
 #if HAVE_R_EMBEDDED_H
 #include <Rembedded.h>
 #endif
-#include <R.h>
-#include <Rinternals.h>
 #if HAVE_R_INTERFACE_H
 #include <Rinterface.h>
 #define R_SIGNAL_HANDLERS 1
 #endif
-#include <R_ext/Parse.h>
+#include <R.h>
+
 #include <Rdefines.h>
 #include <assert.h>
 #include <string.h>
+#include <R_ext/Parse.h>
 
-bool R_isNull(SEXP sexp);
-
-#if DEBUG_MEMORY
-#define PROTECT_AND_COUNT(EXP)                                                 \
-  {                                                                            \
-    extern int R_PPStackTop;                                                   \
-    PROTECT(EXP);                                                              \
-    nprotect++;                                                                \
-    printf("%s:%d +%d=%d\n", __FUNCTION__, __LINE__, nprotect, R_PPStackTop);  \
-  }
-#define Ureturn                                                                \
-  {                                                                            \
-    extern int R_PPStackTop;                                                   \
-    printf("%s:%d -%d=%d\n", __FUNCTION__, __LINE__, nprotect,                 \
-           R_PPStackTop - nprotect);                                           \
-  }                                                                            \
-  unprotect(nprotect);                                                         \
-  return
-#else
-#define PROTECT_AND_COUNT(EXP)                                                 \
-  {                                                                            \
-    PROTECT(EXP);                                                              \
-    nprotect++;                                                                \
-  }
-#define Ureturn                                                                \
-  unprotect(nprotect);                                                         \
-  return
-#endif
-
-// #define PL_free(v)
-
-static inline SEXP protected_tryEval(SEXP expr, SEXP env, int *errp) {
-  SEXP o;
-  o = R_tryEval(expr, env, errp);
-  return o ? o : expr;
-}
+#include "real.h"
 
 static atom_t ATOM_break;
 static atom_t ATOM_false;
@@ -105,9 +70,6 @@ static functor_t FUNCTOR_tilde2;
 static functor_t FUNCTOR_while2;
 
 X_API install_t install_real(void);
-
-static SEXP term_to_sexp(term_t t, bool eval);
-static int sexp_to_pl(term_t t, SEXP s);
 
 #define PL_R_BOOL (1)      /* const char * */
 #define PL_R_CHARS (2)     /* const char * */
@@ -491,7 +453,7 @@ static int merge_dots(term_t t) {
 }
 
 // put t in ans[index]; and stores elements of type objtype
-static int term_to_S_el(term_t t, int objtype, size_t index, SEXP ans) {
+int term_to_S_el(term_t t, int objtype, size_t index, SEXP ans) {
   switch (objtype) {
   case PL_R_CHARS:
   case PL_R_PLUS: {
@@ -1226,7 +1188,7 @@ static int pl_to_binary(const char *s, term_t t, term_t tmp, SEXP *ansP) {
  *
  * @return whether it succeeds or fails.
  */
-static SEXP(term_to_sexp(term_t t, bool eval)) {
+SEXP term_to_sexp(term_t t, bool eval) {
   int nprotect = 0;
   SEXP ans = R_NilValue;
   int objtype;
@@ -1671,8 +1633,7 @@ static int bind_sexp(term_t t, SEXP sexp) {
 /*******************************
  *	   SEXP --> Prolog	*
  *******************************/
-
-static int sexp_to_pl(term_t t, SEXP s) {
+bool  sexp_to_pl(term_t t, SEXP s) {
   int rank = sexp_rank(s);
   size_t shape[256];
 
@@ -2225,6 +2186,5 @@ install_real(void) { /* FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2); */
   PL_register_foreign("is_R_variable", 1, is_R_variable, 0);
 }
 
-#endif /* R_H */
 /// @}
 

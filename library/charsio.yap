@@ -24,9 +24,12 @@
  * @{
  * 
 */
+%%  @file charsio.yap
+%%
+%%
+%%  @brief Input/Output to characters.
 
-
-:- module(system(charsio), [
+:- module(charsio, [
 	format_to_chars/3,
 	format_to_chars/4,
 	write_to_chars/3,
@@ -45,13 +48,14 @@
 
 /** @defgroup charsio Operations on Sequences of Codes.
 @ingroup library
+@{
 
 Term to sequence of codes conversion, mostly replaced by engine code.
 You can use the following directive to load the files.
 
 
 ~~~~~~~
-:- use_module(library(avl)).
+:- use_module(library(charsio)).
 ~~~~~~~
 
 It includes the following predicates:

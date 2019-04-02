@@ -108,7 +108,8 @@ In YAP, the info field describes:
 :- use_system_module( user, [message_hook/3]).
 
 %:- start_low_level_trace.
-:- multifile prolog:message/3.
+:- dynamic  prolog:message//1.
+:- multifile prolog:message//1.
 %:- stop_low_level_trace.
 :- multifile user:message_hook/3.
 
@@ -132,7 +133,7 @@ prolog:message_to_string(Event, Message) :-
 %	to source-location.  Note that syntax errors have their own
 %	source-location and should therefore not be handled this way.
 compose_message( Term, _Level ) -->
-  message(Term), !.
+    message(Term), !.
 compose_message( query(_QueryResult,_), _Level) -->
   [].
 compose_message( absolute_file_path(File), _Level) -->
@@ -260,7 +261,7 @@ compose_message(Throw, _Level) -->
 location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {	query_exception(prologConsulting, Desc, true) },
-    {	query_exception(parserReadingCode, Desc, true)}, 
+%    {	query_exception(parserReadingCode, Desc, true)}, 
     !,
     {
   query_exception(parserFile, Desc, FileName),
@@ -271,7 +272,7 @@ location(style_check(A,LN,FileName,B ), Level , LC) -->
   !,
   display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
   [ '~a:~d:0: ~a: ' - [FileName,LN,Level] ] .
-location( error(_,Info), Level, LC ) -->
+location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
   query_exception(prologPredFile, Desc, File),
@@ -281,11 +282,9 @@ location( error(_,Info), Level, LC ) -->
   query_exception(prologPredArity, Desc, Ar)
     },
   !,
-  display_consulting( File, Level, Info, LC ),
   {simplify_pred(M:Na/Ar,FF)},
   [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
-
-location( error(_,Info), Level, LC ) -->
+location( error(_,Info), Level, _LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
    query_exception(errorFile, Desc, File),
@@ -293,7 +292,6 @@ location( error(_,Info), Level, LC ) -->
   query_exception(errorFunction, Desc, F)
   },
   !,
-  display_consulting( File, Level, Info,  LC ),
   {simplify_pred(F,FF)},
   [  '~a:~d:0 ~a while executing ~a().'-[File, FilePos,Level,FF] ].
 location( _Ball, _Level, _LC ) --> [].
@@ -350,7 +348,7 @@ main_error_message(evaluation_error(What, Who)) -->
    [ '~*|** ~w caused ~a during evaluation of arithmetic expressions **' - [ 10,Who,What], nl ].
 main_error_message(existence_error(Type , Who)) -->
    [nl],
-   [  '~*|** ~q ~q could not be found **' - [ 10,Type, Who], nl ].
+   [  '~*|** ~q ~q does not exist **' - [ 10,Type, Who], nl ].
 main_error_message(permission_error(Op, Type, Id)) -->
   [ '~*|** value ~q is not allowed in ~a ~q **' - [ 10, Op, Type,Id], nl ].
 main_error_message(instantiation_error) -->
@@ -374,7 +372,8 @@ display_consulting( F, Level, Info, LC) -->
        '$error_descriptor'(Info, Desc),
        query_exception(prologParserFile, Desc, F0),
        query_exception(prologParserLine, Desc, L),
-       F \= F0
+       integer(L)
+,       F \= F0
     }, !,
     [ '~a:~d:0: ~a raised at:'-[F0,L,Level], nl ].
 display_consulting( F, Level, _, LC) -->
@@ -424,14 +423,17 @@ extra_info( error(_,Info), _ ) -->
  { '$error_descriptor'(Info, Desc) },
    {
    query_exception(errorMsg, Desc, Msg),
+   Msg \= '',
+   Msg \= "",
    Msg \= []
-    },
+   },
     !,
         ['~*|user provided data is: ~q' - [10,Msg]],
         [nl].
 extra_info( _, _ ) -->
   [].
 
+stack_info( _, _ ) --> !.
 stack_info( error(_,Info), _ ) -->
  { '$error_descriptor'(Info, Desc) },
    {
@@ -1039,10 +1041,10 @@ prolog:print_message(Severity, Msg) :-
   ),
   !.
 prolog:print_message(Level, _Msg) :-
+    current_prolog_flag(compiling, true),
   current_prolog_flag(verbose_load, false),
-    '$show_consult_level'(LC),
-    LC > 0,
-  Level = informational,
+  Level \= error,
+  Level \= warning,
   !.
 prolog:print_message(Level, _Msg) :-
   current_prolog_flag(verbose, silent),

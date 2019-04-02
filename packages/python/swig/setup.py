@@ -65,11 +65,11 @@ if platform.system() == 'Windows':
     win_libs =  ['wsock32','ws2_32']
     my_extra_link_args = ['-Wl,-export-all-symbols']
 elif platform.system() == 'Darwin':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/lib','-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 elif platform.system() == 'Linux':
-    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-Wl,-rpath,/usr/local/lib','-Wl,-rpath,'+join('/usr/local/lib','..'),'-Wl,-rpath,../yap4py']
+    my_extra_link_args = ['-L','..','-Wl,-rpath,'+abspath(join(sysconfig.get_path('platlib'),'yap4py')),'-L','/lib','-Wl,-rpath,/lib','-Wl,-rpath,'+join('/lib','..'),'-Wl,-rpath,../yap4py']
     win_libs = []
     local_libs = ['Py4YAP']
 
@@ -85,16 +85,16 @@ native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
 extensions = [Extension('_yap', native_sources,
                     define_macros=[('MAJOR_VERSION', '6'),
-                                       ('MINOR_VERSION', '4'),
+                                       ('MINOR_VERSION', '5'),
                                        ('_YAP_NOT_INSTALLED_', '1'),
                                        ('YAP_PYTHON', '1'),
                                        ('PYTHONSWIG', '1'),
                                        ('_GNU_SOURCE', '1')],
                         runtime_library_dirs=[
-                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/usr/local/lib'],
+                                              abspath(join(sysconfig.get_path('platlib'),'yap4py')), abspath(sysconfig.get_path('platlib')),'/lib'],
                         swig_opts=['-modern', '-c++', '-py3',
                                    '-DX_API', '-Iyap4py/include' ],
-                        library_dirs=[".",'../../..','/usr/local/lib'],
+                        library_dirs=[".",'../../..','/lib'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
                         include_dirs=['/home/vsc/github/yap-6.3/H',
@@ -115,7 +115,7 @@ package_data = {
 
 data_files=[]
 
-version_ns = {'__version__': '6.4.1', 'major-version': '6', 'minor-version': '4', 'patch': '1'}
+version_ns = {'__version__': '6.5.0', 'major-version': '6', 'minor-version': '5', 'patch': '0'}
 
 setup_args = dict(
     name=name,

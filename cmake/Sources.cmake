@@ -65,6 +65,7 @@ set (ENGINE_SOURCES
   C/tracer.c
   C/unify.c
   C/userpreds.c
+  C/terms.c
   C/utilpreds.c
   C/yap-args.c
   C/write.c

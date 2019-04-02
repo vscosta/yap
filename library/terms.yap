@@ -104,14 +104,6 @@ Succeed if  _Term1_ and  _Term2_ are unifiable with substitution
 
 
  */
-/** @pred variable_in_term(? _Term_,? _Var_) 
-
-
-Succeed if the second argument  _Var_ is a variable and occurs in
-term  _Term_.
-
- 
-*/
 /** @pred variables_within_term(+ _Variables_,? _Term_, - _OutputVariables_) 
 
 
@@ -136,6 +128,7 @@ Succeed if  _Term1_ and  _Term2_ are variant terms.
 		  variant/2,
 		  unifiable/3,
 		  subsumes/2,
+
 		  subsumes_chk/2,
 		  cyclic_term/1,
 		  variable_in_term/2,

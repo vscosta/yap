@@ -62,7 +62,7 @@
 	[
 	    class_drop/2
 	]).
-
+
 do_checks(Y,Ty,St,Li,Or,Cl,No,Later) :-
 	numbers_only(Y),
 	verify_nonzero(No,Y),
@@ -76,7 +76,7 @@ numbers_only(Y) :-
 	;   throw(type_error(_X = Y,2,'a rational number',Y))
 	),
 	!.
-
+ø
 % verify_nonzero(Nonzero,Y)
 %
 % if Nonzero = nonzero, then verify that Y is not zero

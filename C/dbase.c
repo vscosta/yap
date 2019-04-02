@@ -3977,6 +3977,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
           ap->cs.p_code.LastClause = clau->ClPrev->ClCode;
         }
       }
+      clau->ClTimeEnd = ap->TimeStampOfPred;
       ap->cs.p_code.NOfClauses--;
     }
 #ifndef THREADS
@@ -4000,7 +4001,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
         if (ap->cs.p_code.NOfClauses > 1) {
           if (ap->TimeStampOfPred >= TIMESTAMP_RESET)
             Yap_UpdateTimestamps(ap);
-          ++ap->TimeStampOfPred;
+          ++(ap->TimeStampOfPred);
           /*	  fprintf(stderr,"-
            * %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
           ap->LastCallOfPred = LUCALL_RETRACT;
@@ -4017,7 +4018,7 @@ static void EraseLogUpdCl(LogUpdClause *clau) {
           ap->LastCallOfPred = LUCALL_ASSERT;
         }
       }
-      clau->ClTimeEnd = ap->TimeStampOfPred;
+      //clau->ClTimeEnd = ap->TimeStampOfPred;
       Yap_RemoveClauseFromIndex(ap, clau->ClCode);
       /* release the extra reference */
     }

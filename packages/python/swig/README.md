@@ -1,22 +1,21 @@
-The YAP Prolog System     {#main}
-===========
 
+<center>
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
 </center>
 
 NOTE: this version of YAP is still experimental, documentation may be out of date.
 
-Introduction
-++++++++++
+## Introduction
 
 This document provides User information on version 6.3.4 of
-YAP (*Yet Another Prolog*). The YAP Prolog System is a
+YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
 high-performance Prolog compiler developed at Universidade do
 Porto.  YAP supports stream Input/Output, sockets, modules,
   exceptions, Prolog debugger, C-interface, dynamic code, internal
   database, DCGs, saved states, co-routining, arrays, threads.
 
 We explicitly allow both commercial and non-commercial use of YAP.
+
 
 YAP is based on the David H. D. Warren's WAM (Warren Abstract Machine),
 with several optimizations for better performance. YAP follows the
@@ -48,33 +47,47 @@ different licenses.
 
 If you have a question about this software, desire to add code, found a
 bug, want to request a feature, or wonder how to get further assistance,
-please send e-mail to `yap-users AT lists.sourceforge.net.  To
-subscribe to the mailing list, visit the [YAP Mailing list page](https://lists.sourceforge.net/lists/listinfo/yap-users).
+please send e-mail to <yap-users AT lists.sourceforge.net>.  To
+subscribe to the mailing list, visit the page
+<https://lists.sourceforge.net/lists/listinfo/yap-users>.
 
 On-line documentation is available for [YAP](http://www.dcc.fp.pt/~vsc/yap/)
 
+
+
 The packages are, in alphabetical order:
 
-+ The CHR package developed by Tom Schrijvers, Christian Holzbaur, and Jan Wielemaker.
++ The CHR package developed by Tom Schrijvers,
+Christian Holzbaur, and Jan Wielemaker.
 
 + The CLP(BN) package and Horus toolkit developed by Tiago Gomes, and Vítor Santos Costa.
 
-+ The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation by Christian Holzbaur.
++ The CLP(R) package developed by Leslie De Koninck, Bart Demoen, Tom
+Schrijvers, and Jan Wielemaker, based on the CLP(Q,R) implementation
+by Christian Holzbaur.
 
-+ The CPLint package developed by Fabrizio Riguzzi's research laboratory at the [University of Ferrara](http://www.ing.unife.it/Docenti/FabrizioRiguzzi/).
++ The CPLint package developed by Fabrizio Riguzzi's research
+laboratory at the [University of Ferrara](http://www.ing.unife.it/Docenti/FabrizioRiguzzi/)
 
-+ The CUDA interface package developed by Carlos Martínez, Jorge Buenabad, Inês Dutra and Vítor Santos Costa.
++ The CUDA interface package developed by Carlos Martínez, Jorge
+Buenabad, Inês Dutra and Vítor Santos Costa.
 
 + The [GECODE](http://www.gecode.org) interface package developed by  Denys Duchier and Vítor Santos Costa.
 
 + The [JPL](http://www.swi-prolog.org/packages/jpl/) (Java-Prolog Library) package developed by .
 
-+ The minisat SAT solver interface developed by Michael Codish, Vitaly Lagoon, and Peter J. Stuckey.
+ The minisat SAT solver interface developed by Michael Codish,
+ Vitaly Lagoon, and Peter J. Stuckey.
 
-+ The MYDDAS relational data-base interface developed at the Universidade do Porto by Tiago Soares, Michel Ferreira, and Ricardo Rocha.
++ The MYDDAS relational data-base interface developed at the
+ Universidade do Porto by Tiago Soares, Michel Ferreira, and Ricardo Rocha.
 
-+ The [PRISM](http://rjida.meijo-u.ac.jp/prism/) logic-based programming system for statistical modeling developed at the Sato Research Laboratory, TITECH, Japan.
++ The [PRISM](http://rjida.meijo-u.ac.jp/prism/) logic-based
+programming system for statistical modeling developed at the Sato
+Research Laboratory, TITECH, Japan.
 
-+ The ProbLog 1 system developed by the [ProbLog](https://dtai.cs.kuleuven.be/problog) team in the DTAI group of KULeuven.
++ The ProbLog 1 system developed by the [ProbLog](https://dtai.cs.kuleuven.be/problog) team in the
+DTAI group of KULeuven.
 
-+ The [R](http://stoics.org.uk/~nicos/sware/packs/real/) interface package developed by Nicos Angelopoulos, Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.
++ The [R](http://stoics.org.uk/~nicos/sware/packs/real/) interface package developed by 	Nicos Angelopoulos,
+Vítor Santos Costa, João Azevedo, Jan Wielemaker, and Rui Camacho.

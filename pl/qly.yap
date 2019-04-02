@@ -82,8 +82,8 @@ Saves an image of the current state of the YAP database in file
 trying goal  _G_.
 **/
 qsave_program(File) :-
-    '$save_program_status'([], qsave_program(File)),
-open(File, write, S, [type(binary)]),
+	'$save_program_status'([], qsave_program(File)),
+	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	  close(S).
 
@@ -229,9 +229,9 @@ qend_program :-
 % there is some ordering between flags.
 'x_yap_flag'(language, V) :-
 	yap_flag(language, V).
-  %if silent keep silent, otherwise use the saved state.
-  'x_yap_flag'(verbose, _) :- !.
-  'x_yap_flag'(verbose_load, _) :- !.
+%if silent keep silent, otherwise use the saved state.
+'x_yap_flag'(verbose, _) :- !.
+'x_yap_flag'(verbose_load, _) :- !.
 'x_yap_flag'(M:P, V) :-
 	current_module(M),
 	yap_flag(M:P, V).
@@ -600,7 +600,7 @@ qload_file( F0 ) :-
     H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
     '$current_module'(Mod, Mod ),
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
-    '$exec_initialization_goals'.
+    '$init_prolog'.
 
 '$qload_file'(_S, SourceModule, _F, FilePl, _F0, _ImportList, _TOpts) :-
     recorded('$source_file','$source_file'( FilePl, _Age, SourceModule), _),

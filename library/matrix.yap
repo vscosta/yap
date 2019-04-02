@@ -654,36 +654,44 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
 
-( X <== '[]'(Dims0, array) of V ) :-
-	var(V), !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	length( L, Size ),
-	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X <== '[]'(Dims0, array) of ints ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
-	matrix_new( ints , Dims, X ),
-	matrix_base(X, Bases).
-( X <== '[]'(Dims0, array) of floats ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
-	matrix_new( floats , Dims, X ),
-	matrix_base(X, Bases).
-( X <== '[]'(Dims0, array) of (I:J) ) :- !,
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	matrix_seq(I, J, Dims, X),
-	matrixn_size(X, Size),
-	matrix_base(X, Bases).
+( X <== '[]'(Dims0, array) of T ) :-
+    var(X),
+    (  T== ints -> true ; T== floats),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
+    matrix_new( T , Dims, _, X ),
+    matrix_base(X, Bases).
+( X <== '[]'(Dims0, array) of T ) :-
+    atom(X),
+    (  T== ints -> true ; T== floats),
+    !,
+    foldl( norm_dim, Dims0, _Dims, _Bases, 1, Size ),
+    static_array( X, Size, [float] ).
+( X <== '[]'(Dims0, array) of (I:J) ) :-
+    var(X),
+    integer(I),
+    integer(J),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
+    matrix_seq(I, J, Dims, X),
+    matrixn_size(X, Size),
+    matrix_base(X, Bases).
+
 ( X <== '[]'(Dims0, array) of L ) :-
-	length( L, Size ), !,
+    is_list(L),
+    !,
+    length( L, Size ), !,
 	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
 	X <== matrix( L, [dim=Dims,base=Bases] ).
-( X <== '[]'(Dims0, array) of Pattern ) :- !,
-	array_extension(Pattern, Goal),
-	foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
-	call(Goal, Pattern, Dims, Size, L),
-	X <== matrix( L, [dim=Dims,base=Bases] ).
+( X <== '[]'(Dims0, array) of Pattern ) :-
+    array_extension(Pattern, Goal),
+    !,
+    foldl( norm_dim, Dims0, Dims, Bases, 1, Size ),
+    call(Goal, Pattern, Dims, Size, L),
+    X <== matrix( L, [dim=Dims,base=Bases] ).
 ( LHS <== RHS ) :-
-	rhs(RHS, R),
-	set_lhs( LHS, R).
+    rhs(RHS, R),
+    set_lhs( LHS, R).
 
 
 
@@ -762,6 +770,23 @@ rhs('[]'(Args, RHS), Val) :-
 	;
 	  matrix_get_range( X1, NArgs, Val )
 	).
+rhs('[]'([Args], floats(RHS)), Val) :-
+    atom(RHS),
+    integer(Args),
+    !,
+    array_element(RHS,Args,Val).
+rhs('[]'(Args, RHS), Val) :-
+	!,
+	rhs(RHS, X1),
+	matrix_dims( X1, Dims, Bases),
+	maplist( index(Range), Args, Dims, Bases, NArgs),
+	(
+	 var(Range)
+	->
+	  array_element( X1, NArgs, Val )
+	;
+	  matrix_get_range( X1, NArgs, Val )
+	).
 rhs('..'(I, J), [I1|Is]) :- !,
 	rhs(I, I1),
 	rhs(J, J1),
@@ -796,6 +821,10 @@ rhs(S, NS) :-
 
 set_lhs(V, R) :- var(V), !, V = R.
 set_lhs(V, R) :- number(V), !, V = R.
+set_lhs(V, R) :- atom(V), !,
+		 static_array_properties(V, N, _),
+		 N1 is N-1,
+		 foreach(I in 0..N1, V[I] <== R[I]).
 set_lhs('[]'([Args], floats(RHS)), Val) :-
     !,
     integer(RHS),
@@ -952,19 +981,6 @@ mtimes(I1, I2, V) :-
 % three types of matrix: integers, floats and general terms.
 %
 
-matrix_new(terms,Dims, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
-	length(Dims,NDims),
-	foldl(size, Dims, 1, Size),
-	maplist(zero, Dims, Offsets),
-	functor( Matrix, c, Size).
-matrix_new(ints,Dims,Matrix) :-
-	length(Dims,NDims),
-	new_ints_matrix_set(NDims, Dims, 0, Matrix).
-matrix_new(floats,Dims,Matrix) :-
-	length(Dims,NDims),
-	new_floats_matrix_set(NDims, Dims, 0.0, Matrix).
-
-
 matrix_new(terms, Dims, Data, '$matrix'(Dims, NDims, Size, Offsets, Matrix) ) :-
 	length(Dims,NDims),
 	foldl(size, Dims, 1, Size),
@@ -1031,7 +1047,7 @@ add_index_prefix( [L|Els0] , H ) --> [[H|L]],
 	add_index_prefix( Els0 , H ).
 
 
-matrix_set_range( Mat, Pos, Els) :-
+matrix_set( Mat, Pos, Els) :-
 	slice(Pos, Keys),
 	maplist( matrix_set(Mat), Keys, Els).
 

@@ -201,7 +201,7 @@ meta_predicate(P) :-
     '$yap_strip_module'(CM:G, NCM, NG).
 
 '$match_mod'(G, _HMod, _SMod, M, O) :-
-    '$is_system_predicate'(G,M),
+    M = prolog,
     !,
     O = G.
 '$match_mod'(G, M, M, M, G) :-    !.
@@ -463,8 +463,9 @@ meta_predicate(P) :-
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
 % has to be last!!!
-'$expand_a_clause'(MHB, SM0, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
-    '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the source module.
+'$expand_a_clause'(MHB, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+    source_module(SM0),
+    '$yap_strip_module'(MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
     '$not_imported'(NH, HM),
@@ -479,8 +480,12 @@ expand_goal(Input, Output) :-
 
 '$expand_meta_call'(G, HVars, MF:GF ) :-
     source_module(SM),
-    '$yap_strip_module'(SM:G, M, IG),
+    '$yap_strip_module'(G, M, IG),
+    '$is_metapredicate'(IG, M),
     '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
+    !,
     '$yap_strip_module'(M:GF0, MF, GF).
+'$expand_meta_call'(G, _HVars, M:IG ) :- 
+    '$yap_strip_module'(G, M, IG).
 
 %% @}

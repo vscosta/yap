@@ -1,4 +1,4 @@
-set(11PL_BOOT_SOURCES
+set(PL_BOOT_SOURCES
   absf.yap
   android.yap
         arith.yap

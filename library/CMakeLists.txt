@@ -1,11 +1,10 @@
 set (LIBRARY_PL
-  INDEX.pl
+INDEX.yap
   apply.yap
   apply_macros.yap
   arg.yap
   assoc.yap
   atts.yap
-  autoloader.yap
   avl.yap
   bhash.yap
   charsio.yap

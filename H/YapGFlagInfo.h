@@ -149,14 +149,14 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
   YAP_FLAG(CHARACTER_ESCAPES_FLAG, "character_escapes", true, booleanFlag,
              "true", NULL),
    
- /**< `compiled_at `
+  YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
+             true, booleanFlag, "true", NULL),
+   
+ /**<
 
      Read-only flag that gives the time when the main YAP binary was compiled.
      It is obtained staight from the __TIME__ macro, as defined in the C99.
   */
-  YAP_FLAG(COLON_SETS_CALLING_CONTEXT_FLAG, "colon_sets_calling_context",
-             true, booleanFlag, "true", NULL),
-   
     YAP_FLAG(COMPILED_AT_FLAG, "compiled_at", false, isatom, YAP_COMPILED_AT,
              NULL),
  /**<
@@ -167,18 +167,25 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 */
   YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL),
    
-    YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
- /**<
+  YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL),
+  /**<
+    
+Says whether to call the debUgger on an exception. False in YAP..
+ */
+  YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "false",
+             NULL),
+   
+  /**<
     If bound, set the argument to the `write_term/3` options the
     debugger uses to write terms. If unbound, show the current options.
  */
-  YAP_FLAG(DEBUG_ON_ERROR_FLAG, "debug_on_error", true, booleanFlag, "true",
-             NULL),
-   
     YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
              "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]",
              NULL),
+		    /**<
+Show their ancestors while debuggIng
+		    */
     YAP_FLAG(DEBUGGER_SHOW_CONTEXT_FLAG, "debugger_show_context", true,
              booleanFlag, "false", NULL),
  /**<
@@ -215,7 +222,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
 vxu    `on` consider `$` a lower case character.
  */
   YAP_FLAG(DOLLAR_AS_LOWER_CASE_FLAG, "dollar_as_lower_case", true,
-             booleanFlag, "false", NULL),
+             booleanFlag, "false", dollar_to_lc),
    
  /**<  iso
 
@@ -354,23 +361,12 @@ vxu    `on` consider `$` a lower case character.
  */
   YAP_FLAG(LANGUAGE_FLAG, "language", true, isatom, "yap", NULL),
    
- /**< if defined, first location where YAP expects to find the YAP Prolog
-        library. Takes precedence over library_directory */
-  YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
-             isatom, "", NULL),
-   
- /**< if defined, first location where YAP expects to find the YAP Prolog
-       shared libraries (DLLS). Takes precedence over executable_directory/2. */
  /**< `max_arity is iso `
-   YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
 
     Read-only flag telling the maximum arity of a functor. Takes the value
     `unbounded` for the current version of YAP.
  */
-  YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
-             isatom, "", NULL),
-   
-
+   YAP_FLAG(MAX_ARITY_FLAG, "max_arity", false, isatom, "unbounded", NULL),
    
     YAP_FLAG(MAX_TAGGED_INTEGER_FLAG, "max_tagged_integer", false, at2n,
              "INT_MAX", NULL),
@@ -378,7 +374,14 @@ vxu    `on` consider `$` a lower case character.
     YAP_FLAG(MAX_WORKERS_FLAG, "max_workers", false, at2n, "MAX_WORKERS", NULL),
     YAP_FLAG(MIN_TAGGED_INTEGER_FLAG, "min_tagged_integer", false, at2n,
              "INT_MIN", NULL),
-    YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
+
+
+    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
+             true, booleanFlag, "false", NULL),
+
+
+
+  YAP_FLAG(N_OF_INTEGER_KEYS_IN_DB_FLAG, "n_of_integer_keys_in_db", false, ro,
              "256", NULL),
     YAP_FLAG(OCCURS_CHECK_FLAG, "occurs_check", true, booleanFlag, "false",
              NULL),
@@ -407,8 +410,16 @@ vxu    `on` consider `$` a lower case character.
              "true", NULL),
    
    
-    YAP_FLAG(MODULE_INDEPENDENT_OPERATORS_FLAG, "module_independent_operators",
-             true, booleanFlag, "false", NULL),
+ /**< if defined, first location where YAP expects to find the YAP Prolog
+        library. Takes precedence over library_directory */
+  YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,
+             isatom, "", NULL),
+   
+ /**< if defined, first location where YAP expects to find the YAP Prolog
+       shared libraries (DLLS). Takes precedence over executable_directory/2. */
+  YAP_FLAG(PROLOG_FOREIGN_DIRECTORY_FLAG, "prolog_foreign_directory", true,
+             isatom, "", NULL),
+   
 
     YAP_FLAG(OPTIMISE_FLAG, "optimise", true, booleanFlag, "false", NULL),
     YAP_FLAG(OS_ARGV_FLAG, "os_argv", false, os_argv, "@boot", NULL),
@@ -423,7 +434,7 @@ vxu    `on` consider `$` a lower case character.
   */
   YAP_FLAG(PROFILING_FLAG, "profiling", true, booleanFlag, "false", NULL),
    
- /**< `prompt_alternatives_on(atom,
+ /**< `  pt_alternatives_on(atom,
    changeable) `
 
    SWI-Compatible option, determines prompting for alternatives in the Prolog
@@ -566,7 +577,6 @@ and if it is bound to `off` disable them. The default for YAP is
  */
   YAP_FLAG(TABLING_MODE_FLAG, "tabling_mode", true, isatom, "[]", NULL),
    
-    YAP_FLAG(THREADS_FLAG, "threads", false, ro, "MAX_THREADS", NULL),
     YAP_FLAG(TIMEZONE_FLAG, "timezone", false, ro, "18000", NULL),
  /**< `toplevel_hook `
 

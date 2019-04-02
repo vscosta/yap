@@ -421,8 +421,25 @@ X_API void *YAP_BlobOfTerm(Term t) {
 
   if (IsVarTerm(t))
     return NULL;
-  if (!IsBigIntTerm(t))
+  if (!IsBigIntTerm(t)) {
+    if (IsAtomTerm(t)) {
+         AtomEntry *ae = RepAtom(AtomOfTerm(t));
+    StaticArrayEntry *pp;
+
+    READ_LOCK(ae->ARWLock);
+    pp = RepStaticArrayProp(ae->PropsOfAE);
+    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
+      pp = RepStaticArrayProp(pp->NextOfPE);
+    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
+      READ_UNLOCK(ae->ARWLock);
+      return NULL;
+    } else {
+      READ_UNLOCK(ae->ARWLock);
+      return pp->ValueOfVE.ints;
+   }
+    }
     return NULL;
+  }
   src = (MP_INT *)(RepAppl(t) + 2);
   return (void *)(src + 1);
 }
@@ -1725,6 +1742,7 @@ X_API YAP_PredEntryPtr YAP_AtomToPredInModule(YAP_Atom at, Term mod) {
   return RepPredProp(PredPropByAtom(at, mod));
 }
 
+/*
 static int run_emulator(USES_REGS1) {
   int out;
 
@@ -1732,6 +1750,7 @@ static int run_emulator(USES_REGS1) {
   LOCAL_PrologMode |= UserCCallMode;
   return out;
 }
+*/
 
 X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
@@ -2107,7 +2126,9 @@ X_API void YAP_ClearExceptions(void) {
 X_API int YAP_InitConsult(int mode, const char *fname, char **full,
                           int *osnop) {
     CACHE_REGS
-    int sno;
+
+int sno;
+int   lvl = push_text_stack();
     BACKUP_MACHINE_REGS();
     const char *fl = NULL;
     if (mode == YAP_BOOT_MODE) {
@@ -2124,8 +2145,6 @@ X_API int YAP_InitConsult(int mode, const char *fname, char **full,
   }
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "done init_ consult %s ",fl);
-
-int   lvl = push_text_stack();
   char *d = Malloc(strlen(fl) + 1);
   strcpy(d, fl);
   bool consulted = (mode == YAP_CONSULT_MODE);
@@ -2134,9 +2153,9 @@ int   lvl = push_text_stack();
                        LOCAL_encoding);
     __android_log_print(
             ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
-    pop_text_stack(lvl);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     *full = NULL;
+    pop_text_stack(lvl);
     return -1;
   }
   LOCAL_PrologMode = UserMode;
@@ -2200,7 +2219,15 @@ X_API Term YAP_ReadFromStream(int sno) {
   Term o;
 
   BACKUP_MACHINE_REGS();
+  
+  sigjmp_buf signew;
+  if (sigsetjmp(signew, 0)) {
+    Yap_syntax_error(LOCAL_toktide, sno, "ReadFromStream");
+  RECOVER_MACHINE_REGS();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+    return 0;
+  } else { 
   o = Yap_read_term(sno, TermNil, false);
+  }
   RECOVER_MACHINE_REGS();
   return o;
 }
@@ -2210,8 +2237,10 @@ X_API Term YAP_ReadClauseFromStream(int sno, Term vs, Term pos) {
   BACKUP_MACHINE_REGS();
   Term t = Yap_read_term(
       sno,
-      MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &vs),
-                 MkPairTerm(Yap_MkApplTerm(Yap_MkFunctor(AtomTermPosition, 1),
+      MkPairTerm(
+		 Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &vs),
+                 MkPairTerm(
+			    Yap_MkApplTerm(Yap_MkFunctor(AtomTermPosition, 1),
                                            1, &pos),
                             TermNil)),
       true);
@@ -2268,6 +2297,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
        }
     }
   }
+  return out.val.c = pop_output_text_stack(l,buf);
 }
 
 /// write a a term to n user-provided buffer: make sure not tp

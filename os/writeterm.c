@@ -231,8 +231,9 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
       goto end;
     }
   }
-  if (args[WRITE_CYCLES].used && args[WRITE_CYCLES].tvalue == TermFalse) {
-    flags |= Ignore_cyclics_f;
+  if (!args[WRITE_CYCLES].used || (args[WRITE_CYCLES].used
+				   && args[WRITE_CYCLES].tvalue == TermTrue)) {
+    flags |= Handle_cyclics_f;
   }
   if (args[WRITE_QUOTED].used && args[WRITE_QUOTED].tvalue == TermTrue) {
     flags |= Quote_illegal_f;
@@ -573,6 +574,8 @@ static Int writeln1(USES_REGS1) {
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
+  args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -603,6 +606,8 @@ static Int writeln(USES_REGS1) {
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
+ args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);

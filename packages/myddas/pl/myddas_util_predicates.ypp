@@ -46,7 +46,8 @@
 				  ]).
 
 :- use_module(myddas,[
-		      db_verbose/1
+		      db_verbose/1,
+          c_db_preds_conn/4
 		     ]).
 
 :- use_module(myddas_errors,[

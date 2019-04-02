@@ -52,6 +52,10 @@
     functor(G, F, N),
      predicate_property(M:G, meta_predicate(P)).
 
+/** user:term_expansion(+M:Cl,-M:NCl ) 
+
+rule preprocessor
+*/
 user:term_expansion( ( :- '$meta_predicate'( _ ) ), [] ).
 
 user:goal_expansion(_:'_user_expand_goal'(A, M, B), user:user_expand_goal(A, M, B) ).

@@ -53,7 +53,7 @@ extern void Yap_ThrowError__(const char *file, const char *function, int lineno,
     ;
 
 #define Yap_NilError(id, ...)                                                  \
-  Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
+Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define Yap_InitError(id, ...)                                                 \
   Yap_InitError__(__FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
@@ -285,4 +285,8 @@ INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
                                    yap_error_descriptor_t *new_error);
   extern yap_error_descriptor_t *Yap_popErrorContext(bool oerr, bool pass);
 
+#define must_be_variable(t) if (!IsVarTerm(t)) Yap_ThrowError(UNINSTANTIATION_ERROR, v, NULL) 
+  
 #endif
+
+  

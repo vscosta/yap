@@ -1,5 +1,5 @@
 /**
-  * @file jupyter.yap4py
+  * @file verify.yap
   *
   * @brief JUpyter support.
   */
@@ -16,7 +16,7 @@
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
- :-	 use_module(library(python)).
+%% :-	 use_module(library(python)).
 %% :-	 use_module(library(yapi)).
 
 :- dynamic jupyter/1.
@@ -25,7 +25,7 @@ jupyter( []).
 ready( Engine, Query) :-
      errors( Engine , Query ),
      Es := Engine.errors,
-     not Es == [].
+      Es \== [].
 
 
 
@@ -72,7 +72,8 @@ jupyter(En),
 close_esh( _Engine , Stream ) :-
 	   retractall(jupyter(_)),
 	   assertz(jupyter([])),
-  close(Stream).
+	   close(Stream),
+	   python_clear_errors.
 
 
 

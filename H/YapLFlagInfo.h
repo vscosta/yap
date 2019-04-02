@@ -52,6 +52,9 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
   YAP_FLAG(CALL_COUNTING_FLAG, "call_counting", true, booleanFlag, "true",
              NULL),
 
+/**< Indicates YAP is running within the compiler. */
+  YAP_FLAG(COMPILING_FLAG, "compiling", false, booleanFlag,
+             "true", NULL),
 /**< support for coding systens, YAP relies on UTF-8 internally.
  */
     YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
@@ -69,9 +72,10 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
                  */
   YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
              NULL),
-    YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", true, booleanFlag,
+/**< Show the execution stack in exceptions. */
+  YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", false, booleanFlag,
              "true", NULL),
-             /**<`
+             /**<
 
         If `true` show a stack dump when YAP finds an error. The default is
         `off`.
@@ -91,16 +95,17 @@ Report the syntax error and generate an error (default).
 + `quiet`
 Just fail
 */
-    YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
-             NULL),
-             /**<
-           If bound, set the current working or type-in module to the argument,
-           which must be an atom. If unbound, unify the argument with the current
-           working module.
-
-           */
-             YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
+  YAP_FLAG(SYNTAX_ERRORS_FLAG, "syntax_errors", true, synerr, "error",
+	   NULL),
+/**<
+   If bound, set the current working or type-in module to the argument,
+   which must be an atom. If unbound, unify the argument with the current
+   working module.
+   
+*/
+  YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
              typein),
+
 
 
 
@@ -117,9 +122,9 @@ Just fail
 	/**<
 
        If `true` allow printing of informational messages when
-       searching for file names. If `false` disable printing these messages. It
-       is `false` by default except if YAP is booted with the `-L`
-       flag.
+       searching for file names. If `false` disable printing these
+       messages. It is `false` by default except if YAP is booted with
+       the `-L` flag.
     */
 	YAP_FLAG(VERBOSE_FILE_SEARCH_FLAG, "verbose_file_search", true, booleanFlag,
 			 "false", NULL),
@@ -131,8 +136,8 @@ Just fail
         is `true` by default except if YAP is booted with the `-L`
         flag.
      */
-	YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
-	/**<
+  YAP_FLAG(VERBOSE_LOAD_FLAG, "verbose_load", true, booleanFlag, "true", NULL),
+/**<
 
   If the second argument is bound to a stream, set user_error to
   this stream. If the second argument is unbound, unify the argument with
