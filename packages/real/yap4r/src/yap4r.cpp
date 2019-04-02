@@ -6,13 +6,14 @@
 #include <yapi.hh>
 
 #include <vector>
+#include <string>
 
 #include "real.h"
 
 
 using namespace Rcpp;
 
-class YAP4R {
+class yap4r {
 
   YAPEngine *yap;
   YAPQuery *q;
@@ -20,74 +21,78 @@ class YAP4R {
   bool failed;
   
 public:
-//[[Rcpp::export]]
+  yap4r();
+  bool query(std::string p_name,std::string p_module,Rcpp::GenericVector sexps);
+  bool more();
+  bool done();
+  SEXP peek(int i);
+};
 
-YAP4R() {
+  yap4r::yap4r() {
   YAPEngineArgs *yargs = new YAPEngineArgs();
   yap = new YAPEngine(yargs);
 };
 
 
-//[[Rcpp::export]]
-bool query(std::string p_name,std::string p_module,  SEXP sexp) {
+
+
+  bool yap4r::query(std::string p_name,std::string p_module,Rcpp::GenericVector sexps) {
  
-  YAPPairTerm tmp;
   if (q) {
     q->close();
     q = NULL;
   }
-  if (!sexp_to_pl(tmp.handle(), sexp))
-    return false;
-   args = tmp.listToVector();
-  YAPTerm ts[1], hd;
+  std::vector<Term> args = std::vector<Term>();
+  yhandle_t sls = Yap_NewHandles(sexps.length());
+  for (int i=0; i<sexps.length();i++) {
+    if (!sexp_to_pl(sls+i, sexps[i]))
+      return false;
+    args.push_back( Yap_GetFromSlot(sls+i) );
+  }
   YAPTerm qt = YAPApplTerm(p_name,args);
   q = new YAPQuery(qt);
   return true;
-};
+}
 
   
-//[[Rcpp::export]]
-  bool next() {
+
+  bool yap4r::more() {
     bool rc = true;
     if (failed)
       return false;
     if (q)
-      rc = next();
+      rc = q->next();
     if (!rc) {
       failed = true;
     }
     return rc;
   }
 
-//[[Rcpp::export]]
-  bool cut() {
-    bool rc = true;
+
+  bool yap4r::done() {
+
     if (failed)
       return false;
     if (q)
-      rc = cut();
+      q->cut();
     q = NULL;
-    return rc;
-  };
+    return true;
+  }
 
-//[[Rcpp::export]]
-  SEXP ask(int i) {
+
+  SEXP yap4r::peek(int i) {
     if (failed || q==nullptr)
 	return R_MissingArg;
-    return term_to_sexp(YAPTerm(Yap_XREGS[i]).handle(), false);
-  };
+    return term_to_sexp(Yap_InitSlot(Yap_XREGS[i]), false);
+  }
 
-
-  
-};
 
   RCPP_MODULE(mod_yap4r) {
-    Rcpp::class_<YAP4R>( "YAP4R" )
-  .constructor("documentation for default constructor")
- .method( "query", &YAP4R::query )
-.method( "next", &YAP4R::next )
-.method( "ask", &YAP4R::ask )
-.method( "cut", &YAP4R::cut )
-  ;
-;
+    class_<yap4r>( "yap4r" )
+      .constructor("create an object encapsulating a Prolog engine")
+      .method( "query", &yap4r::query, "create an active query within the engine")
+      .method( "more", &yap4r::more, "ask for an extra solution")
+      .method( "done", &yap4r::done, "terminate the query")
+      .method( "peek", &yap4r::peek, "load arg[i] into R")
+      ;
 }

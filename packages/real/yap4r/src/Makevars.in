@@ -1,2 +1,6 @@
-PKG_LIBS=-L${YAP_LIBDIR} -L${YAP_DLLDIR} -L ../../.. -lreal -lYap
-PKG_CPPFLAGS=-I${YAP_SOURCE_DIR}/CXX -I${YAP_BINARY_DIR} -I${YAP_SOURCE_DIR}/include -I${YAP_SOURCE_DIR}/H -I${YAP_SOURCE_DIR}/OPTYap -I${YAP_SOURCE_DIR}/os -I../..
+PKG_LIBS=-Wl,-rpath=${YAP_LIBDIR} -Wl,-rpath=${YAP_DLLDIR} \
+         -L${YAP_LIBDIR} -L${YAP_DLLDIR} -lreal -lYAP++ -lYap
+PKG_CXXFLAGS=-I${YAP_SOURCE_DIR}/CXX -I${YAP_BINARY_DIR}\
+        -I${YAP_SOURCE_DIR}/include -I${YAP_SOURCE_DIR}/H\
+	-I${YAP_SOURCE_DIR}/OPTYap -I${YAP_SOURCE_DIR}/os\
+	-I../.. -I${YAP_SOURCE_DIR}/utf8proc -I${YAP_SOURCE_DIR}/packages/real

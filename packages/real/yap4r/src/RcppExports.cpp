@@ -5,58 +5,10 @@
 
 using namespace Rcpp;
 
-// query
-bool query(std::string p_name, std::string p_module, SEXP sexp);
-RcppExport SEXP _yap4r_query(SEXP p_nameSEXP, SEXP p_moduleSEXP, SEXP sexpSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type p_name(p_nameSEXP);
-    Rcpp::traits::input_parameter< std::string >::type p_module(p_moduleSEXP);
-    Rcpp::traits::input_parameter< SEXP >::type sexp(sexpSEXP);
-    rcpp_result_gen = Rcpp::wrap(query(p_name, p_module, sexp));
-    return rcpp_result_gen;
-END_RCPP
-}
-// next
-bool next();
-RcppExport SEXP _yap4r_next() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(next());
-    return rcpp_result_gen;
-END_RCPP
-}
-// cut
-bool cut();
-RcppExport SEXP _yap4r_cut() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(cut());
-    return rcpp_result_gen;
-END_RCPP
-}
-// ask
-SEXP ask(int i);
-RcppExport SEXP _yap4r_ask(SEXP iSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type i(iSEXP);
-    rcpp_result_gen = Rcpp::wrap(ask(i));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 RcppExport SEXP _rcpp_module_boot_mod_yap4r();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_yap4r_query", (DL_FUNC) &_yap4r_query, 3},
-    {"_yap4r_next", (DL_FUNC) &_yap4r_next, 0},
-    {"_yap4r_cut", (DL_FUNC) &_yap4r_cut, 0},
-    {"_yap4r_ask", (DL_FUNC) &_yap4r_ask, 1},
     {"_rcpp_module_boot_mod_yap4r", (DL_FUNC) &_rcpp_module_boot_mod_yap4r, 0},
     {NULL, NULL, 0}
 };
