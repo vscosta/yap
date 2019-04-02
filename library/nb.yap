@@ -45,6 +45,7 @@
 	       nb_heap_del/3,
 	       nb_heap_peek/3,
 	       nb_heap_empty/1,
+	       nb_heap_reset/1,
 	       nb_heap_size/2,
 	       nb_beam/2,
 	       nb_beam_close/1,
