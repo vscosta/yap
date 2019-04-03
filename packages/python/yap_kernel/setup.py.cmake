@@ -14,6 +14,7 @@ name = 'yap_kernel'
 #-----------------------------------------------------------------------------
 
 import sys
+import os
 
 v = sys.version_info
 if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
@@ -28,9 +29,12 @@ PY3 = (sys.version_info[0] >= 3)
 #-----------------------------------------------------------------------------
 
 import os
-from glob import glob
-
+from glob import globx
+from shutil import copy
 from distutils.core import setup
+
+copy(glob("../swig/build/lib/_yap*")[0],"../swig/yap4py")
+copy(glob("../../libYap*")[-1],"../swig/yap4py")
 
 packages = ["${CMAKE_CURRENT_SOURCE_DIR}"]
 

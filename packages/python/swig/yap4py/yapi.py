@@ -1,6 +1,10 @@
 import readline
 import copy
-from yap4py.yap import *
+try:
+    from yap4py.yap import *
+except Exception as e:
+    print(e)
+    exit(0)
 from yap4py.systuples import python_query, show_answer, library, prolog_library, v0, compile, namedtuple
 from os.path import join, dirname
 
