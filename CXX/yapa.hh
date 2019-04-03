@@ -94,7 +94,9 @@ public:
   ///  get name of  (other way)
   inline const char *text(void)  { return getName(); } ;
   /// get prop of type
-  Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); }
+  Prop getProp( PropTag tag ) { return Yap_GetAProp( a , (PropFlags)tag ); };
+    /// as Atom
+  Atom asAtom() { return a; };
 };
 
 /**
@@ -158,12 +160,15 @@ public:
   /// Getter: extract name of functor as an atom
   ///
   /// this is for external usage.
-  YAPAtom name(void) { return YAPAtom(NameOfFunctor(f)); }
+  inline  YAPAtom name() { return YAPAtom(NameOfFunctor(f)); };
 
   /// Getter: extract arity of functor as an unsigned integer
   ///
   /// this is for external usage.
-  uintptr_t arity(void) { return ArityOfFunctor(f); }
+  inline arity_t arity() { return ArityOfFunctor(f); };
+  /// Getter: extract functor as C pointer
+  ///
+  /// inline Functor functor() { return f; };
 };
 
 

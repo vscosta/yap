@@ -57,9 +57,8 @@ setup_args = dict(
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Perl License',
         'Programming Language :: Prolog',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
     ],
 )
@@ -83,4 +82,5 @@ if 'setuptools' in sys.modules:
     setup_args.update(setuptools_args)
 
 if __name__ == '__main__':
+    sys.path += ['../swig']
     setup(**setup_args)

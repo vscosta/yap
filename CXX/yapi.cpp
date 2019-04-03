@@ -744,6 +744,27 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
   RECOVER_MACHINE_REGS();
 }
 
+YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, Term ts[])
+    : YAPPredicate(f, mod) {
+
+  /* ignore flags  for now */
+  BACKUP_MACHINE_REGS();
+  Term goal;
+
+  if (ts) {
+    size_t arity = f.arity();
+    goal = Yap_MkApplTerm(Yap_MkFunctor(f.name().asAtom(),arity), arity, ts);
+    nts = RepAppl(goal) + 1;
+    for (arity_t i = 0; i < arity; i++)
+      XREGS[i + 1] = ts[i];
+  } else {
+    goal = MkVarTerm();
+  }
+  openQuery();
+  names = YAPPairTerm(TermNil);
+  RECOVER_MACHINE_REGS();
+}
+
 #if 0
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm ts[]) : YAPPredicate(f) {
   /* ignore flags for now */

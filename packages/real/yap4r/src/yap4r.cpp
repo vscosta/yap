@@ -40,7 +40,7 @@ public:
  
   if (q) {
     q->close();
-    q = NULL;
+    q = nullptr;
   }
   std::vector<Term> args = std::vector<Term>();
   yhandle_t sls = Yap_NewHandles(sexps.length());
@@ -49,8 +49,21 @@ public:
       return false;
     args.push_back( Yap_GetFromSlot(sls+i) );
   }
-  YAPTerm qt = YAPApplTerm(p_name,args);
+  if (i==0) {
+    YAPTerm qt = YAPAtomTerm(p_name);
   q = new YAPQuery(qt);
+  } else {
+    YAPFunctor f= YAPFunctor(p_name, args.length());
+    YAPAtomTerm mod = YAPAtomTerm(p_module);
+    q = new YAPQuery(f,mod,args.data());
+  }
+  if (q == nullptr)
+    return false;
+  bool rc = q->next();
+  if (!rc) {
+    failed = true;
+    q = nullptr;
+  }
   return true;
 }
 
