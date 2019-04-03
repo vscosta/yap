@@ -39,14 +39,14 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   YAP_Term call;
   YAP_Bool result;
   lbfgsfloatval_t rc;
-  YAP_Term v;
+  YAP_Term v, t1, t12;
   YAP_Term t[6], t2[2];
 
   t[0] = v = YAP_MkVarTerm();
-  t[1] = YAP_MkIntTerm((YAP_Int)x);
-  t[1] = YAP_MkApplTerm(ffloats, 1, t + 1);
-  t[2] = YAP_MkIntTerm((YAP_Int)g_tmp);
-  t[2] = YAP_MkApplTerm(ffloats, 1, t + 2);
+  t1 = YAP_MkIntTerm((YAP_Int)x);
+  t[1] = YAP_MkApplTerm(ffloats, 1, &t1);
+  t12 = YAP_MkIntTerm((YAP_Int)g_tmp);
+  t[2] = YAP_MkApplTerm(ffloats, 1, &t12);
   t[3] = YAP_MkIntTerm(n);
   t[4] = YAP_MkFloatTerm(step);
   t[5] = YAP_MkIntTerm((YAP_Int)instance);
@@ -310,8 +310,10 @@ static YAP_Bool p_lbfgs(void) {
     s = "A logic error (negative line-search step) occurred.";
     break;
   }
-  fprintf(stderr, "optimization terminated with code %d: %s\n", ret, s);
-
+  char ss[1024];
+  snprintf(ss, 1023, "optimization terminated with code %d: %s\n", ret, s);
+  fputs(ss, stderr);
+  
   return true;
 }
 
@@ -326,16 +328,8 @@ static YAP_Bool lbfgs_grab(void) {
   return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 1, &t));
 }
 
-static YAP_Bool lbfgs_parameters(void) {
-  lbfgs_parameter_t *x = malloc(sizeof(lbfgs_parameter_t));
-  lbfgs_parameter_init(x);
-  return YAP_Unify(YAP_ARG1, YAP_MkIntTerm((YAP_Int)x));
-}
+static lbfgs_parameter_t parms;
 
-static YAP_Bool lbfgs_release_parameters(void) {
-  free((void *)YAP_IntOfTerm(YAP_ARG1));
-  return true;
-}
 
 static YAP_Bool lbfgs_release(void) {
   /* if (lbfgs_status == LBFGS_STATUS_NONE) { */
@@ -349,11 +343,11 @@ static YAP_Bool lbfgs_release(void) {
   return TRUE;
   /* return FALSE; */
 }
+static YAP_Bool lbfgs_defaults(void) {
 
-static lbfgs_parameter_t *get_params(YAP_Term t) {
-  YAP_Int ar = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t));
-  YAP_Term arg = YAP_ArgOfTerm(ar, t);
-  return (lbfgs_parameter_t *)YAP_IntOfTerm(arg);
+  lbfgs_parameter_init(&parms);
+  return TRUE;
+  /* return FALSE; */
 }
 
 /** @pred  lbfgs_set_parameter(+Name,+Value,+Parameters)
@@ -363,7 +357,7 @@ is not running.
 static YAP_Bool lbfgs_set_parameter(void) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
-  lbfgs_parameter_t *param = get_params(YAP_ARG3);
+  lbfgs_parameter_t *param = &parms;
   /* if (lbfgs_status != LBFGS_STATUS_NONE && lbfgs_status !=
    * LBFGS_STATUS_INITIALIZED){ */
   /*   printf("ERROR: Lbfgs is running right now. Please wait till it is
@@ -523,9 +517,9 @@ Get the current Value for Name
 static YAP_Bool lbfgs_get_parameter(void) {
   YAP_Term t1 = YAP_ARG1;
   YAP_Term t2 = YAP_ARG2;
-  lbfgs_parameter_t *param = get_params(YAP_ARG3);
+   lbfgs_parameter_t *param = &parms;
 
-  if (!YAP_IsAtomTerm(t1)) {
+   if (!YAP_IsAtomTerm(t1)) {
     return FALSE;
   }
 
@@ -575,14 +569,14 @@ X_API void init_lbfgs_predicates(void) {
   tuser = YAP_MkAtomTerm(YAP_LookupAtom("user"));
 
   // Initialize the parameters for the L-BFGS optimization.
-  //  lbfgs_parameter_init(&param);
+  lbfgs_parameter_init(&parms);
 
   YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
   YAP_UserCPredicate("lbfgs", p_lbfgs, 5);
   YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
 
-  YAP_UserCPredicate("lbfgs_defaults", lbfgs_parameters, 1);
-  YAP_UserCPredicate("lbfgs_release_parameters", lbfgs_release_parameters, 1);
-  YAP_UserCPredicate("lbfgs_set_parameter", lbfgs_set_parameter, 3);
-  YAP_UserCPredicate("lbfgs_get_parameter", lbfgs_get_parameter, 3);
+  YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);
+  
+  YAP_UserCPredicate("lbfgs_set_parameter", lbfgs_set_parameter, 2);
+  YAP_UserCPredicate("lbfgs_get_parameter", lbfgs_get_parameter, 2);
 }
