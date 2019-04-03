@@ -616,7 +616,7 @@ add_subDIRECTORY(utf8proc )
        set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
        add_subdirectory(packages/swig/android)
        add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
-       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${CMAKE_ANDROID_ARCH_ABI})
+       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI})
 
    else()
        add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )

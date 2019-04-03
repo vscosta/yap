@@ -94,7 +94,7 @@ public:
   /// should be a callable
   /// goal.
   inline YAPQuery(const char *s) : YAPPredicate(s, goal, names, (nts = &ARG1)) {
-    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %d",
+    __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "got game %ld",
                         LOCAL_CurSlot);
 
     openQuery();
