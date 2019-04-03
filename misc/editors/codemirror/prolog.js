@@ -145,7 +145,7 @@ for ( [key,v] of singletonVars.entries()) {
     console.log("reset");
   }
 
-  CodeMirror.registerHelper("lint", "prolog", exportErrors);
+  //CodeMirror.registerHelper("lint", "prolog", exportErrors);
 
   /*******************************
    *     CHARACTER ESCAPES    *

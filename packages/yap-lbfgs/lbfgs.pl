@@ -26,10 +26,9 @@
 
 		 lbfgs_finalize/1,
 
-		 lbfgs_set_parameter/3,
-		 lbfgs_get_parameter/3,
-		 lbfgs_parameters/0,
-		 lbfgs_parameters/1]).
+		 lbfgs_set_parameter/2,
+		 lbfgs_get_parameter/2,
+		 lbfgs_parameters/0]).
 
 % switch on all the checks to reduce bug searching time
 % :- yap_flag(unknown,error).
@@ -187,12 +186,12 @@ lbfgs_finalize(t(_N,X,_U,Params)) :-
 
 run the algorithm. output the final score of the function being optimised
 */
-lbfgs_run(t(N,X,U,Params),FX) :-
-    lbfgs(N,X, Params, U, FX).
+lbfgs_run(t(N,X,U),FX) :-
+    lbfgs(N,X, U, FX).
 
 
 
-/** @pred  lbfgs_parameters/1
+/** @pred  lbfgs_parameters/0
 Prints a table with the current parameters. See the <a href="http://www.chokkan.org/software/liblbfgs/structlbfgs__parameter__t.html#_details">documentation
 of libLBFGS</a> for the meaning of each parameter.
 
@@ -220,47 +219,43 @@ int       orthantwise_end    -1             End index for computing the L1 norm 
 ~~~~
 */
 lbfgs_parameters  :-
-    lbfgs_defaults(Params),
-    lbfgs_parameters(t(_X,_,_,Params)).
-
-lbfgs_parameters(t(_,_,_,Params))  :-
-	lbfgs_get_parameter(m,M ,Params),
-	lbfgs_get_parameter(epsilon,Epsilon ,Params),
-	lbfgs_get_parameter(past,Past ,Params),
-	lbfgs_get_parameter(delta,Delta ,Params),
-	lbfgs_get_parameter(max_iterations,Max_Iterations ,Params),
-	lbfgs_get_parameter(linesearch,Linesearch ,Params),
-	lbfgs_get_parameter(max_linesearch,Max_Linesearch ,Params),
-	lbfgs_get_parameter(min_step,Min_Step ,Params),
-	lbfgs_get_parameter(max_step,Max_Step ,Params),
-	lbfgs_get_parameter(ftol,Ftol ,Params),
-	lbfgs_get_parameter(gtol,Gtol ,Params),
-	lbfgs_get_parameter(xtol,Xtol ,Params),
-	lbfgs_get_parameter(orthantwise_c,Orthantwise_C ,Params),
-	lbfgs_get_parameter(orthantwise_start,Orthantwise_Start ,Params),
-	lbfgs_get_parameter(orthantwise_end,Orthantwise_End ,Params),
+	lbfgs_get_parameter(m,M ),
+	lbfgs_get_parameter(epsilon,Epsilon ),
+	lbfgs_get_parameter(past,Past ),
+	lbfgs_get_parameter(delta,Delta ),
+	lbfgs_get_parameter(max_iterations,Max_Iterations ),
+	lbfgs_get_parameter(linesearch,Linesearch ),
+	lbfgs_get_parameter(max_linesearch,Max_Linesearch ),
+	lbfgs_get_parameter(min_step,Min_Step ),
+	lbfgs_get_parameter(max_step,Max_Step ),
+	lbfgs_get_parameter(ftol,Ftol ),
+	lbfgs_get_parameter(gtol,Gtol ),
+	lbfgs_get_parameter(xtol,Xtol ),
+	lbfgs_get_parameter(orthantwise_c,Orthantwise_C ),
+	lbfgs_get_parameter(orthantwise_start,Orthantwise_Start ),
+	lbfgs_get_parameter(orthantwise_end,Orthantwise_End ),
 
 	format('/******************************************************************************************~n',[] ),
-	print_param('Name','Value','Description','Type' ,Params),
+	print_param('Name','Value','Description','Type' ),
 	format('******************************************************************************************~n',[] ),
-	print_param(m,M,'The number of corrections to approximate the inverse hessian matrix.',int ,Params),
-	print_param(epsilon,Epsilon,'Epsilon for convergence test.',float ,Params),
-	print_param(past,Past,'Distance for delta-based convergence test.',int ,Params),
-	print_param(delta,Delta,'Delta for convergence test.',float ,Params),
-	print_param(max_iterations,Max_Iterations,'The maximum number of iterations',int ,Params),
-	print_param(linesearch,Linesearch,'The line search algorithm.',int ,Params),
-	print_param(max_linesearch,Max_Linesearch,'The maximum number of trials for the line search.',int ,Params),
-	print_param(min_step,Min_Step,'The minimum step of the line search routine.',float ,Params),
-	print_param(max_step,Max_Step,'The maximum step of the line search.',float ,Params),
-	print_param(ftol,Ftol,'A parameter to control the accuracy of the line search routine.',float ,Params),
-	print_param(gtol,Gtol,'A parameter to control the accuracy of the line search routine.',float ,Params),
-	print_param(xtol,Xtol,'The machine precision for floating-point values.',float ,Params),
-	print_param(orthantwise_c,Orthantwise_C,'Coefficient for the L1 norm of variables',float ,Params),
-	print_param(orthantwise_start,Orthantwise_Start,'Start index for computing the L1 norm of the variables.',int ,Params),
-	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int ,Params),
+	print_param(m,M,'The number of corrections to approximate the inverse hessian matrix.',int ),
+	print_param(epsilon,Epsilon,'Epsilon for convergence test.',float ),
+	print_param(past,Past,'Distance for delta-based convergence test.',int ),
+	print_param(delta,Delta,'Delta for convergence test.',float ),
+	print_param(max_iterations,Max_Iterations,'The maximum number of iterations',int ),
+	print_param(linesearch,Linesearch,'The line search algorithm.',int ),
+	print_param(max_linesearch,Max_Linesearch,'The maximum number of trials for the line search.',int ),
+	print_param(min_step,Min_Step,'The minimum step of the line search routine.',float ),
+	print_param(max_step,Max_Step,'The maximum step of the line search.',float ),
+	print_param(ftol,Ftol,'A parameter to control the accuracy of the line search routine.',float ),
+	print_param(gtol,Gtol,'A parameter to control the accuracy of the line search routine.',float ),
+	print_param(xtol,Xtol,'The machine precision for floating-point values.',float ),
+	print_param(orthantwise_c,Orthantwise_C,'Coefficient for the L1 norm of variables',float ),
+	print_param(orthantwise_start,Orthantwise_Start,'Start index for computing the L1 norm of the variables.',int ),
+	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int ),
 	format('******************************************************************************************/~n',[]),
-	format(' use lbfgs_set_parameter(Name,Value,Solver) to change parameters~n',[]),
-	format(' use lbfgs_get_parameter(Name,Value,Solver) to see current parameters~n',[]),
+	format(' use lbfgs_set_parameter(Name,Value) to change parameters~n',[]),
+	format(' use lbfgs_get_parameter(Name,Value) to see current parameters~n',[]),
 	format(' use lbfgs_parameters to print this overview~2n',[]).
 
 

@@ -1840,6 +1840,15 @@ static Term MkZeroApplTerm(Functor f, UInt sz USES_REGS) {
   return tf;
 }
 
+         /**
+          * @pred nb_heap(+_Size_,-_Heap_) is deterministic.
+          *
+          * Initialize a new binomial heap of size _Size_.
+          * The Heap resides in the Prolog stack, but the state of the
+          * Heap is not backtrable.
+          *
+        */
+
 static Int p_nb_heap(USES_REGS1) {
   Term heap_arena, heap, *ar, *nar;
   UInt hsize;
@@ -1879,6 +1888,21 @@ static Int p_nb_heap(USES_REGS1) {
   nar = RepAppl(Deref(ARG2)) + 1;
   nar[HEAP_ARENA] = heap_arena;
   return TRUE;
+}
+
+       /**
+        * @pred nb_heap_reset(+_Heap_) is deterministic.
+        *
+        * Set the number if entries in the heap to 0. Allows reusing
+        * the same space for several heaps.
+        */
+static Int p_nb_heap_reset(USES_REGS1) {
+  CELL *qd = GetHeap(ARG1, "reset_heap");
+
+  if (!qd)
+    return FALSE;
+  qd[HEAP_SIZE] = MkIntTerm(0);
+  return true;
 }
 
 static Int p_nb_heap_close(USES_REGS1) {
@@ -2796,6 +2820,7 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_heap_peek", 3, p_nb_heap_peek, SafePredFlag);
   Yap_InitCPred("nb_heap_empty", 1, p_nb_heap_empty, SafePredFlag);
   Yap_InitCPred("nb_heap_size", 2, p_nb_heap_size, SafePredFlag);
+  Yap_InitCPred("nb_heap_reset", 1, p_nb_heap_reset, SafePredFlag);
   Yap_InitCPred("nb_beam", 2, p_nb_beam, 0L);
   Yap_InitCPred("nb_beam_close", 1, p_nb_beam_close, SafePredFlag);
   Yap_InitCPred("nb_beam_add", 3, p_nb_beam_add_to_beam, 0L);

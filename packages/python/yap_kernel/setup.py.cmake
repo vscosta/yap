@@ -14,6 +14,7 @@ name = 'yap_kernel'
 #-----------------------------------------------------------------------------
 
 import sys
+import os
 
 v = sys.version_info
 if v[:2] < (2,7) or (v[0] >= 3 and v[:2] < (3,3)):
@@ -28,9 +29,12 @@ PY3 = (sys.version_info[0] >= 3)
 #-----------------------------------------------------------------------------
 
 import os
-from glob import glob
-
+from glob import globx
+from shutil import copy
 from distutils.core import setup
+
+copy(glob("../swig/build/lib/_yap*")[0],"../swig/yap4py")
+copy(glob("../../libYap*")[-1],"../swig/yap4py")
 
 packages = ["${CMAKE_CURRENT_SOURCE_DIR}"]
 
@@ -53,9 +57,8 @@ setup_args = dict(
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: BSD License',
+        'License :: OSI Approved :: Perl License',
         'Programming Language :: Prolog',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
     ],
 )
@@ -79,4 +82,5 @@ if 'setuptools' in sys.modules:
     setup_args.update(setuptools_args)
 
 if __name__ == '__main__':
+    sys.path += ['../swig']
     setup(**setup_args)

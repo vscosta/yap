@@ -1,7 +1,7 @@
 set (PYTHON_SOURCES 
-core/yap_kernel/__init__.py
-core/yap_kernel/getipython.py
-core/__init__.py
+#core/yap_kernel/__init__.py
+#core/yap_kernel/getipython.py
+#core/__init__.py
 _version.py
 yap_kernel/datapub.py
 yap_kernel/serialize.py
@@ -62,7 +62,7 @@ yap_kernel/pylab/__init__.py
 yap_kernel/__main__.py
 yap_kernel.py
 kernelspec.py
-__init__.py
+#__init__.py
 yap_kernel_launcher.py
 docs/conf.py
 setup.py
@@ -431,20 +431,18 @@ endforeach()
 
 
 
-add_custom_target(YAP_KERNEL ALL
+add_custom_target(YAP_KERNEL
+  ALL
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-   COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} build sdist bdist
- DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
+ DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
+   COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} sdist ${bdist}
 )
 
-
-set(REAL_SOURCES real.c)
-
-    install(CODE "execute_process(
-         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed --no-deps  .
+   install(CODE "execute_process(
+         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed   .
         COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr
         OUTPUT_VARIABLE setupOut
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
     install(FILES ${PL_SOURCES} DESTINATION ${YAP_INSTALL_DATADIR} )

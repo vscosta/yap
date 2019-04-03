@@ -30,6 +30,7 @@ set (PROBLOG_PROGRAMS
   problog/version_control.yap 
   problog/nestedtries.yap 
   problog/utils.yap 
+  problog/lbdd.yap 
   problog/utils_lbdd.yap 
   problog/ad_converter.yap 
   problog/termhandling.yap 
