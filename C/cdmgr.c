@@ -789,7 +789,7 @@ static void kill_children(LogUpdIndex *c, PredEntry *ap) {
   while (ncl) {
     if (ncl->ClRefCount>0) {
   c->ClRefCount--;
-}return;
+return;
     }
     kill_first_log_iblock(ncl, c, ap);
     ncl = c->ChildIndex;
