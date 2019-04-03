@@ -76,6 +76,7 @@ public:
   /// least
   /// the same arity as the functor.
   YAPQuery(YAPPredicate p, YAPTerm t[]);
+  ///
   /// full constructor,
   ///
   ///
@@ -83,6 +84,9 @@ public:
   /// least
   /// the same arity as the functor.
   YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm t[]);
+  /// often, this is more efficient
+  ///
+  YAPQuery(YAPFunctor f, YAPTerm mod, Term t[]);
   /// functor/term constructor,
   ///
   /// It is given a functor, and an array of terms that must have at least

@@ -800,6 +800,20 @@ gradient_descent :-
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
     sigmoid(X, Slope, Pr),
+    (Pr > 0.999
+	    ->
+		NPr = 0.999
+			;
+			Pr < 0.001
+			       ->
+				   NPr = 0.001 ;
+				   Pr = NPr ),
+    set_fact_probability(FactID, NPr).
+
+
+set_tunable(I,Slope,P) :-
+    X <== P[I],
+    sigmoid(X,Slope,Pr),
     (Pr > 0.99
 	    ->
 		NPr = 0.99
@@ -808,13 +822,7 @@ set_fact(FactID, Slope, P ) :-
 			       ->
 				   NPr = 0.01 ;
 				   Pr = NPr ),
-    set_fact_probability(FactID, NPr).
-
-
-set_tunable(I,Slope,P) :-
-    X <== P[I],
-    sigmoid(X,Slope,Pr),
-    set_fact_probability(I,Pr).
+    set_fact_probability(I,NPr).
 
 :- include(problog/lbdd).
 

@@ -616,7 +616,6 @@ add_subDIRECTORY(utf8proc )
        set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
        add_subdirectory(packages/swig/android)
        add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQLITE3=1)
-       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI})
 
    else()
        add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
@@ -656,7 +655,8 @@ if (WIN32 OR ANDROID)
   if (ANDROID)
     List(APPEND YLIBS $<TARGET_OBJECTS:YAPsqlite3>)
     List(APPEND YLIBS $<TARGET_OBJECTS:DROID>)
-  set(ANDROID_LIBRARIES sqliteX  android log)
+  set(ANDROID_LIBRARIES ${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI}/libsqliteX.so  android log)
+       link_directories(${CMAKE_SOURCE_DIR}/../sqlite-android/jni/${ANDROID_ABI})
 
   endif ()
 endif ()
@@ -731,7 +731,13 @@ MY_set_target_properties(libYap
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 
 if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
-  set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
+  if (CONDA)
+    set(bdist bdist_conda)
+else()
+    set(bdist bdist_wheel)
+endif()
+
+set( ENV{PYTHONPATH} ${CMAKE_BINARY_DIR}/packages/python/swig:${CMAKE_BINARY_DIR}/packages/python/yap_kernel:. )
   add_subdirectory(packages/python/swig)
 
   include(FindPythonModule)
@@ -961,6 +967,7 @@ if (WIN32)
 
 endif (WIN32)
 
+if (NOT ANDROID)
 add_executable(yap-bin ${CONSOLE_SOURCES})
 
 set_target_properties(yap-bin PROPERTIES OUTPUT_NAME yap)
@@ -974,6 +981,7 @@ install(TARGETS libYap yap-bin
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
+endif()
 
 if (WITH_MPI)
 

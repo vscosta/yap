@@ -68,10 +68,18 @@ log2prob(X,Slope,FactID,V) :-
     sigmoid(V0, Slope, V).
 
 bind_maplist([], _Slope, _X).
-bind_maplist([Node-(Node-Pr)|MapList], Slope, X) :-
+bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
     SigPr <== X[Node],
     sigmoid(SigPr, Slope, Pr),
-	bind_maplist(MapList, Slope, X).
+        (Pr > 0.999
+	    ->
+		NPr = 0.999
+			;
+			Pr < 0.001
+			       ->
+				   NPr = 0.001 ;
+				   Pr = NPr ),
+bind_maplist(MapList, Slope, X).
 
 
 %get_prob(Node, Prob) :-

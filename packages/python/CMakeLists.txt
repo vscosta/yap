@@ -11,7 +11,6 @@ ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE
 #talk to python.pl
 add_library(YAPPython  pyload.c ${PYTHON_HEADERS} )
 
-
 if (WIN32)
 add_library (Py4YAP OBJECT ${PYTHON_SOURCES} ${PYTHON_HEADERS})
 else()

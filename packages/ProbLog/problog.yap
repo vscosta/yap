@@ -1330,7 +1330,7 @@ set_fact_probability(ID,Prob) :-
 	retract(ProblogTerm),
 	ProblogTerm =.. [ProblogName|ProblogTermArgs],
 	nth1(ProblogArity,ProblogTermArgs,_,KeepArgs),
-	NewLogProb is log(Prob),
+	(isnan(Prob) -> NewLogProb = 0.0 ; NewLogProb is log(Prob)),
 	nth1(ProblogArity,NewProblogTermArgs,NewLogProb,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
 	assertz(NewProblogTerm).
