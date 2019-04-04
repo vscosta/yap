@@ -131,7 +131,6 @@ FILE *Yap_GetOutputStream(Term t, const char *msg) {
   return rc;
 }
 
-cmax =7;
 int GetFreeStreamD(void) {
   CACHE_REGS
   LOCK(GLOBAL_StreamDescLock);
