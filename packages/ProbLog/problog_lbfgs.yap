@@ -263,8 +263,6 @@ user:test_example(A,B,C,=) :-
 	user:test_example(A,B,C),
 	\+  user:problog_discard_example(B).
 
-solver_iterations(0,0).
-
 %========================================================================
 %= store the facts with the learned probabilities to a file
 %========================================================================
@@ -565,19 +563,10 @@ init_one_query(QueryID,Query,_Type) :-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % if BDD file does not exist, call ProbLog
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-problog_flag(init_method,(Query,N,Bdd,user:graph2bdd(Query,N,Bdd))),
+    problog_flag(init_method,(Query,1,Bdd,user:graph2bdd(Query,1,Bdd))),
     !,
     b_setval(problog_required_keep_ground_ids,false),
-	 Bdd = bdd(Dir, Tree0,MapList),
-	 user:graph2bdd(Query,N,Bdd),
-	 reverse(Tree0,Tree),
- 	  %rb_new(H0),
-	  %maplist_to_hash(MapList, H0, Hash),
-	  %tree_to_grad(Tree, Hash, [], Grad),
-	  % ;
-	  % Bdd = bdd(-1,[],[]),
-	  % Grad=[]
-	  store_bdd(QueryID, Dir, Tree, MapList).
+    add_bdd(QueryID, Query, Bdd).
 init_one_query(QueryID,Query,_Type) :-
     %	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -592,6 +581,19 @@ init_one_query(QueryID,Query,_Type) :-
 	  reverse(Tree0,Tree),
 	  store_bdd(QueryID, Dir, Tree, MapList).
 
+    add_bdd(QueryID,Query, Bdd) :-
+	Bdd = bdd(Dir, Tree0,MapList),
+	user:graph2bdd(Query,1,Bdd),
+	!,
+	 reverse(Tree0,Tree),
+ 	  %rb_new(H0),
+	  %maplist_to_hash(MapList, H0, Hash),
+	  %tree_to_grad(Tree, Hash, [], Grad),
+	  % ;
+	  % Bdd = bdd(-1,[],[]),
+	  % Grad=[]
+	  store_bdd(QueryID, Dir, Tree, MapList).
+init_one_query(_,_,_).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
@@ -788,12 +790,7 @@ gradient_descent :-
 %	current_iteration(Iteration),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
-    lbfgs_initialize(N,X,0,Solver),
-    forall(tunable_fact(FactID,_GroundTruth),
-	   set_fact( FactID, Slope, X)
-	   ),
-    lbfgs_run(Solver,_BestF),
-    lbfgs_finalize(Solver),
+    lbfgs_run(N,X,_BestF),
     mse_trainingset,
     mse_testset.
 
@@ -862,7 +859,7 @@ go( X,Grad, LLs) :-
  
 
 compute_gradient( Grad, X, Slope, LL) :-
-  	user:example(QueryID,_Query,QueryProb),
+  	user:example(QueryID,_Query,QueryProb,_),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
 	bind_maplist(MapList, Slope, X),

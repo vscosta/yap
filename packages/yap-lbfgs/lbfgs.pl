@@ -20,9 +20,9 @@
 
 
 
-:- module(lbfgs,[lbfgs_initialize/3,
+:- module(lbfgs,[lbfgs_initialize/2,
 		 lbfgs_initialize/4,
-		 lbfgs_run/2,
+		 lbfgs_run/3,
 
 		 lbfgs_finalize/1,
 
@@ -153,7 +153,6 @@ yes
 
 :- load_foreign_files(['libLBFGS'],[],'init_lbfgs_predicates').
 
-
 /** @pred lbfgs_initialize(+N, -SolverInfo)
 
 Do initial memory allocation and a reference to a descriptor.
@@ -161,11 +160,7 @@ Do initial memory allocation and a reference to a descriptor.
 lbfgs_initialize(1, Block)
 ~~~~~
 */
-lbfgs_initialize(N,X,t(N,X,U,Params)) :-
-    lbfgs_initialize(N,X,0,t(N,X,U,Params)).
-
-lbfgs_initialize(N,X,U,t(N,X,U,Params)) :-
-    lbfgs_defaults(Params),
+lbfgs_initialize(N,X) :-
     integer(N),
     N>0,
     lbfgs_grab(N,X).
@@ -178,16 +173,14 @@ lbfgs_initialize(N,X,U,t(N,X,U,Params)) :-
 
 Clean up the memory.
 */
-lbfgs_finalize(t(_N,X,_U,Params)) :-
-	lbfgs_release(X) ,
-	lbfgs_release_parameters(Params) .
+lbfgs_finalize(_N).
 
 /** @pred  lbfgs_run(+State, -FinalOutput)
 
 run the algorithm. output the final score of the function being optimised
 */
-lbfgs_run(t(N,X,U),FX) :-
-    lbfgs(N,X, U, FX).
+lbfgs_run(N,X,FX) :-
+    lbfgs(N,X, FX).
 
 
 
@@ -255,7 +248,7 @@ lbfgs_parameters  :-
 	print_param(orthantwise_end,Orthantwise_End,'End index for computing the L1 norm of the variables.',int ),
 	format('******************************************************************************************/~n',[]),
 	format(' use lbfgs_set_parameter(Name,Value) to change parameters~n',[]),
-	format(' use lbfgs_get_parameter(Name,Value) to see current parameters~n',[]),
+	format(' use lbfgs_get_parameter(Name,Values) to see current parameters~n',[]),
 	format(' use lbfgs_parameters to print this overview~2n',[]).
 
 

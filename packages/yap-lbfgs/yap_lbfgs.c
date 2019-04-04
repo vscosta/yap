@@ -28,10 +28,14 @@
 #define LBFGS_STATUS_CB_EVAL 3
 #define LBFGS_STATUS_CB_PROGRESS 4
 
+static lbfgs_parameter_t parms;
+
 X_API void init_lbfgs_predicates(void);
 
 YAP_Functor fevaluate, fprogress, fmodule, ffloats;
 YAP_Term tuser;
+
+lbfgsfloatval_t *x_p;
 
 static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
                                 lbfgsfloatval_t *g_tmp, const int n,
@@ -193,127 +197,22 @@ static YAP_Bool p_lbfgs(void) {
   if (n < 1) {
     return FALSE;
   }
-  sl = YAP_InitSlot(YAP_ARG6);
+  sl = YAP_InitSlot(YAP_ARG3);
 
-  x = (lbfgsfloatval_t *)YAP_IntOfTerm(YAP_ArgOfTerm(1, YAP_ARG2));
-  lbfgs_parameter_t *param = (lbfgs_parameter_t *)YAP_IntOfTerm(YAP_ARG3);
-  void *ui = (void *)YAP_IntOfTerm(YAP_ARG4);
+  if (!x_p)
+   x_p = lbfgs_malloc(n+1);
+  x = x_p;
+   t = YAP_MkIntTerm((YAP_Int)x);
+   YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 1, &t));
+  lbfgs_parameter_t *param = &parms;
+  void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &fx, evaluate, progress, ui, param);
   t = YAP_GetFromSlot(sl);
   YAP_Unify(t, YAP_MkFloatTerm(fx));
   YAP_RecoverSlots(1, sl);
   if (ret == 0)
     return true;
-  const char *s;
-  switch (ret) {
-  case LBFGS_CONVERGENCE:
-  case LBFGS_STOP:
-    return true;
-    /** The initial variables already minimize the objective function. */
-  case LBFGS_ALREADY_MINIMIZED:
-    s = "The initial variables already minimize the objective function.";
-    break;
-  case LBFGSERR_UNKNOWNERROR:
-    s = "Unknownerror";
-    break;
-  case LBFGSERR_LOGICERROR:
-    s = "logic error.";
-    break;
-
-  case LBFGSERR_OUTOFMEMORY:
-    s = "out of memory";
-    break;
-  case LBFGSERR_CANCELED:
-    s = "canceled.";
-    break;
-  case LBFGSERR_INVALID_N:
-    s = "Invalid number of variables specified.";
-    break;
-
-  case LBFGSERR_INVALID_N_SSE:
-    s = "Invalid number of variables (for SSE) specified.";
-    break;
-
-  case LBFGSERR_INVALID_X_SSE:
-    s = "The array x must be aligned to 16 (for SSE).";
-    break;
-  case LBFGSERR_INVALID_EPSILON:
-    s = "Invalid parameter lbfgs_parameter_t::epsilon specified.";
-    break;
-  case LBFGSERR_INVALID_TESTPERIOD:
-    s = "Invalid parameter lbfgs_parameter_t::past specified.";
-    break;
-  case LBFGSERR_INVALID_DELTA:
-    s = "Invalid parameter lbfgs_parameter_t::delta specified.";
-    break;
-  case LBFGSERR_INVALID_LINESEARCH:
-    s = "Invalid parameter lbfgs_parameter_t::linesearch specified.";
-    break;
-  case LBFGSERR_INVALID_MINSTEP:
-    s = "Invalid parameter lbfgs_parameter_t::max_step specified.";
-    break;
-  case LBFGSERR_INVALID_MAXSTEP:
-    s = "Invalid parameter lbfgs_parameter_t::max_step specified.";
-    break;
-  case LBFGSERR_INVALID_FTOL:
-    s = "Invalid parameter lbfgs_parameter_t::ftol specified.";
-    break;
-  case LBFGSERR_INVALID_WOLFE:
-    s = "Invalid parameter lbfgs_parameter_t::wolfe specified.";
-    break;
-  case LBFGSERR_INVALID_GTOL:
-    s = "Invalid parameter lbfgs_parameter_t::gtol specified.";
-    break;
-  case LBFGSERR_INVALID_XTOL:
-    s = "Invalid parameter lbfgs_parameter_t::xtol specified.";
-    break;
-  case LBFGSERR_INVALID_MAXLINESEARCH:
-    s = "Invalid parameter lbfgs_parameter_t::max_linesearch specified.";
-    break;
-  case LBFGSERR_INVALID_ORTHANTWISE:
-    s = "Invalid parameter lbfgs_parameter_t::orthantwise_c specified.";
-    break;
-  case LBFGSERR_INVALID_ORTHANTWISE_START:
-    s = "Invalid parameter lbfgs_parameter_t::orthantwise_start specified.";
-    break;
-  case LBFGSERR_INVALID_ORTHANTWISE_END:
-    s = "Invalid parameter lbfgs_parameter_t::orthantwise_end specified.";
-    break;
-  case LBFGSERR_OUTOFINTERVAL:
-    s = "The line-search step went out of the interval of uncertainty.";
-    break;
-
-  case LBFGSERR_INCORRECT_TMINMAX:
-    s = "A logic error occurred; alternatively, the interval of uncertaity  "
-        "became too small.";
-    break;
-  case LBFGSERR_ROUNDING_ERROR:
-    s = "A rounding error occurred; alternatively, no line-search s";
-    break;
-  case LBFGSERR_MINIMUMSTEP:
-    s = "The line-search step became smaller than lbfgs_parameter_t::min_step.";
-    break;
-  case LBFGSERR_MAXIMUMSTEP:
-    s = "The line-search step became larger than lbfgs_parameter_t::max_step.";
-    break;
-  case LBFGSERR_MAXIMUMLINESEARCH:
-    s = "The line-search routine reaches the maximum number of evaluations.";
-    break;
-  case LBFGSERR_MAXIMUMITERATION:
-    s = "The algorithm routine reaches the maximum number of iterations "
-        "lbfgs_parameter_t::xtol.";
-    break;
-  case LBFGSERR_WIDTHTOOSMALL:
-    s = "Relative width of the interval of uncertainty is at m";
-    break;
-  case LBFGSERR_INVALIDPARAMETERS:
-    s = "A logic error (negative line-search step) occurred.";
-    break;
-  }
-  char ss[1024];
-  snprintf(ss, 1023, "optimization terminated with code %d: %s\n", ret, s);
-  fputs(ss, stderr);
-  
+  fprintf(stderr, "optimization terminated with code %d\n ",ret);
   return true;
 }
 
@@ -327,8 +226,6 @@ static YAP_Bool lbfgs_grab(void) {
   YAP_Term t = YAP_MkIntTerm((YAP_Int)x);
   return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 1, &t));
 }
-
-static lbfgs_parameter_t parms;
 
 
 static YAP_Bool lbfgs_release(void) {
@@ -572,7 +469,7 @@ X_API void init_lbfgs_predicates(void) {
   lbfgs_parameter_init(&parms);
 
   YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
-  YAP_UserCPredicate("lbfgs", p_lbfgs, 5);
+  YAP_UserCPredicate("lbfgs", p_lbfgs, 3);
   YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
 
   YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);

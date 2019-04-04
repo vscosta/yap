@@ -28,7 +28,6 @@ graph2bdd(Query,1,bdd(D,T,Vs)) :-
 
 :- set_problog_flag(init_method,(Q,N,Bdd,user:graph2bdd(Q,N,Bdd))).
 
-:-     nb_heap(100000,Q), nb_setval(heap,Q).
 
 
 %:- leash(0), spy graph2bdd.
@@ -59,8 +58,7 @@ graph(X,Y,Trie_Completed_Proofs,Vs) :-
     !,
     export_answer([Y|Final], Trie_Completed_Proofs,Vs).
 graph(X,Y,Trie_Completed_Proofs, Vs) :-
-    nb_getval(heap, Q),
-    nb_heap_reset(Q),
+    nb_heap(100000,Q),
     path(X,Y,X,[X],Final, 0, _Pr, Q),
     !,
     export_answer(Final, Trie_Completed_Proofs, Vs).

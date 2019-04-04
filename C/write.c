@@ -1058,7 +1058,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
       wrputc('}', wglb->stream);
       lastw = separator;
-    } else {
+    }  else {
+      if (!wglb->Ignore_ops && atom == AtomHeap) {
+	Arity = 3+2*IntegerOfTerm(ArgOfTerm(1,t));
+    }
       putAtom(atom, wglb->Quote_illegal, wglb);
       lastw = separator;
       wropen_bracket(wglb, FALSE);
