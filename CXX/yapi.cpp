@@ -252,10 +252,11 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
-  Term o = Yap_MkNewApplTerm(f.f, arity);
+  Term o = AbsAppl(HR);
+  *HR++ = (CELL)f.f;
   Term *tt = RepAppl(o) + 1;
   for (arity_t i = 0; i < arity; i++)
-    tt[i] = ts[i].term();
+    *HR++ = ts[i].term();
   mk(o);
   RECOVER_H();
 }

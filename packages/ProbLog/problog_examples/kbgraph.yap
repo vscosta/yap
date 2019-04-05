@@ -41,7 +41,7 @@ cvt_to_id([E0,E1],VId*true, [Id-VId]) :-
 cvt_to_id([E0,E1|Es], VId*Ids, [Id-VId|VIds]) :-
    problog:problog_dir_edge(Id,E0,E1,_Pr),
     !,
-    cvt_to_id([E1|Es],Id*Ids, VIds).
+    cvt_to_id([E1|Es],Ids, VIds).
 cvt_to_id([E0,E1|Es],  VId*Ids, [Id-VId|VIds]) :-
    problog:problog_dir_edge(Id,E1,E0,_Pr),
     !,

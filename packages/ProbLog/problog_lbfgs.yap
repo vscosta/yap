@@ -489,7 +489,8 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	once(init_queries),
+	empty_bdd_directory,
+	init_queries,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% done
@@ -550,7 +551,7 @@ empty_bdd_directory.
 
 
 init_queries :-
-    %empty_bdd_directory,
+    empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),	
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
@@ -584,6 +585,7 @@ init_one_query(QueryID,Query,_Type) :-
     add_bdd(QueryID,Query, Bdd) :-
 	Bdd = bdd(Dir, Tree0,MapList),
 	user:graph2bdd(Query,1,Bdd),
+	Bdd \= [],
 	!,
 	 reverse(Tree0,Tree),
  	  %rb_new(H0),
@@ -592,21 +594,12 @@ init_one_query(QueryID,Query,_Type) :-
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
-	  store_bdd(QueryID, Dir, Tree, MapList).
-init_one_query(_,_,_).
+	 store_bdd(QueryID, Dir, Tree, MapList).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
-	  (
-	    recorded(QueryID, Bdd0, R),
-	    arg(3, Bdd0, MapList0),  				variant(MapList0,MapList)
-	    ->
-	    put_char('.')
-	    ;
-	    (nonvar(R) -> erase(R);true),
 	    recorda(QueryID,bdd(Dir, Tree, MapList),_),
-	    put_char('.')
-	).
+	    put_char('.').
 
 
 %========================================================================
@@ -786,11 +779,9 @@ inv_sigmoid(T,Slope,InvSig) :-
 
 % vsc: avoid silly search
 gradient_descent :-
-    problog_flag(sigmoid_slope,Slope),
-%	current_iteration(Iteration),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
-    lbfgs_run(N,X,_BestF),
+    lbfgs_run(N,_X,_BestF),
     mse_trainingset,
     mse_testset.
 
@@ -830,8 +821,15 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     %Handle = user_error,
     N1 is N-1,
     forall(between(0,N1,I),(Grad[I]<==0.0)),
-    go( X,Grad, LLs),
-    sum_list( LLs, LLH_Training_Queries).
+    catch(
+	go( X,Grad, LLs),
+	Error,
+	(writeln(Error), throw(Error) )),
+    length(LLs,NN),
+    V <== array[NN] of LLs,
+    LLH_Training_Queries <== sum(V),
+writeln( LLH_Training_Queries).
+%    sum_list( LLs, LLH_Training_Queries),
 
 test :-
     S =.. [f,0-0.9,1-0.8,2-0.6,3-0.7,4-0.5,5-0.4,6-0.7,7-0.2],
@@ -862,6 +860,7 @@ compute_gradient( Grad, X, Slope, LL) :-
   	user:example(QueryID,_Query,QueryProb,_),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
+	MapList = [_|_],
 	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),

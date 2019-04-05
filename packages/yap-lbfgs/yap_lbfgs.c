@@ -75,6 +75,7 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
     rc = YAP_IntOfTerm(o);
   else
     rc = YAP_FloatOfTerm(o);
+  YAP_ShutdownGoal(true);
   YAP_RecoverSlots(1, sl);
   return rc;
 }
@@ -123,9 +124,10 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
 
   if (YAP_IsIntTerm(o)) {
     int v = YAP_IntOfTerm(o);
-    return (int)v;
+   YAP_ShutdownGoal(true);
+   return (int)v;
   }
-
+  YAP_ShutdownGoal(true);
   fprintf(stderr, "ERROR: The progress call back function did not return an "
                   "integer as last argument\n");
   return 1;
