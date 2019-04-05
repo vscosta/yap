@@ -14,8 +14,10 @@ set(MYDDAS_DRIVERS
 set(MYDDAS_DBMS sqlite3 postgres odbc)
 
 if (ANDROID)
- set (MYDDAS_PL_OUTDIR ${YAP_APP_DIR}/src/generated/assets/Yap )
- else()
+ set (MYDDAS_PL_OUTDIR ${CMAKE_SOURCE_DIR}/../yaplib/src/generated/assets/Yap/myddas )
+ file(MAKE_DIRECTORY ${MYDDAS_PL_OUTDIR})
+      file( COPY myddas.yap DESTINATION ${YAP_INSTALL_DATADIR} )
+  else()
  set (MYDDAS_PL_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
  endif()
 get_property(MYDDAS_FLAGS GLOBAL PROPERTY COMPILE_DEFINITIONS)
@@ -38,7 +40,9 @@ foreach (dbms ${MYDDAS_DBMS} )
 
     set_source_files_properties(outfile PROPERTIES GENERATED TRUE)
 
+
 endforeach()
     list(APPEND MYDDAS_YAP_FILES  ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/sqlitest.yap ${CMAKE_CURRENT_SOURCE_DIR}/../sqlite3/chinook.db)
 
-        install(FILES ${MYDDAS_YAP_FILES} DESTINATION ${YAP_INSTALL_DATADIR})
+        install(FILES ${MYDDAS_YAP_FILES} DESTINATION ${YAP_INSTALL_DATADIR}/myddas)
+    install(FILES myddas.yap DESTINATION ${YAP_INSTALL_DATADIR})
