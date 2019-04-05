@@ -21,14 +21,14 @@
 #define NAME() 'YAPsqlite3'
 #define MODULE() myddas_sqlite3
 #define INIT() init_sqlite3
-#elif defined( odbc )
+#elif defined( odbc ) && !defined(ANDROID)
 #undef odbc
 #define DBMS(x) odbc_##x
 #define c_DBMS(x) c_odbc_##x
 #define NAME() 'YAPodbc'
 #define MODULE() myddas_odbc
 #define INIT() init_odbc
-#elif defined( postgres )
+#elif defined( postgres ) && !defined(ANDROID)
 #undef postgres
 #define DBMS(x) postgres_##x
 #define c_DBMS(x) c_postgres_##x
