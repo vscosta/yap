@@ -42,13 +42,14 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
                                 const lbfgsfloatval_t step) {
   YAP_Term call;
   YAP_Bool result;
-  lbfgsfloatval_t rc;
+  lbfgsfloatval_t rc=0.0;
   YAP_Term v, t1, t12;
   YAP_Term t[6], t2[2];
 
-  t[0] = v = YAP_MkVarTerm();
-  t1 = YAP_MkIntTerm((YAP_Int)x);
-  t[1] = YAP_MkApplTerm(ffloats, 1, &t1);
+  YAP_Term t_0 = YAP_MkIntTerm((YAP_Int)&rc);
+  t[0] = YAP_MkApplTerm(ffloats, 1, &t_0);
+  YAP_Term t_1 = YAP_MkIntTerm((YAP_Int)x);
+  t[1] = YAP_MkApplTerm(ffloats, 1, &t_1);
   t12 = YAP_MkIntTerm((YAP_Int)g_tmp);
   t[2] = YAP_MkApplTerm(ffloats, 1, &t12);
   t[3] = YAP_MkIntTerm(n);
@@ -70,12 +71,9 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
     // Goal did not succeed
     return FALSE;
   }
-  YAP_Term o;
-  if (YAP_IsIntTerm((o = YAP_GetFromSlot(sl))))
-    rc = YAP_IntOfTerm(o);
-  else
-    rc = YAP_FloatOfTerm(o);
+   YAP_ShutdownGoal(true);
   YAP_RecoverSlots(1, sl);
+  fprintf(stderr,"%gxo\n",rc);
   return rc;
 }
 
@@ -123,9 +121,10 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
 
   if (YAP_IsIntTerm(o)) {
     int v = YAP_IntOfTerm(o);
-    return (int)v;
+    YAP_ShutdownGoal(true);
+   return (int)v;
   }
-
+  YAP_ShutdownGoal(true);
   fprintf(stderr, "ERROR: The progress call back function did not return an "
                   "integer as last argument\n");
   return 1;
