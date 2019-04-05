@@ -18,3 +18,5 @@ text_to_query( MString, Status ) :-
 	nl(user_error).
 
 %:- [sqlitest].
+user:file_search_path(data, Home) :-
+    user:file_search_path(library, Home).

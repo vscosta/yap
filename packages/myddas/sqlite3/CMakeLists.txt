@@ -41,6 +41,9 @@ message("ql ${EMBEDDED_SQLITE3}")
   message( "   * Sqlite3 Data-Base (http://www.sqlite3.org), distributed with MYDDAS" )
   if ( ANDROID )
  add_definitions(-DSQLITE_FCNTL_MMAP_SIZE=0 )
+ file(MAKE_DIRECTORY ${YAP_INSTALL_DATADIR}/myddas)
+ file(COPY ${SQLITE_DB} ${SQLITE_TEST}
+         DESTINATION ${YAP_INSTALL_DATADIR}/myddas)
 
       add_library(  YAPsqlite3 OBJECT
       ${YAPSQLITE3_SOURCES} )
@@ -69,12 +72,10 @@ message("ql ${EMBEDDED_SQLITE3}")
       )
   endif()
 
-  install(FILES ${SQLITE_DB}
-    DESTINATION ${YAP_INSTALL_DATADIR}/data
-    )
 
-  install(FILES ${SQLITE_TEST}
-    DESTINATION ${YAP_INSTALL_DATADIR}/test
-    )
+  install(FILES ${SQLITE_DB} ${SQLITE_TEST}
+    DESTINATION ${YAP_INSTALL_DATADIR}/myddas
+          )
+
 
 endif()
