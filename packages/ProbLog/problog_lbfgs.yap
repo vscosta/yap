@@ -825,11 +825,11 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
 	go( X,Grad, LLs),
 	Error,
 	(writeln(Error), throw(Error) )),
-    length(LLs,NN),
-    V <== array[NN] of LLs,
-    LLH_Training_Queries <== sum(V),
-writeln( LLH_Training_Queries).
-%    sum_list( LLs, LLH_Training_Queries),
+   length(LLs,NN),
+   V <== array[NN] of LLs,
+   SLL <== sum(V),
+    %sum_list( LLs, SLL),
+    LLH_Training_Queries[0] <== SLL.
 
 test :-
     S =.. [f,0-0.9,1-0.8,2-0.6,3-0.7,4-0.5,5-0.4,6-0.7,7-0.2],
@@ -843,7 +843,8 @@ Grad <== array[N] of floats,
 	LL,
 	compute_gradient(Grad, X, Slope,LL),
 	LLs
- ), sum_list( LLs, _LLH_Training_Queries).
+ ), sum_list( LLs, SLL).
+
 
 
 
@@ -862,7 +863,10 @@ compute_gradient( Grad, X, Slope, LL) :-
 	BDD = bdd(_,_,MapList),
 	MapList = [_|_],
 	bind_maplist(MapList, Slope, X),
+%writeln(QueryID:MapList),
 	query_probabilities( BDD, BDDProb),
+	(isnan(BDDProb) -> writeln((nan::QueryID)), fail;true),
+writeln(BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
     forall(
 	query_gradients(BDD,I,IProb,GradValue), 
@@ -872,6 +876,7 @@ compute_gradient( Grad, X, Slope, LL) :-
 gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
     G0 <== Grad[I],
     GN is G0-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
+    (isnan(GN) -> writeln((nan::I)), fail;true),
     Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
