@@ -76,15 +76,14 @@ bool yap4r::query(std::string p_name, GenericVector sexps,
 }
 
 bool yap4r::compile(std::string s) {
-  YAPTerm fs[1];
-  fs[0] = YAPAtomTerm(s.c_str());
-  return yap->mgoal(YAPApplTerm("compile", fs).term(), USER_MODULE);
+  YAPTerm t;
+  t = YAPAtomTerm(s.c_str());
+  return yap->mgoal(YAPApplTerm("compile", t).term(), USER_MODULE);
 }
 bool yap4r::library(std::string s) {
-  YAPTerm fs[1], l[1];
-  l[0] = YAPAtomTerm(s.c_str());
-  fs[0] = YAPApplTerm("library", l);
-  return yap->mgoal(YAPApplTerm("compile", fs).term(), USER_MODULE);
+  YAPTerm t;
+  t = YAPApplTerm("library", YAPAtomTerm(s.c_str()));
+  return yap->mgoal(YAPApplTerm("compile", t).term(), USER_MODULE);
 }
 
 bool yap4r::more() {
@@ -117,7 +116,7 @@ SEXP yap4r::peek(int i) {
   return term_to_sexp(Yap_InitSlot(Yap_XREGS[i]), false);
 }
 
-RCPP_MODULE(mod_yap4r) {
+RCPP_MODULE(yap4r) {
   class_<yap4r>("yap4r")
       .constructor("create an object encapsulating a Prolog engine")
       .method("query", &yap4r::query,
