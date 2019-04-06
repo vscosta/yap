@@ -60,7 +60,7 @@
  :- use_module(library(maplist)).
 
 
-:- use_module(myddas).
+:- use_module(myddas_core).
 
 :- use_module(myddas_errors,[
 			     '$error_checks'/1

@@ -38,7 +38,7 @@
 			db_sql_mode/2
 		       ]).
 
-:- use_module(myddas,[
+:- use_module(myddas_core,[
 		      db_sql/3
 		     ]).
 

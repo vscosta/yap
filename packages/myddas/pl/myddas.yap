@@ -1,1 +1,1 @@
-:- include( myddas/myddas ).
+:- include( myddas/myddas_core ).

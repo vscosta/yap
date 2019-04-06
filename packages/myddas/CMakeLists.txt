@@ -31,10 +31,15 @@ set(MYDDAS_UTIL_SOURCES
 
 add_subdirectory(sqlite3)
 
+if(MYSQL_FOUND)
 add_subdirectory(mysql)
+       endif()
+if (ODBC_FOUND)
 add_subdirectory(odbc)
+       endif()
+if (POSTGRES_FOUND)
 add_subdirectory(postgres)
-
+endif()
        set(CXX_SWIG_OUTDIR ${CMAKE_BINARY_DIR}/packages/swig/android)
 
 add_component(myddas
@@ -57,3 +62,5 @@ MY_set_target_properties(myddas PROPERTIES
 cmake_dependent_option(USE_MYDDAS_Stats
         "enable the MYDDAS library statistics support" OFF
         USE_MYDDAS OFF)
+
+add_dependencies(myddas MYDDAS_PL)

@@ -620,7 +620,6 @@ add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 -DEMBEDDED_SQL
 else()
 add_definitions(-DMYDDAS=1 -DEMBEDDED_MYDDAS=1 -DMYDDAS_SQLITE3=1 )
 
-endif()
 if (MYSQL_FOUND)
 add_definitions( -DMYDDAS_MYSQL=1)
 endif ()
@@ -636,6 +635,7 @@ endif()
 # we use the nice UTF-8 package
 #available at the Julia project
 
+endif()
 
 add_subDIRECTORY( packages/myddas )
 add_subDIRECTORY( packages/clpqr )

@@ -225,13 +225,14 @@
 	'$extend_file_search_path'(P).
 '$init_path_extensions'.
 
+
 /**
  * @pred top_query(?0 Goal).
  *
  * run _Goal_ as f it had been called from the Prolog
  * top-level.
  */
-top_quer(G)  :-
+top_query(G)  :-
     '$init_step'(2), % consult
     '$init_step'(3), % globals
     '$init_step'(4), % check if a saved state,
@@ -248,12 +249,11 @@ top_quer(G)  :-
 	nb_setval('$debug_jump',off),
 	'__NB_setval__'('$trace',off),
 	nb_setval('$debug_status', state(zip, 0, stop,off)),
-	set_prolog_flag(break_level, 0).
-	call(user:G,  Error, '$Errors'(Error)).
+	set_prolog_flag(break_level, 0),
+	catch(user:G,  Error, '$Error'(Error)).
 
 
 /**
  *
  * @}
  */
-
