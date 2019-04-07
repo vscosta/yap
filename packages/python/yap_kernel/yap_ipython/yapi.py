@@ -809,7 +809,7 @@ def cell_structure(s):
                 if repeats.strip().isdecimal():
                     reps = int(repeats)
                     sep = sepator
-                elif loop == '*':
+                elif loop == ';':
                     reps = -1
                 elif loop == '?':
                     reps = 10

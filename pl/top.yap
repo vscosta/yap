@@ -530,8 +530,8 @@ write_query_answer( Bindings ) :-
 	   write_term(user_error,G,Opts) ;
 	   format(user_error,'~w',[G])
         ).
-'$write_goal_output'(G, First, [M:G|NG], next, NG) :-
-	'$current_module'(M),
+'$write_goal_output'(G0, First, [M:G|NG], next, NG) :-
+	'$yap_strip_module'(G0,M,G),
         ( First = first -> true ; format(user_error,',~n',[]) ),
         (  yap_flag(toplevel_print_options, Opts) ->
 	   write_term(user_error,G,Opts) ;

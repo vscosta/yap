@@ -28,6 +28,9 @@
 :- python_import(json).
 %:- python_import(gc).
 
+:- create_prolog_flag(yap4py_query_output, true, [access(read_write)]).
+:- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
+
 :- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
 
 %:- start_low_level_trace.
@@ -78,28 +81,35 @@ python_query( Caller, String, Bindings ) :-
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( user:Goal, VarNames, Status, Bindings),
 	Caller.q.port := Status,
-	output(Caller, Bindings).
+		 rational_term_to_tree(Caller+Bindings,_NGoal+NBindings,ExtraBindings,[]),
+		 lists:append(NBindings, ExtraBindings, TotalBindings),
+		 copy_term_nat(TotalBindings,L),
+		 term_variables(L,Vs),
+numbervars(Vs,0,_),
+		 output(Caller, L).
 
-%% output( _, Bindings ) :-
-%%     write_query_answer( Bindings ),
-%%     fail.
+
+
+output( _, Bindings ) :-
+    yap_flag(yap4py_query_output,true),
+    once( write_query_answer( Bindings ) ),
+    nl(user_error),
+    nl(user_error),
+    fail.
 output( Caller, Bindings) :-
-    copy_term( Bindings, Bs),
-    simplify(Bs, 1, Bss),
+    yap_flag(yap4py_query_json,true),
+    !,
+    simplify(Bindings, 1, Bss),
     numbervars(Bss, 0, _),
     maplist(into_dict(Caller),Bss).
+output( _Caller, _Bindings).
 
 simplify([],_,[]).
-simplify([X=V|Xs], [X=V|NXs]) :-
-	var(V),
-	!,
-	X=V,
-	simplify(Xs,NXs).
 simplify([X=V|Xs], I, NXs) :-
 	var(V),
 	!,
 	X=V,
-	simplify(Xs,I,NXs).
+	simplify(Xs,I, NXs).
 simplify([X=V|Xs], I, [X=V|NXs]) :-
 	!,
 	simplify(Xs,I,NXs).
@@ -117,6 +127,9 @@ into_dict(D,V0=T) :-
     listify(T,L),
     D.q.answer[V0] := L.
 
+listify(X,X) :-
+    atomic(X),
+    !.
 listify('$VAR'(Bnd), V)  :-
     !,
     listify_var(Bnd, V).
@@ -127,6 +140,9 @@ listify(A:As, A:Vs)  :-
     (atom(A);string(A)),
     !,
     maplist(listify,As, Vs).
+listify({Xs}, I, NXs) :-
+	!,
+	simplify(Xs,I,NXs).
 listify(WellKnown, V)  :-
     WellKnown=..[N|As],
     length(As,Sz),
@@ -134,16 +150,9 @@ listify(WellKnown, V)  :-
     !,
     maplist(listify,As, Vs),
     V =.. [N|Vs].
-
-listify('$VAR'(Bnd), V)  :-
-    !,
-    listify_var(Bnd, V).
-listify(T, t(S,V))  :-
-    T =.. [S,A|As],
-    !,
-    maplist(listify, [A|As], Vs),
-    V =.. [t|Vs].
-listify(S, S).
+listify(T, [N,LAs])  :-
+    T=..[N|As],
+    listify(As, LAs).
 
 listify_var(I, S) :-
     I >= 0,

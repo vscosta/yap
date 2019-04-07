@@ -26,6 +26,8 @@ public:
              std::string p_module = "user");
   bool more();
   bool done();
+  bool eval_text(std::string l);
+  bool run(SEXP s);
   SEXP peek(int i);
   bool compile(std::string s);
   bool library(std::string s);
@@ -74,6 +76,17 @@ bool yap4r::query(std::string p_name, GenericVector sexps,
 
   return rc;
 }
+bool yap4r::run(SEXP l) {
+  yhandle_t yh = Yap_InitHandle(MkVarTerm());
+  if (!sexp_to_pl(yh, l))
+    return false;
+  return yap->mgoal(Yap_GetFromHandle(yh), USER_MODULE);
+}
+
+bool yap4r::eval_text(std::string l) {
+      YAPAtomTerm t = YAPAtomTerm(l.c_str());
+  return yap->mgoal(YAPApplTerm("eval_text", t).term(), MkAtomTerm(Yap_LookupAtom("real")));
+}
 
 bool yap4r::compile(std::string s) {
   YAPTerm t;
@@ -116,13 +129,14 @@ SEXP yap4r::peek(int i) {
   return term_to_sexp(Yap_InitSlot(Yap_XREGS[i]), false);
 }
 
-RCPP_MODULE(yap4r) {
+RCPP_MODULE(mod_yap4r) {
   class_<yap4r>("yap4r")
       .constructor("create an object encapsulating a Prolog engine")
-      .method("query", &yap4r::query,
-              "create an active query within the engine")
+      .method("query", &yap4r::query, "create an active query within the engine")
       .method("more", &yap4r::more, "ask for an extra solution")
       .method("done", &yap4r::done, "terminate the query")
+      .method("eval_text", &yap4r::eval_text, "terminate the query")
+      .method("run", &yap4r::run, "terminate the query")
       .method("compile", &yap4r::compile, "compile the file")
       .method("library", &yap4r::library, "compile the library")
       .method("peek", &yap4r::peek, "load arg[i] into R");

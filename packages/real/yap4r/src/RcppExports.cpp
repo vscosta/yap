@@ -6,10 +6,10 @@
 using namespace Rcpp;
 
 
-RcppExport SEXP _rcpp_module_boot_yap4r();
+RcppExport SEXP _rcpp_module_boot_mod_yap4r();
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rcpp_module_boot_yap4r", (DL_FUNC) &_rcpp_module_boot_yap4r, 0},
+    {"_rcpp_module_boot_mod_yap4r", (DL_FUNC) &_rcpp_module_boot_mod_yap4r, 0},
     {NULL, NULL, 0}
 };
 
