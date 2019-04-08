@@ -25,7 +25,7 @@
 live :-
     repeat,
     yap_flag(verbose,normal),
-    '$current_module'(Module),
+    current_source_module(Module,Module),
     ( Module==user ->
       true % '$compile_mode'(_,0)
     ;
@@ -706,7 +706,7 @@ write_query_answer( Bindings ) :-
 '$loop'(Stream,exo) :-
     prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
-    '$current_module'(OldModule),
+    source_module(OldModule,OldModule),
     repeat,
     '$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
 		    user:'$LoopError'(Error, top)),
@@ -715,7 +715,7 @@ write_query_answer( Bindings ) :-
 '$loop'(Stream,db) :-
     prolog_flag(agc_margin,Old,0),
     prompt1(': '), prompt(_,'     '),
-    '$current_module'(OldModule),
+    source_module(OldModule,OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error, user:'$LoopError'(Error, db)
                    ),
@@ -732,7 +732,7 @@ write_query_answer( Bindings ) :-
 
 '$boot_loop'(Stream,Where) :-
 	repeat,
-	'$current_module'( OldModule, OldModule ),
+	source_module( OldModule, OldModule ),
 	read_clause(Stream, Command, [module(OldModule), syntax_errors(dec10),variable_names(_Vars), term_position(_Pos)]),
 	(Command == end_of_file
   ->

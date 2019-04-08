@@ -653,7 +653,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
 :- use_module(library(maplist)).
 :- use_module(library(mapargs)).
 :- use_module(library(lists)).
-
+:- start_low_level_trace.
 ( X <== '[]'(Dims0, array) of T ) :-
     var(X),
     (  T== ints -> true ; T== floats),
@@ -661,6 +661,7 @@ Unify  _NElems_ with the type of the elements in  _Matrix_.
     foldl( norm_dim, Dims0, Dims, Bases, 1, _Size ),
     matrix_new( T , Dims, _, X ),
     matrix_base(X, Bases).
+:- stop_low_level_trace.
 ( X <== '[]'(Dims0, array) of T ) :-
     atom(X),
     (  T== ints -> true ; T== floats),

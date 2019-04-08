@@ -123,7 +123,7 @@
 		  #ifdef MYDDAS_TOP_LEVEL
           db_top_level/4,
 		  db_top_level/5,
-		  db_datalog_select/3,
+n		  db_datalog_select/3,
 		  #endif
 				% myddas_assert_predicates.ypp
 				% myddas_mysql.ypp,

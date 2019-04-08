@@ -10,54 +10,43 @@
  * support routines for BDD evaluation.
  *
 */
+:- module(lbdd,[
+	      set_tunable/3,
+	prob2log/4,
+	log2prob/4,
+	bind_maplist/3,
+	get_prob/2,
+	gradient/3,
+	query_probabilities/2,
+	evalp/2,
+	query_gradients/4
+	
+]
+).
 
+
+:- use_module('../problog').
+:- use_module('flags').
+:- use_module('logger').
+
+set_tunable(I,Slope,P) :-
+    X <== P[I],
+    sigmoid(X,Slope,Pr),
+    (Pr > 0.99
+	    ->
+		NPr = 0.99
+			;
+			Pr < 0.01
+			       ->
+				   NPr = 0.01 ;
+				   Pr = NPr ),
+    set_fact_probability(I,NPr).
 
 %========================================================================
 %= Updates all values of query_probability/2 and query_gradient/4
 %= should be called always before these predicates are accessed
 %= if the old values are still valid, nothing happens
 %========================================================================
-
-update_values :-
-	values_correct,
-	!.
-update_values :-
-	\+ values_correct,
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% delete old values
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),	
-
-
-	assertz(values_correct).
-
-update_query_cleanup(QueryID) :-
-	(
-	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
-	->
-	    % either this query is similar to another or vice versa,
-	    % therefore we don't delete anything
-	 true;
-	 retractall(query_gradient_intern(QueryID,_,_,_))
-	).
-
-
-update_query(QueryID,Symbol,What_To_Update) :-
-	(
-	 query_is_similar(QueryID,_)
-	->
-				% we don't have to evaluate the BDD
-	 format_learning(4,'#',[]);
-	 (
-	  problog_flag(sigmoid_slope,Slope),
-	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
-	  gradient(QueryID, Method, Slope),
-	  format_learning(4,'~w',[Symbol])
-	 )
-	).
-
 
 prob2log(_X,Slope,FactID,V) :-
     get_fact_probability(FactID, V0),

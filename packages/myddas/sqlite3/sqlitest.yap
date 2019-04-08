@@ -2,7 +2,7 @@
 
 :- use_module(library(lists)).
 :- use_module(library(maplist)).
-:- use_module(myddas_core).
+:- use_module(library(myddas)).
 
 main :-
 		 init,

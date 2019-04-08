@@ -66,7 +66,7 @@ name with the `:/2` operator.
    source_location(F,Line),
   '__NB_getval__'( '$user_source_file', F0 , fail),
 	'$add_module_on_file'(N, F, Line,F0, Ps),
-	'$current_module'(_M0,N).
+	current_source_module(_M0,N).
 
 '$mk_system_predicates'( Ps, _N ) :-
     lists:member(Name/A , Ps),

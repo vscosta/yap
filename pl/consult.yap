@@ -538,7 +538,7 @@ load_files(Files0,Opts) :-
        '$qload_file'(Stream, Mod, F, FilePl, File, ImportList, TOpts),
        close( Stream ),
        H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
-       '$current_module'(M, Mod),
+       current_source_module(M, Mod),
        working_directory( _, OldD),
        '$lf_opt'('$location', TOpts, ParentF:_Line),
        '$reexport'( TOpts, ParentF, Reexport, ImportList, File ),
@@ -546,7 +546,7 @@ load_files(Files0,Opts) :-
        working_directory( _, OldD),
        set_prolog_flag(compiling,false),
        '$exec_initialization_goals',
-       '$current_module'(_M, Mod).
+       current_source_module(_M, Mod).
 '$start_lf'(_, Mod, Stream, TOpts, UserFile, File, _Reexport, _Imports) :-
 	'$do_lf'(Mod, Stream, UserFile, File, TOpts).
 
@@ -598,7 +598,7 @@ consult(V) :-
 consult(M0:Fs) :- !,
 	'$consult'(Fs, M0).
 consult(Fs) :-
-	'$current_module'(M0),
+	current_source_module(M0,M0),
 	'$consult'(Fs, M0).
 
 '$consult'(Fs,Module) :-
@@ -735,7 +735,7 @@ db_files(Fs) :-
 	'__NB_getval__'('$if_level', OldIfLevel, OldIfLevel=0),
 	nb_setval('$if_level',0),
 	% take care with [a:f], a is the ContextModule
-	'$current_module'(SourceModule, ContextModule),
+	current_source_module(SourceModule, ContextModule),
 	'$lf_opt'(consult, TOpts, Reconsult0),
 	'$lf_opt'('$options', TOpts, Opts),
 	'$lf_opt'('$location', TOpts, ParentF:Line),
@@ -769,7 +769,7 @@ db_files(Fs) :-
 	'$loop'(Stream,Reconsult),
 	'$lf_opt'(imports, TOpts, Imports),
 	'$import_to_current_module'(File, ContextModule, Imports, _, TOpts),
-	'$current_module'(Mod, SourceModule),
+	current_source_module(Mod, SourceModule),
 	%`writeln((       ContextModule/Mod  )),
 	set_prolog_flag(verbose_load, VerboseLoad),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
@@ -889,7 +889,7 @@ db_files(Fs) :-
 	'$full_filename'(X, Y ),
 	'$including'(Old, Y),
 	'$lf_opt'(stream, TOpts, OldStream),
-	'$current_module'(Mod),
+	current_source_module(Mod,Mod),
 	( open(Y, read, Stream) 	->
 	  true ;
 	  '$do_error'(permission_error(input,stream,Y),include(X))
@@ -1011,7 +1011,7 @@ prolog_load_context(file, FileName) :-
         ).
 prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
-        '$current_module'(X).
+        'current_module'(X).
 prolog_load_context(source, F0) :-
         ( source_location(F0, _) /*,
                                    '$input_context'(Context),
@@ -1250,7 +1250,7 @@ unload_file( F0 ) :-
 % stub to prevent modules defined within the prolog module.
 %
 module(Mod, Decls) :-
-	'$current_module'(prolog, Mod), !,
+	current_source_module(prolog, Mod), !,
 	'$export_preds'(Decls).
 
 '$export_preds'([]).

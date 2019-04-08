@@ -43,7 +43,7 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   YAP_Term call;
   YAP_Bool result;
   lbfgsfloatval_t rc=0.0;
-  YAP_Term v, t1, t12;
+  YAP_Term v=YAP_MkVarTerm(), t1, t12;
   YAP_Term t[6], t2[2];
 
   YAP_Term t_0 = YAP_MkIntTerm((YAP_Int)&rc);
