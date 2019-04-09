@@ -28,7 +28,7 @@ void YAPPy_ThrowError__(const char *file, const char *function, int lineno,
     // fprintf(stderr, "warning: ");
     Yap_ThrowError__(file, function, lineno, type, wheret, tmpbuf);
   } else {
-    Yap_ThrowError__(file, function, lineno, type, wheret);
+    //    Yap_ThrowError__(file, function, lineno, type, wheret);
   }
 }
 
@@ -329,6 +329,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         int n, i;
         PL_get_name_arity(t, &s, &n);
         PyObject *o = term_to_python(t, true, context, true);
+	PyErr_Print();
         if (PySequence_Check(o) && PySequence_Length(o) == n) {
           for (i = 1; i <= n; i++) {
             PyObject *p;
@@ -337,12 +338,15 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
               o = false;
               p = Py_None;
             }
+	    
             if ((p = PySequence_GetItem(exp, i - 1)) == NULL)
               p = Py_None;
             else if (!python_assign(arg, p, NULL)) {
               PL_reset_term_refs(tail);
               o = NULL;
-            }
+            } else {
+ 	      PyErr_Print();
+	    }
           }
           return true;
         }
@@ -350,6 +354,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     }
     PL_reset_term_refs(tail);
   }
+ 	      PyErr_Print();
     return NULL;
   }
 }

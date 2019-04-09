@@ -1756,9 +1756,8 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
   bool out;
-  //   fprintf(stderr,"EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
-  //   Slots=%d\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
-  //   LOCAL_CurSlot);
+     fprintf(stderr,"EnterGoal: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p, Slots=%ld\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+     LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
@@ -1766,24 +1765,27 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   dgi->p = P;
   dgi->cp = CP;
   dgi->b0 = LCL0 - (CELL *)B;
+  dgi->e = LCL0-ENV;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
   Yap_PrepGoal(pe->ArityOfPE, nullptr, B PASS_REGS);
   P = pe->CodeOfPred;
-  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x
-  // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
+  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %ld %x %x args=%x,%x
+  // slot=%ld", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
   dgi->b = LCL0 - (CELL *)B;
   dgi->h = HR - H0;
   dgi->tr = (CELL *)TR - LCL0;
-  // fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  // fprintf(stderr,"PrepGoal: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p Slots=%ld\n",
   //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   out = Yap_exec_absmi(true, false);
-  //   fprintf(stderr,"EnterGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
-  //   Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+  //   fprintf(stderr,"EnterGoal success=%ld: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p
+  //   Slots=%ld\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
-  dgi->b = LCL0 - (CELL *)B;
+  dgi->b = (LCL0 - (CELL*)B);
+  dgi->e = LCL0 - (CELL *)B;
+  dgi->a = LCL0 - (CELL *)ASP;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1812,16 +1814,15 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     // get rid of garbage choice-points
     B = myB;
   }
-  // fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  // fprintf(stderr,"RetryGoal: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p Slots=%ld\n",
   //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
-  ASP = (CELL *)B;
   LOCAL_CurSlot = dgi->EndSlot;
   out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    dgi->b = LCL0 - (CELL *)B;
+    dgi->b = myB;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1834,8 +1835,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB, handler;
 
-  //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d
-  //   P=%p CP=%p Slots=%d\n",
+  //   fprintf(stderr,"LeaveGoal success=%ld: H=%d ENV=%p B=%ldd myB=%ldd TR=%ld
+  //   P=%p CP=%p Slots=%ld\n",
   //   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
@@ -1865,10 +1866,12 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   }
   P = dgi->p;
   CP = dgi->cp;
+  ENV = LCL0-dgi->e;
+  ASP = LCL0-dgi->a;
+  B = (choiceptr)(LCL0-dgi->b)
   RECOVER_MACHINE_REGS();
-  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
-  //  Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
-  //  CP, LOCAL_CurSlot);
+   fprintf(stderr,"LeftGoal success=%ld: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
+    CP, LOCAL_CurSlot);
   return TRUE;
 }
 
@@ -2152,7 +2155,7 @@ int   lvl = push_text_stack();
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
                        LOCAL_encoding);
     __android_log_print(
-            ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
+            ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %ld ",sno);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     *full = NULL;
     pop_text_stack(lvl);
@@ -2194,7 +2197,7 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%d), %d",
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%ld), %ld",
                       CurrentModule == 0
                           ? "prolog"
                           : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,

@@ -613,43 +613,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 #endif
   CACHE_REGS
   BACKUP_MACHINE_REGS();
-   Term *ts = nullptr;
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
-  Term omod = CurrentModule;
-  PredEntry *ap = nullptr;
-  if (IsStringTerm(tmod))
-    tmod = MkAtomTerm(Yap_LookupAtom(StringOfTerm(tmod)));
-  ap =  Yap_get_pred(t, tmod, "C++");
-  if (ap == nullptr ||
-      ap->OpcodeOfPred == UNDEF_OPCODE) {
-    ap = rewriteUndefEngineQuery(ap, t, tmod);
-  }
-  if (IsApplTerm(t))
-    ts = RepAppl(t) + 1;
-  else if (IsPairTerm(t))
-    ts = RepPair(t);
-  /* legal ap */
-  arity_t arity = ap->ArityOfPE;
-
-  for (arity_t i = 0; i < arity; i++) {
-    XREGS[i + 1] = ts[i];
-  }
-  ts = nullptr;
-  bool result;
-  // allow Prolog style exception handling
-  // don't forget, on success these guys may create slots
-  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
-   result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
-
-  YAP_LeaveGoal(result && !release, &q);
-  CurrentModule = LOCAL_SourceModule = omod;
-  //      PyEval_RestoreThread(_save);
-  RECOVER_MACHINE_REGS();
-  return result;
+  bool rc = YAP_RunGoalOnce(t);
+  return rc;
 }
 /**
  * called when a query must be terminated and its state fully recovered,
@@ -670,7 +635,9 @@ Term YAPEngine::fun(Term t) {
   arity_t arity;
   Functor f;
   Atom name;
+  YAP_dogoalinfo backup = q;
 
+  
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
@@ -719,6 +686,7 @@ Term YAPEngine::fun(Term t) {
     YAP_LeaveGoal(result, &q);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
+    q = backup;
     return ot;
   }
 }

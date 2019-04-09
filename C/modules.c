@@ -539,7 +539,6 @@ static Int current_source_module(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, t, NULL);
     return false;
   }
-  Yap_DebugPlWriteln(t);
   LOCAL_SourceModule = CurrentModule = t;
   return true;
 }
