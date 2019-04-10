@@ -15,7 +15,7 @@ cd  $PREFIX/conda
   $CMAKE --build=. --target=install \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_INSTALL_PREFIX="$PREFIX" \
-  	$RECIPE_DIR/..
+  $RECIPE_DIR/.. -DWITH_CUDD=NO -DWITH_GECODE=NO -DWITH_JAVA=NO -DWITH_RAPTOR=NO
 
   make -j install
 

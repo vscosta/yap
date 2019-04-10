@@ -1154,6 +1154,10 @@ static uintptr_t complete_exit(choiceptr ptr, int has_cp,
 X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   CACHE_REGS
   Int ret;
+  yamop *saved_p =P, *saved_cp = CP;
+ yhandle_t s0;
+
+  Int saved_b = LCL0-(CELL*)B, saved_e = LCL0-ENV;
   Int OASP = LCL0 - (CELL *)B;
   //  Term omod = CurrentModule;
   // if (pe->PredFlags & CArgsPredFlag) {
@@ -1164,21 +1168,25 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
     struct foreign_context ctx;
 
     ctx.engine = NULL;
-    yhandle_t s0 = Yap_InitSlots(pe->ArityOfPE, &ARG1);
+   s0 = Yap_InitSlots(pe->ArityOfPE, &ARG1);
     PP = pe;
     ret = codev(s0, 0, &ctx);
   } else if (pe->PredFlags & CArgsPredFlag) {
     PP = pe;
+    s0 = Yap_CurrentHandle();
     ret = execute_cargs(pe, exec_code PASS_REGS);
   } else {
+    s0 = Yap_CurrentHandle();
     PP = pe;
     ret = (exec_code)(PASS_REGS1);
   }
   PP = NULL;
   // check for junk: open frames, etc */
+  Yap_closeGoal( ret, saved_p, saved_cp, saved_e, saved_b, s0, true);
+  return ret;
   if (ret)
-    complete_exit(((choiceptr)(LCL0 - OASP)), FALSE, FALSE PASS_REGS);
-  else
+        complete_exit(((choiceptr)(LCL0 - OASP)), FALSE, FALSE PASS_REGS);
+    else
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   // CurrentModule = omod;
   if (!ret) {
@@ -1195,7 +1203,8 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
 X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
   CACHE_REGS
   CELL ocp = LCL0 - (CELL *)B;
-  /* for slots to work */
+
+ /* for slots to work */
   Int CurSlot = Yap_StartSlots();
   if (pe->PredFlags &
       (SWIEnvPredFlag | CArgsPredFlag | ModuleTransparentPredFlag)) {
@@ -1213,30 +1222,29 @@ X_API Int YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code) {
     } else {
       val = codev(Yap_InitSlots(pe->ArityOfPE, &ARG1), 0, ctx);
     }
-    Yap_CloseSlots(CurSlot);
     PP = NULL;
-    if (val == 0) {
-      if (Yap_RaiseException()) {
-        return false;
+      if (val == 0) {
+          if (Yap_RaiseException()) {
+              return false;
+          }
+          return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
+      } else if (val == 1) { /* TRUE */
+          return complete_exit(((choiceptr)(LCL0 - ocp)), TRUE, FALSE PASS_REGS);
+      } else {
+          if ((val & REDO_PTR) == REDO_PTR)
+              ctx->context = (uintptr_t)(val & ~REDO_PTR);
+          else
+              ctx->context = (uintptr_t)((val & ~REDO_PTR) >> FRG_REDO_BITS);
+          /* fix dropped cps */
+          return complete_exit(((choiceptr)(LCL0 - ocp)), FALSE, FALSE PASS_REGS);
       }
-      return complete_fail(((choiceptr)(LCL0 - ocp)), TRUE PASS_REGS);
-    } else if (val == 1) { /* TRUE */
-      return complete_exit(((choiceptr)(LCL0 - ocp)), TRUE, FALSE PASS_REGS);
-    } else {
-      if ((val & REDO_PTR) == REDO_PTR)
-        ctx->context = (uintptr_t)(val & ~REDO_PTR);
-      else
-        ctx->context = (uintptr_t)((val & ~REDO_PTR) >> FRG_REDO_BITS);
-      /* fix dropped cps */
-      return complete_exit(((choiceptr)(LCL0 - ocp)), FALSE, FALSE PASS_REGS);
-    }
   } else {
-    Int ret = (exec_code)(PASS_REGS1);
-    Yap_CloseSlots(CurSlot);
-    if (!ret) {
-      Yap_RaiseException();
-    }
-    return ret;
+      Int ret = (exec_code)(PASS_REGS1);
+      Yap_CloseSlots(CurSlot);
+      if (!ret) {
+          Yap_RaiseException();
+      }
+      return ret;
   }
 }
 
@@ -1756,8 +1764,8 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
   bool out;
-     fprintf(stderr,"EnterGoal: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p, Slots=%ld\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
-     LOCAL_CurSlot);
+//     fprintf(stderr,"EnterGoal: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p, Slots=%ld\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+//     LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
@@ -1822,7 +1830,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    dgi->b = myB;
+    dgi->b = LCL0-(CELL*)myB;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1833,45 +1841,16 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
 
 X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
-  choiceptr myB, handler;
 
   //   fprintf(stderr,"LeaveGoal success=%ld: H=%d ENV=%p B=%ldd myB=%ldd TR=%ld
   //   P=%p CP=%p Slots=%ld\n",
   //   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
-  handler = B;
-  while (handler &&
-         LCL0 - LOCAL_CBorder > (CELL *)handler
-         //&& handler->cp_ap != NOCODE
-         && handler->cp_b != NULL && handler != myB) {
-    if (handler < myB) {
-      handler->cp_ap = TRUSTFAILCODE;
-    }
-    B = handler;
-    handler = handler->cp_b;
-    if (successful) {
-      Yap_TrimTrail();
-    } else if (!(LOCAL_PrologMode & AsyncIntMode)) {
-      P = FAILCODE;
-      Yap_exec_absmi(true, YAP_EXEC_ABSMI);
-    }
-  }
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
-  P = dgi->p;
-  CP = dgi->cp;
-  ENV = LCL0-dgi->e;
-  ASP = LCL0-dgi->a;
-  B = (choiceptr)(LCL0-dgi->b)
+  Yap_closeGoal(successful, dgi->p, dgi->cp, dgi->b, dgi->e, dgi->CurSlot, true);
   RECOVER_MACHINE_REGS();
-   fprintf(stderr,"LeftGoal success=%ld: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
-    CP, LOCAL_CurSlot);
+//   fprintf(stderr,"LeftGoal success=%d: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
+//    CP, LOCAL_CurSlot);
   return TRUE;
 }
 
@@ -1963,12 +1942,15 @@ X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
+  yamop *old_P = P;
+  Int old_ENV = LCL0-ENV;
+  Int old_B =LCL0-(CELL*) B;
+  /* Int old_B = LCL0-(CELL*)B */;
   Int oldPrologMode = LOCAL_PrologMode;
-  yhandle_t CSlot;
+  yhandle_t h = Yap_CurrentHandle();
 
   BACKUP_MACHINE_REGS();
-  CSlot = Yap_StartSlots();
-  LOCAL_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
@@ -1979,47 +1961,13 @@ X_API Int YAP_RunGoalOnce(Term t) {
     RECOVER_MACHINE_REGS();
     return out;
   }
-  // should we catch the exception or pass it through?
-  // We'll pass it through
-  // Yap_RaiseException();
-  if (out) {
-    choiceptr cut_pt, ob;
-
-    ob = NULL;
-    cut_pt = B;
-    while (cut_pt->cp_ap != NOCODE) {
-      /* make sure we prune C-choicepoints */
-      if (POP_CHOICE_POINT(cut_pt->cp_b)) {
-        POP_EXECUTE();
-      }
-      ob = cut_pt;
-      cut_pt = cut_pt->cp_b;
-    }
-#ifdef YAPOR
-    CUT_prune_to(cut_pt);
-#endif
-    if (ob) {
-      B = ob;
-      Yap_TrimTrail();
-    }
-    B = cut_pt;
-  } else {
-    Yap_CloseSlots(CSlot);
-  }
-  ASP = B->cp_env;
-  ENV = (CELL *)ASP[E_E];
-  B = (choiceptr)ASP[E_CB];
-#ifdef DEPTH_LIMITxs
-  DEPTH = ASP[E_DEPTH];
-#endif
-  P = (yamop *)ASP[E_CP];
-  CP = old_CP;
-  LOCAL_AllowRestart = FALSE;
-  RECOVER_MACHINE_REGS();
+  Yap_closeGoal( out, old_P, old_CP, old_ENV, old_B, h, true);
   return out;
 }
 
-X_API bool YAP_RestartGoal(void) {
+
+  X_API
+bool YAP_RestartGoal(void) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   bool out;

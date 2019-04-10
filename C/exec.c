@@ -831,6 +831,7 @@ static void prune_inner_computation(choiceptr parent) {
  * @method complete_inner_computation
  */
 static void complete_inner_computation(choiceptr old_B) {
+  return;
   choiceptr myB = B;
   if (myB == NULL) {
     return;
@@ -1062,9 +1063,7 @@ static Int cleanup_on_exit(USES_REGS1) {
     complete_pt[0] = TermExit;
   }
   Yap_ignore(cleanup, false);
-  if (B0->cp_ap == NOCODE)
-    B0->cp_ap = TRUSTFAILCODE;
-  if (Yap_RaiseException()) {
+   if (Yap_RaiseException()) {
     return false;
   }
   return true;
@@ -1097,7 +1096,7 @@ static Int _user_expand_goal(USES_REGS1) {
       pe->OpcodeOfPred != FAIL_OPCODE && pe->OpcodeOfPred != UNDEF_OPCODE &&
       Yap_execute_pred(pe, NULL, false PASS_REGS)) {
     return complete_ge(true  , omod, sl, creeping);
-  }
+  };
   /* system:goal_expansion(A,B) */
   mg_args[0] = cmod;
   mg_args[1] = Yap_GetFromSlot(h1);
@@ -1567,11 +1566,9 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       /* can be called from anywhere, must reset registers,
        */
       // LOCAL_ActiveError = err_info;
-      while (B) {
+      if (B) {
         LOCAL_ActiveError->errorNo = ABORT_EVENT;
-        pop_text_stack(i + 1);
-        Yap_CloseSlots(sls);
-        Yap_JumpToEnv();
+            Yap_JumpToEnv();
       }
       LOCAL_PrologMode = UserMode;
       LOCAL_DoingUndefp = false;
@@ -1739,20 +1736,7 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
   P = saved_p;
 }
 
-bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
-  yamop *saved_p, *saved_cp;
-  yamop *CodeAdr;
-  bool out;
-
-  saved_p = P;
-  saved_cp = CP;
-  LOCAL_PrologMode |= TopGoalMode;
-
-  PELOCK(81, ppe);
-  CodeAdr = ppe->CodeOfPred;
-  UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
-
+void  Yap_closeGoal(bool out, yamop *saved_p, yamop * saved_cp, Int saved_e, Int saved_b, yhandle_t bnd, bool pass_ex) {
   if (out) {
     choiceptr cut_B;
     /* we succeeded, let's prune */
@@ -1764,69 +1748,89 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
 #endif /* YAPOR */
 #ifdef TABLING
     if (B != cut_B) {
+
       while (B->cp_b < cut_B) {
-        B = B->cp_b;
-      }
+           if (B->cp_ap == NOCODE)
+	break;
+	   B = B->cp_b;
 #ifdef TABLING
       abolish_incomplete_subgoals(B);
 #endif
     }
+    }
 #endif /* TABLING */
-    B = cut_B;
+    B = (choiceptr)(LCL0-saved_b);
     CP = saved_cp;
     P = saved_p;
     ASP = ENV;
+    ENV = LCL0-saved_e;
 #ifdef DEPTH_LIMIT
     DEPTH = ENV[E_DEPTH];
 #endif
-    ENV = (CELL *)(ENV[E_E]);
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
-    if (B != NULL)
-      HB = B->cp_h;
+    if (B != NULL) {
+        HB = B->cp_h;
+        Yap_TrimTrail();
+    }
     YENV = ENV;
+  } else if (out == 0) {
+      /* ASP should be set to the top of the local stack when we
+          did the call */
+      choiceptr b0 =(choiceptr)(LCL0-saved_b);
+      while (B && B < b0 && B->cp_ap !=NOCODE) {
+          B->cp_ap = TRUSTFAILCODE;
+ B = B->cp_b;
+      }
+      if (B<b0) {
+          P = FAILCODE;
+          exec_absmi(true, YAP_EXEC_ABSMI PASS_REGS);
+      }
+          B = b0;
+#ifdef DEPTH_LIMIT
+          DEPTH = B->cp_depth;
+#endif
+      P = saved_p;
+      CP = saved_cp;
+
+    /* YENV should be set to the current environment */
+    YENV = ENV = LCL0-saved_e;
+    SET_BB(B);
+    HB = PROTECT_FROZEN_H(B);
+  } else {
+    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
+    }
     // should we catch the exception or pass it through?
     // We'll pass it through 
     if ( Yap_HasException()) {
-      if (pass_ex &&
-	  ((LOCAL_PrologMode & BootMode) || !CurrentModule )) {
-	Yap_ResetException(LOCAL_ActiveError);
-      } else {
-	Yap_RaiseException();
-      }
-      return false;
+        if (pass_ex) {
+            if ((LOCAL_PrologMode & BootMode) || !CurrentModule) {
+                Yap_ResetException(LOCAL_ActiveError);
+            } else {
+                Yap_RaiseException();
+            }
+        } else {
+            Yap_ResetException(LOCAL_ActiveError);
+        }
     }
-   return true;
-  } else if (out == 0) {
-    P = saved_p;
-    CP = saved_cp;
-    HR = B->cp_h;
-#ifdef DEPTH_LIMIT
-    DEPTH = B->cp_depth;
-#endif
-    /* ASP should be set to the top of the local stack when we
-       did the call */
-    ASP = B->cp_env;
-    /* YENV should be set to the current environment */
-    YENV = ENV = (CELL *)((B->cp_env)[E_E]);
-    B = B->cp_b;
-    SET_BB(B);
-    HB = PROTECT_FROZEN_H(B);
-    // should we catch the exception or pass it through?
-    // We'll pass it through
-    if ( Yap_HasException()) {
-      if (pass_ex &&
-	  ((LOCAL_PrologMode & BootMode) || !CurrentModule )) {
-	Yap_ResetException(LOCAL_ActiveError);
-      } else {
-	Yap_RaiseException();
-      }
-    }
-    return false;
-  } else {
-    Yap_ThrowError(SYSTEM_ERROR_INTERNAL, TermNil, "emulator crashed");
-    return false;
-  }
+}
+
+bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
+  yamop *saved_p, *saved_cp;
+  yamop *CodeAdr;
+
+  yhandle_t curh = Yap_CurrentHandle( );
+  Int saved_b = LCL0-(CELL*)B, saved_e = LCL0-ENV;
+  saved_p = P;
+  saved_cp = CP;
+  LOCAL_PrologMode |= TopGoalMode;
+
+  PELOCK(81, ppe);
+  CodeAdr = ppe->CodeOfPred;
+  UNLOCK(ppe->PELock);
+  bool out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
+  Yap_closeGoal( out, saved_p, saved_cp, saved_e, saved_b, curh, pass_ex);
+  return  out;
 }
 
 bool Yap_execute_goal(Term t, int nargs, Term mod, bool pass_ex) {
@@ -2078,7 +2082,7 @@ static Int clean_ifcp(USES_REGS1) {
     }
     B = B->cp_b;
     HB = B->cp_h;
-  } else {
+  } else if (pt0->cp_ap != NOCODE){
     pt0->cp_ap = (yamop *)TRUSTFAILCODE;
   }
   return TRUE;
@@ -2129,10 +2133,17 @@ bool Yap_Reset(yap_reset_t mode, bool hard) {
 
   Yap_ResetException(worker_id);
   /* first, backtrack to the root */
+  choiceptr ob;
+  
   while (B) {
-    P = FAILCODE;
-    Yap_exec_absmi(true, mode);
+    ob = B;
     B = B->cp_b;
+  }
+
+  if (ob) {
+    B = ob;
+  P = FAILCODE;
+    Yap_exec_absmi(true, mode);
   }
   /* reinitialize the engine */
   Yap_InitYaamRegs(worker_id, false);
@@ -2166,6 +2177,8 @@ bool is_cleanup_cp(choiceptr cp_b) {
 
 static Int JumpToEnv(USES_REGS1) {
   choiceptr handler = B;
+      if (B->cp_ap == NOCODE)
+          return false;
   /* just keep the throwm object away, we don't need to care about it
    */
   /* careful, previous step may have caused a stack shift,
@@ -2175,7 +2188,7 @@ static Int JumpToEnv(USES_REGS1) {
   while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
          LOCAL_CBorder < LCL0 - (CELL *)handler && handler->cp_ap != NOCODE &&
          handler->cp_b != NULL) {
-    handler->cp_ap = TRUSTFAILCODE;
+    handler->cp_ap = FAILCODE;
     handler = handler->cp_b;
   }
   if (LOCAL_PrologMode & AsyncIntMode) {

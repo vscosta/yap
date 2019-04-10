@@ -9,7 +9,7 @@
 #endif /* INDENT_CODE */
 
       BOp(Ystop, l);
-      LOCAL_CBorder = 0;
+      //      LOCAL_CBorder = 0;
       SET_ASP(YREG, E_CB * sizeof(CELL));
       /* make sure ASP is initialized */
       saveregs();
@@ -23,9 +23,10 @@
       LOCAL_CBorder = 0;
       return 1;
       ENDBOp();
-
+      
       BOp(Nstop, e);
       SET_ASP(YREG, E_CB * sizeof(CELL));
+      B = B->cp_b;
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
