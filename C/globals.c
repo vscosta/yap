@@ -2048,7 +2048,7 @@ restart:
 
 static Int p_nb_heap_del(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "deheap");
-  UInt old_sz, qsz;
+  UInt qsz;
   Term arena;
   Term tk, tv;
 
@@ -2060,8 +2060,7 @@ static Int p_nb_heap_del(USES_REGS1) {
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
-  old_sz = ArenaSz(arena);
-  /* garbage collection ? */
+                                                              /* garbage collection ? */
   qd[HEAP_SIZE] =MkIntTerm(qsz - 1);
   tk = qd[HEAP_START];
   tv = qd[HEAP_START + 1];

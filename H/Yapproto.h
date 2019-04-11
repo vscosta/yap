@@ -208,7 +208,7 @@ extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
 
-extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
+extern void Yap_PrepGoal(UInt, CELL *, struct goal_info * USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
 extern int Yap_dogc(int extra_args, Term *tp USES_REGS);

@@ -1769,7 +1769,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
-  Yap_PrepGoal(pe->ArityOfPE, nullptr, B PASS_REGS);
+  Yap_PrepGoal(pe->ArityOfPE, nullptr, dgi PASS_REGS);
   P = pe->CodeOfPred;
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %ld %x %x args=%x,%x
   // slot=%ld", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
@@ -1822,7 +1822,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    dgi->b = myB;
+    dgi->b = LCL0-CellPtr(myB);
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1870,7 +1870,7 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   ASP = LCL0-dgi->a;
   B = (choiceptr)(LCL0-dgi->b)
   RECOVER_MACHINE_REGS();
-   fprintf(stderr,"LeftGoal success=%ld: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
+   fprintf(stderr,"LeftGoal success=%d: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
     CP, LOCAL_CurSlot);
   return TRUE;
 }
