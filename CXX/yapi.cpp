@@ -613,6 +613,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   bool rc = YAP_RunGoalOnce(t);
+  RECOVER_MACHINE_REGS();
   return rc;
 }
 /**
@@ -630,64 +631,49 @@ Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   Term tmod = Yap_CurrentModule(), *ts = nullptr;
-  PredEntry *ap;
   arity_t arity;
   Functor f;
   Atom name;
-  YAP_dogoalinfo backup = q;
 
+  yhandle_t yt = Yap_NewHandles(1);
   
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
     name = NameOfFunctor(f);
     arity = ArityOfFunctor(f);
-    for (arity_t i = 0; i < arity; i++)
-      XREGS[i + 1] = ts[i];
+    t = AbsAppl(HR);
+    HR[0] = (CELL)Yap_MkFunctor(name, arity+1);
+    for (arity_t i = 0; i < arity; i++) {
+      HR[i + 1] = ts[i];
+    }
+    HR[arity] = Yap_GetFromHandle(yt);
+    HR += (arity+2);
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
-    f = nullptr;
-    arity = 0;
+    t = AbsAppl(HR);
+    HR[0] = (CELL)Yap_MkFunctor(name, 1);
+    HR[1] = Yap_GetFromHandle(yt);
+    HR += 2;
   } else if (IsPairTerm(t)) {
-    XREGS[1] = ts[0];
-    XREGS[2] = ts[1];
-    arity = 2;
-    name = AtomDot;
-    f = FunctorDot;
+    HR[0] = (CELL)Yap_MkFunctor(AtomDot, 3);
+    HR[1] = ts[0];
+    HR[2] = ts[1];
+    HR[3] = Yap_GetFromHandle(yt);
   } else {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-  Term ot = XREGS[arity + 1] = MkVarTerm();
-  yhandle_t h = Yap_InitHandle(ot); 
-  arity++;
-  HR += arity;
-  f = Yap_MkFunctor(name, arity);
-  ap = (PredEntry *)(PredPropByFunc(f, tmod));
-  if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
-    Term g = (Yap_MkApplTerm(f, arity, ts));
-    ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
-  }
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
-  // make sure this is safe
-  // allow Prolog style exception handling
-  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
-  bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-    if (result)
-      ot = Yap_GetFromHandle(h);
-    else
-      ot = TermNone;
-    YAPCatchError();
-  {
-    YAP_LeaveGoal(result, &q);
-    //      PyEval_RestoreThread(_save);
-    RECOVER_MACHINE_REGS();
-    q = backup;
-    return ot;
-  }
+  CACHE_REGS
+  BACKUP_MACHINE_REGS();
+  bool rc = YAP_RunGoalOnce(t);
+  Term ot;
+  if (rc)
+    ot = Yap_GetFromHandle(yt);
+  else
+    ot = TermNone;
+  RECOVER_MACHINE_REGS();
+  return ot;
 }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])

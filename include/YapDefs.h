@@ -138,7 +138,7 @@ typedef enum {
 
 /* this should be opaque to the user */
 typedef struct goal_info {
-  unsigned long b_top, b_bottom,  m, e, a; //> choice-point at entry
+  unsigned long b_top, b_bottom,  m, e, y; //> choice-point at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry

@@ -801,14 +801,13 @@ static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
  *
  * @method prune_inner_computation
  */
-static void prune_inner_computation(choiceptr parent) {
+static void prune_inner_computation(choiceptr parent, YAP_dogoalinfo *gi) {
   /* code */
   choiceptr cut_pt;
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
-
   cut_pt = B;
-  while (cut_pt && cut_pt->cp_b < parent && cut_pt->cp_b->cp_ap != NOCODE) {
+  while (cut_pt && cut_pt->cp_b 
+	 && cut_pt->cp_ap != NOCODE &&
+	 cut_pt->cp_b <= parent) {
     cut_pt = cut_pt->cp_b;
   }
   if (!cut_pt)
@@ -819,9 +818,9 @@ static void prune_inner_computation(choiceptr parent) {
   B = cut_pt;
   Yap_TrimTrail();
   LOCAL_AllowRestart = FALSE;
-  P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
+  P = gi->p;
+  CP = gi->cp;
+  ENV = LCL0-gi->e;
   B = parent;
 }
 
@@ -830,7 +829,7 @@ static void prune_inner_computation(choiceptr parent) {
  * after completing a computation.
  * @method complete_inner_computation
  */
-static void complete_inner_computation(choiceptr old_B) {
+static void complete_inner_computation(choiceptr old_B, YAP_dogoalinfo *gi) {
   choiceptr myB = B;
   if (myB == NULL) {
     return;
@@ -848,8 +847,11 @@ static void complete_inner_computation(choiceptr old_B) {
     return;
   }
   // restore environment at call...
-  CP = myB->cp_cp;
-  ENV = myB->cp_env;
+  CP = gi->cp;
+  P = gi->p;
+  ENV = LCL0-gi->e;
+  YENV  = LCL0-gi->y;
+  
 }
 
 static Int Yap_ignore(Term t, bool fail USES_REGS) {
@@ -858,23 +860,23 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     gi.cp = CP;
     gi.b_top = LCL0-CellPtr(B);
     gi.CurSlot = Yap_CurrentHandle();
-    gi.a = LCL0-ASP;
+    gi.y = LCL0-YENV;
     gi.e = LCL0-ENV;
    // gi. = LCL0-YENV;
   yap_error_descriptor_t *ctx = malloc(sizeof(yap_error_descriptor_t));
   bool newxp = Yap_pushErrorContext(true, ctx);
-  bool rc = Yap_RunTopGoal(t,  &gi, false);
+  bool rc = Yap_RunTopGoal(t, &gi, false);
   choiceptr B0 = (choiceptr)(LCL0-gi.b_top);
   if (!rc) {
-    complete_inner_computation(B0);
+    complete_inner_computation(B0, &gi);
     // We'll pass it through
   } else {
-    prune_inner_computation(B0);
+    prune_inner_computation(B0, &gi);
   }
   Yap_popErrorContext(newxp, true);
-    ASP = LCL0-gi.a;
     ENV = LCL0-gi.e;
     B = (choiceptr)(LCL0-gi.b_top);
+    SET_ASP(ENV, E_CB * sizeof(CELL));
 #ifdef DEPTH_LIMIT
     DEPTH = ASP[E_DEPTH];
 #endif
@@ -1015,7 +1017,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
      gi.cp = CP;
      gi.b_top = LCL0-CellPtr(B);
      gi.CurSlot = Yap_CurrentHandle();
-     gi.a = LCL0-ASP;
+     gi.y = LCL0-YENV;
      gi.e = LCL0-ENV;
  bool rc;
   Yap_DisableInterrupts(worker_id);
@@ -1027,22 +1029,23 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   }
   choiceptr B0=(choiceptr)(LCL0-gi.b_top);
   if (!rc) {
-    complete_inner_computation(B0);
+    complete_inner_computation(B0, &gi);
     // We'll pass it throughs
 
     return false;
   } else {
-    prune_inner_computation(B0);
+    prune_inner_computation(B0, &gi);
   }
-     ASP = LCL0-gi.a;
-     ENV = LCL0-gi.e;
-     B = (choiceptr)(LCL0-gi.b_top);
+  YENV = LCL0-gi.y;
+    ENV = LCL0-gi.e;
+  B = (choiceptr)(LCL0-gi.b_top);
+  SET_ASP(YENV, E_CB * sizeof(CELL));
 #ifdef DEPTH_LIMIT
-     DEPTH = ASP[E_DEPTH];
+  DEPTH = ENV[E_DEPTH];
 #endif
-     P = gi.p;
-     CP = gi.cp;
-     return rc;
+  P = gi.p;
+  CP = gi.cp;
+  return rc;
 }
 
 static Int tag_cleanup(USES_REGS1) {
@@ -1766,7 +1769,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
    gi.cp = CP;
    gi.b_top = LCL0-CellPtr(B);
    gi.CurSlot = Yap_CurrentHandle();
-   gi.a = LCL0-ASP;
+   gi.y = LCL0-YENV;
    gi.e = LCL0-ENV;
   LOCAL_PrologMode |= TopGoalMode;
 
@@ -1797,7 +1800,6 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     B = (choiceptr)(LCL0-gi.b_top);
     CP = gi.cp;
     P = gi.p;
-    ASP = LCL0-gi.a;
 #ifdef DEPTH_LIMIT
     DEPTH = ENV[E_DEPTH];
 #endif
@@ -1826,11 +1828,11 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
 #endif
-    /* ASP should be set to the top of the local stack when we
-       did the call */
-    ASP = LCL0-gi.a;
     /* YENV should be set to the current environment */
     YENV = ENV = LCL0-gi.e;
+    /* ASP should be set to the top of the local stack when we
+       did the call */
+  SET_ASP(YENV, E_CB * sizeof(CELL));
     B =(choiceptr)(LCL0-gi.b_top);
     SET_BB(B);
     HB = PROTECT_FROZEN_H(B);

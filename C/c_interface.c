@@ -1,3 +1,4 @@
+
 /************************************************************************* *
  *	 YAP Prolog 							 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -1783,7 +1784,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
     // LOCAL_CurSlot);
     dgi->b_bottom = (LCL0 - (CELL*)B);
     dgi->e = LCL0 - (CELL *)ENV;
-  dgi->a = LCL0 - (CELL *)ASP;
+  dgi->y = LCL0 - (CELL *)YENV;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1865,7 +1866,11 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   P = dgi->p;
   CP = dgi->cp;
   ENV = LCL0-dgi->e;
-  ASP = LCL0-dgi->a;
+  YENV = LCL0-dgi->y;
+      /* ASP should be set to the top of the local stack when we
+       did the call */
+  SET_ASP(YENV, E_CB * sizeof(CELL));
+
   B = (choiceptr)(LCL0-dgi->b_top)
   RECOVER_MACHINE_REGS();
    fprintf(stderr,"LeftGoal success=%d: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
@@ -1881,7 +1886,7 @@ X_API Int YAP_RunGoal(Term t) {
     gi.cp = CP;
     gi.b_top = LCL0-CellPtr(B);
     gi.CurSlot = Yap_CurrentHandle();
-    gi.a = LCL0-ASP;
+    gi.y = LCL0-YENV;
     gi.e = LCL0-ENV;
     yhandle_t cslot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
@@ -1892,6 +1897,7 @@ X_API Int YAP_RunGoal(Term t) {
   LOCAL_PrologMode = UserCCallMode;
   // should we catch the exception or pass it through?
   // We'll pass it through
+  SET_ASP(YENV, E_CB * sizeof(CELL));
   RECOVER_MACHINE_REGS();
   LOCAL_CurSlot = cslot;
   return out;
@@ -1972,7 +1978,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
     gi.cp = CP;
     gi.b_top = LCL0-CellPtr(B);
     gi.CurSlot = Yap_CurrentHandle();
-    gi.a = LCL0-ASP;
+    gi.y = LCL0-YENV;
     gi.e = LCL0-ENV;
     Int oldPrologMode = LOCAL_PrologMode;
   yhandle_t CSlot;
@@ -1994,37 +2000,31 @@ X_API Int YAP_RunGoalOnce(Term t) {
   // We'll pass it through
   // Yap_RaiseException();
   if (out) {
-    choiceptr cut_pt, ob;
+    choiceptr cut_pt;
 
-    ob = NULL;
     cut_pt = B;
-    while (cut_pt->cp_ap != NOCODE) {
+    B = (choiceptr)(LCL0-gi.b_top);
+    while (cut_pt->cp_ap != NOCODE && cut_pt < B) {
       /* make sure we prune C-choicepoints */
-      if (POP_CHOICE_POINT(cut_pt->cp_b)) {
-        POP_EXECUTE();
-      }
-      ob = cut_pt;
-      cut_pt = cut_pt->cp_b;
-    }
-#ifdef YAPOR
-    CUT_prune_to(cut_pt);
-#endif
-    if (ob) {
-      B = ob;
-      Yap_TrimTrail();
+          cut_pt = cut_pt->cp_b;
     }
     B = cut_pt;
+    Yap_TrimTrail();
   } else {
     Yap_CloseSlots(CSlot);
   }
-  ASP = LCL0-gi.a;
+#ifdef YAPOR
+    CUT_prune_to(cut_pt);
+#endif
   ENV = LCL0-gi.e;
+  YENV = LCL0-gi.y;
   B = (choiceptr)(LCL0-gi.b_top);
 #ifdef DEPTH_LIMIT
-  DEPTH = ASP[E_DEPTH];
+  DEPTH = ENV[E_DEPTH];
 #endif
   P = gi.p;
   CP = gi.cp;
+  SET_ASP(YENV, E_CB * sizeof(CELL));
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return out;
