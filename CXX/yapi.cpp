@@ -254,7 +254,6 @@ YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   arity_t arity = ArityOfFunctor(f.f);
   Term o = AbsAppl(HR);
   *HR++ = (CELL)f.f;
-  Term *tt = RepAppl(o) + 1;
   for (arity_t i = 0; i < arity; i++)
     *HR++ = ts[i].term();
   mk(o);
@@ -834,7 +833,7 @@ bool YAPQuery::deterministic() {
   BACKUP_MACHINE_REGS();
   if (!q_open || q_state == 0)
     return false;
-  choiceptr myB = (choiceptr)(LCL0 - q_h.b);
+  choiceptr myB = (choiceptr)(LCL0 - q_h.b_top);
   return (B >= myB);
   RECOVER_MACHINE_REGS();
 }

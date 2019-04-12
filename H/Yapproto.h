@@ -203,7 +203,7 @@ extern void Yap_fail_all(choiceptr bb USES_REGS);
 extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
 extern bool Yap_JumpToEnv(void);
-extern Term Yap_RunTopGoal(Term, bool);
+extern Term Yap_RunTopGoal(Term, struct goal_info *, bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);

@@ -1755,7 +1755,7 @@ static int run_emulator(USES_REGS1) {
 X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
-  bool out;
+      bool out;
      fprintf(stderr,"EnterGoal: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p, Slots=%ld\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
      LOCAL_CurSlot);
 
@@ -1764,7 +1764,7 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
-  dgi->b0 = LCL0 - (CELL *)B;
+  dgi->b_top = LCL0 - (CELL *)B;
   dgi->e = LCL0-ENV;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
@@ -1774,17 +1774,15 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %ld %x %x args=%x,%x
   // slot=%ld", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
-  dgi->b = LCL0 - (CELL *)B;
   dgi->h = HR - H0;
   dgi->tr = (CELL *)TR - LCL0;
-  // fprintf(stderr,"PrepGoal: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p Slots=%ld\n",
-  //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
-  out = Yap_exec_absmi(true, false);
-  //   fprintf(stderr,"EnterGoal success=%ld: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p
-  //   Slots=%ld\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
-  //   LOCAL_CurSlot);
-  dgi->b = (LCL0 - (CELL*)B);
-  dgi->e = LCL0 - (CELL *)B;
+  //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P11= (LCL0 - (CELL*)B);
+    out = Yap_exec_absmi(true, false);
+    //   fprintf(stderr,"EnterGoal success=%ld: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p
+    //   Slots=%ld\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+    // LOCAL_CurSlot);
+    dgi->b_bottom = (LCL0 - (CELL*)B);
+    dgi->e = LCL0 - (CELL *)ENV;
   dgi->a = LCL0 - (CELL *)ASP;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
@@ -1803,8 +1801,8 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
-  myB0 = (choiceptr)(LCL0 - dgi->b0);
+  myB = (choiceptr)(LCL0 - dgi->b_top);
+  myB0 = (choiceptr)(LCL0 - dgi->b_bottom);
   CP = myB->cp_cp;
   /* sanity check */
   if (B >= myB0) {
@@ -1822,7 +1820,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    dgi->b = LCL0-CellPtr(myB);
+    dgi->b_bottom = LCL0-CellPtr(myB);
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1840,7 +1838,7 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   //   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b);
+  myB = (choiceptr)(LCL0 - dgi->b_bottom);
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
@@ -1868,7 +1866,7 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CP = dgi->cp;
   ENV = LCL0-dgi->e;
   ASP = LCL0-dgi->a;
-  B = (choiceptr)(LCL0-dgi->b)
+  B = (choiceptr)(LCL0-dgi->b_top)
   RECOVER_MACHINE_REGS();
    fprintf(stderr,"LeftGoal success=%d: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
     CP, LOCAL_CurSlot);
@@ -1878,12 +1876,19 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
 X_API Int YAP_RunGoal(Term t) {
   CACHE_REGS
   Term out;
-  yhandle_t cslot = LOCAL_CurSlot;
+    YAP_dogoalinfo gi;
+    gi.p = P;
+    gi.cp = CP;
+    gi.b_top = LCL0-CellPtr(B);
+    gi.CurSlot = Yap_CurrentHandle();
+    gi.a = LCL0-ASP;
+    gi.e = LCL0-ENV;
+    yhandle_t cslot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
   LOCAL_AllowRestart = FALSE;
   LOCAL_PrologMode = UserMode;
-  out = Yap_RunTopGoal(t, true);
+  out = Yap_RunTopGoal(t, &gi, true);
   LOCAL_PrologMode = UserCCallMode;
   // should we catch the exception or pass it through?
   // We'll pass it through
@@ -1962,15 +1967,21 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
   Term out;
-  yamop *old_CP = CP;
-  Int oldPrologMode = LOCAL_PrologMode;
+    YAP_dogoalinfo gi;
+    gi.p = P;
+    gi.cp = CP;
+    gi.b_top = LCL0-CellPtr(B);
+    gi.CurSlot = Yap_CurrentHandle();
+    gi.a = LCL0-ASP;
+    gi.e = LCL0-ENV;
+    Int oldPrologMode = LOCAL_PrologMode;
   yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
-  out = Yap_RunTopGoal(t, true);
+  out = Yap_RunTopGoal(t, &gi, true);
   LOCAL_PrologMode = oldPrologMode;
   //  Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
@@ -2006,14 +2017,14 @@ X_API Int YAP_RunGoalOnce(Term t) {
   } else {
     Yap_CloseSlots(CSlot);
   }
-  ASP = B->cp_env;
-  ENV = (CELL *)ASP[E_E];
-  B = (choiceptr)ASP[E_CB];
-#ifdef DEPTH_LIMITxs
+  ASP = LCL0-gi.a;
+  ENV = LCL0-gi.e;
+  B = (choiceptr)(LCL0-gi.b_top);
+#ifdef DEPTH_LIMIT
   DEPTH = ASP[E_DEPTH];
 #endif
-  P = (yamop *)ASP[E_CP];
-  CP = old_CP;
+  P = gi.p;
+  CP = gi.cp;
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return out;
@@ -2098,7 +2109,7 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
   CACHE_REGS
   BACKUP_B();
 
-  choiceptr myB = (choiceptr)(LCL0 - gi->b);
+  choiceptr myB = (choiceptr)(LCL0 - gi->b_top);
   while (B != myB) {
     /* make sure we prune C-choicepoints */
     if (POP_CHOICE_POINT(B->cp_b)) {

@@ -2322,7 +2322,7 @@ static inline void prune(choiceptr cp USES_REGS) {
         POP_EXECUTE();
       }
       if (B->cp_b == NULL)
-        break;
+        return;
       B = B->cp_b;
     }
     if (POP_CHOICE_POINT(B->cp_b)) {

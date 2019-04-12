@@ -25,6 +25,7 @@
       ENDBOp();
 
       BOp(Nstop, e);
+      //B= B->cp_b;
       //SET_ASP(YREG, E_CB * sizeof(CELL));
       saveregs();
 #if PUSH_REGS
