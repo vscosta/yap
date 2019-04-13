@@ -636,7 +636,6 @@ Term YAPEngine::fun(Term t) {
   Atom name;
 
   yhandle_t yt = Yap_NewHandles(1);
-  
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
@@ -647,29 +646,32 @@ Term YAPEngine::fun(Term t) {
     for (arity_t i = 0; i < arity; i++) {
       HR[i + 1] = ts[i];
     }
-    HR[arity] = Yap_GetFromHandle(yt);
     HR += (arity+2);
+    arity++;
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
     t = AbsAppl(HR);
     HR[0] = (CELL)Yap_MkFunctor(name, 1);
-    HR[1] = Yap_GetFromHandle(yt);
     HR += 2;
+    arity = 1;
   } else if (IsPairTerm(t)) {
     HR[0] = (CELL)Yap_MkFunctor(AtomDot, 3);
     HR[1] = ts[0];
     HR[2] = ts[1];
-    HR[3] = Yap_GetFromHandle(yt);
+    HR += 4;
+    arity = 3;
   } else {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
+  RESET_VARIABLE(HR-1);
+  yt = Yap_InitHandle(t);
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   bool rc = YAP_RunGoalOnce(t);
   Term ot;
   if (rc)
-    ot = Yap_GetFromHandle(yt);
+    ot = ArgOfTerm(arity,Yap_GetFromHandle(yt));
   else
     ot = TermNone;
   RECOVER_MACHINE_REGS();
