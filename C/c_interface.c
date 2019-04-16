@@ -1,4 +1,3 @@
-
 /************************************************************************* *
  *	 YAP Prolog 							 *
  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
@@ -995,6 +994,10 @@ static Int execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS) {
               "YAP only supports SWI C-call with arity =< 10");
     return false;
   }
+  arity_t i;
+  for (i = 0; i < pe->ArityOfPE; i++) {
+    XREGS[i+1] = Yap_GetFromSlot(a1+i);
+  }
   Yap_RecoverSlots(pe->ArityOfPE, a1);
   return rc;
 }
@@ -1974,22 +1977,16 @@ X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
   Term out;
     YAP_dogoalinfo gi;
-    gi.p = P;
-    gi.cp = CP;
-    gi.b_top = LCL0-CellPtr(B);
-    gi.CurSlot = Yap_CurrentHandle();
-    gi.y = LCL0-YENV;
-    gi.e = LCL0-ENV;
     Int oldPrologMode = LOCAL_PrologMode;
-  yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
-  CSlot = Yap_StartSlots();
+  Yap_push_state(&gi PASS_REGS);
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
   out = Yap_RunTopGoal(t, &gi, true);
   LOCAL_PrologMode = oldPrologMode;
   //  Yap_CloseSlots(CSlot);
+  Yap_pop_state(out, &gi PASS_REGS);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -1999,32 +1996,6 @@ X_API Int YAP_RunGoalOnce(Term t) {
   // should we catch the exception or pass it through?
   // We'll pass it through
   // Yap_RaiseException();
-  if (out) {
-    choiceptr cut_pt;
-
-    cut_pt = B;
-    B = (choiceptr)(LCL0-gi.b_top);
-    while (cut_pt->cp_ap != NOCODE && cut_pt < B) {
-      /* make sure we prune C-choicepoints */
-          cut_pt = cut_pt->cp_b;
-    }
-    B = cut_pt;
-    Yap_TrimTrail();
-  } else {
-    Yap_CloseSlots(CSlot);
-  }
-#ifdef YAPOR
-    CUT_prune_to(cut_pt);
-#endif
-  ENV = LCL0-gi.e;
-  YENV = LCL0-gi.y;
-  B = (choiceptr)(LCL0-gi.b_top);
-#ifdef DEPTH_LIMIT
-  DEPTH = ENV[E_DEPTH];
-#endif
-  P = gi.p;
-  CP = gi.cp;
-  SET_ASP(YENV, E_CB * sizeof(CELL));
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return out;

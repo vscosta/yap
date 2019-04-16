@@ -304,4 +304,35 @@ static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
     return Deref(LOCAL_HandleBase[topHandle]);
   }
 }
+INLINE_ONLY void Yap_push_state(YAP_dogoalinfo *gi USES_REGS);
+
+  INLINE_ONLY void Yap_push_state(YAP_dogoalinfo *gi USES_REGS)
+{
+  gi->p = P;
+    gi->cp = CP;
+    gi->b_top = LCL0-CellPtr(B);
+    gi->CurSlot = Yap_CurrentHandle();
+    gi->y = LCL0-YENV;
+    gi->e = LCL0-ENV;
+    gi->a = LCL0-ASP;
+}
+
+INLINE_ONLY void Yap_pop_state(bool out, YAP_dogoalinfo *gi USES_REGS);
+
+INLINE_ONLY void Yap_pop_state(bool out, YAP_dogoalinfo *gi USES_REGS)
+{
+  B = (choiceptr)(LCL0-gi->b_top);
+  YENV = LCL0-gi->y;
+  ENV = LCL0-gi->e;
+  if (out) {
+    Yap_TrimTrail();
+  }
+  ASP = LCL0-gi->a;
+  Yap_CloseHandles(gi->CurSlot);
+    SET_ASP(YENV, E_CB * sizeof(CELL));
+#ifdef DEPTH_LIMIT
+    DEPTH = ENV[E_DEPTH];
+#endif
+}
+
 #endif

@@ -856,13 +856,7 @@ static void complete_inner_computation(choiceptr old_B, YAP_dogoalinfo *gi) {
 
 static Int Yap_ignore(Term t, bool fail USES_REGS) {
     YAP_dogoalinfo gi;
-    gi.p = P;
-    gi.cp = CP;
-    gi.b_top = LCL0-CellPtr(B);
-    gi.CurSlot = Yap_CurrentHandle();
-    gi.y = LCL0-YENV;
-    gi.e = LCL0-ENV;
-   // gi. = LCL0-YENV;
+    Yap_push_state(&gi);
   yap_error_descriptor_t *ctx = malloc(sizeof(yap_error_descriptor_t));
   bool newxp = Yap_pushErrorContext(true, ctx);
   bool rc = Yap_RunTopGoal(t, &gi, false);
@@ -874,12 +868,6 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     prune_inner_computation(B0, &gi);
   }
   Yap_popErrorContext(newxp, true);
-    ENV = LCL0-gi.e;
-    B = (choiceptr)(LCL0-gi.b_top);
-    SET_ASP(ENV, E_CB * sizeof(CELL));
-#ifdef DEPTH_LIMIT
-    DEPTH = ASP[E_DEPTH];
-#endif
     P = gi.p;
     CP = gi.cp;
     //YENV?
