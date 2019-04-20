@@ -435,7 +435,7 @@ writing, writing a BOM can be requested using the option
 #define my_islower(C) (C >= 'a' && C <= 'z')
 
 static Term float_send(char *, int);
-static Term get_num(int *, int *, struct stream_desc *, int);
+static Term get_num(int *, int *, struct stream_desc *, int, char **, size_t *);
 
 static void Yap_setCurrentSourceLocation(struct stream_desc *s) {
   CACHE_REGS
@@ -576,21 +576,6 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
     t->Tok = eot_tok;
     t->TokInfo = TermOutOfTrailError;
   }
-  return l;
-}
-
-#define AuxSpaceError(p, l, msg) AuxSpaceError__(p, l, msg PASS_REGS)
-static TokEntry *AuxSpaceError__(TokEntry *p, TokEntry *l,
-                                 const char *msg USES_REGS) {
-  /* huge atom or variable, we are in trouble */
-  LOCAL_ErrorMessage = (char *)msg;
-  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-  Yap_ReleasePreAllocCodeSpace((COBEADDR)TokImage);
-  if (p) {
-    p->Tok = eot_tok;
-    p->TokInfo = TermOutOfAuxspaceError;
-  }
-  /* serious error now */
   return l;
 }
 
@@ -879,32 +864,22 @@ static int num_send_error_message(char s[]) {
 
 #define number_overflow()                                                      \
   {                                                                            \
-    size_t nsz = Yap_Min(max_size * 2, max_size);                              \
+    imgsz = Yap_Min(imgsz * 2, imgsz);                              \
     char *nbuf;                                                                \
-                                                                               \
-    if (buf == buf0) {                                                         \
-      nbuf = Malloc(nsz);                                                      \
-    } else {                                                                   \
-      nbuf = realloc(buf, nsz);                                                \
-    }                                                                          \
-    if (!nbuf) {                                                               \
-      return num_send_error_message("Number Too Long");                        \
-    } else {                                                                   \
-      left = nsz - max_size;                                                   \
-      max_size = nsz;                                                          \
+      nbuf = Realloc(buf, imgsz);                                                left = imgsz - max_size;                                                   \
+      max_size = imgsz;                                                          \
       buf = nbuf;                                                              \
-    }                                                                          \
   }
 
 /* reads a number, either integer or float */
 
-static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign) {
+static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **bufp, size_t *szp) {
   int ch = *chp;
   Int val = 0L, base = ch - '0';
   int might_be_float = TRUE, has_overflow = FALSE;
   const unsigned char *decimalpoint;
-  char buf0[256], *sp = buf0, *buf = buf0;
-  int max_size = 254, left = 254;
+  char *buf0 = *bufp, *sp = buf0, *buf = buf0;
+  size_t imgsz = *szp, max_size = imgsz, left = max_size-2;
 
   *sp++ = ch;
   ch = getchr(st);
@@ -1167,7 +1142,11 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
       LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
       return 0;
     }
-    out = get_num(&ch, &cherr, inp, sign); /*  */
+    size_t sz = 1024;
+    char *buf = Malloc(sz);
+    int lvl = push_text_stack();
+    out = get_num(&ch, &cherr, inp, sign, &buf, &sz); /*  */
+    pop_text_stack(lvl);
   } else {
     out = 0;
   }
@@ -1343,6 +1322,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   int32_t ch, och = ' ';
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
+  size_t imgsz = 1024;
+  char *TokImage = Malloc(imgsz PASS_REGS);
+
 
   InitScannerMemory();
   LOCAL_VarTable = NULL;
@@ -1362,7 +1344,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     int quote, isvar;
     unsigned char *charp, *mp;
     size_t len;
-    unsigned char *TokImage = NULL;
 
     t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
     t->TokNext = NULL;
@@ -1428,20 +1409,18 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       ch = getchr(st);
     scan_name:
         {
-      size_t sz = 1024;
-      TokImage = Malloc(sz PASS_REGS);
       charp = (unsigned char *)TokImage;
       isvar = (chtype(och) != LC);
       add_ch_to_buff(och);
       for (; chtype(ch) <= NU; ch = getchr(st)) {
-        if (charp == TokImage + (sz - 1)) {
-          unsigned char *p0 = TokImage;
-          sz = Yap_Min(sz * 2, sz + MBYTE);
-          TokImage = Realloc(p0, sz);
+        if (charp == (unsigned char *)TokImage + (imgsz - 1)) {
+          unsigned char *p0 = (unsigned char *)TokImage;
+          imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
+          TokImage = Realloc(p0, imgsz);
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
-          charp = TokImage + (charp - p0);
+          charp =(unsigned char *) TokImage + (charp - p0);
         }
         add_ch_to_buff(ch);
       }
@@ -1457,8 +1436,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       if (!isvar) {
         Atom ae;
         /* don't do this in iso */
-        ae = Yap_ULookupAtom(TokImage);
-        Free(TokImage);
+        ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
           return CodeSpaceError(t, p, l);
         }
@@ -1468,7 +1446,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->Tok = Ord(kind = Name_tok);
       } else {
         VarEntry *ve = Yap_LookupVar((const char *)TokImage);
-        Free(TokImage);
         t->TokInfo = Unsigned(ve);
         if (cur_qq) {
           ve->refs++;
@@ -1487,7 +1464,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       cha = ch;
       cherr = 0;
       CHECK_SPACE();
-      if ((t->TokInfo = get_num(&cha, &cherr, st, sign)) == 0L) {
+      if ((t->TokInfo = get_num(&cha, &cherr, st, sign,&TokImage,&imgsz)) == 0L) {
         if (t->TokInfo == 0) {
           p->Tok = eot_tok;
           t->TokInfo = TermError;
@@ -1583,21 +1560,19 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     case QT:
     case DC:
     quoted_string:
-      TokImage = Malloc(1048);
-      charp = TokImage;
+      charp =(unsigned char *) TokImage;
       quote = ch;
       len = 0;
       ch = getchrq(st);
-      size_t sz = 1024;
 
       while (TRUE) {
-        if (charp > TokImage + (sz - 1)) {
-	  size_t sz = charp-TokImage;
-          TokImage = Realloc(TokImage, Yap_Min(sz * 2, sz + MBYTE));
+        if (charp > (unsigned char *)TokImage + (imgsz - 1)) {
+	  size_t sz = charp-(unsigned char *)TokImage;
+          TokImage = Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
           if (TokImage == NULL) {
             return CodeSpaceError(t, p, l);
           }
-	  charp = TokImage+sz;
+	  charp = (unsigned char *)TokImage+sz;
           break;
         }
         if (ch == 10 && trueGlobalPrologFlag(ISO_FLAG)) {
@@ -1645,11 +1620,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         }
         t->Tok = Ord(kind = String_tok);
       } else {
-        t->TokInfo = MkAtomTerm(Yap_ULookupAtom(TokImage));
+        t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
         if (!(t->TokInfo)) {
           return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
           solo_flag = false;
@@ -1763,21 +1737,21 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         return l;
       } else {
         Atom ae;
-        sz = 1024;
-        TokImage = Malloc(sz);
-        charp = TokImage;
+        charp = (unsigned char *)TokImage;
         add_ch_to_buff(och);
         for (; chtype(ch) == SY; ch = getchr(st)) {
-          if (charp >= TokImage + (sz - 10)) {
-            sz = Yap_Min(sz * 2, sz + MBYTE);
-            TokImage = Realloc(TokImage, sz);
+          if (charp >= (unsigned char *)TokImage + (imgsz - 10)) {
+	    size_t sz = charp - (unsigned char *)TokImage;
+            imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
+            TokImage = Realloc(TokImage, imgsz);
             if (!TokImage)
               return CodeSpaceError(t, p, l);
+	    charp = (unsigned char *)TokImage+sz;
           }
           add_ch_to_buff(ch);
         }
         add_ch_to_buff('\0');
-        ae = Yap_ULookupAtom(TokImage);
+        ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
           return CodeSpaceError(t, p, l);
         }
@@ -1785,7 +1759,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         if (t->TokInfo == (CELL)NIL) {
           return CodeSpaceError(t, p, l);
         }
-        Free(TokImage);
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
           solo_flag = false;
@@ -1809,8 +1782,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       och = ch;
       ch = getchr(st);
       {
-        unsigned char chs[10];
-        TokImage = charp = chs;
+	unsigned char *chs;
+        charp = chs = (unsigned char *)TokImage;
         add_ch_to_buff(och);
         charp[0] = '\0';
         t->TokInfo = MkAtomTerm(Yap_ULookupAtom(chs));
@@ -1906,16 +1879,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         qq->mid.charno = st->charcount - 1;
         t->Tok = Ord(kind = QuasiQuotes_tok);
         ch = getchr(st);
-        sz = 1024;
-        TokImage = Malloc(sz);
-        if (!TokImage) {
-          LOCAL_ErrorMessage =
-              "not enough heap space to read in a quasi quoted atom";
-          t->Tok = Ord(kind = eot_tok);
-          t->TokInfo = TermError;
-          return l;
-        }
-        charp = TokImage;
+        charp = (unsigned char *)TokImage;
         quote = ch;
         len = 0;
         ch = getchrq(st);
@@ -1931,7 +1895,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
               break;
             }
           } else if (chtype(ch) == EF) {
-            Free(TokImage);
             mark_eof(st);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
@@ -1940,24 +1903,17 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             charp += put_utf8(charp, ch);
             ch = getchrq(st);
           }
-          if (charp > (unsigned char *)AuxSp - 1024) {
-            /* Not enough space to read in the string. */
-            return AuxSpaceError(
-                t, l, "not enough space to read in string or quoted atom");
-          }
         }
         len = charp - (unsigned char *)TokImage;
-        mp = Malloc(len + 1);
+        mp = malloc(len + 1);
         if (mp == NULL) {
           LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
-          Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermOutOfHeapError;
           return l;
         }
         strncpy((char *)mp, (const char *)TokImage, len + 1);
         qq->text = (unsigned char *)mp;
-        Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         if (st->status & Seekable_Stream_f) {
           qq->end.byteno = fseek(st->file, 0, 0);
         } else {
