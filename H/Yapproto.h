@@ -203,12 +203,12 @@ extern void Yap_fail_all(choiceptr bb USES_REGS);
 extern Term Yap_ExecuteCallMetaCall(Term,Term);
 extern void Yap_InitExecFs(void);
 extern bool Yap_JumpToEnv(void);
-extern Term Yap_RunTopGoal(Term, bool);
+extern Term Yap_RunTopGoal(Term, YAP_dogoalinfo *gip,bool);
 extern bool Yap_execute_goal(Term, int, Term, bool);
 extern bool Yap_exec_absmi(bool, yap_reset_t);
 extern void Yap_trust_last(void);
 extern void  Yap_closeGoal(bool out, yamop *saved_p, yamop * saved_cp, Int saved_e, Int saved_b, yhandle_t hdl, bool pass_ex);
-extern void Yap_PrepGoal(UInt, CELL *, choiceptr USES_REGS);
+extern void   Yap_PrepGoal(arity_t arity, CELL *pt,  YAP_dogoalinfo *gip  USES_REGS);
 extern bool Yap_execute_pred(struct pred_entry *ppe, CELL *pt,
                       bool pass_exception USES_REGS);
 extern int Yap_dogc(int extra_args, Term *tp USES_REGS);

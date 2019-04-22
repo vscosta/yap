@@ -1,4 +1,3 @@
-
 # value of 3.4.0 or lower.
 cmake_minimum_required(VERSION 3.4)
 
@@ -905,11 +904,7 @@ add_subDIRECTORY(packages/ProbLog)
 
 endif()
 
-if (WITH_MINISAT)
-
-add_subDIRECTORY(packages/swi-minisat2)
-
-endif()
+add_subDIRECTORY(packages/bee)
 
 if (WITH_CLPQR)
 

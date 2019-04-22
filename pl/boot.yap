@@ -267,7 +267,7 @@ initialize_prolog :-
 :- c_compile( 'protect.yap' ).
 
 :- ['absf.yap'].
-%:- stop_low_level_trace.
+%:-  ..............................lp------------------------------------------------------------------.
 :- use_module('error.yap').
 
 :- [

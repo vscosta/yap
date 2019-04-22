@@ -3,7 +3,7 @@
 // Macro support
 #ifndef LOCAL
 #include "Yap.h"
-#include "heap.h"
+#include "YapHeap.h"
 #define LOCAL(A, B) A B
 #define LOCAL_INIT(A, B, C)                                                    \
   A B;                                                                         \

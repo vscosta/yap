@@ -34,7 +34,7 @@
 #define HENVYOP(N, NAME, op, NEXTNAME, PFAIL) DEF NAME Yap_heap_regs->NAME##_
 #define HCPYOP(N, NAME, OP, FAILP) DEF NAME Yap_heap_regs->NAME##_
 
-#include "heap.h"
+#include "YapHeap.h"
 
 #undef HM
 #undef HSPACE
@@ -72,7 +72,7 @@
   DEF GLOBAL_##NAME Yap_heap_regs->NAME##_
 #define HCPYOP(N, NAME, OP, FAILP) DEF GLOBAL_##NAME Yap_heap_regs->NAME##_
 
-#include "heap.h"
+#include "YapHeap.h"
 
 #undef LOC
 #undef LOCL

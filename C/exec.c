@@ -1628,10 +1628,10 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   pop_text_stack(i + 1);
   return out;
 }
+ void Yap_PrepGoal(arity_t arity, CELL *pt, YAP_dogoalinfo *gip USES_REGS) {
 
-void Yap_PrepGoal(arity_t arity, CELL *pt, YAP_dogoalinfo *gip USES_REGS) {
   /* create an initial pseudo environment so that when garbage
-     collection is going up in the environment chain it doesn't get
+     collection is going up in the environment chain it doesn't ge                                                                                                                                                                                                                                      t
      confused */
   Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
@@ -1652,7 +1652,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, YAP_dogoalinfo *gip USES_REGS) {
   /* keep a place where you can inform you had an exception */
   if (pt) {
     int i;
-    for (i = 0; i < arity; i++) {
+    for (i = 0; i < 3; i++) {
       XREGS[i + 1] = *pt++;
     }
   }
@@ -1678,7 +1678,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, YAP_dogoalinfo *gip USES_REGS) {
 
 static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, YAP_dogoalinfo *gi, bool top USES_REGS) {
   bool out;
-  Yap_PrepGoal(arity, pt, gi PASS_REGS);
+  Yap_PrepGoal(arity, pt,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 gi PASS_REGS);
   //  CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
