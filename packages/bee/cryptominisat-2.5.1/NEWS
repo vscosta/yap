@@ -1,0 +1,174 @@
+ver 2.5.1 -- 8/06/2010 --- 'The Obvious Child'
+* Printing updates: everyting is printed much more nicely now
+* Approximated degrees of literals in binary graph are not reset between
+  calculations
+
+ver 2.5.0 -- 7/06/2010 (SAT Race'10 version)
+* A lot of performance bugs have been fixed. Activities of clauses were wrongly
+  updated with their abstract representation during subsumtion for example.
+  Also, we now use a well-tested set of magic constants instead of making
+  them up using intuition. Apparently, intuition in the field of SAT leads
+  to headaches and (in severe cases) to dementia.
+* A lot of code has been added regarding binary clause graphs. It is now
+  regularly cleaned from useless binary clauses. Also, the useless binary
+  clauses are regularly generated to subsume and strenghthen other clauses
+  with them -- and once used, these useless binary clauses are thrown away.
+* Hyper-binary clauses are now generated using an algorithm relying purely
+  on the datastrucures available in modern SAT solvers -- i.e. the fact that
+  binary clauses have their own watchlists, and so allow for efficient
+  propagation of the binary clauses separately from other clauses.
+
+ver 2.4.2 -- 9/05/2010
+* Gaussian elimination has finally been fixed. It can now be tried out with
+  the command-line switch "--gaussuntil=X", where X is the maximum depth. I
+  usually set 100, but this is probably a wrong default. You should experiment
+  with your own cipher. NOTE: Gauss is still experimental. If it segfaults,
+  please file a bug.
+* The solver can now print out all the solutions to a problem. Simply use the
+  "--maxsolutions=X" option, where X is the maximum number of solutions you
+  need. You may use this option in conjunction with the very experimental
+  "--greedyunbound" which unassigns some variables in such a way that the
+  given solution is still correct, but some variables may not appear in it.
+* Command line switches have been corrected. They are now all lower-case and
+  use the prefix "--" instead of "-"
+
+ver 2.4.1 -- 30/04/2010
+Serious bug fixed that read data from change memory in subsume0, and
+hyper-binary resolution has been disabled, since it caused satisfiable
+instances to become unsatisfiable.
+
+ver 2.4.0 -- 26/04/2010
+The first real release of CryptoMiniSat v2. It contains the following set
+of improvements:
+    * XOR clauses are extracted at the beginning of the solving
+    * Anti- or equivalent variables are detected at regular intervals
+      and are replaced with one another, eliminating variables during
+      solving
+    * xor-clauses are regularly XOR-ed with one another such as to obtain
+      binary XOR clauses. These binary xor-clauses are then treated as variable
+      replacements instructions (i.e. "v1 XOR v2 = false" means that v1 is
+      replaced with v2)
+    * Phase calculation using Jeroslow and Wang, and phase saving with
+      randomised search space exploration. The average branch depth is
+      measured for each instance, and the solver makes a random phase
+      flip with 1/avgBranchDepth probability
+    * Random search burst are used to search unexplored areas of the
+      search space at regular intervals
+    * Automatic detection of cryptographic and industrial instances. Dynamic
+      restart is used for industrial instances, and static restart for
+      cryptographical instances. Detection is based on xor-clause percentage
+      and variable activity stability.
+    * Regular full restarts are performed to detect if the problem hasn't
+      changed enough due to learnt clauses and assigned variables to behave
+      more like a cryptographical instance than an industrial instance or
+      vice-versa.
+    * Both GLUCOSE-type learnt clause activity and MiniSat-type learnt clause
+      activity heuristics are supported. During dynamic restarts, the GLUCOSE
+      heuristic is used, while during static restarts, the MiniSat-type
+      heuristic is used.
+    * SatELite-type variable elimination, clause subsumption and clause
+      strengthening is regularly performed. The occurrence lists are, however,
+      not updated all the time such as the case is with PrecoSat. Instead,
+      occurrences are calculated on per-use basis
+    * On-the-fly subsumption is used to check whether the conflict clause
+      automatically subsumes the clause that caused the conflict.
+    * Binary clauses are propagated first before non-binary clauses are
+      propagated.
+    * 32-bit pointers are used for the watchlists on 64-bit architectures,
+      using out the fact that most bits in the 64-bit pointer are actually fixed
+    * Hyper-binary resolution is used when the hyper-binary clause subsumes
+      any of the original clauses
+    * Clauses are regularly scrubbed from variables that have been assigned
+    * Preliminary blocked-clause elimination is used to remove pure literals
+    * Distinct subproblems are regularly searched for and detected. These
+      subproblems and solved with subsolvers. As a side-ntoe, this eliminates
+      the original theoretical need for phase-saving (enabling the random
+      flipping of phase, which is also used)
+    * xor-clause subsumption is regularly performed
+    * So-called dependent variables are removed along with their xor-clauses.
+      This means that variables that only occur in one xor-clause and in no
+      other clause are removed along with the XOR clause. Once the solving has
+      finished, this xor-clause is re-introduced and a suitable value for the
+      variable is found to satisfy the XOR.
+    * Failed variable probing with both-propagated and binary XOR detection.
+      All variables are successively propagated both to TRUE and FALSE. If one
+      of these branches fails, the variable is assigned the other branch.
+      If none fails, but the intersection of assignments is non-empty, those
+      assignments are made. Essentially the same is done to non-binary XOR-s:
+      if both v and !v propagate a given binary XOR, that XOR is learnt.
+    * Designed to work as a library and as a drop-in replacement for MiniSat
+
+ver 2.3.2 -- 28/12/2009
+* further ints have been replaced with uints
+* ZLIB can now be disabled
+* Visual C++ 2008 can now compile the sources
+* Statistics generation is much faster
+  (thanks to Martin Maurer for spotting this)
+
+ver 2.3.0 -- 17/12/2009
+* binary learnts are converted to 2-long xors if possible, and eliminated
+* lots of heuristics tuning
+* Cleanclauses is now default instead of removeSatisfied in simplify()
+* Stable in case used as a library
+* Lots of regression tests added
+* Cleaner logging
+* ints have been replaced with uints (less warnings with -Wall)
+* a lot of speedups for gauss -- packed, multi-matrix representation
+
+ver 2.2 -- 20/11/2009
+* xor-clause finding
+* matrix finding
+* var-replacing
+* heuristics to disable gauss
+* much better+cleaner stats generation (e.g. fcopy.cpp removed)
+* lots of bug-fixing
+* satelite added, with cryptominisat_ext.sh as a wrapper script
+
+ver 2.1.1 -- 30/10/2009
+* Learnt clause distribution stats
+* Added regression testing
+
+ver 2.1.0 -- 28/10/2009
+* hand-made (non-GPL Bignum) packed representation of both matrix' rows
+* removed dependency on GPL Bignum library
+
+ver 2.0.1 -- 24/10/2009
+* Added Gaussian elimination
+
+ver 1.2.6 -- 24/10/2009
+* Corrected unitialised maxRestarts
+
+
+ver 1.2.6 -- 24/10/2009
+* Corrected unitialised maxRestarts
+
+ver 1.2.5 -- 24/10/2009
+* Maximum restarts can be configured
+* Better verbose debug printing
+
+ver 1.2.4 -- 22/10/2009
+* CryptoMiniSat is printed as the first line of the program
+  (instead of "This is MiniSat 2.0 beta")
+
+ver 1.2.3 -- 22/10/2009
+* better README file
+* better use of the automake autoconf toolchain
+
+ver 1.2.2 -- 22/10/2009
+* phase saving added (thank you, glucose solver team)
+* better printing of statistics
+* better explanation of statistics
+* accept 'v' and 'var', 'g' and 'group'
+* better parsing of 'v','var' and 'g','group'
+* don't allow too long group and variable names
+* branch length distribution added
+* better Makefile.cvs
+* cmake option added
+* updated INSTALL instructions
+* '-march=native' is default when using cmake
+
+ver 1.1 -- 29/04/2009
+* Renamed to CryptoMiniSat
+
+ver 1.0 -- 15/04/2009
+* Some updated statistics! Now average rank of guessed var is shown

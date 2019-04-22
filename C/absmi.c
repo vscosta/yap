@@ -1323,11 +1323,10 @@ Int Yap_absmi(int inp) {
 #endif /* USE_THREADED_CODE */
 
 #if PUSH_REGS
-  old_regs = &Yap_REGS;
+  old_regs = Yap_regp;
 
   /* done, let us now initialize this space */
   init_absmi_regs(&absmi_regs);
-
 /* the registers are all set up, let's swap */
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);
