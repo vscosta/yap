@@ -215,4 +215,3 @@ cmake/docs/Doxyfile
 
 *.stackdump
 *.gz
-.Rproj.user

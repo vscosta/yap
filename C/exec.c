@@ -801,13 +801,14 @@ static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
  *
  * @method prune_inner_computation
  */
-static void prune_inner_computation(choiceptr parent, YAP_dogoalinfo *gi) {
+static void prune_inner_computation(choiceptr parent) {
   /* code */
   choiceptr cut_pt;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+
   cut_pt = B;
-  while (cut_pt && cut_pt->cp_b 
-	 && cut_pt->cp_ap != NOCODE &&
-	 cut_pt->cp_b <= parent) {
+  while (cut_pt && cut_pt->cp_b < parent) {
     cut_pt = cut_pt->cp_b;
   }
   if (!cut_pt)
@@ -818,9 +819,9 @@ static void prune_inner_computation(choiceptr parent, YAP_dogoalinfo *gi) {
   B = cut_pt;
   Yap_TrimTrail();
   LOCAL_AllowRestart = FALSE;
-  P = gi->p;
-  CP = gi->cp;
-  ENV = LCL0-gi->e;
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
   B = parent;
 }
 
@@ -829,7 +830,7 @@ static void prune_inner_computation(choiceptr parent, YAP_dogoalinfo *gi) {
  * after completing a computation.
  * @method complete_inner_computation
  */
-static void complete_inner_computation(choiceptr old_B, YAP_dogoalinfo *gi) {
+static void complete_inner_computation(choiceptr old_B) {
   choiceptr myB = B;
   if (myB == NULL) {
     return;
@@ -847,30 +848,30 @@ static void complete_inner_computation(choiceptr old_B, YAP_dogoalinfo *gi) {
     return;
   }
   // restore environment at call...
-  CP = gi->cp;
-  P = gi->p;
-  ENV = LCL0-gi->e;
-  YENV  = LCL0-gi->y;
-  
+  CP = myB->cp_cp;
+  ENV = myB->cp_env;
 }
 
 static Int Yap_ignore(Term t, bool fail USES_REGS) {
-    YAP_dogoalinfo gi;
-    Yap_push_state(&gi);
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+  Int oB = LCL0 - (CELL *)B;
   yap_error_descriptor_t *ctx = malloc(sizeof(yap_error_descriptor_t));
   bool newxp = Yap_pushErrorContext(true, ctx);
-  bool rc = Yap_RunTopGoal(t, &gi, false);
-  choiceptr B0 = (choiceptr)(LCL0-gi.b_top);
+  bool rc = Yap_RunTopGoal(t, false);
   if (!rc) {
-    complete_inner_computation(B0, &gi);
+    complete_inner_computation((choiceptr)(LCL0 - oB));
     // We'll pass it through
   } else {
-    prune_inner_computation(B0, &gi);
+    prune_inner_computation((choiceptr)(LCL0 - oB));
   }
   Yap_popErrorContext(newxp, true);
-    P = gi.p;
-    CP = gi.cp;
-    //YENV?
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
+  B = (choiceptr)(LCL0 - oB);
   return true;
 }
 
@@ -1000,39 +1001,30 @@ static bool watch_retry(Term d0 USES_REGS) {
 
 static Int setup_call_catcher_cleanup(USES_REGS1) {
   Term Setup = Deref(ARG1);
-     YAP_dogoalinfo gi;
-     gi.p = P;
-     gi.cp = CP;
-     gi.b_top = LCL0-CellPtr(B);
-     gi.CurSlot = Yap_CurrentHandle();
-     gi.y = LCL0-YENV;
-     gi.e = LCL0-ENV;
- bool rc;
+  choiceptr B0 = B;
+  yamop *oP = P, *oCP = CP;
+  Int oENV = LCL0 - ENV;
+  Int oYENV = LCL0 - YENV;
+  bool rc;
   Yap_DisableInterrupts(worker_id);
-  rc = Yap_RunTopGoal(Setup, &gi, false);
+  rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
 
   if (Yap_RaiseException()) {
     return false;
   }
-  choiceptr B0=(choiceptr)(LCL0-gi.b_top);
   if (!rc) {
-    complete_inner_computation(B0, &gi);
+    complete_inner_computation(B0);
     // We'll pass it throughs
 
     return false;
   } else {
-    prune_inner_computation(B0, &gi);
+    prune_inner_computation(B0);
   }
-  YENV = LCL0-gi.y;
-    ENV = LCL0-gi.e;
-  B = (choiceptr)(LCL0-gi.b_top);
-  SET_ASP(YENV, E_CB * sizeof(CELL));
-#ifdef DEPTH_LIMIT
-  DEPTH = ENV[E_DEPTH];
-#endif
-  P = gi.p;
-  CP = gi.cp;
+  P = oP;
+  CP = oCP;
+  ENV = LCL0 - oENV;
+  YENV = LCL0 - oYENV;
   return rc;
 }
 
@@ -1606,7 +1598,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       ASP = (CELL *)PROTECT_FROZEN_B(B);
 
       if (B == NULL || B->cp_b == NULL ||
-          (CELL *)(B->cp_b) >= LCL0 - LOCAL_CBorder) {
+          (CELL *)(B->cp_b) > LCL0 - LOCAL_CBorder) {
         LOCAL_RestartEnv = sighold;
         LOCAL_CBorder = OldBorder;
         pop_text_stack(i + 1);
@@ -1617,8 +1609,8 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   }
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
+  pop_text_stack(i + 1);
   out = Yap_absmi(0);
-
   /* make sure we don't leave a FAIL signal hanging around */
   Yap_get_signal(YAP_FAIL_SIGNAL);
   if (!Yap_has_a_signal())
@@ -1628,15 +1620,15 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   pop_text_stack(i + 1);
   return out;
 }
- void Yap_PrepGoal(arity_t arity, CELL *pt, YAP_dogoalinfo *gip USES_REGS) {
 
+void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
   /* create an initial pseudo environment so that when garbage
-     collection is going up in the environment chain it doesn't ge                                                                                                                                                                                                                                      t
+     collection is going up in the environment chain it doesn't get
      confused */
   Yap_ResetException(worker_id);
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
-  YENV[E_CP] = (CELL)CP;
+  YENV[E_CP] = (CELL)YESCODE;
   YENV[E_CB] = (CELL)B;
   YENV[E_E] = (CELL)ENV;
 #ifdef TABLING
@@ -1652,33 +1644,31 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   /* keep a place where you can inform you had an exception */
   if (pt) {
     int i;
-    for (i = 0; i < 3; i++) {
+    for (i = 0; i < arity; i++) {
       XREGS[i + 1] = *pt++;
     }
   }
-  choiceptr oB = B;
   B = (choiceptr)ASP;
   B--;
   B->cp_h = HR;
   B->cp_tr = TR;
-  B->cp_cp = YESCODE;
+  B->cp_cp = CP;
   B->cp_ap = NOCODE;
   B->cp_env = ENV;
-  B->cp_b = oB;
+  B->cp_b = saved_b;
 #ifdef DEPTH_LIMIT
   B->cp_depth = DEPTH;
 #endif /* DEPTH_LIMIT */
-  ASP = (CELL *)B;
-  ASP[E_CB] = (CELL)B;
+  YENV = ASP = (CELL *)B;
+  YENV[E_CB] = (CELL)B;
   HB = HR;
   CP = YESCODE;
-    ASP -= EnvSizeInCells;
-    gip->b_bottom = LCL0-CellPtr(B);
 }
 
-static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, YAP_dogoalinfo *gi, bool top USES_REGS) {
+static bool do_goal(yamop *CodeAdr, int arity, CELL *pt, bool top USES_REGS) {
+  choiceptr saved_b = B;
   bool out;
-  Yap_PrepGoal(arity, pt,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 gi PASS_REGS);
+  Yap_PrepGoal(arity, pt, saved_b PASS_REGS);
   //  CACHE_A1();
   P = (yamop *)CodeAdr;
   //  S = CellPtr(RepPredProp(
@@ -1750,21 +1740,18 @@ void Yap_fail_all(choiceptr bb USES_REGS) {
 }
 
 bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
+  yamop *saved_p, *saved_cp;
   yamop *CodeAdr;
   bool out;
-  YAP_dogoalinfo gi;
-  gi.p = P;
-   gi.cp = CP;
-   gi.b_top = LCL0-CellPtr(B);
-   gi.CurSlot = Yap_CurrentHandle();
-   gi.y = LCL0-YENV;
-   gi.e = LCL0-ENV;
+
+  saved_p = P;
+  saved_cp = CP;
   LOCAL_PrologMode |= TopGoalMode;
 
   PELOCK(81, ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
-  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, &gi, false PASS_REGS);
+  out = do_goal(CodeAdr, ppe->ArityOfPE, pt, false PASS_REGS);
 
   if (out) {
     choiceptr cut_B;
@@ -1785,13 +1772,14 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
 #endif
     }
 #endif /* TABLING */
-    B = (choiceptr)(LCL0-gi.b_top);
-    CP = gi.cp;
-    P = gi.p;
+    B = cut_B;
+    CP = saved_cp;
+    P = saved_p;
+    ASP = ENV;
 #ifdef DEPTH_LIMIT
     DEPTH = ENV[E_DEPTH];
 #endif
-    ENV = LCL0-gi.e;
+    ENV = (CELL *)(ENV[E_E]);
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
@@ -1810,18 +1798,18 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
     }
    return true;
   } else if (out == 0) {
-    P = gi.p;
-    CP = gi.cp;
+    P = saved_p;
+    CP = saved_cp;
     HR = B->cp_h;
 #ifdef DEPTH_LIMIT
     DEPTH = B->cp_depth;
 #endif
-    /* YENV should be set to the current environment */
-    YENV = ENV = LCL0-gi.e;
     /* ASP should be set to the top of the local stack when we
        did the call */
-  SET_ASP(YENV, E_CB * sizeof(CELL));
-    B =(choiceptr)(LCL0-gi.b_top);
+    ASP = B->cp_env;
+    /* YENV should be set to the current environment */
+    YENV = ENV = (CELL *)((B->cp_env)[E_E]);
+    B = B->cp_b;
     SET_BB(B);
     HB = PROTECT_FROZEN_H(B);
     // should we catch the exception or pass it through?
@@ -1896,7 +1884,7 @@ void Yap_trust_last(void) {
   }
 }
 
-Term Yap_RunTopGoal(Term t, YAP_dogoalinfo *gip, bool handle_errors) {
+Term Yap_RunTopGoal(Term t, bool handle_errors) {
   CACHE_REGS
   yamop *CodeAdr;
   Prop pe;
@@ -1905,7 +1893,7 @@ Term Yap_RunTopGoal(Term t, YAP_dogoalinfo *gip, bool handle_errors) {
   UInt arity;
   Term tmod = CurrentModule;
   Term goal_out = 0;
-    LOCAL_PrologMode |= TopGoalMode;
+  LOCAL_PrologMode |= TopGoalMode;
 
   t = Yap_YapStripModule(t, &tmod);
   if (IsVarTerm(t)) {
@@ -1975,7 +1963,7 @@ Term Yap_RunTopGoal(Term t, YAP_dogoalinfo *gip, bool handle_errors) {
               "unable to boot because of too little Trail space");
   }
 #endif
-  goal_out = do_goal(CodeAdr, arity, pt, gip, handle_errors PASS_REGS);
+  goal_out = do_goal(CodeAdr, arity, pt, handle_errors PASS_REGS);
   return goal_out;
 }
 
@@ -2141,13 +2129,11 @@ bool Yap_Reset(yap_reset_t mode, bool hard) {
 
   Yap_ResetException(worker_id);
   /* first, backtrack to the root */
-  while (B->cp_b) {
-      if (B->cp_ap == NOCODE)
-          break;
-      B = B->cp_b;
-  }
+  while (B) {
     P = FAILCODE;
     Yap_exec_absmi(true, mode);
+    B = B->cp_b;
+  }
   /* reinitialize the engine */
   Yap_InitYaamRegs(worker_id, false);
   GLOBAL_Initialised = true;
@@ -2241,7 +2227,6 @@ static Int generate_pred_info(USES_REGS1) {
 
 void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
   Term h0var;
-  YAP_dogoalinfo gi;
   //  getchar();
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
@@ -2313,7 +2298,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
   PREG_ADDR = NULL;
 #endif
   cut_c_initialize(myworker_id);
-  Yap_PrepGoal(0, NULL, &gi PASS_REGS);
+  Yap_PrepGoal(0, NULL, NULL PASS_REGS);
 #ifdef FROZEN_STACKS
   H_FZ = HR;
 #ifdef YAPOR_SBA
