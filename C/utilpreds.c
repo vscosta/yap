@@ -52,14 +52,13 @@ typedef struct non_single_struct_t {
   }
 
 #define def_aux_overflow()						\
-  aux_overflow:{							\
+  while (to_visit_max-to_visit0 < 32) {							\
     size_t d1 = to_visit-to_visit0;					\
-    size_t d2 = to_visit_max-to_visit0;					\
-    to_visit0 = Realloc(to_visit0,(d2+128)*sizeof(struct non_single_struct_t)); \
+    size_t d2 = to_visit_max-to_visit0;             \
+    size_t d3 = Yap_Min(d2+1024, d2 *2);					\
+    to_visit0 = Realloc(to_visit0,d3*sizeof(struct non_single_struct_t)); \
     to_visit = to_visit0+d1;						\
-    to_visit_max = to_visit0+(d2+128);					\
-    pt0--;								\
-    goto restart;							\
+    to_visit_max = to_visit0+(d3);					\
   }
 
 #define def_global_overflow()			\
