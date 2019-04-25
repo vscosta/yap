@@ -1254,7 +1254,7 @@ static Int is_callable(USES_REGS1) {
   // Term Context = Deref(ARG2);
   while (true) {
     if (IsVarTerm(G)) {
-      Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+      //Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
       return false;
     }
     if (IsApplTerm(G)) {

@@ -421,25 +421,8 @@ X_API void *YAP_BlobOfTerm(Term t) {
 
   if (IsVarTerm(t))
     return NULL;
-  if (!IsBigIntTerm(t)) {
-    if (IsAtomTerm(t)) {
-         AtomEntry *ae = RepAtom(AtomOfTerm(t));
-    StaticArrayEntry *pp;
-
-    READ_LOCK(ae->ARWLock);
-    pp = RepStaticArrayProp(ae->PropsOfAE);
-    while (!EndOfPAEntr(pp) && pp->KindOfPE != ArrayProperty)
-      pp = RepStaticArrayProp(pp->NextOfPE);
-    if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      READ_UNLOCK(ae->ARWLock);
-      return NULL;
-    } else {
-      READ_UNLOCK(ae->ARWLock);
-      return pp->ValueOfVE.ints;
-   }
-    }
+  if (!IsBigIntTerm(t))
     return NULL;
-  }
   src = (MP_INT *)(RepAppl(t) + 2);
   return (void *)(src + 1);
 }
@@ -993,10 +976,6 @@ static Int execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS) {
     YAP_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "YAP only supports SWI C-call with arity =< 10");
     return false;
-  }
-  arity_t i;
-  for (i = 0; i < pe->ArityOfPE; i++) {
-    XREGS[i+1] = Yap_GetFromSlot(a1+i);
   }
   Yap_RecoverSlots(pe->ArityOfPE, a1);
   return rc;
@@ -1759,35 +1738,35 @@ static int run_emulator(USES_REGS1) {
 X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
-      bool out;
-     fprintf(stderr,"EnterGoal: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p, Slots=%ld\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
-     LOCAL_CurSlot);
+  bool out;
+  //   fprintf(stderr,"EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
+  //   Slots=%d\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+  //   LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
-  dgi->b_top = LCL0 - (CELL *)B;
-  dgi->e = LCL0-ENV;
+  dgi->b0 = LCL0 - (CELL *)B;
   dgi->CurSlot = LOCAL_CurSlot;
   // ensure our current ENV receives current P.
 
-  Yap_PrepGoal(pe->ArityOfPE, nullptr, dgi PASS_REGS);
+  Yap_PrepGoal(pe->ArityOfPE, nullptr, B PASS_REGS);
   P = pe->CodeOfPred;
-  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %ld %x %x args=%x,%x
-  // slot=%ld", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
+  // __android_log_print(ANDROID_LOG_INFO, "YAP ", "ap=%p %d %x %x args=%x,%x
+  // slot=%d", pe, pe->CodeOfPred->opc, FAILCODE, Deref(ARG1), Deref(ARG2),
   // LOCAL_CurSlot);
+  dgi->b = LCL0 - (CELL *)B;
   dgi->h = HR - H0;
   dgi->tr = (CELL *)TR - LCL0;
-  //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P11= (LCL0 - (CELL*)B);
-    out = Yap_exec_absmi(true, false);
-    //   fprintf(stderr,"EnterGoal success=%ld: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p
-    //   Slots=%ld\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
-    // LOCAL_CurSlot);
-    dgi->b_bottom = (LCL0 - (CELL*)B);
-    dgi->e = LCL0 - (CELL *)ENV;
-  dgi->y = LCL0 - (CELL *)YENV;
+  // fprintf(stderr,"PrepGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
+  //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
+  out = Yap_exec_absmi(true, false);
+  //   fprintf(stderr,"EnterGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
+  //   Slots=%d\n", out,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
+  //   LOCAL_CurSlot);
+  dgi->b = LCL0 - (CELL *)B;
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
@@ -1805,8 +1784,8 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b_top);
-  myB0 = (choiceptr)(LCL0 - dgi->b_bottom);
+  myB = (choiceptr)(LCL0 - dgi->b);
+  myB0 = (choiceptr)(LCL0 - dgi->b0);
   CP = myB->cp_cp;
   /* sanity check */
   if (B >= myB0) {
@@ -1816,15 +1795,16 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     // get rid of garbage choice-points
     B = myB;
   }
-  // fprintf(stderr,"RetryGoal: H=%ld ENV=%p B=%ld TR=%ld P=%p CP=%p Slots=%ld\n",
+  // fprintf(stderr,"RetryGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p Slots=%d\n",
   //  HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP, LOCAL_CurSlot);
   P = FAILCODE;
   /* make sure we didn't leave live slots when we backtrack */
+  ASP = (CELL *)B;
   LOCAL_CurSlot = dgi->EndSlot;
   out = Yap_exec_absmi(true, true   );
   if (out) {
     dgi->EndSlot = LOCAL_CurSlot;
-    dgi->b_bottom = LCL0-CellPtr(myB);
+    dgi->b = LCL0 - (CELL *)B;
   } else {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
@@ -1837,12 +1817,12 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   choiceptr myB, handler;
 
-  //   fprintf(stderr,"LeaveGoal success=%ld: H=%d ENV=%p B=%ldd myB=%ldd TR=%ld
-  //   P=%p CP=%p Slots=%ld\n",
+  //   fprintf(stderr,"LeaveGoal success=%d: H=%d ENV=%p B=%ld myB=%ld TR=%d
+  //   P=%p CP=%p Slots=%d\n",
   //   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
-  myB = (choiceptr)(LCL0 - dgi->b_bottom);
+  myB = (choiceptr)(LCL0 - dgi->b);
   if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
@@ -1868,39 +1848,25 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   }
   P = dgi->p;
   CP = dgi->cp;
-  ENV = LCL0-dgi->e;
-  YENV = LCL0-dgi->y;
-      /* ASP should be set to the top of the local stack when we
-       did the call */
-  SET_ASP(YENV, E_CB * sizeof(CELL));
-
-  B = (choiceptr)(LCL0-dgi->b_top)
   RECOVER_MACHINE_REGS();
-   fprintf(stderr,"LeftGoal success=%d: H=%ld ENV=%ld B=%ld TR=%ld P=%p CP=%p,    Slots=%ld\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
-    CP, LOCAL_CurSlot);
+  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
+  //  Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
+  //  CP, LOCAL_CurSlot);
   return TRUE;
 }
 
 X_API Int YAP_RunGoal(Term t) {
   CACHE_REGS
   Term out;
-    YAP_dogoalinfo gi;
-    gi.p = P;
-    gi.cp = CP;
-    gi.b_top = LCL0-CellPtr(B);
-    gi.CurSlot = Yap_CurrentHandle();
-    gi.y = LCL0-YENV;
-    gi.e = LCL0-ENV;
-    yhandle_t cslot = LOCAL_CurSlot;
+  yhandle_t cslot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
   LOCAL_AllowRestart = FALSE;
   LOCAL_PrologMode = UserMode;
-  out = Yap_RunTopGoal(t, &gi, true);
+  out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = UserCCallMode;
   // should we catch the exception or pass it through?
   // We'll pass it through
-  SET_ASP(YENV, E_CB * sizeof(CELL));
   RECOVER_MACHINE_REGS();
   LOCAL_CurSlot = cslot;
   return out;
@@ -1976,17 +1942,17 @@ X_API CELL *YAP_HeapStoreOpaqueTerm(Term t) {
 X_API Int YAP_RunGoalOnce(Term t) {
   CACHE_REGS
   Term out;
-    YAP_dogoalinfo gi;
-    Int oldPrologMode = LOCAL_PrologMode;
+  yamop *old_CP = CP;
+  Int oldPrologMode = LOCAL_PrologMode;
+  yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
-  Yap_push_state(&gi PASS_REGS);
+  CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
-  out = Yap_RunTopGoal(t, &gi, true);
+  out = Yap_RunTopGoal(t, true);
   LOCAL_PrologMode = oldPrologMode;
   //  Yap_CloseSlots(CSlot);
-  Yap_pop_state(out, &gi PASS_REGS);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
     LOCAL_AllowRestart = FALSE;
@@ -1996,6 +1962,38 @@ X_API Int YAP_RunGoalOnce(Term t) {
   // should we catch the exception or pass it through?
   // We'll pass it through
   // Yap_RaiseException();
+  if (out) {
+    choiceptr cut_pt, ob;
+
+    ob = NULL;
+    cut_pt = B;
+    while (cut_pt->cp_ap != NOCODE) {
+      /* make sure we prune C-choicepoints */
+      if (POP_CHOICE_POINT(cut_pt->cp_b)) {
+        POP_EXECUTE();
+      }
+      ob = cut_pt;
+      cut_pt = cut_pt->cp_b;
+    }
+#ifdef YAPOR
+    CUT_prune_to(cut_pt);
+#endif
+    if (ob) {
+      B = ob;
+      Yap_TrimTrail();
+    }
+    B = cut_pt;
+  } else {
+    Yap_CloseSlots(CSlot);
+  }
+  ASP = B->cp_env;
+  ENV = (CELL *)ASP[E_E];
+  B = (choiceptr)ASP[E_CB];
+#ifdef DEPTH_LIMITxs
+  DEPTH = ASP[E_DEPTH];
+#endif
+  P = (yamop *)ASP[E_CP];
+  CP = old_CP;
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return out;
@@ -2080,7 +2078,7 @@ X_API void YAP_PruneGoal(YAP_dogoalinfo *gi) {
   CACHE_REGS
   BACKUP_B();
 
-  choiceptr myB = (choiceptr)(LCL0 - gi->b_top);
+  choiceptr myB = (choiceptr)(LCL0 - gi->b);
   while (B != myB) {
     /* make sure we prune C-choicepoints */
     if (POP_CHOICE_POINT(B->cp_b)) {
@@ -2137,7 +2135,7 @@ int   lvl = push_text_stack();
   sno = Yap_OpenStream(tat, "r", MkAtomTerm(Yap_LookupAtom(fname)),
                        LOCAL_encoding);
     __android_log_print(
-            ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %ld ",sno);
+            ANDROID_LOG_INFO, "YAPDroid", "OpenStream got %d ",sno);
     if (sno < 0 || !Yap_ChDir(dirname((char *)d))) {
     *full = NULL;
     pop_text_stack(lvl);
@@ -2179,7 +2177,7 @@ X_API void YAP_EndConsult(int sno, int *osnop, const char *full) {
   if (osnop >= 0)
     Yap_AddAlias(AtomLoopStream, *osnop);
   Yap_end_consult();
-  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%ld), %ld",
+  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " closing %s:%s(%d), %d",
                       CurrentModule == 0
                           ? "prolog"
                           : RepAtom(AtomOfTerm(CurrentModule))->StrOfAE,
@@ -2208,8 +2206,8 @@ X_API Term YAP_ReadFromStream(int sno) {
   sigjmp_buf signew;
   if (sigsetjmp(signew, 0)) {
     Yap_syntax_error(LOCAL_toktide, sno, "ReadFromStream");
-  RECOVER_MACHINE_REGS();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
-    return 0;
+  RECOVER_MACHINE_REGS();
+  return 0;
   } else { 
   o = Yap_read_term(sno, TermNil, false);
   }
