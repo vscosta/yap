@@ -804,11 +804,11 @@ static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
 static void prune_inner_computation(choiceptr parent) {
   /* code */
   choiceptr cut_pt;
-  yamop *oP = P, *oCP = CP;
-  Int oENV = LCL0 - ENV;
 
   cut_pt = B;
   while (cut_pt && cut_pt->cp_b < parent) {
+    if (cut_pt->cp_ap == NOCODE)
+      break;
     cut_pt = cut_pt->cp_b;
   }
   if (!cut_pt)
@@ -819,9 +819,6 @@ static void prune_inner_computation(choiceptr parent) {
   B = cut_pt;
   Yap_TrimTrail();
   LOCAL_AllowRestart = FALSE;
-  P = oP;
-  CP = oCP;
-  ENV = LCL0 - oENV;
   B = parent;
 }
 
@@ -1062,8 +1059,6 @@ static Int cleanup_on_exit(USES_REGS1) {
     complete_pt[0] = TermExit;
   }
   Yap_ignore(cleanup, false);
-  if (B0->cp_ap == NOCODE)
-    B0->cp_ap = TRUSTFAILCODE;
   if (Yap_RaiseException()) {
     return false;
   }

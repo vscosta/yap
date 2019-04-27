@@ -113,7 +113,6 @@ static foreign_t python_is(term_t tobj, term_t tf) {
 
 static foreign_t python_proc(term_t tobj) {
   PyObject *o;
-
   term_t lim = python_acquire_GIL();
 
   o = term_to_python(tobj, true, NULL, true);
@@ -237,6 +236,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
 }
 
 static foreign_t assign_python(term_t exp, term_t name) {
+  printf("A %ld\n", LOCAL_CurSlot);
   term_t stackp = python_acquire_GIL();
   PyObject *e = term_to_python(exp, true, NULL, true);
 
@@ -245,6 +245,7 @@ static foreign_t assign_python(term_t exp, term_t name) {
     pyErrorAndReturn(false);
   }
   bool b = python_assign(name, e, NULL);
+  printf("B %ld\n", LOCAL_CurSlot);
   python_release_GIL(stackp);
   pyErrorAndReturn(b);
 }

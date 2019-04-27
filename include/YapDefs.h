@@ -138,12 +138,13 @@ typedef enum {
 
 /* this should be opaque to the user */
 typedef struct {
-  unsigned long b, b0;      //> choice-point at entry
+  unsigned long b0, b_entry, b_exit;      //> choice-point at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
   int lvl;
+  long env;
   unsigned long tr, h;
 } YAP_dogoalinfo;
 

@@ -411,6 +411,23 @@ std::vector<Term> YAPPairTerm::listToArray() {
   return o;
 }
 
+std::vector<YAPTerm> YAPPairTerm::listToVector() {
+  Term *tailp;
+  Term t1 = gt();
+  Int l = Yap_SkipList(&t1, &tailp);
+  if (l < 0) {
+    throw YAPError(SOURCE(), TYPE_ERROR_LIST, (t), nullptr);
+  }
+  std::vector<YAPTerm> o = *new std::vector<YAPTerm>(l);
+  int i = 0;
+  Term t = gt();
+  while (t != TermNil) {
+    o[i++] = YAPTerm(HeadOfTerm(t));
+    t = TailOfTerm(t);
+  }
+  return o;
+}
+
 YAP_tag_t YAPTerm::tag() {
   Term tt = gt();
   if (IsVarTerm(tt)) {
@@ -576,6 +593,8 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   // don't forget, on success these bindings will still be there);
   result = YAP_LeaveGoal(true, &q);
 
+ Int oenv = LCL0-ENV;
+ Int oB = LCL0-CellPtr(B);
   YAPCatchError();
 
   Yap_CloseHandles(q.CurSlot);
@@ -599,6 +618,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
+ Int oenv = LCL0-ENV;
+ Int oB = LCL0-CellPtr(B);
   Term omod = CurrentModule;
   PredEntry *ap = nullptr;
   if (IsStringTerm(tmod))
@@ -625,9 +646,10 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
    result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
-
+  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n
   YAP_LeaveGoal(result && !release, &q);
+ ENV = LCL0-oenv;
+ B = (choiceptr)(LCL0-oB);
   CurrentModule = LOCAL_SourceModule = omod;
   //      PyEval_RestoreThread(_save);
   RECOVER_MACHINE_REGS();
@@ -652,7 +674,12 @@ Term YAPEngine::fun(Term t) {
   arity_t arity;
   Functor f;
   Atom name;
+  q.CurSlot = Yap_StartSlots();
+  q.p = P;
+  q.cp = CP;
 
+ Int oenv = LCL0-ENV;
+ Int oB = LCL0-CellPtr(B);
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
@@ -684,9 +711,6 @@ Term YAPEngine::fun(Term t) {
     Term g = (Yap_MkApplTerm(f, arity, ts));
     ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
   }
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
   // make sure this is safe
   // allow Prolog style exception handling
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -699,6 +723,8 @@ Term YAPEngine::fun(Term t) {
     YAPCatchError();
   {
     YAP_LeaveGoal(result, &q);
+ ENV = LCL0-oenv;
+ B = (choiceptr)(LCL0-oB);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
     return ot;
@@ -719,6 +745,27 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     size_t arity = f.arity();
     for (arity_t i = 0; i < arity; i++)
       XREGS[i + 1] = nts[i];
+  } else {
+    goal = MkVarTerm();
+  }
+  openQuery();
+  names = YAPPairTerm(TermNil);
+  RECOVER_MACHINE_REGS();
+}
+
+YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, Term ts[])
+    : YAPPredicate(f, mod) {
+
+  /* ignore flags  for now */
+  BACKUP_MACHINE_REGS();
+  Term goal;
+
+  if (ts) {
+    size_t arity = f.arity();
+    goal = Yap_MkApplTerm(Yap_MkFunctor(f.name().asAtom(),arity), arity, ts);
+    nts = RepAppl(goal) + 1;
+    for (arity_t i = 0; i < arity; i++)
+      XREGS[i + 1] = ts[i];
   } else {
     goal = MkVarTerm();
   }
@@ -766,6 +813,9 @@ bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
   // std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
+  q_h.CurSlot = Yap_StartSlots();
+  q_h.p = P;
+  q_h.cp = CP;
 
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   e = nullptr;
@@ -827,7 +877,7 @@ bool YAPQuery::deterministic() {
   BACKUP_MACHINE_REGS();
   if (!q_open || q_state == 0)
     return false;
-  choiceptr myB = (choiceptr)(LCL0 - q_h.b);
+  choiceptr myB = (choiceptr)(LCL0 - q_h.b_entry);
   return (B >= myB);
   RECOVER_MACHINE_REGS();
 }
@@ -1100,6 +1150,7 @@ void YAPEngine::reSet() {
     free(LOCAL_CommittedError);
     LOCAL_CommittedError = NULL;
   }
+  LOCAL_CurSlot = q.CurSlot;
 }
 
 Term YAPEngine::top_level(std::string s) {
