@@ -144,7 +144,7 @@ typedef struct {
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
   int lvl;
-  long env;
+  long env0;
   unsigned long tr, h;
 } YAP_dogoalinfo;
 

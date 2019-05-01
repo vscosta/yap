@@ -1142,6 +1142,8 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   // if (pe->PredFlags & CArgsPredFlag) {
   //  CurrentModule = pe->ModuleOfPred;
   //}
+  int lvl = push_text_stack();
+  yhandle_t hdl = Yap_CurrentHandle();
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
@@ -1161,12 +1163,15 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   // check for junk: open frames, etc */
   if (ret)
     complete_exit(((choiceptr)(LCL0 - OASP)), FALSE, FALSE PASS_REGS);
-  else
+  else {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
+  }
   // CurrentModule = omod;
   if (!ret) {
     Yap_RaiseException();
   }
+  Yap_RecoverHandles(0, hdl);
+  pop_text_stack( lvl );
   return ret;
 }
 
@@ -1739,17 +1744,18 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
   CACHE_REGS
   PredEntry *pe = ape;
   bool out;
-  //   fprintf(stderr,"EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
+  //   fprintf(stderr,"1EnterGoal: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
   //   Slots=%d\n",HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
 
   BACKUP_MACHINE_REGS();
+  dgi->lvl = push_text_stack();
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   LOCAL_PrologMode = UserMode;
   dgi->p = P;
   dgi->cp = CP;
   dgi->b0 = LCL0 - (CELL *)B;
-  printf("%ld\n", dgi->CurSlot);
+  dgi->env0 = LCL0 - ENV;
   // ensure our current ENV receives current P.
 
   Yap_PrepGoal(pe->ArityOfPE, nullptr, B PASS_REGS);
@@ -1771,10 +1777,10 @@ X_API bool YAP_EnterGoal(YAP_PredEntryPtr ape, CELL *ptr, YAP_dogoalinfo *dgi) {
     dgi->EndSlot = LOCAL_CurSlot;
     Yap_StartSlots();
   } else {
-  printf("%ld\n", dgi->CurSlot);
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
   }
+  pop_text_stack(dgi->lvl);
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -1785,6 +1791,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
   bool out;
 
   BACKUP_MACHINE_REGS();
+  dgi->lvl = push_text_stack();
   myB = (choiceptr)(LCL0 - dgi->b_exit);
   myB0 = (choiceptr)(LCL0 - dgi->b_entry);
   CP = myB->cp_cp;
@@ -1811,6 +1818,7 @@ X_API bool YAP_RetryGoal(YAP_dogoalinfo *dgi) {
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
   }
+    pop_text_stack(dgi->lvl);
   RECOVER_MACHINE_REGS();
   return out;
 }
@@ -1823,6 +1831,8 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
   //   successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,dgi->b0,(CELL*)TR-LCL0, P, CP,
   //   LOCAL_CurSlot);
   BACKUP_MACHINE_REGS();
+
+  dgi->lvl = push_text_stack();
     if (successful) {
       choiceptr nB = (choiceptr)(LCL0 - dgi->b_entry);
       if (B <= nB) {
@@ -1834,13 +1844,17 @@ X_API bool YAP_LeaveGoal(bool successful, YAP_dogoalinfo *dgi) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
   B = (choiceptr)(LCL0 - dgi->b0);
+#ifdef DEPTH_LIMIT
+  DEPTH = B->cp_depth;
+#endif
   P = dgi->p;
   CP = dgi->cp;
+  YENV = ENV = LCL0-dgi->env0;
     LOCAL_CurSlot =
         dgi->CurSlot; // ignore any slots created within the called goal
-  printf("L %ld\n", dgi->CurSlot);
+    pop_text_stack(dgi->lvl);
   RECOVER_MACHINE_REGS();
-  //  fprintf(stderr,"LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
+  // fprintf(stderr," LeftGoal success=%d: H=%d ENV=%p B=%d TR=%d P=%p CP=%p
   //  Slots=%d\n",    successful,HR-H0,LCL0-ENV,LCL0-(CELL*)B,(CELL*)TR-LCL0, P,
   //  CP, LOCAL_CurSlot);
   return TRUE;
@@ -1852,6 +1866,8 @@ X_API Int YAP_RunGoal(Term t) {
   yhandle_t cslot = LOCAL_CurSlot;
   BACKUP_MACHINE_REGS();
 
+int lvl = push_text_stack();
+
   LOCAL_AllowRestart = FALSE;
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t, true);
@@ -1860,6 +1876,7 @@ X_API Int YAP_RunGoal(Term t) {
   // We'll pass it through
   RECOVER_MACHINE_REGS();
   LOCAL_CurSlot = cslot;
+    pop_text_stack(lvl);
   return out;
 }
 
@@ -1938,6 +1955,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   yhandle_t CSlot;
 
   BACKUP_MACHINE_REGS();
+  int lvl = push_text_stack();
   CSlot = Yap_StartSlots();
   LOCAL_PrologMode = UserMode;
   //  Yap_heap_regs->yap_do_low_level_trace=true;
@@ -1946,6 +1964,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   //  Yap_CloseSlots(CSlot);
   if (!(oldPrologMode & UserCCallMode)) {
     /* called from top-level */
+  pop_text_stack( lvl);
     LOCAL_AllowRestart = FALSE;
     RECOVER_MACHINE_REGS();
     return out;
@@ -1987,6 +2006,7 @@ X_API Int YAP_RunGoalOnce(Term t) {
   CP = old_CP;
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
+  pop_text_stack( lvl);
   return out;
 }
 
@@ -2262,6 +2282,7 @@ X_API char *YAP_WriteBuffer(Term t, char *buf, size_t sze, int flags) {
   } else {
     RECOVER_MACHINE_REGS();
     if (buf == out.val.c) {
+    pop_text_stack(l);
       return buf;
     } else {
         if ( strlen(out.val.c ) < sze) {

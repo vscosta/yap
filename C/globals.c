@@ -78,7 +78,7 @@ assert/1 or recorda/3.
 + The value lives on the Prolog (global) stack.  This implies
 that lookup time is independent from the size of the term.
 This is particulary interesting for large data structures
-such as parsed XML documents or the CHR global constraint
+qqqsuch as parsed XML documents or the CHR global constraint
 store.
 
 They support both global assignment using nb_setval/2 and
@@ -191,13 +191,14 @@ static Term NewArena(UInt size, int wid, UInt arity, CELL *where) {
   UInt new_size;
   WORKER_REGS(wid)
 
-  if (where == NULL || where == HR) {
+    // make sure we have enough room
     while (HR + size > ASP - 1024) {
       if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return TermNil;
       }
     }
+  if (where == NULL || where == HR) {
     t = CreateNewArena(HR, size);
     HR += size;
   } else {
@@ -241,8 +242,9 @@ static void adjust_cps(UInt size USES_REGS) {
   }
 }
 
-static int GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
+static Term GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
                      UInt arity USES_REGS) {
+  size_t sz; 
   LOCAL_ArenaOverflows++;
   if (size == 0) {
     if (old_size < 128 * 1024) {
@@ -254,56 +256,49 @@ static int GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
   if (size < 4096) {
     size = 4096;
   }
-  if (pt == HR) {
-    if (HR + size > ASP - 1024) {
+  while (HR + size > ASP - 1024) {
 
       XREGS[arity + 1] = arena;
       if (!Yap_gcl(size * sizeof(CELL), arity + 1, ENV, gc_P(P, CP))) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-        return FALSE;
+        return false;
       }
       arena = XREGS[arity + 1];
-      /* we don't know if the GC added junk on top of the global */
-      pt = ArenaLimit(arena);
-      return GrowArena(arena, pt, old_size, size, arity PASS_REGS);
-    }
     adjust_cps(size PASS_REGS);
-    HR += size;
-  } else {
-    XREGS[arity + 1] = arena;
-    /* try to recover some room  */
-      Yap_gcl(size * sizeof(CELL), arity + 1, ENV, gc_P(P, CP));
-    arena = XREGS[arity + 1];
-    pt = ArenaLimit(arena);
-    if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL))) == 0) {
-      return FALSE;
+    pt = ArenaLimit(arena)+1;
+
+    if (pt == HR) {
+      sz = old_size + size;
+      HR += size;
+      HR[ - 1] = EndSpecials;
+    } else {
+      if ((sz = Yap_InsertInGlobal(pt, sz * sizeof(CELL))) == 0) {
+        return FALSE;
+      }
+      pt[sz-1] = EndSpecials;
     }
-    size = size / sizeof(CELL);
     arena = XREGS[arity + 1];
+    MP_INT *dst = (MP_INT *)(RepAppl(arena) + 2);
+    dst->_mp_alloc+= size/sizeof(CELL);
+    return sz;
   }
-  CreateNewArena(ArenaPt(arena), size + old_size);
-  return TRUE;
 }
 
 CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
   CACHE_REGS
-restart : {
   Term arena = *arenap;
   CELL *max = ArenaLimit(arena);
   CELL *base = ArenaPt(arena);
   CELL *newH;
   UInt old_sz = ArenaSz(arena), new_size;
-
+  while(true) {
   if (IN_BETWEEN(base, HR, max)) {
     base = HR;
     HR += cells;
     return base;
   }
-  if (base + cells > max - 1024) {
-    if (!GrowArena(arena, max, old_sz, old_sz + sizeof(CELL) * 1024,
-                   arity PASS_REGS))
-      return NULL;
-    goto restart;
+  if (base + cells > ASP - 1024) {
+    continue;
   }
 
   newH = base + cells;
@@ -474,7 +469,9 @@ loop:
           HR += ap2[1] + 3;
           break;
         default: {
-          /* big int */
+
+        
+  /* big int */
           UInt sz = (sizeof(MP_INT) + 3 * CellSize +
                      ((MP_INT *)(ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
                     CellSize,
@@ -482,7 +479,7 @@ loop:
 
           if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
             goto overflow;
-          }
+      }
           *ptf++ = AbsAppl(HR);
           HR[0] = (CELL)f;
           for (i = 1; i < sz; i++) {
@@ -494,6 +491,7 @@ loop:
         continue;
       }
       *ptf = AbsAppl(HR);
+
       ptf++;
 /* store the terms to visit */
 #ifdef RATIONAL_TREES
@@ -797,7 +795,7 @@ error_handler:
     case -1:
       if (arena == LOCAL_GlobalArena)
         LOCAL_GlobalArenaOverflows++;
-      if (!GrowArena(arena, old_top, old_size, min_grow, arity + 3 PASS_REGS)) {
+      if ((arena=GrowArena(arena, old_top, old_size, min_grow, arity + 3 PASS_REGS))==0) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
@@ -848,8 +846,8 @@ restart:
       HB = oldHB;
       if (arena == LOCAL_GlobalArena)
         LOCAL_GlobalArenaOverflows++;
-      if (!GrowArena(arena, old_top, old_size, Nar * sizeof(CELL),
-                     arity + 2 PASS_REGS)) {
+      if ((arena=GrowArena(arena, old_top, old_size, Nar * sizeof(CELL),
+                           arity + 2 PASS_REGS))==0) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                   "while creating large global term");
         return 0L;
@@ -1549,8 +1547,8 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
   queue = Yap_MkApplTerm(FunctorNBQueue, QUEUE_FUNCTOR_ARITY, ar);
   if (!Yap_unify(queue, ARG1))
     return FALSE;
-  if (arena_sz < 4 * 1024)
-    arena_sz = 4 * 1024;
+  if (arena_sz < 32 * 1024)
+    arena_sz = 32 * 1024;
   queue_arena = NewArena(arena_sz, worker_id, 1, NULL);
   if (queue_arena == 0L) {
     return FALSE;
@@ -1694,8 +1692,8 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
     }
     ARG3 = to;
     /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
-    if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
-      Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
+    if ((arena=GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS))==0) {
+          Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
       return 0L;
     }
     to = ARG3;
@@ -2025,7 +2023,7 @@ restart:
       gsiz = 1024;
     }
     ARG3 = to;
-    if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
+    if ((arena=GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS))==0) {
       Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
       return 0L;
     }
@@ -2341,7 +2339,7 @@ static Term DelBeamMin(CELL *pt, CELL *pt2, UInt sz) {
 static Int p_nb_beam_add_to_beam(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "add_to_beam"), *oldH, *oldHB, *pt;
   UInt hsize, hmsize, old_sz;
-  Term arena, to, key;
+  Term arena, to, qsize, key;
   UInt mingrow;
 
   if (!qd)
@@ -2377,9 +2375,9 @@ static Int p_nb_beam_add_to_beam(USES_REGS1) {
   oldHB = HB;
   HR = HB = ArenaPt(arena);
   old_sz = ArenaSz(arena);
+  qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   while (old_sz < MIN_ARENA_SIZE) {
-    UInt gsiz = hsize * 2;
-
+    UInt gsiz = HR - RepPair(qd[QUEUE_HEAD]);
     HR = oldH;
     HB = oldHB;
     if (gsiz > 1024 * 1024) {
@@ -2388,6 +2386,7 @@ static Int p_nb_beam_add_to_beam(USES_REGS1) {
       gsiz = 1024;
     }
     ARG3 = to;
+    /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
       Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
       return 0L;

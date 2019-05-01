@@ -230,7 +230,6 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
   bool rc = true;
   PyErr_Print();
   term_t inp = Yap_CurrentHandle();
-  Yap_DebugPlWriteln(YAP_GetFromSlot(t));
   context = find_obj(context, t, false);
   // Yap_DebugPlWriteln(yt);
   switch (PL_term_type(t)) {
@@ -320,8 +319,6 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
           // t now refers to the index
           if (!PL_get_arg(1, t, t) || !PL_get_list(t, t, tail) ||
               !PL_get_nil(tail)) {
-            PL_reset_term_refs(i);
-            ;
             rc = false;
           } else {
             PyObject *i = term_to_python(t, true, NULL, false);

@@ -2039,7 +2039,7 @@ static UInt suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap,
       /* give it some slack */
       tels = cls + 4;
     } else {
-      tels = cls;
+      tels = cls+1;
     }
     sz = (UInt)NEXTOP((yamop *)NULL, sssllp) + tels * sizeof(yamop *);
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {

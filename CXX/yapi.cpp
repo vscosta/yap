@@ -586,19 +586,17 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   q.p = P;
 
   q.cp = CP;
+ q.b0 = LCL0-CellPtr(B);
+  q.env0 = LCL0-ENV;
   for (arity_t i = 0; i < arity; i++)
     XREGS[i + 1] = ts[i].term();
 
   // allow Prolog style exceotion handling
   // don't forget, on success these bindings will still be there);
-  result = YAP_LeaveGoal(true, &q);
+  result = YAP_EnterGoal(ap.ap, nullptr, &q);
+  YAP_LeaveGoal(result, &q);
 
- Int oenv = LCL0-ENV;
- Int oB = LCL0-CellPtr(B);
   YAPCatchError();
-
-  Yap_CloseHandles(q.CurSlot);
-  pop_text_stack(q.lvl + 1);
 
   RECOVER_MACHINE_REGS();
   return result;
@@ -613,6 +611,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
+  YAP_dogoalinfo q;
   BACKUP_MACHINE_REGS();
    Term *ts = nullptr;
   q.CurSlot = Yap_StartSlots();
@@ -662,13 +661,14 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 void YAPEngine::release() {
 
   BACKUP_MACHINE_REGS();
-  YAP_LeaveGoal(FALSE, &q);
+  //  YAP_LeaveGoal(FALSE, &q);
   RECOVER_MACHINE_REGS();
 }
 
 Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
+  YAP_dogoalinfo q;
   Term tmod = Yap_CurrentModule(), *ts = nullptr;
   PredEntry *ap;
   arity_t arity;
@@ -1143,14 +1143,15 @@ std::stringstream s;
 void YAPEngine::reSet() {
   /* ignore flags  for now */
   if (B && B->cp_b && B->cp_ap != NOCODE)
-    YAP_LeaveGoal(false, &q);
+    //    YAP_LeaveGoal(false, &q);
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   if (LOCAL_CommittedError) {
     LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
     free(LOCAL_CommittedError);
     LOCAL_CommittedError = NULL;
   }
-  LOCAL_CurSlot = q.CurSlot;
+  pop_text_stack(0);
+  LOCAL_CurSlot = 0;
 }
 
 Term YAPEngine::top_level(std::string s) {
