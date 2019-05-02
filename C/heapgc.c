@@ -1,4 +1,4 @@
-/**************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -4194,7 +4194,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   int    gc_on = FALSE, gc_t = FALSE;
 
   if (Yap_GetValue(AtomGc) != TermNil)
-    gc_on = TRUE;
+    gc_on = false;
   if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&
       gc_margin > 0) {
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
@@ -4346,3 +4346,4 @@ Yap_inc_mark_variable()
   CACHE_REGS
     LOCAL_total_marked++;
 }
+
