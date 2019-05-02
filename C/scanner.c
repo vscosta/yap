@@ -1319,6 +1319,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
+  int lvl = push_text_stack();
   int32_t ch, och = ' ';
   struct qq_struct_t *cur_qq = NULL;
   int sign = 1;
@@ -1348,6 +1349,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
+        pop_text_stack(lvl);
       return TrailSpaceError(p, l);
     }
     if (!l)
@@ -1418,7 +1420,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
           TokImage = Realloc(p0, imgsz);
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+              pop_text_stack(lvl);
+              return CodeSpaceError(t, p, l);
           }
           charp =(unsigned char *) TokImage + (charp - p0);
         }
@@ -1427,7 +1430,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       while (ch == '\'' && isvar &&
              trueGlobalPrologFlag(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG)) {
         if (charp == (unsigned char *)AuxSp - 1024) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         add_ch_to_buff(ch);
         ch = getchr(st);
@@ -1438,7 +1442,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         /* don't do this in iso */
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->TokInfo = MkAtomTerm(ae);
         if (ch == '(')
@@ -1470,7 +1475,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           t->TokInfo = TermError;
         }
         /* serious error now */
-        return l;
+          pop_text_stack(lvl);
+          return l;
       }
       ch = cha;
       if (cherr) {
@@ -1480,7 +1486,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->TokLine = GetCurInpLine(st);
         e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
         if (e == NULL) {
-          return TrailSpaceError(p, l);
+            pop_text_stack(lvl);
+            return TrailSpaceError(p, l);
 
         } else {
           e->TokNext = NULL;
@@ -1506,7 +1513,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             t->TokLine = GetCurInpLine(st);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
-              return TrailSpaceError(p, l);
+                pop_text_stack(lvl);
+                return TrailSpaceError(p, l);
             } else {
               e2->TokNext = NULL;
             }
@@ -1540,7 +1548,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             t->TokPos = GetCurInpPos(st);
             e2 = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
             if (e2 == NULL) {
-              return TrailSpaceError(p, l);
+                pop_text_stack(lvl);
+                return TrailSpaceError(p, l);
             } else {
               e2->TokNext = NULL;
             }
@@ -1570,7 +1579,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 	  size_t sz = charp-(unsigned char *)TokImage;
           TokImage = Realloc(TokImage, (imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE)));
           if (TokImage == NULL) {
-            return CodeSpaceError(t, p, l);
+              pop_text_stack(lvl);
+              return CodeSpaceError(t, p, l);
           }
 	  charp = (unsigned char *)TokImage+sz;
           break;
@@ -1609,20 +1619,23 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else {
         t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1642,7 +1655,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           t->TokInfo = TermNewLine;
         }
         t->TokInfo = TermEof;
-        return l;
+          pop_text_stack(lvl);
+          return l;
       } else
         ch = getchr(st);
       break;
@@ -1656,9 +1670,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         // consume...
         if (pch == '%') {
           t->TokInfo = TermNewLine;
-          return l;
+            pop_text_stack(lvl);
+            return l;
         }
-        return l;
+          pop_text_stack(lvl);
+          return l;
       }
       if (ch == '`')
         goto quoted_string;
@@ -1669,7 +1685,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           t->Tok = Ord(kind = eot_tok);
           if (ch == '%') {
             t->TokInfo = TermNewLine;
-            return l;
+              pop_text_stack(lvl);
+              return l;
           }
           if (chtype(ch) == EF) {
             mark_eof(st);
@@ -1677,7 +1694,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           } else {
             t->TokInfo = TermNewLine;
           }
-          return l;
+            pop_text_stack(lvl);
+            return l;
         }
       }
       if (och == '/' && ch == '*') {
@@ -1726,7 +1744,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         t->Tok = Ord(kind = eot_tok);
         if (ch == '%') {
           t->TokInfo = TermNewLine;
-          return l;
+            pop_text_stack(lvl);
+            return l;
         }
         if (chtype(ch) == EF) {
           mark_eof(st);
@@ -1734,7 +1753,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         } else {
           t->TokInfo = TermNl;
         }
-        return l;
+          pop_text_stack(lvl);
+          return l;
       } else {
         Atom ae;
         charp = (unsigned char *)TokImage;
@@ -1744,8 +1764,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 	    size_t sz = charp - (unsigned char *)TokImage;
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
             TokImage = Realloc(TokImage, imgsz);
-            if (!TokImage)
-              return CodeSpaceError(t, p, l);
+            if (!TokImage) {
+                pop_text_stack(lvl);
+                return CodeSpaceError(t, p, l);
+            }
 	    charp = (unsigned char *)TokImage+sz;
           }
           add_ch_to_buff(ch);
@@ -1753,11 +1775,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         add_ch_to_buff('\0');
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->TokInfo = MkAtomTerm(ae);
         if (t->TokInfo == (CELL)NIL) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1820,15 +1844,16 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
             LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-            return l;
+              pop_text_stack(lvl);
+              return l;
           }
           if (cur_qq) {
             LOCAL_ErrorMessage = "quasi quote in quasi quote";
             Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-            Free(qq);
-            return l;
+              pop_text_stack(lvl);
+              return l;
           } else {
             cur_qq = qq;
           }
@@ -1865,7 +1890,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           cur_qq = NULL;
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermError;
-          return l;
+            pop_text_stack(lvl);
+            return l;
         }
         cur_qq = NULL;
         t->TokInfo = (CELL)qq;
@@ -1910,7 +1936,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
           t->Tok = Ord(kind = eot_tok);
           t->TokInfo = TermOutOfHeapError;
-          return l;
+            pop_text_stack(lvl);
+            return l;
         }
         strncpy((char *)mp, (const char *)TokImage, len + 1);
         qq->text = (unsigned char *)mp;
@@ -1923,7 +1950,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         qq->end.linepos = st->linepos - 1;
         qq->end.charno = st->charcount - 1;
         if (!(t->TokInfo)) {
-          return CodeSpaceError(t, p, l);
+            pop_text_stack(lvl);
+            return CodeSpaceError(t, p, l);
         }
         Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
         solo_flag = FALSE;
@@ -1936,7 +1964,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       mark_eof(st);
       t->Tok = Ord(kind = eot_tok);
       t->TokInfo = TermEof;
-      return l;
+            pop_text_stack(lvl);
+            return l;
 
     default: {
       kind = Error_tok;
@@ -1951,7 +1980,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
-        return TrailSpaceError(p, l);
+          pop_text_stack(lvl);
+          return TrailSpaceError(p, l);
       }
       p->TokNext = e;
       e->Tok = Error_tok;
@@ -1963,6 +1993,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
       p = e;
     }
   } while (kind != eot_tok);
+    pop_text_stack(lvl);
 
   return (l);
 }

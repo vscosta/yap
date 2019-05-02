@@ -247,7 +247,7 @@ extern Term Yap_SaveTerm(Term);
 extern Term Yap_SetGlobalVal(Atom, Term);
 extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
-extern void Yap_AllocateDefaultArena(size_t gsize, int wid);
+extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
 extern CELL *Yap_ArenaLimit(Term arena);
 
 /* grow.c */

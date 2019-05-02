@@ -990,7 +990,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     LOCAL_LDiff = LOCAL_TrDiff = 0;
     LOCAL_BaseDiff = 0;
   }
-      printf("grow=%d\n", LOCAL_LDiff);
   /* now, remember we have delay -- global with a hole in delay or a
      hole in global */
   if (!hsplit) {
@@ -1009,7 +1008,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   LOCAL_GSplit = hsplit;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GlobalBase = old_GlobalBase;
-  fprintf(stderr,"off %d 5d %d\n", LOCAL_GDiff0, LOCAL_GDiff, LOCAL_LDiff);
  SetHeapRegs(FALSE PASS_REGS);
   if (do_grow) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1490,7 +1488,7 @@ Yap_growheap(bool fix_code, size_t in_size, void *cip)
 int
 Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
-  CACHE_REGS
+    CACHE_REGS
   int res;
 
   res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep PASS_REGS);

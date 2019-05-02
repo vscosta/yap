@@ -1612,7 +1612,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     CalculateStackGap(PASS_REGS1);
   LOCAL_CBorder = OldBorder;
   LOCAL_RestartEnv = sighold;
-  pop_text_stack(i + 1);
   return out;
 }
 
@@ -2267,7 +2266,7 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
     REMOTE_AttsMutableList(myworker_id) = Yap_NewTimedVar(h0var);
 #endif
     size_t defsz = 128*1024;
-    Yap_AllocateDefaultArena(defsz, myworker_id);
+    Yap_AllocateDefaultArena(defsz, myworker_id, NULL);
   } else {
     HR = Yap_ArenaLimit(REMOTE_GlobalArena(myworker_id));
   }
