@@ -12,7 +12,7 @@
 
 using namespace Rcpp;
 
-class yap4r {
+class yap4r  {
 
   YAPEngine *yap;
   YAPQuery *q;
@@ -38,27 +38,15 @@ yap4r::yap4r() {
   yap = new YAPEngine(yargs);
 };
 
-bool yap4r::query(std::string p_name, GenericVector sexps,
-                  std::string p_module) {
+bool yap4r::query(std::string query) {
   if (q) {
     q->close();
     q = nullptr;
   }
   yhandle_t t;
   arity_t arity;
-  if (sexps.isNULL()) {
-    YAPTerm qt = YAPAtomTerm(p_name.c_str());
     q = new YAPQuery(qt);
     t = qt.handle();
-  } else {
-    arity = sexps.length();
-    std::vector<YAPTerm> args = std::vector<YAPTerm>();
-    yhandle_t sls = Yap_NewHandles(sexps.length());
-    for (int i = 0; i < sexps.length(); i++) {
-      if (!sexp_to_pl(sls + i, sexps[i]))
-        return false;
-      args.push_back(YAPTerm(Yap_GetFromSlot(sls + i)));
-    }
     YAPFunctor f = YAPFunctor(p_name.c_str(), arity);
     YAPAtomTerm mod = YAPAtomTerm(p_module.c_str());
     t = YAPApplTerm(p_name.c_str(), args.data()).handle();
@@ -76,6 +64,7 @@ bool yap4r::query(std::string p_name, GenericVector sexps,
 
   return rc;
 }
+
 bool yap4r::run(SEXP l) {
   yhandle_t yh = Yap_InitHandle(MkVarTerm());
   if (!sexp_to_pl(yh, l))
@@ -129,15 +118,16 @@ SEXP yap4r::peek(int i) {
   return term_to_sexp(Yap_InitSlot(Yap_XREGS[i]), false);
 }
 
-RCPP_MODULE(mod_yap4r) {
+RCPP_MODULE(yap4r) {
   class_<yap4r>("yap4r")
       .constructor("create an object encapsulating a Prolog engine")
-      .method("query", &yap4r::query, "create an active query within the engine")
+      .method("query", &yap4r::query, "create an active query within the enginefrom text")
       .method("more", &yap4r::more, "ask for an extra solution")
       .method("done", &yap4r::done, "terminate the query")
       .method("eval_text", &yap4r::eval_text, "terminate the query")
       .method("run", &yap4r::run, "terminate the query")
       .method("compile", &yap4r::compile, "compile the file")
       .method("library", &yap4r::library, "compile the library")
-      .method("peek", &yap4r::peek, "load arg[i] into R");
+      .method("peek", &yap4r::peek, "load arg[i] into R")
+    ;
 }
