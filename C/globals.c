@@ -285,7 +285,6 @@ static Term GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
   if (size < 4*MIN_ARENA_SIZE) {
     size = 4*MIN_ARENA_SIZE;
   }
-    exit_cell_space(cspace);
     while (HR + size > ASP - MIN_ARENA_SIZE) {
       XREGS[arity + 1] = arena;
       if (!Yap_gcl(size * sizeof(CELL), arity + 1, ENV, gc_P(P, CP))) {
@@ -295,10 +294,10 @@ static Term GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
       arena = XREGS[arity + 1];
       adjust_cps(size PASS_REGS);
   }
-    pt = ArenaLimit(arena)+1;
+    pt = ArenaLimit(arena);
     sz = old_size + size;
     if (pt == HR) {
-      HR += size+1;
+      HR += size;
       HR[ - 1] = EndSpecials;
     } else {
         if ((sz = Yap_InsertInGlobal(pt, size * sizeof(CELL))) == 0) {
@@ -669,12 +668,13 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                             size_t min_grow USES_REGS) {
   size_t old_size = ArenaSz(arena);
   cell_space_t cspace;
-  enter_cell_space( & cspace);
   int res = 0;
   Term tn;
+  int restarts = 0;
 
 restart:
   t = Deref(t);
+    enter_cell_space( & cspace);
   if (IsVarTerm(t)) {
     ASP = ArenaLimit(arena);
     HR = HB = ArenaPt(arena);
@@ -819,6 +819,8 @@ error_handler:
     case -1:
       if (arena == LOCAL_GlobalArena)
         LOCAL_GlobalArenaOverflows++;
+      restarts++;
+      min_grow += (restarts < 16 ? 16*1024*restarts*restarts : 128*1024*1024);
       if ((arena=GrowArena(arena, old_top, old_size, min_grow, arity + 3, &cspace PASS_REGS))==0) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
@@ -1678,8 +1680,10 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   if (!qd)
     return FALSE;
   arena = GetQueueArena(qd, "enqueue");
-  if (arena == 0L)
-    return FALSE;
+  if (arena == 0L) {
+      return FALSE;
+  }
+
   if (IsPairTerm(qd[QUEUE_HEAD])) {
     min_size = ArenaPt(arena) - RepPair(qd[QUEUE_HEAD]);
   } else {

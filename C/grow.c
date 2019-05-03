@@ -896,9 +896,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   Int size = request/sizeof(CELL);
   char vb_msg1 = '\0', *vb_msg2;
   bool do_grow = true;
-
-  printf("request=%ld at %p, shift %p, %ld <-> %ld\n",request, hsplit, ptr,hsplit-H0,HR-hsplit);
-
   /*
     request is the amount of memory we requesd, in bytes;
     base_move is the shift in global stacks we had to do
@@ -911,8 +908,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     if (hsplit < H0 ||
 	hsplit > HR)
       return false;
-    if (hsplit == H0)
-      hsplit = NULL;
     if (hsplit == HR && Unsigned(HR)+request < Unsigned(ASP)-StackGap( PASS_REGS1 )) {
        return request;
     }
@@ -1533,7 +1528,6 @@ UInt
 Yap_InsertInGlobal(CELL *where, size_t howmuch)
 {
   CACHE_REGS
-    printf("where=%p, hm=%d\n",where,howmuch);
   if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
     return 0;
 #ifdef TABLING
