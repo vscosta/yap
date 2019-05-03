@@ -334,7 +334,7 @@ prolog_file_name(File, PrologFileName) :-
 	system:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
 	'$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
-:- start_low_level_trace.
+
 /**
   @pred path(-Directories:list) is det,deprecated
 
@@ -344,7 +344,7 @@ prolog_file_name(File, PrologFileName) :-
 */
 path(Path) :-
 	findall(X,'$in_path'(X),Path).
-:- stop_low_level_trace.
+
 
 '$in_path'(X) :-
 	recorded('$path',Path,_),

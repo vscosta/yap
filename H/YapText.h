@@ -46,22 +46,31 @@ extern const void *MallocExportAsRO(const void *blk);
 /* Character types for tokenizer and write.c */
 extern int AllocLevel(void);
 
+#if 0
 #define push_text_stack()						\
   ( fprintf(stderr, " + *** %d %s:%s:%d\n", AllocLevel(),		\
          __FILE__,  __FUNCTION__, __LINE__), 	    \
    push_text_stack__(PASS_REGS1))
-extern int push_text_stack__(USES_REGS1);
 
-#define pop_text_stack(lvl)						\
+   #define pop_text_stack(lvl)						\
   ( fprintf(stderr, " - *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
      __FUNCTION__, __LINE__),						\
-   pop_text_stack__(lvl))
-extern int pop_text_stack__(int lvl USES_REGS);
+   pop_text_stack__(lvl PASS_REGS))
 
-#define pop_output_text_stack(lvl,p)					\
+   #define pop_output_text_stack(lvl,p)					\
   (fprintf(stderr, "-- *** %d %s:%s:%d\n", AllocLevel(), __FILE__,	\
      __FUNCTION__, __LINE__),					\
    pop_output_text_stack__(lvl,p))
+#else
+#define push_text_stack() push_text_stack__(PASS_REGS1)
+#define pop_text_stack(lvl)	 pop_text_stack__(lvl PASS_REGS)
+#define pop_output_text_stack(lvl,p) pop_output_text_stack__(lvl,p PASS_REGS)
+#endif
+
+extern int push_text_stack__(USES_REGS1);
+extern int pop_text_stack__(int lvl USES_REGS);
+
+
 extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
 
 /****************** character definition table **************************/

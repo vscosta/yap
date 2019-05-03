@@ -1550,7 +1550,6 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
     cell_space_t cspace;
   Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
   Term t = Deref(ARG1);
-enter_cell_space(&cspace);
   LOCAL_DepthArenas++;
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
@@ -1565,13 +1564,14 @@ enter_cell_space(&cspace);
     return FALSE;
   if (arena_sz < 32 * 1024)
     arena_sz = 32 * 1024;
+    enter_cell_space(&cspace);
   queue_arena = NewArena(arena_sz, worker_id, 1, NULL, &cspace);
   if (queue_arena == 0L) {
     return FALSE;
   }
   nar = RepAppl(Deref(ARG1)) + 1;
   nar[QUEUE_ARENA] = queue_arena;
-  return TRUE;
+  return true;
 }
 
 static Int p_nb_queue(USES_REGS1) {
