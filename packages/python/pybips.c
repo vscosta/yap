@@ -112,12 +112,12 @@ find_obj(PyObject *ob, term_t l, bool eval) {
   YAP_Term hd, yt;
 
   py_Context = NULL;
-  yt = YAP_GetFromSlot(l);
   // Yap_DebugPlWriteln(yt);
-  while (YAP_IsPairTerm(yt)) {
+  if (l == 0)
+    return Py_None;
+  while (YAP_IsPairTerm((yt = YAP_GetFromSlot(l)))) {
     hd = YAP_HeadOfTerm(yt);
-    yt = YAP_TailOfTerm(yt);
-    YAP_PutInSlot(l, yt);
+    Yap_PutInHandle(l, YAP_TailOfTerm(yt));
     ob = yap_to_python(hd, true, ob, false);
     if (!ob) {
       return Py_None;

@@ -39,7 +39,6 @@ class X_API YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
   yhandle_t q_handles;
-  struct yami *q_p, *q_cp;
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPPairTerm names;
@@ -54,10 +53,10 @@ class X_API YAPQuery : public YAPPredicate {
     q_state = 0;
     q_flags = true; // PL_Q_PASS_EXCEPTION;
 
-    q_p = P;
-    q_cp = CP;
+    q_h.p = P;
+    q_h.cp = CP;
     // make sure this is safe
-    q_handles = LOCAL_CurSlot;
+    q_h.CurSlot = LOCAL_CurSlot;
   };
 
   void openQuery();
@@ -321,7 +320,6 @@ private:
   YAPCallback *_callback;
   YAPError yerror;
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
-  YAP_dogoalinfo q;
   YAPError e;
   PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
 

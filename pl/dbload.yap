@@ -91,7 +91,7 @@ check_dbload_stream(R, M0) :-
 	).
 
 dbload_count(T0, M0) :-
-	gemodule(T0,M0,T,M),
+	'$yap_strip_module'(M0:T0,M,T),
 	functor(T,Na,Arity),
 %	dbload_check_term(T),
 	(
@@ -105,10 +105,6 @@ dbload_count(T0, M0) :-
 	    nb_setval(NaAr,1)
 	).
 
-get_module(M1:T0,_,T,M) :- !,
-	get_module(T0, M1, T , M).
-get_module(T,M,T,M).
-
 
 load_facts :-
 	!, % yap_flag(exo_compilation, on), !.
@@ -116,7 +112,7 @@ load_facts :-
 load_facts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
 	nb_getval(NaAr,Size),
-	dbload_get_space(T, M, Size, Handle),
+	prolog:'$dbload_get_space'(T, M, Size, Handle),
 	assertz(dbloading(Na,Arity,M,T,NaAr,Handle)),
 	nb_setval(NaAr,0),
 	fail.
@@ -137,13 +133,13 @@ dbload_add_facts(R, M) :-
 	).
 
 dbload_add_fact(T0, M0) :-
-	get_module(T0,M0,T,M),
+	'$yap_strip_module'(M0:T0,M,T),
 	functor(T,Na,Arity),
 	dbloading(Na,Arity,M,_,NaAr,Handle),
 	nb_getval(NaAr,I0),
 	I is I0+1,
 	nb_setval(NaAr,I),
-	dbassert(T,Handle,I0).
+	prolog:'$dbassert'(T,Handle,I0).
 
 load_exofacts :-
 	retract(dbloading(Na,Arity,M,T,NaAr,_)),
@@ -174,7 +170,7 @@ protected_exodb_add_fact(R, M) :-
 	).
 
 exodb_add_fact(T0, M0) :-
-	get_module(T0,M0,T,M),
+	'$yap_strip_module'(T0,M0,T,M),
 	functor(T,Na,Arity),
 	dbloading(Na,Arity,M,_,NaAr,Handle),
 	nb_getval(NaAr,I0),

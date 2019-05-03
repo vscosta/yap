@@ -942,6 +942,11 @@ function. */
 #cmakedefine HAVE_MPI_H ${HAVE_MPI_H}
 #endif
 
+/* Define to 1 if you have the <mtrace> glibc extension. */
+#ifndef HAVE_MPI_H
+#cmakedefine HAVE_MTRACE ${HAVE_TRACE}
+#endif
+
 /* Older versions of MPZ didn't have XOR */
 #ifndef HAVE_MPZ_XOR
 #cmakedefine HAVE_MPZ_XOR ${HAVE_MPZ_XOR}

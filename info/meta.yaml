@@ -15,7 +15,6 @@ requirements:
     - r
     - notebook
     - pkgconfig
-    - make
     - libxml2
 run:
     - jupyterlab

@@ -956,7 +956,7 @@ prolog:message( r_root ) -->
 
 
 eval_text( Text ) :-
-    atomic_to_term( Text, Goal, VarNames ),
+    atomic_to_term( Text, Goal, _VarNames ),
     call(user:Goal).
 
 :- at_halt(halt_r).

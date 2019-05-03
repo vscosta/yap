@@ -1579,6 +1579,7 @@ void Yap_InitCPreds(void) {
   Yap_InitGlobals();
   Yap_InitInlines();
   Yap_InitIOPreds();
+  Yap_InitDBLoadPreds();
   Yap_InitExoPreds();
   Yap_InitLoadForeign();
   Yap_InitModulesC();

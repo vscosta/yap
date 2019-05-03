@@ -133,7 +133,7 @@ undefined_query(G0, M0, Cut) :-
 %  we found an import, and call again
 %  we have user code in the unknown_predicate
 %  we fail, output a message, and just generate an exception.
-'$undefp'([M0|G0],ok) :-
+'$undefp'([M0|G0],_) :-
     '$search_undef'(M0:G0, M:G),
 	'$trace'(M:G).
 

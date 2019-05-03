@@ -465,6 +465,8 @@ extern yap_error_descriptor_t *Yap_bug_location(yap_error_descriptor_t *t, yamop
 extern yap_error_descriptor_t *Yap_pc_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env); 
 extern yap_error_descriptor_t * Yap_env_add_location(yap_error_descriptor_t *t, void *p, void *b_ptr, void *env, YAP_Int ignore_first);
 
+void Yap_split_megaclause(PredEntry *ap);
+
 #if LOW_PROF
 void Yap_InformOfRemoval(void *);
 void Yap_dump_code_area_for_profiler(void);
