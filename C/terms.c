@@ -241,9 +241,9 @@ if (IS_VISIT_MARKER) {			\
 #define def_overflow() 				\
   def_aux_overflow(); \
   def_global_overflow();			\
-  def_trail_overflow() 
+  def_trail_overflow()
 
-       
+
 #define CYC_APPL				\
 if (IS_VISIT_MARKER) {			\
   while (to_visit > to_visit0) {		\
@@ -259,7 +259,7 @@ if (IS_VISIT_MARKER) {			\
 
 static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -315,7 +315,7 @@ static int cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit, *to_visit_max;
  int lvl;
- 
+
  reset:
   lvl = push_text_stack();
   pt0 = pt0_, pt0_end = pt0_end_;
@@ -433,7 +433,7 @@ return rc;
 
 def_overflow();
 
- 
+
 }
 
 Term Yap_CyclesInTerm(Term t USES_REGS) {
@@ -473,7 +473,7 @@ static Int cycles_in_term(USES_REGS1) /* cyclic_term(+T)		 */
 
 static bool ground_complex_term(CELL * pt0_, CELL * pt0_end_ USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -527,7 +527,7 @@ static Int ground(USES_REGS1) /* ground(+T)		 */
 static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
   Term v USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -611,10 +611,10 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
    }
    inp = TailOfTerm(inp);
  }
-  
+
   CELL output = AbsPair(HR);
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -781,7 +781,7 @@ typedef struct att_rec {
 static Term attvars_in_complex_term(
   CELL *pt0_, CELL *pt0_end_ , Term inp USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -852,7 +852,7 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 static Term new_vars_in_complex_term(
  CELL *pt0_, CELL *pt0_end_ , Term inp USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -866,13 +866,14 @@ static Term new_vars_in_complex_term(
       if (IsVarTerm(t)) {
 	n++;
 	TrailTerm(TR++) = t;
+	TrailTerm(TR++) = t;
 	*VarOfTerm(t) = TermFoundVar;
 	if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
 	  size_t expand = (tr_fr_ptr)LOCAL_TrailTop - TR;
 	  clean_tr(TR0 PASS_REGS);
 	  *HR++ = inp0;
-	  /* Trail overflow */  
-	  if (!Yap_growtrail(expand, false)) { 
+	  /* Trail overflow */
+	  if (!Yap_growtrail(expand, false)) {
 	    Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, expand);
 	  }
 	  inp = *--HR;
@@ -894,7 +895,7 @@ if (HR + 1024 > ASP) {
 }
 END_WALK();
 
-clean_tr(TR0-n PASS_REGS);
+clean_tr(TR0 PASS_REGS);
 pop_text_stack(lvl);
 
 return output;
@@ -944,12 +945,12 @@ static Term vars_within_complex_term(
   Int n=0;
   CELL output = AbsPair(HR);
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
- 
+
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
@@ -968,7 +969,7 @@ static Term vars_within_complex_term(
  goto restart;
  END_WALK();
 
- clean_tr(TR0-n PASS_REGS);
+ clean_tr(TR0 PASS_REGS);
  pop_text_stack(lvl);
  if (HR != InitialH) {
   HR[-1] = TermNil;
@@ -1036,7 +1037,7 @@ static Int free_variables_in_term(
   else {
     out = new_vars_in_complex_term(&(t)-1, &(t), Yap_TermVariables(bounds, 3) PASS_REGS);
   }
-  
+
 if (found_module && t != t0) {
   Term ts[2];
   ts[0] = found_module;
@@ -1058,7 +1059,7 @@ return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 static Term non_singletons_in_complex_term(CELL * pt0_,
   CELL * pt0_end_ USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -1132,7 +1133,7 @@ if (singles) {				\
 static Int numbervars_in_complex_term(CELL * pt0_, CELL * pt0_end_, Int numbv,
   int singles USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -1220,7 +1221,7 @@ if (FunctorOfTerm(d0) == FunctorDollarVar) {			\
 static int max_numbered_var(CELL * pt0_, CELL * pt0_end_,
  Int * maxp USES_REGS) {
  CELL *pt0, *pt0_end;
- int lvl;  
+ int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
@@ -1365,7 +1366,7 @@ Int cp_link(Term t, Int i, Int j, cl_connector * q, Int max, CELL * tailp) {
     if (IsVarTerm(ref)) {
       q[i].copy[j] = ref;
       // fprintf(stderr," - %p\n", ref);
-    }  
+    }
    else {
     Term v = 	UNFOLD_LOOP(ref, tailp);
     q[i].copy[j] = v;
