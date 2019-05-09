@@ -1437,7 +1437,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         ch = getchr(st);
       }
       add_ch_to_buff('\0');
-      if (!isvar) {
+      if (!isvar || (ch == '(' && trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) ) ) {
         Atom ae;
         /* don't do this in iso */
         ae = Yap_LookupAtom(TokImage);
@@ -1585,7 +1585,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
 	  charp = (unsigned char *)TokImage+sz;
           break;
         }
-        if (ch == 10 && trueGlobalPrologFlag(ISO_FLAG)) {
+        if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
+			 trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;

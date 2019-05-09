@@ -53,21 +53,6 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
              "allow_assert_for_static_predicates", true, booleanFlag, "true",
              NULL),
 
- /**<
-
-              boolean flag allows syntax such
-              as
-              ~~~
-              Tree(Node(L,node,R)) :-
-                   Tree(L),
-              Tree(R).
-              ~~~
-           */
-  YAP_FLAG(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG,
-             "allow_variable_name_as_functor", false, booleanFlag, "false",
-             NULL),
-
-
 /**<  how to present answers, default is `~p`. */
   YAP_FLAG(ANSWER_FORMAT_FLAG, "answer_format", true, isatom, "~p", NULL),
  /**<

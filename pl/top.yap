@@ -444,10 +444,12 @@ write_query_answer( Bindings ) :-
 
 '$purge_dontcares'([],[]).
 '$purge_dontcares'([Name=_|Vs],NVs) :-
-	atom_codes(Name, [C|_]), C is "_", !,
-	'$purge_dontcares'(Vs,NVs).
+    atom_codes(Name, [C|_]),
+    C is "_",
+    !,
+    '$purge_dontcares'(Vs,NVs).
 '$purge_dontcares'([V|Vs],[V|NVs]) :-
-	'$purge_dontcares'(Vs,NVs).
+    '$purge_dontcares'(Vs,NVs).
 
 
 '$prep_answer_var_by_var'([], L, L).
@@ -577,10 +579,10 @@ write_query_answer( Bindings ) :-
 
 '$user_call'(G, CP, G0, M) :-
         gated_call(
-                '$enable_debugging',
-                '$call'(G, CP, G0, M),
-	         Port,
-  	         '$disable_debugging_on_port'(Port)
+	    '$enable_debugging',
+            '$call'(G, CP, G0, M),
+	    Port,
+  	    '$disable_debugging_on_port'(Port)
        ).
     
 
@@ -772,8 +774,6 @@ Command = (H --> B) ->
   !.
 '$boot_clause'( Command, _ ) :-
   format(user_error, ' ~w failed.~n', [Command]).
-
-
 
 '$enter_command'(Stream, Mod, Status) :-
     prompt1(': '), prompt(_,'     '),

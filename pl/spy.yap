@@ -393,7 +393,16 @@ notrace(G) :-
 	fail
     ).
 
-'$disable_debugging_on_port'(retry) :-
+'$creep_at_port'(retry) :-
+    current_prolog_flag(debug, true),
+   '__NB_getval__'('$trace',Trace,fail),
+    Trace = on,
+    !,
+    '$enable_debugging'.
+'$creep_at_port'(fail) :-
+    current_prolog_flag(debug, true),
+   '__NB_getval__'('$trace',Trace,fail),
+    Trace = on,
     !,
     '$enable_debugging'.
 '$disable_debugging_on_port'(_Port) :-
@@ -401,19 +410,52 @@ notrace(G) :-
 
 
 
-% enable creeping
-'$enable_debugging':-
-    current_prolog_flag(debug, false), !.
-'$enable_debugging' :-
-   '__NB_getval__'('$trace',Trace,fail),
-	nb_setval('$debug_status', state(creep, 0, stop,Trace)),
-    Trace =  on, !,
-    '$creep'.
-'$enable_debugging'.
+%% @pred $enter_debugging(G,Mod,CP,G0,NG)
+%%
+%% Internal predicate called by top-level;
+%% enable creeping on a goal by just switching execution to debugger.
+%%
+'$enter_debugging'(G,Mod,CP,G0,NG) :-
+    '$creep_is_on_at_entry'(G,Mod),
+    !,
+    '$trace_query'(G,Mod,CP,G0,NG).
+'$enter_debugging'(G,_Mod,_CP,_G0,G).
 
+%% we're coming back from external code to a debugger call.
+%%
+'$reenter_debugger'(retry) :-
+    '$re_enter_creep_mode'.
+'$reenter_debugger'(_) :-
+    set_current_flag(debug, false).
+
+%% @pred $re_enter_creep_mode1
+%%
+%% Internal predicate called when exiting through a port;
+%% enable creeping on the next goal.
+%%
+'$re_enter_creep_mode' :-
+    '$creep_is_on',
+    !,
+    '$creep'.
+'$re_enter_creep_mode'.
+
+'$continue_debugging'(exit) :-
+    !,
+    '$re_enter_creep_mode'.
+'$continue_debugging'(answer) :-
+    !,
+    '$re_enter_creep_mode'.
+'$continue_debugging'(fail) :-
+    !,
+    '$re_enter_creep_mode',
+'$continue_debugging'(_).
+
+'$enable_debugging' :-
+    '$re_enter_creep_mode'.
+    
 '$trace_on' :-
     '__NB_getval__'('$debug_status', state(_Creep, GN, Spy,_), fail),
-  '__NB_setval__'('$trace',on),
+    nb_setval('$trace',on),
     nb_setval('$debug_status', state(creep, GN, Spy, on)).
 
 '$trace_off' :-
@@ -438,6 +480,22 @@ notrace(G) :-
     GN > GN0
    ). 
 
+%%
+%
+'$creep_is_on' :-
+    current_prolog_flag(debug, true),
+    '__NB_getval__'('$debug_status',state(Step, _GN, _Spy,_), fail),
+    Step \= zip.
+
+'$creep_is_on_at_entry'(G,M) :-
+    current_prolog_flag(debug, true),
+    '__NB_getval__'('$debug_status',state(Step, _GN, Spy,_), fail),
+    (
+	Step \= zip
+    ;
+    Spy == stop,
+    '$pred_being_spied'(G,M)
+    ).
 
 /*
 

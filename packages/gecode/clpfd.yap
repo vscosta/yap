@@ -72,6 +72,7 @@ Constraints supported are:
                   (#\/)/2,
                   (#/\)/2,
                   in/2 ,
+                  fd_in/2 ,
                   ins/2,
 		  boolvar/1,
 		  boolvars/1,
@@ -80,7 +81,7 @@ Constraints supported are:
                   all_distinct/2,
 		  maximize/1,
 		  minimize/1,
-                  sum/3,
+                  sum/3, fd_sum/3,
                   lex_chain/1,
 		  minimum/2,
 		  min/2,
@@ -232,6 +233,7 @@ The product of constant  _Cs_ by  _Vs_ must be in relation
 
 :- reexport(library(matrix), [(<==)/2, op(800, xfx, '<=='),
 	    op(700, xfx, in),
+	    op(700, xfx, fd_in),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
 	    op(710, xfx, of),
@@ -258,13 +260,13 @@ constraint( (_ #<==> _) ).
 constraint( (_ #==> _) ).
 constraint( (_ #<== _) ).
 constraint( (_ #\/ _) ).
-constraint( (_ #/\ _) ).
 constraint( in(_, _) ). %2,
 constraint( ins(_, _) ). %2,
 constraint( all_different(_) ). %1,
 constraint( all_distinct(_) ). %1,
 constraint( all_distinct(_,_) ). %1,
 constraint( sum(_, _, _) ). %3,
+constraint( fd_sum(_, _, _) ). %3,
 constraint( scalar_product(_, _, _, _) ). %4,
 constraint( min(_, _) ). %2,
 constraint( minimum(_, _) ). %2,
@@ -297,12 +299,16 @@ constraint( fd_dom(_, _) ). %2
 constraint( clause(_, _, _, _) ). %2
 
 
-process_constraints((B0,B1), (NB0, NB1), Env) :-
-	process_constraints(B0, NB0, Env),
-	process_constraints(B1, NB1, Env).
-process_constraints(B, B, env(_Space)) :-
+process_constraints(V, V, _Env, _) :-
+    var(V), !.
+process_constraints((B0,B1), (NB0, NB1), Env, L) :-
+	process_constraints(B0, NB0, Env, L),
+	process_constraints(B1, NB1, Env,L).
+process_constraints(labeling(A,B),labeling(A, B), env(_Space),true) :-
+	!.
+process_constraints(B, B, env(_Space),_) :-
 	constraint(B), !.
-process_constraints(B, B, _Env).
+process_constraints(B, B, _Env,_).
 %	process_constraint(B, NB, Space).
 
 ( A #= B) :-
@@ -385,6 +391,8 @@ sum( L, Op, V) :-
 	check(L, NL),
 	check(V, NV),
 	post( rel(sum(NL), Op, NV), Env, _).
+fd_sum( L, Op, V) :-
+	sum( L, Op, V).
 ( ( A #<==> VBool )) :-
 	get_home(Space-Map),
 	check(A, NA),
@@ -439,6 +447,12 @@ sum( L, Op, V) :-
 	post(NA2, Space-Map, R2),
 	Space += rel(B1, B2, 'BOT_AND', 1).
 ( X in A..B) :-
+	get_home(Space-Map),
+	check(A, NA),
+	check(B, NB),
+	m(X, NX, NA, NB, Map),
+	NX := intvar(Space, NA, NB).
+( X fd_in A..B) :-
 	get_home(Space-Map),
 	check(A, NA),
 	check(B, NB),
@@ -580,6 +594,7 @@ check(V, NV) :-
 	  V = '$matrix'(_, _, _, _, C) -> C =.. [_|L], maplist(check, L, NV)  ;
 	  V = A+B -> check(A,NA), check(B, NB), NV = NB+NA ;
 	  V = A-B -> check(A,NA), check(B, NB), NV = NB-NA ;
+	  V in Domain -> V fd_in Domain, V=NV ;
 	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ;
 	  constraint(V) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
 
@@ -859,7 +874,6 @@ linearize(AC, C, [A|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
 	Env = _-Map,
 	l(V, A, Map).
 
-arith('/\\'(_,_), (/\)).
 arith('\\/'(_,_), (\/)).
 arith('=>'(_,_), (=>)).
 arith('<=>'(_,_), (<=>)).
@@ -869,6 +883,7 @@ arith(min(_), min).
 arith(max(_), max).
 arith(min(_,_), min).
 arith(max(_,_), max).
+arith((_ - _), minus).
 arith((_ * _), times).
 arith((_ / _), div).
 arith(sum(_), sum).
@@ -1208,7 +1223,8 @@ in_c_l(Env, V, IV) :-
 	in_c(V, IV, Env).
 
 user:term_expansion( ( H :- B), (H :- (gecode_clpfd:init_gecode(Space, Me), NB, gecode_clpfd:close_gecode(Space, Vs, Me)) ) ) :-
-	process_constraints(B, NB, Env),
+    process_constraints(B, NB, Env, Labeling),
+    nonvar(Labeling),
 	term_variables(H, Vs),
 	nonvar( Env ), !,
 	Env = env( Space ).
@@ -1266,6 +1282,11 @@ attr_unify_hook(v(IV1,_,_), Y) :-
 
 %       Translate attributes from this module to residual goals
 
+
+attribute_goals(X) -->
+		{ get_attr(X, gecode_clpfd, v(_,0,1)) },
+		!,
+		[boolvar(X)].
 attribute_goals(X) -->
         { get_attr(X, gecode_clpfd, v(_,A,B)) },
         [X in A..B].
