@@ -14,11 +14,9 @@
 * comments:	YAP debugger						 *
 *									 *
 *************************************************************************/
-
-
-:- system_module( '$_debug', [], ['$trace_query'/4,
-        '$init_debugger'/0,
-        '$skipeol'/1]).
+:- system_module('$_debug',
+                 [],
+                 ['$trace_query'/4, '$init_debugger'/0, '$skipeol'/1]).
 
 
 
@@ -489,15 +487,10 @@ be lost.
     ).
 % system_
 '$trace_goal__'(G,M, GoalNumber, H) :-
-    !, 
+    '$enter_trace'(GoalNumber, G, M, H),
      gated_call(
-	 '$enter_trace'(GoalNumber, G, M, H),
-	( '$creep_is_on_at_entry'(G,M)
-	->
-	'$execute_nonstop'(('$creep',G),M)
-	;
-	'$execute_nonstop'(G,M)
-	),
+         true,
+	'$execute_nonstop'(G,M),
 	 Port,
 	 '$trace_port'(Port, GoalNumber, G, M, true, H)
      ).
@@ -580,17 +573,12 @@ be lost.
     '$trace_port_'(redo, GoalNumber, G, Module, Info).
 
 '$trace_port'(Port, GoalNumber, G, Module, _CalledFromDebugger, Info) :-
-    '$stop_creeping'(_) ,
-    current_prolog_flag(debug, true),
-    '__NB_getval__'('$debug_status',state(Skip,Border,_,Trace), fail),
-    ( Skip == creep -> true;
-      '$stop_creeping'(_) ,
-      '$id_goal'(GoalNumber),
-      GoalNumber =< Border),
+    '$trace_off',
     !,
-    '__NB_setval__'('$debug_status', state(creep, 0, stop,Trace)),
-    '$trace_port_'(Port, GoalNumber, G, Module, Info).
-'$trace_port'(_Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info).
+    '$trace_port_'(Port, GoalNumber, G, Module, Info),
+    '$continue_debugging'(Port).
+'$trace_port'(Port, _GoalNumber, _G, _Module, _CalledFromDebugger, _Info) :-
+    '$continue_debugging'(Port).
 
 '$trace_port_'(call, GoalNumber, G, Module, Info) :-
     '$port'(call,G,Module,GoalNumber,deterministic, Info).
@@ -737,12 +725,8 @@ be lost.
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
 	read(debugger_input, G),
 	% don't allow yourself to be caught by creep.
-	current_prolog_flag(debug, OldDeb),
-	set_prolog_flag(debug, false),
 	ignore( G ),
-	% at this point we are done with leap or skip
-	set_prolog_flag(debug, OldDeb),
-%	skip( debugger_input, 10),                        % '
+	skip( debugger_input, 10),                        % '
 	fail.
 '$action'(<,_,_,_,_,_) :- !,			% <'Depth
 	'$new_deb_depth',
