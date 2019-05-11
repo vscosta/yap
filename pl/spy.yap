@@ -415,6 +415,20 @@ notrace(G) :-
     '$trace_query'(G,Mod,CP,G0,NG).
 '$enter_debugging'(G,_Mod,_CP,_G0,G).
 
+'$enter_debugging'(G,Mod,GN) :-
+    çurrent_prolog_flag( debug, Deb ),
+    '__NB_set_value__'( debug, Deb ),
+    ( Deb = false
+    ->
+    true
+    ;
+    '$creep_is_on_at_entry'(G,Mod,GN)
+    ->
+    '$creep'
+    ;
+    true
+    ).
+
 %% we're coming back from external code to a debugger call.
 %%
 '$reenter_debugger'(retry) :-
@@ -444,13 +458,10 @@ notrace(G) :-
 %% enable creeping on the next goal.
 %%
 '$re_enter_creep_mode' :-
-    '__NB_getval__'(debug, true, fail),
     !,
     '$creep'.
 '$re_enter_creep_mode'.
 
-'$creep_is_off'(_,_) :-
-    '__NB_getval__'(debug, false, fail), !.
 '$creep_is_off'(Module:G, GN0) :-
     '__NB_getval__'('$debug_status',state(zip, GN, Spy,_), fail),
     (
@@ -469,12 +480,10 @@ notrace(G) :-
 %%
 %
 '$creep_is_on' :-
-    '__NB_getval__'(debug, true, fail),
     '__NB_getval__'('$debug_status',state(Step, _GN, _Spy,_), fail),
     Step \= zip.
 
-'$creep_is_on_at_entry'(G,M) :-
-	'__NB_getval__'(debug, true, fail),
+'$creep_is_on_at_entry'(G,M,GoalNo) :-
 	\+ '$system_predicate'(G,M),
     '__NB_getval__'('$debug_status',state(Step, _GN, Spy,_), fail),
     (
@@ -492,7 +501,6 @@ notrace(G) :-
 
 '$trace_off' :-
 '__NB_getval__'('$debug_status', state(_Creep, GN, Spy, Trace),fail),
-'__NB_setval__'(debug,false),
 nb_setval('$debug_status', state(zip, GN, Spy,Trace)).
 
 /*

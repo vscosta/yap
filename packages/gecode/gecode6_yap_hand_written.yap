@@ -288,7 +288,7 @@ is_IntVar_('IntVar'(I,K),N) :-
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
 is_FloatVar_('FloatVar'(I,K),N) :-
-    integer(I),
+   integer(I),
     integer(K),
     nb_getval(gecode_space_use_keep_index,B),
     (B=true -> N=K ; N=I).
@@ -479,6 +479,30 @@ is_IntVarBranch_(X, X) :-
 is_IntVarBranch(X,Y) :- nonvar(X), is_IntVarBranch_(X,Y).
 is_IntVarBranch(X) :- is_IntVarBranch(X,_).
 
+%% Var and Val Branching changed in Gecode 4 to be done as a set of functions,
+%%% not as an enum.
+
+is_BoolVarBranch_('BOOL_VAR_NONE').
+is_BoolVarBranch_('BOOL_VAR_RND'(_)).
+%is_BoolVarBranch_('BOOL_VAR_MERIT_MIN'(_)).
+%is_BoolVarBranch_('BOOL_VAR_MERIT_MAX'(_)).
+is_BoolVarBranch_('BOOL_VAR_DEGREE_MIN').
+is_BoolVarBranch_('BOOL_VAR_DEGREE_MAX').
+is_BoolVarBranch_('BOOL_VAR_MAX_MIN').
+is_BoolVarBranch_('BOOL_VAR_MAX_MAX').
+is_BoolVarBranch_('BOOL_VAR_AFC_MIN'(_)).
+is_BoolVarBranch_('BOOL_VAR_AFC_MAX'(_)).
+is_BoolVarBranch_('BOOL_VAR_ACTION_MIN'(_)).
+is_BoolVarBranch_('BOOL_VAR_ACTION_MAX'(_)).
+is_BoolVarBranch_('BOOL_VAR_CHB_MIN'(_)).
+is_BoolVarBranch_('BOOL_VAR_CHB_MAX'(_)).
+
+is_BoolVarBranch_(X, X) :-
+	is_BoolVarBranch_(X).
+
+is_BoolVarBranch(X,Y) :- nonvar(X), is_BoolVarBranch_(X,Y).
+is_BoolVarBranch(X) :- is_BoolVarBranch(X,_).
+
 is_SetVarBranch_('SET_VAR_NONE').
 is_SetVarBranch_('SET_VAR_RND'(_)).
 is_SetVarBranch_('SET_VAR_MERIT_MIN'(_)).
@@ -556,6 +580,16 @@ is_IntValBranch_(X,X) :- is_IntValBranch_(X).
 
 is_IntValBranch(X,Y) :- nonvar(X), is_IntValBranch_(X,Y).
 is_IntValBranch(X) :- is_IntValBranch(X,_).
+
+is_BoolValBranch_('BOOL_VAL_RND'(_)).
+is_BoolValBranch_('BOOL_VAL'(_,_)).
+is_BoolValBranch_('BOOL_VAL_MIN').
+is_BoolValBranch_('BOOL_VAL_MAX').
+
+is_BoolValBranch_(X,X) :- is_BoolValBranch_(X).
+
+is_BoolValBranch(X,Y) :- nonvar(X), is_BoolValBranch_(X,Y).
+is_BoolValBranch(X) :- is_BoolValBranch(X,_).
 
 is_SetValBranch_('SET_VAL_RND_INC'(_)).
 is_SetValBranch_('SET_VAL_RND_EXC'(_)).

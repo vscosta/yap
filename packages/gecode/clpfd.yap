@@ -260,7 +260,7 @@ constraint( (_ #<==> _) ).
 constraint( (_ #==> _) ).
 constraint( (_ #<== _) ).
 constraint( (_ #\/ _) ).
-constraint( in(_, _) ). %2,
+constraint( fd_in(_, _) ). %2,
 constraint( ins(_, _) ). %2,
 constraint( all_different(_) ). %1,
 constraint( all_distinct(_) ). %1,
@@ -292,7 +292,7 @@ constraint( zcompare(_, _, _) ). %3,
 constraint( chain(_, _) ). %2,
 constraint( element(_, _) ). %2,
 constraint( fd_var(_) ). %1,
-constraint( fd_inf(_, _) ). %2,
+sconstraint( fd_inf(_, _) ). %2,
 constraint( fd_sup(_, _) ). %2,
 constraint( fd_size(_, _) ). %2,
 constraint( fd_dom(_, _) ). %2
@@ -453,6 +453,7 @@ fd_sum( L, Op, V) :-
 	m(X, NX, NA, NB, Map),
 	NX := intvar(Space, NA, NB).
 ( X fd_in A..B) :-
+    var(X),
 	get_home(Space-Map),
 	check(A, NA),
 	check(B, NB),
@@ -549,6 +550,22 @@ clause( or, Ps, Ns, V ) :-
 	check(V, NV),
 	post(clause( 'BOT_OR', NPs, NNs, NV), Env, _ ).
 
+bool_labeling(Opts, Xs) :-
+	get_home(Space-Map),
+	foldl2( processs_bool_lab_opt, Opts, 'BOOL_VAR_DEGREE_MIN', BranchVar, 'BOOL_VAL_MIN', BranchVal),
+	term_variables(Xs, Vs),
+	check( Vs, X1s ),
+	( X1s == [] -> true ;
+	  maplist(ll(Map), X1s, NXs),
+	  Space += branch(NXs, BranchVar, BranchVal) ).
+
+processs_bool_lab_opt(leftmost, _, 'BOOL_VAR_NONE', BranchVal, BranchVal).
+processs_bool_lab_opt(min, _, 'BOOL_VAR_DEGREE_MIN', BranchVal, BranchVal).
+processs_bool_lab_opt(max, _, 'BOOL_VAR_DEGREE_MAX', BranchVal, BranchVal).
+processs_bool_lab_opt(min_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
+processs_bool_lab_opt(max_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
+processs_bool_lab_opt(enum, BranchVar, BranchVar, _, 'BOOL_VALUES_MIN').
+
 labeling(Opts, Xs) :-
 	get_home(Space-Map),
 	foldl2( processs_lab_opt, Opts, 'INT_VAR_SIZE_MIN', BranchVar, 'INT_VAL_MIN', BranchVal),
@@ -594,7 +611,9 @@ check(V, NV) :-
 	  V = '$matrix'(_, _, _, _, C) -> C =.. [_|L], maplist(check, L, NV)  ;
 	  V = A+B -> check(A,NA), check(B, NB), NV = NB+NA ;
 	  V = A-B -> check(A,NA), check(B, NB), NV = NB-NA ;
-	  V in Domain -> V fd_in Domain, V=NV ;
+	  V = A/\B -> check(A,NA), check(B, NB), NV = NB/\NA ;
+	  V = A\/B -> check(A,NA), check(B, NB), NV = NB\/NA ;
+	  V fd_in A..B, var(V) -> check(A,NA), check(B, NB), NV fd_in NB..NA ;
 	  arith(V, _) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ;
 	  constraint(V) -> V =.. [C|L], maplist(check, L, NL), NV =.. [C|NL] ).
 
@@ -678,9 +697,21 @@ post( rel( sum(Foreach, Cond), Op, Out), Space-Map, Reify):- !,
 	    Space += linear(Cs, IL, GOP, IOut);
 	 Space += linear(Cs, IL, GOP, IOut, Reify)
 	).
+post( rel( sum(L0), Op, Out), Space-Map, Reify):-
+!,
+    selectlist(var,L0,L,LC),
+    sumlist(LC,0),
+	( var(Out) -> l(Out, IOut, Map) ; integer(Out) -> IOut = Out ; equality(Out, NOut, Space-Map), l(NOut, IOut, Map) ),
+	maplist(ll(Map), [Out|L], [IOut|IL] ),
+	gecode_arith_op( Op, GOP ),
+	(L = [] -> true ;
+	 var(Reify) ->
+	    Space += linear(Cs, IL, GOP, IOut);
+	 Space += linear(Cs, IL, GOP, IOut, Reify)
+	).
 
 post( rel(A1+A2, Op, B), Space-Map, Reify):-
-	( nonvar(B) ; B = _ + _ ; B = _-_), !,
+	( var(B) ; B = _ + _ ; B = _-_), !,
 	linearize(A1+A2, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
 	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
 	gecode_arith_op( Op, GOP ),
@@ -697,7 +728,7 @@ post( rel(A1+A2, Op, B), Space-Map, Reify):-
 	).
 
 post( rel(A1-A2, Op, B), Space-Map, Reify):-
-	( nonvar(B) ; B = _ + _ ; B = _-_), !,
+    ( var(B) ; B = _ + _ ; B = _-_), !,
 	linearize(A1-A2, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
 	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
 	gecode_arith_op( Op, GOP ),
@@ -730,6 +761,15 @@ post( rel(A, Op, B), Space-Map, Reify):-
 	in_c(NA1, VA1,  Space-Map), !,
 	equality(B, B1,  Space-Map),
 	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
+
+post( rel(A1 \/ A2, Ope, B), Space-Map, Reify):-
+    !,
+	equality(A1, NA1,  Space-Map),
+	in_c(NA1, VA1,  Space-Map),
+	equality(A2, NA2,  Space-Map),
+	in_c(NA2, VA2,  Space-Map),
+	equality(B, B1,  Space-Map),
+	out_c('\\/', VA1, VA2, B1,  Op, Space-Map, Reify).
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
@@ -874,7 +914,6 @@ linearize(AC, C, [A|Bs], Bs, [C|CBs], CBs, I, I, Env) :-
 	Env = _-Map,
 	l(V, A, Map).
 
-arith('\\/'(_,_), (\/)).
 arith('=>'(_,_), (=>)).
 arith('<=>'(_,_), (<=>)).
 arith(xor(_,_), xor).
@@ -1010,7 +1049,8 @@ out_c(Name, A1, A2, B, Op, Space-Map, Reify) :-
 	).
 % X*Y #= Cin[..]
 out_c(Name, A1, A2, B,  (#=), Space-Map, Reify) :-
-	var(Reify),
+Name \= '\\/',
+    var(Reify),
 	l(B, IB, Map), !,
 	l(A1, IA1, Map),
 	l(A2, IA2, Map),

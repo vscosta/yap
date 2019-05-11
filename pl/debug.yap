@@ -310,7 +310,7 @@ be lost.
     '$trace_query'(G, Mod, CP, G, EG),
     gated_call(
 	'$debugger_io',
-	EG,
+	( '$enter_debugging'(G,Mod), EG ),
 	E,
 	'$continue_debugging'(E)
     ).
@@ -456,6 +456,26 @@ be lost.
 %%
 %% Actually debugs a
 %% goal!
+'$trace_goal'(G,M, GoalNumber, H) :-
+    '$is_source'(G,M),
+    '$current_choice_point'(CP),
+    !,
+    '$enter_trace'(GoalNumber, G, M, H),
+    gated_call(
+	true,
+	( '$enter_debugging'(G,M,GoalNumber)
+	->
+	% source mode
+	clause(M:G, B), '$trace_query'(B,M,CP,B,H)
+	;
+	'$execute_nonstop'(G,M)
+	),
+	Port,
+	(
+	    '$reenter_debugging'(Port,G,M,GoalNumber),
+	    '$trace_port'(Port, GoalNumber, G, M, true, H)
+	)
+    ).
 '$trace_goal'(G, M, GoalNumber, H) :-
         '$is_metapredicate'(G, prolog),
         !,
@@ -469,28 +489,16 @@ be lost.
     '$undefined'(G,M),
     !,
     '$undefp'([M|G], _).    
-'$trace_goal__'(G,M, GoalNumber, H) :-
-    '$is_source'(G,M),
-    '$current_choice_point'(CP),
-    !,
-    '$enter_trace'(GoalNumber, G, M, H),
-    gated_call(
-	true,
-	( '$creep_is_on_at_entry'(G,M)
-	->
-	clause(M:G, B), '$trace_query'(B,M,CP,B,H)
-	;
-	'$execute_nonstop'(G,M)
-	),
-	Port,
-	'$trace_port'(Port, GoalNumber, G, M, true, H)
-    ).
 % system_
 '$trace_goal__'(G,M, GoalNumber, H) :-
     '$enter_trace'(GoalNumber, G, M, H),
      gated_call(
          true,
-	'$execute_nonstop'(G,M),
+	 (
+	     % try creeping
+	     ( '$enter_debugging'(G,M,GoalNumber) -> '$creep' ; true ),
+	     '$execute_nonstop'(G,M)
+	     ),
 	 Port,
 	 '$trace_port'(Port, GoalNumber, G, M, true, H)
      ).

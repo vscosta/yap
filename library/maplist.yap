@@ -766,8 +766,7 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
     append_args(Pred, [In, Out], Apply),
     append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-    compile_aux([
-		       Base,
+    compile_aux([	       Base,
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
@@ -887,19 +886,19 @@ goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) 
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
     % the new goal
-    pred_name(selectlist, 4, Proto, GoalName),
+    pred_name(selectlists, 4, Proto, GoalName),
     append(MetaVars, [ListIn, ListIn1, ListOut, ListOut1], GoalArgs),
     Goal =.. [GoalName|GoalArgs],
     % the new predicate declaration
     HeadPrefix =.. [GoalName|PredVars],
     append_args(HeadPrefix, [[], [], [], []], Base),
     append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs, Outs1], RecursionHead),
-    append_args(Pred, [In, In1], Apply),
+    append_args(Pred, [In, Out], Apply),
     append_args(HeadPrefix, [Ins, Ins1, NOuts, NOuts1], RecursiveCall),
     compile_aux([
 		       Base,
 		       (RecursionHead :-
-		            (Apply -> Outs = [In|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
+		            (Apply -> Outs = [Out|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
 			    RecursiveCall)
 		   ], Mod).
 
