@@ -9,7 +9,7 @@ in a more CLP like style. It requires
 ~~~~~{.prolog}
 :- use_module(library(gecode/clpfd)).
 ~~~~~
-Several example programs are available with the distribution.
+Several example programs are available with the distributionv.
 
 Integer variables are declared as:
 
@@ -96,7 +96,8 @@ Constraints supported are:
 		  in_dfa/2,
 		  in_dfa/4, /*
                   tuples_in/2, */
-                  labeling/2 /*,
+                  labeling/2,
+                  bool_labeling/2 /*,
                   label/1,
                   indomain/1,
                   serialized/2,
@@ -305,6 +306,8 @@ process_constraints((B0,B1), (NB0, NB1), Env, L) :-
 	process_constraints(B0, NB0, Env, L),
 	process_constraints(B1, NB1, Env,L).
 process_constraints(labeling(A,B),labeling(A, B), env(_Space),true) :-
+	!.
+process_constraints(bool_labeling(A,B),bool_labeling(A, B), env(_Space),true) :-
 	!.
 process_constraints(B, B, env(_Space),_) :-
 	constraint(B), !.
@@ -552,37 +555,37 @@ clause( or, Ps, Ns, V ) :-
 
 bool_labeling(Opts, Xs) :-
 	get_home(Space-Map),
-	foldl2( processs_bool_lab_opt, Opts, 'BOOL_VAR_DEGREE_MIN', BranchVar, 'BOOL_VAL_MIN', BranchVal),
+	foldl2( process_bool_lab_opt, Opts, 'BOOL_VAR_DEGREE_MIN', BranchVar, 'BOOL_VAL_MIN', BranchVal),
 	term_variables(Xs, Vs),
 	check( Vs, X1s ),
 	( X1s == [] -> true ;
 	  maplist(ll(Map), X1s, NXs),
 	  Space += branch(NXs, BranchVar, BranchVal) ).
 
-processs_bool_lab_opt(leftmost, _, 'BOOL_VAR_NONE', BranchVal, BranchVal).
-processs_bool_lab_opt(min, _, 'BOOL_VAR_DEGREE_MIN', BranchVal, BranchVal).
-processs_bool_lab_opt(max, _, 'BOOL_VAR_DEGREE_MAX', BranchVal, BranchVal).
-processs_bool_lab_opt(min_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
-processs_bool_lab_opt(max_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
-processs_bool_lab_opt(enum, BranchVar, BranchVar, _, 'BOOL_VALUES_MIN').
+process_bool_lab_opt(leftmost, _, 'BOOL_VAR_NONE', BranchVal, BranchVal).
+process_bool_lab_opt(min, _, 'BOOL_VAR_DEGREE_MIN', BranchVal, BranchVal).
+process_bool_lab_opt(max, _, 'BOOL_VAR_DEGREE_MAX', BranchVal, BranchVal).
+process_bool_lab_opt(min_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
+process_bool_lab_opt(max_step, BranchVar, BranchVar, _, 'BOOL_VAL_MIN').
+process_bool_lab_opt(enum, BranchVar, BranchVar, _, 'BOOL_VALUES_MIN').
 
 labeling(Opts, Xs) :-
 	get_home(Space-Map),
-	foldl2( processs_lab_opt, Opts, 'INT_VAR_SIZE_MIN', BranchVar, 'INT_VAL_MIN', BranchVal),
+	foldl2( process_lab_opt, Opts, 'INT_VAR_SIZE_MIN', BranchVar, 'INT_VAL_MIN', BranchVal),
 	term_variables(Xs, Vs),
 	check( Vs, X1s ),
 	( X1s == [] -> true ;
 	  maplist(ll(Map), X1s, NXs),
 	  Space += branch(NXs, BranchVar, BranchVal) ).
 
-processs_lab_opt(leftmost, _, 'INT_VAR_NONE', BranchVal, BranchVal).
-processs_lab_opt(min, _, 'INT_VAR_SIZE_MIN', BranchVal, BranchVal).
-processs_lab_opt(max, _, 'INT_VAR_SIZE_MAX', BranchVal, BranchVal).
-processs_lab_opt(ff, _, 'INT_VAR_DEGREE_MIN', BranchVal, BranchVal).
-processs_lab_opt(min_step, BranchVar, BranchVar, _, 'INT_VAL_MIN').
-processs_lab_opt(max_step, BranchVar, BranchVar, _, 'INT_VAL_MIN').
-processs_lab_opt(bisect, BranchVar, BranchVar, _, 'INT_VAL_MED').
-processs_lab_opt(enum, BranchVar, BranchVar, _, 'INT_VALUES_MIN').
+process_lab_opt(leftmost, _, 'INT_VAR_NONE', BranchVal, BranchVal).
+process_lab_opt(min, _, 'INT_VAR_SIZE_MIN', BranchVal, BranchVal).
+process_lab_opt(max, _, 'INT_VAR_SIZE_MAX', BranchVal, BranchVal).
+process_lab_opt(ff, _, 'INT_VAR_DEGREE_MIN', BranchVal, BranchVal).
+process_lab_opt(min_step, BranchVar, BranchVar, _, 'INT_VAL_MIN').
+process_lab_opt(max_step, BranchVar, BranchVar, _, 'INT_VAL_MIN').
+process_lab_opt(bisect, BranchVar, BranchVar, _, 'INT_VAL_MED').
+process_lab_opt(enum, BranchVar, BranchVar, _, 'INT_VALUES_MIN').
 
 
 maximize(V) :-
@@ -600,7 +603,6 @@ extensional_constraint( Tuples, TupleSet) :-
 
 dfa( S0, Transitions, Finals, DFA) :-
 	DFA := dfa( S0, Transitions, Finals ).
-
 
 check(V, NV) :-
 	( var(V) -> V = NV ;
@@ -711,7 +713,23 @@ post( rel( sum(L0), Op, Out), Space-Map, Reify):-
 	).
 
 post( rel(A1+A2, Op, B), Space-Map, Reify):-
-	( var(B) ; B = _ + _ ; B = _-_), !,
+	var( B ), !,
+	linearize(A1+A2, 1, As, [], CAs, [], 0, A0, Space-Map),
+	l(B, B0, Map),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0);
+		Space += linear(CAs, As, GOP, B0)
+	    )
+	    ;
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0, Reify);
+		Space += linear(CAs, As, GOP, B0, Reify)
+	    )
+	).
+post( rel(A1+A2, Op, B), Space-Map, Reify):-
+	( B = _ + _ ; B = _-_), !,
 	linearize(A1+A2, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
 	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
 	gecode_arith_op( Op, GOP ),
@@ -728,7 +746,24 @@ post( rel(A1+A2, Op, B), Space-Map, Reify):-
 	).
 
 post( rel(A1-A2, Op, B), Space-Map, Reify):-
-    ( var(B) ; B = _ + _ ; B = _-_), !,
+    ( var(B) ), !,
+	linearize(A1-A2, 1, As, [], CAs, [], 0, A0, Space-Map),
+	l(B, B0, Map),
+	gecode_arith_op( Op, GOP ),
+	(var(Reify) ->
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0);
+		Space += linear(CAs, As, GOP, B0)
+	    )
+	    ;
+	    ( checklist(is_one, CAs) ->
+		Space += linear(As, GOP, B0, Reify);
+		Space += linear(CAs, As, GOP, B0, Reify)
+	    )
+	).
+
+post( rel(A1-A2, Op, B), Space-Map, Reify):-
+    (  B = _ + _ ; B = _-_), !,
 	linearize(A1-A2, 1, As, Bs, CAs, CBs, 0, A0, Space-Map),
 	linearize(B, -1, Bs, [], CBs, [], A0, B0, Space-Map),
 	gecode_arith_op( Op, GOP ),
@@ -887,24 +922,36 @@ linearize(V, C, [A|As], As, [C|CAs], CAs, I, I, _-Map) :-
 	var(V), !,
 	l(V, A, Map).
 linearize(A+B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+    !,
+	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
+	linearize(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
+linearize([], _C, As, As, CAs, CAs, I, I, _) :-
+    !.
+linearize([A|B], C, As, Bs, CAs, CBs, I, IF, Env) :-
+    !,
 	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
 	linearize(B, C, A1s, Bs, CA1s, CBs, I1, IF, Env).
 linearize(A-B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+    !,
 	NC is -C,
 	linearize(A, C, As, A1s, CAs, CA1s, I, I1, Env),
 	linearize(B, NC, A1s, Bs, CA1s, CBs, I1, IF, Env).
 linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
+    !,
 	integer(A), !,
 	IF is I-C*A.
 linearize(A, C, As, As, CAs, CAs, I, IF, _) :-
+    !,
 	ground(A),
 	catch( (B is eval(A)), _, fail ), !,
 	IF is I-C*B.
 linearize(C1*B, C, As, Bs, CAs, CBs, I, IF, Env) :-
+    !,
 	integer(C1), !,
 	NC is C*C1,
 	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
 linearize(B*C1, C, As, Bs, CAs, CBs, I, IF, Env) :-
+    !,
 	integer(C1), !,
 	NC is C*C1,
 	linearize(B, NC, As, Bs, CAs, CBs, I, IF, Env).
