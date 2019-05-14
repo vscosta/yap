@@ -23,9 +23,13 @@
 #undef _XOPEN_SOURCE // python does its own thing
 #endif
 
+
+#undef _POSIX_C_SOURCE
+
 #include <Python.h>
 
 #include <Yap.h>
+
 
 #include <SWI-Prolog.h>
 #ifdef HAVE_STAT
@@ -95,7 +99,7 @@ extern PyObject *py_Sys;
 extern X_API bool python_in_python;
 extern bool pyStringToString;
 
-extern bool python_release_GIL(term_t gstate);
+extern bool  python_release_GIL(term_t gstate);
 extern term_t python_acquire_GIL(void);
 
 static inline Py_ssize_t get_p_int(PyObject *o, Py_ssize_t def) {
@@ -201,22 +205,21 @@ extern PyObject *YEC(PyObject *c,PyObject *a ,PyObject *d , int line, const char
 extern void YEM(const char *ex, int line, const char *file, const char *code);
 extern void pyErrorHandler__(int line, const char *file, const char *code);
 
-#define pyErrorHandler()                                                       \
-  {                                                                            \
-    if (PyErr_Occurred()) {                                                    \
+#define PyStart()   PyErr_Clear()
+
+
+#define pyErrorHandler()                if (PyErr_Occurred()) {                                               \
       pyErrorHandler__(__LINE__, __FILE__, __FUNCTION__);                      \
     }                                                                          \
-  }
+
 
 #define pyErrorAndReturn(x)                                                    \
-  {                                                                            \
     if (PyErr_Occurred()) {                                                    \
       pyErrorHandler__(__LINE__, __FILE__, __FUNCTION__);                      \
     }                                                                          \
-    return (x);                                                                \
-  }
+    return (x)                         
+                                      
 // #define pyErrorAndReturn( x, y ) return x
-
 extern PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt);
 extern PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt);
 

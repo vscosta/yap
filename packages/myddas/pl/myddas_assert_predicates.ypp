@@ -24,11 +24,12 @@
 				    db_insert/3,
 				    db_abolish/2,
 				    db_listing/0,
-				    db_listing/1
+				    db_listing/1,
+				    relation/3
 				   ]).
 
 
-:- use_module(myddas,[
+:- use_module(myddas_core,[
 		  db_module/1,
     c_db_check_if_exists_pred/3,
        c_db_preds_conn/4,
@@ -59,10 +60,12 @@
 				 translate/3,
 				 queries_atom/2
 				]).
+#if MYDDAS_MYSQL
 :- use_module(myddas_mysql,[
 			    db_my_result_set/1
 			    ]).
-
+#endif
+#if MYDDAS_SQLITE3
 :- use_module(myddas_sqlite3,[
 			      sqlite3_result_set/1,
 			      sqlite3_show_tables/1,
@@ -77,6 +80,8 @@
 			      c_sqlite3_number_of_fields/3,
 				  sqlite3_row/3
                            ]).
+#endif
+#if MYDDAS_ODBC
 :- use_module(myddas_odbc,[
 			      odbc_result_set/1,
 			      c_odbc_change_database/2,
@@ -90,7 +95,9 @@
 			      c_odbc_number_of_fields/3,
 			      c_odbc_row/3
                            ]).
-
+#endif
+#if MYDDAS_POSTGRES
+#endif
 
 :- use_module( library(lists)).
 
@@ -104,7 +111,7 @@ db_import(RelationName,PredName0):-
 	db_import(myddas,RelationName,PredName0).
 db_import(Connection,RelationName,PredName0) :-
 	'$error_checks'(db_import(Connection,RelationName,PredName0)),
-        get_value(Connection,Con),
+     get_value(Connection,Con),
 	table_arity( Con, ConType, RelationName, Arity ),
 	strip_module(PredName0, Module, PredName),
 	\+ c_db_check_if_exists_pred(PredName,Arity,Module),
@@ -124,8 +131,9 @@ db_import(Connection,RelationName,PredName0) :-
 	functor(P,PredName,Arity),
 	P=..[PredName|LA],
 	%build PredName clause
-	table_access_predicate( ConType, Con, Arity, P, LA, Module, Assert ),
-	assert_static(Module:Assert),
+	table_access_predicate( ConType, Con, Arity, P, LA, Module, Assert0 ),
+	strip_module(Assert0,_,Assert),
+	assert_static(user:Assert),
 	c_db_add_preds(PredName,Arity,Module,Con).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -218,22 +226,6 @@ db_abolish(PredName,Arity):-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% db_abolish(+,+)
-%
-%
-db_abolish(Module:PredName,Arity):-!,
-	'$error_checks'(db_abolish(Module:PredName,Arity)),
-	c_db_delete_predicate(Module,PredName,Arity),
-	abolish(Module:PredName,Arity).
-db_abolish(PredName,Arity):-
-	'$error_checks'(db_abolish(PredName,Arity)),
-	db_module(Module),
-	c_db_delete_predicate(Module,PredName,Arity),
-	abolish(Module:PredName,Arity).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % db_listing.
 %
 %
@@ -282,14 +274,15 @@ table_arity( Con, ConType, RelationName, Arity ) :-
 	.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+#if MYDDAS_MYSQL
 				% major attributes types.
 table_attributes( mysql, Con, RelationName, TypesList ) :-
 	c_db_my_get_attributes_types(RelationName,Con,TypesList).
-
+#endif
+#if MYDDAS_POSTGRES
 table_attributes( postgres, Con, RelationName, TypesList ) :-
         c_postgres_get_attributes_types(RelationName,Con,TypesList).
-
+#endif
 table_attributes( odbc, Con, RelationName, TypesList ) :-
 	c_odbc_get_attributes_types(RelationName,Con,TypesList).
 
@@ -298,7 +291,7 @@ table_attributes( sqlite3, Con, RelationName, TypesList ) :-
 
 % predicate for DB-> query
 
-
+#if MYDDAS_MYSQL
 table_access_predicate( mysql, Con, Arity, P, LA, M,
 			M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
 				  myddas_prolog2sql:translate(G,G,Code),
@@ -309,7 +302,8 @@ table_access_predicate( mysql, Con, Arity, P, LA, M,
 				  !,
 				  user:c_db_my_row(ResultSet,Arity,LA)
 			  )).
-
+#endif
+#if MYDDAS_POSTGRES
 table_access_predicate( postgres, Con, Arity, P, LA, M,
                         M:( P :- myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
                                myddas_prolog2sql:translate(M:G,M:G,Code),
@@ -320,7 +314,8 @@ table_access_predicate( postgres, Con, Arity, P, LA, M,
                                !,
                                c_postgres_row(ResultSet,Arity,LA) )
 		      ).
-
+#endif
+#if MYDDAS_SQLITE3
 table_access_predicate( sqlite3, Con, Arity, P, LA, M,
                         M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
                                       myddas_prolog2sql:translate(G,G,Code),
@@ -331,7 +326,8 @@ table_access_predicate( sqlite3, Con, Arity, P, LA, M,
 				      !,
 				  myddas_sqlite3:sqlite3_row(ResultSet,Arity,LA)
 				     ) )).
-
+#endif
+#if MYDDAS_ODBC
 table_access_predicate( odbc, Con, Arity, P, LA, M,
                         M:( P :- (myddas_util_predicates:'$copy_term_nv'(P,[],G,_),
 				  myddas_prolog2sql:translate(G,G,Code),
@@ -342,9 +338,9 @@ table_access_predicate( odbc, Con, Arity, P, LA, M,
 				  !,
 				  myddas_odbc:c_odbc_row(ResultSet,Arity,LA)
 				 ) )).
+#endif
 
-
-
+#if MYDDAS_MYSQL
 table_insert( mysql, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
@@ -353,7 +349,8 @@ table_insert( mysql, Con, RelationName, TypesList, Predicate, LA,
 		'$write_or_not'(SQL),
 		c_db_my_query(SQL,_,Con,Mode,_)))
 	    ).
-
+#endif
+#if MYDDAS_POSTGRES
 table_insert( postgres, Con, RelationName, TypesList, Predicate, LA,
               ( Predicate :- myddas_assert_predicates:
               ( '$get_values_for_insert'(TypesList,LA,ValuesList),
@@ -362,7 +359,8 @@ table_insert( postgres, Con, RelationName, TypesList, Predicate, LA,
                 '$write_or_not'(SQL),
                 c_postgres_query(SQL,_,Con,Mode,_)))
             ).
-
+#endif
+#if MYDDAS_SQLITE3
 table_insert( sqlite3, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
@@ -371,7 +369,8 @@ table_insert( sqlite3, Con, RelationName, TypesList, Predicate, LA,
 		'$write_or_not'(SQL),
 		c_sqlite3_query(SQL,_,Con,Mode,_)))
 	    ).
-
+#endif
+#if MYDDAS_ODBC
 table_insert( odbc, Con, RelationName, TypesList, Predicate, LA,
 	      ( Predicate :- myddas_assert_predicates:
 	      ( '$get_values_for_insert'(TypesList,LA,ValuesList),
@@ -379,8 +378,8 @@ table_insert( odbc, Con, RelationName, TypesList, Predicate, LA,
 		'$write_or_not'(SQL),
 		c_odbc_my_query(SQL,_,_,_,Con)))
 	    ).
-
-
+#endif
+#if MYDDAS_MYSQL
 table_view( mysql, Con, CopyView, CopyGoal, Arity, LA, M,
           ( CopyView :-
           M:( '$copy_term_nv'(CopyView,[],ProjT,Dic),
@@ -392,7 +391,8 @@ table_view( mysql, Con, CopyView, CopyGoal, Arity, LA, M,
               c_db_my_query(FinalSQL,ResultSet,Con,Mode,_),
               !,
               c_db_my_row(ResultSet,Arity,LA) ))).
-
+#endif
+#if MYDDAS_POSTGRES
 table_view( postgres, Con, CopyView, CopyGoal, Arity, LA, M,
             ( CopyView :-
             M:( '$copy_term_nv'(CopyView,[],ProjT,Dic),
@@ -404,7 +404,8 @@ table_view( postgres, Con, CopyView, CopyGoal, Arity, LA, M,
                 c_postgres_query(FinalSQL,ResultSet,Con,Mode,_),
                 !,
                 c_postgres_row(ResultSet,Arity,LA) ))).
-
+#endif
+#if MYDDAS_ODBC
 table_view( odbc, Con, CopyView, CopyGoal, Arity, LA, M,
           ( CopyView :-
           M:( '$copy_term_nv'(CopyView,[],ProjT,Dic),
@@ -416,7 +417,8 @@ table_view( odbc, Con, CopyView, CopyGoal, Arity, LA, M,
               c_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
 	      !,
 	    c_odbc_row(ResultSet,Arity,LA) ))).
-
+#endif
+#if MYDDAS_SQLITE3
 table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
           ( CopyView :-
           M:( '$copy_term_nv'(CopyView,[],ProjT,Dic),
@@ -427,3 +429,4 @@ table_view( sqlite3, Con, CopyView, CopyGoal, Arity, LA, M,
               myddas_sqlite3:c_sqlite3_query(FinalSQL,ResultSet,Con,_,_),
               !,
               myddas_sqlite3:sqlite3_row(ResultSet,Arity,LA) ))).
+#endif

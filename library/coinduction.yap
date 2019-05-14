@@ -1,16 +1,3 @@
-/**
- * @file   coinduction.yap
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>, Arvin Bansal,
- *          
- *         
- * @date   Tue Nov 17 14:55:02 2015
- * 
- * @brief  Co-inductive execution
- * 
- * 
-*/
-
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -27,6 +14,20 @@
 * comments:	coinduction support for Prolog				 *
 *									 *
 *************************************************************************/
+
+/**
+ * @file   coinduction.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>, Arvin Bansal,
+ *
+ *
+ * @date   Tue Nov 17 14:55:02 2015
+ *
+ * @brief  Co-inductive execution
+ *
+ *
+*/
+
+
 
 % :- yap_flag(unknown,error).
 % :- style_check(all).

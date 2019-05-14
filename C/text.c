@@ -195,7 +195,8 @@ void *Realloc(void *pt, size_t sz USES_REGS) {
   if (!pt)
     return Malloc(sz PASS_REGS);
   old--;
-  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), Yap_Max(CELLSIZE,sizeof(struct mblock)));
+  sz = ALIGN_BY_TYPE(sz, Yap_Max(CELLSIZE,sizeof(struct mblock)));
+  sz += 2*sizeof(struct mblock);
   o = realloc(old, sz);
   if (o->next) {
     o->next->prev = o;

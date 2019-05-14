@@ -252,11 +252,10 @@ YAPStringTerm::YAPStringTerm(wchar_t *s, size_t len)
 YAPApplTerm::YAPApplTerm(YAPFunctor f, YAPTerm ts[]) {
   BACKUP_H();
   arity_t arity = ArityOfFunctor(f.f);
-  Term o = AbsAppl(HR);
-  *HR++ = (CELL)f.f;
+  Term o = Yap_MkNewApplTerm(f.f, arity);
   Term *tt = RepAppl(o) + 1;
   for (arity_t i = 0; i < arity; i++)
-    *HR++ = ts[i].term();
+    tt[i] = ts[i].term();
   mk(o);
   RECOVER_H();
 }
@@ -587,17 +586,17 @@ bool YAPEngine::call(YAPPredicate ap, YAPTerm ts[]) {
   q.p = P;
 
   q.cp = CP;
+ q.b0 = LCL0-CellPtr(B);
+  q.env0 = LCL0-ENV;
   for (arity_t i = 0; i < arity; i++)
     XREGS[i + 1] = ts[i].term();
 
   // allow Prolog style exceotion handling
   // don't forget, on success these bindings will still be there);
-  result = YAP_LeaveGoal(true, &q);
+  result = YAP_EnterGoal(ap.ap, nullptr, &q);
+  YAP_LeaveGoal(result, &q);
 
   YAPCatchError();
-
-  Yap_CloseHandles(q.CurSlot);
-  pop_text_stack(q.lvl + 1);
 
   RECOVER_MACHINE_REGS();
   return result;
@@ -612,11 +611,14 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //  _save = PyEval_SaveThread();
 #endif
   CACHE_REGS
+  YAP_dogoalinfo q;
   BACKUP_MACHINE_REGS();
    Term *ts = nullptr;
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
+ Int oenv = LCL0-ENV;
+ Int oB = LCL0-CellPtr(B);
   Term omod = CurrentModule;
   PredEntry *ap = nullptr;
   if (IsStringTerm(tmod))
@@ -643,9 +645,10 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
 
    result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n";
-
+  //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n
   YAP_LeaveGoal(result && !release, &q);
+ ENV = LCL0-oenv;
+ B = (choiceptr)(LCL0-oB);
   CurrentModule = LOCAL_SourceModule = omod;
   //      PyEval_RestoreThread(_save);
   RECOVER_MACHINE_REGS();
@@ -658,19 +661,25 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 void YAPEngine::release() {
 
   BACKUP_MACHINE_REGS();
-  YAP_LeaveGoal(FALSE, &q);
+  //  YAP_LeaveGoal(FALSE, &q);
   RECOVER_MACHINE_REGS();
 }
 
 Term YAPEngine::fun(Term t) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
+  YAP_dogoalinfo q;
   Term tmod = Yap_CurrentModule(), *ts = nullptr;
   PredEntry *ap;
   arity_t arity;
   Functor f;
   Atom name;
+  q.CurSlot = Yap_StartSlots();
+  q.p = P;
+  q.cp = CP;
 
+ Int oenv = LCL0-ENV;
+ Int oB = LCL0-CellPtr(B);
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
@@ -702,9 +711,6 @@ Term YAPEngine::fun(Term t) {
     Term g = (Yap_MkApplTerm(f, arity, ts));
     ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
   }
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
   // make sure this is safe
   // allow Prolog style exception handling
   //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
@@ -717,6 +723,8 @@ Term YAPEngine::fun(Term t) {
     YAPCatchError();
   {
     YAP_LeaveGoal(result, &q);
+ ENV = LCL0-oenv;
+ B = (choiceptr)(LCL0-oB);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
     return ot;
@@ -805,6 +813,9 @@ bool YAPQuery::next() {
   CACHE_REGS
   bool result = false;
   // std::cerr <<  "next " <<  YAPTerm(goal).text() << "\n";
+  q_h.CurSlot = Yap_StartSlots();
+  q_h.p = P;
+  q_h.cp = CP;
 
   sigjmp_buf buf, *oldp = LOCAL_RestartEnv;
   e = nullptr;
@@ -866,7 +877,7 @@ bool YAPQuery::deterministic() {
   BACKUP_MACHINE_REGS();
   if (!q_open || q_state == 0)
     return false;
-  choiceptr myB = (choiceptr)(LCL0 - q_h.b);
+  choiceptr myB = (choiceptr)(LCL0 - q_h.b_entry);
   return (B >= myB);
   RECOVER_MACHINE_REGS();
 }
@@ -1132,13 +1143,15 @@ std::stringstream s;
 void YAPEngine::reSet() {
   /* ignore flags  for now */
   if (B && B->cp_b && B->cp_ap != NOCODE)
-    YAP_LeaveGoal(false, &q);
+    //    YAP_LeaveGoal(false, &q);
   LOCAL_ActiveError->errorNo = YAP_NO_ERROR;
   if (LOCAL_CommittedError) {
     LOCAL_CommittedError->errorNo = YAP_NO_ERROR;
     free(LOCAL_CommittedError);
     LOCAL_CommittedError = NULL;
   }
+  pop_text_stack(0);
+  LOCAL_CurSlot = 0;
 }
 
 Term YAPEngine::top_level(std::string s) {

@@ -304,6 +304,8 @@ bool Yap_search_for_static_predicate_in_use(PredEntry *p,
       return true;
     }
     env_ptr = b_ptr->cp_env;
+    if (b_ptr->cp_ap == NOCODE)
+        return false;
     b_ptr = b_ptr->cp_b;
   } while (b_ptr != NULL);
   return (FALSE);

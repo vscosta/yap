@@ -60,18 +60,7 @@ mode and the existing spy-points, when the debugger is on.
 
 :- op(900,fx,[spy,nospy]).
 
-'$init_debugger' :-
-        '__NB_getval__'('$trace', _, fail), !.
-'$init_debugger' :-
-	'$debugger_input',
-	'__NB_setval__'('$trace',off),
-	'__NB_setval__'('$if_skip_mode',no_skip),
-	'__NB_setval__'('$spy_glist',[]),
-	'__NB_setval__'('$spy_gn',1),
-	'__NB_setval__'('$debug_state', state(zip,0,stop,off)).
-
-
- % First part : setting and reseting spy points
+% First part : setting and reseting spy points
 
  % $suspy does most of the work
  '$suspy'(V,S,M) :- var(V) , !,
@@ -214,19 +203,15 @@ debug :-
 	 '$start_debugging'(on),
 	 print_message(informational,debug(debug)).
 
-'$start_debugging'(Mode) :-
-	 (Mode == on ->
-	  set_prolog_flag(debug, true)
-	 ;
-	  set_prolog_flag(debug, false)
-	 ),
-	 '__NB_getval__'('$trace',Trace, fail),
-	 ( Trace == on -> Creep = crep; Creep = zip ),
-	 '__NB_setval__'('$debug_state',state(Creep,0,stop,Trace) ).
+'$start_debugging'(_Mode) :-
+    '__NB_setval__'(debug, false),
+    '__NB_getval__'('$trace',Trace, fail),
+    ( Trace == on -> Creep = crep; Creep = zip ),
+    '__NB_setval__'('$debug_state',state(Creep,0,stop,Trace) ).
 
 nodebug :-
-	 '$init_debugger',
 	 set_prolog_flag(debug, false),
+	 '$init_debugger',
 	 '__NB_setval__'('$trace',off),
 	 print_message(informational,debug(off)).
 
@@ -393,36 +378,90 @@ notrace(G) :-
 	fail
     ).
 
-'$disable_debugging_on_port'(retry) :-
+'$creep_at_port'(retry) :-
+    '__NB_getval__'(debug, true, fail),
+    '__NB_getval__'('$trace',Trace,fail),
+    Trace = on,
     !,
     '$enable_debugging'.
-'$disable_debugging_on_port'(_Port) :-
-    '$disable_debugging'.
-
-
-
-% enable creeping
-'$enable_debugging':-
-    current_prolog_flag(debug, false), !.
-'$enable_debugging' :-
+'$creep_at_port'(fail) :-
+    '__NB_getval__'(debug, true, fail),
    '__NB_getval__'('$trace',Trace,fail),
-	nb_setval('$debug_status', state(creep, 0, stop,Trace)),
-    Trace =  on, !,
+    Trace = on,
+    !,
+    '$enable_debugging'.
+
+'$init_debugger' :- 
+	'$init_debugger_trace',
+	'__NB_setval__'('$if_skip_mode',no_skip),
+	'__NB_setval__'('$spy_glist',[]),
+	'__NB_setval__'('$spy_gn',1).
+ 
+'$init_debugger_trace' :-
+	'__NB_getval__'('$trace',on,fail),
+	!, 
+		nb_setval('$debug_status', state(creep, 0, stop, on)).  
+'$init_debugger_trace' :-
+	nb_setval('$debug_status', state(zip, 0, stop, off)). 
+
+%% @pred $enter_debugging(G,Mod,CP,G0,NG)
+%%
+%% Internal predicate called by top-level;
+%% enable creeping on a goal by just switching execution to debugger.
+%%
+'$enter_debugging'(G,Mod,CP,G0,NG) :-
+    '$creepcalls'(G,Mod),
+    !,
+    '$trace_query'(G,Mod,CP,G0,NG).
+'$enter_debugging'(G,_Mod,_CP,_G0,G).
+
+'$enter_debugging'(G,Mod,GN) :-
+    çurrent_prolog_flag( debug, Deb ),
+    '__NB_set_value__'( debug, Deb ),
+    ( Deb = false
+    ->
+    true
+    ;
+    '$creep_is_on_at_entry'(G,Mod,GN)
+    ->
+    '$creep'
+    ;
+    true
+    ).
+
+%% we're coming back from external code to a debugger call.
+%%
+'$reenter_debugger'(retry) :-
+    '$re_enter_creep_mode'.
+'$reenter_debugger'(_) :-
+    '__NB_setval__'(debug, false).
+
+% what to do when you exit the debugger.
+'$continue_debugging'(exit) :-
+    !,
+    '$re_enter_creep_mode'.
+'$continue_debugging'(answer) :-
+    !,
+    '$re_enter_creep_mode'.
+'$continue_debugging'(fail) :-
+    !,
+    '$re_enter_creep_mode',
+'$continue_debugging'(_).
+
+'$enable_debugging' :-
+    '$re_enter_creep_mode'.
+ 
+ 
+%% @pred $re_enter_creep_mode1
+%%
+%% Internal predicate called when exiting through a port;
+%% enable creeping on the next goal.
+%%
+'$re_enter_creep_mode' :-
+    !,
     '$creep'.
-'$enable_debugging'.
+'$re_enter_creep_mode'.
 
-'$trace_on' :-
-    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy,_), fail),
-  '__NB_setval__'('$trace',on),
-    nb_setval('$debug_status', state(creep, GN, Spy, on)).
-
-'$trace_off' :-
-    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy), fail),
-    '__NB_setval__'('$trace',off),
-   nb_setval('$debug_status', state(zip, GN, Spy,off)).
-
-'$creep_is_off'(_,_) :-
-    current_prolog_flag(debug, false), !.
 '$creep_is_off'(Module:G, GN0) :-
     '__NB_getval__'('$debug_status',state(zip, GN, Spy,_), fail),
     (
@@ -438,6 +477,31 @@ notrace(G) :-
     GN > GN0
    ). 
 
+%%
+%
+'$creep_is_on' :-
+    '__NB_getval__'('$debug_status',state(Step, _GN, _Spy,_), fail),
+    Step \= zip.
+
+'$creep_is_on_at_entry'(G,M,GoalNo) :-
+	\+ '$system_predicate'(G,M),
+    '__NB_getval__'('$debug_status',state(Step, _GN, Spy,_), fail),
+    (
+	Step \= zip
+    ;
+    Spy == stop,
+    '$pred_being_spied'(G,M)
+    ).
+
+   
+'$trace_on' :-
+    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy,Trace), fail),
+    nb_getval('$trace',on),
+    nb_setval('$debug_status', state(creep, GN, Spy, Trace)).
+
+'$trace_off' :-
+'__NB_getval__'('$debug_status', state(_Creep, GN, Spy, Trace),fail),
+nb_setval('$debug_status', state(zip, GN, Spy,Trace)).
 
 /*
 

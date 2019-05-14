@@ -799,20 +799,50 @@ set_fact(FactID, Slope, P ) :-
     set_fact_probability(FactID, NPr).
 
 
-set_tunable(I,Slope,P) :-
-    X <== P[I],
-    sigmoid(X,Slope,Pr),
-    (Pr > 0.99
-	    ->
-		NPr = 0.99
-			;
-			Pr < 0.01
-			       ->
-				   NPr = 0.01 ;
-				   Pr = NPr ),
-    set_fact_probability(I,NPr).
+update_query_cleanup(QueryID) :-
+	(
+	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
+	->
+	    % either this query is similar to another or vice versa,
+	    % therefore we don't delete anything
+	 true;
+	 retractall(query_gradient_intern(QueryID,_,_,_))
+	).
 
-:- include(problog/lbdd).
+
+update_query(QueryID,Symbol,What_To_Update) :-
+	(
+	 query_is_similar(QueryID,_)
+	->
+				% we don't have to evaluate the BDD
+	 format_learning(4,'#',[]);
+	 (
+	  problog_flag(sigmoid_slope,Slope),
+	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
+	  gradient(QueryID, Method, Slope),
+	  format_learning(4,'~w',[Symbol])
+	 )
+	).
+
+
+update_values :-
+	values_correct,
+	!.
+update_values :-
+	\+ values_correct,
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% delete old values
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	retractall(query_probability_intern(_,_)),
+	retractall(query_gradient_intern(_,_,_,_)),	
+
+
+	assertz(values_correct).
+
+
+
+:- use_module(problog/lbdd).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient

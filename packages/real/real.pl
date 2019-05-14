@@ -954,6 +954,11 @@ prolog:message( correspondence ) -->
 prolog:message( r_root ) -->
      ['Real was unable to find the R root directory. \n If you have installed R from sources set $R_HOME to point to $PREFIX/lib/R.\n You should also make sure libR.so is in a directory appearing in $LD_LIBRARY_PATH' - [] ].
 
+
+eval_text( Text ) :-
+    atomic_to_term( Text, Goal, _VarNames ),
+    call(user:Goal).
+
 :- at_halt(halt_r).
 
 :- initialization(start_r, now).

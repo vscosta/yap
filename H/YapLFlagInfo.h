@@ -26,6 +26,13 @@
 
 START_LOCAL_FLAGS
 
+/**< Allow constructs such as 'Functor( V )'. Functor is parsed as an
+   atom. The token `V` is still understood as a variable.
+
+Originally a SWI-Prolog flag.
+ */
+YAP_FLAG(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG, "allow_variable_name_as_functor", true, booleanFlag, "false", NULL),
+
 /**< set the system to look for undefined procedures */
 YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
 
@@ -72,6 +79,11 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
                  */
   YAP_FLAG(LANGUAGE_MODE_FLAG, "language_mode", true, isatom, "yap",
              NULL),
+  /**< If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
+
+ The default was for it to be true, except if in iso mode. YAP-6.5 changed the default, in order to ensure compatibility.                                                                       
+  */
+  YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, booleanFlag, "false",              NULL),
 /**< Show the execution stack in exceptions. */
   YAP_FLAG(STACK_DUMP_ON_ERROR_FLAG, "stack_dump_on_error", false, booleanFlag,
              "true", NULL),

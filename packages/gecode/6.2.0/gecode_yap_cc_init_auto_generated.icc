@@ -1,0 +1,712 @@
+// -*- c++ -*-
+//=============================================================================
+// Copyright (C) 2011 by Denys Duchier
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+//
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//=============================================================================
+
+{ YAP_Atom X= YAP_LookupAtom("RM_NONE");
+  gecode_RM_NONE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_CONSTANT");
+  gecode_RM_CONSTANT = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_LINEAR");
+  gecode_RM_LINEAR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_LUBY");
+  gecode_RM_LUBY = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_GEOMETRIC");
+  gecode_RM_GEOMETRIC = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("FRT_EQ");
+  gecode_FRT_EQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("FRT_NQ");
+  gecode_FRT_NQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("FRT_LQ");
+  gecode_FRT_LQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("FRT_LE");
+  gecode_FRT_LE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("FRT_GQ");
+  gecode_FRT_GQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("FRT_GR");
+  gecode_FRT_GR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("RM_EQV");
+  gecode_RM_EQV = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_IMP");
+  gecode_RM_IMP = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("RM_PMI");
+  gecode_RM_PMI = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("IRT_EQ");
+  gecode_IRT_EQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IRT_NQ");
+  gecode_IRT_NQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IRT_LQ");
+  gecode_IRT_LQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IRT_LE");
+  gecode_IRT_LE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IRT_GQ");
+  gecode_IRT_GQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IRT_GR");
+  gecode_IRT_GR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("BOT_AND");
+  gecode_BOT_AND = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("BOT_OR");
+  gecode_BOT_OR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("BOT_IMP");
+  gecode_BOT_IMP = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("BOT_EQV");
+  gecode_BOT_EQV = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("BOT_XOR");
+  gecode_BOT_XOR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("IPL_DEF");
+  gecode_IPL_DEF = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_VAL");
+  gecode_IPL_VAL = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_BND");
+  gecode_IPL_BND = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_DOM");
+  gecode_IPL_DOM = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_BASIC");
+  gecode_IPL_BASIC = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_ADVANCED");
+  gecode_IPL_ADVANCED = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("IPL_BASIC_ADVANCED");
+  gecode_IPL_BASIC_ADVANCED = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("_IPL_BITS");
+  gecode__IPL_BITS = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("TT_FIXP");
+  gecode_TT_FIXP = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TT_FIXS");
+  gecode_TT_FIXS = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TT_FIXE");
+  gecode_TT_FIXE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("TE_INIT");
+  gecode_TE_INIT = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_PRUNE");
+  gecode_TE_PRUNE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_FIX");
+  gecode_TE_FIX = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_FAIL");
+  gecode_TE_FAIL = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_DONE");
+  gecode_TE_DONE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_PROPAGATE");
+  gecode_TE_PROPAGATE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_COMMIT");
+  gecode_TE_COMMIT = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("TE_POST");
+  gecode_TE_POST = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("SRT_EQ");
+  gecode_SRT_EQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_NQ");
+  gecode_SRT_NQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_SUB");
+  gecode_SRT_SUB = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_SUP");
+  gecode_SRT_SUP = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_DISJ");
+  gecode_SRT_DISJ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_CMPL");
+  gecode_SRT_CMPL = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_LQ");
+  gecode_SRT_LQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_LE");
+  gecode_SRT_LE = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_GQ");
+  gecode_SRT_GQ = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SRT_GR");
+  gecode_SRT_GR = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+{ YAP_Atom X= YAP_LookupAtom("SOT_UNION");
+  gecode_SOT_UNION = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SOT_DUNION");
+  gecode_SOT_DUNION = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SOT_INTER");
+  gecode_SOT_INTER = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+{ YAP_Atom X= YAP_LookupAtom("SOT_MINUS");
+  gecode_SOT_MINUS = YAP_MkAtomTerm(X);
+  YAP_AtomGetHold(X); }
+
+YAP_UserCPredicate("gecode_constraint_branch_1", gecode_constraint_branch_1, 2);
+YAP_UserCPredicate("gecode_constraint_convex_2", gecode_constraint_convex_2, 2);
+YAP_UserCPredicate("gecode_constraint_convex_3", gecode_constraint_convex_3, 3);
+YAP_UserCPredicate("gecode_constraint_abs_4", gecode_constraint_abs_4, 3);
+YAP_UserCPredicate("gecode_constraint_abs_5", gecode_constraint_abs_5, 3);
+YAP_UserCPredicate("gecode_constraint_abs_6", gecode_constraint_abs_6, 4);
+YAP_UserCPredicate("gecode_constraint_argmax_7", gecode_constraint_argmax_7, 4);
+YAP_UserCPredicate("gecode_constraint_argmax_11", gecode_constraint_argmax_11, 4);
+YAP_UserCPredicate("gecode_constraint_argmax_13", gecode_constraint_argmax_13, 4);
+YAP_UserCPredicate("gecode_constraint_argmax_17", gecode_constraint_argmax_17, 4);
+YAP_UserCPredicate("gecode_constraint_argmax_8", gecode_constraint_argmax_8, 5);
+YAP_UserCPredicate("gecode_constraint_argmax_12", gecode_constraint_argmax_12, 5);
+YAP_UserCPredicate("gecode_constraint_argmax_14", gecode_constraint_argmax_14, 5);
+YAP_UserCPredicate("gecode_constraint_argmax_18", gecode_constraint_argmax_18, 5);
+YAP_UserCPredicate("gecode_constraint_argmax_9", gecode_constraint_argmax_9, 6);
+YAP_UserCPredicate("gecode_constraint_argmax_15", gecode_constraint_argmax_15, 6);
+YAP_UserCPredicate("gecode_constraint_argmax_10", gecode_constraint_argmax_10, 3);
+YAP_UserCPredicate("gecode_constraint_argmax_16", gecode_constraint_argmax_16, 3);
+YAP_UserCPredicate("gecode_constraint_argmin_19", gecode_constraint_argmin_19, 4);
+YAP_UserCPredicate("gecode_constraint_argmin_23", gecode_constraint_argmin_23, 4);
+YAP_UserCPredicate("gecode_constraint_argmin_25", gecode_constraint_argmin_25, 4);
+YAP_UserCPredicate("gecode_constraint_argmin_29", gecode_constraint_argmin_29, 4);
+YAP_UserCPredicate("gecode_constraint_argmin_20", gecode_constraint_argmin_20, 5);
+YAP_UserCPredicate("gecode_constraint_argmin_24", gecode_constraint_argmin_24, 5);
+YAP_UserCPredicate("gecode_constraint_argmin_26", gecode_constraint_argmin_26, 5);
+YAP_UserCPredicate("gecode_constraint_argmin_30", gecode_constraint_argmin_30, 5);
+YAP_UserCPredicate("gecode_constraint_argmin_21", gecode_constraint_argmin_21, 6);
+YAP_UserCPredicate("gecode_constraint_argmin_27", gecode_constraint_argmin_27, 6);
+YAP_UserCPredicate("gecode_constraint_argmin_22", gecode_constraint_argmin_22, 3);
+YAP_UserCPredicate("gecode_constraint_argmin_28", gecode_constraint_argmin_28, 3);
+YAP_UserCPredicate("gecode_constraint_assign_31", gecode_constraint_assign_31, 3);
+YAP_UserCPredicate("gecode_constraint_assign_57", gecode_constraint_assign_57, 3);
+YAP_UserCPredicate("gecode_constraint_assign_59", gecode_constraint_assign_59, 3);
+YAP_UserCPredicate("gecode_constraint_assign_61", gecode_constraint_assign_61, 3);
+YAP_UserCPredicate("gecode_constraint_assign_32", gecode_constraint_assign_32, 4);
+YAP_UserCPredicate("gecode_constraint_assign_33", gecode_constraint_assign_33, 4);
+YAP_UserCPredicate("gecode_constraint_assign_36", gecode_constraint_assign_36, 4);
+YAP_UserCPredicate("gecode_constraint_assign_39", gecode_constraint_assign_39, 4);
+YAP_UserCPredicate("gecode_constraint_assign_42", gecode_constraint_assign_42, 4);
+YAP_UserCPredicate("gecode_constraint_assign_45", gecode_constraint_assign_45, 4);
+YAP_UserCPredicate("gecode_constraint_assign_48", gecode_constraint_assign_48, 4);
+YAP_UserCPredicate("gecode_constraint_assign_51", gecode_constraint_assign_51, 4);
+YAP_UserCPredicate("gecode_constraint_assign_54", gecode_constraint_assign_54, 4);
+YAP_UserCPredicate("gecode_constraint_assign_58", gecode_constraint_assign_58, 4);
+YAP_UserCPredicate("gecode_constraint_assign_60", gecode_constraint_assign_60, 4);
+YAP_UserCPredicate("gecode_constraint_assign_62", gecode_constraint_assign_62, 4);
+YAP_UserCPredicate("gecode_constraint_assign_34", gecode_constraint_assign_34, 5);
+YAP_UserCPredicate("gecode_constraint_assign_37", gecode_constraint_assign_37, 5);
+YAP_UserCPredicate("gecode_constraint_assign_40", gecode_constraint_assign_40, 5);
+YAP_UserCPredicate("gecode_constraint_assign_43", gecode_constraint_assign_43, 5);
+YAP_UserCPredicate("gecode_constraint_assign_46", gecode_constraint_assign_46, 5);
+YAP_UserCPredicate("gecode_constraint_assign_49", gecode_constraint_assign_49, 5);
+YAP_UserCPredicate("gecode_constraint_assign_52", gecode_constraint_assign_52, 5);
+YAP_UserCPredicate("gecode_constraint_assign_55", gecode_constraint_assign_55, 5);
+YAP_UserCPredicate("gecode_constraint_assign_35", gecode_constraint_assign_35, 6);
+YAP_UserCPredicate("gecode_constraint_assign_38", gecode_constraint_assign_38, 6);
+YAP_UserCPredicate("gecode_constraint_assign_41", gecode_constraint_assign_41, 6);
+YAP_UserCPredicate("gecode_constraint_assign_44", gecode_constraint_assign_44, 6);
+YAP_UserCPredicate("gecode_constraint_assign_47", gecode_constraint_assign_47, 6);
+YAP_UserCPredicate("gecode_constraint_assign_50", gecode_constraint_assign_50, 6);
+YAP_UserCPredicate("gecode_constraint_assign_53", gecode_constraint_assign_53, 6);
+YAP_UserCPredicate("gecode_constraint_assign_56", gecode_constraint_assign_56, 6);
+YAP_UserCPredicate("gecode_constraint_binpacking_63", gecode_constraint_binpacking_63, 4);
+YAP_UserCPredicate("gecode_constraint_binpacking_64", gecode_constraint_binpacking_64, 5);
+YAP_UserCPredicate("gecode_constraint_branch_65", gecode_constraint_branch_65, 3);
+YAP_UserCPredicate("gecode_constraint_branch_109", gecode_constraint_branch_109, 3);
+YAP_UserCPredicate("gecode_constraint_branch_111", gecode_constraint_branch_111, 3);
+YAP_UserCPredicate("gecode_constraint_branch_113", gecode_constraint_branch_113, 3);
+YAP_UserCPredicate("gecode_constraint_branch_66", gecode_constraint_branch_66, 4);
+YAP_UserCPredicate("gecode_constraint_branch_67", gecode_constraint_branch_67, 4);
+YAP_UserCPredicate("gecode_constraint_branch_73", gecode_constraint_branch_73, 4);
+YAP_UserCPredicate("gecode_constraint_branch_79", gecode_constraint_branch_79, 4);
+YAP_UserCPredicate("gecode_constraint_branch_82", gecode_constraint_branch_82, 4);
+YAP_UserCPredicate("gecode_constraint_branch_88", gecode_constraint_branch_88, 4);
+YAP_UserCPredicate("gecode_constraint_branch_94", gecode_constraint_branch_94, 4);
+YAP_UserCPredicate("gecode_constraint_branch_100", gecode_constraint_branch_100, 4);
+YAP_UserCPredicate("gecode_constraint_branch_106", gecode_constraint_branch_106, 4);
+YAP_UserCPredicate("gecode_constraint_branch_110", gecode_constraint_branch_110, 4);
+YAP_UserCPredicate("gecode_constraint_branch_112", gecode_constraint_branch_112, 4);
+YAP_UserCPredicate("gecode_constraint_branch_114", gecode_constraint_branch_114, 4);
+YAP_UserCPredicate("gecode_constraint_branch_68", gecode_constraint_branch_68, 5);
+YAP_UserCPredicate("gecode_constraint_branch_70", gecode_constraint_branch_70, 5);
+YAP_UserCPredicate("gecode_constraint_branch_74", gecode_constraint_branch_74, 5);
+YAP_UserCPredicate("gecode_constraint_branch_76", gecode_constraint_branch_76, 5);
+YAP_UserCPredicate("gecode_constraint_branch_80", gecode_constraint_branch_80, 5);
+YAP_UserCPredicate("gecode_constraint_branch_83", gecode_constraint_branch_83, 5);
+YAP_UserCPredicate("gecode_constraint_branch_85", gecode_constraint_branch_85, 5);
+YAP_UserCPredicate("gecode_constraint_branch_89", gecode_constraint_branch_89, 5);
+YAP_UserCPredicate("gecode_constraint_branch_91", gecode_constraint_branch_91, 5);
+YAP_UserCPredicate("gecode_constraint_branch_95", gecode_constraint_branch_95, 5);
+YAP_UserCPredicate("gecode_constraint_branch_97", gecode_constraint_branch_97, 5);
+YAP_UserCPredicate("gecode_constraint_branch_101", gecode_constraint_branch_101, 5);
+YAP_UserCPredicate("gecode_constraint_branch_103", gecode_constraint_branch_103, 5);
+YAP_UserCPredicate("gecode_constraint_branch_107", gecode_constraint_branch_107, 5);
+YAP_UserCPredicate("gecode_constraint_branch_69", gecode_constraint_branch_69, 6);
+YAP_UserCPredicate("gecode_constraint_branch_71", gecode_constraint_branch_71, 6);
+YAP_UserCPredicate("gecode_constraint_branch_75", gecode_constraint_branch_75, 6);
+YAP_UserCPredicate("gecode_constraint_branch_77", gecode_constraint_branch_77, 6);
+YAP_UserCPredicate("gecode_constraint_branch_81", gecode_constraint_branch_81, 6);
+YAP_UserCPredicate("gecode_constraint_branch_84", gecode_constraint_branch_84, 6);
+YAP_UserCPredicate("gecode_constraint_branch_86", gecode_constraint_branch_86, 6);
+YAP_UserCPredicate("gecode_constraint_branch_90", gecode_constraint_branch_90, 6);
+YAP_UserCPredicate("gecode_constraint_branch_92", gecode_constraint_branch_92, 6);
+YAP_UserCPredicate("gecode_constraint_branch_96", gecode_constraint_branch_96, 6);
+YAP_UserCPredicate("gecode_constraint_branch_98", gecode_constraint_branch_98, 6);
+YAP_UserCPredicate("gecode_constraint_branch_102", gecode_constraint_branch_102, 6);
+YAP_UserCPredicate("gecode_constraint_branch_104", gecode_constraint_branch_104, 6);
+YAP_UserCPredicate("gecode_constraint_branch_108", gecode_constraint_branch_108, 6);
+YAP_UserCPredicate("gecode_constraint_branch_72", gecode_constraint_branch_72, 7);
+YAP_UserCPredicate("gecode_constraint_branch_78", gecode_constraint_branch_78, 7);
+YAP_UserCPredicate("gecode_constraint_branch_87", gecode_constraint_branch_87, 7);
+YAP_UserCPredicate("gecode_constraint_branch_93", gecode_constraint_branch_93, 7);
+YAP_UserCPredicate("gecode_constraint_branch_99", gecode_constraint_branch_99, 7);
+YAP_UserCPredicate("gecode_constraint_branch_105", gecode_constraint_branch_105, 7);
+YAP_UserCPredicate("gecode_constraint_cardinality_115", gecode_constraint_cardinality_115, 4);
+YAP_UserCPredicate("gecode_constraint_cardinality_116", gecode_constraint_cardinality_116, 4);
+YAP_UserCPredicate("gecode_constraint_channel_117", gecode_constraint_channel_117, 3);
+YAP_UserCPredicate("gecode_constraint_channel_119", gecode_constraint_channel_119, 3);
+YAP_UserCPredicate("gecode_constraint_channel_122", gecode_constraint_channel_122, 3);
+YAP_UserCPredicate("gecode_constraint_channel_126", gecode_constraint_channel_126, 3);
+YAP_UserCPredicate("gecode_constraint_channel_127", gecode_constraint_channel_127, 3);
+YAP_UserCPredicate("gecode_constraint_channel_118", gecode_constraint_channel_118, 4);
+YAP_UserCPredicate("gecode_constraint_channel_120", gecode_constraint_channel_120, 4);
+YAP_UserCPredicate("gecode_constraint_channel_123", gecode_constraint_channel_123, 4);
+YAP_UserCPredicate("gecode_constraint_channel_121", gecode_constraint_channel_121, 5);
+YAP_UserCPredicate("gecode_constraint_channel_124", gecode_constraint_channel_124, 5);
+YAP_UserCPredicate("gecode_constraint_channel_125", gecode_constraint_channel_125, 6);
+YAP_UserCPredicate("gecode_constraint_circuit_128", gecode_constraint_circuit_128, 5);
+YAP_UserCPredicate("gecode_constraint_circuit_131", gecode_constraint_circuit_131, 5);
+YAP_UserCPredicate("gecode_constraint_circuit_134", gecode_constraint_circuit_134, 5);
+YAP_UserCPredicate("gecode_constraint_circuit_129", gecode_constraint_circuit_129, 6);
+YAP_UserCPredicate("gecode_constraint_circuit_132", gecode_constraint_circuit_132, 6);
+YAP_UserCPredicate("gecode_constraint_circuit_135", gecode_constraint_circuit_135, 6);
+YAP_UserCPredicate("gecode_constraint_circuit_130", gecode_constraint_circuit_130, 4);
+YAP_UserCPredicate("gecode_constraint_circuit_139", gecode_constraint_circuit_139, 4);
+YAP_UserCPredicate("gecode_constraint_circuit_133", gecode_constraint_circuit_133, 7);
+YAP_UserCPredicate("gecode_constraint_circuit_136", gecode_constraint_circuit_136, 2);
+YAP_UserCPredicate("gecode_constraint_circuit_137", gecode_constraint_circuit_137, 3);
+YAP_UserCPredicate("gecode_constraint_circuit_138", gecode_constraint_circuit_138, 3);
+YAP_UserCPredicate("gecode_constraint_clause_140", gecode_constraint_clause_140, 5);
+YAP_UserCPredicate("gecode_constraint_clause_142", gecode_constraint_clause_142, 5);
+YAP_UserCPredicate("gecode_constraint_clause_141", gecode_constraint_clause_141, 6);
+YAP_UserCPredicate("gecode_constraint_clause_143", gecode_constraint_clause_143, 6);
+YAP_UserCPredicate("gecode_constraint_count_144", gecode_constraint_count_144, 5);
+YAP_UserCPredicate("gecode_constraint_count_146", gecode_constraint_count_146, 5);
+YAP_UserCPredicate("gecode_constraint_count_149", gecode_constraint_count_149, 5);
+YAP_UserCPredicate("gecode_constraint_count_153", gecode_constraint_count_153, 5);
+YAP_UserCPredicate("gecode_constraint_count_154", gecode_constraint_count_154, 5);
+YAP_UserCPredicate("gecode_constraint_count_156", gecode_constraint_count_156, 5);
+YAP_UserCPredicate("gecode_constraint_count_159", gecode_constraint_count_159, 5);
+YAP_UserCPredicate("gecode_constraint_count_162", gecode_constraint_count_162, 5);
+YAP_UserCPredicate("gecode_constraint_count_164", gecode_constraint_count_164, 5);
+YAP_UserCPredicate("gecode_constraint_count_166", gecode_constraint_count_166, 5);
+YAP_UserCPredicate("gecode_constraint_count_168", gecode_constraint_count_168, 5);
+YAP_UserCPredicate("gecode_constraint_count_145", gecode_constraint_count_145, 6);
+YAP_UserCPredicate("gecode_constraint_count_147", gecode_constraint_count_147, 6);
+YAP_UserCPredicate("gecode_constraint_count_155", gecode_constraint_count_155, 6);
+YAP_UserCPredicate("gecode_constraint_count_157", gecode_constraint_count_157, 6);
+YAP_UserCPredicate("gecode_constraint_count_163", gecode_constraint_count_163, 6);
+YAP_UserCPredicate("gecode_constraint_count_165", gecode_constraint_count_165, 6);
+YAP_UserCPredicate("gecode_constraint_count_167", gecode_constraint_count_167, 6);
+YAP_UserCPredicate("gecode_constraint_count_169", gecode_constraint_count_169, 6);
+YAP_UserCPredicate("gecode_constraint_count_148", gecode_constraint_count_148, 4);
+YAP_UserCPredicate("gecode_constraint_count_151", gecode_constraint_count_151, 4);
+YAP_UserCPredicate("gecode_constraint_count_152", gecode_constraint_count_152, 4);
+YAP_UserCPredicate("gecode_constraint_count_158", gecode_constraint_count_158, 4);
+YAP_UserCPredicate("gecode_constraint_count_161", gecode_constraint_count_161, 4);
+YAP_UserCPredicate("gecode_constraint_count_150", gecode_constraint_count_150, 3);
+YAP_UserCPredicate("gecode_constraint_count_160", gecode_constraint_count_160, 3);
+YAP_UserCPredicate("gecode_constraint_cumulative_170", gecode_constraint_cumulative_170, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_173", gecode_constraint_cumulative_173, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_176", gecode_constraint_cumulative_176, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_180", gecode_constraint_cumulative_180, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_182", gecode_constraint_cumulative_182, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_185", gecode_constraint_cumulative_185, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_188", gecode_constraint_cumulative_188, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_192", gecode_constraint_cumulative_192, 6);
+YAP_UserCPredicate("gecode_constraint_cumulative_171", gecode_constraint_cumulative_171, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_174", gecode_constraint_cumulative_174, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_177", gecode_constraint_cumulative_177, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_178", gecode_constraint_cumulative_178, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_181", gecode_constraint_cumulative_181, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_183", gecode_constraint_cumulative_183, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_186", gecode_constraint_cumulative_186, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_189", gecode_constraint_cumulative_189, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_190", gecode_constraint_cumulative_190, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_193", gecode_constraint_cumulative_193, 7);
+YAP_UserCPredicate("gecode_constraint_cumulative_172", gecode_constraint_cumulative_172, 5);
+YAP_UserCPredicate("gecode_constraint_cumulative_184", gecode_constraint_cumulative_184, 5);
+YAP_UserCPredicate("gecode_constraint_cumulative_175", gecode_constraint_cumulative_175, 8);
+YAP_UserCPredicate("gecode_constraint_cumulative_179", gecode_constraint_cumulative_179, 8);
+YAP_UserCPredicate("gecode_constraint_cumulative_187", gecode_constraint_cumulative_187, 8);
+YAP_UserCPredicate("gecode_constraint_cumulative_191", gecode_constraint_cumulative_191, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_194", gecode_constraint_cumulatives_194, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_196", gecode_constraint_cumulatives_196, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_198", gecode_constraint_cumulatives_198, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_200", gecode_constraint_cumulatives_200, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_202", gecode_constraint_cumulatives_202, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_204", gecode_constraint_cumulatives_204, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_206", gecode_constraint_cumulatives_206, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_208", gecode_constraint_cumulatives_208, 8);
+YAP_UserCPredicate("gecode_constraint_cumulatives_195", gecode_constraint_cumulatives_195, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_197", gecode_constraint_cumulatives_197, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_199", gecode_constraint_cumulatives_199, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_201", gecode_constraint_cumulatives_201, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_203", gecode_constraint_cumulatives_203, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_205", gecode_constraint_cumulatives_205, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_207", gecode_constraint_cumulatives_207, 9);
+YAP_UserCPredicate("gecode_constraint_cumulatives_209", gecode_constraint_cumulatives_209, 9);
+YAP_UserCPredicate("gecode_constraint_distinct_210", gecode_constraint_distinct_210, 3);
+YAP_UserCPredicate("gecode_constraint_distinct_212", gecode_constraint_distinct_212, 3);
+YAP_UserCPredicate("gecode_constraint_distinct_214", gecode_constraint_distinct_214, 3);
+YAP_UserCPredicate("gecode_constraint_distinct_217", gecode_constraint_distinct_217, 3);
+YAP_UserCPredicate("gecode_constraint_distinct_211", gecode_constraint_distinct_211, 4);
+YAP_UserCPredicate("gecode_constraint_distinct_213", gecode_constraint_distinct_213, 4);
+YAP_UserCPredicate("gecode_constraint_distinct_215", gecode_constraint_distinct_215, 4);
+YAP_UserCPredicate("gecode_constraint_distinct_216", gecode_constraint_distinct_216, 2);
+YAP_UserCPredicate("gecode_constraint_div_218", gecode_constraint_div_218, 4);
+YAP_UserCPredicate("gecode_constraint_div_219", gecode_constraint_div_219, 4);
+YAP_UserCPredicate("gecode_constraint_div_220", gecode_constraint_div_220, 5);
+YAP_UserCPredicate("gecode_constraint_divmod_221", gecode_constraint_divmod_221, 5);
+YAP_UserCPredicate("gecode_constraint_divmod_222", gecode_constraint_divmod_222, 6);
+YAP_UserCPredicate("gecode_constraint_dom_223", gecode_constraint_dom_223, 3);
+YAP_UserCPredicate("gecode_constraint_dom_225", gecode_constraint_dom_225, 3);
+YAP_UserCPredicate("gecode_constraint_dom_227", gecode_constraint_dom_227, 3);
+YAP_UserCPredicate("gecode_constraint_dom_229", gecode_constraint_dom_229, 3);
+YAP_UserCPredicate("gecode_constraint_dom_230", gecode_constraint_dom_230, 3);
+YAP_UserCPredicate("gecode_constraint_dom_232", gecode_constraint_dom_232, 3);
+YAP_UserCPredicate("gecode_constraint_dom_236", gecode_constraint_dom_236, 3);
+YAP_UserCPredicate("gecode_constraint_dom_238", gecode_constraint_dom_238, 3);
+YAP_UserCPredicate("gecode_constraint_dom_244", gecode_constraint_dom_244, 3);
+YAP_UserCPredicate("gecode_constraint_dom_246", gecode_constraint_dom_246, 3);
+YAP_UserCPredicate("gecode_constraint_dom_247", gecode_constraint_dom_247, 3);
+YAP_UserCPredicate("gecode_constraint_dom_253", gecode_constraint_dom_253, 3);
+YAP_UserCPredicate("gecode_constraint_dom_259", gecode_constraint_dom_259, 3);
+YAP_UserCPredicate("gecode_constraint_dom_267", gecode_constraint_dom_267, 3);
+YAP_UserCPredicate("gecode_constraint_dom_224", gecode_constraint_dom_224, 4);
+YAP_UserCPredicate("gecode_constraint_dom_226", gecode_constraint_dom_226, 4);
+YAP_UserCPredicate("gecode_constraint_dom_228", gecode_constraint_dom_228, 4);
+YAP_UserCPredicate("gecode_constraint_dom_231", gecode_constraint_dom_231, 4);
+YAP_UserCPredicate("gecode_constraint_dom_233", gecode_constraint_dom_233, 4);
+YAP_UserCPredicate("gecode_constraint_dom_234", gecode_constraint_dom_234, 4);
+YAP_UserCPredicate("gecode_constraint_dom_237", gecode_constraint_dom_237, 4);
+YAP_UserCPredicate("gecode_constraint_dom_239", gecode_constraint_dom_239, 4);
+YAP_UserCPredicate("gecode_constraint_dom_240", gecode_constraint_dom_240, 4);
+YAP_UserCPredicate("gecode_constraint_dom_242", gecode_constraint_dom_242, 4);
+YAP_UserCPredicate("gecode_constraint_dom_245", gecode_constraint_dom_245, 4);
+YAP_UserCPredicate("gecode_constraint_dom_248", gecode_constraint_dom_248, 4);
+YAP_UserCPredicate("gecode_constraint_dom_249", gecode_constraint_dom_249, 4);
+YAP_UserCPredicate("gecode_constraint_dom_251", gecode_constraint_dom_251, 4);
+YAP_UserCPredicate("gecode_constraint_dom_254", gecode_constraint_dom_254, 4);
+YAP_UserCPredicate("gecode_constraint_dom_257", gecode_constraint_dom_257, 4);
+YAP_UserCPredicate("gecode_constraint_dom_260", gecode_constraint_dom_260, 4);
+YAP_UserCPredicate("gecode_constraint_dom_261", gecode_constraint_dom_261, 4);
+YAP_UserCPredicate("gecode_constraint_dom_263", gecode_constraint_dom_263, 4);
+YAP_UserCPredicate("gecode_constraint_dom_235", gecode_constraint_dom_235, 5);
+YAP_UserCPredicate("gecode_constraint_dom_241", gecode_constraint_dom_241, 5);
+YAP_UserCPredicate("gecode_constraint_dom_243", gecode_constraint_dom_243, 5);
+YAP_UserCPredicate("gecode_constraint_dom_250", gecode_constraint_dom_250, 5);
+YAP_UserCPredicate("gecode_constraint_dom_252", gecode_constraint_dom_252, 5);
+YAP_UserCPredicate("gecode_constraint_dom_255", gecode_constraint_dom_255, 5);
+YAP_UserCPredicate("gecode_constraint_dom_258", gecode_constraint_dom_258, 5);
+YAP_UserCPredicate("gecode_constraint_dom_262", gecode_constraint_dom_262, 5);
+YAP_UserCPredicate("gecode_constraint_dom_264", gecode_constraint_dom_264, 5);
+YAP_UserCPredicate("gecode_constraint_dom_266", gecode_constraint_dom_266, 5);
+YAP_UserCPredicate("gecode_constraint_dom_256", gecode_constraint_dom_256, 6);
+YAP_UserCPredicate("gecode_constraint_dom_265", gecode_constraint_dom_265, 6);
+YAP_UserCPredicate("gecode_constraint_element_268", gecode_constraint_element_268, 4);
+YAP_UserCPredicate("gecode_constraint_element_270", gecode_constraint_element_270, 4);
+YAP_UserCPredicate("gecode_constraint_element_274", gecode_constraint_element_274, 4);
+YAP_UserCPredicate("gecode_constraint_element_278", gecode_constraint_element_278, 4);
+YAP_UserCPredicate("gecode_constraint_element_280", gecode_constraint_element_280, 4);
+YAP_UserCPredicate("gecode_constraint_element_282", gecode_constraint_element_282, 4);
+YAP_UserCPredicate("gecode_constraint_element_288", gecode_constraint_element_288, 4);
+YAP_UserCPredicate("gecode_constraint_element_269", gecode_constraint_element_269, 5);
+YAP_UserCPredicate("gecode_constraint_element_271", gecode_constraint_element_271, 5);
+YAP_UserCPredicate("gecode_constraint_element_275", gecode_constraint_element_275, 5);
+YAP_UserCPredicate("gecode_constraint_element_279", gecode_constraint_element_279, 5);
+YAP_UserCPredicate("gecode_constraint_element_281", gecode_constraint_element_281, 5);
+YAP_UserCPredicate("gecode_constraint_element_283", gecode_constraint_element_283, 5);
+YAP_UserCPredicate("gecode_constraint_element_289", gecode_constraint_element_289, 5);
+YAP_UserCPredicate("gecode_constraint_element_272", gecode_constraint_element_272, 7);
+YAP_UserCPredicate("gecode_constraint_element_276", gecode_constraint_element_276, 7);
+YAP_UserCPredicate("gecode_constraint_element_284", gecode_constraint_element_284, 7);
+YAP_UserCPredicate("gecode_constraint_element_286", gecode_constraint_element_286, 7);
+YAP_UserCPredicate("gecode_constraint_element_273", gecode_constraint_element_273, 8);
+YAP_UserCPredicate("gecode_constraint_element_277", gecode_constraint_element_277, 8);
+YAP_UserCPredicate("gecode_constraint_element_285", gecode_constraint_element_285, 8);
+YAP_UserCPredicate("gecode_constraint_element_287", gecode_constraint_element_287, 8);
+YAP_UserCPredicate("gecode_constraint_extensional_290", gecode_constraint_extensional_290, 4);
+YAP_UserCPredicate("gecode_constraint_extensional_295", gecode_constraint_extensional_295, 4);
+YAP_UserCPredicate("gecode_constraint_extensional_296", gecode_constraint_extensional_296, 4);
+YAP_UserCPredicate("gecode_constraint_extensional_301", gecode_constraint_extensional_301, 4);
+YAP_UserCPredicate("gecode_constraint_extensional_291", gecode_constraint_extensional_291, 5);
+YAP_UserCPredicate("gecode_constraint_extensional_292", gecode_constraint_extensional_292, 5);
+YAP_UserCPredicate("gecode_constraint_extensional_297", gecode_constraint_extensional_297, 5);
+YAP_UserCPredicate("gecode_constraint_extensional_298", gecode_constraint_extensional_298, 5);
+YAP_UserCPredicate("gecode_constraint_extensional_293", gecode_constraint_extensional_293, 6);
+YAP_UserCPredicate("gecode_constraint_extensional_299", gecode_constraint_extensional_299, 6);
+YAP_UserCPredicate("gecode_constraint_extensional_294", gecode_constraint_extensional_294, 3);
+YAP_UserCPredicate("gecode_constraint_extensional_300", gecode_constraint_extensional_300, 3);
+YAP_UserCPredicate("gecode_constraint_ite_302", gecode_constraint_ite_302, 5);
+YAP_UserCPredicate("gecode_constraint_ite_304", gecode_constraint_ite_304, 5);
+YAP_UserCPredicate("gecode_constraint_ite_305", gecode_constraint_ite_305, 5);
+YAP_UserCPredicate("gecode_constraint_ite_307", gecode_constraint_ite_307, 5);
+YAP_UserCPredicate("gecode_constraint_ite_303", gecode_constraint_ite_303, 6);
+YAP_UserCPredicate("gecode_constraint_ite_306", gecode_constraint_ite_306, 6);
+YAP_UserCPredicate("gecode_constraint_linear_308", gecode_constraint_linear_308, 4);
+YAP_UserCPredicate("gecode_constraint_linear_312", gecode_constraint_linear_312, 4);
+YAP_UserCPredicate("gecode_constraint_linear_320", gecode_constraint_linear_320, 4);
+YAP_UserCPredicate("gecode_constraint_linear_322", gecode_constraint_linear_322, 4);
+YAP_UserCPredicate("gecode_constraint_linear_340", gecode_constraint_linear_340, 4);
+YAP_UserCPredicate("gecode_constraint_linear_344", gecode_constraint_linear_344, 4);
+YAP_UserCPredicate("gecode_constraint_linear_309", gecode_constraint_linear_309, 5);
+YAP_UserCPredicate("gecode_constraint_linear_310", gecode_constraint_linear_310, 5);
+YAP_UserCPredicate("gecode_constraint_linear_313", gecode_constraint_linear_313, 5);
+YAP_UserCPredicate("gecode_constraint_linear_314", gecode_constraint_linear_314, 5);
+YAP_UserCPredicate("gecode_constraint_linear_316", gecode_constraint_linear_316, 5);
+YAP_UserCPredicate("gecode_constraint_linear_318", gecode_constraint_linear_318, 5);
+YAP_UserCPredicate("gecode_constraint_linear_321", gecode_constraint_linear_321, 5);
+YAP_UserCPredicate("gecode_constraint_linear_323", gecode_constraint_linear_323, 5);
+YAP_UserCPredicate("gecode_constraint_linear_324", gecode_constraint_linear_324, 5);
+YAP_UserCPredicate("gecode_constraint_linear_328", gecode_constraint_linear_328, 5);
+YAP_UserCPredicate("gecode_constraint_linear_332", gecode_constraint_linear_332, 5);
+YAP_UserCPredicate("gecode_constraint_linear_336", gecode_constraint_linear_336, 5);
+YAP_UserCPredicate("gecode_constraint_linear_341", gecode_constraint_linear_341, 5);
+YAP_UserCPredicate("gecode_constraint_linear_342", gecode_constraint_linear_342, 5);
+YAP_UserCPredicate("gecode_constraint_linear_345", gecode_constraint_linear_345, 5);
+YAP_UserCPredicate("gecode_constraint_linear_346", gecode_constraint_linear_346, 5);
+YAP_UserCPredicate("gecode_constraint_linear_311", gecode_constraint_linear_311, 6);
+YAP_UserCPredicate("gecode_constraint_linear_315", gecode_constraint_linear_315, 6);
+YAP_UserCPredicate("gecode_constraint_linear_317", gecode_constraint_linear_317, 6);
+YAP_UserCPredicate("gecode_constraint_linear_319", gecode_constraint_linear_319, 6);
+YAP_UserCPredicate("gecode_constraint_linear_325", gecode_constraint_linear_325, 6);
+YAP_UserCPredicate("gecode_constraint_linear_326", gecode_constraint_linear_326, 6);
+YAP_UserCPredicate("gecode_constraint_linear_329", gecode_constraint_linear_329, 6);
+YAP_UserCPredicate("gecode_constraint_linear_330", gecode_constraint_linear_330, 6);
+YAP_UserCPredicate("gecode_constraint_linear_333", gecode_constraint_linear_333, 6);
+YAP_UserCPredicate("gecode_constraint_linear_334", gecode_constraint_linear_334, 6);
+YAP_UserCPredicate("gecode_constraint_linear_337", gecode_constraint_linear_337, 6);
+YAP_UserCPredicate("gecode_constraint_linear_338", gecode_constraint_linear_338, 6);
+YAP_UserCPredicate("gecode_constraint_linear_343", gecode_constraint_linear_343, 6);
+YAP_UserCPredicate("gecode_constraint_linear_347", gecode_constraint_linear_347, 6);
+YAP_UserCPredicate("gecode_constraint_linear_327", gecode_constraint_linear_327, 7);
+YAP_UserCPredicate("gecode_constraint_linear_331", gecode_constraint_linear_331, 7);
+YAP_UserCPredicate("gecode_constraint_linear_335", gecode_constraint_linear_335, 7);
+YAP_UserCPredicate("gecode_constraint_linear_339", gecode_constraint_linear_339, 7);
+YAP_UserCPredicate("gecode_constraint_max_348", gecode_constraint_max_348, 3);
+YAP_UserCPredicate("gecode_constraint_max_349", gecode_constraint_max_349, 3);
+YAP_UserCPredicate("gecode_constraint_max_350", gecode_constraint_max_350, 4);
+YAP_UserCPredicate("gecode_constraint_max_351", gecode_constraint_max_351, 4);
+YAP_UserCPredicate("gecode_constraint_max_352", gecode_constraint_max_352, 4);
+YAP_UserCPredicate("gecode_constraint_max_353", gecode_constraint_max_353, 5);
+YAP_UserCPredicate("gecode_constraint_member_354", gecode_constraint_member_354, 3);
+YAP_UserCPredicate("gecode_constraint_member_358", gecode_constraint_member_358, 3);
+YAP_UserCPredicate("gecode_constraint_member_355", gecode_constraint_member_355, 4);
+YAP_UserCPredicate("gecode_constraint_member_356", gecode_constraint_member_356, 4);
+YAP_UserCPredicate("gecode_constraint_member_359", gecode_constraint_member_359, 4);
+YAP_UserCPredicate("gecode_constraint_member_360", gecode_constraint_member_360, 4);
+YAP_UserCPredicate("gecode_constraint_member_357", gecode_constraint_member_357, 5);
+YAP_UserCPredicate("gecode_constraint_member_361", gecode_constraint_member_361, 5);
+YAP_UserCPredicate("gecode_constraint_min_362", gecode_constraint_min_362, 3);
+YAP_UserCPredicate("gecode_constraint_min_363", gecode_constraint_min_363, 3);
+YAP_UserCPredicate("gecode_constraint_min_364", gecode_constraint_min_364, 4);
+YAP_UserCPredicate("gecode_constraint_min_365", gecode_constraint_min_365, 4);
+YAP_UserCPredicate("gecode_constraint_min_366", gecode_constraint_min_366, 4);
+YAP_UserCPredicate("gecode_constraint_min_367", gecode_constraint_min_367, 5);
+YAP_UserCPredicate("gecode_constraint_mod_368", gecode_constraint_mod_368, 4);
+YAP_UserCPredicate("gecode_constraint_mod_369", gecode_constraint_mod_369, 5);
+YAP_UserCPredicate("gecode_constraint_mult_370", gecode_constraint_mult_370, 4);
+YAP_UserCPredicate("gecode_constraint_mult_371", gecode_constraint_mult_371, 4);
+YAP_UserCPredicate("gecode_constraint_mult_372", gecode_constraint_mult_372, 5);
+YAP_UserCPredicate("gecode_constraint_nooverlap_373", gecode_constraint_nooverlap_373, 6);
+YAP_UserCPredicate("gecode_constraint_nooverlap_376", gecode_constraint_nooverlap_376, 6);
+YAP_UserCPredicate("gecode_constraint_nooverlap_374", gecode_constraint_nooverlap_374, 7);
+YAP_UserCPredicate("gecode_constraint_nooverlap_379", gecode_constraint_nooverlap_379, 7);
+YAP_UserCPredicate("gecode_constraint_nooverlap_375", gecode_constraint_nooverlap_375, 5);
+YAP_UserCPredicate("gecode_constraint_nooverlap_377", gecode_constraint_nooverlap_377, 8);
+YAP_UserCPredicate("gecode_constraint_nooverlap_380", gecode_constraint_nooverlap_380, 8);
+YAP_UserCPredicate("gecode_constraint_nooverlap_378", gecode_constraint_nooverlap_378, 9);
+YAP_UserCPredicate("gecode_constraint_nroot_381", gecode_constraint_nroot_381, 4);
+YAP_UserCPredicate("gecode_constraint_nroot_382", gecode_constraint_nroot_382, 4);
+YAP_UserCPredicate("gecode_constraint_nroot_383", gecode_constraint_nroot_383, 5);
+YAP_UserCPredicate("gecode_constraint_nvalues_384", gecode_constraint_nvalues_384, 4);
+YAP_UserCPredicate("gecode_constraint_nvalues_386", gecode_constraint_nvalues_386, 4);
+YAP_UserCPredicate("gecode_constraint_nvalues_388", gecode_constraint_nvalues_388, 4);
+YAP_UserCPredicate("gecode_constraint_nvalues_390", gecode_constraint_nvalues_390, 4);
+YAP_UserCPredicate("gecode_constraint_nvalues_385", gecode_constraint_nvalues_385, 5);
+YAP_UserCPredicate("gecode_constraint_nvalues_387", gecode_constraint_nvalues_387, 5);
+YAP_UserCPredicate("gecode_constraint_nvalues_389", gecode_constraint_nvalues_389, 5);
+YAP_UserCPredicate("gecode_constraint_nvalues_391", gecode_constraint_nvalues_391, 5);
+YAP_UserCPredicate("gecode_constraint_order_392", gecode_constraint_order_392, 6);
+YAP_UserCPredicate("gecode_constraint_order_393", gecode_constraint_order_393, 7);
+YAP_UserCPredicate("gecode_constraint_path_394", gecode_constraint_path_394, 7);
+YAP_UserCPredicate("gecode_constraint_path_397", gecode_constraint_path_397, 7);
+YAP_UserCPredicate("gecode_constraint_path_400", gecode_constraint_path_400, 7);
+YAP_UserCPredicate("gecode_constraint_path_395", gecode_constraint_path_395, 8);
+YAP_UserCPredicate("gecode_constraint_path_398", gecode_constraint_path_398, 8);
+YAP_UserCPredicate("gecode_constraint_path_401", gecode_constraint_path_401, 8);
+YAP_UserCPredicate("gecode_constraint_path_396", gecode_constraint_path_396, 6);
+YAP_UserCPredicate("gecode_constraint_path_405", gecode_constraint_path_405, 6);
+YAP_UserCPredicate("gecode_constraint_path_399", gecode_constraint_path_399, 9);
+YAP_UserCPredicate("gecode_constraint_path_402", gecode_constraint_path_402, 4);
+YAP_UserCPredicate("gecode_constraint_path_403", gecode_constraint_path_403, 5);
+YAP_UserCPredicate("gecode_constraint_path_404", gecode_constraint_path_404, 5);
+YAP_UserCPredicate("gecode_constraint_pow_406", gecode_constraint_pow_406, 4);
+YAP_UserCPredicate("gecode_constraint_pow_407", gecode_constraint_pow_407, 4);
+YAP_UserCPredicate("gecode_constraint_pow_408", gecode_constraint_pow_408, 5);
+YAP_UserCPredicate("gecode_constraint_precede_409", gecode_constraint_precede_409, 3);
+YAP_UserCPredicate("gecode_constraint_precede_410", gecode_constraint_precede_410, 4);
+YAP_UserCPredicate("gecode_constraint_precede_411", gecode_constraint_precede_411, 4);
+YAP_UserCPredicate("gecode_constraint_precede_412", gecode_constraint_precede_412, 5);
+YAP_UserCPredicate("gecode_constraint_relax_413", gecode_constraint_relax_413, 5);
+YAP_UserCPredicate("gecode_constraint_relax_414", gecode_constraint_relax_414, 5);
+YAP_UserCPredicate("gecode_constraint_rel_415", gecode_constraint_rel_415, 4);
+YAP_UserCPredicate("gecode_constraint_rel_417", gecode_constraint_rel_417, 4);
+YAP_UserCPredicate("gecode_constraint_rel_423", gecode_constraint_rel_423, 4);
+YAP_UserCPredicate("gecode_constraint_rel_427", gecode_constraint_rel_427, 4);
+YAP_UserCPredicate("gecode_constraint_rel_431", gecode_constraint_rel_431, 4);
+YAP_UserCPredicate("gecode_constraint_rel_433", gecode_constraint_rel_433, 4);
+YAP_UserCPredicate("gecode_constraint_rel_435", gecode_constraint_rel_435, 4);
+YAP_UserCPredicate("gecode_constraint_rel_437", gecode_constraint_rel_437, 4);
+YAP_UserCPredicate("gecode_constraint_rel_440", gecode_constraint_rel_440, 4);
+YAP_UserCPredicate("gecode_constraint_rel_441", gecode_constraint_rel_441, 4);
+YAP_UserCPredicate("gecode_constraint_rel_442", gecode_constraint_rel_442, 4);
+YAP_UserCPredicate("gecode_constraint_rel_443", gecode_constraint_rel_443, 4);
+YAP_UserCPredicate("gecode_constraint_rel_445", gecode_constraint_rel_445, 4);
+YAP_UserCPredicate("gecode_constraint_rel_447", gecode_constraint_rel_447, 4);
+YAP_UserCPredicate("gecode_constraint_rel_449", gecode_constraint_rel_449, 4);
+YAP_UserCPredicate("gecode_constraint_rel_451", gecode_constraint_rel_451, 4);
+YAP_UserCPredicate("gecode_constraint_rel_454", gecode_constraint_rel_454, 4);
+YAP_UserCPredicate("gecode_constraint_rel_455", gecode_constraint_rel_455, 4);
+YAP_UserCPredicate("gecode_constraint_rel_457", gecode_constraint_rel_457, 4);
+YAP_UserCPredicate("gecode_constraint_rel_459", gecode_constraint_rel_459, 4);
+YAP_UserCPredicate("gecode_constraint_rel_461", gecode_constraint_rel_461, 4);
+YAP_UserCPredicate("gecode_constraint_rel_465", gecode_constraint_rel_465, 4);
+YAP_UserCPredicate("gecode_constraint_rel_469", gecode_constraint_rel_469, 4);
+YAP_UserCPredicate("gecode_constraint_rel_471", gecode_constraint_rel_471, 4);
+YAP_UserCPredicate("gecode_constraint_rel_473", gecode_constraint_rel_473, 4);
+YAP_UserCPredicate("gecode_constraint_rel_475", gecode_constraint_rel_475, 4);
+YAP_UserCPredicate("gecode_constraint_rel_416", gecode_constraint_rel_416, 5);
+YAP_UserCPredicate("gecode_constraint_rel_418", gecode_constraint_rel_418, 5);
+YAP_UserCPredicate("gecode_constraint_rel_419", gecode_constraint_rel_419, 5);
+YAP_UserCPredicate("gecode_constraint_rel_421", gecode_constraint_rel_421, 5);
+YAP_UserCPredicate("gecode_constraint_rel_424", gecode_constraint_rel_424, 5);
+YAP_UserCPredicate("gecode_constraint_rel_425", gecode_constraint_rel_425, 5);
+YAP_UserCPredicate("gecode_constraint_rel_428", gecode_constraint_rel_428, 5);
+YAP_UserCPredicate("gecode_constraint_rel_429", gecode_constraint_rel_429, 5);
+YAP_UserCPredicate("gecode_constraint_rel_432", gecode_constraint_rel_432, 5);
+YAP_UserCPredicate("gecode_constraint_rel_434", gecode_constraint_rel_434, 5);
+YAP_UserCPredicate("gecode_constraint_rel_436", gecode_constraint_rel_436, 5);
+YAP_UserCPredicate("gecode_constraint_rel_438", gecode_constraint_rel_438, 5);
+YAP_UserCPredicate("gecode_constraint_rel_444", gecode_constraint_rel_444, 5);
+YAP_UserCPredicate("gecode_constraint_rel_446", gecode_constraint_rel_446, 5);
+YAP_UserCPredicate("gecode_constraint_rel_448", gecode_constraint_rel_448, 5);
+YAP_UserCPredicate("gecode_constraint_rel_450", gecode_constraint_rel_450, 5);
+YAP_UserCPredicate("gecode_constraint_rel_452", gecode_constraint_rel_452, 5);
+YAP_UserCPredicate("gecode_constraint_rel_456", gecode_constraint_rel_456, 5);
+YAP_UserCPredicate("gecode_constraint_rel_458", gecode_constraint_rel_458, 5);
+YAP_UserCPredicate("gecode_constraint_rel_460", gecode_constraint_rel_460, 5);
+YAP_UserCPredicate("gecode_constraint_rel_462", gecode_constraint_rel_462, 5);
+YAP_UserCPredicate("gecode_constraint_rel_463", gecode_constraint_rel_463, 5);
+YAP_UserCPredicate("gecode_constraint_rel_466", gecode_constraint_rel_466, 5);
+YAP_UserCPredicate("gecode_constraint_rel_467", gecode_constraint_rel_467, 5);
+YAP_UserCPredicate("gecode_constraint_rel_470", gecode_constraint_rel_470, 5);
+YAP_UserCPredicate("gecode_constraint_rel_472", gecode_constraint_rel_472, 5);
+YAP_UserCPredicate("gecode_constraint_rel_474", gecode_constraint_rel_474, 5);
+YAP_UserCPredicate("gecode_constraint_rel_476", gecode_constraint_rel_476, 5);
+YAP_UserCPredicate("gecode_constraint_rel_420", gecode_constraint_rel_420, 6);
+YAP_UserCPredicate("gecode_constraint_rel_422", gecode_constraint_rel_422, 6);
+YAP_UserCPredicate("gecode_constraint_rel_426", gecode_constraint_rel_426, 6);
+YAP_UserCPredicate("gecode_constraint_rel_430", gecode_constraint_rel_430, 6);
+YAP_UserCPredicate("gecode_constraint_rel_464", gecode_constraint_rel_464, 6);
+YAP_UserCPredicate("gecode_constraint_rel_468", gecode_constraint_rel_468, 6);
+YAP_UserCPredicate("gecode_constraint_rel_439", gecode_constraint_rel_439, 3);
+YAP_UserCPredicate("gecode_constraint_rel_453", gecode_constraint_rel_453, 3);
+YAP_UserCPredicate("gecode_constraint_sequence_477", gecode_constraint_sequence_477, 6);
+YAP_UserCPredicate("gecode_constraint_sequence_479", gecode_constraint_sequence_479, 6);
+YAP_UserCPredicate("gecode_constraint_sequence_478", gecode_constraint_sequence_478, 7);
+YAP_UserCPredicate("gecode_constraint_sequence_480", gecode_constraint_sequence_480, 7);
+YAP_UserCPredicate("gecode_constraint_sorted_481", gecode_constraint_sorted_481, 4);
+YAP_UserCPredicate("gecode_constraint_sorted_484", gecode_constraint_sorted_484, 4);
+YAP_UserCPredicate("gecode_constraint_sorted_482", gecode_constraint_sorted_482, 5);
+YAP_UserCPredicate("gecode_constraint_sorted_483", gecode_constraint_sorted_483, 3);
+YAP_UserCPredicate("gecode_constraint_sqr_485", gecode_constraint_sqr_485, 3);
+YAP_UserCPredicate("gecode_constraint_sqr_486", gecode_constraint_sqr_486, 3);
+YAP_UserCPredicate("gecode_constraint_sqr_487", gecode_constraint_sqr_487, 4);
+YAP_UserCPredicate("gecode_constraint_sqrt_488", gecode_constraint_sqrt_488, 3);
+YAP_UserCPredicate("gecode_constraint_sqrt_489", gecode_constraint_sqrt_489, 3);
+YAP_UserCPredicate("gecode_constraint_sqrt_490", gecode_constraint_sqrt_490, 4);
+YAP_UserCPredicate("gecode_constraint_unary_491", gecode_constraint_unary_491, 4);
+YAP_UserCPredicate("gecode_constraint_unary_494", gecode_constraint_unary_494, 4);
+YAP_UserCPredicate("gecode_constraint_unary_497", gecode_constraint_unary_497, 4);
+YAP_UserCPredicate("gecode_constraint_unary_501", gecode_constraint_unary_501, 4);
+YAP_UserCPredicate("gecode_constraint_unary_492", gecode_constraint_unary_492, 5);
+YAP_UserCPredicate("gecode_constraint_unary_495", gecode_constraint_unary_495, 5);
+YAP_UserCPredicate("gecode_constraint_unary_498", gecode_constraint_unary_498, 5);
+YAP_UserCPredicate("gecode_constraint_unary_499", gecode_constraint_unary_499, 5);
+YAP_UserCPredicate("gecode_constraint_unary_502", gecode_constraint_unary_502, 5);
+YAP_UserCPredicate("gecode_constraint_unary_493", gecode_constraint_unary_493, 3);
+YAP_UserCPredicate("gecode_constraint_unary_496", gecode_constraint_unary_496, 6);
+YAP_UserCPredicate("gecode_constraint_unary_500", gecode_constraint_unary_500, 6);
+YAP_UserCPredicate("gecode_constraint_unshare_503", gecode_constraint_unshare_503, 2);
+YAP_UserCPredicate("gecode_constraint_unshare_505", gecode_constraint_unshare_505, 2);
+YAP_UserCPredicate("gecode_constraint_unshare_504", gecode_constraint_unshare_504, 3);
+YAP_UserCPredicate("gecode_constraint_unshare_506", gecode_constraint_unshare_506, 3);
+YAP_UserCPredicate("gecode_constraint_when_507", gecode_constraint_when_507, 3);
+YAP_UserCPredicate("gecode_constraint_when_508", gecode_constraint_when_508, 4);
+YAP_UserCPredicate("gecode_constraint_when_509", gecode_constraint_when_509, 4);
+YAP_UserCPredicate("gecode_constraint_when_510", gecode_constraint_when_510, 5);

@@ -345,6 +345,7 @@ prolog_file_name(File, PrologFileName) :-
 path(Path) :-
 	findall(X,'$in_path'(X),Path).
 
+
 '$in_path'(X) :-
 	recorded('$path',Path,_),
 	atom_codes(Path,S),

@@ -73,7 +73,8 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
   { if ( (TF = Yap_ensure_atom__(__FILE__, __FUNCTION__, __LINE__, T0  )  == 0L ) return false; \
   }
 
-INLINE_ONLY Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
+//INLINE_ONLY 
+ static Term Yap_ensure_atom__(const char *fu, const char *fi, int line,
                                    Term in) {
   Term t = Deref(in);
   // Term Context = Deref(ARG2);

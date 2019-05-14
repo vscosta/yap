@@ -238,14 +238,14 @@ meta_predicate(P) :-
     functor(G, F, Arity ),
     '$meta_predicate'(F, GM, Arity, PredDef),
     !,
-    '$meta_expand'(G, PredDef, GM, HVars, GF).
+    '$meta_expand'(G, PredDef, BM, HVars, GF).
 '$meta_expansion'(GF, BM, _HVars, BM:GF).
 
 '$expand_goal'(G0, GF, GS, HM, SM, BM, HVars-H) :-
     '$yap_strip_module'( BM:G0, M0N, G0N),
     '$user_expansion'(HVars,M0N:G0N, M1:G1),
     '$import_expansion'(HVars, M1:G1, M2:G2),
-    '$meta_expansion'(G2, M2, HVars, MG3),
+    '$meta_expansion'(M2:G2, M1, HVars, MG3),
     '$yap_strip_module'(MG3, M4, B4),
     '$end_goal_expansion'(B4, GF, GS, HM, SM, M4, H).
 
@@ -465,7 +465,7 @@ meta_predicate(P) :-
 % has to be last!!!
 '$expand_a_clause'(MHB, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
     source_module(SM0),
-    '$yap_strip_module'(MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
+    '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
     '$not_imported'(NH, HM),

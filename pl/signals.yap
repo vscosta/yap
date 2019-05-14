@@ -181,8 +181,8 @@
 	'$trace'(Mod:G).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
-        '$enable_debugging',
-	'$execute_clause'(G,Mod,Ref,CP).
+    '$enable_debugging',
+    '$execute_clause'(G,Mod,Ref,CP).
 '$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
 	'$enable_debugging',
 	'$execute_nonstop'(G, M).

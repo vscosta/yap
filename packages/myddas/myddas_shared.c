@@ -130,22 +130,32 @@ static Int c_db_connection_type(USES_REGS1) {
 
   Int *con = (Int *)IntegerOfTerm(arg_con);
   MYDDAS_API type = myddas_util_connection_type(con);
-
   switch (type) {
+#if MYDDAS_MYSQL
   case API_MYSQL:
     /* MYSQL Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("mysql")));
+#endif
+    #if MYDDAS_ODBC
   case API_ODBC:
     /* ODBC Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("odbc")));
+    #endif
+#if USE_MYDDAS_SQLITE3
   case API_SQLITE3:
     /* SQLITE3 Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("sqlite3")));
-  case API_POSTGRES:
+#endif
+#if MYDDAS_POSTGRES
+    case API_POSTGRES:
     /* SQLITE3 Connection */
     return Yap_unify(arg_type, MkAtomTerm(Yap_LookupAtom("postgres")));
+
+#endif
+      default:
+          return FALSE;
+
   }
-  return FALSE;
 }
 
 /* db_add_preds: PredName * Arity * Module * Connection*/
