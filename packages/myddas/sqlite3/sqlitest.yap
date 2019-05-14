@@ -9,7 +9,7 @@
 
 :- if( current_prolog_flag(android,true) ).
 test(db_open) :-
-    db_open(sqlite3, '/data/user/0/pt.up.yap/files/chinook.db', _, _).
+    db_open(sqlite3, '', _, _).
 :- else.
 test(db_open) :-
     db_open(sqlite3,myddas,dataset('chinook.db'),_,_).
