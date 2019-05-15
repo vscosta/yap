@@ -93,16 +93,6 @@ live :-
     ;   '$halt'(0)
     ).
 
-'$init_debug' :-
-    nb_setval('$spy_gn', 1),
-				 % stop at spy-points if debugging is on.
-    nb_setval('$debug_run', off),
-    nb_setval('$debug_jump', off),
-    '__NB_getval__'('$trace', Trace, fail),
-    (   Trace==on
-    ->  nb_setval('$debug_status', state(creep, 0, stop, on))
-    ;   nb_setval('$debug_status', state(zip, 0, stop, off))
-    ).
 
 '$erase_sets' :-
     eraseall($),
@@ -587,21 +577,10 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, CP, G0, M) :-
-        gated_call(
-	    '$enable_debugging',
-            '$call'(G, CP, G0, M),
-	    Port,
-	'$reenter_debugger'(Port)
-       ).
-    
+    '$trace_query'(G, M, CP, G0).    
 
 '$user_call'(G, M) :-
-        gated_call(
-                '$enable_debugging',
-                M:G,
-	         Port,
-			'$reenter_debugger'(Port)
-       ).
+	'$trace'(M:G).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 

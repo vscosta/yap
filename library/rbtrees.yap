@@ -76,7 +76,7 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 	rb_partial_map(+,+,2,-),
 	rb_apply(+,+,2,-).
 
-
+/*
 :- use_module(library(type_check)).
 
 :- type rbtree(K,V) ---> t(tree(K,V),tree(K,V)).
@@ -97,7 +97,7 @@ form colour(Left, Key, Value, Right), where _colour_  is one of =red= or
 :- pred max(tree(K,V),K,V).
 :- pred rb_next(rbtree(K,V),K,pair(K,V),V).
 :- pred next(tree(K,V),K,pair(K,V),V,tree(K,V)).
-
+*/
 
 %%	@pred rb_new(-T) is det.
 % create an empty tree.
