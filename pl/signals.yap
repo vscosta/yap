@@ -181,8 +181,8 @@
 	'$trace'(Mod:G).
 
 '$no_creep_call'('$execute_clause'(G,Mod,Ref,CP),_) :- !,
-        '$enable_debugging',
-	'$execute_clause'(G,Mod,Ref,CP).
+    '$enable_debugging',
+    '$execute_clause'(G,Mod,Ref,CP).
 '$no_creep_call'('$execute_nonstop'(G, M),_) :- !,
 	'$enable_debugging',
 	'$execute_nonstop'(G, M).
@@ -295,18 +295,18 @@ read_sig.
 				% %
 				% make thes predicates non-traceable. %
 
-:- '$set_no_trace'(current_choicepoint(_DCP), yap_hacks).
-:- '$set_no_trace'('$current_choice_point'(_DCP), _).
-:- '$set_no_trace'('$$cut_by'(_DCP), prolog).
-:- '$set_no_trace'(true, yap_hacks).
-:- '$set_no_trace'(true, prolog).
-:- '$set_no_trace'('$call'(_,_,_,_), prolog).
-:- '$set_no_trace'('$execute_nonstop'(_,_), prolog).
-:- '$set_no_trace'('$execute_clause'(_,_,_,_), prolog).
-:- '$set_no_trace'('$restore_regs'(_,_), prolog).
-:- '$set_no_trace'('$undefp'(_,_), prolog).
-:- '$set_no_trace'('$Error'(_), prolog).
-:- '$set_no_trace'('$LoopError'(_,_), prolog).
-:- '$set_no_trace'('$TraceError'(_,_,_,_,_), prolog).
+:- '$set_private'(current_choicepoint(_DCP), yap_hacks).
+:- '$set_private'('$current_choice_point'(_DCP), _).
+:- '$set_private'('$$cut_by'(_DCP), prolog).
+:- '$set_private'(true, yap_hacks).
+:- '$set_private'(true, prolog).
+:- '$set_private'('$call'(_,_,_,_), prolog).
+:- '$set_private'('$execute_nonstop'(_,_), prolog).
+:- '$set_private'('$execute_clause'(_,_,_,_), prolog).
+:- '$set_private'('$restore_regs'(_,_), prolog).
+:- '$set_private'('$undefp'(_,_), prolog).
+:- '$set_private'('$Error'(_), prolog).
+:- '$set_private'('$LoopError'(_,_), prolog).
+:- '$set_private'('$TraceError'(_,_,_,_,_), prolog).
 
 %%! @}

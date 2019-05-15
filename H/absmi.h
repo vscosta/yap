@@ -2322,7 +2322,7 @@ static inline void prune(choiceptr cp USES_REGS) {
         POP_EXECUTE();
       }
       if (B->cp_b == NULL)
-        break;
+        return;
       B = B->cp_b;
     }
     if (POP_CHOICE_POINT(B->cp_b)) {
@@ -2398,6 +2398,7 @@ Int (*Yap_traced_absmi)(void);
 extern JIT_Compiler *J;
 #endif
 
+
 extern NativeContext *NativeArea;
 extern IntermediatecodeContext *IntermediatecodeArea;
 
@@ -2421,7 +2422,7 @@ extern yamop *headoftrace;
 #ifdef SHADOW_S
 #define PROCESS_INT(F, C)                                                      \
   BEGD(d0);                                                                    \
-  Yap_REGS.S_ = SREG;                                                          \
+  Yap_REGSS_ = SREG;                                                          \
   saveregs();                                                                  \
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
@@ -2444,8 +2445,8 @@ extern yamop *headoftrace;
     FAIL();                                                                    \
   if (d0 == 2)                                                                 \
     goto C;                                                                    \
-  JMPNext();                                                                   \
-  ENDD(d0);
+  JMPNext();\
+ ENDD(d0);
 #endif
 
 #define Yap_AsmError(e, d)                                                     \

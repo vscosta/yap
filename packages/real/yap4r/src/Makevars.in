@@ -1,5 +1,5 @@
-PKG_LIBS=-Wl,-rpath=${YAP_LIBDIR} -Wl,-rpath=${YAP_DLLDIR} \
-         -L${YAP_LIBDIR} -L${YAP_DLLDIR} -lreal -lYAP++ -lYap
+PKG_LIBS=${CMAKE_SHARED_LINKER_FLAGS} #-Wl,-rpath=${YAP_LIBDIR} -Wl,-rpath=${YAP_DLLDIR} \
+         #-L${YAP_LIBDIR} -L${YAP_DLLDIR} -lreal -lYAP++ -lYap
 PKG_CXXFLAGS=-I${YAP_SOURCE_DIR}/CXX -I${YAP_BINARY_DIR}\
         -I${YAP_SOURCE_DIR}/include -I${YAP_SOURCE_DIR}/H\
 	-I${YAP_SOURCE_DIR}/OPTYap -I${YAP_SOURCE_DIR}/os\

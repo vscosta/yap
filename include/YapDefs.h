@@ -137,13 +137,14 @@ typedef enum {
 #include "YapInit.h"
 
 /* this should be opaque to the user */
-typedef struct goal_info {
-  unsigned long b, b0, e, a; //> choice-point at entry
+typedef struct {
+  unsigned long b0, b_entry, b_exit;      //> choice-point at entry
   YAP_handle_t CurSlot; //> variables at entry
   YAP_handle_t EndSlot; //> variables at successful execution
   struct yami *p;       //> Program Counter at entry
   struct yami *cp;      //> Continuation PC at entry
   int lvl;
+  long env0;
   unsigned long tr, h;
 } YAP_dogoalinfo;
 

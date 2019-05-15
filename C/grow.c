@@ -324,15 +324,15 @@ MoveGlobalWithHole( USES_REGS1 )
 }
 
 static void
-MoveHalfGlobal(CELL *OldPt USES_REGS)
+MoveHalfGlobal(CELL *OldPt, size_t request USES_REGS)
 {
 	/*
 	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
 	 * absmi.asm
 	 */
   UInt diff = LOCAL_OldH-OldPt;
-  CELL *NewPt = (CELL *)((char*)OldPt+LOCAL_GDiff);
   CELL *IntPt = (CELL *)((char*)OldPt+LOCAL_GDiff0);
+  CELL *NewPt = IntPt+request/sizeof(CELL);
   cpcellsd(NewPt, IntPt, diff);
 }
 
@@ -393,7 +393,7 @@ AdjustTrail(bool adjusting_heap, bool thread_copying USES_REGS)
     register CELL reg = TrailTerm(ptt-1);
 #ifdef FROZEN_STACKS
     register CELL reg2 = TrailVal(ptt-1);
-#endif
+    #endif
 
     ptt--;
     if (IsVarTerm(reg)) {
@@ -436,6 +436,8 @@ fixPointerCells(CELL *pt, CELL *pt_bot, bool thread_copying USES_REGS)
 {
   while (pt > pt_bot) {
     CELL reg = *--pt;
+    //    if (pt-pt_bot> 4300 && pt-pt_bot < 4500)
+    //  printf("%d %d %lx\n", pt-pt_bot, pt-LOCAL_GSplit, reg);
     if (IsVarTerm(reg)) {
       if (IsOldLocal(reg))
 	*pt = LocalAdjust(reg);
@@ -450,6 +452,8 @@ fixPointerCells(CELL *pt, CELL *pt_bot, bool thread_copying USES_REGS)
     } else if (IsPairTerm(reg)) {
       *pt = AdjustPair(reg PASS_REGS);
     }
+    //    if (pt-pt_bot> 4300 && pt-pt_bot < 4500)
+    //  printf("%lx\n", *pt);
   }
 }
 
@@ -889,12 +893,11 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   char *omax = (char *)H0;
   ADDR old_GlobalBase = LOCAL_GlobalBase;
   UInt minimal_request = 0L;
-  Int size = request;
+  Int size = request/sizeof(CELL);
   char vb_msg1 = '\0', *vb_msg2;
   bool do_grow = true;
-  bool insert_in_delays = false;
   /*
-    request is the amount of memory we requested, in bytes;
+    request is the amount of memory we requesd, in bytes;
     base_move is the shift in global stacks we had to do
     size is how much space we allocate: it's negative if we just expand
 	the delay stack.
@@ -902,55 +905,42 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   */
 
   if (hsplit) {
-    /* just a little bit of sanity checking */
-    if (hsplit < H0 && hsplit > (CELL *)LOCAL_GlobalBase) {
-      insert_in_delays = TRUE;
-      /* expanding attributed variables */
-      if (omax - size > LOCAL_GlobalBase+4096*sizeof(CELL)) {
-	/* we can just ask for more room */
-	size = 0;
-	do_grow = FALSE;
-      }
-    } else if (hsplit < (CELL*)omax ||
+    if (hsplit < H0 ||
 	hsplit > HR)
-      return FALSE;
-    else if (hsplit == (CELL *)omax)
-      hsplit = NULL;
-    if (size < 0 ||
-	(Unsigned(HR)+size < Unsigned(ASP)-StackGap( PASS_REGS1 ) &&
-	 hsplit > H0)) {
-      /* don't need to expand stacks */
-      insert_in_delays = FALSE;
-      do_grow = FALSE;
+      return false;
+    if (hsplit == HR && Unsigned(HR)+request < Unsigned(ASP)-StackGap( PASS_REGS1 )) {
+       return request;
     }
-  } else {
-    if (Unsigned(HR)+size < Unsigned(ASP)-CreepFlag) {
-      /* we can just ask for more room */
-      do_grow = FALSE;
-    }
+  }
+  if (size < 0 ||
+      (Unsigned(HR)+request < Unsigned(ASP-StackGap( PASS_REGS1 )))) {
+      do_grow = false;
   }
   if (do_grow) {
-    if (size < YAP_ALLOC_SIZE)
-      size = YAP_ALLOC_SIZE;
-    size = AdjustPageSize(size);
+    if (request < YAP_ALLOC_SIZE)
+      request = YAP_ALLOC_SIZE;
+    request = AdjustPageSize(request);
   }
+
+      printf("grow=%d\n", do_grow);
   /* adjust to a multiple of 256) */
   LOCAL_ErrorMessage = NULL;
   LOCAL_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
+
   if (do_grow) {
     if (!GLOBAL_AllowGlobalExpansion) {
       LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
       LeaveGrowMode(GrowStackMode);
       return 0;
     }
-    if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
+    if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(request)) {
       /* always fails when using malloc */
       LOCAL_ErrorMessage = NULL;
-      size += AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
-      minimal_request = size;
-      size = Yap_ExtendWorkSpaceThroughHole(size);
-      if (size < 0) {
+      request += AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
+      minimal_request = request;
+      request = Yap_ExtendWorkSpaceThroughHole(request);
+      if (request < 0) {
 	LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
 	LeaveGrowMode(GrowStackMode);
 	return 0;
@@ -958,15 +948,11 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     }
   }
   gc_verbose = Yap_is_gc_verbose();
-  LOCAL_delay_overflows++;
   if (gc_verbose) {
     if (hsplit) {
       if (hsplit > H0) {
 	vb_msg1 = 'H';
 	vb_msg2 = "Global Variable Space";
-      } else {
-	vb_msg1 = 'D';
-	vb_msg2 = "Global Variable Delay Space";
       }
     } else {
       vb_msg1 = 'D';
@@ -976,8 +962,9 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
-    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, size);
+    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, request);
   }
+      printf("grow=%d %p\n", do_grow, ASP);
   ASP -= 256;
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
@@ -985,13 +972,13 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     /* we got over a hole */
     if (minimal_request) {
       /* we went over a hole */
-      LOCAL_BaseDiff = size+((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)-minimal_request;
-      LOCAL_LDiff = LOCAL_TrDiff = size;
+      LOCAL_BaseDiff = request+((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)-minimal_request;
+      LOCAL_LDiff = LOCAL_TrDiff = request;
     } else {
       /* we may still have an overflow */
       LOCAL_BaseDiff = LOCAL_GlobalBase - old_GlobalBase;
       /* if we grow, we need to move the stacks */
-      LOCAL_LDiff = LOCAL_TrDiff = LOCAL_BaseDiff+size;
+      LOCAL_LDiff = LOCAL_TrDiff = LOCAL_BaseDiff+request;
     }
   } else {
     /* stay still */
@@ -1002,25 +989,21 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
      hole in global */
   if (!hsplit) {
     if (!do_grow) {
-      LOCAL_DelayDiff = LOCAL_GDiff = LOCAL_GDiff0 = size;
+      LOCAL_GDiff = LOCAL_GDiff0 = request;
       request = 0L;
     } else {
-      /* expand delay stack */
-      LOCAL_DelayDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_LDiff;
-    }
-  } else if (insert_in_delays) {
     /* we want to expand a hole for the delay stack */
-    LOCAL_DelayDiff = size-request;
-    LOCAL_GDiff = LOCAL_GDiff0 = size;
+    LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_LDiff;
+    }
   } else {
     /* we want to expand a hole for the delay stack */
-    LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff;
+    LOCAL_GDiff0 = LOCAL_BaseDiff;
     LOCAL_GDiff = LOCAL_BaseDiff+request;
   }
   LOCAL_GSplit = hsplit;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GlobalBase = old_GlobalBase;
-  SetHeapRegs(FALSE PASS_REGS);
+ SetHeapRegs(FALSE PASS_REGS);
   if (do_grow) {
     MoveLocalAndTrail( PASS_REGS1 );
     if (hsplit) {
@@ -1042,17 +1025,13 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     *ptr = PtoLocAdjust(*ptr);
   }
   if (hsplit) {
-    if (insert_in_delays) {
-      /* we have things not quite where we want to have them */
-      cpcellsd((CELL *)(omax+LOCAL_DelayDiff), (CELL *)(omax+LOCAL_GDiff0), (ADDR)hsplit-omax);
-    } else {
-      MoveHalfGlobal(hsplit PASS_REGS);
-    }
+    MoveHalfGlobal(hsplit, request PASS_REGS);
+    printf("done\n");
   }
   YAPLeaveCriticalSection();
   ASP += 256;
   if (minimal_request) {
-    Yap_AllocHole(minimal_request, size);
+    Yap_AllocHole(minimal_request, request);
   }
   growth_time = Yap_cputime()-start_growth_time;
   LOCAL_total_delay_overflow_time += growth_time;
@@ -1063,8 +1042,9 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   LeaveGrowMode(GrowStackMode);
   if (hsplit) {
     return request;
-  } else
+  } else {
     return LOCAL_GDiff-LOCAL_BaseDiff;
+  }
 }
 
 static void
@@ -1503,7 +1483,7 @@ Yap_growheap(bool fix_code, size_t in_size, void *cip)
 int
 Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
-  CACHE_REGS
+    CACHE_REGS
   int res;
 
   res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep PASS_REGS);
@@ -1576,6 +1556,7 @@ Yap_growstack(size_t size)
   int res;
 
   LOCAL_PrologMode |= GrowStackMode;
+  printf("extra %dBs\n",size);
   res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
   return res;

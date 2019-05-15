@@ -1,4 +1,4 @@
-/**************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -2090,12 +2090,12 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     restart_cp:
       switch (opnum) {
       case _Nstop:
-	if (gc_B->cp_b != NULL) {
-	  nargs = 0;
-	  break;
-	} else {
-	  /* this is the last choice point, the work is done  ;-) */
-	  return;
+	if (gc_B->cp_env == LCL0) {
+        return;
+    } else {
+	    // This must be a border choicepoint, just move up
+	    gc_B = (choiceptr)(gc_B->cp_env[E_B]);
+	    continue;
 	}
       case _retry_c:
       case _retry_userc:
@@ -3025,11 +3025,14 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       sweep_environments(gc_B->cp_env,
 			 EnvSizeInCells,
 			 NULL PASS_REGS);
-      if (gc_B->cp_b != NULL) {
-	break;
-      } else
-	return;
-    case _trust_fail:
+            if (gc_B->cp_env == LCL0) {
+                return;
+            } else {
+                // This must be a border choicepoint, just move up
+                gc_B = (choiceptr)(gc_B->cp_env[E_B]);
+                continue;
+            }
+        case _trust_fail:
       break;
     case _or_else:
     case _or_last:
@@ -4191,7 +4194,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   int    gc_on = FALSE, gc_t = FALSE;
 
   if (Yap_GetValue(AtomGc) != TermNil)
-    gc_on = TRUE;
+    gc_on = false;
   if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&
       gc_margin > 0) {
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
@@ -4343,3 +4346,4 @@ Yap_inc_mark_variable()
   CACHE_REGS
     LOCAL_total_marked++;
 }
+

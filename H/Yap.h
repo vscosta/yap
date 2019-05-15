@@ -91,7 +91,6 @@ typedef YAP_Term Term;
 #define CellSize sizeof(CELL)
 #define SmallSize sizeof(SMALLUNSGN)
 
-typedef YAP_Int Int;
 typedef YAP_Float Float;
 typedef YAP_handle_t yhandle_t;
 

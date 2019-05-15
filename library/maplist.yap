@@ -710,7 +710,7 @@ scanl_([H1|T1], [H2|T2], [H3|T3], [H4|T4], Goal, V, [VH|VT]) :-
 
 goal_expansion(checklist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -731,7 +731,7 @@ goal_expansion(checklist(Meta, List), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, List), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -752,7 +752,7 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -766,14 +766,13 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
     append_args(HeadPrefix, [[In|Ins], [Out|Outs]], RecursionHead),
     append_args(Pred, [In, Out], Apply),
     append_args(HeadPrefix, [Ins, Outs], RecursiveCall),
-    compile_aux([
-		       Base,
+    compile_aux([	       Base,
 		       (RecursionHead :- Apply, RecursiveCall)
 		   ], Mod).
 
 goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -794,7 +793,7 @@ goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -815,7 +814,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 
 goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -836,7 +835,7 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4, L5), Mod:Goal) :-
 
 goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -859,7 +858,7 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -882,31 +881,31 @@ goal_expansion(selectlist(Meta, ListIn, ListIn1, ListOut), Mod:Goal) :-
 
 goal_expansion(selectlists(Meta, ListIn, ListIn1, ListOut, ListOut1), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
     % the new goal
-    pred_name(selectlist, 4, Proto, GoalName),
+    pred_name(selectlists, 4, Proto, GoalName),
     append(MetaVars, [ListIn, ListIn1, ListOut, ListOut1], GoalArgs),
     Goal =.. [GoalName|GoalArgs],
     % the new predicate declaration
     HeadPrefix =.. [GoalName|PredVars],
     append_args(HeadPrefix, [[], [], [], []], Base),
     append_args(HeadPrefix, [[In|Ins], [In1|Ins1], Outs, Outs1], RecursionHead),
-    append_args(Pred, [In, In1], Apply),
+    append_args(Pred, [In, Out], Apply),
     append_args(HeadPrefix, [Ins, Ins1, NOuts, NOuts1], RecursiveCall),
     compile_aux([
 		       Base,
 		       (RecursionHead :-
-		            (Apply -> Outs = [In|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
+		            (Apply -> Outs = [Out|NOuts], Outs1 = [In1|NOuts1]; Outs = NOuts,  Outs1 = NOuts1),
 			    RecursiveCall)
 		   ], Mod).
 
 % same as selectlist
 goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -929,7 +928,7 @@ goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -952,7 +951,7 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -975,7 +974,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 
 goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1015,7 +1014,7 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 
 goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1038,7 +1037,7 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 
 goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1061,7 +1060,7 @@ goal_expansion(convlist(Meta, ListIn, ListExtra, ListOut), Mod:Goal) :-
 
 goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1082,7 +1081,7 @@ goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1103,7 +1102,7 @@ goal_expansion(foldl(Meta, List, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1124,7 +1123,7 @@ goal_expansion(foldl(Meta, List1, List2, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1145,7 +1144,7 @@ goal_expansion(foldl(Meta, List1, List2, List3, AccIn, AccOut), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1166,7 +1165,7 @@ goal_expansion(foldl2(Meta, List, AccIn, AccOut, W0, W), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1187,7 +1186,7 @@ goal_expansion(foldl2(Meta, List1, List2, AccIn, AccOut, W0, W), Mod:Goal) :-
 
 goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1208,7 +1207,7 @@ goal_expansion(foldl2(Meta, List1, List2, List3, AccIn, AccOut, W0, W), Mod:Goal
 
 goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1229,7 +1228,7 @@ goal_expansion(foldl3(Meta, List, AccIn, AccOut, W0, W, X0, X), Mod:Goal) :-
 
 goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1250,7 +1249,7 @@ goal_expansion(foldl4(Meta, List, AccIn, AccOut, W0, W, X0, X, Y0, Y), Mod:Goal)
 
 goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1282,7 +1281,7 @@ goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 
 goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,
@@ -1312,7 +1311,7 @@ goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
 
 goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
     goal_expansion_allowed,
-    is_callable(Meta),
+    callable(Meta),
     current_source_module(Mod,Mod),
     aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
     !,

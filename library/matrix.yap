@@ -29,6 +29,7 @@
 	    (+=)/2, op(800, xfx, +=),
 	    (-=)/2, op(800, xfx, -=),
 	    op(700, xfx, in),
+	    op(700, xfx, within),
 	    op(700, xfx, ins),
             op(450, xfx, ..), % should bind more tightly than \/
 	    op(710, xfx, of), of/2,
@@ -973,8 +974,6 @@ mtimes(I1, I2, V) :-
 	      is_list(I2) ->  maplist(times, I1, I2, V) ;
 	      V = I1*I2 ) ;
 	    V = I1 *I2.
-
-
 
 %
 % three types of matrix: integers, floats and general terms.

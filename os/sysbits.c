@@ -1933,6 +1933,19 @@ static Int p_sleep(USES_REGS1) {
   return FALSE:
 #endif
 }
+
+
+static Int
+  p_mtrace()
+  {
+#ifdef HAVE_MTRACE
+    Term t = Deref(ARG1);
+    if (t == TermTrue) mtrace();
+    else if (t == TermFalse) return muntrace();
+    else return false;
+#endif
+    return true;
+  }
  
 void Yap_InitSysPreds(void) {
   Yap_InitCPred("log_event", 1, p_log_event, SafePredFlag | SyncPredFlag);
@@ -1972,5 +1985,6 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
   Yap_InitCPred("sleep", 1, p_sleep, SyncPredFlag);
   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
+  Yap_InitCPred("mtrace", 1, p_mtrace, SyncPredFlag);
 }
    

@@ -52,14 +52,13 @@ typedef struct non_single_struct_t {
   }
 
 #define def_aux_overflow()						\
-  aux_overflow:{							\
+  while (to_visit_max-to_visit0 < 32) {							\
     size_t d1 = to_visit-to_visit0;					\
-    size_t d2 = to_visit_max-to_visit0;					\
-    to_visit0 = Realloc(to_visit0,(d2+128)*sizeof(struct non_single_struct_t)); \
+    size_t d2 = to_visit_max-to_visit0;             \
+    size_t d3 = Yap_Min(d2+1024, d2 *2);					\
+    to_visit0 = Realloc(to_visit0,d3*sizeof(struct non_single_struct_t)); \
     to_visit = to_visit0+d1;						\
-    to_visit_max = to_visit0+(d2+128);					\
-    pt0--;								\
-    goto restart;							\
+    to_visit_max = to_visit0+(d3);					\
   }
 
 #define def_global_overflow()			\
@@ -152,7 +151,8 @@ clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
 
 #define expand_stack(S0,SP,SF,TYPE)				\
   { size_t sz = SF-S0, used = SP-S0;				\
-    S0  = Realloc(S0, (1024+sz)*sizeof(TYPE) PASS_REGS);	\
+  sz += 1024;\
+    S0  = Realloc(S0, sz*sizeof(TYPE) PASS_REGS);	\
     SP = S0+used; SF = S0+sz; }
 
 #define MIN_ARENA_SIZE (1048L)
@@ -207,6 +207,8 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	to_visit++;
 	// move to new list
 	d0 = *headp;
+	if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+          goto trail_overflow;
 	TrailedMaBind(headp, AbsPair(HR));
 	pt0 = headp;
 	pt0_end = headp + 1;
@@ -306,6 +308,8 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	if (++to_visit >= to_visit_max-32) {
 	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
 	}
+	if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+          goto trail_overflow;
 	TrailedMaBind(headp,AbsAppl(HR));
 	ptf = HR;
 	*ptf++ = (CELL)f;
@@ -345,18 +349,14 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
         }
         to_visit = bp;
         new = *ptf;
-        if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-          /* Trail overflow */
-          if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
-            goto trail_overflow;
-          }
-        }
+	if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+          goto trail_overflow;
         TrailedMaBind(ptd0, new);
         ptf++;
       } else {
         /* first time we met this term */
         RESET_VARIABLE(ptf);
-        if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
+	if ((ADDR)TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
           goto trail_overflow;
         TrailedMaBind(ptd0, (CELL)ptf);
         ptf++;
