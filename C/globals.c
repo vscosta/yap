@@ -212,7 +212,7 @@ static Term NewArena(UInt size, int wid, UInt arity, CELL *where, struct cell_sp
   WORKER_REGS(wid)
 exit_cell_space(cellSpace);
     // make sure we have enough room
-    while (HR + size > ASP - MIN_ARENA_SIZE) {
+    while (HR + size > ASP - 2*MIN_ARENA_SIZE) {
       if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return TermNil;

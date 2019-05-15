@@ -792,6 +792,14 @@ restart_exec:
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
 }
 
+static Int  creep_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
+  Int rc =  execute_clause( PASS_REGS1 );
+  if (!LOCAL_InterruptsDisabled) {
+    Yap_signal(YAP_CREEP_SIGNAL);
+  }
+  return rc;
+}
+
 static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
   return do_execute(Deref(ARG1), Deref(ARG2) PASS_REGS);
 }
@@ -898,6 +906,10 @@ static bool watch_cut(Term ext USES_REGS) {
   bool active = ArgOfTerm(5, task) == TermTrue;
   bool ex_mode = false;
 
+  LOCAL_Signals = 0;
+      CalculateStackGap(PASS_REGS1);
+      LOCAL_PrologMode = UserMode;
+      
   if (complete) {
     return true;
   }
@@ -945,6 +957,9 @@ static bool watch_retry(Term d0 USES_REGS) {
   bool complete = !IsVarTerm(ArgOfTerm(4, task));
   bool active = ArgOfTerm(5, task) == TermTrue;
   choiceptr B0 = (choiceptr)(LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
+      LOCAL_Signals = 0;
+      CalculateStackGap(PASS_REGS1);
+      LOCAL_PrologMode = UserMode;
 
   if (complete)
     return true;
@@ -1003,6 +1018,9 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
   Int oENV = LCL0 - ENV;
   Int oYENV = LCL0 - YENV;
   bool rc;
+      LOCAL_Signals = 0;
+      CalculateStackGap(PASS_REGS1);
+      LOCAL_PrologMode = UserMode;
   Yap_DisableInterrupts(worker_id);
   rc = Yap_RunTopGoal(Setup, false);
   Yap_EnableInterrupts(worker_id);
@@ -1038,6 +1056,9 @@ static Int cleanup_on_exit(USES_REGS1) {
   bool box = ArgOfTerm(1, task) == TermTrue;
   Term cleanup = ArgOfTerm(3, task);
   Term complete = IsNonVarTerm(ArgOfTerm(4, task));
+      LOCAL_Signals = 0;
+      CalculateStackGap(PASS_REGS1);
+      LOCAL_PrologMode = UserMode;
 
   while (B->cp_ap->opc == FAIL_OPCODE)
     B = B->cp_b;
@@ -2376,6 +2397,7 @@ void Yap_InitExecFs(void) {
   Yap_InitCPred("$execute_nonstop", 1, execute_nonstop1, NoTracePredFlag);
   Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
   Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
+  Yap_InitCPred("$creep_clause", 4,creep_clause, NoTracePredFlag);
   Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
   Yap_InitCPred("$current_choicepoint", 1, current_choice_point, 0);
   CurrentModule = HACKS_MODULE;

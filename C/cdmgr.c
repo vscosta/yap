@@ -2036,7 +2036,7 @@ static Int p_sys_export(USES_REGS1) { /* '$set_spy'(+Fun,+M)	 */
 
 ******************************************************************/
 
-static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
+static Int p_is_private(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
@@ -2051,7 +2051,7 @@ static Int p_is_no_trace(USES_REGS1) { /* '$undefined'(P,Mod)	 */
   return false;
 }
 
-static Int p_set_no_trace(USES_REGS1) { /* '$set_no_trace'(+Fun,+M)	 */
+static Int p_set_private(USES_REGS1) { /* '$set_private'(+Fun,+M)	 */
   PredEntry *pe;
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
@@ -2067,7 +2067,7 @@ int Yap_SetNoTrace(char *name, arity_t arity, Term tmod) {
   PredEntry *pe;
 
   if (arity == 0) {
-    pe = Yap_get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "no_trace");
+    pe = Yap_get_pred(MkAtomTerm(Yap_LookupAtom(name)), tmod, "private");
   } else {
     pe = RepPredProp(
         PredPropByFunc(Yap_MkFunctor(Yap_LookupAtom(name), arity), tmod));
@@ -4252,7 +4252,7 @@ static Int init_pred_flag_vals(USES_REGS1) {
                    ModuleTransparentPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "multi", MultiFileFlag PASS_REGS);
   pred_flag_clause(f, mod, "no_spy", NoSpyPredFlag PASS_REGS);
-  pred_flag_clause(f, mod, "no_trace", NoTracePredFlag PASS_REGS);
+  pred_flag_clause(f, mod, "private", NoTracePredFlag PASS_REGS);
   pred_flag_clause(f, mod, "number_db", NumberDBPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "profiled", ProfiledPredFlag PASS_REGS);
   pred_flag_clause(f, mod, "quasi_quotation", QuasiQuotationPredFlag PASS_REGS);
@@ -4331,9 +4331,9 @@ void Yap_InitCdMgr(void) {
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$is_discontiguous", 2, p_is_discontiguous,
                 TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_no_trace", 2, p_is_no_trace, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$set_no_trace", 2, p_set_no_trace,
-                TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$is_private", 2, p_is_private, TestPredFlag | SafePredFlag);
+  Yap_InitCPred("$set_private", 2, p_set_private,
+                SyncPredFlag | SafePredFlag);
   Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$profile_info", 3, p_profile_info,
                 SafePredFlag | SyncPredFlag);
