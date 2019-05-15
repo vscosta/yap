@@ -49,21 +49,13 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/i
   )
 
 add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh 
-    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include
-     -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python
-      -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}  
+    COMMAND ${SWIG_EXECUTABLE} -c++  -python  -O -py3 -module "yap"  -addextern -I${CMAKE_SOURCE_DIR}/H -I${CMAKE_SOURCE_DIR}/H/generated -I${CMAKE_SOURCE_DIR}/include -I${CMAKE_SOURCE_DIR}/OPTYap -I${CMAKE_SOURCE_DIR}/os -I${CMAKE_SOURCE_DIR}/utf8proc -I.././.. -I${CMAKE_SOURCE_DIR}/CXX -I${CMAKE_SOURCE_DIR}/packages/python -outdir ${CMAKE_CURRENT_BINARY_DIR}/yap4py -I${GMP_INCLUDE_DIRS} -DX_API=""   -o ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx -oh ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${SWIG_SOURCES}  
      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    DEPENDS  ${SWIG_SOURCES} yap4py/yapi.cpp
-  )
-
-
-add_custom_target( YAP4PY ALL
-  DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh 
+    DEPENDS  ${SWIG_SOURCES} YAP++
   )
 
  
-add_custom_command( TARGET YAP4PY
-  PRE_BUILD
+add_custom_target( YAP4PY ALL
   COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
  COMMAND ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}
   DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp YAP4PY_PY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${PYTHON_SOURCES} Py4YAP STARTUP libYap

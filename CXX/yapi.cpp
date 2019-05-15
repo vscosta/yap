@@ -614,6 +614,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   bool rc = YAP_RunGoalOnce(t);
+  RECOVER_MACHINE_REGS();
   return rc;
 }
 /**
@@ -636,7 +637,7 @@ Term YAPEngine::fun(Term t) {
   Functor f;
   Atom name;
   YAP_dogoalinfo backup = q;
-
+  CELL *spt;
   
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
@@ -644,51 +645,32 @@ Term YAPEngine::fun(Term t) {
     name = NameOfFunctor(f);
     arity = ArityOfFunctor(f);
     for (arity_t i = 0; i < arity; i++)
-      XREGS[i + 1] = ts[i];
+      HR[i + 1] = ts[i];
+    arity++;
   } else if (IsAtomTerm(t)) {
     name = AtomOfTerm(t);
     f = nullptr;
-    arity = 0;
+    arity = 1;
   } else if (IsPairTerm(t)) {
-    XREGS[1] = ts[0];
-    XREGS[2] = ts[1];
-    arity = 2;
+    HR[1] = ts[0];
+    HR[2] = ts[1];
+    arity = 3;
     name = AtomDot;
     f = FunctorDot;
   } else {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-  Term ot = XREGS[arity + 1] = MkVarTerm();
-  yhandle_t h = Yap_InitHandle(ot); 
-  arity++;
-  HR += arity;
-  f = Yap_MkFunctor(name, arity);
-  ap = (PredEntry *)(PredPropByFunc(f, tmod));
-  if (ap == nullptr || ap->OpcodeOfPred == UNDEF_OPCODE) {
-    Term g = (Yap_MkApplTerm(f, arity, ts));
-    ap = rewriteUndefEngineQuery(ap, g, (ap->ModuleOfPred));
-  }
-  q.CurSlot = Yap_StartSlots();
-  q.p = P;
-  q.cp = CP;
-  // make sure this is safe
-  // allow Prolog style exception handling
-  //__android_log_print(ANDROID_LOG_INFO, "YAPDroid", "exec  ");
-
-  bool result = (bool)YAP_EnterGoal(ap, nullptr, &q);
-    if (result)
-      ot = Yap_GetFromHandle(h);
+  HR += arity+1;
+  RESET_VARIABLE(HR-1);
+  yhandle yt = Yap_InitHandle(t);
+  Term ot;
+    bool rc = YAP_RunGoalOnce(t);
+    if (rc)
+      ot = Yap_GetArg(arity,Yap_GetFromHandle(yt));
     else
       ot = TermNone;
-    YAPCatchError();
-  {
-    YAP_LeaveGoal(result, &q);
-    //      PyEval_RestoreThread(_save);
-    RECOVER_MACHINE_REGS();
-    q = backup;
-    return ot;
-  }
+  RECOVER_MACHINE_REGS();
 }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
