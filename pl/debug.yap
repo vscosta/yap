@@ -483,14 +483,14 @@ be lost.
 	true,
 	clause(M:G, B),
 	Port0,
- 	'$trace_port'(pred,Port0, GoalNumber, G, M, H)
+ 	'$trace_port'([Port0], GoalNumber, G, M, H)
     ),
     gated_call(
 	true,% source mode
-	    '$trace'(B,M,CP,H),
+	'$trace'(B,M,CP,H),
 	Port,
 	(
-	    '$trace_port'(clause,Port, GoalNumber, G, M, H)
+	    '$trace_port'([Port,Port0], GoalNumber, G, M, H)
 	)
     ).
 '$trace_goal'(G,M, GoalNumber, H) :-
@@ -501,14 +501,14 @@ be lost.
 	true,
 	'$static_clause'(G,M,_,Ref),
 	Port0,
- 	'$trace_port'(pred,Port0, GoalNumber, G, M, H)
+ 	'$trace_port'([Port0], GoalNumber, G, M, H)
     ),
     gated_call(
 	'$start_user_code',
 	% source mode
 	'$creep_clause'(G,M,Ref,CP),
 	Port,
-	    '$trace_port'(clause, Port, GoalNumber, G, M, H)
+	    '$trace_port'([Port,Port0], GoalNumber, G, M, H)
     ).
 '$trace_goal'(G, M, GoalNumber, H) :-
     '$undefined'(G,M),
@@ -566,22 +566,28 @@ be lost.
     '$stop_creeping'(_),
     fail.
 
-'$trace_port'(pred, fail, GoalNumber, G, Module, Info) :-
+'$trace_port'([fail], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(fail, GoalNumber, G, Module, Info).
-'$trace_port'(pred, call, GoalNumber, G, Module, Info) :-
+ '$trace_port'( [call], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(call, GoalNumber, G, Module, Info).
-'$trace_port'(pred, redo, GoalNumber, G, Module, Info) :-
+'$trace_port'([ redo], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(redo, GoalNumber, G, Module, Info).
-'$trace_port'(pred, _Port, _GoalNumber, _G, _Module, _Info).
+'$trace_port'([_Port], _GoalNumber, _G, _Module, _Info).
  
 
-'$trace_port'(clause, call, _GoalNumber, _G, _Module, _Info).
-'$trace_port'(clause, fail, _GoalNumber, _G, _Module, _Info) :-
+'$trace_port'([call,_], _GoalNumber, _G, _Module, _Info).
+'$trace_port'([fail,_], _GoalNumber, _G, _Module, _Info) :-
     fail.
-'$trace_port'(clause, Port, GoalNumber, G, Module, Info) :-
+'$trace_port'([exit,answer], GoalNumber, G, Module, Info) :-
+    !,
+    '$trace_port_'(answer, GoalNumber, G, Module, Info).
+'$trace_port'([exit,exit], GoalNumber, G, Module, Info) :-
+    !,
+    '$trace_port_'(exit, GoalNumber, G, Module, Info).
+'$trace_port'( [Port,_], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(Port, GoalNumber, G, Module, Info).
 
