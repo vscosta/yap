@@ -613,11 +613,7 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   CACHE_REGS
   YAP_dogoalinfo q;
   BACKUP_MACHINE_REGS();
-<<<<<<< HEAD
-  bool rc = YAP_RunGoalOnce(t);
-  RECOVER_MACHINE_REGS();
-  return rc;
-=======
+
    Term *ts = nullptr;
   q.CurSlot = Yap_StartSlots();
   q.p = P;
@@ -658,7 +654,6 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
   //      PyEval_RestoreThread(_save);
   RECOVER_MACHINE_REGS();
   return result;
->>>>>>> ef3d435dec2b9606993430da2f66e06d38f3a399
 }
 /**
  * called when a query must be terminated and its state fully recovered,
@@ -680,18 +675,15 @@ Term YAPEngine::fun(Term t) {
   arity_t arity;
   Functor f;
   Atom name;
-<<<<<<< HEAD
   YAP_dogoalinfo backup = q;
   CELL *spt;
-  
-=======
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;
 
  Int oenv = LCL0-ENV;
  Int oB = LCL0-CellPtr(B);
->>>>>>> ef3d435dec2b9606993430da2f66e06d38f3a399
+
   if (IsApplTerm(t)) {
     ts = RepAppl(t) + 1;
     f = (Functor)ts[-1];
@@ -714,18 +706,6 @@ Term YAPEngine::fun(Term t) {
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
-<<<<<<< HEAD
-  HR += arity+1;
-  RESET_VARIABLE(HR-1);
-  yhandle yt = Yap_InitHandle(t);
-  Term ot;
-    bool rc = YAP_RunGoalOnce(t);
-    if (rc)
-      ot = Yap_GetArg(arity,Yap_GetFromHandle(yt));
-    else
-      ot = TermNone;
-  RECOVER_MACHINE_REGS();
-=======
   Term ot = XREGS[arity + 1] = MkVarTerm();
   yhandle_t h = Yap_InitHandle(ot); 
   arity++;
@@ -754,8 +734,7 @@ Term YAPEngine::fun(Term t) {
     RECOVER_MACHINE_REGS();
     return ot;
   }
->>>>>>> ef3d435dec2b9606993430da2f66e06d38f3a399
-}
+  }
 
 YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     : YAPPredicate(f, mod) {

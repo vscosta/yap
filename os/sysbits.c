@@ -1934,6 +1934,9 @@ static Int p_sleep(USES_REGS1) {
 #endif
 }
 
+#if MCHECK_H
+#include <mcheck.h>
+#endif
 
 static Int
   p_mtrace()

@@ -58,7 +58,7 @@ add_custom_command( OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CM
 add_custom_target( YAP4PY ALL
   COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
  COMMAND ${PYTHON_EXECUTABLE} setup.py sdist ${bdist}
-  DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp YAP4PY_PY ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${PYTHON_SOURCES} Py4YAP STARTUP libYap
+  DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp ${YAP4PY_PY} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${PYTHON_SOURCES} Py4YAP STARTUP libYap
   )
 
 
