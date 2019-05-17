@@ -50,7 +50,8 @@ live :-
                     
                     [ variable_names(Bindings),
                       syntax_errors(dec10),
-                      term_position(Pos)
+                      term_position(Pos),
+		      input_closing_blank(true)
                     ]),
           E,
           '$handle_toplevel_error'(E)).
@@ -577,10 +578,10 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, CP, G0, M) :-
-    '$trace_query'(G, M, CP, G0).    
+    catch('$trace_query'(G, M, CP, G0), E, '$Error'(E)).
 
 '$user_call'(G, M) :-
-	'$trace'(M:G).
+    gated_call('$start_user_code',call(M:G),Port,'$reenter_debugger'(Port)).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
@@ -1009,7 +1010,7 @@ log_event( String, Args ) :-
 	DBON = true
 	->
 	(
-	    '__NB_getval__'('$debug_status',state(_, _, _, _,on), fail),
+	    '__NB_getval__'('$debug_state',state(_, _, _, _,on), fail),
 	    (
 		var(LF)
 	    ->

@@ -400,10 +400,10 @@ notrace(G) :-
 '$init_debugger_trace' :-
 	'__NB_getval__'('$trace',on,fail),
 	!,
-	nb_setval('$debug_status', state(creep, 0, stop, on)).  
+	nb_setval('$debug_state', state(creep, 0, stop, on)).  
 '$init_debugger_trace' :-
 	'__NB_setval__'('$trace',off),
-	nb_setval('$debug_status', state(zip, 0, stop, off)). 
+	nb_setval('$debug_state', state(zip, 0, stop, off)). 
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)
 %%
@@ -492,7 +492,7 @@ notrace(G) :-
 	 '$is_private'(G,Module)
      -> true
     ;
-    '__NB_getval__'('$debug_status',state(zip, GN, Spy,_), fail)
+    '__NB_getval__'('$debug_state',state(zip, GN, Spy,_), fail)
     ->
     true
     ;
@@ -508,7 +508,7 @@ notrace(G) :-
      ).
 '$creep_is_on_at_entry'(G,M,_GoalNo) :-
     \+ '$system_predicate'(G,M),
-    '__NB_getval__'('$debug_status',state(Step, _GN, Spy,_), fail),
+    '__NB_getval__'('$debug_state',state(Step, _GN, Spy,_), fail),
     (
 	Step \= zip
     ;
@@ -518,13 +518,13 @@ notrace(G) :-
 
    
 '$trace_on' :-
-    '__NB_getval__'('$debug_status', state(_Creep, GN, Spy,Trace), fail),
+    '__NB_getval__'('$debug_state', state(_Creep, GN, Spy,Trace), fail),
     nb_setval('$trace',on),
-    nb_setval('$debug_status', state(creep, GN, Spy, Trace)).
+    nb_setval('$debug_state', state(creep, GN, Spy, Trace)).
 
 '$trace_off' :-
-'__NB_getval__'('$debug_status', state(_Creep, GN, Spy, Trace),fail),
-nb_setval('$debug_status', state(zip, GN, Spy,Trace)).
+'__NB_getval__'('$debug_state', state(_Creep, GN, Spy, Trace),fail),
+nb_setval('$debug_state', state(zip, GN, Spy,Trace)).
 
 /*
 

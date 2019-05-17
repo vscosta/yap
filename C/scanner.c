@@ -1312,8 +1312,8 @@ static void mark_eof(struct stream_desc *st) {
 #define add_ch_to_buff(ch)                                                     \
   { charp += put_utf8(charp, ch); }
 
-TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
-                        Term *tposp) {
+TokEntry *Yap_tokenizer(struct stream_desc *st,
+                        scanner_params *params) {
 
   CACHE_REGS
   TokEntry *t, *l, *p;
@@ -1325,7 +1325,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
   int sign = 1;
   size_t imgsz = 1024;
   char *TokImage = Malloc(imgsz PASS_REGS);
-
+  bool store_comments = params->store_comments;
 
   InitScannerMemory();
   LOCAL_VarTable = NULL;
@@ -1337,7 +1337,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
     och=ch;
     ch = getchr(st);
   }
-  *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+  params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
   LOCAL_StartLineCount = st->linecount;
   LOCAL_StartLinePos = st->linepos;
@@ -1393,7 +1393,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
           while (chtype(ch) == BS) {
             ch = getchr(st);
           }
-          *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+          params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
           Yap_setCurrentSourceLocation(st);
         }
         goto restart;
@@ -1428,7 +1428,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         add_ch_to_buff(ch);
       }
       while (ch == '\'' && isvar &&
-             trueGlobalPrologFlag(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG)) {
+             params->ce) {
         if (charp == (unsigned char *)AuxSp - 1024) {
             pop_text_stack(lvl);
             return CodeSpaceError(t, p, l);
@@ -1437,7 +1437,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         ch = getchr(st);
       }
       add_ch_to_buff('\0');
-      if (!isvar || (ch == '(' && trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG) ) ) {
+      if (!isvar || (ch == '(' && params->vn_asfl) ||
+	  (TokImage[0] != '_' && params->vprefix)) {
         Atom ae;
         /* don't do this in iso */
         ae = Yap_LookupAtom(TokImage);
@@ -1651,9 +1652,9 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
         pch = Yap_peek(st - GLOBAL_Stream);
         if (chtype(pch) == EF) {
           mark_eof(st);
-          t->TokInfo = TermEof;
         } else {
-          t->TokInfo = TermNewLine;
+	  if (params->get_eot_blank)
+         getchr(st);
         }
         t->TokInfo = TermEof;
           pop_text_stack(lvl);
@@ -1733,7 +1734,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st, bool store_comments,
               ch = getchr(st);
             }
             CHECK_SPACE();
-            *tposp = Yap_StreamPosition(st - GLOBAL_Stream);
+            params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
             Yap_setCurrentSourceLocation(st);
           }
         }

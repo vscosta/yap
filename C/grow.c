@@ -890,11 +890,10 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
-  char *omax = (char *)H0;
   ADDR old_GlobalBase = LOCAL_GlobalBase;
   UInt minimal_request = 0L;
   Int size = request/sizeof(CELL);
-  char vb_msg1 = '\0', *vb_msg2;
+  char vb_msg1 = '\0', *vb_msg2 = "";
   bool do_grow = true;
   /*
     request is the amount of memory we requesd, in bytes;
@@ -1556,7 +1555,6 @@ Yap_growstack(size_t size)
   int res;
 
   LOCAL_PrologMode |= GrowStackMode;
-  printf("extra %dBs\n",size);
   res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
   return res;

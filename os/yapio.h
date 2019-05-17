@@ -46,6 +46,16 @@ typedef struct AliasDescS {
 /* parser stack, used to be AuxSp, now is ASP */
 #define ParserAuxSp LOCAL_ScannerStack
 
+typedef struct scanner_extra_params {
+  Term tpos;
+  Term backquotes, singlequotes, doublequotes;
+  bool ce, vprefix, vn_asfl;
+    Term tcomms;       /// Access to comments
+    Term cmod;         /// Access to commen
+  bool store_comments; //
+  bool get_eot_blank;
+} scanner_params;
+
 /**
  *
  * @return a new VFS that will support /assets
@@ -60,7 +70,7 @@ extern Term Yap_Variables(VarEntry *, Term);
 extern Term Yap_Singletons(VarEntry *, Term);
 
 /* routines in scanner.c */
-extern TokEntry *Yap_tokenizer(struct stream_desc *, bool, Term *d);
+extern TokEntry *Yap_tokenizer(struct stream_desc *, scanner_params *sp);
 extern void Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *);
 extern char *Yap_AllocScannerMemory(unsigned int);
 
@@ -123,6 +133,7 @@ extern int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                     Atom name, Term uname);
 extern int Yap_open_buf_write_stream(encoding_t enc, memBufSource src);
 extern Term Yap_BufferToTerm(const char *s, Term opts);
+
 extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
                                                    Term bindings, size_t sz,
                                                    int prio);

@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog							 *
@@ -208,8 +207,14 @@ PAR("priority", nat, READ_PRIORITY),				      \
   PAR("variables", filler, READ_VARIABLES),                           \
   PAR("variable_names", filler, READ_VARIABLE_NAMES),                 \
   PAR("character_escapes", booleanFlag, READ_CHARACTER_ESCAPES),      \
+  PAR("input_closing_blank", booleanFlag, READ_INPUT_CLOSING_BLANK),      \
   PAR("backquoted_string", isatom, READ_BACKQUOTED_STRING),           \
-  PAR("cycles", ok, READ_CYCLES), PAR(NULL, ok, READ_END)
+  PAR("singlequoted_string", isatom, READ_SINGLEQUOTED_STRING),           \
+  PAR("doublequoted_string", isatom, READ_DOUBLEQUOTED_STRING),           \
+      PAR("var_prefix", isatom, READ_VAR_PREFIX),           \
+    PAR("allow_variable_name_as_functor", isatom,READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR ),	\
+  PAR("cycles", booleanFlag, READ_CYCLES), \
+PAR(NULL, ok, READ_END)
 
 #define PAR(x, y, z) z
 
@@ -342,7 +347,9 @@ static Term scanToList(TokEntry *tok, TokEntry *errtok)
 static Int scan_to_list(USES_REGS1)
 {
   int inp_stream;
-  Term tpos, tout;
+  Term  tout;
+  scanner_params params;
+  memset(&params,0,sizeof(params));
 
   /* needs to change LOCAL_output_stream for write */
   inp_stream = Yap_CheckTextStream(ARG1, Input_Stream_f, "read/3");
@@ -351,7 +358,7 @@ static Int scan_to_list(USES_REGS1)
       return false;
     }
   TokEntry *tok = LOCAL_tokptr = LOCAL_toktide =
-                                   Yap_tokenizer(GLOBAL_Stream + inp_stream, false, &tpos);
+                                   Yap_tokenizer(GLOBAL_Stream + inp_stream, &params);
   UNLOCK(GLOBAL_Stream[inp_stream].streamlock);
   tout = scanToList(tok, NULL);
   if (tout == 0)
@@ -510,8 +517,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   }
 
   typedef struct FEnv {
-    Term qq, tp, sp, np, vp, ce;
-    Term tpos;         /// initial position of the term to be read.
+    scanner_params scanner; /// scanner interface
+    Term qq, tp, sp, np, vprefix;
+    Term cmod;         /// initial position of the term to be read.
     Term t, t0;        /// the output term
     TokEntry *tokstart; /// the token list
     TokEntry *toklast; /// the last token
@@ -521,8 +529,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     bool reading_clause; /// read_clause
     size_t nargs;      /// arity of current procedure
     encoding_t enc;    /// encoding of the stream being read
-    Term tcomms;       /// Access to comments
-    Term cmod;         /// Access to comments
     char *msg;         /// Error  Messagge
   } FEnv;
 
@@ -553,7 +559,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         return NULL;
       }
 
-    re->bq = getReadTermBackQuotesFlag();
     if (args[READ_OUTPUT].used)
       {
         fe->t0 = args[READ_OUTPUT].tvalue;
@@ -574,11 +579,60 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
     if (args[READ_BACKQUOTED_STRING].used)
       {
-        if (!setReadTermBackQuotesFlag(args[READ_BACKQUOTED_STRING].tvalue))
-          {
-            return false;
-          }
+	fe->scanner.backquotes = args[READ_BACKQUOTED_STRING].tvalue;
+      } else {
+      fe->scanner.backquotes = getBackQuotesFlag(fe->cmod);
+    }
+    if (args[READ_DOUBLEQUOTED_STRING].used)
+      {
+	fe->scanner.doublequotes = args[READ_DOUBLEQUOTED_STRING].tvalue;
+      } else {
+      fe->scanner.doublequotes = getDoubleQuotesFlag(fe->cmod);
+    }
+    if (args[READ_SINGLEQUOTED_STRING].used)
+      {
+	fe->scanner.singlequotes = args[READ_SINGLEQUOTED_STRING].tvalue;
+      } else {
+      fe->scanner.singlequotes = getSingleQuotesFlag(fe->cmod);
+    }
+    if (args[READ_CHARACTER_ESCAPES].used)
+      {
+        fe->scanner.ce =  args[READ_CHARACTER_ESCAPES].tvalue == TermTrue;
       }
+    else
+      {
+        fe->scanner.ce = Yap_CharacterEscapes(fe->cmod) == TermTrue;
+      }
+    if (args[READ_VAR_PREFIX].used)
+      {
+        fe->scanner.vprefix =  args[READ_VAR_PREFIX].tvalue == TermTrue;
+      }
+    else
+      {
+        fe->scanner.vprefix = false;
+      }
+     if (args[READ_INPUT_CLOSING_BLANK].used)
+      {
+        fe->scanner.get_eot_blank =  args[READ_INPUT_CLOSING_BLANK].tvalue == TermTrue;
+      }
+    else
+      {
+        fe->scanner.get_eot_blank = false;
+      }
+    if (args[READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR].used)
+      {
+        fe->scanner.vn_asfl =  args[READ_ALLOW_VARIABLE_NAME_AS_FUNCTOR].tvalue  == TermTrue;
+      }
+    else
+      {
+        fe->scanner.vn_asfl = trueLocalPrologFlag(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG);
+      }
+    if (args[READ_COMMENTS].used)
+      {
+	fe->scanner.store_comments = args[READ_COMMENTS].tvalue;
+      } else {
+      fe->scanner.store_comments = 0;
+    }
     if (args[READ_QUASI_QUOTATIONS].used)
       {
         fe->qq = args[READ_QUASI_QUOTATIONS].tvalue;
@@ -589,19 +643,19 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
     if (args[READ_COMMENTS].used)
       {
-        fe->tcomms = args[READ_COMMENTS].tvalue;
+        fe->scanner.tcomms = args[READ_COMMENTS].tvalue;
       }
     else
       {
-        fe->tcomms = 0;
+        fe->scanner.tcomms = 0;
       }
     if (args[READ_TERM_POSITION].used)
       {
-        fe->tp = args[READ_TERM_POSITION].tvalue;
+        fe->scanner.tpos = args[READ_TERM_POSITION].tvalue;
       }
     else
       {
-        fe->tp = 0;
+        fe->scanner.tpos = 0;
       }
     if (args[READ_SINGLETONS].used)
       {
@@ -621,11 +675,11 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
     if (args[READ_VARIABLES].used)
       {
-        fe->vp = args[READ_VARIABLES].tvalue;
+        fe->vprefix = args[READ_VARIABLES].tvalue;
       }
     else
       {
-        fe->vp = 0;
+        fe->vprefix = 0;
       }
     if (args[READ_VARIABLE_NAMES].used)
       {
@@ -634,14 +688,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     else
       {
         fe->np = 0;
-      }
-    if (args[READ_CHARACTER_ESCAPES].used || Yap_CharacterEscapes(fe->cmod))
-      {
-        fe->ce = true;
-      }
-    else
-      {
-        fe->ce = false;
       }
     re->seekable = (GLOBAL_Stream[inp_stream].status & Seekable_Stream_f) != 0;
     if (re->seekable)
@@ -696,8 +742,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     PUSHFET(tp);
     PUSHFET(sp);
     PUSHFET(np);
-    PUSHFET(vp);
-    PUSHFET(tpos);
+    PUSHFET(vprefix);
+    PUSHFET(scanner.tpos);
     PUSHFET(t);
     HR = fe->old_H;
     TR = (tr_fr_ptr)LOCAL_ScannerStack;
@@ -706,11 +752,10 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     LOCAL_ScannerStack = (char*)TR;
     TR = fe->old_TR;
     POPFET(t);
-    POPFET(tpos);
-    POPFET(vp);
+    POPFET(vprefix);
     POPFET(np);
     POPFET(sp);
-    POPFET(tp);
+    POPFET(scanner.tpos);
     POPFET(qq);
   }
 
@@ -719,7 +764,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     CACHE_REGS
     Term v;
 
-    if (fe->vp)
+    if (fe->vprefix)
       {
         while (true)
           {
@@ -823,7 +868,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     CACHE_REGS
     Term v;
 
-    if (fe->tp)
+    if (fe->scanner.tpos)
       {
         while (true)
           {
@@ -831,7 +876,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 
             if (setjmp(LOCAL_IOBotch) == 0)
               {
-                if ((v = CurrentPositionToTerm()))
+                if ((v = Currenscanner.tposositionToTerm()))
                   {
                     return v;
                   }
@@ -853,7 +898,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     if (fe->t0 && fe->t && !(Yap_unify(fe->t, fe->t0)))
       return false;
 
-    if (fe->t && fe->vp)
+    if (fe->t && fe->vprefix)
       v1 = get_variables(fe, tokstart);
     else
       v1 = 0L;
@@ -865,23 +910,23 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       v3 = get_singletons(fe, tokstart);
     else
       v3 = 0L;
-    if (fe->t && fe->tcomms)
+    if (fe->t && fe->scanner.tcomms)
       vc = LOCAL_Comments;
     else
       vc = 0L;
-    if (fe->t && fe->tp)
-      tp = get_stream_position(fe, tokstart);
+    if (fe->t && fe->scanner.tpos)
+      scanner.tpos = get_stream_position(fe, tokstart);
     else
-      tp = 0L;
+      scanner.tpos = 0L;
     Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     free(fe->args);
 
     // trail must be ok by now.]
     if (fe->t)
       {
-        return (!v1 || Yap_unify(v1, fe->vp)) && (!v2 || Yap_unify(v2, fe->np)) &&
+        return (!v1 || Yap_unify(v1, fe->vprefix)) && (!v2 || Yap_unify(v2, fe->np)) &&
                (!v3 || Yap_unify(v3, fe->sp)) && (!tp || Yap_unify(tp, fe->tp)) &&
-               (!vc || Yap_unify(vc, fe->tcomms));
+	  (!vc || Yap_unify(vc, fe->scanner,tcomms));
       }
     return true;
   }
@@ -889,14 +934,14 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   static bool complete_clause_processing(FEnv *fe, TokEntry *tokstart)
   {
     CACHE_REGS
-    Term v_vp, v_vnames, v_comments, v_pos;
+    Term v_vprefix, v_vnames, v_comments, v_pos;
 
     if (fe->t0 && fe->t && !Yap_unify(fe->t, fe->t0))
       return false;
-    if (fe->t && fe->vp)
-      v_vp = get_variables(fe, tokstart);
+    if (fe->t && fe->vprefix)
+      v_vprefix = get_variables(fe, tokstart);
     else
-      v_vp = 0L;
+      v_vprefix = 0L;
     if (fe->t && fe->np)
       v_vnames = get_varnames(fe, tokstart);
     else
@@ -905,7 +950,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       {
         warn_singletons(fe, tokstart);
       }
-    if (fe->t && fe->tcomms)
+    if (fe->t && fe->scanner.tcomms)
       v_comments = LOCAL_Comments;
     else
       v_comments = 0L;
@@ -918,15 +963,15 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     // trail must be ok by now.]
     if (fe->t)
       {
-        return (!v_vp || Yap_unify(v_vp, fe->vp)) &&
+        return (!v_vprefix || Yap_unify(v_vprefix, fe->vprefix)) &&
                (!v_vnames || Yap_unify(v_vnames, fe->np)) &&
                (!v_pos || Yap_unify(v_pos, fe->tp)) &&
-               (!v_comments || Yap_unify(v_comments, fe->tcomms));
+               (!v_comments || Yap_unify(v_comments, fe->scanner.tcomms));
       }
     return true;
   }
 
-  static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
+  static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                    bool clause);
 
   static parser_state_t parse(REnv *re, FEnv *fe, int inp_stream);
@@ -975,7 +1020,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
           fe->t = 0;
         if (fe->sp && !Yap_unify(TermNil, fe->sp))
           fe->t = 0;
-        if (fe->vp && !Yap_unify(TermNil, fe->vp))
+        if (fe->vprefix && !Yap_unify(TermNil, fe->vprefix))
           fe->t = 0;
         if (fe->tp && !Yap_unify(fe->tp, fe->tpos))
           fe->t = 0;
@@ -989,7 +1034,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
   }
 
-  static parser_state_t initParser(Term opts, FEnv *fe, REnv *re, int inp_stream,
+  static parser_state_t initparser(Term opts, FEnv *fe, REnv *re, int inp_stream,
                                    bool clause)
   {
     LOCAL_ErrorMessage = NULL;
@@ -1219,7 +1264,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
           {
           case YAP_START_PARSING:
 	    opts = Yap_GetFromHandle(yopts);
-            state = initParser(opts, fe, re, sno, clause);
+            state = initparser(opts, fe, re, sno, clause);
             if (state == YAP_PARSING_FINISHED)
               {
                 Yap_PopHandle(yopts);
@@ -1353,7 +1398,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         if (fe->cmod == TermProlog)
           fe->cmod = PROLOG_MODULE;
       }
-    re->bq = getReadTermBackQuotesFlag();
+    fe->scanner.backquotes = getReadTermBackQuotesFlag();
+    fe->scanner.quotes = getReadTermQuotesFlag();
+    fe->scanner.doublequotes = getReadTermDoubleQuotesFlag();
     fe->enc = GLOBAL_Stream[sno].encoding;
     fe->sp = 0;
     fe->qq = 0;
@@ -1376,11 +1423,11 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     fe->sp = 0;
     if (args[READ_CLAUSE_COMMENTS].used)
       {
-        fe->tcomms = args[READ_CLAUSE_COMMENTS].tvalue;
+        fe->scanner.tcomms = args[READ_CLAUSE_COMMENTS].tvalue;
       }
     else
       {
-        fe->tcomms = 0L;
+        fe->scanner.tcomms = 0L;
       }
     if (args[READ_CLAUSE_SYNTAX_ERRORS].used)
       {
@@ -1390,7 +1437,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       {
         re->sy = TermDec10;
       }
-    fe->vp = 0;
+    fe->vprefix = 0;
     if (args[READ_CLAUSE_VARIABLE_NAMES].used)
       {
         fe->np = args[READ_CLAUSE_VARIABLE_NAMES].tvalue;
@@ -1401,13 +1448,13 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
     if (args[READ_CLAUSE_VARIABLES].used)
       {
-        fe->vp = args[READ_CLAUSE_VARIABLES].tvalue;
+        fe->vprefix = args[READ_CLAUSE_VARIABLES].tvalue;
       }
     else
       {
-        fe->vp = 0;
+        fe->vprefix = 0;
       }
-    fe->ce = Yap_CharacterEscapes(fe->cmod);
+    fe->scanner.ce = Yap_CharacterEscapes(fe->cmod);
     re->seekable = (GLOBAL_Stream[sno].status & Seekable_Stream_f) != 0;
     if (re->seekable)
       {
@@ -1504,11 +1551,11 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         bool start = true;
         while ((tokptr = next->TokNext))
           {
-            if (IsAtomOrIntTerm(t = *tp))
+            if (IsAtomOrIntTerm(t = fe->tp))
               {
                 ip->opc = Yap_opcode(get_atom);
                 ip->y_u.x_c.c = t.
-                                ip->y_u.x_c.x = tp++; / ()c * /
+                                ip->y_u.x_c.x = fe->tp++; / ()c * /
               }
             else if (IsAtomOrIntTerm(t = *tp))
               {

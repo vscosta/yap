@@ -248,7 +248,7 @@ top_query(G)  :-
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'__NB_setval__'('$trace',off),
-	nb_setval('$debug_status', state(zip, 0, stop,off)),
+	nb_setval('$debug_state', state(zip, 0, stop,off)),
 	set_prolog_flag(break_level, 0),
 	catch(user:G,  Error, '$Error'(Error)).
 
