@@ -47,7 +47,7 @@ typedef struct AliasDescS {
 #define ParserAuxSp LOCAL_ScannerStack
 
 typedef struct scanner_extra_params {
-  Term tpos;
+  Term tposINPUT, tposOUTPUT;
   Term backquotes, singlequotes, doublequotes;
   bool ce, vprefix, vn_asfl;
     Term tcomms;       /// Access to comments

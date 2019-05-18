@@ -386,9 +386,9 @@ static inline bool setReadTermBackQuotesFlag(Term val) {
   return true;
 }
 
-static inline Term getReadTermBackQuotesFlag(void) {
+static inline Term getBackQuotesFlag(Term mod) {
   Term val;
-  unsigned int flags = Yap_GetModuleEntry(CurrentModule)->flags;
+  unsigned int flags = Yap_GetModuleEntry(mod)->flags;
   if (flags & BCKQ_ATOM) {
     val = TermAtom;
   } else if (flags & BCKQ_STRING) {
@@ -398,7 +398,37 @@ static inline Term getReadTermBackQuotesFlag(void) {
   } else {
     val = TermCodes;
   }
-return GLOBAL_Flags[BACK_QUOTES_FLAG].at = val;
+return val;
+}
+
+static inline Term getSingleQuotesFlag(Term mod) {
+    Term val;
+    unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+    if (flags & SNGQ_ATOM) {
+        val = TermAtom;
+    } else if (flags & SNGQ_STRING) {
+        val = TermString;
+    } else if (flags & SNGQ_CHARS) {
+        val = TermChars;
+    } else {
+        val = TermCodes;
+    }
+    return  val;
+}
+
+static inline Term getDoubleQuotesFlag(Term mod) {
+    Term val;
+    unsigned int flags = Yap_GetModuleEntry(mod)->flags;
+    if (flags & DBLQ_ATOM) {
+        val = TermAtom;
+    } else if (flags & DBLQ_STRING) {
+        val = TermString;
+    } else if (flags & DBLQ_CHARS) {
+        val = TermChars;
+    } else {
+        val = TermCodes;
+    }
+    return val;
 }
 
 static inline Term indexingMode(void) { return GLOBAL_Flags[INDEX_FLAG].at; }

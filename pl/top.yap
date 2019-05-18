@@ -581,7 +581,14 @@ write_query_answer( Bindings ) :-
     catch('$trace_query'(G, M, CP, G0), E, '$Error'(E)).
 
 '$user_call'(G, M) :-
-    gated_call('$start_user_code',call(M:G),Port,'$reenter_debugger'(Port)).
+    (
+	'$creep_is_off'(Module:G, GoalNo)
+    ->
+    gated_call('$start_user_code',call(M:G),Port,'$reenter_debugger'(Port))
+    ;
+    
+    '$trace'(M:G)
+    ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 

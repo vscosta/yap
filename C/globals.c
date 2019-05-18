@@ -1566,7 +1566,7 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
     return FALSE;
   if (arena_sz < 32 * 1024)
     arena_sz = 32 * 1024;
-    enter_cell_space(&cspace);
+  enter_cell_space(&cspace);
   queue_arena = NewArena(arena_sz, worker_id, 1, NULL, &cspace);
   if (queue_arena == 0L) {
     return FALSE;

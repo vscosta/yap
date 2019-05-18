@@ -1337,7 +1337,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
     och=ch;
     ch = getchr(st);
   }
-  params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
+  params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
   Yap_setCurrentSourceLocation(st);
   LOCAL_StartLineCount = st->linecount;
   LOCAL_StartLinePos = st->linepos;
@@ -1393,7 +1393,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
           while (chtype(ch) == BS) {
             ch = getchr(st);
           }
-          params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
+          params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
           Yap_setCurrentSourceLocation(st);
         }
         goto restart;
@@ -1734,7 +1734,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
               ch = getchr(st);
             }
             CHECK_SPACE();
-            params->tp = Yap_StreamPosition(st - GLOBAL_Stream);
+            params->tposOUTPUT = Yap_StreamPosition(st - GLOBAL_Stream);
             Yap_setCurrentSourceLocation(st);
           }
         }
