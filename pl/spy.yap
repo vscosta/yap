@@ -112,7 +112,7 @@ mode and the existing spy-points, when the debugger is on.
 	      print_message(warning,no_match(nospy(M:F/N)))
 	  ).
  '$do_suspy'(S, F, N, T, M) :-
-	  '$system_predicate'(T,M),
+	  '$is_system_predicate'(T,M),
 	  '$predicate_flags'(T,M,F,F),
 	  F /\ 0x118dd080 =\= 0,
 	  ( S = spy ->
@@ -486,7 +486,7 @@ notrace(G) :-
 	 current_prolog_flag( debug, false )
      -> true
     ;
-	 '$system_predicate'(G,Module)
+	 '$is_opaque_zpredicate'(G,Module)
      -> true
     ;
 	 '$is_private'(G,Module)
@@ -507,7 +507,7 @@ notrace(G) :-
     GN > GoalNo
      ).
 '$creep_is_on_at_entry'(G,M,_GoalNo) :-
-    \+ '$system_predicate'(G,M),
+    \+ '$is_system_predicate'(G,M),
     '__NB_getval__'('$debug_state',state(Step, _GN, Spy,_), fail),
     (
 	Step \= zip

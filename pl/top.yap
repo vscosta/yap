@@ -382,13 +382,13 @@ live :-
 	write_term(user_error,Answ,Opts).
 
 '$another' :-
-	format(user_error,' ? ',[]),
 	'$clear_input'(user_input),
+	prompt1(' ? '),
 	get_code(user_input,C),
 	'$do_another'(C).
 
 '$do_another'(C) :-
-	(   C=:= ";" ->
+    (   C=:= ";" ->
          skip(user_input,10),
 	%    '$add_nl_outside_console',
 	    fail
@@ -703,7 +703,7 @@ write_query_answer( Bindings ) :-
 
 '$loop'(Stream,exo) :-
     prolog_flag(agc_margin,Old,0),
-    prompt1(': '), prompt(_,'     '),
+    prompt1(': '), prompt(_,'|     '),
     source_module(OldModule,OldModule),
     repeat,
     '$system_catch'(dbload_from_stream(Stream, OldModule, exo), '$db_load', Error,
@@ -712,7 +712,7 @@ write_query_answer( Bindings ) :-
     !.
 '$loop'(Stream,db) :-
     prolog_flag(agc_margin,Old,0),
-    prompt1(': '), prompt(_,'     '),
+    prompt1(': '), prompt(_,'|     '),
     source_module(OldModule,OldModule),
 	repeat,
 		'$system_catch'(dbload_from_stream(Stream, OldModule, db), '$db_load', Error, user:'$LoopError'(Error, db)
@@ -1017,7 +1017,7 @@ log_event( String, Args ) :-
 	DBON = true
 	->
 	(
-	    '__NB_getval__'('$debug_state',state(_, _, _, _,on), fail),
+	    '__NB_getval__'('$debug_state',state( _, _, _,on), fail),
 	    (
 		var(LF)
 	    ->

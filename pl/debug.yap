@@ -303,16 +303,16 @@ be lost.
 
 
 '$trace'(Mod:G, A1) :-
-	G =.. L,
-	lists:append( L, [A1], NL),
-	NG =.. NL,
-	'$trace'(Mod:NG).
+    G =.. L,
+    lists:append( L, [A1], NL),
+    NG =.. NL,
+    '$trace'(Mod:NG).
 
 '$trace'(Mod:G, A1, A2) :-
-	G =.. L,
-	lists:append( L, [A1, A2], NL),
-	NG =.. NL,
-	'$trace'(Mod:NG).
+    G =.. L,
+    lists:append( L, [A1, A2], NL),
+    NG =.. NL,
+    '$trace'(Mod:NG).
 
 '$trace'(Mod:G, A1, A2, A3) :-
     G =.. L,
@@ -358,36 +358,39 @@ be lost.
     '$debugger_output'.
 
 '$debugger_input' :-
-	stream_property(_,alias(debugger_input)),
-	!.
+    stream_property(_,alias(debugger_input)),
+    !.
 '$debugger_input' :-
-        S = user_input,
-        stream_property(S,tty(true)),
+    S = user_input,
+    stream_property(S,tty(true)),
     %    stream_property(S,input),
-	!,
-	set_stream(S,alias(debugger_input)).
+    !,
+    set_stream(S,alias(debugger_input)).
 '$debugger_input' :-
-	current_prolog_flag(unix, true ), !,
-        open('/dev/tty', read, _S, [alias(debugger_input),bom(false)]).
+    current_prolog_flag(unix, true ),
+    !,
+    open('/dev/tty', read, _S, [alias(debugger_input),bom(false)]).
 '$debugger_input' :-
-        current_prolog_flag(windows, true ), !,
-        open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
-
+    current_prolog_flag(windows, true ),
+    !,
+    open('CONIN$', read, _S, [alias(debugger_input),bom(false)]).
 '$debugger_output' :-
     stream_property(_,alias(debugger_output)),
-	!.
+    !.
 '$debugger_output' :-
-        S = user_error,
-        stream_property(S,tty(true)),
+    S = user_error,
+    stream_property(S,tty(true)),
     %    stream_property(S,output),
-	!,
-	set_stream(S,alias(debugger_output)).
+    !,
+    set_stream(S,alias(debugger_output)).
 '$debugger_output' :-
-	current_prolog_flag(unix, true ), !,
-        open('/dev/tty', write, _S, [alias(debugger_output)]).
+    current_prolog_flag(unix, true ),
+    !,
+    open('/dev/tty', write, _S, [alias(debugger_output)]).
 '$debugger_output' :-
-        current_prolog_flag(windows, true ), !,
-        open('CONOUT$', write, _S, [alias(debugger_output)]).
+    current_prolog_flag(windows, true ),
+    !,
+    open('CONOUT$', write, _S, [alias(debugger_output)]).
 
 
 '$trace_meta_call'( G, M, CP ) :-
@@ -398,13 +401,18 @@ be lost.
 % debug a complex query
 %
 '$trace_query'(V, M, _CP, _) :-
-    var(V), !, call(M:V).
+    var(V),
+    !,
+    call(M:V).
 '$trace_query'(!, _, CP, _) :-
-    !, '$$cut_by'(CP).
+    !,
+    '$$cut_by'(CP).
 '$trace_query'('$cut_by'(M), _, _, _) :-
-    !, '$$cut_by'(M).
+    !,
+    '$$cut_by'(M).
 '$trace_query'('$$cut_by'(M), _, _, _) :-
-    !, '$$cut_by'(M).
+    !,
+    '$$cut_by'(M).
 '$trace_query'(M:G, _, CP,S) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
@@ -416,33 +424,33 @@ be lost.
     '$trace_query'(A, M, CP, S) ->
     '$trace_query'(B, M, CP, S).
 '$trace_query'((A;B), M, CP, S) :- !,
-	'$trace_query'(A, M, CP, S);
+    '$trace_query'(A, M, CP, S);
 	'$trace_query'(B, M, CP, S).
 '$trace_query'((A|B), M, CP, S) :- !,
-	'$trace_query'(A, M, CP, S);
+    '$trace_query'(A, M, CP, S);
 	'$trace_query'(B, M, CP, S).
 '$trace_query'((\+ A), M, CP, S) :- !,
-	'$trace_query'(A, M, CP, S).
+    '$trace_query'(A, M, CP, S).
 '$trace_query'(G, M,_CP,S) :-
-        '$is_metapredicate'(G, prolog),
-        !,
-        '$debugger_expand_meta_call'(M:G, [], G1),
-	strip_module(M:G1, MF, NG),
-        % spy a literal
-	'$id_goal'(L),
-        catch(
-            '$trace_goal'(NG, MF, L, S),
-            E,
-            '$TraceError'(E, G, M, L, S)
-            ).
+    '$is_metapredicate'(G, prolog),
+    !,
+    '$debugger_expand_meta_call'(M:G, [], G1),
+    strip_module(M:G1, MF, NG),
+    % spy a literal
+    '$id_goal'(L),
+    catch(
+        '$trace_goal'(NG, MF, L, S),
+        E,
+        '$TraceError'(E, G, M, L, S)
+    ).
 '$trace_query'(G, M, _CP, H) :-
-        % spy a literal
-	'$id_goal'(L),
-        catch(
-            '$trace_goal'(G, M, L, H),
-            E,
-            '$TraceError'(E, G, M, L, H)
-            ).
+    % spy a literal
+    '$id_goal'(L),
+    catch(
+        '$trace_goal'(G, M, L, H),
+        E,
+        '$TraceError'(E, G, M, L, H)
+    ).
 
 
 %% @pred $trace_goal( +Goal, +Module, +CallId, +CallInfo)
@@ -676,22 +684,21 @@ be lost.
 '$port'(P,G,Module,L,Deterministic, Info) :-
 	% at this point we are done with leap or skip
 	repeat,
-	'$trace_msg'(P,G,Module,L,Deterministic),
+	flush_output,
+	'$clear_input'(debugger_input),
+	 '$trace_msg'(P,G,Module,L,Deterministic),
 	(
 	  '$unleashed'(P) ->
 	  '$action'('\n',P,L,G,Module,Info),
 	  nl(debugger_output)
 	  ;
-	  write(debugger_output,' ? '),
-         '$clear_input'(debugger_input),
-         get_char(debugger_input,C),
-	 '$action'(C,P,L,G,Module,_Info)
+	  prompt1(' ? '),
+          get_char(debugger_input,C),
+	  '$action'(C,P,L,G,Module,_Info)
 	),
 	!.
 
 '$trace_msg'(P,G,Module,L,Deterministic) :-
-	flush_output(user_output),
-	flush_output(user_error),
 	functor(P,P0,_),
 	(P = exit, Deterministic \= deterministic -> Det = '?' ; Det = ' '),
 	('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
@@ -954,11 +961,17 @@ be lost.
 '$deb_inc_in_sterm_oldie'(C,[],C).
 
 '$get_sterm_list'(L0,C,N,L) :-
-	( C =:= "^", N =\= 0 -> get_code(debugger_input, CN),
-				'$get_sterm_list'([N|L0],CN,0,L) ;
-	  C >= "0", C =< "9" -> NN is 10*N+C-"0", get_code(debugger_input, CN),
-				'$get_sterm_list'(L0,CN,NN,L);
-	  C =:= 10 -> (N =:= 0 -> L = L0 ; L=[N|L0]) ).
+    ( C =:= "^", N =\= 0 ->
+      get_code(debugger_input, CN),
+      '$get_sterm_list'([N|L0],CN,0,L)
+    ;
+    C >= "0", C =< "9" ->
+    NN is 10*N+C-"0", get_code(debugger_input, CN),
+    '$get_sterm_list'(L0,CN,NN,L)
+    ;
+    C =:= 10 ->
+    (N =:= 0 -> L = L0 ; L=[N|L0])
+    ).
 
 '$deb_get_sterm_in_g'([],G,G).
 '$deb_get_sterm_in_g'([H|T],G,A) :-
@@ -1007,18 +1020,21 @@ be lost.
 
 
 '$debugger_skip_trace_query'([CP|CPs],CPs1) :-
-	yap_hacks:choicepoint(CP,_,prolog,'$trace_query',4,(_;_),_), !,
-	'$debugger_skip_trace_query'(CPs,CPs1).
+    yap_hacks:choicepoint(CP,_,prolog,'$trace_query',4,(_;_),_),
+    !,
+    '$debugger_skip_trace_query'(CPs,CPs1).
 '$debugger_skip_trace_query'(CPs,CPs).
 
 '$debugger_skip_traces'([CP|CPs],CPs1) :-
-	yap_hacks:choicepoint(CP,_,prolog,'$port',4,(_;_),_), !,
-	'$debugger_skip_traces'(CPs,CPs1).
+    yap_hacks:choicepoint(CP,_,prolog,'$port',4,(_;_),_),
+    !,
+    '$debugger_skip_traces'(CPs,CPs1).
 '$debugger_skip_traces'(CPs,CPs).
 
 '$debugger_skip_loop_spy2'([CP|CPs],CPs1) :-
-	yap_hacks:choicepoint(CP,_,prolog,'$loop_spy2',5,(_;_),_), !,
-	'$debugger_skip_loop_spy2'(CPs,CPs1).
+    yap_hacks:choicepoint(CP,_,prolog,'$loop_spy2',5,(_;_),_),
+    !,
+    '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
 '$debugger_expand_meta_call'( G, VL, M:G2 ) :-
@@ -1026,9 +1042,9 @@ be lost.
     '$yap_strip_module'( G0, M, G1 ),
     (
 	'$is_system_predicate'(G0,M) ->
-	    '$debugger_process_meta_arguments'(G1, M, G2)
-     ;
-     G1 = G2
+	'$debugger_process_meta_arguments'(G1, M, G2)
+    ;
+    G1 = G2
     ).
 
 '$debugger_process_meta_arguments'(G, M, G1) :-
@@ -1045,13 +1061,13 @@ be lost.
 '$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1)|BG1s]) :-
     number(N),
     N >= 0,
-	'$yap_strip_module'( M:G, M1, G1 ),
-	functor(G1, Na, _),
-	Na \= '$trace',
-	!,
-	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
+    '$yap_strip_module'( M:G, M1, G1 ),
+    functor(G1, Na, _),
+    Na \= '$trace',
+    !,
+    '$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-
-	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
+    '$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 
 
 '$creep'(creep) :- '$creep'.
