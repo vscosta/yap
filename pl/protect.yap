@@ -1,4 +1,4 @@
-                                                                                                                                                                                                                                                                                                           /*************************************************************************
+/*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
 *									 *
@@ -53,9 +53,8 @@ prolog:'$protect' :-
     '$is_system_module'(M),
     functor(P,Name,Arity),
     \+ '$visible'(Name), 
-'$set_private'(P,M),
-    fail.
-prolog:'$protect' :-
+    '$set_private'(P,M),
+:'$protect' :-
     current_atom(Name),
 	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),
@@ -95,5 +94,105 @@ prolog:'$protect'.
 '$visible'('$live').
 '$visible'('$init_prolog').
 '$visible'('$x_yap_flag' ).
+'$visible'(X) :- \+ atomic_concat('$',_,X).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 %% @}
 

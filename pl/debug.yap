@@ -405,7 +405,6 @@ be lost.
 
 '$creep'(G0, M0, _CP, H) :-
 '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$id_goal'(L),
    '$current_choicepoint'(CP),
      '$trace_goal'(G, M, CP,L).
 
@@ -467,6 +466,7 @@ be lost.
     '$enter_trace'(GoalNumber, G, M, H),
     '$creep_is_off'(M:G, GoalNumber),
     !,
+    '$id_goal'(GoalNumber),
      gated_call(
     '$set_debugger_state'(debug, false),
 	 '$execute_nonstop'(G,M),
@@ -476,6 +476,7 @@ be lost.
 '$trace_goal'(G,M, GoalNumber, H) :-
     '$is_source'(G,M),
     !,
+    '$id_goal'(GoalNumber),
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
     gated_call(
@@ -496,7 +497,9 @@ be lost.
     !,
     '$current_choice_point'(CP),
     %clause generator: it controls fail, redo
+    '$id_goal'(GoalNumber),
     gated_call(
+	%		'$trace_port'([call], GoalNumber, G, M, H)
 	true,
 	'$static_clause'(G,M,_,Ref),
 	Port0,

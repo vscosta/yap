@@ -1,3 +1,4 @@
+
 /*************************************************************************
  *									 *
  *	 YAP Prolog 							 *
@@ -1318,6 +1319,7 @@ restart_aux:
   }
   cut_fail();
 }
+
 
 static Int atom_concat2(USES_REGS1) {
   Term t1;

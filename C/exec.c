@@ -2467,20 +2467,20 @@ void Yap_InitExecFs(void) {
 
     Term cm = CurrentModule;
     Yap_InitComma();
-    Yap_InitCPred("$execute", 1, execute, 0);
-    Yap_InitCPred("$execute", 2, execute2, 0);
-    Yap_InitCPred("$execute", 3, execute3, 0);
-    Yap_InitCPred("$execute", 4, execute4, 0);
-    Yap_InitCPred("$execute", 5, execute5, 0);
-    Yap_InitCPred("$execute", 6, execute6, 0);
-    Yap_InitCPred("$execute", 7, execute7, 0);
-    Yap_InitCPred("$execute", 8, execute8, 0);
-    Yap_InitCPred("$execute", 9, execute9, 0);
-    Yap_InitCPred("$execute", 10, execute10, 0);
-    Yap_InitCPred("$execute", 11, execute11, 0);
-    Yap_InitCPred("$execute", 12, execute12, 0);
-    Yap_InitCPred("$execute_in_mod", 2, execute_in_mod, 0);
-    Yap_InitCPred("$execute_wo_mod", 2, execute_in_mod, 0);
+    Yap_InitCPred("$execute", 1, execute,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 2, execute2,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 3, execute3,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 4, execute4,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 5, execute5,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 6, execute6,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 7, execute7,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 8, execute8,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 9, execute9,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 10, execute10,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 11, execute11,  NoTracePredFlag);
+    Yap_InitCPred("$execute", 12, execute12,  NoTracePredFlag);
+    Yap_InitCPred("$execute_in_mod", 2, execute_in_mod,  NoTracePredFlag);
+    Yap_InitCPred("$execute_wo_mod", 2, execute_in_mod,  NoTracePredFlag);
     Yap_InitCPred("call_with_args", 1, execute_0, 0);
     Yap_InitCPred("call_with_args", 2, execute_1, 0);
     Yap_InitCPred("call_with_args", 3, execute_2, 0);
@@ -2493,16 +2493,17 @@ void Yap_InitExecFs(void) {
     Yap_InitCPred("call_with_args", 10, execute_9, 0);
     Yap_InitCPred("call_with_args", 11, execute_10, 0);
 #ifdef DEPTH_LIMIT
-    Yap_InitCPred("$execute_under_depth_limit", 2, execute_depth_limit, 0);
+    Yap_InitCPred("$execute_under_depth_limit", 2, execute_depth_limit, NoTracePredFlag);
 #endif
+
     Yap_InitCPred("$execute0", 2, execute0, NoTracePredFlag);
     Yap_InitCPred("$execute_nonstop", 2, execute_nonstop, NoTracePredFlag);
     Yap_InitCPred("$execute_nonstop", 1, execute_nonstop1, NoTracePredFlag);
     Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
     Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
-    Yap_InitCPred("$creep_clause", 4, creep_clause, NoTracePredFlag);
-    Yap_InitCPred("$current_choice_point", 1, current_choice_point, 0);
-    Yap_InitCPred("$current_choicepoint", 1, current_choice_point, 0);
+Yap_InitCPred("$creep_clause", 4, creep_clause,  NoTracePredFlag);
+    Yap_InitCPred("$current_choice_point", 1, current_choice_point,  NoTracePredFlag);
+    Yap_InitCPred("$current_choicepoint", 1, current_choice_point,  NoTracePredFlag);
     CurrentModule = HACKS_MODULE;
     Yap_InitCPred("current_choice_point", 1, current_choice_point, 0);
     Yap_InitCPred("current_choicepoint", 1, current_choice_point, 0);
@@ -2515,20 +2516,20 @@ void Yap_InitExecFs(void) {
                   NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("$restore_regs", 2, restore_regs2,
                   NoTracePredFlag | SafePredFlag);
-    Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, SafePredFlag);
+    Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
                   SafePredFlag);
     Yap_InitCPred("throw", 1, jump_env, 0);
-    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, 0);
-    Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, 0);
-    Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, 0);
+    Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, NoTracePredFlag);
+    Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);
+    Yap_InitCPred("$do_term_expansion", 2, do_term_expansion, NoTracePredFlag);
     Yap_InitCPred("$setup_call_catcher_cleanup", 1, setup_call_catcher_cleanup,
-                  0);
+                  NoTracePredFlag);
     Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, NoTracePredFlag);
-    Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, 0);
-    Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, 0);
-    Yap_InitCPred("$get_debugger_state", 4, get_debugger_state4, 0);
-    Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, 0);
-    Yap_InitCPred("$set_debugger_state", 4, set_debugger_state4, 0);
+    Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, NoTracePredFlag);
+    Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
+    Yap_InitCPred("$get_debugger_state", 4, get_debugger_state4, NoTracePredFlag);
+    Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);
+    Yap_InitCPred("$set_debugger_state", 4, set_debugger_state4, NoTracePredFlag);
 }
 

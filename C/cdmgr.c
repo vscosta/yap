@@ -4276,104 +4276,104 @@ static Int init_pred_flag_vals(USES_REGS1) {
 
 void Yap_InitCdMgr(void) {
   CACHE_REGS
-  Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag);
+  Yap_InitCPred("$init_pred_flag_vals", 2, init_pred_flag_vals, SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$start_consult", 3, p_startconsult,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag);
-  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag);
-  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$show_consult_level", 1, p_showconslultlev, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$end_consult", 0, p_endconsult, SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$set_spy", 2, p_setspy, SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$rm_spy", 2, p_rmspy, SafePredFlag | SyncPredFlag| NoTracePredFlag);
   /* gc() may happen during compilation, hence these predicates are
         now unsafe */
-  Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag);
-  Yap_InitCPred("$compile", 5, p_compile, SyncPredFlag);
+  Yap_InitCPred("$predicate_flags", 4, predicate_flags, SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$compile", 5, p_compile, SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$purge_clauses", 2, p_purge_clauses,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$is_dynamic", 2, p_is_dynamic, TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_metapredicate", 2, p_is_metapredicate,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_thread_local", 2, p_is_thread_local,
-                TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag);
-  Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag);
-  Yap_InitCPred("$mk_dynamic", 2, mk_dynamic, SafePredFlag);
-  Yap_InitCPred("$new_meta_pred", 2, new_meta_pred, SafePredFlag);
-  Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$is_exo", 2, p_is_exo, TestPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$owner_file", 3, owner_file, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$set_owner_file", 3, p_set_owner_file, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$mk_dynamic", 2, mk_dynamic, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$new_meta_pred", 2, new_meta_pred, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$sys_export", 2, p_sys_export, TestPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$number_of_clauses", 3, number_of_clauses,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$undefined", 2, p_undefined, SafePredFlag | TestPredFlag| NoTracePredFlag);
   Yap_InitCPred("$undefp_handler", 2, undefp_handler,
-                SafePredFlag | TestPredFlag);
+                SafePredFlag | TestPredFlag| NoTracePredFlag);
   Yap_InitCPred("$optimizer_on", 0, p_optimizer_on,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$clean_up_dead_clauses", 0, p_clean_up_dead_clauses,
-                SyncPredFlag);
+                SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$optimizer_off", 0, p_optimizer_off,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$kill_dynamic", 2, p_kill_dynamic,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$new_multifile", 2, new_multifile,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
+                SafePredFlag | SyncPredFlag | HiddenPredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_multifile", 2, p_is_multifile,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$new_system_predicate", 3, new_system_predicate,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_system_predicate", 2, is_system_predicate,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_opaque_predicate", 2, is_opaque_predicate,
-                TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$new_discontiguous", 3, p_new_discontiguous,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_discontiguous", 2, p_is_discontiguous,
-                TestPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_private", 2, p_is_private, TestPredFlag | SafePredFlag);
+                TestPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$is_private", 2, p_is_private, TestPredFlag | SafePredFlag| NoTracePredFlag);
   Yap_InitCPred("$set_private", 2, p_set_private,
-                SyncPredFlag | SafePredFlag);
-  Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag | SyncPredFlag);
+                SyncPredFlag | SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$is_profiled", 1, p_is_profiled, SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$profile_info", 3, p_profile_info,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$profile_reset", 2, p_profile_reset,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$is_call_counted", 1, p_is_call_counted,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$call_count_info", 3, p_call_count_info,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$call_count_set", 6, p_call_count_set,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$call_count_reset", 0, p_call_count_reset,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag);
-  Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag);
-  Yap_InitCPred("$hide_predicate", 2, hide_predicate, SafePredFlag);
-  Yap_InitCPred("$stash_predicate", 2, stash_predicate, SafePredFlag);
-  Yap_InitCPred("$hidden_predicate", 2, hidden_predicate, SafePredFlag);
-  Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$set_pred_module", 2, p_set_pred_module, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$set_pred_owner", 2, p_set_pred_owner, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$hide_predicate", 2, hide_predicate, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$stash_predicate", 2, stash_predicate, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$hidden_predicate", 2, hidden_predicate, SafePredFlag| NoTracePredFlag);
+  Yap_InitCPred("$log_update_clause", 4, p_log_update_clause, SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$continue_log_update_clause", 5, p_continue_log_update_clause,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$log_update_clause_erase", 4, p_log_update_clause_erase,
-                SyncPredFlag);
+                SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$continue_log_update_clause_erase", 5,
                 p_continue_log_update_clause_erase,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$static_clause", 4, p_static_clause, SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$continue_static_clause", 5, p_continue_static_clause,
-                SafePredFlag | SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$static_pred_statistics", 5, p_static_pred_statistics,
-                SyncPredFlag);
+                SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("instance_property", 3, instance_property,
-                SafePredFlag | SyncPredFlag);
-  Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag);
+                SafePredFlag | SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance, SyncPredFlag| NoTracePredFlag);
   Yap_InitCPred("$predicate_erased_statistics", 5,
-                p_predicate_erased_statistics, SyncPredFlag);
-  Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag);
+                p_predicate_erased_statistics, SyncPredFlag| NoTracePredFlag);
+  Yap_InitCPred("$including", 2, including, SyncPredFlag | HiddenPredFlag| NoTracePredFlag);
 
 #ifdef DEBUG
-  Yap_InitCPred("$predicate_lu_cps", 4, p_predicate_lu_cps, 0L);
+  Yap_InitCPred("$predicate_lu_cps", 4, p_predicate_lu_cps, 0L| NoTracePredFlag);    
 #endif
 }
 
