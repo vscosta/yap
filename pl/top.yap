@@ -44,7 +44,7 @@ live :-
 
 /* main execution loop							*/
 '$read_toplevel'(Goal, Bindings, Pos) :-
-    '$prompt',
+'$prompt',
     catch(read_term(user_input,
                     Goal,
                     
@@ -577,18 +577,9 @@ write_query_answer( Bindings ) :-
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
-'$user_call'(G, CP, G0, M) :-
-    catch('$trace_query'(G, M, CP, G0), E, '$Error'(E)).
-
 '$user_call'(G, M) :-
-    (
-	'$creep_is_off'(Module:G, GoalNo)
-    ->
-    gated_call('$start_user_code',call(M:G),Port,'$reenter_debugger'(Port))
-    ;
-    
-    '$trace'(M:G)
-    ).
+	'$current_choice_point'(CP),
+    gated_call('$start_user_code',M:G,Port,'$reenter_debugger'(Port)).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
@@ -1017,7 +1008,7 @@ log_event( String, Args ) :-
 	DBON = true
 	->
 	(
-	    '__NB_getval__'('$debug_state',state( _, _, _,on), fail),
+'$get_debugger_state'(  trace,on),
 	    (
 		var(LF)
 	    ->

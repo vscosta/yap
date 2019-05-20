@@ -91,6 +91,7 @@ A	Context			N	"context"
 A	Cputime			N	"cputime"
 A	Create			N	"create"
 A	Creep			F	"$creep"
+A	UserCreep		N	"creep"
 A	CryptAtoms		N	"crypt_atoms"
 A	Curly			N	"{}"
 A	Csult			F	"$csult"
@@ -222,6 +223,7 @@ A	LOOP			N	"_LOOP_"
 A	LoopStream		N	"loop_stream"
 A	LT			N	"<"
 A	LastExecuteWithin	F	"$last_execute_within"
+A	Leap            N   "leap"
 A	Leash			F	"$leash"
 A	Least			N	"least"
 A	Length			F	"length"
@@ -454,6 +456,7 @@ A	WriteTerm		N	"write_term"
 A	Xml			N	"xml"
 A	YapHacks		N	"yap_hacks"
 A	ZeroDivisor		N	"zero_divisor"
+A	Zip		N	"zip"
 F	AfInet			AfInet		2
 F	AfLocal			AfLocal		1
 F	AfUnix			AfUnix		1
@@ -486,7 +489,7 @@ F	Comma			Comma		2
 F	CommentHook		CommentHook	3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
-F	Creep			Creep		1
+F	Creep			Creep		4
 F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1

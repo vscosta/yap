@@ -1043,4 +1043,16 @@ extern void **Yap_ABSMI_OPCODES;
 
 #endif
 
+/// Debugging Support
+
+typedef enum {
+DEBUG_CREEP_LEAP_OR_ZIP = 0,
+DEBUG_GOAL_NUMBER = 1,
+DEBUG_SPY = 2,
+DEBUG_TRACE_MODE =  3,
+DEBUG_GOAL_QUEUE =  4,
+    DEBUG_DEBUGGER_MAY_BE_CALLED = 5,
+    DEBUG_NUMBER_OF_OPTS =6
+} debug_key_t ;
+
 #endif

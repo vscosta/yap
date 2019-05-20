@@ -86,6 +86,7 @@
   AtomCputime = AtomAdjust(AtomCputime); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep); TermCreep = MkAtomTerm(AtomCreep);
+  AtomUserCreep = AtomAdjust(AtomUserCreep); TermUserCreep = MkAtomTerm(AtomUserCreep);
   AtomCryptAtoms = AtomAdjust(AtomCryptAtoms); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = AtomAdjust(AtomCsult); TermCsult = MkAtomTerm(AtomCsult);
@@ -216,6 +217,7 @@
   AtomLoopStream = AtomAdjust(AtomLoopStream); TermLoopStream = MkAtomTerm(AtomLoopStream);
   AtomLT = AtomAdjust(AtomLT); TermLT = MkAtomTerm(AtomLT);
   AtomLastExecuteWithin = AtomAdjust(AtomLastExecuteWithin); TermLastExecuteWithin = MkAtomTerm(AtomLastExecuteWithin);
+  AtomLeap = AtomAdjust(AtomLeap); TermLeap = MkAtomTerm(AtomLeap);
   AtomLeash = AtomAdjust(AtomLeash); TermLeash = MkAtomTerm(AtomLeash);
   AtomLeast = AtomAdjust(AtomLeast); TermLeast = MkAtomTerm(AtomLeast);
   AtomLength = AtomAdjust(AtomLength); TermLength = MkAtomTerm(AtomLength);
@@ -447,6 +449,7 @@
   AtomWriteTerm = AtomAdjust(AtomWriteTerm); TermWriteTerm = MkAtomTerm(AtomWriteTerm);
   AtomXml = AtomAdjust(AtomXml); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = AtomAdjust(AtomYapHacks); TermYapHacks = MkAtomTerm(AtomYapHacks);
+  AtomZip = AtomAdjust(AtomZip); TermZip = MkAtomTerm(AtomZip);
   AtomZeroDivisor = AtomAdjust(AtomZeroDivisor); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
   FunctorAfInet = FuncAdjust(FunctorAfInet);
   FunctorAfLocal = FuncAdjust(FunctorAfLocal);

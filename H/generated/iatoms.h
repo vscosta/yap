@@ -86,6 +86,7 @@
   AtomCputime = Yap_LookupAtom("cputime"); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
+  AtomUserCreep = Yap_LookupAtom("creep"); TermUserCreep = MkAtomTerm(AtomUserCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
   AtomCsult = Yap_FullLookupAtom("$csult"); TermCsult = MkAtomTerm(AtomCsult);
@@ -216,6 +217,7 @@
   AtomLoopStream = Yap_LookupAtom("loop_stream"); TermLoopStream = MkAtomTerm(AtomLoopStream);
   AtomLT = Yap_LookupAtom("<"); TermLT = MkAtomTerm(AtomLT);
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within"); TermLastExecuteWithin = MkAtomTerm(AtomLastExecuteWithin);
+  AtomLeap = Yap_LookupAtom("leap"); TermLeap = MkAtomTerm(AtomLeap);
   AtomLeash = Yap_FullLookupAtom("$leash"); TermLeash = MkAtomTerm(AtomLeash);
   AtomLeast = Yap_LookupAtom("least"); TermLeast = MkAtomTerm(AtomLeast);
   AtomLength = Yap_FullLookupAtom("length"); TermLength = MkAtomTerm(AtomLength);
@@ -448,6 +450,7 @@
   AtomXml = Yap_LookupAtom("xml"); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = Yap_LookupAtom("yap_hacks"); TermYapHacks = MkAtomTerm(AtomYapHacks);
   AtomZeroDivisor = Yap_LookupAtom("zero_divisor"); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
+  AtomZip = Yap_LookupAtom("zip"); TermZip = MkAtomTerm(AtomZip);
   FunctorAfInet = Yap_MkFunctor(AtomAfInet,2);
   FunctorAfLocal = Yap_MkFunctor(AtomAfLocal,1);
   FunctorAfUnix = Yap_MkFunctor(AtomAfUnix,1);
@@ -480,7 +483,7 @@
   FunctorCommentHook = Yap_MkFunctor(AtomCommentHook,3);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
-  FunctorCreep = Yap_MkFunctor(AtomCreep,1);
+  FunctorCreep = Yap_MkFunctor(AtomCreep,4);
   FunctorCsult = Yap_MkFunctor(AtomCsult,2);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
