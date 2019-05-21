@@ -102,6 +102,7 @@
   AtomDInteger = AtomAdjust(AtomDInteger); TermDInteger = MkAtomTerm(AtomDInteger);
   AtomDebugMeta = AtomAdjust(AtomDebugMeta); TermDebugMeta = MkAtomTerm(AtomDebugMeta);
   AtomDebuggerInput = AtomAdjust(AtomDebuggerInput); TermDebuggerInput = MkAtomTerm(AtomDebuggerInput);
+  AtomDebuggerOutput = AtomAdjust(AtomDebuggerOutput); TermDebuggerOutput = MkAtomTerm(AtomDebuggerOutput);
   AtomDec10 = AtomAdjust(AtomDec10); TermDec10 = MkAtomTerm(AtomDec10);
   AtomDefault = AtomAdjust(AtomDefault); TermDefault = MkAtomTerm(AtomDefault);
   AtomDevNull = AtomAdjust(AtomDevNull); TermDevNull = MkAtomTerm(AtomDevNull);
@@ -449,8 +450,8 @@
   AtomWriteTerm = AtomAdjust(AtomWriteTerm); TermWriteTerm = MkAtomTerm(AtomWriteTerm);
   AtomXml = AtomAdjust(AtomXml); TermXml = MkAtomTerm(AtomXml);
   AtomYapHacks = AtomAdjust(AtomYapHacks); TermYapHacks = MkAtomTerm(AtomYapHacks);
-  AtomZip = AtomAdjust(AtomZip); TermZip = MkAtomTerm(AtomZip);
   AtomZeroDivisor = AtomAdjust(AtomZeroDivisor); TermZeroDivisor = MkAtomTerm(AtomZeroDivisor);
+  AtomZip = AtomAdjust(AtomZip); TermZip = MkAtomTerm(AtomZip);
   FunctorAfInet = FuncAdjust(FunctorAfInet);
   FunctorAfLocal = FuncAdjust(FunctorAfLocal);
   FunctorAfUnix = FuncAdjust(FunctorAfUnix);

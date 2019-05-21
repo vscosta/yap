@@ -102,6 +102,7 @@
   AtomDInteger = Yap_FullLookupAtom("$integer"); TermDInteger = MkAtomTerm(AtomDInteger);
   AtomDebugMeta = Yap_FullLookupAtom("$debug_meta"); TermDebugMeta = MkAtomTerm(AtomDebugMeta);
   AtomDebuggerInput = Yap_LookupAtom("debugger_input"); TermDebuggerInput = MkAtomTerm(AtomDebuggerInput);
+  AtomDebuggerOutput = Yap_LookupAtom("debugger_output"); TermDebuggerOutput = MkAtomTerm(AtomDebuggerOutput);
   AtomDec10 = Yap_LookupAtom("dec10"); TermDec10 = MkAtomTerm(AtomDec10);
   AtomDefault = Yap_LookupAtom("default"); TermDefault = MkAtomTerm(AtomDefault);
   AtomDevNull = Yap_LookupAtom("/dev/null"); TermDevNull = MkAtomTerm(AtomDevNull);

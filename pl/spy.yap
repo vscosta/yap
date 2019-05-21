@@ -445,7 +445,14 @@ notrace(G) :-
 %% we're coming back from external code to a debugger call.
 %%
 '$reenter_debugger'(fail) :-
+    !,
     '$re_enter_creep_mode'.
+'$reenter_debugger'(exit) :-
+    !,
+    '$re_enter_creep_mode'.
+'$reenter_debugger'(answer) :-
+     !,
+   '$re_enter_creep_mode'.
 '$reenter_debugger'(_) :-
     '$set_debugger_state'(debug, false).
 
@@ -498,12 +505,12 @@ notrace(G) :-
     ->
 	'$get_debugger_state'( spy,  ignore )
     ;
-    var(GN)
+    var(GoalNo)
     ->
     false
     ;
-	'$get_debugger_state'( goal_number, GoalNo ) ,
-	    GN < GoalNo
+	'$get_debugger_state'( goal_number, GN ) ,
+	    GN > GoalNo
      ).
 '$creep_is_on_at_entry'(G,M,_GoalNo) :-
     \+ '$is_system_predicate'(G,M),

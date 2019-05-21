@@ -53,8 +53,8 @@ prolog:'$protect' :-
     '$is_system_module'(M),
     functor(P,Name,Arity),
     \+ '$visible'(Name), 
-    '$set_private'(P,M),
-:'$protect' :-
+    '$set_private'(P,M).
+prolog:'$protect' :-
     current_atom(Name),
 	sub_atom(Name,0,1,_, '$'),
     \+ '$visible'(Name),

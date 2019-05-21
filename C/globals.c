@@ -211,13 +211,6 @@ static Term NewArena(UInt size, int wid, UInt arity, CELL *where, struct cell_sp
   UInt new_size;
   WORKER_REGS(wid)
 exit_cell_space(cellSpace);
-    // make sure we have enough room
-    while (HR + size > ASP - 2*MIN_ARENA_SIZE) {
-      if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-        return TermNil;
-      }
-    }
   if (where == NULL || where == HR) {
     t = CreateNewArena(HR, size);
     HR += size;
@@ -1833,7 +1826,6 @@ static Term MkZeroApplTerm(Functor f, UInt sz USES_REGS) {
 static Int p_nb_heap(USES_REGS1) {
   Term heap_arena, heap, *ar, *nar;
   UInt hsize;
-  cell_space_t cspace;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (ASP-HR) / 16;
 
@@ -1864,7 +1856,10 @@ static Int p_nb_heap(USES_REGS1) {
   ar[HEAP_MAX] = tsize;
   if (arena_sz < 1024)
     arena_sz = 1024;
-  heap_arena = NewArena(arena_sz, worker_id, 1, NULL, &cspace);
+    cell_space_t cellSpace;
+    enter_cell_space(&cellSpace);
+    heap_arena = NewArena(arena_sz, worker_id, 1, NULL, &cellSpace);
+    exit_cell_space(&cellSpace);
   if (heap_arena == 0L) {
     return FALSE;
   }
