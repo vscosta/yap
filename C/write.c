@@ -476,10 +476,10 @@ AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   CACHE_REGS
   if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
-    wrputc(ch, stream);
-    if (ch == '\'')
-      wrputc('\'', stream); /* be careful about quotes */
-    return;
+      wrputc(ch, stream);
+      if (ch == '\'')
+          wrputc('\'', stream); /* be careful about quotes */
+      return;
   }
   if (!(ch < 0xff && chtype(ch) == BS) && ch != '\'' && ch != '\\' &&
       ch != '`') {

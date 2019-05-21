@@ -632,8 +632,8 @@ overflow:
     *pt0 = to_visit->oldv;
   }
 #endif
-  reset_trail(TR0);
-    pop_text_stack(lvl);
+    clean_dirty_tr(TR0 PASS_REGS);
+pop_text_stack(lvl);
   return -1;
 
 trail_overflow:

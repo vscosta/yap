@@ -2600,7 +2600,7 @@ jni_func_1_plc(
     jobject	j;	/*  " */
  /* jlong	jl;	//  " */
     void	*p1;	/* temp for converted (JVM) arg */
-    char	*c1;	/*  " */
+    char	*c1 = NULL;	/*  " */
     int		i1;	/*  " */
  /* jlong	l1;	//  " */
  /* double	d1;	//  " */
@@ -2950,8 +2950,8 @@ jni_func_3_plc(
     void	*p2;	/*  " */
     void	*p3;	/*  " */
  /* char	*c1;	//  " */
-    char	*c2;	/*  " */
-    char	*c3;	/*  " */
+    char	*c2 = NULL;	/*  " */
+    char	*c3 = NULL;	/*  " */
     int		i1;	/*  " */
  /* int		i2;	//  " */
  /* int		i3;	//  " */
@@ -3297,7 +3297,7 @@ jpl_do_jpl_init(		/* to be called once only, after PL init, before any JPL calls
     {
     jclass	tc;	/* temporary class ref */
     jobject	ta;	/* temporary array ref */
-    char	*msg;	/* error message for exceptions thrown here */
+    char	*msg = NULL;	/* error message for exceptions thrown here */
     int		i;	/* loop counter */
     jobject	to;	/* temporary (String) object ref */
 

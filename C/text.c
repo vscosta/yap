@@ -293,8 +293,11 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
         Yap_ThrowError(REPRESENTATION_ERROR_CHARACTER_CODE, hd,
                        "scanning list of character codes, found %d", code);
         return NULL;
-      }
+      }else if (code == 0) {
+        length += 2;
+      } else {
       length += put_utf8(ar, code);
+    }
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
@@ -320,8 +323,11 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
       if (code < 0) {
         Yap_ThrowError(TYPE_ERROR_CHARACTER, hd, "scanning list of atoms");
         return NULL;
+      } else if (code == 0) {
+          length += 2;
+      } else {
+          length += strlen(code);
       }
-      length += strlen(code);
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "scanning list of codes");
@@ -348,6 +354,11 @@ static void *codes2buf(Term t0, void *b0, bool get_codes,
       Term hd = HeadOfTerm(t);
       Int code = IntegerOfTerm(hd);
 
+      if (code == 0) {
+       st[0] = 0xC0;
+        st[1] = 0x80;
+st +=2;
+      } else
       st = st + put_utf8(st, code);
       t = TailOfTerm(t);
     }
