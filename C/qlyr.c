@@ -1117,8 +1117,11 @@ YAP_file_type_t Yap_Restore(const char *s) {
   const char *tmp = Yap_AbsoluteFile(s, true);
 
   FILE *stream = Yap_OpenRestore(tmp);
-  if (!stream)
+    if (!stream)
     return -1;
+#define BUFSIX 4096*256
+    char *buf = malloc(BUFSIZ);
+    setvbuf(stream, buf, buf ? _IOFBF : _IONBF, BUFSIZ);
   GLOBAL_RestoreFile = s;
   if (do_header(stream) == NIL) {
     pop_text_stack(lvl);
@@ -1127,6 +1130,7 @@ YAP_file_type_t Yap_Restore(const char *s) {
   read_module(stream);
   setBooleanGlobalPrologFlag(SAVED_PROGRAM_FLAG, true);
   fclose(stream);
+  free(buf);
   GLOBAL_RestoreFile = NULL;
   LOCAL_SourceModule = CurrentModule = USER_MODULE;
   pop_text_stack(lvl);

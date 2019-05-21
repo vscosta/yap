@@ -163,7 +163,8 @@ ignore(Goal) :- (Goal->true;true).
  * it is both more efficient and more portable.
  *
  */
-if(X,Y,Z) :-
+if(X0,Y,Z) :-
+    '$yap_strip_module'(X0,M,X),
     (
 	'$$save_by'(CP),
 	 '$call'(X,CP,if(X,Y,Z),M),
