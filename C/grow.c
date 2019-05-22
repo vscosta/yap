@@ -908,6 +908,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
 	hsplit > HR)
       return false;
     if (hsplit == HR && Unsigned(HR)+request < Unsigned(ASP)-StackGap( PASS_REGS1 )) {
+        HR += request/sizeof(CELL);
        return request;
     }
   }
@@ -916,12 +917,10 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
       do_grow = false;
   }
   if (do_grow) {
-    if (request < YAP_ALLOC_SIZE)
-      request = YAP_ALLOC_SIZE;
-    request = AdjustPageSize(request);
+      if (request < YAP_ALLOC_SIZE)
+          request = YAP_ALLOC_SIZE;
+      request = AdjustPageSize(request);
   }
-
-      printf("grow=%d\n", do_grow);
   /* adjust to a multiple of 256) */
   LOCAL_ErrorMessage = NULL;
   LOCAL_PrologMode |= GrowStackMode;
@@ -1024,7 +1023,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   }
   if (hsplit) {
     MoveHalfGlobal(hsplit, request PASS_REGS);
-    printf("done\n");
   }
   YAPLeaveCriticalSection();
   ASP += 256;

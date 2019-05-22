@@ -266,9 +266,10 @@ static void adjust_cps(UInt size USES_REGS) {
   }
 }
 
-static Term GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
+static Term GrowArena(Term arena, size_t size,
                      UInt arity, cell_space_t *cspace USES_REGS) {
-  size_t sz; 
+    CELL *pt = ArenaLimit(arena);
+    size_t old_size = ArenaSz(arena);
   LOCAL_ArenaOverflows++;
   if (size == 0) {
     if (old_size < 128 * 1024) {
@@ -291,20 +292,17 @@ static Term GrowArena(Term arena, CELL *pt, size_t old_size, size_t size,
       adjust_cps(size PASS_REGS);
   }
     pt = ArenaLimit(arena);
-    sz = old_size + size;
-    if (pt == HR) {
+   if (pt == HR) {
       HR += size;
-      HR[ - 1] = EndSpecials;
     } else {
-        if ((sz = Yap_InsertInGlobal(pt, size * sizeof(CELL))) == 0) {
-        return FALSE;
+        XREGS[arity + 1] = arena;
+        if ((size = Yap_InsertInGlobal(pt, size * sizeof(CELL))/sizeof(CELL)) == 0) {
+        return false;
       }
-      pt[size-1] = EndSpecials;
-    }
-    arena = XREGS[arity + 1];
-    MP_INT *dst = (MP_INT *)(RepAppl(arena) + 2);
-    dst->_mp_alloc+= size;
-    return sz;
+        arena = XREGS[arity + 1];
+     }
+    CreateNewArena(RepAppl(arena), size+old_size);
+    return size+old_size;
 }
 
 CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
@@ -375,8 +373,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   struct cp_frame *to_visit0, *to_visit = Malloc(1024*sizeof(struct cp_frame));
   struct cp_frame *to_visit_max;
 
-  CELL *HB0 = HB;
-  tr_fr_ptr TR0 = TR;
+   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
 
   HB = HLow;
@@ -650,13 +647,14 @@ trail_overflow:
 static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                             UInt arity, Term *newarena,
                             size_t min_grow USES_REGS) {
-    size_t old_size = ArenaSz(arena);
+    size_t old_size;
     cell_space_t cspace;
-    int res = 0;
+    int res = 0, restarts = 0;
     Term tn;
- 
+
     restart:
     enter_cell_space(&cspace);
+    old_size = ArenaSz(arena);
     t = Deref(t);
     if (IsVarTerm(t)) {
         ASP = ArenaLimit(arena);
@@ -793,7 +791,6 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
     error_handler:
     XREGS[arity + 1] = t;
     XREGS[arity + 2] = arena;
-}
     exit_cell_space(&cspace);
     switch (res) {
     case -1:
@@ -801,8 +798,9 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         LOCAL_GlobalArenaOverflows++;
       restarts++;
       min_grow += (restarts < 16 ? 16*1024*restarts*restarts : 128*1024*1024);
-      if ((arena=GrowArena(arena, min_grow, arity + 2, &cspace PASS_REGS))==0) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      CreateNewArena (RepAppl(arena),old_size);
+      if((arena=GrowArena(arena, min_grow, arity + 2, &cspace PASS_REGS))==0) {
+        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
       break;
@@ -810,7 +808,6 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
       return 0;
       
     }
-  }
   enter_cell_space(&cspace);
   arena = Deref(XREGS[arity + 2]);
   t = XREGS[arity + 1];
@@ -822,12 +819,13 @@ static Term CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity,
     cell_space_t cells;
    Term tf;
   CELL *HB0;
+  size_t old_size = ArenaSz(arena);
   Functor f = Yap_MkFunctor(Na, Nar);
   UInt i;
 
 restart:
     enter_cell_space(&cells);
-    HR = HB = ArenaPt(arena);
+    HB0 = HR = HB = ArenaPt(arena);
   ASP = ArenaLimit(arena);
   tf = AbsAppl(HR);
   HR[0] = (CELL)f;
@@ -837,10 +835,11 @@ restart:
     HR = HB;
     XREGS[arity + 1] = arena;
     {
-//      CELL *old_top = ArenaLimit(*newarena);
+//      CELL *old_top = ArenaLimit(*nsizeof(CELL)ewarena);
       if (arena == LOCAL_GlobalArena)
         LOCAL_GlobalArenaOverflows++;
-      if ((arena=GrowArena(arena, Nar * sizeof(CELL),
+          CreateNewArena (RepAppl(arena),old_size);
+          if ((arena=GrowArena(arena, Nar * sizeof(CELL),
                            arity + 1, &cells PASS_REGS))==0) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                   "while creating large global term");
@@ -859,7 +858,7 @@ restart:
       HB0[i] = init;
     }
   }
-  CloseArena(&cells, newarena, old_size PASS_REGS);
+  CloseArena(&cells, newarena, ArenaSz(arena) PASS_REGS);
   return tf;
 }
 
@@ -1990,7 +1989,8 @@ restart:
       gsiz = 1024;
     }
     ARG3 = to;
-    if ((arena=GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3, &cspace PASS_REGS))==0) {
+      CreateNewArena (RepAppl(arena),old_sz);
+    if ((arena=GrowArena(arena, gsiz, 3, &cspace PASS_REGS))==0) {
       Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
       return 0L;
     }
@@ -2349,7 +2349,8 @@ cell_space_t cspace;
     }
     ARG3 = to;
     /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
-    if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3, &cspace PASS_REGS)) {
+      CreateNewArena (RepAppl(arena),old_sz);
+    if (!GrowArena(arena, gsiz, 3, &cspace PASS_REGS)) {
       Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
       return 0L;
     }
