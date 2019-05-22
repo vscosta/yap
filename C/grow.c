@@ -963,7 +963,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
     fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, request);
   }
-      printf("grow=%d %p\n", do_grow, ASP);
   ASP -= 256;
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
