@@ -69,19 +69,33 @@ lists:append([H|T], L, [H|R]) :-
        lists:append(T, L, R).
 
 
-:- set_prolog_flag(source, true). % :- no_source.
-
 %   lists:delete(List, Elem, Residue)
 %   is true when List is a list, in which Elem may or may not occur, and
 %   Residue is a copy of List with all elements identical to Elem lists:deleted.
 
 /** @pred delete(+ _List_, ? _Element_, ? _Residue_)
 
-:- set_prolog_flag(source, false). % disable source.
+True when  _List_ is a list, in which  _Element_ may or may not
+occur, and  _Residue_ is a copy of  _List_ with all elements
+identical to  _Element_ deleted.
+
+*/
+lists:delete([], _, []).
+lists:delete([Head|List], Elem, Residue) :-
+    ( Head \= Elem
+    ->
+    lists:delete(List, Elem, Residue)
+    ;
+    Residue = [Head|MoreResidue],
+    lists:delete(List, Elem, MoreResidue)
+    ).
+
 
 
 
 %   length of a list.
+
+:- set_prolog_flag(source, false). % disable source.
 
 /** @pred  length(? _L_,? _S_)
 

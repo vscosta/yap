@@ -2771,12 +2771,11 @@ void Yap_InitAtomPreds(void) {
   Yap_InitCPred("atomics_to_string", 3, atomics_to_string3, 0);
   Yap_InitCPred("get_string_code", 3, get_string_code3, 0);
 
-  Yap_InitCPred("downcase_text_to_atom", 2, downcase_text_to_atom, 0);
-  Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
-  Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);
+    Yap_InitCPred("downcase_atom", 2, downcase_text_to_atom, 0);
   Yap_InitCPred("upcase_atom", 2, upcase_text_to_atom, 0);
-  Yap_InitCPred("text_to_string", 2, downcase_text_to_string, 0);
-  Yap_InitCPred("text_to_atom", 2, downcase_text_to_string, 0);
+
+  Yap_InitCPred("downcase_text_to_atom", 2, downcase_text_to_atom, 0);
+  Yap_InitCPred("upcase_text_to_atom", 2, upcase_text_to_atom, 0);
   Yap_InitCPred("downcase_text_to_string", 2, downcase_text_to_string, 0);
   Yap_InitCPred("upcase_text_to_string", 2, upcase_text_to_string, 0);
   Yap_InitCPred("downcase_text_to_codes", 2, downcase_text_to_codes, 0);
