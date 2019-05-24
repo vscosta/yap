@@ -77,7 +77,7 @@ fail.
 
 %
 '$get_undefined_predicate'(ImportingMod:G, ExportingMod:G0) :-
-    is_callable( ImportingMod:G ),
+    must_be_callable( ImportingMod:G ),
     '$predicate_definition'(ImportingMod:G,[], ExportingMod:G0),
     ImportingMod:G \= ExportingMod:G0,
     !.

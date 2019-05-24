@@ -247,7 +247,7 @@ Retract all the clauses whose head matches the goal  _G_. Goal
 */
 retractall(V) :-
     '$yap_strip_module'(V,M,P),
-    is_callable(M:P),
+    must_be_callable(M:P),
     '$retractall'(P,M).
 
 '$retractall'(T,M) :-

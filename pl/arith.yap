@@ -131,9 +131,10 @@ do_c_built_in(G1, M1, H, OUT) :-
     var(M1), !,
     do_c_built_metacall(G1, M1, H, OUT).
 do_c_built_in('$do_error'( Error, Goal), M, Head,
-	      throw(error(Error,M:(Head :- Goal)))
+	      throw(error(Error,[errorGoal=Goal, errorCaller=Head,prologPredFile=File,prologPredLine=Line,
+	      prologPredModule=M,prologPredName=Name,prologPredArity=Ar])))
 	     ) :-
-    !.
+    !,source_location(File, Line).
 do_c_built_in(system_error( Error, Goal), M, Head, ErrorG) :-
         !,
        do_c_built_in('$do_error'( Error, Goal), M, Head, ErrorG).

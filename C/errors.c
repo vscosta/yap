@@ -1249,41 +1249,41 @@ static Int is_atom(USES_REGS1) {
   return IsAtomTerm(t);
 }
 
-static Int is_callable(USES_REGS1) {
-  Term G = Deref(ARG1);
-  // Term Context = Deref(ARG2);
-  while (true) {
-    if (IsVarTerm(G)) {
-      //Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
-      return false;
-    }
-    if (IsApplTerm(G)) {
-      Functor f = FunctorOfTerm(G);
-      if (IsExtensionFunctor(f)) {
-        Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
-      }
-      if (f == FunctorModule) {
-        Term tm = ArgOfTerm(1, G);
-        if (IsVarTerm(tm)) {
-          Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
-          return false;
+static Int must_be_callable(USES_REGS1) {
+    Term G = Deref(ARG1);
+    // Term Context = Deref(ARG2);
+    while (true) {
+        if (IsVarTerm(G)) {
+            Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+            return false;
         }
-        if (!IsAtomTerm(tm)) {
-          Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
-          return false;
+        if (IsApplTerm(G)) {
+            Functor f = FunctorOfTerm(G);
+            if (IsExtensionFunctor(f)) {
+                Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
+            }
+            if (f == FunctorModule) {
+                Term tm = ArgOfTerm(1, G);
+                if (IsVarTerm(tm)) {
+                    Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+                    return false;
+                }
+                if (!IsAtomTerm(tm)) {
+                    Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
+                    return false;
+                }
+                G = ArgOfTerm(2, G);
+            } else {
+                return true;
+            }
+        } else if (IsPairTerm(G) || IsAtomTerm(G)) {
+            return true;
+        } else {
+            Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
+            return false;
         }
-        G = ArgOfTerm(2, G);
-      } else {
-        return true;
-      }
-    } else if (IsPairTerm(G) || IsAtomTerm(G)) {
-      return true;
-    } else {
-      Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
-      return false;
     }
-  }
-  return false;
+    return false;
 }
 
 /**
@@ -1360,7 +1360,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 0, close_error, HiddenPredFlag);
   Yap_InitCPred("is_boolean", 1, is_boolean, TestPredFlag);
-  Yap_InitCPred("is_callable", 1, is_callable, TestPredFlag);
+    Yap_InitCPred("must_be_callable", 1, must_be_callable, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom, TestPredFlag);
   Yap_InitCPred("get_predicate_indicator", 4, get_predicate_indicator, 0);
 }

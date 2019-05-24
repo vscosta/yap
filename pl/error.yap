@@ -24,8 +24,8 @@
 	    instantiation_error/1,	% +Term
 	    representation_error/1, 	% +Reason
 	    is_of_type/2,		% +Type, +Term
-	    is_callable/1,
-	    	    is_callable/2
+	    must_be_callable/1,
+	    	    must_be_callable/2
 	  ]), [])  .
 
 /**
@@ -108,7 +108,7 @@ must_be(Type, X, Comment) :-
 
 must_be_of_type(callable, X) :-
 	!,
-	is_callable(X).
+	must_be_callable(X).
 must_be_of_type(atom, X) :-
 	!,
 	is_atom(X).
@@ -129,7 +129,7 @@ must_be_of_type(predicate_indicator, X, Comment) :-
 	is_predicate_indicator(X, Comment).
 must_be_of_type(callable, X, _Comment) :-
 	!,
-	is_callable(X).
+	must_be_callable(X).
 must_be_of_type(Type, X, _Comment) :-
 	(   has_type(Type, X)
 	->  true
@@ -332,16 +332,11 @@ must_be_instantiated(X) :-
 must_be_instantiated(X, Comment) :-
   ( var(X) -> instantiation_error(X, Comment) ; true).
 
-must_be_callable(X) :-
-  is_callable(X).
-
 
 inline(must_be_of_type( atom, X ), is_atom(X) ).
 inline(must_be_of_type( module, X ), is_atom(X) ).
-inline(must_be_of_type( callable, X ), is_callable(X) ).
+inline(must_be_of_type( callable, X ), must_be_callable(X) ).
 inline(must_be_atom( X ), is_atom(X) ).
 inline(must_be_module( X ), is_atom(X) ).
-inline(must_be_callable( X ), is_callable(X) ).
-inline(is_callable( X,_ ), is_callable(X) ).
 
 %% @}

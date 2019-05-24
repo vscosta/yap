@@ -77,7 +77,24 @@ typedef struct write_globs {
   UInt  last_atom_minus;
   UInt MaxDepth, MaxArgs;
   wtype lw;
+  CELL *visited, *visited0, *visited_max;
 } wglbs;
+
+static inline bool was_visited(Term t, wglbs *wg) {
+    if (IsApplTerm(t)) tp = RepAppl(tp);
+    else if (IsPairTerm(t)) tp = RepPair(t);
+    else return false;
+    bool    rc = IsVarTerm(t) && (CELL *) t >= wg->visited0
+           && (CELL *) t < wg->visited_max;
+    wg->visited = *t;
+    *t = wg->visited++;
+}}
+
+
+
+static inline void done_visit(Term *t, wglbs *wg) {
+    *t = *--wg->visited++;
+}
 
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
@@ -732,7 +749,10 @@ static void write_list(Term t, int direction, int depth,
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
 
-  while (1) {
+  if (is_visited(t, wglb)) {
+      wrputs(".."wglb->stream);
+  }
+  if (1) {
 
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
     ti = TailOfTerm(t);
@@ -1111,7 +1131,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   Term tp;
   
    if ((flags & Handle_cyclics_f) ){
-     tp = Yap_CyclesInTerm(t PASS_REGS);
+    // tp = Yap_CyclesInTerm(t PASS_REGS);
+    wglb.visited = M̀alloc(1024*sizeof(CELL)),
+    wglb.visited0 = visited,
+    wglb.visitedt_top = visited+1024;
    } else {
      tp = t;
    }

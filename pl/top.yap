@@ -598,12 +598,11 @@ write_query_answer( Bindings ) :-
 	'$iso_check_goal'(G,G0),
 	'$call'(G, CP, G0, M).
 
-
-'$call'(M:_,_,G0,_) :- var(M), !,
-	'$do_error'(instantiation_error,call(G0)).
 '$call'(M:G,CP,G0,_M0) :- !,
-	'$expand_meta_call'(M:G, [], NG),
-	'$yap_strip_module'(NG,NM,NC),
+	expand_goal(M:G, NG),
+	must_be_callable(NG),
+
+	    '$yap_strip_module'(NG,NM,NC),
         '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
@@ -812,11 +811,11 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
     !,
     '$yap_strip_module'(M1:MH,M,H),
     ( M == M1 -> B = B0 ; B = M1:B0),
-    is_callable(M:H).
+    must_be_callable(M:H).
 
 '$check_head_and_body'(MH, M, H, true, _XsP) :-
     '$yap_strip_module'(MH,M,H),
-    is_callable(M:H).
+    must_be_callable(M:H).
                                 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
