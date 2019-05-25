@@ -335,7 +335,6 @@ must_be_instantiated(X, Comment) :-
 
 inline(must_be_of_type( atom, X ), is_atom(X) ).
 inline(must_be_of_type( module, X ), is_atom(X) ).
-inline(must_be_of_type( callable, X ), must_be_callable(X) ).
 inline(must_be_atom( X ), is_atom(X) ).
 inline(must_be_module( X ), is_atom(X) ).
 

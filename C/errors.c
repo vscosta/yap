@@ -1250,30 +1250,25 @@ static Int is_atom(USES_REGS1) {
 }
 
 static Int must_be_callable(USES_REGS1) {
-    Term G = Deref(ARG1);
+    Term mod = CurrentModule;
+    Term G = Yap_StripModule(Deref(ARG1), &mod);
     // Term Context = Deref(ARG2);
-    while (true) {
-        if (IsVarTerm(G)) {
-            Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
-            return false;
-        }
-        if (IsApplTerm(G)) {
-            Functor f = FunctorOfTerm(G);
-            if (IsExtensionFunctor(f)) {
-                Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
-            }
-            if (f == FunctorModule) {
-                Term tm = ArgOfTerm(1, G);
-                if (IsVarTerm(tm)) {
-                    Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
-                    return false;
-                }
-                if (!IsAtomTerm(tm)) {
-                    Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
-                    return false;
-                }
-                G = ArgOfTerm(2, G);
-            } else {
+    if (IsVarTerm(mod)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+        return false;
+    } else if (!IsAtomTerm(mod)) {
+          Yap_ThrowError(TYPE_ERROR_ATOM, mod, NULL);
+        return false;
+    }
+    if (IsVarTerm(G)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+        return false;
+    }
+    if (IsApplTerm(G)) {
+        Functor f = FunctorOfTerm(G);
+        if (IsExtensionFunctor(f)) {
+            Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
+        }else {
                 return true;
             }
         } else if (IsPairTerm(G) || IsAtomTerm(G)) {
@@ -1282,8 +1277,7 @@ static Int must_be_callable(USES_REGS1) {
             Yap_ThrowError(TYPE_ERROR_CALLABLE, G, NULL);
             return false;
         }
-    }
-    return false;
+    return true;
 }
 
 /**
@@ -1301,51 +1295,51 @@ static Int must_be_callable(USES_REGS1) {
  * (mod:a)/n as valid.
  */
 static Int get_predicate_indicator(USES_REGS1) {
-  Term G = Deref(ARG1);
-  // Term Context = Deref(ARG2);
-  Term mod = CurrentModule;
+    Term G = Deref(ARG1);
+    // Term Context = Deref(ARG2);
+    Term mod = CurrentModule;
 
-  G = Yap_YapStripModule(G, &mod);
-  if (IsVarTerm(G)) {
-    Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
-  }
-  if (!IsVarTerm(mod) && !IsAtomTerm(mod)) {
-    Yap_Error(TYPE_ERROR_ATOM, G, NULL);
+    G = Yap_YapStripModule(G, &mod);
+    if (IsVarTerm(G)) {
+        Yap_ThrowError(INSTANTIATION_ERROR, G, NULL);
+    }
+    if (!IsVarTerm(mod) && !IsAtomTerm(mod)) {
+        Yap_Error(TYPE_ERROR_ATOM, G, NULL);
+        return false;
+    }
+    if (IsApplTerm(G)) {
+        Functor f = FunctorOfTerm(G);
+        if (IsExtensionFunctor(f)) {
+            Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
+        }
+        if (f == FunctorSlash || f == FunctorDoubleSlash) {
+            Term name = ArgOfTerm(1, G), arity = ArgOfTerm(2, G);
+            name = Yap_YapStripModule(name, &mod);
+            if (IsVarTerm(name)) {
+                Yap_ThrowError(INSTANTIATION_ERROR, name, NULL);
+            } else if (!IsAtomTerm(name)) {
+                Yap_ThrowError(TYPE_ERROR_ATOM, name, NULL);
+            }
+            if (IsVarTerm(arity)) {
+                Yap_ThrowError(INSTANTIATION_ERROR, arity, NULL);
+            } else if (!IsIntegerTerm(arity)) {
+                Yap_ThrowError(TYPE_ERROR_INTEGER, arity, NULL);
+            } else {
+                Int ar = IntegerOfTerm(arity);
+                if (ar < 0) {
+                    Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arity, NULL);
+                }
+                if (f == FunctorDoubleSlash) {
+                    arity = MkIntegerTerm(ar + 2);
+                }
+                return Yap_unify(mod, ARG2) &&
+                       Yap_unify(name, ARG3) &&
+                       Yap_unify(arity, ARG4);
+            }
+        }
+    }
+    Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
     return false;
-  }
-  if (IsApplTerm(G)) {
-    Functor f = FunctorOfTerm(G);
-    if (IsExtensionFunctor(f)) {
-      Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
-    }
-    if (f == FunctorSlash || f == FunctorDoubleSlash) {
-      Term name = ArgOfTerm(1,G), arity = ArgOfTerm(2,G);
-      name = Yap_YapStripModule (name, &mod);
-      if (IsVarTerm(name)) {
-	Yap_ThrowError(INSTANTIATION_ERROR, name, NULL);
-      } else if (!IsAtomTerm(name)) {
-	Yap_ThrowError(TYPE_ERROR_ATOM, name, NULL);
-      }
-      if (IsVarTerm(arity)) {
-	Yap_ThrowError(INSTANTIATION_ERROR, arity, NULL);
-      } else if (!IsIntegerTerm(arity)) {
-	Yap_ThrowError(TYPE_ERROR_INTEGER, arity, NULL);
-      } else {
-	Int ar = IntegerOfTerm(arity);
-	if (ar < 0) {
-	  Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, arity, NULL);
-	}
-	if ( f == FunctorDoubleSlash) {
-	  arity = MkIntegerTerm(ar+2);
-	}
-      return Yap_unify(mod, ARG2) &&
-	Yap_unify(name, ARG3) &&
-	Yap_unify(arity, ARG4);
-	}
-      }
-    }
-  Yap_ThrowError(TYPE_ERROR_PREDICATE_INDICATOR, G, NULL);
-  return false;
 }
 
 void Yap_InitErrorPreds(void) {
@@ -1360,7 +1354,7 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("$drop_exception", 1, drop_exception, 0);
   Yap_InitCPred("$close_error", 0, close_error, HiddenPredFlag);
   Yap_InitCPred("is_boolean", 1, is_boolean, TestPredFlag);
-    Yap_InitCPred("must_be_callable", 1, must_be_callable, TestPredFlag);
+  Yap_InitCPred("must_be_callable", 1, must_be_callable, TestPredFlag);
   Yap_InitCPred("is_atom", 1, is_atom, TestPredFlag);
   Yap_InitCPred("get_predicate_indicator", 4, get_predicate_indicator, 0);
 }
