@@ -431,9 +431,10 @@ static inline bool was_visited(Term t, wglbs *wg, Term *ta ) {
         return true;
 	}
     }
+    *ta = *tp;
     wg->visited[0] = *tp;
     *tp = MkAtomTerm( (Atom)wg->visited );
-    wg->visited_top++;
+    wg->visited++;
 
     return false;
 }
@@ -441,7 +442,7 @@ static inline bool was_visited(Term t, wglbs *wg, Term *ta ) {
 static inline Term visited_indirection(Term t, wglbs *wg ) {
   Term *tp = (CELL *)AtomOfTerm(t);
   if (tp >= wg->visited0
-         && (CELL *) *tp < wg->visited_top)
+         && (CELL *) tp < wg->visited_top)
     return *tp;
   return 0;
 }
@@ -875,11 +876,16 @@ if ((was_visited(t, wglb, &hot))) {
       lastw = separator;
     }
   } else { /* compound term */
-    Functor functor = FunctorOfTerm(t);
+    Functor functor;
     int Arity;
     Atom atom;
     int op, lp, rp;
 
+    Term argf;
+      if (was_visited(t, wglb, &argf)) {
+          return;
+      }
+      functor = (Functor)argf;
     if (IsExtensionFunctor(functor)) {
       switch ((CELL)functor) {
       case (CELL)FunctorDouble:
@@ -936,11 +942,7 @@ if ((was_visited(t, wglb, &hot))) {
         return;
       }
     }
-    Term argf;
-      if (was_visited(t, wglb, &argf)) {
-          return;
-      }
-
+ 
       if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
       Term tright = ArgOfTerm(1, t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
@@ -1189,7 +1191,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   writeTerm(tp, priority, 1, false, &wglb, &rwt);
      if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
-      wrputc('.', wglb.stream);
+   wrputc('.', wglb.stream);
       wrputc('\n', wglb.stream);
     } else {
       wrputc('\n', wglb.stream);
