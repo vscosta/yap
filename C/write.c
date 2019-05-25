@@ -424,7 +424,7 @@ static inline bool was_visited(Term t, wglbs *wg, Term *ta ) {
       CELL *pt= (CELL*)AtomOfTerm(*tp);
         if (pt  >= wg->visited0 &&
 	    pt < wg->visited) {
-	  int depth = (wg->visited+1)-tp;
+	  int depth = (wg->visited+1)-pt;
         wrputs(" @( ", wg->stream);
         wrputn(depth, wg);
         wrputs( " ) ", wg->stream);
@@ -433,7 +433,7 @@ static inline bool was_visited(Term t, wglbs *wg, Term *ta ) {
     }
     wg->visited[0] = *tp;
     *tp = MkAtomTerm( (Atom)wg->visited );
-    wg++;
+    wg->visited_top++;
 
     return false;
 }
@@ -1176,14 +1176,14 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.lw = separator;
   Term tp;
   
-   if ((flags & Handle_cyclics_f) ){
+   if (true && (flags & Handle_cyclics_f) ){
     // tp = Yap_CyclesInTerm(t PASS_REGS);
     wglb.visited = Malloc(1024*sizeof(CELL)),
     wglb.visited0 = wglb.visited,
     wglb.visited_top = wglb.visited+1024;
-   } else {
-     tp = t;
    }
+     tp = t;
+ 
 
    /* protect slots for portray */
   writeTerm(tp, priority, 1, false, &wglb, &rwt);
