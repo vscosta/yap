@@ -35,7 +35,7 @@ X_API void init_lbfgs_predicates(void);
 YAP_Functor fevaluate, fprogress, fmodule, ffloats;
 YAP_Term tuser;
 
-lbfgsfloatval_t *x_p;
+lbfgsfloatval_t *x_p, f_x;
 
 static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
                                 lbfgsfloatval_t *g_tmp, const int n,
@@ -43,7 +43,7 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   YAP_Term call;
   YAP_Bool result;
   lbfgsfloatval_t rc=0.0;
-  YAP_Term v=YAP_MkVarTerm(), t1, t12;
+  YAP_Term t12;
   YAP_Term t[6], t2[2];
 
   YAP_Term t_0 = YAP_MkIntTerm((YAP_Int)&rc);
@@ -60,8 +60,6 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   t2[1] = YAP_MkApplTerm(fevaluate, 6, t);
 
   call = YAP_MkApplTerm(fmodule, 2, t2);
-
-  int sl = YAP_InitSlot(v);
   // lbfgs_status=LBFGS_STATUS_CB_EVAL;
   result = YAP_RunGoalOnce(call);
   // lbfgs_status=LBFGS_STATUS_RUNNING;
@@ -72,8 +70,6 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
     return FALSE;
   }
    YAP_ShutdownGoal(true);
-  YAP_RecoverSlots(1, sl);
-  fprintf(stderr,"%gxo\n",rc);
   return rc;
 }
 
@@ -183,7 +179,7 @@ value will terminate the optimization process.
  */
 static YAP_Bool p_lbfgs(void) {
   YAP_Term t1 = YAP_ARG1, t;
-  int n, sl;
+  int n;
   lbfgsfloatval_t *x;
   lbfgsfloatval_t fx;
 
@@ -196,7 +192,6 @@ static YAP_Bool p_lbfgs(void) {
   if (n < 1) {
     return FALSE;
   }
-  sl = YAP_InitSlot(YAP_ARG3);
 
   if (!x_p)
    x_p = lbfgs_malloc(n+1);
@@ -206,13 +201,15 @@ static YAP_Bool p_lbfgs(void) {
   lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &fx, evaluate, progress, ui, param);
-  t = YAP_GetFromSlot(sl);
-  YAP_Unify(t, YAP_MkFloatTerm(fx));
-  YAP_RecoverSlots(1, sl);
-  if (ret == 0)
+  f_x = fx;
+if (ret == 0)
     return true;
   fprintf(stderr, "optimization terminated with code %d\n ",ret);
   return true;
+}
+
+static YAP_Bool lbfgs_fx(void) {
+    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
 }
 
 static YAP_Bool lbfgs_grab(void) {
@@ -468,8 +465,9 @@ X_API void init_lbfgs_predicates(void) {
   lbfgs_parameter_init(&parms);
 
   YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
-  YAP_UserCPredicate("lbfgs", p_lbfgs, 3);
-  YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
+  YAP_UserCPredicate("lbfgs", p_lbfgs, 2);
+    YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
+    YAP_UserCPredicate("lbfgs_fx", lbfgs_fx, 1);
 
   YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);
   

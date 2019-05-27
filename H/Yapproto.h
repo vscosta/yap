@@ -175,6 +175,7 @@ extern int Yap_DBTrailOverflow(void);
 extern CELL Yap_EvalMasks(Term, CELL *);
 extern void Yap_InitBackDB(void);
 extern void Yap_InitDBPreds(void);
+extern void Yap_InitDBLoadPreds(void);
 
 /* errors.c */
 #if DEBUG

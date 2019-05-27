@@ -405,6 +405,10 @@ meta_predicate(P) :-
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
+'$expand_goals'(forall(A,B), forall(A1,B1),
+(A0 , ( B0 -> fail ; true ) -> fail; true ),HM,SM,BM,HVars) :- !,
+    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
 		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),

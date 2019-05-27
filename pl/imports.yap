@@ -35,20 +35,17 @@ fail.
 % parent module mechanism
 %% system has priority
 '$get_predicate_definition'(_ImportingMod:G,prolog:G) :-
-    nonvar(G),
-    '$pred_exists'(G,prolog).
+    nonvar(G).
 %% I am there, no need to import
 '$get_predicate_definition'(Mod:Pred,Mod:Pred) :-
-    nonvar(Pred),
-    '$pred_exists'(Pred, Mod).
+    nonvar(Pred).
 %% export table
 '$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
     recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
 %% parent/user
-'$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
+'$get_predicate_definition'(ImportingMod:G,PMod:G) :-
     ( '$parent_module'(ImportingMod, PMod) ; PMod = user ),
-    ImportingMod \= PMod,
-    '$get_predicate_definition'(PMod:G, ExportingMod:G0).
+    ImportingMod \= PMod.
 %% autoload`
 %'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
 %    current_prolog_flag(autoload, true),
@@ -57,22 +54,25 @@ fail.
 
 '$predicate_definition'(Imp:Pred,Exp:NPred) :-
     '$predicate_definition'(Imp:Pred,[],Exp:NPred),
+    '$pred_exists'(NPred,Exp),
 %writeln((Imp:Pred -> Exp:NPred )).
     !.
 
 '$one_predicate_definition'(Imp:Pred,Exp:NPred) :-
-    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
+    '$get_predicate_definition'(Imp:Pred,[],Exp:NPred),
+    '$pred_exists'(NPred,Exp),
 %writeln((Imp:Pred -> Exp:NPred )).
     !.
 '$one_predicate_definition'(Exp:Pred,Exp:Pred).
     
 '$predicate_definition'(M0:Pred0,Path,ModF:PredF) :-
     '$get_predicate_definition'(M0:Pred0, Mod:Pred),
-    \+ lists:member(Mod:Pred,Path),
     (
-	'$predicate_definition'(Mod:Pred,[Mod:Pred|Path],ModF:PredF)
+    '$pred_exists'(Pred,Mod), Mod = ModF, Pred = PredF
     ;
-    Mod = ModF, Pred = PredF
+    \+ lists:member(Mod:Pred,Path),
+      '$predicate_definition'(Mod:Pred,[Mod:Pred|Path], ModF:PredF)
+
     ).
 
 %

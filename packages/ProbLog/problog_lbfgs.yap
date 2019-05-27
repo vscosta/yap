@@ -553,7 +553,7 @@ empty_bdd_directory.
 init_queries :-
     empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
-	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),	
+	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
 bdd_input_file(Filename) :-
@@ -835,7 +835,7 @@ update_values :-
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	retractall(query_probability_intern(_,_)),
-	retractall(query_gradient_intern(_,_,_,_)),	
+	retractall(query_gradient_intern(_,_,_,_)),
 
 
 	assertz(values_correct).
@@ -847,7 +847,7 @@ update_values :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :- 
+user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
     %Handle = user_error,
     N1 is N-1,
     forall(between(0,N1,I),(Grad[I]<==0.0)),
@@ -893,13 +893,11 @@ compute_gradient( Grad, X, Slope, LL) :-
 	BDD = bdd(_,_,MapList),
 	MapList = [_|_],
 	bind_maplist(MapList, Slope, X),
-%writeln(QueryID:MapList),
 	query_probabilities( BDD, BDDProb),
 	(isnan(BDDProb) -> writeln((nan::QueryID)), fail;true),
-writeln(BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
     forall(
-	query_gradients(BDD,I,IProb,GradValue), 
+	query_gradients(BDD,I,IProb,GradValue),
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
     ).
 
@@ -925,8 +923,9 @@ wrap( _X, _Grad, _GradCount).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
     FX < 0, !,
-    format('stopped on bad FX=~4f~n',[FX]).
+    format('Bad FX=~4f~n',[FX]).
 user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
+writeln(fx=FX),
      problog_flag(sigmoid_slope,Slope),
      save_state(X, Slope, G),
     logger_set_variable(mse_trainingset, FX),
@@ -946,22 +945,6 @@ save_state(X,Slope,_Grad) :-
     	tunable_fact(FactID,_GroundTruth),
     	set_tunable(FactID,Slope,X),
     	fail.
-save_state(X, Slope, _) :-
-	    user:example(QueryID,_Query,_QueryProb),
-	    recorded(QueryID,BDD,_),
-	    BDD = bdd(_,_,MapList),
-	    bind_maplist(MapList, Slope, X),
-	    query_probabilities( BDD, BDDProb),
-	    assert( query_probability_intern(QueryID,BDDProb)),
-	fail.
-save_state(X, Slope, _) :-
-	    user:test_example(QueryID,_Query,_QueryProb),
-	    recorded(QueryID,BDD,_),
-	    BDD = bdd(_,_,MapList),
-	    bind_maplist(MapList, Slope, X),
-	    query_probabilities( BDD, BDDProb),
-	    assert( query_probability_intern(QueryID,BDDProb)),
-	fail.
 save_state(_X, _Slope, _).
 
 %========================================================================

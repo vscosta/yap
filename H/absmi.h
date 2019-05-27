@@ -31,6 +31,12 @@
 #define register
 #endif
 
+
+#if TABLING
+#define FROZEN_STACKS 1
+//#define MULTIPLE_STACKS 1
+#endif
+
 /***************************************************************
  * Macros for register manipulation                             *
  ***************************************************************/
