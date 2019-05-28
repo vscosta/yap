@@ -14,9 +14,20 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../problog_learning_lbdd').
+:- use_module('../problog_lbfgs').
 
 
+ :- if(true).
+
+ :- use_module('kbgraph').
+
+
+%%%%
+% background knowledge
+%%%% 
+% definition of acyclic path using list of visited nodes
+
+:- else. 
 
 :- Query=path(X,Y), set_problog_flag(init_method,(Query,K,Bdd,problog:problog_exact_lbdd(Query,Bdd))).
 
@@ -37,6 +48,7 @@ edge(X,Y) :- dir_edge(X,Y).
 absent(_,[]).
 absent(X,[Y|Z]):-X \= Y, absent(X,Z).
 
+:- endif.
 
 %%%%
 % probabilistic facts 

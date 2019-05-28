@@ -48,6 +48,7 @@ typedef struct regstore_t *regstruct_ptr;
 
 #endif
 
+
 typedef Int (*CPredicate)(CACHE_TYPE1);
 
 typedef Int (*CmpPredicate)(Term, Term);

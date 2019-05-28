@@ -845,7 +845,7 @@ term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
 
 % handles probabilistic facts
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
-	copy_term((P,Goal),(P_Copy,Goal_Copy)),
+    copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
 	atomic_concat([problog_,Name],ProblogName),
 	Goal =.. [Name|Args],

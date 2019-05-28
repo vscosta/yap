@@ -24,6 +24,7 @@
 		 lbfgs_initialize/4,
 		 lbfgs_run/3,
 
+		 lbfgs_fx/1,
 		 lbfgs_finalize/1,
 
 		 lbfgs_set_parameter/2,
@@ -180,7 +181,8 @@ lbfgs_finalize(_N).
 run the algorithm. output the final score of the function being optimised
 */
 lbfgs_run(N,X,FX) :-
-    lbfgs(N,X, FX).
+    lbfgs(N,X),
+    lbfgs_fx(FX).
 
 
 

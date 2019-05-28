@@ -91,6 +91,7 @@ gradient(QueryID, g, Slope) :-
 query_probabilities( DBDD, Prob) :-
     DBDD = bdd(Dir, Tree, _MapList),
     findall(P, evalp(Tree,P), [Prob0]),
+   % nonvar(Prob0),
     (Dir == 1 -> Prob0 = Prob ;  Prob is 1.0-Prob0).
 
 evalp( Tree, Prob0) :-
@@ -104,7 +105,7 @@ query_gradients(bdd(Dir, Tree, MapList),I,IProb,Grad) :-
 
 evalp( pn(P, _-X, PL, PR), _,P ):-
     P is X*PL+ (1.0-X)*(1.0-PR).
-evalp( pp(P, _-X, PL, PR), _,P ):-
+evalp( pp(P, _-X, PL, PR), _,P ):-  
     P is X*PL+ (1.0-X)*PR.
 
 evalg( I, pp(P-G, J-X, L, R), _, G ):-

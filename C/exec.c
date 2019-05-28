@@ -980,7 +980,7 @@ static bool watch_retry(Term d0 USES_REGS) {
 
     while (B->cp_ap->opc == FAIL_OPCODE)
         B = B->cp_b;
-
+    ASP = (CELL *) PROTECT_FROZEN_B(B);
     // just do the frrpest
     if (B >= B0 && !ex_mode && !active)
         return true;

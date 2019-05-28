@@ -228,6 +228,7 @@
 :- use_module('problog/utils_lbdd').
 :- use_module('problog/utils').
 :- use_module('problog/tabling').
+:- use_module('problog/lbdd').
 
 % used to indicate the state of the system
 :- dynamic(values_correct/0).

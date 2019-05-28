@@ -1,17 +1,17 @@
 
 #ifdef FROZEN_STACKS
+
+#define RESET_TRAIL_ENTRY(pt)  { TrailTerm(pt) = (CELL)(pt); TrailVal(pt) = (CELL)(pt); }
 {
-  tr_fr_ptr pt0, pt1, pbase, ptop;
-  pbase = B->cp_tr, ptop = TR;
-  pt0 = pt1 = TR - 1;
+  tr_fr_ptr  pt1, pbase;
+  pbase = B->cp_tr;
+  pt1 = TR - 1;
   while (pt1 >= pbase) {
     BEGD(d1);
     d1 = TrailTerm(pt1);
     if (IsVarTerm(d1)) {
-      if (d1 < (CELL)HBREG || d1 > Unsigned(B->cp_b)) {
-        TrailTerm(pt0) = d1;
-        TrailVal(pt0) = TrailVal(pt1);
-        pt0--;
+      if (d1 >= (CELL)HBREG && d1 < Unsigned(HR)) {
+          RESET_TRAIL_ENTRY(pt1);
       }
       pt1--;
     } else if (IsPairTerm(d1)) {
@@ -28,14 +28,14 @@
         /* skip, this is a problem because we lose information,
            namely active references */
         pt1 = (tr_fr_ptr)pt;
-      } else if (IN_BETWEEN(H0, pt, HR) && IsApplTerm(HeadOfTerm(d1))) {
+      } else if (IN_BETWEEN(H0, pt, LCL0) && IsApplTerm(HeadOfTerm(d1))) {
         Term t = HeadOfTerm(d1);
         Functor f = FunctorOfTerm(t);
         if (f == FunctorBigInt) {
           Int tag = Yap_blob_tag(t);
           GLOBAL_OpaqueHandlers[tag].cut_handler(d1);
-        } else {
-          pt0--;
+           RESET_TRAIL_ENTRY(pt1);
+
         }
         pt1--;
         continue;
@@ -48,6 +48,7 @@
 
         LOCK(ap->PELock);
         DEC_CLREF_COUNT(cl);
+                  RESET_TRAIL_ENTRY(pt1);
         cl->ClFlags &= ~InUseMask;
         erase = (cl->ClFlags & (ErasedMask | DirtyMask)) && !(cl->ClRefCount);
         if (erase) {
@@ -59,42 +60,22 @@
             Yap_CleanUpIndex(cl);
         }
         UNLOCK(ap->PELock);
-      } else {
-        TrailTerm(pt0) = d1;
-        TrailVal(pt0) = TrailVal(pt1);
-        pt0--;
       }
       pt1--;
     } else if (IsApplTerm(d1)) {
       if (IN_BETWEEN(HBREG, RepAppl(d1), B->cp_b)) {
-        /* deterministic binding to multi-assignment variable */
-        pt1 -= 2;
+                  RESET_TRAIL_ENTRY(pt1);
+                  pt1--;
+          RESET_TRAIL_ENTRY(pt1);
+/* deterministic binding to multi-assignment variable */
+        pt1 --;
       } else {
-        TrailVal(pt0) = TrailVal(pt1);
-        TrailTerm(pt0) = d1;
-        TrailVal(pt0 - 1) = TrailVal(pt1 - 1);
-        TrailTerm(pt0 - 1) = TrailTerm(pt1 - 1);
-        pt0 -= 2;
         pt1 -= 2;
       }
     } else {
-      TrailTerm(pt0) = d1;
-      TrailVal(pt0) = TrailVal(pt1);
-      pt0--;
-      pt1--;
+       pt1--;
     }
     ENDD(d1);
-  }
-  if (pt0 != pt1) {
-    int size;
-    pt0++;
-    size = ptop - pt0;
-    memmove(pbase, pt0, size * sizeof(struct trail_frame));
-    if (ptop != TR) {
-      memmove(pbase + size, ptop, (TR - ptop) * sizeof(struct trail_frame));
-      size += (TR - ptop);
-    }
-    TR = pbase + size;
   }
 }
 #else

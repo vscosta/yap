@@ -490,7 +490,7 @@ current_predicate(A0,T0) :-
     '$current_predicate'(A,M,T,_),
     functor(T, A, _)
     ;
-    '$get_predicate_definition'(M:T,M1:_T1),
+    '$predicate_definition'(M:T,M1:_T1),
     M\=M1,
     functor(T, A, _)
     ).

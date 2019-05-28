@@ -1011,7 +1011,7 @@ prolog_load_context(file, FileName) :-
         ).
 prolog_load_context(module, X) :-
         '__NB_getval__'('$consulting_file', _, fail),
-        'current_module'(X).
+        current_source_module(X,X).
 prolog_load_context(source, F0) :-
         ( source_location(F0, _) /*,
                                    '$input_context'(Context),

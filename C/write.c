@@ -77,7 +77,6 @@ typedef struct write_globs {
   UInt  last_atom_minus;
   UInt MaxDepth, MaxArgs;
   wtype lw;
-  CELL *visited, *visited0, *visited_top;
 } wglbs;
 
 #define lastw wglb->lw
@@ -732,9 +731,10 @@ static void write_list(Term t, int direction, int depth,
   struct rewind_term nrwt;
   nrwt.parent = rwt;
   nrwt.u_sd.s.ptr = 0;
-  bool loop = true;
-  while (loop) {
-loop = false;
+
+  while (1) {
+
+    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
       break;
@@ -786,6 +786,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
   } else if (IsIntTerm(t)) {
+
     wrputn((Int)IntOfTerm(t), wglb);
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
@@ -876,8 +877,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         return;
       }
     }
-
-      if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
+    if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
       Term tright = ArgOfTerm(1, t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
                           Yap_IsOp(AtomOfTerm(tright));
@@ -1110,8 +1110,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.lw = separator;
   Term tp;
   
-   if ( 0&& (flags & Handle_cyclics_f) ){
-    tp = Yap_BreakCyclesInTerm(t PASS_REGS);
+   if ((flags & Handle_cyclics_f) ){
+     tp = Yap_CyclesInTerm(t PASS_REGS);
    } else {
      tp = t;
    }

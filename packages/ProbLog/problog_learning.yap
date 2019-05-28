@@ -710,7 +710,7 @@ update_values :-
 %=
 %========================================================================
 
-    listing(
+ update_query_cleanup(QueryID) :-
 	(
 	 (query_is_similar(QueryID,_) ; query_is_similar(_,QueryID))
 	->
@@ -893,7 +893,6 @@ ground_truth_difference :-
 %=
 %= -Float
 %========================================================================
-
 mse_trainingset_only_for_linesearch(MSE) :-
 	update_values,
 

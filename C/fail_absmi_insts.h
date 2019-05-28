@@ -215,10 +215,7 @@ failloop:
   }
 /* pointer to code space */
 /* or updatable variable */
-#if defined(TERM_EXTENSIONS) || defined(FROZEN_STACKS) ||                      \
-    defined(MULTI_ASSIGNMENT_VARIABLES)
   if (IsPairTerm(d1))
-#endif /* TERM_EXTENSIONS || FROZEN_STACKS || MULTI_ASSIGNMENT_VARIABLES */
   {
     register CELL flags;
     CELL *pt1 = RepPair(d1);
@@ -245,19 +242,20 @@ failloop:
       goto failloop;
     } else
 #endif /* FROZEN_STACKS */
-        if (IN_BETWEEN(H0, pt1, HR)) {
+        if (IN_BETWEEN(H0, pt1, LCL0)) {
       if (IsAttVar(pt1)) {
         goto failloop;
       } else {
         TR = pt0;
-        Yap_CleanOpaqueVariable(d1);
+
+Yap_CleanOpaqueVariable(d1);
 
         goto failloop;
       }
     }
 #ifdef FROZEN_STACKS /* TRAIL */
     /* don't reset frozen variables */
-    if (pt0 < TR_FZ)
+    else if (pt0 < TR_FZ)
       goto failloop;
 #endif
     flags = *pt1;
@@ -306,9 +304,7 @@ hence we don't need to have a lock it */
         } else {
           LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
           int erase;
-#if PARALLEL_YAP
           PredEntry *ap = cl->ClPred;
-#endif
           /* BB support */
           if (ap) {
 

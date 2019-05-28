@@ -602,7 +602,7 @@ write_query_answer( Bindings ) :-
 	expand_goal(M:G, NG),
 	must_be_callable(NG),
 
-	    '$yap_strip_module'(NG,NM,NC),
+	    '$yap_strip_module'(M:NG,NM,NC),
         '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
@@ -614,8 +614,11 @@ write_query_answer( Bindings ) :-
 	 '$call'(Y,CP,G0,M)
 	).
 '$call'((X*->Y),CP,G0,M) :- !,
-	'$call'(X,CP,G0,M),
-	'$call'(Y,CP,G0,M).
+	(
+	'$call'(X,CP,G0,M)
+	*->
+	'$call'(Y,CP,G0,M)
+	).
 '$call'((X->Y; Z),CP,G0,M) :- !,
 	(
 	    '$call'(X,CP,G0,M)
@@ -669,6 +672,13 @@ write_query_answer( Bindings ) :-
 '$call'(not(X), _CP, G0, M) :- !,
 	\+ ('$current_choice_point'(CP),
 	  '$call'(X,CP,G0,M) ).
+'$call'(!, CP, _G0, _m) :- !,
+	'$$cut_by'(CP).
+'$call'(forall(X,Y), CP, _G0, _m) :- !,
+	\+ ('$call'(X, CP, G0, M),
+	     \+ '$call'(Y, CP, G0, M) ).
+'$call'(once(X), CP, G0, M) :- !,
+	( '$call'(X, CP, G0, M) -> true).
 '$call'(!, CP, _G0, _m) :- !,
 	'$$cut_by'(CP).
 '$call'([X|Y], _, _, M) :-
@@ -852,7 +862,6 @@ It rewrites a term  _T_ to a term  _X_ according to the following
 rules: first try term_expansion/2  in the current module, and then try to use the user defined predicate user:term_expansion/2`. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
-
 
 */
 expand_term(Term,Expanded) :-
