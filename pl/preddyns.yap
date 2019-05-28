@@ -223,7 +223,8 @@ retract(M:C,R) :- !,
 '$retract'(C,M0,R) :-
     '$check_head_and_body'(M0:C,M,H,B,retract(C,R)),
     var(R), !,
-    '$retract2'(H, M, B, R).
+    '$predicate_flags'(H, M, F, F),
+    '$retract2'(F, H, M, B, R).
 '$retract'(C,M,_) :-
     '$fetch_predicate_indicator_from_clause'(C, M, PI),
     \+ '$dynamic'(PI),

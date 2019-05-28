@@ -28,6 +28,7 @@
 :- use_module('../problog').
 :- use_module('flags').
 :- use_module('logger').
+:- use_module(library(matrix)).
 
 set_tunable(I,Slope,P) :-
     X <== P[I],
