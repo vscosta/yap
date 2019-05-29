@@ -69,6 +69,11 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 
 #define VISIT_MARKER MkAtomTerm((Atom)to_visit)
 
+#define VISITED \
+  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;\
+  if (IsVarTerm(d0) && d0==(CELL)ptd0) goto var_in_term;\
+goto restart; }\
+
 typedef struct {
   Term old_var;
   Term new_var;
@@ -157,12 +162,13 @@ while (to_visit >= to_visit0) {					\
      } else {								\
      if (IS_VISIT_MARKER) {						\
          \
-         continue;								\
+         VISITED;								\
        }									\
        PRIMI0;								\
        continue;								\
      }									\
-     derefa_body(d0, ptd0, var_in_term_unk, var_in_term_nvar)
+     derefa_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);		\
+var_in_term: {}								\
 
 #define WALK_COMPLEX_TERM() WALK_COMPLEX_TERM__({}, {}, {})
 
@@ -322,6 +328,7 @@ if (IS_VISIT_MARKER) {			\
 static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
     CELL *pt0, *pt0_end;
     int lvl;
+
     size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
     struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
     CELL *InitialH = HR;
@@ -534,7 +541,11 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
       goto trail_overflow;
   }
   TrailTerm(TR++) = (CELL)ptd0;
+  if (*ptd0 == (CELL)ptd0)
   *ptd0 = TermFoundVar;
+  else {
+    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
+  }
   END_WALK();
 
   clean_tr(TR0-count PASS_REGS);
@@ -784,8 +795,12 @@ static Term new_vars_in_complex_term(
  WALK_COMPLEX_TERM();
  output = MkPairTerm((CELL)ptd0, output);
  TrailTerm(TR++) = *ptd0;
- *ptd0 = TermFoundVar;
- if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
+  if (*ptd0 == (CELL)ptd0)
+  *ptd0 = TermFoundVar;
+  else {
+    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
+  }
+    if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
     goto trail_overflow;
 }
   /* leave an empty slot to fill in later */
@@ -966,7 +981,11 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
   /* do or pt2 are unbound  */
+  if (*ptd0 == (CELL)ptd0)
   *ptd0 = TermFoundVar;
+  else {
+    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
+  }
   /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256)
   {
