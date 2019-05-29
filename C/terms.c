@@ -90,7 +90,7 @@ to_visit = to_visit0,							\
     to_visit_max = to_visit +  auxsz/sizeof(struct non_single_struct_t);\
   \
  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) { \
-    /* Trail overflow */\
+ /* Trail overflow */				\
       goto trail_overflow;\
   }\
     if (HR + 1024 > ASP) { \
@@ -313,21 +313,19 @@ static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
 if (IS_VISIT_MARKER) {			\
   Term t = BREAK_LOOP(d0, to_visit);\
   MaBind(pt0,t);  \
-  *count ++; \
   continue; \
     }
 
 /**
    @brief routine to locate all variables in a term, and its applications */
 
-static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_, int *count USES_REGS) {
+static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
     CELL *pt0, *pt0_end;
     int lvl;
     size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
     struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
     CELL *InitialH = HR;
     tr_fr_ptr TR0 = TR;
-    *count = 0;
 
 WALK_COMPLEX_TERM__(BREAK_CYC, BREAK_CYC, {});
         /* leave an empty slot to fill in later */
@@ -340,14 +338,14 @@ def_overflow();
 
 }
 
-Term Yap_BreakCyclesInTerm(Term t, int *count USES_REGS) {
+Term Yap_BreakCyclesInTerm(Term t USES_REGS) {
  t = Deref(t);
   if (IsVarTerm(t)) {
     return t;
   } else if (IsPrimitiveTerm(t)) {
     return t;
   } else {
-    if ( break_cycles_in_complex_term(&(t)-1, &(t), count PASS_REGS) >0) {
+    if ( break_cycles_in_complex_term(&(t)-1, &(t) PASS_REGS) >0) {
       return t;
     } else {
       return 0;
@@ -366,8 +364,7 @@ Term Yap_BreakCyclesInTerm(Term t, int *count USES_REGS) {
 */
 static Int break_cycles_in_term(USES_REGS1) /* cyclic_term(+T)		 */
 {
-  int count = 0;
-  return Yap_BreakCyclesInTerm(Deref(ARG1), &count PASS_REGS) != 0;
+  return Yap_BreakCyclesInTerm(Deref(ARG1) PASS_REGS) != 0;
 }
 
 /**

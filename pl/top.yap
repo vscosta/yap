@@ -84,7 +84,7 @@ live :-
     '$run_toplevel_hooks',
     prompt1(' ?- '),
     '$read_toplevel'(Command, Varnames, Pos),
-    '$init_debugger',
+    ( '$pred_exists'('$init_debugger',prolog) -> '$init_debugger';true),
    '$command'(Command, Varnames, Pos, top),
     current_prolog_flag(break_level, BreakLevel),
     (   BreakLevel\=0

@@ -64,7 +64,7 @@ opportunity. Initial value is 10,000. May be changed. A value of 0
  /**<
     read-only boolean, a machine running an Apple Operating System */
   YAP_FLAG(APPLE_FLAG, "apple", false, ro, "true", NULL),
-  #else
+#else
     YAP_FLAG(APPLE_FLAG, "apple", false, ro, "false", NULL),
 #endif
  /**<
@@ -623,17 +623,6 @@ and if it is bound to `off` disable them. The default for YAP is
  */
   YAP_FLAG(UNKNOWN_FLAG, "unknown", true, isatom, "error", Yap_unknown),
    
-    YAP_FLAG(VARIABLE_NAMES_MAY_END_WITH_QUOTES_FLAG,
-             "variable_names_may_end_with_quotes", true, booleanFlag, "false",
-             NULL),
-
- /**<
-     Read-only flag that returns a compound term with the
-    current version of YAP. The term will have the name `yap` and arity 4, the
-    first argument will be the major version, the second the minor version, the
-    third the patch number, and the last one is reserved.
-
- */
   YAP_FLAG(VERSION_FLAG, "version", false, nat, YAP_NUMERIC_VERSION, NULL),
    
  /**< 

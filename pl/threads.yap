@@ -111,6 +111,7 @@ volatile(P) :-
 @{
  */
 
+
 :- initialization('$init_thread0').
 
 '$init_thread0' :-

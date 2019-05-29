@@ -1664,6 +1664,7 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
     return FALSE;
   cell_space_t cspace;
   arena = newarena;
+  enter_cell_space(&cspace);
   /* garbage collection ? */
   HR = HB = ArenaPt(arena);
   old_sz = ArenaSz(arena);
