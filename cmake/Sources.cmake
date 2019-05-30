@@ -191,10 +191,12 @@ set (INCLUDE_HEADERS
     ${CMAKE_SOURCE_DIR}/include/VFS.h
 		${CMAKE_SOURCE_DIR}/include/YapBlobs.h
 		${CMAKE_SOURCE_DIR}/include/YapDefs.h
+		${CMAKE_SOURCE_DIR}/include/YapEncoding.h
     ${CMAKE_SOURCE_DIR}/include/YapError.h
     ${CMAKE_SOURCE_DIR}/include/YapErrors.h
     ${CMAKE_SOURCE_DIR}/include/YapFormat.h
-    ${CMAKE_SOURCE_DIR}/include/YapInterface.h
+		${CMAKE_SOURCE_DIR}/include/YapInit.h
+		${CMAKE_SOURCE_DIR}/include/YapInterface.h
     ${CMAKE_SOURCE_DIR}/include/YapRegs.h
     ${CMAKE_SOURCE_DIR}/include/YapStreams.h
     ${CMAKE_SOURCE_DIR}/include/YapUTF8.h
