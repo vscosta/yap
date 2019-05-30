@@ -306,6 +306,11 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
   return Yap_IsCyclicTerm(Deref(ARG1));
 }
 
+static Term EARLY_BREAK_LOOP(struct non_single_struct_t  *to_visit,struct non_single_struct_t  *to_visit0 ) {
+    char buf[64];
+    snprintf(buf, 63, "@^[" Int_FORMAT "]", (to_visit-to_visit0)+1);
+    return MkAtomTerm(Yap_LookupAtom(buf));
+}
 
 static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
   char buf[64];
@@ -313,6 +318,22 @@ static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
   return MkAtomTerm(Yap_LookupAtom(buf));
 }
 
+#define BREAK_CYC_LIST				\
+{if (IS_VISIT_MARKER) {			\
+  Term t = BREAK_LOOP(d0, to_visit);\
+  MaBind(pt0,t);  \
+    } else if (d0 = AbsPair(pt0)) { \
+      Term t = EARLY_BREAK_LOOP(to_visit, to_visit0);\
+  MaBind(pt0,t);  \
+  continue;\
+    } else if (IsPairTerm(d0) || \
+    IsApplTerm(d0)){\
+    Term t = MkVarTerm();\
+    MaBind(ptd0,t);\
+    *(CELL*)t = d0;\
+    ptd0 = (CELL*)t; \
+} \
+}
 
 
 #define BREAK_CYC				\
@@ -334,7 +355,7 @@ static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
     CELL *InitialH = HR;
     tr_fr_ptr TR0 = TR;
 
-WALK_COMPLEX_TERM__(BREAK_CYC, BREAK_CYC, {});
+WALK_COMPLEX_TERM__(BREAK_CYC_LIST, BREAK_CYC, {});
         /* leave an empty slot to fill in later */
     END_WALK();
 
