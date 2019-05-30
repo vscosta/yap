@@ -245,7 +245,7 @@ prolog:core_file_name(Name, Opts) -->
     CorePath.
 '$file_prefix'( CorePath,  _) -->
     {
-	recorded('$path',File_Prefix,_),
+       '$in_path'(File_Prefix),
        absf_trace('    try YAP path database ~a', [File_Prefix]),
        sub_atom(File_Prefix, _, _, 1, Last),
 	atom_codes(File_Prefix, S)    },
@@ -346,11 +346,17 @@ path(Path) :-
 	findall(X,'$in_path'(X),Path).
 
 
+%% 3. honor user definition
 '$in_path'(X) :-
-	recorded('$path',Path,_),
-	atom_codes(Path,S),
-	( S = []  -> X = '.' ;
-	  atom_codes(X,S) ).
+    current_prolog_flag(os_argv, All),
+    lists:append(_, ['-p',Dir0|_Alphas], All),
+    absolute_file_name(Dir0, X,[file_type(directory),solutions(all),
+                                expand(true),file_errors(fail)]).
+'$in_path'(X) :-
+    recorded('$path',Path,_),
+    atom_codes(Path,S),
+    ( S = []  -> X = '.' ;
+      atom_codes(X,S) ).
 
 /**
   @pred add_to_path(+Directory:atom) is det,deprecated
