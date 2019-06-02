@@ -197,7 +197,7 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
 
 
 
-INLINE_ONLY void enter_cell_space(cell_space_t *cs, Term *arenap) {
+static inline void enter_cell_space(cell_space_t *cs, Term *arenap) {
     cs->oH = HR;
     cs->oHB = HB;
     cs->oASP = ASP;
@@ -264,6 +264,7 @@ void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs) {
     REMOTE_GlobalArena(wid) = NewArena(gsize, 2, cs, wid);
 }
 
+#if 0
 static void adjust_cps(UInt size USES_REGS) {
   /* adjust possible back pointers in choice-point stack */
   choiceptr b_ptr = B;
@@ -272,6 +273,7 @@ static void adjust_cps(UInt size USES_REGS) {
     b_ptr = b_ptr->cp_b;
   }
 }
+#endif
 
 static Term GrowArena(Term arena, size_t size,
                      UInt arity, cell_space_t *cspace USES_REGS) {
@@ -796,7 +798,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
       min_grow += (restarts < 16 ? 16*1024*restarts*restarts : 128*1024*1024);
       HR = HB;
       *arenap = CloseArena (&cspace PASS_REGS);
-      if((*arenap=GrowArena(arenap, min_grow, arity + 1, &cspace PASS_REGS))==0) {
+      if((*arenap=GrowArena(*arenap, min_grow, arity + 1, &cspace PASS_REGS))==0) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
@@ -825,7 +827,7 @@ restart:
   HR += 1 + ArityOfFunctor(f);
   if (HR > ASP - MIN_ARENA_SIZE) {
     /* overflow */
-    HR = HB;
+    HR = HB0 = HB;
     XREGS[arity + 1] = *newarena;
     {
 //      CELL *old_top = ArenaLimit(*nsizeof(CELL)ewarena);
@@ -988,6 +990,7 @@ static Int p_nb_set_shared_arg(USES_REGS1) {
     return FALSE;
   }
   pos = IntegerOfTerm(wheret);
+  dest = Deref(ARG2);
   if (IsVarTerm(dest)) {
     Yap_Error(INSTANTIATION_ERROR, dest, "nb_setarg");
     return FALSE;
@@ -1030,6 +1033,7 @@ static Int p_nb_linkarg(USES_REGS1) {
     return FALSE;
   }
   pos = IntegerOfTerm(wheret);
+  dest = Deref(ARG3);
   if (IsVarTerm(dest)) {
     Yap_Error(INSTANTIATION_ERROR, dest, "nb_setarg");
     return FALSE;
@@ -1628,7 +1632,7 @@ static Int p_nb_queue_close(USES_REGS1) {
     }
     out = Yap_unify(ARG3, qp[QUEUE_TAIL]) && Yap_unify(ARG2, qp[QUEUE_HEAD]);
     RESET_VARIABLE(qp + QUEUE_TAIL);
-    qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = (CELL)(qp + QUEUE_TAIL);
+    qp[QUEUE_HEAD] = qp[QUEUE_TAIL] = (CELL)(qp + QUEUE_TAIL) ;
     qp[QUEUE_SIZE] = MkIntTerm(0);
     return out;
   }
@@ -1666,10 +1670,12 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsize + 1);
   if (qsize == 0) {
-    qd[QUEUE_HEAD] = entry;
-  } else {
+    qd[QUEUE_HEAD] = to;
+      qd[QUEUE_TAIL] = TailOfTerm(to);
+} else {
     *VarOfTerm(qd[QUEUE_TAIL]) = entry;
   }
+  qd[QUEUE_ARENA] = arena;
  return TRUE;
 }
 
@@ -1690,7 +1696,8 @@ static Int p_nb_queue_dequeue(USES_REGS1) {
   qd[QUEUE_HEAD] = TailOfTerm(qd[QUEUE_HEAD]);
   /* garbage collection ? */
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsz - 1);
-  return Yap_unify(out, ARG2);
+   qd[QUEUE_ARENA] = arena;
+ return Yap_unify(out, ARG2);
 }
 
 /* purge an entry from the queue, replacing it by [] */
@@ -2284,7 +2291,7 @@ static size_t new_beam_entry(CELL *qd) {
 
 static Int p_nb_beam_add_to_beam(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "add_to_beam"), *pt;
-  size_t hsize, hmsize;
+  size_t hsize, hmsize = qd[HEAP_SIZE];
   Term arena, to, key;
   UInt mingrow;
 
