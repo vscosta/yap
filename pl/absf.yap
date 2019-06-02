@@ -346,7 +346,10 @@ path(Path) :-
 	findall(X,'$in_path'(X),Path).
 
 
-'$in_path'(X) :-
+  '$in_path'(Path) :-
+  prolog_flag(os_argv,Opts),
+  lists:append(_,['-p',Path|_], Head).
+  '$in_path'(X) :-
 	recorded('$path',Path,_),
 	atom_codes(Path,S),
 	( S = []  -> X = '.' ;

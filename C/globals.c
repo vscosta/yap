@@ -145,19 +145,8 @@ threads that are created <em>after</em> the registration.
 typedef struct cell_space {
  struct cell_space *parent; //`
  CELL *oASP, *oH, *oHB;
+ CELL *arenaB, *arenaL;
 } cell_space_t;
-
-INLINE_ONLY void enter_cell_space(cell_space_t *cs) {
-    cs->oH = HR;
-    cs->oHB = HB;
-    cs->oASP = ASP;
-}
-
-INLINE_ONLY void exit_cell_space(cell_space_t *cs) {
-    HR = cs->oH;
-    HB = cs->oHB;
-    ASP = cs->oASP;
-}
 
 #define MIN_ARENA_SIZE (1048L)
 
@@ -204,6 +193,24 @@ static Term CreateNewArena(CELL *ptr, UInt size) {
   dst->_mp_alloc = (sizeof(CELL) / sizeof(mp_limb_t)) * arena2big_sz(size);
   ptr[size - 1] = EndSpecials;
   return t;
+}
+
+
+
+INLINE_ONLY void enter_cell_space(cell_space_t *cs, Term *arenap) {
+    cs->oH = HR;
+    cs->oHB = HB;
+    cs->oASP = ASP;
+    cs->arenaL= ASP = ArenaLimit(*arenap);
+    cs->arenaB= HR = HB = ArenaPt(*arenap);
+}
+
+static inline Term exit_cell_space(cell_space_t *cs) {
+    Term o = CreateNewArena(HR,ASP-HR);
+    HR = cs->oH;
+    HB = cs->oHB;
+    ASP = cs->oASP;
+    return o;
 }
 
 static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
@@ -328,10 +335,9 @@ CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
 }
 }
 
-static Term CloseArena(cell_space_t *region,
-                       UInt old_size USES_REGS) {
+static Term CloseArena(cell_space_t *region USES_REGS) {
   UInt new_size;
-  new_size = old_size - (HR - HB);
+  new_size = ASP-HR;
   Term arena = CreateNewArena(HR, new_size);
   exit_cell_space( region );
   return arena;
@@ -641,21 +647,18 @@ trail_overflow:
   return -4;
 }
 
-static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
-                            UInt arity, Term *newarena,
+static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
+                            UInt arity, Term *arenap,
                             size_t min_grow USES_REGS) {
-    size_t old_size;
     cell_space_t cspace;
     int res = 0, restarts = 0;
     Term tn;
-    old_size = ArenaSz(arena);
 
     restart:
-    enter_cell_space(&cspace);
     t = Deref(t);
     if (IsVarTerm(t)) {
-        ASP = ArenaLimit(arena);
-        HR = HB = ArenaPt(arena);
+
+        enter_cell_space(&cspace, arenap);
 #if COROUTINING
         if (GlobalIsAttachedTerm(t)) {
             CELL *Hi;
@@ -667,12 +670,12 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                                          Hi PASS_REGS)) < 0) {
                 goto error_handler;
             }
-            *newarena = CloseArena(&cspace, old_size PASS_REGS);
+            *arenap = CloseArena(&cspace PASS_REGS);
             return Hi[0];
         }
 #endif
-        if (share && VarOfTerm(t) > ArenaPt(arena)) {
-            *newarena = CloseArena(&cspace, old_size PASS_REGS);
+        if (share && VarOfTerm(t) > ArenaPt(*arenap)) {
+            *arenap = CloseArena(&cspace PASS_REGS);
             return t;
         }
         tn = MkVarTerm();
@@ -680,7 +683,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
             res = -1;
             goto error_handler;
         }
-	*newarena = CloseArena(&cspace, old_size PASS_REGS);
+    	*arenap = CloseArena(&cspace PASS_REGS);
         return tn;
     } else if (IsAtomOrIntTerm(t)) {
         return t;
@@ -689,11 +692,10 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         CELL *ap;
         CELL *Hi;
 
-        if (share && ArenaPt(arena) > RepPair(t)) {
+        if (share && ArenaPt(*arenap) > RepPair(t)) {
             return t;
         }
-        HR = HB = ArenaPt(arena);
-        ASP = ArenaLimit(arena);
+        enter_cell_space(&cspace, arenap);
         ap = RepPair(t);
         Hi = HR;
         tf = AbsPair(HR);
@@ -702,7 +704,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                                      Hi PASS_REGS)) < 0) {
             goto error_handler;
         }
-        *newarena = CloseArena(&cspace, old_size PASS_REGS);
+        *arenap = CloseArena(&cspace PASS_REGS);
         return tf;
     } else {
         Functor f;
@@ -710,11 +712,10 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         CELL *HB0;
         CELL *ap;
 
-        if (share && ArenaPt(arena) > RepAppl(t)) {
+        if (share && ArenaPt(*arenap) > RepAppl(t)) {
             return t;
         }
-        HR = HB = ArenaPt(arena);
-        ASP = ArenaLimit(arena);
+        enter_cell_space(&cspace, arenap);
         f = FunctorOfTerm(t);
         HB0 = HR;
         ap = RepAppl(t);
@@ -723,7 +724,7 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
         if (IsExtensionFunctor(f)) {
             switch ((CELL) f) {
                 case (CELL) FunctorDBRef:
-                    *newarena = CloseArena(&cspace, old_size PASS_REGS);
+                    *arenap = CloseArena(&cspace PASS_REGS);
                     return t;
                 case (CELL) FunctorLongInt:
                     if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
@@ -782,26 +783,24 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
                 goto error_handler;
             }
         }
-        *newarena = CloseArena(&cspace, old_size PASS_REGS);
+        *arenap = CloseArena(&cspace PASS_REGS);
         return tf;
     }
     error_handler:
     XREGS[arity + 1] = t;
     switch (res) {
     case -1:
-      if (arena == LOCAL_GlobalArena)
+      if (&LOCAL_GlobalArena == arenap)
         LOCAL_GlobalArenaOverflows++;
       restarts++;
       min_grow += (restarts < 16 ? 16*1024*restarts*restarts : 128*1024*1024);
       HR = HB;
-      arena = CloseArena (&cspace, old_size PASS_REGS);
-      if((arena=GrowArena(arena, min_grow, arity + 1, &cspace PASS_REGS))==0) {
+      *arenap = CloseArena (&cspace PASS_REGS);
+      if((*arenap=GrowArena(arenap, min_grow, arity + 1, &cspace PASS_REGS))==0) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
       t = XREGS[arity+1];
-            enter_cell_space(&cspace);
-            old_size = ArenaSz(arena);
             break;
     default: /* temporary space overflow */
         exit_cell_space(&cspace);
@@ -811,39 +810,37 @@ static Term CopyTermToArena(Term t, Term arena, bool share, bool copy_att_vars,
   goto restart;
 }
 
-static Term CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity,
+static Term CreateTermInArena( Atom Na, UInt Nar, UInt arity,
                               Term *newarena, Term init USES_REGS) {
     cell_space_t cells;
    Term tf;
   CELL *HB0;
-  size_t old_size = ArenaSz(arena);
   Functor f = Yap_MkFunctor(Na, Nar);
   UInt i;
 
 restart:
-    enter_cell_space(&cells);
-    HB0 = HR = HB = ArenaPt(arena);
-  ASP = ArenaLimit(arena);
+    enter_cell_space(&cells, newarena PASS_REGS);
   tf = AbsAppl(HR);
   HR[0] = (CELL)f;
   HR += 1 + ArityOfFunctor(f);
   if (HR > ASP - MIN_ARENA_SIZE) {
     /* overflow */
     HR = HB;
-    XREGS[arity + 1] = arena;
+    XREGS[arity + 1] = *newarena;
     {
 //      CELL *old_top = ArenaLimit(*nsizeof(CELL)ewarena);
-      if (arena == LOCAL_GlobalArena)
+      if (*newarena == LOCAL_GlobalArena)
         LOCAL_GlobalArenaOverflows++;
-          arena = CreateNewArena (RepAppl(arena),old_size);
-          if ((arena=GrowArena(arena, Nar * sizeof(CELL),
+      exit_cell_space( &cells);
+      *newarena =  CreateNewArena (RepAppl(*newarena),ASP-HR);
+          if ((*newarena=GrowArena(*newarena, Nar * sizeof(CELL),
                            arity + 1, &cells PASS_REGS))==0) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil,
                   "while creating large global term");
         return 0L;
       }
     }
-    arena = Deref(XREGS[arity + 1]);
+    *newarena = Deref(XREGS[arity + 1]);
     goto restart;
   }
   if (init == 0L) {
@@ -855,7 +852,7 @@ restart:
       HB0[i] = init;
     }
   }
-  *newarena = CloseArena(&cells, ArenaSz(arena) PASS_REGS);
+  *newarena = CloseArena(&cells PASS_REGS);
   return tf;
 }
 
@@ -960,7 +957,7 @@ static Int p_nb_setarg(USES_REGS1) {
 
   to = Deref(ARG3);
   to = CopyTermToArena(
-      ARG3, LOCAL_GlobalArena, FALSE, TRUE, 3, &LOCAL_GlobalArena,
+      ARG3, FALSE, TRUE, 3, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
@@ -977,7 +974,7 @@ static Int p_nb_setarg(USES_REGS1) {
 
 static Int p_nb_set_shared_arg(USES_REGS1) {
   Term wheret = Deref(ARG1);
-  Term dest = Deref(ARG2);
+  Term dest;
   Term to;
   UInt arity, pos;
   CELL *destp;
@@ -1004,10 +1001,11 @@ static Int p_nb_set_shared_arg(USES_REGS1) {
   if (pos < 1 || pos > arity)
     return FALSE;
   to = CopyTermToArena(
-      ARG3, LOCAL_GlobalArena, TRUE, TRUE, 3, &LOCAL_GlobalArena,
+      ARG3, TRUE, TRUE, 3, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
+  dest = Deref(ARG2);
   if (IsPairTerm(dest)) {
     destp = RepPair(dest) - 1;
   } else {
@@ -1019,7 +1017,7 @@ static Int p_nb_set_shared_arg(USES_REGS1) {
 
 static Int p_nb_linkarg(USES_REGS1) {
   Term wheret = Deref(ARG1);
-  Term dest = Deref(ARG2);
+  Term dest ;
   UInt arity, pos;
   CELL *destp;
 
@@ -1047,6 +1045,7 @@ static Int p_nb_linkarg(USES_REGS1) {
   }
   if (pos < 1 || pos > arity)
     return FALSE;
+  dest = Deref(ARG2);
   destp[pos] = Deref(ARG3);
   return TRUE;
 }
@@ -1086,7 +1085,7 @@ static Int p_nb_create_accumulator(USES_REGS1) {
     return FALSE;
   }
   to = CopyTermToArena(
-      t, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+      t, TRUE, TRUE, 2, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
@@ -1140,7 +1139,7 @@ static Int p_nb_add_to_accumulator(USES_REGS1) {
       } else {
         /* we need to create a new long int */
         new = CopyTermToArena(
-            new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+            new, TRUE, TRUE, 2, &LOCAL_GlobalArena,
             garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS)
                 PASS_REGS);
         destp = RepAppl(Deref(ARG1));
@@ -1170,7 +1169,7 @@ static Int p_nb_add_to_accumulator(USES_REGS1) {
 
     new = Yap_Eval(new);
     new = CopyTermToArena(
-        new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+        new, TRUE, TRUE, 2, &LOCAL_GlobalArena,
         garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     destp = RepAppl(Deref(ARG1));
     destp[1] = new;
@@ -1205,7 +1204,7 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
   GlobalEntry *ge;
   ge = GetGlobalEntry(at PASS_REGS);
   to = CopyTermToArena(
-      t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
+      t0, FALSE, TRUE, 2, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
@@ -1219,7 +1218,7 @@ Term Yap_SaveTerm(Term t0) {
   CACHE_REGS
   Term to;
   to = CopyTermToArena(
-		       Deref(t0), LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena,
+		       Deref(t0), FALSE, TRUE, 2, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
@@ -1250,7 +1249,7 @@ static Int p_nb_set_shared_val(USES_REGS1) {
   }
   ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
   to = CopyTermToArena(
-      ARG2, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena,
+      ARG2, TRUE, TRUE, 2, &LOCAL_GlobalArena,
       garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
@@ -1443,7 +1442,7 @@ static Int p_nb_create(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "nb_create");
     return FALSE;
   }
-  to = CreateTermInArena(LOCAL_GlobalArena, AtomOfTerm(tname),
+  to = CreateTermInArena(AtomOfTerm(tname),
                          IntegerOfTerm(tarity), 3, &LOCAL_GlobalArena,
                          0L PASS_REGS);
   if (!to)
@@ -1495,7 +1494,7 @@ static Int p_nb_create2(USES_REGS1) {
     Yap_Error(TYPE_ERROR_ATOM, tname, "nb_create");
     return FALSE;
   }
-  to = CreateTermInArena(LOCAL_GlobalArena, AtomOfTerm(tname),
+  to = CreateTermInArena(AtomOfTerm(tname),
                          IntegerOfTerm(tarity), 4, &LOCAL_GlobalArena,
                          tinit PASS_REGS);
   if (!to)
@@ -1517,7 +1516,6 @@ static Int p_nb_create2(USES_REGS1) {
 
 
 static Int nb_queue(UInt arena_sz USES_REGS) {
-    cell_space_t cspace;
   Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
   Term t = Deref(ARG1);
   LOCAL_DepthArenas++;
@@ -1534,7 +1532,6 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
     return FALSE;
   if (arena_sz < 32 * 1024)
     arena_sz = 32 * 1024;
-  enter_cell_space(&cspace);
   queue_arena = NewArena(arena_sz, 1, NULL, worker_id);
   if (queue_arena == 0L) {
     return FALSE;
@@ -1641,8 +1638,7 @@ static Int p_nb_queue_close(USES_REGS1) {
 
 static Int p_nb_queue_enqueue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "enqueue");
-  UInt old_sz;
-  Term arena, qsize, to;
+   Term arena, qsize, to;
   UInt min_size;
 
   if (!qd)
@@ -1657,38 +1653,30 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   } else {
     min_size = 0L;
   }
-  Term newarena = arena;
-  to = CopyTermToArena(Deref(ARG2), arena, FALSE, TRUE, 2, &newarena,
+  Term entry = AbsPair(HR);
+    HR[0] = Deref(ARG2);
+    RESET_VARIABLE(HR+1);
+    HR+=2;
+  to = CopyTermToArena(entry, FALSE, TRUE, 2, &arena,
                        min_size PASS_REGS);
   if (to == 0L)
     return FALSE;
-  cell_space_t cspace;
-  arena = newarena;
-  enter_cell_space(&cspace);
   /* garbage collection ? */
-  HR = HB = ArenaPt(arena);
-  old_sz = ArenaSz(arena);
-  qd = GetQueue(ARG1, "enqueue");
+   qd = GetQueue(ARG1, "enqueue");
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsize + 1);
   if (qsize == 0) {
-    qd[QUEUE_HEAD] = AbsPair(HR);
+    qd[QUEUE_HEAD] = entry;
   } else {
-    *VarOfTerm(qd[QUEUE_TAIL]) = AbsPair(HR);
+    *VarOfTerm(qd[QUEUE_TAIL]) = entry;
   }
-  *HR++ = to;
-  RESET_VARIABLE(HR);
-  qd[QUEUE_TAIL] = (CELL)HR;
-  HR++;
-  qd[QUEUE_ARENA] =CloseArena(&cspace, old_sz PASS_REGS);
-  return TRUE;
+ return TRUE;
 }
 
 static Int p_nb_queue_dequeue(USES_REGS1) {
   CELL *qd = GetQueue(ARG1, "dequeue");
-  UInt old_sz, qsz;
+  UInt  qsz;
   Term arena, out;
-  cell_space_t cspace;
 
   if (!qd)
     return FALSE;
@@ -1698,13 +1686,10 @@ static Int p_nb_queue_dequeue(USES_REGS1) {
   arena = GetQueueArena(qd, "dequeue");
   if (arena == 0L)
     return FALSE;
-  old_sz = ArenaSz(arena);
   out = HeadOfTerm(qd[QUEUE_HEAD]);
   qd[QUEUE_HEAD] = TailOfTerm(qd[QUEUE_HEAD]);
   /* garbage collection ? */
-  enter_cell_space(&cspace);
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsz - 1);
-  qd[QUEUE_ARENA] = CloseArena(&cspace, old_sz PASS_REGS);
   return Yap_unify(out, ARG2);
 }
 
@@ -1857,7 +1842,8 @@ static Int p_nb_heap_close(USES_REGS1) {
   return FALSE;
 }
 
-static void PushHeap(CELL *pt, UInt off) {
+/*
+ * static void PushHeap(CELL *pt, UInt off) {
   while (off) {
     UInt noff = (off + 1) / 2 - 1;
     if (Yap_compare_terms(pt[2 * off], pt[2 * noff]) < 0) {
@@ -1873,7 +1859,7 @@ static void PushHeap(CELL *pt, UInt off) {
     }
   }
 }
-
+*/
 static void DelHeapRoot(CELL *pt, UInt sz) {
   UInt indx = 0;
   Term tk, tv;
@@ -1909,100 +1895,78 @@ static void DelHeapRoot(CELL *pt, UInt sz) {
   }
 }
 
-static Int p_nb_heap_add_to_heap(USES_REGS1) {
-  CELL *qd = GetHeap(ARG1, "add_to_heap"), *pt;
-  UInt hsize, hmsize, old_sz;
-  Term arena, to, key;
-  UInt mingrow;
-  cell_space_t cspace;
-
-  if (!qd)
-    return FALSE;
-restart:
-  hsize = IntegerOfTerm(qd[HEAP_SIZE]);
-  hmsize = IntegerOfTerm(qd[HEAP_MAX]);
-  if (hsize == hmsize) {
-    CELL *top = qd + (HEAP_START + 2 * hmsize);
-    UInt extra_size;
-
-    if (hmsize <= 64 * 1024) {
-      extra_size = 64 * 1024;
-    } else {
-      extra_size = hmsize;
-    }
-    if ((extra_size = Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL))) ==
-        0) {
-      Yap_Error(RESOURCE_ERROR_STACK, TermNil,
-                "No Stack Space for Non-Backtrackable terms");
-      return FALSE;
-    }
-      enter_cell_space(&cspace);
-      extra_size = extra_size / (2 * sizeof(CELL));
-    qd = GetHeap(ARG1, "add_to_heap");
-    hmsize += extra_size;
+static CELL *new_heap_entry(CELL *qd) {
+    size_t hsize, hmsize;
     if (!qd)
-      return FALSE;
-    qd[-1] = (CELL)Yap_MkFunctor(AtomHeap, 2 * hmsize + HEAP_START);
-    top = qd + (HEAP_START + 2 * (hmsize - extra_size));
-    while (extra_size) {
-      RESET_VARIABLE(top);
-      RESET_VARIABLE(top + 1);
-      top += 2;
-      extra_size--;
+        return FALSE;
+    restart:
+    hsize = IntegerOfTerm(qd[HEAP_SIZE]);
+    hmsize = IntegerOfTerm(qd[HEAP_MAX]);
+    if (hsize == hmsize) {
+        CELL *top = qd + (HEAP_START + 2 * hmsize);
+        size_t extra_size;
+
+        if (hmsize <= 64 * 1024) {
+            extra_size = 64 * 1024;
+        } else {
+            extra_size = hmsize;
+        }
+        if ((extra_size = Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL))) ==
+            0) {
+            Yap_Error(RESOURCE_ERROR_STACK, TermNil,
+                      "No Stack Space for Non-Backtrackable terms");
+            return FALSE;
+        }
+        extra_size = extra_size / (2 * sizeof(CELL));
+        qd = GetHeap(ARG1, "add_to_heap");
+        hmsize += extra_size;
+        if (!qd)
+            return FALSE;
+        qd[-1] = (CELL) Yap_MkFunctor(AtomHeap, 2 * hmsize + HEAP_START);
+        top = qd + (HEAP_START + 2 * (hmsize - extra_size));
+        while (extra_size) {
+            RESET_VARIABLE(top);
+            RESET_VARIABLE(top + 1);
+            top += 2;
+            extra_size--;
+        }
+        qd[HEAP_MAX] = Global_MkIntegerTerm(hmsize);
+        goto restart;
     }
-    arena = qd[HEAP_ARENA];
-    old_sz = ArenaSz(arena);
-    HR = HB = ArenaPt(arena);
-    qd[HEAP_MAX] = Global_MkIntegerTerm(hmsize);
-    qd[HEAP_ARENA] = CloseArena(&cspace, old_sz PASS_REGS);
-    goto restart;
-  }
+    return qd;
+}
+
+static Int p_nb_heap_add_to_heap(USES_REGS1) {
+  CELL *qd , *pt;
+  Term arena, to;
+  UInt mingrow;
+  size_t hsize;
+
+  qd = new_heap_entry(GetHeap(ARG1, "add_to_heap"));
   arena = qd[HEAP_ARENA];
   if (arena == 0L)
-    return FALSE;
+    return false;
   mingrow = garena_overflow_size(ArenaPt(arena) PASS_REGS);
-  ARG2 = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd + HEAP_ARENA,
+  to = CopyTermToArena(ARG2, FALSE, TRUE, 3, &arena,
                          mingrow PASS_REGS);
   qd = GetHeap(ARG1, "add_to_heap");
-  arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, &arena,
+   qd[HEAP_ARENA] = arena;
+   hsize = IntegerOfTerm(qd[HEAP_SIZE]);
+   pt = qd + HEAP_START;
+    pt[2 * hsize] = to;
+  to = CopyTermToArena(ARG3, FALSE, TRUE, 3, &arena,
                        mingrow PASS_REGS);
   /* protect key in ARG2 in case there is an overflow while copying to */
-  key = ARG2;
-  if (key == 0 || to == 0L)
-    return FALSE;
+   qd = GetHeap(ARG1, "add_to_heap");
+   pt[2 * hsize + 1] = to;
+    to = CopyTermToArena(MkIntegerTerm(hsize + 1), FALSE, TRUE, 3, &arena,
+                         mingrow PASS_REGS);
   qd = GetHeap(ARG1, "add_to_heap");
-  qd[HEAP_ARENA] = arena;
-  /* garbage collection ? */
-  enter_cell_space(&cspace);
-  HR = HB = ArenaPt(arena);
-  old_sz = ArenaSz(arena);
-  while (old_sz < MIN_ARENA_SIZE) {
-    UInt gsiz = hsize * 2;
 
-    if (gsiz > 1024 * 1024) {
-      gsiz = 1024 * 1024;
-    } else if (gsiz < 1024) {
-      gsiz = 1024;
-    }
-    ARG3 = to;
-      arena = CreateNewArena (RepAppl(arena),old_sz);
-    if ((arena=GrowArena(arena, gsiz, 3, &cspace PASS_REGS))==0) {
-      Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
-      return 0L;
-    }
-    to = ARG3;
-    qd = RepAppl(Deref(ARG1)) + 1;
-    arena = qd[HEAP_ARENA];
-    HR = HB = ArenaPt(arena);
-    old_sz = ArenaSz(arena);
-  }
-  pt = qd + HEAP_START;
-  pt[2 * hsize] = key;
-  pt[2 * hsize + 1] = to;
-  PushHeap(pt, hsize);
-  qd[HEAP_SIZE] = Global_MkIntegerTerm(hsize + 1);
-  qd[HEAP_ARENA] = CloseArena(&cspace, old_sz PASS_REGS);
+      qd[HEAP_ARENA] = arena;
+ qd[HEAP_SIZE] = to;
+
+  qd[HEAP_ARENA] = arena;
   return TRUE;
 }
 
@@ -2298,91 +2262,63 @@ static Term DelBeamMin(CELL *pt, CELL *pt2, UInt sz) {
   return ov;
 }
 
-static Int p_nb_beam_add_to_beam(USES_REGS1) {
-  CELL *qd = GetHeap(ARG1, "add_to_beam"), *pt;
-  UInt hsize, hmsize, old_sz;
-  Term arena, to, key;
-  UInt mingrow;
-cell_space_t cspace;
+
+static size_t new_beam_entry(CELL *qd) {
+    size_t hsize, hmsize;
+    hsize = IntegerOfTerm(qd[HEAP_SIZE]);
+    hmsize = IntegerOfTerm(qd[HEAP_MAX]);
 
   if (!qd)
-    return FALSE;
-  hsize = IntegerOfTerm(qd[HEAP_SIZE]);
-  hmsize = IntegerOfTerm(qd[HEAP_MAX]);
-  key = Deref(ARG2);
+    return 0;
+   Term  *pt;
   if (hsize == hmsize) {
     pt = qd + HEAP_START;
     if (Yap_compare_terms(pt[2 * hmsize], Deref(ARG2)) > 0) {
       /* smaller than current max, we need to drop current max */
       DelBeamMax(pt, pt + 2 * hmsize, hmsize);
       hsize--;
-    } else {
-      return TRUE;
     }
   }
-  arena = qd[HEAP_ARENA];
+    return hsize;
+ }
+
+static Int p_nb_beam_add_to_beam(USES_REGS1) {
+  CELL *qd = GetHeap(ARG1, "add_to_beam"), *pt;
+  size_t hsize, hmsize;
+  Term arena, to, key;
+  UInt mingrow;
+
+hsize = new_beam_entry(qd);
+   arena = qd[HEAP_ARENA];
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena) PASS_REGS);
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, TRUE, 3, qd + HEAP_ARENA,
+  key = CopyTermToArena(ARG2,FALSE, TRUE, 3, &arena,
                         mingrow PASS_REGS);
-  arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd + HEAP_ARENA,
+  to = CopyTermToArena(ARG3, FALSE, TRUE, 3, &arena,
                        mingrow PASS_REGS);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1, "add_to_beam");
-  arena = qd[HEAP_ARENA];
-  /* garbage collection ? */
-  enter_cell_space(&cspace);
-  HR = HB = ArenaPt(arena);
-  old_sz = ArenaSz(arena);
-  while (old_sz < MIN_ARENA_SIZE) {
-    UInt gsiz = HR - RepPair(qd[QUEUE_HEAD]);
-    if (gsiz > 1024 * 1024) {
-      gsiz = 1024 * 1024;
-    } else if (gsiz < 1024) {
-      gsiz = 1024;
-    }
-    ARG3 = to;
-    /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
-      arena = CreateNewArena (RepAppl(arena),old_sz);
-    if (!GrowArena(arena, gsiz, 3, &cspace PASS_REGS)) {
-      Yap_Error(RESOURCE_ERROR_STACK, arena, LOCAL_ErrorMessage);
-      return 0L;
-    }
-    to = ARG3;
-    qd = RepAppl(Deref(ARG1)) + 1;
-    arena = qd[HEAP_ARENA];
-    old_sz = ArenaSz(arena);
-  }
-  pt = qd + HEAP_START;
+  qd[HEAP_ARENA] = arena;
+   pt = qd + HEAP_START;
   PushBeam(pt, pt + 2 * hmsize, hsize, key, to);
   qd[HEAP_SIZE] = Global_MkIntegerTerm(hsize + 1);
-  qd[HEAP_ARENA] = CloseArena(&cspace, old_sz PASS_REGS);
   return TRUE;
 }
 
 static Int p_nb_beam_del(USES_REGS1) {
   CELL *qd = GetHeap(ARG1, "debeam");
-  UInt old_sz, qsz;
-  Term arena;
+  UInt qsz;
   Term tk, tv;
-  cell_space_t cspace;
 
   if (!qd)
     return FALSE;
   qsz = IntegerOfTerm(qd[HEAP_SIZE]);
   if (qsz == 0)
     return FALSE;
-  arena = qd[HEAP_ARENA];
-  if (arena == 0L)
-    return FALSE;
-  old_sz = ArenaSz(arena);
   /* garbage collection ? */
- enter_cell_space(&cspace);
   qd[HEAP_SIZE] = Global_MkIntegerTerm(qsz - 1);
-  qd[ HEAP_ARENA] = CloseArena(&cspace, old_sz PASS_REGS);
   tk = qd[HEAP_START];
   tv = DelBeamMin(qd + HEAP_START,
                   qd + (HEAP_START + 2 * IntegerOfTerm(qd[HEAP_MAX])), qsz);

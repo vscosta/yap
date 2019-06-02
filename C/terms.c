@@ -41,6 +41,17 @@ extern int cs[10];
 
 int cs[10];
 
+typedef struct {
+  Term old_var;
+  Term new_var;
+} * vcell;
+
+typedef struct non_single_struct_t {
+  CELL *ptd0;
+  CELL d0;
+  CELL *pt0, *pt0_end, *ptf;
+} non_singletons_t;
+
 static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
   tr_fr_ptr pt0 = TR;
   while (pt0 != TR0) {
@@ -63,27 +74,22 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 //#define  CELL *pt0, *pt0_end, *ptf;
 //} non_singletons_t;
 
-#define IS_VISIT_MARKER						\
-(IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&	\
- AtomOfTerm(d0) <= (Atom)to_visit)
+static inline bool IS_VISIT_MARKER(Term d0, non_singletons_t *to_visit, non_singletons_t *to_visit0)
+{
+return
+IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&
+ AtomOfTerm(d0) <= (Atom)to_visit;
+}
 
-#define VISIT_MARKER MkAtomTerm((Atom)to_visit)
+
+static inline Term VISIT_MARKER(non_singletons_t *to_visit) {
+  return MkAtomTerm((Atom)to_visit);
+}
 
 #define VISITED \
-  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;\
+  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;printf("%lx\n", d0);	\
   if (IsVarTerm(d0) && d0==(CELL)ptd0) goto var_in_term;\
-goto restart; }\
-
-typedef struct {
-  Term old_var;
-  Term new_var;
-} * vcell;
-
-typedef struct non_single_struct_t {
-  CELL *ptd0;
-  CELL d0;
-  CELL *pt0, *pt0_end, *ptf;
-} non_singletons_t;
+continue; }
 
 #define WALK_COMPLEX_TERM__(LIST0, STRUCT0, PRIMI0)			\
 \
@@ -104,7 +110,7 @@ to_visit = to_visit0,							\
 while (to_visit >= to_visit0) {					\
   CELL d0;								\
   CELL *ptd0;								\
-  restart:								\
+restart:\
   while (pt0 < pt0_end) {						\
    ++pt0;									\
    ptd0 = pt0;								\
@@ -120,14 +126,15 @@ while (to_visit >= to_visit0) {					\
        ptd0 = RepPair(d0);							\
        d0 = ptd0[0];							\
        LIST0;								\
-       if (IS_VISIT_MARKER)							\
-         goto restart;							\
+       if (IS_VISIT_MARKER(d0, to_visit, to_visit0))	{						\
+         VISITED; continue;\
+       }							\
        to_visit->pt0 = pt0;							\
        to_visit->pt0_end = pt0_end;						\
        to_visit->ptd0 = ptd0;						\
        to_visit->d0 = d0;							\
        to_visit++;								\
-       *ptd0 = VISIT_MARKER;						\
+       *ptd0 = VISIT_MARKER(to_visit);						\
        pt0 = ptd0;								\
        pt0_end = pt0 + 1;							\
        goto list_loop;							\
@@ -144,9 +151,9 @@ while (to_visit >= to_visit0) {					\
          goto aux_overflow;							\
        }									\
        STRUCT0;								\
-       if (IS_VISIT_MARKER) {						\
+       if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {						\
          \
-         continue;								\
+         VISITED; continue;								\
        }									\
        to_visit->pt0 = pt0;							\
        to_visit->pt0_end = pt0_end;						\
@@ -154,13 +161,13 @@ while (to_visit >= to_visit0) {					\
        to_visit->d0 = d0;							\
        to_visit++;								\
        \
-       *ptd0 = VISIT_MARKER;						\
+       *ptd0 = VISIT_MARKER(to_visit);						\
        Term d1 = ArityOfFunctor(f);						\
        pt0 = ptd0;								\
        pt0_end = ptd0 + d1;							\
        continue;								\
      } else {								\
-     if (IS_VISIT_MARKER) {						\
+     if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) {	printf("%lx @ %p\n", d0, ptd0);					\
          \
          VISITED;								\
        }									\
@@ -235,7 +242,7 @@ global_overflow : {					\
 }
 
 #define CYC_LIST				\
-if (IS_VISIT_MARKER) {			\
+if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
   while (to_visit > to_visit0) {		\
     to_visit--;				\
     to_visit->ptd0[0] = to_visit->d0;		\
@@ -251,7 +258,7 @@ if (IS_VISIT_MARKER) {			\
 
 
 #define CYC_APPL				\
-if (IS_VISIT_MARKER) {			\
+if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
   while (to_visit > to_visit0) {		\
     to_visit--;				\
     to_visit->ptd0[0] = to_visit->d0;		\
@@ -316,7 +323,7 @@ static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
 
 
 #define BREAK_CYC				\
-if (IS_VISIT_MARKER) {			\
+if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
   Term t = BREAK_LOOP(d0, to_visit);\
   MaBind(pt0,t);  \
   continue; \
