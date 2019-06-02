@@ -331,7 +331,7 @@ CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
 static Term CloseArena(cell_space_t *region,
                        UInt old_size USES_REGS) {
   UInt new_size;
-  new_size = old_size - (HR - HB);
+  new_size = ASP - HR;
   Term arena = CreateNewArena(HR, new_size);
   exit_cell_space( region );
   return arena;
