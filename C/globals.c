@@ -491,7 +491,7 @@ loop:
           break;
         default: {
 
-        
+
   /* big int */
           UInt sz = (sizeof(MP_INT) + 3 * CellSize +
                      ((MP_INT *)(ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
@@ -805,7 +805,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
     default: /* temporary space overflow */
         exit_cell_space(&cspace);
             return 0;
-      
+
     }
   goto restart;
 }

@@ -684,8 +684,9 @@ static Term mk_argc_list(USES_REGS1) {
 static Term mk_os_argc_list(USES_REGS1) {
   int i = 0;
   Term t = TermNil;
-  for (i = 0; i < GLOBAL_argc; i++) {
-    char *arg = GLOBAL_argv[i];
+  for (i = GLOBAL_argc; i >0; ) {
+    i--;
+    const char *arg = GLOBAL_argv[i];
     t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(arg)), t);
   }
   return (t);

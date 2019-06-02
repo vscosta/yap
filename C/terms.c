@@ -74,13 +74,9 @@ static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
 //#define  CELL *pt0, *pt0_end, *ptf;
 //} non_singletons_t;
 
-static inline bool IS_VISIT_MARKER(Term d0, non_singletons_t *to_visit, non_singletons_t *to_visit0)
-{
-return
-IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&
- AtomOfTerm(d0) <= (Atom)to_visit;
-}
-
+#define IS_VISIT_MARKER(d0)						\
+(IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&	\
+ AtomOfTerm(d0) <= (Atom)to_visit)
 
 static inline Term VISIT_MARKER(non_singletons_t *to_visit) {
   return MkAtomTerm((Atom)to_visit);
@@ -126,9 +122,8 @@ restart:\
        ptd0 = RepPair(d0);							\
        d0 = ptd0[0];							\
        LIST0;								\
-       if (IS_VISIT_MARKER(d0, to_visit, to_visit0))	{						\
-         VISITED; continue;\
-       }							\
+       if (IS_VISIT_MARKER(d0))							\
+         goto restart;							\
        to_visit->pt0 = pt0;							\
        to_visit->pt0_end = pt0_end;						\
        to_visit->ptd0 = ptd0;						\
@@ -151,7 +146,7 @@ restart:\
          goto aux_overflow;							\
        }									\
        STRUCT0;								\
-       if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {						\
+       if (IS_VISIT_MARKER(d0)) {						\
          \
          VISITED; continue;								\
        }									\
@@ -167,7 +162,7 @@ restart:\
        pt0_end = ptd0 + d1;							\
        continue;								\
      } else {								\
-     if (IS_VISIT_MARKER(d0,to_visit,to_visit0)) {	printf("%lx @ %p\n", d0, ptd0);					\
+     if (IS_VISIT_MARKER(d0)) {						\
          \
          VISITED;								\
        }									\
@@ -242,7 +237,7 @@ global_overflow : {					\
 }
 
 #define CYC_LIST				\
-if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
+if (IS_VISIT_MARKER(d0)) {			\
   while (to_visit > to_visit0) {		\
     to_visit--;				\
     to_visit->ptd0[0] = to_visit->d0;		\
@@ -258,7 +253,7 @@ if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
 
 
 #define CYC_APPL				\
-if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
+if (IS_VISIT_MARKER(d0)) {			\
   while (to_visit > to_visit0) {		\
     to_visit--;				\
     to_visit->ptd0[0] = to_visit->d0;		\
@@ -313,26 +308,43 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
   return Yap_IsCyclicTerm(Deref(ARG1));
 }
 
-
 static Term BREAK_LOOP(CELL d0,struct non_single_struct_t  *to_visit ) {
   char buf[64];
   snprintf(buf, 63, "@^[" Int_FORMAT "]", to_visit-(struct non_single_struct_t*)AtomOfTerm(d0));
   return MkAtomTerm(Yap_LookupAtom(buf));
 }
+/**
+  Loop breaking: three cases
 
+1.. compound  terms: `X = f(..Y...) ... Y=x` - we should replace Y by the marker
 
+2. X=[X|_] -> loop is the first occurrence of the head X. We need tto
+
+3, Y   =... " [x|Y], X=f(X) -> similar, but there are two loops, and the loop tagaging the list was visited first.
+
+The algorithm is:
+case 1: bind X to a special term.
+
+case 2:  bind head and then tag the list
+
+case 3: undo tagging for X, bind to maaker, restore loop tag.
+*/
 
 #define BREAK_CYC				\
-if (IS_VISIT_MARKER(d0, to_visit, to_visit0)) {			\
-  Term t = BREAK_LOOP(d0, to_visit);\
-  MaBind(pt0,t);  \
-  continue; \
-    }
+  if (IS_VISIT_MARKER(d0)) {			\
+	   if (IS_VISIT_MARKER(*pt0)) {\
+	     *pt0 = ((struct non_single_struct_t *)AtomOfTerm(*pt0))->d0; \
+		     }							\
+	   MaBind(pt0,BREAK_LOOP(d0, to_visit));\
+	   *pt0 = d0;\
+	   (*np) ++; \
+}
+
 
 /**
    @brief routine to locate all variables in a term, and its applications */
 
-static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_ USES_REGS) {
+static int break_cycles_in_complex_term( CELL *pt0_, CELL *pt0_end_, int *np USES_REGS) {
     CELL *pt0, *pt0_end;
     int lvl;
 
@@ -352,16 +364,27 @@ def_overflow();
 
 }
 
-Term Yap_BreakCyclesInTerm(Term t USES_REGS) {
+Term Yap_BreakCyclesInTerm(Term t, int *np USES_REGS) {
  t = Deref(t);
   if (IsVarTerm(t)) {
+    *np = 0;
     return t;
   } else if (IsPrimitiveTerm(t)) {
+    *np = 0;
     return t;
   } else {
-    if ( break_cycles_in_complex_term(&(t)-1, &(t) PASS_REGS) >0) {
+    tr_fr_ptr TR0;
+    int n = 0;
+    if ( break_cycles_in_complex_term(&(t)-1, &(t), &n PASS_REGS) >0) {
+      TR0 = TR-2*n;
+      while(TR0<TR) {
+	RepAppl(TrailTerm(TR0+1))[0] = TrailVal(TR0+1);
+	TR0+=2;
+      }
+      *np = n;
       return t;
     } else {
+      *np = n;
       return 0;
     }
   }
@@ -378,7 +401,8 @@ Term Yap_BreakCyclesInTerm(Term t USES_REGS) {
 */
 static Int break_cycles_in_term(USES_REGS1) /* cyclic_term(+T)		 */
 {
-  return Yap_BreakCyclesInTerm(Deref(ARG1) PASS_REGS) != 0;
+  int n = 0;
+  return Yap_BreakCyclesInTerm(Deref(ARG1), &n PASS_REGS) != 0;
 }
 
 /**
@@ -1401,4 +1425,5 @@ void Yap_InitTermCPreds(void) {
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
   Yap_InitCPred("largest_numbervar", 2, largest_numbervar, 0);
 }
+
 //@}

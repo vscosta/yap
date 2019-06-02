@@ -2332,6 +2332,52 @@ static void shortstack( choiceptr b_ptr, CELL * env_ptr , buf_struct_t *bufp) {
 	Yap_unify(mkloc(Yap_env_add_location(&t, CP, B, ENV, 3)), ARG2);
     }
 
+    
+static int Yap_DebugDepthMax = 4;
+
+void ShowTerm(Term *tp, int depth) {
+  if (depth==Yap_DebugDepthMax) return;
+  Term t=*tp;
+  if (IsVarTerm(t)) {
+    fprintf(stderr,"R%ld",tp-HR);
+    if (t == *(CELL*)t) fprintf(stderr,"->V ");
+    else { fprintf(stderr, "->"); ShowTerm((CELL*)t,depth); }
+  } else if (IsAtomTerm(t)) {
+    fprintf(stderr,"A:%ld(%s) ",tp-HR, RepAtom(AtomOfTerm(t))->StrOfAE);
+ } else if (IsIntTerm(t)) {
+    fprintf(stderr,"A:%ld(%ld) ",tp-HR, IntOfTerm(t));
+  } else if (IsPairTerm(t)) {
+    fprintf(stderr,"A:%ld([...]) ",tp-HR);
+    fprintf(stderr,"\n%*c",depth<<2,' ');
+    ShowTerm(RepPair(t),depth+1);
+    fprintf(stderr,"\n%*c",depth<<2,' ');
+    ShowTerm(RepPair(t)+1,depth+1);
+  } else {
+    fprintf(stderr,"A:%ld(%lx) ",tp-HR, *RepAppl(t));
+    if (!IsVarTerm(*RepAppl(t))) return;
+  Functor f = FunctorOfTerm(t);
+  arity_t n = ArityOfFunctor(f);
+
+    fprintf(stderr,"\n%*c",depth<<2,' ');
+    if (IsExtensionFunctor(f)) Yap_DebugPlWriteln(t);
+    else {
+      int i;
+      fprintf(stderr,"\n%*c",depth<<2,' ');
+      fprintf(stderr,"%s/%ld\n",RepAtom(NameOfFunctor(f))->StrOfAE, n);
+      for (i=0;i<n;i++) {
+	fprintf(stderr,"\n%*c",depth<<2,' ');
+	ShowTerm(RepPair(t)+(i+1),depth+1);
+      }
+  }
+  }
+}
+
+
+void Yap_ShowTerm(Term t) {
+  *HR++ = t;
+  ShowTerm(HR-1,0);
+}
+
     void Yap_InitStInfo(void) {
       CACHE_REGS
 	Term cm = CurrentModule;

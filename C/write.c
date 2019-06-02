@@ -76,7 +76,7 @@ typedef struct write_globs {
   bool Write_strings;
   UInt  last_atom_minus;
   UInt MaxDepth, MaxArgs;
-UInt trailings;
+int trailings;
   wtype lw;
 } wglbs;
 
@@ -1115,7 +1115,7 @@ wglb.trailings = 0;
 
    if ((flags & Handle_cyclics_f) ){
      HB = HR;
-     tp =  Yap_BreakCyclesInTerm(t PASS_REGS);
+     tp =  Yap_BreakCyclesInTerm(t, &wglb.trailings PASS_REGS);
    } else {
      tp = t;
    }
@@ -1143,10 +1143,10 @@ Term d1 = TrailTerm(--TR);
 /* AbsAppl means */
 /* multi-assignment variable */
 /* so the next cell is the old value */
-#ifdef FROZEN_STACKS
+#ifndef FROZEN_STACKS
     pt[0] = TrailVal(TR);
 #else
-    pt[0] = TrailTerm(TR - 1);
+    pt[0] = TrailVal(TR - 1);
 TR--;
 #endif /* FROZEN_STACKS */
 
