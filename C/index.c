@@ -978,9 +978,9 @@ static void copy_back(ClauseDef *dest, CELL *pt, int max) {
 static void sort_group(GroupDef *grp, CELL *top, struct intermediates *cint) {
   int max = (grp->LastClause - grp->FirstClause) + 1, i;
   CELL *pt, *base;
-
+    int lvl = push_text_stack();
 #if USE_SYSTEM_MALLOC
-  if (!(base = (CELL *)Yap_AllocCodeSpace(2 * max * sizeof(CELL)))) {
+  if (!(base = Malloc(2 * max * sizeof(CELL)))) {
     CACHE_REGS
     save_machine_regs();
     LOCAL_Error_Size = 2 * max * sizeof(CELL);
@@ -1000,14 +1000,15 @@ static void sort_group(GroupDef *grp, CELL *top, struct intermediates *cint) {
   pt = base;
   /* initialize vector */
   for (i = 0; i < max; i++) {
-    *pt = i;
+    pt[0] = i;
+    pt[1]  = 0;
     pt += 2;
   }
 #define M_EVEN 0
   msort(grp->FirstClause, base, max, M_EVEN);
   copy_back(grp->FirstClause, base, max);
 #if USE_SYSTEM_MALLOC
-  Yap_FreeCodeSpace((ADDR)base);
+    pop_text_stack(lvl);
 #endif
 }
 

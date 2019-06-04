@@ -247,17 +247,19 @@ vxu    `on` consider `$` a lower case character.
    
  /**< `gc`
 
-    If `on` allow garbage collection (default), if `off` disable it.
+    If `false` allow garbage collection (default), if `false` disable it.
  */
-  YAP_FLAG(GC_FLAG, "gc", true, booleanFlag, "on", NULL),
+  YAP_FLAG(GC_FLAG, "gc", true, booleanFlag, "true", NULL),
    
  /**< `gc_margin `
 
     Set or show the minimum free stack before starting garbage
-    collection. The default depends on total stack size.
+    collection. The default is 0, in this case it depends on total stack size.
+
+    If set to `[]` or other non-integer, it disables garbage collection.
 
  */
-  YAP_FLAG(GC_MARGIN_FLAG, "gc_margin", true, nat, "0", gc_margin),
+  YAP_FLAG(GC_MARGIN_FLAG, "gc_margin", true, nat, "4096", gc_margin),
    
  /**<
      *

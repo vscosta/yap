@@ -306,9 +306,9 @@ groundVecGreatThanVec([Xi|GroundVec],[Yi|Vec],I,Last,Clause,Cnf):-
        (I<Last ->
            groundVecGreatThanVec(GroundVec,Vec,I1,Last,[-Yi|Clause],Cnf)
        ;
+    ).
            Cnf=[[-Yi|Clause]]
        )
-    ).
 groundVecGreatThanVec([],[],_I,_Last,Clause,[Clause]):-!.
 
 

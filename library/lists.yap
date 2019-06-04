@@ -1,5 +1,5 @@
 /**
- * @file   library/lists.yap
+ * @file   libray/lists.yap
  * @author Bob Welham, Lawrence Byrd, and R. A. O'Keefe. Contributions from Vitor Santos Costa, Jan Wielemaker and others.
  * @date   1999
 */
@@ -41,7 +41,8 @@
 	   suffix/2,
 	   sum_list/2,
 	   sum_list/3,
-	   sumlist/2
+	   sumlist/2,
+	   randomize/2
 	  ]).
 
 
@@ -638,6 +639,10 @@ close_list([]) :- !.
 close_list([_|T]) :-
 	close_list(T).
 
+/** randomize( +List, -RandomList).
+
+Create a "raandom" peermutation of a list. The initial list may have repeated
+elements,
 
 %% @}
 /** @} */

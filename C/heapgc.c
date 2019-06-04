@@ -4193,12 +4193,14 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   Int    effectiveness = 0;
   int    gc_on = FALSE, gc_t = FALSE;
 
-  if (Yap_GetValue(AtomGc) != TermNil)
-    gc_on = false;
-  if (IsIntegerTerm(Tgc_margin = Yap_GetValue(AtomGcMargin)) &&
+  if (trueGlobalPrologFlag(GC_FLAG) &&  IsIntTerm(getAtomicGlobalPrologFlag(GC_MARGIN_FLAG)))
+    gc_on = true;
+  else
+      gc_on = false;
+  if (IsIntegerTerm(Tgc_margin = getAtomicGlobalPrologFlag(GC_MARGIN_FLAG)) &&
       gc_margin > 0) {
     gc_margin = (UInt)IntegerOfTerm(Tgc_margin);
-    gc_t = TRUE;
+    gc_t = true;
   } else {
     /* only go exponential for the first 6 calls, that would ask about 2MB minimum */
     if (LOCAL_GcCalls < 8)
