@@ -398,18 +398,18 @@ be lost.
 
 
 '$creep'([M|Q]) :-
-'$yap_strip_module'(G,M,Q),
-'$current_choicepoint'(CP),
-'$trace_goal'(Q, M, _GN, CP ).
+    '$yap_strip_module'(G,M,Q),
+    '$current_choicepoint'(CP),
+    '$trace_goal'(Q, M, _GN, CP ).
 
 
-'$creep'(G0, M0, _CP, GoalNumber) :-
-'$yap_strip_module'(M0:G0, M, G),    % spy a literal
-     '$trace_goal'(G, M, GoalNumber, CP),
-     '$continue_debugging'(answer).
+'$creep'(G0, M0, CP, GoalNumber) :-
+    '$yap_strip_module'(M0:G0, M, G),    % spy a literal
+    '$trace_goal'(G, M, GoalNumber, CP),
+    '$continue_debugging'(answer).
 
 
-%% @pred '$trace_goal'( +G, +M, +CP, +Expanded)
+%% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
 %
 % debug a complex query
 %
@@ -427,24 +427,24 @@ be lost.
 '$trace_goal'('$$cut_by'(M), _, _, _) :-
     !,
     '$$cut_by'(M).
-'$trace_goal'(M:G, _, S, CP) :-
+'$trace_goal'(M:G, _, GN, CP) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
-    '$trace_goal'(G0, M0, S, CP ).
-'$trace_goal'((A,B), M, S, CP) :- !,
-    '$trace_goal'(A, M, S, CP),
-    '$trace_goal'(B, M, _S, CP).
-'$trace_goal'((A->B), M, S, CP) :- !,
-    ('$trace_goal'(A, M, S, CP) ->
-    '$trace_goal'(B, M, _S, CP)).
-'$trace_goal'((A;B), M, S, CP) :- !,
-    ('$trace_goal'(A, M, S, CP);
-	'$trace_goal'(B, M, _S, CP)).
-'$trace_goal'((A|B), M, S, CP) :- !,
-    ('$trace_goal'(A, M, _S, CP);
-	'$trace_goal'(B, M, S, CP)).
-'$trace_goal'((\+ A), M, S, CP) :- !,
-    '$trace_goal'(A, M, S, CP).
+    '$trace_goal'(G0, M0, GN, CP ).
+'$trace_goal'((A,B), M, GN, CP) :- !,
+    '$trace_goal'(A, M, GN, CP),
+    '$trace_goal'(B, M, _GN, CP).
+'$trace_goal'((A->B), M, GN, CP) :- !,
+    ('$trace_goal'(A, M, GN, CP) ->
+    '$trace_goal'(B, M, _GN, CP)).
+'$trace_goal'((A;B), M, GN, CP) :- !,
+    ('$trace_goal'(A, M, GN, CP);
+	'$trace_goal'(B, M, _GN, CP)).
+'$trace_goal'((A|B), M, GN, CP) :- !,
+    ('$trace_goal'(A, M, _GN, CP);
+	'$trace_goal'(B, M, GN, CP)).
+'$trace_goal'((\+ A), M, GN, CP) :- !,
+    '$trace_goal'(A, M, GN, CP).
 '$trace_goal'(G, M, GoalNumber, CP) :-
     '$undefined'(G,M),
     !,
@@ -635,10 +635,10 @@ be lost.
 %   - abort always forwarded
 %   - redo resets the goal
 %   - fail gives up on the goal.
-'$TraceError'(abort, _G, _Module,  _GoalNumber, _H) :-
+'$TraceError'(abort, _G, _Module,  _GoalNumber, _CP) :-
     !,
     abort.
-'$TraceError'(error(event(fail),G0), _G, __Module, GoalNumber, _H) :-
+'$TraceError'(error(event(fail),G0), _G, __Module, GoalNumber, _CP) :-
     GoalNumber =< G0,
     !,
     fail.
@@ -815,7 +815,7 @@ be lost.
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
    '__NB_getval__'('$trace',Trace,fail),
     '$set_debugger_state'( leap, Goal, stop,Trace ).
-'$action'(z,_,_allNumber,_,_,_H) :- !,
+'$action'(z,_,_allNumber,_,_,_CP) :- !,
 	skip( debugger_input, 10),		% 'z		zip, fast leap
    '__NB_getval__'('$trace',Trace,fail),
 '$set_debugger_state'( zip, 0, stop, Trace).
