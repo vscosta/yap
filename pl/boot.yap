@@ -208,26 +208,26 @@ print_boot_message(Type,Error,Desc) :-
 :- c_compile('directives.yap').
 :- c_compile('init.yap').
 
-'$command'(C,VL,Pos,Con) :-
-	current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
-	 '$yap_strip_module'(C, EM, EG),
-   '$execute_command'(EG,EM,VL,Pos,Con,_Source).
-'$command'(C,VL,Pos,Con) :-
-	( (Con = top ; var(C) ; C = [_|_])  ->
-	  '$yap_strip_module'(C, EM, EG),
-	  '$execute_command'(EG,EM,VL,Pos,Con,C) ;
-	  % do term expansion
-	  '$expand_term'(C, Con, EC),
-	  ( nonvar(EC) ->
-	    '$yap_strip_module'(EC, EM2, EG2)
-	  ;
-	    '$yap_strip_module'(C, EM2, EG2)
-	  ),
-	  % execute a list of commands
-	  '$execute_commands'(EG2,EM2,VL,Pos,Con,_Source)
-	),
-	% succeed only if the *original* was at end of file.
-	  C == end_of_file.
+'$command'(C,M,VL,Pos,Con) :-
+    current_prolog_flag(strict_iso, true), !,      /* strict_iso on */
+    '$yap_strip_module'(M:C, EM, EG),
+    '$execute_command'(EG,EM,VL,Pos,Con,_Source).
+'$command'(C,M,VL,Pos,Con) :-
+    ( (Con = top ; var(C) ; C = [_|_])  ->
+      '$yap_strip_module'(M:C, EM, EG),
+      '$execute_command'(EG,EM,VL,Pos,Con,C) ;
+      % do term expansion
+      '$expand_term'(C, Con, EC),
+      ( nonvar(EC) ->
+	'$yap_strip_module'(EC, EM2, EG2)
+      ;
+      '$yap_strip_module'(C, EM2, EG2)
+      ),
+      % execute a list of commands
+      '$execute_commands'(EG2,EM2,VL,Pos,Con,_Source)
+    ),
+    % succeed only if the *original* was at end of file.
+    C == end_of_file.
 
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.

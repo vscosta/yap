@@ -1700,7 +1700,6 @@ static Int p_nb_queue_dequeue(USES_REGS1) {
     return FALSE;
   out = HeadOfTerm(qd[QUEUE_HEAD]);
   qd[QUEUE_HEAD] = TailOfTerm(qd[QUEUE_HEAD]);
-  /* garbage collection ? */
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsz - 1);
    qd[QUEUE_ARENA] = arena;
  return Yap_unify(out, ARG2);

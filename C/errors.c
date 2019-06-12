@@ -1249,8 +1249,9 @@ static Int is_atom(USES_REGS1) {
   return IsAtomTerm(t);
 }
 
-static Int must_be_callable(USES_REGS1) {
+static Int  must_be_callable(USES_REGS1) {
     Term mod = CurrentModule;
+    if (mod == 0) mod = TermProlog;
     Term G = Yap_StripModule(Deref(ARG1), &mod);
     // Term Context = Deref(ARG2);
     if (IsVarTerm(mod)) {
@@ -1358,3 +1359,4 @@ void Yap_InitErrorPreds(void) {
   Yap_InitCPred("is_atom", 1, is_atom, TestPredFlag);
   Yap_InitCPred("get_predicate_indicator", 4, get_predicate_indicator, 0);
 }
+

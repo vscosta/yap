@@ -85,7 +85,7 @@ live :-
     prompt1(' ?- '),
     '$read_toplevel'(Command, Varnames, Pos),
     ( '$pred_exists'('$init_debugger',prolog) -> '$init_debugger';true),
-   '$command'(Command, Varnames, Pos, top),
+   '$command'(Command, user, Varnames, Pos, top),
     current_prolog_flag(break_level, BreakLevel),
     (   BreakLevel\=0
     ->  true
@@ -137,17 +137,8 @@ live :-
  %
 
 '$execute_command'(C,_,_,_,_,Source) :-
-    var(C),
-    !,
-	'$do_error'(instantiation_error,meta_call(Source)).
-'$execute_command'(C,_,_,_,_top,Source) :-
-    number(C),
-    !,
-	'$do_error'(type_error(callable,C),meta_call(Source)).
- '$execute_command'(R,_,_,_,_top,Source) :-
-     db_reference(R),
-     !,
-	 '$do_error'(type_error(callable,R),meta_call(Source)).
+    must_be_callable(C),
+    fail.
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_,_) :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
@@ -772,8 +763,9 @@ Command = (H --> B) ->
   format(user_error, ' ~w failed.~n', [Command]).
 
 '$enter_command'(Stream, Mod, Status) :-
-    prompt1(': '), prompt(_,'     '),
-	Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
+    prompt1(': '),
+    prompt(_,'     '),
+    Options = [module(Mod), syntax_errors(dec10),variable_names(Vars), term_position(Pos)],
     (
       Status == top
     ->
@@ -781,7 +773,7 @@ Command = (H --> B) ->
     ;
       read_clause(Stream, Command, Options)
     ),
-    '$command'(Command,Vars,Pos, Status) .
+    '$command'(Command,Mod,Vars,Pos, Status) .
 
 /** @pred  user:expand_term( _T_,- _X_) is dynamic,multifile.
 

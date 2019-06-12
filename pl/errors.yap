@@ -9,11 +9,17 @@
 **************************************************************************
 *									 *
 * File:		errors.yap						 *
-  * comments:	error messages for YAP					 *
+* comments:	error messages for YAP					 *
 *									 *
 *									 *
 *									 *
 *************************************************************************/
+
+/**
+ @file: pl/errors.yap
+
+ @brief YAP error handler
+*/
 
 
 /** @defgroup YAPErrorHandler Error Handling

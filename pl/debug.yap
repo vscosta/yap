@@ -471,9 +471,9 @@ be lost.
      ).
 '$trace_goal'(G,M, GoalNumber, CP) :-
     '$enter_trace'(GoalNumber, G, M, H),
-     catch('$trace_goal_'(G,M, GoalNumber, CP,H),
+     catch('$trace_goal_'(G,M, GoalNumber, _CP,H),
       Error,
-     '$TraceError'(Error, G, M, GoalNumber, H)
+     '$TraceError'(Error, GoalNumber, G, M, H)
        ).
 
 '$trace_goal_'(G,M, GoalNumber, _CP, H) :-
@@ -601,7 +601,8 @@ be lost.
     '$trace_port_'(Port, GoalNumber, G, Module, Info).
 
 '$trace_port_'(_, _GoalNumber, _G, _Module, _Info) :-
-    current_prolog_flag(debug,false).
+    current_prolog_flag(debug,false),
+    !.
 '$trace_port_'(_, GoalNumber, _G, _Module, _Info) :-
     '$get_debugger_state'( creep, leap ),
     '$get_debugger_state'( goal_number, G0 ),
@@ -623,9 +624,10 @@ be lost.
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_Imfo) :- /* inform user_error		*/
     !.
 '$trace_port_'(exception(E), GoalNumber, G, Module, Info) :-
-    '$TraceError'(E, GoalNumber, G, Module, Info).
+    '$port'(exception(E),G,Module,GoalNumber,deterministic, Info). /* inform user_error		*/
 '$trace_port_'(external_exception(E), GoalNumber, G, Module, Info) :-
-    '$TraceError'(E, GoalNumber, G, Module, Info).
+    '$port'(extern_exception(E),G,Module,GoalNumber,deterministic, Info). /* inform user_error		*/
+
 
 
 %%% - abort: forward throw while the call is newer than goal
@@ -635,20 +637,20 @@ be lost.
 %   - abort always forwarded
 %   - redo resets the goal
 %   - fail gives up on the goal.
-'$TraceError'(abort, _G, _Module,  _GoalNumber, _H) :-
+'$TraceError'(abort,  _GoalNumber, _G, _Module, _H) :-
     !,
     abort.
-'$TraceError'(error(event(fail),G0), _G, __Module, GoalNumber, _H) :-
-    GoalNumber =< G0,
+'$TraceError'(error(event(fail),G0), GoalNumber, _G, __Module, _H) :-
+    GoalNumber < G0,
     !,
     fail.
-'$TraceError'(error(event(redo),G0), G, M, GoalNumber, H) :-
-    GoalNumber =< G0,
+'$TraceError'(error(event(redo),G0), GoalNumber, G, M, H) :-
+    GoalNumber < G0,
     !,
     catch(
         '$trace_goal'(G, M, GoalNumber, H),
         E,
-        '$TraceError'(E, G, M, GoalNumber, H)
+        '$TraceError'(E, GoalNumber, G, M, H)
     ).
 %'$TraceError'( error(Id,Info), _, _, _, _) :-
 %    !,
@@ -659,19 +661,8 @@ be lost.
     throw(Event).
 %%% - anything else, leave to the user and restore the catch
 '$TraceError'(Event, GoalNumber, G, Module, Info) :-
-    '$debug_error'(Event),
-    '$system_catch'(
-	('$port'(exception(Event),G,Module,GoalNumber,_),fail),
-	Module,
-	Error,
-	'$TraceError'(Error, GoalNumber, G, Module, Info)
-    ).
-
-
-'$debug_error'(Event) :-
-    '$Error'(Event), fail.
-'$debug_error'(_).
-
+    '$reenter_debugger'(exception(Event)),
+    '$trace_port_'(exception(Event),G,Module,GoalNumber,Info).
 
 % just fail here, don't really need to call debugger, the user knows what he
 % wants to do

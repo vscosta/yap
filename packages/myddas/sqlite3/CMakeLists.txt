@@ -18,7 +18,7 @@
 
   #sqlite3 is now in the system
 
-  set (SQLITE3_FOUND ON CACHE . YYES  )
+  set (SQLITE3_FOUND ON CACHE . YES  )
 
 set_property(DIRECTORY
         APPEND PROPERTY

@@ -347,12 +347,9 @@ with SICStus Prolog's initialization/1.
 
 
 */
-prolog_initialization(G) :- var(G), !,
-	'$do_error'(instantiation_error,initialization(G)).
-prolog_initialization(T) :- callable(T), !,
-	'$assert_init'(T).
-prolog_initialization(T) :-
-	'$do_error'(type_error(callable,T),initialization(T)).
+prolog_initialization(G) :- 
+    must_be_callable(G),
+    '$assert_init'(G).
 
 '$assert_init'(T) :- recordz('$startup_goal',T,_), fail.
 '$assert_init'(_).
