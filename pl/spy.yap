@@ -210,6 +210,7 @@ debug :-
     '__NB_getval__'('$trace',Trace, fail),
     ( Trace == on -> Creep = creep; Creep = zip ),
     '$set_debugger_state'( Creep, 0, stop, Trace ).
+
 nodebug :-
 	 set_prolog_flag(debug, false),
 	 '$init_debugger',

@@ -1379,6 +1379,11 @@ static Int execute_nonstop(USES_REGS1) {
     } else if (IsAtomTerm(t)) {
         Atom a = AtomOfTerm(t);
         pe = PredPropByAtom(a, mod);
+    } else if (IsPairTerm(t)) {
+        ARG1 = t;
+        ARG2 = (CurrentModule == 0 ? TermProlog : CurrentModule);
+        pe = PredPropByFunc(FunctorCsult, TermProlog);
+        arity = 2;
     } else if (IsApplTerm(t)) {
         register Functor f = FunctorOfTerm(t);
         register unsigned int i;
@@ -2434,26 +2439,17 @@ static Int set_debugger_state4(USES_REGS1) {
 
 static Int get_debugger_state4(USES_REGS1) {
     Term t1 = Deref(ARG1);
-    if (!IsVarTerm(t1)) {
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], t1))
             return false;
-    }
     t1 = Deref(ARG2);
-    if (!IsVarTerm(t1)) {
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_GOAL_NUMBER], t1))
             return false;
-    }
     t1 = Deref(ARG3);
-    if (!IsVarTerm(t1)) {
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_SPY], t1))
             return false;
-    }
     t1 = Deref(ARG4);
-    if (!IsVarTerm(t1)) {
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_TRACE_MODE], t1))
             return false;
-    }
-
     return true;
 }
 
