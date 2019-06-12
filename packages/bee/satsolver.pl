@@ -303,7 +303,7 @@ groundVecGreatThanVec([Xi|GroundVec],[Yi|Vec],I,Last,Clause,Cnf):-
        Cnf=[[-Yi|Clause]|MCnf],
        groundVecGreatThanVec(GroundVec,Vec,I1,Last,[Yi|Clause],MCnf)
     ;
-       (I<Last ->
+           (I<Last ->
            groundVecGreatThanVec(GroundVec,Vec,I1,Last,[-Yi|Clause],Cnf)
        ;
     ).
