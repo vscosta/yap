@@ -150,7 +150,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
         p = p->VarRight;
       }
     }
-    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
+    p = Malloc(sizeof(VarEntry));
     *op = p;
     p->VarLeft = p->VarRight = NULL;
     p->hv = hv;
@@ -158,7 +158,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
     p->VarRep = vat;
   } else {
     /* anon var */
-    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
+    p = Malloc(sizeof(VarEntry));
     p->VarLeft = LOCAL_AnonVarTable;
     LOCAL_AnonVarTable = p;
     p->VarRight = NULL;
@@ -449,10 +449,10 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
   }
   while (1) {
     Term *tp = (Term *)ParserAuxSp;
-    if (ParserAuxSp + 1 > LOCAL_TrailTop) {
-      syntax_msg("line %d: Trail Overflow", LOCAL_tokptr->TokLine);
-      FAIL;
-    }
+    /* if (ParserAuxSp + 1 > LOCAL_TrailTop) { */
+    /*   syntax_msg("line %d: Trail Overflow", LOCAL_tokptr->TokLine); */
+    /*   FAIL; */
+    /* } */
     *tp++ = Unsigned(ParseTerm(999, FailBuff, enc, cmod PASS_REGS));
     ParserAuxSp = (char *)tp;
     ++nargs;
@@ -915,6 +915,7 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   JMPBUFF FailBuff;
   yhandle_t sls = Yap_StartSlots();
   LOCAL_ErrorMessage = NULL;
+  ParserAuxSp = Malloc(1024*sizeof(Term));
   LOCAL_toktide = LOCAL_tokptr;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {

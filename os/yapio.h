@@ -72,7 +72,6 @@ extern Term Yap_Singletons(VarEntry *, Term);
 /* routines in scanner.c */
 extern TokEntry *Yap_tokenizer(struct stream_desc *, scanner_params *sp);
 extern void Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *);
-extern char *Yap_AllocScannerMemory(unsigned int);
 
 /* routines in iopreds.c */
 extern FILE *Yap_FileDescriptorFromStream(Term);

@@ -579,57 +579,6 @@ static TokEntry *TrailSpaceError__(TokEntry *t, TokEntry *l USES_REGS) {
   return l;
 }
 
-static void *InitScannerMemory(void) {
-  CACHE_REGS
-  LOCAL_ErrorMessage = NULL;
-  LOCAL_Error_Size = 0;
-  LOCAL_ScannerExtraBlocks = NULL;
-  LOCAL_ScannerStack = (char *)TR;
-  return (char *)TR;
-}
-
-static char *AllocScannerMemory(unsigned int size) {
-  CACHE_REGS
-  char *AuxSpScan;
-
-  AuxSpScan = LOCAL_ScannerStack;
-  size = AdjustSize(size);
-  if (LOCAL_ScannerExtraBlocks) {
-    struct scanner_extra_alloc *ptr;
-
-    if (!(ptr = (struct scanner_extra_alloc *)Malloc(
-              size + sizeof(ScannerExtraBlock)))) {
-      return NULL;
-    }
-    ptr->next = LOCAL_ScannerExtraBlocks;
-    LOCAL_ScannerExtraBlocks = ptr;
-    return (char *)(ptr + 1);
-  } else if (LOCAL_TrailTop <= AuxSpScan + size) {
-    UInt alloc_size = sizeof(CELL) * K16;
-
-    if (size > alloc_size)
-      alloc_size = size;
-    if (!Yap_growtrail(alloc_size, TRUE)) {
-      struct scanner_extra_alloc *ptr;
-
-      if (!(ptr = (struct scanner_extra_alloc *)Malloc(
-                size + sizeof(ScannerExtraBlock)))) {
-        return NULL;
-      }
-      ptr->next = LOCAL_ScannerExtraBlocks;
-      LOCAL_ScannerExtraBlocks = ptr;
-      return (char *)(ptr + 1);
-    }
-  }
-  LOCAL_ScannerStack = AuxSpScan + size;
-  return AuxSpScan;
-}
-
-char *Yap_AllocScannerMemory(unsigned int size) {
-  /* I assume memory has been initialized */
-  return AllocScannerMemory(size);
-}
-
 extern double atof(const char *);
 
 static Term float_send(char *s, int sign) {
@@ -989,6 +938,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
   } else {
     val = base;
     base = 10;
+    *chp = ch;
   }
   while (chtype(ch) == NU) {
     Int oval = val;
@@ -999,6 +949,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     }
     if (ch - '0' >= base) {
       CACHE_REGS
+      *chp = ch;
       if (sign == -1)
         return MkIntegerTerm(-val);
       return MkIntegerTerm(val);
@@ -1066,6 +1017,7 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
       }
       if (chtype(ch) != NU) {
         CACHE_REGS
+        *chp = ch;
         if (has_dot)
           return float_send(buf, sign);
         return MkIntegerTerm(sign * val);
@@ -1111,9 +1063,8 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   char *ptr;
   void *old_tr = TR;
 
-  InitScannerMemory();
   LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
-  if (!(ptr = AllocScannerMemory(4096))) {
+  if (!(ptr = Malloc(4096))) {
     LOCAL_ErrorMessage = "Trail Overflow";
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
     return 0;
@@ -1125,7 +1076,7 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   while (isspace(ch = getchr(inp)))
     ;
 #endif
-  TokEntry *tokptr = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+  TokEntry *tokptr = Malloc(sizeof(TokEntry));
   tokptr->TokLine = GetCurInpLine(inp);
   tokptr->TokPos = GetCurInpPos(inp);
   if (ch == '-') {
@@ -1326,7 +1277,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
   char *TokImage = Malloc(imgsz PASS_REGS);
   bool store_comments = params->store_comments;
 
-  InitScannerMemory();
   LOCAL_VarTable = NULL;
   LOCAL_AnonVarTable = NULL;
   l = NULL;
@@ -1342,10 +1292,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
   LOCAL_StartLinePos = st->linepos;
   do {
     int quote, isvar;
-    unsigned char *charp, *mp;
+    unsigned char *charp;
     size_t len;
 
-    t = (TokEntry *)AllocScannerMemory(sizeof(TokEntry));
+    t = Malloc(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
         return TrailSpaceError(p, l);
@@ -1406,7 +1356,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
         case LC:
             och = ch;
             ch = getchr(st);
-        scan_name:
         {
             charp = (unsigned char *) TokImage;
             isvar = (chtype(och) != LC);
@@ -1465,97 +1414,19 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
             cha = ch;
             cherr = 0;
             CHECK_SPACE();
-            if ((t->TokInfo = get_num(&cha, &cherr, st, sign, &TokImage, &imgsz)) == 0L) {
-                if (t->TokInfo == 0) {
+            TokImage[0] = '\0';
+            Term tknum = t->TokInfo = get_num(&cha, &cherr, st, sign, &TokImage, &imgsz);
+            ch = cha;
+            if ( tknum == 0L) {
                     p->Tok = eot_tok;
                     t->TokInfo = TermError;
-                }
                 /* serious error now */
                 return l;
-                ch = cha;
-                if (cherr) {
-                    TokEntry *e;
-                    t->Tok = Number_tok;
-                    t->TokPos = GetCurInpPos(st);
-                    t->TokLine = GetCurInpLine(st);
-                    e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
-                    if (e == NULL) {
-                        return TrailSpaceError(p, l);
-
-                    } else {
-                        e->TokNext = NULL;
-                    }
-                    t->TokNext = e;
-                    t = e;
-                    p = e;
-                    switch (cherr) {
-                        case 'e':
-                        case 'E':
-                            och = cherr;
-                            goto scan_name;
-                            break;
-                        case '=':
-                        case '_':
-                            /* handle error while parsing a float */
-                        {
-                            TokEntry *e2;
-
-                            t->Tok = Ord(Var_tok);
-                            t->TokInfo = (Term) Yap_LookupVar("E");
-                            t->TokPos = GetCurInpPos(st);
-                            t->TokLine = GetCurInpLine(st);
-                            e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
-                            if (e2 == NULL) {
-                                return TrailSpaceError(p, l);
-                            } else {
-                                e2->TokNext = NULL;
-                            }
-                            t->TokNext = e2;
-                            t = e2;
-                            p = e2;
-                            if (cherr == '=')
-                                och = '+';
-                            else
-                                och = '-';
-                        }
-                            goto enter_symbol;
-                        case '+':
-                        case '-':
-                            /* handle error while parsing a float */
-                        {
-                            TokEntry *e2;
-
-                            if (chtype(ch) == NU) {
-                                if (och == '-')
-                                    sign = -1;
-                                else
-                                    sign = 1;
-                                goto scan_number;
-                            }
-                            t->Tok = Name_tok;
-                            if (ch == '(')
-                                solo_flag = FALSE;
-                            t->TokInfo = MkAtomTerm(AtomE);
-                            t->TokLine = GetCurInpLine(st);
-                            t->TokPos = GetCurInpPos(st);
-                            e2 = (TokEntry *) Malloc(sizeof(TokEntry));
-                            if (e2 == NULL) {
-                                return CodeSpaceError(t, p, l);
-                            } else {
-                                e2->TokNext = NULL;
-                            }
-                            t->TokNext = e2;
-                            t = e2;
-                            p = e2;
-                        }
-                        default:
-                            och = cherr;
-                            goto enter_symbol;
-                    }
                 } else {
                     t->Tok = Ord(kind = Number_tok);
                 }
             }
+
             break;
 
             case QT:
@@ -1863,8 +1734,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
                 qq_t *qq = cur_qq;
                 if (!qq) {
                     LOCAL_ErrorMessage = "quasi quoted's || without {|";
-                    Yap_ReleasePreAllocCodeSpace((CODEADDR) TokImage);
-                    Free(cur_qq);
                     cur_qq = NULL;
                     t->Tok = Ord(kind = eot_tok);
                     t->TokInfo = TermError;
@@ -1908,15 +1777,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
                     }
                 }
                 len = charp - (unsigned char *) TokImage;
-                mp = malloc(len + 1);
-                if (mp == NULL) {
+                TokImage = Realloc(TokImage, len + 1);
+                if (TokImage == NULL) {
                     LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
                     t->Tok = Ord(kind = eot_tok);
                     t->TokInfo = TermOutOfHeapError;
                     return l;
                 }
-                strncpy((char *) mp, (const char *) TokImage, len + 1);
-                qq->text = (unsigned char *) mp;
+                qq->text = (unsigned char *) TokImage;
                 if (st->status & Seekable_Stream_f) {
                     qq->end.byteno = fseek(st->file, 0, 0);
                 } else {
@@ -1928,7 +1796,6 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
                 if (!(t->TokInfo)) {
                     return CodeSpaceError(t, p, l);
                 }
-                Yap_ReleasePreAllocCodeSpace((CODEADDR) TokImage);
                 solo_flag = FALSE;
                 ch = getchr(st);
                 break;
@@ -1949,10 +1816,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
             }
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermEof;
-        }
+
+
             if (LOCAL_ErrorMessage) {
                 /* insert an error token to inform the system of what happened */
-                TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
+                TokEntry *e = Malloc(sizeof(TokEntry));
                 if (e == NULL) {
                     return TrailSpaceError(p, l);
                 }
@@ -1965,8 +1833,8 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
                 LOCAL_ErrorMessage = NULL;
                 p = e;
             }
-    }
-  } while (kind != eot_tok);
+        }
+    } while (kind != eot_tok);
   return (l);
 }
 
