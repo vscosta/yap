@@ -1215,7 +1215,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
     fe->toklast = LOCAL_tokptr;
     LOCAL_tokptr = tokstart;
-    TR = (tr_fr_ptr)tokstart;
 #if EMACS
     first_char = tokstart->TokPos;
 #endif /* EMACS */
