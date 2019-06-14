@@ -423,8 +423,6 @@ do_learning_intern(Iterations,Epsilon) :-
 	->
 
 	  retractall(last_mse(_)),
-	  logger_get_variable(mse_trainingset,Current_MSE),
-	  assertz(last_mse(Current_MSE)),
 	  !,
 	  MSE_Diff is abs(Last_MSE-Current_MSE)
 	 ;
@@ -448,12 +446,13 @@ do_learning_intern(Iterations,Epsilon) :-
 	current_iteration(ThisCurrentIteration),
 	RemainingIterations is Iterations-ThisCurrentIteration,
 
-	(
-	 MSE_Diff>Epsilon
-	->
-	 do_learning_intern(RemainingIterations,Epsilon);
-	 true
-	).
+
+	MSE_Diff<Epsilon,
+	!.
+
+do_learning_intern(Iterations,Epsilon) :-
+    RemainingInteractions is Iterations-1,    
+    do_learning_intern(RemainingIterations,Epsilon).
 
 
 %========================================================================
