@@ -1661,19 +1661,21 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   } else {
     min_size = 0L;
   }
-  Term entry = MkPairTerm(Deref(ARG2), TermNil);
+   Term entry = MkPairTerm(Deref(ARG2), TermNil);
   to = CopyTermToArena(entry, FALSE, TRUE, 2, &arena,
                        min_size PASS_REGS);
-  if (to == 0L)
+    if (to == 0L) {
     return FALSE;
-  /* garbage collection ? */
-   qd = GetQueue(ARG1, "enqueue");
+
+    }
+    /* garbage collection ? */
+   qd = GetQueue(Deref(ARG1), "queue");
   qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
   qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsize + 1);
   if (qsize == 0) {
     qd[QUEUE_HEAD] = to;
 } else {
-    *(CELL *)(qd[QUEUE_TAIL]) = to;
+    qd[QUEUE_TAIL] = to;
   }
   qd[QUEUE_TAIL] = (CELL)(RepPair(to)+1);
   qd[QUEUE_ARENA] = arena;

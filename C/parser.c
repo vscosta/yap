@@ -418,19 +418,20 @@ static int get_quasi_quotation(term_t t, unsigned char **here,
 static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
                       encoding_t enc, Term cmod USES_REGS) {
   int nargs = 0;
-  Term *p = LOCAL_ParserAuxSp, t;
+  Int p;
+  Term t;
   Functor func;
 #ifdef SFUNC
   SFEntry *pe = (SFEntry *)Yap_GetAProp(a, SFProperty);
 #endif
 
   NextToken;
-    {
+    p = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
   if (arg1) {
       intptr_t diff = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
-    LOCAL_ParserAuxSp[diff] = arg1;
+    LOCAL_ParserAuxBase[p] = arg1;
     nargs++;
-    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+(diff+1);
+    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+(p+1);
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok) &&
         LOCAL_tokptr->TokInfo == close) {
 
@@ -439,13 +440,13 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
             syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
             FAIL;
         }
-    }
       t = Yap_MkApplTerm(func, nargs, LOCAL_ParserAuxSp+diff);
       if (HR > ASP - 4096) {
         syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
-        return TermNil;
+        FAIL;
       }
       NextToken;
+      LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+p;
       return t;
     }
   }
@@ -461,7 +462,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
         LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+off;
         LOCAL_ParserAuxMax = LOCAL_ParserAuxBase+sz;
     }
-    *tp++ = Unsigned(ParseTerm(999, FailBuff, enc, cmod PASS_REGS));
+    *tp++ = ParseTerm(999, FailBuff, enc, cmod PASS_REGS);
     LOCAL_ParserAuxSp = tp;
     ++nargs;
     if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok))
@@ -470,7 +471,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
       break;
     NextToken;
   }
-  LOCAL_ParserAuxSp = p;
+  LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+p;
   /*
    * Needed because the arguments for the functor are placed in reverse
    * order
@@ -491,13 +492,13 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
     t = Yap_MkApplTerm(Yap_MkFunctor(a, nargs), nargs, p);
 #else
   if (a == AtomDBref && nargs == 2)
-    t = MkDBRefTerm((DBRef)IntegerOfTerm(p[0]));
+    t = MkDBRefTerm((DBRef)IntegerOfTerm(LOCAL_ParserAuxBase[p]));
   else
-    t = Yap_MkApplTerm(func, nargs, p);
+    t = Yap_MkApplTerm(func, nargs, LOCAL_ParserAuxBase+p);
 #endif
   if (HR > ASP - 4096) {
     syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
-    return TermNil;
+    FAIL;
   }
   /* check for possible overflow against local stack */
   checkfor(close, FailBuff, enc PASS_REGS);
