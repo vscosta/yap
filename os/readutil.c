@@ -32,7 +32,7 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   StreamDesc *st = GLOBAL_Stream + sno;
   Int status;
-  UInt max_inp, buf_sz, sz;
+  size_t  buf_sz, sz;
   unsigned char *buf;
   bool binary_stream;
   int ch;
@@ -45,19 +45,14 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
     UNLOCK(GLOBAL_Stream[sno].streamlock);
     return Yap_unify_constant(ARG2, MkAtomTerm(AtomEof));
   }
-  max_inp = (ASP - HR) / 2 - 1024;
-  buf = (unsigned char *)TR;
-  buf_sz = (unsigned char *)LOCAL_TrailTop - buf;
+          buf = Malloc(4096);
+  buf_sz = 4096;
   while (true) {
-    if (buf_sz > max_inp) {
-      buf_sz = max_inp;
-    }
     if (do_as_binary && !binary_stream) {
       GLOBAL_Stream[sno].status |= Binary_Stream_f;
     }
     if (st->status & Binary_Stream_f) {
-      char *b = (char *)TR;
-      sz = fread(b, 1, buf_sz, GLOBAL_Stream[sno].file);
+      sz = fread(buf, 1, buf_sz, GLOBAL_Stream[sno].file);
     } else {
       unsigned char *pt = buf;
       do {
@@ -103,16 +98,10 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
       else
         end = Deref(XREGS[arity]);
       return Yap_unify(
-          ARG2, Yap_UTF8ToDiffListOfCodes((const char *)TR, end PASS_REGS));
+          ARG2, Yap_UTF8ToDiffListOfCodes(buf, end PASS_REGS));
      }
-    buf += (buf_sz - 1);
-    max_inp -= (buf_sz - 1);
-    if (max_inp <= 0) {
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
-      PlIOError(RESOURCE_ERROR_STACK, ARG1, "read_line_to_codes/%d", arity);
-      return FALSE;
-    }
-  }
+
+   }
 }
 
 static Int read_line_to_codes(USES_REGS1) {

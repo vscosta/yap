@@ -2,10 +2,9 @@
 #TODO: improve FindGecode.cmake to be similar to other Find*.cmake
 #CHECK: GECODE
 
-if (APPLE)
-  find_package (Gecode )
-  endif()
+
 find_package (Gecode)
+
 
 if (GECODE_FOUND)
   #DEFINES:
@@ -37,12 +36,12 @@ if (GECODE_FOUND)
 
   add_library(gecode_yap  ${GECODE_SOURCES})
 
-  target_link_libraries(gecode_yap libYap ${Gecode_LIBRARIES})
+  target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
 
   set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
 
 
-  include_directories (${Gecode_INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
+  include_directories (${GECODE_INCLUDE_DIR} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/${GECODE_VERSION})
 
   install(TARGETS  gecode_yap
           LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}

@@ -2,12 +2,15 @@
 
 if(APPLE)
 
-  find_library(GECODE_LIBRARY gecode)
+  find_library(GECODE_LIBRARIES gecode)
 
   if(GECODE_LIBRARIES MATCHES ".*\\.framework")
+    find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh
+            )
+    find_file(GECODE_CONFIG gecode/support/config.hpp)
 
     set(GECODE_FOUND ON)
-    set(GECODE_INCLUDE_DIR "${GECODE_LIBRARIES}/Headers" CACHE PATH "gecode include directory")
+
   endif()
 endif()
   #Works under the assumption than when gecode is installed at least the kernel component exists
@@ -16,8 +19,9 @@ if (NOT GECODE_INCLUDE_DIR)
 find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh )
 find_library(GECODE_LIBRARY NAMES gecodekernel)
 find_library(GECODE_SUPPORT_LIBRARY NAMES gecodesupport)
-  endif()
 find_file(GECODE_CONFIG gecode/support/config.hpp)
+
+endif()
 # Look for the library
 
 if(GECODE_CONFIG)
