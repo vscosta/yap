@@ -820,6 +820,7 @@ loop:
         ++pt0;
         continue;
       }
+
       if (IsAtomOrIntTerm(Deref(ap2[0])) && IsPairTerm(Deref(ap2[1]))) {
         /* shortcut for [1,2,3,4,5] */
         Term tt = Deref(ap2[1]);
