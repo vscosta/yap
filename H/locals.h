@@ -148,6 +148,12 @@ LOCAL_INIT(ADDR, db_vec0, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_root, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_nil, NULL);
 
+
+/* parser stack, used to be AuxSp, now is Malloc */
+LOCAL( CELL *, ParserAuxSp);
+LOCAL( CELL *, ParserAuxMax);
+LOCAL( CELL *, ParserAuxBase);
+
 LOCAL(sigjmp_buf , gc_restore);
 LOCAL(CELL *, extra_gc_cells);
 LOCAL(CELL *, extra_gc_cells_base);

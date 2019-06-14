@@ -59,7 +59,7 @@ static void AdjustTrail(bool, bool CACHE_TYPE);
 static void AdjustLocal(bool CACHE_TYPE);
 static void AdjustGlobal(Int, bool CACHE_TYPE);
 static void AdjustGrowStack( CACHE_TYPE1 );
-static int  static_growheap(size_t,bool,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE);
+static int  static_growheap(size_t,bool,struct intermediates * CACHE_TYPE);
 static void cpcellsd(CELL *, CELL *, CELL);
 static CELL AdjustAppl(CELL CACHE_TYPE);
 static CELL AdjustPair(CELL CACHE_TYPE);
@@ -804,7 +804,7 @@ Yap_AdjustRegs(int n)
 
 /* Used by do_goal() when we're short of heap space */
 static int
-static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+static_growheap(size_t esize, bool fix_code, struct intermediates *cip USES_REGS)
 {
   Int size = esize;
   UInt start_growth_time, growth_time;
@@ -857,18 +857,7 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip, tr_fr_pt
   } else {
     MoveGlobal( PASS_REGS1 );
   }
-  if (old_trp) {
-    tr_fr_ptr nTR;
-
-    AdjustScannerStacks(tksp, vep PASS_REGS);
-    nTR = TR;
-    *old_trp = PtoTRAdjust(*old_trp);
-    TR = *old_trp;
-    AdjustStacksAndTrail(0, FALSE PASS_REGS);
-    TR = nTR;
-  } else {
-    AdjustStacksAndTrail(0, FALSE PASS_REGS);
-  }
+  AdjustStacksAndTrail(0, FALSE PASS_REGS);
   AdjustRegs(MaxTemps PASS_REGS);
   ASP += 256;
   if (minimal_request)
@@ -1267,7 +1256,7 @@ fix_tabling_info( USES_REGS1 )
 #endif /* TABLING */
 
 static int
-do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+do_growheap(int fix_code, UInt in_size, struct intermediates *cip  USES_REGS)
 {
   unsigned long size = sizeof(CELL) * K16;
   int shift_factor = (LOCAL_heap_overflows > 8 ? 8 : LOCAL_heap_overflows);
@@ -1285,7 +1274,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
       size = YAP_ALLOC_SIZE;
     sz = AdjustPageSize(GLOBAL_SizeOfOverflow);
   }
-  while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep PASS_REGS)) {
+  while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip PASS_REGS)) {
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
@@ -1459,7 +1448,7 @@ Yap_locked_growheap(bool fix_code, size_t in_size, void *cip)
   P = Yap_Error(RESOURCE_ERROR_HEAP,TermNil,"malloc failed");
   res = FALSE;
 #else
-  res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
+  res=do_growheap(fix_code, in_size, (struct intermediates *)cip PASS_REGS);
 #endif
   LeaveGrowMode(GrowHeapMode);
 #ifdef THREADS
@@ -1477,12 +1466,12 @@ Yap_growheap(bool fix_code, size_t in_size, void *cip)
 }
 
 int
-Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+Yap_growheap_in_parser(void)
 {
     CACHE_REGS
   int res;
 
-  res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep PASS_REGS);
+  res=do_growheap(FALSE, 0L, NULL PASS_REGS);
   LeaveGrowMode(GrowHeapMode);
   return res;
 }
@@ -1558,7 +1547,7 @@ Yap_growstack(size_t size)
 }
 
 static int
-execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+execute_growstack(size_t esize0, bool from_trail, bool in_parser USES_REGS)
 {
   UInt minimal_request = 0L;
   Int size0 = esize0;
@@ -1616,35 +1605,14 @@ execute_growstack(size_t esize0, bool from_trail, bool in_parser, tr_fr_ptr *old
     /* That is done by realloc */
     MoveGlobal( PASS_REGS1 );
 #endif
-    if (in_parser) {
-      tr_fr_ptr nTR;
-
-      AdjustScannerStacks(tksp, vep PASS_REGS);
-      nTR = TR;
-      *old_trp = PtoTRAdjust(*old_trp);
-      TR = *old_trp;
       AdjustStacksAndTrail(0, FALSE PASS_REGS);
-      TR = nTR;
-    } else {
-      AdjustStacksAndTrail(0, FALSE PASS_REGS);
-    }
     AdjustRegs(MaxTemps PASS_REGS);
 #ifdef TABLING
     fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   } else if (LOCAL_LDiff) {
-    if (in_parser) {
-      tr_fr_ptr nTR;
-
-      AdjustScannerStacks(tksp, vep PASS_REGS);
-      nTR = TR;
-      *old_trp = PtoTRAdjust(*old_trp);
-      TR = *old_trp;
       AdjustGrowStack( PASS_REGS1 );
-      TR = nTR;
-    } else {
-      AdjustGrowStack( PASS_REGS1 );
-    }
+ 
     AdjustRegs(MaxTemps PASS_REGS);
 #ifdef TABLING
     fix_tabling_info( PASS_REGS1 );
@@ -1683,7 +1651,7 @@ growstack(size_t size USES_REGS)
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
     fprintf(stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n", (UInt) size);
   }
-  if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
+  if (!execute_growstack(size, FALSE, FALSE PASS_REGS))
     return FALSE;
   growth_time = Yap_cputime()-start_growth_time;
   LOCAL_total_stack_overflow_time += growth_time;
@@ -1696,7 +1664,7 @@ growstack(size_t size USES_REGS)
 
 /* Used by parser when we're short of stack space */
 int
-Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+Yap_growstack_in_parser(void)
 {
   CACHE_REGS
   UInt size;
@@ -1721,7 +1689,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
     fprintf(stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
-  if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep PASS_REGS)) {
+  if (!execute_growstack(size, FALSE, TRUE PASS_REGS)) {
     LeaveGrowMode(GrowStackMode);
     return FALSE;
   }
@@ -1735,7 +1703,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   return TRUE;
 }
 
-static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
+static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser USES_REGS)
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
@@ -1778,7 +1746,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
     return FALSE;
   }
 #if USE_SYSTEM_MALLOC
-  execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
+  execute_growstack(size, TRUE, in_parser PASS_REGS);
 #else
   YAPEnterCriticalSection();
   if (!Yap_ExtendWorkSpace(size)) {
@@ -1789,7 +1757,7 @@ static int do_growtrail(size_t esize, bool contiguous_only, bool in_parser, tr_f
       LOCAL_trail_overflows--;
       return FALSE;
     }
-    execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
+    execute_growstack(size, TRUE, in_parser PASS_REGS);
   } else {
     if (in_parser) {
       LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_XDiff = LOCAL_HDiff = LOCAL_GDiff0 = 0;
@@ -1817,7 +1785,7 @@ Yap_growtrail(size_t size, bool contiguous_only)
 {
   int rc;
   CACHE_REGS
-  rc = do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
+  rc = do_growtrail(size, contiguous_only, FALSE PASS_REGS);
   return rc;
 }
 
@@ -1826,14 +1794,14 @@ int
 Yap_locked_growtrail(size_t size, bool contiguous_only)
 {
   CACHE_REGS
-  return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
+  return do_growtrail(size, contiguous_only, FALSE PASS_REGS);
 }
 
 int
-Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+Yap_growtrail_in_parser(void)
 {
   CACHE_REGS
-  return do_growtrail(0, FALSE, TRUE, old_trp, tksp, vep PASS_REGS);
+  return do_growtrail(0, FALSE, TRUE PASS_REGS);
 }
 
 CELL **
@@ -1905,7 +1873,7 @@ p_growheap( USES_REGS1 )
   if (diff < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
   }
-  return(static_growheap(diff, FALSE, NULL, NULL, NULL, NULL PASS_REGS));
+  return(static_growheap(diff, FALSE, NULL PASS_REGS));
 }
 
 static Int

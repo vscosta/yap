@@ -362,7 +362,7 @@ static Int scan_to_list(USES_REGS1)
   tout = scanToList(tok, NULL);
   if (tout == 0)
     return false;
-  Yap_clean_tokenizer(tok, LOCAL_VarTable, LOCAL_AnonVarTable);
+  Yap_clean_tokenizer();
 
   return Yap_unify(ARG2, tout);
 }
@@ -523,7 +523,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     TokEntry *tokstart; /// the token list
     TokEntry *toklast; /// the last token
     CELL *old_H;       /// initial H, will be reset on stack overflow.
-    tr_fr_ptr old_TR;  /// initial TR
     xarg *args;        /// input args
     bool reading_clause; /// read_clause
     size_t nargs;      /// arity of current procedure
@@ -742,11 +741,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       PUSHFET(scanner.tposOUTPUT);
     PUSHFET(t);
     HR = fe->old_H;
-    TR = (tr_fr_ptr)LOCAL_ScannerStack;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
-    Yap_growstack_in_parser(&fe->old_TR, &tokstart, &LOCAL_VarTable);
-    LOCAL_ScannerStack = (char*)TR;
-    TR = fe->old_TR;
+    Yap_growstack_in_parser();
     POPFET(t);
     POPFET(vprefix);
     POPFET(np);
@@ -912,7 +908,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     else
       vc = 0L;
     fe->scanner.tposOUTPUT = get_stream_position(fe, tokstart);
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer();
     free(fe->args);
 
     // trail must be ok by now.]
@@ -952,7 +948,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       v_pos = get_stream_position(fe, tokstart);
     else
       v_pos = 0L;
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer();
     free(fe->args);
     // trail must be ok by now.]
     if (fe->t)
@@ -989,7 +985,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         if (fe->msg && !strcmp(fe->msg, "Abort"))
           {
             fe->t = 0L;
-            Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+            Yap_clean_tokenizer();
             return YAP_PARSING_FINISHED;
           }
         // a :- <eof>
@@ -1007,8 +1003,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       {
         // <eof>
         // return end_of_file
-        TR = (tr_fr_ptr)tokstart;
-        Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+        Yap_clean_tokenizer();
         fe->t = MkAtomTerm(AtomEof);
         if (fe->np && !Yap_unify(TermNil, fe->np))
           fe->t = 0;
@@ -1032,7 +1027,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
                                    bool clause)
   {
     LOCAL_ErrorMessage = NULL;
-    fe->old_TR = TR;
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     LOCAL_SourceFileName = GLOBAL_Stream[inp_stream].name;
     LOCAL_eot_before_eof = false;
@@ -1215,7 +1209,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     fe->t = Yap_Parse(re->prio, fe->enc, fe->cmod);
     fe->toklast = LOCAL_tokptr;
     LOCAL_tokptr = tokstart;
-    TR = (tr_fr_ptr)tokstart;
 #if EMACS
     first_char = tokstart->TokPos;
 #endif /* EMACS */
@@ -1241,12 +1234,12 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
  */
   Term Yap_read_term(int sno, Term opts, bool clause)
   {
+    yap_error_descriptor_t *new = calloc(1, sizeof *new);
 #if EMACS
     int emacs_cares = FALSE;
 #endif
     int lvl = push_text_stack();
     Term rc;
-    yap_error_descriptor_t *new = malloc(sizeof *new);
     FEnv *fe = Malloc(sizeof *fe);
     REnv *re = Malloc(sizeof *re);
     bool err = Yap_pushErrorContext(true, new);
@@ -1262,8 +1255,8 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
             if (state == YAP_PARSING_FINISHED)
               {
                 Yap_PopHandle(yopts);
-		pop_text_stack(lvl);
                 Yap_popErrorContext(err, true);
+		pop_text_stack(lvl);
                 return 0;
               }
             break;
@@ -1301,9 +1294,9 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
             first_char = tokstart->TokPos;
 #endif /* EMACS */
 	    rc = fe->t;
-            pop_text_stack(lvl);
             Yap_popErrorContext(err, true);
 	    Yap_PopHandle(yopts);
+            pop_text_stack(lvl);
             return rc;
           }
           }

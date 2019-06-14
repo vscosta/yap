@@ -196,16 +196,16 @@ class DeclsLoader(object):
 
 class PredGenerator(DeclsLoader):
 
-    OMIT = ()
+    OMIT = (
         # "VarBranchOptions",
         #     "ValBranchOptions",
-        #     "TieBreakVarBranch<IntVarBranch>",
-        #     "TieBreak<IntVarBranch>",
-        #     "TieBreak<FloatVarBranch>",
-        #     "TieBreak<SetVarBranch>",
-        #     "TieBreak<BoolVarBranch>",
-        #     "TieBreakVarBranchOptions",
-        #     "TieBreakVarBranch<SetVarBranch>")
+            "TieBreakVarBranch<IntVarBranch>",
+            "TieBreak<IntVarBranch>",
+            "TieBreak<FloatVarBranch>",
+            "TieBreak<SetVarBranch>",
+            "TieBreak<BoolVarBranch>",
+            "TieBreakVarBranchOptions",
+            "TieBreakVarBranch<SetVarBranch>")
 
     def __init__(self, filename):
         # type: (object) -> object

@@ -43,9 +43,6 @@ typedef struct AliasDescS {
 
 #define MAX_ISO_LATIN1 255
 
-/* parser stack, used to be AuxSp, now is ASP */
-#define ParserAuxSp LOCAL_ScannerStack
-
 typedef struct scanner_extra_params {
   Term tposINPUT, tposOUTPUT;
   Term backquotes, singlequotes, doublequotes;
@@ -71,7 +68,7 @@ extern Term Yap_Singletons(VarEntry *, Term);
 
 /* routines in scanner.c */
 extern TokEntry *Yap_tokenizer(struct stream_desc *, scanner_params *sp);
-extern void Yap_clean_tokenizer(TokEntry *, VarEntry *, VarEntry *);
+extern void Yap_clean_tokenizer(void);
 extern char *Yap_AllocScannerMemory(unsigned int);
 
 /* routines in iopreds.c */
@@ -112,9 +109,9 @@ extern Term Yap_WStringToListOfAtoms(wchar_t *);
 extern Atom Yap_LookupWideAtom(const wchar_t *);
 
 /* grow.c */
-extern int Yap_growheap_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
-extern int Yap_growstack_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
-extern int Yap_growtrail_in_parser(tr_fr_ptr *, TokEntry **, VarEntry **);
+extern int Yap_growheap_in_parser(void);
+extern int Yap_growstack_in_parser(void);
+extern int Yap_growtrail_in_parser(void);
 
 typedef enum mem_buf_source {
   MEM_BUF_MALLOC = 1,

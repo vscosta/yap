@@ -150,7 +150,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
         p = p->VarRight;
       }
     }
-    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
+    p = Malloc(sizeof(VarEntry));
     *op = p;
     p->VarLeft = p->VarRight = NULL;
     p->hv = hv;
@@ -158,7 +158,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
     p->VarRep = vat;
   } else {
     /* anon var */
-    p = (VarEntry *)Yap_AllocScannerMemory(sizeof(VarEntry));
+    p = Malloc(sizeof(VarEntry));
     p->VarLeft = LOCAL_AnonVarTable;
     LOCAL_AnonVarTable = p;
     p->VarRight = NULL;
@@ -418,27 +418,29 @@ static int get_quasi_quotation(term_t t, unsigned char **here,
 static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
                       encoding_t enc, Term cmod USES_REGS) {
   int nargs = 0;
-  Term *p, t;
+  Term *p = LOCAL_ParserAuxSp, t;
   Functor func;
 #ifdef SFUNC
   SFEntry *pe = (SFEntry *)Yap_GetAProp(a, SFProperty);
 #endif
 
   NextToken;
-  p = (Term *)ParserAuxSp;
+    {
   if (arg1) {
-    *p = arg1;
+      intptr_t diff = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
+    LOCAL_ParserAuxSp[diff] = arg1;
     nargs++;
-    ParserAuxSp = (char *)(p + 1);
+    LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+(diff+1);
     if (LOCAL_tokptr->Tok == Ord(Ponctuation_tok) &&
         LOCAL_tokptr->TokInfo == close) {
 
-      func = Yap_MkFunctor(a, 1);
-      if (func == NULL) {
-        syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
-        FAIL;
-      }
-      t = Yap_MkApplTerm(func, nargs, p);
+        func = Yap_MkFunctor(a, 1);
+        if (func == NULL) {
+            syntax_msg("line %d: Heap Overflow", LOCAL_tokptr->TokLine);
+            FAIL;
+        }
+    }
+      t = Yap_MkApplTerm(func, nargs, LOCAL_ParserAuxSp+diff);
       if (HR > ASP - 4096) {
         syntax_msg("line %d: Stack Overflow", LOCAL_tokptr->TokLine);
         return TermNil;
@@ -448,13 +450,19 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
     }
   }
   while (1) {
-    Term *tp = (Term *)ParserAuxSp;
-    if (ParserAuxSp + 1 > LOCAL_TrailTop) {
-      syntax_msg("line %d: Trail Overflow", LOCAL_tokptr->TokLine);
-      FAIL;
+    Term *tp = LOCAL_ParserAuxSp;
+    if (LOCAL_ParserAuxSp + 1 >= LOCAL_ParserAuxMax) {
+        size_t sz = LOCAL_ParserAuxMax-LOCAL_ParserAuxBase, off = LOCAL_ParserAuxSp-LOCAL_ParserAuxBase;
+        sz += 4096;
+        if ((LOCAL_ParserAuxBase = Realloc(LOCAL_ParserAuxBase, sz) )== NULL) {
+            syntax_msg("line %d: Parser Stack Overflow", LOCAL_tokptr->TokLine);
+            FAIL;
+        }
+        LOCAL_ParserAuxSp = LOCAL_ParserAuxBase+off;
+        LOCAL_ParserAuxMax = LOCAL_ParserAuxBase+sz;
     }
     *tp++ = Unsigned(ParseTerm(999, FailBuff, enc, cmod PASS_REGS));
-    ParserAuxSp = (char *)tp;
+    LOCAL_ParserAuxSp = tp;
     ++nargs;
     if (LOCAL_tokptr->Tok != Ord(Ponctuation_tok))
       break;
@@ -462,7 +470,7 @@ static Term ParseArgs(Atom a, Term close, JMPBUFF *FailBuff, Term arg1,
       break;
     NextToken;
   }
-  ParserAuxSp = (char *)p;
+  LOCAL_ParserAuxSp = p;
   /*
    * Needed because the arguments for the functor are placed in reverse
    * order
@@ -920,7 +928,8 @@ Term Yap_Parse(UInt prio, encoding_t enc, Term cmod) {
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
     LOCAL_ActiveError->errorMsg=NULL;
     LOCAL_ActiveError->errorMsgLen=0;
-
+                                                  LOCAL_ParserAuxSp = LOCAL_ParserAuxBase = Malloc(4096*sizeof(CELL));
+                                                  LOCAL_ParserAuxMax =   LOCAL_ParserAuxBase+4096;
     t = ParseTerm(prio, &FailBuff, enc, cmod PASS_REGS);
 #if DEBUG
     if (GLOBAL_Option['p' - 'a' + 1]) {

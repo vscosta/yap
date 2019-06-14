@@ -1661,14 +1661,9 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   } else {
     min_size = 0L;
   }
-  Term entry = AbsPair(HR);
-    HR[0] = Deref(ARG2);
-    RESET_VARIABLE(HR+1);
-    ARG3 = entry;
-    HR+=2;
-  to = CopyTermToArena(entry, FALSE, TRUE, 3, &arena,
+  Term entry = MkPairTerm(Deref(ARG2), TermNil);
+  to = CopyTermToArena(entry, FALSE, TRUE, 2, &arena,
                        min_size PASS_REGS);
-  HR -= 2;
   if (to == 0L)
     return FALSE;
   /* garbage collection ? */
@@ -1678,9 +1673,9 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   if (qsize == 0) {
     qd[QUEUE_HEAD] = to;
 } else {
-    *VarOfTerm(qd[QUEUE_TAIL]) = to;
+    *(CELL *)(qd[QUEUE_TAIL]) = to;
   }
-    qd[QUEUE_TAIL] = TailOfTerm(to);
+  qd[QUEUE_TAIL] = (CELL)(RepPair(to)+1);
   qd[QUEUE_ARENA] = arena;
  return TRUE;
 }
