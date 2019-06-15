@@ -553,6 +553,7 @@ static YAP_Bool gecode_constraint_assign_33(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_36(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -562,6 +563,7 @@ static YAP_Bool gecode_constraint_assign_36(void)
   assign(*space,X2,X3,X4);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_39(void)
 {
@@ -573,6 +575,7 @@ static YAP_Bool gecode_constraint_assign_39(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_42(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -582,6 +585,7 @@ static YAP_Bool gecode_constraint_assign_42(void)
   assign(*space,X2,X3,X4);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_45(void)
 {
@@ -593,6 +597,7 @@ static YAP_Bool gecode_constraint_assign_45(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_48(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -602,6 +607,7 @@ static YAP_Bool gecode_constraint_assign_48(void)
   assign(*space,X2,X3,X4);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_51(void)
 {
@@ -613,6 +619,7 @@ static YAP_Bool gecode_constraint_assign_51(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_54(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -622,6 +629,7 @@ static YAP_Bool gecode_constraint_assign_54(void)
   assign(*space,X2,X3,X4);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_58(void)
 {
@@ -664,6 +672,7 @@ static YAP_Bool gecode_constraint_assign_34(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_37(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -674,6 +683,7 @@ static YAP_Bool gecode_constraint_assign_37(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_40(void)
 {
@@ -686,6 +696,7 @@ static YAP_Bool gecode_constraint_assign_40(void)
   return TRUE;
 }
 
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_43(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -696,6 +707,7 @@ static YAP_Bool gecode_constraint_assign_43(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_46(void)
 {
@@ -707,7 +719,7 @@ static YAP_Bool gecode_constraint_assign_46(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
-
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_49(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -718,6 +730,7 @@ static YAP_Bool gecode_constraint_assign_49(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_52(void)
 {
@@ -729,7 +742,7 @@ static YAP_Bool gecode_constraint_assign_52(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
-
+#if TIE_BREAK
 static YAP_Bool gecode_constraint_assign_55(void)
 {
   GenericSpace* space = gecode_Space_from_term(YAP_ARG1);
@@ -740,6 +753,7 @@ static YAP_Bool gecode_constraint_assign_55(void)
   assign(*space,X2,X3,X4,X5);
   return TRUE;
 }
+#endif
 
 static YAP_Bool gecode_constraint_assign_35(void)
 {
