@@ -97,18 +97,23 @@ prolog:core_file_name(Name, Opts) -->
 				%
 % handle library(lists) or foreign(jpl)
 %
-'$file_name'(Name, Opts, E) -->
+'$file_name'(Name, _Opts, E) -->
     { Name =.. [Lib, P0] },
-    !,
-    { user:file_search_path(Lib, IDirs) },
-    { '$paths'(IDirs, Dir ) },
-    absf_trace('  ~w first', [Dir]),
-    '$file_name'(Dir, Opts, _),
-    '$dir',
-    { absf_trace('  ~w next', [P0]) },
-    '$cat_file_name'(P0, E).
+    { '$complex_file'(Lib, P0, E0) },
+    '$cat_file_name'(E0, E).
 '$file_name'(Name, _Opts, E) -->
     '$cat_file_name'(Name, E ).
+
+'$complex_file'(Lib, P0, E) :-
+    user:file_search_path(Lib, FLib),
+    atom(FLib),
+    '$complex_file'(FLib, P0, E).
+'$complex_file'(Lib, P0, E) :-
+    user:file_search_path(Lib, FLib),
+    FLib =..  [F2Lib,Extra],
+    '$complex_file'(F2Lib, Extra/P0, E).
+'$complex_file'(Lib, P0, Lib/P0).
+
     /*
     (
      {
