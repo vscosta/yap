@@ -213,7 +213,6 @@ debug :-
 
 nodebug :-
 	 set_prolog_flag(debug, false),
-	 '$init_debugger',
 	 '__NB_setval__'('$trace',off),
 	 print_message(informational,debug(off)).
 
@@ -230,6 +229,8 @@ Switches on the debugger and enters tracing mode.
 
 */
 trace :-
+	 '$init_debugger',
+	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
     print_message(informational,debug(trace)),
     set_prolog_flag(debug,true),
     '__NB_setval__'('$trace',on),
@@ -242,7 +243,6 @@ Ends tracing and exits the debugger. This is the same as
 nodebug/0.
  */
 notrace :-
-	'$init_debugger',
 	nodebug.
 
 /*-----------------------------------------------------------------------------
