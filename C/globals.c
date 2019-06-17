@@ -1661,8 +1661,7 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   } else {
     min_size = 0L;
   }
-   Term entry = MkPairTerm(Deref(ARG2), TermNil);
-  to = CopyTermToArena(entry, FALSE, TRUE, 2, &arena,
+   to = CopyTermToArena(Deref(ARG2), FALSE, TRUE, 2, &arena,
                        min_size PASS_REGS);
     if (to == 0L) {
     return FALSE;
