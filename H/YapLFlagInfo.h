@@ -112,14 +112,11 @@ Just fail
 /**<
    If bound, set the current working or type-in module to the argument,
    which must be an atom. If unbound, unify the argument with the current
-   working module.
+   type-in module, that is, with the module YAP will execute goals by default.
    
 */
   YAP_FLAG(TYPEIN_MODULE_FLAG, "typein_module", true, isatom, "user",
              typein),
-
-
-
 
 /**<
 

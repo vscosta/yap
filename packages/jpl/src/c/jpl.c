@@ -494,7 +494,7 @@ struct Hr_Table {
 	HrEntry	    **slots;	/* pointer to slot array */
 	};
 
-typedef	    intptr_t    pointer;	/* for JPL */
+typedef	    jobject    pointer;	/* for JPL */
 
 /*=== JNI constants: sizes of JNI primitive types ================================================== */
 
@@ -706,39 +706,15 @@ static bool	    jni_hr_del(JNIEnv*, pointer);
 
 static bool
 jni_tag_to_iref2(const char  *s, pointer *iref)
-{ if ( s[0] == 'J'
-       && s[1] == '#'
-       && isdigit(s[2])
-       && isdigit(s[3])
-       && isdigit(s[4])
-       && isdigit(s[5])
-       && isdigit(s[6])
-       && isdigit(s[7])
-       && isdigit(s[8])
-       && isdigit(s[9])
-       && isdigit(s[10])
-       && isdigit(s[11])
-       && isdigit(s[12])
-       && isdigit(s[13])
-       && isdigit(s[14])
-       && isdigit(s[15])
-       && isdigit(s[16])
-       && isdigit(s[17])
-       && isdigit(s[18])
-       && isdigit(s[19])
-       && isdigit(s[20])
-       && isdigit(s[21]))			 /* s is like 'J#01234567890123456789' */
-    { pointer r;
-      char *endptr;
+{ if ( s[0] == 'J' && s[1] == '#'
+      )			 /* s is like 'J#01234567890123456789' */
+    { int r;
 
-      r = strtoul(&s[2], &endptr, 10);
-      if ( endptr == s+22 )
-      { *iref = r;
-        return 1;
-      }
+      r = sscanf(&s[2], "%p#", iref);
+      return ( r > 0 );
     }
 
-  return 0;
+  return false;
 }
 
 
@@ -748,16 +724,8 @@ jni_tag_to_iref1(
     pointer		*iref
     )
     {
-
-	if (strlen(s) == 22)
-		{
 		return jni_tag_to_iref2(s,iref);
 		}
-	else
-		{
-		return 0;
-		}
-	}
 
 
 /* this now checks that the atom's name resembles a tag (PS 18/Jun/2004) */
@@ -772,8 +740,8 @@ jni_tag_to_iref(
 	}
 
 
-#define IREF_FMT "J#%020%" UXInt_F
-#define IREF_INTTYPE uintptr_t
+#define IREF_FMT "J#%p#"
+#define IREF_INTTYPE jobject
 
 static bool
 jni_iref_to_tag(
@@ -885,7 +853,7 @@ static bool
 		pl_wchar_t		*wp;
 		jsize			i;
 
-		if ( (wp=(pl_wchar_t*)malloc(sizeof(pl_wchar_t)*len)) == NULL) {
+		if ( (wp=(pl_wchar_t*)malloc(sizeof(pl_wchar_t)*(len+1))) == NULL) {
 		        (*env)->ReleaseStringChars(env,s,jcp);
 			return FALSE;
 		}
@@ -893,6 +861,7 @@ static bool
 			{
 			wp[i] = (pl_wchar_t)jcp[i];
 			}
+		wp[i] = '\0';
 		*a = PL_new_atom_wchars(len,wp); /* this works now */
 		free( wp);
 		}
@@ -918,11 +887,12 @@ static bool
 
 	if ( (cp=(unsigned char*)PL_atom_nchars(a,&len)) != NULL ) /* got 8-bit chars from trad atom */
 		{
-		jcp = (jchar*)malloc(sizeof(jchar)*len);
+		jcp = (jchar*)malloc(sizeof(jchar)*(len+1));
 		for ( i=0 ; i<len ; i++ )
 			{
 			jcp[i] = (jchar)cp[i]; /* widen */
 			}
+		jcp[i] = '\0';
 		*s = (*env)->NewString(env,jcp,(jsize)len);
 		free(jcp);
 		return TRUE;
@@ -1039,7 +1009,7 @@ jni_atom_freed(
       return TRUE; /* oughta log an error, at least the first time... */
     if ( jni_tag_to_iref( a, &iref) )	/* check format and convert digits to int if ok */
         {
-        sprintf( cs, IREF_FMT, (IREF_INTTYPE)iref);	/* reconstruct digits part of tag in cs */
+        sprintf( cs, IREF_FMT, iref);	/* reconstruct digits part of tag in cs */
         if ( strcmp(cp,cs) != 0 )	/* original digits != reconstructed digits? */
             {
 	      JPL_DEBUG(0, Sdprintf( "[JPL: garbage-collected tag '%s'=%lu is bogus (not canonical)]\n", cp, iref));
@@ -1865,13 +1835,14 @@ jni_create_jvm_c(
 
 		for ( i=0 ; jvm_dia[i]!=NULL ; i++ )
 			{
-			opt[optn++].optionString = jvm_dia[i];
+                opt[optn].extraInfo = NULL;
+                opt[optn++].optionString = jvm_dia[i];
 			}
 		jvm_aia = jvm_dia;
 		jvm_dia = NULL;
 		}
 
-    vm_args.nOptions = optn;
+    vm_args.nOptions = optn-1;
  /* vm_args.ignoreUnrecognized = TRUE; */
 
     return
@@ -4954,7 +4925,7 @@ JNIEXPORT jobject JNICALL
 
 	if ( jobj!=NULL && jni_object_to_iref(env,jobj,&iref) ) {
 		/* Sdprintf("jni_object_to_iref() done\n"); */
-		sprintf( abuf, IREF_FMT, (IREF_INTTYPE)iref);	/* oughta encapsulate this mapping... */
+		sprintf( abuf, IREF_FMT, iref);	/* oughta encapsulate this mapping... */
 		/* Sdprintf("sprintf() done\n"); */
 		return (*env)->NewStringUTF(env,abuf); /* a tag is always Latin-1 */
 	} else {

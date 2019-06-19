@@ -592,7 +592,6 @@ write_query_answer( Bindings ) :-
 '$call'(M:G,CP,G0,_M0) :- !,
 	expand_goal(M:G, NG),
 	must_be_callable(NG),
-
 	    '$yap_strip_module'(M:NG,NM,NC),
         '$call'(NC,CP,G0,NM).
 '$call'((X,Y),CP,G0,M) :- !,
@@ -665,7 +664,7 @@ write_query_answer( Bindings ) :-
 	  '$call'(X,CP,G0,M) ).
 '$call'(!, CP, _G0, _m) :- !,
 	'$$cut_by'(CP).
-'$call'(forall(X,Y), CP, _G0, _m) :- !,
+'$call'(forall(X,Y), CP, _G0, M) :- !,
 	\+ ('$call'(X, CP, G0, M),
 	     \+ '$call'(Y, CP, G0, M) ).
 '$call'(once(X), CP, G0, M) :- !,

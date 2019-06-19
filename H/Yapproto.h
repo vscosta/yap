@@ -385,6 +385,7 @@ extern void Yap_InitSignalCPreds(void);
 extern void *Yap_InitSignals(int wid);
 extern bool Yap_DisableInterrupts(int wid);
 extern bool Yap_EnableInterrupts(int wid);
+extern bool Yap_InitSIGSEGV(Term inp);
 
 extern void Yap_InitSockets(void);
 

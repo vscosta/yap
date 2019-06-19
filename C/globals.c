@@ -219,7 +219,7 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
   WORKER_REGS(wid)
   if (where == NULL || where == HR) {
           while (HR + size > ASP - 2*MIN_ARENA_SIZE) {
-      if (!Yap_gcl(size * sizeof(CELL), arity, ENV, P)) {
+      if (!Yap_dogc(0,NULL)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
@@ -1661,7 +1661,7 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   } else {
     min_size = 0L;
   }
-   to = CopyTermToArena(Deref(ARG2), FALSE, TRUE, 2, &arena,
+   to = CopyTermToArena(MkPairTerm(Deref(ARG2),MkVarTerm()), FALSE, TRUE, 2, &arena,
                        min_size PASS_REGS);
     if (to == 0L) {
     return FALSE;
@@ -1674,9 +1674,9 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
   if (qsize == 0) {
     qd[QUEUE_HEAD] = to;
 } else {
-    qd[QUEUE_TAIL] = to;
+    *VarOfTerm(qd[QUEUE_TAIL]) = to;
   }
-  qd[QUEUE_TAIL] = (CELL)(RepPair(to)+1);
+  qd[QUEUE_TAIL] = TailOfTerm(to);
   qd[QUEUE_ARENA] = arena;
  return TRUE;
 }
@@ -1812,7 +1812,7 @@ static Int p_nb_heap(USES_REGS1) {
   while ((heap = MkZeroApplTerm(
               Yap_MkFunctor(AtomHeap, 2 * hsize + HEAP_START + 1),
               2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    if (!Yap_gcl((2 * hsize + HEAP_START + 1) * sizeof(CELL), 2, ENV, P)) {
+    if (!Yap_dogc(0,NULL)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -2046,7 +2046,7 @@ static Int p_nb_beam(USES_REGS1) {
   while ((beam = MkZeroApplTerm(
               Yap_MkFunctor(AtomHeap, 5 * hsize + HEAP_START + 1),
               5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    if (!Yap_gcl((4 * hsize + HEAP_START + 1) * sizeof(CELL), 2, ENV, P)) {
+    if (!Yap_dogc(0,NULL)) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -2393,7 +2393,7 @@ restart:
   for (i = 0; i < qsz; i++) {
     if (HR > ASP - 1024) {
       HR = ho;
-      if (!Yap_gcl(((ASP - HR) - 1024) * sizeof(CELL), 2, ENV, P)) {
+      if (!Yap_dogc(0,NULL)) {
         Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return TermNil;
       }
