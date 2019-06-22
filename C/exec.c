@@ -1534,10 +1534,11 @@ static Int execute_depth_limit(USES_REGS1) {
 static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     int lval = 0, out;
     Int OldBorder = LOCAL_CBorder;
+    yhandle_t OldHandleBorder = LOCAL_HandleBorder;
     //   yap_error_descriptor_t *err_info= LOCAL_ActiveError;
     LOCAL_CBorder = LCL0 - ENV;
     LOCAL_MallocDepth = AllocLevel();
-    yhandle_t sls = Yap_CurrentSlot();
+    LOCAL_HandleBorder = Yap_CurrentSlot();
 
     sigjmp_buf signew, *sighold = LOCAL_RestartEnv;
     LOCAL_RestartEnv = &signew;
@@ -1562,7 +1563,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 LOCAL_Signals = 0;
                 CalculateStackGap(PASS_REGS1);
                 LOCAL_PrologMode = UserMode;
-                Yap_CloseSlots(sls);
+                Yap_CloseSlots(LOCAL_HandleBorder);
                 P = (yamop *) FAILCODE;
             }
                 break;
@@ -1580,17 +1581,18 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 P = (yamop *) FAILCODE;
                 LOCAL_PrologMode = UserMode;
                 LOCAL_DoingUndefp = false;
-                Yap_CloseSlots(sls);
+                Yap_CloseSlots(LOCAL_HandleBorder);
             }
                 break;
             case 3: { /* saved state */
                 // LOCAL_ActiveError = err_info;
                 pop_text_stack(i + 1);
                 LOCAL_CBorder = OldBorder;
-                LOCAL_RestartEnv = sighold;
+		LOCAL_HandleBorder = OldHandleBorder;
+		LOCAL_RestartEnv = sighold;
                 LOCAL_PrologMode = UserMode;
                 LOCAL_DoingUndefp = false;
-                Yap_CloseSlots(sls);
+                Yap_CloseSlots(LOCAL_HandleBorder);
                 return false;
             }
             case 4:
@@ -1601,14 +1603,15 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 while (B) {
                     LOCAL_ActiveError->errorNo = ABORT_EVENT;
                     pop_text_stack(i + 1);
-                    Yap_CloseSlots(sls);
+                    Yap_CloseSlots(LOCAL_HandleBorder);
                     Yap_JumpToEnv();
                 }
                 LOCAL_PrologMode = UserMode;
                 LOCAL_DoingUndefp = false;
                 P = (yamop *) FAILCODE;
-                LOCAL_RestartEnv = sighold;
-                Yap_CloseSlots(sls);
+		LOCAL_HandleBorder = OldHandleBorder;
+		LOCAL_RestartEnv = sighold;
+                Yap_CloseSlots(LOCAL_HandleBorder);
                 pop_text_stack(i + 1);
                 return false;
                 break;
@@ -1625,12 +1628,13 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 /* set stack */
                 Yap_JumpToEnv();
                 Yap_CloseTemporaryStreams();
-                Yap_CloseSlots(sls);
+                Yap_CloseSlots(LOCAL_HandleBorder );
                 ASP = (CELL *) PROTECT_FROZEN_B(B);
 
                 if (B == NULL || B->cp_b == NULL ||
                     (CELL *) (B->cp_b) > LCL0 - LOCAL_CBorder) {
-                    LOCAL_RestartEnv = sighold;
+		  LOCAL_HandleBorder = OldHandleBorder;
+		  LOCAL_RestartEnv = sighold;
                     LOCAL_CBorder = OldBorder;
                     pop_text_stack(i + 1);
                     return false;
@@ -1648,6 +1652,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
         CalculateStackGap(PASS_REGS1);
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
+    LOCAL_HandleBorder = OldHandleBorder;
     return out;
 }
 
