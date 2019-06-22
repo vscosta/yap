@@ -480,50 +480,6 @@ CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
   return 0;
 }
 
-Term
-Yap_CopyTerm(Term inp) {
-  CACHE_REGS
-    return CopyTerm(inp, 0, false, TRUE PASS_REGS);
-}
-
-Term
-Yap_CopyTermNoShare(Term inp) {
-  CACHE_REGS
-    return CopyTerm(inp, 0, FALSE, FALSE PASS_REGS);
-}
-
-static Int
-p_copy_term( USES_REGS1 )		/* copy term t to a new instance  */
-{
-  Term t = CopyTerm(ARG1, 2, false, TRUE PASS_REGS);
-  if (t == 0L)
-    return FALSE;
-  /* be careful, there may be a stack shift here */
-  return Yap_unify(ARG2,t);
-}
-
-static Int
-p_duplicate_term( USES_REGS1 )		/* copy term t to a new instance  */
-{
-  Term t = CopyTerm(ARG1, 2, FALSE, TRUE PASS_REGS);
-  if (t == 0L)
-    return FALSE;
-  /* be careful, there may be a stack shift here */
-  return Yap_unify(ARG2,t);
-}
-
-static Int
-p_copy_term_no_delays( USES_REGS1 )		/* copy term t to a new instance  */
-{
-  Term t = CopyTerm(ARG1, 2, TRUE, FALSE PASS_REGS);
-  if (t == 0L) {
-    return FALSE;
-  }
-  /* be careful, there may be a stack shift here */
-  return(Yap_unify(ARG2,t));
-}
-
-
 
 typedef struct bp_frame {
   CELL *start_cp;
@@ -2988,47 +2944,6 @@ void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
     Term cm = CurrentModule;
-  Yap_InitCPred("copy_term", 2, p_copy_term, 0);
-  /** @pred  copy_term(? _TI_,- _TF_) is iso
-
-
-      Term  _TF_ is a variant of the original term  _TI_, such that for
-      each variable  _V_ in the term  _TI_ there is a new variable  _V'_
-      in term  _TF_. Notice that:
-
-      + suspended goals and attributes for attributed variables in _TI_ are also duplicated;
-      + ground terms are shared between the new and the old term.
-
-      If you do not want any sharing to occur please use
-      duplicate_term/2.
-
-
-  */
-  Yap_InitCPred("duplicate_term", 2, p_duplicate_term, 0);
-  /** @pred  duplicate_term(? _TI_,- _TF_)
-
-
-      Term  _TF_ is a variant of the original term  _TI_, such that
-      for each variable  _V_ in the term  _TI_ there is a new variable
-      _V'_ in term  _TF_, and the two terms do not share any
-      structure. All suspended goals and attributes for attributed variables
-      in  _TI_ are also duplicated.
-
-      Also refer to copy_term/2.
-
-
-  */
-  Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
-  /** @pred copy_term_nat(? _TI_,- _TF_)
-
-
-      As copy_term/2.  Attributes however, are <em>not</em> copied but replaced
-      by fresh variables.
-
-
-
-
-  */
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag|TestPredFlag);
   /** @pred  term_factorized(? _TI_,- _TF_, ?SubTerms)
