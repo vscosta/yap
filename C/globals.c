@@ -360,7 +360,7 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
   return arena;
 }
 
-static inline void clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
+static inline void reset_trail(tr_fr_ptr TR0 USES_REGS) {
   if (TR != TR0) {
     tr_fr_ptr pt = TR0;
 
@@ -630,7 +630,7 @@ loop:
   }
 
   /* restore our nice, friendly, term to its original state */
-  clean_dirty_tr(TR0 PASS_REGS);
+  reset_trail(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
     pop_text_stack(lvl);
   return 0;
@@ -645,7 +645,7 @@ overflow:
     *pt0 = to_visit->oldv;
   }
 #endif
-    clean_dirty_tr(TR0 PASS_REGS);
+    reset_trail(TR0 PASS_REGS);
 pop_text_stack(lvl);
   return -1;
 
@@ -792,7 +792,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
   
     error_handler:
     restarts++;
-yap_flag_gc_t slt = Yap_PushHandle(t);
+    yhandle_t slt = Yap_PushHandle(t);
     switch (res) {
         case -1:
             if (&LOCAL_GlobalArena == arenap)
@@ -807,7 +807,7 @@ yap_flag_gc_t slt = Yap_PushHandle(t);
             break;
         case -4:
                 HR = HB;
-            yap_flag_gc_t sla = CloseArena (&cspace PASS_REGS);
+		yhandle_t sla = Yap_PushHandle(CloseArena (&cspace PASS_REGS));
             do {
                 /* Trail overflow */
                 if (!Yap_growtrail(256*256*sizeof(struct trail_frame), false)) {
@@ -818,7 +818,7 @@ yap_flag_gc_t slt = Yap_PushHandle(t);
             *arenap = Yap_PopHandle(sla);
             break;
         default: /* temporary space overflow */
-        CloseArena(&cspace);
+	  CloseArena(&cspace);
             Yap_PopHandle(slt);
             return 0;
 

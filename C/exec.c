@@ -59,6 +59,37 @@ static bool should_creep() {
             LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermLeap);
 
 }
+
+void Yap_track_cpred(arity_t *arityp, yamop **nextpcp)
+{
+  arity_t arity;
+  yamop *nextpc;
+if (!P) {
+      	      arity = 0;
+ 	      nextpc = CP; 
+    } else if (
+            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)||
+            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_cpred)) {
+        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
+        nextpc = P;
+    } else if (P->opc == Yap_opcode(_execute_cpred)){
+      arity = P->y_u.Osbpp.p->ArityOfPE;
+      nextpc = CP;
+
+    } else if (P->opc == Yap_opcode(_try_c) ||
+	       P->opc == Yap_opcode(_retry_c)){
+      arity = P->y_u.OtapFs.s;
+       nextpc = CP;
+ 
+    } else {
+
+        arity = 0;
+        nextpc = CP;
+    }
+ *arityp = arity;
+ *nextpcp = nextpc;
+}
+ 
 static Term cp_as_integer(choiceptr cp USES_REGS) {
     return (MkIntegerTerm(LCL0 - (CELL *) cp));
 }
@@ -279,7 +310,9 @@ static Int parent_choice_point(USES_REGS1) {
  *
  *  PB is a number identifying the parent of the current choice-point.
  *  It storing the offset of the current ch
- *
+	      arity = 0;
+ 4314 	      nextpc = CP;
+ 4315  *
  * The call will fail if _CP_ is topmost in the search tree. 
  */
 static Int parent_choice_point1(USES_REGS1) {
@@ -2352,17 +2385,11 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 }
 
 int Yap_dogc(int extra_args, Term *tp USES_REGS) {
-    UInt arity;
-    yamop *nextpc;
-    int i;
-
-    if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
-        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-        nextpc = P;
-    } else {
-        arity = 0;
-        nextpc = CP;
-    }
+  arity_t arity;
+  int i;
+  yamop *nextpc;
+    
+    Yap_track_cpred( &arity, &nextpc );
     for (i = 0; i < extra_args; i++) {
         XREGS[arity + i + 1] = tp[i];
     }
