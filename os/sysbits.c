@@ -1934,7 +1934,7 @@ static Int p_sleep(USES_REGS1) {
 #endif
 }
 
-#if MCHECK_H
+#ifdef HAVE_MTRACE
 #include <mcheck.h>
 #endif
 
@@ -1944,7 +1944,7 @@ static Int
 #ifdef HAVE_MTRACE
     Term t = Deref(ARG1);
     if (t == TermTrue) mtrace();
-    else if (t == TermFalse) return muntrace();
+    else if (t == TermFalse)  muntrace();
     else return false;
 #endif
     return true;

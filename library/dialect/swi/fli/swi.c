@@ -1224,9 +1224,10 @@ X_API int PL_put_list_chars(term_t t, const char *s) {
   return TRUE;
 }
 
-X_API void PL_put_nil(term_t t) {
+X_API int PL_put_nil(term_t t) {
   CACHE_REGS
   Yap_PutInSlot(t, TermNil);
+  return TRUE;
 }
 
 /*  void PL_put_pointer(term_t -t, void *ptr)

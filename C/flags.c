@@ -78,6 +78,7 @@ static bool set_error_stream(Term inp);
 static bool set_input_stream(Term inp);
 static bool set_output_stream(Term inp);
 static bool dollar_to_lc(Term inp);
+static bool setSignals(Term inp);
 
 static void newFlag(Term fl, Term val);
 static Int current_prolog_flag(USES_REGS1);
@@ -127,6 +128,22 @@ static Term indexer(Term inp) {
   Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag index to an atom");
   return TermZERO;
 }
+
+/**
+ * set or reset signal handlers. The act is only performed if the flag changed values.
+ *
+ * @param inp Whether to enable or disable
+ * @return always true
+ *
+ */
+static bool setSignals(Term inp) {
+      bool handle = (inp == TermTrue || inp == TermOn);
+      if (handle != GLOBAL_PrologShouldHandleInterrupts) {
+          Yap_InitSignals(0);
+      }
+      GLOBAL_PrologShouldHandleInterrupts = handle;
+      return true;
+  }
 
 static bool dqf1(ModEntry *new, Term t2 USES_REGS) {
   new->flags &= ~(DBLQ_CHARS | DBLQ_CODES | DBLQ_ATOM | DBLQ_STRING);
@@ -380,7 +397,7 @@ static bool typein(Term inp) {
     return Yap_unify(inp, tin);
   }
   if (IsStringTerm(inp)) {
-    inp = MkStringTerm(RepAtom(AtomOfTerm(inp))->StrOfAE);
+    inp = MkAtomTerm(Yap_LookupAtom(StringOfTerm(inp)));
   }
   if (!IsAtomTerm(inp)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, inp, "set_prolog_flag");
