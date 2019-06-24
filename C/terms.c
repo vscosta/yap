@@ -52,25 +52,6 @@ typedef struct non_single_struct_t {
   CELL *pt0, *pt0_end, *ptf;
 } non_singletons_t;
 
-static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
-  tr_fr_ptr pt0 = TR;
-  while (pt0 != TR0) {
-    Term p = TrailTerm(--pt0);
-    if (IsApplTerm(p)) {
-      CELL *pt = RepAppl(p);
-#ifdef FROZEN_STACKS
-      pt[0] = TrailVal(pt0);
-#else
-      pt[0] = TrailTerm(pt0 - 1);
-      pt0--;
-#endif /* FROZEN_STACKS */
-    } else {
-      RESET_VARIABLE(p);
-    }
-  }
-  TR = TR0;
-}
-
 //#define  CELL *pt0, *pt0_end, *ptf;
 //} non_singletons_t;
 

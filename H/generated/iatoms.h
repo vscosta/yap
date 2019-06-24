@@ -189,6 +189,7 @@
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n"); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw"); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = Yap_LookupAtom("heap"); TermHeap = MkAtomTerm(AtomHeap);
+  AtomHeapData = Yap_LookupAtom("__YAP_heap__"); TermHeapData = MkAtomTerm(AtomHeapData);
   AtomHeapUsed = Yap_LookupAtom("heapused"); TermHeapUsed = MkAtomTerm(AtomHeapUsed);
   AtomHugeInt = Yap_LookupAtom("huge_int"); TermHugeInt = MkAtomTerm(AtomHugeInt);
   AtomIDB = Yap_LookupAtom("idb"); TermIDB = MkAtomTerm(AtomIDB);

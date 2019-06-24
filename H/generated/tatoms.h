@@ -189,6 +189,7 @@ X_API EXTERNAL Atom AtomDoubleHat; X_API EXTERNAL Term TermDoubleHat;
 X_API EXTERNAL Atom AtomHERE; X_API EXTERNAL Term TermHERE;
 X_API EXTERNAL Atom AtomHandleThrow; X_API EXTERNAL Term TermHandleThrow;
 X_API EXTERNAL Atom AtomHeap; X_API EXTERNAL Term TermHeap;
+X_API EXTERNAL Atom AtomHeapData; X_API EXTERNAL Term TermHeapData;
 X_API EXTERNAL Atom AtomHeapUsed; X_API EXTERNAL Term TermHeapUsed;
 X_API EXTERNAL Atom AtomHugeInt; X_API EXTERNAL Term TermHugeInt;
 X_API EXTERNAL Atom AtomIDB; X_API EXTERNAL Term TermIDB;

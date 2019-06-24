@@ -474,4 +474,24 @@ void Yap_dump_code_area_for_profiler(void);
 #define Yap_InformOfRemoval(X)
 #endif
 
+static inline void clean_tr(tr_fr_ptr TR0 USES_REGS) {
+  tr_fr_ptr pt0 = TR;
+  while (pt0 != TR0) {
+    Term p = TrailTerm(--pt0);
+    if (IsApplTerm(p)) {
+      CELL *pt = RepAppl(p);
+#ifdef FROZEN_STACKS
+      pt[0] = TrailVal(pt0);
+#else
+      pt[0] = TrailTerm(pt0 - 1);
+      pt0--;
+#endif /* FROZEN_STACKS */
+    } else {
+      RESET_VARIABLE(p);
+    }
+  }
+  TR = TR0;
+}
+
+
 #endif
