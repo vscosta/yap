@@ -904,6 +904,7 @@ gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
     G0 <== Grad[I],
     GN is G0-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
     (isnan(GN) -> writeln((nan::I)), fail;true),
+writeln(I:GN),
     Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
@@ -934,7 +935,7 @@ writeln(fx=FX),
     TI1 is TI+1,
    assert(current_iteration(TI1)),
     assert(solver_iterations(SI1,LBFGSIteration)),
-    save_model,
+%    save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
     format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).

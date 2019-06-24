@@ -1060,7 +1060,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('}', wglb->stream);
       lastw = separator;
     }  else {
-      if (!wglb->Ignore_ops && atom == AtomHeap) {
+      if (!wglb->Ignore_ops && atom == AtomHeapData) {
 	Arity = 3+2*IntegerOfTerm(ArgOfTerm(1,t));
     }
       putAtom(atom, wglb->Quote_illegal, wglb);

@@ -189,6 +189,7 @@
   AtomHERE = AtomAdjust(AtomHERE); TermHERE = MkAtomTerm(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow); TermHandleThrow = MkAtomTerm(AtomHandleThrow);
   AtomHeap = AtomAdjust(AtomHeap); TermHeap = MkAtomTerm(AtomHeap);
+  AtomHeapData = AtomAdjust(AtomHeapData); TermHeapData = MkAtomTerm(AtomHeapData);
   AtomHeapUsed = AtomAdjust(AtomHeapUsed); TermHeapUsed = MkAtomTerm(AtomHeapUsed);
   AtomHugeInt = AtomAdjust(AtomHugeInt); TermHugeInt = MkAtomTerm(AtomHugeInt);
   AtomIDB = AtomAdjust(AtomIDB); TermIDB = MkAtomTerm(AtomIDB);

@@ -83,71 +83,7 @@ static Int   p_copy_term( USES_REGS1 );
 static Int  p_force_trail_expansion( USES_REGS1 );
 #endif /* DEBUG */
 
-static inline void
-clean_tr(tr_fr_ptr TR0 USES_REGS) {
-  if (TR != TR0) {
-    do {
-      Term p = TrailTerm(--TR);
-      RESET_VARIABLE(p);
-    } while (TR != TR0);
-  }
-}
 
-static inline void
-clean_dirty_tr(tr_fr_ptr TR0 USES_REGS) {
-  tr_fr_ptr pt0 = TR;
-  while (pt0 != TR0) {
-    Term p = TrailTerm(--pt0);
-    if (IsApplTerm(p)) {
-      CELL *pt = RepAppl(p);
-#ifdef FROZEN_STACKS
-      pt[0] = TrailVal(pt0);
-#else
-      pt[0] = TrailTerm(pt0 - 1);
-      pt0 --;
-#endif /* FROZEN_STACKS */
-    } else {
-      RESET_VARIABLE(p);
-    }
-  } 
-  TR = TR0;
-}
-
-/// @brief recover original term while fixing direct refs.
-///
-/// @param USES_REGS 
-///
-static inline void
-clean_complex_tr(tr_fr_ptr TR0 USES_REGS) {
-  tr_fr_ptr pt0 = TR;
-  while (pt0 != TR0) {
-    Term p = TrailTerm(--pt0);
-    if (IsApplTerm(p)) {
-      /// pt: points to the address of the new term we may want to fix.
-      CELL *pt = RepAppl(p);
-      if (pt >= HB && pt < HR) { /// is it new?
-	Term v = pt[0];
-	if (IsApplTerm(v)) {
-	  /// yes, more than a single ref
-	  *pt = (CELL)RepAppl(v);
-	}
-#ifndef FROZEN_STACKS
-	pt0 --;
-#endif /* FROZEN_STACKS */
-	continue;
-      } 
-#ifdef FROZEN_STACKS
-      pt[0] = TrailVal(pt0);
-#else
-      pt[0] = TrailTerm(pt0 - 1);
-      pt0 --;
-#endif /* FROZEN_STACKS */
-    } else {
-      RESET_VARIABLE(p);
-    }
-  } 
-  TR = TR0;
-}
 
 #define expand_stack(S0,SP,SF,TYPE)				\
   { size_t sz = SF-S0, used = SP-S0;				\
@@ -375,7 +311,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   }
 
   /* restore our nice, friendly, term to its original state */
-  clean_dirty_tr(TR0 PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
   pop_text_stack(lvl);
   return 0;
@@ -795,7 +731,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
   }
 
   /* restore our nice, friendly, term to its original state */
-  clean_dirty_tr(TR0 PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
   HB = HB0;
   return export_term_to_buffer(tf, buf, bptr, HLow, HR, len0);
 
@@ -2675,7 +2611,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
   }
 
   /* restore our nice, friendly, term to its original state */
-  clean_dirty_tr(TR0 PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
   HB = HB0;
   pop_text_stack(lvl);
   return ground;

@@ -1046,6 +1046,7 @@ extern void **Yap_ABSMI_OPCODES;
 
 /// Debugging Support
 
+
 extern void Yap_track_cpred( arity_t *arityp, yamop **nextpc );
 
 typedef enum {

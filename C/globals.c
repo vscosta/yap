@@ -117,6 +117,7 @@ threads that are created <em>after</em> the registration.
 #include "iopreds.h"
 #include "YapEval.h"
 #include "attvar.h"
+#include "clause.h"
 #include <math.h>
 
 /* Non-backtrackable terms will from now on be stored on arenas, a
@@ -358,26 +359,6 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
   }
   exit_cell_space( region );
   return arena;
-}
-
-static inline void reset_trail(tr_fr_ptr TR0 USES_REGS) {
-  if (TR != TR0) {
-    tr_fr_ptr pt = TR0;
-
-    do {
-      Term p = TrailTerm(pt++);
-      if (IsVarTerm(p)) {
-        RESET_VARIABLE(p);
-      } else {
-        /* copy downwards */
-        TrailTerm(TR0 + 1) = TrailTerm(pt);
-        TrailTerm(TR0) = TrailTerm(TR0 + 2) = p;
-        pt += 2;
-        TR0 += 3;
-      }
-    } while (pt != TR);
-    TR = TR0;
-  }
 }
 
 #define expand_stack(S0,SP,SF,TYPE)	       \
@@ -630,7 +611,7 @@ loop:
   }
 
   /* restore our nice, friendly, term to its original state */
-  reset_trail(TR0 PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
     pop_text_stack(lvl);
   return 0;
@@ -645,7 +626,7 @@ overflow:
     *pt0 = to_visit->oldv;
   }
 #endif
-    reset_trail(TR0 PASS_REGS);
+    clean_tr(TR0 PASS_REGS);
 pop_text_stack(lvl);
   return -1;
 
@@ -659,7 +640,7 @@ trail_overflow:
     *pt0 = to_visit->oldv;
   }
 #endif
-  reset_trail(TR0);
+  clean_tr(TR0);
     pop_text_stack(lvl);
   return -4;
 }
@@ -1869,7 +1850,7 @@ static Int p_nb_heap(USES_REGS1) {
   if (arena_sz < hsize)
     arena_sz = hsize;
   while ((heap = MkZeroApplTerm(
-              Yap_MkFunctor(AtomHeap, 2 * hsize + HEAP_START + 1),
+              Yap_MkFunctor(AtomHeapData, 2 * hsize + HEAP_START + 1),
               2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
     while (HR + hsize > ASP - 2*MIN_ARENA_SIZE) {
       if (!Yap_dogc(0, NULL PASS_REGS)) {
@@ -1903,7 +1884,7 @@ static Int p_nb_heap_close(USES_REGS1) {
     qp = RepAppl(t) + 1;
     if (qp[HEAP_ARENA] != MkIntTerm(0))
       RecoverArena(qp[HEAP_ARENA] PASS_REGS);
-    qp[-1] = (CELL)Yap_MkFunctor(AtomHeap, 1);
+    qp[-1] = (CELL)Yap_MkFunctor(AtomHeapData, 1);
     qp[0] = MkIntegerTerm(0);
     return TRUE;
   }
@@ -1991,7 +1972,7 @@ static CELL *new_heap_entry(CELL *qd) {
         hmsize += extra_size;
         if (!qd)
             return FALSE;
-        qd[-1] = (CELL) Yap_MkFunctor(AtomHeap, 2 * hmsize + HEAP_START);
+        qd[-1] = (CELL) Yap_MkFunctor(AtomHeapData, 2 * hmsize + HEAP_START);
         top = qd + (HEAP_START + 2 * (hmsize - extra_size));
         while (extra_size) {
             RESET_VARIABLE(top);
@@ -2105,7 +2086,7 @@ static Int p_nb_beam(USES_REGS1) {
     hsize = IntegerOfTerm(tsize);
   }
   while ((beam = MkZeroApplTerm(
-              Yap_MkFunctor(AtomHeap, 5 * hsize + HEAP_START + 1),
+              Yap_MkFunctor(AtomHeapData, 5 * hsize + HEAP_START + 1),
               5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
 	    if (!Yap_dogc(0, NULL PASS_REGS)) {
 		Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
