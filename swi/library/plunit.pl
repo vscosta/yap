@@ -271,13 +271,16 @@ begin_tests(Unit, Options) :-
 :- if(swi).
 begin_tests(Unit, Name, File:Line, Options) :-
     loading_tests, !,
-    prolog_flag(typein_module,Context, Context),
+    %prolog_flag(typein_module,Context, Context),
+    '$set_source_module'(Context, Context),
+    writeln(Context),
     (   current_unit(Unit, Name, Context, Options)
     ->  true
     ;   retractall(current_unit(Unit, Name, _, _)),
 	assert(current_unit(Unit, Name, Context, Options))
     ),
-    prolog_flag(typein_module,Old, Name),
+    %prolog_flag(typein_module,Old, Name),
+    '$set_source_module'(Old, Name),
     declare_module(Name, test, Context, File, Line, false),
     discontiguous(Name:'unit test'/4),
 		 discontiguous(Name:'unit body'/2),
@@ -601,6 +604,7 @@ run_unit(Spec) :-
 	->  info(plunit(blocked(unit(Unit, Reason))))
 	;   setup(Module, unit(Unit), UnitOptions)
 	->  info(plunit(begin(Spec))),
+	writeln(begin:Module:Spec),
 	    forall((Module:'unit test'(Name, Line, Options, Body),
 		    matching_test(Name, Tests)),
 		   run_test(Unit, Name, Line, Options, Body)),

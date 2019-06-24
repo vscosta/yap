@@ -56,7 +56,7 @@ typedef struct _PL_blob_t {
 #define YAP_blob_t blob_type_t
 #define PL_blob_t blob_type_t
 
-#ifdef SWI_PROLOG_H
+#ifdef _FLI_H_INCLUDED
 
 PL_EXPORT(int) PL_is_blob(term_t t, PL_blob_t **type);
 PL_EXPORT(int) PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type);

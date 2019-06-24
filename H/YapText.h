@@ -747,11 +747,11 @@ static inline Term Yap_CharsToDiffListOfCodes(const char *s, Term tail,
   return out.val.t;
 }
 
-static inline Term Yap_UTF8ToDiffListOfCodes(const char *s,
+static inline Term Yap_UTF8ToDiffListOfCodes(const unsigned char *s,
 					     Term tail USES_REGS) {
   seq_tv_t inp, out;
 
-  inp.val.c0 = s;
+  inp.val.uc0 = s;
   inp.type = YAP_STRING_CHARS;
   inp.enc = ENC_ISO_UTF8;
   out.type = YAP_STRING_DIFF | YAP_STRING_CODES;
