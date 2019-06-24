@@ -4289,21 +4289,10 @@ Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
 }
 
  bool Yap_expand(size_t sz USES_REGS) {
-    UInt arity;
+    arity_t arity;
     yamop *nextpc;
-    int i;
 
-    if (P && (
-            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)||
-            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_cpred))
-
-             ) {
-        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-        nextpc = P;
-    } else {
-        arity = 0;
-        nextpc = CP;
-    }
+    Yap_track_cpred(& arity, &nextpc);
     return call_gc(sz* sizeof(CELL), arity, ENV, nextpc PASS_REGS);
 }
 int
