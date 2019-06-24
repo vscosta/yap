@@ -816,41 +816,85 @@ yap_error_number Yap_MathException__(USES_REGS1) {
   return LOCAL_Error_TYPE;
 }
 
-/* SIGINT can cause problems, if caught before full initialization */
+/**
+ *
+ * This function implements the sigsegv prolog flag. It should be called when we want other languages to take over
+ * handling this signal.
+ *
+ * @param enable: on off
+ * @return should always succeed
+ */
+bool Yap_InitSIGSEGV(Term enable) {
+#if HAVE_SIGSEGV
+    if (GLOBAL_PrologShouldHandleInterrupts || enable == TermFalse || enable == TermOff) {
+        my_signal(SIGSEGV, SIG_DFL);
+    } else {
+        my_signal_info(SIGSEGV, HandleSIGSEGV);
+    }
+    return true;
+#else
+return false;
+#endif
+}
+
+
+/**
+ *
+ * This routine sets up the signal handlers. It depends on the flag GLOBAL_PrologShouldHandleInterrupts.
+ * Notice that it should only be called if we want to set up interrupt handlers, or if we want to disable ones set up
+ * by Prolog. It should not be called if Prolog is in embedded mode.
+ *
+ * SIGINT can cause problems, if caught before full initialization
+ *
+ * */
 void Yap_InitOSSignals(int wid) {
-  if (GLOBAL_PrologShouldHandleInterrupts) {
+    void * hdl;
+    if (GLOBAL_PrologShouldHandleInterrupts) {
+        hdl = ReceiveSignal;
+
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT)
-    my_signal(SIGQUIT, ReceiveSignal);
-    my_signal(SIGKILL, ReceiveSignal);
-    my_signal(SIGUSR1, ReceiveSignal);
-    my_signal(SIGUSR2, ReceiveSignal);
-    my_signal(SIGHUP, ReceiveSignal);
-    my_signal(SIGALRM, ReceiveSignal);
-    my_signal(SIGVTALRM, ReceiveSignal);
+        my_signal(SIGQUIT, hdl);
+        my_signal(SIGKILL, hdl);
+        my_signal(SIGUSR1, hdl);
+        my_signal(SIGUSR2, hdl);
+        my_signal(SIGHUP, hdl);
+        my_signal(SIGALRM, hdl);
+        my_signal(SIGVTALRM, hdl);
 #endif
 #ifdef SIGPIPE
-    my_signal(SIGPIPE, ReceiveSignal);
+        my_signal(SIGPIPE, hdl);
 #endif
 #if _MSC_VER || defined(__MINGW32__)
-    signal(SIGINT, SIG_IGN);
-    SetConsoleCtrlHandler(MSCHandleSignal, TRUE);
+        signal(SIGINT, SIG_IGN);
+        SetConsoleCtrlHandler(MSCHandleSignal, TRUE);
 #else
-    my_signal(SIGINT, ReceiveSignal);
+        my_signal(SIGINT, hdl);
 #endif
+    }
 #ifdef HAVE_SIGFPE
-    my_signal(SIGFPE, HandleMatherr);
+  if (GLOBAL_PrologShouldHandleInterrupts) {
+      my_signal(SIGFPE, HandleMatherr);
+  } else {
+      my_signal(SIGFPE, hdl);
+  }
 #endif
 #if HAVE_SIGSEGV
+  if (GLOBAL_PrologShouldHandleInterrupts) {
     my_signal_info(SIGSEGV, HandleSIGSEGV);
+  } else {
+      my_signal(SIGFPE, hdl);
+  }
 #endif
 #ifdef YAPOR_COW
     signal(SIGCHLD, SIG_IGN); /* avoid ghosts */
 #endif
-  }
 }
 
 bool Yap_set_fpu_exceptions(Term flag) { return set_fpu_exceptions(flag); }
 
+/**
+ * @brief Initialize internal interface predicates
+ */
 void Yap_InitSignalPreds(void) {
   CACHE_REGS
   Term cm = CurrentModule;

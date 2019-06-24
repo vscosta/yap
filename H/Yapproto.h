@@ -276,6 +276,7 @@ extern int Yap_gc(Int, CELL *, yamop *);
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
 extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
+extern bool Yap_expand(size_t sz USES_REGS);
 
 /* init.c */
 extern int Yap_IsOpType(char *);
@@ -385,6 +386,7 @@ extern void Yap_InitSignalCPreds(void);
 extern void *Yap_InitSignals(int wid);
 extern bool Yap_DisableInterrupts(int wid);
 extern bool Yap_EnableInterrupts(int wid);
+extern bool Yap_InitSIGSEGV(Term inp);
 
 extern void Yap_InitSockets(void);
 

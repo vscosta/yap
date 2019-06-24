@@ -377,6 +377,7 @@ PL_EXPORT(term_t) PL_new_term_refs(int);
 PL_EXPORT(void) PL_reset_term_refs(term_t);
 /* begin PL_get_* functions =============================*/
 PL_EXPORT(int) PL_get_arg(int, term_t, term_t);
+#define _PL_get_arg(Index,T,A) PL_get_arg(Index,T,A)
 PL_EXPORT(int) PL_get_atom(term_t, atom_t *);
 PL_EXPORT(int) PL_get_atom_chars(term_t, char **);
 PL_EXPORT(int) PL_get_atom_nchars(term_t, size_t *, char **);
@@ -430,7 +431,7 @@ PL_EXPORT(int) PL_put_int64(term_t, int64_t);
 PL_EXPORT(int) PL_put_integer(term_t, long);
 PL_EXPORT(int) PL_put_list(term_t);
 PL_EXPORT(int) PL_put_list_chars(term_t, const char *);
-PL_EXPORT(void) PL_put_nil(term_t);
+PL_EXPORT(int) PL_put_nil(term_t);
 PL_EXPORT(int) PL_put_pointer(term_t, void *);
 PL_EXPORT(int) PL_put_string_chars(term_t, const char *);
 PL_EXPORT(int) PL_put_string_nchars(term_t, size_t, const char *);

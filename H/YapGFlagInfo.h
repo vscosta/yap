@@ -509,14 +509,24 @@ and if it is bound to `off` disable them. The default for YAP is
     (`SIGINT`).
 
  */
-  YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true", NULL),
-   
- /**< 
+  YAP_FLAG(SIGNALS_FLAG, "signals", true, booleanFlag, "true", setSignals),
 
-    If `true` maintain the source for all clauses. Notice that this is trivially
-    supported for facts, and always supported for dynamic code.
+    /**<
 
- */
+      If `true` (default) YAP handles  the segmentation violation signal. If `false`, the signal is ignored.
+      SIGSEGV must be disabled by default to
+      collaborate with languages like Java, that rely on SEGV for stack manipulation.
+
+   */
+    YAP_FLAG(SIGNAL_SEGV_FLAG, "signal_segv", true, booleanFlag, "true", Yap_InitSIGSEGV),
+
+
+    /**<
+
+       If `true` maintain the source for all clauses. Notice that this is trivially
+       supported for facts, and always supported for dynamic code.
+
+    */
   YAP_FLAG(SOURCE_FLAG, "source", true, booleanFlag, "true", NULL),
    
  /**< `strict_iso `

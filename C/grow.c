@@ -462,8 +462,8 @@ static void
 AdjustSlots(bool thread_copying USES_REGS)
 {
   CELL *pt = LOCAL_SlotBase+LOCAL_CurSlot;
-  CELL *pt_bot = LOCAL_SlotBase+1;
-  fixPointerCells( pt_bot, pt, thread_copying PASS_REGS);
+  CELL *pt_bot = LOCAL_SlotBase;
+  fixPointerCells( pt, pt_bot, thread_copying PASS_REGS);
 }
 
 static void

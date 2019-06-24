@@ -95,6 +95,7 @@ LOCAL_INIT(struct scanner_extra_alloc *, ScannerExtraBlocks, NULL);
 /// worker control information
 /// stack limit after which the stack is managed by C-code.
 LOCAL_INIT(Int, CBorder, 0);
+LOCAL_INIT(yhandle_t , HandleBorder, 1);
 /// max number of signals (uint64_t);
 LOCAL_INIT(UInt, MaxActiveSignals, 64L);
 /// actual life signals

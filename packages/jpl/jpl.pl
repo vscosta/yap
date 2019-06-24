@@ -4580,7 +4580,7 @@ add_jpl_to_classpath :-
 	->      Separator = ';'
 	;       Separator = ':'
 	),
-	atomic_list_concat([JplJAR, Old], Separator, New),
+	atomic_list_concat([Separator, JplJAR, Separator, Old], New),
 	setenv('CLASSPATH', New).
 
 
@@ -4705,6 +4705,7 @@ setup_jvm :-
     add_jpl_to_classpath,
     libjpl(JPL),
     add_jpl_to_ldpath(JPL,FullJPL),
+    set_prolog_flag(signal_segv, false),
     catch(load_absolute_foreign_files([FullJPL],[],install), E, report_java_setup_problem(E)),
     assert(jvm_ready).
 
