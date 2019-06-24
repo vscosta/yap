@@ -467,9 +467,9 @@ push_registers(Int num_regs, yamop *nextop USES_REGS)
 	  (
 	  (*curslot < (CELL)LOCAL_GlobalBase &&
 	   *curslot > (CELL)HR))) {
-	*curslot++ = TermFreeTerm;
+	*curslot = TermFreeTerm;
       }
-	TrailTerm(TR++) = (CELL)curslot++;
+	TrailTerm(TR++) = *curslot++;
       }
   }
   for (i = 1; i <= num_regs; i++) {
@@ -4238,7 +4238,8 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     CalculateStackGap( PASS_REGS1 );
     if (gc_margin < 2*EventFlag)
       gc_margin = 2*EventFlag;
-    return Yap_locked_growstack(gc_margin);
+
+      return Yap_locked_growstack(gc_margin);
 #endif
   }
   /*
@@ -4287,6 +4288,24 @@ Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
   return res;
 }
 
+ bool Yap_expand(size_t sz USES_REGS) {
+    UInt arity;
+    yamop *nextpc;
+    int i;
+
+    if (P && (
+            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)||
+            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_cpred))
+
+             ) {
+        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
+        nextpc = P;
+    } else {
+        arity = 0;
+        nextpc = CP;
+    }
+    return call_gc(sz* sizeof(CELL), arity, ENV, nextpc PASS_REGS);
+}
 int
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {

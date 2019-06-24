@@ -276,6 +276,7 @@ extern int Yap_gc(Int, CELL *, yamop *);
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
 extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);
+extern bool Yap_expand(size_t sz USES_REGS);
 
 /* init.c */
 extern int Yap_IsOpType(char *);
