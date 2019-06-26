@@ -227,7 +227,7 @@ typedef struct {
     int             past;
 
     /**
-     * Delta for convergence test.
+vv     * Delta for convergence test.
      *  This parameter determines the minimum rate of decrease of the
      *  objective function. The library stops iterations when the
      *  following condition is met:

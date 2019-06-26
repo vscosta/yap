@@ -233,6 +233,7 @@
 :- use_module('problog/utils_lbdd').
 :- use_module('problog/utils').
 :- use_module('problog/tabling').
+:- use_module(problog/lbdd).
 
 % used to indicate the state of the system
 :- dynamic(values_correct/0).
@@ -787,14 +788,15 @@ gradient_descent :-
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
     sigmoid(X, Slope, Pr),
-    (Pr > 0.999
-	    ->
-		NPr = 0.999
-			;
-			Pr < 0.001
-			       ->
-				   NPr = 0.001 ;
-				   Pr = NPr ),
+%    (Pr > 0.999
+%	    ->
+%		NPr = 0.999
+%			;
+%			Pr < 0.001
+%			       ->
+%				   NPr = 0.001 ;
+				   Pr = NPr ,
+%				   ),
     set_fact_probability(FactID, NPr).
 
 
@@ -841,71 +843,66 @@ update_values :-
 
 
 
-:- use_module(problog/lbdd).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % start calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(LLH_Training_Queries, X,Grad,N,_,_) :-
+user:evaluate(LLH_Training_Queries, X,Grad,N,Step,_) :-
     %Handle = user_error,
     N1 is N-1,
-    forall(between(0,N1,I),(Grad[I]<==0.0)),
+    Grad <== 0.0,
+    example_count(Exs),
+   LLs <== array[Exs] of floats,
     catch(
 	go( X,Grad, LLs),
 	Error,
 	(writeln(Error), throw(Error) )),
-   length(LLs,NN),
-   V <== array[NN] of LLs,
-   SLL <== sum(V),
+   SLL <== sum(LLs),
+   writeln(SLL),
     %sum_list( LLs, SLL),
-    LLH_Training_Queries[0] <== SLL.
-
-test :-
-    S =.. [f,0-0.9,1-0.8,2-0.6,3-0.7,4-0.5,5-0.4,6-0.7,7-0.2],
-    functor(S,_,N), N1 is N-1,
-     problog_flag(sigmoid_slope,Slope),
-   X <== array[N] of floats,
-Grad <== array[N] of floats,
-          forall(between(0,N1,I),(Grad[I]<==0.0)),
-	  forall(between(1,N,I),(arg(I,S,_-V),inv_sigmoid(V,Slope,V0),I1 is I-1,X[I1]<==V0)),
- findall(
-	LL,
-	compute_gradient(Grad, X, Slope,LL),
-	LLs
- ), sum_list( LLs, SLL).
+    show(Grad, 100),
+    LLH_Training_Queries[0] <== SLL,
+    fail.
+user:evaluate(_LLH_Training_Queries, _X,_Grad,_N,_Step,_).
 
 
+show(X) :-
+    N <== length(X),
+    show(X,N).
 
+show(X,N) :-    
+    N1 is N-1,
+    between(0, N1, I),
+    V <== X[I],
+    format('~3f ', [V]),
+    fail.
+show(_,_) :-
+    nl.
 
-go( X,Grad, LLs) :-
+go( X,Grad,LL) :-
     problog_flag(sigmoid_slope,Slope),
-  findall(
-	LL,
 	compute_gradient(Grad, X, Slope,LL),
-	LLs
-  ).
- 
+	fail.
+go(_,_,_).
 
-compute_gradient( Grad, X, Slope, LL) :-
+compute_gradient( Grad, X, Slope, LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
 	MapList = [_|_],
 	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),
-	(isnan(BDDProb) -> writeln((nan::QueryID)), fail;true),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+	LLs[QueryID] <== LL,
     forall(
 	query_gradients(BDD,I,IProb,GradValue),
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
-    ).
+    ), halt.
 
 gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
-    G0 <== Grad[I],
-    GN is G0-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
-    (isnan(GN) -> writeln((nan::I)), fail;true),
-writeln(I:GN),
-    Grad[I] <== GN.
+    GN is -GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
+	writeln(I:GN=GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb)),
+    Grad[I] <== Grad[I]+GN.
 
 wrap( X, Grad, GradCount) :-
     tunable_fact(FactID,GroundTruth),
@@ -925,7 +922,6 @@ user:progress(FX,_X,_G, _X_Norm,_G_Norm,_Step,_N,_CurrentIteration,_Ls,-1) :-
     FX < 0, !,
     format('Bad FX=~4f~n',[FX]).
 user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
-writeln(fx=FX),
      problog_flag(sigmoid_slope,Slope),
      save_state(X, Slope, G),
     logger_set_variable(mse_trainingset, FX),
@@ -963,7 +959,7 @@ init_flags :-
 %	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Tree,problog:problog_kbest_as_bdd(Query,100,Tree)),learning_general,flags:learning_libdd_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
-	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
+	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slvope of sigmoid function',1.0,learning_general),
 	% problog_define_flag(continuous_facts,problog_flag_validate_boolean,'support parameter learning of continuous distributions',1.0,learning_general),
 	problog_define_flag(learning_rate,problog_flag_validate_posnumber,'Default learning rate (If line_search=false)',examples,learning_line_search,flags:examples_handler),
 	problog_define_flag(line_search, problog_flag_validate_boolean,'estimate learning rate by line search',false,learning_line_search),

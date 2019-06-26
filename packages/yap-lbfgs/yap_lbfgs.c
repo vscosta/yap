@@ -28,6 +28,87 @@
 #define LBFGS_STATUS_CB_EVAL 3
 #define LBFGS_STATUS_CB_PROGRESS 4
 
+typedef struct msgs_t {
+  int key;
+  char const * msg;
+} mess;
+  
+static mess msgs[256];
+
+static void init_errors(void) {
+  /*   { "L-BFGS reaches convergence.",
+  LBFGS_SUCCESS },
+	//    LBFGS_CONVERGENCE = 0,
+	//LBFGS_STOP,
+    { "The initial variables already minimize the objective function.",
+    LBFGS_ALREADY_MINIMIZED },
+  */
+  int i=0;
+  msgs[i].key = 	LBFGSERR_UNKNOWNERROR;
+  msgs[i++].msg = "Unknown error.";
+    msgs[i].key =       LBFGSERR_LOGICERROR;
+msgs[i++].msg = "Logic error." ;
+      msgs[i].key = 	LBFGSERR_OUTOFMEMORY;
+  msgs[i++].msg = "Insufficient memory." ;
+    msgs[i].key =       LBFGSERR_CANCELED;
+ msgs[i++].msg = "The minimization process has been canceled." ;
+    msgs[i].key =       LBFGSERR_INVALID_N;
+ msgs[i++].msg = "Invalid number of variables specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_N_SSE;
+ msgs[i++].msg = "Invalid number of variables (for SSE) specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_X_SSE;
+ msgs[i++].msg = "The array x must be aligned to 16 (for SSE)." ;
+    msgs[i].key =       LBFGSERR_INVALID_EPSILON;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::epsilon specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_TESTPERIOD;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::past specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_DELTA;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::delta specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_LINESEARCH;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::linesearch specified." ;
+  msgs[i].key =       LBFGSERR_INVALID_MINSTEP;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::max_step specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_MAXSTEP;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::max_step specified." ;
+  msgs[i].key =       LBFGSERR_INVALID_FTOL;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::ftol specified.";
+    msgs[i].key =       LBFGSERR_INVALID_WOLFE;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::wolfe specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_GTOL;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::gtol specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_XTOL;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::xtol specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_MAXLINESEARCH;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::max_linesearch specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_ORTHANTWISE;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::orthantwise_c specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_ORTHANTWISE_START;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::orthantwise_start specified." ;
+    msgs[i].key =       LBFGSERR_INVALID_ORTHANTWISE_END;
+ msgs[i++].msg = "Invalid parameter lbfgs_parameter_t::orthantwise_end specified." ;
+    msgs[i].key =      LBFGSERR_OUTOFINTERVAL;
+ msgs[i++].msg = "The line-search step went out of the interval of uncertainty." ;
+      msgs[i].key =  LBFGSERR_INCORRECT_TMINMAX;
+  msgs[i++].msg = "A logic error occurred; alternatively the interval of unertainty became too small"	 ;
+	msgs[i].key =     LBFGSERR_ROUNDING_ERROR;
+ msgs[i++].msg = "A rounding error occurred; alternatively no line-search step satisfies the sufficient decrease and curvature conditions.";
+    msgs[i].key =       LBFGSERR_MINIMUMSTEP,
+ msgs[i++].msg = "The line-search step became smaller than lbfgs_parameter_t::min_step." ;
+     msgs[i].key =       LBFGSERR_MAXIMUMSTEP;
+ msgs[i++].msg = "The line-search step became larger than lbfgs_parameter_t::max_step." ;
+     msgs[i].key =       LBFGSERR_MAXIMUMLINESEARCH;
+ msgs[i++].msg =     "The line-search routine reaches the maximum number of evaluations." ;
+   msgs[i].key =       LBFGSERR_MAXIMUMITERATION;
+ msgs[i++].msg = "The algorithm routine reaches the maximum number of iterations." ;
+    msgs[i].key =       LBFGSERR_WIDTHTOOSMALL;
+ msgs[i++].msg = "Relative width of the interval of uncertainty is at most bfgs_parameter_t::xtol." ;
+    msgs[i].key =       LBFGSERR_INVALIDPARAMETERS;
+ msgs[i++].msg = "A logic error (negative line-search step) occurred." ;
+      msgs[i].key = 	LBFGSERR_INCREASEGRADIENT;
+msgs[i++].msg = "The current search direction increases the objective function value.";
+ }
+
+
 static lbfgs_parameter_t parms;
 
 X_API void init_lbfgs_predicates(void);
@@ -43,15 +124,20 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   YAP_Term call;
   YAP_Bool result;
   lbfgsfloatval_t rc=0.0;
-  YAP_Term t12;
+  YAP_Term t12[2];
   YAP_Term t[6], t2[2];
 
-  YAP_Term t_0 = YAP_MkIntTerm((YAP_Int)&rc);
-  t[0] = YAP_MkApplTerm(ffloats, 1, &t_0);
-  YAP_Term t_1 = YAP_MkIntTerm((YAP_Int)x);
-  t[1] = YAP_MkApplTerm(ffloats, 1, &t_1);
-  t12 = YAP_MkIntTerm((YAP_Int)g_tmp);
-  t[2] = YAP_MkApplTerm(ffloats, 1, &t12);
+  YAP_Term t_0[2];
+  t_0[0] = YAP_MkIntTerm((YAP_Int)&rc);
+  t_0[1] = YAP_MkIntTerm(n);
+  t[0] = YAP_MkApplTerm(ffloats, 2, t_0);
+  YAP_Term t_1[2];
+  t_1[0] = YAP_MkIntTerm((YAP_Int)x);
+  t_1[1] = YAP_MkIntTerm(n);
+  t[1] = YAP_MkApplTerm(ffloats, 2, t_1);
+  t12[0] = YAP_MkIntTerm((YAP_Int)g_tmp);
+  t12[1] = YAP_MkIntTerm(n);
+  t[2] = YAP_MkApplTerm(ffloats, 2, t12);
   t[3] = YAP_MkIntTerm(n);
   t[4] = YAP_MkFloatTerm(step);
   t[5] = YAP_MkIntTerm((YAP_Int)instance);
@@ -83,12 +169,14 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
   YAP_Bool result;
   YAP_Int s1;
 
-  YAP_Term t[10], t2[2], v;
+  YAP_Term t[10], t2[2], t_0[2], t_s[2], v;
   t[0] = YAP_MkFloatTerm(fx);
-  t[1] = YAP_MkIntTerm((YAP_Int)local_x);
-  t[1] = YAP_MkApplTerm(ffloats, 1, t + 1);
-  t[2] = YAP_MkIntTerm((YAP_Int)local_g);
-  t[2] = YAP_MkApplTerm(ffloats, 1, t + 2);
+  t_0[0] = YAP_MkIntTerm((YAP_Int)local_x);
+  t_0[1] = YAP_MkIntTerm(n);
+  t[1] = YAP_MkApplTerm(ffloats, 2, t_0);
+  t_s[0] = YAP_MkIntTerm((YAP_Int)local_g);
+  t_s[1] = YAP_MkIntTerm(n);
+  t[2] = YAP_MkApplTerm(ffloats, 2, t_s);
   t[3] = YAP_MkFloatTerm(xnorm);
   t[4] = YAP_MkFloatTerm(gnorm);
   t[5] = YAP_MkFloatTerm(step);
@@ -196,15 +284,24 @@ static YAP_Bool p_lbfgs(void) {
   if (!x_p)
    x_p = lbfgs_malloc(n+1);
   x = x_p;
-   t = YAP_MkIntTerm((YAP_Int)x);
-   YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 1, &t));
+  YAP_Term ts[2];
+
+  ts[0] = YAP_MkIntTerm((YAP_Int)x);
+   ts[1] = YAP_MkIntTerm(n);
+   YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts));
   lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
   int ret = lbfgs(n, x, &fx, evaluate, progress, ui, param);
   f_x = fx;
-if (ret == 0)
+if (ret >= 0 )
     return true;
-  fprintf(stderr, "optimization terminated with code %d\n ",ret);
+ const char* msg;
+ int i;
+ for (i=0; msgs[i].key<0; i++) {
+   if (ret == msgs[i].key)
+     break;
+ }
+ fprintf(stderr, "optimization terminated with code %d: %s\n ",ret, msgs[i].msg);
   return true;
 }
 
@@ -219,8 +316,10 @@ static YAP_Bool lbfgs_grab(void) {
     return FALSE;
   }
   lbfgsfloatval_t *x = lbfgs_malloc(n);
-  YAP_Term t = YAP_MkIntTerm((YAP_Int)x);
-  return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 1, &t));
+  YAP_Term t[2];
+  t[0] = YAP_MkIntTerm((YAP_Int)x);
+     t[1] = YAP_MkIntTerm(n);
+  return YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, t));
 }
 
 
@@ -458,7 +557,7 @@ X_API void init_lbfgs_predicates(void) {
   fevaluate = YAP_MkFunctor(YAP_LookupAtom("evaluate"), 6);
   fprogress = YAP_MkFunctor(YAP_LookupAtom("progress"), 10);
   fmodule = YAP_MkFunctor(YAP_LookupAtom(":"), 2);
-  ffloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 1);
+  ffloats = YAP_MkFunctor(YAP_LookupAtom("floats"), 2);
   tuser = YAP_MkAtomTerm(YAP_LookupAtom("user"));
 
   // Initialize the parameters for the L-BFGS optimization.
@@ -473,4 +572,5 @@ X_API void init_lbfgs_predicates(void) {
   
   YAP_UserCPredicate("lbfgs_set_parameter", lbfgs_set_parameter, 2);
   YAP_UserCPredicate("lbfgs_get_parameter", lbfgs_get_parameter, 2);
+  init_errors();
 }

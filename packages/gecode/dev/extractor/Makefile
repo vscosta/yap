@@ -1,5 +1,5 @@
 GECODEDIR := $(shell g++ $(CPPFLAGS) $(CXXFLAGS) -H -E gecodedir.hh 2>&1 >/dev/null | grep gecode/kernel.hh | awk '{print $$2}' | sed 's|/kernel.hh||')
-GECODEDIR :=/Library/Frameworks/gecode.framework/Headers
+#GECODEDIR :=/Library/Frameworks/gecode.framework/Headers
 GECODECONFIG := $(GECODEDIR)/support/config.hpp
 GECODEVERSION := $(shell cat $(GECODECONFIG) | egrep '\<GECODE_VERSION\>' | awk '{print $$3}' | sed 's/"//g')
 PROTOTYPES = ../gecode-prototypes-$(GECODEVERSION).hh

@@ -659,7 +659,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
         goto error_handler;
     }
     if (IsVarTerm(t)) {
-      if (share && ArenaPt(*arenap) > RepPair(t))
+      if (share && (!arenap || ArenaPt(*arenap) > VarOfTerm(t)))
       {
         tf = t;
       }
@@ -685,7 +685,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
         CELL *ap;
         CELL *Hi;
 
-        if (share && ArenaPt(*arenap) > RepPair(t)) {
+        if (share && (!arenap || ArenaPt(*arenap) > RepAppl(t))) {
            tf = t;
         } else {
         ap = RepPair(t);
@@ -702,7 +702,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
         CELL *HB0;
         CELL *ap;
 
-        if (share && ArenaPt(*arenap) > RepAppl(t)) {
+        if (share && (!arenap || ArenaPt(*arenap) > RepAppl(t))) {
             tf = t;
         } else {
         f = FunctorOfTerm(t);
@@ -812,13 +812,13 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
 Term
 Yap_CopyTerm(Term inp) {
   CACHE_REGS
-    return CopyTermToArena(inp,  false , false, 3, NULL, 0 PASS_REGS);
+    return CopyTermToArena(inp,  false , true, 3, NULL, 0 PASS_REGS);
 }
 
 Term
 Yap_CopyTermNoShare(Term inp) {
   CACHE_REGS
-    return CopyTermToArena(inp,  FALSE, FALSE, 3, NULL, 0 PASS_REGS);
+    return CopyTermToArena(inp,  FALSE, true, 3, NULL, 0 PASS_REGS);
 }
 
 static Int
@@ -845,7 +845,7 @@ p_duplicate_term( USES_REGS1 )		/* copy term t to a new instance  */
 static Int
 p_copy_term_no_delays( USES_REGS1 )		/* copy term t to a new instance  */
 {
-    Term t = CopyTermToArena(ARG1, TRUE, TRUE, 2, NULL, 0 PASS_REGS);
+    Term t = CopyTermToArena(ARG1, TRUE, false, 2, NULL, 0 PASS_REGS);
     if (t == 0L)
         return FALSE;
     /* be careful, there may be a stack shift here */

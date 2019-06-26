@@ -36,7 +36,7 @@ YAP_FLAG(ALLOW_VARIABLE_NAME_AS_FUNCTOR_FLAG, "allow_variable_name_as_functor", 
 /**< set the system to look for undefined procedures */
 YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
 
-/**<`read-only flag, that tells if Prolog is in an inner top-level */
+/**< read-only flag, that tells if Prolog is in an inner top-level */
     YAP_FLAG(BREAK_LEVEL_FLAG, "break_level", true, nat, "0", NULL),
 
  /**<

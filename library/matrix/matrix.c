@@ -3065,6 +3065,32 @@ static YAP_Bool set_float_from_address(void) {
   return true;
 }
 
+
+static YAP_Bool address_to_list(void) {
+    YAP_Term t = YAP_TermNil();
+    int i;
+    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+    for (i = 0; i< sz; i++)
+        t = YAP_MkPairTerm(YAP_MkFloatTerm(fp[sz-i-1]),t);
+    return YAP_Unify(YAP_ARG3, t);
+}
+
+
+static YAP_Bool address_to_sum(void) {
+    YAP_Term t = YAP_TermNil();
+    int i;
+    YAP_Float f = 0.0;
+    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
+    for (i = 0; i< sz; i++)
+        f += fp[i];
+    t = YAP_MkFloatTerm(f);
+    return YAP_Unify(YAP_ARG3, t);
+}
+
+
+
 X_API void init_matrix(void);
 
 X_API void init_matrix(void) {
@@ -3124,7 +3150,9 @@ X_API void init_matrix(void) {
   YAP_UserCPredicate("matrix_m", matrix_m, 2);
   YAP_UserCPredicate("matrix", is_matrix, 1);
   YAP_UserCPredicate("get_float_from_address", get_float_from_address, 3);
-  YAP_UserCPredicate("set_float_from_address", set_float_from_address, 3);
+    YAP_UserCPredicate("set_float_from_address", set_float_from_address, 3);
+    YAP_UserCPredicate("address_to_list", address_to_list, 3);
+    YAP_UserCPredicate("address_to_sum", address_to_sum, 3);
 }
 
 #ifdef _WIN32
