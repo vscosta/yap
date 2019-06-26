@@ -1,19 +1,26 @@
 #
 # default base directory for YAP installation
+# (EROOT for architecture-dependent files)
 #
-ROOTDIR = @prefix@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
 #
 # where the binary should be
 #
-BINDIR = $(ROOTDIR)/bin
+BINDIR = $(EROOTDIR)/bin
 #
-# where YAP should look for binary libraries
+# where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
-# where YAP should look for architecture-independent Prolog libraries
 #
-SHAREDIR=$(ROOTDIR)/share
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -21,113 +28,54 @@ SHAREDIR=$(ROOTDIR)/share
 INSTALL=@INSTALL@
 INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
 srcdir=@srcdir@
-YAP_EXTRAS=@YAP_EXTRAS@ 
+SHLIB_CFLAGS=@SHLIB_CFLAGS@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
 
-PROGRAMS= \
-	$(srcdir)/INDEX.pl \
-	$(srcdir)/apply.yap \
-	$(srcdir)/apply_macros.yap \
-	$(srcdir)/arg.yap \
-	$(srcdir)/assoc.yap \
-	$(srcdir)/atts.yap \
-	$(srcdir)/autoloader.yap \
-	$(srcdir)/avl.yap \
-	$(srcdir)/bhash.yap \
-	$(srcdir)/charsio.yap \
-	$(srcdir)/clp/clpfd.pl \
-	$(srcdir)/clauses.yap \
-	$(srcdir)/coinduction.yap \
-        $(srcdir)/dbqueues.yap \
-	$(srcdir)/dbusage.yap \
-	$(srcdir)/dgraphs.yap \
-	$(srcdir)/exo_interval.yap \
-	$(srcdir)/expand_macros.yap \
-	$(srcdir)/gensym.yap \
-	$(srcdir)/hacks.yap \
-	$(srcdir)/heaps.yap \
-	$(srcdir)/lambda.pl \
-	$(srcdir)/lineutils.yap \
-	$(srcdir)/listing.yap \
-	$(srcdir)/lists.yap \
-	$(srcdir)/nb.yap \
-	$(srcdir)/ordsets.yap \
-	$(srcdir)/parameters.yap \
-	$(srcdir)/mapargs.yap \
-	$(srcdir)/maplist.yap \
-	$(srcdir)/maputils.yap \
-	$(srcdir)/matlab.yap \
-	$(srcdir)/matrix.yap \
-	$(srcdir)/prandom.yap \
-	$(srcdir)/queues.yap \
-	$(srcdir)/random.yap \
-	$(srcdir)/range.yap \
-	$(srcdir)/rbtrees.yap \
-	$(srcdir)/regexp.yap \
-	$(srcdir)/rltree.yap \
-	$(srcdir)/sockets.yap \
-	$(srcdir)/splay.yap \
-	$(srcdir)/stringutils.yap \
-	$(srcdir)/system.yap \
-	$(srcdir)/terms.yap \
-	$(srcdir)/tries.yap \
-	$(srcdir)/itries.yap \
-	$(srcdir)/timeout.yap \
-	$(srcdir)/trees.yap \
-	$(srcdir)/ugraphs.yap \
-	$(srcdir)/undgraphs.yap \
-	$(srcdir)/varnumbers.yap \
-	$(srcdir)/wdgraphs.yap \
-	$(srcdir)/wgraphs.yap \
-	$(srcdir)/wundgraphs.yap \
-	$(srcdir)/lam_mpi.yap \
-	$(srcdir)/ypp.yap \
-	$(srcdir)/c_alarms.yap \
-	$(srcdir)/flags.yap \
-	$(srcdir)/block_diagram.yap
+OBJS=core_tries.o base_tries.o base_dbtries.o tries.o base_itries.o itries.o
+SOBJS=tries.@SO@ itries.@SO@
 
-DIALECT_PROGRAMS= \
-	$(srcdir)/dialect/commons.yap \
-	$(srcdir)/dialect/bprolog.yap \
-	$(srcdir)/dialect/hprolog.yap \
-	$(srcdir)/dialect/swi.yap
+#in some systems we just create a single object, in others we need to
+# create a libray
 
-DIALECT_SWI= \
-	$(srcdir)/dialect/swi/INDEX.pl \
-	$(srcdir)/dialect/swi/listing.pl \
-	$(srcdir)/dialect/swi/syspred_options.pl
+all: $(SOBJS)
 
-DIALECT_BP= \
-	$(srcdir)/dialect/bprolog/actionrules.pl \
-	$(srcdir)/dialect/bprolog/arrays.yap \
-	$(srcdir)/dialect/bprolog/compile_foreach.pl \
-	$(srcdir)/dialect/bprolog/foreach.pl \
-	$(srcdir)/dialect/bprolog/hashtable.yap
+core_tries.o: $(srcdir)/core_tries.h $(srcdir)/core_tries.c $(srcdir)/core_dbtries.h $(srcdir)/core_dbtries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/core_tries.c -o core_tries.o
 
-all:
+base_tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/base_tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h $(srcdir)/base_dbtries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/base_tries.c -o base_tries.o
 
-install: $(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) install-examples
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect/bprolog
-	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
-	for p in $(DIALECT_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect; done
-	for p in $(DIALECT_SWI); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi; done
-	for p in $(DIALECT_BP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/bprolog; done
+tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/tries.c -o tries.o
 
+base_itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/base_itries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/base_itries.c -o base_itries.o
+
+itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/itries.c
+	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/itries.c -o itries.o
+
+@DO_SECOND_LD@%.@SO@: %.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@
+
+@DO_SECOND_LD@tries.@SO@: core_tries.o base_tries.o tries.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o tries.@SO@ core_tries.o base_tries.o tries.o @EXTRA_LIBS_FOR_DLLS@
+
+@DO_SECOND_LD@itries.@SO@: core_tries.o base_itries.o itries.o
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o itries.@SO@ core_tries.o base_itries.o itries.o @EXTRA_LIBS_FOR_DLLS@
+
+install: all install-examples
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
 
 install-examples:
 
-clean:
-
 distclean: clean
-	rm -f *def Makefile
-
-
-##########
-FULL_PATH_PL_SOURCES=$(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) 
-
-TAGS: $(PROGRAMS)  $(DIALECT_PROGRAMS) $(DIALECT_SWI) $(DIALECT_BP) 
-	etags --append ../TAGS $(FULL_PATH_PL_SOURCES) 
-
+	rm -f Makefile

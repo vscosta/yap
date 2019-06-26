@@ -33,13 +33,14 @@
 set_tunable(I,Slope,P) :-
     X <== P[I],
     sigmoid(X,Slope,Pr),
-    (Pr > 0.99
-	    ->
-		NPr = 0.99
-			;
-			Pr < 0.01
-			       ->
-				   NPr = 0.01 ;
+    (
+%    Pr > 0.99
+%	    ->
+%		NPr = 0.99
+%			;
+%			Pr < 0.01
+%			       ->
+%				   NPr = 0.01 ;
 				   Pr = NPr ),
     set_fact_probability(I,NPr).
 
@@ -61,14 +62,17 @@ bind_maplist([], _Slope, _X).
 bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
     SigPr <== X[Node],
     sigmoid(SigPr, Slope, Pr),
-        (Pr > 0.999
-	    ->
-		NPr = 0.999
-			;
-			Pr < 0.001
-			       ->
-				   NPr = 0.001 ;
-				   Pr = NPr ),
+        (
+%        Pr > 0.999
+%	    ->
+%		NPr = 0.999
+%			;
+%			Pr < 0.001
+%			       ->
+%				   NPr = 0.001
+%				   ;
+				   Pr = NPr
+				    ),
 bind_maplist(MapList, Slope, X).
 
 

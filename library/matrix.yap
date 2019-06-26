@@ -672,7 +672,8 @@ rhs(RHS, _, O) :-
     /**
       */
     % base case
-    rhs(A, O) :- atom(A), !, O = A.
+    rhs(A, O) :-  %  writeln(rhs:A),
+atom(A), !, O = A.
     rhs(RHS, O) :- number(RHS), !, O = RHS.
     rhs(RHS, O) :- opaque(RHS), !, O = RHS.
     rhs(RHS, O) :-
@@ -751,18 +752,27 @@ rhs(RHS, _, O) :-
     	->
     	address_to_sum(A, N, Logs)
     	).
-    rhs(S, NS) :-
-    	rhs_opaque( S ), !,
-    	S = NS.
     rhs(E1+E2, V) :- !,
-    	rhs(E1, R1),
+   	rhs(E1, R1),
     	rhs(E2, R2),
 	mplus(R1, R2, V).
     rhs(E1-E2, V) :- !,
     	rhs(E1, R1),
     	rhs(E2, R2),
     	msub(R1, R2, V).
-    rhs(S, NS) :-
+     rhs(E1*E2, V) :- !,
+     	rhs(E1, R1),
+     	rhs(E2, R2),
+ 	mtimes(R1, R2, V).
+    rhs(E1/E2, V) :- !,
+        	rhs(E1, R1),
+    	rhs(E2, R2),
+	mfdiv(R1, R2, V).
+    rhs(-E1, V) :- !,
+        	rhs(E1, R1),
+	mneg(R1, V).
+   rhs(S, NS) :-
+   writeln(bad:S),
     	S =.. [N|As],
     	maplist(rhs, As, Bs),
     	NS =.. [N|Bs].
@@ -859,17 +869,16 @@ get( RHS, Args, Val) :-
 
 
 set_el( Mat, Pos, El) :-
-    opaque(X),
+    opaque(Mat),
     !,
 	matrixn_set( Mat, Pos, El ).
 set_el( floats(Address,Len), [I], El) :-
-    integer(Address),
 	!,
      set_float_from_address( Address, I, El).
 set_el(X, [I], El) :-
     atom(X),
     !,
-	assign_static(X, I, El  ).
+    update_static(X, I, El  ).
 set_el(M, I, El) :-
     M = '$matrix'(_Dims, _NDims, _Size, _Offsets, _Matrix),
     m_set(M, I, El).
@@ -877,21 +886,19 @@ set_el(M, I, El) :-
 set_lhs(V, V) :-
         !.
 set_lhs('[]'(Args, M), Val) :-
-   !,
-   maplist(number, Args),
-   ( M = floats(A,_), Args = [I],
-    set_float_from_address(A,I,Val)
-   ;
-	matrix_dims( M, Dims, Bases),
-	maplist( index(Range), Args, Dims, Bases, NArgs),
-	(
-	 var(Range)
-	->
-	  matrix_set( M, Args, Val )
-	;
-	  matrix_set_range( M, NArgs, Val )
-	)
-	).
+    maplist(number, Args),
+    !,
+    set_el(M,Args,Val).
+set_lhs('[]'(Args, M), Val) :-
+    dims( M, Dims, Bases),
+    maplist( index(Range), Args, Dims, Bases, NArgs),
+    (
+	var(Range)
+    ->
+    matrix_set( M, Args, Val )
+    ;
+    matrix_set_range( M, NArgs, Val )
+    ).
 set_lhs(V, R) :-
     number(R),
     !,
@@ -941,8 +948,7 @@ index(I*J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I1*J1.
-index(I div J, M, O ) :- !,
-	index(I, M, I1),
+index(I*J, M, O ) :- !,
 	index(J, M, J1),
 	O is I1 div J1.
 index(I rem J, M, O ) :- !,
@@ -1005,37 +1011,51 @@ mplus(I1, I2, V) :-
 	    ).
 
 msub(I1, I2, V) :-
-	number(I1) ->
-	  ( number(I2) -> V is I1-I2 ;
-	    matrix(I2) -> matrix_op_to_all(I1, -, NI2, V) ;
-	    is_list(I2) ->  maplist(minus(I1), I2, V) ;
-	    V = I1-I2 ) ;
-	 matrix(I1) ->
-	    ( number(I2) -> NI2 is -I2, matrix_op_to_all(I1, +, NI2, V) ;
-	      matrix(I2) ->  matrix_op(I1, I2, -, V) ;
-	      V = I1-I2 ) ;
-	 is_list(I1) ->
-	    ( number(I2) -> NI2 is -I2, maplist(plus(NI2), I1, V) ;
-	      is_list(I2) ->  maplist(minus, I1, I2, V) ;
-	      V = I1-I2 ) ;
-	    V = I1-I2.
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, -, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, -, V) ;
+        	      V is I1-I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(minus(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(minus, I1, I2, V) ;
+        	      V is I1-I2 ) ;
+        	    V is I1-I2
+        	    ).
+
 
 
 mtimes(I1, I2, V) :-
-	number(I1) ->
-	  ( number(I2) -> V is I1*I2 ;
-	    matrix(I2) -> matrix_op_to_all(I1, *, I2, V) ;
-	    is_list(I2) ->  maplist(times(I1), I2, V) ;
-	    V = I1*I2 ) ;
-	 matrix(I1) ->
-	    ( number(I2) -> matrix_op_to_all(I1, *, I2, V) ;
-	      matrix(I2) ->  matrix_op(I1, I2, *, V) ;
-	      V = I1*I2 ) ;
-	 is_list(I1) ->
-	    ( number(I2) -> maplist(times(I2), I1, V) ;
-	      is_list(I2) ->  maplist(times, I1, I2, V) ;
-	      V = I1*I2 ) ;
-	    V = I1 *I2.
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, *, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, *, V) ;
+        	      V is I1*I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(times(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(times, I1, I2, V) ;
+        	      V is I1*I2 ) ;
+        	    V is I1*I2
+        	    ).
+
+mfdiv(I1, I2, V) :-
+        	 (matrix(I1) ->
+        	    ( number(I2) -> matrix_op_to_all(I1, /, I2, V) ;
+        	      matrix(I2) ->  matrix_op(I1, I2, /, V) ;
+        	      V is I1/I2 ) ;
+        	 is_list(I1) ->
+        	    ( number(I2) -> maplist(div(I2), I1, V) ;
+        	      is_list(I2) ->  maplist(div, I1, I2, V) ;
+        	      V is I1/I2 ) ;
+        	    V is I1/I2
+        	    ).
+
+
+mneg(I1, V) :-
+        	 (matrix(I1) ->
+        	    matrix_op_to_all(I1, *, -1, V) ;
+        	 is_list(I1) ->
+        	     maplist(mult(-1), V) ;
+        	    V is -I1
+        	    ).
 
 %
 % three types of matrix: integers, floats and general terms.

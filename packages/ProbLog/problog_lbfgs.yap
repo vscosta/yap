@@ -853,17 +853,19 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,Step,_) :-
     Grad <== 0.0,
     example_count(Exs),
    LLs <== array[Exs] of floats,
+   LLs <== 0,
     catch(
 	go( X,Grad, LLs),
 	Error,
 	(writeln(Error), throw(Error) )),
    SLL <== sum(LLs),
-   writeln(SLL:Step),
-    %sum_list( LLs, SLL),
-   % show(Grad, 100),
-    LLH_Training_Queries[0] <== SLL,
-    fail.
-user:evaluate(_LLH_Training_Queries, _X,_Grad,_N,_Step,_).
+%   writeln(SLL:Step),
+  % LL <== list(LLs),
+   % sum_list( LL, SLL2),
+%   writeln(SLL2:Step),
+%    show(Grad, 100),
+    !,
+    lbfgs_fx( SLL ).
 
 
 show(X) :-
@@ -879,30 +881,36 @@ show(X,N) :-
 show(_,_) :-
     nl.
 
-go( X,Grad,LL) :-
+go( X,Grad,LLs) :-
     problog_flag(sigmoid_slope,Slope),
-	compute_gradient(Grad, X, Slope,LL),
-	fail.
-go(_,_,_).
-
-compute_gradient( Grad, X, Slope, LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
+  	once( go_(X,Grad,LLs,QueryID,QueryProb,Slope)),
+  	fail.
+go( X,Grad,LLs).
+
+ go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
 	MapList = [_|_],
+	!,
 	bind_maplist(MapList, Slope, X),
 	query_probabilities( BDD, BDDProb),
 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
 	LLs[QueryID] <== LL,
+	%write(query:QueryID:[BDDProb-QueryProb]:' '),
     forall(
 	query_gradients(BDD,I,IProb,GradValue),
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
     ).
+% go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
+%    BDDProb = 0.5,
+%	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+%LLs[QueryID] <== LL.
 
 gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
-    GN is -GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
-	% writeln(I:GN=GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb)),
-    Grad[I] <+= GN.
+    GN <== Grad[I]-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
+        %  write(I:GN:' '),
+    Grad[I] <== GN.
 
 wrap( X, Grad, GradCount) :-
     tunable_fact(FactID,GroundTruth),

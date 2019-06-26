@@ -3081,10 +3081,21 @@ static YAP_Bool address_to_sum(void) {
     YAP_Term t = YAP_TermNil();
     int i;
     YAP_Float f = 0.0;
-    YAP_Float *fp = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
+    YAP_Float *data = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
     YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
-    for (i = 0; i< sz; i++)
-        f += fp[i];
+    double sum = 0.0;
+    // function KahanSum(input)
+    double c = 0.0; // A running compensation for lost low-order bits.
+    for (i = 0; i < sz; i++) {
+        double y = data[i] - c; // So far, so good: c is zero.
+        double t =
+                sum +
+                y; // Alas, sum is big, y small, so low-order digits of y are lost.
+        c = (t - sum) - y; // (t - sum) cancels the high-order part of y;
+        // subtracting y recovers negative (low part of y)
+        sum = t;           // Algebraically, c should always be zero. Beware
+        // overly-aggressive optimizing compilers!
+    }
     t = YAP_MkFloatTerm(f);
     return YAP_Unify(YAP_ARG3, t);
 }

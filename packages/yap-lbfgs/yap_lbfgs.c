@@ -126,6 +126,7 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   lbfgsfloatval_t rc=0.0;
   YAP_Term t12[2];
   YAP_Term t[6], t2[2];
+    printf(" call %f in YAP.\n", step);
 
   YAP_Term t_0[2];
   t_0[0] = YAP_MkIntTerm((YAP_Int)&rc);
@@ -150,13 +151,14 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   result = YAP_RunGoalOnce(call);
   // lbfgs_status=LBFGS_STATUS_RUNNING;
 
-  if (result == FALSE) {
+    if (result == FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
     return FALSE;
   }
-   YAP_ShutdownGoal(true);
-  return rc;
+    YAP_ShutdownGoal(false);
+  // YAP_ShutdownGoal(true);
+  return f_x;
 }
 
 static int progress(void *instance, const lbfgsfloatval_t *local_x,
@@ -306,7 +308,10 @@ if (ret >= 0 )
 }
 
 static YAP_Bool lbfgs_fx(void) {
+    if (YAP_IsVarTerm(YAP_ARG1))
     return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
+    f_x = YAP_FloatOfTerm(YAP_ARG1);
+    return true;
 }
 
 static YAP_Bool lbfgs_grab(void) {
