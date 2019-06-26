@@ -878,6 +878,10 @@ set_lhs(V, V) :-
         !.
 set_lhs('[]'(Args, M), Val) :-
    !,
+   maplist(number, Args),
+   ( M = floats(A,_), Args = [I],
+    set_float_from_address(A,I,Val)
+   ;
 	matrix_dims( M, Dims, Bases),
 	maplist( index(Range), Args, Dims, Bases, NArgs),
 	(
@@ -886,6 +890,7 @@ set_lhs('[]'(Args, M), Val) :-
 	  matrix_set( M, Args, Val )
 	;
 	  matrix_set_range( M, NArgs, Val )
+	)
 	).
 set_lhs(V, R) :-
     number(R),

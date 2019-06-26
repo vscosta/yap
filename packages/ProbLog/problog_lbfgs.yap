@@ -858,9 +858,9 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,Step,_) :-
 	Error,
 	(writeln(Error), throw(Error) )),
    SLL <== sum(LLs),
-   writeln(SLL),
+   writeln(SLL:Step),
     %sum_list( LLs, SLL),
-    show(Grad, 100),
+   % show(Grad, 100),
     LLH_Training_Queries[0] <== SLL,
     fail.
 user:evaluate(_LLH_Training_Queries, _X,_Grad,_N,_Step,_).
@@ -897,12 +897,12 @@ compute_gradient( Grad, X, Slope, LLs) :-
     forall(
 	query_gradients(BDD,I,IProb,GradValue),
 	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
-    ), halt.
+    ).
 
 gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
     GN is -GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
-	writeln(I:GN=GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb)),
-    Grad[I] <== Grad[I]+GN.
+	% writeln(I:GN=GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb)),
+    Grad[I] <+= GN.
 
 wrap( X, Grad, GradCount) :-
     tunable_fact(FactID,GroundTruth),
