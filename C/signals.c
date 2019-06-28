@@ -445,7 +445,7 @@ void Yap_InitSignalCPreds(void) {
 #endif
 }
 
-void *Yap_InitSignals(int wid) {
+void *                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         Yap_InitSignals(int wid) {
   void *ptr = (void *)malloc(sizeof(UInt) * REMOTE_MaxActiveSignals(wid));
   return ptr;
 }

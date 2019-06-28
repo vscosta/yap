@@ -852,8 +852,9 @@ user:evaluate(LLH_Training_Queries, X,Grad,N,Step,_) :-
     N1 is N-1,
     Grad <== 0.0,
     example_count(Exs),
-   LLs <== array[Exs] of floats,
-   LLs <== 0,
+    lbfgs_alloc(Exs, LLs),
+   %LLs <== array[Exs] of floats,
+   %LLs <== 0,
     catch(
 	go( X,Grad, LLs),
 	Error,

@@ -1280,7 +1280,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
           case YAP_PARSING_FINISHED: {
             CACHE_REGS
             bool done;
-            if (fe->reading_clause)
+            if (clause)
               done = complete_clause_processing(fe, LOCAL_tokptr);
             else
               done = complete_processing(fe, LOCAL_tokptr);

@@ -26,6 +26,8 @@
 
 		 lbfgs_fx/1,
 		 lbfgs_finalize/1,
+		 lbfgs_alloc/2,
+		 lbfgs_free/1,
 
 		 lbfgs_set_parameter/2,
 		 lbfgs_get_parameter/2,
