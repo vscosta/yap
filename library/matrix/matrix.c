@@ -3080,7 +3080,6 @@ static YAP_Bool address_to_list(void) {
 static YAP_Bool address_to_sum(void) {
     YAP_Term t = YAP_TermNil();
     int i;
-    YAP_Float f = 0.0;
     YAP_Float *data = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
     YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
     double sum = 0.0;
@@ -3096,7 +3095,7 @@ static YAP_Bool address_to_sum(void) {
         sum = t;           // Algebraically, c should always be zero. Beware
         // overly-aggressive optimizing compilers!
     }
-    t = YAP_MkFloatTerm(f);
+    t = YAP_MkFloatTerm(sum);
     return YAP_Unify(YAP_ARG3, t);
 }
 

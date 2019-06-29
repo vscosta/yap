@@ -686,8 +686,10 @@ atom(A), !, O = A.
         rhs(RHS, NRHS),
         get(  NRHS,Index, V).
     rhs(matrix(List), RHS) :- !,
-    	rhs( List, A1),
-    	new_matrix(A1, [], RHS).
+    	%rhs( List, A1),
+	%    	new_matrix(A1, [], RHS).
+	length(List,Length),
+	matrix_new(floats,[Length], List, RHS).
     rhs(matrix(List, Opt1), RHS) :- !,
     	rhs( List, A1),
     	new_matrix(A1, Opt1, RHS).
