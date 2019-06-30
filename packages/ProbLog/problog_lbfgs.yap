@@ -398,22 +398,22 @@ do_learning(Iterations,Epsilon) :-
 	integer(Iterations),
 	number(Epsilon),
 	Iterations>0,
+	init_learning,
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
 	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
 
 
 do_learning_intern(0,_) :-
-	!.
+	logger_stop_timer(duration),
+	logger_write_data.
 do_learning_intern(Iterations,Epsilon) :-
 	Iterations>0,
-	init_learning,
 	current_iteration(CurrentIteration),
 	retractall(current_iteration(_)),
 	NextIteration is CurrentIteration+1,
 	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
-
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
@@ -421,40 +421,26 @@ do_learning_intern(Iterations,Epsilon) :-
 	%	ground_truth_difference,
 	%leash(0),trace,
 	gradient_descent,
-
-	mse_trainingset,
+   RemainingIterations is Iterations-1,
+    logger_get_variable(mse_trainingset,Current_MSE),
 	(
-	 last_mse(Last_MSE)
+	  retract(last_mse(Last_MSE))
 	->
-
-	  retractall(last_mse(_)),
 	  !,
-	  MSE_Diff is abs(Last_MSE-Current_MSE)
+ 	  MSE_Diff is abs(Last_MSE-Current_MSE),
+    	      assertz(last_mse(Current_MSE)),
+    	      (
+    	      	  	MSE_Diff<Epsilon
+                ->
+    	      do_learning_intern(0, Epsilon)
+    	      ;
+		init_queries,
+    	      do_learning_intern(RemainingIterations, Epsilon)
+    	      )
 	 ;
-	      logger_get_variable(mse_trainingset,Current_MSE),
-	      assertz(last_mse(Current_MSE)),
-	      MSE_Diff is Epsilon+1
-	 
-	),
-	init_queries,
-
-
-
-	!,
-	logger_stop_timer(duration),
-
-
-	logger_write_data,
-
-	MSE_Diff<Epsilon,
-	!.
-
-do_learning_intern(Iterations,Epsilon) :-
-    RemainingIterations is Iterations-1,
-    RemainingIterations > 0,
-    !,
-    do_learning_intern(RemainingIterations,Epsilon).
-do_learning_intern(_Iterations,_Epsilon).
+		init_queries,
+	       do_learning_intern(RemainingIterations, Epsilon)
+	).
 
 %========================================================================
 %= find proofs and build bdds for all training and test examples
@@ -489,7 +475,6 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	empty_bdd_directory,
 	init_queries,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -533,16 +518,6 @@ set_default_gradient_method :-
 
 
 
-empty_bdd_directory :-
-	current_key(_,I),
-	integer(I),
-	recorded(I,bdd(_,_,_),R),
-	erase(R),
-	fail.
-empty_bdd_directory.
-
-
-
 %========================================================================
 %= This predicate goes over all training and test examples,
 %= calls the inference method of ProbLog and stores the resulting
@@ -551,7 +526,6 @@ empty_bdd_directory.
 
 
 init_queries :-
-    empty_bdd_directory,
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
 	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
@@ -590,7 +564,7 @@ init_one_query(QueryID,Query,_Type) :-
 	 reverse(Tree0,Tree),
  	  %rb_new(H0),
 	  %maplist_to_hash(MapList, H0, Hash),
-	  %tree_to_grad(Tree, Hash, [], Grad),
+	  %tree_to_grad(Tree, Hash, [], Grad),fev
 	  % ;
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
@@ -599,8 +573,18 @@ add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
+	    (recorded(QueryID,bdd(Dir, Tree, MapList),_)
+	    ->
+	    put_char('#')
+	    ;
+	    (	    recorda(QueryID,_,Ref),
+	    	    erase(Ref),
+	    	    fail
+	    	    ;
 	    recorda(QueryID,bdd(Dir, Tree, MapList),_),
-	    put_char('.').
+	    fail
+	    ;
+	    put_char('.'))).
 
 
 %========================================================================
@@ -609,7 +593,7 @@ store_bdd(QueryID, Dir, Tree, MapList) :-
 %=
 %========================================================================
 query_probability(QueryID,Prob) :-
-    query_probability_intern(QueryID,Prob).
+    gradient(QueryID,p,Prob).
 
 %========================================================================
 %=
@@ -654,19 +638,21 @@ ground_truth_difference :-
 %= -Float
 %========================================================================
 
+partial_m2(Iteration,Handle,LogCurrentProb,SquaredError) :-
+		user:example(QueryID,Query,TrueQueryProb,_Type),
+		 query_probability(QueryID,CurrentProb),
+ 		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
+		 once(update_query_cleanup(QueryID)),
+		  SquaredError is (CurrentProb-TrueQueryProb)**2,
+		 LogCurrentProb is log(max(0.0001,CurrentProb)).
+
 mse_trainingset :-
 	current_iteration(Iteration),
 	create_training_predictions_file_name(Iteration,File_Name),
 	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Training ',[]),
 	findall(t(LogCurrentProb,SquaredError),
-		(user:example(QueryID,Query,TrueQueryProb,_Type),
-		 query_probability(QueryID,CurrentProb),
- 		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-		 once(update_query_cleanup(QueryID)),
-		  SquaredError is (CurrentProb-TrueQueryProb)**2,
-		 LogCurrentProb is log(CurrentProb)
-		),
+	partial_m2(Iteration,Handle,LogCurrentProb,SquaredError),
 		All),
 	maplist(tuple, All, AllLogs, AllSquaredErrors),
 	sum_list( AllLogs, LLH_Training_Queries),
@@ -864,6 +850,7 @@ user:evaluate(LF, X,Grad,_N,_Step,_) :-
     LLs <== 0.0,
     go( X,Grad, LLs),
     LF[0] <== sum(LLs),
+    LL <== LF[0], writeln(_Step:LL),
     %SLL <== LLs[0],
     %
  %   show(Grad, 100),
@@ -899,9 +886,9 @@ go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	%writeln(MapList),
 	query_probabilities( BDD, BDDProb),
 	Error is QueryProb-BDDProb,
-	MS0 <== LLs[0],
+	MS0 <== LLs[QueryID],
 	MS is Error*Error+MS0,
-	LLs[0] <== MS,
+	LLs[QueryID] <== MS,
 	!,
 
 %	write(q:QueryID:[BDDProb-QueryProb]:' '),
@@ -949,18 +936,21 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
     SI1 is SI+1,
     TI1 is TI+1,
    assert(current_iteration(TI1)),
+   assert(current_iteration(TI1)),
     assert(solver_iterations(SI1,LBFGSIteration)),
-%    save_model,
+    save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),
-    format('~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).
+    format('~d ~d. Iteration : (x0,x1)=(~4f,~4f)  f(X)=~4f  |X|=~4f  |X\'|=~4f  Step=~4f  Ls=~4f~n',[SI,LBFGSIteration,P0,P1,FX,X_Norm,G_Norm,Step,Ls]).
 
 
+save_state(X,_Slope,_Grad) :-
+    thetas <== X.
 save_state(X,Slope,_Grad) :-
     	tunable_fact(FactID,_GroundTruth),
     	set_tunable(FactID,Slope,X),
     	fail.
-save_state(_X, _Slope, _).
+save_state(_X, _, _).
 
 %========================================================================
 %= initialize the logger module and set the flags for learning

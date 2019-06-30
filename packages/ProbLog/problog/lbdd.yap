@@ -64,7 +64,18 @@ get_prob(Node, Prob) :-
 	get_fact_probability(Node,Prob).
 
 
+bindp(I-(I-Pr)) :-
+    get_fact_probability(I,Pr).
+
 gradient(_QueryID, l, _).
+
+gradient(QueryID,p,BDDProb) :-
+	recorded(QueryID,BDD,_),
+	BDD = bdd(_,_,MapList),
+%		write(MapList:' '),
+	MapList = [_|_],
+	maplist(bindp, MapList),
+	query_probabilities( BDD, BDDProb).
 
 /*	query_probability(21,6.775948e-01). */
 gradient(QueryID, g, Slope) :-
