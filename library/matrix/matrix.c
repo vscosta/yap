@@ -3096,7 +3096,7 @@ static YAP_Bool address_to_sum(void) {
         sum = t;           // Algebraically, c should always be zero. Beware
         // overly-aggressive optimizing compilers!
     }
-    t = YAP_MkFloatTerm(f);
+    t = YAP_MkFloatTerm(sum);
     return YAP_Unify(YAP_ARG3, t);
 }
 
