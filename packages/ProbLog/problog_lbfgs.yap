@@ -595,7 +595,7 @@ init_one_query(QueryID,Query,_Type) :-
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
 	 store_bdd(QueryID, Dir, Tree, MapList).
-add_bdd(QueryID,Query, Bdd).
+add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
@@ -857,15 +857,16 @@ update_values :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(LLs, X,Grad,N,Step,_) :-
-    writeln(ev:Step),
+user:evaluate(LF, X,Grad,_N,_Step,_) :-
     Grad <== 0.0,
-    LLs[0] <== 0.0,
+    example_count(Exs),
+    LLs <== array[Exs] of floats,
+    LLs <== 0.0,
     go( X,Grad, LLs),
-    SLL <== LLs[0],
-    writeln(SLL:Step),
+    LF[0] <== sum(LLs),
+    %SLL <== LLs[0],
     %
-    show(Grad, 100),
+ %   show(Grad, 100),
     !.
 
 
@@ -890,13 +891,12 @@ go( X,Grad,LLs) :-
 go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
-    writeln(QueryID),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
 %		write(MapList:' '),
 	MapList = [_|_],
 		bind_maplist(MapList, Slope, X),
-	writeln(MapList),
+	%writeln(MapList),
 	query_probabilities( BDD, BDDProb),
 	Error is QueryProb-BDDProb,
 	MS0 <== LLs[0],
@@ -908,7 +908,8 @@ go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 	forall(
 	    query_gradients(BDD,I,IProb,GradValue),
 	    gradient_pair(Error, Grad, GradValue, I, IProb)
-	), writeln(MS).
+	).
+	 %writeln(MS).
 %% go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
 %%     BDDProb = 0.5,
 %% 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),

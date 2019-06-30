@@ -1279,15 +1279,6 @@ matrix_op_to_all(M1,-,Num,NM) :-
 	  mapargs(minus(Num), C, NC),
 	  NM = '$matrix'(A,B,D,E,NC)
 	  ).
-matrix_op(M1,M2,/,NM) :-
-	( opaque(M1), opaque(M2) ->
-	  do_matrix_op(M1,M2,3,NM) ;
-	  dims(M1,Ds,Bs),
-matrix_to_list(M1,L1),
-	  dims(M2,Ds,Bs),
-matrix_to_list(M2,L2),
-	  maplist(div, C1, C2, C)
-	).
 matrix_op_to_all(M1,*,Num,NM) :-
 	( opaque(M1) ->
 	  do_matrix_op_to_all(M1,2,Num,NM)
