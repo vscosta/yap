@@ -1852,12 +1852,10 @@ static Int p_nb_heap(USES_REGS1) {
   while ((heap = MkZeroApplTerm(
               Yap_MkFunctor(AtomHeapData, 2 * hsize + HEAP_START + 1),
               2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    while (HR + hsize > ASP - 2*MIN_ARENA_SIZE) {
-      if (!Yap_dogc(0, NULL PASS_REGS)) {
+   if (!Yap_dogc(0, NULL PASS_REGS)) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return 0;
-      }
-    }	  
+    }
   }
   if (!Yap_unify(heap, ARG2))
     return FALSE;
