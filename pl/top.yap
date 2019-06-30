@@ -136,7 +136,7 @@ live :-
  %
  %
 
-'$execute_command'(C,_,_,_,_,Source) :-
+'$execute_command'(C,_,_,_,_,_Source) :-
     must_be_callable(C),
     fail.
  '$execute_command'(end_of_file,_,_,_,_,_) :- !.
@@ -569,7 +569,6 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	'$current_choice_point'(CP),
     gated_call('$start_user_code',M:G,Port,'$reenter_debugger'(Port)).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).

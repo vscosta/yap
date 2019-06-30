@@ -32,17 +32,9 @@
 
 set_tunable(I,Slope,P) :-
     X <== P[I],
-    sigmoid(X,Slope,Pr),
-    (
-%    Pr > 0.99
-%	    ->
-%		NPr = 0.99
-%			;
-%			Pr < 0.01
-%			       ->
-%				   NPr = 0.01 ;
-				   Pr = NPr ),
-    set_fact_probability(I,NPr).
+    sigmoid(X,Slope,NewProbability),
+    Prob_Secure is min(0.99,max(0.01,NewProbability)),
+    set_fact_probability(I,Prob_Secure).
 
 %========================================================================
 %= Updates all values of query_probability/2 and query_gradient/4
@@ -62,18 +54,8 @@ bind_maplist([], _Slope, _X).
 bind_maplist([Node-(Node-NPr)|MapList], Slope, X) :-
     SigPr <== X[Node],
     sigmoid(SigPr, Slope, Pr),
-        (
-%        Pr > 0.999
-%	    ->
-%		NPr = 0.999
-%			;
-%			Pr < 0.001
-%			       ->
-%				   NPr = 0.001
-%				   ;
-				   Pr = NPr
-				    ),
-bind_maplist(MapList, Slope, X).
+    NPr is min(0.99,max(0.01,Pr)),
+    bind_maplist(MapList, Slope, X).
 
 
 %get_prob(Node, Prob) :-

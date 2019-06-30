@@ -511,16 +511,18 @@ notrace(G) :-
     false
     ;
 	'$get_debugger_state'( goal_number, GN ) ,
-	    GN > GoalNo
+	GN > GoalNo
      ).
-'$creep_is_on_at_entry'(G,M,_GoalNo) :-
+'$creep_is_on_at_entry'(G,M,GoalNo) :-
     \+ '$is_system_predicate'(G,M),
-    '$get_debugger_state'(Step, _GN, Spy,_),
+    '$get_debugger_state'(Step, GN, Spy,_),
     (
 	Step \= zip
     ;
     Spy == stop,
     '$pred_being_spied'(G,M)
+    ;
+    GoalNo =< GN
     ).
 
    

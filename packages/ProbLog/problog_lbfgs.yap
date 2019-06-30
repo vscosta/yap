@@ -223,6 +223,7 @@
 :- use_module(library(lbfgs)).
 :- reexport(library(matrix)).
 :- reexport(library(terms)).
+:- reexport(library(nb)).
 
 % load our own modules
 :- reexport(problog).
@@ -251,18 +252,21 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
+%:- table user:example/4.
 :- multifile(user:example/4).
 :- multifile(user:problog_discard_example/1).
-user:example(A,B,C,=) :-
+user:example(A,B,Nr,=) :-
 	current_predicate(user:example/3),
-	user:example(A,B,C),
+	user:example(A,B,Pr),
+	smoothen(Pr,Nr),
 	\+  user:problog_discard_example(B).
 
+
+
 :- multifile(user:test_example/4).
-user:test_example(A,B,C,=) :-
+user:test_example(A,B,Pr,=) :-
 	current_predicate(user:test_example/3),
-	user:test_example(A,B,C),
-	\+  user:problog_discard_example(B).
+	user:test_example(A,B,Pr).
 
 %========================================================================
 %= store the facts with the learned probabilities to a file
@@ -442,19 +446,15 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	logger_write_data,
 
-
-
-	current_iteration(ThisCurrentIteration),
-	RemainingIterations is Iterations-ThisCurrentIteration,
-
-
 	MSE_Diff<Epsilon,
 	!.
 
 do_learning_intern(Iterations,Epsilon) :-
-    RemainingInteractions is Iterations-1,    
+    RemainingIterations is Iterations-1,
+    RemainingIterations > 0,
+    !,
     do_learning_intern(RemainingIterations,Epsilon).
-
+do_learning_intern(_Iterations,_Epsilon).
 
 %========================================================================
 %= find proofs and build bdds for all training and test examples
@@ -585,7 +585,7 @@ init_one_query(QueryID,Query,_Type) :-
     add_bdd(QueryID,Query, Bdd) :-
 	Bdd = bdd(Dir, Tree0,MapList),
 	user:graph2bdd(Query,1,Bdd),
-	Bdd \= [],
+	Tree0 \= [],
 	!,
 	 reverse(Tree0,Tree),
  	  %rb_new(H0),
@@ -595,6 +595,7 @@ init_one_query(QueryID,Query,_Type) :-
 	  % Bdd = bdd(-1,[],[]),
 	  % Grad=[]
 	 store_bdd(QueryID, Dir, Tree, MapList).
+add_bdd(QueryID,Query, Bdd).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
@@ -751,18 +752,34 @@ mse_testset :-
 
 %========================================================================
 %= Calculates the sigmoid function respectivly the inverse of it
-%= warning: applying inv_sigmoid to 0.0 or 1.0 will yield +/-inf
+%= warning: applying inv_sigm1oid to 0.0 or 1.0 will yield +/-inf
 %=
 %= +Float, -Float
 %========================================================================
 
-sigmoid(T,Slope,Sig) :-
-    IN <== T,
-    OUT is 1/(1+exp(-IN*Slope)),
-    Sig <== OUT.
+:- table smoothen/2.
 
+smoothen(Pr, NPr) :-
+    		(
+	    Pr > 0.999
+	    ->
+		NPr = 0.999
+			;
+			Pr < 0.001
+			       ->
+				   NPr = 0.001 ;
+					   NPr = Pr
+				   ).
+
+sigmoid(-inf,_Slope,0.0) :- !.
+sigmoid(+inf,_Slope,1.0) :- !.
+sigmoid(Pr,Slope,Sig) :-
+    Sig is 1/(1+exp(-Pr*Slope)).
+
+inv_sigmoid(0.0,_Slope,-inf) :- !.
+inv_sigmoid(1.0,_Slope,+inf) :- !.
 inv_sigmoid(T,Slope,InvSig) :-
-	InvSig is -log(1/T-1)/Slope.
+    InvSig is -log(1/T-1)/Slope.
 
 
 %========================================================================
@@ -788,15 +805,8 @@ gradient_descent :-
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
     sigmoid(X, Slope, Pr),
-%    (Pr > 0.999
-%	    ->
-%		NPr = 0.999
-%			;
-%			Pr < 0.001
-%			       ->
-%				   NPr = 0.001 ;
-				   Pr = NPr ,
-%				   ),
+   (Pr = NPr
+			   ),
     set_fact_probability(FactID, NPr).
 
 
@@ -845,27 +855,18 @@ update_values :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% start calculate gradient
+%  calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-user:evaluate(LLH_Training_Queries, X,Grad,N,Step,_) :-
-    %Handle = user_error,
-    N1 is N-1,
+user:evaluate(LLs, X,Grad,N,Step,_) :-
+    writeln(ev:Step),
     Grad <== 0.0,
-    example_count(Exs),
-   LLs <== array[Exs] of floats,
-   LLs <== 0,
-    catch(
-	go( X,Grad, LLs),
-	Error,
-	(writeln(Error), throw(Error) )),
-   SLL <== sum(LLs),
-%   writeln(SLL:Step),
-  % LL <== list(LLs),
-   % sum_list( LL, SLL2),
-%   writeln(SLL2:Step),
-%    show(Grad, 100),
-    !,
-    lbfgs_fx( SLL ).
+    LLs[0] <== 0.0,
+    go( X,Grad, LLs),
+    SLL <== LLs[0],
+    writeln(SLL:Step),
+    %
+    show(Grad, 100),
+    !.
 
 
 show(X) :-
@@ -886,31 +887,40 @@ go( X,Grad,LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
   	once( go_(X,Grad,LLs,QueryID,QueryProb,Slope)),
   	fail.
-go( X,Grad,LLs).
+go( _X,_Grad,_LLs).
 
- go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
+go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
+    writeln(QueryID),
 	recorded(QueryID,BDD,_),
 	BDD = bdd(_,_,MapList),
+%		write(MapList:' '),
 	MapList = [_|_],
-	!,
-	bind_maplist(MapList, Slope, X),
+		bind_maplist(MapList, Slope, X),
+	writeln(MapList),
 	query_probabilities( BDD, BDDProb),
-	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
-	LLs[QueryID] <== LL,
-	%write(query:QueryID:[BDDProb-QueryProb]:' '),
-    forall(
-	query_gradients(BDD,I,IProb,GradValue),
-	gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, IProb)
-    ).
-% go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
-%    BDDProb = 0.5,
-%	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
-%LLs[QueryID] <== LL.
+	Error is QueryProb-BDDProb,
+	MS0 <== LLs[0],
+	MS is Error*Error+MS0,
+	LLs[0] <== MS,
+	!,
 
-gradient_pair(BDDProb, QueryProb, Grad, GradValue, I, Prob) :-
-    GN <== Grad[I]-GradValue*Prob*(1-Prob)*2*(QueryProb-BDDProb),
-        %  write(I:GN:' '),
-    Grad[I] <== GN.
+%	write(q:QueryID:[BDDProb-QueryProb]:' '),
+	forall(
+	    query_gradients(BDD,I,IProb,GradValue),
+	    gradient_pair(Error, Grad, GradValue, I, IProb)
+	), writeln(MS).
+%% go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
+%%     BDDProb = 0.5,
+%% 	LL is (BDDProb-QueryProb)*(BDDProb-QueryProb),
+%% LLs[QueryID] <== LL.
+
+
+
+gradient_pair(Error, Grad, GradValue, I, Prob) :-
+    GN <== Grad[I],
+    GI is GN-GradValue*Prob*(1.0-Prob)*2*Error,
+%    write(I[GN-GI]:' '),
+    Grad[I] <== GI.
 
 wrap( X, Grad, GradCount) :-
     tunable_fact(FactID,GroundTruth),

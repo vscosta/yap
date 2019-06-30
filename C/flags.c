@@ -138,7 +138,7 @@ static Term indexer(Term inp) {
  */
 static bool setSignals(Term inp) {
       bool handle = (inp == TermTrue || inp == TermOn);
-      if (handle != GLOBAL_PrologShouldHandleInterrupts) {
+      if (handle !=  GLOBAL_PrologShouldHandleInterrupts) {
           Yap_InitSignals(0);
       }
       GLOBAL_PrologShouldHandleInterrupts = handle;

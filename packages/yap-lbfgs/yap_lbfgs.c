@@ -2,6 +2,47 @@
 #include <lbfgs.h>
 #include <stdio.h>
 #include <string.h>
+#if defined(__APPLE__) || defined(__linux__)
+#include <signal.h>
+#include <errno.h>
+#include <fenv.h>
+#endif
+
+inline static int disable_fp_excepts()
+{
+  #ifdef __APPLE__
+    static fenv_t fenv;
+    unsigned int new_excepts = FE_ALL_EXCEPT;
+
+    // mask
+    fenv.__control |= new_excepts;
+    fenv.__mxcsr   |= new_excepts << 7;
+
+    return fesetenv(&fenv);
+#elif defined(__linux__)
+    return fedisableexcept(FE_ALL_EXCEPT);
+#endif
+}
+
+
+inline static int enable_fp_excepts()
+{
+  #ifdef __APPLE__
+    static fenv_t fenv;
+    unsigned int new_excepts = 0;
+
+    // mask
+    fenv.__control |= new_excepts;
+    fenv.__mxcsr   |= new_excepts << 7;
+    return fesetenv(&fenv);
+#elif defined(__linux__)
+    //signal(SIGFPE,ignore);
+    int rc = feenableexcept(FE_ALL_EXCEPT);
+    rc &=  fedisableexcept(FE_DIVBYZERO);
+    return rc;
+#endif
+    
+}
 
 /*
   This file is part of YAP-LBFGS.
@@ -116,20 +157,20 @@ X_API void init_lbfgs_predicates(void);
 YAP_Functor fevaluate, fprogress, fmodule, ffloats;
 YAP_Term tuser;
 
-lbfgsfloatval_t *x_p, f_x;
+lbfgsfloatval_t *x_p, *f_x;
 
 static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
                                 lbfgsfloatval_t *g_tmp, const int n,
                                 const lbfgsfloatval_t step) {
   YAP_Term call;
   YAP_Bool result;
-  lbfgsfloatval_t rc=0.0;
+  lbfgsfloatval_t *rcs;
   YAP_Term t12[2];
   YAP_Term t[6], t2[2];
-    printf(" call %f in YAP.\n", step);
 
+  rcs =lbfgs_malloc(sizeof(lbfgsfloatval_t));
   YAP_Term t_0[2];
-  t_0[0] = YAP_MkIntTerm((YAP_Int)&rc);
+  t_0[0] = YAP_MkIntTerm((YAP_Int)rcs);
   t_0[1] = YAP_MkIntTerm(n);
   t[0] = YAP_MkApplTerm(ffloats, 2, t_0);
   YAP_Term t_1[2];
@@ -150,7 +191,8 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   // lbfgs_status=LBFGS_STATUS_CB_EVAL;
   result = YAP_RunGoalOnce(call);
   // lbfgs_status=LBFGS_STATUS_RUNNING;
-
+  lbfgsfloatval_t output = rcs[0];
+  lbfgs_free(rcs);
     if (result == FALSE) {
     printf("ERROR: the evaluate call failed in YAP.\n");
     // Goal did not succeed
@@ -158,7 +200,7 @@ static lbfgsfloatval_t evaluate(void *instance, const lbfgsfloatval_t *x,
   }
     YAP_ShutdownGoal(false);
   // YAP_ShutdownGoal(true);
-  return f_x;
+  return output;
 }
 
 static int progress(void *instance, const lbfgsfloatval_t *local_x,
@@ -216,6 +258,8 @@ static int progress(void *instance, const lbfgsfloatval_t *local_x,
   return 1;
 }
 
+
+
 /** @pred lbfgs_initialize(+N,+Module,+Evaluate,+Progress)
 Create space to optimize a function with _N_ variables (_N_ has to be
 integer).
@@ -268,11 +312,11 @@ value will terminate the optimization process.
  * @Arg[FX]: status
  */
 static YAP_Bool p_lbfgs(void) {
-  YAP_Term t1 = YAP_ARG1, t;
+  YAP_Term t1 = YAP_ARG1;
   int n;
   lbfgsfloatval_t *x;
-  lbfgsfloatval_t fx;
 
+  disable_fp_excepts();
   if (!YAP_IsIntTerm(t1)) {
     return false;
   }
@@ -293,11 +337,10 @@ static YAP_Bool p_lbfgs(void) {
    YAP_Unify(YAP_ARG2, YAP_MkApplTerm(ffloats, 2, ts));
   lbfgs_parameter_t *param = &parms;
   void *ui = NULL; //(void *)YAP_IntOfTerm(YAP_ARG4);
-  int ret = lbfgs(n, x, &fx, evaluate, progress, ui, param);
-  f_x = fx;
-if (ret >= 0 )
+  int ret = lbfgs(n, x, f_x, evaluate, progress, ui, param);
+  if (ret >= 0 )
     return true;
- const char* msg;
+
  int i;
  for (i=0; msgs[i].key<0; i++) {
    if (ret == msgs[i].key)
@@ -309,8 +352,8 @@ if (ret >= 0 )
 
 static YAP_Bool lbfgs_fx(void) {
     if (YAP_IsVarTerm(YAP_ARG1))
-    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x));
-    f_x = YAP_FloatOfTerm(YAP_ARG1);
+    return YAP_Unify(YAP_ARG1, YAP_MkFloatTerm(f_x[0]));
+    f_x[0] = YAP_FloatOfTerm(YAP_ARG1);
     return true;
 }
 
@@ -567,10 +610,11 @@ X_API void init_lbfgs_predicates(void) {
 
   // Initialize the parameters for the L-BFGS optimization.
   lbfgs_parameter_init(&parms);
+  f_x = lbfgs_malloc(sizeof(lbfgsfloatval_t));
 
-  YAP_UserCPredicate("lbfgs_grab", lbfgs_grab, 2);
+  YAP_UserCPredicate("lbfgs_alloc", lbfgs_grab, 2);
   YAP_UserCPredicate("lbfgs", p_lbfgs, 2);
-    YAP_UserCPredicate("lbfgs_release", lbfgs_release, 1);
+    YAP_UserCPredicate("lbfgs_free", lbfgs_release, 1);
     YAP_UserCPredicate("lbfgs_fx", lbfgs_fx, 1);
 
   YAP_UserCPredicate("lbfgs_defaults", lbfgs_defaults, 0);

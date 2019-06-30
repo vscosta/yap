@@ -3080,7 +3080,6 @@ static YAP_Bool address_to_list(void) {
 static YAP_Bool address_to_sum(void) {
     YAP_Term t = YAP_TermNil();
     int i;
-    YAP_Float f = 0.0;
     YAP_Float *data = (YAP_Float *)YAP_IntOfTerm(YAP_ARG1);
     YAP_Int sz = YAP_IntOfTerm(YAP_ARG2);
     double sum = 0.0;

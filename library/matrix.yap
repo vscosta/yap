@@ -686,8 +686,10 @@ atom(A), !, O = A.
         rhs(RHS, NRHS),
         get(  NRHS,Index, V).
     rhs(matrix(List), RHS) :- !,
-    	rhs( List, A1),
-    	new_matrix(A1, [], RHS).
+    	%rhs( List, A1),
+	%    	new_matrix(A1, [], RHS).
+	length(List,Length),
+	matrix_new(floats,[Length], List, RHS).
     rhs(matrix(List, Opt1), RHS) :- !,
     	rhs( List, A1),
     	new_matrix(A1, Opt1, RHS).
@@ -863,7 +865,13 @@ get( RHS, Args, Val) :-
 	rhs(RHS, X1),
 	matrix_dims( X1, Dims, Bases),
 	maplist( index(Range), Args, Dims, Bases, NArgs),
-	  get_range( X1, NArgs, Val ).
+    (
+	var(Range)
+    ->
+    matrix_get( M, Args, Val )
+    ;
+    matrix_get_range( M, NArgs, Val )
+    ).
 
 
 
@@ -872,7 +880,7 @@ set_el( Mat, Pos, El) :-
     opaque(Mat),
     !,
 	matrixn_set( Mat, Pos, El ).
-set_el( floats(Address,Len), [I], El) :-
+set_el( floats(Address,_Len), [I], El) :-
 	!,
      set_float_from_address( Address, I, El).
 set_el(X, [I], El) :-
@@ -948,9 +956,6 @@ index(I*J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
 	O is I1*J1.
-index(I*J, M, O ) :- !,
-	index(J, M, J1),
-	O is I1 div J1.
 index(I rem J, M, O ) :- !,
 	index(I, M, I1),
 	index(J, M, J1),
@@ -1248,15 +1253,13 @@ matrix_op(M1,M2,*,NM) :-
 	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
 	  mapargs(times, C1, C2, C),
 	  NM = '$matrix'(A,B,D,E,C) ).
-matrix_op(M1,M2,zdiv,NM) :-
+matrix_op(M1,M2,/,NM) :-
 	( opaque(M1), opaque(M2) ->
 	  do_matrix_op(M1,M2,5,NM) ;
-	  dims(M1, Ds, Bs),
-	  dims(M2, Ds, Bs),
-	  matrix_to_list(M1, C1),
-	  matrix_to_list(M2, C2),
-	  maplist(div, C1, C2, C),
-	  new_matrix(C, [dim=Ds,base=Os], NM)
+                                	  matrix_m(M1, '$matrix'(A,B,D,E,C1)),
+                                	  matrix_m(M2, '$matrix'(A,B,D,E,C2)),
+                                	  mapargs(div, C1, C2, C),
+                                	  NM = '$matrix'(A,B,D,E,C)
 	 ).
 
 
@@ -1539,7 +1542,7 @@ get_el( X, I, El) :-
     opaque(X),
     !,
 	matrix_get( X, I, El).
-get_el( floats(Address,Len), [I], El) :-
+get_el( floats(Address,_Len), [I], El) :-
     integer(Address),
 	!,
 	get_float_from_address( Address, I, El).
