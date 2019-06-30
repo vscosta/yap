@@ -282,7 +282,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-    '__NB_getval__'('$trace',_Trace,fail),
+    '__NB_getval__'('$trace',Trace,fail),
     '$set_debugger_state'( creep, 0, stop, Trace),
     '$trace'(Mod:G).
 
@@ -399,7 +399,7 @@ be lost.
     '$trace_goal'(G, M, _GN, CP ).
 
 
-'$creep'([M|Q]) :-
+'$creep'([M|G]) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
     '$trace_goal'(Q, M, _GN, CP ).
@@ -575,20 +575,22 @@ be lost.
  '$reenter_debugger'(Port),
     fail.
 
-'$trace_port'([fail], GoalNumber, G, Module, Info) :-
+'$trace_port'([fail,exit], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(fail, GoalNumber, G, Module, Info).
-'$trace_port'([fail,_], GoalNumber, G, Module, Info) :-
+'$trace_port'([fail,answer], GoalNumber, G, Module, Info) :-
     !,
-     '$reenter_debugger'(Port),
+    '$trace_port_'(redo, GoalNumber, G, Module, Info).
+'$trace_port'([fail], _GoalNumber, _G, _Module, _Info) :-
+    !,
+     '$reenter_debugger'(fail),
      fail.
  '$trace_port'( [call], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(call, GoalNumber, G, Module, Info).
-'$trace_port'([ redo], GoalNumber, G, Module, Info) :-
-    !,
-    '$trace_port_'(redo, GoalNumber, G, Module, Info).
-'$trace_port'([exit], GoalNumber, G, Module, Info) :-
+'$trace_port'([ redo], _GoalNumber, _G, _Module, _Info) :-
+    !.
+'$trace_port'([exit], _GoalNumber, _G, _Module, _Info) :-
     !,
     '$continue_debugging'(exit).
 '$trace_port'([_Port], _GoalNumber, _G, _Module, _Info).
@@ -701,7 +703,7 @@ be lost.
     Goal.
 
 
-'$port'(P,G,Module,L,Deterministic, _Info) :-
+'$port'(P,G,Module,L,Deterministic, Info) :-
 	% at this point we are done with leap or skip
    '$set_debugger_state'( creep, L, _Stop, _Trace ),
  	repeat,
@@ -837,7 +839,7 @@ be lost.
 % stop next time.
 '$action'(k,_,_CallNumber,_,_,_) :- !,
 	skip( debugger_input, 10),		% k		zip, fast leap
-	'__NB_getval__'('$trace',_Trace,fail),
+	'__NB_getval__'('$trace',Trace,fail),
 	'$set_debugger_state'( zip, 0, stop, Trace).
         % skip first call (for current goal),
 	% stop next time.

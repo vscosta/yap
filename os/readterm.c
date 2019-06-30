@@ -1363,6 +1363,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
                                      DOMAIN_ERROR_READ_OPTION);
       memset(fe,0,sizeof(*fe));
+      fe->reading_clause = true;
     if (args && args[READ_CLAUSE_OUTPUT].used)
       {
         fe->t0 = args[READ_CLAUSE_OUTPUT].tvalue;
@@ -1387,14 +1388,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     fe->enc = GLOBAL_Stream[sno].encoding;
     fe->sp = 0;
     fe->qq = 0;
-    if (args && args[READ_CLAUSE_OUTPUT].used)
-      {
-        fe->t0 = args[READ_CLAUSE_OUTPUT].tvalue;
-      }
-    else
-      {
-        fe->t0 = 0;
-      }
     if (args && args[READ_CLAUSE_TERM_POSITION].used)
       {
         fe->tp = args[READ_CLAUSE_TERM_POSITION].tvalue;

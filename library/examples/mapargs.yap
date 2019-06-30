@@ -48,7 +48,7 @@ t9(X, Y, S) :- foldargs(plus2, X, Y, 0, S).
 
 t9 :- t9(a(1,2,3,4,5), a(1,2,3,4,5), S), writeln(S).
 
-t10(G, X, Y, S) :- foldargs(plus2, X, Y, 0, S).
+t10(G, X, Y, S) :- foldargs(G, X, Y, 0, S).
 
 t10 :- t10(plus2, a(1,2,3,4,5), a(1,2,3,4,5), S), writeln(S).
 

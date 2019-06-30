@@ -446,19 +446,15 @@ do_learning_intern(Iterations,Epsilon) :-
 
 	logger_write_data,
 
-
-
-	current_iteration(ThisCurrentIteration),
-	RemainingIterations is Iterations-ThisCurrentIteration,
-
-
 	MSE_Diff<Epsilon,
 	!.
 
 do_learning_intern(Iterations,Epsilon) :-
-    RemainingInteractions is Iterations-1,    
+    RemainingIterations is Iterations-1,
+    RemainingIterations > 0,
+    !,
     do_learning_intern(RemainingIterations,Epsilon).
-
+do_learning_intern(_Iterations,_Epsilon).
 
 %========================================================================
 %= find proofs and build bdds for all training and test examples
@@ -775,13 +771,13 @@ smoothen(Pr, NPr) :-
 					   NPr = Pr
 				   ).
 
-sigmoid(-inf,Slope,0.0) :- !.
-sigmoid(+inf,Slope,1.0) :- !.
+sigmoid(-inf,_Slope,0.0) :- !.
+sigmoid(+inf,_Slope,1.0) :- !.
 sigmoid(Pr,Slope,Sig) :-
     Sig is 1/(1+exp(-Pr*Slope)).
 
-inv_sigmoid(0.0,Slope,-inf) :- !.
-inv_sigmoid(1.0,Slope,+inf) :- !.
+inv_sigmoid(0.0,_Slope,-inf) :- !.
+inv_sigmoid(1.0,_Slope,+inf) :- !.
 inv_sigmoid(T,Slope,InvSig) :-
     InvSig is -log(1/T-1)/Slope.
 
@@ -859,14 +855,13 @@ update_values :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% sta/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// calculate gradient
+%  calculate gradient
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 user:evaluate(LLs, X,Grad,N,Step,_) :-
     writeln(ev:Step),
-    N1 is N-1,
     Grad <== 0.0,
     LLs[0] <== 0.0,
-		 go( X,Grad, LLs),
+    go( X,Grad, LLs),
     SLL <== LLs[0],
     writeln(SLL:Step),
     %
@@ -892,7 +887,7 @@ go( X,Grad,LLs) :-
   	user:example(QueryID,_Query,QueryProb,_),
   	once( go_(X,Grad,LLs,QueryID,QueryProb,Slope)),
   	fail.
-go( X,Grad,LLs).
+go( _X,_Grad,_LLs).
 
 go_(X,Grad,LLs,QueryID,QueryProb,Slope):-
     writeln(QueryID),

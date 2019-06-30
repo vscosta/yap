@@ -51,7 +51,7 @@ prolog:'$protect' :-
 prolog:'$protect' :-
    '$current_predicate'(Name,M,P,_),
     '$is_system_module'(M),
-    functor(P,Name,Arity),
+    functor(P,Name,_Arity),
     \+ '$visible'(Name), 
     '$set_private'(P,M).
 prolog:'$protect' :-
