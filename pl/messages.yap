@@ -553,8 +553,7 @@ system_message(error(permission_error(module,redefined,Mod), Who)) -->
 system_message(error(permission_error(open,source_sink,Stream), Where)) -->
   [ 'PERMISSION ERROR- ~w: cannot open file ~w' - [Where,Stream] ].
 system_message(error(permission_error(output,binary_stream,Stream), Where)) -->
-  [ 'PERMISSION ERROR- ~w: cannot
-  write to binary stream ~w' - [Where,Stream] ].
+  [ 'PERMISSION ERROR- ~w: cannot write to binary stream ~w' - [Where,Stream] ].
 system_message(error(permission_error(output,stream,Stream), Where)) -->
   [ 'PERMISSION ERROR- ~w: cannot write to ~w' - [Where,Stream] ].
 system_message(error(permission_error(output,text_stream,Stream), Where)) -->

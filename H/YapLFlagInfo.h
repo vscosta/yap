@@ -81,7 +81,9 @@ YAP_FLAG(AUTOLOAD_FLAG, "autoload", true, booleanFlag, "false", NULL),
              NULL),
   /**< If true, quoted atoms, string, lists of codes and of chars may extend over several lines, without the need to escape the new-line characters. Otherwise, unquoted line breaks cause a syntax error.
 
- The default was for it to be true, except if in iso mode. YAP-6.5 changed the default, in order to ensure compatibility.                                                                       
+     The default was for it to be true, except if in iso mode. YAP-6.5
+     changed the default, in order to ensure compatibility, and to
+     avoid long winded syntax bugs.
   */
   YAP_FLAG(MULTILINE_QUOTED_TEXT_FLAG, "multiline_quoted_text", false, booleanFlag, "false",              NULL),
 /**< Show the execution stack in exceptions. */

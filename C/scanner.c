@@ -1522,7 +1522,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
           break;
         }
         if (ch == 10 && (trueGlobalPrologFlag(ISO_FLAG) ||
-			 trueLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
+			 falseLocalPrologFlag(MULTILINE_QUOTED_TEXT_FLAG))) {
           /* in ISO a new line terminates a string */
           LOCAL_ErrorMessage = "layout character \n inside quotes";
           break;
@@ -1556,20 +1556,20 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
         t->TokInfo = Yap_CharsToTDQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-            return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else if (quote == '`') {
         t->TokInfo = Yap_CharsToTBQ((char *)TokImage, CurrentModule,
                                     LOCAL_encoding PASS_REGS);
         if (!(t->TokInfo)) {
-            return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = String_tok);
       } else {
         t->TokInfo = MkAtomTerm(Yap_LookupAtom(TokImage));
         if (!(t->TokInfo)) {
-            return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1586,10 +1586,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
           mark_eof(st);
         } else {
 	  if (params->get_eot_blank)
-         getchr(st);
+	    getchr(st);
         }
         t->TokInfo = TermEof;
-          return l;
+	return l;
       } else
         ch = getchr(st);
       break;
@@ -1597,15 +1597,15 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
       int pch;
       if (ch == '.' && (pch = Yap_peek(st - GLOBAL_Stream)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
-            if (chtype(ch) != EF)
-              getchr(st);
+	if (chtype(ch) != EF)
+	  getchr(st);
         t->Tok = Ord(kind = eot_tok);
         // consume...
         if (pch == '%') {
           t->TokInfo = TermNewLine;
-            return l;
+	  return l;
         }
-          return l;
+	return l;
       }
       if (ch == '`')
         goto quoted_string;
@@ -1616,7 +1616,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
           t->Tok = Ord(kind = eot_tok);
           if (ch == '%') {
             t->TokInfo = TermNewLine;
-              return l;
+	    return l;
           }
           if (chtype(ch) == EF) {
             mark_eof(st);
@@ -1624,7 +1624,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
           } else {
             t->TokInfo = TermNewLine;
           }
-            return l;
+	  return l;
         }
       }
       if (och == '/' && ch == '*') {
@@ -1673,7 +1673,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
         t->Tok = Ord(kind = eot_tok);
         if (ch == '%') {
           t->TokInfo = TermNewLine;
-            return l;
+	  return l;
         }
         if (chtype(ch) == EF) {
           mark_eof(st);
@@ -1681,7 +1681,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
         } else {
           t->TokInfo = TermNl;
         }
-          return l;
+	return l;
       } else {
         Atom ae;
         charp = (unsigned char *)TokImage;
@@ -1692,7 +1692,7 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
             imgsz = Yap_Min(imgsz * 2, imgsz + MBYTE);
             TokImage = Realloc(TokImage, imgsz);
             if (!TokImage) {
-                return CodeSpaceError(t, p, l);
+	      return CodeSpaceError(t, p, l);
             }
 	    charp = (unsigned char *)TokImage+sz;
           }
@@ -1701,11 +1701,11 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
         add_ch_to_buff('\0');
         ae = Yap_LookupAtom(TokImage);
         if (ae == NIL) {
-            return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->TokInfo = MkAtomTerm(ae);
         if (t->TokInfo == (CELL)NIL) {
-            return CodeSpaceError(t, p, l);
+	  return CodeSpaceError(t, p, l);
         }
         t->Tok = Ord(kind = Name_tok);
         if (ch == '(')
@@ -1768,14 +1768,14 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
             LOCAL_ErrorMessage = "not enough heap space to read in quasi quote";
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-              return l;
+	    return l;
           }
           if (cur_qq) {
             LOCAL_ErrorMessage = "quasi quote in quasi quote";
 	    //                      Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
             t->Tok = Ord(kind = eot_tok);
             t->TokInfo = TermOutOfHeapError;
-              return l;
+	    return l;
           } else {
             cur_qq = qq;
           }

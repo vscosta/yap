@@ -245,7 +245,7 @@ be lost.
 -----------------------------------------------------------------------------*/
 
 
- /**
+/**
    * @defgroup DebImplementation Implementation of the Debugger
    * @{
    * @brief Prolog code to do debugging.
@@ -273,7 +273,7 @@ be lost.
 
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
-				%
+%
 /**
   * @pred $spy( +Goal )
   *
@@ -335,16 +335,16 @@ be lost.
     '$trace'(Mod:NG).
 
 '$trace'(Mod:G, A1, A2, A3, A4, A5, A6) :-
-	G =.. L,
-	lists:append( L, [A1, A2, A3, A4, A5, A6], NL),
-	NG =.. NL,
-	'$trace'(Mod:NG).
+    G =.. L,
+    lists:append( L, [A1, A2, A3, A4, A5, A6], NL),
+    NG =.. NL,
+    '$trace'(Mod:NG).
 
 '$trace'(Mod:G, A1, A2, A3, A4, A5, A6, A7) :-
-	G =.. L,
-	lists:append( L, [A1, A2, A3, A4, A5, A6, A7 ], NL),
-	NG =.. NL,
-	'$trace'(Mod:NG).
+    G =.. L,
+    lists:append( L, [A1, A2, A3, A4, A5, A6, A7 ], NL),
+    NG =.. NL,
+    '$trace'(Mod:NG).
 
 /**
   * @pred debugger_io.
@@ -438,13 +438,13 @@ be lost.
     '$trace_goal'(B, M, _GN, CP).
 '$trace_goal'((A->B), M, GN, CP) :- !,
     ('$trace_goal'(A, M, GN, CP) ->
-    '$trace_goal'(B, M, _GN, CP)).
+	 '$trace_goal'(B, M, _GN, CP)).
 '$trace_goal'((A;B), M, GN, CP) :- !,
     ('$trace_goal'(A, M, GN, CP);
-	'$trace_goal'(B, M, _GN, CP)).
+     '$trace_goal'(B, M, _GN, CP)).
 '$trace_goal'((A|B), M, GN, CP) :- !,
     ('$trace_goal'(A, M, _GN, CP);
-	'$trace_goal'(B, M, GN, CP)).
+     '$trace_goal'(B, M, GN, CP)).
 '$trace_goal'((\+ A), M, GN, CP) :- !,
     '$trace_goal'(A, M, GN, CP).
 '$trace_goal'(true, _M, _GN, _CP) :- !.
@@ -466,28 +466,38 @@ be lost.
     current_prolog_flag(debug,false)
     ),
     !,
-      gated_call(
-    '$set_debugger_state'(debug, false),
-	 '$execute_nonstop'(G,M),
-	 Port,
-	 '$reenter_debugger'(Port)
-     ).
+    gated_call(
+	'$set_debugger_state'(debug, false),
+	'$execute_nonstop'(G,M),
+	Port,
+	'$reenter_debugger'(Port)
+    ).
 '$trace_goal'(G,M, GoalNumber, CP) :-
     '$enter_trace'(GoalNumber, G, M, CP, H),
-     catch('$trace_goal_'(G,M, GoalNumber, CP,H),
-      Error,
-     '$TraceError'(Error, GoalNumber, G, M, H)
-       ).
+    catch('$trace_goal_'(G,M, GoalNumber, CP,H),
+	  Error,
+	  '$TraceError'(Error, GoalNumber, G, M, H)
+	 ).
 
-'$trace_goal_'(G,M, GoalNumber, _CP, H) :-
-    '$creep_is_off'(M:G, GoalNumber),
+'$trace_goal_'(G0,M0, GoalNumber, CP, H) :-
+    '$creep_is_off'(M0:G0, GoalNumber),
     !,
-     gated_call(
-    '$set_debugger_state'(debug, false),
-	 '$execute_nonstop'(G,M),
-	 Port,
-	 '$trace_port'( [Port,call], GoalNumber, G, M, H)
-     ).
+    '$debugger_expand_meta_call'( M0:G0, [], M:G ),
+    !,
+    gated_call(
+	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
+	true,
+	true,
+	Port0,
+ 	'$trace_port'([Port0], GoalNumber, G, M, CP,  H)
+    ),
+    gated_call(
+	'$start_user_code',
+	% source mode
+	'$execute_nonstop'(G,M),
+	Port,
+	'$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
+    ).
 '$trace_goal_'(G,M, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
@@ -504,7 +514,7 @@ be lost.
 	'$trace_goal'(B,M,_,CP),
 	Port,
 	(
-	    '$trace_port'([Port,Port0], GoalNumber, G, M, H)
+	    '$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
 	)
     ).
 '$trace_goal_'(G,M, GoalNumber, CP,H) :-
@@ -512,18 +522,18 @@ be lost.
     %clause generator: it controls fail, redo
     '$id_goal'(GoalNumber),
     gated_call(
-	%		'$trace_port'([call], GoalNumber, G, M, H)
+	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
 	true,
 	'$static_clause'(G,M,_,Ref),
 	Port0,
- 	'$trace_port'([Port0], GoalNumber, G, M, H)
+ 	'$trace_port'([Port0], GoalNumber, G, M, CP,  H)
     ),
     gated_call(
 	'$start_user_code',
 	% source mode
 	'$creep_clause'(G,M,Ref,CP),
 	Port,
-	    '$trace_port'([Port,Port0], GoalNumber, G, M, H)
+	'$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
     ).
 
 % system_
@@ -541,21 +551,21 @@ be lost.
  */
 '$enter_trace'(L, G, Module, CP, Info) :-
     '$id_goal'(L),        /* get goal no.	*/
-        /* get goal list		*/
-        '__NB_getval__'('$spy_glist',History,History=[]),
-	Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
-	H  = [Info|History],
-	'__NB_setval__'('$spy_glist',H),	/* and update it		*/
-	'$port'(call,G,Module,L,deterministic, Info).
+    /* get goal list		*/
+    '__NB_getval__'('$spy_glist',History,History=[]),
+    Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
+    H  = [Info|History],
+    '__NB_setval__'('$spy_glist',H),	/* and update it		*/
+    '$port'(call,G,Module,L,deterministic, Info).
 
 '$id_goal'(L) :-
-	var(L),
-	!,
-        '__NB_getval__'('$spy_gn',L,fail),
-        /* bump it			*/
-        L1 is L+1,
-        /* and save it globaly		*/
-        '__NB_setval__'('$spy_gn',L1).
+    var(L),
+    !,
+    '__NB_getval__'('$spy_gn',L,fail),
+    /* bump it			*/
+    L1 is L+1,
+    /* and save it globaly		*/
+    '__NB_setval__'('$spy_gn',L1).
 '$id_goal'(_L).
 
 /**
@@ -571,8 +581,9 @@ be lost.
  * @parameter _Info_ describes the goal
  *
  */
-'$trace_port'([Port|_], _, _GoalNumber, _G, _Module, __Info) :-
- '$reenter_debugger'(Port),
+'$trace_port'([Port|_B], _, _GoalNumber, _G, _Module, __Info) :-
+%    writeln(Port:'$trace_port'([Port|B], _, _GoalNumber, _G, _Module, __Info)),
+    '$reenter_debugger'(Port),
     fail.
 
 '$trace_port'([fail,exit], GoalNumber, G, Module, Info) :-
@@ -583,18 +594,25 @@ be lost.
     '$trace_port_'(redo, GoalNumber, G, Module, Info).
 '$trace_port'([fail], _GoalNumber, _G, _Module, _Info) :-
     !,
-     '$reenter_debugger'(fail),
-     fail.
- '$trace_port'( [call], GoalNumber, G, Module, Info) :-
+    '$reenter_debugger'(fail),
+    fail.
+'$trace_port'( [call], GoalNumber, G, Module, Info) :-
     !,
     '$trace_port_'(call, GoalNumber, G, Module, Info).
-'$trace_port'([ redo], _GoalNumber, _G, _Module, _Info) :-
-    !.
-'$trace_port'([exit], _GoalNumber, _G, _Module, _Info) :-
+'$trace_port'([fail, answer], GoalNumber, G, Module, Info) :-
     !,
+    '$trace_port_'(redo, GoalNumber, G, Module, Info),
+    '$continue_debugging'(redo).
+'$trace_port'([redo, _], GoalNumber, G, Module, Info) :-
+    !,
+    '$trace_port_'(redo, GoalNumber, G, Module, Info),
+    '$continue_debugging'(redo).
+'$trace_port'([exit,_], GoalNumber, G, Module, Info) :-
+    !,
+        '$trace_port_'(exit, GoalNumber, G, Module, Info),
     '$continue_debugging'(exit).
 '$trace_port'([_Port], _GoalNumber, _G, _Module, _Info).
- 
+
 
 '$trace_port'([call,_], _GoalNumber, _G, _Module, _Info).
 '$trace_port'([fail,_], _GoalNumber, _G, _Module, _Info) :-
@@ -620,7 +638,7 @@ be lost.
     !.
 '$trace_port_'(_, _GoalNumber, _G, _Module, _Info) :-
     '$set_debugger_state'( creep, creep ),
-     fail.
+    fail.
 '$trace_port_'(call, GoalNumber, G, Module, Info) :-
     '$port'(call,G,Module,GoalNumber,deterministic, Info).
 '$trace_port_'(exit, GoalNumber, G, Module, Info) :-
@@ -689,9 +707,9 @@ be lost.
 % just fail here, don't really need to call debugger, the user knows what he
 % wants to do
 '$loop_fail'(_GoalNumber, _G, _Module,Creep) :-
-	current_prolog_flag(debug, true),
-	'$continue_debugging'(fail, Creep),
-	fail.
+    current_prolog_flag(debug, true),
+    '$continue_debugging'(fail, Creep),
+    fail.
 
 %
 % skip a goal or a port
@@ -704,39 +722,39 @@ be lost.
 
 
 '$port'(P,G,Module,L,Deterministic, Info) :-
-	% at this point we are done with leap or skip
-   '$set_debugger_state'( creep, L, _Stop, _Trace ),
- 	repeat,
-	flush_output,
-	'$clear_input'(debugger_input),
-	 '$trace_msg'(P,G,Module,L,Deterministic),
-	(
-	  '$unleashed'(P) ->
-	  '$action'('\n',P,L,G,Module,Info),
-	  nl(debugger_output)
-	  ;
-	  prompt1(' ? '),
-          get_char(debugger_input,C),
-	  '$action'(C,P,L,G,Module,_Info)
-	),
-	!.
+    % at this point we are done with leap or skip
+    '$set_debugger_state'( creep, L, _Stop, _Trace ),
+    repeat,
+    flush_output,
+    '$clear_input'(debugger_input),
+    '$trace_msg'(P,G,Module,L,Deterministic),
+    (
+	'$unleashed'(P) ->
+	'$action'('\n',P,L,G,Module,Info),
+	nl(debugger_output)
+    ;
+    prompt1(' ? '),
+    get_char(debugger_input,C),
+    '$action'(C,P,L,G,Module,_Info)
+    ),
+    !.
 
 '$trace_msg'(P,G,Module,L,Deterministic) :-
-	functor(P,P0,_),
-	(P = exit, Deterministic \= deterministic -> Det = '?' ; Det = ' '),
-	('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
-% vsc: fix this
-		%		( SL = L -> SLL = '>' ; SLL = ' '),
-	SLL = ' ',
-	( Module\=prolog,
-	  Module\=user
-	->
-	    GW = Module:G
-	;
-	    GW = G
-	),
-	format(debugger_output,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
-	'$debugger_write'(debugger_output,GW).
+    functor(P,P0,_),
+    (P = exit, Deterministic \= deterministic -> Det = '?' ; Det = ' '),
+    ('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
+    % vsc: fix this
+    %		( SL = L -> SLL = '>' ; SLL = ' '),
+    SLL = ' ',
+    ( Module\=prolog,
+      Module\=user
+    ->
+    GW = Module:G
+    ;
+    GW = G
+    ),
+    format(debugger_output,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
+    '$debugger_write'(debugger_output,GW).
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 0x08 =:= 0. %'
 '$unleashed'(exit) :- get_value('$leash',L), L /\ 0x04 =:= 0. %'
@@ -746,89 +764,89 @@ be lost.
 '$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x10 =:= 0.  %
 
 '$debugger_write'(Stream, G) :-
-	current_prolog_flag( debugger_print_options, OUT ), !,
-	write_term(Stream, G, OUT).
+    current_prolog_flag( debugger_print_options, OUT ), !,
+    write_term(Stream, G, OUT).
 '$debugger_write'(Stream, G) :-
-	writeq(Stream, G).
+    writeq(Stream, G).
 
 '$action'('\r',P,CallNumber,G,Module,H) :- !,	% newline 	creep
-	get_char( debugger_input,C),
-	'$action'(C,P,CallNumber,G,Module,H).
+    get_char( debugger_input,C),
+    '$action'(C,P,CallNumber,G,Module,H).
 '$action'('\n',_,_,_,_,_) :- !,			% newline 	creep
     '__NB_getval__'('$trace',Trace,fail),
- '$set_debugger_state'( creep, 0, stop, Trace ).
+    '$set_debugger_state'( creep, 0, stop, Trace ).
 '$action'(!,_,_,_,_,_) :- !,			% ! 'g		execute
     read(debugger_input, G),
-	% don't allow yourself to be caught by creep.
-	ignore( G ),
-	skip( debugger_input, 10),                        % '
-	fail.
+    % don't allow yourself to be caught by creep.
+    ignore( G ),
+    skip( debugger_input, 10),                        % '
+    fail.
 '$action'(<,_,_,_,_,_) :- !,			% <'Depth
-	'$new_deb_depth',
-	skip( debugger_input, 10),
-	fail.
+    '$new_deb_depth',
+    skip( debugger_input, 10),
+    fail.
 '$action'('C',_,_,_,_,_) :-
-	yap_flag(system_options, Opts),
-        lists:memberchk( call_tracer, Opts),
-	!,			% <'Depth
-	skip( debugger_input, 10),
-	'__NB_getval__'('$trace',Trace,fail),
-'$set_debugger_state'( creep, 0, stop,Trace).
+    yap_flag(system_options, Opts),
+    lists:memberchk( call_tracer, Opts),
+    !,			% <'Depth
+    skip( debugger_input, 10),
+    '__NB_getval__'('$trace',Trace,fail),
+    '$set_debugger_state'( creep, 0, stop,Trace).
 '$action'(^,_,_,G,_,_) :- !,			% '
-	'$print_deb_sterm'(G),
-	skip( debugger_input, 10),
-	fail.
+    '$print_deb_sterm'(G),
+    skip( debugger_input, 10),
+    fail.
 '$action'(a,_,_,_,_,_) :- !,		% 'a		abort
-	skip( debugger_input, 10),
+    skip( debugger_input, 10),
     nodebug,
-	abort.
+    abort.
 '$action'(b,_,_,_,_,_) :- !,			% 'b		break
     '$stop_creeping'(_),
-	skip( debugger_input, 10),
-	break,
-	fail.
+    skip( debugger_input, 10),
+    break,
+    fail.
 '$action'('A',_,_,_,_,_) :- !,			% 'b		break
-	skip( debugger_input, 10),
-	'$stack_dump',
-	fail.
+    skip( debugger_input, 10),
+    '$stack_dump',
+    fail.
 '$action'(c,_,_,_,_,_) :- !,			% 'c		creep
-	skip( debugger_input, 10),
-	'__NB_getval__'('$trace',Trace,fail),
-'$set_debugger_state'( creep,0,stop,Trace ).
+    skip( debugger_input, 10),
+    '__NB_getval__'('$trace',Trace,fail),
+    '$set_debugger_state'( creep,0,stop,Trace ).
 '$action'(e,_,_,_,_,_) :- !,			% 'e		exit
-	halt.
+    halt.
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
     '$scan_number'( ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ), 
     throw(error(event(fail),Goal)).
 '$action'(h,_,_,_,_,_) :- !,			% 'h		help
-	'$action_help',
-	skip( debugger_input, 10),
-	fail.
+    '$action_help',
+    skip( debugger_input, 10),
+    fail.
 '$action'(?,_,_,_,_,_) :- !,			% '?		help
-	'$action_help',
-	skip( debugger_input, 10),
-	fail.
+    '$action_help',
+    skip( debugger_input, 10),
+    fail.
 '$action'(p,_,_,G,Module,_) :- !,		% 'p		print
-	((Module = prolog ; Module = user) ->
-	    print(user_error,G), nl(user_error)
-	;
-	    print(user_error,Module:G), nl(user_error)
-	),
-	skip( debugger_input, 10),
-	fail.
+    ((Module = prolog ; Module = user) ->
+	 print(user_error,G), nl(user_error)
+    ;
+    print(user_error,Module:G), nl(user_error)
+    ),
+    skip( debugger_input, 10),
+    fail.
 '$action'(d,_,_,G,Module,_) :- !,		% 'd		display
-	((Module = prolog ; Module = user) ->
-	    display(user_error,G), nl(user_error)
-	;
-	    display(user_error,Module:G), nl(user_error)
-	),
-	skip( debugger_input, 10),
-	fail.
+    ((Module = prolog ; Module = user) ->
+	 display(user_error,G), nl(user_error)
+    ;
+    display(user_error,Module:G), nl(user_error)
+    ),
+    skip( debugger_input, 10),
+    fail.
 '$action'(l,_,CallNumber,_,_,_) :- !,			% 'l		leap
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-   '__NB_getval__'('$trace',Trace,fail),
+    '__NB_getval__'('$trace',Trace,fail),
     '$set_debugger_state'( leap, Goal, stop,Trace ).
 '$action'(z,_,CallNumber,_,_,_CP) :- !,
     skip( debugger_input, 10),		% 'z		zip, fast leap
@@ -838,127 +856,127 @@ be lost.
 % skip first call (for current goal),
 % stop next time.
 '$action'(k,_,_CallNumber,_,_,_) :- !,
-	skip( debugger_input, 10),		% k		zip, fast leap
-	'__NB_getval__'('$trace',Trace,fail),
-	'$set_debugger_state'( zip, 0, stop, Trace).
-        % skip first call (for current goal),
-	% stop next time.
+    skip( debugger_input, 10),		% k		zip, fast leap
+    '__NB_getval__'('$trace',Trace,fail),
+    '$set_debugger_state'( zip, 0, stop, Trace).
+% skip first call (for current goal),
+% stop next time.
 '$action'(n,_,_,_,_,_) :- !,			% 'n		nodebug
-	skip( debugger_input, 10),				% '
-	% tell debugger never to stop.
- 	nodebug.
+    skip( debugger_input, 10),				% '
+    % tell debugger never to stop.
+    nodebug.
 '$action'(r,_,CallNumber,_,_,_) :- !,	        % r		retry
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ), 
     throw(error(event(redo),Goal)).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
-     '$scan_number'(ScanNumber),		
-     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-	( (P==call; P==redo) ->
-	  '__NB_getval__'('$trace',Trace,fail),
-	  '$set_debugger_state'( leap, Goal, ignore,Trace)
-	;
-	    '$ilgl'(s)				% 
-	).
+    '$scan_number'(ScanNumber),		
+    ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
+    ( (P==call; P==redo) ->
+      '__NB_getval__'('$trace',Trace,fail),
+      '$set_debugger_state'( leap, Goal, ignore,Trace)
+    ;
+    '$ilgl'(s)				% 
+    ).
 '$action'(t,P,CallNumber,_,_,_) :- !,		% 't		fast skip
-     '$scan_number'(ScanNumber),		
-     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-     ( (P=call; P=redo) ->
-        '__NB_getval__'('$trace',Trace,fail),
-        '$set_debugger_state'( zip, Goal, ignore,Trace)
-     ;
-	    '$ilgl'(t)				%
-	).
+    '$scan_number'(ScanNumber),		
+    ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
+    ( (P=call; P=redo) ->
+      '__NB_getval__'('$trace',Trace,fail),
+      '$set_debugger_state'( zip, Goal, ignore,Trace)
+    ;
+    '$ilgl'(t)				%
+    ).
 '$action'(q,P,CallNumber,_,_,_) :- !,		% qst skip
-     '$scan_number'(ScanNumber),		
-     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
-	( (P=call; P=redo) ->
-            '__NB_getval__'('$trace',Trace,fail),
-	    '$set_debugger_state'( leap, Goal, stop, Trace)
-	;
-	    '$ilgl'(t)				%
-	).
+    '$scan_number'(ScanNumber),		
+    ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
+    ( (P=call; P=redo) ->
+      '__NB_getval__'('$trace',Trace,fail),
+      '$set_debugger_state'( leap, Goal, stop, Trace)
+    ;
+    '$ilgl'(t)				%
+    ).
 '$action'(+,_,_,G,M,_) :- !,			%%		spy this
-	functor(G,F,N), spy(M:(F/N)),
-	skip( debugger_input, 10),
-	fail.
+    functor(G,F,N), spy(M:(F/N)),
+    skip( debugger_input, 10),
+    fail.
 '$action'(-,_,_,G,M,_) :- !,			%% 	nospy this
-	functor(G,F,N), nospy(M:(F/N)),
-	skip( debugger_input, 10),
-	fail.
+    functor(G,F,N), nospy(M:(F/N)),
+    skip( debugger_input, 10),
+    fail.
 '$action'(g,_,_,_,_,_) :- !,			% g		ancestors
-        '$scan_number'(HowMany),         
-        '$show_ancestors'(HowMany),
-	fail.
+    '$scan_number'(HowMany),         
+    '$show_ancestors'(HowMany),
+    fail.
 '$action'('T',exception(G),_,_,_,_) :- !,	% T		throw
-	throw( G ).
+    throw( G ).
 '$action'(C,_,_,_,_,_) :-
-	skip( debugger_input, 10),
-	'$ilgl'(C),
-	fail.
+    skip( debugger_input, 10),
+    '$ilgl'(C),
+    fail.
 
 '$continue_debugging'(_, creep) :-
-	'__NB_getval__'('$if_skip_mode',no_skip),
-	!,
-	'$creep'.
+    '__NB_getval__'('$if_skip_mode',no_skip),
+    !,
+    '$creep'.
 '$continue_debugging'(_, _).
 
 '$show_ancestors'(HowMany) :-
-	'__NB_getval__'('$spy_glist',[_|History], fail),
-	(
-	  History == []
-	->
-	  print_message(help, ancestors([]))
-	;
-	  '$show_ancestors'(History,HowMany),
-	  nl(user_error)
-	).
+    '__NB_getval__'('$spy_glist',[_|History], fail),
+    (
+	History == []
+    ->
+    print_message(help, ancestors([]))
+    ;
+    '$show_ancestors'(History,HowMany),
+    nl(user_error)
+    ).
 
 '$show_ancestors'([],_).
 '$show_ancestors'([_|_],0) :- !.
 '$show_ancestors'([info(L,M,G,_CP,Retry,Det,_Exited)|History],HowMany) :-
-	'$show_ancestor'(L,M,G,Retry,Det,HowMany,HowMany1),
-	'$show_ancestors'(History,HowMany1).
+    '$show_ancestor'(L,M,G,Retry,Det,HowMany,HowMany1),
+    '$show_ancestors'(History,HowMany1).
 
 % skip exit port, we're looking at true ancestors
 '$show_ancestor'(_,_,_,_,Det,HowMany,HowMany) :-
-	nonvar(Det), !.
+    nonvar(Det), !.
 % look at retry
 '$show_ancestor'(GoalNumber, M, G, Retry, _, HowMany, HowMany1) :-
-	nonvar(Retry), !,
-	HowMany1 is HowMany-1,
-	'$trace_msg'(redo, G, M, GoalNumber, _), nl(user_error).
+    nonvar(Retry), !,
+    HowMany1 is HowMany-1,
+    '$trace_msg'(redo, G, M, GoalNumber, _), nl(user_error).
 '$show_ancestor'(GoalNumber, M, G, _, _, HowMany, HowMany1) :-
-	HowMany1 is HowMany-1,
-	'$trace_msg'(call, G, M, GoalNumber, _), nl(user_error).
+    HowMany1 is HowMany-1,
+    '$trace_msg'(call, G, M, GoalNumber, _), nl(user_error).
 
 
 '$action_help' :-
-	format(user_error,'newline  creep       a       abort~n', []),
-	format(user_error,'c        creep       e       exit~n', []),
-	format(user_error,'f Goal   fail        h       help~n', []),
-	format(user_error,'l        leap        r Goal  retry~n', []),
-	format(user_error,'s        skip        t       fastskip~n', []),
-	format(user_error,'q        quasiskip   k       quasileap~n', []),
-	format(user_error,'b        break       n       no debug~n', []),
-	format(user_error,'p        print       d       display~n', []),
-	format(user_error,'<D       depth D     <       full term~n', []),
-	format(user_error,'+        spy this    -       nospy this~n', []),
-	format(user_error,'^        view subg   ^^      view using~n', []),
-	format(user_error,'A        choices     g [N]   ancestors~n', []),
-	format(user_error,'T        throw       ~n', []),
-	format(user_error,'! g execute goal~n', []).
+    format(user_error,'newline  creep       a       abort~n', []),
+    format(user_error,'c        creep       e       exit~n', []),
+    format(user_error,'f Goal   fail        h       help~n', []),
+    format(user_error,'l        leap        r Goal  retry~n', []),
+    format(user_error,'s        skip        t       fastskip~n', []),
+    format(user_error,'q        quasiskip   k       quasileap~n', []),
+    format(user_error,'b        break       n       no debug~n', []),
+    format(user_error,'p        print       d       display~n', []),
+    format(user_error,'<D       depth D     <       full term~n', []),
+    format(user_error,'+        spy this    -       nospy this~n', []),
+    format(user_error,'^        view subg   ^^      view using~n', []),
+    format(user_error,'A        choices     g [N]   ancestors~n', []),
+    format(user_error,'T        throw       ~n', []),
+    format(user_error,'! g execute goal~n', []).
 
 '$ilgl'(C) :-
-	print_message(warning, trace_command(C)),
-	print_message(help, trace_help),
-	fail.
+    print_message(warning, trace_command(C)),
+    print_message(help, trace_help),
+    fail.
 
 '$scan_number'(Nb) :-
     findall(C, '$get_deb_code'(C), S),
-	S = [_|_],
-	!,
-        number_codes(Nb,S).
+    S = [_|_],
+    !,
+    number_codes(Nb,S).
 '$scan_number'(0).
 
 '$get_deb_code'(C) :-
@@ -970,21 +988,21 @@ be lost.
     ).
 
 '$print_deb_sterm'(G) :-
-	'$get_sterm_list'(L), !,
-	'$deb_get_sterm_in_g'(L,G,A),
-	recorda('$debug_sub_skel',L,_),
-	format(user_error,'~n~w~n~n',[A]).
+    '$get_sterm_list'(L), !,
+    '$deb_get_sterm_in_g'(L,G,A),
+    recorda('$debug_sub_skel',L,_),
+    format(user_error,'~n~w~n~n',[A]).
 '$print_deb_sterm'(_) :- skip( debugger_input, 10).
 
 '$get_sterm_list'(L) :-
-	get_code( debugger_input_input,C),
-	'$deb_inc_in_sterm_oldie'(C,L0,CN),
-	'$get_sterm_list'(L0,CN,0,L).
+    get_code( debugger_input_input,C),
+    '$deb_inc_in_sterm_oldie'(C,L0,CN),
+    '$get_sterm_list'(L0,CN,0,L).
 
 '$deb_inc_in_sterm_oldie'(94,L0,CN) :- !,
-	get_code( debugger_input,CN),
-	( recorded('$debug_sub_skel',L0,_) -> true ;
-	  CN = [] ).
+    get_code( debugger_input,CN),
+    ( recorded('$debug_sub_skel',L0,_) -> true ;
+      CN = [] ).
 '$deb_inc_in_sterm_oldie'(C,[],C).
 
 '$get_sterm_list'(L0,C,N,L) :-
@@ -1002,42 +1020,42 @@ be lost.
 
 '$deb_get_sterm_in_g'([],G,G).
 '$deb_get_sterm_in_g'([H|T],G,A) :-
-	'$deb_get_sterm_in_g'(T,G,A1),
-	arg(H,A1,A).
+    '$deb_get_sterm_in_g'(T,G,A1),
+    arg(H,A1,A).
 
 '$new_deb_depth' :-
-	get_code( debugger_input,C),
-	'$get_deb_depth'(C,D),
-	'$set_deb_depth'(D).
+    get_code( debugger_input,C),
+    '$get_deb_depth'(C,D),
+    '$set_deb_depth'(D).
 
 '$get_deb_depth'(10,10) :-  !. % default depth is 0
 '$get_deb_depth'(C,XF) :-
-	'$get_deb_depth_char_by_char'(C,0,XF).
+    '$get_deb_depth_char_by_char'(C,0,XF).
 
 '$get_deb_depth_char_by_char'(10,X,X) :- !.
 '$get_deb_depth_char_by_char'(C,X0,XF) :-
-	C >= "0", C =< "9", !,
-	XI is X0*10+C-"0",
-	get_code( debugger_input,NC),
-	'$get_deb_depth_char_by_char'(NC,XI,XF).
+    C >= "0", C =< "9", !,
+    XI is X0*10+C-"0",
+    get_code( debugger_input,NC),
+    '$get_deb_depth_char_by_char'(NC,XI,XF).
 % reset when given garbage.
 '$get_deb_depth_char_by_char'(_C,_,10) :- skip( debugger_input, 10).
 
 '$set_deb_depth'(D) :-
-	yap_flag(debugger_print_options,L),
-	'$delete_if_there'(L, max_depth(_), max_depth(D), LN),
-	yap_flag(debugger_print_options,LN).
+    yap_flag(debugger_print_options,L),
+    '$delete_if_there'(L, max_depth(_), max_depth(D), LN),
+    yap_flag(debugger_print_options,LN).
 
 '$delete_if_there'([], _, TN, [TN]).
 '$delete_if_there'([T|L], T, TN, [TN|L]).
 '$delete_if_there'([Q|L], T, TN, [Q|LN]) :-
-	'$delete_if_there'(L, T, TN, LN).
+    '$delete_if_there'(L, T, TN, LN).
 
-  '$debugger_deterministic_goal'(exit).
-  '$debugger_deterministic_goal'(fail).
-  '$debugger_deterministic_goal'(!).
-  '$debugger_deterministic_goal'(exception(_)).
-  '$debugger_deterministic_goal'(external_exception(_)).
+'$debugger_deterministic_goal'(exit).
+'$debugger_deterministic_goal'(fail).
+'$debugger_deterministic_goal'(!).
+'$debugger_deterministic_goal'(exception(_)).
+'$debugger_deterministic_goal'(external_exception(_)).
 
 
 '$cps'([CP|CPs]) :-
@@ -1068,20 +1086,19 @@ be lost.
     '$expand_meta_call'( G, VL, G0 ),
     '$yap_strip_module'( G0, M, G1 ),
     (
-	'$is_system_predicate'(G0,M) ->
+	'$is_system_predicate'(G1,M) ->
 	'$debugger_process_meta_arguments'(G1, M, G2)
     ;
     G1 = G2
     ).
 
-'$debugger_process_meta_arguments'(G, M, G1) :-
-	'$yap_strip_module'( M:G, MM, GM ),
-	functor(GM,F,N),
-	'$meta_predicate'(F,MM,N,D), !, % we're in an argument
-	D =.. [F|BMs],
-	GM =.. [F|BGs],
-	'$ldebugger_process_meta_args'(BGs, M, BMs, BG1s),
-	G1 =.. [F|BG1s].
+'$debugger_process_meta_arguments'(GM, MM, G1) :-
+    functor(GM,F,N),
+    '$meta_predicate'(F,MM,N,D), !, % we're in an argument
+    D =.. [F|BMs],
+    GM =.. [F|BGs],
+    '$ldebugger_process_meta_args'(BGs, MM, BMs, BG1s),
+    G1 =.. [F|BG1s].
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
