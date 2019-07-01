@@ -455,6 +455,7 @@ notrace(G) :-
      !,
    '$re_enter_creep_mode'.
 '$reenter_debugger'(_) :-
+    '$stop_creeping',
     '$set_debugger_state'(debug, false).
 
 % what to do when you exit the debugger.
@@ -485,7 +486,8 @@ notrace(G) :-
 %%
 '$re_enter_creep_mode' :-
     current_prolog_flag( debug, Deb ),
-    '__NB_setval__'( debug, Deb ).
+    '__NB_setval__'( debug, Deb ),
+    '$creep'.
 
 
 '$creep_is_off'(Module:G, GoalNo) :-
@@ -529,12 +531,15 @@ notrace(G) :-
 '$trace_on' :-
     '$get_debugger_state'(_Creep, GN, Spy,Trace),
     nb_setval('$trace',on),
-'$set_debugger_state'( creep, GN, Spy, Trace).
+    '$trace_off',
+    '$set_debugger_state'( creep, GN, Spy, Trace).
+
 
 '$trace_off' :-
-'$get_debugger_state'( _Creep, GN, Spy, Trace),
+    '$stop_creeping'(_),
+    '$get_debugger_state'( _Creep, GN, Spy, Trace),
     nb_setval('$trace',off),
-'$set_debugger_state'( creep, GN, Spy, Trace).
+    '$set_debugger_state'( creep, GN, Spy, Trace).
 
 /*
 
