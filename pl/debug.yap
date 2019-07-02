@@ -398,16 +398,19 @@ be lost.
 
 
 '$trace_meta_call'( G, M, CP ) :-
+    '$trace_off',
     '$trace_goal'(G, M, _GN, CP ).
 
 
 '$creep'([M|G]) :-
+    '$trace_off',
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
     '$trace_goal'(Q, M, _GN, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
+    '$trace_off',
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
     '$trace_goal'(G, M, GoalNumber, CP),
     '$continue_debugging'(answer).
@@ -498,7 +501,7 @@ be lost.
 	% source mode
 	'$execute_nonstop'(G,M),
 	Port,
-	'$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
+    '$trace_port'(outer:[Port,Port0], GoalNumber, G, M, CP,  H)	    
     ).
 '$trace_goal_'(G,M, GoalNumber, CP, H) :-
     '$is_source'(G,M),
@@ -535,7 +538,7 @@ be lost.
 	% source mode
 	'$creep_clause'(G,M,Ref,CP),
 	Port,
-	'$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
+	'$trace_port'(outer:[Port,Port0], GoalNumber, G, M, CP,  H)
     ).
 
 % system_
@@ -588,14 +591,19 @@ be lost.
     '$reenter_debugger'(Port),
     fail.
 
+'$trace_port'(outer:Port, _GoalNumber, _G, _Module, _CP,_Info) :-
+    '$trace_port'(Port, _GoalNumber, _G, _Module, _CP,_Info),
+    '$start_user_code'.  
+
+
 '$trace_port'([fail,answer], GoalNumber, G, Module, CP,Info) :-
     !,
-    '$reenter_debugger'(fail),
-    '$trace_port_'(redo, GoalNumber, G, Module, CP,Info).
+    '$trace_port_'(redo, GoalNumber, G, Module, CP,Info),
+    '$continue_debugging'(redo).
 '$trace_port'([fail], GoalNumber, G, Module, CP, Info) :-
     !,
-    '$reenter_debugger'(fail),
-    '$trace_port_'(fail, GoalNumber, G, Module, CP,Info).
+    '$trace_port_'(fail, GoalNumber, G, Module, CP,Info),
+    '$continue_debugging'(fail).
 '$trace_port'( [call], GoalNumber, G, Module, CP,Info) :-
     !,
     '$trace_port_'(call, GoalNumber, G, Module, CP,Info).
@@ -605,18 +613,17 @@ be lost.
     '$continue_debugging'(redo).
 '$trace_port'([exit,_], GoalNumber, G, Module, CP,Info) :-
     !,
-        '$trace_port_'(exit, GoalNumber, G, Module, CP,Info),
+    '$trace_port_'(exit, GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(exit).
+'$trace_port'([call,_], _GoalNumber, _G, _Module, _CP,_Info) :-
+!.
+'$trace_port'([fail,_], _GoalNumber, _G, _Module, _CP,_Info) :-
+    !,
+    '$continue_debugging'(fail).
+'$trace_port'( [_Port,_], _GoalNumber, _G, _Module, _CP,_Info).
 '$trace_port'([_Port], _GoalNumber, _G, _Module, _CP,_Info).
 
 
-'$trace_port'([call,_], _GoalNumber, _G, _Module, _CP,_Info).
-'$trace_port'([fail,_], _GoalNumber, _G, _Module, _CP,_Info) :-
-    fail,
-    '$continue_debugging'(fail).
-'$trace_port'( [Port,_], GoalNumber, G, Module, CP,Info) :-
-    !,
-    '$trace_port_'(Port, GoalNumber, G, Module, CP,Info).
 
 '$trace_port_'(_, _GoalNumber, _G, _Module, _CP,_Info) :-
     current_prolog_flag(debug,false),
@@ -655,7 +662,7 @@ be lost.
 %   - redo resets the goal
 %   - fail gives up on the goal.
 '$TraceError'(Event,  _GoalNumber, _G, _Module, _CP, _H) :-
-    '$reenter_debugger'(Event),
+    '$continue_debugging'(Event),
     fail.
 '$TraceError'(abort,  _GoalNumber, _G, _Module, _CP, _H) :-
     !,
@@ -691,8 +698,8 @@ be lost.
     throw(Event).
 %%% - anything else, leave to the user and restore the catch
 '$TraceError'(Event, GoalNumber, G, Module, CP, Info) :-
-    '$reenter_debugger'(exception(Event)),
     '$trace_port_'(exception,GoalNumber,exception(Event,G),Module,CP,Info),
+    '$continue_debugging'(exception(Event)),
     fail.
 
 % just fail here, don't really need to call debugger, the user knows what he

@@ -206,10 +206,7 @@ debug :-
 
 '$start_user_code' :-
     yap_flag(debug, Can),
-    '$set_debugger_state'(debug, Can),
-    '__NB_getval__'('$trace',Trace, fail),
-    ( Trace == on -> Creep = creep; Creep = zip ),
-    '$set_debugger_state'( Creep, 0, stop, Trace ).
+    '$set_debugger_state'(debug, Can).
 
 nodebug :-
 	 set_prolog_flag(debug, false),
@@ -445,17 +442,8 @@ notrace(G) :-
 
 %% we're coming back from external code to a debugger call.
 %%
-'$reenter_debugger'(fail) :-
-    !,
-    '$re_enter_creep_mode'.
-'$reenter_debugger'(exit) :-
-    !,
-    '$re_enter_creep_mode'.
-'$reenter_debugger'(answer) :-
-     !,
-   '$re_enter_creep_mode'.
 '$reenter_debugger'(_) :-
-    '$stop_creeping',
+    '$stop_creeping'(_),
     '$set_debugger_state'(debug, false).
 
 % what to do when you exit the debugger.
