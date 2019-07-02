@@ -39,7 +39,7 @@ db_usage :-
 	HeapFreeK is HeapFree//1024,
 	StackSpace is (GInU+SInU+FreeS+TInU+FreeT)//1024,
 	format(user_error, 'Heap Space = ~D KB (+ ~D KB free)~n',[HeapUsedK,HeapFreeK]),	
-	format(user_error, 'Stack Space = ~D KB~n',[StackSpace]),	
+	format(user_error, 'Stack Space = ~D KB~n',[StackSpace]),
 	findall(p(Cls,CSz,ISz),
 		(current_module(M),
 		 current_predicate(_,M:P),

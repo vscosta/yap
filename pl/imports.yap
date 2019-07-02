@@ -68,6 +68,9 @@ fail.
 '$predicate_definition'(M0:Pred0,Path,ModF:PredF) :-
     '$get_predicate_definition'(M0:Pred0, Mod:Pred),
     (
+    var(Pred) ->
+    '$current_predicate'(_,Pred,Mod,_), Mod = ModF, Pred = PredF
+    ;
     '$pred_exists'(Pred,Mod), Mod = ModF, Pred = PredF
     ;
     \+ lists:member(Mod:Pred,Path),

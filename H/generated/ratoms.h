@@ -86,6 +86,7 @@
   AtomCputime = AtomAdjust(AtomCputime); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = AtomAdjust(AtomCreate); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = AtomAdjust(AtomCreep); TermCreep = MkAtomTerm(AtomCreep);
+  AtomCreepClause = AtomAdjust(AtomCreepClause); TermCreepClause = MkAtomTerm(AtomCreepClause);
   AtomUserCreep = AtomAdjust(AtomUserCreep); TermUserCreep = MkAtomTerm(AtomUserCreep);
   AtomCryptAtoms = AtomAdjust(AtomCryptAtoms); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCurly = AtomAdjust(AtomCurly); TermCurly = MkAtomTerm(AtomCurly);
@@ -140,6 +141,8 @@
   AtomExecute = AtomAdjust(AtomExecute); TermExecute = MkAtomTerm(AtomExecute);
   AtomExecAnswers = AtomAdjust(AtomExecAnswers); TermExecAnswers = MkAtomTerm(AtomExecAnswers);
   AtomExecuteInMod = AtomAdjust(AtomExecuteInMod); TermExecuteInMod = MkAtomTerm(AtomExecuteInMod);
+  AtomExecuteNonStop = AtomAdjust(AtomExecuteNonStop); TermExecuteNonStop = MkAtomTerm(AtomExecuteNonStop);
+  AtomExecuteNonStop = AtomAdjust(AtomExecuteNonStop); TermExecuteNonStop = MkAtomTerm(AtomExecuteNonStop);
   AtomExecuteWithin = AtomAdjust(AtomExecuteWithin); TermExecuteWithin = MkAtomTerm(AtomExecuteWithin);
   AtomExecuteWoMod = AtomAdjust(AtomExecuteWoMod); TermExecuteWoMod = MkAtomTerm(AtomExecuteWoMod);
   AtomExist = AtomAdjust(AtomExist); TermExist = MkAtomTerm(AtomExist);
@@ -486,6 +489,7 @@
   FunctorContext2 = FuncAdjust(FunctorContext2);
   FunctorConsistencyError = FuncAdjust(FunctorConsistencyError);
   FunctorCreep = FuncAdjust(FunctorCreep);
+  FunctorCreepClause = FuncAdjust(FunctorCreepClause);
   FunctorCsult = FuncAdjust(FunctorCsult);
   FunctorCurrentModule = FuncAdjust(FunctorCurrentModule);
   FunctorCutBy = FuncAdjust(FunctorCutBy);
@@ -520,6 +524,7 @@
   FunctorException = FuncAdjust(FunctorException);
   FunctorExecute2InMod = FuncAdjust(FunctorExecute2InMod);
   FunctorExecuteInMod = FuncAdjust(FunctorExecuteInMod);
+  FunctorExecuteNonStop = FuncAdjust(FunctorExecuteNonStop);
   FunctorExecuteWithin = FuncAdjust(FunctorExecuteWithin);
   FunctorExistenceError = FuncAdjust(FunctorExistenceError);
   FunctorExoClause = FuncAdjust(FunctorExoClause);

@@ -86,6 +86,7 @@ X_API EXTERNAL Atom AtomContext; X_API EXTERNAL Term TermContext;
 X_API EXTERNAL Atom AtomCputime; X_API EXTERNAL Term TermCputime;
 X_API EXTERNAL Atom AtomCreate; X_API EXTERNAL Term TermCreate;
 X_API EXTERNAL Atom AtomCreep; X_API EXTERNAL Term TermCreep;
+X_API EXTERNAL Atom AtomCreepClause; X_API EXTERNAL Term TermCreepClause;
 X_API EXTERNAL Atom AtomUserCreep; X_API EXTERNAL Term TermUserCreep;
 X_API EXTERNAL Atom AtomCryptAtoms; X_API EXTERNAL Term TermCryptAtoms;
 X_API EXTERNAL Atom AtomCurly; X_API EXTERNAL Term TermCurly;
@@ -140,6 +141,8 @@ X_API EXTERNAL Atom AtomExecutable; X_API EXTERNAL Term TermExecutable;
 X_API EXTERNAL Atom AtomExecute; X_API EXTERNAL Term TermExecute;
 X_API EXTERNAL Atom AtomExecAnswers; X_API EXTERNAL Term TermExecAnswers;
 X_API EXTERNAL Atom AtomExecuteInMod; X_API EXTERNAL Term TermExecuteInMod;
+X_API EXTERNAL Atom AtomExecuteNonStop; X_API EXTERNAL Term TermExecuteNonStop;
+X_API EXTERNAL Atom AtomExecuteNonStop; X_API EXTERNAL Term TermExecuteNonStop;
 X_API EXTERNAL Atom AtomExecuteWithin; X_API EXTERNAL Term TermExecuteWithin;
 X_API EXTERNAL Atom AtomExecuteWoMod; X_API EXTERNAL Term TermExecuteWoMod;
 X_API EXTERNAL Atom AtomExist; X_API EXTERNAL Term TermExist;
@@ -519,6 +522,8 @@ X_API EXTERNAL  Functor FunctorConsistencyError;
 
 X_API EXTERNAL  Functor FunctorCreep;
 
+X_API EXTERNAL  Functor FunctorCreepClause;
+
 X_API EXTERNAL  Functor FunctorCsult;
 
 X_API EXTERNAL  Functor FunctorCurrentModule;
@@ -586,6 +591,8 @@ X_API EXTERNAL  Functor FunctorException;
 X_API EXTERNAL  Functor FunctorExecute2InMod;
 
 X_API EXTERNAL  Functor FunctorExecuteInMod;
+
+X_API EXTERNAL  Functor FunctorExecuteNonStop;
 
 X_API EXTERNAL  Functor FunctorExecuteWithin;
 

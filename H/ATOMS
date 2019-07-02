@@ -91,6 +91,7 @@ A	Context			N	"context"
 A	Cputime			N	"cputime"
 A	Create			N	"create"
 A	Creep			F	"$creep"
+A	CreepClause		F	"$creep_clause"
 A	UserCreep		N	"creep"
 A	CryptAtoms		N	"crypt_atoms"
 A	Curly			N	"{}"
@@ -145,6 +146,8 @@ A	Executable		N	"executable"
 A	Execute			N	"execute"
 A	ExecAnswers		N	"exec_answers"
 A	ExecuteInMod		F	"$execute_in_mod"
+A	ExecuteNonStop		F	"$execute_nonstoop"
+A	ExecuteNonStop		F	"$execute_nonstop"
 A	ExecuteWithin		F	"$execute_within"
 A	ExecuteWoMod		F	"$execute_wo_mod"
 A	Exist			N	"exist"
@@ -491,6 +494,7 @@ F	CommentHook		CommentHook	3
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1
 F	Creep			Creep		4
+F	CreepClause			CreepClause		4
 F	Csult			Csult		2
 F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1
@@ -525,6 +529,7 @@ F	EvaluationError		EvaluationError	1
 F	Exception		Exception	1
 F	Execute2InMod		ExecuteWoMod	2
 F	ExecuteInMod		ExecuteInMod	2
+F   ExecuteNonStop      ExecuteNonStop  2
 F	ExecuteWithin		ExecuteWithin	1
 F	ExistenceError		ExistenceError	2
 F	ExoClause		ExoClause	2

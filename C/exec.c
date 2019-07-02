@@ -37,6 +37,8 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "yapio.h"
 
 static bool CallPredicate(PredEntry *, choiceptr, yamop *CACHE_TYPE);
+static Int execute_nonstop(PASS_REGS1);
+static Int creep_clause(PASS_REGS1);
 
 // must hold thread worker comm lock at call.
 static bool EnterCreepMode(Term, Term CACHE_TYPE);
@@ -166,15 +168,41 @@ inline static bool CallMetaCall(Term t, Term mod USES_REGS) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "meta-call");
     if (IsIntTerm(t) || (IsApplTerm(t) && IsExtensionFunctor(FunctorOfTerm(t))))
         Yap_ThrowError(TYPE_ERROR_CALLABLE, Yap_TermToIndicator(t, mod), "meta-call");
-    ARG1 = t;
-    ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
-    ARG3 = t;
+    Term tmod;
     if (mod) {
-        ARG4 = mod;
+        tmod = mod;
     } else {
-        ARG4 = TermProlog;
+        tmod = TermProlog;
     }
-    if (Yap_GetGlobal(AtomDebugMeta) == TermOn) {
+    Functor f = FunctorOfTerm(t);
+     if (f == FunctorExecuteNonStop) {
+        tmod = ArgOfTerm(2,t);
+        t = ArgOfTerm(1,t);
+        PredEntry *pe = Yap_get_pred(t, tmod, "$execute_nonstop");
+        CELL *pt = RepAppl(t) + 1;
+        arity_t i;
+        for (i = 1; i <= pe->ArityOfPE; i++) {
+#if YAPOR_SBA
+            Term d0 = *pt++;
+            if (d0 == 0)
+              XREGS[i] = (CELL)(pt - 1);
+            else
+              XREGS[i] = d0;
+#else
+
+            XREGS[i] = *pt++;
+#endif
+        }
+        return CallPredicate(pe,B, pe->CodeOfPred PASS_REGS);
+     } else if (f==FunctorCreepClause) {
+         return creep_clause(PASS_REGS1);
+     } else {
+        ARG1 = t;
+        ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
+        ARG3 = t;
+        ARG4 = tmod;
+    }
+     if (Yap_GetGlobal(AtomDebugMeta) == TermOn) {
         return CallPredicate(PredTraceMetaCall, B,
                              PredTraceMetaCall->CodeOfPred PASS_REGS);
     } else {
@@ -2443,14 +2471,25 @@ static Int set_debugger_state(USES_REGS1) {
     if (!strcmp(s, "debug")) {
         LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] = Deref(ARG2);
         return true;
+        return false;
     }
-    return false;
 }
+
+
+static void init_debugger_state(void)
+    {
+
+        LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
+        LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = MkIntTerm(0);
+        LOCAL_debugger_state[DEBUG_SPY] = TermOff;
+        LOCAL_debugger_state[DEBUG_TRACE_MODE] = TermFalse;
+    }
 
 
 static Int set_debugger_state4(USES_REGS1) {
     Term t1 = Deref(ARG1);
     if (!IsVarTerm(t1)) {
+
         LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = t1;
     }
     t1 = Deref(ARG2);
@@ -2492,6 +2531,7 @@ void Yap_InitExecFs(void) {
     catcher_ops.cut_handler = watch_cut;
     catcher_ops.fail_handler = watch_retry;
     setup_call_catcher_cleanup_tag = YAP_NewOpaqueType(&catcher_ops);
+init_debugger_state();
 
     Term cm = CurrentModule;
     Yap_InitComma();

@@ -86,6 +86,7 @@
   AtomCputime = Yap_LookupAtom("cputime"); TermCputime = MkAtomTerm(AtomCputime);
   AtomCreate = Yap_LookupAtom("create"); TermCreate = MkAtomTerm(AtomCreate);
   AtomCreep = Yap_FullLookupAtom("$creep"); TermCreep = MkAtomTerm(AtomCreep);
+  AtomCreepClause = Yap_FullLookupAtom("$creep_clause"); TermCreepClause = MkAtomTerm(AtomCreepClause);
   AtomUserCreep = Yap_LookupAtom("creep"); TermUserCreep = MkAtomTerm(AtomUserCreep);
   AtomCryptAtoms = Yap_LookupAtom("crypt_atoms"); TermCryptAtoms = MkAtomTerm(AtomCryptAtoms);
   AtomCurly = Yap_LookupAtom("{}"); TermCurly = MkAtomTerm(AtomCurly);
@@ -140,6 +141,8 @@
   AtomExecute = Yap_LookupAtom("execute"); TermExecute = MkAtomTerm(AtomExecute);
   AtomExecAnswers = Yap_LookupAtom("exec_answers"); TermExecAnswers = MkAtomTerm(AtomExecAnswers);
   AtomExecuteInMod = Yap_FullLookupAtom("$execute_in_mod"); TermExecuteInMod = MkAtomTerm(AtomExecuteInMod);
+  AtomExecuteNonStop = Yap_FullLookupAtom("$execute_nonstoop"); TermExecuteNonStop = MkAtomTerm(AtomExecuteNonStop);
+  AtomExecuteNonStop = Yap_FullLookupAtom("$execute_nonstop"); TermExecuteNonStop = MkAtomTerm(AtomExecuteNonStop);
   AtomExecuteWithin = Yap_FullLookupAtom("$execute_within"); TermExecuteWithin = MkAtomTerm(AtomExecuteWithin);
   AtomExecuteWoMod = Yap_FullLookupAtom("$execute_wo_mod"); TermExecuteWoMod = MkAtomTerm(AtomExecuteWoMod);
   AtomExist = Yap_LookupAtom("exist"); TermExist = MkAtomTerm(AtomExist);
@@ -486,6 +489,7 @@
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
   FunctorCreep = Yap_MkFunctor(AtomCreep,4);
+  FunctorCreepClause = Yap_MkFunctor(AtomCreepClause,4);
   FunctorCsult = Yap_MkFunctor(AtomCsult,2);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
@@ -520,6 +524,7 @@
   FunctorException = Yap_MkFunctor(AtomException,1);
   FunctorExecute2InMod = Yap_MkFunctor(AtomExecuteWoMod,2);
   FunctorExecuteInMod = Yap_MkFunctor(AtomExecuteInMod,2);
+  FunctorExecuteNonStop = Yap_MkFunctor(AtomExecuteNonStop,2);
   FunctorExecuteWithin = Yap_MkFunctor(AtomExecuteWithin,1);
   FunctorExistenceError = Yap_MkFunctor(AtomExistenceError,2);
   FunctorExoClause = Yap_MkFunctor(AtomExoClause,2);

@@ -240,7 +240,7 @@
 :- dynamic(values_correct/0).
 :- dynamic(learning_initialized/0).
 :- dynamic(current_iteration/1).
-:- dynamic(solver_iterations/2).
+:- dynamic(current_epoch/2).
 :- dynamic(example_count/1).
 :- dynamic(query_probability_intern/2).
 %:- dynamic(query_gradient_intern/4).
@@ -407,39 +407,41 @@ do_learning(_,_) :-
 do_learning_intern(0,_) :-
 	logger_stop_timer(duration),
 	logger_write_data.
-do_learning_intern(Iterations,Epsilon) :-
-	Iterations>0,
+do_learning_intern(Epochs,Epsilon) :-
+    db_usage,
+        db_static(128*1024),
+	db_dynamic(128*1024),
+	Epochs>0,
 	current_iteration(CurrentIteration),
-	retractall(current_iteration(_)),
-	NextIteration is CurrentIteration+1,
-	assertz(current_iteration(NextIteration)),
-	EndIteration is CurrentIteration+Iterations-1,
-	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
+	retract(current_epoch(CurrentEpoch,EpochIteration)),
+	NextEpoch is CurrentEpoch+1,
+	assertz(current_epoch(NextEpoch,CurrentIteration)),
+	format_learning(1,'~nIteration ~d, epoch started at ~d~n',[CurrentIteration,CurrentEpoch,EpochIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
 %	mse_testset,
 	%	ground_truth_difference,
 	%leash(0),trace,
 	gradient_descent,
-   RemainingIterations is Iterations-1,
-    logger_get_variable(mse_trainingset,Current_MSE),
+	RemainingEpochs is Epochs-1,
+	logger_get_variable(mse_trainingset,Current_MSE),
 	(
-	  retract(last_mse(Last_MSE))
+	    retract(last_mse(Last_MSE))
 	->
-	  !,
- 	  MSE_Diff is abs(Last_MSE-Current_MSE),
-    	      assertz(last_mse(Current_MSE)),
-    	      (
-    	      	  	MSE_Diff<Epsilon
-                ->
-    	      do_learning_intern(0, Epsilon)
-    	      ;
-		init_queries,
-    	      do_learning_intern(RemainingIterations, Epsilon)
-    	      )
-	 ;
-		init_queries,
-	       do_learning_intern(RemainingIterations, Epsilon)
+	!,
+ 	MSE_Diff is abs(Last_MSE-Current_MSE),
+    	assertz(last_mse(Current_MSE)),
+    	(
+    	    MSE_Diff<Epsilon
+        ->
+    	do_learning_intern(0, Epsilon)
+    	;
+	init_queries,
+    	do_learning_intern(RemainingEpochs, Epsilon)
+    	)
+	;
+	init_queries,
+	do_learning_intern(RemainingEpochs, Epsilon)
 	).
 
 %========================================================================
@@ -454,6 +456,8 @@ init_learning :-
 	check_examples,
 	retractall(current_iteration(_)),
 	assert(current_iteration(0)),
+	retractall(current_epoch(_,_)),
+	assert(current_epoch(0,0)),
 %	empty_output_directory,
 	logger_write_header,
 	format_learning(1,'Initializing everything~n',[]),
@@ -933,11 +937,8 @@ user:progress(FX,X,G,X_Norm,G_Norm,Step,_N, LBFGSIteration,Ls,0) :-
     logger_set_variable(mse_trainingset, FX),
     (retract(solver_iterations(SI,_)) -> true ; SI = 0),
     (retract(current_iteration(TI)) -> true ; TI = 0),
-    SI1 is SI+1,
     TI1 is TI+1,
-   assert(current_iteration(TI1)),
-   assert(current_iteration(TI1)),
-    assert(solver_iterations(SI1,LBFGSIteration)),
+    assert(current_iteration(TI1)),
     save_model,
     X0 <== X[0], sigmoid(X0,Slope,P0),
     X1 <== X[1], sigmoid(X1,Slope,P1),

@@ -79,6 +79,7 @@ PredEntry *Yap_get_pred(Term t, Term tmod, const char *pname) {
 
 restart:
   if (IsVarTerm(t)) {
+      if (strcmp(pname,"predicate_exists"))
     Yap_ThrowError(INSTANTIATION_ERROR, t0, pname);
     return NULL;
   } else if (IsAtomTerm(t)) {
@@ -111,7 +112,8 @@ restart:
     PredEntry *ap = RepPredProp(Yap_GetPredPropByFunc(fun, tmod));
     return ap;
   } else {
-    Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
+      if (strcmp(pname,"predicate_exists"))
+          Yap_ThrowError(TYPE_ERROR_CALLABLE, t0, pname);
   }
   return NULL;
 }
@@ -2567,7 +2569,7 @@ static Int p_pred_exists(USES_REGS1) { /* '$pred_exists'(+P,+M)	 */
   PredEntry *pe;
   bool out;
 
-  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "$exists");
+  pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "predicate_exists" );
   if (EndOfPAEntr(pe))
     return false;
   PELOCK(34, pe);
