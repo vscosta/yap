@@ -35,10 +35,14 @@ fail.
 % parent module mechanism
 %% system has priority
 '$get_predicate_definition'(_ImportingMod:G,prolog:G) :-
-    nonvar(G).
+    nonvar(G),
+    '$pred_exists'(G,prolog),
+    !.
 %% I am there, no need to import
 '$get_predicate_definition'(Mod:Pred,Mod:Pred) :-
-    nonvar(Pred).
+    nonvar(Pred),
+    '$pred_exists'(Pred,Mod),
+    !.
 %% export table
 '$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
     recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
@@ -54,8 +58,7 @@ fail.
 
 '$predicate_definition'(Imp:Pred,Exp:NPred) :-
     '$predicate_definition'(Imp:Pred,[],Exp:NPred),
-    '$pred_exists'(NPred,Exp),
-%writeln((Imp:Pred -> Exp:NPred )).
+ %writeln((Imp:Pred -> Exp:NPred )).
     !.
 
 '$one_predicate_definition'(Imp:Pred,Exp:NPred) :-

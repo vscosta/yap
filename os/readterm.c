@@ -1304,6 +1304,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     Yap_PopHandle(yopts);
     Yap_popErrorContext(err, true);
     pop_text_stack(lvl);
+    free(new);
     return 0;
   }
 

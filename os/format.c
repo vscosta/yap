@@ -943,7 +943,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 					    fill_pads(sno, sno0, finfo->lstart + repeats, finfo PASS_REGS);
 					    break;
 					    case 't': {
-#if MAY_WRITR
+#if MAY_WRITE
 					      if (fflush(GLOBAL_Stream[sno].file) == 0) {
 						finfo->gap[finfo->gapi].phys = ftell(GLOBAL_Stream[sno].file);
 					      }

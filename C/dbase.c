@@ -896,7 +896,7 @@ loop:
       /* set ptr to new term being analysed */
       pt0 = RepPair(d0);
       pt0_end = RepPair(d0) + 1;
-      /* reserve space for our new list */
+      /* reserve space for our new list */ffreez
       CodeMax += 2;
       CheckDBOverflow(2);
       continue;

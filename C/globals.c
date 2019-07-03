@@ -326,29 +326,29 @@ CELL *pt;
     return arena;
 }
 
-CELL *Yap_GetFromArena(Term *arenap, UInt cells, UInt arity) {
+CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {
   CACHE_REGS
   Term arena = *arenap;
   CELL *max = ArenaLimit(arena);
   CELL *base = ArenaPt(arena);
-  CELL *newH;
-  UInt old_sz = ArenaSz(arena), new_size;
-  while(true) {
-  if (IN_BETWEEN(base, HR, max)) {
-    base = HR;
-    HR += cells;
-    return base;
-  }
-  if (base + cells > ASP - 1024) {
-    continue;
-  }
-
-  newH = base + cells;
-  new_size = old_sz - cells;
-  *arenap = CreateNewArena(newH, new_size);
+  size_t old_sz = ArenaSz(arena), new_size;
+    if (base + cells > max - MIN_ARENA_SIZE) {
+        yhandle_t slt = Yap_PushHandle(arena);
+        size_t extra_size = MIN_ARENA_SIZE*8;
+        if ((extra_size = Yap_InsertInGlobal(max, extra_size * 2 * sizeof(CELL))) ==
+            0) {
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil,
+                      "No Stack Space for Non-Backtrackable terms");
+        }
+        arena = Yap_PopHandle(slt);
+        base = ArenaPt(arena);
+        old_sz += extra_size;
+    }
+    new_size = old_sz - cells;
+  *arenap = CreateNewArena(base+cells, new_size);
   return base;
 }
-}
+
 
 static Term CloseArena(cell_space_t *region USES_REGS) {
   Term arena = TermNil;
@@ -1699,14 +1699,13 @@ Yap_RebootHandles(worker_id);
   } else {
     min_size = 0L;
   }
-  Term ts[2];
-  ts[0] = Deref(ARG2);
-  RESET_VARIABLE(ts+1);
-  to = CopyTermToArena(AbsPair(ts), FALSE, TRUE, 2, &arena,
+  to = CopyTermToArena(Deref(ARG2), false, true, 2, &arena,
                        min_size PASS_REGS);
-    if (to == 0L) {
-      return FALSE;
-    }
+  size_t slto = Yap_PushHandle(to);
+  CELL *cell = Yap_GetFromArena(&arena, 2, 2);
+  cell[0] = Yap_PopHandle(slto);
+  RESET_VARIABLE(cell+1);
+  to = AbsPair(cell);
     /* garbage collection ? */
     qd = GetQueue(Deref(ARG1), "queue");
     qsize = IntegerOfTerm(qd[QUEUE_SIZE]);

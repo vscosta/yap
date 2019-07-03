@@ -410,7 +410,7 @@ do_learning_intern(0,_) :-
 do_learning_intern(Epochs,Epsilon) :-
     db_usage,
         db_static(128*1024),
-	db_dynamic(128*1024),
+	db_dynamic,
 	Epochs>0,
 	current_iteration(CurrentIteration),
 	retract(current_epoch(CurrentEpoch,EpochIteration)),
@@ -532,7 +532,9 @@ set_default_gradient_method :-
 init_queries :-
 	format_learning(2,'Build BDDs for examples~n',[]),
 	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
-	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
+	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)),
+	fail.
+init_queries.
 
 bdd_input_file(Filename) :-
 	problog_flag(output_directory,Dir),
@@ -558,7 +560,9 @@ init_one_query(QueryID,Query,_Type) :-
 	  %	  trace,
  	  once(Call),
 	  reverse(Tree0,Tree),
-	  store_bdd(QueryID, Dir, Tree, MapList).
+	  store_bdd(QueryID, Dir, Tree, MapList),
+	  fail.
+init_one_query(_,_,_).
 
     add_bdd(QueryID,Query, Bdd) :-
 	Bdd = bdd(Dir, Tree0,MapList),
@@ -576,10 +580,6 @@ init_one_query(QueryID,Query,_Type) :-
 add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
-	 (QueryID mod 1000 =:= 0 ->    db_usage,
-				      db_static(128*1024),
-	db_dynamic(128*1024);
-	  truex),
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
 	    (recorded(QueryID,bdd(Dir, Tree, MapList),_Ewf)
 	    ->
@@ -794,7 +794,9 @@ gradient_descent :-
     length(L,N),
     lbfgs_run(N,_X,_BestF),
     mse_trainingset,
-    mse_testset.
+    mse_testset,
+    fail.
+gradient_descent.
 
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
