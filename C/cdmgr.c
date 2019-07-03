@@ -585,10 +585,10 @@ static void kill_children(LogUpdIndex *c, PredEntry *ap) {
   ncl = c->ChildIndex;
   /* kill children */
   while (ncl) {
-    if (ncl->ClRefCount>0) {
-  c->ClRefCount--;
-return;
-    }
+//    if (ncl->ClRefCount>0) {
+//  c->ClRefCount--;
+//return;
+//    }
     kill_first_log_iblock(ncl, c, ap);
     ncl = c->ChildIndex;
   }
@@ -649,10 +649,6 @@ static void kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent,
       }
     }
   } else {
-    /* I am  top node */
-    if (ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
-      RemoveMainIndex(ap);
-    }
   }
   decrease_log_indices(c, (yamop *)&(ap->cs.p_code.ExpandCode));
   /* make sure that a child cannot remove us */
@@ -661,15 +657,15 @@ static void kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent,
   /* always add to erased list */
   c->SiblingIndex = DBErasedIList;
   c->PrevSiblingIndex = NULL;
-  if (DBErasedIList)
-    DBErasedIList->PrevSiblingIndex = c;
-  DBErasedIList = c;
   if (!(c->ClFlags & InUseMask || c->ClRefCount)) {
     kill_off_lu_block(c, parent, ap);
   } else {
     if (c->ClFlags & ErasedMask)
       return;
     c->ClFlags |= ErasedMask;
+      if (DBErasedIList)
+          DBErasedIList->PrevSiblingIndex = c;
+      DBErasedIList = c;
     /* try to move up, so that we don't hold a switch table */
     if (parent != NULL && parent->ClFlags & SwitchTableMask) {
 
@@ -678,6 +674,10 @@ static void kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent,
       parent->ClRefCount--;
     }
   }
+    /* I am  top node */
+    if (ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
+        RemoveMainIndex(ap);
+    }
 }
 
 static void kill_top_static_iblock(StaticIndex *c, PredEntry *ap) {

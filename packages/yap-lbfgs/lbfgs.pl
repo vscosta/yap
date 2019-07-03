@@ -176,7 +176,8 @@ lbfgs_initialize(N,X) :-
 
 Clean up the memory.
 */
-lbfgs_finalize(_N).
+lbfgs_finalize(N) :-
+    lbfgs_release(N).
 
 /** @pred  lbfgs_run(+State, -FinalOutput)
 
