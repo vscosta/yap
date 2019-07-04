@@ -410,7 +410,7 @@ do_learning_intern(0,_) :-
 do_learning_intern(Epochs,Epsilon) :-
     db_usage,
         db_static(128*1024),
-	db_dynamic,
+	db_dynamic(128*1024),
 	Epochs>0,
 	current_iteration(CurrentIteration),
 	retract(current_epoch(CurrentEpoch,EpochIteration)),
@@ -580,10 +580,6 @@ init_one_query(_,_,_).
 add_bdd(_QueryID,_Query, bdd(1,[],[])).
 
 store_bdd(QueryID, Dir, Tree, MapList) :-
-	 (QueryID mod 1000 =:= 0 ->    db_usage,
-				      db_static(128*1024),
-	db_dynamic(128*1024);
-	  true),
 	 (QueryID mod 100 =:= 0 ->writeln(QueryID) ; true),
 	    (recorded(QueryID,bdd(Dir, Tree, MapList),_Ewf)
 	    ->

@@ -662,6 +662,9 @@ be lost.
 %   - redo resets the goal
 %   - fail gives up on the goal.
 '$TraceError'(Event,  _GoalNumber, _G, _Module, _CP, _H) :-
+    '$reenter_debugger'(exception(Event)),
+    fail.
+'$TraceError'(Event,  _GoalNumber, _G, _Module, _CP, _H) :-
     '$continue_debugging'(Event),
     fail.
 '$TraceError'(abort,  _GoalNumber, _G, _Module, _CP, _H) :-
@@ -672,6 +675,7 @@ be lost.
     (
 	GoalNumber > G0
     ->
+    '$re_enter_creep_mode',
     throw(error(event(fail),G0))
     ;
     fail
@@ -681,6 +685,7 @@ be lost.
     (
 	GoalNumber > G0
     ->
+    '$re_enter_creep_mode',
     throw(error(event(redo),G0))
     ;
     catch(
@@ -695,6 +700,7 @@ be lost.
 %%% - forward through the debugger
 '$TraceError'(forward('$wrapper',Event), _, _, _, _, _) :-
     !,
+    '$re_enter_creep_mode',
     throw(Event).
 %%% - anything else, leave to the user and restore the catch
 '$TraceError'(Event, GoalNumber, G, Module, CP, Info) :-
