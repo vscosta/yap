@@ -933,7 +933,7 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     Int oENV = LCL0 - ENV;
     Int oYENV = LCL0 - YENV;
     Int oB = LCL0 - (CELL *) B;
-    yap_error_descriptor_t *ctx = malloc(sizeof(yap_error_descriptor_t));
+    yap_error_descriptor_t *ctx = calloc(1,sizeof(yap_error_descriptor_t));
     bool newxp = Yap_pushErrorContext(true, ctx);
     bool rc = Yap_RunTopGoal(t, false);
     if (!rc) {
@@ -948,6 +948,7 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     ENV = LCL0 - oENV;
     YENV = LCL0 - oYENV;
     B = (choiceptr) (LCL0 - oB);
+    free(ctx);
     return true;
 }
 

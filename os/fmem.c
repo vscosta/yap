@@ -136,7 +136,7 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
 
 
  char *Yap_StrPrefix( const char *buf, size_t n) {
-    char *b = (char*)malloc(n);
+    char *b = Mslloc(n);
     strncpy(b, buf, n - 1);
     if (strlen(buf) > n - 1)
         b[15] = '\0';
