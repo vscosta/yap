@@ -620,6 +620,10 @@ be lost.
 '$trace_port'([fail,_], _GoalNumber, _G, _Module, _CP,_Info) :-
     !,
     '$continue_debugging'(fail).
+'$trace_port'([exception(E),_], GoalNumber, G, Module, CP,Info) :-
+   !,
+    '$trace_port_'(exception(E), GoalNumber, G, Module, CP,Info),
+    '$continue_debugging'(exception(E)).
 '$trace_port'( [_Port,_], _GoalNumber, _G, _Module, _CP,_Info).
 '$trace_port'([_Port], _GoalNumber, _G, _Module, _CP,_Info).
 
@@ -649,8 +653,8 @@ be lost.
     '$port'(fail,G,Module,GoalNumber,deterministic, CP, Info). /* inform user_error		*/
 '$trace_port_'(! ,_GoalNumber,_G,_Module,_CP,_Info) :- /* inform user_error		*/
     !.
-'$trace_port_'(exception, GoalNumber, G, Module, _CP,Info) :-
-    '$port'(exception,G,Module,GoalNumber,deterministic, Info). /* inform user_error		*/
+'$trace_port_'(exception(E), GoalNumber, G, Module, CP,Info) :-
+    '$port'(exception(E),G,Module,GoalNumber,deterministic,CP,Info). /* inform user_error		*/
 
 
 
@@ -661,58 +665,46 @@ be lost.
 %   - abort always forwarded
 %   - redo resets the goal
 %   - fail gives up on the goal.
-'$TraceError'(Event,  _GoalNumber, _G, _Module, _CP, _H) :-
-    '$reenter_debugger'(exception(Event)),
-    fail.
-'$TraceError'(Event,  _GoalNumber, _G, _Module, _CP, _H) :-
-    '$continue_debugging'(Event),
+'$TraceError'(_Event,  _GoalNumber, _G, _Module, _CP, _H) :-
+        '$stop_creeping'(_),
+%'$reenter_debugger'(exception(Event)),
     fail.
 '$TraceError'(abort,  _GoalNumber, _G, _Module, _CP, _H) :-
     !,
     abort.
-'$TraceError'(error(event(fail),G0), GoalNumber, _G, __Module, _CP, _H) :-
+'$TraceError'('$debugger'(event(fail),G0), GoalNumber, _G, __Module, _CP, _H) :-
     !,
     (
 	GoalNumber > G0
     ->
-    '$re_enter_creep_mode',
-    throw(error(event(fail),G0))
+    throw('$debugger'(event(fail),G0))
     ;
     fail
     ).
-'$TraceError'(error(event(redo),G0), GoalNumber, G, M, CP, H) :-
+'$TraceError'('$debugger'(event(redo),G0), GoalNumber, G, M, CP, _H) :-
     !,
     (
 	GoalNumber > G0
     ->
-    '$re_enter_creep_mode',
-    throw(error(event(redo),G0))
+    throw('$debugger'(event(redo),G0))
     ;
-    catch(
-        '$trace_goal'(G, M, GoalNumber, H),
-        E,
-        '$TraceError'(E, GoalNumber, G, M, CP, H)
-    )
+       '$trace_goal'(G, M, GoalNumber, CP)
     ).
 %'$TraceError'( error(Id,Info), _, _, _, _, _) :-
 %    !,
 %    throw( error(Id, Info) ).
 %%% - forward through the debugger
-'$TraceError'(forward('$wrapper',Event), _, _, _, _, _) :-
-    !,
-    '$re_enter_creep_mode',
+'$TraceError'('$debugger'(wrapped(Event)), _, _, _, _, _) :-
     throw(Event).
 %%% - anything else, leave to the user and restore the catch
 '$TraceError'(Event, GoalNumber, G, Module, CP, Info) :-
-    '$trace_port_'(exception,GoalNumber,exception(Event,G),Module,CP,Info),
-    '$continue_debugging'(exception(Event)),
+    '$trace_port_'('$debugger'(Event),GoalNumber,G,Module,CP,Info),
     fail.
 
 % just fail here, don't really need to call debugger, the user knows what he
 % wants to do
-'$loop_fail'(_GoalNumber, _G, _Module,Creep) :-
+'$loop_fail'(_GoalNumber, _G, _Module, _Creep) :-
     current_prolog_flag(debug, true),
-    '$continue_debugging'(fail, Creep),
     fail.
 
 %
@@ -822,7 +814,7 @@ be lost.
 '$action'(f,_,CallNumber,_,_,_) :- !,		% 'f		fail
     '$scan_number'( ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ), 
-    throw(error(event(fail),Goal)).
+    throw('debugger'(event(fail),Goal)).
 '$action'(h,_,_,_,_,_) :- !,			% 'h		help
     '$action_help',
     skip( debugger_input, 10),
@@ -872,7 +864,7 @@ be lost.
 '$action'(r,_,CallNumber,_,_,_) :- !,	        % r		retry
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ), 
-    throw(error(event(redo),Goal)).
+    throw('$debugger'(event(redo),Goal)).
 '$action'(s,P,CallNumber,_,_,_) :- !,		% 's		skip
     '$scan_number'(ScanNumber),		
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),

@@ -948,6 +948,9 @@ catch(G, C, A) :-
 '$run_catch'('$Error'(E),E) :-
         !,
                '$LoopError'(E, top ).
+'$run_catch'('$debugger'(E),E) :-
+        !,
+               '$LoopError'('$debugger'(E), top ).
 '$run_catch'('$LoopError'(E, Where),E) :-
       !,
       '$LoopError'(E, Where).

@@ -36,7 +36,6 @@
 	    debugging/2,		% ?Topic, ?Bool
 	    list_debug_topics/0,
 	    debug_message_context/1,	% (+|-)What
-
 	    assertion/1			% :Goal
 	  ]).
 %% :- use_module(library(error)).
