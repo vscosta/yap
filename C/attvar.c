@@ -72,12 +72,13 @@ static void AddFailToQueue(USES_REGS1) {
   /* follow the chain */
   WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
 
-  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(MkAtomTerm(AtomFail), WGs));
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(TermFail, WGs));
   if ((Term)WGs == TermNil) {
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
   }
 }
+
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {
   attvar_record *newv;
@@ -213,6 +214,19 @@ void Yap_WakeUp(CELL *pt0) {
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
   WakeAttVar(pt0, d0 PASS_REGS);
+}
+
+bool Yap_WakeUpUnsafe(CELL *pt0) {
+  CACHE_REGS
+  attvar_record *attv = RepAttVar(pt0);
+  CELL d0 = *pt0;
+  RESET_VARIABLE(pt0);
+  if (IsNonVarTerm(attv->Value)) {
+  Bind_NonAtt(pt0, (attv->Value));
+    return false;
+  }
+  WakeAttVar(pt0, d0 PASS_REGS);
+  return true;
 }
 
 static void mark_attvar(CELL *orig) { return; }
