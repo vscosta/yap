@@ -1172,6 +1172,78 @@ bool Yap_initStream(int sno, FILE *fd, Atom name, const char *io_mode,
   return true;
 }
 
+
+static bool scan_encoding(int sno) {
+    encoding_t onc = GLOBAL_Stream[sno].encoding;
+    char buf[256];
+    bool separator = false;
+    int j = 0;
+    GLOBAL_Stream[sno].encoding = ENC_ISO_ASCII;
+    int ch;
+
+    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\n' || ch == '\0' || chtype(ch) == BS) {
+        buf[j++] = ch;
+    }
+    if (ch != ':') {
+        for (; j > 0; j--) ungetc(ch, GLOBAL_Stream[sno].file);
+        GLOBAL_Stream[sno].encoding = onc;
+        return false;
+    }
+
+    while (((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\0')) {
+        buf[j++] = ch;
+    }
+    if (ch != '-') {
+        for (; j > 0; j--) ungetc(ch, GLOBAL_Stream[sno].file);
+        GLOBAL_Stream[sno].encoding = onc;
+        return false;
+    }
+    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\n' || ch == '\0' || chtype(ch) == BS) {
+        buf[j++] = ch;
+        if (chtype(ch) == BS) separator = true;
+    }
+    if (!separator) {
+        for (; j > 0; j--) ungetc(ch, GLOBAL_Stream[sno].file);
+        GLOBAL_Stream[sno].encoding = onc;
+        return false;
+    }
+    int i = 0;
+    char txt[64];
+    strcpy(txt, "encoding(");
+    for (i = 0; i < strlen("encoding("); i++) {
+        while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\n' || ch == '\0' || chtype(ch) == BS) {
+            buf[j++] = ch;
+            if (ch != '\0' && ch != txt[i]) {
+                for (; j > 0; j--) ungetc(ch, GLOBAL_Stream[sno].file);
+                GLOBAL_Stream[sno].encoding = onc;
+                return false;
+            }
+        }
+    }
+    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) == '\n' || ch == '\0' || chtype(ch) == BS) {
+        buf[j++] = ch;
+    }
+    int quoted;
+    if (ch == '\'' || ch == '"' || ch == '`') {
+        i = 0;
+        quoted = ch;
+    } else {
+        txt[0] = ch;
+        i = 1;
+        quoted = -1;
+    }
+    while ((ch = GLOBAL_Stream[sno].stream_getc(sno)) != '\n' && chtype(ch) != BS && ch != ')' && ch != quoted) {
+        buf[j++] = ch;
+        if (ch)
+            txt[i++] = ch;
+
+    }
+    txt[i] = '\0';
+    GLOBAL_Stream[sno].encoding = enc_id(txt, onc);
+    for (; j > 0; j--) ungetc(ch, GLOBAL_Stream[sno].file);
+    return true;
+}
+
 static bool open_header(int sno, Atom open_mode) {
   if (open_mode == AtomWrite) {
     const char *ptr;
@@ -1191,14 +1263,13 @@ static bool open_header(int sno, Atom open_mode) {
       GLOBAL_Stream[sno].stream_wputc(sno, ch);
 
   } else if (open_mode == AtomRead) {
-    // skip header
-    int ch;
-    while ((ch = Yap_peek(sno)) == '#') {
-      while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != 10 && ch != -1)
-        ;
-    }
+      // skip header
+      int ch;
+      while ((ch = Yap_peek(sno)) == '#') {
+          while ((ch = GLOBAL_Stream[sno].stream_wgetc(sno)) != 10 && ch != -1);
+      }
   }
-  return true;
+      return true;
 }
 
 #define OPEN_DEFS()                                                            \
@@ -1482,6 +1553,8 @@ static Int do_open(Term file_name, Term t2, Term tlist USES_REGS) {
       st->encoding = enc_id(s_encoding, st->encoding);
     }
   }
+  if (false &&io_mode[0] == 'r' && st->file)
+      scan_encoding(sno);
   Yap_DefaultStreamOps(st);
   if (script) {
     open_header(sno, open_mode);
