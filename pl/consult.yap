@@ -1132,21 +1132,34 @@ make_library_index(_Directory).
 '$store_clause'('$source_location'(File, _Line):Clause, File) :-
 	assert_static(Clause).
 
-
+/**
+ * @pred exists_source( +_File_ )
+ *
+ * True if the term _File_ is likely to be a Prolog program. The file must allow read-access, and user-expansion will
+ * be performed. The predicate only succeeds or fails, it never generates an exception.
+ *
+ * Follows the SWI-Prolog built-in.
+ *
+ */
 exists_source(File) :-
-	'$full_filename'(File, _AbsFile).
+	exists_source(File, _AbsFile).
 
-
-'$full_filename'(F0, F) :-
-	'$undefined'(absolute_file_name(F0,[],F),prolog),
-	!,
-	absolute_file_system_path(F0, F).
-'$full_filename'(F0, F) :-
-	absolute_file_name(F0,[access(read),
+/**
+ * @pred exists_source( +_File_ , q )
+ *
+ * True if the term _File_ is likely to be a Prolog program stored in path _AbsolutePath_. The file must allow read-access, and user-expansion will
+ * be performed. The predicate only succeeds or fails, it never generates an exception.
+ *
+ */
+exists_source(File, AbsFile) :-
+	catch(
+	    absolute_file_name(File, AbsFile,[access(read),
                               file_type(prolog),
                               file_errors(fail),
                               solutions(first),
-                              expand(true)],F).
+                              expand(true)]),
+                         _,
+                         fail ).
 
 % reload_file(File) :-
 %         ' $source_base_name'(File, Compile),
