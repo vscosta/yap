@@ -168,6 +168,7 @@ extern int Yap_peek(int sno);
 extern int Yap_MemPeekc(int sno);
 
 extern int Yap_popChar(int sno);
+extern int Yap_popWide(int sno);
 extern int Yap_peekWithGetc(int sno);
 extern int Yap_peekWideWithGetwc(int sno);
 extern int Yap_peekWideWithSeek(int sno);

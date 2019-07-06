@@ -111,14 +111,14 @@ extern int get_wchar(int sno) {
       return post_process_read_wchar(wch, 4, st);
     }
   }
-  case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                     // little-endian: start with big shot
+  case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+      // big-endian: most significant octet first
     {
-      int wch;
+      unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
-      wch = (c1 << 8) + ch;
+      wch = (unsigned int)(c1 << 8) + ch;
       if (wch >= 0xd800 && wch < 0xdc00) {
         int c2 = st->stream_getc(sno);
         if (c2 == -1)
@@ -126,21 +126,21 @@ extern int get_wchar(int sno) {
         int c3 = st->stream_getc(sno);
         if (c3 == -1)
           return post_process_weof(st);
-        wch = wch + (((c3 << 8) + c2) << wch) + SURROGATE_OFFSET;
+        wch = wch + ((unsigned int)((unsigned int)((c3 << 8) + c2) << 8) + SURROGATE_OFFSET);
         return post_process_read_wchar(wch, 4, st);
       }
-    printf("%d %C\n", wch, wch);
       return post_process_read_wchar(wch, 2, st);
     }
 
-  case ENC_UTF16_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                     // little-endian: start with big shot
-    {
-      int wch;
+  case ENC_UTF16_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
+      // little-endian: least significant octet first
+  {
+      unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
       wch = (c1) + (ch << 8);
+ //     printf("%d %c %d %d \n", wch, wch, ch, c1);
       if (wch >= 0xd800 && wch < 0xdc00) {
         int c3 = st->stream_getc(sno);
         if (c3 == -1)
@@ -148,16 +148,16 @@ extern int get_wchar(int sno) {
         int c2 = st->stream_getc(sno);
         if (c2 == -1)
           return post_process_weof(st);
-        wch = (((c3 << 8) + c2) << 10) + wch + SURROGATE_OFFSET;
+        wch = (((c3 << 8) + c2) << 8) + wch + SURROGATE_OFFSET;
         return post_process_read_wchar(wch, 4, st);
       }
       return post_process_read_wchar(wch, 2, st);
     }
 
   case ENC_UCS2_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                    // little-endian: start with big shot
+                    // big-endian: most significant byte first
     {
-      int wch;
+      unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
@@ -166,9 +166,9 @@ extern int get_wchar(int sno) {
     }
 
   case ENC_UCS2_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-                    // little-endian: start with big shot
+                    // little-endian: least significant byte first
     {
-      int wch;
+      unsigned int wch;
       int c1 = st->stream_getc(sno);
       if (c1 == -1)
         return post_process_weof(st);
@@ -178,56 +178,56 @@ extern int get_wchar(int sno) {
     }
 
   case ENC_ISO_UTF32_BE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-    // little-endian: start with big shot
+    // big-endian: from most to least significant
     {
-      int wch = ch;
+      unsigned int wch = ch;
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch = wch + c1;
+        wch = wch + (unsigned int)c1;
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch = (wch << 8) + c1;
+        wch = (wch << 8) + (unsigned int)c1;
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch = (wch << 8) + c1;
+        wch = (wch << 8) + (unsigned int)c1;
       }
       return post_process_read_wchar(wch, 4, st);
     }
   case ENC_ISO_UTF32_LE: // check http://unicode.org/faq/utf_bom.html#utf16-3
-    // little-endian: start with big shot
+    // little-endian: from least to most significant
     {
-      int wch = ch;
+      unsigned int wch = ch;
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch += c1 << 8;
+        wch += (unsigned int)(c1 << 8);
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch += c1 << 16;
+        wch += (unsigned int)(c1 << 16);
       }
       {
         int c1 = st->stream_getc(sno);
         if (c1 == -1)
           return post_process_weof(st);
-        wch += c1 << 24;
+        wch += (unsigned int)(c1 << 24);
       }
       return post_process_read_wchar(wch, 4, st);
     }
   default:
     Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkIntTerm(st->encoding),
-              "Bad Encoding\n");
+              "Unsupported Encoding %d\n", st->encoding);
     return -1;
   }
 }

@@ -6,9 +6,6 @@
  * comments:	Input/Output C implemented predicates			 *
  *									 *
  *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
 
 #ifndef YAPSTREAMS_H
 #define YAPSTREAMS_H 1
