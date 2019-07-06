@@ -167,6 +167,7 @@ extern void Yap_InitCoroutPreds(void);
 #ifdef COROUTINING
 extern Term Yap_ListOfWokenGoals(void);
 extern void Yap_WakeUp(CELL *);
+extern bool Yap_WakeUpUnsafe(CELL *);
 #endif
 
 /* dbase.c */
