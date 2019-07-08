@@ -75,7 +75,7 @@ dbload(F, _, G) :-
 	'$do_error'(type_error(atom,F),G).
 
 do_dbload(F0, M0, _G) :-
-	'$full_filename'(F0, F),
+	absolute_file_name(F0, [expand(true),file_type(prolog),access(read)], F),
 	assert(dbprocess(F, M0)),
 	open(F, read, R),
 	check_dbload_stream(R, M0),

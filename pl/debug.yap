@@ -472,7 +472,8 @@ be lost.
     ),
     !,
     gated_call(
-	'$set_debugger_state'(debug, false),
+	       % debugging allowed.
+	true,
 	'$execute_nonstop'(G,M),
 	Port,
 	'$reenter_debugger'(Port)

@@ -72,15 +72,34 @@ check_dialect(Dialect) :-
 %	:- endif.
 %	==
 
-%exists_source(Source) :-
-%	exists_source(Source, _Path).
+/**
+ * @pred exists_source( +_File_ )
+ *
+ * True if the term _File_ is likely to be a Prolog program. The file must allow read-access, and user-expansion will
+ * be performed. The predicate only succeeds or fails, it never generates an exception.
+ *
+ * Follows the SWI-Prolog built-in.
+ *
+ */
+exists_source(File) :-
+	exists_source(File, _AbsFile).
 
-exists_source(Source, Path) :-
-	absolute_file_name(Source, Path,
-			   [ file_type(prolog),
-			     access(read),
-			     file_errors(fail)
-			   ]).
+/**
+ * @pred exists_source( +_File_ , q )
+ *
+ * True if the term _File_ is likely to be a Prolog program stored in path _AbsolutePath_. The file must allow read-access, and user-expansion will
+ * be performed. The predicate only succeeds or fails, it never generates an exception.
+ *
+ */
+exists_source(File, AbsFile) :-
+	catch(
+	    absolute_file_name(File, AbsFile,[access(read),
+                              file_type(prolog),
+                              file_errors(fail),
+                              solutions(first),
+                              expand(true)]),
+                         _,
+                         fail ).
 
 %%	@pred source_exports(+Source, +Export) is semidet.
 %%	@pred source_exports(+Source, -Export) is nondet.
