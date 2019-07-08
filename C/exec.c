@@ -2472,8 +2472,8 @@ static Int set_debugger_state(USES_REGS1) {
     if (!strcmp(s, "debug")) {
         LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] = Deref(ARG2);
         return true;
-        return false;
     }
+    return false;
 }
 
 

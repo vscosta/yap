@@ -76,8 +76,6 @@ typedef struct non_single_struct_t {
     return false; }
 
 
-static Int   p_copy_term( USES_REGS1 );
-
 
 #ifdef DEBUG
 static Int  p_force_trail_expansion( USES_REGS1 );

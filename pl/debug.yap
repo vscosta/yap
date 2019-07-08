@@ -464,7 +464,7 @@ be lost.
 %%
 %% Actually debugs a
 %% goal!
-'$trace_goal'(G,M, _GoalNumber, _H) :-
+'$trace_goal'(G, M, _GoalNumber, _CP) :-
     (
 	'$is_private'(G, M)
     ;
@@ -474,7 +474,7 @@ be lost.
     gated_call(
 	       % debugging allowed.
 	true,
-	'$execute_nonstop'(G,M),
+	M:G,
 	Port,
 	'$reenter_debugger'(Port)
     ).
@@ -488,22 +488,20 @@ be lost.
 '$trace_goal_'(G0,M0, GoalNumber, CP, H) :-
     '$creep_is_off'(M0:G0, GoalNumber),
     !,
-    '$debugger_expand_meta_call'( M0:G0, [], M:G ),
-    !,
     gated_call(
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
-	true,
+	'$debugger_expand_meta_call'( M0:G0, [], M:G ),
 	true,
 	Port0,
  	'$trace_port'([Port0], GoalNumber, G, M,  CP, H)
     ),
     gated_call(
-	'$start_user_code',
+	       '$start_user_code',
 	% source mode
-	'$execute_nonstop'(G,M),
-	Port,
-    '$trace_port'(outer:[Port,Port0], GoalNumber, G, M, CP,  H)	    
-    ).
+	       M:G,
+	       Port,
+	       '$trace_port'(outer:[Port,Port0], GoalNumber, G, M, CP,  H)
+	      ).
 '$trace_goal_'(G,M, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
