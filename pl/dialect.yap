@@ -61,21 +61,8 @@ check_dialect(Dialect) :-
 
 
 /**
- * @pred exists_source( +_File_ )
- *
- * True if the term _File_ is likely to be a Prolog program. The file must allow read-access, and user-expansion will
- * be performed. The predicate only succeeds or fails, it never generates an exception.
- *
- * Follows the SWI-Prolog built-in.
- *
- */
-exists_source(File) :-
-	exists_source(File, _AbsFile).
-
-/**
- * @pred exists_source( +_File_ , -_AbsolutePath_ )
- *
- * True if the term _File_ is likely to be a Prolog program stored in path _AbsolutePath_. The file must allow read-access, and user-expansion will
+ * @pred exists_source( +_File_ , q )
+>>>ddd                                                               rue if the term _File_ is likely to be a Prolog program stored in path _AbsolutePath_. The file must allow read-access, and user-expansion will
  * be performed. The predicate only succeeds or fails, it never generates an exception.
  *
  */
