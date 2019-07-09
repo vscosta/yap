@@ -1040,12 +1040,18 @@ static bool watch_retry(Term d0 USES_REGS) {
     Term t, e = 0;
     bool ex_mode = false;
 
-    while (B->cp_ap->opc == FAIL_OPCODE)
+    while (B &&
+	   (B->cp_ap->opc == FAIL_OPCODE ||
+	   B->cp_ap == TRUSTFAILCODE ||
+	    B->cp_ap == NOCODE)
+	   )
         B = B->cp_b;
     ASP = (CELL *) PROTECT_FROZEN_B(B);
     // just do the frrpest
-    if (B >= B0 && !ex_mode && !active)
+    if (B >= B0 && !ex_mode && !active) {
+      complete_pt[0] = TermFail;
         return true;
+    }
     if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
         e = MkErrorTerm(LOCAL_ActiveError);
         if (active) {
@@ -1057,7 +1063,6 @@ static bool watch_retry(Term d0 USES_REGS) {
     } else if (B >= B0) {
         t = TermFail;
         complete_pt[0] = t;
-
     } else if (box) {
         t = TermRedo;
     } else {
@@ -2472,8 +2477,8 @@ static Int set_debugger_state(USES_REGS1) {
     if (!strcmp(s, "debug")) {
         LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] = Deref(ARG2);
         return true;
-        return false;
     }
+        return false;
 }
 
 

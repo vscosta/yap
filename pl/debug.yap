@@ -474,7 +474,7 @@ be lost.
     gated_call(
 	       % debugging allowed.
 	true,
-	'$execute_nonstop'(G,M),
+	M:G,
 	Port,
 	'$reenter_debugger'(Port)
     ).
@@ -500,7 +500,7 @@ be lost.
     gated_call(
 	'$start_user_code',
 	% source mode
-	'$execute_nonstop'(G,M),
+	M:G,
 	Port,
     '$trace_port'(outer:[Port,Port0], GoalNumber, G, M, CP,  H)	    
     ).
