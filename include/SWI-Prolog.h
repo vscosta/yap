@@ -102,7 +102,7 @@ stuff.
 #include "pl-types.h"
 typedef struct _PL_extension {
   const char *predicate_name; /* Name of the predicate */
-  short arity;                /* Arity of the predicate */
+  size_t arity;                /* Arity of the predicate */
   pl_function_t function;     /* Implementing functions */
   short flags;                /* Or of PL_FA_... */
 } PL_extension;
@@ -386,7 +386,7 @@ PL_EXPORT(int) PL_get_chars(term_t, char **, unsigned);
 PL_EXPORT(int) PL_get_nchars(term_t, size_t *, char **, unsigned);
 PL_EXPORT(int) PL_get_wchars(term_t, size_t *, wchar_t **, unsigned);
 PL_EXPORT(int) PL_get_functor(term_t, functor_t *);
-PL_EXPORT(int) PL_get_compound_name_arity(term_t t, atom_t *ap, int *ip);
+PL_EXPORT(int) PL_get_compound_name_arity(term_t t, atom_t *ap, size_t *ip);
 PL_EXPORT(int) PL_get_float(term_t, double *);
 PL_EXPORT(int) PL_get_head(term_t, term_t);
 PL_EXPORT(int) PL_get_int64(term_t, int64_t *);
@@ -400,7 +400,7 @@ PL_EXPORT(module_t) PL_context(void);
 PL_EXPORT(int) PL_strip_module(term_t, module_t *, term_t);
 PL_EXPORT(atom_t) PL_module_name(module_t);
 PL_EXPORT(module_t) PL_new_module(atom_t);
-PL_EXPORT(int) PL_get_name_arity(term_t, atom_t *, int *);
+PL_EXPORT(int) PL_get_name_arity(term_t, atom_t *, size_t *);
 PL_EXPORT(int) PL_get_nil(term_t);
 PL_EXPORT(int) PL_get_pointer(term_t, void **);
 PL_EXPORT(int) PL_get_intptr(term_t, intptr_t *);
@@ -413,9 +413,9 @@ PL_EXPORT(atom_t) PL_new_atom_nchars(size_t, const char *);
 PL_EXPORT(atom_t) PL_new_atom_wchars(size_t, const pl_wchar_t *);
 PL_EXPORT(char *) PL_atom_nchars(atom_t, size_t *);
 PL_EXPORT(pl_wchar_t *) PL_atom_wchars(atom_t, size_t *);
-PL_EXPORT(functor_t) PL_new_functor(atom_t, int);
+PL_EXPORT(functor_t) PL_new_functor(atom_t, size_t);
 PL_EXPORT(atom_t) PL_functor_name(functor_t);
-PL_EXPORT(int) PL_functor_arity(functor_t);
+PL_EXPORT(size_t) PL_functor_arity(functor_t);
 /* end PL_new_* functions =============================*/
 /* begin PL_put_* functions =============================*/
 PL_EXPORT(int) PL_cons_functor(term_t, functor_t, ...);
@@ -506,22 +506,23 @@ PL_EXPORT(void) PL_clear_exception(void);
 PL_EXPORT(void) PL_register_atom(atom_t);
 PL_EXPORT(void) PL_unregister_atom(atom_t);
 PL_EXPORT(predicate_t) PL_pred(functor_t, module_t);
-PL_EXPORT(predicate_t) PL_predicate(const char *, int, const char *);
+PL_EXPORT(predicate_t) PL_predicate(const char *, size_t, const char *);
 #define GP_NAMEARITY 0x100 /* or'ed mask */
 PL_EXPORT(int) PL_unify_predicate(term_t head, predicate_t pred, int how);
-PL_EXPORT(void) PL_predicate_info(predicate_t, atom_t *, int *, module_t *);
+PL_EXPORT(void) PL_predicate_info(predicate_t, atom_t *, size_t *, module_t *);
 PL_EXPORT(qid_t) PL_open_query(module_t, int, predicate_t, term_t);
 PL_EXPORT(int) PL_next_solution(qid_t);
 PL_EXPORT(void) PL_cut_query(qid_t);
+PL_EXPORT(qid_t) PL_current_query(void);
 PL_EXPORT(void) PL_close_query(qid_t);
 PL_EXPORT(int) PL_toplevel(void);
 PL_EXPORT(term_t) PL_exception(qid_t);
 PL_EXPORT(term_t) PL_exception(qid_t);
 PL_EXPORT(int) PL_call_predicate(module_t, int, predicate_t, term_t);
 PL_EXPORT(int) PL_call(term_t, module_t);
-PL_EXPORT(void) PL_register_foreign(const char *, int, pl_function_t, int);
+PL_EXPORT(void) PL_register_foreign(const char *, size_t, pl_function_t, int);
 PL_EXPORT(void)
-PL_register_foreign_in_module(const char *, const char *, int, pl_function_t,
+PL_register_foreign_in_module(const char *, const char *, size_t, pl_function_t,
                               int);
 PL_EXPORT(void) PL_register_extensions(const PL_extension *);
 PL_EXPORT(void)

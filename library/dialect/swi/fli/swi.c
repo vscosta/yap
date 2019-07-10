@@ -77,7 +77,7 @@ extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 static int do_gc(UInt sz) {
   /* always called from user_call_cpred */
   CACHE_REGS
-  UInt arity;
+  arity_t arity;
   yamop *nextpc;
 
   if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {
@@ -94,16 +94,16 @@ X_API extern Atom YAP_AtomFromSWIAtom(atom_t at) { return SWIAtomToAtom(at); }
 
 X_API extern atom_t YAP_SWIAtomFromAtom(Atom at) { return AtomToSWIAtom(at); }
 
-extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
+extern X_API arity_t YAP_PLArityOfSWIFunctor(functor_t at);
 
 /* This is silly, but let's keep it like that for now */
-X_API Int YAP_PLArityOfSWIFunctor(functor_t f) {
+X_API arity_t YAP_PLArityOfSWIFunctor(functor_t f) {
   if (IsAtomTerm(f))
     return 0;
   return ArityOfFunctor((Functor)f);
 }
 
-static void UserCPredicate(char *a, CPredicate def, unsigned long int arity,
+static void UserCPredicate(char *a, CPredicate def, arity_t arity,
                            Term mod, int flags) {
   CACHE_REGS
 
@@ -374,7 +374,7 @@ X_API void PL_reset_term_refs(term_t after) {
  * operaton fails.
  *
  */
-X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity) {
+X_API int PL_get_name_arity(term_t ts, atom_t *name, arity_t *arity) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (IsAtomTerm(t)) {
@@ -438,7 +438,7 @@ X_API int PL_get_arg(int index, term_t ts, term_t a) {
 /** @brief *ap is assigned the name and *ip the arity from term  ts
  *
  */
-X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, int *ip) {
+X_API int PL_get_compound_name_arity(term_t ts, atom_t *ap, arity_t *ip) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
   if (!YAP_IsApplTerm(t)) {
@@ -978,7 +978,7 @@ X_API wchar_t *PL_atom_wchars(atom_t name, size_t *sp) {
   return out;
 }
 
-X_API functor_t PL_new_functor(atom_t name, int arity) {
+X_API functor_t PL_new_functor(atom_t name, size_t arity) {
   functor_t f;
   Atom at = SWIAtomToAtom(name);
   if (arity == 0) {
@@ -997,7 +997,7 @@ X_API atom_t PL_functor_name(functor_t f) {
   }
 }
 
-X_API int PL_functor_arity(functor_t f) {
+X_API size_t PL_functor_arity(functor_t f) {
   if (IsAtomTerm(f)) {
     return 0;
   } else {
@@ -1012,7 +1012,7 @@ X_API int PL_functor_arity(functor_t f) {
 X_API int PL_cons_functor(term_t d, functor_t f, ...) {
   CACHE_REGS
   va_list ap;
-  int arity, i;
+  size_t arity, i;
   Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
@@ -1044,7 +1044,7 @@ X_API int PL_cons_functor(term_t d, functor_t f, ...) {
 
 X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0) {
   CACHE_REGS
-  int arity, i;
+ size_t arity, i;
   Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
@@ -1123,7 +1123,7 @@ X_API int PL_put_float(term_t t, double fl) {
 }
 
 X_API int PL_put_functor(term_t t, functor_t f) {
-  long int arity;
+  size_t arity;
   Functor ff = SWIFunctorToFunctor(f);
 
   CACHE_REGS
@@ -1807,7 +1807,7 @@ int PL_unify_termv(term_t l, va_list ap) {
       case PL_FUNCTOR: {
         functor_t f = va_arg(ap, functor_t);
         Functor ff = SWIFunctorToFunctor(f);
-        UInt arity = ArityOfFunctor(ff);
+        size_t arity = ArityOfFunctor(ff);
 
         if (!arity) {
           *pt++ = MkAtomTerm((Atom)f);
@@ -2030,7 +2030,7 @@ X_API int PL_is_pair(term_t ts) {
   return !IsVarTerm(t) && IsPairTerm(t);
 }
 
-X_API int PL_skip_list(term_t list, term_t tail, size_t *len) {
+X_API int PL_skip_list(term_t list, term_t tail, arity_t *len) {
   CACHE_REGS
   Term t0 = Yap_GetFromSlot(list);
   Term *l = &t0;
@@ -2081,10 +2081,10 @@ X_API int PL_compare(term_t ts1, term_t ts2) {
   return YAP_CompareTerms(t1, t2);
 }
 
-X_API char *PL_record_external(term_t ts, size_t *sz) {
+X_API char *PL_record_external(term_t ts, arity_t *sz) {
   CACHE_REGS
   Term t = Yap_GetFromSlot(ts);
-  size_t len = 512, nsz;
+  arity_t len = 512, nsz;
   char *s;
 
   while (TRUE) {
@@ -2286,7 +2286,7 @@ X_API predicate_t PL_pred(functor_t f, module_t m) {
   }
 }
 
-X_API predicate_t PL_predicate(const char *name, int arity, const char *m) {
+X_API predicate_t PL_predicate(const char *name, size_t arity, const char *m) {
   CACHE_REGS
   Term mod;
   Atom at;
@@ -2342,7 +2342,7 @@ X_API int PL_unify_predicate(term_t head, predicate_t pred, int how) {
   return Yap_unify(Yap_GetFromSlot(head), nt);
 }
 
-X_API void PL_predicate_info(predicate_t p, atom_t *name, int *arity,
+X_API void PL_predicate_info(predicate_t p, atom_t *name, size_t *arity,
                              module_t *m) {
   PredEntry *pd = (PredEntry *)p;
   Atom aname;
@@ -2449,7 +2449,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0) {
   CACHE_REGS
 
   /* ignore flags  and module for now */
-  qid_t new = (qid_t)Yap_AllocCodeSpace(sizeof(struct open_query_struct));
+  struct open_query_struct *new = (struct open_query_struct*)Yap_AllocCodeSpace(sizeof(struct open_query_struct));
   new->oq = LOCAL_execution;
   LOCAL_execution = new;
   new->q_open = 1;
@@ -2457,12 +2457,14 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0) {
   new->q_flags = flags;
   new->q_pe = (PredEntry *)p;
   new->q_g = t0;
-  return new;
+  return (qid_t)new;
 }
 
-X_API int PL_next_solution(qid_t qi) {
+X_API int PL_next_solution(qid_t q) {
   CACHE_REGS
+    struct open_query_struct *qi = (struct open_query_struct *)q;
   int result;
+  
   if (qi->q_open != 1)
     return 0;
   if (setjmp(LOCAL_execution->q_env))
@@ -2483,9 +2485,10 @@ X_API int PL_next_solution(qid_t qi) {
   return result;
 }
 
-X_API void PL_cut_query(qid_t qi) {
+X_API void PL_cut_query(qid_t q) {
   CACHE_REGS
 
+    struct open_query_struct *qi = (struct open_query_struct *)q;
   if (qi->q_open != 1 || qi->q_state == 0)
     return;
   YAP_LeaveGoal(false, &qi->q_h);
@@ -2494,9 +2497,17 @@ X_API void PL_cut_query(qid_t qi) {
   Yap_FreeCodeSpace((char *)qi);
 }
 
-X_API void PL_close_query(qid_t qi) {
+
+X_API qid_t PL_current_query(void) {
   CACHE_REGS
 
+    return (qid_t)LOCAL_execution;
+}
+
+X_API void PL_close_query(qid_t q) {
+  CACHE_REGS
+
+    struct open_query_struct *qi = (struct open_query_struct *)q;
   if (Yap_HasException() && !(qi->q_flags & (PL_Q_CATCH_EXCEPTION))) {
     Yap_ResetException(worker_id);
   }
@@ -2547,7 +2558,7 @@ X_API int PL_call(term_t tp, module_t m) {
 }
 
 X_API void PL_register_foreign_in_module(const char *module, const char *name,
-                                         int arity, pl_function_t function,
+                                         arity_t arity, pl_function_t function,
                                          int flags) {
   CACHE_REGS
   Term tmod;
@@ -2604,7 +2615,7 @@ X_API void PL_register_extensions_in_module(const char *module,
   }
 }
 
-X_API void PL_register_foreign(const char *name, int arity,
+X_API void PL_register_foreign(const char *name, arity_t arity,
                                pl_function_t function, int flags) {
   PL_register_foreign_in_module(NULL, name, arity, function, flags);
 }
@@ -2827,13 +2838,13 @@ X_API int PL_set_engine(PL_engine_t engine, PL_engine_t *old) {
 #endif
 }
 
-X_API void *PL_malloc(size_t sz) {
+X_API void *PL_malloc(arity_t sz) {
   if (sz == 0)
     return NULL;
   return (void *)malloc((long unsigned int)sz);
 }
 
-X_API void *PL_realloc(void *ptr, size_t sz) {
+X_API void *PL_realloc(void *ptr, arity_t sz) {
   if (ptr) {
     if (sz) {
       return realloc((char *)ptr, (long unsigned int)sz);
@@ -2948,7 +2959,7 @@ typedef struct blob {
   CELL type;
   MP_INT blinfo; /* total size should go here */
   PL_blob_t *blb;
-  size_t size;
+  arity_t size;
   CELL blob_data[1];
 } blob_t;
 
@@ -3057,7 +3068,7 @@ char *PL_atom_generator(const char *prefix, int state) {
 }
 
 X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref,
-                                      pl_wchar_t *buffer, size_t buflen,
+                                      pl_wchar_t *buffer, arity_t buflen,
                                       int state) {
   return NULL;
 }
@@ -3165,7 +3176,7 @@ term_t Yap_CvtTerm(term_t ts) {
   return ts;
 }
 
-char *PL_cwd(char *cwd, size_t cwdlen) {
+char *PL_cwd(char *cwd, arity_t cwdlen) {
   return (char *)Yap_getcwd(cwd, cwdlen);
 }
 

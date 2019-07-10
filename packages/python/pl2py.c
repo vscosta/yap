@@ -394,7 +394,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 	  return Py_None;
         }
        atom_t name;
-        int arity;
+       size_t arity;
 
         AOK(PL_get_name_arity(t, &name, &arity), NULL);
 

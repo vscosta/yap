@@ -1670,8 +1670,9 @@ prolog_library(File) :-
     yap_flag(verbose,Old,silent),
     ensure_loaded(library(File)),
     yap_flag(verbose,_,Old).
+
 '$full_filename'(File0,File) :-
-absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first)],File).
+	absolute_file_name(File0,[access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)],File).
 
 :- '$add_multifile'(dot_qualified_goal,1,user).
 

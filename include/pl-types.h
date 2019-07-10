@@ -25,13 +25,13 @@ typedef unsigned long uintptr_t;
 
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
-typedef	intptr_t    term_t;
+typedef	uintptr_t    term_t;
 #endif
 typedef	struct mod_entry *module_t;
 typedef struct DB_STRUCT *record_t;
 typedef uintptr_t	atom_t;
 typedef	struct pred_entry    *predicate_t;
-typedef struct  open_query_struct *qid_t;
+typedef uintptr_t qid_t;
 typedef uintptr_t    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);
 typedef uintptr_t	foreign_t;	/* return type of foreign functions */

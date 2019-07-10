@@ -37,7 +37,7 @@ static struct signame {
     {SIGQUIT, "quit", 0},
 #endif
     {SIGILL, "ill", 0},
-    {SIGABRT, "abrt", 0},
+    //    {SIGABRT, "abrt", 0},
     {SIGFPE, "fpe", 0},
 #ifdef SIGKILL
     {SIGKILL, "kill", 0},

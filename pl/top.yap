@@ -569,7 +569,13 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-    gated_call('$start_user_code',M:G,Port,'$reenter_debugger'(Port)).
+	(
+	 current_prolog_flag(debug,true)
+	->
+	 '$trace'(M:G)
+	;
+	 '$execute'(M:G)
+	).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
