@@ -115,8 +115,6 @@ static bool REAL_Error__(int line, const char *function, const char *s,
   return PL_raise_exception(except);
 }
 
-#define _PL_get_arg PL_get_arg
-
 #define Sdprintf(S, A1) fprintf(stderr, S, A1)
 
 static size_t pos_dims(size_t R_index[], size_t ndims, size_t dims[]) {

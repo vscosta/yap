@@ -1,27 +1,28 @@
+
+
 /**
+ *   @file bdd/bdd.yap
+ *   
+ *   @defgroup BDDsPL Binary Decision Diagrams and Friends
+ * @ingroup BDDs
+ * @{
+ * 
+ * 
+ * This library provides an interface to the BDD package CUDD. It requires
+ * CUDD compiled as a dynamic library. In Linux this is available out of
+ * box in Fedora, but can easily be ported to other Linux
+ * distributions. CUDD is available in the ports OSX package, and in
+ * cygwin. To use it, call
+ * 
+ * ~~~~~
+ * :-use_module(library(bdd))`.
+ * ~~~~~
+ * 
+ * The following predicates construct a BDD:
+ * 
+ * \toc
+ */
 
-  @file bdd/bdd.yap
-  
-  @defgroup BDDsPL Binary Decision Diagrams and Friends
-@ingroup BDDs
-@{
-
-
-This library provides an interface to the BDD package CUDD. It requires
-CUDD compiled as a dynamic library. In Linux this is available out of
-box in Fedora, but can easily be ported to other Linux
-distributions. CUDD is available in the ports OSX package, and in
-cygwin. To use it, call
-
-~~~~~
-:-use_module(library(bdd))`.
-~~~~~
-
-The following predicates construct a BDD:
-
-\toc
-
-*/
 
 :- module(bdd, [
 	bdd_new/2,
@@ -163,8 +164,11 @@ writeln_list([B|Bindings]) :-
 	writeln(B),
 	writeln_list(Bindings).
 
-%list_to_cudd(H._List,_Manager,_Cudd0,_CuddF) :- writeln(l:H), fail.
-list_to_cudd([],_Manager,Cudd,Cudd) :- writeln('X').
+/**
+ * @pred list_to_cudd(+ _ListOfEquivalences, Manager, )Initial_ 
+ */
+list_to_cudd([],_Manager,Cudd,Cudd) :-
+    writeln('X').
 list_to_cudd([release_node(M,cudd(V))|T], Manager, Cudd0, CuddF) :- !,
 	write('-'), flush_output,
 	cudd_release_node(M,V),
@@ -196,25 +200,26 @@ list_to_cudd([(V=Tree)|T], Manager, _Cudd0, CuddF) :-
 	V = cudd(Cudd),
 	list_to_cudd(T, Manager, Cudd, CuddF).
 
-/** @pred mtbdd_new(? _Exp_, - _BddHandle_)
+/**
+ * @pred mtbdd_new(? _Exp_, - _BddHandle_)
+ * 
+ * create a new algebraic decision diagram (ADD) from the logical
+ * expression  _Exp_. The expression may include:
+ * 
+ * + Logical Variables:
+ * a leaf-node can be a logical variable, or <em>parameter</em>.
+ * + Number
+ * a leaf-node can also be any number
+ * + _X_ \*  _Y_
+ * product
+ * + _X_ +  _Y_
+ * sum
+ * + _X_ -  _Y_
+ * subtraction
+ * + or( _X_,  _Y_),  _X_ \/  _Y_
+ * logical or
+ */
 
-create a new algebraic decision diagram (ADD) from the logical
-expression  _Exp_. The expression may include:
-
-+ Logical Variables:
-a leaf-node can be a logical variable, or <em>parameter</em>.
-+ Number
-a leaf-node can also be any number
-+ _X_ \*  _Y_
-product
-+ _X_ +  _Y_
-sum
-+ _X_ -  _Y_
-subtraction
-+ or( _X_,  _Y_),  _X_ \/  _Y_
-logical or
-
-*/
 mtbdd_new(T, Mtbdd) :-
 	term_variables(T, Vars),
 	mtbdd_new(T, Vars, Mtbdd).

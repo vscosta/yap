@@ -126,7 +126,7 @@ int Yap_peekWide(int sno) {
       Int pos = s->charcount;
       Int line = s->linecount;
       Int lpos = s->linepos;
-      int ch = s->stream_wgetc(sno);
+      ch = s->stream_wgetc(sno);
       s->charcount = pos;
     s->linecount = line;
     s->linepos = lpos;
@@ -179,7 +179,8 @@ int Yap_peekChar(int sno) {
         Int pos = s->charcount;
         Int line = s->linecount;
         Int lpos = s->linepos;
-        int ch = s->stream_wgetc(sno);
+
+	ch = s->stream_wgetc(sno);
         s->charcount = pos;
         s->linecount = line;
         s->linepos = lpos;
