@@ -55,6 +55,8 @@ static bool should_creep() {
     &&
     LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] == TermTrue
     &&
+    LOCAL_debugger_state[DEBUG_TRACE_MODE] == TermOn
+    &&
     (
             (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) ||
             LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermUserCreep ||
@@ -987,9 +989,9 @@ static bool watch_cut(Term ext USES_REGS) {
     if (complete) {
         return true;
     }
-    CELL *port_pt = deref_ptr(RepAppl(task) + 2);
-    CELL *completion_pt = deref_ptr(RepAppl(task) + 4); 
-    
+    CELL *port_pt = pDerefa(RepAppl(task) + 2);
+    CELL *completion_pt = pDerefa(RepAppl(task) + 4);
+
     if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
         e = MkErrorTerm(LOCAL_ActiveError);
         Term t;
@@ -1039,17 +1041,23 @@ static bool watch_retry(Term d0 USES_REGS) {
 
     if (complete)
         return true;
-    CELL *port_pt = deref_ptr(RepAppl(Deref(task)) + 2);
-    CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
+    CELL *port_pt = pDerefa(RepAppl(Deref(task)) + 2);
+    CELL *complete_pt = pDerefa(RepAppl(Deref(task)) + 4);
     Term t, e = 0;
     bool ex_mode = false;
 
-    while (B->cp_ap->opc == FAIL_OPCODE)
+    while (B &&
+	   (B->cp_ap->opc == FAIL_OPCODE ||
+	   B->cp_ap == TRUSTFAILCODE ||
+	    B->cp_ap == NOCODE)
+	   )
         B = B->cp_b;
     ASP = (CELL *) PROTECT_FROZEN_B(B);
     // just do the frrpest
-    if (B >= B0 && !ex_mode && !active)
+    if (B >= B0 && !ex_mode && !active) {
+      port_pt[0] = TermFail;
         return true;
+    }
     if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
         e = MkErrorTerm(LOCAL_ActiveError);
         if (active) {
@@ -1061,7 +1069,6 @@ static bool watch_retry(Term d0 USES_REGS) {
     } else if (B >= B0) {
         t = TermFail;
         complete_pt[0] = t;
-
     } else if (box) {
         t = TermRedo;
     } else {
