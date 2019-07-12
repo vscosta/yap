@@ -284,7 +284,7 @@ be lost.
 '$spy'([Mod|G]) :-
     '$trace_off',
     '__NB_getval__'('$trace',Trace,fail),
-    '$set_debugger_state'( creep, 0, stop, Trace),
+    '$set_debugger_state'( trace, Trace),
     '$trace'(Mod:G).
 
 /**
@@ -430,6 +430,7 @@ be lost.
 '$trace_goal'('$cut_by'(M), _, _, _) :-
     !,
     '$$cut_by'(M).
+
 '$trace_goal'('$$cut_by'(M), _, _, _) :-
     !,
     '$$cut_by'(M).
@@ -560,7 +561,7 @@ be lost.
     '__NB_getval__'('$spy_glist',History,History=[]),
     Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
     H  = [Info|History],
-    '__NB_setval__'('$spy_glist',H).	/* and update it		*/
+    b_setval('$spy_glist',H).	/* and update it		*/
 
 '$id_goal'(L) :-
     var(L),

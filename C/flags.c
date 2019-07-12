@@ -1080,6 +1080,11 @@ static Int cont_current_prolog_flag(USES_REGS1) {
   cut_fail();
 }
 
+/** @pred current_prolog_flag(? _Flag_,- _Value_, +_New_) is iso
+
+Obtain the value for a YAP Prolog flag, and then set the flag to the _New_ value.
+
+*/
 static Int current_prolog_flag(USES_REGS1) {
   if (IsVarTerm(Deref(ARG1))) {
     EXTRA_CBACK_ARG(3, 1) = MkIntTerm(0);

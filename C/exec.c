@@ -977,7 +977,9 @@ static bool watch_cut(Term ext USES_REGS) {
     bool complete = IsNonVarTerm(Deref(ArgOfTerm(4, task)));
     bool active = ArgOfTerm(5, task) == TermTrue;
     bool ex_mode = false;
+    bool creep_mode = Yap_get_signal(YAP_CREEP_SIGNAL);
 
+    // try to execute signals on the main loop.
     LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
@@ -986,7 +988,8 @@ static bool watch_cut(Term ext USES_REGS) {
         return true;
     }
     CELL *port_pt = deref_ptr(RepAppl(task) + 2);
-    CELL *completion_pt = deref_ptr(RepAppl(task) + 4);
+    CELL *completion_pt = deref_ptr(RepAppl(task) + 4); 
+    
     if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
         e = MkErrorTerm(LOCAL_ActiveError);
         Term t;
@@ -1007,9 +1010,10 @@ static bool watch_cut(Term ext USES_REGS) {
         // Yap_PutException(e);
         return true;
     }
-    if (Yap_RaiseException())
-        return false;
-    return true;
+    bool rc = !Yap_RaiseException();
+    if (creep_mode)
+      Yap_signal( YAP_CREEP_SIGNAL );
+    return rc;
 }
 
 /**
@@ -1029,7 +1033,7 @@ static bool watch_retry(Term d0 USES_REGS) {
     bool complete = !IsVarTerm(ArgOfTerm(4, task));
     bool active = ArgOfTerm(5, task) == TermTrue;
     choiceptr B0 = (choiceptr) (LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
-    LOCAL_Signals = 0;
+    bool creep_mode = Yap_get_signal(YAP_CREEP_SIGNAL);    LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
 
@@ -1069,9 +1073,10 @@ static bool watch_retry(Term d0 USES_REGS) {
         // Yap_PutException(e);
         return true;
     }
-    if (Yap_RaiseException())
-        return false;
-    return true;
+    bool rc = !Yap_RaiseException();
+    if (creep_mode)
+      Yap_signal( YAP_CREEP_SIGNAL );
+    return rc;
 }
 
 /**

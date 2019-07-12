@@ -419,7 +419,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$creep_is_on_at_entry'(G,Mod,GN)
+    '$stop_at_this_goal'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -433,7 +433,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$creep_is_on_at_entry'(G,Mod,GN)
+    '$stop_at_this_goal'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -442,6 +442,7 @@ notrace(G) :-
 
 %% we're coming back from external code to a debugger call.
 %%
+'$reenter_debugger'(!) :- !.
 '$reenter_debugger'(_) :-
     '$stop_creeping'(_),
     '$set_debugger_state'(debug, false).
@@ -500,10 +501,22 @@ notrace(G) :-
     ->
     false
     ;
-	'$get_debugger_state'( goal_number, GN ) ,
-	GN > GoalNo
+      '$get_debugger_state'( goal_number, TargetGoal )
+     ->
+	GoalNo > TargetGoal
      ).
-'$creep_is_on_at_entry'(G,M,GoalNo) :-
+
+/**
+  * @pred $stop_at_this_goal( Goal, Module, Id)
+  *
+  * debugger should prompt the user if:
+  * - creep on
+  * - spy point enabled
+  * - the goal is older than ourselves: Id is bound
+  *   and Id <= StateGoal
+  *
+  */
+'$stop_at_this_goal'(G,M,GoalNo) :-
     \+ '$is_system_predicate'(G,M),
     '$get_debugger_state'(Step, GN, Spy,_),
     (
@@ -517,9 +530,9 @@ notrace(G) :-
 
    
 '$trace_on' :-
+    '$stop_creeping'(_),
     '$get_debugger_state'(_Creep, GN, Spy,Trace),
     nb_setval('$trace',on),
-    '$trace_off',
     '$set_debugger_state'( creep, GN, Spy, Trace).
 
 

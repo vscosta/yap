@@ -38,7 +38,7 @@ if (WITH_DOCS)
     ${CMAKE_SOURCE_DIR}/packages/swi
     ${CMAKE_SOURCE_DIR}/packages/Problog/problog_examples
     ${CMAKE_SOURCE_DIR}/packages/myddas/sqlite3/src
-    ${CMAKE_SOURCE_DIR}/packages/gecode/6.0.1
+      ${CMAKE_SOURCE_DIR}/packages/gecode/6.0.1
     ${CMAKE_SOURCE_DIR}/packages/gecode/6.0.0
     ${CMAKE_SOURCE_DIR}/packages/gecode/5.1.0
     ${CMAKE_SOURCE_DIR}/packages/gecode/5.0.0
