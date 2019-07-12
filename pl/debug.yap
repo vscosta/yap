@@ -166,7 +166,7 @@ at the call port.  If <tt>f</tt> receives a goal number as the argument, the
 command retries goal  _GoalId_ instead. If goal  _GoalId_ has
 vcompleted execution, YAP fails until meeting the first active ancestor.
 
-+ `a` - abort
+q+ `a` - abort
 
     execution will be aborted, and the interpreter will return to the
 top-level. YAP disactivates debug mode, but spypoints are not removed.
@@ -469,7 +469,7 @@ be lost.
     catch('$trace_goal_'(G,M, GoalNumber,CP,H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
-	 ).
+).
 
 
 %% @pred $trace_goal_( +Goal, +Module, +CallId, +CallInfo)
@@ -595,7 +595,7 @@ be lost.
 '$trace_port'([call,_B], _GoalNumber, _G, _Module, _CP, _Info) :-
 	!.
 '$trace_port'([Port|_B], _GoalNumber, _G, _Module, _CP, _Info) :-
-    writeln(Port:'$trace_port'([Port|_B],  _GoalNumber, _G, _Module, _CP, _Info)),
+%%    writeln(Port:'$trace_port'([Port|_B],  _GoalNumber, _G, _Module, _CP, _Info)),
     '$reenter_debugger'(Port),
     fail.
 
@@ -630,7 +630,7 @@ be lost.
     '$trace_port_'(answer, GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(answer).
 '$trace_port'([call,_], _GoalNumber, _G, _Module, _CP,_Info) :-
-!.
+    !.
 '$trace_port'([fail,_], _GoalNumber, _G, _Module, _CP,_Info) :-
     !,
     '$continue_debugging'(fail).
@@ -638,18 +638,12 @@ be lost.
    !,
     '$trace_port_'(exception(E), GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(exception(E)).
-'$trace_port'( [_Port|_], _GoalNumber, _G, _Module, _CP,_Info).
+'$trace_port'( [Port|_], _GoalNumber, _G, _Module, _CP,_Info) :-
+        '$continue_debugging'(Port).
 
 
-
-'$trace_port_'(_, _GoalNumber, _G, _Module, _CP,_Info) :-
-    current_prolog_flag(debug,false),
-    !.
-'$trace_port_'(_, GoalNumber, _G, _Module, _CP,_Info) :-
-    '$get_debugger_state'( creep, State ),
-    State \= creep,
-    '$get_debugger_state'( goal_number, G0 ),
-    G0 < GoalNumber,
+'$trace_port_'(_, GoalNumber, G, Module, _CP,_Info) :-
+    '$creep_is_off'(Module:G, GoalNumber),
     !.
 '$trace_port_'(_, _GoalNumber, _G, _Module, _CP,_Info) :-
     '$set_debugger_state'( creep, creep ),
