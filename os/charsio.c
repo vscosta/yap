@@ -190,8 +190,8 @@ int Yap_peekChar(int sno) {
         } else {
             s->buf.on = true;
             s->buf.ch = ch;
-            s->stream_getc = Yap_popChar;
-            s->stream_getc = oops_w_from_c;
+            s->stream_wgetc = oops_w_from_c;
+            s->stream_getc =  Yap_popChar;
         }
         //  Yap_SetCurInpPos(sno, pos);
     }
