@@ -206,7 +206,8 @@ debug :-
 
 '$start_user_code' :-
     yap_flag(debug, Can),
-    '$set_debugger_state'(debug, Can).
+    '$set_debugger_state'(debug, Can),
+    '$stop_creeping'(_).
 
 nodebug :-
 	 set_prolog_flag(debug, false),

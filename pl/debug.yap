@@ -402,6 +402,11 @@ be lost.
     '$trace_goal'(G, M, _GN, CP ).
 
 
+/** @pred '$creep'([M|G])
+ *
+ *
+ *
+ */
 '$creep'([M|G]) :-
     '$trace_off',
     '$yap_strip_module'(G,M,Q),
@@ -417,7 +422,7 @@ be lost.
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
 %
-% debug a complex query
+%  debug a complex query
 %
 '$trace_goal'(V, M, _,_) :-
     '$set_debugger_state'(debug,false),
@@ -489,6 +494,7 @@ be lost.
 	       Port,
 	       '$trace_port'([Port,Port0], GoalNumber, G, M, CP,  H)
 	      ).
+
 '$trace_goal_'(G,M, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
@@ -588,7 +594,7 @@ be lost.
 '$trace_port'([call,_B], _GoalNumber, _G, _Module, _CP, _Info) :-
 	!.
 '$trace_port'([Port|_B], _GoalNumber, _G, _Module, _CP, _Info) :-
-%    writeln(Port:'$trace_port'([Port|_B],  _GoalNumber, _G, _Module, _CP, _Info)),
+    writeln(Port:'$trace_port'([Port|_B],  _GoalNumber, _G, _Module, _CP, _Info)),
     '$reenter_debugger'(Port),
     fail.
 
@@ -603,7 +609,7 @@ be lost.
     !,
     '$trace_port_'(redo, GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(redo).
-'$trace_port'([fail], GoalNumber, G, Module, CP, Info) :-
+'$trace_port'([fail,exit], GoalNumber, G, Module, CP, Info) :-
     !,
     '$trace_port_'(fail, GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(fail).
@@ -618,6 +624,12 @@ be lost.
     !,
     '$trace_port_'(exit, GoalNumber, G, Module, CP,Info),
     '$continue_debugging'(exit).
+'$trace_port'([answer,_], GoalNumber, G, Module, CP,Info) :-
+    !,
+    '$trace_port_'(answer, GoalNumber, G, Module, CP,Info),
+    '$continue_debugging'(answer).
+'$trace_port'([call,_], _GoalNumber, _G, _Module, _CP,_Info) :-
+!.
 '$trace_port'([fail,_], _GoalNumber, _G, _Module, _CP,_Info) :-
     !,
     '$continue_debugging'(fail).
