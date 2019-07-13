@@ -8,11 +8,11 @@
   */
 
 
-:- module(dialect,
-	  [
-	   exists_source/1,
-	   source_exports/2
-	  ]).
+% :- module(dialect,
+% 	  [
+% 	   exists_source/1,
+% 	   source_exports/2
+% 	  ]).
 
     /**
      * @defgroup Dialects Compatibility with other Prolog dialects
@@ -25,7 +25,10 @@
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-
+:- private(
+	   [check_dialect/1]
+	  ).
+	
 
 %%
 %	@pred expects_dialect(+Dialect)
@@ -61,20 +64,33 @@ check_dialect(Dialect) :-
 
 
 /**
- * @pred exists_source( +_File_ , q )
->>>ddd                                                               rue if the term _File_ is likely to be a Prolog program stored in path _AbsolutePath_. The file must allow read-access, and user-expansion will
- * be performed. The predicate only succeeds or fails, it never generates an exception.
+ * @pred exists_source( +_File_ , -AbsolutePath_ )
+ *
+ * True if the term _File_ is likely to be a Prolog program stored in
+ * path _AbsolutePath_. The file must allow read-access, and
+ * user-expansion will * be performed. The predicate only succeeds or
+ * fails, it never generates an exception.
+ *
  *
  */
 exists_source(File, AbsFile) :-
 	catch(
-	    absolute_file_name(File, AbsFile,[access(read),
-                              file_type(prolog),
-                              file_errors(fail),
-                              solutions(first),
-                              expand(true)]),
-                         _,
-                         fail ).
+	      absolute_file_name(File, AbsFile,
+				 [access(read), file_type(prolog),
+				  file_errors(fail), solutions(first), expand(true)]), _, fail ).
+
+/**
+ * @pred exists_source( +_File_  )
+ *
+ * True if the term _File_ matches a Prolog program. The file must allow read-access, and
+ * user-expansion will * be performed. The predicate only succeeds or
+ * fails, it never generates an exception.
+ *
+ *
+ */
+exists_source(File) :-
+	exists_source(File, _AbsFile).
+
 
 %%	@pred source_exports(+Source, +Export) is semidet.
 %%	@pred source_exports(+Source, -Export) is nondet.
@@ -84,7 +100,7 @@ exists_source(File, AbsFile) :-
 %
 %	@tbd	Should we also allow for source_exports(-Source, +Export)?
 
-source_exports(Source, Export) :-
+prolog:source_exports(Source, Export) :-
 	open_source(Source, In),
 	catch(call_cleanup(exports(In, Exports), close(In)), _, fail),
 	(   ground(Export)
@@ -96,7 +112,7 @@ source_exports(Source, Export) :-
 %
 %	Open a source location.
 
-open_source(File, In) :-
+prolog:open_source(File, In) :-
 	exists_source(File, Path),
 	open(Path, read, In),
 	(   peek_char(In, #)
