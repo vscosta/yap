@@ -35,15 +35,13 @@
  *
  */
 
-/**
-
-  
 #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"
 #include "Yatom.h"
 #include "alloc.h"
 #include "yapio.h"
+
 /* stuff we want to use in standard YAP code */
 #include "YapText.h"
 #if _MSC_VER || defined(__MINGW32__)

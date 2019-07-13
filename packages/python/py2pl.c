@@ -352,7 +352,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
       } else {
 
         atom_t s;
-        int n, i;
+        size_t n, i;
         PL_get_name_arity(t, &s, &n);
         PyObject *o = term_to_python(t, true, context, true);
         PyErr_Print();

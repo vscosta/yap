@@ -683,7 +683,7 @@ static PyObject *bip_range(term_t t) {
   long ilow = 0, ihigh = 0, istep = 1;
   long bign;
   Py_ssize_t i, n;
-  int arity;
+ size_t arity;
   atom_t name;
   term_t arg = PL_new_term_ref();
 
@@ -740,7 +740,7 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
   PyObject *o = py_Main;
   functor_t fun;
   atom_t name;
-  int arity;
+  size_t arity;
 
   if (PL_is_variable(t)) {
     return term_to_python(t, false, context, cvt);
@@ -802,7 +802,7 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
 PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
   PyObject *o = NULL;
   atom_t name;
-  int arity;
+size_t arity;
   functor_t fun;
 
   o = find_obj(context, t, true);
