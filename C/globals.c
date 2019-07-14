@@ -845,7 +845,7 @@ p_duplicate_term( USES_REGS1 )		/* copy term t to a new instance  */
 static Int
 p_copy_term_no_delays( USES_REGS1 )		/* copy term t to a new instance  */
 {
-    Term t = CopyTermToArena(ARG1, TRUE, false, 2, NULL, 0 PASS_REGS);
+    Term t = CopyTermToArena(ARG1, false, false, 2, NULL, 0 PASS_REGS);
     if (t == 0L)
         return FALSE;
     /* be careful, there may be a stack shift here */
