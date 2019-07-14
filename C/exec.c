@@ -641,7 +641,7 @@ static bool EnterCreepMode(Term t, Term mod USES_REGS) {
             return do_execute(ARG1, mod PASS_REGS);
         }
     }
-    PredCreep = RepPredProp(PredPropByFunc(FunctorCreep, 4));
+    PredCreep = Yap_get_pred(Yap_MkNewApplTerm(FunctorCreep, 1), CurrentModule, "creep" );
     PP = PredCreep;
     if (IsVarTerm(t)) { return false; }
         ARG2 = mod;
@@ -980,15 +980,17 @@ static bool watch_cut(Term ext USES_REGS) {
     bool active = ArgOfTerm(5, task) == TermTrue;
     bool ex_mode = false;
 
+    if (complete) {
+        return true;
+    }
+    // try to execute signals on the main loop.
     LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
 
-    if (complete) {
-        return true;
-    }
     CELL *port_pt = pDerefa(RepAppl(task) + 2);
     CELL *completion_pt = pDerefa(RepAppl(task) + 4);
+
     if (LOCAL_ActiveError && LOCAL_ActiveError->errorNo != YAP_NO_ERROR) {
         e = MkErrorTerm(LOCAL_ActiveError);
         Term t;
@@ -1006,12 +1008,11 @@ static bool watch_cut(Term ext USES_REGS) {
     CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
     complete_pt[0] = TermTrue;
     if (ex_mode) {
-        // Yap_PutException(e);
-        return true;
+      // Yap_PutException(e);
+      return true;
     }
-    if (Yap_RaiseException())
-        return false;
-    return true;
+    bool rc = !Yap_RaiseException();
+    return rc;
 }
 
 /**
@@ -1031,12 +1032,13 @@ static bool watch_retry(Term d0 USES_REGS) {
     bool complete = !IsVarTerm(ArgOfTerm(4, task));
     bool active = ArgOfTerm(5, task) == TermTrue;
     choiceptr B0 = (choiceptr) (LCL0 - IntegerOfTerm(ArgOfTerm(6, task)));
+
+    if (complete)
+        return true;
     LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
 
-    if (complete)
-        return true;
     CELL *port_pt = pDerefa(RepAppl(Deref(task)) + 2);
     CELL *complete_pt = pDerefa(RepAppl(Deref(task)) + 4);
     Term t, e = 0;
@@ -1076,9 +1078,8 @@ static bool watch_retry(Term d0 USES_REGS) {
         // Yap_PutException(e);
         return true;
     }
-    if (Yap_RaiseException())
-        return false;
-    return true;
+    bool rc = !Yap_RaiseException();
+    return rc;
 }
 
 /**

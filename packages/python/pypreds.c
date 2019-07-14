@@ -160,7 +160,7 @@ static foreign_t python_apply(term_t tin, term_t targs, term_t keywds,
   PyObject *pF;
   PyObject *pArgs, *pKeywords;
   PyObject *pValue;
-  int i, arity;
+  size_t i, arity;
   atom_t aname;
   foreign_t out;
   term_t targ = PL_new_term_ref();
@@ -278,7 +278,7 @@ static foreign_t python_builtin_eval(term_t caller, term_t dict, term_t out) {
   PyObject *env;
   atom_t name;
   char *s;
-  int i, arity;
+  size_t i, arity;
   term_t targ = PL_new_term_ref();
 
   if ((env = py_Builtin) == NULL) {
@@ -339,7 +339,7 @@ static foreign_t python_access(term_t obj, term_t f, term_t out) {
   PyObject *o = term_to_python(obj, true, NULL, true), *pValue, *pArgs, *pF;
   atom_t name;
   char *s = NULL;
-  int i, arity;
+  size_t i, arity;
   term_t targ = PL_new_term_ref();
 
   if (o == NULL) {
@@ -403,7 +403,7 @@ static foreign_t python_field(term_t parent, term_t att, term_t tobj) {
   PyObject *pF;
   atom_t name;
   char *s;
-  int arity;
+  size_t arity;
   PyStart();
   if (!PL_get_name_arity(att, &name, &arity)) {
     {

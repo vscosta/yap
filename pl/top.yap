@@ -570,7 +570,9 @@ write_query_answer( Bindings ) :-
 
 '$user_call'(G, M) :-
 	(
-	 current_prolog_flag(debug,true)
+	 current_prolog_flag(debug,true),
+	 '$get_debugger_state'( creep, Mode ),
+	Mode \= zip
 	->
 	 '$trace'(M:G)
 	;

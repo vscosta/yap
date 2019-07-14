@@ -420,7 +420,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$creep_is_on_at_entry'(G,Mod,GN)
+    '$stop_at_this_goal'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -434,7 +434,7 @@ notrace(G) :-
     ->
     true
     ;
-    '$creep_is_on_at_entry'(G,Mod,GN)
+    '$stop_at_this_goal'(G,Mod,GN)
     ->
     '$creep'
     ;
@@ -443,26 +443,14 @@ notrace(G) :-
 
 %% we're coming back from external code to a debugger call.
 %%
+'$reenter_debugger'(!) :- !.
 '$reenter_debugger'(_) :-
     '$stop_creeping'(_),
     '$set_debugger_state'(debug, false).
 
 % what to do when you exit the debugger.
 '$continue_debugging'(exit) :-
-    !,
     '$re_enter_creep_mode'.
-'$continue_debugging'(answer) :-
-    !,
-    '$re_enter_creep_mode'.			   
-'$continue_debugging'(fail) :-
-    !,
-    '$re_enter_creep_mode',
-    fail.
-'$continue_debugging'(redo) :-
-    !,
-    '$re_enter_creep_mode',
-    fail.
-'$continue_debugging'(_).
 
 '$enable_debugging' :-
     '$re_enter_creep_mode'.
@@ -482,29 +470,38 @@ notrace(G) :-
 '$creep_is_off'(Module:G, GoalNo) :-
      (
 	 current_prolog_flag( debug, false )
-     -> true
     ;
 	 '$is_opaque_predicate'(G,Module)
-     -> true
     ;
 	 '$is_private'(G,Module)
-     -> true
     ;
- 	'$get_debugger_state'( creep, zip )  ->
-    true
-    ;
-    '$pred_being_spied'(G,Module)
-    ->
-	'$get_debugger_state'( spy,  ignore )
-    ;
-    var(GoalNo)
-    ->
-    false
-    ;
-	'$get_debugger_state'( goal_number, GN ) ,
-	GN > GoalNo
-     ).
-'$creep_is_on_at_entry'(G,M,GoalNo) :-
+    \+ '$debuggable'(G, Module,GoalNo)
+	 )..
+
+ '$debuggable'(_G, _Module,_GoalNo) :-
+	 '$get_debugger_state'( creep,  Creep ),
+	 Creep \= zip,
+	 !.
+ '$debuggable'(G, Module,_GoalNo) :-
+	'$pred_being_spied'(G,Module),
+	'$get_debugger_state'( spy,  stop ),
+	!.
+'$debuggable'(_G, _Module,GoalNo) :-
+    nonvar(GoalNo),
+    '$get_debugger_state'( goal_number, TargetGoal ),
+    GoalNo =< TargetGoal.
+
+/**
+  * @pred $stop_at_this_goal( Goal, Module, Id)
+  *
+  * debugger should prompt the user if:
+  * - creep on
+  * - spy point enabled
+  * - the goal is older than ourselves: Id is bound
+  *   and Id <= StateGoal
+  *
+  */
+'$stop_at_this_goal'(G,M,GoalNo) :-
     \+ '$is_system_predicate'(G,M),
     '$get_debugger_state'(Step, GN, Spy,_),
     (
@@ -518,17 +515,17 @@ notrace(G) :-
 
    
 '$trace_on' :-
-    '$get_debugger_state'(_Creep, GN, Spy,Trace),
+    '$stop_creeping'(_),
+    '$get_debugger_state'( Creep, GN, Spy,_Trace),
     nb_setval('$trace',on),
-    '$trace_off',
-    '$set_debugger_state'( creep, GN, Spy, Trace).
+    '$set_debugger_state'( Creep, GN, Spy, on).
 
 
 '$trace_off' :-
     '$stop_creeping'(_),
-    '$get_debugger_state'( _Creep, GN, Spy, Trace),
+    '$get_debugger_state'( Creep, GN, Spy, _),
     nb_setval('$trace',off),
-    '$set_debugger_state'( creep, GN, Spy, Trace).
+    '$set_debugger_state'( Creep, GN, Spy, off).
 
 /*
 

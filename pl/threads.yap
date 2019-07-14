@@ -823,7 +823,6 @@ debugging threads and to cancel no-longer-needed threads with throw/1,
 where the receiving thread should be designed carefully do handle
 exceptions at any point.
 
-@}
 */
 
 /** @defgroup Thread_Synchronisation Thread Synchronisation

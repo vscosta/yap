@@ -88,6 +88,18 @@ Grammar related built-in predicates:
 % :- meta_predicate ^(?,1,?,?).
 % ^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
 
+:- private(
+	   [t_head/6,
+	    t_hgoal/5,
+	    t_hlist/5,
+	    t_body/5,
+	    dcg_extend/3,
+	    t_tidy/2,
+	   '$phrase_list'/3]
+	  ).
+	
+
+
 /*
     Variables X in grammar rule bodies are translated as
     if phrase(X) had been written, where phrase/3 is obvious.

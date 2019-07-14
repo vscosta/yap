@@ -221,7 +221,7 @@ static int setListElement(term_t t, SEXP s_str, SEXP sexp) {
 static int complex_term(term_t head, double *valxP, double *valyP) {
   term_t val1 = PL_new_term_ref();
   atom_t name;
-  int arity;
+  size_t arity;
 
   if (PL_is_functor(head, FUNCTOR_plus2) && PL_get_arg(2, head, val1) &&
       ((PL_is_functor(val1, FUNCTOR_i1) && PL_get_arg(1, val1, val1) &&
@@ -288,7 +288,7 @@ static int REAL_term_type(term_t t, int context) {
     term_t tail = PL_new_term_ref();
     size_t len;
     atom_t a;
-    int arity;
+    size_t arity;
 
     if (PL_LIST == PL_skip_list(t, tail, &len)) {
       if (!PL_get_list(t, tmp, t)) {
@@ -402,7 +402,8 @@ static int REAL_term_type(term_t t, int context) {
 
 static int merge_dots(term_t t) {
   char so[1025], *ns = so;
-  int loop = TRUE, first = TRUE, arity;
+  int loop = TRUE, first = TRUE;
+  size_t arity;
   term_t tmp = PL_new_term_ref();
   atom_t name;
 
@@ -846,7 +847,7 @@ static int listEl_to_sexp(term_t t, SEXP *ansP) {
 
 static SEXP pl_to_func(term_t t, bool eval) {
   atom_t name;
-  int arity;
+  size_t arity;
   term_t a1 = PL_new_term_ref(), a;
   int i, ierror;
   SEXP c_R, call_R, res_R;
@@ -957,7 +958,7 @@ static int pl_to_body(term_t t, SEXP *ansP) {
 
 static int pl_to_defun(term_t t, SEXP *ansP) {
   atom_t name;
-  int arity;
+  size_t arity;
   term_t a = PL_new_term_ref(), body = PL_new_term_ref();
   int i;
   SEXP clo_R, c_R, call_R, body_R;
@@ -1485,7 +1486,7 @@ static int bind_sexp(term_t t, SEXP sexp) {
     return FALSE;
   case PL_R_CALL: {
     // look only for attributes
-    int arity;
+    size_t arity;
     atom_t name;
     SEXP tmp_R;
     const char *s;
@@ -1918,7 +1919,7 @@ static foreign_t send_R_command(term_t cmd) {
 // fast copy of a Prolog vector to R
 static foreign_t send_c_vector(term_t tvec, term_t tout) {
   char *s = NULL;
-  int arity, i;
+  size_t arity, i;
   atom_t name;
   term_t targ = PL_new_term_ref();
   SEXP rho = R_GlobalEnv, ans;

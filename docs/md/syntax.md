@@ -312,9 +312,24 @@ where
 
 If a variable is referred only once in a term, it needs not to be named
 and one can use the character `_` to represent the variable. These
-variables are known as anonymous variables. Note that different
+variables are known as anonymous variables. Please note that different
 occurrences of `_` on the same term represent <em>different</em>
 anonymous variables.
+
+YAP accepts both the character `_`, or `_` followed by the usual
+alphanumeric characters. In the former case, each `_` corresponds to a
+different anonymous variable. In the latter case, a name can be used
+to represent a singleton variable. This allows preserving the name of arguments across clauses, as in the following example:
+
+~~~~~~
+member(El, [El|_Tail]).
+member(El, [_El|Tail]) :-
+      member(El, Tail).
+~~~~~~
+
+In the example _El and _Tail refer to the head and tail of the clause
+clause. Using the underscore, we can preserve the name while declaring
+the variables are singletons.
 
 @}
 @addtogroup Punctuation_Tokens Punctuation Tokens
@@ -364,13 +379,19 @@ can handle strings holding characters from multiple languages and
 character classification (uppercase, lowercase, digit, etc.) and
 operations such as case-conversion are unambiguously defined.
 
-For this reason YAP, following SWI-Prolog, has two representations for
-atoms. If the text fits in ISO Latin-1, it is represented as an array
-of 8-bit characters.  Otherwise the text is represented as an array of
-wide chars, which may take 16 or 32 bits.  This representational issue
-is completely transparent to the Prolog user.  Users of the foreign
-language interface sometimes need to be aware of these issues though. Notice that this will likely
-change in the future, we probably will use an UTF-8 based representation.
+ YAP uses UTF-8 internally. In this encoding, the representation of
+code points can have variable length. ASCII codes still take a single
+byte, but western european latin text will have accented
+characeters. that require two bytes in UTF-8. This representational
+issue is completely transparent to the Prolog user.  Users of the
+foreign language interface sometimes need to be aware of these issues
+though. Notice that this will likely change in the future, we probably
+will use an UTF-8 based representation.
+
+YAP assumes that strings are null terminated. UTF-8 has no support for
+encoding null characters within a sequence of codes, but YAP does
+prove some limited support for an UTF extension that allows such
+encodings.
 
 Character coding comes into view when characters of strings need to be
 read from or written to file or when they have to be communicated to
@@ -490,7 +511,7 @@ Prolog escape sequences while other streams generate an I/O exception.
 
 @addtogroup BOM BOM: Byte Order Mark
 @{
-@ingroup WideChars
+v@ingroup WideChars
 
 From Stream Encoding, you may have got the impression that
 text-files are complicated. This section deals with a related topic,
