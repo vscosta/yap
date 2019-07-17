@@ -1018,15 +1018,25 @@ Create a directory  _Dir_. The name of the directory must be an atom.
 
 */
 static Int make_directory(USES_REGS1) {
-  const char *fd = AtomName(AtomOfTerm(ARG1));
+  int lvl = push_text_stack();
+  const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+  s = skip_root(fd);
+  do {
+    if ((ns = extend_dir(s))) {
+      if (Yap_isDirectory(ns)) {
+	s = ns;
+	continue;
+      } else {
 #if defined(__MINGW32__) || _MSC_VER
-  if (_mkdir(fd) == -1) {
+	if (_mkdir(ns) == -1) {
 #else
-  if (mkdir(Yap_VFAlloc(fd), 0777) == -1) {
+	  if (mkdir(ns, 0777) == -1) {
 #endif
-    /* return an error number */
-    return false; // errno?
-  }
+	      /* return an error number */
+	    Yap_ThrowError(OPERA; // errno?
+	    }
+      }
+      while (s);
   return true;
 }
 
