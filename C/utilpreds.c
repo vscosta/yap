@@ -387,34 +387,6 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
 }
 
 
-static Term
-CopyTerm(Term inp, UInt arity, int share, int newattvs USES_REGS) {
-  Term t = Deref(inp);
-  tr_fr_ptr TR0 = TR;
-    CELL *Hi;
-
-  if (IsPrimitiveTerm(t)) {
-    return t;
-  }
-  while( true ) {
-     int res;
-    Hi = HR;
-    HR ++;
-    
-      if ((res = Yap_copy_complex_term((&t)-1, &t, share, newattvs, Hi, HR PASS_REGS)) < 0) {
-	HR = Hi;
-	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
-	  return FALSE;
-      } else if (res && share) {
-	HR = Hi;
-	return t;
-      }
-  return Hi[0];
-    }
-  return 0;
-}
-
-
 typedef struct bp_frame {
   CELL *start_cp;
   CELL *end_cp;

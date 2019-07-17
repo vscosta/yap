@@ -39,7 +39,7 @@ X_API bool do_init_python(void);
 
 static void YAPCatchError() {
   if (LOCAL_CommittedError != nullptr &&
-      LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
+       LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
     // Yap_PopTermFromDB(info->errorTerm);
     // throw  throw YAPError(  );
     Term es[2];
