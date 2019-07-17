@@ -467,7 +467,7 @@ notrace(G) :-
     '$creep'.
 
 
-'$creep_is_off'(Module:G, GoalNo) :-
+'$do_skip_trace'(Module, G, GoalNo) :-
      (
 	 current_prolog_flag( debug, false )
     ;
@@ -476,7 +476,13 @@ notrace(G) :-
 	 '$is_private'(G,Module)
     ;
     \+ '$debuggable'(G, Module,GoalNo)
-	 )..
+     ).
+
+'$do_trace'(Module, G, GoalNo) :-
+    current_prolog_flag( debug, true ),
+    \+ '$is_opaque_predicate'(G,Module),
+    \+ '$is_private'(G,Module),
+    '$debuggable'(G, Module,GoalNo).
 
  '$debuggable'(_G, _Module,_GoalNo) :-
 	 '$get_debugger_state'( creep,  Creep ),
@@ -532,3 +538,4 @@ notrace(G) :-
 @}
 
 */
+>

@@ -200,11 +200,9 @@ append(ListOfLists, List) :-
 
 append_([], []).
 append_([L], L).
-append_([L1,L2], L) :-
-	append(L1,L2,L).
-append_([L1,L2|[L3|LL]], L) :-
+append_([L1,L2|Ls], L) :-
 	append(L1,L2,LI),
-	append_([LI|[L3|LL]],L).
+	append_([LI|Ls],L).
 
 %   reverse(List, Reversed)
 %   is true when List and Reversed are lists with the same elements

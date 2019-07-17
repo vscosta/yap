@@ -477,14 +477,14 @@ be lost.
 %% Actually debugs a
 %% goal!
 '$trace_goal_'(G0,M0, GoalNumber, CP, H) :-
-    '$creep_is_off'(M0:G0, GoalNumber),
+    '$do_trace'(G0,M0, GoalNumber),
     !,
-	'$debugger_expand_meta_call'( M0:G0, [], M:G ),
+    '$debugger_expand_meta_call'( M0:G0, [], M:G ),
     gated_call(
  	'$trace_port'([call], GoalNumber, G, M,  CP, H),
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
-	       '$inner_prolog'( Port, G, M ),
-	       Port0,
+	'$inner_prolog'( Port, G, M ),
+	Port0,
  	'$trace_port'([Port,Port0], GoalNumber, G, M,  CP, H)
     ),
     gated_call(
@@ -643,7 +643,7 @@ be lost.
 
 
 '$trace_port_'(_, GoalNumber, G, Module, _CP,_Info) :-
-    '$creep_is_off'(Module:G, GoalNumber),
+    '$do_skip_trace'(G, Module, GoalNumber),
     !.
 '$trace_port_'(_, _GoalNumber, _G, _Module, _CP,_Info) :-
     '$set_debugger_state'( creep, creep ),
