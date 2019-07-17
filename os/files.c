@@ -643,21 +643,21 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 
 /* Return a list of files for a directory */
 static Int list_directory(USES_REGS1) {
-  Term tf = MkAtomTerm(Yap_LookupAtom("[]"));
-  yhandle_t sl = Yap_InitSlot(tf);
+  Term tf =TermNil;
 VFS_t *vfsp;
   char *buf = (char *)AtomName(AtomOfTerm(ARG1));
     if ((vfsp = vfs_owner(buf))) {
         void *de;
-      const char *dp;
+      const char	*dp;
 
+    
     if ((de = vfsp->opendir(vfsp, buf)) == NULL) {
       PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
 		strerror(errno));
     }
     while ((dp = vfsp->nextdir( de))) {
       YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
-      Yap_PutInHandle(sl, MkPairTerm(ti, Yap_GetFromHandle(sl)));
+       tf = MkPairTerm(ti, tf);
     }
     vfsp->closedir( de);
  } else {
@@ -700,14 +700,13 @@ VFS_t *vfsp;
             }
             while ((dp = readdir(de))) {
                 Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
-                Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+                tf = MkPairTerm(ti, tf);
             }
             closedir(de);
         }
 #endif /* HAVE_OPENDIR */
     }
-  tf = Yap_GetFromSlot(sl); 
-  return Yap_unify(ARG2, tf);
+    return Yap_unify(ARG2, tf);
 }
 
 
@@ -782,6 +781,21 @@ static Int same_file(USES_REGS1) {
 #endif
 }
 
+
+static Int delete_file(USE_REGS1) {
+const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+#if defined(__MINGW32__) || _MSC_VER
+  if (_unlink(fd) == -1)
+#else
+  if (unlink(fd) == -1)
+#endif
+  {
+    /* return an error number */
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "unlink operation failed with error %s", strerror(errno));
+  }
+      return true;
+}
+      
 void Yap_InitFiles(void) {
   Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
@@ -802,4 +816,5 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_name_extension", 3, file_name_extension,
                 SafePredFlag | SyncPredFlag);
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
+  Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
 }
