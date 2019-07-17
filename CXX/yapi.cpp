@@ -39,7 +39,7 @@ X_API bool do_init_python(void);
 
 static void YAPCatchError() {
   if (LOCAL_CommittedError != nullptr &&
-      LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
+       LOCAL_CommittedError->errorNo != YAP_NO_ERROR) {
     // Yap_PopTermFromDB(info->errorTerm);
     // throw  throw YAPError(  );
     Term es[2];
@@ -675,8 +675,6 @@ Term YAPEngine::fun(Term t) {
   arity_t arity;
   Functor f;
   Atom name;
-  YAP_dogoalinfo backup = q;
-  CELL *spt;
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;

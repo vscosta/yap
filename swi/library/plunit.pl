@@ -127,7 +127,7 @@ set_test_flag(Name, Value) :-
 :- endif.
 
 :- if(sicstus).
-throw_error(Error_term,Impldef) :-
+snotthrow_error(Error_term,Impldef) :-
 	throw(error(Error_term,i(Impldef))). % SICStus 3 work around
 
 %:- use_module(swi).			% SWI-Compatibility
@@ -271,16 +271,15 @@ begin_tests(Unit, Options) :-
 :- if(swi).
 begin_tests(Unit, Name, File:Line, Options) :-
     loading_tests, !,
-    %prolog_flag(typein_module,Context, Context),
-    '$set_source_module'(Context, Context),
-    writeln(Context),
+    prolog_flag(typein_module,Context, Context),
+    %'$set_source_module'(Context, Context),
     (   current_unit(Unit, Name, Context, Options)
     ->  true
     ;   retractall(current_unit(Unit, Name, _, _)),
 	assert(current_unit(Unit, Name, Context, Options))
     ),
-    %prolog_flag(typein_module,Old, Name),
-    '$set_source_module'(Old, Name),
+    prolog_flag(typein_module,Old, Name),
+    %'$set_source_module'(Old, Name),
     declare_module(Name, test, Context, File, Line, false),
     discontiguous(Name:'unit test'/4),
 		 discontiguous(Name:'unit body'/2),

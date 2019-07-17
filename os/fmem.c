@@ -30,6 +30,15 @@ static char SccsId[] = "%W% %G%";
 #include "sysbits.h"
 #include "YapText.h"
 
+ char *Yap_StrPrefix( const char *buf, size_t n) {
+    char *b = Malloc(n);
+    strncpy(b, buf, n - 1);
+    if (strlen(buf) > n - 1)
+        b[15] = '\0';
+    return b;
+}
+
+
 #if HAVE_FMEMOPEN
 
 int format_synch(int sno, int sno0, format_info *fg) {
@@ -134,14 +143,6 @@ bool Yap_set_stream_to_buf(StreamDesc *st, const char *buf,
   return true;
 }
 
-
- char *Yap_StrPrefix( const char *buf, size_t n) {
-    char *b = Malloc(n);
-    strncpy(b, buf, n - 1);
-    if (strlen(buf) > n - 1)
-        b[15] = '\0';
-    return b;
-}
 
 int Yap_open_buf_read_stream(const char *buf, size_t nchars,
                                  encoding_t *encp, memBufSource src, Atom fname,

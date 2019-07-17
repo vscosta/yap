@@ -35,9 +35,10 @@ set (YAPOS_SOURCES
   writeterm.c
   ypsocks.c
   ypstdio.c
-  )
+ cwalk/cwalk.c
+)
 
-  include_directories (../H ../include ../OPTYap .  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
+  include_directories (../H ../include ../OPTYap . cwalk  ${GMP_INCLUDE_DIR} ${PROJECT_BINARY_DIR} PARENT_SCOPE)
 
 SET_PROPERTY(DIRECTORY PROPERTY COMPILE_DEFINITIONS YAP_KERNEL=1 )
 

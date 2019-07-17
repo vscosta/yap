@@ -406,6 +406,8 @@ else()
     include_directories( ${READLINE_INCLUDE_DIR}
       ${READLINE_INCLUDE_DIR}/readline
       )
+      else()
+      set (READLINE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
   endif ()
 endif()
 
@@ -652,7 +654,7 @@ List(APPEND YLIBS $<TARGET_OBJECTS:myddas>)
 List(APPEND YLIBS $<TARGET_OBJECTS:libswi>)
 if (WIN32 OR ANDROID)
   List(APPEND YLIBS $<TARGET_OBJECTS:YAP++>)
-  if (WIN32 AND WITH_PYTHON)
+  if (WIN32 AND WITH_PYTHON AND PYTHON_LIBRARIES)
     List(APPEND YLIBS $<TARGET_OBJECTS:Py4YAP>)
     list (APPEND WINDLLS ${PYTHON_LIBRARIES})
   endif ()
@@ -735,7 +737,7 @@ MY_set_target_properties(libYap
   )
 
 
-
+if (PYTHON_LIBRARIES)
 # file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/packages/python/swig/yap4py)
 include(FindPythonModule)
 
@@ -752,8 +754,8 @@ if (PY_WHEEL AND PY_SETUPTOOLS)
     message("will not compile yap_kernel, as jupyter=${PY_JUPYTER};wheel=${PY_WHEEL};setuptools=${PY_SETUPTOOLS}")
   ENDIF ()
 
-endif ()
-
+endif()
+endif()
 
 
 message(STATUS "Building YAP packages version ${YAP_VERSION}")

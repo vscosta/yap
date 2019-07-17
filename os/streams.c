@@ -336,7 +336,6 @@ bool Yap_SetCurInpPos(
 }
 
 Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
-  size_t maxs = Yap_Max(1023, max - 1);
   if (!file) {
     Atom at = Yap_LookupAtom("mem");
     return at;
@@ -349,7 +348,8 @@ Atom Yap_guessFileName(FILE *file, int sno, size_t max) {
 
   int i = push_text_stack();
 #if __linux__
-  char *path = Malloc(1024), *nameb = Malloc(maxs + 1);
+   size_t maxs = Yap_Max(1023, max - 1);
+ char *path = Malloc(1024), *nameb = Malloc(maxs + 1);
   size_t len;
   if ((len = snprintf(path, 1023, "/proc/self/fd/%d", f)) >= 0 &&
       (len = readlink(path, nameb, maxs)) > 0) {

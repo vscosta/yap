@@ -311,11 +311,11 @@ static bool set_fpu_exceptions(Term flag) {
   return true;
 }
 
-#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
-
 static void ReceiveSignal(int s, void *x, void *y) {
   CACHE_REGS
   LOCAL_PrologMode |= InterruptMode;
+#if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__)
+
   if (s == SIGINT && (LOCAL_PrologMode & ConsoleGetcMode)) {
     return;
   }
@@ -374,9 +374,9 @@ static void ReceiveSignal(int s, void *x, void *y) {
     fprintf(stderr, "\n[ Unexpected signal ]\n");
     exit(s);
   }
+#endif
   LOCAL_PrologMode &= ~InterruptMode;
 }
-#endif
 
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI MSCHandleSignal(DWORD dwCtrlType) {

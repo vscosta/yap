@@ -19,6 +19,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 
 #include "sysbits.h"
+#include "cwalk.h"
 
 /// File Error Handler
 static void FileError(yap_error_number type, Term where, const char *format,
@@ -90,14 +91,6 @@ bool Yap_isDirectory(const char *FileName) {
             "stat not available in this configuration");
   return false;
 #endif
-}
-
-Int exists_directory(USES_REGS1) {
-    int lvl = push_text_stack();
-    const char *path = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
-    bool rc = Yap_isDirectory(path);
-    pop_text_stack(lvl);
-    return rc;
 }
 
 bool Yap_Exists(const char *f) {
@@ -431,87 +424,16 @@ static char *clean_path(const char *path) {
 static const char *myrealpath(const char *path USES_REGS) {
 
   int lvl = push_text_stack();
-  VFS_t *v;
-  char *out, *o;
-  if (Yap_IsAbsolutePath(path, true)) {
-    o = clean_path(path);
-    return pop_output_text_stack(lvl, o);
-
-  } else {
-    out = Malloc(FILENAME_MAX + 1);
-    Yap_getcwd(out, FILENAME_MAX);
-    strcat(out, "/");
-    strcat(out, path);
-    o = clean_path(out);
-    if ((v = vfs_owner(o))) {
-      return pop_output_text_stack(lvl, o);
-    }
-  }
-#if _WIN32
-  DWORD retval = 0;
-
-  // notice that the file does not need to exist
-  retval = GetFullPathName(path, YAP_FILENAME_MAX, o, NULL);
-  if (retval == 0) {
-    pop_text_stack(lvl);
-    Yap_WinError("Generating a full path name for a file");
+  char *o = Malloc(FILENAME_MAX+1), *wd = Malloc(FILENAME_MAX+1);
+  const char *cwd =  Yap_getcwd(wd, FILENAME_MAX);
+ size_t sz = cwk_path_get_absolute( 
+				  cwd, path,
+				     o,
+			 FILENAME_MAX
+			 );
+  if (sz <0)
     return NULL;
-  }
-  return pop_output_text_stack(lvl, o);
-#elif HAVE_REALPATH
-  {
-    char *rc = realpath(path, o);
-
-    if (rc) {
-      return pop_output_text_stack(lvl, rc);
-    }
-    // rc = NULL;
-    if (errno == ENOENT || errno == EACCES) {
-      char *base = Malloc(FILENAME_MAX + 1);
-      strncpy(base, path, FILENAME_MAX);
-      char *p = base + strlen(base);
-      while (p > base && !dir_separator(*--p))
-        ;
-      if (p == base)
-        p[1] = '\0';
-      else
-        p[0] = '\0';
-      char *tmp = Malloc(FILENAME_MAX + 1);
-      rc = realpath(base, tmp);
-
-      if (rc) {
-        // base may have been destroyed
-        char *b = base + strlen(base);
-        while (b > base && !dir_separator(*--b))
-          ;
-        if (b[0] && !dir_separator(b[0]))
-          b++;
-        size_t e = strlen(rc);
-        size_t bs = strlen(b);
-
-        if (rc != out && rc != base) {
-          rc = Realloc(rc, e + bs + 2);
-        }
-#if _WIN32
-        if (rc[e - 1] != '\\' && rc[e - 1] != '/') {
-          rc[e] = '\\';
-          rc[e + 1] = '\0';
-        }
-#else
-        if (rc[e - 1] != '/') {
-          rc[e] = '/';
-          rc[e + 1] = '\0';
-        }
-#endif
-        strcat(rc, b);
-        rc = pop_output_text_stack(lvl, rc);
-        return rc;
-      }
-    }
-  }
-#endif
-  pop_text_stack(lvl);
-  return path;
+return pop_output_text_stack(lvl,o);
 }
 
 static const char *expandVars(const char *spec, char *u) {
@@ -1011,38 +933,6 @@ Atom Yap_TemporaryFile(const char *prefix, int *fd) {
   return AtomNil;
 #endif
 }
-
-/** @pred make_directory(+ _Dir_)
-
-Create a directory  _Dir_. The name of the directory must be an atom.
-
-*/
-static Int make_directory(USES_REGS1) {
-  const char *fd = AtomName(AtomOfTerm(ARG1));
-#if defined(__MINGW32__) || _MSC_VER
-  if (_mkdir(fd) == -1) {
-#else
-  if (mkdir(Yap_VFAlloc(fd), 0777) == -1) {
-#endif
-    /* return an error number */
-    return false; // errno?
-  }
-  return true;
-}
-
-static Int p_rmdir(USES_REGS1) {
-  const char *fd = Yap_VFAlloc(AtomName(AtomOfTerm(ARG1)));
-#if defined(__MINGW32__) || _MSC_VER
-  if (_rmdir(fd) == -1) {
-#else
-  if (rmdir(fd) == -1) {
-#endif
-    /* return an error number */
-    return (Yap_unify(ARG2, MkIntTerm(errno)));
-  }
-  return true;
-}
-
 static bool initSysPath(Term tlib, Term tcommons, bool dir_done,
                         bool commons_done) {
   CACHE_REGS
@@ -1962,7 +1852,6 @@ void Yap_InitSysPreds(void) {
   Yap_InitCPred("$dir_separator", 1, p_dir_sp, SafePredFlag);
   Yap_InitCPred("libraries_directories", 2, libraries_directories, 0);
     Yap_InitCPred("system_library", 1, system_library, 0);
-    Yap_InitCPred("exists_directory", 1, exists_directory, 0);
   Yap_InitCPred("commons_library", 1, commons_library, 0);
   Yap_InitCPred("$getenv", 2, p_getenv, SafePredFlag);
   Yap_InitCPred("$putenv", 2, p_putenv, SafePredFlag | SyncPredFlag);
@@ -1985,9 +1874,7 @@ void Yap_InitSysPreds(void) {
 #ifdef _WIN32
   Yap_InitCPred("win_registry_get_value", 3, p_win_registry_get_value, 0);
 #endif
-  Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
   Yap_InitCPred("sleep", 1, p_sleep, SyncPredFlag);
-  Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
   Yap_InitCPred("mtrace", 1, p_mtrace, SyncPredFlag);
 }
    

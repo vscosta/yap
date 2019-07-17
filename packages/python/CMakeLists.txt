@@ -31,11 +31,11 @@ install(TARGETS  Py4YAP
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
+target_link_libraries(YAPPython Py4YAP libYap)
 
 
  endif()
 
-target_link_libraries(YAPPython Py4YAP libYap)
 
 # arithmetic hassle.
 set_property(TARGET YAPPython PROPERTY CXX_STANDARD_REQUIRED ON)

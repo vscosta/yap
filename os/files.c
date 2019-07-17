@@ -522,18 +522,9 @@ static Int access_file(USES_REGS1) {
 }
 
 static Int exists_directory(USES_REGS1) {
-  Term tname = Deref(ARG1);
-  char *file_name;
+  const char *s = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
 
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "exists_directory/1");
-    return FALSE;
-  } else if (!IsAtomTerm(tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "exists_directory/1");
-    return FALSE;
-  } else {
     VFS_t *vfs;
-    char *s = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
     if (!s) return false;
     if ((vfs = vfs_owner(s))) {
 bool rc = true;
@@ -545,8 +536,7 @@ bool rc = true;
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
 
-    file_name = Yap_VF(RepAtom(AtomOfTerm(tname))->StrOfAE);
-    if (SYSTEM_STAT(file_name, &ss) != 0) {
+    if (SYSTEM_STAT(s, &ss) != 0) {
       /* ignore errors while checking a file */
       return false;
     }
@@ -554,7 +544,6 @@ bool rc = true;
 #else
     return FALSE;
 #endif
-  }
 }
 
 static Int is_absolute_file_name(USES_REGS1) { /* file_base_name(Stream,N) */
@@ -641,23 +630,92 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
 }
 
 
-/* Return a list of files for a directory */
+static const char * skip_root(const char *s0)
+{
+  const char *s = s0;
+  int ch;
+  
+  if (!s)
+    return NULL;
+  #if __WIN32
+  while ((ch = *s++) && ch != '/' && ch != '\\' && ch ch \= ':');
+  #else
+  ch = *s++;
+  #endif
+  if (!Yap_dir_separator(ch))
+    return NULL;
+  ch = *s++;
+  if (Yap_dir_separator(ch)) {
+    while ((ch = *s++)&& Yap_dir_separator(ch));
+    if (!ch) return NULL;
+    while ((ch = *s++)&& !Yap_dir_separator(ch));
+    if (!ch) return NULL;
+  }    
+  return s;    
+}
+
+static char *extend_dir(const char *s)
+{ int ch;
+    while ((ch = *s++)&& !Yap_dir_separator(ch));
+  return (char *)s;
+}
+/** @pred make_directory(+ _Dir_)
+
+Create a directory  _Yap_Dir_. If the parent directory does not exist, silently create it,
+
+*/
+static Int make_directory(USES_REGS1) {
+  int lvl = push_text_stack();
+  const char *fd0 = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+  char *fd = Malloc(strlen(fd0)+1);
+  strcpy( fd, fd0);
+  char *s = (char *)skip_root(fd), *ns;
+  int ch;
+  do {
+    if ((ns = extend_dir(s))) {
+      ch = ns[0];
+      ns[0] = '\0';
+      if (!Yap_isDirectory(fd)) {
+#if defined(__MINGW32__) || _MSC_VER
+	if (_mkdir(fd) == -1) {
+#else
+	  if (mkdir(fd, 0777) == -1) {
+#endif
+	      /* return an error number */
+	    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "mkdir failed to create ", fd, strerror(errno));
+	    }
+	}
+      }
+      
+	s = ns;
+	s[0] = ch;
+	s++;
+    }
+      while (*s);
+    pop_text_stack(lvl);
+  return true;
+}
+
+/** @pred list_directory(+ _Dir_, -ListOfFiles)
+
+ Return the list of files for a directory
+ */
 static Int list_directory(USES_REGS1) {
-  Term tf = MkAtomTerm(Yap_LookupAtom("[]"));
-  yhandle_t sl = Yap_InitSlot(tf);
+  Term tf =TermNil;
 VFS_t *vfsp;
-  char *buf = (char *)AtomName(AtomOfTerm(ARG1));
+  const  char *buf = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
     if ((vfsp = vfs_owner(buf))) {
         void *de;
-      const char *dp;
+      const char	*dp;
 
+    
     if ((de = vfsp->opendir(vfsp, buf)) == NULL) {
       PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
 		strerror(errno));
     }
     while ((dp = vfsp->nextdir( de))) {
       YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
-      Yap_PutInHandle(sl, MkPairTerm(ti, Yap_GetFromHandle(sl)));
+       tf = MkPairTerm(ti, tf);
     }
     vfsp->closedir( de);
  } else {
@@ -700,14 +758,27 @@ VFS_t *vfsp;
             }
             while ((dp = readdir(de))) {
                 Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
-                Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+                tf = MkPairTerm(ti, tf);
             }
             closedir(de);
         }
 #endif /* HAVE_OPENDIR */
     }
-  tf = Yap_GetFromSlot(sl); 
-  return Yap_unify(ARG2, tf);
+    return Yap_unify(ARG2, tf);
+}
+
+
+static Int p_rmdir(USES_REGS1) {
+  const char *fd = Yap_VFAlloc(AtomName(AtomOfTerm(ARG1)));
+#if defined(__MINGW32__) || _MSC_VER
+  if (_rmdir(fd) == -1) {
+#else
+  if (rmdir(fd) == -1) {
+#endif
+    /* return an error number */
+    return (Yap_unify(ARG2, MkIntTerm(errno)));
+  }
+  return true;
 }
 
 
@@ -782,6 +853,21 @@ static Int same_file(USES_REGS1) {
 #endif
 }
 
+
+static Int delete_file(USE_REGS1) {
+const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+#if defined(__MINGW32__) || _MSC_VER
+  if (_unlink(fd) == -1)
+#else
+  if (unlink(fd) == -1)
+#endif
+  {
+    /* return an error number */
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "unlink operation failed with error %s", strerror(errno));
+  }
+      return true;
+}
+      
 void Yap_InitFiles(void) {
   Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);
@@ -801,5 +887,8 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("file_name_extension", 3, file_name_extension,
                 SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
+  Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
+  Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
 }
