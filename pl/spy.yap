@@ -201,11 +201,12 @@ debug :-
 	 '$init_debugger',
 	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
 	 set_prolog_flag(debug,true),
+	 '$set_debugger_state'(debug, true),
 	 '$start_user_code',
 	 print_message(informational,debug(debug)).
 
 '$start_user_code' :-
-    yap_flag(debug, Can),
+    current_prolog_flag(debug, Can),
     '$set_debugger_state'(debug, Can),
     '$stop_creeping'(_).
 
@@ -231,6 +232,7 @@ trace :-
 	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
     print_message(informational,debug(trace)),
     set_prolog_flag(debug,true),
+    '$set_debugger_state'(debug, true),
     '__NB_setval__'('$trace',on),
     '$init_debugger'.
 
@@ -398,10 +400,10 @@ notrace(G) :-
 '$init_debugger_trace' :-
 	'__NB_getval__'('$trace',on,fail),
 	!,
-	'$set_debugger_state'( creep,  0, stop, on ).
+	'$set_debugger_state'( creep,  0, stop, on, true ).
 '$init_debugger_trace' :-
 	'__NB_setval__'('$trace',off),
-	'$set_debugger_state'( zip, 0, stop, off ).
+	'$set_debugger_state'( zip, 0, stop, off, true ).
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)
 %%
@@ -415,7 +417,7 @@ notrace(G) :-
 
 '$enter_debugging'(G,Mod,GN) :-
     current_prolog_flag( debug, Deb ),
-    '__NB_set_value__'( debug, Deb ),
+    '$set_debugger_state'( debug, Deb ),
     ( Deb = false
     ->
     true
@@ -429,7 +431,7 @@ notrace(G) :-
 
 '$exit_debugger'(Mod:G, GN) :-
     current_prolog_flag( debug, Deb ),
-    '__NB_set_value__'( debug, Deb ),
+    '$set_debugger_state'( debug, Deb ),
     ( Deb = false
     ->
     true
@@ -463,13 +465,13 @@ notrace(G) :-
 %%
 '$re_enter_creep_mode' :-
     current_prolog_flag( debug, Deb ),
-    '__NB_setval__'( debug, Deb ),
+    '$set_debugger_state'( debug, Deb ),
     '$creep'.
 
 
 '$do_skip_trace'(Module, G, GoalNo) :-
      (
-	 current_prolog_flag( debug, false )
+	 '$get_debugger_state'( debug, false )
     ;
 	 '$is_opaque_predicate'(G,Module)
     ;
@@ -479,7 +481,7 @@ notrace(G) :-
      ).
 
 '$do_trace'(Module, G, GoalNo) :-
-    current_prolog_flag( debug, true ),
+    '$get_debugger_state'( debug, true ),
     \+ '$is_opaque_predicate'(G,Module),
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
@@ -509,7 +511,7 @@ notrace(G) :-
   */
 '$stop_at_this_goal'(G,M,GoalNo) :-
     \+ '$is_system_predicate'(G,M),
-    '$get_debugger_state'(Step, GN, Spy,_),
+    '$get_debugger_state'(Step, GN, Spy,_,_),
     (
 	Step \= zip
     ;
@@ -522,16 +524,16 @@ notrace(G) :-
    
 '$trace_on' :-
     '$stop_creeping'(_),
-    '$get_debugger_state'( Creep, GN, Spy,_Trace),
+    '$get_debugger_state'( Creep, GN, Spy,_Trace,Debug),
     nb_setval('$trace',on),
-    '$set_debugger_state'( Creep, GN, Spy, on).
+    '$set_debugger_state'( Creep, GN, Spy, on, Debug).
 
 
 '$trace_off' :-
     '$stop_creeping'(_),
-    '$get_debugger_state'( Creep, GN, Spy, _),
+    '$get_debugger_state'( Creep, GN, Spy, _, Debug),
     nb_setval('$trace',off),
-    '$set_debugger_state'( Creep, GN, Spy, off).
+    '$set_debugger_state'( Creep, GN, Spy, off, Debug).
 
 /*
 

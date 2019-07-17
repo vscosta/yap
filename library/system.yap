@@ -28,9 +28,9 @@
 :- module(operating_system_support,
     [
      datime/1,
-     delete_file/1,
+     %delete_file/1,
      delete_file/2,
-	directory_files/2,
+%	directory_files/2,
 	directory_map/2,
 	environ/2,
 	exec/3,
@@ -42,7 +42,7 @@
 				     md5/3,
 	pid/1,
 				     mktemp/2,
-	make_directory/1,
+%	make_directory/1,
 	popen/3,
      read_link/3,
      rename_file/2,
@@ -286,22 +286,6 @@ check_int(I, Inp) :-
 % file operations
 % file operations
 
-/** @pred delete_file(+ _File_)
-
-The delete_file/1 procedure removes file  _File_. If
- _File_ is a directory, remove the directory <em>and all its subdirectories</em>.
-
-~~~~~
-   ?- delete_file(x).
-~~~~~
-
-See delete_file/2 for a more flexible version.
-
-*/
-delete_file(IFile) :-
-	true_file_name(IFile, File),
-	delete_file(File, off, on, off).
-
 /** @pred delete_file(+ _File_,+ _Opts_)
 
 The `delete_file/2` procedure removes file  _File_ according to
@@ -428,14 +412,14 @@ not currently in Win32 configurations.
    ?- environ('HOME',V).
 
 V = 'C:\\cygwin\\home\\administrator' ?
-~~~~~
+~~~~~				      
 _EnvVar_ may be bound to an atom, or just be
   unbound. In the latter case environ/2 will enumerate over all
   environment variables.
 
 */
 environ(Na,Val) :- var(Na), !,
-	environ_enum(0,I),
+	bet(0,I),
 	( p_environ(I,S) -> environ_split(S,SNa,SVal) ; !, fail ),
 	atom_codes(Na, SNa),
 	atom_codes(Val, SVal).

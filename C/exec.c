@@ -53,9 +53,9 @@ static bool should_creep() {
     return
     !(LOCAL_PrologMode & (AbortMode | InterruptMode | SystemMode|BootMode))
     &&
-    LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] == TermTrue
+    LOCAL_debugger_state[DEBUG_DEBUG] == TermTrue
     &&
-    LOCAL_debugger_state[DEBUG_TRACE_MODE] == TermOn
+    LOCAL_debugger_state[DEBUG_TRACE] == TermOn
     &&
     (
             (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) ||
@@ -2451,10 +2451,10 @@ static Int get_debugger_state(USES_REGS1) {
         return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_SPY]);
     }
     if (!strcmp(s, "trace")) {
-        return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE_MODE]);
+        return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE]);
     }
     if (!strcmp(s, "debug")) {
-        return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_TRACE_MODE]);
+        return Yap_unify(ARG2, LOCAL_debugger_state[DEBUG_DEBUG]);
     }
     return false;
 }
@@ -2474,11 +2474,11 @@ static Int set_debugger_state(USES_REGS1) {
         return true;
     }
     if (!strcmp(s, "trace")) {
-        LOCAL_debugger_state[DEBUG_TRACE_MODE] = Deref(ARG2);
+        LOCAL_debugger_state[DEBUG_TRACE] = Deref(ARG2);
         return true;
     }
     if (!strcmp(s, "debug")) {
-        LOCAL_debugger_state[DEBUG_DEBUGGER_MAY_BE_CALLED] = Deref(ARG2);
+        LOCAL_debugger_state[DEBUG_DEBUG] = Deref(ARG2);
         return true;
     }
     return false;
@@ -2491,11 +2491,12 @@ static void init_debugger_state(void)
         LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] = TermCreep;
         LOCAL_debugger_state[DEBUG_GOAL_NUMBER] = MkIntTerm(0);
         LOCAL_debugger_state[DEBUG_SPY] = TermOff;
-        LOCAL_debugger_state[DEBUG_TRACE_MODE] = TermFalse;
+        LOCAL_debugger_state[DEBUG_TRACE] = TermFalse;
+        LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
     }
 
 
-static Int set_debugger_state4(USES_REGS1) {
+static Int set_debugger_state5(USES_REGS1) {
     Term t1 = Deref(ARG1);
     if (!IsVarTerm(t1)) {
 
@@ -2511,13 +2512,17 @@ static Int set_debugger_state4(USES_REGS1) {
     }
     t1 = Deref(ARG4);
     if (!IsVarTerm(t1)) {
-        LOCAL_debugger_state[DEBUG_TRACE_MODE] = t1;
+        LOCAL_debugger_state[DEBUG_TRACE] = t1;
+    }
+    t1 = Deref(ARG5);
+    if (!IsVarTerm(t1)) {
+        LOCAL_debugger_state[DEBUG_DEBUG] = t1;
     }
     return true;
 }
 
 
-static Int get_debugger_state4(USES_REGS1) {
+static Int get_debugger_state5(USES_REGS1) {
     Term t1 = Deref(ARG1);
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP], t1))
             return false;
@@ -2528,7 +2533,10 @@ static Int get_debugger_state4(USES_REGS1) {
         if (!Yap_unify(LOCAL_debugger_state[DEBUG_SPY], t1))
             return false;
     t1 = Deref(ARG4);
-        if (!Yap_unify(LOCAL_debugger_state[DEBUG_TRACE_MODE], t1))
+        if (!Yap_unify(LOCAL_debugger_state[DEBUG_TRACE], t1))
+            return false;
+    t1 = Deref(ARG5);
+        if (!Yap_unify(LOCAL_debugger_state[DEBUG_DEBUG], t1))
             return false;
     return true;
 }
@@ -2605,8 +2613,8 @@ Yap_InitCPred("$creep_clause", 4, creep_clause,  NoTracePredFlag);
     Yap_InitCPred("$cleanup_on_exit", 2, cleanup_on_exit, NoTracePredFlag);
     Yap_InitCPred("$tag_cleanup", 2, tag_cleanup, NoTracePredFlag);
     Yap_InitCPred("$get_debugger_state", 2, get_debugger_state, NoTracePredFlag);
-    Yap_InitCPred("$get_debugger_state", 4, get_debugger_state4, NoTracePredFlag);
+    Yap_InitCPred("$get_debugger_state", 5, get_debugger_state5, NoTracePredFlag);
     Yap_InitCPred("$set_debugger_state", 2, set_debugger_state, NoTracePredFlag);
-    Yap_InitCPred("$set_debugger_state", 4, set_debugger_state4, NoTracePredFlag);
+    Yap_InitCPred("$set_debugger_state", 5, set_debugger_state5, NoTracePredFlag);
 }
 

@@ -570,7 +570,7 @@ write_query_answer( Bindings ) :-
 
 '$user_call'(G, M) :-
 	(
-	 current_prolog_flag(debug,true),
+	 '$get_debugger_state'( debug, true ),
 	 '$get_debugger_state'( creep, Mode ),
 	Mode \= zip
 	->
@@ -1012,9 +1012,8 @@ log_event( String, Args ) :-
     ;
 	  LF = ['Break (level ', BreakLevel, ')'|LD]
 	),
-    current_prolog_flag(debug, DBON),
-    (
-	DBON = true
+    (	
+    '$get_debugger_state'(debug, true)
 	->
 	(
 '$get_debugger_state'(  trace,on),

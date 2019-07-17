@@ -202,77 +202,6 @@ static YAP_Bool datime(void) {
 
 #define BUF_SIZE 1024
 
-/* Return a list of files for a directory */
-static YAP_Bool list_directory(void) {
-  YAP_Term tf = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-  long sl = YAP_InitSlot(tf);
-
-  char *buf = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-#if defined(__MINGW32__) || _MSC_VER
-  struct _finddata_t c_file;
-  char bs[BUF_SIZE];
-  long hFile;
-
-  bs[0] = '\0';
-#if HAVE_STRNCPY
-  strncpy(bs, buf, BUF_SIZE);
-#else
-  strcpy(bs, buf);
-#endif
-#if HAVE_STRNCAT
-  strncat(bs, "/*", BUF_SIZE);
-#else
-  strcat(bs, "/*");
-#endif
-  if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-    return (YAP_Unify(YAP_ARG2, tf));
-  }
-  YAP_PutInSlot(sl, YAP_MkPairTerm(YAP_MkAtomTerm(YAP_LookupAtom(c_file.name)),
-                                   YAP_GetFromSlot(sl)));
-  while (_findnext(hFile, &c_file) == 0) {
-    YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(c_file.name));
-    YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-  }
-  _findclose(hFile);
-#else
-#if __ANDROID__
-  {
-    extern  AAssetManager *Yap_assetManager(void);
-
-    const char *dirName = buf + strlen("/assets/");
-    AAssetManager *mgr = Yap_assetManager();
-    AAssetDir *de;
-    const char *dp;
-
-    if ((de = AAssetManager_openDir(mgr, dirName)) == NULL) {
-      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-    }
-    while ((dp = AAssetDir_getNextFileName(de))) {
-      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp));
-      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-    }
-    AAssetDir_close(de);
-  }
-#endif
-#if HAVE_OPENDIR
-  {
-    DIR *de;
-    struct dirent *dp;
-
-    if ((de = opendir(buf)) == NULL) {
-      return (YAP_Unify(YAP_ARG3, YAP_MkIntTerm(errno)));
-    }
-    while ((dp = readdir(de))) {
-      YAP_Term ti = YAP_MkAtomTerm(YAP_LookupAtom(dp->d_name));
-      YAP_PutInSlot(sl, YAP_MkPairTerm(ti, YAP_GetFromSlot(sl)));
-    }
-    closedir(de);
-  }
-#endif /* HAVE_OPENDIR */
-#endif
-  tf = YAP_GetFromSlot(sl);
-  return YAP_Unify(YAP_ARG2, tf);
-}
 
 static YAP_Bool p_unlink(void) {
   char *fd = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
@@ -994,7 +923,6 @@ X_API void init_sys(void) {
   YAP_UserCPredicate("pid", pid, 2);
   YAP_UserCPredicate("kill", p_kill, 3);
   YAP_UserCPredicate("mktemp", p_mktemp, 3);
-  YAP_UserCPredicate("list_directory", list_directory, 3);
   YAP_UserCPredicate("tmpnam", p_tmpnam, 2);
   YAP_UserCPredicate("tmpdir", p_tmpdir, 2);
   YAP_UserCPredicate("rename_file", rename_file, 3);

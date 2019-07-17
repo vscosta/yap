@@ -471,11 +471,11 @@ b_getval(GlobalVariable, Val) :-
 
 
 '$debug_stop' :-
-'$set_debugger_state'( zip,0,stop,off ),
-	b_setval('$trace',off),
-	set_prolog_flag(debug, false),
-	b_setval('$spy_glist',[]),
-	'$disable_debugging'.
+    '$set_debugger_state'( zip,0,stop,off,false ),
+    b_setval('$trace',off),
+    set_prolog_flag(debug, false),
+    b_setval('$spy_glist',[]),
+    '$disable_debugging'.
 
 '$debug_restore'(state(Trace, Debug, State, SPY_GN, GList)) :-
 	b_setval('$spy_glist',GList),
