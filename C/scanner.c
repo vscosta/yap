@@ -1228,10 +1228,10 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
       break;
     case SY: {
       int pch;
-      if (ch == '.' && (pch = Yap_peek(st - GLOBAL_Stream)) &&
+      if (ch == '.' && (pch = getchr(st)) &&
           (chtype(pch) == BS || chtype(pch) == EF || pch == '%')) {
 	if (chtype(ch) != EF)
-	  getchr(st);
+	  ch = pch;
         t->Tok = Ord(kind = eot_tok);
         // consume...
         if (pch == '%') {
@@ -1242,8 +1242,13 @@ TokEntry *Yap_tokenizer(struct stream_desc *st,
       }
       if (ch == '`')
         goto quoted_string;
+      if (ch != '.') {
       och = ch;
       ch = getchr(st);
+      } else {
+	och = ch;
+	ch = pch;
+      }
       if (och == '.') {
         if (chtype(ch) == BS || chtype(ch) == EF || ch == '%') {
           t->Tok = Ord(kind = eot_tok);
