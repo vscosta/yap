@@ -314,8 +314,8 @@ static YAP_Bool rename_file(void) {
 }
 
 static YAP_Bool read_link(void) {
-  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
 #if HAVE_READLINK
+  char *s1 = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
   char buf[MAXPATHLEN + 1];
 
   if (readlink(s1, buf, MAXPATHLEN) < 0)
@@ -561,7 +561,6 @@ static void close_handle(YAP_Term ti, HANDLE h) {
 static YAP_Bool execute_command(void) {
   YAP_Term ti = YAP_ARG2, to = YAP_ARG3, te = YAP_ARG4;
   int res;
-  YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
 
 #if defined(__MINGW32__) || _MSC_VER
   HANDLE inpf, outf, errf;
@@ -612,6 +611,7 @@ static YAP_Bool execute_command(void) {
   res = ProcessInformation.dwProcessId;
   return (YAP_Unify(YAP_ARG5, YAP_MkIntTerm(res)));
 #else  /* UNIX CODE */
+  YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
   int inpf, outf, errf;
   /* process input first */
   if (ti == AtomNull) {

@@ -11,7 +11,7 @@ set (Python_ADDITIONAL_VERSIONS 3.7 3.6 ) #3.5 3.6 3.4 )
 #
 
  # ensure the script is in your cmake module path
-if (WIN32)
+if (WIN32 AND EXISTS(C:/msys64/mingw64))
     set (PYTHONLIBS_FOUND YES CACHE BOOL "MINGW/MSYS2" FORCE )
         set (PYTHON_LIBRARY C:/msys64/mingw64/lib/libpython3.6m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )
     set (PYTHON_LIBRARIES C:/msys64/mingw64/lib/libpython3.5m.dll.a CACHE FILEPATH "MINGW/MSYS2" FORCE )

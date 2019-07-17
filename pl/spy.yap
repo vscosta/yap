@@ -476,7 +476,7 @@ notrace(G) :-
 	 '$is_private'(G,Module)
     ;
     \+ '$debuggable'(G, Module,GoalNo)
-	 )..
+	 ).
 
  '$debuggable'(_G, _Module,_GoalNo) :-
 	 '$get_debugger_state'( creep,  Creep ),

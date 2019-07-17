@@ -675,8 +675,6 @@ Term YAPEngine::fun(Term t) {
   arity_t arity;
   Functor f;
   Atom name;
-  YAP_dogoalinfo backup = q;
-  CELL *spt;
   q.CurSlot = Yap_StartSlots();
   q.p = P;
   q.cp = CP;

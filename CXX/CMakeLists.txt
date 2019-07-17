@@ -29,7 +29,10 @@ else()
 endif()
 
 
-include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+include_directories ( . ${CMAKE_BINARY_DIR} ${GMP_INCLUDE_DIRS})
+  if (WITH_PYTHON AND PYTHON_LIBRARIES)
+    include_directories ( ${PYTHON_INCLUDE_DIRS})
+  endif()
 
 set( CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${GMP_INCLUDE_DIRS} )
 
