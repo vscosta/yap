@@ -450,10 +450,6 @@ notrace(G) :-
     '$stop_creeping'(_),
     '$set_debugger_state'(debug, false).
 
-% what to do when you exit the debugger.
-'$continue_debugging'(exit) :-
-    '$re_enter_creep_mode'.
-
 '$enable_debugging' :-
     '$re_enter_creep_mode'.
  
@@ -469,9 +465,9 @@ notrace(G) :-
     '$creep'.
 
 
-'$do_skip_trace'(Module, G, GoalNo) :-
+'$cannot_debug'(Module, G, GoalNo) :-
      (
-	 '$get_debugger_state'( debug, false )
+	 get_prolog_flag( debug, false )
     ;
 	 '$is_opaque_predicate'(G,Module)
     ;
@@ -480,8 +476,22 @@ notrace(G) :-
     \+ '$debuggable'(G, Module,GoalNo)
      ).
 
+'$enter_creep'(Module, G) :-
+	'$do_trace'(Module, G, 1),
+	'$creep'.
+
+/**
+  * @pred $stop_at_this_goal( Goal, Module, Id)
+  *
+  * debugger should prompt the user if:
+  * - creep on
+  * - spy point enabled
+  * - the goal is older than ourselves: Id is bound
+  *   and Id <= StateGoal
+  *
+  */
 '$do_trace'(Module, G, GoalNo) :-
-    '$get_debugger_state'( debug, true ),
+	get_prolog_flag( debug, true ),
     \+ '$is_opaque_predicate'(G,Module),
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
@@ -499,29 +509,50 @@ notrace(G) :-
     '$get_debugger_state'( goal_number, TargetGoal ),
     GoalNo =< TargetGoal.
 
-/**
-  * @pred $stop_at_this_goal( Goal, Module, Id)
-  *
-  * debugger should prompt the user if:
-  * - creep on
-  * - spy point enabled
-  * - the goal is older than ourselves: Id is bound
-  *   and Id <= StateGoal
-  *
-  */
-'$stop_at_this_goal'(G,M,GoalNo) :-
-    \+ '$is_system_predicate'(G,M),
-    '$get_debugger_state'(Step, GN, Spy,_,_),
-    (
-	Step \= zip
-    ;
-    Spy == stop,
-    '$pred_being_spied'(G,M)
-    ;
-    GoalNo =< GN
-    ).
+'$run_deb'(Port,GN0,GN) :-
+    '$stop_creping'(_),
+    '$cross_run_deb'(Port,GN0,GN).
 
-   
+'$cross_run_deb'(redo,_GN0,_GN) :-
+    get_prolog_flag(debug,Debug),
+    '$set_debugger_state'(debug,Debug).
+ '$cross_run_deb'(fail,GN0,GN) :-
+     GN0<GN,
+     !,
+     '$set_debugger_state'(debug,false).
+'$cross_run_deb'(fail,GN,GN) :-
+    '$restart_debugging'.
+ '$cross_run_deb'(exit,GN0,GN) :-
+     GN0<GN,
+     !,
+     '$set_debugger_state'(debug,false).
+'$cross_run_deb'(exit,GN,GN) :-
+    '$restart_debugging'.
+ '$cross_run_deb'(answer,GN0,GN) :-
+     GN0<GN,
+     !,
+     '$set_debugger_state'(debug,false).
+'$cross_run_deb'(answer,GN,GN) :-
+    '$restart_debugging'.
+ '$cross_run_deb'(exception(_),_GN0,_GN) :-
+     '$set_debugger_state'(debug,false).
+ '$cross_run_deb'(external_exception(_),_GN0,_GN) :-
+     '$set_debugger_state'(debug,false).
+
+'$restart_debugging':-
+    get_prolog_flag(debug,Debug),
+    '$set_debugger_state'(debug,Debug),
+    '$get_debugger_state'(creep,Creep),
+    '$may_creep'(Debug,Creep),
+    !,
+    '$creep'.
+
+'$may_creep'(true,creep).
+'$may_creep'(true,leap).
+
+
+
+
 '$trace_on' :-
     '$stop_creeping'(_),
     '$get_debugger_state'( Creep, GN, Spy,_Trace,Debug),

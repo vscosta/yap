@@ -569,14 +569,11 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	(
-	 '$get_debugger_state'( debug, true ),
-	 '$get_debugger_state'( creep, Mode ),
-	Mode \= zip
-	->
-	 '$trace'(M:G)
-	;
-	 '$execute'(M:G)
+	gated_call(
+	 '$enter_creep'(Module, G),
+	 '$execute'(M:G),
+	 P,
+	 '$run_deb'(P,0,1)
 	).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
