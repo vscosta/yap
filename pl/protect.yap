@@ -46,6 +46,7 @@ prolog:'$protect' :-
     '$is_system_module'(M),
     functor(P,Name,Arity),
     '$new_system_predicate'(Name,Arity,M),
+    atom_concat('$',_,Name),
 %    '$hide_predicate'(P,M),
     fail.
 prolog:'$protect' :-

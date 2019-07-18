@@ -1,6 +1,6 @@
-/**********************************************************************a***
+b/**********************************************************************a***
 *									 *
-  *	 YAP Prolog 							 *
+  *	 YAP Prolog 							*
 *									 *
   *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
@@ -271,6 +271,13 @@ be lost.
  */
 
 
+'$start_creep'([Mod|G], GoalNumber) :-
+	'$cannot_debug'(G,Mod, GoalNumber),
+	!,
+	'$stop_creeping'(_),
+	Mod:G.
+'$start_creep'([Mod|G], _WhereFrom) :-
+	'$trace'(Mod:G).
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
@@ -282,7 +289,6 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-    '$trace_off',
     '__NB_getval__'('$trace',Trace,fail),
     '$set_debugger_state'( trace, Trace),
     '$trace'(Mod:G).
@@ -301,7 +307,6 @@ be lost.
 */
 %%! The first case matches system_predicates or zip
 '$trace'(Mod:G) :-
-    '$trace_off',
     '$current_choicepoint'(CP),
     '$trace_goal'(G, Mod, _GN, _GN, CP).
 
@@ -397,8 +402,7 @@ be lost.
 
 
 '$trace_meta_call'( G, M, CP ) :-
-    '$trace_off',
-    '$trace_goal'(G, M, _GN, CP ).
+    '$trace_goal'(G, M, GN, GN, CP ).
 
 
 /** @pred '$creep'([M|G])
@@ -407,16 +411,14 @@ be lost.
  *
  */
 '$creep'([M|G]) :-
-    '$trace_off',
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
-    '$trace_goal'(Q, M, _GN, CP ).
+    '$trace_goal'(Q, M, GN, GN, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
-    '$trace_off',
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M, GoalNumber, CP).
+    '$trace_goal'(G, M, GoalNumber, GoalNumber, CP).
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
@@ -448,7 +450,7 @@ be lost.
     '$trace_goal'(B, M, _GN0, GN, CP).
 '$trace_goal'((A->B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP) ->
-	 '$trace_goal'(B, M, _GN0, GN, CP)).
+	 '$trace_goal'(B, M, GN0, GN, CP)).
 '$trace_goal'((A;B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP);
      '$trace_goal'(B, M, _GN0, GN, CP)).
@@ -474,7 +476,7 @@ be lost.
     '$enter_trace'(GoalNumber, G, M, GN0,CP, H),
     catch('$trace_goal_'(G,M, GN0, GoalNumber,CP,H),
 	  Error,
-	  '$TraceError'(Error, GoalNumber, G, M, GN0, CP, H)
+	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
 ).
 
 
@@ -482,14 +484,14 @@ be lost.
 %%
 %% Actually debugs a
 %% goal!
-'$trace_goal_'(G,M, GN0, GoalNumber, CP, H) :-
-    '$cannot_debug'(G0,M0, GoalNumber),
+'$trace_goal_'(G,M, GN0, GoalNumber, _CP, _H) :-
+	'$cannot_debug'(G,M, GoalNumber),
     gated_call(
 	true,
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
-	'$execute_non_stop'(G,M),
+	M:G,
 	Port,
- 	'$cross_run_deb'(Port0, GN0, GoalNumber)
+ 	'$cross_run_deb'(Port, GN0, GoalNumber)
     ).
 
 '$trace_goal_'(G,M, GoalNumber, G0, CP, H) :-
@@ -500,7 +502,7 @@ be lost.
     gated_call(
  	'$trace_port'([call], GoalNumber, G, M,  G0, CP, H),
 	clause(M:G, B),
-	Port0,
+	Port,
  	'$handle_port'([Port0], GoalNumber, G, M, G0, CP, H)
     ),
     gated_call(
@@ -520,11 +522,11 @@ be lost.
  	'$handle_port'([Port0], GoalNumber, G, M, G0, CP,  H)
     ),
     gated_call(
-	'$trace_port'(outer:[call,Port0], GoalNumber, G, M, G0, CP,  H),
+	'$trace_port'([call,Port0], GoalNumber, G, M, G0, CP,  H),
 	% source mode
-	'$creep_clause'(G,M,Ref,G0, CP),
+	'$creep_clause'(G,M,Ref, CP),
 	Port,
-	'$handle_port'(outer:[Port,Port0], GoalNumber, G, M, G0, CP,  H)
+	'$handle_port'([Port,Port0], GoalNumber, G, M, G0, CP,  H)
     ).
 '$trace_goal_'(G, M, _GoalNumber, _G0, _CP,_H) :-
 /*
@@ -575,8 +577,7 @@ be lost.
 
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
-	'$no_creeping'(_),
-	'$set_debugger_state'( debug, false ),
+	'$stop_creeping'(_),
 	'$ports_to_port'( Ports, Port   ),
 	ignore('$trace_port_'(Port, GoalNumber, G, M, CP,  H)),
 	'$cross_run_deb'(redo,G0,GoalNumber).	
@@ -593,7 +594,11 @@ be lost.
  * @parameter _GoalNumber_ identifies the active goal
  * @parameter _Info_ describes the goal
  *
- */
+*/
+'$trace_port'(Ports, GoalNumber, G, Module,_, CP,Info) :-
+	'$ports_to_port'(Ports, Port),
+	'$trace_port_'(Port, GoalNumber, G, Module, CP,Info).
+
 '$ports_to_port'([answer,_], answer).
 '$ports_to_port'([answer], internal).
 '$ports_to_port'([call], call).
@@ -612,8 +617,8 @@ be lost.
 '$ports_to_port'([exception(_E)],internal).
 
 
-'$trace_port_'(_, GoalNumber, G, Module, _CP,_Info) :-
-    '$do_skip_trace'(G, Module, GoalNumber),
+'$trace_port_'(_, GoalNumber, _G, _Module, _CP,_Info) :-
+    '$leap'(GoalNumber),
     !.
 '$trace_port_'(call, GoalNumber, G, Module, CP,Info) :-
     '$port'(call,G,Module,GoalNumber,deterministic,CP, Info).
@@ -629,6 +634,7 @@ be lost.
     !.
 '$trace_port_'(exception(E), GoalNumber, G, Module, CP,Info) :-
     '$port'(exception(E),G,Module,GoalNumber,deterministic,CP,Info). /* inform user_error		*/
+'$trace_port_'(internal, _GoalNumber, _G, _Module, _CP,_Info).
 
 
 
@@ -664,7 +670,7 @@ be lost.
     ;
        '$trace_goal'(G, M, GoalNumber, CP)
     ).
-%'$TraceError'( error(Id,Info), _, _, _, _, _) :-
+%'$TraceError'( error(Id,Info), _, _, _, _) :-
 %    !,
 %    throw( error(Id, Info) ).
 %%% - forward through the debugger

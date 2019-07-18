@@ -569,12 +569,18 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	gated_call(
-	 '$enter_creep'(Module, G),
-	 '$execute'(M:G),
-	 P,
-	 '$run_deb'(P,0,1)
-	).
+	'$yap_strip_module'(M:G, M1,G1),
+    '$dotrace'(G1, M1, _),
+    !,
+    '$trace'(M1:G1).
+'$user_call'(G, M) :-
+    gated_call(
+	true,
+	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
+	M:G,
+	Port,
+ 	'$cross_run_deb'(Port, _, _)
+    ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 

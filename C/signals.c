@@ -220,6 +220,9 @@ static Int p_creep(USES_REGS1) {
   Atom at;
   PredEntry *pred;
 
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
   CreepCode = pred;
@@ -230,7 +233,9 @@ static Int p_creep(USES_REGS1) {
 static Int p_creep_fail(USES_REGS1) {
   Atom at;
   PredEntry *pred;
-
+  if (LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermZip ||
+      LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return true;
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1), 0));
   CreepCode = pred;
@@ -239,6 +244,7 @@ static Int p_creep_fail(USES_REGS1) {
 }
 
 static Int stop_creeping(USES_REGS1) {
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
   if (get_signal(YAP_CREEP_SIGNAL PASS_REGS)) {
     return Yap_unify(ARG1, TermTrue);
   }

@@ -240,20 +240,6 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr) {
     return (NULL);
 }
 
-static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr) {
-    LogUpdClause *cl;
-    cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
-    do {
-        if (IN_BLOCK(codeptr, cl->ClCode, cl->ClSize)) {
-            return ((yamop *) cl->ClCode);
-        }
-        cl = cl->ClNext;
-    } while (cl != NULL);
-    Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-              "could not find clause for indexing code");
-    return (NULL);
-}
-
 bool Yap_search_for_static_predicate_in_use(PredEntry *p,
                                             bool check_everything) {
     choiceptr b_ptr = B;
