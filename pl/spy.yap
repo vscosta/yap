@@ -161,7 +161,7 @@ predicates written in C, cannot be spied.
 
 */
  spy Spec :-
-	 '$init_debugger',
+	 '$init_debugger'(zip),
 	 prolog:debug_action_hook(spy(Spec)), !.
  spy L :-
 	 '$current_module'(M),
@@ -549,8 +549,11 @@ notrace(G) :-
     '$get_debugger_state'(creep,zip),
     '$set_debugger_state'(creep,creep),
     fail.
-'$continue_debugging'(_) :-
+'$continue_debugging'(true) :-
+	!,
     '$creep'.
+'$continue_debugging'(false).
+
 '$restart_debugging':-
     '$set_debugger_state'(debug,Debug),
     '$get_debugger_state'(creep,Creep),

@@ -824,15 +824,6 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 	call( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
-'$gated_creep_clause'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
-	'$creep_clause'( Goal, M, Ref, CP ),
-	'$cleanup_on_exit'(CP0, TaskF).
-
-
 '$gated_in'(Setup, Catcher, Cleanup, CP0, TaskF) :-
     '$setup_call_catcher_cleanup'(Setup),
     Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),

@@ -135,7 +135,7 @@ undefined_query(G0, M0, Cut) :-
 %  we fail, output a message, and just generate an exception.
 '$undefp'([M0|G0],_) :-
     '$search_undef'(M0:G0, M:G),
-	'$trace'(M:G).
+	'$trace'(M:G, false).
 
 :- abolish(prolog:'$undefp0'/2).
 :- '$undefp_handler'('$undefp'(_,_), prolog).

@@ -276,8 +276,8 @@ be lost.
 	!,
 	'$stop_creeping'(_),
 	Mod:G.
-'$start_creep'([Mod|G], _WhereFrom) :-
-	'$trace'(Mod:G).
+'$start_creep'([Mod|G], WhereFrom) :-
+	'$trace'(Mod:G, WhereFrom).
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
@@ -304,51 +304,51 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(Mod:G, Continue) :-
+'$trace'(Mod:G, Ctx) :-
     '$current_choicepoint'(CP),
-    '$trace_goal'(G, Mod, Continue, _GN, CP).
+    '$trace_goal'(G, Mod, Ctx, _GN, CP).
 
-'$trace'(Mod:G, A1) :-
+'$trace_meta'(Mod:G, Ctx, A1) :-
     G =.. L,
     lists:append( L, [A1], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2) :-
     G =.. L,
     lists:append( L, [A1, A2], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2, A3) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2, A3) :-
     G =.. L,
     lists:append( L, [A1, A2, A3], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2, A3, A4) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2, A3, A4) :-
     G =.. L,
     lists:append( L, [A1,A2,A3,A4], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2, A3, A4, A5) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2, A3, A4, A5) :-
     G =.. L,
     lists:append( L, [A1, A2, A3, A4, A5], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2, A3, A4, A5, A6) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2, A3, A4, A5, A6) :-
     G =.. L,
     lists:append( L, [A1, A2, A3, A4, A5, A6], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
-'$trace'(Mod:G, A1, A2, A3, A4, A5, A6, A7) :-
+'$trace_meta'(Mod:G, Ctx, A1, A2, A3, A4, A5, A6, A7) :-
     G =.. L,
     lists:append( L, [A1, A2, A3, A4, A5, A6, A7 ], NL),
     NG =.. NL,
-    '$trace'(Mod:NG).
+    '$trace'(Mod:NG, Ctx).
 
 /**
   * @pred debugger_io.
@@ -399,8 +399,8 @@ be lost.
     open('CONOUT$', write, _S, [alias(debugger_output)]).
 
 
-'$trace_meta_call'( G, M, CP ) :-
-    '$trace_goal'(G, M, GN, GN, CP ).
+'$trace_meta_call'( G, Ctx, M, CP ) :-
+   '$trace_goal'(G, M, Ctx, _GN, CP ).
 
 
 /** @pred '$creep'([M|G])
@@ -411,12 +411,12 @@ be lost.
 '$creep'([M|G]) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
-    '$trace_goal'(Q, M, _GN, false, CP ).
+    '$trace_goal'(Q, M, false, _GN, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M,  GoalNumber, false, CP).
+    '$trace_goal'(G, M, false,  GoalNumber, CP).
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
@@ -424,8 +424,7 @@ be lost.
 %  debug a complex query
 %
 '$trace_goal'(V, M, _, _, _) :-
-    current_prolog_flag(debug,Debug),
-    '$set_debugger_state'(debug,Debug),
+    '$set_debugger_state'(debug,false),
     var(V),
     !,
     call(M:V).
@@ -437,7 +436,7 @@ be lost.
     '$$cut_by'(M).
 
 '$trace_goal'('$$cut_by'(M),_, _, _, _) :-
-    !,
+    !,%
     '$$cut_by'(M).
 '$trace_goal'(M:G, _, GN0, GN, CP) :-
     !,
@@ -469,10 +468,10 @@ be lost.
     ;
     M:G
     ).
-'$trace_goal'(G0,M0, GN0, GoalNumber, CP) :-
+'$trace_goal'(G0,M0, Ctx, GoalNumber, CP) :-
     '$debugger_expand_meta_call'( M0:G0, [], M:G ),
-    '$enter_trace'(GoalNumber, G, M, GN0,CP, H),
-    catch('$trace_goal_'(G,M, GN0, GoalNumber,CP,H),
+    '$enter_trace'(GoalNumber, G, M,CP, H),
+    catch('$trace_goal_'(G,M, Ctx, GoalNumber,CP,H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
 ).
@@ -482,51 +481,55 @@ be lost.
 %%
 %% Actually debugs a
 %% goal!
-'$trace_goal_'(G,M, GN0, GoalNumber, _CP, _H) :-
+
+'$trace_goal_'(G,M, GoalNumber, Ctx, _CP, _H) :-
 	'$cannot_debug'(G,M, GoalNumber),
     gated_call(
 	true,
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
 	M:G,
 	Port,
- 	'$cross_run_deb'(Port, GN0, GoalNumber)
+ 	'$cross_run_deb'(Port, Ctx, GoalNumber)
     ).
 
-'$trace_goal_'(G,M, GoalNumber, G0, CP, H) :-
+'$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
     '$id_goal'(GoalNumber),
     %clause generator: it controls fail, redo
-    gated_call(
+    '$gated_creep_get_sources'(
  	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
-	clause(M:G, B),
+	M:G, B,
 	Port,
  	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
-    gated_call(
+    '$gated_run_sources'(
  	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
-	'$trace_goal'(B,M,_,G0, CP),
+	M,B, CP,
 	Port,
-	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
+	       '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
+	      
     ).
-'$trace_goal_'(G,M, GoalNumber, G0, CP,H) :-
+'$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
     !,
     %clause generator: it controls fail, redo
     '$id_goal'(GoalNumber),
-    gated_call(
-	'$trace_port'([call], GoalNumber, G, M, G0, CP,  H),
-'$static_clause'(G,M,_,Ref),
+     '$gated_creep_get_clause'(
+   gated_call(
+	'$trace_port'([call], GoalNumber, G, M, Ctx, CP,  H),
+M:G,Ref,
 	Port0,
- 	'$handle_port'([Port0], GoalNumber, G, M, G0, CP,  H)
+ 	true
 	),
     '$gated_creep_clause'(
-	'$trace_port'([call,Port0], GoalNumber, G, M,G0,  H),
+	true,
 	% source mode
 	M:G,Ref, CP,
 	Port,
-	'$handle_port'([Port,Port0], GoalNumber, G, M, G0, CP,  H)
+			  '$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
+			 )
     ).
-'$trace_goal_'(G, M, _GoalNumber, _G0, _CP,_H) :-
+'$trace_goal_'(G, M, _Ctx, _GoalNumber, _CP,_H) :-
 /*
   (
 	'$is_private'(G, M)
@@ -543,9 +546,44 @@ be lost.
 	'$reenter_debugger'(Port)
     ).
 
+'$gated_creep_get_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	clause(M:Goal,B),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+
+'$gated_creep_get_clause'(Setup, M:Goal, Ref, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	'$static_clause'(Goal,M,_,Ref),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+
+'$gated_run_sources'(Setup, M, B, CP, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	'$trace_goal'(B,M,false,_, CP),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+'$gated_creep_clause'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	'$creep_clause'( Goal, M, Ref, CP ),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+
 
 /**
- * @pred '$enter_trace'(+L, 0:G, +Module, +Info)
+ * @Pred '$enter_trace'(+L, 0:G, +Module, +Info)
  *
  * call goal: prelims
  *
@@ -554,9 +592,8 @@ be lost.
  * @parameter _Info_ describes the goal
  *
  */
-'$enter_trace'(L, G, Module, L0, CP, Info) :-
+'$enter_trace'(L, G, Module, CP, Info) :-
 	'$id_goal'(L),        /* get goal no.	*/
-	(var(L0) -> L = L0 ; true ),
     /* get goal list		*/
     '__NB_getval__'('$spy_glist',History,History=[]),
     Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
@@ -666,7 +703,7 @@ be lost.
     ->
     throw('$debugger'(event(redo),G0))
     ;
-       '$trace_goal'(G, M, GoalNumber, CP)
+       '$trace_goal'(G, M, false, GoalNumber, CP)
     ).
 %'$TraceError'( error(Id,Info), _, _, _, _) :-
 %    !,
