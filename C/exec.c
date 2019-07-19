@@ -866,8 +866,12 @@ static Int execute_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
 }
 
 static Int creep_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
-    Int rc = execute_clause(PASS_REGS1);
-    if (!LOCAL_InterruptsDisabled) {
+  if (LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
+    return execute_clause(PASS_REGS1);
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+  Int rc = execute_clause(PASS_REGS1);
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
+  if (!LOCAL_InterruptsDisabled) {
         Yap_signal(YAP_CREEP_SIGNAL);
     }
     return rc;
@@ -2586,7 +2590,7 @@ init_debugger_state();
     Yap_InitCPred("$execute_nonstop", 1, execute_nonstop1, NoTracePredFlag);
     Yap_InitCPred("$creep_step", 2, creep_step, NoTracePredFlag);
     Yap_InitCPred("$execute_clause", 4, execute_clause, NoTracePredFlag);
-Yap_InitCPred("$creep_clause", 4, creep_clause,  NoTracePredFlag);
+    Yap_InitCPred("$creep_clause", 4, creep_clause,  NoTracePredFlag);
     Yap_InitCPred("$current_choice_point", 1, current_choice_point,  NoTracePredFlag);
     Yap_InitCPred("$current_choicepoint", 1, current_choice_point,  NoTracePredFlag);
     CurrentModule = HACKS_MODULE;

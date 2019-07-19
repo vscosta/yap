@@ -572,14 +572,14 @@ write_query_answer( Bindings ) :-
 	'$yap_strip_module'(M:G, M1,G1),
     '$dotrace'(G1, M1, _),
     !,
-    '$trace'(M1:G1).
+    '$trace'(M1:G1, false).
 '$user_call'(G, M) :-
     gated_call(
 	true,
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
 	M:G,
 	Port,
- 	'$cross_run_deb'(Port, _, _)
+ 	'$cross_run_deb'(Port,false, _)
     ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
@@ -812,6 +812,32 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 	'$tag_cleanup'(CP0, Task0),
 	call( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
+
+gated_call(Setup, Goal, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+    '$gated_call'( true , Goal, Catcher, Cleanup)  .
+
+'$gated_call'( All , Goal, Catcher, Cleanup) :-
+        Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	call( Goal ),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+'$gated_creep_clause'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
+    '$setup_call_catcher_cleanup'(Setup),
+        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+	'$tag_cleanup'(CP0, Task0),
+	'$creep_clause'( Goal, M, Ref, CP ),
+	'$cleanup_on_exit'(CP0, TaskF).
+
+
+'$gated_in'(Setup, Catcher, Cleanup, CP0, TaskF) :-
+    '$setup_call_catcher_cleanup'(Setup),
+    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
+    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
+    '$tag_cleanup'(CP0, Task0).
 
 
 %

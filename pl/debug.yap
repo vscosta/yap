@@ -1,4 +1,4 @@
-b/**********************************************************************a***
+/**********************************************************************a***
 *									 *
   *	 YAP Prolog 							*
 *									 *
@@ -289,9 +289,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-    '__NB_getval__'('$trace',Trace,fail),
-    '$set_debugger_state'( trace, Trace),
-    '$trace'(Mod:G).
+    '$trace'(Mod:G, true).
 
 /**
   * @pred $trace( +Goal )
@@ -306,9 +304,9 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(Mod:G) :-
+'$trace'(Mod:G, Continue) :-
     '$current_choicepoint'(CP),
-    '$trace_goal'(G, Mod, _GN, _GN, CP).
+    '$trace_goal'(G, Mod, Continue, _GN, CP).
 
 '$trace'(Mod:G, A1) :-
     G =.. L,
@@ -413,19 +411,19 @@ be lost.
 '$creep'([M|G]) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
-    '$trace_goal'(Q, M, GN, GN, CP ).
+    '$trace_goal'(Q, M, _GN, false, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M, GoalNumber, GoalNumber, CP).
+    '$trace_goal'(G, M,  GoalNumber, false, CP).
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
 %
 %  debug a complex query
 %
-'$trace_goal'(V, M, _, _, _,_) :-
+'$trace_goal'(V, M, _, _, _) :-
     current_prolog_flag(debug,Debug),
     '$set_debugger_state'(debug,Debug),
     var(V),
@@ -500,16 +498,16 @@ be lost.
     '$id_goal'(GoalNumber),
     %clause generator: it controls fail, redo
     gated_call(
- 	'$trace_port'([call], GoalNumber, G, M,  G0, CP, H),
+ 	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
 	clause(M:G, B),
 	Port,
- 	'$handle_port'([Port0], GoalNumber, G, M, G0, CP, H)
+ 	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
     gated_call(
- 	'$trace_port'([call,Port0], GoalNumber, G, M,  G0, CP, H),
+ 	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	'$trace_goal'(B,M,_,G0, CP),
 	Port,
-	'$handle_port'([Port,Port0], GoalNumber, G, M, G0, CP,  H)
+	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
     ).
 '$trace_goal_'(G,M, GoalNumber, G0, CP,H) :-
     !,
@@ -517,14 +515,14 @@ be lost.
     '$id_goal'(GoalNumber),
     gated_call(
 	'$trace_port'([call], GoalNumber, G, M, G0, CP,  H),
-	'$static_clause'(G,M,_,Ref),
+'$static_clause'(G,M,_,Ref),
 	Port0,
  	'$handle_port'([Port0], GoalNumber, G, M, G0, CP,  H)
-    ),
-    gated_call(
-	'$trace_port'([call,Port0], GoalNumber, G, M, G0, CP,  H),
+	),
+    '$gated_creep_clause'(
+	'$trace_port'([call,Port0], GoalNumber, G, M,G0,  H),
 	% source mode
-	'$creep_clause'(G,M,Ref, CP),
+	M:G,Ref, CP,
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, G0, CP,  H)
     ).

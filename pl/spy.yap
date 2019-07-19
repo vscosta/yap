@@ -1,5 +1,5 @@
 /**
-  * @file spy5l c111111111rtuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu.yap
+  * @file spy.yap
  * @brief debugger operation.
  */
   :- system_module( '$_debug', [debug/0,
@@ -515,7 +515,7 @@ notrace(G) :-
      '$get_debugger_state'( goal_number, TargetGoal ),
      number(GoalNo),
      number(TargetGoal), 
-     GoalNo > TargetGoal
+     GoalNo > TargetGoal                                                                                             
     ).
 
 
@@ -523,44 +523,36 @@ notrace(G) :-
     '$stop_creeping'(_),
     '$cross_run_deb'(Port,GN0,GN).
 
-'$cross_run_deb'(redo,_GN0,_GN) :-
-	current_prolog_flag(debug,Debug),
-	'$set_debugger_state'(debug,Debug).
-'$cross_run_deb'(fail,GN0,GN) :-
-	nonvar(GN0),
-	nonvar(GN),	
-	GN0<GN,
-	!,
-	'$set_debugger_state'(debug,false).
-'$cross_run_deb'(fail,GN,GN) :-
-	'$restart_debugging'.
-'$cross_run_deb'(exit,GN0,GN) :-
-	nonvar(GN0),
-	nonvar(GN),
-	GN0<GN,
-	!,
-	'$set_debugger_state'(debug,false).
-'$cross_run_deb'(exit,GN,GN) :-
-	'$restart_debugging'.
-'$cross_run_deb'(answer,GN0,GN) :-
-	nonvar(GN0),
-	nonvar(GN),
-	GN0<GN,
-	!,
-	'$set_debugger_state'(debug,false).
-'$cross_run_deb'(answer,GN,GN) :-
-	'$restart_debugging'.
+'$cross_run_deb'(redo,Ctx,_GN) :-
+    '$continue_debugging'(Ctx).
+'$cross_run_deb'(fail,Ctx,_GN) :-
+        '$continue_debugging'(Ctx).
+'$cross_run_deb'(exit,Ctx,_GN) :-
+    '$continue_debugging'(Ctx).
+'$cross_run_deb'(answer,Ctx,_GN) :-
+	'$continue_debugging'(Ctx).
 '$cross_run_deb'(exception(_),_GN0,_GN) :-
 	'$set_debugger_state'(debug,false).
 '$cross_run_deb'(external_exception(_),_GN0,_GN) :-
 	'$set_debugger_state'(debug,false).
 
+'$exit_goal'(false, _GN) :-
+	'$set_debugger_state'(debug,false).
+'$exit_goal'(true, GN):-
+    '$continue_debugging'(GN).
+
+'$continue_debugging'(_) :-
+    current_prolog_flag(debug, false),
+    !.
+'$continue_debugging'(_) :-
+    '__NB_getval__'('$trace',on, fail),
+    '$get_debugger_state'(creep,zip),
+    '$set_debugger_state'(creep,creep),
+    fail.
+'$continue_debugging'(_) :-
+    '$creep'.
 '$restart_debugging':-
-	'__NB_getval__'('$trace',on, fail),
-	'$set_debugger_state'(creep,creep),
-	fail.
-'$restart_debugging':-
-	'$set_debugger_state'(debug,Debug),
+    '$set_debugger_state'(debug,Debug),
     '$get_debugger_state'(creep,Creep),
     '$may_creep'(Debug,Creep),
     !,
