@@ -414,9 +414,11 @@ be lost.
     '$trace_goal'(Q, M, false, _GN, CP ).
 
 
-'$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
-	'$yap_strip_module'(M0:G0, M, G), % spy a literal
-	'$trace_goal'(G, M, false,  GoalNumber, CP).
+'$creep'(G0, M0, CP, GoalNumber) :-
+    '$yap_strip_module'(M0:G0, M, G),    % spy a literal
+    '$trace_goal'(G, M, false,  GoalNumber, CP).
+
+
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
@@ -499,10 +501,9 @@ be lost.
     '$creep_enumerate_sources'(
  	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
 	M:G, B,
-	Port,
+	Port0,
  	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
-    ),
-writeln(B),
+			      ),
     '$creep_run_sources'(
  	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
@@ -584,7 +585,7 @@ writeln(B),
  *
  * call goal: prelims
  *
- * @parameter _Module_:_G_
+ * @parameter _Module_:_G_vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
  * @parameter _L_ is the list of active goals
  * @parameter _Info_ describes the goal
  *
@@ -610,9 +611,9 @@ writeln(B),
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
 	'$stop_creeping'(_),
-	writeln(GoalNumber: Ports=M:G),
+%	writeln(GoalNumber: Ports=M:G),
 	'$ports_to_port'( Ports, Port   ),
-	writeln(Port:G),
+%	writeln(Port:G),
 	ignore('$trace_port_'(Port, GoalNumber, G, M, CP,  H)),
 	'$cross_run_deb'(redo,G0,GoalNumber).	
 
@@ -641,8 +642,8 @@ writeln(B),
 '$ports_to_port'([exit,answer], answer).
 '$ports_to_port'([exit], internal).
 '$ports_to_port'([fail,answer], redo).
-'$ports_to_port'([fail,exit], internal).
-'$ports_to_port'([fail], internal).
+'$ports_to_port'([fail,exit], fail).
+'$ports_to_port'([fail], infail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], internal).
