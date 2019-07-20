@@ -414,9 +414,9 @@ be lost.
     '$trace_goal'(Q, M, false, _GN, CP ).
 
 
-'$creep'(G0, M0, CP, GoalNumber) :-
-    '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M, false,  GoalNumber, CP).
+'$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
+	'$yap_strip_module'(M0:G0, M, G), % spy a literal
+	'$trace_goal'(G, M, false,  GoalNumber, CP).
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
@@ -450,10 +450,10 @@ be lost.
 	 '$trace_goal'(B, M, GN0, GN, CP)).
 '$trace_goal'((A;B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP);
-     '$trace_goal'(B, M, _GN0, GN, CP)).
+     '$trace_goal'(B, M, _GN0,_GN, CP)).
 '$trace_goal'((A|B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, _GN0, GN, CP);
-     '$trace_goal'(B, M, GN0, GN, CP)).
+    ('$trace_goal'(A, M, GN0, GN, CP);
+     '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((\+ A), M, GN0, GN, CP) :- !,
     '$trace_goal'(A, M, GN0, GN, CP).
 '$trace_goal'(true, _M, _GN0, _GN, _CP) :- !.
@@ -495,7 +495,6 @@ be lost.
 '$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
-    '$id_goal'(GoalNumber),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
  	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
@@ -503,6 +502,7 @@ be lost.
 	Port,
  	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
+writeln(B),
     '$creep_run_sources'(
  	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
@@ -513,14 +513,14 @@ be lost.
 '$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
     !,
     %clause generator: it controls fail, redo
-    '$creep_enumerate_refs'(
-	'$trace_port'([call], GoalNumber, G, M, Ctx, CP,  H),
+   '$creep_enumerate_refs'(
+	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
 	M:G,Ref,
 	Port0,
- 	true
+ 	'$handle_port'([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_refs'(
-	true,
+	'$handle_port'([Port0], GoalNumber, G, M, Ctx, CP,  H),
 	% source mode
 	M:G,Ref, CP,
 	Port,
@@ -590,9 +590,9 @@ be lost.
  *
  */
 '$enter_trace'(L, G, Module, CP, Info) :-
-    '$id_goal'(L),        /* get goal no.	*/
-    /* get goal list		*/
-    '__NB_getval__'('$spy_glist',History,History=[]),
+	'$id_goal'(L),
+	/* get goal list		*/
+	'__NB_getval__'('$spy_glist',History,History=[]),
     Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
     H  = [Info|History],
     b_setval('$spy_glist',H).	/* and update it		*/
@@ -610,7 +610,9 @@ be lost.
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
 	'$stop_creeping'(_),
+	writeln(GoalNumber: Ports=M:G),
 	'$ports_to_port'( Ports, Port   ),
+	writeln(Port:G),
 	ignore('$trace_port_'(Port, GoalNumber, G, M, CP,  H)),
 	'$cross_run_deb'(redo,G0,GoalNumber).	
 
