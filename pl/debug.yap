@@ -497,13 +497,13 @@ be lost.
     !,
     '$id_goal'(GoalNumber),
     %clause generator: it controls fail, redo
-    '$gated_creep_get_sources'(
+    '$creep_enumerate_sources'(
  	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
 	M:G, B,
 	Port,
  	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
-    '$gated_run_sources'(
+    '$creep_run_sources'(
  	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
@@ -513,21 +513,18 @@ be lost.
 '$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
     !,
     %clause generator: it controls fail, redo
-    '$id_goal'(GoalNumber),
-     '$gated_creep_get_clause'(
-   gated_call(
+    '$creep_enumerate_refs'(
 	'$trace_port'([call], GoalNumber, G, M, Ctx, CP,  H),
-M:G,Ref,
+	M:G,Ref,
 	Port0,
  	true
-	),
-    '$gated_creep_clause'(
+    ),
+    '$creep_run_refs'(
 	true,
 	% source mode
 	M:G,Ref, CP,
 	Port,
-			  '$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
-			 )
+	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
 '$trace_goal_'(G, M, _Ctx, _GoalNumber, _CP,_H) :-
 /*
@@ -546,7 +543,7 @@ M:G,Ref,
 	'$reenter_debugger'(Port)
     ).
 
-'$gated_creep_get_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
+'$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
@@ -555,7 +552,7 @@ M:G,Ref,
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
-'$gated_creep_get_clause'(Setup, M:Goal, Ref, Catcher, Cleanup) :-
+'$creep_enumerate_refs'(Setup, M:Goal, Ref, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
@@ -564,7 +561,7 @@ M:G,Ref,
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
-'$gated_run_sources'(Setup, M, B, CP, Catcher, Cleanup) :-
+'$creep_run_sources'(Setup, M, B, CP, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
@@ -572,13 +569,13 @@ M:G,Ref,
 	'$trace_goal'(B,M,false,_, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
-'$gated_creep_clause'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
+'$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
-        Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
-	'$creep_clause'( Goal, M, Ref, CP ),
-	'$cleanup_on_exit'(CP0, TaskF).
+    Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
+    TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
+    '$tag_cleanup'(CP0, Task0),
+    '$creep_clause'( Goal, M, Ref, CP ),
+    '$cleanup_on_exit'(CP0, TaskF).
 
 
 
@@ -593,7 +590,7 @@ M:G,Ref,
  *
  */
 '$enter_trace'(L, G, Module, CP, Info) :-
-	'$id_goal'(L),        /* get goal no.	*/
+    '$id_goal'(L),        /* get goal no.	*/
     /* get goal list		*/
     '__NB_getval__'('$spy_glist',History,History=[]),
     Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
