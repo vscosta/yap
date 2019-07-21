@@ -495,16 +495,15 @@ be lost.
 '$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
-    '$id_goal'(GoalNumber),
     %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
- 	'$trace_port'([call], GoalNumber, G, M,  false, CP, H),
+ 	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
 	M:G, B,
-	Port,
- 	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
+	Port0,
+	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
     '$creep_run_sources'(
- 	'$trace_port'([call,Port0], GoalNumber, G, M, false, CP, H),
+ 	'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
 	       '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
@@ -512,15 +511,15 @@ be lost.
     ).
 '$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
     !,
-    %clause generator: it controls fail, redo
+   true, %clause generator: it controls fail, redo
     '$creep_enumerate_refs'(
-	'$trace_port'([call], GoalNumber, G, M, Ctx, CP,  H),
+	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
 	M:G,Ref,
 	Port0,
- 	true
+ 	'$handle_port'([Port0], GoalNumber, G, M, Ctx, CP,  H)
     ),
     '$creep_run_refs'(
-	true,
+	'$handle_port'([call,Port0], GoalNumber, G, M, Ctx, CP,  H),
 	% source mode
 	M:G,Ref, CP,
 	Port,
@@ -557,7 +556,9 @@ be lost.
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$static_clause'(Goal,M,_,Ref),
+	'$number_of_clauses'(Goal,M,N),
+	between(1,N,J),
+	'$nth_clause'(Goal,M,J,Ref),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
@@ -609,9 +610,9 @@ be lost.
 
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
-	'$stop_creeping'(_),
-	'$ports_to_port'( Ports, Port   ),
-	ignore('$trace_port_'(Port, GoalNumber, G, M, CP,  H)),
+    '$stop_creeping'(_),
+%    writeln(Ports),
+    ignore('$trace_port'(Ports, GoalNumber, G, M,_, CP,  H)),
 	'$cross_run_deb'(redo,G0,GoalNumber).	
 
 /**
@@ -628,7 +629,8 @@ be lost.
  *
 */
 '$trace_port'(Ports, GoalNumber, G, Module,_, CP,Info) :-
-	'$ports_to_port'(Ports, Port),
+    '$ports_to_port'(Ports, Port),
+%    writeln(Ports:Port),
 	'$trace_port_'(Port, GoalNumber, G, Module, CP,Info).
 
 '$ports_to_port'([answer,_], answer).
@@ -640,10 +642,10 @@ be lost.
 '$ports_to_port'([exit], internal).
 '$ports_to_port'([fail,answer], redo).
 '$ports_to_port'([fail,exit], internal).
-'$ports_to_port'([fail], internal).
+'$ports_to_port'([fail], fail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
-'$ports_to_port'([redo], internal).
+'$ports_to_port'([redo], redo).
 '$ports_to_port'([!], internal).
 '$ports_to_port'([exception(E),_], exception(E)).
 '$ports_to_port'([exception(_E)],internal).
