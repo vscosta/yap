@@ -95,6 +95,7 @@ prolog:'$protect'.
 '$visible'('$live').
 '$visible'('$init_prolog').
 '$visible'('$x_yap_flag' ).
+'$visible'('$x_yap_flag' ).
 '$visible'(X) :- \+ atomic_concat('$',_,X).
 
 
