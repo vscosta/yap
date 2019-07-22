@@ -122,7 +122,7 @@ undefined_query(G0, M0, Cut) :-
 % make sure we do not loop on undefined predicates
 	setup_call_cleanup(
 			   '$undef_setup'(Action,Debug,Current),
-			   '$get_undefined_predicate'( M0:G0, M:G ),
+			   '$one_undefined_predicate'( M0:G0, M:G ),
 			   '$undef_cleanup'(Action,Debug,Current)
 	),
 	!.

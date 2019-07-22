@@ -565,13 +565,14 @@ static int interrupt_call(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.Osbpp.p, YENV, NEXTOP(P, Osbpp),
+  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, P,
                           P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
   return interrupt_handlerc(P->y_u.Osbpp.p PASS_REGS);
 }
 
+#if INTERRUPT_META_CALL
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   int v;
 
@@ -596,13 +597,16 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(pen, ENV, NEXTOP(P, Osbmp),
+  if (Yap_only_has_signal(YAP_STOVF_SIGNAL)) {
+     return 2;
+   /* if ((v = stack_overflow(pen, YENV,CP = NEXTOP(P, Osbmp)
                           pen->ArityOfPE PASS_REGS)) >= 0) {
     return v;
-  }
+    } */
   CP = NEXTOP(P, Osbmp);
   return interrupt_handler(pen PASS_REGS);
 }
+#endif
 
 static void execute_dealloc(USES_REGS1) {
   /* other instructions do depend on S being set by deallocate

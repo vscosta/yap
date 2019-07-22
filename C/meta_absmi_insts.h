@@ -229,9 +229,9 @@
 	/* execute, but test first for interrupts */
       execute_end:
 	/* code copied from call */
-#ifndef NO_CHECKING
-	check_stack(NoStackPExecute, HR);
-#endif
+	//#ifndef NO_CHECKING
+	//check_stack(NoStackPExecute, HR);
+	//#endif
       execute_stack_checked:
 	CPREG = NEXTOP(PREG, Osbmp);
 	ALWAYS_LOOKAHEAD(pen->OpcodeOfPred);
@@ -279,6 +279,7 @@
 	ENDP(pt1);
 
 	/* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
+#if INTERRUPT_METACALL
       NoStackPExecute:
 	WRITEBACK_Y_AS_ENV();
 #ifdef SHADOW_S
@@ -293,6 +294,7 @@
 	if (!d0) FAIL();
 	if (d0 == 2) goto execute_stack_checked;
 	goto execute_end;
+#endif
 	ENDBOp();
 
 	ENDD(d0);

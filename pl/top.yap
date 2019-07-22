@@ -813,24 +813,6 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 	call( Goal ),
 	'$cleanup_on_exit'(CP0, TaskF).
 
-gated_call(Setup, Goal, Catcher, Cleanup) :-
-    '$setup_call_catcher_cleanup'(Setup),
-    '$gated_call'( true , Goal, Catcher, Cleanup)  .
-
-'$gated_call'( All , Goal, Catcher, Cleanup) :-
-        Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
-	TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
-	'$tag_cleanup'(CP0, Task0),
-	call( Goal ),
-	'$cleanup_on_exit'(CP0, TaskF).
-
-'$gated_in'(Setup, Catcher, Cleanup, CP0, TaskF) :-
-    '$setup_call_catcher_cleanup'(Setup),
-    Task0 = cleanup( All, Catcher, Cleanup, Tag, true, CP0),
-    TaskF = cleanup( All, Catcher, Cleanup, Tag, false, CP0),
-    '$tag_cleanup'(CP0, Task0).
-
-
 %
 % split head and body, generate an error if body is unbound.
 %
@@ -1025,50 +1007,29 @@ log_event( String, Args ) :-
 
 '$prompt' :-
 	current_prolog_flag(break_level, BreakLevel),
-	(
-     BreakLevel == 0
-	->
-	  LF = LD
-    ;
-	  LF = ['Break (level ', BreakLevel, ')'|LD]
-	),
-    (	
-    '$get_debugger_state'(debug, true)
-	->
-	(
-'$get_debugger_state'(  trace,on),
-	    (
-		var(LF)
-	    ->
-	    LD  = ['trace'|LP]
-	    ;
-	    LD  = [', trace '|LP]
-	    )
-	;
-	(var(LF)
-	->
-	    LD  = ['debug'|LP]
-	;
-	LD  = [', debug'|LP]
-	)
-	)
-	;
-	 LD = LP
-    ),
-    (
-     var(LF)
-    ->
-     LP = [P]
-    ;
-     LP = [' ',P]
-    ),
+	current_prolog_flag(debug, Debug),
+	( '__NB_getval__'(  '$trace',Trace, fail) -> true ; Trace = off ),
 	yap_flag(toplevel_prompt, P),
-	atomic_concat(LF, PF),
+	'$break_info'(BreakLevel,P,P0), 
+	'$prompts'( Trace, Debug, P0, PF),
 	prompt1(PF),
 	prompt(_,' |   '),
-    '$ensure_prompting'.
+	'$ensure_prompting'.
 
+'$break_info'(0,P,P) :-
+	!.
+'$break_info'(BreakLevel, Prompt, P) :-
+	atomic_concat( ['(Break level ', BreakLevel, ') ',Prompt], P).
 
+'$prompts'(on,_,P,Prompt) :-
+	!,
+	atom_concat( 'trace ', P, Prompt).
+'$prompts'(off,true,P,Prompt) :-
+	!,
+	atom_concat( 'debug ', P, Prompt).
+'$prompts'(off,false,P,P) :-
+	!.
+	
 /**
 @} 
 */

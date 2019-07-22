@@ -463,7 +463,7 @@ be lost.
     (
 	'$undefp'([M|G], G1)
     ->
-    strip_module(G1, MF, NG),
+     strip_module(G1, MF, NG),
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
     M:G
@@ -612,8 +612,7 @@ be lost.
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
 %    writeln(Ports),
-    ignore('$trace_port'(Ports, GoalNumber, G, M,_, CP,  H)),
-	'$cross_run_deb'(redo,G0,GoalNumber).	
+    '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).	
 
 /**
  * @pred '$trace_go'(+L, 0:G, +Module, +Info)
@@ -628,10 +627,12 @@ be lost.
  * @parameter _Info_ describes the goal
  *
 */
-'$trace_port'(Ports, GoalNumber, G, Module,_, CP,Info) :-
+'$trace_port'(Ports, GoalNumber, Goal, Module,From, CP,Info) :-
     '$ports_to_port'(Ports, Port),
 %    writeln(Ports:Port),
-	'$trace_port_'(Port, GoalNumber, G, Module, CP,Info).
+    ignore('$trace_port_'(Port, GoalNumber, Goal, Module, CP,Info)),
+    writeln(Port:Goal:From),
+    '$cross_run_deb'(Port,From,GoalNumber).
 
 '$ports_to_port'([answer,_], answer).
 '$ports_to_port'([answer], internal).
