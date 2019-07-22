@@ -1633,7 +1633,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       }
       /* we may have already been here */
       if (bmap < 0 && !MARKED_PTR(saved_var)) {
-#ifdef INSTRUMENT_GC
+#if INSTRUMENT_GC
 	Term ccur = *saved_var;
 
 	if (IsVarTerm(ccur)) {
@@ -1677,10 +1677,12 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 
     size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
-#if 0
-      if (size < 0) {
+#if 1
+       {
 	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
 	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+	if (op == _Nstop)
+	  break;
 #if defined(ANALYST) || defined(DEBUG)
 	fprintf(stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
@@ -1829,7 +1831,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       */
       if (cptr < (CELL *)gc_B && cptr >= gc_H) {
 	goto remove_trash_entry;
-      } else if (IsAttVar(cptr)) {
+      } else if (cptr < (CELL *)gc_H && cptr >= H0 && IsAttVar(cptr)) {
 	/* MABINDING that should be recovered */
 	if (detatt && cptr < detatt) {
 	  goto remove_trash_entry;
@@ -2072,11 +2074,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
       OPREG nargs;
 
       //printf("gc_B=%p %ld\n", gc_B, opnum);
-      if (opnum == _Nstop)
+      if (opnum == _Nstop && gc_B->cp_env) {
 	mark_environments((CELL_PTR) gc_B->cp_env,
 			  EnvSizeInCells,
 			  NULL PASS_REGS);
-      else if (opnum != _trust_fail) {
+      } else if (opnum != _trust_fail) {
 	Int mark = TRUE;
 #ifdef DETERMINISTIC_TABLING
 	mark &= !IS_DET_GEN_CP(gc_B);
@@ -2090,7 +2092,7 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, bool very_verbose
     restart_cp:
       switch (opnum) {
       case _Nstop:
-	if (gc_B->cp_env == LCL0) {
+	if (gc_B->cp_env == LCL0 || gc_B->cp_env == NULL) {
         return;
     } else {
 	    // This must be a border choicepoint, just move up
@@ -2942,6 +2944,9 @@ sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       return;
     UNMARK(gc_ENV+E_CB);
 
+    op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+    if (op == _Nstop)
+      break;
     size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
     pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
     gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev

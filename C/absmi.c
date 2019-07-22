@@ -223,7 +223,7 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
   if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
-    if (!Yap_locked_gc(nargs, env, cp)) {
+    if (!Yap_dogc(0, NULL PASS_REGS)) {
       Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
       return 0;
     }
@@ -572,7 +572,6 @@ static int interrupt_call(USES_REGS1) {
   return interrupt_handlerc(P->y_u.Osbpp.p PASS_REGS);
 }
 
-#if INTERRUPT_META_CALL
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   int v;
 
@@ -594,20 +593,17 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   SET_ASP(YENV, E_CB * sizeof(CELL));
   /* setup GB */
   YENV[E_CB] = (CELL)B;
-  if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
+	      if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if (Yap_only_has_signal(YAP_STOVF_SIGNAL)) {
-     return 2;
-   /* if ((v = stack_overflow(pen, YENV,CP = NEXTOP(P, Osbmp)
+	      CP = NEXTOP(P, Osbmp);
+  if ((v = stack_overflow(pen, YENV, CP,
                           pen->ArityOfPE PASS_REGS)) >= 0) {
     return v;
-    } */
-  CP = NEXTOP(P, Osbmp);
+    } 
   return interrupt_handler(pen PASS_REGS);
 }
-#endif
-
+  
 static void execute_dealloc(USES_REGS1) {
   /* other instructions do depend on S being set by deallocate
       */
