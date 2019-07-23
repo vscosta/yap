@@ -24,7 +24,7 @@ using namespace Gecode;
 
 extern "C"
 {
-void gecode_init(void);
+extern void gecode_init(void);
 
 #include "config.h"
 }
