@@ -376,7 +376,8 @@ qload_module(Mod) :-
     print_message(Verbosity, loaded(EndMsg, File, Mod, T, H)),
     '$current_module'(_, SourceModule),
   prolog_flag(verbose_load, _, OldF),
-      prolog_flag(verbose, _, OldV),
+  prolog_flag(verbose, _, OldV),
+  '$undefp_handler'('$undefp_search'(_,_), prolog),
     working_directory(_, OldD).
 
 '$qload_module'(Mod, S, SourceModule) :-

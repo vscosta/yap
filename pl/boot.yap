@@ -134,7 +134,7 @@ print_boot_message(Type,Error,Desc) :-
 	'$query_exception'(errorLine, Desc, FilePos),
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
-'$undefp0'([M|G], _Action) :-
+    '$undefp0'([M|G], _Action) :-
 	functor(G,N,A),
 	print_message( error, error(error(unknown, M:N/A),M:G)),
 	fail.

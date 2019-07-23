@@ -91,7 +91,8 @@ undefined_query(G0, M0, Cut) :-
     user:unknown_predicate_handler(GM0,EM0,MG),
     !.
 '$undefp_search'(M0:G0, MG) :-
-    '$predicate_definition'(M0:G0, MG), !.
+    writeln(M0:G0),
+    '$predicate_definition'(M0:G0, MG), writeln(MG), !.
 
 '$undef_error'(error,  Mod:Goal) :-
     '$do_error'(existence_error(procedure,Mod:Goal), Mod:Goal).
@@ -120,8 +121,25 @@ undefined_query(G0, M0, Cut) :-
 
 '$search_undef'(M0:G0, M:G) :-
 % make sure we do not loop on undefined predicates
+	setup_call_cleanup(
+			   '$undef_setup'(Action,Debug,Current),
+			   '$get_undefined_predicate'( M0:G0, M:G ),
+			   '$undef_cleanup'(Action,Debug,Current)
+	),
+	!.
+'$search_undef'(M0:G0, M:G) :-
+    '$found_undefined_predicate'( M0:G0, M:G ).
+
+%%  undef handler:
+%  we found an import, and call again
+%  we have user code in the unknown_predicate
+%  we fail, output a message, and just generate an exception.
+'$undefp'([M0|G0],_) :-
+    '$search_undef'(M0:G0, M:G),
+	call(M:G).
+
 :- abolish(prolog:'$undefp0'/2).
-                            
+:- '$undefp_handler'('$undefp'(_,_), prolog).
 
 /** @pred  unknown(- _O_,+ _N_)
 
