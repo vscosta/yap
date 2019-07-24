@@ -30,7 +30,7 @@
      datime/1,
      %delete_file/1,
      delete_file/2,
-%	directory_files/2,
+	directory_files/2,
 	directory_map/2,
 	environ/2,
 	exec/3,

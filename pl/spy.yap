@@ -523,6 +523,8 @@ notrace(G) :-
     '$stop_creeping'(_),
     '$cross_run_deb'(Port,GN0,GN).
 
+'$cross_run_deb'(call,_Ctx,_GN).
+'$cross_run_deb'(internal,_Ctx,_GN).
 '$cross_run_deb'(redo,Ctx,_GN) :-
     '$continue_debugging'(Ctx).
 '$cross_run_deb'(fail,Ctx,_GN) :-
