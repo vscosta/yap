@@ -1,0 +1,3 @@
+This                  demo                  deals                   with
+https://github.com/SWI-Prolog/packages-jpl/issues/4: _Memory leak   with
+JPL (atoms are never GC'd by SWI)_.
