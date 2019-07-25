@@ -1,0 +1,8 @@
+#cmakedefine HAVE_WCHAR_H @HAVE_WCHAR_H@
+#cmakedefine O_PLMT @O_PLMT@
+#cmakedefine PL_ARITY_AS_SIZE @PL_ARITY_AS_SIZE@
+#cmakedefine SIZEOF_LONG @SIZEOF_LONG@
+#cmakedefine SIZEOF_LONG_LONG @SIZEOF_LONG_LONG@
+#cmakedefine SIZEOF_VOIDP @SIZEOF_VOIDP@
+#cmakedefine SIZEOF_WCHAR_T @SIZEOF_WCHAR_T@
+#cmakedefine _REENTRANT @_REENTRANT@

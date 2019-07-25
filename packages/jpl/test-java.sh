@@ -3,6 +3,19 @@
 # set variables for Prolog
 . ../swipl.sh < /dev/null
 
+findexe()
+{ oldifs="$IFS"
+  IFS=:
+  for d in $PATH; do
+    if [ -x $d/$1 ]; then
+       IFS="$oldifs"
+       return 0
+    fi
+  done
+  IFS="$oldifs"
+  return 1
+}
+
 if [ ! -z "$LD_LIBRARY_PATH" ]; then
   LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
 fi
@@ -21,6 +34,11 @@ if [ -z "$JAVA" ]; then
   JAVA=java
 fi
 
-export CLASSPATH=$JUNIT:jpl.jar:jpltest.jar
+if findexe java && [ -r $JUNIT ]; then
+  export CLASSPATH=$JUNIT:jpl.jar:jpltest.jar
 
-$JAVA junit.textui.TestRunner jpl.test.TestJUnit
+  $JAVA junit.textui.TestRunner org.jpl7.test.TestJUnit
+else
+  echo "Warning: cannot find java or junit.jar; skipping tests"
+  echo "Warning: that embed SWI-Prolog in Java"
+fi

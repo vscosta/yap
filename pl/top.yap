@@ -572,14 +572,14 @@ write_query_answer( Bindings ) :-
 	'$yap_strip_module'(M:G, M1,G1),
     '$dotrace'(G1, M1, _),
     !,
-    '$trace'(M1:G1, false).
+    '$trace'(M1:G1, true).
 '$user_call'(G, M) :-
     gated_call(
 	true,
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
 	M:G,
 	Port,
- 	'$cross_run_deb'(Port,false, _)
+ 	'$cross_run_deb'(Port,true, _)
     ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).

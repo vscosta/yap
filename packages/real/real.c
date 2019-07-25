@@ -612,10 +612,10 @@ static int set_listEl_to_sexp(term_t t, SEXP sexp) {
   int nprotect = 0;
 
   if (!PL_get_arg(2, t, tslot))
-    return FALSE;
+    return (SEXP)FALSE;
   if (PL_is_pair(tslot) || PL_is_functor(tslot, FUNCTOR_dot1)) {
     if (!merge_dots(tslot))
-      return FALSE;
+      return (SEXP)FALSE;
   }
   s = term_to_sexp(tslot, FALSE);
   if (!PL_get_arg(1, t, t))
