@@ -22,8 +22,7 @@ class yap4r  {
 public:
   SEXP qsexp;
   yap4r();
-  bool query(std::string p_name, GenericVector sexps = R_NilValue,
-             std::string p_module = "user");
+  SEXP query(std::string query);
   bool more();
   bool done();
   bool eval_text(std::string l);
@@ -38,31 +37,37 @@ yap4r::yap4r() {
   yap = new YAPEngine(yargs);
 };
 
-bool yap4r::query(std::string query) {
+LogicalVector f(){
+  LogicalVector rc = {false};
+  return rc;
+}
+
+SEXP yap4r::query(std::string query) {
+  yhandle_t t;
+  arity_t arity;
+
+  YAP_StartSlots();
   if (q) {
     q->close();
     q = nullptr;
   }
-  yhandle_t t;
-  arity_t arity;
-    q = new YAPQuery(qt);
-    t = qt.handle();
-    YAPFunctor f = YAPFunctor(p_name.c_str(), arity);
-    YAPAtomTerm mod = YAPAtomTerm(p_module.c_str());
-    t = YAPApplTerm(p_name.c_str(), args.data()).handle();
-    q = new YAPQuery(f, mod, args.data());
+  q = new YAPQuery(query.c_str());
+  std::cerr << q->namedVarTerms().text() << "\n";
+  if (q == nullptr) {
+    return f();
   }
-  if (q == nullptr)
-    return false;
   bool rc = q->next();
   if (!rc) {
     failed = true;
     q = nullptr;
   }
-  if (rc)
-    qsexp = term_to_sexp(t, false);
-
-  return rc;
+  if (rc) {
+  std::cerr << q->namedVarTerms().text() << "\n";
+    
+    return term_to_sexp(q->namedVarTerms().handle(), false);
+  }
+  YAP_EndSlots();
+  return f();
 }
 
 bool yap4r::run(SEXP l) {

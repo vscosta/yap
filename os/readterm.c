@@ -1722,17 +1722,14 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     return rval;
   }
 
-  X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
+  X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term ctl,
                                               Term bindings, size_t len,
                                               int prio)
   {
     CACHE_REGS
-    Term ctl;
-
-    ctl = opts;
     if (bindings)
       {
-        ctl = add_names(bindings, TermNil);
+        ctl = add_names(bindings, ctl);
       }
     if (prio != 1200)
       {

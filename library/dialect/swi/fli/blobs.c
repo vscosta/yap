@@ -129,6 +129,8 @@ PL_get_blob(term_t t, void **blob, size_t *len, PL_blob_t **type) {
 PL_EXPORT(void *)
 PL_blob_data(atom_t a, size_t *len, PL_blob_t **type) {
   Atom x = SWIAtomToAtom(a);
+  size_t sz;
+  void *o = malloc(sz+1);
 
   if (!IsBlob(x)) {
     if (len)
@@ -142,7 +144,8 @@ PL_blob_data(atom_t a, size_t *len, PL_blob_t **type) {
   if (type)
     *type = (PL_blob_t *)RepBlobProp(x->PropsOfAE)->blob_type;
 
-  return x->rep.blob[0].data;
+  memcpy(o, x->rep.blob[0].data, sz);
+  return o;
 }
 
 PL_EXPORT(void)

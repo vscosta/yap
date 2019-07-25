@@ -448,6 +448,7 @@ A	VarBranches		N	"var_branches"
 A	VariableNames		N	"variable_names"
 A	HiddenVar		F	"$V"
 A	Variable		N	"variable"
+A	Variables		N	"variables"
 A   Verbose         N   "verbose"
 A	VerboseFileSearch	N	"verbose_file_search"
 A	VersionNumber		F	"$version_name"
@@ -615,3 +616,5 @@ F	UPlus			Plus		1
 F	VBar			VBar		2
 F	WriteTerm		WriteTerm	2
 F	HiddenVar		HiddenVar	1
+F	VariableNames		VariableNames	1
+F	Variables		Variables	1

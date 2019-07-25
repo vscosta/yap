@@ -132,6 +132,23 @@ For implementation details and more information, please check term_t_slots in
 the implementation section.
 
 */
+
+
+	      /// @brief initialize the slot data-structure: all existing slots will be
+	      /// discarded. Typically, this would be used at the beginning
+	      /// top-level or other outer quqqery.
+X_API void YAP_StartSlots(void)
+{
+  Yap_RebootHandles(worker_id);
+}
+
+	      /// @brief discard all existing slots: operates as
+/// StartSlots, but should be called when we're done.
+X_API void YAP_EndSlots(void)
+{
+  Yap_RebootHandles(worker_id);
+}
+
 /// @brief report the current position of the slots, assuming that they occupy
 /// the top of the stack.
 ///

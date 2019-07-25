@@ -10,7 +10,8 @@
  **************************************************************************
  *									 *
  * File:		atoms.c *
- * comments:	General-purpose C implemented system predicates		 *
+ * comments:	General-pur
+pose C implemented system predicates		 *
  *									 *
  * Last rev:     $Date: 2008-07-24 16:02:00 $,$Author: vsc $	     	 *
  *									 *
