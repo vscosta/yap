@@ -52,7 +52,7 @@ SEXP yap4r::query(std::string query) {
     q = nullptr;
   }
   q = new YAPQuery(query.c_str());
-  std::cerr << q->namedVarTerms().text() << "\n";
+  std::cerr << q->namedVarTerms()->text() << "\n";
   if (q == nullptr) {
     return f();
   }
@@ -62,9 +62,9 @@ SEXP yap4r::query(std::string query) {
     q = nullptr;
   }
   if (rc) {
-  std::cerr << q->namedVarTerms().text() << "\n";
+  std::cerr << q->namedVarTerms()->text() << "\n";
     
-    return term_to_sexp(q->namedVarTerms().handle(), false);
+    return term_to_sexp(q->namedVarTerms()->handle(), false);
   }
   YAP_EndSlots();
   return f();
