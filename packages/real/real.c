@@ -612,10 +612,10 @@ static int set_listEl_to_sexp(term_t t, SEXP sexp) {
   int nprotect = 0;
 
   if (!PL_get_arg(2, t, tslot))
-    return FALSE;
+    return (SEXP)FALSE;
   if (PL_is_pair(tslot) || PL_is_functor(tslot, FUNCTOR_dot1)) {
     if (!merge_dots(tslot))
-      return FALSE;
+      return (SEXP)FALSE;
   }
   s = term_to_sexp(tslot, FALSE);
   if (!PL_get_arg(1, t, t))
@@ -650,7 +650,8 @@ static SEXP list_to_sexp(term_t t, int objtype) {
   for (i = 0, len = 1; i < ndims; i++) {
     len *= dims[i];
   }
-  if ((objtype & ~PL_R_VECTOR) == PL_R_NAME) {
+  PL_get_list(t, tmp, tail);
+  if (PL_is_functor(tmp, FUNCTOR_equal2)) {
     SEXP names;
     int nprotect = 0;
 

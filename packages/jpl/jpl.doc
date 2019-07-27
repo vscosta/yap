@@ -6,56 +6,34 @@
 \makeindex
 
 \onefile
-\htmloutput{html}				% Output directory
-\htmlmainfile{index}				% Main document file
+\htmloutput{.}					% Output directory
+\htmlmainfile{jpl}				% Main document file
 \bodycolor{white}				% Page colour
 
 \begin{document}
 
-\title{JPL: a SWI-Prolog to Java Interface}
-\author{Paul Singleton \\
-	Jambusters Ltd \\
-	United Kingdom \\
-	E-mail: \email{paul@jbgb.com}}
+\title{JPL: A bidirectional Prolog/Java interface}
+\author{Paul Singleton \& Fred Dushin}
 
 \maketitle
 
 \begin{abstract}
-This document describes JPL, the SWI-Prolog interface to Java.
+JPL is a library using the SWI-Prolog foreign interface and the Java
+jni interface providing a bidirectional interface between Java and
+Prolog that can be used to embed Prolog in Java as well as for embedding
+Java in Prolog. In both setups it provides a reentrant bidirectional
+interface.
 \end{abstract}
 
-\pagebreak
-\tableofcontents
-\pagebreak
+This document is a reference for the Prolog API. The overall
+documentation is maintained on the
+\href{https://github.com/ssardina-research/packages-jpl/wiki}{GitHub
+Wiki}
 
-\section{Introduction}
+\input{jpldoc.tex}
 
-\section{Installation}
-
-\subsection{Unix systems}
-
-Installation on Unix system uses the commonly found {\em configure},
-{\em make} and {\em make install} sequence. SWI-Prolog should be
-installed before building this package. If SWI-Prolog is not installed
-as \program{pl}, the environment variable \env{PL} must be set to the
-name of the SWI-Prolog executable. Installation is now accomplished
-using:
-
-\begin{code}
-% ./configure
-% make
-% make install
-\end{code}
-
-This installs the foreign libraries in \file{$PLBASE/lib/$PLARCH} and
-the Prolog library files in \file{$PLBASE/library}, where
-\file{$PLBASE} refers to the SWI-Prolog `home-directory'.
-
-
-\section{Acknowledgments}
-
-\bibliographystyle{plain}
-\bibliography{odbc}
+%\bibliographystyle{plain}
+%\bibliography{jpl}
 
 \printindex
 

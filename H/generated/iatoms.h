@@ -443,6 +443,7 @@
   AtomVariableNames = Yap_LookupAtom("variable_names"); TermVariableNames = MkAtomTerm(AtomVariableNames);
   AtomHiddenVar = Yap_FullLookupAtom("$V"); TermHiddenVar = MkAtomTerm(AtomHiddenVar);
   AtomVariable = Yap_LookupAtom("variable"); TermVariable = MkAtomTerm(AtomVariable);
+  AtomVariables = Yap_LookupAtom("variables"); TermVariables = MkAtomTerm(AtomVariables);
   AtomVerbose = Yap_LookupAtom("verbose"); TermVerbose = MkAtomTerm(AtomVerbose);
   AtomVerboseFileSearch = Yap_LookupAtom("verbose_file_search"); TermVerboseFileSearch = MkAtomTerm(AtomVerboseFileSearch);
   AtomVersionNumber = Yap_FullLookupAtom("$version_name"); TermVersionNumber = MkAtomTerm(AtomVersionNumber);
@@ -610,3 +611,5 @@
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);
   FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);
+  FunctorVariableNames = Yap_MkFunctor(AtomVariableNames,1);
+  FunctorVariables = Yap_MkFunctor(AtomVariables,1);

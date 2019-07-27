@@ -22,9 +22,6 @@ declares a  boolean variable.
 + boolvars( _Vs_)
 declares a set of  boolean variable.
 
-
-Constraints supported are:
-
 */
 
 
@@ -293,7 +290,7 @@ constraint( zcompare(_, _, _) ). %3,
 constraint( chain(_, _) ). %2,
 constraint( element(_, _) ). %2,
 constraint( fd_var(_) ). %1,
-sconstraint( fd_inf(_, _) ). %2,
+constraint( fd_inf(_, _) ). %2,
 constraint( fd_sup(_, _) ). %2,
 constraint( fd_size(_, _) ). %2,
 constraint( fd_dom(_, _) ). %2
@@ -714,7 +711,7 @@ post( rel( sum(L0), Op, Out), Space-Map, Reify):-
 
 post( rel(A1+A2, Op, B), Space-Map, Reify):-
 	var( B ), !,
-	linearize(A1+A2, 1, As, [], CAs, [], 0, A0, Space-Map),
+	linearize(A1+A2, 1, As, [], CAs, [], 0, B0, Space-Map),
 	l(B, B0, Map),
 	gecode_arith_op( Op, GOP ),
 	(var(Reify) ->
@@ -791,10 +788,6 @@ post( rel(A, Op, B), Space-Map, Reify):-
 
 post( rel(A, Op, B), Space-Map, Reify):-
 	arith(A, Name),
-	A =.. [_Op,A1], !,
-	equality(A1, NA1,  Space-Map),
-	in_c(NA1, VA1,  Space-Map), !,
-	equality(B, B1,  Space-Map),
 	out_c(Name, VA1, B1,  Op, Space-Map, Reify).
 
 post( rel(A1 \/ A2, Ope, B), Space-Map, Reify):-

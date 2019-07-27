@@ -149,14 +149,16 @@ public:
   /// It also communicates the array of arguments t[]
   /// and the array of variables
   /// back to yapquery
-  YAPPredicate(const char *s0, Term &tout, YAPPairTerm &names, CELL *&nts) {
+  YAPPredicate(const char *s0, Term &tout, YAPPairTerm * &names, CELL *&nts) {
     CACHE_REGS
     const char *s = (const char *)s0;
-    Term tnames = MkVarTerm();
+    Term tnames = MkVarTerm(),
+      parameters = TermNil;
     tout =
-        Yap_BufferToTermWithPrioBindings(s, TermNil, tnames, strlen(s0), 1200);
+        Yap_BufferToTermWithPrioBindings(s, parameters, tnames, strlen(s0)+1, 1200);
+    
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
-    //  Yap_DebugPlWrite(out);
+      fprintf(stderr,"tnames=");  Yap_DebugPlWriteln(    tnames);
     if (tout == 0L) {
       return;
       throw YAPError();
@@ -164,7 +166,8 @@ public:
     Term tm = Yap_CurrentModule();
     ap = getPred(tout, tm, nts);
     tout = Yap_SaveTerm(tout);
-    names = YAPPairTerm(tnames);
+    
+    names = new YAPPairTerm(tnames);
   }
 
   /// Functor constructor for predicates

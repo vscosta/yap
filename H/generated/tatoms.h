@@ -443,6 +443,7 @@ X_API EXTERNAL Atom AtomVarBranches; X_API EXTERNAL Term TermVarBranches;
 X_API EXTERNAL Atom AtomVariableNames; X_API EXTERNAL Term TermVariableNames;
 X_API EXTERNAL Atom AtomHiddenVar; X_API EXTERNAL Term TermHiddenVar;
 X_API EXTERNAL Atom AtomVariable; X_API EXTERNAL Term TermVariable;
+X_API EXTERNAL Atom AtomVariables; X_API EXTERNAL Term TermVariables;
 X_API EXTERNAL Atom AtomVerbose; X_API EXTERNAL Term TermVerbose;
 X_API EXTERNAL Atom AtomVerboseFileSearch; X_API EXTERNAL Term TermVerboseFileSearch;
 X_API EXTERNAL Atom AtomVersionNumber; X_API EXTERNAL Term TermVersionNumber;
@@ -763,4 +764,8 @@ X_API EXTERNAL  Functor FunctorVBar;
 X_API EXTERNAL  Functor FunctorWriteTerm;
 
 X_API EXTERNAL  Functor FunctorHiddenVar;
+
+X_API EXTERNAL  Functor FunctorVariableNames;
+
+X_API EXTERNAL  Functor FunctorVariables;
 

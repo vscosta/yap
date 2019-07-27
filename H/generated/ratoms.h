@@ -443,6 +443,7 @@
   AtomVariableNames = AtomAdjust(AtomVariableNames); TermVariableNames = MkAtomTerm(AtomVariableNames);
   AtomHiddenVar = AtomAdjust(AtomHiddenVar); TermHiddenVar = MkAtomTerm(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable); TermVariable = MkAtomTerm(AtomVariable);
+  AtomVariables = AtomAdjust(AtomVariables); TermVariables = MkAtomTerm(AtomVariables);
   AtomVerbose = AtomAdjust(AtomVerbose); TermVerbose = MkAtomTerm(AtomVerbose);
   AtomVerboseFileSearch = AtomAdjust(AtomVerboseFileSearch); TermVerboseFileSearch = MkAtomTerm(AtomVerboseFileSearch);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber); TermVersionNumber = MkAtomTerm(AtomVersionNumber);
@@ -610,3 +611,5 @@
   FunctorVBar = FuncAdjust(FunctorVBar);
   FunctorWriteTerm = FuncAdjust(FunctorWriteTerm);
   FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);
+  FunctorVariableNames = FuncAdjust(FunctorVariableNames);
+  FunctorVariables = FuncAdjust(FunctorVariables);
