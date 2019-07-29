@@ -36,7 +36,7 @@ if (GECODE_FOUND)
 
   add_library(gecode_yap  ${GECODE_SOURCES})
 
-  target_link_libraries(gecode_yap libYap ${GECODE_LIBRARIES})
+  target_link_libraries(gecode_yap libYap ${Gecode_LIBRARIES})
 
   set_target_properties (gecode_yap  PROPERTIES PREFIX "" CXX_STANDARD 11)
 
