@@ -10,6 +10,10 @@
 
 #include "real.h"
 
+extern "C" {
+extern void install_real(void);
+}
+
 using namespace Rcpp;
 
 class yap4r  {
@@ -23,7 +27,7 @@ public:
   SEXP qsexp;
   yap4r();
   SEXP query(std::string query);
-  bool more();
+  SEXP more();
   bool done();
   bool eval_text(std::string l);
   bool run(SEXP s);
@@ -34,7 +38,9 @@ public:
 
 yap4r::yap4r() {
   YAPEngineArgs *yargs = new YAPEngineArgs();
+  yargs->setEmbedded(true);
   yap = new YAPEngine(yargs);
+  install_real();
 };
 
 LogicalVector f(){
@@ -46,13 +52,14 @@ SEXP yap4r::query(std::string query) {
   yhandle_t t;
   arity_t arity;
 
-  YAP_StartSlots();
   if (q) {
     q->close();
     q = nullptr;
   }
-  q = new YAPQuery(query.c_str());
-  std::cerr << q->namedVarTerms()->text() << "\n";
+   YAP_StartSlots();
+   query = "real:text_query( ("+query+ ") ) ";
+   q = new YAPQuery(query.c_str());
+  failed = false;
   if (q == nullptr) {
     return f();
   }
@@ -61,12 +68,9 @@ SEXP yap4r::query(std::string query) {
     failed = true;
     q = nullptr;
   }
-  if (rc) {
-  std::cerr << q->namedVarTerms()->text() << "\n";
-    
+  if (rc) {    
     return term_to_sexp(q->namedVarTerms()->handle(), false);
   }
-  YAP_EndSlots();
   return f();
 }
 
@@ -90,19 +94,22 @@ bool yap4r::compile(std::string s) {
 bool yap4r::library(std::string s) {
   YAPTerm t;
   t = YAPApplTerm("library", YAPAtomTerm(s.c_str()));
-  return yap->mgoal(YAPApplTerm("compile", t).term(), USER_MODULE);
+  return yap->mgoal(YAPApplTerm("ensure_loaded", t).term(), USER_MODULE);
 }
 
-bool yap4r::more() {
+SEXP yap4r::more() {
   bool rc = true;
   if (failed)
-    return false;
+    return f();
   if (q)
     rc = q->next();
+  std::cerr << q->namedVarTerms()->text() << "\n";
   if (!rc) {
     failed = true;
-  }
-  return rc;
+  }    
+  if (rc)
+   return term_to_sexp(q->namedVarTerms()->handle(), false);
+  return f();
 }
 
 bool yap4r::done() {

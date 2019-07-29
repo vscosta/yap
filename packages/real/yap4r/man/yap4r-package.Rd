@@ -40,9 +40,23 @@ Optional links to other man pages
 \examples{
 \dontrun{
 ## Optional simple examples of the most important functions
+  default:
 ## These can be in \dontrun{} and \donttest{} blocks.   
+# load yap4r
 library(yap4r)
+# start a new yap engine, y
 y <- new(yap4r)
-y$query("between(1,10,X)")
+# execute a query, and collect the first solution as a vector of bindings
+y$query("between(1,3,X)")
+y$more()
+y$more()
+y$more()
+#until it fails
+y$more()
+#you can ask for more complex queries
+y$query("between(1,3,X), Y is 2*X, Z=p(X+Y) ")
+#notice that Y is evaluated but Z is just a function
+# you can focus on Z:
+y$query("between(1,10,X), Y is 2*X, Z=p(X+Y) ")$Z
  }
 }
