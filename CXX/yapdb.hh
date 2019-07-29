@@ -158,7 +158,6 @@ public:
         Yap_BufferToTermWithPrioBindings(s, parameters, tnames, strlen(s0)+1, 1200);
     
     // fprintf(stderr,"ap=%p arity=%d text=%s", ap, ap->ArityOfPE, s);
-      fprintf(stderr,"tnames=");  Yap_DebugPlWriteln(    tnames);
     if (tout == 0L) {
       return;
       throw YAPError();

@@ -83,13 +83,6 @@ set_package_properties(R PROPERTIES
        URL "https://www.r-project.org/")
 
 
-foreach(f ${YAP4R_SOURCES})
-  add_custom_command(OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${f}
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${f} ${CMAKE_CURRENT_BINARY_DIR}/${f}
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${f}
-    )
-  list(APPEND OUTS ${CMAKE_CURRENT_BINARY_DIR}/${f} )
-endforeach()
 
 
 add_library(real  ${REAL_SOURCES})
@@ -106,7 +99,7 @@ include_directories (
       ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_SOURCE_DIR}/include
         ${LIBR_INCLUDE_DIRS}
-    )
+    )	
 
   check_include_files( "stdio.h;R.h" HAVE_R_H )
   check_include_files( "R.h,;Rembeddred.h" HAVE_R_EMBEDDED_H )
@@ -122,17 +115,32 @@ include_directories (
 			install_r_package(${package})
 		endif()
 	endfunction(find_or_install_r_package)
-endif(R_EXEC)
 
-add_custom_target(YAP4R
-COMMAND "${R_EXEC}" "--slave" "-e" "library\\(Rcpp\\) \\&\\& compileAttributes\\(\\"yap4r\\"\\)"
-; "${R_EXEC}" "CMD" "build" "yap4r"
+
+  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 
+  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/src
+  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/man
+  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/R
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
+    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
+    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r
+    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r
+    COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/src/yap4r.cpp ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
+    )
+
+add_custom_target(YAP4R  ALL
+COMMAND ${R_EXEC} --slave -e "library(Rcpp); compileAttributes('yap4r')"
+COMMAND ${R_EXEC} CMD build yap4r
+  VERBATIM
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
- DEPENDS ${OUTS} 
+ DEPENDS real  ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp
  )
-  add_dependencies(real YAP4R)
-  
- install(TARGETS  real
+
+ 
+
+endif()
+
+install(TARGETS  real
     RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}

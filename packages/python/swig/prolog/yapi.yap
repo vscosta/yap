@@ -29,7 +29,7 @@
 %:- python_import(gc).
 
 :- create_prolog_flag(yap4py_query_output, true, [access(read_write)]).
-:- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
+:- create_prolog_flag(yap4py_query_json, false, [access(read_write)]).
 
 :- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
 
@@ -91,17 +91,19 @@ numbervars(Vs,0,_),
 
 
 output( _, Bindings ) :-
-    yap_flag(yap4py_query_output,true),
+	yap_flag(yap4py_query_output,Bool),
+	Bool == true,
     once( write_query_answer( Bindings ) ),
     nl(user_error),
     nl(user_error),
     fail.
 output( Caller, Bindings) :-
-    yap_flag(yap4py_query_json,true),
-    !,
-    simplify(Bindings, 1, Bss),
-    numbervars(Bss, 0, _),
-    maplist(into_dict(Caller),Bss).
+	yap_flag(yap4py_query_json,Bool),
+	Bool == true,
+	simplify(Bindings, 1, Bss),
+	numbervars(Bss, 0, _),
+	maplist(into_dict(Caller),Bss),
+	fail.
 output( _Caller, _Bindings).
 
 simplify([],_,[]).

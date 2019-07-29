@@ -1730,8 +1730,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
         ctl = add_priority(prio, ctl);
       }
     Term o = Yap_BufferToTerm(s, ctl);
-      fprintf(stderr,"ctl=");  Yap_DebugPlWriteln(    ctl);
-return o;
+    return o;
   }
 
   /**
