@@ -309,6 +309,14 @@ X_API char *PL_atom_nchars(atom_t a, size_t *len) /* SAM check type */
   return s;
 }
 
+int PL_chars_to_term(const char *s, term_t t)
+{
+  YAP_Term vs, v = YAP_ReadBuffer(s, &vs);
+  if (v==0)
+    return false;
+   YAP_PutInSlot(v, t);
+   return true;
+}
 //!  @}
 
 /** @{

@@ -603,7 +603,7 @@ static SEXP list_to_sexp(term_t t0, int objtype) {
   term_t stack[256];
   size_t R_index[256];
   size_t ndims = 0, len, spos = 0;
-  int nprotect = 0, i, sobjtype;
+  int nprotect = 0, i, sobjtype = objtype;
   SEXP ans;
 
   // cheking the depth of the list
