@@ -250,22 +250,16 @@ static Int char_code(USES_REGS1) {
         Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, t1, "char_code/2");
         return (FALSE);
       }
-      if (code > MAX_ISO_LATIN1) {
+      {
         unsigned char codes[10];
 
         if (code > CHARCODE_MAX) {
           Yap_Error(REPRESENTATION_ERROR_INT, t1, "char_code/2");
           return (FALSE);
         }
-        size_t n = put_utf8(codes, code);
-        codes[n] = code;
+        size_t n = put_xutf8(codes, code);
+        codes[n] = '\0';
         tout = MkAtomTerm(Yap_ULookupAtom(codes));
-      } else {
-        char codes[2];
-
-        codes[0] = code;
-        codes[1] = '\0';
-        tout = MkAtomTerm(Yap_LookupAtom(codes));
       }
       return Yap_unify(ARG1, tout);
     }
