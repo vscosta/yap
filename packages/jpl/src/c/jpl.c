@@ -1036,14 +1036,14 @@ jni_String_to_atom(JNIEnv *env, jobject s, atom_t *a)
     pl_wchar_t *wp;
     jsize       i;
 
-    wp = len <= FASTJCHAR ? tmp : malloc(sizeof(pl_wchar_t) * len);
+    wp = len <= FASTJCHAR ? tmp : malloc(sizeof(pl_wchar_t) * (len+1));
     if ( !wp )
     { (*env)->ReleaseStringChars(env, s, jcp);
       return FALSE;
     }
     for (i = 0; i < len; i++)
       wp[i] = jcp[i];
-
+    wp[i] = '\0';
     *a = PL_new_atom_wchars(len, wp);
     if ( wp != tmp )
       free(wp);

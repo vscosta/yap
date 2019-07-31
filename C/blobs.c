@@ -240,7 +240,26 @@ bool YAP_unregister_blob_type(blob_type_t *type) {
   return FALSE;
 }
 
-void Yap_install_blobs(void) {}
+static Int blob(USES_REGS1)
+{
+    Term t = Deref(ARG1);
+    Atom a;
+    if (IsVarTerm(t) || !IsAtomTerm(t))
+        return false;
+    a = AtomOfTerm( t );
+    if (!IsBlob(a)) {
+        return false;
+    }
+    blob_type_t *type = RepBlobProp(a->PropsOfAE)->blob_type;
+    if (!type->atom_name) {
+    type->atom_name = Yap_LookupAtom( type->name );
+    }
+    return Yap_unify(ARG2, MkAtomTerm(type->atom_name));
+}
+
+void Yap_install_blobs(void) {
+    Yap_InitCPred( "blob", 2, blob, SafePredFlag);
+}
 
 /**
  * @}
