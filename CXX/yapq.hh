@@ -120,7 +120,7 @@ public:
   YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), (nts = &ARG1)) {
     BACKUP_MACHINE_REGS();
     openQuery();
-    *names = YAPPairTerm(TermNil);
+    names = new YAPPairTerm(TermNil);
     RECOVER_MACHINE_REGS();
   }
   /// set flags for query execution, currently only for exception handling
