@@ -451,10 +451,10 @@ int Yap_ReadlineForSIGINT(void) {
 
 static Int has_readline(USES_REGS1) {
 #if USE_READLINE
-  if (!Yap_Embedded) {
-    return true;
+  if (Yap_Embedded) {
+    return false;
   }
-  return false;
+  return true;
 #else
   return false;
 #endif
@@ -467,7 +467,7 @@ void Yap_InitReadlinePreds(void) {
 
 #else
 bool Yap_InitReadline(Term enable) {
-  return enable == TermTrue && !getenv("INSIDE_EMACS");
+  return enable == TermTrue && !getenv("INSIDE_EMACS") && !Yap_E]Mbedded;
 }
 
 void Yap_InitReadlinePreds(void) {}

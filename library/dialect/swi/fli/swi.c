@@ -226,19 +226,15 @@ X_API int PL_get_nchars(term_t l, size_t *lengthp, char **s, unsigned flags) {
       strncpy(*s, out.val.c, YAP_FILENAME_MAX);
       pop_text_stack(lvl);
       return true;
-    }
-    if (*s == out.val.c) {
-      pop_text_stack(lvl);
-    } else if (*s == NULL) {
-      *s = pop_output_text_stack(lvl, out.val.c);
     } else {
+      *s = malloc(strlen(out.val.c)+1);
       strcpy(*s, out.val.c);
-      pop_text_stack(lvl);
     }
     if (lengthp)
       *lengthp = len;
   }
-  return true;
+pop_text_stack(lvl);
+return true;
 }
 
 int PL_get_chars(term_t t, char **s, unsigned flags) {
@@ -313,6 +309,14 @@ X_API char *PL_atom_nchars(atom_t a, size_t *len) /* SAM check type */
   return s;
 }
 
+int PL_chars_to_term(const char *s, term_t t)
+{
+  YAP_Term vs, v = YAP_ReadBuffer(s, &vs);
+  if (v==0)
+    return false;
+   YAP_PutInSlot(v, t);
+   return true;
+}
 //!  @}
 
 /** @{
@@ -779,7 +783,12 @@ X_API int PL_get_string(term_t t, char **s, size_t *len) {
 X_API int PL_get_list(term_t ts, term_t h, term_t tl) {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts);
-  if (IsVarTerm(t) || !IsPairTerm(t)) {
+  if (t == TermNil) {
+  Yap_PutInSlot(h, MkVarTerm());
+  Yap_PutInSlot(tl, TermNil);
+  return 1;
+  }    
+  if (IsVarTerm(t) || !IsPairTerm(t) ) {
     return 0;
   }
   Yap_PutInSlot(h, HeadOfTerm(t));

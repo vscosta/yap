@@ -582,6 +582,14 @@ halt(X) :-
 '$add_dot_to_atom_goal'([C|Gs0],[C|Gs]) :-
 	'$add_dot_to_atom_goal'(Gs0,Gs).
 
+real:text_query(Q) :-
+    catch( Q,
+		Error,
+		system_error( Error, Q)
+	).
+
+real:placer(_,_).
+
 /**
 @}
 */

@@ -752,7 +752,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, YAPTerm ts[])
     goal = MkVarTerm();
   }
   openQuery();
-  names = YAPPairTerm(TermNil);
+  names = new YAPPairTerm(TermNil);
   RECOVER_MACHINE_REGS();
 }
 
@@ -773,7 +773,7 @@ YAPQuery::YAPQuery(YAPFunctor f, YAPTerm mod, Term ts[])
     goal = MkVarTerm();
   }
   openQuery();
-  names = YAPPairTerm(TermNil);
+  names = new YAPPairTerm(TermNil);
   RECOVER_MACHINE_REGS();
 }
 
@@ -787,7 +787,7 @@ goal =  YAPApplTerm(f, nts);
    goal = YAPVarTerm();
    nts = nullptr;
   }
-  names = YAPPairTerm( TermNil );
+  names = new YAPPairTerm( TermNil );
   openQuery(term(), nts);
   RECOVER_MACHINE_REGS();
 }
@@ -806,7 +806,7 @@ YAPQuery::YAPQuery(YAPPredicate p, YAPTerm ts[]) : YAPPredicate(p.ap) {
       goal = MkAtomTerm((Atom)(p.ap->FunctorOfPred));
       openQuery();
     }
-    names = TermNil;
+    names = new YAPPairTerm(TermNil);
   } catch (...) {
   }
   RECOVER_MACHINE_REGS();

@@ -418,12 +418,11 @@ be lost.
     '$undefined'(G,M),
     !,
     (
-	'$undefp'([M|G], G1)
+    '$one_predicate_definition'(M:G,MF:NG)
     ->
-     strip_module(G1, MF, NG),
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
-    M:G
+	'$undefp'([M|G], NG)
     ).
 '$trace_goal'(G0,M0, _, GoalNumber, CP) :-
     '$debugger_expand_meta_call'( M0:G0, [], M:G ),

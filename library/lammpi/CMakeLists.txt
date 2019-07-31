@@ -2,10 +2,23 @@
 set (MPI_YAP_SOURCES
   hash.c prologterms2c.c yap_mpi.c)
 
-  macro_optional_find_package(MPI ON)
+if (NOT MPI_C_COMPILER AND EXISTS /usr/lib64/openmpi/bin/mpicc)
+    set(MPI_C_COMPILER /usr/lib64/openmpi/bin/mpicc)
+endif()
+if (NOT MPI_C_COMPILER AND EXISTS /usr/lib/openmpi/bin/mpicc)
+    set(MPI_C_COMPILER /usr/lib/openmpi/bin/mpicc)
+endif()
+if (NOT MPI_CXX_COMPILER AND EXISTS /usr/lib64/openmpi/bin/mpicxx)
+    set(MPI_CXX_COMPILER /usr/lib64/openmpi/bin/mpicxx)
+endif()
+if (NOT MPI_CXX_COMPILER AND EXISTS /usr/lib/openmpi/bin/mpicxx)
+    set(MPI_CXX_COMPILER /usr/lib/openmpi/bin/mpicxx)
+endif()
+
+macro_optional_find_package(MPI ON)
 
   if (MPI_FOUND)
-    if (MPI_C_FOUND)
+     if (MPI_C_FOUND)
   # === Variables ===
   #
   # This module will set the following variables per language in your

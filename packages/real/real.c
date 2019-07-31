@@ -14,7 +14,7 @@
  * @{
  */
 #define CSTACK_DEFNS
-#include "rconfig.h"
+#include "Rconfig.h"
 
 #include <SWI-Prolog.h>
 #undef ERROR
@@ -69,41 +69,6 @@ static functor_t FUNCTOR_tilde2;
 static functor_t FUNCTOR_while2;
 
 X_API install_t install_real(void);
-
-#define PL_R_BOOL (1)      /* const char * */
-#define PL_R_CHARS (2)     /* const char * */
-#define PL_R_INTEGER (3)   /* int */
-#define PL_R_FLOAT (4)     /* double */
-#define PL_R_COMPLEX (5)   /* x + yi * */
-#define PL_R_SYMBOL (6)    /* A * */
-#define PL_R_CALL (7)      /* A(F) * */
-#define PL_R_LISTEL (8)    /* X$listEl * */
-#define PL_R_SLOT (9)      /* X@slot * */
-#define PL_R_NAME (10)     /* name = X, just within a list * */
-#define PL_R_PLUS (11)     /* +X * */
-#define PL_R_PSYMBOL (12)  /* -X * */
-#define PL_R_ATBOOL (13)   /* @X * */
-#define PL_R_VARIABLE (14) /* _ */
-#define PL_R_SUBSET (15)   /* [] */
-#define PL_R_DOT (16)      /* . */
-#define PL_R_DEFUN (17)    /* function(_,_,_) -> ... */
-#define PL_R_QUOTE (18)    /* quote(_) */
-#define PL_R_INNER (19)    /* %i% */
-#define PL_R_OUTER (20)    /* %o% */
-#define PL_R_FORMULA (21)  /* At ~ Exp */
-#define PL_R_IF (22)       /* if(Cond, Then)  */
-#define PL_R_IF_ELSE (23)  /* if(Cond, Then, Else)  */
-#define PL_R_FOR (26)      /* for(I in Cond, Expr)  */
-#define PL_R_WHILE (27)    /* while(Cond, Expr)  */
-#define PL_R_REPEAT (28)   /* repeat(Expr)  */
-#define PL_R_NEXT (29)     /* next  */
-#define PL_R_BREAK (30)    /* break  */
-#define PL_R_IN (31)       /* break  */
-#define PL_R_RFORMULA (32) /* ~ Exp */
-#define PL_R_EQUAL (33)    /* ~ Exp */
-#define PL_R_VECTOR (256)  /* [.....] * */
-
-#define REAL_Error(s, t) REAL_Error__(__LINE__, __FUNCTION__, s, t)
 
 static bool REAL_Error__(int line, const char *function, const char *s,
                          term_t t) {
@@ -535,7 +500,10 @@ int term_to_S_el(term_t t, int objtype, size_t index, SEXP ans) {
   break;
 
   default:
-    assert(0);
+    {
+      SEXP s = term_to_sexp(t, false);
+      SET_ELEMENT(ans, index, s);
+    }
   }
   return TRUE;
 }
@@ -584,7 +552,9 @@ static int sexp_to_S_el(SEXP sin, size_t index, SEXP ans) {
       return FALSE;
   } break;
 
-  case VECSXP: {
+  case VECSXP:
+  default:
+    {
     SEXPTYPE type = TYPEOF(sin);
     switch (type) {
     case CPLXSXP:
@@ -599,9 +569,7 @@ static int sexp_to_S_el(SEXP sin, size_t index, SEXP ans) {
       return FALSE;
     }
   } break;
-
-  default:
-    assert(0);
+    
   }
   return 1;
 }
@@ -612,10 +580,10 @@ static int set_listEl_to_sexp(term_t t, SEXP sexp) {
   int nprotect = 0;
 
   if (!PL_get_arg(2, t, tslot))
-    return (SEXP)FALSE;
+    return FALSE;
   if (PL_is_pair(tslot) || PL_is_functor(tslot, FUNCTOR_dot1)) {
     if (!merge_dots(tslot))
-      return (SEXP)FALSE;
+      return FALSE;
   }
   s = term_to_sexp(tslot, FALSE);
   if (!PL_get_arg(1, t, t))
@@ -625,17 +593,21 @@ static int set_listEl_to_sexp(term_t t, SEXP sexp) {
   return setListElement(t, s, sexp);
 }
 
-static SEXP list_to_sexp(term_t t, int objtype) {
-  term_t tail = PL_new_term_ref(), tmp = PL_copy_term_ref(t);
+static SEXP list_to_sexp(term_t t0, int objtype) {
+  term_t 
+    tmp = PL_copy_term_ref(t0),
+    tail = PL_new_term_ref();
+  
+  term_t t = PL_copy_term_ref(t0);
   size_t dims[256];
   term_t stack[256];
   size_t R_index[256];
   size_t ndims = 0, len, spos = 0;
-  int nprotect = 0, i, sobjtype;
+  int nprotect = 0, i, sobjtype = objtype;
   SEXP ans;
 
   // cheking the depth of the list
-  tmp = PL_copy_term_ref(tmp);
+  tmp = PL_copy_term_ref(t);
   while (PL_is_pair(tmp)) {
     size_t len;
     if (PL_LIST != PL_skip_list(tmp, tail, &len)) {
@@ -650,19 +622,24 @@ static SEXP list_to_sexp(term_t t, int objtype) {
   for (i = 0, len = 1; i < ndims; i++) {
     len *= dims[i];
   }
-  if ((objtype & ~PL_R_VECTOR) == PL_R_NAME) {
+    /***
+   * 
+   */
+  if (PL_get_list(t,tmp,tail) &&
+       PL_is_functor(tmp, FUNCTOR_equal2)) {
     SEXP names;
     int nprotect = 0;
 
     PROTECT_AND_COUNT(ans = NEW_LIST(len));
     PROTECT_AND_COUNT(names = allocVector(STRSXP, len));
 
-    for (i = 0; PL_get_list(t, tmp, t); i++) {
-      if (PL_is_functor(tmp, FUNCTOR_equal2)) {
+    for (i = 0; i<len; i++) {
+      if ( PL_get_list(t, tmp, t)&&
+	   PL_is_functor(tmp, FUNCTOR_equal2)) {
         char *nm = NULL;
         SEXP sexp;
 
-        if (PL_get_arg(1, tmp, tail) && PL_get_arg(2, tmp, tmp) &&
+	if (PL_get_arg(1, tmp, tail) && PL_get_arg(2, tmp, tmp) &&
             (PL_is_pair(tail) || PL_is_functor(tail, FUNCTOR_dot1)) &&
             merge_dots(tail) &&
             PL_get_chars(tail, &nm,
@@ -670,32 +647,27 @@ static SEXP list_to_sexp(term_t t, int objtype) {
           sexp = term_to_sexp(tmp, FALSE);
           SET_STRING_ELT(names, i, mkCharCE(nm, CE_UTF8));
           SET_ELEMENT(ans, i, sexp);
-          PL_free(nm);
+	  if (nm)
+	  PL_free(nm);
         } else if ((PL_is_atom(tail) || PL_is_string(tail)) &&
                    PL_get_chars(tail, &nm, CVT_ATOM | CVT_STRING | BUF_MALLOC |
                                                REP_UTF8)) {
           sexp = term_to_sexp(tmp, FALSE);
           SET_STRING_ELT(names, i, mkCharCE(nm, CE_UTF8));
           SET_ELEMENT(ans, i, sexp);
-          PL_free(nm);
+    if (nm)
+      PL_free(nm);
+    }
           /* also check cases like java.parameters */
-        } else { /* FIXME: Destroy ans and names */
-          if (nm)
-            PL_free(nm);
-          Ureturn ans;
-        }
       } else { /* */
         REAL_Error("type list", tmp);
         Ureturn ans;
-      }
-    }
+       }
+     }
     SET_NAMES(ans, names);
-
     Ureturn ans;
-  } else {
-    sobjtype = objtype & ~PL_R_VECTOR;
-  }
-  switch (sobjtype) {
+  } 
+  switch (sobjtype& ~PL_R_VECTOR) {
   case PL_R_INTEGER:
     PROTECT_AND_COUNT(ans = NEW_INTEGER(len));
     break;
@@ -714,7 +686,7 @@ static SEXP list_to_sexp(term_t t, int objtype) {
     PROTECT_AND_COUNT(ans = NEW_LOGICAL(len));
     break;
   default:
-    assert(0);
+   PROTECT_AND_COUNT(ans = NEW_LIST(len));
   }
 
   // take care of dims
@@ -1190,7 +1162,8 @@ SEXP term_to_sexp(term_t t, bool eval) {
   int nprotect = 0;
   SEXP ans = R_NilValue;
   int objtype;
-  term_t tmp = PL_copy_term_ref(t);
+  term_t tmp = PL_copy_term_ref(t), i0 = tmp;
+  t = PL_copy_term_ref(t);
   int rc;
 
   objtype = REAL_term_type(tmp, 0);
@@ -1436,7 +1409,7 @@ SEXP term_to_sexp(term_t t, bool eval) {
       rc = false;
     }
 
-  PL_reset_term_refs(tmp);
+  PL_reset_term_refs(i0);
   Ureturn ans;
 }
 
@@ -2137,7 +2110,11 @@ static foreign_t is_R_variable(term_t t) {
 
 X_API install_t
 install_real(void) { /* FUNCTOR_dot2 = PL_new_functor(PL_new_atom("."), 2); */
-
+  static bool initialised = false;
+  
+  if (initialised)
+    return;
+  initialised = true;
   ATOM_break = PL_new_atom("break");
   ATOM_false = PL_new_atom("false");
   ATOM_function = PL_new_atom("function");

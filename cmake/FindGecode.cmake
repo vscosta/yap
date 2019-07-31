@@ -5,6 +5,7 @@ if(APPLE)
   find_library(GECODE_LIBRARIES gecode)
 
   if(GECODE_LIBRARIES MATCHES ".*\\.framework")
+    set( Gecode_LIBRARIES ${GECODE_LIBRARIES})
     find_path(GECODE_INCLUDE_DIR NAMES gecode/kernel.hh
             )
     find_file(GECODE_CONFIG gecode/support/config.hpp)

@@ -41,7 +41,7 @@ class X_API YAPQuery : public YAPPredicate {
   yhandle_t q_handles;
   int q_flags;
   YAP_dogoalinfo q_h;
-  YAPPairTerm names;
+  YAPPairTerm *names;
   Term goal;
   CELL *nts;
   // temporaries
@@ -120,7 +120,7 @@ public:
   YAPQuery(YAPTerm t) : YAPPredicate((goal = t.term()), (nts = &ARG1)) {
     BACKUP_MACHINE_REGS();
     openQuery();
-    names = YAPPairTerm(TermNil);
+    names = new YAPPairTerm(TermNil);
     RECOVER_MACHINE_REGS();
   }
   /// set flags for query execution, currently only for exception handling
@@ -145,10 +145,10 @@ public:
   void close();
   /// query variables.
   void cut();
-  Term namedVars() { return names.term(); };
-  YAPPairTerm namedVarTerms() { return names; };
+  Term namedVars() { return names->term(); };
+  YAPPairTerm *namedVarTerms() { return names; };
   /// query variables, but copied out
-  std::vector<Term> namedVarsVector() { return names.listToArray(); };
+  std::vector<Term> namedVarsVector() { return names->listToArray(); };
   /// convert a ref to a binding.
   YAPTerm getTerm(yhandle_t t);
   /// simple YAP Query;

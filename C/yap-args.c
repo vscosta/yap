@@ -1065,6 +1065,7 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
     yap_init->install = false;
     GLOBAL_PrologShouldHandleInterrupts =
       yap_init->PrologCannotHandleInterrupts = true;
+      Yap_Embedded = true;
   } else {
     GLOBAL_PrologShouldHandleInterrupts =
       !yap_init->PrologCannotHandleInterrupts;

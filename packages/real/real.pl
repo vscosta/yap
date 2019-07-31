@@ -34,7 +34,8 @@
      r_char/2,
      r_wait/0,
      devoff/0,
-     devoff_all/0,
+	 devoff_all/0,
+	 query_from_r/2,
      (<-)/1,
 	(<-)/2,
 	op(950,fx,<-),
@@ -71,6 +72,17 @@
 :- dynamic( real:r_started/1 ).
 
 :- create_prolog_flag( real, none, [type(atom)] ).
+
+query_prolog( String, Vars) :-
+	catch( to_prolog(String, Vars),
+		Error,
+	system_error(Type,S)	
+		).
+
+	to_prolog(S, Vars) :-
+		string_to_term(S, G, Vars),
+		call(G).
+
 
 
 %:- set_prolog_flag(double_quotes, string ).

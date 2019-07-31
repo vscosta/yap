@@ -24,7 +24,7 @@
     FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+vv    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
     LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
@@ -65,7 +65,12 @@ refactoring (trivial):
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL 3
 #endif
+#ifdef __YAP_PROLOG
+#undef DEBUG
+#define DEBUG(n, g) (void)0
+#else
 #define DEBUG(n, g) (n >= DEBUG_LEVEL ? g : (void)0)
+#endif
 
 /* disable type-of-ref caching (at least until GC issues are resolved) */
 #define JPL_CACHE_TYPE_OF_REF FALSE
@@ -207,7 +212,8 @@ struct Hr_Table
   HrEntry **slots;                      /* pointer to slot array */
 };
 
-typedef intptr_t pointer;               /* for JPL */
+
+typedef intptr_t *pointer;               /* for JPL */
 #ifndef _YAP_NOT_INSTALLED_
 typedef int bool;                       /* for JNI/JPL functions returning */
 #endif                                        /* only TRUE or FALSE */
@@ -437,10 +443,10 @@ write_jref_handle(IOSTREAM *s, atom_t jref, int flags)
   (void)flags;
 
 #if __YAP_PROLOG__
-  //fprintf(stderr, "<jref>(%p)", ref->iref);
+  fprintf(stderr, "<jref>(%p)", ref->iref);
 #else
   Sfprintf(s, "<jref>(%p)", ref->iref);
-  #endif
+#endif
   return TRUE;
 }
 
@@ -454,7 +460,7 @@ static int
 release_jref_handle(atom_t jref)
 { jref_handle *ref = PL_blob_data(jref, NULL, NULL);
   JNIEnv *     env;
-
+  
   if ((env = jni_env()))
   { if (!jni_free_iref(env, ref->iref))
       DEBUG(0, Sdprintf("[JPL: garbage-collected jref<%p> is bogus (not in "
@@ -1030,14 +1036,14 @@ jni_String_to_atom(JNIEnv *env, jobject s, atom_t *a)
     pl_wchar_t *wp;
     jsize       i;
 
-    wp = len <= FASTJCHAR ? tmp : malloc(sizeof(pl_wchar_t) * len);
+    wp = len <= FASTJCHAR ? tmp : malloc(sizeof(pl_wchar_t) * (len+1));
     if ( !wp )
     { (*env)->ReleaseStringChars(env, s, jcp);
       return FALSE;
     }
     for (i = 0; i < len; i++)
       wp[i] = jcp[i];
-
+    wp[i] = '\0';
     *a = PL_new_atom_wchars(len, wp);
     if ( wp != tmp )
       free(wp);
@@ -1843,7 +1849,7 @@ jni_create_jvm_c(char *classpath)
   JNIEnv *     env;
 
   DEBUG(1, Sdprintf("[creating JVM with 'java.class.path=%s']\n", classpath));
-  vm_args.version = JNI_VERSION_1_8; /* "Java 1.2 please" */
+  vm_args.version = JNI_VERSION_1_2; /* "Java 1.2 please" */
   if (classpath)
     { cpoptp = (char *)calloc(1,strlen(classpath) + 20);
     strcpy(cpoptp, "-Djava.class.path="); /* was cpopt */
@@ -1887,7 +1893,7 @@ jni_create_jvm_c(char *classpath)
   vm_args.nOptions = optn;
   /* vm_args.ignoreUnrecognized = TRUE; */
 
-  return ( (JNI_(&jvm, sizeof(*jvm), &n) ==
+  return ( (JNI_GetCreatedJavaVMs(&jvm, sizeof(*jvm), &n) ==
 		   0) /* what does the '1' arg mean? */
                   && n == 1
                   /* && (*jvm)->GetEnv(jvm,(void**)&env,JNI_VERSION_1_2) ==

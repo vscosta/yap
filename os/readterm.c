@@ -230,33 +230,27 @@ static const param_t read_defs[] = { READ_DEFS() };
 
 static Term add_output(Term t, Term tail)
 {
-  Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomOutput, 1), 1);
+  Term topt = Yap_MkApplTerm(Yap_MkFunctor(AtomOutput, 1), 1, &t);
 
   tail = Deref(tail);
   if (IsVarTerm(tail))
     {
       Yap_ThrowError(INSTANTIATION_ERROR, tail, "unbound list of options");
     }
-  Yap_unify(t, ArgOfTerm(1, topt));
-  if (IsVarTerm(tail))
-    {
-      Yap_ThrowError(INSTANTIATION_ERROR, tail, "unbound list of options");
-    }
   else if (IsPairTerm(tail) || tail == TermNil)
     {
       return MkPairTerm(topt, tail);
     }
   else
     {
-      return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+        Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
     }
 }
 
 static Term add_names(Term t, Term tail)
 {
-  Term topt = Yap_MkNewApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1);
+  Term topt = Yap_MkApplTerm(Yap_MkFunctor(AtomVariableNames, 1), 1, &t);
 
-  Yap_unify(t, ArgOfTerm(1, topt));
   if (IsVarTerm(tail))
     {
       Yap_ThrowError(INSTANTIATION_ERROR, tail, "unbound list of options");
@@ -267,7 +261,7 @@ static Term add_names(Term t, Term tail)
     }
   else
     {
-      return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+        Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
     }
 }
 
@@ -286,7 +280,7 @@ static Term add_priority(Term t, Term tail)
     }
   else
     {
-      return MkPairTerm(topt, MkPairTerm(tail, TermNil));
+        Yap_ThrowError(TYPE_ERROR_LIST, tail, "list of options");
     }
 }
 
@@ -1733,9 +1727,10 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       }
     if (prio != 1200)
       {
-        ctl = add_priority(bindings, ctl);
+        ctl = add_priority(prio, ctl);
       }
-    return Yap_BufferToTerm(s, ctl);
+    Term o = Yap_BufferToTerm(s, ctl);
+    return o;
   }
 
   /**
