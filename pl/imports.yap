@@ -62,7 +62,7 @@ fail.
     !.
 
 '$one_predicate_definition'(Imp:Pred,Exp:NPred) :-
-    '$get_predicate_definition'(Imp:Pred,[],Exp:NPred),
+    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
     '$pred_exists'(NPred,Exp),
 %writeln((Imp:Pred -> Exp:NPred )).
     !.
