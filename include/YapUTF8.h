@@ -57,13 +57,30 @@ INLINE_ONLY utf8proc_ssize_t get_utf8(const utf8proc_uint8_t *ptr,
 INLINE_ONLY utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
                                                     utf8proc_int32_t val);
 
-INLINE_ONLY utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
+INLINE_ONLY utf8proc_ssize_t put_xutf8(utf8proc_uint8_t *ptr,
                                                     utf8proc_int32_t val) {
+    if (val == 0) {
+        ptr[0] = 0xC0;
+        ptr[1] = 0x80;
+        return 2;
+    }
     utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
   if (rc <= 0) {
+
       LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
   }
   return rc < 1 ? 1 : rc;
+}
+
+
+INLINE_ONLY utf8proc_ssize_t put_utf8(utf8proc_uint8_t *ptr,
+                                       utf8proc_int32_t val) {
+    utf8proc_ssize_t rc = utf8proc_encode_char(val, ptr);
+    if (rc <= 0) {
+
+        LOCAL_ActiveError->errorNo = REPRESENTATION_ERROR_CHARACTER_CODE;
+    }
+    return rc < 1 ? 1 : rc;
 }
 
 inline static const utf8proc_uint8_t *skip_utf8(const utf8proc_uint8_t *pt,
