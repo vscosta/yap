@@ -1604,6 +1604,7 @@ void Yap_InitCPreds(void) {
 #ifdef ANALYST
   Yap_InitAnalystPreds();
 #endif
+  Yap_install_blobs();
   Yap_InitLowLevelTrace();
   Yap_InitEval();
   Yap_InitGrowPreds();
