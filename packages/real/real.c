@@ -14,7 +14,7 @@
  * @{
  */
 #define CSTACK_DEFNS
-#include "rconfig.h"
+#include "Rconfig.h"
 
 #include <SWI-Prolog.h>
 #undef ERROR
