@@ -156,9 +156,9 @@ class YAPShell:
             q = self.q
             for answer in q:
                 bindings += [q.answer]
-                print(q.answer)
+                #print(q.answer)
                 if q.done():
-                    return bindings
+                    return True, bindings
                 if loop:
                     continue
                 s = input("more(;), all(*), no(\\n), python(#)?  ").lstrip()
@@ -177,8 +177,8 @@ class YAPShell:
             if self.q:
                 self.q.close()
                 self.q = None
-            print("No (more) answers, found", bindings)
-            return bindings
+            print("No (more) answers")
+            return True, bindings
         except Exception as e:
             if not self.q:
                 return False, None

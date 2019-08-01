@@ -30,7 +30,7 @@
 %:- python_import(gc).
 
 :- create_prolog_flag(yap4py_query_output, true, [access(read_write)]).
-:- create_prolog_flag(yap4py_query_json, false, [access(read_write)]).
+:- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
 
 :- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
 
@@ -79,7 +79,6 @@ python_query( Caller, String		) :-
     python_query( Caller, String, _Bindings).
 
 python_query( Caller, String, Bindings ) :-
-start_low_level_trace,
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( user:Goal, VarNames, Status, Bindings),
 	Caller.q.port := Status,
@@ -93,18 +92,18 @@ numbervars(Vs,0,_),
 
 
 output( _, Bindings ) :-
-	yap_flag(yap4py_query_output,Bool),
-	Bool == true,
+    yap_flag(yap4py_query_output,Bool),
+    Bool == true,
     once( write_query_answer( Bindings ) ),
     nl(user_error),
     fail.
 output( Caller, Bindings) :-
-	yap_flag(yap4py_query_json,Bool),
+    yap_flag(yap4py_query_json,Bool),
 	Bool == true,
-	simplify(Bindings, 1, Bss),
-	numbervars(Bss, 0, _),
-	maplist(into_dict(Caller),Bss),
-	fail.
+	%simplify(Bindings, 1, Bss),
+	%numbervars(Bss, 0, _),
+	maplist(into_dict(Caller),{`found`:true)),
+fail.
 output( _Caller, _Bindings).
 
 simplify([],_,[]).
