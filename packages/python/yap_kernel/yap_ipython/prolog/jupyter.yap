@@ -6,9 +6,9 @@
   */
 
 %:- yap_flag(gc_trace,verbose).
-%%   :- module( jupyter,
-%%               [jupyter_query/3,
-%% 	       jupyter_query/4,
+   :- module( jupyter,
+               [jupyter_query/3,
+ 	       jupyter_query/4,
 %% 	        op(100,fy,('$')),
 %% 	   op(950,fy,:=),
 %% 	   op(950,yfx,:=),
@@ -19,20 +19,20 @@
 %% 	   op(100, xfy, '.'),
 %% 	   op(100, fy, '.'),
 %%                blank/1,
-%% 	       streams/1
-%%            ]
-%%             ).
-
-:- use_module(library(hacks)).
+	       streams/1
+           ]
+           ).
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
 
+:- use_module(library(hacks)).
 
- :-	 use_module(library(python)).
-:-	 use_module(library(yapi)).
- :-	 use_module(library(complete)).
- :-	 use_module(library(verify)).
+:- reexport(library(complete)).
+:- reexport(library(verify)).
+
+
+
 
 
 :- python_import(sys).
@@ -61,7 +61,7 @@ next_streams( _, _, _ ). % :-
 jupyter_cell(_Caller, Cell, _Line, _) :-
     jupyter_consult(Cell),	%stack_dump,
 	fail.
-jupyter_cell( _Caller, _, ¨¨ , _) :- !.
+jupyter_cell( _Caller, _, '', _) :- !.
 jupyter_cell( _Caller, _, Line , _) :-
 	blank( Line ),
 	!.
@@ -101,9 +101,7 @@ jupyter_consult(Cell) :-
 	),
 	error(A,B),
   system_error(A,B)
-    ),
-    fail.
-jupyter_consult(_Cell).
+    ).
 
 blank(Text) :-
     atom(Text),
@@ -143,4 +141,4 @@ plot_inline :-
 
 :- endif.
 
-%y:- ( start_low_level_trace ).
+%:- ( start_low_level_trace ).

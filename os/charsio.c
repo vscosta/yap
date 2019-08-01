@@ -113,9 +113,13 @@ static int oops_c_from_w(int sno)
 int Yap_peekWide(int sno) {
   StreamDesc *s = GLOBAL_Stream + sno;
   int ch;
-  if (s->file) {
-      ch = getwc(s->file);
-      if (ch == EOF) {
+      Int pos = s->charcount;
+      Int line = s->linecount;
+      Int lpos = s->linepos;
+
+  if (s->file&&fileno(s->file)>=0) {
+      ch = fgetwc(s->file);
+      if (ch == WEOF) {
           clearerr(s->file);
           s->status &= ~Eof_Error_Stream_f;
       } else {
@@ -123,24 +127,21 @@ int Yap_peekWide(int sno) {
           ungetwc(ch, s->file);
       }
   }else {
-      Int pos = s->charcount;
-      Int line = s->linecount;
-      Int lpos = s->linepos;
       ch = s->stream_wgetc(sno);
-      s->charcount = pos;
-    s->linecount = line;
-    s->linepos = lpos;
      if (ch == EOF) {
           s->status &= ~Eof_Error_Stream_f;
-          return ch;
+      } else if (s->status & Seekable_Stream_f) {
+        Yap_SetCurInpPos(sno, pos);
       } else {
         s->buf.on = true;
         s->buf.ch = ch;
          s->stream_wgetc = Yap_popWide;
          s->stream_getc = oops_c_from_w;
+      }
     }
-    //  Yap_SetCurInpPos(sno, pos);
-  }
+      s->charcount = pos;
+    s->linecount = line;
+    s->linepos = lpos;
   return ch;
 }
 
@@ -167,7 +168,7 @@ int Yap_peekChar(int sno) {
     StreamDesc *s = GLOBAL_Stream + sno;
     int ch;
     if (s->file) {
-        ch = getc(s->file);
+        ch = fgetc(s->file);
         if (ch == EOF) {
             clearerr(s->file);
             s->status &= ~Eof_Error_Stream_f;

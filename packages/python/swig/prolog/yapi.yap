@@ -1,4 +1,5 @@
 
+
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -78,6 +79,7 @@ python_query( Caller, String		) :-
     python_query( Caller, String, _Bindings).
 
 python_query( Caller, String, Bindings ) :-
+start_low_level_trace,
 	atomic_to_term( String, Goal, VarNames ),
 	query_to_answer( user:Goal, VarNames, Status, Bindings),
 	Caller.q.port := Status,
@@ -94,7 +96,6 @@ output( _, Bindings ) :-
 	yap_flag(yap4py_query_output,Bool),
 	Bool == true,
     once( write_query_answer( Bindings ) ),
-    nl(user_error),
     nl(user_error),
     fail.
 output( Caller, Bindings) :-
@@ -142,9 +143,9 @@ listify(A:As, A:Vs)  :-
     (atom(A);string(A)),
     !,
     maplist(listify,As, Vs).
-listify({Xs}, I, NXs) :-
+listify({Xs}, {NXs}) :-
 	!,
-	simplify(Xs,I,NXs).
+	listify(Xs,NXs).
 listify(WellKnown, V)  :-
     WellKnown=..[N|As],
     length(As,Sz),
@@ -175,4 +176,6 @@ well_known(-,2).
 well_known(*,2).
 well_known(/,2).
 well_known((','),2).
+
+
 
