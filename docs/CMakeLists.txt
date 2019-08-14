@@ -5,15 +5,13 @@ if (WITH_DOCS)
 
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-  SET (CMAKE_HTML_EXTRA_)
-
-  SET( EXT
+  SET (CMAKE_HTML_EXTRA_
     ${DOCS_SOURCE_DIR}/custom/application.js
     ${DOCS_SOURCE_DIR}/custom/assets
     ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
     ${DOCS_SOURCE_DIR}/custom/bootstrap.min.js
     ${DOCS_SOURCE_DIR}/custom/customdoxygen.css
-    ${DOCS_SOURCE_DIR}/custom/default
+    ${DOCS_SOURCE_DIR}/custom/DoxygenLayout.xml
     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
     ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
     ${DOCS_SOURCE_DIR}/custom/footer.html
@@ -117,7 +115,7 @@ if (WITH_DOCS)
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/swi/library
-    ${CMAKE_SOURCE_DIR}/packages
+#    ${CMAKE_SOURCE_DIR}/packages
     ${CMAKE_SOURCE_DIR}/BEAM
     )
 

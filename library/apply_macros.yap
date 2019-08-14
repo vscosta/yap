@@ -1,4 +1,3 @@
-
 %%   @file   apply_macros.yap
 %%   @author E. Alphonse from code by Joachim Schimpf
 %%   @date 15 June 2002
@@ -28,7 +27,7 @@ definitions to the @ref maplist library, these include:
 + include/3,
 + exclude/3,
 + partition/4,
-+ partition/5
++ partition/5.
 
 
 */
