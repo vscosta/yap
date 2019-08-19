@@ -299,7 +299,7 @@ OPTIMIZE_OUTPUT_FOR_PROLOG                                        = YES
 EXTENSION_MAPPING      = 
 
 # If the MARKDOWN_SUPPORT tag is enabled then doxygen pre-processes all comments
-# according to the Markdown format, which allows for more readable
+# according toc the Markdown format, which allows for more readable
 # documentation. See http://daringfireball.net/projects/markdown/ for details.
 # The output of markdown processing is further processed by doxygen, so you can
 # mix doxygen, HTML, and XML commands with Markdown formatting. Disable only in
@@ -1182,8 +1182,12 @@ HTML_STYLESHEET        =
 # list). For an example see the documentation.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_STYLESHEET    = @CMAKE_SOURCE_DIR@/docs/custom/customdoxygen.css @CMAKE_SOURCE_DIR@/docs/custom/solarized-light.css
-
+HTML_EXTRA_STYLESHEET    =  \
+@CMAKE_SOURCE_DIR@/custom/bootstrap.min.css\
+@CMAKE_SOURCE_DIR@/custom/font-awesome.min.css\
+@CMAKE_SOURCE_DIR@/custom/offcanvas.css\
+@CMAKE_SOURCE_DIR@/custom/customdoxygen.css \
+    @CMAKE_SOURCE_DIR@/custom/solarized-light.css
 
 # The HTML_EXTRA_FILES tag can be used to specify one or more extra images or
 # other source files which should be copied to the HTML output directory. Note
@@ -1193,7 +1197,7 @@ HTML_EXTRA_STYLESHEET    = @CMAKE_SOURCE_DIR@/docs/custom/customdoxygen.css @CMA
 # files will be copied as-is; there are no commands or markers available.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-HTML_EXTRA_FILES       =  @CMAKE_SOURCE_DIR@/docs/custom/doxy-boot.js
+HTML_EXTRA_FILES       =  @CMAKE_HTML_EXTRA@
 
 # The HTML_COLORSTYLE_HUE tag controls the color of the HTML output. Doxygen
 # will adjust the colors in the style sheet and background images according to

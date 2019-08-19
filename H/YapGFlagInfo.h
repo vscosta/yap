@@ -24,11 +24,16 @@
  */
 
 /**
-    @addtogroup YAPFlags
-    @{
-
-    @enum GLOBAL_FLAGS  Global Flags supported by YAP
-    @brief 
+ * @addtogroup YAPGFlags YAP Global Flags
+ * @ingroup YAPFlags
+ * @{
+ *
+ *
+ * @enum GLOBAL_FLAGS
+ * @brief YAP implements several Flags supported by YAP. This table includes only
+ * flags that have an unique value in YAP. Some of these flags are read-only; they are
+ * often used to access system flags.
+ *
  */
 #ifdef __ANDROID__
 #define IN_ANDROID "true"

@@ -27,15 +27,20 @@
  *
 */
 
+%% file coinduction.yap
 
+/**
+ * @defgroup Coinduction
+ * @ingroup library
+ *
+ * @author Code originally written by Arvin Bansal and Vitor Santos Costa
+ * @author Includes nice extensions from Jan Wielemaker (from the SWI version).
+ *
+ */
 
 % :- yap_flag(unknown,error).
 % :- style_check(all).
 
-%
-% Code originally written by Arvin Bansal and Vitor Santos Costa
-% Includes nice extensions from Jan Wielemaker (from the SWI version).
-%
 
 :- module(coinduction,
           [ (coinductive)/1,
@@ -44,7 +49,7 @@
 
 :- use_module(library(error)).
 
-/** <module> coinduction Co-Logic Programming
+/** @defgroup coinduction Co-Logic Programming
   @ingroup library
 
 This simple module implements the   directive coinductive/1 as described
@@ -94,6 +99,7 @@ regardless of the cycle-length.
 
 %-----------------------------------------------------
 
+    
 coinductive(Spec) :-
 	var(Spec),
 	!,

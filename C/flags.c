@@ -34,11 +34,11 @@
 @brief Low-level code to support flags.
 
 Prolog Flags can be:
-= thread-local or global
-= module-based or module-independent.
-= read-only or read-write
-= System or User Defined.
-= Have type boolean, number, atom constant or may be a general term.
+- thread-local or global
+- module-based or module-independent.
+- read-only or read-write
+- System or User Defined.
+- Have type boolean, number, atom constant or may be a general term.
 
 */
 
@@ -733,6 +733,19 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 
   return pp;
 }
+
+/**
+ * @}
+ * @defgroup YAPFlagsPs  Predicates to access Prolog flags.
+ * @ingroup YAPFlags
+ *
+ * @{
+ *
+ *  @brief the following builins provide read-write access the Prolog flags. We advise you to use
+ *  the ISO buitins on ISO flags.
+ */
+
+
 
 static void initFlag(flag_info *f, int fnum, bool global) {
   Atom name = Yap_LookupAtom(f->name);
