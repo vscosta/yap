@@ -99,7 +99,6 @@ regardless of the cycle-length.
 
 %-----------------------------------------------------
 
-    
 coinductive(Spec) :-
 	var(Spec),
 	!,

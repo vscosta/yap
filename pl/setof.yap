@@ -49,7 +49,7 @@
  * the fastest, but crudest solution. The other built-in predicates
  * post-process the result of the query in several different ways:
  * 
-*/
+ */
 
 :- use_system_module( '$_boot', ['$catch'/3]).
 
@@ -60,48 +60,39 @@
 :- op(50,xfx,same).
 
 
-%% @pred ^/2
+%% @pred (^)/2
 %
 % The "existential quantifier" symbol is only significant to bagof
 %   and setof, which it stops binding the quantified variable.
-%   op(200, xfy, ^) is defined during bootstrap.
+%   The priority is `op(200, xfy, ^)` is defined during bootstrap.
 
 _^Goal :-
 	'$execute'(Goal).
 
 
 
-/** @pred  findall( _T_,+ _G_,- _L_) is iso
-
-findall/3 is a simplified version of bagof which has an implicit
-   existential quantifier on every variable.
-
-Unifies  _L_ with a list that contains all the instantiations of the
-term  _T_ satisfying the goal  _G_.
-
-With the following program:
-
-~~~~~
-a(2,1).
-a(1,1).
-a(2,2).
-~~~~~
-the answer to the query
-
-~~~~~
-findall(X,a(X,Y),L).
-~~~~~
-would be:
-
-~~~~~
-X = _32
-Y = _33
-L = [2,1,2];
-no
-~~~~~
-
-
-*/
+/** @pred  findall( ?_Template_, 0:_Generator_, -_L_) is iso
+ *
+ * findall/3 is a simplified version of bagof which has an implicit 
+ * existential quantifier on every variable. 
+ * Unifies  _L_ with a list that contains all the instantiations of the 
+ * term  _Template_ satisfying the goal  _Goal_. Consider the following program:
+ *
+ * ~~~~ 
+ * a(2,1). 
+ * a(1,1). 
+ * a(2,2). 
+ * ~~~~ 
+ * the answer to the query 
+ * ~~~~ 
+ * ?- findall(X,a(X,Y),L). 
+ * ~~~~ 
+ * would be: 
+ * ~~~~ 
+ * L = [2,1,2]; 
+ * no 
+ * ~~~~ 
+ */
 
 findall(Template, Generator, Answers) :-
      must_be_of_type( list_or_partial_list, Answers ),
@@ -132,10 +123,13 @@ findall(Template, Generator, Answers, SoFar) :-
 	).
 
 
-% findall_with_key is very similar to findall, but uses the SICStus
-% algorithm to guarantee that variables will have the same names.
-%
-'$findall_with_common_vars'(Template, Generator, Answers) :-
+/**
+ * findall_with_key( ?Template, 0:_Generator_, - _L_)
+ *
+ * This built-in is very similar to findall/3, but uses the SICStus
+ * algorithm to guarantee that variables will have the same names.
+ */
+findall_with_common_vars(Template, Generator, Answers) :-
 	nb:nb_queue(Ref),
 	(
 	  '$execute'(Generator),
@@ -155,29 +149,22 @@ findall(Template, Generator, Answers, SoFar) :-
 % This is the setof predicate
 /** @pred  setof( _X_,+ _P_,- _B_) is iso
 
-
 Similar to `bagof( _T_, _G_, _L_)` but sorts list
- _L_ and keeping only one copy of each element.  Again, assuming the
+ _L_, keeping only one copy of each element.  Again, assuming the
 same clauses as in the examples above, the reply to the query
 
 ~~~
-setof(X,a(X,Y),L).
+?- setof(X,a(X,Y),L).
 ~~~
 would be:
 
 ~~~
-X = _32
 Y = 1
 L = [1,2];
-X = _32
 Y = 2
 L = [2];
 no
 ~~~
-
-
-
-
  */
 setof(Template, Generator, Set) :-
 

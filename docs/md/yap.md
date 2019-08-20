@@ -1,3 +1,7 @@
+
+
+
+
  YAP 6-3.5 Manual                         {#mainpage}
 ====================
 
@@ -7,7 +11,7 @@
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
-	@section Introduction Introduction
+@section Introduction Introduction
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a

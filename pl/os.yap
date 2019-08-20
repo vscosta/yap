@@ -26,21 +26,24 @@
 
 /**
 @defgroup YAPOS Access to Operating System Functionality
-
-%% @{
 @ingroup builtins
 
+@{
+
 The following built-in predicates allow access to underlying
-Operating System functionality.
+Operating System functionality. Extra functionality is available fro the
+system library.
 
  */
 
 /** @pred  cd
-
-Changes the current directory (on UNIX environments) to the user's home directory.
-
-
+ *
+ * Changes the current directory (on UNIX environments) to the user's home directory.
+ *
+ * The home directory is obtained from
+ * `HOME` environment variable.
 */
+
 cd :-
 	cd('~').
 

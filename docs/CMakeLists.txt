@@ -21,8 +21,8 @@ ${DOCS_SOURCE_DIR}/custom/assets
   endforeach(i ${CMAKE_HTML_EXTRA_})
 
 
-  set(DOC_DIRS_EXCLUDE_
-    ${CMAKE_SOURCE_DIR}/build
+  set(DOCS_DIR_EXCLUDE_
+    ${CMAKEqq._SOURCE_DIR}/build
     ${CMAKE_SOURCE_DIR}/Debug
     ${CMAKE_SOURCE_DIR}/packages/jpl
     ${CMAKE_SOURCE_DIR}/packages/swi
@@ -107,7 +107,7 @@ ${DOCS_SOURCE_DIR}/custom/assets
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/swi/library
-#    ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_SOURCE_DIR}/packages
     ${CMAKE_SOURCE_DIR}/BEAM
     )
 
