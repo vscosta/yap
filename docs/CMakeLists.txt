@@ -6,20 +6,24 @@ if (WITH_DOCS)
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
   SET (CMAKE_HTML_EXTRA_
-${DOCS_SOURCE_DIR}/custom/assets
+${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
-   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-          ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-          ${DOCS_SOURCE_DIR}/custom/jquery-3.2.1.min.js
-          ${DOCS_SOURCE_DIR}/custom/bootstrap.min.js
-          ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
           ${DOCS_SOURCE_DIR}/custom/application.js
+   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
+${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
+${DOCS_SOURCE_DIR}/custom/customdoxygen.css
+${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
+${DOCS_SOURCE_DIR}/custom/offcanvas.css
+${DOCS_SOURCE_DIR}/custom/theme.css
+${DOCS_SOURCE_DIR}/custom/yap.css
+${DOCS_SOURCE_DIR}/custom/solarized-light.css
+#${DOCS_SOURCE_DIR}/custom/assets
           )
   
   foreach(i ${CMAKE_HTML_EXTRA_})
     string(APPEND CMAKE_HTML_EXTRA ${i} " ")
   endforeach(i ${CMAKE_HTML_EXTRA_})
-
+  
 
   set(DOCS_DIR_EXCLUDE_
     ${CMAKEqq._SOURCE_DIR}/build

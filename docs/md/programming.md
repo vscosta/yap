@@ -1,5 +1,5 @@
-Programming in YAP   {#YAPProgramming}
-=================
+@defgroup YAPProgramming Programming in YAP
+@ingroup main
 
 [TOC]
 
@@ -14,7 +14,7 @@ We present the main predicates and directives available to load
 
 @}
 
-@section YAPModules The YAP Module system
+@defgroup YAPModules The YAP Module system
 @ingroup YAPProgramming
 
 @{
@@ -55,8 +55,11 @@ We present the main predicates and directives available to load
     it starts consulting a file, and resets it at the end.  One can set
   the type-in module permanently by using the built-in `module/1`.
 
-  @subsection ExplicitNaming Explicit Naming 
+@}
+  @defgroup ExplicitNaming Explicit Naming 
+@ingroup YAPProgramming
 
+@{
   The module system allows one to _explicitly_ specify the source mode for
   a clause by prefixing a clause with its module, say:
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
@@ -242,8 +245,6 @@ We present the main predicates and directives available to load
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   The state of  the module system after this error is undefined.
-
-@subsection  ModuleBuiltins Built-In predicates
 
   @pred module(+ M:atom,+ L:list ) is directive
     the current file defines module _M_ with exports _L_. The list may include
