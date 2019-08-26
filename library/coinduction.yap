@@ -27,10 +27,8 @@
  *
 */
 
-%% file coinduction.yap
-
 /**
- * @defgroup Coinduction
+ * @defgroup coinduction Co-Logic Programming
  * @ingroup library
  *
  * @author Code originally written by Arvin Bansal and Vitor Santos Costa
@@ -48,9 +46,6 @@
           ]).
 
 :- use_module(library(error)).
-
-/** @defgroup coinduction Co-Logic Programming
-  @ingroup library
 
 This simple module implements the   directive coinductive/1 as described
 in "Co-Logic Programming: Extending Logic  Programming with Coinduction"
@@ -77,13 +72,13 @@ notably on infinite trees (cyclic terms).
 This predicate is  true  for  any   cyclic  list  containing  only  1-s,
 regardless of the cycle-length.
 
-@bug    Programs mixing normal predicates and coinductive predicates must
+`@bug`    Programs mixing normal predicates and coinductive predicates must
         be _stratified_.  The theory does not apply to normal Prolog calling
         coinductive predicates, calling normal Prolog predicates, etc.
 
         Stratification is not checked or enforced in any other way and thus
         left as a responsibility to the user.
-@see    "Co-Logic Programming: Extending Logic  Programming with Coinduction"
+`@see`    "Co-Logic Programming: Extending Logic  Programming with Coinduction"
         by Luke Somin et al.
 
 @addtogroup coinduction Co-induction

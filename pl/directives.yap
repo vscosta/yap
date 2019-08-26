@@ -16,20 +16,20 @@
 *************************************************************************/
 
 /**
-  * @file   directives.yap
-  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
-  * @date   Thu Oct 19 11:47:38 2017
-  *
-  * @brief  Control File Loading
-  %/
+ * @file   directives.yap
+ * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
+ * @date   Thu Oct 19 11:47:38 2017
+ *
+ * @brief  Control File Loading
+ */
 
 /**
-  * @defgroup Directives Prolog Directives
-  * @ingroup YAPConsulting
-  * @{
-  *
-  *
-*/
+ * @defgroup Directives Prolog Directives
+ * @ingroup YAPConsulting
+ * @{
+ *
+ *
+ */
 
 
 :- system_module( '$_directives', [user_defined_directive/2], ['$all_directives'/1,
@@ -129,14 +129,16 @@
 	      Error,
 	      user:'$LoopError'(Error, top)).
 '$exec_directive'(discontiguous(D), _, M, _, _) :-
-	'$discontiguous'(D,M).
-/** @pred initialization
+    '$discontiguous'(D,M).
 
-
-Execute the goals defined by initialization/1. Only the first answer is
+/**
+ * @pred initialization
+ *
+ *
+ * Execute the goals defined by initialization/1. Only the first answer is
 considered.
-
-
+ *
+ *
 */
 '$exec_directive'(M:A, Status, _M, VL, Pos) :-
 	'$exec_directives'(A, Status, M, VL, Pos).
@@ -257,7 +259,7 @@ user_defined_directive(Dir,Action) :-
 	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
  '$process_directive'(G, top, M, _, _) :-
-     !,
+v     !,
 	 '$do_error'(context_error((:-M:G),clause),query).
   %
  % default case
@@ -283,5 +285,7 @@ user_defined_directive(Dir,Action) :-
       !.
   '$process_directive'(G, _Mode, M, _VL, _Pos) :-
       format(user_error,':- ~w:~w failed.~n',[M,G]).
-
-%% @}
+/**
+ *
+ * @}
+ */

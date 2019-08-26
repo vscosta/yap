@@ -1,16 +1,17 @@
-@defgroup YAPSyntax YAP Syntax
+## [YAP Syntax](YAPSyntax)
+ <!--- $0 --->
 
-@{
-	@ingroup YAPProgrammming
+<!--- @{ --->
+<!--- @ingroup --->
 
 We will describe the syntax of YAP at two levels. We first will
 describe the syntax for Prolog terms. In a second level we describe
 the  tokens from which Prolog  terms are
 built.
 
-@defgroup Formal_Syntax Syntax of Terms
-@{
-@ingroup YAPSyntax
+### [Syntax of Terms ](Formal_Syntax)
+<!--- @{ --->
+<!--- @ingroup --->
 
 Below, we describe the syntax of YAP terms from the different
 classes of tokens defined above. The formalism used will be <em>BNF</em>,
@@ -55,64 +56,69 @@ operator type.
 
 Notes:
 
-   + \a op(N,T) denotes an atom which has been previously declared with type
-      \a T and base precedence \a N.
++ op(N,T) denotes an atom which has been previously declared with type _T_ and base precedence _N_.
 
-  + Since ',' is itself a pre-declared operator with type \a xfy and
-       precedence 1000, is \a subterm starts with a '(', \a op must be
-       followed by a space to avoid ambiguity with the case of a functor
-       followed by arguments, e.g.:
++ Since `,` is itself a pre-declared operator with type `xfy` and precedence 1000, if a subterm starts with a '(',  op must be followed by a space to avoid ambiguity with the case of a functor followed by arguments, e.g.:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+ (a,b)        [the same as '+'(','(a,b)) of arity one]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-      versus
+~~~~~
++ (a,b)        
+~~~~~
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+(a,b)         [the same as '+'(a,b) of arity two]
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+is the same as `+(,(a,b))` of arity one; in contrast
 
-  +
-In the first rule for term(0) no blank space should exist between
-\a atom and '('.
+~~~~
++(a,b)         
+~~~~
 
-  +
-Each term to be read by the YAP parser must end with a single
-dot, followed by a blank (in the sense mentioned in the previous
-paragraph). When a name consisting of a single dot could be taken for
-the end of term marker, the ambiguity should be avoided by surrounding the
-dot with single quotes.
+is the same as `+(a,b)` of arity two.
 
-@}
-@defgroup Tokens Prolog Tokens
++ In the first rule for term(0) no blank space should exist between atom and `(`.
 
-@{
-@ingroup YAPSyntax
++ Each term to be read by the YAP parser must end with a single dot, followed by a blank (in the sense mentioned in the previous paragraph). When a name consisting of a single dot could be taken for
+the end of term marker, the ambiguity should be avoided by surrounding the dot with single quotes.
+
+<!--- @} --->
+### [Prolog Tokens ](Tokens)
+ ]($0)
+
+<!--- @{ --->
+<!--- @ingroup --->
 
 Prolog tokens are grouped into the following categories:
 
-@defgroup Numbers Numbers
-@{
-@ingroup Tokens
+### [Numbers ](Numbers)
+ ]($0)
+<!--- @{ --->
+<!--- @ingroup --->
 
 Numbers can be further subdivided into integer and floating-point numbers.
 
-@defgroup  Integers Integers
-@{
-@ingroup Numbers
+#### [Integers ](Integers)
+ ]($0)
+<!--- @{ --->
+<!--- @ingroup --->
 
 Integer numbers
 are described by the following regular expression:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
-<integer> := {<digit>+<single-quote>|0{xXo}}<alpha_numeric_char>+
+<integer> :=   {<digit>+<singlequote>|
+	0{xXo}}<alpha_numeric_char>+
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
-where {...} stands for optionality, \a + optional repetition (one or
-more times), \a \\\<digit\\\> denotes one of the characters 0 ... 9, \a |
-denotes or, and \a \\\<single-quote\\\> denotes the character "'". The digits
+where:
+
+1. {...} stands for optionality, \a + optional repetition (one or more times),
+
+2. \\\<digit\\\> denotes one of the characters 0 ... 9,
+
+3. | denotes or,
+
+4.  \\\<single-quote\\\> denotes the character "'".
+
+The digits
 before the \a \\\<single-quote\\\> character, when present, form the number
 basis, that can go from 0, 1 and up to 36. Letters from `A` to
 `Z` are used when the basis is larger than 10.
@@ -127,29 +133,30 @@ form `0x` to represent numbers in hexadecimal base and of the form
 YAP also accepts directives of the form `0X` to represent
 numbers in hexadecimal base.
 
-Example:
+##### Example:
 the following tokens all denote the same integer
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 10  2'1010  3'101  8'12  16'a  36'a  0xa  0o12
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 Numbers of the form `0'a` are used to represent character
 constants. So, the following tokens denote the same integer:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 0'd  100
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~
 
 YAP (version 6.3.4) supports integers that can fit
 the word size of the machine. This is 32 bits in most current machines,
 but 64 in some others, such as the Alpha running Linux or Digital
 Unix. The scanner will read larger or smaller integers erroneously.
-@}
+](@})
 
-@defgroup  Floats Floats
-@}
-@ingroup Numbers
+#### [Floats](Floats)
+ ]($0)
+<!--- @} --->
+<!--- @ingroup --->
 
 Floating-point numbers are described by:
 
@@ -160,11 +167,16 @@ Floating-point numbers are described by:
                {<exponent-marker>{<sign>}<digit>+}
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-where \a \\\<dot\\\> denotes the decimal-point character '.',
-\a \\\<exponent-marker\\\> denotes one of 'e' or 'E', and \a \\\<sign\\\> denotes
+where
+
+1. \\\<dot\\\> denotes the decimal-point character '.',
+
+2. \\\<exponent-marker\\\> denotes one of 'e' or 'E', and
+
+3. \\\<sign\\\> denotes
 one of '+' or '-'.
 
-Examples:
+##### [[Examples:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 10.0   10e3   10e-3   3.1415e+3
@@ -173,10 +185,11 @@ Examples:
 Floating-point numbers are represented as a double in the target
 machine. This is usually a 64-bit number.
 
-@}
-@}
-@defgroup  Strings Character Strings
-@{
+](@})
+](@})
+### [[Character Strings ](Strings)
+ ]($0)
+<!--- @{ --->
 
 Strings are described by the following rules:
 
@@ -248,11 +261,11 @@ versions of YAP up to 4.2.0. Escape sequences can be disabled by using:
 
 
 
-@addtogroup Atoms Atoms
+### [Atoms ](Atoms)
 
-@}
+<!--- @ingroup --->
 
-@ingroup Tokens
+<!--- @{ --->
 
 Atoms are defined by one of the following rules:
 
@@ -292,11 +305,12 @@ Version `4.2.0` of YAP removed the previous limit of 256
 characters on an atom. Size of an atom is now only limited by the space
 available in the system.
 
-@}
+<!--- @} --->
 
- @addtogroup Variables Variables
-@{
-@ingroup Tokens
+### [Variables ](Variables)
+
+<!--- @ingroup --->
+<!--- @{ --->
 
 Variables are described by:
 
@@ -327,14 +341,15 @@ member(El, [_El|Tail]) :-
       member(El, Tail).
 ~~~~~~
 
-In the example _El and _Tail refer to the head and tail of the clause
+In the example _El_ and _Tail_ refer to the head and tail of the clause
 clause. Using the underscore, we can preserve the name while declaring
 the variables are singletons.
 
-@}
-@addtogroup Punctuation_Tokens Punctuation Tokens
-@{
-@ingroup Tokens
+<!--- @} --->
+### [Punctuation Tokens ](Punctuation_Tokens)
+
+<!--- @ingroup --->
+<!--- @{ --->
 Punctuation tokens consist of one of the following characters:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -343,10 +358,11 @@ Punctuation tokens consist of one of the following characters:
 
 These characters are used to group terms.
 
-@}
-@defgroup LayoutComents Character Layout
-@{
-	@ingroup Tokens
+<!--- @} --->
+### [Character Layout ](LayoutComents)
+
+<!--- @{ --->
+<!--- @ingroup --->
 Any characters with ASCII code less than or equal to 32 appearing before
 a token are ignored.
 
@@ -358,11 +374,12 @@ layout characters, the YAP parser behaves as if it had found a
 single blank character. The end of a file also counts as a blank
 character for this purpose.
 
-@}
-@}
-@addtogroup WideChars Encoding Wide Character Support
-@{
-	@ingroup YAPSyntax
+<!--- @} --->
+
+### [Encoding Wide Character Support ](WideChars)
+
+<!--- @ingroup --->
+<!--- @{ --->
 
 
 YAP now implements a SWI-Prolog compatible interface to wide
@@ -399,9 +416,11 @@ other software components using the foreign language interface. In this
 section we only deal with I/O through streams, which includes file I/O
 as well as I/O through network sockets.
 
-@addtogroup Stream_Encoding Wide character encodings on streams
-@{
-@ingroup WideChars
+<!--- @} --->
+#### [Wide character encodings on streams ](Stream_Encoding)
+
+<!--- @ingroup --->
+<!--- @{ --->
 
 The UCS standard describes all possible characters (or code points, as they include
 ideograms, ligatures, and other symbols). The current version, Unicode 8.0, allows
@@ -507,11 +526,12 @@ errors can be controlled using `open/4` or `set_stream/2` (not
 implemented). Initially the terminal stream write the characters using
 Prolog escape sequences while other streams generate an I/O exception.
 
-@}
+<!--- @} --->
 
-@addtogroup BOM BOM: Byte Order Mark
-@{
-v@ingroup WideChars
+##### [BOM: Byte Order Mark ](BOM)
+
+<!--- @ingroup --->
+<!--- @{ --->
 
 From Stream Encoding, you may have got the impression that
 text-files are complicated. This section deals with a related topic,
@@ -531,11 +551,10 @@ writing, writing a BOM can be requested using the option
 UTF-32; otherwise the default is not to write a BOM. BOMs are not avaliable for ASCII and
 ISO-LATIN-1.
 
-@}
-@}
- @addgroup Operators Summary of YAP Predefined Operators
- @{
-@ingroup YapSyntax
+### [Summary of YAP Predefined Operators ](Operators)
+
+<!--- @{ --->
+<!--- @ingroup --->
 
 The Prolog syntax caters for operators of three main kinds:
 
@@ -613,5 +632,4 @@ The following is the list of the declarations of the predefined operators:
 :-op(50,xfx,same).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-@}
-@}
+<!--- @} --->

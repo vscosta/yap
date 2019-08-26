@@ -1,7 +1,7 @@
 
 
-Running YAP                                         {#run}
-==============
+## [Running YAP](run)
+
 
 We next describe how to invoke YAP in Unix systems.
 
@@ -54,7 +54,7 @@ boot code is in Prolog file  _BOOT_FILE_. The filename must define
 the predicate `'$live'/0`.
 + -c <tt>IP_HOST</tt> <tt>port</tt>
 connect standard streams to host <tt>IP_HOST</tt> at port <tt>port</tt>
-+ filename 
++ filename
 restore state saved in the given file
 + -f
 do not consult initial files
@@ -87,7 +87,7 @@ the environment variable YAPBINDIR.
 
 + YAP will try to find library files from the YAPSHAREDIR/library directory.
 
-@section RunningScripts Running Prolog Files
+### [Running Prolog Files](RunningScripts)
 
 
 YAP can also be used to run Prolog files as scripts, at least in

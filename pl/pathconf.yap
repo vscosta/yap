@@ -5,12 +5,15 @@
 
 /**
  @defgroup pathconf Configuration of the Prolog file search path
+ @ingroup absf
 
- @{
- @ingroup AbsoluteFileName
 
-  Prolog systems search follow a complex search on order to track down files.
-**/
+ @{ 
+
+Prolog systems search perform a complex search on order to track
+   down files.  
+*/
+
 :- module(user).
 
 /**

@@ -1,9 +1,9 @@
 
-@file lib.md
+<!-- @file lib.md -->
 
-@defgroup library   YAP Prolog Library
+## [YAP Prolog Library](library)
 
-@{
+<!-- @{ -->
 
  YAP supports
  the library_directory path (set by the
@@ -12,4 +12,4 @@
 
 [TOC]
 
-@}
+<!-- @} -->

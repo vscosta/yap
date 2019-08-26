@@ -215,11 +215,11 @@ beautify_hidden_goal('$csult'(Files,Mod),prolog) -->
 beautify_hidden_goal('$use_module'(Files,Mod,Is),prolog) -->
 	[use_module(Mod,Files,Is)].
 beautify_hidden_goal('$continue_with_command'(reconsult,V,P,G,Source),prolog) -->
-	['Assert'(G,V,P,Source)].
+	[assert(G,V,P,Source)].
 beautify_hidden_goal('$continue_with_command'(consult,V,P,G,Source),prolog) -->
-	['Assert'(G,V,P,Source)].
+	[assert(G,V,P,Source)].
 beautify_hidden_goal('$continue_with_command'(top,V,P,G,_),prolog) -->
-	['Query'(G,V,P)].
+	[query(G,V,P)].
 beautify_hidden_goal('$continue_with_command'(Command,V,P,G,Source),prolog) -->
 	['TopLevel'(Command,G,V,P,Source)].
 beautify_hidden_goal('$system_catch'(G,Mod,Exc,Handler),prolog) -->
@@ -239,9 +239,9 @@ beautify_hidden_goal('$load_files'(_,_,_,Name),prolog) -->
 beautify_hidden_goal('$reconsult'(Files,Mod),prolog) -->
 	[reconsult(Mod:Files)].
 beautify_hidden_goal('$undefp'([Mod|G]),prolog) -->
-	['CallUndefined'(Mod:G)].
+	['undefined(Mod:G)].
 beautify_hidden_goal('$undefp'(?),prolog) -->
-	['CallUndefined'(?:?)].
+	[undefined(?:?)].
 beautify_hidden_goal(repeat,prolog) -->
 	[repeat].
 beautify_hidden_goal('$recorded_with_key'(A,B,C),prolog) -->

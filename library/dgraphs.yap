@@ -512,7 +512,7 @@ close_links([l(V,A,A,S,E)|Links], RQ, RQ0) :-
 	( S == E -> RQ = [V| RQ1] ; RQ = RQ1),
 	close_links(Links, RQ1, RQ0).
 
-/** @pred ugraph_to_dgraph( + _UGraph_, - _Graph_) 
+/** @pred ugraph_to_dgraph( +_UGraph_, -_Graph_) 
 
 
 Unify  _Graph_ with the directed graph obtain from  _UGraph_,

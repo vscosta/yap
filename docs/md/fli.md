@@ -1,25 +1,23 @@
 
-@file fli.md
 
-@brief Foreign Language Interfaces
-
-@defgroup fli_c_cxx The Foreign Code Interface
+## [The Foreign Code Interface](fli_c_cxx)
+ <!--- {#$0} --->
 
 
-@{
+<!--- @{ --->
 
 YAP provides the user with three facilities for writing
 predicates in a language other than Prolog. Under Unix systems,
 most language implementations were linkable to `C`, and the first interface exported  the YAP machinery to the C language. YAP also implements most of the SWI-Prolog foreign language interface.
 This gives portability with a number of SWI-Prolog packages and avoids garnage collection by using @ref slotInterface. Last, a new C++ based interface is
 being designed to work with the swig (www.swig.orgv) interface compiler.
-@}
+<!--- @} --->
 
-@defgroup  ChYInterface  YAP original C-interface
-@ingroup fli_c_cxx
-@{
+### YAP original C-interface ](ChYInterface)
+<!--- @ingroup fli_c_cxx--->
+<!-- @{ -->
 
-Before describing in full detail how to interface to C code, we will examine
+Before  describing in full detail how to interface to C code, we will examine
 a brief example.
 
 Assume the user requires a predicate `my_process_id(Id)` which succeeds
@@ -47,11 +45,12 @@ void init_my_predicates()
 The commands to compile the above file depend on the operating
 system.
 
-@}
+<!---<!--- @} --->
 
-@defgroup CallYAP Using the compiler:
-@ingroup ChYInterface
-@{
+### [Using the compiler: ](CallYAP)
+
+ <!-- @ingroup ChYInterface
+@{ -->
 
 Under Linux you should use:
 
@@ -124,13 +123,14 @@ load_foreign_files/3.
 
 The rest of this appendix describes exhaustively how to interface C to YAP.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup Manipulating_Terms Terms
-@ingroup ChYInterface
-@{
+### [Terms ](Manipulating_Terms)
 
-This section provides information about the primitives available to the C
+ <!-- @ingroup ChYInterface
+@{ -->
+
+This  section provides information about the primitives available to the C
 programmer for manipulating Prolog terms.
 
 Several C typedefs are included in the header file `yap/YAPInterface.h` to
@@ -159,80 +159,88 @@ YAP_Bool YAP_IsVarTerm(YAP_Term  _t_)
 
 returns true iff its argument is an uninstantiated variable. Conversely the
 primitive
-<ul>
- <li>YAP_Bool YAP_NonVarTerm(YAP_Term  _t_)
 
-returns true iff its argument is not a variable.
-</li>
-</ul>
+* YAP_Bool YAP_NonVarTerm(YAP_Term  _t_) returns true iff its argument is not a variable.
 
 
 The user can create a new uninstantiated variable using the primitive
 
-<ul>
- <li>YAP_Term  YAP_MkVarTerm()
-</li>
-</ul>
+* YAP_Term  YAP_MkVarTerm()
+
 
 The following primitives can be used to discriminate among the different types
 of non-variable terms:
 
-<ul>
- <li>YAP_Bool YAP_IsIntTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsIntTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsFloatTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsFloatTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsDbRefTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsDbRefTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsAtomTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsAtomTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsPairTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsPairTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsApplTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsApplTerm(YAP_Term  _t_)
 
-</li>
- <li>YAP_Bool YAP_IsCompoundTerm(YAP_Term  _t_)
++ YAP_Bool YAP_IsCompoundTerm(YAP_Term  _t_)
 
-</li>
-</ul>
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+  - [ The Foreign Code Interface](#the-foreign-code-interfacefli_c_cxx)
+    - [ YAP original C-interface ](ChYInterface)](#yap-original-c-interface-chyinterface)
+- [include "YAP/YapInterface.h"](#include-yapyapinterfaceh)
+    - [ Using the compiler: ](#using-the-compiler-callyap)
+    - [ Terms ](#terms-manipulating_terms)
+    - [ Unification ](#unification-unifying_terms)
+    - [ Using the compiler: ](#using-the-compiler-callyap-1)
+    - [ Memory Allocation ](#memory-allocation-memory_allocation)
+    - [ Controlling YAP Streams from `C` ](#controlling-yap-streams-from-c-controlling_streams)
+    - [ Utility Functions in `C ](#utility-functions-in-c-utility_functions)
+    - [ From `C` back to Prolog ](#from-c-back-to-prolog-calling_yap_from_c)
+    - [ Using the compiler: ](#using-the-compiler-callyap-2)
+    - [ Miscellaneous C Functions ](#miscellaneous-c-functions-miscellaneous_chyfunctions)
+    - [ Writing predicates in C ](#writing-predicates-in-c-writing_c)
+- [include "YAPInterface.h"](#include-yapinterfaceh)
+    - [ Changes to the C-Interface in YAP4 ](#changes-to-the-c-interface-in-yap4-yap4_notes)
+    - [ Using YAP as a Library ](#using-yap-as-a-library-yapaslibrary)
+- [include "YAP/YAPInterface.h"](#include-yapyapinterfaceh-1)
+- [include <stdio.h>](#include-stdioh)
+
+<!-- /code_chunk_output -->
 
 The next primitive gives the type of a Prolog term:
 
-<ul>
- <li>YAP_tag_t YAP_TagOfTerm(YAP_Term  _t_)
-</li>
-</ul>
++ YAP_tag_t YAP_TagOfTerm(YAP_Term  _t_)
+
+
 The set of possible values is an enumerated type, with the following values:
 
-<ul>
- <li>`YAP_TAG_ATT`: an attributed variable
+`YAP_TAG_ATT`: an attributed variable
 </li>
- <li>`YAP_TAG_UNBOUND`: an unbound variable
++ `YAP_TAG_UNBOUND`: an unbound variable
 </li>
- <li>`YAP_TAG_REF`: a reference to a term
++ `YAP_TAG_REF`: a reference to a term
 </li>
- <li>`YAP_TAG_PAIR`: a list
++ `YAP_TAG_PAIR`: a list
 </li>
- <li>`YAP_TAG_ATOM`: an atom
++ `YAP_TAG_ATOM`: an atom
 </li>
- <li>`YAP_TAG_INT`: a small integer
++ `YAP_TAG_INT`: a small integer
 </li>
- <li>`YAP_TAG_LONG_INT`: a word sized integer
++ `YAP_TAG_LONG_INT`: a word sized integer
 </li>
- <li>`YAP_TAG_BIG_INT`: a very large integer
++ `YAP_TAG_BIG_INT`: a very large integer
 </li>
- <li>`YAP_TAG_RATIONAL`: a rational number
++ `YAP_TAG_RATIONAL`: a rational number
 </li>
- <li>`YAP_TAG_FLOAT`: a floating point number
++ `YAP_TAG_FLOAT`: a floating point number
 </li>
 <li>`YAP_TAG_OPAQUE`: an opaque term
 </li>
- <li>`YAP_TAG_APPL`: a compound term
++ `YAP_TAG_APPL`: a compound term
 </li>
 </ul>
 
@@ -501,13 +509,14 @@ but you do know you do not need a big chunk at a single go. Usually, the routine
 would usually be called together with a long-jump to restart the
 code. Slots can also be used if there is small state.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup  Unifying_Terms Unification
-@ingroup ChYInterface
+### [Unification ](Unifying_Terms)
+ <!--- {#$0} --->
+<!---<!--- @ingroup ChYInterface
 @{
 
-YAP provides a single routine to attempt the unification of two Prolog
+YAP  ---> --->provides a single routine to attempt the unification of two Prolog
 terms. The routine may succeed or fail:
 
 <ul>
@@ -519,11 +528,12 @@ The routine attempts to unify the terms  _a_ and
  _b_ returning `TRUE` if the unification succeeds and `FALSE`
 otherwise.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup CallYAP Using the compiler:
-@ingroup Manipulating_Strings Strings
-@{
+### [Using the compiler: ](CallYAP)
+ <!--- {#$0} --->
+<!---<!--- @ingroup Manipulating_Strings  ---> --->Strings
+<!---<!--- @{ ---> --->
 
 
 The YAP C-interface now includes an utility routine to copy a string
@@ -605,14 +615,15 @@ These C-interface functions are useful when converting Prolog lists to arrays:
 They return the number of integers scanned, up to a maximum of <tt>sz</tt>,
 and <tt>-1</tt> on error.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup Memory_Allocation Memory Allocation
-@ingroup ChYInterface
+### [Memory Allocation ](Memory_Allocation)
+ <!--- {#$0} --->
+<!---<!--- @ingroup ChYInterface
 @{
 
 
-The next routine can be used to ask space from the Prolog data-base:
+The  ---> --->next routine can be used to ask space from the Prolog data-base:
 
 <ul>
  <li>void      \*YAP_AllocSpaceFromYAP(int  _size_)
@@ -635,13 +646,14 @@ The routine releases a buffer allocated from the code area. The system
 may crash if `buf` is not a valid pointer to a buffer in the code
 area.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup Controlling_Streams Controlling YAP Streams from `C`
-@ingroup ChYInterface
+### [Controlling YAP Streams from `C` ](Controlling_Streams)
+ <!--- {#$0} --->
+<!---<!--- @ingroup ChYInterface
 @{
 
-The C-Interface also provides the C-application with a measure of
+The  ---> --->C-Interface also provides the C-application with a measure of
 control over the YAP Input/Output system. The first routine allows one
 to find a file number given a current stream:
 
@@ -695,13 +707,14 @@ The available flags are `YAP_INPUT_STREAM`,
 stream is supposed to be at position 0. The argument  _name_ gives
 the name by which YAP should know the new stream.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup Utility_Functions  Utility Functions in `C
-@ingroup ChYInterface
+### [Utility Functions in `C ](Utility_Functions)
+ <!--- {#$0} --->
+<!---<!--- @ingroup ChYInterface
 @{
 
-The C-Interface  provides the C-application with a a number of utility
+The  ---> --->C-Interface  provides the C-application with a a number of utility
 functions that are useful.
 
 The first provides a way to insert a term into the data-base
@@ -791,13 +804,14 @@ The first three arguments follow `term_has/4`. The last argument
 indicates what to do if we find a variable: if `0` fail, otherwise
 ignore the variable.
 
-@}
+<!---<!--- @} ---> --->
 
-@defgroup Calling_YAP_From_C From `C` back to Prolog
-@ingroup ChYInterface
+### [From `C` back to Prolog ](Calling_YAP_From_C)
+ <!--- {#$0} --->
+<!---<!--- @ingroup ChYInterface
 @{
 
-There are several ways to call Prolog code from C-code. By default, the
+There  ---> --->are several ways to call Prolog code from C-code. By default, the
 `YAP_RunGoal()` should be used for this task. It assumes the engine
 has been initialized before:
 
@@ -838,7 +852,7 @@ this is possible,  _Goal_ will become invalid after executing
 The following functions complement  _YAP_RunGoal_:
 
 <ul>
- <li>`int` YAP_RestartGoal(`void`)
++ `int` YAP_RestartGoal(`void`)
 
 Look for the next solution to the current query by forcing YAP to
 backtrack to the latest goal. Notice that slots allocated since the last
@@ -853,7 +867,7 @@ previous query. 'mode` specifies how deep the Reset will go and what
 to do next. It will be most often set to `YAP_FULL_RESET`.
 
 </li>
- <li>`int` YAP_ShutdownGoal(`int backtrack`)
++ `int` YAP_ShutdownGoal(`int backtrack`)
 
 Clean up the current goal. If
 `backtrack` is true, stack space will be recovered and bindings
@@ -861,13 +875,13 @@ will be undone. In both cases, any slots allocated since the goal was
 created will become invalid.
 
 </li>
- <li>`YAP_Bool` YAP_GoalHasException(`YAP_Term \*tp`)
++ `YAP_Bool` YAP_GoalHasException(`YAP_Term \*tp`)
 
 Check if the last goal generated an exception, and if so copy it to the
 space pointed to by  _tp_
 
 </li>
- <li>`void` YAP_ClearExceptions(`void`)
++ `void` YAP_ClearExceptions(`void`)
 
 Reset any exceptions left over by the system.
 </li>
@@ -879,27 +893,27 @@ and when there is no interest in processing exception. The
  YAP_EnterGoal() interface should have lower-overhead:
 
 <ul>
- <li>`YAP_PredEntryPtr` YAP_FunctorToPred(`YAP_Functor`  _f_)
++ `YAP_PredEntryPtr` YAP_FunctorToPred(`YAP_Functor`  _f_)
 Return the predicate whose main functor is  _f_.
 
 </li>
- <li>`YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_)
++ `YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_)
 
 Return the arity 0 predicate whose name is  _at_.
 
 </li>
- <li>`YAP_PredEntryPtr`
++ `YAP_PredEntryPtr`
 YAP_FunctorToPredInModule(`YAP_Functor`  _f_, `YAP_Module`  _m_),
 
 Return the predicate in module  _m_ whose main functor is  _f_.
 
 </li>
- <li>`YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_, `YAP_Module`  _m_),
++ `YAP_PredEntryPtr` YAP_AtomToPred(`YAP_Atom`  _at_, `YAP_Module`  _m_),
 
 Return the arity 0 predicate in module  _m_ whose name is  _at_.
 
 </li>
- <li>`YAP_Bool` YAP_EnterGoal(`YAP_PredEntryPtr`  _pe_),
++ `YAP_Bool` YAP_EnterGoal(`YAP_PredEntryPtr`  _pe_),
 
 `YAP_Term \*`  _array_, `YAP_dogoalinfo \*`  _infop_)
 Execute a  query for predicate  _pe_. The query is given as an
@@ -910,7 +924,7 @@ a solution was found.
 Notice that you cannot create new slots if an YAP_ExnterGoal goal is open.
 
 </li>
- <li>`YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
++ `YAP_Bool` YAP_RetryGoal(`YAP_dogoalinfo \*`  _infop_) @anchor YAP_RetryGoal
 
 
 Backtrack to a query created by [YAP_EnterGoal](@ref YAP_EnterGoal). The query
@@ -919,7 +933,7 @@ given by the handle  _infop_. Returns whether a new solution could
 be be found.
 
 </li>
- <li>`YAP_Bool` YAP_LeaveGoal(`YAP_Bool`  _backtrack_, @anchor YAP_LeaveGoal
++ `YAP_Bool` YAP_LeaveGoal(`YAP_Bool`  _backtrack_, @anchor YAP_LeaveGoal
 
 `YAP_dogoalinfo \*`  _infop_)
 Exit a query query created by [YAP_EnterGoal](@ref YAP_EnterGoal). If
@@ -958,16 +972,17 @@ the result will be `FALSE`, if the goal failed, or `TRUE`, if
 the goal succeeded. In this case, the variables in  _G_ will store
 the values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
-[findall/3](@ref findall) or friends if you need all the solutions.
+[findall/3](@ref findall/3) or friends if you need all the solutions.
 
 Notice that during execution, garbage collection or stack shifting may
 have moved the terms
 
-@}
+<!--- @} --->
 
-@defgroup CallYAP Using the compiler:
-@ingroup Module_Manipulation_in_C Module Manipulation in C
-@{
+### [Using the compiler: ](CallYAP)
+ <!--- {#$0} --->
+<!--- @ingroup Module_Manipulation_in_C  --->Module Manipulation in C
+<!--- @{ --->
 
 YAP allows one to create a new module from C-code. To create the new
 code it is sufficient to call:
@@ -994,16 +1009,17 @@ possible by using:
 Notice that this function returns a term, and not an atom. You can
 [YAP_AtomOfTerm](@ref YAP_AtomOfTerm) to extract the corresponding Prolog atom.
 
-@}
+<!--- @} --->
 
-@defgroup Miscellaneous_ChYFunctions  Miscellaneous C Functions
-@ingroup ChYInterface
+### [Miscellaneous C Functions ](Miscellaneous_ChYFunctions)
+ <!--- {#$0} --->
+<!--- @ingroup ChYInterface
 @{
 
 <ul>
- <li>`void` YAP_Throw(`YAP_Term exception`)
+  ---><li>`void` YAP_Throw(`YAP_Term exception`)
 </li>
- <li>`void` YAP_AsyncThrow(`YAP_Term exception`) @anchor YAP_Throw
++ `void` YAP_AsyncThrow(`YAP_Term exception`) @anchor YAP_Throw
 
 
 Throw an exception with term   _exception_, just like if you called
@@ -1012,7 +1028,7 @@ from interrupt handlers.
 
 
 </li>
- <li>`int` YAP_SetYAPFlag(`yap_flag_t flag, int value`) @anchor YAP_SetYAPFlag
++ `int` YAP_SetYAPFlag(`yap_flag_t flag, int value`) @anchor YAP_SetYAPFlag
 
 
 This function allows setting some YAP flags from `C` .Currently,
@@ -1021,11 +1037,11 @@ only two boolean flags are accepted: `YAPC_ENABLE_GC` and
 collector, the second does the same for the atom garbage collector.`
 
 </li>
- <li>`YAP_TERM` YAP_AllocExternalDataInStack(`size_t bytes`)
++ `YAP_TERM` YAP_AllocExternalDataInStack(`size_t bytes`)
 </li>
- <li>`void \*` YAP_ExternalDataInStackFromTerm(`YAP_Term t`)
++ `void \*` YAP_ExternalDataInStackFromTerm(`YAP_Term t`)
 </li>
- <li>`YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`) 
++ `YAP_Bool` YAP_IsExternalDataInStackTerm(`YAP_Term t`)
  @anchor YAP_AllocExternalDataInStack
 
 
@@ -1040,9 +1056,7 @@ backtracking. Also, this storage is opaque to the Prolog garbage compiler,
 so it should not be used to store Prolog terms. On the other hand, it
 may be useful to store arrays in a compact way, or pointers to external objects.
 
-</li>
- <li>`int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`) 
- @anchor YAP_HaltRegisterHook
++ `int` YAP_HaltRegisterHook(`YAP_halt_hook f, void \*closure`)
 
 
 Register the function  _f_ to be called if YAP is halted. The
@@ -1051,40 +1065,32 @@ function is called with two arguments: the exit code of the process
 the closure argument  _closure_.
 
 
-</li>
- <li>`int` YAP_Argv(`char \*\*\*argvp`) @anchor YAP_Argv
++ `int` YAP_Argv(`char \*\*\*argvp`)
 
 Return the number of arguments to YAP and instantiate argvp to point to the list
 of such arguments.
 
-</li>
-</ul>
 
-@}
+<!--- @} --->
 
-@defgroup Writing_C Writing predicates in C
-@ingroup ChYInterface
-@{
+### [Writing predicates in C ](Writing_C)
+ <!--- {#$0} --->
+ <!-- @ingroup ChYInterface
+@{ -->
 
 We will distinguish two kinds of predicates:
 
-<ul>
- <li>\a deterministic predicates which either fail or succeed but are not
-backtrackable, like the one in the introduction;
-</li>
- <li>\a backtrackable
-predicates which can succeed more than once.
-</li>
-</ul>
++ a deterministic predicates which either fail or succeed but are not backtrackable, like the one in the introduction;
+
++ a backtrackable predicates which can succeed more than once.
 
 The first kind of predicates should be implemented as a C function with
 no arguments which should return zero if the predicate fails and a
 non-zero value otherwise. The predicate should be declared to
 YAP, in the initialization routine, with a call to
 
-<ul>
- <li>void YAP_UserCPredicate(char \* _name_, YAP_Bool \* _fn_(), unsigned long
-int  _arity_);
++ void YAP_UserCPredicate(char \* _name_, YAP_Bool \* _fn_(), unsigned long int  _arity_); 
+
 where  _name_ is a string with the name of the predicate,  _init_,
  _cont_,  _cut_ are the C functions used to start, continue and
 when pruning the execution of the predicate,  _arity_ is the
@@ -1111,47 +1117,33 @@ described above.
 
 The interface works as follows:
 
-<ul>
- <li>void YAP_UserBackCutCPredicate(char \* _name_, int \* _init_(), int \*
-_cont_(), int \* _cut_(), unsigned long int  _arity_, unsigned int  _sizeof_)
++ void YAP_UserBackCutCPredicate(char \* _name_, int \* _init_(), int \* _cont_(), int \* _cut_(), unsigned long int  _arity_, unsigned int  _sizeof_)
 @anchor YAP_UserBackCutCPredicate
 
 describes a new predicate where  _name_ is the name of the predicate,
  _init_,  _cont_, and  _cut_ are the C functions that implement
 the predicate and  _arity_ is the predicate's arity.
 
-</li>
- <li>void YAP_UserBackCPredicate(char \* _name_, int \* _init_(), int \*
-_cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) 
-@anchor YAP_UserBackCPredicate
++ void YAP_UserBackCPredicate(char \* _name_, int \* _init_(), int \*_cont_(), unsigned long int  _arity_, unsigned int  _sizeof_) @anchor YAP_UserBackCPredicate
 
 describes a new predicate where  _name_ is the name of the predicate,
  _init_, and  _cont_ are the C functions that implement the
 predicate and  _arity_ is the predicate's arity.
 
-</li>
- <li>void YAP_PRESERVE_DATA( _ptr_,  _type_); @anchor YAP_PRESERVE_DATA
++ void YAP_PRESERVE_DATA( _ptr_,  _type_); @anchor YAP_PRESERVE_DATA
 
 
-</li>
- <li>void YAP_PRESERVED_DATA( _ptr_,  _type_); @anchor YAP_PRESERVED_DATA
++ void YAP_PRESERVED_DATA( _ptr_,  _type_); @anchor YAP_PRESERVED_DATA
 
 
-</li>
- <li>void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); 
- @anchor YAP_PRESERVED_DATA_CUT
++ void YAP_PRESERVED_DATA_CUT( _ptr_,  _type_); @anchor YAP_PRESERVED_DATA_CUT
 
 
-</li>
- <li>void YAP_cut_succeed( void ); @anchor YAP_cut_succeed
++ void YAP_cut_succeed( void ); @anchor YAP_cut_succeed
 
 
-</li>
- <li>void YAP_cut_fail( void ); @anchor YAP_cut_fail
++ void YAP_cut_fail( void ); @anchor YAP_cut_fail
 
-
-</li>
-</ul>
 
 As an example we will consider implementing in C a predicate `n100(N)`
 which, when called with an instantiated argument should succeed if that
@@ -1316,13 +1308,14 @@ init_n100(void)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 in this case no code is executed at cut time.
 
-@}
+<!--- @} --->
 
-@defgroup YAP4_Notes Changes to the C-Interface in YAP4
-@ingroup ChYInterface
-@{
+### [Changes to the C-Interface in YAP4 ](YAP4_Notes)
 
-YAP4 includes several changes over the previous `load_foreign_files/3`
+<!-- @ingroup ChYInterface
+@{ -->
+
+YAP4  includes several changes over the previous `load_foreign_files/3`
 interface. These changes were required to support the new binary code
 formats, such as ELF used in Solaris2 and Linux.
 
@@ -1356,13 +1349,13 @@ arguments to the backtrackable procedure.
 
 
 
-@}
+<!--- @} --->
 
-@defgroup YAPAsLibrary Using YAP as a Library
-@ingroup ChYInterface
-@{
+### [Using YAP as a Library ](YAPAsLibrary)
+ <!-- @ingroup ChYInterface
+@{ -->
 
-YAP can be used as a library to be called from other
+YAP  can be used as a library to be called from other
 programs. To do so, you must first create the YAP library:
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1376,7 +1369,7 @@ available in YAP, except the foreign function loader and for
 
 To actually use this library you must follow a five step process:
 
-<ol>
+
 You must initialize the YAP environment. A single function,
 `YAP_FastInit` asks for a contiguous chunk in your memory space, fills
 it in with the data-base, and sets up YAP's stacks and
@@ -1397,7 +1390,6 @@ arguments were instantiated.
     + If you want extra solutions, you can use
 `YAP_RestartGoal()` to obtain the next solution.
 
-</ol>
 
 The next program shows how to use this system. We assume the saved
 program contains two facts for the procedure <tt>b</tt>:
@@ -1584,4 +1576,4 @@ the future we plan to split this library into several smaller libraries
     + You can generate your own saved states. Look at  the
 `boot.yap` and `init.yap` files.
 
-@}
+<!--- @} --->

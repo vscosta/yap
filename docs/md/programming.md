@@ -1,23 +1,21 @@
-@defgroup YAPProgramming Programming in YAP
-@ingroup main
-
+## [Programming in YAP](YAPProgramming)
 [TOC]
 
 
-@defgroup load_files Loading and Organizing YAP Programs
-@ingroup YAPProgramming
-@{
+### [Loading and Organizing YAP Programs ](load_files)
 
 We present the main predicates and directives available to load
     files and to control the Prolog environment.
-	[TOC]
 
-@}
+[TOC]
 
-@defgroup YAPModules The YAP Module system
-@ingroup YAPProgramming
+<!--- $0 --->
 
-@{
+### [The YAP Module system ](YAPModules)
+ <!--- $0 --->
+<!--- $0 --->
+
+<!--- $0 --->
     The YAP module system is based on the Quintus/SISCtus module
   system @cite quintus . In this design, modules are named collections of predicates,
   and all predicates belong to a single module. By default, predicates are only
@@ -55,13 +53,15 @@ We present the main predicates and directives available to load
     it starts consulting a file, and resets it at the end.  One can set
   the type-in module permanently by using the built-in `module/1`.
 
-@}
-  @defgroup ExplicitNaming Explicit Naming 
-@ingroup YAPProgramming
+<!--- $0 --->
+  ### Explicit Naming  <!--- ExplicitNaming --->
+ <!--- $0 --->
+<!--- $0 --->
 
-@{
+<!--- $0 --->
   The module system allows one to _explicitly_ specify the source mode for
   a clause by prefixing a clause with its module, say:
+  
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
   user:(a :- b).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -336,7 +336,7 @@ We present the main predicates and directives available to load
 
       + <b>library( +File )</b>
          a library file to import into the current module.
- 
+
       + <b>hide( +Opt)</b>
           if  _Opt_ is `false`, keep source code for current module, if `true`, disable.
 
@@ -354,4 +354,4 @@ We present the main predicates and directives available to load
   dynamically created modules. The directive argument may also be a list
   of predicates.
 
-  @}
+  <!--- $0 --->

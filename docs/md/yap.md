@@ -11,7 +11,7 @@
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
-@section Introduction Introduction
+##  [Introduction](Introduction)
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
@@ -21,21 +21,23 @@ Porto.
 The manual is organised as follows:
 
 
-+ @ref  INSTALL
++ @subpage INSTALL.md
 
-+ @ref run
++ @subpage run.md
 
-+ @subpage builtins
++ @subpage builtins.md
 
-+ @ref extensions
++ @subpage extensions.md
 
-+ @ref library
++ @subpage lib.md
 
-+ @ref packages
++ @subpage swi.md
 
-+ @ref YAPProgramming
++ @subpage packages.md
 
-+ @ref fli_c_cxx
++ @subpage YAPProgramming.md
+
++ @subpage fli.mds
 
 
 \author Vitor Santos Costa,

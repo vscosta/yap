@@ -13,7 +13,7 @@
  @file absf.yap
  @author L.Damas, V.S.Costa
 
- @defgroup AbsoluteFileName File Name Resolution
+ @defgroup absf File Name Resolution
  @ingroup load_files
 
  Support for file name resolution through absolute_file_name/3 and
