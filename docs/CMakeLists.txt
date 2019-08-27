@@ -6,17 +6,17 @@ if (WITH_DOCS)
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
   SET (CMAKE_HTML_EXTRA_
-${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
-    ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
-          ${DOCS_SOURCE_DIR}/custom/application.js
-   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
-${DOCS_SOURCE_DIR}/custom/customdoxygen.css
-${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
-${DOCS_SOURCE_DIR}/custom/offcanvas.css
-${DOCS_SOURCE_DIR}/custom/theme.css
-${DOCS_SOURCE_DIR}/custom/yap.css
-${DOCS_SOURCE_DIR}/custom/solarized-light.css
+# ${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
+#     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
+#           ${DOCS_SOURCE_DIR}/custom/application.js
+#    ${DOCS_SOURCE_DIR}/custom/offcanvas.js
+# ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
+# ${DOCS_SOURCE_DIR}/custom/customdoxygen.css
+# ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
+# ${DOCS_SOURCE_DIR}/custom/offcanvas.css
+# ${DOCS_SOURCE_DIR}/custom/theme.css
+# ${DOCS_SOURCE_DIR}/custom/yap.css
+# ${DOCS_SOURCE_DIR}/custom/solarized-light.css
 #${DOCS_SOURCE_DIR}/custom/assets
           )
   
@@ -101,7 +101,7 @@ ${DOCS_SOURCE_DIR}/custom/solarized-light.css
   add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
   SET(DOC_INPUT_FILES_
-    ${CMAKE_SOURCE_DIR}/docs/md
+    ${CMAKE_SOURCE_DIR}/docs/md/dox.md
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/CXX
     ${CMAKE_SOURCE_DIR}/OPTYap

@@ -1,9 +1,5 @@
-
-
-
-
- YAP 6-3.5 Manual                         {#mainpage}
-====================
+@defgroup mainpage  YAP 6-3.5 Manual
+@{
 
 <center>
 ![The YAP Logo](docs/icons/yap_128x128x32.png)
@@ -20,25 +16,7 @@ Porto.
 
 The manual is organised as follows:
 
-
-+ @subpage INSTALL.md
-
-+ @subpage run.md
-
-+ @subpage builtins.md
-
-+ @subpage extensions.md
-
-+ @subpage lib.md
-
-+ @subpage swi.md
-
-+ @subpage packages.md
-
-+ @subpage YAPProgramming.md
-
-+ @subpage fli.mds
-
+[TOC]
 
 \author Vitor Santos Costa,
 \author Luís Damas,
