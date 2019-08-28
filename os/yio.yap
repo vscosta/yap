@@ -28,7 +28,7 @@
         display/2,
         exists/1,
         fileerrors/0,
-        format/1,
+v        format/1,
         nofileerrors/0,
         open_pipe_streams/2,
         prolog_file_name/2,
@@ -100,22 +100,20 @@ supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
 
 
 */
+
 /** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_)
 
-
-
-Interface to system call `connect`, used for clients: connect
+Interface to system call `connect`, used for web clients: connect
 socket  _SOCKET_ to  _PORT_. The connection results in the
 read/write stream  _STREAM_.
 
 Port information depends on the domain:
 
 + 'AF_UNIX'(+ _FILENAME_)
-+ 'AF_FILE'(+ _FILENAME_)
-connect to socket at file  _FILENAME_.
+   connect to socket at file  _FILENAME_.
 
 + 'AF_INET'(+ _HOST_,+ _PORT_)
-Connect to socket at host  _HOST_ and port  _PORT_.
+   Connect to socket at host  _HOST_ and port  _PORT_.
 */
 
 

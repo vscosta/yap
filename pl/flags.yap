@@ -84,13 +84,11 @@
 
 /** @pred create_prolog_flag(  +Flag, +Value, +Options)
 
-Create a new YAP Prolog flag.  _Options_ include
+Create a new YAP Prolog flag.  _Options_ includes:
 
    * `type(+_Type_)` with _Type_ one of `boolean`, `integer`, `float`, `atom`
 and `term` (that is, any ground term)
-
    * `access(+_Access_)` with  _Access_ one of `read_only` or `read_write`
-
    * `keeep(+_Keep_) protect existing flag.
 */
 create_prolog_flag(Name, Value, Options) :-
@@ -105,5 +103,5 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(_, term).
 
 /**
-@}
+ *@}
 */

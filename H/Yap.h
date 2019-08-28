@@ -13,6 +13,28 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 **********                                                                                                      ***************************************************************/
 
+/**
+ *  YAP 6-3.5 Manual                         {#mainpage}
+====================
+
+<center>
+![The YAP Logo](docs/icons/yap_128x128x32.png)
+</center>
+
+NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
+
+##  [Introduction](Introduction)
+
+This document provides User information on version 6.3.4 of
+YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
+high-performance Prolog compiler developed at Universidade do
+Porto.
+
+The manual is organised as follows:
+
+[TOC]
+*/
+  
 #ifndef YAP_H
 
 #define YAP_H 1

@@ -1,5 +1,5 @@
-Compatibility with other Prolog systems {#swi_iso_c}
-======================================
+## [Compatibility with other Prolog systems](iso_c)
+
 
 YAP has been designed to be as compatible as possible with other
 Prolog systems, originally with C-Prolog\cite x and SICStus
@@ -12,7 +12,6 @@ resulted in Prolog extensions such as the `dialect` feature. YAP
 currently supports most of the SWI-Prolog foreign interface. The following  SWI
 libraries have been adapted to YAP:
 
-~~~~~
   + @ref aggregate
   + @ref base64
   + @ref broadcast
@@ -43,7 +42,6 @@ libraries have been adapted to YAP:
   + @ref utf8
   + @ref win_menu
   + @ref www_browser
-~~~~~
 
 
 Note that in general SWI code may be from an earlier version than the
@@ -56,7 +54,7 @@ Please do refer to the SWI-Prolog home page:
 
 for more information on SWI-Prolog and the SWI packages.
 
-@section ChYProlog Compatibility with the C-Prolog interpreter 
+@section ChYProlog Compatibility with the C-Prolog interpreter
 
 
 YAP was designed so that most C-Prolog programs should run under YAP
@@ -97,7 +95,7 @@ or by using:
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-@section QuiSics Compatibility with the Quintus and SICStus Prolog systems
+### [Compatibility with the Quintus and SICStus Prolog systems](QuiSics)
 
 The Quintus Prolog system was the first Prolog compiler to use Warren's
 Abstract Machine. This system was very influential in the Prolog
