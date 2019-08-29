@@ -1,6 +1,4 @@
-#  YAP 6-3.5 Manual {#mainpage}
-
-@defgroup mainpage YAP 6-3.5 Manual
+@defgroup mainpage  YAP 6-3.5 Manual
 @{
 
 <center>
@@ -9,20 +7,25 @@
 
 NOTE: this version of YAP is still experimental, documentation may be missing or out of date.
 
-
-The manual is organised as follows:
-
-[TOC]
-
-@}
-
-@defgroup  Introduction Introduction
-@ingroup mainpage
+##  [Introduction](Introduction)
 
 This document provides User information on version 6.3.4 of
 YAP (<em>Yet Another Prolog</em>). The YAP Prolog System is a
 high-performance Prolog compiler developed at Universidade do
 Porto.
+
+The manual is organised as follows:
+
++ [INSTALL](INSTALL.md)
++ [run](run.md)
++ [builtins](core.md)
++ [extensions](extensions.md)
++ [lib](lib.md)
++ [swi](swi.md)
++ [packages](packages.md)
++ [YAPProgramming](YAPProgramming.md)
++ [fli](fli.md)
+
 
 \author Vitor Santos Costa,
 \author Luís Damas,
@@ -46,49 +49,4 @@ originally from the SWI-Prolog manual, with the gracious authorization
 from
 Jan Wielemaker. We would also like to gratefully
 acknowledge the contributions from Ashwin Srinivasian.
-
-
-@}
-
-@defgroup builtins Core Built-ins
-@ingroup mainpage
-
-@{
-
-
-
-This chapter describes the core built-in predicates  that control the execution of
-Prolog programs, provide fundamental functionality such as termm manipulation or arithmetic, and support interaction with external
-resources.
-
-[TOC]
-
-@}
-
-@defgroup extensions Extensions to core Prolog
-@ingroup maipage
-
-@{
-
-YAP includes a number of extensions over the original Prolog
-language. Next, we discuss how to use the most important ones.
-
-[TOC]
-
-@}
-
-
-defgroup library YAP Prolog Library
-
-@{
-
- YAP supports
- the library_directory path (set by the
-  `LIBDIR` variable in the Makefile for YAP). Several files in the
-  library are originally from the public-domain Edinburgh Prolog library.
-
-[TOC]
-
- @}
-
 

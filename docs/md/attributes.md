@@ -1,11 +1,11 @@
 
 
-## [Attributed Variables](AttributedVariables)
+@defgroup   AttributedVariables                 Attributed Variables
 
-<!---- @{ ---->
+@{
+  
 
-
-<!---- @ingroup extensions ---->
+@ingroup extensions
 
 YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
@@ -30,10 +30,10 @@ work with. Most packages included in YAP that use attributed
 variables, such as CHR, CLP(FD), and CLP(QR), rely on the SWI-Prolog
 awi interface.
 
-### [SICStus Style attribute declarations.](SICS_attributes)
+@defgroup SICS_attributes  SICStus Style attribute declarations.
 
-<!---- @{ ---->
-<!---- @ingroup  AttributedVariables ---->
+@{
+@ingroup  AttributedVariables
 
 The YAP library `atts` implements attribute variables in the style of
 SICStus Prolog. Attributed variables work as follows:
@@ -275,13 +275,13 @@ verify_attributes/3 predicates would typically refer to the
 attributes from other known solvers/modules via the module prefix in
 Module:get_atts/2`.
 
-<!---- @} ---->
+@}
 
 
-## [hProlog and SWI-Prolog style Attribute Declarations](New_Style_Attribute_Declarations)
+@defgroup New_Style_Attribute_Declarations hProlog and SWI-Prolog style Attribute Declarations
 
-<!---- @{ ---->
-<!----   @ingroup AttributedVariables ---->
+@{
+  @ingroup AttributedVariables
 
   The following documentation is taken from the SWI-Prolog manual.
 
@@ -352,12 +352,12 @@ attribute_goals(X) -->
   remaining attributes to user-readable goals that, when executed, reinstate
   these attributes.
 
-<!---- @} ---->
+@}
 
-## [Co-routining](CohYroutining)
+@defgroup CohYroutining Co-routining
 
-<!---- @{ ---->
-<!----   @ingroup AttributedVariables ---->
+@{
+  @ingroup AttributedVariables
 
 Prolog uses a simple left-to-right flow of control. It is sometimes
 convenient to change this control so that goals will only execute when
@@ -395,6 +395,6 @@ The following primitives can be used:
 - frozen/2
 
 
-<!---- @} ---->
+@}
 
-<!---- @} ---->
+@}
