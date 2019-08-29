@@ -105,7 +105,7 @@ open_log(F) :-
    */
   log_goal( DecoratedClause ) :-
     take_decorations(DecoratedClause, Clause),
-    out( '~~~~~~~~{.prolog}~n'),
+    out( '~~~~~~~~~n'),
     portray_clause( user_error , Clause ),
     portray_clause(        log , Clause ),
     out( '~~~~~~~~~n', []).

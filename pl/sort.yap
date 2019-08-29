@@ -80,12 +80,12 @@ Assuming L is a list of the form ` _Key_- _Value_`,
 from  _L_, by sorting its elements according to the value of
  _Key_.
 
-~~~~~{.prolog}
+~~~~~
 ?- keysort([3-a,1-b,2-c,1-a,1-b],S).
 ~~~~~
 would return:
 
-~~~~~{.prolog}
+~~~~~
 S = [1-b,1-a,1-b,2-c,3-a]
 ~~~~~
 

@@ -94,7 +94,7 @@
  * proven. The example verifies that all arithmetic statements in the list
  *  _L_ are correct. It does not say which is wrong if one proves wrong.
  *
- * ~~~~~{.prolog}
+ * ~~~~~
  * ?- forall(member(Result = Formula, [2 = 1 + 1, 4 = 2 * 2]),
  *                  Result =:= Formula).
  * ~~~~~
@@ -109,7 +109,7 @@ forall(Cond, Action) :- \+((Cond, \+(Action))).
  * Calls  _Goal_ as once/1, but succeeds, regardless of whether
  * `Goal` succeeded or not. Defined as:
  *
- * ~~~~~{.prolog}
+ * ~~~~~
  * ignore(Goal) :-
  *         Goal, !.
  * ignore(_).
@@ -128,14 +128,14 @@ ignore(Goal) :- (Goal->true;true).
  * that it will backtrack over the test. Consider the following
  * small data-base:
  *
- * ~~~~~{.prolog}
+ * ~~~~~
  * a(1).        b(a).          c(x).
  * a(2).        b(b).          c(y).
  * ~~~~~
  *
  * Execution of an `if/3` query will proceed as follows:
  *
- * ~~~~~{.prolog}
+ * ~~~~~
  *    ?- if(a(X),b(Y),c(Z)).
  *
  * X = 1,
@@ -250,7 +250,7 @@ and 10. New code should use `call/N` for better portability.
 If  _Name_ is a complex term, then call_with_args/n behaves as
 call/n:
 
-~~~~~{.prolog}
+~~~~~
 call(p(X1,...,Xm), Y1,...,Yn) :- p(X1,...,Xm,Y1,...,Yn).
 ~~~~~
 
@@ -491,7 +491,7 @@ b_getval(GlobalVariable, Val) :-
 Suspends the execution of the current goal and creates a new execution
 level similar to the top level, displaying the following message:
 
-~~~~~{.prolog}
+~~~~~
  [ Break (level <number>) ]
 ~~~~~
 telling the depth of the break level just entered. To return to the

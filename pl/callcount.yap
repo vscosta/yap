@@ -123,13 +123,20 @@ call_count_reset :-
  * 
  * Next, we show a simple example of how to use call counters:
  * 
- * ~~~~~{.prolog}
- *    ?- yap_flag(call_counting,on), [-user]. l :- l. end_of_file. yap_flag(call_counting,off).
+ * ~~~~~
+ *    
+ * ?- yap_flag(call_counting,on),
+ *       [-user]. 
+ * l :- l. 
+ * end_of_file. 
+ *
+ * yap_flag(call_counting,off).
  * 
  * yes
  * 
- * yes
- *    ?- catch((call_count(10000,_,_),l),call_counter,format("limit_exceeded.~n",[])).
+ * ?- catch(
+ *      (call_count(10000,_,_),l),
+ *       call_counter,format("limit_exceeded.~n",[])).
  * 
  * limit_exceeded.
  * 

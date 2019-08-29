@@ -245,7 +245,7 @@ Succeeds repeatedly.
 
 In the next example, `repeat` is used as an efficient way to implement
 a loop. The next example reads all terms in a file:
-~~~~~~~~~~~~~{.prolog}
+~~~~~~~~~~~~~
  a :- repeat, read(X), write(X), nl, X=end_of_file, !.
 ~~~~~~~~~~~~~
 the loop is effectively terminated by the cut-goal, when the test-goal
@@ -255,7 +255,7 @@ backtracking is caught by the `repeat` goal.
 
 The built-in `repeat/0` could be defined in Prolog by:
 
-~~~~~{.prolog}
+~~~~~
 
 repeat.
 repeat :- repeat.
@@ -285,12 +285,12 @@ compatibility with C-Prolog. When compiling a goal, YAP
 generates a `call( _X_)` whenever a variable  _X_ is found as
 a goal.
 
-~~~~~{.prolog}
+~~~~~
  a(X) :- X.
 ~~~~~
 is converted to:
 
-~~~~~{.prolog}
+~~~~~
  a(X) :- call(X).
 ~~~~~
 
@@ -320,7 +320,7 @@ call(G) :- '$execute'(G).
 
 Execute the goal  _G_ only once. The predicate is defined by:
 
-~~~~~{.prolog}
+~~~~~
  once(G) :- call(G), !.
 ~~~~~
 
