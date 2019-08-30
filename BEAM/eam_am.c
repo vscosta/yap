@@ -168,7 +168,7 @@ Cell *c;
    }
    total=total+nr*i;
  } 
- printf("Ultimo Pedido (bytes) =%d ¦ Ultimo bloco livre=%d\n",size,(int) ult*CELL_SIZE);
+ printf("Ultimo Pedido (bytes) =%d Â¦ Ultimo bloco livre=%d\n",size,(int) ult*CELL_SIZE);
  printf("Memoria TOTAL (bytes)      =%ld \n",((unsigned long)  beam_END_BOX)-((unsigned long)  beam_START_ADDR_BOXES));
  printf("Memoria livre no IndexFree=%ld \n",total*CELL_SIZE);
  printf("Memoria Total livre        =%ld \n",total*CELL_SIZE+((unsigned long)  beam_END_BOX)-((unsigned long)beam_NextFree));
@@ -547,7 +547,7 @@ INLINE void free_memory_locals(Cell *l)
 #endif
 
   free_memory((Cell *) &l[-1], CELL_SIZE*(l[-1]+1));
-  l[-1]=0; /* é necessário para evitar apagar este vector novamente 
+  l[-1]=0; /* Ã© necessÃ¡rio para evitar apagar este vector novamente 
   porque varias calls podem estar a referenciar o mesmo vector locals */
 }
 
@@ -1278,7 +1278,7 @@ Cell *NewC;
       NewC++;
     }
 
-    /* é atomic, posso terminar */
+    /* Ã© atomic, posso terminar */
 }
 
 PredEntry *prepare_args_torun(void);
@@ -2603,7 +2603,7 @@ break_debug(contador);
 			{ Cell *a;
 			  a = (Cell *) deref(beam_X[arg1]);
 			  if(isvar(a) && !isappl(a) && !is_perm_var(a))
-			    abort_eam("Sério problema no get_var_Y\n");
+			    abort_eam("SÃ©rio problema no get_var_Y\n");
   			    /* acho que vou ter de criar uma variavel local nova no nivel superior */
 			}
 #endif
@@ -3378,7 +3378,7 @@ break_debug(contador);
 
 		cut: 
 #if Debug
-		        printf("%5d->cut na alternativa %pª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+		        printf("%5d->cut na alternativa %pÂª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
 break_debug(contador);
 #endif
 			beam_OBX=beam_ABX->parent;
@@ -3424,7 +3424,7 @@ break_debug(contador);
 
 		commit:
 #if Debug
-		        printf("%5d->commit na alternativa %pª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
+		        printf("%5d->commit na alternativa %pÂª de %d \n",contador++,beam_ABX->nr_alternative, beam_ABX->parent->nr_all_alternatives);
 break_debug(contador);
 #endif
 			beam_OBX=beam_ABX->parent;

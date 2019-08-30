@@ -18,33 +18,34 @@
 #define FOREIGN_H
 
 /**
-
-    @:
-    @file Foreign.h
-
-    load_foreign_files/3 has works for the following configurations:
-
-    - linux: should work both for a.out (untested by me) and ELF;
-
-    - WIN32: works (notice that symbols are not exported by default)
-
-    - OSX: works using Mach dynamic libs.
-
-    - osf:  should work, but isn't working yet.
-
-    - sunos4: should work, using A.OUT format;
-
-    - svr4, eg solaris: should work, using ELF format;
-
-    - AIX: should work for 3.2 and 4.1 at least, using ECOFF;
-
-    YAP should be able to load on most BSD Unixes, but you will need to
-  say that here.
-
-  YAP also supports COFF loading (pretty much the same technique as
-  used for A.OUT loading) but that is untested so far.
-
-*/
+ *
+ * @file Foreign.h
+ *
+ *  @{
+ *
+ * load_foreign_files/3 has works for the following configurations:
+ *
+ * - linux: should work both for a.out (untested by me) and ELF;
+ *
+ * - WIN32: works (notice that symbols are not exported by default)
+ *
+ * - OSX: works using Mach dynamic libs.
+ *
+ * - osf:  should work, but isn't working yet.
+ *
+ * - sunos4: should work, using A.OUT format;
+ *
+ * - svr4, eg solaris: should work, using ELF format;
+ *
+ * - AIX: should work for 3.2 and 4.1 at least, using ECOFF;
+ *
+ * YAP should be able to load on most BSD Unixes, but you will need to
+ *   say that here.
+ *
+ * YAP also supports COFF loading (pretty much the same technique as
+ *   used for A.OUT loading) but that is untested so far.
+ *
+ */
 
 #include "Yap.h"
 #include "YapHeap.h"

@@ -15,9 +15,14 @@
  *                   *
  *************************************************************************/
 
-/*
+/**
  * @defgroup Scanner Implementation.
  * @ingroup Tokens
+ *
+ * @{
+ *
+ * @brief convert Prolog text into tokens. The tokens are supposed to be used by
+ * the parser, but can also be exported as a list.
  *
  * Description:
  *

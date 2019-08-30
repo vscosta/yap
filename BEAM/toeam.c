@@ -139,7 +139,7 @@ void identify_calls(CInstr *code) {
       if (strcmp(name,"is")==0) { code->op=is_op; return; }
      } 
 
-    /* n„o È nenhum call conhecido, deve ser um predicado em Prolog */
+    /* n√£o √© nenhum call conhecido, deve ser um predicado em Prolog */
 
     return;
 }

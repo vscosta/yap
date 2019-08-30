@@ -1000,13 +1000,13 @@ is one.
 
 This predicate implements the full unification algorithm. An example:n
 
-~~~~~{.prolog}
+~~~~~
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(B)).
 ~~~~~
 will succeed with the bindings `A = b` and `Z = f(B)`. On the
 other hand:
 
-~~~~~{.prolog}
+~~~~~
 unify_with_occurs_check(a(X,b,Z),a(X,A,f(Z)).
 ~~~~~
 would fail, because `Z` is not unifiable with `f(Z)`. Note that

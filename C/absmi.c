@@ -51,13 +51,17 @@ loop(Inp) :-
 @defgroup Implementation Implementation Considerations
 @ingroup YAPProgramming
 
+ @{
+
 This section is about the YAP implementation, and is mostly of
 interest to hackers.
-
-@{
+@}
 
 @defgroup Emulator The Abstract Machine Emulator
 @ingroup Implementation
+
+
+@{
 
  */
 
@@ -1461,7 +1465,5 @@ default:
 
 /* dummy function that is needed for profiler */
 int Yap_absmiEND(void) { return 1; }
-
-/// @}
 
 /// @}

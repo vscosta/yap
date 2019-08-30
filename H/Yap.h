@@ -18,6 +18,12 @@
 
 #define YAP_H 1
 
+#if DOXYGEN
+#ifndef INIT_C
+#define    Yap_InitCPred(Name,Arity,CF,Flags) /**@{ @cpred Name Arity CF @} */
+#endif
+#endif
+
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 

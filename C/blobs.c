@@ -6,6 +6,19 @@
 //  Copyright (c) 2015 VITOR SANTOS COSTA. All rights reserved.
 //
 
+/**
+ * @file blobs.c
+ *
+ * @defgroup Blobs Implementation of Blobs
+ * @ingroup Implementation
+ *
+ * @{
+ *
+ * @brief This is a straightforward implementation of SWI-Prolog's blobs. Blobs
+ * are unnamed symbols that have a predefined type. In practice, they are chunks with
+ * fixed number of bytes.
+ *
+ */
 #include <stdio.h>
 #include <string.h>
 

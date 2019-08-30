@@ -288,22 +288,22 @@ static Int char_code(USES_REGS1) {
     be unified with an atomic symbol and  _L_ with the list of the ASCII
     codes for the characters of the external representation of  _A_.
 
-    ~~~~~{.prolog}
+    ~~~~~
     name(yap,L).
     ~~~~~
     will return:
 
-    ~~~~~{.prolog}
+    ~~~~~
     L = [121,97,112].
     ~~~~~
     and
 
-    ~~~~~{.prolog}
+    ~~~~~
     name(3,L).
     ~~~~~
     will return:
 
-    ~~~~~{.prolog}
+    ~~~~~
     L = [51].
     ~~~~~
 
