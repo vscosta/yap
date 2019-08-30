@@ -28,7 +28,7 @@
         display/2,
         exists/1,
         fileerrors/0,
-v        format/1,
+        format/1,
         nofileerrors/0,
         open_pipe_streams/2,
         prolog_file_name/2,

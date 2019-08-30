@@ -358,7 +358,7 @@ while [ $# != 0 ]; do
     esac;
     shift
 done
-_LIBDIR=${LIBDIR} ${CMAKE_ARGS}
+LIBDIR+=${CMAKE_ARGS}
 
 if [ "x${LIBDIR}" = "x" ]; then
     LIBDIR="${PREFIX}/lib"

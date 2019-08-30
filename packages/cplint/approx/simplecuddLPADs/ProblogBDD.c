@@ -852,10 +852,10 @@ so that it is not recomputed
   variable v;
   hisnode *Found;
   double res;
-  double value;
+  //double value;
 
   if (Cudd_IsConstant(node)) {
-    value = Cudd_V(node);
+    //value = Cudd_V(node);
     if (comp) {
       return 0.0;
     } else {
@@ -922,10 +922,10 @@ int correctPosition(int index, variable v, int posBVar)
 position
 currently explored by ProbBool */
 {
-  int bvar;
+  DdNode *bvar;
   bvar = v.booleanVars[posBVar];
 
-  return (bvar == index);
+  return (bvar == v.booleanVars[index]);
 }
 
 double ret_prob(extmanager MyManager, DdNode *bdd) {
