@@ -223,6 +223,8 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp, op_numbers *op) {
 
 #if !defined(YAPOR) && !defined(THREADS)
 
+#if !defined(DOXYGEN)
+
 static yamop *cur_clause(PredEntry *pe, yamop *codeptr) {
     StaticClause *cl;
 
@@ -239,6 +241,8 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr) {
               "could not find clause for indexing code");
     return (NULL);
 }
+
+#endif
 
 bool Yap_search_for_static_predicate_in_use(PredEntry *p,
                                             bool check_everything) {

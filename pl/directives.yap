@@ -259,7 +259,7 @@ user_defined_directive(Dir,Action) :-
 	 current_prolog_flag(language_mode, yap), !,      /* strict_iso on */
 	 '$process_directive'(G, consult, M, VL, Pos).
  '$process_directive'(G, top, M, _, _) :-
-v     !,
+     !,
 	 '$do_error'(context_error((:-M:G),clause),query).
   %
  % default case

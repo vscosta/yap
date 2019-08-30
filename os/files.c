@@ -854,7 +854,7 @@ static Int same_file(USES_REGS1) {
 }
 
 
-static Int delete_file(USE_REGS1) {
+static Int delete_file(USES_REGS1) {
 const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
 #if defined(__MINGW32__) || _MSC_VER
   if (_unlink(fd) == -1)

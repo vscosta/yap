@@ -18,7 +18,7 @@
 
   #sqlite3 is now in the system
 
-  set (SQLITE3_FOUND ON CACHE "System provides SQLITE3 DB" YES  )
+  set (SQLITE3_FOUND ON CACHE STRING "System provides SQLITE3 DB" YES  )
 
 set_property(DIRECTORY
         APPEND PROPERTY

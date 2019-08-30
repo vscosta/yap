@@ -368,6 +368,7 @@ bool Yap_ChDir(const char *path) {
   return rc;
 }
 
+#if UNUSED
 static char *close_path(char *b0, char *o0, char *o) {
 
   if (b0[0] == '\0') {
@@ -420,6 +421,8 @@ static char *clean_path(const char *path) {
 //                      o, o0);
   return pop_output_text_stack(lvl, o0);
 }
+
+#endif
 
 static const char *myrealpath(const char *path USES_REGS) {
 

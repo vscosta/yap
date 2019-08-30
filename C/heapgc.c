@@ -1679,17 +1679,17 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
     pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
 #if 1
        {
-	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
-	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+	 PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
+	 op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
 	if (op == _Nstop)
 	  break;
 #if defined(ANALYST) || defined(DEBUG)
-	fprintf(stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+	fprintf(stderr,"ENV %p-%p(%zd) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	fprintf(stderr,"ENV %p-%p(%d) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+	fprintf(stderr,"ENV %p-%p(%zd) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
 #endif
 	if (pe->ArityOfPE)
-	  fprintf(stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	  fprintf(stderr,"   %s/%zd\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
 	else
 	  fprintf(stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
       }
@@ -2944,7 +2944,7 @@ sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       return;
     UNMARK(gc_ENV+E_CB);
 
-    op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+    op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
     if (op == _Nstop)
       break;
     size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
@@ -4241,10 +4241,10 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     LeaveGCMode( PASS_REGS1 );
 #ifndef YAPOR
     CalculateStackGap( PASS_REGS1 );
-    if (gc_margin < 2*EventFlag)
+    if (gc_margin < 2*EventFlag) {
       gc_margin = 2*EventFlag;
-
-      return Yap_locked_growstack(gc_margin);
+    }
+    return Yap_locked_growstack(gc_margin);
 #endif
   }
   /*
