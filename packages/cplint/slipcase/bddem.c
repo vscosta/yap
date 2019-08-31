@@ -558,17 +558,17 @@ static YAP_Bool rec_deref(void) {
 }
 
 double ProbPath(DdNode *node, int comp_par, int nex) {
-  int index, mVarIndex, comp, pos, position, boolVarIndex;
+  int index, mVarIndex, comp, pos, position; //, boolVarIndex;
   variable v;
   double res;
-  double value, p, pt, pf, BChild0, BChild1, e0, e1;
+  double p, pt, pf, BChild0, BChild1, e0, e1;
   double *value_p, **eta_rule;
   DdNode *nodekey, *T, *F;
 
   comp = Cudd_IsComplement(node);
   comp = (comp && !comp_par) || (!comp && comp_par);
   if (Cudd_IsConstant(node)) {
-    value = Cudd_V(node);
+    //value = Cudd_V(node);
     if (comp) {
       return 0.0;
     } else {
@@ -601,8 +601,8 @@ double ProbPath(DdNode *node, int comp_par, int nex) {
       add_node(nodesB, nodekey, res);
       position = Cudd_ReadPerm(mgr_ex[nex], index);
       position = position + 1;
-      boolVarIndex = Cudd_ReadInvPerm(
-          mgr_ex[nex], position); // Returns the index of the variable currently
+      //      boolVarIndex = Cudd_ReadInvPerm(
+      //    mgr_ex[nex], position); // Returns the index of the variable currently
                                   // in the i-th position of the order.
       if (position < boolVars_ex[nex]) {
         sigma[position] = sigma[position] + e0 + e1;
@@ -655,7 +655,7 @@ void Forward(DdNode *root, int nex) {
 void UpdateForward(DdNode *node, int nex) {
   int index, position, mVarIndex;
   DdNode *T, *E, *nodereg;
-  variable v;
+  //  variable v;
   double *value_p, *value_p_T, *value_p_F, p;
 
   if (Cudd_IsConstant(node)) {
@@ -663,7 +663,7 @@ void UpdateForward(DdNode *node, int nex) {
   } else {
     index = Cudd_NodeReadIndex(node);
     mVarIndex = bVar2mVar_ex[nex][index];
-    v = vars_ex[nex][mVarIndex];
+    // v = vars_ex[nex][mVarIndex];
     p = probs_ex[nex][index];
     nodereg = Cudd_Regular(node);
     value_p = get_value(nodesF, nodereg);

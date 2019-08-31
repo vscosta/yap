@@ -96,7 +96,7 @@ s-representation. Note that the vertices without edges will appear in
  _Vertices_ but not in  _Edges_. Moreover, it is sufficient for a
 vertex to appear in  _Edges_.
 
-~~~~~{.prolog}
+~~~~~
 ?- vertices_edges_to_ugraph([],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ? 
@@ -105,7 +105,7 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[]] ?
 In this case all edges are defined implicitly. The next example shows
 three unconnected edges:
 
-~~~~~{.prolog}
+~~~~~
 ?- vertices_edges_to_ugraph([6,7,8],[1-3,2-4,4-5,1-5],L).
 
 L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ? 
@@ -120,7 +120,7 @@ L = [1-[3,5],2-[4],3-[],4-[5],5-[],6-[],7-[],8-[]] ?
 Unify  _NewGraph_ with a new graph obtained by adding the list of
 edges  _Edges_ to the graph  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- add_edges([1-[3,5],2-[4],3-[],4-[5],5-[],6-[],
               7-[],8-[]],[1-6,2-3,3-2,5-7,3-2,4-5],NL).
 
@@ -135,7 +135,7 @@ NL = [1-[3,5,6],2-[3,4],3-[2],4-[5],5-[7],6-[],7-[],8-[]]
 Unify  _NewGraph_ with a new graph obtained by adding the list of
 vertices  _Vertices_ to the graph  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- add_vertices([1-[3,5],2-[4],3-[],4-[5],
                  5-[],6-[],7-[],8-[]],
                 [0,2,9,10,11],
@@ -153,7 +153,7 @@ NG = [0-[],1-[3,5],2-[4],3-[],4-[5],5-[],
 Unify  _NewGraph_ with the graph complementary to  _Graph_.
 In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- complement([1-[3,5],2-[4],3-[],
                4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
@@ -170,7 +170,7 @@ NL = [1-[2,4,6,7,8],2-[1,3,5,6,7,8],3-[1,2,4,5,6,7,8],
 Compose the graphs  _LeftGraph_ and  _RightGraph_ to form  _NewGraph_.
 In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- compose([1-[2],2-[3]],[2-[4],3-[1,2,4]],L).
 
 L = [1-[4],2-[1,2,4],3-[]]
@@ -185,7 +185,7 @@ Unify  _NewGraph_ with a new graph obtained by removing the list of
 edges  _Edges_ from the graph  _Graph_. Notice that no vertices
 are deleted. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- del_edges([1-[3,5],2-[4],3-[],4-[5],5-[],
               6-[],7-[],8-[]],
              [1-6,2-3,3-2,5-7,3-2,4-5,1-3],NL).
@@ -202,7 +202,7 @@ Unify  _NewGraph_ with a new graph obtained by deleting the list of
 vertices  _Vertices_ and all the edges that start from or go to a
 vertex in  _Vertices_ to the graph  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- del_vertices([2,1],[1-[3,5],2-[4],3-[],
                  4-[5],5-[],6-[],7-[2,6],8-[]],NL).
 
@@ -217,7 +217,7 @@ NL = [3-[],4-[5],5-[],6-[],7-[6],8-[]]
 Unify  _Edges_ with all edges appearing in graph
  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
@@ -232,7 +232,7 @@ Unify  _Vertices_ with the list of neighbors of vertex  _Vertex_
 in  _Graph_. If the vertice is not in the graph fail. In the next
 example:
 
-~~~~~{.prolog}
+~~~~~
 ?- neighbors(4,[1-[3,5],2-[4],3-[],
                 4-[1,2,7,5],5-[],6-[],7-[],8-[]],
              NL).
@@ -248,7 +248,7 @@ NL = [1,2,7,5]
 Unify  _Vertices_ with the list of neighbours of vertex  _Vertex_
 in  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- neighbours(4,[1-[3,5],2-[4],3-[],
                  4-[1,2,7,5],5-[],6-[],7-[],8-[]], NL).
 
@@ -263,7 +263,7 @@ NL = [1,2,7,5]
 Unify  _Vertices_ with the set of all vertices in graph
  _Graph_ that are reachable from  _Node_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- reachable(1,[1-[3,5],2-[4],3-[],4-[5],5-[]],V).
 
 V = [1,3,5]
@@ -287,7 +287,7 @@ Generate the set of nodes  _Sort_ as a topological sorting of graph
  _Graph_, if one is possible.
 In the next example we show how topological sorting works for a linear graph:
 
-~~~~~{.prolog}
+~~~~~
 ?- top_sort([_138-[_219],_219-[_139], _139-[]],L).
 
 L = [_138,_219,_139]
@@ -302,7 +302,7 @@ Generate the graph  _Closure_ as the transitive closure of graph
  _Graph_.
 In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- transitive_closure([1-[2,3],2-[4,5],4-[6]],L).
 
 L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
@@ -316,7 +316,7 @@ L = [1-[2,3,4,5,6],2-[4,5,6],4-[6]]
 Unify  _Vertices_ with all vertices appearing in graph
  _Graph_. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- vertices([1-[3,5],2-[4],3-[],4-[5],5-[]], V).
 
 L = [1,2,3,4,5]
@@ -587,7 +587,7 @@ Unify  _NewGraph_ with a new graph obtained from  _Graph_ by
 replacing all edges of the form  _V1-V2_ by edges of the form
  _V2-V1_. The cost is `O(|V|^2)`. In the next example:
 
-~~~~~{.prolog}
+~~~~~
 ?- transpose([1-[3,5],2-[4],3-[],
               4-[5],5-[],6-[],7-[],8-[]], NL).
 

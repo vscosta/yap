@@ -652,6 +652,7 @@ Term Yap_TermVariables(
  return out;
 }
 
+#if UNUSED
 static Term Yap_TermAddVariables(
 				 Term t, Term vs USES_REGS) /* variables in term t		 */
 {
@@ -667,6 +668,7 @@ static Term Yap_TermAddVariables(
     }
  return out;
 }
+#endif
 
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 

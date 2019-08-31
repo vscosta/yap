@@ -999,7 +999,7 @@ struct pred_entry *ENV_ToP(yamop *cp)
 }
 
 static inline
-OPCODE ENV_ToOp(yamop *cp)
+OPCODE ENV_ToOp(yamop*cp)
 {
   return (((yamop *)((CODEADDR)(cp) - (CELL)NEXTOP((yamop *)NULL,Osbpp)))->opc);
 }

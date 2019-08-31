@@ -653,7 +653,7 @@ foldl4_([H|T], Goal, V0, V, W0, W, X0, X, Y0, Y) :-
 Left scan of  list.  The  scanl   family  of  higher  order list
 operations is defined by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       scanl(P, [X11,...,X1n], ..., [Xm1,...,Xmn], V0, [V0,V1,...,Vn]) :-
         P(X11, ..., Xm1, V0, V1),
         ...

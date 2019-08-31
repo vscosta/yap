@@ -536,7 +536,7 @@ close_temp_streams([S|Ss]) :-
  * output of a command, note that popen/3 works as a simplified interface
  * to the exec/3 command:
  *
-~~~~~{.prolog}
+~~~~~
 ?- popen(ls,read,X),repeat, get0(X,C), (C = -1, ! ; put(C)).
 
 X = 'C:\\cygwin\\home\\administrator' ?

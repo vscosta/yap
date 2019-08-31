@@ -1,22 +1,13 @@
-## [Programming in YAP](YAPProgramming)
-[TOC]
+@title
 
-
-### [Loading and Organizing YAP Programs ](load_files)
-
-We present the main predicates and directives available to load
-    files and to control the Prolog environment.
-
-[TOC]
-
-<!--- $0 --->
+@page YAPModules  The YAP Module system
 
 ### [The YAP Module system ](YAPModules)
  <!--- $0 --->
 <!--- $0 --->
 
-<!--- $0 --->
-    The YAP module system is based on the Quintus/SISCtus module
+
+The YAP module system is based on the Quintus/SISCtus module
   system @cite quintus . In this design, modules are named collections of predicates,
   and all predicates belong to a single module. By default, predicates are only
   visible within a module, or _private_ to that module. The module
@@ -53,12 +44,11 @@ We present the main predicates and directives available to load
     it starts consulting a file, and resets it at the end.  One can set
   the type-in module permanently by using the built-in `module/1`.
 
-<!--- $0 --->
-  ### Explicit Naming  <!--- ExplicitNaming --->
- <!--- $0 --->
-<!--- $0 --->
 
-<!--- $0 --->
+  @section ExplicitNaming Explicit Naming 
+
+
+
   The module system allows one to _explicitly_ specify the source mode for
   a clause by prefixing a clause with its module, say:
   
@@ -80,13 +70,13 @@ We present the main predicates and directives available to load
   In fact, it is sufficient to specify the source mode for the clause's
   head:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~}
   user:a :- b.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   if the current type-in module is `m`, the clause could also be written as:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   user:a :- m:b.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -354,4 +344,4 @@ We present the main predicates and directives available to load
   dynamically created modules. The directive argument may also be a list
   of predicates.
 
-  <!--- $0 --->
+  

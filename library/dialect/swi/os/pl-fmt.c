@@ -389,13 +389,13 @@ character (default 1).
 The next argument must be a floating point number. The float  _F_, the number
  _N_ and the control code `c` will be passed to `printf` as:
 
-~~~~~{.prolog}
+~~~~~
     printf("%s.Nc", F)
 ~~~~~
 
 As an example:
 
-~~~~~{.prolog}
+~~~~~
 ?- format("~8e, ~8E, ~8f, ~8g, ~8G~w",
           [3.14,3.14,3.14,3.14,3.14,3.14]).
 3.140000e+00, 3.140000E+00, 3.140000, 3.14, 3.143.14
@@ -406,7 +406,7 @@ The next argument must be an integer, and  _N_ is the number of digits
 after the decimal point. If  _N_ is `0` no decimal points will be
 printed. The default is  _N = 0_.
 
-~~~~~{.prolog}
+~~~~~
 ?- format("~2d, ~d",[15000, 15000]).
 150.00, 15000
 ~~~~~
@@ -415,7 +415,7 @@ printed. The default is  _N = 0_.
 Identical to `~Nd`, except that commas are used to separate groups
 of three digits.
 
-~~~~~{.prolog}
+~~~~~
 ?- format("~2D, ~D",[150000, 150000]).
 1,500.00, 150,000
 ~~~~~
@@ -423,7 +423,7 @@ of three digits.
 + `~i`
 Ignore the next argument in the list of arguments:
 
-~~~~~{.prolog}
+~~~~~
 ?- format('The ~i met the boregrove',[mimsy]).
 The  met the boregrove
 ~~~~~
@@ -431,7 +431,7 @@ The  met the boregrove
 + `~k`
 Print the next argument with `write_canonical`:
 
-~~~~~{.prolog}
+~~~~~
 ?- format("Good night ~k",a+[1,2]).
 Good night +(a,[1,2])
 ~~~~~
@@ -447,7 +447,7 @@ defaults to 1).
 The next argument must be an integer, and  _N_ is interpreted as a
 radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~{.prolog}
+~~~~~
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249f0, 444760
@@ -459,7 +459,7 @@ Note that the letters `a-z` denote digits larger than 9.
 Similar to `~NR`. The next argument must be an integer, and  _N_ is
 interpreted as a radix, such that `2 <= N <= 36` (the default is 8).
 
-~~~~~{.prolog}
+~~~~~
 ?- format("~2r, 0x~16r, ~r",
           [150000, 150000, 150000]).
 100100100111110000, 0x249F0, 444760
@@ -470,7 +470,7 @@ The only difference is that letters `A-Z` denote digits larger than 9.
 + `~p`
 Print the next argument with print/1:
 
-~~~~~{.prolog}
+~~~~~
 ?- format("Good night ~p",a+[1,2]).
 Good night a+[1,2]
 ~~~~~
@@ -478,7 +478,7 @@ Good night a+[1,2]
 + `~q`
 Print the next argument with writeq/1:
 
-~~~~~{.prolog}
+~~~~~
 ?- format("Good night ~q",'Hello'+[1,2]).
 Good night 'Hello'+[1,2]
 ~~~~~
@@ -489,7 +489,7 @@ outputs their representation as a string, where  _N_ is the maximum
 number of characters for the string ( _N_ defaults to the length of the
 string).
 
-~~~~~{.prolog}
+~~~~~
 ?- format("The ~s are ~4s",["woods","lovely"]).
 The woods are love
 ~~~~~

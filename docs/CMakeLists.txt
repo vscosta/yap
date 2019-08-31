@@ -5,22 +5,22 @@ if (WITH_DOCS)
 
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-  SET (CMAKE_HTML_EXTRA_
-${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
-    ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
-          ${DOCS_SOURCE_DIR}/custom/application.js
-   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
-${DOCS_SOURCE_DIR}/custom/customdoxygen.css
-${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
-${DOCS_SOURCE_DIR}/custom/offcanvas.css
-${DOCS_SOURCE_DIR}/custom/theme.css
-${DOCS_SOURCE_DIR}/custom/yap.css
-${DOCS_SOURCE_DIR}/custom/solarized-light.css
+# ${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
+#     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
+#           ${DOCS_SOURCE_DIR}/custom/application.js
+#    ${DOCS_SOURCE_DIR}/custom/offcanvas.js
+# ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
+# ${DOCS_SOURCE_DIR}/custom/customdoxygen.css
+# ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
+# ${DOCS_SOURCE_DIR}/custom/offcanvas.css
+# ${DOCS_SOURCE_DIR}/custom/theme.css
+# ${DOCS_SOURCE_DIR}/custom/yap.css
+# ${DOCS_SOURCE_DIR}/custom/solarized-light.css
 #${DOCS_SOURCE_DIR}/custom/assets
+  SET (CMAKE_HTML_EXTRA_
           )
   
-  foreach(i ${CMAKE_HTML_EXTRA_})
+foreach(i ${CMAKE_HTML_EXTRA_})
     string(APPEND CMAKE_HTML_EXTRA ${i} " ")
   endforeach(i ${CMAKE_HTML_EXTRA_})
   
@@ -101,6 +101,7 @@ ${DOCS_SOURCE_DIR}/custom/solarized-light.css
   add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
   SET(DOC_INPUT_FILES_
+    ${CMAKE_SOURCE_DIR}/docs/dox.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/CXX
@@ -111,14 +112,21 @@ ${DOCS_SOURCE_DIR}/custom/solarized-light.css
     ${CMAKE_SOURCE_DIR}/os
     ${CMAKE_SOURCE_DIR}/library
     ${CMAKE_SOURCE_DIR}/swi/library
+#    ${CMAKE_SOURCE_DIR}/packages
+    ${CMAKE_SOURCE_DIR}/BEAM
+    )
+
+  SET( HTML_INPUT_FILES_
+    ${DOC_INPUT_FILES_}
+    ${CMAKE_SOURCE_DIR}/docs/dox.md
     ${CMAKE_SOURCE_DIR}/packages
     ${CMAKE_SOURCE_DIR}/BEAM
     )
 
-  foreach(i ${DOC_INPUT_FILES_})
+  foreach(i ${HTML_INPUT_FILES_})
 
-    string(APPEND DOC_INPUT_FILES ${i} " ")
-  endforeach(i ${DOC_INPUT_FILES_})
+    string(APPEND HTML_INPUT_FILES ${i} " ")
+  endforeach(i ${HTML_INPUT_FILES_})
 
   set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
   configure_file(${doxyfile_in} ${doxyfile} @ONLY)

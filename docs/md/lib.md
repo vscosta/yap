@@ -1,9 +1,6 @@
+## YAP Prolog Library {#library}
 
-<!-- @file lib.md -->
 
-## [YAP Prolog Library](library)
-
-<!-- @{ -->
 
  YAP supports
  the library_directory path (set by the
@@ -11,5 +8,3 @@
   library are originally from the public-domain Edinburgh Prolog library.
 
 [TOC]
-
-<!-- @} -->

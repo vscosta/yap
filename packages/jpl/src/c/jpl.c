@@ -61,11 +61,11 @@ refactoring (trivial):
 #define JPL_C_LIB_VERSION_PATCH  0
 #define JPL_C_LIB_VERSION_STATUS "alpha"
 
-/*#define DEBUG(n, g) ((void)0) */
+#define DEBUG(n, g) ((void)0)
 #ifndef DEBUG_LEVEL
 #define DEBUG_LEVEL 3
 #endif
-#ifdef __YAP_PROLOG
+#ifdef __YAP_PROLOG__
 #undef DEBUG
 #define DEBUG(n, g) (void)0
 #else

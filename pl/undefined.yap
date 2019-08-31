@@ -48,18 +48,19 @@ The user:unknown_predicate_handler/3 hook was originally include in
 SICStus Prolog. It allows redefining the answer for specifici
 calls. As an example. after defining `undefined/1` by:
 
-~~~~~{.prolog}
-undefined(A) :- format('Undefined predicate: ~w~n',[A]), fail.
+~~~~~
+undefined(A) :- 
+	     format('Undefined predicate: ~w~n',[A]), fail.
 ~~~~~
 and executing the goal:
 
-~~~~~{.prolog}
+~~~~~
 :- assert(user:unknown_predicate_handler(U,M,undefined(M:U)) )
 ~~~~~
 a call to a predicate for which no clauses were defined will result in
 the output of a message of the form:
 
-~~~~~{.prolog}
+~~~~~
 Undefined predicate:
 ~~~~~
 followed by the failure of that call.

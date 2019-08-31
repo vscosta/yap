@@ -404,7 +404,7 @@ same_length([_|List1], [_|List2]) :-
 
 Semi-deterministic selection from a list. Steadfast: defines as
 
-~~~~~{.prolog}
+~~~~~
 selectchk(Elem, List, Residue) :-
         select(Elem, List, Rest0), !,
         Rest = Rest0.
@@ -520,7 +520,7 @@ list_concat([H|T], [H|Lf], Li) :-
 Flatten a list of lists  _List_ into a single list
  _FlattenedList_.
 
-~~~~~{.prolog}
+~~~~~
 ?- flatten([[1],[2,3],[4,[5,6],7,8]],L).
 
 L = [1,2,3,4,5,6,7,8] ? ;

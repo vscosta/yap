@@ -192,7 +192,7 @@ typedef enum {
      Infinity according to the IEEE Floating-Point standard. Note that
    evaluating this term will generate a domain error in the `iso` language mode.
    Also note that
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  ?- +inf =:= -inf.
    * false.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -218,21 +218,21 @@ typedef enum {
 typedef enum {
   /** \+ _X_: the value of _X_ .
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  X =:= +X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uplus,
   /**  \- _X_: the complement of _X_ .
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  0-X =:= -X.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    */
   op_uminus,
   /** \\ _X_, The bitwise negation of _X_ .
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  \X /\ X =:= 0.
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
@@ -242,7 +242,7 @@ typedef enum {
   op_unot,
   /** exp( _X_ ), natural exponentiation of _X_ .
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  X = 0.0, abs(1.0 - exp( _X_ )) < 0.0001
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
@@ -250,7 +250,7 @@ typedef enum {
   op_exp,
   /** log( _X_ ), natural logarithm of _X_ .
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *  X = 1.0, abs( log( exp( _X_ )) -1.0) < 0.0001
    *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *
@@ -260,7 +260,7 @@ typedef enum {
    *
    * Decimal logarithm.
    *
-   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+   *  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    *   ?- between(1, 10, I), Delta is log10(I*10) + log10(1/(I*10)), format('0
    * == ~3g~n',[Delta]), fail.
    *   0 == 0
