@@ -23,6 +23,12 @@ static char SccsId[] = "%W% %G%";
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
+/** 
+ * @addtogroup FilesM
+ *
+ * @{
+ *
+ */
 
 #include "sysbits.h"
 #include "yapio.h"

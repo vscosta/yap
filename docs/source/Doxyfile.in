@@ -18,7 +18,7 @@ CITE_BIB_FILES         =
 INPUT                  = @XML_INPUT_FILES@
 RECURSIVE              = YES
 EXCLUDE                = @DOCS_DIR_EXCLUDE@
-EXCLUDE_PATTERNS       = @DOCS_EXCLUDE@ @CMAKE_SOURCE_DIR@/C/*absmi*
+EXCLUDE_PATTERNS       = @DOCS_EXCLUDE@ @CMAKE_SOURCE_DIR@/C/*absmi* @CMAKE_SOURCE_DIR@/*/traced*
 
 EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/docs
@@ -78,14 +78,12 @@ PREDEFINED             =  DOXYFILE=1 \
                                                   USES_REGS1:="void" \
                                                   PASS_REGS:="" \
                                                   PASS_REGS1:="" \
-                                                   \
-                                                  PREG:=Yap_REGS.P_ \
-                                                  SREG:=Yap_REGS.S_ \
-                                                  CPREG:=Yap_REGS.CP_ \
-                                                  ALWAYS_LOOKAHEAD:=""\
-                                                  INITIALIZE_PERMVAR:=""\
-                                                  SET_ASP:=""\
-                                                  REGS_H=1\
-                                                  ABSMI_H=1\
-                                                  AMIDEFS_H=1
+                                                  OR_MACROS_H=1 \
+                                                  TAB_MACROS_H=1 \
+                                                  TAB_TRIES_H=1 \
+                                                  TAB_TRIES_INSTS_H=1 \
+                                                  REGS_H=1 \
+                                                  ABSMI_H=1 \
+                                                  AMIDEFS_H=1 \
+                                                  BASE_TRIES_H=1
 TAGFILES               =

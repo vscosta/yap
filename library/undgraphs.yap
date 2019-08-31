@@ -2,7 +2,7 @@
  * @file   undgraphs.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
  * @date   2006
- *
+ * @{
  * @brief  Undirected Graph Processing Utilities.
  * 
  * 

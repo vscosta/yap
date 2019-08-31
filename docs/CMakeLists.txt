@@ -5,20 +5,22 @@ if (WITH_DOCS)
 
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-# ${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
-#     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
-#           ${DOCS_SOURCE_DIR}/custom/application.js
-#    ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-# ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
-# ${DOCS_SOURCE_DIR}/custom/customdoxygen.css
-# ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
-# ${DOCS_SOURCE_DIR}/custom/offcanvas.css
-# ${DOCS_SOURCE_DIR}/custom/theme.css
-# ${DOCS_SOURCE_DIR}/custom/yap.css
-# ${DOCS_SOURCE_DIR}/custom/solarized-light.css
-#${DOCS_SOURCE_DIR}/custom/assets
-  SET (CMAKE_HTML_EXTRA_
-          )
+  set(CMAKE_HTML_EXTRA_
+${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
+    ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
+          ${DOCS_SOURCE_DIR}/custom/application.js
+   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
+${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
+${DOCS_SOURCE_DIR}/custom/bootstrap.min.js
+${DOCS_SOURCE_DIR}/custom/popper.min.js
+${DOCS_SOURCE_DIR}/custom/customdoxygen.css
+${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
+${DOCS_SOURCE_DIR}/custom/offcanvas.css
+${DOCS_SOURCE_DIR}/custom/theme.css
+${DOCS_SOURCE_DIR}/custom/yap.css
+${DOCS_SOURCE_DIR}/custom/solarized-light.css
+${DOCS_SOURCE_DIR}/custom/assets
+           )
   
 foreach(i ${CMAKE_HTML_EXTRA_})
     string(APPEND CMAKE_HTML_EXTRA ${i} " ")
@@ -47,7 +49,7 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
     ${CMAKE_SOURCE_DIR}/packages/gecode/dev
     ${CMAKE_SOURCE_DIR}/packages/cplint
-    ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
+xb    ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
     ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/prosqlite
@@ -133,12 +135,8 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
     SET( XML_INPUT_FILES_
             ${DOC_INPUT_FILES_}
-            ${CMAKE_SOURCE_DIR}/docs/yap.md
-            ${CMAKE_SOURCE_DIR}/docs/core.md
-            ${CMAKE_SOURCE_DIR}/docs/lib.md
-            ${CMAKE_SOURCE_DIR}/docs/extensions.md
-            ${CMAKE_SOURCE_DIR}/docs/swi.md
-            ${CMAKE_SOURCE_DIR}/BEAM
+          ${CMAKE_SOURCE_DIR}/docs/dox.md
+              ${CMAKE_SOURCE_DIR}/BEAM
             )
 
     foreach(i ${XML_INPUT_FILES_})

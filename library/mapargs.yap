@@ -25,6 +25,7 @@
 /**
 * @defgroup mapargs Apply a predicate to all  arguments of a term
 * @ingroup library
+* @{
 */
 
 
@@ -382,3 +383,5 @@ goal_expansion(foldargs(Meta, In, Out1, Out2, Out3, Acc0, AccF), (functor(In, Na
 	compile_aux([
 		     (RecursionHead :- I == Ar -> VAcc0 = VAccF ; I1 is I+1, arg(I1, In, AIn), arg(I1, Out1, AOut1), arg(I1, Out2, AOut2), arg(I1, Out3, AOut3), Apply, RecursiveCall )
 		    ], Mod).
+
+%% @}

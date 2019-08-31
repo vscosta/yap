@@ -40,7 +40,7 @@
 /**
 * @defgroup readutil Reading Lines and Files
 * @ingroup library
-*
+* @{
 *  Read full lines and a full file in a single call.
 *
 */
@@ -78,3 +78,5 @@ prolog_read_stream_to_terms(Stream, Terms, Terms0) :-
 	    Terms = [Term|TermsI],
 	    prolog_read_stream_to_terms(Stream, TermsI, Terms0)
 	).
+
+%% }

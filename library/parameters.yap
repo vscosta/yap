@@ -23,11 +23,11 @@
 
 
 
-%%! @{
 
 /**
   * @defgroup parameters Automating test generation
   * @ingroup library
+  * @{
 
   This library aims at facilitating test generation in a logic
   program, namely when interfacing to foreign code. It introduces the

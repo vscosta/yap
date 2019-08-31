@@ -15,6 +15,9 @@
 **      Includes & Prototypes      **
 ************************************/
 
+#ifndef TAB_TRiES_H
+#define TAB_TRIES_H 1
+
 #include "Yap.h"
 #ifdef TABLING
 #include "Yatom.h"
@@ -1896,3 +1899,5 @@ void showGlobalTrie(int show_mode, FILE *out) {
   return;
 }
 #endif /* TABLING */
+
+#endif

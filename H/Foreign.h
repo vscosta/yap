@@ -137,3 +137,5 @@ void Yap_ShutdownLoadForeign(void);
 X_API bool load_none(void);
 
 #endif
+
+/// @}

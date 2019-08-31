@@ -21,11 +21,15 @@ static char SccsId[] = "%W% %G%";
 /**
  * @file format.c
  *
+ */
+
+/**
  * @defgroup FormattedIO Formatted Output
- * @ingroup InputOutput                                                                                         
- * This file includes the definition of the formatted output predicates.
- *
+ * @ingroup InputOutput 
+ *             
  * @{
+ *
+ * This file includes the definition of the formatted output predicates.
  *
  * @pred  format(+ _T_, :_L_)
 

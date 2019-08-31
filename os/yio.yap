@@ -56,95 +56,80 @@
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
 /** @defgroup InputOutput Input/Output Predicates
-@ingroup builtins
-
-Some of the Input/Output predicates described below will in certain conditions
-provide error messages and abort only if the file_errors flag is set.
-If this flag is cleared the same predicates will just fail. Details on
-setting and clearing this flag are given under 7.7.
-
-  @{
+ ⁸ @ingroup builtins
+ *
+ * @{
+ * 
+ * Some of the Input/Output predicates described below will in certain conditions
+ * provide error messages and abort only if the file_errors flag is set.
+ * If this flag is cleared the same predicates will just fail. Details on
+ * setting and clearing this flag are given under 7.7.
+ * @}
  */
 
 /* stream predicates							*/
 
-/** @defgroup IO_Sockets YAP Old Style Socket and Pipe Interface
-     @{
-
-    Autoload the socket/pipe library
-
-*/
-
-/** @pred  socket(+ _DOMAIN_,- _SOCKET_)
-
-Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
- _PROTOCOL_ bound to `0`.
-
-
+/** @defgroup IOSockets YAP Old Style Socket and Pipe Interface
+ * @ingroup InputOutput
+ *      @{
+ * 
+ *     Autoload the socket/pipe library
+ * 
+ * */
+ * 
+ * /** @pred  socket(+ _DOMAIN_,- _SOCKET_)
+ * 
+ * Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
+ *  _PROTOCOL_ bound to `0`.
+ * 
+ * 
 */
 
 /** @pred  socket(+ _DOMAIN_,+ _TYPE_,+ _PROTOCOL_,- _SOCKET_)
-
-Corresponds to the BSD system call `socket`. Create a socket for
-domain  _DOMAIN_ of type  _TYPE_ and protocol
- _PROTOCOL_. Both  _DOMAIN_ and  _TYPE_ should be atoms,
-whereas  _PROTOCOL_ must be an integer.
-The new socket object is
-accessible through a descriptor bound to the variable  _SOCKET_.
-
-The current implementation of YAP  accepts socket
-domains `AF_INET` and `AF_UNIX`.
-Socket types depend on the
-underlying operating system, but at least the following types are
-supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
-
-
+ * 
+ * Corresponds to the BSD system call `socket`. Create a socket for
+ * domain  _DOMAIN_ of type  _TYPE_ and protocol
+ *  _PROTOCOL_. Both  _DOMAIN_ and  _TYPE_ should be atoms,
+ * whereas  _PROTOCOL_ must be an integer.
+ * The new socket object is
+ * accessible through a descriptor bound to the variable  _SOCKET_.
+ * 
+ * The current implementation of YAP  accepts socket
+ * domains `AF_INET` and `AF_UNIX`.
+ * Socket types depend on the
+ * underlying operating system, but at least the following types are
+ * supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
+ * 
+ * 
 */
 
 /** @pred  socket_connect(+ _SOCKET_, + _PORT_, - _STREAM_)
-
-Interface to system call `connect`, used for web clients: connect
-socket  _SOCKET_ to  _PORT_. The connection results in the
-read/write stream  _STREAM_.
-
-Port information depends on the domain:
-
-+ 'AF_UNIX'(+ _FILENAME_)
-   connect to socket at file  _FILENAME_.
-
-+ 'AF_INET'(+ _HOST_,+ _PORT_)
-   Connect to socket at host  _HOST_ and port  _PORT_.
+ * 
+ * Interface to system call `connect`, used for web clients: connect
+ * socket  _SOCKET_ to  _PORT_. The connection results in the
+ * read/write stream  _STREAM_.
+ * 
+ * Port information depends on the domain:
+ * 
+ * + 'AF_UNIX'(+ _FILENAME_)
+ *    connect to socket at file  _FILENAME_.
+ * 
+ * + 'AF_INET'(+ _HOST_,+ _PORT_)
+ *    Connect to socket at host  _HOST_ and port  _PORT_.
 */
 
 
 /** @pred open_pipe_streams(Read, Write)
-
-  Autoload old pipe access interface
-
+ * 
+ *   Autoload old pipe access interface
+ * 
 */
 %! @}
 
 
-
-
-/** @pred  exists(+ _F_)
-
-Checks if file  _F_ exists in the current directory.
-
-*/
-exists(F) :-
-	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
-
-%! @addtogroup ReadTerm
-%   @{
-
-/* Term IO	*/
-
-
-%! @}
 
 %! @addtogroup Write
-%   @{
+%%   @{
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -186,7 +171,7 @@ display(Stream, T) :-
 %! @}
 
 %! @addtogroup Format
-%   @{
+%%   @{
 
 /** @pred  format(+ _T_)
 
@@ -199,8 +184,9 @@ format(T) :-
 
 %! @}
 
-%! @addtogroup CharsIO
-%   @{
+%! @addtogroup CharIO
+
+%%   @{
 
 /* character I/O	*/
 
@@ -252,7 +238,7 @@ ttynl :- nl(user_output).
 %! @}
 
 %! @addtogroup StreamM
-%   @{
+%!   @{
 
 /** @pred  current_line_number(- _LineNumber_)
 
@@ -333,6 +319,14 @@ current_char_conversion(X,Y) :-
 split_path_file(File, Path, Name) :-
 	file_directory_name(File, Path),
 	file_base_name(File, Name).
+
+*/
+
+
+%! @}
+
+%! @addtogroup StreamM
+%!   @{
 
 /** @pred  current_stream( _F_, _M_, _S_)
 
@@ -423,11 +417,27 @@ stream_position_data(Prop, Term, Value) :-
 
 %! @}
 
-
+/**
+ * @defgroup FilesM File and Directory Operations
+ * @ingroup InputOutput
+ * @{
+ *
+ */
 '$codes_to_chars'(String0, String, String0) :- String0 == String, !.
 '$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
 	atom_codes(Char, [Code]),
 	'$codes_to_chars'(String0, String, Chars).
+
+
+
+/** @pred  exists(+ _F_)
+
+Checks if file  _F_ exists in the current directory.
+
+*/
+exists(F) :-
+	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
+
 
 /** @pred file_exists(+ _File__)
 

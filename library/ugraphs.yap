@@ -4,7 +4,6 @@
  * @author adapted to support some of the functionality of the SICStus ugraphs library
 by Vitor Santos Costa.
  * @date  20 March 1984
- * 
  * @brief  
  * 
  * 
