@@ -68,9 +68,9 @@ include_directories (
   configure_file ("yap4r/src/Makevars.in" "yap4r/src/Makevars" )
 
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/DESCRIPTION ${CMAKE_CURRENT_BINARY_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src/yap4r.cpp 
-  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/src
-  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/man
-  COMMAND ${CMAKE_COMMAND} -E make_directory yap4r/R
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/src
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/man/yap4r-package.Rd ${CMAKE_CURRENT_BINARY_DIR}/yap4r/man
     COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/R/zzz.R ${CMAKE_CURRENT_BINARY_DIR}/yap4r/R
     COMMAND ${CMAKE_COMMAND} -E copy  ${CMAKE_CURRENT_SOURCE_DIR}/yap4r/NAMESPACE ${CMAKE_CURRENT_BINARY_DIR}/yap4r
@@ -80,13 +80,13 @@ include_directories (
 
   if(HAVE_RCPP)
 
-add_custom_target(YAP4R 
-#COMMAND ${R_EXEC} --slave -e "library(Rcpp); compileAttributes('yap4r')"
-#COMMAND ${R_EXEC} CMD build yap4r
-  VERBATIM
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
- DEPENDS real  ${YAP4R_SOURCES}
- )
+# add_custom_target(YAP4R 
+# COMMAND ${R_EXEC} --slave -e "library(Rcpp); compileAttributes('yap4r')"
+# COMMAND ${R_EXEC} CMD build yap4r
+#  VERBATIM
+#  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+# DEPENDS real  ${YAP4R_SOURCES}
+# )
 
  
 

@@ -148,6 +148,8 @@ extern bool Yap_flush(int sno);
 extern uint64_t HashFunction(const unsigned char *);
 extern uint64_t WideHashFunction(wchar_t *);
 
+extern void Yap_InitAbsfPreds(void);
+
 INLINE_ONLY Term MkCharTerm(Int c);
 
 /**

@@ -93,6 +93,7 @@ absolute_file_name__(File,LOpts,TrueFileName) :-
 prolog:core_file_name(Name, Opts) -->
     '$file_name'(Name, Opts, E),
     '$suffix'(E, Opts),
+    expand_file_name,
     '$glob'(Opts).
 				%
 % handle library(lists) or foreign(jpl)
