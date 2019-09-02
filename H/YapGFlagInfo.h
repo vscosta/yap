@@ -15,7 +15,7 @@
 
 /**
  * @file   YapGFlagInfo.h
- * @author Vítor Santos Costa <vsc@vsc-XPS-15-9570>
+ * @author Vítor Santos Costa
  * @date   Thu Jul 11 12:21:10 2019
  * 
  * @brief  global flags and their default values.
@@ -526,7 +526,7 @@ The specified value is passed to `printf()`
   YAP_FLAG(REDEFINE_WARNINGS_FLAG, "redefine_warnings", true, booleanFlag,
              "true", NULL), /**<
 
-@briefIf  _Value_ is unbound, tell whether warnings for procedures defined
+@brief If  _Value_ is unbound, tell whether warnings for procedures defined
 in several different files are `on` or
 `off`. If  _Value_ is bound to `on` enable these warnings,
 and if it is bound to `off` disable them. The default for YAP is
@@ -534,6 +534,7 @@ and if it is bound to `off` disable them. The default for YAP is
 			    */
     YAP_FLAG(REPORT_ERROR_FLAG, "report_error", true, booleanFlag, "true",
              NULL),
+
 
 
   YAP_FLAG(RESOURCE_DATABASE_FLAG, "resource_database", false, isatom,

@@ -19,9 +19,7 @@
 
 @file arrays.yap
 
-@addtogroup YAPArraysPl Prolog Support for seeing terms as arrays and for data-base arrays of objects
-
-  @ingroup YAPArrays
+@addtogroup YAPArrays
   
 @{
 */
@@ -31,7 +29,6 @@
 %
 
 /** @pred  array( +Name, +Size )
-
 
 Creates a new dynamic array. The  _Size_ must evaluate to an
 integer. The  _Name_ may be either an atom (named array) or an

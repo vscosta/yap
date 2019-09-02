@@ -18,18 +18,20 @@
 
 @file YapEval.h
 
-    @defgroup arithmetic Arithmetic in YAP
+@defgroup arithmetic Arithmetic in YAP
 
 @ingroup builtins
 
-+ See @ref arithmetic_preds for the predicates that implement arithment
+@{
 
-  + See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
++ See @ref arithmetic_preds for the predicates that implement arithmetic
 
-  + See @ref arithmetic_operators for what arithmetic operations are supported
++ See @ref arithmetic_cmps for the arithmetic comparisons supported in YAP
+
++ See @ref arithmetic_operators for what arithmetic operations are supported
 in YAP
 
-    YAP supports several different numeric types:
+YAP supports several different numeric types:
 <ul>
  <li><b>Tagged integers</b><p>
 
@@ -97,13 +99,6 @@ positive or zero
 overflow
 
     @tableofcontents
-
-@secreflist
-@refitem is/2
-@refitem isnan/1
-@endsecreflist
-
-@{
 
  **/
 

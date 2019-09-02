@@ -1,0 +1,89 @@
+
+OUTPUT_DIRECTORY       = @PROJECT_BINARY_DIR@/docs/source
+BUILTIN_STL_SUPPORT    = YES
+#DISTRIBUTE_GROUP_DOC   = NO
+
+#GROUP_NESTED_COMPOUNDS = NO
+#SUBGROUPING            = YES
+INLINE_GROUPED_CLASSES = YES
+INLINE_SIMPLE_STRUCTS  = YES
+TYPEDEF_HIDES_STRUCT   = YES
+
+HIDE_UNDOC_CLASSES     = NO
+SORT_MEMBER_DOCS       = NO
+SORT_GROUP_NAMES       = NO
+SHOW_NAMESPACES        = NO
+
+CITE_BIB_FILES         =
+INPUT                  = @XML_INPUT_FILES@
+RECURSIVE              = YES
+EXCLUDE                = @DOCS_DIR_EXCLUDE@
+EXCLUDE_PATTERNS       = @DOCS_EXCLUDE@ @CMAKE_SOURCE_DIR@/C/*absmi* @CMAKE_SOURCE_DIR@/*/traced*
+
+EXCLUDE_SYMBOLS        =
+EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/docs
+EXAMPLE_PATTERNS       =
+
+EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             = @CMAKE_SOURCE_DIR@/docs/icons
+FILTER_SOURCE_PATTERNS =
+USE_MDFILE_AS_MAINPAGE = @doxy_main_page@
+SOURCE_BROWSER         = YES
+
+# Setting the INLINE_SOURCES tag to YES will include the body of functions,
+# classes and enums directly into the documentation.
+# The default value is: NO.
+
+INLINE_SOURCES         = NO
+
+# Setting the STRIP_CODE_COMMENTS tag to YES will instruct doxygen to hide any
+# special comment blocks from generated source code fragments. Normal C, C++ and
+# Fortran comments will always remain visible.
+# The default value is: YES.
+
+STRIP_CODE_COMMENTS    = NO
+USE_HTAGS              = NO
+ALPHABETICAL_INDEX     = YES
+GENERATE_HTML          = YES
+GENERATE_LATEX         = YES
+GENERATE_DOC           = YES
+GENERATE_XML           = YES
+
+XML_OUTPUT             = xml
+XML_PROGRAMLISTING     = YES
+
+GENERATE_DOCBOOK       = NO
+GENERATE_AUTOGEN_DEF   = NO
+GENERATE_PERLMOD       = NO
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+INCLUDE_PATH           = @CMAKE_BINARY_DIR@ \
+                         @PROJECT_SOURCE_DIR@/H \
+                         @PROJECT_SOURCE_DIR@/H/generated \
+                         @PROJECT_SOURCE_DIR@/include \
+                         @PROJECT_SOURCE_DIR@/os \
+                         @PROJECT_SOURCE_DIR@/OPTYap
+PREDEFINED             =  DOXYFILE=1 \
+                                                  START_LOCAL_FLAGS:="enum THREAD_LOCAL_FLAGS {" \
+                                                  END_LOCAL_FLAGS:=" };" \
+                                                  LOCAL(A,B):="A B" \
+                                                  LOCAL_INIT(A,B):="A B;B = C" \
+                                                  LOCAL_ARRAY(A,B,C):="A B[C]" \
+                                                  LOCAL_ARRAY_ARRAY(A,B,C,D):="A B[C][D]" \
+                                                  LOCAL(A,B):="A B" \
+                                                  LOCAL_INITF(A,B,C):="A B; C" \
+                                                  LOCAL_INIT_RESTORE(A, B, C, D):="A B; C; D;" \
+                                                  USES_REGS:="" \
+                                                  USES_REGS1:="void" \
+                                                  PASS_REGS:="" \
+                                                  PASS_REGS1:="" \
+                                                  OR_MACROS_H=1 \
+                                                  TAB_MACROS_H=1 \
+                                                  TAB_TRIES_H=1 \
+                                                  TAB_TRIES_INSTS_H=1 \
+                                                  REGS_H=1 \
+                                                  ABSMI_H=1 \
+                                                  AMIDEFS_H=1 \
+                                                  BASE_TRIES_H=1
+TAGFILES               =

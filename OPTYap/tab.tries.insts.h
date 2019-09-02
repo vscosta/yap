@@ -47,6 +47,9 @@
 **                      Trie instructions: macros                      **
 ************************************************************************/
 
+#ifndef TAB_TRIES_INSTS_H
+#define  TAB_TRIES_INSTS_H 1
+
 #define TOP_STACK          YENV
 
 #define HEAP_ARITY_ENTRY   (0)
@@ -1227,3 +1230,6 @@
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1, node); 
   ENDPBOp();
+
+
+#endif

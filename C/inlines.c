@@ -21,12 +21,12 @@
 
     @file inlines.c
 
-    @{
 
     @defgroup YAP_Inlines Inlined Tests nad Ter Manipulation
 
     @ingroup builtins
 
+   @{
 
 */
 
@@ -526,22 +526,22 @@ difference between this predicate and =/2 is that, if one of the
 arguments is a free variable, it only succeeds when they have already
 been unified.
 
-~~~~~{.prolog}
+~~~~~
 ?- X == Y.
 ~~~~~
 fails, but,
 
-~~~~~{.prolog}
+~~~~~
 ?- X = Y, X == Y.
 ~~~~~
 succeeds.
 
-~~~~~{.prolog}
+~~~~~
 ?- X == 2.
 ~~~~~
 fails, but,
 
-~~~~~{.prolog}
+~~~~~
 ?- X = 2, X == 2.
 ~~~~~
 succeeds.
@@ -1170,7 +1170,10 @@ cont_genarg( USES_REGS1 )
       Yap_unify(ARG3,pt[0]);
 }
 
+/// @}
 
+/// @addtogroup inlines
+/// @{
  void
    Yap_InitInlines(void)
  {
@@ -1209,4 +1212,4 @@ cont_genarg( USES_REGS1 )
 }
 
 
-// @}
+/// @}

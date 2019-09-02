@@ -44,7 +44,7 @@ extensions = ['sphinx.ext.autodoc',
               'breathe'
 ]
 
-breathe_projects = { "yap": "/home/vsc/github/yap-6.3/docs/xml" }
+breathe_projects = { "yap": "/home/vsc/github/yap-6.3/docs/source/xml" }
 breathe_default_project = "yap"
 
 # Add any paths that contain templates here, relative to this directory.

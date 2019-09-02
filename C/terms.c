@@ -1409,4 +1409,4 @@ void Yap_InitTermCPreds(void) {
   Yap_InitCPred("largest_numbervar", 2, largest_numbervar, 0);
 }
 
-//@}
+///@}

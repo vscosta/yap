@@ -342,7 +342,7 @@ if (a==NULL) return;
    calls=a->calls;
    while(calls!=NULL) {
         if (calls->locals!=NULL) {
-	  /* primeiro vou ver se j· foi copiado */
+	  /* primeiro vou ver se j√° foi copiado */
 	  for(i=0;i<counted;i+=2) {
 	    if (backup[i]==calls->locals) {
 	      calls->locals=backup[i+1];

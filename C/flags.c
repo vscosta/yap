@@ -1882,4 +1882,4 @@ void Yap_InitFlags(bool bootstrap) {
 
 /* Accessing and changing the flags for a predicate */
 
-// @}
+/// @}

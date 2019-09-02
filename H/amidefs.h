@@ -176,7 +176,7 @@ typedef enum {
 #endif
 #define OpCodeSize   sizeof(OPCODE)
 
-/*
+/**
 
   Types of possible YAAM instructions.
 
@@ -206,8 +206,7 @@ typedef enum {
   x: wam register, wamreg
   y: environment slot
 
-*/
-/* This declaration is going to be parsed by a Prolog program, so:
+ This declaration is going to be parsed by a Prolog program, so:
    comments are welcome, but they should take a whole line,
    every field declaration should also take a single line,
    please check the Prolog program if you come up with a complicated C-type that does not start by unsigned or struct.

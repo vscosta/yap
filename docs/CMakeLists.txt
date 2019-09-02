@@ -5,20 +5,22 @@ if (WITH_DOCS)
 
   set(DOCS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/docs)
 
-# ${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
-#     ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
-#           ${DOCS_SOURCE_DIR}/custom/application.js
-#    ${DOCS_SOURCE_DIR}/custom/offcanvas.js
-# ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
-# ${DOCS_SOURCE_DIR}/custom/customdoxygen.css
-# ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
-# ${DOCS_SOURCE_DIR}/custom/offcanvas.css
-# ${DOCS_SOURCE_DIR}/custom/theme.css
-# ${DOCS_SOURCE_DIR}/custom/yap.css
-# ${DOCS_SOURCE_DIR}/custom/solarized-light.css
-#${DOCS_SOURCE_DIR}/custom/assets
-  SET (CMAKE_HTML_EXTRA_
-          )
+  set(CMAKE_HTML_EXTRA_
+${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
+    ${DOCS_SOURCE_DIR}/custom/doxy-boot.js
+          ${DOCS_SOURCE_DIR}/custom/application.js
+   ${DOCS_SOURCE_DIR}/custom/offcanvas.js
+${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
+${DOCS_SOURCE_DIR}/custom/bootstrap.min.js
+${DOCS_SOURCE_DIR}/custom/popper.min.js
+${DOCS_SOURCE_DIR}/custom/customdoxygen.css
+${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
+${DOCS_SOURCE_DIR}/custom/offcanvas.css
+${DOCS_SOURCE_DIR}/custom/theme.css
+${DOCS_SOURCE_DIR}/custom/yap.css
+${DOCS_SOURCE_DIR}/custom/solarized-light.css
+${DOCS_SOURCE_DIR}/custom/assets
+           )
   
 foreach(i ${CMAKE_HTML_EXTRA_})
     string(APPEND CMAKE_HTML_EXTRA ${i} " ")
@@ -47,7 +49,7 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     ${CMAKE_SOURCE_DIR}/packages/gecode/3.6.0
     ${CMAKE_SOURCE_DIR}/packages/gecode/dev
     ${CMAKE_SOURCE_DIR}/packages/cplint
-    ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
+xb    ${CMAKE_SOURCE_DIR}/packages/CLPBN/examples
     ${CMAKE_SOURCE_DIR}/packages/CLPBN/horus
     ${CMAKE_SOURCE_DIR}/packages/cuda
     ${CMAKE_SOURCE_DIR}/packages/prosqlite
@@ -61,8 +63,9 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
 
   set(DOCS_EXCLUDE_
-    ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
-    ${CMAKE_SOURCE_DIR}/H/globals.h
+          ${CMAKE_SOURCE_DIR}/C/traced_absmi_insts.h
+          ${CMAKE_SOURCE_DIR}/C/*.i
+          ${CMAKE_SOURCE_DIR}/H/globals.h
     ${CMAKE_SOURCE_DIR}/OPTYap/locks_alpha_funcs.h
     ${CMAKE_SOURCE_DIR}/OPTYap/locks_mips_funcs.h
     ${CMAKE_SOURCE_DIR}/OPTYap/locks_sparc.h
@@ -77,8 +80,9 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5.yap 
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode3_yap_hand_written.yap  
     ${CMAKE_SOURCE_DIR}/packages/gecode/gecode4_yap_hand_written.yap
-    ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
-    */CMakeFiles/*
+          ${CMAKE_SOURCE_DIR}/packages/gecode/gecode5_yap_hand_written.yap
+          ${CMAKE_SOURCE_DIR}/traced_absmi_insts.h
+          */CMakeFiles/*
     )
 
 
@@ -98,10 +102,12 @@ foreach(i ${CMAKE_HTML_EXTRA_})
 
   set(doxyfile_in ${CMAKE_SOURCE_DIR}/docs/Doxyfile.in)
 
+  set(doxyfile_inxml ${CMAKE_SOURCE_DIR}/docs/source/Doxyfile.in)
+
+
   add_subdirectory(../packages/raptor/doc ${CMAKE_BINARY_DIR}/packages/raptor/doc)
 
   SET(DOC_INPUT_FILES_
-    ${CMAKE_SOURCE_DIR}/docs/dox.md
     ${CMAKE_SOURCE_DIR}/docs/md
     ${CMAKE_SOURCE_DIR}/pl
     ${CMAKE_SOURCE_DIR}/CXX
@@ -117,29 +123,46 @@ foreach(i ${CMAKE_HTML_EXTRA_})
     )
 
   SET( HTML_INPUT_FILES_
-    ${DOC_INPUT_FILES_}
-    ${CMAKE_SOURCE_DIR}/docs/dox.md
-    ${CMAKE_SOURCE_DIR}/packages
-    ${CMAKE_SOURCE_DIR}/BEAM
-    )
+          ${DOC_INPUT_FILES_}
+          ${CMAKE_SOURCE_DIR}/docs/dox.md
+          ${CMAKE_SOURCE_DIR}/packages
+          ${CMAKE_SOURCE_DIR}/BEAM
+          )
 
   foreach(i ${HTML_INPUT_FILES_})
-
     string(APPEND HTML_INPUT_FILES ${i} " ")
   endforeach(i ${HTML_INPUT_FILES_})
 
+    SET( XML_INPUT_FILES_
+            ${DOC_INPUT_FILES_}
+          ${CMAKE_SOURCE_DIR}/docs/dox.md
+              ${CMAKE_SOURCE_DIR}/BEAM
+            )
+
+    foreach(i ${XML_INPUT_FILES_})
+
+      string(APPEND XML_INPUT_FILES ${i} " ")
+  endforeach(i ${XML_INPUT_FILES_})
+
   set(doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+  set(doxyfilexml ${CMAKE_CURRENT_BINARY_DIR}/source/Doxyfile)
   configure_file(${doxyfile_in} ${doxyfile} @ONLY)
+  configure_file(${doxyfile_inxml} ${doxyfilexml} @ONLY)
 
   configure_file(${CMAKE_SOURCE_DIR}/docs/source/conf.py.in source/conf.py)
   configure_file(${CMAKE_SOURCE_DIR}/docs/source/index.rst source/index.rst)
-  
-  add_custom_target(docs
-    COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
-    )
+
+add_custom_target(docs
+COMMAND ${DOXYGEN_EXECUTABLE} ${doxyfile}
+)
+
+add_custom_target(sphinx
+COMMAND ${DOXYGEN_EXECUTABLE}  ${doxyfilexml}
+
+)
 
 
-  if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/html)
+if (EXISTS ${CMAKE_CURRENT_BINARY_DIR}/html)
     install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html DESTINATION ${docdir})
 
     install(FILES  ${CODES} DESTINATION ${docdir})

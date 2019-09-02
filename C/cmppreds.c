@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -828,10 +827,6 @@ static Int a_le(Term t1, Term t2) { /* A <= B */
   Int out = a_cmp(Deref(t1), Deref(t2) PASS_REGS);
   return out <= 0;
 }
-
-/**
- @}
-*/
 
 void Yap_InitCmpPreds(void) {
   Yap_InitCmpPred("=:=", 2, a_eq, SafePredFlag | BinaryPredFlag);

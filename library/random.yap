@@ -37,9 +37,9 @@
 
 /**
 
-  @{
   @defgroup random Random Number Generator
   @ingroup library
+  @{
 
  Since YAP-4.3.19 YAP uses
 the O'Keefe public-domain algorithm, based on the "Applied Statistics"

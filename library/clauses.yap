@@ -18,6 +18,7 @@
 /**
  *  @defgroup clauses Clause Manipulation
  *  @ingroup library
+ *  @{
 
   This library supports a number of useful utilities that come up over and
   over again when manipulating Prolog programs. This will include

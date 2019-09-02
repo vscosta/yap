@@ -25,7 +25,7 @@
   * @defgroup Statistics System Status
   * @ingroup builtins
   * 
-  * 
+  * @{
 */
 
 :- system_module( '$_statistics', [key_statistics/3,
@@ -370,3 +370,5 @@ time(Goal) :-
 	->  throw(E)
 	;   Result == yes
 	).
+
+%% @}

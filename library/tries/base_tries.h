@@ -5,7 +5,7 @@
   version:  $ID$
 *********************************************/
 
-
+#ifndef BASE_TRIES_H
 
 /* --------------------------- */
 /*           Defines           */
@@ -146,3 +146,5 @@ extern void     trie_enable_hash_table(void);
 YAP_Term trie_to_list(TrEntry trie);
 
 #include "base_dbtries.h"
+
+#endif

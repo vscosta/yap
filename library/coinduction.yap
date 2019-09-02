@@ -30,7 +30,7 @@
 /**
  * @defgroup coinduction Co-Logic Programming
  * @ingroup library
- *
+ * @{
  * @author Code originally written by Arvin Bansal and Vitor Santos Costa
  * @author Includes nice extensions from Jan Wielemaker (from the SWI version).
  *
@@ -46,6 +46,13 @@
           ]).
 
 :- use_module(library(error)).
+
+/**
+
+@addtogroup coinduction Co-induction
+@ingroup library
+@{
+
 
 This simple module implements the   directive coinductive/1 as described
 in "Co-Logic Programming: Extending Logic  Programming with Coinduction"
@@ -80,10 +87,6 @@ regardless of the cycle-length.
         left as a responsibility to the user.
 `@see`    "Co-Logic Programming: Extending Logic  Programming with Coinduction"
         by Luke Somin et al.
-
-@addtogroup coinduction Co-induction
-@ingroup library
-@{
 
 */
 

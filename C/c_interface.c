@@ -204,8 +204,6 @@ X_API YAP_handle_t YAP_ArgsToSlots(int HowMany);
 // starting at  _slot_.
 X_API void YAP_SlotsToArgs(int HowMany, YAP_handle_t slot);
 
-/// @}
-
 static arity_t current_arity(void) {
   CACHE_REGS
   if (P && PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)) {

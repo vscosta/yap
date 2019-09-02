@@ -18,6 +18,18 @@
 static char SccsId[] = "%W% %G%";
 #endif
 
+/**
+ * @file parser.c
+ *
+ * @addtogroup Parser Parser Implementation
+ * @ingroup Implementation
+ *
+ * @{
+ *
+ * @brief As expected for Prolog, this is a recursive top-down parser. The algorithm
+ * handles ambiguity in the Prolog grammar through setjmp.s
+ *
+ */
 
 #include "Yap.h"
 #include "YapEval.h"

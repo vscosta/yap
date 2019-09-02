@@ -207,8 +207,6 @@ X is 2+3*4
 arithmetic_operators
 
 */
-
-/// @memberof is/2
 static Int p_is(USES_REGS1) { /* X is Y	 */
   Term out = TermNil;
   bool go;
@@ -263,8 +261,6 @@ static Int p_isnan(USES_REGS1) { /* X isnan Y	 */
 
    Interface to the IEE754 `isinf` test.
 */
-
-/// @memberof isnan/1
 static Int p_isinf(USES_REGS1) { /* X is Y        */
   Term out = 0L;
 
@@ -299,8 +295,6 @@ True if  _Log1_ is the logarithm of the positive number  _A1_,
  _Out_ is the logarithm of the sum of the numbers  _A1_ and
  _A2_. Useful in probability computation.
 */
-
-/// @memberof logsum/3
 static Int p_logsum(USES_REGS1) { /* X is Y        */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -405,8 +399,6 @@ void Yap_EvalError__(const char *file, const char *function, int lineno,
    for generating integers from a certain value.
 
 */
-
-/// @memberof between/3
 static Int cont_between(USES_REGS1) {
   Term t1 = EXTRA_CBACK_ARG(3, 1);
   Term t2 = EXTRA_CBACK_ARG(3, 2);
@@ -439,8 +431,6 @@ static Int cont_between(USES_REGS1) {
     return TRUE;
   }
 }
-
-/// @memberof between/3
 static Int init_between(USES_REGS1) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);

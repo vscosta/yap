@@ -26,13 +26,10 @@
 	regexp/4
           ]).
 
-//*
- * @{
- */
 
 /** @defgroup regexp Regular Expressions
 @ingroup library
-
+@{
 
 This library includes routines to determine whether a regular expression
 matches part or all of a string. The routines can also return which

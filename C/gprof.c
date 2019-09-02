@@ -50,7 +50,8 @@
 /// @file gprof.c
 
 /** @addtogroup Tick_Profiler
- * @ingroup Profiling@{
+ * @ingroup Profiling
+ * @{
  * 
  * The tick profiler works by interrupting the Prolog code every so often
  * and checking at each point the code was. The pro/filer must be able to

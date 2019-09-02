@@ -505,7 +505,7 @@ The routine attempts to unify the terms  _a_ and
  _b_ returning `TRUE` if the unification succeeds and `FALSE`
 otherwise.
 
-@subsection CallYAP Using the compiler:
+@subsection CText String Processing
 
 
 The YAP C-interface now includes an utility routine to copy a string
@@ -923,13 +923,13 @@ the result will be `FALSE`, if the goal failed, or `TRUE`, if
 the goal succeeded. In this case, the variables in  _G_ will store
 the values they have been unified with. Execution only proceeds until
 finding the first solution to the goal, but you can call
-[findall/3](@ref findall/3) or friends if you need all the solutions.
+findall/3 or friends if you need all the solutions.
+
 
 Notice that during execution, garbage collection or stack shifting may
 have moved the terms
 
-@subsection CallYAP Using the compiler:
-
+@subsection CAndModules Modules
 YAP allows one to create a new module from C-code. To create the new
 code it is sufficient to call:
 
@@ -1535,4 +1535,3 @@ the future we plan to split this library into several smaller libraries
 * You can generate your own saved states. Look at  the
 `boot.yap` and `init.yap` files.
 
-<!--- @} --->

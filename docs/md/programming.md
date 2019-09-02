@@ -51,14 +51,13 @@ The YAP module system is based on the Quintus/SISCtus module
 
   The module system allows one to _explicitly_ specify the source mode for
   a clause by prefixing a clause with its module, say:
-  
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   user:(a :- b).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   it is also possible to type
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   user:a :- user:b.
 
@@ -92,7 +91,7 @@ The YAP module system is based on the Quintus/SISCtus module
   Again, one can override this rule by prefixing a goal with a module to
   be consulted. The following query:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- nasa:launch(apollo,13).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    invokes the goal `launch(apollo,13)` as if the current source
@@ -108,14 +107,14 @@ The YAP module system is based on the Quintus/SISCtus module
   may range over several files, by using the
   `include`directive. Moreover, they may not be associated to any source
   file. As an example,
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- assert( nasa:launch(apollo,13) ).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   will create a module `nasa`, if does not already exist. In fact it is
   sufficient to call a predicate from a module to implicitly create the
   module. Hence after this call:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- nasa:launch(apollo,13).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -149,7 +148,7 @@ The YAP module system is based on the Quintus/SISCtus module
   and use_module/1 simply gives a warning. As an example, if the file
   `a.pl` contains:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   :- module( a, [a/1] ).
 
   :- use_module(b).
@@ -160,7 +159,7 @@ The YAP module system is based on the Quintus/SISCtus module
 
   and the file `b.pl` contains:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   :- module( b, [a/1,b/1] ).
 
   a(2).
@@ -171,7 +170,7 @@ The YAP module system is based on the Quintus/SISCtus module
   YAP will execute as follows:
 
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ?- [a].
    % consulting .../a.pl...
     % consulting .../b.pl...
@@ -191,7 +190,7 @@ The YAP module system is based on the Quintus/SISCtus module
 
   Next, consider the three files `c.pl`, `d1.pl`, and `d2.pl`:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   % c.pl
   :- module( c, [a/1] ).
 
@@ -220,7 +219,7 @@ The YAP module system is based on the Quintus/SISCtus module
 
   The result is as follows:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ./yap -l c
   YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
 
@@ -284,7 +283,7 @@ The YAP module system is based on the Quintus/SISCtus module
   public predicates specified by _Imports_ into the current type-in
   module. It is implemented as if by:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   use_module(Files, Imports) :-
   	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -293,7 +292,7 @@ The YAP module system is based on the Quintus/SISCtus module
   wants to load. It can also be used to give the predicates a different name. As an example,
   the graphs library is implemented on top of the red-black trees library, and some predicates are just aliases:
 
-  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{.prolog}
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   :- use_module(library(rbtrees), [
   	rb_min/3 as min_assoc,
   	rb_max/3 as max_assoc,
