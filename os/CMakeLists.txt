@@ -7,6 +7,7 @@ set (YAPOS_HEADERS
         )
 
 set (YAPOS_SOURCES
+absf.c
   alias.c
   assets.c
   charsio.c

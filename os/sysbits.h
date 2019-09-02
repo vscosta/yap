@@ -161,7 +161,37 @@
 #include <readline/readline.h>
 #endif
 
-void Yap_InitRandom(void);
-void Yap_InitTime(int wid);
-void Yap_InitOSSignals(int wid);
-void Yap_InitWTime(void);
+#if _MSC_VER || defined(__MINGW32__)
+#define SYSTEM_STAT _stat
+#else
+#define SYSTEM_STAT stat
+#endif
+
+extern void Yap_InitRandom(void);
+extern void Yap_InitTime(int wid);
+extern void Yap_InitOSSignals(int wid);
+extern void Yap_InitWTime(void);
+
+inline char *OsPath(const char *p, char *buf) { return (char *)p; }
+
+inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
+
+
+/// File Error Handler
+static inline void FileError(yap_error_number type, Term where, const char *format,
+                      ...) {
+
+    if (trueLocalPrologFlag(FILEERRORS_FLAG)) {
+        va_list ap;
+
+        va_start(ap, format);
+        /* now build the error string */
+        Yap_Error(type, TermNil, format, ap);
+        va_end(ap);
+    }
+}
+
+
+#define isValidEnvChar(C)                                                      \
+  (((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && (C) <= 'Z') || (C) == '_')
+

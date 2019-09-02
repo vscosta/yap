@@ -39,6 +39,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapText.h"
 #include "Yatom.h"
 #include "yapio.h"
+#include "sysbits.h"
 #include <stdlib.h>
 
 #if HAVE_UNISTD_H
@@ -124,81 +125,7 @@ FILE *Yap_stdin;
 FILE *Yap_stdout;
 FILE *Yap_stderr;
 
-static Term gethdir(Term t) {
-  CACHE_REGS
-  Atom aref = AtomOfTerm(t);
-  char *s = RepAtom(aref)->StrOfAE;
-  size_t nsz;
 
-  s = strncpy(LOCAL_FileNameBuf, RepAtom(aref)->StrOfAE, MAXPATHLEN - 1);
-  if (!s) {
-    return false;
-  }
-  if (TermDot == t) {
-    return TermEmptyAtom;
-  }
-  nsz = strlen(s);
-  if (!Yap_dir_separator(s[nsz - 1])) {
-#if _WIN32
-    s[nsz] = '\\';
-#else
-    s[nsz] = '/';
-#endif
-    s[nsz + 1] = '\0';
-  }
-  return MkAtomTerm(Yap_LookupAtom(s));
-}
-
-static Term issolutions(Term t) {
-  if (t == TermFirst || t == TermAll)
-    return t;
-
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "solutions in {first, all}.");
-    return TermZERO;
-  }
-  if (IsAtomTerm(t)) {
-    Yap_Error(DOMAIN_ERROR_SOLUTIONS, t, "solutions in {first, all}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, t, "solutions in {first, all}}");
-  return TermZERO;
-}
-
-static Term is_file_type(Term t) {
-  if (t == TermTxt || t == TermProlog || t == TermSource ||
-      t == TermExecutable || t == TermQly || t == TermDirectory)
-    return t;
-
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t,
-              "file_type in {txt,prolog,exe,directory...}");
-    return TermZERO;
-  }
-  if (IsAtomTerm(t)) {
-    Yap_Error(DOMAIN_ERROR_FILE_TYPE, t,
-              "file_type in {txt,prolog,exe,directory...}");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, t, "file_type in {txt,prolog,exe,directory...}");
-  return TermZERO;
-}
-
-static Term is_file_errors(Term t) {
-  if (t == TermFail || t == TermError)
-    return t;
-
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "file_error in {fail,error}.");
-    return TermZERO;
-  }
-  if (IsAtomTerm(t)) {
-    Yap_Error(DOMAIN_ERROR_FILE_ERRORS, t, "file_error in {fail,error}.");
-    return TermZERO;
-  }
-  Yap_Error(TYPE_ERROR_ATOM, t, "file_error in {fail,error}.");
-  return TermZERO;
-}
 
 int ResetEOF(StreamDesc *s) {
   if (s->status & Eof_Error_Stream_f) {
@@ -2048,110 +1975,6 @@ Term read_line(int sno) {
   tail = read_line(sno);
   return (MkPairTerm(MkIntTerm(ch), tail));
 }
-
-#define ABSOLUTE_FILE_NAME_DEFS()                                              \
-  PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS)                             \
-  , PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                     \
-      PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
-      PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
-      PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
-      PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
-      PAR("relative_to", isatom, ABSOLUTE_FILE_NAME_RELATIVE_TO),              \
-      PAR("solutions", issolutions, ABSOLUTE_FILE_NAME_SOLUTIONS),             \
-      PAR("verbose_file_search", booleanFlag,                                  \
-          ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH),                             \
-      PAR(NULL, ok, ABSOLUTE_FILE_NAME_END)
-
-#define PAR(x, y, z) z
-
-typedef enum ABSOLUTE_FILE_NAME_enum_ {
-  ABSOLUTE_FILE_NAME_DEFS()
-} absolute_file_name_choices_t;
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t absolute_file_name_search_defs[] = {
-    ABSOLUTE_FILE_NAME_DEFS()};
-#undef PAR
-
-static Int abs_file_parameters(USES_REGS1) {
-  Term t[ABSOLUTE_FILE_NAME_END];
-  Term tlist = Deref(ARG1), tf;
-  /* get options */
-  xarg *args = Yap_ArgListToVector(tlist, absolute_file_name_search_defs,
-                                   ABSOLUTE_FILE_NAME_END,
-                                   DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION);
-  if (args == NULL) {
-    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
-      Yap_Error(LOCAL_Error_TYPE, tlist, NULL);
-    }
-    return false;
-  }
-  /* done */
-  if (args[ABSOLUTE_FILE_NAME_EXTENSIONS].used) {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] =
-        args[ABSOLUTE_FILE_NAME_EXTENSIONS].tvalue;
-  } else {
-    t[ABSOLUTE_FILE_NAME_EXTENSIONS] = TermNil;
-  }
-  if (args[ABSOLUTE_FILE_NAME_RELATIVE_TO].used) {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] =
-        gethdir(args[ABSOLUTE_FILE_NAME_RELATIVE_TO].tvalue);
-  } else {
-    t[ABSOLUTE_FILE_NAME_RELATIVE_TO] = gethdir(TermDot);
-  }
-  if (args[ABSOLUTE_FILE_NAME_FILE_TYPE].used)
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = args[ABSOLUTE_FILE_NAME_FILE_TYPE].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_TYPE] = TermTxt;
-  if (args[ABSOLUTE_FILE_NAME_ACCESS].used)
-    t[ABSOLUTE_FILE_NAME_ACCESS] = args[ABSOLUTE_FILE_NAME_ACCESS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_ACCESS] = TermNone;
-  if (args[ABSOLUTE_FILE_NAME_FILE_ERRORS].used)
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] =
-        args[ABSOLUTE_FILE_NAME_FILE_ERRORS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_FILE_ERRORS] = TermError;
-  if (args[ABSOLUTE_FILE_NAME_SOLUTIONS].used)
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = args[ABSOLUTE_FILE_NAME_SOLUTIONS].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_SOLUTIONS] = TermFirst;
-  if (args[ABSOLUTE_FILE_NAME_EXPAND].used)
-    t[ABSOLUTE_FILE_NAME_EXPAND] = args[ABSOLUTE_FILE_NAME_EXPAND].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermFalse;
-  if (args[ABSOLUTE_FILE_NAME_GLOB].used) {
-    t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
-    t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
-  } else
-    t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;
-  if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;
-  else
-    t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
-        (trueGlobalPrologFlag(VERBOSE_FILE_SEARCH_FLAG) ? TermTrue : TermFalse);
-  tf = Yap_MkApplTerm(Yap_MkFunctor(AtomOpt, ABSOLUTE_FILE_NAME_END),
-                      ABSOLUTE_FILE_NAME_END, t);
-  return (Yap_unify(ARG2, tf));
-}
-
-static Int get_abs_file_parameter(USES_REGS1) {
-  Term t = Deref(ARG1), topts = Deref(ARG2);
-  /* get options */
-  /* done */
-  int i = Yap_ArgKey(AtomOfTerm(t), absolute_file_name_search_defs,
-                     ABSOLUTE_FILE_NAME_END);
-  if (i >= 0)
-    return Yap_unify(ARG3, ArgOfTerm(i + 1, topts));
-  Yap_Error(DOMAIN_ERROR_ABSOLUTE_FILE_NAME_OPTION, ARG1, NULL);
-  return false;
-}
-
 void Yap_InitPlIO(struct yap_boot_params *argi) {
   Int i;
   if (argi->inp > 0)
@@ -2189,10 +2012,6 @@ void Yap_InitIOPreds(void) {
   Yap_InitCPred("close", 2, close2, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("open", 4, open4, SyncPredFlag);
   Yap_InitCPred("open", 3, open3, SyncPredFlag);
-  Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,
-                SyncPredFlag | HiddenPredFlag);
-  Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter,
-                SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$file_expansion", 2, p_file_expansion,
                 SafePredFlag | SyncPredFlag | HiddenPredFlag);
   Yap_InitCPred("$open_null_stream", 1, p_open_null_stream,
@@ -2217,4 +2036,5 @@ void Yap_InitIOPreds(void) {
   Yap_InitSignalPreds();
   Yap_InitSysPreds();
   Yap_InitTimePreds();
-}
+  Yap_InitAbsfPreds();
+ }

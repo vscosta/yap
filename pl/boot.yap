@@ -24,8 +24,6 @@
 
   @ingroup builtins
   @{
-
-
 */
 
 print_message(informational,_) :-
