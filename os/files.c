@@ -692,7 +692,7 @@ static Int same_file(USES_REGS1) {
 }
 
 static Int exists_file(USES_REGS1) {
-      Term tname = Deref(ARG1), file_name;
+      Term tname = Deref(ARG1);
     if (IsVarTerm(tname)) {
         Yap_Error(TYPE_ERROR_ATOM, tname, "access");
         return FALSE;
@@ -709,7 +709,7 @@ static Int exists_file(USES_REGS1) {
 #if HAVE_STAT
         struct SYSTEM_STAT ss;
 
-        file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+        const char *file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
         if (SYSTEM_STAT(file_name, &ss) != 0) {
             /* ignore errors while checking a file */
             return FALSE;
@@ -739,7 +739,7 @@ const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),tru
   }
       return true;
 }
-      
+
 void Yap_InitFiles(void) {
   Yap_InitCPred("file_base_name", 2, file_base_name, SafePredFlag);
   Yap_InitCPred("file_directory_name", 2, file_directory_name, SafePredFlag);

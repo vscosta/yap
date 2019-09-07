@@ -21,20 +21,6 @@ static char SccsId[] = "%W% %G%";
 #include "sysbits.h"
 #include "cwalk.h"
 
-/// File Error Handler
-static void FileError(yap_error_number type, Term where, const char *format,
-                      ...) {
-
-  if (trueLocalPrologFlag(FILEERRORS_FLAG)) {
-    va_list ap;
-
-    va_start(ap, format);
-    /* now build the error string */
-    Yap_Error(type, TermNil, format, ap);
-    va_end(ap);
-  }
-}
-
 static Int p_sh(USES_REGS1);
 static Int p_shell(USES_REGS1);
 static Int p_system(USES_REGS1);
@@ -42,12 +28,10 @@ static Int p_mv(USES_REGS1);
 static Int p_dir_sp(USES_REGS1);
 static Int p_getenv(USES_REGS1);
 static Int p_putenv(USES_REGS1);
-static Term do_glob(const char *spec, bool ok_to);
 #ifdef MACYAP
 
 /* #define signal	skel_signal */
 #endif /* MACYAP */
-static const char *expandVars(const char *spec, char *u);
 
 void exit(int);
 
@@ -141,138 +125,8 @@ int Yap_dir_separator(int ch) { return dir_separator(ch); }
 char *libdir = NULL;
 #endif
 
-bool Yap_IsAbsolutePath(const char *p0, bool expand) {
-  // verify first if expansion is needed: ~/ or $HOME/
-  const char *p = p0;
-  bool nrc;
-  if (expand) {
-    p = expandVars(p0, LOCAL_FileNameBuf);
-  }
-#if _WIN32 || __MINGW32__
-  nrc = !PathIsRelative(p);
-#else
-  nrc = (p[0] == '/');
-#endif
-  return nrc;
-}
-
 #define isValidEnvChar(C)                                                      \
   (((C) >= 'a' && (C) <= 'z') || ((C) >= 'A' && (C) <= 'Z') || (C) == '_')
-
-// this is necessary because
-// support for ~expansion at the beginning
-// systems like Android do not do this.
-static const char *PlExpandVars(const char *source, const char *root) {
-  CACHE_REGS
-  int lvl = push_text_stack();
-  const char *src = source;
-  char *result = Malloc(YAP_FILENAME_MAX + 1);
-
-  if (strlen(source) >= YAP_FILENAME_MAX) {
-    Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, TermNil,
-              "%s in true_file-name is larger than the buffer size (%d bytes)",
-              source, strlen(source));
-  }
-  /* step 1: eating home information */
-  if (source[0] == '~') {
-    if (dir_separator(source[1]) || source[1] == '\0') {
-      char *s;
-      src++;
-#if defined(_WIN32)
-      s = getenv("HOMEDRIVE");
-      if (s != NULL)
-        strncpy(result, getenv("HOMEDRIVE"), YAP_FILENAME_MAX);
-// s = getenv("HOMEPATH");
-#else
-      s = getenv("HOME");
-#endif
-      if (s != NULL)
-        strncpy(result, s, YAP_FILENAME_MAX);
-      strcat(result, src);
-      result = pop_output_text_stack(lvl, result);
-      return result;
-    } else {
-#if HAVE_GETPWNAM
-      struct passwd *user_passwd;
-      char *res = result;
-
-      src++;
-      while (!dir_separator((*res = *src)) && *res != '\0')
-        res++, src++;
-      res[0] = '\0';
-      if ((user_passwd = getpwnam(result)) == NULL) {
-        FileError(SYSTEM_ERROR_OPERATING_SYSTEM,
-                  MkAtomTerm(Yap_LookupAtom(source)),
-                  "User %s does not exist in %s", result, source);
-        pop_text_stack(lvl);
-        return NULL;
-      }
-      strncpy(result, user_passwd->pw_dir, YAP_FILENAME_MAX);
-      strcat(result, src);
-#else
-      FileError(
-          SYSTEM_ERROR_OPERATING_SYSTEM, MkAtomTerm(Yap_LookupAtom(source)),
-          "User %s cannot be found in %s, missing getpwnam", result, source);
-      return NULL;
-#endif
-    }
-    result = pop_output_text_stack(lvl, result);
-    return result;
-  }
-  // do VARIABLE expansion
-  else if (source[0] == '$') {
-    /* follow SICStus expansion rules */
-    char v[YAP_FILENAME_MAX + 1];
-    int ch;
-    char *s, *res;
-    src = source + 1;
-    if (src[0] == '{') {
-      res = v;
-      src++;
-      while ((*res = (ch = *src++)) && isValidEnvChar(ch) && ch != '}') {
-        res++;
-      }
-      if (ch == '}') {
-        // {...}
-        // done
-        res[0] = '\0';
-      }
-    } else {
-      res = v;
-      while ((*res = (ch = *src++)) && isValidEnvChar(ch) && ch != '}') {
-        res++;
-      }
-      src--;
-      res[0] = '\0';
-    }
-    if ((s = (char *)getenv(v))) {
-      strcpy(result, s);
-      strcat(result, src);
-    } else
-      strcpy(result, src);
-  } else {
-    size_t tocp = strlen(src);
-    if (root) {
-      tocp = strlen(root) + 1;
-    }
-    if (tocp > YAP_FILENAME_MAX) {
-      Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, MkStringTerm(src),
-                "path too long");
-      pop_text_stack(lvl);
-      return NULL;
-    }
-    if (root && !Yap_IsAbsolutePath(source, false)) {
-      strncpy(result, root, YAP_FILENAME_MAX);
-      if (root[strlen(root) - 1] != '/')
-        strncat(result, "/", YAP_FILENAME_MAX);
-      strncat(result, source, YAP_FILENAME_MAX);
-    } else {
-      strncpy(result, source, strlen(src) + 1);
-    }
-  }
-  result = pop_output_text_stack(lvl, result);
-  return result;
-}
 
 #if _WIN32
 // straightforward conversion from Unix style to WIN style
@@ -331,10 +185,6 @@ static char *unix2win(const char *source, char *target, int max) {
   return s;
 }
 #endif
-
-static char *OsPath(const char *p, char *buf) { return (char *)p; }
-
-static char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 
 #if _WIN32
 #define HAVE_BASENAME 1
@@ -519,30 +369,6 @@ static Int working_directory(USES_REGS1) {
   if (t2 == TermEmptyAtom || t2 == TermDot)
     return true;
   return Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
-}
-
-static Int true_file_name(USES_REGS1) {
-  Term t = Deref(ARG1);
-  const char *s;
-
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
-    return FALSE;
-  }
-  if (IsAtomTerm(t)) {
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-  } else if (IsStringTerm(t)) {
-    s = StringOfTerm(t);
-  } else {
-    Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
-    return FALSE;
-  }
-  int l = push_text_stack();
-  if (!(s = Yap_AbsoluteFile(s, true)))
-    return false;
-  bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
-  pop_text_stack(l);
-  return rc;
 }
 
 /* Executes $SHELL under Prolog */
@@ -818,11 +644,13 @@ void Yap_SetTextFile(name) char *name;
 static Int p_getenv(USES_REGS1) {
 #if HAVE_GETENV
   Term t1 = Deref(ARG1), to;
-  char *s, *so;
+  const char *s, *so;
 
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "first arg of getenv/2");
     return (FALSE);
+  } else     if (IsStringTerm(t1)) {
+      s = StringOfTerm(t1);
   } else if (!IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "first arg of getenv/2");
     return (FALSE);
@@ -843,19 +671,24 @@ static Int p_getenv(USES_REGS1) {
 static Int p_putenv(USES_REGS1) {
 #if HAVE_PUTENV
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
-  char *s = "", *s2 = "", *p0, *p;
+  const char *s = "", *s2 = "";
+  char *p0, *p;
 
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "first arg to putenv/2");
-    return (FALSE);
+    if (IsVarTerm(t1)) {
+        Yap_Error(INSTANTIATION_ERROR, t1, "first arg to putenv/2");
+        return (FALSE);
+    } else     if (IsStringTerm(t1)) {
+            s = StringOfTerm(t1);
   } else if (!IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "first arg to putenv/2");
     return (FALSE);
   } else
     s = RepAtom(AtomOfTerm(t1))->StrOfAE;
   if (IsVarTerm(t2)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "second arg to putenv/2");
+    Yap_Error(INSTANTIATION_ERROR, t2, "second arg to putenv/2");
     return (FALSE);
+  } else     if (IsStringTerm(t2)) {
+      s2 = StringOfTerm(t2);
   } else if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "second arg to putenv/2");
     return (FALSE);

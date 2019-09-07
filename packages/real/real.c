@@ -1813,15 +1813,16 @@ bool  sexp_to_pl(term_t t, SEXP s) {
 
 static foreign_t init_R(void) {
   int argc = 2;
-  char *argv[] = {"R", "--slave", "--vanilla"};
 
 //  Rf_endEmbeddedR(0);
 
 #if R_SIGNAL_HANDLERS
   R_SignalHandlers = 0;
 #endif
-  Rf_initEmbeddedR(argc, argv);
-#ifndef WIN32
+    char *argv[]= {"yap", "--gui=none", "--vanilla","--silent"};
+    Rf_initEmbeddedR(sizeof(argv)/sizeof(argv[0]), argv);
+
+    #ifndef WIN32
   R_CStackLimit = -1;
 #endif
   return TRUE;

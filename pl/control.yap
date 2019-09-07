@@ -519,6 +519,7 @@ break :-
 	set_prolog_flag(break_level, BL ),
 	'$break'( false ).
 
+:- meta_predicate( at_halt(:) ).
 
 /**
   * @pred at_halt( G )
@@ -528,7 +529,8 @@ break :-
   * @param _G_: the hook
   *
   * @return succeeds with side-effect.
-*/at_halt(G) :-
+*/
+at_halt(G) :-
 	recorda('$halt', G, _),
 	fail.
 at_halt(_).

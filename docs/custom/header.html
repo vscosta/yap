@@ -5,15 +5,15 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen $doxygenversion"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
 <!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
 <link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
-<script type="text/javascript" src="$relpath^jquery.js"></script>
-<script type="text/javascript" src="$relpath^dynsections.js"></script>
-$treeview
-$search
-$mathjax
+<script type="text/javascript" src="$relpath^jquery-4.3.1.min.js"></script>
+<!--<script type="text/javascript" src="$relpath^dynsections.js"></script>-->
+<!--$treeview-->
+<!--$search-->
+<!--$mathjax-->
 <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
 $extrastylesheet
 <link href="$relpath^bootstrap.min.css" rel="stylesheet" type="text/css"/>
@@ -24,42 +24,66 @@ $extrastylesheet
 <script src="$relpath^popper.min.js"></script>
 <script src="$relpath^bootstrap.min.js"></script>
 <script src="$relpath^offcanvas.js"></script>
-<Script type="text/javascript" src="doxy-boot.js"></script>
+  <script type="text/javascript" src="all.js"></script>
+  <script type="text/javascript" src="search.js"></script>
+  <script type="text/javascript" src="doxy-boot.js"></script>
+  <script>
+    function myFunction() {
+      var x = allAnswers();
+      y = showAll(x);
+      document.getElementById("question-view-container").innerHTML = y;
+    }
+  </script>
 </head>
-<body>
+ <body>
 <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+  <div class="content" id="content">
+    <div class="row">
+      <nav class="navbar navbar-expand-lg navbar-dark">
+  <a class="navbar-brand" href="#">YAP</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon">"$relpath^yap_96x96x32.png"</span>
+  </button>
 
-<!--BEGIN TITLEAREA-->
-<div id="titlearea">
-<table cellspacing="0" cellpadding="0">
- <tbody>
- <tr style="height: 56px;">
-  <!--BEGIN PROJECT_LOGO-->
-  <td id="projectlogo"><img alt="Logo" src="$relpath^$projectlogo"/></td>
-  <!--END PROJECT_LOGO-->
-  <!--BEGIN PROJECT_NAME-->
-  <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">$projectname
-   <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER-->
-   </div>
-   <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
-  </td>
-  <!--END PROJECT_NAME-->
-  <!--BEGIN !PROJECT_NAME-->
-   <!--BEGIN PROJECT_BRIEF-->
-    <td style="padding-left: 0.5em;">
-    <div id="projectbrief">$projectbrief</div>
-    </td>
-   <!--END PROJECT_BRIEF-->
-  <!--END !PROJECT_NAME-->
-  <!--BEGIN DISABLE_INDEX-->
-   <!--BEGIN SEARCHENGINE-->
-   <td>$searchbox</td>
-   <!--END SEARCHENGINE-->
-  <!--END DISABLE_INDEX-->
- </tr>
- </tbody>
-</table>
-</div>
-<!--END TITLEAREA-->
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="$relpath^modules.html">Groups</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="$relpath^hierarchy.html">Predicates</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="$relpath^files.html">Source</a>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Chapters
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href="#">Core</a>
+          <a class="dropdown-item" href="#">Extensions</a>
+          <a class="dropdown-item" href="#">Libraries</a>
+          <div class="dropdown-divider">packages</div>
+          <a class="dropdown-item" href="#">Myddas</a>
+        </div>
+      </li>
+
+      </ul>
+    <div class="nav-item form">
+      <input id="mysearch" type="search" onSubmit="myFunction()" placeholder="Se
+arch..">
+      <button onclick="myFunction()">Try All</button>
+
+    </div>
+
+</nav>  <div id="wrap">
+      <div id="question-view-container">
+      </div>
+    </div>
+      <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
+                            <div style="margin-bottom: 15px;">
 <!-- end header part -->

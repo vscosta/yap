@@ -172,9 +172,9 @@ extern void Yap_InitTime(int wid);
 extern void Yap_InitOSSignals(int wid);
 extern void Yap_InitWTime(void);
 
-inline char *OsPath(const char *p, char *buf) { return (char *)p; }
+static inline char *OsPath(const char *p, char *buf) { return (char *)p; }
 
-inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
+static inline char *PrologPath(const char *Y, char *X) { return (char *)Y; }
 
 
 /// File Error Handler

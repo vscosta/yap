@@ -1594,8 +1594,11 @@ static Int atom_length(USES_REGS1) {
   } else if (!IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "at first argument");
     return false;
+  } else {
+       len = Yap_AtomToUnicodeLength(t1 PASS_REGS);
+       pop_text_stack(l);
+    return Yap_unify(ARG2, MkIntegerTerm(len));
   }
-
   if (Yap_IsGroundTerm(t2)) {
 
     if (!IsIntegerTerm(t2)) {
@@ -1649,6 +1652,12 @@ static Int atomic_length(USES_REGS1) {
       pop_text_stack(l);
       return false;
     };
+  } else {
+  len = Yap_AtomicToUnicodeLength(t1 PASS_REGS);
+  if (len != (size_t)-1) {
+    pop_text_stack(l);
+    return Yap_unify(ARG2, MkIntegerTerm(len));
+  };
   }
 
   if (IsNonVarTerm(t2)) {

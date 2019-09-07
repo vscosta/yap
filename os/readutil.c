@@ -26,7 +26,12 @@ static char SccsId[] = "%W% %G%";
 #include "iopreds.h"
 #include "yapio.h"
 
-/// @addtogroup readutil
+/**
+* @defgroup readutil Reading Lines and Files
+* @addtogroup library
+* @{
+*  Read full lines and a full file in a single call.
+*/
 
 static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
@@ -103,15 +108,37 @@ static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
 
    }
 }
+/**
+   read_line_to_codes( +_Stream_, -_Codes_)
 
+   If _Stream_ is a readable text stream, unify _Codes_ with
+   the sequence of character codes forming the first line of the stream.
+   */
 static Int read_line_to_codes(USES_REGS1) {
   return rl_to_codes(TermNil, FALSE, 2 PASS_REGS);
 }
 
+/**
+   read_stream_to_codes( +_Stream_, -_Codes_-_Tail_)
+
+   If _Stream_ is a readable text stream, unify _Codes_ with
+   the sequence of character codess available from the stream.
+
+   If the stream is exhausted, unify _Codes_ with `end_of_file`.
+   */
 static Int read_line_to_codes2(USES_REGS1) {
   return rl_to_codes(TermNil, TRUE, 3 PASS_REGS);
 }
 
+
+/**
+   @pred read_line_to_codes( +_Stream_, -_String_)
+
+   If _Stream_ is a readable text stream, unify _String_ with
+   the Prolog string storing the codes forming the first line of the stream.
+
+     If the stream is exhausted, unify _Codes_ with `end_of_file`.
+ */
 static Int read_line_to_string(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   Int status;
@@ -195,7 +222,14 @@ static Int read_line_to_string(USES_REGS1) {
   }
 }
 
+/**
+   @pred read_stream_to_codes( +_Stream_, -Codes, ?_Tail_)
 
+   If _Stream_ is a readable text stream, unify _String_ with
+   the difference list  storing the codes forming the first line of the stream.
+
+     If the stream is exhausted, unify _Codes_ with `end_of_file`.
+ */
 static Int read_stream_to_codes(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f,
                             "reaMkAtomTerm (AtomEofd_line_to_codes/2");
@@ -238,6 +272,15 @@ static Int read_stream_to_codes(USES_REGS1) {
   return Yap_unify(AbsPair(HBASE), ARG2);
 }
 
+
+/**
+   @pred read_stream_to_terms( +_Stream_, -Terms, ?_Tail_)
+
+   If _Stream_ is a readable text stream, unify _String_ with
+   the difference list  storing the Prolog terms in the stream.
+
+     If the stream is exhausted, unify _Codes_ with `end_of_file`.
+ */
 static Int read_stream_to_terms(USES_REGS1) {
   int sno = Yap_CheckStream(ARG1, Input_Stream_f, "read_line_to_codes/2");
   Term t, hd;

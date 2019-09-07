@@ -60,7 +60,7 @@ include_directories (
     )	
 
   check_include_files( "stdio.h;R.h" HAVE_R_H )
-  check_include_files( "R.h,;Rembeddred.h" HAVE_R_EMBEDDED_H )
+  check_include_files( "R.h;Rembedded.h" HAVE_R_EMBEDDED_H )
   check_include_files( "Rembedded.h;Rinterface.h" HAVE_R_INTERFACE_H )
   check_include_file(  "Rcpp" HAVE_RCPP)
 

@@ -910,6 +910,7 @@ db_files(Fs) :-
 	print_message(informational, loaded(included, Y, Mod, T, H)),
 	working_directory(_Dir, Dir0),
 	'$including'(Y, Old),
+	b_setval('$lf_status', TOpts),
         nb_setval('$included_file',OY).
 
 

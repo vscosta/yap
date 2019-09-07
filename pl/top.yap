@@ -337,7 +337,7 @@ live :-
 	  ;
 	   copy_term_nat(V, NV),
 	   LGs = [],
-%	   term_factorized(V, NV, LGs),
+	   term_factorized(V, NV, LGs),
 	   NCP = 0
     ).
 

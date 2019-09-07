@@ -788,16 +788,31 @@ and if it is bound to `off` disable them. The default for YAP is
    
 
 
-  YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, isatom, YAP_GIT_HEAD,
+  YAP_FLAG(VERSION_GIT_FLAG, "version_git", false, ro, YAP_GIT_HEAD,
              NULL), /**< 
 
   this is the unique identifier for the last commit of the current GIT HEAD,
     it xan be used to identify versions that differ on small (or large) updates.
 		    */
-   
+
+#if _WIN32
+#define YAP_FOR_WIN32 "true"
+#else
+#define YAP_FOR_WIN32 "true"
+#endif
+
+    YAP_FLAG(WIN32_FLAG, "win32", false, ro,YAP_FOR_WIN32,
+             NULL), /**<
+`true` if YAP was compiled for the WIN32 standard Windows API.
+		    */
 
 
-  YAP_FLAG(WRITE_ATTRIBUTES_FLAG, "write_attributes", true, isatom, "ignore",
+    YAP_FLAG(WINDOWS_FLAG, "windows", false, ro,YAP_FOR_WIN32,
+             NULL), /**<
+`true` if YAP was compiled for the WIN32 standard Windows API.
+		    */
+
+    YAP_FLAG(WRITE_ATTRIBUTES_FLAG, "write_attributes", true, isatom, "ignore",
              NULL), /**< 
 
     Read-only boolean Flag flag that unifies with `true` if YAP is

@@ -117,7 +117,7 @@ static Term is_file_type(Term t) {
 #define ABSOLUTE_FILE_NAME_DEFS()                                              \
   PAR("access", isatom, ABSOLUTE_FILE_NAME_ACCESS)                             \
   , PAR("expand", booleanFlag, ABSOLUTE_FILE_NAME_EXPAND),                     \
-      PAR("extensos/fions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
+      PAR("extensions", ok, ABSOLUTE_FILE_NAME_EXTENSIONS),                    \
       PAR("file_errors", is_file_errors, ABSOLUTE_FILE_NAME_FILE_ERRORS),      \
       PAR("file_type", is_file_type, ABSOLUTE_FILE_NAME_FILE_TYPE),            \
       PAR("glob", ok, ABSOLUTE_FILE_NAME_GLOB),                                \
@@ -217,8 +217,7 @@ static Int get_abs_file_parameter(USES_REGS1) {
   return false;
 }
 
-static const char *myrealpath(const char *path USES_REGS) {
-
+    static const char *myrealpath(const char *path USES_REGS) {
   int lvl = push_text_stack();
   char *o = Malloc(FILENAME_MAX+1), *wd = Malloc(FILENAME_MAX+1);
   const char *cwd =  Yap_getcwd(wd, FILENAME_MAX);
@@ -232,25 +231,6 @@ static const char *myrealpath(const char *path USES_REGS) {
 return pop_output_text_stack(lvl,o);
 }
 
-static const char *expandVars(const char *spec, char *u) {
-  CACHE_REGS
-#if _WIN32 || defined(__MINGW32__)
-  char *out;
-
-  // first pass, remove Unix style stuff
-  if (spec == NULL || (out = unix2win(spec, u, YAP_FILENAME_MAX)) == NULL)
-    return NULL;
-  spec = u;
-#endif
-  bool ok_to = LOCAL_PrologMode && !(LOCAL_PrologMode & BootMode);
-  if (ok_to) {
-    Term t = do_glob(spec, true);
-    if (IsPairTerm(t))
-      return RepAtom(AtomOfTerm(HeadOfTerm(t)))->StrOfAE;
-    return NULL;
-  }
-  return spec;
-}
 
 /**
  * generate absolute path, if ok first expand SICStus Prolog style
@@ -266,7 +246,7 @@ const char *Yap_AbsoluteFile(const char *spec, bool ok) {
   const char *spec2;
   int lvl = push_text_stack();
 
-  /// spec gothe original spec;
+/// spec gothe original spec;
   /// rc0 may be an outout buffer
   /// rc1 the internal buffer
   ///
@@ -407,7 +387,7 @@ do_glob(const char *spec, bool glob_vs_wordexp) {
         break;
       } else {
         Term t;
-        t = MkAtomTerm(Yap_LookupAtom(expandVars(espec, NULL)));
+        t = MkAtomTerm(Yap_LookupAtom(espec));
         wordfree(&wresult);
         return MkPairTerm(t, TermNil);
       }
@@ -567,18 +547,10 @@ static const char *PlExpandVars(const char *source, const char *root) {
 }
 
 /**
- * @pred prolog_expanded_file_system_path( +PrologPath, +ExpandVars, -OSPath )
- *
- * Apply basic transformations to paths, and conidtionally apply
- * traditional SICStus-style variable expansion.
- *
- * @param PrologPath the source, may be atom or string
- * @param ExpandVars expand initial occurrence of ~ or $
- * @param Prefix add this path before _PrologPath_
- * @param OSPath pathname.
- *
- * @return
- */
+  @pred absolute_file_name(+Name:atom,+Path:atom) is nondet
+
+  Converts the given file specification into an absolute path, using default options. See absolute_file_name/3 for details on the options.
+*/
 static Int real_path(USES_REGS1) {
   Term t1 = Deref(ARG1);
   const char *cmd, *rc0;
@@ -610,168 +582,70 @@ static Int real_path(USES_REGS1) {
   return out;
 }
 
-#define EXPAND_FILENAME_DEFS()                                                 \
-  PAR("parameter_expansion", isatom, EXPAND_FILENAME_PARAMETER_EXPANSION)      \
-  , PAR("commands", booleanFlag, EXPAND_FILENAME_COMMANDS),                    \
-      PAR(NULL, ok, EXPAND_FILENAME_END)
+#if undefined
+static char *close_path(char *b0, char *o0, char *o) {
+     if (b0[0] == '\0') {
+           return o;
+          } else if (!strcmp(b0, "..")) {
+            while (o-- > o0) {
+                  if (Yap_dir_separator(*o)) {
+                        break;
+                      }
+               }
 
-#define PAR(x, y, z) z
-
-typedef enum expand_filename_enum_choices {
-  EXPAND_FILENAME_DEFS()
-} expand_filename_enum_choices_t;
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t expand_filename_defs[] = {EXPAND_FILENAME_DEFS()};
-#undef PAR
-
-static Term do_expand_file_name(Term t1, Term opts USES_REGS) {
-  xarg *args;
-  expand_filename_enum_choices_t i;
-
-  bool use_system_expansion = true;
-  const char *tmpe = NULL;
-  const char *spec;
-  Term tf;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, NULL);
-    return TermNil;
-  } else if (IsAtomTerm(t1)) {
-    spec = AtomTermName(t1);
-  } else if (IsStringTerm(t1)) {
-    spec = StringOfTerm(t1);
-  } else {
-    Yap_Error(TYPE_ERROR_ATOM, t1, NULL);
-    return TermNil;
-  }
-#if _WIN32
-  char *rc;
-  char cmd2[YAP_FILENAME_MAX + 1];
-
-  if ((rc = unix2win(spec, cmd2, YAP_FILENAME_MAX)) == NULL) {
-    return false;
-  }
-  spec = rc;
-#endif
-
-  args = Yap_ArgListToVector(
-      opts, expand_filename_defs,
-      EXPAND_FILENAME_END,DOMAIN_ERROR_EXPAND_FILENAME_OPTION);
-  if (args == NULL) {
-    return TermNil;
-  }
-  tmpe = NULL;
-
-  for (i = 0; i < EXPAND_FILENAME_END; i++) {
-    if (args[i].used) {
-      Term t = args[i].tvalue;
-      switch (i) {
-      case EXPAND_FILENAME_PARAMETER_EXPANSION:
-        if (t == TermProlog) {
-          tmpe = expandVars(spec, LOCAL_FileNameBuf);
-          if (tmpe == NULL) {
-            free(args);
-            return TermNil;
+                  } else if (strcmp(b0, ".") != 0) {
+           *o++ = '/';
+           strcpy(o, b0);
+           o += strlen(b0);
           }
-          spec = tmpe;
-        } else if (t == TermTrue) {
-          use_system_expansion = true;
-        } else if (t == TermFalse) {
-          use_system_expansion = false;
-        }
-        break;
-      case EXPAND_FILENAME_COMMANDS:
-        if (!use_system_expansion) {
-          use_system_expansion = true;
-#if 0 // def WRDE_NOCMD
-                    if (t == TermFalse) {
-                        flags = WRDE_NOCMD;
-                    }
-#endif
-        }
-      case EXPAND_FILENAME_END:
-        break;
-      }
+     return o;
     }
-  }
-  free(args);
-  if (!use_system_expansion) {
-    const char *o = expandVars(spec, NULL);
-    if (!o)
-      return false;
-    tf = MkPairTerm(MkAtomTerm(Yap_LookupAtom(o)), TermNil);
-#if _WIN32
-    if (o != cmd2)
 #endif
-    {
-      freeBuffer(o);
+
+
+
+bool Yap_IsAbsolutePath(const char *p0, bool expand) {
+    // verify first if expansion is needed: ~/ or $HOME/
+    const char *p = p0;
+    bool nrc;
+    if (expand) {
+        p = PlExpandVars(p0, NULL);
     }
-  } else {
-    tf = do_glob(spec, true);
-  }
-  if (tmpe
-#if _WIN32
-      && tmpe != cmd2
+#if _WIN32 || __MINGW32__
+    nrc = !PathIsRelative(p);
+#else
+    nrc = (p[0] == '/');
 #endif
-  ) {
-    freeBuffer(tmpe);
-  }
-  return tf;
+    return nrc;
 }
 
-/* @pred expand_file_name( +Pattern, -ListOfPaths) is det
+ 
 
-This builtin receives a pattern and expands it into a list of files.
-  In Unix-like systems, YAP applies glob to expand patterns such as '*', '.',
-and '?'. Further variable expansion
-may also happen. glob is shell-dependent: som   Yap_InitCPred
-("absolute_file_system_path", 2, absolute_file_system_path, 0);
-    Yap_InitCPred ("real_path", 2, prolog_realpath, 0);
-    Yap_InitCPred ("true_file_name", 2,
-                   true_file_name, SyncPredFlag);
-    Yap_InitCPred ("true_file_name", 3, true_file_name3, SyncPredFlag);
-e shells allow command execution and brace-expansion.
 
-*/
-static Int expand_file_name(USES_REGS1) {
-  Term tf = do_expand_file_name(Deref(ARG1), TermNil PASS_REGS);
-  if (tf == 0)
-    return false;
-  return Yap_unify(tf, ARG2);
+static Int true_file_name(USES_REGS1) {
+    Term t = Deref(ARG1);
+    const char *s;
+
+    if (IsVarTerm(t)) {
+        Yap_Error(INSTANTIATION_ERROR, t, "argument to true_file_name unbound");
+        return FALSE;
+    }
+    if (IsAtomTerm(t)) {
+        s = RepAtom(AtomOfTerm(t))->StrOfAE;
+    } else if (IsStringTerm(t)) {
+        s = StringOfTerm(t);
+    } else {
+        Yap_Error(TYPE_ERROR_ATOM, t, "argument to true_file_name");
+        return FALSE;
+    }
+    int l = push_text_stack();
+    if (!(s = Yap_AbsoluteFile(s, true)))
+        return false;
+    bool rc = Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
+    pop_text_stack(l);
+    return rc;
 }
 
-static Int expand_file_name3(USES_REGS1) {
-  Term tf = do_expand_file_name(Deref(ARG1), Deref(ARG2) PASS_REGS);
-  return Yap_unify(tf, ARG3);
-}
-
-/*
-       static char *canoniseFileName( char *path) {
-       #if HAVE_REALPATH && HAVE_BASENAME
-       #if _WIN32 || defined(__MINGW32__)
-         char *o = malloc(YAP_FILENAME_MAX+1);
-         if (!o)
-           return NULL;
-         // first pass, remove Unix style stuff
-         if (unix2win(path, o, YAP_FILENAME_MAX) == NULL)
-           return NULL;
-         path = o;
-       #endif
-         char *rc;
-         if (tmp == NULL) return NULL;
-         rc = myrealpath(path);
-       #if _WIN32 || defined(__MINGW32__)
-         freeBuffer(o);
-#endif
-  return rc;
-#endif
-}
-*/
 
 static Int absolute_file_system_path(USES_REGS1) {
   Term t = Deref(ARG1);
@@ -844,7 +718,7 @@ const char *Yap_GetFileName(Term t USES_REGS) {
  * and indicates the kind of the file.
  *
  * The predicate can be used to:
- * - Given __FullName__, extract the extension as _Extension_, and the remainder
+ * Given __FullName__, extract the extension as _Extension_, and the remainder
  * as _BaseFile_. - Given _BaseFile_ and _?Extension_ obtain a _FullNameO_.
  * ~~~~
  * ~~~~
@@ -947,7 +821,7 @@ static Int file_name_extension(USES_REGS1) {
            Yap_unify(t3, ARG3);
   }
 }
-
+#if 0
 static Int access_path(USES_REGS1) {
   Term tname = Deref(ARG1);
 
@@ -993,7 +867,7 @@ static char *clean_path(const char *path) {
   char *b0 = Malloc(FILENAME_MAX + 1), *b = b0;
   p = p0 = path;
   while ((ch = *p++)) {
-    if (dir_separator(ch)) {
+    if (Yap_dir_separator(ch)) {
       if (b == b0) {
         o = o0;
       } else {
@@ -1005,7 +879,7 @@ static char *clean_path(const char *path) {
       *b++ = ch;
     }
   }
-  if (!dir_separator(p[-1])) {
+  if (!Yap_dir_separator(p[-1])) {
     b[0] = '\0';
     o = close_path(b0, o0, o);
   }
@@ -1016,6 +890,7 @@ static char *clean_path(const char *path) {
 //                      o, o0);
   return pop_output_text_stack(lvl, o0);
 }
+#endif
 
 static Int p_expand_file_name(USES_REGS1) {
   Term t = Deref(ARG1);
@@ -1035,7 +910,7 @@ static Int p_expand_file_name(USES_REGS1) {
     pop_text_stack(l);
     return false;
   }
-  bool rc = Yap_unify(ARG2, Yap_MkTextTerm(text2, Yap_TextType(t)));
+  bool rc = Yap_unify(ARG2, do_glob(text2, true) );
   pop_text_stack(l);
   return rc;
 }
@@ -1067,13 +942,14 @@ static Int true_file_name3(USES_REGS1) {
 }
 
 void Yap_InitAbsfPreds(void) {
-  Yap_InitCPred("$expand_file_name", 2, p_expand_file_name, SyncPredFlag);
-  Yap_InitCPred("expand_file_name", 3, expand_file_name3, SyncPredFlag);
-  Yap_InitCPred("expand_file_name", 2, expand_file_name, SyncPredFlag);
+  Yap_InitCPred("expand_file_name", 2, p_expand_file_name, SyncPredFlag);
   Yap_InitCPred("prolog_to_os_filename", 2, prolog_to_os_filename,
                 SyncPredFlag);
   Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
-  Yap_InitCPred("real_path", 2, real_path, 0);
+  Yap_InitCPred("absolute_file_name", 2, real_path, 0);
   Yap_InitCPred("true_file_name", 2, true_file_name, SyncPredFlag);
   Yap_InitCPred("true_file_name", 3, true_file_name3, SyncPredFlag);
+  Yap_InitCPred("abs_file_parameters", 2, abs_file_parameters,  HiddenPredFlag);
+  Yap_InitCPred("get_abs_file_parameter", 3, get_abs_file_parameter, HiddenPredFlag);
+  Yap_InitCPred("file_name_extension", 3, file_name_extension, 0);
 }

@@ -28,7 +28,7 @@
         display/2,
         exists/1,
         fileerrors/0,
-v        format/1,
+        format/1,
         nofileerrors/0,
         open_pipe_streams/2,
         prolog_file_name/2,
@@ -98,7 +98,7 @@ v        format/1,
  * domains `AF_INET` and `AF_UNIX`.
  * Socket types depend on the
  * underlying operating system, but at least the following types are
- * supported: `SOCK_STREAM'` and `SOCK_DGRAM'` (untested in 6.3).
+ * supported: `SOCK_STREAM` and `SOCK_DGRAM` (untested in 6.3).
  * 
  * 
 */
@@ -320,9 +320,6 @@ split_path_file(File, Path, Name) :-
 	file_directory_name(File, Path),
 	file_base_name(File, Name).
 
-*/
-
-
 %! @}
 
 %! @addtogroup StreamM
@@ -338,8 +335,6 @@ backtracking) or to access the stream for a file  _F_ in mode
 streams might not be associated to a file: in this case YAP tries to
 return the file number. If that is not available, YAP unifies  _F_
 with  _S_.
-
-
 */
 current_stream(File, Mode, Stream) :-
     stream_property(Stream, mode(Mode)),

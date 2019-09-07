@@ -18,7 +18,9 @@ ${DOCS_SOURCE_DIR}/custom/font-awesome.min.css
 ${DOCS_SOURCE_DIR}/custom/offcanvas.css
 ${DOCS_SOURCE_DIR}/custom/theme.css
 ${DOCS_SOURCE_DIR}/custom/yap.css
-${DOCS_SOURCE_DIR}/custom/solarized-light.css
+          ${DOCS_SOURCE_DIR}/custom/solarized-light.css
+          ${DOCS_SOURCE_DIR}/custom/all.js
+          ${DOCS_SOURCE_DIR}/custom/search.js
 ${DOCS_SOURCE_DIR}/custom/assets
            )
   

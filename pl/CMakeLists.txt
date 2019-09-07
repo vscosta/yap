@@ -28,7 +28,7 @@ set(PL_BOOT_SOURCES
         flags.yap
         grammar.yap
         ground.yap
-vv        hacks.yap
+        hacks.yap
         imports.yap
         init.yap
         listing.yap

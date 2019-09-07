@@ -45,10 +45,24 @@
 *
 */
 
+/**
+   read_stream_to_codes( +_Stream_, -_Codes_)
 
+   If _Stream_ is a readable text stream, unify _Codes_ with
+   the sequence of character codess available from the stream.
+
+   If the stream had been emptied before, unify _Codes_ with `end_of_file`.
+   */
 read_stream_to_codes(Stream, Codes) :-
 	read_stream_to_codes(Stream, Codes, []).
 
+/**
+   read_stream_to_codes( +_Stream_, -_Codes_, ?_Tail_)
+
+   If _Stream_ is a readable text stream, unify _Codes_-_Tail with
+   the sequence of character codess available from the stream.
+
+   */
 read_file_to_codes(File, Codes, _) :-
 	open(File, read, Stream),
 	read_stream_to_codes(Stream, Codes, []),
