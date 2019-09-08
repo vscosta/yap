@@ -27,7 +27,6 @@
 	    must_be_callable/1,
 	    	    must_be_callable/2
 	  ]), [])  .
-
 /**
  @defgroup SWI-error High-level error testing.
 @ingroup Deb_Interaction

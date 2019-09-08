@@ -941,10 +941,50 @@ static Int true_file_name3(USES_REGS1) {
   return rc && Yap_unify(ARG3, MkAtomTerm(at));
 }
 
+static Int path_concat(USE_REGS1) {
+  int l = push_text_stack();
+  char *buf = Malloc(MAXPATHLEN);
+  const char *inp;
+  size_t len;
+  Term t = Deref(ARG1);
+  if (IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+    if (IsAtomTerm(th)) {
+	inp = RepAtom(AtomOfTerm(th))->StrOfAE;
+    } else if (IsStringTerm(th)) {
+      inp = StringOfTerm(th);
+    }
+    strcpy(buf,inp);
+  }
+  t = TailOfTerm(t);
+  while (IsPairTerm(t)) {
+    Term th = HeadOfTerm(t);
+      if (IsAtomTerm(th)) {
+	inp = RepAtom(AtomOfTerm(th))->StrOfAE;
+      } else if (IsStringTerm(th)) {
+	inp = StringOfTerm(th);
+      }
+      len = strlen(buf);
+      if (buf[len-1] != '/') {
+	buf[len] = '/';
+	buf[len+1] = 0;
+      }
+	strcat(buf,inp);
+  t = TailOfTerm(t);
+    }
+    bool rc= Yap_unify(MkAtomTerm(Yap_LookupAtom(buf)),ARG2);
+    pop_text_stack(l);
+    return rc;
+
+    }
+
+  
 void Yap_InitAbsfPreds(void) {
+  Yap_InitCPred("path_concat", 2, path_concat,0);
   Yap_InitCPred("expand_file_name", 2, p_expand_file_name, SyncPredFlag);
   Yap_InitCPred("prolog_to_os_filename", 2, prolog_to_os_filename,
                 SyncPredFlag);
+  Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
   Yap_InitCPred("absolute_file_system_path", 2, absolute_file_system_path, 0);
   Yap_InitCPred("absolute_file_name", 2, real_path, 0);
   Yap_InitCPred("true_file_name", 2, true_file_name, SyncPredFlag);

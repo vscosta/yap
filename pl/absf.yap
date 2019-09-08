@@ -40,10 +40,12 @@
     current_prolog_flag(open_expands_filename, OldF),
     current_prolog_flag( fileerrors, PreviousFileErrors ),
     current_prolog_flag( verbose_file_search, PreviousVerbose ),
-    State = abs_entry(OldF, PreviousFileErrors, PreviousVerbose ),
+    working_directory(D0,D0),
+    State = abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose ),
     '$set_absf'(Opts).
 
 '$set_absf'(Opts) :-
+    ( get_abs_file_parameter( relative_to, Opts, D) -> working_directory(_D0,D) ; true ),
     get_abs_file_parameter( verbose_file_search, Opts,Verbose ),
     get_abs_file_parameter( expand, Opts, Expand ),
     get_abs_file_parameter( file_errors, Opts, FErrors ),
@@ -54,7 +56,8 @@
 
 
 
-'$restore_absf'(abs_entry(OldF, PreviousFileErrors, PreviousVerbose) ) :-
+'$restore_absf'(abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
+    working_directory(_,D0),
     set_prolog_flag( fileerrors, PreviousFileErrors ),
     set_prolog_flag( open_expands_filename, OldF),
     set_prolog_flag( verbose_file_search, PreviousVerbose ).
@@ -79,34 +82,30 @@
 '$absf_port'(external_exception(_),File, Opts, TrueFileName, State ) :-  
     '$absf_port'(fail,File, Opts, TrueFileName,State  ).  
 
-'$find_in_path'(Name, Opts, File, _) :-
-    '$library'(Name, Opts, Name1),
-    '$path2atom'(Name1,Name2),
-    '$suffix'(Name2, Opts, _, Name3),
-    '$glob'(Name3,Opts,Name4),
-    get_abs_file_parameter( expand, Opts, Exp ),
-    (Exp = true-> expand_file_name(Name4,Names)  ; Names = [Name4]),
-    lists:member(Name5,Names),
-    '$clean_name'(Name5,Opts,File),
-    get_abs_file_parameter( file_type, Opts, Type ),
-    get_abs_file_parameter( access, Opts, Access ),
-    '$check_file'(File, Type, Access),
-    ( get_abs_file_parameter( solutions, Opts, first ) -> ! ; true ).
-'$find_in_path'(user,_,user_input,  _
-	       ) :- !.
-'$find_in_path'(user_input,_,user_input, _) :- !.
-'$find_in_path'(user_output,_,user_ouput, _) :- !.
-'$find_in_path'(user_error,_,user_error, _) :- !.
+'$find_in_path'(Name, Opts, File) :-
+	    '$library'(Name, Opts, Name1),
+	    '$path2atom'(Name1,Name2),
+	    '$suffix'(Name2, Opts, _, Name3),
+	    '$glob'(Name3,Opts,Name4),
+	    get_abs_file_parameter( expand, Opts, Exp ),
+	    (Exp = true-> expand_file_name(Name4,Names)  ; Names = [Name4]),
+	    lists:member(Name5,Names),
+	    '$clean_name'(Name5,Opts,File),
+	    get_abs_file_parameter( file_type, Opts, Type ),
+	    get_abs_file_parameter( access, Opts, Access ),
+	    '$check_file'(File, Type, Access),
+	    ( get_abs_file_parameter( solutions, Opts, first ) -> ! ; true ).
+'$find_in_path'(user,_,user_input) :- !.
+'$find_in_path'(user_input,_,user_input) :- !.
+'$find_in_path'(user_output,_,user_ouput) :- !.
+'$find_in_path'(user_error,_,user_error) :- !.
 
 '$clean_name'(N0,_OPts,NF) :-
     is_absolute_file_name(N0),
     !,
     absolute_file_name(N0,NF).
-'$clean_name'(N0,OPts,NF) :-
-    get_abs_file_parameter( relative_to, OPts, D),
-    working_directory(D0,D),
-    absolute_file_name(N0,NF),
-    working_directory(_D,D0).    
+'$clean_name'(N0,_OPts,NF) :-
+    absolute_file_name(N0,NF).    
 '$clean_name'(N0,_OPts,NF) :-
     recorded('$path',D,_),
     working_directory(D0,D),
@@ -140,12 +139,12 @@
 
 '$path2atom'(As,A) :-
     '$cat_file_name'(As,L,[]),
-    atom_concat(L,A).
+    path_concat(L,A).
 
 
 '$cat_file_name'(A/B, NA, IA	) :-
     !,
-    '$cat_file_name'(A, NA, [/ |RA]),
+    '$cat_file_name'(A, NA, RA),
     '$cat_file_name'(B, RA, IA).
 '$cat_file_name'(File, NFs, Fs) :-
     atom(File),
@@ -175,7 +174,7 @@
     G \= '',
     writeln(G),
     !,
-    atomic_concat([F,/,G],NF).
+    path_concat([F,G],NF).
 '$glob'(F,_Opts,F).
 
 % always verify if a directory
@@ -190,7 +189,16 @@
     '$access_file'(F, Access),
     \+ exists_directory(F). % if it has a type cannot be a directory..
 
-%
+%	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
+
 %
 %
 '$system_library_directories'(library, Dir) :-
@@ -413,12 +421,13 @@ absolute_file_name(File,TrueFileName,Opts) :-
     !,
     absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,LOpts,TrueFileName) :-
-    				%   must_be_of_type( atom, File ),
+
+    %   must_be_of_type( atom, File ),
     % look for solutions
-     gated_call(
+    gated_call(
         '$enter_absf'( File, LOpts, Opts, State),
-         '$find_in_path'(File, Opts,TrueFileName, _),
-         Port,
-	 '$absf_port'(Port, File, Opts, TrueFileName, State)
+        '$find_in_path'(File, Opts,TrueFileName),
+        Port,
+	'$absf_port'(Port, File, Opts, TrueFileName, State)
 	).
 

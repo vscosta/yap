@@ -264,8 +264,7 @@ initialize_prolog :-
 :- c_compile( 'grammar.yap' ).
 :- c_compile( 'protect.yap' ).
 
-:- open('absf.yap', read, Absf),
-   load_files([Absf], [stream(Absf)]).
+:- c_compile('absf.yap' ).
 
 :- use_module('error.yap').
 
