@@ -24,7 +24,7 @@
     FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
     COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-vv    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
     CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
     LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
@@ -61,16 +61,15 @@ refactoring (trivial):
 #define JPL_C_LIB_VERSION_PATCH  0
 #define JPL_C_LIB_VERSION_STATUS "alpha"
 
-#define DEBUG(n, g) ((void)0)
-#ifndef DEBUG_LEVEL
-#define DEBUG_LEVEL 3
-#endif
-#ifdef __YAP_PROLOG__
+
+#ifdef DEBUG
 #undef DEBUG
-#define DEBUG(n, g) (void)0
-#else
-#define DEBUG(n, g) (n >= DEBUG_LEVEL ? g : (void)0)
 #endif
+#ifndef DEBUG_LEVEL
+#define DEBUG_LEVEL 0
+#endif
+#define DEBUG(n, g) (n >= DEBUG_LEVEL ? g : (void)0)
+
 
 /* disable type-of-ref caching (at least until GC issues are resolved) */
 #define JPL_CACHE_TYPE_OF_REF FALSE
@@ -164,7 +163,7 @@ refactoring (trivial):
 #define JPL_INIT_JPL_FAILED 104
 #define JPL_INIT_PVM_FAILED 105
 
-#define JPL_MAX_POOL_ENGINES 10    /* max pooled Prolog engines */
+#define JPL_MAX_POOL_ENGINES 1    /* max pooled Prolog engines */
 #define JPL_INITIAL_POOL_ENGINES 1 /* initially created ones */
 
 /* legit values for jpl_syntax */
@@ -197,7 +196,7 @@ refactoring (trivial):
 
 typedef struct Hr_Entry HrEntry; /* enables circular definition... */
 
-struct Hr_Entry                         /* a single interned reference */
+struct Hr_Entry                         /* a single interned reDEference */
 { jobject  obj;                         /* a JNI global ref */
   int      hash;                        /* identityHashCode(obj) */
   HrEntry *next;                        /* next entry in this chain, or NULL */
@@ -1005,7 +1004,7 @@ jni_free_iref(JNIEnv *env, pointer iref)
 { if (jni_hr_del(env, iref)) /* iref matched a hashedref table entry?
                                 (in which case, was deleted) */
   { if (!jni_tidy_iref_type_cache(iref))
-      DEBUG(0, Sdprintf("[JPL: jni_tidy_iref_type_cache(%u) failed]\n", iref));
+      DEBUG(0, Sdprintf("[JPL: jni_tidy_iref_type_cache(%p) failed]\n", iref));
     hr_del_count++;
     return TRUE;
   } else
@@ -1381,7 +1380,7 @@ jni_hr_del_unlocked(JNIEnv *env, pointer iref)
   HrEntry * ep;    /* pointer to a HashedRef table entry */
   HrEntry **epp;   /* pointer to ep's handle, in case it needs updating */
 
-  DEBUG(1, Sdprintf("[removing possible object reference %u]\n", iref));
+  DEBUG(1, Sdprintf("[removing possible object reference %p]\n", iref));
   for (index = 0; index < hr_table->length; index++) /* for each slot */
   { for (epp = &(hr_table->slots[index]), ep = *epp; ep != NULL;
          epp = &(ep->next), ep = *epp)
@@ -1393,14 +1392,14 @@ jni_hr_del_unlocked(JNIEnv *env, pointer iref)
         hr_table->count--;                /* adjust table's entry count */
         DEBUG(1,
               Sdprintf(
-                  "[found & removed hashtable entry for object reference %u]\n",
+                  "[found & removed hashtable entry for object reference %p]\n",
                   iref));
         return TRUE; /* entry found and removed */
       }
     }
   }
   DEBUG(1, Sdprintf("[JPL: failed to find hashtable entry for (presumably "
-                    "bogus) object reference %u]\n",
+                    "bogus) object reference %p]\n",
                     iref));
   return FALSE;
 }
@@ -1901,7 +1900,7 @@ jni_create_jvm_c(char *classpath)
                   && (env = jni_env()) != NULL
               ? 2 /* success (JVM already available) */
               : ((r = JNI_CreateJavaVM(&jvm, (void **)&env, &vm_args)) == 0
-                     ? 0               /* success (JVM created OK) */
+		 ? 0             /* success (JVM created OK) */
                      : (jvm = NULL, r) /* -ve, i.e. some create error */
                  ));
 }
@@ -1960,6 +1959,7 @@ jni_create_default_jvm()
   if ((r = jni_create_jvm(cp)) < 0)
   { Sdprintf("[JPL: failed to create Java VM (error %d)]\n", r);
   }
+  
   return r >= 0; /* e.g. 2 -> "JVM already available" */
 }
 
@@ -2993,6 +2993,9 @@ jpl_post_pvm_init(JNIEnv *env, int argc, char **argv)
   jobject ta;
   int     i;
 
+#ifdef __YAP_PROLOG__
+  return true;
+#endif
   /* Prolog VM is already initialised (by us or by other party) */
   /* retire default init args and set up actual init args: */
   pvm_dia = NULL; /* probably oughta delete (global) ref to former args... */
@@ -3018,7 +3021,7 @@ jpl_post_pvm_init(JNIEnv *env, int argc, char **argv)
   { msg = "jpl_post_pvm_init(): failed to create Prolog engine pool";
     goto err;
   }
-
+  
   jpl_status = JPL_INIT_OK;
   return TRUE;
 
@@ -4105,7 +4108,7 @@ Java_org_jpl7_fli_Prolog_open_1query(JNIEnv *env, jclass jProlog,
   qid_t       qid;
   jobject     jqid; /* for returned new QidT object */
 
-  DEBUG(1, Sdprintf(">open_query(env=%lu,jProlog=%p,jmodule=%p,jflags=%p,"
+  DEBUG(1, Sdprintf(">open_query(env=%p,jProlog=%p,jmodule=%p,jflags=%p,"
                     "jpredicate=%p,jterm0=%p)...\n",
                     env, jProlog, jmodule, jflags, jpredicate, jterm0));
   return (
@@ -4130,7 +4133,7 @@ Java_org_jpl7_fli_Prolog_open_1query(JNIEnv *env, jclass jProlog,
                   TRUE) /* NULL module is OK (?) [ISSUE] */
               && (DEBUG(1, Sdprintf("  ok: "
                                     "PL_open_query(module=%p,jflags=%u,"
-                                    "predicate=%p,term0=%p)=%p\n",
+                                    "predicate=%p,term0=%d)=%p\n",
                                     module, jflags, predicate, term0, qid)),
                   TRUE) &&
               (jqid = (*env)->AllocObject(env, jQidT_c)) != NULL &&
