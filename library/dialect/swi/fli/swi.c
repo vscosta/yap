@@ -2223,7 +2223,7 @@ X_API int PL_initialise(int myargc, char **myargv) {
     GLOBAL_InitialisedFromPL = true;
   ATOM_nil = YAP_SWIAtomFromAtom(AtomNil);
 
-
+  return true;
   }
   memset((void *)&init_args, 0, sizeof(init_args));
   init_args.Argv = myargv;
@@ -2253,8 +2253,9 @@ X_API int PL_initialise(int myargc, char **myargv) {
 }
 
 X_API int PL_is_initialised(int *argcp, char ***argvp) {
-  if (GLOBAL_InitialisedFromPL) {
-    if (argcp)
+  if (!GLOBAL_InitialisedFromPL) {
+      PL_initialise(argcp, argvp);
+      if (argcp)
       *argcp = GLOBAL_PL_Argc;
     if (argvp)
       *argvp = GLOBAL_PL_Argv;

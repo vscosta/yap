@@ -66,7 +66,7 @@ refactoring (trivial):
 #undef DEBUG
 #endif
 #ifndef DEBUG_LEVEL
-#define DEBUG_LEVEL 0
+#define DEBUG_LEVEL 4
 #endif
 #define DEBUG(n, g) (n >= DEBUG_LEVEL ? g : (void)0)
 
@@ -324,7 +324,11 @@ static jfieldID jBooleanHolderValue_f;
  * enough) ================= */
 
 const char *default_args[] =
+#if __YAP_PROLOG__
+        { "yap", "-nosignals", NULL };
+#else
 { "swipl", "-g", "true", "--nosignals", NULL };
+#endif
 
 /*=== JNI global state (initialised by jni_create_jvm_c) ================== */
 
@@ -1901,7 +1905,8 @@ jni_create_jvm_c(char *classpath)
               ? 2 /* success (JVM already available) */
               : ((r = JNI_CreateJavaVM(&jvm, (void **)&env, &vm_args)) == 0
 		 ? 0             /* success (JVM created OK) */
-                     : (jvm = NULL, r) /* -ve, i.e. some create error */
+                     : (jvm = NULL, (*env)->ExceptionClear(
+                          env) ,r) /* -ve, i.e. some create error */
                  ));
 }
 
@@ -1954,9 +1959,8 @@ jni_create_default_jvm()
   char *cp = getenv("CLASSPATH");
 #endif
 
-  DEBUG(0, Sdprintf("jni_create_default_jvm(): cp=%s\n", cp));
-  printf("jni_create_default_jvm(): cp=%s\n", cp);
-  if ((r = jni_create_jvm(cp)) < 0)
+  DEBUG(3, Sdprintf("jni_create_default_jvm(): cp=%s\n", cp));
+   if ((r = jni_create_jvm(cp)) < 0)
   { Sdprintf("[JPL: failed to create Java VM (error %d)]\n", r);
   }
   
@@ -2993,10 +2997,9 @@ jpl_post_pvm_init(JNIEnv *env, int argc, char **argv)
   jobject ta;
   int     i;
 
-#ifdef __YAP_PROLOG__
-  return true;
-#endif
-  /* Prolog VM is already initialised (by us or by other party) */
+    /* jpl_status = JPL_INIT_OK;
+  return TRUE;*/
+/* Prolog VM is already initialised (by us or by other party) */
   /* retire default init args and set up actual init args: */
   pvm_dia = NULL; /* probably oughta delete (global) ref to former args... */
   if ((ta = (*env)->NewObjectArray(env, argc, jString_c, NULL)) == NULL ||
@@ -3016,11 +3019,13 @@ jpl_post_pvm_init(JNIEnv *env, int argc, char **argv)
     }
     (*env)->SetObjectArrayElement(env, pvm_aia, i, to);
   }
+#ifndef __YAP_PROLOG__
 
   if (create_pool_engines() != 0)
   { msg = "jpl_post_pvm_init(): failed to create Prolog engine pool";
     goto err;
   }
+#endif
   
   jpl_status = JPL_INIT_OK;
   return TRUE;
