@@ -941,42 +941,42 @@ static Int true_file_name3(USES_REGS1) {
   return rc && Yap_unify(ARG3, MkAtomTerm(at));
 }
 
-static Int path_concat(USE_REGS1) {
+static Int path_concat(USES_REGS1) {
   int l = push_text_stack();
-  char *buf = Malloc(MAXPATHLEN);
-  const char *inp;
   size_t len;
   Term t = Deref(ARG1);
-  if (IsPairTerm(t)) {
-    Term th = HeadOfTerm(t);
-    if (IsAtomTerm(th)) {
-	inp = RepAtom(AtomOfTerm(th))->StrOfAE;
-    } else if (IsStringTerm(th)) {
-      inp = StringOfTerm(th);
-    }
-    strcpy(buf,inp);
+  Term *tailp;
+  int n = Yap_SkipList(&t, &tailp);
+  if (*tailp != TermNil) {
+      Yap_ThrowError(TYPE_ERROR_LIST, t, "while concatenating sub-paths");
   }
-  t = TailOfTerm(t);
+  const  char **inp = Malloc( (n+1)*sizeof(const char *) );
+  int i=0;
   while (IsPairTerm(t)) {
     Term th = HeadOfTerm(t);
       if (IsAtomTerm(th)) {
-	inp = RepAtom(AtomOfTerm(th))->StrOfAE;
+	inp[i++] = RepAtom(AtomOfTerm(th))->StrOfAE;
       } else if (IsStringTerm(th)) {
-	inp = StringOfTerm(th);
+	inp[i++] = StringOfTerm(th);
       }
-      len = strlen(buf);
-      if (buf[len-1] != '/') {
-	buf[len] = '/';
-	buf[len+1] = 0;
-      }
-	strcat(buf,inp);
-  t = TailOfTerm(t);
+   t = TailOfTerm(t);
     }
+  inp[i] = NULL;
+    len = MAXPATHLEN;
+   size_t sz;
+           char *buf = Malloc(len);
+  do {
+
+    sz = cwk_path_join_multiple(inp,buf,len-1);
+      if (sz >= len) {len = sz+1;
+        buf = Realloc (buf, len);
+      } else {
     bool rc= Yap_unify(MkAtomTerm(Yap_LookupAtom(buf)),ARG2);
     pop_text_stack(l);
     return rc;
-
-    }
+      }
+  } while (true);
+  }
 
   
 void Yap_InitAbsfPreds(void) {

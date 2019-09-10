@@ -222,7 +222,7 @@ jpl_new_1(array(T), Params, Vx) :-
     (   var(Params)
     ->  throw(error(instantiation_error,context(jpl_new/3,'when constructing a new array, 2nd arg must either be a non-negative integer (denoting the required array length) or a proper list of valid element values')))
     ;   integer(Params)         % integer I -> array[0..I-1] of default values
-    ->  (   Params >= 0
+    ->  (   integer(Params), Params >= 0
         ->  Len is Params
         ;   throw(error(domain_error(array_length,Params),context(jpl_new/3,'when constructing a new array, if the 2nd arg is an integer (denoting the required array length) then it must be non-negative')))
         )

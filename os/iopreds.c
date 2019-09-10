@@ -54,7 +54,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #if HAVE_CTYPE_H
 #endif
-#if HAVE_WCTYPE_H
+#if HAVE_WCTYPE_Hab
 #endif
 #if HAVE_SYS_TIME_H
 

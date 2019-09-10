@@ -1288,11 +1288,9 @@ YAP: NO EQUIVALENT */
 
 X_API int PL_raise_exception(term_t exception) {
   CACHE_REGS
-  LOCAL_Error_TYPE = THROW_EVENT;
-  LOCAL_ActiveError->errorGoal = Yap_TermToBuffer(Yap_GetFromHandle(exception), 0);
-  //Yap_PutException(Yap_GetFromSlot(exception));
-  Yap_RaiseException();
-  return 0;
+  YAP_Term t0 = Yap_GetFromHandle(exception);
+    LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
+    return Yap_JumpToEnv(PASS_REGS1);
 }
 
 X_API int PL_throw(term_t exception) {

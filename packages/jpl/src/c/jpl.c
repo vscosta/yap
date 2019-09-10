@@ -1468,7 +1468,7 @@ jni_init(void)
   JNI_functor_java_exception_1 = PL_new_functor(PL_new_atom("java_exception"), 1);
   JNI_functor_jpl_error_1      = PL_new_functor(PL_new_atom("jpl_error"), 1);
   JNI_functor_pair_2           = PL_new_functor(PL_new_atom("-"), 2);
-
+  (*env)->ExceptionClear(env);
   /* these initialisations require an active JVM: */
   return (
       (lref = (*env)->FindClass(env, "java/lang/Class")) != NULL &&
@@ -1905,8 +1905,7 @@ jni_create_jvm_c(char *classpath)
               ? 2 /* success (JVM already available) */
               : ((r = JNI_CreateJavaVM(&jvm, (void **)&env, &vm_args)) == 0
 		 ? 0             /* success (JVM created OK) */
-                     : (jvm = NULL, (*env)->ExceptionClear(
-                          env) ,r) /* -ve, i.e. some create error */
+                     : (jvm = NULL ,r) /* -ve, i.e. some create error */
                  ));
 }
 
