@@ -647,12 +647,8 @@ X_API int PL_get_atom_chars(term_t ts, char **a) /* SAM check type */
   src = (char *)RepAtom(AtomOfTerm(t))->StrOfAE;
   if (!src)
       return 0;
-   if ( !*a ) {
+   if ( a ) {
       *a = src;
-  } else if (src[0] == '\0') {
-       (*a)[0] = src[0];
-   } else {
-      strcpy(*a, src);
   }
   return 1;
 }
@@ -2219,6 +2215,16 @@ X_API void PL_clear_exception(void) {
 X_API int PL_initialise(int myargc, char **myargv) {
   YAP_init_args init_args;
 
+  if (!Yap_Embedded) {
+    
+    
+    GLOBAL_PL_Argv = GLOBAL_argv;
+    GLOBAL_PL_Argc = GLOBAL_argc;
+    GLOBAL_InitialisedFromPL = true;
+  ATOM_nil = YAP_SWIAtomFromAtom(AtomNil);
+
+  return true;
+  }
   memset((void *)&init_args, 0, sizeof(init_args));
   init_args.Argv = myargv;
   init_args.Argc = myargc;
@@ -2247,8 +2253,9 @@ X_API int PL_initialise(int myargc, char **myargv) {
 }
 
 X_API int PL_is_initialised(int *argcp, char ***argvp) {
-  if (GLOBAL_InitialisedFromPL) {
-    if (argcp)
+  if (!GLOBAL_InitialisedFromPL) {
+      PL_initialise(argcp, argvp);
+      if (argcp)
       *argcp = GLOBAL_PL_Argc;
     if (argvp)
       *argvp = GLOBAL_PL_Argv;

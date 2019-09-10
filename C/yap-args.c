@@ -1069,6 +1069,9 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
   } else {
     GLOBAL_PrologShouldHandleInterrupts =
       !yap_init->PrologCannotHandleInterrupts;
+
+       GLOBAL_PL_Argv = yap_init->Argv;
+
   }
   Yap_InitSysbits(0); /* init signal handling and time, required by later
 			 functions */

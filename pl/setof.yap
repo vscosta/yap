@@ -129,7 +129,7 @@ findall(Template, Generator, Answers, SoFar) :-
  * This built-in is very similar to findall/3, but uses the SICStus
  * algorithm to guarantee that variables will have the same names.
  */
-findall_with_common_vars(Template, Generator, Answers) :-
+'$findall_with_common_vars'(Template, Generator, Answers) :-
 	nb:nb_queue(Ref),
 	(
 	  '$execute'(Generator),

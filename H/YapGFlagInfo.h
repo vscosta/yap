@@ -798,7 +798,7 @@ and if it is bound to `off` disable them. The default for YAP is
 #if _WIN32
 #define YAP_FOR_WIN32 "true"
 #else
-#define YAP_FOR_WIN32 "true"
+#define YAP_FOR_WIN32 "false"
 #endif
 
     YAP_FLAG(WIN32_FLAG, "win32", false, ro,YAP_FOR_WIN32,
