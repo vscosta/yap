@@ -5,6 +5,7 @@
   * @brief JUpyter support.
   */
 
+
 %:- yap_flag(gc_trace,verbose).
    :- module( jupyter,
                [jupyter_query/3,
@@ -37,13 +38,8 @@
 
 :- python_import(sys).
 
-%:- meta_predicate jupyter_query(+,:,+,-), jupyter_query(+,:,+).
-	   
-jupyter_query(Caller, Cell, Line, Bindings ) :-
-	jupyter_cell(Caller, Cell, Line, Bindings).
+:- meta_predicate jupyter_query(+,:,:).
 
-jupyter_query(Caller, Cell, Line ) :-
-    jupyter_query( Caller, Cell, Line, _Bindings ).
 
 next_streams( _Caller, exit, _Bindings ) :-
 %    Caller.answer := Bindings,
@@ -56,23 +52,33 @@ next_streams(_, redo, _ ) :-
 next_streams( _, _, _ ). % :-
    % streams(false).
 
-    
-
-jupyter_cell(_Caller, Cell, _Line, _) :-
-    jupyter_consult(Cell),	%stack_dump,
-	fail.
-jupyter_cell( _Caller, _, '', _) :- !.
-jupyter_cell( _Caller, _, Line , _) :-
-	blank( Line ),
-	!.
-jupyter_cell(Caller, _, Line, Bindings ) :-
-    Query = Caller,
-    catch(
-	(python_query(Query, Goal, Port, Bindings),
-	 Caller.q.port := Port,
-	Caller.q.answer := Bindings),
-	error(A,B),
+jupyter_query(Caller, MCell, MLine ) :-
+    strip_module(MCell, M, Cell),
+    strip_module(MLine, M1,Line),
+    ( Cell == ''
+    ->
+    true;
+      blank(Cell)
+      ->
+	  true
+      ;
+      jupyter_consult(M:Cell)
+    ),	%stack_dump,
+    ( Line == ''
+    ->
+    true;
+      blank(Line)
+      ->
+	  true
+      ;
+     catch(
+	 (python_query(M1:Line, _Goal, Port, Bindings),
+	  Caller.q.port := Port,
+		   Caller.q.answer := Bindings
+	 ),
+	 error(A,B),
 	 system_error(A,B)
+     )
     ).
 
 restreams(call) :-

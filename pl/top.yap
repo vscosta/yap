@@ -194,7 +194,7 @@ live :-
 	'$go_compile_clause'(G,V,Pos,consult,Source),
 	fail.
 '$continue_with_command'(top,V,_,G,_) :-
-	'$query'(G,V).
+    '$query'(G,V).
 
  %%
  % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -222,7 +222,7 @@ live :-
      '$undefined'(H0, Mod)
     ->
      '$init_pred'(H0, Mod, Where)
-	;
+   ;
      true
     ),
 %    writeln(Mod:((H:-B))),
@@ -272,48 +272,55 @@ live :-
 
 /* Executing a query */
 
-'$query'(end_of_file,_).
+'$query'(end_of_file,[]).
 '$query'(G,[]) :-
-	 '$prompt_alternatives_on'(OPT),
+	 current_prolog_flag(prompt_alternatives_on, OPT),
 	 ( OPT = groundness ; OPT = determinism),
-     !,
+	 !,
 	 '$yes_no'(G,(?-)).
-'$query'(G,V) :-
-	 (
-     '$current_module'(M),
-     '$current_choice_point'(CP),
-     '$user_call'(G, M),
-     '$current_choice_point'(NCP),
-     '$delayed_goals'(G, V, Vs, LGs, DCP),
-     '$write_answer'(Vs, LGs, Written),
-	  '$write_query_answer_true'(Written),
-	  (
-	   yap_flag(prompt_alternatives_on,determinism), CP == NCP, DCP = 0
-	   ->
-	   format(user_error, '.~n', []),
-	   !
-	  ;
-	   '$another',
-	   !
-	  ),
-	  fail
-	 ;
-	  '$out_neg_answer'
-	 ).
+'$query'(G0,V) :-
+    (
+	'$current_choice_point'(CP),
+	query(G0,V,_,_),
+	'$current_choice_point'(NCP),
+	(
+	    yap_flag(prompt_alternatives_on,determinism),
+	    CP == NCP
+	->
+	format(user_error, '.~n', []),
+	!
+	;
+	'$another',
+	!
+	),
+	fail
+    ;
+    '$out_neg_answer'
+    ).
 
- '$yes_no'(G,C) :-
-	 '$current_module'(M),
-	 '$do_yes_no'(G,M),
-	 '$delayed_goals'(G, [], NV, LGs, _),
-	 '$write_answer'(NV, LGs, Written),
-	 ( Written = [] ->
-	   !,'$present_answer'(C, true)
-	 ;
-	   '$another', !
-	 ),
-	 fail.
- '$yes_no'(_,_) :-
-	 '$out_neg_answer'.
+query(G0, V, Vs, LGs) :-
+    '$yap_strip_module'(G0,M,G),
+    '$user_call'(G, M),
+    '$delayed_goals'(G, V, Vs, LGs, _DCP),
+    '$write_answer'(Vs, LGs, Written),
+    '$write_query_answer_true'(Written).
+
+'$yes_no'(G,C) :-
+    '$current_module'(M),
+    '$do_yes_no'(G,M),
+    '$delayed_goals'(G, [], NV, LGs, _),
+    '$write_answer'(NV, LGs, Written),
+    (
+	Written = []
+    ->
+    !,
+    '$present_answer'(C, true)
+    ;
+    '$another', !
+    ),
+    fail.
+'$yes_no'(_,_) :-
+    '$out_neg_answer'.
 
 '$add_env_and_fail' :- fail.
 

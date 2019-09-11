@@ -332,7 +332,7 @@ portray_clause(Clause) :-
 
 
 '$beautify_vs'(T) :-
-    '$non_singletons_in_term'(T,[],Fs),
+    non_singletons_in_term(T,[],Fs),
     '$vv_transform'(Fs,1),
     term_variables(T, NFs),
     '$v_transform'(NFs).

@@ -1,5 +1,3 @@
-11
-
 %% @file yapi.yap
 %% @brief support yap shell
 %%
@@ -26,7 +24,7 @@
 
 
 :- python_import(
-			' yap4py.yapi' ).
+       ' yap4py.yapi' ).
 :- python_import(
        json).
 %:- python_import(gc).
@@ -52,9 +50,9 @@
 %%
 %%
 yapi_query( VarNames, Caller ) :-
-show_answer(VarNames, Dict),
-Caller.bindings := Dict,
-:= print(Dict).
+    show_answer(VarNames, Dict),
+    Caller.bindings := Dict,
+	   := print(Dict).
 
 
 
@@ -62,29 +60,29 @@ Caller.bindings := Dict,
 %:- initialization set_preds.
 
 set_preds :-
-fail,
-current_predicate(P, Q),
-functor(Q,P,A),
-atom_string(P,S),
-catch(
-:= yap4py.yapi.named( S, A),
-_,
-fail),
-fail.
+    fail,
+    current_predicate(P, Q),
+    functor(Q,P,A),
+    atom_string(P,S),
+    catch(
+	:= yap4py.yapi.named( S, A),
+		       _,
+		       fail),
+    fail.
 set_preds :-
-fail,
-system_predicate(P/A),
-atom_string(P,S),
-catch(
-:= yap4py.yapi.named( S, A),
-_,
-fail),
-fail.
+    fail,
+    system_predicate(P/A),
+    atom_string(P,S),
+    catch(
+	:= yap4py.yapi.named( S, A),
+		       _,
+		       fail),
+    fail.
 set_preds.
 
 argi(N,I,I1) :-
-atomic_concat('A',I,N),
-I1 is I+1.
+    atomic_concat('A',I,N),
+    I1 is I+1.
 
 :- meta_predicate python_query(:,-),
 		  python_query(:,?, ?).
@@ -92,13 +90,17 @@ I1 is I+1.
 python_query( String		) :-
     python_query( String, _, _, _Bindings).
 
-python_query( M:String,M:Goal,Status,FinalBindings ) :-
+python_query( M:String, M:Goal,_Status, FinalBindings  ) :-
     atomic_to_term( String, Goal, VarNames ),
-    query_to_answer( M:Goal, VarNames, Status, Bindings),
-    rational_term_to_tree(Goal+Bindings,_NGoal+NBindings,ExtraBindings,[]),
-    lists:append(NBindings,ExtraBindings,L),
-    simplify(L,[],L2),
-    lists2dict(L2, FinalBindings).
+    query(M:Goal, VarNames, Status, Bindings),
+    rational_term_to_tree(Goal+Bindings,NGoal+NBindings,ExtraBindings,[]),
+    simplify(NBindings,0,L2,I2),
+    non_singletons_in_term(Goal, [], NSVs),
+    foldl(namev,NSVs,I2,_),
+    term_variables(Goal,Vs),
+    maplist('='('_'),Vs),
+    lists:append(L2,ExtraBindings,L),
+    lists2dict(L, FinalBindings).
 
 lists2dict([A=B], { A:NB}) :-
     !,
@@ -107,24 +109,28 @@ lists2dict([A=B|L], {A:NB,Dict}) :-
     lists2dict(L, {Dict}),
     listify(B,NB).
 
-simplify([],_,[]).
-simplify([X=V|Xs], I, NXs) :-
+simplify([],I,[],I).
+simplify([X=V|Xs], I, NXs, IF) :-
     var(V),
     !,
     X=V,
-    simplify(Xs,I, NXs).
-simplify([X=V|Xs], I, [X=V|NXs]) :-
+    simplify(Xs,I, NXs, IF).
+simplify([X=V|Xs], I, [X=V|NXs], IF) :-
+    var(X),
     !,
-    simplify(Xs,I,NXs).
-simplify([G|Xs],I, [D=G|NXs]) :-
-    I1 is I+1,
-    atomic_concat(['__delay_',I,'__'],D),
-    simplify(Xs,I1,NXs).
+    namev(X,I,I1),
+    simplify(Xs,I1,NXs, IF).
+simplify([X=V|Xs], I, [X=V|NXs], IF) :-
+    !,
+    simplify(Xs,I,NXs, IF).
 
+namev(V,I,I1) :-
+    atomic_concat(['_',I],V),
+    I1 is I+1.
 
 bv(V,I,I1) :-
-atomic_concat(['__',I],V),
-I1 is I+1.
+    atomic_concat(['__',I],V),
+    I1 is I+1.
 
 listify(X,X) :-
     atomic(X),

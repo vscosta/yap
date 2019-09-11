@@ -1022,6 +1022,11 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
   def_overflow();
 }
 
+/** @pred  non_singletons_in_term(? _T_, _LV0_, _LVF_)
+
+Unify _LVF_-_LV0_ with the list of variables that occur at least twice in _T_ or that occur in _LV0_ and _T_.
+
+*/
 static Int p_non_singletons_in_term(
 				    USES_REGS1) /* non_singletons in term t		 */
 {
@@ -1400,7 +1405,7 @@ void Yap_InitTermCPreds(void) {
   CurrentModule = PROLOG_MODULE;
   Yap_InitCPred("rational_term_to_tree", 4, rational_term_to_tree, 0);
 
-  Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, 0);
+  Yap_InitCPred("non_singletons_in_term", 3, p_non_singletons_in_term, 0);
 
   Yap_InitCPred("ground", 1, ground, SafePredFlag);
   Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);

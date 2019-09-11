@@ -142,7 +142,7 @@ atomic_list_concat(L, El, At) :-
 '$singletons_in_term'(T,VL) :-
 	'$variables_in_term'(T,[],V10),
 	'$sort'(V10, V1),
-	'$non_singletons_in_term'(T,[],V20),
+	non_singletons_in_term(T,[],V20),
 	'$sort'(V20, V2),
 	'$subtract_lists_of_variables'(V2,V1,VL).
 

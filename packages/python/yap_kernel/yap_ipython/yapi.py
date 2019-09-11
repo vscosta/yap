@@ -557,12 +557,12 @@ class YAPRun(InteractiveShell):
                 self.q = Query(self.engine, pg)
             for v in self.q:
                 self.iterations += 1
-                o = '[ '
-                o += str(self.iterations )
-                o += '    '
-                o += json.dumps(self.q.answer)
-                o += ' ]\n\n'
-                sys.stderr.write( o )
+                # o = '[ '
+                # o += str(self.iterations )
+                # o += '    '
+                # o += json.dumps(self.q.answer)
+                # o += ' ]\n\n'
+                # sys.stderr.write( o )
                 self.answers += [self.q.answer]
                 if self.q.port == "exit":
                     break
