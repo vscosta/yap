@@ -162,6 +162,12 @@ user:(V <- F) :-
 	V := F.
 */
 
+python_import([Module|Modules]) :-
+    !,
+    python_import(Module),
+    python_import(Modules).
+python_import([]) :-
+    !.
 python_import(Module) :-
     python_import(Module, _).
 

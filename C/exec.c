@@ -2318,6 +2318,17 @@ static Int jump_env(USES_REGS1) {
     //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
     LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
     bool out = JumpToEnv(PASS_REGS1);
+    if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+    if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
+        LCL0 - (CELL *) B > LOCAL_CBorder) {
+        // we're failing up to the top layer
+    }
+    } else {
+      if (B != NULL &&
+	  LCL0 - (CELL *) B > LOCAL_CBorder) {
+        // we're failing up to the top layer
+      }
+    }
     if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE &&
         LCL0 - (CELL *) B > LOCAL_CBorder) {
         // we're failing up to the top layer

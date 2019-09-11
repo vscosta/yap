@@ -796,6 +796,10 @@ yamop *Yap_Error__(bool throw, const char *file, const char *function,
   case INTERRUPT_EVENT: {
     error_exit_yap(1);
   }
+  case USER_EVENT: {
+    LOCAL_ActiveError = Yap_UserError(where,LOCAL_ActiveError);
+    break;
+  }
   case ABORT_EVENT:
     //      fun = FunctorDollarVar;
     //    serious = true;
@@ -1347,6 +1351,7 @@ void Yap_InitErrorPreds(void) {
   CACHE_REGS
   Yap_InitCPred("$print_exception", 1, print_exception, 0);
   Yap_InitCPred("$reset_exception", 1, reset_exception, 0);
+
   Yap_InitCPred("$new_exception", 1, new_exception, 0);
   Yap_InitCPred("$get_exception", 1, get_exception, 0);
   Yap_InitCPred("$set_exception", 3, set_exception, 0);

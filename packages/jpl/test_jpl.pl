@@ -73,7 +73,8 @@ test(
                 ))
         ]
 ) :-
-    catch(jpl_new('java.util.Date', [never], _), E, true).
+    catch(
+	jpl_new('java.util.Date', [never], _), E, true).
 
 test(
         array_to_from_terms_1,

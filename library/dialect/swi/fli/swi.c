@@ -16,6 +16,8 @@ Moyle.  All rights reserved.
  *
  *   @addtogroup swi-c-interface
  *
+ *  @brief a reimplementation of the SWI-Prolog interface.
+ *
  * @{
  */
 
@@ -1286,11 +1288,11 @@ X_API int PL_put_variable(term_t t) {
 YAP: NO EQUIVALENT */
 /* SAM TO DO */
 
-X_API int PL_raise_exception(term_t exception) {
+X_API int PL_raise_exception__(const char *file, const char *fn, int line,term_t exception) {
   CACHE_REGS
   YAP_Term t0 = Yap_GetFromHandle(exception);
-    LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError);
-    return Yap_JumpToEnv(PASS_REGS1);
+ Yap_ThrowError__(file,fn,line, USER_EVENT, t0,NULL);
+ return 0;
 }
 
 X_API int PL_throw(term_t exception) {
@@ -2252,7 +2254,7 @@ X_API int PL_initialise(int myargc, char **myargv) {
 
 X_API int PL_is_initialised(int *argcp, char ***argvp) {
   if (!GLOBAL_InitialisedFromPL) {
-      PL_initialise(argcp, argvp);
+      PL_initialise(*argcp, *argvp);
       if (argcp)
       *argcp = GLOBAL_PL_Argc;
     if (argvp)

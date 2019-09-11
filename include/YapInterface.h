@@ -362,7 +362,9 @@ extern X_API void YAP_ClearExceptions(void);
 
 extern X_API int YAP_Reset(yap_reset_t reset, bool reset_global);
 
-extern X_API void YAP_Error(int myerrno, YAP_Term t, const char *buf, ...);
+#define YAP_Error(id, inp, ...)                                                \
+  YAP_Error__( __FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
+extern X_API void YAP_Error__(const char *f,   const char *fn, int pos, int myerrno, YAP_Term t, const char *buf, ...);
 
 extern X_API char *YAP_WriteBuffer(YAP_Term, char *, size_t, int);
 

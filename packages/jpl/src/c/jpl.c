@@ -1506,7 +1506,7 @@ jni_init(void)
               (termt_class = (*env)->NewGlobalRef(env, lref)) != NULL &&
               ((*env)->DeleteLocalRef(env, lref), TRUE)
 
-          ? 0
+      ? (   (*env)->ExceptionClear(env), 0)
           : -7 /* NB #define this? */
       );
 }

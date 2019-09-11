@@ -1,35 +1,45 @@
-
+11
 
 %% @file yapi.yap
 %% @brief support yap shell
 %%
 
- %% :- module(yapi, [
- %% 		 python_ouput/0,
- %% 		 show_answer/2,
- %% 		 show_answer/3,
- %% 		 yap_query/4,
- %% 		 python_query/2,
- %% 		 python_query/3,
- %% 		 python_import/1,
- %% 		 yapi_query/2
- %% 		 ]).
+%% :- module(yapi, [
+%% 		 python_ouput/0,
+%% 		 show_answer/2,
+%% 		 show_answer/3,
+%% 		 yap_query/4,
+%% 		 python_query/2,
+%% 		 python_query/3,
+%% 		 python_import/1,
+%% 		 yapi_query/2
+%% 		 ]).
 
 %:- yap_flag(verbose, silent).
 
- :- reexport(library(python)).
+:- reexport(library(python)).
 
 :- use_module( library(lists) ).
 :- use_module( library(maplist) ).
 :- use_module( library(rbtrees) ).
 :- use_module( library(terms) ).
- 
 
-:- python_import(yap4py.yapi).
-:- python_import(json).
+
+:- python_import(
+			' yap4py.yapi' ).
+:- python_import(
+       json).
 %:- python_import(gc).
 
+/**
+* @brief enable query output as text, in Prolog style.
+*
+*/
 :- create_prolog_flag(yap4py_query_output, true, [access(read_write)]).
+/**
+* @brief enable query output as JSON.
+*
+*/
 :- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
 
 :- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
@@ -42,8 +52,9 @@
 %%
 %%
 yapi_query( VarNames, Caller ) :-
-		show_answer(VarNames, Dict),
-		Caller.bindings := Dict.
+show_answer(VarNames, Dict),
+Caller.bindings := Dict,
+:= print(Dict).
 
 
 
@@ -52,82 +63,68 @@ yapi_query( VarNames, Caller ) :-
 
 set_preds :-
 fail,
- 	current_predicate(P, Q),
- 	functor(Q,P,A),
-	atom_string(P,S),
-	catch(
-	      := yap4py.yapi.named( S, A),
-	      _,
-	      fail),
-	fail.
+current_predicate(P, Q),
+functor(Q,P,A),
+atom_string(P,S),
+catch(
+:= yap4py.yapi.named( S, A),
+_,
+fail),
+fail.
 set_preds :-
 fail,
-	system_predicate(P/A),
-	atom_string(P,S),
-	catch(
-	      := yap4py.yapi.named( S, A),
-	      _,
-	      fail),
-	fail.
+system_predicate(P/A),
+atom_string(P,S),
+catch(
+:= yap4py.yapi.named( S, A),
+_,
+fail),
+fail.
 set_preds.
 
 argi(N,I,I1) :-
-    atomic_concat('A',I,N),
-	I1 is I+1.
+atomic_concat('A',I,N),
+I1 is I+1.
 
-python_query( Caller, String		) :-
-    python_query( Caller, String, _Bindings).
+:- meta_predicate python_query(:,-),
+		  python_query(:,?, ?).
 
-python_query( Caller, String, Bindings ) :-
-	atomic_to_term( String, Goal, VarNames ),
-	query_to_answer( user:Goal, VarNames, Status, Bindings),
-	Caller.q.port := Status,
-		 rational_term_to_tree(Caller+Bindings,_NGoal+NBindings,ExtraBindings,[]),
-		 lists:append(NBindings, ExtraBindings, TotalBindings),
-		 copy_term_nat(TotalBindings,L),
-		 term_variables(L,Vs),
-numbervars(Vs,0,_),
-		 output(Caller, L).
+python_query( String		) :-
+    python_query( String, _, _, _Bindings).
 
+python_query( M:String,M:Goal,Status,FinalBindings ) :-
+    atomic_to_term( String, Goal, VarNames ),
+    query_to_answer( M:Goal, VarNames, Status, Bindings),
+    rational_term_to_tree(Goal+Bindings,_NGoal+NBindings,ExtraBindings,[]),
+    lists:append(NBindings,ExtraBindings,L),
+    simplify(L,[],L2),
+    lists2dict(L2, FinalBindings).
 
-
-output( _, Bindings ) :-
-    yap_flag(yap4py_query_output,Bool),
-    Bool == true,
-    once( write_query_answer( Bindings ) ),
-    nl(user_error),
-    fail.
-output( Caller, Bindings) :-
-    yap_flag(yap4py_query_json,Bool),
-	Bool == true,
-	%simplify(Bindings, 1, Bss),
-	%numbervars(Bss, 0, _),
-	maplist(into_dict(Caller),{`found`:true)),
-fail.
-output( _Caller, _Bindings).
+lists2dict([A=B], { A:NB}) :-
+    !,
+    listify(B,NB).
+lists2dict([A=B|L], {A:NB,Dict}) :-
+    lists2dict(L, {Dict}),
+    listify(B,NB).
 
 simplify([],_,[]).
 simplify([X=V|Xs], I, NXs) :-
-	var(V),
-	!,
-	X=V,
-	simplify(Xs,I, NXs).
+    var(V),
+    !,
+    X=V,
+    simplify(Xs,I, NXs).
 simplify([X=V|Xs], I, [X=V|NXs]) :-
-	!,
-	simplify(Xs,I,NXs).
+    !,
+    simplify(Xs,I,NXs).
 simplify([G|Xs],I, [D=G|NXs]) :-
-	I1 is I+1,
-	atomic_concat(['__delay_',I,'__'],D),
-	simplify(Xs,I1,NXs).
+    I1 is I+1,
+    atomic_concat(['__delay_',I,'__'],D),
+    simplify(Xs,I1,NXs).
 
 
 bv(V,I,I1) :-
-    atomic_concat(['__',I],V),
-    I1 is I+1.
-
-into_dict(D,V0=T) :-
-    listify(T,L),
-    D.q.answer[V0] := L.
+atomic_concat(['__',I],V),
+I1 is I+1.
 
 listify(X,X) :-
     atomic(X),
@@ -143,8 +140,8 @@ listify(A:As, A:Vs)  :-
     !,
     maplist(listify,As, Vs).
 listify({Xs}, {NXs}) :-
-	!,
-	listify(Xs,NXs).
+    !,
+    listify(Xs,NXs).
 listify(WellKnown, V)  :-
     WellKnown=..[N|As],
     length(As,Sz),

@@ -500,7 +500,9 @@ PL_EXPORT(void) PL_close_foreign_frame(fid_t);
 PL_EXPORT(void) PL_discard_foreign_frame(fid_t);
 PL_EXPORT(void) PL_rewind_foreign_frame(fid_t);
 PL_EXPORT(fid_t) PL_open_foreign_frame(void);
-PL_EXPORT(int) PL_raise_exception(term_t);
+#define PL_raise_exception(t) PL_raise_exception__( __FILE__, __FUNCTION__, __LINE__, t)
+
+  PL_EXPORT(int) PL_raise_exception__(const char *, const char *, int,term_t);
 PL_EXPORT(int) PL_throw(term_t);
 PL_EXPORT(void) PL_clear_exception(void);
 PL_EXPORT(void) PL_register_atom(atom_t);

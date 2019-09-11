@@ -1704,7 +1704,7 @@ X_API Term YAP_NWideBufferToDiffList(const wchar_t *s, Term t0, size_t len) {
   return t;
 }
 
-X_API void YAP_Error(int myerrno, Term t, const char *buf, ...) {
+X_API void YAP_Error__(const char *file, const char *function, int lineno,int myerrno, Term t, const char *buf, ...) {
 #define YAP_BUF_SIZE 512
   va_list ap;
   char tmpbuf[YAP_BUF_SIZE];
@@ -1724,7 +1724,7 @@ X_API void YAP_Error(int myerrno, Term t, const char *buf, ...) {
   } else {
     tmpbuf[0] = '\0';
   }
-  Yap_Error(myerrno, t, tmpbuf);
+  Yap_ThrowError__(file,function,lineno,myerrno, t, tmpbuf);
 }
 
 X_API YAP_PredEntryPtr YAP_FunctorToPred(YAP_Functor func) {

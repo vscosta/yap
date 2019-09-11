@@ -68,7 +68,9 @@ jupyter_cell( _Caller, _, Line , _) :-
 jupyter_cell(Caller, _, Line, Bindings ) :-
     Query = Caller,
     catch(
-	python_query(Query,Line, Bindings),
+	(python_query(Query, Goal, Port, Bindings),
+	 Caller.q.port := Port,
+	Caller.q.answer := Bindings),
 	error(A,B),
 	 system_error(A,B)
     ).
