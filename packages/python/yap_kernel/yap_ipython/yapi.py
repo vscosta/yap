@@ -562,13 +562,15 @@ class YAPRun(InteractiveShell):
                 # o += '    '
                 # o += json.dumps(self.q.answer)
                 # o += ' ]\n\n'
-                # sys.stderr.write( o )
+                sys.stderr.write( '\n' )
                 self.answers += [self.q.answer]
                 if self.q.port == "exit":
                     break
                 if self.iterations == howmany:
                     break
-            if self.q.port != "answer" and self.iterations == howmany:
+            if not self.q.port:
+                    sys.stderr.write("No\n")
+            elif self.q.port != "answer" and self.iterations == howmany:
                 self.q.close()
                 self.q = None
             if self.answers:
@@ -793,26 +795,21 @@ def cell_structure(s):
         reps = 1
         if query:
             q = query.strip()
-            c= q.rpartition('*')
-            c2 = c[2].strip()
-            if c[1] != '*' or (c2!='' and not c2.isdecimal()):
+            n = len(q)
+            if q[n-1] == '*' and q[n-2].isblank():
+                query = q[:n-2]
+                repeats = -1
+                loop = ''
+            else:
                 c = q.rpartition('?')
-                c2 = c[2].strip()
-                if c[1] == '?' and(c2=='' or c2.isdecimal()):
-                    c = q.rpartition(';')
-                    c2 = c[2].strip()
+                if c[1] == '?' and c[2].isdecimal():
+                    query = c[0]
+                    repeats = int(c[2])
+                    loop = '?'
                 else:
-                    c=('','',query)
-            [q,loop,repeats] = c
-            if q:
-                query=q
-                if repeats.strip().isdecimal():
-                    reps = int(repeats)
-                    sep = sepator
-                elif loop == ';':
-                    reps = -1
-                elif loop == '?':
-                    reps = 10
+                    query =q
+                    repeats = 0
+                    loop = ''
         while i<l:
             line = sl[-i-1]
             if line.strip() != '':

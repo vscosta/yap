@@ -94,10 +94,10 @@ restreams(exception).
 
 %:- meta_predicate
 
-jupyter_consult(Text) :-
+jupyter_consult(_:Text) :-
 	blank( Text ),
 	!.
-jupyter_consult(Cell) :-
+jupyter_consult(M:Cell) :-
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),
 %	setup_call_cleanup(
@@ -105,7 +105,7 @@ jupyter_consult(Cell) :-
 	(
 	    Options = [],
 	    open_mem_read_stream( Cell, Stream),
-	    load_files(user:Stream,[stream(Stream)| Options])
+	    load_files(M:Stream,[stream(Stream)| Options])
 	),
 	error(A,B),
   system_error(A,B)
