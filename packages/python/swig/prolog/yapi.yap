@@ -2,16 +2,16 @@
 %% @brief support yap shell
 %%
 
-%% :- module(yapi, [
-%% 		 python_ouput/0,
+ :- module(yapi, [
+ 		 python_ouput/0,
 %% 		 show_answer/2,
 %% 		 show_answer/3,
-%% 		 yap_query/4,
-%% 		 python_query/2,
-%% 		 python_query/3,
-%% 		 python_import/1,
-%% 		 yapi_query/2
-%% 		 ]).
+ 		 yap_query/4,
+ 		 python_query/2,
+ 		 python_query/3,
+ 		 python_import/1,
+ 		 yapi_query/2
+ 		 ]).
 
 %:- yap_flag(verbose, silent).
 
@@ -24,7 +24,7 @@
 
 
 :- python_import(
-       ' yap4py.yapi' ).
+       yap4py.yapi ).
 :- python_import(
        json).
 %:- python_import(gc).
@@ -84,15 +84,22 @@ argi(N,I,I1) :-
     atomic_concat('A',I,N),
     I1 is I+1.
 
-:- meta_predicate python_query(:,-),
-		  python_query(:,?, ?).
+:- meta_predicate python_query(+,:),
+	python_query(:,-,-),
+	python_query(:,-,-,-).
 
-python_query( String		) :-
-    python_query( String, _, _, _Bindings).
+python_query( Call, String		) :-
+    python_query( String, _, Status, Bindings).
 
-python_query( M:String, M:Goal,_Status, FinalBindings  ) :-
+python_query( String, Status, Bindings		) :-
+    python_query( String, _, Status, Bindings).
+
+python_query( MString, M:Goal,_Status, FinalBindings  ) :-
+	strip_module(MString, M, String),
     atomic_to_term( String, Goal, VarNames ),
-    query(M:Goal, VarNames, Status, Bindings),
+    query(M:Goal, VarNames, Status, Bindings).
+
+/*
     rational_term_to_tree(Goal+Bindings,NGoal+NBindings,ExtraBindings,[]),
     simplify(NBindings,0,L2,I2),
     non_singletons_in_term(Goal, [], NSVs),
@@ -101,6 +108,7 @@ python_query( M:String, M:Goal,_Status, FinalBindings  ) :-
     maplist('='('_'),Vs),
     lists:append(L2,ExtraBindings,L),
     lists2dict(L, FinalBindings).
+*/
 
 lists2dict([A=B], { A:NB}) :-
     !,

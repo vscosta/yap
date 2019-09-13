@@ -638,12 +638,11 @@ static int python_import(term_t mname, term_t mod) {
     //get_mod(s);
     strcat(s, ".");
   }
-  sm = t;
-  if (IsAtomTerm(sm))
-    sn = RepAtom(AtomOfTerm(sm))->StrOfAE;
-  else if (IsStringTerm(sm))
-    sn = StringOfTerm(sm);
-  else
+  if (IsAtomTerm(t))
+    sn = RepAtom(AtomOfTerm(t))->StrOfAE;
+  else if (IsStringTerm(t))
+    sn = StringOfTerm(t);
+ else
     return false;
   strcat(s, sn);
   term_t t0 = python_acquire_GIL();

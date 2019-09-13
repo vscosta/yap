@@ -163,13 +163,14 @@ user:(V <- F) :-
 */
 
 python_import([Module|Modules]) :-
-    !,
-    python_import(Module),
-    python_import(Modules).
+	is_list(Modules),
+	!,
+	python_import(Module),
+	python_import(Modules).
 python_import([]) :-
-    !.
+	!.
 python_import(Module) :-
-    python_import(Module, _).
+	python_import(Module, _).
 
 
 python(Exp, Out) :-

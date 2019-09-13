@@ -543,10 +543,8 @@ class YAPRun(InteractiveShell):
         # self.q is opaque to Python
         try:
             # sys.settrace(tracefunc)
-            (program, squery, _, howmany) = ccell
-            if self.q and self.os == (program,squery):
-                howmany += self.iterations
-            else:
+            (program, squery, command, howmany) = ccell
+            if not self.q or self.os != (program,squery):
                 if self.q:
                     self.q.close()
                     self.q = None
@@ -557,25 +555,19 @@ class YAPRun(InteractiveShell):
                 self.q = Query(self.engine, pg)
             for v in self.q:
                 self.iterations += 1
+                howmany -= 1
                 # o = '[ '
                 # o += str(self.iterations )
                 # o += '    '
                 # o += json.dumps(self.q.answer)
                 # o += ' ]\n\n'
-                sys.stderr.write( '\n' )
                 self.answers += [self.q.answer]
-                if self.q.port == "exit":
-                    break
-                if self.iterations == howmany:
-                    break
-            if not self.q.port:
-                    sys.stderr.write("No\n")
-            elif self.q.port != "answer" and self.iterations == howmany:
-                self.q.close()
-                self.q = None
+                if howmany == 0 :
+                    return self.answers
             if self.answers:
                return self.answers
             else:
+                print("No\n")
                 return None
             
      
@@ -699,8 +691,10 @@ class YAPRun(InteractiveShell):
         # Give the displayhook a reference to our ExecutionResult so it
         # can fill in the output value.
         self.shell.displayhook.exec_result = result
+        #import pdb; pdb.set_trace()
         ccell = self.prolog_cell(cell)
-        (program,squery,_ ,howmany) = ccell
+        #print(ccell)
+        (  program,squery,_ ,howmany) = ccell
         if howmany == 0 and not program:
             return result
         if self.syntaxErrors(program+squery+".\n") :
@@ -766,65 +760,56 @@ def cell_structure(s):
     last line if the last line is non-empty and does not terminate
     on a dot. You can also finish with
 
-        - `*`: you request all solutions
+        - `*`:a you request all solutions
         - ';'[N]: you want an answer; optionally you want N answers
 
         If the line terminates on a `*/` or starts on a `%` we assume the line
     is a comment.
     """
     try:
-        sl = s.splitlines()
-        l = len(sl)
-        i = 0
-        while i<l:
-            line = sl[-i-1]
-            if line.strip() != '' and  line[0] != '':
-                break
-            i+=1
-        if i == l:
-            return ('','','',0)
-        if line[-1] == '.':
-            return (s,'','.',0)
-        query = ''
-        while i<l:
-            line = sl[-i-1]
-            if line.strip() == '':
-                break
-            query = line+'\n\n'+query
-            i+=1
-        reps = 1
-        if query:
-            q = query.strip()
-            n = len(q)
-            if q[n-1] == '*' and q[n-2].isblank():
-                query = q[:n-2]
-                repeats = -1
-                loop = ''
-            else:
-                c = q.rpartition('?')
-                if c[1] == '?' and c[2].isdecimal():
-                    query = c[0]
-                    repeats = int(c[2])
-                    loop = '?'
-                else:
-                    query =q
-                    repeats = 0
-                    loop = ''
-        while i<l:
-            line = sl[-i-1]
-            if line.strip() != '':
-                break
-            i+=1
-        program = ''
-        while i<l:
-            line = sl[-i-1]
-            program = line+'\n'+program
-            i+=1
-        return (program, query, loop, reps)
+        i=0
+        while s[i] == '%':
+            while s[i] and s[i] != '\n':
+                i += 1;
+        l = len(s)
+        p = l
+        repeats = 0
+        while p > i and s[p-1].isspace():
+            p-=1
+        d = ''
+        e=1
+        while p > i and s[p-1].isdigit():
+            repeats += e*int(s[p-1])
+            p-=1
+            e *= 10
+        while p > i and s[p-1].isspace():
+            p-=1
+        if p == i:
+            return (s, '', '', 0)
+        p0=p-1
+        c = s[p-1]
+        if c== '*' and repeats == 0:
+            sep = '*'
+            reps = -1
+        elif c== '?':
+            sep = '?'
+            reps = max(1, repeats)
+        elif c== '.':
+            return (s, '', '', 0)
+        else:
+            sep = ""
+            reps = 1
+        while p > i and s[p-1].isspace():
+            p-=1
+        p0 = p
+        while p > i and s[p-1] != '\n':
+            p -= 1
+        if sep == "":
+            return (s[:p], s[p:], "", 1)
+        return (s[:p], s[p:p0-1], sep, reps)
     except Exception as e:
         try:
             (etype, value, tb) = e
             traceback.print_exception(etype, value, tb)
         except:
             print(e)
-

@@ -1819,7 +1819,7 @@ static foreign_t init_R(void) {
 #if R_SIGNAL_HANDLERS
   R_SignalHandlers = 0;
 #endif
-    char *argv[]= {"yap", "--gui=none", "--vanilla","--silent"};
+    char *argv[]= {"yap", "--gui=none","--silent"};
     Rf_initEmbeddedR(sizeof(argv)/sizeof(argv[0]), argv);
 
     #ifndef WIN32

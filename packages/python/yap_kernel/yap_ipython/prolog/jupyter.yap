@@ -7,9 +7,9 @@
 
 
 %:- yap_flag(gc_trace,verbose).
-   :- module( jupyter,
-               [jupyter_query/3,
- 	       jupyter_query/4,
+ :- module( jupyter,
+             [jupyter_query/3,
+  	       jupyter_query/4,
 %% 	        op(100,fy,('$')),
 %% 	   op(950,fy,:=),
 %% 	   op(950,yfx,:=),
@@ -18,11 +18,11 @@
 %% 	   op(50, yf, []),
 %% 	   op(50, yf, '()'),
 %% 	   op(100, xfy, '.'),
-%% 	   op(100, fy, '.'),
-%%                blank/1,
-	       streams/1
-           ]
-           ).
+%% 	   op(100, fy, '.'),                blank/1,
+	        streams/1
+            ]
+            ).
+
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
@@ -72,9 +72,10 @@ jupyter_query(Caller, MCell, MLine ) :-
 	  true
       ;
      catch(
-	 (python_query(M1:Line, _Goal, Port, Bindings),
+	 (python_query(M1:Line, Port, Bindings),
 	  Caller.q.port := Port,
-		   Caller.q.answer := Bindings
+	  Caller.q.answer := Bindings,
+	  nl(user_error)
 	 ),
 	 error(A,B),
 	 system_error(A,B)

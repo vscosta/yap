@@ -977,8 +977,8 @@ eval_text( Text ) :-
     atomic_to_term( Text, Goal, _VarNames ),
     call(user:Goal).
 
-`:- initialization(at_halt(halt_r),now).
-:- stop_low_level_trace.
+:- initialization(at_halt(halt_r),now).
+
 :- initialization(start_r, now).
 
 :- initialization( set_prolog_flag( double_quotes, string) ).
