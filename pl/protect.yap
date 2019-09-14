@@ -16,12 +16,13 @@
 *************************************************************************/
 /**
  * @file protect.yap
-*/
+ */
 
 :- system_module( '$_protect', [], ['$protect'/0]).
 
 /**
- *  * @addtogroup ProtectCore Freeze System Configuration
+ *
+ * @addtogroup ProtectCore Freeze System Configuration
  * @{
  * @ingroup YAPControl
  *
@@ -71,7 +72,7 @@ prolog:'$protect' :-
 
 prolog:'$protect'.
 
-/*
+
 % hide all atoms who start by '$'
 '$visible'('$').			/* not $VAR */
 '$visible'('$VAR').			/* not $VAR */
@@ -97,104 +98,6 @@ prolog:'$protect'.
 '$visible'('$x_yap_flag' ).
 '$visible'('$x_yap_flag' ).
 '$visible'(X) :- \+ atomic_concat('$',_,X).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 %% @}
 

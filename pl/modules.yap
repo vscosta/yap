@@ -20,38 +20,38 @@
 @file modules.yap
 */
 :- system_module( '$_modules', [abolish_module/1,
-        add_import_module/3,
-        current_module/1,
-        current_module/2,
-        delete_import_module/2,
-        expand_goal/2,
-        export/1,
-        export_list/2,
-        export_resource/1,
-        import_module/2,
-        ls_imports/0,
-        module/1,
-        module_property/2,
-        set_base_module/1,
-        source_module/1,
-        use_module/1,
-        use_module/2,
-        use_module/3], ['$add_to_imports'/3,
-        '$clean_cuts'/2,
-        '$convert_for_export'/7,
-        '$do_import'/3,
-        '$extend_exports'/3,
-        '$imported_predicate'/2,
-        '$meta_expand'/6,
-        '$meta_predicate'/2,
-        '$meta_predicate'/4,
-        '$module'/3,
-        '$module'/4,
-        '$module_expansion'/6,
-        '$module_transparent'/2,
-        '$module_transparent'/4]).
+				add_import_module/3,
+				current_module/1,
+				current_module/2,
+				delete_import_module/2,
+				expand_goal/2,
+				export/1,
+				export_list/2,
+				export_resource/1,
+				import_module/2,
+				ls_imports/0,
+				module/1,
+				module_property/2,
+				set_base_module/1,
+				source_module/1,
+				use_module/1,
+				use_module/2,
+				use_module/3], ['$add_to_imports'/3,
+						'$clean_cuts'/2,
+						'$convert_for_export'/7,
+						'$do_import'/3,
+						'$extend_exports'/3,
+						'$imported_predicate'/2,
+						'$meta_expand'/6,
+						'$meta_predicate'/2,
+						'$meta_predicate'/4,
+						'$module'/3,
+						'$module'/4,
+						'$module_expansion'/6,
+						'$module_transparent'/2,
+						'$module_transparent'/4]).
 
-        /**
+/**
           @defgroup ModuleBuiltins Module Support
 
           @ingroup YAPModules
@@ -63,7 +63,7 @@
 :- use_system_module( '$_arith', ['$c_built_in'/3]).
 
 :- use_system_module( '$_consult', ['$lf_opt'/3,
-        '$load_files'/3]).
+				    '$load_files'/3]).
 
 :- use_system_module( '$_debug', ['$skipeol'/1]).
 
@@ -123,7 +123,7 @@ a(X) :- b(X).
 
 and the file `b.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- module( b, [a/1,b/1] ).
 
 a(2).
@@ -203,7 +203,7 @@ The state of  the module system after this error is undefined.
 
 **/
 use_module(F) :- load_files(F,
-			       [if(not_loaded),must_be_module(true)]).
+			    [if(not_loaded),must_be_module(true)]).
 
 
 /**
@@ -236,53 +236,53 @@ Unfortunately it is still not possible to change argument order.
 
 **/
 use_module(F,Is) :-
-	load_files(F, [if(not_loaded),must_be_module(true),imports(Is)]).
+    load_files(F, [if(not_loaded),must_be_module(true),imports(Is)]).
 
 '$module'(O,N,P,Opts) :- !,
-	'$module'(O,N,P),
-	'$process_module_decls_options'(Opts,module(Opts,N,P)).
+    '$module'(O,N,P),
+    '$process_module_decls_options'(Opts,module(Opts,N,P)).
 
 
 '$process_module_decls_options'(Var,Mod) :-
-	var(Var), !,
-	'$do_error'(instantiation_error,Mod).
+    var(Var), !,
+    '$do_error'(instantiation_error,Mod).
 '$process_module_decls_options'([],_) :- !.
 '$process_module_decls_options'([H|L],M) :- !,
-	'$process_module_decls_option'(H,M),
-	'$process_module_decls_options'(L,M).
+    '$process_module_decls_option'(H,M),
+    '$process_module_decls_options'(L,M).
 '$process_module_decls_options'(T,M) :-
-	'$do_error'(type_error(list,T),M).
+    '$do_error'(type_error(list,T),M).
 
 '$process_module_decls_option'(Var,M) :-
-	var(Var),
-	'$do_error'(instantiation_error,M).
+    var(Var),
+    '$do_error'(instantiation_error,M).
 '$process_module_decls_option'(At,M) :-
-	atom(At), !,
-	use_module(M:At).
+    atom(At), !,
+    use_module(M:At).
 '$process_module_decls_option'(library(L),M) :- !,
-	use_module(M:library(L)).
+    use_module(M:library(L)).
 '$process_module_decls_option'(hidden(Bool),M) :- !,
-	'$process_hidden_module'(Bool, M).
+    '$process_hidden_module'(Bool, M).
 '$process_module_decls_option'(Opt,M) :-
-	'$do_error'(domain_error(module_decl_options,Opt),M).
+    '$do_error'(domain_error(module_decl_options,Opt),M).
 
 '$process_hidden_module'(TNew,M) :-
-        '$convert_true_off_mod3'(TNew, New, M),
-	source_mode(Old, New),
-	'$prepare_restore_hidden'(Old,New).
+    '$convert_true_off_mod3'(TNew, New, M),
+    source_mode(Old, New),
+    '$prepare_restore_hidden'(Old,New).
 
 '$convert_true_off_mod3'(true, off, _) :- !.
 '$convert_true_off_mod3'(false, on, _) :- !.
 '$convert_true_off_mod3'(X, _, M) :-
-	'$do_error'(domain_error(module_decl_options,hidden(X)),M).
+    '$do_error'(domain_error(module_decl_options,hidden(X)),M).
 
 '$prepare_restore_hidden'(Old,Old) :- !.
 '$prepare_restore_hidden'(Old,New) :-
-	recorda('$system_initialization', source_mode(New,Old), _).
+    recorda('$system_initialization', source_mode(New,Old), _).
 
 
 '$extend_exports'(HostF, Exports, DonorF ) :-
-   ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
+    ( recorded('$module','$module'( DonorF, DonorM, _,DonorExports, _),_) -> true ; DonorF = user_input ),
     ( recorded('$module','$module'( HostF, HostM, SourceF, _, _),_) -> true ; HostF = user_input ),
     recorded('$module','$module'(HostF, HostM, _, AllExports, _Line), R), erase(R),
     '$convert_for_export'(Exports, DonorExports, DonorM, HostM, _TranslationTab, AllReExports, reexport(DonorF, Exports)),
@@ -292,18 +292,18 @@ use_module(F,Is) :-
     recorda('$module','$module'(HostF,HostM,SourceF, Everything, Line),_).
 
 '$module_produced by'(M, M0, N, K) :-
-	recorded('$import','$import'(M,M0,_,_,N,K),_), !.
+    recorded('$import','$import'(M,M0,_,_,N,K),_), !.
 '$module_produced by'(M, M0, N, K) :-
-	recorded('$import','$import'(MI,M0,G1,_,N,K),_),
-	functor(G1, N1, K1),
-	'$module_produced by'(M,MI,N1,K1).
+    recorded('$import','$import'(MI,M0,G1,_,N,K),_),
+    functor(G1, N1, K1),
+    '$module_produced by'(M,MI,N1,K1).
 
 %
 % check if current module redefines an imported predicate.
 % and remove import.
 %
 '$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+    recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
     NM \= Mod,
     functor(NH,N,Ar),
     print_message(warning,redefine_imported(Mod,NM,N/Ar)),
@@ -322,35 +322,35 @@ module is called, or as soon as it becomes the current type-in module.
 
 */
 current_module(Mod) :-
-	'$all_current_modules'(Mod),
-	\+ '$hidden_atom'(Mod).
+    '$all_current_modules'(Mod),
+    \+ '$hidden_atom'(Mod).
 
 /** @pred current_module( ? Mod:atom, ? _F_ : file ) is nondet
 
 Succeeds if  _M_ is a module associated with the file  _F_, that is, if _File_ is the source for _M_. If _M_ is not declared in a file, _F_ unifies with `user`.
  */
 current_module(Mod,TFN) :-
-	( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
-	( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
+    ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
+    ( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
 
 system_module(Mod) :-
-	( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
-	'$is_system_module'(Mod).
+    ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
+    '$is_system_module'(Mod).
 
 '$trace_module'(X) :-
-	open('P0:debug', append, S),
-	fornat(S, '~w~n', [X]),
-	close(S).
+    open('P0:debug', append, S),
+    fornat(S, '~w~n', [X]),
+    close(S).
 '$trace_module'(_).
 
 '$trace_module'(X,Y) :- X==Y, !.
 '$trace_module'(X,Y) :-
-	telling(F),
-	tell('~/.dbg.modules'),
-	write('***************'), nl,
-	portray_clause(X),
-	portray_clause(Y),
-	tell(F),fail.
+    telling(F),
+    tell('~/.dbg.modules'),
+    write('***************'), nl,
+    portray_clause(X),
+    portray_clause(Y),
+    tell(F),fail.
 '$trace_module'(_,_).
 
 
@@ -367,87 +367,87 @@ be associated to a new file.
 */
 
 '$declare_module'(Name, _Super, Context, _File, _Line) :-
-	addi_mport_module(Name, Context, start).
+    addi_mport_module(Name, Context, start).
 
 /**
  @pred abolish_module( + Mod) is det
  get rid of a module and of all predicates included in the module.
 */
 abolish_module(Mod) :-
-	recorded('$module','$module'(_,Mod,_,_,_),R), erase(R),
-	fail.
+    recorded('$module','$module'(_,Mod,_,_,_),R), erase(R),
+    fail.
 abolish_module(Mod) :-
-	recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
-	fail.
+    recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R),
+    fail.
 abolish_module(Mod) :-
-	'$current_predicate'(Na,Mod,S,_),
-	functor(S, Na, Ar),
-	abolish(Mod:Na/Ar),
-	fail.
+    '$current_predicate'(Na,Mod,S,_),
+    functor(S, Na, Ar),
+    abolish(Mod:Na/Ar),
+    fail.
 abolish_module(_).
 
 export(Resource) :-
-	var(Resource),
-	'$do_error'(instantiation_error,export(Resource)).
+    var(Resource),
+    '$do_error'(instantiation_error,export(Resource)).
 export([]) :- !.
 export([Resource| Resources]) :- !,
-	export_resource(Resource),
-	export(Resources).
+    export_resource(Resource),
+    export(Resources).
 export(Resource) :-
-	export_resource(Resource).
+    export_resource(Resource).
 
 export_resource(Resource) :-
-	var(Resource), !,
-	'$do_error'(instantiation_error,export(Resource)).
+    var(Resource), !,
+    '$do_error'(instantiation_error,export(Resource)).
 export_resource(P) :-
-	P = F/N, atom(F), number(N), N >= 0, !,
-	'$current_module'(Mod),
-	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-		erase(R),
-		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
-	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
-	).
+    P = F/N, atom(F), number(N), N >= 0, !,
+    '$current_module'(Mod),
+    (	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
+	erase(R),
+	recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line),_)
+    ;	prolog_load_context(file, File) ->
+	recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+    ;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
+    ).
 export_resource(P0) :-
-	P0 = F//N, atom(F), number(N), N >= 0, !,
-	N1 is N+2, P = F/N1,
-	'$current_module'(Mod),
-	(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-		erase(R),
-		recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line ),_)
-	;	prolog_load_context(file, File) ->
-		recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
-	;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
-	).
+    P0 = F//N, atom(F), number(N), N >= 0, !,
+    N1 is N+2, P = F/N1,
+    '$current_module'(Mod),
+    (	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
+	erase(R),
+	recorda('$module','$module'(File,Mod,SourceF,[P|ExportedPreds],Line ),_)
+    ;	prolog_load_context(file, File) ->
+	recorda('$module','$module'(File,Mod,SourceF,[P],Line),_)
+    ;	recorda('$module','$module'(user_input,Mod,user_input,[P],1),_)
+    ).
 export_resource(op(Prio,Assoc,Name)) :- !,
-'$current_module'(Mod),
-op(Prio,Assoc,Mod:Name),
-(	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
-  erase(R),
-  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|ExportedPreds],Line ),_)
-;	prolog_load_context(file, File) ->
-  recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
-;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
-).
+    '$current_module'(Mod),
+    op(Prio,Assoc,Mod:Name),
+    (	recorded('$module','$module'(File,Mod,SourceF,ExportedPreds,Line),R) ->
+	erase(R),
+	recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)|ExportedPreds],Line ),_)
+    ;	prolog_load_context(file, File) ->
+	recorda('$module','$module'(File,Mod,SourceF,[op(Prio,Assoc,Name)],Line),_)
+    ;	recorda('$module','$module'(user_input,Mod,user_input,[op(Prio,Assoc,Name)],1),_)
+    ).
 export_resource(Resource) :-
-	'$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
+    '$do_error'(type_error(predicate_indicator,Resource),export(Resource)).
 
 export_list(Module, List) :-
-	recorded('$module','$module'(_,Module,_,List,_),_).
+    recorded('$module','$module'(_,Module,_,List,_),_).
 
 
 '$add_to_imports'([], _, _).
 % no need to import from the actual module
 '$add_to_imports'([T|Tab], Module, ContextModule) :-
-	'$do_import'(T, Module, ContextModule),
-	'$add_to_imports'(Tab, Module, ContextModule).
+    '$do_import'(T, Module, ContextModule),
+    '$add_to_imports'(Tab, Module, ContextModule).
 
 %'$do_import'(K, _, _) :- writeln(K), fail.
 '$do_import'(op(Prio,Assoc,Name), Mod, ContextMod) :-
-	op(Prio,Assoc,Mod:Name),
-	op(Prio,Assoc,ContextMod:Name),
-!.
+    op(Prio,Assoc,Mod:Name),
+    op(Prio,Assoc,ContextMod:Name),
+    !.
 '$do_import'(N0/K0-N0/K0, Mod, Mod) :- !.
 '$do_import'(N0/K0-N0/K0, _Mod, prolog) :- !.
 % '$do_import'(_N/K-N1/K, _Mod, ContextMod) :-
@@ -457,66 +457,66 @@ export_list(Module, List) :-
 %        %  reexport predicates if they are undefined in the current module.
 %        \+ '$undefined'(S,ContextMod), !.
 '$do_import'( N0/K-N1/K, M0, ContextMod) :-
-	%'$one_predicate_definition'(Mod:G,M0:G0),
-%	M0\=prolog,
-	(M0==ContextMod->N0\=N1;true),
-	functor(G1,N1,K),
-	(N0 == N1
-	->
+    %'$one_predicate_definition'(Mod:G,M0:G0),
+    %	M0\=prolog,
+    (M0==ContextMod->N0\=N1;true),
+    functor(G1,N1,K),
+    (N0 == N1
+    ->
 	G0=G1
-	;
-	G1=..[N1|Args],
-	G0=..[N0|Args]
-	),
-	%writeln((ContextMod:G1:-M0:G0)),
-		recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
-	!.
+    ;
+    G1=..[N1|Args],
+    G0=..[N0|Args]
+    ),
+    %writeln((ContextMod:G1:-M0:G0)),
+    recordaifnot('$import','$import'(M0,ContextMod,G0,G1,N1,K),_),
+    !.
 '$do_import'( _,_,_ ).
 
 
 '$follow_import_chain'(M,G,M0,G0) :-
-	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
-	'$follow_import_chain'(M1,G1,M0,G0).
+    recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
+    '$follow_import_chain'(M1,G1,M0,G0).
 '$follow_import_chain'(M,G,M,G).
 
 % trying to import Mod:N/K into ContextM
 '$check_import'(Mod, ContextM, N, K) :-
-	recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
-	% dereference MI to M1, in order to find who
-	% is actually generating
-	( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 	),
-	( '$module_produced by'(M2, Mod, N, K) -> true ; Mod = M2 ),
-	M2 \= M1,  !,
+    recorded('$import','$import'(MI, ContextM, _, _, N,K),_R),
+    % dereference MI to M1, in order to find who
+    % is actually generating
+    ( '$module_produced by'(M1, MI,  N, K) -> true ; MI = M1 	),
+    ( '$module_produced by'(M2, Mod, N, K) -> true ; Mod = M2 ),
+    M2 \= M1,  !,
     '$redefine_import'( M1, M2, Mod, ContextM, N/K).
 '$check_import'(_,_,_,_).
 
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
-	'__NB_getval__'('$lf_status', TOpts, fail),
-	'$lf_opt'(redefine_module, TOpts, Action), !,
-	'$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
+    '__NB_getval__'('$lf_status', TOpts, fail),
+    '$lf_opt'(redefine_module, TOpts, Action), !,
+    '$redefine_action'(Action, M1, M2, Mod, ContextM, N/K).
 '$redefine_import'( M1, M2, Mod, ContextM, N/K) :-
-	'$redefine_action'(false, M1, M2, Mod, ContextM, N/K).
+    '$redefine_action'(false, M1, M2, Mod, ContextM, N/K).
 
 
 '$redefine_action'(ask, M1, M2, M, _, N/K) :-
-	stream_property(user_input,tty(true)), !,
-	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
-	format(user_error,'            Do you want to import it from ~w ? [y, n, e or h] ',M),
-	'$mod_scan'(C),
-	( C == e -> halt(1) ;
-	  C == y ).
+    stream_property(user_input,tty(true)), !,
+    format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
+    format(user_error,'            Do you want to import it from ~w ? [y, n, e or h] ',M),
+    '$mod_scan'(C),
+    ( C == e -> halt(1) ;
+      C == y ).
 '$redefine_action'(true, M1, _, _, _, _) :- !,
-	recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
-	unload_file(F).
+    recorded('$module','$module'(F, M1, _, _MyExports,_Line),_),
+    unload_file(F).
 '$redefine_action'(false, M1, M2, _M, ContextM, N/K) :-
-	recorded('$module','$module'(F, ContextM, _, _MyExports,_Line),_),
-	'$current_module'(_, M2),
-	'$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
+    recorded('$module','$module'(F, ContextM, _, _MyExports,_Line),_),
+    '$current_module'(_, M2),
+    '$do_error'(permission_error(import,M1:N/K,redefined,M2),F).
 
 '$mod_scan'(C) :-
-	get_char(C),
-	'$skipeol'(C),
-	(C == y -> true; C == n).
+    get_char(C),
+    '$skipeol'(C),
+    (C == y -> true; C == n).
 
 /**
   @pred set_base_module( +ExportingModule ) is det
@@ -530,15 +530,15 @@ module (see module/2 and module/1) to inherit from `user` or other modules.
   x2
 */
 set_base_module(ExportingModule) :-
-	var(ExportingModule),
-	'$do_error'(instantiation_error,set_base_module(ExportingModule)).
+    var(ExportingModule),
+    '$do_error'(instantiation_error,set_base_module(ExportingModule)).
 set_base_module(ExportingModule) :-
-	atom(ExportingModule), !,
-	'$current_module'(Mod),
-	retractall(prolog:'$parent_module'(Mod,_)),
-	asserta(prolog:'$parent_module'(Mod,ExportingModule)).
+    atom(ExportingModule), !,
+    '$current_module'(Mod),
+    retractall(prolog:'$parent_module'(Mod,_)),
+    asserta(prolog:'$parent_module'(Mod,ExportingModule)).
 set_base_module(ExportingModule) :-
-	'$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
+    '$do_error'(type_error(atom,ExportingModule),set_base_module(ExportingModule)).
 
 /**
  *  @pred  import_module( +ImportingModule, +ExportingModule ) is det
@@ -552,13 +552,13 @@ any module to inherit from `user`  and other modules.
 
 */
 import_module(Mod, ImportModule) :-
-	var(Mod),
-	'$do_error'(instantiation_error,import_module(Mod, ImportModule)).
+    var(Mod),
+    '$do_error'(instantiation_error,import_module(Mod, ImportModule)).
 import_module(Mod, ImportModule) :-
-	atom(Mod), !,
-	prolog:'$parent_module'(Mod,ImportModule).
+    atom(Mod), !,
+    prolog:'$parent_module'(Mod,ImportModule).
 import_module(Mod, EM) :-
-	'$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
+    '$do_error'(type_error(atom,Mod),import_module(Mod, EM)).
 
 
 /**
@@ -573,24 +573,24 @@ All exported predicates from _ExportModule_ are made available to the
 
 */
 add_import_module(Mod, ImportModule, Pos) :-
-	var(Mod),
-	'$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+    var(Mod),
+    '$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, Pos) :-
-	var(Pos),
-	'$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
+    var(Pos),
+    '$do_error'(instantiation_error,add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, start) :-
-	atom(Mod), !,
-	retractall(prolog:'$parent_module'(Mod,ImportModule)),
-	asserta(prolog:'$parent_module'(Mod,ImportModule)).
+    atom(Mod), !,
+    retractall(prolog:'$parent_module'(Mod,ImportModule)),
+    asserta(prolog:'$parent_module'(Mod,ImportModule)).
 add_import_module(Mod, ImportModule, end) :-
-	atom(Mod), !,
-	retractall(prolog:'$parent_module'(Mod,ImportModule)),
-	assertz(prolog:'$parent_module'(Mod,ImportModule)).
+    atom(Mod), !,
+    retractall(prolog:'$parent_module'(Mod,ImportModule)),
+    assertz(prolog:'$parent_module'(Mod,ImportModule)).
 add_import_module(Mod, ImportModule, Pos) :-
-	\+ atom(Mod), !,
-	'$do_error'(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
+    \+ atom(Mod), !,
+    '$do_error'(type_error(atom,Mod),add_import_module(Mod, ImportModule, Pos)).
 add_import_module(Mod, ImportModule, Pos) :-
-	'$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
+    '$do_error'(domain_error(start_end,Pos),add_import_module(Mod, ImportModule, Pos)).
 
 /**
   @pred delete_import_module( + _ExportModule_, + _ImportModule_ ) is det
@@ -602,33 +602,33 @@ All exported predicates from _ExportModule_ are discarded from the
 
 */
 delete_import_module(Mod, ImportModule) :-
-	var(Mod),
-	'$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+    var(Mod),
+    '$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
-	var(ImportModule),
-	'$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
+    var(ImportModule),
+    '$do_error'(instantiation_error,delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
-	atom(Mod),
-	atom(ImportModule), !,
-	retractall(prolog:'$parent_module'(Mod,ImportModule)).
+    atom(Mod),
+    atom(ImportModule), !,
+    retractall(prolog:'$parent_module'(Mod,ImportModule)).
 delete_import_module(Mod, ImportModule) :-
-	\+ atom(Mod), !,
-	'$do_error'(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
+    \+ atom(Mod), !,
+    '$do_error'(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
-	'$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
+    '$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
 
 '$set_source_module'(Source0, SourceF) :-
-	prolog_load_context(module, Source0), !,
-	module(SourceF).
+    prolog_load_context(module, Source0), !,
+    module(SourceF).
 '$set_source_module'(Source0, SourceF) :-
-	current_module(Source0, SourceF).
+    current_module(Source0, SourceF).
 
 /**
   @pred module_property( +Module, ? _Property_ ) is nondet
 
-Enumerate non-deterministically the main properties of _Module_ .
+  Enumerate non-deterministically the main properties of _Module_ .
 
-Reports the following properties of _Module_:
+  Reports the following properties of _Module_:
 
   + `class`( ?_Class_ ): whether it is a `system`, `library`, or `user` module.
 
@@ -643,27 +643,27 @@ Reports the following properties of _Module_:
 module_property(Mod, Prop) :-
     var(Mod),
     !,
-	recorded('$module','$module'(_,Mod,_,_Es,_),_),
+    recorded('$module','$module'(_,Mod,_,_Es,_),_),
     module_property(Mod, Prop).
 module_property(Mod, class(L)) :-
-	'$module_class'(Mod, L).
+    '$module_class'(Mod, L).
 module_property(Mod, line_count(L)) :-
-	recorded('$module','$module'(_F,Mod,_,_,L),_).
+    recorded('$module','$module'(_F,Mod,_,_,L),_).
 module_property(Mod, file(F)) :-
-	recorded('$module','$module'(F,Mod,_,_,_),_).
+    recorded('$module','$module'(F,Mod,_,_,_),_).
 module_property(Mod, exports(Es)) :-
-	(
+    (
         recorded('$module','$module'(_,Mod,_,Es,_),_)
     ->
-        true
-        ;
-        Mod==user
-        ->
-        findall( P, (current_predicate(user:P)), Es)
-        ;
-       Mod==prolog
-        ->
-        findall( N/A, (predicate_property(Mod:P0, public),functor(P0,N,A)), Es)
+    true
+    ;
+    Mod==user
+    ->
+    findall( P, (current_predicate(user:P)), Es)
+    ;
+    Mod==prolog
+    ->
+    findall( N/A, (predicate_property(Mod:P0, public),functor(P0,N,A)), Es)
     ).
 
 '$module_class'( Mod, system) :- '$is_system_module'( Mod ), !.
@@ -674,13 +674,13 @@ module_property(Mod, exports(Es)) :-
 '$module_class'(   _, development) :- fail.
 
 '$library_module'(M1) :-
-	recorded('$module','$module'(_, M1, library(_), _MyExports,_Line),_).
+    recorded('$module','$module'(_, M1, library(_), _MyExports,_Line),_).
 
 ls_imports :-
-	recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
-	numbervars(G0+G, 0, _),
-	format('~a:~w <- ~a:~w~n', [M, G, M0, G0]),
-	fail.
+    recorded('$import','$import'(M0,M,G0,G,_N,_K),_R),
+    numbervars(G0+G, 0, _),
+    format('~a:~w <- ~a:~w~n', [M, G, M0, G0]),
+    fail.
 ls_imports.
 
 unload_module(Mod) :-
@@ -724,12 +724,12 @@ unload_module(Mod) :-
 
 /*  debug */
 module_state :-
-	recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
-	format('HostF ~a, HostM ~a, SourceF ~w, Line ~d,~n     Everything ~w.~n', [HostF,HostM,SourceF, Line, Everything]),
+    recorded('$module','$module'(HostF,HostM,SourceF, Everything, Line),_),
+    format('HostF ~a, HostM ~a, SourceF ~w, Line ~d,~n     Everything ~w.~n', [HostF,HostM,SourceF, Line, Everything]),
     recorded('$import','$import'(HostM,M,G0,G,_N,_K),_R),
     format('   ~w:~w :- ~w:~w.~n',[M,G,HostM,G0]),
-	fail.
+    fail.
 module_state.
 
-%% @}imports
+%% @}
 

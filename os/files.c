@@ -762,3 +762,6 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
 }
+
+/// @}
+ 

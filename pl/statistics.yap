@@ -149,79 +149,59 @@ argument:
 
 
 
-+ atoms 
-
-`[ _NumberOfAtoms_, _SpaceUsedBy Atoms_]`
-
++ atoms `[ _NumberOfAtoms_, _SpaceUsedBy Atoms_]`
 
 This gives the total number of atoms `NumberOfAtoms` and how much
 space they require in bytes,  _SpaceUsedBy Atoms_.
 
-+ cputime 
-
-`[ _Time since Boot_, _Time From Last Call to Cputime_]`
-
++ cputime `[ _Time since Boot_, _Time From Last Call to Cputime_]`
 
 This gives the total cputime in milliseconds spent executing Prolog code,
 garbage collection and stack shifts time included.
 
-+ dynamic_code 
-
-`[ _Clause Size_, _Index Size_, _Tree Index Size_, _Choice Point Instructions Size_, _Expansion Nodes Size_, _Index Switch Size_]`
++ dynamic_code `[ _Clause Size_, _Index Size_, _Tree Index Size_, _Choice Point Instructions Size_, _Expansion Nodes Size_, _Index Switch Size_]`
 
 
 Size of static code in YAP in bytes:  _Clause Size_, the number of
 bytes allocated for clauses, plus
  _Index Size_, the number of bytes spent in the indexing code. The
 indexing code is divided into main tree,  _Tree Index Size_, 
-tables that implement choice-point manipulation,  _Choice xsPoint Instructions Size_, tables that cache clauses for future expansion of the index
+tables that implement choice-point manipulation,  _Choice Point Size_, tables that cache clauses for future expansion of the index
 tree,  _Expansion Nodes Size_, and 
 tables such as hash tables that select according to value,   _Index Switch Size_.
 
-+ garbage_collection 
-
-`[ _Number of GCs_, _Total Global Recovered_, _Total Time Spent_]`
++ garbage_collection `[ _Number of GCs_, _Total Global Recovered_, _Total Time Spent_]`
 
 
 Number of garbage collections, amount of space recovered in kbytes, and
 total time spent doing garbage collection in milliseconds. More detailed
 information is available using `yap_flag(gc_trace,verbose)`.
 
-+ global_stack 
-
-`[ _Global Stack Used_, _Execution Stack Free_]`
++ global_stack `[ _Global Stack Used_, _Execution Stack Free_]`
 
 
 Space in kbytes currently used in the global stack, and space available for
 expansion by the local and global stacks.
 
-+ local_stack 
-
-`[ _Local Stack Used_, _Execution Stack Free_]`
++ local_stack `[ _Local Stack Used_, _Execution Stack Free_]`
 
 
 Space in kbytes currently used in the local stack, and space available for
 expansion by the local and global stacks.
 
-+ heap 
-
-`[ _Heap Used_, _Heap Free_]`
++ heap `[ _Heap Used_, _Heap Free_]`
 
 
 Total space in kbytes not recoverable
 in backtracking. It includes the program code, internal data base, and,
 atom symbol table.
 
-+ program 
-
-`[ _Program Space Used_, _Program Space Free_]`
++ program `[ _Program Space Used_, _Program Space Free_]`
 
 
 Equivalent to heap.
 
-+ runtime 
-
-`[ _Time since Boot_, _Time From Last Call to Runtime_]`
++ runtime `[ _Time since Boot_, _Time From Last Call to Runtime_]`
 
 
 This gives the total cputime in milliseconds spent executing Prolog
@@ -229,18 +209,14 @@ code, not including garbage collections and stack shifts. Note that
 until YAP4.1.2 the runtime statistics would return time spent on
 garbage collection and stack shifting.
 
-+ stack_shifts 
-
-`[ _Number of Heap Shifts_, _Number of Stack Shifts_, _Number of Trail Shifts_]`
++ stack_shifts `[ _Number of Heap Shifts_, _Number of Stack Shifts_, _Number of Trail Shifts_]`
 
 
 Number of times YAP had to
 expand the heap, the stacks, or the trail. More detailed information is
 available using `yap_flag(gc_trace,verbose)`.
 
-+ static_code 
-
-`[ _Clause Size_, _Index Size_, _Tree Index Size_, _Expansion Nodes Size_, _Index Switch Size_]`
++ static_code `[ _Clause Size_, _Index Size_, _Tree Index Size_, _Expansion Nodes Size_, _Index Switch Size_]`
 
 
 Size of static code in YAP in bytes:  _Clause Size_, the number of
@@ -250,16 +226,12 @@ indexing code is divided into a main tree,  _Tree Index Size_, table that cache 
 tree,  _Expansion Nodes Size_, and and 
 tables such as hash tables that select according to value,   _Index Switch Size_.
 
-+ trail 
-
-`[ _Trail Used_, _Trail Free_]`
++ trail `[ _Trail Used_, _Trail Free_]`
 
 
 Space in kbytes currently being used and still available for the trail.
 
-+ walltime 
-
-`[ _Time since Boot_, _Time From Last Call to Walltime_]`
++ walltime `[ _Time since Boot_, _Time From Last Call to Walltime_]`
 
 
 This gives the clock time in milliseconds since starting Prolog.
@@ -372,3 +344,4 @@ time(Goal) :-
 	).
 
 %% @}
+

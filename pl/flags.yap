@@ -17,7 +17,7 @@
 /**
  * @file pl/flags.yap
  *
- /
+ */
 
 /**
  * @defgroup YAPFlags Yap Flags
@@ -103,5 +103,6 @@ create_prolog_flag(Name, Value, Options) :-
 '$flag_domain_from_value'(_, term).
 
 /**
- *@}
-*/
+ * @}
+ */
+

@@ -1474,7 +1474,7 @@ initialization(_G,_OPT).
 @}
 */
 
-%%   @{
+
 
 
 
@@ -1484,6 +1484,7 @@ initialization(_G,_OPT).
 
 @ingroup  YAPCompilerSettings
 
+@{
   Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
@@ -1678,7 +1679,6 @@ prolog_library(File) :-
 :- '$add_multifile'(dot_qualified_goal,1,user).
 
 /**
-  @}
 
   @}
 */
