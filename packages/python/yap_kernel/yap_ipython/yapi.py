@@ -660,7 +660,7 @@ class YAPRun(InteractiveShell):
                 ## cell magic
                 txt0 = cell[2:].split(maxsplit = 1, sep = '\n')
                 try:
-                    body = txt0[1][1:]
+                    body = txt0[1]
                     magic = txt0[0].strip()    
                 except:
                     magic = cell[2:].strip()
@@ -671,6 +671,8 @@ class YAPRun(InteractiveShell):
                 except:
                     line = ""
                 self.shell.last_execution_succeeded = True
+                self.shell.execution_count += 1;
+                print((magic, line, body) )
                 result.result = self.shell.run_cell_magic(magic, line, body)
                 return
             else:

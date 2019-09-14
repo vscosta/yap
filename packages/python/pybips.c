@@ -616,23 +616,22 @@ static bool legal_symbol(const char *s) {
 PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
   PyTypeObject *typp;
   PyObject *key = PyUnicode_FromString(s), *d;
-  if (legal_symbol(s)) {
-
-    if (!Py_f2p) {
+    size_t l = 0;
+    if (!legal_symbol(s) || !Py_f2p) {
       PyObject *o1;
       o1 = PyTuple_New(2);
       PyTuple_SET_ITEM(o1, 0, PyUnicode_FromString(s));
       PyTuple_SET_ITEM(o1, 1, tuple);
       return o1;
     }
-    size_t l = 0;
+
     if ((l = PyList_Size(Py_f2p)) < arity) {
       for (; l < arity; l++) {
         PyList_Append(Py_f2p, PyDict_New());
       }
     }
     if ((d = PyList_GetItem(Py_f2p, arity - 1)) && PyDict_Contains(d, key)) {
-      typp = (PyTypeObject *)d;
+      typp = (PyTypeObject *)PyDict_GetItem(d,key);
     } else {
       PyStructSequence_Desc *desc = PyMem_Calloc(sizeof(PyStructSequence_Desc), 1);
       char *tnp;
@@ -663,10 +662,9 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     Py_INCREF(typp);
     arity_t i;
     for (i = 0; i < arity; i++) {
-      PyObject *pArg = PyTuple_GET_ITEM(tuple, i);
+      PyObject *pArg = PyTuple_GetItem(tuple, i);
       if (pArg) {
-      Py_INCREF(pArg);
-        PyStructSequence_SET_ITEM(o, i, pArg);
+        PyStructSequence_SetItem(o, i, pArg);
 
       }
       // PyObject_Print(pArg,stderr,0);fputc('\n',stderr);
@@ -675,8 +673,6 @@ PyObject *term_to_nametuple(const char *s, arity_t arity, PyObject *tuple) {
     // PyObject_Print(o,stderr,0);fputc('\n',stderr);
     Py_INCREF(o);
     return o;
-  }
-  return NULL;
 }
 
 static PyObject *bip_range(term_t t) {

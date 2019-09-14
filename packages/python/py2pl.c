@@ -241,16 +241,29 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     break;
   }
 
-  case PL_STRING: {             
+  case PL_STRING:
+  case PL_ATOM: {
     char *s = NULL;
     size_t l;
-    PL_get_string_chars(t, &s,&l);
-    if (!context)
-      context = py_Main;
+    if (PL_term_type(t) == PL_STRING) {
+        PL_get_string_chars(t, &s, &l);
+    } else {
+        PL_get_atom_chars(t, &s);
+    }
+      if (!context)
+          context = PyEval_GetGlobals();
+      if (context) {
+          rc = PyDict_SetItemString(context, s, exp) == 0;
+                 if (rc) {
+                     PL_reset_term_refs(inp);
+              break;
+          }
+      }
+          context = py_Main;
     if (PyObject_SetAttrString(context, s, exp) == 0) {
-      PL_reset_term_refs(inp);
-      ;
-      rc = true;
+        PL_reset_term_refs(inp);
+
+        rc = true;
     } else {
       PyErr_Print();
       PL_reset_term_refs(inp);
@@ -258,17 +271,27 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
     }
     break;
   }
-  case PL_ATOM: {
+  {
     char *s = NULL;
-    PL_get_atom_chars(t, &s);
-    if (!context)
+    rc = false;
+
+      if (context) {
+          rc = PyDict_SetItemString(context, s, exp);
+          if (rc) {
+              break;
+          }
+      }
       context = py_Main;
-    if (PyObject_SetAttrString(context, s, exp) == 0){
-      rc = true;
-    } else {
-      rc = false;
-    }
-    break;
+      if (PyObject_SetAttrString(context, s, exp) == 0) {
+          PL_reset_term_refs(inp);
+
+          rc = true;
+      } else {
+          PyErr_Print();
+          PL_reset_term_refs(inp);
+          rc = false;
+      }
+      break;
   }
   case PL_INTEGER:
   case PL_FLOAT:
