@@ -75,7 +75,7 @@ static Term python_to_term__(PyObject *pVal) {
     t[0] = MkFloatTerm(PyComplex_RealAsDouble(pVal));
     t[1] = MkFloatTerm(PyComplex_ImagAsDouble(pVal));
     return Yap_MkApplTerm(FunctorI, 2, t);
- 
+
   }
   else if (PyUnicode_Check(pVal)) {
 #if PY_MAJOR_VERSION < 3
@@ -171,7 +171,7 @@ static Term python_to_term__(PyObject *pVal) {
       } else {
         if (pos == 0) {
           return repr_term(pVal);
-        } 
+        }
 
         *opt = to;
 	break;
@@ -266,7 +266,6 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
         rc = true;
     } else {
       PyErr_Print();
-      PL_reset_term_refs(inp);
       rc = false;
     }
     break;
@@ -360,18 +359,14 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
 #endif
               if (PyDict_Check(o)) {
                 if (PyDict_SetItem(o, i, exp) == 0) {
-                  PL_reset_term_refs(inp);
-                  ;
                   rc = true;
                 }
               }
             if (PyObject_SetAttr(o, i, exp) == 0) {
-              PL_reset_term_refs(inp);
-              ;
-              rc = true;
+                rc = true;
             }
-          } 
-        } 
+          }
+        }
       } else {
 
         atom_t s;
@@ -386,7 +381,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
               o = NULL;
               p = Py_None;
             }
-	    
+
             if ((p = PySequence_GetItem(exp, i - 1)) == NULL)
               p = Py_None;
             rc = python_assign(arg, p, NULL);
@@ -400,7 +395,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
 
   PyErr_Print();
   PL_reset_term_refs(inp);
-  
-   
+
+
   return rc;
 }

@@ -232,8 +232,6 @@ extern foreign_t python_to_term(PyObject *pVal, term_t t);
 extern bool python_assign(term_t t, PyObject *exp, PyObject *context);
 extern foreign_t assign_to_symbol(term_t t, PyObject *e);
 
-extern bool python_asign(term_t t, PyObject *exp, PyObject *context);
-
 extern foreign_t python_builtin(term_t out);
 
 extern PyObject *lookupPySymbol(const char *s, PyObject *q, PyObject **d);

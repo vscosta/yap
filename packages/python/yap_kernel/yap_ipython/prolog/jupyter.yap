@@ -38,6 +38,8 @@
 
 :- python_import(sys).
 
+:- python_import(yap4py.yapi as yapi).
+
 :- meta_predicate jupyter_query(+,:,:).
 
 

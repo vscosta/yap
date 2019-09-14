@@ -672,7 +672,9 @@ class YAPRun(InteractiveShell):
                     line = ""
                 self.shell.last_execution_succeeded = True
                 self.shell.execution_count += 1;
-                print((magic, line, body) )
+                if magic == "python3":
+                    result.result = eval(body)
+                    return
                 result.result = self.shell.run_cell_magic(magic, line, body)
                 return
             else:
