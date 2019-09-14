@@ -16,7 +16,6 @@ The manual is organised as follows:
 + @ref #builtins
 + @ref #extensions
 + @ref #library
-+ @ref #swi
 + @ref #packages
 + @ref #YAPProgramming
 + @subpage #fli_c_cxx

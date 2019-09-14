@@ -17,7 +17,7 @@
 
 /** @file C/flags.c
 
-    @brief  Prolog parameter setting,
+    @brief  Prolog parameter browsing and setting,
 */
 
 /*
@@ -32,13 +32,6 @@
     @{
 
 @brief Low-level code to support flags.
-
-Prolog Flags can be:
-- thread-local or global
-- module-based or module-independent.
-- read-only or read-write
-- System or User Defined.
-- Have type boolean, number, atom constant or may be a general term.
 
 */
 

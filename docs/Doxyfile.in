@@ -2165,36 +2165,20 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = DOXYFILE=1 \
-                         "START_LOCAL_FLAGS:=enum THREAD_LOCAL_FLAGS {" \
-                         "END_LOCAL_FLAGS:= };" \
-                         LOCAL(A \
-                         "B):=A B" \
-                         LOCAL_INIT(A \
-                         B \
-                         "C):=A B;B = C" \
-                         LOCAL_ARRAY(A \
-                         B \
-                         "C):=A B[C]" \
-                         LOCAL_ARRAY_ARRAY(A \
-                         B \
-                         C \
-                         "D):=A B[C][D]" \
-                         LOCAL_INIT(A \
-                         B \
-                         C \
-                         "D):=A B[C][D]" \
-                         LOCAL_INITF(A \
-                         B \
-                         "C):= A B; C" \
-                         LOCAL_INIT_RESTORE(A \
-                         B \
-                         C \
-                         "D):=A B; C; D;" \
-                         "USES_REGS:=" \
-                         "USES_REGS1:=void" \
-                         "PASS_REGS:=" \
-                         "PASS_REGS1:=" \
-                         Yap_InitCPred(Name,Arity,CF,Flags):="/**  @{\n @fn static void CF)USES_REGS1 \n @public \n @memberof Name/Arity\n @} */" \
+                         START_LOCAL_FLAGS:="enum THREAD_LOCAL_FLAGS {" \
+                         END_LOCAL_FLAGS:=" };" \
+                         LOCAL(A,B):="A B" \
+                         LOCAL_INIT(A,B,C):="A B;B = C" \
+                         LOCAL_ARRAY(A,B,C):="A B[C]" \
+                         LOCAL_ARRAY_ARRAY(A,B,C,D):="A B[C][D]" \
+                         LOCAL_INIT(A,B,C,D):="A B[C][D]" \
+                         LOCAL_INITF(A,B,C):="A B; C" \
+                         LOCAL_INIT_RESTORE(A,B,C,D):="A B; C; D;" \
+                         USES_REGS:="" \
+                         USES_REGS1:="void" \
+                         PASS_REGS:="" \
+                         PASS_REGS1:="" \
+                         Yap_InitCPred(Name,Arity,CF,Flags):="/**  @{ @fn{ static Int CF(USES_REGS1)} @public @memberof{ Name/Arity} @} */" \
                          PREG:=Yap_REGS.P_
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this

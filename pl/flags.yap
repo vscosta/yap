@@ -24,6 +24,25 @@
  * @{
  * @ingroup builtins
  *
+ * @brief ISO-Prolog includes
+ a number of _flags_ that are used both to check system properties and as dynamically
+ * configured system parameters.
+ *
+ *
+ * Prolog Flags can be:
+ * - thread-local or global
+ * - module-based or module-independent.
+ * - read-only or read-write
+ * - System or User Defined.
+ * - Have type boolean, number, atom constant or may be a general term.
+ *
+ * The manual includes:
+ * + short descriptions of the interface predicates;
+ * + a listing with all default flags;
+ * + the predicate that can be used to create new flags;
+ * + pointers to the `C`-code.
+ *
+
  */
 
 

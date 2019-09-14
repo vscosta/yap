@@ -21,7 +21,6 @@ The manual is organised as follows:
 + [builtins](core.md)
 + [extensions](extensions.md)
 + [lib](lib.md)
-+ [swi](swi.md)
 + [packages](packages.md)
 + [YAPProgramming](YAPProgramming.md)
 + [fli](fli.md)
