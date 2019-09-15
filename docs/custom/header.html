@@ -21,8 +21,9 @@ $extrastylesheet
 
 <script src="$relpath^popper.min.js"></script>
 <script src="$relpath^bootstrap.min.js"></script>
-    <script type="text/javascript" src="search.js"></script>
+  <script type="text/javascript" src="lunr.js"></script>
   <script type="text/javascript" src="all.js"></script>
+    <script type="text/javascript" src="search.js"></script>
   <script type="text/javascript" src="doxy-boot.js"></script>
   <script>
     function myFunction() {
@@ -69,21 +70,19 @@ $extrastylesheet
      </ul>
      <div class="nav-item form">
          <form class="form-inline mt-2 mt-md-0">
-         $search
-<!--      <input class="form-control mr-sm-2" type="search"  onSubmit="myFunction()" placeholder="Search" aria-label="Search">-->
-<!--      <button class="btn btn-outline-success my-2 my-sm-0"  onclick="myFunction() type="submit">Search</button>-->
-    </form>
+     <input class="form-control mr-sm-2" type="search"  onSubmit="myFunction()" placeholder="Search" aria-label="Search">
+     <button class="btn btn-outline-success my-2 my-sm-0"  onclick="myFunction() type="submit">Search</button>
+`    </form>
      </div>
 
  </nav>
  <div id="top"><!-- do not remove this div, it is closed by doxygen! -->
   <div class="content" id="content">
     <div class="row">
-   </div>
     <div id="wrap">
       <div id="question-view-container">
       </div>
-    </div>
+`    </div>
       <div class="col-sm-12 panel panel-default" style="padding-bottom: 15px;">
                             <div style="margin-bottom: 15px;">
 <!-- end header part -->

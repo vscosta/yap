@@ -671,7 +671,7 @@ class YAPRun(InteractiveShell):
                 except:
                     line = ""
                 self.shell.last_execution_succeeded = True
-                self.shell.execution_count += 1;
+                self.shell.execution_count += 1
                 if magic == "python3":
                     result.result = eval(body)
                     return
@@ -706,6 +706,7 @@ class YAPRun(InteractiveShell):
             return result
         has_raised = False
         try:
+            self.shell.execution_count += 1
             builtin_mod.input = input
             self.shell.input = input
             self.engine.mgoal(streams(True),"user", True)

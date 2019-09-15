@@ -11,6 +11,7 @@ ${DOCS_SOURCE_DIR}/custom/jquery-3.4.1.min.js
           ${DOCS_SOURCE_DIR}/custom/application.js
           ${DOCS_SOURCE_DIR}/custom/search.js
           ${DOCS_SOURCE_DIR}/custom/all.js
+          ${DOCS_SOURCE_DIR}/custom/lunr.js
 ${DOCS_SOURCE_DIR}/custom/bootstrap.min.css
 ${DOCS_SOURCE_DIR}/custom/bootstrap.min.js
 ${DOCS_SOURCE_DIR}/custom/popper.min.js
