@@ -701,6 +701,7 @@ Term YAPEngine::fun(Term t) {
     name = AtomDot;
     f = FunctorDot;
   } else {
+    Yap_CloseSlots(q.CurSlot);
     throw YAPError(SOURCE(), TYPE_ERROR_CALLABLE, t, 0);
     return 0L;
   }
@@ -725,11 +726,13 @@ Term YAPEngine::fun(Term t) {
       ot = TermNone;
     YAPCatchError();
   {
+    
     YAP_LeaveGoal(result, &q);
  ENV = LCL0-oenv;
  B = (choiceptr)(LCL0-oB);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
+    Yap_CloseSlots(q.CurSlot);
     return ot;
   }
   }
@@ -840,6 +843,7 @@ bool YAPQuery::next() {
   __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "out  %d", result);
   if (!result) {
     YAP_LeaveGoal(result, &q_h);
+  Yap_CloseHandles(q_h.CurSlot);
     q_open = false;
   }
   YAPCatchError();
@@ -899,7 +903,7 @@ void YAPQuery::close() {
   }
   YAP_LeaveGoal(false, &q_h);
   q_open = 0;
-  Yap_CloseHandles(q_handles);
+  Yap_CloseHandles(q_h.CurSlot);
   // LOCAL_execution = this;
   RECOVER_MACHINE_REGS();
 }

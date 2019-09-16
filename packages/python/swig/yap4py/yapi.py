@@ -130,7 +130,7 @@ class YAPShell:
 
     def query_prolog(self, query):
         g = None
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         #
         # construct a query from a one-line string
         # q is opaque to Python

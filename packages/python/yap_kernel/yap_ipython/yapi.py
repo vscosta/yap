@@ -113,7 +113,7 @@ class YAPInputSplitter(InputSplitter):
         self._buffer_raw[:] = []
         self.source_raw = ''
         self.transformer_accumulating = False
-
+        
         for t in self.transforms:
             try:
                 t.reset()

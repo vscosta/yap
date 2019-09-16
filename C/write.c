@@ -734,7 +734,8 @@ static void write_list(Term t, int direction, int depth,
   nrwt.u_sd.s.ptr = 0;
 
   while (1) {
-
+    if (t == TermNil)
+      break;
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))

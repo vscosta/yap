@@ -318,8 +318,9 @@ The specified value is passed to `printf()`
 
 								       */
    
+  YAP_FLAG(GC_TRACE_FLAG, "gc_trace", true, isatom, "off", NULL),
 
-/** show activity in garbag collector.
+/**< show activity in garbag collector.
 
     If `off` (default) do not show information on garbage collection
     and stack shifts, if `on` inform when a garbage collection or stack
@@ -328,12 +329,11 @@ The specified value is passed to `printf()`
     information on data-structures found during the garbage collection
     process, namely, on choice-points.
  */
-  YAP_FLAG(GC_TRACE_FLAG, "gc_trace", true, isatom, "off", NULL),
    
 
 
   YAP_FLAG(GENERATE_DEBUGGING_INFO_FLAG, "generate_debug_info", true,
-             booleanFlag, "true", NULL), /**< `
+             booleanFlag, "true", NULL), /**< 
 
     If `true` (default) generate debugging information for
     procedures, including source mode. If `false` predicates no

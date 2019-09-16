@@ -1096,6 +1096,7 @@ static bool watch_retry(Term d0 USES_REGS) {
  */
 
 static Int setup_call_catcher_cleanup(USES_REGS1) {
+    yhandle_t sl = Yap_StartSlots();
     Term Setup = Deref(ARG1);
     choiceptr B0 = B;
     yamop *oP = P, *oCP = CP;
@@ -1116,7 +1117,8 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
         complete_inner_computation(B0);
         // We'll pass it throughs
 
-        return false;
+    Yap_CloseSlots(sl);
+	rc = false;
     } else {
         prune_inner_computation(B0);
     }
@@ -1124,6 +1126,7 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
     CP = oCP;
     ENV = LCL0 - oENV;
     YENV = LCL0 - oYENV;
+    Yap_CloseSlots(sl);
     return rc;
 }
 
@@ -1135,6 +1138,7 @@ static Int tag_cleanup(USES_REGS1) {
 
 static Int cleanup_on_exit(USES_REGS1) {
 
+    yhandle_t sl = Yap_StartSlots();
     choiceptr B0 = (choiceptr) (LCL0 - IntegerOfTerm(Deref(ARG1)));
     Term task = Deref(ARG2);
     bool box = ArgOfTerm(1, task) == TermTrue;
@@ -1156,6 +1160,7 @@ static Int cleanup_on_exit(USES_REGS1) {
         // non-deterministic
         set_watch(LCL0 - (CELL *) B, task);
         if (!box) {
+	  Yap_CloseSlots(sl);
             return true;
         }
         catcher_pt[0] = TermAnswer;
@@ -1164,6 +1169,7 @@ static Int cleanup_on_exit(USES_REGS1) {
         complete_pt[0] = TermExit;
     }
     Yap_ignore(cleanup, false);
+    Yap_CloseSlots(sl);
     if (Yap_RaiseException()) {
         return false;
     }
@@ -1277,7 +1283,7 @@ static Int do_term_expansion(USES_REGS1) {
     return complete_ge(false, omod, sl, creeping);
 }
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
+static Int execute0(USES_REGS1) { /* '$execute0'(Goal,Mod)	 */
     Term t = Deref(ARG1), t0 = t;
     Term mod = Deref(ARG2);
     unsigned int arity;
@@ -1637,7 +1643,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 LOCAL_Signals = 0;
                 CalculateStackGap(PASS_REGS1);
                 LOCAL_PrologMode = UserMode;
-                Yap_CloseSlots(LOCAL_HandleBorder);
+                Yap_CloseSlots(OldHandleBorder);
                 P = (yamop *) FAILCODE;
             }
                 break;
@@ -1655,7 +1661,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 P = (yamop *) FAILCODE;
                 LOCAL_PrologMode = UserMode;
                 LOCAL_DoingUndefp = false;
-                Yap_CloseSlots(LOCAL_HandleBorder);
+                Yap_CloseSlots(OldHandleBorder);
             }
                 break;
             case 3: { /* saved state */
@@ -1666,7 +1672,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 		LOCAL_RestartEnv = sighold;
                 LOCAL_PrologMode = UserMode;
                 LOCAL_DoingUndefp = false;
-                Yap_CloseSlots(LOCAL_HandleBorder);
+                Yap_CloseSlots(OldHandleBorder);
                 return false;
             }
             case 4:
@@ -1685,7 +1691,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
                 P = (yamop *) FAILCODE;
 		LOCAL_HandleBorder = OldHandleBorder;
 		LOCAL_RestartEnv = sighold;
-                Yap_CloseSlots(LOCAL_HandleBorder);
+                Yap_CloseSlots(OldHandleBorder);
                 pop_text_stack(i + 1);
                 return false;
                 break;
@@ -1726,6 +1732,7 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
         CalculateStackGap(PASS_REGS1);
     LOCAL_CBorder = OldBorder;
     LOCAL_RestartEnv = sighold;
+    Yap_CloseSlots(OldHandleBorder);
     LOCAL_HandleBorder = OldHandleBorder;
     return out;
 }

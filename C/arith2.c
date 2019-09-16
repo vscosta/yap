@@ -656,19 +656,16 @@ ipow(Int x, Int p)
   if (x == 0 && p > 0) return 0L;
   if(p < 0)
     return (-p % 2) ? x : ((CELL)1);
-
+  Int px =  x<0 ?-x : x;
+  Int nbits = Yap_msb(px) * p;
+  if (nbits > sizeof(CELL)*8-3)
+    return 0;
   r = ((CELL)1);
   for(;;) {
     if(p & 1) {
-      if (mul_overflow((r*x), r, x)) {
-	return 0;
-      }
       r *= x;
     }
     if((p >>= 1) == 0)	return r;
-    if (mul_overflow((x*x), x, x)) {
-      return 0;
-    }
     x *= x;
   }
 }

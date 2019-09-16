@@ -43,7 +43,6 @@ errors( Engine , Text ) :-
 errors( _Engine , _Text ).
 
 open_esh(Engine , Text, Stream, Name) :-
-    Engine.errors := [],
 	   retractall(jupyter(_)),
 	   assertz(jupyter(Engine)),
     b_setval( jupyter, Engine),
