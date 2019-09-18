@@ -45,6 +45,11 @@ bool pyStringToString;
 extern X_API bool python_in_python;
 
 static void add_modules(void) {
+  Term exp_string = MkAtomTerm(Yap_LookupAtom("python_export_string_as"));
+  if (getYapFlag(exp_string) == TermString)
+    pyStringToString = true;
+  else
+    pyStringToString = false;
   py_Atoms= PyDict_New();
 
   if ( PyDict_Contains(PyImport_GetModuleDict(), PyUnicode_FromString("__main__"))) {

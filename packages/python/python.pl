@@ -29,12 +29,12 @@
 	   array_to_python_tuple/4,
 	   array_to_python_view/5,
 	   python/2,
-	   python_string_to/1,
 	   acquire_GIL/0,
 	   release_GIL/0,
 	   python_threaded/0,
 	   prolog_list_to_python_list/3,
 	   python_clear_errors/0,
+	   python_string_to/1,
 	   op(100,fy,$),
 	   op(950,fy,:=),
 	   op(950,yfx,:=),
@@ -189,6 +189,8 @@ add_cwd_to_python :-
 	python:python_command(Command),
 	python:python_command("sys.argv = [\"yap\"]").
 	% done
+
+:- initialization(  create_prolog_flag(python_export_string_as, string, [access(read_write)]).
 
 :- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).
 

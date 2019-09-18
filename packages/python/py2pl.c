@@ -87,7 +87,7 @@ static Term python_to_term__(PyObject *pVal) {
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
 #if 0
-    if (false && Yap_AtomInUse(s))
+    if (Yap_AtomInUse(s))
       rc = rc && PL_unify_atom_chars(t, s);
     else
 #endif
