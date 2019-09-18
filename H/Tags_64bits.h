@@ -47,7 +47,7 @@ property list
 #define MaskPrim    /* 0x0ffffff8L */ (((((UInt)1) << (SHIFT_HIGH_TAG-3))-1)<<3)
 #define	NumberTag   /* 0x30000001L */ MKTAG(0x1,1)
 #define	AtomTag	    /* 0x10000001L */ MKTAG(0x0,1)
-#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (63-(3+3)))<<3)
+#define MAX_ABS_INT /* 0xfe00000LL */ ((((Int)1) << (62-(3+3)))<<3)
 
 /* bits that should not be used by anyone but us */
 #define YAP_PROTECTED_MASK 0xe000000000000000L
@@ -55,10 +55,10 @@ property list
 #define UNIQUE_TAG_FOR_PAIRS 1
 
 #define	PrimiBit    /* 0x00000001L */ 1
-#define	PairBits    /* 0x00000003L */ 3
-#define	ApplBits    /* 0x00000005L */ 5
-#define PrimiBits   /* 0x70000004L */ MKTAG(0x7,7)
-#define NumberMask  /* 0x20000007L */ MKTAG(0x2,7)
+#define	PairBits    /* 0x00000003L */ 2
+#define	ApplBits    /* 0x00000005L */ 4
+#define PrimiBits   /* 0x70000004L */ MKTAG(0x7,1)
+#define NumberMask  /* 0x20000007L */ MKTAG(0x2,1)
 
 #define TagOf(t) 	(Unsigned(t)&TagBits)
 #define LowTagOf(t) 	(Unsigned(t)&LowTagBits)
@@ -74,7 +74,7 @@ INLINE_ONLY int IsVarTerm (Term);
 INLINE_ONLY int
 IsVarTerm (Term t)
 {
-  return (int) ((!((t) & 0x1)));
+  return (int) ((!((t) & 0x7)));
 }
 
 
@@ -84,7 +84,7 @@ INLINE_ONLY int IsNonVarTerm (Term);
 INLINE_ONLY int
 IsNonVarTerm (Term t)
 {
-  return (int) (((t) & 0x1));
+  return (int) (((t) & 0x7));
 }
 
 

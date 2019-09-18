@@ -588,10 +588,11 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
         return MkIntegerTerm(-val);
       return MkIntegerTerm(val);
     }
-    val = val * base + ch - '0';
-    if (val / base != oval || val - oval * base != ch - '0') /* overflow */
+    if (oval > Int_MAX/10-(ch-'0')) /* overflow */
       has_overflow = true;
-    ch = getchr(st);
+    else
+        val = val * base + ch - '0';
+      ch = getchr(st);
   }
   if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
     int has_dot = (ch == '.');
