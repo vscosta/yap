@@ -250,6 +250,8 @@ extern PyObject *PythonLookup(const char *s, PyObject *o);
 
 extern PyObject *PythonLookupSpecial(const char *s);
 
+  X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  YAP_Term ttype);
+
 #define YAPPy_ThrowError(id, inp, ...)                                         \
   YAPPy_ThrowError__(__FILE__, __FUNCTION__, __LINE__, id, inp, __VA_ARGS__)
 

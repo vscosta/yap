@@ -190,8 +190,6 @@ add_cwd_to_python :-
 	python:python_command("sys.argv = [\"yap\"]").
 	% done
 
-:- initialization(  create_prolog_flag(python_export_string_as, string, [access(read_write)]).
-
 :- initialization( load_foreign_files(['YAPPython'], [], init_python_dll), now ).
 
 %% @}

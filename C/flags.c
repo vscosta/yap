@@ -1787,6 +1787,35 @@ static Int do_create_prolog_flag(USES_REGS1) {
 }
 
 /**
+ * Create a new global prolog flag.
+ *
+ * @arg name
+ * @arg whether read-only or writable
+ * @arg type: boolean, integer, atom, any as a pprolog term
+ *
+ */
+X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype) {
+
+  Atom aname = Yap_LookupAtom (name);
+  FlagEntry *fv;
+   fv = GetFlagProp(aname);
+  if (fv) {
+    return false;
+  } else {
+    newFlag(MkAtomTerm(aname), TermNil);
+    fv = GetFlagProp(aname);
+  }
+ fv->rw = writable;
+  int i = GLOBAL_flagCount;
+  if (IsAtomOrIntTerm(ttype)) {
+    GLOBAL_Flags[i].at = ttype;
+  } else {
+    GLOBAL_Flags[i].DBT = Yap_StoreTermInDB(ttype, 2);
+  }
+ return true;
+      }
+
+/**
  * Init System Prolog flags. This is done in two phases:
  *   early on, it takes care of the atomic flags that are required by other
  *modules;

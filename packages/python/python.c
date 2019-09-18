@@ -20,7 +20,7 @@
 #include "YapStreams.h"
 
 atom_t ATOM_true, ATOM_false, ATOM_colon, ATOM_dot, ATOM_none, ATOM_t,
-    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self, ATOM_nil,
+    ATOM_comma, ATOM_builtin, ATOM_A, ATOM_V, ATOM_self, ATOM_term, ATOM_nil,
     ATOM_brackets, ATOM_curly_brackets;
 
 functor_t FUNCTOR_dollar1, FUNCTOR_abs1, FUNCTOR_all1, FUNCTOR_any1, FUNCTOR_as2,
@@ -87,6 +87,7 @@ static void install_py_constants(void) {
   ATOM_nil = PL_new_atom("[]");
   ATOM_brackets = PL_new_atom("()");
   ATOM_curly_brackets = PL_new_atom("{}");
+  ATOM_term = PL_new_atom("term");
   FUNCTOR_abs1 = PL_new_functor(PL_new_atom("abs"), 1);
   FUNCTOR_all1 = PL_new_functor(PL_new_atom("all"), 1);
   FUNCTOR_any1 = PL_new_functor(PL_new_atom("any"), 1);
@@ -140,6 +141,7 @@ X_API bool do_init_python(void) {
   term_t t = PL_new_term_ref();
   if (!Py_IsInitialized())
     Py_Initialize();
+  Yap_create_prolog_flag("create_prolog_flag", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
   install_py_constants();
   PL_reset_term_refs(t);
   install_pl2pl();
