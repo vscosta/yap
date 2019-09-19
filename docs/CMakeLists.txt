@@ -24,6 +24,7 @@ ${DOCS_SOURCE_DIR}/custom/yap.css
           ${DOCS_SOURCE_DIR}/custom/all.js
           ${DOCS_SOURCE_DIR}/custom/search.js
 ${DOCS_SOURCE_DIR}/custom/assets
+${DOCS_SOURCE_DIR}/icons/yap_32x32x32.png
            )
   
 foreach(i ${CMAKE_HTML_EXTRA_})

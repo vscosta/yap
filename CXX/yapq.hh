@@ -322,7 +322,7 @@ private:
   void doInit(YAP_file_type_t BootMode, YAPEngineArgs *cargs);
   YAPError e;
   PredEntry *rewriteUndefEngineQuery(PredEntry *ap, Term &t, Term tmod);
-
+  bool init_done = false;
 public:
   /// construct a new engine; may use a variable number of arguments
   YAPEngine(YAPEngineArgs *cargs) {

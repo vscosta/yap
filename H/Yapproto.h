@@ -226,7 +226,7 @@ extern void Yap_udi_Interval_init(void);
 extern bool Yap_Reset(yap_reset_t mode, bool hard);
 
 /* flagss.c */
-X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype);
+X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype, Term v);
 
 /* foreign.c */
 extern char *Yap_FindExecutable(void);

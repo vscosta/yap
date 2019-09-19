@@ -741,6 +741,7 @@ GetFlagProp(Atom a) { /* look property list of atom a for kind  */
 
 
 static void initFlag(flag_info *f, int fnum, bool global) {
+
   Atom name = Yap_LookupAtom(f->name);
   AtomEntry *ae = RepAtom(name);
   WRITE_LOCK(ae->ARWLock);
@@ -1794,7 +1795,7 @@ static Int do_create_prolog_flag(USES_REGS1) {
  * @arg type: boolean, integer, atom, any as a pprolog term
  *
  */
-X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype) {
+X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype, Term v) {
 
   Atom aname = Yap_LookupAtom (name);
   FlagEntry *fv;
@@ -1802,16 +1803,18 @@ X_API bool Yap_create_prolog_flag(const char *name, bool writable,  Term ttype) 
   if (fv) {
     return false;
   } else {
-    newFlag(MkAtomTerm(aname), TermNil);
+    newFlag(MkAtomTerm(aname), v);
     fv = GetFlagProp(aname);
   }
  fv->rw = writable;
-  int i = GLOBAL_flagCount;
-  if (IsAtomOrIntTerm(ttype)) {
-    GLOBAL_Flags[i].at = ttype;
-  } else {
-    GLOBAL_Flags[i].DBT = Yap_StoreTermInDB(ttype, 2);
-  }
+        if (ttype == TermBoolean)
+          fv->type = booleanFlag;
+        else if (ttype == TermInteger)
+          fv->type = isatom;
+        else if (ttype == TermFloat)
+          fv->type = isfloat;
+        else
+          fv->type = isground;
  return true;
       }
 
@@ -1905,3 +1908,5 @@ void Yap_InitFlags(bool bootstrap) {
 /* Accessing and changing the flags for a predicate */
 
 /// @}
+
+

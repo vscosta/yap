@@ -129,7 +129,7 @@ foreign_t end_python(void) {
   return true;
 }
 
-static bool libpython_initialized = 0;
+static bool libpython_initialized = false;
 
 X_API bool do_init_python(void) {
   //  char **argv;
@@ -141,7 +141,7 @@ X_API bool do_init_python(void) {
   term_t t = PL_new_term_ref();
   if (!Py_IsInitialized())
     Py_Initialize();
-  Yap_create_prolog_flag("create_prolog_flag", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
+  Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
   install_py_constants();
   PL_reset_term_refs(t);
   install_pl2pl();
