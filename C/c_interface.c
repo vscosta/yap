@@ -2880,7 +2880,7 @@ X_API void YAP_SlotsToArgs(int n, yhandle_t slot) {
 
 X_API void YAP_signal(int sig) { Yap_signal(sig); }
 
-X_API int YAP_SetYAPFlag(Term flag, Term val) { return setYapFlag(flag, val); }
+X_API int YAP_SetYAPFlag(Term flag, Term val) { return Yap_set_flag(flag, val); }
 
 /*    yhandle_t  YAP_VarSlotToNumber(yhandle_t)  */
 X_API yhandle_t YAP_VarSlotToNumber(yhandle_t s) {

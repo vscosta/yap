@@ -1035,7 +1035,7 @@ static Int cont_prolog_flag(USES_REGS1) {
     flag = getYapFlag(f);
     if (!Yap_unify(flag, ARG2))
       return false;
-    return setYapFlag(f, Deref(ARG3));
+    return Yap_set_flag(f, Deref(ARG3));
   }
   cut_fail();
 }
@@ -1061,7 +1061,7 @@ static Int prolog_flag(USES_REGS1) {
       return false;
     return Yap_unify(flag, ARG2);
   }
-  return setYapFlag(Deref(ARG1), Deref(ARG3));
+  return Yap_set_flag(Deref(ARG1), Deref(ARG3));
 }
 
 static Int cont_current_prolog_flag(USES_REGS1) {
@@ -1167,7 +1167,7 @@ void Yap_setModuleFlags(ModEntry *new, ModEntry *cme) {
   // printf("cme=%s new=%s flags=%x\n",cme,at->StrOfAE,new->flags);
 }
 
-bool setYapFlag(Term tflag, Term t2) {
+bool Yap_set_flag(Term tflag, Term t2) {
   FlagEntry *fv;
   flag_term *tarr;
   if (IsVarTerm(tflag)) {
@@ -1322,7 +1322,7 @@ calling yap_flag/2 with both arguments bound.
 */
 static Int set_prolog_flag(USES_REGS1) {
   Term tflag = Deref(ARG1), t2 = Deref(ARG2);
-  return setYapFlag(tflag, t2);
+  return Yap_set_flag(tflag, t2);
 }
 
 /**   @pred source
@@ -1368,7 +1368,7 @@ static Int source_mode(USES_REGS1) {
   if (!current && !Yap_unify_constant(ARG1, TermFalse))
     return false;
   targ = Deref(ARG2);
-  setYapFlag(TermSource, targ);
+    Yap_set_flag(TermSource, targ);
   return true;
 }
 

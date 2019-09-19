@@ -1610,7 +1610,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
    */
   static Int fileerrors(USES_REGS1)
   {
-    return setYapFlag(TermFileErrors, TermTrue);
+    return Yap_set_flag(TermFileErrors, TermTrue);
   }
 
   /**
@@ -1625,7 +1625,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   static Int nofileerrors(
     USES_REGS1)                           /* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   {
-    return setYapFlag(TermFileerrors, TermFalse);
+    return Yap_set_flag(TermFileerrors, TermFalse);
   }
 
   static Int style_checker(USES_REGS1)
@@ -1664,21 +1664,21 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
               {
                 Atom at = AtomOfTerm(h);
                 if (at == AtomSingleVarWarnings)
-                  setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermTrue);
+                    Yap_set_flag(MkAtomTerm(AtomSingleVarWarnings), TermTrue);
                 else if (at == AtomDiscontiguousWarnings)
-                  setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermTrue);
+                    Yap_set_flag(MkAtomTerm(AtomDiscontiguousWarnings), TermTrue);
                 else if (at == AtomRedefineWarnings)
-                  setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermTrue);
+                    Yap_set_flag(MkAtomTerm(AtomRedefineWarnings), TermTrue);
               }
             else
               {
                 Atom at = AtomOfTerm(ArgOfTerm(1, h));
                 if (at == AtomSingleVarWarnings)
-                  setYapFlag(MkAtomTerm(AtomSingleVarWarnings), TermFalse);
+                    Yap_set_flag(MkAtomTerm(AtomSingleVarWarnings), TermFalse);
                 else if (at == AtomDiscontiguousWarnings)
-                  setYapFlag(MkAtomTerm(AtomDiscontiguousWarnings), TermFalse);
+                    Yap_set_flag(MkAtomTerm(AtomDiscontiguousWarnings), TermFalse);
                 else if (at == AtomRedefineWarnings)
-                  setYapFlag(MkAtomTerm(AtomRedefineWarnings), TermFalse);
+                    Yap_set_flag(MkAtomTerm(AtomRedefineWarnings), TermFalse);
               }
           }
       }

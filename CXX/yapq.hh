@@ -414,8 +414,8 @@ public:
   //> set a StringFlag, usually a path
   //>
   bool setStringFlag(std::string arg, std::string path) {
-    return setYapFlag(MkAtomTerm(Yap_LookupAtom(arg.data())),
-                      MkAtomTerm(Yap_LookupAtom(path.data())));
+    return Yap_set_flag(MkAtomTerm(Yap_LookupAtom(arg.data())),
+                        MkAtomTerm(Yap_LookupAtom(path.data())));
   };
 
   Term top_level(std::string s);

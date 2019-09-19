@@ -286,7 +286,7 @@ Set or read system properties for  _Param_:
 
 #endif
 
-bool setYapFlag(Term tflag, Term t2);
+bool Yap_set_flag(Term tflag, Term t2);
 Term getYapFlag(Term tflag);
 
 int Yap_ArgKey(Atom key, const param_t *def, int n);

@@ -142,6 +142,9 @@ X_API bool do_init_python(void) {
   if (!Py_IsInitialized())
     Py_Initialize();
   Yap_create_prolog_flag("python_export_string_as", true,  YAP_MkAtomTerm(YAP_LookupAtom ("term")),  YAP_MkAtomTerm(YAP_LookupAtom ("term")));
+    Yap_set_flag(MkAtomTerm(Yap_LookupAtom("back_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
+    Yap_set_flag(MkAtomTerm(Yap_LookupAtom("single_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
+    Yap_set_flag(MkAtomTerm(Yap_LookupAtom("double_quotes")),MkAtomTerm(Yap_LookupAtom("string")));
   install_py_constants();
   PL_reset_term_refs(t);
   install_pl2pl();

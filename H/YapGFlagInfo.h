@@ -131,7 +131,7 @@ The next example shows zero division handling. If flag enabled:
    
 
 
-  YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "true", bqs), /**<
+  YAP_FLAG(BACK_QUOTES_FLAG, "back_quotes", true, isatom, "atom", bqs), /**<
     If  _Value_ is unbound, tell whether a back quoted list of characters
     token is converted to a list of atoms, `chars`, to a list of integers,
     `codes`, or to a single atom, `atom`. If  _Value_ is bound, set to
