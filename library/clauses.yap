@@ -85,7 +85,7 @@ clauselength( (_Head :- Conj), Length ) :-
 
 
 clauselength( C, I1, I ) :-
-	{ var(C) },
+	var(C),
 	!,
 	I1 is I+1.
 clauselength( (C1, C2), I2, I ) :- !,

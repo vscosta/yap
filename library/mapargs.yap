@@ -36,7 +36,7 @@
 	mapargs(1,+),
 	mapargs_args(1,+,+),
 	mapargs(2,+,-),
-	mapargs_args(2,+,-,+),
+	mapargs_args(1,+,-,+),
 	mapargs(3,+,-,-),
 	mapargs_args(2,+,-,-,+),
 	mapargs(4,+,-,-,-),

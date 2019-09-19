@@ -898,7 +898,7 @@ map_acc(black(L,_,V,R), Goal, Left, Right) :-
 	map_acc(R,Goal, Right1, Right).
 
 :- meta_predicate rb_key_fold(4,?,?,?).  % this is required.
-:- meta_predicate map_key_acc(?,3,?,?).  % this is required.
+:- meta_predicate map_key_acc(?,4,?,?).  % this is required.
 
 %%	rb_key_fold(+T, :G, +Acc0, -AccF) is semidet.
 %

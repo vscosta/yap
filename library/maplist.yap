@@ -46,8 +46,8 @@
 	  ]).
 
 :- meta_predicate
-       selectlist(2,+,-),
-       selectlist(3,+,+,-),
+       selectlist(1,+,-),
+       selectlist(2,+,+,-),
        checklist(1,+),
        maplist(1,+),
        maplist(2,+,-),
