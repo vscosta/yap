@@ -26,6 +26,7 @@
 
 :-	 use_module(library(lists)).
 :-	 use_module(library(maplist)).
+:-	 use_module(library(real)).
 
 :- use_module(library(hacks)).
 
@@ -54,46 +55,78 @@ next_streams(_, redo, _ ) :-
 next_streams( _, _, _ ). % :-
    % streams(false).
 
+
 jupyter_query(Caller, MCell, MLine ) :-
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
-    ( Cell == ''
+    start_low_level_trace,
+    j_consult(M, Cell),
+    j_call(Caller,M1,Line).
+
+j_consult(M, Cell) :-
+    Cell == ''
     ->
     true;
       blank(Cell)
       ->
 	  true
       ;
-      jupyter_consult(M:Cell)
-    ),	%stack_dump,
-    ( Line == ''
+    setup_call_cleanup(
+	streams(true),
+      jupyter_consult(M:Cell),
+	streams(false)
+    ).
+
+j_call(Caller,M1,Line) :-
+    Line == ''
     ->
     true;
       blank(Line)
       ->
 	  true
       ;
-     catch(
-	 (python_query(M1:Line, Port, Bindings),
-	  Caller.q.port := Port,
-	  Caller.q.answer := Bindings,
-	  nl(user_error)
-	 ),
-	 error(A,B),
+      catch(
+	  gated_call(
+	      jupyter:restreams(call,Caller,Bindings),
+	      python_query(M1:Line,_, Bindings),
+	      EGate,
+	      jupyter:restreams(EGate,Caller,Bindings)
+	  ),
+	  error(A,B),
 	 system_error(A,B)
-     )
     ).
 
-restreams(call) :-
+restreams(call,Caller,_Bindings) :-
+    Caller.q.port := call,
+	     Caller.q.answer := [],
     streams(true).
-restreams(fail) :-
+restreams(fail,Caller, _Bindings) :-
+    Caller.q.port := fail,
+	     Caller.q.answer := [],
+		      nl(user_error),
     streams(false).
-restreams(answer).
-restreams(exit) :-
+restreams(answer,Caller,Bindings) :-
+    Caller.q.port := answer,
+	     Caller.q.answer := Bindings,
+		      nl(user_error),
     streams(false).
-restreams(!).
-restreams(external_exception(_)).
-restreams(exception).
+restreams(exit,Caller,Bindings) :-
+    Caller.q.port := exit,
+	     Caller.q.answer := Bindings,
+		      nl(user_error),
+    streams(false).
+restreams(retry,Caller,Bindings) :-
+    Caller.q.port :=  retry,
+	     Caller.q.answer := Bindings,
+    streams(true).
+restreams(!, _,_).
+restreams(external_exception(E),Caller,_Bindings) :-
+    Caller.q.port := exception,
+	     Caller.q.answer := external_exception(E),
+    streams(false).
+restreams(exception,Caller,_Bindings) :-
+    Caller.q.port := exception,
+	     Caller.q.answer := exception.
 
 %:- meta_predicate
 
@@ -102,8 +135,7 @@ jupyter_consult(_:Text) :-
 	!.
 jupyter_consult(M:Cell) :-
 %	Name = 'Inp',
-%	stream_property(Stream, file_name(Name) ),
-%	setup_call_cleanup(
+%	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
     catch(
 	(
 	    Options = [],
