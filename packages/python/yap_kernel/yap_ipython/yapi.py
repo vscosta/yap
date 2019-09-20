@@ -709,7 +709,7 @@ class YAPRun(InteractiveShell):
             self.shell.execution_count += 1
             builtin_mod.input = input
             self.shell.input = input
-            self.engine.mgoal(streams(True),"user", True)
+            #self.engine.mgoal(streams(True),"user", True)
             #create a Trace object, telling it what to ignore, and whether to
             # do tracing or line-counting or both.
             # tracer = trace.Trace(
@@ -751,7 +751,7 @@ class YAPRun(InteractiveShell):
             # Each cell is a *single* input, regardless of how many lines it has
             self.shell.execution_count += 1
 
-        self.engine.mgoal(streams(False),"user", True)
+        #self.engine.mgoal(streams(False),"user", True)
         return
 
 
