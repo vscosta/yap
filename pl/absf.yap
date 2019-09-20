@@ -172,9 +172,9 @@
 '$glob'(F,Opts,NF) :-
     get_abs_file_parameter( glob, Opts, G ),
     G \= '',
-    writeln(G),
     !,
-    path_concat([F,G],NF).
+    writeln(F:G),
+    path_concat([F,G],NF), writeln(NF).
 '$glob'(F,_Opts,F).
 
 % always verify if a directory
@@ -188,16 +188,6 @@
 '$check_file'(F, _Type, Access) :-
     '$access_file'(F, Access),
     \+ exists_directory(F). % if it has a type cannot be a directory..
-
-%	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
-	    ( get_abs_file_parameter( relative_to, OPts, D) -> working_directory(D0,D) ; true ),
 
 %
 %

@@ -125,13 +125,7 @@ init_r_env :-
 	install_in_ms_windows(ToR).
 :- endif.
 
-init_r_env :-
-    popen('R RHOME',read,S),
-    read_line_to_string(S,Lc),
-    close(S),
-    Lc \= end_of_file,
-    !,
-    setenv('R_HOME',Lc).
+
 init_r_env :-
         current_prolog_flag(unix, true),
 	% typical Linux 64 bit setup (fedora)
@@ -154,14 +148,23 @@ init_r_env :-
     !,
     init_in_osx.
 init_r_env :-
-	absolute_file_name( path('R'), This,
-			 [ extensions(['',so,dll,dylib]),
-			   access(read)
-			 ] ),
-	dirpath_to_r_home( This, Rhome ),
-	exists_directory( Rhome ), !,
+            r_home_postfix( PostFix),
+            absolute_file_name( path('R'), Rhome,
+			 [ solutions(all),
+			   file_type(directory),
+               expand(true),
+               glob(PostFix)
+			 ] ),	!,
         debug( real, 'Setting R_HOME to bin relative: ~a', [Rhome] ),
 	setenv('R_HOME',Rhome).
+
+init_r_env :-
+    popen('R RHOME',read,S),
+    read_line_to_string(S,Lc),
+    close(S),
+    Lc \= end_of_file,
+    !,
+    setenv('R_HOME',Lc).
 
 init_r_env :-
      throw(
@@ -215,7 +218,7 @@ install_in_ms_windows_path(RPath) :-
 
 
 install_in_osx :-  current_prolog_flag(address_bits, 64),
-	Mac64 = '/Library/Frameworks/lib64/R',
+	Mac64 = '/Library/Frameworks/R.framework/Resources',
 	exists_directory(Mac64), !,
 	debug( real, 'Setting R_HOME to: ~a', [Mac64] ),
 	setenv('R_HOME',Mac64).

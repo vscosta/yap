@@ -968,7 +968,8 @@ static Int path_concat(USES_REGS1) {
   do {
 
     sz = cwk_path_join_multiple(inp,buf,len-1);
-      if (sz >= len) {len = sz+1;
+      if (sz >= len) {
+          len = sz+1;
         buf = Realloc (buf, len);
       } else {
     bool rc= Yap_unify(MkAtomTerm(Yap_LookupAtom(buf)),ARG2);
