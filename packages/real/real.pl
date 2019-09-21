@@ -145,7 +145,6 @@ init_r_env :-
 init_r_env :-
     % typical MacOs setup
     current_prolog_flag(apple, true),
-    !,
     init_in_osx.
 init_r_env :-
             r_home_postfix( PostFix),
@@ -199,16 +198,16 @@ to_nth( [_H|T], To, Right ) :-
 % nicos: This should become the standard way.  2013/01/02.
 :- if(current_prolog_flag(win32,true)).
 
-install_in_ms_windows( ToR ) :-
+init_in_ms_windows( ToR ) :-
 	debug( real, 'Setting up ms-wins dll directory: ~a', [ToR] ),
 	win_add_dll_directory( ToR ),
-	install_in_ms_windows_path( ToR ).
+	init_in_ms_windows_path( ToR ).
 :- else.
-install_in_ms_windows(RPath) :-
-	install_in_ms_windows_path( RPath ).
+init_in_ms_windows(RPath) :-
+	init_in_ms_windows_path( RPath ).
 :- endif.
 
-install_in_ms_windows_path(RPath) :-
+init_in_ms_windows_path(RPath) :-
 	getenv('PATH',OPath),
 	atomic_list_concat([OPath,';',RPath],Path),
 				% if you have problems with R associated dlls, you might also want to add:
@@ -217,18 +216,18 @@ install_in_ms_windows_path(RPath) :-
 	setenv('PATH',Path).
 
 
-install_in_osx :-  current_prolog_flag(address_bits, 64),
+init_in_osx :-  current_prolog_flag(address_bits, 64),
 	Mac64 = '/Library/Frameworks/R.framework/Resources',
 	exists_directory(Mac64), !,
 	debug( real, 'Setting R_HOME to: ~a', [Mac64] ),
 	setenv('R_HOME',Mac64).
-install_in_osx :-
+init_in_osx :-
 				% typical MacOs setup
 	MacTypical = '/Library/Frameworks/R.framework/Resources',
 	exists_directory(MacTypical), !,
 	debug( real, 'Setting R_HOME to: ~a', [MacTypical] ),
 	setenv('R_HOME', MacTypical).
-install_in_osx :-
+init_in_osx :-
 	LastMac = '/Library/Frameworks/lib/R',
 	( exists_directory(LastMac) ->
 	  debug( real, 'Setting R_HOME to: ~a', [LastMac] )
