@@ -30,7 +30,7 @@ static char SccsId[] = "%W% %G%";
 * @defgroup readutil Reading Lines and Files
 * @addtogroup library
 * @{
-*  Read full lines and a full file in a single call.
+* @brief Read full lines and a full file in a single call.
 */
 
 static Int rl_to_codes(Term TEnd, int do_as_binary, int arity USES_REGS) {
@@ -331,3 +331,5 @@ void Yap_InitReadUtil(void) {
   Yap_InitCPred("read_stream_to_terms", 3, read_stream_to_terms, SyncPredFlag);
   CurrentModule = cm;
 }
+
+/// @}

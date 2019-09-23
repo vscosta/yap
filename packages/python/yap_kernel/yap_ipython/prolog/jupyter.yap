@@ -41,6 +41,7 @@
 :- python_import(sys).
 
 :- python_import(yap4py.yapi as yapi).
+:- python_import(builtins as builtin_mod).
 
 :- meta_predicate jupyter_query(+,:,:).
 
@@ -161,7 +162,7 @@ blank(Text) :-
    stream_property(Error,alias(user_error)),
    assert( std_streams( Input, Output, Error) ).
 :-
-    open('/python/input', read, Input, [alias(user_input),bom(false),script(false)]),
+    open('/python/builtins_mod.input', read, Input, [alias(user_input),bom(false),script(false)]),
     open('/python/sys.stdout', append, Output, [alias(user_output)]),
     open('/python/sys.stderr', append, Error, [alias(user_error)]),
     assert( python_streams( Input, Output, Error) ).

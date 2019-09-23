@@ -76,8 +76,9 @@
  *     Autoload the socket/pipe library
  * 
  * */
- * 
- * /** @pred  socket(+ _DOMAIN_,- _SOCKET_)
+
+
+/** @pred  socket(+ _DOMAIN_,- _SOCKET_)
  * 
  * Call socket/4 with  _TYPE_ bound to `SOCK_STREAM'` and
  *  _PROTOCOL_ bound to `0`.
@@ -124,6 +125,7 @@
  *   Autoload old pipe access interface
  * 
 */
+
 %! @}
 
 
@@ -184,11 +186,13 @@ format(T) :-
 
 %! @}
 
-%! @addtogroup CharIO
-
-%%   @{
-
-/* character I/O	*/
+/**
+ * @addtogroup CharIO
+ *
+ *   @{
+ *
+ * @brief character I/O	
+ */
 
 /** @pred  ttyget(- _C_)
 

@@ -52,12 +52,14 @@
 						'$module_transparent'/4]).
 
 /**
-          @defgroup ModuleBuiltins Module Support
-
-          @ingroup YAPModules
-          @{
-
-          **/
+  * @defgroup ModuleBuiltins Module Support
+  * @ingroup YAPModules
+  * @{
+  *
+  * @brief module loading directives.
+  *
+  *
+  */
 
 
 :- use_system_module( '$_arith', ['$c_built_in'/3]).
@@ -112,7 +114,7 @@ In the first case, the local predicate is considered to have priority
 and use_module/1 simply gives a warning. As an example, if the file
 `a.pl` contains:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- module( a, [a/1] ).
 
 :- use_module(b).
@@ -134,7 +136,7 @@ b(1).
 YAP will execute as follows:
 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ?- [a].
  % consulting .../a.pl...
   % consulting .../b.pl...
@@ -154,7 +156,7 @@ accessed as a predicate in the module 'a' by using the `:` operator.
 
 Next, consider the three files `c.pl`, `d1.pl`, and `d2.pl`:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % c.pl
 :- module( c, [a/1] ).
 
@@ -184,7 +186,7 @@ d(4).
 
 The result is as follows:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ./yap -l c
 YAP 6.3.4 (x86_64-darwin13.3.0): Tue Jul 15 10:42:11 CDT 2014
 
@@ -215,7 +217,7 @@ This predicate loads the file specified by _Files_, importing their
 public predicates specified by _Imports_ into the current type-in
 module. It is implemented as if by:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 use_module(Files, Imports) :-
 	load_files(Files, [if(not_loaded),must_be_module(true),imports(Imports)]).
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,7 +226,7 @@ The _Imports_ argument may be use to specify which predicates one
 wants to load. It can also be used to give the predicates a different name. As an example,
 the graphs library is implemented on top of the red-black trees library, and some predicates are just aliases:
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~pl
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 :- use_module(library(rbtrees), [
 	rb_min/3 as min_assoc,
 	rb_max/3 as max_assoc,
@@ -312,7 +314,8 @@ use_module(F,Is) :-
 '$not_imported'(_, _).
 
 
-/** @pred current_module( ? Mod:atom) is nondet
+
+ /** @pred current_module( ? Mod:atom) is nondet
 
 
 Succeeds if  _M_ is a user-visible modules. A module is defined as soon as some
@@ -333,6 +336,10 @@ current_module(Mod,TFN) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
     ( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
 
+/** @pred current_module( ? Mod:atom, ? _F_ : file ) is nondet
+
+Succeeds if  _M_ is a system module
+ */
 system_module(Mod) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
     '$is_system_module'(Mod).
@@ -355,7 +362,10 @@ system_module(Mod) :-
 
 
 
-/**
+/*
+@pred '$declare_module'(
+
+
 be associated to a new file.
 
 \param[in]	_Module_ is the name of the module to declare
@@ -365,9 +375,10 @@ be associated to a new file.
 \param[in]  Line is the line-number of the :- module/2 directive.
 \param[in]	 If _Redefine_ `true`, allow associating the module to a new file
 */
-
+/*
 '$declare_module'(Name, _Super, Context, _File, _Line) :-
-    addi_mport_module(Name, Context, start).
+    add_import_module(Name, Context, start).
+*/
 
 /**
  @pred abolish_module( + Mod) is det
