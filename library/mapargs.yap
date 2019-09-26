@@ -40,7 +40,7 @@
 	mapargs(3,+,-,-),
 	mapargs_args(2,+,-,-,+),
 	mapargs(4,+,-,-,-),
-	mapargs_args(2,+,-,-,-,+),
+	mapargs_args(3,+,-,-,-,+),
 	mapargs(5,+,-,-,-,-),
 	mapargs_args(2,+,-,-,-,-,+),
 	sumargs(3,+,+,-),

@@ -41,6 +41,8 @@
 /** <module> Examine Prolog source-files
 @ingroup swi
 
+@{
+
 The modile prolog_source.pl provides predicates to  open, close and read
 terms from Prolog source-files. This may  seem   easy,  but  there are a
 couple of problems that must be taken care of.
@@ -237,3 +239,5 @@ prolog_canonical_source(Source, Src) :-
 prolog_canonical_source(Source, Src) :-
 	var(Source), !,
 	Src = Source.
+
+%% @}
