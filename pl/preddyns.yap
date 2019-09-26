@@ -5,6 +5,7 @@
 
 /**
  * @addtogroup Internal_Database
+ * @{
  * @brief main operations on dynamic predicates.
  *
  * 
@@ -355,3 +356,4 @@ dynamic_predicate(P,Sem) :-
     '$do_error'(domain_error(semantics_indicator,Sem),Goal).
 
 %% @}
+

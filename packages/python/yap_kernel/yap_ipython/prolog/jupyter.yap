@@ -10,15 +10,16 @@
  :- module( jupyter,
              [jupyter_query/3,
   	       jupyter_query/4,
- 	        op(100,fy,('$')),
- 	   op(950,fy,:=),
- 	   op(950,yfx,:=),
- %	   op(950,fx,<-),
- %	   op(950,yfx,<-),
- 	   op(50, yf, []),
- 	   op(50, yf, '()'),
- 	   op(100, xfy, '.'),
- 	   op(100, fy, '.'),                blank/1,
+	        op(100,fy,('$')),
+	   op(950,fy,:=),
+	   op(950,yfx,:=),
+%	   op(950,fx,<-),
+%	   op(950,yfx,<-),
+	   op(50, yf, []),
+	   op(50, yf, '()'),
+	   op(100, xfy, '.'),
+	       	   op(100, fy, '.'),
+	       blank/1,
 	        streams/1
             ]
             ).
@@ -40,6 +41,7 @@
 :- python_import(sys).
 
 :- python_import(yap4py.yapi as yapi).
+:- python_import(builtins as builtin_mod).
 
 :- meta_predicate jupyter_query(+,:,:).
 
@@ -95,15 +97,11 @@ j_call(Caller,M1,Line) :-
 restreams(call,Caller,_Bindings) :-
     Caller.q.port := call,
 	     Caller.q.answer := [],
+		      nl(user_error),
     streams(true).
-restreams(fail,Caller, _Bindings) :-
+restreams(fail,Caller,_Bindings) :-
     Caller.q.port := fail,
 	     Caller.q.answer := [],
-		      nl(user_error),
-    streams(false).
-restreams(answer,Caller,Bindings) :-
-    Caller.q.port := answer,
-	     Caller.q.answer := Bindings,
 		      nl(user_error),
     streams(false).
 restreams(exit,Caller,Bindings) :-
@@ -157,14 +155,28 @@ blank(Text) :-
     maplist( code_type(space), L).
 
 
+:- dynamic std_streams/3, python_streams/3.
+
+:- stream_property(Input,alias(user_input)),
+   stream_property(Output,alias(user_output)),
+   stream_property(Error,alias(user_error)),
+   assert( std_streams( Input, Output, Error) ).
+:-
+    open('/python/builtins_mod.input', read, Input, [alias(user_input),bom(false),script(false)]),
+    open('/python/sys.stdout', append, Output, [alias(user_output)]),
+    open('/python/sys.stderr', append, Error, [alias(user_error)]),
+    assert( python_streams( Input, Output, Error) ).
+
 streams(false) :-
-   close(user_input),
-    close(user_output),
-    close(user_error).
+    std_streams( Input, Output, Error),
+    set_stream(Input,alias(user_input)),
+   set_stream(Output,alias(user_output)),
+   set_stream(Error,alias(user_error)).
 streams( true) :-
-    open('/python/input', read, _Input, [alias(user_input),bom(false),script(false)]),
-    open('/python/sys.stdout', append, _Output, [alias(user_output)]),
-    open('/python/sys.stderr', append, _Error, [alias(user_error)]).
+    python_streams( Input, Output, Error),
+    set_stream(Input,alias(user_input)),
+    set_stream(Output,alias(user_output)),
+   set_stream(Error,alias(user_error)).
 
 
 :- if(  current_prolog_flag(apple, true) ).
