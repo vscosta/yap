@@ -551,6 +551,7 @@ class YAPRun(InteractiveShell):
                 self.answers = []
                 result.result = []
                 self.os = (program,squery)
+                self.engine.reSet()
                 pg = jupyter_query(self,program,squery)
                 self.q = Query(self.engine, pg)
             for v in self.q:

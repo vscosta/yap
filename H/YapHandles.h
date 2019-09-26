@@ -27,8 +27,9 @@
 #define REMOTE_HanvdleBase SlotBase
 
 /**
-   @groupdef  term_t_slots
+@groupdef  term_t_slots 
 
+@{
 Also known as term handles, slots are offsets to entries in the local stack. YAP
 never compresses the local stack, so slots are respected by the garbage
 collector,
@@ -175,7 +176,7 @@ INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
                                                  Term t USES_REGS);
 INLINE_ONLY void Yap_PutInHandle__(yhandle_t slot,
                                                  Term t USES_REGS) {
-  // fprintf(stderr,"PS %s:%d\n", __FILE__, __LINE__);
+// fprintf(stderr,"PS %s:%d\n", __FILE__, __LINE__);
   LOCAL_HandleBase[slot] = t;
 }
 
@@ -286,7 +287,7 @@ static inline bool Yap_RecoverHandles__(int n, yhandle_t topHandle USES_REGS) {
   }
 #endif
   LOCAL_CurHandle = topHandle;
-  // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
+  //fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
   return true;
 }
 
@@ -300,8 +301,11 @@ static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
     return TermNil;
   else {
     LOCAL_CurHandle = topHandle;
-    // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);≈
+    // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
     return Deref(LOCAL_HandleBase[topHandle]);
   }
 }
 #endif
+
+/// @}
+

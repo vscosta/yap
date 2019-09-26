@@ -10,15 +10,15 @@
  :- module( jupyter,
              [jupyter_query/3,
   	       jupyter_query/4,
-%% 	        op(100,fy,('$')),
-%% 	   op(950,fy,:=),
-%% 	   op(950,yfx,:=),
-%% %	   op(950,fx,<-),
-%% %	   op(950,yfx,<-),
-%% 	   op(50, yf, []),
-%% 	   op(50, yf, '()'),
-%% 	   op(100, xfy, '.'),
-%% 	   op(100, fy, '.'),                blank/1,
+ 	        op(100,fy,('$')),
+ 	   op(950,fy,:=),
+ 	   op(950,yfx,:=),
+ %	   op(950,fx,<-),
+ %	   op(950,yfx,<-),
+ 	   op(50, yf, []),
+ 	   op(50, yf, '()'),
+ 	   op(100, xfy, '.'),
+ 	   op(100, fy, '.'),                blank/1,
 	        streams/1
             ]
             ).
@@ -59,7 +59,6 @@ next_streams( _, _, _ ). % :-
 jupyter_query(Caller, MCell, MLine ) :-
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
-    start_low_level_trace,
     j_consult(M, Cell),
     j_call(Caller,M1,Line).
 
@@ -71,11 +70,7 @@ j_consult(M, Cell) :-
       ->
 	  true
       ;
-    setup_call_cleanup(
-	streams(true),
-      jupyter_consult(M:Cell),
-	streams(false)
-    ).
+        jupyter_consult(M:Cell,Caller).
 
 j_call(Caller,M1,Line) :-
     Line == ''
@@ -87,14 +82,15 @@ j_call(Caller,M1,Line) :-
       ;
       catch(
 	  gated_call(
-	      jupyter:restreams(call,Caller,Bindings),
+	      jupyter:restreams(call,Caller,[]),
 	      python_query(M1:Line,_, Bindings),
 	      EGate,
 	      jupyter:restreams(EGate,Caller,Bindings)
 	  ),
 	  error(A,B),
 	 system_error(A,B)
-    ).
+      ).
+
 
 restreams(call,Caller,_Bindings) :-
     Caller.q.port := call,
@@ -115,8 +111,8 @@ restreams(exit,Caller,Bindings) :-
 	     Caller.q.answer := Bindings,
 		      nl(user_error),
     streams(false).
-restreams(retry,Caller,Bindings) :-
-    Caller.q.port :=  retry,
+restreams(redo,Caller,Bindings) :-
+    Caller.q.port :=  redo,
 	     Caller.q.answer := Bindings,
     streams(true).
 restreams(!, _,_).
@@ -130,18 +126,21 @@ restreams(exception,Caller,_Bindings) :-
 
 %:- meta_predicate
 
-jupyter_consult(_:Text) :-
+jupyter_consult(_:Text,_) :-
 	blank( Text ),
 	!.
-jupyter_consult(M:Cell) :-
+jupyter_consult(M:Cell,Caller) :-
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
     catch(
-	(
+	  gated_call(
+	    (open_mem_read_stream( Cell, Stream),
 	    Options = [],
-	    open_mem_read_stream( Cell, Stream),
-	    load_files(M:Stream,[stream(Stream)| Options])
-	),
+	      jupyter:restreams(call,Caller[],[])),
+	    load_files(M:Stream,[stream(Stream)| Options]	),
+	      EGate,
+	      jupyter:restreams(EGate,Caller,[])
+	  ),
 	error(A,B),
   system_error(A,B)
     ).

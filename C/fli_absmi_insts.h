@@ -209,10 +209,9 @@
           savedP = PREG;
           saveregs();
           save_machine_regs();
-
           SREG = (CELL *)YAP_Execute(p, p->cs.f_code);
-        }
         setregs();
+        }
         LOCAL_PrologMode &= ~UserCCallMode;
         restore_machine_regs();
         PREG = savedP;
