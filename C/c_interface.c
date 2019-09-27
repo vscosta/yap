@@ -1150,6 +1150,7 @@ static uintptr_t complete_exit(choiceptr ptr, int has_cp,
 }
 
 X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
+  BACKUP_MACHINE_REGS();
   CACHE_REGS
   Int ret;
   Int OASP = LCL0 - (CELL *)B;
@@ -1181,12 +1182,13 @@ X_API Int YAP_Execute(PredEntry *pe, CPredicate exec_code) {
   else {
     complete_fail(((choiceptr)(LCL0 - OASP)), FALSE PASS_REGS);
   }
-  // CurrentModule = omod;
+    Yap_RecoverHandles(0, hdl);
+  pop_text_stack( lvl );
+// CurrentModule = omod;
+   RECOVER_MACHINE_REGS();
   if (!ret) {
     Yap_RaiseException();
   }
-  Yap_RecoverHandles(0, hdl);
-  pop_text_stack( lvl );
   return ret;
 }
 

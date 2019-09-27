@@ -80,28 +80,15 @@ file_or_library(F,C) :-
 file_or_library(F,C) :-
 	check_file(F,C).
 
-check_file(F0,C) :-
-	atom_concat('\'',F,F0),
+check_file(F0,FF) :-
+	atom_concat(F0,'*',F),
 	!,
-	absolute_file_name( F, FF, [access(none)]  ),
-	atom_concat( FF, '*'	, Pat),
-	absolute_file_name( Pat, C0, [glob(true)]  ),
-	atom_concat(Pat,C00,C0),
-	atom_conct(C00,'\'',C).
-check_file(F0,C) :-
-	atom_concat( F0, '*'	, Pat),
-	absolute_file_name( Pat, C0, [glob(true)]  ),
-	atom_concat(Pat,C,C0).
+	absolute_file_name( F, FF, [file_type(prolog),expand(true)]  ).
 
 check_library( Lib, F, C) :-
 	atom_concat( F, '*'	, Pat),
 	LibF =.. [Lib(Pat)],
-	absolute_file_name( LibF, Lib, [glob(true)]  ),
-	file_directory_name( Lib, Name),
-	( atom_concat(C, '.yap', Name) -> true ;
-	 atom_concat(C, '.ypp', Name) -> true ;
-	 atom_concat(C, '.prolog', Name) -> true
-	).
+	absolute_file_name( LibF, Lib, [glob(true)] ).
 
 predicate(N,P,A) :-
 	system_predicate(P0/A),

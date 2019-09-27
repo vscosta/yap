@@ -101,7 +101,7 @@ exists_source(File) :-
 %	@tbd	Should we also allow for source_exports(-Source, +Export)?
 
 prolog:source_exports(Source, Export) :-
-	open_source(Source, In),
+    open_source(Source, In),
 	catch(call_cleanup(exports(In, Exports), close(In)), _, fail),
 	(   ground(Export)
 	->  lists:memberchk(Export, Exports)

@@ -72,11 +72,7 @@ j_consult(M, Cell) :-
       ->
 	  true
       ;
-    setup_call_cleanup(
-	streams(true),
-      jupyter_consult(M:Cell),
-	streams(false)
-    ).
+        jupyter_consult(M:Cell,Caller).
 
 j_call(Caller,M1,Line) :-
     Line == ''
@@ -88,14 +84,15 @@ j_call(Caller,M1,Line) :-
       ;
       catch(
 	  gated_call(
-	      jupyter:restreams(call,Caller,Bindings),
+	      jupyter:restreams(call,Caller,[]),
 	      python_query(M1:Line,_, Bindings),
 	      EGate,
 	      jupyter:restreams(EGate,Caller,Bindings)
 	  ),
 	  error(A,B),
 	 system_error(A,B)
-    ).
+      ).
+
 
 restreams(call,Caller,_Bindings) :-
     Caller.q.port := call,
@@ -112,9 +109,9 @@ restreams(exit,Caller,Bindings) :-
 	     Caller.q.answer := Bindings,
 		      nl(user_error),
     streams(false).
-restreams(retry,Caller,_Bindings) :-
-    Caller.q.port :=  retry,
-	     Caller.q.answer := [],
+restreams(redo,Caller,Bindings) :-
+    Caller.q.port :=  redo,
+	     Caller.q.answer := Bindings,
     streams(true).
 restreams(!, _,_).
 restreams(external_exception(E),Caller,_Bindings) :-
@@ -127,18 +124,21 @@ restreams(exception,Caller,_Bindings) :-
 
 %:- meta_predicate
 
-jupyter_consult(_:Text) :-
+jupyter_consult(_:Text,_) :-
 	blank( Text ),
 	!.
-jupyter_consult(M:Cell) :-
+jupyter_consult(M:Cell,Caller) :-
 %	Name = 'Inp',
 %	stream_property(Stream, file_name(Name) ),%	setup_call_cleanup(
     catch(
-	(
+	  gated_call(
+	    (open_mem_read_stream( Cell, Stream),
 	    Options = [],
-	    open_mem_read_stream( Cell, Stream),
-	    load_files(M:Stream,[stream(Stream)| Options])
-	),
+	      jupyter:restreams(call,Caller[],[])),
+	    load_files(M:Stream,[stream(Stream)| Options]	),
+	      EGate,
+	      jupyter:restreams(EGate,Caller,[])
+	  ),
 	error(A,B),
   system_error(A,B)
     ).

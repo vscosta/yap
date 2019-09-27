@@ -704,19 +704,21 @@ restart_aux:
 
 */
 static Int number_chars(USES_REGS1) {
-  Term t1;
+    Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);;
   int l = push_text_stack();
-  t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term t2 = Deref(ARG2);
-    Term t12 = Yap_NumberToListOfAtoms(t1 PASS_REGS);
-    if (t12 && t2) {
-      {
-        pop_text_stack(l);
-        return Yap_unify(t12, t2);
-      }
+  if (IsNonVarTerm(t1)) {
+    if (IsVarTerm(t2)) {
+      pop_text_stack(l);
+      return Yap_unify(ARG2, Yap_NumberToListOfAtoms(t1));
+  } else {
+    Term t2 = Yap_ListToNumber( Deref(ARG2) );
+    pop_text_stack(l);
+    if (t1&& t2) {
+          return Yap_unify(t1, t2);
     }
-  } else if (IsVarTerm(t1)) {
+    }
+  } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
@@ -724,16 +726,13 @@ static Int number_chars(USES_REGS1) {
       pop_text_stack(l);
       return Yap_unify(ARG1, tf);
     }
-    pop_text_stack(l);
-
-    LOCAL_ActiveError->errorRawTerm = 0;
+ }
+    // error
+  pop_text_stack(l);
+LOCAL_ActiveError->errorRawTerm = 0;
     Yap_ThrowExistingError();
 
     return false;
-  }
-  pop_text_stack(l);
-
-  return true;
 }
 
 /** @pred  number_atom(? _I_,? _A_){te
@@ -837,6 +836,7 @@ restart_aux:
     pop_text_stack(l);
     return false;
   }
+  
 }
 
 /** @pred  number_codes(? _I_,? _L_)
@@ -851,18 +851,21 @@ restart_aux:
 
 */
 static Int number_codes(USES_REGS1) {
-  Term t1;
+    Term t1 = Deref(ARG1);
+  Term t2 = Deref(ARG2);;
   int l = push_text_stack();
-restart_aux:
-  t1 = Deref(ARG1);
-  if (IsNumTerm(t1)) {
-    Term tf;
-    tf = Yap_NumberToListOfCodes(t1 PASS_REGS);
-    if (tf) {
+  if (IsNonVarTerm(t1)) {
+    if (IsVarTerm(t2)) {
       pop_text_stack(l);
-      return Yap_unify(ARG2, tf);
+      return Yap_unify(ARG2, Yap_NumberToListOfCodes(t1));
+  } else {
+    Term t2 = Yap_ListToNumber( Deref(ARG2) );
+    pop_text_stack(l);
+    if (t1&& t2) {
+          return Yap_unify(t1, t2);
     }
-  } else if (IsVarTerm(t1)) {
+    }
+  } else {
     /* ARG1 unbound */
     Term t = Deref(ARG2);
     Term tf = Yap_ListToNumber(t PASS_REGS);
@@ -870,18 +873,14 @@ restart_aux:
       pop_text_stack(l);
       return Yap_unify(ARG1, tf);
     }
-  } else {
-    LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
-  }
-  /* error handling */
-  if (LOCAL_Error_TYPE && Yap_HandleError("number_codes/2")) {
-    goto restart_aux;
-  }
-  {
-    pop_text_stack(l);
+ }
+    // error
+  pop_text_stack(l);
+LOCAL_ActiveError->errorRawTerm = 0;
+    Yap_ThrowExistingError();
+
     return false;
-  }
-}
+ }
 
 static Int cont_atom_concat3(USES_REGS1) {
   Term t3;

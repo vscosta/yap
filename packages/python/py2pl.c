@@ -144,10 +144,10 @@ static Term python_to_term__(PyObject *pVal) {
         PyErr_Clear();
         return false;
       }
-      if (!python_to_term__(p))
-        return false;
+      if (!(th=python_to_term__(p))
+	  )       return false;
 
-      t = MkPairTerm(python_to_term__(p), t);
+      t = MkPairTerm(th, t);
     }
     return t;
   }
@@ -229,173 +229,33 @@ PyObject *py_Local, *py_Global;
 bool python_assign(term_t t, PyObject *exp, PyObject *context) {
   bool rc = true;
   PyErr_Print();
-  term_t inp = Yap_CurrentHandle();
-  context = find_obj(context, t, false);
   // Yap_DebugPlWriteln(yt);
-  switch (PL_term_type(t)) {
-  case PL_VARIABLE: {
+  if (PL_term_type(t) == PL_VARIABLE) {
     if (context == NULL) // prevent a.V= N*N[N-1]
-      PL_reset_term_refs(inp);
-
-    rc = python_to_term(exp, t);
-    break;
+    return pythonToYAP(exp);
   }
 
-  case PL_STRING:
-  case PL_ATOM: {
-    char *s = NULL;
-    size_t l;
-    if (PL_term_type(t) == PL_STRING) {
-        PL_get_string_chars(t, &s, &l);
-    } else {
-        PL_get_atom_chars(t, &s);
-    }
-      if (!context)
-          context = PyEval_GetGlobals();
-      if (context) {
-          rc = PyDict_SetItemString(context, s, exp) == 0;
+  PyObject *obj = find_obj(context, &context, t, false);
+        if (context==NULL) {
+	  assign_to_symbol(t,exp);
+	  return true;
+      }
+  if (PySequence_Check(context)) {
+      rc = PySequence_SetItem(context, PyLong_AsLong(obj), exp) == 0;
                  if (rc) {
-                     PL_reset_term_refs(inp);
-              break;
+		     return rc;
           }
-      }
-          context = py_Main;
-    if (PyObject_SetAttrString(context, s, exp) == 0) {
-        PL_reset_term_refs(inp);
+      } else   if (PyDict_Check(context)) {
+      rc = PyDict_SetItem(context,obj , exp) == 0;
+                 if (rc) {
+              return rc;
+          }
+      } else if (PyObject_SetAttr(context, obj, exp) == 0) {
 
-        rc = true;
-    } else {
+        return true;
+
+    }
       PyErr_Print();
-      rc = false;
-    }
-    break;
-  }
-  {
-    char *s = NULL;
-    rc = false;
+      return false;
 
-      if (context) {
-          rc = PyDict_SetItemString(context, s, exp);
-          if (rc) {
-              break;
-          }
-      }
-      context = py_Main;
-      if (PyObject_SetAttrString(context, s, exp) == 0) {
-          PL_reset_term_refs(inp);
-
-          rc = true;
-      } else {
-          PyErr_Print();
-          PL_reset_term_refs(inp);
-          rc = false;
-      }
-      break;
-  }
-  case PL_INTEGER:
-  case PL_FLOAT:
-    // domain or type erro?
-    rc = false;
-    break;
-  default: {
-    term_t tail = PL_new_term_ref(), arg = PL_new_term_ref();
-    size_t len, i;
-
-    if (PL_is_pair(t)) {
-      if (PL_skip_list(t, tail, &len) &&
-          PL_get_nil(tail)) { //             true list
-
-        if (PySequence_Check(exp) && PySequence_Length(exp) == len)
-
-          for (i = 0; i < len; i++) {
-            PyObject *p;
-            if (!PL_get_list(t, arg, t)) {
-              p = Py_None;
-              rc = false;
-            } else {
-              if ((p = PySequence_GetItem(exp, i)) == NULL)
-                p = Py_None;
-              rc  = rc &&  python_assign(arg, p, context);
-            }
-          }
-      } else {
-        while(PL_is_pair(t)) {
-          context = find_obj(context, t, false);
-        }
-        rc = python_assign(t, exp, context);
-      }
-
-    } else {
-      functor_t fun;
-
-      if (!PL_get_functor(t, &fun)) {
-        rc = false;
-      }
-
-      if (fun == FUNCTOR_sqbrackets2) {
-        //  tail is the object o
-        if (!PL_get_arg(2, t, tail)) {
-          rc =  false;
-        } else {
-          PyObject *o = term_to_python(tail, true, context, false);
-          // t now refers to the index
-          if (!PL_get_arg(1, t, t) || !PL_get_list(t, t, tail) ||
-              !PL_get_nil(tail)) {
-            rc = false;
-          } else {
-            PyObject *i = term_to_python(t, true, NULL, false);
-            // check numeric
-            if (PySequence_Check(o) && PyLong_Check(i)) {
-              long int j;
-              j = PyLong_AsLong(i);
-              rc =  PySequence_SetItem(o, j, exp) == 0;
-            }
-#if PY_MAJOR_VERSION < 3
-            if (PySequence_Check(o) && PyInt_Check(i)) {
-              long int j;
-              j = PyInt_AsLong(i);
-              szzb  rc =  PySequence_SetItem(o, i, exp) == 0;
-            } else
-#endif
-              if (PyDict_Check(o)) {
-                if (PyDict_SetItem(o, i, exp) == 0) {
-                  rc = true;
-                }
-              }
-            if (PyObject_SetAttr(o, i, exp) == 0) {
-                rc = true;
-            }
-          }
-        }
-      } else {
-
-        atom_t s;
-        size_t n, i;
-        PL_get_name_arity(t, &s, &n);
-        PyObject *o = term_to_python(t, true, context, true);
-        PyErr_Print();
-        if (PySequence_Check(o) && PySequence_Length(o) == n) {
-          for (i = 1; i <= n; i++) {
-            PyObject *p;
-            if (!PL_get_arg(i, t, arg)) {
-              o = NULL;
-              p = Py_None;
-            }
-
-            if ((p = PySequence_GetItem(exp, i - 1)) == NULL)
-              p = Py_None;
-            rc = python_assign(arg, p, NULL);
-
-          }
-        }
-      }
-    }
-  }
-  }
-
-  PyErr_Print();
-  PL_reset_term_refs(inp);
-
-
-  return rc;
 }

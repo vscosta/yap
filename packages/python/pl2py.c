@@ -244,7 +244,7 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 
         for (i = 0; i < len; i++) {
           Term ai = HeadOfTerm(t0);
-          a = term_to_python(Yap_InitHandle(ai), eval, o, cvt);
+          a = yap_to_python(ai, eval, o, cvt);
           if (a) {
             if (PyList_SetItem(out, i, a) < 0) {
               YAPPy_ThrowError(SYSTEM_ERROR_INTERNAL, t, "list->python");
@@ -430,23 +430,30 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
 PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
   if (t == 0 || t == TermNone)
     return Py_None;
-  term_t yt = YAP_InitSlot(t);
-  o = term_to_python(yt, eval, o, cvt);
-  PL_reset_term_refs(yt);
+  term_t t0 = PL_new_term_ref();
+  //  fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
+  term_t swit = YAP_InitSlot(t);
+  o = term_to_python(swit, eval, o, cvt);
+  PL_reset_term_refs(t0);
   return o;
 }
 
 PyObject *deref_term_to_python(term_t t) {
   // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
   // am\n");
+  PyObject *rc;
   YAP_Term yt = YAP_GetFromSlot(t);
+  term_t t0 = PL_new_term_ref();
   if (YAP_IsVarTerm(yt)) {
     char b[1024];
     char *o = YAP_WriteBuffer(yt, b, 1023, 0);
     PyObject *p = PyUnicode_FromString(o);
-    return p;
+    rc = p;
+  } else {
+  rc = term_to_python(t, true, NULL, false);
   }
-  return term_to_python(t, true, NULL, false);
+  PL_reset_term_refs(t0);
+  return rc;
 }
 
 void YAPPy_ThrowError__(const char *file, const char *function, int lineno,

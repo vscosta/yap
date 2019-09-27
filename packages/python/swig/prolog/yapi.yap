@@ -6,7 +6,7 @@
  		 python_ouput/0,
 %% 		 show_answer/2,
 %% 		 show_answer/3,
- 		 yap_query/4,
+ 		 python_query/2,
  		 python_query/3,
  		 python_query/4,
  		 python_import/1,
@@ -40,19 +40,9 @@
 */
 :- create_prolog_flag(yap4py_query_json, true, [access(read_write)]).
 
-:- meta_predicate yapi_query(:,+), python_query(+,:), python_query(+,:,-) .
+:- meta_predicate python_query(:,?.?), python_query(:.?,?,?) .
 
 %:- start_low_level_trace.
-
-%% @pred yapi_query( + VarList, - Dictionary)
-%%
-%% dictionary, Examples
-%%
-%%
-yapi_query( VarNames, Caller ) :-
-    show_answer(VarNames, Dict),
-    Caller.bindings := Dict,
-	   := print(Dict).
 
 
 
@@ -88,17 +78,23 @@ argi(N,I,I1) :-
 	python_query(:,-,-),
 	python_query(:,-,-,-).
 
+python_query( Self, MString) :-
+ 	strip_module(MString, M, String).
+
+gate(Gate,Self,Bindings) :-
+    Self.port := Gate,
+	   Self.answer := Bindings.
 
 python_query( String, Status, Bindings		) :-
     python_query( String, _, Status, Bindings).
 
 python_query( MString, M:Goal, Status, FinalBindings  ) :-
 	strip_module(MString, M, String),
-    atomic_to_term( String, Goal, VarNames ),
-    query(M:Goal, VarNames, Status, FinalBindings).
+	atomic_to_term( String, Goal, VarNames ),
+	query(M:Goal, VarNames, Status, FinalBindings).
 
 /*
-    rational_term_to_tree(Goal+Bindings,NGoal+NBindings,ExtraBindings,[]),
+    rational_term_to_tree(Goal+Bindings,NGoal+NBindings,ExtraBindings,{}),
     simplify(NBindings,0,L2,I2),
     non_singletons_in_term(Goal, [], NSVs),
     foldl(namev,NSVs,I2,_),

@@ -300,7 +300,7 @@ b_hash_to_list(hash(Keys, Vals, _, _, _, _), LKeyVals) :-
 The term _KeyList_ unifies with a list containing all keys in the hash table.
 */
 b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
-    Keys =.. [_LKs],
+    Keys =.. [_|LKs],
     mklistels(LKs, LKeys).
 
 /**

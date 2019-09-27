@@ -79,8 +79,9 @@ class Query (YAPQuery):
         return self
 
     def done(self):
-        return self.port == "fail" or self.port == "exit"
-
+        completed = self.port == "fail" or self.port == "exit"
+        return completed
+    
     def __next__(self):
         if self.port == "fail" or self.port == "exit":
             raise StopIteration()

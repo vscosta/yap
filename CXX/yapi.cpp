@@ -647,7 +647,9 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 
    result = (bool)YAP_EnterGoal(ap, nullptr, &q);
   //  std::cerr << "mgoal "  << YAPTerm(tmod).text() << ":" << YAPTerm(t).text() << "\n
-  YAP_LeaveGoal(result && !release, &q);
+  YAP_LeaveGoal(result, &q);
+  if (release)
+    HR = B->cp_h;
  ENV = LCL0-oenv;
  B = (choiceptr)(LCL0-oB);
   CurrentModule = LOCAL_SourceModule = omod;
@@ -662,7 +664,8 @@ bool YAPEngine::mgoal(Term t, Term tmod, bool release) {
 void YAPEngine::release() {
 
   BACKUP_MACHINE_REGS();
-  //  YAP_LeaveGoal(FALSE, &q);
+  HR = B->cp_h;
+
   RECOVER_MACHINE_REGS();
 }
 
@@ -729,6 +732,7 @@ Term YAPEngine::fun(Term t) {
     
     YAP_LeaveGoal(result, &q);
  ENV = LCL0-oenv;
+ 
  B = (choiceptr)(LCL0-oB);
     //      PyEval_RestoreThread(_save);
     RECOVER_MACHINE_REGS();
