@@ -144,10 +144,10 @@ static Term python_to_term__(PyObject *pVal) {
         PyErr_Clear();
         return false;
       }
-      if (!python_to_term__(p))
-        return false;
+      if (!(th=python_to_term__(p))
+	  )       return false;
 
-      t = MkPairTerm(python_to_term__(p), t);
+      t = MkPairTerm(th, t);
     }
     return t;
   }

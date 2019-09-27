@@ -1,3 +1,4 @@
+
 /**
  * @file   dbusage.yap
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
@@ -123,7 +124,7 @@ db_static(Min) :-
 statics(M,P) :-
     current_module(M),
     M \= idb,
-		  current_predicate(PN,M:P),
+    current_predicate(_PN,M:P),
 		  \+predicate_property(M:P,dynamic),
 		  \+predicate_property(M:P,imported_from(_)).
 

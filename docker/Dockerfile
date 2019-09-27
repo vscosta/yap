@@ -6,7 +6,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # Update Software repository
 RUN apt-get -y update 
-RUN apt-get dist-upgrade
+RUN apt -y dist-upgrade
 
  
 
