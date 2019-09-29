@@ -144,6 +144,7 @@ static Term python_to_term__(PyObject *pVal) {
         PyErr_Clear();
         return false;
       }
+                            Term th;
       if (!(th=python_to_term__(p))
 	  )       return false;
 
@@ -231,8 +232,8 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
   PyErr_Print();
   // Yap_DebugPlWriteln(yt);
   if (PL_term_type(t) == PL_VARIABLE) {
-    if (context == NULL) // prevent a.V= N*N[N-1]
-    return pythonToYAP(exp);
+   // if (context == NULL) // prevent a.V= N*N[N-1]
+    return Yap_unify(Yap_GetFromSlot(t),pythonToYAP(exp));
   }
 
   PyObject *obj = find_obj(context, &context, t, false);
