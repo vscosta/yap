@@ -235,8 +235,7 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
    // if (context == NULL) // prevent a.V= N*N[N-1]
     return Yap_unify(Yap_GetFromSlot(t),pythonToYAP(exp));
   }
-  PyObject *o = find_obj(context,exp, t, false);
-return o && o != Py_None;
+return  Py_None;
 
 
 }

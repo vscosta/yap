@@ -812,7 +812,8 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
   if (PL_is_variable(t)) {
     return term_to_python(t, false, context, cvt);
   }
-  o = find_obj(context, NULL, t, false);
+  if (PL_is_atom(t))
+  return find_obj(context, NULL, t, false);
   AOK(PL_get_name_arity(t, &name, &arity), NULL);
   if (arity == 0)
     return term_to_python(t, false, o, false);
@@ -830,8 +831,11 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
     }
     Term tleft;
     int i;
+    PyObject *out;
+      if ((out=find_obj(context, NULL, t, false))
+          return out;
 
-    PyObject *out = PyTuple_New(arity);
+    out = PyTuple_New(arity);
     if (CHECKNULL(t, out) == NULL) {
       PyErr_Print();
       return NULL;
@@ -879,7 +883,11 @@ size_t arity;
   }
   if (!PL_get_functor(t, &fun))
     return NULL;
-  if (fun == FUNCTOR_abs1) {
+    PyObject *out;
+    if ((out=find_obj(context, NULL, t, false))
+        return out;
+
+    if (fun == FUNCTOR_abs1) {
     return bip_abs(t);
   } else if (fun == FUNCTOR_all1) {
     return bip_all(t);
