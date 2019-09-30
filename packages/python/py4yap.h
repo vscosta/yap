@@ -47,7 +47,7 @@
 
 #define PYTHON_H 1
 
-PyObject *find_obj(PyObject *ob, PyObject **ctx, term_t lhs, bool eval);
+PyObject *find_obj(PyObject *ctx, PyObject *exp, term_t lhs, bool eval);
 
 #if DEBUG_MEMORY || 1
 #define DebugPrintf(s, op) fprintf(stderr, "%s:%d: " s, __FILE__, __LINE__, op)

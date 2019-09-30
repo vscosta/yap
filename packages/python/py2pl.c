@@ -225,7 +225,7 @@ PyObject *py_Local, *py_Global;
  * @return -1 on failure.
  *
  * Note that this is an auxiliary routine to the Prolog
- *python_assign.
+ *pythonfind_assign.
  */
 bool python_assign(term_t t, PyObject *exp, PyObject *context) {
   bool rc = true;
@@ -235,28 +235,8 @@ bool python_assign(term_t t, PyObject *exp, PyObject *context) {
    // if (context == NULL) // prevent a.V= N*N[N-1]
     return Yap_unify(Yap_GetFromSlot(t),pythonToYAP(exp));
   }
+  PyObject *o = find_obj(context,exp, t, false);
+return o && o != Py_None;
 
-  PyObject *obj = find_obj(context, &context, t, false);
-        if (context==NULL) {
-	  assign_to_symbol(t,exp);
-	  return true;
-      }
-  if (PySequence_Check(context)) {
-      rc = PySequence_SetItem(context, PyLong_AsLong(obj), exp) == 0;
-                 if (rc) {
-		     return rc;
-          }
-      } else   if (PyDict_Check(context)) {
-      rc = PyDict_SetItem(context,obj , exp) == 0;
-                 if (rc) {
-              return rc;
-          }
-      } else if (PyObject_SetAttr(context, obj, exp) == 0) {
-
-        return true;
-
-    }
-      PyErr_Print();
-      return false;
 
 }

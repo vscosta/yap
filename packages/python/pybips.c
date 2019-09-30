@@ -106,69 +106,94 @@ PyObject *PythonLookup(const char *s, PyObject *oo) {
   }
 }
 
+/**
+ * This is the core to the Python interface implementing
+ * f = ctx(t) / <- exp
+ * @param ctx
+ * @param exp
+ * @param t
+ * @param eval
+ * @return
+ */
 PyObject *
 
-find_obj(PyObject *ob, PyObject **ctxp, term_t t, bool eval) {
-  YAP_Term hd, yt;
-  bool moved = true;
-  py_Context = *ctxp;
-  // Yap_DebugPlWriteln(yt);
-  while (moved) {
-    moved = false;
-  if (t == 0)
-    return Py_None;
-  *ctxp = NULL;
-  yt = Yap_GetFromSlot(t);
-  if (IsPairTerm(yt)) {
-    hd = HeadOfTerm(yt);
-    yt = TailOfTerm(yt);
-    moved = true;
-    YAP_PutInSlot(t,hd);
-    ob = term_to_python(t, true, ob, false);
-    *ctxp = NULL;
-    if (!ob) {
-      return  Py_None;
+find_obj(PyObject* ctx, PyObject *exp, term_t t, bool eval) {
+    YAP_Term hd, yt;
+    py_Context = ctx;
+// Yap_DebugPlWriteln(yt);
+    if (t == 0)
+        return Py_None;
+    yt = Yap_GetFromSlot(t);
+    while (IsPairTerm(yt) && !Yap_IsListTerm(yt)) { // f(X).g(X)
+        hd = HeadOfTerm(yt);
+        yt = TailOfTerm(yt);
+        YAP_PutInSlot(t, hd);
+        ctx = term_to_python(hd, eval, ctx, false);
     }
-  } else  if (IsApplTerm(yt)  && FunctorOfTerm(yt) == FUNCTOR_sqbrackets2) {
-        //  tail is the object o
-    YAP_Term tail = ArgOfTerm(2,yt);
-          ob = yap_to_python(tail, true, *ctxp, false);
-          // t now refers to the index
-	  yt = ArgOfTerm(1,yt);
-	  Term indx = HeadOfTerm(yt);
-	  yt = TailOfTerm(yt);
-	  if (yt != TermNil) {
-	    moved = true;
-	    }
-            PyObject *i = yap_to_python(indx, true, NULL, false);
-            // check numeric
-            if (PySequence_Check(ob)) {
-	      *ctxp = ob;
-	      // moved = true;
-	      ob = PySequence_GetItem(ob,PyLong_AsLong(i));
-	  } else if (PyDict_Check(ob)) {
-	      *ctxp = ob; 
-	      if (eval && PyDict_Contains(ob,i)) {
-	           ob = PyDict_GetItem(ob, i);
-		   *ctxp = NULL; 
-	      } else {
-	    ob = i  ;
-	    }
-	    }
-	      	      if (!moved) return ob;
 
-  }else {
-		  const char *sk = NULL;
-	  if (IsAtomTerm(yt))
-	    sk = RepAtom(AtomOfTerm(yt))->StrOfAE;
-	  else if (IsStringTerm(yt))
-	    sk = StringOfTerm(yt);
-	  if (sk)
-	  ob = PythonLookup(sk, *ctxp);
-  
+   while (IsApplTerm(yt)  && FunctorOfTerm(yt) == (Functor)FUNCTOR_sqbrackets2) {
+      //  tail is the object o
+      YAP_Term tail = ArgOfTerm(2, yt);
+      // get the context
+      ctx = yap_to_python(tail, true, ctx, false);
+      // t now refers to the index
+      yt = ArgOfTerm(1, yt);
+      Term indx = HeadOfTerm(yt);
+      yt = TailOfTerm(yt);
+      PyObject *i = yap_to_python(indx, true, NULL, false);
+      // check numeric
+      if (PySequence_Check(ctx)) {
+          // moved = true;
+          if (exp) {
+              if (PySequence_SetItem(ctx, PyLong_AsLong(i), exp) == 0)
+                  return exp;
+              return Py_None;
+          } else {
+              return PySequence_GetItem(ctx, PyLong_AsLong(i));
+              return Py_None;
+          }
+
+      } else if (PyDict_Check(ctx)) {
+          if (exp) {
+              if (PyDict_SetItem(ctx, i, exp) == 0)
+                  return exp;
+              return Py_None;
+          } else {
+              if (PyDict_Contains(ctx, i))
+                  return PyDict_GetItem(ctx, i);
+              return Py_None;
+          }
+
+      }
   }
-  }
-  return ob;
+    if (IsAtomTerm(yt)) {
+        if (!ctx) {
+            if (py_Local && py_Local != Py_None) {
+                ctx = py_Local;
+            }
+            if (py_Global && py_Global != Py_None) {
+                ctx = py_Global;
+            }
+            if (py_Main && py_Main != Py_None) {
+                ctx = py_Main;
+            }
+        }
+        const char *s = AtomTermName(yt);
+        if (exp) {
+            if (PyObject_SetAttrString(ctx, s, exp) == 0)
+                return exp;
+            return Py_None;
+        } else {
+            if (PyObject_HasAttrString(ctx, s))
+                return PyObject_GetAttrString(ctx, s);
+            return Py_None;
+        }
+    } else {
+        if (exp) {
+            return Py_None;
+        }
+        return yap_to_python(yt, true, ctx, false);
+    }
 }
 
 PyObject *find_term_obj(PyObject *ob, YAP_Term *yt, bool eval) {
@@ -787,7 +812,7 @@ PyObject *compound_to_pytree(term_t t, PyObject *context, bool cvt) {
   if (PL_is_variable(t)) {
     return term_to_python(t, false, context, cvt);
   }
-  o = find_obj(context, &context,t, false);
+  o = find_obj(context, NULL, t, false);
   AOK(PL_get_name_arity(t, &name, &arity), NULL);
   if (arity == 0)
     return term_to_python(t, false, o, false);
@@ -847,7 +872,7 @@ PyObject *compound_to_pyeval(term_t t, PyObject *context, bool cvt) {
 size_t arity;
   functor_t fun;
 
-  o = find_obj(context, &context,t, true);
+  o = find_obj(context, NULL, t, true);
   AOK(PL_get_name_arity(t, &name, &arity), NULL);
   if (arity == 0) {
     return term_to_python(t, true, o, cvt);
