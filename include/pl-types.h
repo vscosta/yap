@@ -25,7 +25,8 @@ typedef unsigned long uintptr_t;
 
 #ifndef PL_HAVE_TERM_T
 #define PL_HAVE_TERM_T
-typedef	uintptr_t    term_t;
+#include "Yap.h"
+typedef	yhandle_t    term_t;
 #endif
 typedef	struct mod_entry *module_t;
 typedef struct DB_STRUCT *record_t;

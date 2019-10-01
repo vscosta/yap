@@ -1054,10 +1054,9 @@ static bool watch_retry(Term d0 USES_REGS) {
 	    B->cp_ap == NOCODE)
 	   )
         B = B->cp_b;
-    if (B)
+    if (!B)
+        B = B0;
     ASP = (CELL *) PROTECT_FROZEN_B(B);
-    else
-        ASP = LCL0;
     // just do the frrpest
     if (B >= B0 && !ex_mode && !active) {
       port_pt[0] = TermFail;

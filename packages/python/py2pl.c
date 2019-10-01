@@ -86,6 +86,9 @@ static Term python_to_term__(PyObject *pVal) {
 #else
     const char *s = PyUnicode_AsUTF8(pVal);
 #endif
+    PyObject *o;
+    if ((o = PythonLookup(s, NULL))!=NULL && o  != Py_None && o != pVal)
+        return pythonToYAP(o);
 #if 0
     if (Yap_AtomInUse(s))
       rc = rc && PL_unify_atom_chars(t, s);
@@ -228,14 +231,15 @@ PyObject *py_Local, *py_Global;
  *pythonfind_assign.
  */
 bool python_assign(term_t t, PyObject *exp, PyObject *context) {
-  bool rc = true;
   PyErr_Print();
   // Yap_DebugPlWriteln(yt);
   if (PL_term_type(t) == PL_VARIABLE) {
    // if (context == NULL) // prevent a.V= N*N[N-1]
     return Yap_unify(Yap_GetFromSlot(t),pythonToYAP(exp));
   }
-return  Py_None;
+
+ PyObject *o = find_obj(context,exp, t, true);
+return o != NULL && o != Py_None;
 
 
 }

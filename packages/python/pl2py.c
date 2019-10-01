@@ -173,20 +173,25 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
     const char *s;
 
     s = YAP_AtomName(at);
-    if (eval) {
       o = PythonLookup(s, o);
-      /*     if (!o)
-             return o;
-      */
-    }
-    if (!o) {
-      o = PyUnicode_FromString(s);
-    }
-    if (o) {
+       while (o && PyUnicode_Check(o)) {
+          const char *s = PyUnicode_AsUTF8(o);
+          PyObject *ne = PythonLookup(s,NULL);
+          if (ne && ne != Py_None )
+              o = ne;
+          else
+              break;
+      }
+      if (!o) {
+          o = PyUnicode_FromString(s);
+      }
+
+      if (o) {
       // PyDict_SetItemString(py_Atoms, s, Py_None);
       Py_INCREF(o);
       return o;
     }
+      return Py_None;
   }
   case PL_STRING: {
   YAP_Term yt = YAP_GetFromSlot(t);
@@ -427,16 +432,6 @@ PyObject *term_to_python(term_t t, bool eval, PyObject *o, bool cvt) {
   return Py_None;
 }
 
-PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o, bool cvt) {
-  if (t == 0 || t == TermNone)
-    return Py_None;
-  term_t t0 = PL_new_term_ref();
-  //  fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
-  term_t swit = YAP_InitSlot(t);
-  o = term_to_python(swit, eval, o, cvt);
-  PL_reset_term_refs(t0);
-  return o;
-}
 
 PyObject *deref_term_to_python(term_t t) {
   // Yap_DebugPlWrite(YAP_GetFromSlot(t));        fprintf(stderr, " here I
@@ -454,6 +449,16 @@ PyObject *deref_term_to_python(term_t t) {
   }
   PL_reset_term_refs(t0);
   return rc;
+}
+
+  PyObject *yap_to_python(Term t, bool eval, PyObject *o, bool cvt) {
+    if (t == 0 || t == TermNone)
+        return Py_None;
+    //  fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
+    yhandle_t swit = Yap_InitSlot(t);
+    o = term_to_python((term_t)swit, eval, o, cvt);
+    LOCAL_CurHandle = swit;
+    return o;
 }
 
 void YAPPy_ThrowError__(const char *file, const char *function, int lineno,

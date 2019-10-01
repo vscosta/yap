@@ -66,8 +66,8 @@ typedef struct s_mod_t {
 } Py_mod;
 
 extern X_API YAP_Term pythonToYAP(PyObject *pVal);
-extern X_API PyObject *yap_to_python(YAP_Term t, bool eval, PyObject *o,
-                                     bool cvt);
+
+
 extern X_API PyObject *string_to_python(const char *s, bool eval, PyObject *p0);
 typedef YAP_Arity arity_t;
 extern bool init_python_vfs(void);
@@ -249,6 +249,9 @@ extern PyObject PyInit_yap(void);
 extern PyObject *PythonLookup(const char *s, PyObject *o);
 
 extern PyObject *PythonLookupSpecial(const char *s);
+
+
+X_API extern PyObject *yap_to_python(Term t, bool eval, PyObject *o, bool cvt);
 
 X_API extern bool Yap_create_prolog_flag(const char *name, bool writable,  YAP_Term ttype, Term v);
 
