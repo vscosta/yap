@@ -79,7 +79,9 @@ argi(N,I,I1) :-
 	python_query(:,-,-,-).
 
 python_query( Self, MString) :-
- 	strip_module(MString, M, String).
+ 	strip_module(MString, M, String),
+    python_query( M:String, _, Gate, Bindings),
+    gate(Gate,Self,Bindings).
 
 gate(Gate,Self,Bindings) :-
     Self.port := Gate,
