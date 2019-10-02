@@ -464,6 +464,21 @@ rename(IFile, OFile) :-
 access_file(IFile, Access) :-
     absolute_file_name(IFile, _IF, [access(Access),expand(true)]).
 
+/** @pred prolog_file_name( +File, -PrologFileaName)
+
+Unify _PrologFileName_ with the Prolog file associated to _File_.
+
+*/
+prolog_file_name(File, PrologFileName) :-
+        var(File), !,
+        '$do_error'(instantiation_error, prolog_file_name(File, PrologFileName)).
+prolog_file_name(user, Out) :- !, Out = user.
+prolog_file_name(File, PrologFileName) :-
+        atom(File), !,
+        system:true_file_name(File, PrologFileName).
+prolog_file_name(File, PrologFileName) :-
+        '$do_error'(type_error(atom,File), prolog_file_name(File, PrologFileName)).
+
 
 /**
 @}
