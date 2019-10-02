@@ -245,6 +245,7 @@ use_module(F,Is) :-
     '$process_module_decls_options'(Opts,module(Opts,N,P)).
 
 
+
 '$process_module_decls_options'(Var,Mod) :-
     var(Var), !,
     '$do_error'(instantiation_error,Mod).
@@ -335,6 +336,39 @@ Succeeds if  _M_ is a module associated with the file  _F_, that is, if _File_ i
 current_module(Mod,TFN) :-
     ( atom(Mod) -> true ; '$all_current_modules'(Mod) ),
     ( recorded('$module','$module'(TFN,Mod,_,_Publics, _),_) -> true ; TFN = user ).
+
+
+
+% prevent modules within the kernel module...
+/** @pred use_module(? _M_,? _F_,+ _L_) is directive
+    SICStus compatible way of using a module
+
+If module _M_ is instantiated, import the procedures in _L_ to the
+current module. Otherwise, operate as use_module/2, and load the files
+specified by _F_, importing the predicates specified in the list _L_.
+*/
+
+use_module(M,F,Is) :-
+    '$yap_strip_module'(F,M1,F1),
+    var(F1),
+    !,
+    ignore(M=M1),
+    '$use_module'(M,M1,Is).
+use_module(_M,F,Is) :-
+    use_module(F,Is).
+
+
+'$use_module'(M, M1, Is) :-
+	      recorded('$module','$module'(F,M,_,_,_),_),
+	      !,
+	  load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)]).
+'$use_module'(M, M1, Is) :-
+nonvar(M),
+	  !,
+	  load_files(M1:M, [if(not_loaded),must_be_module(true),imports(Is)]).
+'$use_module'(M, F, Is) :-
+'$do_error'(error(instantiation_error, use_module(M,F,Is))).
+
 
 /** @pred current_module( ? Mod:atom, ? _F_ : file ) is nondet
 

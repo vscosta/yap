@@ -375,7 +375,6 @@ reset_learning :-
 	retractall(last_mse(_)),
 	retractall(query_is_similar(_,_)),
 	retractall(query_md5(_,_,_)),
-
 	set_problog_flag(alpha,auto),
 	set_problog_flag(learning_rate,examples),
 	logger_reset_all_variables.

@@ -128,8 +128,8 @@ undefined_query(G0, M0, Cut) :-
 			   '$undef_cleanup'(Action,Debug,Current)
 	),
 	!.
-'$search_undef'(M0:G0, M:G) :-
-    '$found_undefined_predicate'( M0:G0, M:G ).
+%'$search_undef'(M0:G0, M:G) :-
+%    '$found_undefined_predicate'( M0:G0, M:G ).
 
 %%  undef handler:
 %  we found an import, and call again

@@ -593,8 +593,9 @@ be lost.
 '$ports_to_port'([exit,exit], exit).
 '$ports_to_port'([exit,answer], answer).
 '$ports_to_port'([exit], internal).
-'$ports_to_port'([fail,answer], redo).
+'$ports_to_port'([exit,redo], redo).
 '$ports_to_port'([fail,exit], internal).
+'$ports_to_port'([exit,fail], fail).
 '$ports_to_port'([fail], fail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).

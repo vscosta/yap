@@ -137,7 +137,7 @@
 % distribution. If you provide valid instructions or cease distribution
 % within thirty days after you become aware that the instructions are
 % invalid, then you do not forfeit any of your rights under this
-vv% license.
+% license.
 %
 % (6) You may Distribute a Modified Version in Compiled form without the
 % Source, provided that you comply with Section 4 with respect to the

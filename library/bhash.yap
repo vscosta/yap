@@ -309,14 +309,14 @@ b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
 The term _`valList_ unifies with a list containing all values in the hash table.
 */
 b_hash_values_to_list(hash(_, Vals, _, _, _, _), LVals) :-
-    Vals =.. [_|LVs]),
+    Vals =.. [_|LVs],
     mklistvals(LVs, LVals).
 
 mklistpairs([], [], []).
-mklistpairs([V|LKs, [_|LVs], KeyVals) :-
+mklistpairs([V|LKs], [_|LVs], KeyVals) :-
 		var(V),
-		!
-					mklistpairs(LKs, LVs, KeyVals).
+		!,
+		mklistpairs(LKs, LVs, KeyVals).
 mklistpairs([K|LKs], [V|LVs], [(K-VV)|KeyVals]) :- 
     get_mutable(VV, V),
     mklistpairs(LKs, LVs, KeyVals).

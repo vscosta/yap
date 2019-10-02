@@ -1243,49 +1243,6 @@ module(Mod, Decls) :-
     '$sys_export'(S, prolog),
     '$export_preds'(Decls).
 
-
-% prevent modules within the kernel module...
-/** @pred use_module(? _M_,? _F_,+ _L_) is directive
-    SICStus compatible way of using a module
-
-If module _M_ is instantiated, import the procedures in _L_ to the
-current module. Otherwise, operate as use_module/2, and load the files
-specified by _F_, importing the predicates specified in the list _L_.
-*/
-
-use_module(M,F,Is) :-
-'$yap_strip_module'(F,M1,F1),
-'$use_module'(M,M1,F1,Is).
-
-'$use_module'(M,M1,F,Is) :-
-	var(Is), !,
-	'$use_module'(M,M1,F,all).
-'$use_module'(M,M1,F,Is) :-
-	nonvar(F), !,
-	( var(M) ->
-	  load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)]),
-	   absolute_file_name( F, F1, [expand(true),file_type(prolog)] ),
-	  recorded('$module','$module'(F1,M,_,_,_),_)
-;
-load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)], use_module(M,F,Is))
-	).
-'$use_module'(M,M1,F,Is) :-
-	nonvar(M), !,
-   (var(F) -> F0 = F ;  absolute_file_name( F, F0, [expand(true),file_type(prolog)] ) ),
-	(
-	    recorded('$module','$module'(F0,M,_,_,_),_)
-	->
-	    load_files(M1:F0, [if(not_loaded),must_be_module(true),imports(Is)])
-      ;
-      nonvar(F0)
-      ->
-      load_files(M1:F, [if(not_loaded),must_be_module(true),imports(Is)])
-      ;
-      '$do_error'(instantiation_error,use_module(M,F,Is))
-	).
-'$use_module'(M,_,F,Is) :-
-	'$do_error'(instantiation_error,use_module(M,F,Is)).
-
 /**
 
   @pred reexport(+F) is directive
