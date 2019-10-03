@@ -404,13 +404,13 @@ do_learning(_,_) :-
 
 
 do_learning_intern(0,_) :-
-	logger_stop_timer(duration),
-	logger_write_data.
+    logger_stop_timer(duration).
 do_learning_intern(Epochs,Epsilon) :-
-    db_usage,
-        db_static(128*1024),
-	db_dynamic(128*1024),
+%    db_usage,
+%        db_static(128*1024),
+    %	db_dynamic(128*1024),
 	Epochs>0,
+	logger_write_data,
 	current_iteration(CurrentIteration),
 	retract(current_epoch(CurrentEpoch,EpochIteration)),
 	NextEpoch is CurrentEpoch+1,
@@ -428,7 +428,7 @@ do_learning_intern(Epochs,Epsilon) :-
 	    retract(last_mse(Last_MSE))
 	->
 	!,
- 	MSE_Diff is abs(Last_MSE-Current_MSE),
+ 	MSE_Diff is (Last_MSE-Current_MSE),
     	assertz(last_mse(Current_MSE)),
     	(
     	    MSE_Diff<Epsilon
@@ -645,10 +645,18 @@ ground_truth_difference :-
 %= -Float
 %========================================================================
 
-partial_m2(Iteration,Handle,LogCurrentProb,SquaredError) :-
-		user:example(QueryID,Query,TrueQueryProb,_Type),
+partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,train) :-
+		user:example(QueryID,Query,TrueQueryProb,_),
 		 query_probability(QueryID,CurrentProb),
  		 format(Handle,'ex(~q,training,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
+		 once(update_query_cleanup(QueryID)),
+		  SquaredError is (CurrentProb-TrueQueryProb)**2,
+		 LogCurrentProb is log(max(0.0001,CurrentProb)).
+
+partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,test) :-
+		user:test_example(QueryID,Query,TrueQueryProb,_),
+		 query_probability(QueryID,CurrentProb),
+ 		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
 		 once(update_query_cleanup(QueryID)),
 		  SquaredError is (CurrentProb-TrueQueryProb)**2,
 		 LogCurrentProb is log(max(0.0001,CurrentProb)).
@@ -659,7 +667,7 @@ mse_trainingset :-
 	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Training ',[]),
 	findall(t(LogCurrentProb,SquaredError),
-	partial_m2(Iteration,Handle,LogCurrentProb,SquaredError),
+		partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,train),
 		All),
 	maplist(tuple, All, AllLogs, AllSquaredErrors),
 	sum_list( AllLogs, LLH_Training_Queries),
@@ -697,27 +705,13 @@ mse_testset :-
   	open(File_Name, write,Handle),
 	format_learning(2,'MSE_Test ',[]),
 	bb_put(llh_test_queries,0.0),
-	findall(SquaredError,
-		(user:test_example(QueryID,Query,TrueQueryProb,Type),
-		 once(update_query(QueryID,'+',probability)),
-		 query_probability(QueryID,CurrentProb),
- 		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
-
-		 once(update_query_cleanup(QueryID)),
-		 (
-		  (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
-		 ->
-		  SquaredError is (CurrentProb-TrueQueryProb)**2;
-		  SquaredError = 0.0
-		 ),
-		 bb_get(llh_test_queries,Old_LLH_Test_Queries),
-		 New_LLH_Test_Queries is Old_LLH_Test_Queries+log(CurrentProb),
-		 bb_put(llh_test_queries,New_LLH_Test_Queries)
-		),
-		AllSquaredErrors),
-
+	findall(t(LogCurrentProb,SquaredError),
+		partial_m2(Iteration,Handle,LogCurrentProb,SquaredError,test),
+		All),
+	maplist(tuple, All, AllLogs, AllSquaredErrors),
+	sum_list( AllLogs, LLH_Test_Queries),
         close(Handle),
-	bb_delete(llh_test_queries,LLH_Test_Queries),
+
 
 	length(AllSquaredErrors,Length),
 
@@ -735,7 +729,6 @@ mse_testset :-
 	    MaxError=0.0
 	   )
 	),
-
 	logger_set_variable(mse_testset,MSE),
 	logger_set_variable(mse_min_testset,MinError),
 	logger_set_variable(mse_max_testset,MaxError),
@@ -791,7 +784,7 @@ inv_sigmoid(T,Slope,InvSig) :-
 gradient_descent :-
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
-    lbfgs_run(N,_X,_BestF),
+    once(lbfgs_run(N,_X,_BestF)),
     mse_trainingset,
     mse_testset,
     fail.
