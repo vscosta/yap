@@ -418,7 +418,7 @@ be lost.
     '$undefined'(G,M),
     !,
     (
-    '$one_predicate_definition'(M:G,MF:NG)
+    '$search_undef'(M:G,MF:NG)
     ->
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
@@ -433,6 +433,7 @@ be lost.
 
 
 %% @pred $trace_goal_( +Goal, +Module, +CallId, +CallInfo)
+
 %%
 %% Actually debugs a
 %% goal!
@@ -586,16 +587,18 @@ be lost.
     ignore('$trace_port_'(Port, GoalNumber, Goal, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 
-'$ports_to_port'([answer,_], answer).
+'$ports_to_port'([answer,exit], answer).
+'$ports_to_port'([answer,answer], answer).
 '$ports_to_port'([answer], internal).
 '$ports_to_port'([call], call).
-'$ports_to_port'([call,_], internal).
+'$ports_to_port'([call,redo], redo).
 '$ports_to_port'([exit,exit], exit).
 '$ports_to_port'([exit,answer], answer).
 '$ports_to_port'([exit], internal).
-'$ports_to_port'([exit,redo], redo).
-'$ports_to_port'([fail,exit], internal).
-'$ports_to_port'([exit,fail], fail).
+'$ports_to_port'([exit,redo], internal).
+'$ports_to_port'([fail,exit], fail).
+'$ports_to_port'([fail,answer], fail).
+'$ports_to_port'([exit,fail], internal).
 '$ports_to_port'([fail], fail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).

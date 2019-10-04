@@ -3,7 +3,7 @@
   * @author VITOR SANTOS COSTA <vsc@vcosta-laptop.dcc.fc.up.pt>
   * @date   Sat Apr  7 03:14:17 2018
   *
-  * @brief  top-level implementation plus system booting.
+  * @brief  top-level implementation puls system booting.
   *
   *   @addtogroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
@@ -576,7 +576,7 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$user_call'(G, M) :-
-	'$yap_strip_module'(M:G, M1,G1),
+    '$yap_strip_module'(M:G, M1,G1),
     '$dotrace'(G1, M1, _),
     !,
     '$trace'(M1:G1, true).

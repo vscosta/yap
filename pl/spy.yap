@@ -487,7 +487,7 @@ notrace(G) :-
   *
   */
 '$dotrace'(G,Module, GoalNo) :-
-	current_prolog_flag( debug, true ),
+    current_prolog_flag( debug, true ),
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
 

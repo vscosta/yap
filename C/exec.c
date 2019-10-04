@@ -23,7 +23,7 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
  * @author VITOR SANTOS COSTA <vsc@VITORs-MBP-2.lan>
  * @date   Mon Apr 30 13:48:35 2018
  *
- * @brief  meta-call
+ * @brief  meta-call and related
  *
  * @namespace prolog
  *
@@ -1054,8 +1054,10 @@ static bool watch_retry(Term d0 USES_REGS) {
 	    B->cp_ap == NOCODE)
 	   )
         B = B->cp_b;
-    if (!B)
-        B = B0;
+    if (!B) {
+      B = (choiceptr)(LCL0-(LOCAL_CBorder));
+      B--;
+    }
     ASP = (CELL *) PROTECT_FROZEN_B(B);
     // just do the frrpest
     if (B >= B0 && !ex_mode && !active) {

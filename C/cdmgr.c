@@ -2043,7 +2043,7 @@ static Int p_is_private(USES_REGS1) { /* '$undefined'(P,Mod)	 */
 
   pe = Yap_get_pred(Deref(ARG1), Deref(ARG2), "undefined/1");
   if (EndOfPAEntr(pe))
-    return true;
+    return false;
   PELOCK(36, pe);
   if (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag)) {
     UNLOCKPE(57, pe);
