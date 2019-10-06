@@ -551,10 +551,10 @@ notrace(G) :-
     '$get_debugger_state'(creep,zip),
     '$set_debugger_state'(creep,creep),
     fail.
-'$continue_debugging'(true) :-
+'$continue_debugging'(outer) :-
 	!,
     '$creep'.
-'$continue_debugging'(false).
+'$continue_debugging'(inner).
 
 '$restart_debugging':-
     '$set_debugger_state'(debug,Debug),
