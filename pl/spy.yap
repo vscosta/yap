@@ -389,6 +389,9 @@ notrace(G) :-
     !,
     '$enable_debugging'.
 
+'$init_debugger' :- 
+    '$init_debugger'(creep).
+
 '$init_debugger'(Creep) :- 
     '$debugger_io',
     '$init_debugger_trace'(Creep),
@@ -567,10 +570,8 @@ notrace(G) :-
 '$may_creep'(true,creep).
 '$may_creep'(true,leap).
 
-
-/*
+/**
 
 @}
 
 */
->

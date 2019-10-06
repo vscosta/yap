@@ -55,8 +55,6 @@ static bool should_creep() {
     &&
     LOCAL_debugger_state[DEBUG_DEBUG] == TermTrue
     &&
-    LOCAL_debugger_state[DEBUG_TRACE] == TermOn
-    &&
     (
             (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) ||
             LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermUserCreep ||
@@ -1376,6 +1374,9 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
     } else if (!IsAtomTerm(mod)) {
         Yap_ThrowError(TYPE_ERROR_ATOM, ARG2, "call/1");
         return FALSE;
+    }
+    if (should_creep()) {
+        return EnterCreepMode(t, mod PASS_REGS);
     }
     if (IsVarTerm(t)) {
         Yap_ThrowError(INSTANTIATION_ERROR, ARG1, "call/1");

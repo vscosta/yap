@@ -271,13 +271,13 @@ be lost.
  */
 
 
-'$start_creep'([Mod|G], GoalNumber) :-
-	'$cannot_debug'(G,Mod, GoalNumber),
+'$start_creep'([Mod|G], _Ctx, GId) :-
+	'$cannot_debug'(G,Mod, GId),
 	!,
 	'$stop_creeping'(_),
 	Mod:G.
-'$start_creep'([Mod|G], WhereFrom) :-
-	'$trace'(Mod:G, WhereFrom).
+'$start_creep'([Mod|G], Ctx, _) :-
+	'$trace'(Mod:G, Ctx).
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
 %
@@ -289,7 +289,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-    '$trace'(Mod:G, _).
+    '$trace'(Mod:G, outer).
 
 /**
   * @pred $trace( +Goal )
@@ -304,9 +304,9 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(Mod:G, GN) :-
+'$trace'(Mod:G, Ctx) :-
     '$current_choicepoint'(CP),
-    '$trace_goal'(G, Mod, outer, GN, CP).
+    '$trace_goal'(G, Mod, Ctx, _GN, CP).
 /**
   * @pred debugger_io.
   *
@@ -356,7 +356,7 @@ be lost.
     open('CONOUT$', write, _S, [alias(debugger_output)]).
 
 
-'$trace_meta_call'( G, M, CP ) :-
+'$trace_meta_call'( G, CP, _, M ) :-
    '$trace_goal'(G, M, outer, _GN, CP ).
 
 
@@ -404,24 +404,24 @@ be lost.
 '$trace_goal'((A,B), M, GN0, GN, CP) :- !,
     '$trace_goal'(A, M, inner, GN, CP),
     '$trace_goal'(B, M, GN0, GN, CP).
+'$trace_goal'((A->B;C), M, GN0, GN, CP) :- !,
+    ('$trace_goal'(A, M, inner, GN, CP) ->
+	 '$trace_goal'(B, M, GN0, _GN, CP);
+	 '$trace_goal'(C, M, GN0, _GN, CP)).
 '$trace_goal'((A->B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, inner, GN, CP) ->
-	 '$trace_goal'(B, M, GN0, GN, CP)).
+	 '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((A*->B), M, inner, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP) *->
-	 '$trace_goal'(B, M, GN0, GN, CP)).
+	 '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((A;B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP);
-     '$trace_goal'(B, M, _GN0, GN, CP)).
+     '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((A|B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, _GN0, GN, CP);
-     '$trace_goal'(B, M, GN0, GN, CP)).
+    ('$trace_goal'(A, M, GN0, GN, CP);
+     '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((\+ A), M, GN0, GN, CP) :- !,
     \+ '$trace_goal'(A, M, GN0, GN, CP).
-'$trace_goal'('$trace'(A,GN), M, GN0, _GN, CP) :- !,
-    '$$cut_by'(CP),
-    '$yap_strip_module'(M:A,M1,A1),
-    '$trace_goal'(A1, M1, GN0, GN, CP).
 '$trace_goal'(true, _M, _GN0, _GN, _CP) :- !.
 '$trace_goal'(G, M, GN0, GoalNumber, CP) :-
     '$undefined'(G,M),
@@ -433,9 +433,10 @@ be lost.
     ;
 	'$undefp'([M|G], NG)
     ).
-'$trace_goal'(G0,M0, _, GoalNumber, CP) :-
+'$trace_goal'(G0,M0, Ctx, GoalNumber, CP) :-
     '$debugger_expand_meta_call'( M0:G0, [], M:G ),
-    catch('$trace_goal_'(G,M, false, GoalNumber,CP,H),
+    '$id_goal'(GoalNumber),
+    catch('$trace_goal_'(G,M, Ctx, GoalNumber,CP,H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
 ).
@@ -447,7 +448,7 @@ be lost.
 %% Actually debugs a
 %% goal!
 
-'$trace_goal_'(G,M, GoalNumber, _Ctx, _CP, _H) :-
+'$trace_goal_'(G,M, _Ctx, GoalNumber, _CP, _H) :-
 	'$cannot_debug'(G,M, GoalNumber),
 	!,
         '$execute_nonstop'(G,M).
@@ -559,7 +560,7 @@ be lost.
     '__NB_getval__'('$spy_glist',History,History=[]),
     Info = info(L,Module,G,CP,_Retry,_Det,_HasFoundAnswers),
     H  = [Info|History],
-    b_setval('$spy_glist',H).	/* and update it		*/
+    nb_setval('$spy_glist',H).	/* and update it		*/
 
 '$id_goal'(L) :-
     var(L),
@@ -613,8 +614,11 @@ be lost.
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
+'$ports_to_port'([!,answer], exit).
+'$ports_to_port'([!,exit], exit).
+'$ports_to_port'([!,redo], fail).
+'$ports_to_port'([!,fail], fail).
 '$ports_to_port'([!], internal).
-'$ports_to_port'([!,_], internal).
 '$ports_to_port'([exception(E),_], exception(E)).
 '$ports_to_port'([exception(E)],exception(E)).
 '$ports_to_port'([external_exception(E),_], exception(E)).
@@ -673,7 +677,7 @@ be lost.
     ->
     throw('$debugger'(event(redo),G0))
     ;
-       '$trace_goal'(G, M, false, GoalNumber, CP)
+       '$trace_goal'(G, M, outer, GoalNumber, CP)
     ).
 %'$TraceError'( error(Id,Info), _, _, _, _) :-
 %    !,
@@ -1061,7 +1065,7 @@ be lost.
     '$expand_meta_call'( G, VL, G0 ),
     '$yap_strip_module'( G0, M, G1 ),
     (
-	'$is_system_predicate'(G1,M) ->
+	false, '$is_system_predicate'(G1,M) ->
 	'$debugger_process_meta_arguments'(G1, M, G2)
     ;
     G1 = G2
@@ -1077,12 +1081,12 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1,_)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$creep'(M1:G1)|BG1s]) :-
     number(N),
     N >= 0,
     '$yap_strip_module'( M:G, M1, G1 ),
     functor(G1, Na, _),
-    Na \= '$trace',
+    Na \= '$trace_meta_call',
     !,
     '$ldebugger_process_meta_args'(BGs, M, BMs, BG1s).
 '$ldebugger_process_meta_args'([G|BGs], M, [_|BMs], [G|BG1s]) :-

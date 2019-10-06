@@ -77,6 +77,14 @@ Originally a SWI-Prolog flag.
              "true", NULL), /**< Indicates YAP is running within the compiler. */
 /**< support for coding systens, YAP relies on UTF-8 internally.
  */
+  YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL), /**< @brief  whether debugging is `true` or
+   `false`.
+
+ If  _Value_ is bound to `true` enable debugging, and if
+   it is bound to `false` disable debugging.
+								   */
+
+
     YAP_FLAG(ENCODING_FLAG, "encoding", true, isatom, "utf-8", getenc),
 
 /**  what to do if opening a file fails.

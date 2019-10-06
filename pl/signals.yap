@@ -161,7 +161,7 @@
 				% don't creep on meta-call.
 '$do_signal'(sig_creep, MG) :-
 	'$disable_debugging',
-	'$start_creep'(MG, creep).
+	'$start_creep'(MG, outer, _).
 '$do_signal'(sig_iti, [M|G]) :-
 	'$thread_gfetch'(Goal),
 				% if more signals alive, set creep flag
