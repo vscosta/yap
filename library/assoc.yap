@@ -226,7 +226,7 @@ Given the binary predicate name  _Pred_ and the association list
  _Assoc_,  _New_ in an association list with keys in  _Assoc_,
 and such that if  _Key-Val_ is in  _Assoc_, and  _Key-Ans_ is in
  _New_, then  _Pred_( _Val_, _Ans_) holds.*/
-map_assoc(t_ t, t) :-
+map_assoc(_, t, t) :-
     !.
 map_assoc(P, T, NT) :-
 	yap_flag(typein_module, M0),

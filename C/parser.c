@@ -184,6 +184,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
 
 static Term VarNames(VarEntry *p, Term l USES_REGS) {
   if (p != NULL) {
+      l = VarNames(p->VarRight,l);
     if (strcmp(RepAtom(p->VarRep)->StrOfAE, "_") != 0) {
       Term t[2];
       Term o;
@@ -193,15 +194,14 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
         p->VarAdr = MkVarTerm();
       t[1] = p->VarAdr;
       o = Yap_MkApplTerm(FunctorEq, 2, t);
-      o = MkPairTerm(o, VarNames(p->VarRight,
-                                 VarNames(p->VarLeft, l PASS_REGS) PASS_REGS));
+      o = MkPairTerm(o, l PASS_REGS);
       if (HR > ASP - 4096) {
         save_machine_regs();
         longjmp(LOCAL_IOBotch, 1);
       }
       return (o);
     } else {
-      return VarNames(p->VarRight, VarNames(p->VarLeft, l PASS_REGS) PASS_REGS);
+      return l;
     }
   } else {
     return (l);

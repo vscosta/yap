@@ -1683,10 +1683,10 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 	 op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
 	if (op == _Nstop)
 	  break;
-#if defined(ANALYST) || defined(DEBUG)
-	fprintf(stderr,"ENV %p-%p(%zd) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+#if 0 && ( defined(ANALYST) || defined(DEBUG) )
+	//fprintf(stderr,"ENV %p-%p(%zd) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	fprintf(stderr,"ENV %p-%p(%zd) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+	//fprintf(stderr,"ENV %p-%p(%zd) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
 #endif
 	if (pe->ArityOfPE)
 	  fprintf(stderr,"   %s/%zd\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
