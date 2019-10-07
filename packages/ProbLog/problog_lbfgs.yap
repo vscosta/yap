@@ -416,20 +416,16 @@ do_learning_intern(Epochs,Epsilon) :-
 	NextEpoch is CurrentEpoch+1,
 	assertz(current_epoch(NextEpoch,CurrentIteration)),
 	format_learning(1,'~nIteration ~d, epoch started at ~d~n',[CurrentIteration,CurrentEpoch,EpochIteration]),
+	logger_get_variable(mse_trainingset,Last_MSE),
 	logger_set_variable(iteration,CurrentIteration),
 	logger_start_timer(duration),
 %	mse_testset,
-	%	ground_truth_difference,
-	%leash(0),trace,
+%	ground_truth_difference,
+%leash(0),trace,
 	gradient_descent,
-	RemainingEpochs is Epochs-1,
 	logger_get_variable(mse_trainingset,Current_MSE),
-	(
-	    retract(last_mse(Last_MSE))
-	->
-	!,
+	RemainingEpochs is Epochs-1,
  	MSE_Diff is (Last_MSE-Current_MSE),
-    	assertz(last_mse(Current_MSE)),
     	(
     	    MSE_Diff<Epsilon
         ->
@@ -437,11 +433,7 @@ do_learning_intern(Epochs,Epsilon) :-
     	;
 	init_queries,
     	do_learning_intern(RemainingEpochs, Epsilon)
-    	)
-	;
-	init_queries,
-	do_learning_intern(RemainingEpochs, Epsilon)
-	).
+    	).
 
 %========================================================================
 %= find proofs and build bdds for all training and test examples
@@ -470,8 +462,14 @@ init_learning :-
 	%current_probs <== array[TrainingExampleCount ] of floats,
 	%current_lls <== array[TrainingExampleCount ] of floats,
 	forall(tunable_fact(FactID,_GroundTruth),
+	       (user:problog_interaction(FactID,G1,G2,_),
+		user:example(_,gene(G1,G2),P)
+	       ->
+		   set_fact_probability(FactID,P)
+	       ;
 	       set_fact_probability(FactID,0.5)
-	      ),
+	       )
+	       ),
 
 
 
@@ -482,17 +480,16 @@ init_learning :-
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% done
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	assertz(current_iteration(-1)),
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%u%%%%%%%%%
+	assertz(current_iteration(0)),
 	assertz(learning_initialized),
-
 	format_learning(1,'~n',[]).
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% Check, if continuous facts are used.
-	% if yes, switch to problog_exact
-        % continuous facts are not supported yet.
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Check, if continuous facts are used.
+% if yes, switch to problog_exact
+% continuous facts are not supported yet.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 set_default_gradient_method :-
 	(	problog_flag(continuous_facts, true )
 	->
@@ -782,6 +779,11 @@ inv_sigmoid(T,Slope,InvSig) :-
 
 % vsc: avoid silly search
 gradient_descent :-
+    ( current_predicate(user:iteration_prologue/0)
+    -> user:iteration_prologue
+    ;
+    true
+    ),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
     once(lbfgs_run(N,_X,_BestF)),
@@ -980,6 +982,7 @@ init_logger :-
     logger_define_variable(iteration, int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
+	logger_set_variable(mse_trainingset,0.0),
 	logger_define_variable(mse_min_trainingset,float),
 	logger_define_variable(mse_max_trainingset,float),
 	logger_define_variable(mse_testset,float),
