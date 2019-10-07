@@ -289,7 +289,7 @@ be lost.
   * @return `call(Goal)`
 */
 '$spy'([Mod|G]) :-
-    '$trace'(Mod:G, true).
+    '$trace'(Mod:G, _).
 
 /**
   * @pred $trace( +Goal )
@@ -304,9 +304,9 @@ be lost.
   * @return `call(Goal)`
 */
 %%! The first case matches system_predicates or zip
-'$trace'(Mod:G, Ctx) :-
+'$trace'(Mod:G, GN) :-
     '$current_choicepoint'(CP),
-    '$trace_goal'(G, Mod, Ctx, _GN, CP).
+    '$trace_goal'(G, Mod, outer, GN, CP).
 /**
   * @pred debugger_io.
   *
@@ -357,7 +357,7 @@ be lost.
 
 
 '$trace_meta_call'( G, M, CP ) :-
-   '$trace_goal'(G, M, _GN, CP ).
+   '$trace_goal'(G, M, outer, _GN, CP ).
 
 
 /** @pred '$creep'([M|G])
@@ -368,12 +368,12 @@ be lost.
 '$creep'([M|G]) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
-    '$trace_goal'(Q, M, false, _GN, CP ).
+    '$trace_goal'(Q, M, outer, _GN, CP ).
 
 
 '$creep'(G0, M0, CP, GoalNumber) :-
     '$yap_strip_module'(M0:G0, M, G),    % spy a literal
-    '$trace_goal'(G, M, false,  GoalNumber, CP).
+    '$trace_goal'(G, M, outer,  GoalNumber, CP).
 
 
 %% @pred '$trace_goal'( +G, +M, +GoalNumber, +CP)
@@ -391,7 +391,9 @@ be lost.
 '$trace_goal'('$cut_by'(M), _, _, _, _) :-
     !,
     '$$cut_by'(M).
-
+'$trace_goal'('$$cut_by'(M),_, _, _, _) :-
+    !,%
+    '$$cut_by'(M).
 '$trace_goal'('$$cut_by'(M),_, _, _, _) :-
     !,%
     '$$cut_by'(M).
@@ -400,10 +402,13 @@ be lost.
     '$yap_strip_module'(M:G, M0, G0),
     '$trace_goal'(G0, M0, GN0, GN, CP ).
 '$trace_goal'((A,B), M, GN0, GN, CP) :- !,
-    '$trace_goal'(A, M, GN0, GN, CP),
-    '$trace_goal'(B, M, _GN0, GN, CP).
+    '$trace_goal'(A, M, inner, GN, CP),
+    '$trace_goal'(B, M, GN0, GN, CP).
 '$trace_goal'((A->B), M, GN0, GN, CP) :- !,
-    ('$trace_goal'(A, M, GN0, GN, CP) ->
+    ('$trace_goal'(A, M, inner, GN, CP) ->
+	 '$trace_goal'(B, M, GN0, GN, CP)).
+'$trace_goal'((A*->B), M, inner, GN, CP) :- !,
+    ('$trace_goal'(A, M, GN0, GN, CP) *->
 	 '$trace_goal'(B, M, GN0, GN, CP)).
 '$trace_goal'((A;B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP);
@@ -412,7 +417,11 @@ be lost.
     ('$trace_goal'(A, M, _GN0, GN, CP);
      '$trace_goal'(B, M, GN0, GN, CP)).
 '$trace_goal'((\+ A), M, GN0, GN, CP) :- !,
-    '$trace_goal'(A, M, GN0, GN, CP).
+    \+ '$trace_goal'(A, M, GN0, GN, CP).
+'$trace_goal'('$trace'(A,GN), M, GN0, _GN, CP) :- !,
+    '$$cut_by'(CP),
+    '$yap_strip_module'(M:A,M1,A1),
+    '$trace_goal'(A1, M1, GN0, GN, CP).
 '$trace_goal'(true, _M, _GN0, _GN, _CP) :- !.
 '$trace_goal'(G, M, GN0, GoalNumber, CP) :-
     '$undefined'(G,M),
@@ -432,7 +441,7 @@ be lost.
 ).
 
 
-%% @pred $trace_goal_( +Goal, +Module, +CallId, +CallInfo)
+%% @pred $trace_goal_( +Goal, +Module, +Border, +CallId, +CallInfo)
 
 %%
 %% Actually debugs a
@@ -441,7 +450,7 @@ be lost.
 '$trace_goal_'(G,M, GoalNumber, _Ctx, _CP, _H) :-
 	'$cannot_debug'(G,M, GoalNumber),
 	!,
-	M:G.
+        '$execute_nonstop'(G,M).
 
 '$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
     '$is_source'(G,M),
@@ -521,7 +530,7 @@ be lost.
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	'$trace_goal'(B,M,false,_, CP),
+	'$trace_goal'(B,M,outer,_, CP),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 '$creep_run_refs'(Setup, M:Goal, Ref, CP, Catcher, Cleanup) :-
@@ -580,11 +589,11 @@ be lost.
  * @parameter _GoalNumber_ identifies the active goal
  * @parameter _Info_ describes the goal
  *
-*/
-'$trace_port'(Ports, GoalNumber, Goal, Module,From, CP,Info) :-
-    '$ports_to_port'(Ports, Port),
-%    writeln(Ports:Port),
-    ignore('$trace_port_'(Port, GoalNumber, Goal, Module, CP,Info)),
+ */
+'$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
+    ('$ports_to_port'(Ports, Port)->true;Port=internal),
+    writeln(Ports:Port),
+    ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 
 '$ports_to_port'([answer,exit], answer).
@@ -592,6 +601,7 @@ be lost.
 '$ports_to_port'([answer], internal).
 '$ports_to_port'([call], call).
 '$ports_to_port'([call,redo], redo).
+'$ports_to_port'([call,exit], internal).
 '$ports_to_port'([exit,exit], exit).
 '$ports_to_port'([exit,answer], answer).
 '$ports_to_port'([exit], internal).
@@ -604,8 +614,11 @@ be lost.
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
 '$ports_to_port'([!], internal).
+'$ports_to_port'([!,_], internal).
 '$ports_to_port'([exception(E),_], exception(E)).
-'$ports_to_port'([exception(_E)],internal).
+'$ports_to_port'([exception(E)],exception(E)).
+'$ports_to_port'([external_exception(E),_], exception(E)).
+'$ports_to_port'([external_exception(E)],exception(E)).
 
 
 '$trace_port_'(_, GoalNumber, _G, _Module, _CP,_Info) :-
@@ -1064,7 +1077,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1,false)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$trace'(M1:G1,_)|BG1s]) :-
     number(N),
     N >= 0,
     '$yap_strip_module'( M:G, M1, G1 ),
