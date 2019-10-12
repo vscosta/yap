@@ -1999,7 +1999,7 @@ static Int p_purge_clauses(USES_REGS1) { /* '$purge_clauses'(+Func) */
   /* try to use the garbage collector to recover the mega clause,
      in case the objs pointing to it are dead themselves */
   if (DeadMegaClauses != before) {
-    if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+    if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
@@ -3578,14 +3578,16 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
   Term rtn;
   Term Terms[3];
 
-  Terms[0] = th;
-  Terms[1] = tb;
-  Terms[2] = tr;
+  Terms[0]=th;
+  Terms[1]=tb;
+  Terms[2]=tr;
+	  yhandle_t v = Yap_InitHandles( 3, Terms);
   cl = (StaticClause *)Yap_FollowIndexingCode(
       pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred, Otapl), cp_ptr);
-  th = Deref(Terms[0]);
-  tb = Deref(Terms[1]);
-  tr = Deref(Terms[2]);
+	th= Yap_GetFromHandle(v);
+	tb= Yap_GetFromHandle(v+1);
+	tr=Yap_GetFromHandle(v+2);
+	LOCAL_CurSlot = v;
   /*
      don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
@@ -3614,7 +3616,9 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
         CP = P;
         ENV = YENV;
         YENV = ASP;
-        YENV[E_CB] = (CELL)B;
+
+
+	YENV[E_CB] = (CELL)B;
       }
       P = code;
     }
@@ -3668,31 +3672,36 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          ARG5 = th;
-          ARG6 = tb;
-          ARG7 = tr;
-          if (!Yap_gc(7, ENV, gc_P(P, CP))) {
+	  yhandle_t v1,v2,v3;
+	  v1 = Yap_InitHandle( th);
+	  v2 = Yap_InitHandle( tb);
+	v3 =Yap_InitHandle( tr);
+	if (!Yap_dogc(0, NULL)) {
             Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             UNLOCKPE(45, pe);
             return FALSE;
           }
-          th = ARG5;
-          tb = ARG6;
-          tr = ARG7;
+	th= Yap_GetFromHandle(v1);
+	tb= Yap_GetFromHandle(v2);
+	tr=Yap_GetFromHandle(v3);
+	LOCAL_CurSlot = v1;
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        ARG6 = th;
-        ARG7 = tb;
-        ARG8 = tr;
-        if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
+	yhandle_t v2,v3,v1;
+	  v1 = Yap_InitHandle( th);
+	  v2 = Yap_InitHandle( tb);
+	v3 =Yap_InitHandle( tr);
+	  if (!Yap_dogc(0,NULL)) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           UNLOCKPE(45, pe);
           return FALSE;
         }
-        th = ARG6;
-        tb = ARG7;
-        tr = ARG8;
+	th= Yap_GetFromHandle(v1);
+	tb= Yap_GetFromHandle(v2);
+	tr=Yap_GetFromHandle(v3);
+	LOCAL_CurSlot = v1;
+
       }
     }
     rtn = Yap_MkStaticRefTerm(cl, pe);

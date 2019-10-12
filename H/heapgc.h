@@ -240,4 +240,9 @@ void  Yap_mark_variable(CELL *);
 void  Yap_mark_external_reference(CELL *);
 void  Yap_inc_mark_variable(void);
 
-
+typedef struct gc_entry_info {
+  CELL *env;
+  yamop *p, *p_env;
+  OPCODE op;
+  arity_t a;
+} gc_entry_info_t;

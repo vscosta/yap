@@ -665,7 +665,7 @@
 	}
       } else {
 	LOCAL_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_gc(3, ENV, CP)) {
+	if (!Yap_gcl(0,3, ENV, CP)) {
 	  Yap_NilError(RESOURCE_ERROR_STACK, LOCAL_ErrorMessage);
 	  FAIL();
 	}

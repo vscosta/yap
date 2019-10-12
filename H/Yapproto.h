@@ -278,7 +278,7 @@ extern void Yap_CopyThreadStacks(int, int, int);
 extern Int Yap_total_gc_time(void);
 extern void Yap_init_gc(void);
 extern bool Yap_is_gc_verbose(void);
-extern int Yap_gc(Int, CELL *, yamop *);
+extern int Yap_gc(void *);
 extern int Yap_locked_gc(Int, CELL *, yamop *);
 extern int Yap_gcl(UInt, Int, CELL *, yamop *);
 extern int Yap_locked_gcl(UInt, Int, CELL *, yamop *);

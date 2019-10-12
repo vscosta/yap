@@ -35,6 +35,7 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 #include "attvar.h"
 #include "cut_c.h"
 #include "yapio.h"
+#include "heapgc.h"
 
 static bool CallPredicate(PredEntry *, choiceptr, yamop *CACHE_TYPE);
 static Int execute_nonstop(PASS_REGS1);
@@ -62,36 +63,6 @@ static bool should_creep() {
 
 }
 
-void Yap_track_cpred(arity_t *arityp, yamop **nextpcp)
-{
-  arity_t arity;
-  yamop *nextpc;
-if (!P) {
-      	      arity = 0;
- 	      nextpc = CP; 
-    } else if (
-            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_usercpred)||
-            PREVOP(P, Osbpp)->opc == Yap_opcode(_call_cpred)) {
-        arity = PREVOP(P, Osbpp)->y_u.Osbpp.p->ArityOfPE;
-        nextpc = P;
-    } else if (P->opc == Yap_opcode(_execute_cpred)){
-      arity = P->y_u.Osbpp.p->ArityOfPE;
-      nextpc = CP;
-
-    } else if (P->opc == Yap_opcode(_try_c) ||
-	       P->opc == Yap_opcode(_retry_c)){
-      arity = P->y_u.OtapFs.s;
-       nextpc = CP;
- 
-    } else {
-
-        arity = 0;
-        nextpc = CP;
-    }
- *arityp = arity;
- *nextpcp = nextpc;
-}
- 
 static Term cp_as_integer(choiceptr cp USES_REGS) {
     return (MkIntegerTerm(LCL0 - (CELL *) cp));
 }
@@ -1742,12 +1713,17 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
     return out;
 }
 
-void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
-    /* create an initial pseudo environment so that when garbage
+/**
+   @brief prepare a (sub-)computation.
+
+ create an initial pseudo environment so that when garbage
        collection is going up in the environment chain it doesn't get
        confused */
-    Yap_ResetException(worker_id);
+void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
+  Yap_ResetException(worker_id);
     //  sl = Yap_InitSlot(t);
+    // recover CP when doing gc.
+    *--ASP = (CELL)CP;
     YENV = ASP;
     YENV[E_CP] = (CELL) YESCODE;
     YENV[E_CB] = (CELL) B;
@@ -1758,6 +1734,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 #ifdef DEPTH_LIMIT
     YENV[E_DEPTH] = DEPTH;
 #endif
+    printf("%p-> %p %p %p\n", YENV,YENV[E_CP], CP, ENV, B);
     ENV = YENV;
     ASP -= EnvSizeInCells;
     /* and now create a pseudo choicepoint for much the same reasons */
@@ -2448,22 +2425,59 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 #endif
 }
 
+void Yap_track_cpred(void *v)
+{
+  gc_entry_info_t*i = v;
+
+  if (!P) {
+    i->env = ENV;
+    i->p = NULL;
+    i->p_env = CP;
+    i->a = 0;
+    i->op = 0;
+    return;
+  }
+  if ((i->op = (i->p = PREVOP(P, Osbpp))->opc) == Yap_opcode(_call_usercpred)||
+      i->op == Yap_opcode(_call_cpred)) {
+    i->env = ENV;
+    i->p_env = P;
+    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+  } else if ((i->op = (i->p=P)->opc) == Yap_opcode(_execute_cpred)){
+      i->a = i->p->y_u.Osbpp.p->ArityOfPE;
+      i->p_env = CP;
+      i->env = ENV;
+    } else if ((i->op = (i->p=P)->opc) == Yap_opcode(_try_c) ||
+	       i->op == Yap_opcode(_retry_c)){
+      i->a = P->y_u.OtapFs.s;
+      i->p_env = CP;
+      i->env = ENV;
+    }
+
+    i->env = ENV;
+    i->p = P;
+    i->p_env = CP;
+    i->a = 0;
+    i->op = 0;
+
+}
+ 
 int Yap_dogc(int extra_args, Term *tp USES_REGS) {
+  gc_entry_info_t info;
   arity_t arity;
   int i;
-  yamop *nextpc;
     
-    Yap_track_cpred( &arity, &nextpc );
+    Yap_track_cpred( &info );
+    info.a += extra_args;
     for (i = 0; i < extra_args; i++) {
         XREGS[arity + i + 1] = tp[i];
     }
-    if (!Yap_gc(arity + extra_args, ENV, nextpc)) {
-        return FALSE;
+    if (!Yap_gc(&info)) {
+        return false;
     }
     for (i = 0; i < extra_args; i++) {
         tp[i] = XREGS[arity + i + 1];
     }
-    return TRUE;
+    return false;
 }
 
 static Int get_debugger_state(USES_REGS1) {
