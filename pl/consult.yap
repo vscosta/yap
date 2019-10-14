@@ -1604,9 +1604,11 @@ End of conditional compilation.
 	var(CompMode), !,
 	'$fetch_comp_status'( OldCompMode ).
 '$comp_mode'(OldCompMode, assert_all) :-
+!,
 	'$fetch_comp_status'(OldCompMode),
 	nb_setval('$assert_all',on).
 '$comp_mode'(OldCompMode, source) :-
+    !,
 	'$fetch_comp_status'(OldCompMode),
 	set_prolog_flag(source, true).
 '$comp_mode'(OldCompMode, compact) :-

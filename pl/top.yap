@@ -7,9 +7,9 @@
   *
   *   @addtogroup TopLevel Top-Level and Boot Predicates
   *   @ingroup YAPControl
-  * 
+  *
   * [TOC]
-  * 
+  *
   *    @{
   *
   */
@@ -47,7 +47,7 @@ live :-
 '$prompt',
     catch(read_term(user_input,
                     Goal,
-                    
+
                     [ variable_names(Bindings),
                       syntax_errors(dec10),
                       term_position(Pos),
@@ -489,7 +489,7 @@ write_query_answer( Bindings ) :-
 	'$write_goal_output'(G1, First, NG, Next, IG),
 	'$write_vars_and_goals'(LG, Next, IG).
 
- 
+
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
     ( First = first -> true ; format(user_error,',~n',[]) ),
 	format(user_error,'~a',[V]),
@@ -553,7 +553,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals1'([], I, I).
 '$name_vars_in_goals1'([V|NGVL], I0, IF) :-
-	I is I0+1, 
+	I is I0+1,
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
 	V = '$VAR'(Name),
@@ -900,7 +900,7 @@ expand_term(Term,Expanded) :-
 %% @addtogroup CathThrow Catch and Throw
 %  @ingroup YAPControl
 %  @{
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   catch/throw implementation
 
@@ -908,7 +908,7 @@ expand_term(Term,Expanded) :-
 % what is ball;
 % where was the previous catch
 
-/** 
+/**
 @pred  catch( : _Goal_,+ _Exception_,+ _Action_) is iso
 
 
@@ -1017,7 +1017,7 @@ log_event( String, Args ) :-
 	current_prolog_flag(debug, Debug),
 	( '__NB_getval__'(  '$trace',Trace, fail) -> true ; Trace = off ),
 	yap_flag(toplevel_prompt, P),
-	'$break_info'(BreakLevel,P,P0), 
+	'$break_info'(BreakLevel,P,P0),
 	'$prompts'( Trace, Debug, P0, PF),
 	prompt1(PF),
 	prompt(_,' |   '),
@@ -1036,7 +1036,7 @@ log_event( String, Args ) :-
 	atom_concat( 'debug ', P, Prompt).
 '$prompts'(off,false,P,P) :-
 	!.
-	
+
 /**
-@} 
+@}
 */
