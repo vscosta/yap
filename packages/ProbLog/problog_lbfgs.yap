@@ -389,7 +389,7 @@ reset_learning :-
 %========================================================================
 
 do_learning(Iterations) :-
-	do_learning(Iterations,-1).
+	do_learning(Iterations,0.001).
 
 do_learning(Iterations,Epsilon) :-
 	current_predicate(user:example/4),
@@ -398,41 +398,41 @@ do_learning(Iterations,Epsilon) :-
 	number(Epsilon),
 	Iterations>0,
 	init_learning,
+	logger_set_variable(epochs,0),
+	logger_set_variable(mse_trainingset,+inf),
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
 	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
 
 
-do_learning_intern(0,_) :-
+do_learning_intern(EpochsMax,_) :-
+    logger_get_variable(epochs,EpochsMax),
+    !,
     logger_stop_timer(duration).
-do_learning_intern(Epochs,Epsilon) :-
+do_learning_intern(EpochsMax,Epsilon) :-
 %    db_usage,
 %        db_static(128*1024),
     %	db_dynamic(128*1024),
-	Epochs>0,
 	logger_write_data,
-	current_iteration(CurrentIteration),
-	retract(current_epoch(CurrentEpoch,EpochIteration)),
+	logger_get_variable(epochs,CurrentEpoch),
 	NextEpoch is CurrentEpoch+1,
-	assertz(current_epoch(NextEpoch,CurrentIteration)),
-	format_learning(1,'~nIteration ~d, epoch started at ~d~n',[CurrentIteration,CurrentEpoch,EpochIteration]),
 	logger_get_variable(mse_trainingset,Last_MSE),
-	logger_set_variable(iteration,CurrentIteration),
+	format_learning(1,'~nstarted epoch ~w~n',[NextEpoch]),
+	logger_set_variable(epochs,NextEpoch),
 	logger_start_timer(duration),
 %	mse_testset,
 %	ground_truth_difference,
 %leash(0),trace,
 	gradient_descent,
 	logger_get_variable(mse_trainingset,Current_MSE),
-	RemainingEpochs is Epochs-1,
  	MSE_Diff is (Last_MSE-Current_MSE),
-    	(
+	(
     	    MSE_Diff<Epsilon
         ->
-    	do_learning_intern(0, Epsilon)
+        logger_stop_timer(duration)
     	;
 	init_queries,
-    	do_learning_intern(RemainingEpochs, Epsilon)
+    	do_learning_intern(EpochsMax, Epsilon)
     	).
 
 %========================================================================
@@ -447,9 +447,7 @@ init_learning :-
 	check_examples,
 	retractall(current_iteration(_)),
 	assert(current_iteration(0)),
-	retractall(current_epoch(_,_)),
-	assert(current_epoch(0,0)),
-%	empty_output_directory,
+	empty_output_directory,
 	logger_write_header,
 	format_learning(1,'Initializing everything~n',[]),
 
@@ -786,11 +784,10 @@ gradient_descent :-
     ),
     findall(FactID,tunable_fact(FactID,_GroundTruth),L),
     length(L,N),
-    once(lbfgs_run(N,_X,_BestF)),
+    lbfgs_run(N,_X,_BestF),
     mse_trainingset,
     mse_testset,
-    fail.
-gradient_descent.
+    !.
 
 set_fact(FactID, Slope, P ) :-
     X <== P[FactID],
@@ -980,6 +977,7 @@ init_flags :-
 
 init_logger :-
     logger_define_variable(iteration, int),
+    logger_define_variable(epochs,int),
 	logger_define_variable(duration,time),
 	logger_define_variable(mse_trainingset,float),
 	logger_set_variable(mse_trainingset,0.0),
