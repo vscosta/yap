@@ -61,11 +61,11 @@ next_streams( _, _, _ ). % :-
 jupyter_query(Caller, MCell, MLine ) :-
     strip_module(MCell, M, Cell),
     strip_module(MLine, M1,Line),
-    j_consult(M, Cell),
+    j_consult(M, Cell,Caller),
     j_call(Caller,M1,Line).
 
-j_consult(M, Cell) :-
-    Cell == ''
+j_consult(M, Cell,Caller) :-
+    Cell == ""
     ->
     true;
       blank(Cell)
@@ -75,7 +75,7 @@ j_consult(M, Cell) :-
         jupyter_consult(M:Cell,Caller).
 
 j_call(Caller,M1,Line) :-
-    Line == ''
+    Line == ""
     ->
     true;
       blank(Line)
@@ -134,7 +134,7 @@ jupyter_consult(M:Cell,Caller) :-
 	  gated_call(
 	    (open_mem_read_stream( Cell, Stream),
 	    Options = [],
-	      jupyter:restreams(call,Caller[],[])),
+	      jupyter:restreams(call,Caller,[])),
 	    load_files(M:Stream,[stream(Stream)| Options]	),
 	      EGate,
 	      jupyter:restreams(EGate,Caller,[])
