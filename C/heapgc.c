@@ -1596,16 +1596,24 @@ mark_regs(tr_fr_ptr old_TR USES_REGS)
 static void
 mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 {
+  yamop *e_CP;
   CELL_PTR        saved_var;
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
 
-    //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
+    if ((yamop*)gc_ENV[E_CP] == YESCODE) {
+      if (gc_ENV < LCL0) {
+	return;
+      }
+      e_CP = ((choiceptr)(gc_ENV-EnvSizeInCells)-1)->cp_cp;
+    } else {
+      //fprintf(stderr,"ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
     if (/* size <  0 || */ size > 512)
       fprintf(stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
 #endif
+    e_CP = (yamop*)gc_ENV[E_CP];
     mark_db_fixed((CELL *)gc_ENV[E_CP] PASS_REGS);
     /* for each saved variable */
     if (size > EnvSizeInCells) {
@@ -1633,7 +1641,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       }
       /* we may have already been here */
       if (bmap < 0 && !MARKED_PTR(saved_var)) {
-#if INSTRUMENT_GC
+#ifdef INSTRUMENT_GC
 	Term ccur = *saved_var;
 
 	if (IsVarTerm(ccur)) {
@@ -1674,22 +1682,20 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
     if (MARKED_PTR(gc_ENV+E_CB))
       return;
     MARK(gc_ENV+E_CB);
-
-    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
-#if 1
-       {
-	 PredEntry *pe = EnvPreg((yamop*)gc_ENV[E_CP]);
-	 op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
-	if (op == _Nstop)
-	  break;
-#if 0 && ( defined(ANALYST) || defined(DEBUG) )
-	//fprintf(stderr,"ENV %p-%p(%zd) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
+    }
+    size = EnvSize(e_CP);	/* size = EnvSize(CP) */
+    pvbmap = EnvBMap(e_CP);
+#if 0
+      if (size < 0) {
+	PredEntry *pe = EnvPreg(gc_ENV[E_CP]);
+	op_numbers op = Yap_op_from_opcode(ENV_ToOp(gc_ENV[E_CP]));
+#if defined(ANALYST) || defined(DEBUG)
+	fprintf(stderr,"ENV %p-%p(%d) %s\n", gc_ENV, pvbmap, size-EnvSizeInCells, Yap_op_names[op]);
 #else
-	//fprintf(stderr,"ENV %p-%p(%zd) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
+	fprintf(stderr,"ENV %p-%p(%d) %d\n", gc_ENV, pvbmap, size-EnvSizeInCells, (int)op);
 #endif
 	if (pe->ArityOfPE)
-	  fprintf(stderr,"   %s/%zd\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
+	  fprintf(stderr,"   %s/%d\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
 	else
 	  fprintf(stderr,"   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
       }
@@ -1698,6 +1704,7 @@ mark_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 					 * environment */
   }
 }
+
 
 /*
    Cleaning the trail should be quick and simple, right? Well, not
@@ -2837,7 +2844,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	  UNMARK(&TrailTerm(dest+2));
 	  if (HEAP_PTR(trail_cell)) {
 	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell) PASS_REGS);
-	    into_relocation_chain(&TrailTerm(dest+2), GET_NEXT(trail_cell) PASS_REGS);
+	    into_relocation_chain(&TrailTerm(dest+2), GET_NEXT(traivl_cell) PASS_REGS);
 	  }
 	}
 	trail_ptr += 2;
@@ -2892,7 +2899,8 @@ static void
 sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 {
   CELL_PTR        saved_var;
-
+  yamop *e_CP;
+  
   while (gc_ENV != NULL) {	/* no more environments */
     Int bmap = 0;
     int currv = 0;
@@ -2901,6 +2909,25 @@ sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
 
     /* for each saved variable */
 
+    if ((yamop*)gc_ENV[E_CP] == YESCODE) {
+      if (gc_ENV < LCL0) {
+	return;
+      }
+      e_CP = ((choiceptr)(gc_ENV-EnvSizeInCells)-1)->cp_cp;
+   } else {
+    e_CP = (yamop *)gc_ENV[E_CP];
+      op_numbers op = Yap_op_from_opcode(ENV_ToOp(e_CP));
+    if (op == _Nstop)
+      break;
+        e_CP = (yamop*)gc_ENV[E_CP];
+  /* have we met this environment before?? */
+    /* we use the B field in the environment to tell whether we have
+       been here before or not
+    */
+    if (!MARKED_PTR(gc_ENV+E_CB))
+      return;
+    UNMARK(gc_ENV+E_CB);
+    }
     if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
 
@@ -2936,20 +2963,11 @@ sweep_environments(CELL_PTR gc_ENV, size_t size, CELL *pvbmap USES_REGS)
       bmap <<= 1;
       currv++;
     }
-    /* have we met this environment before?? */
-    /* we use the B field in the environment to tell whether we have
-       been here before or not
-    */
-    if (!MARKED_PTR(gc_ENV+E_CB))
-      return;
-    UNMARK(gc_ENV+E_CB);
+    
 
-    op_numbers op = Yap_op_from_opcode(ENV_ToOp((yamop*)gc_ENV[E_CP]));
-    if (op == _Nstop)
-      break;
-    size = EnvSize((yamop *) (gc_ENV[E_CP]));	/* size = EnvSize(CP) */
-    pvbmap = EnvBMap((yamop *) (gc_ENV[E_CP]));
-    gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
+    size = EnvSize( e_CP );	/* size = EnvSize(CP) */
+    pvbmap = EnvBMap( e_CP );
+   gc_ENV = (CELL_PTR) gc_ENV[E_E];	/* link to prev
 					 * environment */
   }
 }
@@ -4191,12 +4209,18 @@ p_inform_gc( USES_REGS1 )
 
 
 static int
-call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
+call_gc(UInt gc_lim, gc_entry_info_t *i USES_REGS)
 {
+  arity_t predarity;
+  CELL *current_env;
+  yamop *nextop;
   UInt   gc_margin = MinStackGap;
   Term   Tgc_margin;
   Int    effectiveness = 0;
   int    gc_on = FALSE, gc_t = FALSE;
+  predarity = i->a;
+  current_env = i->env;
+  nextop  = i->p_env;
 
   if (trueGlobalPrologFlag(GC_FLAG) &&  IsIntTerm(getAtomicGlobalPrologFlag(GC_MARGIN_FLAG)))
     gc_on = true;
@@ -4268,10 +4292,11 @@ LeaveGCMode( USES_REGS1 )
 }
 
 int
-Yap_gc(Int predarity, CELL *current_env, yamop *nextop)
+Yap_gc(void *v)
 {
   int rc;
-  rc = Yap_locked_gc(predarity, current_env, nextop);
+  gc_entry_info_t *i = v;
+  rc = Yap_locked_gc(i->a, i->env, i->p_env);
   return rc;
 }
 
@@ -4279,14 +4304,19 @@ int
 Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
+    gc_entry_info_t info;
   int res;
-#if YAPOR_COPY
 
+  info.env = current_env;
+  info.p_env = nextop;
+  info.a = predarity;
+  info.p = P;
+  #if YAPOR
   fprintf(stderr, "\n\n***** Trying to call the garbage collector in YAPOR/copying ****\n\n\n");
   exit( 1 );
 #endif
   LOCAL_PrologMode |= GCMode;
-  res=call_gc(4096, predarity, current_env, nextop PASS_REGS);
+  res=call_gc(4096, &info PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
   if (LOCAL_PrologMode & GCMode)
     LOCAL_PrologMode &= ~GCMode;
@@ -4294,25 +4324,31 @@ Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop)
 }
 
  bool Yap_expand(size_t sz USES_REGS) {
-    arity_t arity;
-    yamop *nextpc;
+     gc_entry_info_t info;
 
-    Yap_track_cpred(& arity, &nextpc);
-    return call_gc(sz* sizeof(CELL), arity, ENV, nextpc PASS_REGS);
+    Yap_track_cpred(&info);
+    return call_gc(sz* sizeof(CELL), &info PASS_REGS);
 }
+
 int
 Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
 {
   CACHE_REGS
   int res;
   UInt min;
+    gc_entry_info_t info;
 
+  info.env = current_env;
+  info.p_env = nextop;
+  info.a = predarity;
+  info.p = P;
+ 
   CalculateStackGap( PASS_REGS1 );
   min = EventFlag*sizeof(CELL);
   LOCAL_PrologMode |= GCMode;
   if (gc_lim < min)
     gc_lim = min;
-  res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
+  res = call_gc(gc_lim,&info PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
   return res;
 }
@@ -4323,13 +4359,19 @@ Yap_locked_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop)
   CACHE_REGS
   int res;
   UInt min;
+    gc_entry_info_t info;
+
+  info.env = current_env;
+  info.p_env = nextop;
+  info.a = predarity;
+  info.p = P;
 
   CalculateStackGap( PASS_REGS1 );
   min = EventFlag*sizeof(CELL);
   LOCAL_PrologMode |= GCMode;
   if (gc_lim < min)
     gc_lim = min;
-  res = call_gc(gc_lim, predarity, current_env, nextop PASS_REGS);
+  res = call_gc(gc_lim, &info PASS_REGS);
   LeaveGCMode( PASS_REGS1 );
   return res;
 }

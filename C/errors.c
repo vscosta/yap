@@ -400,7 +400,7 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
   }
   switch (err) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_gc(arity, ENV, gc_P(P, CP))) {
+    if (!Yap_gcl(0, arity, ENV, gc_P(P, CP))) {
       Yap_Error__(false, file, function, lineno, RESOURCE_ERROR_STACK, ARG1,
                   serr);
       return false;
@@ -445,7 +445,7 @@ int Yap_SWIHandleError(const char *s, ...) {
   }
   switch (err) {
   case RESOURCE_ERROR_STACK:
-    if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+    if (!Yap_gcl(0, 2, ENV, gc_P(P, CP))) {
       Yap_Error(RESOURCE_ERROR_STACK, TermNil, serr);
       return (FALSE);
     }

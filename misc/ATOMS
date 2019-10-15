@@ -566,10 +566,10 @@ F	TermExpansion		TermExpansion	2
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2
-F	TraceMetaCall		TraceMetaCall	3
+F	TraceMetaCall		TraceMetaCall	4
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
-F   UndefinedQuery  UndefinedQuery  3
+F   	UndefinedQuery  	UndefinedQuery  3
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	HiddenVar		HiddenVar	1

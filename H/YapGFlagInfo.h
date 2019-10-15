@@ -191,14 +191,6 @@ The next example shows zero division handling. If flag enabled:
 		    */
 
 
-  YAP_FLAG(DEBUG_FLAG, "debug", true, booleanFlag, "false", NULL), /**< @brief  whether debugging is `true` or
-   `false`.
-
- If  _Value_ is bound to `true` enable debugging, and if
-   it is bound to `false` disable debugging.
-								   */
-
-
   YAP_FLAG(DEBUG_INFO_FLAG, "debug_info", true, booleanFlag, "true", NULL), /**< generate debugging annotations.
 
 The flag is ignored in YAP.

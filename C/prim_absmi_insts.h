@@ -2581,7 +2581,7 @@ Yap_AsmError( DOMAIN_ERROR_NOT_LESS_THAN_ZERO );
       if (pt1 + d1 > ENV || pt1 + d1 > (CELL *)B) {
         /* make sure we have something to show for our trouble */
         saveregs();
-        if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
+        if (!Yap_gcl(0, 0, YREG, NEXTOP(NEXTOP(PREG, xxn), Osbpp))) {
             setregs();
           Yap_AsmError(INSTANTIATION_ERROR,d1);
           JMPNext();

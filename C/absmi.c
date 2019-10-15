@@ -692,7 +692,8 @@ static int interrupt_deallocate(USES_REGS1) {
       P = NEXTOP(P,p);
       return rc;
     }
-    if (!Yap_locked_gc(0, ENV, YESCODE)) {
+    P = YESCODE;
+    if (!Yap_gcl(0, 0, ENV, YESCODE)) {
       Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
     }
     S = ASP;

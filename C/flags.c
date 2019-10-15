@@ -822,7 +822,7 @@ static bool setYapFlagInModule(Term tflag, Term t2, Term mod) {
     if (IsVarTerm(tout)) {
       Term t;
       while ((t = Yap_PopTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
-        if (!Yap_gc(2, ENV, gc_P(P, CP))) {
+	if (!Yap_gcl(0, 2, ENV, gc_P(P, CP))) {
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return false;
         }
