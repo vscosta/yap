@@ -568,7 +568,6 @@ be lost.
     '__NB_getval__'('$spy_gn',L,fail),
     /* bump it			*/
     L1 is L+1,
-    ignore((L1 == 791 -> start_low_level_trace)),
     /* and save it globaly		*/
     '__NB_setval__'('$spy_gn',L1).
 '$id_goal'(L) :- integer(L).
