@@ -1812,7 +1812,7 @@ bool  sexp_to_pl(term_t t, SEXP s) {
  *******************************/
 
 static foreign_t init_R(void) {
-  int argc = 2;
+  // int argc = 2;
 
 //  Rf_endEmbeddedR(0);
 

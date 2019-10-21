@@ -212,6 +212,7 @@ debug :-
 
 nodebug :-
 	set_prolog_flag(debug, false),
+	 '$set_debugger_state'(debug, false),
 	 '__NB_setval__'('$trace',off),
 	 print_message(informational,debug(off)).
 

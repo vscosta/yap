@@ -326,10 +326,19 @@ static void do_toggle_static_predicates_in_use(int mask) {
 
         /* check first environments that are younger than our latest choicepoint */
         while (b_ptr > (choiceptr) env_ptr) {
-            PredEntry *pe = EnvPreg((yamop *) env_ptr[E_CP]);
-
-            mark_pred(mask, pe);
-            env_ptr = (CELL *) (env_ptr[E_E]);
+	  yamop *env_cp = (yamop *)env_ptr[E_CP];
+	  PredEntry *pe;
+	  
+	  if (env_cp == YESCODE) {
+	    pe =  PredTrue;
+	  } else {
+	    if (env_cp == BORDERCODE) {
+	      env_cp = -env_ptr[-1-EnvSizeInCells];
+	    }
+            pe = EnvPreg(env_cp);
+	  }
+	  mark_pred(mask, pe);
+	  env_ptr = (CELL *) (env_ptr[E_E]);
         }
         /* now mark the choicepoint */
         if ((b_ptr)) {

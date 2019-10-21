@@ -1736,7 +1736,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 #endif
     ENV = YENV;
     ASP -= EnvSizeInCells;
-    *--ASP=CP;
+    *--ASP=(CELL)CP;
     /* and now create a pseudo choicepoint for much the same reasons */
     /* CP = YESCODE; */
     /* keep a place where you can inform you had an exception */
