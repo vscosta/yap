@@ -499,7 +499,7 @@
   FunctorDoLogUpdClause = Yap_MkFunctor(AtomDoLogUpdClause,6);
   FunctorDoLogUpdClause0 = Yap_MkFunctor(AtomDoLogUpdClause0,6);
   FunctorDoLogUpdClauseErase = Yap_MkFunctor(AtomDoLogUpdClauseErase,6);
-  FunctorDoStaticClause = Yap_MkFunctor(AtomDoStaticClause,5);
+  FunctorDoStaticClause = Yap_MkFunctor(AtomDoStaticClause,6);
   FunctorDollar = Yap_MkFunctor(AtomDollar,1);
   FunctorDollarVar = Yap_MkFunctor(AtomDollarVar,1);
   FunctorDomainError = Yap_MkFunctor(AtomDomainError,2);

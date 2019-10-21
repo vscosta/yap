@@ -394,9 +394,6 @@ be lost.
 '$trace_goal'('$$cut_by'(M),_, _, _, _) :-
     !,%
     '$$cut_by'(M).
-'$trace_goal'('$$cut_by'(M),_, _, _, _) :-
-    !,%
-    '$$cut_by'(M).
 '$trace_goal'(M:G, _, GN0, GN, CP) :-
     !,
     '$yap_strip_module'(M:G, M0, G0),
@@ -406,8 +403,8 @@ be lost.
     '$trace_goal'(B, M, GN0, _GN, CP).
 '$trace_goal'((A->B;C), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, inner, GN, CP) ->
-	 '$trace_goal'(B, M, GN0, _GN, CP);
-	 '$trace_goal'(C, M, GN0, _GN, CP)).
+	 '$trace_goal'(B, M, GN0, _GN1, CP);
+	 '$trace_goal'(C, M, GN0, _GN2, CP)).
 '$trace_goal'((A->B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, inner, GN, CP) ->
 	 '$trace_goal'(B, M, GN0, _GN, CP)).

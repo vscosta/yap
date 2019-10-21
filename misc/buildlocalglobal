@@ -30,11 +30,7 @@ main :-
 	file_filter_with_initialization('H/GLOBALS','H/generated/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
 	file_filter_with_initialization('H/GLOBALS','H/generated/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
-%%	file_filter_with_initialization('H/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-%	file_filter_with_initialization('H/LOCALS','H/generated/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+%%	file_filter_with_initialization('H/GLOBALS','H/generated/i0globals.h',gen_0init,Warning,['iglobals.h','GLOBALS']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildlocalglobal\"~n     please do not update, update H/~a instead */~n~n').
 
@@ -49,12 +45,6 @@ gen_struct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
 gen_struct(Inp,"") :-
 	Inp = [0'.|_], !. %'
-gen_struct(Inp,Out) :-
-	Inp = "START_WORKER_LOCAL", !,
-	Out = "typedef struct worker_local {".
-gen_struct(Inp,Out) :-
-	Inp = "END_WORKER_LOCAL", !,
-	Out = "} w_local;".
 gen_struct(Inp,Out) :-
 	Inp = "START_GLOBAL_DATA", !,
 	Out = "typedef struct global_data {".
@@ -160,12 +150,6 @@ gen_dstruct(Inp,"") :-
 gen_dstruct(Inp, Out) :-
 	Inp = [0'#|_], !, Out = Inp. % '
 gen_dstruct(Inp,"") :-
-	Inp = "START_WORKER_LOCAL", !,
-	assert(globals(worker)).
-gen_dstruct(Inp,"") :-
-	Inp = "END_WORKER_LOCAL", !,
-	retract(globals(worker)).
-gen_dstruct(Inp,"") :-
 	Inp = "START_GLOBAL_DATA", !,
 	assert(globals(all)).
 gen_dstruct(Inp,"") :-
@@ -217,10 +201,6 @@ fetch_name(RField,Global2,RField," ") :-
 	globals(heap), !,
 	append(["Yap_heap_regs->", RField,"_"],Global2).
 fetch_name(Global,Global2,RField," ") :-
-	globals(worker),
-	append(["LOCAL_", RField],Global),
-	append(["LOCAL->", RField,"_"],Global2).
-fetch_name(Global,Global2,RField," ") :-
 	globals(worker), !,
 	append(["REMOTE_", RField,"(wid)"],Global),
 	append(["REMOTE(wid)->", RField,"_"],Global2).
@@ -228,10 +208,6 @@ fetch_name(Global,Global2,RField,MField) :-
 	globals(worker),
 	append(["REMOTE_", MField,"(wid)"],Global),
 	append(["REMOTE(wid)->", RField],Global2).
-fetch_name(Global,Global2,RField,MField) :-
-	globals(worker),!,
-	append(["LOCAL_", MField],Global),
-	append(["LOCAL->", RField],Global2).
 
 fetch_name(Global, RField) :-
 	globals(worker_init), !,
@@ -262,14 +238,6 @@ gen_hstruct(Inp,"") :-
 gen_hstruct(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "#include \"ratoms.h\"".
-gen_hstruct(Inp,Out) :-
-	Inp = "START_WORKER_LOCAL", !,
-	Out = "static void RestoreWorker(int wid USES_REGS) {",
-	assert(globals(worker_init)).
-gen_hstruct(Inp,Out) :-
-	Inp = "END_WORKER_LOCAL", !,
-	Out = "}",
-	retract(globals(worker_init)).
 gen_hstruct(Inp,Out) :-
     Inp = "START_GLOBAL_DATA", !,
     Out = "static void RestoreGlobal(void) {",
@@ -367,14 +335,6 @@ gen_init(Inp, Out) :-
 gen_init(Inp,Out) :-
 	Inp = "ATOMS", !,
 	Out = "#include \"iatoms.h\"".
-gen_init(Inp,Out) :-
-	Inp = "START_WORKER_LOCAL", !,
-	Out = "static void InitWorker(int wid) {",
-	assert(globals(worker_init)).
-gen_init(Inp,Out) :-
-	Inp = "END_WORKER_LOCAL", !,
-	Out = "}",
-	retract(globals(worker_init)).
 gen_init(Inp,Out) :-
     Inp = "START_GLOBAL_DATA", !,
     Out = "static void InitGlobal(void) {",

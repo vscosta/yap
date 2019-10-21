@@ -89,7 +89,7 @@ and therefore he should try to avoid them whenever possible.
 :- use_system_module( '$_init', ['$do_log_upd_clause'/6,
 				 '$do_log_upd_clause0'/6,
 				 '$do_log_upd_clause_erase'/6,
-				 '$do_static_clause'/5]).
+				 '$do_static_clause'/8]).
 
 :- use_system_module( '$_modules', ['$imported_pred'/4,
 				    '$meta_predicate'/4,
@@ -189,7 +189,7 @@ clause(V0,Q,R) :-
 
 '$clause'(P,M,Q,R) :-
     '$is_log_updatable'(P, M), !,
-    '$log_update_clause'(P,M,Q,R).
+    '$log_update_clause'(_,_,M,P,Q,R).
 '$clause'(P,M,Q,R) :-
     '$is_exo'(P, M), !,
     Q = true,
@@ -197,7 +197,7 @@ clause(V0,Q,R) :-
     '$execute0'(P, M).
 '$clause'(P,M,Q,R) :-
     '$is_source'(P, M), !,
-    '$static_clause'(P,M,Q,R).
+    '$static_clause'(_, _, M, P ,Q ,R).
 '$clause'(P,M,Q,R) :-
     '$some_recordedp'(M:P), !,
     '$recordedp'(M:P,(P:-Q),R).
@@ -210,7 +210,7 @@ clause(V0,Q,R) :-
 		clause(M:P,Q,R)).
 
 '$init_preds' :-
-    once('$do_static_clause'(_,_,_,_,_)),
+    once('$do_static_clause'(_,_,_,_,_,_)),
     fail.
 '$init_preds' :-
     once('$do_log_upd_clause0'(_,_,_,_,_,_)),

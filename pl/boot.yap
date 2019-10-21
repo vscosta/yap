@@ -181,14 +181,14 @@ print_boot_message(Type,Error,Desc) :-
 % just create a choice-point
 % the 6th argument marks the time-stamp.
 '$do_log_upd_clause'(_,_,_,_,_,_).
-'$do_log_upd_clause'(A,B,C,D,E,_) :-
-	'$continue_log_update_clause'(A,B,C,D,E).
+'$do_log_upd_clause'(A,B,C,D,E,F) :-
+	'$continue_log_update_clause'(A,B,C,D,E,F).
 '$do_log_upd_clause'(_,_,_,_,_,_).
 
 
 '$do_log_upd_clause_erase'(_,_,_,_,_,_).
-'$do_log_upd_clause_erase'(A,B,C,D,E,_) :-
-	'$continue_log_update_clause_erase'(A,B,C,D,E).
+'$do_log_upd_clause_erase'(A,B,C,D,E,F) :-
+	'$continue_log_update_clause_erase'(A,B,C,D,E,F).
 '$do_log_upd_clause_erase'(_,_,_,_,_,_).
 
 '$do_log_upd_clause0'(_,_,_,_,_,_).
@@ -197,10 +197,10 @@ print_boot_message(Type,Error,Desc) :-
 '$do_log_upd_clause0'(_,_,_,_,_,_).
 
 
-'$do_static_clause'(_,_,_,_,_).
-'$do_static_clause'(A,B,C,D,E) :-
-	'$continue_static_clause'(A,B,C,D,E).
-'$do_static_clause'(_,_,_,_,_).
+'$do_static_clause'(_,_,_,_,_,_).
+'$do_static_clause'(A,B,C,D,E,F) :-
+	'$continue_static_clause'(A,B,C,D,E,F).
+'$do_static_clause'(_,_,_,_,_,_).
 
 
 :- c_compile('directives.yap').

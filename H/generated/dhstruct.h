@@ -179,6 +179,8 @@
 #define TRUSTFAILCODE Yap_heap_regs->TRUSTFAILCODE_
 #define ENV_FOR_YESCODE Yap_heap_regs->ENV_FOR_YESCODE_
 #define YESCODE Yap_heap_regs->YESCODE_
+#define ENV_FOR_BORDERCODE Yap_heap_regs->ENV_FOR_BORDERCODE_
+#define BORDERCODE Yap_heap_regs->BORDERCODE_
 #define RTRYCODE Yap_heap_regs->RTRYCODE_
 #ifdef BEAM
 #define BEAM_RETRY_CODE Yap_heap_regs->BEAM_RETRY_CODE_

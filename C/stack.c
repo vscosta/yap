@@ -1144,7 +1144,7 @@ static Term error_culprit(bool internal USES_REGS) {
         yamop *curCP = CP;
         PredEntry *pe = EnvPreg(curCP);
 
-        while (curCP != YESCODE) {
+        while (curCP != BORDERCODE) {
             if (pe->ModuleOfPred)
                 return clause_info(curCP, pe);
             curENV = (CELL *) (curENV[E_E]);
@@ -1169,7 +1169,7 @@ Yap_prolog_add_culprit(yap_error_descriptor_t *t PASS_REGS) {
         choiceptr curB = B;
         PredEntry *pe = EnvPreg(curCP);
 
-        while (curCP != YESCODE) {
+        while (curCP != BORDERCODE) {
             if (curENV) {
                 pe = EnvPreg(curCP);
                 curENV = (CELL *) (curENV[E_E]);

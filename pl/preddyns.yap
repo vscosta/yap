@@ -185,7 +185,7 @@ retract( C ) :-
 '$retract2'(F, H, M, B, R) :-
     F /\ 0x08000000 =:= 0x08000000, !,
     %	'$is_log_updatable'(H, M), !,
-    '$log_update_clause'(H,M,B,R),
+    '$log_update_clause'(_,_,M,H,B,R),
     ( F /\ 0x20000000  =:= 0x20000000, recorded('$mf','$mf_clause'(_,_,_,_,R),MR), erase(MR), fail ; true),
     erase(R).
 '$retract2'(F, H, M, B, R) :-
@@ -283,13 +283,13 @@ retractall(V) :-
     '$free_arguments'(T), !,
     ( '$purge_clauses'(T,M), fail ; true ).
 '$retractall_lu'(T,M) :-
-    '$log_update_clause'(T,M,_,R),
+    '$log_update_clause'(_,_,M,T,_,R),
     erase(R),
     fail.
 '$retractall_lu'(_,_).
 
 '$retractall_lu_mf'(T,M,Na,Ar) :-
-    '$log_update_clause'(T,M,_,R),
+    '$log_update_clause'(_,_,M,T,_,R),
     '$erase_lu_mf_clause'(Na,Ar,M,R),
     fail.
 '$retractall_lu_mf'(_T,_M,_Na,_Ar).

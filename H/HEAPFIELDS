@@ -201,6 +201,9 @@ yamop		*TRUSTFAILCODE		void
 yamop	ENV_FOR_YESCODE[2]		InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail)
 yamop		*YESCODE			void
 
+yamop	ENV_FOR_BORDERCODE[2]		InitEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail) RestoreEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail)
+yamop		*BORDERCODE			void
+
 yamop		RTRYCODE[1]		InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail) RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail)
 
 #ifdef BEAM

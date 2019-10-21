@@ -1071,7 +1071,7 @@ static bool watch_retry(Term d0 USES_REGS) {
 static Int setup_call_catcher_cleanup(USES_REGS1) {
     yhandle_t sl = Yap_StartSlots();
     Term Setup = Deref(ARG1);
-    choiceptr B0 = B;
+    Int  B0 = LCL0-(CELL*)B;
     yamop *oP = P, *oCP = CP;
     Int oENV = LCL0 - ENV;
     Int oYENV = LCL0 - YENV;
@@ -1087,13 +1087,14 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
         return false;
     }
     if (!rc) {
-        complete_inner_computation(B0);
+      complete_inner_computation((choiceptr)(LCL0-B0));
         // We'll pass it throughs
 
     Yap_CloseSlots(sl);
 	rc = false;
     } else {
-        prune_inner_computation(B0);
+      B = (choiceptr)(LCL0-B0);
+      prune_inner_computation(B);
     }
     P = oP;
     CP = oCP;
@@ -1723,9 +1724,8 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
   Yap_ResetException(worker_id);
     //  sl = Yap_InitSlot(t);
     // recover CP when doing gc.
-    *--ASP = (CELL)CP;
     YENV = ASP;
-    YENV[E_CP] = (CELL) YESCODE;
+    YENV[E_CP] = (CELL) BORDERCODE;
     YENV[E_CB] = (CELL) B;
     YENV[E_E] = (CELL) ENV;
 #ifdef TABLING
@@ -1734,9 +1734,9 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 #ifdef DEPTH_LIMIT
     YENV[E_DEPTH] = DEPTH;
 #endif
-    printf("%p-> %p %p %p\n", YENV,YENV[E_CP], CP, ENV, B);
     ENV = YENV;
     ASP -= EnvSizeInCells;
+    *--ASP=CP;
     /* and now create a pseudo choicepoint for much the same reasons */
     /* CP = YESCODE; */
     /* keep a place where you can inform you had an exception */
@@ -2451,25 +2451,25 @@ void Yap_track_cpred(void *v)
       i->a = P->y_u.OtapFs.s;
       i->p_env = CP;
       i->env = ENV;
-    }
+  } else {
 
     i->env = ENV;
     i->p = P;
     i->p_env = CP;
     i->a = 0;
     i->op = 0;
-
+  }
 }
  
 int Yap_dogc(int extra_args, Term *tp USES_REGS) {
   gc_entry_info_t info;
-  arity_t arity;
+  arity_t arity = 0;
   int i;
     
     Yap_track_cpred( &info );
     info.a += extra_args;
     for (i = 0; i < extra_args; i++) {
-        XREGS[arity + i + 1] = tp[i];
+      XREGS[arity + i + 1] = tp[i];
     }
     if (!Yap_gc(&info)) {
         return false;

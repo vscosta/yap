@@ -6095,19 +6095,16 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   }
 }
 
-static void store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc,
+static void store_clause_choice_point(Term ts[4], yamop *ipc,
                                       PredEntry *pe, yamop *ap_pc,
                                       yamop *cp_pc USES_REGS) {
-  Term tpc = MkIntegerTerm((Int)ipc);
-  Term tpe = MkIntegerTerm((Int)pe);
-  CELL *tsp = ASP - 5;
+  Term tpc = MkAddressTerm(ipc);
+  Term tpe = MkAddressTerm(pe);
+  CELL *tsp = ASP -6;
   choiceptr bptr = ((choiceptr)tsp) - 1;
-
   tsp[0] = tpe;
   tsp[1] = tpc;
-  tsp[2] = t1;
-  tsp[3] = tb;
-  tsp[4] = tr;
+  memcpy(tsp+2,ts,4*sizeof(CELL));
   bptr->cp_tr = TR;
   HB = bptr->cp_h = HR;
 #ifdef DEPTH_LIMIT
@@ -6128,7 +6125,7 @@ static void store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc,
 }
 
 static void update_clause_choice_point(yamop *ipc, yamop *ap_pc USES_REGS) {
-  Term tpc = MkIntegerTerm((Int)ipc);
+   Term tpc = MkIntegerTerm((Int)ipc);
   B->cp_args[1] = tpc;
   B->cp_h = HR;
   B->cp_ap = ap_pc;
@@ -6143,7 +6140,7 @@ static LogUpdClause *to_clause(yamop *ipc, PredEntry *ap) {
     return (LogUpdClause *)simple_static_clause(ipc, ap);
 }
 
-LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
+LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[4],
                                      yamop *ap_pc, yamop *cp_pc) {
   CACHE_REGS
   CELL *s_reg = NULL;
@@ -6158,7 +6155,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
 
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
-      CELL *tar = RepAppl(Deref(Terms[0]));
+      CELL *tar = RepAppl(Deref(Terms[1]));
       UInt i;
 
       for (i = 1; i <= ap->ArityOfPE; i++) {
@@ -6182,7 +6179,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _table_try:
 #endif
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
+        store_clause_choice_point(Terms,
                                   NEXTOP(ipc, Otapl), ap, ap_pc,
                                   cp_pc PASS_REGS);
       else {
@@ -6198,7 +6195,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _try_clause3:
     case _try_clause4:
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc, l),
+        store_clause_choice_point(Terms, NEXTOP(ipc, l),
                                   ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
@@ -6214,7 +6211,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
     case _table_try_me:
 #endif
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
+        store_clause_choice_point(Terms,
                                   ipc->y_u.Otapl.d, ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
@@ -6331,7 +6328,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       break;
     case _try_logical:
       if (b0 == NULL)
-        store_clause_choice_point(Terms[0], Terms[1], Terms[2],
+        store_clause_choice_point(Terms,
                                   ipc->y_u.OtaLl.n, ap, ap_pc, cp_pc PASS_REGS);
       else {
         B = b0;
@@ -6644,13 +6641,14 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       XREGS[ap->ArityOfPE + 3] = Terms[0];
       XREGS[ap->ArityOfPE + 4] = Terms[1];
       XREGS[ap->ArityOfPE + 5] = Terms[2];
+      XREGS[ap->ArityOfPE + 6] = Terms[3];
 #if defined(YAPOR) || defined(THREADS)
       if (!same_lu_block(jlbl, ipc)) {
         ipc = *jlbl;
         break;
       }
 #endif
-      ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
+      ipc = ExpandIndex(ap, 6, cp_pc PASS_REGS);
       if (!blob_term) { /* protect garbage collector */
         s_reg = (CELL *)XREGS[ap->ArityOfPE + 1];
         t = XREGS[ap->ArityOfPE + 2];
@@ -6659,6 +6657,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       Terms[0] = XREGS[ap->ArityOfPE + 3];
       Terms[1] = XREGS[ap->ArityOfPE + 4];
       Terms[2] = XREGS[ap->ArityOfPE + 5];
+      Terms[3] = XREGS[ap->ArityOfPE + 6];
       break;
     case _undef_p:
       return NULL;
@@ -6688,7 +6687,8 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       XREGS[ap->ArityOfPE + 3] = Terms[0];
       XREGS[ap->ArityOfPE + 4] = Terms[1];
       XREGS[ap->ArityOfPE + 5] = Terms[2];
-      Yap_IPred(ap, 5, cp_pc);
+      XREGS[ap->ArityOfPE + 6] = Terms[3];
+      Yap_IPred(ap, 6, cp_pc);
       ipc = ap->cs.p_code.TrueCodeOfPred;
       if (!blob_term) { /* protect garbage collector */
         s_reg = (CELL *)XREGS[ap->ArityOfPE + 1];
@@ -6697,17 +6697,13 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
       Terms[0] = XREGS[ap->ArityOfPE + 3];
       Terms[1] = XREGS[ap->ArityOfPE + 4];
       Terms[2] = XREGS[ap->ArityOfPE + 5];
+      Terms[3] = XREGS[ap->ArityOfPE + 6];
       break;
     case _op_fail:
       if (ipc == FAILCODE)
         return NULL;
     default:
       if (b0) {
-        {
-          while (POP_CHOICE_POINT(B->cp_b)) {
-            POP_EXECUTE();
-          }
-        }
 #ifdef YAPOR
         {
           choiceptr cut_pt;
@@ -6730,11 +6726,6 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3],
   }
   if (b0) {
     /* I did a trust */
-    {
-      while (POP_CHOICE_POINT(B->cp_b)) {
-        POP_EXECUTE();
-      }
-    }
 #ifdef YAPOR
     {
       choiceptr cut_pt;

@@ -504,7 +504,7 @@ F	Diff			Diff		2
 F	DoLogUpdClause		DoLogUpdClause	6
 F	DoLogUpdClause0		DoLogUpdClause0	6
 F	DoLogUpdClauseErase	DoLogUpdClauseErase	6
-F	DoStaticClause		DoStaticClause	5
+F	DoStaticClause		DoStaticClause	6
 F	Dollar           Dollar       1
 F	DollarVar           DollarVar       1
 F	DomainError		DomainError	2
