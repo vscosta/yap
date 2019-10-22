@@ -677,6 +677,7 @@ static int interrupt_deallocate(USES_REGS1) {
     if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
       return v;
     }
+    arity_t i = 0;
     if (Yap_has_a_signal()) {
       PredEntry *pe;
 

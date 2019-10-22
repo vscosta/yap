@@ -202,6 +202,7 @@ static int unbind_variable_names(Term t USES_REGS) {
 static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
+  yhandle_t yh = Yap_CurrentHandle();
   int depth, prio, flags = 0;
 
   if (args[WRITE_MODULE].used) {
@@ -286,6 +287,7 @@ end:
     unbind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue PASS_REGS);
   }
   CurrentModule = cm;
+  Yap_RecoverHandles(0, yh);
   return rc;
 }
 

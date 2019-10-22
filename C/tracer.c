@@ -359,12 +359,12 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #endif
   b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
                 LCL0 - (CELL *)B);
-  b += snprintf(b, top - b, Int_FORMAT " ", LCL0 - (CELL *)Yap_REGS.CUT_C_TOP);
+  b += snprintf(b, top - b, Int_FORMAT " ", LOCAL_CurHandle);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
-  if (pred == NULL) {
+  if (pred == NULL) {3565
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
     return (true);
@@ -542,7 +542,7 @@ void Yap_InitLowLevelTrace(void) {
 
 Begin display of messages at procedure entry and retry.
 
-
+<
 */
 #if THREADS
   Yap_InitCPred("start_low_level_trace", 1, start_low_level_trace2,

@@ -1637,7 +1637,7 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
 
     if (!e_CP)
       return;
-#if 0 && defined(ANALYST) || defined(DEBUG)
+#if 1 && defined(ANALYST) || defined(DEBUG)
     PredEntry *pe = EnvPreg(e_CP);
     if (pe) {
       op_numbers op = Yap_op_from_opcode(e_CP->opc);

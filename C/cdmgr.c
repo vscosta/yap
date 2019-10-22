@@ -2988,7 +2988,8 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
     UNLOCK(pe->PELock);
-    return FALSE;
+      LOCAL_CurHandle = yterms;
+      return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
@@ -3003,7 +3004,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify_constant(tb, MkAtomTerm(AtomTrue)) || !Yap_unify(tr, rtn)) {
        UNLOCK(pe->PELock);
-      Yap_RecoverSlots(yterms, 4);
+        LOCAL_CurHandle = yterms;
       return FALSE;
     }
     if (pe->ArityOfPE) {
@@ -3034,7 +3035,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
       /* we don't actually need to execute code */
       UNLOCK(pe->PELock);
     }
-    Yap_RecoverSlots(yterms, 4);
+LOCAL_CurHandle = yterms;
     return TRUE;
   } else {
     Term t;
@@ -3048,14 +3049,14 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
             UNLOCK(pe->PELock);
             Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
                       LOCAL_ErrorMessage);
-            return FALSE;
+            return false;
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
           if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P, CP))) {
             UNLOCK(pe->PELock);
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-            return FALSE;
+            return false;
           }
         }
       th = Yap_GetFromSlot(yterms + 1);
@@ -3064,7 +3065,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
       } else {
         if (!Yap_gcl(LOCAL_Error_Size, 0, ENV, gc_P(P, CP))) {
           UNLOCK(pe->PELock);
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
       th = Yap_GetFromSlot(yterms + 1);
@@ -3073,6 +3074,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
 
       }
     }
+    LOCAL_CurHandle = yterms;
     UNLOCK(pe->PELock);
     return (Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
             Yap_unify(tr, rtn));
@@ -3082,7 +3084,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
 static Int /* $hidden_predicate(P) */
 log_update_clause(USES_REGS1) {
   PredEntry *pe;
-  Term t1 = Deref(ARG4);
+Term t1 = Deref(ARG4);
   Int ret;
   yamop *new_cp;
 
@@ -3096,16 +3098,17 @@ log_update_clause(USES_REGS1) {
     return FALSE;
   PELOCK(41, pe);
   ret = fetch_next_lu_clause(pe, pe->CodeOfPred, new_cp, true);
-  return ret;
+return ret;
 }
 
 static Int /* $hidden_predicate(P) */
 continue_log_update_clause(USES_REGS1) {
-  PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
+ PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
 
   PELOCK(42, pe);
-  return fetch_next_lu_clause(pe, ipc, B->cp_cp, false);
+  bool rc = fetch_next_lu_clause(pe, ipc, B->cp_cp, false);
+ return rc;
 }
 
 static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
@@ -3123,7 +3126,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
     UNLOCK(pe->PELock);
-    return FALSE;
+       LOCAL_CurHandle = yterms;
+   return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
@@ -3170,46 +3174,48 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
       UNLOCK(pe->PELock);
     }
     Yap_ErLogUpdCl(cl);
-    Yap_RecoverSlots(yterms, 4);
-    return TRUE;
+        LOCAL_CurHandle = yterms;
+   return TRUE;
   } else {
     Term t;
     Int res;
 
     while ((t = Yap_FetchClauseTermFromDB(cl->lusl.ClSource)) == 0L) {
-      if (first_time) {
-       if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
-          LOCAL_Error_TYPE = YAP_NO_ERROR;
-         if (!Yap_locked_growglobal(NULL)) {
-          UNLOCK(pe->PELock);
-          Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
-                         LOCAL_ErrorMessage);
-          return FALSE;
+        if (first_time) {
+            if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+                LOCAL_Error_TYPE = YAP_NO_ERROR;
+                if (!Yap_locked_growglobal(NULL)) {
+                    UNLOCK(pe->PELock);
+                    Yap_ThrowError(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+                                   LOCAL_ErrorMessage);
+                    return false;
+                }
+            } else {
+                LOCAL_Error_TYPE = YAP_NO_ERROR;
+                if (!Yap_locked_gcl(LOCAL_Error_Size, 0, ENV, gc_P(P, CP))) {
+                    UNLOCK(pe->PELock);
+                    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+                    return FALSE;
+                }
+            }
+            th = Yap_GetFromSlot(yterms + 1);
+            tb = Yap_GetFromSlot(yterms + 2);
+            tr = Yap_GetFromSlot(yterms + 3);
+            LOCAL_CurHandle = yterms;
+        } else {
+            if (!Yap_gcl(LOCAL_Error_Size, 6, ENV, CP)) {
+                UNLOCK(pe->PELock);
+                Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+                return FALSE;
+            }
+            th = Yap_GetFromSlot(yterms  +1);
+            tb = Yap_GetFromSlot(yterms + 2);
+            tr = Yap_GetFromSlot(yterms + 3);
+            LOCAL_CurHandle = yterms;
         }
-      } else {
-        LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_locked_gcl(LOCAL_Error_Size, 0, ENV, gc_P(P, CP))) {
-          UNLOCK(pe->PELock);
-          Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return FALSE;
-        }
-      }
-      th = Yap_GetFromSlot(yterms + 1);
-      tb = Yap_GetFromSlot(yterms + 2);
-      tr = Yap_GetFromSlot(yterms + 3);
-    } else {
-      if (!Yap_gcl(LOCAL_Error_Size, 6, ENV, CP)) {
-        UNLOCK(pe->PELock);
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-        return FALSE;
-      }
-      th = Yap_GetFromSlot(yterms + 1);
-      tb = Yap_GetFromSlot(yterms + 2);
-      tr = Yap_GetFromSlot(yterms + 3);
     }
-  }
-  Yap_RecoverSlots(yterms, 4);
-  res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
+    LOCAL_CurHandle = yterms;
+    res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
         Yap_unify(tr, rtn);
   if (res)
     Yap_ErLogUpdCl(cl);
@@ -3557,8 +3563,8 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
      Yap_RecoverSlots(4);
   */
   if (cl == NULL) {
-    Yap_RecoverHandles(4, yterms);
-    UNLOCKPE(45, pe);
+      LOCAL_CurHandle = yterms;
+      UNLOCKPE(45, pe);
     return false;
   }
   CELL *Terms = Yap_AddressFromHandle(yterms) + 1;
@@ -3567,8 +3573,8 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     rtn = Yap_MkMegaRefTerm(pe, code);
     if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
         !Yap_unify(Terms[2], rtn)) {
-      Yap_RecoverHandles(4, yterms);
-      UNLOCKPE(45, pe);
+        LOCAL_CurHandle = yterms;
+        UNLOCKPE(45, pe);
       return false;
     }
     if (arity) {
@@ -3587,14 +3593,14 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
       P = code;
     }
     UNLOCKPE(45, pe);
-    Yap_RecoverHandles(4, yterms);
-    return true;
+      LOCAL_CurHandle = yterms;
+      return true;
   } else if (arity && cl->ClFlags & FactMask) {
     rtn = Yap_MkStaticRefTerm(cl, pe);
     if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
         !Yap_unify(Terms[2], rtn)) {
-      Yap_RecoverHandles(4, yterms);
-      UNLOCKPE(45, pe);
+        LOCAL_CurHandle = yterms;
+        UNLOCKPE(45, pe);
       return false;
     }
     int i;
@@ -3611,14 +3617,14 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     }
     P = cl->ClCode;
     UNLOCKPE(45, pe);
-    Yap_RecoverHandles(4, yterms);
-    return true;
+      LOCAL_CurHandle = yterms;
+      return true;
   }
   if (!(pe->PredFlags & SourcePredFlag)) {
     /* no source */
     rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
-    Yap_RecoverHandles(4, yterms);
+    LOCAL_CurHandle = yterms;
     bool rc = Yap_unify(Terms[2], rtn);
     return rc;
   } else {
