@@ -611,11 +611,18 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	  case 'b':
 	    /* write a variable bitmap for a call */
 	    {
-	      int max = arg/(8*sizeof(CELL)), i;
+	      int max = arg/(8*sizeof(CELL))+1, i;
 	      CELL *ptr = cptr;
-	      for (i = 0; i <= max; i++) {
-		Yap_DebugPlWrite(MkIntegerTerm((Int)(*ptr++)));
-	      }
+	      Yap_DebugPlWrite (MkIntTerm( ptr[-1]));
+	      Yap_DebugErrorPutc (',');
+		CELL v = ptr[0];
+		int b = ptr[-1] - 1;
+		while(b>=0) {
+		  ch = (v & (1 <<b)) ? '1' : '0' ;
+		  b--;
+		  Yap_DebugErrorPutc (ch);
+		}
+	
 	    }
 	    break;
 	  case 'l':

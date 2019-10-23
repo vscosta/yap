@@ -2230,7 +2230,7 @@ static yamop *a_bmap(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
   for (i = 0; i <= max; i++)
     code_p = fill_a(cpc->arnds[i], code_p, pass_no);
-  return code_p;
+f  return code_p;
 }
 
 static yamop *a_bregs(yamop *code_p, int pass_no, struct PSEUDO *cpc) {

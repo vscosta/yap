@@ -1546,26 +1546,19 @@ static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
 
 static void mark_environments(CELL_PTR gc_ENV, size_t size,
                               CELL *pvbmap USES_REGS) {
-  yamop *e_CP = CP;
   CELL_PTR saved_var;
-  while (gc_ENV != NULL && e_CP != NULL) { /* no more environments */
+  while (gc_ENV != NULL) { /* no more environments */
     Int bmap = 0;
     int currv = 0;
 
-    if ((yamop *)gc_ENV[E_CP] == BORDERCODE) {
-      if (gc_ENV == LCL0) {
-        return;
-      }
-      e_CP = (yamop *)gc_ENV[- EnvSizeInCells - 1];
-    } else {
-      fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
+          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
       if (/* size <  0 || */ size > 512)
         fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
                 gc_ENV, (CELL)size);
 #endif
-      e_CP = (yamop *)gc_ENV[E_CP];
-    }
+     yamop * e_CP = (yamop *)gc_ENV[E_CP];
+
     /* for each saved variable */
     if (size > EnvSizeInCells) {
       int tsize = size - EnvSizeInCells;
@@ -1635,7 +1628,7 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
       return;
     MARK(gc_ENV + E_CB);
 
-    if (!e_CP)
+    if (!e_CP || !gc_ENV[E_E])
       return;
 #if 0 && defined(ANALYST) || defined(DEBUG)
     PredEntry *pe = EnvPreg(e_CP);

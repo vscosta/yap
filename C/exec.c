@@ -1725,7 +1725,7 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
     //  sl = Yap_InitSlot(t);
     // recover CP when doing gc.
     YENV = ASP;
-    YENV[E_CP] = (CELL) BORDERCODE;
+    YENV[E_CP] = (CELL) CP;
     YENV[E_CB] = (CELL) B;
     YENV[E_E] = (CELL) ENV;
 #ifdef TABLING
@@ -1736,9 +1736,8 @@ void Yap_PrepGoal(arity_t arity, CELL *pt, choiceptr saved_b USES_REGS) {
 #endif
     ENV = YENV;
     ASP -= EnvSizeInCells;
-    *--ASP=(CELL)CP;
     /* and now create a pseudo choicepoint for much the same reasons */
-    /* CP = YESCODE; */
+    CP = YESCODE;
     /* keep a place where you can inform you had an exception */
     if (pt) {
         int i;

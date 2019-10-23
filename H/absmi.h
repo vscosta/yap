@@ -2428,7 +2428,7 @@ extern yamop *headoftrace;
 #ifdef SHADOW_S
 #define PROCESS_INT(F, C)                                                      \
   BEGD(d0);                                                                    \
-  Yap_REGSS_ = SREG;                                                          \
+  Yap_REGS.S_ = SREG;                                                          \
   saveregs();                                                                  \
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \

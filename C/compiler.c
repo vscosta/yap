@@ -2488,14 +2488,14 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
     } break;
     case push_or_op:
       Yap_emit(label_op, ++cglobs->labelno, Zero, &cglobs->cint);
-      pc->ops.opseqt[1] = (CELL)cglobs->labelno;
+      pc->rnd3 = (CELL)cglobs->labelno;
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
       push_bvmap((CELL)cglobs->labelno, cglobs->cint.cpc, cglobs);
       break;
     case either_op:
       /* add a first entry to the array */
       Yap_emit(label_op, ++cglobs->labelno, Zero, &cglobs->cint);
-      pc->ops.opseqt[1] = (CELL)cglobs->labelno;
+      pc->rnd3 = (CELL)cglobs->labelno;
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
       break;
     case pushpop_or_op:
@@ -2503,7 +2503,7 @@ static void CheckUnsafe(PInstr *pc, compiler_struct *cglobs) {
       goto reset_safe_map;
     case orelse_op:
       Yap_emit(label_op, ++cglobs->labelno, Zero, &cglobs->cint);
-      pc->ops.opseqt[1] = (CELL)cglobs->labelno;
+      pc->rnd3 = (CELL)cglobs->labelno;
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
       break;
     case pop_or_op:

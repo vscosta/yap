@@ -50,10 +50,8 @@ ructions                                       *
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
 
-#ifdef COROUTINING
     NoStackCutT:
       PROCESS_INT(interrupt_cut_t, do_cut_t);
-#endif
 
       ENDOp();
 
@@ -77,7 +75,7 @@ ructions                                       *
       PROCESS_INT(interrupt_cut_e, do_cut_e);
 #endif
 
-      ENDOp();
+ENDOp();
 
       /* save_b_x      Xi                 */
       Op(save_b_x, x);
@@ -433,8 +431,9 @@ ructions                                       *
 #ifndef NO_CHECKING
       /* check stacks */
       check_stack(NoStackDeallocate, HR);
+do_deallocate:
 #endif
-      PREG = NEXTOP(PREG, p);
+PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
          :-( */
       CPREG = (yamop *) ENV_YREG[E_CP];
@@ -467,11 +466,9 @@ ructions                                       *
 #ifdef SHADOW_S
       Yap_REGS.S_ = YREG;
 #endif
-      PREG = NEXTOP(PREG,p);
       saveregs();
-      d0 = interrupt_deallocate( PASS_REGS1 );
+      d0 = interrupt_deallocate(  PASS_REGS1 );
       setregs();
-      PREG = PREVOP(PREG,p);
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif

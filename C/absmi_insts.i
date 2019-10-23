@@ -2241,7 +2241,7 @@
       Yap_REGS.S_ = SREG;
 #endif
       saveregs();
-      d0 = interrupt_deallocate( PASS_REGS1 );
+      d0 = interrupt_deallocate( _deallocate PASS_REGS );
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
