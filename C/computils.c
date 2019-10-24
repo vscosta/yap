@@ -611,11 +611,17 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	  case 'b':
 	    /* write a variable bitmap for a call */
 	    {
-	      int max = arg/(8*sizeof(CELL)), i;
 	      CELL *ptr = cptr;
-	      for (i = 0; i <= max; i++) {
-		Yap_DebugPlWrite(MkIntegerTerm((Int)(*ptr++)));
-	      }
+	      Yap_DebugPlWrite (MkIntTerm( (COUNT)ptr[-1]));
+	      Yap_DebugErrorPutc (',');
+		CELL v = ptr[0];
+		int b = ptr[-1] - 1;
+		while(b>=0) {
+		  ch = (v & (1 <<b)) ? '1' : '0' ;
+		  b--;
+		  Yap_DebugErrorPutc (ch);
+		}
+	
 	    }
 	    break;
 	  case 'l':
@@ -633,7 +639,10 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    }
 	    break;
 	  case 'd':
-	    Yap_DebugPlWrite (MkIntegerTerm (arg));
+	    {
+	      COUNT c = (Int)rn;
+	    Yap_DebugPlWrite (MkIntegerTerm (c));
+	    }
 	    break;
 	  case 'z':
 	    Yap_DebugPlWrite (MkIntTerm (cpc->rnd3));

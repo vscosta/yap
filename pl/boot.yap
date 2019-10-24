@@ -197,6 +197,7 @@ print_boot_message(Type,Error,Desc) :-
 '$do_log_upd_clause0'(_,_,_,_,_,_).
 
 
+
 '$do_static_clause'(_,_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E,F) :-
 	'$continue_static_clause'(A,B,C,D,E,F).

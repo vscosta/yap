@@ -2987,6 +2987,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
   tb = Yap_GetFromSlot(yterms + 2);
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
+      LOCAL_CurHandle = yterms;
     UNLOCK(pe->PELock);
       LOCAL_CurHandle = yterms;
       return FALSE;
@@ -3035,7 +3036,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
       /* we don't actually need to execute code */
       UNLOCK(pe->PELock);
     }
-LOCAL_CurHandle = yterms;
+      LOCAL_CurHandle = yterms;
     return TRUE;
   } else {
     Term t;
@@ -3074,7 +3075,7 @@ LOCAL_CurHandle = yterms;
 
       }
     }
-    LOCAL_CurHandle = yterms;
+      LOCAL_CurHandle = yterms;
     UNLOCK(pe->PELock);
     return (Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
             Yap_unify(tr, rtn));
@@ -3126,8 +3127,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
     UNLOCK(pe->PELock);
-       LOCAL_CurHandle = yterms;
-   return FALSE;
+      LOCAL_CurHandle = yterms;
+    return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
 #if MULTIPLE_STACKS
@@ -3142,7 +3143,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify_constant(tb, MkAtomTerm(AtomTrue)) || !Yap_unify(tr, rtn)) {
       UNLOCK(pe->PELock);
-      Yap_RecoverSlots(yterms, 4);
+        LOCAL_CurHandle = yterms;
       return FALSE;
     }
     if (pe->ArityOfPE) {
@@ -3174,12 +3175,10 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
       UNLOCK(pe->PELock);
     }
     Yap_ErLogUpdCl(cl);
-        LOCAL_CurHandle = yterms;
-   return TRUE;
+      LOCAL_CurHandle = yterms;
+    return TRUE;
   } else {
     Term t;
-    Int res;
-
     while ((t = Yap_FetchClauseTermFromDB(cl->lusl.ClSource)) == 0L) {
         if (first_time) {
             if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
@@ -3214,8 +3213,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
             LOCAL_CurHandle = yterms;
         }
     }
-    LOCAL_CurHandle = yterms;
-    res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
+      LOCAL_CurHandle = yterms;
+  Int res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
         Yap_unify(tr, rtn);
   if (res)
     Yap_ErLogUpdCl(cl);
@@ -3564,7 +3563,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
   */
   if (cl == NULL) {
       LOCAL_CurHandle = yterms;
-      UNLOCKPE(45, pe);
+    UNLOCKPE(45, pe);
     return false;
   }
   CELL *Terms = Yap_AddressFromHandle(yterms) + 1;
@@ -3574,7 +3573,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
         !Yap_unify(Terms[2], rtn)) {
         LOCAL_CurHandle = yterms;
-        UNLOCKPE(45, pe);
+      UNLOCKPE(45, pe);
       return false;
     }
     if (arity) {
@@ -3600,7 +3599,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
         !Yap_unify(Terms[2], rtn)) {
         LOCAL_CurHandle = yterms;
-        UNLOCKPE(45, pe);
+      UNLOCKPE(45, pe);
       return false;
     }
     int i;
@@ -3618,7 +3617,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     P = cl->ClCode;
     UNLOCKPE(45, pe);
       LOCAL_CurHandle = yterms;
-      return true;
+    return true;
   }
   if (!(pe->PredFlags & SourcePredFlag)) {
     /* no source */
@@ -3626,6 +3625,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     UNLOCKPE(45, pe);
     LOCAL_CurHandle = yterms;
     bool rc = Yap_unify(Terms[2], rtn);
+      LOCAL_CurHandle = yterms;
     return rc;
   } else {
     Term t;
@@ -3670,7 +3670,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     if (IsApplTerm(t)) {
       rc = rc && Yap_unify(Terms[0], t);
     }
-    Yap_RecoverHandles(4, yterms);
+      LOCAL_CurHandle = yterms;
     return rc;
   }
 }

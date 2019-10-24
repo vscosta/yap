@@ -211,7 +211,8 @@ static void SearchForTrailFault(void *ptr, int sure) {
 
 /* This routine believes there is a continuous space starting from the
    HeapBase and ending on TrailTop */
-static void HandleSIGSEGV(int sig, void *sipv, void *uap) {
+static void
+HandleSIGSEGV(int sig, void *sipv, void *uap) {
   CACHE_REGS
 
   void *ptr = TR;
