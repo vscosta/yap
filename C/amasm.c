@@ -264,12 +264,12 @@ static yamop *a_cut(clause_info *, yamop *, int, struct intermediates *);
 #ifdef YAPOR
 static yamop *a_try(op_numbers, CELL, CELL, int, int, yamop *, int,
                     struct intermediates *);
-static yamop *a_either(op_numbers, CELL, CELL, int, yamop *, int,
+static yamop *a_either(op_numbers, COUNT, CELL, int, yamop *, int,
                        struct intermediates *);
 #else
 static yamop *a_try(op_numbers, CELL, CELL, yamop *, int,
                     struct intermediates *);
-static yamop *a_either(op_numbers, CELL, CELL, yamop *, int,
+static yamop *a_either(op_numbers, COUNT, CELL, yamop *, int,
                        struct intermediates *);
 #endif /* YAPOR */
 static yamop *a_gl(op_numbers, yamop *, int, struct PSEUDO *,
@@ -2006,10 +2006,10 @@ a_try(op_numbers opcode, CELL lab, CELL opr, yamop *code_p, int pass_no,
 
 static yamop *
 #ifdef YAPOR
-a_either(op_numbers opcode, CELL opr, CELL lab, int nofalts, yamop *code_p,
+a_either(op_numbers opcode, ```COUNT opr, CELL lab, int nofalts, yamop *code_p,
          int pass_no, struct intermediates *cip)
 #else
-a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no,
+a_either(op_numbers opcode, COUNT opr, CELL lab, yamop *code_p, int pass_no,
          struct intermediates *cip)
 #endif /* YAPOR */
 {
@@ -2230,7 +2230,7 @@ static yamop *a_bmap(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
   int i, max = (cpc->rnd1) / (8 * sizeof(CELL));
   for (i = 0; i <= max; i++)
     code_p = fill_a(cpc->arnds[i], code_p, pass_no);
-f  return code_p;
+  return code_p;
 }
 
 static yamop *a_bregs(yamop *code_p, int pass_no, struct PSEUDO *cpc) {
