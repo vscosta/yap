@@ -655,92 +655,25 @@ static int interrupt_deallocate(USES_REGS1) {
     if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
         return v;
     }
-    /*
-       don't do a creep here; also, if our instruction is followed by
-       a execute_c, just wait a bit more */
-    if (Yap_only_has_signals(YAP_CREEP_SIGNAL, YAP_WAKEUP_SIGNAL)) {
-        /* keep on going if there is something else */
-        execute_dealloc(PASS_REGS1);
-        return 1;
-    } else {
-        CELL cut_b = LCL0 - (CELL *) (S[E_CB]);
+    arity_t i = 0;
+    if (Yap_has_a_signal()) {
+      PredEntry *pe;
 
-        if (PP)
-                UNLOCKPE(1, PP);
-        ASP = YENV + E_CB;
-        /* cut_e */
-        SET_ASP(YENV, E_CB * sizeof(CELL));
-        if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
-            return v;
-        }
-        if (Yap_has_a_signal()) {
-            PredEntry *pe;
-            bool rc;
-
-            if (NEXTOP(NEXTOP(P, Osbpp), p)->opc == Yap_opcode(_cut_e)) {
-                /* followed by a cut */
-                ARG1 = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
-                pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy, 1));
-            } else {
-                pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, 0));
-            }
-            // deallocate moves P one step forward.
-
-            P = NEXTOP(P, p);
-            rc = interrupt_handler(pe PASS_REGS);
-            P = PREVOP(P, p);
-            return rc;
-            yamop *oP = P;
-            P = YESCODE;
-            if (!Yap_gcl(0, 0, ENV, YESCODE)) {
-                Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
-            }
-            S = ASP;
-            S[E_CB] = (CELL) (LCL0 - cut_b);
-            P = oP;
-
-        } else {
-            if (Yap_only_has_signals(YAP_CREEP_SIGNAL, YAP_WAKEUP_SIGNAL) != 0) {
-                execute_dealloc(PASS_REGS1);
-                return 1;
-            } else {
-                CELL cut_b = LCL0 - (CELL *) (S[E_CB]);
-
-                if (PP)
-                        UNLOCKPE(1, PP);
-                PP = PREVOP(P, p)->y_u.p.p;
-                ASP = YENV + E_CB;
-/* cut_e */
-                SET_ASP(YENV, E_CB * sizeof(CELL));
-                if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
-                    return v;
-                }
-                if (Yap_has_a_signal()) {
-                    PredEntry *pe;
-
-                    if (Yap_op_from_opcode(P->opc) == _cut_e) {
-/* followed by a cut */
-                        ARG1 = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
-                        pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy, 1));
-                    } else {
-                        pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, 0));
-                    }
-// deallocate moves P one step forward.
-                    P = NEXTOP(P, p);
-                    bool rc = interrupt_handler(pe PASS_REGS);
-                    P = PREVOP(P, p);
-                    return rc;
-                }
-                P = NEXTOP(P, p);
-                if (!Yap_gcl(0, 0, ENV, YESCODE)) {
-                    Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
-                }
-                P = PREVOP(P, p);
-                S = ASP;
-                S[E_CB] = (CELL) (LCL0 - cut_b);
-            }
-        }
-        return 1;
+      if (Yap_op_from_opcode(P->opc) == _cut_e) {
+        /* followed by a cut */
+        ARG1 = MkIntegerTerm(LCL0 - (CELL *)S[E_CB]);
+        pe = RepPredProp(Yap_GetPredPropByFunc(FunctorCutBy, 1));
+      } else {
+        pe = RepPredProp(Yap_GetPredPropByAtom(AtomTrue, 0));
+      }
+      // deallocate moves P one step forward.
+      bool rc = interrupt_handler(pe PASS_REGS);
+      P = NEXTOP(P,p);
+      return rc;
+    }
+    P = YESCODE;
+    if (!Yap_gcl(0, 0, ENV, YESCODE)) {
+      Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
     }
 }
 

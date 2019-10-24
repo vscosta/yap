@@ -1630,7 +1630,7 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
 
     if (!e_CP || !gc_ENV[E_E])
       return;
-#if 0 && defined(ANALYST) || defined(DEBUG)
+#if 1 && defined(ANALYST) || defined(DEBUG)
     PredEntry *pe = EnvPreg(e_CP);
     if (pe) {
       op_numbers op = Yap_op_from_opcode(e_CP->opc);
@@ -1649,6 +1649,8 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
       pvbmap = EnvBMap(e_CP);
     else
       pvbmap = NULL;
+    if (    gc_ENV == (CELL_PTR)gc_ENV[E_E])
+      return;
     gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev
                                      * environment */
   }
@@ -2915,6 +2917,8 @@ static void sweep_environments(CELL_PTR gc_ENV, size_t size,
     } else {
       pvbmap = NULL;
     }
+    if (    gc_ENV == (CELL_PTR)gc_ENV[E_E])
+      return;
     gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev
                                      * environment */
   }

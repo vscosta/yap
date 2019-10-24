@@ -2363,7 +2363,8 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
      *must* be created  for the garbage collector to work */
     B = NULL;
     ENV = NULL;
-    P = CP = YESCODE;
+    CP = YESCODE;
+    P = NULL;
 #ifdef DEPTH_LIMIT
     DEPTH = RESET_DEPTH();
 #endif
