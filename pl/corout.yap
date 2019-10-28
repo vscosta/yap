@@ -526,7 +526,7 @@ or `true` if no goal has suspended.
 */
 prolog:frozen(V, LG) :-
     var(V), !,
-    '$attributes':attvars_residuals([V], Gs, []),
+    attributes:attvars_residuals([V], Gs, []),
     simplify_frozen( Gs, SGs ),
     list_to_conj( SGs, LG ).
 prolog:frozen(V, G) :-
