@@ -237,17 +237,15 @@ and  _I_ is bound to its position.
 
 */
 nth_clause(V,I,R) :-
-    strip_module(V, M1, P), !,
+    strip_module(V, M1, P),
+    (var(I), var(R)
+    ->
+    '$number_of_clauses'(P,M1,N),
+    between(1, N, I)
+    ;
+    true
+    ),
     '$nth_clause'(P, M1, I, R).
-
-
-'$nth_clause'(P,M,I,R) :-
-    var(I), var(R), !,
-    '$clause'(P,M,_,R),
-    '$fetch_nth_clause'(P,M,I,R).
-'$nth_clause'(P,M,I,R) :-
-    '$fetch_nth_clause'(P,M,I,R).
-
 
 /**
    @pred  abolish(+ _PredSpec_) is iso

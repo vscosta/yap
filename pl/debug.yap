@@ -513,13 +513,12 @@ be lost.
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
-'$creep_enumerate_refs'(Setup, M:Goal, N, Ref, Catcher, Cleanup) :-
+'$creep_enumerate_refs'(Setup, M:Goal, Ref, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),
 	'$tag_cleanup'(CP0, Task0),
-	between(1,N,J),
-	'$nth_clause'(Goal,M,J,Ref),
+	nth_clause(M:Goal,_J,Ref),
 	'$cleanup_on_exit'(CP0, TaskF).
 
 

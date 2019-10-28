@@ -1637,6 +1637,7 @@ prolog_library(File) :-
 
 :- '$add_multifile'(dot_qualified_goal,1,user).
 
+
 /**
 
   @}

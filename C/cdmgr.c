@@ -3871,7 +3871,7 @@ static Int instance_property(USES_REGS1) {
   return FALSE;
 }
 
-static Int p_nth_instance(USES_REGS1) {
+static Int nth_clause(USES_REGS1) {
   PredEntry *pe;
   arity_t pred_arity;
   Functor pred_f;
@@ -4355,7 +4355,7 @@ void Yap_InitCdMgr(void) {
                 SyncPredFlag | NoTracePredFlag);
   Yap_InitCPred("instance_property", 3, instance_property,
                 SafePredFlag | SyncPredFlag | NoTracePredFlag);
-  Yap_InitCPred("$fetch_nth_clause", 4, p_nth_instance,
+  Yap_InitCPred("$nth_clause", 4, nth_clause,
                 SyncPredFlag | NoTracePredFlag);
   Yap_InitCPred("$predicate_erased_statistics", 5,
                 p_predicate_erased_statistics, SyncPredFlag | NoTracePredFlag);

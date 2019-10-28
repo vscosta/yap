@@ -84,7 +84,6 @@ prolog:'$protect'.
 '$visible'('$messages').
 '$visible'('$push_input_context').
 '$visible'('$pop_input_context').
-'$visible'('$set_source_module').
 '$visible'('$declare_module').
 '$visible'('$store_clause').
 '$visible'('$skip_list').

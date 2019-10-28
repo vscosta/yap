@@ -95,6 +95,10 @@ users of the library are:
 	 Multiple = -multiple
 	),
 	style_check(StyleF).
+
+'$set_source_module'(Mod0,Mod) :-
+    current_source_module(Mod0, Mod).
+
 :- endif.
 
 
@@ -190,7 +194,7 @@ public_operators([H|T]) :- !,
 %	==
 
 prolog_open_source(Src, Fd) :-
-	(   prolog:xref_open_source(Src, Fd)
+	(   true % prolog:xref_open_source(Src, Fd)
 	->  true
 	;   open(Src, read, Fd)
 	),
@@ -233,6 +237,7 @@ prolog_canonical_source(Source, Src) :-
 	absolute_file_name(Source,
 			   [ file_type(prolog),
 			     access(read),
+			     expand(true),
 			     file_errors(fail)
 			   ],
 			   Src), !.

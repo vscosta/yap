@@ -108,18 +108,6 @@ prolog:source_exports(Source, Export) :-
 	;   lists:member(Export, Exports)
 	).
 
-%%	@pred open_source(+Source, -In:stream) is semidet.
-%
-%	Open a source location.
-
-prolog:open_source(File, In) :-
-	exists_source(File, Path),
-	open(Path, read, In),
-	(   peek_char(In, #)
-	->  skip(In, 10)
-	;   true
-	).
-
 exports(In, Exports) :-
 	read(In, Term),
 	Term = (:- module(_Name, Exports)).

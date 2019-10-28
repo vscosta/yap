@@ -29,7 +29,6 @@
     the GNU General Public License.
 */
 
-:- module(prolog_xref,
 	  [ xref_source/1,		% +Source
 	    xref_called/3,		% ?Source, ?Callable, ?By
 	    xref_defined/3,		% ?Source. ?Callable, -How
@@ -133,13 +132,13 @@ called_by(on_signal(_,_,New), [New+1]) :-
 verbose :-
 	debugging(xref).
 
-%%	xref_source(+Source) is det.
+%%	xref_prolog_source(+prolog_source) is det.
 %
-%	Generate the cross-reference data  for   Source  if  not already
-%	done and the source is not modified.  Checking for modifications
+%	Generate the cross-reference data  for   prolog_source  if  not already
+%	done and the prolog_source is not modified.  Checking for modifications
 %	is only done for files.
 %
-%	@param Source	File specification or XPCE buffer
+%	@param prolog_source	File specification or XPCE buffer
 
 xref_source(Source) :-
 	prolog_canonical_source(Source, Src),

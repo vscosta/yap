@@ -662,12 +662,6 @@ delete_import_module(Mod, ImportModule) :-
 delete_import_module(Mod, ImportModule) :-
     '$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
 
-'$set_source_module'(Source0, SourceF) :-
-    prolog_load_context(module, Source0), !,
-    module(SourceF).
-'$set_source_module'(Source0, SourceF) :-
-    current_module(Source0, SourceF).
-
 /**
   @pred module_property( +Module, ? _Property_ ) is nondet
 
