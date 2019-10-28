@@ -540,9 +540,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   static xarg *setReadEnv(Term opts, FEnv *fe, struct renv *re, int inp_stream)
   {
     CACHE_REGS
-      LOCAL_VarTable = NULL;
-
-    LOCAL_AnonVarTable = NULL;
+      LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
     fe->enc = GLOBAL_Stream[inp_stream].encoding;
     xarg *args =
       Yap_ArgListToVector(opts, read_defs, READ_END, DOMAIN_ERROR_READ_OPTION);
@@ -758,7 +756,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
             fe->old_H = HR;
             if (setjmp(LOCAL_IOBotch) == 0)
               {
-                if ((v = Yap_Variables(LOCAL_VarTable, TermNil)))
+                if ((v = Yap_Variables(LOCAL_VarList, TermNil)))
                   {
                     fe->old_H = HR;
                     return v;
@@ -786,7 +784,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 
             if (setjmp(LOCAL_IOBotch) == 0)
               {
-                if ((v = Yap_VarNames(LOCAL_VarTable, TermNil)))
+                if ((v = Yap_VarNames(LOCAL_VarList, TermNil)))
                   {
                     fe->old_H = HR;
                     return v;
@@ -814,7 +812,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
 
             if (setjmp(LOCAL_IOBotch) == 0)
               {
-                if ((v = Yap_Singletons(LOCAL_VarTable, TermNil)))
+                if ((v = Yap_Singletons(LOCAL_VarList, TermNil)))
                   {
                     return v;
                   }
@@ -1355,6 +1353,7 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
   {
     CACHE_REGS
 
+      LOCAL_VarTable = LOCAL_VarList = LOCAL_VarTail = LOCAL_AnonVarTable = NULL;
     xarg *args = Yap_ArgListToVector(opts, read_clause_defs, READ_CLAUSE_END,
                                      DOMAIN_ERROR_READ_OPTION);
       memset(fe,0,sizeof(*fe));

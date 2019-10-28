@@ -696,8 +696,9 @@ Term Yap_scan_num(StreamDesc *inp, bool error_on) {
   int ch, cherr = 0;
   char *ptr;
   int lvl = push_text_stack();
-  
-  LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
+
+    LOCAL_VarTable = LOCAL_AnonVarTable = NULL;
+    LOCAL_VarList = LOCAL_VarTail = NULL;
   if (!(ptr = Malloc(4096))) {
     LOCAL_ErrorMessage = "Trail Overflow";
     LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;

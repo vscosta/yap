@@ -27,4 +27,5 @@ typedef struct VARSTRUCT {
   UInt refs;
   struct VARSTRUCT *VarLeft, *VarRight;
   Atom VarRep;
+  struct VARSTRUCT *VarNext;
 } VarEntry;

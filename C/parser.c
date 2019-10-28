@@ -168,7 +168,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
     p->hv = hv;
     p->refs = 1L;
     p->VarRep = vat;
-  } else {
+   } else {
     /* anon var */
     p = Malloc(sizeof(VarEntry));
     p->VarLeft = LOCAL_AnonVarTable;
@@ -179,33 +179,42 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
     p->VarRep = vat;
   }
   p->VarAdr = TermNil;
-  return (p);
+    p->VarNext = NULL;
+    if (LOCAL_VarList) {
+        LOCAL_VarTail->VarNext = p;
+    } else {
+        LOCAL_VarList = p;
+    }
+    LOCAL_VarTail = p;
+    return (p);
 }
 
 static Term VarNames(VarEntry *p, Term l USES_REGS) {
-  if (p != NULL) {
-      l = VarNames(p->VarRight,l);
-    if (strcmp(RepAtom(p->VarRep)->StrOfAE, "_") != 0) {
-      Term t[2];
-      Term o;
+    Term hd = l, tl = l;
+    while (p != NULL) {
+        if (RepAtom(p->VarRep)->StrOfAE[0] != '_') {
+            Term t[2];
+            Term o;
 
-      t[0] = MkAtomTerm(p->VarRep);
-      if (!IsVarTerm(p->VarAdr))
-        p->VarAdr = MkVarTerm();
-      t[1] = p->VarAdr;
-      o = Yap_MkApplTerm(FunctorEq, 2, t);
-      o = MkPairTerm(o, l PASS_REGS);
-      if (HR > ASP - 4096) {
-        save_machine_regs();
-        longjmp(LOCAL_IOBotch, 1);
-      }
-      return (o);
-    } else {
-      return l;
+            t[0] = MkAtomTerm(p->VarRep);
+            t[1] = p->VarAdr;
+            o = Yap_MkApplTerm(FunctorEq, 2, t);
+            o = MkPairTerm(o, l);
+            if (hd == l) {
+                hd = tl = o;
+            } else {
+                RepPair(tl)[1] = o;
+                tl = o;
+            }
+            if (HR > ASP - 4096) {
+                save_machine_regs();
+                longjmp(LOCAL_IOBotch, 1);
+            }
+        }
+            p = p->VarNext;
     }
-  } else {
-    return (l);
-  }
+    return (hd);
+
 }
 
 Term Yap_VarNames(VarEntry *p, Term l) {
@@ -214,29 +223,30 @@ Term Yap_VarNames(VarEntry *p, Term l) {
 }
 
 static Term Singletons(VarEntry *p, Term l USES_REGS) {
-  if (p != NULL) {
-    if (RepAtom(p->VarRep)->StrOfAE[0] != '_' && p->refs == 1) {
-      Term t[2];
-      Term o;
+    Term hd = l, tl = l;
+  while (p != NULL) {
+      if (RepAtom(p->VarRep)->StrOfAE[0] != '_' && p->refs == 1) {
+          Term t[2];
+          Term o;
 
-      t[0] = MkAtomTerm(p->VarRep);
-      t[1] = p->VarAdr;
-      o = Yap_MkApplTerm(FunctorEq, 2, t);
-      o = MkPairTerm(o,
-                     Singletons(p->VarRight,
-                                Singletons(p->VarLeft, l PASS_REGS) PASS_REGS));
-      if (HR > ASP - 4096) {
-        save_machine_regs();
-        longjmp(LOCAL_IOBotch, 1);
+          t[0] = MkAtomTerm(p->VarRep);
+          t[1] = p->VarAdr;
+          o = Yap_MkApplTerm(FunctorEq, 2, t);
+          o = MkPairTerm(o, l);
+          if (hd == l) {
+              hd = tl = o;
+          } else {
+              RepPair(tl)[1] = o;
+              tl = o;
+          }
+          if (HR > ASP - 4096) {
+              save_machine_regs();
+              longjmp(LOCAL_IOBotch, 1);
+          }
       }
-      return (o);
-    } else {
-      return Singletons(p->VarRight,
-                        Singletons(p->VarLeft, l PASS_REGS) PASS_REGS);
-    }
-  } else {
-    return (l);
+          p = p->VarNext;
   }
+    return (hd);
 }
 
 Term Yap_Singletons(VarEntry *p, Term l) {
@@ -245,24 +255,30 @@ Term Yap_Singletons(VarEntry *p, Term l) {
 }
 
 static Term Variables(VarEntry *p, Term l USES_REGS) {
-  if (p != NULL) {
-    Term o;
-    o = MkPairTerm(
-        p->VarAdr,
-        Variables(p->VarRight, Variables(p->VarLeft, l PASS_REGS) PASS_REGS));
-    if (HR > ASP - 4096) {
-      save_machine_regs();
-      siglongjmp(LOCAL_IOBotch, 1);
+    Term hd = l, tl= l;
+    while (p != NULL) {
+            Term o;
+
+           o = p->VarAdr;
+            o = MkPairTerm(o, l);
+            if (hd == l) {
+                hd = tl = o;
+            } else {
+                RepPair(tl)[1] = o;
+                tl = o;
+            }
+            if (HR > ASP - 4096) {
+                save_machine_regs();
+                longjmp(LOCAL_IOBotch, 1);
+            }
+            p = p->VarNext;
     }
-    return (o);
-  } else {
-    return (l);
-  }
+    return (hd);
 }
 
 Term Yap_Variables(VarEntry *p, Term l) {
   CACHE_REGS
-  l = Variables(LOCAL_AnonVarTable, l PASS_REGS);
+  l = Variables(p, l PASS_REGS);
   return Variables(p, l PASS_REGS);
 }
 
