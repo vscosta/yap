@@ -87,7 +87,7 @@ style_check(V) :-
 	\+atom(V),
 	\+ is_list(V),
 	V \= + _,
-	V \= + _, !,
+	V \= - _, !,
 	'$do_error'( domain_error(style_name, V), style_check(V) ).
 
 
