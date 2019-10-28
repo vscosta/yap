@@ -675,6 +675,8 @@ static Int dollar_var(USES_REGS1) {
   return Yap_unify(tv, ARG2);
 }
 
+
+
 static Int term_to_string(USES_REGS1) {
   Term t2 = Deref(ARG2), rc = false, t1 = Deref(ARG1);
   const char *s;
@@ -696,6 +698,10 @@ static Int term_to_string(USES_REGS1) {
   return (rc = readFromBuffer(s, TermNil)) != 0L && Yap_unify(rc, Yap_PopHandle(y1));
 }
 
+/**
+ *
+ * @return
+ */
 static Int term_to_atom(USES_REGS1) {
   Term t2 = Deref(ARG2), ctl, rc = false;
   Atom at;
@@ -718,6 +724,8 @@ static Int term_to_atom(USES_REGS1) {
   return ((rc = Yap_UBufferToTerm(RepAtom(at)->UStrOfAE, ctl))) &&
          Yap_unify(rc, ARG1);
 }
+
+
 
 char *Yap_TermToBuffer(Term t, int flags) {
   CACHE_REGS
@@ -753,10 +761,8 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("print", 1, print1, SyncPredFlag);
   Yap_InitCPred("print", 2, print, SyncPredFlag);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
-  ;
-
-  Yap_InitCPred("term_to_string", 3, term_to_string, 0);
-  Yap_InitCPred("term_to_atom", 3, term_to_atom, 0);
+    Yap_InitCPred("term_to_string", 2, term_to_string, 0);
+    Yap_InitCPred("term_to_atom", 2, term_to_atom, 0);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   ;
   Yap_InitCPred("$VAR", 2, dollar_var, SafePredFlag);
