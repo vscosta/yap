@@ -215,6 +215,8 @@ LOCAL(TokEntry *, tokptr);
 LOCAL(TokEntry *, toktide);
 LOCAL(VarEntry *, VarTable);
 LOCAL(VarEntry *, AnonVarTable);
+LOCAL(VarEntry *, VarList);
+LOCAL(VarEntry *, VarTail);
 LOCAL(Term, Comments);
 LOCAL(CELL *, CommentsTail);
 LOCAL(CELL *, CommentsNextChar);
