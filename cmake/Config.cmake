@@ -1,91 +1,5 @@
 remove_definitions(
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 )
 
 # modern systems do this.
@@ -166,6 +80,7 @@ check_include_file(sys/shm.h HAVE_SYS_SHM_H)
 check_include_file(sys/socket.h HAVE_SYS_SOCKET_H)
 check_include_file(sys/stat.h HAVE_SYS_STAT_H)
 check_include_file(sys/syscall.h HAVE_SYS_SYSCALL_H)
+check_include_file(sys/timeb.h HAVE_SYS_TIMEB_H)
 check_include_file(sys/times.h HAVE_SYS_TIMES_H)
 check_include_file(sys/time.h HAVE_SYS_TIME_H)
 check_include_file(sys/types.h HAVE_SYS_TYPES_H)
