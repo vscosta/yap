@@ -574,31 +574,36 @@ current_predicate(F0) :-
     must_bind_to_type( predicate_indicator, F ),
     '$c_i_predicate'( F, M ).
 
-'$c_i_predicate'( A/N, M ) :-
+'$c_i_predicate'( AN, M ) :-
+    var(AN),
     !,
-    (
-	ground(A/N)
-    ->
+    AN = A/N,
+    current_predicate(A, M:S),
+    functor(S, A, N).
+'$c_i_predicate'( A/N, M ) :-
     atom(A), integer(N),
+    !,
     functor(S, A, N),
-    current_predicate(A, M:S)
-    ;
+    current_predicate(A, M:S).
+'$c_i_predicate'( A/N, M ) :-
+    atom(A), var(N),
+    !,
     current_predicate(A, M:S),
-    functor(S, A, N)
-    ).
+    functor(S, A, N).
+'$c_i_predicate'( A/N, M ) :-
+    var(A),
+    !,
+    current_predicate(A, M:S),
+    functor(S, A, N).
 '$c_i_predicate'( A//N, M ) :-
-    (
-	ground(A)
-    ->
-    atom(A), integer(N),
-    N2 is N+2,
-    functor(S, A, N2),
-    current_predicate(A, M:S)
-    ;
-    current_predicate(A, M:S),
-    functor(S, A, N2),
-    N is N2-2
-    ).
+    var(N),
+    !,
+    '$c_i_predicate'( A/N0, M ),
+    N is N0+2.
+'$c_i_predicate'( A//N, M ) :-
+    N0 is N-2,
+    '$c_i_predicate'( A/N0, M ).
+
 
 /** @pred  current_key(? _A_,? _K_)
 

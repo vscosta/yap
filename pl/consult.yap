@@ -1069,7 +1069,7 @@ prolog_load_context(stream, Stream) :-
         time_file64(F,CurrentAge),
         ( (Age == CurrentAge ; Age = -1)  -> true; erase(R), fail).
 
-				% inform the file has been loaded and is now available.
+	% inform the file has been loaded and is now available.
 '$loaded'(F, UserFile, M, OldF, Line, Reconsult0, Reconsult, Dir, TOpts, Opts) :-
 	( '$lf_opt'('$from_stream',TOpts,true) -> working_directory(Dir,Dir) ; file_directory_name(F, Dir) ),
 	nb_setval('$consulting_file', F ),

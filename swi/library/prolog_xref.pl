@@ -29,6 +29,7 @@
     the GNU General Public License.
 */
 
+:- module(prolog_xref,
 	  [ xref_source/1,		% +Source
 	    xref_called/3,		% ?Source, ?Callable, ?By
 	    xref_defined/3,		% ?Source. ?Callable, -How
@@ -195,7 +196,7 @@ xref_input_stream(Stream) :-
 xref_push_op(Src, P, T, N0) :- !,
 	(   N0 = _:_
 	->  N = N0
-	;   '$set_source_module'(M, M),
+	;   current_source_module(M, M),
 	    N = M:N0
 	),
 	push_op(P, T, N),
@@ -360,10 +361,11 @@ collect(Src, In) :-
 read_source_term(Src, In, Term, TermPos) :-
 	atom(Src),
 	\+ source_file(Src),		% normally loaded; no need to update
-	'$get_predicate_attribute'(prolog:comment_hook(_,_,_),
-				   number_of_clauses, N),
+%       '$get_predicate_attribute'(prolog:comment_hook(_,_,_),
+%	    number_of_clauses, N),
+	    predicate_property( prolog:comment_hook(_,_,_), number_of_clauses( N) ),
 	N > 0, !,
-	'$set_source_module'(SM, SM),
+	current_source_module(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    comments(Comments),
@@ -375,7 +377,7 @@ read_source_term(Src, In, Term, TermPos) :-
 	;   true
 	).
 read_source_term(_, In, Term, TermPos) :-
-	'$set_source_module'(SM, SM),
+	current_source_module(SM, SM),
 	read_term(In, Term,
 		  [ term_position(TermPos),
 		    module(SM)
@@ -515,7 +517,7 @@ process_directive(system_module, _) :-
 process_directive(set_prolog_flag(character_escapes, Esc), _) :-
 	set_prolog_flag(character_escapes, Esc).
 process_directive(pce_expansion:push_compile_operators, _) :-
-	'$set_source_module'(SM, SM),
+	current_source_module(SM, SM),
 	call(pce_expansion:push_compile_operators(SM)). % call to avoid xref
 process_directive(pce_expansion:pop_compile_operators, _) :-
 	call(pce_expansion:pop_compile_operators).
@@ -1288,7 +1290,7 @@ assert_op(Src, op(P,T,_:N)) :-
 assert_module(Src, Module) :-
 	xmodule(Module, Src), !.
 assert_module(Src, Module) :-
-	'$set_source_module'(_, Module),
+	    current_source_module(_, Module),
 	assert(xmodule(Module, Src)).
 
 assert_export(_, []) :- !.

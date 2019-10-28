@@ -601,12 +601,12 @@ be lost.
 '$ports_to_port'([call,exit], internal).
 '$ports_to_port'([exit,exit], exit).
 '$ports_to_port'([exit,answer], answer).
-'$ports_to_port'([exit], internal).
+'$ports_to_port'(     [exit], internal).
 '$ports_to_port'([exit,redo], internal).
 '$ports_to_port'([fail,exit], fail).
-'$ports_to_port'([fail,answer], fail).
+'$ports_to_port'([fail,answer], redo).
 '$ports_to_port'([exit,fail], internal).
-'$ports_to_port'([fail], fail).
+'$ports_to_port'(     [fail], fail).
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).

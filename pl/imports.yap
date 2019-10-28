@@ -61,13 +61,6 @@ fail.
  %writeln((Imp:Pred -> Exp:NPred )).
     !.
 
-'$one_predicate_definition'(Imp:Pred,Exp:NPred) :-
-    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
-    '$pred_exists'(NPred,Exp),
-%writeln((Imp:Pred -> Exp:NPred )).
-    !.
-'$one_predicate_definition'(Exp:Pred,Exp:Pred).
-    
 '$predicate_definition'(M0:Pred0,Path,ModF:PredF) :-
     '$get_predicate_definition'(M0:Pred0, Mod:Pred),
     (

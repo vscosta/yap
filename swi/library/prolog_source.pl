@@ -35,6 +35,7 @@
 	    prolog_close_source/1,	% +Stream
 	    prolog_canonical_source/2	% +Spec, -Id
 	  ]).
+
 :- use_module(operators).
 :- use_module(debug).
 
@@ -76,21 +77,21 @@ users of the library are:
 	(
 	 prolog_flag(single_var_warnings,on)
 	->
-	 Singleton = singleton
+	 ( Singleton = singleton ; Singleton = +singleton )
 	;
 	 Singleton = -singleton
 	),
 	(
 	 prolog_flag(discontiguous_warnings,on)
 	->
-	 Discontiguous = discontiguous
+	( Discontiguous = discontiguous ;  Discontiguous = +discontiguous )
 	;
 	 Discontiguous = -discontiguous
 	),
 	(
 	 prolog_flag(redefine_warnings,on)
 	->
-	 Multiple = multiple
+	 ( Multiple = multiple ; Multiple = +multiple )
 	;
 	 Multiple = -multiple
 	),
@@ -194,10 +195,11 @@ public_operators([H|T]) :- !,
 %	==
 
 prolog_open_source(Src, Fd) :-
-	(   true % prolog:xref_open_source(Src, Fd)
-	->  true
-	;   open(Src, read, Fd)
-	),
+%	(   false % prolog:xref_open_source(Src, Fd)
+%	->  true
+	    %	;
+	    open(Src, read, Fd),
+%	),
 	(   peek_char(Fd, #)		% Deal with #! script
 	->  skip(Fd, 10)
 	;   true
