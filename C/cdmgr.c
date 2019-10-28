@@ -3025,7 +3025,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
       }
       P = cl->ClCode;
 #if defined(YAPOR) || defined(THREADS)
-      if (pe->PredFlags & ThreadLocalPredFlag) {
+      if (pe->PredFlags & ThreadLocaqlPredFlag) {
         /* we don't actually need to execute code */
         UNLOCK(pe->PELock);
       } else {
@@ -3127,7 +3127,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
     UNLOCK(pe->PELock);
-      LOCAL_CurHandle = yterms;
+    LOCAL_CurHandle = yterms;
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
@@ -3175,8 +3175,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
       UNLOCK(pe->PELock);
     }
     Yap_ErLogUpdCl(cl);
-      LOCAL_CurHandle = yterms;
-    return TRUE;
+        LOCAL_CurHandle = yterms;
+	return true;
   } else {
     Term t;
     while ((t = Yap_FetchClauseTermFromDB(cl->lusl.ClSource)) == 0L) {
@@ -3213,8 +3213,8 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
             LOCAL_CurHandle = yterms;
         }
     }
-      LOCAL_CurHandle = yterms;
-  Int res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
+    LOCAL_CurHandle = yterms;
+    res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
         Yap_unify(tr, rtn);
   if (res)
     Yap_ErLogUpdCl(cl);
