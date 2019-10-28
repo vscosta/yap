@@ -61,6 +61,8 @@
 #cmakedefine BROKEN_FFLUSH_NULL "${BROKEN_FFLUSH_NULL}"
 #endif
 
+
+
 /* size of a cell in bytes. */
 #ifndef CELLSIZE
 #define CELLSIZE ${CELLSIZE}
@@ -285,6 +287,16 @@ function. */
 /* Define to 1 if you have the <ctype.h> header file. */
 #ifndef HAVE_CTYPE_H
 #cmakedefine HAVE_CTYPE_H ${HAVE_CTYPE_H}
+#endif
+
+/* Define to 1 if you have the `ftime' function. */
+#ifndef HAVE_FTIME
+#cmakedefine HAVE_FTIME ${HAVE_FTIME}
+#endif
+
+/* Define to 1 if you have the <sys/timeb.h> header file. */
+#ifndef HAVE_SYS_TIMEB_H
+#cmakedefine HAVE_SYS_TIMEB_H ${HAVE_SYS_TIMEB_H}
 #endif
 
 /* Define to 1 if you have the <direct.h> header file. */
