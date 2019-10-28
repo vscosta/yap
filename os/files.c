@@ -39,6 +39,9 @@ static char SccsId[] = "%W% %G%";
 #if HAVE_DIRECT_H
 #include <direct.h>
 #endif
+#if HAVE_SYS_TIMEB_H
+#include <sys/timeb.h>
+#endif
 #if defined(__MINGW32__) || _MSC_VER
 #include <io.h>
 #include <windows.h>
@@ -139,7 +142,52 @@ static Int time_file(USES_REGS1) {
   }
 }
 
-static Int file_size(USES_REGS1) {
+/**
+ *  @pred get_time(-T)
+ *
+ * unify its only argumet with an integer representing the time past simce the epoch. The integer must have the same representation as the file time-stamps.
+ */
+static Int get_time(USES_REGS1) {
+#if __WIN32
+    FILETIME ft;
+    Term rc;
+
+    if (GetSystenTimeAsFileTime(&ft) == 0) {
+      Yap_WinError("in time_file");
+      return false;
+    }
+    ULONGLONG qwResult;
+
+    // Copy the time into a quadword.
+    qwResult = (((ULONGLONG)ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+#if SIZEOF_INT_P == 8
+    rc = MkIntegerTerm(qwResult);
+#elif USE_GMP
+    char s[64];
+    MP_INT rop;
+
+    snprintf(s, 64, "%I64d", (long long int)n);
+    mpz_init_set_str(&rop, s, 10);
+    rc = Yap_MkBigIntTerm((void *)&rop PASS_REGS);
+#else
+    rc = MkIntegerTerm(ft.dwHighDateTime);
+#endif
+    return Yap_unify(ARG1, rc);
+#elif HAVE_FTIME
+    struct timeb ss;
+
+    if (ftime(&ss) != 0) {
+      /* ignore errors while checking a file */
+      return false;
+    }
+    return Yap_unify(ARG1, MkIntegerTerm(ss.time));
+#else
+    return FALSE;
+#endif
+
+}
+
+ static Int file_size(USES_REGS1) {
   int rc;
   Int sno = Yap_CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f),
@@ -761,6 +809,7 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
   Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
+  Yap_InitCPred("get_time", 1, get_time, SyncPredFlag);
 }
 
 /// @}
