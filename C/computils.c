@@ -371,95 +371,90 @@ Yap_emit_extra_size (compiler_vm_op o, CELL r1, int size, struct intermediates *
   return p->arnds;
 }
 
-static void
-bip_name(Int op, char *s)
+const char *
+Yap_bip_name(Int op)
 {
   switch (op) {
   case _atom:
-    strcpy(s,"atom");
+    return "atom";
     break;
   case _atomic:
-    strcpy(s,"atomic");
+    return "atomic";
     break;
   case _integer:
-    strcpy(s,"integer");
+    return "integer";
     break;
   case _nonvar:
-    strcpy(s,"nonvar");
+    return "nonvar";
     break;
   case _number:
-    strcpy(s,"number");
+    return "number";
     break;
   case _var:
-    strcpy(s,"var");
+    return "var";
     break;
   case _cut_by:
-    strcpy(s,"cut_by");
+    return "cut_by";
     break;
   case _save_by:
-    strcpy(s,"save_by");
+    return "save_by";
     break;
   case _db_ref:
-    strcpy(s,"db_ref");
+    return "db_ref";
     break;
   case _compound:
-    strcpy(s,"compound");
+    return "compound";
     break;
   case _float:
-    strcpy(s,"float");
+    return "float";
     break;
   case _primitive:
-    strcpy(s,"primitive");
+    return "primitive";
     break;
   case _equal:
-    strcpy(s,"equal");
+    return "equal";
     break;
   case _dif:
-    strcpy(s,"dif");
+    return "dif";
     break;
   case _eq:
-    strcpy(s,"eq");
+    return "eq";
     break;
   case _functor:
-    strcpy(s,"functor");
+    return "functor";
     break;
   case _plus:
-    strcpy(s,"plus");
+    return "plus";
     break;
   case _minus:
-    strcpy(s,"minus");
+    return "minus";
     break;
   case _times:
-    strcpy(s,"times");
+    return "times";
     break;
   case _div:
-    strcpy(s,"div");
+    return "div";
     break;
   case _and:
-    strcpy(s,"and");
+    return "and";
     break;
   case _or:
-    strcpy(s,"or");
+    return "or";
     break;
   case _sll:
-    strcpy(s,"sll");
+    return "sll";
     break;
   case _slr:
-    strcpy(s,"slr");
+    return "slr";
     break;
   case _arg:
-    strcpy(s,"arg");
+    return "arg";
     break;
   default:
-    strcpy(s,"");
-    break;
+    return "";
   }
 }
 
-void
-Yap_bip_name(Int op, char *s) {
-  bip_name(op,s);
-}
 
 #ifdef DEBUG
 
@@ -632,10 +627,7 @@ ShowOp (compiler_vm_op ic, const char *f, struct PSEUDO *cpc)
 	    break;
 	  case 'B':
 	    {
-	      char s[32];
-
-	      bip_name(rn,s);
-	      Yap_DebugPlWrite (MkAtomTerm(Yap_LookupAtom(s)));
+	      Yap_DebugPlWrite (MkAtomTerm(Yap_LookupAtom(Yap_bip_name(rn))));
 	    }
 	    break;
 	  case 'd':

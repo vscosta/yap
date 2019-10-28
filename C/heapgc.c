@@ -1516,7 +1516,7 @@ static void mark_external_reference(CELL *ptr USES_REGS) {
 #endif
     mark_variable(ptr PASS_REGS);
     POPSWAP_POINTER(old, ptr PASS_REGS);
-  } else if (ptr < H0 || ptr > (CELL *)LOCAL_TrailTop) {
+  } else if (next < H0 || next > (CELL *)LOCAL_TrailTop) {
     MARK(ptr);
     mark_code(ptr, next PASS_REGS);
   }
@@ -2030,9 +2030,11 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
     }
     if (opnum == _or_else || opnum == _or_last) {
       /* ; choice point */
+      CELL *env = gc_B->cp_env;
+      yamop *e_cp = (yamop *)env[E_CP];
       mark_environments((CELL_PTR)(gc_B->cp_a1),
-                        -gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
-                        gc_B->cp_cp->y_u.Osblp.bmap PASS_REGS);
+                       EnvSize(e_cp),
+                       EnvBMap(e_cp) PASS_REGS);
     } else {
       /* choicepoint with arguments */
       register CELL_PTR saved_reg;

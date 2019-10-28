@@ -366,7 +366,7 @@ extern CELL *Yap_emit_extra_size(compiler_vm_op, CELL, int, struct intermediates
 extern char *Yap_AllocCMem(UInt, struct intermediates *);
 extern void Yap_ReleaseCMem(struct intermediates *);
 extern int Yap_is_a_test_pred(Term, Term);
-extern void Yap_bip_name(Int, char *);
+extern const char * Yap_bip_name(Int);
 #ifdef DEBUG
 extern void Yap_ShowCode(struct intermediates *);
 #endif /* DEBUG */

@@ -56,7 +56,6 @@ loop(Inp) :-
 This section is about the YAP implementation, and is mostly of
 interest to hackers.
 @}
-
 @defgroup Emulator The Abstract Machine Emulator
 @ingroup Implementation
 
@@ -67,11 +66,12 @@ interest to hackers.
 
 /// code belongs to the emulator
 #define IN_ABSMI_C 1
-#define _INATIVE 1
+#define _INATIV
+
 /// use tmp variables that are placed in registers
 #define HAS_CACHE_REGS 1
 
-#include "absmi.h"
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                #include "absmi.h"
 #include "heapgc.h"
 
 #include "cut_c.h"
@@ -454,7 +454,7 @@ static int interrupt_handlerc(PredEntry *pe USES_REGS) {
 static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
     int rc;
 
-    ARG1 = push_live_regs(NEXTOP(P, Osbpp));
+    ARG1 = push_live_regs(P);
 #ifdef FROZEN_STACKS
     {
         choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -761,9 +761,11 @@ static int interrupt_deallocate(USES_REGS1) {
             return 2;
         }
         /* find something to fool S */
-        P = NEXTOP(P, s);
-        int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-        P = PREVOP(P, s);
+        yamop *myP = P, *myCP = CP;
+        P = NEXTOP(NEXTOP(P, s),Osblp);
+       int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
+        P = myP;
+        CP=myCP;
         return rc;
     }
     static int interrupt_cut_t(USES_REGS1) {
@@ -783,9 +785,11 @@ static int interrupt_deallocate(USES_REGS1) {
             return 2;
         }
         /* find something to fool S */
-        P = NEXTOP(P, s);
+        yamop *myP = P, *myCP = CP;
+        P = NEXTOP(NEXTOP(P, s),Osblp);
         int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-        P = PREVOP(P, s);
+        P = myP;
+        CP=myCP;
         return rc;
     }
 
@@ -805,9 +809,11 @@ static int interrupt_deallocate(USES_REGS1) {
             return 2;
         }
         /* find something to fool S */
-        P = NEXTOP(P, s);
+        yamop *myP = P, *myCP = CP;
+        P = NEXTOP(NEXTOP(P, s),Osblp);
         int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-        P = PREVOP(P, s);
+        P = myP;
+        CP=myCP;
         return rc;
     }
 
@@ -830,10 +836,23 @@ static int interrupt_deallocate(USES_REGS1) {
             Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
             return 2;
         }
-        /* find something to fool S */
-        P = NEXTOP(P, yps);
-        int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-        P = PREVOP(P, yps);return rc;
+        Int myYENV = LCL0-YENV;
+        Int myENV = LCL0-ENV;
+        CACHE_Y_AS_ENV(YREG);
+            ENV_YREG[E_CP] = (CELL)CP;
+            ENV_YREG[E_E] = (CELL)ENV;
+#ifdef DEPTH_LIMIT
+            ENV_YREG[E_DEPTH] = DEPTH;
+#endif /* DEPTH_LIMIT */
+        ENDCACHE_Y_AS_ENV();
+        yamop *myP = P, *myCP = CP;
+        P = NEXTOP(NEXTOP(P, xps),Osblp);
+        bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
+        P = myP;
+        CP = myCP;
+        YENV = LCL0-myYENV;
+        ENV = LCL0-myENV;
+        return rc;
     }
 
     static int interrupt_commit_x(USES_REGS1) {
@@ -856,19 +875,24 @@ static int interrupt_deallocate(USES_REGS1) {
                 UNLOCKPE(1, PP);
         PP = P->y_u.xps.p0;
         /* find something to fool S */
-        if (P->opc == Yap_opcode(_fcall)) {
+
             /* fill it up */
-            CACHE_Y_AS_ENV(YREG);
+       Int myYENV = LCL0-YENV;
+        Int myENV = LCL0-ENV;
+              CACHE_Y_AS_ENV(YREG);
                 ENV_YREG[E_CP] = (CELL)CP;
                 ENV_YREG[E_E] = (CELL)ENV;
 #ifdef DEPTH_LIMIT
                 ENV_YREG[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
-            ENDCACHE_Y_AS_ENV();
-        }
-        P = NEXTOP(P, xps);
-        int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-        P = PREVOP(P, xps);
+        ENDCACHE_Y_AS_ENV();
+        yamop *myP = P, *myCP = CP;
+        P = NEXTOP(NEXTOP(P, xps),Osblp);
+        bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
+        P = myP;
+        CP = myCP;
+        YENV = LCL0-myYENV;
+        ENV = LCL0-myENV;
         return rc;
     }
 
@@ -890,19 +914,18 @@ static int interrupt_deallocate(USES_REGS1) {
                 UNLOCKPE(1, PP);
         PP = P->y_u.Osblp.p0;
         /* find something to fool S */
-        SET_ASP(YENV, P->y_u.Osbpp.s);
+        SET_ASP(YENV, P->y_u.Osblp.s);
         if (ASP > (CELL *)PROTECT_FROZEN_B(B))
             ASP = (CELL *)PROTECT_FROZEN_B(B);
         if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
             return v;
         }
-        P = NEXTOP(P, Osblp);
         if ((v = stack_overflow(
                 RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)), YENV,
                 NEXTOP(P, Osblp), 0 PASS_REGS)) >= 0) {
-            P = PREVOP(P, Osblp);
             return v;
         }
+        P = NEXTOP(P, Osblp);
         v = interrupt_handler_either(
                 MkIntTerm(0),
                 RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)) PASS_REGS);
@@ -939,8 +962,14 @@ static int interrupt_deallocate(USES_REGS1) {
             return v;
         }
         /* first, deallocate */
-        CP = (yamop *)YENV[E_CP];
-        ENV = YENV = (CELL *)YENV[E_E];
+        yamop *myCP = (yamop *)YENV[E_CP];
+        CELL myENV = LCL0-(CELL*)YENV[E_E];
+        /* and now CREEP */
+        P = pe->CodeOfPred;
+        bool rc = interrupt_handler(pe PASS_REGS);
+        if (!rc) P = FAILCODE;
+        YENV = ENV = LCL0-myENV;
+        CP = myCP;
 #ifdef DEPTH_LIMIT
         YENV[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
@@ -966,10 +995,8 @@ static int interrupt_deallocate(USES_REGS1) {
 #endif /* FROZEN_STACKS */
         /* setup GB */
         YENV[E_CB] = (CELL)B;
-
-        /* and now CREEP */
-        return interrupt_handler(pe PASS_REGS);
-    }
+return v;
+     }
 
     static void undef_goal(USES_REGS1) {
         PredEntry *pe = PredFromDefCode(P);

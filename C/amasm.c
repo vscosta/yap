@@ -2006,7 +2006,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, yamop *code_p, int pass_no,
 
 static yamop *
 #ifdef YAPOR
-a_either(op_numbers opcode, ```COUNT opr, CELL lab, int nofalts, yamop *code_p,
+a_either(op_numbers opcode, COUNT opr, CELL lab, int nofalts, yamop *code_p,
          int pass_no, struct intermediates *cip)
 #else
 a_either(op_numbers opcode, COUNT opr, CELL lab, yamop *code_p, int pass_no,
@@ -2028,7 +2028,7 @@ a_either(op_numbers opcode, COUNT opr, CELL lab, yamop *code_p, int pass_no,
       code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
     }
 #else
-    code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->arnds[1], cip);
+    code_p->y_u.Osblp.bmap = emit_bmlabel(cip->cpc->rnd3, cip);
 #endif /* YAPOR */
   }
   GONEXT(Osblp);

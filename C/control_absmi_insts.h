@@ -50,7 +50,7 @@ ructions                                       *
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       GONext();
 
-    NoStackCutT:
+        NoStackCutT:
       PROCESS_INT(interrupt_cut_t, do_cut_t);
 
       ENDOp();
@@ -304,14 +304,13 @@ ENDOp();
         WRITEBACK_Y_AS_ENV();
         /* setup GB */
         ENV_YREG[E_CB] = (CELL) B;
-        ALWAYS_GONext();
+ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
       }
       ENDCACHE_Y_AS_ENV();
 
     NoStackDExecute:
       PROCESS_INT(interrupt_dexecute, continue_dexecute);
-
       ENDBOp();
 
       BOp(fcall, Osbpp);
@@ -468,13 +467,14 @@ PREG = NEXTOP(PREG, p);
 #endif
       saveregs();
       d0 = interrupt_deallocate(  PASS_REGS1 );
-      setregs();
+       SREG = YREG;
+     setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
 #endif
       // return to original deallocate
       if (!d0) FAIL();
-      JMPNext();
+      goto do_deallocate;
       ENDD(d0);
       ENDOp();
 

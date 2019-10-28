@@ -1850,7 +1850,7 @@ static Int p_compile(USES_REGS1) { /* '$compile'(+C,+Flags,+C0,-Ref) */
                                arguments to cclause() in case there is a
                                overflow */
   t = Deref(ARG1); /* just in case there was an heap overflow */
-  if (!LOCAL_ErrorMessage) {
+  if (!LOCAL_ErrorMessage && code_adr != NULL) {
     YAPEnterCriticalSection();
     Yap_addclause(t, code_adr, t1, mod, &ARG5);
     YAPLeaveCriticalSection();
@@ -2987,7 +2987,6 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
   tb = Yap_GetFromSlot(yterms + 2);
   tr = Yap_GetFromSlot(yterms + 3);
   if (cl == NULL) {
-      LOCAL_CurHandle = yterms;
     UNLOCK(pe->PELock);
       LOCAL_CurHandle = yterms;
       return FALSE;
@@ -3214,7 +3213,7 @@ static Int fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, yamop *cp_pt
         }
     }
     LOCAL_CurHandle = yterms;
-    res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
+    bool res = Yap_unify(th, ArgOfTerm(1, t)) && Yap_unify(tb, ArgOfTerm(2, t)) &&
         Yap_unify(tr, rtn);
   if (res)
     Yap_ErLogUpdCl(cl);
@@ -4173,7 +4172,7 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
   yamop *code_adr = Yap_cclause(tn, 2, mod, tn); /* vsc: give the number of
                             arguments to cclause() in case there is a overflow
                           */
-  if (LOCAL_ErrorMessage) {
+  if (LOCAL_ErrorMessage || code_adr == 0) {
     return false;
   }
   return Yap_addclause(tn, code_adr, TermAssertz, mod, NULL);

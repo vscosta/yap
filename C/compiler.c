@@ -981,11 +981,9 @@ static void c_test(Int Op, Term t1, compiler_struct *cglobs) {
   /* be caareful, has to be first occurrence */
   if (Op == _save_by) {
     if (!IsNewVar(t)) {
-      char s[32];
 
       LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
-      Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 on bound variable", s);
+      sprintf(LOCAL_ErrorMessage, "compiling %s/2 on bound variable", Yap_bip_name(Op));
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, 1);
     }
@@ -1078,11 +1076,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         c_var(t1, v1, 0, 0, cglobs);
         /* now we know where the arguments are */
       } else {
-        char s[32];
-
-        Yap_bip_name(Op, s);
-        Yap_ThrowError(TYPE_ERROR_NUMBER, t2, 1,
-                       "compiling %s/2 with output bound", s);
+        Yap_Error(TYPE_ERROR_NUMBER, t2,
+                       "compiling %s/2 with output bound", Yap_bip_name(Op));
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1091,10 +1086,8 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
     /* it has to be either an integer or a floating point */
     if (IsVarTerm(t2)) {
       if (IsNewVar(t2)) {
-        char s[32];
 
-        Yap_bip_name(Op, s);
-        Yap_ThrowError(INSTANTIATION_ERROR, t2, 1, "compiling %s/3", s);
+        Yap_Error(INSTANTIATION_ERROR, t2, "compiling %s/3", Yap_bip_name(Op));
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
@@ -1104,14 +1097,14 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         Int i2;
 
         if (!IsIntegerTerm(t2)) {
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t2, 1, "compiling functor/3");
+          Yap_Error(TYPE_ERROR_INTEGER, t2,  "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
         i2 = IntegerOfTerm(t2);
         if (i2 < 0) {
 
-          Yap_ThrowError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
+          Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t2,
                          "compiling functor/3");
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
@@ -1121,13 +1114,10 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           if (i2)
             c_goal(MkAtomTerm(AtomFalse), mod, cglobs);
         } else if (!IsAtomTerm(t1)) {
-          char s[32];
-
-          Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_ATOM, t2, 4, "compiling functor/3");
+            Yap_Error(TYPE_ERROR_ATOM, t2, "compiling functor/3");
+        }
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
-        }
         if (i2 == 0)
           c_eq(t1, t3, cglobs);
         else {
@@ -1176,20 +1166,15 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
         if (IsIntegerTerm(t1))
           i1 = IntegerOfTerm(t1);
         else {
-          char s[32];
-
-          Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_INTEGER, t1, 1, "compiling %s/2", s);
+          Yap_Error(TYPE_ERROR_INTEGER, t1,  "compiling %s/2", Yap_bip_name(Op));
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
         }
         if (IsAtomicTerm(t2) ||
             (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
-          char s[32];
 
           LOCAL_Error_TYPE = TYPE_ERROR_COMPOUND;
-          Yap_bip_name(Op, s);
-          Yap_ThrowError(TYPE_ERROR_COMPOUND, t2, 1, "compiling %s/2", 1, s);
+          Yap_Error(TYPE_ERROR_COMPOUND, t2,  "compiling %s/2", 1, Yap_bip_name(Op));
 
           save_machine_regs();
           siglongjmp(cglobs->cint.CompilerBotch, 1);
@@ -1215,22 +1200,17 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           }
         }
       } else {
-        char s[32];
-
-        LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
-        Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
+         LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+        sprintf(LOCAL_ErrorMessage, "compiling %s/2", Yap_bip_name(Op));
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       }
     }
     if (Op == _functor) {
       if (!IsAtomicTerm(t1)) {
-        char s[32];
 
         LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-        Yap_bip_name(Op, s);
-        sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
+        sprintf(LOCAL_ErrorMessage, "compiling %s/2", Yap_bip_name(Op));
         save_machine_regs();
         siglongjmp(cglobs->cint.CompilerBotch, 1);
       } else {
@@ -1240,11 +1220,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           /* We actually have the term ready, so let's just do the unification
            * now */
           if (!IsIntegerTerm(t2)) {
-            char s[32];
 
             LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
-            Yap_bip_name(Op, s);
-            sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
+            sprintf(LOCAL_ErrorMessage, "compiling %s/2", Yap_bip_name(Op));
             save_machine_regs();
             siglongjmp(cglobs->cint.CompilerBotch, 1);
           }
@@ -1256,11 +1234,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
           if (arity) {
             Term tnew;
             if (!IsAtomTerm(t1)) {
-              char s[32];
 
               LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
-              Yap_bip_name(Op, s);
-              sprintf(LOCAL_ErrorMessage, "compiling %s/2", s);
+              sprintf(LOCAL_ErrorMessage, "compiling %s/2", Yap_bip_name(Op));
               save_machine_regs();
               siglongjmp(cglobs->cint.CompilerBotch, 1);
             }
@@ -1298,11 +1274,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       c_var(t2, v1, 0, 0, cglobs);
       /* now we know where the arguments are */
     } else {
-      char s[32];
 
       LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
-      Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound", s);
+      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound", Yap_bip_name(Op));
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, 1);
     }
@@ -1319,11 +1293,9 @@ static void c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal,
       c_var(tmpvar, f_flag, (unsigned int)Op, 0, cglobs);
       c_eq(tmpvar, t3, cglobs);
     } else {
-      char s[32];
 
       LOCAL_Error_TYPE = UNINSTANTIATION_ERROR;
-      Yap_bip_name(Op, s);
-      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with input unbound", s);
+      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with input unbound", Yap_bip_name(Op));
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, 1);
     }
@@ -3382,6 +3354,9 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     restore_machine_regs();
     reset_vars(cglobs.vtable);
     Yap_ReleaseCMem(&cglobs.cint);
+    if (LOCAL_Error_TYPE != YAP_NO_ERROR) {
+        Yap_ThrowExistingError();
+  }
     switch (botch_why) {
     case OUT_OF_STACK_BOTCH:
       /* out of local stack, just duplicate the stack */
@@ -3497,10 +3472,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   cglobs.is_a_fact = FALSE;
   cglobs.hasdbrefs = FALSE;
   if (IsVarTerm(my_clause)) {
-    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
-    LOCAL_ErrorMessage = "in compiling clause";
-    return 0;
-  }
+   Yap_ThrowError(INSTANTIATION_ERROR, my_clause,  "in compiling clause");
+ }
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
     head = ArgOfTerm(1, my_clause);
     body = ArgOfTerm(2, my_clause);
@@ -3509,9 +3482,8 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) ||
       IsFloatTerm(head) || IsRefTerm(head)) {
-    LOCAL_Error_TYPE = TYPE_ERROR_CALLABLE;
-    LOCAL_ErrorMessage = "clause head should be atom or compound term";
-    return (0);
+     Yap_ThrowError(TYPE_ERROR_CALLABLE, my_clause,
+             "in compiling clause: clause head should be atom or compound term");
   } else {
   loop:
     /* find out which predicate we are compiling for */
