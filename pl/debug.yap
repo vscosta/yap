@@ -424,11 +424,11 @@ be lost.
     '$undefined'(G,M),
     !,
     (
-    '$search_undef'(M:G,MF:NG)
+    '$import'(M:G,MF:NG)
     ->
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
-	'$undefp'([M|G], NG)
+	'$undefp'([M|G], _)
     ).
 '$trace_goal'(G0,M0, Ctx, GoalNumber, CP) :-
     '$debugger_expand_meta_call'( M0:G0, [], M:G ),

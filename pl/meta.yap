@@ -96,7 +96,7 @@ meta_predicate(P) :-
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
-'$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
+'$clean_c1uts'(G,('$current_choice_point'(DCP),NG)) :-
     '$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
 
@@ -209,7 +209,7 @@ meta_predicate(P) :-
 
 '$import_expansion'(none, MG, MG).
 '$import_expansion'(_, M:G, M1:G1) :-
-    '$imported_predicate'(M:G, M1:G1),
+    '$import'(M:G, M1:G1),
     !.
 '$import_expansion'(_, MG, MG).
 

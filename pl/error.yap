@@ -13,7 +13,6 @@
 		must_be_callable/1,		% +Type, +Term
   	    must_be/3,		% +Type, +Term, +Comment
   	    type_error/2,		% +Type, +Term
-	    must_be_called/1,
 %	    must_be_in_domain/2,	% +Domain, +Term
 %	    must_be_in_domain/3,	% +Domain, +Term, +Comment
 	    domain_error/3,		% +Domain, +Values, +Term

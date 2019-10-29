@@ -89,8 +89,8 @@ otherwise a more structured approach for operator handling.
 	push_operators(:,-),
 	push_op(+,+,:).
 
-%%	push_operators(:New) is det.
-%%	push_operators(:New, -Undo) is det.
+%% @pred	push_operators(:New) is det.
+%% @pred	push_operators(:New, -Undo) is det.
 %	
 %	Installs the operators from New, where New is a list of op(Prec,
 %	Type, :Name). The modifications to the operator table are undone
@@ -107,7 +107,7 @@ push_operators(New) :-
 	assert_op(mark),
 	assert_op(Undo).
 
-%%	push_op(+Precedence, +Type, :Name) is det.
+%% @pred	push_op(+Precedence, +Type, :Name) is det.
 %	
 %	As op/3, but this call must  appear between push_operators/1 and
 %	pop_operators/0.  The  change  is   undone    by   the  call  to
@@ -117,9 +117,9 @@ push_op(P, T, A0) :-
 	strip_module(A0, M, A),    
 	undo_operator(op(P,T,A), Undo),
 	assert_op(Undo),
-	op(P, T, A).
+	op(P, T, M:A).
 
-%%	pop_operators is det.
+%% @pred	pop_operators is det.
 %	
 %	Revert all changes to the operator table realised since the last
 %	push_operators/1.
@@ -132,7 +132,7 @@ pop_operators :-
 	    fail
 	).
 
-%%	pop_operators(+Undo) is det.
+%% @pred	pop_operators(+Undo) is det.
 %
 %	Reset operators as pushed by push_operators/2.
 
@@ -181,8 +181,8 @@ op_type(yfy, infix).
 op_type(xf,  postfix).
 op_type(yf,  postfix).
 
-%%	assert_op(+Term) is det.
-%%	retract_op(-Term) is det.
+%% @pred	assert_op(+Term) is det.
+%% @pred	retract_op(-Term) is det.
 %	
 %	Force local assert/retract.
 

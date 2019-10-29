@@ -30,80 +30,66 @@ mimp :-
 %(ImportingMod:G :- ExportingMod:G0)),
 fail.
 
+'$import'(G0,GF) :-
+    G0=M0:H0,
+    (
+    '$pred_exists'(H0,M0)
+    ->
+    G0 = GF
+    ;
+    '$import__'(G0,[G0],GF)
+    ).
+
+'$imports'(G0,GF) :-
+    G0 = M0:T0,
+    var(M0),
+    !,
+    '$current_predicate'(_,T0,M0,_),
+    '$import__'(G0,[G0],GF).
+'$imports'(G0,GF) :-
+    !,
+    '$import__'(G0,[G0],GF).
+
+'$import__'(G0,Visited,GF) :-
+   '$import_goal'(G0, G1),
+    G1=M1:H1,
+    \+ lists:memberchk(G1, Visited),
+    (
+    '$pred_exists'(H1,M1)
+    ->
+    GF=M1:H1
+       ;
+    '$import__'(G1,[G1|Visited],GF)
+    ).
 
 %:- start_low_level_trace.
 % parent module mechanism
 %% system has priority
-'$get_predicate_definition'(_ImportingMod:G,prolog:G) :-
+'$import_goal'(C, EC) :-
+    '$expand_term'(C, top, EC).
+'$import_goal'(_ImportingMod:G,prolog:G) :-
     nonvar(G),
     '$pred_exists'(G,prolog),
     !.
 %% I am there, no need to import
-'$get_predicate_definition'(Mod:Pred,Mod:Pred) :-
+'$import_goal'(Mod:Pred,Mod:Pred) :-
     nonvar(Pred),
     '$pred_exists'(Pred,Mod),
     !.
 %% export table
-'$get_predicate_definition'(ImportingMod:G,ExportingMod:G0) :-
+'$import_goal'(ImportingMod:G,ExportingMod:G0) :-
     recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
 %% parent/user
-'$get_predicate_definition'(ImportingMod:G,PMod:G) :-
+'$import_goal'(ImportingMod:G,PMod:G) :-
     ( '$parent_module'(ImportingMod, PMod) ; PMod = user ),
     ImportingMod \= PMod.
 %% autoload`
-%'$get_predicate_definition'(ImportingMod:G,ExportingMod:G) :-
+%'$import_goal'(ImportingMod:G,ExportingMod:G) :-
 %    current_prolog_flag(autoload, true),
 %    '$autoload'(G, ImportingMod, ExportingMod, swi).
 
 
-'$predicate_definition'(Imp:Pred,Exp:NPred) :-
-    '$predicate_definition'(Imp:Pred,[],Exp:NPred),
- %writeln((Imp:Pred -> Exp:NPred )).
-    !.
 
-'$predicate_definition'(M0:Pred0,Path,ModF:PredF) :-
-    '$get_predicate_definition'(M0:Pred0, Mod:Pred),
-    (
-    var(Pred) ->
-    '$current_predicate'(_,Pred,Mod,_), Mod = ModF, Pred = PredF
-    ;
-    '$pred_exists'(Pred,Mod), Mod = ModF, Pred = PredF
-    ;
-    \+ lists:member(Mod:Pred,Path),
-      '$predicate_definition'(Mod:Pred,[Mod:Pred|Path], ModF:PredF)
-
-    ).
-
-%
-'$get_undefined_predicate'(ImportingMod:G, ExportingMod:G0) :-
-    must_be_callable( ImportingMod:G ),
-    '$predicate_definition'(ImportingMod:G,[], ExportingMod:G0),
-    ImportingMod:G \= ExportingMod:G0,
-    !.
-
-% be careful here not to generate an undefined exception.
-'$imported_predicate'(ImportingMod:G, ExportingMod:G0) :-
-   ( var(ImportingMod) ->
-	current_module(ImportingMod)
-   ;
-   true
-   ),
-    (
-	var(G) ->
-       '$current_predicate'(_,G,ImportingMod,_)
-   ;
-   true
-   ),
-   (
-       '$undefined'(G, ImportingMod)
-   ->
-      '$predicate_definition'(ImportingMod:G, ExportingMod:G0),
-      ExportingMod \= ImportingMod
-   ;
-   ExportingMod = ImportingMod, G = G0
-   ).
- 
-    
 % check if current module redefines an imported predicate.
 % and remove import.
 %

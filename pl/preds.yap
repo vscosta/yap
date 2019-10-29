@@ -388,7 +388,7 @@ or built-in.
 predicate_property(Pred,Prop) :-
     '$yap_strip_module'(Pred, Mod, TruePred),
     (var(Mod) -> current_module(Mod) ; true ),
-    '$predicate_definition'(Mod:TruePred, M:NPred),
+    '$import'(Mod:TruePred, M:NPred),
     '$predicate_property'(NPred,M,Mod,Prop).
 
 '$predicate_property'(P,M,_,built_in) :-
@@ -488,7 +488,7 @@ current_predicate(A0,T0) :-
     '$current_predicate'(A,M,T,_),
     functor(T, A, _)
     ;
-    '$predicate_definition'(M:T,M1:_T1),
+    '$imports'(M:T,M1:_T1),
     M\=M1,
     functor(T, A, _)
     ).

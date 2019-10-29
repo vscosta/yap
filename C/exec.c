@@ -56,6 +56,8 @@ static bool should_creep() {
     &&
     LOCAL_debugger_state[DEBUG_DEBUG] == TermTrue
     &&
+      trueLocalPrologFlag(DEBUG_FLAG)
+    &&
     (
             (Yap_has_a_signal() && !LOCAL_InterruptsDisabled) ||
             LOCAL_debugger_state[DEBUG_CREEP_LEAP_OR_ZIP] == TermUserCreep ||

@@ -54,8 +54,6 @@
     set_prolog_flag(file_name_variables, Expand),
     set_prolog_flag( verbose_file_search,  Verbose ).
 
-
-
 '$restore_absf'(abs_entry(OldF, D0, PreviousFileErrors, PreviousVerbose) ) :-
     working_directory(_,D0),
     set_prolog_flag( fileerrors, PreviousFileErrors ),
@@ -262,7 +260,7 @@ path(Path) :-
 
   YAP-specific predicate to include directory in library search path.
   We suggest using user:file_search_path/2 for
-  compatibility with other Prologs.
+   compatibility with other Prologs.
 */
 add_to_path(New) :-
 	add_to_path(New,last).
@@ -403,17 +401,15 @@ swapped, thus the call
   is valid as well.
 */
 
-absolute_file_name(File,TrueFileName,Opts) :-
-    ( var(TrueFileName) ->
-	    true ;
-      atom(TrueFileName), TrueFileName \= []
-    ),
-    !,
-    absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,LOpts,TrueFileName) :-
-
+    must_be_bound( File ),
+    nonvar(LOpts),
+    is_list( LOpts ),
+    !,
+    absolute_file_name(File,TrueFileName,LOpts).
+absolute_file_name(File,TrueFileName,LOpts) :-
     %   must_be_of_type( atom, File ),
-    % look for solutions
+    % look for solutions    
     gated_call(
         '$enter_absf'( File, LOpts, Opts, State),
         '$find_in_path'(File, Opts,TrueFileName),

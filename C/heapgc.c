@@ -1551,9 +1551,9 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
     Int bmap = 0;
     int currv = 0;
 
-          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
+    //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
 #ifdef DEBUG
-      if (/* size <  0 || */ size > 512)
+      if ( size <  0 || size > 512)
         fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
                 gc_ENV, (CELL)size);
 #endif
@@ -1630,18 +1630,18 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
 
     if (!e_CP || !gc_ENV[E_E])
       return;
-#if 1 && defined(ANALYST) || defined(DEBUG)
+#if 0 && defined(ANALYST) || defined(DEBUG)
     PredEntry *pe = EnvPreg(e_CP);
     if (pe) {
-      op_numbers op = Yap_op_from_opcode(e_CP->opc);
-      fprintf(stderr, "ENV %p-%p^%lx(%ld) %s", gc_ENV, e_CP, gc_ENV[E_E], size - EnvSizeInCells,
-	      Yap_op_names[op]);
-      if (pe->ArityOfPE)
-	fprintf(stderr, "   %s/%ld\n",
-		RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
-              pe->ArityOfPE);
-      else
-	fprintf(stderr, "   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
+      //op_numbers op = Yap_op_from_opcode(e_CP->opc);
+      //fprintf(stderr, "ENV %p-%p^%lx(%ld) %s", gc_ENV, e_CP, gc_ENV[E_E], size - EnvSizeInCells,
+	    //  Yap_op_names[op]);
+//      if (pe->ArityOfPE)
+//	fprintf(stderr, "   %s/%ld\n",
+//		RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
+//              pe->ArityOfPE);
+//     // else
+	//fprintf(stderr, "   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
     }
 #endif
     size = EnvSize(e_CP); /* size = EnvSize(CP) */

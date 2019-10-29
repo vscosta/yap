@@ -732,7 +732,7 @@ static int interrupt_deallocate(USES_REGS1) {
                     return rc;
                 }
                 P = NEXTOP(P, p);
-                if (!Yap_gcl(0, 0, ENV, YESCODE)) {
+                if (!Yap_gcl(0, 0, ENV, CP)) {
                     Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
                 }
                 P = PREVOP(P, p);

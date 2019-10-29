@@ -104,6 +104,8 @@ d([H|L], X, [H|Nl]) :-
 edge(X,Y,Pr) :- problog:problog_dir_edge(_,Y,X,Pr).
 edge(X,Y,Pr) :- problog:problog_dir_edge(_,X,Y,Pr).
 
+edge(A,B,C,D) :- problog:problog_dir_edge(A,B,C,D).
+
 % checking whether node hasn't been visited before
 absent(_,[]).
 absent(X,[Y|Z]):- X \= Y, absent(X,Z).

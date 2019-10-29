@@ -44,7 +44,7 @@
 
 @{
 
-The modile prolog_source.pl provides predicates to  open, close and read
+The module prolog_source.pl provides predicates to  open, close and read
 terms from Prolog source-files. This may  seem   easy,  but  there are a
 couple of problems that must be taken care of.
 
@@ -135,14 +135,14 @@ expand('$:-'(X), '$:-'(X)) :- !,	% boot module
 expand(Term, Expanded) :-
 	expand_term(Term, Expanded).
 
-%%	requires_library(+Term, -Library)
+%% @pred	requires_library(+Term, -Library)
 %
 %	known expansion hooks.  May be expanded as multifile predicate.
 
 requires_library((:- emacs_begin_mode(_,_,_,_,_)), library(emacs_extend)).
 requires_library((:- draw_begin_shape(_,_,_,_)), library(pcedraw)).
 
-%%	update_state(+Expanded) is det.
+%% @pred	update_state(+Expanded) is det.
 %
 %	Update operators and style-check options from the expanded term.
 
@@ -179,7 +179,7 @@ public_operators([H|T]) :- !,
 		 *	     SOURCES		*
 		 *******************************/
 
-%%	prolog_open_source(+CanonicalId:atomic, -Stream:stream) is det.
+%% @pred	prolog_open_source(+CanonicalId:atomic, -Stream:stream) is det.
 %	
 %	Open     source     with     given     canonical     id     (see
 %	prolog_canonical_source/2)  and  remove  the  #!  line  if  any.
@@ -210,7 +210,7 @@ prolog_open_source(Src, Fd) :-
 	asserta(open_source(Fd, state(Style, SM))).
 
 
-%%	prolog_close_source(+In:stream) is det.
+%% @pred	prolog_close_source(+In:stream) is det.
 %
 %	Close  a  stream  opened  using  prolog_open_source/2.  Restores
 %	operator and style options.
@@ -225,7 +225,7 @@ prolog_close_source(In) :-
 	close(In).
 
 
-%%	prolog_canonical_source(+SourceSpec:ground, -Id:atomic) is det.
+%% @pred	prolog_canonical_source(+SourceSpec:ground, -Id:atomic) is det.
 %	
 %	Given a user-specification of a source,   generate  a unique and
 %	indexable  identifier  for   it.   For    files   we   use   the

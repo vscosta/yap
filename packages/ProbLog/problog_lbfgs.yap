@@ -460,7 +460,7 @@ init_learning :-
 	%current_probs <== array[TrainingExampleCount ] of floats,
 	%current_lls <== array[TrainingExampleCount ] of floats,
 	forall(tunable_fact(FactID,_GroundTruth),
-	       (user:problog_interaction(FactID,G1,G2,_),
+	       (user:edge(FactID,G1,G2,_),
 		user:example(_,gene(G1,G2),P)
 	       ->
 		   set_fact_probability(FactID,P)

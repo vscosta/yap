@@ -35,7 +35,8 @@ print_message(informational,E) :-
 %%
 % boot:print_message( Type, Error )
 %
-print_message(Type,error(error(_,_),exception(Desc))) :-
+
+print_message(Type,error(_,exception(Desc))) :-
     !,
     '$print_exception'(Desc).
 print_message(Type,error(warning(_,_),exception(Desc))) :-
