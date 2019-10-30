@@ -2479,7 +2479,7 @@ int Yap_dogc(int extra_args, Term *tp USES_REGS) {
     for (i = 0; i < extra_args; i++) {
         tp[i] = XREGS[arity + i + 1];
     }
-    return false;
+    return true;
 }
 
 static Int get_debugger_state(USES_REGS1) {
