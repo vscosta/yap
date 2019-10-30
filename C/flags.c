@@ -1143,8 +1143,27 @@ static Int current_prolog_flag2(USES_REGS1) {
     //    Yap_DebugPlWriteln(tflag);
     return false;
   }
-  if (IsVarTerm(tout))
-    tout = Yap_FetchTermFromDB(tarr[fv->FlagOfVE].DBT);
+  if (!IsAtomicTerm(tout)) {
+      while ((tout = Yap_FetchTermFromDB(tarr[fv->FlagOfVE].DBT)) == 0) {
+          /* oops, we are in trouble, not enough stack space */
+          if (LOCAL_Error_TYPE == RESOURCE_ERROR_ATTRIBUTED_VARIABLES) {
+              LOCAL_Error_TYPE = YAP_NO_ERROR;
+              if (!Yap_growglobal(NULL)) {
+                  Yap_Error(RESOURCE_ERROR_ATTRIBUTED_VARIABLES, TermNil,
+                            LOCAL_ErrorMessage);
+                  UNLOCK(ap->PELock);
+                  return false;
+              }
+          } else {
+              LOCAL_Error_TYPE = YAP_NO_ERROR;
+              if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
+                  Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+                  UNLOCK(ap->PELock);
+                  return false;
+              }
+          }
+      }
+  }
   return (Yap_unify(ARG2, tout));
 }
 
