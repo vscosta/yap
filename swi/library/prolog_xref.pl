@@ -59,6 +59,7 @@
 :- use_module(library(prolog_source)).
 :- use_module(library(option)).
 :- use_module(library(error)).
+:- use_module(library(maplist)).
 
 :- dynamic
 	called/3,			% Head, Src, From
@@ -94,9 +95,9 @@
 %	Define meta-predicates.  See the examples in this file for details.
 
 :- multifile
-	prolog:called_by/2,		% +Goal, -Called
-	prolog:meta_goal/2,		% +Goal, -Pattern
-	prolog:hook/1.			% +Callable
+	user:called_by/2,		% +Goal, -Called
+	user:meta_goal/2,		% +Goal, -Pattern
+	user:hook/1.			% +Callable
 
 :- dynamic
 	meta_goal/2.
@@ -117,7 +118,7 @@ called_by(on_signal(_,_,New), [New+1]) :-
 %
 %	True if Callable is a built-in
 
-:- expects_dialect(swi).
+%:- expects_dialect(swi).
 
 % :- if(current_prolog_flag(dialect, swi)).
 % system_predicate(Goal) :-
@@ -344,7 +345,9 @@ collect(Src, In) :-
 	    (   T == end_of_file
 	    ->  !
 	    ;   stream_position_data(line_count, TermPos, Line),
+		writeln(Line),
 		flag(xref_src_line, _, Line),
+		writeln(Line),
 		catch(process(T, Src), E, print_message(error, E)),
 		fail
 	    ).

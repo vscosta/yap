@@ -497,7 +497,6 @@ be lost.
     !,
   */
     '$debugger_expand_meta_call'( M:G, [], MM:GM ),
-    writeln('**************************'+MM:GM),
     gated_call(
 	       % debugging allowed.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
@@ -573,7 +572,7 @@ be lost.
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
-    writeln((Ports->G;GoalNumber)),
+    %writeln((Ports->G;GoalNumber)),
     '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
 
 /**

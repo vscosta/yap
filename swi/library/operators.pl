@@ -81,6 +81,12 @@ otherwise a more structured approach for operator handling.
 @compat	SWI-Prolog
 */
 
+
+
+prolog:flag(X,Y,Z) :- ( bb_get(user:X,Y) -> true ; Y=0),  bb_put(user:X,Z).
+prolog:get_flag(X,Y) :- ( bb_get(user:X,Y) -> true ; bb_put(user:X, 0) ).
+prolog:set_flag(X,Y) :- bb_put(user:X,Y).
+
 :- thread_local
 	operator_stack/1.
 
