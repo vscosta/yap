@@ -408,8 +408,8 @@ be lost.
 '$trace_goal'((A->B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, inner, GN, CP) ->
 	 '$trace_goal'(B, M, GN0, _GN, CP)).
-'$trace_goal'((A*->B), M, inner, GN, CP) :- !,
-    ('$trace_goal'(A, M, GN0, GN, CP) *->
+'$trace_goal'((A*->B), M, GN0, GN, CP) :- !,
+    ('$trace_goal'(A, M, inner, GN, CP) *->
 	 '$trace_goal'(B, M, GN0, _GN, CP)).
 '$trace_goal'((A;B), M, GN0, GN, CP) :- !,
     ('$trace_goal'(A, M, GN0, GN, CP);
@@ -430,9 +430,9 @@ be lost.
     ;
 	'$undefp'([M|G], _)
     ).
-'$trace_goal'(G0,M0, Ctx, GoalNumber, CP) :-
-    '$debugger_expand_meta_call'( M0:G0, [], M:G ),
+'$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
     '$id_goal'(GoalNumber),
+    '$current_choicepoint'(CP),
     catch('$trace_goal_'(G,M, Ctx, GoalNumber,CP,H),
 	  Error,
 	  '$TraceError'(Error, GoalNumber, G, M, CP, H)
@@ -496,12 +496,14 @@ be lost.
     ),
     !,
   */
+    '$debugger_expand_meta_call'( M:G, [], MM:GM ),
+    writeln('**************************'+MM:GM),
     gated_call(
 	       % debugging allowed.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
-	M:G,
+	MM:GM,
 	Port,
-	       '$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
+	       (stop_low_level_trace,'$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H))
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -571,7 +573,7 @@ be lost.
 
 '$handle_port'(Ports, GoalNumber, G, M, G0, CP,  H) :-
     '$stop_creeping'(_),
-%    writeln(Ports),
+    writeln((Ports->G;GoalNumber)),
     '$trace_port'(Ports, GoalNumber, G, M, G0, CP,  H).
 
 /**
@@ -614,6 +616,10 @@ be lost.
 '$ports_to_port'([!,exit], exit).
 '$ports_to_port'([!,redo], fail).
 '$ports_to_port'([!,fail], fail).
+'$ports_to_port'([answer,!], exit).
+'$ports_to_port'([exit,!], exit).
+'$ports_to_port'([redo,!], redo).
+'$ports_to_port'([fail,!], fail).
 '$ports_to_port'([!], internal).
 '$ports_to_port'([exception(E),_], exception(E)).
 '$ports_to_port'([exception(E)],exception(E)).
@@ -1058,14 +1064,15 @@ be lost.
     '$debugger_skip_loop_spy2'(CPs,CPs1).
 '$debugger_skip_loop_spy2'(CPs,CPs).
 
-'$debugger_expand_meta_call'( G, VL, M:G2 ) :-
-    '$expand_meta_call'( G, VL, G0 ),
-    '$yap_strip_module'( G0, M, G1 ),
+'$debugger_expand_meta_call'( G, _VL, G2 ) :-
+%    '$expand_meta_call'( G, VL, G0 ),
+    '$yap_strip_module'( G, M, G1 ),
     (
-	false, '$is_system_predicate'(G1,M) ->
-	'$debugger_process_meta_arguments'(G1, M, G2)
+	'$debugger_process_meta_arguments'(G1, M, G21), G2=M:G21
+    ->
+    true
     ;
-    G1 = G2
+    G = G2
     ).
 
 '$debugger_process_meta_arguments'(GM, MM, G1) :-
@@ -1078,7 +1085,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$creep'(M1:G1)|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-
     number(N),
     N >= 0,
     '$yap_strip_module'( M:G, M1, G1 ),
