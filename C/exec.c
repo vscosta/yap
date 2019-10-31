@@ -2031,26 +2031,15 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
         return (FALSE);
     }
     ppe = RepPredProp(pe);
-    if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE) {
-        pe = AbsPredProp(ppe = UndefCode);
-        pt = HR;
-        HR[0] = MkPairTerm(tmod, t);
-        HR[1] = MkAtomTerm(Yap_LookupAtom("top"));
-        arity = 2;
-        HR += 2;
-    } else if (ppe->PredFlags & (MetaPredFlag | UndefPredFlag)) {
+    if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE
+	||ppe->PredFlags & (MetaPredFlag | UndefPredFlag)) {
         // we're in a meta-call, rake care about modules
         //
-        Term ts[2];
-        ts[0] = tmod;
-        ts[1] = t;
-        Functor f = Yap_MkFunctor(Yap_LookupAtom("call"), 1);
-
-        pt = &t;
-        t = Yap_MkApplTerm(FunctorModule, 2, ts);
-        pe = Yap_GetPredPropByFunc(f, tmod);
-        ppe = RepPredProp(pe);
-        arity = 1;
+       ARG1 = t;
+        ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
+        ARG3 = t;
+        ARG4 = tmod;
+         return CallPredicate(PredMetaCall, B, PredMetaCall->CodeOfPred PASS_REGS);
     }
     PELOCK(82, ppe);
     CodeAdr = ppe->CodeOfPred;

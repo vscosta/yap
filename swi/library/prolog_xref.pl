@@ -120,10 +120,8 @@ called_by(on_signal(_,_,New), [New+1]) :-
 
 %:- expects_dialect(swi).
 
-prolog:system_predicate(Goal) :-
- 	functor(Goal, Name, Arity),
- 	current_predicate(system:Name/Arity),	% avoid autoloading
- 	predicate_property(system:Goal, built_in), !.
+prolog:system_predicate_swi(Goal) :-
+ 	predicate_property(Goal, built_in), !.
 
 
 		/********************************
@@ -210,7 +208,7 @@ xref_push_op(Src, P, T, N0) :- !,
 
 xref_clean(Source) :-
 	prolog_canonical_source(Source, Src),
-	retractall((_, Src, _Origin)),
+	retractall(called(_, Src, _Origin)),
 	retractall(dynamic(_, Src, Line)),
 	retractall(multifile(_, Src, Line)),
 	retractall(defined(_, Src, Line)),
@@ -763,9 +761,8 @@ process_body(load_foreign_library(File), _Origin, Src) :-
 process_body(load_foreign_library(File, _Init), _Origin, Src) :-
 	process_foreign(File, Src).
 process_body(Goal, Origin, Src) :-
-	xref_meta(Goal, Metas), !,
-	assert_called(Src, Origin, Goal),
-	process_called_list(Metas, Origin, Src).
+    xref_meta(Goal, Metas), !,
+    maplist(process_meta(Origin,Src),Metas).
 process_body(Goal, Origin, Src) :-
 	asserting_goal(Goal, Rule), !,
 	assert_called(Src, Origin, Goal),
@@ -773,17 +770,12 @@ process_body(Goal, Origin, Src) :-
 process_body(Goal, Origin, Src) :-
 	assert_called(Src, Origin, Goal).
 
-process_called_list([], _, _).
-process_called_list([H|T], Origin, Src) :-
-	process_meta(H, Origin, Src),
-	process_called_list(T, Origin, Src).
-
-process_meta(A+N, Origin, Src) :- !,
+process_meta(Origin, Src, A+N) :- !,
 	(   extend(A, N, AX)
 	->  process_body(AX, Origin, Src)
 	;   true
 	).
-process_meta(G, Origin, Src) :-
+process_meta(Origin, Src, G) :-
 	process_body(G, Origin, Src).
 
 extend(Var, _, _) :-
@@ -919,7 +911,7 @@ process_pce_import(Name/Arity, Src, Path, Reexport) :-
 	atom(Name),
 	integer(Arity), !,
 	functor(Term, Name, Arity),
-	(   \+ system_predicate(Term),
+	(   \+ system_predicate_swi(Term),
 	    \+ Term = pce_error(_) 	% hack!?
 	->  assert_import(Src, [Name/Arity], _, Path, Reexport)
 	;   true
@@ -1190,7 +1182,7 @@ assert_called(Src, Origin, M:G) :- !,
 	;   true                        % call to variable module
 	).
 assert_called(_, _, Goal) :-
-	system_predicate(Goal), !.
+	system_predicate_swi(Goal), !.
 assert_called(Src, Origin, Goal) :-
 	called(Goal, Src, Origin), !.
 assert_called(Src, Origin, Goal) :-
