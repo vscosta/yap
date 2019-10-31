@@ -1252,7 +1252,7 @@ exceptions at any point.
 
 /** @pred thread_sleep(+ _Time_)
 
-
+th
 Make current thread sleep for  _Time_ seconds.  _Time_ may be an
 integer or a floating point number. When time is zero or a negative value
 the call succeeds and returns immediately. This call should not be used if

@@ -23,6 +23,7 @@
 		      enable_interrupts/0,
 		      disable_interrupts/0,
 		      virtual_alarm/3,
+		      alarm/3,
               	      fully_strip_module/3,
 		      context_variables/1
                      ]).
@@ -80,16 +81,38 @@ run_formats([Com-Args|StackInfo], Stream) :-
  */
 virtual_alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
-	virtual_alarm(0, 0, Left0, _),
+	'$virtual_alarm'(0, 0, Left0, _),
 	on_signal(sig_vtalarm, _, Goal),
 	Left = Left0.
 virtual_alarm(Interval, Goal, Left) :-
 	integer(Interval), !,
 	on_signal(sig_vtalarm, _, Goal),
-	virtual_alarm(Interval, 0, Left, _).
+	'$virtual_alarm'(Interval, 0, Left, _).
 virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	on_signal(sig_vtalarm, _, Goal),
-	virtual_alarm(Interval, USecs, Left, LUSecs).
+	'$virtual_alarm'(Interval, USecs, Left, LUSecs).
+
+
+/**
+ * @pred alarm(+Interval, 0:Goal, -Left)
+ *
+ * Activate  an alarm to execute _Goal_ in _Interval_ seconds. If the alarm was active,
+ * bind _Left_ to the previous value.
+ *
+ * If _Interval_ is 0, disable the current alarm.
+ */
+alarm(Interval, Goal, Left) :-
+	Interval == 0, !,
+	'$alarm'(0, 0, Left0, _),
+	on_signal(sig_alarm, _, Goal),
+	Left = Left0.
+alarm(Interval, Goal, Left) :-
+	integer(Interval), !,
+	on_signal(sig_alarm, _, Goal),
+	'$alarm'(Interval, 0, Left, _).
+alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
+	on_signal(sig_alarm, _, Goal),
+	'$alarm'(Interval, USecs, Left, LUSecs).
 
 fully_strip_module(T,M,S) :-
     '$hacks':fully_strip_module(T,M,S).

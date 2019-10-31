@@ -497,7 +497,7 @@ is_not(Type, X) :-
 %	@throws	=type_error= or =instantiation_error=.
 
 valid_options(Options, Pred) :-
-	must_be(list, Options),
+	must_be_list(Options),
 	verify_options(Options, Pred).
 
 verify_options([], _).

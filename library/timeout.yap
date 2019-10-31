@@ -65,45 +65,45 @@ Last, even though the timer is set in milliseconds, the current
 implementation relies on <tt>alarm/3</tt>, and therefore can only offer
 precision on the scale of seconds.
 
-
-
-
  */
 
 
 :- meta_predicate time_out(0,+,-).
 
 :- use_module(library(hacks), [
-	virtual_alarm/3
+	virtual_alarm/3,
+	alarm/3
     ]).
-
 
 %
 % not the nicest program I've ever seen.
 %
 
 time_out(Goal, Time, Result) :-
-	T is Time//1000,
-	UT is (Time mod 1000)*1000,
-	catch( ( Result0 = success,
-	         setup_call_cleanup(
-			virtual_alarm(T.UT,throw(time_out),_),
+	T is Time,
+	UT is 0,
+	yap_hacks:alarm([T|UT],throw(time_out),_),
+	gated_call(
+		true,
 			Goal,
-			virtual_alarm(0,_,RT)),
-		 (  var(RT)
-		 -> virtual_alarm(0,_,_),
-		    (
-		      true
-		    ;
-		      virtual_alarm(T.UT,throw(time_out),_),
-		      fail
-		    )
-		 ;  true
-		 )
-	       ),
-	       time_out,
-	       Result0 = time_out ),
-	Result = Result0.
+            Port,			
+			exit_time_out(Port, Result)
+			),
+			!.
+
+exit_time_out(exception(time_out), _) :-
+	!.
+exit_time_out(Port, Result) :-
+	virtual_alarm(0,_,_),
+	time_out_rc(Port, Result).
+
+time_out_rc(exit, success).
+time_out_rc(answer, success).
+time_out_rc(fail, failure).
+time_out_rc(exception(_), failure).
+time_out_rc(external_exception(_), failure).
+time_out_rc(redo, failure).
+time_out_rc(!, success).
 
 %% @}
 

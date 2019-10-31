@@ -159,7 +159,7 @@ This predicate is applicable to static procedures compiled with
 */
 clause(V0,Q) :-
     '$yap_strip_module'(V0, M, V),
-    must_be_of_type( callable, V ),
+    must_be_callable( V ),
     '$clause'(V,M,Q,_).
 
 /** @pred  clause(+ _H_, _B_,- _R_)

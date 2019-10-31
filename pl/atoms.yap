@@ -39,7 +39,7 @@ the first list.
 
 */
 atom_concat(Xs,At) :-
-	must_be( list, Xs),
+	must_be_list(Xs),
 	( var(At) ->
 	   '$atom_concat'(Xs, At )
         ;

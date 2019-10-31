@@ -1024,7 +1024,7 @@ parse_url_search(Codes, Fields) :-
 	is_list(Codes), !,
 	phrase(search(Fields), Codes).
 parse_url_search(Codes, Fields) :-
-	must_be(list, Fields),
+	must_be_list(Fields),
 	phrase(csearch(Fields, ""), Codes).
 
 

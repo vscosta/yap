@@ -302,7 +302,7 @@ current_flag(Key) :-
 	flag(Key).
 
 require(F) :-
-	must_be(list, F),
+	must_be_list(F),
 	% notice that this must be used as a declaration.
 	prolog_load_context(module, Mod),
 	required_predicates(F, Mod).

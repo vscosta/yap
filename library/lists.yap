@@ -195,7 +195,7 @@ in which case the arguments will be bound to lists of length 0, 1, 2, ...
 %	@param	ListOfLists must be a list of -possibly- partial lists
 
 append(ListOfLists, List) :-
-%	must_be(list, ListOfLists),
+%	must_be_list( ListOfLists),
 	append_(ListOfLists, List).
 
 append_([], []).

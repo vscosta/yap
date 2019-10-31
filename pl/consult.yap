@@ -1407,9 +1407,9 @@ initialization(G,OPT) :-
 initialization(_G,_OPT).
 
 '$initialization'(G0,OPT) :-
-    must_be_of_type(callable, G0, initialization(G0,OPT)),
-    must_be_of_type(oneof([after_load, now, restore]),
-                OPT, initialization(G0,OPT)),
+    must_be_callable( G0),
+ %   must_be_of_type(oneof([after_load, now, restore]),
+ %               OPT),
                 '$yap_strip_module'(G0,M,G1),
               '$expand_term'((M:G1), G),
    (
