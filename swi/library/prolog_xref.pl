@@ -84,13 +84,13 @@
 		 *	      HOOKS		*
 		 *******************************/
 
-%	prolog:called_by(+Goal, -ListOfCalled)
+%	user:called_by(+Goal, -ListOfCalled)
 %
 %	If this succeeds, the cross-referencer assumes Goal may call any
 %	of the goals in ListOfCalled. If this call fails, default
 %	meta-goal analysis is used to determine additional called goals.
 
-%	prolog:meta_goal(+Goal, -Pattern)
+%	user:meta_goal(+Goal, -Pattern)
 %
 %	Define meta-predicates.  See the examples in this file for details.
 
@@ -103,7 +103,7 @@
 	meta_goal/2.
 
 called_by(Goal, Called) :-
-	prolog:called_by(Goal, Called), !.
+	user:called_by(Goal, Called), !.
 called_by(on_signal(_,_,New), [New+1]) :-
 	(   new == throw
 	;   new == default
@@ -120,12 +120,11 @@ called_by(on_signal(_,_,New), [New+1]) :-
 
 %:- expects_dialect(swi).
 
-% :- if(current_prolog_flag(dialect, swi)).
-% system_predicate(Goal) :-
-% 	functor(Goal, Name, Arity),
-% 	current_predicate(system:Name/Arity),	% avoid autoloading
-% 	predicate_property(system:Goal, built_in), !.
-% :-endif.
+prolog:system_predicate(Goal) :-
+ 	functor(Goal, Name, Arity),
+ 	current_predicate(system:Name/Arity),	% avoid autoloading
+ 	predicate_property(system:Goal, built_in), !.
+
 
 		/********************************
 		*            TOPLEVEL		*
@@ -211,7 +210,7 @@ xref_push_op(Src, P, T, N0) :- !,
 
 xref_clean(Source) :-
 	prolog_canonical_source(Source, Src),
-	retractall(called(_, Src, _Origin)),
+	retractall((_, Src, _Origin)),
 	retractall(dynamic(_, Src, Line)),
 	retractall(multifile(_, Src, Line)),
 	retractall(defined(_, Src, Line)),
@@ -345,9 +344,7 @@ collect(Src, In) :-
 	    (   T == end_of_file
 	    ->  !
 	    ;   stream_position_data(line_count, TermPos, Line),
-		writeln(Line),
 		flag(xref_src_line, _, Line),
-		writeln(Line),
 		catch(process(T, Src), E, print_message(error, E)),
 		fail
 	    ).
@@ -359,14 +356,14 @@ collect(Src, In) :-
 %	documentation processor.
 
 :- multifile
-	prolog:comment_hook/3.
+	user:comment_hook/3.
 
 read_source_term(Src, In, Term, TermPos) :-
 	atom(Src),
 	\+ source_file(Src),		% normally loaded; no need to update
-%       '$get_predicate_attribute'(prolog:comment_hook(_,_,_),
+%       '$get_predicate_attribute'(user:comment_hook(_,_,_),
 %	    number_of_clauses, N),
-	    predicate_property( prolog:comment_hook(_,_,_), number_of_clauses( N) ),
+	    predicate_property( user:comment_hook(_,_,_), number_of_clauses( N) ),
 	N > 0, !,
 	current_source_module(SM, SM),
 	read_term(In, Term,
@@ -374,7 +371,7 @@ read_source_term(Src, In, Term, TermPos) :-
 		    comments(Comments),
 		    module(SM)
 		  ]),
-	(   catch(prolog:comment_hook(Comments, TermPos, Term), E,
+	(   catch(user:comment_hook(Comments, TermPos, Term), E,
 		  print_message(error, E))
 	->  true
 	;   true
@@ -547,7 +544,7 @@ process_directive(Goal, Src) :-
 
 %%	process_meta_predicate(+Decl)
 %
-%	Create prolog:meta_goal/2 declaration from the meta-goal
+%	Create user:meta_goal/2 declaration from the meta-goal
 %	declaration.
 
 process_meta_predicate((A,B)) :- !,
@@ -557,7 +554,7 @@ process_meta_predicate(Decl) :-
 	functor(Decl, Name, Arity),
 	functor(Head, Name, Arity),
 	meta_args(1, Arity, Decl, Head, Meta),
-	(   (   prolog:meta_goal(Head, _)
+	(   (   user:meta_goal(Head, _)
 	    ;   called_by(Head, _)
 	    ;   meta_goal(Head, _)
 	    )
@@ -667,7 +664,7 @@ xref_meta(listen(_, _, G),	[G]).
 xref_meta(in_pce_thread(G),	[G]).
 
 xref_meta(G, Meta) :-			% call user extensions
-	prolog:meta_goal(G, Meta).
+	user:meta_goal(G, Meta).
 xref_meta(G, Meta) :-			% Generated from :- meta_predicate
 	meta_goal(G, Meta).
 
@@ -688,7 +685,7 @@ head_of(Head, Head).
 %	module where they are called.
 
 xref_hook(Hook) :-
-	prolog:hook(Hook).
+	user:hook(Hook).
 xref_hook(Hook) :-
 	hook(Hook).
 
@@ -710,13 +707,13 @@ hook(pce_principal:get_implementation(_,_,_,_)).
 hook(pce_principal:pce_lazy_get_method(_,_,_)).
 hook(pce_principal:pce_lazy_send_method(_,_,_)).
 hook(pce_principal:pce_uses_template(_,_)).
-hook(prolog:locate_clauses(_,_)).
-hook(prolog:message(_,_,_)).
-hook(prolog:message_context(_,_,_)).
-hook(prolog:debug_control_hook(_)).
-hook(prolog:help_hook(_)).
-hook(prolog:show_profile_hook(_,_)).
-hook(prolog:general_exception(_,_)).
+hook(user:locate_clauses(_,_)).
+hook(user:message(_,_,_)).
+hook(user:message_context(_,_,_)).
+hook(user:debug_control_hook(_)).
+hook(user:help_hook(_)).
+hook(user:show_profile_hook(_,_)).
+hook(user:general_exception(_,_)).
 hook(prolog_edit:load).
 hook(prolog_edit:locate(_,_,_)).
 hook(shlib:unload_all_foreign_libraries).
@@ -1419,7 +1416,7 @@ hooking can be databases, (HTTP) URIs, etc.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 :- multifile
-	prolog:xref_source_directory/2.		% +Source, -Dir
+	user:xref_source_directory/2.		% +Source, -Dir
 
 
 %%	xref_source_file(+Spec, -File, +Src) is semidet.
@@ -1433,7 +1430,7 @@ xref_source_file(Plain, File, Source) :-
 xref_source_file(Plain, File, Source, Options) :-
 	atom(Plain),
 	\+ is_absolute_file_name(Plain),
-	(   prolog:xref_source_directory(Source, Dir)
+	(   user:xref_source_directory(Source, Dir)
 	->  true
 	;   atom(Source),
 	    file_directory_name(Source, Dir)

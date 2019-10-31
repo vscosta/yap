@@ -68,8 +68,8 @@ users of the library are:
 
 :- multifile
 	requires_library/2,
-	prolog:xref_source_identifier/2,	% +Source, -Id
-	prolog:xref_open_source/2.		% +SourceId, -Stream
+	user:xref_source_identifier/2,	% +Source, -Id
+	user:xref_open_source/2.		% +SourceId, -Stream
 
 :- if(current_prolog_flag(dialect, yap)).
 % yap
@@ -195,7 +195,7 @@ public_operators([H|T]) :- !,
 %	==
 
 prolog_open_source(Src, Fd) :-
-%	(   false % prolog:xref_open_source(Src, Fd)
+%	(   false % user:xref_open_source(Src, Fd)
 %	->  true
 	    %	;
 	    open(Src, read, Fd),
@@ -232,7 +232,7 @@ prolog_close_source(In) :-
 %	prolog_canonical absolute filename.
 
 prolog_canonical_source(Src, Id) :-		% Call hook
-	prolog:xref_source_identifier(Src, Id), !.
+	user:xref_source_identifier(Src, Id), !.
 prolog_canonical_source(User, user) :-
 	User == user, !.
 prolog_canonical_source(Source, Src) :-

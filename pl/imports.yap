@@ -1,3 +1,4 @@
+
 /**
  ** @file imports.yap
  *
@@ -65,8 +66,8 @@ fail.
 %:- start_low_level_trace.
 % parent module mechanism
 %% system has priority
-'$import_goal'(C, EC) :-
-    '$expand_term'(C, top, EC).
+%'$import_goal'(C, EC) :-
+%		       '$expand_term'(C, top, EC).
 '$import_goal'(_ImportingMod:G,prolog:G) :-
     nonvar(G),
     '$pred_exists'(G,prolog),
