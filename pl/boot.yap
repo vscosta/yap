@@ -265,10 +265,10 @@ initialize_prolog :-
 :- c_compile( 'modules.yap' ).
 :- c_compile( 'grammar.yap' ).
 :- c_compile( 'protect.yap' ).
+:- c_compile('error.yap').
 
 :- c_compile('absf.yap' ).
 
-:- use_module('error.yap').
 
 :- [
     'utils.yap',
