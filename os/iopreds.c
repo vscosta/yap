@@ -437,6 +437,74 @@ Int PlIOError__(const char *file, const char *function, int lineno,
   }
 }
 
+bool
+ UnixIOError__(const char *file, const char *function, int lineno,
+                int error, io_kind_t io_type, Term culprit, ...) {
+  if (trueLocalPrologFlag(FILEERRORS_FLAG) ) {
+    va_list args;
+    const char *format;
+    char *who = Malloc(1024);
+    yap_error_number e_type;
+
+    va_start(args, culprit);
+    format = va_arg(args, char *);
+    if (format) {
+      vsnprintf(who, 1023, format, args);
+    } else {
+      who[0] = '\0';
+    }
+    va_end(args);
+    switch (error) {
+      case EPERM: 
+      // operation not permitted,
+      switch (io_type) {
+        case CREATE_DIRECTORY:
+    e_type = PERMISSION_ERROR_CREATE_DIRECTORY;
+    break;
+  case CREATE_FILE:
+   e_type = PERMISSION_ERROR_CREATE_DIRECTORY;
+    break;
+    default:
+    e_type = SYSTEM_ERROR_INTERNAL;
+           break;
+      }
+      case EEXIST:
+             switch (io_type) {
+  case CREATE_DIRECTORY:
+    e_type = EXISTENCE_ERROR_DIRECTORY;
+    break;
+  case CREATE_FILE:
+   e_type = EXISTENCE_ERROR_FILE;
+    break;
+    default:
+    e_type = SYSTEM_ERROR_INTERNAL;
+    }
+    break;
+       case EACCES:
+             switch (io_type) {
+  case CREATE_DIRECTORY:
+    e_type = PERMISSION_ERROR_CREATE_DIRECTORY;
+    break;
+  case CREATE_FILE:
+   e_type = PERMISSION_ERROR_CREATE_FILE;
+    break;
+    default:
+    e_type = SYSTEM_ERROR_INTERNAL;
+    }
+    break;
+    default:
+        e_type = SYSTEM_ERROR_INTERNAL;
+    }
+
+   Yap_ThrowError__(file, function, lineno, e_type, culprit, who);
+    /* aRgrownd fail */  
+  } else {
+    pop_text_stack(0);
+    memset(LOCAL_ActiveError, 0, sizeof(*LOCAL_ActiveError));
+    return false;
+  }
+}
+
 static int eolflg = 1;
 
 static char my_line[200] = {0};

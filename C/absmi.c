@@ -123,72 +123,32 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 
 #ifdef COROUTINING
 /*
-  Imagine we are interrupting the execution, say, because we have a spy
-   point or because we have goals to wake up. This routine saves the current
-   live temporary registers into a structure pointed to by register ARG1.
-   The registers are then recovered by a nasty builtin
-   called
+  this one's called before gc or stack expansion. It generates a consistent
+  set of registers, so that they can be marked and assigned by the g collector.
 */
-static Term push_live_regs(yamop *pco) {
+static arity_t live_regs( yamop *pco, PredEntry *pe) {
     CACHE_REGS
     CELL *lab = (CELL *)(pco->y_u.l.l);
-    CELL max = lab[0];
-    CELL curr = lab[1];
-    Term tp = MkIntegerTerm((Int)pco);
-    Term tcp = MkIntegerTerm((Int)CP);
-    Term tenv = MkIntegerTerm((Int)(LCL0 - ENV));
-    Term tyenv = MkIntegerTerm((Int)(LCL0 - YENV));
-    CELL *start = HR;
-    Int tot = 0;
-
-    HR++;
-    *HR++ = tp;
-    *HR++ = tcp;
-    *HR++ = tenv;
-    *HR++ = tyenv;
-    tot += 4;
-    {
-        CELL i;
-
+    arity_t max = lab[0];   // largest live register
+    CELL curr = lab[1];  // bitmap for 0-63 or 0-31
+arity_t i;
         lab += 2;
         for (i = 0; i <= max; i++) {
+            //Process a group of N registers                                   
             if (i == 8 * CellSize) {
                 curr = lab[0];
                 lab++;
             }
             if (curr & 1) {
-                CELL d1;
-
-                tot += 2;
-                HR[0] = MkIntTerm(i);
-                d1 = XREGS[i];
-                deref_head(d1, wake_up_unk);
-                wake_up_nonvar:
-                /* just copy it to the heap */
-                HR[1] = d1;
-                HR += 2;
-                continue;
-
-                {
-                    CELL *pt0;
-                    deref_body(d1, pt0, wake_up_unk, wake_up_nonvar);
-                    /* bind it, in case it is a local variable */
-                    if (pt0 <= HR) {
-                        /* variable is safe */
-                        HR[1] = (CELL)pt0;
-                    } else {
-                        d1 = Unsigned(HR + 1);
-                        RESET_VARIABLE(HR + 1);
-                        Bind_Local(pt0, d1);
-                    }
-                }
-                HR += 2;
+                 continue;
+            } else {
+                /* dead register but let's store safe contents*/
+                XREGS[i] = MkIntegerTerm(i);
             }
-            curr >>= 1;
-        }
-        start[0] = (CELL)Yap_MkFunctor(AtomTrue, tot);
-        return (AbsAppl(start));
+        
     }
+    // this will be the new arity
+    return max;
 }
 #endif
 
@@ -227,11 +187,11 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
     if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
         Yap_get_signal(YAP_STOVF_SIGNAL)) {
         S = (CELL *)pe;
-        if (!Yap_dogc(0, NULL PASS_REGS)) {
-            Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
+        if (!Yap_dogc(live_regs(NEXTOP(P,Osblp), pe), NULL PASS_REGS)) {
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
             return 0;
         }
-        return 1;
+	return 1;
     }
     return -1;
 }
@@ -454,7 +414,6 @@ static int interrupt_handlerc(PredEntry *pe USES_REGS) {
 static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
     int rc;
 
-    ARG1 = push_live_regs(P);
 #ifdef FROZEN_STACKS
     {
         choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -480,7 +439,7 @@ static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
     SET_ASP(YENV, E_CB * sizeof(CELL));
     // do the work.
     rc = safe_interrupt_handler(pe PASS_REGS);
-    return rc;
+     return rc;
 }
 
 /* to trace interrupt calls */
@@ -727,7 +686,7 @@ static int interrupt_deallocate(USES_REGS1) {
                     }
 // deallocate moves P one step forward.
                     P = NEXTOP(P, p);
-                    bool rc = interrupt_handler(pe PASS_REGS);
+                    bool rc =interrupt_handler(pe PASS_REGS); 
                     P = PREVOP(P, p);
                     return rc;
                 }
@@ -763,6 +722,7 @@ static int interrupt_deallocate(USES_REGS1) {
         /* find something to fool S */
         yamop *myP = P, *myCP = CP;
         P = NEXTOP(NEXTOP(P, s),Osblp);
+        // does not
        int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
         P = myP;
         CP=myCP;
@@ -921,15 +881,14 @@ static int interrupt_deallocate(USES_REGS1) {
             return v;
         }
         if ((v = stack_overflow(
-                RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)), YENV,
-                NEXTOP(P, Osblp), 0 PASS_REGS)) >= 0) {
+                RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)), ENV,
+                P, 0 PASS_REGS)) >= 0) {
             return v;
         }
-        P = NEXTOP(P, Osblp);
-        v = interrupt_handler_either(
+           v = interrupt_handler_either(
                 MkIntTerm(0),
                 RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)) PASS_REGS);
-        return v;
+     return v;
     }
 
     static int interrupt_dexecute(USES_REGS1) {
@@ -1251,7 +1210,7 @@ return v;
         register CELL d0, d1;
   register CELL *pt0, *pt1;
 
-#endif /* LONG_LIVED_REGISTERS */
+#endif	/* LONG_LIVED_REGISTERS */
 
 #ifdef SHADOW_P
         register yamop *PREG = P;
@@ -1396,8 +1355,8 @@ return v;
         }
 #endif /* USE_THREADED_CODE */
 
-#if PUSH_REGS
-        old_regs = &Yap_REGS;
+#if PUSH_REGS			/*  */
+        old_regs = &Yap_REGS;	/*  */
 
         /* done, let us now initialize this space */
         init_absmi_regs(&absmi_regs);

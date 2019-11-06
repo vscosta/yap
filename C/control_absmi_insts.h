@@ -201,6 +201,7 @@ ENDOp();
         pt0 = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         check_stack(NoStackExecute, HR);
+        FETCH_Y_FROM_ENV(YREG);
         goto skip_do_execute;
 #endif
       do_execute:
@@ -258,6 +259,7 @@ ENDOp();
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
+        FETCH_Y_FROM_ENV(YREG);
         goto skip_dexecute;
 #endif
       continue_dexecute:
@@ -431,6 +433,7 @@ ALWAYS_GONext();
       /* check stacks */
       check_stack(NoStackDeallocate, HR);
 do_deallocate:
+      SREG = ENV_YREG = YENV;
 #endif
 PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate

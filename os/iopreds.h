@@ -108,13 +108,22 @@ static inline Int GetCurInpPos(StreamDesc *inp_stream) {
 }
 extern bool Yap_SetCurInpPos(int sno,  Int pos USES_REGS);
 
-
+typedef enum {
+  CREATE_DIRECTORY,
+  CREATE_FILE
+}io_kind_t;
 
 #define PlIOError(type, culprit, ...)                                          \
   PlIOError__(__FILE__, __FUNCTION__, __LINE__, type, culprit, __VA_ARGS__)
 
-extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term,
+extern Int PlIOError__(const char *, const char *, int, yap_error_number, Term, 
                        ...);
+
+
+#define UnixIOError(errorno, io_kind, culprit, ...)   \
+  UnixIOError__(__FILE__, __FUNCTION__, __LINE__, errorno, io_kind, culprit, __VA_ARGS__)
+
+extern bool UnixIOError__(const char *, const char *, int, int, io_kind_t, Term, ...);
 
 extern int GetFreeStreamD(void);
 extern Term Yap_MkStream(int n);

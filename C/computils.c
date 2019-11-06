@@ -797,3 +797,200 @@ Yap_ShowCode (struct intermediates *cint)
 }
 
 #endif /* DEBUG */
+
+#if 0
+Yap_showMachineInstruction(yamop *p) {
+
+
+static void OpcodeID(OPCODE op) {
+  CACHE_REGS
+  CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
+  import_opcode_hash_entry_t *f;
+
+  f = LOCAL_ImportOPCODEHashChain[hash];
+  while (f) {
+    if (f->oval == op) {
+      fprintf(stderr,"%s\t".Yap_opnames[f->id] );
+    }
+    f = f->next;
+  }
+
+}      fprintf(stderr,"%s\t".Yap_opnames[f->id] );
+
+
+
+static inline Atom AtomAdjust(Atom a) { fprintf(stderr,"%s\t". RepAtom(a)->StrOfAE); return a; };
+
+ static inline Atom FuncAdjust(Atom a) { fprintf(stderr,"%s/%ld\t". RepAtom(NameOfFunctor(f))->StrOfAE; ArityOfFunctor(f)); return a; };
+
+ static inline Term AtomTermAdjust(Term t) { Yap_DebugPlWrite(t); return t; }
+
+static inline Term TermToGlobalOrAtomAdjust(Term t) { Yap_DebugPlWrite(t); return t; }
+
+#define IsOldCode(P) FALSE
+#define IsOldCodeCellPtr(P) FALSE
+#define IsOldDelay(P) FALSE
+#define IsOldDelayPtr(P) FALSE
+#define IsOldLocalInTR(P) FALSE
+#define IsOldLocalInTRPtr(P) FALSE
+#define IsOldGlobal(P) FALSE
+#define IsOldGlobalPtr(P) FALSE
+#define IsOldTrail(P) FALSE
+#define IsOldTrailPtr(P) FALSE
+
+#define CharP(X) ((char *)(X))
+
+#define REINIT_LOCK(P)
+#define REINIT_RWLOCK(P)
+#define BlobTypeAdjust(P) (P)
+#define NoAGCAtomAdjust(P) (P)
+#define OrArgAdjust(P)
+#define TabEntryAdjust(P)
+#define IntegerAdjust(D) (D)
+#define AddrAdjust(P) (P)
+#define MFileAdjust(P) (P)
+
+#define CodeVarAdjust(P) CodeVarAdjust__(P PASS_REGS)
+static inline Term CodeVarAdjust__(Term var USES_REGS) {
+  if (var == 0L)
+    return var;
+  return (Term)(CharP(var) + LOCAL_HDiff);
+}
+
+#define ConstantAdjust(P) (P)
+#define ArityAdjust(P) (P)
+#define DoubleInCodeAdjust(P)
+#define IntegerInCodeAdjust(Pxb)
+
+static inline PredEntry *PtoPredAdjust(PredEntry *p) {
+  return LookupPredEntry(p);
+}
+
+static inline PredEntry *PredEntryAdjust(PredEntry *p) {
+  return LookupPredEntry(p);
+}
+
+static inline OPCODE OpcodeAdjust(OPCODE OP) { return LookupOPCODE(OP); }
+
+static inline Term ModuleAdjust(Term M) {
+  if (!M)
+    return M;
+  return AtomTermAdjust(M);
+}
+
+#define ExternalFunctionAdjust(P) (P)
+#define DBRecordAdjust(P) (P)
+#define ModEntryPtrAdjust(P) (P)
+#define AtomEntryAdjust(P) (P)
+#define GlobalEntryAdjust(P) (P)
+#define BlobTermInCodeAdjust(P) BlobTermInCodeAdjust__(P PASS_REGS)
+#if TAGS_FAST_OPS
+static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
+  return (Term)((char *)(t)-LOCAL_HDiff);
+}
+#else
+static inline Term BlobTermInCodeAdjust__(Term t USES_REGS) {
+  return (Term)((char *)(t) + LOCAL_HDiff);
+}
+#endif
+#define DBTermAdjust(P) DBTermAdjust__(P PASS_REGS)
+static inline DBTerm *DBTermAdjust__(DBTerm *dbtp USES_REGS) {
+  return (DBTerm *)(CharP(dbtp) + LOCAL_HDiff);
+}
+
+#define CellPtoHeapAdjust(P) CellPtoHeapAdjust__(P PASS_REGS)
+static inline CELL *CellPtoHeapAdjust__(CELL *dbtp USES_REGS) {
+  return (CELL *)(CharP(dbtp) + LOCAL_HDiff);
+}
+
+#define PtoAtomHashEntryAdjust(P) (P)
+#define CellPtoHeapCellAdjust(P) (P)
+#define CellPtoTRAdjust(P) (P)
+#define CodeAddrAdjust(P) (P)
+#define ConsultObjAdjust(P) (P)
+#define DelayAddrAdjust(P) (P)
+#define DelayAdjust(P) (P)
+#define GlobalAdjust(P) (P)
+
+#define DBRefAdjust(P, Ref) DBRefAdjust__(P, Ref PASS_REGS)
+static inline DBRef DBRefAdjust__(DBRef dbtp, int do_reference USES_REGS) {
+  return LookupDBRef(dbtp, do_reference);
+}
+
+#define DBRefPAdjust(P) DBRefPAdjust__(P PASS_REGS)
+static inline DBRef *DBRefPAdjust__(DBRef *dbtp USES_REGS) {
+  return (DBRef *)((char *)(dbtp) + LOCAL_HDiff);
+}
+
+#define LUIndexAdjust(P) (P)
+#define SIndexAdjust(P) (P)
+#define LocalAddrAdjust(P) (P)
+#define GlobalAddrAdjust(P) (P)
+#define OpListAdjust(P) (P)
+
+#define PtoLUCAdjust(P) PtoLUCAdjust__(P PASS_REGS)
+#define PtoLUClauseAdjust(P) PtoLUCAdjust__(P PASS_REGS)
+static inline LogUpdClause *PtoLUCAdjust__(LogUpdClause *dbtp USES_REGS) {
+  return (LogUpdClause *)((char *)(dbtp) + LOCAL_HDiff);
+}
+
+#define PtoStCAdjust(P) (P)
+#define PtoArrayEAdjust(P) (P)
+#define PtoArraySAdjust(P) (P)
+#define PtoGlobalEAdjust(P) (P)
+#define PtoDelayAdjust(P) (P)
+#define PtoGloAdjust(P) (P)
+#define PtoLocAdjust(P) (P)
+
+#define PtoHeapCellAdjust(P) PtoHeapCellAdjust__(P PASS_REGS)
+static inline CELL *PtoHeapCellAdjust__(CELL *ptr USES_REGS) {
+  LogUpdClause *out;
+  if ((out = LookupMayFailDBRef((DBRef)ptr)))
+    return (CELL *)out;
+  return (CELL *)(CharP(ptr) + LOCAL_HDiff);
+}
+
+#define TermToGlobalAdjust(P) (P)
+#define PtoOpAdjust(P) PtoOpAdjust__(P PASS_REGS)
+static inline yamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
+  if (ptr) {
+    if (ptr == LOCAL_ImportFAILCODE)
+      return FAILCODE;
+    return (yamop *)((char *)(ptr) + LOCAL_HDiff);
+  }
+  return ptr;
+}
+#define PtoLUIndexAdjust(P) (P)
+#define PtoDBTLAdjust(P) (P)
+#define PtoPtoPredAdjust(P) (P)
+#define OpRTableAdjust(P) (P)
+#define OpEntryAdjust(P) (P)
+#define PropAdjust(P) (P)
+#define TrailAddrAdjust(P) (P)
+#if PRECOMPUTE_REGADDRESS
+#define XAdjust(P) XAdjust__(P PASS_REGS)
+static inline wamreg XAdjust__(wamreg reg USES_REGS) {
+  return (wamreg)((wamreg)((reg) + LOCAL_XDiff));
+}
+#else
+#define XAdjust(X) (X)
+#endif
+#define YAdjust(X) (X)
+#define HoldEntryAdjust(P) (P)
+#define CodeCharPAdjust(P) (P)
+#define CodeConstCharPAdjust(P) (P)
+#define CodeVoidPAdjust(P) (P)
+#define HaltHookAdjust(P) (P)
+
+#define recompute_mask(dbr)
+
+#define rehash(oldcode, NOfE, KindOfEntries)
+
+#define RestoreSWIHash()
+
+#define Yap_op_from_opcode(OP) OpcodeID(OP)
+
+static void RestoreFlags(UInt NFlags) {}
+
+
+#endif

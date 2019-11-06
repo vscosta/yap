@@ -52,12 +52,11 @@ static Int file_exists(USES_REGS1) {
   Term tname = Deref(ARG1);
   char *file_name;
 
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "access");
-    return FALSE;
+  if(IsVarTerm(tname)) {
+    Yap_ThrowError(INSTANTIATION_ERROR, tname, "access");
   } else if (!IsAtomTerm(tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-    return FALSE;
+    Yap_ThrowError(TYPE_ERROR_ATOM, tname, "access");
+    return false;
   } else {
 #if HAVE_STAT
     struct SYSTEM_STAT ss;
@@ -66,7 +65,7 @@ static Int file_exists(USES_REGS1) {
     if (SYSTEM_STAT(file_name, &ss) != 0) {
       if (errno == ENOENT)
         return false;
-      PlIOError(SYSTEM_ERROR_OPERATING_SYSTEM, tname, "error %s",
+      UnixIOError(errno, CREATE_DIRECTORY, tname, "error %s",
                 strerror(errno));
       return false;
     }
@@ -528,12 +527,15 @@ static Int make_directory(USES_REGS1) {
       if (!Yap_isDirectory(fd)) {
 #if defined(__MINGW32__) || _MSC_VER
 	if (_mkdir(fd) == -1) {
+    	      /* return an CREATE_DIRECTORY,error number */
+	    UnixIOError(errno, CREATE_DIRECTORY, ARG1, "mkdir failed to create ", fd, strerror(errno));
+	    }
 #else
 	  if (mkdir(fd, 0777) == -1) {
-#endif
 	      /* return an error number */
-	    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "mkdir failed to create ", fd, strerror(errno));
+	    UnixIOError(errno,CREATE_DIRECTORY, ARG1, "mkdir failed to create %s: %s", fd, strerror(errno));
 	    }
+#endif
 	}
       }
       

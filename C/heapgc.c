@@ -552,7 +552,8 @@ static void pop_registers(Int num_regs, yamop *nextop USES_REGS) {
   for (i = 1; i <= num_regs; i++)
     XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */
-  if (nextop->opc == Yap_opcode(_move_back) ||
+#if 0
+if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
     CELL *lab = (CELL *)(nextop->y_u.l.l);
     CELL max = lab[0];
@@ -572,6 +573,7 @@ static void pop_registers(Int num_regs, yamop *nextop USES_REGS) {
       }
     }
   }
+ #endif
 }
 
 #if DEBUG && COUNT_CELLS_MARKED

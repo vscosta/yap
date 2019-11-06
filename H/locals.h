@@ -63,8 +63,9 @@ LOCAL_INIT(Int, TrDiff, 0L);
 LOCAL_INIT(Int, XDiff, 0L);
 LOCAL_INIT(Int, DelayDiff, 0L);
 LOCAL_INIT(Int, BaseDiff, 0L);
+// A term containing a copy with all current live registrt
 // Reduction counters
-LOCAL_INIT(YAP_ULONG_LONG, ReductionsCounter, 0L);
+LOCAL_INIT(YAP_ULONG_LONG, ReductionsCounter, 0L);                                                
 LOCAL_INIT(YAP_ULONG_LONG, PredEntriesCounter, 0L);
 LOCAL_INIT(YAP_ULONG_LONG, RetriesCounter, 0L);
 LOCAL_INIT(int, ReductionsCounterOn, 0L);
