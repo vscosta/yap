@@ -42,11 +42,11 @@ static void mark_external_reference(CELL *CACHE_TYPE);
 static void mark_db_fixed(CELL *CACHE_TYPE);
 static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
-static void mark_environments(CELL *, size_t, CELL *CACHE_TYPE);
+static void mark_environments(CELL *, size_t, CELL *, yamop * CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
 static void into_relocation_chain(CELL *, CELL *CACHE_TYPE);
 static void sweep_trail(choiceptr, tr_fr_ptr CACHE_TYPE);
-static void sweep_environments(CELL *, size_t, CELL *CACHE_TYPE);
+static void sweep_environments(CELL *, size_t, CELL *, yamop * CACHE_TYPE);
 static void sweep_choicepoints(choiceptr CACHE_TYPE);
 static void compact_heap(CACHE_TYPE1);
 static void update_relocation_chain(CELL *, CELL *CACHE_TYPE);
@@ -399,6 +399,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
   TrailTerm(TR++) = LOCAL_GlobalArena;
   while (al) {
     ret = check_pr_trail(ret PASS_REGS);
+    printf("al %p\n", TR);
     TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
   }
@@ -406,6 +407,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
     Term t = gl->global;
     if (!IsUnboundVar(&gl->global) && !IsAtomTerm(t) && !IsIntTerm(t)) {
       ret = check_pr_trail(ret PASS_REGS);
+    printf("gl %p\n", TR);
       // fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
       TrailTerm(TR++) = t;
     }
@@ -419,6 +421,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
         if (!IsVarTerm(tlive) ||
             !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
           ret = check_pr_trail(ret PASS_REGS);
+    printf("sal %p\n", TR);
           TrailTerm(TR++) = tlive;
         }
       }
@@ -427,11 +430,14 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
   }
   ret = check_pr_trail(ret PASS_REGS);
   TrailTerm(TR) = LOCAL_GcGeneration;
+    printf("GcG %p\n", TR);
   TR++;
+    printf("GcGP %p\n", TR);
   TrailTerm(TR) = LOCAL_GcPhase;
   TR++;
 #ifdef COROUTINING
-  TrailTerm(TR) = LOCAL_WokenGoals;
+    printf("WP %p\n", TR);
+    TrailTerm(TR) = LOCAL_WokenGoals;
   TrailTerm(TR + 1) = LOCAL_AttsMutableList;
   TR += 2;
 #endif
@@ -440,15 +446,17 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
     while (curslot < topslot) {
       // printf("%p <- %p\n", TR, topslot);
       ret = check_pr_trail(ret PASS_REGS);
-      if (!IsVarTerm(*curslot) &&
+    if (!IsVarTerm(*curslot) &&
           ((*curslot<(CELL)LOCAL_GlobalBase && * curslot>(CELL) HR))) {
         *curslot = TermFreeTerm;
       }
+      printf("Sl %p %ld\n", TR, curslot-LOCAL_SlotBase);
       TrailTerm(TR++) = *curslot++;
     }
   }
   for (i = 1; i <= num_regs; i++) {
     ret = check_pr_trail(ret PASS_REGS);
+      printf("X[%d] %p \n", i, TR);
     TrailTerm(TR++) = (CELL)XREGS[i];
   }
   /* push any live registers we might have hanging around */
@@ -467,6 +475,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
         }
         if (curr & 1) {
           ret = check_pr_trail(ret PASS_REGS);
+	  printf("X[%ld] %p \n", i, TR);
           TrailTerm(TR++) = XREGS[i];
         }
         curr >>= 1;
@@ -532,7 +541,7 @@ static void pop_registers(Int num_regs, yamop *nextop USES_REGS) {
     }
     sal = sal->NextAE;
   }
-  LOCAL_GcGeneration = TrailTerm(ptr++);
+   LOCAL_GcGeneration = TrailTerm(ptr++);
   LOCAL_GcPhase = TrailTerm(ptr++);
 #ifdef COROUTINING
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -1540,85 +1549,105 @@ static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
+    printf("%p\n", trail_ptr);
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 }
 
 /* mark all heap objects accessible from a chain of environments */
 
-static void mark_environments(CELL_PTR gc_ENV, size_t size,
-                              CELL *pvbmap USES_REGS) {
-  CELL_PTR saved_var;
-  while (gc_ENV != NULL) { /* no more environments */
-    Int bmap = 0;
-    int currv = 0;
+/* mark all heap objects accessible from a chain of environments */
 
-    //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
-#ifdef DEBUG
-      if ( size <  0 || size > 512)
-        fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
-                gc_ENV, (CELL)size);
-#endif
-     yamop * e_CP = (yamop *)gc_ENV[E_CP];
+/* mark all heap objects accessible from a chain of environments */
 
-    /* for each saved variable */
-    if (size > EnvSizeInCells) {
-      int tsize = size - EnvSizeInCells;
-
-      currv = sizeof(CELL) * 8 - tsize % (sizeof(CELL) * 8);
-      if (pvbmap != NULL) {
-        pvbmap += tsize / (sizeof(CELL) * 8);
-        bmap = *pvbmap;
-      } else {
-        bmap = ((CELL)-1);
-      }
-      bmap = (Int)(((CELL)bmap) << currv);
+static inline void output_env_entry(CELL *gc_ENV, yamop *e_CP, UInt size) {
+  return;
+#if 0 && defined(ANALYST) || defined(DEBUG)
+    PredEntry *pe = EnvPreg(e_CP);
+    if (pe) {
+      op_numbers op = Yap_op_from_opcode(e_CP->opc);
+      fprintf(stderr, "ENV %p-%p^%lx(%ld) %s  ", gc_ENV, e_CP, gc_ENV[E_E],
+              size - EnvSizeInCells, Yap_op_names[op]);
+      Yap_DebugPlWriteln(Yap_PredicateToIndicator(pe));
     }
+#endif  
+}
 
-    for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells;
-         saved_var++) {
-      if (currv == sizeof(CELL) * 8) {
-        if (pvbmap) {
-          pvbmap--;
-          bmap = *pvbmap;
-        } else {
-          bmap = ((CELL)-1);
-        }
-        currv = 0;
+static void
+mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
+{
+  CELL_PTR saved_var;
+  UInt bmap, bit = 1;
+  if (size <= EnvSizeInCells || pvbmap == NULL) {
+    return;
+  }
+  bmap = *pvbmap;
+  for (saved_var = gc_ENV - (EnvSizeInCells + 1);
+       saved_var >= gc_ENV - size; saved_var--) {
+    // next bitmap
+    if ((Int)bit < 0) {
+      pvbmap++;
+      bmap = *pvbmap;
+    }
+    /* we may have already been here */
+    if ((bmap & bit) != 0) {
+      if (!MARKED_PTR(saved_var)) {
+	printf("%c [%lx/%lx]  %lx ->%lx\n",
+	       (MARKED_PTR(saved_var) ?'*':' '),
+	       bmap, bit, gc_ENV - saved_var,  *saved_var);
       }
-      /* we may have already been here */
-      if (bmap < 0 && !MARKED_PTR(saved_var)) {
+      mark_variable(saved_var PASS_REGS);
+    }
 #ifdef INSTRUMENT_GC
-        Term ccur = *saved_var;
-
-        if (IsVarTerm(ccur)) {
-          int len = 1;
-          CELL *mynext = GET_NEXT(ccur);
-
-          if (ONHEAP(mynext)) {
-            env_vars++;
-            while (ONHEAP(mynext) && IsVarTerm(*mynext)) {
-              CELL *prox = GET_NEXT(*mynext);
-              if (prox == mynext) {
-                chain[0]++;
-                break;
+    {
+          Term ccur = *saved_var;
+          if (IsVarTerm(ccur)) {
+            int len = 1;
+            CELL *mynext = GET_NEXT(ccur);
+	    
+            if (ONHEAP(mynext)) {
+              env_vars++;
+              while (ONHEAP(mynext) && IsVarTerm(*mynext)) {
+                CELL *prox = GET_NEXT(*mynext);
+                if (prox == mynext) {
+                  chain[0]++;
+                  break;
+                }
+                len++;
+                mynext = prox;
               }
-              len++;
-              mynext = prox;
-            }
-            if (len >= 15) {
-              (chain[15])++;
-            } else {
-              (chain[len])++;
+              if (len >= 15) {
+                (chain[15])++;
+              } else {
+                (chain[len])++;
+              }
             }
           }
-        }
+	}
 #endif
-        mark_external_reference(saved_var PASS_REGS);
-      }
-      bmap <<= 1;
-      currv++;
+    bit <<= 1;
+  }
+}
+
+static void mark_environments(CELL_PTR gc_ENV, size_t size,
+                              CELL *pvbmap, yamop *e_CP USES_REGS) {
+  while (true) {
+    if (gc_ENV == LCL0 ||
+	 gc_ENV == NULL ||
+	 (CELL)gc_ENV == gc_ENV[E_E]
+	 ) { /* no more environments */
+      break;
     }
+    //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
+#ifdef DEBUG
+    if (size < 0) {
+      fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
+              gc_ENV, (CELL)size);
+    }
+#endif
+ output_env_entry( gc_ENV, e_CP,  size);
+    /* for each saved variable */
+    mark_env_cells( gc_ENV, size, pvbmap);
     /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
        been here before or not.
@@ -1629,32 +1658,22 @@ static void mark_environments(CELL_PTR gc_ENV, size_t size,
     if (MARKED_PTR(gc_ENV + E_CB))
       return;
     MARK(gc_ENV + E_CB);
-
+    e_CP = (yamop *)gc_ENV[E_CP];
+    if (e_CP == BORDERCODE) {
+      if (gc_ENV == LCL0)
+        e_CP = NULL;
+      else
+	e_CP = (yamop *)gc_ENV[-EnvSizeInCells - 1];
+    }
     if (!e_CP || !gc_ENV[E_E])
       return;
-#if 0 && defined(ANALYST) || defined(DEBUG)
-    PredEntry *pe = EnvPreg(e_CP);
-    if (pe) {
-      //op_numbers op = Yap_op_from_opcode(e_CP->opc);
-      //fprintf(stderr, "ENV %p-%p^%lx(%ld) %s", gc_ENV, e_CP, gc_ENV[E_E], size - EnvSizeInCells,
-	    //  Yap_op_names[op]);
-//      if (pe->ArityOfPE)
-//	fprintf(stderr, "   %s/%ld\n",
-//		RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE,
-//              pe->ArityOfPE);
-//     // else
-	//fprintf(stderr, "   %s\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
-    }
-#endif
     size = EnvSize(e_CP); /* size = EnvSize(CP) */
-    if (size > EnvSizeInCells)
+    if (size > EnvSizeInCells) {
       pvbmap = EnvBMap(e_CP);
-    else
-      pvbmap = NULL;
-    if (    gc_ENV == (CELL_PTR)gc_ENV[E_E])
-      return;
-    gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev
-                                     * environment */
+    } else {
+	pvbmap = NULL;
+    }
+    gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev                                     * environment */
   }
 }
 
@@ -2036,7 +2055,8 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       yamop *e_cp = (yamop *)env[E_CP];
       mark_environments((CELL_PTR)(gc_B->cp_a1),
                        EnvSize(e_cp),
-                       EnvBMap(e_cp) PASS_REGS);
+			EnvBMap(e_cp),
+			e_cp PASS_REGS);
     } else {
       /* choicepoint with arguments */
       register CELL_PTR saved_reg;
@@ -2045,7 +2065,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       // printf("gc_B=%p %ld\n", gc_B, opnum);
       if (opnum == _Nstop && gc_B->cp_env) {
         mark_environments((CELL_PTR)gc_B->cp_env, EnvSizeInCells,
-                          NULL PASS_REGS);
+                          NULL, gc_B->cp_cp PASS_REGS);
       } else if (opnum != _trust_fail) {
         Int mark = TRUE;
 #ifdef DETERMINISTIC_TABLING
@@ -2054,7 +2074,8 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
         if (mark)
           mark_environments((CELL_PTR)gc_B->cp_env,
                             EnvSize((yamop *)(gc_B->cp_cp)),
-                            EnvBMap((yamop *)(gc_B->cp_cp)) PASS_REGS);
+                            EnvBMap((yamop *)(gc_B->cp_cp)),
+			    gc_B->cp_cp PASS_REGS);
       }
       /* extended choice point */
     restart_cp:
@@ -2845,94 +2866,95 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
  * relocation chains
  */
 
-static void sweep_environments(CELL_PTR gc_ENV, size_t size,
-                               CELL *pvbmap USES_REGS) {
+static void
+sweep_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
+{
   CELL_PTR saved_var;
-  yamop *e_CP;
-
-  while (gc_ENV != NULL && e_CP != NULL) { /* no more environments */
-    Int bmap = 0;
-    int currv = 0;
-
-    // printf("SWEEP %p--%p\n", gc_ENV, gc_ENV-size);
-
-    /* for each saved variable */
-
-    if ((yamop *)gc_ENV[E_CP] == BORDERCODE) {
-      if (gc_ENV == LCL0) {
-        return;
+  UInt bmap, bit = 1;
+  if (size <= EnvSizeInCells || pvbmap == NULL) {
+    return;
+  }
+  bmap = *pvbmap;
+      for (saved_var = gc_ENV - (EnvSizeInCells + 1);
+	 saved_var >= gc_ENV - size; saved_var--) {
+      // next bitmap
+      if ((Int)bit < 0) {
+	pvbmap++;
+	bmap = *pvbmap;
       }
-            e_CP = (yamop *)gc_ENV[- EnvSizeInCells - 1];
-    } else {
-      e_CP = (yamop *)gc_ENV[E_CP];
-    }
+      /* we may have already been here */
+      if ((bmap & bit) != 0) {
+	  printf("%c [%lx/%lx]  %lx ->%lx\n",
+		 (MARKED_PTR(saved_var) ?'*':' '),
+		 bmap, bit, gc_ENV - saved_var,  *saved_var);
+	if ( MARKED_PTR(saved_var)) {
+	  UNMARK(saved_var);
+          CELL cp_cell = *saved_var;
+	  if (HEAP_PTR(cp_cell)) {
+	    into_relocation_chain(saved_var, GET_NEXT(cp_cell) PASS_REGS);
+	  }
+	}
+      }
+      bit <<= 1;
+      }
+}
 
-    //    op_numbers op = Yap_op_from_opcode(ENV_ToOp(e_CP));
-    //if (op == _Nstop)
-    //  break;
+static void sweep_environments(CELL_PTR gc_ENV, size_t size,
+                               CELL *pvbmap, yamop *e_CP USES_REGS) {
+ while (true) {
+    if (gc_ENV == LCL0 ||
+	 gc_ENV == NULL ||
+	 (CELL)gc_ENV == gc_ENV[E_E]
+	 ) { /* no more environments */
+      break;
+    }
+    //          fprintf(stderr, "ENV %p %ld\n", gc_ENV, size);
+#ifdef DEBUG
+    if (size < 0) {
+      fprintf(stderr, "OOPS in GC: env size for %p is " UInt_FORMAT "\n",
+              gc_ENV, (CELL)size);
+    }
+#endif
+    output_env_entry( gc_ENV,  e_CP,  size);
+    /* for each saved variable */
+    sweep_env_cells( gc_ENV, size, pvbmap);
     /* have we met this environment before?? */
     /* we use the B field in the environment to tell whether we have
-       been here before or not
+       been here before or not.
+
+       We do it at the end because we don't want to lose any variables
+       that would have been trimmed at the first environment visit.
     */
     if (!MARKED_PTR(gc_ENV + E_CB))
       return;
     UNMARK(gc_ENV + E_CB);
-
-    if (size > EnvSizeInCells) {
-      int tsize = size - EnvSizeInCells;
-
-      currv = sizeof(CELL) * 8 - tsize % (sizeof(CELL) * 8);
-      if (pvbmap != NULL) {
-        pvbmap += tsize / (sizeof(CELL) * 8);
-        bmap = *pvbmap;
-      } else {
-        bmap = ((CELL)-1);
-      }
-      bmap = (Int)(((CELL)bmap) << currv);
+    e_CP = (yamop *)gc_ENV[E_CP];
+    if (e_CP == BORDERCODE) {
+      if (gc_ENV == LCL0)
+        e_CP = NULL;
+      else
+	e_CP = (yamop *)gc_ENV[-EnvSizeInCells - 1];
     }
-    for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells;
-         saved_var++) {
-      if (currv == sizeof(CELL) * 8) {
-        if (pvbmap != NULL) {
-          pvbmap--;
-          bmap = *pvbmap;
-        } else {
-          bmap = ((CELL)-1);
-        }
-        currv = 0;
-      }
-      if (bmap < 0) {
-        CELL env_cell = *saved_var;
-        if (MARKED_PTR(saved_var)) {
-          UNMARK(saved_var);
-          if (HEAP_PTR(env_cell)) {
-            into_relocation_chain(saved_var, GET_NEXT(env_cell) PASS_REGS);
-          }
-        }
-      }
-      bmap <<= 1;
-      currv++;
-    }
-    if (e_CP == NULL)
+    if (!e_CP || !gc_ENV[E_E])
       return;
     size = EnvSize(e_CP); /* size = EnvSize(CP) */
     if (size > EnvSizeInCells) {
       pvbmap = EnvBMap(e_CP);
     } else {
-      pvbmap = NULL;
+	pvbmap = NULL;
     }
-    if (    gc_ENV == (CELL_PTR)gc_ENV[E_E])
-      return;
-    gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev
-                                     * environment */
+    gc_ENV = (CELL_PTR)gc_ENV[E_E]; /* link to prev                                     * environment */
   }
-}
+ }
+  
+
 
 static void sweep_b(choiceptr gc_B, UInt arity USES_REGS) {
   register CELL_PTR saved_reg;
 
   sweep_environments(gc_B->cp_env, EnvSize((yamop *)(gc_B->cp_cp)),
-                     EnvBMap((yamop *)(gc_B->cp_cp)) PASS_REGS);
+                     EnvBMap((yamop *)(gc_B->cp_cp)),
+		     gc_B->cp_cp PASS_REGS);
 
   /* for each saved register */
   for (saved_reg = &gc_B->cp_a1; saved_reg < &gc_B->cp_a1 + arity;
@@ -2994,7 +3016,7 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
     switch (opnum) {
     case _Nstop:
       /* end of the road, say bye bye! */
-      sweep_environments(gc_B->cp_env, EnvSizeInCells, NULL PASS_REGS);
+      sweep_environments(gc_B->cp_env, EnvSizeInCells, NULL, NOCODE PASS_REGS);
       if (gc_B->cp_env == LCL0) {
         return;
       } else {
@@ -3009,7 +3031,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
 
       sweep_environments((CELL_PTR)(gc_B->cp_a1),
                          -gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
-                         gc_B->cp_cp->y_u.Osblp.bmap PASS_REGS);
+                         gc_B->cp_cp->y_u.Osblp.bmap,
+			 gc_B->cp_cp PASS_REGS);
       break;
     case _retry_profiled:
     case _count_retry:
@@ -3026,7 +3049,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
     case _table_load_answer: {
       CELL *vars_ptr, vars;
       sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                         EnvBMap(gc_B->cp_cp) PASS_REGS);
+                         EnvBMap(gc_B->cp_cp),
+			 gc_B->cp_cp PASS_REGS);
       vars_ptr = (CELL *)(LOAD_CP(gc_B) + 1);
       vars = *vars_ptr++;
       while (vars--) {
@@ -3048,7 +3072,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       int nargs;
       CELL *vars_ptr, vars;
       sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                         EnvBMap(gc_B->cp_cp) PASS_REGS);
+                         EnvBMap(gc_B->cp_cp),
+			 gc_B->cp_cp PASS_REGS);
       vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
       nargs = rtp->y_u.Otapl.s;
       while (nargs--) {
@@ -3087,7 +3112,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
 #endif /* DETERMINISTIC_TABLING */
       {
         sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                           EnvBMap(gc_B->cp_cp) PASS_REGS);
+                           EnvBMap(gc_B->cp_cp),
+			   gc_B->cp_cp PASS_REGS);
         vars_ptr = (CELL *)(GEN_CP(gc_B) + 1);
         nargs = SgFr_arity(GEN_CP(gc_B)->cp_sg_fr);
         while (nargs--) {
@@ -3142,7 +3168,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
           vars_ptr = (CELL *)(CONS_CP(gc_B) + 1);
         }
         sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                           EnvBMap(gc_B->cp_cp) PASS_REGS);
+                           EnvBMap(gc_B->cp_cp),
+			   gc_B->cp_cp PASS_REGS);
         vars = *vars_ptr++;
         while (vars--) {
           CELL cp_cell = *vars_ptr;
@@ -3189,7 +3216,8 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       CELL *vars_ptr;
       int heap_arity, vars_arity, subs_arity;
       sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp),
-                         EnvBMap(gc_B->cp_cp) PASS_REGS);
+                         EnvBMap(gc_B->cp_cp),
+			 gc_B->cp_cp PASS_REGS);
       vars_ptr = (CELL *)(gc_B + 1);
       heap_arity = vars_ptr[0];
       vars_arity = vars_ptr[1 + heap_arity];
@@ -3762,7 +3790,7 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env,
      values */
   mark_regs(old_TR PASS_REGS); /* active registers & trail */
   /* active environments */
-  mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  mark_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   mark_choicepoints(B, old_TR,
                     is_gc_very_verbose()
                         PASS_REGS); /* choicepoints, and environs  */
@@ -3811,7 +3839,7 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env,
       sweep_oldgen(LOCAL_HGEN, CurrentH0 PASS_REGS);
     }
   }
-  sweep_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
+  sweep_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
 #ifdef HYBRID_SCHEME
@@ -4309,3 +4337,4 @@ void Yap_inc_mark_variable() {
   CACHE_REGS
   LOCAL_total_marked++;
 }
+ 

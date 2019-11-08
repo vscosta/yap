@@ -2080,7 +2080,7 @@ static Int restore_regs(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
         return (FALSE);
     }
-    if (IsAtomTerm(t))
+    if (IsAtomicTerm(t))
         return (TRUE);
     do_restore_regs(t, FALSE PASS_REGS);
     return (TRUE);
@@ -2361,12 +2361,12 @@ void Yap_InitYaamRegs(int myworker_id, bool full_reset) {
 #endif
     STATIC_PREDICATES_MARKED = FALSE;
     if (full_reset) {
-        HB = HR = H0 + 1;
+      HB = HR = H0;
         h0var = MkVarTerm();
         REMOTE_GcGeneration(myworker_id) = Yap_NewTimedVar(h0var);
-        REMOTE_GcCurrentPhase(myworker_id) = 0L;
+        REMOTE_GcCurrentPhase(myworker_id) = 0;
         REMOTE_GcPhase(myworker_id) =
-                Yap_NewTimedVar(MkIntTerm(REMOTE_GcCurrentPhase(myworker_id)));
+                Yap_NewTimedVar(MkIntTerm(0));
 #if COROUTINING
         REMOTE_WokenGoals(myworker_id) = Yap_NewTimedVar(TermNil);
         h0var = MkVarTerm();
@@ -2452,21 +2452,15 @@ void Yap_track_cpred(void *v)
   }
 }
  
-int Yap_dogc(int extra_args, Term *tp USES_REGS) {
+int Yap_dogc(arity_t args, Term *tp USES_REGS) {
   gc_entry_info_t info;
-  arity_t arity = 0;
+  arity_t arity = args;
   int i;
     
     Yap_track_cpred( &info );
-    info.a += extra_args;
-    for (i = 0; i < extra_args; i++) {
-      XREGS[arity + i + 1] = tp[i];
-    }
+    info.a = arity;
     if (!Yap_gc(&info)) {
         return false;
-    }
-    for (i = 0; i < extra_args; i++) {
-        tp[i] = XREGS[arity + i + 1];
     }
     return true;
 }

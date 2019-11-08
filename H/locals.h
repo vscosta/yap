@@ -115,8 +115,8 @@ LOCAL_INIT_RESTORE(Term, AttsMutableList, 0L, TermToGlobalAdjust);
 #endif
 
 // gc_stuff
-LOCAL_INIT_RESTORE(Term, GcGeneration, 0L, TermToGlobalAdjust);
-LOCAL_INIT_RESTORE(Term, GcPhase, 0L, TermToGlobalAdjust);
+LOCAL_INIT(Term, GcGeneration, 0);
+LOCAL_INIT(Term, GcPhase, 0L);
 LOCAL_INIT(UInt, GcCurrentPhase, 0L);
 LOCAL_INIT(UInt, GcCalls, 0L);
 LOCAL_INIT(Int, TotGcTime, 0L);

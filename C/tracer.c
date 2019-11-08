@@ -364,7 +364,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   b += snprintf(b, top - b, "(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
-  if (pred == NULL) {3565
+  if (pred == NULL) {
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
     return (true);

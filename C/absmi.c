@@ -690,14 +690,18 @@ static int interrupt_deallocate(USES_REGS1) {
                     P = PREVOP(P, p);
                     return rc;
                 }
-                P = NEXTOP(P, p);
+		P = NEXTOP(P, p);
                 if (!Yap_gcl(0, 0, ENV, CP)) {
                     Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
                 }
-                P = PREVOP(P, p);
                 S = ASP;
                 S[E_CB] = (CELL) (LCL0 - cut_b);
-            }
+		CP = (yamop *) S[E_CP];
+		ENV = YENV = (CELL *) S[E_E];
+#ifdef DEPTH_LIMIT
+		DEPTH = S[E_DEPTH];
+#endif  /* DEPTH_LIMIT */
+	    }
         }
         return 1;
     }
@@ -888,7 +892,7 @@ static int interrupt_deallocate(USES_REGS1) {
            v = interrupt_handler_either(
                 MkIntTerm(0),
                 RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1, 0)) PASS_REGS);
-     return v;
+	        return v;
     }
 
     static int interrupt_dexecute(USES_REGS1) {

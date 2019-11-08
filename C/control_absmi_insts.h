@@ -429,13 +429,11 @@ ALWAYS_GONext();
       // do this before checking
       SREG = YREG;
       check_trail(TR);
+      PREG = NEXTOP(PREG, p);
 #ifndef NO_CHECKING
       /* check stacks */
       check_stack(NoStackDeallocate, HR);
-do_deallocate:
-      SREG = ENV_YREG = YENV;
 #endif
-PREG = NEXTOP(PREG, p);
       /* other instructions do depend on S being set by deallocate
          :-( */
       CPREG = (yamop *) ENV_YREG[E_CP];
@@ -477,7 +475,7 @@ PREG = NEXTOP(PREG, p);
 #endif
       // return to original deallocate
       if (!d0) FAIL();
-      goto do_deallocate;
+      		JMPNext();
       ENDD(d0);
       ENDOp();
 
