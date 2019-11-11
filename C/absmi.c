@@ -128,15 +128,17 @@ Term Yap_XREGS[MaxTemps]; /* 29                                     */
 */
 static arity_t live_regs( yamop *pco, PredEntry *pe) {
     CACHE_REGS
+    if (pco->opc != Yap_opcode(_skip) &&
+        pco->opc != Yap_opcode(_move_back))
+        return pe->ArityOfPE;
     CELL *lab = (CELL *)(pco->y_u.l.l);
-    arity_t max = lab[0];   // largest live register
+    arity_t max =       lab[0];   // largest live register
     CELL curr = lab[1];  // bitmap for 0-63 or 0-31
 arity_t i;
         lab += 2;
         for (i = 0; i <= max; i++) {
             //Process a group of N registers                                   
             if (i == 8 * CellSize) {
-                curr = lab[0];
                 lab++;
             }
             if (curr & 1) {

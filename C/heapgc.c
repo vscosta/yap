@@ -399,7 +399,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
   TrailTerm(TR++) = LOCAL_GlobalArena;
   while (al) {
     ret = check_pr_trail(ret PASS_REGS);
-    printf("al %p\n", TR);
+ //   printf("al %p\n", TR);
     TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
   }
@@ -407,7 +407,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
     Term t = gl->global;
     if (!IsUnboundVar(&gl->global) && !IsAtomTerm(t) && !IsIntTerm(t)) {
       ret = check_pr_trail(ret PASS_REGS);
-    printf("gl %p\n", TR);
+    //printf("gl %p\n", TR);
       // fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
       TrailTerm(TR++) = t;
     }
@@ -421,7 +421,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
         if (!IsVarTerm(tlive) ||
             !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
           ret = check_pr_trail(ret PASS_REGS);
-    printf("sal %p\n", TR);
+  //  printf("sal %p\n", TR);
           TrailTerm(TR++) = tlive;
         }
       }
@@ -430,13 +430,13 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
   }
   ret = check_pr_trail(ret PASS_REGS);
   TrailTerm(TR) = LOCAL_GcGeneration;
-    printf("GcG %p\n", TR);
+ //   printf("GcG %p\n", TR);
   TR++;
-    printf("GcGP %p\n", TR);
+  //  printf("GcGP %p\n", TR);
   TrailTerm(TR) = LOCAL_GcPhase;
   TR++;
 #ifdef COROUTINING
-    printf("WP %p\n", TR);
+ //   printf("WP %p\n", TR);
     TrailTerm(TR) = LOCAL_WokenGoals;
   TrailTerm(TR + 1) = LOCAL_AttsMutableList;
   TR += 2;
@@ -450,13 +450,13 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
           ((*curslot<(CELL)LOCAL_GlobalBase && * curslot>(CELL) HR))) {
         *curslot = TermFreeTerm;
       }
-      printf("Sl %p %ld\n", TR, curslot-LOCAL_SlotBase);
+ //     printf("Sl %p %ld\n", TR, curslot-LOCAL_SlotBase);
       TrailTerm(TR++) = *curslot++;
     }
   }
   for (i = 1; i <= num_regs; i++) {
     ret = check_pr_trail(ret PASS_REGS);
-      printf("X[%d] %p \n", i, TR);
+ //     printf("X[%d] %p \n", i, TR);
     TrailTerm(TR++) = (CELL)XREGS[i];
   }
   /* push any live registers we might have hanging around */
@@ -475,7 +475,7 @@ static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
         }
         if (curr & 1) {
           ret = check_pr_trail(ret PASS_REGS);
-	  printf("X[%ld] %p \n", i, TR);
+//	  printf("X[%ld] %p \n", i, TR);
           TrailTerm(TR++) = XREGS[i];
         }
         curr >>= 1;
@@ -1549,7 +1549,7 @@ static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
-    printf("%p\n", trail_ptr);
+   // printf("%p\n", trail_ptr);
     mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 }
@@ -1592,11 +1592,10 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
     /* we may have already been here */
     if ((bmap & bit) != 0) {
       if (!MARKED_PTR(saved_var)) {
-	printf("%c [%lx/%lx]  %lx ->%lx\n",
-	       (MARKED_PTR(saved_var) ?'*':' '),
-	       bmap, bit, gc_ENV - saved_var,  *saved_var);
-      }
+//	printf("%c [%lx/%lx]  %lx ->%lx\n",//	       (MARKED_PTR(saved_var) ?'*':' '),
+//	       bmap, bit, gc_ENV - saved_var,  *saved_var);
       mark_variable(saved_var PASS_REGS);
+      }
     }
 #ifdef INSTRUMENT_GC
     {
@@ -2884,9 +2883,9 @@ sweep_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
       }
       /* we may have already been here */
       if ((bmap & bit) != 0) {
-	  printf("%c [%lx/%lx]  %lx ->%lx\n",
-		 (MARKED_PTR(saved_var) ?'*':' '),
-		 bmap, bit, gc_ENV - saved_var,  *saved_var);
+//	  printf("%c [%lx/%lx]  %lx ->%lx\n",
+//		 (MARKED_PTR(saved_var) ?'*':' '),
+//		 bmap, bit, gc_ENV - saved_var,  *saved_var);
 	if ( MARKED_PTR(saved_var)) {
 	  UNMARK(saved_var);
           CELL cp_cell = *saved_var;

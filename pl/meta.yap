@@ -96,7 +96,7 @@ meta_predicate(P) :-
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
-'$clean_c1uts'(G,('$current_choice_point'(DCP),NG)) :-
+'$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
     '$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
 
@@ -292,7 +292,7 @@ meta_predicate(P) :-
 %  d:b(X) :- a:c(a:X), a:d(X), e(X).
 %
 %
-%       head variab'$expand_goals'(M:G,G1,GO,HM,SM,,_M,HVars)les.
+%       head variable '$expand_goals'(M:G,G1,GO,HM,SM,,_M,HVars)les.
 %       goals or arguments/sub-arguments?
 % I cannot use call here because of format/3
 % modules:
@@ -422,7 +422,6 @@ meta_predicate(P) :-
     '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
-'$expand_goals'(false,false,false,_,_,_,_) :- !.
 '$expand_goals'(G, G1, GO, HM, SM, BM, HVars) :-
     '$yap_strip_module'(BM:G,  NBM, GM),
     '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars).
@@ -476,7 +475,6 @@ meta_predicate(P) :-
     '$yap_strip_module'(SM:B, BM, B0), % further module expansion
     '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
     '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
-
 
 
 expand_goal(Input, Output) :-

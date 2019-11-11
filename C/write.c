@@ -793,7 +793,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
   } else if (IsPairTerm(t)) {
-    if (wglb->Ignore_ops) {
+    if (wglb->Ignore_ops && false) {
       wrputs("'.'(", wglb->stream);
       lastw = separator;
 

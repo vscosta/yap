@@ -117,6 +117,7 @@ static Term readFromBuffer(const char *s, Term opts) {
       PAR("ignore_ops", booleanFlag, WRITE_IGNORE_OPS),                        \
       PAR("max_depth", nat, WRITE_MAX_DEPTH),                                  \
       PAR("numbervars", booleanFlag, WRITE_NUMBERVARS),                        \
+      PAR("singletons", booleanFlag, WRITE_SINGLETONS),                        \
       PAR("portrayed", booleanFlag, WRITE_PORTRAYED),                          \
       PAR("portray", booleanFlag, WRITE_PORTRAY),                              \
       PAR("priority", nat, WRITE_PRIORITY),                                    \
@@ -212,11 +213,16 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue PASS_REGS);
     flags |= Handle_vars_f;
   }
-  if (args[WRITE_NUMBERVARS].used) {
-    if (args[WRITE_NUMBERVARS].tvalue == TermTrue)
-      flags |= Handle_vars_f;
-  }
-  if (args[WRITE_ATTRIBUTES].used) {
+    if (args[WRITE_SINGLETONS].used) {
+        if (args[WRITE_SINGLETONS].tvalue == TermTrue)
+            flags |= Handle_vars_f;
+    }
+    if (args[WRITE_NUMBERVARS].used) {
+        if (args[WRITE_NUMBERVARS].tvalue == TermTrue)
+            flags |= Handle_vars_f;
+      //  t = Yap_NumberVars(t, 0, args[WRITE_SINGLETONS].used && args[WRITE_NUMBERVARS].tvalue == TermTrue);
+    }
+    if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
       flags |= AttVar_None_f;
@@ -279,6 +285,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
     prio = GLOBAL_MaxPriority;
   }
   Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, prio);
+//  t = Yap_UnNumberTerm(t,0);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 
@@ -347,8 +354,10 @@ static Int write2(USES_REGS1) {
     return false;
   }
   mySlots = Yap_StartSlots();
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
@@ -372,9 +381,11 @@ static Int write1(USES_REGS1) {
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
-  LOCK(GLOBAL_Stream[output_stream].streamlock);
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_NUMBERVARS].tvalue = TermTrue;
+    LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
@@ -398,6 +409,10 @@ static Int write_canonical1(USES_REGS1) {
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_NUMBERVARS].tvalue = TermTrue;
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
@@ -428,6 +443,10 @@ static Int write_canonical(USES_REGS1) {
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_NUMBERVARS].tvalue = TermTrue;
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
@@ -457,6 +476,8 @@ static Int writeq1(USES_REGS1) {
     free(args);
     output_stream = 1;
   }
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
@@ -486,7 +507,9 @@ static Int writeq(USES_REGS1) {
     return false;
   }
   yhandle_t mySlots = Yap_StartSlots();
-  args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
@@ -517,7 +540,9 @@ static Int print1(USES_REGS1) {
   }
   args[WRITE_PORTRAY].used = true;
   args[WRITE_PORTRAY].tvalue = TermTrue;
-  args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, args PASS_REGS);
@@ -547,6 +572,8 @@ static Int print(USES_REGS1) {
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_PORTRAY].used = true;
   args[WRITE_PORTRAY].tvalue = TermTrue;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
@@ -576,6 +603,8 @@ static Int writeln1(USES_REGS1) {
   args[WRITE_NL].tvalue = TermTrue;
   args[WRITE_NUMBERVARS].used = true;
   args[WRITE_NUMBERVARS].tvalue = TermTrue;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_CYCLES].used = true;
   args[WRITE_CYCLES].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -606,9 +635,11 @@ static Int writeln(USES_REGS1) {
   yhandle_t mySlots = Yap_StartSlots();
   args[WRITE_NL].used = true;
   args[WRITE_NL].tvalue = TermTrue;
-  args[WRITE_NUMBERVARS].used = true;
-  args[WRITE_NUMBERVARS].tvalue = TermTrue;
- args[WRITE_CYCLES].used = true;
+    args[WRITE_NUMBERVARS].used = true;
+    args[WRITE_NUMBERVARS].tvalue = TermTrue;
+    args[WRITE_SINGLETONS].used = true;
+    args[WRITE_SINGLETONS].tvalue = TermTrue;
+    args[WRITE_CYCLES].used = true;
   args[WRITE_CYCLES].tvalue = TermTrue;
   write_term(output_stream, ARG2, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);

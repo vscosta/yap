@@ -59,12 +59,14 @@ typedef struct non_single_struct_t {
 (IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&	\
  AtomOfTerm(d0) <= (Atom)to_visit)
 
+#define ENTRY_FROM_MARKER(d0) ((void *)AtomOfTerm(d0))						\
+
 static inline Term VISIT_MARKER(non_singletons_t *to_visit) {
   return MkAtomTerm((Atom)to_visit);
 }
 
 #define VISITED \
-  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;printf("%lx\n", d0);	\
+  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;	\
   if (IsVarTerm(d0) && d0==(CELL)ptd0) goto var_in_term;\
 continue; }
 
@@ -189,7 +191,8 @@ aux_overflow : {							\
   }							\
   size_t expand = (TR - TR0) * sizeof(tr_fr_ptr *);	\
   clean_tr(TR0 PASS_REGS);					\
-  HR = InitialH;						\
+  HR = InitialH;\
+  HB= B->cp_h;\
   pop_text_stack(lvl);					\
   /* Trail overflow */  \
  if (!Yap_growtrail(expand, false)) { \
@@ -1044,27 +1047,28 @@ static Int p_non_singletons_in_term(
     return Yap_unify(ARG3,out);
 }
 
-static Term numbervar(Int me USES_REGS) {
+static Term numbervar(bool singles, Int *me USES_REGS) {
   Term ts[1];
-  ts[0] = MkIntegerTerm(me);
+  if (singles) {
+ts[0] = MkIntTerm(-1);
+MkIntegerTerm(*me);
+}else {
+ts[0] =
+MkIntegerTerm(*me);
+ *me += 1;
+  }
   return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
 }
 
-static Term numbervar_singleton(USES_REGS1) {
-  Term ts[1];
-  ts[0] = MkIntegerTerm(-1);
-  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
-}
 
-static void renumbervar(Term t, Int me USES_REGS) {
-  Term *ts = RepAppl(t);
-  ts[1] = MkIntegerTerm(me);
-}
-
-#define RENUMBER_SINGLES			\
-if (singles) {				\
-  renumbervar(d0, numbv++ PASS_REGS);		\
-  goto restart;				\
+static void renumbervar(Term t, bool singles, Int *me USES_REGS) {
+    if (singles ) {
+        Term *ts = RepAppl(t);
+        if (IntegerOfTerm(ts[1]) == -1) {
+            ts[1] = MkIntegerTerm(*me);
+            *me += 1;
+        }
+    }
 }
 
 static Int numbervars_in_complex_term(CELL * pt0_, CELL * pt0_end_, Int numbv,
@@ -1076,21 +1080,39 @@ static Int numbervars_in_complex_term(CELL * pt0_, CELL * pt0_end_, Int numbv,
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
-  WALK_COMPLEX_TERM__({}, {}, {});
+  WALK_COMPLEX_TERM__({ if (IsVarTerm(d0) && IsUnboundVar(ptd0)) {\
+        d0 = numbervar(singles, &numbv PASS_REGS);\
+          YapBind(ptd0, d0);\
+     }\
+    }, \
+  { if (f == FunctorDollarVar)  {\
+      renumbervar(d0, singles, &numbv);\
+      continue;\
+  }}, \
+  {\
+  });
 
-  if (IsAttVar(pt0))
-    continue;
+ // if (IsAttVar(pt0))
+   // continue;
   /* do or pt2 are unbound  */
-  if (singles)
-    d0 = numbervar_singleton(PASS_REGS1);
-  else
-    d0 = numbervar(numbv++ PASS_REGS);
-  /* leave an empty slot to fill in later */
+      if (!IsVarTerm(*ptd0)) {
+          struct non_single_struct_t *mK = ENTRY_FROM_MARKER(*ptd0);
+
+          Term d1 = numbervar(singles, &numbv PASS_REGS);
+          YapBind(ptd0, d1);
+          mK->d0 = d1;
+      } else {
+         Term d1 = numbervar(singles, &numbv PASS_REGS);
+          YapBind(ptd0, d1);
+
+  }
+
+        /* leave an empty slot to fill in later */
   if (HR + 1024 > ASP) {
     goto global_overflow;
   }
   /* next make sure noone will see this as a variable again */
-  YapBind(ptd0, d0);
+
 
   END_WALK();
 
@@ -1132,7 +1154,6 @@ Int Yap_NumberVars(Term inp, Int numbv,
 static Int p_numbervars(USES_REGS1) {
   Term t2 = Deref(ARG2);
   Int out;
-
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "numbervars/3");
     return false;
@@ -1162,7 +1183,7 @@ static int max_numbered_var(CELL * pt0_, CELL * pt0_end_,
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
-  tr_fr_ptr TR0 = TR;
+   tr_fr_ptr TR0 = TR;
 
   WALK_COMPLEX_TERM__({}, MAX_NUMBERED, {});
   END_WALK();

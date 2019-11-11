@@ -51,8 +51,7 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-    '$expand_clause'(Clause,C0,C),
-    '$$compile'(C, Where, C0, R).
+    '$$compile'(Clause, Where, Clause, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 
