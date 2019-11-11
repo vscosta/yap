@@ -192,8 +192,7 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
 static Term VarNames(VarEntry *p, Term l USES_REGS) {
     Term hd = l, tl = l;
     while (p != NULL) {
-        if (RepAtom(p->VarRep)->StrOfAE[0] != '_') {
-            Term t[2];
+      Term t[2];
             Term o;
 
             t[0] = MkAtomTerm(p->VarRep);
@@ -210,8 +209,7 @@ static Term VarNames(VarEntry *p, Term l USES_REGS) {
                 save_machine_regs();
                 longjmp(LOCAL_IOBotch, 1);
             }
-        }
-            p = p->VarNext;
+	    p = p->VarNext;
     }
     return (hd);
 
