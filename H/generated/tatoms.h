@@ -126,6 +126,7 @@ X_API EXTERNAL Atom AtomE; X_API EXTERNAL Term TermE;
 X_API EXTERNAL Atom AtomEOFBeforeEOT; X_API EXTERNAL Term TermEOFBeforeEOT;
 X_API EXTERNAL Atom AtomEQ; X_API EXTERNAL Term TermEQ;
 X_API EXTERNAL Atom AtomEmptyAtom; X_API EXTERNAL Term TermEmptyAtom;
+X_API EXTERNAL Atom AtomEmptyCurlyBrackets; X_API EXTERNAL Term TermEmptyCurlyBrackets;
 X_API EXTERNAL Atom AtomEncoding; X_API EXTERNAL Term TermEncoding;
 X_API EXTERNAL Atom AtomEndOfStream; X_API EXTERNAL Term TermEndOfStream;
 X_API EXTERNAL Atom AtomEof; X_API EXTERNAL Term TermEof;
@@ -576,6 +577,10 @@ X_API EXTERNAL  Functor FunctorDot9;
 X_API EXTERNAL  Functor FunctorDoubleArrow;
 
 X_API EXTERNAL  Functor FunctorDoubleSlash;
+
+X_API EXTERNAL  Functor FunctorEmptyBrackets;
+
+X_API EXTERNAL  Functor FunctorEmptyCurlyBrackets;
 
 X_API EXTERNAL  Functor FunctorEmptySquareBrackets;
 

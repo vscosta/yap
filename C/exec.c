@@ -2099,10 +2099,10 @@ static Int restore_regs2(USES_REGS1) {
         Yap_ThrowError(INSTANTIATION_ERROR, t, "support for coroutining");
         return (FALSE);
     }
-    d0 = Deref(ARG2);
-    if (!IsAtomTerm(t)) {
-        do_restore_regs(t, TRUE PASS_REGS);
+     if (!IsAtomicTerm(t)) {
+      do_restore_regs(t, TRUE PASS_REGS);
     }
+   d0 = Deref(ARG2);
     if (IsVarTerm(d0)) {
         Yap_ThrowError(INSTANTIATION_ERROR, d0, "support for coroutining");
         return (FALSE);
@@ -2455,7 +2455,6 @@ void Yap_track_cpred(void *v)
 int Yap_dogc(arity_t args, Term *tp USES_REGS) {
   gc_entry_info_t info;
   arity_t arity = args;
-  int i;
     
     Yap_track_cpred( &info );
     info.a = arity;
@@ -2622,11 +2621,12 @@ init_debugger_state();
     Yap_InitCPred("parent_choice_point", 1, parent_choice_point1, 0);
     Yap_InitCPred("parent_choice_point", 2, parent_choice_point, 0);
     Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
+    CurrentModule = ATTRIBUTES_MODULE;
+    Yap_InitCPred("restore_regs", 1, restore_regs,
+                  NoTracePredFlag | SafePredFlag);
+    Yap_InitCPred("restore_regs", 2, restore_regs2,
+                  NoTracePredFlag | SafePredFlag);
     CurrentModule = cm;
-    Yap_InitCPred("$restore_regs", 1, restore_regs,
-                  NoTracePredFlag | SafePredFlag);
-    Yap_InitCPred("$restore_regs", 2, restore_regs2,
-                  NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
                   SafePredFlag);

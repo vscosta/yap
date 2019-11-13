@@ -193,11 +193,8 @@ attvars_residuals([V|Vs]) -->
    In this case, we need a way to keep the original
    suspended goal around
 */
-%'$wake_up_goal'([Module1|Continuation],G) :-
-%	'$write'(4,vsc_woke:G+[Module1|Continuation]:'
-%'), fail.
 prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
-%	writeln( [Module1|Continuation]:LG),
+	writeln( [Module1|Continuation]:LG),
 	execute_woken_system_goals(LG),
 	do_continuation(Continuation, Module1).
 
@@ -208,24 +205,22 @@ prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
 % not act as if a meta-call.
 %
 %
-do_continuation('$cut_by'(X), _) :- !,
+do_continuation(cut_by(X), attributes) :- !,
 	'$$cut_by'(X).
-do_continuation('$restore_regs'(X), _) :- !,
+do_continuation(restore_regs(X), attributes) :- !,
 %	yap_flag(gc_trace,verbose),
 %	garbage_collect,
-	'$restore_regs'(X).
-do_continuation('$restore_regs'(X,Y), _) :- !,
+	restore_regs(X).
+do_continuation(restore_regs(X,Y), attributes) :- !,
 %	yap_flag(gc_trace,verbose),
 %	garbage_collect,
-	'$restore_regs'(X,Y).
+	restore_regs(X,Y).
 do_continuation(Continuation, Module1) :-
 	execute_continuation(Continuation,Module1).
 
 execute_continuation(Continuation, Module1) :-
 	'$undefined'(Continuation, Module1), !,
-	'$current_module'( M ),
-	current_prolog_flag( M:unknown, Default ),
-        '$undefp'([Module1|Continuation] , Default ).
+        '$undefp'([Module1|Continuation] , _Default ).
 execute_continuation(Continuation, Mod) :-
          % do not do meta-expansion nor any fancy stuff.
 	'$execute0'(Continuation, Mod).

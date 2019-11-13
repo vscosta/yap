@@ -230,7 +230,7 @@
       execute_end:
 	// code copied from call
 	#ifndef NO_CHECKING
-	check_stack(NoStackPExecute, HR);
+	///	check_stack(NoStackPExecute, HR);
 	#endif
       execute_stack_checked:
 	CPREG = NEXTOP(PREG, Osbmp);

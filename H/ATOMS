@@ -131,6 +131,7 @@ A	E			N	"e"
 A	EOFBeforeEOT		N	"end_of_file_found_before_end_of_term"
 A	EQ			N	"="
 A	EmptyAtom		N	""
+A       EmptyCurlyBrackets      N       "{}"
 A	Encoding		N	"encoding"
 A	EndOfStream		N	"$end_of_stream"
 A	Eof			N	"end_of_file"
@@ -346,8 +347,8 @@ A	RepresentationError	N	"representation_error"
 A	Reset			N	"reset"
 A	Resize			N	"resize"
 A	ResourceError		N	"resource_error"
-A	RestoreRegs		F	"$restore_regs"
-A	Retry		N	"retry"
+A	RestoreRegs		N	"restore_regs"
+A	Retry			N	"retry"
 A	RetryCounter		N	"retry_counter"
 A	RTree			N	"rtree"
 A	Safe			F	"$safe"
@@ -522,6 +523,8 @@ F	Dot8			Dot		8
 F	Dot9			Dot		9
 F	DoubleArrow			DoubleArrow		2
 F	DoubleSlash			DoubleSlash		2
+F	EmptyBrackets		EmptyBrackets	2
+F	EmptyCurlyBrackets	EmptyCurlyBrackets	2
 F	EmptySquareBrackets	EmptySquareBrackets	2
 F	Encoding		Encoding	1
 F	Eq			Eq		2

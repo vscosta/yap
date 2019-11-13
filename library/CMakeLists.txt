@@ -63,7 +63,7 @@ INDEX.yap
 
 
 add_subdirectory(dialect)
-# add_subdirectory(clp)
+add_subdirectory(clp)
 MY_add_subdirectory(matlab)
 add_subdirectory(matrix)
 add_subdirectory(random)

@@ -451,7 +451,7 @@
       BOp(cut_userc, OtapFs);
 /*This is a phantom instruction. This is not executed by the WAM*/
 #ifdef DEBUG
-      /*If WAM executes this instruction, probably there's an error
+      /*If WAMexec utes this instruction, probably there's an error
         when we put this instruction, cut_userc, after retry_userc*/
       printf("ERROR: Should not print this message FILE: absmi.c %d\n",
              __LINE__);

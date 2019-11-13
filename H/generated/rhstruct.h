@@ -1,3 +1,4 @@
+
   /* This file, rhstruct.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update H/HEAPFIELDS instead */
 
@@ -145,6 +146,7 @@
   PredProtectStack = PtoPredAdjust(PredProtectStack);
   PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
   PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
+  PredRestoreRegs1 = PtoPredAdjust(PredRestoreRegs1);
   PredSafeCallCleanup = PtoPredAdjust(PredSafeCallCleanup);
   PredStaticClause = PtoPredAdjust(PredStaticClause);
   PredThrow = PtoPredAdjust(PredThrow);
@@ -177,6 +179,7 @@
   RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail);
 
   RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
+
   RestoreEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail);
 
   RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail);

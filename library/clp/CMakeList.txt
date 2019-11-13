@@ -1,4 +1,4 @@
-set (LIBRARY_PL_VLP
+set (LIBRARY_PL_CLP
   	clpfd.pl 
 	clp_distinct.pl 
 	simplex.pl

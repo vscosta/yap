@@ -126,6 +126,7 @@
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term"); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
   AtomEQ = Yap_LookupAtom("="); TermEQ = MkAtomTerm(AtomEQ);
   AtomEmptyAtom = Yap_LookupAtom(""); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);
+  AtomEmptyCurlyBrackets = Yap_LookupAtom("{}"); TermEmptyCurlyBrackets = MkAtomTerm(AtomEmptyCurlyBrackets);
   AtomEncoding = Yap_LookupAtom("encoding"); TermEncoding = MkAtomTerm(AtomEncoding);
   AtomEndOfStream = Yap_LookupAtom("$end_of_stream"); TermEndOfStream = MkAtomTerm(AtomEndOfStream);
   AtomEof = Yap_LookupAtom("end_of_file"); TermEof = MkAtomTerm(AtomEof);
@@ -341,7 +342,7 @@
   AtomReset = Yap_LookupAtom("reset"); TermReset = MkAtomTerm(AtomReset);
   AtomResize = Yap_LookupAtom("resize"); TermResize = MkAtomTerm(AtomResize);
   AtomResourceError = Yap_LookupAtom("resource_error"); TermResourceError = MkAtomTerm(AtomResourceError);
-  AtomRestoreRegs = Yap_FullLookupAtom("$restore_regs"); TermRestoreRegs = MkAtomTerm(AtomRestoreRegs);
+  AtomRestoreRegs = Yap_LookupAtom("restore_regs"); TermRestoreRegs = MkAtomTerm(AtomRestoreRegs);
   AtomRetry = Yap_LookupAtom("retry"); TermRetry = MkAtomTerm(AtomRetry);
   AtomRetryCounter = Yap_LookupAtom("retry_counter"); TermRetryCounter = MkAtomTerm(AtomRetryCounter);
   AtomRTree = Yap_LookupAtom("rtree"); TermRTree = MkAtomTerm(AtomRTree);
@@ -517,6 +518,8 @@
   FunctorDot9 = Yap_MkFunctor(AtomDot,9);
   FunctorDoubleArrow = Yap_MkFunctor(AtomDoubleArrow,2);
   FunctorDoubleSlash = Yap_MkFunctor(AtomDoubleSlash,2);
+  FunctorEmptyBrackets = Yap_MkFunctor(AtomEmptyBrackets,2);
+  FunctorEmptyCurlyBrackets = Yap_MkFunctor(AtomEmptyCurlyBrackets,2);
   FunctorEmptySquareBrackets = Yap_MkFunctor(AtomEmptySquareBrackets,2);
   FunctorEncoding = Yap_MkFunctor(AtomEncoding,1);
   FunctorEq = Yap_MkFunctor(AtomEq,2);

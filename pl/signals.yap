@@ -147,7 +147,8 @@
 				% get the first signal from the mask
 	'$first_signal'(Sig), !,
 				% process it
-	'$do_signal'(Sig, G).
+
+'$do_signal'(Sig, G).
 '$creep'([M|G]) :-
 				% noise, just go on with our life.
 	'$execute'(M:G).
@@ -294,7 +295,7 @@ read_sig.
 :- '$set_private'('$call'(_,_,_,_), prolog).
 :- '$set_private'('$execute_nonstop'(_,_), prolog).
 :- '$set_private'('$execute_clause'(_,_,_,_), prolog).
-:- '$set_private'('$restore_regs'(_,_), prolog).
+:- '$set_private'(restore_regs(_,_), attributes).
 :- '$set_private'('$undefp'(_,_), prolog).
 :- '$set_private'('$Error'(_), prolog).
 :- '$set_private'('$LoopError'(_,_), prolog).

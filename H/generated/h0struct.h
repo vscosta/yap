@@ -150,6 +150,7 @@ EXTERNAL    struct pred_entry  *PredMetaCall;
 EXTERNAL    struct pred_entry  *PredProtectStack;
 EXTERNAL    struct pred_entry  *PredRecordedWithKey;
 EXTERNAL    struct pred_entry  *PredRestoreRegs;
+EXTERNAL    struct pred_entry  *PredRestoreRegs1;
 EXTERNAL    struct pred_entry  *PredSafeCallCleanup;
 EXTERNAL    struct pred_entry  *PredStaticClause;
 EXTERNAL    struct pred_entry  *PredThrow;

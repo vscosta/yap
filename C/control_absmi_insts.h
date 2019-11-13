@@ -262,9 +262,6 @@ ENDOp();
         FETCH_Y_FROM_ENV(YREG);
         goto skip_dexecute;
 #endif
-      continue_dexecute:
-        FETCH_Y_FROM_ENV(YREG);
-        pt0 = PREG->y_u.Osbpp.p;
       skip_dexecute:
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
@@ -313,7 +310,10 @@ ALWAYS_GONext();
 
     NoStackDExecute:
       PROCESS_INT(interrupt_dexecute, continue_dexecute);
-      ENDBOp();
+      continue_dexecute:
+        set_pc();
+        JMPNext();
+       ENDBOp();
 
       BOp(fcall, Osbpp);
       CACHE_Y_AS_ENV(YREG);

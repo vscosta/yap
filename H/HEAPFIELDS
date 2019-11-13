@@ -161,7 +161,8 @@ struct pred_entry *PredCall		MkPred FunctorCall PROLOG_MODULE
 struct pred_entry *PredMetaCall		MkPred FunctorMetaCall PROLOG_MODULE
 struct pred_entry *PredProtectStack		MkPred FunctorProtectStack PROLOG_MODULE
 struct pred_entry *PredRecordedWithKey	MkPred FunctorRecordedWithKey PROLOG_MODULE
-struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
+struct pred_entry *PredRestoreRegs		MkPred FunctorRestoreRegs ATTRIBUTES_MODULE
+struct pred_entry *PredRestoreRegs1		MkPred FunctorRestoreRegs1 ATTRIBUTES_MODULE
 struct pred_entry *PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
 struct pred_entry *PredStaticClause	MkPred FunctorDoStaticClause PROLOG_MODULE
 struct pred_entry *PredThrow		MkPred FunctorThrow PROLOG_MODULE

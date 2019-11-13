@@ -126,6 +126,7 @@
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT); TermEOFBeforeEOT = MkAtomTerm(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ); TermEQ = MkAtomTerm(AtomEQ);
   AtomEmptyAtom = AtomAdjust(AtomEmptyAtom); TermEmptyAtom = MkAtomTerm(AtomEmptyAtom);
+  AtomEmptyCurlyBrackets = AtomAdjust(AtomEmptyCurlyBrackets); TermEmptyCurlyBrackets = MkAtomTerm(AtomEmptyCurlyBrackets);
   AtomEncoding = AtomAdjust(AtomEncoding); TermEncoding = MkAtomTerm(AtomEncoding);
   AtomEndOfStream = AtomAdjust(AtomEndOfStream); TermEndOfStream = MkAtomTerm(AtomEndOfStream);
   AtomEof = AtomAdjust(AtomEof); TermEof = MkAtomTerm(AtomEof);
@@ -517,6 +518,8 @@
   FunctorDot9 = FuncAdjust(FunctorDot9);
   FunctorDoubleArrow = FuncAdjust(FunctorDoubleArrow);
   FunctorDoubleSlash = FuncAdjust(FunctorDoubleSlash);
+  FunctorEmptyBrackets = FuncAdjust(FunctorEmptyBrackets);
+  FunctorEmptyCurlyBrackets = FuncAdjust(FunctorEmptyCurlyBrackets);
   FunctorEmptySquareBrackets = FuncAdjust(FunctorEmptySquareBrackets);
   FunctorEncoding = FuncAdjust(FunctorEncoding);
   FunctorEq = FuncAdjust(FunctorEq);

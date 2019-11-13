@@ -145,7 +145,8 @@
   PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
   PredProtectStack = RepPredProp(PredPropByFunc(FunctorProtectStack,PROLOG_MODULE));
   PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
-  PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
+  PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,ATTRIBUTES_MODULE));
+  PredRestoreRegs1 = RepPredProp(PredPropByFunc(FunctorRestoreRegs1,ATTRIBUTES_MODULE));
   PredSafeCallCleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
   PredStaticClause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
   PredThrow = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
@@ -178,6 +179,8 @@
   InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail);
 
   InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
+
+  InitEnvInst(ENV_FOR_BORDERCODE,&BORDERCODE,_Ystop,PredFail);
 
   InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail);
 #ifdef BEAM
