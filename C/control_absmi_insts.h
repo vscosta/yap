@@ -200,14 +200,14 @@ ENDOp();
         CACHE_Y_AS_ENV(YREG);
         pt0 = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
+        /* check stacks */
         check_stack(NoStackExecute, HR);
+	goto do_execute;
+     restart_execute:	
+	pt0 = PP;
         FETCH_Y_FROM_ENV(YREG);
-        goto skip_do_execute;
-#endif
       do_execute:
-        FETCH_Y_FROM_ENV(YREG);
-        pt0 = PREG->y_u.Osbpp.p;
-      skip_do_execute:
+#endif
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred,pt0,XREGS+1);
@@ -254,15 +254,17 @@ ENDOp();
       {
         PredEntry *pt0;
 
-        CACHE_A1();
         pt0 = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
+	goto do_dexecute;
+     restart_dexecute:	
+	pt0 = PP;
         FETCH_Y_FROM_ENV(YREG);
-        goto skip_dexecute;
+      do_dexecute:
 #endif
-      skip_dexecute:
+        CACHE_A1();
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
           if (pt0->ModuleOfPred) {
@@ -337,13 +339,14 @@ ALWAYS_GONext();
         CACHE_A1();
         pt = PREG->y_u.Osbpp.p;
 #ifndef NO_CHECKING
+        /* check stacks */
         check_stack(NoStackCall, HR);
-        goto skip_call;
-#endif
-      call_body:
-        /* external jump if we don;t want to creep */
+	goto do_call;
+     restart_call:	
+	pt = PP;
         FETCH_Y_FROM_ENV(YREG);
-        pt = PREG->y_u.Osbpp.p;
+      do_call:
+#endif
       skip_call:
         ENV = ENV_YREG;
         /* Try to preserve the environment */
@@ -407,7 +410,7 @@ ALWAYS_GONext();
       ENDCACHE_Y_AS_ENV();
 
     NoStackCall:
-      PROCESS_INT(interrupt_call, call_body);
+      PROCESS_INT(interrupt_call, restart_call);
 
       ENDBOp();
 

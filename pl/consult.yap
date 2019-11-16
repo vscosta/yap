@@ -1442,7 +1442,7 @@ initialization(_G,_OPT).
 @ingroup  YAPCompilerSettings
 
 @{
-  Conditional compilation builds on the same principle as
+  qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkConditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
 conditionally. One of the reasons for introducing conditional
@@ -1547,7 +1547,6 @@ no test succeeds the else branch is processed.
     !,
     '$do_error'(context_error(no_if),(:- elif(Goal))).
 % we have done an if, so just skip
-'$elif'(_,_) :-
     nb_getval('$endif',endif(_,_,_)), !,
     nb_setval('$if_skip_mode',skip).
 % we can try the elif

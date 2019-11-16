@@ -106,7 +106,7 @@
 	}
 #endif /* FROZEN_STACKS */
 	d0 = ARG1;
-      restart_execute:
+	// restart_pexecute:
 	deref_head(d0, execute_unk);
       execute_nvar:
 	if (IsApplTerm(d0)) {

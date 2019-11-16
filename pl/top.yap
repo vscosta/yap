@@ -621,11 +621,9 @@ write_query_answer( Bindings ) :-
 	 '$call'(Y,CP,G0,M)
 	).
 '$call'((X*->Y),CP,G0,M) :- !,
-	(
-	'$call'(X,CP,G0,M)
-	*->
-	'$call'(Y,CP,G0,M)
-	).
+	 '$current_choice_point'(DCP),
+	 '$call'(X,DCP,G0,M),
+	 '$call'(Y,CP,G0,M).
 '$call'((X->Y; Z),CP,G0,M) :- !,
 	(
 	    '$call'(X,CP,G0,M)
@@ -637,7 +635,7 @@ write_query_answer( Bindings ) :-
 '$call'((X*->Y; Z),CP,G0,M) :- !,
 	(
 	 '$current_choice_point'(DCP),
-	 '$call'(X,CP,G0,M),
+	 '$call'(X,DCP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
         ;
@@ -661,7 +659,7 @@ write_query_answer( Bindings ) :-
 '$call'((X*->Y| Z),CP,G0,M) :- !,
 	(
 	 '$current_choice_point'(DCP),
-	 '$call'(X,CP,G0,M),
+	 '$call'(X,DCP,G0,M),
 	 yap_hacks:cut_at(DCP),
 	 '$call'(Y,CP,G0,M)
         ;
@@ -684,8 +682,13 @@ write_query_answer( Bindings ) :-
 '$call'(forall(X,Y), CP, _G0, M) :- !,
 	\+ ('$call'(X, CP, G0, M),
 	     \+ '$call'(Y, CP, G0, M) ).
-'$call'(once(X), CP, G0, M) :- !,
+'$call'(once(X), _CP, G0, M) :- !,
+	'$current_choice_point'(CP),
 	( '$call'(X, CP, G0, M) -> true).
+'$call'(ignore(X), _CP, G0, M) :-
+	!,
+	'$current_choice_point'(CP),  
+	( '$call'(X, CP, G0, M) -> true;true).
 '$call'(!, CP, _G0, _m) :- !,
 	'$$cut_by'(CP).
 '$call'([X|Y], _, _, M) :-

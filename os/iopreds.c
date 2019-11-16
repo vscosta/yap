@@ -456,7 +456,8 @@ bool
     va_end(args);
     switch (error) {
       case EPERM: 
-      // operation not permitted,
+    case EROFS:
+	// operation not permitted,
       switch (io_type) {
         case CREATE_DIRECTORY:
     e_type = PERMISSION_ERROR_CREATE_DIRECTORY;

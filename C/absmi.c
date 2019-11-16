@@ -335,7 +335,6 @@ static int safe_interrupt_handler(PredEntry *pe USES_REGS) {
     }
   // allocate and fill out an environment
   //  YENV = ASP;
-  CP = P;
   P = pe->CodeOfPred;
 #ifdef DEPTH_LIMIT
   if (DEPTH <= MkIntTerm(1)) { /* I assume Module==0 is primitives */
@@ -504,7 +503,7 @@ static int interrupt_call(USES_REGS1) {
 			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
-  return interrupt_handlerc(P->y_u.Osbpp.p PASS_REGS);
+  return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
 }
 
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
@@ -890,14 +889,10 @@ static int interrupt_dexecute(USES_REGS1) {
     return v;
   }
   /* first, deallocate */
-  yamop *myCP = (yamop *)YENV[E_CP];
-  CELL myENV = LCL0-(CELL*)YENV[E_E];
   /* and now CREEP */
   P = pe->CodeOfPred;
   bool rc = interrupt_handler(pe PASS_REGS);
   if (!rc) P = FAILCODE;
-  YENV = ENV = LCL0-myENV;
-  CP = myCP;
 #ifdef FROZEN_STACKS
   {
     choiceptr top_b = PROTECT_FROZEN_B(B);
@@ -1356,6 +1351,7 @@ Int Yap_absmi(int inp) {
 
       // move instructions to separate file
       // so that they are easier to analyse.
+
 #include "absmi_insts.h"
 
 #if !USE_THREADED_CODE

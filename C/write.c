@@ -80,6 +80,25 @@ int trailings;
   wtype lw;
 } wglbs;
 
+#define WRITE_SUB_ARG( yt, i, prio, flag) \
+{ Term *vec= RepAppl(Deref(Yap_GetFromHandle(yt))),	\
+tmp_arg =  vec[i];			\
+      yhandle_t yo = Yap_InitHandle(tmp_arg);\
+      vec[i] = marker(depth);\
+      writeTerm(Deref(tmp_arg)  , prio, depth + 1, flag, wglb);\
+      tmp_arg = Yap_PopHandle(yo);\
+      vec = RepAppl(Yap_GetFromHandle(yt));\
+      vec[i] = tmp_arg;\
+}
+
+
+static inline CELL marker(int depth)
+{
+  char space[256];
+  snprintf(space, 255, "$$___%d____$$", depth);
+  return MkAtomTerm(Yap_LookupAtom(space));
+}
+
 #define lastw wglb->lw
 #define last_minus wglb->last_atom_minus
 
@@ -101,12 +120,6 @@ static bool callPortray(Term t, int sno USES_REGS) {
   return false;
 }
 
-#define PROTECT(t, F)                                                          \
-  {                                                                            \
-    yhandle_t yt = Yap_InitHandle(t);                                          \
-    F;                                                                         \
-    t = Yap_PopHandle(yt);                                                     \
-  }
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
 static void wrputref(CODEADDR, int, struct write_globs *);
@@ -115,8 +128,7 @@ static int legalAtom(unsigned char *);
   static int RightOpToProtect(Atom, int);*/
 static wtype AtomIsSymbols(unsigned char *);
 static void putAtom(Atom, int, struct write_globs *);
-static void writeTerm(Term, int, int, int, struct write_globs *,
-                      struct rewind_term *);
+static void writeTerm(Term, int, int, int, struct write_globs *);
 
 #define wrputc(WF, X)                                                          \
   (X)->stream_wputc(X - GLOBAL_Stream, WF) /* writes a character */
@@ -251,7 +263,7 @@ static void write_mpint(MP_INT *big, struct write_globs *wglb) {
 
 /* writes a bignum	 */
 static void writebig(Term t, int p, int depth, int rinfixarg,
-                     struct write_globs *wglb, struct rewind_term *rwt) {
+                     struct write_globs *wglb) {
   CELL *pt = RepAppl(t) + 1;
   CELL big_tag = pt[0];
 
@@ -268,7 +280,7 @@ static void writebig(Term t, int p, int depth, int rinfixarg,
     return;
   } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
-    writeTerm(trat, p, depth, rinfixarg, wglb, rwt);
+    writeTerm(trat, p, depth, rinfixarg, wglb);
     return;
 #endif
   } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
@@ -684,8 +696,7 @@ static void putUnquotedString(Term string, struct write_globs *wglb)
   lastw = alphanum;
 }
 
-static void write_var(CELL *t, struct write_globs *wglb,
-                      struct rewind_term *rwt) {
+static void write_var(CELL *t, struct write_globs *wglb) {
   CACHE_REGS
   if (lastw == alphanum) {
     wrputc(' ', wglb->stream);
@@ -697,9 +708,6 @@ static void write_var(CELL *t, struct write_globs *wglb,
     Int vcount = (t - H0);
     if (wglb->Portray_delays) {
       exts ext = ExtFromCell(t);
-      struct rewind_term nrwt;
-      nrwt.parent = rwt;
-      nrwt.u_sd.s.ptr = 0;
 
       wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
@@ -707,13 +715,15 @@ static void write_var(CELL *t, struct write_globs *wglb,
         CELL *l = &attv->Value; /* dirty low-level hack, check atts.h */
 
         wrputs("$AT(", wglb->stream);
-        write_var(t, wglb, rwt);
+        write_var(t, wglb);
         wrputc(',', wglb->stream);
-        PROTECT(*t, writeTerm(*l, 999, 1, FALSE, wglb, &nrwt));
+        yhandle_t yt = Yap_InitHandle((CELL)t);
+        writeTerm(*l, 999, 1, false, wglb);
         attv = RepAttVar(t);
         wrputc(',', wglb->stream);
-        l++;
-        writeTerm(*l, 999, 1, FALSE, wglb, &nrwt);
+        l = &(RepAttVar(t)->Value);
+        writeTerm(*l, 999, 1, false, wglb);
+        Yap_PopHandle(yt);
         wrclose_bracket(wglb, TRUE);
       }
       wglb->Portray_delays = TRUE;
@@ -726,59 +736,77 @@ static void write_var(CELL *t, struct write_globs *wglb,
   }
 }
 
-static void write_list(Term t, int direction, int depth,
-                       struct write_globs *wglb, struct rewind_term *rwt) {
-  Term ti;
-  struct rewind_term nrwt;
-  nrwt.parent = rwt;
-  nrwt.u_sd.s.ptr = 0;
+static void recover_list(yhandle_t start)
+{
+  Term i;
+  yhandle_t e = start;
+  Term *pt = &i;
+  yhandle_t end = Yap_CurrentHandle();
+  while (start < end) {
+    *pt = Yap_GetFromHandle(start++);
+    pt = RepPair(*pt)+1;
+  }
+  LOCAL_CurHandle = e;
+}
 
+static void write_list(Term t, int direction, int depth,
+                       struct write_globs *wglb) {
+  yhandle_t yh0, yt0, yt = LOCAL_CurHandle;
+  Term ti;
+  t = Deref(t);
   while (1) {
-    if (t == TermNil)
-      break;
-    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
-    ti = TailOfTerm(t);
-    if (IsVarTerm(ti))
-      break;
-    if (!IsPairTerm(ti))
-      break;
-    if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
-      if (lastw == symbol || lastw == separator) {
-        wrputc(' ', wglb->stream);
+      yt0 = Yap_InitHandle(t);
+      Term *opt = RepPair(t);
+      Term o = opt[0];
+      //  yh0 = Yap_InitHandle(o);
+      //opt[0] = marker(depth);
+
+      writeTerm(Deref(o), 999, depth + 1, false, wglb);
+      //  o = Yap_GetFromHandle(yh0);
+      t = Yap_GetFromHandle(yt0);
+      opt = RepPair(Deref(t));
+      opt[0] = o;
+      o = opt[1];
+      opt[1] = marker(depth);
+      ti = Deref(o);
+      if (IsPairTerm(ti)) {
+          if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+              if (lastw == symbol || lastw == separator) {
+                  wrputc(' ', wglb->stream);
+              }
+              opt[1] = o;
+              wrputc('|', wglb->stream);
+              putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
+              recover_list(yt);
+              return;
+          }
+          lastw = separator;
+          depth++;
+          wrputc(',', wglb->stream);
+          t = ti;
+      } else {
+          opt[1] = o;
+          recover_list(yt);
+          break;
       }
-      wrputc('|', wglb->stream);
-      putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
-      return;
-    }
-    lastw = separator;
-    depth++;
-    wrputc(',', wglb->stream);
-    t = ti;
   }
-  if (IsPairTerm(ti)) {
-    /* we found an infinite loop */
-    /* keep going on the list */
-    wrputc(',', wglb->stream);
-    write_list(ti, direction, depth, wglb, &nrwt);
-  } else if (ti != MkAtomTerm(AtomNil)) {
-    if (lastw == symbol || lastw == separator) {
-      wrputc(' ', wglb->stream);
-    }
-    wrputc('|', wglb->stream);
-    lastw = separator;
-    writeTerm(ti, 999, depth, FALSE, wglb, &nrwt);
-  }
+if (ti != MkAtomTerm(AtomNil)) {
+if (lastw == symbol || lastw == separator) {
+wrputc(' ', wglb->stream);
+}
+wrputc('|', wglb->stream);
+lastw = separator;
+writeTerm(ti, 999, depth, FALSE, wglb);
+return;
+}
 }
 
 static void writeTerm(Term t, int p, int depth, int rinfixarg,
-                      struct write_globs *wglb, struct rewind_term *rwt)
+                      struct write_globs *wglb)
 /* term to write			 */
 /* context priority			 */
 {
   CACHE_REGS
-  struct rewind_term nrwt;
-  nrwt.parent = rwt;
-  nrwt.u_sd.s.ptr = 0;
 
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
@@ -786,20 +814,36 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   }
   t = Deref(t);
   if (IsVarTerm(t)) {
-    write_var((CELL *)t, wglb, &nrwt);
+    write_var((CELL *)t, wglb);
+    return;
   } else if (IsIntTerm(t)) {
 
     wrputn((Int)IntOfTerm(t), wglb);
+    return;
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
+    return;
   } else if (IsPairTerm(t)) {
     if (wglb->Ignore_ops && false) {
       wrputs("'.'(", wglb->stream);
       lastw = separator;
-
-      PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt));
+      yhandle_t yt = Yap_InitHandle(t);
+      Term *opt = RepPair(t);
+      Term o =  Deref(*opt);
+      yhandle_t yo = Yap_InitHandle(o);
+      *opt = marker(depth);
+      writeTerm(o, 999, depth + 1, FALSE, wglb);
       wrputs(",", wglb->stream);
-      writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
+      o =  Yap_PopHandle(yo);
+      opt = RepPair(Yap_GetFromHandle(yt));
+      opt[0] = o;
+      o = opt[1];
+      *opt = marker(depth);
+      yo = Yap_InitHandle(o);
+      writeTerm( o, 999, depth + 1, FALSE, wglb);
+      o =  Yap_PopHandle(yo);
+      opt = RepPair(Yap_PopHandle(yt));
+      opt[1] = o;
       wrclose_bracket(wglb, TRUE);
       return;
     }
@@ -813,10 +857,11 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, 0, depth, wglb, rwt);
+      write_list(t, 0, depth, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
+    return;
   } else { /* compound term */
     Functor functor = FunctorOfTerm(t);
     int Arity;
@@ -832,7 +877,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         write_string(UStringOfTerm(t), wglb);
         return;
       case (CELL)FunctorAttVar:
-        write_var(RepAppl(t) + 1, wglb, &nrwt);
+        write_var(RepAppl(t) + 1, wglb);
         return;
       case (CELL)FunctorDBRef:
         wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
@@ -842,7 +887,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         return;
         /* case (CELL)FunctorBigInt: */
       default:
-        writebig(t, p, depth, rinfixarg, wglb, rwt);
+        writebig(t, p, depth, rinfixarg, wglb);
         return;
       }
     }
@@ -865,7 +910,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         *p++;
         lastw = separator;
         /* cannot use the term directly with the SBA */
-        PROTECT(t, writeTerm(*p, 999, depth + 1, FALSE, wglb, &nrwt));
+	WRITE_SUB_ARG(  yt, i, 999, false);
         if (*p)
           wrputc(',', wglb->stream);
         argno++;
@@ -874,13 +919,15 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       return;
     }
 #endif
+    yhandle_t yt = Yap_InitHandle(t);
     if (wglb->Use_portray) {
       if (callPortray(t, wglb->stream - GLOBAL_Stream PASS_REGS)) {
         return;
       }
     }
-    if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
-      Term tright = ArgOfTerm(1, t);
+
+      if (!wglb->Ignore_ops && Arity == 1 && Yap_IsPrefixOp(atom, &op, &rp)) {
+	Term tright = ArgOfTerm(1,t);
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
                           Yap_IsOp(AtomOfTerm(tright));
       if (op > p) {
@@ -893,7 +940,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       } else if (atom == AtomMinus) {
         last_minus = TRUE;
       }
-      writeTerm(tright, rp, depth + 1, TRUE, wglb, &nrwt);
+      WRITE_SUB_ARG(  yt, 1, rp, true);
       if (bracket_right) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -906,15 +953,13 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
                   atom == AtomEmptySquareBrackets) &&
                  Yap_IsListTerm(ArgOfTerm(1, t)))) &&
                Yap_IsPosfixOp(atom, &op, &lp)) {
-      Term tleft = ArgOfTerm(1, t);
+	Term tleft = ArgOfTerm(1,t);
 
       int bracket_left, offset;
 
       if (Arity != 1) {
-        tleft = ArgOfTerm(1, t);
         offset = 2;
       } else {
-        tleft = ArgOfTerm(1, t);
         offset = 1;
       }
       bracket_left =
@@ -926,7 +971,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_left) {
         wropen_bracket(wglb, TRUE);
       }
-      writeTerm(ArgOfTerm(offset, t), lp, depth + 1, rinfixarg, wglb, &nrwt);
+      WRITE_SUB_ARG(  yt, offset, lp, rinfixarg);
       if (bracket_left) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -939,7 +984,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputc('{', wglb->stream);
         }
         lastw = separator;
-        write_list(tleft, 0, depth, wglb, rwt);
+        write_list(tleft, 0, depth, wglb);
         if (atom == AtomEmptyBrackets) {
           wrputc(')', wglb->stream);
         } else if (atom == AtomEmptySquareBrackets) {
@@ -956,8 +1001,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       }
     } else if (!wglb->Ignore_ops && Arity == 2 &&
                Yap_IsInfixOp(atom, &op, &lp, &rp)) {
-      Term tleft = ArgOfTerm(1, t);
-      Term tright = ArgOfTerm(2, t);
+      Term tleft = ArgOfTerm(1,t);
+      Term tright = ArgOfTerm(2,t);
       int bracket_left =
           !IsVarTerm(tleft) && IsAtomTerm(tleft) && Yap_IsOp(AtomOfTerm(tleft));
       int bracket_right = !IsVarTerm(tright) && IsAtomTerm(tright) &&
@@ -971,8 +1016,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_left) {
         wropen_bracket(wglb, TRUE);
       }
-      PROTECT(
-          t, writeTerm(ArgOfTerm(1, t), lp, depth + 1, rinfixarg, wglb, &nrwt));
+      WRITE_SUB_ARG( yt, 1, lp, rinfixarg);
       if (bracket_left) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -991,8 +1035,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_right) {
         wropen_bracket(wglb, TRUE);
       }
-      writeTerm(ArgOfTerm(2, t), rp, depth + 1, TRUE, wglb, &nrwt);
-      if (bracket_right) {
+      WRITE_SUB_ARG( yt, 2, 999, true);
+     if (bracket_right) {
         wrclose_bracket(wglb, TRUE);
       }
       if (op > p) {
@@ -1011,6 +1055,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           if (k == -1) {
             wrputc('_', wglb->stream);
             lastw = alphanum;
+	    Yap_PopHandle(yt);
             return;
           } else {
             wrputc((k % 26) + 'A', wglb->stream);
@@ -1031,14 +1076,13 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       } else {
         wrputs("'$VAR'(", wglb->stream);
         lastw = separator;
-        writeTerm(ArgOfTerm(1, t), 999, depth + 1, FALSE, wglb, &nrwt);
+	WRITE_SUB_ARG( yt, 1, 999, false);
         wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      writeTerm(ArgOfTerm(1, t), GLOBAL_MaxPriority, depth + 1, FALSE, wglb,
-                &nrwt);
+      WRITE_SUB_ARG( yt, 1, GLOBAL_MaxPriority, false);
       wrputc('}', wglb->stream);
       lastw = separator;
     } else if (atom == AtomArray) {
@@ -1049,15 +1093,14 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputs("...", wglb->stream);
           break;
         }
-        writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
+	WRITE_SUB_ARG( yt, op, 999, false);
         if (op != Arity) {
-          PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb,
-                               &nrwt));
+	  //	  	WRITE_SUB_ARG( yt, op, 999, false);
           wrputc(',', wglb->stream);
           lastw = separator;
         }
       }
-      writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
+	WRITE_SUB_ARG( yt, op, 999, false);
       wrputc('}', wglb->stream);
       lastw = separator;
     }  else {
@@ -1074,15 +1117,16 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputc('.', wglb->stream);
           break;
         }
-        PROTECT(
-            t, writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt));
+	WRITE_SUB_ARG( yt, op, 999, false);
         wrputc(',', wglb->stream);
         lastw = separator;
       }
-      writeTerm(ArgOfTerm(op, t), 999, depth + 1, FALSE, wglb, &nrwt);
+	WRITE_SUB_ARG( yt, op, 999, false);
       wrclose_bracket(wglb, TRUE);
     }
-  }
+   Yap_PopHandle(yt);
+ }
+ 
 }
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
@@ -1122,7 +1166,7 @@ wglb.trailings = 0;
    }
 
    /* protect slots for portray */
-  writeTerm(tp, priority, 1, false, &wglb, &rwt);
+  writeTerm(tp, priority, 1, false, &wglb);
      if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1136,7 +1180,7 @@ wglb.trailings = 0;
       wrputc(' ', wglb.stream);
     }
   }
-int i;
+     int i;
 for (i=0; i < wglb.trailings;i++) {
 Term d1 = TrailTerm(--TR);
   CELL *pt = RepAppl(d1);
