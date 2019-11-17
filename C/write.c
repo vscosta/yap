@@ -60,14 +60,6 @@ typedef struct union_direct {
   CELL *ptr;
 } udirect;
 
-typedef struct rewind_term {
-  struct rewind_term *parent;
-  union {
-    struct union_slots s;
-    struct union_direct d;
-  } u_sd;
-} rwts;
-
 typedef struct write_globs {
   StreamDesc *stream;
   bool Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
@@ -84,11 +76,14 @@ int trailings;
 { Term *vec= RepAppl(Deref(Yap_GetFromHandle(yt))),	\
 tmp_arg =  vec[i];			\
       yhandle_t yo = Yap_InitHandle(tmp_arg);\
+      Term hd= Deref(tmp_arg); \
+      if (IsVarTerm(hd) || IsAtomicTerm(hd)) {\
+      writeTerm(hd  , prio, depth + 1, flag, wglb);\
+      } else {\
       vec[i] = marker(depth);\
       writeTerm(Deref(tmp_arg)  , prio, depth + 1, flag, wglb);\
       tmp_arg = Yap_PopHandle(yo);\
-      vec = RepAppl(Yap_GetFromHandle(yt));\
-      vec[i] = tmp_arg;\
+      vec[i] = tmp_arg; }	  \
 }
 
 
@@ -758,14 +753,19 @@ static void write_list(Term t, int direction, int depth,
       yt0 = Yap_InitHandle(t);
       Term *opt = RepPair(t);
       Term o = opt[0];
-      //  yh0 = Yap_InitHandle(o);
-      //opt[0] = marker(depth);
-
-      writeTerm(Deref(o), 999, depth + 1, false, wglb);
-      //  o = Yap_GetFromHandle(yh0);
-      t = Yap_GetFromHandle(yt0);
-      opt = RepPair(Deref(t));
+      Term h = Deref(o);
+      if (IsVarTerm(o) || IsAtomicTerm(o)) {
+      writeTerm(h, 999, depth + 1, false, wglb);
+          t = Yap_GetFromHandle(yt0);
+          opt = RepPair(Deref(t));
+      } else {
+      yh0 = Yap_InitHandle(o);
+      opt[0] = marker(depth);
+      writeTerm(h, 999, depth + 1, false, wglb);
+          t = Yap_GetFromHandle(yt0);
+          o = Yap_PopHandle(yh0);
       opt[0] = o;
+        }
       o = opt[1];
       opt[1] = marker(depth);
       ti = Deref(o);
@@ -947,7 +947,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
-    } else if (!wglb->Ignore_ops &&
+      }  else if (!wglb->Ignore_ops &&
                (Arity == 1 ||
                 ((atom == AtomEmptyBrackets || atom == AtomCurly ||
                   atom == AtomEmptySquareBrackets) &&
@@ -1126,7 +1126,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
     }
    Yap_PopHandle(yt);
  }
- 
+
 }
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
@@ -1139,9 +1139,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
 
   yhandle_t lvl = push_text_stack();
   struct write_globs wglb;
-  struct rewind_term rwt;
-  t = Deref(t);
-  rwt.parent = NULL;
+   t = Deref(t);
   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;

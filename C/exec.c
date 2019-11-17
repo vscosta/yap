@@ -837,14 +837,11 @@ static Int execute_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
 }
 
 static Int creep_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
-  if (LOCAL_debugger_state[DEBUG_DEBUG] == TermFalse)
-    return execute_clause(PASS_REGS1);
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
-  Int rc = execute_clause(PASS_REGS1);
   LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
   if (!LOCAL_InterruptsDisabled) {
         Yap_signal(YAP_CREEP_SIGNAL);
     }
+  Int rc = execute_clause(PASS_REGS1);
     return rc;
 }
 

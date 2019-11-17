@@ -196,11 +196,15 @@ nospyall :-
 nospyall.
 
  % debug mode -> debug flag = 1
+/** @pred debug
 
+Enables the Prolof debugging. Notice that tracing is disabled, even if it was active.
+*/
 debug :-
 	 ( '__NB_getval__'('$spy_gn',_, fail) -> true ; '__NB_setval__'('$spy_gn',1) ),
 	 set_prolog_flag(debug,true),
 	 '$set_debugger_state'(debug, true),
+	 '__NB_setval__'('$trace',off),
 	 '$start_user_code',
 	 print_message(informational,debug(debug)),
 	 '$init_debugger'(zip).
@@ -391,7 +395,7 @@ notrace(G) :-
     '$enable_debugging'.
 
 '$init_debugger' :- 
-    '$init_debugger'(creep).
+    '$init_debugger'(zip).
 
 '$init_debugger'(Creep) :- 
     '$debugger_io',
@@ -556,7 +560,8 @@ notrace(G) :-
     '$set_debugger_state'(creep,creep),
     fail.
 '$continue_debugging'(outer) :-
-	!,
+    '$set_debugger_state'(debug,true),
+    	!,
     '$creep'.
 '$continue_debugging'(inner).
 

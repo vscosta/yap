@@ -8,17 +8,20 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		debug.pl						 *
+* File:		debug.yap						 *
 * Last rev:								 *
 * mods:									 *
 * comments:	YAP debugger						 *
 *									 *
 *************************************************************************/
+
+/**
+ @file pl/debug.yap
+**/
+
 :- system_module('$_debug',
                  [],
                  ['$trace_goal'/4, '$init_debugger'/0, '$skipeol'/1]).
-
-
 
 /**
   @defgroup Deb_Interaction Interacting with the debugger
@@ -468,8 +471,8 @@ be lost.
 
     ).
 '$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
-	\+ '$is_opaque_predicate'(G,M),
-	'$number_of_clauses'(G,M,N),
+    \+ '$is_opaque_predicate'(G,M),
+    '$number_of_clauses'(G,M,N),
 	N > 0,
     !,
     '$creep_enumerate_refs'(
@@ -502,7 +505,7 @@ be lost.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
 	MM:GM,
 	Port,
-	       (stop_low_level_trace,'$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H))
+	       '$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -514,7 +517,7 @@ be lost.
 	'$cleanup_on_exit'(CP0, TaskF).
 
 
-'$creep_enumerate_refs'(Setup, M:Goal, Ref, Catcher, Cleanup) :-
+'$creep_enumerate_refs'(Setup, M:Goal, _N, Ref, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),
         Task0 = cleanup( true, Catcher, Cleanup, Tag, true, CP0),
 	TaskF = cleanup( true, Catcher, Cleanup, Tag, false, CP0),

@@ -3912,10 +3912,6 @@ static Int nth_clause(USES_REGS1) {
 
       if (!pe)
         return FALSE;
-      if (!(pe->PredFlags & (SourcePredFlag | LogUpdatePredFlag))) {
-        UNLOCK(pe->PELock);
-        return FALSE;
-      }
       CurSlot = Yap_StartSlots();
       /* I have pe and n */
       sl4 = Yap_InitSlot(ARG4);
