@@ -202,6 +202,8 @@ typedef enum { /* we accept two domains for the moment, IPV6 may follow */
 #define No_Brace_Terms_f 0x2000
 #define Fullstop_f 0x4000
 #define New_Line_f 0x8000
+#define Number_vars_f 0x10000
+#define Singleton_vars_f 0x20000
 
 typedef struct stream_desc {
   YAP_Atom name;

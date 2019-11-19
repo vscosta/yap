@@ -695,7 +695,6 @@ static int interrupt_cut(USES_REGS1) {
     return 2;
   }
   /* find something to fool S */
-  yamop *myP = P, *myCP = CP;
   P = NEXTOP(NEXTOP(P, s),Osblp);
   // does not
   int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
@@ -718,7 +717,6 @@ static int interrupt_cut_t(USES_REGS1) {
     return 2;
   }
   /* find something to fool S */
-  yamop *myP = P, *myCP = CP;
   P = NEXTOP(NEXTOP(P, s),Osblp);
   int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
   return rc;
@@ -740,7 +738,6 @@ static int interrupt_cut_e(USES_REGS1) {
     return 2;
   }
   /* find something to fool S */
-  yamop *myP = P, *myCP = CP;
   P = NEXTOP(NEXTOP(P, s),Osblp);
   int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
   return rc;
@@ -815,7 +812,6 @@ static int interrupt_commit_x(USES_REGS1) {
   ENV_YREG[E_DEPTH] = DEPTH;
 #endif /* DEPTH_LIMIT */
   ENDCACHE_Y_AS_ENV();
-  yamop *myP = P, *myCP = CP;
   P = NEXTOP(NEXTOP(P, xps),Osblp);
   bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
   YENV = LCL0-myYENV;

@@ -435,7 +435,7 @@ ALWAYS_GONext();
       PREG = NEXTOP(PREG, p);
 #ifndef NO_CHECKING
       /* check stacks */
-      check_stack(NoStackDeallocate, HR);
+      //      check_stack(NoStackDeallocate, HR);
 #endif
       /* other instructions do depend on S being set by deallocate
          :-( */

@@ -171,8 +171,7 @@
     get_abs_file_parameter( glob, Opts, G ),
     G \= '',
     !,
-    writeln(F:G),
-    path_concat([F,G],NF), writeln(NF).
+    path_concat([F,G],NF).
 '$glob'(F,_Opts,F).
 
 % always verify if a directory

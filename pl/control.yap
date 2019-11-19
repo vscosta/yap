@@ -457,34 +457,6 @@ b_getval(GlobalVariable, Val) :-
 %% @addtogroup YAPControl
 %% @{
 
-/* This is the break predicate,
-	it saves the importante data about current streams and
-	debugger state */
-
-'$debug_state'(state(Trace, Debug, State, SPY_GN, GList)) :-
-	'$init_debugger',
-	nb_getval('$trace',Trace),
-	nb_getval('$debug_state',State),
-	current_prolog_flag(debug, Debug),
-	nb_getval('$spy_gn',SPY_GN),
-	b_getval('$spy_glist',GList).
-
-
-'$debug_stop' :-
-    '$set_debugger_state'( zip,0,stop,off,false ),
-    b_setval('$trace',off),
-    set_prolog_flag(debug, false),
-    b_setval('$spy_glist',[]),
-    '$disable_debugging'.
-
-'$debug_restore'(state(Trace, Debug, State, SPY_GN, GList)) :-
-	b_setval('$spy_glist',GList),
-	b_setval('$spy_gn',SPY_GN),
-	set_prolog_flag(debug, Debug),
-	nb_setval('$debug_state',State),
-	b_setval('$trace',Trace),
-	'$enable_debugging'.
-
 /** @pred  break
 
 
@@ -502,23 +474,100 @@ debugging.
 
 */
 break :-
-        '$debug_state'(DState),
-        '$debug_stop',
-        '$break'( true ),
-	current_output(OutStream), current_input(InpStream),
+	'$top_level_state'( reset(State) ),
 	current_prolog_flag(break_level, BL ),
-        NBL is BL+1,
+	NBL is BL+1,
 	set_prolog_flag(break_level, NBL ),
-	format(user_error, '% Break (level ~w)~n', [NBL]),
 	live,
 	!,
-	set_value('$live','$true'),
-        '$debug_restore'(DState),
-	set_input(InpStream),
-	set_output(OutStream),
 	set_prolog_flag(break_level, BL ),
-	'$break'( false ).
+	'$top_level_state'( State ).
 
+/* @pred break
+
+   This is the break predicate implementation.
+
+   YAP maintains state as a list of values. These values may be generated from
+   a diversity of sources. yap_setting/4 translates these different components
+   to a common interface.
+	debugger state */
+
+'$top_level_state'(reset(Status)) :-
+	findall(Setting=Val, '$yap_settings'(Setting,Val,_,reset), Status).
+'$top_level_state'(Status) :-
+	var(Status),
+	!,
+	findall(Setting=Val, '$yap_settings'(Setting,Val,_,_), Status).
+'$top_level_state'(reset) :-
+	!,
+	(
+	 '$yap_setting'(_,_,_,reset),
+	 fail
+	;
+	 true
+	).
+'$top_level_state'(Status) :-
+	lists:member(Setting=Val, Status),
+	'$yap_settings'(Setting, _, Val, _), fail.
+'$top_level_state'(_).
+
+'$yap_settings'(Setting, Exp, Imp, Reset) :-
+	'$yap_setting'(Setting, GExp, GImp, GReset),
+	(nonvar(Reset) -> call(GExp, Exp), call(GReset) ;
+	 var(Exp) -> call(GExp, Exp) ;
+	 call(GImp, Imp ) ).
+
+'$yap_setting'(debug,
+	       current_prolog_flag(debug),
+	       set_prolog_flag(debug),
+	       current_prolog_flag(debug,false)
+	      ).
+'$yap_setting'(debugger_goal_list,
+	       b_getval('$spy_glist'),
+	       b_setval('$spy_glist'),
+	       b_setval('$spy_glist',[])
+	      ).
+'$yap_setting'(debugger_goal_number,
+	       b_getval('$spy_gn'),
+	       b_setval('$spy_gn'),
+	       b_setval('$spy_gn',0)
+	      ).
+'$yap_setting'(debugger_enabled,
+	       '$get_debugger_state'(debug),
+	       '$set_debugger_state'(debug),
+	       '$set_debugger_state'(debug, true)
+	      ).
+ '$yap_setting'(debugger_creep_mode,
+	       '$get_debugger_state'(creep),
+	       '$set_debugger_state'(creep),
+	       '$set_debugger_state'(creep, zip)
+	      ).
+ '$yap_setting'(debugger_spy_mode,
+	       '$get_debugger_state'(spy),
+	       '$set_debugger_state'(spy),
+	       '$set_debugger_state'(spy, stop)
+	      ).
+'$yap_setting'(trace,
+	       b_getval('$trace'),
+	       b_setval('trace'),
+	       b_setval('$trace',0)
+	      ).
+'$yap_setting'(input_stream,
+	       current_input,
+	       set_input,
+	       set_input(user_input)
+	      ).
+'$yap_setting'(output_stream,
+	       current_output,
+	       set_output,
+	       set_output(user_output)
+	      ).
+'$yap_setting'(error_stream,
+	       current_error,
+	       set_error,
+	       set_error(user_error)
+	      ).
+	
 :- meta_predicate( at_halt(:) ).
 
 /**

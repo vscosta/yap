@@ -194,7 +194,6 @@ attvars_residuals([V|Vs]) -->
    suspended goal around
 */
 prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
-	writeln( [Module1|Continuation]:LG),
 	execute_woken_system_goals(LG),
 	do_continuation(Continuation, Module1).
 

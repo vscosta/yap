@@ -62,13 +62,14 @@ typedef struct non_single_struct_t {
 #define ENTRY_FROM_MARKER(d0) ((void *)AtomOfTerm(d0))						\
 
 static inline Term VISIT_MARKER(non_singletons_t *to_visit) {
-  return MkAtomTerm((Atom)to_visit);
+  return MkAtomTerm((Atom)(to_visit-1));
 }
 
 #define VISITED \
   { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;	\
-  if (IsVarTerm(d0) && d0==(CELL)ptd0) goto var_in_term;\
-continue; }
+  if (IsVarTerm(d0)) goto var_in_term;\
+  continue;\
+ }
 
 #define WALK_COMPLEX_TERM__(LIST0, STRUCT0, PRIMI0)			\
 \
@@ -153,7 +154,7 @@ restart:\
        continue;								\
      }									\
      derefa_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);		\
-var_in_term: {}								\
+var_in_term: {}
 
 #define WALK_COMPLEX_TERM() WALK_COMPLEX_TERM__({}, {}, {})
 
@@ -322,6 +323,7 @@ case 3: undo tagging for X, bind to maaker, restore loop tag.
 	   MaBind(pt0,BREAK_LOOP(d0, to_visit));\
 	   *pt0 = d0;\
 	   (*np) ++; \
+	   continue;\
 }
 
 
@@ -541,7 +543,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
-  WALK_COMPLEX_TERM();
+  WALK_COMPLEX_TERM__({}, {}, {});
   /* do or pt2 are unbound  */
 
   if (HR + 1024 > ASP) {
@@ -556,9 +558,9 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
       goto trail_overflow;
   }
   TrailTerm(TR++) = (CELL)ptd0;
-  if (*ptd0 == (CELL)ptd0)
+  if (*ptd0 == (CELL)ptd0) {
   *ptd0 = TermFoundVar;
-  else {
+  } else {
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
   }
   END_WALK();
@@ -984,11 +986,15 @@ return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
     HR[0] = (CELL)ptd0;     \
     HR[1] = AbsPair(HR + 2); \
     HR += 2;                \
-    *ptd0 = TermRefoundVar; \
+    if (*ptd0 == TermFoundVar ) { \
+*ptd0 = TermRefoundVar;				\
+  } else { \
+    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermRefoundVar;	\
+  } \
   }
 
 static Term non_singletons_in_complex_term(CELL * pt0_,
-  CELL * pt0_end_ USES_REGS) {
+					   CELL * pt0_end_, Term s USES_REGS) {
  CELL *pt0, *pt0_end;
  int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
@@ -998,9 +1004,10 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
   /* do or pt2 are unbound  */
-  if (*ptd0 == (CELL)ptd0)
-  *ptd0 = TermFoundVar;
-  else {
+  if ((CELL)ptd0 == d0) {
+    if (d0 == *ptd0) {
+    *ptd0 = TermFoundVar;
+  } else {
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
   }
   /* next make sure noone will see this as a variable again */
@@ -1009,6 +1016,7 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
     goto trail_overflow;
   }
   TrailTerm(TR++) = (CELL)ptd0;
+  }
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
@@ -1016,13 +1024,24 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
   pop_text_stack(lvl);
   if (HR != InitialH) {
     /* close the list */
-    HR[-1] = Deref(ARG2);
+    HR[-1] = s;
     return AbsPair(InitialH);
   } else {
-    return ARG2;
+    return s;
   }
 
   def_overflow();
+}
+
+Term Yap_NonSingletons(Term t, Term s) {
+    if (IsVarTerm(t)) {
+      return MkPairTerm(t, s);
+    } else if (IsPrimitiveTerm(t)) {
+      return s;
+    } else {
+      return non_singletons_in_complex_term(&(t)-1, &(t), s PASS_REGS);
+    }
+    
 }
 
 /** @pred  non_singletons_in_term(? _T_, _LV0_, _LVF_)
@@ -1033,114 +1052,57 @@ Unify _LVF_-_LV0_ with the list of variables that occur at least twice in _T_ or
 static Int p_non_singletons_in_term(
 				    USES_REGS1) /* non_singletons in term t		 */
 {
-  Term t;
+  Term t, s;
   Term out;
 
      t = Deref(ARG1);
-    if (IsVarTerm(t)) {
-      out = ARG2;
-    } else if (IsPrimitiveTerm(t)) {
-      out = ARG2;
-    } else {
-      out = non_singletons_in_complex_term(&(t)-1, &(t)PASS_REGS);
-    }
+     s = Deref(ARG2);
+     out = Yap_NonSingletons(t,s);
     return Yap_unify(ARG3,out);
 }
 
-static Term numbervar(bool singles, Int *me USES_REGS) {
-  Term ts[1];
-  if (singles) {
-ts[0] = MkIntTerm(-1);
-MkIntegerTerm(*me);
-}else {
-ts[0] =
-MkIntegerTerm(*me);
- *me += 1;
-  }
-  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
-}
-
-
-static void renumbervar(Term t, bool singles, Int *me USES_REGS) {
-    if (singles ) {
-        Term *ts = RepAppl(t);
-        if (IntegerOfTerm(ts[1]) == -1) {
-            ts[1] = MkIntegerTerm(*me);
-            *me += 1;
-        }
-    }
-}
-
-static Int numbervars_in_complex_term(CELL * pt0_, CELL * pt0_end_, Int numbv,
-  int singles USES_REGS) {
- CELL *pt0, *pt0_end;
- int lvl;
- size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
- struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
-  CELL *InitialH = HR;
-  tr_fr_ptr TR0 = TR;
-
-  WALK_COMPLEX_TERM__({ if (IsVarTerm(d0) && IsUnboundVar(ptd0)) {\
-        d0 = numbervar(singles, &numbv PASS_REGS);\
-          YapBind(ptd0, d0);\
-     }\
-    }, \
-  { if (f == FunctorDollarVar)  {\
-      renumbervar(d0, singles, &numbv);\
-      continue;\
-  }}, \
-  {\
-  });
-
- // if (IsAttVar(pt0))
-   // continue;
-  /* do or pt2 are unbound  */
-      if (!IsVarTerm(*ptd0)) {
-          struct non_single_struct_t *mK = ENTRY_FROM_MARKER(*ptd0);
-
-          Term d1 = numbervar(singles, &numbv PASS_REGS);
-          YapBind(ptd0, d1);
-          mK->d0 = d1;
-      } else {
-         Term d1 = numbervar(singles, &numbv PASS_REGS);
-          YapBind(ptd0, d1);
-
-  }
-
-        /* leave an empty slot to fill in later */
-  if (HR + 1024 > ASP) {
-    goto global_overflow;
-  }
-  /* next make sure noone will see this as a variable again */
-
-
-  END_WALK();
-
-  pop_text_stack(lvl);
-  return numbv;
-
-  def_overflow();
-
-}
 
 Int Yap_NumberVars(Term inp, Int numbv,
 		   bool handle_singles) /*
 					 * numbervariables in term t	 */
 {
   CACHE_REGS
-  Int out;
-  Term t;
-
-   t = Deref(inp);
-  if (IsPrimitiveTerm(t)) {
-    return numbv;
+    Term t;
+  if (handle_singles) {
+    t = Yap_NonSingletons(inp, TermNil PASS_REGS);
   } else {
-
-    out = numbervars_in_complex_term(&(t)-1, &(t), numbv,
-     handle_singles PASS_REGS);
+    t = Yap_TermVariables(inp,TermNil PASS_REGS);
   }
+  while(t != TermNil) {
 
-  return out;
+    CELL *el = RepPair(Deref(t));
+    Term v = Deref(el[0]);
+    t = el[1];
+    HR[0] = (CELL)FunctorDollarVar;
+    HR[1] = MkIntegerTerm(numbv++);
+    YapBind(VarOfTerm(v), AbsAppl(HR));
+    HR+=2;
+  }
+   if (handle_singles) { 
+     t = Yap_TermVariables(inp,TermNil PASS_REGS);
+   } else {
+     t = TermNil;
+   }
+  while(t != TermNil) {
+
+    CELL *el = RepPair(Deref(t));
+    Term v = Deref(el[0]);
+    t = el[1];
+    if (IsVarTerm(v)) {
+      HR[0] = (CELL)FunctorDollarVar;
+      HR[1] = MkIntTerm(-1);
+      YapBind(VarOfTerm(v), AbsAppl(HR));
+      HR+=2;
+    } else {
+      el[1] = TermNil;
+    }
+  }
+  return numbv;
 }
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)

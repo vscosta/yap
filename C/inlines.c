@@ -909,7 +909,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
  func_var_3nvar:
   /* Uuuff, the second and third argument are bound */
   if (IsIntegerTerm(d1))
-    d1 = IntOfTerm(d1);
+    d1 = IntegerOfTerm(d1);
   else {
     if (IsBigIntTerm(d1)) {
       Yap_Error(RESOURCE_ERROR_STACK, ARG3, "functor/3");
@@ -945,8 +945,8 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     pt1 = HR;
     *pt1++ = d0;
     d0 = AbsAppl(HR);
-    if (pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
-      if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
+    if (d1 > 16 && pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
+      if (!Yap_dogc(3, NULL PASS_REGS)) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }

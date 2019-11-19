@@ -457,6 +457,7 @@ extern bool Yap_Exists(const char *f);
 /* terms.c */
 extern Term Yap_BreakCyclesInTerm(Term t, int *nof USES_REGS);
 extern bool Yap_IsCyclicTerm(Term inp USES_REGS);
+extern bool Yap_NonSingletions(Term inp, Term tail  USES_REGS);
 extern Term Yap_BreakCycles(Term inp, UInt arity, Term *listp USES_REGS);
 extern void  Yap_InitTermCPreds(void);
 

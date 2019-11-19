@@ -1100,6 +1100,14 @@ void Yap_ReleaseStream(int sno) {
   */
 }
 
+/** @pred  current_input(+ _S_) is iso
+ * Stream  _S_ iss the current input stream. Predicates like read/1
+ * and get_code/1 will use stream  _S_ by default.
+ *
+ *
+ * @param Input-mode stream
+ *
+ */
 static Int current_input(USES_REGS1) { /* current_input(?Stream) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -1126,8 +1134,8 @@ bool Yap_SetInputStream(Term sd) {
 }
 
 /** @pred  set_input(+ _S_) is iso
- * Set stream  _S_ as the current input stream. Predicates like read/1
- * and get/1 will start using stream  _S_ by default.
+ * Set stream  _S_ as the current input stream. Predicates like write/1
+ * and put_code/1 will  use stream  _S_ by default.
  *
  *
  * @param Input-mode stream
@@ -1137,6 +1145,14 @@ static Int set_input(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
   return Yap_SetInputStream(ARG1);
 }
 
+/** @pred  current_output(+ _S_) is iso
+ * Stream  _S_ iss the current output stream. Predicates like read/1
+ * and get_code/1 will use stream  _S_ by default.
+ *
+ *
+ * @param Output-mode stream
+ *
+ */
 static Int current_output(USES_REGS1) { /* current_output(?Stream) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -1149,6 +1165,29 @@ static Int current_output(USES_REGS1) { /* current_output(?Stream) */
     return FALSE;
   } else {
     return (LOCAL_c_output_stream == IntOfTerm(t1));
+  }
+}
+
+/** @pred current_error(- _S_) is iso
+ * Stream  _S_ is the current error stream. Error messages
+ *  will use stream  _S_ by default.
+ *
+ *
+ * @param Output-mode stream
+ *
+ */
+static Int current_error(USES_REGS1) { /* current_error(?Stream) */
+  Term t1 = Deref(ARG1);
+  if (IsVarTerm(t1)) {
+    Term t = Yap_MkStream(LOCAL_c_error_stream);
+    YapBind(VarOfTerm(t1), t);
+    return TRUE;
+  } else if (!IsApplTerm(t1) || FunctorOfTerm(t1) != FunctorStream ||
+             !IsIntTerm((t1 = ArgOfTerm(1, t1)))) {
+    Yap_Error(DOMAIN_ERROR_STREAM, t1, "current_error/1");
+    return FALSE;
+  } else {
+    return (LOCAL_c_error_stream == IntOfTerm(t1));
   }
 }
 
@@ -1173,9 +1212,23 @@ bool Yap_SetErrorStream(Term sd) {
   return true;
 }
 
-/** @pred  set_input(+ _S_) is iso
- * Set stream  _S_ as the current input stream. Predicates like read/1
- * and get/1 will start using stream  _S_ by default.
+/** @pred  set_error(+ _S_) is iso
+ * Set stream  _S_ as the current error stream. Error messages
+ *  will use stream  _S_ by default.
+ *
+ *
+ * @param Error-mode stream
+ *
+ */
+static Int set_error(USES_REGS1) { /* '$show_stream_position'(+Stream,Pos) */
+  return Yap_SetErrorStream(ARG1);
+}
+
+/** @pred set_output(+ _S_) is iso
+ *
+ * Set stream _S_ as the current
+ * output stream. Built-ins such as write/1 and put_code/1 will use
+ * stream _S_ by default.
  *
  *
  * @param Output-mode stream
@@ -1605,8 +1658,11 @@ void Yap_InitIOStreams(void) {
                     SafePredFlag | SyncPredFlag);
   Yap_InitCPred("current_output", 1, current_output,
                 SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("current_error", 1, current_error,
+                SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_input", 1, set_input, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("set_output", 1, set_output, SafePredFlag | SyncPredFlag);
+  Yap_InitCPred("set_error", 1, set_error, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("$stream", 1, p_stream, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$clear_input", 1, clear_input, SafePredFlag | TestPredFlag);
 

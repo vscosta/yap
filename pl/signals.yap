@@ -179,9 +179,8 @@
 	debug,
 	'$execute'(M:G). 
   '$do_signal'(Sig, _) :-
-  writeln(Sig),
-    '$signal_do'(Sig,G),
-    '$execute'(G). 
+	  '$signal_do'(Sig,G),
+	  '$execute'(G). 
   
 
 '$execute_goal'(G, Mod) :-

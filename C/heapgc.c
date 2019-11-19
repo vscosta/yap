@@ -1276,7 +1276,7 @@ begin:
 #endif
     } else {
 #ifdef COROUTING
-      LOCAL_total_smarked++;
+      LOCAL_totalmarked++;
 #endif
 #ifdef INSTRUMENT_GC
       inc_var(current, next);
@@ -1591,9 +1591,11 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
     }
     /* we may have already been here */
     if ((bmap & bit) != 0) {
-      if (!MARKED_PTR(saved_var)) {
-//	printf("%c [%lx/%lx]  %lx ->%lx\n",//	       (MARKED_PTR(saved_var) ?'*':' '),
-//	       bmap, bit, gc_ENV - saved_var,  *saved_var);
+       if (!MARKED_PTR(saved_var)) { 
+      	printf("%c [%lx/%lx]  %lx->%lx\n",
+      	       //(MARKED_PTR(saved_var) ?'*':'f '),
+      	       bmap, bit, gc_ENV - saved_var,  *saved_var);
+
       mark_variable(saved_var PASS_REGS);
       }
     }

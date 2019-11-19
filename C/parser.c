@@ -191,10 +191,14 @@ VarEntry *Yap_LookupVar(const char *var) /* lookup variable in variables table
 
 static Term VarNames(VarEntry *p, Term l USES_REGS) {
     Term hd = l, tl = l;
+    Atom AtomUnderscore = Yap_LookupAtom("_");
     while (p != NULL) {
       Term t[2];
             Term o;
-
+	    if (p->VarRep == AtomUnderscore) {
+	      p = p->VarNext;
+	      continue;
+	    }
             t[0] = MkAtomTerm(p->VarRep);
             t[1] = p->VarAdr;
             o = Yap_MkApplTerm(FunctorEq, 2, t);

@@ -2427,8 +2427,8 @@ void Yap_track_cpred(void *v)
   }
   if ((i->op = (i->p = PREVOP(P, Osbpp))->opc) == Yap_opcode(_call_usercpred)||
       i->op == Yap_opcode(_call_cpred)) {
-    i->env = ENV;
-    i->p_env = P;
+    i->env = ENV;// YENV should be tracking ENV
+    i->p_env = CP;
     i->a = i->p->y_u.Osbpp.p->ArityOfPE;
   } else if ((i->op = (i->p=P)->opc) == Yap_opcode(_execute_cpred)){
       i->a = i->p->y_u.Osbpp.p->ArityOfPE;

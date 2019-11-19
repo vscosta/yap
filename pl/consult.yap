@@ -866,7 +866,6 @@ db_files(Fs) :-
 	fail.
 '$process_init_goal'([_|Gs]) :-
     '$process_init_goal'(Gs).
-
 /**
   @pred include(+ _F_) is directive
 
