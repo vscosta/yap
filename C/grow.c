@@ -786,6 +786,63 @@ static_growheap(size_t esize, bool fix_code, struct intermediates *cip USES_REGS
   return(TRUE);
 }
 
+static size_t expand_stacks( size_t *minimal_requestp, size_t request) {
+    if (request < YAP_ALLOC_SIZE)
+        request = YAP_ALLOC_SIZE;
+    request = AdjustPageSize(request);
+    if (!GLOBAL_AllowGlobalExpansion) {
+        LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
+        LeaveGrowMode(GrowStackMode);
+        return 0;
+    }
+    if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(request)) {
+/* always fails when using malloc */
+        LOCAL_ErrorMessage = NULL;
+        request += AdjustPageSize(((CELL) LOCAL_TrailTop - (CELL) LOCAL_GlobalBase) + MinHeapGap);
+        *minimal_requestp = request;
+        request = Yap_ExtendWorkSpaceThroughHole(request);
+        if (request < 0) {
+            LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
+            LeaveGrowMode(GrowStackMode);
+            return 0;
+        }
+    }
+    return request;
+}
+
+static void
+adjust_stack_ptrs(size_t request, size_t minimal_request, ADDR old_GlobalBase ) {
+/* we got over a hole */
+    if (minimal_request) {
+/* we require a realloc */
+        LOCAL_BaseDiff = request + ((CELL) LOCAL_TrailTop - (CELL) LOCAL_GlobalBase) - minimal_request;
+        LOCAL_LDiff = LOCAL_TrDiff = request;
+    } else {
+/* we may still have an overflow */
+        LOCAL_BaseDiff = LOCAL_GlobalBase - old_GlobalBase;
+/* if we grow, we need to move the stacks */
+        LOCAL_LDiff = LOCAL_TrDiff = LOCAL_BaseDiff + request;
+    }
+}
+
+static void stack_msg_in(CELL *hsplit, size_t request) {
+    char vb_msg1 = '\0', *vb_msg2 = "";
+    if (hsplit) {
+        if (hsplit > H0) {
+            vb_msg1 = 'H';
+            vb_msg2 = "Global Variable Space";
+        }
+    } else {
+        vb_msg1 = 'D';
+        vb_msg2 = "Delay";
+    }
+#if  defined(YAPOR_THREADS)
+    fprintf(stderr, "%% Worker Id %d:\n", worker_id);
+#endif
+    fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
+    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, request);
+}
+
 /* Used when we're short of heap, usually because of an overflow in
    the attributed stack, but also because we allocated a zone  */
 static int
@@ -796,7 +853,6 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   ADDR old_GlobalBase = LOCAL_GlobalBase;
   UInt minimal_request = 0L;
   Int size = request/sizeof(CELL);
-  char vb_msg1 = '\0', *vb_msg2 = "";
   bool do_grow = true;
   /*
     request is the amount of memory we requesd, in bytes;
@@ -810,7 +866,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
     if (hsplit < H0 ||
 	hsplit > HR)
       return false;
-    if (hsplit == HR && Unsigned(HR)+request < Unsigned(ASP)-StackGap( PASS_REGS1 )) {
+    else if (hsplit == HR && Unsigned(HR)+request < Unsigned(ASP)-StackGap( PASS_REGS1 )) {
         HR += request/sizeof(CELL);
        return request;
     }
@@ -819,68 +875,27 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
       (Unsigned(HR)+request < Unsigned(ASP-StackGap( PASS_REGS1 )))) {
       do_grow = false;
   }
-  if (do_grow) {
-      if (request < YAP_ALLOC_SIZE)
-          request = YAP_ALLOC_SIZE;
-      request = AdjustPageSize(request);
-  }
+
   /* adjust to a multiple of 256) */
   LOCAL_ErrorMessage = NULL;
   LOCAL_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
 
   if (do_grow) {
-    if (!GLOBAL_AllowGlobalExpansion) {
-      LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
-      LeaveGrowMode(GrowStackMode);
-      return 0;
-    }
-    if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(request)) {
-      /* always fails when using malloc */
-      LOCAL_ErrorMessage = NULL;
-      request += AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
-      minimal_request = request;
-      request = Yap_ExtendWorkSpaceThroughHole(request);
-      if (request < 0) {
-	LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
-	LeaveGrowMode(GrowStackMode);
-	return 0;
-      }
-    }
+      request = expand_stacks( &minimal_request, request);
+   	if (request == 0)
+   	    return 0;
   }
   gc_verbose = Yap_is_gc_verbose();
   if (gc_verbose) {
-    if (hsplit) {
-      if (hsplit > H0) {
-	vb_msg1 = 'H';
-	vb_msg2 = "Global Variable Space";
-      }
-    } else {
-      vb_msg1 = 'D';
-      vb_msg2 = "Delay";
+      stack_msg_in(hsplit, request);
     }
-#if  defined(YAPOR_THREADS)
-    fprintf(stderr, "%% Worker Id %d:\n", worker_id);
-#endif
-    fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
-    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, request);
-  }
   ASP -= 256;
   YAPEnterCriticalSection();
   /* we always shift the local and the stack by the same amount */
   if (do_grow) {
-    /* we got over a hole */
-    if (minimal_request) {
-      /* we went over a hole */
-      LOCAL_BaseDiff = request+((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)-minimal_request;
-      LOCAL_LDiff = LOCAL_TrDiff = request;
-    } else {
-      /* we may still have an overflow */
-      LOCAL_BaseDiff = LOCAL_GlobalBase - old_GlobalBase;
-      /* if we grow, we need to move the stacks */
-      LOCAL_LDiff = LOCAL_TrDiff = LOCAL_BaseDiff+request;
-    }
-  } else {
+      adjust_stack_ptrs( request,  minimal_request,  old_GlobalBase );
+      } else {
     /* stay still */
     LOCAL_LDiff = LOCAL_TrDiff = 0;
     LOCAL_BaseDiff = 0;
@@ -935,6 +950,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   growth_time = Yap_cputime()-start_growth_time;
   LOCAL_total_delay_overflow_time += growth_time;
   if (gc_verbose) {
+      char vb_msg1 = '\0', *vb_msg2 = "";
     fprintf(stderr, "%% %cO   took %g sec\n", vb_msg1, (double)growth_time/1000);
     fprintf(stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)LOCAL_total_delay_overflow_time/1000);
   }
@@ -942,7 +958,7 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   if (hsplit) {
     return request;
   } else {
-    return LOCAL_GDiff-LOCAL_BaseDiff;
+    return LOCAL_GDiff-LOCAL_GDiff0;
   }
 }
 

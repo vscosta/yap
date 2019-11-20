@@ -308,7 +308,10 @@ static Term GrowArena(Term arena, size_t size, UInt arity,
     arena = Yap_PopHandle(sla);
   }
   arena = CreateNewArena(RepAppl(arena), size + old_size);
-  return arena;
+  cspace->arenaB = ArenaPt(arena);
+    cspace->arenaL = ArenaLimit(arena);
+
+    return arena;
 }
 
 CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {

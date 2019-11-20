@@ -146,7 +146,7 @@ INLINE_ONLY CELL *
 PtoGloAdjust__ (CELL * ptr USES_REGS)
 {
   if (ptr < LOCAL_GSplit) {
-    if (ptr < H0) 
+    if (ptr < LOCAL_OldH0)
       return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_DelayDiff)));
     else
       return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_GDiff0)));
