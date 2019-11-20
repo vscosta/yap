@@ -59,17 +59,13 @@ typedef struct non_single_struct_t {
 (IsAtomTerm(d0) && AtomOfTerm(d0) >= (Atom)to_visit0 &&	\
  AtomOfTerm(d0) <= (Atom)to_visit)
 
-#define ENTRY_FROM_MARKER(d0) ((void *)AtomOfTerm(d0))						\
-
 static inline Term VISIT_MARKER(non_singletons_t *to_visit) {
   return MkAtomTerm((Atom)(to_visit-1));
 }
 
 #define VISITED \
-  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;	\
-  if (IsVarTerm(d0)) goto var_in_term;\
-  continue;\
- }
+  { d0 = ((non_singletons_t *)AtomOfTerm(d0))->d0;\
+if (d0 == (CELL)ptd0) {goto free_var;} else {goto list_loop;}}
 
 #define WALK_COMPLEX_TERM__(LIST0, STRUCT0, PRIMI0)			\
 \
@@ -122,6 +118,10 @@ restart:\
    /* store the terms to visit */					\
        ptd0 = RepAppl(d0);							\
        f = (Functor)(d0 = *ptd0);						\
+       if (IS_VISIT_MARKER(d0)) {						\
+         \
+         continue;\
+       }									\
        if (IsExtensionFunctor(f)) {\
         continue;\
       }\
@@ -130,10 +130,6 @@ restart:\
          goto aux_overflow;							\
        }									\
        STRUCT0;								\
-       if (IS_VISIT_MARKER(d0)) {						\
-         \
-         VISITED; continue;								\
-       }									\
        to_visit->pt0 = pt0;							\
        to_visit->pt0_end = pt0_end;						\
        to_visit->ptd0 = ptd0;						\
@@ -154,7 +150,7 @@ restart:\
        continue;								\
      }									\
      derefa_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);		\
-var_in_term: {}
+free_var: {}								\
 
 #define WALK_COMPLEX_TERM() WALK_COMPLEX_TERM__({}, {}, {})
 
@@ -192,8 +188,7 @@ aux_overflow : {							\
   }							\
   size_t expand = (TR - TR0) * sizeof(tr_fr_ptr *);	\
   clean_tr(TR0 PASS_REGS);					\
-  HR = InitialH;\
-  HB= B->cp_h;\
+  HR = InitialH;						\
   pop_text_stack(lvl);					\
   /* Trail overflow */  \
  if (!Yap_growtrail(expand, false)) { \
@@ -323,7 +318,6 @@ case 3: undo tagging for X, bind to maaker, restore loop tag.
 	   MaBind(pt0,BREAK_LOOP(d0, to_visit));\
 	   *pt0 = d0;\
 	   (*np) ++; \
-	   continue;\
 }
 
 
@@ -543,7 +537,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
-  WALK_COMPLEX_TERM__({}, {}, {});
+  WALK_COMPLEX_TERM();
   /* do or pt2 are unbound  */
 
   if (HR + 1024 > ASP) {
@@ -558,9 +552,9 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
       goto trail_overflow;
   }
   TrailTerm(TR++) = (CELL)ptd0;
-  if (*ptd0 == (CELL)ptd0) {
+  if (*ptd0 == (CELL)ptd0)
   *ptd0 = TermFoundVar;
-  } else {
+  else {
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
   }
   END_WALK();
@@ -986,15 +980,12 @@ return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
     HR[0] = (CELL)ptd0;     \
     HR[1] = AbsPair(HR + 2); \
     HR += 2;                \
-    if (*ptd0 == TermFoundVar ) { \
-*ptd0 = TermRefoundVar;				\
-  } else { \
-    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermRefoundVar;	\
-  } \
+    *ptd0 = TermRefoundVar; \
   }
 
 static Term non_singletons_in_complex_term(CELL * pt0_,
-					   CELL * pt0_end_, Term s USES_REGS) {
+					   CELL * pt0_end_,
+					   Term s USES_REGS) {
  CELL *pt0, *pt0_end;
  int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
@@ -1004,10 +995,9 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
   /* do or pt2 are unbound  */
-  if ((CELL)ptd0 == d0) {
-    if (d0 == *ptd0) {
-    *ptd0 = TermFoundVar;
-  } else {
+  if (*ptd0 == (CELL)ptd0)
+  *ptd0 = TermFoundVar;
+  else {
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
   }
   /* next make sure noone will see this as a variable again */
@@ -1016,7 +1006,6 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
     goto trail_overflow;
   }
   TrailTerm(TR++) = (CELL)ptd0;
-  }
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
@@ -1044,6 +1033,7 @@ Term Yap_NonSingletons(Term t, Term s) {
     
 }
 
+
 /** @pred  non_singletons_in_term(? _T_, _LV0_, _LVF_)
 
 Unify _LVF_-_LV0_ with the list of variables that occur at least twice in _T_ or that occur in _LV0_ and _T_.
@@ -1052,12 +1042,17 @@ Unify _LVF_-_LV0_ with the list of variables that occur at least twice in _T_ or
 static Int p_non_singletons_in_term(
 				    USES_REGS1) /* non_singletons in term t		 */
 {
-  Term t, s;
+  Term t;
   Term out;
 
      t = Deref(ARG1);
-     s = Deref(ARG2);
-     out = Yap_NonSingletons(t,s);
+    if (IsVarTerm(t)) {
+      out = ARG2;
+    } else if (IsPrimitiveTerm(t)) {
+      out = ARG2;
+    } else {
+      out = non_singletons_in_complex_term(&(t)-1, &(t), TermNil PASS_REGS);
+    }
     return Yap_unify(ARG3,out);
 }
 
@@ -1070,9 +1065,9 @@ Int Yap_NumberVars(Term inp, Int numbv,
     Term t;
   if (handle_singles) {
     t = Yap_NonSingletons(inp, TermNil PASS_REGS);
-  } else {
+   } else {
     t = Yap_TermVariables(inp,TermNil PASS_REGS);
-  }
+   }
   while(t != TermNil) {
 
     CELL *el = RepPair(Deref(t));
@@ -1145,7 +1140,7 @@ static int max_numbered_var(CELL * pt0_, CELL * pt0_end_,
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
-   tr_fr_ptr TR0 = TR;
+  tr_fr_ptr TR0 = TR;
 
   WALK_COMPLEX_TERM__({}, MAX_NUMBERED, {});
   END_WALK();

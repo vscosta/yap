@@ -188,7 +188,8 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
   if (Unsigned(YREG) - Unsigned(HR) < StackGap(PASS_REGS1) ||
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
-    if (!Yap_dogc(live_regs(NEXTOP(P,Osblp), pe), NULL PASS_REGS)) {
+    // p should be past the enbironment mang Obpp
+    if (!Yap_dogc(live_regs(P, pe), NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
       return 0;
     }
@@ -327,29 +328,9 @@ static int safe_interrupt_handler(PredEntry *pe USES_REGS) {
     pe = WakeUpCode;
     /* no more goals to wake up */
     Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
-  } else
-#endif
-    {
-      CalculateStackGap(PASS_REGS1);
-      pe = CreepCode;
-    }
-  // allocate and fill out an environment
-  //  YENV = ASP;
-  P = pe->CodeOfPred;
-#ifdef DEPTH_LIMIT
-  if (DEPTH <= MkIntTerm(1)) { /* I assume Module==0 is primitives */
-    if (pe->ModuleOfPred) {
-      if (DEPTH == MkIntTerm(0))
-	return false;
-      else
-	
-	DEPTH = RESET_DEPTH();
-    }
-  } else if (pe->ModuleOfPred) {
-    DEPTH -= MkIntConstant(2);
   }
-#endif /* DEPTH_LIMIT */
-  return true;
+#endif
+  return Yap_execute_pred(pe, NULL, true);
 }
 
 static int interrupt_handlerc(PredEntry *pe USES_REGS) {
@@ -384,31 +365,11 @@ static int interrupt_handlerc(PredEntry *pe USES_REGS) {
 
 static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
   int rc;
-
-#ifdef FROZEN_STACKS
-  {
-    choiceptr top_b = PROTECT_FROZEN_B(B);
     // protect registers before we mess about.
     // recompute YENV and get ASP
-#ifdef YAPOR_SBA
-    if (YENV > (CELL *)top_b || YENV < HR)
-      YENV = (CELL *)top_b;
-#else
-    if (YENV > (CELL *)top_b)
-      YENV = (CELL *)top_b;
-#endif /* YAPOR_SBA */
-    else
-      YENV = YENV + ENV_Size(P);
-  }
-#else
-  if (YENV > (CELL *)B)
-    YENV = (CELL *)B;
-#endif /* FROZEN_STACKS */
   // should we cut? If t_cut == INT(0) no
   ARG2 = t_cut;
   // ASP
-  SET_ASP(YENV, E_CB * sizeof(CELL));
-  // do the work.
   ARG1 = TermNil;
   rc = safe_interrupt_handler(pe PASS_REGS);
   return rc;
@@ -478,6 +439,7 @@ static int interrupt_execute(USES_REGS1) {
 
 static int interrupt_call(USES_REGS1) {
   int v;
+  PredEntry *pe;
 
 #ifdef DEBUG_INTERRUPTS
   if (trace_interrupts)
@@ -491,19 +453,41 @@ static int interrupt_call(USES_REGS1) {
   if (PP)
     UNLOCKPE(1, PP);
   PP = P->y_u.Osbpp.p0;
-  if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
-      (P->y_u.Osbpp.p->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
+  pe = P->y_u.Osbpp.p;
+#ifdef FROZEN_STACKS
+          {
+            choiceptr top_b = PROTECT_FROZEN_B(B);
+  #ifdef YAPOR_SBA
+            if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL\
+      *) top_b;
+  #else
+            if (YENV > (CELL *) top_b) YENV = (CELL *) top_b;
+  #endif /* YAPOR_SBA */
+          }
+  #else
+          if (YENV > (CELL *) B) {
+            YENV = (CELL *) B;
+          }
+  #endif /* FROZEN_STACKS */
+          /* setup GB */
+          YENV[E_CB] = (CELL) B;
+	  ASP=YENV;
+   if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
+      (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
     return 2;
   }
-  SET_ASP(YENV, P->y_u.Osbpp.s);
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, P,
-			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
-    return v;
+  // at this point P is already at the end of the instruction.
+  P = NEXTOP(P,Osbpp);
+  if ((v = stack_overflow(pe, YENV, P,
+			  pe->ArityOfPE PASS_REGS)) >= 0) {
+  } else {
+  v = safe_interrupt_handler(pe PASS_REGS);
   }
-  return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
+  P = PREVOP(P,Osbpp);
+  return v;
 }
 
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
@@ -564,10 +548,11 @@ static void execute_dealloc(USES_REGS1) {
   if (ENVYREG > (CELL *)B)
     ENVYREG = (CELL *)B;
   else
-    ENV_YREG = (CELL *)((CELL)ENV_YREG + ENV_Size(CP));
+    YENV = (CELL *)((CELL)YENV + ENV_Size(CP));
 #endif /* FROZEN_STACKS */
-  YENV = ENVYREG;
-}
+  ASP=YENV ;
+
+  }
 
 /* don't forget I cannot creep at deallocate (where to?) */
 /* also, this is unusual in that I have already done deallocate,
@@ -669,7 +654,7 @@ static int interrupt_deallocate(USES_REGS1) {
 	S[E_CB] = (CELL) (LCL0 - cut_b);
 	CP = (yamop *) S[E_CP];
 	ENV = YENV = (CELL *) S[E_E];
-#ifdef DEPTH_LIMIT
+        #ifdef DEPTH_LIMIT
 	DEPTH = S[E_DEPTH];
 #endif  /* DEPTH_LIMIT */
       }
@@ -700,6 +685,7 @@ static int interrupt_cut(USES_REGS1) {
   int rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
   return rc;
 }
+
 static int interrupt_cut_t(USES_REGS1) {
   Term t_cut = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
   int v;
@@ -744,8 +730,7 @@ static int interrupt_cut_e(USES_REGS1) {
 }
 
 
-
-static int interrupt_commit_y(USES_REGS1) {
+static bool interrupt_commit_y(USES_REGS1) {
   int v;
   Term t_cut = YENV[P->y_u.yps.y];
 
@@ -762,64 +747,28 @@ static int interrupt_commit_y(USES_REGS1) {
       Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
     return 2;
   }
-  Int myYENV = LCL0-YENV;
-  Int myENV = LCL0-ENV;
-  CACHE_Y_AS_ENV(YREG);
-  ENV_YREG[E_CP] = (CELL)CP;
-  ENV_YREG[E_E] = (CELL)ENV;
-#ifdef DEPTH_LIMIT
-  ENV_YREG[E_DEPTH] = DEPTH;
-#endif /* DEPTH_LIMIT */
-  ENDCACHE_Y_AS_ENV();
-  yamop *myP = P, *myCP = CP;
-  P = NEXTOP(NEXTOP(P, xps),Osblp);
   bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-  P = myP;
-  CP = myCP;
-  YENV = LCL0-myYENV;
-  ENV = LCL0-myENV;
   return rc;
 }
 
-static int interrupt_commit_x(USES_REGS1) {
-  int v;
+static bool interrupt_commit_x(USES_REGS1) {
   Term t_cut = XREG(P->y_u.xps.x);
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
-    return v;
-  }
-  if (Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
-  }
-  if (PP)
-    UNLOCKPE(1, PP);
-  PP = P->y_u.xps.p0;
   /* find something to fool S */
 
   /* fill it up */
   Int myYENV = LCL0-YENV;
   Int myENV = LCL0-ENV;
-  CACHE_Y_AS_ENV(YREG);
-  ENV_YREG[E_CP] = (CELL)CP;
-  ENV_YREG[E_E] = (CELL)ENV;
-#ifdef DEPTH_LIMIT
-  ENV_YREG[E_DEPTH] = DEPTH;
-#endif /* DEPTH_LIMIT */
-  ENDCACHE_Y_AS_ENV();
-  P = NEXTOP(NEXTOP(P, xps),Osblp);
   bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
   YENV = LCL0-myYENV;
   ENV = LCL0-myENV;
+  if (!rc) P = FAILCODE;
   return rc;
 }
 
-static int interrupt_either(USES_REGS1) {
+
+
+static bool interrupt_either(USES_REGS1) {
   int v;
 
 #ifdef DEBUGX
@@ -843,17 +792,15 @@ static int interrupt_either(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(
-			  PredRestoreRegs, ENV,
+  if ((v = stack_overflow(  PredRestoreRegs, ENV,
 			  P, 0 PASS_REGS)) >= 0) {
     return v;
   }
   P = NEXTOP(P, Osblp);
-  v = interrupt_handler_either(
-			       MkIntTerm(0),
-			       PredRestoreRegs PASS_REGS);
+  v = safe_interrupt_handler(    PredRestoreRegs PASS_REGS);
   return v;
 }
+
 
 static int interrupt_dexecute(USES_REGS1) {
   int v;

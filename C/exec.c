@@ -1842,6 +1842,7 @@ bool Yap_execute_pred(PredEntry *ppe, CELL *pt, bool pass_ex USES_REGS) {
 
     saved_p = P;
     saved_cp = CP;
+
     LOCAL_PrologMode |= TopGoalMode;
 
     PELOCK(81, ppe);

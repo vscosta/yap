@@ -152,6 +152,8 @@ ENDOp();
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
+      if (PREG==FAILCODE)
+	FAIL();
 #endif
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];

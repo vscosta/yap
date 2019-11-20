@@ -860,7 +860,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    '$expand_a_clause'( InputCl, C1, CO),
+    '$expand_a_clause'( InputCl,compile, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
 

@@ -1592,9 +1592,9 @@ mark_env_cells(CELL *gc_ENV, UInt size, CELL *pvbmap)
     /* we may have already been here */
     if ((bmap & bit) != 0) {
        if (!MARKED_PTR(saved_var)) { 
-      	printf("%c [%lx/%lx]  %lx->%lx\n",
-      	       //(MARKED_PTR(saved_var) ?'*':'f '),
-      	       bmap, bit, gc_ENV - saved_var,  *saved_var);
+//      	printf("%c [%lx/%lx]  %lx->%lx\n",
+//      	       //(MARKED_PTR(saved_var) ?'*':'f '),
+//      	       bmap, bit, gc_ENV - saved_var,  *saved_var);
 
       mark_variable(saved_var PASS_REGS);
       }
@@ -2050,10 +2050,10 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
       mark_trail(saved_TR, gc_B->cp_tr, gc_B->cp_h, gc_B PASS_REGS);
       saved_TR = gc_B->cp_tr;
     }
-    if (opnum == _or_else || opnum == _or_last) {
+    if (opnum == _or_else || opnum == _or_last || opnum==_either) {
       /* ; choice point */
       CELL *env = gc_B->cp_env;
-      yamop *e_cp = (yamop *)env[E_CP];
+      yamop *e_cp = NEXTOP(gc_B->cp_ap,Osblp);
       mark_environments((CELL_PTR)(gc_B->cp_a1),
                        EnvSize(e_cp),
 			EnvBMap(e_cp),
@@ -3029,11 +3029,13 @@ static void sweep_choicepoints(choiceptr gc_B USES_REGS) {
       break;
     case _or_else:
     case _or_last:
-
-      sweep_environments((CELL_PTR)(gc_B->cp_a1),
-                         -gc_B->cp_cp->y_u.Osblp.s / ((OPREG)sizeof(CELL)),
-                         gc_B->cp_cp->y_u.Osblp.bmap,
-			 gc_B->cp_cp PASS_REGS);
+    case _either: {
+        yamop *e_cp = NEXTOP(gc_B->cp_ap, Osblp);
+        sweep_environments((CELL_PTR) (gc_B->cp_a1),
+                           EnvSize(e_cp),
+                           EnvBMap(e_cp),
+                           e_cp PASS_REGS);
+    }
       break;
     case _retry_profiled:
     case _count_retry:

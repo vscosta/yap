@@ -29,7 +29,7 @@ undefined, it is declared  dynamic (see dynamic/1).
 
 Most Prolog systems only allow asserting clauses for dynamic
 predicates. This is also as specified in the ISO standard. YAP also allows
-asserting clauses for static predicates, under the restriction that the static predicate may not be live in the stacks.
+xoasserting clauses for static predicates, under the restriction that the static predicate may not be live in the stacks.
 */
 assertz(Clause) :-
     '$assert'(Clause, assertz, _).
@@ -51,8 +51,8 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-    '$expand_clause'(Clause,C,C0),
-    '$$compile'(C, Where, C0, R).
+       '$expand_a_clause'(Clause,assert,C0,C),
+       '$$compile'(C, Where, C0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 

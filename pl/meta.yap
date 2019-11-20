@@ -433,16 +433,17 @@ meta_predicate(P) :-
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
 
-'$expand_clause_body'(V, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
+'$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
-'$expand_clause_body'(true, _NH1, _HM1, _SM, _M, true, true ) :- !.
-'$expand_clause_body'(B, H, HM, SM, M, B1, BO ) :-
-    '$module_u_vars'(HM , H, UVars),	 % collect head variables in
+'$expand_clause_body'(true, _, _NH1, _HM1, _SM, _M, true, true ) :- !.
+'$expand_clause_body'(B,Assert, H, HM, SM, M, B1, BO ) :-
     % expanded positions
     % support for SWI's meta primitive.
+    '$module_u_vars'(HM , H, UVars),	 % collect head variables in
     '$is_mt'(H, B, HM, SM, M, IB, BM),
-    '$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
+	'$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
     (
+	Assert == compile,
 	'$full_clause_optimisation'(H, BM, BO1, BO)
     ->
     true
@@ -466,14 +467,14 @@ meta_predicate(P) :-
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
 % has to be last!!!
-'$expand_a_clause'(MHB, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+ '$expand_a_clause'(MHB, Asserting, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
     source_module(SM0),
     '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
     '$head_and_body'(HB, H, B),           % HB is H :- B.
     '$yap_strip_module'(SM:H, HM, NH), % further module expansion
     '$not_imported'(NH, HM),
     '$yap_strip_module'(SM:B, BM, B0), % further module expansion
-    '$expand_clause_body'(B0, NH, HM, SM0, BM, B1, BO),
+    '$expand_clause_body'(B0, Asserting, NH, HM, SM0, BM, B1, BO),
     '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
 
 
