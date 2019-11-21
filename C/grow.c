@@ -826,21 +826,13 @@ adjust_stack_ptrs(size_t request, size_t minimal_request, ADDR old_GlobalBase ) 
 }
 
 static void stack_msg_in(CELL *hsplit, size_t request) {
-    char vb_msg1 = '\0', *vb_msg2 = "";
-    if (hsplit) {
-        if (hsplit > H0) {
-            vb_msg1 = 'H';
-            vb_msg2 = "Global Variable Space";
-        }
-    } else {
-        vb_msg1 = 'D';
-        vb_msg2 = "Delay";
-    }
+    char *vb_msg2 = "";
+    vb_msg2 = "NB variable overflow ";
 #if  defined(YAPOR_THREADS)
     fprintf(stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
-    fprintf(stderr, "%% %cO   growing the stacks " UInt_FORMAT " bytes\n", vb_msg1, request);
+    fprintf(stderr, "%% %s Overflow %d\n", vb_msg2, LOCAL_delay_overflows++);
+    fprintf(stderr, "%% Growing the stacks " UInt_FORMAT " bytes\n", request);
 }
 
 /* Used when we're short of heap, usually because of an overflow in
@@ -950,9 +942,8 @@ static_growglobal(size_t request, CELL **ptr, CELL *hsplit USES_REGS)
   growth_time = Yap_cputime()-start_growth_time;
   LOCAL_total_delay_overflow_time += growth_time;
   if (gc_verbose) {
-      char vb_msg1 = '\0', *vb_msg2 = "";
-    fprintf(stderr, "%% %cO   took %g sec\n", vb_msg1, (double)growth_time/1000);
-    fprintf(stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)LOCAL_total_delay_overflow_time/1000);
+    fprintf(stderr, "%% H   took %g sec\n",  (double)growth_time/1000);
+    fprintf(stderr, "%% H Total of %g sec expanding stacks \n", (double)LOCAL_total_delay_overflow_time/1000);
   }
   LeaveGrowMode(GrowStackMode);
   if (hsplit) {

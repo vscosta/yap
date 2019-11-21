@@ -57,7 +57,7 @@
       JMPNext();
 
     NoStackCCall:
-      PROCESS_INT(interrupt_call, do_c_call);
+      PROCESS_INTERRUPT(interrupt_call, do_c_call, PREG->y_u.Osbpp.s);
 
       ENDBOp();
 
@@ -150,7 +150,7 @@
       }
 
     NoStackExecuteC:
-      PROCESS_INT(interrupt_execute, do_executec);
+      PROCESS_INTERRUPT(interrupt_execute, do_executec,  E_CB*sizeof(CELL));
       ENDBOp();
 
       /* Like previous, the only difference is that we do not */
@@ -217,7 +217,7 @@
       JMPNext();
 
     NoStackUserCall:
-      PROCESS_INT(interrupt_call, do_user_call);
+      PROCESS_INTERRUPT(interrupt_call, do_user_call, PREG->y_u.Osbpp.s);
 
       ENDBOp();
 

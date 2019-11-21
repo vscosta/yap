@@ -217,6 +217,7 @@ live :-
 
 '$$compile'(C, Where, C0, R) :-
     '$head_and_body'( C, H, B ),
+    !,
     '$yap_strip_module'(H,Mod,H0),
    (
      '$undefined'(H0, Mod)

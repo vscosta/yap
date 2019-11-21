@@ -28,7 +28,7 @@ ructions                                       *
 
 #ifdef COROUTINING
     NoStackCut:
-      PROCESS_INT(interrupt_cut, do_cut);
+      PROCESS_INTERRUPT(interrupt_cut, do_cut, PREG->y_u.s.s );
 #endif
 
       ENDOp();
@@ -51,7 +51,7 @@ ructions                                       *
       GONext();
 
         NoStackCutT:
-      PROCESS_INT(interrupt_cut_t, do_cut_t);
+      PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
 
       ENDOp();
 
@@ -72,7 +72,7 @@ ructions                                       *
 
 #ifdef COROUTINING
     NoStackCutE:
-      PROCESS_INT(interrupt_cut_e, do_cut_e);
+      PROCESS_INTERRUPT(interrupt_cut_e, do_cut_e, PREG->y_u.s.s);
 #endif
 
 ENDOp();
@@ -115,7 +115,7 @@ ENDOp();
       deref_head(d0, commit_b_x_unk);
     commit_b_x_nvar:
       /* skip a void call and a label */
-      SET_ASP(YREG, PREG->y_u.xps.s);
+      //   SET_ASP(ENV, PREG->y_u.xps.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
       {
         choiceptr pt0;
@@ -141,7 +141,7 @@ ENDOp();
 #ifdef COROUTINING
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
-      PROCESS_INT(interrupt_commit_x, do_commit_b_x);
+      PROCESS_INTERRUPT(interrupt_commit_x, do_commit_b_x, PREG->y_u.xps.s);
 #endif
       ENDOp();
 
@@ -151,15 +151,16 @@ ENDOp();
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
+      BEGD(d1);
+      d1 = true;
     do_commit_b_y:
-      if (PREG==FAILCODE)
-	FAIL();
 #endif
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
     commit_b_y_nvar:
       SET_ASP(YREG, PREG->y_u.yps.s);
+      if (d1) 
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps),Osbpp),l);
       {
         choiceptr pt0;
@@ -185,8 +186,10 @@ ENDOp();
 #ifdef COROUTINING
       /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
-      PROCESS_INT(interrupt_commit_y, do_commit_b_y);
+      d1 = false;
+      PROCESS_INTERRUPT(interrupt_commit_y, do_commit_b_y, PREG->y_u.yps.s);
 #endif
+      ENDD(d1);
       ENDOp();
 
       /*************************************************************************
@@ -241,7 +244,7 @@ ENDOp();
       }
 
     NoStackExecute:
-      PROCESS_INT(interrupt_execute, do_execute);
+      PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
 
       ENDBOp();
 
@@ -313,7 +316,7 @@ ALWAYS_GONext();
       ENDCACHE_Y_AS_ENV();
 
     NoStackDExecute:
-      PROCESS_INT(interrupt_dexecute, continue_dexecute);
+      PROCESS_INTERRUPT(interrupt_dexecute, continue_dexecute, ENV_Size(CPREG)*CellSize);
       continue_dexecute:
         set_pc();
         JMPNext();
@@ -412,7 +415,7 @@ ALWAYS_GONext();
       ENDCACHE_Y_AS_ENV();
 
     NoStackCall:
-      PROCESS_INT(interrupt_call, restart_call);
+      PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
 
       ENDBOp();
 

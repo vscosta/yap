@@ -1094,7 +1094,7 @@ wglb.trailings = 0;
 
    if ((flags & Handle_cyclics_f) ){
      HB = HR;
-     tp = Yap_BreakCyclesInTerm(t, &wglb.trailings PASS_REGS);
+     tp = t;//Yap_BreakCyclesInTerm(t, &wglb.trailings PASS_REGS);
    } else {
      tp = t;
    }

@@ -1940,7 +1940,7 @@
 #ifdef COROUTINING
     /* Problem: have I got an environment or not? */
     NoStackEq:
-      PROCESS_INT(interrupt_eq, do_eq);
+      PROCESS_INTERRUPT(interrupt_eq, do_eq, E_CB*EnvSize);
 #endif
 
       ENDOp();

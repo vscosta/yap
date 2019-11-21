@@ -685,7 +685,7 @@ INLINE_ONLY void SET_ASP__(CELL *yreg, Int sz USES_REGS);
 
 INLINE_ONLY void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
   ASP = (CELL *) (((char *) yreg) + sz);
-  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+  if (ASP >= (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
 }
 

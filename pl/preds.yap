@@ -383,14 +383,18 @@ true if source for the predicate is available.
 + `number_of_clauses( _ClauseCount_) `
 Number of clauses in the predicate definition. Always one if external
 or built-in.
-
+r
 */
 predicate_property(Pred,Prop) :-
     '$yap_strip_module'(Pred, Mod, TruePred),
-    (var(Mod) -> current_module(Mod) ; true ),
+    (nonvar(Mod) -> true ; current_module(Mod) ),
     '$import'(Mod:TruePred, M:NPred),
-    '$predicate_property'(NPred,M,Mod,Prop).
-
+    (nonvar(Prop) ->
+     '$predicate_property'(NPred,M,Mod,Prop),
+     !
+    ;
+    '$predicate_property'(NPred,M,Mod,Prop)
+    ).
 '$predicate_property'(P,M,_,built_in) :-
     '$is_system_predicate'(P,M).
 '$predicate_property'(P,M,_,source) :-

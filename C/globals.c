@@ -1680,7 +1680,8 @@ static Int p_nb_queue_enqueue(USES_REGS1) {
     qd[QUEUE_HEAD] = to;
   } else {
     *VarOfTerm(qd[QUEUE_TAIL]) = to;
-  }
+    //    fprintf(stderr,"%p = ", qd+QUEUE_TAIL); Yap_DebugPlWriteln(to);
+    }
   qd[QUEUE_TAIL] = TailOfTerm(to);
   qd[QUEUE_ARENA] = arena;
   return TRUE;

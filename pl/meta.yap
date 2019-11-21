@@ -373,50 +373,55 @@ meta_predicate(P) :-
     nonvar(G),
     G = (A = B),
     !.
-'$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :- !,
+'$expand_goals'(\+A,\+A1,(AO-> false;true),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
     '$clean_cuts'(AOO, AO).
 '$expand_goals'(not(G),not(G),A\=B,_HM,_BM,_SM,_HVars) :-
     nonvar(G),
     G = (A = B),
     !.
-'$expand_goals'(not(A),not(A1),(AO-> false;true),HM,SM,BM,HVars) :- !,
+'$expand_goals'(not(A),not(A1),(AO-> false;true),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
     '$clean_cuts'(AOO, AO).
 '$expand_goals'(once(A),once(A1),
-		('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :- !,
+		('$current_choice_point'(CP),AO,'$$cut_by'(CP)),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, CP, AO).
 '$expand_goals'((:-A),(:-A1),
-		(:-AO),HM,SM,BM,HVars) :- !,
+		(:-AO),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
-		('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :- !,
+		('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(forall(A,B),forall(A1,B1),
-		((AO, ( BO-> false ; true)) -> false ; true),HM,SM,BM,HVars) :- !,
+		((AO, ( BO-> false ; true)) -> false ; true),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
 '$expand_goals'(if(A,B,C),if(A1,B1,C1),
-		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
+		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
-'$expand_goals'(forall(A,B), forall(A1,B1),
-(AO , ( BO -> fail ; true ) -> fail; true ),HM,SM,BM,HVars) :- !,
-    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'((A*->B;C),(A1*->B1;C1),
-		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :- !,
+		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'((A*->B),(A1*->B1),
-		('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :- !,
+		('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :-
+    !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).

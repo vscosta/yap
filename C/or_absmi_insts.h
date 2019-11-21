@@ -76,7 +76,7 @@
 
 #ifdef COROUTINING
     NoStackEither:
-      PROCESS_INT(interrupt_either, either_notest);
+      PROCESS_INTERRUPT(interrupt_either, either_notest, PREG->y_u.Osblp.s);
 #endif
 
       ENDOp();

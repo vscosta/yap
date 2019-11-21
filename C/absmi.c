@@ -376,19 +376,13 @@ static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
 }
 
 /* to trace interrupt calls */
-// #define DEBUG_INTERRUPTS 1
-
-#ifdef DEBUG_INTERRUPTS
-static int trace_interrupts = true;
-#endif
+#define DEBUG_INTERRUPTS()					\
+    fprintf(stderr, "[%d] %lu %s:%d:  (B=%p ENV=%p ASP=%p)\n",\
+      worker_id, LOCAL_Signals,\
+            __FUNCTION__, __LINE__, B, ENV, ASP)
 
 static int interrupt_fail(USES_REGS1) {
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",
-            worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,
-            __FUNCTION__, __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   check_alarm_fail_int(false PASS_REGS);
   /* don't do debugging and stack expansion here: space will
      be recovered. automatically by fail, so
@@ -410,12 +404,7 @@ static int interrupt_fail(USES_REGS1) {
 static int interrupt_execute(USES_REGS1) {
   int v;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
     return v;
   }
@@ -426,7 +415,6 @@ static int interrupt_execute(USES_REGS1) {
       Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2;
   }
-  SET_ASP(YENV, E_CB * sizeof(CELL));
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
@@ -441,12 +429,7 @@ static int interrupt_call(USES_REGS1) {
   int v;
   PredEntry *pe;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",
-            worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,
-            __FUNCTION__, __LINE__, YENV, ENV, ASP);
-#endif
+DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
     return v;
   }
@@ -454,24 +437,6 @@ static int interrupt_call(USES_REGS1) {
     UNLOCKPE(1, PP);
   PP = P->y_u.Osbpp.p0;
   pe = P->y_u.Osbpp.p;
-#ifdef FROZEN_STACKS
-          {
-            choiceptr top_b = PROTECT_FROZEN_B(B);
-  #ifdef YAPOR_SBA
-            if (YENV > (CELL *) top_b || YENV < HR) YENV = (CELL\
-      *) top_b;
-  #else
-            if (YENV > (CELL *) top_b) YENV = (CELL *) top_b;
-  #endif /* YAPOR_SBA */
-          }
-  #else
-          if (YENV > (CELL *) B) {
-            YENV = (CELL *) B;
-          }
-  #endif /* FROZEN_STACKS */
-          /* setup GB */
-          YENV[E_CB] = (CELL) B;
-	  ASP=YENV;
    if (Yap_only_has_signal(YAP_CREEP_SIGNAL) &&
       (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
     return 2;
@@ -493,12 +458,7 @@ static int interrupt_call(USES_REGS1) {
 static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   int v;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d:  (YENV=%p ENV=%p ASP=%p)\n",
-            worker_id, LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal,
-            __FUNCTION__, __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -508,9 +468,6 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return 2; /* keep on creeping */
   }
-  //SET_ASP(YENV, E_CB * sizeof(CELL));
-  /* setup GB */
-  //YENV[E_CB] = (CELL)B;
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
@@ -550,9 +507,7 @@ static void execute_dealloc(USES_REGS1) {
   else
     YENV = (CELL *)((CELL)YENV + ENV_Size(CP));
 #endif /* FROZEN_STACKS */
-  ASP=YENV ;
-
-  }
+}
 
 /* don't forget I cannot creep at deallocate (where to?) */
 /* also, this is unusual in that I have already done deallocate,
@@ -561,12 +516,7 @@ static void execute_dealloc(USES_REGS1) {
 static int interrupt_deallocate(USES_REGS1) {
   int v;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
     return v;
   }
@@ -582,9 +532,6 @@ static int interrupt_deallocate(USES_REGS1) {
 
     if (PP)
       UNLOCKPE(1, PP);
-    ASP = YENV + E_CB;
-    /* cut_e */
-    SET_ASP(YENV, E_CB * sizeof(CELL));
     if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
       return v;
     }
@@ -624,9 +571,6 @@ static int interrupt_deallocate(USES_REGS1) {
 	if (PP)
 	  UNLOCKPE(1, PP);
 	PP = PREVOP(P, p)->y_u.p.p;
-	ASP = YENV + E_CB;
-	/* cut_e */
-	SET_ASP(YENV, E_CB * sizeof(CELL));
 	if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
 	  return v;
 	}
@@ -666,12 +610,7 @@ static int interrupt_deallocate(USES_REGS1) {
 static int interrupt_cut(USES_REGS1) {
   Term t_cut = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
   int v;
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -689,12 +628,7 @@ static int interrupt_cut(USES_REGS1) {
 static int interrupt_cut_t(USES_REGS1) {
   Term t_cut = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
   int v;
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -711,12 +645,7 @@ static int interrupt_cut_t(USES_REGS1) {
 static int interrupt_cut_e(USES_REGS1) {
   Term t_cut = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
   int v;
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-	    LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-	    __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -734,12 +663,7 @@ static bool interrupt_commit_y(USES_REGS1) {
   int v;
   Term t_cut = YENV[P->y_u.yps.y];
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s:%d: (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -771,11 +695,7 @@ static bool interrupt_commit_x(USES_REGS1) {
 static bool interrupt_either(USES_REGS1) {
   int v;
 
-#ifdef DEBUGX
-  // if (trace_interrupts)
-  fprintf(stderr, "[%d] %s:%d:  (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-          __FUNCTION__, __LINE__, YENV, ENV, ASP);
-#endif
+ DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
   }
@@ -786,18 +706,16 @@ static bool interrupt_either(USES_REGS1) {
     UNLOCKPE(1, PP);
   PP = P->y_u.Osblp.p0;
   /* find something to fool S */
-  SET_ASP(YENV, P->y_u.Osblp.s);
-  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-    ASP = (CELL *)PROTECT_FROZEN_B(B);
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
   if ((v = stack_overflow(  PredRestoreRegs, ENV,
 			  P, 0 PASS_REGS)) >= 0) {
-    return v;
+        return v;
   }
   P = NEXTOP(P, Osblp);
   v = safe_interrupt_handler(    PredRestoreRegs PASS_REGS);
+  P = PREVOP(P, Osblp);
   return v;
 }
 
@@ -806,12 +724,7 @@ static int interrupt_dexecute(USES_REGS1) {
   int v;
   PredEntry *pe;
 
-#ifdef DEBUG_INTERRUPTS
-  if (trace_interrupts)
-    fprintf(stderr, "[%d] %lu--%lu %s/%d (YENV=%p ENV=%p ASP=%p)\n", worker_id,
-            LOCAL_FirstActiveSignal, LOCAL_LastActiveSignal, __FUNCTION__,
-            __LINE__, YENV, ENV, ASP);
-#endif
+  DEBUG_INTERRUPTS();
   if (PP)
     UNLOCKPE(1, PP);
   PP = P->y_u.Osbpp.p0;
@@ -821,9 +734,6 @@ static int interrupt_dexecute(USES_REGS1) {
     return 2;
   }
   /* set S for next instructions */
-  ASP = YENV + E_CB;
-  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-    ASP = (CELL *)PROTECT_FROZEN_B(B);
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
@@ -836,27 +746,6 @@ static int interrupt_dexecute(USES_REGS1) {
   P = pe->CodeOfPred;
   bool rc = interrupt_handler(pe PASS_REGS);
   if (!rc) P = FAILCODE;
-#ifdef FROZEN_STACKS
-  {
-    choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef YAPOR_SBA
-    if (YENV > (CELL *)top_b || YENV < HR)
-      YENV = (CELL *)top_b;
-#else
-    if (YENV > (CELL *)top_b)
-      YENV = (CELL *)top_b;
-#endif /* YAPOR_SBA */
-    else
-      YENV = (CELL *)((CELL)YENV + ENV_Size(CPREG));
-  }
-#else
-  if (YENV > (CELL *)B) {
-    YENV = (CELL *)B;
-  } else {
-    YENV = (CELL *)((CELL)YENV + ENV_Size(CPREG));
-  }
-#endif /* FROZEN_STACKS */
-  /* setup GB */
   YENV[E_CB] = (CELL)B;
   return v;
 }

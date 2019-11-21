@@ -51,7 +51,7 @@ assert(Clause) :-
     '$assert'(Clause, assertz, _).
 
 '$assert'(Clause, Where, R) :-
-       '$expand_a_clause'(Clause,assert,C0,C),
+       once('$expand_a_clause'(Clause,assert,C0,C)),
        '$$compile'(C, Where, C0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
@@ -270,38 +270,22 @@ retractall(V) :-
     '$do_error'(permission_error(modify,static_procedure,Na/Ar),retractall(T))
     ).
 
-'$retractall_lu_pred'(T, M, Na, Ar) :-
+'$retractall_lu_pred'(T,M,Na,Ar) :-
     (
-	'$is_multifile'(T, M)
-    ->
-    '$retractall_lu_mf'(T,M,Na,Ar)
+	'$is_multifile'(T, M) ->
+	'$log_update_clause'(_,_,M,T,_,R),
+	recorded('$mf','$mf_clause'(T,Na,Ar,M,R),MR),
+	erase(MR),
+	erase(R)
     ;
-    '$retractall_lu'(T,M)
-    ).
-
-'$retractall_lu'(T,M) :-
-    '$free_arguments'(T), !,
-    ( '$purge_clauses'(T,M), fail ; true ).
-'$retractall_lu'(T,M) :-
+    '$free_arguments'(T) ->
+    '$purge_clauses'(T,M)
+    ;
     '$log_update_clause'(_,_,M,T,_,R),
-    erase(R),
+    erase(R)
+    ),
     fail.
-'$retractall_lu'(_,_).
-
-'$retractall_lu_mf'(T,M,Na,Ar) :-
-    '$log_update_clause'(_,_,M,T,_,R),
-    '$erase_lu_mf_clause'(Na,Ar,M,R),
-    fail.
-'$retractall_lu_mf'(_T,_M,_Na,_Ar).
-
-'$erase_lu_mf_clause'(Na,Ar,M,R) :-
-    recorded('$mf','$mf_clause'(_,Na,Ar,M,R),MR),
-    erase(MR),
-    fail.
-'$erase_lu_mf_clause'(_Na,_Ar,_M,R) :-
-    erase(R),
-    fail.
-'$retractall_lu_mf'(_,_,_,_).
+'$retractall_lu_pred'(_,_,_,_).
 
 '$erase_all_clauses_for_dynamic'(T, M) :-
     '$recordedp'(M:T,(T :- _),R),
@@ -313,16 +297,20 @@ retractall(V) :-
 
 /* support for abolish/1 */
 '$abolishd'(T, M) :-
-    '$is_multifile'(T,M),
-    functor(T,Name,Arity),
-    recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
-    erase(R),
-    erase(Ref),
-    fail.
-'$abolishd'(T, M) :-
     recorded('$import','$import'(_,M,_,T,_,_),R),
     erase(R),
     fail.
+'$abolishd'(T, M) :-
+    '$is_multifile'(T,M),
+    !,
+    (functor(T,Name,Arity),
+    recorded('$mf','$mf_clause'(_,Name,Arity,M,Ref),R),
+    erase(R),
+    erase(Ref),
+    fail
+    ;
+    true
+    ).
 '$abolishd'(T, M) :-
     '$purge_clauses'(T,M), fail.
 '$abolishd'(T, M) :-
@@ -340,7 +328,8 @@ as a dynamic predicate following either `logical` or
 
 */
 dynamic_predicate(P,Sem) :-
-    '$bad_if_is_semantics'(Sem, dynamic(P,Sem)).
+    '$bad_if_is_semantics'(Sem, dynamic(P,Sem)),
+     !.
 dynamic_predicate(P,Sem) :-
     '$log_upd'(OldSem),
     ( Sem = logical -> '$switch_log_upd'(1) ; '$switch_log_upd'(0) ),

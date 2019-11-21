@@ -2429,6 +2429,7 @@ extern yamop *headoftrace;
 #define PROCESS_INT(F, C)                                                      \
   BEGD(d0);                                                                    \
   Yap_REGS.S_ = SREG;                                                          \
+   Yap_REGS.ASP_ = f;                                                          \
   saveregs();                                                                  \
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
@@ -2444,6 +2445,38 @@ extern yamop *headoftrace;
 #define PROCESS_INT(F, C)                                                      \
   BEGD(d0);                                                                    \
   saveregs();                                                                  \
+  d0 = F(PASS_REGS1);                                                          \
+  setregs();                                                                   \
+  PP = NULL;                                                                   \
+  if (!d0)                                                                     \
+    FAIL();                                                                    \
+  if (d0 == 2)                                                                 \
+    goto C;                                                                    \
+  JMPNext();\
+ ENDD(d0);
+#endif
+
+#ifdef SHADOW_S
+#define PROCESS_INTERRUPT(F, C, SZ)					\
+  BEGD(d0);                                                                    \
+  Yap_REGS.S_ = SREG;                                                          \
+  SET_ASP(YENV, SZ);							\
+  saveregs();                                                                  \
+  d0 = F(PASS_REGS1);                                                          \
+  setregs();                                                                   \
+  SREG = Yap_REGS.S_;                                                          \
+  if (!d0)                                                                     \
+    FAIL();                                                                    \
+  PP = NULL;                                                                   \
+  if (d0 == 2)                                                                 \
+    goto C;                                                                    \
+  JMPNext();                                                                   \
+  ENDD(d0);
+#else
+#define PROCESS_INTERRUPT(F, C, SZ)\
+BEGD(d0);								\
+  saveregs();                                                                  \
+  SET_ASP(YENV, SZ);							\
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
   PP = NULL;                                                                   \

@@ -39,7 +39,8 @@ fail.
     G0 = GF
     ;
     '$import__'(G0,[G0],GF)
-    ).
+    ),
+    !.
 
 '$imports'(G0,GF) :-
     G0 = M0:T0,
