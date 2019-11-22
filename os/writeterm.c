@@ -224,7 +224,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
             flags |= Number_vars_f|Singleton_vars_f;
 	HB = HR;
 	TR0 = TR;
-	Yap_NumberVars(t, 0, true);
+	//Yap_NumberVars(t, 0, true);
     flags |= Handle_vars_f;
     }
     if (args[WRITE_NUMBERVARS].used) {
@@ -233,7 +233,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
 	    )
 	HB = HR;
 	TR0 = TR;
-	Yap_NumberVars(t, 0, false);
+	//Yap_NumberVars(t, 0, false);
     flags |= Handle_vars_f;
     }
     if (args[WRITE_ATTRIBUTES].used) {

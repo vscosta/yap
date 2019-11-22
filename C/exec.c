@@ -1016,13 +1016,13 @@ static bool watch_retry(Term d0 USES_REGS) {
     Term t, e = 0;
     bool ex_mode = false;
 
-    while (B &&
+    while (B && B->cp_ap &&                                         
 	   (B->cp_ap->opc == FAIL_OPCODE ||
 	   B->cp_ap == TRUSTFAILCODE ||
 	    B->cp_ap == NOCODE)
 	   )
         B = B->cp_b;
-    if (!B) {
+    if (!B || B->cp_ap == NULL || B->cp_ap->opc == 0) {
       B = (choiceptr)(LCL0-(LOCAL_CBorder));
       B--;
     }
@@ -1042,7 +1042,7 @@ static bool watch_retry(Term d0 USES_REGS) {
         complete_pt[0] = TermException;
     } else if (B >= B0) {
         t = TermFail;
-        complete_pt[0] = t;
+         complete_pt[0] = t;
     } else if (box) {
         t = TermRedo;
     } else {
@@ -2258,7 +2258,8 @@ static Int JumpToEnv(USES_REGS1) {
        so get pointers here     */
     /* find the first choicepoint that may be a catch */
     // DBTerm *dbt = Yap_RefToException();
-    while (handler && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
+    while (handler && handler->cp_ap &&
+	   Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
            LOCAL_CBorder < LCL0 - (CELL *) handler && handler->cp_ap != NOCODE &&
            handler->cp_b != NULL) {
         handler->cp_ap = TRUSTFAILCODE;

@@ -510,36 +510,27 @@ static Int variable_in_term(USES_REGS1) {
  */
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
  Term inp USES_REGS) {
-
-  Int count=0;
-  while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-    Term t = HeadOfTerm(inp);
-    if (IsVarTerm(t)) {
-      CELL *ptr = VarOfTerm(t);
-      *ptr = TermFoundVar;
-      TrailTerm(TR++) = t;
-      count++;
-      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-       clean_tr(TR - count PASS_REGS);
-       if (!Yap_growtrail(count * sizeof(tr_fr_ptr *), false)) {
-         return false;
-       }
-     }
-   }
-   inp = TailOfTerm(inp);
- }
-
-  CELL output = AbsPair(HR);
  CELL *pt0, *pt0_end;
  int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
-
-  WALK_COMPLEX_TERM();
+  Int count=0;
+  HB = HR;
+  // first get the extra variables
+  while (!IsVarTerm(inp) && IsPairTerm(inp)) {
+    Term t = HeadOfTerm(inp);
+    if (IsVarTerm(t)) {
+      CELL *ptr = VarOfTerm(t);
+      YapBind(ptr,TermFoundVar);
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop-1024)
+	goto trail_overflow;
   /* do or pt2 are unbound  */
-
+    }
+    inp = TailOfTerm(inp);
+  }
+  WALK_COMPLEX_TERM();
   if (HR + 1024 > ASP) {
     goto global_overflow;
   }
@@ -551,17 +542,20 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
     /* Trail overflow */
       goto trail_overflow;
   }
-  TrailTerm(TR++) = (CELL)ptd0;
-  if (*ptd0 == (CELL)ptd0)
-  *ptd0 = TermFoundVar;
-  else {
+  if (*ptd0 == (CELL)ptd0) {
+    YapBind(ptd0,TermFoundVar);
+  } else {
+    Term marked = *ptd0;
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
+    YapBind(ptd0, TermFoundVar);
+    *ptd0 = marked;
   }
   END_WALK();
 
   clean_tr(TR0-count PASS_REGS);
   pop_text_stack(lvl);
 
+  HB = B->cp_h;
   if (HR != InitialH) {
     /* close the list */
     Term t2 = Deref(inp);
@@ -571,7 +565,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
     } else {
       HR[-1] = t2; /* don't need to trail */
     }
-    return (output);
+    return AbsPair(InitialH);
   } else {
     return (inp);
   }
@@ -986,26 +980,28 @@ return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 static Term non_singletons_in_complex_term(CELL * pt0_,
 					   CELL * pt0_end_,
 					   Term s USES_REGS) {
- CELL *pt0, *pt0_end;
+  CELL *pt0, *pt0_end, *ptd0;
  int lvl;
  size_t auxsz = 1024 * sizeof(struct non_single_struct_t);
  struct non_single_struct_t *to_visit0, *to_visit,* to_visit_max;
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
-  WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
-  /* do or pt2 are unbound  */
-  if (*ptd0 == (CELL)ptd0)
-  *ptd0 = TermFoundVar;
-  else {
+ WALK_COMPLEX_TERM__({}, {}, FOUND_VAR_AGAIN());
+ /* next make sure noone will see this as a variable again */
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+    /* Trail overflow */
+      goto trail_overflow;
+  }
+  if (*ptd0 == (CELL)ptd0) {
+    YapBind(ptd0,TermFoundVar);
+  } else {
+    Term marked = *ptd0;
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
+    YapBind(ptd0, TermFoundVar);
+    *ptd0 = marked;
   }
-  /* next make sure noone will see this as a variable again */
-  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256)
-  {
-    goto trail_overflow;
-  }
-  TrailTerm(TR++) = (CELL)ptd0;
+ 
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
@@ -1069,14 +1065,19 @@ Int Yap_NumberVars(Term inp, Int numbv,
     t = Yap_TermVariables(inp,TermNil PASS_REGS);
    }
   while(t != TermNil) {
-
     CELL *el = RepPair(Deref(t));
     Term v = Deref(el[0]);
     t = el[1];
-    HR[0] = (CELL)FunctorDollarVar;
-    HR[1] = MkIntegerTerm(numbv++);
-    YapBind(VarOfTerm(v), AbsAppl(HR));
-    HR+=2;
+    if (v == el[0]) {
+      HR[0] = (CELL)FunctorDollarVar;
+      HR[1] = MkIntegerTerm(numbv++);
+      YapBind(VarOfTerm(v), AbsAppl(HR));
+      HR+=2;
+    } else {
+      el[0] = (CELL)FunctorDollarVar;
+      el[1] = MkIntegerTerm(numbv++);
+      YapBind(VarOfTerm(v), AbsAppl(el));
+    }
   }
    if (handle_singles) { 
      t = Yap_TermVariables(inp,TermNil PASS_REGS);
@@ -1085,9 +1086,19 @@ Int Yap_NumberVars(Term inp, Int numbv,
    }
   while(t != TermNil) {
 
-    CELL *el = RepPair(Deref(t));
+    CELL *el = RepPair((t));
     Term v = Deref(el[0]);
     t = el[1];
+    if (v == el[0]) {
+      HR[0] = (CELL)FunctorDollarVar;
+      HR[1] = MkIntTerm(numbv++);
+      YapBind(VarOfTerm(v), AbsAppl(HR));
+      HR+=2;
+    } else {
+      el[0] = (CELL)FunctorDollarVar;
+      el[1] = MkIntTerm(numbv++);
+      YapBind(VarOfTerm(v), AbsAppl(el));
+    }
     if (IsVarTerm(v)) {
       HR[0] = (CELL)FunctorDollarVar;
       HR[1] = MkIntTerm(-1);
@@ -1096,6 +1107,7 @@ Int Yap_NumberVars(Term inp, Int numbv,
     } else {
       el[1] = TermNil;
     }
+    t = Deref(t);
   }
   return numbv;
 }

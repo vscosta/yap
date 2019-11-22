@@ -223,6 +223,7 @@ typedef struct compiler_struct_struct {
   Int vadr;
   Int *Uses;
   Term *Contents;
+  Term body;
   int needs_env;
   CIntermediates cint;
 } compiler_struct;
@@ -1454,12 +1455,10 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsNumTerm(Goal)) {
     CACHE_REGS
-    FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
+      Yap_ThrowError(TYPE_ERROR_CALLABLE, cglobs->body, "goal can not be a number");
   } else if (IsRefTerm(Goal)) {
     CACHE_REGS
-    LOCAL_Error_TYPE = TYPE_ERROR_DBREF;
-    FAIL("goal argument in static procedure can not be a data base reference",
-         TYPE_ERROR_CALLABLE, Goal);
+    Yap_ThrowError(TYPE_ERROR_CALLABLE, cglobs->body,"goal argument in static procedure can not be a data base reference");
   } else if (IsPairTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   }
@@ -2033,6 +2032,7 @@ static void c_goal(Term Goal, Term mod, compiler_struct *cglobs) {
 }
 
 static void c_body(Term Body, Term mod, compiler_struct *cglobs) {
+  cglobs->body = Body;
   cglobs->onhead = FALSE;
   cglobs->BodyStart = cglobs->cint.cpc;
   cglobs->goalno = 1;

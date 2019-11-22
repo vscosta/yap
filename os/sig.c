@@ -508,7 +508,7 @@ static Int alarm4(USES_REGS1) {
         Yap_WinError("trying to use alarm");
       }
     }
-    tout = MkIntegerTerm(0);
+    tout = MkIntTerm(0);
     return Yap_unify(ARG3, tout) && Yap_unify(ARG4, MkIntTerm(0));
   }
 #elif HAVE_SETITIMER && !SUPPORT_CONDOR
@@ -519,6 +519,7 @@ static Int alarm4(USES_REGS1) {
     new.it_interval.tv_usec = 0;
     new.it_value.tv_sec = i1;
     new.it_value.tv_usec = i2;
+    //    Yap_do_low_level_trace=1;
     if (setitimer(ITIMER_REAL, &new, &old) < 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s",
@@ -593,7 +594,7 @@ static Int virtual_alarm(USES_REGS1) {
         Yap_WinError("trying to use alarm");
       }
     }
-    tout = MkIntegerTerm(0);
+    tout = MkIntTerm(0);
     return Yap_unify(ARG3, tout) && Yap_unify(ARG4, MkIntTerm(0));
   }
 #elif HAVE_SETITIMER && !SUPPORT_CONDOR
@@ -621,7 +622,7 @@ static Int virtual_alarm(USES_REGS1) {
   if (IntegerOfTerm(t) == 0)
     return TRUE;
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
-            "virtual_alarm not available in this configuration");
+            "alarm not available in this configuration");
   return FALSE;
 #endif
 }
