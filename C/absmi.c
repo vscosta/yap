@@ -375,11 +375,15 @@ static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
   return rc;
 }
 
+#if  1
+#define DEBUG_INTERRUPTS()
+#else
 /* to trace interrupt calls */
 #define DEBUG_INTERRUPTS()					\
     fprintf(stderr, "[%d] %lu %s:%d:  (B=%p ENV=%p ASP=%p)\n",\
       worker_id, LOCAL_Signals,\
             __FUNCTION__, __LINE__, B, ENV, ASP)
+#endif
 
 static int interrupt_fail(USES_REGS1) {
   DEBUG_INTERRUPTS();

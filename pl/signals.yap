@@ -230,19 +230,19 @@ on_signal(_Signal,_OldAction,Action) :-
 	var(Action), !,
 	throw(error('SYSTEM_ERROR_INTERNAL','Somehow the meta_predicate declarations of on_signal are subverted!')).
 on_signal(Signal,OldAction,Action) :-
-	Action = (_:Goal),
+	'$yap_strip_module'(Action,_Mod,Goal),
 	var(Goal), !,
 	'$check_signal'(Signal, OldAction),
 	Goal = OldAction.
 on_signal(Signal,OldAction,Action) :-
+	'$yap_strip_module'(Action,M,Goal),
 	'$reset_signal'(Signal, OldAction),
 				% 13211-2 speaks only about callable %
-	( Action = M:Goal -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
 				% the following disagrees with 13211-2:6.7.1.4 which disagrees with 13211-1:7.12.2a %
 				% but the following agrees with 13211-1:7.12.2a %
 	( nonvar(M) -> true ; throw(error(instantiation_error,on_signal/3)) ),
 	( atom(M) -> true ; throw(error(type_error(callable,Action),on_signal/3)) ),
-	( nonvar(Goal) -> true ; throw(error(instantiation_error,on_signal/3)) ),
+	must_be_callable(Goal ),
 	recordz('$signal_handler', action(Signal,Action), _).
 
 '$reset_signal'(Signal, OldAction) :-
@@ -255,6 +255,14 @@ on_signal(Signal,OldAction,Action) :-
 '$check_signal'(_, default).
 
 
+/**
+ * @pred alarm(+Interval, 0:Goal, -Left)
+ *
+ * Activate  an alarm to execute _Goal_ in _Interval_ seconds. If the alarm was active,
+ * bind _Left_ to the previous value.
+ *
+ * If _Interval_ is 0, disable the current alarm.
+ */
 alarm(Interval, Goal, Left) :-
 	Interval == 0, !,
 	'$alarm'(0, 0, Left0, _),

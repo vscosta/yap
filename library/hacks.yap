@@ -93,29 +93,4 @@ virtual_alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
 	'$virtual_alarm'(Interval, USecs, Left, LUSecs).
 
 
-/**
- * @pred alarm(+Interval, 0:Goal, -Left)
- *
- * Activate  an alarm to execute _Goal_ in _Interval_ seconds. If the alarm was active,
- * bind _Left_ to the previous value.
- *
- * If _Interval_ is 0, disable the current alarm.
- */
-alarm(Interval, Goal, Left) :-
-	Interval == 0, !,
-	'$alarm'(0, 0, Left0, _),
-	on_signal(sig_alarm, _, Goal),
-	Left = Left0.
-alarm(Interval, Goal, Left) :-
-	integer(Interval), !,
-	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, 0, Left, _).
-alarm([Interval|USecs], Goal, [Left|LUSecs]) :-
-	on_signal(sig_alarm, _, Goal),
-	'$alarm'(Interval, USecs, Left, LUSecs).
-
-fully_strip_module(T,M,S) :-
-    '$hacks':fully_strip_module(T,M,S).
-
-
     %% @}

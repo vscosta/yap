@@ -453,6 +453,8 @@ static Int disable_interrupts(USES_REGS1) {
   return TRUE;
 }
 
+
+
 static Int alarm4(USES_REGS1) {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -475,7 +477,7 @@ static Int alarm4(USES_REGS1) {
   }
   i1 = IntegerOfTerm(t);
   i2 = IntegerOfTerm(t2);
-  if (i1 == 0 && i2 == 0) {
+  if (i1 == 0 && i2 == 0) {  
 #if _WIN32
     Yap_get_signal(YAP_WINTIMER_SIGNAL);
 #else
