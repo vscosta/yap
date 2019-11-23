@@ -968,14 +968,22 @@ if (found_module && t != t0) {
 return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
-#define FOUND_VAR_AGAIN()   \
+#define FOUND_VAR_AGAIN()\
   if (d0 == TermFoundVar)   \
   {                         \
     HR[0] = (CELL)ptd0;     \
     HR[1] = AbsPair(HR + 2); \
     HR += 2;                \
-    *ptd0 = TermRefoundVar; \
+    refound_var(ptd0); \
   }
+  
+static inline void refound_var(CELL *ptd0) {
+  if (*ptd0 == TermFoundVar) {
+    *ptd0 = TermRefoundVar;
+  } else {
+    ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermRefoundVar;
+  }
+}
 
 static Term non_singletons_in_complex_term(CELL * pt0_,
 					   CELL * pt0_end_,
@@ -995,7 +1003,7 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
   }
   if (*ptd0 == (CELL)ptd0) {
     YapBind(ptd0,TermFoundVar);
-  } else {
+  } else if (d0 == (CELL)ptd0) {
     Term marked = *ptd0;
     ((non_singletons_t *)AtomOfTerm(*ptd0))->d0=TermFoundVar;
     YapBind(ptd0, TermFoundVar);
