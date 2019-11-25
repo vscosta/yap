@@ -151,8 +151,6 @@ ENDOp();
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
-      BEGD(d1);
-      d1 = true;
     do_commit_b_y:
 #endif
       BEGD(d0);
@@ -160,7 +158,6 @@ ENDOp();
       deref_head(d0, commit_b_y_unk);
     commit_b_y_nvar:
       SET_ASP(YREG, PREG->y_u.yps.s);
-      if (d1) 
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps),Osbpp),l);
       {
         choiceptr pt0;
@@ -186,10 +183,8 @@ ENDOp();
 #ifdef COROUTINING
       /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
-      d1 = false;
       PROCESS_INTERRUPT(interrupt_commit_y, do_commit_b_y, PREG->y_u.yps.s);
 #endif
-      ENDD(d1);
       ENDOp();
 
       /*************************************************************************
@@ -352,7 +347,7 @@ ALWAYS_GONext();
         FETCH_Y_FROM_ENV(YREG);
       do_call:
 #endif
-      skip_call:
+	//skip_call:
         ENV = ENV_YREG;
         /* Try to preserve the environment */
         ENV_YREG = (CELL *) (((char *) ENV_YREG) + PREG->y_u.Osbpp.s);

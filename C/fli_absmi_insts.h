@@ -157,6 +157,7 @@
       /* trust the C-function we are calling and hence we must */
       /* guarantee that *all* machine registers are saved and */
       /* restored */
+
       BOp(call_usercpred, Osbpp);
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackUserCall, HR);

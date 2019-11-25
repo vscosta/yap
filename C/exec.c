@@ -859,20 +859,16 @@ static void prune_inner_computation(choiceptr parent) {
     choiceptr cut_pt;
 
     cut_pt = B;
-    while (cut_pt && cut_pt->cp_b < parent) {
-        if (cut_pt->cp_ap == NOCODE)
-            break;
-        cut_pt = cut_pt->cp_b;
+    while (B && B->cp_b <= parent) {
+        B = B->cp_b;
     }
-    if (!cut_pt)
+    if (!B)
         return;
 #ifdef YAPOR
-        CUT_prune_to(cut_pt);
+        CUT_prune_to(B);
 #endif
-    B = cut_pt;
     Yap_TrimTrail();
     LOCAL_AllowRestart = FALSE;
-    B = parent;
 }
 
 /**
@@ -889,8 +885,8 @@ static void complete_inner_computation(choiceptr old_B) {
 #ifdef DEPTH_LIMIT
         DEPTH = myB->cp_depth;
 #endif
-    } else if (myB->cp_b && myB->cp_b < old_B) {
-        while (myB->cp_b < old_B) {
+    } else if (myB->cp_b && myB->cp_b <= old_B) {
+        while (myB->cp_b <= old_B) {
             // we're recovering from a non-deterministic computation...
             myB = myB->cp_b;
         }
@@ -909,7 +905,9 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
     Int oB = LCL0 - (CELL *) B;
     yap_error_descriptor_t *ctx = calloc(1,sizeof(yap_error_descriptor_t));
     bool newxp = Yap_pushErrorContext(true, ctx);
-    bool rc = Yap_RunTopGoal(t, false);
+    ARG1 = t;
+    PredEntry *pe = Yap_get_pred(Yap_MkApplTerm(FunctorCall,1,&t),TermProlog,"ïgnore");
+    bool rc = Yap_execute_pred(pe, NULL, false);
     if (!rc) {
         complete_inner_computation((choiceptr) (LCL0 - oB));
         // We'll pass it through

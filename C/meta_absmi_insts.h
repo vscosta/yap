@@ -279,7 +279,7 @@
 	ENDP(pt1);
 
 	/* at this point, we have the arguments all set in the argument registers, pen says who is the current predicate. don't remove. */
-      NoStackPExecute:
+	//NoStackPExecute:
 	WRITEBACK_Y_AS_ENV();
 #ifdef SHADOW_S
 	Yap_REGS.S_ = SREG;

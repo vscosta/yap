@@ -2052,7 +2052,7 @@ static void mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR,
     }
     if (opnum == _or_else || opnum == _or_last || opnum==_either) {
       /* ; choice point */
-      CELL *env = gc_B->cp_env;
+      //CELL *env = gc_B->cp_env;
       yamop *e_cp = NEXTOP(gc_B->cp_ap,Osblp);
       mark_environments((CELL_PTR)(gc_B->cp_a1),
                        EnvSize(e_cp),

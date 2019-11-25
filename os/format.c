@@ -304,7 +304,9 @@ static int format_print_str(Int sno, Int size, Int has_size, Term args,
       if (IsVarTerm(args)) {
         Yap_ThrowError(INSTANTIATION_ERROR, args, "~s expects a bound argument");
         return FALSE;
-      } else if (!IsPairTerm(args)) {
+      } else    if (args == TermNil) {
+        return TRUE;
+          } else if (!IsPairTerm(args)) {
         Yap_ThrowError(TYPE_ERROR_TEXT, args, "format expects an atom, string, or list of codes or chars ");
         return FALSE;
       }

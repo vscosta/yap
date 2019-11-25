@@ -375,7 +375,7 @@ static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
   return rc;
 }
 
-#if  1
+#if  0               
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -663,7 +663,7 @@ static int interrupt_cut_e(USES_REGS1) {
 }
 
 
-static bool interrupt_commit_y(USES_REGS1) {
+static Int interrupt_commit_y(USES_REGS1) {
   int v;
   Term t_cut = YENV[P->y_u.yps.y];
 
@@ -676,10 +676,10 @@ static bool interrupt_commit_y(USES_REGS1) {
     return 2;
   }
   bool  rc = interrupt_handler_either(t_cut, PredRestoreRegs PASS_REGS);
-  return rc;
+  return 0;
 }
 
-static bool interrupt_commit_x(USES_REGS1) {
+static Int interrupt_commit_x(USES_REGS1) {
   Term t_cut = XREG(P->y_u.xps.x);
 
   /* find something to fool S */

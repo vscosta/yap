@@ -244,7 +244,7 @@ A	Maximum			N	"maximum"
 A	MaxArity		N	"max_arity"
 A	MaxFiles		N	"max_files"
 A	MegaClause		F	"$mega_clause"
-A	MetaCall		F	"$call"
+A	MetaCall		F	"$meta_call"
 A	MfClause		F	"$mf_clause"
 A	Min			N	"min"
 A	Minimum			N	"minimum"
@@ -556,10 +556,11 @@ F	Hat			Hat		2
 F	DoubleHat		DoubleHat	1
 F	I			I		2
 F	Id			Id		1
-F   Info1       Info   1
-F   Info2       Info   2
-F   Info3       Info  3
-F   Info4       Info   4
+F	Ignore			Ignore		1
+F   	Info1       		Info   1
+F   	Info2       		Info   2
+F   	Info3       		Info  3
+F   	Info4       		Info   4
 F	Is			Is		2
 F	J			J		2
 F	LastExecuteWithin	LastExecuteWithin	1
