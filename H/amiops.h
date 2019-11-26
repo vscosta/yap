@@ -341,7 +341,8 @@ Binding Macros for Multiple Assignment Variables.
 #define DO_MATRAIL(VP, OLDV, D)                                                \
   {                                                                            \
     TrailTerm(TR + 1) = OLDV;                                                  \
-    TrailTerm(TR) = TrailTerm(TR + 2) = AbsAppl(VP);                           \
+
+      TrailTerm(TR) = TrailTerm(TR + 2) = AbsAppl(VP);			\
     TR += 3;                                                                   \
   }
 
@@ -372,7 +373,7 @@ extern void Yap_WakeUp(CELL *v);
 
 #define Bind_Local(A, D)                                                       \
   {                                                                            \
-    TRAIL_LOCAL(A, D);                                                         \
+    TRAIL_LOCAL(A, D);                                                        \
     *(A) = (D);                                                                \
   }
 #define Bind_Global(A, D)                                                      \

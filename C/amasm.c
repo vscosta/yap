@@ -3569,7 +3569,6 @@ static yamop *do_pass(int pass_no, yamop **entry_codep, int assembling,
     case mark_live_regs_op:
       if (!ystop_found) {
         code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
-        printf("-> %p\n", code_p->y_u.l.l);
         ystop_found = TRUE;
       }
       code_p = a_bregs(code_p, pass_no, cip->cpc);

@@ -11,7 +11,8 @@
 * File:		atts.yap						 *
 * Last rev:	8/2/88							 *
 * mods:									 *
-* comments:	attribute support for Prolog				 *
+* comments:
+	attribute support for Prolog				 *
 *									 *
 *************************************************************************/
 
@@ -193,38 +194,9 @@ attvars_residuals([V|Vs]) -->
    In this case, we need a way to keep the original
    suspended goal around
 */
-prolog:'$wake_up_goal'([Module1|Continuation], LG) :-
-	execute_woken_system_goals(LG),
-	do_continuation(Continuation, Module1).
-
-
-%
-% in the first two cases restore register  immediately and proceed
-% to continuation. In the last case take care with modules, but do
-% not act as if a meta-call.
-%
-%
-do_continuation(cut_by(X), attributes) :- !,
-	'$$cut_by'(X).
-do_continuation(restore_regs(X), attributes) :- !,
-%	yap_flag(gc_trace,verbose),
-%	garbage_collect,
-	restore_regs(X).
-do_continuation(restore_regs(X,Y), attributes) :- !,
-%	yap_flag(gc_trace,verbose),
-%	garbage_collect,
-	restore_regs(X,Y).
-do_continuation(Continuation, Module1) :-
-	execute_continuation(Continuation,Module1).
-
-execute_continuation(Continuation, Module1) :-
-	'$undefined'(Continuation, Module1), !,
-        '$undefp'([Module1|Continuation] , _Default ).
-execute_continuation(Continuation, Mod) :-
-         % do not do meta-expansion nor any fancy stuff.
-	'$execute0'(Continuation, Mod).
-
-
+prolog:'$wake_up_goal'(Continuation, LG) :-
+    execute_woken_system_goals(LG),
+    call(Continuation).
 execute_woken_system_goals([]).
 execute_woken_system_goals(['$att_do'(V,New)|LG]) :-
 	execute_woken_system_goals(LG),
@@ -238,14 +210,14 @@ call_atts(V,_) :-
 call_atts(V,_) :-
 	'$att_bound'(V), !.
 call_atts(V,New) :-
-	attributes:get_all_swi_atts(V,SWIAtts),
-	(
-	 '$undefined'(woken_att_do(V, New, LGoals, DoNotBind), attributes)
+    attributes:get_all_swi_atts(V,SWIAtts),
+    (
+	predicate_property(attributes:woken_att_do(V, New, LGoals, DoNotBind),_)
 	->
+	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
+	;
 	 LGoals = [],
 	 DoNotBind = false
-	;
-	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
 	),
 	( DoNotBind == true
 	->
@@ -258,12 +230,9 @@ call_atts(V,New) :-
 
 do_hook_attributes([], _).
 do_hook_attributes(att(Mod,Att,Atts), Binding) :-
-	('$undefined'(attr_unify_hook(Att,Binding), Mod)
-	->
-	 true
-	;
-	 Mod:attr_unify_hook(Att, Binding)
-	),
+	ignore(( current_predicate(Mod:attr_unify_hook/2),
+		 Mod:attr_unify_hook(Att, Binding)
+	)),
 	do_hook_attributes(Atts, Binding).
 
 
@@ -344,26 +313,29 @@ attvar_residuals(att(Module,Value,As), V) -->
 	->  % a previous projection predicate could have instantiated
 	    % this variable, for example, to avoid redundant goals
 	    []
-	;     generate_goals(  V, As, Value,  Module)
+	;
+	generate_goals(  V, As, Value,  Module)
     ).
 
     generate_goals( V, _, Value, Module) -->
-        { attributes:module_has_attributes(Module)  },
+        {
+	    attributes:module_has_attributes(Module)  },
     	    %  like run, put attributes back first
     	    { Value =.. [Name,_|Vs],
     	      NValue =.. [Name,_|Vs],
     	      attributes:put_module_atts(V,NValue)
     	    },
-        { current_predicate(Module:attribute_goal/2) },
-		 { call(Module:attribute_goal(V, Goal)) },
-	      dot_list(Goal),
-          [put_attr(V, Module, Value)].
-    generate_goals( V, _, _Value   , Module) -->
-        { '$pred_exists'(attribute_goals(_,_,_), Module) },
-	    call(Module:attribute_goals(V) ).
+            {
+		current_predicate(Module:attribute_goal/2) },
+	    { call(Module:attribute_goal(V, Goal)) },
+	    dot_list(Goal),
+            [put_attr(V, Module, Value)].
+generate_goals( V, _, _Value   , Module) -->
+    { current_predicate(Module:attribute_goals/3) },
+    Module:attribute_goals(V).
 
 
-    attributes:module_has_attributes(Mod) :-
+attributes:module_has_attributes(Mod) :-
         attributes:attributed_module(Mod, _, _), !.
 
 
@@ -472,6 +444,7 @@ Given a goal _Goal_ with variables  _QueryVars_ and list of attributed
 variables  _AttrVars_, project all attributes in  _AttrVars_ to
  _QueryVars_. Although projection is constraint system dependent,
 typically this will involve expressing all constraints in terms of
+
  _QueryVars_ and considering all remaining variables as existentially
 quantified.
 
@@ -497,9 +470,9 @@ pick_att_vars([V|L],[V|NL]) :- attvar(V), !,
 pick_att_vars([_|L],NL) :-
 	pick_att_vars(L,NL).
 
-project_module([], _, _).
+project_module([], _, []).
 project_module([Mod|LMods], LIV, LAV) :-
-	'$pred_exists'(project_attributes(LIV, LAV),Mod),
+	current_predicate(Mod:project_attributes/2),
 	call(Mod:project_attributes(LIV, LAV)), !,
 	attributes:all_attvars(NLAV),
 	project_module(LMods,LIV,NLAV).

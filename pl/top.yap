@@ -217,7 +217,6 @@ live :-
 
 '$$compile'(C, Where, C0, R) :-
     '$head_and_body'( C, H, B ),
-    !,
     '$yap_strip_module'(H,Mod,H0),
    (
      '$undefined'(H0, Mod)
@@ -303,6 +302,8 @@ query(G0, V, Vs, LGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
     '$delayed_goals'(G, V, Vs, LGs, _DCP),
+    copy_term_nat(G+V+Vs+LGs,CG+CV+CVs+CLGs),
+    rational_term_to_forest(CG+CVs,_O,NLGs,CLGs),
     '$write_answer'(Vs, LGs, Written),
     '$write_query_answer_true'(Written).
 
@@ -335,18 +336,17 @@ query(G0, V, Vs, LGs) :-
 %
 % *-> at this point would require compiler support, which does not exist.
 %
-'$delayed_goals'(G, V, NV, LGs, NCP) :-
-	(
-	 '$$save_by'(NCP1),
-	 attributes:delayed_goals(G, V, NV, LGs),
-	 '$clean_ifcp'(NCP1),
-	 '$$save_by'(NCP2),
-	 NCP is NCP2-NCP1
-	  ;
-	   copy_term_nat(V, NV),
-	   LGs = [],
-	   term_factorized(V, NV, LGs),
-	   NCP = 0
+'$delayed_goals'(G, V, NV, NLGs, NCP) :-
+        (
+         '$$save_by'(NCP1),
+         attributes:delayed_goals(G, V, NV, LGs),
+         '$clean_ifcp'(NCP1),
+         '$$save_by'(NCP2),
+         NCP is NCP2-NCP1
+          ;
+           LGs = [],
+	   V = NV,
+           NCP = 0
     ).
 
 '$out_neg_answer' :-
@@ -572,6 +572,10 @@ write_query_answer( Bindings ) :-
 %
 % standard meta-call, called if $execute could not do everything.
 %
+'$meta_call'(G, M) :-
+	'$current_choice_point'(CP),
+	'$call'(G, CP, G, M).
+
 '$user_call'(G, M) :-
     '$yap_strip_module'(M:G, M1,G1),
     '$dotrace'(G1, M1, _),
@@ -590,124 +594,111 @@ write_query_answer( Bindings ) :-
 
 %
 % do it in ISO mode.
-				%
-
-'$meta_call'(V,_CP,_G0,_M0) :-
-	var(V),
-	!,
-	'$do_error'(instantiation_error).
-'$meta_call'(M:G,CP,G0,_M0) :- !,
-	'$yap_strip_module'(M:G,NM,NG),
-        '$meta_call'(NG,CP,G0,NM).
-'$meta_call'((X,Y),CP,G0,M) :- !,
-        '$meta_call'(X,CP,G0,M),
-        '$meta_call'(Y,CP,G0,M).
-'$meta_call'((X->Y),CP,G0,M) :- !,
-	(
-	 '$meta_call'(X,CP,G0,M)
-          ->
-	 '$meta_call'(Y,CP,G0,M)
-	).
-'$meta_call'((X*->Y),CP,G0,M) :- !,
-	 '$current_choice_point'(DCP),
-	 '$meta_call'(X,DCP,G0,M),
-	 '$meta_call'(Y,CP,G0,M).
-'$meta_call'((X->Y; Z),CP,G0,M) :- !,
-	(
-	    '$meta_call'(X,CP,G0,M)
-         ->
-	    '$meta_call'(Y,CP,G0,M)
-        ;
-	    '$meta_call'(Z,CP,G0,M)
-	).
-'$meta_call'((X*->Y; Z),CP,G0,M) :- !,
-	(
-	 '$current_choice_point'(DCP),
-	 '$meta_call'(X,DCP,G0,M),
-	 yap_hacks:cut_at(DCP),
-	 '$call'(Y,CP,G0,M)
-        ;
-	 '$meta_call'(Z,CP,G0,M)
-	).
-'$meta_call'((A;B),CP,G0,M) :- !,
-	(
-	    '$meta_call'(A,CP,G0,M)
-        ;
-	    '$meta_call'(B,CP,G0,M)
-	).
-'$meta_call'((X->Y| Z),CP,G0,M) :- !,
-	(
-	    '$meta_call'(X,CP,G0,M)
-         ->
-	 '$meta_call'(Y,CP,G0,M)
-        ;
-	'$meta_call'(Z,CP,G0,M)
-	).
-
-'$meta_call'((X*->Y| Z),CP,G0,M) :- !,
-	(
-	 '$current_choice_point'(DCP),
-	 '$meta_call'(X,DCP,G0,M),
-	 yap_hacks:cut_at(DCP),
-	 '$meta_call'(Y,CP,G0,M)
-        ;
-	 '$meta_call'(Z,CP,G0,M)
-	).
-'$meta_call'((A|B),CP, G0,M) :- !,
-	(
-	    '$meta_call'(A,CP,G0,M)
-        ;
-	    '$meta_call'(B,CP,G0,M)
-	).
-'$meta_call'(\+ X, _CP, G0, M) :- !,
-	\+ ('$current_choice_point'(CP),
-	  '$meta_call'(X,CP,G0,M) ).
-'$meta_call'(not(X), _CP, G0, M) :- !,
-	\+ ('$current_choice_point'(CP),
-	  '$meta_call'(X,CP,G0,M) ).
-'$meta_call'(!, CP, _G0, _m) :- !,
-	'$$cut_by'(CP).
-'$meta_call'(forall(X,Y), CP, _G0, M) :- !,
-	\+ ('$meta_call'(X, CP, G0, M),
-	     \+ '$meta_call'(Y, CP, G0, M) ).
-'$meta_call'(once(X), _CP, G0, M) :- !,
-	'$current_choice_point'(CP),
-	( '$meta_call'(X, CP, G0, M) -> true).
-'$meta_call'(ignore(X), _CP, G0, M) :-
-	!,
-	'$current_choice_point'(CP),  
-	( '$meta_call'(X, CP, G0, M) -> true;true).
-'$meta_call'(!, CP, _G0, _m) :- !,
-	'$$cut_by'(CP).
-'$meta_call'([X|Y], _, _, M) :-
-    (Y == [] ->
-    consult(M:X)
-    ;
- 	 '$csult'([X|Y] ,M)
- 	 ).
-'$meta_call'(G, _CP, _G0, M) :-
-	expand_goal(M:G, NG),
-	'$execute0'(NG, M).
-
-
-'$meta_call'(G, M) :-
-	'$current_choice_point'(CP),
-	'$meta_call'(G, CP, G, M).
-
-'$call'(G, CP, G0, M) :-
-	'$meta_call'(G, CP, G0, M).
-
+%
 '$meta_call'(G,_ISO,M) :-
 	'$iso_check_goal'(G,G),
 	'$current_choice_point'(CP),
 	'$call'(G, CP, G, M).
 
+'$meta_call'(G, CP, G0, M) :-
+	'$call'(G, CP, G0, M).
 
 '$call'(G, CP, G0, _, M) :-  /* iso version */
 	'$iso_check_goal'(G,G0),
-	'$meta_call'(G, CP, G0, M).
+	'$call'(G, CP, G0, M).
 
+'$call'(M:G,CP,G0,_M0) :- !,
+	expand_goal(M:G, NG),
+	must_be_callable(NG),
+	    '$yap_strip_module'(M:NG,NM,NC),
+        '$call'(NC,CP,G0,NM).
+'$call'((X,Y),CP,G0,M) :- !,
+        '$call'(X,CP,G0,M),
+        '$call'(Y,CP,G0,M).
+'$call'((X->Y),CP,G0,M) :- !,
+	(
+	 '$call'(X,CP,G0,M)
+          ->
+	 '$call'(Y,CP,G0,M)
+	).
+'$call'((X*->Y),CP,G0,M) :- !,
+	 '$current_choice_point'(DCP),
+	 '$call'(X,DCP,G0,M),
+	 '$call'(Y,CP,G0,M).
+'$call'((X->Y; Z),CP,G0,M) :- !,
+	(
+	    '$call'(X,CP,G0,M)
+         ->
+	    '$call'(Y,CP,G0,M)
+        ;
+	    '$call'(Z,CP,G0,M)
+	).
+'$call'((X*->Y; Z),CP,G0,M) :- !,
+	(
+	 '$current_choice_point'(DCP),
+	 '$call'(X,DCP,G0,M),
+	 yap_hacks:cut_at(DCP),
+	 '$call'(Y,CP,G0,M)
+        ;
+	 '$call'(Z,CP,G0,M)
+	).
+'$call'((A;B),CP,G0,M) :- !,
+	(
+	    '$call'(A,CP,G0,M)
+        ;
+	    '$call'(B,CP,G0,M)
+	).
+'$call'((X->Y| Z),CP,G0,M) :- !,
+	(
+	    '$call'(X,CP,G0,M)
+         ->
+	 '$call'(Y,CP,G0,M)
+        ;
+	'$call'(Z,CP,G0,M)
+	).
 
+'$call'((X*->Y| Z),CP,G0,M) :- !,
+	(
+	 '$current_choice_point'(DCP),
+	 '$call'(X,DCP,G0,M),
+	 yap_hacks:cut_at(DCP),
+	 '$call'(Y,CP,G0,M)
+        ;
+	 '$call'(Z,CP,G0,M)
+	).
+'$call'((A|B),CP, G0,M) :- !,
+	(
+	    '$call'(A,CP,G0,M)
+        ;
+	    '$call'(B,CP,G0,M)
+	).
+'$call'(\+ X, _CP, G0, M) :- !,
+	\+ ('$current_choice_point'(CP),
+	  '$call'(X,CP,G0,M) ).
+'$call'(not(X), _CP, G0, M) :- !,
+	\+ ('$current_choice_point'(CP),
+	  '$call'(X,CP,G0,M) ).
+'$call'(!, CP, _G0, _m) :- !,
+	'$$cut_by'(CP).
+'$call'(forall(X,Y), CP, _G0, M) :- !,
+	\+ ('$call'(X, CP, G0, M),
+	     \+ '$call'(Y, CP, G0, M) ).
+'$call'(once(X), _CP, G0, M) :- !,
+	'$current_choice_point'(CP),
+	( '$call'(X, CP, G0, M) -> true).
+'$call'(ignore(X), _CP, G0, M) :-
+	!,
+	'$current_choice_point'(CP),  
+	( '$call'(X, CP, G0, M) -> true;true).
+'$call'(!, CP, _G0, _m) :- !,
+	'$$cut_by'(CP).
+'$call'([X|Y], _, _, M) :-
+    (Y == [] ->
+    consult(M:X)
+    ;
+ 	 '$csult'([X|Y] ,M)
+ 	 ).
+'$call'(G, _CP, _G0, CurMod) :-
 % /*
 % 	(
 %      '$is_metapredicate'(G,CurMod)
@@ -719,7 +710,7 @@ write_query_answer( Bindings ) :-
 %      NG = G
 %     ),
 % 	*/
-%    '$execute0'(G, CurMod).
+    '$execute0'(G, CurMod).
 
 '$loop'(Stream,exo) :-
     prolog_flag(agc_margin,Old,0),

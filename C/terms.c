@@ -1388,7 +1388,7 @@ static Int rational_term_to_tree(USES_REGS1) {
 void Yap_InitTermCPreds(void) {
   Yap_InitCPred("break_cycles_in_term", 2, break_cycles_in_term, 0);
   Yap_InitCPred("term_variables", 2, term_variables, 0);
-  Yap_InitCPred("term_variables", 3, term_variables3, 0);
+  Yap_InitCPred("term_variables", 3, term_variables3, 1111111111111111111110);
   Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
 
   Yap_InitCPred("$free_variables_in_term", 3, free_variables_in_term, 0);
@@ -1413,3 +1413,4 @@ void Yap_InitTermCPreds(void) {
 }
 
 ///@}
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>:::::::
