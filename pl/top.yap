@@ -298,13 +298,13 @@ live :-
     '$out_neg_answer'
     ).
 
-query(G0, V, Vs, LGs) :-
+query(G0, V, CVs,NLGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
     '$delayed_goals'(G, V, Vs, LGs, _DCP),
-    copy_term_nat(G+V+Vs+LGs,CG+CV+CVs+CLGs),
+    copy_term_nat(G+V+Vs+LGs,CG+_CV+CVs+CLGs),
     rational_term_to_forest(CG+CVs,_O,NLGs,CLGs),
-    '$write_answer'(Vs, LGs, Written),
+    '$write_answer'(Vs, NLGs, Written),
     '$write_query_answer_true'(Written).
 
 '$yes_no'(G,C) :-
@@ -336,7 +336,7 @@ query(G0, V, Vs, LGs) :-
 %
 % *-> at this point would require compiler support, which does not exist.
 %
-'$delayed_goals'(G, V, NV, NLGs, NCP) :-
+'$delayed_goals'(G, V, NV, LGs, NCP) :-
         (
          '$$save_by'(NCP1),
          attributes:delayed_goals(G, V, NV, LGs),

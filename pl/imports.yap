@@ -32,25 +32,37 @@ mimp :-
 fail.
 
 '$import'(G0,GF) :-
-    G0=M0:H0,
+    '$yap_strip_module'(G0,M0,H0),
+    '$_import'(M0:H0, GF).
+
+'$_import'(M0:H0, GF) :-
+    atom(M0),
+    nonvar(H0),
+    !,
     (
     '$pred_exists'(H0,M0)
     ->
-    G0 = GF
+    M0:H0 = GF
     ;
-    '$import__'(G0,[G0],GF)
-    ),
-    !.
+    '$import__'(M0:H0,[M0:H0],GF)
+    ).
 
-'$imports'(G0,GF) :-
-    G0 = M0:T0,
+'$_import'(M0:H0, GF) :-
     var(M0),
+    nonvar(H0),
     !,
-    '$current_predicate'(_,T0,M0,_),
-    '$import__'(G0,[G0],GF).
-'$imports'(G0,GF) :-
-    !,
-    '$import__'(G0,[G0],GF).
+    '$module'(M0),
+    '$_import'(M0:H0, GF),
+     '$current_predicate'.
+'$_import'(M0:H0, GF) :-
+     '$current_predicate'(_,M0,H0,_),
+    '$import__'(M0:H0,[M0:H0],GF).
+
+'$imports'(M0:H0,M0:H0) :-
+      '$current_predicate'(_,M0,H0,_).
+'$imports'(M0:H0,GF) :-
+         recorded('$import','$import'(M,M0,H,H0,_,_),_),
+    '$_import'(M:H, GF).
 
 '$import__'(G0,Visited,GF) :-
    '$import_goal'(G0, G1),
@@ -59,7 +71,8 @@ fail.
     (
     '$pred_exists'(H1,M1)
     ->
-    GF=M1:H1
+    GF=M1:H1,
+    !
        ;
     '$import__'(G1,[G1|Visited],GF)
     ).
@@ -82,9 +95,16 @@ fail.
 '$import_goal'(ImportingMod:G,ExportingMod:G0) :-
     recorded('$import','$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
 %% parent/user
-'$import_goal'(ImportingMod:G,PMod:G) :-
+'$import_goal'(ImportingMod:G,IMod:NG) :-
     ( '$parent_module'(ImportingMod, PMod) ; PMod = user ),
-    ImportingMod \= PMod.
+    ImportingMod \= PMod,
+    (
+    '$pred_exists'(G,PMod)
+    -> G= NG, PMod = IMod
+    ;
+    recorded('$import','$import'(PMod,IMod,_,NG,_,_),_)
+%% parent/user
+    ).
 %% autoload`
 %'$import_goal'(ImportingMod:G,ExportingMod:G) :-
 %    current_prolog_flag(autoload, true),
