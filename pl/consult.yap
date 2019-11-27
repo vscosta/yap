@@ -718,7 +718,7 @@ db_files(Fs) :-
 	stream_property(Stream0, file_name(Y)),
 	!.
 '$do_lf'(ContextModule, Stream, UserFile, File,  TOpts) :-
-	prompt1(': '), prompt(_,'     '),
+    prompt1(': '), prompt(_,'     '),
 	stream_property(OldStream, alias(loop_stream) ),
 	'$lf_opt'(encoding, TOpts, Encoding),
 	set_stream( Stream, [alias(loop_stream), encoding(Encoding)] ),
@@ -839,8 +839,7 @@ db_files(Fs) :-
 	recorded('$system_initialization',G,R),
 	erase(R),
 	G \= '$',
-    strip_module(user:G, M0, G0),
-	( catch(M0:G0, Error, user:'$LoopError'(Error, top))
+	( catch(G, Error, user:'$LoopError'(Error, top))
 	->
 	  true
 	;
@@ -855,13 +854,15 @@ db_files(Fs) :-
 '$exec_initialization_goals'.
 
 '$process_init_goal'([G|_]) :-
-	'$yap_strip_module'( G, M0, G0),
+    '$yap_strip_module'(G,M,H),
 	(
-	 catch(M0:G0, Error, user:'$LoopError'(Error, top))
+	 catch(( '$current_choice_point'(CP),
+		 '$meta_call'(H,CP,H,M
+			     )), Error, '$LoopError'(Error, top))
 	->
 	 true
 	;
-    format(user_error,':- ~w:~w failed.~n',[M0,G0])
+	format(user_error,':- ~w failed.~n',[G])
 	),
 	fail.
 '$process_init_goal'([_|Gs]) :-
@@ -1376,7 +1377,7 @@ environment. Use initialization/2 for more flexible behavior.
     '$initialization'( G, after_load ).
 
 '$initialization_queue'(G) :-
-	b_getval('$lf_status', TOpts),
+    b_getval('$lf_status', TOpts),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_enqueue(Ref, G),
 	fail.
@@ -1401,20 +1402,26 @@ Similar to initialization/1, but allows for specifying when
 
 */
 initialization(G,OPT) :-
-   catch('$initialization'(G, OPT), Error, '$LoopError'( Error, consult ) ),
+    '$initialization'(G, OPT),
     fail.
 initialization(_G,_OPT).
 
 '$initialization'(G0,OPT) :-
     must_be_callable( G0),
- %   must_be_of_type(oneof([after_load, now, restore]),
+    expand_goal(G0, G),
+    %   must_be_of_type(oneof([after_load, now, restore]),
  %               OPT),
-                '$yap_strip_module'(G0,M,G1),
-              '$expand_term'((M:G1), G),
-   (
+
+    (
 	 OPT == now
 	->
-    ( call(G) -> true ; format(user_error,':- ~w failed.~n',[G]) )
+	( catch(call(G),
+		Error,
+		'$LoopError'( Error, consult )
+	       ) ->
+	  true ;
+	  format(user_error,':- ~w failed.~n',[G])
+	)
 	;
 	 OPT == after_load
 	->
@@ -1441,7 +1448,7 @@ initialization(_G,_OPT).
 @ingroup  YAPCompilerSettings
 
 @{
-  qkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkConditional compilation builds on the same principle as
+ Conditional compilation builds on the same principle as
 term_expansion/2, goal_expansion/2 and the expansion of
 grammar rules to compile sections of the source-code
 conditionally. One of the reasons for introducing conditional

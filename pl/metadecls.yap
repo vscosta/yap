@@ -18,6 +18,7 @@
 :- '$system_meta_predicates'([
 	abolish(:),
 	abolish(:,+),
+	alarm(+,0,-),
 	all(?,0,-),
 	assert(:),
 	assert(:,+),

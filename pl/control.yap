@@ -101,7 +101,7 @@
  *
  *
  */
-forall(Cond, Action) :- \+((Cond, \+(Action))).
+forall(Cond, Action) :- \+(Cond, \+( Action) ).
 
 /** @pred  ignore(: _Goal_)
  *
@@ -633,6 +633,8 @@ halt(X) :-
 '$add_dot_to_atom_goal'([C|Gs0],[C|Gs]) :-
 	'$add_dot_to_atom_goal'(Gs0,Gs).
 
+%'$module_transparent' :-
+    
 real:text_query(Q) :-
     catch( Q,
 		Error,

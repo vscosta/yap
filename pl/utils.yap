@@ -384,7 +384,8 @@ term_string( T, S, Opts) :-
     memory_file:open_mem_read_stream( S, Stream ),
     read_term( Stream, T, Opts ),
     close( Stream ).
-    term_string( T, S, _Opts) :-
-        format(string(S), '~q.~n', [T]).
+
+%term_string( T, S, _Opts) :-
+%        format(string(S), '~q.~n', [T]).
 
 

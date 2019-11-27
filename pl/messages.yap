@@ -1071,6 +1071,8 @@ prolog:print_message(Severity, Term) :-
    prolog:print_message_lines(user_error, Prefix, Lines)))
   ),
   !.
+%:- nb_setval(verbose,normal).
+
 prolog:print_message(Severity, Term) :-
     translate_message( Term, Severity, Lines0, [ end(Id)]),
   Lines = [begin(Severity, Id)| Lines0],
@@ -1083,6 +1085,8 @@ prolog:print_message(Severity, Term) :-
    prolog:print_message_lines(user_error, Prefix, Lines)))
   ),
   !.
+
+
 prolog:print_message(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 

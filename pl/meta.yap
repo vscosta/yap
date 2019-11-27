@@ -131,17 +131,14 @@ meta_predicate(P) :-
 %  should be defined before caller.
 %
 '$module_u_vars'(M, H, UVars) :-
-    '$do_module_u_vars'(M:H,UVars).
-
-'$do_module_u_vars'(M:H,UVars) :-
     functor(H,F,N),
     '$meta_predicate'(F,M,N,D), !,
     '$do_module_u_vars'(N,D,H,UVars).
-'$do_module_u_vars'(_,[]).
+'$module_u_vars'(_,_,[]).
 
 '$do_module_u_vars'(0,_,_,[]) :- !.
 '$do_module_u_vars'(I,D,H,LF) :-
-    arg(I,D,X), ( X=':' -> true ; integer(X)),
+    arg(I,D,X), ( nonvar(X), X=':' -> true ; integer(X)),
     arg(I,H,A), '$uvar'(A, LF, L), !,
     I1 is I-1,
     '$do_module_u_vars'(I1,D,H,L).
@@ -192,6 +189,14 @@ meta_predicate(P) :-
     '$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
 
 
+'$meta_expansion'(GM, BM, HVars,M:GF) :-
+    '$yap_strip_module'(BM:GM, M, G),
+    functor(G, F, Arity ),
+    '$meta_predicate'(F, M, Arity, PredDef),
+    !,
+    '$meta_expand'(G, PredDef, BM, HVars, GF).
+'$meta_expansion'(GF, BM, _HVars, BM:GF).
+
 % check if an argument should be expanded
 '$expand_arg'(G,  CM, HVars, OG) :-
     var(G),
@@ -207,47 +212,47 @@ meta_predicate(P) :-
 '$match_mod'(G, M, M, M, G) :-    !.
 '$match_mod'(G, _HM, _M, M, M:G).
 
-'$import_expansion'(none, MG, MG).
-'$import_expansion'(_, M:G, M1:G1) :-
+% Call the import mechanism
+%
+'$import_expansion'(M:G, M1:G1) :-
     '$import'(M:G, M1:G1),
     !.
-'$import_expansion'(_, MG, MG).
+'$import_expansion'( MG, MG).
 
-'$end_goal_expansion'(G, G1, GOF, HM, SM, BM, H) :-
-    '$match_mod'(G, HM, SM, BM, G1),
-    '$c_built_in'(G1, BM, H, GO),
-    '$yap_strip_module'(BM:GO, MO, IGO),
-    '$match_mod'(IGO, HM, SM, MO, GOF).
 
-'$user_expansion'(none, MG, MG) :-
-    !.
-'$user_expansion'(Ctx, M0N:G0N, M1:G1) :-
-    '_user_expand_goal'(M0N:G0N, M:G),
+'$user_expansion'(G0, G) :-
+    '_user_expand_goal'(G0, G1),
     !,
-    ( M:G == M0N:G0N
+    ( G1 == G0
     ->
-    M1:G1 = M:G
+      G0 = G
     ;
-    '$user_expansion'(Ctx, M:G, M1:G1)
+    '$user_expansion'(G1, G)
     ).
-'$user_expansion'(_,MG, MG).
+'$user_expansion'(MG, MG).
 
 
-'$meta_expansion'(GMG, BM, HVars, GM:GF) :-
-    '$yap_strip_module'(BM:GMG, GM, G ),
-    functor(G, F, Arity ),
-    '$meta_predicate'(F, GM, Arity, PredDef),
-    !,
-    '$meta_expand'(G, PredDef, BM, HVars, GF).
-'$meta_expansion'(GF, BM, _HVars, BM:GF).
+'$expand_head'(G0, GF, SM, HM) :-
+    '$yap_strip_module'( SM:G0, M0N, G0N),
+    '$user_expansion'(M0N:G0N, HMGF),
+    '$yap_strip_module'(HMGF,HM,GF).
 
-'$expand_goal'(G0, GF, GS, HM, SM, BM, HVars-H) :-
+'$expand_goal'(G0, GF, MOF:GOF, HM, SM, BM, HVars-H*Assert) :-
     '$yap_strip_module'( BM:G0, M0N, G0N),
-    '$user_expansion'(HVars,M0N:G0N, M1:G1),
-    '$import_expansion'(HVars, M1:G1, M2:G2),
-    '$meta_expansion'(M2:G2, M1, HVars, MG3),
-    '$yap_strip_module'(MG3, M4, B4),
-    '$end_goal_expansion'(B4, GF, GS, HM, SM, M4, H).
+    '$user_expansion'(M0N:G0N, M1:G1),
+    '$import_expansion'(M1:G1, M2:G2),
+    '$meta_expansion'(M2:G2, M1, HVars, M4:B4),
+    '$end_goal_expansion'(B4, GF, GS, HM, SM, M4, H, Assert),
+    !,
+    '$yap_strip_module'( M4:GS, MOF, GOF).
+'$expand_goal'(G0, _, _, _, _, _, _) :- writeln(bEEED:G0),fail.
+
+'$end_goal_expansion'(G, G1, BM:GO, HM, SM, BM, H, compile) :-
+   !,
+    '$match_mod'(G, HM, SM, BM, G1),
+    '$c_built_in'(G1, BM, H, GO).
+'$end_goal_expansion'(G, SM:G, SM:G, _HM, SM, SM, _H, assert).
+
 
 /*
 '$match_mod'(G, HMod, SMod, M, O) :-
@@ -305,17 +310,17 @@ meta_predicate(P) :-
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
     var(V),
     !,
-    ( lists:identical_member(V, HVars)
+    (
+	lists:identical_member(V, HVars)
     ->
     '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
     ;
-    ( atom(BM)
+    atom(BM)
     ->
     NG = call(BM:V),
     NGO = '$execute_in_mod'(V,BM)
     ;
     '$expand_goals'(call(BM:V),NG,NGO,HM,SM,BM,HVars-H)
-    )
     ).
 '$expand_goals'(BM:V,NG,NGO,HM,SM,_BM,HVarsH) :-
     '$yap_strip_module'( BM:V, CM, G),
@@ -343,18 +348,20 @@ meta_predicate(P) :-
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- var(A), !,
-							 '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
-							 '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A*->B;C),(A1*->B1;C1),
-		(
-		    yap_hacks:current_choicepoint(DCP),
-		    AO,
-		    yap_hacks:cut_at(DCP),BO
-		;
-		CO
-		),
-		HM,SM,BM,HVars) :- !,
+'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :-
+    var(A), !,
+    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'(
+    (A*->B;C),(A1*->B1;C1),
+    (
+	yap_hacks:current_choicepoint(DCP),
+	AO,
+	yap_hacks:cut_at(DCP),BO
+    ;
+    CO
+    ),
+    HM,SM,BM,HVars) :- !,
     '$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
     '$clean_cuts'(AOO, AO),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
@@ -427,6 +434,17 @@ meta_predicate(P) :-
     '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
+'$expand_goals'([-H|L],NG,NG,_HM,_SM,BM,_) :-
+    is_list(L),
+    !,
+    NG=reconsult(BM:H).
+'$expand_goals'([H|L],NG,NG,_HM,_SM,BM,_) :-
+    is_list(L),
+    !,
+    NG=consult(BM:H).
+'$expand_goals'([],BM:true,BM:true,_HM,_SM,BM,_) :-
+    !.
+
 '$expand_goals'(G, G1, GO, HM, SM, BM, HVars) :-
     '$yap_strip_module'(BM:G,  NBM, GM),
     '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars).
@@ -438,27 +456,38 @@ meta_predicate(P) :-
 '$build_up'(HM, NH, SM, B1, (NH :- B1), BO, ( NH :- BO)) :- HM == SM, !.
 '$build_up'(HM, NH, _SM, B1, (NH :- B1), BO, ( HM:NH :- BO)) :- !.
 
+% expand arguments of a meta-predicate
+% $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
+
+expand_goal(G, MF:GF) :-
+    source_module(SM),
+    '$yap_strip_module'(G, M, IG),
+    '$expand_goals'(IG, _G1, GO, M, SM, M, []-IG*assert ),
+    !,
+    '$yap_strip_module'(M:GO, MF, GF).
+
+
+
+
 '$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-
     var(V), !.
 '$expand_clause_body'(true, _, _NH1, _HM1, _SM, _M, true, true ) :- !.
+
 '$expand_clause_body'(B,Assert, H, HM, SM, M, B1, BO ) :-
     % expanded positions
     % support for SWI's meta primitive.
-    '$module_u_vars'(HM , H, UVars),	 % collect head variables in
     '$is_mt'(H, B, HM, SM, M, IB, BM),
-	'$expand_goals'(IB, B1, BO1, HM, SM, BM, UVars-H),
+    '$expand_goals'(IB, B1, BO1, HM, SM, BM, Assert),
     (
 	Assert == compile,
 	'$full_clause_optimisation'(H, BM, BO1, BO)
+%    ,    ('__NB_getval__'(verbose,normal,fail)->writeln(BO);true)
     ->
     true
     ;
     BO = BO1
     ).
 
-
-% expand arguments of a meta-predicate
-% $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
 
 % expand module names in a clause (interface predicate).
@@ -472,28 +501,15 @@ meta_predicate(P) :-
 % A4: module for body of clause (this is the one used in looking up predicates)
 %
 % has to be last!!!
- '$expand_a_clause'(MHB, Asserting, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
+'$expand_clause'(HB, Asserting, Cl1, ClO) :- % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
     source_module(SM0),
-    '$yap_strip_module'(SM0:MHB, SM, HB),  % remove layers of modules over the clause. SM is the head module.
-    '$head_and_body'(HB, H, B),           % HB is H :- B.
-    '$yap_strip_module'(SM:H, HM, NH), % further module expansion
-    '$not_imported'(NH, HM),
-    '$yap_strip_module'(SM:B, BM, B0), % further module expansion
-    '$expand_clause_body'(B0, Asserting, NH, HM, SM0, BM, B1, BO),
-    '$build_up'(HM, NH, SM0, B1, Cl1, BO, ClO).
-
-
-expand_goal(Input, Output) :-
-    '$expand_meta_call'(Input, none, Output ).
-
-'$expand_meta_call'(G, HVars, MF:GF ) :-
-    source_module(SM),
-    '$yap_strip_module'(G, M, IG),
-    '$is_metapredicate'(IG, M),
-    '$expand_goals'(IG, _, GF0, M, SM, M, HVars-G),
-    !,
-    '$yap_strip_module'(M:GF0, MF, GF).
-'$expand_meta_call'(G, _HVars, M:IG ) :- 
-    '$yap_strip_module'(G, M, IG).
+    '$head_and_body'(HB, MHH, B0),           % HB is H :- B.
+    '$yap_strip_module'(MHH, HM0, H), % further module expansion
+    '$module_u_vars'(HM0, H,  HVars),	 % collect head variables in
+    '$expand_head'(H, H0, HM0, HM),
+ %   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
+    '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO ),
+    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO).
+    
 
 %% @}

@@ -229,6 +229,13 @@ print_boot_message(Type,Error,Desc) :-
     % succeed only if the *original* was at end of file.
     C == end_of_file.
 
+%% we're coming back from external code to a debugger call.
+%%
+'$reenter_debugger'(!) :- !.
+'$reenter_debugger'(_) :-
+    '$stop_creeping'(_),
+    '$set_debugger_state'(debug, false).
+
 :- c_compile('arith.yap').
 %:- stop_low_level_trace.
 

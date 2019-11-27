@@ -430,8 +430,8 @@ typedef uint64_t pred_flags_t;
 #define CountPredFlag ((pred_flags_t)0x02000000)  //< count calls to pred
 #define HiddenPredFlag ((pred_flags_t)0x01000000) //< invisible predicate
 #define CArgsPredFlag ((pred_flags_t)0x00800000)  //< SWI-like C-interface pred.
-#define SourcePredFlag                                                         \
-  ((pred_flags_t)0x00400000) //< static predicate with source declaration
+#define SourcePredFlag     ((pred_flags_t)0x00400000) \
+    //< static predicate with source declarations 
 #define MetaPredFlag                                                           \
   ((pred_flags_t)0x00200000) //< predicate subject to a meta declaration
 #define SyncPredFlag                                                           \

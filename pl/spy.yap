@@ -450,13 +450,6 @@ notrace(G) :-
     true
     ).
 
-%% we're coming back from external code to a debugger call.
-%%
-'$reenter_debugger'(!) :- !.
-'$reenter_debugger'(_) :-
-    '$stop_creeping'(_),
-    '$set_debugger_state'(debug, false).
-
 '$enable_debugging' :-
     '$re_enter_creep_mode'.
  

@@ -181,7 +181,7 @@ live :-
 '$expand_term0'(T,_,T).
 
 '$expand_term1'(T,O) :-
-        '$expand_meta_call'(T, none, O).
+        expand_goal(T, O).
 
 '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
     !,
@@ -573,8 +573,9 @@ write_query_answer( Bindings ) :-
 % standard meta-call, called if $execute could not do everything.
 %
 '$meta_call'(G, M) :-
+    '$yap_strip_module'(M:G, M1, G1),
 	'$current_choice_point'(CP),
-	'$call'(G, CP, G, M).
+	'$call'(G1, CP, G, M1).
 
 '$user_call'(G, M) :-
     '$yap_strip_module'(M:G, M1,G1),
@@ -601,17 +602,15 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G, M).
 
 '$meta_call'(G, CP, G0, M) :-
-	'$call'(G, CP, G0, M).
-
-'$call'(G, CP, G0, _, M) :-  /* iso version */
+%	expand_goal(M:G, NG),
+%	must_be_callable(NG),
+	'$yap_strip_module'(M:G,NM,NC),
+        '$call'(NC,CP,G0,NM).
+/*
+'$call'(G, CP, G0, _, M) :-  
 	'$iso_check_goal'(G,G0),
 	'$call'(G, CP, G0, M).
-
-'$call'(M:G,CP,G0,_M0) :- !,
-	expand_goal(M:G, NG),
-	must_be_callable(NG),
-	    '$yap_strip_module'(M:NG,NM,NC),
-        '$call'(NC,CP,G0,NM).
+*/
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).
@@ -703,7 +702,7 @@ write_query_answer( Bindings ) :-
 % 	(
 %      '$is_metapredicate'(G,CurMod)
 %     ->
-%      	'$reenter_debugger'(exit)',
+    %      	'$reenspter_debugger'(exit)',
 %      ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
 %      '$enable_debugging'
 %     ;
@@ -801,8 +800,8 @@ Command = (H --> B) ->
   reading goals and clauses.
 
   - _Module_:`expand_term(` _T_ , _X_) is called first on the
-  current source module _Module_ ; if i
-  - `user:expand_term(` _T_ , _X_ `)` is available on every module.
+  current source module _Module_ ; if i 
+ - `user:expand_term(` _T_ , _X_ `)` is available on every module.
 
   */
 
@@ -861,7 +860,7 @@ gated_call(Setup, Goal, Catcher, Cleanup) :-
 '$precompile_term'(Term, Term, Term).
 
 '$expand_clause'(InputCl, C1, CO) :-
-    '$expand_a_clause'( InputCl,compile, C1, CO),
+    '$expand_clause'( InputCl,compile, C1, CO),
     !.
 '$expand_clause'(Cl, Cl, Cl).
 

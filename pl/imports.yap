@@ -31,29 +31,31 @@ mimp :-
 %(ImportingMod:G :- ExportingMod:G0)),
 fail.
 
-'$import'(G0,GF) :-
+'$import'(G00,GF) :-
+    (user:expand_term(G00,G0) -> true ; G00 = G0),
     '$yap_strip_module'(G0,M0,H0),
-    '$_import'(M0:H0, GF).
+    '$_import'(M0:H0, GF),
+    !.
 
 '$_import'(M0:H0, GF) :-
     atom(M0),
     nonvar(H0),
     !,
     (
-    '$pred_exists'(H0,M0)
+	'$pred_exists'(H0,M0)
     ->
     M0:H0 = GF
     ;
     '$import__'(M0:H0,[M0:H0],GF)
     ).
 
+
 '$_import'(M0:H0, GF) :-
     var(M0),
     nonvar(H0),
     !,
-    '$module'(M0),
-    '$_import'(M0:H0, GF),
-     '$current_predicate'.
+    current_module(M0),
+    '$_import'(M0:H0, GF).
 '$_import'(M0:H0, GF) :-
      '$current_predicate'(_,M0,H0,_),
     '$import__'(M0:H0,[M0:H0],GF).
