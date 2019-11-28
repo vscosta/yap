@@ -391,10 +391,11 @@ typedef struct bp_frame {
   CELL *start_cp;
   CELL *end_cp;
   CELL *to;
-  CELL *oldp;
-  CELL oldv;
+  union {
+    CELL oldp;
+    CELL oldv;
+  };
 } bp_frame_t;
-
 
 
 typedef struct copy_frame {
@@ -532,30 +533,17 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	}
 	*ptf = AbsPair(CellDifH(HR,HLow));
 	ptf++;
-#ifdef RATIONAL_TREES
 	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldv = *pt0;
+	to_visit->oldv = d0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsPair(CellDifH(HR,HLow));
+	*ptd0 = AbsPair(CellDifH(HR,HLow));
 	to_visit ++;
-#else
-	if (pt0 < pt0_end) {
-	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
-	    goto heap_overflow;
-	  }
-	  to_visit->start_cp = pt0;
-	  to_visit->end_cp = pt0_end;
-	  to_visit->to = ptf;
-	  to_visit->ground = ground;
-	  to_visit ++;
-	}
-#endif
 	pt0 = ap2 - 1;
 	pt0_end = ap2 + 1;
 	ptf = HR;
@@ -598,30 +586,17 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	  continue;
 	}
 	/* store the terms to visit */
-#ifdef RATIONAL_TREES
 	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
 	  goto heap_overflow;
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->to = ptf;
-	to_visit->oldv = *pt0;
+	to_visit->oldv = d0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsAppl(HR);
+	*ptd0 = AbsAppl(HR);
 	to_visit ++;
-#else
-	if (pt0 < pt0_end) {
-	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
-	    goto heap_overflow;
-	  }
-	  to_visit->start_cp = pt0;
-	  to_visit->end_cp = pt0_end;
-	  to_visit->to = ptf;
-	  to_visit->ground = ground;
-	  to_visit ++;
-	}
-#endif
 	ground = (f != FunctorMutable);
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
@@ -655,7 +630,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
       /* we have already found this cell */
       *ptf++ = (CELL) ptd0;
     } else {
-#if COROUTINING
       if (newattvs && IsAttachedTerm((CELL)ptd0) && FALSE) {
 	/* if unbound, call the standard export term routine */
 	struct cp_frame *bp;
@@ -671,7 +645,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	Bind_NonAtt(ptd0, new);
 	ptf++;
       } else {
-#endif
 	/* first time we met this term */
 	*ptf = (CELL)CellDifH(ptf,HLow);
 	if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
@@ -682,9 +655,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	}
 	Bind_NonAtt(ptd0, (CELL)ptf);
 	ptf++;
-#ifdef COROUTINING
       }
-#endif
     }
   }
   /* Do we still have compound terms to visit */

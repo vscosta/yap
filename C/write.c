@@ -1094,13 +1094,11 @@ wglb.trailings = 0;
 
    if ((flags & Handle_cyclics_f) ){
      HB = HR;
-     tp = t;// Yap_BreakCyclesInTerm(t, &wglb.trailings PASS_REGS);
-   } else {
-     tp = t;
+     //     Yap_HackCycles(t PASS_REGS);
    }
 
    /* protect slots for portray */
-  writeTerm(tp, priority, 1, false, &wglb);
+  writeTerm(t, priority, 1, false, &wglb);
      if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);

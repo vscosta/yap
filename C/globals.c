@@ -114,6 +114,7 @@ threads that are created <em>after</em> the registration.
 #include "Yatom.h"
 #include "attvar.h"
 #include "clause.h"
+#include "heapgc.h" 
 #include "iopreds.h"
 #include "yapio.h"
 #include <math.h>
@@ -377,8 +378,8 @@ loop:
     register CELL *ptd0;
     ++pt0;
     ptd0 = pt0;
-    d0 = *ptd0;
-    deref_head(d0, copy_term_unk);
+    d0 = VISIT_UNMARK(*ptd0);
+    mderef_head(d0, copy_term_unk);
   copy_term_nvar : {
     if (IsPairTerm(d0)) {
       CELL *ap2 = RepPair(d0);
@@ -389,30 +390,17 @@ loop:
       }
       *ptf = AbsPair(HR);
       ptf++;
-#ifdef RATIONAL_TREES
       if (to_visit >= to_visit_max - 32) {
         expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
       to_visit->to = ptf;
-      to_visit->oldv = *pt0;
       to_visit->ground = ground;
+      to_visit->oldp = ptd0;
       /* fool the system into thinking we had a variable there */
-      *pt0 = AbsPair(HR);
+      *ptd0 = AbsPair(HR);
       to_visit++;
-#else
-      if (pt0 < pt0_end) {
-        if (to_visit + 32 >= to_visit_max - 32) {
-          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
-        }
-        to_visit->start_cp = pt0;
-        to_visit->end_cp = pt0_end;
-        to_visit->to = ptf;
-        to_visit->ground = ground;
-        to_visit++;
-      }
-#endif
       ground = TRUE;
       pt0 = ap2 - 1;
       pt0_end = ap2 + 1;
@@ -502,30 +490,17 @@ loop:
 
       ptf++;
 /* store the terms to visit */
-#ifdef RATIONAL_TREES
       if (to_visit + 32 >= to_visit_max) {
         expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
       }
       to_visit->start_cp = pt0;
       to_visit->end_cp = pt0_end;
+      to_visit->oldp = ptd0;
       to_visit->to = ptf;
-      to_visit->oldv = *pt0;
-      to_visit->ground = ground;
-      /* fool the system into thinking we had a variable there */
-      *pt0 = AbsAppl(HR);
-      to_visit++;
-#else
-      if (pt0 < pt0_end) {
-        if (to_visit++ >= (CELL **)AuxSp) {
-          expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
-        }
-        to_visit->start_cp = pt0;
-        to_visit->end_cp = pt0_end;
-        to_visit->to = ptf;
         to_visit->ground = ground;
-        to_visit++;
-      }
-#endif
+      /* fool the system into thinking we had a variable there */
+      *ptd0 = AbsAppl(HR);
+      to_visit++;
       ground = (f != FunctorMutable);
       d0 = ArityOfFunctor(f);
       pt0 = ap2;
@@ -544,7 +519,7 @@ loop:
     continue;
   }
 
-    derefa_body(d0, ptd0, copy_term_unk, copy_term_nvar);
+    mderef_body(d0, ptd0, copy_term_unk, copy_term_nvar);
     ground = FALSE;
     /* don't need to copy variables if we want to share the global term */
     if ((share && ptd0 < HB && ptd0 > H0) || (ptd0 >= HLow && ptd0 < HR)) {
@@ -592,9 +567,7 @@ loop:
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-#ifdef RATIONAL_TREES
-    *pt0 = to_visit->oldv;
-#endif
+    VUNMARK(to_visit->oldp);
     ground = (ground && to_visit->ground);
     goto loop;
   }
@@ -606,15 +579,13 @@ loop:
   return 0;
 
 overflow:
-#ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
     to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
+    VUNMARK(to_visit->oldp);
   }
-#endif
   clean_tr(TR0 PASS_REGS);
   pop_text_stack(lvl);
   return -1;
@@ -626,7 +597,7 @@ trail_overflow:
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
     ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
+    VUNMARK(to_visit->oldp);
   }
 #endif
   clean_tr(TR0);
@@ -646,112 +617,31 @@ restart:
   if (HR > ASP - 2 * MIN_ARENA_SIZE) {
     goto error_handler;
   }
-  if (IsVarTerm(t)) {
-    if (share && (!arenap || ArenaPt(*arenap) > VarOfTerm(t))) {
+  if (IsVarTerm(t) && (share && (!arenap || ArenaPt(*arenap) > VarOfTerm(t)))) {
       tf = t;
-    } else if (GlobalIsAttachedTerm(t)) {
-      CELL *Hi;
-
-      *HR = t;
-      Hi = HR + 1;
-      HR += 2;
-      if ((res = copy_complex_term(Hi - 2, Hi - 1, share, copy_att_vars, Hi,
-                                   Hi PASS_REGS)) < 0) {
-        goto error_handler;
-      }
-      tf = Hi[0];
-    } else {
-      tf = MkVarTerm();
-    }
+   
   } else if (IsAtomOrIntTerm(t)) {
     tf = t;
-  } else if (IsPairTerm(t)) {
-    CELL *ap;
-    CELL *Hi;
-
-    if (share && (!arenap || ArenaPt(*arenap) > RepAppl(t))) {
+ } else if (IsPairTerm(t) && (share && (!arenap || ArenaPt(*arenap) > RepAppl(t)))) {
       tf = t;
-    } else {
-      ap = RepPair(t);
-      Hi = HR;
-      tf = AbsPair(HR);
-      HR += 2;
-      if ((res = copy_complex_term(ap - 1, ap + 1, share, copy_att_vars, Hi,
+  } else   if (IsApplTerm(t) && (share && (!arenap || ArenaPt(*arenap) > RepAppl(t)))) {
+      tf = t;
+    }   else {
+	CELL *Hi = HR;
+	CELL *ap = &t;
+	HR++;
+	if ((res = copy_complex_term(ap - 1, ap , share, copy_att_vars, Hi,
                                    Hi PASS_REGS)) < 0) {
         goto error_handler;
+	}
+	tf = *Hi;
       }
-    }
-  } else {
-    Functor f;
-    CELL *HB0;
-    CELL *ap;
-
-    if (share && (!arenap || ArenaPt(*arenap) > RepAppl(t))) {
-      tf = t;
-    } else {
-      f = FunctorOfTerm(t);
-      HB0 = HR;
-      ap = RepAppl(t);
-      tf = AbsAppl(HR);
-      HR[0] = (CELL)f;
-      if (IsExtensionFunctor(f)) {
-        switch ((CELL)f) {
-        case (CELL)FunctorDBRef:
-          tf = t;
-          break;
-        case (CELL)FunctorLongInt:
-          HR[1] = ap[1];
-          HR[2] = EndSpecials;
-          HR += 3;
-          break;
-        case (CELL)FunctorDouble:
-          HR[1] = ap[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-          HR[2] = ap[2];
-          HR[3] = EndSpecials;
-          HR += 4;
-#else
-          HR[2] = EndSpecials;
-          HR += 3;
-#endif
-          break;
-        case (CELL)FunctorString:
-          if (HR > ASP - (MIN_ARENA_SIZE + 3 + ap[1])) {
-            res = -1;
-            goto error_handler;
-          }
-          memmove(HR, ap, sizeof(CELL) * (3 + ap[1]));
-          HR += ap[1] + 3;
-          break;
-        default: {
-          UInt sz = ArenaSz(t), i;
-
-          if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-            res = -1;
-            goto error_handler;
-          }
-          for (i = 1; i < sz; i++) {
-            HR[i] = ap[i];
-          }
-          HR += sz;
-        }
-        }
-      } else {
-        HR += 1 + ArityOfFunctor(f);
-        if ((res = copy_complex_term(ap, ap + ArityOfFunctor(f), share,
-                                     copy_att_vars, HB0 + 1, HB0 PASS_REGS)) <
-            0) {
-          goto error_handler;
-        }
-      }
-    }
-  }
-  {
+      
+      
     Term ar = CloseArena(&cspace PASS_REGS);
     if (arenap) {
       *arenap = ar;
     }
-  }
   return tf;
 
 error_handler:

@@ -112,9 +112,13 @@ typedef struct cp_frame {
   CELL *end_cp;
   CELL *to;
   CELL *curp;
-  CELL oldv;
+  union {
+    CELL* oldp;
+    CELL* oldv;
+  };
   int ground;
 } copy_frame;
+
 
 #ifdef COROUTINING
 

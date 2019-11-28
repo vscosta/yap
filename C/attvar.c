@@ -112,7 +112,7 @@ static int CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr,
   } else {
     to_visit->to = &(newv->Atts);
   }
-  to_visit->oldv = vt[-1];
+  to_visit->oldp = vt-1;
   to_visit->ground = FALSE;
   *to_visit_ptr = to_visit + 1;
   *res = (CELL) & (newv->Done);

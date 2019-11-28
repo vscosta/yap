@@ -15,6 +15,9 @@
 *									 *
 *************************************************************************/
 
+#ifndef HEAPGC_H
+#define HEAPGC_H 1
+
 
 
 /* macros used by garbage collection */
@@ -246,3 +249,36 @@ typedef struct gc_entry_info {
   OPCODE op;
   arity_t a;
 } gc_entry_info_t;
+
+#define MBIT (((CELL)1)<<63)
+                                                                                                                                                                                                                                        
+#define IS_VISIT_MARKER(d0) (((d0) & MBIT)==MBIT)
+
+#define  VISIT_MARK( d0) ((d0)|MBIT)
+
+
+#define VISIT_UNMARK(d0) ((d0)&~MBIT)
+
+#define VUNMARK(ptd0)  *ptd0 = ((*(ptd0))&~MBIT)
+
+
+#define VISITED(D) ( VISIT_UNMARK(D) != D)
+
+#define FVM ( VISITED(*ptd0) ? TermFoundVar|MBIT :TermFoundVar)
+#define FRVM ( VISITED(*ptd0) ? TermRefoundVar|MBIT :TermRefoundVar)
+
+#define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
+  if (IsVarTerm(D))                                                            \
+  goto Label
+
+#define mderef_body(D, A, LabelUnk, LabelNonVar)			\
+  do {                                                                         \
+   (D) = VISIT_UNMARK(D);  \
+   if (!IsVarTerm(D))							\
+      goto LabelNonVar;                                                        \
+  LabelUnk:                                                                    \
+    (A) = (CELL *)(D);							\
+	 (D) = VISIT_UNMARK(*(A));		\
+  } while (Unsigned(A) != (D) )
+
+#endif
