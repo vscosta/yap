@@ -136,7 +136,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	ptf++;
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->ground = ground;
 	to_visit++;
 	// move to new list
@@ -237,7 +237,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	/* store the terms to visit */
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->ground = ground;
 	if (++to_visit >= to_visit_max-32) {
 	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
@@ -303,7 +303,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     ground = (ground && to_visit->ground);
     goto loop;
   }
@@ -325,7 +325,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
   }
   reset_trail(TR0);
   pop_text_stack(lvl);
@@ -341,7 +341,7 @@ int Yap_copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     to_visit--;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
   }
   reset_trail(TR0);
   pop_text_stack(lvl);
@@ -538,7 +538,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->oldv = d0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
@@ -591,7 +591,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->oldv = d0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
@@ -663,7 +663,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
 #ifdef RATIONAL_TREES
     *pt0 = to_visit->oldv;
 #endif
@@ -687,7 +687,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     *pt0 = to_visit->oldv;
   }
 #endif
@@ -706,7 +706,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     *pt0 = to_visit->oldv;
   }
 #endif
@@ -730,7 +730,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     *pt0 = to_visit->oldv;
   }
 #endif
@@ -2422,7 +2422,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->oldv = *pt0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
@@ -2496,7 +2496,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	}
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
+	to_visit->ptf = ptf;
 	to_visit->oldv = *pt0;
 	to_visit->ground = ground;
 	/* fool the system into thinking we had a variable there */
@@ -2530,7 +2530,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
     to_visit --;
     if (ground) {
       CELL old = to_visit->oldv;
-      CELL *newp = to_visit->to-1;
+      CELL *newp = to_visit->ptf-1;
       CELL new = *newp;
 
       *newp = old;
@@ -2541,7 +2541,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
     }
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
 #ifdef RATIONAL_TREES
     *pt0 = to_visit->oldv;
 #endif
@@ -2565,7 +2565,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     *pt0 = to_visit->oldv;
   }
   reset_trail(TR0);
@@ -2583,7 +2583,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
     to_visit --;
     pt0 = to_visit->start_cp;
     pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
+    ptf = to_visit->ptf;
     *pt0 = to_visit->oldv;
   }
   reset_trail(TR0);

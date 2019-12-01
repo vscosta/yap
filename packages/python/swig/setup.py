@@ -56,9 +56,9 @@ libpydir = abspath(sysconfig.get_path('platlib'))
 
 here = path.abspath(path.dirname(__file__))
 
-sys.path.insert(0, "/home/vsc/github/yap-6.3/packages/python/swig")
+sys.path.insert(0, "/Users/vsc/github/yap/packages/python/swig")
 
-python_libdir = path.abspath(path.dirname("/usr/lib/libpython3.7m.so"))
+python_libdir = path.abspath(path.dirname("/usr/local/Frameworks/Python.framework/Versions/3.7/lib/libpython3.7m.dylib"))
 
 if platform.system() == 'Windows':
     local_libs = []
@@ -78,7 +78,7 @@ elif platform.system() == 'Linux':
 
 native_sources = ["yap4py/yap_wrap.cxx","yap4py/yapi.cpp"]
 
-#gmp_dir = path.abspath(path.dirname("/lib/libgmp.so"))
+#gmp_dir = path.abspath(path.dirname("/usr/local/opt/gmp/lib/libgmp.dylib"))
 # Get the long description from the README file
 
 
@@ -97,15 +97,15 @@ extensions = [Extension('_yap', native_sources,
                         library_dirs=[".",'../../..','/lib'],
                         extra_link_args=my_extra_link_args,
                         libraries=['Yap','gmp']+win_libs+local_libs,
-                        include_dirs=['/home/vsc/github/yap-6.3/H',
-                        '/home/vsc/github/yap-6.3/H/generated',
-                        '/home/vsc/github/yap-6.3/include',
-                        '/home/vsc/github/yap-6.3/OPTYap',
-                        '/home/vsc/github/yap-6.3/os',
-                        '/home/vsc/github/yap-6.3/utf8proc',
-                        '/home/vsc/github/yap-6.3/packages/python',
-                        '/home/vsc/github/yap-6.3',
-                        '/home/vsc/github/yap-6.3/CXX' ]
+                        include_dirs=['/Users/vsc/github/yap/H',
+                        '/Users/vsc/github/yap/H/generated',
+                        '/Users/vsc/github/yap/include',
+                        '/Users/vsc/github/yap/OPTYap',
+                        '/Users/vsc/github/yap/os',
+                        '/Users/vsc/github/yap/utf8proc',
+                        '/Users/vsc/github/yap/packages/python',
+                        '/Users/vsc/github/yap',
+                        '/Users/vsc/github/yap/CXX' ]
                         )]
 
 

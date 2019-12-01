@@ -1090,11 +1090,10 @@ wglb.trailings = 0;
   wglb.MaxDepth = 0 ;
   wglb.lw = separator;
 wglb.trailings = 0;
-  Term tp;
 
    if ((flags & Handle_cyclics_f) ){
      HB = HR;
-     //     Yap_HackCycles(t PASS_REGS);
+     Yap_HackCycles(t PASS_REGS);
    }
 
    /* protect slots for portray */

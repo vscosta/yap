@@ -252,23 +252,26 @@ typedef struct gc_entry_info {
 
 #define MBIT (((CELL)1)<<63)
                                                                                                                                                                                                                                         
-#define IS_VISIT_MARKER(d0) (((d0) & MBIT)==MBIT)
+#define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
+  RepPair(d0) >= (CELL*)to_visit0				\
+			     && RepPair(d0) < (CELL*)to_visit)
 
-#define  VISIT_MARK( d0) ((d0)|MBIT)
+#define  VISIT_MARK() AbsPair((CELL*)to_visit)
+
+#define VISIT_TARGET(d0) (((struct cp_frame *)RepPair(d0))->ptf)
+
+#define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct cp_frame *)RepPair(d0))->oldv:d0)
+
+#define VUNMARK(ptd0, d0)  (*(ptd0) = (d0))
 
 
-#define VISIT_UNMARK(d0) ((d0)&~MBIT)
+#define VISITED(D0)  IS_VISIT_MARKER(D0)
 
-#define VUNMARK(ptd0)  *ptd0 = ((*(ptd0))&~MBIT)
-
-
-#define VISITED(D) ( VISIT_UNMARK(D) != D)
-
-#define FVM ( VISITED(*ptd0) ? TermFoundVar|MBIT :TermFoundVar)
-#define FRVM ( VISITED(*ptd0) ? TermRefoundVar|MBIT :TermRefoundVar)
+#define FVM  TermFoundVar
+#define FRVM TermRefoundVar
 
 #define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
-  if (IsVarTerm(D))                                                            \
+  if (IsVarTerm(D))      \
   goto Label
 
 #define mderef_body(D, A, LabelUnk, LabelNonVar)			\

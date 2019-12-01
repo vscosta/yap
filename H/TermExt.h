@@ -110,13 +110,11 @@ INLINE_ONLY blob_type BlobOfFunctor(Functor f) {
 typedef struct cp_frame {
   CELL *start_cp;
   CELL *end_cp;
-  CELL *to;
+  CELL *ptf;
   CELL *curp;
-  union {
     CELL* oldp;
-    CELL* oldv;
-  };
-  int ground;
+    CELL oldv;
+   int ground;
 } copy_frame;
 
 
