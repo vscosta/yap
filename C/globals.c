@@ -649,7 +649,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
         pt0 = to_visit->start_cp;
         pt0_end = to_visit->end_cp;
         ptf = to_visit->ptf;
-  if (bindp)
+ if (bindp)
         VUNMARK(to_visit->oldp, to_visit->oldv);
     }
         ground = (ground && to_visit->ground);
