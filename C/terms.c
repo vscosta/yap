@@ -14,8 +14,8 @@
  *									 *
  *************************************************************************/
 
-//#define DEB_D0(S) printf("%s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0, *ptd0)
-#define DEB_D0(S) printf("%s: d0=%lx/ptd0=%p *ptd0=%d ss=%ld\n",S,d0, ptd0, *ptd0==d0,to_visit-to_visit0)
+//#define DEB_D0(S) printf("%s %s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0, *ptd0)
+#define DEB_D0(S) (fprintf(stderr,"%s %s: d0=%lx/ptd0=%p *ptd0=%d ss=%ld\n",__FUNCTION__, S,d0, ptd0, *ptd0==d0,to_visit-to_visit0), Yap_DebugPlWriteln(d0))
 /**
  * @file C/terms.c
  *
