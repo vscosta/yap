@@ -87,8 +87,11 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
             continue;
           }
         }
+	Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
+	LOCAL_max_depth=3, LOCAL_max_list=3, LOCAL_max_write_args = 3;
         const char *sn = Yap_TermToBuffer(args[i],
                                           Handle_cyclics_f|Quote_illegal_f | Handle_vars_f);
+	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
         size_t sz;
         if (sn == NULL) {
 	  sn = malloc(strlen("<* error *>")+1);

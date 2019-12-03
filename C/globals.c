@@ -25,7 +25,9 @@ static char SccsId[] = "%W% %G%";
  *
  *
  */
-#define DEB_DOOB(S) (fprintf(stderr, "%s ",__FUNCTION__) , Yap_DebugPlWriteln(d0))
+#define DEB_DOOBIN(d0) (fprintf(stderr, "+++ %s ",__FUNCTION__) , Yap_DebugPlWriteln(d0))
+#define DEB_DOOBOUT(d0) (fprintf(stderr, "--- ") , Yap_DebugPlWriteln(d0))
+#defineDE B_DOOB() (fprintf(stderr, "%ld %p->%p=%lx %p\n ",to_visit-to_visit0,pt0, ptd0, d0, ptf) ) //, Yap_DebugPlWriteln(d0))
 /**
 
    @defgroup Global_Variables Global Variables
@@ -333,8 +335,10 @@ CELL *Yap_GetFromArena(Term *arenap, size_t cells, UInt arity) {
         base = ArenaPt(arena);
         old_sz += extra_size;
     }
-    new_size = old_sz - cells;
-    *arenap = CreateNewArena(base + cells, new_size);
+    if (arenap) {
+      new_size = old_sz - cells;
+      *arenap = CreateNewArena(base + cells, new_size);
+    }
     return base;
 }
 
@@ -389,14 +393,14 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
             Malloc(1024 * sizeof(struct cp_frame));
     struct cp_frame *to_visit_max = to_visit0 + 1024;
     struct cp_frame *to_visit = to_visit0;
-    bool plain_mode = false;
     tr_fr_ptr TR0 = TR;
     int ground = true;
     HB = HLow;
     ptf--; // synch with pt0;
-    bool hack_loops = bindp && (*bindp == TermFoundVar);
-    loop:
-    while (pt0 < pt0_end) {
+    bool hack = bindp && (*bindp == TermFoundVar);
+    bool forest = bindp && (*bindp != TermFoundVar);
+    while (pt0 < pt0_end || to_visit > to_visit0) {
+  if (pt0 < pt0_end) {
         CELL d0;
         CELL *ptd0;
 // next cell
@@ -404,42 +408,42 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
         ++ptf;
         ptd0 = pt0;
         // notice that this is the true value of d0
-        d0 = VISIT_UNMARK(*ptd0);
-        list_shortcut:
-                                     DEB_DOOB("copy");
-    mderef_head(d0, copy_term_unk);
-        copy_term_nvar :
+	  d0 = VISIT_UNMARK(*ptd0);
+   list_shortcut:
+	//	DEB_DOOB("enter");
+	mderef_head(d0, copy_term_unk);
+       copy_term_nvar :
         if (IsPairTerm(d0)) {
+	  CELL *ptd1 = RepPair(d0);
             // ap points to head of list
-            CELL *ap2 = RepPair(d0);
             // we've been here before
-            if (IS_VISIT_MARKER(*ap2)) {
-                /* d0 has ance                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  */
-                if (bindp) {
-                    if (hack_loops) {
-                        // for now just put ..
-                        *ptf = TermFoundVar;
-                    } else {
-                        // set up a binding PTF=D0
-                        Term ts[2];
-                        ts[0] = (CELL) ptf;
-                        ts[1] = AbsPair(VISIT_TARGET(*ptd0));
-                        *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-                        RESET_VARIABLE(ptf);
-                    }
-                             pt0++;
-                ptf++;
-                goto list_shortcut;
-            }
-            if (share && ap2 >= HB) {
-                // d0 is from copy, so just use it. Note that this allows
-                // copying rational trees, even if we don break cycles.
-                *ptf = d0;
-                             pt0++;
-                ptf++;
-                goto list_shortcut;
-
-            }
+            if (IS_VISIT_MARKER(*ptd1)) {
+                /* d0 has ance   */	 
+		if (hack) {
+		  // for now just put ..
+		  *ptf = TermFoundVar;
+		} else if (forest) {
+		  // set up a binding PTF=D0
+		  Term ts[2];
+		  ts[0] = (CELL) ptf;
+		  ts[1] = (*VISIT_TARGET(*ptd1));
+		  *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
+		  RESET_VARIABLE(ptf);
+		} else {
+		  *ptf = (*VISIT_TARGET(*ptd1));
+		}
+	
+	      continue;
+	      
+	    }
+	   
+	      if (share && ptd0 >= HB) {
+		// d0 is from copy, so just use it. Note that this allows
+		// copying rational trees, even if we don break cycles.
+		*ptf = d0;
+		continue;
+	      
+	    }
 
             if (to_visit >= to_visit_max - 32) {
                 expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
@@ -447,40 +451,41 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
             // first time we meet,
             // save state
 
+	    if (share) {
+	      d0 = AbsPair(ptf);
+	      MaBind(ptd0,d0);
+            }
             to_visit->start_cp = pt0;
             to_visit->end_cp = pt0_end;
             to_visit->ptf = ptf;
             to_visit->ground = ground;
-              *ptf = AbsPair(HR);
-             if (share) {
-                d0 = AbsPair(ptf);
-                MaBind(ptd0, *ptf);
-            }
-
-         if (!plain_mode) {
-                to_visit->oldp = ptd0;
-                   /*  the system into thinking we had a variable there */
-                *ap2 = VISIT_MARK();
-            }
-                 ptf = HR;
-              to_visit++;
+	     to_visit->oldp = ptd1;
+	     to_visit->oldv = *ptd1;
+	     d0 = VISIT_UNMARK(*ptd1);
+	     *ptd1 = VISIT_MARK();
+             *ptf = AbsPair(HR);
+	     /*  the system into thinking we had a variable there */
+	     
+	     ptf = HR;
+	     to_visit++;
             ground = true;
-            pt0 = ap2;
-            pt0_end = ap2 + 1;
+            pt0 = ptd1;
+            pt0_end = ptd1 + 1;
             HR += 2;
-            if (HR > ASP - MIN_ARENA_SIZE) {
+	     if (HR > ASP - MIN_ARENA_SIZE) {
                 //same as before
                 goto overflow;
             }
-            goto list_shortcut;
+	     ptd0 = pt0;
+	     goto list_shortcut;
         } else if (IsApplTerm(d0)) {
-            CELL *ap2 = RepAppl(d0);
-            if (share && ap2 >= HB) {
+            CELL *ptd1 = RepAppl(d0);
+            if (share && ptd1 >= HB) {
                 /* If this is newer than the current term, just reuse */
                 *ptf = d0;
                 continue;
             }
-            Functor f = (Functor) (*ap2);
+            Functor f = (Functor) (*ptd1);
 
             if (IsExtensionFunctor(f)) {
                 switch ((CELL) f) {
@@ -494,7 +499,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                         }
                         *ptf = AbsAppl(HR);
                         HR[0] = (CELL) f;
-                        HR[1] = ap2[1];
+                        HR[1] = ptd1[1];
                         HR[2] = EndSpecials;
                         HR += 3;
                         if (HR > ASP - MIN_ARENA_SIZE) {
@@ -508,9 +513,9 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                         }
                         *ptf = AbsAppl(HR);
                         HR[0] = (CELL) f;
-                        HR[1] = ap2[1];
+                        HR[1] = ptd1[1];
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-                    HR[2] = ap2[2];
+                    HR[2] = ptd1[2];
                     HR[3] = EndSpecials;
                     HR += 4;
 #else
@@ -519,18 +524,18 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 #endif
                         break;
                     case (CELL) FunctorString:
-                        if (ASP - HR < MIN_ARENA_SIZE + 3 + ap2[1]) {
+                        if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
                             goto overflow;
                         }
                         *ptf = AbsAppl(HR);
-                        memmove(HR, ap2, sizeof(CELL) * (3 + ap2[1]));
-                        HR += ap2[1] + 3;
+                        memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
+                        HR += ptd1[1] + 3;
                         break;
                     default: {
 
                         /* big int */
                         UInt sz = (sizeof(MP_INT) + 3 * CellSize +
-                                   ((MP_INT *) (ap2 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+                                   ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
                                   CellSize,
                                 i;
 
@@ -540,60 +545,57 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                         *ptf = AbsAppl(HR);
                         HR[0] = (CELL) f;
                         for (i = 1; i < sz; i++) {
-                            HR[i] = ap2[i];
+                            HR[i] = ptd1[i];
                         }
                         HR += sz;
                     }
                 }
                 continue;
             }
-            if (IS_VISIT_MARKER(*ap2)) {
+            if (IS_VISIT_MARKER(*ptd1)) {
                 /* If this is newer than the current term, just reuse */
                 if (bindp) {
-                    if (hack_loops) {
+                    if (hack) {
                         *ptf = TermFoundVar;
+			MaBind(ptd0,(CELL)ptf);
                     } else {
                         Term ts[2];
                         ts[0] = (CELL) ptf;
-                        ts[1] = AbsAppl(VISIT_TARGET(*ap2));
+                        ts[1] = (*VISIT_TARGET(*ptd1));
                         *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
                         RESET_VARIABLE(ptf);
                     }
                 } else {
-                    //same as before
-                    *ptf = AbsAppl(VISIT_TARGET(*ptd0));
+		  //same as before
+		  *ptf = (*VISIT_TARGET(*ptd1));
                 }
                 continue;
             }
-                d0 = AbsAppl(ptf);
-                     *ptf = AbsAppl(HR);;
-          if (share) {
-
-                MaBind(ptd0, d0);
+	    *ptf = AbsAppl(HR);
+	    if (share) {
+	      d0 = AbsAppl(ptf);
+	      MaBind(ptd0, d0);
             }
-
-
             /* store the terms to visit */
             if (to_visit + 32 >= to_visit_max) {
                 expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
             }
             to_visit->start_cp = pt0;
             to_visit->end_cp = pt0_end;
-            to_visit->oldp = ptd0;
             to_visit->ptf = ptf;
             to_visit->ground = ground;
-            /* fool the system into thinking we had a variable there */
-            to_visit->oldv = d0;
-            *ptd0 = VISIT_MARK();
+	      to_visit->oldp = ptd1;
+	      to_visit->oldv = *ptd1;
+	      *ptd1 = VISIT_MARK();
             to_visit++;
             ground = (f != FunctorMutable);
-            d0 = ArityOfFunctor(f);
-            pt0 = ap2;
-            pt0_end = ap2 + d0;
+            arity_t arity = ArityOfFunctor(f);
+            pt0 = ptd1;
+            pt0_end = ptd1 + arity;
             /* store the functor for the new term */
             HR[0] = (CELL) f;
             ptf = HR;
-            HR += d0 + 1;
+            HR += arity + 1;
             if (HR > ASP - MIN_ARENA_SIZE) {
                 goto overflow;
             }
@@ -601,24 +603,22 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
             /* just copy atoms or integers */
             *ptf = d0;
         }
-        continue;
-
+	continue;
+	
         mderef_body(d0, ptd0, copy_term_unk, copy_term_nvar);
         ground = FALSE;
         /* don't need to copy variables if we want to share the global term */
-        if (share && ptd0 > HB) {
+        if (forest && ptd0 > HB) {
             /* we have already found this cell */
             *ptf = (CELL) ptd0;
         } else {
-#if COROUTINING
             if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
                 /* if unbound, call the standard copy term routine */
                 struct cp_frame *bp;
                 CELL new;
 
                 bp = to_visit;
-                if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
-                                                                  ptf PASS_REGS)) {
+                if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
                     goto overflow;
                 }
                 to_visit = bp;
@@ -631,29 +631,25 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
                 }
                 Bind_and_Trail(ptd0, new);
             } else {
-#endif
                 /* first time we met this term */
                 RESET_VARIABLE(ptf);
                 if ((ADDR) TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
                     goto trail_overflow;
                 Bind_and_Trail(ptd0, (CELL) ptf);
-#ifdef COROUTINING
-            }
-#endif
-        }
-    }
 
-    /* Do we still have compound terms to visit */
-    if (to_visit > to_visit0) {
-        to_visit--;
-        pt0 = to_visit->start_cp;
-        pt0_end = to_visit->end_cp;
-        ptf = to_visit->ptf;
- if (bindp)
-        VUNMARK(to_visit->oldp, to_visit->oldv);
-    }
-        ground = (ground && to_visit->ground);
-        goto loop;
+            }
+
+        }
+	continue;
+      }
+      
+      to_visit--;
+      pt0 = to_visit->start_cp;
+      pt0_end = to_visit->end_cp;
+      ptf = to_visit->ptf;
+	VUNMARK(to_visit->oldp, to_visit->oldv);
+      ground = (ground && to_visit->ground);
+
     }
 
     /* restore our nice, friendly, term to its original state */
@@ -668,7 +664,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
         pt0 = to_visit->start_cp;
         pt0_end = to_visit->end_cp;
         ptf = to_visit->ptf;
-        VUNMARK(to_visit->oldp, to_visit->oldv);
+	  VUNMARK(to_visit->oldp, to_visit->oldv);
     }
     clean_tr(TR0 PASS_REGS);
     pop_text_stack(lvl);
@@ -697,28 +693,28 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
 
     restart:
     t = Deref(t);
+    if (IsVarTerm(t) && !IsAttVar((CELL*)t)) {
+      if (IsVarTerm(t))
+	return MkVarTerm();
+    }
+    if (IsAtomicTerm(t)) {
+      return t;
+    }
     enter_cell_space(&cspace, arenap);
     if (HR > ASP - 2 * MIN_ARENA_SIZE) {
         goto error_handler;
     }
-    if (IsVarTerm(t) && (share && (!arenap || ArenaPt(*arenap) > VarOfTerm(t)))) {
-        tf = t;
-
-    } else if (IsAtomOrIntTerm(t)) {
-        tf = t;
-    } else if (IsPairTerm(t) && (share && (!arenap || ArenaPt(*arenap) > RepAppl(t)))) {
-        tf = t;
-    } else if (IsApplTerm(t) && (share && (!arenap || ArenaPt(*arenap) > RepAppl(t)))) {
-        tf = t;
-    } else {
+    {
         CELL *Hi = HR;
         CELL *ap = &t;
+	//   DEB_DOOBIN(t);
         HR++;
         if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, Hi,
                                      listp, Hi PASS_REGS)) < 0) {
             goto error_handler;
         }
-        tf = *Hi;
+	 tf = *Hi;
+	 //	          DEB_DOOBOUT(tf);
     }
 
 
@@ -738,11 +734,13 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
             min_grow +=
                     (restarts < 16 ? 16 * 1024 * restarts * restarts : 128 * 1024 * 1024);
             HR = HB;
-            *arenap = CloseArena(&cspace PASS_REGS);
-            if ((*arenap =
-                         GrowArena(*arenap, min_grow, arity + 1, &cspace PASS_REGS)) == 0) {
+	    if (arenap) {
+	      *arenap = CloseArena(&cspace PASS_REGS);
+	      if ((*arenap =
+		   GrowArena(*arenap, min_grow, arity + 1, &cspace PASS_REGS)) == 0) {
                 Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
                 return 0L;
+	      }
             }
             break;
         case -4:
@@ -756,7 +754,9 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
                     return 0L;
                 }
             } while (TR > (tr_fr_ptr) LOCAL_TrailTop - 256 * 256);
-            *arenap = Yap_PopHandle(sla);
+	    if (arenap) {
+	      *arenap = Yap_PopHandle(sla);
+	    }
             break;
         default: /* temporary space overflow */
             CloseArena(&cspace);
@@ -779,7 +779,7 @@ Term Yap_CopyTermNoShare(Term inp) {
 
 
 Term Yap_HackCycles(Term inp USES_REGS) {
-    Term l;
+    Term l=TermFoundVar;
     return CopyTermToArena(inp, FALSE, true, 3, NULL, &l, 0 PASS_REGS);
 }
 

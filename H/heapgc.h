@@ -271,7 +271,7 @@ typedef struct gc_entry_info {
 #define FRVM TermRefoundVar
 
 #define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
-  if (IsVarTerm(D))      \
+  if (IsVarTerm(D=VISIT_UNMARK(D)))					\
   goto Label
 
 #define mderef_body(D, A, LabelUnk, LabelNonVar)			\

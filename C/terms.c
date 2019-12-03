@@ -60,6 +60,8 @@ typedef struct non_single_struct_t {
 //#define  CELL *pt0, *pt0_end, *ptf;
 //} non_singletons_t;
 
+#define DEB_DOOB() (fprintf(stderr, "%ld %p->%p=%lx\n ",to_visit-to_visit0,pt0, ptd0, d0) ) //, Yap_DebugPlWriteln(d0))
+
 #define WALK_COMPLEX_TERM__(LIST0, STRUCT0, PRIMI0)			\
 									\
   reset:								\
@@ -88,15 +90,15 @@ list_loop:								\
  /*fprintf(stderr, "%ld at %s\n", to_visit - to_visit0, __FUNCTION__);*/ \
  mderef_head(d0, var_in_term_unk);					\
 var_in_term_nvar : {							\
- if (IsPairTerm(d0)) {DEB_D0("entry=");					\
+ if (IsPairTerm(d0)) {					\
    if (to_visit + 32 >= to_visit_max) {					\
      goto aux_overflow;							\
    }									\
-   ptd0 = RepPair(d0);							\
-   d0 = VISIT_UNMARK(ptd0[0]);DEB_D0("head=");				\
+   CELL *ptd0 = RepPair(d0);  						\
+   CELL d0 = VISIT_UNMARK(ptd0[0]);				\
    LIST0;								\
-   if (IS_VISIT_MARKER(*ptd0))						\
-     goto restart;							\
+   if (IS_VISIT_MARKER(ptd0[0]))						\
+     continue;							\
    to_visit->pt0 = pt0;							\
    to_visit->pt0_end = pt0_end;						\
    to_visit->ptd0 = ptd0;						\
@@ -134,7 +136,7 @@ var_in_term_nvar : {							\
    pt0_end = ptd0 + d1;							\
    continue;								\
  } else {								\
-  PRIMI0;		DEB_D0("cons=");						\
+  PRIMI0;						\
   continue;								\
  }									\
 mderef_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);		\
@@ -859,17 +861,12 @@ static Int free_variables_in_term(
       HR[0] = (CELL)ptd0;			\
       HR[1] = AbsPair(HR + 2);			\
       HR += 2;					\
-      refound_var(ptd0);			\
+      *ptd0 = TermRefoundVar;				\
     }
-  
-static inline void refound_var(CELL *ptd0) {
-  *ptd0 = FRVM;
 
-}
 
 static Term non_singletons_in_complex_term(CELL * pt0_,
 					   CELL * pt0_end_,
-					   
 					   Term s USES_REGS) {
   CELL *pt0, *pt0_end;
   int lvl;
@@ -884,9 +881,7 @@ static Term non_singletons_in_complex_term(CELL * pt0_,
     /* Trail overflow */
     goto trail_overflow;
   }
-
-  YapBind(ptd0,FVM);
- 
+  YapBind(ptd0, TermFoundVar);
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
