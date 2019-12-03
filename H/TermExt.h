@@ -115,6 +115,7 @@ typedef struct cp_frame {
     CELL* oldp;
     CELL oldv;
    int ground;
+  Term t;
 } copy_frame;
 
 

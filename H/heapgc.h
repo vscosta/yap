@@ -254,11 +254,11 @@ typedef struct gc_entry_info {
                                                                                                                                                                                                                                         
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
-			     && RepPair(d0) < (CELL*)to_visit)
+			     && RepPair(d0) <= (CELL*)to_visit)
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
-#define VISIT_TARGET(d0) (((struct cp_frame *)RepPair(d0))->ptf)
+#define VISIT_TARGET(d0) (((struct cp_frame *)RepPair(d0))->t)
 
 #define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct cp_frame *)RepPair(d0))->oldv:d0)
 

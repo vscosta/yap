@@ -38,7 +38,7 @@ class X_API YAPPredicate;
 class X_API YAPQuery : public YAPPredicate {
   bool q_open;
   int q_state;
-  yhandle_t q_handles;
+  // yhandle_t q_handles;
   int q_flags;
   YAP_dogoalinfo q_h;
   YAPPairTerm *names;

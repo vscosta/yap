@@ -85,7 +85,7 @@ restart:								\
  while (pt0 < pt0_end) {						\
  ++pt0;									\
  ptd0 = pt0;\
- d0 = VISIT_UNMARK(*ptd0);\
+d0 = VISIT_UNMARK(*ptd0);						\
 list_loop:								\
  /*fprintf(stderr, "%ld at %s\n", to_visit - to_visit0, __FUNCTION__);*/ \
  mderef_head(d0, var_in_term_unk);					\
@@ -97,7 +97,7 @@ var_in_term_nvar : {							\
    CELL *ptd0 = RepPair(d0);  						\
    CELL d0 = VISIT_UNMARK(ptd0[0]);				\
    LIST0;								\
-   if (IS_VISIT_MARKER(ptd0[0]))						\
+   if (IS_VISIT_MARKER(ptd0[0]))				\
      continue;							\
    to_visit->pt0 = pt0;							\
    to_visit->pt0_end = pt0_end;						\
