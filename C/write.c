@@ -718,10 +718,6 @@ static void write_list(Term t, int direction, int depth,
   Term ti;
 
   while (1) {
-    if (depth && --depth == 0) {
-         putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
-    return;
-    }
     if (t == TermNil)
       break;
     PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth , FALSE, wglb));
@@ -730,7 +726,7 @@ static void write_list(Term t, int direction, int depth,
       break;
     if (!IsPairTerm(ti))
       break;
-    if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
+    if ( depth ==1) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -739,7 +735,7 @@ static void write_list(Term t, int direction, int depth,
       return;
     }
     lastw = separator;
-    depth++;
+    depth--;
     wrputc(',', wglb->stream);
     t = ti;
   }

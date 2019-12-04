@@ -460,21 +460,24 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       /* d0 has ance   */	 
 	  if (hack) {
 	    // for now just put ..
-	    *ptf = TermFoundVar;
+	    char s[64];
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd1));
+	    *ptf = MkStringTerm(s);
 	  } else if (forest) {
-	    // set up a binding PTF=D0
-	    CELL oldt = VISIT_TARGET(*ptd1);
-	    if (IsVarTerm(oldt)) {
-	      *ptf = oldt;
-	      continue;
-	    }
-	    Term ts[2];
-	    ts[0] = (CELL) ptf;
-	    ts[1] = oldt;
-	    VISIT_TARGET(*ptd1) = (CELL)ptf;
-	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-	    RESET_VARIABLE(ptf);
-	  } else {
+          // set up a binding PTF=D0
+          struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+          Term val = entry->t;
+          if (IsVarTerm(val)) {
+              *ptf = val;
+              continue;
+          }
+          Term ts[2];
+          ts[0] = (CELL) ptf;
+          ts[1] = val;
+          entry->t = (CELL)ptf;
+          *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
+          RESET_VARIABLE(ptf);
+      } else {
 	    *ptf = (VISIT_TARGET(*ptd1));
 	  }
 	
@@ -540,15 +543,16 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	      *ptf = TermFoundVar;
 	  } else if (forest) {
 	    // set up a binding PTF=D0
-	    CELL oldt = VISIT_TARGET(*ptd1);
-	    if (IsVarTerm(oldt)) {
-	      *ptf = oldt;
+        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+	    Term val = entry->t;
+	    if (IsVarTerm(val)) {
+	      *ptf = val;
 	      continue;
 	    }
 	    Term ts[2];
 	    ts[0] = (CELL) ptf;
-	    ts[1] = oldt;
-	    VISIT_TARGET(*ptd1) = (CELL)ptf;
+	    ts[1] = val;
+	    entry->t = (CELL)ptf;
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
 	  } else {
