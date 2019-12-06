@@ -87,7 +87,7 @@ restart:								\
  ptd0 = pt0;\
 d0 = VISIT_UNMARK(*ptd0);						\
 list_loop:								\
- /*fprintf(stderr, "%ld at %s\n", to_visit - to_visit0, __FUNCTION__);*/ \
+ /*fprintf(stderr, "%ld at %s\n", tttttto_visit - to_visit0, __FUNCTION__);*/ \
  mderef_head(d0, var_in_term_unk);					\
 var_in_term_nvar : {							\
  if (IsPairTerm(d0)) {					\

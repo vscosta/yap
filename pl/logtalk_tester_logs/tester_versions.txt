@@ -1,0 +1,37 @@
+
+Logtalk 3.33.0-b02
+Copyright (c) 1998-2019 Paulo Moura
+
+% Default lint compilation flags: 
+%   unknown_predicates: warning, undefined_predicates: warning
+%   unknown_entities: warning, steadfastness: silent, naming: silent
+%   missing_directives: warning, duplicated_directives: warning
+%   duplicated_clauses: silent
+%   portability: silent, redefined_built_ins: silent, deprecated: warning
+%   trivial_goal_fails: warning, always_true_or_false_goals: warning
+%   lambda_variables: warning, suspicious_calls: warning
+%   singleton_variables: warning, underscore_variables: singletons
+% Default optional features compiler flags:
+%   complements: deny, dynamic_declarations: deny
+%   context_switching_calls: allow, events: deny
+% Other default compilation flags:
+%   report: on, scratch_directory: ./.lgt_tmp/
+%   source_data: on, code_prefix: $, hook: n/d
+%   optimize: off, debug: off, clean: on, reload: changed
+% Backend Prolog compiler file compilation and loading flags:
+%   prolog_compiler: []
+%   prolog_loader:   [silent(true),compilation_mode(compact)]
+% Read-only compilation flags (backend Prolog compiler features):
+%   prolog_dialect: yap, modules: supported, threads: unsupported
+%   engines: unsupported, tabling: supported, coinduction: supported
+%   unicode: full, encoding_directive: full
+% 
+% No settings file found in the startup, Logtalk user, or user home directories.
+% Using default flag values set in the backend Prolog compiler adapter file.
+% 
+% For Logtalk help, use ?- {help(loader)}. or ?- logtalk_load(help(loader)).
+% 
+*****         Logtalk version: 3.33.0-b02
+*****         Prolog version: 6.5.0
+% [ /home/vsc/logtalk/library/tester_versions.lgt loaded ]
+% (0 warnings)

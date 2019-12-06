@@ -1,0 +1,7 @@
+:- initialization({tester}).
+
+:-
+	setenv('LOGTALKHOME','/home/vsc/.local/share/logtalk'),
+	setenv('LOGTALKUSER','/home/vsc/logtalk'),
+	['$LOGTALKHOME/integration/logtalk_yap'].
+

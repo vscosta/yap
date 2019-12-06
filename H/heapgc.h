@@ -258,6 +258,8 @@ typedef struct gc_entry_info {
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
+#define VISIT_ENTRY(d0) ((struct cp_frame *)RepPair(d0))
+
 #define VISIT_TARGET(d0) (((struct cp_frame *)RepPair(d0))->t)
 
 #define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct cp_frame *)RepPair(d0))->oldv:d0)

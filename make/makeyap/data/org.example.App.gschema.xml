@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="makeyap">
+	<schema id="org.example.App" path="/org/example/App/">
+	</schema>
+</schemalist>

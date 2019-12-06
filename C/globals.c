@@ -460,7 +460,9 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       /* d0 has ance   */	 
 	  if (hack) {
 	    // for now just put ..
-	    *ptf = TermFoundVar;
+	    char s[64];
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd1));
+	    *ptf = MkStringTerm(s);
 	  } else if (forest) {
 	    // set up a binding PTF=D0
 	    CELL oldt = VISIT_TARGET(*ptd1);
@@ -474,8 +476,9 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    VISIT_TARGET(*ptd1) = (CELL)ptf;
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
-	  } else {	  }
-	
+	  } else {
+	    *bindp =  VISIT_TARGET(*ptd1);
+	  }	
 	  continue;
 	      
 	}
@@ -537,15 +540,16 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	      *ptf = TermFoundVar;
 	  } else if (forest) {
 	    // set up a binding PTF=D0
-	    CELL oldt = VISIT_TARGET(*ptd1);
-	    if (IsVarTerm(oldt)) {
-	      *ptf = oldt;
+        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+	    Term val = entry->t;
+	    if (IsVarTerm(val)) {
+	      *ptf = val;
 	      continue;
 	    }
 	    Term ts[2];
 	    ts[0] = (CELL) ptf;
-	    ts[1] = oldt;
-	    VISIT_TARGET(*ptd1) = (CELL)ptf;
+	    ts[1] = val;
+	    entry->t = (CELL)ptf;
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
 	  } else {
@@ -652,9 +656,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	/* just copy atoms or integers */
 	*ptf = d0;
       }
-      continue;
-	
-      mderef_body(d0, ptd0, copy_term_unk, copy_term_nvar);
+      mderef_body(d0,ptd0,copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
       if (forest ) {

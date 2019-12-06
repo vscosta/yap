@@ -1,0 +1,7 @@
+data/org.example.App.desktop.in
+data/org.example.App.appdata.xml.in
+data/org.example.App.gschema.xml
+src/makeyap-window.ui
+src/main.c
+src/makeyap-window.c
+

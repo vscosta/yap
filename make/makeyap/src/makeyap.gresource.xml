@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/example/App">
+    <file>makeyap-window.ui</file>
+  </gresource>
+</gresources>
