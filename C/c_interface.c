@@ -3091,7 +3091,7 @@ X_API Int YAP_ListLength(Term t) {
 }
 
 X_API Int YAP_NumberVars(Term t, Int nbv) {
-  return Yap_NumberVars(t, nbv, FALSE);
+  return Yap_NumberVars(t, nbv, FALSE, NULL);
 }
 
 X_API Term YAP_UnNumberVars(Term t) {

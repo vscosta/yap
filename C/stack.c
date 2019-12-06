@@ -333,7 +333,7 @@ static void do_toggle_static_predicates_in_use(int mask) {
 	    pe =  PredTrue;
 	  } else {
 	    if (env_cp == BORDERCODE) {
-	      env_cp = -env_ptr[-1-EnvSizeInCells];
+	      env_cp = (yamop *)env_ptr[-1-EnvSizeInCells];
 	    }
             pe = EnvPreg(env_cp);
 	  }

@@ -63,13 +63,11 @@ typedef struct non_single_struct_t {
 #define DEB_DOOB() (fprintf(stderr, "%ld %p->%p=%lx\n ",to_visit-to_visit0,pt0, ptd0, d0) ) //, Yap_DebugPlWriteln(d0))
 
 #define WALK_COMPLEX_TERM__(LIST0, STRUCT0, PRIMI0)			\
-									\
   reset:								\
-  lvl = push_text_stack();						\
+   lvl = push_text_stack();						\
   to_visit = to_visit0 = Malloc(auxsz);					\
-  pt0 = pt0_; pt0_end = pt0_end_;					\
   to_visit = to_visit0;							\
-  to_visit_max = to_visit +  auxsz/sizeof(struct non_single_struct_t);	\
+ to_visit_max = to_visit +  auxsz/sizeof(struct non_single_struct_t);	\
 									\
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {				\
     /* Trail overflow */						\
@@ -81,12 +79,10 @@ typedef struct non_single_struct_t {
   while (to_visit >= to_visit0) {					\
   CELL d0;								\
   CELL *ptd0;								\
-restart:								\
  while (pt0 < pt0_end) {						\
  ++pt0;									\
  ptd0 = pt0;\
 d0 = VISIT_UNMARK(*ptd0);						\
-list_loop:								\
  /*fprintf(stderr, "%ld at %s\n", tttttto_visit - to_visit0, __FUNCTION__);*/ \
  mderef_head(d0, var_in_term_unk);					\
 var_in_term_nvar : {							\
@@ -359,7 +355,7 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
     pop_text_stack(lvl);
     return true;
   }
-  goto restart;
+  continue;
   END_WALK();
 
   if (to_visit > to_visit0) {
@@ -774,7 +770,7 @@ static Term vars_within_complex_term(
   }
 
   WALK_COMPLEX_TERM__({}, {}, FOUND_VAR());
-  goto restart;
+  continue;
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
@@ -932,74 +928,72 @@ static Int p_non_singletons_in_term(
   return Yap_unify(ARG3,out);
 }
 
+#define SECOND_TIME  {if (RepAppl(d0)[0] == (CELL)FunctorDollarVar &&  \
++                         IsUnboundVar(RepAppl(d0)+1)) {                \
+      RepAppl(d0)[1] = TermFoundVar;                                   \
+    }}
+ 
+/**
+ *  @brief routine to locate all variables in a term, and its applications.
+ */
+static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                       Term inp,
+                                       bool show_singletons,
+                                       Int *tr_entries
+                                       USES_REGS) {
+  int lvl;
+  tr_fr_ptr TR0 = TR;
+  if (IsVarTerm(inp)) { Yap_ThrowError(INSTANTIATION_ERROR, inp, "numbervars: must_be_int"); }
+  if (!IsIntegerTerm(inp)) { Yap_ThrowError(TYPE_ERROR_INTEGER, inp, "numbervars: must_be_int"); }
+  Int vno = IntegerOfTerm(inp);
+  struct non_single_struct_t *to_visit0, *to_visit, *to_visit_max;
+  CELL *InitialH = HR, *pt0, *pt0_end;
+  size_t auxsz = 1024;
+  WALK_COMPLEX_TERM__({}, SECOND_TIME, {});
+  if (HR + 1024 > ASP) {
+    goto global_overflow;
+   }
+  HR[0] = (CELL) FunctorDollarVar;
+  RESET_VARIABLE(HR + 1);
+  YapBind(ptd0, AbsAppl(HR));
+  HR += 2;
+  END_WALK();
+  if (tr_entries)
+    *tr_entries = TR - TR0;
 
-Int Yap_NumberVars(Term inp,
-		   Int numbv,
-		   bool handle_singles) /*
-					 * numbervariables in term t	 */
-{
-  CACHE_REGS
-    Term t;
-  if (handle_singles) {
-    t = Yap_NonSingletons(inp, TermNil PASS_REGS);
-  } else {
-    t = Yap_TermVariables(inp,TermNil PASS_REGS);
-  }
-  while(t != TermNil) {
-    CELL *el = RepPair(Deref(t));
-    Term v = Deref(el[0]);
-    t = el[1];
-    if (v == el[0]) {
-      HR[0] = (CELL)FunctorDollarVar;
-      HR[1] = MkIntegerTerm(numbv++);
-      YapBind(VarOfTerm(v), AbsAppl(HR));
-      HR+=2;
-    } else {
-      el[0] = (CELL)FunctorDollarVar;
-      el[1] = MkIntegerTerm(numbv++);
-      YapBind(VarOfTerm(v), AbsAppl(el));
-    }
-  }
-  if (handle_singles) { 
-    t = Yap_TermVariables(inp,TermNil PASS_REGS);
-  } else {
-    t = TermNil;
-  }
-  while(t != TermNil) {
-
-    CELL *el = RepPair((t));
-    Term v = Deref(el[0]);
-    t = el[1];
-    if (v == el[0]) {
-      HR[0] = (CELL)FunctorDollarVar;
-      HR[1] = MkIntTerm(numbv++);
-      YapBind(VarOfTerm(v), AbsAppl(HR));
-      HR+=2;
-    } else {
-      el[0] = (CELL)FunctorDollarVar;
-      el[1] = MkIntTerm(numbv++);
-      YapBind(VarOfTerm(v), AbsAppl(el));
-    }
-    if (IsVarTerm(v)) {
-      HR[0] = (CELL)FunctorDollarVar;
+  while (InitialH < HR) {
+    if (show_singletons && HR[1] != TermFoundVar) {
       HR[1] = MkIntTerm(-1);
-      YapBind(VarOfTerm(v), AbsAppl(HR));
-      HR+=2;
-    } else {
-      el[1] = TermNil;
-    }
-    t = Deref(t);
-  }
-  return numbv;
+     } else {
+      HR[1] = MkIntegerTerm(vno++);
+     }
+   }
+
+  def_overflow();
+
 }
+
+Int Yap_NumberVars(Term t,
+                   Int numbv,
+                   bool handle_singles,
+                   Int *tr_entries) /*
+                                    * numbervariables in term t         */
+{
+  if (IsPrimitiveTerm(t)) {
+    return numbv;
+   }
+  Term out;
+  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(ARG2), false, &tr_entries)) < 0)
+     return false;
+   return Yap_unify(ARG3, MkIntegerTerm(out));
+ }
+
+
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
 
-
     Instantiates each variable in term  _T_ to a term of the form:
     `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
-
-
 */
 static Int p_numbervars(USES_REGS1) {
   Term t2 = Deref(ARG2);
@@ -1012,7 +1006,7 @@ static Int p_numbervars(USES_REGS1) {
     Yap_Error(TYPE_ERROR_INTEGER, t2, "numbervars/3");
     return (false);
   }
-  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(t2), false)) < 0)
+  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(t2), false, NULL)) < 0)
     return false;
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }
@@ -1023,7 +1017,7 @@ static Int p_numbervars(USES_REGS1) {
     Int i;							\
     if (IsIntegerTerm(t1) && ((i = IntegerOfTerm(t1)) > *maxp))	\
       *maxp = i;						\
-    goto restart;						\
+    continue;						\
   }
 
 static int max_numbered_var(CELL * pt0_, CELL * pt0_end_,

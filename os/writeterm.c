@@ -200,12 +200,13 @@ static int unbind_variable_names(Term t USES_REGS) {
   return TRUE;
 }
 
-static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
+static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
   yhandle_t yh = Yap_CurrentHandle();
   int depth, prio, flags = 0;
   tr_fr_ptr TR0;
+  Int numv;
 
   if (t==0)
     return false;
@@ -224,7 +225,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
             flags |= Number_vars_f|Singleton_vars_f;
 	HB = HR;
 	TR0 = TR;
-		Yap_NumberVars(t, 0, true);
+	Yap_NumberVars(t, 0, true, NULL);
     flags |= Handle_vars_f;
     }
     if (args[WRITE_NUMBERVARS].used) {
@@ -233,7 +234,7 @@ static bool write_term(int output_stream, Term t, xarg *args USES_REGS) {
 	    )
 	HB = HR;
 	TR0 = TR;
-       Yap_NumberVars(t, 0, false);
+	Yap_NumberVars(t, 0, false, &numv);
     flags |= Handle_vars_f;
     }
     if (args[WRITE_ATTRIBUTES].used) {
@@ -329,10 +330,9 @@ bool Yap_WriteTerm(int output_stream, Term t, Term opts USES_REGS) {
       Yap_Error(LOCAL_Error_TYPE, opts, NULL);
     return false;
   }
-
   yhandle_t mySlots = Yap_StartSlots();
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, t, args PASS_REGS);
+  write_term(output_stream, t, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -376,7 +376,7 @@ static Int write2(USES_REGS1) {
   mySlots = Yap_StartSlots();
   args[WRITE_SINGLETONS].used = true;
   args[WRITE_SINGLETONS].tvalue = TermTrue;
-  write_term(output_stream, ARG2, args PASS_REGS);
+  write_term(output_stream, ARG2, false , args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -402,7 +402,7 @@ static Int write1(USES_REGS1) {
   args[WRITE_SINGLETONS].used = true;
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, args PASS_REGS);
+  write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -432,7 +432,8 @@ static Int write_canonical1(USES_REGS1) {
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, args PASS_REGS);
+  Int n;
+  write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -463,7 +464,7 @@ static Int write_canonical(USES_REGS1) {
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG2, args PASS_REGS);
+  write_term(output_stream, ARG2, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -492,7 +493,7 @@ static Int writeq1(USES_REGS1) {
     args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG1, args PASS_REGS);
+  write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -521,7 +522,7 @@ static Int writeq(USES_REGS1) {
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
-  write_term(output_stream, ARG2, args PASS_REGS);
+  write_term(output_stream, ARG2, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -551,7 +552,7 @@ static Int print1(USES_REGS1) {
   args[WRITE_SINGLETONS].used = true;
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, args PASS_REGS);
+  write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -580,7 +581,7 @@ static Int print(USES_REGS1) {
   args[WRITE_PORTRAY].tvalue = TermTrue;
     args[WRITE_SINGLETONS].used = true;
     args[WRITE_SINGLETONS].tvalue = TermTrue;
-  write_term(output_stream, ARG2, args PASS_REGS);
+  write_term(output_stream, ARG2, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -610,7 +611,7 @@ static Int writeln1(USES_REGS1) {
   args[WRITE_CYCLES].used = true;
   args[WRITE_CYCLES].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  write_term(output_stream, ARG1, args PASS_REGS);
+  write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);
@@ -641,7 +642,7 @@ static Int writeln(USES_REGS1) {
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_CYCLES].used = true;
   args[WRITE_CYCLES].tvalue = TermTrue;
-  write_term(output_stream, ARG2, args PASS_REGS);
+  write_term(output_stream, ARG2,  false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
   Yap_CloseSlots(mySlots);

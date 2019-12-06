@@ -447,7 +447,6 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       ptd0 = pt0;
       // notice that this is the true value of d0
       d0 = VISIT_UNMARK(*ptd0);
-    list_shortcut:
       //	DEB_DOOB("enter");
       mderef_head(d0, copy_term_unk);
     copy_term_nvar :
@@ -656,6 +655,8 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	/* just copy atoms or integers */
 	*ptf = d0;
       }
+      continue;
+      
       mderef_body(d0,ptd0,copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
