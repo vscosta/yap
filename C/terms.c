@@ -94,25 +94,25 @@ var_in_term_nvar : {							\
    if (to_visit + 32 >= to_visit_max) {					\
      goto aux_overflow;							\
    }									\
-   CELL *ptd0 = RepPair(d0);  						\
-   CELL d0 = VISIT_UNMARK(ptd0[0]);				\
+   CELL *ptd1 = RepPair(d0);  						\
+   CELL d1 = VISIT_UNMARK(ptd0[1]);				\
    LIST0;								\
-   if (IS_VISIT_MARKER(ptd0[0]))				\
+   if (ptd1==ptd0||IS_VISIT_MARKER(ptd1[0]))				\
      continue;							\
    to_visit->pt0 = pt0;							\
    to_visit->pt0_end = pt0_end;						\
-   to_visit->ptd0 = ptd0;						\
-   to_visit->oldv = d0; \
+   to_visit->ptd0 = ptd1;						\
+   to_visit->oldv = d1;\
    *ptd0 = VISIT_MARK();						\
-   to_visit++;								\
-   pt0 = ptd0;								\
-   pt0_end = pt0 + 1;							\
-   goto list_loop;							\
+   to_visit++;					\
+   pt0 = ptd1-1;	\
+   pt0_end = ptd1 + 1;						\
+   continue;							\
  } else if (IsApplTerm(d0)) {						\
    register Functor f;							\
    /* store the terms to visit */					\
-   ptd0 = RepAppl(d0);							\
-   f = (Functor)(d0 = VISIT_UNMARK(*ptd0));				\
+   CELL *ptd1 = RepAppl(d0);							\
+   f = (Functor)(d0 = VISIT_UNMARK(*ptd1));				\
    if (IsExtensionFunctor(f)) {						\
      continue;								\
    }									\
@@ -121,7 +121,7 @@ var_in_term_nvar : {							\
      goto aux_overflow;							\
    }									\
    STRUCT0;								\
-   if (IS_VISIT_MARKER(*ptd0)) {					\
+   if (IS_VISIT_MARKER(*ptd1)) {					\
 									\
      continue;								\
    }									\
@@ -130,10 +130,10 @@ var_in_term_nvar : {							\
    to_visit->ptd0 = ptd0;						\
    to_visit->oldv = d0;							\
    to_visit++;								\
-   *ptd0 = VISIT_MARK();						\
+   *ptd1 = VISIT_MARK();						\
    Term d1 = ArityOfFunctor(f);						\
-   pt0 = ptd0;								\
-   pt0_end = ptd0 + d1;							\
+   pt0 = ptd1;								\
+   pt0_end = ptd1 + d1;							\
    continue;								\
  } else {								\
   PRIMI0;						\

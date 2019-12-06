@@ -456,7 +456,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 
 	// ap points to head of list
 	// we've been here before
-	if (IS_VISIT_MARKER(*ptd1)) {
+	if (ptd1==ptd0||IS_VISIT_MARKER(*ptd1)) {
       /* d0 has ance   */	 
 	  if (hack) {
 	    // for now just put ..
@@ -474,15 +474,13 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    VISIT_TARGET(*ptd1) = (CELL)ptf;
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
-	  } else {
-	    *ptf = (VISIT_TARGET(*ptd1));
-	  }
+	  } else {	  }
 	
 	  continue;
 	      
 	}
 	   
-	if (share && ptd0 >= HB) {
+	if (share && ptd1 >= HB) {
 	  // d0 is from copy, so just use it. Note that this allows
 	  // copying rational trees, even if we don break cycles.
 	  *ptf = d0;
@@ -498,7 +496,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 
 	if (share) {
 	  d0 = AbsPair(ptf);
-	  MaBind(ptd0,d0);
+	  MaBind(ptd1,d0);
 	}
 	myt = AbsPair(ptf);
 	to_visit->start_cp = pt0;
@@ -523,8 +521,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  //same as before
 	  goto overflow;
 	}
-	ptd0 = pt0;
-	goto list_shortcut;
+       continue;
       } else if (IsApplTerm(d0)) {
 	CELL *ptd1 = RepAppl(d0);
 	if (share && ptd1 >= HB) {
