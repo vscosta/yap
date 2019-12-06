@@ -496,8 +496,13 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=
 # Model Specific
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:DEBUG=1>)
 
+
 # debug across macros
-set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-glldb -fdebug-macro>)
+if (${C_COMPILER} MATCHES "Clang")
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-glldb -fdebug-macro>)
+  else()
+  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3 -fdebug-cpp>)
+  endif()
 
 #ensure cells are properly aligned in code
 set(ALIGN_LONGS 1)

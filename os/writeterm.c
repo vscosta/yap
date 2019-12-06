@@ -87,6 +87,7 @@ static char SccsId[] = "%W% %G%";
 #endif
 #endif
 #include "iopreds.h"
+#include "clause.h"
 
 static Term readFromBuffer(const char *s, Term opts) {
   Term rval;
@@ -144,7 +145,7 @@ static const param_t write_defs[] = {WRITE_DEFS()};
 #ifdef BEAM
 int beam_write(USES_REGS1) {
   Yap_StartSlots();
-  Yap_plwrite(ARG1, GLOBAL_Stream + LOCAL_c_output_stream, 0, 0,
+  Yap_plwrite(ARG1, GLOBAL_Stream + LOCAL_c_output_stream, LOCAL_max_depth, 0,
               GLOBAL_MaxPriority);
   Yap_CloseSlots();
   Yap_RaiseException();
@@ -152,7 +153,8 @@ int beam_write(USES_REGS1) {
 }
 #endif
 
-static bool bind_variable_names(Term t USES_REGS) {
+static bool bind_variable_names(Term t, Int *np USES_REGS) {
+  tr_fr_ptr TR0 = TR;
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term tl = HeadOfTerm(t);
     Functor f;
@@ -173,40 +175,20 @@ static bool bind_variable_names(Term t USES_REGS) {
     if (IsVarTerm(t2)) {
       YapBind(VarOfTerm(t2), tv);
     }
+    *np = TR-TR0;
     t = TailOfTerm(t);
   }
   return true;
 }
 
-static int unbind_variable_names(Term t USES_REGS) {
-  while (!IsVarTerm(t) && IsPairTerm(t)) {
-    Term tl = HeadOfTerm(t);
-    Functor f;
-    Term *tp2, t1;
-
-    if (!IsApplTerm(tl))
-      return FALSE;
-    if ((f = FunctorOfTerm(tl)) != FunctorEq) {
-      return FALSE;
-    }
-    t1 = ArgOfTerm(1, tl);
-    tp2 = RepAppl(tl) + 2;
-    while (*tp2 != t1) {
-      tp2 = (CELL *)*tp2;
-    }
-    RESET_VARIABLE(tp2);
-    t = TailOfTerm(t);
-  }
-  return TRUE;
-}
 
 static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
   yhandle_t yh = Yap_CurrentHandle();
   int depth, prio, flags = 0;
-  tr_fr_ptr TR0;
   Int numv;
+	Int n=0;
 
   if (t==0)
     return false;
@@ -216,7 +198,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     CurrentModule = args[WRITE_MODULE].tvalue;
   }
   if (args[WRITE_VARIABLE_NAMES].used) {
-    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue PASS_REGS);
+    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
     flags |= Handle_vars_f;
   }
     if (args[WRITE_SINGLETONS].used) {
@@ -224,8 +206,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
 	    flags & Handle_vars_f)
             flags |= Number_vars_f|Singleton_vars_f;
 	HB = HR;
-	TR0 = TR;
-	Yap_NumberVars(t, 0, true, NULL);
+	Yap_NumberVars(t, 0, true, &n);
     flags |= Handle_vars_f;
     }
     if (args[WRITE_NUMBERVARS].used) {
@@ -233,7 +214,6 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
 	    flags & Handle_vars_f
 	    )
 	HB = HR;
-	TR0 = TR;
 	Yap_NumberVars(t, 0, false, &numv);
     flags |= Handle_vars_f;
     }
@@ -304,17 +284,11 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   rc = true;
 
 end:
-    if (args[WRITE_VARIABLE_NAMES].used){
-    unbind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue PASS_REGS);
-  }
-    if (args[WRITE_NUMBERVARS].used || args[WRITE_SINGLETONS].used){
-      while (TR != (tr_fr_ptr)TR0) {
-	CELL *pt1 = (CELL *) TrailTerm(--TR);
-	RESET_VARIABLE(pt1);
-      }
-      HB = B->cp_h;
+    if (n) {
+      clean_tr(TR-n);
     }
-  CurrentModule = cm;
+      HB = B->cp_h;
+     CurrentModule = cm;
   Yap_RecoverHandles(0, yh);
   return rc;
 }
@@ -432,7 +406,6 @@ static Int write_canonical1(USES_REGS1) {
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
-  Int n;
   write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   free(args);
@@ -772,7 +745,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, GLOBAL_MaxPriority);
 
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);

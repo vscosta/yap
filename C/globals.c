@@ -424,7 +424,6 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   // allocate space for internal stack, so that we do not have yo rely on
   //m C-stack.
 
-
   int lvl = push_text_stack();
   struct cp_frame *to_visit0 =
     Malloc(1024 * sizeof(struct cp_frame));
@@ -455,7 +454,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 
 	// ap points to head of list
 	// we've been here before
-	if (ptd1==ptd0||IS_VISIT_MARKER(*ptd1)) {
+	if (pt0==ptd1||IS_VISIT_MARKER(*ptd1)) {
       /* d0 has ance   */	 
 	  if (hack) {
 	    // for now just put ..
@@ -476,7 +475,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
 	  } else {
-	    *bindp =  VISIT_TARGET(*ptd1);
+	    *ptf =  VISIT_TARGET(*ptd1);
 	  }	
 	  continue;
 	      
@@ -513,10 +512,10 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	*ptf = AbsPair(HR);
 	/*  the system into thinking we had a variable there */
 	     
-	ptf = HR;
+	ptf = HR-1;
 	to_visit++;
 	ground = true;
-	pt0 = ptd1;
+	pt0 = ptd1-1;
 	pt0_end = ptd1 + 1;
 	HR += 2;
 	if (HR > ASP - MIN_ARENA_SIZE) {
@@ -683,9 +682,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	Bind_and_Trail(ptd0, new);
       } else {
 	/* first time we met this term */
-	if ((ADDR) TR > LOCAL_TrailTop - MIN_ARENA_SIZE)
-	  goto trail_overflow;
-	Bind_and_Trail(ptf, (CELL) ptd0);
+	*ptf = ptd0;
 
       }
       continue;
@@ -707,6 +704,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   clean_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
   pop_text_stack(lvl);
+  Yap_DebugPlWriteln(HLow[0]);
   return 0;
  overflow:
   while (to_visit > to_visit0) {
