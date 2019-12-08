@@ -58,7 +58,7 @@ typedef struct {
 #define WALK_COMPLEX_TERM__(LIST_HOOK_CODE, STRUCT0, PRIMI0)			\
   /****** start of top macro */						\
   reset: {								\
-  CELL *pt0, *pt0_end;							\
+  CELL *pt0 = pt0_, *pt0_end=pt0_end_;							\
   size_t auxsz = 1024 * sizeof(struct non_single_struct_t);		\
   non_singletons_t *to_visit0 = Malloc(auxsz);;				\
   non_singletons_t *to_visit = to_visit0 = Malloc(auxsz);		\
@@ -129,7 +129,7 @@ continue;							\
   } else {								\
     PRIMI0;						\
     continue;								\
-  }\
+ }}									\
 mderef_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);	\
 /*enter variable processing */
 
@@ -143,15 +143,13 @@ mderef_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);	\
 while (to_visit > to_visit0) { /* pt0 < pt0_end:*/				\
 			       /* Do we still have compound terms to visit */	\
   to_visit--;						\
-  if (to_visit >= to_visit0) {			\
     pt0 = to_visit->pt0;				\
     pt0_end = to_visit->pt0_end;			\
     VUNMARK(to_visit->ptd0,to_visit->oldv);		\
-  }\
  }\
 /* nothing else to do	*/			\
-break;\
-}						\
+ break;					\
+ }						\
 						\
 /* final-wrapup */\
 /******** end of processing loop/bottom-macro *************/
@@ -174,7 +172,8 @@ break;\
       to_visit--;						\
       CELL *ptd0 = to_visit->ptd0;				\
       VUNMARK(ptd0,to_visit->oldv);				\
-    }								\
+    }\
+trail_overflow1:\							\
     size_t expand = (TR - TR0) * sizeof(tr_fr_ptr *);		\
     clean_tr(TR0 PASS_REGS);					\
     HR = InitialH;						\
@@ -251,7 +250,6 @@ static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
 
   def_overflow();
 }
-
 bool Yap_IsCyclicTerm(Term t USES_REGS) {
   if (IsVarTerm(t)) {
     return false;
@@ -290,6 +288,8 @@ static bool ground_complex_term(CELL * pt0_, CELL * pt0_end_ USES_REGS) {
   int lvl = push_text_stack();						\
 
   WALK_COMPLEX_TERM();
+
+  while (to_visit-- >to_visit0)
   VUNMARK(to_visit->ptd0, to_visit->oldv);			\
 
 pop_text_stack(lvl);
@@ -406,7 +406,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
       CELL *ptr = VarOfTerm(t);
       YapBind(ptr,TermFoundVar);
       if (TR > (tr_fr_ptr)LOCAL_TrailTop-1024)
-	goto trail_overflow;
+	goto trail_overflow1;
       /* do or pt2 are unbound  */
     }
     inp = TailOfTerm(inp);
@@ -421,7 +421,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_ ,
   /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
-    goto trail_overflow;
+    goto trail_overflow1;
   }
   YapBind(ptd0, TermFoundVar);
   continue;
@@ -567,8 +567,7 @@ static Int term_variables(
 /** routine to locate attributed variables */
 
 typedef struct att_rec {
-  CELL *beg, *end;
-  CELL oval;
+  CELL *beg, *end  CELL oval;
 } att_rec_t;
 
 static Term attvars_in_complex_term(
@@ -682,7 +681,7 @@ static Term new_vars_in_complex_term(
   WALK_COMPLEX_TERM();
   output = MkPairTerm((CELL)ptd0, output);
   TrailTerm(TR++) = *ptd0;
-  *ptd0 = FVM;
+  *ptd0 = TermFoundVar;
   if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
     goto trail_overflow;
   }
@@ -742,7 +741,6 @@ static Term vars_within_complex_term(
 				     CELL *pt0_, CELL *pt0_end_, Term inp USES_REGS) {
   Int n=0;
   CELL output = AbsPair(HR);
-  CELL *pt0, *pt0_end;
   int lvl = push_text_stack();
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;

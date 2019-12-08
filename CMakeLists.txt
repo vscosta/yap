@@ -497,13 +497,6 @@ set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS "_YAP_NOT_INSTALLED_=
 set_property(DIRECTORY APPEND PROPERTY COMPILE_DEFINITIONS $<$<CONFIG:Debug>:DEBUG=1>)
 
 
-# debug across macros
-if (${C_COMPILER} MATCHES "Clang")
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-glldb -fdebug-macro>)
-  else()
-  set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3 -fdebug-cpp>)
-  endif()
-
 #ensure cells are properly aligned in code
 set(ALIGN_LONGS 1)
 
@@ -562,13 +555,18 @@ ENDIF()
 set(YAP_STARTUP startup.yss)
 set(YAP_SOURCEBOOT boot.yap   )
 
+
+#endif()
+
 # Model Specific
 if (HAVE_GCC)
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -Wall)
   if (${C_COMPILER} MATCHES "GNU")
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Release>:-O3;-fomit-frame-pointer;-fstrict-aliasing;-freorder-blocks;-fsched-interblock>)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-g3 -fdebug-cpp>)
   else ()
     set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Release>:-O3;-fstrict-aliasing;-freorder-blocks;-fsched-interblock>)
+    set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS $<$<CONFIG:Debug>:-glldb -fdebug-macro>)
   endif ()
   set_property(DIRECTORY APPEND PROPERTY COMPILE_OPTIONS -fexceptions)
 endif ()
