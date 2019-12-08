@@ -239,7 +239,7 @@
   AtomMaxArity = Yap_LookupAtom("max_arity"); TermMaxArity = MkAtomTerm(AtomMaxArity);
   AtomMaxFiles = Yap_LookupAtom("max_files"); TermMaxFiles = MkAtomTerm(AtomMaxFiles);
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause"); TermMegaClause = MkAtomTerm(AtomMegaClause);
-  AtomMetaCall = Yap_FullLookupAtom("$call"); TermMetaCall = MkAtomTerm(AtomMetaCall);
+  AtomMetaCall = Yap_FullLookupAtom("$meta_call"); TermMetaCall = MkAtomTerm(AtomMetaCall);
   AtomMfClause = Yap_FullLookupAtom("$mf_clause"); TermMfClause = MkAtomTerm(AtomMfClause);
   AtomMin = Yap_LookupAtom("min"); TermMin = MkAtomTerm(AtomMin);
   AtomMinimum = Yap_LookupAtom("minimum"); TermMinimum = MkAtomTerm(AtomMinimum);
@@ -551,6 +551,7 @@
   FunctorDoubleHat = Yap_MkFunctor(AtomDoubleHat,1);
   FunctorI = Yap_MkFunctor(AtomI,2);
   FunctorId = Yap_MkFunctor(AtomId,1);
+  FunctorIgnore = Yap_MkFunctor(AtomIgnore,1);
   FunctorInfo1 = Yap_MkFunctor(AtomInfo,1);
   FunctorInfo2 = Yap_MkFunctor(AtomInfo,2);
   FunctorInfo3 = Yap_MkFunctor(AtomInfo,3);

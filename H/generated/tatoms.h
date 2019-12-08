@@ -644,6 +644,8 @@ X_API EXTERNAL  Functor FunctorI;
 
 X_API EXTERNAL  Functor FunctorId;
 
+X_API EXTERNAL  Functor FunctorIgnore;
+
 X_API EXTERNAL  Functor FunctorInfo1;
 
 X_API EXTERNAL  Functor FunctorInfo2;

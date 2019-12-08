@@ -551,6 +551,7 @@
   FunctorDoubleHat = FuncAdjust(FunctorDoubleHat);
   FunctorI = FuncAdjust(FunctorI);
   FunctorId = FuncAdjust(FunctorId);
+  FunctorIgnore = FuncAdjust(FunctorIgnore);
   FunctorInfo1 = FuncAdjust(FunctorInfo1);
   FunctorInfo2 = FuncAdjust(FunctorInfo2);
   FunctorInfo3 = FuncAdjust(FunctorInfo3);

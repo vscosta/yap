@@ -250,8 +250,14 @@ typedef struct gc_entry_info {
   arity_t a;
 } gc_entry_info_t;
 
-#define MBIT (((CELL)1)<<63)
-                                                                                                                                                                                                                                        
+
+typedef struct non_single_struct_t {
+  CELL *ptd0;
+  CELL *pt0, *pt0_end, *ptf;
+  Term oldv;
+} non_singletons_t;
+
+
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
 			     && RepPair(d0) <= (CELL*)to_visit)
@@ -269,8 +275,6 @@ typedef struct gc_entry_info {
 
 #define VISITED(D0)  IS_VISIT_MARKER(D0)
 
-#define FVM  TermFoundVar
-#define FRVM TermRefoundVar
 
 #define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
   if (IsVarTerm(D))					\
