@@ -682,7 +682,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	Bind_and_Trail(ptd0, new);
       } else {
 	/* first time we met this term */
-	*ptf = ptd0;
+	*ptf = (CELL)ptd0;
 
       }
       continue;
