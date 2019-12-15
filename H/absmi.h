@@ -8,12 +8,13 @@
  *                   *
  **************************************************************************
  *                   *
- * File:    absmi.c              *
+ * File:    absmi.h              *
  * Last rev:                 *
  * mods:                   *
  * comments:  Portable abstract machine interpreter includes           *
  *                   *
  *************************************************************************/
+
 
 #ifndef ABSMI_H
 

@@ -252,7 +252,7 @@ typedef struct gc_entry_info {
 
 typedef struct non_single_struct_t {
   CELL *ptd0;
-  CELL *pt0, *pt0_end, *ptf;
+  CELL *pt0, *pt0_end;
   Term oldv;
 } non_singletons_t;
 
@@ -260,7 +260,9 @@ typedef struct non_single_struct_t {
 
 #define to_visit    stt.pt
 #define to_visit0   stt.pt0
-
+#define T non_single_struct_t
+#else
+#define T cp_frame
 #endif
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
@@ -269,17 +271,18 @@ typedef struct non_single_struct_t {
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
-#define VISIT_ENTRY(d0) ((struct cp_frame *)RepPair(d0))
+#define VISIT_ENTRY(d0) ((struct T *)RepPair(d0))
 
-#define VISIT_TARGET(d0) (((struct cp_frame *)RepPair(d0))->t)
+#define VISIT_TARGET(d0) (((struct T *)RepPair(d0))->t)
 
-#define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct cp_frame *)RepPair(d0))->oldv:d0)
 
 #define VUNMARK(ptd0, d0)  (*(ptd0) = (d0))
 
 
 #define VISITED(D0)  IS_VISIT_MARKER(D0)
 
+
+#define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct T *)RepPair(d0))->oldv:d0)
 
 #define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
   if (IsVarTerm(D))					\

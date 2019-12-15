@@ -93,7 +93,7 @@ void Yap_init_yapor_global_local_memory(void) {
 }
 
 
-void Yap_init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt GlobalLocalStackArea, int n_workers) {
+void Yap_9init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt GlobalLocalStackArea, int n_workers) {
   long StacksArea;
 
   HeapStackArea *= (K);

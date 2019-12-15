@@ -18,6 +18,7 @@
 #ifndef HEAP_H
 #define HEAP_H 1
 
+#include "alloc.h"
 #include "Atoms.h"
 #include "Yap.h"
 

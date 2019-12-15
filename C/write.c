@@ -1091,7 +1091,7 @@ wglb.trailings = 0;
 
  Term tn;
  
-   if ((flags & Handle_cyclics_f) ){
+   if ((flags & Handle_cyclics_f||0) ){
      HB = HR;
      tn = Yap_HackCycles(t PASS_REGS);
    } else {

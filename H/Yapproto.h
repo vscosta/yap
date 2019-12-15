@@ -540,6 +540,8 @@ extern void Yap_flush_all(void);
 extern X_API YAP_opaque_tag_t
 YAP_NewOpaqueType(struct YAP_opaque_handler_struct *f);
 
+extern void pp(Term, int);
+
 /* pl-yap.c */
 extern Int Yap_source_line_no(void);
 extern Atom Yap_source_file_name(void);

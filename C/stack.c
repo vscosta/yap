@@ -2386,6 +2386,46 @@ void Yap_ShowTerm(Term t) {
     ShowTerm(HR - 1, 0);
 }
 
+ 
+ extern void pp(Term, int);
+
+void pp(Term t, int lvl) {
+  int i;
+  if (lvl>6)
+    return;
+  t = Deref(t);
+  fprintf(stderr,"%*c", 2*(lvl++), ' ');
+  if (IsVarTerm(t)) {
+      CELL *v = (CELL*)t;
+      if (v < HR) fprintf(stderr,"_H%lx\n",v-H0);
+      else fprintf(stderr,"_L%lx\n",ASP-v);
+    } else if (IsNumTerm(t)||IsAtomTerm(t)) {
+      Yap_DebugPlWriteln(t);
+    } else if (IsPairTerm(t)) {
+    if (RepPair(t) < H0 || RepPair(t) > HR) {
+      fprintf(stderr,"[ TAG( %p ) ]\n", RepPair(t));
+    } else {
+      fprintf(stderr,"[ %lx\n", RepPair(t)-H0);
+      pp(HeadOfTerm(t), lvl+1);
+	 pp(TailOfTerm(t), lvl+1);
+    }
+  }else  {
+      Functor f=	   FunctorOfTerm(t);
+      if (IsPairTerm((CELL)f)) {
+	fprintf(stderr,"[ TAG( %p ) ]\n", RepAppl(t));
+      } else {
+	const char *s = RepAtom(NameOfFunctor(f))->StrOfAE;
+	arity_t a = ArityOfFunctor(f);
+	fprintf(stderr,"%s/%ld %lx\n", s, a, RepAppl(t)-H0);
+	for (i =1;i<=a;i++)
+	  pp(ArgOfTerm(i,t), lvl+1);
+	for (i=0;i<lvl*2;i++)
+	  fputc(' ',stderr);
+	fprintf(stderr,"] \n");
+      }
+    }
+}
+ 
 void Yap_InitStInfo(void) {
     CACHE_REGS
     Term cm = CurrentModule;

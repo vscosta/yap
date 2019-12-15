@@ -3201,7 +3201,10 @@ X_API void *YAP_foreign_stream(int sno) {
 
 X_API YAP_Functor YAP_IntToFunctor(Int i) { return TR_Functors[i]; }
 
-X_API void *YAP_shared(void) { return LOCAL_shared; }
+X_API void *YAP_shared(void) { scratch_struct_t scratch;
+  Yap_get_scratch_buf(&scratch, 4096, 1);
+  return scratch.data;
+  }
 
 X_API YAP_PredEntryPtr YAP_TopGoal(void) {
   Functor f = Yap_MkFunctor(Yap_LookupAtom("yap_query"), 3);

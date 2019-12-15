@@ -434,6 +434,7 @@ static void InitExStacks(int wid, size_t Trail, size_t Stack) {
 }
 
 void Yap_InitExStacks(int wid, size_t Trail, size_t Stack) {
+  memset(&REMOTE_WorkerBuffer(wid),0,sizeof(scratch_sys_struct_t));
   InitExStacks(wid, Trail, Stack);
 }
 
@@ -1524,7 +1525,7 @@ void Yap_InitExStacks(int wid, int Trail, int Stack) {
   AuxSp = NULL;
 #endif
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #if defined(_WIN32) || defined(__CYGWIN__)
 #define WorkSpaceTop brk
 #define MAP_FIXED 1
@@ -1577,8 +1578,7 @@ size_t Yap_ExtendWorkSpaceThroughHole(size_t s) {
       }
 #if defined(_WIN32)
       /* 487 happens when you step over someone else's memory */
-      if (GetLastError() != 487) {
-        WorkSpaceTop = WorkSpaceTop0;
+xx        WorkSpaceTop = WorkSpaceTop0;
         return 0;
       }
 #endif
@@ -1612,4 +1612,248 @@ void Yap_AllocHole(UInt actual_request, UInt total_size) {
 #endif
 }
 
+
+
+ 
 #endif /* USE_SYSTEM_MALLOC */
+
+ /**
+ * @defgroup shortalloc.c
+ *
+ * support for short-lived memory allocation. Either using a stack discipline,
+ * or temporary buffers.
+ *
+ */
+#include "Yap.h"
+#include "YapEval.h"
+#include "YapHeap.h"
+#include "YapStreams.h"
+#include "YapText.h"
+#include "Yatom.h"
+#include "yapio.h"
+
+#include <YapText.h>
+#include <string.h>
+#include <wchar.h>
+
+
+/**
+ * @addtogroup  StackDisc
+ * @ ingroup @MemAlloc
+ *
+ */
+#define MAX_PATHNAME 2048
+
+struct mblock {
+  struct mblock *prev, *next;
+  int lvl;
+  size_t sz;
+};
+
+typedef struct TextBuffer_manager {
+  void *buf, *ptr;
+  size_t sz;
+  struct mblock *first[16];
+  struct mblock *last[16];
+  int lvl;
+} text_buffer_t;
+
+int AllocLevel(void) { return LOCAL_TextBuffer->lvl; }
+//	void pop_text_stack(int i) { LOCAL_TextBuffer->lvl = i; }
+void insert_block(struct mblock *o) {
+  int lvl = o->lvl;
+  o->prev = LOCAL_TextBuffer->last[lvl];
+  if (o->prev) {
+    o->prev->next = o;
+  }
+  if (LOCAL_TextBuffer->first[lvl]) {
+    LOCAL_TextBuffer->last[lvl] = o;
+  } else {
+    LOCAL_TextBuffer->first[lvl] = LOCAL_TextBuffer->last[lvl] = o;
+  }
+  o->next = NULL;
+}
+
+ void release_block(struct mblock *o) {
+  int lvl = o->lvl;
+  if (LOCAL_TextBuffer->first[lvl] == o) {
+    if (LOCAL_TextBuffer->last[lvl] == o) {
+      LOCAL_TextBuffer->first[lvl] = LOCAL_TextBuffer->last[lvl] = NULL;
+    }
+    LOCAL_TextBuffer->first[lvl] = o->next;
+  } else if (LOCAL_TextBuffer->last[lvl] == o) {
+    LOCAL_TextBuffer->last[lvl] = o->prev;
+  }
+  if (o->prev)
+    o->prev->next = o->next;
+  if (o->next)
+    o->next->prev = o->prev;
+}
+
+int push_text_stack__(USES_REGS1) {
+  int i = LOCAL_TextBuffer->lvl;
+  i++;
+  LOCAL_TextBuffer->lvl = i;
+
+  return i;
+}
+
+int pop_text_stack__(int i) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  while (lvl >= i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      free(p);
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  return lvl;
+}
+
+void *pop_output_text_stack__(int i, const void *export) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  bool found = false;
+  while (lvl >= i) {
+    struct mblock *p = LOCAL_TextBuffer->first[lvl];
+    while (p) {
+      struct mblock *np = p->next;
+      if (p + 1 == export) {
+	found = true;
+      } else {
+        free(p);
+      }
+      p = np;
+    }
+    LOCAL_TextBuffer->first[lvl] = NULL;
+    LOCAL_TextBuffer->last[lvl] = NULL;
+    lvl--;
+  }
+  LOCAL_TextBuffer->lvl = lvl;
+  if (found) {
+  if (lvl) {
+    struct mblock *o = (struct mblock *)export-1;
+    o->lvl = lvl;
+    o->prev = o->next = 0;
+    insert_block(o);
+
+  } else {
+        struct mblock *p = (struct mblock *)export-1;
+	size_t sz = p->sz - sizeof(struct mblock);
+        memmove(p, p + 1, sz);
+        export = p;
+    
+  }
+  }
+  return (void *)export;
+}
+
+void *Malloc(size_t sz USES_REGS) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  if (sz == 0)
+    sz = 1024;
+  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
+  struct mblock *o = malloc(sz);
+  if (!o)
+    return NULL;
+  o->sz = sz;
+  o->lvl = lvl;
+  o->prev = o->next = 0;
+  insert_block(o);
+  return o + 1;
+}
+
+void *MallocAtLevel(size_t sz, int atL USES_REGS) {
+  int lvl = LOCAL_TextBuffer->lvl;
+  if (atL > 0 && atL <= lvl) {
+    lvl = atL;
+  } else if (atL < 0 && lvl - atL >= 0) {
+    lvl += atL;
+  } else {
+    return NULL;
+  }
+  if (sz == 0)
+    sz = 1024;
+  sz = ALIGN_BY_TYPE(sz + sizeof(struct mblock), CELL);
+  struct mblock *o = malloc(sz);
+  if (!o)
+    return NULL;
+  o->sz = sz;
+  o->lvl = lvl;
+  o->prev = o->next = 0;
+  insert_block(o);
+  return o + 1;
+}
+
+void *Realloc(void *pt, size_t sz USES_REGS) {
+  struct mblock *old = pt, *o;
+  if (!pt)
+    return Malloc(sz PASS_REGS);
+  old--;
+  sz = ALIGN_BY_TYPE(sz, Yap_Max(CELLSIZE,sizeof(struct mblock)));
+  sz += 2*sizeof(struct mblock);
+  o = realloc(old, sz);
+  if (o->next) {
+    o->next->prev = o;
+  } else {
+    LOCAL_TextBuffer->last[o->lvl] = o;
+  }
+  if (o->prev) {
+    o->prev->next = o;
+  } else {
+    LOCAL_TextBuffer->first[o->lvl] = o;
+  }
+  o->sz = sz;
+  return o + 1;
+}
+
+/**
+ * Export a local memory object as a RO object to the outside world, that is,
+ * recovering as much storage as one can.
+ * @param pt pointer to object
+ * @return new object
+ */
+const void *MallocExportAsRO(const void *pt USES_REGS) {
+  struct mblock *old = (void *)pt, *o = old - 1;
+  if (old == NULL)
+    return NULL;
+  size_t sz = o->sz;
+  release_block(o);
+  memmove((void *)o, pt, sz);
+  return realloc((void *)o, sz);
+}
+
+void Free(void *pt USES_REGS) {
+  struct mblock *o = pt;
+  o--;
+  release_block(o);
+  free(o);
+}
+
+void *Yap_InitTextAllocator(void) {
+  struct TextBuffer_manager *new = calloc(sizeof(struct TextBuffer_manager), 1);
+  return new;
+}
+
+ size_t MaxTmp(USES_REGS1) { return 1025; }
+
+ bool Yap_get_scratch_buf(scratch_struct_t *handle, size_t nof, size_t each) {
+   handle->n_of = nof;
+      handle->size_of = each; 
+   handle->data = malloc(nof*each);
+   return true;
+ }
+
+  bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
+    handle->data = realloc(handle->data, handle->size_of*nof);
+   return true;
+ }
+
+   bool Yap_release_scratch_buf(scratch_struct_t *handle) {
+     free(handle->data);
+   return true;
+ }

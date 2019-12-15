@@ -13,48 +13,52 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 **********                                                                                                      ***************************************************************/
 
-  
+    /**
+       @file Yap.h
+       @brief Main Header File for YAP
+
+       @defgroup Imp Implementation Notes
+       @ingroup mainpage
+       @brief YAP Implementation Notes
+       @{
+
+       YAP implements a vast number of data structures supporting
+different algorithms. This collection of notes aims at helping Prolog
+hackers that are interested in playing with the system.
+    */
 #ifndef YAP_H
 
 #define YAP_H 1
-
-#if DOXYGEN
-#ifndef INIT_C
-#define    Yap_InitCPred(Name,Arity,CF,Flags) /**@{ @cpred Name Arity CF @} */
-#endif
-#endif
 
 #define USE_MYDDAS 1
 #define USE_MYDDAS_SQLITE3 1
 
 #if defined(YAPOR)
 // #error Do not explicitly define YAPOR
-#endif /* YAPOR */
+#endif
 
 #if (defined(YAPOR_COPY) &&                                                    \
      (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))) ||  \
     (defined(YAPOR_COW) && (defined(YAPOR_SBA) || defined(YAPOR_THREADS))) ||  \
     (defined(YAPOR_SBA) && defined(YAPOR_THREADS))
 #error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS)) ||         \
-          (YAPOR_COW && (YAPOR_SBA || YAPOR_THREADS)) || (YAPOR_SBA ||         \
-          YAPOR_THREADS) */
+#endif
 
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) ||         \
     defined(YAPOR_THREADS)
 #define YAPOR 1
 #define FIXED_STACKS 1
-#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA || YAPOR_THREADS */
+#endif
 
 #if defined(TABLING) &&                                                        \
     (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))
 #error TABLING only works with YAPOR_COPY
-#endif /* TABLING && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS) */
+#endif 
 
 #if defined(THREADS) &&                                                        \
     (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_COPY))
 #error THREADS only works with YAPOR_THREADS
-#endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
+#endif
 
 // Bad export from Python
 #include "YapConfig.h"
@@ -787,6 +791,11 @@ extern struct worker_local Yap_local;
 #include <stdio.h>
 #define YP_FILE FILE
 
+typedef struct {
+  size_t sz, n;
+  void *buf;
+} generic_buffer_t;
+
 #include <YapHeap.h>
 
 /*************************************************************************************************
@@ -861,3 +870,4 @@ extern bool  Yap_Embedded, Yap_Server;
 #endif /* YAP_H */
 
 
+/// @}

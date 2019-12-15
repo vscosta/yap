@@ -333,4 +333,4 @@ LOCAL_INIT(size_t, MAX_SIZE, 1024L);
 /* last call to walltime. */
 LOCAL_INIT(uint64_t, LastWTime, 0);
 
-LOCAL_INIT(void *, shared, NULL);
+LOCAL(scratch_sys_struct_t, WorkerBuffer);

@@ -432,7 +432,7 @@ CELL *CellDifH(CELL *hptr, CELL *hlow)
 #define AdjustSizeAtom(X)	(((CELL)(X)+(8-1)) & ~(8-1))
 
 static inline
-CELL *AdjustSize(CELL *x, char *buf)
+CELL *AdjustBufferSize(CELL *x, char *buf)
 {
   UInt offset = (char *)x-buf;
   return (CELL*)(buf+AdjustSizeAtom(offset));
@@ -446,7 +446,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   size_t sz;
 
   ptr = *hpp;
-  ptr = (char *)AdjustSize((CELL*)ptr, buf);
+  ptr = (char *)AdjustBufferSize((CELL*)ptr, buf);
 
   p0 = ptr;
   *ptr++ = 0;
@@ -462,7 +462,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
 static inline
 Functor export_functor(Functor f, char **hpp, char *buf, size_t len)
 {
-  CELL *hptr = AdjustSize((CELL *)*hpp, buf);
+  CELL *hptr = AdjustBufferSize((CELL *)*hpp, buf);
   UInt arity = ArityOfFunctor(f);
   if (2*sizeof(CELL) >= len)
     return NULL;
@@ -801,7 +801,7 @@ FetchFunctor(CELL *pt, char *buf)
   UInt arity = *ptr++;
   Atom name, at;
   // and then an atom
-  ptr = AdjustSize(ptr, buf);
+  ptr = AdjustBufferSize(ptr, buf);
   name = (Atom)((char *)ptr-buf);
   at = addAtom(name, buf);
   *pt = (CELL)Yap_MkFunctor(at, arity);
