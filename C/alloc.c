@@ -1839,7 +1839,6 @@ void *Yap_InitTextAllocator(void) {
   return new;
 }
 
- size_t MaxTmp(USES_REGS1) { return 1025; }
 
  bool Yap_get_scratch_buf(scratch_struct_t *handle, size_t nof, size_t each) {
    handle->n_of = nof;

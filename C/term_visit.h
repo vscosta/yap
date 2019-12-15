@@ -46,12 +46,18 @@ var_in_term_nvar:
     //       __FUNCTION__, ptd1 - H0, pt0 - H0, pt0_end - H0, *ptd1);
     goto list_loop;
   } else if (IsApplTerm(d0)) {
-    register Functor f;
+   Functor f;
+   arity_t a;
     /* store the terms to visit */
     CELL *ptd1 = RepAppl(d0), d1;
     f = (Functor)(d1 = VISIT_UNMARK(*ptd1));
     if (IsExtensionFunctor(f)) {
-      goto loop;
+      if (f == FunctorAttVar)
+	a =3;
+      else
+	goto loop;
+    } else {
+      a = ArityOfFunctor(f);
     }
 
     if (stt.pt + 32 >= stt.max) {
@@ -64,7 +70,6 @@ var_in_term_nvar:
     }
     *ptd1 = VISIT_MARK();
     push_sub_term(&stt, d1, ptd1, pt0, pt0_end);
-    arity_t a = ArityOfFunctor(f);
     pt0 = ptd1;
     pt0_end = ptd1 + a;
     //   fprintf(stderr, "%ld at %s %ld@%ld-%ld %lx\n", stt.pt -

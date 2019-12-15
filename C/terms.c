@@ -454,7 +454,7 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
  * @param[USES_REGS] threading
  */
 Term Yap_TermVariables(
-    Term t, UInt arity USES_REGS) /* variables in term t		 */
+    Term t, arity_t arity USES_REGS) /* variables in term t		 */
 {
   Term out;
 
@@ -540,26 +540,17 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     if (HR + 1024 > ASP) {
       goto global_overflow;
     }
-
-    d0 = *ptd0;
+    output = MkPairTerm((CELL)ptd0, output);
+    /* store the terms to visit */
     if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
       /* Trail overflow */
       goto trail_overflow;
     }
-
-    output = MkPairTerm((CELL)ptd0, output);
-    /* store the terms to visit */
     YapBind(ptd0, TermFoundVar);
-    attvar_record *a0 = RepAttVar(ptd0);
-    stt.pt->pt0 = &a0->Atts-1;
-    stt.pt->pt0_end = &a0->Atts;
-    stt.pt->ptd0 = &a0->Done;
-    stt.pt->oldv = a0->Done;
-    stt.pt++;
-    a0->Done = VISIT_MARK();
-    pt0 = &a0->Done;
-    pt0_end = &a0->Atts;
-    continue;
+    ptd0 = (CELL*)RepAttVar(ptd0);
+    d0 = AbsAppl(ptd0);
+    goto list_loop;
+
     }
   END_WALK();
   // no more variables to be found
@@ -997,7 +988,7 @@ static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp USES_REGS) {
   return 0;
 }
 
-static Int MaxNumberedVar(Term inp, UInt arity PASS_REGS) {
+static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
   Term t = Deref(inp);
 
   if (IsPrimitiveTerm(t)) {

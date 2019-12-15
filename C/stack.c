@@ -30,25 +30,20 @@
  *
  */
 
-#include "Yap.h"
-#include "YapEval.h"
-#include "clause.h"
-#include "iopreds.h"
-#include "tracer.h"
-#include "yapio.h"
 
+#include "Yap.h"
 #ifdef YAPOR
 #include "or.macros.h"
 #endif /* YAPOR */
 #ifdef TABLING
 
 #include "tab.macros.h"
-
+#include "clause.h"
+#include "attvar.h"
 #endif /* TABLING */
 #if HAVE_STRING_H
 
 #include <string.h>
-
 #endif
 
 #include <heapgc.h>
@@ -2353,7 +2348,7 @@ void ShowTerm(Term *tp, int depth) {
     } else if (IsAtomTerm(t)) {
         fprintf(stderr, "A:%ld(%s) ", tp - HR, RepAtom(AtomOfTerm(t))->StrOfAE);
     } else if (IsIntTerm(t)) {
-        fprintf(stderr, "A:%ld(%ld) ", tp - HR, IntOfTerm(t));
+        fprintf(stderr, "I:%ld(%ld) ", tp - HR, IntOfTerm(t));
     } else if (IsPairTerm(t)) {
         fprintf(stderr, "A:%ld([...]) ", tp - HR);
         fprintf(stderr, "\n%*c", depth << 2, ' ');
@@ -2397,10 +2392,20 @@ void pp(Term t, int lvl) {
   fprintf(stderr,"%*c", 2*(lvl++), ' ');
   if (IsVarTerm(t)) {
       CELL *v = (CELL*)t;
+      if (IsAttVar(v)) {
+	fputs( "ATT V:\n", stderr);
+	pp(AbsAppl((CELL*)RepAttVar(v)),2);
+	   return;
+	}
       if (v < HR) fprintf(stderr,"_H%lx\n",v-H0);
       else fprintf(stderr,"_L%lx\n",ASP-v);
-    } else if (IsNumTerm(t)||IsAtomTerm(t)) {
-      Yap_DebugPlWriteln(t);
+    } else if (IsAtomicTerm(t)) {
+      if (IsAtomTerm(t)) {
+	fprintf(stderr, "%s\n",  RepAtom(AtomOfTerm(t))->StrOfAE);
+      } else {
+	// int
+	fprintf(stderr, "%s\n",  RepAtom(AtomOfTerm(t))->StrOfAE);
+      }
     } else if (IsPairTerm(t)) {
     if (RepPair(t) < H0 || RepPair(t) > HR) {
       fprintf(stderr,"[ TAG( %p ) ]\n", RepPair(t));
@@ -2409,10 +2414,12 @@ void pp(Term t, int lvl) {
       pp(HeadOfTerm(t), lvl+1);
 	 pp(TailOfTerm(t), lvl+1);
     }
+
+    
   }else  {
       Functor f=	   FunctorOfTerm(t);
       if (IsPairTerm((CELL)f)) {
-	fprintf(stderr,"[ TAG( %p ) ]\n", RepAppl(t));
+	fprintf(stderr,"[ APPL %p  ]\n", RepAppl(t));
       } else {
 	const char *s = RepAtom(NameOfFunctor(f))->StrOfAE;
 	arity_t a = ArityOfFunctor(f);

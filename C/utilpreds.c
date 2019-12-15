@@ -2370,21 +2370,6 @@ p_is_list_or_partial_list( USES_REGS1 )
   return Yap_IsListOrPartialListTerm(Deref(ARG1));
 }
 
-static Term
-numbervar_singleton(USES_REGS1)
-{
-  Term ts[1];
-  ts[0] = MkIntegerTerm(-1);
-  return Yap_MkApplTerm(FunctorDollarVar, 1, ts);
-}
-
-static void
-renumbervar(Term t, Int id USES_REGS)
-{
-  Term *ts = RepAppl(t);
-  ts[1] = MkIntegerTerm(id);
-}
-
 static int
 unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share USES_REGS)
 {

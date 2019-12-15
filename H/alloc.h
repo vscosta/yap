@@ -72,6 +72,8 @@ typedef	struct FREEB {
 #define MaxBlockSize	0xffffff
 #define	InUseFlag	0x80000000
 
+#define MaxTmp(USES_REGS1) (MaxBlockSize+1)
+
 /* the following defines are machine dependant and are used to enforce
    the correct alignment for allocated blocks							*/
 
@@ -230,6 +232,7 @@ extern int pop_text_stack__(int lvl USES_REGS);
 
 
 extern void *pop_output_text_stack__(int lvl, const void *ox USES_REGS);
+
 
 #endif
 /// @}

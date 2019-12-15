@@ -518,11 +518,10 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    //same as before
 	    *ptf = (VISIT_TARGET(*ptd1));
 	  }
-	} else if (IsExtensionFunctor((Functor)tag)) {
+	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
 	    switch (tag) {
 	  case (CELL) FunctorDBRef:
 	  case (CELL) FunctorAttVar:
-	    *ptf = d0;
 	    break;
 	  case (CELL) FunctorLongInt:
 	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
@@ -585,7 +584,11 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	} else {
 	  myt = *ptf = AbsAppl(HR);
 	  Functor f = (Functor)*ptd1;
-	  arity_t arity = ArityOfFunctor(f);
+	  arity_t arity;
+	  if (f == FunctorAttVar)
+	    arity = 3;
+	  else
+	    arity = ArityOfFunctor(f);
 	  if (share) {
 	    d0 = AbsAppl(ptf);
 	    MaBind(ptd0, d0);
@@ -629,21 +632,24 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
       } else if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
-	CELL new;
 
-	bp = to_visit;
-	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
-	  goto overflow;
+	if (! GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
+	  d0 = AbsAppl(ptd0);
+	  ptd0 = (CELL*)RepAttVar(ptd0);
+	  goto list_loop;
+	} else {
+	  bp = to_visit;
+	  if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	    goto overflow;
+	  }
+	  to_visit = bp;
 	}
-	to_visit = bp;
-	new = *ptf;
 	if (TR > (tr_fr_ptr) LOCAL_TrailTop - 256) {
 	  /* Trail overflow */
 	  if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
 	    goto trail_overflow;
 	  }
 	}
-	Bind_and_Trail(ptd0, new);
       } else {
 	/* first time we met this term */
 	*ptf = (CELL)ptd0;
