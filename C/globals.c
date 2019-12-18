@@ -150,6 +150,130 @@ typedef struct cell_space {
   CELL *arenaB, *arenaL;
 } cell_space_t;
 
+/*************************************************************************
+*									 *
+    *	 YAP Prolog 							 *
+    *									 *
+    *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+    *									 *
+    * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+    *									 *
+    **************************************************************************
+    *									 *
+    * File:		utilpreds.c * Last rev:	4/03/88
+    ** mods: * comments:	new utility predicates for YAP *
+    *									 *
+    *************************************************************************/
+
+#ifndef TERMS_C
+#define TERMS_C 1
+
+//#define DEB_D0(S) printf("%s %s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0,
+/**
+ * @file C/terms.c
+ *
+ * @brief applications of the tree walker pattern.
+ *
+ * @addtogroup Terms
+ *
+ * @{
+ *
+ */
+
+#include "absmi.h"
+
+#include "YapHeap.h"
+
+#include "heapgc.h"
+
+ typedef struct {
+  non_singletons_t *pt0;
+  non_singletons_t *pt;
+  non_singletons_t *max;
+  scratch_struct_t bf;
+} tstack_t;
+
+static bool init_stack(tstack_t *b, size_t nof) {
+  if (nof==0)
+    nof = 4096;
+  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(non_singletons_t))) {
+    b->pt0 = b->bf.data;
+    b->pt = b->pt0;
+    b->max = b->pt0 + nof;
+    return true;
+  }
+  return false;
+  }
+
+/*************************************************************************
+*									 *
+    *	 YAP Prolog 							 *
+    *									 *
+    *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+    *									 *
+    * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+    *									 *
+    **************************************************************************
+    *									 *
+    * File:		utilpreds.c * Last rev:	4/03/88
+    ** mods: * comments:	new utility predicates for YAP *
+    *									 *
+    *************************************************************************/
+
+#ifndef TERMS_C
+#define TERMS_C 1
+
+//#define DEB_D0(S) printf("%s %s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0,
+/**
+ * @file C/terms.c
+ *
+ * @brief applications of the tree walker pattern.
+ *
+ * @addtogroup Terms
+ *
+ * @{
+ *
+ */
+
+#include "absmi.h"
+
+#include "YapHeap.h"
+
+#include "heapgc.h"
+
+ typedef struct {
+  non_singletons_t *pt0;
+  non_singletons_t *pt;
+  non_singletons_t *max;
+  scratch_struct_t bf;
+} tstack_t;
+
+static bool init_stack(tstack_t *b, size_t nof) {
+  if (nof==0)
+    nof = 4096;
+  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(non_singletons_t))) {
+    b->pt0 = b->bf.data;
+    b->pt = b->pt0;
+    b->max = b->pt0 + nof;
+    return true;
+  }
+  return false;
+  }
+
+static bool reinit_stack( tstack_t *b) {
+  size_t nof = b->max-b->pt0;
+  if (Yap_realloc_scratch_buf(&b->bf, 2*nof)) {
+    b->pt0 = b->bf.data;
+    b->pt = b->pt0;
+    b->max = b->pt0 + 2*nof;
+    return true;
+  }
+  return false;
+}
+static bool close_stack( tstack_t *b) {
+  return Yap_release_scratch_buf(&b->bf);
+}
+
 #define MIN_ARENA_SIZE (1048L)
 
 #define MAX_ARENA_SIZE (2048 * 16)
@@ -353,14 +477,6 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
   return arena;
 }
 
-#define expand_stack(S0, SP, SF, TYPE)				\
-  {								\
-    size_t sz = SF - S0, used = SP - S0;			\
-    S0 = Realloc(S0, (1024 + sz) * sizeof(TYPE) PASS_REGS);	\
-    SP = S0 + used;						\
-    SF = S0 + (1024 + sz);					\
-  }
-
 /**
  *
  * THis is the key function to copy term, parameters are:
@@ -387,12 +503,10 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   // allocate space for internal stack, so that we do not have yo rely on
   //m C-stack.
 
-  int lvl = push_text_stack();
-  struct cp_frame *to_visit0 =
-    Malloc(1024 * sizeof(struct cp_frame));
-  struct cp_frame *to_visit_max = to_visit0 + 1024;
-  struct cp_frame *to_visit = to_visit0;
-  tr_fr_ptr TR0 = TR;
+  tstack_t stt;
+size_t sz = 1024;
+init_stack(&stt, sz);
+   tr_fr_ptr TR0 = TR;
   int ground = true;
   HB = HLow;
   Term myt = (CELL)HLow;
@@ -418,34 +532,35 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 
 	// ap points to head of list
 	// we've been here before
-	if (pt0==ptd1||IS_VISIT_MARKER(*ptd1)) {
+	if (IS_VISIT_MARKER(*ptd1)) {
       /* d0 has ance   */	 
 	  if (hack) {
 	    // for now just put ..
 	    char s[64];
-	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd1));
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
 	    *ptf = MkStringTerm(s);
 	  } else if (forest) {
 	    // set up a binding PTF=D0
-	    CELL oldt = VISIT_TARGET(*ptd1);
-	    if (IsVarTerm(oldt)) {
-	      *ptf = oldt;
+     struct cp_frame *entry =  VISIT_ENTRY(*ptd0);
+	    Term val = entry->t;
+	    if (IsVarTerm(val)) {
+	      *ptf = val;
 	      continue;
 	    }
 	    Term ts[2];
 	    ts[0] = (CELL) ptf;
-	    ts[1] = oldt;
+	    ts[1] = val;
 	    VISIT_TARGET(*ptd1) = (CELL)ptf;
 	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
 	    RESET_VARIABLE(ptf);
 	  } else {
-	    *ptf =  VISIT_TARGET(*ptd1);
+	    *ptf =  VISIT_TARGET(*ptd0);
 	  }	
 	  continue;
 	      
 	}
 	   
-	if (share && ptd1 >= HB) {
+	if (share && ptd0 >= HB) {
 	  // d0 is from copy, so just use it. Note that this allows
 	  // copying rational trees, even if we don break cycles.
 	  *ptf = d0;
@@ -454,16 +569,16 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	}
 
 	if (to_visit >= to_visit_max - 32) {
-	  expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+	  reinit_stack(&stt, 1024);
 	}
 	// first time we meet,
 	// save state
 
 	if (share) {
 	  d0 = AbsPair(ptf);
-	  MaBind(ptd1,d0);
+	  MaBind(ptd0,d0);
 	}
-	myt = AbsPair(ptf);
+	myt = AbsPair(HR);
 	to_visit->start_cp = pt0;
 	to_visit->end_cp = pt0_end;
 	to_visit->ptf = ptf;
@@ -499,7 +614,10 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	if (IS_VISIT_MARKER(tag)) {
 	  /* If this is newer than the current term, just reuse */
 	  if (hack) {
-	      *ptf = TermFoundVar;
+	    char s[64];
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
+	    *ptf = MkStringTerm(s);
+	
 	  } else if (forest) {
 	    // set up a binding PTF=D0
         struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
@@ -518,6 +636,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	    //same as before
 	    *ptf = (VISIT_TARGET(*ptd1));
 	  }
+	  continue;
 	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
 	    switch (tag) {
 	  case (CELL) FunctorDBRef:
@@ -595,7 +714,297 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  } 
 	  /* store the terms to visit */
 	  if (to_visit + 32 >= to_visit_max) {
-	    expand_stack(to_visit0, to_visit, to_visit_max, struct cp_frame);
+	  reinit_stack(&stt, 1024);
+	}
+	// first time we meet,
+	// save state
+
+	if (share) {
+	  d0 = AbsPair(ptf);
+	  MaBind(ptd0,d0);
+	}
+	myt = AbsPair(HR);
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->ptf = ptf;
+	to_visit->ground = ground;
+	to_visit->oldp = ptd1;
+	to_visit->oldv = *ptd1;
+	to_visit->t = myt;
+	d0 = VISIT_UNMARK(*ptd1);
+	*ptd1 = VISIT_MARK();
+	*ptf = AbsPair(HR);
+	/*  the system into thinking we had a variable there */
+	     
+	ptf = HR;
+	to_visit++;
+	ground = true;
+	pt0 = ptd1;
+	pt0_end = ptd1 + 1;
+	HR += 2;
+	if (HR > ASP - MIN_ARENA_SIZE) {
+	  //same as before
+	  goto overflow;
+	}
+       goto list_loop;
+      } else if (IsApplTerm(d0)) {
+	CELL *ptd1 = RepAppl(d0);
+	if (share && ptd1 >= HB) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf = d0;
+	  continue;
+	}
+	CELL tag =*ptd1;
+
+	if (IS_VISIT_MARKER(tag)) {
+	  /* If this is newer than the current term, just reuse */
+	  if (hack) {
+	    char s[64];
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
+	    *ptf = MkStringTerm(s);
+	
+	  } else if (forest) {
+	    // set up a binding PTF=D0
+        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+	    Term val = entry->t;
+	    if (IsVarTerm(val)) {
+	      *ptf = val;
+	      continue;
+	    }
+	    Term ts[2];
+	    ts[0] = (CELL) ptf;
+	    ts[1] = val;
+	    entry->t = (CELL)ptf;
+	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
+	    RESET_VARIABLE(ptf);
+	  } else {
+	    //same as before
+	    *ptf = (VISIT_TARGET(*ptd1));
+	  }
+	  continue;
+	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
+	    switch (tag) {
+	  case (CELL) FunctorDBRef:
+	  case (CELL) FunctorAttVar:
+	    break;
+	  case (CELL) FunctorLongInt:
+	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    HR[1] = ptd1[1];
+	    HR[2] = EndSpecials;
+	    HR += 3;
+	    if (HR > ASP - MIN_ARENA_SIZE) {
+	      goto overflow;
+	    }
+	    break;
+	  case (CELL) FunctorDouble:
+	    if (HR >
+		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    HR[1] = ptd1[1];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	    HR[2] = ptd1[2];
+	    HR[3] = EndSpecials;
+	    HR += 4;
+#else
+	    HR[2] = EndSpecials;
+	    HR += 3;
+#endif
+	    break;
+	  case (CELL) FunctorString:
+	    if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
+	    HR += ptd1[1] + 3;
+	    break;
+	  default: {
+
+	    /* big int */
+	    UInt sz = (sizeof(MP_INT) + 3 * CellSize +
+		       ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+	      CellSize,
+	      i;
+
+	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    for (i = 1; i < sz; i++) {
+	      HR[i] = ptd1[i];
+	    }
+	    HR += sz;
+	  }
+	  }
+	  continue;
+	} else {
+	  myt = *ptf = AbsAppl(HR);
+	  Functor f = (Functor)*ptd1;
+	  arity_t arity;
+	  if (f == FunctorAttVar)
+	    arity = 3;
+	  else
+	    arity = ArityOfFunctor(f);
+	  if (share) {
+	    d0 = AbsAppl(ptf);
+	    MaBind(ptd0, d0);
+	  } 
+	  /* store the terms to visit */
+	  if (to_visit + 32 >= to_visit_max) {
+	  reinit_stack(&stt, 1024);
+	}
+	// first time we meet,
+	// save state
+
+	if (share) {
+	  d0 = AbsPair(ptf);
+	  MaBind(ptd0,d0);
+	}
+	myt = AbsPair(HR);
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->ptf = ptf;
+	to_visit->ground = ground;
+	to_visit->oldp = ptd1;
+	to_visit->oldv = *ptd1;
+	to_visit->t = myt;
+	d0 = VISIT_UNMARK(*ptd1);
+	*ptd1 = VISIT_MARK();
+	*ptf = AbsPair(HR);
+	/*  the system into thinking we had a variable there */
+	     
+	ptf = HR;
+	to_visit++;
+	ground = true;
+	pt0 = ptd1;
+	pt0_end = ptd1 + 1;
+	HR += 2;
+	if (HR > ASP - MIN_ARENA_SIZE) {
+	  //same as before
+	  goto overflow;
+	}
+       goto list_loop;
+      } else if (IsApplTerm(d0)) {
+	CELL *ptd1 = RepAppl(d0);
+	if (share && ptd1 >= HB) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf = d0;
+	  continue;
+	}
+	CELL tag =*ptd1;
+
+	if (IS_VISIT_MARKER(tag)) {
+	  /* If this is newer than the current term, just reuse */
+	  if (hack) {
+	    char s[64];
+	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
+	    *ptf = MkStringTerm(s);
+	
+	  } else if (forest) {
+	    // set up a binding PTF=D0
+        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+	    Term val = entry->t;
+	    if (IsVarTerm(val)) {
+	      *ptf = val;
+	      continue;
+	    }
+	    Term ts[2];
+	    ts[0] = (CELL) ptf;
+	    ts[1] = val;
+	    entry->t = (CELL)ptf;
+	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
+	    RESET_VARIABLE(ptf);
+	  } else {
+	    //same as before
+	    *ptf = (VISIT_TARGET(*ptd1));
+	  }
+	  continue;
+	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
+	    switch (tag) {
+	  case (CELL) FunctorDBRef:
+	  case (CELL) FunctorAttVar:
+	    break;
+	  case (CELL) FunctorLongInt:
+	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    HR[1] = ptd1[1];
+	    HR[2] = EndSpecials;
+	    HR += 3;
+	    if (HR > ASP - MIN_ARENA_SIZE) {
+	      goto overflow;
+	    }
+	    break;
+	  case (CELL) FunctorDouble:
+	    if (HR >
+		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    HR[1] = ptd1[1];
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	    HR[2] = ptd1[2];
+	    HR[3] = EndSpecials;
+	    HR += 4;
+#else
+	    HR[2] = EndSpecials;
+	    HR += 3;
+#endif
+	    break;
+	  case (CELL) FunctorString:
+	    if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
+	    HR += ptd1[1] + 3;
+	    break;
+	  default: {
+
+	    /* big int */
+	    UInt sz = (sizeof(MP_INT) + 3 * CellSize +
+		       ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
+	      CellSize,
+	      i;
+
+	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
+	      goto overflow;
+	    }
+	    *ptf = AbsAppl(HR);
+	    HR[0] = tag;
+	    for (i = 1; i < sz; i++) {
+	      HR[i] = ptd1[i];
+	    }
+	    HR += sz;
+	  }
+	  }
+	  continue;
+	} else {
+	  myt = *ptf = AbsAppl(HR);
+	  Functor f = (Functor)*ptd1;
+	  arity_t arity;
+	  if (f == FunctorAttVar)
+	    arity = 3;
+	  else
+	    arity = ArityOfFunctor(f);
+	  if (share) {
+	    d0 = AbsAppl(ptf);
+	    MaBind(ptd0, d0);
+	  } 
+	  /* store the terms to visit */
+	  if (to_visit + 32 >= to_visit_max) {
+	    reinit_stack(&stt, 1024);
 	  }
 	  to_visit->start_cp = pt0;
 	  to_visit->end_cp = pt0_end;
@@ -673,7 +1082,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
 	  /* restore our nice, friendly, term to its original state */
   clean_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
-  pop_text_stack(lvl);
+ close_stack(&stt);
   //  Yap_DebugPlWriteln(HLow[0]);
   return 0;
  overflow:
@@ -682,7 +1091,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
     VUNMARK(to_visit->oldp, to_visit->oldv);
   }
   clean_tr(TR0 PASS_REGS);
-  pop_text_stack(lvl);
+ close_stack(&stt);
   return -1;
 
  trail_overflow:
@@ -693,7 +1102,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   }
 #endif
   clean_tr(TR0);
-  pop_text_stack(lvl);
+  close_stack(&stt);
   return -4;
 }
 

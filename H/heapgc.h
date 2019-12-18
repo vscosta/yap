@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+#ifndef HEAPGC_H_INCLUDED
+#define HEAPGC_H_INCLUDED
+
+#ifndef HEAPGC_H_INCLUDED
+#define HEAPGC_H_INCLUDED
+
 #ifndef HEAPGC_H
 #define HEAPGC_H 1
 
@@ -250,20 +256,43 @@ typedef struct gc_entry_info {
   arity_t a;
 } gc_entry_info_t;
 
+#if TERMS_C||GLOBALS_C
+
+if TERMS_C
+
+ typedef struct {
+  T *pt0;
+  T *pt;
+  T *max;
+  scratch_struct_t bf;
+} tstack_t;
+
+
 typedef struct non_single_struct_t {
   CELL *ptd0;
   CELL *pt0, *pt0_end;
   Term oldv;
 } non_singletons_t;
 
-#if TERMS_C
-
-#define to_visit    stt.pt
-#define to_visit0   stt.pt0
 #define T non_single_struct_t
+
+
+#elif GLOBALS_C
+
+
+
+#endif
+
+
 #else
 #define T cp_frame
 #endif
+
+
+
+#define to_visit    stt.pt
+#define to_visit0   stt.pt0
+#define to_visit_max   stt.pt0_end
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
@@ -298,3 +327,9 @@ typedef struct non_single_struct_t {
   } while (Unsigned(A) != (D) )
 
 #endif
+
+#endif
+
+#endif // HEAPGC_H_INCLUDED
+
+#endif // HEAPGC_H_INCLUDED
