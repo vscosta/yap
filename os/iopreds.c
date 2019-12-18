@@ -581,14 +581,14 @@ void Yap_DebugErrorPuts(const char *s) { Yap_DebugPuts(stderr, s); }
 void Yap_DebugPlWrite(Term t) {
   if (t == 0)
     fprintf(stderr, "NULL");
-  Yap_plwrite(t, GLOBAL_Stream + 2, 0, 0, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream + 2, 10, 0, GLOBAL_MaxPriority);
 }
 
 void Yap_DebugPlWriteln(Term t) {
   CACHE_REGS
   if (t == 0)
     fprintf(stderr, "NULL");
-  Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , 0, 0, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream+LOCAL_c_error_stream , 10, 0, GLOBAL_MaxPriority);
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, '.');
   Yap_DebugPutc(GLOBAL_Stream[LOCAL_c_error_stream].file, 10);
 }

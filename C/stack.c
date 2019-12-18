@@ -2408,7 +2408,7 @@ void pp(Term t, int lvl) {
       }
     } else if (IsPairTerm(t)) {
     if (RepPair(t) < H0 || RepPair(t) > HR) {
-      fprintf(stderr,"[ TAG( %p ) ]\n", RepPair(t));
+      fprintf(stderr,"[ LIST ( %p ) ]\n", RepPair(t));
     } else {
       fprintf(stderr,"[ %lx\n", RepPair(t)-H0);
       pp(HeadOfTerm(t), lvl+1);

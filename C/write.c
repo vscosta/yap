@@ -720,13 +720,7 @@ static void write_list(Term t, int direction, int depth,
   while (1) {
     if (t == TermNil)
       break;
-    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth , FALSE, wglb));
-    ti = TailOfTerm(t);
-    if (IsVarTerm(ti))
-      break;
-    if (!IsPairTerm(ti))
-      break;
-    if ( depth ==1) {
+    if ( depth && --depth<=0) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -734,8 +728,14 @@ static void write_list(Term t, int direction, int depth,
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
+    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth , FALSE
+			 , wglb));
+    ti = TailOfTerm(t);
+    if (IsVarTerm(ti))
+      break;
+    if (!IsPairTerm(ti))
+      break;
     lastw = separator;
-    depth--;
     wrputc(',', wglb->stream);
     t = ti;
   }
@@ -761,7 +761,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
 {
   CACHE_REGS
 
-  if (depth && --depth == 0) {
+  if (depth && --depth <= 0) {
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
@@ -794,7 +794,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, 0, LOCAL_max_list, wglb);
+      write_list(t, depth, LOCAL_max_list, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
@@ -972,7 +972,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_right) {
         wropen_bracket(wglb, TRUE);
       }
-      writeTerm(ArgOfTerm(2, t), rp, depth - 1, TRUE, wglb);
+      writeTerm(ArgOfTerm(2, t), rp, depth, TRUE, wglb);
       if (bracket_right) {
         wrclose_bracket(wglb, TRUE);
       }

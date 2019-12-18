@@ -63,6 +63,9 @@ static bool reinit_stack( tstack_t *b) {
   }
   return false;
 }
+static bool close_stack( tstack_t *b) {
+  return Yap_release_scratch_buf(&b->bf);
+}
 
 #include "attvar.h"
 #include "clause.h"
@@ -83,7 +86,7 @@ static bool reinit_stack( tstack_t *b) {
     {									\
       goto reset;                                  \
     }						   \
-    return false;\
+     close_stack(&stt); return false;\
 }
 
 #define handle_trail_overflow()                                                \
@@ -95,7 +98,7 @@ static bool reinit_stack( tstack_t *b) {
     ssize_t expand = 0L;                                                       \
     if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {                               \
                                                                                \
-      return false;                                                            \
+       close_stack(&stt); return false;                                                            \
     }                                                                          \
     goto reset;                                                                \
   }
@@ -109,7 +112,7 @@ static bool reinit_stack( tstack_t *b) {
     ssize_t expand = 0L;                                                       \
     if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {                               \
                                                                                \
-      return false;                                                            \
+      close_stack(&stt); return false;					\
     }                                                                          \
     goto reset;                                                                \
   }
@@ -160,14 +163,14 @@ static inline bool pop_sub_term(tstack_t *sp, CELL **b, CELL **e) {
   if (IS_VISIT_MARKER(*ptd0)) {                                                \
     while (pop_sub_term(&stt, NULL, NULL)) {                                   \
     };                                                                         \
-    return true;                                                               \
+     close_stack(&stt); return true;                                                               \
   }
 
 #define CYC()                                                                  \
   if (IS_VISIT_MARKER(*ptd0)) {                                                \
     while (pop_sub_term(&stt, NULL, NULL)) {                                   \
     };                                                                         \
-    return true;                                                               \
+     close_stack(&stt);return true;                                                               \
   }
 
 /**
@@ -189,6 +192,7 @@ static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
   /* leave an empty slot to fill in later */
   END_WALK();
   // no cycles found
+  close_stack(&stt);
   return false;
 }
 
@@ -240,11 +244,12 @@ static bool ground_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
   };
   HR = InitialH;
   //  pp(pt0_[1], 0);
-
+ close_stack(&stt);
   return false;
 
   END_WALK();
-  return true;
+ close_stack(&stt);
+ return true;
   /* should have a return before this point */
   /* close main processing loop */
 }
@@ -263,8 +268,8 @@ bool Yap_IsGroundTerm(Term t) {
 
 /** @pred  ground( _T_) is iso
 
-
     Succeeds if there are no free variables in the term  _T_.
+
 
 
 */
@@ -293,19 +298,15 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v USES_REGS) {
     /* Do we still have compound terms to visit */
     while (pop_sub_term(&stt, NULL, NULL)) {
     };
+    close_stack(&stt);
     return true;
   }
-  continue;
   END_WALK();
-
-  if (stt.pt > stt.pt0) {
-    stt.pt--;
-
-    pt0 = stt.pt->pt0;
-    pt0_end = stt.pt->pt0_end;
-  }
-  return false;
+ close_stack(&stt);
+ return false;
 }
+
+
 
 static Int var_in_term(Term v,
                        Term t USES_REGS) /* variables in term t		 */
@@ -357,7 +358,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
-      YapBind(ptr, TermFoundVar);
+     Bind_Global_NonAtt(ptr, TermFoundVar);
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
         goto trail_overflow;
       /* do or pt2 are unbound  */
@@ -376,13 +377,13 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     /* Trail overflow */
     goto trail_overflow;
   }
-  YapBind(ptd0, TermFoundVar);
+  Bind_Global_NonAtt(ptd0, TermFoundVar);
   continue;
   END_WALK();
 
   HB = B->cp_h;
 
-  clean_tr(TR0 - count PASS_REGS);
+  clean_tr(TR - count PASS_REGS);
 
   if (HR != InitialH) {
     /* close the list */
@@ -546,7 +547,7 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       /* Trail overflow */
       goto trail_overflow;
     }
-    YapBind(ptd0, TermFoundVar);
+     Bind_Global_NonAtt(ptd0, TermFoundVar);
     ptd0 = (CELL*)RepAttVar(ptd0);
     d0 = AbsAppl(ptd0);
     goto list_loop;
@@ -816,7 +817,7 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     /* Trail overflow */
     goto trail_overflow;
   }
-  YapBind(ptd0, TermFoundVar);
+  Bind_Global_NonAtt(ptd0, TermFoundVar);
   continue;
   END_WALK();
 
@@ -899,7 +900,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
     HR[0] = (CELL)FunctorDollarVar;
     RESET_VARIABLE(HR + 1);
     HR += 2;
-    YapBind(ptd0, AbsAppl(HR - 2));
+    Bind_Global_NonAtt(ptd0, AbsAppl(HR - 2));
     continue;
   }
   END_WALK();
@@ -985,6 +986,7 @@ static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp USES_REGS) {
     VUNMARK(stt.pt->ptd0, stt.pt->oldv);
   }
   prune(B PASS_REGS);
+ close_stack(&stt);
   return 0;
 }
 

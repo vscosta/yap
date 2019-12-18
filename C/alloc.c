@@ -1842,17 +1842,36 @@ void *Yap_InitTextAllocator(void) {
 
  bool Yap_get_scratch_buf(scratch_struct_t *handle, size_t nof, size_t each) {
    handle->n_of = nof;
-      handle->size_of = each; 
+   handle->size_of = each;
+   if (!handle->data) {
+     if (LOCAL_WorkerBuffer.data && !LOCAL_WorkerBuffer.in_use) {
+       if (LOCAL_WorkerBuffer.in_use < nof*each) {
+	 LOCAL_WorkerBuffer.data = realloc( LOCAL_WorkerBuffer.data, nof*each);
+	 LOCAL_WorkerBuffer.sz =  nof*each;
+       }
+       LOCAL_WorkerBuffer.in_use =  true;
+       handle->data =  LOCAL_WorkerBuffer.data;
+       handle->is_thread_scratch_buf = true;
+      return true;
+     }
+   }
    handle->data = malloc(nof*each);
+   handle->is_thread_scratch_buf = false;
    return true;
  }
 
-  bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
+
+bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
     handle->data = realloc(handle->data, handle->size_of*nof);
    return true;
  }
 
    bool Yap_release_scratch_buf(scratch_struct_t *handle) {
-     free(handle->data);
-   return true;
+     if (handle->is_thread_scratch_buf &&
+	 handle->data == LOCAL_WorkerBuffer.data) {
+       LOCAL_WorkerBuffer.in_use= false;
+     } else {
+       free(handle->data);
+     }
+     return true;
  }
