@@ -1,30 +1,12 @@
-/*************************************************************************
- *									 *
- *	 YAP Prolog 							 *
- *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
- *									 *
- * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
- *									 *
- **************************************************************************
- *									 *
- * File:		non backtrackable term support * Last rev:	2/8/06
- ** mods: * comments:	non-backtrackable term support *
- *									 *
- *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
-#endif
-
-/**
- * @file   globals.c
- * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
- * @date   Tue Nov 17 23:16:17 2015
- *
- * @brief  support for backtrable and non-backtrackable variables in Prolog.
- *
- *
- */
+ /**
+   * @file   globals.c
+   * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
+   * @date   Tue Nov 17 23:16:17 2015
+   *
+   * @brief  support for backtrable and non-backtrackable variables in Prolog.
+   *
+   *
+   */
 #define DEB_DOOBIN(d0) (fprintf(stderr, "+++ %s ",__FUNCTION__) , Yap_DebugPlWriteln(d0))
 #define DEB_DOOBOUT(d0) (fprintf(stderr, "--- ") , Yap_DebugPlWriteln(d0))
 #define DEB_DOOB(S) (fprintf(stderr, "%s %ld %p=%p %p--%d\n ",S,to_visit-to_visit0,pt0,  ptf, *AbsAppl(pt0), arity) ) //, Yap_DebugPlWriteln(d0))
@@ -110,7 +92,10 @@ static char SccsId[] = "%W% %G%";
 
 */
 
-#include "Yap.h"
+#ifndef GLOBALS_C
+#define GLOBALS_C 1
+
+    #include "Yap.h"
 #include "YapEval.h"
 #include "YapHeap.h"
 #include "Yatom.h"
@@ -121,6 +106,13 @@ static char SccsId[] = "%W% %G%";
 #include "yapio.h"
 #include <math.h>
 
+#include "heapgc.h"
+
+#ifdef HAVE_STRING_H
+#include "string.h"
+#endif
+
+  
 /* Non-backtrackable terms will from now on be stored on arenas, a
    special term on the heap. Arenas automatically contract as we add terms to
    the front.
@@ -133,7 +125,7 @@ static char SccsId[] = "%W% %G%";
 #define QUEUE_HEAD 1
 #define QUEUE_TAIL 2
 #define QUEUE_SIZE 3
-
+ 
 #define HEAP_FUNCTOR_MIN_ARITY
 
 #define HEAP_SIZE 0
@@ -150,129 +142,6 @@ typedef struct cell_space {
   CELL *arenaB, *arenaL;
 } cell_space_t;
 
-/*************************************************************************
-*									 *
-    *	 YAP Prolog 							 *
-    *									 *
-    *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-    *									 *
-    * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-    *									 *
-    **************************************************************************
-    *									 *
-    * File:		utilpreds.c * Last rev:	4/03/88
-    ** mods: * comments:	new utility predicates for YAP *
-    *									 *
-    *************************************************************************/
-
-#ifndef TERMS_C
-#define TERMS_C 1
-
-//#define DEB_D0(S) printf("%s %s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0,
-/**
- * @file C/terms.c
- *
- * @brief applications of the tree walker pattern.
- *
- * @addtogroup Terms
- *
- * @{
- *
- */
-
-#include "absmi.h"
-
-#include "YapHeap.h"
-
-#include "heapgc.h"
-
- typedef struct {
-  non_singletons_t *pt0;
-  non_singletons_t *pt;
-  non_singletons_t *max;
-  scratch_struct_t bf;
-} tstack_t;
-
-static bool init_stack(tstack_t *b, size_t nof) {
-  if (nof==0)
-    nof = 4096;
-  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(non_singletons_t))) {
-    b->pt0 = b->bf.data;
-    b->pt = b->pt0;
-    b->max = b->pt0 + nof;
-    return true;
-  }
-  return false;
-  }
-
-/*************************************************************************
-*									 *
-    *	 YAP Prolog 							 *
-    *									 *
-    *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-    *									 *
-    * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-    *									 *
-    **************************************************************************
-    *									 *
-    * File:		utilpreds.c * Last rev:	4/03/88
-    ** mods: * comments:	new utility predicates for YAP *
-    *									 *
-    *************************************************************************/
-
-#ifndef TERMS_C
-#define TERMS_C 1
-
-//#define DEB_D0(S) printf("%s %s: d0=%lx ptd0=%p *ptd0=%lx\n",S,d0, ptd0,
-/**
- * @file C/terms.c
- *
- * @brief applications of the tree walker pattern.
- *
- * @addtogroup Terms
- *
- * @{
- *
- */
-
-#include "absmi.h"
-
-#include "YapHeap.h"
-
-#include "heapgc.h"
-
- typedef struct {
-  non_singletons_t *pt0;
-  non_singletons_t *pt;
-  non_singletons_t *max;
-  scratch_struct_t bf;
-} tstack_t;
-
-static bool init_stack(tstack_t *b, size_t nof) {
-  if (nof==0)
-    nof = 4096;
-  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(non_singletons_t))) {
-    b->pt0 = b->bf.data;
-    b->pt = b->pt0;
-    b->max = b->pt0 + nof;
-    return true;
-  }
-  return false;
-  }
-
-static bool reinit_stack( tstack_t *b) {
-  size_t nof = b->max-b->pt0;
-  if (Yap_realloc_scratch_buf(&b->bf, 2*nof)) {
-    b->pt0 = b->bf.data;
-    b->pt = b->pt0;
-    b->max = b->pt0 + 2*nof;
-    return true;
-  }
-  return false;
-}
-static bool close_stack( tstack_t *b) {
-  return Yap_release_scratch_buf(&b->bf);
-}
 
 #define MIN_ARENA_SIZE (1048L)
 
@@ -503,7 +372,7 @@ static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
   // allocate space for internal stack, so that we do not have yo rely on
   //m C-stack.
 
-  tstack_t stt;
+  Ystack_t stt;
 size_t sz = 1024;
 init_stack(&stt, sz);
    tr_fr_ptr TR0 = TR;
@@ -530,8 +399,11 @@ init_stack(&stt, sz);
       if (IsPairTerm(d0)) {
 	CELL *ptd1 = RepPair(d0);
 
-	// ap points to head of list
-	// we've been here before
+	///> found infinite loop.
+	/// p0 is the original sub-term = ...,p0,....
+	/// ptd0 is the derefereed version of d0
+	/// 
+	/// 
 	if (IS_VISIT_MARKER(*ptd1)) {
       /* d0 has ance   */	 
 	  if (hack) {
@@ -541,21 +413,24 @@ init_stack(&stt, sz);
 	    *ptf = MkStringTerm(s);
 	  } else if (forest) {
 	    // set up a binding PTF=D0
-     struct cp_frame *entry =  VISIT_ENTRY(*ptd0);
-	    Term val = entry->t;
-	    if (IsVarTerm(val)) {
-	      *ptf = val;
-	      continue;
-	    }
-	    Term ts[2];
-	    ts[0] = (CELL) ptf;
-	    ts[1] = val;
-	    VISIT_TARGET(*ptd1) = (CELL)ptf;
-	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-	    RESET_VARIABLE(ptf);
-	  } else {
-	    *ptf =  VISIT_TARGET(*ptd0);
-	  }	
+     struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+     Term val = entry->t;
+     if (IsVarTerm(val)) {
+       *ptf = val;
+     } else {
+     Term l = AbsAppl(HR);
+
+            RESET_VARIABLE(HR+1);
+	    HR[0] = (CELL)FunctorEq;
+	    *ptf = (CELL)(HR+1);
+	    entry->t = *ptf;
+	    HR[2] = val;
+	    HR+=3;
+	    *bindp = MkPairTerm(l, *bindp);
+     } }
+	  else {
+	    *ptf =  VISIT_TARGET(*ptd1);
+     }
 	  continue;
 	      
 	}
@@ -568,7 +443,7 @@ init_stack(&stt, sz);
 	      
 	}
 
-	if (to_visit >= to_visit_max - 32) {
+	if (to_visit >= to_visit_end - 32) {
 	  reinit_stack(&stt, 1024);
 	}
 	// first time we meet,
@@ -579,8 +454,8 @@ init_stack(&stt, sz);
 	  MaBind(ptd0,d0);
 	}
 	myt = AbsPair(HR);
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end;
+	to_visit->pt0 = pt0;
+	to_visit->pt0_end = pt0_end;
 	to_visit->ptf = ptf;
 	to_visit->ground = ground;
 	to_visit->oldp = ptd1;
@@ -622,16 +497,14 @@ init_stack(&stt, sz);
 	    // set up a binding PTF=D0
         struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
 	    Term val = entry->t;
-	    if (IsVarTerm(val)) {
-	      *ptf = val;
-	      continue;
-	    }
-	    Term ts[2];
-	    ts[0] = (CELL) ptf;
-	    ts[1] = val;
-	    entry->t = (CELL)ptf;
-	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-	    RESET_VARIABLE(ptf);
+	    Term l = AbsAppl(HR);
+	    HR[0] = (CELL)FunctorEq;
+	    *ptf = (CELL)(HR+1);
+	    entry->t = *ptf;
+            RESET_VARIABLE(HR+1);
+	    HR[2] = val;
+	    HR+=3;
+	    *bindp = MkPairTerm(l, *bindp);
 	  } else {
 	    //same as before
 	    *ptf = (VISIT_TARGET(*ptd1));
@@ -713,301 +586,11 @@ init_stack(&stt, sz);
 	    MaBind(ptd0, d0);
 	  } 
 	  /* store the terms to visit */
-	  if (to_visit + 32 >= to_visit_max) {
-	  reinit_stack(&stt, 1024);
-	}
-	// first time we meet,
-	// save state
-
-	if (share) {
-	  d0 = AbsPair(ptf);
-	  MaBind(ptd0,d0);
-	}
-	myt = AbsPair(HR);
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end;
-	to_visit->ptf = ptf;
-	to_visit->ground = ground;
-	to_visit->oldp = ptd1;
-	to_visit->oldv = *ptd1;
-	to_visit->t = myt;
-	d0 = VISIT_UNMARK(*ptd1);
-	*ptd1 = VISIT_MARK();
-	*ptf = AbsPair(HR);
-	/*  the system into thinking we had a variable there */
-	     
-	ptf = HR;
-	to_visit++;
-	ground = true;
-	pt0 = ptd1;
-	pt0_end = ptd1 + 1;
-	HR += 2;
-	if (HR > ASP - MIN_ARENA_SIZE) {
-	  //same as before
-	  goto overflow;
-	}
-       goto list_loop;
-      } else if (IsApplTerm(d0)) {
-	CELL *ptd1 = RepAppl(d0);
-	if (share && ptd1 >= HB) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf = d0;
-	  continue;
-	}
-	CELL tag =*ptd1;
-
-	if (IS_VISIT_MARKER(tag)) {
-	  /* If this is newer than the current term, just reuse */
-	  if (hack) {
-	    char s[64];
-	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
-	    *ptf = MkStringTerm(s);
-	
-	  } else if (forest) {
-	    // set up a binding PTF=D0
-        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
-	    Term val = entry->t;
-	    if (IsVarTerm(val)) {
-	      *ptf = val;
-	      continue;
-	    }
-	    Term ts[2];
-	    ts[0] = (CELL) ptf;
-	    ts[1] = val;
-	    entry->t = (CELL)ptf;
-	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-	    RESET_VARIABLE(ptf);
-	  } else {
-	    //same as before
-	    *ptf = (VISIT_TARGET(*ptd1));
-	  }
-	  continue;
-	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
-	    switch (tag) {
-	  case (CELL) FunctorDBRef:
-	  case (CELL) FunctorAttVar:
-	    break;
-	  case (CELL) FunctorLongInt:
-	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    HR[1] = ptd1[1];
-	    HR[2] = EndSpecials;
-	    HR += 3;
-	    if (HR > ASP - MIN_ARENA_SIZE) {
-	      goto overflow;
-	    }
-	    break;
-	  case (CELL) FunctorDouble:
-	    if (HR >
-		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    HR[1] = ptd1[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	    HR[2] = ptd1[2];
-	    HR[3] = EndSpecials;
-	    HR += 4;
-#else
-	    HR[2] = EndSpecials;
-	    HR += 3;
-#endif
-	    break;
-	  case (CELL) FunctorString:
-	    if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
-	    HR += ptd1[1] + 3;
-	    break;
-	  default: {
-
-	    /* big int */
-	    UInt sz = (sizeof(MP_INT) + 3 * CellSize +
-		       ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	      CellSize,
-	      i;
-
-	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    for (i = 1; i < sz; i++) {
-	      HR[i] = ptd1[i];
-	    }
-	    HR += sz;
-	  }
-	  }
-	  continue;
-	} else {
-	  myt = *ptf = AbsAppl(HR);
-	  Functor f = (Functor)*ptd1;
-	  arity_t arity;
-	  if (f == FunctorAttVar)
-	    arity = 3;
-	  else
-	    arity = ArityOfFunctor(f);
-	  if (share) {
-	    d0 = AbsAppl(ptf);
-	    MaBind(ptd0, d0);
-	  } 
-	  /* store the terms to visit */
-	  if (to_visit + 32 >= to_visit_max) {
-	  reinit_stack(&stt, 1024);
-	}
-	// first time we meet,
-	// save state
-
-	if (share) {
-	  d0 = AbsPair(ptf);
-	  MaBind(ptd0,d0);
-	}
-	myt = AbsPair(HR);
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end;
-	to_visit->ptf = ptf;
-	to_visit->ground = ground;
-	to_visit->oldp = ptd1;
-	to_visit->oldv = *ptd1;
-	to_visit->t = myt;
-	d0 = VISIT_UNMARK(*ptd1);
-	*ptd1 = VISIT_MARK();
-	*ptf = AbsPair(HR);
-	/*  the system into thinking we had a variable there */
-	     
-	ptf = HR;
-	to_visit++;
-	ground = true;
-	pt0 = ptd1;
-	pt0_end = ptd1 + 1;
-	HR += 2;
-	if (HR > ASP - MIN_ARENA_SIZE) {
-	  //same as before
-	  goto overflow;
-	}
-       goto list_loop;
-      } else if (IsApplTerm(d0)) {
-	CELL *ptd1 = RepAppl(d0);
-	if (share && ptd1 >= HB) {
-	  /* If this is newer than the current term, just reuse */
-	  *ptf = d0;
-	  continue;
-	}
-	CELL tag =*ptd1;
-
-	if (IS_VISIT_MARKER(tag)) {
-	  /* If this is newer than the current term, just reuse */
-	  if (hack) {
-	    char s[64];
-	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
-	    *ptf = MkStringTerm(s);
-	
-	  } else if (forest) {
-	    // set up a binding PTF=D0
-        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
-	    Term val = entry->t;
-	    if (IsVarTerm(val)) {
-	      *ptf = val;
-	      continue;
-	    }
-	    Term ts[2];
-	    ts[0] = (CELL) ptf;
-	    ts[1] = val;
-	    entry->t = (CELL)ptf;
-	    *bindp = MkPairTerm(Yap_MkApplTerm(FunctorEq, 2, ts), *bindp);
-	    RESET_VARIABLE(ptf);
-	  } else {
-	    //same as before
-	    *ptf = (VISIT_TARGET(*ptd1));
-	  }
-	  continue;
-	} else if (IsExtensionFunctor((Functor)tag) && tag!=(CELL)FunctorAttVar) {
-	    switch (tag) {
-	  case (CELL) FunctorDBRef:
-	  case (CELL) FunctorAttVar:
-	    break;
-	  case (CELL) FunctorLongInt:
-	    if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    HR[1] = ptd1[1];
-	    HR[2] = EndSpecials;
-	    HR += 3;
-	    if (HR > ASP - MIN_ARENA_SIZE) {
-	      goto overflow;
-	    }
-	    break;
-	  case (CELL) FunctorDouble:
-	    if (HR >
-		ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    HR[1] = ptd1[1];
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	    HR[2] = ptd1[2];
-	    HR[3] = EndSpecials;
-	    HR += 4;
-#else
-	    HR[2] = EndSpecials;
-	    HR += 3;
-#endif
-	    break;
-	  case (CELL) FunctorString:
-	    if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
-	    HR += ptd1[1] + 3;
-	    break;
-	  default: {
-
-	    /* big int */
-	    UInt sz = (sizeof(MP_INT) + 3 * CellSize +
-		       ((MP_INT *) (ptd1 + 2))->_mp_alloc * sizeof(mp_limb_t)) /
-	      CellSize,
-	      i;
-
-	    if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-	      goto overflow;
-	    }
-	    *ptf = AbsAppl(HR);
-	    HR[0] = tag;
-	    for (i = 1; i < sz; i++) {
-	      HR[i] = ptd1[i];
-	    }
-	    HR += sz;
-	  }
-	  }
-	  continue;
-	} else {
-	  myt = *ptf = AbsAppl(HR);
-	  Functor f = (Functor)*ptd1;
-	  arity_t arity;
-	  if (f == FunctorAttVar)
-	    arity = 3;
-	  else
-	    arity = ArityOfFunctor(f);
-	  if (share) {
-	    d0 = AbsAppl(ptf);
-	    MaBind(ptd0, d0);
-	  } 
-	  /* store the terms to visit */
-	  if (to_visit + 32 >= to_visit_max) {
+	  if (to_visit + 32 >= to_visit_end) {
 	    reinit_stack(&stt, 1024);
 	  }
-	  to_visit->start_cp = pt0;
-	  to_visit->end_cp = pt0_end;
+	  to_visit->pt0 = pt0;
+	  to_visit->pt0_end = pt0_end;
 	  to_visit->ptf = ptf;
 	  to_visit->t = myt;
 	  to_visit->ground = ground;
@@ -1037,7 +620,7 @@ init_stack(&stt, sz);
       /* don't need to copy variables if we want to share the global term */
       if (forest ) {
 	/* we have already found this cell */
-	*ptf = (CELL) ptd0;
+	Bind_Global_NonAtt(ptd0, ptf);
       } else if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
@@ -1069,8 +652,8 @@ init_stack(&stt, sz);
 	  if (to_visit > to_visit0) {
       
       to_visit--;
-      pt0 = to_visit->start_cp;
-      pt0_end = to_visit->end_cp;
+      pt0 = to_visit->pt0;
+      pt0_end = to_visit->pt0_end;
       ptf = to_visit->ptf;
       myt = to_visit->t;
       VUNMARK(to_visit->oldp, to_visit->oldv);
@@ -1229,12 +812,14 @@ static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
 static Int
 p_rational_tree_to_forest(USES_REGS1) /* copy term t to a new instance  */
 {
+  Term t2 = ARG2;
+  Term t3 = ARG3;
   Term list = Deref(ARG4);
   Term t = CopyTermToArena(ARG1, false, false, 2, NULL, &list, 0 PASS_REGS);
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */
-  return Yap_unify(ARG2, t) && Yap_unify(ARG3, list);
+  return Yap_unify(t2, t) && Yap_unify(t3, list);
 }
 
 
@@ -1762,7 +1347,7 @@ static Int p_nb_getval(USES_REGS1) {
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
     Term t = MkVarTerm();
-    YapBind(VarOfTerm(to), t);
+    Bind_Global_NonAtt(VarOfTerm(to), t);
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);
@@ -1784,7 +1369,7 @@ Term Yap_GetGlobal(Atom at) {
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
     Term t = MkVarTerm();
-    YapBind(VarOfTerm(to), t);
+    Bind_Global_NonAtt(VarOfTerm(to), t);
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);
@@ -3157,6 +2742,9 @@ void Yap_InitGlobals(void) {
   Yap_InitCPred("nb_beam_size", 2, p_nb_beam_size, SafePredFlag);
   CurrentModule = cm;
 }
+
+#endif
+
 /**
    @}
 */

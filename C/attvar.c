@@ -93,19 +93,19 @@ static attvar_record *BuildNewAttVar(USES_REGS1) {
   return newv;
  }
 
-static int CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr,
+static int CopyAttVar(CELL *orig, void *sttp,
                       CELL *res USES_REGS) {
   register attvar_record *attv = RepAttVar(orig);
   register attvar_record *newv;
-  struct cp_frame *to_visit = *to_visit_ptr;
+  Ystack_t stt = *(Ystack_t *)sttp;
   CELL *vt;
 
   if (!(newv = BuildNewAttVar(PASS_REGS1)))
     return
       FALSE;
   vt = &(attv->Atts);
-  to_visit->start_cp = vt - 1;
-  to_visit->end_cp = vt;
+  to_visit->pt0 = vt - 1;
+  to_visit->pt0_end = vt;
   if (IsVarTerm(attv->Atts)) {
     Bind_Global_NonAtt(&newv->Atts, (CELL)HR);
     to_visit->ptf = HR;
@@ -116,7 +116,7 @@ static int CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr,
                            }
   to_visit->oldp = vt-1;
   to_visit->ground = FALSE;
-  *to_visit_ptr = to_visit + 1;
+  to_visit++;
   *res = (CELL) & (newv->Done);
   return TRUE;
 }

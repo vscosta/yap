@@ -608,7 +608,7 @@ typedef struct { CELL *addr; } visitel;
 
 /* no checking for overflow while building DB terms yet */
 #define CheckVisitOverflow()                                                   \
-  if ((CELL *)to_visit + 1024 >= ASP) {                                        \
+  if ((CELL *)tovisit + 1024 >= ASP) {                                        \
     goto error2;                                                               \
   }
 
@@ -677,8 +677,8 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 #endif
   register visitel *visited = (visitel *)AuxSp;
   /* store this in H */
-  register CELL **to_visit = (CELL **)HR;
-  CELL **to_visit_base = to_visit;
+  register CELL **tovisit = (CELL **)HR;
+  CELL **tovisit_base = tovisit;
   /* where we are going to add a new pair */
   int vars_found = 0;
 #ifdef COROUTINING
@@ -784,18 +784,18 @@ loop:
       /* next, postpone analysis to the rest of the current list */
       CheckVisitOverflow();
 #ifdef RATIONAL_TREES
-      to_visit[0] = pt0 + 1;
-      to_visit[1] = pt0_end;
-      to_visit[2] = StoPoint;
-      to_visit[3] = (CELL *)*pt0;
-      to_visit += 4;
+      tovisit[0] = pt0 + 1;
+      tovisit[1] = pt0_end;
+      tovisit[2] = StoPoint;
+      tovisit[3] = (CELL *)*pt0;
+      tovisit += 4;
       *pt0 = StoPoint[-1];
 #else
       if (pt0 < pt0_end) {
-        to_visit[0] = pt0 + 1;
-        to_visit[1] = pt0_end;
-        to_visit[2] = StoPoint;
-        to_visit += 3;
+        tovisit[0] = pt0 + 1;
+        tovisit[1] = pt0_end;
+        tovisit[2] = StoPoint;
+        tovisit += 3;
       }
 #endif
       d0 = ArityOfFunctor(f);
@@ -875,18 +875,18 @@ loop:
       }
 /* next, postpone analysis to the rest of the current list */
 #ifdef RATIONAL_TREES
-      to_visit[0] = pt0 + 1;
-      to_visit[1] = pt0_end;
-      to_visit[2] = StoPoint;
-      to_visit[3] = (CELL *)*pt0;
-      to_visit += 4;
+      tovisit[0] = pt0 + 1;
+      tovisit[1] = pt0_end;
+      tovisit[2] = StoPoint;
+      tovisit[3] = (CELL *)*pt0;
+      tovisit += 4;
       *pt0 = StoPoint[-1];
 #else
       if (pt0 < pt0_end) {
-        to_visit[0] = pt0 + 1;
-        to_visit[1] = pt0_end;
-        to_visit[2] = StoPoint;
-        to_visit += 3;
+        tovisit[0] = pt0 + 1;
+        tovisit[1] = pt0_end;
+        tovisit[2] = StoPoint;
+        tovisit += 3;
       }
 #endif
       CheckVisitOverflow();
@@ -951,9 +951,9 @@ loop:
 #ifdef COROUTINING
         if (SafeIsAttachedTerm((CELL)ptd0)) {
           Term t[4];
-          int sz = to_visit - to_visit_base;
+          int sz = tovisit - tovisit_base;
 
-          HR = (CELL *)to_visit;
+          HR = (CELL *)tovisit;
           /* store the constraint away for: we need a back pointer to
              the variable, the constraint in some cannonical form, what type
              of constraint, and a list pointer */
@@ -965,9 +965,9 @@ loop:
           if (HR + sz >= ASP) {
             goto error2;
           }
-          memmove((void *)HR, (void *)(to_visit_base), sz * sizeof(CELL *));
-          to_visit_base = (CELL **)HR;
-          to_visit = to_visit_base + sz;
+          memmove((void *)HR, (void *)(tovisit_base), sz * sizeof(CELL *));
+          tovisit_base = (CELL **)HR;
+          tovisit = tovisit_base + sz;
         }
 #endif
         continue;
@@ -984,19 +984,19 @@ loop:
   }
 
   /* Do we still have compound terms to visit */
-  if (to_visit > to_visit_base) {
+  if (tovisit > tovisit_base) {
 #ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    StoPoint = to_visit[2];
-    pt0[-1] = (CELL)to_visit[3];
+    tovisit -= 4;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    StoPoint = tovisit[2];
+    pt0[-1] = (CELL)tovisit[3];
 #else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
+    tovisit -= 3;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
     CheckDBOverflow(1);
-    StoPoint = to_visit[2];
+    StoPoint = tovisit[2];
 #endif
     goto loop;
   }
@@ -1029,12 +1029,12 @@ error:
   LOCAL_Error_Size = 1024 + ((char *)AuxSp - (char *)CodeMaxBase);
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > to_visit_base) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    StoPoint = to_visit[2];
-    pt0[-1] = (CELL)to_visit[3];
+  while (tovisit > tovisit_base) {
+    tovisit -= 4;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    StoPoint = tovisit[2];
+    pt0[-1] = (CELL)tovisit[3];
   }
 #endif
   DB_UNWIND_CUNIF();
@@ -1047,12 +1047,12 @@ error2:
   LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > to_visit_base) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    StoPoint = to_visit[2];
-    pt0[-1] = (CELL)to_visit[3];
+  while (tovisit > tovisit_base) {
+    tovisit -= 4;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    StoPoint = tovisit[2];
+    pt0[-1] = (CELL)tovisit[3];
   }
 #endif
   DB_UNWIND_CUNIF();
@@ -1065,12 +1065,12 @@ error_tr_overflow:
   LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
   *vars_foundp = vars_found;
 #ifdef RATIONAL_TREES
-  while (to_visit > to_visit_base) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    StoPoint = to_visit[2];
-    pt0[-1] = (CELL)to_visit[3];
+  while (tovisit > tovisit_base) {
+    tovisit -= 4;
+    pt0 = tovisit[0];
+    pt0_end = tovisit[1];
+    StoPoint = tovisit[2];
+    pt0[-1] = (CELL)tovisit[3];
   }
 #endif
   DB_UNWIND_CUNIF();

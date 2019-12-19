@@ -15,11 +15,6 @@
 *									 *
 *************************************************************************/
 
-#ifndef HEAPGC_H_INCLUDED
-#define HEAPGC_H_INCLUDED
-
-#ifndef HEAPGC_H_INCLUDED
-#define HEAPGC_H_INCLUDED
 
 #ifndef HEAPGC_H
 #define HEAPGC_H 1
@@ -115,6 +110,298 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   }
   *ptr = t | MARK_BIT;
   return false;
+}
+
+s
+/* This routine removes array references from complex terms? */
+static void replace_array_references_complex(register CELL *pt0,
+                                             register CELL *pt0_end,
+                                             register CELL *ptn,
+                                             Term Var USES_REGS) {
+
+  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  CELL **to_visit_base = to_visit;
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+
+    ++pt0;
+    d0 = Derefa(pt0);
+    if (IsVarTerm(d0)) {
+      *ptn++ = d0;
+    } else if (IsPairTerm(d0)) {
+      /* store the terms to visit */
+      *ptn++ = AbsPair(HR);
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepPair(d0) - 1;
+      pt0_end = RepPair(d0) + 1;
+      /* write the head and tail of the list */
+      ptn = HR;
+      HR += 2;
+    } else if (IsApplTerm(d0)) {
+      register Functor f;
+
+      f = FunctorOfTerm(d0);
+      /* store the terms to visit */
+      if (IsExtensionFunctor(f)) {
+        {
+          *ptn++ = d0;
+          continue;
+        }
+      }
+      *ptn++ = AbsAppl(HR);
+/* store the terms to visit */
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepAppl(d0);
+      d0 = ArityOfFunctor(f);
+      pt0_end = pt0 + d0;
+      /* start writing the compound term */
+      ptn = HR;
+      *ptn++ = (CELL)f;
+      HR += d0 + 1;
+    } else { /* A
+
+#define to_visit    stt.pt
+#define to_visit0   stt.pt0
+#define to_visit_max   stt.pt0_end
+tomOrInt */
+      *ptn++ = d0;
+    }
+    /* just continue the loop */
+  }
+
+  /* Do we still have compound terms to visit */
+  if (to_visit > (CELL **)to_visit_base) {
+#ifdef RATIONAL_TREES
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+#else
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+#endif
+    goto loop;
+  }
+
+  Bind_Global(PtrOfTerm(Var), TermNil);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
+}
+
+/*
+ *
+ * Given a term t0, build a new term tf of the form ta+tb, where ta is
+ * obtained by replacing the array references in t0 by empty
+ * variables, and tb is a list of array references and corresponding
+ * variables.
+ */
+static Term replace_array_references(Term t0 USES_REGS) {
+  Term t;
+
+  t = Deref(t0);
+  if (IsVarTerm(t)) {
+    /* we found a variable */
+    return (MkPairTerm(t, TermNil));
+  } else if (IsAtomOrIntTerm(t)) {
+    return (MkPairTerm(t, TermNil));
+  } else if (IsPairTerm(t)) {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+
+    HR += 2;
+    replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
+                                     VList PASS_REGS);
+    return MkPairTerm(AbsPair(h0), VList);
+  } else {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+    Functor f = FunctorOfTerm(t);
+
+    *HR++ = (CELL)(f);
+    HR += ArityOfFunctor(f);
+    replace_array_references_complex(
+        RepAppl(t), RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
+        VList PASS_REGS);
+    return (MkPairTerm(AbsAppl(h0), VList));
+  }
+}
+
+
+/* This routine removes array references from complex terms? */
+static void replace_array_references_complex(register CELL *pt0,
+                                             register CELL *pt0_end,
+                                             register CELL *ptn,
+                                             Term Var USES_REGS) {
+
+  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  CELL **to_visit_base = to_visit;
+
+loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+
+    ++pt0;
+    d0 = Derefa(pt0);
+    if (IsVarTerm(d0)) {
+      *ptn++ = d0;
+    } else if (IsPairTerm(d0)) {
+      /* store the terms to visit */
+      *ptn++ = AbsPair(HR);
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepPair(d0) - 1;
+      pt0_end = RepPair(d0) + 1;
+      /* write the head and tail of the list */
+      ptn = HR;
+      HR += 2;
+    } else if (IsApplTerm(d0)) {
+      register Functor f;
+
+      f = FunctorOfTerm(d0);
+      /* store the terms to visit */
+      if (IsExtensionFunctor(f)) {
+        {
+          *ptn++ = d0;
+          continue;
+        }
+      }
+      *ptn++ = AbsAppl(HR);
+/* store the terms to visit */
+#ifdef RATIONAL_TREES
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = ptn;
+      to_visit[3] = (CELL *)*pt0;
+      to_visit += 4;
+      *pt0 = TermNil;
+#else
+      if (pt0 < pt0_end) {
+        to_visit[0] = pt0;
+        to_visit[1] = pt0_end;
+        to_visit[2] = ptn;
+        to_visit += 3;
+      }
+#endif
+      pt0 = RepAppl(d0);
+      d0 = ArityOfFunctor(f);
+      pt0_end = pt0 + d0;
+      /* start writing the compound term */
+      ptn = HR;
+      *ptn++ = (CELL)f;
+      HR += d0 + 1;
+    } else { /* A
+
+#define to_visit    stt.pt
+#define to_visit0   stt.pt0
+#define to_visit_max   stt.pt0_end
+tomOrInt */
+      *ptn++ = d0;
+    }
+    /* just continue the loop */
+  }
+
+  /* Do we still have compound terms to visit */
+  if (to_visit > (CELL **)to_visit_base) {
+#ifdef RATIONAL_TREES
+    to_visit -= 4;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+    *pt0 = (CELL)to_visit[3];
+#else
+    to_visit -= 3;
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    ptn = to_visit[2];
+#endif
+    goto loop;
+  }
+
+  Bind_Global(PtrOfTerm(Var), TermNil);
+  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
+}
+
+/*
+ *
+ * Given a term t0, build a new term tf of the form ta+tb, where ta is
+ * obtained by replacing the array references in t0 by empty
+ * variables, and tb is a list of array references and corresponding
+ * variables.
+ */
+static Term replace_array_references(Term t0 USES_REGS) {
+  Term t;
+
+  t = Deref(t0);
+  if (IsVarTerm(t)) {
+    /* we found a variable */
+    return (MkPairTerm(t, TermNil));
+  } else if (IsAtomOrIntTerm(t)) {
+    return (MkPairTerm(t, TermNil));
+  } else if (IsPairTerm(t)) {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+
+    HR += 2;
+    replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
+                                     VList PASS_REGS);
+    return MkPairTerm(AbsPair(h0), VList);
+  } else {
+    Term VList = MkVarTerm();
+    CELL *h0 = HR;
+    Functor f = FunctorOfTerm(t);
+
+    *HR++ = (CELL)(f);
+    HR += ArityOfFunctor(f);
+    replace_array_references_complex(
+        RepAppl(t), RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
+        VList PASS_REGS);
+    return (MkPairTerm(AbsAppl(h0), VList));
+  }
 }
 
 static inline void
@@ -256,43 +543,59 @@ typedef struct gc_entry_info {
   arity_t a;
 } gc_entry_info_t;
 
-#if TERMS_C||GLOBALS_C
+//#if TERMS_C||GLOBALS_C
 
-if TERMS_C
+
+
+typedef struct cp_frame {
+  CELL *pt0;
+  CELL *pt0_end;
+  CELL *ptf;
+  CELL *curp;
+  CELL* oldp;
+  CELL oldv;
+  bool ground;
+  Term t;
+} copy_frame;
+
 
  typedef struct {
-  T *pt0;
-  T *pt;
-  T *max;
+  copy_frame *pt0;
+  copy_frame *pt;
+  copy_frame *max;
   scratch_struct_t bf;
-} tstack_t;
+ } Ystack_t;
 
+INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
+  if (nof==0)
+    nof = 4096;
+  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(copy_frame))) {
+    b->pt0 = b->bf.data;
+    b->pt = b->pt0;
+    b->max = b->pt0 + nof;
+    return true;
+  }
+  return false;
+  }
 
-typedef struct non_single_struct_t {
-  CELL *ptd0;
-  CELL *pt0, *pt0_end;
-  Term oldv;
-} non_singletons_t;
+INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
+    nof = b->max-b->pt0;
+  if (Yap_realloc_scratch_buf(&b->bf, 2*nof)) {
+    b->pt0 = b->bf.data;
+    b->pt = b->pt0;
+    b->max = b->pt0 + 2*nof;
+    return true;
+  }
+  return false;
+}
 
-#define T non_single_struct_t
-
-
-#elif GLOBALS_C
-
-
-
-#endif
-
-
-#else
-#define T cp_frame
-#endif
-
-
+INLINE_ONLY bool close_stack( Ystack_t *b) {
+  return Yap_release_scratch_buf(&b->bf);
+}
 
 #define to_visit    stt.pt
 #define to_visit0   stt.pt0
-#define to_visit_max   stt.pt0_end
+#define to_visit_end   stt.max
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
@@ -300,9 +603,9 @@ typedef struct non_single_struct_t {
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
-#define VISIT_ENTRY(d0) ((struct T *)RepPair(d0))
+#define VISIT_ENTRY(d0) (( copy_frame *)RepPair(d0))
 
-#define VISIT_TARGET(d0) (((struct T *)RepPair(d0))->t)
+#define VISIT_TARGET(d0) ((( copy_frame *)RepPair(d0))->t)
 
 
 #define VUNMARK(ptd0, d0)  (*(ptd0) = (d0))
@@ -311,7 +614,7 @@ typedef struct non_single_struct_t {
 #define VISITED(D0)  IS_VISIT_MARKER(D0)
 
 
-#define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((struct T *)RepPair(d0))->oldv:d0)
+#define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((  copy_frame *)RepPair(d0))->oldv:d0)
 
 #define mderef_head(D, Label)                                                 (D) = VISIT_UNMARK(D);  \
   if (IsVarTerm(D))					\
@@ -326,10 +629,6 @@ typedef struct non_single_struct_t {
 	 (D) = VISIT_UNMARK(*(A));		\
   } while (Unsigned(A) != (D) )
 
-#endif
 
-#endif
 
-#endif // HEAPGC_H_INCLUDED
-
-#endif // HEAPGC_H_INCLUDED
+#endif // HEAPGC_H_

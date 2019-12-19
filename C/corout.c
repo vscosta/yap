@@ -14,8 +14,8 @@
 * comments:	Co-routining from within YAP				 *
 *									 *
 *************************************************************************/
-#ifdef SCCS
-static char SccsId[] = "%W% %G%";
+#ifndef COROUT_C
+#define COROUT_C
 #endif
 
 #include "Yap.h"
@@ -49,9 +49,8 @@ static int can_unify_complex(register CELL *pt0, register CELL *pt0_end,
   tr_fr_ptr saved_TR;
   CELL *saved_HB;
   choiceptr saved_B;
-
-  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
-  CELL **to_visit_base = to_visit;
+  Ystack_t stt;
+  init_stack( &stt, 1024 );
 
   /* make sure to trail all bindings */
   saved_TR = TR;
@@ -105,22 +104,12 @@ loop:
       } else if (IsPairTerm(d0)) {
         if (!IsPairTerm(d1))
           goto comparison_failed;
-#ifdef RATIONAL_TREES
-        to_visit[0] = pt0;
-        to_visit[1] = pt0_end;
-        to_visit[2] = pt1;
-        to_visit[3] = (CELL *)*pt0;
-        to_visit += 4;
-        *pt0 = d1;
-#else
-        /* store the terms to visit */
-        if (pt0 < pt0_end) {
-          to_visit[0] = pt0;
-          to_visit[1] = pt0_end;
-          to_visit[2] = pt1;
-          to_visit += 3;
-        }
-#endif
+        to_visit->pt0 = pt0;
+        to_visit->pt0_end = pt0_end;
+        to_visit->ptf = pt1;
+        to_visit->oldv = *pt0;
+        to_visit->oldp = pt0;
+	to_visit++;
         pt0 = RepPair(d0) - 1;
         pt0_end = RepPair(d0) + 1;
         pt1 = RepPair(d1) - 1;
@@ -168,22 +157,12 @@ loop:
               goto comparison_failed;
             }
           }
-#ifdef RATIONAL_TREES
-          to_visit[0] = pt0;
-          to_visit[1] = pt0_end;
-          to_visit[2] = pt1;
-          to_visit[3] = (CELL *)*pt0;
-          to_visit += 4;
-          *pt0 = d1;
-#else
-          /* store the terms to visit */
-          if (pt0 < pt0_end) {
-            to_visit[0] = pt0;
-            to_visit[1] = pt0_end;
-            to_visit[2] = pt1;
-            to_visit += 3;
-          }
-#endif
+        to_visit->pt0 = pt0;
+        to_visit->pt0_end = pt0_end;
+        to_visit->ptf = pt1;
+        to_visit->oldv = *pt0;
+        to_visit->oldp = pt0;
+	to_visit++;
           d0 = ArityOfFunctor(f);
           pt0 = ap2;
           pt0_end = ap2 + d0;
@@ -194,23 +173,15 @@ loop:
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)to_visit_base) {
-#ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
-#else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-#endif
+  if (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->pt0;
+    pt0_end = to_visit->pt0_end;
+    pt1 = to_visit->ptf;
+    *to_visit->oldp = to_visit->oldv;
     goto loop;
   }
   /* success */
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
   /* restore B, and later HB */
   B = saved_B;
   HB = saved_HB;
@@ -219,20 +190,18 @@ loop:
     pt1 = (CELL *)(TrailTerm(--TR));
     RESET_VARIABLE(pt1);
   }
-  return (TRUE);
+  close_stack(&stt);
+  return (true);
 
 comparison_failed:
   /* failure */
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
-#ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
-    *pt0 = (CELL)to_visit[3];
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->pt0;
+    pt0_end = to_visit->pt0_end;
+    pt1 = to_visit->ptf;
+    *to_visit->oldp = to_visit->oldv;
   }
-#endif
   /* restore B, and later HB */
   B = saved_B;
   HB = saved_HB;
@@ -242,6 +211,7 @@ comparison_failed:
     RESET_VARIABLE(pt1);
   }
   /* the system will take care of TR for me, no need to worry here! */
+  close_stack(&stt);
   return (FALSE);
 }
 
@@ -324,15 +294,15 @@ static int can_unify(Term t1, Term t2, Term *Vars USES_REGS) {
 }
 
 /* This routine verifies whether a complex has variables. */
-static int non_ground_complex(register CELL *pt0, register CELL *pt0_end,
+static int non_ground_complex( CELL *pt0,  CELL *pt0_end,
                               Term *Var USES_REGS) {
 
-  register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
-  CELL **to_visit_base = to_visit;
+  Ystack_t stt;
+  init_stack( &stt, 1024 );
 
 loop:
   while (pt0 < pt0_end) {
-    register CELL d0;
+     CELL d0;
     ++pt0;
     d0 = Derefa(pt0);
     if (IsVarTerm(d0)) {
@@ -340,24 +310,16 @@ loop:
       goto var_found;
     }
     if (IsPairTerm(d0)) {
-      if (to_visit + 1024 >= (CELL **)AuxSp) {
+      if (to_visit + 1024 >= to_visit_end) {
         goto aux_overflow;
       }
-#ifdef RATIONAL_TREES
-      to_visit[0] = pt0;
-      to_visit[1] = pt0_end;
-      to_visit[2] = (CELL *)*pt0;
-      to_visit += 3;
-      *pt0 = TermNil;
-#else
-      /* store the terms to visit */
-      if (pt0 < pt0_end) {
-        to_visit[0] = pt0;
-        to_visit[1] = pt0_end;
-        to_visit += 2;
-      }
-#endif
-      pt0 = RepPair(d0) - 1;
+        to_visit->pt0 = pt0;
+        to_visit->pt0_end = pt0_end;
+        to_visit->oldv = *pt0;
+        to_visit->oldp = pt0;
+	to_visit++;
+	*pt0 = TermNil;
+	pt0 = RepPair(d0) - 1;
       pt0_end = RepPair(d0) + 1;
     } else if (IsApplTerm(d0)) {
       register Functor f;
@@ -370,23 +332,15 @@ loop:
       if (IsExtensionFunctor(f)) {
         continue;
       }
-      if (to_visit + 1024 >= (CELL **)AuxSp) {
+      if (to_visit + 1024 >= to_visit_end) {
         goto aux_overflow;
       }
-#ifdef RATIONAL_TREES
-      to_visit[0] = pt0;
-      to_visit[1] = pt0_end;
-      to_visit[2] = (CELL *)*pt0;
-      to_visit += 3;
+        to_visit->pt0 = pt0;
+        to_visit->pt0_end = pt0_end;
+        to_visit->oldv = *pt0;
+        to_visit->oldp = pt0;
       *pt0 = TermNil;
-#else
-      /* store the terms to visit */
-      if (pt0 < pt0_end) {
-        to_visit[0] = pt0;
-        to_visit[1] = pt0_end;
-        to_visit += 2;
-      }
-#endif
+      to_visit++;
       d0 = ArityOfFunctor(f);
       pt0 = ap2;
       pt0_end = ap2 + d0;
@@ -395,17 +349,7 @@ loop:
   }
 
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **)to_visit_base) {
-#ifdef RATIONAL_TREES
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    *pt0 = (CELL)to_visit[2];
-#else
-    to_visit -= 2;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-#endif
+  if (to_visit > to_visit0) {
     goto loop;
   }
 
@@ -415,28 +359,25 @@ loop:
 
 var_found:
   /* the term is non-ground */
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
-#ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    *pt0 = (CELL)to_visit[2];
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->pt0;
+    pt0_end = to_visit->pt0_end;
+    *to_visit->oldp = to_visit->oldv;
   }
-#endif
+  close_stack(&stt);
   /* the system will take care of TR for me, no need to worry here! */
   return TRUE;
 
 aux_overflow:
   /* unwind stack */
-  Yap_ReleasePreAllocCodeSpace((ADDR)to_visit);
-#ifdef RATIONAL_TREES
-  while (to_visit > (CELL **)to_visit_base) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->pt0;
+    pt0_end = to_visit->pt0_end;
+    *to_visit->oldp = to_visit->oldv;
   }
-#endif
+  close_stack(&stt);
   return -1;
 }
 
@@ -570,3 +511,4 @@ void Yap_InitCoroutPreds(void) {
   Yap_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag);
   Yap_InitCPred("$awoken_goals", 1, p_awoken_goals, SafePredFlag);
 }
+

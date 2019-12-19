@@ -1,6 +1,6 @@
 /****** start of top macro */
 CELL *pt0, *pt0_end;
-tstack_t stt;
+Ystack_t stt;
 size_t sz = 1024;
 reset :
 HB = HR;

@@ -1553,6 +1553,7 @@ static Int create_mmapped_array(USES_REGS1) {
 #endif
 }
 static Int array_references(USES_REGS1) {
+  return false;
   Term t = replace_array_references(ARG1 PASS_REGS);
   Term t1 = HeadOfTerm(t);
   Term t2 = TailOfTerm(t);
