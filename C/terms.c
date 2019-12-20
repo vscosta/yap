@@ -121,7 +121,7 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
 }
 
 #define END_WALK()                                                             \
-  }                                                                            \
+  }    }                                                                        \
   /***** start of bottom-macro ************/                                   \
   handle_overflow();                                                           \
   nomore:
@@ -204,7 +204,6 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 static bool ground_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
-  HB = HR;
   //  pp(pt0_     [1], 0);
 #include "term_visit.h"
   while (pop_sub_term(&stt, NULL, NULL)) {
@@ -317,54 +316,47 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
+  Term *end = NULL, first = inp;
 
   Int count = 0;
-  HB = HR;
   // first get the extra variables
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
-     Bind_Global_NonAtt(ptr, TermFoundVar);
+      Bind_and_Trail(ptr, TermFoundVar);
+      count++;
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
         goto trail_overflow;
       /* do or pt2 are unbound  */
     }
-    inp = TailOfTerm(inp);
+   inp = TailOfTerm(inp);
   }
-#include "term_visit.h"
+ #include "term_visit.h"
   if (HR + 1024 > ASP) {
     goto global_overflow;
   }
-  HR[1] = AbsPair(HR + 2);
-  HR += 2;
-  HR[-2] = (CELL)ptd0;
-  /* next make sure noone will see this as a variable again */
+    if (end == NULL) {
+        first = AbsPair(HR);
+    } else {
+        end[0] = AbsPair(HR);
+    }
+    HR[0] = (CELL)ptd0;
+        HR[1] = inp;
+        end = HR+1;
+        HR+=2;
+	count++;
+   
+/* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
     goto trail_overflow;
   }
-  Bind_Global_NonAtt(ptd0, TermFoundVar);
-  continue;
+  Bind_and_Trail(ptd0, TermFoundVar);
   END_WALK();
 
-  HB = B->cp_h;
-
   clean_tr(TR - count PASS_REGS);
-
-  if (HR != InitialH) {
-    /* close the list */
-    Term t2 = Deref(inp);
-    if (IsVarTerm(t2)) {
-      RESET_VARIABLE(HR - 1);
-      Yap_unify((CELL)(HR - 1), t2);
-    } else {
-      HR[-1] = t2; /* don't need to trail */
-    }
-    return AbsPair(InitialH);
-  } else {
-    return (inp);
-  }
+  return first;
 }
 
 /**
@@ -501,7 +493,6 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
   CELL output = inp;
-  HB = HR;
 
 #include "term_visit.h"
   if (!IS_VISIT_MARKER(*ptd0) && IsAttVar(ptd0)) {
@@ -514,7 +505,7 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       /* Trail overflow */
       goto trail_overflow;
     }
-     Bind_Global_NonAtt(ptd0, TermFoundVar);
+    Bind_and_Trail(ptd0, TermFoundVar);
     ptd0 = (CELL*)RepAttVar(ptd0);
     d0 = AbsAppl(ptd0);
     goto list_loop;
@@ -523,7 +514,6 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   END_WALK();
   // no more variables to be found
   clean_tr(TR0 PASS_REGS);
-  HB = B->cp_h;
   /*fprintf(stderr,"<%ld at %s\n", d0, __FUNCTION__)*/;
   return output;
 }
@@ -575,9 +565,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       n++;
-      TrailTerm(TR++) = t;
-      TrailTerm(TR++) = t;
-      *VarOfTerm(t) = TermFoundVar;
+      Bind_and_Trail(VarOfTerm(t), TermFoundVar);
       if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
         size_t expand = (tr_fr_ptr)LOCAL_TrailTop - TR;
         clean_tr(TR0 PASS_REGS);
@@ -594,8 +582,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   }
 #include "term_visit.h"
   output = MkPairTerm((CELL)ptd0, output);
-  TrailTerm(TR++) = *ptd0;
-  *ptd0 = TermFoundVar;
+  Bind_and_Trail(ptd0, TermFoundVar);
   if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
     goto trail_overflow;
   }
@@ -668,9 +655,8 @@ static Term vars_within_complex_term(CELL *pt0_, CELL *pt0_end_,
     Term t = HeadOfTerm(inp);
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
-      *ptr = TermFoundVar;
       n++;
-      TrailTerm(TR++) = t;
+      Bind_and_Trail(ptr,TermFoundVar);
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
         Yap_growtrail(2 * n * sizeof(tr_fr_ptr *), true);
       }
@@ -784,7 +770,7 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     /* Trail overflow */
     goto trail_overflow;
   }
-  Bind_Global_NonAtt(ptd0, TermFoundVar);
+  Bind_and_Trail(ptd0, TermFoundVar);
   continue;
   END_WALK();
 
@@ -867,7 +853,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
     HR[0] = (CELL)FunctorDollarVar;
     RESET_VARIABLE(HR + 1);
     HR += 2;
-    Bind_Global_NonAtt(ptd0, AbsAppl(HR - 2));
+    YapBind(ptd0, AbsAppl(HR - 2));
     continue;
   }
   END_WALK();
@@ -882,8 +868,6 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
   }
   if (tr_entries) {
     *tr_entries = TR - TR0;
-  } else {
-    clean_tr(TR0);
   }
   return vno;
 }

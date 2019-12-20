@@ -1,4 +1,4 @@
- /**
+/**
    * @file   globals.c
    * @author VITOR SANTOS COSTA <vsc@VITORs-MBP.lan>
    * @date   Tue Nov 17 23:16:17 2015
@@ -409,7 +409,7 @@ init_stack(&stt, sz);
 	  if (hack) {
 	    // for now just put ..
 	    char s[64];
-	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
+	    snprintf(s,63,"__^%ld__", to_visit-VISIT_ENTRY(*ptd1));
 	    *ptf = MkStringTerm(s);
 	  } else if (forest) {
 	    // set up a binding PTF=D0
@@ -418,12 +418,11 @@ init_stack(&stt, sz);
      if (IsVarTerm(val)) {
        *ptf = val;
      } else {
-     Term l = AbsAppl(HR);
-
-            RESET_VARIABLE(HR+1);
+	    // set up a binding PTF=D0
+	    Term l = AbsAppl(HR);
+            RESET_VARIABLE(ptf);
 	    HR[0] = (CELL)FunctorEq;
-	    *ptf = (CELL)(HR+1);
-	    entry->t = *ptf;
+	    entry->t = HR[1] = (CELL)ptf;
 	    HR[2] = val;
 	    HR+=3;
 	    *bindp = MkPairTerm(l, *bindp);
@@ -451,7 +450,7 @@ init_stack(&stt, sz);
 
 	if (share) {
 	  d0 = AbsPair(ptf);
-	  MaBind(ptd0,d0);
+	  TrailedMaBind(ptd0,d0);
 	}
 	myt = AbsPair(HR);
 	to_visit->pt0 = pt0;
@@ -461,7 +460,7 @@ init_stack(&stt, sz);
 	to_visit->oldp = ptd1;
 	to_visit->oldv = *ptd1;
 	to_visit->t = myt;
-	d0 = VISIT_UNMARK(*ptd1);
+	d0 = (*ptd1);
 	*ptd1 = VISIT_MARK();
 	*ptf = AbsPair(HR);
 	/*  the system into thinking we had a variable there */
@@ -479,32 +478,37 @@ init_stack(&stt, sz);
        goto list_loop;
       } else if (IsApplTerm(d0)) {
 	CELL *ptd1 = RepAppl(d0);
+	CELL tag = *ptd1;
+	
 	if (share && ptd1 >= HB) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf = d0;
 	  continue;
 	}
-	CELL tag =*ptd1;
 
 	if (IS_VISIT_MARKER(tag)) {
 	  /* If this is newer than the current term, just reuse */
 	  if (hack) {
 	    char s[64];
-	    snprintf(s,63,"__@^%ld__", to_visit-VISIT_ENTRY(*ptd0));
+	    snprintf(s,63,"__^%ld__", to_visit-VISIT_ENTRY(*ptd1));
 	    *ptf = MkStringTerm(s);
 	
 	  } else if (forest) {
 	    // set up a binding PTF=D0
-        struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
-	    Term val = entry->t;
+     struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
+     Term val = entry->t;
+     if (IsVarTerm(val)) {
+       *ptf = val;
+     } else {
+	    // set up a binding PTF=D0
 	    Term l = AbsAppl(HR);
+            RESET_VARIABLE(ptf);
 	    HR[0] = (CELL)FunctorEq;
-	    *ptf = (CELL)(HR+1);
-	    entry->t = *ptf;
-            RESET_VARIABLE(HR+1);
+	    entry->t = HR[1] = (CELL)ptf;
 	    HR[2] = val;
 	    HR+=3;
 	    *bindp = MkPairTerm(l, *bindp);
+      }
 	  } else {
 	    //same as before
 	    *ptf = (VISIT_TARGET(*ptd1));
@@ -583,7 +587,7 @@ init_stack(&stt, sz);
 	    arity = ArityOfFunctor(f);
 	  if (share) {
 	    d0 = AbsAppl(ptf);
-	    MaBind(ptd0, d0);
+	    TrailedMaBind(ptd0, d0);
 	  } 
 	  /* store the terms to visit */
 	  if (to_visit + 32 >= to_visit_end) {
@@ -618,10 +622,7 @@ init_stack(&stt, sz);
       mderef_body(d0,ptd0,copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
-      if (forest ) {
-	/* we have already found this cell */
-	Bind_Global_NonAtt(ptd0, ptf);
-      } else if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
+      if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
 
@@ -644,8 +645,9 @@ init_stack(&stt, sz);
 	}
       } else {
 	/* first time we met this term */
-	*ptf = (CELL)ptd0;
-
+	RESET_VARIABLE(ptf);
+	/* we have already found this cell */
+	Bind_and_Trail(ptf, (CELL)ptd0);
       }
       continue;
       }
@@ -1347,7 +1349,7 @@ static Int p_nb_getval(USES_REGS1) {
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
     Term t = MkVarTerm();
-    Bind_Global_NonAtt(VarOfTerm(to), t);
+    Bind_and_Trail(VarOfTerm(to), t);
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);
@@ -1369,7 +1371,7 @@ Term Yap_GetGlobal(Atom at) {
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
     Term t = MkVarTerm();
-    Bind_Global_NonAtt(VarOfTerm(to), t);
+    Bind_and_Trail(VarOfTerm(to), t);
     to = t;
   }
   READ_UNLOCK(ge->GRWLock);

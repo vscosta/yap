@@ -79,6 +79,7 @@ var_in_term_nvar:
     ATOMIC_HOOK_CODE;
     goto loop;
   }
+
   mderef_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);
-/*enter variable processing */
+/*enter variable processing */ {
  
