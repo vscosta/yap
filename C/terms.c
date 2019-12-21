@@ -859,7 +859,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
   END_WALK();
   CELL *H1 = HR;
   while (InitialH < H1) {
-       if (show_singletons && InitialH[1] != TermFoundVar) {
+       if (show_singletons && IsVarTerm(InitialH[1])) {
       InitialH[1] = MkIntTerm(-1);
     } else {
       InitialH[1] = MkIntegerTerm(vno++);
@@ -880,7 +880,7 @@ Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
     return numbv;
   }
   Term vt = Deref(t);
-  return numbervars_in_complex_term(&vt - 1, &vt, numbv, false, NULL PASS_REGS);
+  return numbervars_in_complex_term(&vt - 1, &vt, false, handle_singles, NULL PASS_REGS);
 }
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)

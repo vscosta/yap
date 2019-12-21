@@ -88,7 +88,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
           }
         }
 	Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
-	LOCAL_max_depth=3, LOCAL_max_list=3, LOCAL_max_write_args = 3;
+	LOCAL_max_depth=6, LOCAL_max_list=6, LOCAL_max_write_args = 6;
         const char *sn = Yap_TermToBuffer(args[i],
                                           Handle_cyclics_f|Quote_illegal_f | Handle_vars_f);
 	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
@@ -204,6 +204,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   char *s;
   char *mname;
   Int arity;
+  CELL *H1 =HR;
   int l = push_text_stack();
   /*  extern int gc_calls; */
   vsc_count++;
@@ -467,6 +468,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   fputs(buf, stderr);
 #endif
   pop_text_stack(l);
+  HR = H1;
   return (true);
 }
 

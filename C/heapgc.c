@@ -590,7 +590,7 @@ static int count_cells_marked(void) {
   CELL *current;
   int found_marked = 0;
 
-  for (current = H - 1; current >= H0; current--) {
+  for (current = H; current > H0; current--) {
     if (MARKED_PTR(current)) {
       found_marked++;
     }

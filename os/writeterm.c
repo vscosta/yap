@@ -202,7 +202,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     flags |= Handle_vars_f;
   }
     if (args[WRITE_SINGLETONS].used) {
-        if (args[WRITE_SINGLETONS].tvalue == TermTrue &&
+        if (args[WRITE_SINGLETONS].tvalue == TermTrue ||
 	    flags & Handle_vars_f)
             flags |= Number_vars_f|Singleton_vars_f;
 	HB = HR;
@@ -210,7 +210,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     flags |= Handle_vars_f;
     }
     if (args[WRITE_NUMBERVARS].used) {
-        if (args[WRITE_NUMBERVARS].tvalue == TermTrue    &&
+        if (args[WRITE_NUMBERVARS].tvalue == TermTrue    ||
 	    flags & Handle_vars_f
 	    )
 	HB = HR;
@@ -287,10 +287,11 @@ end:
     if (n) {
       clean_tr(TR-n);
     }
-      HB = B->cp_h;
      CurrentModule = cm;
   Yap_RecoverHandles(0, yh);
   return rc;
+    HR = HB;
+    HB = B->cp_h;
 }
 
 /**

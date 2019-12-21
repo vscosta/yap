@@ -527,7 +527,7 @@ DEBUG_INTERRUPTS();
     return v;
   }
   // at this point P is already at the end of the instruction.
-  if ((v = stack_overflow(pe, YENV, P,
+  if ((v = stack_overflow(pe, YENV, CP,
 			  pe->ArityOfPE PASS_REGS)) >= 0) {
   } else {
     v = interrupt_wake_up(TermTrue, NULL PASS_REGS);
