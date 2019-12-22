@@ -433,7 +433,8 @@ extern void Yap_WakeUp(CELL *v);
     *(VP) = (D);                                                               \
   }
 
-#define TrailedMaBind(VP, D)                                                          \
+
+#define TrailedMaBind(VP, D)						\
   {                                                                            \
     DO_MATRAIL((VP), *(VP), (D));                                                 \
     *(VP) = (D);                                                               \

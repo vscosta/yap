@@ -377,13 +377,12 @@ size_t sz = 1024;
 init_stack(&stt, sz);
    tr_fr_ptr TR0 = TR;
   int ground = true;
-  HB = HLow;
   Term myt = (CELL)HLow;
   ptf--; // synch with pt0;
   bool hack = bindp && (*bindp == TermFoundVar);
   bool forest = bindp && (*bindp != TermFoundVar);
-  while (true) {
-    if (pt0 < pt0_end) {
+  do {
+    while (pt0 < pt0_end) {
       CELL d0;
       CELL *ptd0;
       // next cell
@@ -425,7 +424,7 @@ init_stack(&stt, sz);
 	    entry->t = HR[1] = (CELL)ptf;
 	    HR[2] = val;
 	    HR+=3;
-	    *bindp = MkPairTerm(l, *bindp);
+	    *bindp=MkPairTerm(l,*bindp);
      } }
 	  else {
 	    *ptf =  VISIT_TARGET(*ptd1);
@@ -450,7 +449,7 @@ init_stack(&stt, sz);
 
 	if (share) {
 	  d0 = AbsPair(ptf);
-	  TrailedMaBind(ptd0,d0);
+	  mTrailedMaBind(ptd0,d0);
 	}
 	myt = AbsPair(HR);
 	to_visit->pt0 = pt0;
@@ -644,15 +643,19 @@ init_stack(&stt, sz);
 	  }
 	}
       } else {
-	/* first time we met this term */
-	RESET_VARIABLE(ptf);
-	/* we have already found this cell */
-	Bind_and_Trail(ptf, (CELL)ptd0);
+	/* second time we met this term */
+	if (ptd0 >= HLow && ptd0 < HR)
+	  *ptf = (CELL)ptd0;
+	else {
+	  RESET_VARIABLE(ptf);
+	/* we ve never found this cell */
+	mBind_And_Trail(ptd0, (CELL)ptf);
+	}
       }
-      continue;
-      }
-	  if (to_visit > to_visit0) {
-      
+    }
+	  if (to_visit <= to_visit0) {
+	    break;
+	  }
       to_visit--;
       pt0 = to_visit->pt0;
       pt0_end = to_visit->pt0_end;
@@ -660,15 +663,12 @@ init_stack(&stt, sz);
       myt = to_visit->t;
       VUNMARK(to_visit->oldp, to_visit->oldv);
       ground = (ground && to_visit->ground);
-      continue;
-    }
-	  break;
-  }
+  } while (true);
+
 	  /* restore our nice, friendly, term to its original state */
   clean_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
  close_stack(&stt);
-  //  Yap_DebugPlWriteln(HLow[0]);
   return 0;
  overflow:
   while (to_visit > to_visit0) {

@@ -112,7 +112,7 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   return false;
 }
 
-s
+
 /* This routine removes array references from complex terms? */
 static void replace_array_references_complex(register CELL *pt0,
                                              register CELL *pt0_end,
@@ -599,7 +599,7 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
-			     && RepPair(d0) <= (CELL*)to_visit)
+&& RepPair(d0) <= (CELL*)to_visit)
 
 #define  VISIT_MARK() AbsPair((CELL*)to_visit)
 
@@ -629,6 +629,34 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
 	 (D) = VISIT_UNMARK(*(A));		\
   } while (Unsigned(A) != (D) )
 
+#define mSET(A,D) \
+  { CELL *T =(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *T=D; }
+
+#define mBind(A,D) \
+  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *A=D;\
+  TRAIL_GLOBAL(A,D);\
+}
+
+#define mBind_And_Trail(A,D) \
+  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *A=D;\
+  DO_TRAIL(A,D);\
+}
+
+#define mMaBind(A, D)                                                          \
+  {  CELL ov =*A;  bool marked = IS_VISIT_MARKER(ov);			\
+  if (marked) *A = VISIT_ENTRY(ov)->val0;\
+    MaBind((A), (D));                              \
+    VISIT_ENTRY(ov)->val0 = (D);					\
+    *(A) = (ov);                                                         f  \
+  }
+
+#define mTrailedMaBind(A, D)            \
+  {  CELL ov =*A;  bool marked = IS_VISIT_MARKER(ov);			\
+  if (marked) *A = VISIT_ENTRY(ov)->oldv;\
+    TrailedMaBind((A), (D));                              \
+    VISIT_ENTRY(ov)->oldv = (D);					\
+    *(A) = (ov);                                                         \
+  }
 
 
 #endif // HEAPGC_H_
