@@ -136,13 +136,16 @@ static void save_goal(PredEntry *pe USES_REGS) {
   /*   } else { */
   /*       HR[0] = Yap_Module_Name(pe); */
   /*   } */
-  HR[0] = Yap_Module_Name(pe);
-  HR += 2;
+  HR[0] = (CELL)FunctorModule;
+  HR[1] = Yap_Module_Name(pe);
+  HR += 3;
   d0 = pe->ArityOfPE;
   if (d0 == 0) {
     HR[-1] = MkAtomTerm((Atom)pe->FunctorOfPred);
-    ARG1 = (Term)AbsPair(HR-2);
+    ARG1 = (Term)AbsAppl(HR-3);
   } else {
+    BEGD(rc);
+    rc = AbsAppl(HR-3);
     HR[-1] = AbsAppl(HR);
     S_PT = HR;
     *S_PT++ = (CELL)pe->FunctorOfPred;
@@ -177,8 +180,9 @@ static void save_goal(PredEntry *pe USES_REGS) {
       ENDP(pt0);
       ENDD(d1);
     }
-    ARG1 = AbsPair(S_PT-((pt1-XREGS)+2));
+    ARG1 = rc;
     ENDP(pt1);
+    ENDD(rc);
   }
   ENDD(d0);
 
@@ -383,20 +387,27 @@ static int interrupt_handler(PredEntry *pe USES_REGS) {
 // interrupt handling code that sets up the case when we do not have
 // a guaranteed environment.
 static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
-  PredEntry *pe;
+  PredEntry *pe = PredCall;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
-  Term ts[2];
+  Term tg = TermTrue;
     if (cut_t != TermTrue) {
-      ts[1] = Yap_MkApplTerm(FunctorCutBy,1, &cut_t);
+      tg = Yap_MkApplTerm(FunctorCutBy,1, &cut_t);
   if (p) {
-    ts[0] = save_xregs(p PASS_REGS);
-    ts[1] = Yap_MkApplTerm(FunctorRestoreRegs1, 1, ts);
-    ARG1 = Yap_MkApplTerm(FunctorComma,2,ts);
+    Term ts[2];
+    ts[0] = tg;
+    Term regs = save_xregs(p PASS_REGS);
+    tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &regs);
+    if (ts[0] == TermTrue) {
+	ARG1 =tg;
     } else {
-    ARG1 = ts[1];
+      ts[1] = tg;
+    ARG1 = Yap_MkApplTerm(FunctorComma,2,ts);
+    }
+    } else {
+    ARG1 = tg;
     }
   }
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {

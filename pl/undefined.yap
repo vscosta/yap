@@ -86,8 +86,8 @@ undefined_query(G0, M0, Cut) :-
  *   2 - `goal_expansion`
  *   1 - `import` mechanism`
 */
-'$undefp'([M0|G0],_) :-
-    '$undefp_search'(M0:G0, M:G),
+'$undefp'(M0G0,_) :-
+    '$undefp_search'(M0G0, M:G),
 	call(M:G).
 
 %%  undef handler:

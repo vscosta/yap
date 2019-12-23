@@ -133,9 +133,10 @@ print_boot_message(Type,Error,Desc) :-
 	'$query_exception'(errorLine, Desc, FilePos),
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
-    '$undefp0'([M|G], _Action) :-
+'$undefp0'(MG, _Action) :-
+	strip_module(MG,M,G),
 	functor(G,N,A),
-	print_message( error, error(error(unknown, M:N/A),M:G)),
+	print_message( error, error(error(unknown, M:N/A),MG)),
 	fail.
 
 :- '$undefp_handler'('$undefp0'(_,_),prolog).

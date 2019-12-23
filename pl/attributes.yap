@@ -197,6 +197,7 @@ attvars_residuals([V|Vs]) -->
 prolog:'$wake_up_goal'(Continuation, LG) :-
     execute_woken_system_goals(LG),
     call(Continuation).
+
 execute_woken_system_goals([]).
 execute_woken_system_goals(['$att_do'(V,New)|LG]) :-
 	execute_woken_system_goals(LG),

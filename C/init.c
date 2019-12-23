@@ -730,7 +730,9 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
   Atom atom = NIL;
   PredEntry *pe = NULL;
   Functor f = NULL;
-
+    StaticClause *cl;
+    yamop *p_code;
+    
   while (atom == NIL) {
     atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
@@ -747,6 +749,8 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
       }
     }
   }
+  bool exists;
+
   while (pe == NULL) {
     if (Arity)
       pe = RepPredProp(PredPropByFunc(f, CurrentModule));
@@ -757,19 +761,18 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
       return;
     }
   }
+  exists = pe->OpcodeOfPred != UNDEF_OPCODE;
   flags |= AsmPredFlag | StandardPredFlag | (code);
-  if (pe->PredFlags & AsmPredFlag) {
+  if (exists) {
     flags = update_flags_from_prolog(flags, pe);
     /* already exists */
   }
   pe->PredFlags = flags;
   pe->cs.f_code = def;
   pe->ModuleOfPred = CurrentModule;
-  if (def != NULL) {
-    yamop *p_code = ((StaticClause *)NULL)->ClCode;
-    StaticClause *cl;
+  if (def != NULL && !exists) {
+    p_code = ((StaticClause *)NULL)->ClCode;
 
-    if (pe->CodeOfPred == (yamop *)(&(pe->OpcodeOfPred))) {
       if (flags & SafePredFlag) {
         cl = (StaticClause *)Yap_AllocCodeSpace(
             (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), Osbpp), p), l));
@@ -777,13 +780,13 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
         cl = (StaticClause *)Yap_AllocCodeSpace((CELL)NEXTOP(
             NEXTOP(NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), e), Osbpp), p), p),
             l));
-      }
       if (!cl) {
         Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "No Heap Space in InitAsmPred");
         return;
       }
       Yap_ClauseSpace +=
           (CELL)NEXTOP(NEXTOP(NEXTOP(((yamop *)p_code), Osbpp), p), l);
+      }
     } else {
       cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     }
@@ -818,10 +821,7 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     p_code->opc = Yap_opcode(_Ystop);
     p_code->y_u.l.l = cl->ClCode;
     pe->OpcodeOfPred = pe->CodeOfPred->opc;
-  } else {
-    pe->OpcodeOfPred = Yap_opcode(_undef_p);
-    pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
-  }
+
 }
 
 static void CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont,
