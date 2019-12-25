@@ -458,7 +458,7 @@
         PredEntry *ap = PredFromDefCode(PREG);
         PELOCK(10, ap);
         PP = ap;
-        if (!ap->cs.p_code.NOfClauses) {
+        if (!ap->NOfClauses) {
           UNLOCKPE(11, ap);
           FAIL();
         }
@@ -466,7 +466,7 @@
           we do not lock access to the predicate,
           we must take extra care here
         */
-        if (ap->cs.p_code.NOfClauses > 1 &&
+        if (ap->NOfClauses > 1 &&
             !(ap->PredFlags & IndexedPredFlag)) {
           /* update ASP before calling IPred */
           SET_ASP(YREG, E_CB * sizeof(CELL));
@@ -479,7 +479,7 @@
           /* for profiler */
           save_pc();
         }
-        PREG = ap->cs.p_code.TrueCodeOfPred;
+        PREG = ap->TrueCodeOfPred;
       }
       JMPNext();
       ENDBOp();

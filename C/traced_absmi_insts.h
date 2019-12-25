@@ -6743,7 +6743,7 @@ S_SREG = RepAppl(d0);
 	PredEntry *ap = PredFromDefCode(PREG);
  	PELOCK(10,ap);
 	PP = ap;
-	if (!ap->cs.p_code.NOfClauses) {
+	if (!ap->NOfClauses) {
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(LOCK_PRED_FIRSTIFOK);
 ///#endif
@@ -6754,7 +6754,7 @@ S_SREG = RepAppl(d0);
 	  we do not lock access to the predicate,
 	  we must take extra care here
 	*/
-	if (ap->cs.p_code.NOfClauses > 1 &&
+	if (ap->NOfClauses > 1 &&
 	    !(ap->PredFlags & IndexedPredFlag)) {
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(LOCK_PRED_SECONDTIFOK);
@@ -6772,7 +6772,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(LOCK_PRED_END);
 ///#endif
-	PREG = ap->cs.p_code.TrueCodeOfPred;
+	PREG = ap->TrueCodeOfPred;
       }
       JMPNext();
       ENDBOp();
@@ -7055,7 +7055,7 @@ S_SREG = RepAppl(d0);
 	BEGD(d0);
  	PELOCK(14,pe);
 	if (!(pe->PredFlags & IndexedPredFlag) &&
-	      pe->cs.p_code.NOfClauses > 1) {
+	      pe->NOfClauses > 1) {
 	  /* update ASP before calling IPred */
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_FIRSTIFOK);
@@ -7104,7 +7104,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_SECONDIFOK_THIRDIFOK);
 ///#endif
-	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    PREG = pe->TrueCodeOfPred;
 	    UNLOCKPE(22,pe);
 	    JMPNext();
 	  }
@@ -7121,7 +7121,7 @@ S_SREG = RepAppl(d0);
 ///#ifdef PROFILED_ABSMI
     EMIT_SIMPLE_BLOCK(SPY_PRED_THIRDIFOK_FIRSTIFOK);
 ///#endif
-	    PREG = pe->cs.p_code.TrueCodeOfPred;
+	    PREG = pe->TrueCodeOfPred;
 	    UNLOCKPE(23,pe);
 	    JMPNext();
 	  }
@@ -7131,7 +7131,7 @@ S_SREG = RepAppl(d0);
 
     EMIT_SIMPLE_BLOCK(SPY_PRED_FOURTHIFOK);
 ///#endif
-	  PREG = pe->cs.p_code.TrueCodeOfPred;
+	  PREG = pe->TrueCodeOfPred;
 	  UNLOCKPE(24,pe);
 	  JMPNext();
 	}

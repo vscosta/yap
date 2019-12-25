@@ -178,12 +178,12 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
 {
   StaticClause *cl;
 
-  cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+  cl = ClauseCodeToStaticClause(pe->FirstClause);
   do {
     if (IN_BLOCK(codeptr,cl,cl->ClSize)) {
       return cl->ClCode;
     }
-    if (cl->ClCode == pe->cs.p_code.LastClause)
+    if (cl->ClCode == pe->LastClause)
       break;
     cl = cl->ClNext;
   } while (TRUE);
@@ -194,7 +194,7 @@ static yamop *cur_clause(PredEntry *pe, yamop *codeptr)
 static yamop *cur_log_upd_clause(PredEntry *pe, yamop *codeptr)
 {
   LogUpdClause *cl;
-  cl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+  cl = ClauseCodeToLogUpdClause(pe->FirstClause);
   do {
     if (IN_BLOCK(codeptr,cl->ClCode,cl->ClSize)) {
       return((yamop *)cl->ClCode);
@@ -248,7 +248,7 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
       PELOCK(38,p);
       if (p->PredFlags & IndexedPredFlag) {
 	yamop *code_p = b_ptr->cp_ap;
-	yamop *code_beg = p->cs.p_code.TrueCodeOfPred;
+	yamop *code_beg = p->TrueCodeOfPred;
 
 	/* FIX ME */
 
@@ -383,7 +383,7 @@ walk_found_c_pred(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
 static PredEntry *
 found_mega_clause(PredEntry *pp, CODEADDR *startp, CODEADDR *endp)
 {
-  MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
+  MegaClause *mcl = ClauseCodeToMegaClause(pp->FirstClause);
   *startp = (CODEADDR)mcl;
   *endp = (CODEADDR)mcl+mcl->ClSize;
   return pp;
@@ -624,7 +624,7 @@ add_code_in_pred(PredEntry *pp) {
     return;
   }
   Yap_inform_profiler_of_clause(&(pp->cs.p_code.ExpandCode), &(pp->cs.p_code.ExpandCode)+1, pp, GPROF_INIT_EXPAND);
-  clcode = pp->cs.p_code.TrueCodeOfPred;
+  clcode = pp->TrueCodeOfPred;
   if (pp->PredFlags & IndexedPredFlag) {
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdIndex *cl = ClauseCodeToLogUpdIndex(clcode);
@@ -634,7 +634,7 @@ add_code_in_pred(PredEntry *pp) {
       add_code_in_static_index(cl, pp);
     }
   }
-  clcode = pp->cs.p_code.FirstClause;
+  clcode = pp->FirstClause;
   if (clcode != NULL) {
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
@@ -653,7 +653,7 @@ add_code_in_pred(PredEntry *pp) {
 	cl = ClauseCodeToDynamicClause(clcode);
  	code_end = (CODEADDR)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(cl, code_end, pp, GPROF_INIT_DYNAMIC_CLAUSE);
-	if (clcode == pp->cs.p_code.LastClause)
+	if (clcode == pp->LastClause)
 	  break;
 	clcode = NextDynamicClause(clcode);
       } while (TRUE);
@@ -664,7 +664,7 @@ add_code_in_pred(PredEntry *pp) {
 
 	code_end = (char *)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(cl, code_end, pp,GPROF_INIT_STATIC_CLAUSE);
-	if (cl->ClCode == pp->cs.p_code.LastClause)
+	if (cl->ClCode == pp->LastClause)
 	  break;
 	cl = cl->ClNext;
       } while (TRUE);
@@ -721,9 +721,9 @@ index_ssz(StaticIndex *x, PredEntry *pe)
   UInt sz = 0;
   yamop *ep = ExpandClausesFirst;
   if (pe->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
     if (mcl->ClFlags & ExoMask) {
-      struct index_t *i = ((struct index_t **)(pe->cs.p_code.FirstClause))[0];
+      struct index_t *i = ((struct index_t **)(pe->FirstClause))[0];
       sz = 0;
 
       while (i) {
@@ -749,23 +749,23 @@ static_statistics(PredEntry *pe)
 {
   CACHE_REGS
   UInt sz = sizeof(PredEntry), cls = 0, isz = 0;
-  StaticClause *cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+  StaticClause *cl = ClauseCodeToStaticClause(pe->FirstClause);
 
-  if (pe->cs.p_code.NOfClauses > 1 &&
-      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause) {
-    isz = index_ssz(ClauseCodeToStaticIndex(pe->cs.p_code.TrueCodeOfPred), pe);
+  if (pe->NOfClauses > 1 &&
+      pe->TrueCodeOfPred != pe->FirstClause) {
+    isz = index_ssz(ClauseCodeToStaticIndex(pe->TrueCodeOfPred), pe);
   }
   if (pe->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
     return Yap_unify(ARG3, MkIntegerTerm(mcl->ClSize/mcl->ClItemSize)) &&
       Yap_unify(ARG4, MkIntegerTerm(mcl->ClSize)) &&
       Yap_unify(ARG5, MkIntegerTerm(isz));
   }
-  if (pe->cs.p_code.NOfClauses) {
+  if (pe->NOfClauses) {
     do {
       cls++;
       sz += cl->ClSize;
-      if (cl->ClCode == pe->cs.p_code.LastClause)
+      if (cl->ClCode == pe->LastClause)
 	break;
       cl = cl->ClNext;
     } while (TRUE);

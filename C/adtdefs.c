@@ -675,12 +675,12 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     INIT_LOCK(p->PELock);
     p->KindOfPE = PEProp;
     p->ArityOfPE = fe->ArityOfFE;
-    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-    p->cs.p_code.NOfClauses = 0;
+    p->FirstClause = p->LastClause = NULL;
+    p->NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();
     p->OpcodeOfPred = UNDEF_OPCODE;
-    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
     p->TimeStampOfPred = 0L;
     p->LastCallOfPred = LUCALL_ASSERT;
@@ -691,7 +691,6 @@ Atom Yap_LookupAtomWithLength(const char *atom,
       p->ModuleOfPred = cur_mod;
     p->StatisticsForPred = NULL;
     Yap_NewModulePred(cur_mod, p);
-
 #ifdef TABLING
     p->TableOfPred = NULL;
 #endif /* TABLING */
@@ -748,7 +747,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
 				      GPROF_NEW_PRED_FUNC);
       }
     }
-    return AbsPredProp(p);
+  return AbsPredProp(p);
   }
 
 #if THREADS
@@ -761,8 +760,8 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     INIT_LOCK(p->PELock);
     p->StatisticsForPred = NULL : p->KindOfPE = PEProp;
     p->ArityOfPE = ap->ArityOfPE;
-    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-    p->cs.p_code.NOfClauses = 0;
+    p->FirstClause = p->LastClause = NULL;
+    p->NOfClauses = 0;
     p->PredFlags = ap->PredFlags & ~(IndexedPredFlag | SpiedPredFlag);
 #if SIZEOF_INT_P == 4
     p->ExtraPredFlags = 0L;
@@ -770,7 +769,7 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     p->MetaEntryOfPred = NULL;
     p->src.OwnerFile = ap->src.OwnerFile;
     p->OpcodeOfPred = FAIL_OPCODE;
-    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
     p->ModuleOfPred = ap->ModuleOfPred;
     p->NextPredOfModule = NULL;
@@ -815,13 +814,13 @@ Atom Yap_LookupAtomWithLength(const char *atom,
     p->KindOfPE = PEProp;
     p->ArityOfPE = 0;
     p->StatisticsForPred = NULL;
-    p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-    p->cs.p_code.NOfClauses = 0;
+    p->FirstClause = p->LastClause = NULL;
+    p->NOfClauses = 0;
     p->PredFlags = UndefPredFlag;
     p->src.OwnerFile = Yap_source_file_name();
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
-    p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     p->MetaEntryOfPred = NULL;
     if (cur_mod == TermProlog)
       p->ModuleOfPred = 0;

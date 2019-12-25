@@ -2899,7 +2899,7 @@ X_API Term YAP_ModuleUser(void) { return MkAtomTerm(AtomUser); }
 /*    int  YAP_PredicateHasClauses()  */
 X_API YAP_handle_t YAP_NumberOfClausesForPredicate(YAP_PredEntryPtr ape) {
   PredEntry *pe = ape;
-  return pe->cs.p_code.NOfClauses;
+  return pe->NOfClauses;
 }
 
 X_API int YAP_MaxOpPriority(YAP_Atom at, Term module) {

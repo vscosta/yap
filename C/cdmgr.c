@@ -258,10 +258,8 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
               "trying to index a dynamic predicate");
     return;
   }
-  if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
-    ap->cs.p_code.TrueCodeOfPred = BaseAddr;
-    ap->PredFlags |= IndexedPredFlag;
-  }
+    if (ap->PredFlags & SystemPredFlags)
+        return;
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     if (ap->PredFlags & ProfiledPredFlag) {
       Yap_initProfiler(ap);
@@ -276,7 +274,7 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
 #endif
   } else {
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
+    ap->CodeOfPred = ap->TrueCodeOfPred;
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
   }
 #ifdef DEBUG
@@ -292,30 +290,30 @@ void Yap_IPred(PredEntry *p, UInt NSlots, yamop *next_pc) {
 #define GONEXT(TYPE) code_p = ((yamop *)(&(code_p->y_u.TYPE.next)))
 
 static void RemoveMainIndex(PredEntry *ap) {
-  yamop *First = ap->cs.p_code.FirstClause;
+  yamop *First = ap->FirstClause;
   int spied =
       ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag);
 
   ap->PredFlags &= ~IndexedPredFlag;
   if (First == NULL) {
-    ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+    ap->TrueCodeOfPred = FAILCODE;
   } else {
-    ap->cs.p_code.TrueCodeOfPred = First;
+    ap->TrueCodeOfPred = First;
   }
   if (First != NULL && spied) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
-  } else if (ap->cs.p_code.NOfClauses > 1
+  } else if (ap->NOfClauses > 1
 #ifdef TABLING
              || ap->PredFlags & TabledPredFlag
 #endif /* TABLING */
   ) {
     ap->OpcodeOfPred = INDEX_OPCODE;
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+    ap->CodeOfPred = ap->TrueCodeOfPred =
         (yamop *)(&(ap->OpcodeOfPred));
   } else {
-    ap->OpcodeOfPred = ap->cs.p_code.TrueCodeOfPred->opc;
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
+    ap->OpcodeOfPred = ap->TrueCodeOfPred->opc;
+    ap->CodeOfPred = ap->TrueCodeOfPred;
   }
 #if defined(YAPOR) || defined(THREADS)
   if (ap->PredFlags & LogUpdatePredFlag &&
@@ -673,7 +671,7 @@ static void kill_first_log_iblock(LogUpdIndex *c, LogUpdIndex *parent,
     }
   }
   /* I am  top node */
-  if (ap->cs.p_code.TrueCodeOfPred == c->ClCode) {
+  if (ap->TrueCodeOfPred == c->ClCode) {
     RemoveMainIndex(ap);
   }
 }
@@ -756,12 +754,12 @@ static int RemoveIndexation(PredEntry *ap) {
     return TRUE;
   }
   if (ap->PredFlags & LogUpdatePredFlag) {
-    kill_first_log_iblock(ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),
+    kill_first_log_iblock(ClauseCodeToLogUpdIndex(ap->TrueCodeOfPred),
                           NULL, ap);
   } else {
     StaticIndex *cl;
 
-    cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+    cl = ClauseCodeToStaticIndex(ap->TrueCodeOfPred);
 
     kill_top_static_iblock(cl, ap);
   }
@@ -783,7 +781,7 @@ int Yap_RemoveIndexation(PredEntry *ap) { return RemoveIndexation(ap); }
 static void retract_all(PredEntry *p, int in_use) {
   yamop *q;
 
-  q = p->cs.p_code.FirstClause;
+  q = p->FirstClause;
   if (q != NULL) {
     if (p->PredFlags & LogUpdatePredFlag) {
       LogUpdClause *cl = ClauseCodeToLogUpdClause(q);
@@ -807,7 +805,7 @@ static void retract_all(PredEntry *p, int in_use) {
       }
       /* make sure this is not a MegaClause */
       p->PredFlags &= ~MegaClausePredFlag;
-      p->cs.p_code.NOfClauses = 0;
+      p->NOfClauses = 0;
     } else {
       StaticClause *cl = ClauseCodeToStaticClause(q);
 
@@ -824,22 +822,22 @@ static void retract_all(PredEntry *p, int in_use) {
           Yap_ClauseSpace -= cl->ClSize;
           Yap_FreeCodeSpace((char *)cl);
         }
-        p->cs.p_code.NOfClauses--;
+        p->NOfClauses--;
         if (!ncl)
           break;
         cl = ncl;
       }
     }
   }
-  p->cs.p_code.FirstClause = NULL;
-  p->cs.p_code.LastClause = NULL;
+  p->FirstClause = NULL;
+  p->LastClause = NULL;
   if (is_live(p)) {
     p->OpcodeOfPred = FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
     p->PredFlags |= UndefPredFlag;
   }
-  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  p->TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
     if (!Yap_initProfiler(p)) {
@@ -892,11 +890,11 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
 #ifdef TABLING
   if (is_tabled(p)) {
     p->OpcodeOfPred = INDEX_OPCODE;
-    p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+    p->TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   }
 #endif /* TABLING */
-  p->cs.p_code.TrueCodeOfPred = pt;
-  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = cp;
+  p->TrueCodeOfPred = pt;
+  p->FirstClause = p->LastClause = cp;
   p->OpcodeOfPred = pt->opc;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
@@ -906,7 +904,7 @@ static void add_first_static(PredEntry *p, yamop *cp, int spy_flag) {
   } else
 #endif
     p->CodeOfPred = pt;
-  p->cs.p_code.NOfClauses = 1;
+  p->NOfClauses = 1;
   if (trueGlobalPrologFlag(PROFILING_FLAG)) {
     p->PredFlags |= ProfiledPredFlag;
     if (!Yap_initProfiler(p)) {
@@ -984,8 +982,8 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
   ncp->y_u.Otapl.p = p;
   ncp->y_u.Otapl.d = cp;
   /* This is the point we enter the code */
-  p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = ncp;
-  p->cs.p_code.NOfClauses = 1;
+  p->TrueCodeOfPred = p->CodeOfPred = ncp;
+  p->NOfClauses = 1;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
       !(p->PredFlags & ThreadLocalPredFlag) && p->ModuleOfPred != IDB_MODULE) {
@@ -1008,7 +1006,7 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
   ClauseCodeToDynamicClause(cp)->ClPrevious = ncp;
   /* Don't forget to say who is the only clause for the predicate so
      far */
-  p->cs.p_code.LastClause = p->cs.p_code.FirstClause = cp;
+  p->LastClause = p->FirstClause = cp;
   /* we're only missing what to do when we actually exit the procedure
    */
   ncp = NEXTOP(ncp, Otapl);
@@ -1029,14 +1027,14 @@ static void add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag) {
 static void asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag) {
   StaticClause *cl = ClauseCodeToStaticClause(q);
 
-  p->cs.p_code.NOfClauses++;
+  p->NOfClauses++;
   if (is_logupd(p)) {
-    LogUpdClause *clp = ClauseCodeToLogUpdClause(p->cs.p_code.FirstClause),
+    LogUpdClause *clp = ClauseCodeToLogUpdClause(p->FirstClause),
                  *clq = ClauseCodeToLogUpdClause(q);
     clq->ClPrev = NULL;
     clq->ClNext = clp;
     clp->ClPrev = clq;
-    p->cs.p_code.FirstClause = q;
+    p->FirstClause = q;
     if (p->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -1053,9 +1051,9 @@ static void asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag) {
 #endif
     return;
   }
-  cl->ClNext = ClauseCodeToStaticClause(p->cs.p_code.FirstClause);
-  p->cs.p_code.FirstClause = q;
-  p->cs.p_code.TrueCodeOfPred = q;
+  cl->ClNext = ClauseCodeToStaticClause(p->FirstClause);
+  p->FirstClause = q;
+  p->TrueCodeOfPred = q;
   if (p->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
@@ -1070,13 +1068,13 @@ static void asserta_dynam_clause(PredEntry *p, yamop *cp) {
   yamop *q;
   DynamicClause *cl = ClauseCodeToDynamicClause(cp);
   q = cp;
-  LOCK(ClauseCodeToDynamicClause(p->cs.p_code.FirstClause)->ClLock);
+  LOCK(ClauseCodeToDynamicClause(p->FirstClause)->ClLock);
   /* also, keep backpointers for the days we'll delete all the clause */
-  ClauseCodeToDynamicClause(p->cs.p_code.FirstClause)->ClPrevious = q;
+  ClauseCodeToDynamicClause(p->FirstClause)->ClPrevious = q;
   cl->ClPrevious = (yamop *)(p->CodeOfPred);
   cl->ClFlags |= DynamicMask;
-  UNLOCK(ClauseCodeToDynamicClause(p->cs.p_code.FirstClause)->ClLock);
-  q->y_u.Otapl.d = p->cs.p_code.FirstClause;
+  UNLOCK(ClauseCodeToDynamicClause(p->FirstClause)->ClLock);
+  q->y_u.Otapl.d = p->FirstClause;
   q->y_u.Otapl.s = p->ArityOfPE;
   q->y_u.Otapl.p = p;
   if (p->PredFlags & ProfiledPredFlag)
@@ -1087,7 +1085,7 @@ static void asserta_dynam_clause(PredEntry *p, yamop *cp) {
     cp->opc = Yap_opcode(_retry_and_mark);
   cp->y_u.Otapl.s = p->ArityOfPE;
   cp->y_u.Otapl.p = p;
-  p->cs.p_code.FirstClause = cp;
+  p->FirstClause = cp;
   q = p->CodeOfPred;
   q->y_u.Otapl.d = cp;
   q->y_u.Otapl.s = p->ArityOfPE;
@@ -1098,8 +1096,8 @@ static void asserta_dynam_clause(PredEntry *p, yamop *cp) {
 static void assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag) {
   yamop *pt;
 
-  p->cs.p_code.NOfClauses++;
-  pt = p->cs.p_code.LastClause;
+  p->NOfClauses++;
+  pt = p->LastClause;
   if (is_logupd(p)) {
     LogUpdClause *clp = ClauseCodeToLogUpdClause(cp),
                  *clq = ClauseCodeToLogUpdClause(pt);
@@ -1107,10 +1105,10 @@ static void assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag) {
     clq->ClNext = clp;
     clp->ClPrev = clq;
     clp->ClNext = NULL;
-    p->cs.p_code.LastClause = cp;
+    p->LastClause = cp;
     if (!(p->PredFlags & IndexedPredFlag)) {
       p->OpcodeOfPred = INDEX_OPCODE;
-      p->cs.p_code.TrueCodeOfPred = p->CodeOfPred =
+      p->TrueCodeOfPred = p->CodeOfPred =
           (yamop *)(&(p->OpcodeOfPred));
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -1130,13 +1128,13 @@ static void assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag) {
 
     cl->ClNext = ClauseCodeToStaticClause(cp);
   }
-  if (p->cs.p_code.FirstClause == p->cs.p_code.LastClause) {
+  if (p->FirstClause == p->LastClause) {
     if (!(p->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag))) {
       p->OpcodeOfPred = INDEX_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
     }
   }
-  p->cs.p_code.LastClause = cp;
+  p->LastClause = cp;
 }
 
 /* p is already locked */
@@ -1144,10 +1142,10 @@ static void assertz_dynam_clause(PredEntry *p, yamop *cp) {
   yamop *q;
   DynamicClause *cl = ClauseCodeToDynamicClause(cp);
 
-  q = p->cs.p_code.LastClause;
+  q = p->LastClause;
   LOCK(ClauseCodeToDynamicClause(q)->ClLock);
   q->y_u.Otapl.d = cp;
-  p->cs.p_code.LastClause = cp;
+  p->LastClause = cp;
   /* also, keep backpointers for the days we'll delete all the clause */
   cl->ClPrevious = q;
   cl->ClFlags |= DynamicMask;
@@ -1162,18 +1160,18 @@ static void assertz_dynam_clause(PredEntry *p, yamop *cp) {
   q->y_u.Otapl.d = p->CodeOfPred;
   q->y_u.Otapl.s = p->ArityOfPE;
   q->y_u.Otapl.p = p;
-  p->cs.p_code.NOfClauses++;
+  p->NOfClauses++;
 }
 
 void Yap_AssertzClause(PredEntry *p, yamop *cp) {
   if (p->PredFlags & DynamicPredFlag) {
-    if (p->cs.p_code.FirstClause == NULL) {
+    if (p->FirstClause == NULL) {
       add_first_dynamic(p, cp, FALSE);
     } else {
       assertz_dynam_clause(p, cp);
     }
   } else {
-    if (p->cs.p_code.FirstClause == NULL) {
+    if (p->FirstClause == NULL) {
       add_first_static(p, cp, FALSE);
     } else {
       assertz_stat_clause(p, cp, FALSE);
@@ -1225,7 +1223,7 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
   if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
-  if (p->cs.p_code.NOfClauses) {
+  if (p->NOfClauses) {
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == p0)
         break;
@@ -1236,14 +1234,14 @@ static int not_was_reconsulted(PredEntry *p, Term t, int mode) {
     LOCAL_LastAssertedPred = p;
     return false;    /* careful */
   } else if (mode) { // consulting again a predicate in the original file.
-    if ((p->cs.p_code.NOfClauses &&
+    if ((p->NOfClauses &&
          p->src.OwnerFile == Yap_ConsultingFile(PASS_REGS1) &&
          p->src.OwnerFile != AtomNil && !(p->PredFlags & MultiFileFlag) &&
          p->src.OwnerFile != AtomUserIn)) {
       // if (p->ArityOfPE)
       //	printf("+ %s %s
       //%d\n",NameOfFunctor(p->FunctorOfPred)->StrOfAE,p->src.OwnerFile->StrOfAE,
-      // p->cs.p_code.NOfClauses);
+      // p->NOfClauses);
       retract_all(p, Yap_static_in_use(p, TRUE));
     }
     //	printf("- %s
@@ -1349,7 +1347,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
   }
   if (ap == LOCAL_LastAssertedPred)
     return false;
-  if (ap->cs.p_code.NOfClauses) {
+  if (ap->NOfClauses) {
     Term repeat = AbsPair((CELL *)AbsPredProp(ap));
     for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == AbsPredProp(ap)) {
@@ -1360,7 +1358,7 @@ bool Yap_discontiguous(PredEntry *ap, Term mode USES_REGS) {
         --LOCAL_ConsultSp;
         LOCAL_ConsultSp->r = repeat;
         return true;
-      } else if (fp->r == repeat && ap->cs.p_code.NOfClauses > 4) {
+      } else if (fp->r == repeat && ap->NOfClauses > 4) {
         return false;
       }
   }
@@ -1409,8 +1407,8 @@ static Int
   pe->PredFlags |= DiscontiguousPredFlag;
   /* mutifile-predicates are weird, they do not seat really on the default
    * module */
-  if (pe->cs.p_code.NOfClauses == 0) {
-    pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred = FAILCODE;
+  if (pe->NOfClauses == 0) {
+    pe->CodeOfPred = pe->TrueCodeOfPred = FAILCODE;
     pe->OpcodeOfPred = FAIL_OPCODE;
   }
   UNLOCKPE(43, pe);
@@ -1429,7 +1427,7 @@ bool Yap_multiple(PredEntry *ap, Term mode USES_REGS) {
     if (fp->p == AbsPredProp(ap)) {
       return false;
     }
-  return ap->cs.p_code.NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
+  return ap->NOfClauses > 0 && ap->src.OwnerFile != AtomNil &&
          Yap_ConsultingFile(PASS_REGS1) != ap->src.OwnerFile &&
          LOCAL_Including != MkAtomTerm(ap->src.OwnerFile);
 }
@@ -1479,7 +1477,7 @@ bool Yap_constPred(PredEntry *p) {
       (SysExportPredFlag | MultiFileFlag | DynamicPredFlag | LogUpdatePredFlag))
     return false;
   if (Yap_isSystemModule(p->ModuleOfPred)) {
-    if (p->cs.p_code.NOfClauses == 0) {
+    if (p->NOfClauses == 0) {
       p->src.OwnerFile = Yap_source_file_name();
       return false;
     }
@@ -1561,7 +1559,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
   /* The only problem we have now is when we need to throw away
      Indexing blocks
   */
-  if (pflags & IndexedPredFlag && p->cs.p_code.NOfClauses > 1) {
+  if (pflags & IndexedPredFlag && p->NOfClauses > 1) {
     Yap_AddClauseToIndex(p, cp, mode == asserta);
   }
   if (pflags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
@@ -1633,14 +1631,14 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     else
       p->PredFlags = p->PredFlags | CompiledPredFlag;
   }
-  if (p->cs.p_code.FirstClause == NULL) {
+  if (p->FirstClause == NULL) {
     p->PredFlags &= ~UndefPredFlag;
     if (!(pflags & DynamicPredFlag)) {
       add_first_static(p, cp, spy_flag);
       /* make sure we have a place to jump to */
       if (p->OpcodeOfPred == UNDEF_OPCODE ||
           p->OpcodeOfPred == FAIL_OPCODE) { /* log updates */
-        p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
+        p->CodeOfPred = p->TrueCodeOfPred;
         p->OpcodeOfPred = ((yamop *)(p->CodeOfPred))->opc;
       }
 #if defined(YAPOR) || defined(THREADS)
@@ -1665,7 +1663,7 @@ bool Yap_addclause(Term t, yamop *cp, Term tmode, Term mod, Term *t4ref)
     assertz_stat_clause(p, cp, spy_flag);
     if (p->OpcodeOfPred != INDEX_OPCODE &&
         p->OpcodeOfPred != Yap_opcode(_spy_pred)) {
-      p->CodeOfPred = p->cs.p_code.TrueCodeOfPred;
+      p->CodeOfPred = p->TrueCodeOfPred;
       p->OpcodeOfPred = ((yamop *)(p->CodeOfPred))->opc;
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -1727,27 +1725,27 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
   if (ap->PredFlags & MegaClausePredFlag) {
     Yap_split_megaclause(ap);
   }
-  ap->cs.p_code.NOfClauses--;
-  if (ap->cs.p_code.FirstClause == cl->ClCode) {
+  ap->NOfClauses--;
+  if (ap->FirstClause == cl->ClCode) {
     /* got rid of first clause */
-    if (ap->cs.p_code.LastClause == cl->ClCode) {
+    if (ap->LastClause == cl->ClCode) {
       /* got rid of all clauses */
-      ap->cs.p_code.LastClause = ap->cs.p_code.FirstClause = NULL;
+      ap->LastClause = ap->FirstClause = NULL;
       if (is_live(ap)) {
         ap->OpcodeOfPred = FAIL_OPCODE;
       } else {
         ap->OpcodeOfPred = UNDEF_OPCODE;
         ap->PredFlags |= UndefPredFlag;
       }
-      ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+      ap->TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
     } else {
       yamop *ncl = cl->ClNext->ClCode;
-      ap->cs.p_code.FirstClause = ncl;
-      ap->cs.p_code.TrueCodeOfPred = ncl;
+      ap->FirstClause = ncl;
+      ap->TrueCodeOfPred = ncl;
       ap->OpcodeOfPred = ncl->opc;
     }
   } else {
-    StaticClause *pcl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause),
+    StaticClause *pcl = ClauseCodeToStaticClause(ap->FirstClause),
                  *ocl = NULL;
 
     while (pcl != cl) {
@@ -1757,14 +1755,14 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     if (ocl) {
       ocl->ClNext = cl->ClNext;
     }
-    if (cl->ClCode == ap->cs.p_code.LastClause) {
-      ap->cs.p_code.LastClause = ocl->ClCode;
+    if (cl->ClCode == ap->LastClause) {
+      ap->LastClause = ocl->ClCode;
     }
   }
-  if (ap->cs.p_code.NOfClauses == 1) {
-    assert(ap->cs.p_code.FirstClause);
-    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
-    ap->OpcodeOfPred = ap->cs.p_code.TrueCodeOfPred->opc;
+  if (ap->NOfClauses == 1) {
+    assert(ap->FirstClause);
+    ap->TrueCodeOfPred = ap->FirstClause;
+    ap->OpcodeOfPred = ap->TrueCodeOfPred->opc;
   }
   if (cl->ClFlags & HasBlobsMask || Yap_static_in_use(ap, TRUE)) {
     LOCK(DeadStaticClausesLock);
@@ -1776,19 +1774,19 @@ void Yap_EraseStaticClause(StaticClause *cl, PredEntry *ap, Term mod) {
     Yap_ClauseSpace -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   }
-  if (ap->cs.p_code.NOfClauses == 0) {
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
-  } else if (ap->cs.p_code.NOfClauses > 1) {
+  if (ap->NOfClauses == 0) {
+    ap->CodeOfPred = ap->TrueCodeOfPred;
+  } else if (ap->NOfClauses > 1) {
     ap->OpcodeOfPred = INDEX_OPCODE;
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+    ap->CodeOfPred = ap->TrueCodeOfPred =
         (yamop *)(&(ap->OpcodeOfPred));
   } else if (ap->PredFlags &
              (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+    ap->CodeOfPred = ap->TrueCodeOfPred =
         (yamop *)(&(ap->OpcodeOfPred));
   } else {
-    ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
+    ap->CodeOfPred = ap->TrueCodeOfPred;
   }
 #if defined(YAPOR) || defined(THREADS)
   if (ap->PredFlags & LogUpdatePredFlag &&
@@ -1806,7 +1804,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   if (pe->PredFlags & IndexedPredFlag) {
     Yap_AddClauseToIndex(pe, cp, mode == asserta);
   }
-  if (pe->cs.p_code.FirstClause == NULL) {
+  if (pe->FirstClause == NULL) {
     add_first_static(pe, cp, FALSE);
     /* make sure we have a place to jump to */
     if (pe->OpcodeOfPred == UNDEF_OPCODE ||
@@ -1819,7 +1817,7 @@ void Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
         pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred));
       } else {
 #endif
-        pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred;
+        pe->CodeOfPred = pe->TrueCodeOfPred;
         pe->OpcodeOfPred = ((yamop *)(pe->CodeOfPred))->opc;
 #if defined(YAPOR) || defined(THREADS)
       }
@@ -1950,7 +1948,7 @@ static void purge_clauses(PredEntry *pred) {
   if (pred->PredFlags & UDIPredFlag) {
     Yap_udi_abolish(pred);
   }
-  if (pred->cs.p_code.NOfClauses) {
+  if (pred->NOfClauses) {
     if (pred->PredFlags & IndexedPredFlag)
       RemoveIndexation(pred);
     Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
@@ -2176,7 +2174,7 @@ static Int p_rmspy(USES_REGS1) { /* '$rm_spy'(+T,+Mod)	 */
         pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred));
       } else {
 #endif
-        pred->CodeOfPred = pred->cs.p_code.TrueCodeOfPred;
+        pred->CodeOfPred = pred->TrueCodeOfPred;
         pred->OpcodeOfPred = pred->CodeOfPred->opc;
 #if defined(YAPOR) || defined(THREADS)
       }
@@ -2221,7 +2219,7 @@ static Int
   if (EndOfPAEntr(pe))
     return FALSE;
   PELOCK(24, RepPredProp(pe));
-  ncl = RepPredProp(pe)->cs.p_code.NOfClauses;
+  ncl = RepPredProp(pe)->NOfClauses;
   UNLOCKPE(41, RepPredProp(pe));
   return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
 }
@@ -2246,7 +2244,7 @@ static Int new_multifile(USES_REGS1) {
     addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe, FALSE);
     return false;
   }
-  if (pe->cs.p_code.NOfClauses) {
+  if (pe->NOfClauses) {
     UNLOCKPE(26, pe);
     addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe, FALSE);
     return false;
@@ -2260,8 +2258,8 @@ static Int new_multifile(USES_REGS1) {
     pe->PredFlags |= (SourcePredFlag | CompiledPredFlag);
   }
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
-  if (pe->cs.p_code.NOfClauses == 0) {
-    pe->CodeOfPred = pe->cs.p_code.TrueCodeOfPred = FAILCODE;
+  if (pe->NOfClauses == 0) {
+    pe->CodeOfPred = pe->TrueCodeOfPred = FAILCODE;
     pe->OpcodeOfPred = FAIL_OPCODE;
   }
   UNLOCKPE(43, pe);
@@ -2409,7 +2407,7 @@ static Int p_is_exo(USES_REGS1) { /* '$is_dynamic'(+P)	 */
   PELOCK(28, pe);
   out = (pe->PredFlags & MegaClausePredFlag);
   if (out) {
-    mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    mcl = ClauseCodeToMegaClause(pe->FirstClause);
     out = mcl->ClFlags & ExoMask;
   }
   UNLOCKPE(46, pe);
@@ -2486,7 +2484,7 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
     UNLOCKPE(26, pe);
     return true;
   }
-  if (pe->cs.p_code.NOfClauses != 0) {
+  if (pe->NOfClauses != 0) {
     UNLOCKPE(26, pe);
     addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe, FALSE);
     return false;
@@ -2529,7 +2527,7 @@ static Int new_meta_pred(USES_REGS1) {
     UNLOCKPE(26, pe);
     return true;
   }
-  if (pe->cs.p_code.NOfClauses) {
+  if (pe->NOfClauses) {
     UNLOCKPE(26, pe);
     addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe, FALSE);
     return false;
@@ -2671,13 +2669,13 @@ static Int p_kill_dynamic(USES_REGS1) { /* '$kill_dynamic'(P,M)       */
     UNLOCKPE(60, pe);
     return FALSE;
   }
-  if (pe->cs.p_code.LastClause != pe->cs.p_code.FirstClause) {
+  if (pe->LastClause != pe->FirstClause) {
     UNLOCKPE(61, pe);
     return (FALSE);
   }
-  pe->cs.p_code.LastClause = pe->cs.p_code.FirstClause = NULL;
+  pe->LastClause = pe->FirstClause = NULL;
   pe->OpcodeOfPred = UNDEF_OPCODE;
-  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred =
+  pe->TrueCodeOfPred = pe->CodeOfPred =
       (yamop *)(&(pe->OpcodeOfPred));
   pe->PredFlags = UndefPredFlag;
   UNLOCKPE(62, pe);
@@ -3308,9 +3306,9 @@ static UInt index_ssz(StaticIndex *x, PredEntry *pe) {
   UInt sz = 0;
   yamop *ep = ExpandClausesFirst;
   if (pe->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
     if (mcl->ClFlags & ExoMask) {
-      struct index_t *i = ((struct index_t **)(pe->cs.p_code.FirstClause))[0];
+      struct index_t *i = ((struct index_t **)(pe->FirstClause))[0];
       sz = 0;
 
       while (i) {
@@ -3344,23 +3342,23 @@ static Int p_predicate_lu_cps(USES_REGS1) {
 static Int static_statistics(PredEntry *pe) {
   CACHE_REGS
   UInt sz = sizeof(PredEntry), cls = 0, isz = 0;
-  StaticClause *cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+  StaticClause *cl = ClauseCodeToStaticClause(pe->FirstClause);
 
-  if (pe->cs.p_code.NOfClauses > 1 &&
-      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause) {
-    isz = index_ssz(ClauseCodeToStaticIndex(pe->cs.p_code.TrueCodeOfPred), pe);
+  if (pe->NOfClauses > 1 &&
+      pe->TrueCodeOfPred != pe->FirstClause) {
+    isz = index_ssz(ClauseCodeToStaticIndex(pe->TrueCodeOfPred), pe);
   }
   if (pe->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
     return Yap_unify(ARG3, MkIntegerTerm(mcl->ClSize / mcl->ClItemSize)) &&
            Yap_unify(ARG4, MkIntegerTerm(mcl->ClSize)) &&
            Yap_unify(ARG5, MkIntegerTerm(isz));
   }
-  if (pe->cs.p_code.NOfClauses) {
+  if (pe->NOfClauses) {
     do {
       cls++;
       sz += cl->ClSize;
-      if (cl->ClCode == pe->cs.p_code.LastClause)
+      if (cl->ClCode == pe->LastClause)
         break;
       cl = cl->ClNext;
     } while (TRUE);
@@ -3435,7 +3433,7 @@ void Yap_UpdateTimestamps(PredEntry *ap) {
   Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil, "Timestamp overflow %p", ap);
   return;
 #endif
-  if (!ap->cs.p_code.NOfClauses)
+  if (!ap->NOfClauses)
     return;
 restart:
   *--ASP = TIMESTAMP_EOT;
@@ -3491,7 +3489,7 @@ restart:
   if (*arp)
     *--arp = 0L;
   base = arp;
-  lcl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
+  lcl = ClauseCodeToLogUpdClause(ap->FirstClause);
   while (lcl) {
     adjust_cl_timestamp(lcl, top - 1, base);
     lcl = lcl->ClNext;
@@ -3776,7 +3774,7 @@ static Int instance_property(USES_REGS1) {
         }
       } else if (FunctorOfTerm(t1) == FunctorMegaClause) {
         PredEntry *ap = (PredEntry *)IntegerOfTerm(ArgOfTerm(1, t1));
-        MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+        MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
 
         if (op == CL_PROP_ERASED) {
           return FALSE;
@@ -3944,7 +3942,7 @@ static Int nth_clause(USES_REGS1) {
         UNLOCK(pe->PELock);
         return Yap_unify(MkDBRefTerm((DBRef)cl), ARG4);
       } else if (pe->PredFlags & MegaClausePredFlag) {
-        MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+        MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
         if (mcl->ClFlags & ExoMask) {
           UNLOCK(pe->PELock);
           return Yap_unify(Yap_MkExoRefTerm(pe, Count - 1), ARG4);
@@ -3972,7 +3970,7 @@ static Int nth_clause(USES_REGS1) {
         UNLOCK(pe->PELock);
         return FALSE;
       }
-      ocl = ClauseCodeToLogUpdClause(pe->cs.p_code.FirstClause);
+      ocl = ClauseCodeToLogUpdClause(pe->FirstClause);
       do {
         icl++;
         if (cl == ocl)
@@ -4000,11 +3998,11 @@ static Int nth_clause(USES_REGS1) {
       if (!pe) {
         return FALSE;
       }
-      if (!pe->cs.p_code.NOfClauses)
+      if (!pe->NOfClauses)
         return FALSE;
-      cl0 = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+      cl0 = ClauseCodeToStaticClause(pe->FirstClause);
       // linear scan
-      for (i = 1; i < pe->cs.p_code.NOfClauses; i++) {
+      for (i = 1; i < pe->NOfClauses; i++) {
         if (cl0 == cl) {
           if (!Yap_unify(MkIntTerm(i), ARG3))
             return FALSE;
@@ -4017,7 +4015,7 @@ static Int nth_clause(USES_REGS1) {
       Int i;
 
       pe = Yap_MegaClausePredicateFromTerm(t4);
-      mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+      mcl = ClauseCodeToMegaClause(pe->FirstClause);
       i = ((char *)cl - (char *)mcl->ClCode) / mcl->ClItemSize;
       if (!Yap_unify(MkIntTerm(i), ARG3))
         return FALSE;
@@ -4177,7 +4175,7 @@ static bool pred_flag_clause(Functor f, Term mod, const char *name,
 struct pred_entry *Yap_MkLogPred(struct pred_entry *pe) {
   pe->PredFlags = LogUpdatePredFlag;
   pe->OpcodeOfPred = FAIL_OPCODE;
-  pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+  pe->TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
   return pe;
 }
 

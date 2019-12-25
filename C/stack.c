@@ -223,12 +223,12 @@ PredEntry *Yap_PredForChoicePt(choiceptr cp, op_numbers *op) {
 static yamop *cur_clause(PredEntry *pe, yamop *codeptr) {
     StaticClause *cl;
 
-    cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
+    cl = ClauseCodeToStaticClause(pe->FirstClause);
     do {
         if (IN_BLOCK(codeptr, cl, cl->ClSize)) {
             return cl->ClCode;
         }
-        if (cl->ClCode == pe->cs.p_code.LastClause)
+        if (cl->ClCode == pe->LastClause)
             break;
         cl = cl->ClNext;
     } while (TRUE);
@@ -450,7 +450,7 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
     Int i = 1;
     yamop *clcode;
 
-    clcode = pp->cs.p_code.FirstClause;
+    clcode = pp->FirstClause;
     if (clcode != NULL) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
@@ -477,7 +477,7 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
                         *endp = (CODEADDR) cl + cl->ClSize;
                     return i;
                 }
-                if (clcode == pp->cs.p_code.LastClause)
+                if (clcode == pp->LastClause)
                     break;
                 i++;
                 clcode = NextDynamicClause(clcode);
@@ -507,7 +507,7 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
                         *endp = (CODEADDR) cl + cl->ClSize;
                     return i;
                 }
-                if (cl->ClCode == pp->cs.p_code.LastClause)
+                if (cl->ClCode == pp->LastClause)
                     break;
                 i++;
                 cl = cl->ClNext;
@@ -536,7 +536,7 @@ static Int find_code_in_clause(PredEntry *pp, yamop *codeptr, void **startp,
 
   return false;
   } else if (pp->PredFlags & MegaClausePredFlag) {
-  MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
+  MegaClause *mcl = ClauseCodeToMegaClause(pp->FirstClause);
   t->prologPredLine = mcl->ClLine;
   } else {
   StaticClause *cl;
@@ -569,7 +569,7 @@ static Term clause_loc(void *clcode, PredEntry *pp) {
 
         return MkIntTerm(0);
     } else if (pp->PredFlags & MegaClausePredFlag) {
-        MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
+        MegaClause *mcl = ClauseCodeToMegaClause(pp->FirstClause);
         return MkIntTerm(mcl->ClLine);
     } else {
         StaticClause *cl;
@@ -594,14 +594,14 @@ static int cl_code_in_pred(PredEntry *pp, yamop *codeptr, void **startp,
     if (pp->PredFlags & IndexedPredFlag) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             if (code_in_pred_lu_index(
-                    ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
+                    ClauseCodeToLogUpdIndex(pp->TrueCodeOfPred), codeptr,
                     startp, endp)) {
                 UNLOCK(pp->PELock);
                 return TRUE;
             }
         } else {
             if (code_in_pred_s_index(
-                    ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
+                    ClauseCodeToStaticIndex(pp->TrueCodeOfPred), codeptr,
                     startp, endp)) {
                 UNLOCK(pp->PELock);
                 return TRUE;
@@ -639,7 +639,7 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
     if (pp->PredFlags & IndexedPredFlag && pp->OpcodeOfPred != INDEX_OPCODE) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             if (code_in_pred_lu_index(
-                    ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
+                    ClauseCodeToLogUpdIndex(pp->TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
                 code_in_pred_info(pp, pat, parity);
                 UNLOCK(pp->PELock);
@@ -647,7 +647,7 @@ static Int code_in_pred(PredEntry *pp, Atom *pat, UInt *parity,
             }
         } else {
             if (code_in_pred_s_index(
-                    ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), codeptr,
+                    ClauseCodeToStaticIndex(pp->TrueCodeOfPred), codeptr,
                     NULL, NULL)) {
                 code_in_pred_info(pp, pat, parity);
                 UNLOCK(pp->PELock);
@@ -754,7 +754,7 @@ static PredEntry *walk_found_c_pred(PredEntry *pp, void **startp, void **endp) {
 
 /* we hit a mega-clause, no point in going on */
 static PredEntry *found_mega_clause(PredEntry *pp, void **startp, void **endp) {
-    MegaClause *mcl = ClauseCodeToMegaClause(pp->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(pp->FirstClause);
     *startp = (CODEADDR) mcl;
     *endp = (CODEADDR) mcl + mcl->ClSize;
     return pp;
@@ -985,10 +985,10 @@ static StaticIndex *find_owner_static_index(StaticIndex *cl, yamop *code_p) {
 ClauseUnion *Yap_find_owner_index(yamop *ipc, PredEntry *ap) {
     /* we assume we have an owner index */
     if (ap->PredFlags & LogUpdatePredFlag) {
-        LogUpdIndex *cl = ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred);
+        LogUpdIndex *cl = ClauseCodeToLogUpdIndex(ap->TrueCodeOfPred);
         return (ClauseUnion *) find_owner_log_index(cl, ipc);
     } else {
-        StaticIndex *cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+        StaticIndex *cl = ClauseCodeToStaticIndex(ap->TrueCodeOfPred);
         return (ClauseUnion *) find_owner_static_index(cl, ipc);
     }
 }
@@ -1091,8 +1091,8 @@ static Term clause_info(yamop *codeptr, PredEntry *pp) {
     ts[0] = MkAtomTerm(pp->src.OwnerFile);
     Term t1 = Yap_MkApplTerm(FunctorModule, 2, ts);
     if ((find_code_in_clause(pp, codeptr, &begin, NULL)) <= 0) {
-        ts[0] = clause_loc(pp->cs.p_code.FirstClause, pp);
-        ts[1] = clause_loc(pp->cs.p_code.LastClause, pp);
+        ts[0] = clause_loc(pp->FirstClause, pp);
+        ts[1] = clause_loc(pp->LastClause, pp);
         if (ts[0] == ts[1] && ts[1] != TermNil) {
         } else if (ts[1] == TermNil && ts[0] != MkIntTerm(0))
             ts[0] = Yap_MkApplTerm(FunctorMinus, 2, ts);
@@ -1120,7 +1120,7 @@ yap_error_descriptor_t *set_clause_info(yap_error_descriptor_t *t,
     if (codeptr->opc == UNDEF_OPCODE) {
         t->prologPredLine = 0;
         return t;
-    } else if (pp->cs.p_code.NOfClauses) {
+    } else if (pp->NOfClauses) {
         if ((t->prologPredLine = find_code_in_clause(pp, codeptr, &begin, NULL)) <=
             0) {
             t->prologPredLine = 0;
@@ -1293,7 +1293,7 @@ static void add_code_in_pred(PredEntry *pp) {
     Yap_inform_profiler_of_clause(&(pp->cs.p_code.ExpandCode),
                                   &(pp->cs.p_code.ExpandCode) + 1, pp,
                                   GPROF_INIT_EXPAND);
-    clcode = pp->cs.p_code.TrueCodeOfPred;
+    clcode = pp->TrueCodeOfPred;
     if (pp->PredFlags & IndexedPredFlag) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             LogUpdIndex *cl = ClauseCodeToLogUpdIndex(clcode);
@@ -1303,7 +1303,7 @@ static void add_code_in_pred(PredEntry *pp) {
             add_code_in_static_index(cl, pp);
         }
     }
-    clcode = pp->cs.p_code.FirstClause;
+    clcode = pp->FirstClause;
     if (clcode != NULL) {
         if (pp->PredFlags & LogUpdatePredFlag) {
             LogUpdClause *cl = ClauseCodeToLogUpdClause(clcode);
@@ -1324,7 +1324,7 @@ static void add_code_in_pred(PredEntry *pp) {
                 code_end = (CODEADDR) cl + cl->ClSize;
                 Yap_inform_profiler_of_clause(cl, code_end, pp,
                                               GPROF_INIT_DYNAMIC_CLAUSE);
-                if (clcode == pp->cs.p_code.LastClause)
+                if (clcode == pp->LastClause)
                     break;
                 clcode = NextDynamicClause(clcode);
             } while (TRUE);
@@ -1336,7 +1336,7 @@ static void add_code_in_pred(PredEntry *pp) {
                 code_end = (char *) cl + cl->ClSize;
                 Yap_inform_profiler_of_clause(cl, code_end, pp,
                                               GPROF_INIT_STATIC_CLAUSE);
-                if (cl->ClCode == pp->cs.p_code.LastClause)
+                if (cl->ClCode == pp->LastClause)
                     break;
                 cl = cl->ClNext;
             } while (TRUE);
@@ -1738,7 +1738,7 @@ static int legal_env(CELL *ep USES_REGS) {
 
 #if 0
 static bool handled_exception(USES_REGS1) {
-  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred, l);
+  yamop *pos = NEXTOP(PredDollarCatch->TrueCodeOfPred, l);
   bool found_handler = false;
   choiceptr gc_b;
 
@@ -2200,7 +2200,7 @@ static yap_error_descriptor_t *add_bug_location(yap_error_descriptor_t *p,
     if (pe->src.OwnerFile) {
         if (pe->PredFlags & MegaClausePredFlag) {
             MegaClause *mcl;
-            mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+            mcl = ClauseCodeToMegaClause(pe->FirstClause);
             p->prologPredLine = mcl->ClLine;
         } else {
             void *clcode;

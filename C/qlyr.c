@@ -822,7 +822,7 @@ static void ReadHash(FILE *stream) {
       pe->ArityOfPE = 3;
       if (pe->OpcodeOfPred == UNDEF_OPCODE) {
         pe->OpcodeOfPred = Yap_opcode(_op_fail);
-        pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
+        pe->TrueCodeOfPred = pe->CodeOfPred = FAILCODE;
       }
     }
     InsertPredEntry(ope, pe);
@@ -854,9 +854,9 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
   CACHE_REGS
   if (flags & LogUpdatePredFlag) {
     /* first, clean up whatever was there */
-    if (pp->cs.p_code.NOfClauses) {
+    if (pp->NOfClauses) {
       LogUpdClause *cl;
-      cl = ClauseCodeToLogUpdClause(pp->cs.p_code.FirstClause);
+      cl = ClauseCodeToLogUpdClause(pp->FirstClause);
       do {
         LogUpdClause *ncl = cl->ClNext;
         Yap_ErLogUpdCl(cl);
@@ -864,7 +864,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       } while (cl != NULL);
     }
     if (!nclauses) {
-    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->CodeOfPred = pp->TrueCodeOfPred = FAILCODE;
     pp->OpcodeOfPred = FAIL_OPCODE;
 
       return;
@@ -902,7 +902,7 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     LOCAL_HDiff = (char *)cl - base;
     read_bytes(stream, cl, size);
     cl->ClFlags = mask;
-    pp->cs.p_code.FirstClause = pp->cs.p_code.LastClause = cl->ClCode;
+    pp->FirstClause = pp->LastClause = cl->ClCode;
     pp->PredFlags |= MegaClausePredFlag;
     /* enter index mode */
     if (mask & ExoMask) {
@@ -913,10 +913,10 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
     } else {
       pp->OpcodeOfPred = INDEX_OPCODE;
     }
-    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred =
+    pp->CodeOfPred = pp->TrueCodeOfPred =
         (yamop *)(&(pp->OpcodeOfPred));
     /* This must be set for restoremegaclause */
-    pp->cs.p_code.NOfClauses = nclauses;
+    pp->NOfClauses = nclauses;
     RestoreMegaClause(cl PASS_REGS);
   } else if (flags & DynamicPredFlag) {
     UInt i;
@@ -943,16 +943,16 @@ static void read_clauses(FILE *stream, PredEntry *pp, UInt nclauses,
       }
       return;
     }
-    if (pp->cs.p_code.NOfClauses) {
+    if (pp->NOfClauses) {
       StaticClause *cl;
-      cl = ClauseCodeToStaticClause(pp->cs.p_code.FirstClause);
+      cl = ClauseCodeToStaticClause(pp->FirstClause);
       do {
         StaticClause *ncl = cl->ClNext;
         Yap_EraseStaticClause(cl, pp, CurrentModule);
         cl = ncl;
       } while (cl != NULL);
     } else if (flags & MultiFileFlag) {
-    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = FAILCODE;
+    pp->CodeOfPred = pp->TrueCodeOfPred = FAILCODE;
     pp->OpcodeOfPred = FAIL_OPCODE;
 
     }
@@ -977,19 +977,24 @@ static void read_pred(FILE *stream, Term mod) {
 
   ap = LookupPredEntry((PredEntry *)read_UInt(stream));
   flags = read_predFlags(stream);
-#if 0
+  //  fprintf(stderr, "next %lx-%lx %lx: ", ap->PredFlags, flags, flags & ForeignPredFlags); (Yap_DebugWriteIndicator(ap));
+ #if 0
   if (ap->ArityOfPE && ap->ModuleOfPred != IDB_MODULE)
     // __android_log_print(ANDROID_LOG_INFO, "YAP ", "   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
-     printf("   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
+    //     printf("   %s/%ld %llx %llx\n", NameOfFunctor(ap->FunctorOfPred)->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
   else if (ap->ModuleOfPred != IDB_MODULE)
     //__android_log_print(ANDROID_LOG_INFO, "YAP ","   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, flags);
      printf("   %s/%ld %llx %llx\n", ((Atom)(ap->FunctorOfPred))->StrOfAE, ap->ArityOfPE, ap->PredFlags, flags);
     //else
     //  __android_log_print(ANDROID_LOG_INFO, "YAP ","   number\n");
 #endif
-  if (flags & ForeignPredFlags) {
-    if (!(ap->PredFlags & ForeignPredFlags))
+if (flags & ForeignPredFlags) {
+  if (!(ap->PredFlags & (ForeignPredFlags))) {
+    fprintf(stderr, "C-predicate does not exist in new engine: ");
+  Yap_DebugWriteIndicator(ap);
+	    
       QLYR_ERROR(INCONSISTENT_CPRED);
+  }
     if (flags & MetaPredFlag)
       ap->PredFlags |= MetaPredFlag;
     return;
@@ -1001,6 +1006,9 @@ static void read_pred(FILE *stream, Term mod) {
   // fl1 = flags & ((pred_flags_t)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   // ap->PredFlags &= ~((UInt)STATIC_PRED_FLAGS|(UInt)EXTRA_PRED_FLAGS);
   ap->PredFlags = flags & ~StatePredFlags;
+  if (nclauses && (ap->PredFlags & UndefPredFlag)) {
+    ap->PredFlags &= ~UndefPredFlag;
+  }
   if (flags & NumberDBPredFlag) {
     ap->src.IndxId = read_UInt(stream);
   } else {
@@ -1015,7 +1023,7 @@ static void read_pred(FILE *stream, Term mod) {
   //  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE) {
   //  ap->ModuleOfPred = TermProlog;
   // }
-  if (nclauses)
+  if (nclauses && !(ap->PredFlags & ForeignPredFlags))
     read_clauses(stream, ap, nclauses, flags);
 #if DEBUG
 // Yap_PrintPredName( ap );

@@ -2021,7 +2021,7 @@ static UInt emit_single_switch_case(ClauseDef *min, struct intermediates *cint,
 
 static UInt suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap,
                              struct intermediates *cint) {
-  UInt tcls = ap->cs.p_code.NOfClauses;
+  UInt tcls = ap->NOfClauses;
   UInt cls = (max - min) + 1;
 
   if (cint->expand_block &&
@@ -2609,7 +2609,7 @@ static UInt do_index(ClauseDef *min, ClauseDef *max, struct intermediates *cint,
 
     if ((ap->PredFlags & LogUpdatePredFlag) && ngroups > 1) {
       if (ngroups > 1) {
-        group[0].VarClauses = ap->cs.p_code.NOfClauses;
+        group[0].VarClauses = ap->NOfClauses;
         group[0].AtomClauses = group[0].PairClauses = group[0].StructClauses =
             group[0].TestClauses = 0;
         group[0].LastClause = group[ngroups - 1].LastClause;
@@ -2837,8 +2837,8 @@ static UInt do_blob_index(ClauseDef *min, ClauseDef *max, Term t,
 
 static void init_clauses(ClauseDef *cl, PredEntry *ap) {
   if (ap->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
-    UInt nclauses = mcl->ClPred->cs.p_code.NOfClauses;
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
+    UInt nclauses = mcl->ClPred->NOfClauses;
     yamop *end = (yamop *)((char *)mcl->ClCode + nclauses * mcl->ClItemSize);
     yamop *cd = mcl->ClCode;
     while (cd < end) {
@@ -2849,11 +2849,11 @@ static void init_clauses(ClauseDef *cl, PredEntry *ap) {
   } else {
     StaticClause *scl;
 
-    scl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+    scl = ClauseCodeToStaticClause(ap->FirstClause);
     do {
       cl->Code = cl->CurrentCode = scl->ClCode;
       cl++;
-      if (scl->ClCode == ap->cs.p_code.LastClause)
+      if (scl->ClCode == ap->LastClause)
         return;
       scl = scl->ClNext;
     } while (TRUE);
@@ -2861,7 +2861,7 @@ static void init_clauses(ClauseDef *cl, PredEntry *ap) {
 }
 
 static void init_log_upd_clauses(ClauseDef *cl, PredEntry *ap) {
-  LogUpdClause *lcl = ClauseCodeToLogUpdClause(ap->cs.p_code.FirstClause);
+  LogUpdClause *lcl = ClauseCodeToLogUpdClause(ap->FirstClause);
 
   do {
     cl->Code = cl->CurrentCode = lcl->ClCode;
@@ -2873,7 +2873,7 @@ static void init_log_upd_clauses(ClauseDef *cl, PredEntry *ap) {
 static UInt compile_index(struct intermediates *cint) {
   CACHE_REGS
   PredEntry *ap = cint->CurrentPred;
-  int NClauses = ap->cs.p_code.NOfClauses;
+  int NClauses = ap->NOfClauses;
   CELL *top = (CELL *)TR;
   UInt res;
 
@@ -2944,7 +2944,7 @@ yamop *Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc) {
   cint.cls = NULL;
   LOCAL_Error_Size = 0;
 
-  if (ap->cs.p_code.NOfClauses < 2)
+  if (ap->NOfClauses < 2)
     return NULL;
   if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
@@ -3093,7 +3093,7 @@ static ClauseDef *install_clauses(ClauseDef *cls, PredEntry *ap,
   istack_entry *sp = stack;
   if (ap->PredFlags & MegaClausePredFlag) {
     MegaClause *mcl = ClauseCodeToMegaClause(beg);
-    UInt nclauses = mcl->ClPred->cs.p_code.NOfClauses;
+    UInt nclauses = mcl->ClPred->NOfClauses;
     yamop *end = (yamop *)((char *)mcl->ClCode + nclauses * mcl->ClItemSize);
     yamop *cd = mcl->ClCode;
 
@@ -3355,12 +3355,12 @@ static COUNT count_clauses_left(yamop *cl, PredEntry *ap) {
     }
     return i;
   } else if (ap->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
-    UInt ncls = mcl->ClPred->cs.p_code.NOfClauses;
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
+    UInt ncls = mcl->ClPred->NOfClauses;
 
     return (ncls - 1) - ((char *)cl - (char *)mcl->ClCode) / mcl->ClItemSize;
   } else {
-    yamop *last = ap->cs.p_code.LastClause;
+    yamop *last = ap->LastClause;
     StaticClause *c;
     COUNT i = 1;
 
@@ -3461,7 +3461,7 @@ static void increase_expand_depth(yamop *ipc, struct intermediates *cint) {
 
 static void zero_expand_depth(PredEntry *ap, struct intermediates *cint) {
   cint->term_depth = cint->last_index_new_depth;
-  cint->last_depth_size = ap->cs.p_code.NOfClauses;
+  cint->last_depth_size = ap->NOfClauses;
 }
 
 static yamop **expand_index(struct intermediates *cint) {
@@ -3488,9 +3488,9 @@ static yamop **expand_index(struct intermediates *cint) {
   int is_lu = ap->PredFlags & LogUpdatePredFlag;
   yamop *e_code = (yamop *)&(ap->cs.p_code.ExpandCode);
 
-  ipc = ap->cs.p_code.TrueCodeOfPred;
-  first = ap->cs.p_code.FirstClause;
-  NClauses = ap->cs.p_code.NOfClauses;
+  ipc = ap->TrueCodeOfPred;
+  first = ap->FirstClause;
+  NClauses = ap->NOfClauses;
   sp = stack = (istack_entry *)top;
   cint->i_labelno = 1;
   stack[0].pos = 0;
@@ -3509,7 +3509,7 @@ static yamop **expand_index(struct intermediates *cint) {
       if (ap->PredFlags & LogUpdatePredFlag) {
         first = ClauseCodeToLogUpdClause(ipc->y_u.Otapl.d)->ClNext->ClCode;
       } else if (ap->PredFlags & MegaClausePredFlag) {
-        MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+        MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
         first = (yamop *)((char *)ipc->y_u.Otapl.d) + mcl->ClItemSize;
       } else {
         first = ClauseCodeToStaticClause(ipc->y_u.Otapl.d)->ClNext->ClCode;
@@ -3537,7 +3537,7 @@ static yamop **expand_index(struct intermediates *cint) {
       if (ap->PredFlags & LogUpdatePredFlag) {
         first = ClauseCodeToLogUpdClause(ipc->y_u.l.l)->ClNext->ClCode;
       } else if (ap->PredFlags & MegaClausePredFlag) {
-        MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+        MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
         first = (yamop *)((char *)ipc->y_u.Otapl.d) + mcl->ClItemSize;
       } else {
         first = ClauseCodeToStaticClause(ipc->y_u.l.l)->ClNext->ClCode;
@@ -3895,7 +3895,7 @@ static yamop **expand_index(struct intermediates *cint) {
     /* oops, we are at last clause */
     fail_l = (UInt)FAILCODE;
     clleft = 0;
-    last = ap->cs.p_code.LastClause;
+    last = ap->LastClause;
   } else {
     if (ap->PredFlags & LogUpdatePredFlag) {
       op_numbers op = Yap_op_from_opcode(alt->opc);
@@ -4095,12 +4095,12 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
         Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(
-                            ap->cs.p_code.TrueCodeOfPred),
+                            ap->TrueCodeOfPred),
                         NULL, ap);
       } else {
         StaticIndex *cl;
 
-        cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+        cl = ClauseCodeToStaticIndex(ap->TrueCodeOfPred);
         Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
       }
 #if defined(YAPOR) || defined(THREADS)
@@ -4108,12 +4108,12 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
           !(ap->PredFlags & ThreadLocalPredFlag) &&
           ap->ModuleOfPred != IDB_MODULE) {
         ap->OpcodeOfPred = LOCKPRED_OPCODE;
-        ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred =
+        ap->TrueCodeOfPred = ap->CodeOfPred =
             (yamop *)(&(ap->OpcodeOfPred));
       } else {
 #endif
         ap->OpcodeOfPred = INDEX_OPCODE;
-        ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+        ap->CodeOfPred = ap->TrueCodeOfPred =
             (yamop *)(&(ap->OpcodeOfPred));
 #if defined(YAPOR) || defined(THREADS)
       }
@@ -4129,12 +4129,12 @@ static yamop *ExpandIndex(PredEntry *ap, int ExtraArgs,
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
         Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(
-                            ap->cs.p_code.TrueCodeOfPred),
+                            ap->TrueCodeOfPred),
                         NULL, ap);
       } else {
         StaticIndex *cl;
 
-        cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+        cl = ClauseCodeToStaticIndex(ap->TrueCodeOfPred);
         Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
       }
       CleanCls(&cint);
@@ -4815,7 +4815,7 @@ static LogUpdClause *lu_clause(yamop *ipc, PredEntry *ap) {
 }
 
 static StaticClause *find_static_clause(PredEntry *ap, yamop *ipc) {
-  StaticClause *cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  StaticClause *cl = ClauseCodeToStaticClause(ap->FirstClause);
   while (ipc < cl->ClCode || ipc > (yamop *)((char *)cl + cl->ClSize)) {
     cl = cl->ClNext;
     if (!cl)
@@ -5110,7 +5110,7 @@ static void add_to_index(struct intermediates *cint, int first,
                          path_stack_entry *sp, ClauseDef *cls) {
   /* last clause to experiment with */
   PredEntry *ap = cint->CurrentPred;
-  yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
+  yamop *ipc = ap->TrueCodeOfPred;
   int group1 = TRUE;
   yamop *alt = NULL;
   UInt current_arity = 0;
@@ -5621,14 +5621,14 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
                               ClauseDef *cls, yamop *bg, yamop *lt,
                               struct intermediates *cint) {
   /* last clause to experiment with */
-  yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
+  yamop *ipc = ap->TrueCodeOfPred;
 
-  if (ap->cs.p_code.NOfClauses == 1) {
+  if (ap->NOfClauses == 1) {
     if (ap->PredFlags & IndexedPredFlag) {
       Yap_RemoveIndexation(ap);
       return;
     }
-    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
+    ap->TrueCodeOfPred = ap->FirstClause;
     if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
       ap->OpcodeOfPred = Yap_opcode(_spy_pred);
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
@@ -5636,13 +5636,13 @@ static void remove_from_index(PredEntry *ap, path_stack_entry *sp,
     } else if (ap->PredFlags & LogUpdatePredFlag &&
                !(ap->PredFlags & ThreadLocalPredFlag) &&
                ap->ModuleOfPred != IDB_MODULE) {
-      ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->TrueCodeOfPred = FAILCODE;
       ap->OpcodeOfPred = LOCKPRED_OPCODE;
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
 #endif
     } else {
-      ap->OpcodeOfPred = ap->cs.p_code.FirstClause->opc;
-      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred;
+      ap->OpcodeOfPred = ap->FirstClause->opc;
+      ap->CodeOfPred = ap->TrueCodeOfPred;
     }
     return;
   }
@@ -6008,17 +6008,17 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   LOCAL_Error_Size = 0;
   LOCAL_ErrorMessage = NULL;
   cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
-  if (cb || (ap->cs.p_code.NOfClauses == 2 &&
+  if (cb || (ap->NOfClauses == 2 &&
              ap->PredFlags & IndexedPredFlag)) {
     /* cannot rely on the code */
     if (ap->PredFlags & LogUpdatePredFlag) {
       Yap_kill_iblock(
-          (ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),
+          (ClauseUnion *)ClauseCodeToLogUpdIndex(ap->TrueCodeOfPred),
           NULL, ap);
     } else {
       StaticIndex *cl;
       ap->PredFlags &= ~LogUpdatePredFlag;
-      cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
+      cl = ClauseCodeToStaticIndex(ap->TrueCodeOfPred);
       Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
     }
     ap->PredFlags &= ~IndexedPredFlag;
@@ -6074,23 +6074,23 @@ void Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     last = (yamop *)((CODEADDR)c + c->ClSize);
   }
   sp = push_path(stack, NULL, &cl, &cint);
-  if (ap->cs.p_code.NOfClauses == 0) {
+  if (ap->NOfClauses == 0) {
 /* there was no indexing code */
 #if defined(YAPOR) || defined(THREADS)
     if (ap->PredFlags & LogUpdatePredFlag && ap->ModuleOfPred != IDB_MODULE) {
-      ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->TrueCodeOfPred = FAILCODE;
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
     } else {
 #endif
-      ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = FAILCODE;
+      ap->CodeOfPred = ap->TrueCodeOfPred = FAILCODE;
 #if defined(YAPOR) || defined(THREADS)
     }
 #endif
     ap->OpcodeOfPred = Yap_opcode(_op_fail);
   } else if (ap->PredFlags & IndexedPredFlag) {
     remove_from_index(ap, sp, &cl, beg, last, &cint);
-  } else if (ap->cs.p_code.NOfClauses == 1) {
-    ap->cs.p_code.TrueCodeOfPred = ap->cs.p_code.FirstClause;
+  } else if (ap->NOfClauses == 1) {
+    ap->TrueCodeOfPred = ap->FirstClause;
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   }
 }
@@ -6672,8 +6672,8 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[4],
 #endif
     case _spy_pred:
     case _lock_pred:
-      if ((ap->PredFlags & IndexedPredFlag) || ap->cs.p_code.NOfClauses <= 1) {
-        ipc = ap->cs.p_code.TrueCodeOfPred;
+      if ((ap->PredFlags & IndexedPredFlag) || ap->NOfClauses <= 1) {
+        ipc = ap->TrueCodeOfPred;
         break;
       }
     case _index_pred:
@@ -6689,7 +6689,7 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[4],
       XREGS[ap->ArityOfPE + 5] = Terms[2];
       XREGS[ap->ArityOfPE + 6] = Terms[3];
       Yap_IPred(ap, 6, cp_pc);
-      ipc = ap->cs.p_code.TrueCodeOfPred;
+      ipc = ap->TrueCodeOfPred;
       if (!blob_term) { /* protect garbage collector */
         s_reg = (CELL *)XREGS[ap->ArityOfPE + 1];
         t = XREGS[ap->ArityOfPE + 2];
@@ -6742,22 +6742,22 @@ LogUpdClause *Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[4],
 
 LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
   CACHE_REGS
-  yamop *ipc = ap->cs.p_code.TrueCodeOfPred, *alt = NULL;
+  yamop *ipc = ap->TrueCodeOfPred, *alt = NULL;
 #if defined(YAPOR) || defined(THREADS)
   yamop **jlbl = NULL;
 #endif
 
   /* search every clause */
-  if (ncls > ap->cs.p_code.NOfClauses)
+  if (ncls > ap->NOfClauses)
     return NULL;
   else if (ncls == 1)
-    return to_clause(ap->cs.p_code.FirstClause, ap);
+    return to_clause(ap->FirstClause, ap);
   else if (ap->PredFlags & MegaClausePredFlag) {
-    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->FirstClause);
     /* fast access to nth element, all have same size */
     return (LogUpdClause *)((char *)mcl->ClCode + (ncls - 1) * mcl->ClItemSize);
-  } else if (ncls == ap->cs.p_code.NOfClauses) {
-    return to_clause(ap->cs.p_code.LastClause, ap);
+  } else if (ncls == ap->NOfClauses) {
+    return to_clause(ap->LastClause, ap);
   } else if (ncls < 0)
     return NULL;
 
@@ -6945,7 +6945,7 @@ LogUpdClause *Yap_NthClause(PredEntry *ap, Int ncls) {
     case _index_pred:
     case _spy_pred:
       Yap_IPred(ap, 0, CP);
-      ipc = ap->cs.p_code.TrueCodeOfPred;
+      ipc = ap->TrueCodeOfPred;
       break;
     case _undef_p:
     default:

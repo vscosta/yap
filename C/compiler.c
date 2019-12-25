@@ -3504,12 +3504,12 @@ yamop *Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod,
     PELOCK(52, cglobs.cint.CurrentPred);
     if ((cglobs.cint.CurrentPred->PredFlags & ProfiledPredFlag) ||
         (PROFILING &&
-         (cglobs.cint.CurrentPred->cs.p_code.FirstClause == NIL))) {
+         (cglobs.cint.CurrentPred->FirstClause == NIL))) {
       profiling = TRUE;
       call_counting = FALSE;
     } else if ((cglobs.cint.CurrentPred->PredFlags & CountPredFlag) ||
                (CALL_COUNTING &&
-                (cglobs.cint.CurrentPred->cs.p_code.FirstClause == NIL))) {
+                (cglobs.cint.CurrentPred->FirstClause == NIL))) {
       call_counting = TRUE;
       profiling = FALSE;
     } else {

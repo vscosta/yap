@@ -501,12 +501,12 @@ typedef struct pred_entry {
   OPCODE OpcodeOfPred; /* undefcode, indexcode, spycode, ....  */
   pred_flags_t PredFlags;
   UInt ArityOfPE; /* arity of property                    */
-  union {
-    struct {
       struct yami *TrueCodeOfPred; /* code address                         */
       struct yami *FirstClause;
       struct yami *LastClause;
       UInt NOfClauses;
+  union {
+    struct {
       OPCODE ExpandCode;
     } p_code;
     CPredicate f_code;

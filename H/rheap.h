@@ -1266,16 +1266,16 @@ static void CleanCode(PredEntry *pp USES_REGS) {
   } else {
     yamop *FirstC, *LastC;
     /* Prolog code */
-    if (pp->cs.p_code.FirstClause)
-      pp->cs.p_code.FirstClause = PtoOpAdjust(pp->cs.p_code.FirstClause);
-    if (pp->cs.p_code.LastClause)
-      pp->cs.p_code.LastClause = PtoOpAdjust(pp->cs.p_code.LastClause);
+    if (pp->FirstClause)
+      pp->FirstClause = PtoOpAdjust(pp->FirstClause);
+    if (pp->LastClause)
+      pp->LastClause = PtoOpAdjust(pp->LastClause);
     pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
-    pp->cs.p_code.TrueCodeOfPred = PtoOpAdjust(pp->cs.p_code.TrueCodeOfPred);
+    pp->TrueCodeOfPred = PtoOpAdjust(pp->TrueCodeOfPred);
     pp->cs.p_code.ExpandCode = Yap_opcode(_expand_index);
     flag = pp->PredFlags;
-    FirstC = pp->cs.p_code.FirstClause;
-    LastC = pp->cs.p_code.LastClause;
+    FirstC = pp->FirstClause;
+    LastC = pp->LastClause;
     /* We just have a fail here */
     if (FirstC == NULL && LastC == NULL) {
       return;
@@ -1290,10 +1290,10 @@ static void CleanCode(PredEntry *pp USES_REGS) {
       fprintf(stderr, "Correcting indexed code\n");
 #endif
       if (flag & LogUpdatePredFlag) {
-        CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred),
+        CleanLUIndex(ClauseCodeToLogUpdIndex(pp->TrueCodeOfPred),
                      TRUE PASS_REGS);
       } else {
-        CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred),
+        CleanSIndex(ClauseCodeToStaticIndex(pp->TrueCodeOfPred),
                     TRUE PASS_REGS);
       }
     } else if (flag & DynamicPredFlag) {
@@ -1301,7 +1301,7 @@ static void CleanCode(PredEntry *pp USES_REGS) {
       fprintf(stderr, "Correcting dynamic code\n");
 #endif
       RestoreDynamicClause(
-          ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),
+          ClauseCodeToDynamicClause(pp->TrueCodeOfPred),
           pp PASS_REGS);
     }
   }

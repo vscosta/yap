@@ -94,17 +94,17 @@ void Yap_BuildMegaClause(PredEntry *ap) {
 		       | TabledPredFlag
 #endif /* TABLING */
 		       | UDIPredFlag) ||
-      ap->cs.p_code.FirstClause == NULL || ap->cs.p_code.NOfClauses < 16) {
+      ap->FirstClause == NULL || ap->NOfClauses < 16) {
     return;
   }
-  cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  cl = ClauseCodeToStaticClause(ap->FirstClause);
   sz = cl->ClSize;
   while (TRUE) {
     if (!(cl->ClFlags & FactMask))
       return; /* no mega clause, sorry */
     if (cl->ClSize != sz)
       return; /* no mega clause, sorry */
-    if (cl->ClCode == ap->cs.p_code.LastClause)
+    if (cl->ClCode == ap->LastClause)
       break;
     has_blobs |= (cl->ClFlags & HasBlobsMask);
     cl = cl->ClNext;
@@ -115,7 +115,7 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   } else {
     sz -= (UInt)NEXTOP((yamop *)NULL, p) + sizeof(StaticClause);
   }
-  required = sz * ap->cs.p_code.NOfClauses + sizeof(MegaClause) +
+  required = sz * ap->NOfClauses + sizeof(MegaClause) +
              (UInt)NEXTOP((yamop *)NULL, l);
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
     if (!Yap_growheap(FALSE, required, NULL)) {
@@ -125,8 +125,8 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   }
 #ifdef DEBUG
   total_megaclause += required;
-  cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
-  total_released += ap->cs.p_code.NOfClauses * cl->ClSize;
+  cl = ClauseCodeToStaticClause(ap->FirstClause);
+  total_released += ap->NOfClauses * cl->ClSize;
   nof_megaclauses++;
 #endif
   Yap_ClauseSpace += required;
@@ -136,7 +136,7 @@ void Yap_BuildMegaClause(PredEntry *ap) {
   mcl->ClPred = ap;
   mcl->ClItemSize = sz;
   mcl->ClNext = NULL;
-  cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  cl = ClauseCodeToStaticClause(ap->FirstClause);
   mcl->ClLine = cl->usc.ClLine;
   ptr = mcl->ClCode;
   while (TRUE) {
@@ -146,12 +146,12 @@ void Yap_BuildMegaClause(PredEntry *ap) {
       restore_opcodes(ptr, NULL PASS_REGS);
     }
     ptr = (yamop *)((char *)ptr + sz);
-    if (cl->ClCode == ap->cs.p_code.LastClause)
+    if (cl->ClCode == ap->LastClause)
       break;
     cl = cl->ClNext;
   }
   ptr->opc = Yap_opcode(_Ystop);
-  cl = ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  cl = ClauseCodeToStaticClause(ap->FirstClause);
   /* recover the space spent on the original clauses */
   while (TRUE) {
     StaticClause *ncl, *curcl = cl;
@@ -160,11 +160,11 @@ void Yap_BuildMegaClause(PredEntry *ap) {
     Yap_InformOfRemoval(cl);
     Yap_ClauseSpace -= cl->ClSize;
     Yap_FreeCodeSpace((ADDR)cl);
-    if (curcl->ClCode == ap->cs.p_code.LastClause)
+    if (curcl->ClCode == ap->LastClause)
       break;
     cl = ncl;
   }
-  ap->cs.p_code.FirstClause = ap->cs.p_code.LastClause = mcl->ClCode;
+  ap->FirstClause = ap->LastClause = mcl->ClCode;
   ap->PredFlags |= MegaClausePredFlag;
   Yap_inform_profiler_of_clause(mcl, (char *)mcl + required, ap, GPROF_MEGA);
 }
@@ -173,9 +173,9 @@ void Yap_split_megaclause(PredEntry *ap) {
   StaticClause *start = NULL, *prev = NULL;
   MegaClause *mcl;
   yamop *ptr;
-  UInt ncls = ap->cs.p_code.NOfClauses, i;
+  UInt ncls = ap->NOfClauses, i;
 
-  mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+  mcl = ClauseCodeToMegaClause(ap->FirstClause);
   if (mcl->ClFlags & ExoMask) {
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, Yap_PredicateToIndicator(ap),
               "while deleting clause from exo predicate %s/%d\n",
@@ -228,8 +228,8 @@ void Yap_split_megaclause(PredEntry *ap) {
     prev = new;
   }
   ap->PredFlags &= ~MegaClausePredFlag;
-  ap->cs.p_code.FirstClause = start->ClCode;
-  ap->cs.p_code.LastClause = prev->ClCode;
+  ap->FirstClause = start->ClCode;
+  ap->LastClause = prev->ClCode;
 }
 
 
@@ -415,15 +415,15 @@ static Int
   mcl->ClPred = ap;
   mcl->ClItemSize = sz;
   mcl->ClNext = NULL;
-  ap->cs.p_code.FirstClause = ap->cs.p_code.LastClause = mcl->ClCode;
+  ap->FirstClause = ap->LastClause = mcl->ClCode;
   ap->PredFlags |= (MegaClausePredFlag);
-  ap->cs.p_code.NOfClauses = ncls;
+  ap->NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
   } else {
     ap->OpcodeOfPred = INDEX_OPCODE;
   }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred =
+  ap->CodeOfPred = ap->TrueCodeOfPred =
       (yamop *)(&(ap->OpcodeOfPred));
   ptr = (yamop *)((ADDR)mcl->ClCode + ncls * sz);
   ptr->opc = Yap_opcode(_Ystop);

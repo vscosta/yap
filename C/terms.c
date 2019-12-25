@@ -44,53 +44,6 @@
 /*#define err, "%s %ld %p->%p=%lx ", s, st->pt - st->pt0, pt0, ptd0, d0), */
 /*   Yap_DebugPlWriteln(d0)) */
 
-#define handle_aux_overflow()                                                  \
-  aux_overflow : {                                                             \
-    while (pop_sub_term(&stt, NULL, NULL)) {};				\
-    HR = InitialH;                                                             \
-    clean_tr(TR0 PASS_REGS);                                                   \
-    if (reinit_stack(&stt,0)) 						\
-    {									\
-      goto reset;                                  \
-    }						   \
-     close_stack(&stt); return false;\
-}
-
-#define handle_trail_overflow()                                                \
-  trail_overflow : {                                                           \
-    while (pop_sub_term(&stt, NULL, NULL)) {                                   \
-    };                                                                         \
-    HR = InitialH;                                                             \
-    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;                                   \
-    ssize_t expand = 0L;                                                       \
-    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {                               \
-                                                                               \
-       close_stack(&stt); return false;                                                            \
-    }                                                                          \
-    goto reset;                                                                \
-  }
-
-#define handle_global_overflow()                                               \
-  global_overflow : {                                                          \
-    while (pop_sub_term(&stt, NULL, NULL)) {                                   \
-    };                                                                         \
-    HR = InitialH;                                                             \
-    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
-    ssize_t expand = 0L;                                                       \
-    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {                               \
-                                                                               \
-      close_stack(&stt); return false;					\
-    }                                                                          \
-    goto reset;                                                                \
-  }
-
-#define handle_overflow()                                                      \
-  {                                                                            \
-    handle_aux_overflow();                                                     \
-    handle_global_overflow();                                                  \
-    handle_trail_overflow();                                                   \
-  }
-
 static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
                                  CELL *e) {
   copy_frame *pt = sp->pt;
@@ -123,7 +76,6 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
 #define END_WALK()                                                             \
   }    }                                                                        \
   /***** start of bottom-macro ************/                                   \
-  handle_overflow();                                                           \
   nomore:
 
 #define CYC_LIST                                                               \
@@ -144,7 +96,6 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
    @brief routine to locate all variables in a term, and its applications */
 
 static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
 #undef LIST_HOOK_CODE
@@ -255,7 +206,6 @@ static Int ground(USES_REGS1) /* ground(+T)		 */
   {}
 
 static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
 #include "term_visit.h"
@@ -314,7 +264,6 @@ static Int variable_in_term(USES_REGS1) {
  */
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
   Term *end = NULL, first = inp;
 
@@ -490,7 +439,6 @@ typedef struct att_rec {
 
 static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                     Term inp USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
   CELL output = inp;
 
@@ -506,7 +454,7 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       goto trail_overflow;
     }
     mBind_And_Trail(ptd0, TermFoundVar);
-    ptd0 = (CELL*)RepAttVar(ptd0);
+    //ptd0 = (CELL*)RepAttVar(ptd0);
     d0 = AbsAppl(ptd0);
     goto list_loop;
 
@@ -555,7 +503,6 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 
 static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
   Int n = 0;
   CELL output = TermNil;
@@ -648,7 +595,6 @@ static Term vars_within_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
   Int n = 0;
   CELL output = AbsPair(HR);
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
@@ -669,7 +615,7 @@ static Term vars_within_complex_term(CELL *pt0_, CELL *pt0_end_,
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
-  if (HR != InitialH) {
+  if (HR != HStart) {
     HR[-1] = TermNil;
     return output;
   } else {
@@ -761,7 +707,6 @@ static Int free_variables_in_term(USES_REGS1) {
 static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                            Term s USES_REGS) {
 
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
 #include "term_visit.h"
@@ -776,10 +721,10 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
 
   clean_tr(TR0 PASS_REGS);
 
-  if (HR != InitialH) {
+  if (HR != HStart) {
     /* close the list */
     HR[-1] = s;
-    return AbsPair(InitialH);
+    return AbsPair(HStart);
   } else {
     return s;
   }
@@ -843,7 +788,6 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                                        bool show_singletons,
                                        Int *tr_entries USES_REGS) {
   tr_fr_ptr TR0 = TR;
-  CELL *InitialH = HR;
 
 #include "term_visit.h"
   {
@@ -858,13 +802,13 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
   }
   END_WALK();
   CELL *H1 = HR;
-  while (InitialH < H1) {
-       if (show_singletons && IsVarTerm(InitialH[1])) {
-      InitialH[1] = MkIntTerm(-1);
+  while (HStart < H1) {
+       if (show_singletons && IsVarTerm(HStart[1])) {
+      HStart[1] = MkIntTerm(-1);
     } else {
-      InitialH[1] = MkIntegerTerm(vno++);
+      HStart[1] = MkIntegerTerm(vno++);
     }
-    InitialH += 2;
+    HStart += 2;
   }
   if (tr_entries) {
     *tr_entries = TR - TR0;
@@ -923,7 +867,6 @@ static Int p_numbervars(USES_REGS1) {
   {}
 
 static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp USES_REGS) {
-  CELL *InitialH = HR;
   tr_fr_ptr TR0 = TR;
 
 #include "term_visit.h"

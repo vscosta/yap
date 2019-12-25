@@ -1154,7 +1154,7 @@ IfTrue
     "qsave_program" : "prolog",
     "raise_exception" : "prolog",
     "rational" : "prolog",
-    "rational_term_to_tree" : "prolog",
+    "rational_term_to_forest" : "prolog",
     "read" : "prolog",
     "read_clause" : "prolog",
     "read_sig" : "prolog",

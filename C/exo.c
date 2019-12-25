@@ -389,7 +389,7 @@ static struct index_t *
 add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
 {
   CACHE_REGS
-  UInt ncls = ap->cs.p_code.NOfClauses, j;
+  UInt ncls = ap->NOfClauses, j;
   CELL *base = NULL;
   struct index_t *i;
   size_t sz, dsz;
@@ -431,7 +431,7 @@ add_index(struct index_t **ip, UInt bmap, PredEntry *ap, UInt count)
   i->key = (BITS32 *)base;
   i->links = (BITS32 *)base+i->hsize;
   i->ncollisions = i->nentries = i->ntrys = 0;
-  i->cls = (CELL *)((ADDR)ap->cs.p_code.FirstClause+2*sizeof(struct index_t *));
+  i->cls = (CELL *)((ADDR)ap->FirstClause+2*sizeof(struct index_t *));
   i->bcls= i->cls-i->arity;
   i->udi_free_args = 0;
   i->is_udi = FALSE;
@@ -525,7 +525,7 @@ Yap_ExoLookup(PredEntry *ap USES_REGS)
 {
   UInt arity = ap->ArityOfPE;
   UInt bmap = 0L, bit = 1, count = 0, j, j0 = 0;
-  struct index_t **ip = (struct index_t **)(ap->cs.p_code.FirstClause);
+  struct index_t **ip = (struct index_t **)(ap->FirstClause);
   struct index_t *i = *ip;
 
   for (j=0; j< arity; j++, bit<<=1) {
@@ -641,17 +641,17 @@ exodb_get_space( Term t, Term mod, Term tn )
   mcl->ClNext = NULL;
   li = (struct index_t **)(mcl->ClCode);
   li[0] = li[1] = NULL;
-  ap->cs.p_code.FirstClause =
-    ap->cs.p_code.LastClause =
+  ap->FirstClause =
+    ap->LastClause =
     mcl->ClCode;
   ap->PredFlags |= MegaClausePredFlag;
-  ap->cs.p_code.NOfClauses = ncls;
+  ap->NOfClauses = ncls;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
   } else {
     ap->OpcodeOfPred = Yap_opcode(_enter_exo);
   }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  ap->CodeOfPred = ap->TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   return mcl;
 }
 
@@ -682,17 +682,17 @@ YAP_NewExo( PredEntry *ap, size_t data, struct udi_info *udi)
   mcl->ClNext = NULL;
   li = (struct index_t **)(mcl->ClCode);
   li[0] = li[1] = NULL;
-  ap->cs.p_code.FirstClause =
-    ap->cs.p_code.LastClause =
+  ap->FirstClause =
+    ap->LastClause =
     mcl->ClCode;
   ap->PredFlags |= MegaClausePredFlag;
-  ap->cs.p_code.NOfClauses = 0;
+  ap->NOfClauses = 0;
   if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
     ap->OpcodeOfPred = Yap_opcode(_spy_pred);
   } else {
     ap->OpcodeOfPred = Yap_opcode(_enter_exo);
   }
-  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
+  ap->CodeOfPred = ap->TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred));
   return true;
 }
 
@@ -731,7 +731,7 @@ store_exo(yamop *pc, UInt arity, Term t0)
 bool
 YAP_AssertTuples( PredEntry *pe, const Term *ts, size_t offset, size_t m)
 {
-  MegaClause *mcl = ClauseCodeToMegaClause(pe->cs.p_code.FirstClause);
+  MegaClause *mcl = ClauseCodeToMegaClause(pe->FirstClause);
   size_t           i;
   ADDR   base = (ADDR)mcl->ClCode+2*sizeof(struct index_t *);
   for (i=0; i<m; i++) {

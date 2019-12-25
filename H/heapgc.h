@@ -579,11 +579,12 @@ INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
   }
 
 INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
-    nof = b->max-b->pt0;
-  if (Yap_realloc_scratch_buf(&b->bf, 2*nof)) {
+    if (!nof)
+    nof = 2*(b->max-b->pt0);
+  if (Yap_realloc_scratch_buf(&b->bf, nof)) {
     b->pt0 = b->bf.data;
     b->pt = b->pt0;
-    b->max = b->pt0 + 2*nof;
+      b->max = b->pt0 + nof;
     return true;
   }
   return false;

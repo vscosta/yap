@@ -1,10 +1,48 @@
 /****** start of top macro */
-CELL *pt0, *pt0_end;
+CELL *pt0, *pt0_end, *HStart = HR;
 Ystack_t stt;
 size_t sz = 1024;
-reset :
-HB = HR;
-init_stack(&stt, sz);
+if (!init_stack(&stt, sz)) {
+
+  aux_overflow : {
+    while (pop_sub_term(&stt, NULL, NULL)) {};
+    HR = HStart;
+    clean_tr(TR0 PASS_REGS);
+    if (reinit_stack(&stt,0))
+    {
+      HStart = HR;
+      goto reset;
+    }
+     close_stack(&stt); return false;
+}
+
+  trail_overflow : {
+    while (pop_sub_term(&stt, NULL, NULL)) {
+    };
+    HR = HStart;
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+    ssize_t expand = 0L;
+    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {
+
+       close_stack(&stt); return false;
+    }
+      HStart = HR;
+    goto reset;
+  }
+  global_overflow : {
+    while (pop_sub_term(&stt, NULL, NULL)) {
+    };
+    HR = HStart;
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+    ssize_t expand = 0L;
+    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {
+
+      close_stack(&stt); return false;
+    }
+      HStart = HR;
+  }
+ }
+
 if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
   /* Trail overflow */
   goto trail_overflow;
@@ -12,6 +50,7 @@ if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 if (HR + 1024 > ASP) {
   goto global_overflow;
 }
+reset:
 pt0 = pt0_;
 pt0_end = pt0_end_;
 
@@ -39,6 +78,9 @@ var_in_term_nvar:
     LIST_HOOK_CODE;
     *ptd1 = VISIT_MARK();
     push_sub_term(&stt, d1, ptd1, pt0, pt0_end);
+    if (stt.pt + 32 >= stt.max) {
+      goto aux_overflow;
+    }
     pt0 = ptd1;
     pt0_end = ptd1 + 1;
     d0 = d1;

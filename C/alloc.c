@@ -1862,6 +1862,7 @@ void *Yap_InitTextAllocator(void) {
 
 
 bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
+  handle->n_of = nof;
     handle->data = realloc(handle->data, handle->size_of*nof);
    return true;
  }

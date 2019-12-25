@@ -523,6 +523,7 @@ static int interrupt_call(USES_REGS1) {
   PredEntry *pe;
 
 DEBUG_INTERRUPTS();
+ Yap_do_low_level_trace=1;
   if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
     return v;
   }
@@ -889,7 +890,7 @@ static void spy_goal(USES_REGS1) {
     PP = pe;
   }
 #endif
-  if (!(pe->PredFlags & IndexedPredFlag) && pe->cs.p_code.NOfClauses > 1) {
+  if (!(pe->PredFlags & IndexedPredFlag) && pe->NOfClauses > 1) {
     /* update ASP before calling IPred */
     SET_ASP(YREG, E_CB * sizeof(CELL));
     Yap_IPred(pe, 0, CP);
@@ -939,7 +940,7 @@ static void spy_goal(USES_REGS1) {
         PP = NULL;
       }
 #endif
-      P = pe->cs.p_code.TrueCodeOfPred;
+      P = pe->TrueCodeOfPred;
       return;
     }
   }
@@ -951,7 +952,7 @@ static void spy_goal(USES_REGS1) {
     pe->StatisticsForPred->NOfEntries++;
     UNLOCK(pe->StatisticsForPred->lock);
     if (!(pe->PredFlags & SpiedPredFlag)) {
-      P = pe->cs.p_code.TrueCodeOfPred;
+      P = pe->TrueCodeOfPred;
 #if defined(YAPOR) || defined(THREADS)
       if (PP) {
         UNLOCKPE(23, pe);

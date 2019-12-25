@@ -423,7 +423,7 @@ static Int p_table(USES_REGS1) {
   }
   if (pe->PredFlags & TabledPredFlag)
     return (TRUE); /* predicate already tabled */
-  if (pe->cs.p_code.FirstClause)
+  if (pe->FirstClause)
     return (FALSE); /* predicate already compiled */
   if (!(pe->PredFlags & TabledPredFlag)) {
     pe->PredFlags |= TabledPredFlag;

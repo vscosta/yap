@@ -641,12 +641,12 @@ Prop Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod) {
   INIT_LOCK(p->PELock);
   p->KindOfPE = PEProp;
   p->ArityOfPE = fe->ArityOfFE;
-  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-  p->cs.p_code.NOfClauses = 0;
+  p->FirstClause = p->LastClause = NULL;
+  p->NOfClauses = 0;
   p->PredFlags = UndefPredFlag;
   p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
-  p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->TimeStampOfPred = 0L;
   p->LastCallOfPred = LUCALL_ASSERT;
@@ -727,8 +727,8 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
   INIT_LOCK(p->PELock);
   p->StatisticsForPred = NULL : p->KindOfPE = PEProp;
   p->ArityOfPE = ap->ArityOfPE;
-  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-  p->cs.p_code.NOfClauses = 0;
+  p->FirstClause = p->LastClause = NULL;
+  p->NOfClauses = 0;
   p->PredFlags = ap->PredFlags & ~(IndexedPredFlag | SpiedPredFlag);
 #if SIZEOF_INT_P == 4
   p->ExtraPredFlags = 0L;
@@ -736,7 +736,7 @@ Prop Yap_NewThreadPred(PredEntry *ap USES_REGS) {
   p->MetaEntryOfPred = NULL;
   p->src.OwnerFile = ap->src.OwnerFile;
   p->OpcodeOfPred = FAIL_OPCODE;
-  p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
   p->ModuleOfPred = ap->ModuleOfPred;
   p->NextPredOfModule = NULL;
@@ -781,13 +781,13 @@ Prop Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod) {
   p->KindOfPE = PEProp;
   p->ArityOfPE = 0;
   p->StatisticsForPred = NULL;
-  p->cs.p_code.FirstClause = p->cs.p_code.LastClause = NULL;
-  p->cs.p_code.NOfClauses = 0;
+  p->FirstClause = p->LastClause = NULL;
+  p->NOfClauses = 0;
   p->PredFlags = UndefPredFlag;
   p->src.OwnerFile = Yap_source_file_name();
   p->OpcodeOfPred = UNDEF_OPCODE;
   p->cs.p_code.ExpandCode = EXPAND_OP_CODE;
-  p->CodeOfPred = p->cs.p_code.TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
+  p->CodeOfPred = p->TrueCodeOfPred = (yamop *)(&(p->OpcodeOfPred));
   p->MetaEntryOfPred = NULL;
   if (cur_mod == TermProlog)
     p->ModuleOfPred = 0;

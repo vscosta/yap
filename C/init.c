@@ -534,7 +534,16 @@ void Yap_InitCPred(const char *Name, arity_t Arity, CPredicate code,
       pe = RepPredProp(PredPropByFunc(f, CurrentModule));
     else
       pe = RepPredProp(PredPropByAtom(atom, CurrentModule));
-    if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
+          if (pe && (CurrentModule == 0 || CurrentModule == TermProlog) &&
+	pe->ModuleOfPred && pe->ModuleOfPred != TermProlog) {
+      Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil, "pre-existing predicate in  module %s while initializing prolog:%s", RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE, Name);
+  }
+
+        if (pe && (CurrentModule == 0 || CurrentModule == TermProlog) &&
+	pe->ModuleOfPred && pe->ModuleOfPred != TermProlog) {
+      Yap_ThrowError(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, TermNil, "pre-existing predicate in  module %s while initializing prolog:%s", RepAtom(AtomOfTerm(pe->ModuleOfPred))->StrOfAE, Name);
+  }
+if (!pe && !Yap_growheap(FALSE, sizeof(PredEntry), NULL)) {
       Yap_Error(RESOURCE_ERROR_HEAP, TermNil, "while initializing %s", Name);
       return;
     }
@@ -607,7 +616,7 @@ bool Yap_AddCallToFli(PredEntry *pe, CPredicate call) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code = (yamop *)(pe->FirstClause);
     p_code->y_u.OtapFs.f = call;
     return true;
   } else if (pe->PredFlags & CPredFlag) {
@@ -622,7 +631,7 @@ bool Yap_AddRetryToFli(PredEntry *pe, CPredicate re) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code = (yamop *)(pe->FirstClause);
     p_code = NEXTOP(p_code, OtapFs);
     p_code->y_u.OtapFs.f = re;
     return true;
@@ -635,7 +644,7 @@ bool Yap_AddCutToFli(PredEntry *pe, CPredicate CUT) {
   yamop *p_code;
 
   if (pe->PredFlags & BackCPredFlag) {
-    p_code = (yamop *)(pe->cs.p_code.FirstClause);
+    p_code = (yamop *)(pe->FirstClause);
     p_code = NEXTOP(p_code, OtapFs);
     p_code = NEXTOP(p_code, OtapFs);
     p_code->y_u.OtapFs.f = CUT;
@@ -707,6 +716,9 @@ void Yap_InitCmpPred(const char *Name, arity_t Arity, CmpPredicate cmp_code,
     }
   }
   // pe->PredFlags = flags | StandardPredFlag;
+  pe->TrueCodeOfPred = p_code;
+    pe->FirstClause = pe->LastClause = p_code;
+    pe->NOfClauses = 1;
   pe->CodeOfPred = p_code;
   pe->cs.d_code = cmp_code;
   pe->ModuleOfPred = CurrentModule;
@@ -790,6 +802,9 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     } else {
       cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     }
+  pe->TrueCodeOfPred = p_code;
+    pe->FirstClause = pe->LastClause = p_code;
+    pe->NOfClauses = 1;
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
     if (flags & SafePredFlag) {
@@ -827,14 +842,14 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
 static void CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont,
                       CPredicate Cut) {
   yamop *code;
-  if (pe->cs.p_code.FirstClause != pe->cs.p_code.LastClause ||
-      pe->cs.p_code.TrueCodeOfPred != pe->cs.p_code.FirstClause ||
-      pe->CodeOfPred != pe->cs.p_code.FirstClause) {
+  if (pe->FirstClause != pe->LastClause ||
+      pe->TrueCodeOfPred != pe->FirstClause ||
+      pe->CodeOfPred != pe->FirstClause) {
     Yap_Error(SYSTEM_ERROR_INTERNAL, TermNil,
               "initiating a C Pred with backtracking");
     return;
   }
-  code = (yamop *)(pe->cs.p_code.FirstClause);
+  code = (yamop *)(pe->FirstClause);
   code->y_u.OtapFs.p = pe;
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_try_userc);
@@ -909,7 +924,7 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
       return;
     }
   }
-  if (pe->cs.p_code.FirstClause != NIL) {
+  if (pe->FirstClause != NIL) {
     flags = update_flags_from_prolog(flags, pe);
     CleanBack(pe, Start, Cont, Cut);
   } else {
@@ -940,8 +955,8 @@ void Yap_InitCPredBack_(const char *Name, arity_t Arity, arity_t Extra,
     cl->usc.ClLine = Yap_source_line_no();
 
     code = cl->ClCode;
-    pe->cs.p_code.TrueCodeOfPred = pe->CodeOfPred = pe->cs.p_code.FirstClause =
-        pe->cs.p_code.LastClause = code;
+    pe->TrueCodeOfPred = pe->CodeOfPred = pe->FirstClause =
+        pe->LastClause = code;
     if (flags & UserCPredFlag)
       pe->OpcodeOfPred = code->opc = Yap_opcode(_try_userc);
     else

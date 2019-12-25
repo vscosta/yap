@@ -96,7 +96,7 @@ python_query( MString, M:Goal, Status, FinalBindings  ) :-
 	query(M:Goal, VarNames, Status, FinalBindings).
 
 /*
-    rational_term_to_tree(Goal+Bindings,NGoal+NBindings,ExtraBindings,{}),
+    rational_term_to_forest(Goal+Bindings,NGoal+NBindings,ExtraBindings,{}),
     simplify(NBindings,0,L2,I2),
     non_singletons_in_term(Goal, [], NSVs),
     foldl(namev,NSVs,I2,_),

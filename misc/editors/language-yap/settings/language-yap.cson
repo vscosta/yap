@@ -358,7 +358,7 @@ completions: [
 	"qsave_program"
 	"raise_exception"
 	"rational"
-	"rational_term_to_tree"
+	"rational_term_to_forest"
 	"read"
 	"read_clause"
 	"read_sig"

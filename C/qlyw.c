@@ -592,8 +592,8 @@ static int SaveHash(FILE *stream) {
 static size_t save_clauses(FILE *stream, PredEntry *pp) {
   yamop *FirstC, *LastC;
 
-  FirstC = pp->cs.p_code.FirstClause;
-  LastC = pp->cs.p_code.LastClause;
+  FirstC = pp->FirstClause;
+  LastC = pp->LastClause;
   if (FirstC == NULL && LastC == NULL) {
     return 1;
   }
@@ -658,7 +658,7 @@ static size_t save_pred(FILE *stream, PredEntry *ap) {
   CHECK(save_predFlags(stream, ap->PredFlags));
   if (ap->PredFlags & ForeignPredFlags)
     return 1;
-  CHECK(save_UInt(stream, ap->cs.p_code.NOfClauses));
+  CHECK(save_UInt(stream, ap->NOfClauses));
   CHECK(save_UInt(stream, ap->src.IndxId));
   CHECK(save_UInt(stream, ap->TimeStampOfPred));
   return save_clauses(stream, ap);
@@ -668,7 +668,7 @@ static int clean_pred(PredEntry *pp USES_REGS) {
   if (pp->PredFlags & ForeignPredFlags) {
     return true;
   } else {
-    CleanClauses(pp->cs.p_code.FirstClause, pp->cs.p_code.LastClause,
+    CleanClauses(pp->FirstClause, pp->LastClause,
                  pp PASS_REGS);
   }
   return true;
@@ -693,6 +693,7 @@ static size_t mark_pred(PredEntry *ap) {
       ap->src.OwnerFile) {
     AtomAdjust(ap->src.OwnerFile);
   }
+  //  fprintf(stderr, "> %lx %lx: ", ap->PredFlags, ap->PredFlags & ForeignPredFlags); (Yap_DebugWriteIndicator(ap));
   CHECK(clean_pred(ap PASS_REGS));
   return 1;
 }

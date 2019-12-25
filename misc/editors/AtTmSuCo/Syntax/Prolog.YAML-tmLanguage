@@ -451,7 +451,7 @@ repository:
        |prolog_load_context|prolog_to_os_filename|prolog|prompt1|prompt|put_attrs
        |put_attr|put_byte|put_char1|put_char|put_code|putenv|put|pwd|qend_program
        |qload_file|qload_module|qpack_clean_up_to_disjunction|qsave_file|qsave_module
-       |qsave_program|raise_exception|rational_term_to_tree|rational|read_clause
+       |qsave_program|raise_exception|rational_term_to_forest|rational|read_clause
        |read_sig|read_term_from_atomic|read_term_from_atom|read_term_from_string
        |read_term|read|real_path|reconsult|recorda_at|recordaifnot|recorda
        |recorded|recordz_at|recordzifnot|recordz|release_random_state|remove_from_path

@@ -1396,7 +1396,7 @@ static Int creep_step(USES_REGS1) { /* '$execute_nonstop'(Goal,Mod)
         }
 #endif
         rc = CallPredicate(RepPredProp(pe), B,
-                           RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
+                           RepPredProp(pe)->TrueCodeOfPred PASS_REGS);
     } else {
         rc = CallPredicate(RepPredProp(pe), B,
                            RepPredProp(pe)->CodeOfPred PASS_REGS);
@@ -1482,7 +1482,7 @@ static Int execute_nonstop(USES_REGS1) {
         }
 #endif
         return CallPredicate(RepPredProp(pe), B,
-                             RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
+                             RepPredProp(pe)->TrueCodeOfPred PASS_REGS);
     } else {
         if (should_creep()) {
             Yap_signal(YAP_CREEP_SIGNAL);
@@ -2027,7 +2027,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
         return (FALSE);
     }
     ppe = RepPredProp(pe);
-    if (pe == NIL || ppe->cs.p_code.TrueCodeOfPred->opc == UNDEF_OPCODE
+    if (pe == NIL || ppe->TrueCodeOfPred->opc == UNDEF_OPCODE
 	||ppe->PredFlags & (MetaPredFlag | UndefPredFlag)) {
         // we're in a meta-call, rake care about modules
         //
@@ -2618,13 +2618,15 @@ init_debugger_state();
     Yap_InitCPred("parent_choice_point", 1, parent_choice_point1, 0);
     Yap_InitCPred("parent_choice_point", 2, parent_choice_point, 0);
     Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
+    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
+                  SafePredFlag);
+    CurrentModule = ATTRIBUTES_MODULE;
     Yap_InitCPred("restore_regs", 1, restore_regs,
                   NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("restore_regs", 2, restore_regs2,
                   NoTracePredFlag | SafePredFlag);
+    CurrentModule = cm;
     Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
-    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
-                  SafePredFlag);
     Yap_InitCPred("throw", 1, jump_env, 0);
     Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, NoTracePredFlag);
     Yap_InitCPred("_user_expand_goal", 2, _user_expand_goal, NoTracePredFlag);

@@ -364,23 +364,32 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
  * a listm it marks the head of the list, otherwise it marks the functor. The mderef routines then
  * do marker-aware dereferencing.
  */
-static int copy_complex_term(register CELL *pt0, register CELL *pt0_end,
+static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
                              bool share, bool copy_att_vars,
-                             CELL *ptf,
+                             CELL *ptf_,
                              Term *bindp,
-                             CELL *HLow USES_REGS) {
+                             CELL *HLow_ USES_REGS) {
   // allocate space for internal stack, so that we do not have yo rely on
   //m C-stack.
 
+  CELL *pt0=pt0_, *ptf=ptf_,*pt0_end=pt0_end_;
+
+  Term bind0 =  0;
   Ystack_t stt;
-size_t sz = 1024;
-init_stack(&stt, sz);
-   tr_fr_ptr TR0 = TR;
-  int ground = true;
-  Term myt = (CELL)HLow;
-  ptf--; // synch with pt0;
+volatile size_t sz = 1024;
   bool hack = bindp && (*bindp == TermFoundVar);
   bool forest = bindp && (*bindp != TermFoundVar);
+   tr_fr_ptr TR0 = TR;
+   CELL *HLow;
+   bool ground;
+   Term myt;
+   if (bindp) bind0 = *bindp;
+init_stack(&stt, sz);
+ loop:
+ HLow = HLow_;
+   ground = true;
+   myt = (CELL)HLow;
+  ptf--; // synch with pt0;
   do {
     while (pt0 < pt0_end) {
       CELL d0;
@@ -441,9 +450,6 @@ init_stack(&stt, sz);
 	      
 	}
 
-	if (to_visit >= to_visit_end - 32) {
-	  reinit_stack(&stt, 1024);
-	}
 	// first time we meet,
 	// save state
 
@@ -452,6 +458,9 @@ init_stack(&stt, sz);
 	  mTrailedMaBind(ptd0,d0);
 	}
 	myt = AbsPair(HR);
+    if (stt.pt + 32 >= stt.max) {
+      goto aux_overflow;
+    }
 	to_visit->pt0 = pt0;
 	to_visit->pt0_end = pt0_end;
 	to_visit->ptf = ptf;
@@ -590,7 +599,7 @@ init_stack(&stt, sz);
 	  } 
 	  /* store the terms to visit */
 	  if (to_visit + 32 >= to_visit_end) {
-	    reinit_stack(&stt, 1024);
+	    goto aux_overflow;
 	  }
 	  to_visit->pt0 = pt0;
 	  to_visit->pt0_end = pt0_end;
@@ -670,6 +679,25 @@ init_stack(&stt, sz);
   /* follow chain of multi-assigned variables */
  close_stack(&stt);
   return 0;
+
+ aux_overflow:
+  while (to_visit > to_visit0) {
+    to_visit--;
+    VUNMARK(to_visit->oldp, to_visit->oldv);
+  }
+  clean_tr(TR0 PASS_REGS);
+  sz += sz;
+  HR = HLow;
+  reinit_stack(&stt, sz);
+  sz *= 2;
+  HLow=HR;
+  pt0=pt0_;
+  ptf=ptf_;
+  pt0_end=pt0_end_;
+  if (bindp)
+  *bindp =  bind0;
+  goto loop;
+
  overflow:
   while (to_visit > to_visit0) {
     to_visit--;
@@ -677,7 +705,7 @@ init_stack(&stt, sz);
   }
   clean_tr(TR0 PASS_REGS);
  close_stack(&stt);
-  return -1;
+ return -1;
 
  trail_overflow:
 #ifdef RATIONAL_TREES
@@ -689,7 +717,7 @@ init_stack(&stt, sz);
   clean_tr(TR0);
   close_stack(&stt);
   return -4;
-}
+  }
 
 static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
 			    Term *arenap, Term *listp, size_t min_grow USES_REGS) {
