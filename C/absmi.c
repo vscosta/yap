@@ -700,6 +700,7 @@ static int interrupt_deallocate(USES_REGS1) {
 
 static int interrupt_cut(USES_REGS1) {
   Term cut_t = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
+    cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
   int v;
   DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
@@ -715,6 +716,7 @@ static int interrupt_cut(USES_REGS1) {
 
 static int interrupt_cut_t(USES_REGS1) {
   Term cut_t = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
+    cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
   int v;
   DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
@@ -729,7 +731,9 @@ static int interrupt_cut_t(USES_REGS1) {
 
 static int interrupt_cut_e(USES_REGS1) {
   Term cut_t = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
-  int v;
+     cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
+
+    int v;
   DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
     return v;
@@ -745,7 +749,7 @@ static int interrupt_cut_e(USES_REGS1) {
 
 static Int interrupt_commit_y(USES_REGS1) {
   int v;
-  Term cut_t = YENV[P->y_u.yps.y];
+    Term cut_t = Yap_MkApplTerm(FunctorCutBy,1,YENV+P->y_u.yps.y);
 
    DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
@@ -755,11 +759,12 @@ static Int interrupt_commit_y(USES_REGS1) {
       Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
     return 2;
   }
-  return interrupt_wake_up( cut_t, NEXTOP(NEXTOP(P,yps), Osblp) PASS_REGS);
+  P=NEXTOP(NEXTOP(P,yps), Osblp);
+  return interrupt_wake_up( cut_t, P PASS_REGS);
 }
 
 static Int interrupt_commit_x(USES_REGS1) {
-  Term cut_t = XREG(P->y_u.xps.x);
+  Term cut_t = Yap_MkApplTerm(FunctorCutBy,1,&XREG(P->y_u.xps.x));
   Term v;
 
    DEBUG_INTERRUPTS();
@@ -770,7 +775,8 @@ static Int interrupt_commit_x(USES_REGS1) {
       Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
     return 2;
   }
-  return interrupt_wake_up( cut_t, NEXTOP(NEXTOP(P,xps), Osblp) PASS_REGS);
+  P = NEXTOP(NEXTOP(P,xps), Osblp);
+  return interrupt_wake_up( cut_t, P PASS_REGS);
 }
 
 

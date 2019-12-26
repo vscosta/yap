@@ -259,9 +259,9 @@ static Term SearchAttsForModule(Term start, Functor mfun) {
   } while (TRUE);
 }
 
-static Term SearchAttsForModuleName(Term start, Atom mname) {
+static Term SearchAttsForModuleName(Term start, Term mname) {
   do {
-    if (IsVarTerm(start) || NameOfFunctor(FunctorOfTerm(start)) == mname)
+    if (IsVarTerm(start) || ArgOfTerm(1,start) == mname)
       return start;
     start = ArgOfTerm(1, start);
   } while (TRUE);
@@ -487,9 +487,9 @@ static Int put_att_term(USES_REGS1) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
-    Atom modname = AtomOfTerm(Deref(ARG2));
+    Term modname = Deref(ARG2);
     Term tatts = Deref(ARG3);
-    Functor f = Yap_MkFunctor(modname, 2);
+    Functor f;
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
@@ -502,13 +502,14 @@ static Int put_att_term(USES_REGS1) {
         }
       }
     }
-    f = Yap_MkFunctor(modname, 2);
+    f = FunctorAttVar;
     Term otatts;
-    if (IsVarTerm((otatts = SearchAttsForModule(attv->Atts, f)))) {
-      	Term ts[2];
-	  ts[0] = MkVarTerm();
+    if (IsVarTerm((otatts = SearchAttsForModuleName(attv->Atts, modname)))) {
+      	Term ts[3];
+	ts[0] = modname;
+	  ts[2] = MkVarTerm();
 	  ts[1] = tatts;
-	  Yap_unify(otatts, Yap_MkApplTerm(f, 2, ts));
+	  Yap_unify(otatts, Yap_MkApplTerm(f, 3, ts));
 	} else {
 	  MaBind(RepAppl(otatts)+2, tatts );
       }      
@@ -572,7 +573,6 @@ static Int put_atts(USES_REGS1) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
-    Term otatts;
     Term tatts = Deref(ARG2);
 
 
@@ -598,17 +598,19 @@ static Int put_atts(USES_REGS1) {
       return FALSE;
     }
     do {
-      Functor f = FunctorOfTerm( tatts );
-      Term atts = ArgOfTerm(2, tatts );
-      if (IsVarTerm((otatts = SearchAttsForModule(attv->Atts, f)))) {
-	Term ts[2];
-	  ts[0] = MkVarTerm();
-	  ts[1] = atts;
-	  Yap_unify(otatts, Yap_MkApplTerm(f, 2, ts));
+      Term modname = ArgOfTerm(1,tatts);
+    Functor f = FunctorAttVar;
+    Term otatts;
+    if (IsVarTerm((otatts = SearchAttsForModuleName(attv->Atts, modname)))) {
+      	Term ts[3];
+	ts[0] = modname;
+	  ts[2] = MkVarTerm();
+	  ts[1] = tatts;
+	  Yap_unify(otatts, Yap_MkApplTerm(f, 3, ts));
 	} else {
-	  MaBind(RepAppl(otatts)+2, atts );
+	  MaBind(RepAppl(otatts)+2, tatts );
       }      
-      tatts = ArgOfTerm(1,tatts);
+      tatts = ArgOfTerm(3,tatts);
     } while(!IsVarTerm(tatts));
     Yap_DebugPlWriteln(attv->Atts);
   } else {
@@ -695,7 +697,7 @@ static Int free_att(USES_REGS1) {
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
-    Atom modname = AtomOfTerm(Deref(ARG2));
+    Term modname = (Deref(ARG2));
 
     if (IsAttachedTerm(inp)) {
       attvar_record *attv;

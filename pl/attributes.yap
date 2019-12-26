@@ -195,6 +195,7 @@ attvars_residuals([V|Vs]) -->
    suspended goal around
 */
 prolog:'$wake_up_goal'(Continuation, LG) :-
+writeln(LG:Continuation),
     execute_woken_system_goals(LG),
     call(Continuation).
 
@@ -329,7 +330,8 @@ attvar_residuals(att(Module,Value,As), V) -->
             {
 		current_predicate(Module:attribute_goal/2) },
 	    { call(Module:attribute_goal(V, Goal)) },
-	    dot_list(Goal),
+	    dot_list(Goal,Module),
+	    {writeln(Module:Goal)},
             [put_attr(V, Module, Value)].
 generate_goals( V, _, _Value   , Module) -->
     { current_predicate(Module:attribute_goals/3) },
@@ -343,8 +345,8 @@ attributes:module_has_attributes(Mod) :-
 list([])     --> [].
 list([L|Ls]) --> [L], list(Ls).
 
-dot_list((A,B)) --> !, dot_list(A), dot_list(B).
-dot_list(A)	--> [A].
+dot_list((A,B),M) --> !, dot_list(A,M), dot_list(B,M).
+dot_list(A,M)	--> [M:A].
 
 delete_attributes(Term) :-
 	term_attvars(Term, Vs),

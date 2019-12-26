@@ -147,12 +147,10 @@ ENDOp();
 
       /* commit_b_y    Yi                 */
       Op(commit_b_y, yps);
-#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
-#endif
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
@@ -180,11 +178,11 @@ ENDOp();
       FAIL();
       ENDD(d0);
 
-#ifdef COROUTINING
       /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
-      PROCESS_INTERRUPT(interrupt_commit_y, do_commit_b_y, PREG->y_u.yps.s);
-#endif
+      PROCESS_INTERRUPT(interrupt_commit_y, after_commit_b_y, PREG->y_u.yps.s);
+after_commit_b_y:
+        JMPNext();
       ENDOp();
 
       /*************************************************************************

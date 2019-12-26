@@ -2613,14 +2613,14 @@ init_debugger_state();
     Yap_InitCPred("parent_choice_point", 1, parent_choice_point1, 0);
     Yap_InitCPred("parent_choice_point", 2, parent_choice_point, 0);
     Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
-    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
-                  SafePredFlag);
     CurrentModule = ATTRIBUTES_MODULE;
     Yap_InitCPred("restore_regs", 1, restore_regs,
                   NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("restore_regs", 2, restore_regs2,
                   NoTracePredFlag | SafePredFlag);
     CurrentModule = cm;
+    Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
+                  SafePredFlag);
     Yap_InitCPred("$clean_ifcp", 1, clean_ifcp, NoTracePredFlag | SafePredFlag);
     Yap_InitCPred("throw", 1, jump_env, 0);
     Yap_InitCPred("$generate_pred_info", 4, generate_pred_info, NoTracePredFlag);
