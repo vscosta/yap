@@ -2056,13 +2056,8 @@ static void do_restore_regs(Term t, int restore_all USES_REGS) {
         Int i;
         Int max = ArityOfFunctor(FunctorOfTerm(t)) - 4;
         CELL *ptr = RepAppl(t) + 5;
-
-        P = (yamop *) IntegerOfTerm(ptr[-4]);
-        CP = (yamop *) IntegerOfTerm(ptr[-3]);
-        ENV = (CELL *) (LCL0 - IntegerOfTerm(ptr[-2]));
-        YENV = (CELL *) (LCL0 - IntegerOfTerm(ptr[-1]));
         for (i = 0; i < max; i += 2) {
-            Int j = IntOfTerm(ptr[0]);
+	  Int j = IntOfTerm(ptr[0]);
             XREGS[j] = ptr[1];
             ptr += 2;
         }

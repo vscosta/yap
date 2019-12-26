@@ -520,6 +520,7 @@ static Int alarm4(USES_REGS1) {
     new.it_value.tv_sec = i1;
     new.it_value.tv_usec = i2;
     //    Yap_do_low_level_trace=1;
+
     if (setitimer(ITIMER_REAL, &new, &old) < 0) {
 #if HAVE_STRERROR
       Yap_Error(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "setitimer: %s",

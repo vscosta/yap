@@ -747,7 +747,6 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
   Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, GLOBAL_MaxPriority);
-
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

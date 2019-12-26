@@ -505,7 +505,7 @@ typedef struct pred_entry {
       struct yami *FirstClause;
       struct yami *LastClause;
       UInt NOfClauses;
-  union {
+  struct {
     struct {
       OPCODE ExpandCode;
     } p_code;

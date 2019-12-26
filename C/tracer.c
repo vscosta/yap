@@ -467,6 +467,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   *b = '\0';
   fputs(buf, stderr);
 #endif
+  //  if (vsc_count==1271) jmp_deb(1);
   pop_text_stack(l);
   HR = H1;
   return (true);

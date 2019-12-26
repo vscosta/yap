@@ -523,7 +523,6 @@ static int interrupt_call(USES_REGS1) {
   PredEntry *pe;
 
 DEBUG_INTERRUPTS();
- Yap_do_low_level_trace=1;
   if ((v = check_alarm_fail_int(true PASS_REGS)) >= 0) {
     return v;
   }

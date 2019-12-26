@@ -2394,7 +2394,7 @@ void pp(Term t, int lvl) {
       CELL *v = (CELL*)t;
       if (IsAttVar(v)) {
 	fputs( "ATT V:\n", stderr);
-	pp(AbsAppl((CELL*)RepAttVar(v)),2);
+	pp(AbsAppl((CELL*)&(RepAttVar(v)->Atts)),lvl+1);
 	   return;
 	}
       if (v < HR) fprintf(stderr,"_H%lx\n",v-H0);

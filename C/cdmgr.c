@@ -258,8 +258,10 @@ static void IPred(PredEntry *ap, UInt NSlots, yamop *next_pc) {
               "trying to index a dynamic predicate");
     return;
   }
-    if (ap->PredFlags & SystemPredFlags)
-        return;
+   if ((BaseAddr = Yap_PredIsIndexable(ap, NSlots, next_pc)) != NULL) {
+       ap->TrueCodeOfPred = BaseAddr;
+   ap->PredFlags |= IndexedPredFlag;
+  }
   if (ap->PredFlags & (SpiedPredFlag | CountPredFlag | ProfiledPredFlag)) {
     if (ap->PredFlags & ProfiledPredFlag) {
       Yap_initProfiler(ap);

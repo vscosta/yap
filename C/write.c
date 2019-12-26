@@ -1093,7 +1093,6 @@ wglb.trailings = 0;
  
    if ((flags & Handle_cyclics_f&&0) ){
 extern long long   vsc_count;
- if (vsc_count==2834)jmp_deb(8);
      tn = Yap_HackCycles(t PASS_REGS);
    } else {
      tn = t;

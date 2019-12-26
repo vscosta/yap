@@ -487,10 +487,12 @@ static Int put_att_term(USES_REGS1) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
+    Atom modname = AtomOfTerm(Deref(ARG2));
+    Term tatts = Deref(ARG3);
+    Functor f = Yap_MkFunctor(modname, 2);
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
-      MaBind(&(attv->Atts), Deref(ARG2));
     } else {
       while (!(attv = BuildNewAttVar(PASS_REGS1))) {
         LOCAL_Error_Size = sizeof(attvar_record);
@@ -498,17 +500,25 @@ static Int put_att_term(USES_REGS1) {
           Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;
         }
-        inp = Deref(ARG1);
       }
-      Bind_NonAtt(VarOfTerm(inp), AbsAttVar(attv));
-      attv->Atts = Deref(ARG2);
     }
+    f = Yap_MkFunctor(modname, 2);
+    Term otatts;
+    if (IsVarTerm((otatts = SearchAttsForModule(attv->Atts, f)))) {
+      	Term ts[2];
+	  ts[0] = MkVarTerm();
+	  ts[1] = tatts;
+	  Yap_unify(otatts, Yap_MkApplTerm(f, 2, ts));
+	} else {
+	  MaBind(RepAppl(otatts)+2, tatts );
+      }      
     return TRUE;
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of put_att_term/2");
-    return (FALSE);
+              "first argument of put_attributes/2");
+    return FALSE;
   }
+
 }
 
 static Int rm_att(USES_REGS1) {
@@ -564,8 +574,7 @@ static Int put_atts(USES_REGS1) {
     attvar_record *attv;
     Term otatts;
     Term tatts = Deref(ARG2);
-    Functor mfun = FunctorOfTerm(tatts);
-    int new = FALSE;
+
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
@@ -577,7 +586,6 @@ static Int put_atts(USES_REGS1) {
           return FALSE;
         }
       }
-      new = TRUE;
       Yap_unify(ARG1, AbsAttVar(attv));
     }
     /* we may have a stack shift meanwhile!! */
@@ -589,18 +597,27 @@ static Int put_atts(USES_REGS1) {
       Yap_Error(TYPE_ERROR_COMPOUND, tatts, "second argument of put_att/2");
       return FALSE;
     }
-    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts, mfun))) {
-      AddNewModule(attv, tatts, new, FALSE PASS_REGS);
-    } else {
-      ReplaceAtts(attv, otatts, tatts PASS_REGS);
-    }
-    return TRUE;
+    do {
+      Functor f = FunctorOfTerm( tatts );
+      Term atts = ArgOfTerm(2, tatts );
+      if (IsVarTerm((otatts = SearchAttsForModule(attv->Atts, f)))) {
+	Term ts[2];
+	  ts[0] = MkVarTerm();
+	  ts[1] = atts;
+	  Yap_unify(otatts, Yap_MkApplTerm(f, 2, ts));
+	} else {
+	  MaBind(RepAppl(otatts)+2, atts );
+      }      
+      tatts = ArgOfTerm(1,tatts);
+    } while(!IsVarTerm(tatts));
+    Yap_DebugPlWriteln(attv->Atts);
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_att/2");
     return FALSE;
   }
-}
+  return true;
+  }
 
 static Int del_atts(USES_REGS1) {
   /* receive a variable in ARG1 */
@@ -649,13 +666,14 @@ static Int get_att(USES_REGS1) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     Atom modname = AtomOfTerm(Deref(ARG2));
+    Functor f = Yap_MkFunctor(modname,2);
 
     if (IsAttachedTerm(inp)) {
       attvar_record *attv;
       Term tout, tatts;
 
       attv = RepAttVar(VarOfTerm(inp));
-      if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts, modname)))
+      if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, f)))
         return FALSE;
       tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
       if (tout == TermVoidAtt)
