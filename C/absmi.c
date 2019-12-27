@@ -393,8 +393,11 @@ static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
      lose the info RSN
   */
   Term tg = TermTrue;
+  
     if (cut_t != TermTrue) {
       tg = Yap_MkApplTerm(FunctorCutBy,1, &cut_t);
+    }
+    ARG1 = tg;
   if (p) {
     Term ts[2];
     ts[0] = tg;
@@ -406,10 +409,10 @@ static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
       ts[1] = tg;
     ARG1 = Yap_MkApplTerm(FunctorComma,2,ts);
     }
-    } else {
+  }else {
     ARG1 = tg;
     }
-  }
+  
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
     CalculateStackGap(PASS_REGS1);
     ARG2 = Yap_ListOfWokenGoals();

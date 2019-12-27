@@ -43,7 +43,7 @@ all_attvars/1,
 
 :- use_system_module( '$_errors', ['$do_error'/2]).
 
-:- use_system_module( '$coroutining', [attr_unify_hook/2]).
+%:- use_system_module( '$coroutining', [attr_unify_hook/2]).
 
 :- dynamic attributes:existing_attribute/4.
 :- dynamic attributes:modules_with_attributes/1.
@@ -182,9 +182,9 @@ call_atts(V,_) :-
 call_atts(V,New) :-
     attributes:get_all_swi_atts(V,SWIAtts),
     (
-	predicate_property(attributes:woken_att_do(V, New, LGoals, DoNotBind),_)
+	predicate_property(M:woken_att_do(V, New, LGoals, DoNotBind),number_of_clauses(N)), N>=1
 	->
-	 attributes:woken_att_do(V, New, LGoals, DoNotBind)
+	 M:woken_att_do(V, New, LGoals, DoNotBind)
 	;
 	 LGoals = [],
 	 DoNotBind = false
@@ -200,20 +200,23 @@ call_atts(V,New) :-
 
 do_hook_attributes([], _).
 do_hook_attributes(att(Mod,Att,Atts), Binding) :-
-	ignore(( current_predicate(Mod:attr_unify_hook/2),
+	ignore((
+	     predicate_property(Mod:attr_unify_hook(_,_), number_of_clauses(N)),
+	     N>=1->
 		 Mod:attr_unify_hook(Att, Binding)
 	)),
 	do_hook_attributes(Atts, Binding).
 
 
 lcall([]).
-lcall([Mod:Gls|Goals]) :-
-	lcall2(Gls,Mod),
+lcall([G|Goals]) :-
+	G,!,
 	lcall(Goals).
 
 lcall2([], _).
+
 lcall2([Goal|Goals], Mod) :-
-	call(Mod:Goal),
+	call(Goal),
 	lcall2(Goals, Mod).
 
 

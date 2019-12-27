@@ -1125,8 +1125,8 @@ void Yap_InitAttVarPreds(void) {
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
   Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-  Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
-  Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
+    Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
+    put:  Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
   Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, put_att, 0);
