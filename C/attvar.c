@@ -44,6 +44,15 @@ static char SccsId[] = "%W% %G%";
     @{
 */
 
+/**
+    @defgroup WakeUp WakeUp for goalreactivation
+
+     @brief Implementation of Attribute Declarations
+    @ingroup AttributedVariables
+
+    @{
+*/
+
 #ifdef COROUTINING
 
 #define TermVoidAtt TermFoundVar
@@ -79,10 +88,15 @@ static void AddFailToQueue(USES_REGS1) {
   }
 }
 
+/**
+   @defgroup Attributed Variables core routines:
+
+   - BuildNewAttvar: V -> ATTV(), SWI/SICStus
+*/
+
 
 static attvar_record *BuildNewAttVar(USES_REGS1) {
   attvar_record *newv;
-
   /* add a new attributed variable */
   newv = (attvar_record *)HR;
   HR = (CELL *)(newv + 1);
@@ -121,13 +135,10 @@ static int CopyAttVar(CELL *orig, void *sttp,
   return TRUE;
 }
 
-static Term AttVarToTerm(CELL *orig) {
-  attvar_record *attv = RepAttVar(orig);
-
-  return attv->Atts;
-}
 
 static int IsEmptyWakeUp(Term atts) {
+  if (IsVarTerm(atts))
+    return false;
   Atom name = NameOfFunctor(FunctorOfTerm(atts));
   Atom *pt = EmptyWakeups;
   int i = 0;
@@ -144,6 +155,30 @@ void Yap_MkEmptyWakeUp(Atom mod) {
               "too many modules that do not wake up");
   EmptyWakeups[MaxEmptyWakeups++] = mod;
 }
+
+static Term AttVarToTerm(CELL *orig) {
+  attvar_record *attv = RepAttVar(orig);
+
+  return attv->Atts;
+}
+
+
+static attvar_record *AttsFromTerm(Term inp)
+{
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+
+      attv = RepAttVar(VarOfTerm(inp));
+      return attv;
+    }
+    return NULL;
+  } else {
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_all_swi_atts/2");
+  }
+}
+
 
 static int TermToAttVar(Term attvar, Term to USES_REGS) {
   attvar_record *attv = BuildNewAttVar(PASS_REGS1);
@@ -251,19 +286,35 @@ static Term BuildAttTerm(Functor mfun, UInt ar USES_REGS) {
   return AbsAppl(h0);
 }
 
+/** Helper routines */
 static Term SearchAttsForModule(Term start, Functor mfun) {
   do {
-    if (IsVarTerm(start) || FunctorOfTerm(start) == mfun)
+    if (IsVarTerm(start) || start == TermNil ||
+	FunctorOfTerm(start) == mfun)
+      return start;
+    start = ArgOfTerm(3, start);
+  } while (TRUE);
+}
+
+static Term SearchAttsForModuleName(Term start, Atom mname) {
+  do {
+    if (IsVarTerm(start) || NameOfFunctor(FunctorOfTerm(start)) == mname)
       return start;
     start = ArgOfTerm(1, start);
   } while (TRUE);
 }
 
-static Term SearchAttsForModuleName(Term start, Term mname) {
+
+
+static Term SearchAttsForModuleAsNameTerm(Term start, Term mname, Term *p) {
   do {
-    if (IsVarTerm(start) || ArgOfTerm(1,start) == mname)
+    if (IsVarTerm(start) || ArgOfTerm(1,start) == mname ||
+	NameOfFunctor(FunctorOfTerm(start)) == AtomOfTerm(mname))
       return start;
-    start = ArgOfTerm(1, start);
+    else {
+      *p = start;
+      start = ArgOfTerm(3, start);
+    }
   } while (TRUE);
 }
 
@@ -385,7 +436,7 @@ static void PutAtt(Int pos, Term atts, Term att USES_REGS) {
   if (IsVarTerm(att) && VarOfTerm(att) > HR && VarOfTerm(att) < LCL0) {
     /* globalise locals */
     Term tnew = MkVarTerm();
-    Bind_NonAtt(VarOfTerm(att), tnew);
+   Bind_NonAtt(VarOfTerm(att), tnew);
     att = tnew;
   }
   MaBind(RepAppl(atts) + pos, att);
@@ -432,6 +483,156 @@ static Term GetAllAtts(attvar_record *attv) {
   /* check if we are already there */
   return attv->Atts;
 }
+
+static Int get_att(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    Atom modname = AtomOfTerm(Deref(ARG2));
+
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tout, tatts;
+
+      attv = RepAttVar(VarOfTerm(inp));
+      if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts, modname)))
+        return FALSE;
+      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
+      if (tout == TermVoidAtt)
+        return FALSE;
+      return Yap_unify(tout, ARG4);
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return FALSE;
+    }
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_att/2");
+    return (FALSE);
+  }
+}
+static Int has_atts(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tatts;
+      Term access = Deref(ARG2);
+      Functor mfun = FunctorOfTerm(access);
+
+      attv = RepAttVar(VarOfTerm(inp));
+      return !IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun));
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return FALSE;
+    }
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of has_atts/2");
+    return (FALSE);
+  }
+}
+
+static Int swi_all_atts(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  Functor attf = FunctorAtt1;
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = RepAttVar(VarOfTerm(inp));
+      CELL *h0 = HR;
+      Term tatt;
+
+      if (IsVarTerm(tatt = attv->Atts))
+        return Yap_unify(ARG2, TermNil);
+      while (!IsVarTerm(tatt) && tatt != TermNil) {
+        Functor f = FunctorOfTerm(tatt);
+        UInt ar = ArityOfFunctor(f);
+
+        if (HR != h0)
+          HR[-1] = AbsAppl(HR);
+        HR[0] = (CELL)attf;
+        HR[1] = MkAtomTerm(NameOfFunctor(f));
+        /* SWI */
+        if (ar == 3)
+          HR[2] = ArgOfTerm(2, tatt);
+        else
+          HR[2] = tatt;
+        HR += 4;
+        HR[-1] = AbsAppl(HR);
+        tatt = ArgOfTerm(3, tatt);
+      }
+      if (h0 != HR) {
+        HR[-1] = TermNil;
+        return Yap_unify(ARG2, AbsAppl(h0));
+      }
+    }
+    return Yap_unify(ARG2, TermNil);
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_all_swi_atts/2");
+    return FALSE;
+  }
+}
+
+static Int bind_attvar(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = RepAttVar(VarOfTerm(inp));
+      return (BindAttVar(attv PASS_REGS));
+    }
+    return (true);
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of bind_attvar/2");
+    return (false);
+  }
+}
+
+static Int unbind_attvar(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = RepAttVar(VarOfTerm(inp));
+      return (UnBindAttVar(attv));
+    }
+    return (TRUE);
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of bind_attvar/2");
+    return (FALSE);
+  }
+}
+
+
+static Int get_all_atts(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv = RepAttVar(VarOfTerm(inp));
+      return Yap_unify(ARG2, GetAllAtts(attv));
+    }
+    return TRUE;
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_all_atts/2");
+    return FALSE;
+  }
+}
+
+
 
 static Int put_att(USES_REGS1) {
   /* receive a variable in ARG1 */
@@ -481,7 +682,13 @@ static Int put_att(USES_REGS1) {
   }
 }
 
-static Int put_att_term(USES_REGS1) {
+/**
+ @{
+End of core routines
+*/
+
+
+static Int put_attr(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
@@ -490,6 +697,7 @@ static Int put_att_term(USES_REGS1) {
     Term modname = Deref(ARG2);
     Term tatts = Deref(ARG3);
     Functor f;
+    bool new=false;
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
@@ -501,21 +709,38 @@ static Int put_att_term(USES_REGS1) {
           return FALSE;
         }
       }
-    }
-    f = FunctorAttVar;
+        {
+        CELL *ptr = VarOfTerm(Deref(ARG1));
+        CELL d0 = AbsAttVar(attv);
+        Bind_NonAtt(ptr, d0);
+	new = true;
+      }
+        }
+    f = FunctorAtt1;
     Term otatts;
-    if (IsVarTerm((otatts = SearchAttsForModuleName(attv->Atts, modname)))) {
+    Term tgt = 0;
+    if (IsVarTerm((otatts = SearchAttsForModuleAsNameTerm(attv->Atts, modname, &tgt)))||otatts == TermNil) {
+     if (IsVarTerm(otatts)) {
       	Term ts[3];
 	ts[0] = modname;
-	  ts[2] = MkVarTerm();
+	ts[2] = MkVarTerm();
 	  ts[1] = tatts;
-	  Yap_unify(otatts, Yap_MkApplTerm(f, 3, ts));
-	} else {
-	  MaBind(RepAppl(otatts)+2, tatts );
-      }      
-    return TRUE;
+	  Term tx = Yap_MkApplTerm(f, 3, ts);
+      if (new) {
+	attv->Atts = tx;
+	return true;
+      }
+      return Yap_unify(otatts,tx);
+     } else {
+      MaBind(RepAppl(otatts)+2, tatts );
+      return true;
+     }
+    } else {
+      MaBind(RepAppl(tgt)+2, tatts );
+      return TRUE;
+    }      
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+    Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_attributes/2");
     return FALSE;
   }
@@ -566,274 +791,6 @@ static Int rm_att(USES_REGS1) {
   }
 }
 
-static Int put_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    attvar_record *attv;
-    Term tatts = Deref(ARG2);
-
-
-    if (IsAttachedTerm(inp)) {
-      attv = RepAttVar(VarOfTerm(inp));
-    } else {
-      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
-        LOCAL_Error_Size = sizeof(attvar_record);
-        if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P, CP))) {
-          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
-          return FALSE;
-        }
-      }
-      Yap_unify(ARG1, AbsAttVar(attv));
-    }
-    /* we may have a stack shift meanwhile!! */
-    tatts = Deref(ARG2);
-    if (IsVarTerm(tatts)) {
-      Yap_Error(INSTANTIATION_ERROR, tatts, "second argument of put_att/2");
-      return FALSE;
-    } else if (!IsApplTerm(tatts)) {
-      Yap_Error(TYPE_ERROR_COMPOUND, tatts, "second argument of put_att/2");
-      return FALSE;
-    }
-    do {
-      Term modname = ArgOfTerm(1,tatts);
-    Functor f = FunctorAttVar;
-    Term otatts;
-    if (IsVarTerm((otatts = SearchAttsForModuleName(attv->Atts, modname)))) {
-      	Term ts[3];
-	ts[0] = modname;
-	  ts[2] = MkVarTerm();
-	  ts[1] = tatts;
-	  Yap_unify(otatts, Yap_MkApplTerm(f, 3, ts));
-	} else {
-	  MaBind(RepAppl(otatts)+2, tatts );
-      }      
-      tatts = ArgOfTerm(3,tatts);
-    } while(!IsVarTerm(tatts));
-    Yap_DebugPlWriteln(attv->Atts);
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of put_att/2");
-    return FALSE;
-  }
-  return true;
-  }
-
-static Int del_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  Term otatts;
-
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    attvar_record *attv;
-    Term tatts = Deref(ARG2);
-    Functor mfun = FunctorOfTerm(tatts);
-
-    if (IsAttachedTerm(inp)) {
-      attv = RepAttVar(VarOfTerm(inp));
-    } else {
-      return TRUE;
-    }
-    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts, mfun))) {
-      return TRUE;
-    } else {
-      DelAtts(attv, otatts PASS_REGS);
-    }
-    return TRUE;
-  } else {
-    return TRUE;
-  }
-}
-
-static Int del_all_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp) && IsAttachedTerm(inp)) {
-    attvar_record *attv;
-
-    attv = RepAttVar(VarOfTerm(inp));
-    DelAllAtts(attv PASS_REGS);
-  }
-  return TRUE;
-}
-
-static Int get_att(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    Atom modname = AtomOfTerm(Deref(ARG2));
-    Functor f = Yap_MkFunctor(modname,2);
-
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv;
-      Term tout, tatts;
-
-      attv = RepAttVar(VarOfTerm(inp));
-      if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, f)))
-        return FALSE;
-      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
-      if (tout == TermVoidAtt)
-        return FALSE;
-      return Yap_unify(tout, ARG4);
-    } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
-      return FALSE;
-    }
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of get_att/2");
-    return (FALSE);
-  }
-}
-
-static Int free_att(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    Term modname = (Deref(ARG2));
-
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv;
-      Term tout, tatts;
-
-      attv = RepAttVar(VarOfTerm(inp));
-      if (IsVarTerm(tatts = SearchAttsForModuleName(attv->Atts, modname)))
-        return TRUE;
-      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
-      return (tout == TermVoidAtt);
-    } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
-      return TRUE;
-    }
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of free_att/2");
-    return (FALSE);
-  }
-}
-
-static Int get_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv;
-      Term tatts;
-      Term access = Deref(ARG2);
-      Functor mfun = FunctorOfTerm(access);
-      UInt ar, i;
-      CELL *old, *new;
-
-      attv = RepAttVar(VarOfTerm(inp));
-      if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun)))
-        return FALSE;
-
-      ar = ArityOfFunctor(mfun);
-      new = RepAppl(access) + 2;
-      old = RepAppl(tatts) + 2;
-      for (i = 1; i < ar; i++, new ++, old++) {
-        if (*new != TermFreeTerm) {
-          if (*old == TermVoidAtt && *new != TermVoidAtt)
-            return FALSE;
-          if (*new == TermVoidAtt &&*old != TermVoidAtt)
-            return FALSE;
-          if (!Yap_unify(*new, *old))
-            return FALSE;
-        }
-      }
-      return TRUE;
-    } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
-      return FALSE;
-    }
-  } else {
-    return (FALSE);
-  }
-}
-
-static Int has_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv;
-      Term tatts;
-      Term access = Deref(ARG2);
-      Functor mfun = FunctorOfTerm(access);
-
-      attv = RepAttVar(VarOfTerm(inp));
-      return !IsVarTerm(tatts = SearchAttsForModule(attv->Atts, mfun));
-    } else {
-      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
-      return FALSE;
-    }
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of has_atts/2");
-    return (FALSE);
-  }
-}
-
-static Int bind_attvar(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      return (BindAttVar(attv PASS_REGS));
-    }
-    return (true);
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of bind_attvar/2");
-    return (false);
-  }
-}
-
-static Int unbind_attvar(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      return (UnBindAttVar(attv));
-    }
-    return (TRUE);
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of bind_attvar/2");
-    return (FALSE);
-  }
-}
-
-static Int get_all_atts(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    if (IsAttachedTerm(inp)) {
-      attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      return Yap_unify(ARG2, GetAllAtts(attv));
-    }
-    return TRUE;
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of get_all_atts/2");
-    return FALSE;
-  }
-}
-
 static int ActiveAtt(Term tatt, UInt ar) {
   CELL *cp = RepAppl(tatt) + 1;
   UInt i;
@@ -880,47 +837,157 @@ static Int modules_with_atts(USES_REGS1) {
   }
 }
 
-static Int swi_all_atts(USES_REGS1) {
+
+/**
+ @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
+
+If  _Var_ is a variable or attributed variable, set the value for the
+attribute named  _Module_ to  _Value_. If an attribute with this
+name is already associated with  _Var_, the old value is replaced.
+Backtracking will restore the old value (i.e., an attribute is a mutable
+term. See also `setarg/3`). This predicate raises a representation error if
+ _Var_ is not a variable and a type error if  _Module_ is not an atom.
+
+
+*/
+static Int put_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
-  Functor attf = FunctorAtt1;
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    Term tatts = Deref(ARG3);
+
+
     if (IsAttachedTerm(inp)) {
-      attvar_record *attv = RepAttVar(VarOfTerm(inp));
-      CELL *h0 = HR;
-      Term tatt;
-
-      if (IsVarTerm(tatt = attv->Atts))
-        return Yap_unify(ARG2, TermNil);
-      while (!IsVarTerm(tatt)) {
-        Functor f = FunctorOfTerm(tatt);
-        UInt ar = ArityOfFunctor(f);
-
-        if (HR != h0)
-          HR[-1] = AbsAppl(HR);
-        HR[0] = (CELL)attf;
-        HR[1] = MkAtomTerm(NameOfFunctor(f));
-        /* SWI */
-        if (ar == 2)
-          HR[2] = ArgOfTerm(2, tatt);
-        else
-          HR[2] = tatt;
-        HR += 4;
-        HR[-1] = AbsAppl(HR);
-        tatt = ArgOfTerm(1, tatt);
+      attv = RepAttVar(VarOfTerm(inp));
+    } else {
+      while (!(attv = BuildNewAttVar(PASS_REGS1))) {
+        LOCAL_Error_Size = sizeof(attvar_record);
+        if (!Yap_gcl(LOCAL_Error_Size, 3, ENV, gc_P(P, CP))) {
+          Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+          return FALSE;
+        }
       }
-      if (h0 != HR) {
-        HR[-1] = TermNil;
-        return Yap_unify(ARG2, AbsAppl(h0));
-      }
+      Yap_unify(ARG1, AbsAttVar(attv));
     }
-    return Yap_unify(ARG2, TermNil);
+    /* we may have a stack shift meanwhile!! */
+    tatts = Deref(ARG3);
+    if (IsVarTerm(tatts)) {
+      Yap_Error(INSTANTIATION_ERROR, tatts, "second argument of put_att/2");
+      return FALSE;
+    } else if (!IsApplTerm(tatts)) {
+      Yap_Error(TYPE_ERROR_COMPOUND, tatts, "second argument of put_att/2");
+      return FALSE;
+    }
+    do {
+      Term modname = Deref(ARG2);
+    Functor f = FunctorAttVar;
+    Term otatts, p;
+    if (IsVarTerm((otatts = SearchAttsForModuleAsNameTerm(attv->Atts, modname, &p)))) {
+      	Term ts[3];
+	ts[0] = modname;
+	  ts[2] = TermNil;
+	  ts[1] = tatts;
+	  Yap_unify(otatts, Yap_MkApplTerm(f, 3, ts));
+	} else {
+	  MaBind(RepAppl(otatts)+2, tatts );
+      }      
+      tatts = ArgOfTerm(3,tatts);
+    } while(!IsVarTerm(tatts));
+    Yap_DebugPlWriteln(attv->Atts);
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of get_all_swi_atts/2");
+              "first argument of put_att/2");
     return FALSE;
+  }
+  return true;
+  }
+
+static  Int del_attr(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  Term otatts;
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    attvar_record *attv;
+    Term tatts = Deref(ARG2);
+    Functor mfun = FunctorOfTerm(tatts);
+
+    if (IsAttachedTerm(inp)) {
+      attv = RepAttVar(VarOfTerm(inp));
+    } else {
+      return TRUE;
+    }
+    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts, mfun))) {
+      return TRUE;
+    } else {
+      DelAtts(attv, otatts PASS_REGS);
+    }
+    return TRUE;
+  } else {
+    return TRUE;
+  }
+}
+
+static Int del_all_atts(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp) && IsAttachedTerm(inp)) {
+    attvar_record *attv;
+
+    attv = RepAttVar(VarOfTerm(inp));
+    DelAllAtts(attv PASS_REGS);
+  }
+  return TRUE;
+}
+
+static Int get_attr(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  attvar_record *attv = AttsFromTerm(inp);
+  if (!attv) return false;
+  Term tatts = Deref(ARG3);
+  Term mod = Deref(ARG2), p;
+  if (IsVarTerm(tatts = SearchAttsForModuleAsNameTerm(attv->Atts, mod, &p))) {
+        return FALSE;
+      return Yap_unify(ARG3,ArgOfTerm(2,tatts));
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of get_att/2");
+    return (FALSE);
+  }
+}
+
+static Int free_att(USES_REGS1) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp)) {
+    Term modname = (Deref(ARG2));
+
+    if (IsAttachedTerm(inp)) {
+      attvar_record *attv;
+      Term tout, tatts, p;
+
+      attv = RepAttVar(VarOfTerm(inp));
+      if (IsVarTerm(tatts = SearchAttsForModuleAsNameTerm(attv->Atts, modname, &p)))
+        return TRUE;
+      tout = ArgOfTerm(IntegerOfTerm(Deref(ARG3)), tatts);
+      return (tout == TermVoidAtt);
+    } else {
+      /* Yap_Error(INSTANTIATION_ERROR,inp,"get_att/2"); */
+      return TRUE;
+    }
+  } else {
+    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+              "first argument of free_att/2");
+    return (FALSE);
   }
 }
 
@@ -1058,15 +1125,12 @@ void Yap_InitAttVarPreds(void) {
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
   Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-  Yap_InitCPred("get_module_atts", 2, get_atts, SafePredFlag);
   Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
   Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
   Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, put_att, 0);
-  Yap_InitCPred("put_att_term", 2, put_att_term, 0);
-  Yap_InitCPred("put_module_atts", 2, put_atts, 0);
-  Yap_InitCPred("del_all_module_atts", 2, del_atts, 0);
+  Yap_InitCPred("del_all_module_atts", 2, del_attr, 0);
   Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
   Yap_InitCPred("rm_att", 4, rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
@@ -1078,8 +1142,11 @@ void Yap_InitAttVarPreds(void) {
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
+  Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
+  Yap_InitCPred("put_attr", 3, put_attr, 0);
   Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
 }
 
 /** @} */
+

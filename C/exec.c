@@ -2569,6 +2569,10 @@ init_debugger_state();
 
     Term cm = CurrentModule;
     Yap_InitComma();
+    Yap_InitCPred("restore_regs", 1, restore_regs,
+                  NoTracePredFlag );
+    Yap_InitCPred("restore_regs", 2, restore_regs2,
+                  NoTracePredFlag );
     Yap_InitCPred("$execute", 1, execute,  NoTracePredFlag);
     Yap_InitCPred("$execute", 2, execute2,  NoTracePredFlag);
     Yap_InitCPred("$execute", 3, execute3,  NoTracePredFlag);
@@ -2613,11 +2617,6 @@ init_debugger_state();
     Yap_InitCPred("parent_choice_point", 1, parent_choice_point1, 0);
     Yap_InitCPred("parent_choice_point", 2, parent_choice_point, 0);
     Yap_InitCPred("cut_at", 1, clean_ifcp, SafePredFlag);
-    CurrentModule = ATTRIBUTES_MODULE;
-    Yap_InitCPred("restore_regs", 1, restore_regs,
-                  NoTracePredFlag | SafePredFlag);
-    Yap_InitCPred("restore_regs", 2, restore_regs2,
-                  NoTracePredFlag | SafePredFlag);
     CurrentModule = cm;
     Yap_InitCPred("qpack_clean_up_to_disjunction", 0, cut_up_to_next_disjunction,
                   SafePredFlag);

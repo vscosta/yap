@@ -749,7 +749,7 @@ static int interrupt_cut_e(USES_REGS1) {
 
 static Int interrupt_commit_y(USES_REGS1) {
   int v;
-    Term cut_t = Yap_MkApplTerm(FunctorCutBy,1,YENV+P->y_u.yps.y);
+  Term cut_t = MkIntegerTerm(LCL0-(YENV+P->y_u.yps.y));
 
    DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {

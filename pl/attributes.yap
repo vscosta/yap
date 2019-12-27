@@ -56,38 +56,6 @@ all_attvars/1,
 :- dynamic modules_with_attributes/1.
 :- dynamic attributed_module/3.
 
-
-/** @pred get_attr( + Var,+ Module,- Value)
-
-Request the current  _value_ for the attribute named  _Module_.  If
- _Var_ is not an attributed variable or the named attribute is not
-associated to  _Var_ this predicate fails silently.  If  _Module_
-is not an atom, a type error is raised.
-
-
-*/
-prolog:get_attr(Var, Mod, Att) :-
-	functor(AttTerm, Mod, 2),
-	arg(2, AttTerm, Att),
-	attributes:get_module_atts(Var, AttTerm).
-
-/**
- @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
-
-If  _Var_ is a variable or attributed variable, set the value for the
-attribute named  _Module_ to  _Value_. If an attribute with this
-name is already associated with  _Var_, the old value is replaced.
-Backtracking will restore the old value (i.e., an attribute is a mutable
-term. See also `setarg/3`). This predicate raises a representation error if
- _Var_ is not a variable and a type error if  _Module_ is not an atom.
-
-
-*/
-prolog:put_attr(Var, Mod, Att) :-
-	functor(AttTerm, Mod, 2),
-	arg(2, AttTerm, Att),
-	attributes:put_module_atts(Var, AttTerm).
-
 /** @pred del_attr(+ _Var_,+ _Module_)
 
 
