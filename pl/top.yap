@@ -611,6 +611,12 @@ write_query_answer( Bindings ) :-
 	'$iso_check_goal'(G,G0),
 	'$call'(G, CP, G0, M).
 */
+'$call'(X,_CP,_G0,_M) :-
+must_be_callable(X),
+fail.
+'$call'((X,Y),CP,G0,M) :- !,			
+        '$call'(X,CP,G0,M),
+        '$call'(Y,CP,G0,M).
 '$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).

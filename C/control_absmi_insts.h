@@ -16,7 +16,6 @@ ructions                                       *
       CACHE_Y_AS_ENV(YREG);
 	  check_stack(NoStackCut, HR);
       ENDCACHE_Y_AS_ENV();
-    do_cut:
 #endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
@@ -29,6 +28,9 @@ ructions                                       *
 #ifdef COROUTINING
     NoStackCut:
       PROCESS_INTERRUPT(interrupt_cut, do_cut, PREG->y_u.s.s );
+    do_cut:
+      set_pc();
+      JMPNext();
 #endif
 
       ENDOp();
@@ -40,7 +42,6 @@ ructions                                       *
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutT, HR);
       ENDCACHE_Y_AS_ENV();
-    do_cut_t:
 #endif
       SET_ASP(YREG, PREG->y_u.s.s);
       /* assume cut is always in stack */
@@ -48,11 +49,13 @@ ructions                                       *
       prune((choiceptr)YREG[E_CB] PASS_REGS);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      GONext();
+        GONext();
 
         NoStackCutT:
       PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
-
+    do_cut_t:
+      set_pc();
+      JMPNext();
       ENDOp();
 
       /* cut_e                            */
@@ -61,7 +64,6 @@ ructions                                       *
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutE, HR);
       ENDCACHE_Y_AS_ENV();
-    do_cut_e:
 #endif
       SET_ASP(YREG, PREG->y_u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
@@ -73,6 +75,9 @@ ructions                                       *
 #ifdef COROUTINING
     NoStackCutE:
       PROCESS_INTERRUPT(interrupt_cut_e, do_cut_e, PREG->y_u.s.s);
+    do_cut_e:
+      set_pc();
+      JMPNext();
 #endif
 
 ENDOp();
@@ -108,7 +113,6 @@ ENDOp();
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitX, HR);
       ENDCACHE_Y_AS_ENV();
-    do_commit_b_x:
 #endif
       BEGD(d0);
       d0 = XREG(PREG->y_u.xps.x);
@@ -142,7 +146,10 @@ ENDOp();
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
       PROCESS_INTERRUPT(interrupt_commit_x, do_commit_b_x, PREG->y_u.xps.s);
-#endif
+      set_pc();
+     do_commit_b_x:
+     JMPNext();
+      #endif
       ENDOp();
 
       /* commit_b_y    Yi                 */
@@ -150,7 +157,6 @@ ENDOp();
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, HR);
       ENDCACHE_Y_AS_ENV();
-    do_commit_b_y:
       BEGD(d0);
       d0 = YREG[PREG->y_u.yps.y];
       deref_head(d0, commit_b_y_unk);
@@ -182,7 +188,7 @@ ENDOp();
     NoStackCommitY:
       PROCESS_INTERRUPT(interrupt_commit_y, after_commit_b_y, PREG->y_u.yps.s);
 after_commit_b_y:
-        JMPNext();
+      set_pc();
       ENDOp();
 
       /*************************************************************************

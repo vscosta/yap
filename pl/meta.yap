@@ -477,6 +477,7 @@ expand_goal(G, MF:GF) :-
     % expanded positions
     % support for SWI's meta primitive.
     '$is_mt'(H, B, HM, SM, M, IB, BM),
+    !,
     '$expand_goals'(IB, B1, BO1, HM, SM, BM, Assert),
     (
 	Assert == compile,

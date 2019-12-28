@@ -802,9 +802,6 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     } else {
       cl = ClauseCodeToStaticClause(pe->CodeOfPred);
     }
-  pe->TrueCodeOfPred = p_code;
-    pe->FirstClause = pe->LastClause = p_code;
-    pe->NOfClauses = 1;
     cl->ClFlags = StaticMask;
     cl->ClNext = NULL;
     if (flags & SafePredFlag) {
@@ -815,6 +812,9 @@ void Yap_InitAsmPred(const char *Name, arity_t Arity, int code, CPredicate def,
     }
     cl->usc.ClLine = Yap_source_line_no();
     p_code = cl->ClCode;
+  pe->TrueCodeOfPred = p_code;
+    pe->FirstClause = pe->LastClause = p_code;
+    pe->NOfClauses = 1;
     pe->CodeOfPred = p_code;
     if (!(flags & SafePredFlag)) {
       p_code->opc = Yap_opcode(_allocate);

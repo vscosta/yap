@@ -208,8 +208,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
 	HB = HR;
 	Yap_NumberVars(t, 0, true, &n);
     flags |= Handle_vars_f;
-    }
-    if (args[WRITE_NUMBERVARS].used) {
+    } else if (args[WRITE_NUMBERVARS].used) {
         if (args[WRITE_NUMBERVARS].tvalue == TermTrue    ||
 	    flags & Handle_vars_f
 	    )

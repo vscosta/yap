@@ -1091,8 +1091,7 @@ wglb.trailings = 0;
 
  Term tn;
  
-   if ((flags & Handle_cyclics_f&&0) ){
-extern long long   vsc_count;
+   if ((flags & Handle_cyclics_f) ){
      tn = Yap_HackCycles(t PASS_REGS);
    } else {
      tn = t;
@@ -1131,3 +1130,4 @@ TR--;
 }
   pop_text_stack(lvl);
  }
+

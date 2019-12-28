@@ -397,30 +397,32 @@ static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
     if (cut_t != TermTrue) {
       tg = Yap_MkApplTerm(FunctorCutBy,1, &cut_t);
     }
-    ARG1 = tg;
   if (p) {
     Term ts[2];
     ts[0] = tg;
     Term regs = save_xregs(p PASS_REGS);
-    tg = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &regs);
-    if (ts[0] == TermTrue) {
-	ARG1 =tg;
+    ts[1] = Yap_MkApplTerm(FunctorRestoreRegs1, 1, &regs);
+    if (tg == TermTrue) {
+	tg =ts[1];
     } else {
-      ts[1] = tg;
-    ARG1 = Yap_MkApplTerm(FunctorComma,2,ts);
+     tg = Yap_MkApplTerm(FunctorComma,2,ts);
     }
-  }else {
-    ARG1 = tg;
-    }
+  }
+  Term tggs[2];
+  tggs[0] = TermProlog;
+    tggs[1] = tg;
+    ARG1 = Yap_MkApplTerm(FunctorModule, 2, tggs);
   
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
     CalculateStackGap(PASS_REGS1);
     ARG2 = Yap_ListOfWokenGoals();
-    if (ARG2 == TermNil)
-      return 2;
-    pe = WakeUpCode;
-    /* no more goals to wake up */
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+    if (ARG2 != TermNil) {
+      pe = WakeUpCode;
+      /* no more goals to wake up */
+      Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+      return 0;
+    } else {
+    }
   }
   return Yap_execute_pred(pe, NULL, true);
 }
@@ -701,85 +703,54 @@ static int interrupt_deallocate(USES_REGS1) {
   }
 }
 
-static int interrupt_cut(USES_REGS1) {
-  Term cut_t = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
-    cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
+
+static int interrupt_prune(CELL *upto, yamop *p USES_REGS) {
+  Term cut_t = MkIntegerTerm(LCL0 - upto);
+    
   int v;
   DEBUG_INTERRUPTS();
   if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
+    P = FAILCODE;
     return v;
   }
-  if (!Yap_has_a_signal() ||
-      Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
+  p = NEXTOP(p, Osblp) ;
+  if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
+  v = interrupt_wake_up( cut_t, p PASS_REGS);
+  } else {
+        choiceptr pt0;
+#if defined(YAPOR_SBA) && defined(FROZEN_STACKS)
+        pt0 = (choiceptr)IntegerOfTerm(d0);
+#else
+        pt0 = (choiceptr)(LCL0-IntegerOfTerm(cut_t));
+#endif
+        prune(pt0 PASS_REGS);
+	v = 1;
   }
-  return interrupt_wake_up( cut_t, NEXTOP(NEXTOP(P,s), Osblp) PASS_REGS);
+  P = NEXTOP(p,l);
+  return v;
+}
+
+static int interrupt_cut(USES_REGS1) {
+   return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS);
 }
 
 
 static int interrupt_cut_t(USES_REGS1) {
-  Term cut_t = MkIntegerTerm(LCL0 - (CELL *)YENV[E_CB]);
-    cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
-  int v;
-  DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
-    return v;
-  }
-  if (!Yap_has_a_signal() ||
-      Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
-  }
-  return interrupt_wake_up( cut_t, NEXTOP(NEXTOP(P,s), Osblp) PASS_REGS);
+  return interrupt_prune((CELL  *)YENV[E_CB], NEXTOP(P,s) PASS_REGS);
 }
 
-static int interrupt_cut_e(USES_REGS1) {
-  Term cut_t = MkIntegerTerm(LCL0 - (CELL *) S[E_CB]);
-     cut_t = Yap_MkApplTerm(FunctorCutBy,1,&cut_t);
 
-    int v;
-  DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
-    return v;
-  }
-  if (Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
-  }
-  
-  /* find something to fool S */
-  return interrupt_wake_up( cut_t, NEXTOP(NEXTOP(P,s), Osblp) PASS_REGS);
+static int interrupt_cut_e(USES_REGS1) {
+  return interrupt_prune((CELL  *)S[E_CB], NEXTOP(P,s) PASS_REGS);
 }
 
 
 static Int interrupt_commit_y(USES_REGS1) {
-  int v;
-  Term cut_t = MkIntegerTerm(LCL0-(YENV+P->y_u.yps.y));
-
-   DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
-    return v;
-  }
-  if (!Yap_has_a_signal() ||
-      Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
-  }
-  P=NEXTOP(NEXTOP(P,yps), Osblp);
-  return interrupt_wake_up( cut_t, P PASS_REGS);
+  return interrupt_prune((CELL  *)IntegerOfTerm(YENV[P->y_u.yps.y]), NEXTOP(P,yps) PASS_REGS);
 }
 
 static Int interrupt_commit_x(USES_REGS1) {
-  Term cut_t = Yap_MkApplTerm(FunctorCutBy,1,&XREG(P->y_u.xps.x));
-  Term v;
-
-   DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= 0) {
-    return v;
-  }
-  if (!Yap_has_a_signal() ||
-      Yap_only_has_signals(YAP_CDOVF_SIGNAL, YAP_CREEP_SIGNAL)) {
-    return 2;
-  }
-  P = NEXTOP(NEXTOP(P,xps), Osblp);
-  return interrupt_wake_up( cut_t, P PASS_REGS);
+  return interrupt_prune((CELL  *)IntegerOfTerm(XREG(P->y_u.xps.x)), NEXTOP(P,xps) PASS_REGS);
 }
 
 
@@ -803,7 +774,7 @@ static bool interrupt_either(USES_REGS1) {
   }
   if ((v = stack_overflow(  PredRestoreRegs, ENV,
 			  P, 0 PASS_REGS)) >= 0) {
-        return v;
+    return v;
   }
   P = NEXTOP(P, Osblp);
   v = interrupt_wake_up(TermTrue, NULL PASS_REGS);

@@ -2029,7 +2029,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
     ppe = RepPredProp(pe);
     if (pe == NIL || ppe->TrueCodeOfPred->opc == UNDEF_OPCODE
 	||ppe->PredFlags & (MetaPredFlag | UndefPredFlag)) {
-        // we're in a meta-call, rake care about modules
+        // we're in a meta-call, take care about modules
         //
        ARG1 = t;
         ARG2 = cp_as_integer(B PASS_REGS); /* p_current_choice_point */
