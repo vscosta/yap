@@ -4,6 +4,8 @@
 
 X_API EXTERNAL Atom AtomAtSymbol; X_API EXTERNAL Term TermAtSymbol;
 X_API EXTERNAL Atom Atom3Dots;
+X_API EXTERNAL Atom AtomUnderscore; X_API EXTERNAL Term TermUnderscore;
+X_API EXTERNAL Atom AtomAs; X_API EXTERNAL Term TermAs;
 X_API EXTERNAL Atom AtomAbol; X_API EXTERNAL Term TermAbol;
 X_API EXTERNAL Atom AtomAccess; X_API EXTERNAL Term TermAccess;
 X_API EXTERNAL Atom AtomAfInet; X_API EXTERNAL Term TermAfInet;
@@ -433,6 +435,7 @@ X_API EXTERNAL Atom AtomUnificationStack; X_API EXTERNAL Term TermUnificationSta
 X_API EXTERNAL Atom AtomUnique; X_API EXTERNAL Term TermUnique;
 X_API EXTERNAL Atom AtomUnsignedByte; X_API EXTERNAL Term TermUnsignedByte;
 X_API EXTERNAL Atom AtomUnsignedChar; X_API EXTERNAL Term TermUnsignedChar;
+X_API EXTERNAL Atom AtomUp; X_API EXTERNAL Term TermUp;
 X_API EXTERNAL Atom AtomUser; X_API EXTERNAL Term TermUser;
 X_API EXTERNAL Atom AtomUserErr; X_API EXTERNAL Term TermUserErr;
 X_API EXTERNAL Atom AtomUserIn; X_API EXTERNAL Term TermUserIn;
@@ -763,6 +766,8 @@ X_API EXTERNAL  Functor FunctorTypeError;
 X_API EXTERNAL  Functor FunctorUMinus;
 
 X_API EXTERNAL  Functor FunctorUndefinedQuery;
+
+X_API EXTERNAL  Functor FunctorUp;
 
 X_API EXTERNAL  Functor FunctorUPlus;
 

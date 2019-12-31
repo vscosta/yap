@@ -3024,7 +3024,7 @@ static Int fetch_next_lu_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr, boo
       }
       P = cl->ClCode;
 #if defined(YAPOR) || defined(THREADS)
-      if (pe->PredFlags & ThreadLocaqlPredFlag) {
+      if (pe->PredFlags & ThreadLocalPredFlag) {
         /* we don't actually need to execute code */
         UNLOCK(pe->PELock);
       } else {

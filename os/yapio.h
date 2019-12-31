@@ -29,6 +29,41 @@
 #include <VFS.h>
 #include <Yatom.h>
 
+
+#define WRITE_DEFS()                                                           \
+  PAR("module", isatom, WRITE_MODULE)                                          \
+  , PAR("attributes", isatom, WRITE_ATTRIBUTES),                               \
+      PAR("cycles", booleanFlag, WRITE_CYCLES),                                \
+      PAR("quoted", booleanFlag, WRITE_QUOTED),                                \
+      PAR("ignore_ops", booleanFlag, WRITE_IGNORE_OPS),                        \
+      PAR("max_depth", nat, WRITE_MAX_DEPTH),                                  \
+      PAR("numbervars", booleanFlag, WRITE_NUMBERVARS),                        \
+      PAR("singletons", booleanFlag, WRITE_SINGLETONS),                        \
+      PAR("portrayed", booleanFlag, WRITE_PORTRAYED),                          \
+      PAR("portray", booleanFlag, WRITE_PORTRAY),                              \
+      PAR("priority", nat, WRITE_PRIORITY),                                    \
+      PAR("character_escapes", booleanFlag, WRITE_CHARACTER_ESCAPES),          \
+      PAR("backquotes", booleanFlag, WRITE_BACKQUOTES),                        \
+      PAR("brace_terms", booleanFlag, WRITE_BRACE_TERMS),                      \
+      PAR("fullstop", booleanFlag, WRITE_FULLSTOP),                            \
+      PAR("nl", booleanFlag, WRITE_NL),                                        \
+      PAR("variable_names", ok, WRITE_VARIABLE_NAMES),                         \
+      PAR(NULL, ok, WRITE_END)
+#define PAR(x, y, z) z
+typedef enum write_enum_choices { WRITE_DEFS() } write_choices_t;
+
+
+#ifdef BEAM
+int beam_write(USES_REGS1) {
+  Yap_StartSlots();
+  Yap_plwrite(ARG1, GLOBAL_Stream + LOCAL_c_output_stream, LOCAL_max_depth, 0,
+              NULL);
+  Yap_CloseSlots();
+  Yap_RaiseException();
+  return (TRUE);
+}
+#endif
+
 #ifndef _PL_WRITE_
 
 #define EOFCHAR EOF
@@ -137,8 +172,6 @@ extern X_API Term Yap_BufferToTermWithPrioBindings(const char *s, Term opts,
 extern FILE *Yap_GetInputStream(Term t, const char *m);
 extern FILE *Yap_GetOutputStream(Term t, const char *m);
 extern Atom Yap_guessFileName(FILE *f, int sno, size_t max);
-extern void Yap_plwrite(Term t, struct stream_desc *mywrite, int max_depth,
-                        int flags, int priority);
 
 extern int Yap_CheckSocketStream(Term stream, const char *error);
 extern void Yap_init_socks(char *host, long interface_port);

@@ -219,10 +219,10 @@ INLINE_ONLY yhandle_t Yap_InitHandle__(Term t USES_REGS) {
   ensure_slots(1 PASS_REGS);
   if (t==0) {
     t = MkVarTerm();
-  } else if (IsVarTerm(t) && VarOfTerm(t) > HR ) {
+  } /* else if (IsVarTerm(t) && VarOfTerm(t) > HR ) {
     Term tg = MkVarTerm();
     Bind_Local(VarOfTerm(t), tg);
-  }
+    }*/
   LOCAL_HandleBase[old_slots] = t;
   LOCAL_CurHandle++;
   return old_slots;
@@ -302,7 +302,7 @@ static inline Term Yap_PopHandle__(yhandle_t topHandle USES_REGS) {
   else {
     LOCAL_CurHandle = topHandle;
     // fprintf(stderr,"RS %ld %s:%d\n", LOCAL_CurHandle, __FILE__, __LINE__);
-    return Deref(LOCAL_HandleBase[topHandle]);
+    return LOCAL_HandleBase[topHandle];
   }
 }
 #endif

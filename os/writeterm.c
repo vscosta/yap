@@ -108,80 +108,6 @@ static Term readFromBuffer(const char *s, Term opts) {
 #define SYSTEM_STAT stat
 #endif
 
-#undef PAR
-
-#define WRITE_DEFS()                                                           \
-  PAR("module", isatom, WRITE_MODULE)                                          \
-  , PAR("attributes", isatom, WRITE_ATTRIBUTES),                               \
-      PAR("cycles", booleanFlag, WRITE_CYCLES),                                \
-      PAR("quoted", booleanFlag, WRITE_QUOTED),                                \
-      PAR("ignore_ops", booleanFlag, WRITE_IGNORE_OPS),                        \
-      PAR("max_depth", nat, WRITE_MAX_DEPTH),                                  \
-      PAR("numbervars", booleanFlag, WRITE_NUMBERVARS),                        \
-      PAR("singletons", booleanFlag, WRITE_SINGLETONS),                        \
-      PAR("portrayed", booleanFlag, WRITE_PORTRAYED),                          \
-      PAR("portray", booleanFlag, WRITE_PORTRAY),                              \
-      PAR("priority", nat, WRITE_PRIORITY),                                    \
-      PAR("character_escapes", booleanFlag, WRITE_CHARACTER_ESCAPES),          \
-      PAR("backquotes", booleanFlag, WRITE_BACKQUOTES),                        \
-      PAR("brace_terms", booleanFlag, WRITE_BRACE_TERMS),                      \
-      PAR("fullstop", booleanFlag, WRITE_FULLSTOP),                            \
-      PAR("nl", booleanFlag, WRITE_NL),                                        \
-      PAR("variable_names", ok, WRITE_VARIABLE_NAMES),                         \
-      PAR(NULL, ok, WRITE_END)
-
-#define PAR(x, y, z) z
-
-typedef enum open_enum_choices { WRITE_DEFS() } open_choices_t;
-
-#undef PAR
-
-#define PAR(x, y, z)                                                           \
-  { x, y, z }
-
-static const param_t write_defs[] = {WRITE_DEFS()};
-#undef PAR
-
-#ifdef BEAM
-int beam_write(USES_REGS1) {
-  Yap_StartSlots();
-  Yap_plwrite(ARG1, GLOBAL_Stream + LOCAL_c_output_stream, LOCAL_max_depth, 0,
-              GLOBAL_MaxPriority);
-  Yap_CloseSlots();
-  Yap_RaiseException();
-  return (TRUE);
-}
-#endif
-
-static bool bind_variable_names(Term t, Int *np USES_REGS) {
-  tr_fr_ptr TR0 = TR;
-  while (!IsVarTerm(t) && IsPairTerm(t)) {
-    Term tl = HeadOfTerm(t);
-    Functor f;
-    Term tv, t2, t1;
-
-    if (!IsApplTerm(tl))
-      return FALSE;
-    if ((f = FunctorOfTerm(tl)) != FunctorEq) {
-      return FALSE;
-    }
-    t1 = ArgOfTerm(1, tl);
-    if (IsVarTerm(t1)) {
-      Yap_Error(INSTANTIATION_ERROR, t1, "variable_names");
-      return false;
-    }
-    t2 = ArgOfTerm(2, tl);
-    tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
-    if (IsVarTerm(t2)) {
-      YapBind(VarOfTerm(t2), tv);
-    }
-    *np = TR-TR0;
-    t = TailOfTerm(t);
-  }
-  return true;
-}
-
-
 static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) {
   bool rc;
   Term cm = CurrentModule;
@@ -194,28 +120,6 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     return false;
   t = Deref(t);
   
-  if (args[WRITE_MODULE].used) {
-    CurrentModule = args[WRITE_MODULE].tvalue;
-  }
-  if (args[WRITE_VARIABLE_NAMES].used) {
-    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
-    flags |= Handle_vars_f;
-  }
-    if (args[WRITE_SINGLETONS].used) {
-        if (args[WRITE_SINGLETONS].tvalue == TermTrue ||
-	    flags & Handle_vars_f)
-            flags |= Number_vars_f|Singleton_vars_f;
-	HB = HR;
-	Yap_NumberVars(t, 0, true, &n);
-    flags |= Handle_vars_f;
-    } else if (args[WRITE_NUMBERVARS].used) {
-        if (args[WRITE_NUMBERVARS].tvalue == TermTrue    ||
-	    flags & Handle_vars_f
-	    )
-	HB = HR;
-	Yap_NumberVars(t, 0, false, &numv);
-    flags |= Handle_vars_f;
-    }
     if (args[WRITE_ATTRIBUTES].used) {
     Term ctl = args[WRITE_ATTRIBUTES].tvalue;
     if (ctl == TermWrite) {
@@ -272,26 +176,24 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
     depth = IntegerOfTerm(args[WRITE_MAX_DEPTH].tvalue);
   } else
     depth = LOCAL_max_depth;
-
-  if (args[WRITE_PRIORITY].used) {
-    prio = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
-  } else {
-    prio = GLOBAL_MaxPriority;
-  }
-  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, prio);
+  Yap_plwrite(t, GLOBAL_Stream + output_stream, depth, flags, args);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
   rc = true;
 
 end:
-    if (n) {
-      clean_tr(TR-n);
-    }
      CurrentModule = cm;
   Yap_RecoverHandles(0, yh);
   return rc;
-    HR = HB;
-    HB = B->cp_h;
 }
+
+
+#undef PAR
+
+#define PAR(x, y, z)                                                           \
+  { x, y, z }
+
+static const param_t write_defs[] = {WRITE_DEFS()};
+#undef PAR
 
 /**
  *
@@ -405,6 +307,8 @@ static Int write_canonical1(USES_REGS1) {
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
+  args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   LOCK(GLOBAL_Stream[output_stream].streamlock);
   write_term(output_stream, ARG1, false, args PASS_REGS);
   UNLOCK(GLOBAL_Stream[output_stream].streamlock);
@@ -435,6 +339,8 @@ static Int write_canonical(USES_REGS1) {
   args[WRITE_SINGLETONS].tvalue = TermTrue;
   args[WRITE_IGNORE_OPS].used = true;
   args[WRITE_IGNORE_OPS].tvalue = TermTrue;
+  args[WRITE_CYCLES].used = true;
+  args[WRITE_CYCLES].tvalue = TermTrue;
   args[WRITE_QUOTED].used = true;
   args[WRITE_QUOTED].tvalue = TermTrue;
   write_term(output_stream, ARG2, false, args PASS_REGS);
@@ -745,7 +651,7 @@ char *Yap_TermToBuffer(Term t, int flags) {
   GLOBAL_Stream[sno].encoding = LOCAL_encoding;
   GLOBAL_Stream[sno].status |= CloseOnException_Stream_f;
   GLOBAL_Stream[sno].status &= ~FreeOnClose_Stream_f;
-  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream + sno, LOCAL_max_depth, flags, NULL);
   char *new = Yap_MemExportStreamPtr(sno);
   Yap_CloseStream(sno);
   return new;

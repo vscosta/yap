@@ -90,7 +90,7 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
 	Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
 	LOCAL_max_depth=6, LOCAL_max_list=6, LOCAL_max_write_args = 6;
         const char *sn = Yap_TermToBuffer(args[i],
-                                          Handle_cyclics_f|Quote_illegal_f | Handle_vars_f);
+                                          Handle_cyclics_f|Quote_illegal_f | Handle_vars_f|Singleton_vars_f);
 	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
         size_t sz;
         if (sn == NULL) {
@@ -209,6 +209,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   /*  extern int gc_calls; */
   vsc_count++;
   //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
+    if (vsc_count >= 2615LL)
+      jmp_deb(1);
   // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
@@ -244,8 +246,6 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc ||
   // 0x4fd4d
   if (vsc_count > 1388060LL && vsc_count < 1388070LL) {
-    if (vsc_count == 1388061LL)
-      jmp_deb(1);
     if (vsc_count % 1LL == 0) {
       UInt sz = Yap_regp->H0_[17];
       UInt end = sizeof(MP_INT) / sizeof(CELL) + sz + 1;

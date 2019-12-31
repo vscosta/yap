@@ -1550,6 +1550,8 @@ static bool setInitialValue(bool bootstrap, flag_func f, const char *s,
   return false;
 }
 
+#undef PAR
+
 #define PROLOG_FLAG_PROPERTY_DEFS()                                            \
   PAR("access", isaccess, PROLOG_FLAG_PROPERTY_ACCESS, "read_write")           \
   , PAR("type", isground, PROLOG_FLAG_PROPERTY_TYPE, "term"),                  \

@@ -4,6 +4,8 @@
 
   AtomAtSymbol = AtomAdjust(AtomAtSymbol); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = AtomAdjust(Atom3Dots);
+  AtomUnderscore = AtomAdjust(AtomUnderscore); TermUnderscore = MkAtomTerm(AtomUnderscore);
+  AtomAs = AtomAdjust(AtomAs); TermAs = MkAtomTerm(AtomAs);
   AtomAbol = AtomAdjust(AtomAbol); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = AtomAdjust(AtomAccess); TermAccess = MkAtomTerm(AtomAccess);
   AtomAfInet = AtomAdjust(AtomAfInet); TermAfInet = MkAtomTerm(AtomAfInet);
@@ -433,6 +435,7 @@
   AtomUnique = AtomAdjust(AtomUnique); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = AtomAdjust(AtomUnsignedByte); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
   AtomUnsignedChar = AtomAdjust(AtomUnsignedChar); TermUnsignedChar = MkAtomTerm(AtomUnsignedChar);
+  AtomUp = AtomAdjust(AtomUp); TermUp = MkAtomTerm(AtomUp);
   AtomUser = AtomAdjust(AtomUser); TermUser = MkAtomTerm(AtomUser);
   AtomUserErr = AtomAdjust(AtomUserErr); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = AtomAdjust(AtomUserIn); TermUserIn = MkAtomTerm(AtomUserIn);
@@ -611,6 +614,7 @@
   FunctorTypeError = FuncAdjust(FunctorTypeError);
   FunctorUMinus = FuncAdjust(FunctorUMinus);
   FunctorUndefinedQuery = FuncAdjust(FunctorUndefinedQuery);
+  FunctorUp = FuncAdjust(FunctorUp);
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorVBar = FuncAdjust(FunctorVBar);
   FunctorWriteTerm = FuncAdjust(FunctorWriteTerm);

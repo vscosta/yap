@@ -17,10 +17,10 @@ test( (term_variables(X, O), writeln(X=O) ), [X, [], O]).
 test( (new_variables_in_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
 test( (variables_within_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
 test( writeln(X), [X]).
-test((rational_term_to_tree(X,A,B,[]),
+test((rational_term_to_forest(X,A,B,[]),
 	   writeln((A->B))), [X, A, B]).
 test(( numbervars(A+B,1,_)), [A, B]).
-test((rational_term_to_tree(X,A,B,[]), numbervars(A+B,1,_),
+test((rational_term_to_forest(X,A,B,[]), numbervars(A+B,1,_),
 	      writeln((A->B))), [X,A,B]).
 
 :- dynamic i/1.
@@ -34,7 +34,7 @@ id(I) :-
 exec :-
     test( G, [X|Ps] ),
     functors(G, Fs), 
-    format('**** ~w:~n',[Fs]),
+    format('**** ~n',[Fs]),
     d(X, GX),
     id(I),
     m(I, GX,  G, [X|Ps]),
@@ -53,10 +53,11 @@ m( I, GX, G, Ps ) :-
     GX,
     G,
     !,
-    format( '~d. ~w: ~a.~n', [I, G,yes]).
+    format( '~d ~a: ~n', [I, yes]), writeln(G).
 m( I, GX, G, _Ps ) :-
     GX,
-    format( '~d. ~w: ~a.~n',[I,G,no]).
+        format( '~d ~a: ', [I, no]), writeln(G).
+
 
 d(X, X = [_A] ).
 d(X, (  X = [a,_A]) ).

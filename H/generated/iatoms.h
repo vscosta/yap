@@ -4,6 +4,8 @@
 
   AtomAtSymbol = Yap_LookupAtom("@"); TermAtSymbol = MkAtomTerm(AtomAtSymbol);
   Atom3Dots = Yap_LookupAtom("...");
+  AtomUnderscore = Yap_LookupAtom("_"); TermUnderscore = MkAtomTerm(AtomUnderscore);
+  AtomAs = Yap_LookupAtom("as"); TermAs = MkAtomTerm(AtomAs);
   AtomAbol = Yap_FullLookupAtom("$abol"); TermAbol = MkAtomTerm(AtomAbol);
   AtomAccess = Yap_LookupAtom("access"); TermAccess = MkAtomTerm(AtomAccess);
   AtomAfInet = Yap_LookupAtom("AF_INET"); TermAfInet = MkAtomTerm(AtomAfInet);
@@ -433,6 +435,7 @@
   AtomUnique = Yap_LookupAtom("unique"); TermUnique = MkAtomTerm(AtomUnique);
   AtomUnsignedByte = Yap_LookupAtom("unsigned_byte"); TermUnsignedByte = MkAtomTerm(AtomUnsignedByte);
   AtomUnsignedChar = Yap_LookupAtom("unsigned_char"); TermUnsignedChar = MkAtomTerm(AtomUnsignedChar);
+  AtomUp = Yap_LookupAtom("..^"); TermUp = MkAtomTerm(AtomUp);
   AtomUser = Yap_LookupAtom("user"); TermUser = MkAtomTerm(AtomUser);
   AtomUserErr = Yap_LookupAtom("user_error"); TermUserErr = MkAtomTerm(AtomUserErr);
   AtomUserIn = Yap_LookupAtom("user_input"); TermUserIn = MkAtomTerm(AtomUserIn);
@@ -611,6 +614,7 @@
   FunctorTypeError = Yap_MkFunctor(AtomTypeError,2);
   FunctorUMinus = Yap_MkFunctor(AtomMinus,1);
   FunctorUndefinedQuery = Yap_MkFunctor(AtomUndefinedQuery,3);
+  FunctorUp = Yap_MkFunctor(AtomUp,1);
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorWriteTerm = Yap_MkFunctor(AtomWriteTerm,2);

@@ -9,6 +9,8 @@
 //
 A	AtSymbol		N	"@"
 A	3Dots			N	"..."
+A	Underscore		N       "_"
+A	As			N       "as"
 A	Abol			F	"$abol"
 A	Access			N	"access"
 A	AfInet			N	"AF_INET"
@@ -38,7 +40,7 @@ A       BeginCurlyBracket       N       "{"
 A       EndCurlyBracket         N       "}"
 A	EmptyBrackets	N	"()"
 A	EmptySquareBrackets	N	"[]"
-A As    N   "as"
+A	As			N       "as"
 A	Asserta			N	"asserta"
 A	AssertaStatic	N	"asserta_static"
 A	Assertz			N	"assertz"
@@ -438,6 +440,7 @@ A	UnificationStack	N	"unification_stack"
 A	Unique			N	"unique"
 A	UnsignedByte		N	"unsigned_byte"
 A	UnsignedChar		N	"unsigned_char"
+A	Up			N	"..^"
 A	User			N	"user"
 A	UserErr			N	"user_error"
 A	UserIn			N	"user_input"
@@ -616,6 +619,7 @@ F	TraceMetaCall		TraceMetaCall	3
 F	TypeError		TypeError	2
 F	UMinus			Minus		1
 F   	UndefinedQuery  	UndefinedQuery  3
+F	Up			Up		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	WriteTerm		WriteTerm	2

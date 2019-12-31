@@ -354,45 +354,15 @@ static Term save_xregs(yamop *pco) {
   }
 }
 
-static int interrupt_handler(PredEntry *pe USES_REGS) {
-
-  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
-  /* tell whether we can creep or not, this is hard because we will
-     lose the info RSN
-  */
-  save_goal(pe PASS_REGS);
-#ifdef COROUTINING
-  if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
-    CalculateStackGap(PASS_REGS1);
-    ARG2 = Yap_ListOfWokenGoals();
-    pe = WakeUpCode;
-    /* no more goals to wake up */
-    Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
-  } else
-#endif
-    {
-      CalculateStackGap(PASS_REGS1);
-      pe = CreepCode;
-    }
-  P = pe->CodeOfPred;
-#ifdef LOW_LEVEL_TRACER
-  if (Yap_do_low_level_trace)
-    low_level_trace(enter_pred, pe, XREGS + 1);
-#endif /* LOW_LEVEL_TRACE */
-  /* for profiler */
-  CACHE_A1();
-  return true;
-}
-
 // interrupt handling code that sets up the case when we do not have
 // a guaranteed environment.
 static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
-  PredEntry *pe = PredCall;
   //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
   /* tell whether we can creep or not, this is hard because we will
      lose the info RSN
   */
   Term tg = TermTrue;
+  PredEntry *pe = CreepCode;
   
     if (cut_t != TermTrue) {
       tg = Yap_MkApplTerm(FunctorCutBy,1, &cut_t);
@@ -414,18 +384,29 @@ static int interrupt_wake_up(Term cut_t, yamop *p USES_REGS) {
     ARG1 = Yap_MkApplTerm(FunctorModule, 2, tggs);
   
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
+    
     CalculateStackGap(PASS_REGS1);
     ARG2 = Yap_ListOfWokenGoals();
     if (ARG2 != TermNil) {
       pe = WakeUpCode;
       /* no more goals to wake up */
       Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
-      return 0;
-    } else {
     }
   }
+  CACHE_A1();
   return Yap_execute_pred(pe, NULL, true);
+  }
+
+static int interrupt_handler(PredEntry *pe USES_REGS) {
+
+  //  printf("D %lx %p\n", LOCAL_ActiveSignals, P);
+  /* tell whether we can creep or not, this is hard because we will
+     lose the info RSN
+  */
+  save_goal(pe PASS_REGS);
+  return interrupt_wake_up(TermTrue, NULL PASS_REGS);
 }
+
 
 static int interrupt_handlerc(PredEntry *pe USES_REGS) {
   /* do creep in call                                     */
@@ -773,10 +754,9 @@ static bool interrupt_either(USES_REGS1) {
     return v;
   }
   if ((v = stack_overflow(  PredRestoreRegs, ENV,
-			  P, 0 PASS_REGS)) >= 0) {
+			    B->cp_cp, 0 PASS_REGS)) >= 0) {
     return v;
   }
-  P = NEXTOP(P, Osblp);
   v = interrupt_wake_up(TermTrue, NULL PASS_REGS);
   P = PREVOP(P, Osblp);
   return v;
@@ -804,7 +784,7 @@ static int interrupt_dexecute(USES_REGS1) {
 			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
     return v;
   }
-  /* first, deallocate */
+ /* first, deallocate */
   /* and now CREEP */
   P = pe->CodeOfPred;
   bool rc = interrupt_handler(pe PASS_REGS);

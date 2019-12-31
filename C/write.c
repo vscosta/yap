@@ -101,7 +101,7 @@ static bool callPortray(Term t, int sno USES_REGS) {
   }
 static void wrputn(Int, struct write_globs *);
 static void wrputf(Float, struct write_globs *);
-static void wrputref(CODEADDR, int, struct write_globs *);
+static void wrputref(void *, int, struct write_globs *);
 static int legalAtom(unsigned char *);
 /*static int LeftOpToProtect(Atom, int);
   static int RightOpToProtect(Atom, int);*/
@@ -386,16 +386,24 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
 }
 
 /* writes a data base reference */
-static void wrputref(CODEADDR ref, int Quote_illegal,
+static void wrputref(void *ref, int Quote_illegal,
                      struct write_globs *wglb) {
   char s[256];
   wrf stream = wglb->stream;
 
   putAtom(AtomDBref, Quote_illegal, wglb);
-#if defined(__linux__) || defined(__APPLE__)
-  sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause *)ref)->ClRefCount);
+#if  defined(__linux__) || defined(__APPLE__)
+#if 1
+  snprintf(s, 255, "(%p)", ref);
 #else
+  sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause *)ref)->ClRefCount);
+  #endif
+#else
+#if 1
+  snprintf(s, 255, "(0x%p)", ref);
+  #else
   sprintf(s, "(0x%p," UInt_FORMAT ")", ref, ((LogUpdClause *)ref)->ClRefCount);
+  #endif
 #endif
   wrputs(s, stream);
   lastw = alphanum;
@@ -794,7 +802,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */
-      write_list(t, depth, LOCAL_max_list, wglb);
+      write_list(t, 0, depth, wglb);
       wrputc(']', wglb->stream);
       lastw = separator;
     }
@@ -920,7 +928,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputc('{', wglb->stream);
         }
         lastw = separator;
-        write_list(tleft, 0, LOCAL_max_list, wglb);
+        write_list(tleft, 0, depth, wglb);
         if (atom == AtomEmptyBrackets) {
           wrputc(')', wglb->stream);
         } else if (atom == AtomEmptySquareBrackets) {
@@ -1064,8 +1072,37 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
   }
 }
 
+static bool bind_variable_names(Term t, size_t *np USES_REGS) {
+  tr_fr_ptr TR0 = TR;
+  while (!IsVarTerm(t) && IsPairTerm(t)) {
+    Term tl = HeadOfTerm(t);
+    Functor f;
+    Term tv, t2, t1;
+
+    if (!IsApplTerm(tl))
+      return FALSE;
+    if ((f = FunctorOfTerm(tl)) != FunctorEq) {
+      return FALSE;
+    }
+    t1 = ArgOfTerm(1, tl);
+    if (IsVarTerm(t1)) {
+      Yap_Error(INSTANTIATION_ERROR, t1, "variable_names");
+      return false;
+    }
+    t2 = ArgOfTerm(2, tl);
+    tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
+    if (IsVarTerm(t2)) {
+      YapBind(VarOfTerm(t2), tv);
+    }
+    *np = TR-TR0;
+    t = TailOfTerm(t);
+  }
+  return true;
+}
+
+
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
-                 int priority)
+                 xarg *args)
 /* term to be written			 */
 /* consumer				 */
 /* write options			 */
@@ -1073,10 +1110,39 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   CACHE_REGS
 
   yhandle_t lvl = push_text_stack();
+  int  priority = GLOBAL_MaxPriority;
   struct write_globs wglb;
-
+  Term cm = CurrentModule;
+  
   t = Deref(t);
-  wglb.stream = mywrite;
+  CELL *hi = HR;
+  tr_fr_ptr tr0 = TR;
+  Term tn = t;
+  size_t n;
+  Int g;
+ yhandle_t h0_y = Yap_InitHandle(MkVarTerm());
+  if (args && args[WRITE_PRIORITY].used) {
+    priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
+  }
+  if (args && args[WRITE_MODULE].used) {
+    CurrentModule = args[WRITE_MODULE].tvalue;
+  }
+  if (args && args[WRITE_VARIABLE_NAMES].used) {
+    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
+    tn = Yap_HackCycles(t PASS_REGS);
+    flags |= Handle_vars_f;
+  } else if ( (flags & (Singleton_vars_f|Handle_cyclics_f) == (Singleton_vars_f|Handle_cyclics_f)) ||
+	      (args && args[WRITE_SINGLETONS].used &&
+	       args[WRITE_SINGLETONS].tvalue == TermTrue) ) {
+    tn = Yap_HackCycles(t PASS_REGS);
+    flags |= Handle_vars_f;
+ } else if ((args && args[WRITE_NUMBERVARS].used &&
+	     args[WRITE_NUMBERVARS].tvalue == TermTrue) ) {
+    tn = Yap_HackCycles(t PASS_REGS);
+    flags |= Handle_vars_f;
+}
+wglb.trailings  = TR-tr0;
+   wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   wglb.Use_portray = flags & Use_portray_f;
@@ -1085,20 +1151,10 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   wglb.Keep_terms = flags & To_heap_f;
   wglb.Write_Loops = flags & Handle_cyclics_f;
   wglb.Quote_illegal = flags & Quote_illegal_f;
-wglb.trailings = 0;
   wglb.lw = separator;
-wglb.trailings = 0;
-
- Term tn;
- 
-   if ((flags & Handle_cyclics_f) ){
-     tn = Yap_HackCycles(t PASS_REGS);
-   } else {
-     tn = t;
-   }
-
+  LOCAL_max_depth=200;
    /* protect slots for portray */
-  writeTerm(tn, priority, LOCAL_max_depth, false, &wglb);
+   writeTerm(tn, priority, LOCAL_max_depth, false, &wglb);
      if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1112,22 +1168,12 @@ wglb.trailings = 0;
       wrputc(' ', wglb.stream);
     }
   }
-int i;
-for (i=0; i < wglb.trailings;i++) {
-Term d1 = TrailTerm(--TR);
-  CELL *pt = RepAppl(d1);
-
-/* AbsAppl means */
-/* multi-assignment variable */
-/* so the next cell is the old value */
-#ifndef FROZEN_STACKS
-    pt[0] = TrailVal(TR);
-#else
-    pt[0] = TrailVal(TR - 1);
-TR--;
-#endif /* FROZEN_STACKS */
-
+     if (!(flags & Use_portray_f)) {
+       HR = (CELL *)Yap_PopHandle(h0_y);
+     } else {
+     Yap_PopHandle(h0_y);
 }
-  pop_text_stack(lvl);
+     CurrentModule = cm;
+       pop_text_stack(lvl);
  }
 

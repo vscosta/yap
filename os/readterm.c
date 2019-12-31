@@ -195,6 +195,8 @@ static int parse_quasi_quotations(ReadData _PL_rd ARG_LD)
 
 #endif /*O_QUASIQUOTATIONS*/
 
+#undef PAR
+
 #define READ_DEFS()                                                     \
   PAR("comments", list_filler, READ_COMMENTS),                          \
     PAR("module", isatom, READ_MODULE),                                 \

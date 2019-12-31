@@ -264,7 +264,7 @@ static Int variable_in_term(USES_REGS1) {
  */
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
-  tr_fr_ptr TR0 = TR;
+  tr_fr_ptr TR0;
   Term *end = NULL, first = inp;
 
   Int count = 0;
@@ -281,6 +281,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     }
    inp = TailOfTerm(inp);
   }
+  TR0 = TR;
  #include "term_visit.h"
   if (HR + 1024 > ASP) {
     goto global_overflow;
@@ -294,7 +295,6 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
         HR[1] = inp;
         end = HR+1;
         HR+=2;
-	count++;
    
 /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
@@ -304,7 +304,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   mBind_And_Trail(ptd0, TermFoundVar);
   END_WALK();
 
-  clean_tr(TR - count PASS_REGS);
+  clean_tr(TR0 - count PASS_REGS);
   return first;
 }
 
@@ -689,6 +689,9 @@ static Int free_variables_in_term(USES_REGS1) {
 
 #define FOUND_VAR_AGAIN                                                        \
   if (d0 == TermFoundVar) {                                                    \
+	    if (HR > ASP - 1024) {\
+	      goto global_overflow;\
+	    }\
     HR[0] = (CELL)ptd0;                                                        \
     HR[1] = AbsPair(HR + 2);                                                   \
     HR += 2;                                                                   \
@@ -713,7 +716,7 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
-    goto trail_overflow;
+        goto trail_overflow;
   }
   mBind_And_Trail(ptd0, TermFoundVar);
   continue;
@@ -730,6 +733,7 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   }
 }
 
+
 Term Yap_NonSingletons(Term t, Term s USES_REGS) {
   if (IsVarTerm(t)) {
     return MkPairTerm(t, s);
@@ -741,7 +745,7 @@ Term Yap_NonSingletons(Term t, Term s USES_REGS) {
 }
 
 /** @pred  non_singletons_in_term(? _T_, _LV0_, _LVF_)
-
+    
     Unify _LVF_-_LV0_ with the list of variables that occur at least twice in
     _T_ or that occur in _LV0_ and _T_.
 
@@ -766,7 +770,7 @@ static Int p_non_singletons_in_term(
 #define SECOND_TIME                                                            \
   {                                                                            \
     if (RepAppl(d0)[0] == (CELL)FunctorDollarVar &&                            \
-        +IsUnboundVar(RepAppl(d0) + 1)) {                                      \
+        IsUnboundVar(RepAppl(d0) + 1)) {                                      \
       RepAppl(d0)[1] = TermFoundVar;                                           \
       continue;                                                                \
     }                                                                          \
@@ -776,57 +780,74 @@ static Int p_non_singletons_in_term(
  *  @brief routine to locate all variables in a term, and its applications.
  */
 #undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
+#undef COMPOUND_HOOK_CODE 
 #undef ATOMIC_HOOK_CODE
-#define LIST_HOOK_CODE                                                         \
-  {}
-#define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN
+#define LIST_HOOK_CODE 
+/*{if (IS_VISIT_MARKER(ptd1[0])) {		\
+            char s[64];\
+            snprintf(s,63,"__^%ld__", to_visit-VISIT_ENTRY(*ptd1));\
+            Term ta = MkAtomTerm(Yap_LookupAtom(s));		   \
+            mTrailedMaBind(ptd1,ta) ;				   \
+  goto loop;\
+  }}
+*/
+#define COMPOUND_HOOK_CODE LIST_HOOK_CODE; FOUND_VAR_AGAIN
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
-                                       bool show_singletons,
-                                       Int *tr_entries USES_REGS) {
-  tr_fr_ptr TR0 = TR;
-
-#include "term_visit.h"
-  {
-    if (HR + 1024 > ASP) {
-      goto global_overflow;
-    }
-    HR[0] = (CELL)FunctorDollarVar;
-    RESET_VARIABLE(HR + 1);
-    HR += 2;
-    mBind(ptd0, AbsAppl(HR - 2));
-    continue;
-  }
-  END_WALK();
-  CELL *H1 = HR;
-  while (HStart < H1) {
-       if (show_singletons && IsVarTerm(HStart[1])) {
-      HStart[1] = MkIntTerm(-1);
-    } else {
-      HStart[1] = MkIntegerTerm(vno++);
-    }
-    HStart += 2;
-  }
-  if (tr_entries) {
-    *tr_entries = TR - TR0;
-  }
-  return vno;
-}
-
-Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
+Int Yap_NumberVars(Term t, Int numbv_, bool handle_singles,
                    Int *tr_entries) /*
                                      * numbervariables in term t         */
 {
-  if ( handle_singles ) return t;
-  if (IsPrimitiveTerm(t)) {
-    return numbv;
+  Int numbv = numbv_;
+  tr_fr_ptr tr0=TR;
+  Term vt, vl;
+  CELL *HStart = HR;
+ restart:
+  vt = Deref(t);
+  if (handle_singles) {
+    vl = Yap_NonSingletons(vt, TermNil);
+  } else {
+    vl = Yap_TermVariables(t, 2);
   }
-  Term vt = Deref(t);
-  return numbervars_in_complex_term(&vt - 1, &vt, false, handle_singles, tr_entries PASS_REGS);
+  while (vl != TermNil) {
+    Term v  = HeadOfTerm(vl);
+    Term t = MkIntTerm(numbv++);
+	    if (HR > ASP - 1024) {
+	      goto overflow;
+	    }
+    Term d = Yap_MkApplTerm(FunctorDollarVar, 1, &t);
+    Yap_unify(v,d);
+    vl = TailOfTerm(vl);
+  }
+  if (handle_singles) {
+    vl = Yap_TermVariables(vt, 2);
+    Term t = MkIntTerm(-1);
+  while (vl != TermNil) {
+    Term v  = HeadOfTerm(vl);
+    Term d = Yap_MkApplTerm(FunctorDollarVar, 1, &t);
+	    if (HR > ASP - 1024) {
+	      goto overflow;
+	    }
+    Yap_unify(v,d);
+    vl = TailOfTerm(vl);
+  }
 }
+  if (tr_entries)
+    *tr_entries=(TR-tr0);
+  
+  return numbv;
+overflow : {
+    HR = HStart;
+    TR = tr0;
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+    ssize_t expand = 0L;
+    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {return false;
+    }
+      HStart = HR;
+      numbv = numbv_;
+      goto restart;
+  }}
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
 

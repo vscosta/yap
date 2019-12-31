@@ -2263,7 +2263,7 @@ X_API void YAP_Write(Term t, FILE *f, int flags) {
   BACKUP_MACHINE_REGS();
   int sno = Yap_FileStream(f, NULL, TermNil, Output_Stream_f, NULL);
 
-  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, GLOBAL_MaxPriority);
+  Yap_plwrite(t, GLOBAL_Stream + sno, 0, flags, NULL);
   Yap_ReleaseStream(sno);
 
   RECOVER_MACHINE_REGS();
