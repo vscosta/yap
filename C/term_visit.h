@@ -62,13 +62,13 @@ loop:
     goto nomore;
     }
   }
-  CELL d0;
+  CELL d0, dd0;
   CELL *ptd0;
   pt0++;
   ptd0 = pt0;
-  d0 = VISIT_UNMARK(*ptd0);
+  dd0 = (*ptd0);
  list_loop:
-  mderef_head(d0, var_in_term_unk); /*DEB_DOOB();*/
+  mderef_head(d0, dd0, var_in_term_unk); /*DEB_DOOB();*/
 var_in_term_nvar:
   if (IsPairTerm(d0)) {
     CELL *ptd1 = RepPair(d0);
@@ -83,7 +83,7 @@ var_in_term_nvar:
     }
     pt0 = ptd1;
     pt0_end = ptd1 + 1;
-    d0 = d1;
+    dd0 = d1;
     //    fprintf(stderr, "%ld at %s %ld@%ld-%ld %lx\n", stt.pt - stt.pt0,
     //       __FUNCTION__, ptd1 - H0, pt0 - H0, pt0_end - H0, *ptd1);
     goto list_loop;
@@ -122,6 +122,6 @@ var_in_term_nvar:
     goto loop;
   }
 
-  mderef_body(d0, ptd0, var_in_term_unk, var_in_term_nvar);
+  mderef_body(d0,dd0, ptd0, var_in_term_unk, var_in_term_nvar);
 /*enter variable processing */ {
  

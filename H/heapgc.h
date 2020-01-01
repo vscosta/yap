@@ -617,18 +617,20 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
 
 #define VISIT_UNMARK(d0) (IS_VISIT_MARKER(d0)?((  copy_frame *)RepPair(d0))->oldv:d0)
 
-#define mderef_head(D, Label)                   \
-  if (IsVarTerm(VISIT_UNMARK(D)))\
+#define mderef_head(D, DM, Label)		\
+  D = VISIT_UNMARK(DM);\
+  if (IsVarTerm((D)))\
     goto Label
 
-#define mderef_body(D, A, LabelUnk, LabelNonVar)			\
+#define mderef_body(D, DM, A, LabelUnk, LabelNonVar)	\
   do {\
-      if (!IsVarTerm(VISIT_UNMARK(D)))					\
+      if (!IsVarTerm(D))					\
       goto LabelNonVar;                                                        \
   LabelUnk:                                                                    \
-(A) = (CELL *)(VISIT_UNMARK(D));					\
-(D) = *(A);\
-  } while (Unsigned(A) != VISIT_UNMARK(D) )
+(A) = (CELL *)(D);					\
+(DM) = *(A);\
+ D = VISIT_UNMARK(DM);\
+  } while (Unsigned(A) != (D) )
 
 #define mSET(A,D) \
   { CELL *T =(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *T=D; }

@@ -4272,7 +4272,11 @@ int Yap_locked_gc(Int predarity, CELL *current_env, yamop *nextop) {
 
 bool Yap_expand(size_t sz USES_REGS) {
   gc_entry_info_t info;
-
+  if (sz == 0) {
+    sz = LCL0-H0;
+    if (sz < 4*K*K) sz *= 2; 
+    else sz += 64*K*K;
+  }
   Yap_track_cpred(&info);
   return call_gc(sz * sizeof(CELL), &info PASS_REGS);
 }

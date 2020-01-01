@@ -383,7 +383,7 @@ static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
   bool singletons = true;
   size_t restarts = 0;
   Int numb = 0;
-   tr_fr_ptr TR0 = TR;
+  tr_fr_ptr TR0;
    CELL *HLow;
    bool ground;
    Term myt;
@@ -393,23 +393,24 @@ static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
 init_stack(&stt, sz);
  loop:
  HLow = ptf_;
+ TR0 = TR;
    ground = true;
    myt = (CELL)HLow;
    HR=HLow+1;
   ptf--; // synch with pt0;
   do {
     while (pt0 < pt0_end) {
-      CELL d0;
+      CELL d0, dd0;
       CELL *ptd0;
       // next cell
       ++pt0;
       ++ptf;
       ptd0 = pt0;
       // notice that this is the true value of d0
-      d0 = VISIT_UNMARK(*ptd0);
+      dd0 = *ptd0;
     list_loop:
       //	DEB_DOOB("enter");
-      mderef_head(d0, copy_term_unk);
+      mderef_head(d0, dd0, copy_term_unk);
     copy_term_nvar :
       if (IsPairTerm(d0)) {
 	CELL *ptd1 = RepPair(d0);
@@ -450,7 +451,7 @@ init_stack(&stt, sz);
 	if (share && ptd0 >= HB) {
 	  // d0 is from copy, so just use it. Note that this allows
 	  // copying rational trees, even if we don break cycles.
-	  *ptf = d0;
+	  *ptf = dd0;
 	  continue;
 	      
 	}
@@ -473,7 +474,7 @@ init_stack(&stt, sz);
 	to_visit->oldp = ptd1;
 	to_visit->oldv = *ptd1;
 	to_visit->t = myt;
-	d0 = (*ptd1);
+	dd0 = (*ptd1);
 	*ptd1 = VISIT_MARK();
 	*ptf = AbsPair(HR);
 	/*  the system into thinking we had a variable there */
@@ -493,9 +494,9 @@ init_stack(&stt, sz);
 	CELL *ptd1 = RepAppl(d0);
 	CELL tag = *ptd1;
 	
-	if (share && ptd1 >= HB) {
+	if (share && ptd1 > HB) {
 	  /* If this is newer than the current term, just reuse */
-	  *ptf = d0;
+	  *ptf = dd0;
 	  continue;
 	}
 
@@ -643,7 +644,7 @@ init_stack(&stt, sz);
       }
       continue;
       
-      mderef_body(d0,ptd0,copy_term_unk, copy_term_nvar);
+      mderef_body(d0,dd0,ptd0,copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
       if (copy_att_vars && GlobalIsAttachedTerm((CELL) ptd0)) {
@@ -682,11 +683,11 @@ init_stack(&stt, sz);
 	continue;
 	}
 	/* second time we met this term */
-	if (ptd0 < ptf) {
+	if (ptd0 < ptf ||ptd0>= HR) {
 	  RESET_VARIABLE(ptf);
 	  mBind(ptd0, (CELL)ptf);
-          } else {
-	  mBind(ptf, (CELL)ptd0);
+	} else if (ptd0 > ptf) {
+	  mBind(ptf, d0);
 	}
     }
     }

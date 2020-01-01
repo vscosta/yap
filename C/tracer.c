@@ -351,6 +351,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 
       if (p == pe) {
         UNLOCK(Yap_heap_regs->low_level_trace_lock);
+	HR 
         pop_text_stack(l);
         return (true);
       }
@@ -368,13 +369,15 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
+    //HR = HI;
     UNLOCK(Yap_low_level_trace_lock);
     pop_text_stack(l);
     return (true);
   }
   if (pred->ModuleOfPred == PROLOG_MODULE) {
     if (!LOCAL_do_trace_primitives) {
-      UNLOCK(Yap_low_level_trace_lock);
+      // HR = HI;
+    UNLOCK(Yap_low_level_trace_lock);
       pop_text_stack(l);
       return (true);
     }

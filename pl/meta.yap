@@ -353,6 +353,17 @@ meta_predicate(P) :-
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'(
+    (A*->B),(A1*->B1),
+    (
+	yap_hacks:current_choicepoint(DCP),
+	AO,
+	yap_hacks:cut_at(DCP),BO
+    ),
+    HM,SM,BM,HVars) :- !,
+    '$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
+    '$clean_cuts'(AOO, AO),
+    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
+'$expand_goals'(
     (A*->B;C),(A1*->B1;C1),
     (
 	yap_hacks:current_choicepoint(DCP),
