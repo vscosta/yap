@@ -2457,6 +2457,13 @@ extern yamop *headoftrace;
  ENDD(d0);
 #endif
 
+/// after interrupt dispatch
+#define INT_HANDLER_GO_ON      -1   ///> should continue testing
+#define INT_HANDLER_FAIL 0      ///> should execute FAIL
+#define INT_HANDLER_RET_NEXT  1  ///> should dispatch, ie JMPNext()
+#define INT_HANDLER_RET_JMP       2   ///> should goto C label
+#define HAS_INT(D)       (D>=0) 
+
 #ifdef SHADOW_S
 #define PROCESS_INTERRUPT(F, C, SZ)					\
   BEGD(d0);                                                                    \
@@ -2466,10 +2473,10 @@ extern yamop *headoftrace;
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
   SREG = Yap_REGS.S_;                                                          \
-  if (!d0)                                                                     \
+  if (d0 ==INT_HANDLER_FAIL )                                                                     \
     FAIL();                                                                    \
   PP = NULL;                                                                   \
-  if (d0 == 2)                                                                 \
+  if (d0 == INT_HANDLER_RET_JMP)                                                                 \
     goto C;                                                                    \
   JMPNext();                                                                   \
   ENDD(d0);
@@ -2481,9 +2488,9 @@ BEGD(d0);								\
   d0 = F(PASS_REGS1);                                                          \
   setregs();                                                                   \
   PP = NULL;                                                                   \
-  if (!d0)                                                                     \
+  if (d0 == INT_HANDLER_FAIL)                                                                     \
     FAIL();                                                                    \
-  if (d0 == 2)                                                                 \
+  if (d0 == INT_HANDLER_RET_JMP)                                                                 \
     goto C;                                                                    \
   JMPNext();\
  ENDD(d0);
