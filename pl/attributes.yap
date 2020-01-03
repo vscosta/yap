@@ -83,35 +83,6 @@ side-effects.
 prolog:del_attrs(Var) :-
 	attributes:del_all_atts(Var).
 
-/**
- @pred get_attrs(+ _Var_,- _Attributes_)
-
-Get all attributes of  _Var_.  _Attributes_ is a term of the form
-`att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
-`[]` for the last attribute.
-
-*/
-prolog:get_attrs(AttVar, SWIAtts) :-
-	attributes:get_all_swi_atts(AttVar,SWIAtts).
-
-/** @pred put_attrs(+ _Var_,+ _Attributes_)
-
-
-Set all attributes of  _Var_.  See get_attrs/2 for a description of
- _Attributes_.
-
-
-*/
-prolog:put_attrs(_, []).
-prolog:put_attrs(V, Atts) :-
-	cvt_to_swi_atts(Atts, YapAtts),
-	attributes:put_att_term(V, YapAtts).
-
-cvt_to_swi_atts([], _).
-cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
-	ModAttribute =.. [Mod, YapAtts, Attribute],
-	cvt_to_swi_atts(Atts, YapAtts).
-
 /** @pred copy_term(? _TI_,- _TF_,- _Goals_)
 
 Term  _TF_ is a variant of the original term  _TI_, such that for
@@ -131,16 +102,10 @@ defined.
 prolog:copy_term(Term, Copy, Gs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
-	->  Gs = [],
-	    copy_term(Term, Copy)
-	;   findall(Term-Gs,
-	            attributes:residuals_and_delete_attributes(Vs, Gs, Term),
-		    [Copy-Gs])
-	).
-
-residuals_and_delete_attributes(Vs, Gs, Term) :-
-	attvars_residuals(Vs, Gs, []),
-	delete_attributes(Term).
+	->  Gs = [];
+	 attvars_residuals(Vs, Gs0, []),
+	    copy_term_nat(Term-Gs0, Copy-Gs)
+	    ).
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->
@@ -163,7 +128,6 @@ attvars_residuals([V|Vs]) -->
    suspended goal around
 */
 prolog:'$wake_up_goal'(Continuation, LG) :-
-writeln(LG:Continuation),
     execute_woken_system_goals(LG),
     call(Continuation).
 
@@ -294,19 +258,27 @@ attvar_residuals(att(Module,Value,As), V) -->
         {
 	    attributes:module_has_attributes(Module)  },
     	    %  like run, put attributes back first
-    	    { Value =.. [Name,_|Vs],
-    	      NValue =.. [Name,_|Vs],
-    	      attributes:put_module_atts(V,NValue)
+    	    { Value =.. [att,Module,Vs,_],
+    	      NValue =.. [att,Module,Vs,_],
+    	      put_attr(V,Module,NValue)
     	    },
             {
-		current_predicate(Module:attribute_goal/2) },
+		'$current_predicate'(attribute_goal,Module,attribute_goal(_,_),_) },
 	    { call(Module:attribute_goal(V, Goal)) },
 	    dot_list(Goal,Module),
-	    {writeln(Module:Goal)},
-            [put_attr(V, Module, Value)].
-generate_goals( V, _, _Value   , Module) -->
-    { current_predicate(Module:attribute_goals/3) },
-    Module:attribute_goals(V).
+            { put_attr(V, Module, Value) }.
+generate_goals( _V, _, Value   , _Module) -->
+    fetch_module(Value ).
+
+fetch_module(V) --> {var(V)}, !.
+fetch_module([]) --> !.
+fetch_module(Value) -->
+    { Value = att(Module,_,OVal),
+	 '$current_predicate'(attribute_goal,Module,attribute_goal(_,_,_),_)
+	 },
+( Module:attribute_goals(Gs) -> Gs ; [] ),
+     fetch_module(OVal).
+
 
 
 attributes:module_has_attributes(Mod) :-

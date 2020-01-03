@@ -379,8 +379,9 @@ static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
   Ystack_t stt;
   volatile size_t sz = 1024*16;
   bool hack = bindp && IsIntTerm(*bindp);
+  CELL *HB0;
   bool forest = bindp && (*bindp != TermFoundVar);
-  bool singletons = true;
+  bool singletons = hack;
   size_t restarts = 0;
   Int numb = 0;
   tr_fr_ptr TR0;
@@ -394,6 +395,7 @@ init_stack(&stt, sz);
  loop:
  HLow = ptf_;
  TR0 = TR;
+ HB0 = HB;
    ground = true;
    myt = (CELL)HLow;
    HR=HLow+1;
@@ -472,7 +474,7 @@ init_stack(&stt, sz);
 	to_visit->ptf = ptf;
 	to_visit->ground = ground;
 	to_visit->oldp = ptd1;
-	to_visit->oldv = *ptd1;
+	to_visit->oldv = VISIT_UNMARK(*ptd1);
 	to_visit->t = myt;
 	dd0 = (*ptd1);
 	*ptd1 = VISIT_MARK();
@@ -506,7 +508,7 @@ init_stack(&stt, sz);
 	    char s[64];
 	    snprintf(s,63,"__^%ld__", to_visit-VISIT_ENTRY(*ptd1));
 	    *ptf = MkStringTerm(s);
-	
+	continue;
 	  } else if (forest) {
 	    // set up a binding PTF=D0
      struct cp_frame *entry =  VISIT_ENTRY(*ptd1);
@@ -624,7 +626,7 @@ init_stack(&stt, sz);
 	  to_visit->t = myt;
 	  to_visit->ground = ground;
 	  to_visit->oldp = ptd1;
-	  to_visit->oldv = *ptd1;
+	  to_visit->oldv = VISIT_UNMARK(*ptd1);
 	  *ptd1 = VISIT_MARK();
 	  to_visit++;
 	  ground = (f != FunctorMutable);
@@ -717,12 +719,12 @@ init_stack(&stt, sz);
   clean_tr(TR0 PASS_REGS);
   sz += sz;
  retry:
-  HR = ptf_+1;
   HLow = ptf_;
   reinit_stack(&stt, sz);
   pt0=pt0_;
   ptf=ptf_;
   pt0_end=pt0_end_;
+  HR = ptf+1;
   if (bindp)
   *bindp =  bind0;
   goto loop;
@@ -738,11 +740,10 @@ overflow:
      VUNMARK(to_visit->oldp, to_visit->oldv);
   }
   clean_tr(TR0);
-  HR = ptf_;
+  HB = HB0;
     if (&LOCAL_GlobalArena == arenap)
       LOCAL_GlobalArenaOverflows++;
     HR = ptf_+1;
-    HLow = ptf_;
     slb = Yap_PushHandle((CELL)pt0_);
      slc = Yap_PushHandle((CELL)pt0_end_);
    sld = Yap_PushHandle((CELL)ptf_);
@@ -751,6 +752,7 @@ overflow:
     size_t min_grow =
       (restarts < 16 ? 16 * 1024 * restarts * restarts : 128 * 1024);
       *arenap = CloseArena(cspace PASS_REGS);
+      restarts++;
       if ((*arenap =
 	   GrowArena(*arenap, min_grow,  1, cspace PASS_REGS)) == 0) {
 	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
@@ -813,29 +815,29 @@ overflow:
 static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
 			    Term *arenap, Term *listp, size_t min_grow USES_REGS) {
   cell_space_t cspace;
-  int res = 0, restarts = 0;
+  int res = 0;
   Term tf;
   
- restart:
   t = Deref(t);
-  if (!IsVarTerm(t)  && IsAtomicTerm(t)) {
+  if ( !IsVarTerm(t) && IsAtomicTerm(t)) {
     return t;
   }
   if (arenap) {
     enter_cell_space(&cspace, arenap);
   }
   {
-    CELL *Hi = HR;
-    CELL *ap = &t;
-    if (!arenap) HB=HR;
+      CELL *ap = &t;
+    HB=HR;
     //   DEB_DOOBIN(t);
+    CELL *pf = HR;
+    RESET_VARIABLE(HR);
     HR++;
-    HB=Hi;
-    if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, Hi,
+
+    if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, pf,
 				 listp, arenap, &cspace PASS_REGS)) != 0) {
       //goto error_handler;
     }
-    tf = *Hi;
+    tf = Deref(*pf);
     //	          DEB_≈DOOBOUT(tf);
   }
 
@@ -859,7 +861,12 @@ Term Yap_CopyTermNoShare(Term inp) {
 
 
 Term Yap_HackCycles(Term inp USES_REGS) {
+    return inp;
   Term l=MkIntTerm(0);
+  if (IsVarTerm(inp)) {
+      Term i = MkIntTerm(-1);
+      return Yap_MkApplTerm(FunctorDollarVar,1,&i);
+  }
   return CopyTermToArena(inp, FALSE, true, 3, NULL, &l, 0 PASS_REGS);
 }
 

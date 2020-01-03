@@ -36,10 +36,6 @@
 :- use_system_module( '$_boot', ['$$compile'/4]).
 
 
-:- use_system_module( attributes, [get_module_atts/2,
-        put_module_atts/2]).
-
-
 /**
  *  @addtogroup AttributedVariables_Builtins
  *  @{
@@ -551,11 +547,11 @@ internal_freeze(V,G) :-
 	update_att(V, G).
 
 update_att(V, G) :-
-	attributes:get_module_atts(V, '$coroutining'(_,Gs)),
+	get_attr(V, '$coroutining',Gs),
 	not_vmember(G, Gs), !,
-	attributes:put_module_atts(V, '$coroutining'(_,[G|Gs])).
+	put_attr(V, '$coroutining',[G|Gs]).
 update_att(V, G) :-
-	attributes:put_module_atts(V, '$coroutining'(_,[G])).
+	put_attr(V, '$coroutining',[G]).
 
 
 not_vmember(_, []).

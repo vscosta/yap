@@ -87,14 +87,14 @@ static char *send_tracer_message(char *start, char *name, arity_t arity,
             continue;
           }
         }
-	Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
-	LOCAL_max_depth=6, LOCAL_max_list=6, LOCAL_max_write_args = 6;
+	//Int md = LOCAL_max_depth, ml = LOCAL_max_list, ma = LOCAL_max_write_args;
+	//LOCAL_max_depth=6, LOCAL_max_list=6, LOCAL_max_write_args = 6;
         const char *sn = Yap_TermToBuffer(args[i],
                                           Handle_cyclics_f|Quote_illegal_f | Handle_vars_f|Singleton_vars_f);
-	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
+//	LOCAL_max_depth=md, LOCAL_max_list=ml, LOCAL_max_write_args = ma;
         size_t sz;
         if (sn == NULL) {
-	  sn = malloc(strlen("<* error *>")+1);
+	  sn = Malloc(strlen("<* error *>")+1);
 	  strcpy((char*)sn, "<* error *>");
         }
         sz = strlen(sn);

@@ -778,14 +778,14 @@ static Int cont_current_predicate(USES_REGS1) {
 
     if (IsNonVarTerm(t2)) {
       // module and functor known, should be easy
-      if (IsAtomTerm(t3)) {
+      if (IsAtomTerm(t3)) { // +. +, +
         if ((p = Yap_GetPredPropByAtom(AtomOfTerm(t3), t2)) &&
             valid_prop(p, task)) {
           cut_succeed();
         } else {
           cut_fail();
         }
-      } else {
+      } else {// +, -,+
         if ((p = Yap_GetPredPropByFunc(FunctorOfTerm(t3), t2)) &&
             valid_prop(p, task)) {
           cut_succeed();
@@ -822,7 +822,7 @@ static Int cont_current_predicate(USES_REGS1) {
       B->cp_h = HR;
       return b;
     }
-  } else if (IsNonVarTerm(t1)) {
+  } else if (IsNonVarTerm(t1)) { // +,?,?
     PropEntry *np, *p;
     // run over the same atom any predicate defined for that atom
     // may be fair bait, depends on whether we know the module.

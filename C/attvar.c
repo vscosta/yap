@@ -687,6 +687,18 @@ static Int put_att(USES_REGS1) {
 End of core routines
 */
 
+/**
+ @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
+
+If  _Var_ is a variable or attributed variable, set the value for the
+attribute named  _Module_ to  _Value_. If an attribute with this
+name is already associated with  _Var_, the old value is replaced.
+Backtracking will restore the old value (i.e., an attribute is a mutable
+term. See also `setarg/3`). This predicate raises a representation error if
+ _Var_ is not a variable and a type error if  _Module_ is not an atom.
+
+
+*/
 
 static Int put_attr(USES_REGS1) {
   /* receive a variable in ARG1 */
@@ -838,18 +850,16 @@ static Int modules_with_atts(USES_REGS1) {
 }
 
 
-/**
- @pred put_attr(+ _Var_,+ _Module_,+ _Value_)
 
-If  _Var_ is a variable or attributed variable, set the value for the
-attribute named  _Module_ to  _Value_. If an attribute with this
-name is already associated with  _Var_, the old value is replaced.
-Backtracking will restore the old value (i.e., an attribute is a mutable
-term. See also `setarg/3`). This predicate raises a representation error if
- _Var_ is not a variable and a type error if  _Module_ is not an atom.
+/** @pred put_attrs(+ _Var_,+ _Attributes_)
+
+
+Set all attributes of  _Var_.  See get_attrs/2 for a description of
+ _Attributes_.
 
 
 */
+
 static Int put_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
@@ -945,23 +955,45 @@ static Int del_all_atts(USES_REGS1) {
   }
   return TRUE;
 }
+/**
+ @pred get_attrs(+ _Var_,- _Attributes_)
 
-static Int get_attr(USES_REGS1) {
+Get all attributes of  _Var_.  _Attributes_ is a term of the form
+`att( _Module_,  _Value_,  _MoreAttributes_)`, where  _MoreAttributes_ is
+`[]` for the last attribute.
+
+*/
+
+static Int get_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
   /* if this is unbound, ok */
   attvar_record *attv = AttsFromTerm(inp);
-  if (!attv) return false;
-  Term tatts = Deref(ARG3);
-  Term mod = Deref(ARG2), p;
-  if (IsVarTerm(tatts = SearchAttsForModuleAsNameTerm(attv->Atts, mod, &p))) {
-        return FALSE;
-      return Yap_unify(ARG3,ArgOfTerm(2,tatts));
+  if (!attv) {
+      Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
+                     "first argument of get_attrs/2");
   } else {
-    Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-              "first argument of get_att/2");
-    return (FALSE);
+    return Yap_unify(ARG2,attv->Value);
   }
+}
+
+
+static Int get_attr(USES_REGS1) {
+    /* receive a variable in ARG1 */
+    Term inp = Deref(ARG1);
+    /* if this is unbound, ok */
+    attvar_record *attv = AttsFromTerm(inp);
+    if (!attv) return false;
+    Term tatts = Deref(ARG3);
+    Term mod = Deref(ARG2), p;
+    if (IsVarTerm(tatts = SearchAttsForModuleAsNameTerm(attv->Atts, mod, &p))) {
+        return FALSE;
+        return Yap_unify(ARG3,ArgOfTerm(2,tatts));
+    } else {
+        Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
+                  "first argument of get_att/2");
+        return (FALSE);
+    }
 }
 
 static Int free_att(USES_REGS1) {
@@ -1142,8 +1174,10 @@ void Yap_InitAttVarPreds(void) {
 #endif /* COROUTINING */
   Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
-  Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
-  Yap_InitCPred("put_attr", 3, put_attr, 0);
+    Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
+    Yap_InitCPred("put_attr", 3, put_attr, 0);
+    Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
+    Yap_InitCPred("put_attrs", 2, put_attrs, 0);
   Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
 }
