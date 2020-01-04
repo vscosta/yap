@@ -301,15 +301,11 @@ live :-
 query(G0, Vs, NVs,NLGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
-    %start_low_level_trace,
-     ignore((attributes:delayed_goals(G, Vs, IVs, LGs),
-     writeln(  delayed_goals(G, Vs, IVs, LGs)  ),
-     rational_term_to_forest(G+IVs,_+NVs,NLGs,LGs),
-       writeln(  term_to_forest(G+IVs,_+NVs,NLGs,LGs)  ),
+    %start_low_level_trace,`
+   attributes:delayed_goals(G,Vs, IVs, LGs),
+         rational_term_to_forest(IVs,NVs,NLGs,LGs),
   '$write_answer'(NVs, NLGs, Written),
-    writeln(  '$write_answer'(NVs, NLGs, Written)  ),
-    '$write_query_answer_true'(Written))),
-    stop_low_level_trace.
+    '$write_query_answer_true'(Written).
 
 '$yes_no'(G,C) :-
     '$current_module'(M),
@@ -334,9 +330,7 @@ query(G0, Vs, NVs,NLGs) :-
 '$process_answer'(Vs, LGs, Bindings) :-
     %'$purge_dontcares'(Vs,IVs),
     '$sort'(Vs, NVs),
-    writeln(NVs),
     '$prep_answer_var_by_var'(NVs, LAnsw, LGs),
-    writeln('$prep_answer_var_by_var'(NVs, LAnsw, LGs)),
     '$name_vars_in_goals'(LAnsw, Vs, Bindings).
 
 %
@@ -435,7 +429,6 @@ query(G0, Vs, NVs,NLGs) :-
 	fail.
 '$write_answer'(Vs, LBlk, FLAnsw) :-
     '$process_answer'(Vs, LBlk, NLAnsw),
-    writeln('$process_answer'(Vs, LBlk, NLAnsw)),
     '$write_vars_and_goals'(NLAnsw, first, FLAnsw).
 
 %% @pred write_query_answer( +Bindings )
@@ -548,8 +541,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals'(G, VL0, G) :-
 	'$name_well_known_vars'(VL0),
-	'$variables_in_term'(G, [], GVL),
-	'$name_vars_in_goals1'(GVL, 0, _).
+	numbervars(G,-1,_).
 
 '$name_well_known_vars'([]).
 '$name_well_known_vars'([Name=V|NVL0]) :-

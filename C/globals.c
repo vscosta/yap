@@ -653,10 +653,31 @@ init_stack(&stt, sz);
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
 
-	if (! GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
+	if (true||! GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
 	  d0 = AbsAppl(ptd0);
-	  ptd0 = (CELL*)RepAttVar(ptd0);
-	  goto list_loop;
+	  CELL *ptd1 = (CELL*)RepAttVar(ptd0);
+        /* store the terms to visit */
+        if (to_visit + 32 >= to_visit_end) {
+            goto aux_overflow;
+        }
+        *HR++ = (CELL)FunctorAttVar;
+                *ptf = HR+1;
+        to_visit->pt0 = pt0;
+        to_visit->pt0_end = pt0_end;
+        to_visit->ptf = ptf;
+        to_visit->t = myt;
+        to_visit->ground = ground;
+        to_visit->oldp = ptd1;
+        to_visit->oldv = VISIT_UNMARK(*ptd1);
+        *ptd1 = VISIT_MARK();
+        to_visit++;
+        ground = false;
+        pt0 = ptd1+1;
+        RESET_VARIABLE(HR+1);
+        ptf = HR+2;
+        HR+=4;
+        pt0_end = ptd1 + 3;
+        continue;
 	} else {
 	  bp = to_visit;
 	  if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {

@@ -916,45 +916,64 @@ static Int put_attrs(USES_REGS1) {
   }
 
 static  Int del_attr(USES_REGS1) {
-  /* receive a variable in ARG1 */
-  Term inp = Deref(ARG1);
-  Term otatts;
+    /* receive a variable in ARG1 */
+    Term inp = Deref(ARG1), *pt;
+    /* if this is unbound, ok */
+    attvar_record *attv = AttsFromTerm(inp);
+     if (!attv) return false;
+    Term tatts = attv->Atts;
+    pt = &attv->Atts;
+            Term mod = Deref(ARG2);
+    while(!IsVarTerm(tatts) && tatts != TermNil) {
+        if (ArgOfTerm(1,tatts) == mod) {
+            if (Yap_unify(ARG3,ArgOfTerm(2, tatts))) {
+                MaBind(pt,ArgOfTerm(3, tatts));
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+           pt = RepAppl(tatts)+3;
+           tatts =  ArgOfTerm(3, tatts);
 
-  /* if this is unbound, ok */
-  if (IsVarTerm(inp)) {
-    attvar_record *attv;
-    Term tatts = Deref(ARG2);
-    Functor mfun = FunctorOfTerm(tatts);
-
-    if (IsAttachedTerm(inp)) {
-      attv = RepAttVar(VarOfTerm(inp));
-    } else {
-      return TRUE;
+        }
     }
-    if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts, mfun))) {
-      return TRUE;
-    } else {
-      DelAtts(attv, otatts PASS_REGS);
-    }
-    return TRUE;
-  } else {
-    return TRUE;
-  }
+    return false;
 }
 
-static Int del_all_atts(USES_REGS1) {
+
+/** @pred del_attrs(+ _Var_)
+
+
+If  _Var_ is an attributed variable, delete <em>all</em> its
+attributes.  In all other cases, this predicate succeeds without
+side-effects.
+
+
+*/
+static Int del_attrs(USES_REGS1) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp) && IsAttachedTerm(inp)) {
-    attvar_record *attv;
+      attvar_record *attv;
 
-    attv = RepAttVar(VarOfTerm(inp));
-    DelAllAtts(attv PASS_REGS);
+      attv = RepAttVar(VarOfTerm(inp));
+      if (IsVarTerm(attv->Atts) || attv->Atts == TermNil)
+          return false;
+      if (Yap_unify(ARG2, attv->Atts)) {
+          MaBind(&attv->Atts, attv->Atts);
+          return true;
+      } else {
+          return false;
+      }
   }
-  return TRUE;
+    return false;
 }
+
+
+
 /**
  @pred get_attrs(+ _Var_,- _Attributes_)
 
@@ -973,7 +992,7 @@ static Int get_attrs(USES_REGS1) {
       Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
                      "first argument of get_attrs/2");
   } else {
-    return Yap_unify(ARG2,attv->Value);
+    return Yap_unify(ARG2,attv->Atts);
   }
 }
 
@@ -988,11 +1007,8 @@ static Int get_attr(USES_REGS1) {
     Term mod = Deref(ARG2), p;
     if (IsVarTerm(tatts = SearchAttsForModuleAsNameTerm(attv->Atts, mod, &p))) {
         return FALSE;
-        return Yap_unify(ARG3,ArgOfTerm(2,tatts));
     } else {
-        Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
-                  "first argument of get_att/2");
-        return (FALSE);
+        return Yap_unify(ARG3,ArgOfTerm(2,tatts));
     }
 }
 
@@ -1157,13 +1173,11 @@ void Yap_InitAttVarPreds(void) {
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
   Yap_InitCPred("get_att", 4, get_att, SafePredFlag);
-    Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);
-    put:  Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
+    Yap_InitCPred("has_module_atts", 2, has_atts, SafePredFlag);Yap_InitCPred("get_all_atts", 2, get_all_atts, SafePredFlag);
   Yap_InitCPred("get_all_swi_atts", 2, swi_all_atts, SafePredFlag);
   Yap_InitCPred("free_att", 3, free_att, SafePredFlag);
   Yap_InitCPred("put_att", 5, put_att, 0);
   Yap_InitCPred("del_all_module_atts", 2, del_attr, 0);
-  Yap_InitCPred("del_all_atts", 1, del_all_atts, 0);
   Yap_InitCPred("rm_att", 4, rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, bind_attvar, SafePredFlag);
   Yap_InitCPred("unbind_attvar", 1, unbind_attvar, SafePredFlag);
@@ -1175,8 +1189,10 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
     Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
+    Yap_InitCPred("del_attr", 3, del_attr, SafePredFlag);
     Yap_InitCPred("put_attr", 3, put_attr, 0);
     Yap_InitCPred("get_attrs", 2, get_attrs, SafePredFlag);
+    Yap_InitCPred("del_attrs", 2, del_attrs, SafePredFlag);
     Yap_InitCPred("put_attrs", 2, put_attrs, 0);
   Yap_InitCPred("attvar", 1, is_attvar, SafePredFlag | TestPredFlag);
   Yap_InitCPred("$att_bound", 1, attvar_bound, SafePredFlag | TestPredFlag);
