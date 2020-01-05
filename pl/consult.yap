@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
   *	 YAP Prolog  							 *
@@ -850,6 +851,46 @@ db_files(Fs) :-
 	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
+	'$process_init_goal'(Answers).
+'$exec_initialization_goals'.
+
+'$process_init_goal'([G|_]) :-
+    '$yap_strip_module'(G,M,H),
+	(
+	 catch(( '$current_choice_point'(CP),
+		 '$meta_call'(H,CP,H,M
+			     )), Error, '$LoopError'(Error, top))
+	->
+	 true
+	;
+	format(user_error,':- ~w failed.~n',[G])
+	),
+	fail.
+'$process_init_goal'([_|Gs]) :-
+    '$process_init_goal'(Gs).
+/**
+  @pred include(+ _F_) is directive
+
+  The `include` directive adds the text files or sequence of text
+  files specified by  _F_ into the files being currently consulted.
+  It may be used
+  as an replacement to consult/1 by allowing the programmer to include a
+  data-base
+  split into several files.
+*/
+
+'$include'(V, _) :- var(V), !,
+	'$do_error'(instantiation_error,include(V)).
+'$include'([], _) :- !.
+'$include'([F|Fs], Status) :- !,
+	'$include'(F, Status),
+	'$include'(Fs, Status).
+'$include'(X, Status) :-
+	b_getval('$lf_status', TOpts),
+	'$full_filename'(X, Y ),
+	'$including'(Old, Y),
+	'$lf_opt'(stream, TOpts, OldStream),
+	current_source_module(Mod,Mod),
 	( open(Y, read, Stream) 	->
 	  true ;
 	  '$do_error'(permission_error(input,stream,Y),include(X))

@@ -245,7 +245,7 @@ meta_predicate(P) :-
     '$end_goal_expansion'(B4, GF, GS, HM, SM, M4, H, Assert),
     !,
     '$yap_strip_module'( M4:GS, MOF, GOF).
-'$expand_goal'(G0, _, _, _, _, _, _) :- writeln(bEEED:G0),fail.
+'$expand_goal'(G0, G0, M:G0, _, M, _, _).
 
 '$end_goal_expansion'(G, G1, BM:GO, HM, SM, BM, H, compile) :-
    !,

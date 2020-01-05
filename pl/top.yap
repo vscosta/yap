@@ -120,14 +120,14 @@ live :-
  %
 '$execute_commands'(V,_,_,_,_,Source) :- var(V), !,
 	 '$do_error'(instantiation_error,meta_call(Source)).
-'$execute_commands'([],_,_,_,_,_) :- !.
-'$execute_commands'([C|Cs],M,VL,Pos,Con,Source) :-
+'$execute_commands'([],_,_,_,_,[]) :- !.
+'$execute_commands'([C|Cs],M,VL,Pos,Con,[Source|Ss]) :-
     !,
     (
 	'$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)),
 	fail
     ;
-    '$execute_commands'(Cs,M,VL,Pos,Con,Source)
+    '$execute_commands'(Cs,M,VL,Pos,Con,Ss)
     ).
  '$execute_commands'(C,M,VL,Pos,Con,Source) :-
 	 '$execute_command'(C,M,VL,Pos,Con,Source).
@@ -144,7 +144,7 @@ live :-
 	 '__NB_getval__'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
-'$execute_command'((:-G),M,VL,Pos,Option,_) :-
+'$execute_command'((:-G),M,VL,Pos,Option,Source) :-
     Option \= top,
     !,			% allow user expansion
     '$expand_term'((:- M:G), O),
@@ -154,7 +154,7 @@ live :-
         ->
 	      '$process_directive'(G1, Option, NM, VL, Pos)
      ;
-           '$execute_commands'(G1,NM,VL,Pos,Option,O)
+           '$execute_commands'(	NO,NM,VL,Pos,Option,Source)
         ).
 '$execute_command'((?-G), M, VL, Pos, Option, Source) :-
 	 Option \= top,
@@ -302,8 +302,9 @@ query(G0, Vs, NVs,NLGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
     %start_low_level_trace,`
-   attributes:delayed_goals(G,Vs, IVs, LGs),
-         rational_term_to_forest(IVs,NVs,NLGs,LGs),
+   copy_term(G+Vs, IG+IVs, LGs),
+   rational_term_to_forest(IVs+LGs,NVs+ILGs,Extra,[]),
+ lists:append(Extra,ILGs,NLGs),	 
   '$write_answer'(NVs, NLGs, Written),
     '$write_query_answer_true'(Written).
 

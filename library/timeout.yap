@@ -82,7 +82,7 @@ precision on the scale of seconds.
 time_out(Goal, Time, Result) :-
 	T is integer(Time/1000),
 	UT is integer(Time*1000) mod 10000000,
-	yap_hacks:alarm([T|UT],throw(error(time_out(Goal)),[]),_),
+	yap_hacks:alarm([T|UT],throw(error(time_out(Goal))),_),
 	gated_call(
 		true,
 			Goal,

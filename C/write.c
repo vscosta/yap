@@ -997,6 +997,11 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
            IsStringTerm(ti))) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
+	  if (k < -1) {
+	                wrputc('_', wglb->stream);
+
+	    k = -k-1;
+	  }
           if (k == -1) {
             wrputc('_', wglb->stream);
             lastw = alphanum;
@@ -1131,7 +1136,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
     tn = Yap_HackCycles(t PASS_REGS);
     flags |= Handle_vars_f;
-  } else if ( (flags & (Singleton_vars_f|Handle_cyclics_f) == (Singleton_vars_f|Handle_cyclics_f)) ||
+  } else if ( ((flags & (Singleton_vars_f|Handle_cyclics_f)) == (Singleton_vars_f|Handle_cyclics_f)) ||
 	      (args && args[WRITE_SINGLETONS].used &&
 	       args[WRITE_SINGLETONS].tvalue == TermTrue) ) {
     tn = Yap_HackCycles(t PASS_REGS);

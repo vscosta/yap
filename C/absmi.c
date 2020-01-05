@@ -237,15 +237,9 @@ static int check_alarm_fail_int(int CONT USES_REGS) {
      is not proceesed by same thread as absmi */
   if (LOCAL_PrologMode & (AbortMode | InterruptMode)) {
     CalculateStackGap(PASS_REGS1);
-    return CONT;
   }
 #endif
   if (Yap_get_signal(YAP_FAIL_SIGNAL)) {
-    return INT_HANDLER_FAIL;
-  }
-  if (!Yap_has_a_signal()) {
-    /* no need to look into GC */
-    CalculateStackGap(PASS_REGS1);
     return INT_HANDLER_FAIL;
   }
   // fail even if there are more signals, they will have to be dealt later.
@@ -272,9 +266,9 @@ static int code_overflow(CELL *yenv USES_REGS) {
 
     /* do a garbage collection first to check if we can recover memory */
     if (!Yap_locked_growheap(false, 0, NULL)) {
-      Yap_NilError(RESOURCE_ERROR_HEAP, "YAP failed to grow heap: %s",
+      Yap_ThrowError(RESOURCE_ERROR_HEAP, TermNil, "YAP failed to grow heap: %s",
 		   "malloc/mmap failed");
-      return 0;
+      return INT_HANDLER_FAIL;
     }
     CACHE_A1();
     if (yenv == ASP) {
@@ -446,21 +440,7 @@ static int interrupt_handlerc(PredEntry *pe USES_REGS) {
   return interrupt_handler(pe PASS_REGS);
 }
 
-static int interrupt_handler_either(Term t_cut, PredEntry *pe USES_REGS) {
-  int rc;
-    // protect registers before we mess about.
-    // recompute YENV and get ASP
-  // should we cut? If t_cut == INT(0) no
-  ARG2 = t_cut;
-  // ASP
-  ARG1 = TermNil;
-  return interrupt_wake_up(TermTrue, NULL PASS_REGS) ?
-	  INT_HANDLER_RET_JMP :
-	  INT_HANDLER_FAIL;
-  return rc;
-}
-
-#if  0               
+#if  1               
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -493,7 +473,7 @@ static int interrupt_execute(USES_REGS1) {
   int v;
 
 DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(true PASS_REGS)) == INT_HANDLER_FAIL) {
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return INT_HANDLER_FAIL;
   }
   if (PP)
@@ -507,7 +487,7 @@ DEBUG_INTERRUPTS();
     return v;
   }
   if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, CP,
-			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0) {
+			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
   return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
@@ -518,8 +498,8 @@ static int interrupt_call(USES_REGS1) {
   PredEntry *pe;
 
 DEBUG_INTERRUPTS();
- if (HAS_INT((v = check_alarm_fail_int(true PASS_REGS)))) {
-    return v;
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return INT_HANDLER_FAIL;
   }
   if (PP)
     UNLOCKPE(1, PP);
@@ -529,12 +509,12 @@ DEBUG_INTERRUPTS();
       (pe->PredFlags & (NoTracePredFlag | HiddenPredFlag))) {
     return INT_HANDLER_RET_JMP;
   }
-  if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
+  if ((v = code_overflow(YENV PASS_REGS))  != INT_HANDLER_GO_ON) {
     return v;
   }
   // at this point P is already at the end of the instruction.
-  if (HAS_INT(v = stack_overflow(pe, YENV, CP,
-			  pe->ArityOfPE PASS_REGS)) ) {
+  if ((v = stack_overflow(pe, YENV, CP,
+			  pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON ) {
     return v;
   } else {
    return interrupt_wake_up(TermTrue, NULL PASS_REGS) ?
@@ -547,8 +527,8 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   int v;
 
   DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= INT_HANDLER_FAIL) {
-    return INT_HANDLER_FAIL ;
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return INT_HANDLER_FAIL;
   }
   if (PP)
     UNLOCKPE(1, PP);
@@ -556,11 +536,10 @@ static int interrupt_pexecute(PredEntry *pen USES_REGS) {
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
     return INT_HANDLER_RET_JMP; /* keep on creeping */
   }
-  if (HAS_INT(v = code_overflow(YENV PASS_REGS))) {
+  if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
-  if (HAS_INT(v = stack_overflow(pen, YENV, NEXTOP(P, Osbmp),
-                                                                                      			  pen->ArityOfPE PASS_REGS))) {
+  if ((v = stack_overflow(pen, YENV, NEXTOP(P, Osbmp),pen->ArityOfPE PASS_REGS))) {
     return v;
   }
   return interrupt_handler(pen PASS_REGS);
@@ -605,8 +584,8 @@ static int interrupt_deallocate(USES_REGS1) {
   int v;
 
   DEBUG_INTERRUPTS();
-  if (HAS_INT((v = check_alarm_fail_int(true PASS_REGS)))) {
-    return v;
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
+    return INT_HANDLER_FAIL;
   }
   /*
     don't do a creep here; also, if our instruction is followed by
@@ -621,7 +600,7 @@ static int interrupt_deallocate(USES_REGS1) {
 
     if (PP)
       UNLOCKPE(1, PP);
-    if (HAS_INT((v = code_overflow(YENV PASS_REGS))) ) {
+    if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
       return v;
     }
     if (Yap_has_a_signal()) {
@@ -642,7 +621,7 @@ static int interrupt_deallocate(USES_REGS1) {
       yamop *oP = P;
       P = YESCODE;
       if (!Yap_gcl(0, 0, ENV, YESCODE)) {
-	Yap_NilError(RESOURCE_ERROR_STACK, "stack overflow: gc failed");
+	Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
       }
       S = ASP;
       S[E_CB] = (CELL) (LCL0 - cut_b);
@@ -660,7 +639,7 @@ static int interrupt_deallocate(USES_REGS1) {
 	if (PP)
 	  UNLOCKPE(1, PP);
 	PP = PREVOP(P, p)->y_u.p.p;
-	if (HAS_INT((v = code_overflow(YENV PASS_REGS))) ) {
+	if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON ) {
 	  return v;
 	}
 	if (Yap_has_a_signal()) {
@@ -704,9 +683,10 @@ static int interrupt_prune(CELL *upto, yamop *p USES_REGS) {
     
   int v;
   DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= INT_HANDLER_FAIL) {
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return INT_HANDLER_FAIL;
   }
+
   p = NEXTOP(p, Osblp) ;
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
     v =   interrupt_wake_up(cut_t, p  PASS_REGS) ?
@@ -755,7 +735,7 @@ static int interrupt_either(USES_REGS1) {
   int v;
 
  DEBUG_INTERRUPTS();
-  if ((v = check_alarm_fail_int(2 PASS_REGS)) >= INT_HANDLER_FAIL) {
+ if ( (v=check_alarm_fail_int(true PASS_REGS)) != INT_HANDLER_GO_ON) {
     return INT_HANDLER_FAIL;
   }
   if (Yap_only_has_signal(YAP_CREEP_SIGNAL)) {
@@ -765,11 +745,11 @@ static int interrupt_either(USES_REGS1) {
     UNLOCKPE(1, PP);
   PP = P->y_u.Osblp.p0;
   /* find something to fool S */
-  if (HAS_INT(v = code_overflow(YENV PASS_REGS))) {
+  if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
-  if (HAS_INT((v = stack_overflow(  PredRestoreRegs, ENV,
-				    B->cp_cp, 0 PASS_REGS)))) {
+  if ((v = stack_overflow(  PredRestoreRegs, ENV,
+				    B->cp_cp, 0 PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
    return interrupt_wake_up(TermTrue,  NEXTOP(P,Osblp) PASS_REGS) ?
@@ -792,11 +772,11 @@ static int interrupt_dexecute(USES_REGS1) {
     return 2;
   }
   /* set S for next instructions */
-  if (HAS_INT((v = code_overflow(YENV PASS_REGS)))) {
+  if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
-  if (HAS_INT((v = stack_overflow(P->y_u.Osbpp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
-				  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) >= 0)) {
+  if ((v = stack_overflow(P->y_u.Osbpp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
+				  P->y_u.Osbpp.p->ArityOfPE PASS_REGS))  != INT_HANDLER_GO_ON) {
     return v;
   }
  /* first, deallocate */
@@ -1224,7 +1204,8 @@ Int Yap_absmi(int inp) {
 	cut_b = LCL0 - (CELL *)(ASP[E_CB]);
 	saveregs();
 	if (!Yap_growtrail(0, false)) {
-	  Yap_NilError(RESOURCE_ERROR_TRAIL,
+	  Yap_ThrowError(RESOURCE_ERROR_TRAIL,
+		       TermNil,
 		       "YAP failed to reserve %ld bytes in growtrail",
 		       sizeof(CELL) * K16);
 	  setregs();

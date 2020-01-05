@@ -74,15 +74,15 @@ defined.
 
 
 */
-prolog:copy_term(Term, LVs, LGs) :-
+prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
-	->  LGs = [], copy_term_nat(Term,G)
+	->  LGs = [], copy_term_nat(Term,NTerm)
 	;
-	findall(NVs+NGs,
+	findall(NTerm+NGs,
 	 (attributes:attvars_residuals(Vs, Gs, []),
-	  copy_term_nat(Term+Vs+Gs,_+NVs+NGs)),
-	  [LVs+LGs])
+	  copy_term_nat(Term+Gs,NTerm+NGs)),
+	  [NTerm+LGs])
 	   ).
 
 attvars_residuals([]) --> [].
@@ -328,7 +328,7 @@ prolog:call_residue(Module:Goal,Residue) :-
 attributes:delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
 %	term_factorized([G|Vs], [_|NVs], Gs).
-	copy_term([G|Vs], [_|NVs], Gs).
+	copy_term(G+Vs, _+NVs, Gs).
 
 project_delayed_goals(G) :-
 % SICStus compatible step,

@@ -532,9 +532,7 @@ every 5th iteration only.
 
 
 %%%%%%%%%%%%
-% iterative deepening on minimal probabilities (delta, max, kbest):
-% - first threshold (not in log-space as only used to retrieve argument for init_threshold/1, which is also used with user-supplied argument)
-% - last threshold to ensure termination in case infinite search space (saved also in log-space for easy comparison with current values during search)
+% iterative deepening on minimal proba(saved also in log-space for easy comparison with current values during search)
 % - factor used to decrease threshold for next level, NewMin=Factor*OldMin (saved also in log-space)
 %%%%%%%%%%%%
 

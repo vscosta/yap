@@ -806,7 +806,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                 if ( vno >= 0)
                     HR[1] = MkIntTerm(vno++);
                 else if (vno < 0)
-                    HR[1] = MkIntTerm(vno--);
+                    HR[1] = MkIntTerm(--vno);
                 HR += 2;
    continue;
             }

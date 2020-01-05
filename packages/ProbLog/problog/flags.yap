@@ -528,6 +528,11 @@ The possible values for this flag are any number greater than zero.
 
 */
 
+
+:- meta_predicate problog_flag_define(+, :, +, +),
+		  problog_flag_define(+, +, :, +, +),
+		  problog_flag_define(+, +, :, +, :, +).
+
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).
 

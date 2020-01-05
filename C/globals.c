@@ -738,8 +738,13 @@ init_stack(&stt, sz);
     VUNMARK(to_visit->oldp, to_visit->oldv);
   }
   clean_tr(TR0 PASS_REGS);
+  HR = HB;
+        *arenap = CloseArena(cspace PASS_REGS);
   sz += sz;
  retry:
+  if (arenap) {
+    enter_cell_space(&cspace, arenap);
+  }
   HLow = ptf_;
   reinit_stack(&stt, sz);
   pt0=pt0_;
@@ -755,7 +760,6 @@ init_stack(&stt, sz);
 overflow:
   { yhandle_t sla, slb, slc, sld, sle;
     
-  	printf("stack\n");
   while (to_visit > to_visit0) {
     to_visit--;
      VUNMARK(to_visit->oldp, to_visit->oldv);
@@ -806,11 +810,12 @@ overflow:
 #endif
   clean_tr(TR0);
     HR = HB;
-    yhandle_t sla;
     if (arenap) {
-    sla = Yap_PushHandle(CloseArena(cspace   PASS_REGS));
+     *arenap = CloseArena(cspace   PASS_REGS);
     }
-   yhandle_t slb = Yap_PushHandle((CELL)pt0_);
+      *arenap = CloseArena(cspace PASS_REGS);
+      yhandle_t sla = Yap_PushHandle(*arenap);
+yhandle_t slb = Yap_PushHandle((CELL)pt0_);
     yhandle_t slc = Yap_PushHandle((CELL)pt0_end_);
     yhandle_t sld = Yap_PushHandle((CELL)ptf_);
     yhandle_t sle = Yap_PushHandle(bind0);

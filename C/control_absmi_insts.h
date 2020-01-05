@@ -250,24 +250,17 @@ after_commit_b_y:
       /* dexecute    Label               */
       /* joint deallocate and execute */
       BOp(dexecute, Osbpp);
-#ifdef LOW_LEVEL_TRACER
       if (Yap_do_low_level_trace)
         low_level_trace(enter_pred,PREG->y_u.Osbpp.p,XREGS+1);
-#endif  /* LOW_LEVEL_TRACER */
       CACHE_Y_AS_ENV(YREG);
       {
         PredEntry *pt0;
 
         pt0 = PREG->y_u.Osbpp.p;
-#ifndef NO_CHECKING
         /* check stacks */
         check_stack(NoStackDExecute, HR);
-	goto do_dexecute;
-     restart_dexecute:	
-	pt0 = PP;
-        FETCH_Y_FROM_ENV(YREG);
-      do_dexecute:
-#endif
+      continue_dexecute:
+	pt0 =PREG->y_u.Osbpp.p;
         CACHE_A1();
 #ifdef DEPTH_LIMIT
         if (DEPTH <= MkIntTerm(1)) {/* I assume Module==0 is primitives */
@@ -316,8 +309,6 @@ ALWAYS_GONext();
 
     NoStackDExecute:
       PROCESS_INTERRUPT(interrupt_dexecute, continue_dexecute, ENV_Size(CPREG)*CellSize);
-      continue_dexecute:
-        set_pc();
         JMPNext();
        ENDBOp();
 
@@ -347,7 +338,7 @@ ALWAYS_GONext();
         check_stack(NoStackCall, HR);
 	goto do_call;
      restart_call:	
-	pt = PP;
+	 CACHE_A1();
         FETCH_Y_FROM_ENV(YREG);
       do_call:
 #endif
@@ -410,12 +401,12 @@ ALWAYS_GONext();
 #endif
       WRITEBACK_Y_AS_ENV();
       ALWAYS_GONext();
-      ALWAYS_END_PREFETCH();
-      ENDCACHE_Y_AS_ENV();
 
     NoStackCall:
       PROCESS_INTERRUPT(interrupt_call, restart_call, PREG->y_u.Osbpp.s);
 
+      ALWAYS_END_PREFETCH();
+      ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       Op(allocate, e);
