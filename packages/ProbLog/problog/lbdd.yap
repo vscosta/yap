@@ -25,10 +25,11 @@
 ).
 
 
-:- use_module('../problog').
+:- use_module('../problog_lbfgs').
 :- use_module('flags').
 :- use_module('logger').
 :- use_module(library(matrix)).
+:- use_module(library(lists)).
 
 set_tunable(I,Slope,P) :-
     X <== P[I],

@@ -302,7 +302,7 @@ query(G0, Vs, NVs,NLGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
     %start_low_level_trace,`
-   copy_term(G+Vs, IG+IVs, LGs),
+   copy_term(G+Vs, _IG+IVs, LGs),
    rational_term_to_forest(IVs+LGs,NVs+ILGs,Extra,[]),
  lists:append(Extra,ILGs,NLGs),	 
   '$write_answer'(NVs, NLGs, Written),

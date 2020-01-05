@@ -28,7 +28,7 @@
    + They support both global assignment using nb_setval/2 and
    backtrackable assignment using b_setval/2.
 
-   + Only one value (which can be an arbitrary complex Prolog term)
+    + Only one value (which can be an arbitrary complex Prolog term)
    can be associated to a variable at a time.
 
    + Their value cannot be shared among threads. Each thread has its own
@@ -366,14 +366,14 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
  */
 static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
                              bool share, bool copy_att_vars,
-                             CELL *ptf_,
+                             CELL **ptf_,
                              Term *bindp,
 			     CELL *arenap,
 			     cell_space_t *cspace USES_REGS) {
   // allocate space for internal stack, so that we do not have yo rely on
   //m C-stack.
 
-  CELL *pt0=pt0_, *ptf=ptf_,*pt0_end=pt0_end_;
+  CELL *pt0=pt0_,*ptf=*ptf_,*pt0_end=pt0_end_;
 
   Term bind0 =  0;
   Ystack_t stt;
@@ -389,11 +389,11 @@ static int copy_complex_term(CELL *pt0_,  CELL *pt0_end_,
    bool ground;
    Term myt;
    if (bindp && forest) bind0 = *bindp;
-   
+   Term t = TermNil;
    //share |= hack;
 init_stack(&stt, sz);
  loop:
- HLow = ptf_;
+ HLow = *ptf_;
  TR0 = TR;
  HB0 = HB;
    ground = true;
@@ -661,7 +661,7 @@ init_stack(&stt, sz);
             goto aux_overflow;
         }
         *HR++ = (CELL)FunctorAttVar;
-                *ptf = HR+1;
+                *ptf = (CELL)(HR+1);
         to_visit->pt0 = pt0;
         to_visit->pt0_end = pt0_end;
         to_visit->ptf = ptf;
@@ -733,24 +733,31 @@ init_stack(&stt, sz);
 	return 0;
 
  aux_overflow:
+  t = pt0_[1];
   while (to_visit > to_visit0) {
     to_visit--;
     VUNMARK(to_visit->oldp, to_visit->oldv);
   }
   clean_tr(TR0 PASS_REGS);
-  HR = HB;
+
+  if (arenap)
         *arenap = CloseArena(cspace PASS_REGS);
   sz += sz;
  retry:
   if (arenap) {
-    enter_cell_space(&cspace, arenap);
+    enter_cell_space(cspace, arenap);
   }
-  HLow = ptf_;
+  HLow =  HR;
+  pt0_ = HR-1;
+  pt0_end_ = HR;
+  HR[0] = t;
+  HR++;
+    HB = HR;
+  *ptf_ = HR++;
   reinit_stack(&stt, sz);
   pt0=pt0_;
-  ptf=ptf_;
+  ptf=*ptf_;
   pt0_end=pt0_end_;
-  HR = ptf+1;
   if (bindp)
   *bindp =  bind0;
   goto loop;
@@ -758,7 +765,7 @@ init_stack(&stt, sz);
   
 
 overflow:
-  { yhandle_t sla, slb, slc, sld, sle;
+  { yhandle_t  slb,  sle;
     
   while (to_visit > to_visit0) {
     to_visit--;
@@ -768,10 +775,8 @@ overflow:
   HB = HB0;
     if (&LOCAL_GlobalArena == arenap)
       LOCAL_GlobalArenaOverflows++;
-    HR = ptf_+1;
-    slb = Yap_PushHandle((CELL)pt0_);
-     slc = Yap_PushHandle((CELL)pt0_end_);
-   sld = Yap_PushHandle((CELL)ptf_);
+    HR = *ptf_+1;
+    slb = Yap_PushHandle(pt0_[1]);
     sle = Yap_PushHandle(bind0);
     if (arenap) {
     size_t min_grow =
@@ -793,14 +798,11 @@ overflow:
     }
 
         bind0 = Yap_PopHandle(sle);
-        ptf_ = (CELL *)Yap_PopHandle(sld);
-        pt0_end_ = (CELL *)Yap_PopHandle(slc);
-        pt0_ = (CELL *)Yap_PopHandle(slb);
+        t = Yap_PopHandle(slb);
   }
     goto retry;
 
  trail_overflow:
-    printf("trail\n");
     {
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
@@ -814,10 +816,8 @@ overflow:
      *arenap = CloseArena(cspace   PASS_REGS);
     }
       *arenap = CloseArena(cspace PASS_REGS);
-      yhandle_t sla = Yap_PushHandle(*arenap);
-yhandle_t slb = Yap_PushHandle((CELL)pt0_);
-    yhandle_t slc = Yap_PushHandle((CELL)pt0_end_);
-    yhandle_t sld = Yap_PushHandle((CELL)ptf_);
+        yhandle_t sla = Yap_PushHandle(*arenap);
+        yhandle_t slb = Yap_PushHandle(pt0_[1]);
     yhandle_t sle = Yap_PushHandle(bind0);
     do {
       /* Trail overflow */
@@ -828,9 +828,7 @@ yhandle_t slb = Yap_PushHandle((CELL)pt0_);
       }
     } while (TR > (tr_fr_ptr) LOCAL_TrailTop - 256 * 256);
     bind0 = Yap_PopHandle(sle);
-    ptf_ = (CELL *)Yap_PopHandle(sld);
-        pt0_end_ = (CELL *)Yap_PopHandle(slc);
-        pt0_ = (CELL *)Yap_PopHandle(slb);
+        t = Yap_PopHandle(slb);
     if (arenap) {
       *arenap = Yap_PopHandle(sla);
     }
@@ -845,7 +843,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
   Term tf;
   
   t = Deref(t);
-  if ( !IsVarTerm(t) && IsAtomicTerm(t)) {
+  if ( !IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     return t;
   }
   if (arenap) {
@@ -859,7 +857,7 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
     RESET_VARIABLE(HR);
     HR++;
 
-    if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, pf,
+    if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars,& pf,
 				 listp, arenap, &cspace PASS_REGS)) != 0) {
       //goto error_handler;
     }
