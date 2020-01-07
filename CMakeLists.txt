@@ -425,7 +425,7 @@ include_directories(
   ${GMP_INCLUDE_DIRS}
   ${READLINE_INCLUDE_DIR}
   ${CMAKE_BINARY_DIR}
-  ) 
+  )
 
 add_subdirectory( H )
 
@@ -595,7 +595,7 @@ set_property(SOURCE ${LIBYAP_SOURCES} APPEND PROPERTY COMPILE_DEFINITIONS YAP_KE
 
 
 IF (WITH_PYTHON)
-  include(python )
+  add_subDIRECTORY(packages/python)
 ENDIF (WITH_PYTHON)
 
 
