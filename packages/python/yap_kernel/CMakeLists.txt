@@ -22,8 +22,6 @@ yap_kernel/inprocess/constants.py
 yap_kernel/inprocess/tests/test_kernelmanager.py
 yap_kernel/inprocess/tests/__init__.py
 yap_kernel/inprocess/tests/test_kernel.py
-yap_kernel/inprocess/__init__.py
-yap_kernel/inprocess/blocking.py
 yap_kernel/inprocess/channels.py
 yap_kernel/inprocess/socket.py
 yap_kernel/inprocess/manager.py
@@ -435,12 +433,12 @@ add_custom_target(YAP_KERNEL
   ALL
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
  DEPENDS  ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-32x32.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/logo-64x64.png ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/kernel.js ${CMAKE_CURRENT_BINARY_DIR}/yap_kernel/resources/prolog.js  ${OUTS} YAP4PY
-   COMMAND ${PYTHON_EXECUTABLE}  ${SETUP_PY} sdist ${bdist}
+   COMMAND ${Python3_EXECUTABLE}  ${SETUP_PY} sdist ${bdist}
 )
 
    install(CODE "execute_process(
-         COMMAND ${PYTHON_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed   .
-        COMMAND ${PYTHON_EXECUTABLE} -m yap_kernel.kernelspec
+         COMMAND ${Python3_EXECUTABLE} -m pip install ${PYTHON_USER_INSTALL}    --ignore-installed   .
+        COMMAND ${Python3_EXECUTABLE} -m yap_kernel.kernelspec
         ERROR_VARIABLE setupErr
         OUTPUT_VARIABLE setupOut
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")

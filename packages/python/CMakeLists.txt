@@ -66,12 +66,12 @@ find_package (Python3 COMPONENTS Interpreter Development NumPy)
 # The NumPy version.
 
 #CHECK: PythonLibs, changed to work in WIN32
-if (Python_Development_FOUND)
+if (Python3_Development_FOUND)
 set (PYTHON_SOURCES python.c pl2py.c pybips.c py2pl.c pl2pl.c pypreds.c pyio.c)
 set (PYTHON_HEADERS py4yap.h)
 set (CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
-include_directories( BEFORE ${Python_INCLUDE_DIRS} ${Python_NumPy_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
+include_directories( BEFORE ${Python3_INCLUDE_DIRS} ${Python3_NumPy_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}
 ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/os ${CMAKE_SOURCE_DIR}/H ${CMAKE_SOURCE_DIR}/OPTYap )
 
 #talk to python.pl
@@ -89,7 +89,7 @@ SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
 )
 
 # arithmetic hassle.      
-target_link_libraries(Py4YAP  libYap ${Python_LIBRARIES})
+target_link_libraries(Py4YAP  libYap ${PYTHON_LIBRARIES})
 
 
 install(TARGETS  Py4YAP
@@ -111,6 +111,11 @@ set_property( SOURCE ${PYTHON_SOURCES}  APPEND PROPERTY COMPILE_DEFINITIONS   YA
 
 set (PYTHON_PL python.pl)
 
+
+add_subDIRECTORY (yap4py)
+add_subDIRECTORY (yap_kernel)
+
+
 install(FILES python.pl DESTINATION ${YAP_INSTALL_DATADIR} )
 
 set_target_properties (YAPPython PROPERTIES PREFIX "")
@@ -119,9 +124,6 @@ set_target_properties (YAPPython PROPERTIES PREFIX "")
       LIBRARY DESTINATION ${YAP_INSTALL_LIBDIR}
       RUNTIME DESTINATION ${YAP_INSTALL_LIBDIR}
       ARCHIVE DESTINATION ${YAP_INSTALL_LIBDIR} )
-
-      add_subDIRECTORY (swig)
-      add_subDIRECTORY (yap_kernel)
 
 
 endif()

@@ -3,9 +3,9 @@
 
 INCLUDE(UseSWIG)
 
-include(FindPythonModule)
+# include(FindPythonModule)
 
-if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
+if ( Python3_Development_FOUND AND SWIG_FOUND)
   if (CONDA)
     set(bdist bdist_conda)
   else()
@@ -34,7 +34,7 @@ if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
   configure_file("YAP4PY.md" README.md)
   configure_file(yap4py/__init__.py.in yap4py/__init__.py)
 
-  INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
+  INCLUDE_DIRECTORIES(${Python3_LIBRARY_DIRS}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py/include
     )
 
   SET(SWIG_SOURCES
@@ -65,13 +65,13 @@ if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
   
   add_custom_target( YAP4PY ALL
     COMMAND ${CMAKE_COMMAND} -E copy ${PYTHON_SOURCES}  ${CMAKE_CURRENT_BINARY_DIR}/yap4py
-    COMMAND ${PYTHON_EXECUTABLE} setup.py  ${bdist}
+    COMMAND ${Python3_EXECUTABLE} setup.py  ${bdist}
     DEPENDS ${CMAKE_SOURCE_DIR}/CXX/yapi.cpp Py4YAP YAP++ yap4py/yapi.cpp ${YAP4PY_PY} ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.cxx ${CMAKE_CURRENT_BINARY_DIR}/yap4py/yap_wrap.hh ${PYTHON_SOURCES} Py4YAP STARTUP libYap
     )
 
 
   install(CODE "execute_process(
-   COMMAND ${PYTHON_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
+   COMMAND ${Python3_EXECUTABLE} -m pip install  ${PYTHON_USER_INSTALL}    --ignore-installed .
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
 
 
@@ -92,7 +92,7 @@ if (WITH_PYTHON AND PYTHONLIBS_FOUND AND SWIG_FOUND)
 
     # generate .i from doxygen .xml
     add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
-      COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
+      COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doxy2swig.py -n
       ${CMAKE_BINARY_DIR}/doc/xm11l/ftdi_8c.xml
       ${CMAKE_CURRENT_BINARY_DIR}/ftdi1_doc.i
       DEPENDS ${CMAKE_BINARY_DIR}/doc/xml/ftdi_8c.xml
