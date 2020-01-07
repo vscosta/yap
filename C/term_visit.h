@@ -2,6 +2,7 @@
 CELL *pt0, *pt0_end, *HStart = HR;
 Ystack_t stt;
 size_t sz = 1024;
+bzero(&stt, sizeof(Ystack_t));
 if (!init_stack(&stt, sz)) {
 
   aux_overflow : {

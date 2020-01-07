@@ -657,26 +657,25 @@ static Int put_attr(USES_REGS1) {
     Term otatts;
     Term tgt = 0;
     if (IsVarTerm((otatts = SearchAttsForModuleAsNameTerm(attv->Atts, modname, &tgt)))||otatts == TermNil) {
-     if (IsVarTerm(otatts)) {
-      	Term ts[3];
-	ts[0] = modname;
-	ts[2] = MkVarTerm();
-	  ts[1] = tatts;
-	  Term tx = Yap_MkApplTerm(f, 3, ts);
-      if (new) {
-	attv->Atts = tx;
-	return true;
-      }
-      return Yap_unify(otatts,tx);
-     } else {
+        Term ts[3];
+        ts[0] = modname;
+        ts[1] = tatts;
+        if (new || IsVarTerm(attv->Atts) || attv->Atts == TermNil) {
+            ts[2] = TermNil;
+            Term tx = Yap_MkApplTerm(f, 3, ts);
+            MaBind(&attv->Atts, tx);
+            return true;
+        } else {
+            ts[2] = attv->Atts;
+            Term tx = Yap_MkApplTerm(f, 3, ts);
+            MaBind(&attv->Atts, tx);
+            return true;
+        }
+    } else {
       MaBind(RepAppl(otatts)+2, tatts );
       return true;
      }
     } else {
-      MaBind(RepAppl(tgt)+2, tatts );
-      return TRUE;
-    }      
-  } else {
     Yap_ThrowError(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_attributes/2");
     return FALSE;

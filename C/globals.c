@@ -392,6 +392,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   CELL *HLow;
   bool ground;
   Term myt;
+                               bzero(&stt,sizeof (Ystack_t));
   if (bindp && forest)
     bind0 = *bindp;
   Term t = TermNil;
@@ -606,7 +607,6 @@ loop:
             *ptf = d0;
             if (singletons) {
               CELL *vt = RepAppl(d0);
-	      printf("%p->%ld\n",vt,numb);
               if (vt[1] == MkIntTerm(-1))
                 vt[1] = MkIntTerm(numb++);
             }

@@ -409,7 +409,7 @@ static int interrupt_handler(PredEntry *pe USES_REGS) {
   return interrupt_wake_up(TermTrue, NULL PASS_REGS);
 }
 
-#if  1
+#if  0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */

@@ -205,13 +205,15 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   char *mname;
   Int arity;
   CELL *H1 =HR;
-  int l = push_text_stack();
-  /*  extern int gc_calls; */
+   /*  extern int gc_calls; */
   vsc_count++;
   //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
-    if (vsc_count >= 2615LL)
-      jmp_deb(1);
-  // if (HR < ASP ) return;
+  if (TR < B->cp_tr)
+      jmp_deb2();
+   if (vsc_count < 972790)
+       return;
+    int l = push_text_stack();
+    // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
   char *buf = Malloc(512), *top = buf + 511, *b = buf;
       // if (!worker_id) return;
@@ -361,8 +363,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%llud " UInt_FORMAT " ", vsc_count,
-                LCL0 - (CELL *)B);
+  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " ", vsc_count,
+                LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0);
   b += snprintf(b, top - b, Int_FORMAT " ", LOCAL_CurHandle);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);

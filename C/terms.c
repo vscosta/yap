@@ -265,7 +265,7 @@ static Int variable_in_term(USES_REGS1) {
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
   tr_fr_ptr TR0;
-  Term *end = NULL, first = inp, *start = HR;
+  Term *end = NULL, first = inp;
 
   Int count = 0;
   // first get the extra variables
@@ -294,9 +294,8 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     HR[0] = (CELL)ptd0;
     end = HR+1;
     HR+=2;
-    count++;
 
-/* next make sure noone will see this as a variable again */
+/* next make sure noone will see thi, *start = HRs as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
     goto trail_overflow;
@@ -504,7 +503,7 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 
 static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
-  tr_fr_ptr TR0 = TR;
+  tr_fr_ptr TR0;
   Int n = 0;
   CELL output = TermNil;
   Term inp0 = inp;
@@ -516,7 +515,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       Bind_and_Trail(VarOfTerm(t), TermFoundVar);
       if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
         size_t expand = (tr_fr_ptr)LOCAL_TrailTop - TR;
-        clean_tr(TR0 PASS_REGS);
+        clean_tr(TR-n PASS_REGS);
         *HR++ = inp0;
         /* Trail overflow */
         if (!Yap_growtrail(expand, false)) {
@@ -528,6 +527,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       inp = TailOfTerm(inp);
     }
   }
+  TR0 = TR;
 #include "term_visit.h"
   output = MkPairTerm((CELL)ptd0, output);
   mBind_And_Trail(ptd0, TermFoundVar);
@@ -541,7 +541,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   continue;
   END_WALK();
 
-  clean_tr(TR0 PASS_REGS);
+  clean_tr(TR0-n PASS_REGS);
 
   return output;
 }
@@ -675,16 +675,20 @@ static Int free_variables_in_term(USES_REGS1) {
   if (IsPrimitiveTerm(t))
     out = TermNil;
   else {
-    out = new_vars_in_complex_term(&(t)-1, &(t),
-                                   Yap_TermVariables(bounds, 3) PASS_REGS);
+      Int count = 0;
+      tr_fr_ptr TR0=TR;
+       Yap_NumberVars(bounds,0,false, &count);
+      out = new_vars_in_complex_term(&(t)-1, &(t), TermNil
+                                    PASS_REGS);
+      clean_tr(TR0);
+  if (found_module && t != t0) {
+      Term ts[2];
+      ts[0] = found_module;
+      ts[1] = t;
+      t = Yap_MkApplTerm(FunctorModule, 2, ts);
+  }
   }
 
-  if (found_module && t != t0) {
-    Term ts[2];
-    ts[0] = found_module;
-    ts[1] = t;
-    t = Yap_MkApplTerm(FunctorModule, 2, ts);
-  }
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
@@ -778,18 +782,85 @@ static Int p_non_singletons_in_term(
   }\
 }
 
-/**
- *  @brief routine to locate all variables in a term, and its applications.
- */
+
+#define FOUND_VAR_AGAIN_AND_AGAIN                                                  \
+  if (FunctorOfTerm(d0) == FunctorDollarVar) {                         \
+	   RepAppl(d0)[1] = MkIntTerm(0);                              \
+  }
+
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
 #define LIST_HOOK_CODE                                                         \
   {}
-#define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN
+#define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN_AND_AGAIN
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
+
+static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
+                                       bool show_singletons,
+                                       Int *tr_entries USES_REGS) {
+    tr_fr_ptr TR0 = TR;
+    CELL *first=HR, *end = NULL;
+
+#
+#include "term_visit.h"
+            /* next make sure noone will see this as a variable again */
+            if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+                /* Trail overflow */
+                goto trail_overflow;
+            }
+            if (HR + 1024 > ASP) {
+                goto global_overflow;
+            }
+            HR[0] = (CELL)FunctorDollarVar;
+            if (tr_entries) {
+                mBind_And_Trail(ptd0, AbsAppl(HR));
+            } else {
+                mBind(ptd0, AbsAppl(HR));
+            }
+            if (show_singletons)
+                HR[1] = MkIntTerm(-1);
+            else
+                HR[1] = MkIntTerm(vno++);
+            HR += 2;
+            if (end == NULL) {
+                first = (HR);
+            } else {
+                end[0] = AbsPair(HR);
+            }
+            HR[0] = (CELL)ptd0;
+            end = HR+1;
+            HR+=2;
+
+            continue;
+    END_WALK();
+
+    clean_tr(TR0 PASS_REGS);
+
+    if (HR != first) {
+        /* close the list */
+        end[0] = TermNil;
+        Term t = AbsPair(first);
+        if (show_singletons) {
+            while (IsPairTerm(t)) {
+                Term v = HeadOfTerm(t);
+                if (!show_singletons || RepAppl(v)[1] != MkIntTerm(-1)) {
+                    RepAppl(v)[1] = MkIntTerm(vno++);
+                }
+
+            }
+            t = TailOfTerm(t);
+        }
+        if (tr_entries) {
+            *tr_entries = TR - TR0;
+        }
+    }
+        return vno;
+}
+
+#if 0
 static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                                        bool show_singletons,
                                        Int *tr_entries USES_REGS) {
@@ -801,13 +872,15 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                     goto global_overflow;
                 }
                 HR[0] = (CELL)FunctorDollarVar;
-                mBind(ptd0, AbsAppl(HR));
+                if (tr_entries) {
+                    mBind_And_Trail(ptd0, AbsAppl(HR));
+                } else {
+                    mBind(ptd0, AbsAppl(HR));
+                }
                 if (show_singletons)
                 HR[1] = MkIntTerm(-1);
-                else if ( vno >= 0)
+                else
                     HR[1] = MkIntTerm(vno++);
-                else 
-                    HR[1] = MkIntTerm(--vno);
                 HR += 2;
    continue;
             }
@@ -817,6 +890,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
     }
     return vno;
 }
+#endif
 
 Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
                    Int *tr_entries) /*

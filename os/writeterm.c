@@ -673,6 +673,6 @@ void Yap_InitWriteTPreds(void) {
   Yap_InitCPred("term_to_atom", 2, term_to_atom, 0);
   Yap_InitCPred("write_depth", 3, p_write_depth, SafePredFlag | SyncPredFlag);
   ;
-  Yap_InitCPred("$VAR", 2, dollar_var, SafePredFlag);
+  Yap_InitCPred("current_dollar_var", 2, dollar_var, SafePredFlag);
   ;
 }
