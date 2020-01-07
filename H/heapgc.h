@@ -636,13 +636,13 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
   { CELL *T =(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *T=D; }
 
 #define mBind(A,D) \
-  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *A=D;\
   TRAIL_GLOBAL(A,D);\
+  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->oldv:A); *A=D;\
 }
 
 #define mBind_And_Trail(A,D) \
-  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *A=D;\
   DO_TRAIL(A,D);\
+  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->oldv :A); *A=D;\
 }
 
 #define mMaBind(A, D)                                                          \

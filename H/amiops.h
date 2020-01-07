@@ -593,5 +593,4 @@ static inline int do_cut(int i) {
 
 #define cut_fail() return do_cut(FALSE)
 
-
 #endif

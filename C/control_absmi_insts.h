@@ -459,7 +459,7 @@ ALWAYS_GONext();
       ENDCACHE_Y_AS_ENV();
       GONext();
 
-    NoStackDeallocate:
+//    NoStackDeallocate:
       BEGD(d0);
 #ifdef SHADOW_S
       Yap_REGS.S_ = YREG;

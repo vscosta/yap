@@ -112,9 +112,7 @@ static bool write_term(int output_stream, Term t, bool b, xarg *args USES_REGS) 
   bool rc;
   Term cm = CurrentModule;
   yhandle_t yh = Yap_CurrentHandle();
-  int depth, prio, flags = 0;
-  Int numv;
-	Int n=0;
+  int depth, flags = 0;
 
   if (t==0)
     return false;

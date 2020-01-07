@@ -353,83 +353,8 @@ static void AddNewModule(attvar_record *attv, Term t, int new,
   }
 }
 
-static void ReplaceAtts(attvar_record *attv, Term oatt, Term att USES_REGS) {
-  UInt ar = ArityOfFunctor(FunctorOfTerm(oatt)), i;
-  CELL *oldp = RepAppl(oatt) + 1;
-  CELL *newp;
-
-  if (oldp > HB) {
-    oldp++;
-    newp = RepAppl(att) + 2;
-    /* if deterministic */
-
-    for (i = 1; i < ar; i++) {
-      Term n = Deref(*newp);
-      if (n != TermFreeTerm) {
-        *oldp = n;
-      }
-      oldp++;
-      newp++;
-    }
-    return;
-  }
-  newp = RepAppl(att) + 1;
-  *newp++ = *oldp++;
-  for (i = 1; i < ar; i++) {
-    Term n = Deref(*newp);
-
-    if (n == TermFreeTerm) {
-      *newp = Deref(*oldp);
-    }
-    oldp++;
-    newp++;
-  }
-  if (attv->Atts == oatt) {
-    if (RepAppl(attv->Atts) >= HB)
-      attv->Atts = att;
-    else
-      MaBind(&(attv->Atts), att);
-  } else {
-    Term *wherep = &attv->Atts;
-
-    do {
-      if (*wherep == oatt) {
-        MaBind(wherep, att);
-        return;
-      } else {
-        wherep = RepAppl(Deref(*wherep)) + 1;
-      }
-    } while (TRUE);
-  }
-}
-
 static void DelAllAtts(attvar_record *attv USES_REGS) {
   MaBind(&(attv->Done), attv->Value);
-}
-
-static void DelAtts(attvar_record *attv, Term oatt USES_REGS) {
-  Term t = ArgOfTerm(1, oatt);
-  if (attv->Atts == oatt) {
-    if (IsVarTerm(t)) {
-      DelAllAtts(attv PASS_REGS);
-      return;
-    }
-    if (RepAppl(attv->Atts) >= HB)
-      attv->Atts = t;
-    else
-      MaBind(&(attv->Atts), t);
-  } else {
-    Term *wherep = &attv->Atts;
-
-    do {
-      if (*wherep == oatt) {
-        MaBind(wherep, t);
-        return;
-      } else {
-        wherep = RepAppl(Deref(*wherep)) + 1;
-      }
-    } while (TRUE);
-  }
 }
 
 static void PutAtt(Int pos, Term atts, Term att USES_REGS) {

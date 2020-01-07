@@ -66,9 +66,9 @@ typedef struct write_globs {
   bool Keep_terms;
   bool Write_Loops;
   bool Write_strings;
-  UInt  last_atom_minus;
+  UInt last_atom_minus;
   UInt MaxDepth, MaxArgs;
-int trailings;
+  int trailings;
   wtype lw;
 } wglbs;
 
@@ -386,24 +386,23 @@ int Yap_FormatFloat(Float f, char **s, size_t sz) {
 }
 
 /* writes a data base reference */
-static void wrputref(void *ref, int Quote_illegal,
-                     struct write_globs *wglb) {
+static void wrputref(void *ref, int Quote_illegal, struct write_globs *wglb) {
   char s[256];
   wrf stream = wglb->stream;
 
   putAtom(AtomDBref, Quote_illegal, wglb);
-#if  defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #if 1
   snprintf(s, 255, "(%p)", ref);
 #else
   sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause *)ref)->ClRefCount);
-  #endif
+#endif
 #else
 #if 1
   snprintf(s, 255, "(0x%p)", ref);
-  #else
+#else
   sprintf(s, "(0x%p," UInt_FORMAT ")", ref, ((LogUpdClause *)ref)->ClRefCount);
-  #endif
+#endif
 #endif
   wrputs(s, stream);
   lastw = alphanum;
@@ -476,10 +475,10 @@ AtomIsSymbols(unsigned char *s) /* Is this atom just formed by symbols ? */
 static void write_quoted(wchar_t ch, wchar_t quote, wrf stream) {
   CACHE_REGS
   if (!(Yap_GetModuleEntry(CurrentModule)->flags & M_CHARESCAPE)) {
-      wrputc(ch, stream);
-      if (ch == '\'')
-          wrputc('\'', stream); /* be careful about quotes */
-      return;
+    wrputc(ch, stream);
+    if (ch == '\'')
+      wrputc('\'', stream); /* be careful about quotes */
+    return;
   }
   if (!(ch < 0xff && chtype(ch) == BS) && ch != '\'' && ch != '\\' &&
       ch != '`') {
@@ -581,12 +580,13 @@ static void putAtom(Atom atom, int Quote_illegal, struct write_globs *wglb) {
   unsigned char *s;
   wtype atom_or_symbol;
   wrf stream = wglb->stream;
-  if (atom == NULL) return;
+  if (atom == NULL)
+    return;
   s = RepAtom(atom)->UStrOfAE;
-  if (s[0] ==  '\0') {
+  if (s[0] == '\0') {
     if (Quote_illegal) {
-    wrputc('\'', stream);
-    wrputc('\'', stream);
+      wrputc('\'', stream);
+      wrputc('\'', stream);
     }
     return;
   }
@@ -728,7 +728,7 @@ static void write_list(Term t, int direction, int depth,
   while (1) {
     if (t == TermNil)
       break;
-    if ( depth && --depth<=0) {
+    if (depth && --depth <= 0) {
       if (lastw == symbol || lastw == separator) {
         wrputc(' ', wglb->stream);
       }
@@ -736,8 +736,7 @@ static void write_list(Term t, int direction, int depth,
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
-    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth , FALSE
-			 , wglb));
+    PROTECT(t, writeTerm(HeadOfTerm(t), 999, depth, FALSE, wglb));
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
       break;
@@ -960,8 +959,7 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (bracket_left) {
         wropen_bracket(wglb, TRUE);
       }
-      PROTECT(
-          t, writeTerm(ArgOfTerm(1, t), lp, depth , rinfixarg, wglb));
+      PROTECT(t, writeTerm(ArgOfTerm(1, t), lp, depth, rinfixarg, wglb));
       if (bracket_left) {
         wrclose_bracket(wglb, TRUE);
       }
@@ -997,11 +995,11 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
            IsStringTerm(ti))) {
         if (IsIntTerm(ti)) {
           Int k = IntOfTerm(ti);
-	  if (k < -1) {
-	                wrputc('_', wglb->stream);
+          if (k < -1) {
+            wrputc('_', wglb->stream);
 
-	    k = -k-1;
-	  }
+            k = -k - 1;
+          }
           if (k == -1) {
             wrputc('_', wglb->stream);
             lastw = alphanum;
@@ -1024,14 +1022,14 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         }
       } else {
         wrputs("'$VAR'(", wglb->stream);
-         lastw = separator;
-        writeTerm(ArgOfTerm(1, t), 999, depth , FALSE, wglb);
+        lastw = separator;
+        writeTerm(ArgOfTerm(1, t), 999, depth, FALSE, wglb);
         wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
       lastw = separator;
-      writeTerm(ArgOfTerm(1, t), GLOBAL_MaxPriority, depth , FALSE, wglb );
+      writeTerm(ArgOfTerm(1, t), GLOBAL_MaxPriority, depth, FALSE, wglb);
       wrputc('}', wglb->stream);
       lastw = separator;
     } else if (atom == AtomArray) {
@@ -1044,18 +1042,18 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
         }
         writeTerm(ArgOfTerm(op, t), 999, depth, FALSE, wglb);
         if (op != Arity) {
-          PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depth , FALSE, wglb));
+          PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depth, FALSE, wglb));
           wrputc(',', wglb->stream);
           lastw = separator;
         }
       }
-      writeTerm(ArgOfTerm(op, t), 999, depth , FALSE, wglb);
+      writeTerm(ArgOfTerm(op, t), 999, depth, FALSE, wglb);
       wrputc('}', wglb->stream);
       lastw = separator;
-    }  else {
+    } else {
       if (!wglb->Ignore_ops && atom == AtomHeapData) {
-	Arity = 3+2*IntegerOfTerm(ArgOfTerm(1,t));
-    }
+        Arity = 3 + 2 * IntegerOfTerm(ArgOfTerm(1, t));
+      }
       putAtom(atom, wglb->Quote_illegal, wglb);
       lastw = separator;
       wropen_bracket(wglb, FALSE);
@@ -1066,12 +1064,11 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
           wrputc('.', wglb->stream);
           break;
         }
-        PROTECT(
-            t, writeTerm(ArgOfTerm(op, t), 999, depth , FALSE, wglb));
+        PROTECT(t, writeTerm(ArgOfTerm(op, t), 999, depth, FALSE, wglb));
         wrputc(',', wglb->stream);
         lastw = separator;
       }
-      writeTerm(ArgOfTerm(op, t), 999, depth , FALSE, wglb);
+      writeTerm(ArgOfTerm(op, t), 999, depth, FALSE, wglb);
       wrclose_bracket(wglb, TRUE);
     }
   }
@@ -1099,12 +1096,11 @@ static bool bind_variable_names(Term t, size_t *np USES_REGS) {
     if (IsVarTerm(t2)) {
       YapBind(VarOfTerm(t2), tv);
     }
-    *np = TR-TR0;
+    *np = TR - TR0;
     t = TailOfTerm(t);
   }
   return true;
 }
-
 
 void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
                  xarg *args)
@@ -1115,17 +1111,16 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   CACHE_REGS
 
   yhandle_t lvl = push_text_stack();
-  int  priority = GLOBAL_MaxPriority;
+  int priority = GLOBAL_MaxPriority;
   struct write_globs wglb;
   Term cm = CurrentModule;
-  
-  t = Deref(t);
-  CELL *hi = HR;
+
+                                                                                                           t = Deref(t);
   tr_fr_ptr tr0 = TR;
   Term tn = t;
   size_t n;
-  Int g;
- yhandle_t h0_y = Yap_InitHandle(MkVarTerm());
+  yhandle_t h0_y = Yap_InitHandle(HR);
+  MkVarTerm();
   if (args && args[WRITE_PRIORITY].used) {
     priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
   }
@@ -1136,18 +1131,21 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
     tn = Yap_HackCycles(t PASS_REGS);
     flags |= Handle_vars_f;
-  } else if ( ((flags & (Singleton_vars_f|Handle_cyclics_f)) == (Singleton_vars_f|Handle_cyclics_f)) ||
-	      (args && args[WRITE_SINGLETONS].used &&
-	       args[WRITE_SINGLETONS].tvalue == TermTrue) ) {
+  } else if (((flags & (Singleton_vars_f | Handle_cyclics_f)) ==
+              (Singleton_vars_f | Handle_cyclics_f)) ||
+             (args && args[WRITE_SINGLETONS].used &&
+              args[WRITE_SINGLETONS].tvalue == TermTrue)) {
     tn = Yap_HackCycles(t PASS_REGS);
     flags |= Handle_vars_f;
- } else if ((args && args[WRITE_NUMBERVARS].used &&
-	     args[WRITE_NUMBERVARS].tvalue == TermTrue) ) {
+  } else if ((args && args[WRITE_NUMBERVARS].used &&
+              args[WRITE_NUMBERVARS].tvalue == TermTrue)) {
     tn = Yap_HackCycles(t PASS_REGS);
     flags |= Handle_vars_f;
-}
-wglb.trailings  = TR-tr0;
-   wglb.stream = mywrite;
+  }
+  wglb.trailings = TR - tr0;
+  tr0 = TR;
+  wglb.stream = mywrite;
+  wglb.trailings = 0;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   wglb.Use_portray = flags & Use_portray_f;
@@ -1157,10 +1155,9 @@ wglb.trailings  = TR-tr0;
   wglb.Write_Loops = flags & Handle_cyclics_f;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.lw = separator;
-  LOCAL_max_depth=200;
-   /* protect slots for portray */
-   writeTerm(tn, priority, LOCAL_max_depth, false, &wglb);
-     if (flags & New_Line_f) {
+  /* protect slots for portray */
+  writeTerm(tn, priority, LOCAL_max_depth, false, &wglb);
+  if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
       wrputc('\n', wglb.stream);
@@ -1173,12 +1170,8 @@ wglb.trailings  = TR-tr0;
       wrputc(' ', wglb.stream);
     }
   }
-     if (!(flags & Use_portray_f)) {
-       HR = (CELL *)Yap_PopHandle(h0_y);
-     } else {
-     Yap_PopHandle(h0_y);
+  clean_tr(tr0 - wglb.trailings);
+  HR = (CELL *)Yap_PopHandle(h0_y);
+  CurrentModule = cm;
+  pop_text_stack(lvl);
 }
-     CurrentModule = cm;
-       pop_text_stack(lvl);
- }
-

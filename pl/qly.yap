@@ -395,7 +395,9 @@ qload_module(Mod) :-
     %check verifies if a saved state;
     '$q_header'( S, Type ), !,
     ( Type == module ->
+
 	  '$qload_module'(S , Mod, File, SourceModule)
+
     ;
       Type == file ->
 	  '$qload_file'(S, File)

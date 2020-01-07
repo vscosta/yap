@@ -228,7 +228,7 @@ static Int var_in_term(Term v,
                        Term t USES_REGS) /* variables in term t		 */
 {
   must_be_variable(v);
-  t = Deref(t);
+  t = MkGlobal(t);
   if (IsVarTerm(t)) {
     return (v == t);
   } else if (IsPrimitiveTerm(t)) {
@@ -246,7 +246,7 @@ static Int var_in_term(Term v,
 
 */
 static Int variable_in_term(USES_REGS1) {
-  return var_in_term(Deref(ARG2), Deref(ARG1) PASS_REGS);
+  return var_in_term(MkGlobal(ARG2), MkGlobal(ARG1) PASS_REGS);
 }
 
 #undef LIST_HOOK_CODE
@@ -265,7 +265,7 @@ static Int variable_in_term(USES_REGS1) {
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
   tr_fr_ptr TR0;
-  Term *end = NULL, first = inp;
+  Term *end = NULL, first = inp, *start = HR;
 
   Int count = 0;
   // first get the extra variables
@@ -292,15 +292,16 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
         end[0] = AbsPair(HR);
     }
     HR[0] = (CELL)ptd0;
-        HR[1] = inp;
-        end = HR+1;
-        HR+=2;
-   
+    end = HR+1;
+    HR+=2;
+    count++;
+
 /* next make sure noone will see this as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
     goto trail_overflow;
   }
+  end[0] = inp;
   mBind_And_Trail(ptd0, TermFoundVar);
   END_WALK();
 
@@ -320,8 +321,8 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 {
   Term out, inp;
 
-  inp = Deref(ARG2);
-  Term t = Deref(ARG1);
+  inp = MkGlobal(ARG2);
+  Term t = MkGlobal(ARG1);
   out = vars_in_complex_term(&(t)-1, &(t), inp PASS_REGS);
   return Yap_unify(ARG3, out);
 }
@@ -341,15 +342,17 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
 {
   Term out;
 
-  Term t = Deref(ARG1);
+  Term t = MkGlobal(ARG1);
+  Term in =MkGlobal(ARG3);
+
   if (IsVarTerm(t)) {
     Term out = Yap_MkNewPairTerm();
-    return Yap_unify(t, HeadOfTerm(out)) && Yap_unify(ARG3, TailOfTerm(out)) &&
+    return Yap_unify(t, HeadOfTerm(out)) && Yap_unify(in, TailOfTerm(out)) &&
            Yap_unify(out, ARG2);
   } else if (IsPrimitiveTerm(t)) {
-    return Yap_unify(ARG2, ARG3);
+    return Yap_unify(ARG2, in);
   } else {
-    out = vars_in_complex_term(&(t)-1, &(t), ARG3 PASS_REGS);
+    out = vars_in_complex_term(&(t)-1, &(t),in PASS_REGS);
   }
 
   return Yap_unify(ARG2, out);
@@ -367,7 +370,7 @@ Term Yap_TermVariables(
 {
   Term out;
 
-  t = Deref(t);
+  t = MkGlobal(t);
   if (IsVarTerm(t)) {
     return MkPairTerm(t, TermNil);
   } else if (IsPrimitiveTerm(t)) {
@@ -385,10 +388,8 @@ Yap_TermAddVariables(Term t,
 {
   Term out;
 
-  t = Deref(t);
-  if (IsVarTerm(t)) {
-    return MkPairTerm(t, TermNil);
-  } else if (IsPrimitiveTerm(t)) {
+  t = MkGlobal(t);
+  if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
     return TermNil;
   } else {
     out = vars_in_complex_term(&(t)-1, &(t), vs PASS_REGS);
@@ -415,7 +416,7 @@ static Int term_variables(USES_REGS1) /* variables in term t		 */
     return false;
   }
 
-  Term t = Deref(ARG1);
+  Term t = MkGlobal(ARG1);
 
   out = vars_in_complex_term(&(t)-1, &(t), TermNil PASS_REGS);
   return Yap_unify(ARG2, out);
@@ -479,7 +480,7 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 {
   Term out;
 
-  Term t = Deref(ARG1);
+  Term t = MkGlobal(ARG1);
   if (IsPrimitiveTerm(t)) {
     return Yap_unify(TermNil, ARG2);
   } else {
@@ -561,11 +562,11 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
 {
   Term out;
 
-  Term t = Deref(ARG2);
+  Term t = MkGlobal(ARG2);
   if (IsPrimitiveTerm(t))
     out = TermNil;
   else {
-    out = new_vars_in_complex_term(&(t)-1, &(t), Deref(ARG1) PASS_REGS);
+    out = new_vars_in_complex_term(&(t)-1, &(t), MkGlobal(ARG1) PASS_REGS);
   }
   return Yap_unify(ARG3, out);
 }
@@ -637,11 +638,11 @@ static Int p_variables_within_term(USES_REGS1) /* variables within term t */
 {
   Term out;
 
-  Term t = Deref(ARG2);
+  Term t = MkGlobal(ARG2);
   if (IsPrimitiveTerm(t))
     out = TermNil;
   else {
-    out = vars_within_complex_term(&(t)-1, &(t), Deref(ARG1) PASS_REGS);
+    out = vars_within_complex_term(&(t)-1, &(t), MkGlobal(ARG1) PASS_REGS);
   }
   return Yap_unify(ARG3, out);
 }
@@ -653,7 +654,7 @@ static Int free_variables_in_term(USES_REGS1) {
   Term found_module = 0L;
   Term bounds = TermNil;
 
-  t = t0 = Deref(ARG1);
+  t = t0 = MkGlobal(ARG1);
 
   while (!IsVarTerm(t) && IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
@@ -756,7 +757,7 @@ static Int p_non_singletons_in_term(
   Term t;
   Term out;
 
-  t = Deref(ARG1);
+  t = MkGlobal(ARG1);
   if (IsVarTerm(t)) {
     out = ARG2;
   } else if (IsPrimitiveTerm(t)) {
@@ -767,13 +768,13 @@ static Int p_non_singletons_in_term(
   return Yap_unify(ARG3, out);
 }
 
-#define FOUND_VSAME_VAR_AGAIN                                                           \
+#define FOUND_SAME_VAR_AGAIN                                                           \
   {                                                                            \
     if (RepAppl(d0)[0] == (CELL)FunctorDollarVar)  { \
         if (RepAppl(d0)[1] == MkIntTerm(-1))) {                                      \
       if (vno<0) {RepAppl(d0)[1] = MkIntTerm(vno); vno++; } else {      RepAppl(d0)[1] = MkIntTerm(vno); --vno; }                                    \
-      continue;                                                                \
     }                                                                          \
+      continue;                                                                \
   }\
 }
 
@@ -803,9 +804,9 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                 mBind(ptd0, AbsAppl(HR));
                 if (show_singletons)
                 HR[1] = MkIntTerm(-1);
-                if ( vno >= 0)
+                else if ( vno >= 0)
                     HR[1] = MkIntTerm(vno++);
-                else if (vno < 0)
+                else 
                     HR[1] = MkIntTerm(--vno);
                 HR += 2;
    continue;
@@ -821,12 +822,12 @@ Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
                    Int *tr_entries) /*
                                      * numbervariables in term t         */
 {
-    if ( handle_singles ) return t;
+
     if (IsPrimitiveTerm(t)) {
         return numbv;
     }
-    Term vt = Deref(t);
-    return numbervars_in_complex_term(&vt - 1, &vt, false, handle_singles, tr_entries PASS_REGS);
+    Term vt = MkGlobal(t);
+    return numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles, tr_entries PASS_REGS);
 }
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
@@ -835,7 +836,7 @@ Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
     `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
 */
 static Int p_numbervars(USES_REGS1) {
-    Term t2 = Deref(ARG2);
+    Term t2 = MkGlobal(ARG2);
     Int out;
     if (IsVarTerm(t2)) {
         Yap_Error(INSTANTIATION_ERROR, t2, "numbervars/3");
@@ -845,7 +846,8 @@ static Int p_numbervars(USES_REGS1) {
         Yap_Error(TYPE_ERROR_INTEGER, t2, "numbervars/3");
         return (false);
     }
-    out = Yap_NumberVars(Deref(ARG1), IntegerOfTerm(t2), false, NULL);
+    bool sing = t2== MkIntTerm(-1);
+    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), sing, NULL);
     return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
@@ -888,7 +890,7 @@ static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp USES_REGS) {
 }
 
 static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
-  Term t = Deref(inp);
+  Term t = MkGlobal(inp);
 
   if (IsPrimitiveTerm(t)) {
     return MkIntegerTerm(0);
@@ -912,7 +914,7 @@ static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
  * now you want to ground the full term.
  */
 static Int largest_numbervar(USES_REGS1) {
-  return Yap_unify(MaxNumberedVar(Deref(ARG1), 2 PASS_REGS), ARG2);
+  return Yap_unify(MaxNumberedVar(MkGlobal(ARG1), 2 PASS_REGS), ARG2);
 }
 
 

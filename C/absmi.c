@@ -409,38 +409,7 @@ static int interrupt_handler(PredEntry *pe USES_REGS) {
   return interrupt_wake_up(TermTrue, NULL PASS_REGS);
 }
 
-
-static int interrupt_handlerc(PredEntry *pe USES_REGS) {
-  /* do creep in call                                     */
-  ENV = YENV;
-  CP = NEXTOP(P, Osbpp);
-  YENV = (CELL *)(((char *)YENV) + P->y_u.Osbpp.s);
-#ifdef FROZEN_STACKS
-  {
-    choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef YAPOR_SBA
-    if (YENV > (CELL *)top_b || YENV < HR)
-      YENV = (CELL *)top_b;
-#else
-    if (YENV > (CELL *)top_b)
-      YENV = (CELL *)top_b;
-#endif /* YAPOR_SBA */
-    else
-      YENV = YENV + ENV_Size(PREVOP(P,Osblp));
-  }
-#else
-  if (YENV > (CELL *)B)
-    YENV = (CELL *)B;
-  else
-    /* I am not sure about this */
-    YENV = YENV + ENV_Size(PREVOP(P,Osblp));
-#endif /* FROZEN_STACKS */
-  /* setup GB */
-  YENV[E_CB] = (CELL)B;
-  return interrupt_handler(pe PASS_REGS);
-}
-
-#if  1               
+#if  1
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
