@@ -141,9 +141,9 @@ findall(Template, Generator, Answers, SoFar) :-
 	).
 
 
-'$collect_with_common_vars'([], _).
+'$collect_with_common_vars'([], _  ).
 '$collect_with_common_vars'([Key-_|Answers], VarList) :-
-	'$variables_in_term'(Key, _, VarList),
+	terms:variables_in_term(Key, VarList, _),
 	'$collect_with_common_vars'(Answers, VarList).
 
 % This is the setof predicate

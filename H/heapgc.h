@@ -658,6 +658,8 @@ if(IS_VISIT_MARKER(DD))\
 
 
 #if 1
+#define COPY(t)
+#else
 #define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"%s: ",__FUNCTION__); Yap_DebugPlWriteln(t);}
 #endif
 

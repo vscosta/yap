@@ -378,11 +378,11 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   bool hack = bindp && IsIntTerm(*bindp), numberv = false, break_loops = false;
 CELL *HB0;
   bool forest = bindp && (*bindp != TermFoundVar);
-  bool singletons = hack;
+  bool singletons = false; // hack;
   if (hack) {
     copy_att_vars = false;
     share = false;
-    numberv = true;
+    //    numberv = true;
     break_loops = true;
   }
   size_t restarts = 0;

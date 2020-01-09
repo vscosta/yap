@@ -1128,6 +1128,7 @@ Functor fdv = FunctorDollarVar;
   if (args && args[WRITE_MODULE].used) {
     CurrentModule = args[WRITE_MODULE].tvalue;
   }
+  if (1) tn = t; else
   if (args && args[WRITE_VARIABLE_NAMES].used) {
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
       FunctorDollarVar = FunctorHiddenVar;

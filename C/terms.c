@@ -267,7 +267,7 @@ static Int variable_in_term(USES_REGS1) {
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
   tr_fr_ptr TR0;
-  Term *end = NULL, first = inp;
+  Term *end = NULL, first = inp, inp0 = inp;
 
     Int count = 0;
   // first get the extra variables
@@ -284,8 +284,16 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
    inp = TailOfTerm(inp);
   }
   TR0 = TR;
-    COPY(pt0_[1]);
-
+  COPY(pt0_[1]);
+    if (IsVarTerm(inp)) {
+      CELL *ptr = VarOfTerm(inp);
+      Bind_and_Trail(ptr, TermFoundVar);
+      count++;
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
+        goto trail_overflow;
+      /* do or pt2 are unbound  */
+    }
+    
 #include "term_visit.h"
   if (HR + 1024 > ASP) {
     goto global_overflow;
@@ -304,7 +312,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     /* Trail overflow */
     goto trail_overflow;
   }
-  end[0] = inp;
+  end[0] = inp0;
   mBind_And_Trail(ptd0, TermFoundVar);
   END_WALK();
 
@@ -527,8 +535,8 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       inp = TailOfTerm(inp);
     }
   }
-    COPY(pt0_[1]);
-TR = TR0;
+  COPY(pt0_[1]);
+  TR0 = TR;
 #include "term_visit.h"
   output = MkPairTerm((CELL)ptd0, output);
   mBind_And_Trail(ptd0, TermFoundVar);
@@ -653,7 +661,6 @@ static Int p_variables_within_term(USES_REGS1) /* variables within term t */
 static Int free_variables_in_term(USES_REGS1) {
   Term out;
   Term t, t0;
-  Term found_module = 0L;
   Term bounds = TermNil;
 
   t = t0 = MkGlobal(ARG1);
@@ -662,31 +669,25 @@ static Int free_variables_in_term(USES_REGS1) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorHat) {
       bounds = MkPairTerm(ArgOfTerm(1, t), bounds);
-    } else if (f == FunctorModule) {
-      found_module = ArgOfTerm(1, t);
-    } else if (f == FunctorCall) {
+    t = ArgOfTerm(2, t);
+    } else if (f == FunctorModule && IsAtomTerm(ArgOfTerm(1,t))) {
+      t = ArgOfTerm(2, t);
+   } else if (f == FunctorCall) {
       t = ArgOfTerm(1, t);
     } else if (f == FunctorExecuteInMod) {
-      found_module = ArgOfTerm(2, t);
       t = ArgOfTerm(1, t);
     } else {
       break;
     }
-    t = ArgOfTerm(2, t);
   }
+  Int entries;
   if (IsPrimitiveTerm(t))
     out = TermNil;
   else {
-      Int count = 0;
-      Term uquant = Yap_TermVariables(bounds,3), tvs = uquant;
-      out = vars_in_complex_term(&(t)-1, &(t),uquant PASS_REGS);
-Term fa = out;
-      while (fa != uquant) {
-          Term nfa = TailOfTerm(fa);
-          if (nfa == uquant) RepPair(fa)[1] = TermNil;
-          else fa = nfa;
-      }
-  }
+    Yap_NumberVars(bounds,0, false, &entries);
+      out = Yap_TermVariables(t,3);
+      clean_tr(TR-entries);
+}
 
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
@@ -708,8 +709,7 @@ HR+=2;\
 /* Trail overflow */\
 goto trail_overflow;\
 }\
-
- mTrailedMaBind(ptd0, TermRefoundVar);\
+ mTrailedMaBind(ptd0, TermRefoundVar);		\
 continue;\
 }\
 
@@ -724,7 +724,7 @@ continue;\
 static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                            Term inp USES_REGS) {
 
-    Term *end = NULL, first = inp, inp0  = inp;
+    Term *end = NULL, first = inp;
 
     Int count = 0;
     // first get the extra variables
@@ -822,7 +822,6 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                                        bool show_singletons,
                                        Int *tr_entries USES_REGS) {
     tr_fr_ptr TR0 = TR;
-    CELL *first=HR, *end = NULL, *HLow = HR;
     COPY(pt0_[1]);
 
 #
@@ -997,7 +996,7 @@ static Int largest_numbervar(USES_REGS1) {
 void Yap_InitTermCPreds(void) {
   Yap_InitCPred("term_variables", 2, term_variables, 0);
   Yap_InitCPred("term_variables", 3, term_variables3, 0);
-  Yap_InitCPred("$variables_in_term", 3, variables_in_term, 0);
+  Yap_InitCPred("variables_in_term", 3, variables_in_term, 0);
 
   Yap_InitCPred("$free_variables_in_term", 3, free_variables_in_term, 0);
   Yap_InitCPred("free_variables_in_term", 3, free_variables_in_term, 0);
