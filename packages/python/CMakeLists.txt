@@ -89,7 +89,7 @@ SOVERSION ${YAP_MAJOR_VERSION}.${YAP_MINOR_VERSION}
 )
 
 # arithmetic hassle.      
-target_link_libraries(Py4YAP  libYap ${PYTHON_LIBRARIES})
+target_link_libraries(Py4YAP  libYap ${Python3_LIBRARIES})
 
 
 install(TARGETS  Py4YAP

@@ -632,34 +632,34 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
  D = VISIT_UNMARK(DM);\
   } while (Unsigned(A) != (D) )
 
+#define POP_VISIT(A, DD)\
+{ DD=*A;\
+if(IS_VISIT_MARKER(DD))\
+ {*A = ((  copy_frame *)RepPair(dd))->oldv; }}
+
+#define PUSH_VISIT(A, DD, D)\
+{if(IS_VISIT_MARKER(DD)) {\
+  ((  copy_frame *)RepPair(DD))->oldv = D; *A=DD; }}
+
 #define mSET(A,D) \
-  { CELL *T =(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->t:A); *T=D; }
+  { Term dd; POP_VISIT(A, dd); *A=D; PUSH_VISIT(A,dd,D); }
 
 #define mBind(A,D) \
-  TRAIL_GLOBAL(A,D);\
-  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->oldv:A); *A=D;\
-}
+  { Term dd; POP_VISIT(A, dd); YapBind(A,D); PUSH_VISIT(A,dd,D); }
 
 #define mBind_And_Trail(A,D) \
-  DO_TRAIL(A,D);\
-  { A=(IS_VISIT_MARKER(*A)?&((  copy_frame *)RepPair(*A))->oldv :A); *A=D;\
-}
+  { Term dd; POP_VISIT(A, dd); Bind_and_Trail(A,D); PUSH_VISIT(A,dd,D); }
 
-#define mMaBind(A, D)                                                          \
-  {  CELL ov =*A;  bool marked = IS_VISIT_MARKER(ov);			\
-  if (marked) *A = VISIT_ENTRY(ov)->oldv;\
-    MaBind((A), (D));                              \
-    VISIT_ENTRY(ov)->oldv = (D);					\
-    *(A) = (ov);                                                           \
-  }
+#define mMaBind(A,D) \
+  { Term dd; POP_VISIT(A, dd); MaBind(A,D); PUSH_VISIT(A,dd,D); }
 
-#define mTrailedMaBind(A, D)            \
-  {  CELL ov =*A;  bool marked = IS_VISIT_MARKER(ov);			\
-  if (marked) *A = VISIT_ENTRY(ov)->oldv;\
-    TrailedMaBind((A), (D));                              \
-    VISIT_ENTRY(ov)->oldv = (D);					\
-    *(A) = (ov);                                                         \
-  }
+#define mTrailedMaBind(A,D) \
+  { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
+
+
+#if 1
+#define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"%s: ",__FUNCTION__); Yap_DebugPlWriteln(t);}
+#endif
 
 
 #endif // HEAPGC_H_

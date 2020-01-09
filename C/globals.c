@@ -114,7 +114,6 @@
 #ifdef HAVE_STRING_H
 #include "string.h"
 #endif
-
 /* Non-backtrackable terms will from now on be stored on arenas, a
    special term on the heap. Arenas automatically contract as we add terms to
    the front.
@@ -377,7 +376,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   Ystack_t stt;
   volatile size_t sz = 1024 * 16;
   bool hack = bindp && IsIntTerm(*bindp), numberv = false, break_loops = false;
-  CELL *HB0;
+CELL *HB0;
   bool forest = bindp && (*bindp != TermFoundVar);
   bool singletons = hack;
   if (hack) {
@@ -398,13 +397,13 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   Term t = TermNil;
   // share |= hack;
   init_stack(&stt, sz);
+    HLow = HR;
 loop:
-  HLow = *ptf_;
-  TR0 = TR;
+    HR=HLow;
+    TR0 = TR;
   HB0 = HB;
   ground = true;
   myt = (CELL)HLow;
-  HR = HLow + 1;
   ptf--; // synch with pt0;
   do {
     while (pt0 < pt0_end) {
@@ -607,8 +606,13 @@ loop:
             *ptf = d0;
             if (singletons) {
               CELL *vt = RepAppl(d0);
-              if (vt[1] == MkIntTerm(-1))
-                vt[1] = MkIntTerm(numb++);
+              if (vt[1] == MkIntTerm(-1)) {
+                  /* char s[64]; */
+                  /* snprintf(s, 63, "_%d", (int)numb++); */
+                  /* vt[1] = MkAtomTerm(Yap_LookupAtom(s)); */
+		vt[1] = MkIntTerm(numb++);
+	      }
+
             }
             continue;
           } else
@@ -631,7 +635,7 @@ loop:
           to_visit->t = myt;
           to_visit->ground = ground;
           to_visit->oldp = ptd1;
-          to_visit->oldv = VISIT_UNMARK(*ptd1);
+          to_visit->oldv = (CELL)f;
           *ptd1 = VISIT_MARK();
           to_visit++;
           ground = (f != FunctorMutable);
@@ -713,15 +717,15 @@ loop:
           }
           *ptf = d;
 
-          mBind_And_Trail(ptd0, d);
+          mBind_And_Trail(ptd0, (CELL)ptf);
           continue;
         }
         /* second time we met this term */
-          if (ptd0 < ptf || ptd0 >= HR) {
+          if (ptd0 < HLow || ptd0 >= HR) {
             RESET_VARIABLE(ptf);
-            mBind(ptd0, (CELL)ptf);
-          } else if (ptd0 > ptf) {
-            mBind(ptf, d0);
+            mBind_And_Trail(ptd0, (CELL)ptf);
+          } else if (ptd0 != ptf) {
+            *ptf = d0;
           }
       }
       }
@@ -739,7 +743,8 @@ loop:
     while (true)
       ;
     /* restore our nice, friendly, term to its original state */
-    clean_tr(TR0 PASS_REGS);
+
+     clean_tr(TR0 PASS_REGS);
     /* follow chain of multi-assigned variables */
     close_stack(&stt);
     return 0;
@@ -865,7 +870,6 @@ loop:
       CELL *pf = HR;
       RESET_VARIABLE(HR);
       HR++;
-
       if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, listp,
                                    arenap, &cspace PASS_REGS)) != 0) {
         // goto error_handler;
@@ -889,12 +893,15 @@ loop:
 
   Term Yap_CopyTermNoShare(Term inp) {
     CACHE_REGS
-    return CopyTermToArena(inp, FALSE, true, 3, NULL, NULL, 0 PASS_REGS);
+
+      COPY(inp);
+      return CopyTermToArena(inp, FALSE, true, 3, NULL, NULL, 0 PASS_REGS);
   }
 
   Term Yap_HackCycles(Term inp USES_REGS) {
     Term l = MkIntTerm(0);
-    if (IsVarTerm(inp)) {
+      COPY(inp);
+      if (IsVarTerm(inp)) {
       Term i = MkIntTerm(-1);
       return Yap_MkApplTerm(FunctorDollarVar, 1, &i);
     }
@@ -904,7 +911,8 @@ loop:
   static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
   {
     Term t = CopyTermToArena(ARG1, false, TRUE, 2, NULL, NULL, 0 PASS_REGS);
-    if (t == 0L)
+      COPY(t);
+      if (t == 0L)
       return FALSE;
     /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t);
@@ -915,7 +923,8 @@ loop:
     Term t = CopyTermToArena(ARG1, FALSE, TRUE, 2, NULL, NULL, 0 PASS_REGS);
     if (t == 0L)
       return FALSE;
-    /* be careful, there may be a stack shift here */
+      COPY(t);
+      /* be careful, there may be a stack shift here */
     return Yap_unify(ARG2, t);
   }
 
@@ -925,7 +934,8 @@ loop:
     Term t2 = ARG2;
     Term t3 = ARG3;
     Term list = Deref(ARG4);
-    Term t = CopyTermToArena(ARG1, false, false, 2, NULL, &list, 0 PASS_REGS);
+         COPY(ARG1);
+ Term t = CopyTermToArena(ARG1, false, false, 2, NULL, &list, 0 PASS_REGS);
     if (t == 0L)
       return FALSE;
     /* be careful, there may be a stack shift here */
@@ -946,7 +956,8 @@ loop:
   static Int p_copy_term_no_delays(
       USES_REGS1) /* copy term t to a new instance  */
   {
-    Term t = CopyTermToArena(ARG1, false, false, 2, NULL, NULL, 0 PASS_REGS);
+      COPY(ARG1);
+      Term t = CopyTermToArena(ARG1, false, false, 2, NULL, NULL, 0 PASS_REGS);
     if (t == 0L)
       return FALSE;
     /* be careful, there may be a stack shift here */

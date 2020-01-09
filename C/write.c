@@ -1175,7 +1175,7 @@ Functor fdv = FunctorDollarVar;
       wrputc(' ', wglb.stream);
     }
   }
-  clean_tr(tr0 - wglb.trailings);
+  clean_tr(tr0 );
   HR = (CELL *)Yap_PopHandle(h0_y);
   CurrentModule = cm;
   FunctorDollarVar = fdv;

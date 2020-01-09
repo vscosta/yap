@@ -145,7 +145,7 @@ check_trail_consistency(void) {
           if IsAttVar(p) continue;
         }
         printf("Oops at call %ld, B->cp(%p) TR(%p)  pt(%p)\n",
-vsc_count,B->cp_tr, TR, ptr);
+vretursc_count,B->cp_tr, TR, ptr);
         return(FALSE);
       }
     }
@@ -208,10 +208,10 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
    /*  extern int gc_calls; */
   vsc_count++;
   //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
-  if (TR < B->cp_tr)
-      jmp_deb2();
-   if (vsc_count < 972790)
-       return;
+//  if (TR < B->cp_tr)
+//      jmp_deb2();
+//   if (vsc_count < 972790)
+//       return true;
     int l = push_text_stack();
     // if (HR < ASP ) return;
   // fif (vsc_count == 12534) jmp_deb( 2 );
