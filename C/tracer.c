@@ -160,7 +160,8 @@ CELL old_value = 0L, old_value2 = 0L;
 
 void jmp_deb(int), jmp_deb2(void);
 
-void jmp_deb2(void) { fprintf(stderr, "Here\n"); }
+void jmp_deb2(void) { fprintf(stderr, "Here %p-%p\n",B->cp_tr,TR);
+ }
 
 void jmp_deb(int i) {
   if (i)
@@ -207,9 +208,9 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   CELL *H1 =HR;
    /*  extern int gc_calls; */
   vsc_count++;
-  //fprintf(stderr,"%p-%p\n",B->cp_tr,TR);
-//  if (TR < B->cp_tr)
-//      jmp_deb2();
+  if (TR < B->cp_tr)
+      jmp_deb2();
+  return;
 //   if (vsc_count < 972790)
 //       return true;
     int l = push_text_stack();
@@ -363,8 +364,8 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " ", vsc_count,
-                LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0);
+  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " %p ", vsc_count,
+                LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0, (CELL*)LCL0[-297]);
   b += snprintf(b, top - b, Int_FORMAT " ", LOCAL_CurHandle);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);
@@ -400,11 +401,11 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     b = send_tracer_message("CALL: ", s, arity, mname, args, &buf, b, &top);
     break;
   case try_or:
-    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
+    b = send_tracer_message("TRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
     break;
   case retry_or:
-    b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);
-    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, args, &buf, b, &top);
+    b = send_tracer_message("FAIL ", NULL, 0, NULL, NULL, &buf, b, &top);
+    b = send_tracer_message("RETRY_OR ", NULL, 0, NULL, NULL, &buf, b, &top);
     break;
   case retry_table_generator:
     b = send_tracer_message("FAIL ", NULL, 0, NULL, args, &buf, b, &top);

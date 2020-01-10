@@ -2503,18 +2503,4 @@ BEGD(d0);								\
     setregs();                                                                 \
   }
 
-
-INLINE_ONLY Term MkGlobal(Term t);
-
-INLINE_ONLY Term MkGlobal(Term t)
-{
-  if (!IsVarTerm((t = Deref(t)))) return t;
-  Term *pt = VarOfTerm(t);
-  if (H0<=pt && HR> pt)
-    return t;
-  Term nt = MkVarTerm();
-  YapBind(pt, nt);
-  return nt;
-}
-
 #endif // ABSMI_H

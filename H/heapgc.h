@@ -657,11 +657,26 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 1
+#if 0
 #define COPY(t)
 #else
-#define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"%s: ",__FUNCTION__); Yap_DebugPlWriteln(t);}
+extern long long vsc_count;
+#define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"%lld %s: ",vsc_count,__FUNCTION__); Yap_DebugPlWriteln(t);}
 #endif
+
+
+INLINE_ONLY Term MkGlobal(Term t);
+
+INLINE_ONLY Term MkGlobal(Term t)
+{
+  if (!IsVarTerm((t = Deref(t)))) return t;
+  Term *pt = VarOfTerm(t);
+  if (H0<=pt && HR> pt)
+    return t;
+  Term nt = MkVarTerm();
+  YapBind(pt, nt);
+  return nt;
+}
 
 
 #endif // HEAPGC_H_
