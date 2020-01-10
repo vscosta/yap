@@ -409,7 +409,7 @@ static int interrupt_handler(PredEntry *pe USES_REGS) {
   return interrupt_wake_up(TermTrue, NULL PASS_REGS);
 }
 
-#if  0
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -717,13 +717,17 @@ static int interrupt_either(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
-  if ((v = stack_overflow(  PredRestoreRegs, ENV,
-				    B->cp_cp, 0 PASS_REGS)) != INT_HANDLER_GO_ON) {
+  /* if ((v = stack_overflow(  PredRestoreRegs, YENV,
+				   NEXTOP(P,Osblp), 0 PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
-  }
+    }*/
+    if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
+ 
    return interrupt_wake_up(TermTrue,  NEXTOP(P,Osblp) PASS_REGS) ?
 	  INT_HANDLER_RET_JMP :
-	  INT_HANDLER_FAIL;
+	  INT_HANDLER_GO_ON;
+    }
+      return INT_HANDLER_RET_JMP;
 }
 
 
@@ -1224,3 +1228,4 @@ Int Yap_absmi(int inp) {
 int Yap_absmiEND(void) { return 1; }
 
 /// @}
+

@@ -124,7 +124,7 @@ call_atts(V,_) :-
 call_atts(V,New) :-
     attributes:get_attrs(V,SWIAtts),
     (
-	predicate_property(M:woken_att_do(V, New, LGoals, DoNotBind),number_of_clauses(N)), N>=1
+	'$current_predicate'(woken_att_do,M.woken_att_do(V, New, LGoals, DoNotBind),_)
 	->
 	 M:woken_att_do(V, New, LGoals, DoNotBind)
 	;

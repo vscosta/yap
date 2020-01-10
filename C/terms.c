@@ -685,8 +685,9 @@ static Int free_variables_in_term(USES_REGS1) {
     out = TermNil;
   else {
     Yap_NumberVars(bounds,0, false, &entries);
+    tr_fr_ptr  TR0 = TR;
       out = Yap_TermVariables(t,3);
-      clean_tr(TR-entries);
+      clean_tr(TR0-entries);
 }
 
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
@@ -724,12 +725,15 @@ continue;\
 static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                            Term inp USES_REGS) {
 
-    Term *end = NULL, first = inp;
+  Term *end = NULL, first = inp;
+    bool l=false;
 
     Int count = 0;
     // first get the extra variables
-    while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-        Term t = HeadOfTerm(inp);
+    while (IsVarTerm(inp) || (l=IsPairTerm(inp))) {
+
+   
+      Term t = (l ? HeadOfTerm(inp): inp);
         if (IsVarTerm(t)) {
             CELL *ptr = VarOfTerm(t);
             Bind_and_Trail(ptr, TermRefoundVar);
@@ -738,7 +742,7 @@ static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                 goto trail_overflow;
             /* do or pt2 are unbound  */
         }
-        inp = TailOfTerm(inp);
+        if (l) inp = TailOfTerm(inp);
     }
     tr_fr_ptr TR0 = TR;
     COPY(pt0_[1]);

@@ -127,7 +127,7 @@ fail.
 '$not_imported'(_, _).
 
 
-'$autoload'(G, _mportingMod, ExportingMod, Dialect) :-
+'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
     functor(G, Name, Arity),
     '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
     call(Dialect:index(Name,Arity,ExportingMod,_)),
