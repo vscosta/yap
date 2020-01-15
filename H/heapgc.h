@@ -594,9 +594,9 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
   return Yap_release_scratch_buf(&b->bf);
 }
 
-#define to_visit    stt.pt
-#define to_visit0   stt.pt0
-#define to_visit_end   stt.max
+#define to_visit    stt->pt
+#define to_visit0   stt->pt0 
+#define to_visit_end   stt->max
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\
@@ -657,7 +657,7 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 0
+#if 1
 #define COPY(t)
 #else
 extern long long vsc_count;

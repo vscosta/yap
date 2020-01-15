@@ -366,46 +366,18 @@ static Term CloseArena(cell_space_t *region USES_REGS) {
  */
 static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
                              bool copy_att_vars, CELL **ptf_, Term *bindp,
-                             CELL *arenap, cell_space_t *cspace USES_REGS) {
+                             CELL *arenap, cell_space_t *cspace, Ystack_t *stt USES_REGS) {
   // allocate space for internal stack, so that we do not have yo rely on
   // m C-stack.
 
   CELL *pt0 = pt0_, *ptf = *ptf_, *pt0_end = pt0_end_;
-
-  Term bind0 = 0;
-  Ystack_t stt;
-  volatile size_t sz = 1024 * 16;
-  bool hack = bindp && IsIntTerm(*bindp), numberv = false, break_loops = false;
-CELL *HB0;
+  Term myt;
+  bool break_loops = false;
  bool forest = bindp && (!IntOfTerm(*bindp));
-  bool singletons = false; // hack;
-  if (hack) {
-    copy_att_vars = false;
-    share = false;
-    numberv = true;
-    forest = false;
-    break_loops = true;
-    singletons= true;
-  }
-  size_t restarts = 0;
-  Int numb = 0;
-  tr_fr_ptr TR0;
   CELL *HLow;
   bool ground;
-  Term myt;
-                               bzero(&stt,sizeof (Ystack_t));
-  if (bindp && forest)
-    bind0 = *bindp;
-  Term t = TermNil;
-  // share |= hack;
-  init_stack(&stt, sz);
-    HLow = HR;
-loop:
-    HR=HLow;
-    TR0 = TR;
-  HB0 = HB;
+  //myt = (CELL)HLow;
   ground = true;
-  myt = (CELL)HLow;
   ptf--; // synch with pt0;
   do {
     while (pt0 < pt0_end) {
@@ -471,8 +443,8 @@ loop:
           mTrailedMaBind(ptd0, d0);
         }
         myt = AbsPair(HR);
-        if (stt.pt + 32 >= stt.max) {
-          goto aux_overflow;
+        if (stt->pt + 32 >= stt->max) {
+          return RESOURCE_ERROR_AUXILIARY_STACK;
         }
         to_visit->pt0 = pt0;
         to_visit->pt0_end = pt0_end;
@@ -494,7 +466,7 @@ loop:
         HR += 2;
         if (HR > ASP - MIN_ARENA_SIZE) {
           // same as before
-          goto overflow;
+          return RESOURCE_ERROR_STACK;
         }
         goto list_loop;
       } else if (IsApplTerm(d0)) {
@@ -543,8 +515,8 @@ loop:
           case (CELL)FunctorAttVar:
             break;
           case (CELL)FunctorLongInt:
-            if (HR > ASP - (MIN_ARENA_SIZE + 3)) {
-              goto overflow;
+            if (HR > ASP - (MIN_ARENA_SIZE + 3) ){
+              return RESOURCE_ERROR_STACK;
             }
             *ptf = AbsAppl(HR);
             HR[0] = tag;
@@ -552,13 +524,13 @@ loop:
             HR[2] = EndSpecials;
             HR += 3;
             if (HR > ASP - MIN_ARENA_SIZE) {
-              goto overflow;
+              return RESOURCE_ERROR_STACK;
             }
             break;
           case (CELL)FunctorDouble:
             if (HR >
                 ASP - (MIN_ARENA_SIZE + (2 + SIZEOF_DOUBLE / sizeof(CELL)))) {
-              goto overflow;
+              return RESOURCE_ERROR_STACK;
             }
             *ptf = AbsAppl(HR);
             HR[0] = tag;
@@ -574,7 +546,7 @@ loop:
             break;
           case (CELL)FunctorString:
             if (ASP - HR < MIN_ARENA_SIZE + 3 + ptd1[1]) {
-              goto overflow;
+              return RESOURCE_ERROR_STACK;
             }
             *ptf = AbsAppl(HR);
             memmove(HR, ptd1, sizeof(CELL) * (3 + ptd1[1]));
@@ -589,7 +561,7 @@ loop:
                  i;
 
             if (HR > ASP - (MIN_ARENA_SIZE + sz)) {
-              goto overflow;
+              return RESOURCE_ERROR_STACK;
             }
             *ptf = AbsAppl(HR);
             HR[0] = tag;
@@ -604,21 +576,6 @@ loop:
           myt = *ptf = AbsAppl(HR);
           Functor f = FunctorOfTerm(d0);
           arity_t arity;
-          if (numberv && f == FunctorDollarVar) {
-            *ptf = d0;
-            if (singletons) {
-              CELL *vt = RepAppl(d0);
-              if (vt[1] == MkIntTerm(-1)) {
-                  /* char s[64]; */
-                  /* snprintf(s, 63, "_%d", (int)numb++); */
-                  /* vt[1] = MkAtomTerm(Yap_LookupAtom(s)); */
-		vt[1] = MkIntTerm(numb++);
-	      }
-
-            }
-            continue;
-          } else
-            arity = ArityOfFunctor(f);
           if (f == FunctorAttVar)
             arity = 3;
           else
@@ -629,8 +586,7 @@ loop:
           }
           /* store the terms to visit */
           if (to_visit + 32 >= to_visit_end) {
-            goto aux_overflow;
-          }
+            return RESOURCE_ERROR_AUXILIARY_STACK;}
           to_visit->pt0 = pt0;
           to_visit->pt0_end = pt0_end;
           to_visit->ptf = ptf;
@@ -648,7 +604,7 @@ loop:
           ptf = HR;
           HR += arity + 1;
           if (HR > ASP - MIN_ARENA_SIZE) {
-            goto overflow;
+            return RESOURCE_ERROR_STACK;
           }
         }
       } else {
@@ -660,7 +616,7 @@ loop:
       mderef_body(d0, dd0, ptd0, copy_term_unk, copy_term_nvar);
       ground = FALSE;
       /* don't need to copy variables if we want to share the global term */
-      if (copy_att_vars &&!numberv && GlobalIsAttachedTerm((CELL)ptd0)) {
+      if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
         /* if unbound, call the standard copy term routine */
         struct cp_frame *bp;
 
@@ -669,7 +625,7 @@ loop:
           CELL *ptd1 = (CELL *)RepAttVar(ptd0);
           /* store the terms to visit */
           if (to_visit + 32 >= to_visit_end) {
-            goto aux_overflow;
+            return RESOURCE_ERROR_AUXILIARY_STACK;
           }
           *HR++ = (CELL)FunctorAttVar;
           *ptf = (CELL)(HR + 1);
@@ -688,40 +644,20 @@ loop:
           ptf = HR + 2;
           HR += 4;
           pt0_end = ptd1 + 3;
+
           continue;
         } else {
           bp = to_visit;
           if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp,
                                                             ptf PASS_REGS)) {
-            goto overflow;
+            return RESOURCE_ERROR_STACK;
           }
           to_visit = bp;
         }
         if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-          /* Trail overflow */
-          if (!Yap_growtrail((TR - TR0) * sizeof(tr_fr_ptr *), TRUE)) {
-            goto trail_overflow;
-          }
+            return RESOURCE_ERROR_TRAIL;
         }
       } else {
-        if (numberv) {
-          Term d = AbsAppl(HR);
-          if (HR > ASP - MIN_ARENA_SIZE) {
-            goto overflow;
-          }
-          HR += 2;
-          HR[-2] = (CELL)FunctorDollarVar;
-          if (singletons) {
-
-              HR[-1] = MkIntTerm(-1);
-          } else {
-              HR[-1] = MkIntTerm(numb++);
-          }
-          *ptf = d;
-
-          mBind_And_Trail(ptd0, (CELL)ptf);
-          continue;
-        }
         /* second time we met this term */
           if (ptd0 < HLow || ptd0 >= HR) {
             RESET_VARIABLE(ptf);
@@ -744,15 +680,57 @@ loop:
     }
     while (true)
       ;
-    /* restore our nice, friendly, term to its original state */
-
-     clean_tr(TR0 PASS_REGS);
-    /* follow chain of multi-assigned variables */
-    close_stack(&stt);
     return 0;
 
-  aux_overflow:
-    t = pt0_[1];
+  }
+
+  static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
+                              UInt arity, Term *arenap, Term *bindp,
+                              size_t min_grow USES_REGS) {
+    cell_space_t cspace;
+    int res = 0;
+    Term tf;
+    CELL *HLow;
+    tr_fr_ptr TR0;
+   size_t restarts = 0;
+   Ystack_t stt_, *stt = &stt_;
+  bool forest = bindp != NULL;
+    Term bind0 = 0;
+    size_t sz = 1024;
+    init_stack(stt, sz);
+  if (bindp != NULL && forest)
+    bind0 = *bindp;
+      TR0 = TR;
+      CELL *HR0 = HR, *HB0 = HB;
+    HLow = HR;
+    TR0 = TR;
+    t = MkGlobal(t);
+    if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
+      return t;
+    }
+      if (arenap) {
+      enter_cell_space(&cspace, arenap);
+    }
+      while (true) {
+      CELL *ap = &t;
+      HB = HR;
+      //   DEB_DOOBIN(t);
+      CELL *pf = HR;
+      RESET_VARIABLE(HR);
+      HR++;
+      if ((res = copy_complex_term(ap - 1, ap, share,
+				   copy_att_vars, &pf, bindp,                            arenap, &cspace, stt PASS_REGS)) == 0) {
+        // goto error_handler;
+ 
+      tf = MkGlobal(*pf);
+    /* restore our nice, friendly, term to its original state */
+     clean_tr(TR0 PASS_REGS);
+    /* follow chain of multi-assigned variables */
+    close_stack(stt);
+
+      break;
+      } else if (res==RESOURCE_ERROR_AUXILIARY_STACK) {
+
     while (to_visit > to_visit0) {
       to_visit--;
       VUNMARK(to_visit->oldp, to_visit->oldv);
@@ -760,28 +738,9 @@ loop:
     clean_tr(TR0 PASS_REGS);
 
     if (arenap)
-      *arenap = CloseArena(cspace PASS_REGS);
+      *arenap = CloseArena(&cspace PASS_REGS);
     sz += sz;
-  retry:
-    if (arenap) {
-      enter_cell_space(cspace, arenap);
-    }
-    HLow = HR;
-    pt0_ = HR - 1;
-    pt0_end_ = HR;
-    HR[0] = t;
-    HR++;
-    HB = HR;
-    *ptf_ = HR++;
-    reinit_stack(&stt, sz);
-    pt0 = pt0_;
-    ptf = *ptf_;
-    pt0_end = pt0_end_;
-    if (bindp)
-      *bindp = bind0;
-    goto loop;
-
-  overflow : {
+      } else if (res==RESOURCE_ERROR_STACK) {
     yhandle_t slb, sle;
 
     while (to_visit > to_visit0) {
@@ -792,21 +751,22 @@ loop:
     HB = HB0;
     if (&LOCAL_GlobalArena == arenap)
       LOCAL_GlobalArenaOverflows++;
-    HR = *ptf_ + 1;
-    slb = Yap_PushHandle(pt0_[1]);
+
+    HR = HR0;
+    slb = Yap_PushHandle(t);
     sle = Yap_PushHandle(bind0);
     if (arenap) {
       size_t min_grow =
           (restarts < 16 ? 16 * 1024 * restarts * restarts : 128 * 1024);
-      *arenap = CloseArena(cspace PASS_REGS);
+      *arenap = CloseArena(&cspace PASS_REGS);
       restarts++;
-      if ((*arenap = GrowArena(*arenap, min_grow, 1, cspace PASS_REGS)) == 0) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+      if ((*arenap = GrowArena(*arenap, min_grow, 1, &cspace PASS_REGS)) == 0) {
+        close_stack(stt);
+            Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
     } else {
       if (!Yap_expand(0)) {
-        close_stack(&stt);
 
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
@@ -815,10 +775,7 @@ loop:
 
     bind0 = Yap_PopHandle(sle);
     t = Yap_PopHandle(slb);
-  }
-    goto retry;
-
-  trail_overflow : {
+  } else {
 #ifdef RATIONAL_TREES
     while (to_visit > to_visit0) {
       to_visit--;
@@ -828,17 +785,16 @@ loop:
     clean_tr(TR0);
     HR = HB;
     if (arenap) {
-      *arenap = CloseArena(cspace PASS_REGS);
+      *arenap = CloseArena(&cspace PASS_REGS);
     }
-    *arenap = CloseArena(cspace PASS_REGS);
     yhandle_t sla = Yap_PushHandle(*arenap);
-    yhandle_t slb = Yap_PushHandle(pt0_[1]);
+    yhandle_t slb = Yap_PushHandle(t);
     yhandle_t sle = Yap_PushHandle(bind0);
     do {
       /* Trail overflow */
       if (!Yap_growtrail(256 * 256 * sizeof(struct trail_frame), false)) {
-        close_stack(&stt);
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        close_stack(stt);
+    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0L;
       }
     } while (TR > (tr_fr_ptr)LOCAL_TrailTop - 256 * 256);
@@ -848,48 +804,17 @@ loop:
       *arenap = Yap_PopHandle(sla);
     }
   }
-    goto retry;
-  }
 
-  static Term CopyTermToArena(Term t, bool share, bool copy_att_vars,
-                              UInt arity, Term *arenap, Term *listp,
-                              size_t min_grow USES_REGS) {
-    cell_space_t cspace;
-    int res = 0;
-    Term tf;
-    tr_fr_ptr TR0;
-    t = MkGlobal(t);
-    if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
-      return t;
-    }
-    if (arenap) {
-      TR0 = TR;
-      enter_cell_space(&cspace, arenap);
-    }
-    {
-      CELL *ap = &t;
-      HB = HR;
-      //   DEB_DOOBIN(t);
-      CELL *pf = HR;
-      RESET_VARIABLE(HR);
-      HR++;
-      if ((res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, listp,
-                                   arenap, &cspace PASS_REGS)) != 0) {
-        // goto error_handler;
-      }
-      tf = MkGlobal(*pf);
-      //	          DEB_≈DOOBOUT(tf);
-    }
-
+      clean_tr(TR0);
     if (arenap) {
       Term ar = CloseArena(&cspace PASS_REGS);
-      clean_tr(TR0);
       *arenap = ar;
     }
 
+    }
     return tf;
-  }
-
+}
+  
   Term Yap_CopyTerm(Term inp) {
     CACHE_REGS
     return CopyTermToArena(inp, false, true, 3, NULL, NULL, 0 PASS_REGS);
@@ -901,17 +826,7 @@ loop:
       COPY(inp);
       return CopyTermToArena(inp, FALSE, true, 3, NULL, NULL, 0 PASS_REGS);
   }
-
-  Term Yap_HackCycles(Term inp USES_REGS) {
-    Term l = MkIntTerm(0);
-      COPY(inp);
-      if (IsVarTerm(inp)) {
-      Term i = MkIntTerm(-1);
-      return Yap_MkApplTerm(FunctorDollarVar, 1, &i);
-    }
-    return CopyTermToArena(inp, FALSE, true, 3, NULL, &l, 0 PASS_REGS);
-  }
-
+  
   static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
   {
     Term t = CopyTermToArena(ARG1, false, TRUE, 2, NULL, NULL, 0 PASS_REGS);
@@ -1965,7 +1880,7 @@ loop:
                 Yap_MkFunctor(AtomHeapData, 2 * hsize + HEAP_START + 1),
                 2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
       if (!Yap_dogc(0, NULL PASS_REGS)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError( RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
     }
@@ -2073,7 +1988,7 @@ loop:
       }
       if ((extra_size =
                Yap_InsertInGlobal(top, extra_size * 2 * sizeof(CELL))) == 0) {
-        Yap_Error(RESOURCE_ERROR_STACK, TermNil,
+        Yap_Error( RESOURCE_ERROR_STACK, TermNil,
                   "No Stack Space for Non-Backtrackable terms");
         return FALSE;
       }
@@ -2197,7 +2112,7 @@ loop:
                 Yap_MkFunctor(AtomHeapData, 5 * hsize + HEAP_START + 1),
                 5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
       if (!Yap_dogc(0, NULL PASS_REGS)) {
-        Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
+        Yap_ThrowError( RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
     }

@@ -68,7 +68,6 @@ typedef struct write_globs {
   bool Write_strings;
   UInt last_atom_minus;
   UInt MaxDepth, MaxArgs;
-  int trailings;
   wtype lw;
 } wglbs;
 
@@ -1118,8 +1117,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   Term cm = CurrentModule;
 Functor fdv = FunctorDollarVar;
                                                                                                            t = Deref(t);
-  tr_fr_ptr tr0 = TR;
-  Term tn = t;
+  tr_fr_ptr TR0 = TR;
   size_t n;
   yhandle_t h0_y = Yap_InitHandle(MkVarTerm());
   if (args && args[WRITE_PRIORITY].used) {
@@ -1128,29 +1126,32 @@ Functor fdv = FunctorDollarVar;
   if (args && args[WRITE_MODULE].used) {
     CurrentModule = args[WRITE_MODULE].tvalue;
   }
-  if (1) tn = t; else
-  if (args && args[WRITE_VARIABLE_NAMES].used) {
-    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
+      if (args && args[WRITE_VARIABLE_NAMES].used) {
+           flags |= Handle_vars_f|Singleton_vars_f;
+         bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
+      }
+    if
+            (args && args[WRITE_SINGLETONS].used &&
+             args[WRITE_SINGLETONS].tvalue == TermTrue) {
+        flags |= Handle_vars_f|Singleton_vars_f;
+    }
+    if
+            (args && args[WRITE_NUMBERVARS].used &&
+             args[WRITE_NUMBERVARS].tvalue == TermTrue) {
+        flags |= Handle_vars_f;
+    }
+    if
+            (args && args[WRITE_CYCLES].used &&
+             args[WRITE_CYCLES].tvalue == TermTrue) {
+        flags |= Handle_cyclics_f;
+    }
+    if (flags & Handle_vars_f || flags  & Handle_cyclics_f) {
+        if (flags & Singleton_vars_f)
       FunctorDollarVar = FunctorHiddenVar;
-      tn = Yap_HackCycles(t PASS_REGS);
-    flags |= Handle_vars_f;
-  } else if (((flags & (Singleton_vars_f | Handle_cyclics_f)) ==
-              (Singleton_vars_f | Handle_cyclics_f)) ||
-             (args && args[WRITE_SINGLETONS].used &&
-              args[WRITE_SINGLETONS].tvalue == TermTrue)) {
-      FunctorDollarVar = FunctorHiddenVar;
-    tn = Yap_HackCycles(t PASS_REGS);
-    flags |= Handle_vars_f;
-  } if ((args && args[WRITE_NUMBERVARS].used &&
-              args[WRITE_NUMBERVARS].tvalue == TermTrue)) {
-    tn = Yap_HackCycles(t PASS_REGS);
-    flags |= Handle_vars_f;
-    FunctorDollarVar = fdv;
+      Yap_NumberVars(t, 0, flags & Singleton_vars_f,
+              flags & Handle_cyclics_f, &n PASS_REGS);
   }
-  wglb.trailings = TR - tr0;
-  tr0 = TR;
-  wglb.stream = mywrite;
-  wglb.trailings = 0;
+    wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   wglb.Use_portray = flags & Use_portray_f;
@@ -1162,7 +1163,7 @@ Functor fdv = FunctorDollarVar;
   wglb.MaxArgs = 0;
   wglb.lw = separator;
   /* protect slots for portray */
-  writeTerm(tn, priority, LOCAL_max_depth, false, &wglb);
+  writeTerm(t, priority, LOCAL_max_depth, false, &wglb);
   if (flags & New_Line_f) {
     if (flags & Fullstop_f) {
       wrputc('.', wglb.stream);
@@ -1176,7 +1177,7 @@ Functor fdv = FunctorDollarVar;
       wrputc(' ', wglb.stream);
     }
   }
-  clean_tr(tr0 );
+  clean_tr(TR0 );
   HR = (CELL *)Yap_PopHandle(h0_y);
   CurrentModule = cm;
   FunctorDollarVar = fdv;

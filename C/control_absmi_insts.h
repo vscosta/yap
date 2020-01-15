@@ -38,11 +38,8 @@ ructions                                       *
       /* cut_t                            */
       /* cut_t does the same as cut */
       Op(cut_t, s);
-#ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCutT, HR);
-      ENDCACHE_Y_AS_ENV();
-#endif
       SET_ASP(YREG, PREG->y_u.s.s);
       /* assume cut is always in stack */
       saveregs();
@@ -55,7 +52,8 @@ ructions                                       *
       PROCESS_INTERRUPT(interrupt_cut_t, do_cut_t,  PREG->y_u.s.s);
     do_cut_t:
       set_pc();
-      JMPNext();
+      GONext();
+      ENDCACHE_Y_AS_ENV();
       ENDOp();
 
       /* cut_e                            */
@@ -202,16 +200,10 @@ after_commit_b_y:
       {
         PredEntry *pt0;
         CACHE_Y_AS_ENV(YREG);
-        pt0 = PREG->y_u.Osbpp.p;
-#ifndef NO_CHECKING
-        /* check stacks */
         check_stack(NoStackExecute, HR);
-	goto do_execute;
-     restart_execute:	
-	pt0 = PP;
+     do_execute:	
+	pt0 = PREG->y_u.Osbpp.p;
         FETCH_Y_FROM_ENV(YREG);
-      do_execute:
-#endif
 #ifdef LOW_LEVEL_TRACER
         if (Yap_do_low_level_trace) {
           low_level_trace(enter_pred,pt0,XREGS+1);
@@ -220,8 +212,7 @@ after_commit_b_y:
         CACHE_A1();
         ALWAYS_LOOKAHEAD(pt0->OpcodeOfPred);
         BEGD(d0);
-        d0 = (CELL)B;
-        PREG = pt0->CodeOfPred;
+        d0 = (CELL)B; PREG = pt0->CodeOfPred;
         /* for profiler */
         save_pc();
         ENV_YREG[E_CB] = d0;
@@ -239,12 +230,11 @@ after_commit_b_y:
         /* this is the equivalent to setting up the stack */
         ALWAYS_GONext();
         ALWAYS_END_PREFETCH();
-        ENDCACHE_Y_AS_ENV();
       }
 
     NoStackExecute:
-      PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
-
+       PROCESS_INTERRUPT(interrupt_execute, do_execute, PREG->y_u.Osbpp.s);
+        ENDCACHE_Y_AS_ENV();
       ENDBOp();
 
       /* dexecute    Label               */

@@ -111,7 +111,7 @@ static int CopyAttVar(CELL *orig, void *sttp,
                       CELL *res USES_REGS) {
   register attvar_record *attv = RepAttVar(orig);
   register attvar_record *newv;
-  Ystack_t stt = *(Ystack_t *)sttp;
+  Ystack_t *stt = (Ystack_t *)sttp;
   CELL *vt;
 
   if (!(newv = BuildNewAttVar(PASS_REGS1)))

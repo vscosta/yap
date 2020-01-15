@@ -255,7 +255,7 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
     if (!Yap_dogc(live_regs(P, pe), NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
     }
-  return INT_HANDLER_RET_JMP;
+    return INT_HANDLER_RET_JMP;
   }
   return INT_HANDLER_GO_ON;
 }
@@ -455,9 +455,9 @@ DEBUG_INTERRUPTS();
   if ((v = code_overflow(YENV PASS_REGS)) >= 0) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, CP,
+  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, NEXTOP(P,Osbpp),
 			  P->y_u.Osbpp.p->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON) {
-    return v;
+    return INT_HANDLER_RET_NEXT; // restartx
   }
   return interrupt_handler(P->y_u.Osbpp.p PASS_REGS);
 }
@@ -542,7 +542,8 @@ static void execute_dealloc(USES_REGS1) {
     ENVYREG = (CELL *)B;
   else
     YENV = (CELL *)((CELL)YENV + ENV_Size(CP));
-#endif /* FROZEN_STACKS */
+#endif /* FROZEN_STACKS
+ * */
 }
 
 /* don't forget I cannot creep at deallocate (where to?) */
@@ -656,9 +657,9 @@ static int interrupt_prune(CELL *upto, yamop *p USES_REGS) {
     return INT_HANDLER_FAIL;
   }
 
-  p = NEXTOP(p, Osblp) ;
+ p = NEXTOP(p, Osblp) ;
   if (Yap_get_signal(YAP_WAKEUP_SIGNAL)) {
-    v =   interrupt_wake_up(cut_t, p  PASS_REGS) ?
+    v =   interrupt_wake_up(cut_t, NULL  PASS_REGS) ?
 	  INT_HANDLER_RET_JMP :
 	  INT_HANDLER_FAIL;
   } else {

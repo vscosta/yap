@@ -1,17 +1,19 @@
 /*************************************************************************
 *									 *
-    *	 YAP Prolog 							 *
-    *									 *
-    *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-    *									 *
-    * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-    *									 *
-    **************************************************************************
-    *									 *
-    * File:		utilpreds.c * Last rev:	4/03/88
-    ** mods: * comments:	new utility predicates for YAP *
-    *									 *
-    *************************************************************************/
+*	 YAP Prolog 							 *
+*									 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*									 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+*									 *
+**************************************************************************
+*									 *
+* File:		utilpreds.c * Last rev:	4/03/88
+*
+* mods:
+* comments:	new utility predicates for YAP *
+*									 *
+*************************************************************************/
 
 #ifndef TERMS_C
 #define TERMS_C 1
@@ -87,9 +89,9 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
 
 #define CYC()                                                                  \
   if (IS_VISIT_MARKER(*ptd0)) {                                                \
-    while (pop_sub_term(&stt, NULL, NULL)) {                                   \
+    while (pop_sub_term(stt, NULL, NULL)) {                                   \
     };                                                                         \
-     close_stack(&stt);return true;                                                               \
+     close_stack(stt);return true;                                                               \
   }
 
 /**
@@ -110,7 +112,7 @@ COPY(pt0_[1]);
   /* leave an empty slot to fill in later */
   END_WALK();
   // no cycles found
-  close_stack(&stt);
+  close_stack(stt);
   return false;
 }
 
@@ -158,15 +160,15 @@ static bool ground_complex_term(CELL *pt0_, CELL *pt0_end_ USES_REGS) {
   //  pp(pt0_     [1], 0);
     COPY(pt0_[1]);
 #include "term_visit.h"
-  while (pop_sub_term(&stt, NULL, NULL)) {
+  while (pop_sub_term(stt, NULL, NULL)) {
   };
   HR = InitialH;
   //  pp(pt0_[1], 0);
- close_stack(&stt);
+ close_stack(stt);
   return false;
 
   END_WALK();
- close_stack(&stt);
+ close_stack(stt);
  return true;
   /* should have a return before this point */
   /* close main processing loop */
@@ -214,13 +216,13 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v USES_REGS) {
 
   if ((CELL)ptd0 == v) { /* we found it */
     /* Do we still have compound terms to visit */
-    while (pop_sub_term(&stt, NULL, NULL)) {
+    while (pop_sub_term(stt, NULL, NULL)) {
     };
-    close_stack(&stt);
+    close_stack(stt);
     return true;
   }
   END_WALK();
- close_stack(&stt);
+ close_stack(stt);
  return false;
 }
 
@@ -269,31 +271,22 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   tr_fr_ptr TR0;
   Term *end = NULL, first = inp, inp0 = inp;
 
-    Int count = 0;
   // first get the extra variables
+  TR0 = TR;
   while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-    Term t = HeadOfTerm(inp);
+    Term t;
+    if (!IsVarTerm(inp)) t = HeadOfTerm(inp);
+    else t = inp;
     if (IsVarTerm(t)) {
       CELL *ptr = VarOfTerm(t);
       Bind_and_Trail(ptr, TermFoundVar);
-      count++;
       if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
         goto trail_overflow;
       /* do or pt2 are unbound  */
     }
-   inp = TailOfTerm(inp);
+   if (!IsVarTerm(inp)) inp = TailOfTerm(inp);
   }
-  TR0 = TR;
   COPY(pt0_[1]);
-    if (IsVarTerm(inp)) {
-      CELL *ptr = VarOfTerm(inp);
-      Bind_and_Trail(ptr, TermFoundVar);
-      count++;
-      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
-        goto trail_overflow;
-      /* do or pt2 are unbound  */
-    }
-    
 #include "term_visit.h"
   if (HR + 1024 > ASP) {
     goto global_overflow;
@@ -316,7 +309,7 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   mBind_And_Trail(ptd0, TermFoundVar);
   END_WALK();
 
-  clean_tr(TR0 - count PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
   return first;
 }
 
@@ -340,14 +333,10 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 
 /** @pred  term_variables(? _Term_, - _Variables_, +_ExternalVars_) is iso
 
-
-
     Unify the difference list between _Variables_ and _ExternaVars_
     with the list of all variables of term _Term_.  The variables
     occur in the order of their first appearance when traversing the
     term depth-first, left-to-right.
-
-
 */
 static Int term_variables3(USES_REGS1) /* variables in term t		 */
 {
@@ -373,14 +362,12 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
  * @param[USES_REGS] threading
  */
 Term Yap_TermVariables(
-    Term t, arity_t arity USES_REGS) /* variables in term t		 */
+    Term t, arity_t arity USES_REGS) /* variables in term t  */
 {
   Term out;
 
   t = MkGlobal(t);
-  if (IsVarTerm(t)) {
-    return MkPairTerm(t, TermNil);
-  } else if (IsPrimitiveTerm(t)) {
+  if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
     return TermNil;
   } else {
     out = vars_in_complex_term(&(t)-1, &(t), TermNil PASS_REGS);
@@ -407,12 +394,9 @@ Yap_TermAddVariables(Term t,
 
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 
-
-
     Unify  _Variables_ with the list of all variables of term
     _Term_.  The variables occur in the order of their first
     appearance when traversing the term depth-first, left-to-right.
-
 
 */
 static Int term_variables(USES_REGS1) /* variables in term t		 */
@@ -603,24 +587,12 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
 
 static Term vars_within_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
-  Int n = 0;
   CELL output = AbsPair(HR);
-  tr_fr_ptr TR0 = TR;
+  tr_fr_ptr TR0;
 
-  while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-    Term t = HeadOfTerm(inp);
-    if (IsVarTerm(t)) {
-      CELL *ptr = VarOfTerm(t);
-      n++;
-      Bind_and_Trail(ptr,TermFoundVar);
-      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-        Yap_growtrail(2 * n * sizeof(tr_fr_ptr *), true);
-      }
-    }
-    inp = TailOfTerm(inp);
-  }
-    COPY(pt0_[1]);
-
+  inp = Yap_TermVariables(inp, 3 PASS_REGS);
+  COPY(pt0_[1]);
+  TR0 = TR;
 #include "term_visit.h"
   continue;
   END_WALK();
@@ -680,16 +652,13 @@ static Int free_variables_in_term(USES_REGS1) {
       break;
     }
   }
-  Int entries;
-  if (IsPrimitiveTerm(t))
-    out = TermNil;
-  else {
-    Yap_NumberVars(bounds,0, false, &entries);
-    tr_fr_ptr  TR0 = TR;
-      out = Yap_TermVariables(t,3);
-      clean_tr(TR0-entries);
-}
 
+  if (IsPrimitiveTerm(t))
+    out = bounds;
+  else {
+Term   inp = Yap_TermVariables(bounds,3 PASS_REGS);
+    out = Yap_TermVariables(inp, 3 PASS_REGS);
+  }
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
@@ -714,87 +683,6 @@ goto trail_overflow;\
 continue;\
 }\
 
-#undef LIST_HOOK_CODE
-#undef COMPOUND_HOOK_CODE
-#undef ATOMIC_HOOK_CODE
-#define LIST_HOOK_CODE                                                         \
-  {}
-#define COMPOUND_HOOK_CODE {}
-#define ATOMIC_HOOK_CODE      FOUND_VAR_AGAIN
-
-static Term non_singletons_in_complex_term(CELL *pt0_, CELL *pt0_end_,
-                                           Term inp USES_REGS) {
-
-  Term *end = NULL, first = inp;
-    bool l=false;
-
-    Int count = 0;
-    // first get the extra variables
-    while (IsVarTerm(inp) || (l=IsPairTerm(inp))) {
-
-   
-      Term t = (l ? HeadOfTerm(inp): inp);
-        if (IsVarTerm(t)) {
-            CELL *ptr = VarOfTerm(t);
-            Bind_and_Trail(ptr, TermRefoundVar);
-            count++;
-            if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
-                goto trail_overflow;
-            /* do or pt2 are unbound  */
-        }
-        if (l) inp = TailOfTerm(inp);
-    }
-    tr_fr_ptr TR0 = TR;
-    COPY(pt0_[1]);
-
-
-#include "term_visit.h"
-  /* next make sure noone will see this as a variable again */
-  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-    /* Trail overflow */
-        goto trail_overflow;
-  }
-  mBind_And_Trail(ptd0, TermFoundVar);
-  continue;
-  END_WALK();
-
-  clean_tr(TR0-count PASS_REGS);
-
-  return first;
-}
-
-
-Term Yap_NonSingletons(Term t, Term s USES_REGS) {
-  if (IsVarTerm(t)) {
-    return MkPairTerm(t, s);
-  } else if (IsPrimitiveTerm(t)) {
-    return s;
-  } else {
-    return non_singletons_in_complex_term(&(t)-1, &(t), s PASS_REGS);
-  }
-}
-
-/** @pred  non_singletons_in_term(? _T_, _LV0_, _LVF_)
-    
-    Unify _LVF_-_LV0_ with the list of variables that occur at least twice in
-    _T_ or that occur in _LV0_ and _T_.
-
-*/
-static Int p_non_singletons_in_term(
-    USES_REGS1) /* non_singletons in term t		 */
-{
-  Term t;
-  Term out = MkGlobal(ARG2);
-
-  t = MkGlobal(ARG1);
-  if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-    return Yap_unify(ARG3, ARG2);
-  } else {
-      t = MkPairTerm(out,t);
-    out = non_singletons_in_complex_term(&(t)-1, &(t), out PASS_REGS);
-  }
-  return Yap_unify(ARG3, out);
-}
 
 #define FOUND_SAME_VAR_AGAIN                                                           \
   {                                                                            \
@@ -807,57 +695,65 @@ static Int p_non_singletons_in_term(
 }
 
 
+#define BREAK_LOOP                                                  \
+if (cyclics && IS_VISIT_MARKER(ptd1[0])) {\
+             Term ups = MkIntTerm(to_visit - VISIT_ENTRY(*ptd1));\
+            mTrailedMaBind(ptd1, Yap_MkApplTerm(FunctorUp, 1, &ups));\
+}\
+
 #define FOUND_VAR_AGAIN_AND_AGAIN                                                  \
-  if (FunctorOfTerm(d0) == FunctorDollarVar &&\
+BREAK_LOOP; \
+if (FunctorOfTerm(d0) == FunctorDollarVar &&\
       RepAppl(d0)[1] == MkIntTerm(-1)) {                \
 	   RepAppl(d0)[1] = MkIntTerm(vno++);             }
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
-#define LIST_HOOK_CODE                                                         \
-  {}
+#define LIST_HOOK_CODE  BREAK_LOOP
 #define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN_AND_AGAIN
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
 
-static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
+static Term numbervars_in_complex_term(CELL *pt0_,
+				       CELL *pt0_end_, Int vno,
                                        bool show_singletons,
+                                       bool cyclics,
                                        Int *tr_entries USES_REGS) {
     tr_fr_ptr TR0 = TR;
     COPY(pt0_[1]);
 
-#
 #include "term_visit.h"
+
             /* next make sure noone will see this as a variable again */
-            if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+            if (TR > (tr_fr_ptr) LOCAL_TrailTop - 256) {
                 /* Trail overflow */
                 goto trail_overflow;
             }
             if (HR + 1024 > ASP) {
                 goto global_overflow;
             }
-            HR[0] = (CELL)FunctorDollarVar;
-            if (tr_entries) {
-                mBind_And_Trail(ptd0, AbsAppl(HR));
-            } else {
-                mBind(ptd0, AbsAppl(HR));
-            }
+            Term o = AbsAppl(HR);
+            HR[0] = (CELL) FunctorDollarVar;
             if (show_singletons)
                 HR[1] = MkIntTerm(-1);
             else
                 HR[1] = MkIntTerm(vno++);
             HR += 2;
-
+            if (tr_entries) {
+                mBind_And_Trail(ptd0, o);
+            } else {
+                mBind(ptd0, o);
+            }
             continue;
     END_WALK();
 
     if (tr_entries)
-        *tr_entries=TR-TR0;
-    else
+        *tr_entries = TR - TR0;
+    else {
     clean_tr(TR0 PASS_REGS);
-
+}
         return vno;
 }
 
@@ -895,15 +791,14 @@ COPY(pt0_[1]);
 #endif
 
 Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
-                   Int *tr_entries) /*
-                                     * numbervariables in term t         */
+                   bool cyclics, size_t *tr_entries) /** numbervariables in term t         */
 {
-
     if (IsPrimitiveTerm(t)) {
         return numbv;
     }
     Term vt = MkGlobal(t);
-    return numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles, tr_entries PASS_REGS);
+    return numbervars_in_complex_term(&vt - 1, &vt,
+            numbv, cyclics, handle_singles, tr_entries PASS_REGS);
 }
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
@@ -923,7 +818,22 @@ static Int p_numbervars(USES_REGS1) {
         return (false);
     }
     bool sing = t2== MkIntTerm(-1);
-    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), sing, NULL);
+    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), sing, false, NULL);
+    return Yap_unify(ARG3, MkIntegerTerm(out));
+}
+
+static Int p_numbervars4(USES_REGS1) {
+    Term t2 = MkGlobal(ARG2);
+    Int out;
+    if (IsVarTerm(t2)) {
+        Yap_Error(INSTANTIATION_ERROR, t2, "numbervars/3");
+        return false;
+    }
+    if (!IsIntegerTerm(t2)) {
+        Yap_Error(TYPE_ERROR_INTEGER, t2, "numbervars/3");
+        return (false);
+    }
+    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), true, false, NULL);
     return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
@@ -954,15 +864,15 @@ static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp USES_REGS) {
   continue;
   END_WALK();
   /* Do we still have compound terms to visit */
-  if (stt.pt > stt.pt0) {
-    stt.pt--;
+  if (stt->pt > stt->pt0) {
+    stt->pt--;
 
-    pt0 = stt.pt->pt0;
-    pt0_end = stt.pt->pt0_end;
-    VUNMARK(stt.pt->oldp, stt.pt->oldv);
+    pt0 = stt->pt->pt0;
+    pt0_end = stt->pt->pt0_end;
+    VUNMARK(stt->pt->oldp, stt->pt->oldv);
   }
   prune(B PASS_REGS);
- close_stack(&stt);
+ close_stack(stt);
   return 0;
 }
 
@@ -1013,12 +923,11 @@ void Yap_InitTermCPreds(void) {
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
   CurrentModule = PROLOG_MODULE;
 
-  Yap_InitCPred("non_singletons_in_term", 3, p_non_singletons_in_term, 0);
-
   Yap_InitCPred("ground", 1, ground, SafePredFlag);
   Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
+  Yap_InitCPred("numbervars", 4, p_numbervars4, 0);
   Yap_InitCPred("largest_numbervar", 2, largest_numbervar, 0);
 }
 

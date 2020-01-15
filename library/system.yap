@@ -527,7 +527,7 @@ close_temp_streams([S|Ss]) :-
 
  * Provides the functionaluty of the Unix <tt>popen</tt> function. It
  * opens a process by creating a pipe, forking and invoking _Command_ on
- * the child process. Since a pipe is by definition unidirectional the
+a * the child process. Since a pipe is by definition unidirectional the
  * _Type_ argument may be `read` or `write`, not both. The stream should
  * be closed using close/1, there is no need for a special `pclose`
  * command.

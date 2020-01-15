@@ -179,7 +179,7 @@
 	      /* for profiler */
 	      save_pc();
 	      d0 = SREG[1];
-	      goto restart_execute;
+	      goto do_execute;
 
 	      BEGP(pt1);
 	      deref_body(d1, pt1, execute_comma_unk, execute_comma_nvar);

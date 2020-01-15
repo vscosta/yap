@@ -45,17 +45,19 @@ Int p_load_foreign(USES_REGS1) {
   StringList new;
   bool returncode = FALSE;
   yhandle_t CurSlot = Yap_StartSlots();
+  Term cm = CurrentModule;
 
   //  Yap_DebugPlWrite(ARG1);  printf("%s\n", " \n");
   // Yap_DebugPlWrite(ARG2);  printf("%s\n", " \n");
   // ap_DebugPlWrite(ARG3);  printf("%s\n", " \n");
 
   /* collect the list of object files */
-  t = Deref(ARG1);
+  t = Yap_StripModule(ARG1, &CurrentModule);
+
   while (1) {
     if (t == TermNil)
       break;
-    t1 = HeadOfTerm(t);
+    t1 = Yap_StripModule(HeadOfTerm(t), &CurrentModule);
     t = TailOfTerm(t);
     new = (StringList)Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = ofiles;
@@ -64,11 +66,11 @@ Int p_load_foreign(USES_REGS1) {
   }
 
   /* collect the list of library files */
-  t = Deref(ARG2);
+  t = Yap_StripModule(ARG2, &CurrentModule);
   while (1) {
     if (t == TermNil)
       break;
-    t1 = HeadOfTerm(t);
+    t1 = Yap_StripModule(HeadOfTerm(t), &CurrentModule);
     t = TailOfTerm(t);
     new = (StringList)Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = libs;
@@ -102,6 +104,7 @@ Int p_load_foreign(USES_REGS1) {
     Yap_StartSlots();
     (*InitProc)();
     Yap_CloseSlots(CurSlot);
+    CurrentModule = cm;
     returncode = true;
   }
 
@@ -134,7 +137,8 @@ static Int p_open_shared_object(USES_REGS1) {
   Term tflags = Deref(ARG2);
   char *s;
   void *handle;
-
+  
+  //  t = Yap_StripModule((t), &CurrentModule));
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "open_shared_object/3");
     return FALSE;

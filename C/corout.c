@@ -49,8 +49,8 @@ static int can_unify_complex(register CELL *pt0, register CELL *pt0_end,
   tr_fr_ptr saved_TR;
   CELL *saved_HB;
   choiceptr saved_B;
-  Ystack_t stt;
-  init_stack( &stt, 1024 );
+  Ystack_t stt_, *stt = &stt_;
+  init_stack( stt, 1024 );
 
   /* make sure to trail all bindings */
   saved_TR = TR;
@@ -190,7 +190,7 @@ loop:
     pt1 = (CELL *)(TrailTerm(--TR));
     RESET_VARIABLE(pt1);
   }
-  close_stack(&stt);
+  close_stack(stt);
   return (true);
 
 comparison_failed:
@@ -211,7 +211,7 @@ comparison_failed:
     RESET_VARIABLE(pt1);
   }
   /* the system will take care of TR for me, no need to worry here! */
-  close_stack(&stt);
+  close_stack(stt);
   return (FALSE);
 }
 
@@ -297,8 +297,8 @@ static int can_unify(Term t1, Term t2, Term *Vars USES_REGS) {
 static int non_ground_complex( CELL *pt0,  CELL *pt0_end,
                               Term *Var USES_REGS) {
 
-  Ystack_t stt;
-  init_stack( &stt, 1024 );
+  Ystack_t stt_, *stt = &stt_;
+  init_stack( stt, 1024 );
 
 loop:
   while (pt0 < pt0_end) {
@@ -365,7 +365,7 @@ var_found:
     pt0_end = to_visit->pt0_end;
     *to_visit->oldp = to_visit->oldv;
   }
-  close_stack(&stt);
+  close_stack(stt);
   /* the system will take care of TR for me, no need to worry here! */
   return TRUE;
 
@@ -377,7 +377,7 @@ aux_overflow:
     pt0_end = to_visit->pt0_end;
     *to_visit->oldp = to_visit->oldv;
   }
-  close_stack(&stt);
+  close_stack(stt);
   return -1;
 }
 

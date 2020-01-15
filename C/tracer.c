@@ -210,7 +210,6 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
   vsc_count++;
   if (TR < B->cp_tr)
       jmp_deb2();
-  return;
 //   if (vsc_count < 972790)
 //       return true;
     int l = push_text_stack();
