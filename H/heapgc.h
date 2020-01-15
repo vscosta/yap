@@ -657,11 +657,12 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 1
+#if 0
 #define COPY(t)
 #else
 extern long long vsc_count;
-#define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"%lld %s: ",vsc_count,__FUNCTION__); Yap_DebugPlWriteln(t);}
+#define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"+ %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);}
+#define OCOPY(t) { fprintf(stderr,"- %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);}
 #endif
 
 

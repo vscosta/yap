@@ -374,7 +374,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   Term myt;
   bool break_loops = false;
  bool forest = bindp && (!IntOfTerm(*bindp));
-  CELL *HLow;
+  CELL *HLow = HR;
   bool ground;
   //myt = (CELL)HLow;
   ground = true;
@@ -690,9 +690,11 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     cell_space_t cspace;
     int res = 0;
     Term tf;
-    CELL *HLow;
     tr_fr_ptr TR0;
    size_t restarts = 0;
+      if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
+          return t;
+      }
    Ystack_t stt_, *stt = &stt_;
   bool forest = bindp != NULL;
     Term bind0 = 0;
@@ -702,12 +704,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     bind0 = *bindp;
       TR0 = TR;
       CELL *HR0 = HR, *HB0 = HB;
-    HLow = HR;
     TR0 = TR;
     t = MkGlobal(t);
-    if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
-      return t;
-    }
       if (arenap) {
       enter_cell_space(&cspace, arenap);
     }
@@ -728,7 +726,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     /* follow chain of multi-assigned variables */
     close_stack(stt);
 
-      break;
+    if (arenap)
+      *arenap = CloseArena(&cspace PASS_REGS);
+      return tf;
       } else if (res==RESOURCE_ERROR_AUXILIARY_STACK) {
 
     while (to_visit > to_visit0) {
@@ -740,6 +740,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     if (arenap)
       *arenap = CloseArena(&cspace PASS_REGS);
     sz += sz;
+    reinit_stack(stt,sz);
       } else if (res==RESOURCE_ERROR_STACK) {
     yhandle_t slb, sle;
 

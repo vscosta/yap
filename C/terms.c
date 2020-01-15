@@ -702,10 +702,10 @@ if (cyclics && IS_VISIT_MARKER(ptd1[0])) {\
 }\
 
 #define FOUND_VAR_AGAIN_AND_AGAIN                                                  \
-BREAK_LOOP; \
-if (FunctorOfTerm(d0) == FunctorDollarVar &&\
+if (show_singletons && FunctorOfTerm(d0) == FunctorDollarVar &&\
       RepAppl(d0)[1] == MkIntTerm(-1)) {                \
-	   RepAppl(d0)[1] = MkIntTerm(vno++);             }
+	   RepAppl(d0)[1] = MkIntTerm(vno++);             }\
+BREAK_LOOP; 
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
@@ -720,7 +720,7 @@ static Term numbervars_in_complex_term(CELL *pt0_,
 				       CELL *pt0_end_, Int vno,
                                        bool show_singletons,
                                        bool cyclics,
-                                       Int *tr_entries USES_REGS) {
+                                       size_t *tr_entries USES_REGS) {
     tr_fr_ptr TR0 = TR;
     COPY(pt0_[1]);
 
@@ -817,8 +817,7 @@ static Int p_numbervars(USES_REGS1) {
         Yap_Error(TYPE_ERROR_INTEGER, t2, "numbervars/3");
         return (false);
     }
-    bool sing = t2== MkIntTerm(-1);
-    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), sing, false, NULL);
+    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), false, false, NULL);
     return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
