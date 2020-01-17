@@ -239,7 +239,7 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
 }
 
 static Int p_allocate_arena(USES_REGS1) {
-  Term t = MkGlobal(ARG1);
+  Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
     Yap_Error(INSTANTIATION_ERROR, t, "allocate_arena");
     return FALSE;
@@ -705,22 +705,20 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       TR0 = TR;
       CELL *HR0 = HR, *HB0 = HB;
     TR0 = TR;
-    t = MkGlobal(t);
+    t = Deref(t);
       if (arenap) {
       enter_cell_space(&cspace, arenap);
     }
       while (true) {
       CELL *ap = &t;
-      HB = HR;
       //   DEB_DOOBIN(t);
-      CELL *pf = HR;
-      RESET_VARIABLE(HR);
+      CELL *pf = HR, *HLow = pf;
       HR++;
       if ((res = copy_complex_term(ap - 1, ap, share,
 				   copy_att_vars, &pf, bindp,                            arenap, &cspace, stt PASS_REGS)) == 0) {
         // goto error_handler;
  
-      tf = MkGlobal(*pf);
+      tf = Deref(*pf);
     /* restore our nice, friendly, term to its original state */
      clean_tr(TR0 PASS_REGS);
     /* follow chain of multi-assigned variables */
@@ -750,11 +748,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       VUNMARK(to_visit->oldp, to_visit->oldv);
     }
     clean_tr(TR0);
-    HB = HB0;
     if (&LOCAL_GlobalArena == arenap)
       LOCAL_GlobalArenaOverflows++;
 
-    HR = HR0;
+    HR = HLow;
     slb = Yap_PushHandle(t);
     sle = Yap_PushHandle(bind0);
     if (arenap) {
@@ -785,7 +782,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     }
 #endif
     clean_tr(TR0);
-    HR = HB;
+    HR = HLow;
     if (arenap) {
       *arenap = CloseArena(&cspace PASS_REGS);
     }
@@ -854,7 +851,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   {
     Term t2 = ARG2;
     Term t3 = ARG3;
-    Term list = MkGlobal(ARG4);
+    Term list = Deref(ARG4);
          COPY(ARG1);
  Term t = CopyTermToArena(ARG1, false, false, 2, NULL, &list, 0 PASS_REGS);
     if (t == 0L)
@@ -1002,7 +999,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_setarg(USES_REGS1) {
-    Term wheret = MkGlobal(ARG1);
+    Term wheret = Deref(ARG1);
     Term dest;
     Term to;
     UInt arity, pos;
@@ -1017,7 +1014,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     }
     pos = IntegerOfTerm(wheret);
-    dest = MkGlobal(ARG2);
+    dest = Deref(ARG2);
     if (IsVarTerm(dest)) {
       Yap_Error(INSTANTIATION_ERROR, dest, "nb_setarg");
       return FALSE;
@@ -1032,14 +1029,14 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     COPY(ARG3);
 
-    to = MkGlobal(ARG3);
+    to = Deref(ARG3);
     to = CopyTermToArena(
         ARG3, FALSE, TRUE, 3, &LOCAL_GlobalArena, NULL,
         garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     if (to == 0L)
       return FALSE;
 
-    dest = MkGlobal(ARG2);
+    dest = Deref(ARG2);
     if (IsPairTerm(dest)) {
       destp = RepPair(dest) - 1;
     } else {
@@ -1050,7 +1047,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_set_shared_arg(USES_REGS1) {
-    Term wheret = MkGlobal(ARG1);
+    Term wheret = Deref(ARG1);
     Term dest;
     Term to;
     UInt arity, pos;
@@ -1065,7 +1062,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     }
     pos = IntegerOfTerm(wheret);
-    dest = MkGlobal(ARG2);
+    dest = Deref(ARG2);
     if (IsVarTerm(dest)) {
       Yap_Error(INSTANTIATION_ERROR, dest, "nb_setarg");
       return FALSE;
@@ -1080,11 +1077,11 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     COPY(ARG3);
     to = CopyTermToArena(
-			 MkGlobal(ARG3), TRUE, TRUE, 3, &LOCAL_GlobalArena, NULL,
+			 Deref(ARG3), TRUE, TRUE, 3, &LOCAL_GlobalArena, NULL,
         garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     if (to == 0L)
       return FALSE;
-    dest = MkGlobal(ARG2);
+    dest = Deref(ARG2);
     if (IsPairTerm(dest)) {
       destp = RepPair(dest) - 1;
     } else {
@@ -1095,7 +1092,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_linkarg(USES_REGS1) {
-    Term wheret = MkGlobal(ARG1);
+    Term wheret = Deref(ARG1);
     Term dest;
     UInt arity, pos;
     CELL *destp;
@@ -1109,7 +1106,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     }
     pos = IntegerOfTerm(wheret);
-    dest = MkGlobal(ARG3);
+    dest = Deref(ARG3);
     if (IsVarTerm(dest)) {
       Yap_Error(INSTANTIATION_ERROR, dest, "nb_setarg");
       return FALSE;
@@ -1125,13 +1122,13 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     }
     if (pos < 1 || pos > arity)
       return FALSE;
-    dest = MkGlobal(ARG2);
-    destp[pos] = MkGlobal(ARG3);
+    dest = Deref(ARG2);
+    destp[pos] = Deref(ARG3);
     return TRUE;
   }
 
   static Int p_nb_linkval(USES_REGS1) {
-    Term t = MkGlobal(ARG1), to;
+    Term t = Deref(ARG1), to;
     GlobalEntry *ge;
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "nb_linkval");
@@ -1141,7 +1138,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return (FALSE);
     }
     ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
-    to = MkGlobal(ARG2);
+    to = Deref(ARG2);
     WRITE_LOCK(ge->GRWLock);
     ge->global = to;
     WRITE_UNLOCK(ge->GRWLock);
@@ -1149,7 +1146,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_create_accumulator(USES_REGS1) {
-    Term t = MkGlobal(ARG1), acct, to, t2;
+    Term t = Deref(ARG1), acct, to, t2;
     CELL *destp;
 
     if (IsVarTerm(t)) {
@@ -1170,17 +1167,17 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     if (to == 0L)
       return FALSE;
-    t2 = MkGlobal(ARG2);
+    t2 = Deref(ARG2);
     if (IsVarTerm(t2)) {
       return Yap_unify(t2, Yap_MkApplTerm(FunctorGNumber, 1, &to));
     }
-    destp = RepAppl(MkGlobal(ARG2));
+    destp = RepAppl(Deref(ARG2));
     destp[1] = to;
     return TRUE;
   }
 
   static Int p_nb_add_to_accumulator(USES_REGS1) {
-    Term t = MkGlobal(ARG1), t0, tadd;
+    Term t = Deref(ARG1), t0, tadd;
     Functor f;
     CELL *destp;
 
@@ -1197,8 +1194,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       return FALSE;
     }
     destp = RepAppl(t);
-    t0 = MkGlobal(destp[1]);
-    tadd = MkGlobal(ARG2);
+    t0 = Deref(destp[1]);
+    tadd = Deref(ARG2);
     if (IsVarTerm(tadd)) {
       Yap_Error(INSTANTIATION_ERROR, tadd, "nb_create_accumulator");
       return FALSE;
@@ -1223,7 +1220,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
           new = CopyTermToArena(new, TRUE, TRUE, 2, &LOCAL_GlobalArena, NULL,
                                 garena_overflow_size(ArenaPt(LOCAL_GlobalArena)
                                                          PASS_REGS) PASS_REGS);
-          destp = RepAppl(MkGlobal(ARG1));
+          destp = RepAppl(Deref(ARG1));
           destp[1] = new;
         }
       }
@@ -1253,7 +1250,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       new = CopyTermToArena(
           new, TRUE, TRUE, 2, &LOCAL_GlobalArena, NULL,
           garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
-      destp = RepAppl(MkGlobal(ARG1));
+      destp = RepAppl(Deref(ARG1));
       destp[1] = new;
 
       return TRUE;
@@ -1262,7 +1259,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_accumulator_value(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     Functor f;
 
     if (IsVarTerm(t)) {
@@ -1301,7 +1298,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     CACHE_REGS
     Term to;
     to = CopyTermToArena(
-        MkGlobal(t0), FALSE, TRUE, 2, &LOCAL_GlobalArena, NULL,
+        Deref(t0), FALSE, TRUE, 2, &LOCAL_GlobalArena, NULL,
         garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
     if (to == 0L)
       return to;
@@ -1309,7 +1306,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_setval(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "nb_setval");
       return (TermNil);
@@ -1321,7 +1318,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_set_shared_val(USES_REGS1) {
-    Term t = MkGlobal(ARG1), to;
+    Term t = Deref(ARG1), to;
     GlobalEntry *ge;
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "nb_setval");
@@ -1344,7 +1341,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_b_setval(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     GlobalEntry *ge;
 
     if (IsVarTerm(t)) {
@@ -1360,7 +1357,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     /* the evil deed is to be done now */
     {
       /* but first make sure we are doing on a global object, or a constant! */
-      Term t = MkGlobal(ARG2);
+      Term t = Deref(ARG2);
       if (IsVarTerm(t) && VarOfTerm(t) > HR && VarOfTerm(t) < LCL0) {
         Term tn = MkVarTerm();
         Bind_Local(VarOfTerm(t), tn);
@@ -1378,7 +1375,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static int undefined_global(USES_REGS1) {
-    Term t3 = MkGlobal(ARG3);
+    Term t3 = Deref(ARG3);
 
     if (IsApplTerm(t3)) {
       if (FunctorOfTerm(t3) == FunctorEq)
@@ -1389,7 +1386,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_getval(USES_REGS1) {
-    Term t = MkGlobal(ARG1), to;
+    Term t = Deref(ARG1), to;
     GlobalEntry *ge;
 
     if (IsVarTerm(t)) {
@@ -1480,7 +1477,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_delete(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
 
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "nb_delete");
@@ -1493,9 +1490,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_create(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
-    Term tname = MkGlobal(ARG2);
-    Term tarity = MkGlobal(ARG3);
+    Term t = Deref(ARG1);
+    Term tname = Deref(ARG2);
+    Term tarity = Deref(ARG3);
     Term to;
     GlobalEntry *ge;
 
@@ -1536,10 +1533,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_create2(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
-    Term tname = MkGlobal(ARG2);
-    Term tarity = MkGlobal(ARG3);
-    Term tinit = MkGlobal(ARG4);
+    Term t = Deref(ARG1);
+    Term tname = Deref(ARG2);
+    Term tarity = Deref(ARG3);
+    Term tinit = Deref(ARG4);
     Term to;
     GlobalEntry *ge;
 
@@ -1591,7 +1588,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
   static Int nb_queue(UInt arena_sz USES_REGS) {
     Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     LOCAL_DepthArenas++;
     if (!IsVarTerm(t)) {
       if (!IsApplTerm(t)) {
@@ -1610,7 +1607,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     if (queue_arena == 0L) {
       return FALSE;
     }
-    nar = RepAppl(MkGlobal(ARG1)) + 1;
+    nar = RepAppl(Deref(ARG1)) + 1;
     nar[QUEUE_ARENA] = queue_arena;
     return true;
   }
@@ -1627,7 +1624,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_queue_sized(USES_REGS1) {
-    Term t = MkGlobal(ARG2);
+    Term t = Deref(ARG2);
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, "nb_queue");
       return FALSE;
@@ -1640,7 +1637,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static CELL *GetQueue(Term t, char *caller) {
-    t = MkGlobal(t);
+    t = Deref(t);
 
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, caller);
@@ -1658,7 +1655,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Term GetQueueArena(CELL * qd, char *caller) {
-    Term t = MkGlobal(qd[QUEUE_ARENA]);
+    Term t = Deref(qd[QUEUE_ARENA]);
 
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, caller);
@@ -1684,7 +1681,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static Int p_nb_queue_close(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     Int out;
 
     LOCAL_DepthArenas--;
@@ -1728,7 +1725,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     } else {
       min_size = 0L;
     }
-    to = CopyTermToArena(MkGlobal(ARG2), false, true, 2, &arena, NULL,
+    to = CopyTermToArena(Deref(ARG2), false, true, 2, &arena, NULL,
                          min_size PASS_REGS);
     size_t slto = Yap_PushHandle(to);
     CELL *cell = Yap_GetFromArena(&arena, 2, 2);
@@ -1736,7 +1733,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     RESET_VARIABLE(cell + 1);
     to = AbsPair(cell);
     /* garbage collection ? */
-    qd = GetQueue(MkGlobal(ARG1), "queue");
+    qd = GetQueue(Deref(ARG1), "queue");
     qsize = IntegerOfTerm(qd[QUEUE_SIZE]);
     qd[QUEUE_SIZE] = Global_MkIntegerTerm(qsize + 1);
     if (qsize == 0) {
@@ -1774,7 +1771,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   static Int p_nb_queue_replace(USES_REGS1) {
     CELL *qd = GetQueue(ARG1, "dequeue");
     UInt qsz;
-    Term queue, t = MkGlobal(ARG2);
+    Term queue, t = Deref(ARG2);
 
     if (!qd)
       return FALSE;
@@ -1785,7 +1782,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     queue = qd[QUEUE_HEAD];
     for (; qsz > 0; qsz--) {
       if (Yap_eq(HeadOfTerm(queue), t)) {
-        *RepPair(MkGlobal(queue)) = MkGlobal(ARG3);
+        *RepPair(Deref(queue)) = Deref(ARG3);
         return TRUE;
       }
       queue = TailOfTerm(queue);
@@ -1830,7 +1827,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   }
 
   static CELL *GetHeap(Term t, char *caller) {
-    t = MkGlobal(t);
+    t = Deref(t);
 
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR, t, caller);
@@ -1863,7 +1860,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   static Int p_nb_heap(USES_REGS1) {
     Term heap_arena, heap, *ar, *nar;
     UInt hsize;
-    Term tsize = MkGlobal(ARG1);
+    Term tsize = Deref(ARG1);
     UInt arena_sz = (ASP - HR) / 16;
 
     if (IsVarTerm(tsize)) {
@@ -1898,13 +1895,13 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     if (heap_arena == 0L) {
       return FALSE;
     }
-    nar = RepAppl(MkGlobal(ARG2)) + 1;
+    nar = RepAppl(Deref(ARG2)) + 1;
     nar[HEAP_ARENA] = heap_arena;
     return true;
   }
 
   static Int p_nb_heap_close(USES_REGS1) {
-    Term t = MkGlobal(ARG1);
+    Term t = Deref(ARG1);
     if (!IsVarTerm(t)) {
       CELL *qp;
 
@@ -2097,7 +2094,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   static Int p_nb_beam(USES_REGS1) {
     Term beam_arena, beam, *ar, *nar;
     UInt hsize;
-    Term tsize = MkGlobal(ARG1);
+    Term tsize = Deref(ARG1);
     UInt arena_sz = (HR - H0) / 16;
 
     if (IsVarTerm(tsize)) {
@@ -2129,7 +2126,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     if (beam_arena == 0L) {
       return FALSE;
     }
-    nar = RepAppl(MkGlobal(ARG2)) + 1;
+    nar = RepAppl(Deref(ARG2)) + 1;
     nar[HEAP_ARENA] = beam_arena;
     return TRUE;
   }
@@ -2343,7 +2340,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     Term *pt;
     if (hsize == hmsize) {
       pt = qd + HEAP_START;
-      if (Yap_compare_terms(pt[2 * hmsize], MkGlobal(ARG2)) > 0) {
+      if (Yap_compare_terms(pt[2 * hmsize], Deref(ARG2)) > 0) {
         /* smaller than current max, we need to drop current max */
         DelBeamMax(pt, pt + 2 * hmsize, hmsize);
         hsize--;
@@ -2527,7 +2524,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
   static Int init_current_nb(USES_REGS1) { /* current_atom(?Atom)
                                             */
-    Term t1 = MkGlobal (ARG1);
+    Term t1 = Deref(ARG1);
     if (!IsVarTerm(t1)) {
       if (IsAtomTerm(t1)) {
         if (!FindGlobalEntry(AtomOfTerm(t1) PASS_REGS)) {

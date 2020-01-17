@@ -472,7 +472,6 @@ meta_predicate(P) :-
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
 expand_goal(G, MF:GF) :-
-    source_module(SM),
     '$yap_strip_module'(G, M, IG),
     '$expand_goals'(IG, _G1, GO, M, SM, M, []-IG*assert ),
     !,
@@ -522,7 +521,8 @@ expand_goal(G, MF:GF) :-
     '$expand_head'(H, H0, HM0, HM),
  %   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
     '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO ),
-    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO).
+    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO),
+    writeln(HB=ClO).
     
 
 %% @}

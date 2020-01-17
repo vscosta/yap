@@ -1118,7 +1118,7 @@ Functor fdv = FunctorDollarVar;
           t = Deref(t);
   tr_fr_ptr TR0 = TR;
   size_t n;
-  yhandle_t h0_y = Yap_InitHandle(MkVarTerm());
+
   if (args && args[WRITE_PRIORITY].used) {
     priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
   }
@@ -1179,7 +1179,6 @@ Functor fdv = FunctorDollarVar;
     }
   }
   clean_tr(TR0 );
-  HR = (CELL *)Yap_PopHandle(h0_y);
   CurrentModule = cm;
   FunctorDollarVar = fdv;
   pop_text_stack(lvl);
