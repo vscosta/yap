@@ -77,11 +77,11 @@ defined.
 prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
-	->  LGs = [], copy_term_nat(Term,NTerm)
+	->  writeln(LGs), LGs = [], copy_term_nat(Term,NTerm)
 	;
-	findall(NTerm+NGs,
+	findall(OTerm+OGs,
 	 (attributes:attvars_residuals(Vs, Gs, []),
-	  copy_term_nat(Term+Gs,NTerm+NGs)),
+	  copy_term_nat(Term+Gs,OTerm+OGs)),
 	  [NTerm+LGs])
 	   ).
 
@@ -105,13 +105,7 @@ attvars_residuals([V|Vs]) -->
    In this case, we need a way to keep the original
    suspended goal around
 */
-prolog:'$wake_up_goal'(Continuation, LG) :-
-    execute_woken_system_goals(LG),
-    call(Continuation).
-
-execute_woken_system_goals([]).
-execute_woken_system_goals(['$att_do'(V,New)|LG]) :-
-	execute_woken_system_goals(LG),
+prolog:'$att_do'(V,New) :-
 	call_atts(V,New).
 
 %
@@ -124,7 +118,7 @@ call_atts(V,_) :-
 call_atts(V,New) :-
     attributes:get_attrs(V,SWIAtts),
     (
-	'$current_predicate'(woken_att_do,M.woken_att_do(V, New, LGoals, DoNotBind),_)
+	'$current_predicate'(woken_att_do,M,woken_att_do(V, New, LGoals, DoNotBind),_)
 	->
 	 M:woken_att_do(V, New, LGoals, DoNotBind)
 	;

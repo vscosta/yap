@@ -239,7 +239,7 @@ Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
     copy_term_nat(Clause, CopiedClause),
-    '$beautify_vs'(CopiedClause),
+    numbervars( CopiedClause, 0, _, _),
     '$portray_clause'(Stream, CopiedClause),
     fail.
 portray_clause(_, _).
@@ -330,20 +330,5 @@ portray_clause(Clause) :-
     format(Stream,' ',[]).
 '$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
 
-
-'$beautify_vs'(T) :-
-    non_singletons_in_term(T,[],Fs),
-    '$vv_transform'(Fs,1),
-    term_variables(T, NFs),
-    '$v_transform'(NFs).
-
-'$v_transform'([]).
-'$v_transform'(['$VAR'(-1)|L]) :-
-    '$v_transform'(L).
-
-'$vv_transform'([],_) :- !.
-'$vv_transform'(['$VAR'(M)|L],M) :-
-    N is M+1,
-    '$vv_transform'(L,N).
 
 %% @}

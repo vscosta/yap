@@ -107,35 +107,6 @@ static attvar_record *BuildNewAttVar(USES_REGS1) {
   return newv;
  }
 
-static int CopyAttVar(CELL *orig, void *sttp,
-                      CELL *res USES_REGS) {
-  register attvar_record *attv = RepAttVar(orig);
-  register attvar_record *newv;
-  Ystack_t *stt = (Ystack_t *)sttp;
-  CELL *vt;
-
-  if (!(newv = BuildNewAttVar(PASS_REGS1)))
-    return
-      FALSE;
-  vt = &(attv->Atts);
-  to_visit->pt0 = vt - 1;
-  to_visit->pt0_end = vt;
-  if (IsVarTerm(attv->Atts)) {
-    Bind_Global_NonAtt(&newv->Atts, (CELL)HR);
-    to_visit->ptf = HR;
-    HR++;
-  } else {
-    to_visit->ptf = &(newv->Atts);
-
-                           }
-  to_visit->oldp = vt-1;
-  to_visit->ground = FALSE;
-  to_visit++;
-  *res = (CELL) & (newv->Done);
-  return TRUE;
-}
-
-
 static int IsEmptyWakeUp(Term atts) {
   if (IsVarTerm(atts))
     return false;
@@ -1092,7 +1063,7 @@ void Yap_InitAttVarPreds(void) {
   CurrentModule = ATTRIBUTES_MODULE;
 #ifdef COROUTINING
   GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
-  GLOBAL_attas[attvars_ext].copy_term_op = CopyAttVar;
+  GLOBAL_attas[attvars_ext].copy_term_op = NULL;
   GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
   GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
   GLOBAL_attas[attvars_ext].mark_op = mark_attvar;

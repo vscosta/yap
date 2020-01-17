@@ -1875,6 +1875,7 @@ bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
        LOCAL_WorkerBuffer.in_use= false;
      } else {
        free(handle->data);
-     }
+
+       }
      return true;
  }

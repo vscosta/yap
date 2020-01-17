@@ -205,7 +205,7 @@ The flag is ignored in YAP.
 
     YAP_FLAG(DEBUGGER_PRINT_OPTIONS_FLAG, "debugger_print_options", true,
              list_option,
-             "[quoted(true),numbervars(true),portrayed(true),max_depth(10)]" ,
+             "[quoted(true),numbervars(true),portrayed(true),singk=letins(true),max_depth(10)]" ,
              NULL), /**< controls debugging output.
 
     If bound, set the argument to the `write_term/3` options the
@@ -695,7 +695,7 @@ and if it is bound to `off` disable them. The default for YAP is
 			    */
 
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
-             list_option, "[quoted(true),numbervars(true),portrayed(true)]",
+             list_option, "[quoted(true),numbervars(true),singletons(true),portrayed(true)]",
              NULL), /**< 
 
     If bound, set the argument to a goal to be executed before entering the

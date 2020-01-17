@@ -523,7 +523,7 @@ YAPTerm *YAPTerm::vars()
 {
   BACKUP_MACHINE_REGS();
   CACHE_REGS
-  YAPPairTerm lv = YAPPairTerm(Yap_TermVariables(gt(), 0 PASS_REGS));
+  YAPPairTerm lv = YAPPairTerm(Yap_TermVariables(gt(), TermNil PASS_REGS));
   RECOVER_MACHINE_REGS();
   return lv;
 }

@@ -353,6 +353,7 @@
   AtomSame = AtomAdjust(AtomSame); TermSame = MkAtomTerm(AtomSame);
   AtomSemic = AtomAdjust(AtomSemic); TermSemic = MkAtomTerm(AtomSemic);
   AtomShiftCountOverflow = AtomAdjust(AtomShiftCountOverflow); TermShiftCountOverflow = MkAtomTerm(AtomShiftCountOverflow);
+  AtomSig = AtomAdjust(AtomSig); TermSig = MkAtomTerm(AtomSig);
   AtomSigAlarm = AtomAdjust(AtomSigAlarm); TermSigAlarm = MkAtomTerm(AtomSigAlarm);
   AtomSigBreak = AtomAdjust(AtomSigBreak); TermSigBreak = MkAtomTerm(AtomSigBreak);
   AtomSigCreep = AtomAdjust(AtomSigCreep); TermSigCreep = MkAtomTerm(AtomSigCreep);
@@ -597,6 +598,7 @@
   FunctorSafe = FuncAdjust(FunctorSafe);
   FunctorSafeCallCleanup = FuncAdjust(FunctorSafeCallCleanup);
   FunctorSame = FuncAdjust(FunctorSame);
+  FunctorSig = FuncAdjust(FunctorSig);
   FunctorSlash = FuncAdjust(FunctorSlash);
   FunctorStaticClause = FuncAdjust(FunctorStaticClause);
   FunctorStream = FuncAdjust(FunctorStream);

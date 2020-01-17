@@ -1076,7 +1076,6 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
 }
 
 static bool bind_variable_names(Term t, size_t *np USES_REGS) {
-  tr_fr_ptr TR0 = TR;
   while (!IsVarTerm(t) && IsPairTerm(t)) {
     Term tl = HeadOfTerm(t);
     Functor f;
@@ -1085,19 +1084,19 @@ static bool bind_variable_names(Term t, size_t *np USES_REGS) {
     if (!IsApplTerm(tl))
       return FALSE;
     if ((f = FunctorOfTerm(tl)) != FunctorEq) {
-      return FALSE;
+      return false;
     }
     t1 = ArgOfTerm(1, tl);
     if (IsVarTerm(t1)) {
-      Yap_Error(INSTANTIATION_ERROR, t1, "variable_names");
+      Yap_ThrowError(INSTANTIATION_ERROR, t1, "variable_names");
       return false;
     }
     t2 = ArgOfTerm(2, tl);
     tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t1);
     if (IsVarTerm(t2)) {
-      YapBind(VarOfTerm(t2), tv);
+      Bind_and_Trail(VarOfTerm(t2), tv);
+      *np = *np+1;
     }
-    *np = TR - TR0;
     t = TailOfTerm(t);
   }
   return true;
@@ -1116,7 +1115,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   struct write_globs wglb;
   Term cm = CurrentModule;
 Functor fdv = FunctorDollarVar;
-                                                                                                           t = Deref(t);
+          t = Deref(t);
   tr_fr_ptr TR0 = TR;
   size_t n;
   yhandle_t h0_y = Yap_InitHandle(MkVarTerm());
@@ -1128,7 +1127,6 @@ Functor fdv = FunctorDollarVar;
   }
       if (args && args[WRITE_VARIABLE_NAMES].used) {
            flags |= Handle_vars_f|Singleton_vars_f;
-         bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
       }
     if
             (args && args[WRITE_SINGLETONS].used &&
@@ -1146,11 +1144,14 @@ Functor fdv = FunctorDollarVar;
         flags |= Handle_cyclics_f;
     }
     if (flags & Handle_vars_f || flags  & Handle_cyclics_f) {
-        if (flags & Singleton_vars_f)
+      //        if (flags & Singleton_vars_f)
       FunctorDollarVar = FunctorHiddenVar;
-      Yap_NumberVars(t, 0, flags & Singleton_vars_f,
+       if (args && args[WRITE_VARIABLE_NAMES].used)
+               bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
+       Yap_NumberVars(t, 0, flags & Singleton_vars_f,
               flags & Handle_cyclics_f, &n PASS_REGS);
   }
+    
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;

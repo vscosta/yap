@@ -353,6 +353,7 @@ X_API EXTERNAL Atom AtomSafeCallCleanup; X_API EXTERNAL Term TermSafeCallCleanup
 X_API EXTERNAL Atom AtomSame; X_API EXTERNAL Term TermSame;
 X_API EXTERNAL Atom AtomSemic; X_API EXTERNAL Term TermSemic;
 X_API EXTERNAL Atom AtomShiftCountOverflow; X_API EXTERNAL Term TermShiftCountOverflow;
+X_API EXTERNAL Atom AtomSig; X_API EXTERNAL Term TermSig;
 X_API EXTERNAL Atom AtomSigAlarm; X_API EXTERNAL Term TermSigAlarm;
 X_API EXTERNAL Atom AtomSigBreak; X_API EXTERNAL Term TermSigBreak;
 X_API EXTERNAL Atom AtomSigCreep; X_API EXTERNAL Term TermSigCreep;
@@ -732,6 +733,8 @@ X_API EXTERNAL  Functor FunctorSafe;
 X_API EXTERNAL  Functor FunctorSafeCallCleanup;
 
 X_API EXTERNAL  Functor FunctorSame;
+
+X_API EXTERNAL  Functor FunctorSig;
 
 X_API EXTERNAL  Functor FunctorSlash;
 

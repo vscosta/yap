@@ -856,9 +856,6 @@ static Int execute_in_mod(USES_REGS1) { /* '$execute'(Goal)	 */
  */
 static void prune_inner_computation(choiceptr parent) {
     /* code */
-    choiceptr cut_pt;
-
-    cut_pt = B;
     while (B && B->cp_b <= parent) {
         B = B->cp_b;
     }

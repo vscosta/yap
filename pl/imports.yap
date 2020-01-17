@@ -108,9 +108,9 @@ fail.
 %% parent/user
     ).
 %% autoload`
-%'$import_goal'(ImportingMod:G,ExportingMod:G) :-
-%    current_prolog_flag(autoload, true),
-%    '$autoload'(G, ImportingMod, ExportingMod, swi).
+'$import_goal'(ImportingMod:G,ExportingMod:G) :-
+    current_prolog_flag(autoload, true),
+    '$autoload'(G, ImportingMod, ExportingMod).
 
 
 
@@ -127,10 +127,10 @@ fail.
 '$not_imported'(_, _).
 
 
-'$autoload'(G, _ImportingMod, ExportingMod, Dialect) :-
+'$autoload'(G, _ImportingMod, ExportingMod) :-
     functor(G, Name, Arity),
-    '$pred_exists'(index(Name,Arity,ExportingMod,_),Dialect),
-    call(Dialect:index(Name,Arity,ExportingMod,_)),
+    '$pred_exists'(index(Name,Arity,ExportingMod,_),user),
+    user:index(Name,Arity,ExportingMod,_),
     !.
 '$autoload'(G, ImportingMod, ExportingMod, _Dialect) :-
     functor(G, N, K),
@@ -146,19 +146,13 @@ fail.
     ).
 
 
-'$autoloader_find_predicate'(G,ExportingMod) :-
-    '__NB_getval__'('$autoloader_set', true, false), !,
-    autoloader:find_predicate(G,ExportingMod).
-'$autoloader_find_predicate'(G,ExportingMod) :-
-    yap_flag(autoload, true, false),
-    yap_flag( unknown, Unknown, fail),
-    yap_flag(debug, Debug, false), !,
-    load_files([library(autoloader)],[silent(true)]),
-    nb_setval('$autoloader_set', true),
-    yap_flag(autoload, _, true),
-    yap_flag( unknown, _, Unknown),
-    yap_flag( debug, _, Debug),
-    setup_autoloader:find_predicate(G,ExportingMod).
+'$autoloader_find_predicate'(G,M) :-
+    '$current_predicate'(index,autoloader,index(G,M,F),_),
+    autoloader:index(G,M,F),
+    ensure_loaded(F).
+'$autoloader_find_predicate'(G,M) :-
+    '$init_autoload',
+    '$autoloader_find_predicate'(G,M).
 
 
 

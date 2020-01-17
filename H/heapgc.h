@@ -569,6 +569,7 @@ typedef struct cp_frame {
 INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
   if (nof==0)
     nof = 4096;
+  b->bf.data = NULL;
   if (Yap_get_scratch_buf(&b->bf,nof, sizeof(copy_frame))) {
     b->pt0 = b->bf.data;
     b->pt = b->pt0;
@@ -660,9 +661,10 @@ if(IS_VISIT_MARKER(DD))\
 #if 0
 #define COPY(t)
 #else
-extern long long vsc_count;
+extern 
+unsigned long long vsc_count;
 #define COPY(t) if (!IsAtomOrIntTerm(t)){ fprintf(stderr,"+ %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);}
-#define OCOPY(t) { fprintf(stderr,"- %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);}
+#define OCOPY(t) { fprintf(stderr,"- %lld %s: ",vsc_count++,__FUNCTION__); Yap_DebugPlWriteln(t);if (vsc_count==12190) Yap_do_low_level_trace=1}
 #endif
 
 
@@ -681,4 +683,5 @@ INLINE_ONLY Term MkGlobal(Term t)
 
 
 #endif // HEAPGC_H_
+
 

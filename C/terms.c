@@ -268,35 +268,38 @@ static Int variable_in_term(USES_REGS1) {
  */
 static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                  Term inp USES_REGS) {
-  tr_fr_ptr TR0;
-  Term *end = NULL, first = inp, inp0 = inp;
+    tr_fr_ptr TR0;
+    Term *end = NULL, first = inp;
 
-  // first get the extra variables
-  TR0 = TR;
-  while (!IsVarTerm(inp) && IsPairTerm(inp)) {
-    Term t;
-    if (!IsVarTerm(inp)) t = HeadOfTerm(inp);
-    else t = inp;
-    if (IsVarTerm(t)) {
-      CELL *ptr = VarOfTerm(t);
-      Bind_and_Trail(ptr, TermFoundVar);
-      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 1024)
-        goto trail_overflow;
-      /* do or pt2 are unbound  */
+    // first get the extra variables
+    TR0 = TR;
+    while (!IsVarTerm(inp) && IsPairTerm(inp)) {
+        Term t;
+        if (!IsVarTerm(inp)) t = HeadOfTerm(inp);
+        else t = inp;
+        if (IsVarTerm(t)) {
+            CELL *ptr = VarOfTerm(t);
+            Bind_and_Trail(ptr, TermFoundVar);
+            if (TR > (tr_fr_ptr) LOCAL_TrailTop - 1024)
+                goto trail_overflow;
+            /* do or pt2 are unbound  */
+        }
+        if (!IsVarTerm(inp)) inp = TailOfTerm(inp);
     }
-   if (!IsVarTerm(inp)) inp = TailOfTerm(inp);
-  }
-  COPY(pt0_[1]);
+    COPY(pt0_[1]);
+
 #include "term_visit.h"
-  if (HR + 1024 > ASP) {
-    goto global_overflow;
-  }
-    if (end == NULL) {
-        first = AbsPair(HR);
-    } else {
-        end[0] = AbsPair(HR);
-    }
-    HR[0] = (CELL)ptd0;
+
+            if (HR + 1024 > ASP) {
+                goto global_overflow;
+            }
+            if (end == NULL) {
+                first = AbsPair(HR);
+            } else {
+                end[0] = AbsPair(HR);
+            }
+            HR[0] = (CELL)ptd0;
+            HR[1] = inp;
     end = HR+1;
     HR+=2;
 
@@ -305,8 +308,8 @@ static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     /* Trail overflow */
     goto trail_overflow;
   }
-  end[0] = inp0;
   mBind_And_Trail(ptd0, TermFoundVar);
+
   END_WALK();
 
   clean_tr(TR0 PASS_REGS);
@@ -362,7 +365,7 @@ static Int term_variables3(USES_REGS1) /* variables in term t		 */
  * @param[USES_REGS] threading
  */
 Term Yap_TermVariables(
-    Term t, arity_t arity USES_REGS) /* variables in term t  */
+    Term t, Term t0 USES_REGS) /* variables in term t  */
 {
   Term out;
 
@@ -384,9 +387,9 @@ Yap_TermAddVariables(Term t,
 
   t = MkGlobal(t);
   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-    return TermNil;
+    return t0;
   } else {
-    out = vars_in_complex_term(&(t)-1, &(t), vs PASS_REGS);
+    out = vars_in_complex_term(&(t)0, &(t), t0 PASS_REGS);
   }
   return out;
 }
@@ -407,7 +410,7 @@ static Int term_variables(USES_REGS1) /* variables in term t		 */
     return false;
   }
 
-  Term t = MkGlobal(ARG1);
+   Term t = MkGlobal(ARG1);
 
   out = vars_in_complex_term(&(t)-1, &(t), TermNil PASS_REGS);
   return Yap_unify(ARG2, out);
@@ -496,7 +499,7 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 
 static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
-  tr_fr_ptr TR0;
+  tr_fr_ptr TR0=TR;
   Int n = 0;
   CELL output = TermNil;
   Term inp0 = inp;
@@ -507,7 +510,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
       Bind_and_Trail(VarOfTerm(t), TermFoundVar);
       if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
         size_t expand = (tr_fr_ptr)LOCAL_TrailTop - TR;
-        clean_tr(TR-n PASS_REGS);
+        clean_tr(TR0 PASS_REGS);
         *HR++ = inp0;
         /* Trail overflow */
         if (!Yap_growtrail(expand, false)) {
@@ -520,7 +523,6 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     }
   }
   COPY(pt0_[1]);
-  TR0 = TR;
 #include "term_visit.h"
   output = MkPairTerm((CELL)ptd0, output);
   mBind_And_Trail(ptd0, TermFoundVar);
@@ -534,7 +536,7 @@ static Term new_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
   continue;
   END_WALK();
 
-  clean_tr(TR0-n PASS_REGS);
+  clean_tr(TR0 PASS_REGS);
 
   return output;
 }
@@ -588,11 +590,18 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
 static Term vars_within_complex_term(CELL *pt0_, CELL *pt0_end_,
                                      Term inp USES_REGS) {
   CELL output = AbsPair(HR);
-  tr_fr_ptr TR0;
+  tr_fr_ptr TR0 = TR;
 
-  inp = Yap_TermVariables(inp, 3 PASS_REGS);
-  COPY(pt0_[1]);
+  if (inp != TermNil) {
+  }
+  Term vs;
   TR0 = TR;
+  vs = inp = Yap_TermVariables(inp, TermNil PASS_REGS);
+  while (IsPairTerm(vs)) {
+      Bind_and_Trail(VarOfTerm(HeadOfTerm(vs)),TermFoundVar);
+      vs = TailOfTerm(vs);
+  }
+  COPY(pt0_[1]);
 #include "term_visit.h"
   continue;
   END_WALK();
@@ -629,6 +638,7 @@ static Int p_variables_within_term(USES_REGS1) /* variables within term t */
   return Yap_unify(ARG3, out);
 }
 
+
 /* variables within term t		 */
 static Int free_variables_in_term(USES_REGS1) {
   Term out;
@@ -653,12 +663,16 @@ static Int free_variables_in_term(USES_REGS1) {
     }
   }
 
-  if (IsPrimitiveTerm(t))
-    out = bounds;
-  else {
-Term   inp = Yap_TermVariables(bounds,3 PASS_REGS);
-    out = Yap_TermVariables(inp, 3 PASS_REGS);
-  }
+  if (IsPrimitiveTerm(t)) {
+    out = TermNil;
+  } else {
+    Term quants = Yap_TermVariables(bounds, TermNil PASS_REGS);
+    if (quants == TermNil) {
+      out = Yap_TermVariables(t, TermNil PASS_REGS);
+    } else {
+    out = new_vars_in_complex_term( &t-1, &t, quants PASS_REGS);
+    }
+    }
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
@@ -832,7 +846,11 @@ static Int p_numbervars4(USES_REGS1) {
         Yap_Error(TYPE_ERROR_INTEGER, t2, "numbervars/3");
         return (false);
     }
-    out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), true, false, NULL);
+    Functor f =       FunctorDollarVar;
+      FunctorDollarVar = FunctorHiddenVar;
+      out = Yap_NumberVars(MkGlobal(ARG1), IntegerOfTerm(t2), true, false, NULL);
+      
+      FunctorDollarVar = f;
     return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
@@ -902,7 +920,6 @@ static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
 static Int largest_numbervar(USES_REGS1) {
   return Yap_unify(MaxNumberedVar(MkGlobal(ARG1), 2 PASS_REGS), ARG2);
 }
-
 
 
 

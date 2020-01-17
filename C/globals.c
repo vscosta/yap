@@ -726,8 +726,9 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     /* follow chain of multi-assigned variables */
     close_stack(stt);
 
-    if (arenap)
+    if (arenap) {
       *arenap = CloseArena(&cspace PASS_REGS);
+    }
       return tf;
       } else if (res==RESOURCE_ERROR_AUXILIARY_STACK) {
 

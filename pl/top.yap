@@ -302,7 +302,7 @@ query(G0, Vs, NVs,NLGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
     %start_low_level_trace,`
-   copy_term(G+Vs, _IG+IVs, LGs),
+    copy_term(G+Vs, _IG+IVs, LGs),
    rational_term_to_forest(IVs+LGs,NVs+ILGs,Extra,[]),
  lists:append(Extra,ILGs,NLGs),	 
   '$write_answer'(NVs, NLGs, Written),
@@ -542,12 +542,12 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals'(G, VL0, G) :-
 	'$name_well_known_vars'(VL0),
-	numbervars(G,-1,_).
+	numbervars(G,0,_,_).
 
 '$name_well_known_vars'([]).
 '$name_well_known_vars'([Name=V|NVL0]) :-
 	var(V), !,
-	V = '$VAR'(Name),
+	V = '$V'(Name),
 	'$name_well_known_vars'(NVL0).
 '$name_well_known_vars'([_|NVL0]) :-
 	'$name_well_known_vars'(NVL0).
@@ -557,7 +557,7 @@ write_query_answer( Bindings ) :-
 	I is I0+1,
 	'$gen_name_string'(I0,[],SName), !,
 	atom_codes(Name, [95|SName]),
-	V = '$VAR'(Name),
+	V = '$V'(Name),
 	'$name_vars_in_goals1'(NGVL, I, IF).
 '$name_vars_in_goals1'([NV|NGVL], I0, IF) :-
 	nonvar(NV),

@@ -353,6 +353,7 @@
   AtomSame = Yap_LookupAtom("=="); TermSame = MkAtomTerm(AtomSame);
   AtomSemic = Yap_LookupAtom(";"); TermSemic = MkAtomTerm(AtomSemic);
   AtomShiftCountOverflow = Yap_LookupAtom("shift_count_overflow"); TermShiftCountOverflow = MkAtomTerm(AtomShiftCountOverflow);
+  AtomSig = Yap_LookupAtom("sig"); TermSig = MkAtomTerm(AtomSig);
   AtomSigAlarm = Yap_LookupAtom("sig_alarm"); TermSigAlarm = MkAtomTerm(AtomSigAlarm);
   AtomSigBreak = Yap_LookupAtom("sig_break"); TermSigBreak = MkAtomTerm(AtomSigBreak);
   AtomSigCreep = Yap_LookupAtom("sig_creep"); TermSigCreep = MkAtomTerm(AtomSigCreep);
@@ -597,6 +598,7 @@
   FunctorSafe = Yap_MkFunctor(AtomSafe,1);
   FunctorSafeCallCleanup = Yap_MkFunctor(AtomSafeCallCleanup,4);
   FunctorSame = Yap_MkFunctor(AtomSame,2);
+  FunctorSig = Yap_MkFunctor(AtomSig,1);
   FunctorSlash = Yap_MkFunctor(AtomSlash,2);
   FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,2);
   FunctorStream = Yap_MkFunctor(AtomStream,1);

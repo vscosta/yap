@@ -57,7 +57,8 @@
 
 % this is used by the all predicate
 
-:- op(50,xfx,same).
+:- op( 50,xfx,same).
+:- op(700,xfx, =@=).
 
 
 %% @pred (^)/2
@@ -234,7 +235,7 @@ bagof(Template, Generator, Bag) :-
 	'$parade'(Bags, K, Bag1, Bags1),
 	'$decide'(Bags1, [X|Bag1], K, Key, Bag).
 
-'$parade'([K-X|L1], Key, [X|B], L) :- K == Key, !,
+'$parade'([K-X|L1], Key, [X|B], L) :- K =@= Key, !,
 	'$parade'(L1, Key, B, L).
 '$parade'(L, _, [], L).
 

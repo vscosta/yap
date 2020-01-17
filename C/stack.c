@@ -1970,9 +1970,7 @@ const char *Yap_dump_stack(void) {
                         (unsigned long int) LOCAL_GcCalls));
 #if LOW_LEVEL_TRACER
         {
-            extern long long vsc_count;
-
-            if (vsc_count) {
+	  if (vsc_count) {
 #if _WIN32
                 ADDBUF(snprintf(lbuf, lbufsz , "Trace Counter at %I64d\n", vsc_count));
 #else
