@@ -25,8 +25,8 @@ static char SccsId[] = "%W% %G%";
 
 /**
  * @defgroup FormattedIO Formatted Output
- * @ingroup InputOutput 
- *             
+ * @ingroup InputOutput
+ *
  * @{
  *
  * This file includes the definition of the formatted output predicates.
@@ -173,6 +173,15 @@ Print the next argument with write/1:
 Good night Hello+[1,2]
 ~~~~~
 
++ `~W`
+Give the next two arguments to write_term/2. The first is the term to print, and
+the second is a list of write_term/2 options. For example:
+
+~~~~
+format(string(S), '~W', [Term, [singletons(true)]]).
+~~~~
+
+This option is SWI-Prolog specific.
 
 The number of arguments, `N`, may be given as an integer, or it
 may be given as an extra argument. The next example shows a small
@@ -904,14 +913,11 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				case 'W':
 				  if (targ > tnum - 2 || has_repeats)
 				    goto do_format_control_sequence_error;
-				  targ -= 2;
 				  {
 				    yhandle_t slf = Yap_StartSlots();
-				    if (!Yap_WriteTerm(sno, targs[1], targs[0] PASS_REGS)) {
+				    Yap_WriteTerm(sno,  targs[targ], targs[targ+1] PASS_REGS);
+				    targ += 2;
 				      Yap_CloseSlots(slf);
-				      goto do_default_error;
-				    };
-				    Yap_CloseSlots(slf);
 				  }
 				  break;
 				  case '~':

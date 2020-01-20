@@ -859,7 +859,7 @@ static void spy_goal(USES_REGS1) {
     PP = NULL;
   }
 #endif
-  ARG1 = save_goal(PP PASS_REGS);
+  ARG1 = save_goal(pe PASS_REGS);
 
   {
     PredEntry *pt0;

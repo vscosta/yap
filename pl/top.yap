@@ -577,18 +577,27 @@ write_query_answer( Bindings ) :-
 	'$current_choice_point'(CP),
 	'$call'(G1, CP, G, M1).
 
+%%
+%% run top-level qieri
+%%
 '$user_call'(G, M) :-
     '$yap_strip_module'(M:G, M1,G1),
-    '$dotrace'(G1, M1, _),
-    !,
-    '$trace'(M1:G1, true).
-'$user_call'(G, M) :-
+    ( '$undefp'(G1,M1) ->
+    '$undefp_search'(M1:G1, M2:G2)
+     ;
+      M1:G1=M2:G2
+	),
+    ('$dotrace'(G2, M2, _)
+    ->
+    '$spy'(M2:G2)
+    ;
     gated_call(
 	true,
 	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
-	M:G,
+	M2:G2,
 	Port,
  	'$cross_run_deb'(Port,true, _)
+    )
     ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).

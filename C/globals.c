@@ -372,8 +372,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
   CELL *pt0 = pt0_, *ptf = *ptf_, *pt0_end = pt0_end_;
   Term myt;
-  bool break_loops = false;
- bool forest = bindp && (!IntOfTerm(*bindp));
+  bool forest = bindp && (!IntOfTerm(*bindp));
   CELL *HLow = HR;
   bool ground;
   //myt = (CELL)HLow;
@@ -403,10 +402,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         ///
         if (IS_VISIT_MARKER(*ptd1)) {
           /* d0 has ance   */
-          if (break_loops) {
-            Term ups = MkIntTerm(to_visit - VISIT_ENTRY(*ptd1));
-            *ptf = Yap_MkApplTerm(FunctorUp, 1, &ups);
-          } else if (forest) {
+	  if (forest) {
             // set up a binding PTF=D0
             struct cp_frame *entry = VISIT_ENTRY(*ptd1);
             Term val = entry->t;
@@ -481,12 +477,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
         if (IS_VISIT_MARKER(tag)) {
           /* If this is newer than the current term, just reuse */
-          if (break_loops) {
-            char s[64];
-            snprintf(s, 63, "__^%ld__", to_visit - VISIT_ENTRY(*ptd1));
-            *ptf = MkStringTerm(s);
-            continue;
-          } else if (forest) {
+           if (forest) {
             // set up a binding PTF=D0
             struct cp_frame *entry = VISIT_ENTRY(*ptd1);
             Term val = entry->t;
@@ -703,7 +694,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   if (bindp != NULL && forest)
     bind0 = *bindp;
       TR0 = TR;
-      CELL *HR0 = HR, *HB0 = HB;
     TR0 = TR;
     t = Deref(t);
       if (arenap) {
@@ -828,7 +818,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   
   static Int p_copy_term(USES_REGS1) /* copy term t to a new instance  */
   {
-    Term t = CopyTermToArena(ARG1, false, TRUE, 2, NULL, NULL, 0 PASS_REGS);
+        Term inp = MkGlobal(ARG1);
+	Term t = CopyTermToArena(inp, false, TRUE, 2, NULL, NULL, 0 PASS_REGS);
       COPY(t);
       if (t == 0L)
       return FALSE;
@@ -838,7 +829,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
   static Int p_duplicate_term(USES_REGS1) /* copy term t to a new instance  */
   {
-    Term t = CopyTermToArena(ARG1, FALSE, TRUE, 2, NULL, NULL, 0 PASS_REGS);
+    Term inp = MkGlobal(ARG1);
+    Term t = CopyTermToArena(inp, FALSE, TRUE, 2, NULL, NULL, 0 PASS_REGS);
     if (t == 0L)
       return FALSE;
       COPY(t);
@@ -875,7 +867,8 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       USES_REGS1) /* copy term t to a new instance  */
   {
       COPY(ARG1);
-      Term t = CopyTermToArena(ARG1, false, false, 2, NULL, NULL, 0 PASS_REGS);
+      Term inp = MkGlobal(ARG1);
+      Term t = CopyTermToArena(inp, false, false, 2, NULL, NULL, 0 PASS_REGS);
     if (t == 0L)
       return FALSE;
     /* be careful, there may be a stack shift here */

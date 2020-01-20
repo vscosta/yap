@@ -309,7 +309,7 @@ portray_clause(Clause) :-
     format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'(X,I,T,Stream) :-
     '$beforelit'(T,I,Stream),
-    writeq(Stream,X).
+    format(Stream, '~q', [X]).
 
 
 

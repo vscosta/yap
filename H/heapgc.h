@@ -658,7 +658,7 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 1
+#if 11
 #define COPY(t)
 #else
 extern 

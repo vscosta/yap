@@ -15,7 +15,7 @@ test( cyclic_term(X), [X]).
 test( ground(X), [X]).
 test( (term_variables(X, O), writeln(X=O) ), [X, [], O]).
 test( (new_variables_in_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
-test( (variables_within_term(L,X, O), writeln(X+L=O) ), [X, L, O]).
+test( (variables_in_both_terms(L,X, O), writeln(X+L=O) ), [X, L, O]).
 test( writeln(X), [X]).
 test((rational_term_to_forest(X,A,B,[]),
 	   writeln((A->B))), [X, A, B]).

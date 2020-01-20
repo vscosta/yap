@@ -1143,9 +1143,10 @@ Functor fdv = FunctorDollarVar;
              args[WRITE_CYCLES].tvalue == TermTrue) {
         flags |= Handle_cyclics_f;
     }
-    if (flags & Handle_vars_f || flags  & Handle_cyclics_f) {
+    if (flags & Handle_vars_f) {
       //        if (flags & Singleton_vars_f)
-      FunctorDollarVar = FunctorHiddenVar;
+      if (flags &  Singleton_vars_f)
+	FunctorDollarVar = FunctorHiddenVar;
        if (args && args[WRITE_VARIABLE_NAMES].used)
                bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
        Yap_NumberVars(t, 0, flags & Singleton_vars_f,

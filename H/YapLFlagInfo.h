@@ -68,7 +68,7 @@ Originally a SWI-Prolog flag.
                * calls_and_retries: count both on predicate calls and
                retries. These counters can be used to find out how many calls a
                certain goal takes to execute. They can also be force the
-               computatiom yp stopping.
+               computation to stop.
 
  		    */
 

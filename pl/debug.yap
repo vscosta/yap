@@ -291,8 +291,8 @@ be lost.
   * @param _Goal_ is the goal with a spy point
   * @return `call(Goal)`
 */
-'$spy'([Mod|G]) :-
-    '$trace'(Mod:G, outer).
+'$spy'(ModG) :-
+    '$trace'(ModG, outer).
 
 /**
   * @pred $trace( +Goal )
@@ -700,9 +700,7 @@ be lost.
     current_prolog_flag(debug, true),
     fail.
 
-%
-% skip a goal or a port
-%
+
 
 '$gg'(CP,Goal) :-
     '$$save_by'(CP0),
@@ -716,33 +714,39 @@ be lost.
     repeat,
     flush_output,
     '$clear_input'(debugger_input),
-    '$trace_msg'(P,G,Module,L,Deterministic),
+    '$trace_msg'(P,G,Module,L,Deterministic, Prompt, Format-Args),
     (
-	'$unleashed'(P) ->
-	'$action'('\n',P,L,G,Module,Info)
+    '$unleashed'(P) ->
+    Prompt = '~n',
+    format(debugger_error, Format, Args),
+    C = '\n'
     ;
-    prompt1(' ? '),
-    get_char(debugger_input,C),
-    '$action'(C,P,L,G,Module,_Info)
+     %   prompt1(Prompt),
+     Prompt='? ',
+     format(debugger_output, Format, Args),
+   get_char(debugger_input,C)
     ),
-    !.
+    !,
+    '$action'(C,P,L,G,Module,Info).
 
-'$trace_msg'(P,G,Module,L,Deterministic) :-
+'$trace_msg'(P,G,Module,L,Deterministic,Prompt,Message) :-
     functor(P,P0,_),
     (P = exit, Deterministic \= deterministic -> Det = '?' ; Det = ' '),
     ('$pred_being_spied'(G,Module) -> CSPY = '*' ; CSPY = ' '),
     % vsc: fix this
-    %		( SL = L -> SLL = '>' ; SLL = ' '),
-    SLL = ' ',
-    ( Module\=prolog,
-      Module\=user
+     '$get_debugger_state'( goal_number, TargetGoal ),
+     ( TargetGoal = L -> SLL = '>' ; SLL = ' '),
+    %SLL = ' ',
+    strip_module(Module:G, M, G1),
+    ( M\=prolog,
+      M\=user
     ->
-    GW = Module:G
+    GW = M:G1
     ;
     GW = G
     ),
-    format(debugger_output,'~a~a~a       (~d)    ~q:',[Det,CSPY,SLL,L,P0]),
-    '$debugger_write'(debugger_output,GW).
+    current_prolog_flag( debugger_print_options, OUT ), 
+    Message= '~a~a~a       (~d)    ~q:~W ~a' - [Det,CSPY,SLL,L,P0,GW,OUT,Prompt].
 
 '$unleashed'(call) :- get_value('$leash',L), L /\ 0x08 =:= 0. %'
 '$unleashed'(exit) :- get_value('$leash',L), L /\ 0x04 =:= 0. %'
@@ -751,13 +755,6 @@ be lost.
 % the same as fail.
 '$unleashed'(exception(_)) :- get_value('$leash',L), L /\ 0x10 =:= 0.  %
 
-'$debugger_write'(Stream, G) :-
-    current_prolog_flag( debugger_print_options, OUT ), !,
-    write_term(Stream, G, OUT),
-    nl(Stream).
-'$debugger_write'(Stream, G) :-
-    writeq(Stream, G),
-    nl(Stream).
 
 '$action'('\r',P,CallNumber,G,Module,H) :- !,	% newline 	creep
     get_char( debugger_input,C),
@@ -929,7 +926,7 @@ be lost.
 '$show_ancestor'(GoalNumber, M, G, Retry, _, HowMany, HowMany1) :-
     nonvar(Retry), !,
     HowMany1 is HowMany-1,
-    '$trace_msg'(redo, G, M, GoalNumber, _), nl(user_error).
+    '$trace_msg'(redo, G, M, GoalNumber, _).
 '$show_ancestor'(GoalNumber, M, G, _, _, HowMany, HowMany1) :-
     HowMany1 is HowMany-1,
     '$trace_msg'(call, G, M, GoalNumber, _), nl(user_error).

@@ -205,10 +205,10 @@ meta_predicate(P) :-
 '$expand_arg'(G,  CM, _HVars, NCM:NG) :-
     '$yap_strip_module'(CM:G, NCM, NG).
 
-'$match_mod'(G, _HMod, _SMod, prolog, O) :-
-    !,
-    O = G.
-'$match_mod'(G, _M, M, M, G) :-    !.
+%'$match_mod'(G, _HMod, _SMod, prolog, O) :-
+%    !,
+%    O = G.
+%'$match_mod'(G, _M, M, M, G) :-    !.
 '$match_mod'(G, _HM, _M, M, M:G).
 
 % Call the import mechanism
@@ -521,8 +521,7 @@ expand_goal(G, MF:GF) :-
     '$expand_head'(H, H0, HM0, HM),
  %   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
     '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO ),
-    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO),
-    writeln(HB=ClO).
+    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO).
     
 
 %% @}
