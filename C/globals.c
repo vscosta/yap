@@ -690,10 +690,10 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
   bool forest = bindp != NULL;
     Term bind0 = 0;
     size_t sz = 1024;
-    init_stack(stt, sz);
-  if (bindp != NULL && forest)
+    init_stack(stt, sz, t);
+    if (bindp != NULL && forest) {
     bind0 = *bindp;
-      TR0 = TR;
+    }
     TR0 = TR;
     t = Deref(t);
       if (arenap) {

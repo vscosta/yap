@@ -2381,53 +2381,73 @@ void Yap_ShowTerm(Term t) {
 }
 
  
- extern void pp(Term, int);
 
-void pp(Term t, int lvl) {
+ static void line( bool hid, int lvl, void *src, void *tgt, const char s0[], const char s[]) {
+   fprintf(stderr, "%c%p%*c %s%s\n",hid? '*' : ' ',tgt, lvl, ' ' , s0, s);
+ } 
+
+void pp(Term *tp, int lvl) {
   int i;
   if (lvl>6)
     return;
-  t = Deref(t);
-  fprintf(stderr,"%*c", 2*(lvl++), ' ');
+  Term t = *tp;
+  bool hid = false;
+  char s[128], s0[128];
+ restart:
   if (IsVarTerm(t)) {
+    const char *s0_;
       CELL *v = (CELL*)t;
-      if (IsAttVar(v)) {
+      if (false && IsAttVar(v)) {
 	fputs( "ATT V:\n", stderr);
-	pp(AbsAppl((CELL*)&(RepAttVar(v)->Atts)),lvl+1);
+	//pp(&RepAttVar(v),lvl+1);
 	   return;
 	}
-      if (v < HR) fprintf(stderr,"_H%lx\n",v-H0);
-      else fprintf(stderr,"_L%lx\n",ASP-v);
-    } else if (IsAtomicTerm(t)) {
+      s0_ = "Ref ";
+      if ((CELL)tp == *tp) {
+	s0_ = "V   ";
+      }
+      if (v < HR) sprintf(s,"_H%lx\n",v-H0);
+      else sprintf(s,"_L%lx\n",ASP-v);
+      line(hid, lvl, tp, v, s0_, s);
+         } else if (IsAtomOrIntTerm(t)) {
       if (IsAtomTerm(t)) {
-	fprintf(stderr, "%s\n",  RepAtom(AtomOfTerm(t))->StrOfAE);
+	sprintf(s, "%s",  RepAtom(AtomOfTerm(t))->StrOfAE);
       } else {
 	// int
-	fprintf(stderr, "%s\n",  RepAtom(AtomOfTerm(t))->StrOfAE);
+	sprintf(s, "%ld",  IntOfTerm(t));
       }
+            line(hid, lvl, tp, tp, "at=", s);
     } else if (IsPairTerm(t)) {
-    if (RepPair(t) < H0 || RepPair(t) > HR) {
-      fprintf(stderr,"[ LIST ( %p ) ]\n", RepPair(t));
-    } else {
-      fprintf(stderr,"[ %lx\n", RepPair(t)-H0);
-      pp(HeadOfTerm(t), lvl+1);
-	 pp(TailOfTerm(t), lvl+1);
-    }
-
-    
-  }else  {
+    if ((void*)RepPair(t)  >= (void*)(LOCAL_WorkerBuffer.data) &&
+	(void *)RepPair(t) < (void*)(LOCAL_WorkerBuffer.data+LOCAL_WorkerBuffer.sz)) {
+	  copy_frame *cp =  (( copy_frame *)RepPair(t));
+	  t = cp->oldv;
+	  hid = true;
+	  goto restart;
+	}
+        line(hid, lvl,tp, RepPair(t), "*", "[");
+	  pp(RepPair(t), lvl+1);
+	  pp(RepAppl(t)+1, lvl+1);
+	} else {
+	    line(hid, lvl,tp, RepAppl(t), "*", "appl=");
       Functor f=	   FunctorOfTerm(t);
       if (IsPairTerm((CELL)f)) {
-	fprintf(stderr,"[ APPL %p  ]\n", RepAppl(t));
-      } else {
+	copy_frame *cp =  (( copy_frame *)RepPair((CELL)f));
+	  hid = true;
+	  f = (Functor)(cp->oldv);
+      }
+      if (IsExtensionFunctor(f)) {
+	line(hid,lvl,tp,RepAppl(t),"blob","");
+      }
+      else {
 	const char *s = RepAtom(NameOfFunctor(f))->StrOfAE;
 	arity_t a = ArityOfFunctor(f);
-	fprintf(stderr,"%s/%ld %lx\n", s, a, RepAppl(t)-H0);
+	snprintf(s0,255,"/%ld",a);
+	line(hid,lvl,tp, RepAppl(t), s0, s);
 	for (i =1;i<=a;i++)
-	  pp(ArgOfTerm(i,t), lvl+1);
-	for (i=0;i<lvl*2;i++)
-	  fputc(' ',stderr);
-	fprintf(stderr,"] \n");
+	  pp(RepAppl(t)+i, lvl+1);
+	//	line(hid, RepPair(t), ":" , ")");
+
       }
     }
 }

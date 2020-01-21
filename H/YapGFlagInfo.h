@@ -695,7 +695,7 @@ and if it is bound to `off` disable them. The default for YAP is
 			    */
 
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
-             list_option, "[quoted(true),numbervars(true),singletons(true),portrayed(true)]",
+             list_option, "[quoted(true),numbervars(true),portrayed(true)]",
              NULL), /**< 
 
     If bound, set the argument to a goal to be executed before entering the

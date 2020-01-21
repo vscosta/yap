@@ -1,57 +1,21 @@
 /****** start of top macro */
-CELL *pt0, *pt0_end, *HStart = HR;
-Ystack_t stt_, *stt = &stt_;
-size_t sz = 1024;
+CELL *pt0, *pt0_end;
+
 bzero(stt, sizeof(Ystack_t));
-if (!init_stack(stt, sz)) {
+if (!init_stack(stt, 0, pt0_[1] )) {
+LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+return 0;
+/* Trail overflow */
+LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+return 0;
 
-  aux_overflow : {
-    while (pop_sub_term(stt, NULL, NULL)) {};
-    HR = HStart;
-    clean_tr(TR0 PASS_REGS);
-    if (reinit_stack(stt,0))
-    {
-      HStart = HR;
-      goto reset;
-    }
-     close_stack(stt); return false;
-}
+aux_overflow:
+/* Trail overflow */
+LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+return 0;
 
-  trail_overflow : {
-    while (pop_sub_term(stt, NULL, NULL)) {
-    };
-    HR = HStart;
-    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-    ssize_t expand = 0L;
-    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {
-
-       close_stack(stt); return false;
-    }
-      HStart = HR;
-    goto reset;
-  }
-  global_overflow : {
-    while (pop_sub_term(stt, NULL, NULL)) {
-    };
-    HR = HStart;
-    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-    ssize_t expand = 0L;
-    if (!Yap_gcl(expand, 3, ENV, gc_P(P, CP))) {
-
-      close_stack(stt); return false;
-    }
-      HStart = HR;
-  }
- }
-
-if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-  /* Trail overflow */
-  goto trail_overflow;
-}
-if (HR + 1024 > ASP) {
-  goto global_overflow;
-}
-reset:
+LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+return 0;}
 pt0 = pt0_;
 pt0_end = pt0_end_;
 

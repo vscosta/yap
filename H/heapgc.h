@@ -517,6 +517,7 @@ RMARKED__(CELL* ptr USES_REGS)
 #if LONG_ADDRESSES
 #ifdef TAG_LOW_BITS_32
 #define TAG(X)         ((X) & LowTagBits)
+
 #else
 #ifdef TAG_64BITS
 #define TAG(X)         ((X) & MKTAG(0x0,0x7))
@@ -564,27 +565,30 @@ typedef struct cp_frame {
   copy_frame *pt;
   copy_frame *max;
   scratch_struct_t bf;
+   Term t;
  } Ystack_t;
 
-INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
+INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof, Term root) {
   if (nof==0)
     nof = 4096;
-  b->bf.data = NULL;
   if (Yap_get_scratch_buf(&b->bf,nof, sizeof(copy_frame))) {
+    printf("+ %x @ %p\n", (int)nof, b->bf.data);
     b->pt0 = b->bf.data;
     b->pt = b->pt0;
     b->max = b->pt0 + nof;
+    b->t = root;
     return true;
   }
   return false;
   }
 
 INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
-    if (!nof)
-    nof = 2*(b->max-b->pt0);
-  if (Yap_realloc_scratch_buf(&b->bf, nof)) {
-    b->pt0 = b->bf.data;
-    b->pt = b->pt0;
+  printf("? %x @ %p\n", (int)nof, b->bf.data);
+	 if (!nof)
+      nof = 2*(b->max-b->pt0);
+    if (Yap_realloc_scratch_buf(&b->bf, nof)) {
+      b->pt0 = b->bf.data;
+      b->pt = b->pt0;
       b->max = b->pt0 + nof;
     return true;
   }
@@ -592,7 +596,8 @@ INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
 }
 
 INLINE_ONLY bool close_stack( Ystack_t *b) {
-  return Yap_release_scratch_buf(&b->bf);
+  printf("- %p\n", b->bf.data);
+   return Yap_release_scratch_buf(&b->bf);
 }
 
 #define to_visit    stt->pt
