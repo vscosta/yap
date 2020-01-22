@@ -1,21 +1,12 @@
 /****** start of top macro */
+
 CELL *pt0, *pt0_end;
 
 bzero(stt, sizeof(Ystack_t));
 if (!init_stack(stt, 0, pt0_[1] )) {
-LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
 return 0;
-/* Trail overflow */
-LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-return 0;
-
-aux_overflow:
-/* Trail overflow */
-LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-return 0;
-
-LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-return 0;}
+ }
 pt0 = pt0_;
 pt0_end = pt0_end_;
 
@@ -44,7 +35,8 @@ if (IS_VISIT_MARKER(ptd1[0]))
     *ptd1 = VISIT_MARK();
     push_sub_term(stt, d1, ptd1, pt0, pt0_end);
     if (stt->pt + 32 >= stt->max) {
-      goto aux_overflow;
+LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+return 0;
     }
     pt0 = ptd1;
     pt0_end = ptd1 + 1;
@@ -68,7 +60,8 @@ if (IS_VISIT_MARKER(ptd1[0]))
     }
 
     if (stt->pt + 32 >= stt->max) {
-      goto aux_overflow;
+LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+return 0;
     }
     COMPOUND_HOOK_CODE;
     if (IS_VISIT_MARKER(*ptd1)) {

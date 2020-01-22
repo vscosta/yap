@@ -1845,7 +1845,6 @@ void *Yap_InitTextAllocator(void) {
  bool Yap_get_scratch_buf(scratch_struct_t *handle, size_t nof, size_t each) {
    handle->n_of = nof;
    handle->size_of = each;
-   if (!handle->data) {
        if (!LOCAL_WorkerBuffer.data) {
        LOCAL_WorkerBuffer.data = malloc(nof*each);
        LOCAL_WorkerBuffer.sz = nof*each;
@@ -1858,13 +1857,13 @@ void *Yap_InitTextAllocator(void) {
        LOCAL_WorkerBuffer.in_use =  true;
        handle->data =  LOCAL_WorkerBuffer.data;
        handle->is_thread_scratch_buf = true;
-     }
-   } else {
+     } else {
    handle->data = malloc(nof*each);
    handle->is_thread_scratch_buf = false;
-   }
-       return handle->data != NULL;
- }
+
+     }
+   return handle->data != NULL;
+  }
 
 
 
@@ -1882,7 +1881,7 @@ bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
  }
 
  handle->n_of = nof;
-   printf("? %lx @ %p\n", handle->n_of, handle->data);
+//   printf("? %lx @ %p\n", handle->n_of, handle->data);
   return handle->data != NULL;
 }
 
@@ -1891,12 +1890,14 @@ bool Yap_realloc_scratch_buf(scratch_struct_t *handle, size_t nof) {
      if (handle->is_thread_scratch_buf &&
 	 handle->data == LOCAL_WorkerBuffer.data) {
        LOCAL_WorkerBuffer.in_use= false;
+       handle->is_thread_scratch_buf= false;
      } else {
        free(handle->data);
 
        }
-   printf("- %lx @ %p\n", handle->n_of, handle->data);
+//   printf("- %lx @ %p\n", handle->n_of, handle->data);
    handle->data = NULL;
    handle->n_of = 0;
+
    return true;
  }

@@ -569,21 +569,21 @@ typedef struct cp_frame {
  } Ystack_t;
 
 INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof, Term root) {
-  if (nof==0)
+  if (nof<4096)
     nof = 4096;
   if (Yap_get_scratch_buf(&b->bf,nof, sizeof(copy_frame))) {
-    printf("+ %x @ %p\n", (int)nof, b->bf.data);
+//    printf("+ %x @ %p\n", (int)nof, b->bf.data);
     b->pt0 = b->bf.data;
     b->pt = b->pt0;
     b->max = b->pt0 + nof;
     b->t = root;
     return true;
-  }
+  } 
   return false;
   }
 
 INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
-  printf("? %x @ %p\n", (int)nof, b->bf.data);
+ // printf("? %x @ %p\n", (int)nof, b->bf.data);
 	 if (!nof)
       nof = 2*(b->max-b->pt0);
     if (Yap_realloc_scratch_buf(&b->bf, nof)) {
@@ -596,7 +596,7 @@ INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
 }
 
 INLINE_ONLY bool close_stack( Ystack_t *b) {
-  printf("- %p\n", b->bf.data);
+    b->pt = b->pt0;
    return Yap_release_scratch_buf(&b->bf);
 }
 
@@ -663,7 +663,7 @@ if(IS_VISIT_MARKER(DD))\
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 11
+#if 0
 #define COPY(t)
 #else
 extern 

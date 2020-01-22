@@ -450,7 +450,7 @@ INLINE_ONLY void reset_trail(tr_fr_ptr TR0);
 
 INLINE_ONLY void reset_trail(tr_fr_ptr TR0) {
   CACHE_REGS
-  while (TR != TR0) {
+  while (TR > TR0) {
     CELL d1;
     --TR;
     d1 = TrailTerm(TR);
