@@ -35,6 +35,7 @@
  * often used to access system flags.
  *
  */
+
 #ifdef __ANDROID__
 #define IN_ANDROID "true"
 #else
@@ -695,7 +696,7 @@ and if it is bound to `off` disable them. The default for YAP is
 			    */
 
     YAP_FLAG(TOPLEVEL_PRINT_OPTIONS_FLAG, "toplevel_print_options", true,
-             list_option, "[quoted(true),numbervars(true),portrayed(true)]",
+             list_option, "[quoted(true),cycles(true),singletons(true),numbervars(true),portrayed(true)]",
              NULL), /**< 
 
     If bound, set the argument to a goal to be executed before entering the
@@ -715,7 +716,7 @@ and if it is bound to `off` disable them. The default for YAP is
 
 			*/
  
-   YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL), /**< 
+YAP_FLAG(TTY_CONTROL_FLAG, "tty_control", true, booleanFlag, "true", NULL), /**< 
 
     If bound, set the argument to a goal to be executed before entering the
     top-level. If unbound show the current goal or `true` if none is
@@ -829,3 +830,4 @@ and if it is bound to `off` disable them. The default for YAP is
     END_GLOBAL_FLAGS
 
     //! @}
+

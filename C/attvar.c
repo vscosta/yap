@@ -801,7 +801,6 @@ static Int put_attrs(USES_REGS1) {
       }      
       tatts = ArgOfTerm(3,tatts);
     } while(!IsVarTerm(tatts));
-    Yap_DebugPlWriteln(attv->Atts);
   } else {
     Yap_Error(REPRESENTATION_ERROR_VARIABLE, inp,
               "first argument of put_att/2");

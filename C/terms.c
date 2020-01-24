@@ -1,19 +1,19 @@
 /*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		utilpreds.c * Last rev:	4/03/88
-*
-* mods:
-* comments:	new utility predicates for YAP *
-*									 *
-*************************************************************************/
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		utilpreds.c * Last rev:	4/03/88
+ *
+ * mods:
+ * comments:	new utility predicates for YAP *
+ *									 *
+ *************************************************************************/
 
 #ifndef TERMS_C
 #define TERMS_C 1
@@ -46,7 +46,6 @@
 /*#define err, "%s %ld %p->%p=%lx ", s, st->pt - st->pt0, pt0, ptd0, d0), */
 /*   Yap_DebugPlWriteln(d0)) */
 
-
 static inline bool push_sub_term(Ystack_t *sp, CELL d0, CELL *pt0, CELL *b,
                                  CELL *e) {
   copy_frame *pt = sp->pt;
@@ -77,79 +76,70 @@ static inline bool pop_sub_term(Ystack_t *sp, CELL **b, CELL **e) {
 }
 
 #define END_WALK()                                                             \
-  }    }                                                                        \
+  }                                                                            \
+  }                                                                            \
   /***** start of bottom-macro ************/                                   \
   nomore:
 
- #define ER( G ) {\
-    LOCAL_Error_TYPE=0 ;\
-    if ((G)==0 && LOCAL_Error_TYPE) {		\
-error_handler(TR0, HLow, stt ); \
-goto reset;} }
+#define ER(G)                                                                  \
+  {                                                                            \
+    if ((G) == 0 && LOCAL_Error_TYPE) {                                        \
+      error_handler(stt);                                                      \
+    LOCAL_Error_TYPE = 0;                                                      \
+      goto reset;                                                              \
+    }                                                                          \
+  }
 
-static bool error_handler(tr_fr_ptr TR0, CELL *HLow, Ystack_t *stt)
-{
-    if  (  LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
+static bool error_handler(Ystack_t *stt) {
+   reset_trail(stt->tr0 PASS_REGS);
+    while (pop_sub_term(stt, NULL, NULL))
+      ;
+    HR = stt->hlow;
+ if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
 
-    reset_trail(TR0 PASS_REGS);
-    while (pop_sub_term(stt, NULL, NULL));
-    HR = HLow;
+  
+    if (!reinit_stack(stt, 0)) {
 
+      Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,
+                     "while visiting terms");
+    }
+  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
+ 
+    if (!Yap_growtrail(0, false)) {
+      Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
+    }
 
+  } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+    if (!Yap_expand(0)) {
 
-if (!reinit_stack(stt,0))
-{
-
-    Yap_ThrowError(RESOURCE_ERROR_AUXILIARY_STACK, TermNil,  "while visiting terms");
+      Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "while visiting terms");
+    }
+  }
+reset_stack(stt);
+    return true;
 }
-} else if(LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
-    reset_trail(TR0 PASS_REGS);
-    while (pop_sub_term(stt, NULL, NULL));
-    HR = HLow;
-
-
-        if (!Yap_growtrail(0, false)){
-            Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
-
-        }
-
-    } else if(LOCAL_Error_TYPE == RESOURCE_ERROR_STACK)  {
-    reset_trail(TR0 PASS_REGS);
-    while (pop_sub_term(stt, NULL, NULL));
-    HR = HLow;
-
-if (!Yap_expand(0)) {
-
-
-    Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "while visiting terms");
-
-}
-
-}
-
-
-return 0;
-}
-
 
 #define CYC_LIST                                                               \
   if (IS_VISIT_MARKER(*ptd0)) {                                                \
     while (pop_sub_term(&stt, NULL, NULL)) {                                   \
     };                                                                         \
-     close_stack(&stt); return true;                                                               \
+    close_stack(&stt);                                                         \
+    return true;                                                               \
   }
 
 #define CYC()                                                                  \
   if (IS_VISIT_MARKER(*ptd0)) {                                                \
-    while (pop_sub_term(stt, NULL, NULL)) {                                   \
+    while (pop_sub_term(stt, NULL, NULL)) {                                    \
     };                                                                         \
-     close_stack(stt);return true;                                                               \
+    close_stack(stt);                                                          \
+    return true;                                                               \
   }
 
 /**
    @brief routine to locate all variables in a term, and its applications */
 
-static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_, Ystack_t *stt USES_REGS) {
+static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                Ystack_t *stt USES_REGS) {
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
@@ -158,12 +148,11 @@ static Term cyclic_complex_term(CELL *pt0_, CELL *pt0_end_, Ystack_t *stt USES_R
 #define COMPOUND_HOOK_CODE CYC()
 #define ATOMIC_HOOK_CODE                                                       \
   {}
-COPY(pt0_[1]);
+  COPY(pt0_[1]);
 #include "term_visit.h"
   /* leave an empty slot to fill in later */
   END_WALK();
   // no cycles found
-  close_stack(stt);
   return false;
 }
 
@@ -173,12 +162,13 @@ bool Yap_IsCyclicTerm(Term t USES_REGS) {
   } else if (IsPrimitiveTerm(t)) {
     return false;
   } else {
-      Ystack_t stt_, *stt = &stt_;
-      tr_fr_ptr TR0= TR;
+    Ystack_t stt_, *stt = &stt_;
 
-      bool rc =  cyclic_complex_term(&(t)-1, &(t), stt PASS_REGS);
-   reset_trail(TR0 PASS_REGS);
-   return rc;
+    init_stack(stt, 0);
+    bool rc = cyclic_complex_term(&(t)-1, &(t), stt PASS_REGS);
+    reset_trail(stt->tr0 PASS_REGS);
+    close_stack(stt);
+    return rc;
   }
 }
 
@@ -193,18 +183,17 @@ bool Yap_IsCyclicTerm(Term t USES_REGS) {
 */
 static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 {
-     CELL *HLow;
-        tr_fr_ptr TR0;
-      Ystack_t stt_, *stt = &stt_;
-      Int rc;
-      Term t;
-        reset:
-        HLow = HR;
-        TR0 = TR;
-        ER(rc = cyclic_complex_term(&(t) - 1, &(t), stt PASS_REGS));
-   reset_trail(TR0 PASS_REGS);
-        return rc;
 
+  Ystack_t stt_, *stt = &stt_;
+  Int rc;
+  Term t;
+  init_stack(stt, 0);
+
+reset:
+  ER(rc = cyclic_complex_term(&(t)-1, &(t), stt PASS_REGS));
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
+  return rc;
 }
 
 /**
@@ -221,38 +210,38 @@ static Int cyclic_term(USES_REGS1) /* cyclic_term(+T)		 */
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static bool ground_complex_term(CELL *pt0_, CELL *pt0_end_, Ystack_t *stt
-USES_REGS) {
-   //  pp(pt0_     [1], 0);
-    COPY(pt0_[1]);
+static bool ground_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                Ystack_t *stt USES_REGS) {
+  //  pp(pt0_     [1], 0);
+  COPY(pt0_[1]);
 #include "term_visit.h"
   while (pop_sub_term(stt, NULL, NULL)) {
   };
   //  pp(pt0_[1], 0);
- close_stack(stt);
   return false;
 
   END_WALK();
- close_stack(stt);
- return true;
+  return true;
   /* should have a return before this point */
   /* close main processing loop */
 }
 
 bool Yap_IsGroundTerm(Term t) {
   CACHE_REGS
-Ystack_t stt_, *stt = &stt_;
-  tr_fr_ptr TR0=TR;
-   t = Deref(t);
   if (IsVarTerm(t)) {
     return false;
   } else if (IsPrimitiveTerm(t)) {
     return true;
   } else {
-bool rc = ground_complex_term(&(t)-1, &(t), stt PASS_REGS);
-   reset_trail(TR0 PASS_REGS);
+    bool rc;
+    Ystack_t stt_, *stt = &stt_;
+    init_stack(stt, 0);
+  reset:
+    ER(rc = ground_complex_term(&(t)-1, &(t), stt PASS_REGS));
+    reset_trail(stt->tr0 PASS_REGS);
+    close_stack(stt);
 
- return rc;
+    return rc;
   }
 }
 
@@ -265,26 +254,24 @@ bool rc = ground_complex_term(&(t)-1, &(t), stt PASS_REGS);
 */
 static Int ground(USES_REGS1) /* ground(+T)		 */
 {
-   Ystack_t stt_, *stt = &stt_;
-    CELL *HLow;
-        tr_fr_ptr TR0 ;
-        Term t;
- reset:
-   t = Deref(ARG1);
-       HLow = HR;
-        TR0 = TR;
+  Ystack_t stt_, *stt = &stt_;
+  Term t;
+  init_stack(stt, 0);
+reset:
+  t = Deref(ARG1);
   if (IsVarTerm(t)) {
+    close_stack(stt);
     return false;
   } else if (IsPrimitiveTerm(t)) {
+    close_stack(stt);
     return true;
   } else {
-      int rc;
-ER(rc = ground_complex_term(&(t)-1, &(t), stt PASS_REGS));
- reset_trail(TR0);
-return rc;
+    int rc;
+    ER(rc = ground_complex_term(&(t)-1, &(t), stt PASS_REGS));
+    reset_trail(stt->tr0);
+    close_stack(stt);
+    return rc;
   }
- 
-    
 }
 
 #undef LIST_HOOK_CODE
@@ -297,8 +284,9 @@ return rc;
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v, Ystack_t *stt USES_REGS) {
-    COPY(pt0_[1]);
+static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v,
+                               Ystack_t *stt USES_REGS) {
+  COPY(pt0_[1]);
 
 #include "term_visit.h"
 
@@ -306,16 +294,11 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v, Ystack_t *stt
     /* Do we still have compound terms to visit */
     while (pop_sub_term(stt, NULL, NULL)) {
     };
-    close_stack(stt);
     return true;
   }
   END_WALK();
- close_stack(stt);
- return false;
+  return false;
 }
-
-
-
 
 /** @pred variable_in_term(? _Term_,? _Var_)
 
@@ -326,23 +309,24 @@ static Int var_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term v, Ystack_t *stt
 
 */
 static Int variable_in_term(USES_REGS1) {
-     Ystack_t stt_, *stt = &stt_;
-     Term t = Deref(ARG1), v = Deref(ARG2);
-    CELL *HLow = HR;
-    tr_fr_ptr TR0 = TR;
-    must_be_variable(v);
-    reset:
-  t = Deref(t);
+  Ystack_t stt_, *stt = &stt_;
+  Term t, v;
+  init_stack(stt, 0);
+reset:
+  t = Deref(ARG1), v = Deref(ARG2);
+  must_be_variable(v);
   if (IsVarTerm(t)) {
+    close_stack(stt);
     return (v == t);
   } else if (IsPrimitiveTerm(t)) {
+    close_stack(stt);
     return (false);
   }
   Int rc;
   ER(rc = var_in_complex_term(&(t)-1, &(t), v, stt PASS_REGS));
-   reset_trail(TR0 PASS_REGS);
-   return rc;
-     
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
+  return rc;
 }
 
 #undef LIST_HOOK_CODE
@@ -358,33 +342,33 @@ static Int variable_in_term(USES_REGS1) {
 /**
  *  @brief routine to locate all variables in a term, and its applications.
  */
-static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
-                                 tr_fr_ptr TR0, Term tail, Ystack_t *stt USES_REGS) {
+static Term vars_in_complex_term(CELL *pt0_, CELL *pt0_end_, tr_fr_ptr TR0,
+                                 Term tail, Ystack_t *stt USES_REGS) {
 
-    Term *end = NULL, first=TermNil ;
-        COPY(pt0_[1]);
+  Term *end = NULL, first = TermNil;
+  COPY(pt0_[1]);
 
 #include "term_visit.h"
 
-            if (HR + 1024 > ASP) {
-                LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-                return 0;
-            }
-if (end == NULL) {
-                first = AbsPair(HR);
-            } else {
-                end[0] = AbsPair(HR);
-            }
-            HR[0] = (CELL)ptd0;
-            HR[1] = tail;
-    end = HR+1;
-    HR+=2;
+  if (HR + 1024 > ASP) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+    return 0;
+  }
+  if (end == NULL) {
+    first = AbsPair(HR);
+  } else {
+    end[0] = AbsPair(HR);
+  }
+  HR[0] = (CELL)ptd0;
+  HR[1] = tail;
+  end = HR + 1;
+  HR += 2;
 
-    /* next make sure noone will see thi, *start = HRs as a variable again */
+  /* next make sure noone will see thi, *start = HRs as a variable again */
   if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
     /* Trail overflow */
-      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-      return 0;
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+    return 0;
   }
   mBind_And_Trail(ptd0, TermFoundVar);
 
@@ -403,19 +387,21 @@ if (end == NULL) {
  */
 static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 {
-    Ystack_t stt_, *stt = &stt_;
-    CELL *HLow;
-    tr_fr_ptr TR0;
-    Term out, t;
-   
-    reset:
-    t = Deref(ARG1);
-       HLow = HR;
-        TR0 = TR;
-     
+  Ystack_t stt_, *stt = &stt_;
+
+  Term out, t;
+  if (!init_stack(stt, 0)) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+    return 0;
+  }
+
+reset:
+  t = Deref(ARG1);
+
   ER(out = vars_in_complex_term(&(t)-1, &(t), TR, TermNil, stt PASS_REGS));
-   reset_trail(TR0 PASS_REGS);
-   return Yap_unify(ARG3, out);
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
+  return Yap_unify(ARG3, out);
 }
 
 /** @pred  term_variables(? _Term_, - _Variables_, +_ExternalVars_) is iso
@@ -427,28 +413,30 @@ static Int variables_in_term(USES_REGS1) /* variables in term t		 */
 */
 static Int term_variables3(USES_REGS1) /* variables in term t		 */
 {
-    Ystack_t stt_, *stt = &stt_;
-    CELL *HLow;
-    tr_fr_ptr TR0;
-    
+  Ystack_t stt_, *stt = &stt_;
+  Term t, in, out;
+
+  init_stack(stt, 0);
 
 reset:
-    HLow = HR;
-    TR0 = TR;
 
-    Term t = Deref(ARG1);
-  Term in =Deref(ARG3), out;
-                        
+  t = Deref(ARG1);
+
+  in = Deref(ARG3);
+
   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-      out = in;
+    close_stack(stt);
+    out = in;
   } else {
-    ER(( vars_in_complex_term(&(in)-1, &(in), TR0, TermNil, stt  PASS_REGS)));
-    ER((out = vars_in_complex_term(&(in)-1, &(in), TR0, in, stt  PASS_REGS)));
+    ER((vars_in_complex_term(&(in)-1, &(in), stt->tr0, TermNil,
+                             stt PASS_REGS)));
+    ER((out =
+            vars_in_complex_term(&(in)-1, &(in), stt->tr0, in, stt PASS_REGS)));
   }
-   reset_trail(TR0 PASS_REGS);
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
 
-      return Yap_unify(ARG2, in);
-
+  return Yap_unify(ARG2, in);
 }
 
 /**
@@ -458,42 +446,27 @@ reset:
  * garbage collection).
  * @param[USES_REGS] threading
  */
-Term Yap_TermVariables(
-    Term t, Term t0 USES_REGS) /* variables in term t  */
+Term Yap_TermVariables(Term t, Term t0 USES_REGS) /* variables in term t  */
 {
   Term out;
-    Ystack_t stt_, *stt = &stt_;
-    tr_fr_ptr TR0 = TR;
-    t = Deref(t);
-
-
-  if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-    return TermNil;
-  } else {
-         out = vars_in_complex_term(&(t)-1, &(t), NULL, t0, stt PASS_REGS);
- out = vars_in_complex_term(&(t)-1, &(t), TR, out, stt PASS_REGS);
- reset_trail(TR0 PASS_REGS);
+  Ystack_t stt_, *stt = &stt_;
+  if (!init_stack(stt, 0)) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+    return 0;
   }
- return out;
-}
-                                                                        
-#if UNUSED
-static Term
-Yap_TermAddVariables(Term t,
-                     Term vs USES_REGS) /* variables in term t		 */
-{
-  Term out;
-
+reset:
   t = Deref(t);
   if (!IsVarTerm(t) && IsPrimitiveTerm(t)) {
-    return t0;
+    close_stack(stt);
+    return TermNil;
   } else {
-    out = vars_in_complex_term(&(vs)-1, &(vs), NULL PASS_REGS);
-    out = vars_in_complex_term(&(t)-1, &(t), TR0 PASS_REGS);
+    ER(out = vars_in_complex_term(&(t)-1, &(t), NULL, t0, stt PASS_REGS));
+    ER(out = vars_in_complex_term(&(t)-1, &(t), TR, out, stt PASS_REGS));
+    reset_trail(stt->tr0 PASS_REGS);
   }
+  close_stack(stt);
   return out;
 }
-#endif
 
 /** @pred  term_variables(? _Term_, - _Variables_) is iso
 
@@ -504,24 +477,23 @@ Yap_TermAddVariables(Term t,
 */
 static Int term_variables(USES_REGS1) /* variables in term t		 */
 {
-    Term out;
-    Ystack_t stt_, *stt = &stt_;
-    CELL *HLow = HR;
-    tr_fr_ptr TR0 = TR;
-    Term t;
+  Term out;
+  Ystack_t stt_, *stt = &stt_;
 
-    if (!Yap_IsListOrPartialListTerm(Deref(ARG2))) {
-        Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "term_variables/2");
-        return false;
-    }
-      reset:
+  Term t;
+  init_stack(stt, 0);
+  if (!Yap_IsListOrPartialListTerm(Deref(ARG2))) {
+    Yap_ThrowError(TYPE_ERROR_LIST, ARG2, "term_variables/2");
+    return false;
+  }
+reset:
 
   t = Deref(ARG1);
 
-    ER((out = vars_in_complex_term(&(t) - 1, &(t), TR, TermNil, stt
-				   PASS_REGS)));
-   reset_trail(TR0 PASS_REGS);
-    return Yap_unify(ARG2, out);
+  ER((out = vars_in_complex_term(&(t)-1, &(t), TR, TermNil, stt PASS_REGS)));
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
+  return Yap_unify(ARG2, out);
 }
 
 /** routine to locate attributed variables */
@@ -540,11 +512,11 @@ typedef struct att_rec {
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
-                                    Term inp , Ystack_t *stt USES_REGS) {
+static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Term inp,
+                                    Ystack_t *stt USES_REGS) {
 
-    CELL output = inp;
-    COPY(pt0_[1]);
+  CELL output = inp;
+  COPY(pt0_[1]);
 
 #include "term_visit.h"
   if (!IS_VISIT_MARKER(*ptd0) && IsAttVar(ptd0)) {
@@ -555,15 +527,14 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
     output = MkPairTerm((CELL)ptd0, output);
     /* store the terms to visit */
     if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
-        LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-        return 0;
+      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+      return 0;
     }
     mBind_And_Trail(ptd0, TermFoundVar);
-    //ptd0 = (CELL*)RepAttVar(ptd0);
+    // ptd0 = (CELL*)RepAttVar(ptd0);
     d0 = AbsAppl(ptd0);
     goto list_loop;
-
-    }
+  }
   END_WALK();
   // no more variables to be found
   /*fprintf(stderr,"<%ld at %s\n", d0, __FUNCTION__)*/;
@@ -578,24 +549,22 @@ static Term attvars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
 */
 static Int term_attvars(USES_REGS1) /* variables in term t		 */
 {
-    Ystack_t stt_, *stt = &stt_;
-    CELL *HLow;
-        tr_fr_ptr TR0 = TR;
-     Term out;
-  Term t = Deref(ARG1);
-    {
-        reset:
-            HLow = HR;
-        TR0 = TR;
-    if (IsPrimitiveTerm(t)) {
-            return Yap_unify(TermNil, ARG2);
-        } else {
-	  ER((out = attvars_in_complex_term(&(t) - 1, &(t), TermNil, stt
-					    PASS_REGS)));
-     reset_trail(TR0 PASS_REGS);
-      }
-        return Yap_unify(ARG2, out);
+  Ystack_t stt_, *stt = &stt_;
+
+  Term out, t;
+  init_stack(stt, 0);
+  {
+  reset:
+     t = Deref(ARG1);
+  if (IsPrimitiveTerm(t)) {
+      return Yap_unify(TermNil, ARG2);
+    } else {
+      ER((out = attvars_in_complex_term(&(t)-1, &(t), TermNil, stt PASS_REGS)));
+      reset_trail(stt->tr0 PASS_REGS);
     }
+    close_stack(stt);
+    return Yap_unify(ARG2, out);
+  }
 }
 
 /** @brief output the difference between variables in _T_ and variables in
@@ -611,14 +580,15 @@ static Int term_attvars(USES_REGS1) /* variables in term t		 */
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static int bind_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Ystack_t *stt USES_REGS) {
+static int bind_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                     Ystack_t *stt USES_REGS) {
 
-    COPY(pt0_[1]);
+  COPY(pt0_[1]);
 #include "term_visit.h"
   mBind_And_Trail(ptd0, TermFoundVar);
   if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
-      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-      return 0;
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+    return 0;
   }
   continue;
   END_WALK();
@@ -643,23 +613,26 @@ static Int
 p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
 {
   Term out;
-  Ystack_t stt_, stt2_, *stt = &stt_;
- CELL *HLow;
-        tr_fr_ptr TR0;
-    reset:
-        HLow = HR;
-        TR0 = TR;
+  Ystack_t stt_, *stt = &stt_;
+Term t, vs0;
+  init_stack(stt, 0);
 
-           Term t = Deref(ARG2), vs0 = Deref(ARG1);
+reset:
+ t = Deref(ARG2);
+ vs0 = Deref(ARG1);
   if (IsPrimitiveTerm(t)) {
     out = TermNil;
   } else {
-          ER(bind_vars_in_complex_term(&(vs0) - 1, &(vs0), stt
-					PASS_REGS));
-          ER((out = vars_in_complex_term(&(t) - 1, &(t), TR0, TermNil, &stt2_
-					  PASS_REGS)));
-    reset_trail(TR0 PASS_REGS);
-     }
+    ER(bind_vars_in_complex_term(&(vs0)-1, &(vs0), stt PASS_REGS));
+     reset_stack(stt);
+   ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
+                                   stt PASS_REGS)));
+      reset_stack(stt);
+  reset_trail(stt->tr0 PASS_REGS);
+    
+  }
+  close_stack(stt);
+
   return Yap_unify(ARG3, out);
 }
 
@@ -667,13 +640,13 @@ p_new_variables_in_term(USES_REGS1) /* variables within term t		 */
   if (d0 == TermFoundVar) {                                                    \
     /* leave an empty slot to fill in later */                                 \
     if (HR + 1024 > ASP) {                                                     \
-      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;\
-return 0;\
-}                                                                          \
+      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;                                 \
+      return 0;                                                                \
+    }                                                                          \
     HR[1] = AbsPair(HR + 2);                                                   \
     HR += 2;                                                                   \
     HR[-2] = (CELL)ptd0;                                                       \
-    mTrailedMaBind(ptd0, TermNil);                                                           \
+    mTrailedMaBind(ptd0, TermNil);                                             \
   }
 
 #undef LIST_HOOK_CODE
@@ -685,49 +658,49 @@ return 0;\
   {}
 #define ATOMIC_HOOK_CODE FOUND_VAR
 
-
-#define FOUND_VAR_AGAIN                                                        \
+#define FOUND_VAR_AGAIN_AND_ADD                                                \
   if (d0 == TermFoundVar) {                                                    \
-        if (HR > ASP - 1024) {\
-       LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;\
-return 0;\
-}\
-  if (end == NULL) {\
-first = AbsPair(HR);\
-} else {\
-end[0] = AbsPair(HR);\
-}\
-HR[0] = (CELL)ptd0;\
-end = HR+1;\
-HR+=2;\
- if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {\
-/* Trail overflow */\
-       LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;\
-return 0;\
-}\
- mTrailedMaBind(ptd0, TermRefoundVar);		\
-continue;\
-}\
-  
+    if (HR > ASP - 1024) {                                                     \
+      LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                 \
+      return 0;                                                                \
+    }                                                                          \
+    if (end == NULL) {                                                         \
+      first = AbsPair(HR);                                                     \
+    } else {                                                                   \
+      end[0] = AbsPair(HR);                                                    \
+    }                                                                          \
+    HR[0] = (CELL)ptd0;                                                        \
+    end = HR + 1;                                                              \
+    HR += 2;                                                                   \
+    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {                                \
+      /* Trail overflow */                                                     \
+      LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;                                 \
+      return 0;                                                                \
+    }                                                                          \
+    mTrailedMaBind(ptd0, TermRefoundVar);                                      \
+    continue;                                                                  \
+  }
+
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
 #define LIST_HOOK_CODE                                                         \
-  {}             
-#define COMPOUND_HOOK_CODE {}
-#define ATOMIC_HOOK_CODE FOUND_VAR_AGAIN
+  {}
+#define COMPOUND_HOOK_CODE                                                     \
+  {}
+#define ATOMIC_HOOK_CODE FOUND_VAR_AGAIN_AND_ADD
 
-             static Term intersection_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Ystack_t *stt USES_REGS) {
+static Term intersection_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                              Ystack_t *stt USES_REGS) {
   CELL first = AbsPair(HR);
-                  CELL* end;
+  CELL *end;
 
   COPY(pt0_[1]);
 #include "term_visit.h"
   continue;
   END_WALK();
-CELL *HLow = HR;
- close_stack(stt);
- if (HR != HLow) {
+  close_stack(stt);
+  if (HR != stt->hlow) {
     HR[-1] = TermNil;
     return first;
   } else {
@@ -737,7 +710,7 @@ CELL *HLow = HR;
 
 /** @pred  variables_in_both_terms(+_CurrentVariables_, ? _Term_, -_Variables_)
 
-    Unify _Variables_ with the list of all variables of term _Term_             
+    Unify _Variables_ with the list of all variables of term _Term_
     that *also* occur in _CurrentVariables_.  The variables occur in
     the order of their first appearance when traversing the term
     depth-first, left-to-right.
@@ -748,52 +721,51 @@ CELL *HLow = HR;
 static Int p_variables_in_both_terms(USES_REGS1) /* variables within term t */
 {
   Term out, t, inp;
-  Ystack_t stt_, stt2_, *stt = &stt_;
-  CELL *HLow;
-        tr_fr_ptr TR0;
-   
-         reset:
-         HLow = HR;
-        TR0 = TR;
-   t = Deref(ARG2);
-   inp = Deref(ARG1);
-        if (IsPrimitiveTerm(t))
-            out = TermNil;
-        else {
-            ER(bind_vars_in_complex_term(&inp - 1, &inp, stt
-					  PASS_REGS));
-            ER((out = intersection_vars_in_complex_term(&(t) - 1, &(t), &stt2_
-							 PASS_REGS)));
-            reset_trail(TR0);
-        }
-        return Yap_unify(ARG3, out);
-}
+  Ystack_t stt_,  *stt = &stt_;
 
+  if (!init_stack(stt, 0)) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+    return 0;
+  }
+
+reset:
+  t = Deref(ARG2);
+  inp = Deref(ARG1);
+  if (IsPrimitiveTerm(t))
+    out = TermNil;
+  else {
+    ER(bind_vars_in_complex_term(&inp - 1, &inp, stt PASS_REGS));
+    reset_stack(stt);
+    ER((out =
+            intersection_vars_in_complex_term(&(t)-1, &(t), stt PASS_REGS)));
+    reset_trail(stt->tr0);
+  }
+  close_stack(stt);
+
+  return Yap_unify(ARG3, out);
+}
 
 /* variables within term t		 */
 static Int free_variables_in_term(USES_REGS1) {
   Term out;
   Term t;
   Term bounds;
-  CELL *HLow;
-        tr_fr_ptr TR0;
-	Ystack_t stt_, stt2_, *stt = &stt_;
-   
- reset:
 
-      HLow = HR;
-        TR0 = TR;
-    t  = Deref(ARG1);
+  Ystack_t stt_,*stt = &stt_;
+init_stack(stt,0);
+reset:
+
+   t = Deref(ARG1);
   bounds = TermNil;
 
   while (!IsVarTerm(t) && IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorHat) {
       bounds = MkPairTerm(ArgOfTerm(1, t), bounds);
-    t = ArgOfTerm(2, t);
-    } else if (f == FunctorModule && IsAtomTerm(ArgOfTerm(1,t))) {
       t = ArgOfTerm(2, t);
-   } else if (f == FunctorCall) {
+    } else if (f == FunctorModule && IsAtomTerm(ArgOfTerm(1, t))) {
+      t = ArgOfTerm(2, t);
+    } else if (f == FunctorCall) {
       t = ArgOfTerm(1, t);
     } else if (f == FunctorExecuteInMod) {
       t = ArgOfTerm(1, t);
@@ -805,93 +777,73 @@ static Int free_variables_in_term(USES_REGS1) {
   if (IsPrimitiveTerm(t)) {
     out = TermNil;
   } else {
-            ER(vars_in_complex_term(&bounds - 1, &bounds, TR0, TermNil, stt
-					PASS_REGS));
-	    ER((out = vars_in_complex_term(&(t) - 1, &(t), TR0, TermNil, &stt2_  PASS_REGS)));
-    }
+    ER(vars_in_complex_term(&bounds - 1, &bounds, stt->tr0, TermNil,
+                            stt PASS_REGS));
+     reset_stack(stt);
+   ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
+                                   stt PASS_REGS)));
+  }
 
-     reset_trail(TR0 PASS_REGS);
+  reset_trail(stt->tr0 PASS_REGS);
+  close_stack(stt);
+
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
 
-
-#define FOUND_SAME_VAR_AGAIN                                                           \
-  {                                                                            \
-    if (RepAppl(d0)[0] == (CELL)FunctorDollarVar)  { \
-        if (RepAppl(d0)[1] == MkIntTerm(-1))) {                                      \
-      if (vno<0) {RepAppl(d0)[1] = MkIntTerm(vno); vno++; } else {      RepAppl(d0)[1] = MkIntTerm(vno); --vno; }                                    \
-    }                                                                          \
-      continue;                                                                \
-  }\
-}
-
-
-#define BREAK_LOOP                                                  \
-if (cyclics && IS_VISIT_MARKER(ptd1[0])) {\
-             Term ups = MkIntTerm(to_visit - VISIT_ENTRY(*ptd1));\
-	     Term d1 = Yap_MkApplTerm(FunctorUp, 1, &ups); \
-            mTrailedMaBind(ptd1, d1);\
-}
-
-
-#define FOUND_VAR_AGAIN_AND_AGAIN                                                  \
-if (show_singletons && f == FunctorDollarVar &&\
-      ptd1[1] == MkIntTerm(-1)) {                \
-	   ptd1[1] = MkIntTerm(vno++);             }\
- BREAK_LOOP; 
+#define FOUND_VAR_AGAIN                                                        \
+  if (show_singletons && f == FunctorDollarVar && ptd1[1] == MkIntTerm(-1)) {  \
+    ptd1[1] = MkIntTerm(vno++);                                                \
+  }
 
 #undef LIST_HOOK_CODE
 #undef COMPOUND_HOOK_CODE
 #undef ATOMIC_HOOK_CODE
-#define LIST_HOOK_CODE  BREAK_LOOP
-#define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN_AND_AGAIN
+#define LIST_HOOK_CODE                                                         \
+  {}
+#define COMPOUND_HOOK_CODE FOUND_VAR_AGAIN
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-
-static Term numbervars_in_complex_term(CELL *pt0_,
-				       CELL *pt0_end_, Int vno,
-                                       bool show_singletons,
-                                       bool cyclics,
-                                       size_t *tr_entries,
+static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
+                                       bool show_singletons, size_t *tr_entries,
                                        Ystack_t *stt USES_REGS) {
-    COPY(pt0_[1]);
+  COPY(pt0_[1]);
 
 #include "term_visit.h"
 
-            /* next make sure noone will see this as a variable again */
-            if (TR > (tr_fr_ptr) LOCAL_TrailTop - 256) {
-                /* Trail overflow */
-                LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
-                return 0;
-            }
-            if (HR + 1024 > ASP) {
-                LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
-                return 0;
-            }
-            Term o = AbsAppl(HR);
-            HR[0] = (CELL) FunctorDollarVar;
-            if (show_singletons)
-                HR[1] = MkIntTerm(-1);
-            else
-                HR[1] = MkIntTerm(vno++);
-            HR += 2;
-            if (tr_entries) {
-                mBind_And_Trail(ptd0, o);
-            } else {
-                mBind(ptd0, o);
-            }
-            continue;
-    END_WALK();
-      close_stack(stt);
-        return vno;
+  /* next make sure noone will see this as a variable again */
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+    /* Trail overflow */
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+    return 0;
+  }
+  if (HR + 1024 > ASP) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+    return 0;
+  }
+  Term o = AbsAppl(HR);
+  HR[0] = (CELL)FunctorDollarVar;
+  if (show_singletons)
+    HR[1] = MkIntTerm(-1);
+  else
+    HR[1] = MkIntTerm(vno++);
+  HR += 2;
+  if (tr_entries) {
+    mBind_And_Trail(ptd0, o);
+  } else {
+    mBind(ptd0, o);
+  }
+  continue;
+  END_WALK();
+  close_stack(stt);
+  return vno;
 }
 
 #if 0
 static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, Int vno,
                                        bool show_singletons,
                                        Int *tr_entries USES_REGS) {
-    tr_fr_ptr TR0 = TR;
+    
 COPY(pt0_[1]);
 
 #include "term_visit.h"
@@ -915,7 +867,7 @@ COPY(pt0_[1]);
             }
     END_WALK();
     if (tr_entries) {
-        *tr_entries = TR - TR0;
+        *tr_entries = TR - stt->tr0;
     }
     close_stack(stt);
     return vno;
@@ -923,17 +875,19 @@ COPY(pt0_[1]);
 #endif
 
 Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
-                   bool cyclics, size_t *tr_entries USES_REGS) /** numbervariables in term t         */
+                   size_t *tr_entries
+                       USES_REGS) /** numbervariables in term t         */
 {
-    Ystack_t stt_, *stt = &stt_;
-    tr_fr_ptr TR0 = TR;
-    if (IsPrimitiveTerm(t)) {
-        return numbv;
-    }
-    Term vt = Deref(t);
-    Int rc = numbervars_in_complex_term(&vt - 1, &vt,
-					  numbv, cyclics, handle_singles, tr_entries, stt PASS_REGS);
-    return rc;
+  Ystack_t stt_, *stt = &stt_;
+  init_stack(stt, 0);
+  if (IsPrimitiveTerm(t)) {
+    return numbv;
+  }
+  Term vt = Deref(t);
+  Int rc = numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles,
+                                      tr_entries, stt PASS_REGS);
+  close_stack(stt);
+  return rc;
 }
 
 /** @pred  numbervars( _T_,+ _N1_,- _Nn_)
@@ -942,71 +896,80 @@ Int Yap_NumberVars(Term t, Int numbv, bool handle_singles,
     `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
 */
 static Int p_numbervars(USES_REGS1) {
-    Ystack_t stt_, *stt = &stt_;
-    bool cyclics = false;
-    bool handle_singles = false;
-size_t * tr_entries = NULL;
-    CELL *HLow;
-        tr_fr_ptr TR0;
-      Term vt, t;
-    Int out;
-         reset:
-           HLow = HR;
-        TR0 = TR;
-      t = Deref(ARG1);
-   vt = Deref(ARG2);
-    if (IsVarTerm(vt)) {
-        Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
-        return false;
-    }
-    if (!IsIntegerTerm(vt)) {
-        Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
-        return (false);
-    }
-    Int numbv = IntegerOfTerm(vt);
-    if (IsPrimitiveTerm(t)) {
-      return Yap_unify(ARG3, MkIntegerTerm(numbv));
-    }
-      ER(out = numbervars_in_complex_term(&t - 1, &t,
-					  numbv, cyclics, handle_singles, tr_entries, stt PASS_REGS));
-  
-    return Yap_unify(ARG3, MkIntegerTerm(out));
+  Ystack_t stt_, *stt = &stt_;
+  bool handle_singles = false;
+  size_t *tr_entries = NULL;
+
+  Term vt, t;
+  Int out;
+  if (!init_stack(stt, 0)) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+    return 0;
+  }
+reset:
+  stt->hlow = HR;
+  stt->tr0 = TR;
+  t = Deref(ARG1);
+  vt = Deref(ARG2);
+  if (IsVarTerm(vt)) {
+    close_stack(stt);
+    Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
+    return false;
+  }
+  if (!IsIntegerTerm(vt)) {
+    close_stack(stt);
+    Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
+    return (false);
+  }
+  Int numbv = IntegerOfTerm(vt);
+  if (IsPrimitiveTerm(t)) {
+    close_stack(stt);
+    return Yap_unify(ARG3, MkIntegerTerm(numbv));
+  }
+  ER(out = numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
+                                      tr_entries, stt PASS_REGS));
+
+  close_stack(stt);
+  return Yap_unify(ARG3, MkIntegerTerm(out));
 }
 
 static Int p_numbervars4(USES_REGS1) {
-     Ystack_t stt_, *stt = &stt_;
-    bool cyclics = true;
-    bool handle_singles = true;
-    CELL *HLow;
-        tr_fr_ptr TR0;
-      Term vt, t;
-    Int out;
-         reset:
-           HLow = HR;
-        TR0 = TR;
-      t = Deref(ARG1);
-   vt = Deref(ARG2);
-    if (IsVarTerm(vt)) {
-        Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
-        return false;
-    }
-    if (!IsIntegerTerm(vt)) {
-        Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
-        return (false);
-    }
-    size_t numbv = IntegerOfTerm(vt);
-  size_t * tr_entries = &numbv;
+  Ystack_t stt_, *stt = &stt_;
+  bool handle_singles = true;
+
+  Term vt, t;
+  Int out;
+  if (!init_stack(stt, 0)) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+    return 0;
+  }
+reset:
+  stt->hlow = HR;
+  stt->tr0 = TR;
+  t = Deref(ARG1);
+  vt = Deref(ARG2);
+  if (IsVarTerm(vt)) {
+    close_stack(stt);
+    Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
+    return false;
+  }
+  if (!IsIntegerTerm(vt)) {
+    close_stack(stt);
+    Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
+    return (false);
+  }
+  size_t numbv = IntegerOfTerm(vt);
+  size_t *tr_entries = &numbv;
   if (IsPrimitiveTerm(t)) {
-      return Yap_unify(ARG3, MkIntegerTerm(numbv));
-    }
-      ER(out = numbervars_in_complex_term(&t - 1, &t,
-					  numbv, cyclics, handle_singles, tr_entries, stt PASS_REGS));
-
+    close_stack(stt);
+    return Yap_unify(ARG3, MkIntegerTerm(numbv));
+  }
+  ER(out = numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
+                                      tr_entries, stt PASS_REGS));
+  close_stack(stt);
   return Yap_unify(ARG3, MkIntegerTerm(out));
-}  
-//FunctorDollarVar = f;
-  
-
+}
+// FunctorDollarVar = f;
 
 #define MAX_NUMBERED                                                           \
   if (FunctorOfTerm(d0) == FunctorDollarVar) {                                 \
@@ -1026,8 +989,9 @@ static Int p_numbervars4(USES_REGS1) {
 #define ATOMIC_HOOK_CODE                                                       \
   {}
 
-static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp, Ystack_t *stt USES_REGS) {
-    COPY(pt0_[1]);
+static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp,
+                            Ystack_t *stt USES_REGS) {
+  COPY(pt0_[1]);
 
 #include "term_visit.h"
   continue;
@@ -1041,20 +1005,20 @@ static int max_numbered_var(CELL *pt0_, CELL *pt0_end_, Int *maxp, Ystack_t *stt
     VUNMARK(stt->pt->oldp, stt->pt->oldv);
   }
   prune(B PASS_REGS);
- close_stack(stt);
+  close_stack(stt);
   return 0;
 }
 
 static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
   Term t = Deref(inp);
-    Ystack_t stt_, *stt = &stt_;
-
+  Ystack_t stt_, *stt = &stt_;
+  init_stack(stt, 0);
   if (IsPrimitiveTerm(t)) {
     return MkIntegerTerm(0);
   } else {
     Int res;
     Int max;
-    res = max_numbered_var(&t - 1, &t+arity, &max, stt PASS_REGS) - 1;
+    res = max_numbered_var(&t - 1, &t + arity, &max, stt PASS_REGS) - 1;
     if (res < 0)
       return -1;
     return MkIntegerTerm(max);
@@ -1073,8 +1037,6 @@ static Int MaxNumberedVar(Term inp, arity_t arity PASS_REGS) {
 static Int largest_numbervar(USES_REGS1) {
   return Yap_unify(MaxNumberedVar(Deref(ARG1), 2 PASS_REGS), ARG2);
 }
-
-
 
 void Yap_InitTermCPreds(void) {
   Yap_InitCPred("term_variables", 2, term_variables, 0);

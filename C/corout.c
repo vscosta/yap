@@ -50,7 +50,7 @@ static int can_unify_complex(register CELL *pt0, register CELL *pt0_end,
   CELL *saved_HB;
   choiceptr saved_B;
   Ystack_t stt_, *stt = &stt_;
-  init_stack( stt, 1024, pt0[1] );
+  init_stack( stt, 1024);
 
   /* make sure to trail all bindings */
   saved_TR = TR;
@@ -298,7 +298,7 @@ static int non_ground_complex( CELL *pt0,  CELL *pt0_end,
                               Term *Var USES_REGS) {
 
   Ystack_t stt_, *stt = &stt_;
-  init_stack( stt, 1024, pt0[1] );
+  init_stack( stt, 1024);
 
 loop:
   while (pt0 < pt0_end) {

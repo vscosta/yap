@@ -564,41 +564,51 @@ typedef struct cp_frame {
   copy_frame *pt0;
   copy_frame *pt;
   copy_frame *max;
-  scratch_struct_t bf;
-   Term t;
+  int lvl, restarts;
+  CELL *hlow;
+  tr_fr_ptr tr0;
  } Ystack_t;
 
-INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof, Term root) {
-  if (nof<4096)
-    nof = 4096;
-  if (Yap_get_scratch_buf(&b->bf,nof, sizeof(copy_frame))) {
-//    printf("+ %x @ %p\n", (int)nof, b->bf.data);
-    b->pt0 = b->bf.data;
+INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
+    int lvl = push_text_stack();
+    if (!nof)
+        nof = 1024;
+    b->pt0 = Malloc(nof*sizeof(copy_frame));
     b->pt = b->pt0;
-    b->max = b->pt0 + nof;
-    b->t = root;
-    return true;
-  } 
-  return false;
+    b->max = b->pt0+nof;
+    b->lvl = lvl;
+    b->restarts=0;
+    b->hlow = HR;
+    b->tr0 = TR;
+      return (b->pt0 != NULL);
   }
 
 INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
- // printf("? %x @ %p\n", (int)nof, b->bf.data);
 	 if (!nof)
       nof = 2*(b->max-b->pt0);
-    if (Yap_realloc_scratch_buf(&b->bf, nof)) {
-      b->pt0 = b->bf.data;
-      b->pt = b->pt0;
-      b->max = b->pt0 + nof;
-    return true;
-  }
-  return false;
-}
+    b->pt0 = Realloc(b->pt0,nof*sizeof(copy_frame));
+    b->pt = b->pt0;
+    b->max = b->pt0+nof;
+     b->hlow = HR;
+   b->restarts++;
+      b->tr0 = TR;
+  return (b->pt0 != NULL);
+  } 
 
 INLINE_ONLY bool close_stack( Ystack_t *b) {
-    b->pt = b->pt0;
-   return Yap_release_scratch_buf(&b->bf);
+  b->pt = b->pt0 = b->max = NULL;
+
+ return  pop_text_stack(b->lvl);
 }
+
+
+INLINE_ONLY void reset_stack( Ystack_t *b) {
+  b->pt = b->pt0;
+     b->hlow = HR;
+    b->tr0 = TR;
+ 
+}
+
 
 #define to_visit    stt->pt
 #define to_visit0   stt->pt0 
@@ -658,13 +668,14 @@ if(IS_VISIT_MARKER(DD))\
 
 #define mMaBind(A,D) \
   { Term dd; POP_VISIT(A, dd); MaBind(A,D); PUSH_VISIT(A,dd,D); }
+  
 
 #define mTrailedMaBind(A,D) \
   { Term dd; POP_VISIT(A, dd); TrailedMaBind(A,D); PUSH_VISIT(A,dd,D); }
 
 
-#if 0
-#define COPY(t)
+#if 1
+#define COPY(t) 
 #else
 extern 
 unsigned long long vsc_count;
@@ -688,5 +699,4 @@ INLINE_ONLY Term MkGlobal(Term t)
 
 
 #endif // HEAPGC_H_
-
 

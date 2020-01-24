@@ -510,7 +510,7 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern Int Yap_NumberVars(Term, Int, bool, bool, size_t * USES_REGS);
+extern Int Yap_NumberVars(Term, Int,  bool, size_t * USES_REGS);
 extern Term Yap_TermVariables(Term t, Term t0 USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
 extern  Int Yap_SkipList(Term *, Term **);

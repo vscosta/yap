@@ -29,6 +29,7 @@
  */
 
 
+
 #if DOXYFILE
 enum LOCAL_FLAGS {
 #define  END_LOCAL_FLAGS };
@@ -216,3 +217,4 @@ the current user_output stream.
 END_LOCAL_FLAGS
 
 /// @}
+

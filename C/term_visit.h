@@ -1,12 +1,6 @@
 /****** start of top macro */
 
 CELL *pt0, *pt0_end;
-
-bzero(stt, sizeof(Ystack_t));
-if (!init_stack(stt, 0, pt0_[1] )) {
-  LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-return 0;
- }
 pt0 = pt0_;
 pt0_end = pt0_end_;
 

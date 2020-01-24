@@ -582,7 +582,7 @@ write_query_answer( Bindings ) :-
 %%
 '$user_call'(G, M) :-
     '$yap_strip_module'(M:G, M1,G1),
-    ( '$undefp'(G1,M1) ->
+    ( '$undefined'(G1,M1) ->
     '$undefp_search'(M1:G1, M2:G2)
      ;
       M1:G1=M2:G2
@@ -624,9 +624,6 @@ write_query_answer( Bindings ) :-
 must_be_callable(X),
 fail.
 '$call'((X,Y),CP,G0,M) :- !,			
-        '$call'(X,CP,G0,M),
-        '$call'(Y,CP,G0,M).
-'$call'((X,Y),CP,G0,M) :- !,
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).
 '$call'((X->Y),CP,G0,M) :- !,

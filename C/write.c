@@ -1125,33 +1125,44 @@ Functor fdv = FunctorDollarVar;
   if (args && args[WRITE_MODULE].used) {
     CurrentModule = args[WRITE_MODULE].tvalue;
   }
-      if (args && args[WRITE_VARIABLE_NAMES].used) {
-           flags |= Handle_vars_f|Singleton_vars_f;
-      }
-    if
-            (args && args[WRITE_SINGLETONS].used &&
-             args[WRITE_SINGLETONS].tvalue == TermTrue) {
-        flags |= Handle_vars_f|Singleton_vars_f;
-    }
-    if
-            (args && args[WRITE_NUMBERVARS].used &&
-             args[WRITE_NUMBERVARS].tvalue == TermTrue) {
-        flags |= Handle_vars_f;
-    }
-    if
-            (args && args[WRITE_CYCLES].used &&
-             args[WRITE_CYCLES].tvalue == TermTrue) {
-        flags |= Handle_cyclics_f;
-    }
-    if (flags & Handle_vars_f) {
-      //        if (flags & Singleton_vars_f)
-      if (flags &  Singleton_vars_f)
-	FunctorDollarVar = FunctorHiddenVar;
-       if (args && args[WRITE_VARIABLE_NAMES].used)
-               bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
-       Yap_NumberVars(t, 0, flags & Singleton_vars_f,
-              flags & Handle_cyclics_f, &n PASS_REGS);
+   if (args && args[WRITE_PRIORITY].used) {
+    priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
   }
+  if (args && args[WRITE_MODULE].used) {
+    CurrentModule = args[WRITE_MODULE].tvalue;
+  }
+  if (args && args[WRITE_VARIABLE_NAMES].used) {
+    flags = args[WRITE_VARIABLE_NAMES].tvalue == TermTrue ? Named_vars_f|flags :   Named_vars_f& ~flags ; 
+  }
+  if (args && args[WRITE_NUMBERVARS].used) {
+  flags = args[WRITE_NUMBERVARS].tvalue == TermTrue ? flags | Handle_vars_f
+                                                    : flags & ~Handle_vars_f;
+}
+if (args && args[WRITE_SINGLETONS].used) {
+  flags = args[WRITE_SINGLETONS].tvalue == TermTrue ? flags | Singleton_vars_f
+                                                    : flags & ~Singleton_vars_f;
+}
+if (args && args[WRITE_CYCLES].used) {
+    if (args[WRITE_CYCLES].tvalue == TermTrue) {
+  flags |= Handle_cyclics_f;
+  }
+  if (args[WRITE_CYCLES].tvalue == TermFalse) {
+    flags &= ~Handle_cyclics_f;
+  }
+}
+  if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
+    Term t = Yap_TermAsForest(t PASS_REGS);
+  }
+  if (flags & Named_vars_f) {
+    //        if (flags & Singleton_vars_f)
+      FunctorDollarVar = FunctorHiddenVar;
+      bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
+    Yap_NumberVars(t, 0, flags & Handle_cyclics_f,
+                   &n PASS_REGS);
+    FunctorDollarVar = fdv;
+  }
+
+
     
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
