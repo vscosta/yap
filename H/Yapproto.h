@@ -256,6 +256,8 @@ extern Term Yap_GetGlobal(Atom);
 extern  Int Yap_DeleteGlobal(Atom);
 extern void Yap_AllocateDefaultArena(size_t gsize, int wid, void *cs);
 extern CELL *Yap_ArenaLimit(Term arena);
+extern CELL *Yap_ArenaPt(Term arena);
+extern UInt Yap_ArenaSz(Term arena);
 
 /* grow.c */
 extern Int Yap_total_stack_shift_time(void);
@@ -456,8 +458,8 @@ extern bool Yap_Exists(const char *f);
 
 /* terms.c */
 extern Term Yap_BreakCycles(Term t, Term tail USES_REGS);
-extern bool Yap_IsCyclicTerm(Term inp USES_REGS);
-extern Term Yap_HackCycles(Term t  USES_REGS);
+extern Term Yap_TermAsForest(Term t  USES_REGS);
+extern bool Yap_IsCyclicTerm(Term t  USES_REGS);
 extern Term Yap_NonSingletons(Term inp, Term tail  USES_REGS);
 extern void  Yap_InitTermCPreds(void);
 
@@ -510,11 +512,11 @@ extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
 extern Int Yap_TermHash(Term, Int, Int, int);
-extern Int Yap_NumberVars(Term, Int,  bool, size_t * USES_REGS);
 extern Term Yap_TermVariables(Term t, Term t0 USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
 extern  Int Yap_SkipList(Term *, Term **);
 extern Term Yap_BreakRational(Term inp, UInt arity, Term *of, Term oi USES_REGS);
+extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
 extern Term Yap_BreakTerml(Term inp, UInt arity, Term *of, Term oi USES_REGS);
 
 /* yap.c */

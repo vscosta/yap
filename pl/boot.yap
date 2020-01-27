@@ -26,8 +26,7 @@
   @{
 */
 
-print_messag *cs) {
-  REMOTE_GlobalArena(wid) = NewArena(gsize, 2, cs, wid);e(informational,_) :-
+print_message(informational,_) :-
 	yap_flag(verbose, silent),
 	!.
 print_message(informational,E) :-

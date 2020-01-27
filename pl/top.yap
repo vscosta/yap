@@ -130,7 +130,7 @@ live :-
     '$execute_commands'(Cs,M,VL,Pos,Con,Ss)
     ).
  '$execute_commands'(C,M,VL,Pos,Con,Source) :-
-	 '$execute_command'(C,M,VL,Pos,Con,Source).
+	 '$system_catch'('$execute_command'(C,M,VL,Pos,Con,Source),prolog,Error,'$LoopError'(Error, Con)).
 
 				%
  %
@@ -298,15 +298,15 @@ live :-
     '$out_neg_answer'
     ).
 
-query(G0, Vs, NVs,NLGs) :-
+query(G0, Vs, NVs,LGs) :-
     '$yap_strip_module'(G0,M,G),
     '$user_call'(G, M),
-    %start_low_level_trace,`
-    copy_term(G+Vs, _IG+IVs, LGs),
-   rational_term_to_forest(IVs+LGs,NVs+ILGs,Extra,[]),
- lists:append(Extra,ILGs,NLGs),	 
-  '$write_answer'(NVs, NLGs, Written),
-    '$write_query_answer_true'(Written).
+    %start_low_level_trace,
+    copy_term(G+Vs, _IG+NVs, LGs),
+    current_dollar_var(Def,'$V'(_)),
+    '$write_answer'(NVs, LGs, Written),
+    '$write_query_answer_true'(Written),
+    current_dollar_var('$V'(_)), Def.
 
 '$yes_no'(G,C) :-
     '$current_module'(M),
@@ -547,7 +547,7 @@ write_query_answer( Bindings ) :-
 '$name_well_known_vars'([]).
 '$name_well_known_vars'([Name=V|NVL0]) :-
 	var(V), !,
-	V = '$V'(Name),
+    current_dollar_var(V,V),arg(1,V,Name),
 	'$name_well_known_vars'(NVL0).
 '$name_well_known_vars'([_|NVL0]) :-
 	'$name_well_known_vars'(NVL0).

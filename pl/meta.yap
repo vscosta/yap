@@ -209,7 +209,8 @@ meta_predicate(P) :-
 %    !,
 %    O = G.
 %'$match_mod'(G, _M, M, M, G) :-    !.
-'$match_mod'(G, _HM, _M, M, M:G).
+'$match_mod'(G, _HM, _M, M, M0:G0) :-
+strip_module(M:G,M0,G0).
 
 % Call the import mechanism
 %
@@ -256,19 +257,20 @@ meta_predicate(P) :-
 
 
 /*
-'$match_mod'(G, HMod, SMod, M, O) :-
-    (
+'$match_mod'(G, HMod, SMod, M0, O) :-
+strip_module(M0:G, M,G1),
+(
      % \+ '$is_multifile'(G1,M),
      %->
-      '$is_system_predicate'(G,M)
+      '$is_system_predicate'(G1,M)
      ->
-      O = G
+      O = G1
     ;
       M == HMod, M == SMod
     ->
-     O = G
+     O = G1
     ;
-     O = M:G
+     O = M:G1
     ).
 */
 
@@ -473,6 +475,7 @@ meta_predicate(P) :-
 
 expand_goal(G, MF:GF) :-
     '$yap_strip_module'(G, M, IG),
+    source_module(SM),
     '$expand_goals'(IG, _G1, GO, M, SM, M, []-IG*assert ),
     !,
     '$yap_strip_module'(M:GO, MF, GF).

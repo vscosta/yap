@@ -350,15 +350,18 @@ also `absolute_file_name/2` and chdir/1.
 
 */
 static Int working_directory(USES_REGS1) {
-  char dir[YAP_FILENAME_MAX + 1];
+   int l = push_text_stack();
+   char *dir;
   Term t1 = Deref(ARG1), t2;
-
+  dir = Malloc(YAP_FILENAME_MAX + 1);
   if (!IsVarTerm(t1) && !IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM, t1, "working_directory");
   }
   if (!Yap_unify(t1,
-                 MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir, YAP_FILENAME_MAX)))))
-    return false;
+                 MkAtomTerm(Yap_LookupAtom(Yap_getcwd(dir, YAP_FILENAME_MAX))))) {
+    pop_text_stack(l);
+  return false;
+  }
   t2 = Deref(ARG2);
   if (IsVarTerm(t2)) {
     Yap_Error(INSTANTIATION_ERROR, t2, "working_directory");
@@ -366,9 +369,14 @@ static Int working_directory(USES_REGS1) {
   if (!IsAtomTerm(t2)) {
     Yap_Error(TYPE_ERROR_ATOM, t2, "working_directory");
   }
-  if (t2 == TermEmptyAtom || t2 == TermDot)
+  if (t2 == TermEmptyAtom || t2 == TermDot) {
+    pop_text_stack(l);
     return true;
-  return Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
+  }
+  Int rc = Yap_ChDir(RepAtom(AtomOfTerm(t2))->StrOfAE);
+    pop_text_stack(l);
+  return rc;
+ 
 }
 
 /* Executes $SHELL under Prolog */

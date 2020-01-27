@@ -566,22 +566,22 @@ static Int p_write_depth(USES_REGS1) { /* write_depth(Old,New)          */
 }
 
 static Int dollar_var(USES_REGS1) {
-  Term in = Deref(ARG1);
-  if (IsVarTerm(in)) {
     Term t2;
-    if (!IsVarTerm(t2 = Deref(ARG2))) {
-      if (IsApplTerm(t2) && FunctorOfTerm(t2) == FunctorDollarVar) {
-        return Yap_unify(ArgOfTerm(1, t2), ARG1);
+
+
+   Term tv = Yap_MkNewApplTerm(FunctorDollarVar, 1);
+   if(!Yap_unify(tv, ARG1)) return false;
+    if (!IsVarTerm((t2 = Deref(ARG2)))) {
+      if (IsApplTerm(t2) && ArityOfFunctor(FunctorOfTerm(t2)) == 1) {
+	FunctorDollarVar= FunctorOfTerm(t2);
+        return true;
       }
       Yap_Error(TYPE_ERROR_COMPOUND, ARG2, "");
       return false;
     } else {
       Yap_Error(INSTANTIATION_ERROR, ARG2, "");
     }
-  }
-  Term t2 = Yap_unify(MkVarTerm(), ARG1);
-  Term tv = Yap_MkApplTerm(FunctorDollarVar, 1, &t2);
-  return Yap_unify(tv, ARG2);
+    return true;
 }
 
 

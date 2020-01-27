@@ -546,8 +546,6 @@ typedef struct gc_entry_info {
 
 //#if TERMS_C||GLOBALS_C
 
-
-
 typedef struct cp_frame {
   CELL *pt0;
   CELL *pt0_end;
@@ -567,6 +565,7 @@ typedef struct cp_frame {
   int lvl, restarts;
   CELL *hlow;
   tr_fr_ptr tr0;
+  Term *t, *bindp,*arenap;
  } Ystack_t;
 
 INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
@@ -613,6 +612,8 @@ INLINE_ONLY void reset_stack( Ystack_t *b) {
 #define to_visit    stt->pt
 #define to_visit0   stt->pt0 
 #define to_visit_end   stt->max
+
+extern bool Yap_visitor_error_handler(Ystack_t *stt, void *c);
 
 #define IS_VISIT_MARKER(d0) (IsPairTerm(d0) && \
   RepPair(d0) >= (CELL*)to_visit0				\

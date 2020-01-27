@@ -79,9 +79,9 @@ d(X, (  X= f(X,[X,g(X)])) ).
 d(X, (  X= f(_,X/[X])) ).
 d(X, (  X= f(_,A/[A]), A= f(X,[X,g(X)])) ).
 d(X, (  X= f(_,A/[A]), A= f(X,[A,g(X)])) ).
-d(X, (  X= f(_,A/[A]), A= f(B,[X,g(A)]), B=[C|B], C=[X]) ).
+d(X, (  X= f(_,A/[A]), A= f(B,[X,g(A)]), B=[C|B], C=[D,f(h(A,_),_),_] ).
 
-e(X,Y, (  X = t(_A,B,_C,D), Y = [B,E]) ).
+e(X,Y, (  X = t(_A,B,_C,D), Y = [B,E]) )) .
 e(X,Y, (  X = t(_A,_B,_C,_D), Y = [_,_E]) ).
 e(X,Y, (  X = t(A,_B,C,_D), Y = [ A,C]) ).
 e(X,Y, (  X = t(A,[X,_D]), Y = [A,_C,_E]) ).

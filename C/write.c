@@ -1114,7 +1114,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   int priority = GLOBAL_MaxPriority;
   struct write_globs wglb;
   Term cm = CurrentModule;
-Functor fdv = FunctorDollarVar;
           t = Deref(t);
   tr_fr_ptr TR0 = TR;
   size_t n;
@@ -1150,20 +1149,17 @@ if (args && args[WRITE_CYCLES].used) {
     flags &= ~Handle_cyclics_f;
   }
 }
+t = Deref(t);
   if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
-    Term t = Yap_TermAsForest(t PASS_REGS);
+     t = Yap_TermAsForest(t PASS_REGS);
   }
   if (flags & Named_vars_f) {
-    //        if (flags & Singleton_vars_f)
-      FunctorDollarVar = FunctorHiddenVar;
-      bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
-    Yap_NumberVars(t, 0, flags & Handle_cyclics_f,
-                   &n PASS_REGS);
-    FunctorDollarVar = fdv;
+    //        if  (flags & Singleton_vars_f)
+    bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
   }
-
-
-    
+  if (flags & (Named_vars_f|Handle_cyclics_f|Handle_vars_f)) {
+	Yap_NumberVars(t, 0, flags & Handle_cyclics_f    PASS_REGS);
+  }
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
@@ -1190,8 +1186,7 @@ if (args && args[WRITE_CYCLES].used) {
       wrputc(' ', wglb.stream);
     }
   }
-  clean_tr(TR0 );
+  reset_trail(TR0 );
   CurrentModule = cm;
-  FunctorDollarVar = fdv;
   pop_text_stack(lvl);
 }
