@@ -1,4 +1,3 @@
-
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -178,9 +177,9 @@ listing_(Stream, MV, M) :-
     (
 	M == Mod
     ->
-    format( Stream, ':- dynamic ~q/~d.~n', [N,Ar])
+    format( Stream, ':- dynamic ~W/~d.~n', [N,Ar])
     ;
-    format( Stream, ':- dynamic ~q:~q/~d.~n', [M,N,Ar])
+    format( Stream, ':- dynamic ~W:~W/~d.~n', [M,N,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
@@ -190,9 +189,9 @@ listing_(Stream, MV, M) :-
     (
 	M == Mod
     ->
-    format( Stream, ':- thread_local ~q/~d.~n', [N,Ar])
+    format( Stream, ':- thread_local ~W/~d.~n', [N,Ar])
     ;
-    format( Stream, ':- thread_local ~q:~q/~d.~n', [M,N,Ar])
+    format( Stream, ':- thread_local ~W:~W/~d.~n', [M,N,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
@@ -202,9 +201,9 @@ listing_(Stream, MV, M) :-
     (
 	M == Mod
     ->
-    format( Stream, ':- multifile ~q/~d.~n', [N,Ar])
+    format( Stream, ':- multifile ~W/~d.~n', [N,Ar])
     ;
-    format( Stream, ':- multifile ~q:~q/~d.~n', [M,N,Ar])
+    format( Stream, ':- multifile ~W:~W/~d.~n', [M,N,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
@@ -215,9 +214,9 @@ listing_(Stream, MV, M) :-
     (
 	M == Mod
     ->
-    format( Stream, ':- ~q.~n', [PredDef])
+    format( Stream, ':- ~W.~n', [PredDef])
     ;
-    format( Stream, ':- ~q:~q.~n', [M,PredDef])
+    format( Stream, ':- ~W:~W.~n', [M,PredDef])
     ),
     fail.
 '$list_clauses'(Stream, _M, _Pred) :-
@@ -238,11 +237,31 @@ listing_(Stream, MV, M) :-
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
+    yap_flag(portray_clause_print_options, Opts),
+    portray_clause(Stream, Clause, Opts).
+
+/** @pred  portray_clause(+ _Stream_, _C_, _Opts_)
+
+Write clause  _C_ as if written by listing/2. _Opts_ gives the options used to call write_term/3.
+
+*/
+
+portray_clause(Stream, Clause, Opts) :-
+    lists:member(singletons(true), Opts), 
+    !,
     copy_term_nat(Clause, CopiedClause),
-    numbervars( CopiedClause, 0, _, _),
-    '$portray_clause'(Stream, CopiedClause),
-    fail.
-portray_clause(_, _).
+    '$hard_numbervars'( CopiedClause, 0, _, _),
+    '$portray_clause'(Stream, Opts, CopiedClause).
+portray_clause(Stream, Clause, Opts) :-
+    lists:member(variable_names(_), Opts), 
+    !,
+    copy_term_nat(Clause, CopiedClause),
+    '$hard_numbervars'( CopiedClause, 0, _),
+    '$portray_clause'(Stream, Opts, CopiedClause).
+portray_clause(Stream, Clause, Opts) :-
+    copy_term_nat(Clause, CopiedClause),
+    '$hard_numbervars'( CopiedClause, 0, _),
+    '$portray_clause'(Stream, Opts, CopiedClause).
 
 /** @pred  portray_clause(+ _C_)
 
@@ -251,84 +270,85 @@ Write clause  _C_ as if written by listing/0.
 */
 portray_clause(Clause) :-
     current_output(Stream),
-    portray_clause(Stream, Clause).
+    yap_flag(portray_clause_options, Opts),
+    portray_clause(Stream, Clause, Opts).
 
-'$portray_clause'(Stream, (Pred :- true)) :- !,
-    format(Stream, '~q.~n', [Pred]).
-'$portray_clause'(Stream, (Pred:-Body)) :- !,
-    format(Stream, '~q :-', [Pred]),
-    '$write_body'(Body, 3, ',', Stream),
+'$portray_clause'(Stream, Opts, (Pred :- true)) :- 
+    format(Stream, '~W.~n', [Pred,Opts]).
+'$portray_clause'(Stream, Opts, (Pred:-Body)) :- !,
+    format(Stream, '~W :-', [Pred,Opts]),
+    '$write_body'(Body, 3, ',', Opts, Stream),
     format(Stream, '.~n', []).
-'$portray_clause'(Stream, Pred) :-
-    format(Stream, '~q.~n', [Pred]).
+'$portray_clause'(Stream, Opts, Pred) :-
+    format(Stream, '~W.~n', [Pred,Opts]).
 
-'$write_body'(X,I,T,Stream) :-
+'$write_body'(X,I,T,Opts,Stream) :-
     var(X), !,
-    '$beforelit'(T,I,Stream),
-    writeq(Stream, '_').
-'$write_body'((P,Q), I, T, Stream) :-
+    '$beforelit'(T,I,Opts,Stream),
+    put_char(Stream, '_').
+'$write_body'((P,Q), I, T, Opts,Stream) :-
     !,
-    '$write_body'(P,I,T, Stream),
+    '$write_body'(P,I,T,Opts, Stream),
     put(Stream, 0',),  %
-    '$write_body'(Q,I,',',Stream).
-'$write_body'((P->Q;S),I,_, Stream) :-
+    '$write_body'(Q,I,',',Opts,Stream).
+'$write_body'((P->Q;S),I,_,Opts, Stream) :-
     !,
     format(Stream, '~n~*c(',[I,0' ]),
     I1 is I+2,
-    '$write_body'(P,I1,'(',Stream),
+    '$write_body'(P,I1,'(',Opts,Stream),
     format(Stream, '~n~*c->',[I,0' ]),
-    '$write_disj'((Q;S),I,I1,'->',Stream),
+    '$write_disj'((Q;S),I,I1,'->',Opts,Stream),
     format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P->Q|S),I,_,Stream) :-
+'$write_body'((P->Q|S),I,_,Opts,Stream) :-
     !,
     format(Stream, '~n~*c(',[I,0' ]),
     I1 is I+2,
-    '$write_body'(P,I,'(',Stream),
+    '$write_body'(P,I,'(',Opts,Stream),
     format(Stream, '~n~*c->',[I,0' ]),
     '$write_disj'((Q|S),I,I1,'->',Stream),
     format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P->Q),I,_,Stream) :-
+'$write_body'((P->Q),I,_,Opts,Stream) :-
     !,
     format(Stream, '~n~*c(',[I,0' ]),
     I1 is I+2,
-    '$write_body'(P,I1,'(',Stream),
+    '$write_body'(P,I1,'(',Opts,Stream),
     format(Stream, '~n~*c->',[I,0' ]),
-    '$write_body'(Q,I1,'->',Stream),
+    '$write_body'(Q,I1,'->',Opts,Stream),
     format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P;Q),I,_,Stream) :-
+'$write_body'((P;Q),I,_,Opts,Stream) :-
     !,
     format(Stream, '~n~*c(',[I,0' ]),
     I1 is I+2,
-    '$write_disj'((P;Q),I,I1,'->',Stream),
+    '$write_disj'((P;Q),I,I1,'->',Opts,Stream),
     format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'((P|Q),I,_,Stream) :-
+'$write_body'((P|Q),I,_,Opts,Stream) :-
     !,
     format(Stream, '~n~*c(',[I,0' ]),
     I1 is I+2,
-    '$write_disj'((P|Q),I,I1,'->',Stream),
+    '$write_disj'((P|Q),I,I1,'->',Opts,Stream),
     format(Stream, '~n~*c)',[I,0' ]).
-'$write_body'(X,I,T,Stream) :-
-    '$beforelit'(T,I,Stream),
-    format(Stream, '~q', [X]).
+'$write_body'(X,I,T,Opts,Stream) :-
+    '$beforelit'(T,I,Opts,Stream),
+    format(Stream, '~W', [X]).
 
 
 
 
-'$write_disj'((Q;S),I0,I,C,Stream) :- !,
-    '$write_body'(Q,I,C,Stream),
+'$write_disj'((Q;S),I0,I,C,Opts,Stream) :- !,
+    '$write_body'(Q,I,C,Opts,Stream),
     format(Stream, '~n~*c;',[I0,0' ]),
-    '$write_disj'(S,I0,I,';',Stream).
-'$write_disj'((Q|S),I0,I,C,Stream) :- !,
-    '$write_body'(Q,I,C,Stream),
+    '$write_disj'(S,I0,I,';',Opts,Stream).
+'$write_disj'((Q|S),I0,I,C,Opts,Stream) :- !,
+    '$write_body'(Q,I,C,Opts,Stream),
     format(Stream, '~n~*c|',[I0,0' ]),
-    '$write_disj'(S,I0,I,'|',Stream).
-'$write_disj'(S,_,I,C,Stream) :-
-    '$write_body'(S,I,C,Stream).
+    '$write_disj'(S,I0,I,'|',Opts,Stream).
+'$write_disj'(S,_,I,C,Opts,Stream) :-
+    '$write_body'(S,I,C,Opts,Stream).
 
-'$beforelit'('(',_,Stream) :-
+'$beforelit'('(',_,_,Stream) :-
     !,
     format(Stream,' ',[]).
-'$beforelit'(_,I,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
+'$beforelit'(_,I,_,Stream) :- format(Stream,'~n~*c',[I,0' ]). %'
 
 
 %% @}

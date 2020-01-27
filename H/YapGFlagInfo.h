@@ -464,6 +464,15 @@ The specified value is passed to `printf()`
 			    */
    
    
+    YAP_FLAG(PORTRAY_CLAUSE_OPTIONS_FLAG, "portray_clause_options", true,
+             list_option,
+             "[cycles(true),quoted(true),portrayed(true),singletons(true),max_depth(10)]" ,
+             NULL), /**< controls debugging output.
+
+    If bound, set the argument to the `write_term/3` options the
+    portray_clause/1 and listing/0 built-ins u uses to write terms. If unbound, show the current options.
+ */		   
+
 
 
   YAP_FLAG(PROLOG_LIBRARY_DIRECTORY_FLAG, "prolog_library_directory", true,

@@ -662,60 +662,60 @@ reset:
   {}
 #define ATOMIC_HOOK_CODE FOUND_VAR_AGAIN_AND_ADD
 
-static Term intersection_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
-                                              Ystack_t *stt USES_REGS) {
-  CELL first = AbsPair(HR);
-  CELL *end;
+    static Term intersection_vars_in_complex_term(CELL *pt0_, CELL *pt0_end_,
+                                                Ystack_t *stt USES_REGS) {
+    CELL first = AbsPair(HR);
+    CELL *end;
 
-  COPY(pt0_[1]);
-#include "term_visit.h"
-  continue;
-  END_WALK();
-  close_stack(stt);
-  if (HR != stt->hlow) {
-    HR[-1] = TermNil;
-    return first;
-  } else {
-    return TermNil;
-  }
-}
+    COPY(pt0_[1]);
+    #include "term_visit.h"
+    continue;
+    END_WALK();
+    close_stack(stt);
+    if (HR != stt->hlow) {
+        HR[-1] = TermNil;
+        return first;
+    } else {
+        return TermNil;
+    }
+    }
 
-/** @pred  variables_in_both_terms(+_CurrentVariables_, ? _Term_,
-   -_Variables_)
+    /** @pred  variables_in_both_terms(+_CurrentVariables_, ? _Term_,
+    -_Variables_)
 
-    Unify _Variables_ with the list of all variables of term _Term_
-    that *also* occur in _CurrentVariables_.  The variables occur in
-    the order of their first appearance when traversing the term
-    depth-first, left-to-right.
+        Unify _Variables_ with the list of all variables of term _Term_
+        that *also* occur in _CurrentVariables_.  The variables occur in
+        the order of their first appearance when traversing the term
+        depth-first, left-to-right.
 
-    This predicate performs the opposite of new_variables_in_term/3.
+        This predicate performs the opposite of new_variables_in_term/3.
 
-*/
-static Int p_variables_in_both_terms(USES_REGS1) /* variables within term t */
-{
-  Term out, t, inp;
-  Ystack_t stt_, *stt = &stt_;
+    */
+    static Int p_variables_in_both_terms(USES_REGS1) /* variables within term t */
+    {
+    Term out, t, inp;
+    Ystack_t stt_, *stt = &stt_;
 
-  if (!init_stack(stt, 0)) {
-    LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-    return 0;
-  }
+    if (!init_stack(stt, 0)) {
+        LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+        return 0;
+    }
 
-reset:
-  t = Deref(ARG2);
-  inp = Deref(ARG1);
-  if (IsPrimitiveTerm(t))
-    out = TermNil;
-  else {
-    ER(bind_vars_in_complex_term(&inp - 1, &inp, stt PASS_REGS));
-    reset_stack(stt);
-    ER((out = intersection_vars_in_complex_term(&(t)-1, &(t), stt PASS_REGS)));
-  }
-  close_stack(stt);
-  reset_trail(stt->tr0);
+    reset:
+    t = Deref(ARG2);
+    inp = Deref(ARG1);
+    if (IsPrimitiveTerm(t))
+        out = TermNil;
+    else {
+        ER(bind_vars_in_complex_term(&inp - 1, &inp, stt PASS_REGS));
+        reset_stack(stt);
+        ER((out = intersection_vars_in_complex_term(&(t)-1, &(t), stt PASS_REGS)));
+    }
+    close_stack(stt);
+    reset_trail(stt->tr0);
 
-  return Yap_unify(ARG3, out);
-}
+    return Yap_unify(ARG3, out);
+    }
 
 /* variables within term t		 */
 static Int free_variables_in_term(USES_REGS1) {
@@ -751,7 +751,7 @@ reset:
   } else {
     ER(vars_in_complex_term(&bounds - 1, &bounds, stt->tr0, TermNil,
                             stt PASS_REGS));
-    reset_stack(stt);
+ 
     ER((out = vars_in_complex_term(&(t)-1, &(t), stt->tr0, TermNil,
                                    stt PASS_REGS)));
   }
@@ -761,7 +761,7 @@ reset:
 
   return Yap_unify(ARG2, t) && Yap_unify(ARG3, out);
 }
-
+    
 #define RENUMBER_VAR()                                                         \
   if (f == FunctorDollarVar) {                                                 \
     if (show_singletons && ptd1[1] == MkIntTerm(-1)) {                         \
@@ -804,7 +804,7 @@ static Term numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, size_t vno,
   else
     HR[1] = MkIntTerm(vno++);
   HR += 2;
-  MaBind(ptd0, o);
+  YapBind(ptd0, o);
 
   continue;
   END_WALK();
@@ -867,7 +867,77 @@ reset:
     return Yap_unify(ARG3, MkIntegerTerm(out));
   }
 
-  static Int p_numbervars4(USES_REGS1) {
+  #define HARD_RENUMBER_VAR()                                                         \
+  if (f == FunctorDollarVar) {                                                 \
+    if (show_singletons && ptd1[1] == MkIntTerm(-1)) {                         \
+      Term d0 = MkIntTerm(vno++);                                              \
+      TrailedMaBind(ptd1 + 1, d0);                                                    \
+    }                                                                          \
+  }
+
+#undef LIST_HOOK_CODE
+#undef COMPOUND_HOOK_CODE
+#undef ATOMIC_HOOK_CODE
+
+#define LIST_HOOK_CODE                                                         \
+  {}
+#define COMPOUND_HOOK_CODE HARD_RENUMBER_VAR()
+#define ATOMIC_HOOK_CODE                                                       \
+  {}
+
+  
+static Term hard_numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, size_t vno,
+                                       bool show_singletons,
+                                       Ystack_t *stt USES_REGS) {
+  COPY(pt0_[1]);
+
+#include "term_visit.h"
+
+  /* next make sure noone will see this as a variable again */
+  if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+    /* Trail overflow */
+    LOCAL_Error_TYPE = RESOURCE_ERROR_TRAIL;
+    return 0;
+  }
+  if (HR + 1024 > ASP) {
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;
+    return 0;
+  }
+  Term o = AbsAppl(HR);
+  HR[0] = (CELL)FunctorDollarVar;
+  if (show_singletons)
+    HR[1] = MkIntTerm(-1);
+  else
+    HR[1] = MkIntTerm(vno++);
+  HR += 2;
+  Bind_and_Trail(ptd0, o);
+
+  continue;
+  END_WALK();
+  return vno;
+}
+
+/** numbervariables in term t         */
+size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
+  Ystack_t stt_, *stt = &stt_;
+  init_stack(stt, 0);
+  if (IsPrimitiveTerm(t)) {
+    return numbv;
+  }
+  Term vt = Deref(t);
+  size_t rc = hard_numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles,
+                                         stt PASS_REGS);
+  close_stack(stt);
+  return rc;
+}
+
+/** @pred  hard_numbervars( _T_,+ _N1_,- _Nn_)
+
+    Instantiates each variable in term  _T_ to a term of the form:
+    `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
+*/
+
+  static Int hard_numbervars(USES_REGS1) {
     Ystack_t stt_, *stt = &stt_;
     bool handle_singles = true;
 
@@ -897,7 +967,7 @@ reset:
       close_stack(stt);
       return Yap_unify(ARG3, MkIntegerTerm(numbv));
     }
-    ER(out = numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
+    ER(out = hard_numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
                                         stt PASS_REGS));
     close_stack(stt);
     return Yap_unify(ARG3, MkIntegerTerm(out));
@@ -923,7 +993,7 @@ reset:
     Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
     Yap_InitCPred("numbervars", 3, p_numbervars, 0);
-    Yap_InitCPred("numbervars", 4, p_numbervars4, 0);
+    Yap_InitCPred("$hard_numbervars", 3, hard_numbervars, 0);
   }
 
 #endif

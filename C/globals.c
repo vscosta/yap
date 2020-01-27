@@ -736,7 +736,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     }
 
     reset_stack(stt);
-    Yap_ResetHandles(ctx);
     return true;
   }
 

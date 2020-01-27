@@ -1117,6 +1117,7 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
           t = Deref(t);
   tr_fr_ptr TR0 = TR;
   size_t n;
+  Functor fdv = FunctorDollarVar;
 
   if (args && args[WRITE_PRIORITY].used) {
     priority = IntegerOfTerm(args[WRITE_PRIORITY].tvalue);
@@ -1132,7 +1133,8 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   if (args && args[WRITE_VARIABLE_NAMES].used) {
     flags = args[WRITE_VARIABLE_NAMES].tvalue == TermTrue ? Named_vars_f|flags :   Named_vars_f& ~flags ; 
-  }
+    FunctorDollarVar = FunctorHiddenVar;
+}
   if (args && args[WRITE_NUMBERVARS].used) {
   flags = args[WRITE_NUMBERVARS].tvalue == TermTrue ? flags | Handle_vars_f
                                                     : flags & ~Handle_vars_f;
@@ -1152,19 +1154,23 @@ if (args && args[WRITE_CYCLES].used) {
 t = Deref(t);
   if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
      t = Yap_TermAsForest(t PASS_REGS);
+  } 
+  if (flags & (Singleton_vars_f|Named_vars_f)) {
+      // reset $VAR to user default.
+      FunctorDollarVar = fdv;
   }
   if (flags & Named_vars_f) {
     //        if  (flags & Singleton_vars_f)
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
   }
-  if (flags & (Named_vars_f|Handle_cyclics_f|Handle_vars_f)) {
-	Yap_NumberVars(t, 0, flags & Handle_cyclics_f    PASS_REGS);
+  if (flags & (Named_vars_f|Handle_cyclics_f)) {
+	Yap_HardNumberVars(t, 0, flags & Handle_cyclics_f    PASS_REGS);
   }
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   wglb.Write_strings = flags & BackQuote_String_f;
   wglb.Use_portray = flags & Use_portray_f;
-  wglb.Handle_vars = flags & Handle_vars_f;
+  wglb.Handle_vars = flags & (Handle_vars_f|Named_vars_f|Singleton_vars_f);
   wglb.Portray_delays = flags & AttVar_Portray_f;
   wglb.Keep_terms = flags & To_heap_f;
   wglb.Write_Loops = flags & Handle_cyclics_f;
@@ -1188,5 +1194,6 @@ t = Deref(t);
   }
   reset_trail(TR0 );
   CurrentModule = cm;
+  FunctorDollarVar = fdv;
   pop_text_stack(lvl);
 }

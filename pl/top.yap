@@ -303,10 +303,8 @@ query(G0, Vs, NVs,LGs) :-
     '$user_call'(G, M),
     %start_low_level_trace,
     copy_term(G+Vs, _IG+NVs, LGs),
-    current_dollar_var(Def,'$V'(_)),
     '$write_answer'(NVs, LGs, Written),
-    '$write_query_answer_true'(Written),
-    current_dollar_var('$V'(_)), Def.
+    '$write_query_answer_true'(Written).
 
 '$yes_no'(G,C) :-
     '$current_module'(M),
@@ -372,7 +370,7 @@ query(G0, Vs, NVs,LGs) :-
 % the arguments.
 %
 '$present_answer'(_,_):-
-        flush_output,
+    flush_output,
 	fail.
 '$present_answer'((?-), Answ) :-
 	current_prolog_flag(break_level, BL ),
@@ -384,16 +382,16 @@ query(G0, Vs, NVs,LGs) :-
 '$another' :-
 	'$clear_input'(user_input),
 	prompt1(' ? '),
-	get_code(user_input,C),
+	get_char(user_input,C),
 	'$do_another'(C).
 
 '$do_another'(C) :-
-    (   C=:= ";" ->
+    (   C== ; ->
          skip(user_input,10),
 	%    '$add_nl_outside_console',
 	    fail
 	;
-	    C== 10
+	    C== '\n'
     ->
         '$add_nl_outside_console',
 		(
@@ -404,12 +402,12 @@ query(G0, Vs, NVs,LGs) :-
          print_message(help,yes)
 		)
 	;
-	    C== 13
+	    C== '\t'
     ->
-	    get0(user_input,NC),
+	    get_char(user_input,NC),
 	    '$do_another'(NC)
 	;
-	    C== -1
+	    C== end_of_file
     ->
        halt
 	;
@@ -454,17 +452,17 @@ write_query_answer( Bindings ) :-
 
 '$prep_answer_var_by_var'([], L, L).
 '$prep_answer_var_by_var'([Name=Value|L], LF, L0) :-
-	'$delete_identical_answers'(L, Value, NL, Names),
+	'$group_variables_with_same_binding'(L, Value, NL, Names),
 	'$prep_answer_var'([Name|Names], Value, LF, LI),
 	'$prep_answer_var_by_var'(NL, LI, L0).
 
 % fetch all cases that have the same solution.
-'$delete_identical_answers'([], _, [], []).
-'$delete_identical_answers'([(Name=Value)|L], Value0, FL, [Name|Names]) :-
+'$group_variables_with_same_binding'([], _, [], []).
+'$group_variables_with_same_binding'([(Name=Value)|L], Value0, FL, [Name|Names]) :-
 	Value == Value0, !,
-	'$delete_identical_answers'(L, Value0, FL, Names).
-'$delete_identical_answers'([VV|L], Value0, [VV|FL], Names) :-
-	'$delete_identical_answers'(L, Value0, FL, Names).
+	'$group_variables_with_same_binding'(L, Value0, FL, Names).
+'$group_variables_with_same_binding'([VV|L], Value0, [VV|FL], Names) :-
+	'$group_variables_with_same_binding'(L, Value0, FL, Names).
 
 % now create a list of pairs that will look like goals.
 '$prep_answer_var'(Names, Value, LF, L0) :- var(Value), !,
@@ -583,7 +581,7 @@ write_query_answer( Bindings ) :-
 '$user_call'(G, M) :-
     '$yap_strip_module'(M:G, M1,G1),
     ( '$undefined'(G1,M1) ->
-    '$undefp_search'(M1:G1, M2:G2)
+'$catch'('$undefp_search'(M1:G1, M2:G2),prolog,Error,'$LoopError'(Error,top))
      ;
       M1:G1=M2:G2
 	),
@@ -714,7 +712,7 @@ fail.
 % 	(
 %      '$is_metapredicate'(G,CurMod)
 %     ->
-    %      	'$reenspter_debugger'(exit)',
+    %      	'$reenter_debugger'(exit)',
 %      ( '$expand_meta_call'(CurMod:G, [], NG) ->  true ; true ),
 %      '$enable_debugging'
 %     ;

@@ -517,6 +517,7 @@ extern Term Yap_UnNumberTerm(Term, int);
 extern  Int Yap_SkipList(Term *, Term **);
 extern Term Yap_BreakRational(Term inp, UInt arity, Term *of, Term oi USES_REGS);
 extern size_t Yap_NumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
+extern size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS);
 extern Term Yap_BreakTerml(Term inp, UInt arity, Term *of, Term oi USES_REGS);
 
 /* yap.c */
