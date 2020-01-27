@@ -540,7 +540,7 @@ write_query_answer( Bindings ) :-
 
 '$name_vars_in_goals'(G, VL0, G) :-
 	'$name_well_known_vars'(VL0),
-	numbervars(G,0,_,_).
+	numbervars(G,0,_).
 
 '$name_well_known_vars'([]).
 '$name_well_known_vars'([Name=V|NVL0]) :-

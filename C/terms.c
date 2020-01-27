@@ -867,6 +867,48 @@ reset:
     return Yap_unify(ARG3, MkIntegerTerm(out));
   }
 
+/** @pred  singleton_vs_numbervars( _T_,+ _N1_,- _Nn_)
+
+    Instantiates each variable in term  _T_ to a term of the form:
+    `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
+*/
+
+  static Int singleton_vs_numbervars(USES_REGS1) {
+    Ystack_t stt_, *stt = &stt_;
+
+    Term vt, t;
+    Int out;
+    if (!init_stack(stt, 0)) {
+      LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
+      return 0;
+    }
+  reset:
+    stt->hlow = HR;
+    stt->tr0 = TR;
+    t = Deref(ARG1);
+    vt = Deref(ARG2);
+    if (IsVarTerm(vt)) {
+      close_stack(stt);
+      Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
+      return false;
+    }
+    if (!IsIntegerTerm(vt)) {
+      close_stack(stt);
+      Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
+      return (false);
+    }
+    size_t numbv = IntegerOfTerm(vt);
+    if (IsPrimitiveTerm(t)) {
+      close_stack(stt);
+      return Yap_unify(ARG3, MkIntegerTerm(numbv));
+    }
+    ER(out = numbervars_in_complex_term(&t - 1, &t, numbv, true,
+                                        stt PASS_REGS));
+    close_stack(stt);
+    return Yap_unify(ARG3, MkIntegerTerm(out));
+  }
+
+
   #define HARD_RENUMBER_VAR()                                                         \
   if (f == FunctorDollarVar) {                                                 \
     if (show_singletons && ptd1[1] == MkIntTerm(-1)) {                         \
@@ -931,48 +973,6 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
   return rc;
 }
 
-/** @pred  hard_numbervars( _T_,+ _N1_,- _Nn_)
-
-    Instantiates each variable in term  _T_ to a term of the form:
-    `$VAR( _I_)`, with  _I_ increasing from  _N1_ to  _Nn_.
-*/
-
-  static Int hard_numbervars(USES_REGS1) {
-    Ystack_t stt_, *stt = &stt_;
-    bool handle_singles = true;
-
-    Term vt, t;
-    Int out;
-    if (!init_stack(stt, 0)) {
-      LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
-      return 0;
-    }
-  reset:
-    stt->hlow = HR;
-    stt->tr0 = TR;
-    t = Deref(ARG1);
-    vt = Deref(ARG2);
-    if (IsVarTerm(vt)) {
-      close_stack(stt);
-      Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
-      return false;
-    }
-    if (!IsIntegerTerm(vt)) {
-      close_stack(stt);
-      Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
-      return (false);
-    }
-    size_t numbv = IntegerOfTerm(vt);
-    if (IsPrimitiveTerm(t)) {
-      close_stack(stt);
-      return Yap_unify(ARG3, MkIntegerTerm(numbv));
-    }
-    ER(out = hard_numbervars_in_complex_term(&t - 1, &t, numbv, handle_singles,
-                                        stt PASS_REGS));
-    close_stack(stt);
-    return Yap_unify(ARG3, MkIntegerTerm(out));
-  }
-
   void Yap_InitTermCPreds(void) {
     Yap_InitCPred("term_variables", 2, term_variables, 0);
     Yap_InitCPred("term_variables", 3, term_variables3, 0);
@@ -993,7 +993,7 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
     Yap_InitCPred("cyclic_term", 1, cyclic_term, SafePredFlag);
 
     Yap_InitCPred("numbervars", 3, p_numbervars, 0);
-    Yap_InitCPred("$hard_numbervars", 3, hard_numbervars, 0);
+    Yap_InitCPred("$singleton_vs_numbervars", 3, singleton_vs_numbervars, 0);
   }
 
 #endif

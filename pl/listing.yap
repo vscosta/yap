@@ -50,7 +50,7 @@
 
 Lists in the current output stream all the clauses for which source code
 is available (these include all clauses for dynamic predicates and
-clauses for static predicates compiled when source mode was `on`).
+clauses for static cates compiled when source mode was `on`.)
 
 - listing/0 lists in the current module
 
@@ -137,6 +137,20 @@ listing_(Stream, MV, M) :-
     ).
 
 '$do_listing'(Stream, M, Name/Arity) :-
+    ground(Name/Arity),
+    functor( Pred, Name, Arity),
+    \+ '$undefined'(Pred, M),
+    !,
+    ( current_predicate(Name, M:Pred),
+      \+ '$is_opaque_predicate'(Pred,M),
+      \+ '$undefined'(Pred, M),
+      '$listing'(Name,Arity,M,Stream),
+      fail
+    ;
+    true
+    ).
+
+'$do_listing'(Stream, M, Name/Arity) :-
     ( current_predicate(Name, M:Pred),
       \+ '$is_opaque_predicate'(Pred,M),
       functor( Pred, Name, Arity),
@@ -171,42 +185,46 @@ listing_(Stream, MV, M) :-
     !
     ).
 '$list_clauses'(Stream, M, Pred) :-
+    yap_flag(portray_clause_options, Opts),
     ( '$is_dynamic'(Pred, M) -> true ; '$is_log_updatable'(Pred, M) ),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
     (
 	M == Mod
     ->
-    format( Stream, ':- dynamic ~W/~d.~n', [N,Ar])
+    format( Stream, ':- dynamic ~W/~d.~n', [N,Opts,Ar])
     ;
-    format( Stream, ':- dynamic ~W:~W/~d.~n', [M,N,Ar])
+    format( Stream, ':- dynamic ~W:~W/~d.~n', [M,Opts,N,Opts,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
+    yap_flag(portray_clause_options, Opts),
     '$is_thread_local'(Pred, M),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
     (
 	M == Mod
     ->
-    format( Stream, ':- thread_local ~W/~d.~n', [N,Ar])
+    format( Stream, ':- thread_local ~W/~d.~n', [N,Opts,Ar])
     ;
-    format( Stream, ':- thread_local ~W:~W/~d.~n', [M,N,Ar])
+    format( Stream, ':- thread_local ~W:~W/~d.~n', [M,Opts,N,Opts,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
+    yap_flag(portray_clause_options, Opts),
     '$is_multifile'(Pred, M),
     functor( Pred, N, Ar ),
     '$current_module'(Mod),
     (
 	M == Mod
     ->
-    format( Stream, ':- multifile ~W/~d.~n', [N,Ar])
+    format( Stream, ':- multifile ~W/~d.~n', [N,Opts,Ar])
     ;
-    format( Stream, ':- multifile ~W:~W/~d.~n', [M,N,Ar])
+    format( Stream, ':- multifile ~W:~W/~d.~n', [M,N,Opts,Ar])
     ),
     fail.
 '$list_clauses'(Stream, M, Pred) :-
+    yap_flag(portray_clause_options, Opts),
     '$is_metapredicate'(Pred, M),
     functor( Pred, Name, Arity ),
     prolog:'$meta_predicate'(Name,M,Arity,PredDef),
@@ -214,9 +232,9 @@ listing_(Stream, MV, M) :-
     (
 	M == Mod
     ->
-    format( Stream, ':- ~W.~n', [PredDef])
+    format( Stream, ':- ~W.~n', [PredDef,Opts])
     ;
-    format( Stream, ':- ~W:~W.~n', [M,PredDef])
+    format( Stream, ':- ~W:~W.~n', [M,Opts,PredDef,Opts])
     ),
     fail.
 '$list_clauses'(Stream, _M, _Pred) :-
@@ -237,7 +255,7 @@ listing_(Stream, MV, M) :-
 Write clause  _C_ on stream  _S_ as if written by listing/0.
 */
 portray_clause(Stream, Clause) :-
-    yap_flag(portray_clause_print_options, Opts),
+    yap_flag(portray_clause_options, Opts),
     portray_clause(Stream, Clause, Opts).
 
 /** @pred  portray_clause(+ _Stream_, _C_, _Opts_)
@@ -247,21 +265,24 @@ Write clause  _C_ as if written by listing/2. _Opts_ gives the options used to c
 */
 
 portray_clause(Stream, Clause, Opts) :-
+    portray_clause_(Stream, Clause, Opts),
+    fail.
+portray_clause(_Stream, _Clause, _Opts).
+
+
+portray_clause_(Stream, Clause, Opts) :-
     lists:member(singletons(true), Opts), 
     !,
-    copy_term_nat(Clause, CopiedClause),
-    '$hard_numbervars'( CopiedClause, 0, _, _),
-    '$portray_clause'(Stream, Opts, CopiedClause).
-portray_clause(Stream, Clause, Opts) :-
+    '$singleton_vs_numbervars'( Clause, 0, _, _),
+    '$portray_clause'(Stream, Opts, Clause).
+portray_clause_(Stream, Clause, Opts) :-
     lists:member(variable_names(_), Opts), 
     !,
-    copy_term_nat(Clause, CopiedClause),
-    '$hard_numbervars'( CopiedClause, 0, _),
-    '$portray_clause'(Stream, Opts, CopiedClause).
-portray_clause(Stream, Clause, Opts) :-
-    copy_term_nat(Clause, CopiedClause),
-    '$hard_numbervars'( CopiedClause, 0, _),
-    '$portray_clause'(Stream, Opts, CopiedClause).
+    '$singleton_vs_numbervars'( Clause, 0, _),
+    '$portray_clause'(Stream, Opts, Clause).
+portray_clause_(Stream, Clause, Opts) :-
+    numbervars( Clause, 0, _),
+    '$portray_clause'(Stream, Opts, Clause).
 
 /** @pred  portray_clause(+ _C_)
 
@@ -329,7 +350,7 @@ portray_clause(Clause) :-
     format(Stream, '~n~*c)',[I,0' ]).
 '$write_body'(X,I,T,Opts,Stream) :-
     '$beforelit'(T,I,Opts,Stream),
-    format(Stream, '~W', [X]).
+    format(Stream, '~W', [X,Opts]).
 
 
 
