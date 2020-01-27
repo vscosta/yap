@@ -274,12 +274,12 @@ be lost.
  */
 
 
-'$start_creep'([Mod|G], _Ctx, GId) :-
+'$start_creep'(Mod:G, _Ctx, GId) :-
 	'$cannot_debug'(G,Mod, GId),
 	!,
 	'$stop_creeping'(_),
 	Mod:G.
-'$start_creep'([Mod|G], Ctx, _) :-
+'$start_creep'(Mod:G, Ctx, _) :-
 	'$trace'(Mod:G, Ctx).
 
 %'$trace'(G) :- write(user_error,'$spy'(G)), nl, fail.
@@ -293,6 +293,12 @@ be lost.
 */
 '$spy'(ModG) :-
     '$trace'(ModG, outer).
+
+'$trace'(ModG, Ctx) :-
+    '$yap_strip_module'(G,M,Q),
+    '$current_choicepoint'(CP),
+    '$trace_goal'(Q, M, outer, _GN, CP ).
+	    
 
 /**
   * @pred $trace( +Goal )
@@ -368,7 +374,7 @@ be lost.
  *
  *
  */
-'$creep'([M|G]) :-
+'$creep'(M:G) :-
     '$yap_strip_module'(G,M,Q),
     '$current_choicepoint'(CP),
     '$trace_goal'(Q, M, outer, _GN, CP ).
@@ -830,7 +836,7 @@ be lost.
     ),
     skip( debugger_input, 10),
     fail.
-'$action'(l,_,CallNumber,_,_,_) :- !,			% 'l		leap
+'$action'(l,_,CallNumber,_,_,_) :- !,			% 'l		lea
     '$scan_number'(ScanNumber),
     ( ScanNumber == 0 -> Goal = CallNumber ; Goal = ScanNumber ),
     '__NB_getval__'('$trace',Trace,fail),
@@ -1084,7 +1090,7 @@ be lost.
 '$debugger_process_meta_arguments'(G, _M, G).
 
 '$ldebugger_process_meta_args'([], _, [], []).
-'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'([M1|G1])|BG1s]) :-
+'$ldebugger_process_meta_args'([G|BGs], M, [N|BMs], ['$spy'(M1:G1)|BG1s]) :-
     number(N),
     N >= 0,
     '$yap_strip_module'( M:G, M1, G1 ),

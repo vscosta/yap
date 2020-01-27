@@ -300,8 +300,13 @@ live :-
 
 query(G0, Vs, NVs,LGs) :-
     '$yap_strip_module'(G0,M,G),
-    '$user_call'(G, M),
-    %start_low_level_trace,
+    (
+    '$dotrace'(G,M, _GoalNo)
+    ->
+    '$spy'(M:G)
+    ;
+    '$call´(M:G) 
+    ),
     copy_term(G+Vs, _IG+NVs, LGs),
     '$write_answer'(NVs, LGs, Written),
     '$write_query_answer_true'(Written).
@@ -357,7 +362,13 @@ query(G0, Vs, NVs,LGs) :-
 	!,
 	'$csult'([X|L], M).
 '$do_yes_no'(G, M) :-
-	'$user_call'(G, M).
+    (
+    '$dotrace'(G,M, _GoalNo)
+    ->
+    '$spy'(M:G)
+    ;
+    '$call´(M:G) 
+    ).
 
 '$write_query_answer_true'([]) :- !,
 	format(user_error,true,[]).
@@ -578,25 +589,6 @@ write_query_answer( Bindings ) :-
 %%
 %% run top-level qieri
 %%
-'$user_call'(G, M) :-
-    '$yap_strip_module'(M:G, M1,G1),
-    ( '$undefined'(G1,M1) ->
-'$catch'('$undefp_search'(M1:G1, M2:G2),prolog,Error,'$LoopError'(Error,top))
-     ;
-      M1:G1=M2:G2
-	),
-    ('$dotrace'(G2, M2, _)
-    ->
-    '$spy'(M2:G2)
-    ;
-    gated_call(
-	true,
-	%		'$trace_port'([call], GoalNumber, G, M, CP,  H)
-	M2:G2,
-	Port,
- 	'$cross_run_deb'(Port,true, _)
-    )
-    ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
