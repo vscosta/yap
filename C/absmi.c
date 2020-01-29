@@ -143,7 +143,7 @@ static Term save_goal(PredEntry *pe USES_REGS) {
   d0 = pe->ArityOfPE;
   if (d0 == 0) {
     HR[-1] = MkAtomTerm((Atom)pe->FunctorOfPred);
-    ARG1 = (Term)AbsAppl(HR-3);
+    return (Term)AbsAppl(HR-3);
   } else {
     rc = AbsAppl(HR-3);
     HR[-1] = AbsAppl(HR);

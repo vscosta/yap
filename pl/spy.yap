@@ -394,8 +394,14 @@ notrace(G) :-
     !,
     '$enable_debugging'.
 
-'$init_debugger' :- 
-    '$init_debugger'(zip).
+
+'$init_debugger' :-
+	'__NB_getval__'('$trace',on, fail),
+	!,
+	'$init_debugger'(creep).
+'$init_debugger' :-
+	'$init_debugger'(zip).
+
 
 '$init_debugger'(Creep) :- 
     '$debugger_io',
@@ -405,11 +411,10 @@ notrace(G) :-
     '__NB_setval__'('$spy_gn',1).
  
 '$init_debugger_trace'(creep) :-
-	'__NB_setval__'('$trace',on),
-	!,
 	'$set_debugger_state'( creep,  0, stop, on, true ).
+'$init_debugger_trace'(creep) :-
+	'$set_debugger_state'( leap,  0, stop, on, true ).
 '$init_debugger_trace'(zip) :-
-	'__NB_setval__'('$trace',off),
 	'$set_debugger_state'( zip, 0, stop, off, true ).
 
 %% @pred $enter_debugging(G,Mod,CP,G0,NG)

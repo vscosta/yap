@@ -496,7 +496,6 @@ expand_goal(G, MF:GF) :-
     (
 	Assert == compile,
 	'$full_clause_optimisation'(H, BM, BO1, BO)
-%    ,    ('__NB_getval__'(verbose,normal,fail)->writeln(BO);true)
     ->
     true
     ;
@@ -524,7 +523,7 @@ expand_goal(G, MF:GF) :-
     '$expand_head'(H, H0, HM0, HM),
  %   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
     '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO ),
-    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO), writeln(ClO).
+    '$build_up'(HM, H0, SM0, B1, Cl1, BO, ClO).
     
 
 %% @}

@@ -655,7 +655,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
             return RESOURCE_ERROR_TRAIL;
           }
         } else {
-          if (ptd0 < stt->hlow || ptd0 >= HR) {
+          if (ptd0 <= stt->hlow || ptd0 >= HR) {
             RESET_VARIABLE(ptf);
             mBind_And_Trail(ptd0, (CELL)ptf);
           } else if (ptd0 != ptf) {
@@ -750,16 +750,18 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
     if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
       return t;
     }
-    init_stack(stt, sz);
     while (true) {
       CELL *ap = &t;
       //   DEB_DOOBIN(t);
-      CELL *pf = HR;
-      RESET_VARIABLE(HR);
-      HR++;
       if (arenap) {
         enter_cell_space(&cspace, arenap);
       }
+	stt->hlow = HR;
+      // must be done after e
+      CELL *pf = HR;
+      RESET_VARIABLE(HR);
+      HR++;
+    init_stack(stt, sz);
       LOCAL_Error_TYPE = 0;
       res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                               arenap, &cspace, stt PASS_REGS);
@@ -769,11 +771,11 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
         /* restore our nice, friendly, term to its original state */
         clean_tr(stt->tr0 PASS_REGS);
         /* follow chain of multi-assigned variables */
+        close_stack(stt);
 
         if (arenap) {
           *arenap = CloseArena(&cspace PASS_REGS);
         }
-        close_stack(stt);
         return tf;
       } else {
         LOCAL_Error_TYPE = res;

@@ -952,7 +952,7 @@ static Term hard_numbervars_in_complex_term(CELL *pt0_, CELL *pt0_end_, size_t v
   else
     HR[1] = MkIntTerm(vno++);
   HR += 2;
-  Bind_and_Trail(ptd0, o);
+  mBind_And_Trail(ptd0, o);
 
   continue;
   END_WALK();

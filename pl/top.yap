@@ -21,8 +21,7 @@
 live :-
     repeat,
     yap_flag(verbose, normal),
-    current_source_module(Module, Module),
-    (   Module==user
+    (   source_module( Module )
     ->  true % '$compile_mode'(_,0)
     ;   format(user_error, '[~w]~n', [Module])
     ),
@@ -187,7 +186,6 @@ live :-
     !,
 	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
 '$continue_with_command'(reconsult,V,Pos,G,Source) :-
-%    writeln(G),
 	'$go_compile_clause'(G,V,Pos,reconsult,Source),
 	fail.
 '$continue_with_command'(consult,V,Pos,G,Source) :-
@@ -225,7 +223,6 @@ live :-
    ;
      true
     ),
-%    writeln(Mod:((H:-B))),
     '$compile'((H0:-B), Where, C0, Mod, R).
 
 '$init_pred'(H, Mod, _Where ) :-
@@ -281,7 +278,9 @@ live :-
 '$query'(G0,V) :-
     (
 	'$current_choice_point'(CP),
-	query(G0,V,_,_),
+	query(G0,V,NVs,LGs),
+    '$write_answer'(NVs, LGs, Written),
+    '$write_query_answer_true'(Written),
 	'$current_choice_point'(NCP),
 	(
 	    yap_flag(prompt_alternatives_on,determinism),
@@ -298,23 +297,20 @@ live :-
     '$out_neg_answer'
     ).
 
-query(G0, Vs, NVs,LGs) :-
+query(G0, Vs, NVs, LGs) :-
     '$yap_strip_module'(G0,M,G),
-    (
+    '$current_choice_point'(CP),
+(
     '$dotrace'(G,M, _GoalNo)
     ->
-    '$spy'(M:G)
+     '$trace_goal'(G, M, outer, _GN, CP )
     ;
-    '$call´(M:G) 
+    '$call'(G, CP, G0, M) 
     ),
-    copy_term(G+Vs, _IG+NVs, LGs),
-    '$write_answer'(NVs, LGs, Written),
-    '$write_query_answer_true'(Written).
+    copy_term(G+Vs, _IG+NVs, LGs).
 
 '$yes_no'(G,C) :-
-    '$current_module'(M),
-    '$do_yes_no'(G,M),
-    '$delayed_goals'(G, [], NV, LGs, _),
+     query(G,[],NV,LGs), 
     '$write_answer'(NV, LGs, Written),
     (
 	Written = []
@@ -357,18 +353,6 @@ query(G0, Vs, NVs,LGs) :-
 	print_message( help, false),
 	 fail.
 
-
-'$do_yes_no'([X|L], M) :-
-	!,
-	'$csult'([X|L], M).
-'$do_yes_no'(G, M) :-
-    (
-    '$dotrace'(G,M, _GoalNo)
-    ->
-    '$spy'(M:G)
-    ;
-    '$call´(M:G) 
-    ).
 
 '$write_query_answer_true'([]) :- !,
 	format(user_error,true,[]).

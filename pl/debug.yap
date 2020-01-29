@@ -295,9 +295,9 @@ be lost.
     '$trace'(ModG, outer).
 
 '$trace'(ModG, Ctx) :-
-    '$yap_strip_module'(G,M,Q),
+    '$yap_strip_module'(ModG,M,Q),
     '$current_choicepoint'(CP),
-    '$trace_goal'(Q, M, outer, _GN, CP ).
+    '$trace_goal'(Q, M, Ctx, _GN, CP ).
 	    
 
 /**
@@ -497,21 +497,19 @@ be lost.
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
 '$trace_goal_'(G, M, Ctx, GoalNumber, CP,H) :-
-/*
   (
 	'$is_private'(G, M)
     ;
     current_prolog_flag(debug,false)
     ),
     !,
-  */
     '$debugger_expand_meta_call'( M:G, [], MM:GM ),
-    gated_call(
+     gated_call(
 	       % debugging allowed.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
 	MM:GM,
 	Port,
-	       '$handle_port'([Port,exit], GoalNumber, G, M, Ctx, CP,  H)
+	       '$handle_port'([Port,answer], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -620,7 +618,7 @@ be lost.
 '$ports_to_port'([redo,answer], redo).
 '$ports_to_port'([redo,exit], redo).
 '$ports_to_port'([redo], redo).
-'$ports_to_port'([!,answer], exit).
+'$ports_to_port'([!,answer], internal).
 '$ports_to_port'([!,exit], exit).
 '$ports_to_port'([!,redo], fail).
 '$ports_to_port'([!,fail], fail).
