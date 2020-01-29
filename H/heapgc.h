@@ -563,7 +563,7 @@ typedef struct cp_frame {
   copy_frame *pt;
   copy_frame *max;
   int lvl, restarts;
-  CELL *hlow;
+   CELL *hlow, *hb;
   tr_fr_ptr tr0;
   Term *t, *bindp,*arenap;
  } Ystack_t;
@@ -578,6 +578,7 @@ INLINE_ONLY bool init_stack(Ystack_t *b, size_t nof) {
     b->lvl = lvl;
     b->restarts=0;
     b->hlow = HR;
+    b->hb = HB;
     b->tr0 = TR;
       return (b->pt0 != NULL);
   }
@@ -589,6 +590,7 @@ INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
     b->pt = b->pt0;
     b->max = b->pt0+nof;
      b->hlow = HR;
+     b->hb = HB;
    b->restarts++;
       b->tr0 = TR;
   return (b->pt0 != NULL);
@@ -596,7 +598,7 @@ INLINE_ONLY bool reinit_stack( Ystack_t *b, size_t nof) {
 
 INLINE_ONLY bool close_stack( Ystack_t *b) {
   b->pt = b->pt0 = b->max = NULL;
-
+  HB = b->hb;
  return  pop_text_stack(b->lvl);
 }
 
@@ -604,7 +606,8 @@ INLINE_ONLY bool close_stack( Ystack_t *b) {
 INLINE_ONLY void reset_stack( Ystack_t *b) {
   b->pt = b->pt0;
      b->hlow = HR;
-    b->tr0 = TR;
+     b->hb = HB;
+     b->tr0 = TR;
  
 }
 

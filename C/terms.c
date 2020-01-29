@@ -842,6 +842,8 @@ static Int p_numbervars(USES_REGS1) {
   }
 reset:
   stt->hlow = HR;
+  stt->hb = HB;
+  HB = HR;
   stt->tr0 = TR;
   t = Deref(ARG1);
   vt = Deref(ARG2);
@@ -884,6 +886,8 @@ reset:
     }
   reset:
     stt->hlow = HR;
+    stt->hb = HB;
+    HB = HR;
     stt->tr0 = TR;
     t = Deref(ARG1);
     vt = Deref(ARG2);

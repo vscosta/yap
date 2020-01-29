@@ -756,6 +756,7 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       if (arenap) {
         enter_cell_space(&cspace, arenap);
       }
+      HB = HR;
 	stt->hlow = HR;
       // must be done after e
       CELL *pf = HR;
