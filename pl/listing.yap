@@ -273,7 +273,7 @@ portray_clause(_Stream, _Clause, _Opts).
 portray_clause_(Stream, Clause, Opts) :-
     lists:member(singletons(true), Opts), 
     !,
-    '$singleton_vs_numbervars'( Clause, 0, _, _),
+    '$singleton_vs_numbervars'( Clause, 0, _),
     '$portray_clause'(Stream, Opts, Clause).
 portray_clause_(Stream, Clause, Opts) :-
     lists:member(variable_names(_), Opts), 
@@ -294,7 +294,8 @@ portray_clause(Clause) :-
     yap_flag(portray_clause_options, Opts),
     portray_clause(Stream, Clause, Opts).
 
-'$portray_clause'(Stream, Opts, (Pred :- true)) :- 
+'$portray_clause'(Stream, Opts, (Pred :- true)) :-
+    !,
     format(Stream, '~W.~n', [Pred,Opts]).
 '$portray_clause'(Stream, Opts, (Pred:-Body)) :- !,
     format(Stream, '~W :-', [Pred,Opts]),

@@ -205,12 +205,12 @@ meta_predicate(P) :-
 '$expand_arg'(G,  CM, _HVars, NCM:NG) :-
     '$yap_strip_module'(CM:G, NCM, NG).
 
-%'$match_mod'(G, _HMod, _SMod, prolog, O) :-
-%    !,
-%    O = G.
-%'$match_mod'(G, _M, M, M, G) :-    !.
-'$match_mod'(G, _HM, _M, M, M0:G0) :-
-strip_module(M:G,M0,G0).
+'$match_mod'(G, _HMod, _SMod, _, O) :-
+    '$pred_exists'(G,prolog),
+    !,
+    O = G.
+'$match_mod'(G, M, M, M, G) :-    !.
+'$match_mod'(G, _HM, _M, M, M:G) .
 
 % Call the import mechanism
 %
@@ -235,7 +235,9 @@ strip_module(M:G,M0,G0).
 '$expand_head'(G0, GF, SM, HM) :-
     '$yap_strip_module'( SM:G0, M0N, G0N),
     '$user_expansion'(M0N:G0N, HMGF),
-    '$yap_strip_module'(HMGF,HM,GF).
+    '$yap_strip_module'(HMGF,HM,GI),
+    '$match_mod'(GI, HM, SM, HM, GF),
+    !.
 
 '$expand_goal'(G0, GS, GF, HM, SM, BM, HVars-H*Assert) :-
     '$yap_strip_module'( BM:G0, M0N, G0N),
@@ -243,9 +245,10 @@ strip_module(M:G,M0,G0).
     '$import_expansion'(M1:G1, M2:G2),
     '$meta_expansion'(M2:G2, M1, HVars, M3:B3),
     strip_module(M3:B3,M4,B4),
-    '$match_mod'(M4:B4, HM, SM, BM, GS),
+    '$match_mod'(B4, HM, SM, M4, GS),
     '$end_goal_expansion'(B4, B5, HM, SM, M4, H, Assert),
-    '$match_mod'(B5, HM, SM, M4, GF),
+    '$yap_strip_module'(M4:B5, M5, B6),
+    '$match_mod'(B6, HM, SM, M5, GF),
     !.
 
 '$end_goal_expansion'(G0, M0N:G01, _HM, _SM, BM,

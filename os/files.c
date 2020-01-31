@@ -23,13 +23,14 @@ static char SccsId[] = "%W% %G%";
  * for yap refering to: Files and GLOBAL_Streams, Simple Input/Output,
  *
  */
-/** 
+/**
  * @addtogroup FilesM
  *
  * @{
  *
  */
 
+#include "cwalk/cwalk.h"
 #include "sysbits.h"
 #include "yapio.h"
 
@@ -47,12 +48,11 @@ static char SccsId[] = "%W% %G%";
 #include <windows.h>
 #endif
 
-
 static Int file_exists(USES_REGS1) {
   Term tname = Deref(ARG1);
   char *file_name;
 
-  if(IsVarTerm(tname)) {
+  if (IsVarTerm(tname)) {
     Yap_ThrowError(INSTANTIATION_ERROR, tname, "access");
   } else if (!IsAtomTerm(tname)) {
     Yap_ThrowError(TYPE_ERROR_ATOM, tname, "access");
@@ -65,8 +65,7 @@ static Int file_exists(USES_REGS1) {
     if (SYSTEM_STAT(file_name, &ss) != 0) {
       if (errno == ENOENT)
         return false;
-      UnixIOError(errno, CREATE_DIRECTORY, tname, "error %s",
-                strerror(errno));
+      UnixIOError(errno, CREATE_DIRECTORY, tname, "error %s", strerror(errno));
       return false;
     }
     return true;
@@ -144,49 +143,49 @@ static Int time_file(USES_REGS1) {
 /**
  *  @pred get_time(-T)
  *
- * unify its only argumet with an integer representing the time past simce the epoch. The integer must have the same representation as the file time-stamps.
+ * unify its only argumet with an integer representing the time past simce the
+ * epoch. The integer must have the same representation as the file time-stamps.
  */
 static Int get_time(USES_REGS1) {
 #if __WIN32
-    FILETIME ft;
-    Term rc;
+  FILETIME ft;
+  Term rc;
 
-    if (GetSystenTimeAsFileTime(&ft) == 0) {
-      Yap_WinError("in time_file");
-      return false;
-    }
-    ULONGLONG qwResult;
+  if (GetSystenTimeAsFileTime(&ft) == 0) {
+    Yap_WinError("in time_file");
+    return false;
+  }
+  ULONGLONG qwResult;
 
-    // Copy the time into a quadword.
-    qwResult = (((ULONGLONG)ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
+  // Copy the time into a quadword.
+  qwResult = (((ULONGLONG)ft.dwHighDateTime) << 32) + ft.dwLowDateTime;
 #if SIZEOF_INT_P == 8
-    rc = MkIntegerTerm(qwResult);
+  rc = MkIntegerTerm(qwResult);
 #elif USE_GMP
-    char s[64];
-    MP_INT rop;
+  char s[64];
+  MP_INT rop;
 
-    snprintf(s, 64, "%I64d", (long long int)n);
-    mpz_init_set_str(&rop, s, 10);
-    rc = Yap_MkBigIntTerm((void *)&rop PASS_REGS);
+  snprintf(s, 64, "%I64d", (long long int)n);
+  mpz_init_set_str(&rop, s, 10);
+  rc = Yap_MkBigIntTerm((void *)&rop PASS_REGS);
 #else
-    rc = MkIntegerTerm(ft.dwHighDateTime);
+  rc = MkIntegerTerm(ft.dwHighDateTime);
 #endif
-    return Yap_unify(ARG1, rc);
+  return Yap_unify(ARG1, rc);
 #elif HAVE_FTIME
-    struct timeb ss;
+  struct timeb ss;
 
-    if (ftime(&ss) != 0) {
-      /* ignore errors while checking a file */
-      return false;
-    }
-    return Yap_unify(ARG1, MkIntegerTerm(ss.time));
+  if (ftime(&ss) != 0) {
+    /* ignore errors while checking a file */
+    return false;
+  }
+  return Yap_unify(ARG1, MkIntegerTerm(ss.time));
 #else
-    return FALSE;
+  return FALSE;
 #endif
-
 }
 
- static Int file_size(USES_REGS1) {
+static Int file_size(USES_REGS1) {
   int rc;
   Int sno = Yap_CheckStream(
       ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f),
@@ -195,7 +194,8 @@ static Int get_time(USES_REGS1) {
     return (FALSE);
   VFS_t *vfs;
   char *s = RepAtom(GLOBAL_Stream[sno].name)->StrOfAE;
-  if (!s) return false;
+  if (!s)
+    return false;
   if ((vfs = vfs_owner(s))) {
     vfs_stat st;
     vfs->stat(vfs, s, &st);
@@ -271,32 +271,32 @@ static Int access_file(USES_REGS1) {
     if (!(ares = RepAtom(AtomOfTerm(tname))->StrOfAE))
       return FALSE;
   }
-    VFS_t *vfs;
-    if ((vfs = vfs_owner(ares))) {
-        vfs_stat o;
-        if (vfs->stat(vfs, ares, &o)) {
-            if (atmode == AtomExist)
-                return true;
-            else if (atmode == AtomExists)
-                return true;
-            else if (atmode == AtomWrite)
-                return o.st_mode & VFS_CAN_WRITE;
-            else if (atmode == AtomRead)
-                return o.st_mode & VFS_CAN_READ;
-            else if (atmode == AtomAppend)
-                return o.st_mode & VFS_CAN_WRITE;
-            else if (atmode == AtomCsult)
-                return o.st_mode & VFS_CAN_READ;
-            else if (atmode == AtomExecute)
-                return o.st_mode & VFS_CAN_EXEC;
-            else {
-                Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
-                return FALSE;
-            }
-        } else {
-            return false;
-        }
+  VFS_t *vfs;
+  if ((vfs = vfs_owner(ares))) {
+    vfs_stat o;
+    if (vfs->stat(vfs, ares, &o)) {
+      if (atmode == AtomExist)
+        return true;
+      else if (atmode == AtomExists)
+        return true;
+      else if (atmode == AtomWrite)
+        return o.st_mode & VFS_CAN_WRITE;
+      else if (atmode == AtomRead)
+        return o.st_mode & VFS_CAN_READ;
+      else if (atmode == AtomAppend)
+        return o.st_mode & VFS_CAN_WRITE;
+      else if (atmode == AtomCsult)
+        return o.st_mode & VFS_CAN_READ;
+      else if (atmode == AtomExecute)
+        return o.st_mode & VFS_CAN_EXEC;
+      else {
+        Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
+        return FALSE;
+      }
+    } else {
+      return false;
     }
+  }
 #if HAVE_ACCESS
 #if _WIN32
   {
@@ -371,27 +371,29 @@ static Int access_file(USES_REGS1) {
 }
 
 static Int exists_directory(USES_REGS1) {
-  const char *s = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+  const char *s =
+      Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS), true);
 
-    VFS_t *vfs;
-    if (!s) return false;
-    if ((vfs = vfs_owner(s))) {
-bool rc = true;
-      return vfs->isdir(vfs, s);
+  VFS_t *vfs;
+  if (!s)
+    return false;
+  if ((vfs = vfs_owner(s))) {
+    bool rc = true;
+    return vfs->isdir(vfs, s);
 
-      UNLOCK(GLOBAL_Stream[sno].streamlock);
-      return rc;
-    }
+    UNLOCK(GLOBAL_Stream[sno].streamlock);
+    return rc;
+  }
 #if HAVE_STAT
-    struct SYSTEM_STAT ss;
+  struct SYSTEM_STAT ss;
 
-    if (SYSTEM_STAT(s, &ss) != 0) {
-      /* ignore errors while checking a file */
-      return false;
-    }
-    return (S_ISDIR(ss.st_mode));
+  if (SYSTEM_STAT(s, &ss) != 0) {
+    /* ignore errors while checking a file */
+    return false;
+  }
+  return (S_ISDIR(ss.st_mode));
 #else
-    return FALSE;
+  return FALSE;
 #endif
 }
 
@@ -478,73 +480,64 @@ static Int file_directory_name(USES_REGS1) { /* file_directory_name(Stream,N) */
   return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(s)));
 }
 
-
-static const char * skip_root(const char *s0)
-{
-  const char *s = s0;
-  int ch;
-  
-  if (!s)
-    return NULL;
-  #if __WIN32
-  while ((ch = *s++) && ch != '/' && ch != '\\' && ch ch \= ':');
-  #else
-  ch = *s++;
-  #endif
-  if (!Yap_dir_separator(ch))
-    return NULL;
-  ch = *s++;
-  if (Yap_dir_separator(ch)) {
-    while ((ch = *s++)&& Yap_dir_separator(ch));
-    if (!ch) return NULL;
-    while ((ch = *s++)&& !Yap_dir_separator(ch));
-    if (!ch) return NULL;
-  }    
-  return s;    
-}
-
-static char *extend_dir(const char *s)
-{ int ch;
-    while ((ch = *s++)&& !Yap_dir_separator(ch));
-  return (char *)s;
-}
 /** @pred make_directory(+ _Dir_)
 
-Create a directory  _Yap_Dir_. If the parent directory does not exist, silently create it,
+Create a directory  _Yap_Dir_. If the parent directory does not exist, silently
+create it,
 
 */
 static Int make_directory(USES_REGS1) {
-  int lvl = push_text_stack();
-  const char *fd0 = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
-  char *fd = Malloc(strlen(fd0)+1);
-  strcpy( fd, fd0);
-  char *s = (char *)skip_root(fd), *ns;
-  int ch;
-  do {
-    if ((ns = extend_dir(s))) {
-      ch = ns[0];
-      ns[0] = '\0';
-      if (!Yap_isDirectory(fd)) {
-#if defined(__MINGW32__) || _MSC_VER
-	if (_mkdir(fd) == -1) {
-    	      /* return an CREATE_DIRECTORY,error number */
-	    UnixIOError(errno, CREATE_DIRECTORY, ARG1, "mkdir failed to create ", fd, strerror(errno));
-	    }
-#else
-	  if (mkdir(fd, 0777) == -1) {
-	      /* return an error number */
-	    UnixIOError(errno,CREATE_DIRECTORY, ARG1, "mkdir failed to create %s: %s", fd, strerror(errno));
-	    }
-#endif
-	}
-      }
+ int lvl = push_text_stack();
+  size_t sz = 0;
+  Term t = Deref(ARG1);
+  const char *fd0;
+  
+  if (IsAtomTerm(t))
+  fd0 = RepAtom(AtomOfTerm(t))->StrOfAE;
+  else if (IsStringTerm(t))
+      fd0 = StringOfTerm(t);
       
-	s = ns;
-	s[0] = ch;
-	s++;
+   fd0 =   Yap_AbsoluteFile(fd0, true PASS_REGS);
+  struct cwk_segment segment;
+  if (!cwk_path_get_first_segment(fd0, &segment)) {
+    printf("Path doesn't have any segments.");
+    return EXIT_FAILURE;
+  }
+  char *s = Malloc(YAP_FILENAME_MAX);
+
+  do {
+      if (segment.size == 0)
+          continue;
+      if (sz == 0) {
+cwk_path_get_root(fd0, &sz);
+    strncpy(s, fd0, sz);
+    s[sz] = '\0';
+      } else {
+    strncpy(s+sz, "/", 1);
+    sz++;
+  }
+    strncpy(s+sz, segment.begin, segment.size);
+    sz +=  segment.size;
+    s[sz] = '\0';
+    fprintf(stderr,"%d %s %d\n",sz,s, strlen(s));
+    if (!Yap_isDirectory(s)) {
+#if defined(__MINGW32__) || _MSC_VER
+      if (_mkdir(s) == -1) {
+        /* return an CREATE_DIRECTORY,error number */
+        UnixIOError(errno, CREATE_DIRECTORY, ARG1, "mkdir failed to create ",
+                    fd, strerror(errno));
+      }
+#else
+      if (mkdir(s, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == -1) {
+        /* return an error number */
+        UnixIOError(errno, CREATE_DIRECTORY, ARG1,
+                    "mkdir failed to create %s: %s", s, strerror(errno));
+      }
+#endif
     }
-      while (*s);
-    pop_text_stack(lvl);
+  } while (cwk_path_get_next_segment(&segment));
+
+ pop_text_stack(lvl);
   return true;
 }
 
@@ -553,72 +546,71 @@ static Int make_directory(USES_REGS1) {
  Return the list of files for a directory
  */
 static Int list_directory(USES_REGS1) {
-  Term tf =TermNil;
-VFS_t *vfsp;
-  const  char *buf = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
-    if ((vfsp = vfs_owner(buf))) {
-        void *de;
-      const char	*dp;
+  Term tf = TermNil;
+  VFS_t *vfsp;
+  const char *buf =
+      Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS), true);
+  if ((vfsp = vfs_owner(buf))) {
+    void *de;
+    const char *dp;
 
-    
     if ((de = vfsp->opendir(vfsp, buf)) == NULL) {
       PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
-		strerror(errno));
+                strerror(errno));
     }
-    while ((dp = vfsp->nextdir( de))) {
+    while ((dp = vfsp->nextdir(de))) {
       YAP_Term ti = MkAtomTerm(Yap_LookupAtom(dp));
-       tf = MkPairTerm(ti, tf);
+      tf = MkPairTerm(ti, tf);
     }
-    vfsp->closedir( de);
- } else {
+    vfsp->closedir(de);
+  } else {
 #if defined(__MINGW32__) || _MSC_VER
-        struct _finddata_t c_file;
-        char bs[BUF_SIZE];
-        long hFile;
+    struct _finddata_t c_file;
+    char bs[BUF_SIZE];
+    long hFile;
 
-        bs[0] = '\0';
+    bs[0] = '\0';
 #if HAVE_STRNCPY
-        strncpy(bs, buf, BUF_SIZE);
+    strncpy(bs, buf, BUF_SIZE);
 #else
-        strcpy(bs, buf);
+    strcpy(bs, buf);
 #endif
 #if HAVE_STRNCAT
-        strncat(bs, "/*", BUF_SIZE);
+    strncat(bs, "/*", BUF_SIZE);
 #else
-        strcat(bs, "/*");
+    strcat(bs, "/*");
 #endif
-        if ((hFile = _findfirst(bs, &c_file)) == -1L) {
-          return (Yap_unify(ARG2, tf));
-        }
-        Yap_PutInSlot(sl, MkPairTerm(MkAtomTerm(Yap_LookupAtom(c_file.name)),
-                                         Yap_GetFromSlot(sl)));
-        while (_findnext(hFile, &c_file) == 0) {
-          Term ti = MkAtomTerm(Yap_LookupAtom(c_file.name));
-          Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
-        }
-        _findclose(hFile);
-#elif HAVE_OPENDIR
-        {
-            DIR *de;
-            struct dirent *dp;
-
-            if ((de = opendir(buf)) == NULL) {
-                PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
-                          strerror(errno));
-
-                return false;
-            }
-            while ((dp = readdir(de))) {
-                Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
-                tf = MkPairTerm(ti, tf);
-            }
-            closedir(de);
-        }
-#endif /* HAVE_OPENDIR */
+    if ((hFile = _findfirst(bs, &c_file)) == -1L) {
+      return (Yap_unify(ARG2, tf));
     }
-    return Yap_unify(ARG2, tf);
-}
+    Yap_PutInSlot(sl, MkPairTerm(MkAtomTerm(Yap_LookupAtom(c_file.name)),
+                                 Yap_GetFromSlot(sl)));
+    while (_findnext(hFile, &c_file) == 0) {
+      Term ti = MkAtomTerm(Yap_LookupAtom(c_file.name));
+      Yap_PutInSlot(sl, MkPairTerm(ti, Yap_GetFromSlot(sl)));
+    }
+    _findclose(hFile);
+#elif HAVE_OPENDIR
+    {
+      DIR *de;
+      struct dirent *dp;
 
+      if ((de = opendir(buf)) == NULL) {
+        PlIOError(PERMISSION_ERROR_INPUT_STREAM, ARG1, "%s in list_directory",
+                  strerror(errno));
+
+        return false;
+      }
+      while ((dp = readdir(de))) {
+        Term ti = MkAtomTerm(Yap_LookupAtom(dp->d_name));
+        tf = MkPairTerm(ti, tf);
+      }
+      closedir(de);
+    }
+#endif /* HAVE_OPENDIR */
+  }
+  return Yap_unify(ARG2, tf);
+}
 
 static Int p_rmdir(USES_REGS1) {
   const char *fd = Yap_VFAlloc(AtomName(AtomOfTerm(ARG1)));
@@ -634,41 +626,40 @@ static Int p_rmdir(USES_REGS1) {
 }
 
 static Int access_path(USES_REGS1) {
-    Term tname = Deref(ARG1);
+  Term tname = Deref(ARG1);
 
-    if (IsVarTerm(tname)) {
-        Yap_Error(INSTANTIATION_ERROR, tname, "access");
-        return false;
-    } else if (!IsAtomTerm(tname)) {
-        Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-        return false;
-    } else {
-        VFS_t *vfs;
-        char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
-        if (!s) return false;
-        if ((vfs = vfs_owner(s))) {
-            vfs_stat st;
-            bool rc = vfs->stat(vfs, s, &st);
-            UNLOCK(GLOBAL_Stream[sno].streamlock);
-            return rc;
-        }
-#if HAVE_STAT
-        struct SYSTEM_STAT ss;
-        char *file_name;
-
-        file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
-        if (SYSTEM_STAT(file_name, &ss) != 0) {
-            /* ignore errors while checking a file */
-            return true;
-        }
-        return true;
-#else
-        return false;
-#endif
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR, tname, "access");
+    return false;
+  } else if (!IsAtomTerm(tname)) {
+    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
+    return false;
+  } else {
+    VFS_t *vfs;
+    char *s = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (!s)
+      return false;
+    if ((vfs = vfs_owner(s))) {
+      vfs_stat st;
+      bool rc = vfs->stat(vfs, s, &st);
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return rc;
     }
+#if HAVE_STAT
+    struct SYSTEM_STAT ss;
+    char *file_name;
+
+    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (SYSTEM_STAT(file_name, &ss) != 0) {
+      /* ignore errors while checking a file */
+      return true;
+    }
+    return true;
+#else
+    return false;
+#endif
+  }
 }
-
-
 
 static Int same_file(USES_REGS1) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
@@ -742,42 +733,43 @@ static Int same_file(USES_REGS1) {
 }
 
 static Int exists_file(USES_REGS1) {
-      Term tname = Deref(ARG1);
-    if (IsVarTerm(tname)) {
-        Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-        return FALSE;
-    } else {
-        VFS_t *vfs;
-        char *s =  RepAtom(AtomOfTerm(tname))->StrOfAE;
-        if (!s) return false;
-        if ((vfs = vfs_owner(s))) {
-            vfs_stat st;
-            bool rc = vfs->stat(vfs, s, &st);
-            UNLOCK(GLOBAL_Stream[sno].streamlock);
-            return rc;
-        }
-#if HAVE_STAT
-        struct SYSTEM_STAT ss;
-
-        const char *file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
-        if (SYSTEM_STAT(file_name, &ss) != 0) {
-            /* ignore errors while checking a file */
-            return FALSE;
-        }
-#if _MSC_VER
-        return ss.st_mode & S_IFREG;
-#else
-        return S_ISREG(ss.st_mode);
-#endif
-#else
-        return FALSE;
-#endif
+  Term tname = Deref(ARG1);
+  if (IsVarTerm(tname)) {
+    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
+    return FALSE;
+  } else {
+    VFS_t *vfs;
+    char *s = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (!s)
+      return false;
+    if ((vfs = vfs_owner(s))) {
+      vfs_stat st;
+      bool rc = vfs->stat(vfs, s, &st);
+      UNLOCK(GLOBAL_Stream[sno].streamlock);
+      return rc;
     }
+#if HAVE_STAT
+    struct SYSTEM_STAT ss;
+
+    const char *file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (SYSTEM_STAT(file_name, &ss) != 0) {
+      /* ignore errors while checking a file */
+      return FALSE;
+    }
+#if _MSC_VER
+    return ss.st_mode & S_IFREG;
+#else
+    return S_ISREG(ss.st_mode);
+#endif
+#else
+    return FALSE;
+#endif
+  }
 }
 
-
 static Int delete_file(USES_REGS1) {
-const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),true);
+  const char *fd =
+      Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS), true);
 #if defined(__MINGW32__) || _MSC_VER
   if (_unlink(fd) == -1)
 #else
@@ -785,9 +777,10 @@ const  char *fd = Yap_AbsoluteFile(Yap_TextTermToText(Deref(ARG1) PASS_REGS),tru
 #endif
   {
     /* return an error number */
-    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1, "unlink operation failed with error %s", strerror(errno));
+    Yap_ThrowError(SYSTEM_ERROR_OPERATING_SYSTEM, ARG1,
+                   "unlink operation failed with error %s", strerror(errno));
   }
-      return true;
+  return true;
 }
 
 void Yap_InitFiles(void) {
@@ -807,7 +800,7 @@ void Yap_InitFiles(void) {
   Yap_InitCPred("time_file64", 2, time_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("time_file", 2, time_file, SafePredFlag | SyncPredFlag);
   Yap_InitCPred("file_size", 2, file_size, SafePredFlag | SyncPredFlag);
-   Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
+  Yap_InitCPred("make_directory", 1, make_directory, SyncPredFlag);
   Yap_InitCPred("list_directory", 2, list_directory, SyncPredFlag);
   Yap_InitCPred("delete_file", 1, delete_file, SyncPredFlag);
   Yap_InitCPred("rmdir", 2, p_rmdir, SyncPredFlag);
@@ -815,4 +808,3 @@ void Yap_InitFiles(void) {
 }
 
 /// @}
- 

@@ -21,7 +21,8 @@
 live :-
     repeat,
     yap_flag(verbose, normal),
-    (   source_module( Module )
+     current_source_module( Module, Module ),
+    (  Module == user
     ->  true % '$compile_mode'(_,0)
     ;   format(user_error, '[~w]~n', [Module])
     ),
@@ -160,7 +161,7 @@ live :-
 	 !,
 	 '$execute_command'(G, M, VL, Pos, top, Source).
  '$execute_command'(G, M, VL, Pos, Option, Source) :-
-	 '$continue_with_command'(Option, VL, Pos, M:G, Source).
+	 '$continue_with_command'(Option, VL, Pos, M,G, Source).
 
 '$expand_term'(T,O) :-
 	 '$expand_term'(T,top,O).
@@ -182,17 +183,17 @@ live :-
 '$expand_term1'(T,O) :-
         expand_goal(T, O).
 
-'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :-
+'$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),M,G,'$source_location'(_F,L):Source) :-
     !,
-	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
-'$continue_with_command'(reconsult,V,Pos,G,Source) :-
-	'$go_compile_clause'(G,V,Pos,reconsult,Source),
+	'$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),M,G,Source).
+'$continue_with_command'(reconsult,V,Pos,M,G,Source) :-
+	'$go_compile_clause'(G,M,V,Pos,reconsult,Source),
 	fail.
-'$continue_with_command'(consult,V,Pos,G,Source) :-
-	'$go_compile_clause'(G,V,Pos,consult,Source),
+'$continue_with_command'(consult,V,Pos,M,G,Source) :-
+	'$go_compile_clause'(G,M,V,Pos,consult,Source),
 	fail.
-'$continue_with_command'(top,V,_,G,_) :-
-    '$query'(G,V).
+'$continue_with_command'(top,V,_,M,G,_) :-
+    '$query'(G,M,V).
 
  %%
  % @pred '$go_compile_clause'(G,Vs,Pos, Where, Source) is det
@@ -206,16 +207,17 @@ live :-
  % @param [in] _Pos_ the source-code position
  % @param [in] _N_  a flag telling whether to add first or last
  % @param [out] _Source_ the user-tranasformed clause
-'$go_compile_clause'(G, _Vs, _Pos, Where, Source) :-
-     '$precompile_term'(G, Source, G1),
-     !,
-     '$$compile'(G1, Where, Source, _).
+'$go_compile_clause'(G, M, _Vs, _Pos, Where, Source) :-
+     '$precompile_term'(M:G, Source, G1),
+     '$yap_strip_module'(G1,Mod,GF),
+    !,
+     '$$compile'(GF,Mod, Where, Source, _).
  '$go_compile_clause'(G,_Vs,_Pos, _Where, _Source) :-
      throw(error(system, compilation_failed(G))).
 
-'$$compile'(C, Where, C0, R) :-
+'$$compile'(C,M, Where, C0, R) :-
     '$head_and_body'( C, H, B ),
-    '$yap_strip_module'(H,Mod,H0),
+    '$yap_strip_module'(M:H,Mod,H0),
    (
      '$undefined'(H0, Mod)
     ->
@@ -269,16 +271,20 @@ live :-
 
 /* Executing a query */
 
-'$query'(end_of_file,[]).
-'$query'(G,[]) :-
+'$query'(end_of_file,_,[]).
+'$query'([F|Files],M,[]) :-
+    list([F|Files]),
+    !,
+    '$csult'(M:[F|Files]).
+'$query'(G,M,[]) :-
 	 current_prolog_flag(prompt_alternatives_on, OPT),
 	 ( OPT = groundness ; OPT = determinism),
 	 !,
-	 '$yes_no'(G,(?-)).
-'$query'(G0,V) :-
+	 '$yes_no'(G,M,(?-)).
+'$query'(G0,M,V) :-
     (
 	'$current_choice_point'(CP),
-	query(G0,V,NVs,LGs),
+	query(M:G0,V,NVs,LGs),
     '$write_answer'(NVs, LGs, Written),
     '$write_query_answer_true'(Written),
 	'$current_choice_point'(NCP),
@@ -305,12 +311,12 @@ query(G0, Vs, NVs, LGs) :-
     ->
      '$trace_goal'(G, M, outer, _GN, CP )
     ;
-    '$call'(G, CP, G0, M) 
+    catch('$call'(G, CP, G0, M) ,E,'$LoopError'(E,top))
     ),
     copy_term(G+Vs, _IG+NVs, LGs).
 
-'$yes_no'(G,C) :-
-     query(G,[],NV,LGs), 
+'$yes_no'(G,M,C) :-
+     query(M:G,[],NV,LGs), 
     '$write_answer'(NV, LGs, Written),
     (
 	Written = []
@@ -755,14 +761,15 @@ Command = (H --> B) ->
     format(user_error, ':- ~w failed.~n', [Goal]).
 
 '$boot_dcg'( H, B, Where ) :-
-  '$translate_rule'((H --> B), (NH :- NB) ),
-  '$$compile'((NH :- NB), Where, ( H --> B), _R),
+    '$translate_rule'((H --> B), NR),
+    '$yap_strip_module'(NR, M, (NH :- NB) ),
+  '$$compile'((NH :- NB), M,Where, ( H --> B), _R),
   !.
 '$boot_dcg'( H, B, _ ) :-
   format(user_error, ' ~w --> ~w failed.~n', [H,B]).
 
 '$boot_clause'( Command, Where ) :-
-  '$$compile'(Command, Where, Command, _R),
+  '$$compile'(Command,prolog, Where, Command, _R),
   !.
 '$boot_clause'( Command, _ ) :-
   format(user_error, ' ~w failed.~n', [Command]).

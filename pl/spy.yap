@@ -477,8 +477,8 @@ notrace(G) :-
     ;
       '$is_private'(G,Module)
      ;
-      functor(G,Na,_), atom_concat('$',_,Na)
-    ;
+    %  functor(G,Na,_), atom_concat('$',_,Na)
+    %;
       \+ '$debuggable'(G, Module,GoalNo)
      ).
 

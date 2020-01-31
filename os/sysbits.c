@@ -2,7 +2,7 @@
  *									 *
  *	 YAP Prolog 							 *
  *									 *
- *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *                 
  *									 *
  * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
  *									 *
@@ -319,11 +319,12 @@ static int volume_header(char *file) {
 
 int Yap_volume_header(char *file) { return volume_header(file); }
 
-const char *Yap_getcwd(char *cwd, size_t cwdlen) {
-  if (GLOBAL_cwd && GLOBAL_cwd[0]) {
-    strcpy(cwd, GLOBAL_cwd);
+const char *Yap_getcwd(char *buf, size_t cwdlen) {
+#if USE_CWD_CACHE
+if (GLOBAL_cwd && GLOBAL_cwd[0]) {
     return cwd;
   }
+#endif
 #if _WIN32 || defined(__MINGW32__)
   if (GetCurrentDirectory(cwdlen, (char *)cwd) == 0) {
     Yap_WinError("GetCurrentDirectory failed");
@@ -331,7 +332,11 @@ const char *Yap_getcwd(char *cwd, size_t cwdlen) {
   }
   return (char *)cwd;
 #endif
-  const char *rc = getcwd(cwd, FILENAME_MAX);
+  const char *rc = NULL;
+  while ((rc=getcwd(buf, cwdlen)) == NULL && errno == ERANGE) {
+      cwdlen *=2 ;
+      buf = realloc(buf, cwdlen);
+  }
  // __android_log_print(ANDROID_LOG_INFO, "YAPDroid", "chdir %s", rc);
 return rc;
 }

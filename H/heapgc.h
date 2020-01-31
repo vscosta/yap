@@ -563,6 +563,7 @@ typedef struct cp_frame {
   copy_frame *pt;
   copy_frame *max;
   int lvl, restarts;
+  size_t sz;
    CELL *hlow, *hb;
   tr_fr_ptr tr0;
   Term *t, *bindp,*arenap;

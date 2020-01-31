@@ -83,7 +83,7 @@ INLINE_ONLY void save_B(void);
 #define INIT_REGS
 #define PASS_REGS1
 #define PASS_REGS
-#define USES_REGS1 void
+#define USES_REGS1  void
 #define USES_REGS
 #define WORKER_REGS(WID)
 

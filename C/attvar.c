@@ -1080,8 +1080,8 @@ void Yap_InitAttVarPreds(void) {
   Yap_InitCPred("free_term", 1, free_term, SafePredFlag);
   Yap_InitCPred("fast_unify_attributed", 2, fast_unify, 0);
 #endif /* COROUTINING */
-  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
   CurrentModule = OldCurrentModule;
+  Yap_InitCPred("all_attvars", 1, all_attvars, 0);
     Yap_InitCPred("get_attr", 3, get_attr, SafePredFlag);
     Yap_InitCPred("del_attr", 3, del_attr, SafePredFlag);
     Yap_InitCPred("put_attr", 3, put_attr, 0);

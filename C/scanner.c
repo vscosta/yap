@@ -529,8 +529,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     *sp++ = ch;
     ch = getchr(st);
     if (!my_isxdigit(ch, 'F', 'f'))  {
-        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
-        Yap_local.ActiveError->errorRawTerm = 0;
+      const char *s0 = LOCAL_RawTerm;
+        Term t = ( s0 ? Yap_BufferToTerm(LOCAL_RawTerm,TermNil) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = NULL;
       Yap_ThrowError(SYNTAX_ERROR, t, "invalid hexadecimal digit 0x%C",ch)   ;
       return 0;
     }
@@ -554,8 +555,9 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     base = 8;
     ch = getchr(st);
       if (ch < '0' || ch > '7') {
-          Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
-          Yap_local.ActiveError->errorRawTerm = 0;
+      const char *s0 = LOCAL_RawTerm;
+      Term t = ( s0 ? Yap_BufferToTerm(LOCAL_RawTerm,TermNil) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = NULL;
           Yap_ThrowError(SYNTAX_ERROR, t, "invalid octal digit 0x%C",ch)   ;
         return 0;
       }
@@ -564,8 +566,8 @@ static Term get_num(int *chp, int *chbuffp, StreamDesc *st, int sign, char **buf
     base = 2;
     ch = getchr(st);
     if (ch < '0' || ch > '1') {
-        Term t = ( Yap_local.ActiveError->errorRawTerm ?  Yap_local.ActiveError->errorRawTerm : MkIntegerTerm(ch) );
-        Yap_local.ActiveError->errorRawTerm = 0;
+      const char *s0 = LOCAL_RawTerm;        Term t = ( s0 ? Yap_BufferToTerm(LOCAL_RawTerm,TermNil) : MkIntegerTerm(ch) );
+        Yap_local.ActiveError->errorRawTerm = NULL;
         Yap_ThrowError(SYNTAX_ERROR, t, "invalid binary digit 0x%C",ch)   ;
       return 0;
     }

@@ -6687,7 +6687,7 @@
 	BOp(undef_p, e);
 	/* save S for module name */
 	saveregs();
-	undef_goal( PASS_REGS1 );
+	undef_goal( PredFromDefCode(PREG) PASS_REGS );
 	setregs();
 	/* for profiler */
 	CACHE_A1();

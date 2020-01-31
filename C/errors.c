@@ -258,10 +258,14 @@ bool Yap_Warning(const char *s, ...) {
   char tmpbuf[MAXPATHLEN];
   yap_error_number err;
 
+  if (LOCAL_DoingUndefp)
+    return false;
   LOCAL_DoingUndefp = true;
   if (LOCAL_PrologMode & InErrorMode && (err = LOCAL_ActiveError->errorNo)) {
     fprintf(stderr, "%% Warning %s WITHIN ERROR %s %s\n", s,
             Yap_errorClassName(Yap_errorClass(err)), Yap_errorName(err));
+    LOCAL_DoingUndefp = false;
+    LOCAL_PrologMode &= ~InErrorMode;
     Yap_RestartYap(1);
   }
   LOCAL_PrologMode |= InErrorMode;
@@ -276,6 +280,8 @@ bool Yap_Warning(const char *s, ...) {
     (void)vsprintf(tmpbuf, fmt, ap);
 #endif
   } else {
+    LOCAL_DoingUndefp = false;
+    LOCAL_PrologMode &= ~InErrorMode;
     return false;
   }
   va_end(ap);
@@ -333,6 +339,11 @@ void Yap_InitError__(const char *file, const char *function, int lineno,
 
 bool Yap_PrintWarning(Term twarning) {
   CACHE_REGS
+     if (LOCAL_DoingUndefp)
+    { P = FAILCODE;
+      return false;
+    }
+ 
   PredEntry *pred = RepPredProp(PredPropByFunc(
       FunctorPrintMessage, PROLOG_MODULE)); // PROCEDURE_print_message2;
   if (twarning)
@@ -427,9 +438,10 @@ bool Yap_HandleError__(const char *file, const char *function, int lineno,
     }
   default:
   
-    if (LOCAL_PrologMode == UserMode)
-      Yap_ThrowError__(file, function, lineno, err, LOCAL_RawTerm, serr);
-    else
+    if (LOCAL_PrologMode == UserMode) {
+      Term raw = LOCAL_RawTerm ? Yap_BufferToTerm(LOCAL_RawTerm,TermNil) : TermNil;
+	Yap_ThrowError__(file, function, lineno, err, raw, serr);
+    } else
       LOCAL_PrologMode &= ~InErrorMode;
     return false;
   }
@@ -1027,8 +1039,8 @@ static Int reset_exception(USES_REGS1) { return Yap_ResetException(worker_id); }
 
 
 Term MkErrorTerm(yap_error_descriptor_t *t) {
-  if (t->errorClass == EVENT)
-    return t->errorRawTerm;
+  if (t->errorClass == EVENT && t->errorRawTerm )
+    return  Yap_BufferToTerm(t->errorRawTerm, TermNil) ;
   Term tc = t->culprit ? Yap_BufferToTerm(t->culprit, TermNil) : TermNil;
   if (tc == 0)
     tc = MkAtomTerm(Yap_LookupAtom(t->culprit));
@@ -1134,7 +1146,7 @@ static Int get_exception(USES_REGS1) {
     LOCAL_PrologMode = UserMode;
     if (i->errorRawTerm &&
         (i->errorClass == EVENT || i->errorNo == SYNTAX_ERROR)) {
-      t = i->errorRawTerm;
+      t = Yap_BufferToTerm(i->errorRawTerm, TermNil);
     } else if (i->culprit != NULL) {
       Term culprit = Yap_BufferToTerm(i->culprit, TermNil);
       if (culprit == 0) culprit = TermNil;
@@ -1151,7 +1163,7 @@ static Int get_exception(USES_REGS1) {
 yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
   i->errorNo = ERROR_EVENT;
   i->errorClass = EVENT;
-  i->errorRawTerm = Yap_SaveTerm(t);
+  i->errorRawTerm = i->culprit;
   return i;
 }
 
@@ -1164,7 +1176,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
         LOCAL_ActiveError->errorAsText = Yap_errorName(THROW_EVENT);
         LOCAL_ActiveError->classAsText =
                 Yap_errorClassName(Yap_errorClass(THROW_EVENT));
-        LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
+        LOCAL_ActiveError->errorRawTerm = Yap_TermToBuffer(t,Quote_illegal_f);
         LOCAL_ActiveError->culprit = NULL;
     } else     if (i->errorNo != YAP_NO_ERROR && i->errorNo != ERROR_EVENT) {
             LOCAL_Error_TYPE = i->errorNo;
@@ -1172,7 +1184,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
             LOCAL_ActiveError->errorAsText = Yap_errorName(i->errorNo);
             LOCAL_ActiveError->classAsText =
                     Yap_errorClassName(Yap_errorClass(i->errorNo));
-            LOCAL_ActiveError->errorRawTerm = Yap_SaveTerm(t);
+            LOCAL_ActiveError->errorRawTerm =  Yap_TermToBuffer(t,Quote_illegal_f);
             LOCAL_ActiveError->culprit = NULL;
   } else {
     Term t1, t2;

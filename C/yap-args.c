@@ -1078,12 +1078,6 @@ static void init_hw(YAP_init_args *yap_init, struct ssz_t *spt) {
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
 
-#if __ANDROID__
-
-  // if (yap_init->assetManager)
-  // Yap_InitAssetManager();
-
-#endif
 
   if (yap_init->TrailSize == 0) {
     if (spt->Trail == 0)
@@ -1130,7 +1124,14 @@ static void start_modules(void) {
    that wants to control Yap */
 
 X_API void YAP_Init(YAP_init_args *yap_init) {
-  bool try_restore = yap_init->boot_file_type == YAP_QLY;
+ 
+#if __ANDROID__
+
+  // if (yap_init->assetManager)
+//Yap_InitAssetManager();
+#endif
+GLOBAL_VFS = NULL;
+ bool try_restore = yap_init->boot_file_type == YAP_QLY;
   bool do_bootstrap = yap_init->boot_file_type == YAP_PL ||
     yap_init->boot_file_type == YAP_SOURCE_PL;
   struct ssz_t minfo;

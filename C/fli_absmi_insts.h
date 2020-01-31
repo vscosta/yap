@@ -28,6 +28,7 @@
 #else
       if (YREG > (CELL *)top_b)
         ASP = (CELL *)top_b;
+
 #endif /* YAPOR_SBA */
       else
         ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
@@ -57,7 +58,7 @@
       JMPNext();
 
     NoStackCCall:
-      PROCESS_INTERRUPT(interrupt_call, do_c_call, PREG->y_u.Osbpp.s);
+      PROCESS_INTERRUPT(interrupt_execute, do_c_call, PREG->y_u.Osbpp.s);
 
       ENDBOp();
 
@@ -611,16 +612,16 @@
 
       BOp(undef_p, e);
       /* save S for module name */
-      if (LOCAL_DoingUndefp) {
+      if (LOCAL_DoingUndefp ||LOCAL_PrologMode & InErrorMode ) {
 	PREG=FAILCODE;
 	JMPNext();
       }
         LOCAL_DoingUndefp = true;
 	saveregs();
-      undef_goal(PASS_REGS1);
+	undef_goal( PredFromDefCode(PREG) PASS_REGS );
       setregs();
       /* for profiler */
-        LOCAL_DoingUndefp = false;
+      ///x        LOCAL_DoingUndefp = false;
       CACHE_A1();
       JMPNext();
       ENDBOp();

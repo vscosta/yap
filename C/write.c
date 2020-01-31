@@ -1163,8 +1163,8 @@ t = Deref(t);
     //        if  (flags & Singleton_vars_f)
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
   }
-  if (flags & (Named_vars_f|Handle_cyclics_f)) {
-    	Yap_HardNumberVars(t, 0, flags & Handle_cyclics_f    PASS_REGS);
+  if (flags & (Named_vars_f|Singleton_vars_f)) {
+    //	Yap_HardNumberVars(t, 0, flags & Singleton_vars_f  PASS_REGS);
   }
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;

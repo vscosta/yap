@@ -2049,6 +2049,7 @@ Term Yap_RunTopGoal(Term t, bool handle_errors) {
 }
 
 static void do_restore_regs(Term t, int restore_all USES_REGS) {
+  t = Deref(t);
     if (IsApplTerm(t)) {
         Int i;
         Int max = ArityOfFunctor(FunctorOfTerm(t)) - 4;

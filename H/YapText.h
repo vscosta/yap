@@ -15,6 +15,9 @@
  * comments:	Term conversion C implemented support			 *
  *									 *
  *************************************************************************/
+#ifndef YAPTEXT_H_INCLUDED
+#define YAPTEXT_H_INCLUDED
+
 #ifndef YAP_TEXT_H
 #define YAP_TEXT_H
 #include "Yap.h"
@@ -1316,7 +1319,7 @@ static inline const char *Yap_TextTermToText(Term t0 USES_REGS) {
   inp.type = YAP_STRING_ATOM | YAP_STRING_STRING | YAP_STRING_CODES |
              YAP_STRING_ATOMS_CODES | YAP_STRING_MALLOC;
   out.val.uc = NULL;
-  out.type = YAP_STRING_CHARS;
+  out.type = YAP_STRING_CHARS| YAP_STRING_MALLOC;
   out.enc = ENC_ISO_UTF8;
 
   if (!Yap_CVT_Text(&inp, &out PASS_REGS))
@@ -1554,3 +1557,5 @@ static inline Term Yap_SubtractTailString(Term t1, Term th USES_REGS) {
 #endif // ≈YAP_TEXT_H
 
 extern Term Yap_MkTextTerm(const char *s, int guide USES_REGS);
+
+#endif // YAPTEXT_H_INCLUDED

@@ -72,13 +72,13 @@
       /* skip the current instruction plus the next one */
       PREG = NEXTOP(NEXTOP(PREG, Osblp),l);
       GONext();
-      ENDD(d0);
 
 #ifdef COROUTINING
     NoStackEither:
       PROCESS_INTERRUPT(interrupt_either, either_notest, PREG->y_u.Osblp.s);
 #endif
 
+      ENDD(d0);
       ENDOp();
 
       Op(or_else, Osblp);

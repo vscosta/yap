@@ -140,6 +140,6 @@ static void InitGlobal(void) {
   GLOBAL_FileAliases = Yap_InitStandardAliases();
 
 
-  GLOBAL_VFS = Yap_InitAssetManager();
+  GLOBAL_VFS = NULL;
   GLOBAL_cwd = NULL;
 }

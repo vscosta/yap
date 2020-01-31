@@ -246,7 +246,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     const char *culprit;
     /// Prolog stack at the time
     const char *prologStack;
-    YAP_Term errorRawTerm, rawExtraErrorTerm;
+    const char * errorRawTerm, rawExtraErrorTerm;
      char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;
