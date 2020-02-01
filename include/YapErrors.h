@@ -36,6 +36,7 @@ ECLASS(UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error", 1)
 ECLASS(WARNING, "warning", 1)
 /// user defined escape hatch
 ECLASS(EVENT, "event", 1)
+ECLASS(FILLER_ERROR_CLASS, NULL, 1)
 
 END_ERROR_CLASSES();
 
@@ -212,5 +213,5 @@ E(WARNING_SINGLETONS, WARNING, "singletons")
 E(WARNING_SYNTAX_ERROR, WARNING, "syntax_error")
 
 E1(UNINSTANTIATION_ERROR, UNINSTANTIATION_ERROR_CLASS, "uninstantiation_error")
-
+  E1(FILLER_ERROR, FILLER_ERROR_CLASS, NULL) /// default state
 END_ERRORS();

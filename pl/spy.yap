@@ -480,7 +480,8 @@ notrace(G) :-
     %  functor(G,Na,_), atom_concat('$',_,Na)
     %;
       \+ '$debuggable'(G, Module,GoalNo)
-     ).
+     ),
+     !.
 
 /**
   * @pred $stop_at_this_goal( Goal, Module, Id)

@@ -513,8 +513,8 @@ prolog:'$wait'(Na/Ar) :-
 	functor(S, Na, Ar),
 	'$yap_strip_module'(S, M, H),
 	arg(1, H, A),
-	'$$compile'((H :- var(A), !, freeze(A, S)), M, assertz, (S :- var(A), !, freeze(A, S)), M,'$wait'(Na/Ar),  _), fail.
-prolog:'$wait'(_).
+	'$$compile'((H :- var(A), !, freeze(A, S)), M, assertz( (S :- var(A), !, freeze(A, S)), M,'$wait'(Na/Ar) ),  _), fail.
+prolog:'$wait'(_).     
 
 /** @pred frozen( _X_, _G_)
 

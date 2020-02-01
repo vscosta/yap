@@ -308,7 +308,7 @@ query(G0, Vs, NVs, LGs) :-
     '$current_choice_point'(CP),
 (
     '$dotrace'(G,M, _GoalNo)
-    ->
+->
      '$trace_goal'(G, M, outer, _GN, CP )
     ;
     catch('$call'(G, CP, G0, M) ,E,'$LoopError'(E,top))
@@ -601,8 +601,8 @@ write_query_answer( Bindings ) :-
 	'$call'(G, CP, G0, M).
 */
 '$call'(X,_CP,_G0,_M) :-
-must_be_callable(X),
-fail.
+    must_be_callable(X),
+    fail.
 '$call'((X,Y),CP,G0,M) :- !,			
         '$call'(X,CP,G0,M),
         '$call'(Y,CP,G0,M).
@@ -960,19 +960,19 @@ catch(G, C, A) :-
         abort.
 '$run_catch'('$Error'(E),E) :-
         !,
-               '$LoopError'(E, top ).
+    '$LoopError'(E, top ).
 '$run_catch'('$debugger'(E),E) :-
         !,
-               '$LoopError'('$debugger'(E), top ).
+    '$LoopError'('$debugger'(E), top ).
 '$run_catch'('$LoopError'(E, Where),E) :-
       !,
-      '$LoopError'(E, Where).
+    '$LoopError'(E, Where).
 '$run_catch'('$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger),E) :-
       !,
-      '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
+    '$TraceError'(E, GoalNumber, G, Module, CalledFromDebugger).
 '$run_catch'(_Signal,E) :-
-      functor( E, N, _),
-      '$hidden_atom'(N), !,
+    functor( E, N, _),
+    '$hidden_atom'(N), !,
       throw(E).
 '$run_catch'( Signal, _E) :-
     call( Signal ).
