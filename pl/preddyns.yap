@@ -52,8 +52,7 @@ assert(Clause) :-
 
 '$assert'(Clause, Where, R) :-
        once('$expand_clause'(Clause,assert,C0,C)),
-       '$yap_strip_module'(C,M,G),
-       '$$compile'(G, M, Where, C0, R).
+       '$$compile'(C, Where, C0, R).
 
 /** @pred  asserta(+ _C_,- _R_)
 

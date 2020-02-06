@@ -263,7 +263,6 @@ portray_clause(Stream, Clause) :-
 Write clause  _C_ as if written by listing/2. _Opts_ gives the options used to call write_term/3.
 
 */
-
 portray_clause(Stream, Clause, Opts) :-
     portray_clause_(Stream, Clause, Opts),
     fail.
@@ -292,7 +291,7 @@ Write clause  _C_ as if written by listing/0.
 portray_clause(Clause) :-
     current_output(Stream),
     yap_flag(portray_clause_options, Opts),
-    portray_clause(Stream, Clause, Opts).
+    portray_clause(Stream, Opts, Clause).
 
 '$portray_clause'(Stream, Opts, (Pred :- true)) :-
     !,

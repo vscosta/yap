@@ -1426,7 +1426,8 @@ initialization(_G,_OPT).
 	;
 	 OPT == after_load
 	->
-	 '$initialization_queue'(G)
+	strip_module(G, M, GM),
+	'$initialization_queue'(M:GM)
 	;
 	 OPT == restore
 	->

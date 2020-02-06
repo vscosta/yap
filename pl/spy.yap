@@ -498,6 +498,10 @@ notrace(G) :-
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
 
+'$debuggable'(_G, _Module,_GoalNo) :-
+    current_prolog_flag( debug, false ),
+    !.
+    
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),

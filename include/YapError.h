@@ -107,7 +107,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 
 #define LOCAL_TERM_ERROR(t, v)                                                 \
   if (HR + (v) > ASP - 1024) {                                                 \
-    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                                   \
+    LOCAL_Error_TYPE = RESOURCE_ERROR_STACK;                          \
     LOCAL_Error_Size = 2 * (v) * sizeof(CELL);                                 \
     return 0L;                                                                 \
   }
@@ -246,7 +246,8 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
     const char *culprit;
     /// Prolog stack at the time
     const char *prologStack;
-    const char * errorRawTerm, rawExtraErrorTerm;
+   YAP_Term errorRawTerm;
+    //Term FullErrorTerm;
      char *errorMsg;
     size_t errorMsgLen;
     struct s_yap_error_descriptor *top_error;
@@ -259,6 +260,7 @@ Yap_Error__(false, __FILE__, __FUNCTION__, __LINE__, id, TermNil, __VA_ARGS__)
 #define LOCAL_Error_Lineno LOCAL_ActiveError->errorLine
 #define LOCAL_Error_Size LOCAL_ActiveError->errorMsgLen
 #define LOCAL_RawTerm LOCAL_ActiveError->errorRawTerm
+#define LOCAL_ErrorFullTerm LOCAL_ActiveError->FullErrorTerm
 #define LOCAL_ErrorMessage LOCAL_ActiveError->errorMsg
 
   extern void Yap_CatchError(void);

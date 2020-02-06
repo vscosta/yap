@@ -984,7 +984,8 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
       if (op > p) {
         wrclose_bracket(wglb, TRUE);
       }
-    } else if (functor == FunctorDollarVar) {
+    } else if (functor == FunctorDollarVar ||
+	       functor == FunctorHiddenVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
         wrputc(' ', wglb->stream);
@@ -1006,6 +1007,10 @@ static void writeTerm(Term t, int p, int depth, int rinfixarg,
              lastw = separator;
             return;
           } else {
+	    if (functor == FunctorHiddenVar) {
+            wrputc( '_', wglb->stream);
+            wrputc('V', wglb->stream);
+	    }
             wrputc((k % 26) + 'A', wglb->stream);
             if (k >= 26) {
               /* make sure we don't get confused about our context */
@@ -1133,7 +1138,6 @@ void Yap_plwrite(Term t, StreamDesc *mywrite, int max_depth, int flags,
   }
   if (args && args[WRITE_VARIABLE_NAMES].used) {
     flags = args[WRITE_VARIABLE_NAMES].tvalue == TermTrue ? Named_vars_f|flags :   Named_vars_f& ~flags ; 
-    FunctorDollarVar = FunctorHiddenVar;
 }
   if (args && args[WRITE_NUMBERVARS].used) {
   flags = args[WRITE_NUMBERVARS].tvalue == TermTrue ? flags | Handle_vars_f
@@ -1155,16 +1159,18 @@ t = Deref(t);
   if (flags & Handle_cyclics_f && Yap_IsCyclicTerm(t)) {
      t = Yap_TermAsForest(t PASS_REGS);
   } 
-  if (flags & (Singleton_vars_f|Named_vars_f)) {
+  if (flags & Named_vars_f) {
       // reset $VAR to user default.
       FunctorDollarVar = fdv;
   }
   if (flags & Named_vars_f) {
     //        if  (flags & Singleton_vars_f)
+    FunctorDollarVar = FunctorHiddenVar;
     bind_variable_names(args[WRITE_VARIABLE_NAMES].tvalue, &n PASS_REGS);
-  }
+    FunctorDollarVar = fdv;
+    }
   if (flags & (Named_vars_f|Singleton_vars_f)) {
-    //	Yap_HardNumberVars(t, 0, flags & Singleton_vars_f  PASS_REGS);
+    Yap_HardNumberVars(t, 0, flags & Singleton_vars_f  PASS_REGS);
   }
     wglb.stream = mywrite;
   wglb.Ignore_ops = flags & Ignore_ops_f;

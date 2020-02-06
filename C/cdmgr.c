@@ -3659,6 +3659,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     Term rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     bool rc;
+    Yap_DebugPlWriteln(t);
     rc = Yap_unify(Terms[2], rtn);
     if (FunctorOfTerm(t) != FunctorAssert) {
       rc = rc && Yap_unify(Terms[1], TermTrue);
@@ -4127,7 +4128,7 @@ static Int predicate_flags(
     Term te = Yap_Eval(ARG4);
 
     if (IsIntegerTerm(te)) {
-      newFl = IntegerOfTerm(te);
+                                                                                                               newFl = IntegerOfTerm(te);
     } else {
       UNLOCK(pe->PELock);
       Yap_Error(TYPE_ERROR_INTEGER, ARG4, "flags");

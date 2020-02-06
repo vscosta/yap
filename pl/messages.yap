@@ -208,7 +208,7 @@ compose_message(error(E, Exc), Level) -->
     },
     location(error(E, Exc), Level, LC),
     main_message(error(E,Exc) , Level, LC ),
-%    c_goal( error(E, Exc), Level ),
+    c_goal( error(E, Exc), Level ),
     caller( error(E, Exc), Level ),
     extra_info( error(E, Exc), Level ),
     stack_info( error(E, Exc), Level ),
@@ -260,7 +260,7 @@ compose_message(Throw, _Level) -->
     !,
     [ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
 
-location( error(E,Info), Level, LC ) -->
+location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {	query_exception(prologConsulting, Desc, true) },
 %    {	query_exception(parserReadingCode, Desc, true)}, 
@@ -269,17 +269,12 @@ location( error(E,Info), Level, LC ) -->
   query_exception(parserFile, Desc, FileName),
   query_exception(parserLine, Desc, LN)
     },
-    [ '~*|~a:~d:~d: ~a in load file:' - [LC,FileName,LN,0,Level], nl ],
-      {NLC is LC+4},
-      location_pl( error(E,Info), Level, NLC ) .
+    [ '~a:~d:~d: ~a:' - [FileName,LN,0,Level] ] .
 location(style_check(A,LN,FileName,B ), Level , LC) -->
   !,
-  display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ).
-location( error(E,Info), Level, LC ) -->
-      location_pl( error(E,Info), Level, LC ) .
-
-
-location_pl( error(E,Info), Level, LC ) -->
+  display_consulting( FileName, Level,style_check(A,LN,FileName,B ),  LC ),
+  [ '~a:~d:0: ~a: ' - [FileName,LN,Level] ] .
+location( error(_,Info), Level, _LC ) -->
     { '$error_descriptor'(Info, Desc) },
     {
   query_exception(prologPredFile, Desc, File),
@@ -288,14 +283,10 @@ location_pl( error(E,Info), Level, LC ) -->
   query_exception(prologPredName, Desc, Na),
   query_exception(prologPredArity, Desc, Ar)
     },
+  !,
   {simplify_pred(M:Na/Ar,FF)},
-  [  '~*|~a:~d:0 ~a  at ~q:'-[LC,File, FilePos,Level,FF],nl ],
-      { NLC is LC+4},
-      location_c( error(E,Info), Level, NLC ) .
-location_pl( error(E,Info), Level, LC ) -->
-      location_c( error(E,Info), Level, LC ) .
-  
-location_c( error(_,Info), Level, _LC ) -->
+  [  '~a:~d:0 ~a while executing ~q:'-[File, FilePos,Level,FF] ].
+location( error(_,Info), Level, _LC ) -->
   { '$error_descriptor'(Info, Desc) },
    {
    query_exception(errorFile, Desc, File),
@@ -304,8 +295,8 @@ location_c( error(_,Info), Level, _LC ) -->
   },
   !,
   {simplify_pred(F,FF)},
-  [  '~a:~d:0 ~a exception at ~a().'-[File, FilePos,Level,FF], nl ].
-location_c( _Ball, _Level, _LC ) --> [].
+  [  '~a:~d:0 ~a while executing ~a().'-[File, FilePos,Level,FF] ].
+location( _Ball, _Level, _LC ) --> [].
 
 event(redo, _Info) --> {fail}.
 event(fail, _Info) --> {fail}.
@@ -1065,24 +1056,35 @@ prolog:print_message(_, _Msg) :-
   % first step at hook processing
   '__NB_getval__'('$if_skip_mode',skip,fail),
   !.
-prolog:print_message_lines(user_error, Prefix, Lines)))
-  ),
-  !.
-%:- nb_setval(verbose,normal).
- 
+prolog:print_message(force(_Severity), Msg) :- !,
+  print(user_error,Msg).
+% This predicate has more hooks than a pirate ship!
 prolog:print_message(Severity, Term) :-
-  compose_message( Term, Severity, Lines0, [ end(Id)]),
+    message( Term,Lines0, [ end(Id)]),
   Lines = [begin(Severity, Id)| Lines0],
   (
    user:message_hook(Term, Severity, Lines)
   ->
    true
   ;
-   ( prefix( Severity, Prefix ) -> true ; Prefix = '' ),
-   prolog:print_message_lines(user_error, Prefix, Lines)
+   ignore((prefix( Severity, Prefix ),
+   prolog:print_message_lines(user_error, Prefix, Lines)))
   ),
   !.
+%:- nb_setval(verbose,normal).
 
+prolog:print_message(Severity, Term) :-
+    translate_message( Term, Severity, Lines0, [ end(Id)]),
+  Lines = [begin(Severity, Id)| Lines0],
+  (
+   user:message_hook(Term, Severity, Lines)
+  ->
+   true
+  ;
+   ignore((	prefix( Severity, Prefix ),
+   prolog:print_message_lines(user_error, Prefix, Lines)))
+  ),
+  !.
 
 
 prolog:print_message(_Severity, _Term) :-

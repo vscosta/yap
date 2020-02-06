@@ -77,7 +77,7 @@ defined.
 prolog:copy_term(Term, NTerm, LGs) :-
 	term_attvars(Term, Vs),
 	(   Vs == []
-	->  LGs = [], copy_term_nat(Term,NTerm)
+	->  writeln(LGs), LGs = [], copy_term_nat(Term,NTerm)
 	;
 	findall(OTerm+OGs,
 	 (attributes:attvars_residuals(Vs, Gs, []),

@@ -470,7 +470,8 @@ be lost.
 	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
     '$creep_run_sources'(
- 	'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
+	true,
+ 	%'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)

@@ -731,7 +731,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
   cell_space_t cspace;
   int res = 0;
   Term tf;
-  size_t sz = 1024;
   Ystack_t stt_, *stt = &stt_;
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     return t;
@@ -1261,6 +1260,11 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
   return to;
 }
 
+Term Yap_CopyTermToArena(Term
+			 inp, Term *arenap) {
+  CACHE_REGS
+  return CopyTermToArena(inp, false, true, 3, arenap, NULL, 0 PASS_REGS);
+}
 Term Yap_SaveTerm(Term t0) {
   CACHE_REGS
   Term to;
