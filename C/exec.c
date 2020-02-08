@@ -40,10 +40,9 @@ static char SccsId[] = "@(#)cdmgr.c	1.1 05/02/98";
 static bool CallPredicate(PredEntry *, choiceptr, yamop *CACHE_TYPE);
 static Int execute_nonstop(PASS_REGS1);
 static Int creep_clause(PASS_REGS1);
+static bool EnterCreepMode(Term t, Term mod USES_REGS);
 
 // must hold thread worker comm lock at call.
-static bool EnterCreepMode(Term, Term CACHE_TYPE);
-
 static Int current_choice_point(USES_REGS1);
 
 static Int execute(USES_REGS1);
@@ -837,10 +836,11 @@ static Int execute_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
 }
 
 static Int creep_clause(USES_REGS1) { /* '$execute_clause'(Goal)	 */
-  LOCAL_debugger_state[DEBUG_DEBUG] = TermTrue;
   if (!LOCAL_InterruptsDisabled) {
-        Yap_signal(YAP_CREEP_SIGNAL);
-    }
+  LOCAL_debugger_state[DEBUG_DEBUG] = TermFalse;
+    Yap_signal(YAP_CREEP_SIGNAL);
+  } else {
+  }
   Int rc = execute_clause(PASS_REGS1);
     return rc;
 }
@@ -969,9 +969,14 @@ static bool watch_cut(Term ext USES_REGS) {
         port_pt[0] = t;
         completion_pt[0] = TermException;
     } else {
-        completion_pt[0] = port_pt[0] = TermCut;
+      if (active)
+	completion_pt[0] = port_pt[0] = TermCut;
+      else
+	return true;
     }
+    Yap_DisableInterrupts(worker_id);
     Yap_ignore(cleanup, false);
+    Yap_EnableInterrupts(worker_id);
     CELL *complete_pt = deref_ptr(RepAppl(task) + 4);
     complete_pt[0] = TermTrue;
     if (ex_mode) {
@@ -1003,9 +1008,7 @@ static bool watch_retry(Term d0 USES_REGS) {
 
     if (complete)
         return true;
-    if (Yap_get_signal(YAP_CREEP_SIGNAL)) {
-      creeping = true;
-    }
+      LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
     //      LOCAL_Signals = 0;
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
@@ -1015,12 +1018,13 @@ static bool watch_retry(Term d0 USES_REGS) {
     Term t, e = 0;
     bool ex_mode = false;
 
+    
     while (B && B->cp_ap &&                                         
 	   (B->cp_ap->opc == FAIL_OPCODE ||
 	   B->cp_ap == TRUSTFAILCODE ||
 	    B->cp_ap == NOCODE)
 	   )
-        B = B->cp_b;
+      B = B->cp_b;
     if (!B || B->cp_ap == NULL || B->cp_ap->opc == 0) {
       B = (choiceptr)(LCL0-(LOCAL_CBorder));
       B--;
@@ -1045,17 +1049,21 @@ static bool watch_retry(Term d0 USES_REGS) {
     } else if (box) {
         t = TermRedo;
     } else {
-
-      return true;
+            return true;
     }
 
 port_pt[0] = t;
-    Yap_ignore(cleanup, true);
+ Yap_DisableInterrupts(worker_id);
+ Yap_ignore(cleanup, true);
+ Yap_EnableInterrupts(worker_id);
     if (creeping) {
       Yap_signal(YAP_CREEP_SIGNAL);
     }
     if (ex_mode) {
         // Yap_PutException(e);
+    if (creeping) {
+      Yap_signal(YAP_CREEP_SIGNAL);
+    }
         return true;
     }
     bool rc = !Yap_RaiseException();
@@ -1086,28 +1094,27 @@ static Int setup_call_catcher_cleanup(USES_REGS1) {
     CalculateStackGap(PASS_REGS1);
     LOCAL_PrologMode = UserMode;
     Yap_DisableInterrupts(worker_id);
-    rc = Yap_RunTopGoal(Setup, false);
+    rc = Yap_RunTopGoal(Setup, true);
     Yap_EnableInterrupts(worker_id);
 
     if (Yap_RaiseException()) {
-        return false;
-    }
-    if (!rc) {
-      complete_inner_computation((choiceptr)(LCL0-B0));
+      if (!rc) {
+	complete_inner_computation((choiceptr)(LCL0-B0));
 
       // We'll pass it throughs
 
-    Yap_CloseSlots(sl);
+	Yap_CloseSlots(sl);
 	rc = false;
-    } else {
-      B = (choiceptr)(LCL0-B0);
-      prune_inner_computation(B);
+      } else {
+	B = (choiceptr)(LCL0-B0);
+	prune_inner_computation(B);
+      }
     }
-    P = oP;
-    CP = oCP;
-    ENV = LCL0 - oENV;
-    YENV = LCL0 - oYENV;
-    Yap_CloseSlots(sl);
+      P = oP;
+      CP = oCP;
+      ENV = LCL0 - oENV;
+      YENV = LCL0 - oYENV;
+      Yap_CloseSlots(sl);
     return rc;
 }
 
@@ -1118,7 +1125,6 @@ static Int tag_cleanup(USES_REGS1) {
 }
 
 static Int cleanup_on_exit(USES_REGS1) {
-  bool creeping = false;
   yhandle_t sl = Yap_StartSlots();
     choiceptr B0 = (choiceptr) (LCL0 - IntegerOfTerm(Deref(ARG1)));
     Term task = Deref(ARG2);
@@ -1126,11 +1132,6 @@ static Int cleanup_on_exit(USES_REGS1) {
     Term cleanup = ArgOfTerm(3, task);
 
     Term complete = IsNonVarTerm(ArgOfTerm(4, task));
-    if (Yap_get_signal(YAP_CREEP_SIGNAL)) {
-      creeping = true;
-    }
-    CalculateStackGap(PASS_REGS1);
-
 
     while (B->cp_ap->opc == FAIL_OPCODE)
         B = B->cp_b;
@@ -1140,23 +1141,25 @@ static Int cleanup_on_exit(USES_REGS1) {
     }
     CELL *catcher_pt = deref_ptr(RepAppl(Deref(task)) + 2);
     CELL *complete_pt = deref_ptr(RepAppl(Deref(task)) + 4);
+    Yap_DisableInterrupts(worker_id);
+    CalculateStackGap(PASS_REGS1);
+
     if (B < B0) {
+        catcher_pt[0] = TermAnswer;
+
         // non-deterministic
         set_watch(LCL0 - (CELL *) B, task);
         if (!box) {
 	  Yap_CloseSlots(sl);
             return true;
         }
-        catcher_pt[0] = TermAnswer;
     } else {
         catcher_pt[0] = TermExit;
         complete_pt[0] = TermExit;
     }
     Yap_ignore(cleanup, false);
     Yap_CloseSlots(sl);
-    if (creeping) {
-        Yap_signal(YAP_CREEP_SIGNAL);
-    }
+    Yap_EnableInterrupts(worker_id);
     if (Yap_RaiseException()) {
         return false;
     }

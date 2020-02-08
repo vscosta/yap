@@ -499,8 +499,9 @@ notrace(G) :-
     '$debuggable'(G, Module,GoalNo).
 
 '$debuggable'(_G, _Module,_GoalNo) :-
-    current_prolog_flag( debug, false ),
-    !.
+   '$get_debugger_state'( debug, false ),
+%    current_prolog_flag( debug, false ),
+    !, fail.
     
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),

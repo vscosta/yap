@@ -437,7 +437,7 @@ be lost.
     ->
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
-	'$undefp'([M|G], _)
+	'$undefp'(M:G, _)
     ).
 '$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
     '$id_goal'(GoalNumber),

@@ -190,11 +190,14 @@ inline static bool get_signal(yap_signals sig USES_REGS) {
 
 bool Yap_DisableInterrupts(int wid) {
   LOCAL_InterruptsDisabled = true;
+  LOCAL_debugger_state[DEBUG_DEBUG] =     TermFalse;
+    LOCAL_InterruptsDisabled = true;
   YAPEnterCriticalSection();
   return true;
 }
 
-bool Yap_EnableInterrupts(int wid) {
+bool Yap_EnableInterrupts(int wid ) {
+  LOCAL_debugger_state[DEBUG_DEBUG]= getAtomicLocalPrologFlag(DEBUG_FLAG);
   LOCAL_InterruptsDisabled = false;
   YAPLeaveCriticalSection();
   return true;
