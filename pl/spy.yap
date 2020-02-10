@@ -566,7 +566,7 @@ notrace(G) :-
 '$restart_debugging':-
     '$set_debugger_state'(debug,Debug),
     '$get_debugger_state'(creep,Creep),
-    '$may_creep'(Debug,Creep),
+    '$may_creep'(Debug ,Creep),
     !,
     '$creep'.
 '$restart_debugging'.
