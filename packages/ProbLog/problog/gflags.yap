@@ -244,7 +244,12 @@
                  flag_store/2,         % sets flag with no validation, useful for handler
                  flag_get/2,
                  flags_reset/0]).
-
+/*
+:- meta_predicate flag_add_validation_syntactic_sugar/2(:,+),
+		  flag_define(+,:,+,+),
+		  flag_define(+,+,:,+,+),
+		  flag_define(+,+,:,+,:,+).
+*/
 :- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
 :- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
 
@@ -303,8 +308,8 @@ flag_defined(Flag, Group, DefaultValue, Domain, Message):-
   recorded(flags, defined_flag(Flag, Group, Type, DefaultValue, Handler, Message), _Ref),
   flag_get_domain_message(Type, Handler, Domain).
 
-flag_get_domain_message(MT:Type, M:Handler, Message):-
-  MT:validation_type_values(Type, Domain),
+flag_get_domain_message(Type, M:Handler, Message):-
+  validation_type_values(Type, Domain),
   (Handler == true ->
     Message = Domain
   ;
@@ -323,7 +328,6 @@ flag_get_domain_message(MT:Type, M:Handler, Message):-
 
 flag_set(Flag, _Value):-
   var(Flag), throw(not_defined_flag_exception('free variable')).
-
 flag_set(Flag, _Value):-
   \+ recorded(flags, defined_flag(Flag, _Group, _Type, _DefaultValue, _Handler, _Message), _Ref),
   throw(not_defined_flag_exception(Flag)).
@@ -371,13 +375,15 @@ flag_validate(_Flag, Value, Type, _M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((GoalValidating, G), _, fail), !.
+  predicate_property(flags:G,_),
+  catch((GoalValidating, flags:G), _, fail), !.
 flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(G, _, fail), !.
+    predicate_property(flags:G,_),
+  catch(flags:G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -587,7 +593,7 @@ validation_type_values(ValidationType, Domain):-
 % Syntactic sugar validation types
 %
 
-flag_validation_syntactic_sugar(SyntacticSugar, Type):-
+flag_validation_syntactic_sugar(SyntacticSugar, Type) :-
   recorded(flags, validation_syntactic_sugar(SyntacticSugar, Type), _Ref).
 
 flag_add_validation_syntactic_sugar(SyntacticSugar, Type):-

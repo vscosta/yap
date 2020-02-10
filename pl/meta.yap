@@ -112,13 +112,14 @@ meta_predicate(P) :-
 '$conj_has_cuts'((G1;G2),DCP,(NG1;NG2), OK) :- !,
     '$conj_has_cuts'(G1, DCP, NG1, OK),
     '$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'((G1->G2),DCP,(G1;NG2), OK) :- !,
+'$conj_has_cuts'((G1->G2),DCP,(G1->NG2), OK) :- !,
     % G1: the system must have done it already
     '$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'((G1*->G2),DCP,(G1;NG2), OK) :- !,
+'$conj_has_cuts'((G1*->G2),DCP,(G1*->NG2), OK) :- !,
     % G1: the system must have done it already
     '$conj_has_cuts'(G2, DCP, NG2, OK).
-'$conj_has_cuts'(if(G1,G2,G3),DCP,if(G1,NG2,NG3), OK) :- !,
+'$conj_has_cuts'(if(G1,G2,G3),DCP,if(G1,NG2,NG3), OK) :-
+    !,
     % G1: the system must have done it already
     '$conj_has_cuts'(G2, DCP, NG2, OK),
     '$conj_has_cuts'(G3, DCP, NG3, OK).
@@ -170,24 +171,12 @@ meta_predicate(P) :-
     '$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
 
 
-'$meta_expand'(G, _, CM, HVars, OG) :-
-    var(G),
-    !,
-    (
-	lists:identical_member(G, HVars)
-    ->
-    OG = G
-    ;
-    OG = CM:G
-    ).
-% nothing I can do here:
-'$meta_expand'(G0, PredDef, CM, HVars, NG) :-
-    G0 =.. [Name|GArgs],
-    PredDef =.. [Name|GDefs],
-    functor(PredDef, Name, Arity ),
-    length(NGArgs, Arity),
-    NG =.. [Name|NGArgs],
-    '$expand_args'(GArgs, CM, GDefs, HVars, NGArgs).
+'$meta_expand'(G, D, CM, HVars, OG) :-
+    G =.. [F|GArgs],
+    D =.. [_|GDefs],
+    '$expand_args'(GArgs, CM, GDefs, HVars, NGArgs),
+    OG =.. [F|NGArgs].
+
 
 '$meta_expansion'(GM, SM, HVars,M:GF) :-
     '$yap_strip_module'(GM, M, G),
@@ -195,17 +184,18 @@ meta_predicate(P) :-
     (
 	'$meta_predicate'(F, M, Arity, PredDef)
     ->
-    '$meta_expand'(G, PredDef, M, HVars, GF)
+    '$meta_expand'(G, PredDef, SM, HVars, GF)
     ;
     GF =G
     ).
 
 
 % check if an argument should be expanded
-'$expand_arg'(G,  CM, HVars, OG) :-
+'$expand_arg'(G, _CM, HVars, OG) :-
     var(G),
+    lists:identical_member(G, HVars),
     !,
-    ( lists:identical_member(G, HVars) -> OG = G; OG = CM:G).
+    OG = G.
 '$expand_arg'(G,  CM, _HVars, NCM:NG) :-
     '$yap_strip_module'(CM:G, NCM, NG).
 
@@ -318,10 +308,9 @@ strip_module(M0:G, M,G1),
 %'$expand_goals'(V,NG,NG,HM,SM,BM,HVars):- writeln(V), fail.
 '$expand_goals'(V,NG,NGO,HM,SM,BM,HVars-H) :-
     var(V),
-    !,
+   !,
     (
-	lists:identical_member(V, HVars)
-    ->
+	lists:identical_member(V, HVars),
     '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
     ;
     atom(BM)
@@ -456,6 +445,8 @@ strip_module(M0:G, M,G1),
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
 '$expand_goals'([MH|L],Gs,NGs,_HM,_SM,BM,_) :-
+    is_list(L),
+    !,
     '$expand_consult'([MH|L],Gs,NGs,BM).
 '$expand_goals'(G, G1, GO, HM, SM, BM, HVars) :-
     '$yap_strip_module'(BM:G,  NBM, GM),

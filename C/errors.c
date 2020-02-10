@@ -199,14 +199,14 @@ static void printErr(yap_error_descriptor_t *i) {
 static YAP_Term add_key_b(const char *key, bool v, YAP_Term o0) {
   YAP_Term tkv[2];
   tkv[1] = v ? TermTrue : TermFalse;
-  tkv[0] = MkStringTerm(key);
+  tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
   return MkPairTerm(node, o0);
 }
 
 static YAP_Term add_key_i(const char *key, YAP_Int v, YAP_Term o0) {
   YAP_Term tkv[2];
-  tkv[1] = MkIntegerTerm(v), tkv[0] = MkStringTerm(key);
+  tkv[1] = MkIntegerTerm(v), tkv[0]  = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
   return MkPairTerm(node, o0);
 }
@@ -215,7 +215,7 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
   Term tkv[2];
   if (!v || v[0] == '\0')
     return o0;
-  tkv[1] = MkStringTerm(v), tkv[0] = MkStringTerm(key);
+  tkv[1] = MkStringTerm(v), tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
   return MkPairTerm(node, o0);
 }
@@ -230,7 +230,7 @@ static Term err2list(yap_error_descriptor_t *i) {
   o = add_key_s("errorAsText", i->errorAsText, o);
   o = add_key_s("errorGoal", i->errorGoal, o);
   o = add_key_s("classAsText", i->classAsText, o);
-  o = add_key_i("errorLineq", i->errorLine, o);
+  o = add_key_i("errorLine", i->errorLine, o);
   o = add_key_s("errorFunction", i->errorFunction, o);
   o = add_key_s("errorFile", i->errorFile, o);
   o = add_key_i("prologPredLine", i->prologPredLine, o);
@@ -1188,9 +1188,9 @@ static Int get_exception(USES_REGS1) {
       Term culprit = Yap_BufferToTerm(i->culprit, TermNil);
       if (culprit == 0)
         culprit = TermNil;
-      t = mkerrort(i->errorNo, culprit, MkSysError(i));
+      t = MkErrorTerm(i);
     } else {
-      t = mkerrort(i->errorNo, TermNil, MkSysError(i));
+      t = MkErrorTerm(i);
     }
     return Yap_unify(ARG1, t);
   }
@@ -1202,7 +1202,7 @@ yap_error_descriptor_t *event(Term t, yap_error_descriptor_t *i) {
   return i;
 }
 yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
-    Term t1, t2, t11, t12;
+    Term t1, t11, t12;
 
     i->errorRawTerm = Yap_CopyTermToArena(t, &LOCAL_GlobalArena);
     if (!IsApplTerm(t)) {
@@ -1215,8 +1215,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
 	return i;
       }
       t1 = ArgOfTerm(1, t);
-      if (ArityOfFunctor(f)>1)
-	t2 = ArgOfTerm(2, t);
+
     const char *eclass, *error, *error2 = NULL;
     if (IsAtomTerm(t1)) {
       eclass = RepAtom(AtomOfTerm(t1))->StrOfAE;

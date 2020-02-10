@@ -607,7 +607,7 @@ id_stepsize_handler(stored, Value):-
 bdd_file_handler(message, '').
 bdd_file_handler(validating, _Value).
 bdd_file_handler(validate, Value):-
-  convert_filename_to_working_path(Value, Path),
+    convert_filename_to_working_path(Value, Path),
   catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
 bdd_file_handler(validate, Value):-
   convert_filename_to_working_path(Value, Path),

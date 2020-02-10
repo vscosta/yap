@@ -594,8 +594,7 @@ write_query_answer( Bindings ) :-
 	'$meta_call'(G2,_,M2),
 	Port,
 	true
-    ),
-    (CP0 == CPF->Port  == answer; Port == exit).
+    ).
 
 '$cut_by'(CP) :- '$$cut_by'(CP).
 
