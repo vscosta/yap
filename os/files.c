@@ -513,13 +513,12 @@ cwk_path_get_root(fd0, &sz);
     strncpy(s, fd0, sz);
     s[sz] = '\0';
       } else {
-    strncpy(s+sz, "/", 1);
+    strncpy(s+sz, "/", 2);
     sz++;
   }
     strncpy(s+sz, segment.begin, segment.size);
     sz +=  segment.size;
     s[sz] = '\0';
-    fprintf(stderr,"%d %s %d\n",sz,s, strlen(s));
     if (!Yap_isDirectory(s)) {
 #if defined(__MINGW32__) || _MSC_VER
       if (_mkdir(s) == -1) {

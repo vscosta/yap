@@ -23,12 +23,13 @@
 
 debug import table
 
+*/
 mimp :-
     recorded('$import',I,_),
-    %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_).
+    %'$import'(ExportingMod,ImportingMod,G0,G,_,_),_),
+    writeln(I),
     %(ImportingMod:G :- ExportingMod:G0)),
 fail.
-*/
 
 '$import'(G00,GF) :-
     (user:expand_term(G00,G0) -> true ; G00 = G0),

@@ -490,7 +490,8 @@ extern void Yap_InitUnify(void);
 extern void Yap_TrimTrail(void);
 extern int Yap_Unifiable(Term d0, Term d1);
 extern int Yap_IUnify( CELL d0,  CELL d1);
-
+extern Term Yap_saveTermtoArena(Term
+			       inp, Term *arenap);
 /* userpreds.c */
 extern void Yap_InitUserCPreds(void);
 extern void Yap_InitUserBacks(void);
@@ -506,11 +507,12 @@ extern size_t Yap_SizeOfExportedTerm(char *);
 extern Term Yap_ImportTerm(char *);
 extern bool Yap_IsListTerm(Term);
 extern bool Yap_IsListOrPartialListTerm(Term);
-extern Term Yap_CopyTermNoShare(Term);
+extern Term Yap_CopyTermToArena(Term, Term *);
 extern int Yap_SizeGroundTerm(Term, int);
 extern bool Yap_IsGroundTerm(Term);
 extern bool Yap_IsAcyclicTerm(Term);
 extern void Yap_InitUtilCPreds(void);
+
 extern Int Yap_TermHash(Term, Int, Int, int);
 extern Term Yap_TermVariables(Term t, Term t0 USES_REGS);
 extern Term Yap_UnNumberTerm(Term, int);
@@ -555,7 +557,7 @@ extern yamop *Yap_gcP(void);
 
 #if USE_MYDDAS
 extern  void init_myddas(void);
-  #endif
+#endif
 
 #if !HAVE_STRNCAT
 #define strncat(X, Y, Z) strcat(X, Y)

@@ -129,11 +129,25 @@ error_handler(Error, Level) :-
         Level \= top, !,
         throw(error(permission_error(module,redefined,A),B)).
 '$process_error'(Error, _Level) :-
-	functor(Error, Severity, _),
+    Error =.. [Severity,Type,Info],
+    '$info_to_list'(Info,List),
+    ErrorF =.. [Severity,Type,List],
+    functor(ErrorF, Severity, _),
 	print_message(Severity, Error),
 	!,
 	'$close_error'.
 '$process_error'(error(Type,Info), _, _) :-
+    
 	print_message(error,error(unhandled_exception(Type),Info)).
 
+
+'$info_to_list'(exception([H|L]),[H|L]) :-
+    !.
+'$info_to_list'(exception(K),L) :-
+    '$read_exception'((K),L),
+    !.
+'$info_to_list'(L,L).
+
+
 %% @}
+

@@ -480,7 +480,8 @@ notrace(G) :-
     %  functor(G,Na,_), atom_concat('$',_,Na)
     %;
       \+ '$debuggable'(G, Module,GoalNo)
-     ).
+     ),
+     !.
 
 /**
   * @pred $stop_at_this_goal( Goal, Module, Id)
@@ -497,6 +498,11 @@ notrace(G) :-
     \+ '$is_private'(G,Module),
     '$debuggable'(G, Module,GoalNo).
 
+'$debuggable'(_G, _Module,_GoalNo) :-
+   '$get_debugger_state'( debug, false ),
+%    current_prolog_flag( debug, false ),
+    !, fail.
+    
 '$debuggable'(G, Module,_GoalNo) :-
     '$pred_being_spied'(G,Module),
     '$get_debugger_state'( spy,  stop ),

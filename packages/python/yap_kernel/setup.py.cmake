@@ -72,6 +72,9 @@ install_requires = setuptools_args['install_requires'] = [
     'traitlets>=4.1.0',
     'jupyter_client',
     'tornado>=4.0',
+    'simplegeneric>=0.8',
+    'setuptools>=45',
+    'wheel>=0.34',
 ]
 
 extras_require = setuptools_args['extras_require'] = {

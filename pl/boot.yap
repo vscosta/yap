@@ -134,7 +134,8 @@ print_boot_message(Type,Error,Desc) :-
 	format(user_error,'~a:~d:  ~a: ~q~n', [File,FilePos,Type,Error]).
 
 '$undefp0'(MG, _Action) :-
-	strip_module(MG,M,G),
+    '$yap_strip_module'(MG,M,G),
+    atom(M),
 	functor(G,N,A),
 	print_message( error, error(error(unknown, M:N/A),MG)),
 	fail.

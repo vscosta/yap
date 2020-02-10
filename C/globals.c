@@ -469,7 +469,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
       } else if (IsApplTerm(d0)) {
         CELL *ptd1 = RepAppl(d0);
         CELL dd1 = *ptd1;
-        CELL d1;
         if (share && ptd1 > HB) {
           /* If this is newer than the current term, just reuse */
           *ptf = d0;
@@ -618,7 +617,6 @@ static int copy_complex_term(CELL *pt0_, CELL *pt0_end_, bool share,
 
         if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op) {
           d0 = AbsAppl(ptd0);
-          CELL *ptd1 = (CELL *)RepAttVar(ptd0);
           /* store the terms to visit */
           if (to_visit + 32 >= to_visit_end) {
             return RESOURCE_ERROR_AUXILIARY_STACK;
@@ -731,7 +729,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
   cell_space_t cspace;
   int res = 0;
   Term tf;
-  size_t sz = 1024;
   Ystack_t stt_, *stt = &stt_;
   if (!IsVarTerm(t) && IsAtomOrIntTerm(t)) {
     return t;
@@ -1261,6 +1258,11 @@ Term Yap_SetGlobalVal(Atom at, Term t0) {
   return to;
 }
 
+Term Yap_CopyTermToArena(Term
+			 inp, Term *arenap) {
+  CACHE_REGS
+  return CopyTermToArena(inp, false, true, 3, arenap, NULL, 0 PASS_REGS);
+}
 Term Yap_SaveTerm(Term t0) {
   CACHE_REGS
   Term to;

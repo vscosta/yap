@@ -838,12 +838,17 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
     if (v && v != TermNil)
       {
         Term singls[4];
-        singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v);
+	singls[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomSingleton, 1), 1, &v);
         singls[1] = MkIntegerTerm(LOCAL_SourceFileLineno);
         singls[2] = MkAtomTerm(LOCAL_SourceFileName);
-        if (fe->t)
-          singls[3] = fe->t;
-        else
+        if (fe->t) {
+      	if (IsApplTerm(fe->t)) {
+	  Functor f = FunctorOfTerm(fe->t);
+	  if (f == FunctorQuery || f == FunctorAssert1)
+	    return;
+	}
+    singls[3] = fe->t;
+        } else
           singls[1] = TermTrue;
         Term t = Yap_MkApplTerm(Yap_MkFunctor(AtomStyleCheck, 4), 4, singls);
 	  Yap_PrintWarning(t);

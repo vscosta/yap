@@ -437,7 +437,7 @@ be lost.
     ->
     '$trace_goal'(NG,MF, GN0, GoalNumber, CP )
     ;
-	'$undefp'([M|G], _)
+	'$undefp'(M:G, _)
     ).
 '$trace_goal'(G,M, Ctx, GoalNumber, _CP) :-
     '$id_goal'(GoalNumber),
@@ -462,7 +462,7 @@ be lost.
 '$trace_goal_'(G,M, _Ctx, GoalNumber, CP, H) :-
     '$is_source'(G,M),
     !,
-    %clause generator: it controls fail, redo
+  %clause generator: it controls fail, redo
     '$creep_enumerate_sources'(
  	'$handle_port'([call], GoalNumber, G, M,  false, CP, H),
 	M:G, B,
@@ -470,11 +470,11 @@ be lost.
 	'$handle_port'([Port0], GoalNumber, G, M, false, CP, H)
     ),
     '$creep_run_sources'(
- 	'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
+	true,
+ 	%'$handle_port'([call,Port0], GoalNumber, G, M, false, CP, H),
 	M,B, CP,
 	Port,
-			 '$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
-
+	'$handle_port'([Port,Port0], GoalNumber, G, M, false, CP,  H)
     ).
 '$trace_goal_'(G,M, Ctx, GoalNumber, CP,H) :-
     \+ '$is_opaque_predicate'(G,M),
@@ -497,19 +497,13 @@ be lost.
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
 '$trace_goal_'(G, M, Ctx, GoalNumber, CP,H) :-
-  (
-	'$is_private'(G, M)
-    ;
-    current_prolog_flag(debug,false)
-    ),
-    !,
-    '$debugger_expand_meta_call'( M:G, [], MM:GM ),
+   '$debugger_expand_meta_call'( M:G, [], MM:GM ),
      gated_call(
 	       % debugging allowed.
 	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
 	MM:GM,
 	Port,
-	       '$handle_port'([Port,answer], GoalNumber, G, M, Ctx, CP,  H)
+	       '$handle_port'([Port,Port], GoalNumber, G, M, Ctx, CP,  H)
     ).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
@@ -595,9 +589,10 @@ be lost.
  * @parameter _Info_ describes the goal
  *
  */
+
 '$trace_port'(Ports, GoalNumber, Ctxt, Module,From, CP,Info) :-
     ('$ports_to_port'(Ports, Port)->true;Port=internal),
-    %writeln(Ports:Port),
+    writeln(Ports:Port),
     ignore('$trace_port_'(Port, GoalNumber, Ctxt, Module, CP,Info)),
     '$cross_run_deb'(Port,From,GoalNumber).
 

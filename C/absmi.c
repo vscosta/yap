@@ -457,7 +457,7 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
   return true;
 }
 
-#if 0
+#if 1
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */

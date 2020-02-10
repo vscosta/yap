@@ -842,9 +842,7 @@ static Int p_numbervars(USES_REGS1) {
   }
 reset:
   stt->hlow = HR;
-  stt->hb = HB;
-  HB = HR;
-  stt->tr0 = TR;
+     stt->tr0 = TR;
   t = Deref(ARG1);
   vt = Deref(ARG2);
   if (IsVarTerm(vt)) {
@@ -884,31 +882,35 @@ reset:
       LOCAL_Error_TYPE = RESOURCE_ERROR_AUXILIARY_STACK;
       return 0;
     }
-  reset:
+    Functor fdv = FunctorDollarVar;
+    FunctorDollarVar = FunctorHiddenVar;
+    reset:
     stt->hlow = HR;
-    stt->hb = HB;
-    HB = HR;
     stt->tr0 = TR;
     t = Deref(ARG1);
     vt = Deref(ARG2);
     if (IsVarTerm(vt)) {
       close_stack(stt);
+      FunctorDollarVar = fdv;
       Yap_Error(INSTANTIATION_ERROR, vt, "numbervars/3");
       return false;
     }
     if (!IsIntegerTerm(vt)) {
       close_stack(stt);
+      FunctorDollarVar = fdv;
       Yap_Error(TYPE_ERROR_INTEGER, vt, "numbervars/3");
       return (false);
     }
     size_t numbv = IntegerOfTerm(vt);
     if (IsPrimitiveTerm(t)) {
       close_stack(stt);
+      FunctorDollarVar = fdv;
       return Yap_unify(ARG3, MkIntegerTerm(numbv));
     }
     ER(out = numbervars_in_complex_term(&t - 1, &t, numbv, true,
                                         stt PASS_REGS));
     close_stack(stt);
+      FunctorDollarVar = fdv;
     return Yap_unify(ARG3, MkIntegerTerm(out));
   }
 
@@ -970,10 +972,12 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
   if (IsPrimitiveTerm(t)) {
     return numbv;
   }
+  HB = HR;
   Term vt = Deref(t);
   size_t rc = hard_numbervars_in_complex_term(&vt - 1, &vt, numbv, handle_singles,
                                          stt PASS_REGS);
   close_stack(stt);
+  HB = B->cp_h;
   return rc;
 }
 
@@ -1003,3 +1007,5 @@ size_t Yap_HardNumberVars(Term t, size_t numbv, bool handle_singles USES_REGS) {
 #endif
 
   ///@}
+
+  

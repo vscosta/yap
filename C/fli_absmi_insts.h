@@ -34,7 +34,7 @@
         ASP = (CELL *)(((char *)YREG) + PREG->y_u.Osbpp.s);
     }
 #else
-      SET_ASP(YREG, PREG->y_u.Osbpp.s);
+    SET_ASP(YREG, PREG->y_u.Osbpp.s);
 /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
@@ -89,7 +89,7 @@
           ASP = YREG + E_CB;
       }
 #else
-        SET_ASP(YREG, E_CB * sizeof(CELL));
+  SET_ASP(YREG, E_CB * sizeof(CELL));
 /* for slots to work */
 #endif /* FROZEN_STACKS */
         pt0 = PREG->y_u.Osbpp.p;
@@ -123,7 +123,7 @@
           CPredicate f = PREG->y_u.Osbpp.p->cs.f_code;
           yamop *oldPREG = PREG;
           saveregs();
-                      d0 = f(PASS_REGS1);
+          d0 = f(PASS_REGS1);
           setregs();
 #ifdef SHADOW_S
           SREG = Yap_REGS.S_;
@@ -151,7 +151,7 @@
       }
 
     NoStackExecuteC:
-      PROCESS_INTERRUPT(interrupt_execute, do_executec,  E_CB*sizeof(CELL));
+      PROCESS_INTERRUPT(interrupt_execute, do_executec, E_CB * sizeof(CELL));
       ENDBOp();
 
       /* Like previous, the only difference is that we do not */
@@ -187,9 +187,9 @@
 /* for slots to work */
 #endif /* FROZEN_STACKS */
       {
-        /* make sure that we can still have access to our old PREG after calling
-         * user defined goals and backtracking or failing */
-        yamop *savedP;
+            /* make sure that we can still have access to our old PREG after
+             * calling user defined goals and backtracking or failing */
+            yamop *savedP;
 
         LOCAL_PrologMode |= UserCCallMode;
         {
@@ -200,7 +200,7 @@
           saveregs();
           save_machine_regs();
           SREG = (CELL *)YAP_Execute(p, p->cs.f_code);
-        setregs();
+          setregs();
         }
         LOCAL_PrologMode &= ~UserCCallMode;
         restore_machine_regs();
@@ -247,14 +247,14 @@
         }
       }
 #else
-      if (YREG > (CELL *)B)
-        ASP = (CELL *)B;
-      else {
-        BEGD(d0);
-        d0 = PREG->y_u.slpp.s;
-        ASP = ((CELL *)YREG) + d0;
-        ENDD(d0);
-      }
+if (YREG > (CELL *)B)
+  ASP = (CELL *)B;
+else {
+  BEGD(d0);
+  d0 = PREG->y_u.slpp.s;
+  ASP = ((CELL *)YREG) + d0;
+  ENDD(d0);
+}
 #endif /* FROZEN_STACKS */
       {
         CPredicate f = PREG->y_u.slpp.p->cs.f_code;
@@ -372,7 +372,7 @@
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteFirst(PREG->y_u.OtapFs.p,
                                       (CPredicate)(PREG->y_u.OtapFs.f));
-      Yap_ResetException( worker_id );
+      Yap_ResetException(worker_id);
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= UserMode;
@@ -413,7 +413,7 @@
       save_machine_regs();
       SREG = (CELL *)YAP_ExecuteNext(PREG->y_u.OtapFs.p,
                                      (CPredicate)(PREG->y_u.OtapFs.f));
-      Yap_ResetException( worker_id);
+      Yap_ResetException(worker_id);
       restore_machine_regs();
       setregs();
       LOCAL_PrologMode &= ~UserCCallMode;
@@ -467,8 +467,7 @@
           we do not lock access to the predicate,
           we must take extra care here
         */
-        if (ap->NOfClauses > 1 &&
-            !(ap->PredFlags & IndexedPredFlag)) {
+        if (ap->NOfClauses > 1 && !(ap->PredFlags & IndexedPredFlag)) {
           /* update ASP before calling IPred */
           SET_ASP(YREG, E_CB * sizeof(CELL));
           saveregs();
@@ -612,16 +611,16 @@
 
       BOp(undef_p, e);
       /* save S for module name */
-      if (LOCAL_DoingUndefp ||LOCAL_PrologMode & InErrorMode ) {
-	PREG=FAILCODE;
-	JMPNext();
+      if (LOCAL_DoingUndefp || LOCAL_PrologMode & InErrorMode) {
+        PREG = FAILCODE;
+        JMPNext();
       }
-        LOCAL_DoingUndefp = true;
-	saveregs();
-	undef_goal( PredFromDefCode(PREG) PASS_REGS );
+      LOCAL_DoingUndefp = true;
+      saveregs();
+      undef_goal(PredFromDefCode(PREG) PASS_REGS);
       setregs();
       /* for profiler */
-      ///x        LOCAL_DoingUndefp = false;
+      /// x        LOCAL_DoingUndefp = false;
       CACHE_A1();
       JMPNext();
       ENDBOp();

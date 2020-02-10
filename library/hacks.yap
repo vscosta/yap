@@ -12,7 +12,7 @@
 		      current_choicepoint/1,
 		      parent_choicepoint/1,
 		      parent_choicepoint/2,
-		      cut_by/1,
+%		      cut_by/1,
 		      cut_at/1,
 		      current_choicepoints/1,
 		      choicepoint/7,
