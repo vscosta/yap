@@ -214,7 +214,7 @@
 
 % switch on all the checks to reduce bug searching time
 :- style_check(all).
-:- yap_flag(unknown,error).
+%:- yap_flag(unknown,error).
 
 % load modules from the YAP library
 :- use_module(library(lists), [member/2,max_list/2, min_list/2, sum_list/2, reverse/2]).
@@ -226,7 +226,7 @@
 :- reexport(library(nb)).
 
 % load our own modules
-:- reexport(problog).
+:- reexport(problog_learning_lbdd).
 :- use_module('problog/logger').
 :- use_module('problog/flags').
 :- use_module('problog/os').

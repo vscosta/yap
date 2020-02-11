@@ -457,7 +457,7 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
   return true;
 }
 
-#if 1
+#if 0
 #define DEBUG_INTERRUPTS()
 #else
 /* to trace interrupt calls */
@@ -531,12 +531,12 @@ DEBUG_INTERRUPTS();
     return INT_HANDLER_RET_JMP;
   }
   if ((v = code_overflow(YENV PASS_REGS))  != INT_HANDLER_GO_ON) {
-    return v;
+    return INT_HANDLER_RET_JMP;
   }
   // at this point P is already at the end of the instruction.
   if ((v = stack_overflow(pe, YENV, CP,
 			  pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON ) {
-    return v;
+    return INT_HANDLER_RET_JMP;
   } else {
     return interrupt_wake_up(save_goal(pe), NULL, 0 PASS_REGS) ?
 	  INT_HANDLER_RET_NEXT :

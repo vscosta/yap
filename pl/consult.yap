@@ -1,9 +1,8 @@
-
 /*************************************************************************
 *									 *
-  *	 YAP Prolog  							 *
+*	 YAP Prolog  							 *
 *									 *
-  *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
 * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
 *									 *
@@ -901,7 +900,7 @@ db_files(Fs) :-
 	'$lf_opt'(encoding, TOpts, Encoding),
     set_stream(Stream, [encoding(Encoding),alias(loop_stream)] ),
     '$loaded'(Y, X,  Mod, _OldY, _L, include, _, Dir, TOpts,[]),
-    ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = [] ),
+    ( '__NB_getval__'('$included_file', OY, fail ) -> true ; OY = '/dev/zero'),
 	nb_setval('$included_file', Y),
 	print_message(informational, loading(including, Y)),
 	'$loop'(Stream,Status),

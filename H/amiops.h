@@ -581,16 +581,13 @@ unify_cons_nonvar : {
 
 static inline int do_cut(int i) {
   CACHE_REGS
-  if (POP_CHOICE_POINT(B->cp_b)) {
-    cut_c_pop();
-  }
-  Yap_TrimTrail();
+   Yap_TrimTrail();
   B = B->cp_b;
-  return i;
+ return i;
 }
 
 #define cut_succeed() return do_cut(TRUE)
 
-#define cut_fail() return do_cut(FALSE)
+#define cut_fail()  { do_cut(FALSE); P = FAILCODE; return false; }
 
 #endif

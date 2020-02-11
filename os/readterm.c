@@ -1190,7 +1190,6 @@ static Term syntax_error(TokEntry *errtok, int sno, Term cmod, Int newpos, bool 
       {
         re->cpos = GLOBAL_Stream[inp_stream].charcount;
       }
-    LOCAL_Error_TYPE = WARNING_SYNTAX_ERROR;
     Yap_PrintWarning(0);
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     if (ParserErrorStyle == TermDec10)

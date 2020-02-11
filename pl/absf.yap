@@ -1,3 +1,4 @@
+
 /*************************************************************************
 *									 *
 *	 YAP Prolog 							 *
@@ -169,7 +170,7 @@
 
 '$glob'(F,Opts,NF) :-
     get_abs_file_parameter( glob, Opts, G ),
-    G \= '',
+    nonvar(G),
     !,
     path_concat([F,G],NF).
 '$glob'(F,_Opts,F).

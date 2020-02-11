@@ -161,6 +161,16 @@ meta_predicate(P) :-
  *
  * @return
 */
+
+% check if an argument should be expanded
+'$expand_arg'(G, _CM, HVars, OG) :-
+    var(G),
+    lists:identical_member(G, HVars),
+    !,
+    OG = G.
+'$expand_arg'(G,  CM, _HVars, NCM:NG) :-
+    '$yap_strip_module'(CM:G, NCM, NG).
+
 '$expand_args'([],  _, [], _, []).
 '$expand_args'([A|GArgs], CM,   [M|GDefs], HVars, [NA|NGArgs]) :-
     ( M == ':' -> true ; number(M) ),
@@ -188,16 +198,6 @@ meta_predicate(P) :-
     ;
     GF =G
     ).
-
-
-% check if an argument should be expanded
-'$expand_arg'(G, _CM, HVars, OG) :-
-    var(G),
-    lists:identical_member(G, HVars),
-    !,
-    OG = G.
-'$expand_arg'(G,  CM, _HVars, NCM:NG) :-
-    '$yap_strip_module'(CM:G, NCM, NG).
 
 '$match_mod'(G, _HMod, _SMod, _, O) :-
     '$pred_exists'(G,prolog),

@@ -111,7 +111,7 @@ undefined_query(G0, M0, Cut) :-
 %    '$found_undefined_predicate'( M0:G0, M:G ).
 
 
-'$undef_setup'(Action,Debug,Current) :-
+'$undef_setup'(Action,_Debug,Current) :-
     yap_flag( unknown, Action, exit),
     '$stop_creeping'(Current).
 

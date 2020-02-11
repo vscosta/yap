@@ -3808,7 +3808,6 @@ signal_decision(ClauseID,GroundID) :-
 				%
 				% ProbLog in-memory inference
 				%
-:- include(problog_lbdd).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Term Expansion for user predicates

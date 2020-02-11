@@ -1712,6 +1712,14 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
       P = FAILCODE;
     }
   }
+  #ifdef FROZEN_STACKS
+    H_FZ = HR;
+#ifdef YAPOR_SBA
+    BSEG =
+#endif /* YAPOR_SBA */
+      BBREG = B_FZ = B;
+    TR_FZ = TR;
+#endif /* FROZEN_STACKS */
   YENV = ASP;
   YENV[E_CB] = Unsigned(B);
   pop_text_stack(i + 1);

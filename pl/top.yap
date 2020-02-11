@@ -80,7 +80,6 @@ live :-
     '$run_toplevel_hooks',
     prompt1(' ?- '),
     '$read_toplevel'(Command, Varnames, Pos),
-    ( '$pred_exists'('$init_debugger',prolog) -> '$init_debugger';true),
     '$command'(Command, user, Varnames, Pos, top),
     current_prolog_flag(break_level, BreakLevel),
     (   BreakLevel\=0
@@ -583,10 +582,15 @@ write_query_answer( Bindings ) :-
 '$user_call_'(G2,M2,Port) :-
     current_prolog_flag(debug,true),
     !,
+    ( '__NB_getval__'(  '$trace',on, fail) -> Creep = creep ; Creep = zip ),
+    ( '$pred_exists'('$init_debugger'(Creep),prolog) ->
+      '$init_debugger'(Creep)
+    ;
+      true),
     '$current_choice_point'(CP0),
     '$trace_goal'(G2, M2, outer, _GN0, CP0 ),
     '$current_choice_point'(CPF),
-    (CP0 =:= CPF -> Port == exit; Port == answer).
+    (CP0 =:= CPF -> Port = exit; Port = answer).
 '$user_call_'(G2,M2,Port) :-
     !,
     gated_call(

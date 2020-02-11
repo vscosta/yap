@@ -471,15 +471,11 @@ notrace(G) :-
     '$creep'.
 
 
-'$cannot_debug'(G, Module, GoalNo) :-
+'$cannot_debug'(G, Module,_GoalNo) :-
      (
 	 current_prolog_flag( debug, false )
     ;
       '$is_private'(G,Module)
-     ;
-    %  functor(G,Na,_), atom_concat('$',_,Na)
-    %;
-      \+ '$debuggable'(G, Module,GoalNo)
      ),
      !.
 

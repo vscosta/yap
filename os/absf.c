@@ -48,7 +48,9 @@ static Term gethdir(Term t) {
         return false;
     }
     if (TermDot == t) {
-        return TermEmptyAtom;
+        return 
+MkAtomTerm(Yap_LookupAtom(Yap_AbsoluteFile(Yap_getcwd(LOCAL_FileNameBuf,
+MAXPATHLEN - 1), true)));
     }
     nsz = strlen(s);
     if (!Yap_dir_separator(s[nsz - 1])) {
@@ -193,7 +195,7 @@ static Int abs_file_parameters(USES_REGS1) {
     t[ABSOLUTE_FILE_NAME_GLOB] = args[ABSOLUTE_FILE_NAME_GLOB].tvalue;
     t[ABSOLUTE_FILE_NAME_EXPAND] = TermTrue;
   } else
-    t[ABSOLUTE_FILE_NAME_GLOB] = TermEmptyAtom;
+    t[ABSOLUTE_FILE_NAME_GLOB] = MkVarTerm();
   if (args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].used)
     t[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH] =
         args[ABSOLUTE_FILE_NAME_VERBOSE_FILE_SEARCH].tvalue;

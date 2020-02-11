@@ -266,7 +266,7 @@ compose_message(Throw, _Level) -->
 structured_message(E, Exc, Level) -->
     {
 	'$show_consult_level'(LC)
-    },
+   },
     location( E, Exc, Level, LC) ,
     main_message(E,Exc , Level, LC ),
     %    c_goal( error(E, Exc), Level ),
@@ -282,30 +282,38 @@ structured_message(E, Exc, Level) -->
 
 location( E, Desc, Level, LC ) -->
     {
-	writeln(Desc),
 	query_exception(prologPredFile, Desc, File),
 	query_exception(prologPredLine, Desc, FilePos),
 	query_exception(prologPredModule, Desc, M),
 	query_exception(prologPredName, Desc, Na),
 	query_exception(prologPredArity, Desc, Ar)
     },
+    !,
     {simplify_pred(M:Na/Ar,FF)},
     [  '~*|~s:~d:0 ~s  at ~q:'-[0, File, FilePos,Level,FF],nl ],
-    {
-	NLC is LC + 4},
+    {NLC is LC},
     location_consult( E, Desc,true, Level, NLC ) .
 location( E, Desc, Level, LC ) -->
     location_consult( E, Desc,_Found, Level, LC ) .
 
 location_consult( E, Desc, _Found, Level, LC ) -->
-    {	query_exception(prologConsulting, Desc, true) },
-    %    {	query_exception(parserReadingCode, Desc, true)}, 
-    !,
-    {
-	query_exception(parserFile, Desc, FileName),
+    {	query_exception(prologConsulting, Desc, true),
+ 	query_exception(parserFile, Desc, FileName),
 	query_exception(parserLine, Desc, LN)
     },
+    !,
     [ '~*|~s:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
+    {
+	NLC is LC + 4},
+    location_c( E, Desc,true, Level, NLC ) .
+location_consult( E, Desc, _Found, Level, LC ) -->
+    {	query_exception(prologConsulting, Desc, false),
+ 	query_exception(parserFile, Desc, FileName),
+	query_exception(parserLine, Desc, LN)
+    },
+    !,
+    [ '~*|~s:~d:~d: ~s: found while reading from stream' - 
+[0,FileName,LN,0,Level], nl ],
     {
 	NLC is LC + 4},
     location_c( E, Desc,true, Level, NLC ) .
@@ -324,7 +332,7 @@ location_c( _, Desc, true, Level,  _LC ) -->
     },
     !,
     [  '~s:~d:0 ~s  at ~s().'-[File, FilePos,Level,F], nl ].
-location_c( _, _, false, _Level, _LC ) -->
+location_c( _, _, _, _Level, _LC ) -->
     [].
 
 event(redo, _Info) -->
@@ -342,16 +350,24 @@ simplify_pred(F, F).
 main_message(Msg,In, _, _) -->
     {var(Msg)}, !,
     [  'Uninstantiated message ~w~n.' - [error(Msg,In)], nl ].
-main_message( syntax_error(Msg,[]),Desc, Level, _LC ) -->
-    !,
+main_message( syntax_error(_Msg),Desc, Level, _LC ) -->
     {  
 	query_exception(parserTextA, Desc, J),
 	query_exception(parserTextB, Desc, T),
 	query_exception(parserLine, Desc, L)
     },
-    ['%% syntax error ~s' - [Level,Msg]],
-    [nl],
-    [' ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
+    !,
+    ['%% syntax error ~s' - [Level]],
+    ['%% ~s <<== at line ~d == ~s !' - [J,L,T], nl ].
+main_message( syntax_error(_Msg),Desc, Level, _LC ) -->
+    {  
+	query_exception(parserFirstLine, Desc, J),
+	query_exception(parserLastLine, Desc, T),
+	query_exception(parserLine, Desc, L)
+    },
+    !,
+    ['%% syntax error ~s' - [Level]],
+    ['%% line ~d <<== at line ~d == ~d !' - [J,L,T], nl ].
 main_message( style_check(singleton(SVs),_Pos,_File,P),_, _Level, _LC) -->
     !,
     %    {writeln(ci)},
@@ -387,54 +403,51 @@ output_variable_list([V = _ | SVs]) -->
 
 
 main_error_message(consistency_error(Who)) -->
-    ['~*|%% consistency_error: argument ~s not consistent with expected value' - [ 0, Who ]]
-.
+    ['~*|%% consistency_error: argument ~s not consistent with expected value' - 
+[ 0, Who ]].
 main_error_message(domain_error(Who, Type)) -->
-    [ '~*|%% domain_error: ~q does not belong to domain ~s ' - [ 0, Type, Who ], nl ]
-.
+    [ '~*|%% domain_error: ~q does not belong to domain ~s ' - [0, Type, Who] 
+].
 main_error_message(evaluation_error(What)) -->
-    [ '~*|%% evaluation_error: ~w cannot be evaluated' - [ 0, What ], nl ]
+    [ '~*|%% evaluation_error: ~w cannot be evaluated' - [ 0, What ] ]
 .
 main_error_message(evaluation_error(What, Who)) -->
     [
         '~*|%% evaluation_error: ~w caused ~s during evaluation of arithmetic expressions' -
-        [ 0, Who, What ],
-        nl
+        [ 0, Who, What ]
     ].
 
 main_error_message(existence_error(Type, Who)) -->
-    [nl],
-    [ '~*|%% existence_error: ~q ~q does not exist' - [ 0, Type, Who ], nl ].
+    [ '~*|%% existence_error: ~q ~q does not exist' - [ 0, Type, Who ]].
 
 main_error_message(
     permission_error(Op, Type, Id)) -->
     [
-        '~*|%% permission_error: value ~q is not allowed in ~s ~q %%' - [ 0, Op, Type, Id ], nl
+        '~*|%% permission_error: value ~q is not allowed in ~s ~q %%' - [ 0, Op,
+Type, Id ], n
     ]
 .
 main_error_message(instantiation_error) -->
-    [ '~*|%% instantiation_error: unbound variable' - [0], nl ].
+    [ '~*|%% instantiation_error: unbound variable' - [0] ].
 main_error_message(
     representation_error(Type)) -->
-    [ '~*|%% representation_error: YAP cannot represent ~w' - [ 0, Type ], nl ]
+    [ '~*|%% representation_error: YAP cannot represent ~w' - [ 0, Type ] ]
 .
 main_error_message(resource_error(Who)) -->
-    ['~*|%% resource_error: ~q unavailable' - [ 0, Who ]],
-    [nl].
+    ['~*|%% resource_error: ~q unavailable' - [ 0, Who ]].
 main_error_message(type_error(Type, Who)) -->
-    ['~*|%% type_error: ~q should be of type ~s' - [ 0, Who, Type ]],
-    [nl].
+    ['~*|%% type_error: ~q should be of type ~s' - [ 0, Who, Type ]].
 main_error_message(system_error(Who, In)) -->
-    ['~*|%% system_error: ~q ~q' - [ 0, Who, In ]],
-    [nl].
+    ['~*|%% system_error: ~q ~q' - [ 0, Who, In ]].
 main_error_message(uninstantiation_error(T)) -->
-    [ '~*|%% uninstantiation_error: found ~q, expected unbound variable' - [ 0, T ], nl ].
+    [ '~*|%% uninstantiation_error: found ~q, expected unbound variable' - [ 0, 
+T ] ].
 
 
 c_goal(Desc, _) -->
     ({
 	    query_exception(errorGoal, Desc, Call), Call = M : (H : -G)
-	}->['~*|at ~w' - [ 0, M:G ], '~*|called from ~w' - [ 0, H ]];
+	}->['~*|%% at ~w' - [ 0, M:G ], '~*|called from ~w' - [ 0, H ]];
      { Call \= [] }->['~*|by ~w' - [ 0, Call ]];[]),
     !.
 c_goal(_, _) -->
@@ -446,17 +459,16 @@ caller(Desc, Level) -->
      query_exception(errorFile, Desc, File), File \= [],
      query_exception(errorLine, Desc, Line)},
     !,
-    ['~*|~s raised by foreign-function ~s(), at ~s:~d:0: ' -
-     [ 0, Level, Func, File, Line ]],
-    [nl].
+    ['~*|%% ~s raised by foreign-function ~s(), at ~s:~d:0: ' -
+     [ 0, Level, Func, File, Line ],nl].
 caller(_, _Level) -->
     [].
 
 
 extra_info(Desc, _) -->
     {query_exception(errorMsg, Desc, Msg), Msg \= '', Msg \= "", Msg \= []},
-    !, ['~*|user provided data is: ~q' - [ 0, Msg ]],
-    [nl].
+    !, ['~*|%% user provided data is: ~q' - [ 0, Msg ],
+    nl].
 extra_info(_, _) -->
     [].
 
@@ -1002,11 +1014,9 @@ syntax_error_token('}', _, _LC) -->
 syntax_error_token(',', _, _LC) -->
     !,
     [', ' - []].
-syntax_error_token('.
-', _, _LC) -->
+syntax_error_token('.', _, _LC) -->
     !,
-    ['.
-' - []].
+    ['.' - []].
 syntax_error_token(';', _, _LC) -->
     !,
     ['; ' - []].
@@ -1342,52 +1352,55 @@ prolog:print_message(Severity, Msg) :-
     ).
 
 */
-prolog:print_message(Severity, Msg) :-
+prolog:print_message(Severity, Msg0) :-
     (
 	var(Severity)
     ->
     !,
-    format(user_error, 'malformed message ~q: message level is unbound~n', [Msg])
+    format(user_error, 'malformed message ~q: message level is unbound~n', 
+[Msg0])
     ;
-    var(Msg)
+    var(Msg0)
     ->
     !,
     format(user_error, 'uninstantiated message~n', [])
     ;
     Severity == silent
     ->
-    []
+    true
     ;
+    Msg0 =.. [IsError,Type,exception(Address)],
+    integer(Address)
+    ->    
+    '$info_to_list'(exception(Address),List),
+	'$close_error',
+    Msg =.. [IsError,Type,List],
+    print_message_(Severity, Msg)
+    ;
+    print_message_(Severity, Msg0)
+)   .
+                                                            
+print_message_(Severity, Msg) :-
     '$pred_exists'(portray_message(_,_),user),
-    user:portray_message(Severity, Msg)
-    ),
+    user:portray_message(Severity, Msg),
     !.
-
-prolog:print_message(Level, _Msg) :-
+print_message_(Level, _Msg) :-
     current_prolog_flag(compiling, true),
     current_prolog_flag(verbose_load, false),
     Level \= error,
     Level \= warning,
     !.
-
-prolog:print_message(Level, _Msg) :-
+print_message_(Level, _Msg) :-
     current_prolog_flag(verbose, silent),
     Level \= error,
     Level \= warning,
     !.
-
-prolog:print_message(_, _Msg) :-
+print_message_(_, _Msg) :-
     % first step at hook processing
     '__NB_getval__'('$if_skip_mode',skip,fail),
     !.
-
-
-%:- nb_setval(verbose,normal).
-
-
-prolog:print_message(Severity, Term) :-
+print_message_(Severity, Term) :-
     compose_message( Term, Severity, Lines0, [ end(Id)]),
-
     Lines = [begin(Severity, Id)| Lines0],
     (
 	user:message_hook(Term, Severity, Lines)
@@ -1398,11 +1411,7 @@ prolog:print_message(Severity, Term) :-
     prolog:print_message_lines(user_error, Prefix, Lines)
     ),
     !.
-
-
-
-
-prolog:print_message(_Severity, _Term) :-
+print_message_(_Severity, _Term) :-
     format(user_error,'failed to print ~w: ~w~n'  ,[ _Severity, _Term]).
 
 
@@ -1425,4 +1434,4 @@ query_exception(K,exception(E),V) :-
 /**
   @}
 */
->
+

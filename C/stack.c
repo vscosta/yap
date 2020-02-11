@@ -1248,7 +1248,7 @@ static Int current_stack(USES_REGS1) {
     return Yap_unify(ARG1, t);
 }
 
-#if LOW_PROF
+// #if LOW_PROF
 
 static void add_code_in_lu_index(LogUpdIndex *cl, PredEntry *pp) {
     char *code_end = (char *) cl + cl->ClSize;
@@ -1375,7 +1375,6 @@ void Yap_dump_code_area_for_profiler(void) {
                                   GPROF_INIT_FAIL);
 }
 
-#endif /* LOW_PROF */
 
 static Int program_continuation(USES_REGS1) {
     PredEntry *pe = EnvPreg((yamop *) ((ENV_Parent(ENV))[E_CP]));
@@ -2149,8 +2148,11 @@ char *DumpActiveGoals(USES_REGS1) {
     return pop_output_text_stack(lvl,buf);
 }
 
-  void DumpStack( USES_REGS1) {
-      fputs(DumpActiveGoals(PASS_REGS1), stderr);
+char *DumpStack( USES_REGS1) {
+    char *s = DumpActiveGoals(PASS_REGS1);
+      fputs(s, stderr);
+      fflush(stderr);
+      return s;
   }
 /**
  * Used for debugging.

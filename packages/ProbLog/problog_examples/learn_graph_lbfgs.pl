@@ -14,7 +14,7 @@
 % will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../problog_lbfgs').
+:- use_module(library(problog_lbfgs)).
 
 
  :- if(true).

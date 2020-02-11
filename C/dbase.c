@@ -3491,7 +3491,7 @@ static Int in_rdedp(USES_REGS1) {
   if (EndOfPAEntr(AtProp =
                       FetchDBPropFromKey(twork, MkCode, FALSE, "recorded/3"))) {
     if (b0 == B)
-      cut_fail();
+    { cut_fail();}
     else
       return FALSE;
   }
