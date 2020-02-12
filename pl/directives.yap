@@ -55,7 +55,7 @@
         '$module_transparent'/2]).
 
 :- use_system_module( '$_preddecls', ['$discontiguous'/2,
-        '$dynamic'/2]).
+				      '$dynamic'/2]).
 
 :- use_system_module( '$_preds', ['$noprofile'/2,
         '$public'/2]).

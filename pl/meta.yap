@@ -429,29 +429,17 @@ strip_module(M0:G, M,G1),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, DCP, AO).
-'$expand_goals'((A*->B;C),(A1*->B1;C1),
-		('$current_choice_point'(DCP),AO,yap_hacks:cut_at(DCP),BO; CO),HM,SM,BM,HVars) :-
-    !,
-    '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-    '$expand_goals'(C,C1,CO,HM,SM,BM,HVars),
-    '$clean_cuts'(AO0, DCP, AO).
-'$expand_goals'((A*->B),(A1*->B1),
-		('$current_choice_point'(DCP),AO,BO),HM,SM,BM,HVars) :-
-    !,
-    '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
-    '$clean_cuts'(AO0, DCP, AO).
 '$expand_goals'(true,true,true,_,_,_,_) :- !.
 '$expand_goals'(fail,fail,fail,_,_,_,_) :- !.
 '$expand_goals'([MH|L],Gs,NGs,_HM,_SM,BM,_) :-
     is_list(L),
     !,
     '$expand_consult'([MH|L],Gs,NGs,BM).
-'$expand_goals'(G, G1, GO, HM, SM, BM, HVars) :-
+'$expand_goals'(G, NG1, NGO, HM, SM, BM, HVars) :-
     '$yap_strip_module'(BM:G,  NBM, GM),
-    '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars).
-
+    '$expand_goal'(GM, G1, GO, HM, SM, NBM, HVars),
+    '$match_mod'(G1, HM, SM, NBM, NG1),
+    '$match_mod'(GO, HM, SM, NBM, NGO).
 
 '$expand_consult'([MHL],[M:F],'$csult'([F],M),BM) :-
     '$yap_strip_module'(BM:MHL,M,F).
@@ -464,15 +452,11 @@ strip_module(M0:G, M,G1),
 % expand arguments of a meta-predicate
 % $meta_expansion(ModuleWhereDefined,CurrentModule,Goal,ExpandedGoal,MetaVariables)
 
-expand_goal(G, O) :-
+expand_goal(G, GO) :-
     source_module(SM),
     '$yap_strip_module'(G, M, IG),
     '$expand_goals'(IG, _G1, GO, M, SM, M, []-IG*assert ),
-    !,
-    (SM == M -> O = GO ; O = M:GO).
-
-
-
+    !.
 
 
 '$expand_clause_body'(V,_, _NH1, _HM1, _SM, M, call(M:V), call(M:V) ) :-

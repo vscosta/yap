@@ -209,7 +209,11 @@
 	            do_learning/2,
 		    reset_learning/0,
 		    sigmoid/3,
-		    inv_sigmoid/3
+                   op( 550, yfx, :: ),
+                    op( 550, fx, ?:: ),
+                    op(1149, yfx, <-- ),
+                    op( 1150, fx, problog_table ),
+ 		    inv_sigmoid/3
 		    ]).
 
 % switch on all the checks to reduce bug searching time
@@ -226,15 +230,13 @@
 :- reexport(library(nb)).
 
 % load our own modules
-:- reexport(problog_learning_lbdd).
-:- use_module('problog/logger').
-:- use_module('problog/flags').
-:- use_module('problog/os').
-:- use_module('problog/print_learning').
-:- use_module('problog/utils_lbdd').
-:- use_module('problog/utils').
-:- use_module('problog/tabling').
-:- use_module(problog/lbdd).
+:- reexport(problog).
+:- use_module(problog/utils_learning).
+:- use_module(problog/flags).
+:- use_module(problog/logger).
+:- use_module(problog/print_learning).
+:- use_module(problog/utils).
+
 
 % used to indicate the state of the system
 :- dynamic(values_correct/0).
@@ -252,8 +254,8 @@
 :- dynamic(query_is_similar/2).
 :- dynamic(query_md5/3).
 
-%:- table user:example/4.
-:- multifile(user:example/4).
+:- table user:example/4.
+%:- multifile(user:example/4).
 :- multifile(user:problog_discard_example/1).
 user:example(A,B,Nr,=) :-
 	current_predicate(user:example/3),
@@ -370,7 +372,7 @@ reset_learning :-
 	retractall(values_correct),
 	retractall(current_iteration(_)),
 	retractall(example_count(_)),
-	retractall(query_probability_intern(_,_)),
+retractall(query_probability_intern(_,_)),
 %	retractall(query_gradient_intern(_,_,_,_)),
 	retractall(last_mse(_)),
 	retractall(query_is_similar(_,_)),
@@ -459,9 +461,9 @@ init_learning :-
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 	%current_probs <== array[TrainingExampleCount ] of floats,
 	%current_lls <== array[TrainingExampleCount ] of floats,
-	forall(tunable_fact(FactID,_GroundTruth),
-	       (user:edge(FactID,G1,G2,_),
-		user:example(_,gene(G1,G2),P)
+	forall(tunable_fact(FactID,Literal),
+	       (
+		user:example(_,Literal,P)
 	       ->
 		   set_fact_probability(FactID,P)
 	       ;

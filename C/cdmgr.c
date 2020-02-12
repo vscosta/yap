@@ -3565,18 +3565,28 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     UNLOCKPE(45, pe);
     return false;
   }
-  CELL *Terms = Yap_AddressFromHandle(yterms) + 1;
+  CELL *Terms = Yap_AddressFromHandle(yterms);
+  int i;
+  for (i=0;i<4;i++) {
+    XREGS[3+i] = Terms[i];
+  }
+      LOCAL_CurHandle = yterms;
+            if (pe->ModuleOfPred == PROLOG_MODULE) {
+              Yap_unify(ARG3, MkAtomTerm(AtomProlog));
+            } else {
+              Yap_unify(ARG3, pe->ModuleOfPred);
+            }
+    Term t = ARG4;
   if (pe->PredFlags & MegaClausePredFlag) {
     yamop *code = (yamop *)cl;
     rtn = Yap_MkMegaRefTerm(pe, code);
-    if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
-        !Yap_unify(Terms[2], rtn)) {
-        LOCAL_CurHandle = yterms;
+    if (!Yap_unify(ARG5, MkAtomTerm(AtomTrue)) ||
+        !Yap_unify(ARG6, rtn)) {
       UNLOCKPE(45, pe);
       return false;
     }
     if (arity) {
-      CELL *pt = RepAppl(Terms[0]) + 1;
+      CELL *pt = RepAppl(t) + 1;
       int i;
       for (i = 0; i < arity; i++) {
         XREGS[i + 1] = pt[i];
@@ -3589,20 +3599,28 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
         YENV[E_CB] = (CELL)B;
       }
       P = code;
+    } else {
+      if (!Yap_unify(ARG4,MkAtomTerm((Atom)pe->FunctorOfPred)))
+	return false;
+		     
     }
     UNLOCKPE(45, pe);
-      LOCAL_CurHandle = yterms;
       return true;
-  } else if (arity && cl->ClFlags & FactMask) {
+  } else if (cl->ClFlags & FactMask) {
     rtn = Yap_MkStaticRefTerm(cl, pe);
-    if (!Yap_unify(Terms[1], MkAtomTerm(AtomTrue)) ||
-        !Yap_unify(Terms[2], rtn)) {
+    if (!Yap_unify(ARG5, MkAtomTerm(AtomTrue)) ||
+        !Yap_unify(ARG6, rtn)) {
         LOCAL_CurHandle = yterms;
       UNLOCKPE(45, pe);
       return false;
     }
     int i;
-    CELL *s = RepAppl(Deref(Terms[0]))+1;
+    if (arity) {
+      Term hd = MkAtomTerm((Atom)pe->FunctorOfPred);
+      UNLOCKPE(45, pe);
+      return Yap_unify(ARG4,hd);
+		    }
+    CELL *s = RepAppl(Deref(t))+1;
     for (i = 0; i < arity; i++) {
       XREGS[i + 1] = s[i];
     }
@@ -3615,16 +3633,13 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     }
     P = cl->ClCode;
     UNLOCKPE(45, pe);
-      LOCAL_CurHandle = yterms;
     return true;
-  }
+  } 
   if (!(pe->PredFlags & SourcePredFlag)) {
     /* no source */
     rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
-    LOCAL_CurHandle = yterms;
-    bool rc = Yap_unify(Terms[2], rtn);
-      LOCAL_CurHandle = yterms;
+    bool rc = Yap_unify(ARG6, rtn);
     return rc;
   } else {
     Term t;
@@ -3659,18 +3674,15 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
     Term rtn = Yap_MkStaticRefTerm(cl, pe);
     UNLOCKPE(45, pe);
     bool rc;
-    Yap_DebugPlWriteln(t);
-    rc = Yap_unify(Terms[2], rtn);
+    rc = Yap_unify(ARG6, rtn);
     if (FunctorOfTerm(t) != FunctorAssert) {
-      rc = rc && Yap_unify(Terms[1], TermTrue);
+      rc = rc && Yap_unify(ARG5, TermTrue);
     } else {
-      rc = rc && Yap_unify(Terms[1], ArgOfTerm(2, t));
+      rc = rc && Yap_unify(ARG5, ArgOfTerm(2, t));
       t = ArgOfTerm(1, t);
     }
-    if (IsApplTerm(t)) {
-      rc = rc && Yap_unify(Terms[0], t);
-    }
-      LOCAL_CurHandle = yterms;
+  
+      rc = rc && Yap_unify(ARG4, t);
     return rc;
   }
 }

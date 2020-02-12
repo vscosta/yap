@@ -496,15 +496,9 @@ be lost.
 	Port,
 	'$handle_port'([Port,Port0], GoalNumber, G, M, Ctx, CP,  H)
     ).
-'$trace_goal_'(G, M, Ctx, GoalNumber, CP,H) :-
+'$trace_goal_'(G, M, _Ctx, _GoalNumber, _CP,_H) :-
    '$debugger_expand_meta_call'( M:G, [], MM:GM ),
-     gated_call(
-	       % debugging allowed.
-	'$handle_port'([call], GoalNumber, G, M, Ctx, CP,  H),
-	MM:GM,
-	Port,
-	       '$handle_port'([Port,Port], GoalNumber, G, M, Ctx, CP,  H)
-    ).
+        '$execute_nonstop'(GM,MM).
 
 '$creep_enumerate_sources'(Setup, M:Goal, B, Catcher, Cleanup) :-
     '$setup_call_catcher_cleanup'(Setup),

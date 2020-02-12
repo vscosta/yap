@@ -526,7 +526,7 @@ every 5th iteration only.
    set_problog_path(PD).
 
 
-:- PD = '/usxor/local/bin',
+:- PD = '/usr/local/bin',
 	set_problog_path(PD).
 
 
@@ -842,7 +842,9 @@ term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
 
 
 % handles probabilistic facts
-term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
+term_expansion_intern(P :: Goal,Module,
+		      [problog:ProbFact|Facts]) :-
+    writeln(P::Goal),
     copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
 	atomic_concat([problog_,Name],ProblogName),
@@ -854,7 +856,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 (nonvar(P), P = t(TrueProb))
 	->
 	 (
-	  assertz(tunable_fact(ID,TrueProb)),
+	  Facts=[tunable_fact(ID,TrueProb)|More],
 	  sample_initial_value_for_tunable_fact(Goal,LProb)
 	 );
 	 (
@@ -862,7 +864,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 ->
 	  EvalP is P, % allows one to use ground arithmetic expressions as probabilities
 	  LProb is log(P),
-	  assert_static(prob_for_id(ID,EvalP,LProb)); % Prob is fixed -- assert it for quick retrieval
+	   Facts=[prob_for_id(ID,EvalP,LProb)|MoreExtra] ; % Prob is fixed -- assert it for quick retrieval
 	  (
 				% Probability is a variable... check wether it appears in the term
 	   (
@@ -870,23 +872,24 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	   ->
 	    true;
 	    (
-	     format(user_error,'If you use probabilisitic facts with a variable as probabilility, the variable has to appear inside the fact.~n',[]),
+	     format(user_error,'If you use probabilistic facts with a variable as probabilility, the variable has to appear inside the fact.~n',[]),
 	     format(user_error,'You used ~q in your program.~2n',[P::Goal]),
 	     throw(non_ground_fact_error(P::Goal))
 	    )
 	   ),
 	   LProb=log(P),
-	   assertz(dynamic_probability_fact(ID)),
-	   assertz(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
+	   MoreExtra = [dynamic_probability_fact(ID),
+	   dynamic_probability_fact_extract(Goal_Copy,P_Copy)|Extra]
 	  )
 	 )
 	),
 	(
 	 ground(Goal)
 	->
-	 true;
-	 assertz(non_ground_fact(ID))
+	 Extra = [];
+	 Extra = [non_ground_fact(ID)]
 	),
+	writeln([problog:ProbFact|Facts]),
 	problog_predicate(Name, Arity, ProblogName,Module).
 
 
@@ -928,6 +931,7 @@ is_alternatives( Var ) :-
 	var( Var ),
 	!,
 	fail.
+
 is_alternatives( _Prob::_Alt ).
 is_alternatives( ( A1 ; As ) ) :-
 	is_alternatives( A1 ),
@@ -1046,7 +1050,7 @@ interval_merge((_ID,GroundID,_Type),Interval) :-
 problog_assert(P::Goal) :-
 	problog_assert(user,P::Goal).
 problog_assert(Module, P::Goal) :-
-	term_expansion_intern(P::Goal,Module,problog:ProbFact),
+    term_expansion_intern(P::Goal,Module,problog:ProbFact),
 	assertz(problog:ProbFact).
 
 problog_retractall(Goal) :-
@@ -1062,28 +1066,30 @@ problog_retractall(Goal) :-
 
 
 % introduce wrapper clause if predicate seen first time
-problog_predicate(Name, Arity, _,_) :-
-	problog_predicate(Name, Arity), !.
+problog_predicate(Name, Arity, _,_)-->
+    { problog_predicate(Name, Arity) },
+    !.
 
-problog_predicate(Name, Arity, ProblogName,Mod) :-
+problog_predicate(Name, Arity, ProblogName,Mod) -->
+    {
 	functor(OriginalGoal, Name, Arity),
 	OriginalGoal =.. [_|Args],
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
-	assertz( (Mod:OriginalGoal :-
+	ArityPlus2 is Arity+2,
+	dynamic(problog:ProblogName/ArityPlus2)
+    },
+   [  (Mod:OriginalGoal :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
 				prove_problog_fact(ID,ID2,Prob)
-		 )),
-
-	assertz( (Mod:problog_not(OriginalGoal) :-
+      ),
+      (Mod:problog_not(OriginalGoal) :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
                 prove_problog_fact_negated(ID,ID2,Prob)
-		 )),
-	assertz(problog_predicate(Name, Arity)),
-	ArityPlus2 is Arity+2,
-	dynamic(problog:ProblogName/ArityPlus2).
+		 ),
+    problog_predicate(Name, Arity) ].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Generating and storing the grounding IDs for

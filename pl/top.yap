@@ -572,11 +572,7 @@ write_query_answer( Bindings ) :-
 %% run top-level qieri
 %%
 '$user_call'(G, M, Port) :-
-    '$yap_strip_module'(M:G, M1,G1),
-    ( '$undefined'(G1,M1) ->
-      '$undefp_search'(M1:G1, M2:G2)
-    ;
-    M2:G2 = M1:G1),
+    '$yap_strip_module'(M:G, M2,G2),
     '$user_call_'(G2,M2,Port).
 
 '$user_call_'(G2,M2,Port) :-
