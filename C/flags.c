@@ -1703,7 +1703,7 @@ and `term` (that is, any ground term)
 `global` to the system.
 
 */
-static Int prolog_flag_property(USES_REGS1) { /* Init current_prolog_flag */
+static Int prolog_flag_property(USES_REGS1) { /* Initc urrent_prolog_flag */
   Term t1 = Deref(ARG1);
   /* make valgrind happy by always filling in memory */
   EXTRA_CBACK_ARG(2, 1) = MkIntTerm(0);

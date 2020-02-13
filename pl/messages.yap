@@ -292,6 +292,7 @@ location( E, Desc, Level, LC ) -->
     {simplify_pred(M:Na/Ar,FF)},
     [  '~*|~s:~d:0 ~s  at ~q:'-[0, File, FilePos,Level,FF],nl ],
     {NLC is LC},
+    
     location_consult( E, Desc,true, Level, NLC ) .
 location( E, Desc, Level, LC ) -->
     location_consult( E, Desc,_Found, Level, LC ) .
@@ -302,7 +303,7 @@ location_consult( E, Desc, _Found, Level, LC ) -->
 	query_exception(parserLine, Desc, LN)
     },
     !,
-    [ '~*|~s:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
+    [ '~*|~a:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
     {
 	NLC is LC + 4},
     location_c( E, Desc,true, Level, NLC ) .
@@ -403,7 +404,7 @@ output_variable_list([V = _ | SVs]) -->
 
 
 main_error_message(consistency_error(Who)) -->
-    ['~*|%% consistency_error: argument ~s not consistent with expected value' - 
+    ['~*|%% consistency_error: argument ~w not consistent with expected value' - 
 [ 0, Who ]].
 main_error_message(domain_error(Who, Type)) -->
     [ '~*|%% domain_error: ~q does not belong to domain ~s ' - [0, Type, Who] 
@@ -424,9 +425,9 @@ main_error_message(
     permission_error(Op, Type, Id)) -->
     [
         '~*|%% permission_error: value ~q is not allowed in ~s ~q %%' - [ 0, Op,
-Type, Id ], n
+Type, Id ],
     ]
-.
+	.
 main_error_message(instantiation_error) -->
     [ '~*|%% instantiation_error: unbound variable' - [0] ].
 main_error_message(

@@ -74,13 +74,24 @@ meta_predicate(P) :-
 '$install_meta_predicate'(P,M,_F,_N) :-
     '$new_meta_pred'(P, M),
     fail.
-
 '$install_meta_predicate'(_P,M,F,N) :-
-    ( M = prolog -> M2 = _ ; M2 = M),
+    (
+	M = prolog
+    ->
+    M2 = _
+    ;
+    M2 = M
+    ),
     retractall(prolog:'$meta_predicate'(F,M2,N,_)),
     fail.
 '$install_meta_predicate'(P,M,F,N) :-
-    ( M = prolog -> M2 = _ ; M2 = M),
+    (
+	M = prolog
+    ->
+    M2 = _
+    ;
+    M2 = M
+    ),
     assertz('$meta_predicate'(F,M2,N,P)).
 
 % comma has its own problems.
@@ -89,23 +100,29 @@ meta_predicate(P) :-
 %% new context module.
 '$is_mt'(H, B, HM, _SM, M, (context_module(CM),B), CM) :-
     '$yap_strip_module'(HM:H, M, NH),
-    '$module_transparent'(_, M, _, NH), !.
+    '$module_transparent'(_, M, _, NH),
+    !.
 '$is_mt'(_H, B, _HM, _SM, BM, B, BM).
-
-
 
 % I assume the clause has been processed, so the
 % var case is long gone! Yes :)
 '$clean_cuts'(G,('$current_choice_point'(DCP),NG)) :-
-    '$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
+    '$conj_has_cuts'(G,DCP,NG,OK),
+    OK == ok,
+    !.
 '$clean_cuts'(G,G).
 
 '$clean_cuts'(G,DCP,NG) :-
-    '$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
+    '$conj_has_cuts'(G,DCP,NG,OK),
+    OK == ok,
+    !.
 '$clean_cuts'(G,_,G).
 
-'$conj_has_cuts'(V,_,V, _) :- var(V), !.
-'$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :- !.
+'$conj_has_cuts'(V,_,V, _) :-
+    var(V),
+    !.
+'$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :-
+    !.
 '$conj_has_cuts'((G1,G2),DCP,(NG1,NG2), OK) :- !,
     '$conj_has_cuts'(G1, DCP, NG1, OK),
     '$conj_has_cuts'(G2, DCP, NG2, OK).
@@ -138,11 +155,12 @@ meta_predicate(P) :-
 '$module_u_vars'(_,_,[]).
 
 '$do_module_u_vars'(0,_,_,[]) :- !.
-'$do_module_u_vars'(I,D,H,LF) :-
-    arg(I,D,X), ( nonvar(X), X=':' -> true ; integer(X)),
-    arg(I,H,A), '$uvar'(A, LF, L), !,
+'$do_module_u_vars'(I,D,H,[X|LF]) :-
+    arg(I,D,X),
+var(X),
+    !,
     I1 is I-1,
-    '$do_module_u_vars'(I1,D,H,L).
+    '$do_module_u_vars'(I1,D,H,LF).
 '$do_module_u_vars'(I,D,H,L) :-
     I1 is I-1,
     '$do_module_u_vars'(I1,D,H,L).
@@ -151,7 +169,7 @@ meta_predicate(P) :-
 % support all/3
 '$uvar'(same( G, _), LF, L)  :-
     '$uvar'(G, LF, L).
-'$uvar'('^'( _, G), LF, L)  :-
+'$uvar'( _ ^ G , LF, L)  :-
     '$uvar'(G, LF, L).
 
 /**
@@ -247,8 +265,8 @@ meta_predicate(P) :-
 '$end_goal_expansion'(G0, M0N:G01, _HM, _SM, BM,
 		      H, compile) :-
     '$yap_strip_module'( BM:G0, M0N, G0N),
-   '$c_built_in'(G0N, M0N, H, G01),
-   !.
+    '$c_built_in'(G0N, M0N, H, G01),
+    !.
 '$end_goal_expansion'(G, HM:G, _HM, _SM, HM, _H, assert).
 
 
@@ -311,7 +329,7 @@ strip_module(M0:G, M,G1),
    !,
     (
 	lists:identical_member(V, HVars),
-    '$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
+	'$expand_goals'(call(V),NG,NGO,HM,SM,BM,HVars-H)
     ;
     atom(BM)
     ->
@@ -346,21 +364,6 @@ strip_module(M0:G, M,G1),
 '$expand_goals'((A,B),(A1,B1),(AO,BO),HM,SM,BM,HVars) :- !,
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :-
-    var(A), !,
-    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
-'$expand_goals'(
-    (A*->B),(A1*->B1),
-    (
-	yap_hacks:current_choicepoint(DCP),
-	AO,
-	yap_hacks:cut_at(DCP),BO
-    ),
-    HM,SM,BM,HVars) :- !,
-    '$expand_goals'(A,A1,AOO,HM,SM,BM,HVars),
-    '$clean_cuts'(AOO, AO),
-    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'(
     (A*->B;C),(A1*->B1;C1),
     (
@@ -375,7 +378,21 @@ strip_module(M0:G, M,G1),
     '$clean_cuts'(AOO, AO),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
     '$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
-'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :- !,
+'$expand_goals'(
+    (A->B;C),(A1->B1;C1),
+    (
+	yap_hacks:current_choicepoint(DCP),
+	AO,
+	'$$cut_by'(DCP),
+	BO
+    ;
+    CO
+    ),
+    HM,SM,BM,HVars) :-
+    '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
+    '$expand_goals'(B,B1,BO,HM,SM,BM,HVars),
+    '$expand_goals'(C,C1,CO,HM,SM,BM,HVars).
+'$expand_goals'((A;B),(A1;B1),(AO;BO),HM,SM,BM,HVars) :-
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars),
     '$expand_goals'(B,B1,BO,HM,SM,BM,HVars).
 '$expand_goals'((A|B),(A1|B1),(AO|BO),HM,SM,BM,HVars) :- !,
@@ -411,7 +428,7 @@ strip_module(M0:G, M,G1),
     !,
     '$expand_goals'(A,A1,AO,HM,SM,BM,HVars).
 '$expand_goals'(ignore(A),ignore(A1),
-		('$current_choice_point'(CP),AO,'$$cut_by'(CP)-> true ; true),HM,SM,BM,HVars) :-
+		('$current_choice_point'(CP),AO,'$$cut_by'(CP)->true ; true),HM,SM,BM,HVars) :-
     !,
     '$expand_goals'(A,A1,AO0,HM,SM,BM,HVars),
     '$clean_cuts'(AO0, AO).
@@ -502,11 +519,11 @@ expand_goal(G, GO) :-
 %%   ('__NB_getval__'(verbose,normal,fail)->writeln(B0);true),
     '$expand_clause_body'(B0,HVars-B0*Asserting, H, HM, SM0, SM0, B1, BO),
     (HM == SM0 ->
-	 User = (HO :- B1), Code = (HO :-BO)
+	 User = (HO :- B1),
+	 Code = (HO :-BO)
     ;
-    	 User = HO:(HM :- B1), Code = HM:(HO :-BO)
+    User = HO:(HM :- B1),
+    Code = HM:(HO :-BO)
     ).
-
-
     
 %% @}

@@ -689,16 +689,18 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     Yap_PutInHandle(ctx + 2, *bindp);
   };
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
-
+     close_stack(stt);
+   LOCAL_Error_TYPE = 0;
     stt->sz *= 2;
+    reinit_stack(sizeof(Ystack_t), stt->sz);
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
+    close_stack(stt);
 
     if (!Yap_growtrail(0, false)) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
     }
 
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
-    close_stack(stt);
     if (arenap) {
       size_t min_grow =
           (stt->restarts < 16 ? 16 * 1024 * stt->restarts * stt->restarts
