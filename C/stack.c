@@ -1781,7 +1781,7 @@ typedef struct buf_struct_t {
     lbufsz -= sz;                    \
     break;                        \
       }                            \
-      char *nbuf = Realloc(buf, bufsize += 1024);    \
+      char *nbuf = realloc(buf, bufsize += 1024);    \
       lbuf = nbuf + (lbuf-buf);                \
       buf  = nbuf;                    \
       lbufsz += 1024;                    \
@@ -1803,7 +1803,7 @@ static char *ADDSTR(const char *STR, struct buf_struct_t *bufp) {
 
         } \
 
-        char *nbuf = Realloc(buf, bufsize += 1024);    \
+        char *nbuf = realloc(buf, bufsize += 1024);    \
       lbuf = nbuf + (lbuf - buf);                \
       buf = nbuf;                    \
       lbufsz += 1024;                    \
@@ -1859,7 +1859,7 @@ const char *Yap_dump_stack(void) {
     CACHE_REGS
     int lvl = push_text_stack();
     struct buf_struct_t b, *bufp = &b;
-    buf = Malloc(4096);
+    buf = malloc(4096);
     lbuf = buf;
     bufsize = 4096;
     lbufsz = bufsize - 256;

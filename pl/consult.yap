@@ -1495,7 +1495,7 @@ If an error occurs, the error is printed and processing proceeds as if
 % This is complicated because of embedded ifs.
 %
 '$if'(_,top) :- !, fail.
-'$if'(_Goal,_) :-
+'$if'(_Goal,_) :-INIT
    '__NB_getval__'('$if_level',Level0,Level=0),
    Level is Level0 + 1,
    nb_setval('$if_level',Level),

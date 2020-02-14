@@ -215,7 +215,8 @@ static YAP_Term add_key_s(const char *key, const char *v, YAP_Term o0) {
   Term tkv[2];
   if (!v || v[0] == '\0')
     return o0;
-  tkv[1] = MkStringTerm(v), tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
+  tkv[1] = MkStringTerm(v);
+  tkv[0] = MkAtomTerm(Yap_LookupAtom(key));
   Term node = Yap_MkApplTerm(FunctorEq, 2, tkv);
   return MkPairTerm(node, o0);
 }

@@ -563,6 +563,7 @@ Restores a previously saved state of YAP contaianing a qly file  _F_.
 
 */
 qload_file( F0 ) :-
+    '$init_globals',
     ( current_prolog_flag(verbose_load, false)
       ->
 	Verbosity = silent
