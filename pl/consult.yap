@@ -1532,12 +1532,12 @@ Start `else' branch.
     '$do_error'(context_error(no_if),(:- else)).
 % we have done an if, so just skip
 '$else'(_) :-
-    nb_getval('$endif',endif(_Level,_,_)), !,
+    '__NB_getval__'('$endif',endif(_Level,_,_),fail), !,
     nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$else'(_) :-
    '__NB_getval__'('$if_level',Level,Level=0),
-   nb_getval('$endif',elif(Level,OldEndif,Mode)),
+   '__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
    nb_setval('$endif',endif(Level,OldEndif,Mode)),
    nb_setval('$if_skip_mode',run).
 
@@ -1554,20 +1554,20 @@ no test succeeds the else branch is processed.
     !,
     '$do_error'(context_error(no_if),(:- elif(Goal))).
 % we have done an if, so just skip
-    nb_getval('$endif',endif(_,_,_)), !,
+    '__NB_getval__'('$endif',endif(_,_,_), fail), !,
     nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$elif'(Goal,_) :-
-  '__NB_getval__'('$if_level',Level,fail),
+    '__NB_getval__'('$if_level',Level,fail),
 	'__NB_getval__'('$endif',elif(Level,OldEndif,Mode),fail),
 	('$if_call'(Goal)
 	    ->
-% we will not skip, and we will not run any more branches.
+        % we will not skip, and we will not run any more branches.
 		nb_setval('$endif',endif(Level,OldEndif,Mode)),
 		nb_setval('$if_skip_mode',run)
 	;
-% we will (keep) on skipping
-	nb_setval('$if_skip_mode',skip)
+        % we will (keep) on skipping
+        nb_setval('$if_skip_mode',skip)
 	).
 '$elif'(_,_).
 
@@ -1584,7 +1584,7 @@ End of conditional compilation.
 '$endif'(_) :-
 % back to where you belong.
     '__NB_getval__'('$if_level',Level,Level=0),
-    nb_getval('$endif',Endif),
+    '__NB_getval__'('$endif',Endif,fail),
     Level0 is Level-1,
     nb_setval('$if_level',Level0),
     arg(2,Endif,OldEndif),
