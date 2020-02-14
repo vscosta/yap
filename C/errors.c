@@ -1034,7 +1034,7 @@ yap_error_class_number Yap_errorNumber(yap_error_class_number c,
     free(tts);
   if (i != FILLER_ERROR_CLASS)
     return i;
-  return USER_EVENT;
+  return USER_ERROR;
 }
 
 const char *Yap_errorName(yap_error_number e) { return c_error_list[e].name; }
@@ -1206,12 +1206,12 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
 
     i->errorRawTerm = Yap_CopyTermToArena(t, &LOCAL_GlobalArena);
     if (!IsApplTerm(t)) {
-	i->errorNo = EVENT;
+	i->errorNo = USER_EVENT;
 	return i;
     }         
       Functor f = FunctorOfTerm(t);
       if (f != FunctorError) {
-	i->errorNo = EVENT;
+	i->errorNo = USER_EVENT;
 	return i;
       }
       t1 = ArgOfTerm(1, t);
@@ -1229,7 +1229,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
     i->classAsText = eclass;
     i->errorClass = Yap_errorClassNumber(eclass);
       if (i->errorClass == 0) {
-	i->errorNo = EVENT;
+	i->errorNo = USER_EVENT;
 	return i;
       }
     t11 = IsAtomTerm(t1) ? t1 : ArgOfTerm(1, t1);
@@ -1237,7 +1237,7 @@ yap_error_descriptor_t *Yap_UserError(Term t, yap_error_descriptor_t *i) {
     i->errorNo = Yap_errorNumber(i->errorClass, error, error2);
     i->errorAsText = error;
       if (i->errorClass == 0) {
-	i->errorNo = EVENT;
+	i->errorNo = USER_ERROR;
 	return i;
       }
 

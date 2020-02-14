@@ -885,7 +885,7 @@ db_files(Fs) :-
 	'$include'(F, Status),
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
-	b_getval('$lf_status', TOpts),
+	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$full_filename'(X, Y ),
 	'$including'(Old, Y),
 	'$lf_opt'(stream, TOpts, OldStream),
@@ -1377,7 +1377,7 @@ environment. Use initialization/2 for more flexible behavior.
     '$initialization'( G, after_load ).
 
 '$initialization_queue'(G) :-
-    b_getval('$lf_status', TOpts),
+	'__NB_getval__'('$lf_status', TOpts, fail),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_enqueue(Ref, G),
 	fail.

@@ -307,8 +307,6 @@ static Term GrowArena(Term arena, size_t size, UInt arity,
     arena = Yap_PopHandle(sla);
   }
   arena = CreateNewArena(RepAppl(arena), size + old_size);
-  cspace->arenaB = ArenaPt(arena);
-  cspace->arenaL = ArenaLimit(arena);
 
   return arena;
 }
@@ -676,12 +674,7 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
   };
   reset_trail(stt->tr0 PASS_REGS);
   arenap = stt->arenap;
-  if (arenap) {
-    *arenap = CloseArena(cs PASS_REGS);
-  } else {
-    HR = stt->hlow;
-  }
-  bindp = stt->bindp;
+   bindp = stt->bindp;
   t = *stt->t;
   ctx = Yap_NewHandles(3);
   Yap_PutInHandle(ctx, t);
@@ -689,17 +682,15 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
     Yap_PutInHandle(ctx + 2, *bindp);
   };
   if (LOCAL_Error_TYPE == RESOURCE_ERROR_AUXILIARY_STACK) {
-     close_stack(stt);
    LOCAL_Error_TYPE = 0;
     stt->sz *= 2;
-    reinit_stack(sizeof(Ystack_t), stt->sz);
+    reinit_stack((stt), stt->sz);
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_TRAIL) {
-    close_stack(stt);
 
     if (!Yap_growtrail(0, false)) {
       Yap_ThrowError(RESOURCE_ERROR_TRAIL, TermNil, "while visiting terms");
     }
-
+reset_stack(stt);
   } else if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
     if (arenap) {
       size_t min_grow =
@@ -715,6 +706,7 @@ bool Yap_visitor_error_handler(Ystack_t *stt, void *cs_) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "while visiting terms");
       }
     }
+    reset_stack(stt);
   }
   *stt->t = Yap_GetFromHandle(ctx);
   if (bindp) {
@@ -736,7 +728,8 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
     return t;
   }
   stt->sz = 1024;
-  while (true) {
+    init_stack(stt, stt->sz);
+    while (true) {
     CELL *ap = &t;
     //   DEB_DOOBIN(t);
     if (arenap) {
@@ -748,7 +741,6 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
     CELL *pf = HR;
     RESET_VARIABLE(HR);
     HR++;
-    init_stack(stt, stt->sz);
     LOCAL_Error_TYPE = 0;
     res = copy_complex_term(ap - 1, ap, share, copy_att_vars, &pf, bindp,
                             arenap, &cspace, stt PASS_REGS);
@@ -766,7 +758,13 @@ static Term CopyTermToArena(Term t, bool share, bool copy_att_vars, UInt arity,
       return tf;
     } else {
       LOCAL_Error_TYPE = res;
-      stt->t = &t;
+        if (arenap) {
+            HR=HB;
+            *arenap = CloseArena(&cspace PASS_REGS);
+        } else {
+            HR = stt->hlow;
+        }
+        stt->t = &t;
       stt->arenap = arenap;
       stt->bindp = bindp;
       Yap_visitor_error_handler(stt, &cspace);

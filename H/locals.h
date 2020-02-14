@@ -149,6 +149,8 @@ LOCAL_INIT(ADDR, db_vec, NULL);
 LOCAL_INIT(ADDR, db_vec0, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_root, NULL);
 LOCAL_INIT(struct RB_red_blk_node *, db_nil, NULL);
+LOCAL_INIT(CELL *, GC_min_regs, NULL);
+LOCAL_INIT(CELL *, GC_Max_regs, NULL);
 
 
 /* parser stack, used to be AuxSp, now is Malloc */

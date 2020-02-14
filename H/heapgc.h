@@ -19,7 +19,7 @@
 #ifndef HEAPGC_H
 #define HEAPGC_H 1
 
-
+#include "Yap.h"
 
 /* macros used by garbage collection */
 

@@ -369,21 +369,21 @@ flag_validate(_Flag, Value, _Type, M:Handler):-
   GoalValidate =.. [Handler, validate, Value],
   call(M:GoalValidate), !.
 
-flag_validate(_Flag, Value, Type, _M:Handler):-
+flag_validate(_Flag, Value, MT:Type, _M:Handler):-
   Handler \= true,
   GoalValidating =.. [Handler, validating, Value],
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  predicate_property(flags:G,_),
-  catch((GoalValidating, flags:G), _, fail), !.
-flag_validate(_Flag, Value, Type, _M:Handler):-
+  predicate_property(MT:G,_),
+  catch((GoalValidating, MT:G), _, fail), !.
+flag_validate(_Flag, Value, MT:Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-    predicate_property(flags:G,_),
-  catch(flags:G, _, fail), !.
+    predicate_property(MT:G,_),
+  catch(MT:G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
