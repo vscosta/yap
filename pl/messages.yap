@@ -303,7 +303,7 @@ location_consult( E, Desc, _Found, Level, LC ) -->
 	query_exception(parserLine, Desc, LN)
     },
     !,
-    [ '~*|~a:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
+    [ '~*|~s:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
     {
 	NLC is LC + 4},
     location_c( E, Desc,true, Level, NLC ) .

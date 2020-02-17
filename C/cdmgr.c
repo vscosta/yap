@@ -3656,7 +3656,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
           }
         } else {
           LOCAL_Error_TYPE = YAP_NO_ERROR;
-          if (!Yap_dogc(0, NULL)) {
+          if (!Yap_dogc(NULL, 0, NULL)) {
             UNLOCKPE(45, pe);
             Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
             return false;
@@ -3664,7 +3664,7 @@ static Int fetch_next_static_clause(PredEntry *pe, yamop *i_code, yamop *cp_ptr,
         }
       } else {
         LOCAL_Error_TYPE = YAP_NO_ERROR;
-        if (!Yap_dogc(0, NULL)) {
+        if (!Yap_dogc( NULL, 0, NULL)) {
           UNLOCKPE(45, pe);
           Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
           return FALSE;

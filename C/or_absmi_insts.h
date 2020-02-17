@@ -68,15 +68,12 @@
       SCH_set_load(pt1);
 #endif  /* YAPOR */
       SET_BB(pt1);
-      ENDCHO(pt1);
-      /* skip the current instruction plus the next one */
+       /* skip the current instruction plus the next one */
       PREG = NEXTOP(NEXTOP(PREG, Osblp),l);
       GONext();
-
-#ifdef COROUTINING
-    NoStackEither:
+   NoStackEither:
       PROCESS_INTERRUPT(interrupt_either, either_notest, PREG->y_u.Osblp.s);
-#endif
+ENDCHO(pt1);
 
       ENDD(d0);
       ENDOp();

@@ -935,7 +935,7 @@ static Int doformat(volatile Term otail, volatile Term oargs,
 				      break;
 				      case 'N':
 					if (!has_repeats)
-					  has_repeats = 1;
+					  repeats = 1;
 					if (GLOBAL_Stream[sno].linepos != 0) {
 					  f_putc(sno, '\n');
 					  sno = format_synch(sno, sno0, finfo);

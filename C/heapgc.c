@@ -389,7 +389,7 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
   int i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
   CELL_PTR ret = min;
-
+    *ret++ = LOCAL_GlobalArena;
   /* push array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
@@ -449,13 +449,7 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
       *ret++ = *curslot++;
     }
   }
-  for (i = 1; i <= num_regs; i++) {
-    ret = check_pr_trail(ret PASS_REGS);
- //     printf("X[%d] %p \n", i, TR);
-    *ret++ = (CELL)XREGS[i];
-  }
-#if 0
-  /* push any live registers we might have hanging around */
+   /* push any live registers we might have hanging around */
   if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
     CELL *lab = (CELL *)(nextop->y_u.l.l);
@@ -480,9 +474,11 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
   }
 
 
-
-
-#endif
+    for (i = 1; i <= num_regs; i++) {
+        ret = check_pr_trail(ret PASS_REGS);
+        //     printf("X[%d] %p \n", i, TR);
+        *ret++ = (CELL)XREGS[i];
+    }
   return ret;
 }
 
@@ -562,10 +558,8 @@ static void pop_registers(CELL_PTR min, CELL_PTR max, Int num_regs, yamop *nexto
     }
   }
 
-  for (i = 1; i <= num_regs; i++)
-    XREGS[i] = *ptr++;
   /* pop any live registers we might have hanging around */
-#if 0
+
 if (nextop->opc == Yap_opcode(_move_back) ||
       nextop->opc == Yap_opcode(_skip)) {
     CELL *lab = (CELL *)(nextop->y_u.l.l);
@@ -586,7 +580,7 @@ if (nextop->opc == Yap_opcode(_move_back) ||
       }
     }
   }
- #endif
+
 }
 
 #if DEBUG && COUNT_CELLS_MARKED
@@ -4049,7 +4043,7 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
-  if (gc_phase != LOCAL_GcCurrentPhase) {
+  if (true||gc_phase != LOCAL_GcCurrentPhase) {
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n",
@@ -4288,7 +4282,7 @@ bool Yap_expand(size_t sz USES_REGS) {
     if (sz < 4*K*K) sz *= 2; 
     else sz += 64*K*K;
   }
-  Yap_track_cpred(&info);
+  Yap_track_cpred(NULL, &info);
   return call_gc(sz * sizeof(CELL), &info PASS_REGS);
 }
 

@@ -248,9 +248,15 @@ failloop:
       } else {
         TR = pt0;
 
-Yap_CleanOpaqueVariable(d1);
 
-        goto failloop;
+Yap_CleanOpaqueVariable(d1);
+	
+ pt0 = TR;
+ TR = B->cp_tr;
+ //CACHE_TR();
+ S_TR = TR;
+ 
+   goto failloop;
       }
     }
 #ifdef FROZEN_STACKS /* TRAIL */
