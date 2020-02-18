@@ -946,7 +946,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     *pt1++ = d0;
     d0 = AbsAppl(HR);
     if (d1 > 16 && pt1+d1 > ENV - StackGap( PASS_REGS1 )) {
-      if (!Yap_dogc(3, NULL PASS_REGS)) {
+      if (!Yap_dogc(NULL,3, NULL PASS_REGS)) {
 	Yap_Error(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }

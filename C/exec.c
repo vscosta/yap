@@ -784,9 +784,9 @@ restart_exec:
     Atom a = AtomOfTerm(t);
     pe = PredPropByAtom(a, mod);
   } else if (IsApplTerm(t)) {
-    register Functor f = FunctorOfTerm(t);
-    register unsigned int i;
-    register CELL *pt;
+     Functor f = FunctorOfTerm(t);
+     unsigned int i;
+     CELL *pt;
 
     if (IsExtensionFunctor(f))
       return (FALSE);
@@ -905,7 +905,7 @@ static Int Yap_ignore(Term t, bool fail USES_REGS) {
   PredEntry *pe =
       Yap_get_pred(Yap_MkApplTerm(FunctorCall, 1, &t), TermProlog, "ïgnore");
   bool rc = Yap_execute_pred(pe, NULL, false);
-  if (!rc) {
+  if (!rc||fail) {
     complete_inner_computation((choiceptr)(LCL0 - oB));
     // We'll pass it through
   } else {
@@ -1018,14 +1018,6 @@ static bool watch_retry(Term d0 USES_REGS) {
   Term t, e = 0;
   bool ex_mode = false;
 
-  while (B && B->cp_ap &&
-         (B->cp_ap->opc == FAIL_OPCODE || B->cp_ap == TRUSTFAILCODE ||
-          B->cp_ap == NOCODE))
-    B = B->cp_b;
-  if (!B || B->cp_ap == NULL || B->cp_ap->opc == 0) {
-    B = (choiceptr)(LCL0 - (LOCAL_CBorder));
-    B--;
-  }
   ASP = (CELL *)PROTECT_FROZEN_B(B);
   // just do the frrpest
   if (B >= B0 && !ex_mode && !active) {
@@ -1051,7 +1043,8 @@ static bool watch_retry(Term d0 USES_REGS) {
 
   port_pt[0] = t;
   Yap_DisableInterrupts(worker_id);
-  Yap_ignore(cleanup, true);
+    fprintf(stderr,"%p--->%p\n",B,TR);  Yap_ignore(cleanup, true);
+  fprintf(stderr,"%p--->%p\n",B,TR);
   Yap_EnableInterrupts(worker_id);
   if (creeping) {
     Yap_signal(YAP_CREEP_SIGNAL);
@@ -1601,7 +1594,7 @@ static Int execute_depth_limit(USES_REGS1) {
 static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
   int lval = 0, out;
   Int OldBorder = LOCAL_CBorder;
-  Int old_b_fz = LCL0-(CELL*)B_FZ;
+//  Int old_b_fz = LCL0-(CELL*)B_FZ;
   yhandle_t OldHandleBorder = LOCAL_HandleBorder;
   //   yap_error_descriptor_t *err_info= LOCAL_ActiveError;
   LOCAL_CBorder = LCL0 - ENV;
@@ -1728,9 +1721,6 @@ static bool exec_absmi(bool top, yap_reset_t reset_mode USES_REGS) {
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-      BBREG = B_FZ = (choiceptr)(LCL0-old_b_fz);
-  TR_FZ = B_FZ->cp_tr;
-  H_FZ = B_FZ->cp_h;
 #endif /* FROZEN_STACKS */
  
   LOCAL_CBorder = OldBorder;
@@ -2272,27 +2262,36 @@ bool is_cleanup_cp(choiceptr cp_b) {
 }
 
 static Int JumpToEnv(USES_REGS1) {
-  choiceptr handler = B;
-  /* just keep the throwm object away, we don't need to care about it
-   */
-  /* careful, previous step may have caused a stack shift,
-     so get pointers here     */
-  /* find the first choicepoint that may be a catch */
-  // DBTerm *dbt = Yap_RefToException();
-  while (handler && handler->cp_ap &&
-         Yap_PredForChoicePt(handler, NULL) != PredDollarCatch &&
-         B_FZ > handler && handler->cp_ap != NOCODE && handler->cp_b != NULL) {
-    handler->cp_ap = TRUSTFAILCODE;
-    handler = handler->cp_b;
-  }
-  if (LOCAL_PrologMode & AsyncIntMode) {
-    Yap_signal(YAP_FAIL_SIGNAL);
-  }
+    choiceptr handler = B;
+    /* just keep the throwm object away, we don't need to care about it
+     */
+    /* careful, previous step may have caused a stack shift,
+       so get pointers here     */
+    /* find the first choicepoint that may be a catch */
+    // DBTerm *dbt = Yap_RefToException();
+    if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
+        while (handler->cp_b != NULL) {
+            // we're failing up to the top layer
+            handler = handler->cp_b;
+        }
+    } else {
+        while (handler->cp_ap != NOCODE
+               && handler->cp_b != NULL
+               && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
+               && handler->cp_b < (choiceptr) (LCL0 - LOCAL_CBorder)
+                ) {
+            handler->cp_ap = TRUSTFAILCODE;
+            handler = handler->cp_b;
+        }
+        if (LOCAL_PrologMode & AsyncIntMode) {
+            Yap_signal(YAP_FAIL_SIGNAL);
+        }
 
-  B = handler;
-  P = FAILCODE;
-  LOCAL_DoingUndefp = false;
-  return true;
+        B = handler;
+        P = FAILCODE;
+        LOCAL_DoingUndefp = false;
+    }
+    return false;
 }
 
 bool Yap_JumpToEnv(void) {
@@ -2316,20 +2315,6 @@ static Int jump_env(USES_REGS1) {
   //  __android_log_print(ANDROID_LOG_INFO, "YAPDroid ", " throw(%s)", buf);
   LOCAL_ActiveError = Yap_UserError(t0, LOCAL_ActiveError PASS_REGS);
   bool out = JumpToEnv(PASS_REGS1);
-  if (LOCAL_ActiveError->errorNo == ABORT_EVENT) {
-    if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE && B <= B_FZ) {
-      // we're failing up to the top layer
-    }
-  } else {
-    if (B != NULL && B >= B_FZ) {
-      // we're failing up to the top layer
-        B = B_FZ;
-    }
-  }
-  if (B != NULL && P == FAILCODE && B->cp_ap == NOCODE && B > B_FZ) {
-    // we're failing up to the top layer
-    B = B_FZ;
-  }
   pop_text_stack(LOCAL_MallocDepth + 1);
   return out;
 }
@@ -2432,48 +2417,58 @@ machine registers */
 #endif
 }
 
-void Yap_track_cpred(void *v) {
+void Yap_track_cpred(yamop *p, void *v) {
   gc_entry_info_t *i = v;
-
-  if (!P) {
-    i->env = ENV;
-    i->p = NULL;
-    i->p_env = CP;
-    i->a = 0;
-    i->op = 0;
+bool try = true;
+ if (!p) p = P;
+  i->p = p;
+  while (try) {
+    try = false;
+  i->op = i->p->opc;
+  if (i->op == Yap_opcode(_call_usercpred) ||
+      i->op == Yap_opcode(_call_cpred) ||
+          (i->op == Yap_opcode(_call)&&p)) {
+    i->env = YENV; // YENV should be tracking ENV
+    i->p_env = NEXTOP(p,Osbpp);
+    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
     return;
   }
-  if ((i->op = (i->p = PREVOP(P, Osbpp))->opc) == Yap_opcode(_call_usercpred) ||
-      i->op == Yap_opcode(_call_cpred) || i->op == Yap_opcode(_call)) {
-    i->env = ENV; // YENV should be tracking ENV
-    i->p_env = P;
-    i->a = i->p->y_u.Osbpp.p->ArityOfPE;
-  } else if ((i->op = (i->p = P)->opc) == Yap_opcode(_execute_cpred)) {
+  if (i->op == Yap_opcode(_execute_cpred)||
+          (p && (i->op == Yap_opcode(_execute)||
+      i->op == Yap_opcode(_dexecute)||
+                  i->op == Yap_opcode(_dexecute)
+                ))) {
     i->a = i->p->y_u.Osbpp.p->ArityOfPE;
     i->p_env = CP;
     i->env = ENV;
-  } else if ((i->op = (i->p = P)->opc) == Yap_opcode(_try_c) ||
+    return;
+  } else if (i->op == Yap_opcode(_try_c) ||
              i->op == Yap_opcode(_retry_c)) {
     i->a = P->y_u.OtapFs.s;
     i->p_env = CP;
     i->env = ENV;
-  } else {
-
+    return;
+  }
+if (p == NULL) {
+    try = true;
+    P = PREVOP(P,Osbpp);
+}
+  }
     i->env = ENV;
     i->p = P;
     i->p_env = CP;
     i->a = 0;
     i->op = 0;
   }
-}
 
-int Yap_dogc(arity_t args, Term *tp USES_REGS) {
+
+int Yap_dogc(yamop *p, arity_t args, Term *tp USES_REGS) {
   gc_entry_info_t info;
   arity_t arity = args;
 
-  Yap_track_cpred(&info);
+  Yap_track_cpred(p, &info);
   info.a = arity;
-  if (!Yap_gc(&info)) {
+  if (!Yap_gc( &info)) {
     return false;
   }
   return true;

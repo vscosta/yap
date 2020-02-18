@@ -27,7 +27,7 @@
    We next discuss several issues on trying to make Prolog programs run
    fast in YAP. We assume two different programming styles:
 
-   + Execution of <em>deterministic</em> programs often
+   + Exwaution of <em>deterministic</em> programs often
    boils down to a recursive loop of the form:
 
    ~~~~~
@@ -249,7 +249,7 @@ static int stack_overflow(PredEntry *pe, CELL *env, yamop *cp,
       Yap_get_signal(YAP_STOVF_SIGNAL)) {
     S = (CELL *)pe;
     // p should be past the enbironment mang Obpp
-    if (!Yap_dogc(live_regs(P, pe), NULL PASS_REGS)) {
+    if (!Yap_dogc(P, live_regs(P, pe), NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, "stack overflow: gc failed");
     }
     return INT_HANDLER_RET_JMP;
@@ -395,6 +395,7 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
   bool goal = false;
   bool wk = Yap_get_signal(YAP_WAKEUP_SIGNAL);
   bool creep = Yap_get_signal(YAP_CREEP_SIGNAL);
+  yamop *op = P, *ocp = CP;
   Term tg;
   
   if (plab) {
@@ -453,9 +454,7 @@ static bool interrupt_wake_up(Term  continuation, yamop *plab, Term cut_t USES_R
     return false;
   }
   CACHE_A1();
-  P = pe->CodeOfPred;
-  return true;
-}
+  return  Yap_execute_pred(pe, NULL,false PASS_REGS);}
 
 #if 0
 #define DEBUG_INTERRUPTS()
@@ -534,7 +533,7 @@ DEBUG_INTERRUPTS();
     return INT_HANDLER_RET_JMP;
   }
   // at this point P is already at the end of the instruction.
-  if ((v = stack_overflow(pe, YENV, CP,
+  if ((v = stack_overflow(pe, YENV, NEXTOP(P, Osbpp),
 			  pe->ArityOfPE PASS_REGS)) != INT_HANDLER_GO_ON ) {
     return INT_HANDLER_RET_JMP;
   } else {

@@ -469,6 +469,7 @@ UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
   if (t & MARK_BIT) {
     return TRUE;
   }
+    printf(" %p\n", ptr);
   bp[pos] = t | MARK_BIT;
   return FALSE;
 }
@@ -479,6 +480,7 @@ MARK__(CELL* ptr USES_REGS)
   Int pos = ptr - (CELL *)LOCAL_GlobalBase;
   char t = LOCAL_bp[pos];
   LOCAL_bp[pos] = t | MARK_BIT;
+  printf(" %p\n", ptr);
 }
 
 static inline void

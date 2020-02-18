@@ -218,7 +218,7 @@ static Term NewArena(UInt size, UInt arity, CELL *where, int wid) {
   WORKER_REGS(wid)
   if (where == NULL || where == HR) {
     while (HR + size > ASP - 2 * MIN_ARENA_SIZE) {
-      if (!Yap_dogc(0, NULL PASS_REGS)) {
+      if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }
@@ -1848,7 +1848,7 @@ static Int p_nb_heap(USES_REGS1) {
   while ((heap = MkZeroApplTerm(
               Yap_MkFunctor(AtomHeapData, 2 * hsize + HEAP_START + 1),
               2 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    if (!Yap_dogc(0, NULL PASS_REGS)) {
+    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0;
     }
@@ -2080,7 +2080,7 @@ static Int p_nb_beam(USES_REGS1) {
   while ((beam = MkZeroApplTerm(
               Yap_MkFunctor(AtomHeapData, 5 * hsize + HEAP_START + 1),
               5 * hsize + HEAP_START + 1 PASS_REGS)) == TermNil) {
-    if (!Yap_dogc(0, NULL PASS_REGS)) {
+    if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
       Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
       return 0;
     }
@@ -2424,7 +2424,7 @@ restart:
     return Yap_unify(ARG2, TermNil);
   for (i = 0; i < qsz; i++) {
     if (HR > ASP - 1024) {
-      if (!Yap_dogc(0, NULL PASS_REGS)) {
+      if (!Yap_dogc( NULL, 0, NULL PASS_REGS)) {
         Yap_ThrowError(RESOURCE_ERROR_STACK, TermNil, LOCAL_ErrorMessage);
         return 0;
       }

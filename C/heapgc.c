@@ -1,4 +1,4 @@
-/*************************************************************************
+/************************************************************************
  *									 *
  *	 YAP Prolog 							 *
  *									 *
@@ -16,7 +16,6 @@
 static char SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
-#include <heapgc.h>
 #include "absmi.h"
 #include "alloc.h"
 #include "attvar.h"
@@ -40,8 +39,8 @@ static void marking_phase(tr_fr_ptr, CELL *, yamop *CACHE_TYPE);
 static void compaction_phase(tr_fr_ptr, CELL *, yamop *CACHE_TYPE);
 static void init_dbtable(tr_fr_ptr CACHE_TYPE);
 static void mark_external_reference(CELL *CACHE_TYPE);
-static void mark_db_fixed(CELL *CACHE_TYPE);
-static void mark_regs(CELL_PTR, CELL_PTR CACHE_TYPE);
+static void mark_dbixed(CELL *CACHE_TYPE);
+static void mark_regs(tr_fr_ptr CACHE_TYPE);
 static void mark_trail(tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE);
 static void mark_environments(CELL *, size_t, CELL *, yamop * CACHE_TYPE);
 static void mark_choicepoints(choiceptr, tr_fr_ptr, bool CACHE_TYPE);
@@ -374,21 +373,25 @@ static inline void GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 
 /* find all accessible objects on the heap and squeeze out all the rest */
 
-static CELL_PTR check_pr_trail(CELL_PTR rc USES_REGS) {
+static tr_fr_ptr check_pr_trail(tr_fr_ptr rc USES_REGS) {
   if ((tr_fr_ptr)LOCAL_TrailTop - TR < 1024) {
+    size_t n = TR - rc;
+    if (!Yap_locked_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
       siglongjmp(LOCAL_gc_restore, 2);
     }
+    rc = TR - n;
+  }
   return rc;
 }
 
 /* push the active registers onto the trail for inclusion during gc */
 
-static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_REGS) {
+static tr_fr_ptr push_registers(Int num_regs, yamop *nextop USES_REGS) {
   int i;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
-  CELL_PTR ret = min;
+  tr_fr_ptr ret = TR;
 
   /* push array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
@@ -397,7 +400,7 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
   while (al) {
     ret = check_pr_trail(ret PASS_REGS);
  //   printf("al %p\n", TR);
-    *ret++ = al->ValueOfVE;
+    TrailTerm(TR++) = al->ValueOfVE;
     al = al->NextAE;
   }
   while (gl) {
@@ -406,7 +409,7 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
       ret = check_pr_trail(ret PASS_REGS);
     //printf("gl %p\n", TR);
       // fprintf(stderr,"in=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
-      *ret++ = t;
+      TrailTerm(TR++) = t;
     }
     gl = gl->NextGE;
   }
@@ -419,22 +422,24 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
             !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
           ret = check_pr_trail(ret PASS_REGS);
   //  printf("sal %p\n", TR);
-          *ret++ = tlive;
+          TrailTerm(TR++) = tlive;
         }
       }
     }
     sal = sal->NextAE;
   }
   ret = check_pr_trail(ret PASS_REGS);
-  *ret++ = LOCAL_GcGeneration;
+  TrailTerm(TR) = LOCAL_GcGeneration;
  //   printf("GcG %p\n", TR);
+  TR++;
   //  printf("GcGP %p\n", TR);
-  *ret++ = LOCAL_GcPhase;
+  TrailTerm(TR) = LOCAL_GcPhase;
+  TR++;
 #ifdef COROUTINING
-    printf("WP %p\n", ret);
-    ret[0] = LOCAL_WokenGoals;
-  ret[1] = LOCAL_AttsMutableList;
-  ret += 2;
+ //   printf("WP %p\n", TR);
+    TrailTerm(TR) = LOCAL_WokenGoals;
+  TrailTerm(TR + 1) = LOCAL_AttsMutableList;
+  TR += 2;
 #endif
   {
     CELL *curslot = LOCAL_SlotBase, *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
@@ -446,13 +451,13 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
         *curslot = TermFreeTerm;
       }
  //     printf("Sl %p %ld\n", TR, curslot-LOCAL_SlotBase);
-      *ret++ = *curslot++;
+      TrailTerm(TR++) = *curslot++;
     }
   }
   for (i = 1; i <= num_regs; i++) {
     ret = check_pr_trail(ret PASS_REGS);
  //     printf("X[%d] %p \n", i, TR);
-    *ret++ = (CELL)XREGS[i];
+    TrailTerm(TR++) = (CELL)XREGS[i];
   }
 #if 0
   /* push any live registers we might have hanging around */
@@ -472,65 +477,55 @@ static CELL_PTR push_registers(CELL_PTR min, Int num_regs, yamop *nextop USES_RE
         if (curr & 1) {
           ret = check_pr_trail(ret PASS_REGS);
 //	  printf("X[%ld] %p \n", i, TR);
-          *ret++ = XREGS[i];
+          TrailTerm(TR++) = XREGS[i];
         }
         curr >>= 1;
       }
     }
   }
-
-
-
-
 #endif
-  return ret;
-}
-
-
-static void pop_extras(USES_REGS1)
-{
-    /* pop info on opaque variables */
-    while (LOCAL_extra_gc_cells > LOCAL_extra_gc_cells_base) {
-        YAP_Opaque_CallOnGCRelocate f;
-        CELL *ptr = LOCAL_extra_gc_cells - 1;
-        size_t n = ptr[0], t = ptr[-1];
-
-        LOCAL_extra_gc_cells -= (n + 1);
-        if ((f = Yap_blob_gc_relocate_handler(t))) {
-            int out = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, n);
-            if (out < 0) {
-                /* error: we don't have enough room */
-                /* could not find more trail */
-                save_machine_regs();
-                siglongjmp(LOCAL_gc_restore, 4);
-            }
-        }
-    }
-
-
+return ret;
 }
 
 /* pop the corrected register values from the trail and update the registers */
 
-static void pop_registers(CELL_PTR min, CELL_PTR max, Int num_regs, yamop *nextop USES_REGS) {
+static void pop_registers(Int num_regs, yamop *nextop USES_REGS) {
   int i;
-  CELL_PTR ptr = min;
+  tr_fr_ptr ptr = TR;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
+
+  /* pop info on opaque variables */
+  while (LOCAL_extra_gc_cells > LOCAL_extra_gc_cells_base) {
+    YAP_Opaque_CallOnGCRelocate f;
+    CELL *ptr = LOCAL_extra_gc_cells - 1;
+    size_t n = ptr[0], t = ptr[-1];
+
+    LOCAL_extra_gc_cells -= (n + 1);
+    if ((f = Yap_blob_gc_relocate_handler(t))) {
+      int out = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, n);
+      if (out < 0) {
+        /* error: we don't have enough room */
+        /* could not find more trail */
+        save_machine_regs();
+        siglongjmp(LOCAL_gc_restore, 4);
+      }
+    }
+  }
 
   /* pop array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
 
-  LOCAL_GlobalArena = *ptr++;
+  LOCAL_GlobalArena = TrailTerm(ptr++);
   while (al) {
-    al->ValueOfVE = *ptr++;
+    al->ValueOfVE = TrailTerm(ptr++);
     al = al->NextAE;
   }
   while (gl) {
     Term t = gl->global;
     if (!IsUnboundVar(&gl->global) && !IsAtomTerm(t) && !IsIntTerm(t)) {
       // fprintf(stderr,"out=%s %p\n", gl->AtomOfGE->StrOfAE, gl->global);
-      gl->global = *ptr++;
+      gl->global = TrailTerm(ptr++);
     }
     gl = gl->NextGE;
   }
@@ -542,28 +537,31 @@ static void pop_registers(CELL_PTR min, CELL_PTR max, Int num_regs, yamop *nexto
         Term tlive = sal->ValueOfVE.lterms[i].tlive;
         if (!IsVarTerm(tlive) ||
             !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-          sal->ValueOfVE.lterms[i].tlive = *ptr++;
+          sal->ValueOfVE.lterms[i].tlive = TrailTerm(ptr++);
         }
       }
     }
     sal = sal->NextAE;
   }
-   LOCAL_GcGeneration = *ptr++;
-  LOCAL_GcPhase = *ptr++;
- printf("---- %p\n", ptr);
-  LOCAL_WokenGoals = *ptr++;
-  LOCAL_AttsMutableList = *ptr++;
+   LOCAL_GcGeneration = TrailTerm(ptr++);
+  LOCAL_GcPhase = TrailTerm(ptr++);
+#ifdef COROUTINING
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+  LOCAL_WokenGoals = TrailTerm(ptr++);
+  LOCAL_AttsMutableList = TrailTerm(ptr++);
+#endif
+#endif
 
   // copy slots back
   {
     CELL *curslot = LOCAL_SlotBase, *topslot = LOCAL_SlotBase + LOCAL_CurSlot;
     while (curslot < topslot) {
-      *curslot++ = *ptr++;
+      *curslot++ = TrailTerm(ptr++);
     }
   }
 
   for (i = 1; i <= num_regs; i++)
-    XREGS[i] = *ptr++;
+    XREGS[i] = TrailTerm(ptr++);
   /* pop any live registers we might have hanging around */
 #if 0
 if (nextop->opc == Yap_opcode(_move_back) ||
@@ -580,7 +578,7 @@ if (nextop->opc == Yap_opcode(_move_back) ||
           lab++;
         }
         if (curr & 1) {
-          XREGS[i] = *ptr++;
+          XREGS[i] = TrailTerm(ptr++);
         }
         curr >>= 1;
       }
@@ -597,6 +595,7 @@ static int count_cells_marked(void) {
   for (current = H; current > H0; current--) {
     if (MARKED_PTR(current)) {
       found_marked++;
+      printf("%p\n",current);
     }
   }
   return (found_marked);
@@ -911,7 +910,7 @@ static void init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
   MegaClause *mc = DeadMegaClauses;
   StaticIndex *si = DeadStaticIndices;
 
-  LOCAL_extra_gc_cells = LOCAL_extra_gc_cells_base = LOCAL_GC_Max_regs;
+  LOCAL_extra_gc_cells = LOCAL_extra_gc_cells_base = (CELL *)TR;
   LOCAL_extra_gc_cells_top =
       LOCAL_extra_gc_cells_base + LOCAL_extra_gc_cells_size;
   if ((char *)LOCAL_extra_gc_cells_top > LOCAL_TrailTop - 1024)
@@ -1433,13 +1432,13 @@ begin:
 
         /* size is given by functor + friends */
         if (next < LOCAL_HGEN) {
-          LOCAL_total_oldies += 2 + sz;
+          LOCAL_total_oldies += 1 + sz;
         } else {
           DEBUG_printf0("%p 1\n", next);
-          DEBUG_printf1("%p %ld\n", next, (long int)(sz + 2));
+          DEBUG_printf1("%p %ld\n", next, (long int)(sz + +1));
         }
         // fprintf(stderr,"%p M %d\n", next,2+sz);
-        LOCAL_total_marked += 2 + sz;
+        LOCAL_total_marked += 1 + sz;
         PUSH_POINTER(next PASS_REGS);
         sz++;
 #if DEBUG
@@ -1547,14 +1546,14 @@ void Yap_mark_external_reference(CELL *ptr) {
   mark_external_reference(ptr PASS_REGS);
 }
 
-static void mark_regs(CELL_PTR min, CELL_PTR Max USES_REGS) {
-  CELL_PTR ptr;
+static void mark_regs(tr_fr_ptr old_TR USES_REGS) {
+  tr_fr_ptr trail_ptr, tr = TR;
 
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
-  for (ptr = min; ptr < Max; ptr++) {
+  for (trail_ptr = old_TR; trail_ptr < tr; trail_ptr++) {
    // printf("%p\n", trail_ptr);
-    mark_external_reference(ptr PASS_REGS);
+    mark_external_reference(&TrailTerm(trail_ptr) PASS_REGS);
   }
 }
 
@@ -2504,6 +2503,24 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0, hp_in_use_erased = 0,
       code_entries = 0;
 #endif
+  CELL *ptr = LOCAL_extra_gc_cells;
+
+  while (ptr > LOCAL_extra_gc_cells_base) {
+    Int k = ptr[-1], i;
+    ptr = ptr - 1;
+
+    for (i = 0; i < k; i++) {
+      ptr--;
+      if (IN_BETWEEN(LOCAL_GlobalBase, ptr[0], LOCAL_TrailTop) &&
+          MARKED_PTR(ptr)) {
+        UNMARK(ptr);
+        if (HEAP_PTR(ptr[0])) {
+          into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
+        }
+      }
+    }
+  }
+
 #ifndef FROZEN_STACKS
   {
     choiceptr current = gc_B;
@@ -2548,6 +2565,19 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
     }
   }
 #endif /* FROZEN_STACKS */
+
+  /* first, whatever we dumped on the trail. Easier just to do
+     the registers separately?  */
+  for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
+    if (IN_BETWEEN(LOCAL_GlobalBase, TrailTerm(trail_ptr), LOCAL_TrailTop) &&
+        MARKED_PTR(&TrailTerm(trail_ptr))) {
+      UNMARK(&TrailTerm(trail_ptr));
+      if (HEAP_PTR(TrailTerm(trail_ptr))) {
+        into_relocation_chain(&TrailTerm(trail_ptr),
+                              GET_NEXT(TrailTerm(trail_ptr)) PASS_REGS);
+      }
+    }
+  }
 
   /* next, follows the real trail entries */
   trail_ptr = (tr_fr_ptr)LOCAL_TrailBase;
@@ -2835,41 +2865,6 @@ static void sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS) {
   CleanDeadClauses(PASS_REGS1);
 }
 
-/* insert trail cells which point to heap objects into relocation chains */
-
-static void sweep_extras(USES_REGS1) {
-    CELL *ptr = LOCAL_extra_gc_cells;
-
-    while (ptr > LOCAL_extra_gc_cells_base) {
-        Int k = ptr[-1], i;
-        ptr = ptr - 1;
-
-        for (i = 0; i < k; i++) {
-            ptr--;
-            if (IN_BETWEEN(LOCAL_GlobalBase, ptr[0], LOCAL_TrailTop) &&
-                MARKED_PTR(ptr)) {
-                UNMARK(ptr);
-                if (HEAP_PTR(ptr[0])) {
-                    into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
-                }
-            }
-        }
-    }
-}
-
-static void sweep_regs(CELL_PTR min, CELL_PTR max USES_REGS) {
-CELL_PTR ptr;
-    /* first, whatever we dumped on the trail. Easier just to do
-       the registers separately?  */
-    for (ptr = min; ptr < max; ptr++) {
-        if (IN_BETWEEN(LOCAL_GlobalBase, *ptr, LOCAL_TrailTop) &&
-            MARKED_PTR(ptr)) {
-            UNMARK(ptr);
-                                                                                                                                                                  into_relocation_chain(ptr,
-                                      GET_NEXT(*ptr PASS_REGS));
-            }
-        }
-}
 /*
  * insert cells of a chain of environments which point to heap objects into
  * relocation chains
@@ -3652,19 +3647,21 @@ static void icompact_heap(USES_REGS1) {
       /* use the first cell after the functor for all our dirty tricks  */
       ptr = iptr[-1] + 1;
       nofcells = current - ptr;
-#ifdef DEBUG
-      found_marked += (nofcells + 1);
-#endif /* DEBUG */
       dest -= nofcells + 1;
       /* this one's being used */
       /* make the second step see the EndSpecial tag */
       current[0] = ptr[0];
+#ifdef DEBUG
+      found_marked += (nofcells + 1);
+      fprintf(stderr,"%p  %d\n", current,nofcells+1);
+#endif /* DEBUG */
       ptr[0] = EndSpecials;
       iptr[0] = ptr;
       continue;
     }
 #ifdef DEBUG
     found_marked++;
+    fprintf(stderr,"%p  %d\n", current,1);
 #endif /* DEBUG */
     update_relocation_chain(current, dest PASS_REGS);
     if (HEAP_PTR(*current)) {
@@ -3744,7 +3741,7 @@ static void icompact_heap(USES_REGS1) {
   }
 #ifdef DEBUG
   if (H0 + LOCAL_total_marked != dest)
-    fprintf(stderr, "%% Downward (%lu): %p total against %p found\n",
+    fprintf(stderr, "%% Downward (%lu): %p total against %p foundn",
             (unsigned long int)LOCAL_GcCalls, H0 + LOCAL_total_marked, dest);
   if (LOCAL_total_marked != found_marked)
     fprintf(stderr, "%% Downward (%lu): %lu total against %lu found\n",
@@ -3799,7 +3796,7 @@ static void marking_phase(tr_fr_ptr old_TR, CELL *current_env,
   LOCAL_cont_top = (cont *)LOCAL_db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  mark_regs(LOCAL_GC_min_regs, LOCAL_GC_Max_regs PASS_REGS); /* active registers & trail */
+  mark_regs(old_TR PASS_REGS); /* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   mark_choicepoints(B, old_TR,
@@ -3853,8 +3850,6 @@ static void compaction_phase(tr_fr_ptr old_TR, CELL *current_env,
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp), curp PASS_REGS);
   sweep_choicepoints(B PASS_REGS);
   sweep_trail(B, old_TR PASS_REGS);
-  sweep_regs(LOCAL_GC_min_regs, LOCAL_GC_Max_regs USES_REGS);
-  sweep_extras();
 #ifdef HYBRID_SCHEME
   if (icompact) {
 #ifdef DEBUG
@@ -4054,9 +4049,7 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n",
    * IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration)), LOCAL_HGEN, H,H0);*/
-  LOCAL_OldTR = old_TR = TR;
-  LOCAL_GC_min_regs = (CELL_PTR)TR;
-  LOCAL_GC_Max_regs = push_registers(LOCAL_GC_min_regs, predarity, nextop PASS_REGS);
+  LOCAL_OldTR = old_TR = push_registers(predarity, nextop PASS_REGS);
   /* make sure we clean bits after a reset */
   marking_phase(old_TR, current_env, nextop PASS_REGS);
   if (LOCAL_total_oldies > ((LOCAL_HGEN - H0) * 8) / 10) {
@@ -4110,7 +4103,8 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
   }
   time_start = m_time;
   compaction_phase(old_TR, current_env, nextop PASS_REGS);
-  pop_registers(LOCAL_GC_min_regs, LOCAL_GC_Max_regs, predarity, nextop PASS_REGS);
+  TR = old_TR;
+  pop_registers(predarity, nextop PASS_REGS);
   TR = LOCAL_new_TR;
   /*  fprintf(stderr,"NEW LOCAL_HGEN %ld (%ld)\n", H-H0, LOCAL_HGEN-H0);*/
   {
@@ -4208,7 +4202,7 @@ static int call_gc(UInt gc_lim, gc_entry_info_t *i USES_REGS) {
   }
   if (gc_margin < gc_lim)
     gc_margin = gc_lim;
-  LOCAL_HGEN = VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
+  LOCAL_HGEN = H0;VarOfTerm(Yap_ReadTimedVar(LOCAL_GcGeneration));
   if (gc_on && !(LOCAL_PrologMode & InErrorMode) &&
       /* make sure there is a point in collecting the heap */
       (ASP - H0) * sizeof(CELL) > gc_lim &&
@@ -4288,7 +4282,7 @@ bool Yap_expand(size_t sz USES_REGS) {
     if (sz < 4*K*K) sz *= 2; 
     else sz += 64*K*K;
   }
-  Yap_track_cpred(&info);
+  Yap_track_cpred(NULL, &info);
   return call_gc(sz * sizeof(CELL), &info PASS_REGS);
 }
 

@@ -367,8 +367,7 @@ bool low_level_trace__(yap_low_level_port port, PredEntry *pred, CELL *args) {
     printf("\n");
   }
 #endif
-  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " %p ", vsc_count,
-                LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0, (CELL*)LCL0[-297]);
+  b += snprintf(b, top - b, "%llu " UInt_FORMAT "---" UInt_FORMAT " "UInt_FORMAT " ", vsc_count, LCL0 - (CELL *)B, TR-(tr_fr_ptr)LCL0, B->cp_tr-(tr_fr_ptr)LCL0);
   b += snprintf(b, top - b, Int_FORMAT " ", LOCAL_CurHandle);
 #if defined(THREADS) || defined(YAPOR)
   b += snprintf(b, top - b, "(%d)", worker_id);

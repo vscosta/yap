@@ -303,7 +303,7 @@ location_consult( E, Desc, _Found, Level, LC ) -->
 	query_exception(parserLine, Desc, LN)
     },
     !,
-    [ '~*|~a:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
+    [ '~*|~s:~d:~d: ~s: found while consulting' - [0,FileName,LN,0,Level], nl ],
     {
 	NLC is LC + 4},
     location_c( E, Desc,true, Level, NLC ) .
@@ -425,9 +425,8 @@ main_error_message(
     permission_error(Op, Type, Id)) -->
     [
         '~*|%% permission_error: value ~q is not allowed in ~s ~q %%' - [ 0, Op,
-Type, Id ],
-    ]
-	.
+Type, Id ]
+    ].
 main_error_message(instantiation_error) -->
     [ '~*|%% instantiation_error: unbound variable' - [0] ].
 main_error_message(
@@ -1100,8 +1099,7 @@ print_lines_(Fmt - Args, S, Prefixes, Key) -->
     {format(S, Fmt, Args)},
     print_lines(S, Prefixes, Key).
 % deprecated
-print_lines_(Fmt, S, Prefixes, Key) -->
-    
+print_lines_(Fmt, S, Prefixes, Key) -->    
     {
 	atom(Fmt);
 	string(Fmt)
@@ -1109,7 +1107,6 @@ print_lines_(Fmt, S, Prefixes, Key) -->
     !,
     { format(S, Fmt, []) },
     print_lines(S, Prefixes, Key).
-
 print_lines_(Msg, S, _Prefixes, _Key) -->
     { format(S, 'Illegal message Component: ~q !!!.~n', [Msg]) }.
 
