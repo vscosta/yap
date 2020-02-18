@@ -847,7 +847,7 @@ db_files(Fs) :-
 	),
    fail.
 '$exec_initialization_goals' :-
-	'__NB_getval__'('$lf_status', TOpts, fail),
+	'__NB_getval__'('$lf_status', TOpts, 2=3 ),
 	'$lf_opt'( initialization, TOpts, Ref),
 	nb:nb_queue_close(Ref, Answers, []),
 	'$process_init_goal'(Answers).
