@@ -2276,8 +2276,9 @@ static Int JumpToEnv(USES_REGS1) {
         }
     } else {
         while (handler->cp_ap != NOCODE
-               && handler->cp_b != NULL
                && Yap_PredForChoicePt(handler, NULL) != PredDollarCatch
+               && Yap_PredForChoicePt(handler, NULL) != PredHandleThrow
+               && handler->cp_b != NULL
                && handler->cp_b < (choiceptr) (LCL0 - LOCAL_CBorder)
                 ) {
             handler->cp_ap = TRUSTFAILCODE;
@@ -2419,11 +2420,17 @@ machine registers */
 
 void Yap_track_cpred(yamop *p, void *v) {
   gc_entry_info_t *i = v;
-bool try = true;
- if (!p) p = P;
+  if (p == NULL&&
+      (i->p = PREVOP(P,Osbpp)) &&
+      (i->op = i->p->opc)&&
+      (i->op == Yap_opcode(_call_usercpred) ||
+       i->op == Yap_opcode(_call_cpred))) {
+    p = i->p;
+  } else {
+    p = P;
+  }
   i->p = p;
-  while (try) {
-    try = false;
+ 
   i->op = i->p->opc;
   if (i->op == Yap_opcode(_call_usercpred) ||
       i->op == Yap_opcode(_call_cpred) ||
@@ -2443,16 +2450,13 @@ bool try = true;
     i->env = ENV;
     return;
   } else if (i->op == Yap_opcode(_try_c) ||
-             i->op == Yap_opcode(_retry_c)) {
+             i->op == Yap_opcode(_retry_c) ||
+	     i->op == Yap_opcode(_try_userc) ||
+             i->op == Yap_opcode(_retry_userc)) {
     i->a = P->y_u.OtapFs.s;
     i->p_env = CP;
     i->env = ENV;
     return;
-  }
-if (p == NULL) {
-    try = true;
-    P = PREVOP(P,Osbpp);
-}
   }
     i->env = ENV;
     i->p = P;

@@ -511,8 +511,8 @@ expand_goal(G, GO) :-
 % has to be last!!!
  % MHB is the original clause, SM0 the current source, Cl1 and ClO output clauses
 '$expand_clause'(HB, Asserting, User, Code ) :-
-    source_module(SM0),
-    '$head_and_body'(HB, MHH, B0),           % HB is H :- B.
+        '$yap_strip_module'(HB, SM0, HB1), % further module expansion
+    '$head_and_body'(HB1, MHH, B0),           % HB is H :- B.
     '$yap_strip_module'(MHH, HM0, H), % further module expansion
     '$module_u_vars'(HM0, H,  HVars),	 % collect head variables in
     '$expand_head'(H, HO, HM0, HM),
@@ -522,8 +522,7 @@ expand_goal(G, GO) :-
 	 User = (HO :- B1),
 	 Code = (HO :-BO)
     ;
-    User = HO:(HM :- B1),
+    User = HM:(HO :- B1),
     Code = HM:(HO :-BO)
     ).
-    
 %% @}

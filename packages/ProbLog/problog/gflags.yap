@@ -244,9 +244,10 @@
                  flag_store/2,         % sets flag with no validation, useful for handler
                  flag_get/2,
                  flags_reset/0]).
-/*
-:- meta_predicate flag_add_validation_syntactic_sugar/2(:,+),
-		  flag_define(+,:,+,+),
+
+:- meta_predicate flag_add_validation_syntactic_sugar/2(:,+).
+
+/*		  flag_define(+,:,+,+),
 		  flag_define(+,+,:,+,+),
 		  flag_define(+,+,:,+,:,+).
 */

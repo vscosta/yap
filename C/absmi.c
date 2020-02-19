@@ -733,7 +733,7 @@ static int interrupt_dexecute(USES_REGS1) {
   if ((v = code_overflow(YENV PASS_REGS)) != INT_HANDLER_GO_ON) {
     return v;
   }
-  if ((v = stack_overflow(P->y_u.Osbpp.p, (CELL *)YENV[E_E], (yamop *)YENV[E_CP],
+  if ((v = stack_overflow(P->y_u.Osbpp.p, ENV, CP, //(CELL *)YENV[E_E], (yamop *)YENV[E_CP],
 				  P->y_u.Osbpp.p->ArityOfPE PASS_REGS))  != INT_HANDLER_GO_ON) {
     return v;
   }
@@ -1202,7 +1202,7 @@ Int Yap_absmi(int inp) {
     }
   }
 #else
-
+  
 #if PUSH_REGS
   restore_absmi_regs(old_regs);
 #endif
