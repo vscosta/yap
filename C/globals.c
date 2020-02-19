@@ -1557,7 +1557,7 @@ static Int p_nb_create2(USES_REGS1) {
  * $array(Arena,Start,End,Size) plus an Arena. */
 
 static Int nb_queue(UInt arena_sz USES_REGS) {
-  Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
+  Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY];
   Term t = Deref(ARG1);
   LOCAL_DepthArenas++;
   if (!IsVarTerm(t)) {
@@ -1568,18 +1568,15 @@ static Int nb_queue(UInt arena_sz USES_REGS) {
   }
   ar[QUEUE_ARENA] = ar[QUEUE_HEAD] = ar[QUEUE_TAIL] = ar[QUEUE_SIZE] =
       MkIntTerm(0);
-  queue = Yap_MkApplTerm(FunctorNBQueue, QUEUE_FUNCTOR_ARITY, ar);
-  if (!Yap_unify(queue, ARG1))
-    return FALSE;
-  if (arena_sz < 32 * 1024)
+    if (arena_sz < 32 * 1024)
     arena_sz = 32 * 1024;
   queue_arena = NewArena(arena_sz, 1, NULL, worker_id);
   if (queue_arena == 0L) {
     return FALSE;
   }
-  nar = RepAppl(Deref(ARG1)) + 1;
-  nar[QUEUE_ARENA] = queue_arena;
-  return true;
+  ar[QUEUE_ARENA] = queue_arena;
+  queue = Yap_MkApplTerm(FunctorNBQueue, QUEUE_FUNCTOR_ARITY, ar);
+  return Yap_unify(queue, ARG1);
 }
 
 static Int p_nb_queue(USES_REGS1) {

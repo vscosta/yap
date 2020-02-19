@@ -1432,15 +1432,14 @@ begin:
 
         /* size is given by functor + friends */
         if (next < LOCAL_HGEN) {
-          LOCAL_total_oldies += 1 + sz;
+          LOCAL_total_oldies += 2 + sz;
         } else {
           DEBUG_printf0("%p 1\n", next);
-          DEBUG_printf1("%p %ld\n", next, (long int)(sz + +1));
+          DEBUG_printf1("%p %ld\n", next, (long int)(sz + 2));
         }
         // fprintf(stderr,"%p M %d\n", next,2+sz);
-        LOCAL_total_marked += 1 + sz;
-        PUSH_POINTER(next PASS_REGS);
-        sz++;
+        LOCAL_total_marked += 2 + sz;
+              sz++;
 #if DEBUG
         if (next[sz] != EndSpecials) {
           fprintf(
@@ -1451,7 +1450,8 @@ begin:
         }
 #endif
         MARK(next + sz);
-        PUSH_POINTER(next + sz PASS_REGS);
+	PUSH_POINTER(next PASS_REGS);
+	PUSH_POINTER(next + sz PASS_REGS);
       }
       default:
         POP_CONTINUATION();
@@ -3653,7 +3653,7 @@ static void icompact_heap(USES_REGS1) {
       current[0] = ptr[0];
 #ifdef DEBUG
       found_marked += (nofcells + 1);
-      fprintf(stderr,"%p  %d\n", current,nofcells+1);
+      //fprintf(stderr,"%p  %d\n", current,nofcells+1);
 #endif /* DEBUG */
       ptr[0] = EndSpecials;
       iptr[0] = ptr;
@@ -3661,7 +3661,7 @@ static void icompact_heap(USES_REGS1) {
     }
 #ifdef DEBUG
     found_marked++;
-    fprintf(stderr,"%p  %d\n", current,1);
+    //fprintf(stderr,"%p  %d\n", current,1);
 #endif /* DEBUG */
     update_relocation_chain(current, dest PASS_REGS);
     if (HEAP_PTR(*current)) {
@@ -4044,7 +4044,7 @@ static int do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS) {
 
   gc_phase = (UInt)IntegerOfTerm(Yap_ReadTimedVar(LOCAL_GcPhase));
   /* old LOCAL_HGEN are not very reliable, but still may have data to recover */
-  if (gc_phase != LOCAL_GcCurrentPhase) {
+  if (true ||gc_phase != LOCAL_GcCurrentPhase) {
     LOCAL_HGEN = H0;
   }
   /*  fprintf(stderr,"LOCAL_HGEN is %ld, %p, %p/%p\n",
