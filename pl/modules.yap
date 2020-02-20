@@ -75,6 +75,8 @@
 
 :- multifile '$system_module'/1.
 
+:- dynamic '$parent_module'/2.
+:- multifile '$parent_module'/2.
 
 :- '$purge_clauses'(module(_,_), prolog).
 :- '$purge_clauses'('$module'(_,_), prolog).

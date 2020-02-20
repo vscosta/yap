@@ -2491,10 +2491,9 @@ static Int mk_dynamic(USES_REGS1) { /* '$make_dynamic'(+P)	 */
     addcl_permission_error(__FILE__, __FUNCTION__, __LINE__, pe, FALSE);
     return false;
   }
-  if (pe->OpcodeOfPred == UNDEF_OPCODE) {
-    pe->OpcodeOfPred = FAIL_OPCODE;
-    pe->PredFlags &= ~UndefPredFlag;
-  }
+  pe->TrueCodeOfPred = pe->CodeOfPred= FAILCODE;
+  pe->OpcodeOfPred = FAIL_OPCODE;
+  pe->PredFlags &= ~UndefPredFlag;
   pe->src.OwnerFile = Yap_ConsultingFile(PASS_REGS1);
   pe->PredFlags |= LogUpdatePredFlag;
   UNLOCKPE(50, pe);
